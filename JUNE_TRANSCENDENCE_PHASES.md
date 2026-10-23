@@ -681,6 +681,45 @@ check on cast, so the cool-time cannot be seen in the slot UI itself, only in th
 - **Roll 0.469 (06:35:22):** 22058's cool-time `2.84 -> 0.00`; 820 off after 10.0 s `ended by time`, glows removed.
 - **Outside the buff:** TC casts at 1.00. 0 ErrorLog lines, 0 exceptions. The two `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
 
+### T6b - Review (2026-10-24, Opus 5.5)
+
+**Verdict: PASS, no fix**, and `_DEBUG` is retired. Ghidra was read-only. Constants were read from `unpacked_x2.exe`'s bytes.
+
+Checked against June:
+- **`322d8100`.** The loop is `i` 0-9 with `i + 1 == 5 / 10`, and B is set at `i = 9` and never cleared, as in the port. The early return sits at `322d81d3-322d8207`: the select unit
+  `+0x494` skill tree's `32890ee0( 1 )` is false and ( B, or unit `+0x3c == 0` ). Type A is `+0x116` and swap is `+0x115`, with the same bar test. The templet type is not `0xd` / `0xc`; March's enum
+  gives `ST_RELATIONSHIP_SKILL` = 12 and `ST_HYPER_ACTIVE_SKILL` = 13 (with `FINALITY_SKILL_SYSTEM`). `GetRemainHyperModeTime` is compared with `FCOMP float [3342e84c]` = 0.0, then
+  `HaveUnfinishedBuff( 0x334 )` and `JuneCanShowClassGuide( 4 )` (`31d71810`). Position: picture pos + dialog (`CX2Game +0x714`) pos + size x 0.5 (`3342ebc8` = 0.5); with swap, B +47 / A -47
+  (`3348a580` = 47.0). The move test is `> 0.1` (`334395e8`). Add / move-and-store / remove are the same.
+- **UI manager.** `32154f60`'s type 4 period is `3346ede8` = 9999.0 (the others `33437778` = 2.0). `321536e0` removes an existing entry, inserts it, and sets the timer to 0 (inserting it if missing).
+  `32151fa0` erases every slot match in the type's range, then the timer when the type has no entry left. The timer at `32155eb0 @32156388` is `-= dt`, then `FLDZ; FCOMP` (respawn when `<= 0`), then
+  period `+4`. `32153880` checks the game-type-5 skip, skill tree `+0x3c` / dialog `+0x10c` valid and shown (`+0x6e`), destroys the handles and clears the vector. It creates each name with
+  `( NULL, name, x, y, 0, -1, -1, -1, -1, -1.0, true )` (`334380f0` = -1.0, which equals March's defaults), sets `+0x170 = 1` and pushes the handle even when invalid.
+
+Port extras, kept: null checks on the fade control and its picture (June dereferences them). Neither changes behaviour when the dialog is loaded.
+
+**Retired:**
+- `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG`: the define and its 7 blocks in `X2Game.cpp`, `X2GUUser.cpp` (2), `X2UIManager.cpp` (4, with the log include) and `X2UserSkillTree.cpp`. 70 lines, no `[JUNE_TRANSCEND] SLOTBUFF` line is left.
+- T6's `ARME cast lookup` line (`June_SpecialAttackLookup`, 3 lines; T6's review had not run). `ARME info text` was never committed. `kickoffs/june-transcend/T6-review.md` now says so.
+
+**Hygiene:**
+- T6b range `c66d52fa^..c66d52fa --with _DEBUG`: `files: 6 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  `git log -SJUNE_TRANSCEND_SLOTBUFF c66d52fa..HEAD`: nothing.
+- Retirement `--worktree`: `4 PASS, 1 DEFINE, 0 FAIL`; the 70 deleted lines are the `_DEBUG` blocks; `RESULT: PASS`. `JUNE_CHAR_ARME_TRANSCEND --worktree` (VioletMage): `1 PASS`, 3 deleted (the lookup line), `RESULT: PASS`.
+
+DEPLOY_LINE
+
+T8's kickoff now depends on this review and checks the glow by eye.
+
+## Phase T6c - Transcended class pictures
+
+**Run with:** Sonnet 5.5 high. Kickoff `kickoffs/june-transcend/T6c.md`. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE`. Added 2026-10-24 (user), taken from the Stage 9 bullet "Transcendence in the June UI".
+
+**Scope.** A transcended unit's class picture: the character select slot (June `325659c9`, `3256ed1b`, type 0xa at `3256ebe7`), the HUD portrait, character info, inventory, class name / icon.
+Add the unit-slot (and 0xa) rows for Aisha EM / VP / DW, stage June's pictures, pass `unit +0x3c` at the March sites. Evidence: `june2017_re/transcend/t6c_image_callers.tsv`.
+
+**Done gate.** ArmeEM / ArmeVP / ArmeDW show a transcended picture on the select screen, HUD portrait and character info; the log shows the lookups.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types

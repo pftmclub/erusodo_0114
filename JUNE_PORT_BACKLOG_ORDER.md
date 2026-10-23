@@ -532,6 +532,7 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   `324bc8e0` (vslot 129 of `3349d88c`); their action reads are `0x11 0x14 0x15 0x17 0x1b 0x1a 0x2c 0xf 0x38 0x18 0x2a 0x2e 0x32 0x2b` (battlefield) and
   DIK `0x44 0xa 0x28 0xf 0x38 0x42` plus actions `0x11 0x14 0x15 ...` (dungeon). Diff each against March and port whole; check PvP / village sit too.
 - **Transcendence in the June UI** *(from june-transcend T0, 2026-10-23; rows `UI Stage 9` in `june2017_re/transcend/t0_readers.tsv`)*.
+  **Moved 2026-10-24 (user): the transcended class pictures (select screen, HUD portrait, character info, inventory, class name / icon) are june-transcend T6c, not this stage.** The rest of this bullet stays here.
   T2 ports `CX2Data::GetCharacterImageName`'s fifth argument (June `31ee0de0`, bTranscend) for the skill tree. Its other 39 callers pass the
   unit's flag and are this stage's: the HUD portrait (`CX2MyGageUI` `32e5f3a0` / `32e62190` / `32e62d50` / `32e673e0` / `32e68d20` / `32e6cbb0`),
   character info (`3291df90`), class name / icon (`32ed5180`), the unit-info struct fill (`328b3350`), inventory (`321a9da0`), boss-raid score
