@@ -486,6 +486,8 @@ Ghidra (read-only) against `c70dc0db` and `03b0e6de` (and the `cash_product` row
 
 **How to see it:** unit 52 transcended: B-5 / T casts as before. Untranscended: the locked A-5 / B-5 clicks open the shop on 288319 / 288318.
 
+**Review play-test PASSED 2026-10-23 (user + logs, md5 2d6ffafe):** unit 52 `transcendence 0` on select and room; `SLOT click on a locked A TC slot: shop opens on item 288319` (21:42:38) and `... B ... 288318` (21:43:03) in the village; no click line during the 21:43:17 dungeon visit (the chat branch logs nothing); 0 EXCEPTION, 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (not this phase). The transcended T press was not in this run.
+
 ## Phase T5 - Transcended combat engine
 
 **Run with:** Opus 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE` (+ `_DEBUG`).
