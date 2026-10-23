@@ -3,6 +3,9 @@
 #ifdef NEW_VILLAGE_UI
 
 #include ".\x2uimanager.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 
 //class CX2Slot;
 //class CX2SlotManager::CX2Slot;
@@ -240,9 +243,151 @@ void CX2UIManager::ResetUIManager()
 	//m_pPersonalShop = new CX2UIPersonalShop(g_pMain->GetNowState(), NULL );
 	//m_pPvPLobby = new CX2UIPvPList(g_pMain->GetNowState(), L"DLG_UI_Emulate.lua" );
 	//m_pWatch	= new CX2UIWatch(g_pMain->GetNowState(), L"DLG_UI_Watch.lua" );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+	JuneInitGuideParticleType();	// June ctor 32157c10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+// June 32154f60: June's table also holds types 1 / 2 ( Luciel ) and 5-7 ( Ain ), left to their ports
+void CX2UIManager::JuneInitGuideParticleType()
+{
+	const WCHAR* apwszName[] = { L"Transcendence_Loop_P1", L"Transcendence_Loop_P2", L"Transcendence_Loop_P3", L"Transcendence_Loop_P4", L"Transcendence_Loop_P5",
+		L"Transcendence_Open_P1", L"Transcendence_Open_P2", L"Transcendence_Open_P3", L"Transcendence_Open_P4", L"Transcendence_Open_P5" };
+	JuneGuideParticleType kType;
+	kType.m_fRespawnTime = 9999.f;
+	for( int i = 0; i < ARRAY_SIZE( apwszName ); ++i )
+		kType.m_vecName.push_back( apwszName[i] );
+	m_mapJuneGuideParticleType.insert( std::make_pair( 4, kType ) );
+}
+
+// June 32151190
+CX2UIManager::JuneGuideParticle* CX2UIManager::JuneFindGuideParticle( const int iType_, const int iSlot_ )
+{
+	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; ++it )
+	{
+		if( iSlot_ == it->second.m_iSlot )
+			return &it->second;
+	}
+	return NULL;
+}
+
+// June 321536e0: the particles come on the next UI frame, when the type's timer reaches 0
+void CX2UIManager::JuneAddGuideParticle( const int iType_, const int iSlot_, const float fX_, const float fY_ )
+{
+	if( NULL == g_pData->GetUIMajorParticle() || m_mapJuneGuideParticleType.end() == m_mapJuneGuideParticleType.find( iType_ ) )
+		return;
+	if( NULL != JuneFindGuideParticle( iType_, iSlot_ ) )
+		JuneRemoveGuideParticle( iType_, iSlot_ );
+
+	JuneGuideParticle kParticle;
+	kParticle.m_iSlot = iSlot_;
+	kParticle.m_fX = fX_;
+	kParticle.m_fY = fY_;
+	m_mmapJuneGuideParticle.insert( std::make_pair( iType_, kParticle ) );
+	m_mapJuneGuideParticleTimer[iType_] = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow add: type %d slot %d at ( %.0f, %.0f )", iType_, iSlot_, fX_, fY_ );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+}
+
+// June 32151fa0
+void CX2UIManager::JuneRemoveGuideParticle( const int iType_, const int iSlot_ )
+{
+	if( NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; )
+	{
+		if( iSlot_ != it->second.m_iSlot )
+		{
+			++it;
+			continue;
+		}
+		for( UINT k = 0; k < it->second.m_vecHandle.size(); ++k )
+		{
+			CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = it->second.m_vecHandle[k];
+			if( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq )
+				g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hSeq );
+		}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow remove: type %d slot %d, %u sequence(s)", iType_, iSlot_, static_cast<UINT>( it->second.m_vecHandle.size() ) );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+		m_mmapJuneGuideParticle.erase( it++ );
+	}
+
+	if( m_mmapJuneGuideParticle.end() == m_mmapJuneGuideParticle.find( iType_ ) )
+		m_mapJuneGuideParticleTimer.erase( iType_ );
+}
+
+// June 32155eb0 @3215631c: a type's timer at 0 re-spawns all its entries and restarts at the type's period
+void CX2UIManager::JuneGuideParticleFrameMove( const float fElapsedTime_ )
+{
+	for( std::map<int, float>::iterator mit = m_mapJuneGuideParticleTimer.begin(); mit != m_mapJuneGuideParticleTimer.end(); ++mit )
+	{
+		std::map<int, JuneGuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( mit->first );
+		if( m_mapJuneGuideParticleType.end() == tit )
+			continue;
+		mit->second -= fElapsedTime_;
+		if( mit->second <= 0.f )
+		{
+			JuneRespawnGuideParticle( mit->first );
+			mit->second = tit->second.m_fRespawnTime;
+		}
+	}
+}
+
+// June 32155e20
+void CX2UIManager::JuneRespawnGuideParticle( const int iType_ )
+{
+	std::map<int, JuneGuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( iType_ );
+	if( m_mapJuneGuideParticleType.end() == tit )
+		return;
+
+	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; ++it )
+		JuneCreateGuideParticle( it->second, tit->second );
+}
+
+// June 32153880; its skip for game type 5 with hidden dialogs has no March game type
+void CX2UIManager::JuneCreateGuideParticle( JuneGuideParticle& kParticle_, const JuneGuideParticleType& kType_ )
+{
+	if( NULL == GetUISkillTree() || NULL == GetUISkillTree()->GetDLGGameSkillSLot() || false == GetUISkillTree()->GetDLGGameSkillSLot()->GetShow()
+		|| NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	CKTDGParticleSystem* pParticle = g_pData->GetUIMajorParticle();
+	for( UINT k = 0; k < kParticle_.m_vecHandle.size(); ++k )
+	{
+		CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = kParticle_.m_vecHandle[k];
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq )
+			pParticle->DestroyInstanceHandle( hSeq );
+	}
+	kParticle_.m_vecHandle.clear();
+
+	for( UINT k = 0; k < kType_.m_vecName.size(); ++k )
+	{
+		const CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = pParticle->CreateSequenceHandle( NULL, kType_.m_vecName[k].c_str(), kParticle_.m_fX, kParticle_.m_fY, 0.f );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticle->GetInstanceSequence( hSeq );
+		if( NULL != pSeq )
+			pSeq->SetOverUI( true );
+		kParticle_.m_vecHandle.push_back( hSeq );
+	}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+	UINT uiValid = 0;
+	for( UINT k = 0; k < kParticle_.m_vecHandle.size(); ++k )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != kParticle_.m_vecHandle[k] )
+			++uiValid;
+	}
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow spawn: slot %d at ( %.0f, %.0f ), %u of %u sequence(s)", kParticle_.m_iSlot, kParticle_.m_fX, kParticle_.m_fY,
+		uiValid, static_cast<UINT>( kType_.m_vecName.size() ) );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 CX2UIManager::~CX2UIManager(void)
 {
     SAFE_DELETE(m_pCharInfo);
@@ -446,6 +591,9 @@ HRESULT CX2UIManager::OnFrameMove( double fTime, float fElapsedTime )
 	}
 #endif //SERV_RELATIONSHIP_SYSTEM_LAUNCHING_EVENT
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+	JuneGuideParticleFrameMove( fElapsedTime );		// June 32155eb0 @3215631c
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
     return S_OK;
 }
 

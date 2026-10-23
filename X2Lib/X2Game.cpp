@@ -2961,6 +2961,10 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		if( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() )
 			June_MemoRiseSlotFrameMove();		// June @3230901b, right after 322e07e0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+		if( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() )
+			June_TranscendSlotGuideFrameMove();		// June @3230906f
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 
 		if( true == g_pKTDXApp->GetDSManager()->GetCapable3DSound() &&
 			true == g_pKTDXApp->GetDSManager()->GetEnable3DSound() )
@@ -13919,6 +13923,137 @@ void CX2Game::June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ )
 		pEquippedData->ShowSlotPicture( *pbShow_, pSlot, CX2EquippedSkillSlotData::SESAPT_MEMORIZE, -1, false );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+// June 322d8100: the guide-type-4 glow on A-5 / B-5 while BTI 820 holds in an awakening
+void CX2Game::June_TranscendSlotGuideFrameMove()
+{
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if( NULL == g_pData->GetSkillTree() || NULL == pMyUnit || NULL == g_pData->GetUIMajorParticle() || NULL == g_pData->GetUIManager() )
+		return;
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+	{
+		static bool s_bAttack = false;
+		static bool s_bCoolTime = false;
+		static float s_fAttackTime = 0.f;
+		static int s_iUseCountAtStart = 0;
+		const bool bAttack = pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 820 ) );
+		const bool bCoolTime = pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 821 ) );
+		if( true == bAttack )
+			s_fAttackTime += m_fElapsedTime;
+		if( bAttack != s_bAttack )
+		{
+			if( true == bAttack )
+			{
+				s_fAttackTime = 0.f;
+				s_iUseCountAtStart = pMyUnit->GetSkillUseCount( 3 );
+				CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 820 on ( TC-slot damage ), hyper time left %.1f", pMyUnit->GetRemainHyperModeTime() );
+			}
+			else
+			{
+				const int iUses = pMyUnit->GetSkillUseCount( 3 ) - s_iUseCountAtStart;
+				CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 820 off after %.1f s, TC-slot uses %d: ended by %s", s_fAttackTime, iUses, ( 0 < iUses ) ? L"use" : L"time" );
+			}
+			s_bAttack = bAttack;
+		}
+		if( bCoolTime != s_bCoolTime )
+		{
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 821 %s ( TC-slot cool-time )", ( true == bCoolTime ) ? L"on" : L"off" );
+			s_bCoolTime = bCoolTime;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
+
+	CX2UIManager* pUIManager = g_pData->GetUIManager();
+	CX2UISkillTreeNew* pUISkillTree = pUIManager->GetUISkillTree();
+	if( NULL == pUISkillTree )
+		return;
+	const bool bTypeA = pUISkillTree->GetIsSkillUiTypeA();
+	const bool bSwap = pUISkillTree->GetSkillSlotSwap();
+	bool bSlotB = false;
+
+	for( int i = 0; i < 10; ++i )
+	{
+		if( 4 != i && 9 != i )
+			continue;
+
+		int iIndex = i;
+		if( 4 < iIndex )
+		{
+			iIndex -= 5;
+			bSlotB = true;
+		}
+		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		{
+			CX2Unit* pSelectUnit = g_pData->GetMyUser()->GetSelectUnit();
+			if( false == pSelectUnit->GetUnitData().m_UserSkillTree.IsJuneSlotUsable( 1 )
+				&& ( true == bSlotB || 0 == pSelectUnit->GetUnitData().m_iUnitClassTran ) )
+				return;
+		}
+
+		CX2EquippedSkillSlotData* pEquippedData = pUISkillTree->GetEquippedSlotData( iIndex, bSlotB );
+		if( NULL == pEquippedData )
+			continue;
+		CKTDGUIStatic* pStaticFade = NULL;
+		if( NULL != m_pDLGSkillSlot )
+			pStaticFade = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( ( true == bSlotB ) ? L"Static_Skill_Cool_Time_Fade_B" : L"Static_Skill_Cool_Time_Fade" ) );
+
+		bool bShowBar = true;
+		if( false == bTypeA )
+		{
+			if( true == bSwap )
+				bShowBar = ( false != bSlotB );
+			else
+				bShowBar = ( true != bSlotB );
+		}
+
+		bool bGlow = false;
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pEquippedData->m_eSkillID );
+		if( NULL != pSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType && CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet->m_eType
+			&& 0.f < pMyUnit->GetRemainHyperModeTime() && true == pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 820 ) ) )
+			bGlow = true;
+
+		if( true == bShowBar && true == bGlow && true == g_pMain->JuneCanShowClassGuide( 4 ) && NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) )
+		{
+			CKTDGUIControl::CPictureData* pPicture = pStaticFade->GetPicture( iIndex );
+			const D3DXVECTOR2 vDialogPos = pStaticFade->GetDialog()->GetPos();
+			const float fX = pPicture->GetPos().x + vDialogPos.x + pPicture->GetSize().x * 0.5f;
+			const float fCenterY = pPicture->GetPos().y + vDialogPos.y + pPicture->GetSize().y * 0.5f;
+			float fY = fCenterY;
+			if( true == bSwap )
+				fY = ( true == bSlotB ) ? fCenterY + 47.f : fCenterY - 47.f;
+
+			CX2UIManager::JuneGuideParticle* pGuide = pUIManager->JuneFindGuideParticle( 4, i );
+			if( NULL == pGuide )
+			{
+				pUIManager->JuneAddGuideParticle( 4, i, fX, fY );
+			}
+			else if( false == pGuide->m_vecHandle.empty() )
+			{
+				for( UINT k = 0; k < pGuide->m_vecHandle.size(); ++k )
+				{
+					if( INVALID_PARTICLE_SEQUENCE_HANDLE == pGuide->m_vecHandle[k] )
+						continue;
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( pGuide->m_vecHandle[k] );
+					if( NULL == pSeq )
+						continue;
+					const D3DXVECTOR3 vSeqPos = pSeq->GetPosition();
+					const float fDX = fX - vSeqPos.x;
+					const float fDY = fY - vSeqPos.y;
+					if( 0.1 < sqrtf( fDX * fDX + fDY * fDY ) )
+						pSeq->SetPosition( D3DXVECTOR3( fX, fY, 0.f ), true, true );
+				}
+				pGuide->m_fX = fX;
+				pGuide->m_fY = fY;
+			}
+		}
+		else
+		{
+			pUIManager->JuneRemoveGuideParticle( 4, i );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 void CX2Game::UpdateEveElectraSkillSlotIcon()
 {
 	const CX2Unit::UNIT_CLASS eUnitClass = g_pData->GetMyUser()->GetSelectUnit()->GetClass();

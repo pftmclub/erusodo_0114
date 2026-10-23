@@ -1409,6 +1409,9 @@ class CX2Game : public CKTDXStage
 		void						June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
 		void						June_SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+		void						June_TranscendSlotGuideFrameMove();		/// June 322d8100
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 		bool IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit );
 #endif

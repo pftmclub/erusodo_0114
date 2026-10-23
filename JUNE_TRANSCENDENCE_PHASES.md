@@ -650,6 +650,32 @@ and the buff ends after 10 s or one TC-slot cast. Prove the buff behaviours act 
 
 **Done gate.** The glow shows and ends as above; the log shows the 1.2 factor and the cool-time reset on the TC cast.
 
+### T6b - Done (2026-10-24, Opus 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF` (+ `_DEBUG`: the proof lines, for the review to retire), commit: this one. Funcmap rows `Transcend T6b` (8). MODS entry "T6b".
+Hygiene: `flagcheck --worktree --files` (7 files): 6 PASS, 1 DEFINE, 0 OTHER, 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT PASS.
+`DEPLOY OK: X2_offline.exe is 25,839,104 B, dated 2026-10-24 06:24:19, md5 b565a19a691c409674e2123e25cce39d` (the SLOTBUFF strings and `Transcendence_Loop_P1` are in the exe).
+
+**No split needed.** The UI manager's guide table is small. `32154f60` registers types 1 / 2 (`Luciel_SwitchingP01-04` / `-05`, users `322dd0f0` / `32212d50`), 4 (`Transcendence_Loop_P1-P5`, then
+`Transcendence_Open_P1-P5`, period 9999 s) and 5 / 6 / 7 (`PT_AIN_Eid_Switching_Red / Yellow / Blue_01-04`, user `322d8590`). All except type 4 use a 2 s period, and all except type 4 are left to their class ports (Lu/Ciel, Ain; Stage 7).
+
+What landed:
+1. **The glow** (`X2Game.cpp` `June_TranscendSlotGuideFrameMove` = `322d8100`, called `@3230906f`). For slots 4 / 9 it applies June's bar-visibility test and the TC-key early return.
+   The slot skill must not be relationship / hyper-active, the hyper time must be above 0, `HaveUnfinishedBuff( 820 )` must be true and `JuneCanShowClassGuide( 4 )` must pass.
+   Position: the centre of the `Static_Skill_Cool_Time_Fade(_B)` picture, +-47 when swapped. When the condition fails the slot's entry is removed.
+2. **The table** (`X2UIManager.*`), type 4 only: add `321536e0`, find `32151190`, remove `32151fa0`, the timer at the end of `OnFrameMove` (`32155eb0 @3215631c`), respawn `32155e20`, spawn `32153880`
+   (shown `DLG_GAME_SKILL_SLOT`, `CreateSequenceHandle` with defaults, `SetOverUI`). The particles are in data036's `UIMajorParticle.txt` (June's; `kom.py status data036` in sync), so nothing was staged.
+3. **Buffs, by reading:** BFI 843 -> BBT 98 (`GetSkillDamageRateBySlotType`, slot type 3 for index 4 of either bar) and BFT 16. BFI 844 -> `ResetLeftSkillCoolTimeByBuff` /
+   `ApplyResetCoolTime`, `BCT_PERCENT` = cool time x 0 on slot type 3. Both transcriptions are June's. No fix; the `_DEBUG` lines prove them in play.
+
+Not ported: `32153880`'s skip for game type 5 with hidden dialogs (March has no game type 5); `3288fe00`'s unused result in `322d8100`. Routed: nothing new (types 1 / 2 / 5-7 named above).
+Open questions: none.
+
+**In game** (`python tools/logs.py --grep "JUNE_TRANSCEND] SLOTBUFF"`). Awaken a transcended unit. On a roll: `applied BFI 843 / 844`, then `BTI 820 on`.
+On the next UI frame, one `glow add` and one `glow spawn ... 10 of 10` per TC slot. Casting the A-5 skill gives `damage: skill N in the TC slot, slot-type rate 1.20`, and the slot then logs `BTI 820 off ... ended by use` and
+`glow remove`. With no cast it ends `by time` after about 10 s. A cool-time line (`X -> 0.00`) appears when BTI 821 lands while the TC skill is cooling. The dev free-skill gate (auth 3) skips the cool-time
+check on cast, so the cool-time cannot be seen in the slot UI itself, only in that log line.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types

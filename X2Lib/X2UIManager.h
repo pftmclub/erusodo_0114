@@ -409,6 +409,32 @@ public:
 	void JuneSetNowDragItemReturn() { SetNowDragItemReturn(); }	/// June 32153240 ( CX2UIManager, g_pData +0x2cc ): ActiveSkillShow's first act
 private:
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
+public:
+	struct JuneGuideParticleType
+	{
+		float						m_fRespawnTime;
+		std::vector<std::wstring>	m_vecName;
+	};
+	struct JuneGuideParticle
+	{
+		int			m_iSlot;
+		float		m_fX;
+		float		m_fY;
+		std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecHandle;
+	};
+	JuneGuideParticle* JuneFindGuideParticle( const int iType_, const int iSlot_ );						/// June 32151190
+	void JuneAddGuideParticle( const int iType_, const int iSlot_, const float fX_, const float fY_ );	/// June 321536e0
+	void JuneRemoveGuideParticle( const int iType_, const int iSlot_ );									/// June 32151fa0
+private:
+	void JuneInitGuideParticleType();								/// June 32154f60, type 4 only
+	void JuneGuideParticleFrameMove( const float fElapsedTime_ );	/// June 32155eb0 @3215631c
+	void JuneRespawnGuideParticle( const int iType_ );				/// June 32155e20
+	void JuneCreateGuideParticle( JuneGuideParticle& kParticle_, const JuneGuideParticleType& kType_ );	/// June 32153880
+	std::map<int, JuneGuideParticleType>	m_mapJuneGuideParticleType;		/// June +0xd4
+	std::multimap<int, JuneGuideParticle>	m_mmapJuneGuideParticle;		/// June +0xe4
+	std::map<int, float>					m_mapJuneGuideParticleTimer;	/// June +0xf4
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 
 	void SetShowMinimapUI(bool bVal);
 	void SetShowGageUI(bool bVal);
