@@ -5035,7 +5035,7 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Item stats** (`X2ItemStatCalculator.*`). `TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` is loaded (`328d7890`). A transcended unit's items
   of use level 70+ take its row (`328d6c90`). Only the weapon row differs from the normal table: phys def and mag def 0.08 instead of 0. A missing
   table logs one line and the normal rows stay.
-- **Data (not done: needs the user's permission).** data036 needs `Enum.lua` `UC_150 = 150` (core list; June's stat table names it in its second
-  class row, and March's loader stops at an unknown row) and June's `CharacterStatTable.lua` (`adopt-june`, ljconv bytecode). Every row March has is
-  equal to June's, so no March character's numbers change.
+- **Data** (data036, packed and copied 2026-10-23). `Enum.lua` gains `UC_150 = 150` (core list; June's stat table names it in its second class row,
+  and March's loader stops at an unknown row). `CharacterStatTable.lua` is June's (`adopt-june`, ljconv bytecode); every row March has is equal to
+  June's. Revert: restore `kom_backup_stage_june61023_222737\` and remove the `UC_150` line, refresh, repack.
 - **Turn off:** comment out the define in `Always.h` and rebuild.

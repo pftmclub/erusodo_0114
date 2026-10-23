@@ -536,14 +536,10 @@ Routed (scope rule): Raven 24419 in `HyperModeStart`, Rena's type-3 branch in `A
 June form -> checklist 7ao note; the customize-set names in `ApplyHyperModeBuff` -> Stage 12 (already there); `ICON_TR`'s texture
 (`DLG_Common_Emblem00.tet`, June's lacks keys March's dungeon map reads) and `32157c10` -> Stage 9 bullet + Stage 15 P5.
 
-**Data not done (permission).** Writing into `24965799\kom_contents\data036_kom` was refused by the session's permission check. Needed, in order:
-1. `Enum.lua`: `UC_150 = 150,` after `UC_AIN_APOSTASIA = 136,` (core-list BOM source; then `luasrc.py refresh data036 Enum.lua`).
-2. `python tools/luasrc.py adopt-june data036 CharacterStatTable.lua` (June's ljconv bytecode). `luasrc.py convert` refuses March's file (no T0
-   source; the decompile is not T1). A row-by-row compare shows all 37 March rows and both formulas equal June's. June adds the transcendental table
-   and the Lu/Ciel / Rose / Ain / third-class rows. Its second class row is `UNIT_CLASS.UC_150`, and March's loader stops at an unknown row, so step 1
-   comes first.
-3. `/elstools pack data036`, then `/x2-kom-packed copy data036` (asks first).
-Until then the loader logs `... has no TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` and transcended units use the normal rows.
+**Data (done after the user's yes, 2026-10-23).** `Enum.lua` gained `UC_150 = 150,` (core-list BOM source, `luasrc.py refresh`, ledger PASS):
+June's stat table names it in its second class row, and March's loader stops at an unknown row. data036 `CharacterStatTable.lua` is June's ljconv
+bytecode (`adopt-june`; `convert` refused March's file: no T0 source, decompile not T1). All 37 March rows and both formulas equal June's, so no
+March character's numbers change. `PACK OK data036` (~2 changed: those two files); `COPY OK data036 ... md5 ffa8e4236d99603357b4f6f2c65f40cf`.
 
 Open questions: none for design.
 
