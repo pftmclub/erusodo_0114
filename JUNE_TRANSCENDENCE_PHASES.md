@@ -641,6 +641,15 @@ Petit Angkor 22231 learned and I had equipped the base 22209, so `GetEquippedAct
 cast then worked and the heavy summon played. Two temporary log lines stay for the review to retire: `ARME info text` (in `June_PushInfoText`) and `ARME cast lookup` (in `June_SpecialAttackLookup`).
 Lesson for set-ups: equip the skill the unit has learned (the enhanced one when it is learned). Deploy for the diagnostic build: `DEPLOY OK: X2_offline.exe is 25,828,864 B, dated 2026-10-24 05:28:41, md5 d3e9ef527f6885c8b54ef80628440ad3`.
 
+## Phase T6b - The transcendence slot buffs
+
+**Run with:** Opus 5.5 high (RE of the UI guide-particle table first). Kickoff `kickoffs/june-transcend/T6b.md`. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF`. Added 2026-10-24 (user).
+
+**Scope.** After a transcended awakening rolls BFI 843 / 844 (T5): the A-5 / B-5 slots glow while BTI 820 holds, the TC-slot skill does x1.2 damage and its cool-time is reset (BTI 821, `PERCENT` 0),
+and the buff ends after 10 s or one TC-slot cast. Prove the buff behaviours act on slot type 3 (log), and port June's slot 4 / 9 guide-type-4 particle (`322d8100`, UI manager `321536e0` / `32151190` / `32151fa0`).
+
+**Done gate.** The glow shows and ends as above; the log shows the 1.2 factor and the cool-time reset on the TC cast.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types
