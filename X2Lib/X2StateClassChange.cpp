@@ -367,6 +367,13 @@ static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
 
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+static bool s_bJuneTranscendGuideOpen = false;
+
+void CX2ClassChangePopup::CloseTranscendGuide()
+{
+	if( true == s_bJuneTranscendGuideOpen )
+		SetShowTranscendGuide( false );
+}
 const WCHAR* CX2ClassChangePopup::JuneGetTranscendGuideName( int iUnitType_ )
 {
 	switch( iUnitType_ )
@@ -459,6 +466,9 @@ void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, in
 void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 {
 	m_bShow = bShow;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	s_bJuneTranscendGuideOpen = false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	if( m_pDLGClassChange != NULL )
 	{
@@ -492,6 +502,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 	{
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGClassChange );
 		JuneInitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true );
+		s_bJuneTranscendGuideOpen = true;
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide popup %s for class %d", pwszName, static_cast<int>( pUnit->GetClass() ) );
 #endif SERV_IRUHADEV_OFFLINE
@@ -501,6 +512,9 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 void CX2ClassChangePopup::SetShow( bool bShow )
 {
 	m_bShow = bShow;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	s_bJuneTranscendGuideOpen = false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
 	if( m_pDLGClassChange != NULL )

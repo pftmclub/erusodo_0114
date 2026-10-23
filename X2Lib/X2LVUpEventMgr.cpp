@@ -354,6 +354,7 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 	case LUEMCUM_TRANSCENDENTAL:
 		{
 			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( static_cast<LEVEL_UP_EVENT_ID>( LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL ) );
+			g_pData->GetClassChangePopup().CloseTranscendGuide();		// the popup the NOT opens is not in event 6's list
 			if ( pLVUpEvent != NULL )
 				pLVUpEvent->DeleteDialog();
 		} break;

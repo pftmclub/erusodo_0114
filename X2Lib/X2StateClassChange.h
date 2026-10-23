@@ -60,6 +60,8 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	/// June 324886b0( bShow, 1 ): the transcendence guide mode ( a separate name: March's SetShow( bool, int ) takes HPT_SHARE_BANK = 1 )
 	void SetShowTranscendGuide( bool bShow );
+	/// the guide's X / OK button ( 1537 ) closes the popup's own dialog, which is not in the level-up event's list
+	void CloseTranscendGuide();
 	/// June 324886b0's switch on the unit type ( 1 .. 12 ); NULL outside it
 	static const WCHAR* JuneGetTranscendGuideName( int iUnitType_ );
 	/// June 32711490: the dialog file is one of the twelve guides
