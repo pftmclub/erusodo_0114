@@ -326,6 +326,36 @@ Flag `SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE` (`Always.h` + `ServerDefine.h`, `SECO
 
 **How to see it:** auth level 3, `/tc 1` on unit 52 (`ArmeVP`, level 70+): log `CHANGE /tc 1 ... transcendence 0 -> 1` and `CHANGE NOT sent`, the guide popup opens (Aisha's, VP picture, Close button), the skill tree shows rows 14-17, a relog keeps it. `/tc 1` again: NetError 1688 text; a first-job or under-70 unit: 1687; another class: 1726 and a log line. `/tc 0` clears it.
 
+### T2 - Review (2026-10-23, Opus 5.5): six fixes under the same flag
+
+Ghidra (read-only) and raw capstone (`disasm_range.py`) against T2's commits `4c82e1ff..e60435c0`. New June rows: funcmap `Transcend T2 review`.
+- **Matches June:** NOT `31ef82f0` call for call (flag from the second int, `InitSkillTreeUI`, popup when != 0, `UpdateUI( 1, 1, 0 )` = March
+  `( true, true, true )` as S7d settled, `328d6f40`, shop close via vslot `0xac`, `3232ecd0`; vslot `0x104` stays Stage 9's). Class-to-picture
+  tables of `32486790` / `32710710`, the popup statics, the four buttons, the unit-type file table. Level-up cases (the function starts at
+  `327127a0`; 1537 returns 0, 1549 `32344ab0( 9, 0 )`, 1550 `3222a4f0( 0 )`), `32710b60` events 2 / 4 / 6, `31edf870`, the msgbox at
+  ( 250, 300 ). `GetNewQuest @3233743b` class tail. Aisha's six transcended pieces are in the `.TET` files the image table names. NetError
+  texts are verbatim; slots `337379b8 + id x 4` confirm 1687 / 1688 / 1726. Emulator checks, the quest ACK-then-NOT order and `/tc` (`% 1000`, auth 3) match.
+- **Fix 1, popup close.** June has the close path: `32488c50` (the popup's `UICustomEventProc`, called after the level-up manager as in March)
+  deletes the dialog on 0x601. Ported there; T2's `CloseTranscendGuide` and its static are removed. `m_bShow` stays 1 (JUNE_BUGS 413).
+- **Fix 2, the image fade.** T2 said the popup's `+4 / +8` had no reader. It has one: `32486aa0` -> `324869d0` fades `Static_Transcendental_Image`
+  picture 0's alpha over the 1.5 s timer. The level-up event's `+0x2c / +0x30` get the same fade (`327108b0`, from `32714ad0` after
+  `CheckLevel`; `DeleteDialog` clears the image). Ported as `JuneFadeTranscendImage`, with the timer and image filled by `JuneInitTranscendGuide`.
+- **Fix 3, the 1550 shop toggle.** `3222a4f0` toggles only outside the non-menu states. T2 cast any state to `CX2StateMenu` (UB in dungeon result). Now
+  June's list by March name, plus `XS_TRAINING_RESULT` / `XS_ARCADE_RESULT` (March's other non-`CX2StateMenu` states).
+- **Fix 4, server group, not unit type.** Templet `+0` in `GetNewQuest` and `32344ab0` is `m_iServerGroupID` (Q4e), which March's `GetQuestTemplet`
+  already filters. T2's added unit-type tests are removed.
+- **Fix 5, item-stat key.** June's `CX2Unit::Reset` (`@32362b2a`) and server select (`@3257b72a`) pass unit `+0x3c` to `328d6f40` too. March's two
+  `SetUnitData` sites now call `SetUnitClassTran`, so T5's reader is right after a relog.
+- **Fix 6.** The guide-name test is case-insensitive like `32714b90` (`_wcsicmp`). No behaviour change for the shipped file names.
+- **Hygiene.** T2 range `--range 4c82e1ff^..e60435c0`: `files: 23 PASS, 6 PASS~, 2 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted,
+  9 EOL-mismatched` (the `X2GageUI.cpp` helper, Done note); `RESULT: PASS`. The OTHER is T4's `_SLOT` shop-product block, which went into the same commit
+  in `X2OfflineDB.cpp`. Review edits (`--worktree --files`, 7 files): `7 PASS, 0 FAIL`; `26 deleted line(s)`, all T2's own flagged lines replaced above; `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,817,600 B, dated 2026-10-23 20:27:39, md5 bc7ef818d400b61727ab20e78d5e2947, equal to X2/US_SERVICE/x2.exe (2026-10-23 20:27:32); built at main a112fb31 + 7 uncommitted code file(s).`
+- **T3 kickoff:** checked; now says to extend T2's `GetErrStr` switch and reuse `JuneTranscendCheck` / `JuneSendTranscendNot`.
+
+**How to see it:** `/tc 0` then `/tc 1` on unit 52: the guide popup's large image flashes in and fades out within about 1.5 s. The OK / X button
+closes the popup, and the log shows no `CloseTranscendGuide` line (that stand-in is gone).
+
 ## Phase T3 - The transcendence items
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ITEM`.

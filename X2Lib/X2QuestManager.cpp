@@ -1602,10 +1602,8 @@ int CX2QuestManager::GetNewQuest( const CX2UnitManager::NPC_UNIT_ID eQuestNPCID,
 			continue;
 #endif
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-		// June 32337320 @3233743b ( the counts of the NPC quest marks ): a quest of another unit type, or whose class tail is not my unit's flag, is not counted
+		// June 32337320 @3233743b: the server group ( +0, GetQuestTemplet does it ) and the class tail
 		if( NULL == pQuestTemplet )
-			continue;
-		if( CX2Unit::UT_NONE != pQuestTemplet->m_Condition.m_eUnitType && g_pData->GetSelectUnitType() != pQuestTemplet->m_Condition.m_eUnitType )
 			continue;
 		if( -1 != pQuestTemplet->m_Condition.m_iUnitClassTran &&
 			g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran != pQuestTemplet->m_Condition.m_iUnitClassTran )
@@ -4049,9 +4047,6 @@ void CX2QuestManager::JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobType
 	{
 		const QuestTemplet* pQuestTemplet = GetQuestTemplet( vecQuest[i] );
 		if( NULL == pQuestTemplet )
-			continue;
-
-		if( CX2Unit::UT_NONE != pQuestTemplet->m_Condition.m_eUnitType && g_pData->GetSelectUnitType() != pQuestTemplet->m_Condition.m_eUnitType )
 			continue;
 
 		if( iQuestType_ != static_cast<int>( pQuestTemplet->m_eQuestType ) )

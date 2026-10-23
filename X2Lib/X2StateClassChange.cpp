@@ -160,6 +160,10 @@ CX2ClassChangePopup::CX2ClassChangePopup( void )
 , m_pUnitViewerUI( NULL )
 , m_pDLGClassChange( NULL )
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	m_fJuneTranscendImageTime = 0.0f;
+	m_pJuneTranscendImage = NULL;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
 CX2ClassChangePopup::~CX2ClassChangePopup( void )
@@ -174,6 +178,9 @@ HRESULT CX2ClassChangePopup::OnFrameMove( double fTime, float fElapsedTime )
 	{
 		m_pUnitViewerUI->OnFrameMove( fTime, fElapsedTime );
 	}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	JuneFadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32486aa0
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
 	return S_OK;
@@ -185,6 +192,18 @@ bool CX2ClassChangePopup::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 {
 	switch( wParam )
 	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	case CX2LVUpEventMgr::LUEMCUM_TRANSCENDENTAL:		// June 32488c50 0x601: the guide's X / OK deletes this dialog; m_bShow stays ( JUNE_BUGS )
+		{
+			if( m_pDLGClassChange != NULL )
+			{
+				m_pDLGClassChange->SetHasUnit( NULL );
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGClassChange, NULL, false );
+				m_pDLGClassChange = NULL;
+				m_fJuneTranscendImageTime = 0.0f;
+			}
+		} break;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	case CCUCM_STATE_CHANGE_VILLAGE:
 		{
 			SetShow( false );		
@@ -367,12 +386,33 @@ static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
 
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-static bool s_bJuneTranscendGuideOpen = false;
-
-void CX2ClassChangePopup::CloseTranscendGuide()
+void CX2ClassChangePopup::JuneFadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ )
 {
-	if( true == s_bJuneTranscendGuideOpen )
-		SetShowTranscendGuide( false );
+	if( fImageTime_ <= 0.1 )
+		return;
+
+	fImageTime_ -= fElapsedTime_;
+	float fAlpha = static_cast<float>( 1.5 - fImageTime_ / 1.5 );
+	if( fAlpha > 1.5f )
+		fAlpha = 1.5f;
+
+	if( NULL == pImage_ || NULL == pImage_->GetPicture( 0 ) )
+		return;
+
+	if( fImageTime_ >= 0.8 )
+	{
+		if( fAlpha >= 0.8 )
+			fAlpha = 1.0f;
+	}
+	else
+	{
+		fAlpha = static_cast<float>( 1.5 - fAlpha );
+		if( fAlpha <= 0.2 )
+			fAlpha = 0.0f;
+	}
+
+	if( NULL != pImage_->GetPicture( 0 )->pPoint )
+		pImage_->GetPicture( 0 )->pPoint->color.a = fAlpha;
 }
 const WCHAR* CX2ClassChangePopup::JuneGetTranscendGuideName( int iUnitType_ )
 {
@@ -402,13 +442,13 @@ bool CX2ClassChangePopup::JuneIsTranscendGuideName( const WCHAR* pwszFileName_ )
 
 	for( int iUnitType = 1; iUnitType <= 12; ++iUnitType )
 	{
-		if( 0 == wcscmp( pwszFileName_, JuneGetTranscendGuideName( iUnitType ) ) )
+		if( 0 == _wcsicmp( pwszFileName_, JuneGetTranscendGuideName( iUnitType ) ) )		// June 32714b90 ignores case
 			return true;
 	}
 	return false;
 }
 
-void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_ )
+void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ )
 {
 	if( NULL == pDialog_ )
 		return;
@@ -448,7 +488,9 @@ void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, in
 		pPopup->GetPicture( 1 )->SetShow( true == bClassPopup_ );
 	}
 
-	// June's popup keeps the image static and 1.5 in two members nothing reads yet ( Static_Transcendental_Image )
+	pImage_ = pDialog_->GetStatic_LUA( "Static_Transcendental_Image" );
+	if( NULL != pImage_ && NULL != pImage_->GetPicture( 0 ) )
+		fImageTime_ = 1.5f;
 	if( true == bClassPopup_ )
 	{
 		CKTDGUIButton* pAccept = pDialog_->GetButton_LUA( "g_pButton_Accept_Quest1" );
@@ -467,7 +509,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 {
 	m_bShow = bShow;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	s_bJuneTranscendGuideOpen = false;
+	m_fJuneTranscendImageTime = 0.0f;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	if( m_pDLGClassChange != NULL )
@@ -501,8 +543,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 	if( m_pDLGClassChange != NULL )
 	{
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGClassChange );
-		JuneInitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true );
-		s_bJuneTranscendGuideOpen = true;
+		JuneInitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide popup %s for class %d", pwszName, static_cast<int>( pUnit->GetClass() ) );
 #endif SERV_IRUHADEV_OFFLINE
@@ -513,7 +554,7 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 {
 	m_bShow = bShow;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	s_bJuneTranscendGuideOpen = false;
+	m_fJuneTranscendImageTime = 0.0f;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 

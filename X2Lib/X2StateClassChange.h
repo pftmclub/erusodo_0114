@@ -60,20 +60,24 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	/// June 324886b0( bShow, 1 ): the transcendence guide mode ( a separate name: March's SetShow( bool, int ) takes HPT_SHARE_BANK = 1 )
 	void SetShowTranscendGuide( bool bShow );
-	/// the guide's X / OK button ( 1537 ) closes the popup's own dialog, which is not in the level-up event's list
-	void CloseTranscendGuide();
 	/// June 324886b0's switch on the unit type ( 1 .. 12 ); NULL outside it
 	static const WCHAR* JuneGetTranscendGuideName( int iUnitType_ );
 	/// June 32711490: the dialog file is one of the twelve guides
 	static bool JuneIsTranscendGuideName( const WCHAR* pwszFileName_ );
 	/// June 32486790 ( bClassPopup_ ) / 32710710 ( level-up guide ): shows the class's picture and the popup statics of a guide dialog
-	static void JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_ );
+	static void JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ );
+	/// June 324869d0 / 327108b0: the guide image's alpha over 1.5 s
+	static void JuneFadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 private:
 	bool m_bShow;
 	CX2UnitViewerUI*	m_pUnitViewerUI;
 	CKTDGUIDialogType	m_pDLGClassChange;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	float				m_fJuneTranscendImageTime;	// June popup +4
+	CKTDGUIStatic*		m_pJuneTranscendImage;		// June popup +8
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 #ifdef ADD_PLAY_SOUND //±Ë√¢«—
 	void PlaySoundChangeClass( CX2Unit::UNIT_TYPE eUnitType );

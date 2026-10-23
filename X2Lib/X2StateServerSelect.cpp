@@ -3659,6 +3659,9 @@ bool CX2StateServerSelect::Handler_EGS_SELECT_UNIT_1_NOT( HWND hWnd, UINT uMsg, 
 				g_pData->GetMyUser()->SelectUnit( pUnit );
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 				g_pData->GetItemStatCalculator().SetUnitData( pUnit->GetType(), pUnit->GetClass() );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+				g_pData->GetItemStatCalculator().SetUnitClassTran( pUnit->GetUnitData().m_iUnitClassTran );		// June 3257b610 @3257b72a passes +0x3c
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 #endif //SERV_NEW_ITEM_SYSTEM_2013_05
 #ifdef REFORM_SKILL_NOTE_UI
 				if( pUnit->GetClass() != CX2SkillNoteManager::GetInstance()->GetUnitClass() )

@@ -267,6 +267,9 @@ void CX2Unit::Reset( const KUnitInfo& unitInfo, bool bForceUpdate /* = false */ 
 	if( NULL != m_pUnitTemplet )
 	{
 		g_pData->GetItemStatCalculator().SetUnitData( m_pUnitTemplet->m_UnitType, m_pUnitTemplet->m_UnitClass);
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		g_pData->GetItemStatCalculator().SetUnitClassTran( m_UnitData.m_iUnitClassTran );		// June 32362730 @32362b2a passes +0x3c
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	}
 #endif //SERV_NEW_ITEM_SYSTEM_2013_05
 

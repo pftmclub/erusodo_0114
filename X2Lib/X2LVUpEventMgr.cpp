@@ -354,7 +354,6 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 	case LUEMCUM_TRANSCENDENTAL:
 		{
 			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( static_cast<LEVEL_UP_EVENT_ID>( LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL ) );
-			g_pData->GetClassChangePopup().CloseTranscendGuide();		// the popup the NOT opens is not in event 6's list
 			if ( pLVUpEvent != NULL )
 				pLVUpEvent->DeleteDialog();
 		} break;
@@ -372,9 +371,20 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 				// 3222a4f0( 0 ): the calling menu is 0x1d, the item 288319 ( 0x4663f ) is the one the shop opens on, then the state toggles it open
 				g_pData->GetCashShop()->SetMenuTypeCallingCashShop( 0x1d );
 				g_pData->GetCashShop()->JunePushOpenAtItemID( 288319 );
-				CX2StateMenu* pStateMenu = (CX2StateMenu*) g_pMain->GetNowState();
-				if( NULL != pStateMenu )
-					pStateMenu->ToggleCashShop();
+				switch( g_pMain->GetNowStateID() )		// June's list; TRAINING / ARCADE_RESULT are March's other non-menu states
+				{
+				case CX2Main::XS_START_UP: case CX2Main::XS_LOGIN: case CX2Main::XS_JOIN: case CX2Main::XS_LOADING:
+				case CX2Main::XS_SERVER_SELECT: case CX2Main::XS_CREATE_UNIT: case CX2Main::XS_PVP_GAME:
+				case CX2Main::XS_PVP_RESULT: case CX2Main::XS_DUNGEON_RESULT:
+				case CX2Main::XS_TRAINING_RESULT: case CX2Main::XS_ARCADE_RESULT:
+					break;
+				default:
+					{
+						CX2StateMenu* pStateMenu = (CX2StateMenu*) g_pMain->GetNowState();
+						if( NULL != pStateMenu )
+							pStateMenu->ToggleCashShop();
+					} break;
+				}
 			}
 		} return true;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -410,6 +420,10 @@ CX2LVUpEventMgr::LVUpEvent::LVUpEvent()
 	m_LastCheckLevel = 0;
 	m_EventID = LUEI_NONE;
 	m_bCheckShow = false;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	m_fJuneTranscendImageTime = 0.0f;
+	m_pJuneTranscendImage = NULL;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 CX2LVUpEventMgr::LVUpEvent::~LVUpEvent()
 {
@@ -445,6 +459,9 @@ void CX2LVUpEventMgr::LVUpEvent::OnFrameMove( double fTime, float fElapsedTime )
 {
 	//이제 여기서 검사해서 다이얼로그 자동으로 띄워져부럴까~~~?
 	CheckLevel();
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	CX2ClassChangePopup::JuneFadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32714ad0 -> 327108b0
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
 void CX2LVUpEventMgr::LVUpEvent::DeleteDialog()
@@ -455,6 +472,9 @@ void CX2LVUpEventMgr::LVUpEvent::DeleteDialog()
 		g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pDialog, NULL, false );
 	}
 	m_vecDialog.clear();
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	m_pJuneTranscendImage = NULL;		// June 32710ad0 clears +0x30, not the timer
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
 void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
@@ -532,7 +552,7 @@ void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 						// June 327141e0: a transcendence guide file shows my class's picture ( 32711490 name test, 32710710 init )
 						if( CX2ClassChangePopup::JuneIsTranscendGuideName( dialogFileName.c_str() ) )
-							CX2ClassChangePopup::JuneInitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false );
+							CX2ClassChangePopup::JuneInitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 					}
 
