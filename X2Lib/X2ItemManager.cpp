@@ -314,9 +314,11 @@ bool CX2ItemManager::OpenJuneDivisionItemTempletFile( const WCHAR* pFileName )
 }
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
-void CX2ItemManager::AddTranscendentalUnitType_LUA( int iUnitType )
+void CX2ItemManager::AddTranscendentalUnitType_LUA( int iUnitType, int iUnitClass )
 {
-	m_mapJuneTranscendentalUnitType.insert( std::make_pair( iUnitType, std::set<int>() ) );
+	std::map< int, std::set<int> >::iterator mit = m_mapJuneTranscendentalUnitType.insert( std::make_pair( iUnitType, std::set<int>() ) ).first;
+	if( 0 != iUnitClass )
+		mit->second.insert( iUnitClass );
 }
 
 void CX2ItemManager::AddTranscendentalClassItem_LUA( int iItemID, int iType )

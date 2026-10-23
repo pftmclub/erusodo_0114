@@ -613,7 +613,7 @@ class CX2ItemManager
 	public:
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
-		void	AddTranscendentalUnitType_LUA( int iUnitType );													// 328189d0
+		void	AddTranscendentalUnitType_LUA( int iUnitType, int iUnitClass );									// 328189d0: the Lua passes no class ( 0 )
 		void	AddTranscendentalClassItem_LUA( int iItemID, int iType );										// 3280b6c0
 		int		GetTranscendentalClassItemType( int iItemID ) const;											// 32807fe0: -1 none, 0 before transcendence only, 1 after only
 		bool	IsTranscendentalUnitType( int iUnitType, int iUnitClass ) const;								// 3280a090

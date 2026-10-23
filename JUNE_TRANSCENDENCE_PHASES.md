@@ -390,6 +390,33 @@ Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ITEM` (`Always.h`; `#error` guard needs `_CHA
 - **Open for the user:** copy data036 (the file above is the only new entry). No design question.
 - **Item images (play-test finding, user).** 288493 / 288319 / 288318 showed no picture: `HQ_Shop_Item_<id>.dds` is a June-only file in none of March's koms. June's item pictures in general are Stage 15's (`JUNE_ASSET_PORT_PHASES.md` waves, P2-P8), not T3's. For the transcendence items, `stage-june` took the 84 `HQ_Shop_Item_*.dds` of `plan_tci_rows.tsv` + the cube 293722 (79 found in June; 51 new, 1 replaced, 27 identical; refused: 288493 / 288509 / 288510 / 294780 / 294781 have no file of their own, 288493 uses 288319's): data130 (+40, ~1), data192 (+6), data198 (+7), packed; **copy pending** (ask). Backup `kom_backup_stage_june/20261023_210729`.
 
+### T3 - Review (2026-10-23, Opus 5.5): two fixes under the same flag
+
+Ghidra (read-only) and raw capstone (`disasm_range.py`) against `32df3d2f`. New June rows: funcmap `Transcend T3 review`.
+- **Matches June:** `3280a090` (map miss -> false; class 0 or empty set -> true; `g_pInstanceData` `33775864` non-null, then 0x920 / else-if 0x921 /
+  else-if 0x923 through `IsEnableCode` `31e5a860`; then `set.find`), `3280b6c0` (insert-if-absent), `32807fe0` (-1 when absent). The load: `31edda90`
+  loads it unconditionally with `3280d3c0` between `EventSealItemData` and `UnlockSocketItemData`; March has neither, and the maps are independent,
+  so the end of `ResetItemManager` is equivalent. The three tests T3 ported (`@321bf5ef-321bf88c`: getters `31e4c370` / `31e4c380` = templet type / class,
+  type 0 and `+0x3c != 0` -> 0x6bf, type 1 and `+0x3c != 1` -> 0x68b, else `32172190` = the use request). All nine texts (1675-1677, 1684, 1686-1688,
+  1726, 1727) equal June's English table `337379b8` (the Spanish one at `337397c0` is chosen by `g_pMain +0x708`). Job-ticket cases: no March case
+  (grep), routing to Stage 9 right. Emulator stand-ins read as the Done note says, and are labelled in `MODS.md`.
+- **Fix 1, the case starts earlier.** June's case 288493 is `@321bf35f` (jump `@321ba228`), and runs three checks before T3's: `GetItemTemplet( 288493 )`
+  null -> 0x1f4 (`ERR_USE_ITEM_IN_INVENTORY_00`, same text "The item cannot be used."); my level (`31edefe0`) < 70 -> 1687; the class step
+  (`31ef05e0`: 2 only for classes 100..199) < 2 -> 1687. Ported in that order; a first-job or under-70 unit is now refused by the client with no packet.
+- **Fix 2, the binder's class argument.** `328189d0` takes ( type, class ) and inserts the class into the type's set when it is non-zero. T3 bound a
+  one-argument function. June's Lua passes only the type, so the class reads 0 (lua_tinker) and nothing changes in play; the body is now whole.
+- **Hygiene.** T3 range `--range 32df3d2f^..32df3d2f`: `files: 5 PASS, 4 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted,
+  0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Review edits (`--worktree --files`, 3 files): `3 PASS, 0 FAIL`;
+  `6 deleted line(s)`, all T3's own flagged lines replaced above; `RESULT: PASS`.
+- **Deploy.** `BUILD OK: X2/US_SERVICE/x2.exe 25,824,768 B, 2026-10-23 21:23:13`; deploy refused while the game ran (pid 20468), `--deploy-only` after it closes.
+- **Data.** data036 is in the game (`data036.kom` md5 `96b15430` = `data036_packed.kom`); the 21:01 run logged `load=1 288319=0 288323=1 288318=1`.
+- **Kickoffs.** `T4-review.md`: notes the medal's 1686 inside `_SLOT`'s block. `T5.md`: still right (T3 touches none of its files).
+- **Open (no question):** the bag-use path refuses only the medal and the book by type; other type-1 items (288509 / 288510 / 288355 / 288357 / 288320-2)
+  used from the bag are not gated, because June's server is not readable. They are claimed from the shop, which is gated.
+
+**How to see it:** `/additem 288493` on unit 45 (`ArmeHM`, lv 60) or unit 32 (`MagicKnightT`, 1st job): right-click -> "Transcendence can only be
+reached by 2nd Job Class that are over Lv.70.", and no `EGS_USE_ITEM_IN_INVENTORY_REQ` in `offline_packets.log`.
+
 ## Phase T4 - The TC slots (A-5 / F and B-5 / T)
 
 **Run with:** Sonnet 5.5 high (Opus if T0 finds a new mechanism), then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOT`.

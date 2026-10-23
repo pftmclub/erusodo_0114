@@ -28,7 +28,8 @@ Review T4's commit against June in Ghidra (read-only):
   `32530a80` (game) and the state is not 0x15, else `+0x31c = 0x32` and the shop on the item. Menu type 0x32 -> tab 3 (`3224a680`): check the mapping
   to March's consume tab (`X2CashShop.cpp:2735`).
 - **322d8100.** T4 found it is the guide-4 TC-slot particle, not a cool-time loop (routed to Stage 9 in `JUNE_PORT_BACKLOG_ORDER.md`). Confirm.
-- **Emulator.** `X2OfflineSkill.cpp` refusal and key 1 follow the unit flag; the medal case in `Handlers_Inventory.cpp`.
+- **Emulator.** `X2OfflineSkill.cpp` refusal and key 1 follow the unit flag; the medal case in `Handlers_Inventory.cpp` (its untranscended
+  refusal id is 1686 since T3, under `_ITEM` inside this flag's block; T3 review checked the id and text).
 - **Stand-in labels.** Key 1 permanent and the medal's consume-only use are labelled in `MODS.md`.
 
 Hygiene: `python tools/flagcheck.py JUNE_TRANSCEND_SLOT --range <T4 commit>^..<T4 commit>`; paste its `files:` / `in this flag's files:` / `RESULT:` lines.

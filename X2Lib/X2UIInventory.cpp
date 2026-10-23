@@ -6689,13 +6689,21 @@ bool CX2UIInventory::OnRClickedItem( D3DXVECTOR2 mousePos )
             switch(pItem->GetItemTemplet()->GetItemID())
 			{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
-			case 288493:	// Book of Transcendence: God's Will; June 321aa5d0 @321bf5ef-321bf83c
+			case 288493:	// Book of Transcendence: God's Will; June 321aa5d0 @321bf35f-321bf88c
 				{
-					const CX2ItemManager* pItemManager = g_pData->GetItemManager();
+					CX2ItemManager* pItemManager = g_pData->GetItemManager();
 					const int iTranscendItemType = pItemManager->GetTranscendentalClassItemType( 288493 );
+					const int iTranscendClass = (int) pUnit->GetClass();
+					const int iTranscendStep = ( (unsigned int)( iTranscendClass - 10 ) < 0xbe ) ? ( ( 99 < iTranscendClass ) ? 2 : 1 ) : 0;	// June 31ef05e0
 					int iTranscendErr = 0;
 
-					if( false == pItemManager->IsTranscendentalUnitType( (int) pUnit->GetType(), (int) pUnit->GetClass() ) )
+					if( NULL == pItemManager->GetItemTemplet( 288493 ) )
+						iTranscendErr = NetError::ERR_USE_ITEM_IN_INVENTORY_00;	// June 0x1f4, same text
+					else if( g_pData->GetSelectUnitLevel() < 70 )
+						iTranscendErr = 1687;
+					else if( iTranscendStep < 2 )
+						iTranscendErr = 1687;
+					else if( false == pItemManager->IsTranscendentalUnitType( (int) pUnit->GetType(), iTranscendClass ) )
 						iTranscendErr = 1726;
 					else if( 0 == iTranscendItemType && 0 != pUnitData->m_iUnitClassTran )
 						iTranscendErr = 1727;
