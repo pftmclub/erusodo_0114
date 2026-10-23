@@ -398,6 +398,10 @@ class CX2Data : public CKTDXStage
 		CX2ClassChangePopup& GetClassChangePopup() { return m_ClassChangePopup; }
 
 		static bool GetCharacterImageName( OUT wstring& fileName, OUT wstring& pieceName, const CX2Unit::UNIT_CLASS eUnitClass, const CHARACTER_IMAGE_TYPE eImageType );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		// June 31ee0de0 with its fifth argument: bTranscend picks the transcended column of the image table when the class has one
+		static bool GetCharacterImageName( OUT wstring& fileName, OUT wstring& pieceName, const CX2Unit::UNIT_CLASS eUnitClass, const CHARACTER_IMAGE_TYPE eImageType, const bool bTranscend );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 #ifdef SERV_PVP_NEW_SYSTEM
 		static bool GetPvpNpcImageName( OUT wstring& fileName, OUT wstring& pieceName, CX2UnitManager::NPC_UNIT_ID iNpcId );
 #endif

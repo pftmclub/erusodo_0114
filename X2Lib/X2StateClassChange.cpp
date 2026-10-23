@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2stateclasschange.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
 
@@ -363,6 +366,138 @@ static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
 }
 
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+const WCHAR* CX2ClassChangePopup::JuneGetTranscendGuideName( int iUnitType_ )
+{
+	switch( iUnitType_ )
+	{
+	case 1:		return L"DLG_Transcendental_Change_Guide_Elsowrd.lua";		// June's file name is spelled so
+	case 2:		return L"DLG_Transcendental_Change_Guide_Aisha.lua";
+	case 3:		return L"DLG_Transcendental_Change_Guide_Lena.lua";
+	case 4:		return L"DLG_Transcendental_Change_Guide_Raven.lua";
+	case 5:		return L"DLG_Transcendental_Change_Guide_Eve.lua";
+	case 6:		return L"DLG_Transcendental_Change_Guide_Chung.lua";
+	case 7:		return L"DLG_Transcendental_Change_Guide_Ara.lua";
+	case 8:		return L"DLG_Transcendental_Change_Guide_Elesis.lua";
+	case 9:		return L"DLG_Transcendental_Change_Guide_Add.lua";
+	case 10:	return L"DLG_Transcendental_Change_Guide_Luciel.lua";
+	case 11:	return L"DLG_Transcendental_Change_Guide_Rose.lua";
+	case 12:	return L"DLG_Transcendental_Change_Guide_Ain.lua";
+	default:	break;
+	}
+	return NULL;
+}
+
+bool CX2ClassChangePopup::JuneIsTranscendGuideName( const WCHAR* pwszFileName_ )
+{
+	if( NULL == pwszFileName_ )
+		return false;
+
+	for( int iUnitType = 1; iUnitType <= 12; ++iUnitType )
+	{
+		if( 0 == wcscmp( pwszFileName_, JuneGetTranscendGuideName( iUnitType ) ) )
+			return true;
+	}
+	return false;
+}
+
+void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_ )
+{
+	if( NULL == pDialog_ )
+		return;
+
+	CKTDGUIStatic* pChange = pDialog_->GetStatic_LUA( "Static_Transcendental_Change" );
+	if( NULL == pChange || NULL == pChange->GetPicture( 0 ) || NULL == pChange->GetPicture( 1 ) || NULL == pChange->GetPicture( 2 ) )
+		return;
+
+	pChange->GetPicture( 0 )->SetShow( false );
+	pChange->GetPicture( 1 )->SetShow( false );
+	pChange->GetPicture( 2 )->SetShow( false );
+	if( NULL != pChange->GetPicture( 3 ) )
+		pChange->GetPicture( 3 )->SetShow( false );
+
+	// the picture of the class: even first-of-a-pair 0, odd 1, the third of a trio 2 ( June jump tables in 32486790 / 32710710 )
+	int iPicture = -1;
+	switch( iUnitClass_ )
+	{
+	case 100: case 102: case 104: case 106: case 108: case 110: case 118: case 120: case 122: case 127: case 130: case 134:
+		iPicture = 0; break;
+	case 101: case 103: case 105: case 107: case 109: case 111: case 119: case 121: case 123: case 128: case 131: case 135:
+		iPicture = 1; break;
+	case 112: case 113: case 114: case 115: case 116: case 117: case 124: case 125: case 126: case 129: case 132: case 136:
+		iPicture = 2; break;
+	case 133:
+		iPicture = ( NULL != pChange->GetPicture( 3 ) ) ? 3 : -1; break;
+	default:
+		break;
+	}
+	if( iPicture >= 0 )
+		pChange->GetPicture( iPicture )->SetShow( true );
+
+	CKTDGUIStatic* pPopup = pDialog_->GetStatic_LUA( "Static_Transcendental_Popup" );
+	if( NULL != pPopup && NULL != pPopup->GetPicture( 0 ) && NULL != pPopup->GetPicture( 1 ) )
+	{
+		pPopup->GetPicture( 0 )->SetShow( false == bClassPopup_ );
+		pPopup->GetPicture( 1 )->SetShow( true == bClassPopup_ );
+	}
+
+	// June's popup keeps the image static and 1.5 in two members nothing reads yet ( Static_Transcendental_Image )
+	if( true == bClassPopup_ )
+	{
+		CKTDGUIButton* pAccept = pDialog_->GetButton_LUA( "g_pButton_Accept_Quest1" );
+		CKTDGUIButton* pBuy = pDialog_->GetButton_LUA( "g_pButton_Buy_CashItem1" );
+		CKTDGUIButton* pClose = pDialog_->GetButton_LUA( "ButtonClass_Change_X" );
+		CKTDGUIStatic* pString = pDialog_->GetStatic_LUA( "g_pStatic_Button_String" );
+		if( NULL != pAccept )	pAccept->SetShow( false );
+		if( NULL != pBuy )		pBuy->SetShow( false );
+		if( NULL != pClose )	pClose->SetShow( true );
+		if( NULL != pString )	pString->SetShow( false );
+	}
+}
+
+/// June 324886b0 with bTranscendGuide = 1: the class-change dialog and the unit viewer go, the guide of the unit's type comes up
+void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
+{
+	m_bShow = bShow;
+
+	if( m_pDLGClassChange != NULL )
+	{
+		m_pDLGClassChange->SetHasUnit( NULL );
+
+		g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGClassChange, NULL, false );
+		m_pDLGClassChange = NULL;
+	}
+
+	if( NULL != m_pUnitViewerUI )
+		SAFE_DELETE_KTDGOBJECT( m_pUnitViewerUI );
+
+	if( false == bShow )
+		return;
+
+	if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const WCHAR* pwszName = JuneGetTranscendGuideName( static_cast<int>( pUnit->GetType() ) );
+	if( NULL == pwszName )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide: unit type %d has no guide dialog", static_cast<int>( pUnit->GetType() ) );
+#endif SERV_IRUHADEV_OFFLINE
+		return;
+	}
+
+	m_pDLGClassChange = new CKTDGUIDialog( g_pMain->GetNowState(), pwszName, 0.07f, 0 );
+	if( m_pDLGClassChange != NULL )
+	{
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGClassChange );
+		JuneInitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true );
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide popup %s for class %d", pwszName, static_cast<int>( pUnit->GetClass() ) );
+#endif SERV_IRUHADEV_OFFLINE
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 void CX2ClassChangePopup::SetShow( bool bShow )
 {
 	m_bShow = bShow;

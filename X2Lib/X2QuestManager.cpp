@@ -1601,6 +1601,16 @@ int CX2QuestManager::GetNewQuest( const CX2UnitManager::NPC_UNIT_ID eQuestNPCID,
 		if( pQuestTemplet == NULL )
 			continue;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		// June 32337320 @3233743b ( the counts of the NPC quest marks ): a quest of another unit type, or whose class tail is not my unit's flag, is not counted
+		if( NULL == pQuestTemplet )
+			continue;
+		if( CX2Unit::UT_NONE != pQuestTemplet->m_Condition.m_eUnitType && g_pData->GetSelectUnitType() != pQuestTemplet->m_Condition.m_eUnitType )
+			continue;
+		if( -1 != pQuestTemplet->m_Condition.m_iUnitClassTran &&
+			g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran != pQuestTemplet->m_Condition.m_iUnitClassTran )
+			continue;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 		//{{ kimhc // 2010.2.1 //	PC방이 아닌곳에서는 받지 않은 PC방퀘스트 목록에서 보이지 않도록
 #ifdef	PC_BANG_QUEST
@@ -3995,6 +4005,77 @@ int CX2QuestManager::GetClassUpQuestNoticeState( int iClassUpStep_ )
 		return ( QT_CHANGE_JOB == eWantedType ) ? 1 : 0;
 	return 0;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+/// June 31edf870: the class step of my unit as a level band. A transcended unit is 0; a base class (below 10, or 200 and over) needs level 15, a first job level 35,
+/// a second job level 70 for 1 / 2 / 3.
+int CX2QuestManager::JuneGetClassUpStep()
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return 0;
+
+	const CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	if( 1 == pUnit->GetUnitData().m_iUnitClassTran )
+		return 0;
+
+	const int iClass = static_cast<int>( pUnit->GetClass() );
+	const int iLevel = pUnit->GetUnitData().m_Level;
+
+	int iTier = 0;
+	if( static_cast<unsigned int>( iClass - 10 ) < 0xbe )
+		iTier = ( iClass > 99 ) ? 2 : 1;
+
+	if( 0 == iTier )
+		return ( iLevel > 14 ) ? 1 : 0;
+	if( 1 == iTier )
+		return ( iLevel > 34 ) ? 2 : 0;
+	return ( iLevel > 69 ) ? 3 : 0;
+}
+
+/// June 32344ab0 ( the level-up guide's accept buttons 1541-1544 / 1549 ): every quest of the wanted type that NPC 10004 ( Echo ) offers my class is asked for
+/// at once, and a notice box follows each. For QT_CHANGE_JOB below step 2 the quest must also be one of the job slot iJobTypeIndex_ of my class.
+void CX2QuestManager::JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ )
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	std::vector<int> vecQuest;
+	if( false == GetAvailableQuest( CX2UnitManager::NUI_ECHO, vecQuest ) || true == vecQuest.empty() )
+		return;
+
+	const CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+
+	for( UINT i = 0; i < vecQuest.size(); ++i )
+	{
+		const QuestTemplet* pQuestTemplet = GetQuestTemplet( vecQuest[i] );
+		if( NULL == pQuestTemplet )
+			continue;
+
+		if( CX2Unit::UT_NONE != pQuestTemplet->m_Condition.m_eUnitType && g_pData->GetSelectUnitType() != pQuestTemplet->m_Condition.m_eUnitType )
+			continue;
+
+		if( iQuestType_ != static_cast<int>( pQuestTemplet->m_eQuestType ) )
+			continue;
+
+		if( pQuestTemplet->m_Condition.m_setUnitClass.end() == pQuestTemplet->m_Condition.m_setUnitClass.find( pUnit->GetClass() ) )
+			continue;
+
+		if( QT_CHANGE_JOB == iQuestType_ && JuneGetClassUpStep() < 2 )
+		{
+			const ChangeJobQuest& kChangeJobQuest = GetChangeJobQuest( pUnit->GetClass() );
+			const std::set<int>& setJobQuest = kChangeJobQuest.m_setQuestID[ static_cast<CHANGE_JOB_TYPE>( iJobTypeIndex_ ) ];
+			if( setJobQuest.end() == setJobQuest.find( pQuestTemplet->m_iID ) )
+				continue;
+		}
+
+		if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIQuestNew() )
+			g_pData->GetUIManager()->GetUIQuestNew()->Handler_EGS_NEW_QUEST_REQ( pQuestTemplet->m_iID );		// 323d2b40
+
+		// June STR 44014; the position, the default OK id and time are 31d7d8c0's
+		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), SiCKTDXStringTable()->GetGeneralString( 44014 ).c_str(), (CKTDXStage*) g_pMain->GetNowState() );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
 /// Q3 debug: once per run, after the first SetUnitQuest, one sub-quest of each type the phase touches goes through MakeSubQuestString ( without and with a

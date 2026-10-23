@@ -1610,6 +1610,9 @@ class CX2Main : public CKTDXStage
 		//{{ 2008. 2. 18  최육사  유닛 클래스 치트
 		void			ChangeUnitClass( char cUnitClass );
 		void			ModifyChangeUnitClass( const char* UnitClassName );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		void			ChangeTranscendentalClassCheat( int iValue_ );		/// June 31d809c0 ( /tc )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		//}}
 		//{{ 2008. 10. 24  최육사	타이틀 치트
 		void			GetTitleCheat( int iTitleID, int iPeriod = 0 );

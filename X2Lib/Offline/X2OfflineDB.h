@@ -838,6 +838,10 @@ public:
 	/// Job advancement. The only thing that ever changes a character's class
 	/// after creation is a QT_CHANGE_JOB quest's reward.
 	bool	SaveUnitClass( UidType nUnitUID, int iUnitClass );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	/// June transcendence T2: unit.transcendence ( June CX2Unit +0x3c ), 0 / 1.
+	bool	SaveUnitTranscendence( UidType nUnitUID, int iTranscendence );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	//////////////////////////////////////////////////////////////////////////
 	// titles and their missions (phase 6)

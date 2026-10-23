@@ -670,6 +670,19 @@ bool CX2OfflineDB::Open( const wchar_t* szPath )
 		return false;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	// Not June (its billing DB is not readable): the locked TC slot click opens the shop on 288319 / 288318, and the buy pop-up shows only items with a
+	// product ( JuneOpenAtItemList ). Offered in category 33 beside the skill reset items, once; no schema change ( a flagless exe still opens the save ).
+	Exec(
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 288318, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 288318 );"
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 288319, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 288319 );" );
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT shop products 288318 / 288319 ensured in category 33" );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+
 	CX2OfflineLog::Server( L"DB       open '%s' (schema v%d, sqlite %S)",
 		szPath, (int)SCHEMA_VERSION, sqlite3_libversion() );
 
@@ -3721,6 +3734,31 @@ bool CX2OfflineDB::SaveUnitClass( UidType nUnitUID, int iUnitClass )
 	sqlite3_finalize( pStmt );
 	return bOK;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+bool CX2OfflineDB::SaveUnitTranscendence( UidType nUnitUID, int iTranscendence )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "UPDATE unit SET transcendence = ?2 WHERE unit_uid = ?1;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iTranscendence );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"save unit transcendence" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 //////////////////////////////////////////////////////////////////////////
 // title missions and titles

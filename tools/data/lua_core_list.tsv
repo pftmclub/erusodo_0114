@@ -28,3 +28,4 @@ data034	DLG_UI_Local_Map_NEW.lua	march	edit: convert convert (format change only
 data034	DLG_UI_FIELD_MAP_Ranox_04_NEW.lua	march	edit: atlas A6 (2026-10-17) June's right button to 1008 and the left button's AddDummyInt, which the Ranox port had omitted	source	2026-10-17
 data036	ShopItem.lua	march	edit: atlas E2 edit: atlas E2 adds June's VMI_ELYSION shop block	source	2026-10-17
 data036	UnitTemplet.lua	march	edit: pilot-char-revamp CH5 edit: pilot-char-revamp CH5 per-character rows	source	2026-10-21
+data036	LevelUpEvent.lua	march	edit: convert convert (format change only)	source	2026-10-23

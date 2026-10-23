@@ -329,6 +329,21 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 	// QR_TRANSCENDENTAL_CLASS, 1001 % 1000 = 1: June 32330250 @3233088e; only 42030 'Limit Break 5/5' ) is Stage 6's. Refused
 	// before anything is spent, so the quest stays open for Stage 6 instead of finishing without its class change.
 	// ERR_QUEST_18 = "an error in the change-job quest reward".
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	// Transcendence T2: the reward is paid below once June's conditions hold; a refusal leaves the quest open and spends nothing.
+	const bool bTranscendReward = ( CX2QuestManager::QT_CHANGE_TRANSCENDENTAL_CLASS == pTemplet->m_eQuestType &&
+		1 == pTemplet->m_Reward.m_iChangeUnitClassTran );
+	if( true == bTranscendReward )
+	{
+		const int iTranscendErr = JuneTranscendCheck( kRow );
+		if( NetError::NET_OK != iTranscendErr )
+		{
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE quest %d refused for unit %I64d class %d level %d: NetError %d",
+				kReq.m_iQuestID, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, iTranscendErr );
+			return iTranscendErr;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	if( CX2QuestManager::QT_CHANGE_TRANSCENDENTAL_CLASS == pTemplet->m_eQuestType &&
 		1 == pTemplet->m_Reward.m_iChangeUnitClassTran )
 	{
@@ -336,6 +351,7 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 			kReq.m_iQuestID );
 		return NetError::ERR_QUEST_18;
 	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	// Quest Q4: what this emulator does NOT do, on purpose.
 	// - Reward.m_iBuff and a title reward are not paid: March's server pays neither on completion ( UserQuestManager.cpp
@@ -588,6 +604,15 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 			kReq.m_iQuestID, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, iNewClass );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	if( true == bTranscendReward )
+	{
+		CX2OfflineDB::Instance()->SaveUnitTranscendence( kRow.m_nUnitUID, 1 );
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE quest %d unit %I64d class %d level %d: transcendence 0 -> 1",
+			kReq.m_iQuestID, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+
 	//////////////////////////////////////////////////////////////////////////
 	// Move the quest to the completed list.
 	pQuest->Finish( kReq.m_iQuestID, kAck.m_kCompleteQuestInfo );
@@ -626,6 +651,9 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 	m_kQuestAfter.m_iOldLevel	= iOldLevel;
 	m_kQuestAfter.m_iNewLevel	= iNewLevel;
 	m_kQuestAfter.m_bChangedJob	= bChangedJob;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	m_kQuestAfter.m_bTranscended = bTranscendReward;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	return NetError::NET_OK;
 }
@@ -639,12 +667,22 @@ void CX2OfflineServer::AfterQuestComplete( KOfflineSession& kSes )
 	const int  iOldLevel	= m_kQuestAfter.m_iOldLevel;
 	const int  iNewLevel	= m_kQuestAfter.m_iNewLevel;
 	const bool bChangedJob	= m_kQuestAfter.m_bChangedJob;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	const bool bTranscended	= m_kQuestAfter.m_bTranscended;
+	m_kQuestAfter.m_bTranscended = false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	m_kQuestAfter.m_bValid = false;
 
 	KOfflineUnitRow kRow;
 	if( false == LoadQuestState( kSes, kRow ) )
 		return;
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	// June sends 0x596 after the completion ACK
+	if( true == bTranscended )
+		JuneSendTranscendNot( kSes, kRow.m_iTranscendence );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	std::vector< KQuestInstance > vecQuestChanged;
 
@@ -1334,5 +1372,83 @@ bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KO
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+//////////////////////////////////////////////////////////////////////////
+// June transcendence T2
+
+/// June NetError ids ( 3264a950 English table ): 1687 second job over level 70 only, 1688 already transcendent, 1726 you cannot Transcend.
+static const int s_iJuneErrTranscendLevel		= 1687;
+static const int s_iJuneErrTranscendAlready		= 1688;
+static const int s_iJuneErrTranscendCannot		= 1726;
+
+/// June's server decides who may transcend; here the conditions are T0's ( a second job class 100-199 at level 70 or more, not yet transcended ) and then
+/// a labelled stand-in allow-list ( user, 2026-10-22 ): Aisha's EM ( 104 ), VP ( 105 ) and DW ( 113 ); each class port adds its class.
+int CX2OfflineServer::JuneTranscendCheck( const KOfflineUnitRow& kRow ) const
+{
+	if( 0 != kRow.m_iTranscendence )
+		return s_iJuneErrTranscendAlready;
+
+	if( kRow.m_iUnitClass < 100 || kRow.m_iUnitClass > 199 || kRow.m_iLevel < 70 )
+		return s_iJuneErrTranscendLevel;
+
+	if( 104 != kRow.m_iUnitClass && 105 != kRow.m_iUnitClass && 113 != kRow.m_iUnitClass )
+		return s_iJuneErrTranscendCannot;
+
+	return NetError::NET_OK;
+}
+
+/// June 0x596: two ints, the first is June's server value ( unknown, 0 ), the second the unit's new flag.
+void CX2OfflineServer::JuneSendTranscendNot( KOfflineSession& kSes, int iUnitClassTran )
+{
+	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT kNot;
+	kNot.m_iJuneUnread		= 0;
+	kNot.m_iUnitClassTran	= iUnitClassTran;
+	Reply( kSes, EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, kNot );
+
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE NOT sent: unit %I64d transcendence %d", (__int64)kSes.m_nSelectedUnitUID, iUnitClassTran );
+}
+
+/// 0x594 ( /tc, 31d809c0 ): the argument is % 1000 on the client. Non-zero transcends the selected unit, with the checks above; zero clears it ( stand-in: June's
+/// server meaning of 0 is unknown, a dev revert is useful ).
+bool CX2OfflineServer::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK kAck;
+	kAck.m_iOK = NetError::NET_OK;
+
+	KOfflineUnitRow kRow;
+	if( 0 == kSes.m_nSelectedUnitUID || false == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
+	{
+		kAck.m_iOK = NetError::ERR_UNKNOWN;
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE /tc refused: no selected unit" );
+		return Reply( kSes, EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK, kAck );
+	}
+
+	const int iValue = ( 0 != kReq.m_iValue ) ? 1 : 0;
+
+	if( 1 == iValue )
+	{
+		kAck.m_iOK = JuneTranscendCheck( kRow );
+		if( NetError::NET_OK != kAck.m_iOK )
+		{
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE /tc %d refused for unit %I64d class %d level %d: NetError %d",
+				kReq.m_iValue, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, kAck.m_iOK );
+			return Reply( kSes, EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK, kAck );
+		}
+	}
+
+	CX2OfflineDB::Instance()->SaveUnitTranscendence( kRow.m_nUnitUID, iValue );
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE /tc %d unit %I64d class %d level %d: transcendence %d -> %d",
+		kReq.m_iValue, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, kRow.m_iTranscendence, iValue );
+
+	Reply( kSes, EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK, kAck );
+	JuneSendTranscendNot( kSes, iValue );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 #endif SERV_IRUHADEV_OFFLINE

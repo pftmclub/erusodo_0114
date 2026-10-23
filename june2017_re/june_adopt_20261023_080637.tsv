@@ -1,0 +1,16 @@
+# adopt-june --bytecode run 2026-10-23 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_Class_Change_TranscendentalClass.lua	data034	new	data034	1463	afdedefa40ccb45f76b4eb7a1371dcbdc6802afe	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Add.lua	data034	new	data034	4475	dd82d479ad685ab69353ae8b3459c905724a952f	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Ain.lua	data034	new	data034	4455	5a840ee109353b21e630a11e801877fbe456f4bb	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Aisha.lua	data034	new	data034	4475	78db1f2faae908c6eb450aad2b38778f25b935d3	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Ara.lua	data034	new	data034	4483	d727b2864d25907e03099c395fc307cc53ed62e0	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Chung.lua	data034	new	data034	4495	25aa229c2c201326fd2b516cff5286d4fa49935f	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Elesis.lua	data034	new	data034	4473	c3f4e3d75b4ed343ce46668840cf907b38132b88	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Elsowrd.lua	data034	new	data034	4471	20d95e72e6cbaeca491fd7af3eb2df679c58f367	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Eve.lua	data034	new	data034	4496	aa18da798812530eb96af35927ca8c89653099c8	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Lena.lua	data034	new	data034	4475	3fde4e764ec3be34eab3e0dbbe1a9c0e0eb5893b	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Luciel.lua	data034	new	data034	4467	fa1c06489437870a8792c2df527a891bca9ccf29	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Raven.lua	data034	new	data034	4475	a6e370aa1005dd2ca702c81d5df590e4014d65e4	bytecode		ljconv
+DLG_Transcendental_Change_Guide_Rose.lua	data034	new	data034	4652	9314b7f61bb235839a3d65f3129398186d5588a8	bytecode		ljconv

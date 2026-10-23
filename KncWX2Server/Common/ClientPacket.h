@@ -5630,6 +5630,31 @@ DECL_PACKET( EGS_JUNE_DUNGEON_RETRY_ACK )
 };
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+// June 0x594 ( 31d809c0: one int, the /tc argument % 1000 ), 0x595 ( 31ef82a0: one int, the result ), 0x596 ( 31ef82f0: two ints, the client uses the second ).
+DECL_PACKET( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ )
+{
+	int								m_iValue;
+
+	KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ() : m_iValue( 0 ) {}
+};
+
+DECL_PACKET( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK )
+{
+	int								m_iOK;
+
+	KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK() : m_iOK( 0 ) {}
+};
+
+DECL_PACKET( EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT )
+{
+	int								m_iJuneUnread;
+	int								m_iUnitClassTran;
+
+	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT() : m_iJuneUnread( 0 ), m_iUnitClassTran( 0 ) {}
+};
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 6. 3  최육사		확성기

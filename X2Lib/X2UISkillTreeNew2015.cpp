@@ -1409,7 +1409,12 @@ void CX2UISkillTreeNew::CreateSkillTreePortrait( CX2Unit::UNIT_CLASS eUnitClass,
 	{
 		wstring wstrFileName = L"";
 		wstring wstrPieceName = L"";
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		// June 328e8e90: the fifth argument is my unit's flag
+		if ( true == CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, eUnitClass, CX2Data::CIT_160by160, bTranscended_ ) && NULL != pStatic->GetPicture( 1 ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		if ( true == CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, eUnitClass, CX2Data::CIT_160by160 ) && NULL != pStatic->GetPicture( 1 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 			pStatic->GetPicture( 1 )->SetTex( wstrFileName.c_str(), wstrPieceName.c_str() );
 
 		if ( NULL != g_pData->GetUnitManager() )

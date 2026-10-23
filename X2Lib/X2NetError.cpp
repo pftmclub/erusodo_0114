@@ -53,6 +53,16 @@ wchar_t* NetError::GetErrStrF( NetErrorID errorID )
 wchar_t* NetError::GetErrStr( NetErrorID errorID )
 {
     KLocker lock( csNetError );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+    // June 3264a950 English table: ids past March's ERR_SENTINEL that the transcendence flow can return
+    switch( errorID )
+    {
+    case 1687:	return L"Transcendence can only be reached by 2nd Job Class that are over Lv.70.";
+    case 1688:	return L"You have already become transcendent.";
+    case 1726:	return L"You cannot Transcend.";
+    default:	break;
+    }
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
     if( errorID >= ERR_SENTINEL || errorID < 0 ) return szErrorStr[ ERR_SENTINEL ];
     return szErrorStr[ errorID ];

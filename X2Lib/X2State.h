@@ -768,6 +768,10 @@ class CX2State : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		bool Handler_EGS_JUNE_RANDOM_MISSION_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 31efe2a0 ( X2RandomMission.cpp )
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		bool Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 31ef82a0
+		bool Handler_EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// June 31ef82f0
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 		void SetShowPictureGameStartCount( const bool bIsDungeonWait, const int iCount_ );
 

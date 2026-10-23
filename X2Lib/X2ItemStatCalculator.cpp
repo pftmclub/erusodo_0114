@@ -4,7 +4,12 @@
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 CX2ItemStatCalculator::CX2ItemStatCalculator():
 m_eUnitType(CX2Unit::UT_NONE),
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+m_eUnitClass(CX2Unit::UC_NONE),
+m_iUnitClassTran(0)
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 m_eUnitClass(CX2Unit::UC_NONE)
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 {
 
 }
@@ -420,6 +425,13 @@ void CX2ItemStatCalculator::SetUnitData( CX2Unit::UNIT_TYPE eUnitType_, CX2Unit:
 	// 타입, 클래스가 변경되면 스탯 정보도 변경되기 때문에 맵 초기화
 	m_mapItemTemplmetStat.clear();
 }
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+void CX2ItemStatCalculator::SetUnitClassTran( int iUnitClassTran_ )
+{
+	m_iUnitClassTran = iUnitClassTran_;
+	m_mapItemTemplmetStat.clear();
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 /** @function : GetItemDescDev
 	@brief : 사내 테스트를 위해 보조 디스크립션
 */

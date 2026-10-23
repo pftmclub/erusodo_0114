@@ -57,6 +57,7 @@ SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
     "SERV_IRUHADEV_JUNE_RESULT_OFFLINE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
     "SERV_IRUHADEV_JUNE_TRANSCEND_UNIT": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
+    "SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
 }
 
 

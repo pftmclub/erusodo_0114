@@ -9982,6 +9982,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-23
+// Description: June transcendence T2 - becoming transcended: the emulator takes QR_TRANSCENDENTAL_CLASS and the /tc cheat ( June REQ 0x594 / ACK 0x595 ), sends June's NOT 0x596, the client handler 31ef82f0 ( unit flag, skill tree, guide popup, quest refresh ), the popup's guide mode ( 324886b0 ), SetUnitQuest / GetNewQuest class test, the level-up guide entry 6 with buttons 1549 / 1550, the class image's transcended column. Also defined in KncWX2Server/Common/ServerDefine.h ( EventID_Client.h and ClientPacket.h precede Always.h ). Comment out both together. Log [JUNE_TRANSCEND] CHANGE. Revert: undefine in both files.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_OFFLINE ) || !defined( SERV_IRUHADEV_JUNE_QUEST_OFFLINE ) )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_OFFLINE and SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
 // Description: June transcendence T4 - the TC slots: the skips of the fifth slot of a bar go ( SetEquippedSkillFunc, ChangeEquippedSkillState, SetEquippedSkillLevelCommon; June 32024b00 loops all five ), a March class that reads the 0-7 pressed index is handed no slot for F / T, the locked-slot click ( June 32476050 case 182 / 183 ) opens the shop on item 288319 / 288318, and the emulator lifts its TC refusal for a transcended unit and sends slot-state key 1 permanent for it ( user decision 2, 2026-10-22 ). Log [JUNE_TRANSCEND] SLOT. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #if defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOT ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_UI ) || !defined( SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM ) )

@@ -349,10 +349,50 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			}
 		} break;
 #endif LINK_CASH_SHOP_WHEN_JOB_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	// June 32712790 cases 1537 / 1549 / 1550
+	case LUEMCUM_TRANSCENDENTAL:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( static_cast<LEVEL_UP_EVENT_ID>( LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL ) );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_TRANCENDENTAL:
+		{
+			JuneCloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->JuneGuideAcceptClassUpQuest( 9, 0 );		// 32344ab0( 9, 0 )
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_TRANCENDENTAL:
+		{
+			JuneCloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+			{
+				// 3222a4f0( 0 ): the calling menu is 0x1d, the item 288319 ( 0x4663f ) is the one the shop opens on, then the state toggles it open
+				g_pData->GetCashShop()->SetMenuTypeCallingCashShop( 0x1d );
+				g_pData->GetCashShop()->JunePushOpenAtItemID( 288319 );
+				CX2StateMenu* pStateMenu = (CX2StateMenu*) g_pMain->GetNowState();
+				if( NULL != pStateMenu )
+					pStateMenu->ToggleCashShop();
+			}
+		} return true;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	}
 	return false;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+void CX2LVUpEventMgr::JuneCloseChangeClassGuides()
+{
+	const LEVEL_UP_EVENT_ID aeEvent[3] = { LUEI_CHANGE_CLASS_GUIDE_FIRST, LUEI_CHANGE_CLASS_GUIDE_SECOND, static_cast<LEVEL_UP_EVENT_ID>( LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL ) };
+	for( int i = 0; i < 3; ++i )
+	{
+		CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( aeEvent[i] );
+		if ( pLVUpEvent != NULL )
+			pLVUpEvent->DeleteDialog();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 CX2LVUpEventMgr::LVUpEvent* CX2LVUpEventMgr::GetLVUpEvent( LEVEL_UP_EVENT_ID eventID )
 {
 	CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = NULL;
@@ -488,6 +528,11 @@ void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
 						g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( pDialog );
 
 						m_vecDialog.push_back( pDialog );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+						// June 327141e0: a transcendence guide file shows my class's picture ( 32711490 name test, 32710710 init )
+						if( CX2ClassChangePopup::JuneIsTranscendGuideName( dialogFileName.c_str() ) )
+							CX2ClassChangePopup::JuneInitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 					}
 
 #ifdef ADD_PLAY_SOUND //±Ë√¢«—

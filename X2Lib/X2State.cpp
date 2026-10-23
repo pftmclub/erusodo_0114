@@ -3076,6 +3076,16 @@ bool CX2State::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			return Handler_EGS_JUNE_RANDOM_MISSION_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	case EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK:
+		{
+			return Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK( hWnd, uMsg, wParam, lParam );
+		} break;
+	case EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT:
+		{
+			return Handler_EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT( hWnd, uMsg, wParam, lParam );
+		} break;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	case EGS_UPDATE_PARTY_MEMBER_STATUS_NOT:
 		{
@@ -4009,6 +4019,66 @@ bool CX2State::Handler_EGS_ADMIN_SERVER_STATUS_ACK( HWND hWnd, UINT uMsg, WPARAM
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+/// June 31ef82a0 ( state vtable +0x17c ): the /tc ACK, one int
+bool CX2State::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	if( g_pMain->DeleteServerPacket( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK ) == false )
+		return false;
+
+	return g_pMain->IsValidPacket( kEvent.m_iOK );
+}
+
+/// June 31ef82f0 ( state vtable +0x180, dispatched by 31f2ab80 @31f2bf11 ): the unit's transcendence changed
+bool CX2State::Handler_EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	CX2Unit* pUnit = NULL;
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() )
+		pUnit = g_pData->GetMyUser()->GetSelectUnit();
+
+	if( NULL == pUnit )
+		return true;
+
+	pUnit->AccessUnitData().SetUnitClassTran( kEvent.m_iUnitClassTran );			/// 3234b4a0
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+		g_pData->GetUIManager()->GetUISkillTree()->InitSkillTreeUI();				/// 3214f050, 328ed890
+
+	if( 0 != kEvent.m_iUnitClassTran )
+		g_pData->GetClassChangePopup().SetShowTranscendGuide( true );				/// 324886b0( 1, 1 )
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );	/// 328e7b70( 1, 1, 0 )
+
+	g_pData->GetItemStatCalculator().SetUnitData( pUnit->GetType(), pUnit->GetClass() );
+	g_pData->GetItemStatCalculator().SetUnitClassTran( kEvent.m_iUnitClassTran );	/// 328d6f40( type, class, flag )
+
+	if( NULL != g_pData->GetCashShop() && true == g_pData->GetCashShop()->GetOpen() )
+	{
+		CX2StateMenu* pStateMenu = (CX2StateMenu*) this;
+		if( NULL != pStateMenu )
+			pStateMenu->ToggleCashShop();											/// vslot 0xac
+	}
+
+	if( NULL != g_pData->GetQuestManager() )
+		g_pData->GetQuestManager()->GiveUpForbiddenQuest();							/// 3232ecd0
+
+	/// The class-up notice buttons ( vslot 0x104, 3245abd0 ) have no March home: Stage 9 owns them
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE NOT unit %I64d class %d transcendence %d ( the class-up notice buttons are Stage 9's )",
+		(__int64)pUnit->GetUID(), static_cast<int>( pUnit->GetClass() ), kEvent.m_iUnitClassTran );
+#endif SERV_IRUHADEV_OFFLINE
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 bool CX2State::Handler_EGS_CLIENT_QUIT_REQ()
 {
 	//KEGS_CLIENT_QUIT_REQ kPacket;

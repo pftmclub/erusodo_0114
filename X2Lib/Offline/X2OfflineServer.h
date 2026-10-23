@@ -595,6 +595,9 @@ public:
 		int		m_iOldLevel;
 		int		m_iNewLevel;
 		bool	m_bChangedJob;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		bool	m_bTranscended;			///< the QR_TRANSCENDENTAL_CLASS reward was paid: AfterQuestComplete sends June's 0x596
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 		KQuestAfter()
 			: m_bValid( false )
@@ -602,6 +605,9 @@ public:
 			, m_iOldLevel( 0 )
 			, m_iNewLevel( 0 )
 			, m_bChangedJob( false )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+			, m_bTranscended( false )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		{
 		}
 	};
@@ -1243,6 +1249,13 @@ private:
 	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	/// June transcendence T2 ( Handlers_Quest.cpp ): the /tc REQ 0x594 and the shared check / grant / 0x596 notify.
+	bool Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	int  JuneTranscendCheck( const KOfflineUnitRow& kRow ) const;
+	void JuneSendTranscendNot( KOfflineSession& kSes, int iUnitClassTran );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	/// June dungeon result R2 ( Handlers_Room.cpp ): the retry REQ 0x648, a bodyless SendID.

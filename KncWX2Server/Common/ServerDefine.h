@@ -4756,3 +4756,11 @@
 //              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
 #define SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: June transcendence T2, events 0x594 / 0x595 / 0x596 ( change REQ / ACK / NOT ), client flag ( offline only ). Also defined in KTDXLIB/Always.h; this second
+//              home exists because EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+//////////////////////////////////////////////////////////////////////////

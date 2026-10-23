@@ -2735,6 +2735,9 @@ void CX2CashShop::SetOpen( bool bOpen )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		case 0x32:	// June 3224a680 ( menu type 0x32, the locked TC slot click ) opens the shop's tab 3 with 0x1d / 0x26 / 0x30 / 0x31
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		case 0x1d:	// June 3222a4f0( 0 ), the level-up guide's buy button: the same tab
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		case CX2UIManager::UI_SKILL_NOTE:
 			{
 				// # 메모 구매를 위한 카테고리로 이동 

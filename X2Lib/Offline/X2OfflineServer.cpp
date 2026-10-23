@@ -708,6 +708,9 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( kSes, kEvent );
 	case EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	case EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ:		return Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	//////////////////////////////////////////////////////////////////////////
 	// the skill tree - Handlers_Skill.cpp

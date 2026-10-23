@@ -3492,6 +3492,9 @@ void CX2Main::RegisterLuabind()
 	//{{ 2008. 2. 18  최육사  유닛 클래스 치트
 	lua_tinker::class_def<CX2Main>( L, "ChangeUnitClass",				&CX2Main::ChangeUnitClass );
 	lua_tinker::class_def<CX2Main>( L, "ModifyChangeUnitClass",			&CX2Main::ModifyChangeUnitClass );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	lua_tinker::class_def<CX2Main>( L, "ChangeTranscendentalClassCheat",	&CX2Main::ChangeTranscendentalClassCheat );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	//}}
 
 	// kimhc // 2011-05-30 // 그노시스 기간 만료 치트
@@ -12145,6 +12148,21 @@ void CX2Main::ChangeUnitClass( char cUnitClass )
 		AddServerPacket( EGS_ADMIN_CHANGE_UNIT_CLASS_ACK );
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+/// June 31d809c0: auth level 3 or more and a selected unit; REQ 0x594 with arg % 1000, then waits for ACK 0x595
+void CX2Main::ChangeTranscendentalClassCheat( int iValue_ )
+{
+	if( g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_DEV &&
+		g_pData->GetMyUser()->GetSelectUnit() != NULL )
+	{
+		KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ kPacket;
+		kPacket.m_iValue = iValue_ % 1000;
+
+		g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ, kPacket );
+		AddServerPacket( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 void CX2Main::ModifyChangeUnitClass( const char* UnitClassName )
 {
 	wstring wsUnitClassName;

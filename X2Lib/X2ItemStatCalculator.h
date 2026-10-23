@@ -75,6 +75,9 @@ public:
 							IN const CX2SocketItem::KItemStatRelLVData& sStatRelLVData_ = CX2SocketItem::ms_KDummyItemStatRelLVData,
 							IN CX2Unit::UNIT_TYPE eUnitType_ = CX2Unit::UT_NONE, IN CX2Unit::UNIT_CLASS eUnitClass_ = CX2Unit::UC_NONE );
 	void SetUnitData( CX2Unit::UNIT_TYPE eUnitType_, CX2Unit::UNIT_CLASS eUnitClass_ );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	void SetUnitClassTran( int iUnitClassTran_ );		// June 328d6f40's third argument: stored ( T5 reads it ), the cache cleared
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	bool IsRandomSocketOptionItem( const CX2Item::ItemTemplet* pItemTemplet ) const;
 
@@ -105,6 +108,9 @@ private:
 
 	CX2Unit::UNIT_TYPE				m_eUnitType;
 	CX2Unit::UNIT_CLASS				m_eUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+	int								m_iUnitClassTran;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 };
 
 #endif //SERV_NEW_ITEM_SYSTEM_2013_05

@@ -967,6 +967,10 @@ class CX2QuestManager
 		static bool	IsMonthQuestExpired( __int64 tCompleteDate_ );			// 32321d10: QRT_MONTH, reset at the 1st 00:00 local
 		static bool	IsAnyDungeonCondition( const ClearCondition& kCond_ );	// 32322290: the dungeon set is exactly { DI_NONE }
 		int		GetClassUpQuestNoticeState( int iClassUpStep_ );			// 32336310: 0 / 1 / 2 for the class-up notice buttons ( the step comes from the UI )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		static int	JuneGetClassUpStep();									// 31edf870: 0 transcended or too low, 1 / 2 / 3 the level band of the class step
+		void	JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ );	// 32344ab0: the level-up guide's accept button
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		const map<int,bool>&	GetChainStartableMap() const { return m_mapChainStartable; }
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
 		void	JuneQuestSelfCheck();										// Q3 debug: [JUNE_QUEST] RUN chk lines, once per run

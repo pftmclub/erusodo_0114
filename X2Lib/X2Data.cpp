@@ -2960,6 +2960,47 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	return false;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+/*static*/ bool CX2Data::GetCharacterImageName( OUT wstring& fileName, OUT wstring& pieceName, const CX2Unit::UNIT_CLASS eUnitClass, const CHARACTER_IMAGE_TYPE eImageType, const bool bTranscend )
+{
+	if( false == GetCharacterImageName( fileName, pieceName, eUnitClass, eImageType ) )
+		return false;
+
+	if( false == bTranscend )
+		return true;
+
+	// June's image table keeps a second file / piece pair per class ( record +0x38 / +0x54 ); read off the static initializer for the classes whose port
+	// is in: Aisha's EM ( 104 ), VP ( 105 ) and DW ( 113 ), the image types that have a pair ( 160by160, gray, 50by50, 20by20, gauge, party ). Dungeon clear is the same
+	// picture; the class initial has none; the unit slot is the character select's ( Stage 9 ).
+	const WCHAR* pwszPrefix = NULL;
+	switch( eUnitClass )
+	{
+	case 104:	pwszPrefix = L"E_MASTER";	break;
+	case 105:	pwszPrefix = L"V_PRINCESS";	break;
+	case 113:	pwszPrefix = L"D_WITCH";	break;
+	default:	return true;
+	}
+
+	const WCHAR* pwszFile = NULL;
+	const WCHAR* pwszSuffix = NULL;
+	switch( eImageType )
+	{
+	case CIT_160by160:		pwszFile = L"DLG_UI_Common_Texture98_NEW.tga";		pwszSuffix = L"_LARGE";		break;
+	case CIT_160by160Gray:	pwszFile = L"DLG_UI_Common_Texture98_GRAY.tga";		pwszSuffix = L"_LARGE_GRAY";	break;
+	case CIT_50by50:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_MEDIUM";	break;
+	case CIT_20by20:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_ICON";		break;
+	case CIT_MyGage:		pwszFile = L"DLG_UI_Common_Texture97_NEW.tga";		pwszSuffix = L"_STATE";		break;
+	case CIT_Party:			pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_PARTY";		break;
+	default:				return true;
+	}
+
+	fileName = pwszFile;
+	pieceName = L"TR_";
+	pieceName += pwszPrefix;
+	pieceName += pwszSuffix;
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 #ifdef SERV_PVP_NEW_SYSTEM
 /*static*/ bool CX2Data::GetPvpNpcImageName( OUT wstring& fileName, OUT wstring& pieceName, CX2UnitManager::NPC_UNIT_ID iNpcId )
 {
