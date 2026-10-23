@@ -5037,5 +5037,5 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
   table logs one line and the normal rows stay.
 - **Data** (data036, packed and copied 2026-10-23). `Enum.lua` gains `UC_150 = 150` (core list; June's stat table names it in its second class row,
   and March's loader stops at an unknown row). `CharacterStatTable.lua` is June's (`adopt-june`, ljconv bytecode); every row March has is equal to
-  June's. Revert: restore `kom_backup_stage_juneÂ‚61023_222737\` and remove the `UC_150` line, refresh, repack.
+  June's. Revert: restore `kom_backup_stage_june‚61023_222737\` and remove the `UC_150` line, refresh, repack.
 - **Turn off:** comment out the define in `Always.h` and rebuild.
