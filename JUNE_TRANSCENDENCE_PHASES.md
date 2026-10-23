@@ -408,7 +408,7 @@ Ghidra (read-only) and raw capstone (`disasm_range.py`) against `32df3d2f`. New 
 - **Hygiene.** T3 range `--range 32df3d2f^..32df3d2f`: `files: 5 PASS, 4 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted,
   0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Review edits (`--worktree --files`, 3 files): `3 PASS, 0 FAIL`;
   `6 deleted line(s)`, all T3's own flagged lines replaced above; `RESULT: PASS`.
-- **Deploy.** `BUILD OK: X2/US_SERVICE/x2.exe 25,824,768 B, 2026-10-23 21:23:13`; deploy refused while the game ran (pid 20468), `--deploy-only` after it closes.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,824,768 B, dated 2026-10-23 21:28:18, md5 db3ace7d0f827a8181ef22e3d96efd85, equal to X2/US_SERVICE/x2.exe (2026-10-23 21:23:13); built at main 4dcf54e7.`
 - **Data.** data036 is in the game (`data036.kom` md5 `96b15430` = `data036_packed.kom`); the 21:01 run logged `load=1 288319=0 288323=1 288318=1`.
 - **Kickoffs.** `T4-review.md`: notes the medal's 1686 inside `_SLOT`'s block. `T5.md`: still right (T3 touches none of its files).
 - **Open (no question):** the bag-use path refuses only the medal and the book by type; other type-1 items (288509 / 288510 / 288355 / 288357 / 288320-2)
