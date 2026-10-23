@@ -313,6 +313,55 @@ bool CX2ItemManager::OpenJuneDivisionItemTempletFile( const WCHAR* pFileName )
 	return bLoaded;
 }
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+void CX2ItemManager::AddTranscendentalUnitType_LUA( int iUnitType )
+{
+	m_mapJuneTranscendentalUnitType.insert( std::make_pair( iUnitType, std::set<int>() ) );
+}
+
+void CX2ItemManager::AddTranscendentalClassItem_LUA( int iItemID, int iType )
+{
+	m_mapJuneTranscendentalClassItem.insert( std::make_pair( iItemID, iType ) );
+}
+
+int CX2ItemManager::GetTranscendentalClassItemType( int iItemID ) const
+{
+	std::map< int, int >::const_iterator mit = m_mapJuneTranscendentalClassItem.find( iItemID );
+	return ( mit == m_mapJuneTranscendentalClassItem.end() ) ? -1 : mit->second;
+}
+
+bool CX2ItemManager::IsTranscendentalUnitType( int iUnitType, int iUnitClass ) const
+{
+	std::map< int, std::set<int> >::const_iterator mit = m_mapJuneTranscendentalUnitType.find( iUnitType );
+	if( mit == m_mapJuneTranscendentalUnitType.end() )
+		return false;
+
+	if( 0 == iUnitClass || true == mit->second.empty() )
+		return true;
+
+	// June gates three entries on code events ( 0x920 Ain, 0x921 class 135, 0x923 class 136 ); the emulator never sends a code event
+	if( NULL != g_pInstanceData )
+	{
+		if( true == g_pInstanceData->IsEnableCode( 0x920 ) )
+		{
+			if( 12 == iUnitType )
+				return false;
+		}
+		else if( true == g_pInstanceData->IsEnableCode( 0x921 ) )
+		{
+			if( 0x87 == iUnitClass )
+				return false;
+		}
+		else if( true == g_pInstanceData->IsEnableCode( 0x923 ) )
+		{
+			if( 0x88 == iUnitClass )
+				return false;
+		}
+	}
+
+	return mit->second.find( iUnitClass ) != mit->second.end();
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 bool CX2ItemManager::OpenScriptFile( const WCHAR* pFileName )
 {
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pItemManager", this );

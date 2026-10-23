@@ -6688,6 +6688,30 @@ bool CX2UIInventory::OnRClickedItem( D3DXVECTOR2 mousePos )
 			// 마을추가시 마을귀환서 추가
             switch(pItem->GetItemTemplet()->GetItemID())
 			{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+			case 288493:	// Book of Transcendence: God's Will; June 321aa5d0 @321bf5ef-321bf83c
+				{
+					const CX2ItemManager* pItemManager = g_pData->GetItemManager();
+					const int iTranscendItemType = pItemManager->GetTranscendentalClassItemType( 288493 );
+					int iTranscendErr = 0;
+
+					if( false == pItemManager->IsTranscendentalUnitType( (int) pUnit->GetType(), (int) pUnit->GetClass() ) )
+						iTranscendErr = 1726;
+					else if( 0 == iTranscendItemType && 0 != pUnitData->m_iUnitClassTran )
+						iTranscendErr = 1727;
+					else if( 1 == iTranscendItemType && 1 != pUnitData->m_iUnitClassTran )
+						iTranscendErr = 1675;
+
+					if( 0 != iTranscendErr )
+					{
+						g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), NetError::GetErrStr( iTranscendErr ), g_pMain->GetNowState() );
+						return true;
+					}
+
+					Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( pItemSlot->GetItemUID() );
+					return true;
+				} break;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 			case WARP_ITEM_RUBEN_ITEM_ID: // 루벤마을 귀환서
 				{
 					m_WarpItem = pItemSlot->GetItemUID();

@@ -538,6 +538,10 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   (`3215fd30`). Also: the GFx cash shop's transcend-item filter by `TranscendentalClassItem` type (`3222a840` / `3222af00` / `3222ec70` /
   `32233860`, `3290c490`; getter `32807fe0`, which T3 ports) and the world map's quest marks (`32260ba0`, the `QR_` condition at quest
   `+0xe0`).
+  From T3 (2026-10-23): the job-ticket kind helper on the unit's inventory (`32869940`: 0x27d80 / 0x2783e / 0x2da9d.. -> 1, 0x2da9f /
+  0x2daa0 / 0x5f5eeeb -> 2 or 0 by the flag), read by the inventory's ticket confirm (`@32190c09`, event 0x558) and `CX2CashShop::MouseLRButtonUpEquip`
+  (`@3290d692`); the 1st-job ticket refusals (NetError 1737 / 1738) and the right-click cases 163200 / 163316 / 163323 / 163325 / 161854
+  (class step 2 and transcended -> 1727; `321aa5d0 @321b8b1a` / `@321bc8bd`), which March has no case for.
 - **The TC-slot class-guide effect** *(from june-transcend T4, 2026-10-23)*. June `322d8100` (called from the game's OnFrameMove `32308c20`) is not a
   cool-time loop: it visits only slots 4 and 9 and, while the slot's skill is not type 0xc / 0xd, the hyper-mode time is above a threshold and the
   unit has an unfinished buff BTI 820 (`3227b860( 0x334 )`), shows a guide particle on the slot (guide 4, `31d71810( 4 )` = `JuneCanShowClassGuide`,

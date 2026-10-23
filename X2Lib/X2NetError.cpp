@@ -63,6 +63,19 @@ wchar_t* NetError::GetErrStr( NetErrorID errorID )
     default:	break;
     }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+    // June 3264a950 English table ( 337379b8 ): the item-use refusals of the transcendence items
+    switch( errorID )
+    {
+    case 1675:	return L"Incorrect method of Transcendence.";
+    case 1676:	return L"You cannot Transcend to the same rank.";
+    case 1677:	return L"This Transcendence does not exist.";
+    case 1684:	return L"Transcendence Slots can only be used after becoming Transcendent.";
+    case 1686:	return L"Can only be used after being transcendent";
+    case 1727:	return L"You can no longer use this item after Transcendence.";
+    default:	break;
+    }
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
     if( errorID >= ERR_SENTINEL || errorID < 0 ) return szErrorStr[ ERR_SENTINEL ];
     return szErrorStr[ errorID ];

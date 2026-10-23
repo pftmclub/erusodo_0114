@@ -10008,3 +10008,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_ADMIN_CHEATS needs SERV_IRUHADEV_OFFLINE and SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 #endif SERV_IRUHADEV_ADMIN_CHEATS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: June transcendence T3 - the transcendence items: TranscendentalClassItem.lua ( AddTranscendentalUnitType / AddTranscendentalClassItem, June 328189d0 / 3280b6c0 ), the Book of Transcendence check in the inventory right-click ( 321aa5d0 @321bf5ef ), NetError 1675-1686 / 1727 texts, and the emulator's book, transcendence class-change tickets and type 0 / type 1 refusals ( stand-ins ). Log [JUNE_TRANSCEND] ITEM. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_ITEM ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOT ) )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_ITEM needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( JuneTranscendCheck ) and SERV_IRUHADEV_JUNE_TRANSCEND_SLOT ( the medal refusal )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+//////////////////////////////////////////////////////////////////////////

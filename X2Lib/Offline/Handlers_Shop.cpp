@@ -578,13 +578,100 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 	// This runs before the room check on purpose. The item never enters the
 	// inventory, so a full bag is no reason to refuse it - and refusing on a
 	// full bag is what the room check below would have done.
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// June TranscendentalClassItem.lua: type 0 = before transcendence only, type 1 = after only. June's server refusals are not readable; stand-ins.
+	const int iTranscendItemType = g_pData->GetItemManager()->GetTranscendentalClassItemType( iItemID );
+
+	if( -1 != iTranscendItemType )
+	{
+		KOfflineUnitRow kTranscendUnit;
+		if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kTranscendUnit ) )
+			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+
+		int iTranscendErr = NetError::NET_OK;
+		if( 0 == iTranscendItemType && 0 != kTranscendUnit.m_iTranscendence )
+			iTranscendErr = 1727;
+		else if( 1 == iTranscendItemType && 0 == kTranscendUnit.m_iTranscendence )
+			iTranscendErr = 1686;
+		else if( 288319 == iItemID || 288493 == iItemID )
+			iTranscendErr = JuneTranscendCheck( kTranscendUnit );
+
+		if( NetError::NET_OK != iTranscendErr )
+		{
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM claim of %d refused for unit %I64d class %d level %d transcendence %d: NetError %d (the deposit line is left in place)",
+				iItemID, (__int64)kSes.m_nSelectedUnitUID, kTranscendUnit.m_iUnitClass, kTranscendUnit.m_iLevel, kTranscendUnit.m_iTranscendence, iTranscendErr );
+
+			kAck.m_iOK = iTranscendErr;
+			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+		}
+
+		if( 288319 == iItemID || 288493 == iItemID )
+		{
+			// the Book of Transcendence is claimed, not carried ( June: "Purchasing this item will immediately put the current character in Transcendence" )
+			if( false == pDB->DeleteCashOrder( kSes.m_nUserUID, pRow->m_nTransNo ) )
+				return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+
+			pDB->SaveUnitTranscendence( kSes.m_nSelectedUnitUID, 1 );
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM book %d claimed: unit %I64d transcendence 0 -> 1 (the medal June mails with it is not given: key 1 is permanent)",
+				iItemID, (__int64)kSes.m_nSelectedUnitUID );
+
+			kAck.m_iOK = NetError::NET_OK;
+			Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+			JuneSendTranscendNot( kSes, 1 );
+			return true;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// a transcendence class change ticket ( type 1 ) takes its class from item.kim
+	int iNewClass = ClassChangeTargetOf( iItemID );
+	if( 0 == iNewClass && 1 == iTranscendItemType )
+	{
+		const CX2Item::ItemTemplet* pTicketTemplet = CX2OfflineInventory::Templet( iItemID );
+		if( NULL != pTicketTemplet && (int)pTicketTemplet->GetUnitClass() >= 100 )
+			iNewClass = (int)pTicketTemplet->GetUnitClass();
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	const int iNewClass = ClassChangeTargetOf( iItemID );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
 	if( 0 != iNewClass )
 	{
 		KOfflineUnitRow kUnit;
 		if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kUnit ) )
 			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+		if( 1 == iTranscendItemType )
+		{
+			// June's server texts: same rank 1676, another character's class 1675; a class off the allow-list reuses JuneTranscendCheck on the target class
+			int iTicketErr = NetError::NET_OK;
+			if( iNewClass == kUnit.m_iUnitClass )
+				iTicketErr = 1676;
+			else if( CX2OfflineStatTable::UnitTypeOf( iNewClass ) != CX2OfflineStatTable::UnitTypeOf( kUnit.m_iUnitClass ) )
+				iTicketErr = 1675;
+			else
+			{
+				KOfflineUnitRow kTarget = kUnit;
+				kTarget.m_iTranscendence	= 0;
+				kTarget.m_iUnitClass		= iNewClass;
+				iTicketErr = JuneTranscendCheck( kTarget );
+			}
+
+			if( NetError::NET_OK != iTicketErr )
+			{
+				CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM ticket %d to class %d refused for unit %I64d class %d: NetError %d (the deposit line is left in place)",
+					iItemID, iNewClass, (__int64)kUnit.m_nUnitUID, kUnit.m_iUnitClass, iTicketErr );
+
+				kAck.m_iOK = iTicketErr;
+				return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+			}
+
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM ticket %d: unit %I64d class %d -> %d, transcendence %d kept",
+				iItemID, (__int64)kUnit.m_nUnitUID, kUnit.m_iUnitClass, iNewClass, kUnit.m_iTranscendence );
+		}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
 		// The two guards the client itself applies before it will even offer the
 		// purchase (X2CashShop.cpp:6096-6109), re-checked here because the client

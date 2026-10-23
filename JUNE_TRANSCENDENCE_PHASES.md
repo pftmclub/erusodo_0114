@@ -371,6 +371,24 @@ closes the popup, and the log shows no `CloseTranscendGuide` line (that stand-in
 **Done gate:** each Aisha ticket (288323-288325, 242160-242180) behaves as June (T0's table), with the error text June shows; log
 `[JUNE_TRANSCEND] ITEM`.
 
+### T3 - Done (2026-10-23, Sonnet 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ITEM` (`Always.h`; `#error` guard needs `_CHANGE` and `_SLOT`). Log `[JUNE_TRANSCEND] ITEM`.
+- **Map and data.** `CX2ItemManager`: `AddTranscendentalUnitType` `328189d0`, `AddTranscendentalClassItem` `3280b6c0`, getter `32807fe0`, and `IsTranscendentalUnitType` `3280a090` (the T0 row for it was missing: class 0 / empty set -> true, code-event clauses 0x920 / 0x921 / 0x923, then the set lookup). Bound in `X2Main.cpp`. `TranscendentalClassItem.lua` adopted (`adopt-june`, June's bytecode, data036) and loaded at the end of `ResetItemManager`: March has no `EventSealItemData` / `UnlockSocketItemData` load to sit between. One `ErrorLog` line `JUNE_TRANSCEND ITEM load=1 288319=0 288323=1 288318=1` proves the load.
+- **Client check.** `X2UIInventory.cpp` `case 288493` (June `321aa5d0 @321bf5ef-321bf88c`): type map miss -> 1726, type 0 and transcended -> 1727, type 1 and not transcended -> 1675 (June's `0x68b`, JUNE_BUGS 414: dead for 288493, which is type 0), else the generic use request. The job-ticket cases 163200 / 163316 / 163323 / 163325 / 161854 have no March case (tickets are claimed from the cash shop, never right-clicked): not ported, routed.
+- **NetError.** `X2NetError.cpp`: June's texts for 1675 / 1676 / 1677 / 1684 / 1686 / 1727 (strings read from `unpacked_x2.exe` 0x1950398-0x19508e0).
+- **Emulator (stand-ins).**
+  - Book 288493 (use from the bag, `Handlers_Inventory.cpp`) and 288319 (claim, `Handlers_Shop.cpp`): transcended -> 1727 first, else `JuneTranscendCheck` (1687 / 1688 / 1726), then flag 1 + `JuneSendTranscendNot`. The medal June mails with it is not given.
+  - Claim path: type 0 item on a transcended unit -> 1727; type 1 on an untranscended one -> 1686 (covers the 242130-242300 second-job tickets and 288318).
+  - Tickets 288323-288325 (type 1, class from item.kim): same class 1676, another character 1675, off the allow-list through `JuneTranscendCheck` on the target class; otherwise the existing class-change path, transcendence kept.
+  - Medal 288318 untranscended: 1686 (T4's refusal, new id). Three shop products 288323-288325 in category 33 (`X2OfflineDB::Open`, idempotent).
+- **Routed (scope rule).** `32869940` (T0's `32869900` was the region start) is `CX2Inventory`'s job-ticket kind helper, read by the inventory ticket confirm `@32190c09` and `CX2CashShop::MouseLRButtonUpEquip` `@3290d692`; with NetError 1737 / 1738 and the right-click ticket cases it is a bullet under Stage 9's "Transcendence in the June UI" (`JUNE_PORT_BACKLOG_ORDER.md`). The cash shop's type filter (`3222a840` ...) was already routed there by T0, so the shop still lists every ticket.
+- **Data.** data036 packed (`PACK OK`, +1 `TranscendentalClassItem.lua`); **copy pending** (ask). Revert: delete the file, its manifest key, repack.
+- **Hygiene** (`flagcheck --worktree --files` on 10 files): `files: 5 PASS, 4 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,824,768 B, dated 2026-10-23 20:59:04, md5 e4689c70e8cf3aec59c9d65e0d9b28c3, equal to X2/US_SERVICE/x2.exe (2026-10-23 20:58:57); built at main 223eeec9 + 10 uncommitted code file(s).`
+- **How to see it:** auth level 3; unit 52 (`ArmeVP`, 105). `python tools/elsdb.py settranscend 52 0`, then `/additem 288493`: right-click it in the bag -> the unit is transcended, the guide popup opens (log `ITEM book 288493 used`). A second `/additem 288493` right-click -> pop-up "You can no longer use this item after Transcendence." In the cash shop (category 33): 288323 on VP -> class changes to EM, transcendence kept; 288324 on VP -> 1676; 242160 on a transcended unit -> 1727; 288323 on an untranscended unit -> 1686.
+- **Open for the user:** copy data036 (the file above is the only new entry). No design question.
+
 ## Phase T4 - The TC slots (A-5 / F and B-5 / T)
 
 **Run with:** Sonnet 5.5 high (Opus if T0 finds a new mechanism), then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOT`.

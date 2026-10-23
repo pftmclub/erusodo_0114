@@ -683,6 +683,21 @@ bool CX2OfflineDB::Open( const wchar_t* szPath )
 	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT shop products 288318 / 288319 ensured in category 33" );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// Not June: Aisha's transcendence class change tickets 288323 / 288324 / 288325 offered in category 33 beside the book, once
+	Exec(
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 288323, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 288323 );"
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 288324, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 288324 );"
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 288325, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 288325 );" );
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM shop products 288323 / 288324 / 288325 ensured in category 33" );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+
 	CX2OfflineLog::Server( L"DB       open '%s' (schema v%d, sqlite %S)",
 		szPath, (int)SCHEMA_VERSION, sqlite3_libversion() );
 

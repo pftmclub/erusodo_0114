@@ -512,7 +512,11 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 	{
 		if( false == pSkill->IsUnitTranscended() )
 		{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+			kAck.m_iOK = 1686;	// June type 1: "Can only be used after being transcendent"
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 			kAck.m_iOK = NetError::ERR_USE_ITEM_IN_INVENTORY_00;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
 			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT medal 288318 refused - unit %I64d is not transcended (the medal is left in the bag)",
 				(__int64)kSes.m_nSelectedUnitUID );
@@ -524,6 +528,31 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 			(__int64)kSes.m_nSelectedUnitUID );
 	}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// 288493 Book of Transcendence ( type 0 ): June's server is not readable. Stand-in: the quest's checks ( JuneTranscendCheck ), refused with the book kept.
+	bool bJuneTranscendBook = false;
+	if( 288493 == kRow.m_iItemID || 288319 == kRow.m_iItemID )
+	{
+		KOfflineUnitRow kTranscendUnit;
+		if( false == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kTranscendUnit ) )
+			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+
+		// type 0 is "before transcendence only" ( 1727 ); the quest's check says 1688, which is June's text for a /tc on a transcended unit
+		const int iTranscendErr = ( 0 != kTranscendUnit.m_iTranscendence ) ? 1727 : JuneTranscendCheck( kTranscendUnit );
+		if( NetError::NET_OK != iTranscendErr )
+		{
+			kAck.m_iOK = iTranscendErr;
+
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM book %d refused for unit %I64d class %d level %d: NetError %d (the book is left in the bag)",
+				kRow.m_iItemID, (__int64)kSes.m_nSelectedUnitUID, kTranscendUnit.m_iUnitClass, kTranscendUnit.m_iLevel, iTranscendErr );
+
+			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+		}
+
+		bJuneTranscendBook = true;
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
 	// Phase 21: "Camilla's Secret Manual" (270970-270973) and every other
 	// unseal item. Checked before anything is consumed - the live server refuses
@@ -1010,6 +1039,17 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 		pTemplet->GetNumSpecialAbility(), pTemplet->GetNumBuffFactorPtr() );
 
 	Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// the book consumed: transcend the unit, then June's 0x596 after the ACK ( same order as the quest )
+	if( true == bJuneTranscendBook )
+	{
+		CX2OfflineDB::Instance()->SaveUnitTranscendence( kSes.m_nSelectedUnitUID, 1 );
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM book %d used: unit %I64d transcendence 0 -> 1 (the medal it mails in June is not given: key 1 is permanent)",
+			kRow.m_iItemID, (__int64)kSes.m_nSelectedUnitUID );
+		JuneSendTranscendNot( kSes, 1 );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
 #ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	// KGSUser::OnUseItemInInventory -> ActivateItemBuff (GSUserFunction.cpp:7366-7383),

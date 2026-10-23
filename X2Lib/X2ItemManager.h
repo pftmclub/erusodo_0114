@@ -612,6 +612,16 @@ class CX2ItemManager
 		int		m_iJuneEquipFxSkippedDuplicate;
 	public:
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+		void	AddTranscendentalUnitType_LUA( int iUnitType );													// 328189d0
+		void	AddTranscendentalClassItem_LUA( int iItemID, int iType );										// 3280b6c0
+		int		GetTranscendentalClassItemType( int iItemID ) const;											// 32807fe0: -1 none, 0 before transcendence only, 1 after only
+		bool	IsTranscendentalUnitType( int iUnitType, int iUnitClass ) const;								// 3280a090
+	private:
+		std::map< int, std::set<int> >	m_mapJuneTranscendentalUnitType;		// June +0x3b0: unit type -> class set ( empty in TranscendentalClassItem.lua )
+		std::map< int, int >			m_mapJuneTranscendentalClassItem;		// June +0x3c0: item id -> type
+	public:
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	protected:
 		//{{ 080721.hoons.
 #ifndef	X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING

@@ -1868,6 +1868,18 @@ CX2ItemManager* CX2Data::ResetItemManager()
 	m_pItemManager->OpenJuneDivisionItemTempletFile( L"RenderDivisionItemTemplet.lua" );
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// June 31edda90 loads it after EventSealItemData; March has no such load, so it follows the June loads above
+	{
+		const bool bTranscendItemLoaded = m_pItemManager->OpenScriptFile( L"TranscendentalClassItem.lua" );
+		WCHAR wszJuneItem[160] = {0};
+		StringCchPrintfW( wszJuneItem, ARRAY_SIZE(wszJuneItem), L"JUNE_TRANSCEND ITEM load=%d 288319=%d 288323=%d 288318=%d",
+			bTranscendItemLoaded ? 1 : 0, m_pItemManager->GetTranscendentalClassItemType( 288319 ), m_pItemManager->GetTranscendentalClassItemType( 288323 ),
+			m_pItemManager->GetTranscendentalClassItemType( 288318 ) );
+		ErrorLogMsg( XEM_ERROR142, wszJuneItem );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+
 #ifdef MODIFY_FIND_SHOP_IMAGE_FILE_NAME
 	m_pItemManager->CreateShopImageNameList();
 #endif // MODIFY_FIND_SHOP_IMAGE_FILE_NAME

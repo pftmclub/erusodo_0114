@@ -3643,6 +3643,11 @@ void CX2Main::RegisterLuabind()
 	// X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING guard above, which is ON here (AddItemTemplet goes through the proxies instead).
 	lua_tinker::class_def<CX2ItemManager>( L, "AddDivisionItemTemplet_LUA",	&CX2ItemManager::AddDivisionItemTemplet_LUA );
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
+	// June2017 31db3c8f / 31db3f10: TranscendentalClassItem.lua
+	lua_tinker::class_def<CX2ItemManager>( L, "AddTranscendentalUnitType",	&CX2ItemManager::AddTranscendentalUnitType_LUA );
+	lua_tinker::class_def<CX2ItemManager>( L, "AddTranscendentalClassItem",	&CX2ItemManager::AddTranscendentalClassItem_LUA );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	lua_tinker::class_def<CX2ItemManager>( L, "AddShopItemList_LUA",		&CX2ItemManager::AddShopItemList_LUA );
 	lua_tinker::class_def<CX2ItemManager>( L, "AddShopItemGroup_LUA",		&CX2ItemManager::AddShopItemGroup_LUA );
 	lua_tinker::class_def<CX2ItemManager>( L, "AddRandomItemTemplet",		&CX2ItemManager::AddRandomItemTemplet_LUA );
