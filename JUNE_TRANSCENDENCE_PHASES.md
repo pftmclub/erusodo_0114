@@ -456,6 +456,36 @@ Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOT` (`Always.h`; `#error` guard needs `_TRA
 4. *Reverting.* Close, `settranscend 52 0`, start: a skill left in A-5 / B-5 is unequipped by the UI (June `328e18d0`) or shows locked.
 Then say "check logs".
 
+### T4 - Review (2026-10-23, Opus 5.5): one fix under the same flag
+
+Ghidra (read-only) against `c70dc0db` and `03b0e6de` (and the `cash_product` rows that rode in `4c82e1ff`). New June rows: funcmap `Transcend T4 review`.
+- **Skips: match June.** `32024b00` loops `0..4` (`while < 5`) with no flag test; its callers are vtable slots only (13 class vtables). `3220e3b0` gates
+  slots 5-8 on key 0 and slot 9 on key 1, never slot 4: A-TC is locked by the UI (`328dfab0`) and the emulator's refusal. March's four loops now run five.
+- **Press.** `31fcadd0`: F (`+0x872b`) -> slot 4 with no lock test; T (`+0x872f`) -> slot 9 only when `32890ee0( 1 )`, else on to the expand test and
+  the B keys. Aisha's `JuneCommonSpecialAttackEventProcess` follows that order. Only `X2GUUser.cpp` reads `oneSkill5` / `oneSkillEx5` (grep over
+  `X2Lib` / `KTDXLIB`: the March guard, Aisha's press, the input clear, `X2Game.cpp`'s key map), so no March class indexes -1.
+- **Fix: T tests my unit's key 1.** June calls `32890ee0` on `g_pData +0x68 +0x90 +0x494` (my select unit's tree, `@31fcaf87`), not on the pressing
+  unit's. Both March sites used `cUserSkillTree_`. Now `JuneIsMyUnitSlotUsable( 1 )`, kept verbatim (JUNE_BUGS 415). No change for the player's own unit.
+- **Click: matches June.** Cases 0xb6 / 0xb7: `+0x3c == 0` / `32890ea0( 1 ) == 0` (March `GetJuneSlotState( 1 )`, `SSBES_EXPIRED` = 0); `32530a80(
+  &g_pX2Game, 0 )` = `g_pX2Game != NULL`; state 0x15 = `XS_BATTLE_FIELD` (the quick-slot and skill-slot cases use the same test); STR_ID_16478 in
+  `#CFFFF00`; else `+0x31c = 0x32`, push 288319 / 288318, `ToggleCashShop`. **Tab:** `3224a680` passes March's own `CASH_SHOP_CATEGORY` numbers to
+  `32e41110` (the GFx `cashShop_selectCategory`): 1 / 2 -> 4 (`CSC_INSTALL`, as March has for quick / skill slot), 0x32 -> 3 = `CSC_CONSUME`, so the
+  mapping is exact, not an analogy. The `CSSC_CONSUME_ETC` sub-tab comes from March's `UI_SKILL_NOTE` body (June's shop is GFx, Stage 9).
+- **`322d8100`: confirmed** a slot particle on 4 / 9 (type 4 through `321536e0` / `32151fa0`), not a cool-time loop; the Stage 9 routing stands.
+- **Emulator: matches the Done note.** `IsUnitTranscended` reads the loaded unit; the refusal for 4 / 9 and key 1 follow it; the medal block runs
+  before every route-A check and then reaches `ConsumeOne`. `JuneItemHasNoModel` gets a templet already null-checked above it.
+- **Stand-in labels.** Key 1 permanent and the medal were in `MODS.md`; the two `cash_product` rows and the model-less file-check exemption were
+  not, and are now.
+- **Hygiene.** `--range c70dc0db^..c70dc0db`: `files: 3 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+  0 encoding change(s)`; `RESULT: PASS`. `--range 03b0e6de^..03b0e6de`: `1 PASS, 0 FAIL`, `RESULT: PASS`. Review edit (`--worktree --files
+  X2Lib/X2GUUser.cpp`): `1 PASS, 0 FAIL`; `1 deleted line(s)`, T4's own guard line inside `_SLOT`, replaced; `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,825,280 B, dated 2026-10-23 21:39:12, md5 2d6ffafeb0b8cb221799112babcc8862, equal to X2/US_SERVICE/x2.exe (2026-10-23 21:39:05); built at main 6289e3e0 + 1 uncommitted code file(s).`
+- **Kickoffs.** `T5.md`: still right; its `HyperModeStart` line ref is now `X2GUUser.cpp:32181`.
+- **Open (no question):** T4's untranscended checks (locked slots, the shop click) were never played; the hand-off below covers them.
+
+**How to see it:** unit 52 transcended: B-5 / T casts as before. Untranscended: the locked A-5 / B-5 clicks open the shop on 288319 / 288318.
+
 ## Phase T5 - Transcended combat engine
 
 **Run with:** Opus 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE` (+ `_DEBUG`).

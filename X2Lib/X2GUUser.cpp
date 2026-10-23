@@ -25517,6 +25517,15 @@ void CX2GUUser::PhysicProcess_PortalInBattleField( CKTDGLineMap* pLineMap )
 #endif PORTAL_LINEMAP_TEST
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+// June 31fcadd0 @31fcaf87 tests key 1 on MY unit's tree ( g_pData +0x68 +0x90 +0x494 ), whoever presses T
+static bool JuneIsMyUnitSlotUsable( const int iKey_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return false;
+	return g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.IsJuneSlotUsable( iKey_ );
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ )
 {
 	//오현빈 // 2012-04-30 // 스킬슬롯 체인지 없이 확장 스킬 사용 할 수 있도록 수정 // iSkillSlotIndexPressed_값이 0~7의 값을 갖도록 수정
@@ -25578,7 +25587,7 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 		return true;
 	}
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
-	if( true == m_InputData.oneSkill5 || ( true == m_InputData.oneSkillEx5 && true == cUserSkillTree_.IsJuneSlotUsable( 1 ) ) )
+	if( true == m_InputData.oneSkill5 || ( true == m_InputData.oneSkillEx5 && true == JuneIsMyUnitSlotUsable( 1 ) ) )
 	{
 		// a March class reads pressed indexes 0-7 and has no TC case yet ( checklist 7ag / 7ao ): hand it no slot
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -25688,7 +25697,11 @@ bool CX2GUUser::JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& 
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	if( true == m_InputData.oneSkillEx5 && NULL != g_pData && true == JuneIsMyUnitSlotUsable( 1 ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	if( true == m_InputData.oneSkillEx5 && NULL != g_pData && true == cUserSkillTree_.IsJuneSlotUsable( 1 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	{
 		pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( 4, true );
 		if( NULL != pSkillSlotDataPressed_ && CX2SkillTree::SI_NONE != pSkillSlotDataPressed_->m_eID )
