@@ -89,6 +89,11 @@ public:
 	/// end date, and the passive list the room packets carry.
 	void	FillUnitSkillData( OUT KUnitSkillData& kOut ) const;
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	/// unit.transcendence of the loaded unit ( June CX2Unit +0x3c ), read from the save each call
+	bool	IsUnitTranscended() const;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+
 	int		GetSkillLevel( int iSkillID ) const;
 	int		GetSkillCSPoint( int iSkillID ) const;
 	int		GetSlotSkillID( int iSlot ) const;

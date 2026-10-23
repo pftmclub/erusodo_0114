@@ -504,6 +504,27 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 	pSkill->Load( kSes.m_nSelectedUnitUID );
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	// 288318 Skill Slot Change Medal ( Transcendence ), type 1: June sets slot-state key 1 with an expiry and its server is not readable. Key 1 is
+	// already permanent for a transcended unit ( user decision 2, 2026-10-22 ), so a use only consumes the medal; an untranscended unit keeps it
+	// ( the client's NetError 1684 / 1686 check is june-transcend T3 ).
+	if( 288318 == kRow.m_iItemID )
+	{
+		if( false == pSkill->IsUnitTranscended() )
+		{
+			kAck.m_iOK = NetError::ERR_USE_ITEM_IN_INVENTORY_00;
+
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT medal 288318 refused - unit %I64d is not transcended (the medal is left in the bag)",
+				(__int64)kSes.m_nSelectedUnitUID );
+
+			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT medal 288318 used - slot-state key 1 is already permanent for unit %I64d",
+			(__int64)kSes.m_nSelectedUnitUID );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+
 	// Phase 21: "Camilla's Secret Manual" (270970-270973) and every other
 	// unseal item. Checked before anything is consumed - the live server refuses
 	// with ERR_USE_ITEM_IN_INVENTORY_00 and keeps the item when the character's

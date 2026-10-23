@@ -6419,6 +6419,12 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 	int iSlotIndex = 0;
 
 	CX2UserSkillTree::GetSlotIndexAndSlotB( IN iSkillSlotId_, OUT iSlotIndex, OUT bSlotB );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+#ifdef SERV_IRUHADEV_OFFLINE
+	if ( CX2UserSkillTree::IsTranscendenceSlotIndex( bSlotB ? iSlotIndex + EQUIPPED_SKILL_SLOT_COUNT : iSlotIndex ) )	// June 32024b00 has no skip: the equip refusal is the lock
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT equip TC slot %d%s skill %d", iSlotIndex, bSlotB ? L" B" : L" A", iSkillId_ );
+#endif SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	if ( CX2UserSkillTree::IsTranscendenceSlotIndex( bSlotB ? iSlotIndex + EQUIPPED_SKILL_SLOT_COUNT : iSlotIndex ) )
 	{
@@ -6430,6 +6436,7 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 		return;
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	const CX2SkillTree::SKILL_ID eSkillId = static_cast<CX2SkillTree::SKILL_ID>( iSkillId_ );
 	const int iSkillLevel = kUnitData.m_UserSkillTree.UpdateEquippedSkillLevelFromAcqureidMap( eSkillId, iSlotIndex, bSlotB );
 
@@ -6455,10 +6462,14 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 
 void CX2GUUser::ChangeEquippedSkillState( CX2Unit::UnitData& kUnitData_, const CX2SkillTree::SKILL_ID eSkillId_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	// June 32024b00: all five slots of a bar get their state
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	if ( EQUIPPED_SKILL_SLOT_COUNT - 1 == iSlotIndex_ )	// the transcendence slot of a bar, dormant until Stage 6
 		return;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	// 아이템에의해 스킬레벨이 증가 되거나 MP 양이 변경 된것 처리
 	CalcEquippedSkillLevelPlusAndMPCostBySlotID( kUnitData_.m_UserSkillTree, iSlotIndex_, bSlotB_ );
 
@@ -6563,11 +6574,15 @@ void CX2GUUser::SetEquippedSkillLevelCommon( const CX2Unit::UnitData& kUnitData_
 {
     const CX2UserSkillTree& userSkillTree = kUnitData_.m_UserSkillTree;
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	for( int i=0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )	// June 32024b00 loops all five slots
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i=0; i< ( EQUIPPED_SKILL_SLOT_COUNT - 1 ); i++ )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i=0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	{
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = userSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( NULL != pSkillSlotData );
@@ -25562,6 +25577,18 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 		}
 		return true;
 	}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	if( true == m_InputData.oneSkill5 || ( true == m_InputData.oneSkillEx5 && true == cUserSkillTree_.IsJuneSlotUsable( 1 ) ) )
+	{
+		// a March class reads pressed indexes 0-7 and has no TC case yet ( checklist 7ag / 7ao ): hand it no slot
+#ifdef SERV_IRUHADEV_OFFLINE
+		static int s_iJuneTcPressLogged = 0;
+		if( s_iJuneTcPressLogged++ < 5 )
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT F / T pressed on a March class ( %d ): ignored until its port", ( NULL != GetUnit() ) ? static_cast<int>( GetUnit()->GetClass() ) : 0 );
+#endif SERV_IRUHADEV_OFFLINE
+		return true;
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	if( true == m_InputData.oneSkill5 )
 	{
@@ -25574,6 +25601,7 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 		return true;
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 //{{오현빈 // 2012-04-30 // 스킬슬롯 체인지 없이 확장 스킬 사용 할 수 있도록 수정
 	//스킬슬롯 확장 상태가 아니라면 확장 스킬 사용 할 수 없도록 수정
 	if( NULL != g_pData && NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() &&
@@ -40217,11 +40245,15 @@ bool CX2GUUser::IsJuneChangeWorldColorNow()
 
 void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	for( int i = 0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )	// June 32024b00 loops all five slots
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i = 0; i< ( EQUIPPED_SKILL_SLOT_COUNT - 1 ); i++ )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i = 0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	{
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = kUnitData_.m_UserSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( pSkillSlotData != NULL );

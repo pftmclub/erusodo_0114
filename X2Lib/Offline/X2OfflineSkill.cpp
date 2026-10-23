@@ -19,6 +19,14 @@ CX2OfflineSkill* CX2OfflineSkill::ms_pInstance = NULL;
 
 /*static*/ const wchar_t* CX2OfflineSkill::SLOT_B_END_DATE = L"2049-12-31 23:59:00";
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+bool CX2OfflineSkill::IsUnitTranscended() const
+{
+	KOfflineUnitRow kRow;
+	return CX2OfflineDB::Instance()->LoadUnit( m_nUnitUID, kRow ) && 0 != kRow.m_iTranscendence;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+
 CX2OfflineSkill::CX2OfflineSkill()
 : m_nUnitUID( 0 )
 , m_cSkillNoteMaxPage( 0 )
@@ -339,10 +347,19 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 		kOut.m_vecJuneSkillSlotState.push_back( kStateB );
 
 		KJuneSkillSlotState kStateTC;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+		// Not June: key 1 is permanent for a transcended unit ( user decision 2, 2026-10-22 ); June opens it with the medal or the cube only
+		const bool bJuneTcSlotOpen = IsUnitTranscended();
+		kStateTC.m_iKey		= 1;
+		kStateTC.m_iState	= (int)( bJuneTcSlotOpen ? CX2UserSkillTree::SSBES_PERMANENT : CX2UserSkillTree::SSBES_EXPIRED );
+		kStateTC.m_wstrDate	= bJuneTcSlotOpen ? SLOT_B_END_DATE : L"2000-01-01 00:00:00";
+		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		kStateTC.m_iKey		= 1;
 		kStateTC.m_iState	= (int)CX2UserSkillTree::SSBES_EXPIRED;
 		kStateTC.m_wstrDate	= L"2000-01-01 00:00:00";
 		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	// June skill system S7c: the active memos ride in KJuneSkillExtraData's map ( KUnitSkillData +0x88 +0x20, skill -> memo ), which
@@ -674,11 +691,20 @@ int CX2OfflineSkill::ChangeSkillSlot( int iSlotID, int iSkillID,
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		// June S5: the transcendence slots ( combined ids 4 and 9 ) exist but stay locked until Stage 6 ( A needs CX2Unit +0x3c, B the
 		// slot-state key 1; the emulator sends key 1 = 0 ). June 3220e3b0 refuses the equip the same way.
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+		// June 3220e3b0: A-TC needs the unit flag, B-TC the slot-state key 1; key 1 is sent permanent for a transcended unit, so both read the flag
+		if( ( 4 == iSlotID || 9 == iSlotID ) && false == IsUnitTranscended() )
+		{
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT TC slot %d refused: skill %d, unit %I64d is not transcended", iSlotID, iSkillID, (__int64)m_nUnitUID );
+			return NetError::ERR_SKILL_09;
+		}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		if( 4 == iSlotID || 9 == iSlotID )
 		{
 			CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT TC slot %d refused: skill %d, locked until Stage 6", iSlotID, iSkillID );
 			return NetError::ERR_SKILL_09;
 		}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	}
 

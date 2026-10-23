@@ -1885,8 +1885,28 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	case SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP:
 	case SMUCM_DISABLED_TRANSCENDENTAL_EXPAND_SKILL_SLOT_MOUSE_UP:
 		{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+			/// June 32476050 case 182 ( A-TC, my unit not transcended ) / 183 ( B-TC, slot-state key 1 at 0 ): the text in a game outside the battle field, else the shop on the item
+			if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+				return true;
+			const CX2Unit::UnitData& kJuneUnitData = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
+			const bool bJuneSlotA = ( SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP == wParam );
+			if ( ( true == bJuneSlotA ) ? ( 0 != kJuneUnitData.m_iUnitClassTran ) : ( 0 != kJuneUnitData.m_UserSkillTree.GetJuneSlotState( 1 ) ) )
+				return true;
+			if ( g_pX2Game != NULL && g_pMain->GetNowStateID() != CX2Main::XS_BATTLE_FIELD )
+			{
+				g_pChatBox->AddChatLog(  GET_STRING( STR_ID_16478 ), KEGS_CHAT_REQ::CPT_SYSTEM, D3DXCOLOR(1,1,0,1), L"#CFFFF00" );
+				return true;
+			}
+			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( 0x32 );
+			g_pData->GetCashShop()->JunePushOpenAtItemID( true == bJuneSlotA ? 288319 : 288318 );
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT click on a locked %s TC slot: shop opens on item %d", true == bJuneSlotA ? L"A" : L"B", true == bJuneSlotA ? 288319 : 288318 );
+			ToggleCashShop();
+			return true;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 			/// June opens the transcendence guide from here; March has no transcendence ( Stage 6 ), so a click on a locked TC slot only leaves a log line
 			CX2OfflineLog::Server( L"[JUNE_SKILL] UI click on a locked transcendence slot ( msg %d ): nothing to open before Stage 6", (int) wParam );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 			return true;
 		}
 		break;

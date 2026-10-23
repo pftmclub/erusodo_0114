@@ -538,6 +538,12 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   (`3215fd30`). Also: the GFx cash shop's transcend-item filter by `TranscendentalClassItem` type (`3222a840` / `3222af00` / `3222ec70` /
   `32233860`, `3290c490`; getter `32807fe0`, which T3 ports) and the world map's quest marks (`32260ba0`, the `QR_` condition at quest
   `+0xe0`).
+- **The TC-slot class-guide effect** *(from june-transcend T4, 2026-10-23)*. June `322d8100` (called from the game's OnFrameMove `32308c20`) is not a
+  cool-time loop: it visits only slots 4 and 9 and, while the slot's skill is not type 0xc / 0xd, the hyper-mode time is above a threshold and the
+  unit has an unfinished buff BTI 820 (`3227b860( 0x334 )`), shows a guide particle on the slot (guide 4, `31d71810( 4 )` = `JuneCanShowClassGuide`,
+  already ported; the particle store `32151190` / `321536e0` / `32151fa0` is not); otherwise it removes it. It breaks out when slot-state key 1 is
+  unusable and (the slot is B or the unit is not transcended). March has no BTI 820 or guide-4 store, and the slot works without it; it follows T5's
+  awakening buffs (BFI 843 / 844 / 845) and the HUD guide family of Stage 9.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
