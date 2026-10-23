@@ -550,7 +550,7 @@ twice. Cause: Aisha's state-end (`June_Vslot604`, June `32ccda90`) tested the CH
 on both state-end paths. June reads the `+0x952c` byte instead: `CommonStateStart` sets it from vslot `0x51c` (`@320619a6`) and
 `ApplyHyperModeBuff` clears it (`32083190( 0 ) @32298d08`), so June applies once. **Fixed** under the same flag: `m_bJuneHyperModeBuffPending`
 (set in `CommonStateStart`, cleared in `ApplyHyperModeBuff`, read by `June_Vslot604`). The base readers `32006c00` / `3201b8e0` (other classes'
-hyper state-ends) come with their class ports. `DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-23 22:47:06, md5 19d37c292b7c6226c510f847321eaf99`; flagcheck PASS (4 files).
+hyper state-ends) come with their class ports. `DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-23 22:47:06, md5 19d37c292b7c6226c510f847321eaf99`; flagcheck PASS (4 files). **Re-check PASSED 22:52:** one `ENGINE awakening` line, rolls 0.682 / 0.079 20.5 s apart, summon x1.3.
 
 ## Phase T6 - Aisha transcended
 
