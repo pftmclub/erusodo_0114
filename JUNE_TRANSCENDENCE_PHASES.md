@@ -747,6 +747,40 @@ Open questions: none.
 
 **In game** (`python tools/logs.py --grep "JUNE_TRANSCEND] IMAGE"`): after the two koms are copied, the select screen shows a transcended Aisha slot with a different picture from an untranscended one.
 
+### T6c - Review (2026-10-24, Opus 5.5): PASS, no fix
+
+Reviewed `6ec4a7f4` against June in Ghidra (read-only) and the exe's bytes; no code changed, so no build.
+1. **`31ee0de0`**: type switch as ported. Type 9 base `337962e0`, 0xa base `33798ce0`, stride 0x70, pair at +0x38 / +0x54, taken only on `param_5 == 1` and a non-zero +0x48 length.
+   Aisha's June row indices: EM 0x13, VP 0x14, DW 0x25. March's `CHARACTER_IMAGE_TYPE` numbering matches June's types 1-9, and `CIT_UnitSlotGray` = 10 = 0xa.
+2. **The gap the Done note left is closed.** The row ctor `31ef0ef0( file, piece, trFile, trPiece )` writes +0 / +0x1c / +0x38 / +0x54. The rows are built in `333988f0` (type 9) and `3339ead0` (type 0xa), and their pushed strings read:
+   - type 9: `list_AISHA_E_MASTER` / `V_PRINCESS` / `D_WITCH` with `list_TR_E_MASTER` / `V_PRINCESS` / `D_WITCH`, all in `character_01.tga`;
+   - type 0xa: the same names + `_GRAY`, in `character_01_gray.tga`.
+   This matches the port and the play-test log lines (07:26 run, classes 104 / 105 / 113, type 9).
+   DW's two rows write the extension as `.TGA`. The lookup is upper-cased (`KGCMassFileManager.cpp:292`), and March's own DW base row already uses `.TGA`, so it is not a fix.
+3. **The gray derivation (March row + `_GRAY` in `_gray.tga`) is exact.** Paired over all 86 June rows, the gray base piece is the type 9 piece + `_GRAY` everywhere except Rose (68-76) and Ain (82); March has neither class.
+   All 50 March unit-slot pieces have a `_GRAY` twin among June's strings.
+   June's gray TR pieces for other classes are not type 9 + `_GRAY` (e.g. `list_TR_ELSWORD_SW_KNIGHT_GRAY`). The port returns before reaching them (prefix switch, Aisha only), so they matter only to the later class ports, which read their rows from `3339ead0`.
+4. **`3256d6e0`**: `cmp byte [unit+0x9d0], 1` then type 0xa (`@3256ebe7`), else type 9 (`@3256ed1b`). Both push `[unit+0x3c]`, both use point ( 23.0, 11.0 ) and size 38.0 (read from the exe, `3349d46c` / `3345abf4` / `33498d18`), and both colour with `FLD1` x4.
+5. **Sites**: each pushes `[+0x3c]` as the flag, and each image type matches its March call:
+
+   | June site | Type | Matches March |
+   |---|---|---|
+   | `32564d50 @325659c9` | 9 | yes |
+   | `3291df90 @3291e505` | 5 | yes |
+   | `32513d30 @32515156` | 3 and 2, one call with both branches pushing | yes |
+   | `328b89c0 @328b8e6f` | 5 | yes |
+   | `324924a0 @324939f9` | 4 | yes |
+
+   Ghidra has no function covering `@324939f9`, so it was read from raw bytes: `8b 4f 3c 51 6a 04 ... e8` -> `31ee0de0`.
+6. **Data**: `kom.py stage-june --dry-run` reports `identical` for all four (`character_01.TET` / `.tga` in data057, `_gray.TET` / `.tga` in datai021). `kom.py status data057 datai021`: in sync with the live koms, so they were copied.
+   ErrorLog of the 07:26 run has no miss on any `character_01` / `list_TR_` name.
+
+Hygiene (`--range 6ec4a7f4^..6ec4a7f4`): `files: 7 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+`git log -SJUNE_TRANSCEND_IMAGE 6ec4a7f4..HEAD`: empty. Deployed exe unchanged (md5 d6de4714).
+Noted, not changed: T2's comment above the prefix switch (`X2Data.cpp:2995-2997`) still says the unit slot is Stage 9's (the comment rule does not ask for old comments to be rewritten).
+Open questions: none. The user owes an optional look at the select screen (ArmeEM / ArmeVP / ArmeDW slots); the log already shows the lookups.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types
