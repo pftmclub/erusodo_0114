@@ -2223,7 +2223,11 @@ bool CX2StateServerSelect::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wPara
 						if( NULL != m_pSelectUnit && m_pSelectUnit->GetUnitData().m_bDeleted == true )
 						{
 #ifdef SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+							g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2(260, 275), GET_STRING( STR_ID_30401 ), this, -1, -1.f, L"DLG_UI_OKMsgBoxPlusNew.lua", D3DXVECTOR2 ( 0, -130 ),  L"UI_PopUp_Negative_01.ogg" );
+#else SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 							m_pDLGDeleteUnitCheck = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2(305, 375), GET_STRING( STR_ID_16106 ), SUSUCM_RESTORE_UNIT_CHECK, this, -1, L"DLG_UI_Selection_MessageBox_Ok_Cancle_Button_New.lua" );
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 #else
 							g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2(260, 275), GET_STRING( STR_ID_30401 ), this, -1, -1.f, L"DLG_UI_OKMsgBoxPlusNew.lua", D3DXVECTOR2 ( 0, -130 ),  L"UI_PopUp_Negative_01.ogg" );
 #endif SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
@@ -3336,7 +3340,11 @@ void CX2StateServerSelect::UnitButtonUp( CX2Unit* pUnit )
 			else
 			{
 #ifdef SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+				m_pDLGMsgBox = g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2(260, 275), GET_STRING( STR_ID_30401 ), this, -1, -1.f, L"DLG_UI_OKMsgBoxPlusNew.lua", D3DXVECTOR2 (0, -130), L"UI_PopUp_Negative_01.ogg" );
+#else SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 				m_pDLGDeleteUnitCheck = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2(305, 375), GET_STRING( STR_ID_16106 ), SUSUCM_RESTORE_UNIT_CHECK, this, -1, L"DLG_UI_Selection_MessageBox_Ok_Cancle_Button_New.lua" );
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 #else
 				m_pDLGMsgBox = g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2(260, 275), GET_STRING( STR_ID_30401 ), this, -1, -1.f, L"DLG_UI_OKMsgBoxPlusNew.lua", D3DXVECTOR2 (0, -130), L"UI_PopUp_Negative_01.ogg" );
 #endif SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
@@ -3451,11 +3459,13 @@ void CX2StateServerSelect::UnitButtonUp( CX2Unit* pUnit )
 // exactly like nothing happened.
 #ifdef SERV_UNIT_WAIT_DELETE
 #ifdef SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
+#ifndef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 	if( true == pUnit->AccessUnitData().m_bDeleted )
 	{
 		SAFE_DELETE_DIALOG( m_pDLGDeleteUnitCheck );
 		m_pDLGDeleteUnitCheck = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2(305, 375), GET_STRING( STR_ID_16106 ), SUSUCM_RESTORE_UNIT_CHECK, this, -1, L"DLG_UI_Selection_MessageBox_Ok_Cancle_Button_New.lua" );
 	}
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 #endif SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
 #endif SERV_UNIT_WAIT_DELETE
 //}}
@@ -10391,6 +10401,10 @@ void CX2StateServerSelect::CreateServerSelectUnitViewerUI ( CX2Unit * pUnit_ )
 
 #ifdef SERV_UNIT_WAIT_DELETE
 			CX2Unit::UnitData* pUnitData = &(pUnit_->AccessUnitData());
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+			if ( NULL != m_pSelectUnit )
+				SetShowUnitDeleteInfo( m_pSelectUnit );
+#else SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 			/* 설명 부분은 잠시 대기
 			CKTDGUIStatic* pStatic_UnitDeleteInfo = (CKTDGUIStatic*)(m_pDLGUnitSelectFront->GetControl( L"StaticUnitSelectDeleteInfo" ));
 			if( NULL != pStatic_UnitDeleteInfo )
@@ -10465,6 +10479,7 @@ void CX2StateServerSelect::CreateServerSelectUnitViewerUI ( CX2Unit * pUnit_ )
 					pBtn_Restore->SetShowEnable( false, false );
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 #endif SERV_UNIT_WAIT_DELETE
 		}
 	}
@@ -10683,6 +10698,65 @@ void CX2StateServerSelect::SetShowServerStateButtonSet ( bool bIsShowUnitListSta
 	return CX2State::MsgProc( hWnd, uMsg, wParam, lParam );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+#ifdef SERV_UNIT_WAIT_DELETE
+// June 3256c870: delete info text and the restore / final delete buttons, looked up on the Back dialog
+void CX2StateServerSelect::SetShowUnitDeleteInfo( CX2Unit* pUnit_ )
+{
+	if ( NULL == m_pDLGUnitSelectBack )
+		return;
+
+	CKTDGUIStatic* pStaticDeleteInfo = static_cast<CKTDGUIStatic*>( m_pDLGUnitSelectBack->GetControl( L"StaticUnitSelectDeleteInfo" ) );
+	CKTDGUIButton* pBtnFinalDelete = static_cast<CKTDGUIButton*>( m_pDLGUnitSelectBack->GetControl( L"final_delete_unit" ) );
+	CKTDGUIButton* pBtnRestore = static_cast<CKTDGUIButton*>( m_pDLGUnitSelectBack->GetControl( L"restore_unit" ) );
+
+	if ( NULL == pUnit_ )
+	{
+		if ( NULL != pStaticDeleteInfo )
+			pStaticDeleteInfo->SetShow( false );
+		if ( NULL != pBtnFinalDelete )
+			pBtnFinalDelete->SetShow( false );
+		if ( NULL != pBtnRestore )
+			pBtnRestore->SetShow( false );
+		return;
+	}
+
+	const CX2Unit::UnitData& kUnitData = pUnit_->GetUnitData();
+	const __int64 tNow = g_pData->GetServerCurrentTime64();
+
+	if ( NULL != pBtnFinalDelete )
+		pBtnFinalDelete->SetShowEnable( kUnitData.m_bDeleted, kUnitData.m_trDelAbleDate < tNow );
+
+	if ( NULL != pBtnRestore )
+		pBtnRestore->SetShowEnable( kUnitData.m_bDeleted, kUnitData.m_trRestoreAbleDate < tNow );
+
+	if ( NULL != pStaticDeleteInfo )
+	{
+		CTime tDelAbleDate( kUnitData.m_trDelAbleDate );
+		std::wstring wstrDelYear = (CStringW)( tDelAbleDate.Format(_T( "%Y" )) );
+		std::wstring wstrDelMonth = (CStringW)( tDelAbleDate.Format(_T( "%m" )) );
+		std::wstring wstrDelDay = (CStringW)( tDelAbleDate.Format(_T( "%d" )) );
+		std::wstring wstrDelHour = (CStringW)( tDelAbleDate.Format(_T( "%H" )) );
+		std::wstring wstrDelMinute = (CStringW)( tDelAbleDate.Format(_T( "%M" )) );
+
+		CTime tRestoreAbleDate( kUnitData.m_trRestoreAbleDate );
+		std::wstring wstrResYear = (CStringW)( tRestoreAbleDate.Format(_T( "%Y" )) );
+		std::wstring wstrResMonth = (CStringW)( tRestoreAbleDate.Format(_T( "%m" )) );
+		std::wstring wstrResDay = (CStringW)( tRestoreAbleDate.Format(_T( "%d" )) );
+		std::wstring wstrResHour = (CStringW)( tRestoreAbleDate.Format(_T( "%H" )) );
+		std::wstring wstrResMinute = (CStringW)( tRestoreAbleDate.Format(_T( "%M" )) );
+
+		std::wstring wstrDelInfo = GET_REPLACED_STRING( ( STR_ID_16109, "SSSSS", wstrDelDay.c_str(), wstrDelMonth.c_str(), wstrDelYear.c_str(), wstrDelHour.c_str(), wstrDelMinute.c_str() ) );
+		std::wstring wstrResInfo = GET_REPLACED_STRING( ( STR_ID_16113, "SSSSS", wstrResDay.c_str(), wstrResMonth.c_str(), wstrResYear.c_str(), wstrResHour.c_str(), wstrResMinute.c_str() ) );
+		wstrDelInfo += L"\n";
+		wstrDelInfo += wstrResInfo;
+
+		pStaticDeleteInfo->GetString(0)->msg = CWordLineHandler::GetStrByLineBreakInX2Main( wstrDelInfo.c_str(), 300, pStaticDeleteInfo->GetString(0)->fontIndex );
+		pStaticDeleteInfo->SetShow( kUnitData.m_bDeleted );
+	}
+}
+#endif SERV_UNIT_WAIT_DELETE
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 void CX2StateServerSelect::SetShowSelectUnitInfo( CX2Unit * pUnit )
 {
 	if ( NULL != m_pDLGUnitSelectBack )
@@ -10708,6 +10782,11 @@ void CX2StateServerSelect::SetShowSelectUnitInfo( CX2Unit * pUnit )
 			{
 				pGameStartStatic->SetShow( false );
 			}
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+#ifdef SERV_UNIT_WAIT_DELETE
+			SetShowUnitDeleteInfo( pUnit );
+#endif SERV_UNIT_WAIT_DELETE
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 		}
 	}
 }
@@ -11282,6 +11361,10 @@ void CX2StateServerSelect::ChangeUnitButtonInfo ()
 					{
 						pSelectUnitButton->SetShowEnable( false, false );
 						pDeleteUnitButton->SetShowEnable( true, true );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+						if ( pUnit != m_pSelectUnit )
+							pDeleteUnitButton->SetDownStateAtNormal( false );
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 					}
 #endif SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU
 				}

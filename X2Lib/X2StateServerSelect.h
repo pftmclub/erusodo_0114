@@ -411,6 +411,9 @@ protected:
 	void SetShowServerStateButtonSet ( bool bIsShowUnitListState, bool bIsShowChannelListState ); 
 	void SetBackgroundImageBySelectUnitType ( CX2Unit::UNIT_TYPE eUnitType_ );
 	void SetShowSelectUnitInfo( CX2Unit * pUnit );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+	void SetShowUnitDeleteInfo( CX2Unit* pUnit_ );
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 	void CreateChannelButton( bool bSelectTopChannelButton = false );
 	bool Handler_EGS_CHARACTER_LIST_REQ ();
 	bool Handler_EGS_CHARACTER_LIST_ACK ( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

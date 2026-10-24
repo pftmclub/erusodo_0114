@@ -10096,3 +10096,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June bottom bar B4: June's case bodies for the Guild, System, Cash and Event buttons, plus the frame move's Cash message swap
 #define SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June character select delete flow: delete info text and restore / final delete buttons on the Back dialog, pending slot click shows the 30401 box
+#define SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June's message box dialogs name the background static StaticMsgBoxBG; fall back to it when StaticOKMsgBoxBG is missing
+#define SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
+//////////////////////////////////////////////////////////////////////////

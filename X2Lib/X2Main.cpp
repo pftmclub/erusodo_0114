@@ -6310,6 +6310,10 @@ CKTDGUIDialogType CX2Main::KTDGUIOKMsgBox( D3DXVECTOR2 pos, const WCHAR* pText, 
 	pos.y -= 50.f;
 	pDialog->SetPos( pos );
 	CKTDGUIStatic* pStatic = (CKTDGUIStatic*)pDialog->GetControl( L"StaticOKMsgBoxBG" );
+#ifdef SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
+	if( NULL == pStatic )
+		pStatic = (CKTDGUIStatic*)pDialog->GetControl( L"StaticMsgBoxBG" );
+#endif SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
 	if( NULL == pStatic )
 	{
 #ifdef ADDED_MESSAGEBOX_USING_CUSTOM_LUA
@@ -6515,6 +6519,10 @@ CKTDGUIDialogType CX2Main::KTDGUIOKMsgBoxPlus( D3DXVECTOR2 pos, const WCHAR* pTe
 	pos.y -= 50.f;
 	pDialog->SetPos( pos );
 	CKTDGUIStatic* pStatic = (CKTDGUIStatic*)pDialog->GetControl( L"StaticOKMsgBoxBG" );
+#ifdef SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
+	if( NULL == pStatic )
+		pStatic = (CKTDGUIStatic*)pDialog->GetControl( L"StaticMsgBoxBG" );
+#endif SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
 	if( NULL == pStatic )
 	{
 		SAFE_DELETE_DIALOG( pDialog );

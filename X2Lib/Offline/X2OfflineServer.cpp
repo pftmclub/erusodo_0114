@@ -986,7 +986,12 @@ bool CX2OfflineServer::EnsureAccount( KOfflineSession& kSes, const std::wstring&
 	kOut.m_trDelAbleDate		= kRow.IsDeleted()
 									? CX2OfflineDB::DelAbleDate( kRow.m_tDelDate )
 									: 0LL;
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
+	// June prints this date under a pending character; no restore cooldown offline, so one second past
+	kOut.m_trRestoreAbleDate	= kRow.IsDeleted() ? kRow.m_tDelDate - 1LL : 0LL;
+#else SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 	kOut.m_trRestoreAbleDate	= 0LL;
+#endif SERV_IRUHADEV_JUNE_UNIT_DELETE_UI
 
 	// Cash skill points, and the date they run out. Always zero and always in
 	// the past: there is no billing offline, so every skill is paid for in
