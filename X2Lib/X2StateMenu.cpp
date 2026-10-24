@@ -133,6 +133,30 @@ m_TotalLevel(0)
 #ifdef SERV_EVENT_COBO_DUNGEON_AND_FIELD
 	m_tRemaindTimeDisCount = g_pData->GetServerCurrentTime64();
 #endif SERV_EVENT_COBO_DUNGEON_AND_FIELD
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
+	// June 32474d80 @32475400: the ctor ends with 324700a0( false ), the rest gauges and their button hidden
+	if ( NULL != m_pDLGMenu )
+	{
+		const WCHAR* apwszRestStatic[] = { L"StaticMenu_Button_RESET_EXP_Gauge", L"StaticMenu_Button_Used_RESET_EXP_Gauge" };
+		for ( int iRest = 0; iRest < 2; ++iRest )
+		{
+			CKTDGUIStatic* pRestStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( apwszRestStatic[iRest] ) );
+			if ( pRestStatic != NULL )
+			{
+				pRestStatic->SetShowEnable( false, false );
+				if ( pRestStatic->GetPicture(0) != NULL )
+					pRestStatic->GetPicture(0)->SetSizeX( 0.f );
+			}
+		}
+
+		CKTDGUIControl* pRestButton = m_pDLGMenu->GetControl( L"Button_Invisible_RestExpGuage" );
+		if ( NULL != pRestButton )
+			pRestButton->SetShowEnable( false, false );
+	}
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+	JuneUpdateMenuString();
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 }
 
 CX2StateMenu::~CX2StateMenu(void)
@@ -3969,24 +3993,6 @@ void CX2StateMenu::UpdateExpGageBar()
 	}
 	else
 	{
-		// June 324700a0( false ): the rest gauges and their button are hidden; no June call site found for the first hide, so it is done here
-		{
-			const WCHAR* apwszRestStatic[] = { L"StaticMenu_Button_RESET_EXP_Gauge", L"StaticMenu_Button_Used_RESET_EXP_Gauge" };
-			for ( int iRest = 0; iRest < 2; ++iRest )
-			{
-				CKTDGUIStatic* pRestStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( apwszRestStatic[iRest] ) );
-				if ( pRestStatic != NULL )
-				{
-					pRestStatic->SetShowEnable( false, false );
-					if ( pRestStatic->GetPicture(0) != NULL )
-						pRestStatic->GetPicture(0)->SetSizeX( 0.f );
-				}
-			}
-
-			CKTDGUIControl* pRestButton = m_pDLGMenu->GetControl( L"Button_Invisible_RestExpGuage" );
-			if ( NULL != pRestButton )
-				pRestButton->SetShowEnable( false, false );
-		}
 		pStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( L"StaticMenu_Button_EXP_Gauge" ) );
 		if ( pStatic != NULL && pStatic->GetPicture(0) != NULL )
 		{

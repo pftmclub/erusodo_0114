@@ -263,6 +263,30 @@ read as their absent value (duel request, tournament, `+0x191`, `+0x70`: never s
 `/x2-phase june-bottombar B4 review` covers B1-B4: June vs ours line by line, the asset list against June bytes, flagcheck ranges, the deployed exe, the
 play-test lines.
 
+### Review - Done (2026-10-24, Opus 5.5)
+
+**Verdict: PASS, with one fix** (B3's rest-gauge hide moved to June's call site). Ghidra, line by line:
+- **Cash** (`0x66`) matches. June's refusal order is: state `+0x16c` 16478, then Surprise Sale `32696fa0` / `3267ac90`, then party `+0x58` (42839 if `326662b0` == 6, else 13599), then `+0x70` 16478, then `+0xda` 39561, then state 8 32329, then vslot `0xac` `ToggleCashShop`. B4 keeps that order once June-only reads are 0.
+  - `XS_PVP_ROOM` = 8 in March (`X2Main.h:776`, the `ELSWORD_NEW_BEGINNING` branch is the same length either way).
+  - `32465fc0` starts with `g_pTFieldGame` (`33775870`) -> `323a9780` / `323a9920` (field-name / buff-name close). Its boss-raid refusal 28379 is already in March's `ToggleCashShop`.
+  - June has no skill-tree hide.
+- **System** (`0x95`) matches. With `SERV_PVP_NEW_SYSTEM` on (`ServerDefine.h:1188`), March's `MT_DUNGEON_MATCH_START_REQUEST` = 10 = June's `PUSH 0xa`. The exit is `@3247663f MOV AL,1`, so it always returns true.
+- **Event** (`0x3e8`) matches. June's browser wrapper sits at `g_pMain +0x564`, and `33222f80` (CloseBrowser) sets `+0x10` = `m_bClosed`, so `+0x574 == 0` means "open" and the toggle reads as B4 has it. The calls are SetDialogBoxMode = D3D vslot `0x50`, `31f07bd0` = `OpenAdvertisementDialog`, and `31be34b0` -> `31c48d90` (DI manager `+0x40` / `+0x44` / `+0x48` -> `ReleaseAllButtonsAndKeys`).
+- **Guild** (`0xa7`): the gate (`g_pData +0x2ec +0x1e8`) -> `325ab110( 1 )`, and June returns false; the STUB is right. **Warp** (`0x3e9`): only the `+0xda` duel popup differs, then `+0x9f0` -> `3246c780( !vip )`. No code needed.
+- **Cash swap** `@32470bbf-32470c45` matches: `g_pInstanceData` set, `"Cash"` (`334976e8`), `+0x27c` 0x66 / 0xb4, cash shop `g_pData +0x290 +0xd8` -> vslot `0xac`. `SMUCM_JUNE_CASH_MAINTENANCE = 215` is right (180 is March's warp-dest). The stand-in reads 1.
+- **B2** (`3245bb70`) matches. The push order `@3245bd48-3245bdf0` is B2's 15-slot order. `3245a980( i )` adds `33439e00` to `v[0..i]`, and the hide indices are Profession 4 (level < 0x28), Pet 5, Skill 6, Guild 9.
+- **B3** (`32473810`) matches: `SetShow( 1 )` (vslot `0x68`), picture 0 width = `+0x24` * rate (June's `31c933d0` takes one float, i.e. a SetSizeX; ours `SetSize( x * rate, orig.y )` draws the same), "%.1f%%", tooltip + `SetShowEnable( 1, 1 )` only when not in rest mode. `32475480` has no function in Ghidra and was not re-read here (stamina is pinned at 100% offline).
+
+**Fix (flag `_GAUGES`, `X2StateMenu.cpp`).** The B3 fix hid the rest gauges on every refresh, and its comment said June had no call site for the first hide. B0 had recorded one (`bottombar_functions.tsv` row 14): the CX2StateMenu ctor `32474d80` (vtable `334978f4`) ends `@32475400` with `+0x43d = 0; 324700a0( false )`. The hide now sits at the end of March's ctor, after its `InitUI()`, with `324700a0`'s trailing `32468c70` (`JuneUpdateMenuString`, under `_LAYOUT`). The per-refresh copy is gone. The picture stays the same. `funcmap.tsv` row updated.
+
+**Hygiene** (one run per flag over its commits): IDS `b0ab40af` `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; LAYOUT `886efc91` `3 PASS ... 1 DEFINE`; GAUGES `94550cdc` `1 PASS ... 1 DEFINE`, `a1536b18` `1 PASS`; BUTTONS `3427a2f0` `2 PASS ... 1 DEFINE`. Every run has 0 OTHER / FAIL / ERROR, `in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+Review fix `--worktree --files X2Lib/X2StateMenu.cpp`: `files: 1 PASS`, `18 deleted line(s)` (the B3 fix's own flag-on block, moved to the ctor; no March line deleted), `RESULT: PASS`.
+**Koms:** data034 / datai014 / data036 / data056 / data057 / data151 / datai020-022 are in sync (`kom.py status`, 0 changed). The B4 exe (md5 `ccad9689`) has the STUB / `ingameinfo` strings.
+**Play-test lines** (run 12:03): one `STUB SMUCM_PROFESSION_LIST -> Stage 9`, plus 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, which are not this plan's. 0 EXCEPTION.
+**Deploy:** BUILD OK: X2/US_SERVICE/x2.exe 25,842,688 B, 2026-10-24 12:14:20 (main 91c8e36f + this fix). DEPLOY REFUSED: the game was running (pid 15580). `build.py --deploy-only` once it is closed.
+
+**Open for the user:** none. Next: Phase Z.
+
 ## Phase Z - Close-out (Sonnet 5.5, medium)
 
 `MODS.md` (flags, staged files and their backups, revert steps), backlog Stage 32 closing note, the Stage 9 stub bullet against the final tsv, STATUS, memory. No code.

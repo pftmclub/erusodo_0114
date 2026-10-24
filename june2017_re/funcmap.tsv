@@ -4691,5 +4691,5 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 3245a850 (Bottombar B0)	CX2StateMenu::OnClickedMenuSkillButton	confirmed	Bottombar B0: 0x15 / 0x16 = UI_MENU_SKILL / UI_MENU_COMBO_TREE = March :3559
 31d717d0 (Bottombar B0)	CX2Main state is 0x17 / 0x18 (PVE_GAME / PVE_RESULT)	confirmed	Bottombar B0: June-only states; gates MY_INFO / INVENTORY clicks
 31e5a860 (Bottombar B0)	CX2InstanceData::IsEnableCode( code )	confirmed	Bottombar B0: map +0xa18 (find 322aa950, end +0xa1c), node +0x10; June codes 2155-2316 are absent from March's CODE_EVENT_ID (ends at 50)
-324700a0 / 32470210 (Bottombar B0)	none in March: rest-EXP gauge mode / fill	NOT PORTED	Bottombar B0: Stage 9 (rest EXP); +0x468 never set offline
+324700a0 / 32470210 (Bottombar B0, review)	none in March: rest-EXP gauge mode / fill	partly ported	Bottombar B0: Stage 9 (rest EXP); +0x468 never set offline. Review 2026-10-24: the false branch (hide RESET / Used_RESET gauges + Button_Invisible_RestExpGuage, picture 0 SetSizeX( 0 ), then 32468c70) is ported where June calls it, the end of the ctor 32474d80 @32475400 (SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES); the true branch and 32470210 stay Stage 9
 3245d870 / 3245da70 (Bottombar B0)	none in March: event-EXP gauge / GrowKnowHow icon	NOT PORTED	Bottombar B0: include event controls, Stage 9
