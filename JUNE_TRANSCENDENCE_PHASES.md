@@ -828,6 +828,14 @@ and their stats; June's data uses only the four WEAPON types; no June socket cod
 
 **Done gate:** the user's walk passes; no new `KEM_ERROR`; 0 `UNHANDLED` / `EXCEPTION` in the walk's logs.
 
+### T8 - Set-up (2026-10-24, Sonnet 5.5)
+
+No code, no build (exe md5 6151839b as deployed by the T6 review). Save snapshots: `db_backup/els_db_20261024_075559_pre_T8_walk_start.sql`, then the two
+`elsdb` backups of the edits below. Edits: `transcendence 0` on `ArmeVP` (52), `ArmeEM` (51) and `ArmeDW` (53); `ArmeVP2` (54) stays at 1 for the ticket check; the five
+`unit_quest_complete` rows 41990-42030 of `ArmeVP` deleted so the chain can be taken again (quest data untouched).
+Shortcuts for the clears (the emulator does not check sub-quests or collected items, `Handlers_Quest.cpp` `/qdone`): `/qdone 41990` ... `/qdone 42030` in order.
+The walk's result goes here after "check logs".
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
