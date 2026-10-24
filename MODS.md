@@ -5074,3 +5074,16 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Stand-ins (not June, labelled in the sections above):** the class allow-list (Aisha EM / VP / DW; `JuneTranscendCheck`, `Handlers_Quest.cpp`), slot-state key 1 permanent for a transcended unit, the shop products 288318 / 288319 / three T3 products, the emulator's book and ticket handling, `/tc`.
 - **T7 sockets:** closed by T0, no code (`SOCKET_PARITY` already declares all eight `SDT_*_TRANSCEND*` types).
 - **Turn the system off:** comment out `_UNIT` (both files) and the dependent flags in reverse order (`_IMAGE`, `_SLOTBUFF`, `ARME_TRANSCEND`, `_ENGINE`, `_ITEM`, `_SLOT`, `_CHANGE`; the dependency `#error`s name the order), then see the save-rung note.
+
+### June bottom bar: Stage 32, the whole plan (plan `june-bottombar`, B0-B4 + review + Z, 2026-10-24)
+
+- **Flags** (all in `Always.h`; log tag `[JUNE_BOTTOMBAR]`, only the STUB lines, no `_DEBUG` flag): `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS` (ids 210-214 + six STUB cases, B1), `_LAYOUT` (15-slot row, badges, tooltip strings, `Story_New`, B2),
+  `_GAUGES` (EXP and stamina bars, rest-gauge hide at the ctor end, B3 + review), `_BUTTONS` (Cash / System / Event bodies, Guild gate + STUB, Cash message swap, B4). Files: `X2Lib/X2StateMenu.{h,cpp}`, `X2Informer.h`, `Always.h`.
+- **Data, June byte-exact:** data034 `DLG_Menu_Button_NEW.lua` (replaced, `ljconv` bytecode), datai014 `DLG_UI_Event_Button_INT.lua` (new); 26 textures via `stage-june` into data056 / data057 / data151 / datai020 / datai021 / datai022
+  (18 new, 8 replaced). `Enum.lua` (data036, core list) gained `SMUCM_PROFESSION_LIST` 210, `STORY_BOOK` 211, `EVENT_2016_VALENTINE_UI` 212, `CHANGE_TO_REST_GAGE` 213, `CHANGE_TO_EXP_GAGE` 214; `SMUCM_JUNE_CASH_MAINTENANCE` 215 is C++ only.
+  Run record `june2017_re/june_adopt_20261024_102123.tsv`; backups `24965799\kom_backup_stage_june61024_102123` and `_102128`.
+- **Stand-ins (not June):** the Cash message swap reads "shop open" (`bJuneCashShopOpen` true; June's `g_pInstanceData +0xab4` is set by a server packet); the rest-gauge hide at the ctor end is June's own call; spirit is pinned full by the emulator, so the stamina bar reads 100.0%.
+- **Drawn, click logs `STUB <name> -> Stage 9`:** Profession, StoryBook, Valentine, both rest-gauge buttons, FriendRecommed, and Guild (hidden offline). List and owners: `june2017_re/bottombar_buttons.tsv`, backlog Stage 9.
+- **JUNE_BUGS rows:** 417-420 (duplicate `"Event"`, missing `EXP` key, 32 px vs 30 px spacing, empty spirit tooltip).
+- **Turn off:** comment out `_BUTTONS`, `_GAUGES`, `_LAYOUT`, `_IDS` in `Always.h` (any order is safe; the `_GAUGES` string call needs `_LAYOUT`, so keep `_LAYOUT` while `_GAUGES` is defined), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+  The June dialog and textures stay in the koms (March's C++ then positions June's art with its own layout). To put March's dialog back: restore the two kom_backup_stage_june backups into `kom_contents`, restore March's `DLG_Menu_Button_NEW.lua` from `24965799\kom_contents_bytecode\data034_kom\`, remove datai014's new file, `kom.py pack` the nine koms, copy.

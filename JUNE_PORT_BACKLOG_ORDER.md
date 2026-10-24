@@ -1155,6 +1155,8 @@ evidence `june2017_re/bottombar_buttons.tsv`).
 - **Stays Stage 9 (drawn, click logs `STUB`; user, 2026-10-24):** profession system, story book UI, rest EXP and its gauge, the 2016 Valentine UI; B0 adds
   any of advertisement / friend-recommend that needs a missing system.
 - **Depends on:** nothing. Start: `/x2-phase june-bottombar B0` (Opus 5.5 high).
+- **CLOSED 2026-10-24 (plan `june-bottombar`, B0-B4 + review + Z; MODS.md "June bottom bar: Stage 32").** Flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS` / `_LAYOUT` / `_GAUGES` / `_BUTTONS`. Every June button is drawn;
+  the Stage 9 bullets above hold the final stub list (`june2017_re/bottombar_buttons.tsv`) and the drift found on the way (spirit model, June guild UI, Surprise Sale, June-only refusal state).
 
 ## Open decisions that gate stages
 
