@@ -925,7 +925,7 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 | B2 | **done** 2026-10-24 (play-tested OK: layout, badges, tooltips; logs clean; flag `_LAYOUT`, commit `886efc91`) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
 | B3 | **done** 2026-10-24 (rest-gauge fix `a1536b18`; B4 was started on it) (EXP + stamina bars, flag `_GAUGES`; offline spirit is pinned full so stamina reads 100.0%; DEPLOY OK) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
 | B4 | **done** 2026-10-24 (play-tested OK; commit `3427a2f0`) (Cash / System / Event bodies, Guild gate + STUB, Warp unchanged, Cash msg swap stand-in; flag `_BUTTONS`; DEPLOY OK md5 ccad9689) | Sonnet 5.5 / high | B3 | `X2StateMenu.{h,cpp}`, `Always.h` | `B4.md` |
-| B4 review | **done** 2026-10-24 (PASS; one fix: B3 rest-gauge hide moved to the ctor end, June `32474d80 @32475400`, flag `_GAUGES`; DEPLOY OK md5 a80846f7; user owes a short look at the EXP bar) | Opus 5.5 / high | B4 | - | `B4-review.md` |
+| B4 review | **done** 2026-10-24 (PASS; one fix: B3 rest-gauge hide moved to the ctor end, June `32474d80 @32475400`, flag `_GAUGES`; DEPLOY OK md5 a80846f7; play-tested OK, logs clean) | Opus 5.5 / high | B4 | - | `B4-review.md` |
 | Z | ready (review PASS) | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
 
 Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
