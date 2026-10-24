@@ -512,10 +512,18 @@ void CX2PlayGuide::ResetNoviceGuide()
 				m_bShowDungeonMenu = true;
 			}
 
+#ifdef SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
+			if( NULL != pQuestInst->GetSubQuest(11005) && true == pQuestInst->GetSubQuest(11005)->IsComplete() )
+#else SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
 			if( true == pQuestInst->GetSubQuest(11005)->IsComplete() ) //·çº¥½£ ÀÔÀå
+#endif SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
 			{
 				SetPlayGuide(CX2PlayGuide::PGT_NOVICE_GUIDE_01, false );
+#ifdef SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
+				if( NULL != pQuestInst->GetSubQuest(11006) && false == pQuestInst->GetSubQuest(11006)->IsComplete() )
+#else SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
 				if( false ==  pQuestInst->GetSubQuest(11006)->IsComplete() )
+#endif SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
 				{
 					SetPlayGuide(CX2PlayGuide::PGT_NOVICE_GUIDE_02, true );
 #ifdef GUIDE_FIRST_EPIC_QUEST
