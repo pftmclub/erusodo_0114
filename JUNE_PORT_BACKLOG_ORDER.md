@@ -69,7 +69,7 @@ The user's remaining backlog, in the order they listed it:
 | 29 | June dungeon result screen *(added 2026-10-21, user: split out of Stage 9)* | 6 (one screen of it) | The screen every dungeon clear shows. June keeps the player in the dungeon state and opens `dungeon_result.gfx` (GFx UI 8) over the frozen game; March leaves for the old KTDGUI `XS_DUNGEON_RESULT` state. It needs only june-gfx (closed), so it runs now, outside the Stage 9 order. Planned in full as `JUNE_DUNGEON_RESULT_PHASES.md` (R0-R4, Z). |
 | 30 | June resonance system *(added 2026-10-22, june-transcend planning)* | - (found by june-result R0) | Not a backlog item but a missing system: June's level-99 progression. `KUnitInfo` carries five June-only fields (CX2Unit `+0xa99`..`+0xaa9`); gate `3247b460`; the dungeon result shows its bars. No March counterpart. Brief `kickoffs/june-backlog/stage30-plan.md`. |
 | 31 | June achievement system *(added 2026-10-22, june-transcend planning)* | - (found by june-transcend planning) | Not a backlog item but a missing system: `CX2AchievementManager`, `AchievementData.lua` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI.lua`. March has none. Brief `kickoffs/june-backlog/stage31-plan.md`. |
-| 32 | June bottom bar *(added 2026-10-24, user: split out of Stage 9)* | - (user request) | The village menu dialog as June draws it: the button row, the EXP bar (normal / rest / used-rest) and the stamina bar. Buttons whose feature the project lacks are drawn with a logged stub and stay Stage 9. Planned in full as `JUNE_BOTTOMBAR_PHASES.md` (B0-B3, Z); runs now, outside the Stage 9 order. |
+| 32 | June bottom bar *(added 2026-10-24, user: split out of Stage 9)* | - (user request) | The village / field bottom bar as June draws it: June's `DLG_Menu_Button_NEW.lua` and its textures, the button row layout, the EXP bar and the stamina bar, and June's body for each working button. Buttons whose feature the project lacks are drawn and log a `STUB` click; their features stay Stage 9. Planned in full as `JUNE_BOTTOMBAR_PHASES.md` (B0-B4, Z); runs now, outside the Stage 9 order. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -426,8 +426,17 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     reopened in one session would fail the same silent way. Map: `june2017_re/result_r3c_map.tsv`.
 
 - **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
-  - **Bar, EXP and stamina gauges and the button row moved to Stage 32 (user, 2026-10-24).** This stage keeps the StoryBook UI and the click behind any
-    button whose feature is missing (`JUNE_BOTTOMBAR_PHASES.md`, B0's `june2017_re/bottombar_buttons.tsv` lists them).
+  - **Bar, EXP and stamina gauges and the button row moved to Stage 32 (user, 2026-10-24).** Stage 32 draws every June button; a click whose
+    feature is missing logs `[JUNE_BOTTOMBAR] STUB <name> -> Stage 9`. This stage owns those features (final list: `june2017_re/bottombar_buttons.tsv`, owner `Stage 9`):
+    - the StoryBook button's real handler (`ToggleUI( 0x2f )`, `g_pInstanceData +0xabd = 0`) with `CX2UIStoryBook`, and the `Story_New` badge from `+0xabd`;
+    - **June's profession system** (button `SMUCM_PROFESSION_LIST`, June case `0xb2` -> menu 0x22): `CX2ProfessionManager`, GFx `UIProfession`
+      (`CX2UIProfessionAdapter`, `UIProfession.showUI` / `.hideUI`, `notifySelectProfession` / `notifyChagneProfession`), `DLG_UI_Job_professional.lua`,
+      `DLG_UI_Change_Profession.lua`, `DLG_UI_Profession_Change_Item.lua`, the blacksmith / alchemist / treasure-hunt level-up effects. A whole system:
+      the Stage 9 planner may give it its own stage;
+    - **rest EXP** (buttons `SMUCM_CHANGE_TO_REST_GAGE` / `_EXP_GAGE`, June `324700a0` / `32470210`): June-only unit int64s `+0xac0` / `+0xac8` (from June's
+      `KUnitInfo`), a per-level cap table, level < 99; the emulator would need a labelled stand-in to earn it;
+    - the 2016 Valentine UI (`SMUCM_EVENT_2016_VALENTINE_UI`, case `0x40b`, event 0x8aa) and the include's event icons and event-EXP gauge
+      (`3245d870`, `Static_EventEXP_BG`), with the `EventButtonAddSystem` bullet below.
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
     Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
   - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own
@@ -1123,11 +1132,13 @@ ids 70-72). March has no achievement system at all.
 
 ### Stage 32: June bottom bar (user, 2026-10-24; split out of Stage 9)
 
-The user asked for June's bottom area now: the menu button row, the EXP bar and the stamina bar. Plan `JUNE_BOTTOMBAR_PHASES.md` (`june-bottombar`, B0-B3, Z).
-- **In the plan:** June's `DLG_Menu_Button_NEW.lua` and its textures, the 5 ids March lacks (`PROFESSION_LIST`, `STORY_BOOK`, `EVENT_2016_VALENTINE_UI`,
-  `CHANGE_TO_REST_GAGE`, `CHANGE_TO_EXP_GAGE`), the three EXP gauges, the stamina gauge, and June's handler body for each of the 13 buttons March already has.
-- **Stays Stage 9:** the feature behind any button the project lacks (click = logged `STUB`): starting list profession UI, 2016 Valentine event UI,
-  `CX2UIStoryBook` (quest-system Q10c); rest-EXP earning. B0 settles the final list and updates the Stage 9 bullet.
+The user asked for June's bottom area now: the menu button row, the EXP bar and the stamina bar. Plan `JUNE_BOTTOMBAR_PHASES.md` (`june-bottombar`, B0-B4, Z;
+evidence `june2017_re/bottombar_buttons.tsv`).
+- **In the plan:** June's `DLG_Menu_Button_NEW.lua` + `DLG_UI_Event_Button_INT.lua` and 13 textures (byte-exact), the 5 ids March lacks (210-214),
+  the row layout and badges (`3245bb70`, `3245cba0`, `32472a40`, `32468c70`), the EXP bar (`32473810`) and stamina bar (`32475480`), and June's case body
+  for each working button.
+- **Stays Stage 9 (drawn, click logs `STUB`; user, 2026-10-24):** profession system, story book UI, rest EXP and its gauge, the 2016 Valentine UI; B0 adds
+  any of advertisement / friend-recommend that needs a missing system.
 - **Depends on:** nothing. Start: `/x2-phase june-bottombar B0` (Opus 5.5 high).
 
 ## Open decisions that gate stages

@@ -914,20 +914,21 @@ the files do not overlap. T5 and T6 one at a time after T4 (`X2GUUser.*`, `X2GUA
 
 ## june-bottombar - June bottom bar: menu button row, EXP bar, stamina bar
 
-Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` · flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_*` · kickoffs `kickoffs/june-bottombar/` · backlog Stage 32, split out of Stage 9 (user, 2026-10-24) · created 2026-10-24.
+Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` · flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_*` (`_IDS`, `_LAYOUT`, `_GAUGES`, `_BUTTONS`, + `_DEBUG`) · kickoffs `kickoffs/june-bottombar/` · evidence `june2017_re/bottombar_buttons.tsv` · backlog Stage 32, split out of Stage 9 (user, 2026-10-24) · created and re-planned on Opus 2026-10-24.
 
-**Scope:** the village menu dialog as June draws it. Buttons whose feature the project lacks are drawn with a logged stub and stay Stage 9 (the plan doc's "Scope fence").
+**Scope:** June's `DLG_Menu_Button_NEW.lua` (+ its include and 13 textures), the 5 missing ids (210-214), June's row layout and badges, the EXP and stamina bars, and June's body for each working button. Buttons whose feature is missing (profession, story book, rest-EXP toggle, 2016 Valentine) are drawn and their click logs a `STUB` line (user's choice); their features stay Stage 9.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| B0 | **ready** (read-only: button table `june2017_re/bottombar_buttons.tsv`, asset census, adopt-vs-core decision) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
-| B1 | blocked (waits for B0) | Sonnet 5.5 / high | B0 | `X2StateMenu.{h,cpp}`, `X2MemoryHolder.cpp`, data034 + textures, `Always.h` | `B1.md` |
+| B0 | **ready** (read-only: layout `3245bb70` from disassembly, `3245cba0` / `32472a40` / `32468c70`, frame-move bar lines, the 18 case bodies, `32473810` tooltip + level cap) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
+| B1 | blocked (waits for B0) | Sonnet 5.5 / high | B0 | data034 / datai014 Lua, 9 koms of textures, `Enum.lua` (core list), `X2StateMenu.{h,cpp}`, `Always.h` | `B1.md` |
 | B2 | blocked (waits for B1) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
 | B3 | blocked (waits for B2) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
-| B3 review | blocked (waits for B3; B3 writes the kickoff) | Opus 5.5 / high | B3 | - | `B3-review.md` |
-| Z | blocked (waits for the B3 review) | Sonnet 5.5 / medium | B3 review | `MODS.md`, backlog, memory | `Z.md` |
+| B4 | blocked (waits for B3) | Sonnet 5.5 / high | B3 | `X2StateMenu.cpp` | `B4.md` |
+| B4 review | blocked (B4 writes the kickoff; covers B1-B4) | Opus 5.5 / high | B4 | - | `B4-review.md` |
+| Z | blocked (waits for the review) | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
 
-Running together: B0 has no code, so it can run beside anything. B1-B3 share `X2StateMenu.cpp` with quest-system / june-engine rows: not alongside a running code row on that file.
+Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
 
 ## Other plans
 

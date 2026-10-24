@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase june-bottombar Z` |
 | Plan doc | `JUNE_BOTTOMBAR_PHASES.md` (branch `main`) |
-| Depends on | B3 review PASS |
+| Depends on | B4 review PASS |
 | Flag | none |
 | Log tag | `[JUNE_BOTTOMBAR]` (`python tools/logs.py --tag JUNE_BOTTOMBAR`) |
 | Review | - |
@@ -15,6 +15,8 @@
 python tools/docsection.py JUNE_BOTTOMBAR_PHASES.md "Context" "Scope fence" "Rules" "Phase Z - Close-out (Sonnet 5.5, medium)"
 ```
 
+and `june2017_re/bottombar_buttons.tsv`, `june2017_re/bottombar_functions.tsv`, the B0 Done note.
+
 ## Task
 
-Do "Phase Z": no code, no build. MODS.md revert lines, backlog Stage 32 closing note, confirm the Stage 9 stub bullet against the final B0 table, STATUS, memory.
+Do "Phase Z": no code, no build.

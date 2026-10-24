@@ -1,104 +1,154 @@
 # June bottom bar: the menu button row, the EXP bar and the stamina bar
 
-Plan key `june-bottombar` · branch `main` · created 2026-10-24 (user: "port the bottom area buttons and the exp + stamina bar from June now;
-buttons whose feature is not in the project yet go to Stage 9") · log tag `[JUNE_BOTTOMBAR]` · flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_*` ·
-kickoffs `kickoffs/june-bottombar/` · backlog Stage 32, carved out of Stage 9.
+Plan key `june-bottombar` · branch `main` · created 2026-10-24, re-planned the same day on Opus (user: "port the bottom area buttons and the
+exp + stamina bar from June now; buttons whose feature is not in the project yet go to Stage 9") · log tag `[JUNE_BOTTOMBAR]` · flags
+`SERV_IRUHADEV_JUNE_BOTTOMBAR_*` · kickoffs `kickoffs/june-bottombar/` · backlog Stage 32, carved out of Stage 9.
 
 ## Context
 
-**What the village HUD is today.** `CX2StateMenu` owns one KTDGUI dialog, `m_pDLGMenu`, made by `CX2MemoryHolder::GetMenuDLG`
-(`X2MemoryHolder.cpp:388-415`), which picks one of `DLG_Menu_Button_NEW2 / NEW / Pet / .lua / New1` by compile flags. In the live
-data034 `DLG_Menu_Button_NEW.lua` is **March bytecode** (14,551 B, `1B 4B 4C 81`); it is not on the core list and has no ledger row.
-`RefreshMenuInfo` (`X2StateMenu.cpp:3718`) fills the stamina gauge (`StaticMenu_Button_Tired_Gage`, picture 0 width from `m_iSpirit` /
-`m_iSpiritMax`; tooltip on `Button_Invisible_SpiritGuage`) and calls `UpdateExpGageBar` (`:3770-3930`, controls
-`StaticMenu_Button_EXP_Gauge` / `StaticMenu_Button_EXP`). So the data paths for EXP and stamina already exist; the pictures and layout are March's.
+Planning evidence (2026-10-24, Ghidra + the June / live kom files, read-only). [D] = seen in the listing or file, [I] = inferred, B0 confirms.
+Per-button rows: `june2017_re/bottombar_buttons.tsv`.
 
-**What June draws** (`june_src_fixed/data034_kom/DLG_Menu_Button_NEW.src.lua`, 31 KB; read-only evidence, [D] = seen in the file):
+**One dialog, both sides.** June's `CX2MemoryHolder::GetMenuDLG` (`32853880`) builds `DLG_Menu_Button_NEW.lua` unconditionally [D]; March's
+(`X2MemoryHolder.cpp:388-415`) reaches the same name because `SERV_RECOMMEND_LIST_EVENT` is off (`JUNE_SKILL_SYSTEM_PHASES.md:1460`). Only the file's
+content differs: live data034 has March's bytecode (14,551 B, `1B 4B 4C 81`, no ledger row, not on the core list).
 
-| Piece | June | Notes |
+**June's file** (`june_src_fixed/data034_kom/DLG_Menu_Button_NEW.src.lua`, June's own bytes in data034) [D]:
+- backplates from `DLG_UI_Image_01`: `Gauge_EXP` (0, 743), `Gauge_Stamina` (316, 743), `Bra_Notice` (552, 743, +459 wide);
+- EXP: `StaticMenu_Button_EXP_Gauge` (`EXP_Y`), `StaticMenu_Button_RESET_EXP_Gauge` (`EXP_G`), `StaticMenu_Button_Used_RESET_EXP_Gauge` (`EXP_R`), all at
+  (86, 759), from `DLG_UI_Common_Texture64_NEW`; stamina: `StaticMenu_Button_Tired_Gage` (`EXP_G`, (401, 759), +127 wide, "100%" string at x 385);
+- 15 row buttons on `DLG_UI_Button27` placed by the file's own `MBW_GET_SLOT_LEFT_TOP( slot, dx, dy )` (x = 987 - 30 * ( slot - 1 ), y = 718), slots
+  14..1: Warp, Guide, Charac, Inven, Profession, Pet, Skill, StoryBook, Quest, Guild, Comm, System, Event (`DLG_UI_Button19_NEW`), Cash; plus
+  `2016Valentine` and `FriendRecommed` (both `SetShow( false )`); badges (`*_New`, `Warp_VIP`, `Pat_Inventory_*`, tags), the F5 / F6 / F1 signs, and three
+  invisible tooltip buttons over the gauges (`Button_Invisible_ExpGuage` -> `SMUCM_CHANGE_TO_REST_GAGE`, `_RestExpGuage` -> `_CHANGE_TO_EXP_GAGE`,
+  `_SpiritGuage`);
+- last line `IncludeLua( "DLG_UI_Event_Button_INT.lua" )`: a June-only file (datai014) of event icons and an event-EXP gauge, every control
+  `SetShowEnable( false, false )`. It names a second control `"Event"` (a June quirk: `GetControl` finds the first, the advertisement button).
+- Every method it calls is bound in March, every `STR_ID_` it uses is in the live `StringID_def.lua`, and every control March's `X2StateMenu.cpp` reads that
+  June's file lacks (`StaticMenu_Button_EXP`, `StaticMenu_Button_LV_Num`, `ButtonBack`, `Button_TooniLand`, `ElesisEventButton`) is NULL-checked there.
+
+**The ids.** The dialog sends 18 `STATE_MENU_UI_CUSTOM_MSG` names, resolved through `Enum.lua` (data036, **core list**, BOM source). The live table has 13
+(same values as June except `WARP_BUTTON` 178 / June 1001 and `SHOW_ADVERTISEMENT` 177 / June 1000; March's C++ uses March's). Missing: `PROFESSION_LIST`
+(June 178, taken by March's warp), `STORY_BOOK` 181, `EVENT_2016_VALENTINE_UI` 1035, `CHANGE_TO_REST_GAGE` 195, `CHANGE_TO_EXP_GAGE` 196. Precedent
+`SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`: new members sit after March's last (`X2StateMenu.h:182-186`, 208 / 209), so these become **210-214** in both files.
+A missing name reaches `SetCustomMsgMouseUp` as nil (sent as 0) without an error: today's symptom would be a dead button, not a broken dialog.
+
+**June's code** [D] (all `CX2StateMenu`, vtable `334978f4`):
+
+| June | Role | March counterpart |
 |---|---|---|
-| Backplates | `DLG_UI_Image_01.TGA` `Gauge_EXP` (0, 743), `Gauge_Stamina` (316, 743), `Bra_Notice` (552, 743, +459 wide) | [D] March's live `DLG_UI_Image_01` is data215 (`x1_short51.tsv:5`); whether it has these keys is B0's check |
-| EXP gauges | three statics: `StaticMenu_Button_EXP_Gauge` (`EXP_Y`), `StaticMenu_Button_RESET_EXP_Gauge` (`EXP_G`), `StaticMenu_Button_Used_RESET_EXP_Gauge` (`EXP_R`), from `DLG_UI_Common_Texture64_NEW.TGA` | [D] normal / rest / used-rest EXP. `Texture64_NEW` is data057; June's `.TET` is 6,278 B, March's 6,100 B (`x2_march_native_diff.tsv:2162`) |
-| Stamina gauge | `StaticMenu_Button_Tired_Gage`, picture `EXP_G` at (401, 759), +127 wide, "100%" string right-aligned at x 385 | [D] same control name March already updates |
-| Gauge toggle | two opacity buttons: `SMUCM_CHANGE_TO_REST_GAGE` / `SMUCM_CHANGE_TO_EXP_GAGE` | [D] switch which EXP gauge shows |
-| Button row | 18 `STATE_MENU_UI_CUSTOM_MSG` ids (below) | [D] |
-| Layout code | bar layout `3245bb70`, placement `3245cba0`, `Story_New` mark `324708c0`, state-menu dispatcher `32476050`, StoryBook handler `32478e90` | from the backlog Stage 9 notes; B0 identifies the rest |
+| `32476050` | `UICustomEventProc`; the 18 cases in the tsv | `X2StateMenu.cpp:1002` |
+| `32475480` (vslot `+0x288`, Ghidra has no function there; `@32475480-324756d0`) | `RefreshMenuInfo`: `32473810`, `3245d870`, `3245da70`; stamina = `+0x950 / +0x954` (`m_iSpirit` / `m_iSpiritMax`) * width **and** "%.1f%%" into the gauge's string 0; `_SpiritGuage` guide text written **empty** (`@324755ca-3247562f`, [I] June quirk); inventory ED / AP | `:3718` (width only; tooltip "%.1f%%") |
+| `32473810` | EXP bar: rest mode (`this +0x468`) -> `32470210`; else resonance (`3247b460`, unit `+0xa99`) -> resonance EXP ("#C00FFFF%.1f%%"); else `( EXP - base ) / 32741030( level + 1 )`, clamp, width, "%.1f%%"; then (not rest mode) a tooltip on a control whose name the decompile lost | `UpdateExpGageBar` `:3762-3933` (+ level number, `SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX`) |
+| `324700a0` / `32470210` | rest mode on / off (shows `_RESET_`, `_Used_RESET_`, `_RestExpGuage`); rest gauge from unit `+0xac0` / `+0xac8` (int64, June-only) over a per-level table, level < 99 | none |
+| `3245bb70` | row layout: vector `this +0x3d8` of the 15 buttons, visible ones packed, badges follow; `AccompanyPetTag`, `Warp_New` (decompile breaks after `@3245bf00`) | `UpdateMenuPosistion` `:5206-5453` (13 buttons, March order) |
+| `3245cba0` | badge placement (`Normal`, `*_New`, `Warp_VIP`, `Story_New`) | inside `UpdateMenuPosistion` [I] |
+| `32472a40` (vslot `+0x27c`) | calls `3245cba0`, `3245bb70`, `32468c70` | caller `:3164` of `UpdateMenuPosistion` [I] |
+| `32468c70` | button show / hide set + event-EXP static; also called by `31f5ff50` and `324700a0` | B0 |
+| `3245d870` / `3245da70` | event-EXP gauge (`... (DEV) %f` strings) / a DEV tooltip | none [I] |
+| `324708c0` (vslot 1) | frame move: calls `3245bb70` `@324714ed`, badge / sign / event-icon visibility, `Story_New` from `+0xabd` | `OnFrameMove` `:221` (calls `UpdateMenuPosistion` at `:617`) |
 
-**The 18 ids June's dialog sends.** March's `X2StateMenu.h` already has 13: `MY_INFO`, `INVENTORY`, `MY_INFO_SKILL_TREE`, `MY_INFO_QUEST`, `GUILD`,
-`COMMUNITY`, `SYSTEM`, `CASH_SHOP`, `PET_LIST`, `WARP_BUTTON`, `OPEN_ELLIOS_GUIDE`, `SHOW_ADVERTISEMENT`, `FRIEND_RECOMMEND_OPEN`.
-**Missing in March: 5** - `PROFESSION_LIST`, `STORY_BOOK`, `EVENT_2016_VALENTINE_UI`, `CHANGE_TO_REST_GAGE`, `CHANGE_TO_EXP_GAGE`. Whether the 13 behave
-as June's handlers do (a button can exist in both and still differ) is B0's table.
+**Assets** (`kom.py stage-june --dry-run`, both files' textures). Same name -> June's, byte-exact (standing rule):
+- replaced: `DLG_UI_Button19_NEW` (data056), `DLG_UI_Common_Texture64_NEW` (data057), `DLG_UI_Button_INT01`, `DLG_INT_Button01` (datai020);
+- new: `DLG_UI_Button27` (data056), `DLG_UI_EVENT_2016VALENTINE_00` (datai020), `DLG_UI_EVENT_Friends_Invitation01`, `DLG_UI_EVENT_2016PETFULFILL_01`,
+  `DLG_UI_EVENT_ElMission_01`, `DLG_UI_Event_INT01` (datai022), `DLG_INT_EVENT_PHOTOBOOK_03`, `DLG_UI_EVENT_CnSpring2016_01` (datai021), `DLG_UI_Text_03`
+  (data151); each `.tga` + `.TET`; already June's: `DLG_UI_Image_01` (data215), `DLG_Common_New_Texture03` (data053);
+- `.TET` keys: the four replacements only add keys, except `Texture64_NEW` drops `EXP` (adds `EXP_Y` / `_G` / `_R` / `_B`). A bytecode-constant scan of
+  every live `.lua` naming `Texture64_NEW` finds `EXP` only in `DLG_Menu_Button_NEW.lua` (replaced here) and `DLG_Menu_Button_NEW2.lua` (not loaded); no C++
+  reader. June's own include still asks for `EXP` (June quirk: that hidden picture draws nothing in June too).
 
 ## Scope fence
 
-**In this plan:** the village menu dialog as June draws it, and what makes it work:
-- adopting June's `DLG_Menu_Button_NEW.lua` and the textures/keys it needs, byte-exact (the same-name rule), or a core-list row if March's C++ needs both;
-- the 5 missing ids, the EXP bar (normal, rest, used-rest, toggle, text, tooltips) and the stamina bar (layout, text, tooltip);
-- every one of the 13 existing buttons: June's handler body, whole ("no partial updates").
+**In this plan** (the village / field bottom bar as June draws it):
+- June's `DLG_Menu_Button_NEW.lua` and `DLG_UI_Event_Button_INT.lua` and the textures above, byte-exact;
+- the 5 ids (210-214) in `Enum.lua` and `X2StateMenu.h`;
+- June's row layout and badges (`3245bb70`, `3245cba0`, `32472a40`, `32468c70`) and the bar lines of the frame move that drive them;
+- the EXP bar and the stamina bar (`32473810`, `32475480`);
+- June's handler body for each existing button whose June case differs from March's (whole body, "no partial updates").
 
-**Not in this plan (Stage 9, never dropped):**
-- a button whose **feature does not exist in the project** is drawn like June's, enabled-looking, and its click only logs
-  `[JUNE_BOTTOMBAR] STUB <id> -> Stage 9`; it opens nothing. The final list is B0's, the starting list is
-  `PROFESSION_LIST` (profession UI), `EVENT_2016_VALENTINE_UI` (2016 event UI), and `STORY_BOOK` (Stage 9 / quest-system Q10c owns `CX2UIStoryBook`);
-- rest-EXP **earning** (if the offline save has none, the rest/used-rest bars stay at June's absent-value default, empty, and the toggle still works);
-- the other `DLG_Menu_Button_*` variants (pet, warp, NEW2/NEW3), the minimap, the quick slot, the event-icon bar, the notice strip text;
-- the HUD portrait / `CX2MyGageUI` (in-dungeon gauges).
+**Stays Stage 9, drawn but inert** (user, 2026-10-24: "draw, click logs"): the button is placed exactly as June places it; its click logs
+`[JUNE_BOTTOMBAR] STUB <name> -> Stage 9` and opens nothing:
+- `PROFESSION_LIST`: June's profession (life-job) system: `CX2ProfessionManager`, GFx `UIProfession` (`CX2UIProfessionAdapter`), menu 0x22,
+  `DLG_UI_Job_professional.lua`, `DLG_UI_Change_Profession.lua`, the blacksmith / alchemist / treasure-hunt jobs. A whole system, not a dialog;
+- `STORY_BOOK`: `CX2UIStoryBook` (quest-system Q10c, already Stage 9). The stub does **not** clear `+0xabd`; that is part of June's handler;
+- `CHANGE_TO_REST_GAGE` / `CHANGE_TO_EXP_GAGE`: rest EXP (unit `+0xac0` / `+0xac8`, June-only `KUnitInfo` data the emulator never sends) and its gauge `32470210`;
+- `EVENT_2016_VALENTINE_UI`, and whichever of `SHOW_ADVERTISEMENT` / `FRIEND_RECOMMEND_OPEN` B0 finds needs a missing system.
 
-A feature that is *missing* is a stub; a feature that is *present but behaves differently from June's handler* is in this plan.
+**Not in this plan at all:** the event icons and event-EXP gauge of the include (Stage 9, `EventButtonAddSystem`); the resonance EXP branch (Stage 30; March
+answers "no resonance" as `X2UIDungeonResultAdapter.cpp:467` does); the notice strip's text (Stage 9, R4h); the rest of the frame move; the other
+`DLG_Menu_Button_*` variants; quick slot, minimap, the in-dungeon HUD (`CX2MyGageUI`).
 
 ## Rules
 
-- Branch `main`; one flag family `SERV_IRUHADEV_JUNE_BOTTOMBAR_*`, defined in `KTDXLIB/Always.h`; original code in `#else`.
-- June's files go in byte-exact through `luasrc.py adopt-june` / `kom.py stage-june` (rule: same name = June's). A March reader that then breaks is fixed in
-  code, never by editing June's file. Core-list `.lua` only when B0 proves March's C++ and June's file disagree, with the row added by the phase.
-- Comments are one short line. Keep June quirks verbatim (`JUNE_BUGS.md` row). Dev-console and `/additem` rules in CLAUDE.md apply to hand-offs.
-- Pack and copy of koms: Claude packs; **ask before each `/x2-kom-packed copy`**.
+- Branch `main`. One flag per logical change in `KTDXLIB/Always.h`, original code in `#else`; `X2StateMenu.cpp` / `.h` and `X2MemoryHolder.cpp` are CP949:
+  `bytepatch.py` only. One-line comments.
+- June files go in through `luasrc.py adopt-june` (Lua, default ljconv bytecode) and `kom.py stage-june` (textures); never edited. `Enum.lua` is core-list BOM
+  source: edit the text, then `luasrc.py refresh`; `ledger --check` stays PASS.
+- Port June's UI-manager menu ids **by name** (June `0x13` is `UI_MENU_CHARINFO`, `0x1f` inventory ...), never by number; the numbering differs.
+- June quirks are kept verbatim with a `JUNE_BUGS.md` row (the empty spirit tooltip, the duplicate `"Event"`, the missing `EXP` key).
+- Pack with `/elstools pack`; **ask before every `/x2-kom-packed copy`**. Hand-offs: dev console, `/additem`, copy-ready (CLAUDE.md).
 
 ## Starting context
 
-Tools only: `python tools/build.py --deploy` (background), `flagcheck.py`, `bytepatch.py` (X2Lib sources are CP949), `docsection.py`, `logs.py --tag JUNE_BOTTOMBAR`,
-`luasrc.py adopt-june`, `kom.py`. June reading: `june_src_fixed/data034_kom/DLG_Menu_Button_NEW.src.lua`; Ghidra for the code addresses above.
-Funcmap rows are tagged `(Bottombar B<n>)`; the button table is `june2017_re/bottombar_buttons.tsv`.
+Tools only: `python tools/build.py --deploy` (background), `flagcheck.py`, `bytepatch.py`, `docsection.py`, `logs.py --tag JUNE_BOTTOMBAR`, `luasrc.py`,
+`kom.py`, `elsdb.py` (save edits for play-tests). June: Ghidra (`.claude/skills/ghidra`; `32475480` has no Ghidra function: read its disassembly or
+create the function), `june_src_fixed/`. Funcmap rows are tagged `(Bottombar B<n>)`.
 
-## Phase B0 - Identify, read-only (Opus 5.5, high)
+## Phase B0 - Identify the layout and the button bodies, read-only (Opus 5.5, high)
 
-**Run with:** `/x2-phase june-bottombar B0`. No code, no build.
-**Task:**
-1. Decompile June's `32476050` cases for the 18 ids, `3245bb70`, `3245cba0`, `324708c0`, and June's `UpdateExpGageBar` and stamina update counterparts
-   (find them from the control names `StaticMenu_Button_EXP_Gauge`, `_RESET_`, `_Used_RESET_`, `_Tired_Gage`).
-2. For each of the 18 buttons write one row in `june2017_re/bottombar_buttons.tsv`: id, June address, what June does, March counterpart,
-   verdict `same` / `differs` (name the difference) / `missing-feature` (-> Stage 9) / `missing-id-only` (feature exists, id does not).
-3. For the EXP bar: what each of the three gauges is computed from, whether rest EXP exists in the offline save or emulator, what the toggle changes.
-4. Asset census: do `Gauge_EXP`, `Gauge_Stamina`, `Bra_Notice`, `EXP_Y`, `EXP_G`, `EXP_R` exist in the **live** `DLG_UI_Image_01` / `Texture64_NEW` `.TET`s;
-   which June files the dialog loads that March lacks; which of March's C++ control lookups June's file no longer has (and the reverse).
-5. Decide `adopt-june` default (ljconv bytecode) vs core-list source, with the evidence; fix the B1-B3 file lists.
-6. Update the backlog Stage 9 bullet with the final stub list. Write the B0 Done note (<= 60 lines) and funcmap rows.
-**Gate:** `bottombar_buttons.tsv` has 18 rows with a verdict each; nothing marked "unknown" without a named reason.
+**Run with:** `/x2-phase june-bottombar B0`. No code, no build. Delegate pulls to Sonnet subagents; keep the readings.
+1. `3245bb70` from the disassembly (the decompile breaks after `@3245bf00`): slot order, what hides a button (the gates on profession, pet, guild, warp,
+   friend, event), how visible buttons pack, badge offsets, `AccompanyPetTag` / `Warp_New`. Diff against `UpdateMenuPosistion` `:5206-5453`.
+2. `3245cba0`, `32472a40`, `32468c70` (and its callers `31f5ff50`, `324700a0`): March counterparts (`:3164`'s function, `ShowMainMenuButton` `:5142`,
+   `UpdateMenuString` `:5151`, `SetShowMenu` `:3546`); which March function each one replaces.
+3. The frame move `324708c0`: only the lines that decide `3245bb70`'s call (`@324714ed`), the badges, the F5 / F6 / F1 signs and `Story_New`; diff against
+   `OnFrameMove` around `:617`. Everything else in it is out of scope: list it once in the Done note, owners named.
+4. The 18 cases (`bottombar_buttons.tsv`): map each June menu id to March's `UI_MENU_*` by what `32158070` creates for it; compare body by body; set `plan_verdict`
+   to `same` / `differs (<what>)` / `STUB` and `owner`. Settle `SHOW_ADVERTISEMENT` and `FRIEND_RECOMMEND_OPEN` (is the system there offline?).
+5. `32473810`: the control the tooltip step writes (the decompile lost the name; disassemble the call before `31f54a10`); the level-cap answer
+   (`32741030` returns 0 for a missing row, `JUNE_DUNGEON_RESULT_PHASES.md` R1 / R3b) against `SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX`; `3245d870` / `3245da70` (in or out).
+   Confirm the empty `_SpiritGuage` text in `32475480`.
+6. Write `june2017_re/bottombar_functions.tsv` (June function -> March function -> phase -> verdict), funcmap rows, the B0 Done note (<= 60 lines), and the
+   final stub list into the backlog Stage 9 bullet. Fix B1-B4's file and function lists if the readings move them.
+**Gate:** every tsv row has a verdict and an owner; every June function in the table above has a March counterpart or "none (why)".
 
-## Phase B1 - June's dialog, the 5 ids, stubs (Sonnet 5.5, high)
+## Phase B1 - June's dialog, textures, the 5 ids, the stubs (Sonnet 5.5, high)
 
-**Depends on:** B0. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_DIALOG`.
-**Task:** per B0: stage the textures/`.TET`s and `DLG_Menu_Button_NEW.lua` (replace, byte-exact; backup is the tool's), add the 5 ids to `STATE_MENU_UI_CUSTOM_MSG`
-(appended, behind the flag), make `GetMenuDLG` load it for the village, add the `STUB` log cases for the `missing-feature` rows, and pack the koms (`/elstools pack`; ask before copy).
-**Gate:** village shows June's bar with all 18 buttons; every stub click logs its `STUB` line; no `UNHANDLED`/`EXCEPTION`.
+**Depends on:** B0. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS` (+ `_DEBUG`).
+- `luasrc.py adopt-june DLG_Menu_Button_NEW.lua DLG_UI_Event_Button_INT.lua`; `kom.py stage-june` the texture list (Context, *Assets*).
+- `Enum.lua`: the 5 names = 210-214 in `STATE_MENU_UI_CUSTOM_MSG`, then `luasrc.py refresh`; `X2StateMenu.h`: the same members and values after 209.
+- `UICustomEventProc`: a case per `STUB` row logging `[JUNE_BOTTOMBAR] STUB <name> -> Stage 9` once per click.
+- Pack the touched koms (data034, datai014, data036, data056, data057, data151, datai020, datai021, datai022); ask before copy.
+**Gate:** the village shows June's art and buttons (positions still March's runtime layout until B2: say so in the hand-off); every stub click logs; the
+load logs no `KEM_ERROR68` for the include; `ledger --check` PASS; no `UNHANDLED` / `EXCEPTION`.
 
-## Phase B2 - EXP bar (Sonnet 5.5, high)
+## Phase B2 - Row layout and badges (Sonnet 5.5, high)
 
-**Depends on:** B1. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_EXP`.
-**Task:** June's EXP update body, whole: the three gauges, their strings and tooltips, the rest/exp toggle; max level shows a full bar (keep
-`SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX`'s behaviour or June's, B0 decides which June does).
-**Gate:** level-up and EXP gain update the bar; toggle swaps gauges; log `[JUNE_BOTTOMBAR] EXP`.
+**Depends on:** B1. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT`.
+Port B0's layout rows whole: `3245bb70` in place of `UpdateMenuPosistion`'s body, `3245cba0`, `32472a40` / `32468c70` at their March counterparts, and the bar
+lines of the frame move B0 named. A gate on a missing system takes June's absent-value default (B0 names it per gate).
+**Gate:** the row matches June's slot order with stubs drawn; hiding a button (no pet / no guild) packs the row as June does; badges sit on their buttons.
 
-## Phase B3 - Stamina bar and the 13 working buttons (Sonnet 5.5, high)
+## Phase B3 - EXP bar and stamina bar (Sonnet 5.5, high)
 
-**Depends on:** B2. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS` (+ stamina under `_STAMINA`).
-**Task:** June's stamina update (width, percentage string, tooltip); then every `differs` row of B0's table ported whole.
-**Gate:** each of the 13 buttons opens what June's opens; the stamina bar matches `m_iSpirit` through a level/dungeon change.
+**Depends on:** B2. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES`.
+`32473810` whole in `UpdateExpGageBar`: the rest-mode branch is ported but unreachable (only the stub toggle could set `+0x468`) and calls a one-time log
+instead of `32470210`; the resonance test answers false (comment names Stage 30); the level cap per B0. `32475480` whole in `RefreshMenuInfo`: stamina width +
+percentage string + June's tooltip behaviour, ED / AP as before.
+**Gate:** EXP gain and level-up move the yellow bar and its text; a dungeon run moves the stamina bar and its "%" text; level 99 shows what B0 decided.
 
-## Review phase (Opus 5.5, high)
+## Phase B4 - Button bodies that differ (Sonnet 5.5, high)
 
-`/x2-phase june-bottombar B3 review` covers B1-B3 together: June vs ours line by line, flagcheck, deployed exe, play-test log lines.
+**Depends on:** B3. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS`.
+Each `differs` row of `bottombar_buttons.tsv`, June's case body whole at March's case; menu ids by name. Write `kickoffs/june-bottombar/B4-review.md` from the
+review template when done.
+**Gate:** each of the 13 working buttons opens what June's opens (hand-off lists them one per line).
+
+## Review (Opus 5.5, high)
+
+`/x2-phase june-bottombar B4 review` covers B1-B4: June vs ours line by line, the asset list against June bytes, flagcheck ranges, the deployed exe, the
+play-test lines.
 
 ## Phase Z - Close-out (Sonnet 5.5, medium)
 
-`MODS.md` revert lines, backlog Stage 32 closing note, the Stage 9 stub bullet confirmed against the final B0 table, STATUS, memory. No code.
+`MODS.md` (flags, staged files and their backups, revert steps), backlog Stage 32 closing note, the Stage 9 stub bullet against the final tsv, STATUS, memory. No code.
