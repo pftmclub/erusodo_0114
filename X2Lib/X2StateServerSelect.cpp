@@ -3035,7 +3035,11 @@ void CX2StateServerSelect::CreateUnitButton()
 		CKTDGUIStatic* pStaticUnitFace = static_cast<CKTDGUIStatic*> ( pUnitSlot->GetControl( L"UnitFace" ) );
 
 		wstring fileName, pieceName;		
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), CX2Data::CIT_UnitSlot, 1 == pUnit->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 		if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), CX2Data::CIT_UnitSlot ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 		{
 			CKTDGUIControl::CPictureData* pPictureData = pUnitSlot->CreatePicture();
 			pStaticUnitFace->AddPicture ( pPictureData );
@@ -11501,13 +11505,25 @@ void CX2StateServerSelect::ChangeUnitButtonInfo ()
 			{
 				pStaticUnitFace->SetShow ( true );
 				wstring fileName, pieceName;		
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+				CX2Data::CHARACTER_IMAGE_TYPE eSlotImage = CX2Data::CIT_UnitSlot;
+#ifdef SERV_UNIT_WAIT_DELETE
+				if( pUnit->GetUnitData().m_bDeleted == true )
+					eSlotImage = CX2Data::CIT_UnitSlotGray;
+#endif SERV_UNIT_WAIT_DELETE
+				if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), eSlotImage, 1 == pUnit->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 				if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), CX2Data::CIT_UnitSlot ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 				{				
 					CKTDGUIControl::CPictureData* pPictureData = pUnitSlot->CreatePicture();
 					pStaticUnitFace->AddPicture ( pPictureData );
 					pPictureData->SetTex ( fileName.c_str(), pieceName.c_str() );
 					CKTDGUIControl::UIPointData* pPointData = new CKTDGUIControl::UIPointData();
 					pPointData->leftTopPoint = D3DXVECTOR2 ( 23, 11 );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+					pPointData->color = D3DXCOLOR ( 1.0f, 1.0f, 1.0f, 1.0f );
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 #ifdef SERV_UNIT_WAIT_DELETE
 					if( pUnit->GetUnitData().m_bDeleted == true )
 					{
@@ -11520,6 +11536,7 @@ void CX2StateServerSelect::ChangeUnitButtonInfo ()
 #else
 					pPointData->color = D3DXCOLOR ( 1.0f, 1.0f, 1.0f, 1.0f );
 #endif SERV_UNIT_WAIT_DELETE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 					pPictureData->SetPoint ( pPointData );
 					pPictureData->SetSize( D3DXVECTOR2 ( 38, 38 ) );
 				}

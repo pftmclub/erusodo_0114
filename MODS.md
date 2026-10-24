@@ -5053,3 +5053,13 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **What changed:** `CX2Game::June_TranscendSlotGuideFrameMove` (June `322d8100`) and June's UI-manager guide-particle table for type 4 only (`X2UIManager.*`: `Transcendence_Loop_P1-P5` /
   `Open_P1-P5` from `UIMajorParticle.txt`, already June's in data036). A-5 / B-5 glow while BTI 820 holds in an awakening. No game number changes; BFI 843 / 844's behaviours were the buff port's.
 - **Turn off:** comment out the define in `Always.h` and rebuild.
+
+### June transcendence T6c: transcended class pictures (flag `SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE`, 2026-10-24)
+
+- **Flag** (`Always.h`; needs `JUNE_TRANSCEND_CHANGE` and `OFFLINE`). Log `[JUNE_TRANSCEND] IMAGE` (one line per class and picture type, first time only).
+- **What changed:** `CX2Data::GetCharacterImageName` gained the unit-slot rows (`list_TR_E_MASTER` / `V_PRINCESS` / `D_WITCH` and `_GRAY`) and June's type 0xa (`CIT_UnitSlotGray`). The select screen, character info,
+  dungeon result, user list popup and other-player gauge pass the unit's flag (`1 == m_iUnitClassTran`). A waiting-delete slot on the select screen now shows the gray picture at full colour (June) instead of
+  March's 0.5 tint.
+- **Data (replace rule):** June's `DLG_UI_Common_Texture_GUI_character_01.TET/.tga` (data057) and `..._gray.TET/.tga` (datai021) replace March's, byte-exact. Backup: `24965799\kom_backup_stage_june\20261024_070830`.
+  Revert: `kom_contents` from that backup, `kom.py pack data057 datai021`, copy.
+- **Turn off:** comment out the define in `Always.h` and rebuild (the June TET stays; March's rows only name pieces March's TET also had, which June's still carries).

@@ -2975,8 +2975,20 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 /*static*/ bool CX2Data::GetCharacterImageName( OUT wstring& fileName, OUT wstring& pieceName, const CX2Unit::UNIT_CLASS eUnitClass, const CHARACTER_IMAGE_TYPE eImageType, const bool bTranscend )
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+	const bool bGraySlot = ( CIT_UnitSlotGray == eImageType );
+	if( false == GetCharacterImageName( fileName, pieceName, eUnitClass, bGraySlot ? CIT_UnitSlot : eImageType ) )
+		return false;
+
+	if( true == bGraySlot )
+	{
+		fileName = L"DLG_UI_Common_Texture_GUI_character_01_gray.tga";
+		pieceName += L"_GRAY";
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	if( false == GetCharacterImageName( fileName, pieceName, eUnitClass, eImageType ) )
 		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 
 	if( false == bTranscend )
 		return true;
@@ -2995,6 +3007,9 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 
 	const WCHAR* pwszFile = NULL;
 	const WCHAR* pwszSuffix = NULL;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+	const WCHAR* pwszLead = L"";
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	switch( eImageType )
 	{
 	case CIT_160by160:		pwszFile = L"DLG_UI_Common_Texture98_NEW.tga";		pwszSuffix = L"_LARGE";		break;
@@ -3003,13 +3018,27 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CIT_20by20:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_ICON";		break;
 	case CIT_MyGage:		pwszFile = L"DLG_UI_Common_Texture97_NEW.tga";		pwszSuffix = L"_STATE";		break;
 	case CIT_Party:			pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_PARTY";		break;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+	case CIT_UnitSlot:		pwszFile = L"DLG_UI_Common_Texture_GUI_character_01.tga";		pwszSuffix = L"";		pwszLead = L"list_";	break;
+	case CIT_UnitSlotGray:	pwszFile = L"DLG_UI_Common_Texture_GUI_character_01_gray.tga";	pwszSuffix = L"_GRAY";	pwszLead = L"list_";	break;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	default:				return true;
 	}
 
 	fileName = pwszFile;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+	pieceName = pwszLead;
+	pieceName += L"TR_";
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	pieceName = L"TR_";
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	pieceName += pwszPrefix;
 	pieceName += pwszSuffix;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+	static std::set<int> s_setLogged;
+	if( true == s_setLogged.insert( static_cast<int>( eUnitClass ) * 16 + static_cast<int>( eImageType ) ).second )
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] IMAGE class %d type %d -> %s / %s", static_cast<int>( eUnitClass ), static_cast<int>( eImageType ), fileName.c_str(), pieceName.c_str() );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE

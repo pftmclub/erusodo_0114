@@ -533,6 +533,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   DIK `0x44 0xa 0x28 0xf 0x38 0x42` plus actions `0x11 0x14 0x15 ...` (dungeon). Diff each against March and port whole; check PvP / village sit too.
 - **Transcendence in the June UI** *(from june-transcend T0, 2026-10-23; rows `UI Stage 9` in `june2017_re/transcend/t0_readers.tsv`)*.
   **Moved 2026-10-24 (user): the transcended class pictures (select screen, HUD portrait, character info, inventory, class name / icon) are june-transcend T6c, not this stage.** The rest of this bullet stays here.
+  **T6c result (2026-10-24):** ported the select screen, character info, dungeon result, user list popup and other-player gauge. Left for this stage (rows `Transcend T6c` in `funcmap.tsv`): `321a9da0` is the June-only
+  Jumping-system mail dialog, not the inventory (March has no counterpart); the `DLG_UI_Character_Icon` fills `325da870` / `325dacb0` / `325db6f0` (friend / field / guild / recommended lists: the flag comes from June's list
+  entries, March's structs carry the class only); the class picker `32ed5180` (caller `32ed7210`); `X2StateArcadeResult.cpp:957` / `:968` (same shape as the dungeon result, no matching June function).
   T2 ports `CX2Data::GetCharacterImageName`'s fifth argument (June `31ee0de0`, bTranscend) for the skill tree. Its other 39 callers pass the
   unit's flag and are this stage's: the HUD portrait (`CX2MyGageUI` `32e5f3a0` / `32e62190` / `32e62d50` / `32e673e0` / `32e68d20` / `32e6cbb0`),
   character info (`3291df90`), class name / icon (`32ed5180`), the unit-info struct fill (`328b3350`), inventory (`321a9da0`), boss-raid score

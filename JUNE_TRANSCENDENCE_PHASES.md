@@ -720,6 +720,33 @@ Add the unit-slot (and 0xa) rows for Aisha EM / VP / DW, stage June's pictures, 
 
 **Done gate.** ArmeEM / ArmeVP / ArmeDW show a transcended picture on the select screen, HUD portrait and character info; the log shows the lookups.
 
+### T6c - Done (2026-10-24, Sonnet 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE` (needs `JUNE_TRANSCEND_CHANGE`, `OFFLINE`), commit: this one. Funcmap rows `Transcend T6c` (12). MODS entry "T6c".
+Hygiene: `flagcheck --worktree --files` (8 files): 7 PASS, 1 DEFINE, 0 OTHER, 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT PASS.
+`DEPLOY OK: X2_offline.exe is 25,837,568 B, dated 2026-10-24 07:19:18, md5 d6de4714369599c1227aa719421f69d8, equal to X2/US_SERVICE/x2.exe (2026-10-24 07:19:11); built at main 63b97762 + 8 uncommitted code file(s).`
+Koms: `PACK OK data057` and `PACK OK datai021` (2 entries changed each). **Not copied: `/x2-kom-packed copy data057 datai021` waits for the user's yes.**
+
+What landed:
+1. **June's `0xa` is the gray unit slot** (`3256d6e0 @3256ebe7`): the slot refresh tests unit `+0x9d0 == 1` (March `m_bDeleted`, waiting delete) and takes type 0xa, else type 9. Both paths use point ( 23, 11 ), size 38 x 38 and colour 1.0
+   (March tinted the waiting-delete slot 0.5; the select-screen site now follows June). `CIT_UnitSlotGray` = `list_<CLASS>_GRAY` in `..._character_01_gray.tga`, derived from March's row (every March unit-slot row is `character_01.tga`).
+2. **Aisha rows:** unit slot `list_TR_E_MASTER` / `V_PRINCESS` / `D_WITCH` and `_GRAY` (June's TET, data215, carries all 37 `LIST_TR_*` pieces and their `_GRAY` twins).
+3. **Sites that pass `1 == m_iUnitClassTran`:** select screen create (`32564d50 @325659c9`) and refresh (`3256d6e0`), character info (`3291df90 @3291e505`), dungeon result party rank, both live and dead pictures
+   (`32513d30 @32515156`; the scan saw one call, the code pushes the flag on both), user list popup (`328b89c0 @328b8e6f`), other-player gauge (`324924a0 @324939f9`; the live `SERV_PVP_NEW_SYSTEM` copy only).
+   The HUD portrait was already June's from T2 (`JuneIsMyGageTranscended`).
+4. **Data (replace rule, byte-exact):** June's `DLG_UI_Common_Texture_GUI_character_01.TET/.tga` into data057 and `..._gray.TET/.tga` into datai021 (the tga differ from March's: June has the transcended art).
+   Backup `kom_backup_stage_june/20261024_070830`.
+5. **Log:** `[JUNE_TRANSCEND] IMAGE class N type N -> file / piece`, once per class and type.
+
+**Not ported, with owners** (rows in `funcmap.tsv`; Stage 9 bullet updated): `321a9da0 @321aa423` is the June-only Jumping-system mail dialog (the Stage 9 bullet called it inventory; March has no counterpart);
+`324ce260 @324ce67b` dungeon clear (June's rows have no transcended pair, the flag changes nothing); `32601f80` / `32888660` achievements (Stage 31); `325da870` / `325dacb0` / `325db6f0` `DLG_UI_Character_Icon` fills
+(friend / field / guild lists: March's structs carry the class only, and offline has no other player); class picker `32ed5180` (no March caller of that shape); `X2StateArcadeResult.cpp:957` / `:968` (same shape as the dungeon result, no June function matched).
+**Honest gap for the review:** the table strings of the Aisha unit-slot rows were not read off the static initializer `31ef0ef0` (a scripted read failed because the compiler reuses string temporaries between rows).
+They are `list_TR_` + the T2 prefix, and the pieces exist in June's TET; the first play-test log line names the piece actually used.
+Open questions: none.
+
+**In game** (`python tools/logs.py --grep "JUNE_TRANSCEND] IMAGE"`): after the two koms are copied, the select screen shows a transcended Aisha slot with a different picture from an untranscended one.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types

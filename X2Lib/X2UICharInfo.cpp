@@ -1182,7 +1182,11 @@ void CX2UICharInfo::SetShow(bool val)
 		CKTDGUIStatic* pStaticCharIcon = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"Static_CharIcon" );
 		wstring fileName;
 		wstring pieceName;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnitData->m_UnitClass, CX2Data::CIT_20by20, 1 == pUnitData->m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnitData->m_UnitClass, CX2Data::CIT_20by20 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 		{
 			pStaticCharIcon->GetPicture(0)->SetTex( fileName.c_str(), pieceName.c_str() );
 		}

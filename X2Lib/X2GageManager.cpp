@@ -2555,7 +2555,11 @@ void CX2OldGageManager::UIFrameMove( double fTime, float fElapsedTime )
 
 						wstring fileName;
 						wstring pieceName;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+						if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pGUUser->GetUnit()->GetClass(), CX2Data::CIT_50by50, 1 == pGUUser->GetUnit()->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 						if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pGUUser->GetUnit()->GetClass(), CX2Data::CIT_50by50 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 						{
 							pPicture->SetTex( fileName.c_str(), pieceName.c_str() );
 						}

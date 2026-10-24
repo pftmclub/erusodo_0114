@@ -160,7 +160,11 @@ bool CX2UserListPopUp::SetPopupMenu()
 				m_UserListSlot[i].m_pLevelOnePic[oneL-1]->SetShow(true);
 
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+				if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), CX2Data::CIT_20by20, 1 == pUnit->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 				if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnit->GetClass(), CX2Data::CIT_20by20 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 				{
 					CKTDGUIControl::CPictureData* pPicture = pStaticFaceImage->GetPictureIndex( i + 1 );
 					if ( NULL != pPicture )

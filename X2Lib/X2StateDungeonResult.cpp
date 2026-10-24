@@ -2635,7 +2635,11 @@ bool CX2StateDungeonResult::InitUI()
 						wstring pieceName;
 						if( true == pDungeonResultUnitInfo->m_bIsDie )
 						{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+							if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pSlotData->m_pUnit->GetUnitTemplet()->m_UnitClass, CX2Data::CIT_160by160Gray, 1 == pSlotData->m_pUnit->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 							if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pSlotData->m_pUnit->GetUnitTemplet()->m_UnitClass, CX2Data::CIT_160by160Gray ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 							{
 								pStaticPartyRank->GetPicture( otherUserNum )->SetTex( fileName.c_str(), pieceName.c_str() );
 							}
@@ -2646,7 +2650,11 @@ bool CX2StateDungeonResult::InitUI()
 						}
 						else
 						{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+							if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pSlotData->m_pUnit->GetUnitTemplet()->m_UnitClass, CX2Data::CIT_160by160, 1 == pSlotData->m_pUnit->GetUnitData().m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 							if( true == CX2Data::GetCharacterImageName( fileName, pieceName, pSlotData->m_pUnit->GetUnitTemplet()->m_UnitClass, CX2Data::CIT_160by160 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 							{
 								pStaticPartyRank->GetPicture( otherUserNum )->SetTex( fileName.c_str(), pieceName.c_str() );
 							}

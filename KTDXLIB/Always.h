@@ -10048,3 +10048,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( HaveUnfinishedBuff, m_iUnitClassTran ), SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ( JuneCanShowClassGuide ), SERV_IRUHADEV_JUNE_SKILL_TREE_UI and SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( IsJuneSlotUsable )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June transcendence T6c - the transcended class picture: 31ee0de0's fifth argument at the character select slots ( 32564d50 @325659c9, 3256d6e0 @3256ed1b ), June's gray slot type 0xa for a waiting-delete unit ( @3256ebe7 ), character info ( 3291df90 @3291e505 ), dungeon result ( 32513d30 @32515156 ), the user list popup ( 328b89c0 @328b8e6f ), the other-player gauge ( 324924a0 @324939f9 ), and the Aisha unit-slot rows ( list_TR_E_MASTER / V_PRINCESS / D_WITCH ). Log [JUNE_TRANSCEND] IMAGE. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_OFFLINE ) )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( the five-argument GetCharacterImageName ) and SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+//////////////////////////////////////////////////////////////////////////

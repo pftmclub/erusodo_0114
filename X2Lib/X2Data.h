@@ -59,6 +59,9 @@ class CX2Data : public CKTDXStage
 		CIT_Party,
 // #ifdef REFORM_ENTRY_POINT	 	// 13-11-11, 진입 구조 개편, kimjh
 		CIT_UnitSlot,
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		CIT_UnitSlotGray,	// June type 0xa
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 // #endif // REFORM_ENTRY_POINT	// 13-11-11, 진입 구조 개편, kimjh
 		CIT_END,
 
