@@ -10072,3 +10072,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June bottom bar B1: the 5 new menu custom-msg ids ( 210-214 ) and a logged STUB for each button whose feature is missing ( Stage 9 )
 #define SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June bottom bar B2: June's 15-slot row layout ( 3245bb70 ), badge placement ( 3245cba0 ), tooltip strings ( 32468c70 ) and Story_New
+#define SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+//////////////////////////////////////////////////////////////////////////

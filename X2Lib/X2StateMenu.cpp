@@ -454,6 +454,14 @@ HRESULT CX2StateMenu::OnFrameMove( double fTime, float fElapsedTime )
 			}
 //}}AFX
 #endif NEW_SKILL_TREE
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+			// June 324708c0: Story_New follows g_pInstanceData +0xabd, which nothing sets offline
+			{
+				CKTDGUIStatic* pStaticStoryNew = (CKTDGUIStatic*) m_pDLGMenu->GetControl( L"Story_New" );
+				if( NULL != pStaticStoryNew )
+					pStaticStoryNew->SetShow( false );
+			}
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 
 		}
 		
@@ -3183,6 +3191,9 @@ void CX2StateMenu::UpdateUserInfoUI( KEGS_SEARCH_UNIT_ACK &kEvent )
 bool CX2StateMenu::InitUI()
 {
 	m_pDLGMenu = g_pMain->GetMemoryHolder()->GetMenuDLG( this );
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+	JunePlaceMenuBadges();
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	m_vecpButtonMainMenu.clear();
 	UpdateMenuPosistion();
 	UpdateMenuString();
@@ -5162,6 +5173,284 @@ bool CX2StateMenu::CameraZoomInAndOutKeyProcess()
 		return false;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+// June 3245bb70 vector order, slot 0 is the leftmost button
+enum JUNE_MENU_SLOT
+{
+	JMS_WARP = 0,
+	JMS_GUIDE,
+	JMS_CHARAC,
+	JMS_INVEN,
+	JMS_PROFESSION,
+	JMS_PET,
+	JMS_SKILL,
+	JMS_STORYBOOK,
+	JMS_QUEST,
+	JMS_GUILD,
+	JMS_COMM,
+	JMS_SYSTEM,
+	JMS_CASH,
+	JMS_FRIEND_RECOMMEND,
+	JMS_EVENT,
+	JMS_COUNT,
+};
+
+static const WCHAR* const s_awszJuneMenuSlot[JMS_COUNT] =
+{
+	L"Warp", L"Guide", L"Charac", L"Inven", L"Profession", L"Pet", L"Skill", L"StoryBook",
+	L"Quest", L"Guild", L"Comm", L"System", L"Cash", L"FriendRecommed", L"Event",
+};
+
+static void JuneSetMenuOffset( CKTDGUIControl* pControl_, const D3DXVECTOR2& vOffset_ )
+{
+	if( NULL != pControl_ )
+		pControl_->SetOffsetPos( vOffset_ );
+}
+
+static void JuneSetMenuShowEnable( CKTDGUIButton* pButton_, bool bShowEnable_ )
+{
+	if( NULL != pButton_ )
+		pButton_->SetShowEnable( bShowEnable_, bShowEnable_ );
+}
+
+static void JuneRemoveMenuSlot( float* pfSlotOffset_, int iSlot_ )
+{
+	// June 3245a980: 32, while the dialog spaces the slots 30 apart
+	for( int i = 0; i <= iSlot_; ++i )
+		pfSlotOffset_[i] += 32.0f;
+}
+
+static bool JuneGetMenuButtonPos( CKTDGUIDialogType pDialog_, const WCHAR* wszButton_, D3DXVECTOR2& vPos_ )
+{
+	CKTDGUIButton* pButton = static_cast<CKTDGUIButton*>( pDialog_->GetControl( wszButton_ ) );
+	if( NULL == pButton || NULL == pButton->GetNormalPoint() )
+		return false;
+
+	vPos_ = pButton->GetNormalPoint()->leftTopPoint;
+	return true;
+}
+
+static void JunePlaceMenuPicture( CKTDGUIDialogType pDialog_, const WCHAR* wszStatic_, const D3DXVECTOR2& vPos_ )
+{
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( wszStatic_ ) );
+	if( NULL != pStatic && NULL != pStatic->GetPicture( 0 ) )
+		pStatic->GetPicture( 0 )->SetPos( vPos_ );
+}
+
+void CX2StateMenu::JunePlaceMenuBadges()
+{
+	if( NULL == m_pDLGMenu )
+		return;
+
+	CX2InformerManager* pInformerManager = ( NULL != g_pMain ) ? g_pMain->GetInformerManager() : NULL;
+	const D3DXVECTOR2 vNewBadge( 5.0f, -17.0f );
+	const D3DXVECTOR2 vInformer( 7.0f, -10.0f );
+	D3DXVECTOR2 vPos;
+
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Pet", vPos ) )
+	{
+		JunePlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_Evolution", vPos + vNewBadge );
+		JunePlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_New", vPos + vNewBadge );
+	}
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Inven", vPos ) )
+	{
+		JunePlaceMenuPicture( m_pDLGMenu, L"Inventory_New", vPos + vNewBadge );
+		if( NULL != pInformerManager )
+			pInformerManager->GetInvenInformer()->SetTalkBoxPos( vPos + vInformer );
+	}
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Skill", vPos ) )
+	{
+		JunePlaceMenuPicture( m_pDLGMenu, L"Skill_New", vPos + vNewBadge );
+		if( NULL != pInformerManager )
+			pInformerManager->GetSkillInformer()->SetTalkBoxPos( vPos + vInformer );
+	}
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Quest", vPos ) )
+	{
+		JunePlaceMenuPicture( m_pDLGMenu, L"Quest_New", vPos + vNewBadge );
+		if( NULL != pInformerManager )
+			pInformerManager->GetQuestInformer()->SetTalkBoxPos( vPos + vInformer );
+	}
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Guild", vPos ) )
+	{
+		if( NULL != pInformerManager )
+			pInformerManager->GetGuildInformer()->SetTalkBoxPos( vPos + vInformer );
+	}
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Warp", vPos ) )
+		JunePlaceMenuPicture( m_pDLGMenu, L"Warp_VIP", vPos + D3DXVECTOR2( 0.0f, -12.0f ) );
+	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"StoryBook", vPos ) )
+		JunePlaceMenuPicture( m_pDLGMenu, L"Story_New", vPos + vNewBadge );
+}
+
+void CX2StateMenu::JuneUpdateMenuPosition()
+{
+	if( NULL == m_pDLGMenu )
+		return;
+
+	if( true == m_vecpButtonMainMenu.empty() )
+	{
+		for( int i = 0; i < JMS_COUNT; ++i )
+			m_vecpButtonMainMenu.push_back( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( s_awszJuneMenuSlot[i] ) ) );
+	}
+
+	if( NULL == g_pData || JMS_COUNT != (int) m_vecpButtonMainMenu.size() )
+		return;
+
+	float afSlotOffset[JMS_COUNT] = { 0.0f };
+
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], true );
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], true );
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], true );
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_WARP], true );
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], true );
+	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_STORYBOOK], true );
+
+	if( NULL != g_pData->GetGuildManager() && false == g_pData->GetGuildManager()->DidJoinGuild() )
+	{
+		JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], false );
+		JuneRemoveMenuSlot( afSlotOffset, JMS_GUILD );
+	}
+
+	if( ( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIPetList() && 0 == g_pData->GetUIManager()->GetUIPetList()->GetPetListSize() )
+		&& ( NULL != g_pData->GetPetManager() && NULL == g_pData->GetPetManager()->GetMyPet() )
+#ifdef RIDING_SYSTEM
+		&& ( NULL != CX2RidingPetManager::GetInstance() && false == CX2RidingPetManager::GetInstance()->GetHasRidingPet() )
+#endif //RIDING_SYSTEM
+		)
+	{
+		JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], false );
+		JuneRemoveMenuSlot( afSlotOffset, JMS_PET );
+	}
+
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		int iUsedCP, iUsedSP;
+		g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.CalcUsedSPointAndCSPoint( iUsedSP, iUsedCP );
+		const int iTotalUsedSP = iUsedCP + iUsedSP;
+		const int iNewSP = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSPoint + g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iCSPoint;
+		if( iNewSP == 0 && iTotalUsedSP == 2 )
+		{
+			JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], false );
+			JuneRemoveMenuSlot( afSlotOffset, JMS_SKILL );
+		}
+
+		if( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level < 40 )
+		{
+			JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], false );
+			JuneRemoveMenuSlot( afSlotOffset, JMS_PROFESSION );
+		}
+	}
+
+	CKTDGUIControl* pWarpVIP = m_pDLGMenu->GetControl( L"Warp_VIP" );
+	CKTDGUIControl* pInvenNew = m_pDLGMenu->GetControl( L"Inventory_New" );
+	CKTDGUIControl* pPetEvolNew = m_pDLGMenu->GetControl( L"Pat_Inventory_Evolution" );
+	CKTDGUIControl* pPetNew = m_pDLGMenu->GetControl( L"Pat_Inventory_New" );
+	CKTDGUIControl* pPetTag = m_pDLGMenu->GetControl( L"AccompanyPetTag" );
+	CKTDGUIControl* pSkillNew = m_pDLGMenu->GetControl( L"Skill_New" );
+	CKTDGUIControl* pStoryNew = m_pDLGMenu->GetControl( L"Story_New" );
+	CKTDGUIControl* pQuestNew = m_pDLGMenu->GetControl( L"Quest_New" );
+	CX2InformerManager* pInformerManager = g_pMain->GetInformerManager();
+
+	for( int i = 0; i < JMS_COUNT; ++i )
+	{
+		const D3DXVECTOR2 vOffset( afSlotOffset[i], 0.0f );
+
+		CKTDGUIButton* pButton = m_vecpButtonMainMenu[i];
+		if( NULL != pButton )
+		{
+			pButton->SetOffsetPos( vOffset );
+			pButton->SetGuideDescOffsetPos( vOffset );
+		}
+
+		switch( i )
+		{
+		case JMS_WARP:
+			JuneSetMenuOffset( pWarpVIP, vOffset );
+			break;
+		case JMS_INVEN:
+			JuneSetMenuOffset( pInvenNew, vOffset );
+			pInformerManager->GetInvenInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_PET:
+			JuneSetMenuOffset( pPetEvolNew, vOffset );
+			JuneSetMenuOffset( pPetNew, vOffset );
+			JuneSetMenuOffset( pPetTag, vOffset );
+			break;
+		case JMS_SKILL:
+			JuneSetMenuOffset( pSkillNew, vOffset );
+			pInformerManager->GetSkillInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_STORYBOOK:
+			JuneSetMenuOffset( pStoryNew, vOffset );
+			break;
+		case JMS_QUEST:
+			JuneSetMenuOffset( pQuestNew, vOffset );
+			pInformerManager->GetQuestInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_GUILD:
+			pInformerManager->GetGuildInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		}
+	}
+}
+
+void CX2StateMenu::JuneUpdateMenuString()
+{
+	if( NULL == m_pDLGMenu )
+		return;
+
+	CKTDGUIStatic* pStaticMenu = static_cast<CKTDGUIStatic*>( m_pDLGMenu->GetControl( L"Static" ) );
+	if( NULL != pStaticMenu )
+	{
+		if( NULL != pStaticMenu->GetString( 0 ) )
+			pStaticMenu->GetString( 0 )->msg = GET_STRING( STR_ID_19974 );
+		if( NULL != pStaticMenu->GetString( 1 ) )
+			pStaticMenu->GetString( 1 )->msg = GET_STRING( STR_ID_19975 );
+		if( NULL != pStaticMenu->GetString( 2 ) )
+			pStaticMenu->GetString( 2 )->msg = L"";	// June 43488 shows only in rest mode, never on here
+	}
+
+	CX2KeyPad* pKeyPad = g_pMain->GetKeyPad();
+	wstring strButtonDesc;
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19976, "L", pKeyPad->GetKeyString( GAMEACTION_INFO ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Charac" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19977, "L", pKeyPad->GetKeyString( GAMEACTION_INVENTORY ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Inven" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19978, "L", pKeyPad->GetKeyString( GAMEACTION_SKILL_TREE ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Skill" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19979, "L", pKeyPad->GetKeyString( GAMEACTION_QUEST ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Quest" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19980, "L", pKeyPad->GetKeyString( GAMEACTION_PET ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Pet" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19981, "L", pKeyPad->GetKeyString( GAMEACTION_GUILD ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Guild" ) ), strButtonDesc.c_str() );
+
+	// June 44512 keys 0x1b ( friend ) then 0x13 ( community ), B0 [I]: swap the two if the tooltip reads reversed
+	strButtonDesc = GET_REPLACED_STRING( ( 44512, "LL", pKeyPad->GetKeyString( GAMEACTION_FRIEND ), pKeyPad->GetKeyString( GAMEACTION_COMMUNITY ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Comm" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_19983, "L", pKeyPad->GetKeyString( GAMEACTION_OPTION ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"System" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_STRING( STR_ID_19984 );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Cash" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_STRING( STR_ID_19985 );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Guide" ) ), strButtonDesc.c_str() );
+
+	// June 31200 key 0x2b: March has no profession GAMEACTION, so the key is empty
+	strButtonDesc = GET_REPLACED_STRING( ( 31200, "L", wstring( L"" ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Profession" ) ), strButtonDesc.c_str() );
+
+	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_24618, "L", pKeyPad->GetKeyString( GAMEACTION_WARP ) ) );
+	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Warp" ) ), strButtonDesc.c_str() );
+}
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 void CX2StateMenu::ShowMainMenuButton()
 {
 	//마우스 동작 있을 때만 메인메뉴 보여주도록 수정
@@ -5173,6 +5462,10 @@ void CX2StateMenu::ShowMainMenuButton()
 }
 void CX2StateMenu::UpdateMenuString()
 {
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+	JuneUpdateMenuString();
+	return;
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	if( NULL == m_pDLGMenu )
 		return;
 
@@ -5228,6 +5521,10 @@ void CX2StateMenu::UpdateMenuString()
 }
 void CX2StateMenu::UpdateMenuPosistion()
 {
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+	JuneUpdateMenuPosition();
+	return;
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	if( NULL == m_pDLGMenu )
 		return;
 	//마우스 동작 없을 때 메인메뉴 사라지도록 하기 위해 객체 저장	

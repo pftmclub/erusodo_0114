@@ -191,6 +191,23 @@ tooltips in game: 0x11 QUEST, 0x13 COMMUNITY, 0x14 INFO, 0x15 INVENTORY, 0x16 OP
 0x2c WARP, 0x2d Guild's (June tail; use March's `GAMEACTION_GUILD`), 0x2b profession (no March action: empty key, labelled).
 **Gate:** the row matches June's slot order with stubs drawn; hiding a button (no pet / no guild) packs the row as June does; badges sit on their buttons.
 
+### B2 - Done (2026-10-24, Sonnet 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT`, `Always.h` + `X2Informer.h` / `X2StateMenu.h` / `X2StateMenu.cpp`; no new `.lua`, no kom change, no `_DEBUG` flag):
+- `JuneUpdateMenuPosition` (June `3245bb70` + `3245a980` / `3245adb0` / `3245aa20`): `UpdateMenuPosistion` returns into it. `m_vecpButtonMainMenu` is June's 15-slot vector (Warp Guide Charac Inven Profession Pet Skill StoryBook Quest Guild Comm System Cash FriendRecommed Event). Hide rules: Guild = no guild, Pet = March's no-pet test, Skill = March's SP test, Profession = level < 40. Each hidden slot adds 32 to every slot at or left of it; then every button gets `SetOffsetPos` + `SetGuideDescOffsetPos`, and the badges / informers follow by slot (Warp_VIP; Inventory_New + Inven informer; Pat_* + AccompanyPetTag; Skill_New + informer; Story_New; Quest_New + informer; Guild informer).
+- `JunePlaceMenuBadges` (June `3245cba0`), called from `InitUI` first: `*_New` / `Pat_*` / `Story_New` at the button's Normal point ( +5, -17 ), `Warp_VIP` ( +0, -12 ), the four informer talk-box anchors ( +7, -10 ) through the new `CX2Informer::SetTalkBoxPos`.
+- `JuneUpdateMenuString` (June `32468c70`): string 0 / 1 = 19974 / 19975, string 2 = empty (June 43488 shows only in rest mode), tooltips by GAMEACTION name: Charac INFO, Inven INVENTORY, Skill SKILL_TREE, Quest QUEST, Pet PET, Guild GUILD (19981), Comm 44512 with ( FRIEND, COMMUNITY ), System OPTION, Cash 19984, Guide 19985, Warp WARP (24618), Profession 31200 with an empty key (March has no profession action).
+- Frame move: `Story_New` `SetShow( false )` (June reads `g_pInstanceData +0xabd`, never set offline).
+- Absent-value defaults as B0: code events 2220 / 2316 read false (their branches are not ported), PVE states 0x17 / 0x18 never, `this +0x43d` = 0. Left out on purpose: `Warp_New` shift (code event 2316), resonance label (Stage 30).
+- `JUNE_BUGS.md` row 419 (32 vs 30 spacing).
+
+**Check by eye (B0 [I]):** the Comm tooltip argument order ( FRIEND, COMMUNITY ) follows B0's key list; if the two lines read reversed, swap the two `GetKeyString` arguments in `JuneUpdateMenuString`. Tooltip key names (QUEST / INFO / INVENTORY / OPTION / PET / SKILL_TREE / FRIEND / WARP) are mapped by name, so a wrong letter is a wrong string id, not a wrong key.
+
+**Hygiene:** `flagcheck JUNE_BOTTOMBAR_LAYOUT --worktree --files ...`: `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+**Deploy:** DEPLOY OK: X2_offline.exe is 25,841,152 B, dated 2026-10-24 10:53:16, md5 19f0ed402aa350e091a26adffe6108cb, equal to X2/US_SERVICE/x2.exe; built at main 1dcafffe + 4 uncommitted code file(s). `kom.py status`: 0 need a pack, 0 need a copy (B1's koms are already in the game dir).
+
+**How to see it:** village bar. Char `wewe` (uid 20, level 7): no Profession button, no guild, no pet, so the row is packed to the right with 2 px overlaps. Char `reyaa` (uid 12, level 99): Profession (stub, click logs) and StoryBook (stub) drawn in their slots.
+
 ## Phase B3 - EXP bar and stamina bar (Sonnet 5.5, high)
 
 **Depends on:** B2. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES`.

@@ -302,6 +302,11 @@ class CX2StateMenu : public CX2StateCommonBG
 		void ShowMainMenuButton();
 		void UpdateMenuPosistion();	//우측하단 메뉴 위치 갱신
 		void UpdateMenuString();
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+		void JuneUpdateMenuPosition();	/// June 3245bb70
+		void JuneUpdateMenuString();	/// June 32468c70
+		void JunePlaceMenuBadges();		/// June 3245cba0
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 		inline void SetGuideString( CKTDGUIButton* pButton_, const WCHAR* pGuideDesc_ )
 		{
 			if( NULL != pButton_ )

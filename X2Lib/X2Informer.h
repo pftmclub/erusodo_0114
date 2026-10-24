@@ -51,6 +51,9 @@ class CX2Informer
 				m_pTalkBoxManager->Clear();
 		}
 		void SetTalkBoxOffsetPos(D3DXVECTOR2 vPos){m_vTalkBoxOffsetPos=vPos;}
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+		void SetTalkBoxPos(D3DXVECTOR2 vPos){m_vTalkBoxPos=vPos;}	/// June 3245cba0 writes the anchor ( +0xc / +0x10 )
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 
 		bool GetNeedCheckInfo() const { return m_bNeedCheckInfo; }
 		void SetNeedCheckInfo(bool val) { m_bNeedCheckInfo = val; }
