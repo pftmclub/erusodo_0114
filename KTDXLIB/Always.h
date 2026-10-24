@@ -10058,3 +10058,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( the five-argument GetCharacterImageName ) and SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: T8 crash: CHANGE_SKILL_SLOT_ACK with no select unit ( queued unequip answered at server select ) is dropped
+#define SERV_IRUHADEV_SLOT_ACK_NO_UNIT
+//////////////////////////////////////////////////////////////////////////

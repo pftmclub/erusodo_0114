@@ -1855,6 +1855,11 @@ bool CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_ACK( HWND hWnd, UINT uMsg, WPAR
 // #endif // FIX_SKILL_SLOT_CHANGE_BUG
 
 
+#ifdef SERV_IRUHADEV_SLOT_ACK_NO_UNIT
+		// a queued unequip answered after the unit was left ( server select ): no select unit to apply it to
+		if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+			return true;
+#endif SERV_IRUHADEV_SLOT_ACK_NO_UNIT
 		CX2Unit::UnitData* pUnitData = &g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
 //{{ kimhc // 2010.3.26 // 무한 스킬 버그 수정
 #ifdef MODIFY_INFINITE_SKILL_BUG

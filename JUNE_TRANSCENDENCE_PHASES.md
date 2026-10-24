@@ -836,6 +836,12 @@ No code, no build (exe md5 6151839b as deployed by the T6 review). Save snapshot
 Shortcuts for the clears (the emulator does not check sub-quests or collected items, `Handlers_Quest.cpp` `/qdone`): `/qdone 41990` ... `/qdone 42030` in order.
 The walk's result goes here after "check logs".
 
+**Crash found in walk 2 (2026-10-24 08:11, user):** access violation in `CX2UserSkillTree::GetUserSkillTemplet` from `CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_ACK`
+at server select. The slot UI (June `328e1d38`, `JuneIsSkillAcquired`) had queued an unequip of unlearned skill 22012 on `ArmeEM`'s slot 9; the REQ left after the unit was
+left, and the ACK dereferenced the null select unit. Fix: flag `SERV_IRUHADEV_SLOT_ACK_NO_UNIT` (ACK returns when there is no select unit; owner of the queue is
+`JUNE_SKILL_ACQUIRE`). flagcheck: 1 PASS, 1 DEFINE, 0 FAIL, RESULT PASS.
+`DEPLOY OK: X2_offline.exe is 25,838,080 B, dated 2026-10-24 08:24:27, md5 3f2d6ec2cf3fe04134e40187a140e286`. Re-run walk 2's leave-to-select step.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
