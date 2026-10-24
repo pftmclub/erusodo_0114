@@ -10091,3 +10091,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: PlayGuide novice guide: quest 11005 has only sub-quest 11005, so GetSubQuest( 11006 ) is NULL after it completes
 #define SERV_IRUHADEV_GUIDE_SUBQUEST_NULL
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June bottom bar B4: June's case bodies for the Guild, System, Cash and Event buttons, plus the frame move's Cash message swap
+#define SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+//////////////////////////////////////////////////////////////////////////

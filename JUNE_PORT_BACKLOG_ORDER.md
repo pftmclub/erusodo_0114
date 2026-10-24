@@ -447,6 +447,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     - **stamina (spirit) model (found in B3, 2026-10-24):** the emulator pins spirit full (`CX2OfflineServer::FillSpirit`, `SHRT_MAX` / `SHRT_MAX`), so June's stamina
       bar (`32475480`, ported in B3) reads 100.0% and never moves. Spending and restoring spirit per dungeon run (and the entry check) would need its own
       model in `X2OfflineDB`; June addresses: `RefreshMenuInfo` `32475480`, unit `+0x950` / `+0x954`. Not needed to play.
+    - **June's guild UI (found in B4, 2026-10-24):** the Guild button's June body is `CX2UIGuild::SetShow( true )` (`325ab110`), which builds `DLG_Guild_Info_New_3.lua`
+      (March opens the messenger's guild tab). B4 ports the gate and logs `STUB SMUCM_GUILD -> Stage 9`; offline has no guilds (`Handlers_Social.cpp`), so the button is hidden and unreachable.
+    - **Surprise Sale (found in B4):** June's Cash click first runs the singleton `32696fa0` + `3267ac90` (`BtnSurpriseSale_%d` buttons, `+0x4fc` list); March has no such system (grep "SurpriseSale" is empty). Not ported.
+    - **Cash / Warp refusals on June-only state (found in B4):** `CX2State +0x16c` busy (16478), `CX2PartyManager +0x70` (16478), the 1v1 duel request `+0xda` (39561, also Warp's case), and
+      `PartyData +0x10 == 6` tournament (42839) have no March member, so B4 reads them as 0. They arrive with a duel / tournament system if one is ever ported.
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
     Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
   - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own

@@ -462,6 +462,27 @@ HRESULT CX2StateMenu::OnFrameMove( double fTime, float fElapsedTime )
 					pStaticStoryNew->SetShow( false );
 			}
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+			// June 324708c0: Cash message 102 / 180 follows g_pInstanceData +0xab4, a server-set flag; the stand-in reads 1 ( shop open )
+			{
+				CKTDGUIButton* pButtonCashMsg = (CKTDGUIButton*) m_pDLGMenu->GetControl( L"Cash" );
+				if( NULL != pButtonCashMsg )
+				{
+					const bool bJuneCashShopOpen = true;
+					if( true == bJuneCashShopOpen )
+					{
+						if( SMUCM_CASH_SHOP != pButtonCashMsg->GetCustomMsgMouseUp() )
+							pButtonCashMsg->SetCustomMsgMouseUp( SMUCM_CASH_SHOP );
+					}
+					else if( SMUCM_JUNE_CASH_MAINTENANCE != pButtonCashMsg->GetCustomMsgMouseUp() )
+					{
+						pButtonCashMsg->SetCustomMsgMouseUp( SMUCM_JUNE_CASH_MAINTENANCE );
+						if( NULL != g_pData && NULL != g_pData->GetCashShop() && true == g_pData->GetCashShop()->GetOpen() )
+							ToggleCashShop();
+					}
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 
 		}
 		
@@ -1203,6 +1224,12 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	case SMUCM_SYSTEM:
 		{
 			// 지헌 : 은행 열려있으면 시스템 매뉴 못 열도록
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+			// June 32476050 case 0x95: g_pInstanceData +0x191 has no March member ( reads 0 ); 31f38e90( 10 ) = the dungeon match popup is up
+			if( NULL != g_pInstanceData && false == g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_DUNGEON_MATCH_START_REQUEST ) )
+				ToggleSystemMenu( true );
+			return true;
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 #ifdef SERV_SHARING_BANK_TEST
 			if ( g_pData->GetUIManager() != NULL &&													
 				g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PRIVATE_BANK ) == true )
@@ -1215,6 +1242,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #else // SERV_SHARING_BANK_TEST
 			return ToggleSystemMenu(true);
 #endif // SERV_SHARING_BANK_TEST
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 		}
 
 #endif
@@ -1248,6 +1276,31 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
 	case SMUCM_CASH_SHOP:
 		{
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+			// June 32476050 case 0x66: state +0x16c, party +0x70 / +0xda and the tournament type have no March member ( read 0 )
+#ifdef SERV_PVP_NEW_SYSTEM
+			if( g_pData->GetPartyManager()->GetProcessPvpMatch() == true )
+			{
+				g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( STR_ID_13599 ), this );
+				return true;
+			}
+#endif
+			if( CX2Main::XS_PVP_ROOM == g_pMain->GetNowStateID() )
+			{
+				g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( 32329 ), this );
+				return true;
+			}
+			// June ToggleCashShop 32465fc0 opens by closing the field name and the buff name
+			if( g_pTFieldGame != NULL )
+			{
+				g_pTFieldGame->CloseFieldName(0.f);
+#ifdef BUFF_NAME_CASH_SHOP_BUG_FIX
+				g_pTFieldGame->CloseBuffNameForce();
+#endif // BUFF_NAME_CASH_SHOP_BUG_FIX
+			}
+			ToggleCashShop();
+			return true;
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 
 #ifdef SERV_PVP_NEW_SYSTEM
 			if( g_pData->GetPartyManager()->GetProcessPvpMatch() == true )
@@ -1275,6 +1328,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			ToggleCashShop();
 #endif OPEN_TEST_1_NO_MESSENGER_CASHSHOP
 			return true;
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 		} break;
 
 	case SMUCM_OPTION:
@@ -1943,11 +1997,19 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #endif SERV_RECOMMEND_LIST_EVENT
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
 	case SMUCM_GUILD:
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+		{	// June 32476050 case 0xa7: CX2UIGuild::SetShow( true ) 325ab110 opens June's DLG_Guild_Info_New_3, which March lacks ( Stage 9 )
+			if( NULL != g_pData->GetGuildManager() && NULL != g_pData->GetGuildManager()->GetUIGuild() )
+				CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_GUILD -> Stage 9" );
+		}
+		break;
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 		{	// 길드 창
 			if(g_pData->GetUIManager() != NULL)
 				return g_pData->GetUIManager()->ToggleUI(CX2UIManager::UI_MENU_GUILD);
 		}
 		break;	
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 	case SMUCM_NOTICE_CLOSE:
 		{
 			CKTDGUIButton* pButton = (CKTDGUIButton*) lParam;
@@ -2029,6 +2091,35 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #endif // FIELD_BOSS_RAID
 #ifdef SHOW_WEB_ADVERTISEMENT
 	case SMUCM_SHOW_ADVERTISEMENT:
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
+		{
+			// June 32476050 case 0x3e8: a toggle; g_pMain +0x708 ( the Axeso5 launcher URL ) has no March member and reads 0
+			if( false == g_pMain->GetBrowserWrapper()->IsClosed() )
+			{
+				g_pMain->GetBrowserWrapper()->CloseBrowser();
+				g_pKTDXApp->GetDevice()->SetDialogBoxMode( FALSE );
+			}
+			else
+			{
+				g_pKTDXApp->GetDevice()->SetDialogBoxMode( TRUE );
+				OpenAdvertisementDialog( L"http://en.elswordonline.com/ingameinfo/" );
+#ifdef RELEASE_ALL_BUTTONS_AND_KEYS_WHEN_FOCUS_LOSING
+				// June 31be34b0: release the held keys and buttons
+				CKTDIManager* pJuneDI = g_pKTDXApp->GetDIManager();
+				if( NULL != pJuneDI )
+				{
+					if( NULL != pJuneDI->Getkeyboard() )
+						pJuneDI->Getkeyboard()->ReleaseAllButtonsAndKeys();
+					if( NULL != pJuneDI->GetMouse() )
+						pJuneDI->GetMouse()->ReleaseAllButtonsAndKeys();
+					if( NULL != pJuneDI->GetJoystic() )
+						pJuneDI->GetJoystic()->ReleaseAllButtonsAndKeys();
+				}
+#endif RELEASE_ALL_BUTTONS_AND_KEYS_WHEN_FOCUS_LOSING
+			}
+		}
+		break;
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 		{
 #ifdef SHOW_WEB_ADVERTISEMENT_USE_DEFAULT_BROWSER
 			ShellExecuteW( GetDesktopWindow(), L"open", L"http://elsword.hangame.co.jp/campaign/index.nhn" , L"dwmApi #102", NULL, SW_SHOWNORMAL); 
@@ -2094,6 +2185,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #endif //SHOW_WEB_ADVERTISEMENT_USE_DEFAULT_BROWSER
 		}
 		break;
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS
 #endif SHOW_WEB_ADVERTISEMENT
 #ifdef SERV_ADD_WARP_BUTTON
 	case SMUCM_WARP_BUTTON:

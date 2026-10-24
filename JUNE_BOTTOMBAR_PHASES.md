@@ -241,6 +241,23 @@ read as their absent value (duel request, tournament, `+0x191`, `+0x70`: never s
 `g_pInstanceData +0xab4` as a labelled stand-in reading 1 (B0 Done note). Write `kickoffs/june-bottombar/B4-review.md` from the review template when done.
 **Gate:** each of the 12 working buttons opens what June's opens (hand-off lists them one per line).
 
+### B4 - Done (2026-10-24, Sonnet 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS`, `Always.h` + `X2StateMenu.{h,cpp}`, no `.lua`, no kom change, no new `JUNE_BUGS` row). Original code stays in the `#else`. June's case bodies read from the `32476050` decompile and disassembly:
+- **Cash** (`0x66`): March's refusals are replaced by June's in June's order. The PvP-match popup (13599) is March's. June's state-8 popup (32329) is `CX2Main::XS_PVP_ROOM`; March's `X2_STATE` matches June's numbering up to 0xb. Then `ToggleCashShop()`, with March's field-name / buff-name close kept because June's `ToggleCashShop` `32465fc0` starts with that close. The `NEW_SKILL_TREE_UI` skill-tree hide is gone (June has none). June-only refusals read 0: `CX2State +0x16c` busy (16478), party `+0x70` (16478), duel request `+0xda` (39561), tournament `PartyData +0x10 == 6` (42839).
+- **System** (`0x95`): `g_pInstanceData` set, its `+0x191` (June-only, reads 0), and no dungeon-match popup (`31f38e90( 10 )` = `IsThereTimedMessagePopup( MT_DUNGEON_MATCH_START_REQUEST )`; March's ESC handler uses 9 for the same function) -> `ToggleSystemMenu( true )`, always `return true`. March's private-bank test and its old fall-through into the next case are the `#else`.
+- **Event / advertisement** (`0x3e8`): a toggle. The browser open -> `CloseBrowser`, `SetDialogBoxMode( FALSE )`; closed -> `SetDialogBoxMode( TRUE )`, `OpenAdvertisementDialog( "http://en.elswordonline.com/ingameinfo/" )`, then June's `31be34b0` (keyboard, mouse and joystick `ReleaseAllButtonsAndKeys`, without `DeactivateApp`'s `m_bActivated = false`). `g_pMain +0x708` (Axeso5 URL) has no March member and reads 0; March's `es` URL by server group is not June's.
+- **Guild** (`0xa7`): June's body is `CX2UIGuild::SetShow( true )` (`325ab110`, builds `DLG_Guild_Info_New_3.lua`), a June-only guild UI. The gate (`GetGuildManager()->GetUIGuild()`) is ported and the click logs `STUB SMUCM_GUILD -> Stage 9`. Offline has no guilds, so the button is hidden and unreachable.
+- **Warp** (`0x3e9`): no code. Under June's case only the duel-request popup (party `+0xda`) differs from March, and it reads 0; the rest (`ClickWarpButton( !m_bWarpVip )`) is March's.
+- **Frame move Cash swap** (`@32470bd4-32470c45`): msg 102, or 180 with `g_pInstanceData +0xab4` = 0 (and a closing `ToggleCashShop` when the shop is open). The stand-in `bJuneCashShopOpen` reads **true** (B0 decision). June's 180 is March's `SMUCM_WARP_DEST_SELECT`, so the maintenance message is a new `SMUCM_JUNE_CASH_MAINTENANCE = 215` (C++ only); its popup case (39402) is **not** written: unreachable with the stand-in.
+- Drift found, bullets in the Stage 9 block of `JUNE_PORT_BACKLOG_ORDER.md`: June guild UI, Surprise Sale (the singleton `32696fa0` + `3267ac90` that the Cash click runs first), the June-only refusal state.
+
+**Hygiene:** `flagcheck JUNE_BOTTOMBAR_BUTTONS --worktree --files KTDXLIB/Always.h X2Lib/X2StateMenu.cpp X2Lib/X2StateMenu.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+**Deploy:** DEPLOY OK: X2_offline.exe is 25,842,688 B, dated 2026-10-24 11:55:22, md5 ccad9689106cf5d0eddc3e37604df3d9, equal to X2/US_SERVICE/x2.exe (2026-10-24 11:55:15); built at main da4ffc56 + 3 uncommitted code file(s).
+
+**How to see it** (village; the guild button stays hidden, offline has no guilds): System opens and closes the system menu; Cash opens the shop (a second click closes it); Event opens the in-game browser on `en.elswordonline.com/ingameinfo` (a page error is possible: the site is gone) and a second click closes it. PvP-room and duel paths can't be tested offline.
+**Open for the user:** none. Review kickoff: `kickoffs/june-bottombar/B4-review.md`.
+
 ## Review (Opus 5.5, high)
 
 `/x2-phase june-bottombar B4 review` covers B1-B4: June vs ours line by line, the asset list against June bytes, flagcheck ranges, the deployed exe, the
