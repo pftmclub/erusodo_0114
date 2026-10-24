@@ -166,7 +166,7 @@ load logs no `KEM_ERROR68` for the include; `ledger --check` PASS; no `UNHANDLED
 
 ### B1 - Done (2026-10-24, Sonnet 5.5)
 
-**Landed** (commit `<B1 commit>`, flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS`; no `_DEBUG` flag was needed, the stub lines are the permanent log):
+**Landed** (commit `b0ab40af`, flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS`; no `_DEBUG` flag was needed, the stub lines are the permanent log):
 - `luasrc.py adopt-june`: `DLG_Menu_Button_NEW.lua` (data034, replaced, 18,530 B, June's `ljconv` bytecode) and `DLG_UI_Event_Button_INT.lua` (datai014, new, 7,534 B). Run record `june2017_re/june_adopt_20261024_102123.tsv`.
 - `kom.py stage-june`, 26 files, 18 new / 8 replaced / 0 refused (matches the dry run and the Context list): data056 (`Button19_NEW` replaced, `Button27` new), data057 (`Texture64_NEW` replaced), data151 (`Text_03`), datai020 (`Button_INT01`, `INT_Button01` replaced, `2016VALENTINE_00` new), datai021 (`PHOTOBOOK_03`, `CnSpring2016_01`), datai022 (`Friends_Invitation01`, `2016PETFULFILL_01`, `ElMission_01`, `Event_INT01`). Backups: `kom_backup_stage_june61024_102123` / `_102128`.
 - `Enum.lua` (data036, core list): `SMUCM_PROFESSION_LIST` 210, `STORY_BOOK` 211, `EVENT_2016_VALENTINE_UI` 212, `CHANGE_TO_REST_GAGE` 213, `CHANGE_TO_EXP_GAGE` 214 after the 209 line, then `luasrc.py refresh`. `X2StateMenu.h`: the same five members. (June's own numbers 178 / 181 / 1035 / 195 / 196 clash with March's, as B0 found.)
