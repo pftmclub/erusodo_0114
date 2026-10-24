@@ -3877,6 +3877,24 @@ void CX2StateMenu::UpdateExpGageBar()
 	}
 	else
 	{
+		// June 324700a0( false ): the rest gauges and their button are hidden; no June call site found for the first hide, so it is done here
+		{
+			const WCHAR* apwszRestStatic[] = { L"StaticMenu_Button_RESET_EXP_Gauge", L"StaticMenu_Button_Used_RESET_EXP_Gauge" };
+			for ( int iRest = 0; iRest < 2; ++iRest )
+			{
+				CKTDGUIStatic* pRestStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( apwszRestStatic[iRest] ) );
+				if ( pRestStatic != NULL )
+				{
+					pRestStatic->SetShowEnable( false, false );
+					if ( pRestStatic->GetPicture(0) != NULL )
+						pRestStatic->GetPicture(0)->SetSizeX( 0.f );
+				}
+			}
+
+			CKTDGUIControl* pRestButton = m_pDLGMenu->GetControl( L"Button_Invisible_RestExpGuage" );
+			if ( NULL != pRestButton )
+				pRestButton->SetShowEnable( false, false );
+		}
 		pStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( L"StaticMenu_Button_EXP_Gauge" ) );
 		if ( pStatic != NULL && pStatic->GetPicture(0) != NULL )
 		{
