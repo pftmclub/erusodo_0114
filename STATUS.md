@@ -920,8 +920,8 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| B0 | **ready** (read-only: layout `3245bb70` from disassembly, `3245cba0` / `32472a40` / `32468c70`, frame-move bar lines, the 18 case bodies, `32473810` tooltip + level cap) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
-| B1 | blocked (waits for B0) | Sonnet 5.5 / high | B0 | data034 / datai014 Lua, 9 koms of textures, `Enum.lua` (core list), `X2StateMenu.{h,cpp}`, `Always.h` | `B1.md` |
+| B0 | **done** 2026-10-24 (read-only; `bottombar_functions.tsv`, 18 verdicts: 7 same, 5 differs -> B4, 6 STUB -> Stage 9; Cash swap stand-in reads open, see Done note) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
+| B1 | **ready** | Sonnet 5.5 / high | B0 | data034 / datai014 Lua, 9 koms of textures, `Enum.lua` (core list), `X2StateMenu.{h,cpp}`, `Always.h` | `B1.md` |
 | B2 | blocked (waits for B1) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
 | B3 | blocked (waits for B2) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
 | B4 | blocked (waits for B3) | Sonnet 5.5 / high | B3 | `X2StateMenu.cpp` | `B4.md` |

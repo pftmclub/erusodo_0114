@@ -4681,3 +4681,15 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 32601f80 @32602375 / 32888660 @328888c5 (Transcend T6c)	June achievement UI (160by160, flag from the unit)	NOT PORTED	Transcend T6c: Static_Achievement_* screens; March has none; Stage 31
 325da870 / 325dacb0 / 325db6f0 (Transcend T6c)	DLG_UI_Character_Icon fill (20by20): friend / field-user / guild / recommended lists	NOT PORTED	Transcend T6c: the flag comes in from June's list entries; March's wire structs for these lists carry the class only, and offline there is no other player; X2Community.cpp:3159 / 9417 / 9894 / 12100 / 12307, X2UIGuild, X2UIGuildBoard. Stage 9
 32ed5180 (Transcend T6c)	June class picker (160by160 by class and unit flag; caller 32ed7210)	NOT PORTED	Transcend T6c: no March GetCharacterImageName caller has this shape; Stage 9 if the screen exists
+3245bb70 (Bottombar B0)	CX2StateMenu::UpdateMenuPosistion (June vector form)	confirmed	Bottombar B0: 15-button vector +0x3d8, hide gates guild / pet (code 2220 off) / skill / profession < 40, v[0..i] += 32, badges by jt 3245c45c; full row june2017_re/bottombar_functions.tsv; port B2
+3245cba0 (Bottombar B0)	none in March: menu badge placement	confirmed	Bottombar B0: *_New ( x + 5, y - 17 ), Warp_VIP ( x, y - 12 ), informer anchors ( x + 7, y - 10 ) from the button's Normal picture; port B2
+32472a40 (Bottombar B0)	CX2StateMenu::InitUI	confirmed	Bottombar B0: GetMenuDLG, clear +0x3d8, 3245cba0, 3245bb70, 32468c70, event icons (Stage 9), state switch = March, RefreshMenuInfo vslot 0x288
+32468c70 (Bottombar B0)	CX2StateMenu::UpdateMenuString	confirmed	Bottombar B0: Static strings 19974 / 19975 / 43488; guide descs 19976-19985, Comm 44512, Profession 31200, Warp 24618 with June GAMEACTION keys; port B2
+31f5ff50 (Bottombar B0)	key-mapping refresh calling UpdateMenuString	confirmed	Bottombar B0: = the X2KeyPad.cpp:2141 caller; no change
+32473810 (Bottombar B0)	CX2StateMenu::UpdateExpGageBar	confirmed	Bottombar B0: rest / resonance branches, ( EXP - base ) / 32741030( level + 1 ), gauge string 0 and SetShow, Button_Invisible_ExpGuage tooltip; port B3
+32475480 (Bottombar B0)	CX2StateMenu::RefreshMenuInfo (vslot 0x288, no Ghidra function)	confirmed	Bottombar B0: stamina width + string 0, empty Button_Invisible_SpiritGuage tooltip (June quirk), ED / AP; port B3
+3245a850 (Bottombar B0)	CX2StateMenu::OnClickedMenuSkillButton	confirmed	Bottombar B0: 0x15 / 0x16 = UI_MENU_SKILL / UI_MENU_COMBO_TREE = March :3559
+31d717d0 (Bottombar B0)	CX2Main state is 0x17 / 0x18 (PVE_GAME / PVE_RESULT)	confirmed	Bottombar B0: June-only states; gates MY_INFO / INVENTORY clicks
+31e5a860 (Bottombar B0)	CX2InstanceData::IsEnableCode( code )	confirmed	Bottombar B0: map +0xa18 (find 322aa950, end +0xa1c), node +0x10; June codes 2155-2316 are absent from March's CODE_EVENT_ID (ends at 50)
+324700a0 / 32470210 (Bottombar B0)	none in March: rest-EXP gauge mode / fill	NOT PORTED	Bottombar B0: Stage 9 (rest EXP); +0x468 never set offline
+3245d870 / 3245da70 (Bottombar B0)	none in March: event-EXP gauge / GrowKnowHow icon	NOT PORTED	Bottombar B0: include event controls, Stage 9

@@ -1,19 +1,19 @@
 control	smucm_name	june_value	live_value	june_case	june_does	march_counterpart	plan_verdict	owner
-Charac	SMUCM_MY_INFO	101	101	0x65	unit +0xc4 set and not 31d717d0: 32854860 vslot +0x14, then ToggleUI 32158070( 0x13 = UI_MENU_CHARINFO, 0, 0 )	X2StateMenu.cpp UICustomEventProc case SMUCM_MY_INFO	B0 compares	B4
-Inven	SMUCM_INVENTORY	148	148	0x94	unit +0xc4 set and not 31d717d0: ToggleUI( 0x1f )	case SMUCM_INVENTORY	B0 compares	B4
-Skill	SMUCM_MY_INFO_SKILL_TREE	122	122	0x7a	unit +0xc4 set: 3245a850	case SMUCM_MY_INFO_SKILL_TREE (skill-system S7h touched)	B0 compares	B4
-Quest	SMUCM_MY_INFO_QUEST	111	111	0x6f	ToggleUI( 0x17 )	case SMUCM_MY_INFO_QUEST	B0 compares	B4
-Guild	SMUCM_GUILD	167	167	0xa7	g_pData +0x2ec +0x1e8 set: 325ab110( 1 )	case SMUCM_GUILD	B0 compares	B4
-Comm	SMUCM_COMMUNITY	147	147	0x93	ToggleUI( 0x20 )	case SMUCM_COMMUNITY	B0 compares	B4
-System	SMUCM_SYSTEM	149	149	0x95	g_pInstanceData +0x191 == 0 and not 31f38e90( 10 ): 32461a70( 1 )	case SMUCM_SYSTEM / ToggleSystemMenu	B0 compares	B4
-Cash	SMUCM_CASH_SHOP	102	102	0x66 (392 lines)	cash shop open	case SMUCM_CASH_SHOP (offline cash shop exists)	B0 compares	B4
-Pet	SMUCM_PET_LIST	159	159	0x9f	ToggleUI( 0x14 )	case SMUCM_PET_LIST	B0 compares	B4
-Warp	SMUCM_WARP_BUTTON	1001	178	0x3e9 (81 lines)	g_pData +0x5c +0xda == 1 ... warp list / message	case SMUCM_WARP_BUTTON (SERV_ADD_WARP_BUTTON)	B0 compares	B4
-Guide	SMUCM_OPEN_ELLIOS_GUIDE	155	155	0x9b	this +0xe4 == 0: 32edc180( "BT_ELLIOS_GUIDE" ), 32edbd80( 1 ), event 0x86b -> gage-manager +0xd1 = 1	case SMUCM_OPEN_ELLIOS_GUIDE	B0 compares	B4
-Event	SMUCM_SHOW_ADVERTISEMENT	1000	177	0x3e8	g_pMain +0x574 == 0: 33222f80 ... (web advertisement)	case SMUCM_SHOW_ADVERTISEMENT (SHOW_WEB_ADVERTISEMENT)	B0 classifies (June hides it unless an ad is set?)	B0
-FriendRecommed	SMUCM_FRIEND_RECOMMEND_OPEN	171	171	0xab	324633e0, then g_pMain +0x50c window vslot +0x24( 0 )	case SMUCM_FRIEND_RECOMMEND_OPEN (SERV_RECOMMEND_LIST_EVENT off)	B0 classifies; dialog hides it (SetShow false)	B0
-Profession	SMUCM_PROFESSION_LIST	178	-	0xb2	unit +0xc4 set: ToggleUI( 0x22 = UIProfession, GFx; CX2ProfessionManager / CX2UIProfession RTTI 337343b8 / 337343e0)	none (no profession system)	STUB	Stage 9
-StoryBook	SMUCM_STORY_BOOK	181	-	0xb5	ToggleUI( 0x2f, !IsShow( 0x2f ) ), g_pInstanceData +0xabd = 0	none (CX2UIStoryBook = quest-system Q10c, moved to Stage 9)	STUB	Stage 9
-2016Valentine	SMUCM_EVENT_2016_VALENTINE_UI	1035	-	0x40b	event 0x8aa on and unit +0x340 +0xc: 32e38bb0( g_pInstanceData +0xa50 == 1 ), +0xa54 = 0 / 1	none (2016 event UI; dialog hides it)	STUB	Stage 9
+Charac	SMUCM_MY_INFO	101	101	0x65	unit +0xc4 set and not 31d717d0: 32854860 vslot +0x14, then ToggleUI 32158070( 0x13 = UI_MENU_CHARINFO, 0, 0 )	X2StateMenu.cpp UICustomEventProc case SMUCM_MY_INFO	same (June adds !31d717d0 = state not 0x17/0x18 PVE_GAME/RESULT, June-only states; InvenInformer InvalidInfo; ToggleUI 0x13 = UI_MENU_CHARINFO)	-
+Inven	SMUCM_INVENTORY	148	148	0x94	unit +0xc4 set and not 31d717d0: ToggleUI( 0x1f )	case SMUCM_INVENTORY	same (June adds the same PVE-state gate, unreachable; 0x1f = UI_MENU_INVEN)	-
+Skill	SMUCM_MY_INFO_SKILL_TREE	122	122	0x7a	unit +0xc4 set: 3245a850	case SMUCM_MY_INFO_SKILL_TREE (skill-system S7h touched)	same (3245a850 = OnClickedMenuSkillButton: 0x15/0x16 = UI_MENU_SKILL / UI_MENU_COMBO_TREE)	-
+Quest	SMUCM_MY_INFO_QUEST	111	111	0x6f	ToggleUI( 0x17 )	case SMUCM_MY_INFO_QUEST	same (0x17 = UI_MENU_QUEST_NEW)	-
+Guild	SMUCM_GUILD	167	167	0xa7	g_pData +0x2ec +0x1e8 set: 325ab110( 1 )	case SMUCM_GUILD	differs (June: guild manager +0x1e8 set -> 325ab110( true ), the guild UI open, instead of ToggleUI( UI_MENU_GUILD ); button shown only with a guild)	B4
+Comm	SMUCM_COMMUNITY	147	147	0x93	ToggleUI( 0x20 )	case SMUCM_COMMUNITY	same (0x20 = UI_MENU_COMMUNITY)	-
+System	SMUCM_SYSTEM	149	149	0x95	g_pInstanceData +0x191 == 0 and not 31f38e90( 10 ): 32461a70( 1 )	case SMUCM_SYSTEM / ToggleSystemMenu	differs (June: g_pInstanceData +0x191 == 0 and not g_pMain 31f38e90( 10 ) -> ToggleSystemMenu( true ); March: private bank shown -> nothing)	B4
+Cash	SMUCM_CASH_SHOP	102	102	0x66 (392 lines)	cash shop open	case SMUCM_CASH_SHOP (offline cash shop exists)	differs (June refuses before ToggleCashShop (vslot 0xac): state +0x16c busy 16478; party +0x58 PvP match 13599, or 42839 when 326662b0 == 6 tournament; +0x70 16478; +0xda 1v1 duel request 39561; state 8 sparring channel 32329. Frame move swaps the msg 102 / 180 (39402 maintenance) on g_pInstanceData +0xab4: stand-in, see Done note)	B4
+Pet	SMUCM_PET_LIST	159	159	0x9f	ToggleUI( 0x14 )	case SMUCM_PET_LIST	same (0x14 = UI_MENU_PET_LIST)	-
+Warp	SMUCM_WARP_BUTTON	1001	178	0x3e9 (81 lines)	g_pData +0x5c +0xda == 1 ... warp list / message	case SMUCM_WARP_BUTTON (SERV_ADD_WARP_BUTTON)	differs (June: party +0xda 1v1 duel request -> popup 39561; else ClickWarpButton( !m_bWarpVip ) (3246c780, unit +0x9f0) = March)	B4
+Guide	SMUCM_OPEN_ELLIOS_GUIDE	155	155	0x9b	this +0xe4 == 0: 32edc180( "BT_ELLIOS_GUIDE" ), 32edbd80( 1 ), event 0x86b -> gage-manager +0xd1 = 1	case SMUCM_OPEN_ELLIOS_GUIDE	same (m_Book BT_ELLIOS_GUIDE; June adds code event 2155 (0x86b) -> singleton 324943c0 +0xd1 = 1: code absent in March, unreachable)	-
+Event	SMUCM_SHOW_ADVERTISEMENT	1000	177	0x3e8	g_pMain +0x574 == 0: 33222f80 ... (web advertisement)	case SMUCM_SHOW_ADVERTISEMENT (SHOW_WEB_ADVERTISEMENT)	differs (June: g_pMain +0x574 browser toggle, URL en.elswordonline.com/ingameinfo, axeso5 launcher URL when g_pMain +0x708; March: close-if-open then en / es by server group)	B4
+FriendRecommed	SMUCM_FRIEND_RECOMMEND_OPEN	171	171	0xab	324633e0, then g_pMain +0x50c window vslot +0x24( 0 )	case SMUCM_FRIEND_RECOMMEND_OPEN (SERV_RECOMMEND_LIST_EVENT off)	STUB (dialog hides it; frame move shows it only under code event 2206 (0x89e) and level >= 10, absent here; handler = Recruit-a-Friend 324633e0 + informer 32854a20, SERV_RECOMMEND_LIST_EVENT off)	Stage 9
+Profession	SMUCM_PROFESSION_LIST	178	-	0xb2	unit +0xc4 set: ToggleUI( 0x22 = UIProfession, GFx; CX2ProfessionManager / CX2UIProfession RTTI 337343b8 / 337343e0)	none (no profession system)	STUB (B2 ports the layout gate: hidden below level 40)	Stage 9
+StoryBook	SMUCM_STORY_BOOK	181	-	0xb5	ToggleUI( 0x2f, !IsShow( 0x2f ) ), g_pInstanceData +0xabd = 0	none (CX2UIStoryBook = quest-system Q10c, moved to Stage 9)	STUB (B2 ports the layout gate: hidden only under code event 2316 (0x90c))	Stage 9
+2016Valentine	SMUCM_EVENT_2016_VALENTINE_UI	1035	-	0x40b	event 0x8aa on and unit +0x340 +0xc: 32e38bb0( g_pInstanceData +0xa50 == 1 ), +0xa54 = 0 / 1	none (2016 event UI; dialog hides it)	STUB (dialog hides it; shown only under code event 2218 (0x8aa))	Stage 9
 Button_Invisible_ExpGuage	SMUCM_CHANGE_TO_REST_GAGE	195	-	0xc3	level < 99 and not resonance (3247b460): 324700a0( 1 ) = rest-gauge mode	none (rest EXP = June-only unit +0xac0 / +0xac8)	STUB	Stage 9
 Button_Invisible_RestExpGuage	SMUCM_CHANGE_TO_EXP_GAGE	196	-	0xc4	324700a0( 0 )	none	STUB	Stage 9

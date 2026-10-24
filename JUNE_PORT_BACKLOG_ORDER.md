@@ -437,6 +437,13 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
       `KUnitInfo`), a per-level cap table, level < 99; the emulator would need a labelled stand-in to earn it;
     - the 2016 Valentine UI (`SMUCM_EVENT_2016_VALENTINE_UI`, case `0x40b`, event 0x8aa) and the include's event icons and event-EXP gauge
       (`3245d870`, `Static_EventEXP_BG`), with the `EventButtonAddSystem` bullet below.
+    - **B0 final stub list (2026-10-24):** `PROFESSION_LIST`, `STORY_BOOK`, `CHANGE_TO_REST_GAGE`, `CHANGE_TO_EXP_GAGE`, `EVENT_2016_VALENTINE_UI` and
+      `FRIEND_RECOMMEND_OPEN` (Recruit-a-Friend: June `324633e0` + informer `32854a20`; the button shows only under code event 2206 = 0x89e and level >= 10).
+      `SHOW_ADVERTISEMENT` is not a stub (the browser exists; B4 ports it). Also here, all June-only code events the bar reads (absent from March's
+      `CODE_EVENT_ID`, so they read off): 2220 accompany-pet (Pet never hides, `AccompanyPetTag`), 2316 (StoryBook hidden, row closes up), 2155 (Guide sets
+      singleton `324943c0 +0xd1`), 2040 / 2140 / 2199 (`DiscountTag` / `FeverTag` / `PPoruTag`), the include's 2209 / 2222 / 2279 / 2302 / 2258 / 2274, the
+      `GrowKnowHow` icon (`3245da70`), and `CX2StateMenu +0x43d` (a Lua binder `31fc3f80` next to `CheckEventTriggerNPCPos`; set, it hides Guild).
+      Evidence: `june2017_re/bottombar_functions.tsv`.
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
     Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
   - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own
