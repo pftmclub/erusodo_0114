@@ -283,7 +283,7 @@ play-test lines.
 Review fix `--worktree --files X2Lib/X2StateMenu.cpp`: `files: 1 PASS`, `18 deleted line(s)` (the B3 fix's own flag-on block, moved to the ctor; no March line deleted), `RESULT: PASS`.
 **Koms:** data034 / datai014 / data036 / data056 / data057 / data151 / datai020-022 are in sync (`kom.py status`, 0 changed). The B4 exe (md5 `ccad9689`) has the STUB / `ingameinfo` strings.
 **Play-test lines** (run 12:03): one `STUB SMUCM_PROFESSION_LIST -> Stage 9`, plus 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, which are not this plan's. 0 EXCEPTION.
-**Deploy:** BUILD OK: X2/US_SERVICE/x2.exe 25,842,688 B, 2026-10-24 12:14:20 (main 91c8e36f + this fix). DEPLOY REFUSED: the game was running (pid 15580). `build.py --deploy-only` once it is closed.
+**Deploy:** BUILD OK: X2/US_SERVICE/x2.exe 25,842,688 B, 2026-10-24 12:14:20 (main 91c8e36f + this fix). Then `--deploy-only`: DEPLOY OK: X2_offline.exe is 25,842,688 B, dated 2026-10-24 12:17:17, md5 a80846f7543e25dca78a47de20e92b27, equal to X2/US_SERVICE/x2.exe (2026-10-24 12:14:20); built at main ab26bca6.
 
 **Open for the user:** none. Next: Phase Z.
 
