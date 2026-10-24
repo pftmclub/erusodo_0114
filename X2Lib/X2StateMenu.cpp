@@ -3754,6 +3754,35 @@ void CX2StateMenu::RefreshMenuInfo()
 	if ( m_pDLGMenu != NULL )
 	{
 		UpdateExpGageBar();		
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
+		// June 32475480: stamina bar + "%.1f%%" text, spirit tooltip written empty (JUNE_BUGS 420); event calls 3245d870 / 3245da70 are Stage 9
+		{
+			const int iSpirit = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSpirit;
+			const float fSpiritMax = static_cast< float >( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSpiritMax );
+			const float fSpiritRate = iSpirit / fSpiritMax;
+
+			CKTDGUIStatic* pTiredStatic = (CKTDGUIStatic*)m_pDLGMenu->GetControl( L"StaticMenu_Button_Tired_Gage" );
+			if ( pTiredStatic != NULL && pTiredStatic->GetPicture(0) != NULL )
+			{
+				const D3DXVECTOR2 vOrgSize = pTiredStatic->GetPicture(0)->GetOriginalSize();
+				pTiredStatic->GetPicture(0)->SetSize( D3DXVECTOR2( fSpiritRate * vOrgSize.x, vOrgSize.y ) );
+
+				if ( pTiredStatic->GetString(0) != NULL )
+				{
+					WCHAR buffTired[256] = L"";
+					StringCchPrintfW( buffTired, ARRAY_SIZE(buffTired), L"%.1f%%", fSpiritRate * 100.f );
+					pTiredStatic->GetString(0)->msg = buffTired;
+				}
+			}
+
+			CKTDGUIButton* pSpiritGuideButton = static_cast< CKTDGUIButton* >( m_pDLGMenu->GetControl( L"Button_Invisible_SpiritGuage" ) );
+			if ( NULL != pSpiritGuideButton )
+			{
+				pSpiritGuideButton->SetGuideDesc( L"" );
+				pSpiritGuideButton->SetShowEnable( true, true );
+			}
+		}
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 		CKTDGUIStatic* pStatic;
 		pStatic = (CKTDGUIStatic*)m_pDLGMenu->GetControl( L"StaticMenu_Button_Tired_Gage" );
 		float gauagePercentage = (g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSpirit / (float)g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSpiritMax );
@@ -3783,6 +3812,7 @@ void CX2StateMenu::RefreshMenuInfo()
 			pSpiritInvisibleButton->SetShowEnable(true,true);
 		}
 		//}}
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 		if ( NULL != g_pData && NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIInventory() )
 		{
 			g_pData->GetUIManager()->GetUIInventory()->SetEDString( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_ED );
@@ -3833,6 +3863,45 @@ void CX2StateMenu::UpdateExpGageBar()
 	}
 
 	CKTDGUIStatic* pStatic;
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
+	// June 32473810: bar + "%.1f%%" text + tooltip; rest mode ( this +0x468 ) is the Stage 9 toggle, resonance ( 3247b460 ) is Stage 30
+	const bool bRestGauge = false;
+	if ( bRestGauge )
+	{
+		static bool s_bRestGaugeLogged = false;
+		if ( false == s_bRestGaugeLogged )
+		{
+			s_bRestGaugeLogged = true;
+			CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB rest gauge 32470210 -> Stage 9" );
+		}
+	}
+	else
+	{
+		pStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( L"StaticMenu_Button_EXP_Gauge" ) );
+		if ( pStatic != NULL && pStatic->GetPicture(0) != NULL )
+		{
+			pStatic->SetShow( true );
+			const D3DXVECTOR2 vOrgSize = pStatic->GetPicture(0)->GetOriginalSize();
+			pStatic->GetPicture(0)->SetSize( D3DXVECTOR2( fTotalExpRate * vOrgSize.x, vOrgSize.y ) );
+
+			if ( pStatic->GetString(0) != NULL )
+			{
+				WCHAR buffExp[256] = L"";
+				StringCchPrintfW( buffExp, ARRAY_SIZE(buffExp), L"%.1f%%", fTotalExpRate * 100.f );
+				pStatic->GetString(0)->msg = buffExp;
+			}
+		}
+
+		CKTDGUIButton* pExpGuideButton = static_cast< CKTDGUIButton* >( m_pDLGMenu->GetControl( L"Button_Invisible_ExpGuage" ) );
+		if ( NULL != pExpGuideButton )
+		{
+			WCHAR buffGuide[256] = L"";
+			StringCchPrintfW( buffGuide, ARRAY_SIZE(buffGuide), L"%.1f%%", fTotalExpRate * 100.f );
+			pExpGuideButton->SetGuideDesc( buffGuide );
+			pExpGuideButton->SetShowEnable( true, true );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 	//EXP게이지
 	pStatic = static_cast< CKTDGUIStatic* >( m_pDLGMenu->GetControl( L"StaticMenu_Button_EXP_Gauge" ) );
 
@@ -3851,6 +3920,7 @@ void CX2StateMenu::UpdateExpGageBar()
 		pExpInvisibleButton->SetShowEnable(true, true);
 	}
 	//}}
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 //}} 오현빈 // 2012-04-16 // UI개편_하단메뉴
 #else	REAL_TIME_ELSWORD	
 	float nowExp		= (float) g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_EXP;

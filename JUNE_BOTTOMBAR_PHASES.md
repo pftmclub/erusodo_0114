@@ -217,6 +217,21 @@ instead of `32470210`; the resonance test answers false (comment names Stage 30)
 event calls `3245d870` / `3245da70` stay out (Stage 9). ED / AP as before.
 **Gate:** EXP gain and level-up move the yellow bar and its text; a dungeon run moves the stamina bar and its "%" text; level 99 shows 100.0%.
 
+### B3 - Done (2026-10-24, Sonnet 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES`, `Always.h` + `X2StateMenu.cpp`; no new `.lua`, no kom change, no `_DEBUG` flag):
+- `UpdateExpGageBar` (June `32473810`): in the live `REAL_TIME_ELSWORD` branch, March's ratio and clamp stay shared (so `SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX` still gives 100.0% at the cap). June's output replaces March's: `StaticMenu_Button_EXP_Gauge` `SetShow( true )`, picture 0 `SetSize( orig.x * rate, orig.y )`, string 0 "%.1f%%", then the `Button_Invisible_ExpGuage` tooltip "%.1f%%" + `SetShowEnable( true, true )`.
+- Rest mode (`this +0x468`) is a local `false`; its branch logs `STUB rest gauge 32470210 -> Stage 9` once and skips the bar and tooltip as June does. Resonance (`3247b460`) is not ported (Stage 30; March answers "no resonance").
+- `RefreshMenuInfo` (June `32475480`): `StaticMenu_Button_Tired_Gage` picture 0 `SetSize( orig.x * spirit / max, orig.y )` and string 0 "%.1f%%" (no March rounding); `Button_Invisible_SpiritGuage` guide text set **empty** + `SetShowEnable( true, true )` (`JUNE_BUGS.md` row 420). Event calls `3245d870` / `3245da70` stay out (Stage 9). `UpdateExpGageBar()` call and the inventory ED / AP lines are March's, unchanged.
+- No guard on `m_iSpiritMax == 0` (June has none; the emulator never sends 0).
+
+**Gate note (stamina):** the offline emulator pins spirit full (`CX2OfflineServer::FillSpirit`, `SHRT_MAX` / `SHRT_MAX`), so the stamina bar shows **100.0%** and does not move in a dungeon; the gate line "a dungeon run moves the stamina bar" cannot happen offline. Drift: a spirit model got its own bullet in the Stage 9 block of `JUNE_PORT_BACKLOG_ORDER.md` (not needed to play).
+
+**Hygiene:** `flagcheck JUNE_BOTTOMBAR_GAUGES --worktree --files KTDXLIB/Always.h X2Lib/X2StateMenu.cpp`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+**Deploy:** DEPLOY OK: X2_offline.exe is 25,841,664 B, dated 2026-10-24 11:13:02, md5 b8f0269d5899c4159354b7f03c408522, equal to X2/US_SERVICE/x2.exe (2026-10-24 11:12:55); built at main afd9e883 + 3 uncommitted code file(s).
+
+**How to see it:** village bar of `eresisu` (uid 21, level 77); save set to EXP 58496900 (backup `db_backup/els_db_20261024_110355_pre_setchar.sql`), about 50% into level 77. Yellow bar half full, "50.0%" text on it, same text in the hover tooltip. Stamina bar full with "100.0%"; hovering it shows no tooltip (June quirk). Level 99 char `reyaa` (uid 12): EXP bar full, "100.0%".
+
 ## Phase B4 - Button bodies that differ (Sonnet 5.5, high)
 
 **Depends on:** B3. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_BUTTONS`.

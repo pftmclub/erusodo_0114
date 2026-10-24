@@ -10079,3 +10079,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June bottom bar B2: June's 15-slot row layout ( 3245bb70 ), badge placement ( 3245cba0 ), tooltip strings ( 32468c70 ) and Story_New
 #define SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June bottom bar B3: June's EXP bar ( 32473810 ) and stamina bar ( 32475480 ): "%.1f%%" text on the gauge, empty spirit tooltip
+#define SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
+//////////////////////////////////////////////////////////////////////////

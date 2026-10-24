@@ -444,6 +444,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
       singleton `324943c0 +0xd1`), 2040 / 2140 / 2199 (`DiscountTag` / `FeverTag` / `PPoruTag`), the include's 2209 / 2222 / 2279 / 2302 / 2258 / 2274, the
       `GrowKnowHow` icon (`3245da70`), and `CX2StateMenu +0x43d` (a Lua binder `31fc3f80` next to `CheckEventTriggerNPCPos`; set, it hides Guild).
       Evidence: `june2017_re/bottombar_functions.tsv`.
+    - **stamina (spirit) model (found in B3, 2026-10-24):** the emulator pins spirit full (`CX2OfflineServer::FillSpirit`, `SHRT_MAX` / `SHRT_MAX`), so June's stamina
+      bar (`32475480`, ported in B3) reads 100.0% and never moves. Spending and restoring spirit per dungeon run (and the entry check) would need its own
+      model in `X2OfflineDB`; June addresses: `RefreshMenuInfo` `32475480`, unit `+0x950` / `+0x954`. Not needed to play.
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
     Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
   - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own

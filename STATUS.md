@@ -923,7 +923,7 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 | B0 | **done** 2026-10-24 (read-only; `bottombar_functions.tsv`, 18 verdicts: 7 same, 5 differs -> B4, 6 STUB -> Stage 9; Cash swap stand-in reads open, see Done note) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
 | B1 | **done** 2026-10-24 (koms copied, dialog and stubs play-tested with B2) (stage-june 26 files, Enum 210-214, 6 STUB cases; DEPLOY OK) | Sonnet 5.5 / high | B0 | data034 / datai014 Lua, 9 koms of textures, `Enum.lua` (core list), `X2StateMenu.{h,cpp}`, `Always.h` | `B1.md` |
 | B2 | **done** 2026-10-24 (play-tested OK: layout, badges, tooltips; logs clean; flag `_LAYOUT`, commit `886efc91`) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
-| B3 | ready | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
+| B3 | **built + deployed 2026-10-24; waits for the user: play-test** (EXP + stamina bars, flag `_GAUGES`; offline spirit is pinned full so stamina reads 100.0%; DEPLOY OK) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
 | B4 | blocked (waits for B3) | Sonnet 5.5 / high | B3 | `X2StateMenu.cpp` | `B4.md` |
 | B4 review | blocked (B4 writes the kickoff; covers B1-B4) | Opus 5.5 / high | B4 | - | `B4-review.md` |
 | Z | blocked (waits for the review) | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
