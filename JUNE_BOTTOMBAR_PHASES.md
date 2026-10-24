@@ -164,6 +164,22 @@ Stamina: "%.1f%%" string on `StaticMenu_Button_Tired_Gage`, no March rounding. C
 **Gate:** the village shows June's art and buttons (positions still March's runtime layout until B2: say so in the hand-off); every stub click logs; the
 load logs no `KEM_ERROR68` for the include; `ledger --check` PASS; no `UNHANDLED` / `EXCEPTION`.
 
+### B1 - Done (2026-10-24, Sonnet 5.5)
+
+**Landed** (commit `<B1 commit>`, flag `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS`; no `_DEBUG` flag was needed, the stub lines are the permanent log):
+- `luasrc.py adopt-june`: `DLG_Menu_Button_NEW.lua` (data034, replaced, 18,530 B, June's `ljconv` bytecode) and `DLG_UI_Event_Button_INT.lua` (datai014, new, 7,534 B). Run record `june2017_re/june_adopt_20261024_102123.tsv`.
+- `kom.py stage-june`, 26 files, 18 new / 8 replaced / 0 refused (matches the dry run and the Context list): data056 (`Button19_NEW` replaced, `Button27` new), data057 (`Texture64_NEW` replaced), data151 (`Text_03`), datai020 (`Button_INT01`, `INT_Button01` replaced, `2016VALENTINE_00` new), datai021 (`PHOTOBOOK_03`, `CnSpring2016_01`), datai022 (`Friends_Invitation01`, `2016PETFULFILL_01`, `ElMission_01`, `Event_INT01`). Backups: `kom_backup_stage_june61024_102123` / `_102128`.
+- `Enum.lua` (data036, core list): `SMUCM_PROFESSION_LIST` 210, `STORY_BOOK` 211, `EVENT_2016_VALENTINE_UI` 212, `CHANGE_TO_REST_GAGE` 213, `CHANGE_TO_EXP_GAGE` 214 after the 209 line, then `luasrc.py refresh`. `X2StateMenu.h`: the same five members. (June's own numbers 178 / 181 / 1035 / 195 / 196 clash with March's, as B0 found.)
+- `X2StateMenu.cpp` `UICustomEventProc`: six cases before `SMUCM_GUILD`, each logs `[JUNE_BOTTOMBAR] STUB <name> -> Stage 9` and returns true: the five new ids and `SMUCM_FRIEND_RECOMMEND_OPEN` (under `#ifndef SERV_RECOMMEND_LIST_EVENT`, so it cannot double March's compiled-out case).
+- Packed: data034, datai014, data036, data056, data057, data151, datai020, datai021, datai022 (`PACK OK` x9). **Not copied to the game dir yet: the user is asked.**
+- `JUNE_BUGS.md` rows 417 (two controls named `"Event"`) and 418 (include asks for the dropped `EXP` key).
+
+**Hygiene:** `flagcheck JUNE_BOTTOMBAR_IDS --worktree --files ...`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. `luasrc.py ledger --check`: PASS (0 FAIL, 0 WARN). `core --check` reports one FAIL that is not B1's: `data036 ResultData_new.lua` BOM text not on the core list (a peer's file).
+**Deploy:** DEPLOY OK: X2_offline.exe is 25,839,104 B, dated 2026-10-24 10:33:20, md5 aa3c79dcdd35114854207a358967d3d8, equal to X2/US_SERVICE/x2.exe; built at main 07c4ed56 + 3 uncommitted code file(s). The STUB strings are in the deployed exe.
+
+**How to see it:** after the kom copy, the village bar is June's dialog: June's EXP / stamina plates and the 15-button row art. Button **positions are still March's runtime layout** (`UpdateMenuPosistion`) until B2; the June-only buttons (Profession, StoryBook, Valentine) may sit stacked or hidden until then. Stub clicks: Profession / StoryBook log the STUB line; the rest-gauge buttons need the EXP bar's invisible buttons, which B3 wires.
+**Not in B1:** layout, badges, bars (B2 / B3); the include's event icons and event-EXP gauge are hidden by June's own file (Stage 9).
+
 ## Phase B2 - Row layout and badges (Sonnet 5.5, high)
 
 **Depends on:** B1. **Flag:** `SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT`.

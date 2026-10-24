@@ -1911,6 +1911,29 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		break;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
+	/// Stage 9 owns these features: the button is drawn as June draws it, the click only logs
+	case SMUCM_PROFESSION_LIST:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_PROFESSION_LIST -> Stage 9" );
+		return true;
+	case SMUCM_STORY_BOOK:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_STORY_BOOK -> Stage 9" );
+		return true;
+	case SMUCM_EVENT_2016_VALENTINE_UI:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_EVENT_2016_VALENTINE_UI -> Stage 9" );
+		return true;
+	case SMUCM_CHANGE_TO_REST_GAGE:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_CHANGE_TO_REST_GAGE -> Stage 9" );
+		return true;
+	case SMUCM_CHANGE_TO_EXP_GAGE:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_CHANGE_TO_EXP_GAGE -> Stage 9" );
+		return true;
+#ifndef SERV_RECOMMEND_LIST_EVENT
+	case SMUCM_FRIEND_RECOMMEND_OPEN:
+		CX2OfflineLog::Server( L"[JUNE_BOTTOMBAR] STUB SMUCM_FRIEND_RECOMMEND_OPEN -> Stage 9" );
+		return true;
+#endif SERV_RECOMMEND_LIST_EVENT
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
 	case SMUCM_GUILD:
 		{	// ±æµå Ã¢
 			if(g_pData->GetUIManager() != NULL)

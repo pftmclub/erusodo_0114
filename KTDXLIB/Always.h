@@ -10065,3 +10065,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: T8 crash: CHANGE_SKILL_SLOT_ACK with no select unit ( queued unequip answered at server select ) is dropped
 #define SERV_IRUHADEV_SLOT_ACK_NO_UNIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June bottom bar B1: the 5 new menu custom-msg ids ( 210-214 ) and a logged STUB for each button whose feature is missing ( Stage 9 )
+#define SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
+//////////////////////////////////////////////////////////////////////////

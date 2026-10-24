@@ -183,6 +183,14 @@ class CX2StateMenu : public CX2StateCommonBG
 			/// June 10-slot dialog: the buy-guide buttons of the locked TC slots. June's own values ( 182 / 183 ) are taken in March, so these sit after the last March member and Enum.lua carries the same numbers
 			SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP = 208,
 			SMUCM_DISABLED_TRANSCENDENTAL_EXPAND_SKILL_SLOT_MOUSE_UP = 209,
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
+			/// June 32476050 cases 178 / 181 / 1035 / 195 / 196, renumbered after March's last ( same values as Enum.lua )
+			SMUCM_PROFESSION_LIST = 210,
+			SMUCM_STORY_BOOK = 211,
+			SMUCM_EVENT_2016_VALENTINE_UI = 212,
+			SMUCM_CHANGE_TO_REST_GAGE = 213,
+			SMUCM_CHANGE_TO_EXP_GAGE = 214,
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		};
 
