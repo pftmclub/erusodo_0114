@@ -854,6 +854,8 @@ walk 2 (`ArmeEM`, `ArmeDW` by `/tc 1`; repeat `/tc` refused 1688) and walk 3 (ti
 
 ## Phase Z - Close-out
 
+**Done 2026-10-24 (Sonnet 5.5):** MODS.md close-out section; checklist 7ao closed-engine note; Stage 7 template rows (`JUNE_CHARACTER_AISHA_PHASES.md`); backlog Stage 6 closing note; memory `june-transcend-plan` rewritten. No `_DEBUG` flag is defined in `Always.h` (checked), so no build. **The june-transcend plan is closed.** User owes nothing.
+
 **Run with:** Sonnet 5.5 medium.
 
 **Scope.**

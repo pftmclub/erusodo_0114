@@ -5065,3 +5065,12 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Data (replace rule):** June's `DLG_UI_Common_Texture_GUI_character_01.TET/.tga` (data057) and `..._gray.TET/.tga` (datai021) replace March's, byte-exact. Backup: `24965799\kom_backup_stage_june\20261024_070830`.
   Revert: `kom_contents` from that backup, `kom.py pack data057 datai021`, copy.
 - **Turn off:** comment out the define in `Always.h` and rebuild (the June TET stays; March's rows only name pieces March's TET also had, which June's still carries).
+
+### June transcendence close-out: Stage 6 (plan `june-transcend`, T0-T8 + Z, 2026-10-22 .. 2026-10-24)
+
+- **Flags (all in `Always.h`, every `_DEBUG` retired and undefined):** `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT` and `_CHANGE` (second home `ServerDefine.h`, `SECOND_HOMES`), `_SLOT`, `_ITEM`, `_ENGINE`, `_SLOTBUFF`, `_IMAGE`, `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND` (log only), plus the T8 crash fix `SERV_IRUHADEV_SLOT_ACK_NO_UNIT` (a slot-change ACK with no select unit at server select is dropped). Per-flag detail and turn-off lines are in the T1 .. T6c sections above.
+- **Save rung:** schema v22, `unit.transcendence` (T1). Set it with `python tools/elsdb.py settranscend <unit> <0|1>`. Rolling back needs a pre-T1 save (`db_backup/*pre_T1*`); a flagless exe refuses v22.
+- **Adopted / staged files:** data034 the 12 `DLG_Transcendental_Change_Guide_*.lua` + `DLG_Class_Change_TranscendentalClass.lua` (June bytecode); data036 `TranscendentalClassItem.lua` (new, server-style), `CharacterStatTable.lua` (June bytecode), `Enum.lua` + `LevelUpEvent.lua` (core-list BOM source); data215 / 052 / 054 June textures; data057 / datai021 June `character_01(_gray)` TET + tga (replace rule). Reverts: `kom_backup_stage_june` backups named in T2, T5 and T6c.
+- **Stand-ins (not June, labelled in the sections above):** the class allow-list (Aisha EM / VP / DW; `JuneTranscendCheck`, `Handlers_Quest.cpp`), slot-state key 1 permanent for a transcended unit, the shop products 288318 / 288319 / three T3 products, the emulator's book and ticket handling, `/tc`.
+- **T7 sockets:** closed by T0, no code (`SOCKET_PARITY` already declares all eight `SDT_*_TRANSCEND*` types).
+- **Turn the system off:** comment out `_UNIT` (both files) and the dependent flags in reverse order (`_IMAGE`, `_SLOTBUFF`, `ARME_TRANSCEND`, `_ENGINE`, `_ITEM`, `_SLOT`, `_CHANGE`; the dependency `#error`s name the order), then see the save-rung note.

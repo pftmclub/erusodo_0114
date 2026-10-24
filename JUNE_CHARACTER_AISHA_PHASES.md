@@ -2529,7 +2529,7 @@ Rewritten by Z on 2026-10-22 from what the pilot took. Stage 7 repeats this doc 
 2. The S3 generator (`s3_reform_ids_no_state.tsv`) is not in the repo. CH6 rebuilt the check by hand (tsv ids against `case` labels and `const int` ids). Stage 7 characters regenerate it in CH0 or reuse the CH6 script idea.
 3. CH1 as one phase. Plan the split up front (CH1a-c registration by state group, then base callbacks, hooks, final).
 4. Helper functions the map calls "unmapped" are found mid-skill. CH0 lists every `unmapped` callee per skill and assigns an Opus sub-phase before the Sonnet one.
-5. The transcendence slot (A-5 / F, slots 4 and 9), 22415 / 22416-style passives and the hyper cut-in names are dormant until Stage 6; do not try to test them.
+5. The transcendence slot (A-5 / F, slots 4 and 9), 22415 / 22416-style passives and the hyper cut-in names were dormant until Stage 6. **Stage 6 closed 2026-10-24 (`JUNE_TRANSCENDENCE_PHASES.md`): they are live now, and a class port tests them with a transcended unit (`python tools/elsdb.py settranscend <unit> 1`).** The rows below add to the phase skeleton.
 
 The phase skeleton is:
 - CH0 (+ CH0c if the registration check fails);
@@ -2543,6 +2543,13 @@ The phase skeleton is:
 - Z.
 
 The new characters (Stage 8) follow the same asset rule: every June asset of the character, whole, before their code.
+
+**Transcendence rows every class port carries (Stage 6 close-out, 2026-10-24; checklist 7ao has the per-class readers).** In the class's CH2 / CH3 / CH6 phases, not new phases:
+- Add the class's ids to T2's allow-list (`JuneTranscendCheck`, `Handlers_Quest.cpp`) and its `LevelUpEvent.lua` TYPE row + `DLG_Transcendental_Change_Guide_<Class>.lua`.
+- Port its 7ao row whole: hyper effect start (returns at once when transcended), the four base skill helpers with the flag test (`31fcac90`, `31fcad70`, `31fceab0` `== 1`, `31ff1e80`), its engine-code readers.
+- Check its hyper-class skills (`SPRT_HYPER_CLASS`), their states and `TRANSCENDENTAL_SKILL_DATA` rows, and its transcended hyper table in `JuneGetHyperModeTableName` (`31fdd490`) and `HQ_Cutin_*_Transcendence` names.
+- Add its `list_TR_*` unit-slot rows to `GetCharacterImageName` (T6c) and its transcended picture assets.
+- CH6 walk: one unit set transcended by `/tc` or `settranscend`, every hyper-class skill cast, awakening and TC slots A-5 / B-5 checked.
 
 What differs per character, as known on 2026-10-22 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):
 

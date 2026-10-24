@@ -896,6 +896,8 @@ CH4c added two empty `CX2GUUser` virtuals under `SERV_IRUHADEV_JUNE_USER_PASSIVE
 June marks a transcended unit with an int at CX2Unit `+0x3c` (T1 adds it to March's `UnitData`). The engine half is june-transcend T1-T5; Aisha is
 T6. Every other class port brings its own rows below (evidence `june2017_re/transcend/t0_readers.tsv`, owner `class <Name>`).
 
+**Closed 2026-10-24 (june-transcend Z): the engine half (T1-T6c) is done and Aisha's row is marked; the walk (T8) passed.** Engine pieces a class port reuses, not redoes: the unit flag, `/tc`, the guide popup, the items, TC slots A-5 / B-5 (type 3 glow `322d8100`), the awakening engine, the class pictures (`GetCharacterImageName` unit-slot rows: a port adds its class's `list_TR_*` rows, T6c). Every other class row below stays open for its port.
+
 Every class also brings:
 - its id in the emulator's transcend allow-list (T2; user decision 2026-10-22) and its `LevelUpEvent.lua` TYPE row + `DLG_Transcendental_Change_Guide_<Class>.lua`;
 - its cases in `JuneGetHyperModeTableName` (June `31fdd490`, by class 100..) and its transcended hyper cut-in names (`HQ_Cutin_*_Transcendence`);

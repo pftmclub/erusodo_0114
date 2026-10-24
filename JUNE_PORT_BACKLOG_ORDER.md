@@ -354,6 +354,8 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - **June's resonance system** *(from june-result R0, 2026-10-22)*. **Identified by the Stage 6 planning: its own stage, Stage 30.** It is a level-99
   progression, not transcendence.
 
+**Closed 2026-10-24 (june-transcend Z).** T0-T8 done, walk passed by the user. Aisha's EM / VP / DW transcend through quest 42030, the items or `/tc`; the unit flag (save v22), guide popup, items, TC slots A-5 / B-5 with the glow, awakening engine, class pictures and passives are live. Stand-ins: the class allow-list (each Stage 7 / 8 port adds its class), key 1 permanent. T7 sockets closed by T0. Per-class work lives in checklist 7ao and the Stage 7 template. Routed out: awakening customization effect -> Stage 12, resonance -> Stage 30, achievements -> Stage 31, June UI readers of the flag -> Stage 9, wire 2-byte class -> Stage 8, result-screen class image -> Stage 29, the 32869940 job-ticket helper -> Stage 9. MODS.md has the close-out section.
+
 *Planned 2026-10-22 (Opus 5.5, xhigh):* `JUNE_TRANSCENDENCE_PHASES.md` (T0-T8, Z), key `june-transcend`, start `/x2-phase june-transcend T0`.
 - June marks a transcended unit with an int at CX2Unit `+0x3c`, beside the class at `+0x38`. It travels in `KUnitInfo` and the room / field /
   square infos (setter `3235eb20` and three siblings), and in June event 0x596 (`31ef82f0`).
