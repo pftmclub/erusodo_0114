@@ -842,6 +842,16 @@ left, and the ACK dereferenced the null select unit. Fix: flag `SERV_IRUHADEV_SL
 `JUNE_SKILL_ACQUIRE`). flagcheck: 1 PASS, 1 DEFINE, 0 FAIL, RESULT PASS.
 `DEPLOY OK: X2_offline.exe is 25,838,080 B, dated 2026-10-24 08:24:27, md5 3f2d6ec2cf3fe04134e40187a140e286`. Re-run walk 2's leave-to-select step.
 
+### T8 - Done (2026-10-24, Sonnet 5.5)
+
+**Walk PASSED (user, 2026-10-24: "all walk passed")**: walk 1 (`ArmeVP`: quests 41990-42030 by `/qdone`, guide popup, tree rows 14-17, A-5 / B-5, awakening, glow, Dark Deal, relog),
+walk 2 (`ArmeEM`, `ArmeDW` by `/tc 1`; repeat `/tc` refused 1688) and walk 3 (ticket on `ArmeVP2`).
+- **Logs** (08:25-08:29 run on md5 3f2d6ec2, the run after the crash fix; the earlier run's logs were rewritten): `ErrorLog.txt` 0 `KEM_ERROR`; packets 0 `EXCEPTION`; the only
+  `UNHANDLED` is `E_DISABLE_HB_CHECK_REQ` (also in the 08:02 run, not from this phase); clean shutdown, no new crash bundle. `ArmeEM`: `ARME passives` transcended 1, table `AVSI_AEM_HYPER_MODE`;
+  `ArmeDW`: `/tc 1` 0 -> 1, guide popup, then `transcendence 1 ( select )`; `ArmeVP2`: transcended 1, table `AVSI_AVP_HYPER_MODE`, open mind VP 1 / dark deal.
+- **One defect found by the walk, fixed:** the slot-change ACK crash at server select (section above), flag `SERV_IRUHADEV_SLOT_ACK_NO_UNIT`, commit `9ca92834`.
+- No phase flag needed another change. Open questions: none. The T8 save state (ArmeEM / ArmeDW / ArmeVP transcended, ArmeVP quests 41990-42030 done) is left as the walk ended.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
