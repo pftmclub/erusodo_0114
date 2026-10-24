@@ -912,6 +912,23 @@ The save column added by T1 is the switch: until a unit's value is 1, every phas
 Running together: T0 now, beside anything. After T1: T2 then T3 (both touch the emulator's class change); T4 may run beside T2 or T3 when
 the files do not overlap. T5 and T6 one at a time after T4 (`X2GUUser.*`, `X2GUArme_VioletMage.*`).
 
+## june-bottombar - June bottom bar: menu button row, EXP bar, stamina bar
+
+Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` · flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_*` · kickoffs `kickoffs/june-bottombar/` · backlog Stage 32, split out of Stage 9 (user, 2026-10-24) · created 2026-10-24.
+
+**Scope:** the village menu dialog as June draws it. Buttons whose feature the project lacks are drawn with a logged stub and stay Stage 9 (the plan doc's "Scope fence").
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| B0 | **ready** (read-only: button table `june2017_re/bottombar_buttons.tsv`, asset census, adopt-vs-core decision) | Opus 5.5 / high | - | `june2017_re/`, backlog Stage 9 bullet | `B0.md` |
+| B1 | blocked (waits for B0) | Sonnet 5.5 / high | B0 | `X2StateMenu.{h,cpp}`, `X2MemoryHolder.cpp`, data034 + textures, `Always.h` | `B1.md` |
+| B2 | blocked (waits for B1) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
+| B3 | blocked (waits for B2) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
+| B3 review | blocked (waits for B3; B3 writes the kickoff) | Opus 5.5 / high | B3 | - | `B3-review.md` |
+| Z | blocked (waits for the B3 review) | Sonnet 5.5 / medium | B3 review | `MODS.md`, backlog, memory | `Z.md` |
+
+Running together: B0 has no code, so it can run beside anything. B1-B3 share `X2StateMenu.cpp` with quest-system / june-engine rows: not alongside a running code row on that file.
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's
