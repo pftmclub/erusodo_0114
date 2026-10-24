@@ -641,6 +641,36 @@ Petit Angkor 22231 learned and I had equipped the base 22209, so `GetEquippedAct
 cast then worked and the heavy summon played. Two temporary log lines stay for the review to retire: `ARME info text` (in `June_PushInfoText`) and `ARME cast lookup` (in `June_SpecialAttackLookup`).
 Lesson for set-ups: equip the skill the unit has learned (the enhanced one when it is learned). Deploy for the diagnostic build: `DEPLOY OK: X2_offline.exe is 25,828,864 B, dated 2026-10-24 05:28:41, md5 d3e9ef527f6885c8b54ef80628440ad3`.
 
+### T6 - Review (2026-10-24, Opus 5.5): PASS, 1 fix
+
+T6's finding holds: no Aisha transcendence code was left unported. One transcription fix, under `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND`.
+
+- **Fix: `June_GetSkillLevel` tests `== 1`.** June's `31fceab0 @31fceaef` is `cmp [unit + 0x3c], 1`, but March's copy used `June_UnitFlag3c` (`!= 0`). The new line is
+  `1 != m_iUnitClassTran`; the old test stays in `#else`. It feeds the Dark Deal / Open Mind DW init (`32cecd70` calls it for 22415 / 22416) and the 22416 attack result.
+  Equal for the 0 / 1 save, so nothing changes in play. `X2DamageManager.cpp:5130` already had `1 !=` (T5).
+- **Readers.** These match March's copies, read from the raw disassembly where Ghidra has no function:
+  - `31fcac90` (`June_SetSkillBuffFactors`) and `31fcad70` / `31ff1e80` test `!= 0`.
+  - `32cddcc0` returns at `32cddeb6` for a transcended unit, then on `31fd66b0` (the effect-set test).
+  - `31fdd490` names `AVSI_AEM/AVP/ADW_HYPER_MODE` for 0x68 / 0x69 / 0x71.
+  - Not fixed, no effect: `31fcac90` asks the level with `bBasic` 1 where March passes `false`. That argument only matters for guild skills (`32890620`).
+- **No missed reader.** T0's `+0x867c -> +0x3c` sweep lists no other Aisha function. A new sweep of June's `.text` for 22412-22417, 22041-22046, 22068-22070,
+  22224-22226 and 22217 as immediates finds only ported Aisha functions:
+  - `32cc26f0` / `32cc2740` / `32cc2790`, `32ccf4e0`, `32ccf9f0`, `32ce1cc0`, `32ce9f90`, `32cea0c0`, `32cecd70`, `32cede00`, `32cdfb70`, `32cc99d0`.
+  - Noise: string id 22412 in three login-dialog functions (`3249e3c0` / `324a5370` / `325477e0`, `GET_STRING` 31c30d30), xorstring bytes in `3237aa40`, stack offsets near
+    `31e42fd1`, and the Lua enum table `31d95080`.
+- **`June_SetEquippedSkillFuncHead`.** In `32cede00`, the `31fdbcc0` memo id registers `AVSI_A_AVP_SUMMON_BAT_HEAVY` only when its base id is 0x56c9 (22217), else jumps
+  past the switch: no state for another memo-turned skill. March matches. `31fdbcc0` (types 19 / 20, value `[upgraded ? 1 : 0]`) matches `GetJuneTranscendenceMemoSkillID`.
+  All twelve hyper-class actives have one `case` each.
+- **Play-test values.** The 07:26 log has unit 52 with `open mind VP 1 scope 600.000 mp 0.800 cool 0.800, dark deal 1`. That is June's 22414 row
+  (`SA_SCOPE_ABS` 600, `SA_MP_CONSUME_REL` 0.8, `SA_COOLTIME_1` 0.8). T5 logged 22415 as 0.5 / 0.5 (`SA_EFFECTIVE_RATE` / `SA_MP_RETAKE_ABS`). The `registered`, memo and
+  cut-in lines were in T6's own run, since overwritten; the code paths behind them are confirmed above.
+- **Temporary lines.** Neither `ARME cast lookup` nor `ARME info text` is in the tree.
+- Hygiene: `flagcheck --range 819c96a6^..819c96a6`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII
+  inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  The fix: `flagcheck --worktree --files X2Lib/X2GUArme_VioletMage.cpp`: 1 PASS (+6), 0 deleted, RESULT PASS.
+- `DEPLOY OK: X2_offline.exe is 25,837,568 B, dated 2026-10-24 07:48:35, md5 6151839baa1624e2b7621a023f60e447`.
+- No June branch outside the subject; nothing routed. Open questions: none.
+
 ## Phase T6b - The transcendence slot buffs
 
 **Run with:** Opus 5.5 high (RE of the UI guide-particle table first). Kickoff `kickoffs/june-transcend/T6b.md`. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF`. Added 2026-10-24 (user).

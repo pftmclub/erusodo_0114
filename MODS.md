@@ -5045,6 +5045,8 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Flag** (`Always.h`; needs `JUNE_CHAR_ARME_PASSIVE` and `JUNE_TRANSCEND_ENGINE`). Log `[JUNE_TRANSCEND] ARME`.
 - **What changed:** one log line per passive init in `X2GUArme_VioletMage.cpp` (levels and values of 22412-22417, the hyper-mode table name). No game number changes, so there is no
   March-vs-June damage row. Aisha's transcended pieces were already June's: readers (T1), states and passives (CH1-CH4), memo 22217 (CH1k), TC slots (T4), awakening (T5).
+- **Review fix (2026-10-24):** `June_GetSkillLevel` counts a hyper-class skill only when the unit's flag is exactly 1 (June `31fceab0`); the old `!= 0` test is in `#else`.
+  Equal for a 0 / 1 save.
 - **Turn off:** comment out the define in `Always.h` and rebuild.
 
 ### June transcendence T6b: the transcendence-slot glow (flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF`, 2026-10-24)

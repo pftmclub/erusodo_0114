@@ -29682,8 +29682,14 @@ int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
 		return 1;
 
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
+	// June 31fceab0 @31fceaef tests == 1, unlike the other readers' != 0
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
+		return 0;
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
 		return 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 
 	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
 }
