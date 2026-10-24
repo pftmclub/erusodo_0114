@@ -924,8 +924,8 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 | B1 | **done** 2026-10-24 (koms copied, dialog and stubs play-tested with B2) (stage-june 26 files, Enum 210-214, 6 STUB cases; DEPLOY OK) | Sonnet 5.5 / high | B0 | data034 / datai014 Lua, 9 koms of textures, `Enum.lua` (core list), `X2StateMenu.{h,cpp}`, `Always.h` | `B1.md` |
 | B2 | **done** 2026-10-24 (play-tested OK: layout, badges, tooltips; logs clean; flag `_LAYOUT`, commit `886efc91`) | Sonnet 5.5 / high | B1 | `X2StateMenu.cpp` | `B2.md` |
 | B3 | **done** 2026-10-24 (rest-gauge fix `a1536b18`; B4 was started on it) (EXP + stamina bars, flag `_GAUGES`; offline spirit is pinned full so stamina reads 100.0%; DEPLOY OK) | Sonnet 5.5 / high | B2 | `X2StateMenu.cpp` | `B3.md` |
-| B4 | **built + deployed 2026-10-24; waits for the user: play-test** (Cash / System / Event bodies, Guild gate + STUB, Warp unchanged, Cash msg swap stand-in; flag `_BUTTONS`; DEPLOY OK md5 ccad9689) | Sonnet 5.5 / high | B3 | `X2StateMenu.{h,cpp}`, `Always.h` | `B4.md` |
-| B4 review | blocked (waits for the B4 play-test; kickoff written; covers B1-B4) | Opus 5.5 / high | B4 | - | `B4-review.md` |
+| B4 | **done** 2026-10-24 (play-tested OK; commit `3427a2f0`) (Cash / System / Event bodies, Guild gate + STUB, Warp unchanged, Cash msg swap stand-in; flag `_BUTTONS`; DEPLOY OK md5 ccad9689) | Sonnet 5.5 / high | B3 | `X2StateMenu.{h,cpp}`, `Always.h` | `B4.md` |
+| B4 review | ready (kickoff written; covers B1-B4) | Opus 5.5 / high | B4 | - | `B4-review.md` |
 | Z | blocked (waits for the review) | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
 
 Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
