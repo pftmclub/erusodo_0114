@@ -23,7 +23,7 @@ Then CH0's Done note. Pull a checklist section by heading only when a row above 
 
 Transcribe every function the class map gives phase `CH1l2` (CommonStateStartFuture / CommonStateStart / CommonFrameMoveFuture / CommonEventProcess / CommonStateEndFuture / CommonStateEnd / CommonRender_Prepare / CreateStepDust) from Ghidra, **whole**, as an inert member of `CX2GUEve` named `June_<March name>` (or `June_<STATE>_<Slot>` where March has no pair), under `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`. The plan's "Transcription rules (CH1a-CH1l)" apply:
 - Inert by design: register nothing, leave `InitState*` and every virtual body alone.
-- A class-range callee (`0x32965dd0`-`0x329cf86f`) owned by a later group gets a declaration with `// June <va>: body in <phase>`; an engine callee is called through its March counterpart (`funcmap.tsv`); an unmapped engine callee is "this needs Opus": stop and say so.
+- A class-range callee (`0x32965dd0`-`0x329cf86f`) owned by a later group is never a bare declaration (it does not link, CH1c review): transcribe it here and move its class-map row to this phase, or, when it is large, move the caller to the callee's phase and amend that kickoff (as CH1c did with `329ac330`); an engine callee is called through its March counterpart (`funcmap.tsv`); an unmapped engine callee is "this needs Opus": stop and say so.
 - June's numbers, order and quirks verbatim (a `JUNE_BUGS.md` row each); `m_fNowStatePowerRate` (7i); June's BFI arguments (7ai, `s3e_bybfi_callers.tsv`); the 7c alpha-tag calls inside these functions (`c10a_alpha_sites.tsv`).
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1l2` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
@@ -33,7 +33,7 @@ Transcribe every function the class map gives phase `CH1l2` (CommonStateStartFut
 - **Functions: 9** (`awk -F'\t' '$6=="CH1l2"' june2017_re/char_eve/ch0_class_map.tsv`; helper 1, override 8).
   June addresses: `32965e20` `32965e30` `32965e50` `32965e70` `329694a0` `32976fb0` `3297a400` `3297c390` `32980f90`.
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31fce710` user (candidate); `320017d0` user (candidate); `3202ed60` user (candidate); `322e65c0` CX2Game::JuneUpdateEveRecoveryUI (June-only CX2Game method, name unsettled) (candidate).
-- `CommonFrameMoveFuture` `32980f90` calls the June-only `322e65c0` (Eve Recovery UI): declare it `// June 322e65c0: body in CH4c`.
+- `CommonFrameMoveFuture` `32980f90` calls the June-only `322e65c0` (Eve Recovery UI): a bare declaration does not link (CH1c review), so leave the call out with `// June 322e65c0: call added in CH4c` where it was (CH4c amended).
 
 ## Amended by the CH1a review (2026-10-26)
 

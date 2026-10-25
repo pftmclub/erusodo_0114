@@ -433,6 +433,19 @@ Build: `DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-26 06:28:09, md
 
 **Open for the review:** the three decisions above; whether the "declare with `body in CHn`" instruction in the CH1j-CH1q kickoffs links (see `CH1c-review.md`). Nothing to play-test: the code is unreferenced. Next: `/x2-phase char-eve CH1c review` (Opus 5.5 high), then CH1d.
 
+### CH1c - Review (2026-10-26)
+
+**PASS, no code fix.** I checked all 17 members against June's raw listings (`charport_adis.py eve --phase CH1c`): each is `mov eax,[ecx]; jmp [eax+slot]`.
+- **Slots**: `0x58c`-`0x5b4` (11 pepper-run) and `0x610`-`0x624` (6 riding) match the funcmap rows, and the Eve vtable `334cf45c` (`ch0_vtable_all.tsv`) holds the base `CX2GUUser` target at every one of them (`in_range` 0). Each member calls the matching `CX2GUUser` function by its March name (`X2GUUser.h:2169-2181`, `:2359-2382`, all `virtual`).
+- **`RidingOffEnd`** is non-virtual in March (`X2GUUser.h:2351`, June slot `0x610`). `X2GuEve.h` declares no member of that name, so the call binds to the base, which is the function Eve's June slot holds (`31fcde30`). Aisha overrides `0x610` (`32cc8ae0`, `June_RidingOffEnd`); Eve does not. Exact.
+- **Decision 1 (PHOENIX / DANCE left out): confirmed.** `31fcbb60` / `31fcbba0` (DANCE_Z / _X): when the animation ends (`+0x2ac`), `StateChange( 0x81 )` (GUSI_END + 124, DANCE_WAIT, `X2GUUser.h:472`), then `CommonEventProcess` (`0x7d4`). `31ff9280` (DANCE_WAIT): `StateChange( 0xd )` when a global manager flag (`+0xbb4`) is clear, then the same tail. March has neither the functions nor state ids for them (`SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS` leaves +118..+124 unassigned). Both groups already have owners (Stage 10, PvP).
+- **Decision 2 (`329ac330` -> CH1k): confirmed.** The listing is `fld 0.1; push 1; fldz` then `call 32997c60`, i.e. `32997c60( 0.0f, 0.1f, true )` with `this` passed through. The CH1k amendment is right.
+- **Decision 3 (JUNE_BUGS 422): accepted** as Eve's twin of row 379.
+- **Link question: a bare declaration does not link.** A two-file VS2010 test (`cl /O2`, `link /OPT:REF`) whose compiled member `Inert()` calls a declared-only `Later()` and is never called fails with `LNK2019` / `LNK1120` without `/Gy`, with `/Gy`, and through a static `.lib`. So every member of `X2GuEve.obj` needs its callees' bodies. Kickoffs amended: line 26 of CH1d-CH1l4 (a later-phase class callee is transcribed here, or the caller moves to its phase; never a bare declaration); CH1k / CH1l2 leave out the calls to the June-only 7ah statics `322e65c0` / `322dee90` with a `// June <va>: call added in CH4c` marker; CH4c (new amendment) ports both statics and adds the three calls. CH1m-CH1q and CH2+ kickoffs carry no "body in" instruction.
+- **Hygiene** (`--range 798d87b4^..798d87b4`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+
+No build (no code change). CH1d's kickoff still matches (45 class-map rows; depends on this review). Next: `/x2-phase char-eve CH1d` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

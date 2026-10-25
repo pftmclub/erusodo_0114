@@ -29,3 +29,7 @@ Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INI
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §5 L179-195 (per-character parser census); §7ai L806-819 (BFI call arguments, 3 s skill-name string).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate).
 - **Code Recovery:** state `ENSI_EVE_RECOVERY` (id 238; Start `329b57a0`, which reaches `329b4860`); the `INIT_COMPONENT` members `329c47e0` fills (`+0x9c68..+0x9c74`, see CH1p's amendment). 7ah statics, 7aj icon. **7n is CH2c's, not here:** writer `3297d730` and reader `329a67b0` are both Electra functions.
+
+## Amended by the CH1c review (2026-10-26)
+
+- **Port the 7ah statics `322e65c0` / `322dee90` here and add their calls.** CH1k (`329aece0`, `329c3da0`) and CH1l2 (`CommonFrameMoveFuture` `32980f90`) leave each call out and mark the spot `// June <va>: call added in CH4c`, because a declaration without a body does not link (VS2010 LNK2019 even when the caller is never called). `grep -an "call added in CH4c" X2Lib/X2GuEve.cpp` lists the sites.
