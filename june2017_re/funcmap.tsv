@@ -4893,3 +4893,23 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 329cc150	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5d8 = JuneBoundingLandCrashEventProcess 31fd0260 (Eve does not override it)
 329cc1e0	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_StartFuture	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5dc = JuneBoundingUpStateStartFuture 31fc9d20 (Eve does not override it)
 329cc160	CX2GUEve::June_ENSI_DAMAGE_GROGGY_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5e8 = CX2GUUser::DAMAGE_GROGGY_EventProcess 31fcbbe0 (Eve does not override it)
+329cc180	CX2GUEve::June_ENSI_PEPPER_RUN_READY_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x58c = CX2GUUser::PEPPER_RUN_READY_EventProcess 31fcb930 (Eve does not override it)
+329cbff0	CX2GUEve::June_ENSI_PEPPER_RUN_FrameMoveFuture	PORTED	Char Eve CH1c: inert; thunk to vslot 0x590 = CX2GUUser::PEPPER_RUN_FrameMoveFuture 31fd1c90; also PHOENIX_RUN FrameMoveFuture (Eve does not override it)
+329cc070	CX2GUEve::June_ENSI_PEPPER_RUN_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x594 = CX2GUUser::PEPPER_RUN_EventProcess 31ff9010 (Eve does not override it)
+329cc100	CX2GUEve::June_ENSI_PEPPER_RUN_END_FrameMove	PORTED	Char Eve CH1c: inert; thunk to vslot 0x598 = CX2GUUser::PEPPER_RUN_END_FrameMove 31fd98b0; also PHOENIX_RUN_END (Eve does not override it)
+329cc1a0	CX2GUEve::June_ENSI_PEPPER_RUN_END_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x59c = CX2GUUser::PEPPER_RUN_END_EventProcess 31fcb990; also PHOENIX_RUN_END (Eve does not override it)
+329cc010	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_StartFuture	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5a0 = CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture 31fd1d20 (Eve does not override it)
+329cc090	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_FrameMoveFuture	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5a4 = CX2GUUser::PEPPER_RUN_JUMP_UP_FrameMoveFuture 31fd1d80 (Eve does not override it)
+329cc120	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5a8 = CX2GUUser::PEPPER_RUN_JUMP_UP_EventProcess 31fcba00 (Eve does not override it)
+329cc1b0	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_StartFuture	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5ac = CX2GUUser::PEPPER_RUN_JUMP_DOWN_StateStartFuture 31fc7d80 (Eve does not override it)
+329cc020	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_FrameMoveFuture	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5b0 = CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture 31fd1e60 (Eve does not override it)
+329cc0a0	CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x5b4 = CX2GUUser::PEPPER_RUN_JUMP_DOWN_EventProcess 31fcba80 (Eve does not override it)
+329cc060	CX2GUEve::June_ENSI_RIDING_OFF_End	PORTED	Char Eve CH1c: inert; thunk to vslot 0x610 = CX2GUUser::RidingOffEnd 31fcde30 (Eve does not override it)
+329cc0f0	CX2GUEve::June_ENSI_RIDING_WAIT_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x614 = CX2GUUser::RidingWaitEventProcess 32030870 (Eve does not override it)
+329cc190	CX2GUEve::June_ENSI_RIDING_WALK_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x618 = CX2GUUser::RidingWalkEventProcess 32030b60 (Eve does not override it)
+329cc000	CX2GUEve::June_ENSI_RIDING_JUMP_LANDING_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x61c = CX2GUUser::RidingJumpLandingEventProcess 32031010 (Eve does not override it)
+329cc080	CX2GUEve::June_ENSI_RIDING_DASH_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x620 = CX2GUUser::RidingDashEventProcess 320312f0 (Eve does not override it)
+329cc110	CX2GUEve::June_ENSI_RIDING_DASH_END_EventProcess	PORTED	Char Eve CH1c: inert; thunk to vslot 0x624 = CX2GUUser::RidingDashEndEventProcess 32031590 (Eve does not override it)
+329cc030 / 329cc130 / 329cc1c0	Eve CH1c	not ported here	Char Eve CH1c: AMUSEMENT_ITEM_PHOENIX_RUN EventProcess thunks (vslots 0x5c0 / 0x5b8 / 0x5bc: 31fcbb10 31ff9160 31fc7de0): PvP amusement, no PvP offline
+329cc040 / 329cc140 / 329cc1d0	Eve CH1c	not ported here	Char Eve CH1c: DANCE_WAIT / DANCE_Z / DANCE_X EventProcess thunks (vslots 0x5d0 / 0x5c8 / 0x5cc: 31ff9280 31fcbb60 31fcbba0): June CX2GUUser callbacks March lacks; Stage 10 owns the dance states
+329ac330	Eve CH1c	not ported here	Char Eve CH1c: ENSI_RIDING_HYPER_MODE FrameMove: CommonHyperModeFrameMove( 0, 0.1, true ) = 32997c60 (432-line decompile, unmapped callees 31febf50 32290350 31fae370): moved to CH1k with its callee

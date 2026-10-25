@@ -714,7 +714,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329aa730	state-fn	ENSI_A_EBS_KUGELBLITZ.FrameMove	CX2GUEve::ENSI_A_EBS_Kugelblitz_FrameMove	pair	CH2c	
 329aafc0	state-fn	ENSI_SA_EEL_LINEAR_DIVIDER.FrameMove	CX2GUEve::ENSI_SA_EEL_LINEAR_DIVIDER_FrameMove	pair	CH3c	
 329abb90	state-fn	ENSI_HA_EBS_PSYCHIC_ARTILLERY.FrameMove	CX2GUEve::ENSI_HA_EBS_PSYCHIC_ARTILLERY_FrameMove	pair	CH3d	
-329ac330	state-fn	ENSI_RIDING_HYPER_MODE.FrameMove	CX2GUEve::RidingHyperModeFrameMove	pair	CH1c	
+329ac330	state-fn	ENSI_RIDING_HYPER_MODE.FrameMove	CX2GUEve::RidingHyperModeFrameMove	pair	CH1k	moved from CH1c (CH1c: callee 32997c60 is CH1k)
 329ac350	helper	-	-	-	CH1q	Nasod Core: ClearManeuverCore (same; ch0_nasod_core.tsv)
 329ac4a0	helper	-	-	-	CH1q	Nasod Core: AttackManeuverCore (differs; ch0_nasod_core.tsv)
 329acaa0	helper	-	-	-	CH1q	Nasod Core: ChangeManeuverCoreState (same; ch0_nasod_core.tsv)
@@ -782,8 +782,8 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cc000	state-fn	ENSI_RIDING_JUMP_LANDING.EventProcess	CX2GUUser::RidingJumpLandingEventProcess	pair	CH1c	
 329cc010	state-fn	ENSI_PEPPER_RUN_JUMP_UP.StartFuture ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.StartFuture	CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture	pair	CH1c	
 329cc020	state-fn	ENSI_PEPPER_RUN_JUMP_DOWN.FrameMoveFuture ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.FrameMoveFuture	CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture	pair	CH1c	
-329cc030	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	CH1c	
-329cc040	state-fn	ENSI_DANCE_WAIT.EventProcess	-	june-only	CH1c	
+329cc030	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	PvP	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
+329cc040	state-fn	ENSI_DANCE_WAIT.EventProcess	-	june-only	Stage10	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
 329cc050	state-fn	ENSI_DAMAGE_BOUNDING_UP.Start	-	june-only	CH1b	
 329cc060	state-fn	ENSI_RIDING_OFF.End	CX2GUUser::RidingOffEnd	pair	CH1c	
 329cc070	state-fn	ENSI_PEPPER_RUN.EventProcess	CX2GUUser::PEPPER_RUN_EventProcess	pair	CH1c	
@@ -798,8 +798,8 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cc100	state-fn	ENSI_PEPPER_RUN_END.FrameMove ENSI_AMUSEMENT_ITEM_PHOENIX_RUN_END.FrameMove	CX2GUUser::PEPPER_RUN_END_FrameMove	pair	CH1c	
 329cc110	state-fn	ENSI_RIDING_DASH_END.EventProcess	CX2GUUser::RidingDashEndEventProcess	pair	CH1c	
 329cc120	state-fn	ENSI_PEPPER_RUN_JUMP_UP.EventProcess	CX2GUUser::PEPPER_RUN_JUMP_UP_EventProcess	pair	CH1c	
-329cc130	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	CH1c	
-329cc140	state-fn	ENSI_DANCE_Z.EventProcess	-	june-only	CH1c	
+329cc130	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	PvP	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
+329cc140	state-fn	ENSI_DANCE_Z.EventProcess	-	june-only	Stage10	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
 329cc150	state-fn	ENSI_DAMAGE_BOUNDING_LANDCRASH.EventProcess	-	june-only	CH1b	
 329cc160	state-fn	ENSI_DAMAGE_GROGGY.EventProcess	CX2GUUser::DAMAGE_GROGGY_EventProcess	pair	CH1b	
 329cc170	state-fn	ENSI_THROW_ITEM.EventProcess	CX2GUUser::COMMON_RELATIONSHIP_SKILL_EventProcess	pair	CH1a	
@@ -807,8 +807,8 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cc190	state-fn	ENSI_RIDING_WALK.EventProcess	CX2GUUser::RidingWalkEventProcess	pair	CH1c	
 329cc1a0	state-fn	ENSI_PEPPER_RUN_END.EventProcess ENSI_AMUSEMENT_ITEM_PHOENIX_RUN_END.EventProcess	CX2GUUser::PEPPER_RUN_END_EventProcess	pair	CH1c	
 329cc1b0	state-fn	ENSI_PEPPER_RUN_JUMP_DOWN.StartFuture ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.StartFuture	CX2GUUser::PEPPER_RUN_JUMP_DOWN_StateStartFuture	pair	CH1c	
-329cc1c0	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	CH1c	
-329cc1d0	state-fn	ENSI_DANCE_X.EventProcess	-	june-only	CH1c	
+329cc1c0	state-fn	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN.EventProcess	-	june-only	PvP	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
+329cc1d0	state-fn	ENSI_DANCE_X.EventProcess	-	june-only	Stage10	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
 329cc1e0	state-fn	ENSI_DAMAGE_BOUNDING_UP.StartFuture	-	june-only	CH1b	
 329cc1f0	state-fn	ENSI_DASH.StartFuture ENSI_RIDING_DASH.StartFuture	CX2GUEve::DashStartFuture / CX2GUUser::DashStartFuture	pair	CH1a	
 329cc200	helper	called by 329aea60	-	-	CH1l4	

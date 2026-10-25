@@ -36897,4 +36897,100 @@ void CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_End()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1c ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's pepper-run and riding state thunks ( class map phase CH1c ); nothing calls them until CH1 wires them in.
+// Each June function is a bare jump through the vtable; the call below is that virtual call.
+
+// June 329cc180 / 329cbff0 / 329cc070 / 329cc100 / 329cc1a0: thunks to the pepper-run virtuals ( vslots 0x58c .. 0x59c )
+void CX2GUEve::June_ENSI_PEPPER_RUN_READY_EventProcess()
+{
+	PEPPER_RUN_READY_EventProcess();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_FrameMoveFuture()
+{
+	PEPPER_RUN_FrameMoveFuture();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_EventProcess()
+{
+	PEPPER_RUN_EventProcess();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_END_FrameMove()
+{
+	PEPPER_RUN_END_FrameMove();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_END_EventProcess()
+{
+	PEPPER_RUN_END_EventProcess();
+}
+
+// June 329cc010 / 329cc090 / 329cc120 / 329cc1b0 / 329cc020 / 329cc0a0: thunks to the pepper-run jump virtuals ( vslots 0x5a0 .. 0x5b4 )
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_StartFuture()
+{
+	PEPPER_RUN_JUMP_UP_StateStartFuture();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_FrameMoveFuture()
+{
+	PEPPER_RUN_JUMP_UP_FrameMoveFuture();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_UP_EventProcess()
+{
+	PEPPER_RUN_JUMP_UP_EventProcess();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_StartFuture()
+{
+	PEPPER_RUN_JUMP_DOWN_StateStartFuture();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_FrameMoveFuture()
+{
+	PEPPER_RUN_JUMP_DOWN_FrameMoveFuture();
+}
+
+void CX2GUEve::June_ENSI_PEPPER_RUN_JUMP_DOWN_EventProcess()
+{
+	PEPPER_RUN_JUMP_DOWN_EventProcess();
+}
+
+// June 329cc060 / 329cc0f0 / 329cc190 / 329cc000 / 329cc080 / 329cc110: thunks to the riding virtuals ( vslots 0x610 .. 0x624 )
+void CX2GUEve::June_ENSI_RIDING_OFF_End()
+{
+	RidingOffEnd();
+}
+
+void CX2GUEve::June_ENSI_RIDING_WAIT_EventProcess()
+{
+	RidingWaitEventProcess();
+}
+
+void CX2GUEve::June_ENSI_RIDING_WALK_EventProcess()
+{
+	RidingWalkEventProcess();
+}
+
+void CX2GUEve::June_ENSI_RIDING_JUMP_LANDING_EventProcess()
+{
+	RidingJumpLandingEventProcess();
+}
+
+void CX2GUEve::June_ENSI_RIDING_DASH_EventProcess()
+{
+	RidingDashEventProcess();
+}
+
+void CX2GUEve::June_ENSI_RIDING_DASH_END_EventProcess()
+{
+	RidingDashEndEventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 

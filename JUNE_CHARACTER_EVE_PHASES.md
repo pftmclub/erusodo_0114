@@ -408,6 +408,31 @@ Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1b-
 
 No build (no code change). CH1c kickoff amended: `ENSI_RIDING_DIE` reuses CH1b's Die-front members. Next: `/x2-phase char-eve CH1c` (Sonnet 5.5 high).
 
+### CH1c - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a third block at the end of `X2GuEve.cpp`, declarations at the end of the class). **17 of the 24 class-map rows** are new `CX2GUEve::June_ENSI_*` members; each June function is a bare `mov eax,[ecx]; jmp [eax+slot]`, so each member makes the matching `CX2GUUser` virtual call (Eve overrides none of these slots, `ch0_vtable_all.tsv`). Nothing registers or calls them. 17 funcmap rows `Char Eve CH1c` PORTED, 3 more "not ported here".
+
+| June | Member (`June_ENSI_` prefix) | vslot -> virtual |
+|---|---|---|
+| `329cc180` `329cbff0` `329cc070` `329cc100` `329cc1a0` | PEPPER_RUN_READY_EventProcess / PEPPER_RUN_FrameMoveFuture / PEPPER_RUN_EventProcess / PEPPER_RUN_END_FrameMove / _EventProcess | `0x58c`-`0x59c` |
+| `329cc010` `329cc090` `329cc120` | PEPPER_RUN_JUMP_UP_StartFuture / _FrameMoveFuture / _EventProcess | `0x5a0`-`0x5a8` |
+| `329cc1b0` `329cc020` `329cc0a0` | PEPPER_RUN_JUMP_DOWN_StartFuture / _FrameMoveFuture / _EventProcess | `0x5ac`-`0x5b4` |
+| `329cc060` `329cc0f0` `329cc190` `329cc000` `329cc080` `329cc110` | RIDING_OFF_End, RIDING_WAIT / WALK / JUMP_LANDING / DASH / DASH_END_EventProcess | `0x610`-`0x624` |
+
+The PHOENIX_RUN states reuse the PEPPER_RUN thunks (same addresses), so one member serves both.
+
+**Seven class-map rows are not CH1c's** (rows re-phased in `ch0_class_map.tsv`, scope rule):
+- **`329ac330`** (`ENSI_RIDING_HYPER_MODE` FrameMove) is `32997c60( 0.0f, 0.1f, true )`, June's `CommonHyperModeFrameMove`: 432 decompiled lines with the awakening effect-set stand-ins and unmapped callees `31febf50` / `32290350` / `31fae370`. A bare declaration would not link (US_SERVICE has no function-level linking), so the row moves to **CH1k** with its callee; the CH1k kickoff is amended. CH0's "called by" column for `32997c60` missed this caller.
+- **`329cc030` `329cc130` `329cc1c0`** (AMUSEMENT_ITEM_PHOENIX_RUN EventProcess; targets `31fcbb10` `31ff9160` `31fc7de0`): PvP amusement mode, no PvP offline. **`329cc040` `329cc140` `329cc1d0`** (DANCE_WAIT / Z / X EventProcess; `31ff9280` `31fcbb60` `31fcbba0`): June `CX2GUUser` callbacks March lacks, the dance states are `JUNE_PORT_BACKLOG_ORDER.md` Stage 10 (which already names these three thunks). Both groups' targets have no March counterpart, and the pilot left them out the same way. The registration (CH1m) leaves out the seven states `ENSI_AMUSEMENT_ITEM_PHOENIX_RUN*` / `ENSI_DANCE_*`. Drift: nothing new, both have owners.
+- `ENSI_RIDING_DIE` stays CH1b's (kickoff amendment): nothing here.
+
+**JUNE_BUGS 422:** the riding back-damage state has no script table and `RIDING_DAMAGE_FRONT` is defined twice (CH0), Eve's twin of row 379.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-26 06:28:09, md5 5ebc1fe0e26f980a6e526ca4c10c4a9c, equal to X2/US_SERVICE/x2.exe (2026-10-26 06:28:02); built at main 4d5a0a14 + 2 uncommitted code file(s).`
+
+**Open for the review:** the three decisions above; whether the "declare with `body in CHn`" instruction in the CH1j-CH1q kickoffs links (see `CH1c-review.md`). Nothing to play-test: the code is unreferenced. Next: `/x2-phase char-eve CH1c review` (Opus 5.5 high), then CH1d.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

@@ -2738,5 +2738,24 @@ protected:
 	void June_ENSI_STANDUP_ATTACK_BACK_FrameMove();		/// June 32966260
 	void June_ENSI_STANDUP_ATTACK_BACK_EventProcess();	/// June 32969d70
 	void June_ENSI_STANDUP_ATTACK_BACK_End();			/// June 32966270
+
+	/// Phase CH1c: pepper-run and riding thunks ( each makes the CX2GUUser virtual call at its vslot )
+	void June_ENSI_PEPPER_RUN_READY_EventProcess();		/// June 329cc180 ( thunk, vslot 0x58c )
+	void June_ENSI_PEPPER_RUN_FrameMoveFuture();		/// June 329cbff0 ( thunk, vslot 0x590 )
+	void June_ENSI_PEPPER_RUN_EventProcess();			/// June 329cc070 ( thunk, vslot 0x594 )
+	void June_ENSI_PEPPER_RUN_END_FrameMove();			/// June 329cc100 ( thunk, vslot 0x598 )
+	void June_ENSI_PEPPER_RUN_END_EventProcess();		/// June 329cc1a0 ( thunk, vslot 0x59c )
+	void June_ENSI_PEPPER_RUN_JUMP_UP_StartFuture();	/// June 329cc010 ( thunk, vslot 0x5a0 )
+	void June_ENSI_PEPPER_RUN_JUMP_UP_FrameMoveFuture();	/// June 329cc090 ( thunk, vslot 0x5a4 )
+	void June_ENSI_PEPPER_RUN_JUMP_UP_EventProcess();	/// June 329cc120 ( thunk, vslot 0x5a8 )
+	void June_ENSI_PEPPER_RUN_JUMP_DOWN_StartFuture();	/// June 329cc1b0 ( thunk, vslot 0x5ac )
+	void June_ENSI_PEPPER_RUN_JUMP_DOWN_FrameMoveFuture();	/// June 329cc020 ( thunk, vslot 0x5b0 )
+	void June_ENSI_PEPPER_RUN_JUMP_DOWN_EventProcess();	/// June 329cc0a0 ( thunk, vslot 0x5b4 )
+	void June_ENSI_RIDING_OFF_End();					/// June 329cc060 ( thunk, vslot 0x610 )
+	void June_ENSI_RIDING_WAIT_EventProcess();			/// June 329cc0f0 ( thunk, vslot 0x614 )
+	void June_ENSI_RIDING_WALK_EventProcess();			/// June 329cc190 ( thunk, vslot 0x618 )
+	void June_ENSI_RIDING_JUMP_LANDING_EventProcess();	/// June 329cc000 ( thunk, vslot 0x61c )
+	void June_ENSI_RIDING_DASH_EventProcess();			/// June 329cc080 ( thunk, vslot 0x620 )
+	void June_ENSI_RIDING_DASH_END_EventProcess();		/// June 329cc110 ( thunk, vslot 0x624 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };
