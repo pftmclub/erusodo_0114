@@ -34,3 +34,7 @@ Transcribe every function the class map gives phase `CH1l2` (CommonStateStartFut
   June addresses: `32965e20` `32965e30` `32965e50` `32965e70` `329694a0` `32976fb0` `3297a400` `3297c390` `32980f90`.
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31fce710` user (candidate); `320017d0` user (candidate); `3202ed60` user (candidate); `322e65c0` CX2Game::JuneUpdateEveRecoveryUI (June-only CX2Game method, name unsettled) (candidate).
 - `CommonFrameMoveFuture` `32980f90` calls the June-only `322e65c0` (Eve Recovery UI): declare it `// June 322e65c0: body in CH4c`.
+
+## Amended by the CH1a review (2026-10-26)
+
+- `3297a400` (`June_CommonStateEndFuture`) is where June clears `m_bDownForce` (`+0x8bf8`) after its base call, unless the now-state index (state-data pointer `+0x7cbc` minus list base `+0x7cec`, / 100; see funcmap `3208e410` / `31fd8140`) is 21 (`USI_DASH_JUMP`). It replaces the clears March made in FLY_UP / JUMP_DASH StartFuture and on the landing branches (JUNE_BUGS 421, withdrawn). Port it whole; the CH1a movement members depend on it.

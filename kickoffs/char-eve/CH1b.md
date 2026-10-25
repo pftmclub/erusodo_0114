@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-eve CH1b` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH1a review. One at a time with the other CH1 groups: they all edit `X2GuEve.*` |
+| Depends on | CH1a2 (after the CH1a review). One at a time with the other CH1 groups: they all edit `X2GuEve.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (defined from CH1a on; what it guards stays unreferenced until CH1m-CH1 wire it) |
 | Log tag | none (inert code, no play-test) |
 | Review | `kickoffs/char-eve/CH1b-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -34,4 +34,11 @@ Transcribe every function the class map gives phase `CH1b` (damage (the 21 `ENSI
   June addresses: `32966110` `32966150` `32966190` `329661d0` `32966210` `32966220` `32966260` `32966270` `329694b0` `32969510` `32969550` `329695b0` `32969660` `329696b0` `32969820` `32969860` `329699d0` `32969af0` `32969b70` `32969bf0` `32969c70` `32969cf0` `32969d70` `3298cfe0` `32997c10` `3299b810` `3299bcd0` `3299d140` `329ae670` `329af800` `329af920` `329af950` `329afa70` `329cc050` `329cc0b0` `329cc0c0` `329cc150` `329cc160` `329cc1e0`.
 - **States: 29** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_DIE_FRONT`, `ENSI_DIE_BACK`, `ENSI_DAMAGE_GROGGY`, `ENSI_DAMAGE_SMALL_FRONT`, `ENSI_DAMAGE_SMALL_BACK`, `ENSI_DAMAGE_BIG_FRONT`, `ENSI_DAMAGE_BIG_BACK`, `ENSI_DAMAGE_DOWN_FRONT`, `ENSI_DAMAGE_DOWN_BACK`, `ENSI_DAMAGE_STANDUP_FRONT`, `ENSI_DAMAGE_STANDUP_BACK`, `ENSI_DAMAGE_BOUNDING_DOWN`, `ENSI_DAMAGE_BOUNDING_LANDCRASH`, `ENSI_DAMAGE_BOUNDING_UP`, `ENSI_DAMAGE_AIR_SMALL`, `ENSI_DAMAGE_AIR_DOWN`, `ENSI_DAMAGE_AIR_DOWN_INVINCIBLE`, `ENSI_DAMAGE_AIR_DOWN_LANDING`, `ENSI_DAMAGE_AIR_FALL`, `ENSI_DAMAGE_AIR_UP`, `ENSI_DAMAGE_AIR_FLY_FRONT`, `ENSI_DAMAGE_AIR_FLY_BACK`, `ENSI_DAMAGE_REVENGE`, `ENSI_STANDUP_ROLLING_FRONT_FRONT`, `ENSI_STANDUP_ROLLING_FRONT_BACK`, `ENSI_STANDUP_ROLLING_BACK_FRONT`, `ENSI_STANDUP_ROLLING_BACK_BACK`, `ENSI_STANDUP_ATTACK_FRONT`, `ENSI_STANDUP_ATTACK_BACK`.
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7ai L806-819 (BFI call arguments, 3 s skill-name string).
+## Amended by the CH1a review (2026-10-26)
+
+- Skill-level reads go through `CX2GUUser::June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue` (CH1a2). Never add an Eve copy.
+- When writing `CH1b-review.md`, add one item: spot-check CH1a2 (the shared bodies match `31fceab0` / `32007b10`, both class copies are retired, and flag-off is today's tree).
+
+## Amended by CH0, continued
+
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `322de5d0` CX2Game::UpdateSkillSlotUI( bool ) (X2Game.cpp:13345) (confirmed); `32783a90` CX2GUNPC::AttachParticle_LUA( bool, char*, char*, D3DXVECTOR3 ) (X2GUNPC.cpp:29395) (confirmed).

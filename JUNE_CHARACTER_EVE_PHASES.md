@@ -260,6 +260,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 | Sub-phase | Run with | Scope |
 |---|---|---|
 | CH1a | Sonnet high, Opus review | Movement and slot-head states: wait, walk, jump, dash, charge MP, throw item, power attack, common buff |
+| CH1a2 | Sonnet high (CH1b review spot-checks) | One `CX2GUUser` home for `31fceab0` / `32007b10`; Aisha's and Eve's copies retired (user, CH1a review) |
 | CH1b | Sonnet high, Opus review | Reactions: damage (21 `ENSI_DAMAGE*` tables), down / stand-up, die, win / lose blocks |
 | CH1c | Sonnet high, Opus review | Riding (27 `ENSI_RIDING*` tables) |
 | CH1d | Sonnet high, Opus review | Nasod ground combos (Z / X chains) |
@@ -321,6 +322,33 @@ declarations at the end of `X2GuEve.h`, bodies at the end of `X2GuEve.cpp`, each
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h KTDXLIB/Always.h`: `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of `X2GuEve.cpp` under the US_SERVICE defines: 0 errors, and the `cl /P` output holds the block (flag live). Build: `DEPLOY OK: X2_offline.exe is 25,857,024 B, dated 2026-10-26 03:38:08, md5 911e793a83973d644378908a70bf0e11, equal to X2/US_SERVICE/x2.exe; built at main 11a8652d + 3 uncommitted code file(s).`
 
 **Open for the review** (named, not guessed): `+0x9c64` is named from its use as a cool time left (CH4c's writer confirms); `+0x96b4` is read as `m_sEGQueensThrone.m_bEnable`; ability type `0x80` is read as `SA_AIR_MOVE_COUNT` (March index 127 + 1); the shared `CX2GUUser` home for `June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue` (the pilot and Eve keep copies); JUNE_BUGS 421 needs a play-test of Down in the air once CH1 is live. Nothing to play-test now: the code is unreferenced. Next: `/x2-phase char-eve CH1a review` (Opus 5.5 high), then CH1b.
+
+### CH1a - Review (2026-10-26)
+
+**PASS, no code fix.** All 44 members were read against June's raw listings (`charport_adis.py eve --phase CH1a`), the six with no Ghidra function and
+`32981910` / `32982a00` in full. Ghidra decompiles of `32976e90`, `32977810` and `32982790` were spot-checked and agree.
+- **Branch structure**: `32977810`'s both-keys turn (oneRight and not right turns right, else oneLeft and right turns left, else no change), with
+  the speed set before `StateChange`. `32977d30`'s down-force goes straight to the power landing; its tail tests `pureDown`, not `oneDown`, and there is no riding test.
+  `3297ae70`'s Queen's Throne test repeats the double-tap test. `32982790` runs its key chain after the airborne and Recovery branches (also after a Recovery
+  `StateChange`). `32981eb0` uses `fStateTime >= 0.5`. All as ported.
+- **Compare directions** (`test ah,1/5/0x41`) and **constants**: all match. The 1.85 / 1.0 / 0.65 doubles are March's `s_f*` statics widened (`X2GuEve.cpp:8-10`);
+  `DASH_END`'s `/ 8.0f` is June's `* 0.125`, and its `+0x220 - +0x2b0` is `GetMaxAnimationTime()`. `EndFuture` calling `CommonStateEnd` (vslot `0x7dc`) in FLY_UP / FLY_DOWN / JUMP_DASH
+  is March's own quirk (`X2GuEve.cpp:7908/7997/8211`). The skip-key list in `32981ba0` is `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS` (`X2GUUser.h:245`) key for key.
+- **Enums**: `ASUT_GROUND` 1 / `ASUT_AIR` 2, `EDS_END` 2, `BDS_RIGHT` 1 / `BDS_LEFT` 2, `UC_EVE_BATTLE_SERAPH` 116 = `0x74`, `0x8727` = `oneSit`.
+- **Members named by use, confirmed from a June writer**: `+0x9c60` / `+0x9c6c` from `329c47e0` (`ADD_AIR_DASH_COUNT`, `CODE_RECOVERY_CONSUME_MP*`). `+0x9c64` is a
+  cool-time countdown in `CommonFrameMoveFuture` `32980f90 @3298106d-3298109f` (if `0 < t`, `t -= elapsed`, clamped at 0). `+0x96b4` is written to 1 in
+  `ENSI_SI3_EG_QUEENS_THRONE.FrameMove` (`3299d3f0 @3299dc10`; March `X2GuEve.cpp:19003`). `+0x99b4` is written in `InitPassiveSkillState` (`3297f290 @3297f437`), March's
+  `m_iPhotonBoosterAdditionalDashJumpCount` (a float).
+- **Ability `0x80` = `SA_AIR_MOVE_COUNT`**: June's `InitPassiveSkillState` reads ability `0x80` into the Photon Booster field (`3297f42d`, `3297f9b6`), the field March fills from
+  `SA_AIR_MOVE_COUNT` (`X2GuEve.cpp:3634`).
+- **JUNE_BUGS 421 withdrawn: not a June bug, a mapping error.** June moved March's per-state clears into Eve's `CommonStateEndFuture` override `3297a400 @3297a408-3297a437`:
+  it clears `m_bDownForce` at the end of every state whose now-state index (state-data pointer `+0x7cbc` minus list base `+0x7cec`, / 100) is not 21 (DASH_JUMP).
+  JUMP_DOWN / JUMP_UP / WAIT have no EndFuture, so they reach it by default, and DASH_JUMP's EndFuture `32977a70` reaches it and is excepted. A landing decides the power landing before the clear runs.
+  **Owner: CH1l2** (its kickoff now says so). Port the clear with that function, or the leak 421 described becomes real in our tree.
+- **Decision (user, 2026-10-26):** the two June `CX2GUUser` helpers get one shared home, new phase **CH1a2** (before CH1b). Both class copies' live branches already agree.
+- Hygiene: `flagcheck.py JUNE_CHAR_EVE_CORE --range 40a43bd5^..40a43bd5`: `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  No rebuild: nothing changed in code. Nothing to play-test. Next: `/x2-phase char-eve CH1a2` (Sonnet 5.5 high), then CH1b.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
