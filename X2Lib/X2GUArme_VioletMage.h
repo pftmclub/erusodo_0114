@@ -1225,9 +1225,13 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_ProcessShadowBodySkill();								/// June 32cc2740
 		void June_ProcessEnergeticBodySkill();							/// June 32cc2790
 		bool June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		int June_GetSkillLevel( const int iSkillID_ ) const;			/// June 31fceab0 ( CX2GUUser )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		const CX2SkillTree::SkillTemplet* June_GetLearnedSkillTemplet( const int iSkillID_ ) const;	/// June 31fcad70 ( CX2GUUser )
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		bool June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 3202d140 ( CX2GUUser )
 		bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
 		void June_UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )

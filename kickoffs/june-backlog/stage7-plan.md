@@ -42,5 +42,6 @@ Plan one character as `JUNE_CHARACTER_<NAME>_PHASES.md` in the Aisha plan's shap
 - include CH-N only when the character has a templet-backed June-only class;
 - put the character's transcendence rows in a "waits for Stage 6" list, not in a phase;
 - the character's checklist section-7 rows go to the phase that owns them, with the `(<Name>: CHn)` mark made by that phase.
+- skill-level reads in the character's CH1 kickoffs call `CX2GUUser::June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue` (Eve CH1a2, flag `SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS`) and never copy them into the class.
 
 Output: the phase doc, `kickoffs/char-<name>/`, a STATUS block. No code, no build. Design questions go to the user at the end, each with a recommendation.

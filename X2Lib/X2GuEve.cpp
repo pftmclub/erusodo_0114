@@ -34828,6 +34828,7 @@ namespace
 	const int JUNE_CH1A_P_EBS_OPEN_MIND = 25419;
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
 int CX2GUEve::June_GetSkillLevel( const int iSkillID_ ) const
 {
@@ -34862,6 +34863,7 @@ float CX2GUEve::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABIL
 
 	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
 }
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 
 // June 32976e40: Code Recovery is ready when its cool time is spent and the MP covers the cost
 bool CX2GUEve::June_CanEveRecovery()

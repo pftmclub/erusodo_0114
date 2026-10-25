@@ -2637,8 +2637,10 @@ protected:
 	float		m_fJuneCodeRecoveryCoolLeft;			/// June +0x9c64 ( Code Recovery cool time left )
 	float		m_fJuneCodeRecoveryConsumeMp;			/// June +0x9c6c ( CODE_RECOVERY_CONSUME_MP )
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	int			June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
 	float		June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	bool		June_CanEveRecovery();					/// June 32976e40
 	int			June_GetMaxDashJumpCount();				/// June 32976e90
 	int			June_GetMaxDashJumpUpCount();			/// June 32976f00

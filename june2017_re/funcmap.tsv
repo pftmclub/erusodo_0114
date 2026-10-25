@@ -4853,3 +4853,5 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 329cc0d0	CX2GUEve::June_ENSI_THROW_ITEM_FrameMove	PORTED	Char Eve CH1a: inert ( not wired until CH1 ); ENSI_THROW_ITEM FrameMove: no Ghidra function; a thunk to COMMON_RELATIONSHIP_SKILL_FrameMove ( vslot 0x5f4 )
 329cc170	CX2GUEve::June_ENSI_THROW_ITEM_EventProcess	PORTED	Char Eve CH1a: inert ( not wired until CH1 ); ENSI_THROW_ITEM EventProcess: no Ghidra function; a thunk to COMMON_RELATIONSHIP_SKILL_EventProcess ( vslot 0x5f8 )
 329cc1f0	CX2GUEve::June_ENSI_DASH_StartFuture	PORTED	Char Eve CH1a: inert ( not wired until CH1 ); ENSI_DASH / ENSI_RIDING_DASH StartFuture: a thunk to DashStartFuture ( vslot 0x5fc, June's override 32965f80 is CH1k )
+31fceab0	CX2GUUser::June_GetSkillLevel	PORTED	Char Eve CH1a2: the one shared home under SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS; Aisha's and Eve's private copies compiled out; later character ports call it, never copy it
+32007b10	CX2GUUser::June_GetLearnedSkillAbilityValue	PORTED	Char Eve CH1a2: the one shared home under SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS; Aisha's and Eve's private copies compiled out

@@ -29675,6 +29675,7 @@ bool CX2GUArme_VioletMage::June_SetSkillBuffFactors( const int iSkillID_, const 
 	return true;
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
 int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
 {
@@ -29693,6 +29694,7 @@ int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
 
 	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
 }
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 
 // June 32cc26f0 / 32cc2740 / 32cc2790: Shining / Shadow / Energetic Body: the passive's factor, else the skill's factor 0
 void CX2GUArme_VioletMage::June_ProcessShiningBodySkill()
@@ -30415,6 +30417,7 @@ const CX2SkillTree::SkillTemplet* CX2GUArme_VioletMage::June_GetLearnedSkillTemp
 	return pSkillTemplet;
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
 float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
 {
@@ -30431,6 +30434,7 @@ float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree
 
 	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
 }
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 
 // June 3202d140: skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
 bool CX2GUArme_VioletMage::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )

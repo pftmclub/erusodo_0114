@@ -10119,3 +10119,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE needs SERV_IRUHADEV_JUNE_INPUT_SIT_KEY and SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-26
+// Description: June character port ( Eve ) Phase CH1a2 - CX2GUUser::June_GetSkillLevel / June_GetLearnedSkillAbilityValue ( June 31fceab0 / 32007b10 ),
+//              the one home for the pair; Aisha's and Eve's private copies are compiled out. Needs JUNE_TRANSCEND_UNIT ( the hyper-class test reads m_iUnitClassTran ).
+//              Revert: undefine the flag ( JUNE_USER_SKILL_LEVEL_HELPERS ).
+#define SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#if defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) && !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT )
+#error SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+//////////////////////////////////////////////////////////////////////////

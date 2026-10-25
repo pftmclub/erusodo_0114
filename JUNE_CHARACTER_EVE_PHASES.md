@@ -350,6 +350,18 @@ declarations at the end of `X2GuEve.h`, bodies at the end of `X2GuEve.cpp`, each
   `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
   No rebuild: nothing changed in code. Nothing to play-test. Next: `/x2-phase char-eve CH1a2` (Sonnet 5.5 high), then CH1b.
 
+### CH1a2 - Done (2026-10-26)
+
+`CX2GUUser::June_GetSkillLevel` (June `31fceab0`) and `June_GetLearnedSkillAbilityValue` (`32007b10`) now live in `X2GUUser.h` / `.cpp` (public, non-virtual), flag `SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS` (`Always.h:10129`, `#error` unless `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT`, defined at `Always.h:9976`).
+- Bodies are the live branches both class copies shared; the hyper-class test is `1 != m_iUnitClassTran` (`@31fceaef`). No `#else`.
+- Aisha's (`X2GUArme_VioletMage.h/.cpp`) and Eve's (`X2GuEve.h/.cpp`) declarations and bodies are wrapped in `#ifndef` / `#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS`; flag-off is the old tree. Callers unchanged; a class with no member now resolves to `CX2GUUser`'s.
+- Aisha behaviour note: with the flag on, her hyper-class test reads `m_iUnitClassTran == 1` where the `ARME_TRANSCEND`-off branch read `June_UnitFlag3c`; `ARME_TRANSCEND` is defined, so the live test is unchanged.
+- Left alone: the inline readers in `X2DamageManager.cpp:5120` and `X2GameUnit.cpp:17442`.
+- **For later character plans:** their CH1 kickoffs call the `CX2GUUser` pair and never copy it (also in `kickoffs/june-backlog/stage7-plan.md`). `funcmap.tsv` has the two rows.
+- Hygiene: `flagcheck.py JUNE_USER_SKILL_LEVEL_HELPERS --worktree --files <7 files>`: `files: 6 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- Deploy: `DEPLOY OK: X2_offline.exe is 25,857,024 B, dated 2026-10-26 04:19:19, md5 852dae1226f7571baef1067907cb406f, equal to X2/US_SERVICE/x2.exe (2026-10-26 04:19:12); built at main 7224239c + 7 uncommitted code file(s).`
+- Not run: the `cl /P` "no `::June_GetSkillLevel` definition" probe of the two class `.cpp`s; the `#ifndef` pairs are proven by `flagcheck`, and the CH1b review runs the probe. Nothing to play-test. Next: `/x2-phase char-eve CH1b`.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

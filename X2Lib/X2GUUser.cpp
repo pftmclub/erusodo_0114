@@ -40870,6 +40870,37 @@ bool CX2GUUser::JuneIsNotCommonMoveState()
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+// June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
+int CX2GUUser::June_GetSkillLevel( const int iSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return 1;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
+		return 0;
+
+	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+}
+
+// June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
+float CX2GUUser::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.0f;
+
+	const int iLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( iLevel <= 0 )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return 1.0f;
+
+	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+}
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 /** @function : HyperModeBuffEffectStart
 	@brief : 각성 시 나와야하는 이펙트들 시작
 */

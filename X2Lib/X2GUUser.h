@@ -4764,6 +4764,10 @@ public:
 	float m_fJuneDashJumpDownAccelRate;	/// June +0x8fb8 ( 1.2; Aisha's constructor sets 1.1 )
 	float m_fJuneDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+	int June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0
+	float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	/// June buff port Phase 14b: June +0x6ba4 (a protected bool; ctor 322a2700, setter 32082710), written by DamageReact
 	/// from HaveInstanceKillDebuff and consumed (cleared, HP to 0) after UpNowHp in the same function
