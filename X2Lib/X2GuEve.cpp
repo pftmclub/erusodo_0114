@@ -208,6 +208,11 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	m_fBlinkInvisibilityAlpha	= 0.f;
 
 	m_iPhotonBoosterAdditionalDashJumpCount	= 0;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	m_iJuneAddAirDashCount					= 0;
+	m_fJuneCodeRecoveryCoolLeft				= 0.f;
+	m_fJuneCodeRecoveryConsumeMp				= 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_fPhotonBlinkBackSpeedX				= 0.f;
 	m_fPhotonBlinkDummyLifeTime				= 0.f;
 
@@ -34809,5 +34814,1371 @@ D3DXVECTOR3 CX2GUEve::GetManeuverCoreTargetPosUsingCollisionData ()
 #endif // FIX_ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템 수정 사항
 
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1a ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's movement and slot-head states ( class map phase CH1a ); nothing calls them until CH1 wires them in.
+
+namespace
+{
+	/// June BTI 0x29f ( BTI_BUFF_CODE_RECOVERY_ECN ): the buff that adds ADD_AIR_DASH_COUNT dash jumps
+	const BUFF_TEMPLET_ID JUNE_CH1A_BTI_CODE_RECOVERY_ECN = static_cast<BUFF_TEMPLET_ID>( 671 );
+
+	/// June skill 0x634b ( RNSI_P_EBS_OPEN_MIND ): its ability 0x80 ( SA_AIR_MOVE_COUNT ) adds dash jumps
+	const int JUNE_CH1A_P_EBS_OPEN_MIND = 25419;
+}
+
+// June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
+int CX2GUEve::June_GetSkillLevel( const int iSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return 1;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
+		return 0;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType )
+		return 0;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+
+	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+}
+
+// June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
+float CX2GUEve::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.0f;
+
+	const int iLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( iLevel <= 0 )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return 1.0f;
+
+	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+}
+
+// June 32976e40: Code Recovery is ready when its cool time is spent and the MP covers the cost
+bool CX2GUEve::June_CanEveRecovery()
+{
+	if( 0.0f < m_fJuneCodeRecoveryCoolLeft )
+		return false;
+
+	if( GetNowMp() < m_fJuneCodeRecoveryConsumeMp )
+		return false;
+
+	return true;
+}
+
+// June 32976e90: the dash jump limit
+int CX2GUEve::June_GetMaxDashJumpCount()
+{
+	int iCount = static_cast<int>( m_iPhotonBoosterAdditionalDashJumpCount + 2.0f );
+
+	if( true == HaveThisBuff( JUNE_CH1A_BTI_CODE_RECOVERY_ECN ) )
+		iCount += m_iJuneAddAirDashCount;
+
+	if( June_GetSkillLevel( JUNE_CH1A_P_EBS_OPEN_MIND ) > 0 )
+		iCount = static_cast<int>( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_AIR_MOVE_COUNT, JUNE_CH1A_P_EBS_OPEN_MIND ) + static_cast<float>( iCount ) );
+
+	return iCount;
+}
+
+// June 32976f00: the dash-jump-up limit
+int CX2GUEve::June_GetMaxDashJumpUpCount()
+{
+	if( true == HaveThisBuff( JUNE_CH1A_BTI_CODE_RECOVERY_ECN ) )
+		return m_iJuneAddAirDashCount + 1;
+
+	return 1;
+}
+
+// June 32970880
+void CX2GUEve::June_StateChangeJumpDashIfPossible()
+{
+	if( true != GetEnableDash( EDS_END ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		return;
+	}
+
+	if( true != m_bHighPoweredElectrics || NULL == GetUnit() || CX2Unit::UC_EVE_BATTLE_SERAPH != GetUnit()->GetClass() )
+	{
+		StateChange( ENSI_JUMP_DASH );
+		return;
+	}
+
+	bool bBoostDash = false;
+	if( 0 < m_iDashJumpCount && true == m_bAfterJumpDash && true == m_InputData.pureDoubleRight && BDS_RIGHT == m_eBoostDashState )
+	{
+		m_eBoostDashState = BDS_RIGHT;
+		m_bEnableBoostDash = true;
+		bBoostDash = true;
+	}
+	else if( 0 < m_iDashJumpCount && true == m_bAfterJumpDash && true == m_InputData.pureDoubleLeft && BDS_LEFT == m_eBoostDashState )
+	{
+		m_eBoostDashState = BDS_LEFT;
+		m_bEnableBoostDash = true;
+		bBoostDash = true;
+	}
+
+	if( false == bBoostDash )
+	{
+		if( true == m_InputData.pureDoubleRight || true == m_InputData.pureRight )
+			m_eBoostDashState = BDS_RIGHT;
+		else if( true == m_InputData.pureDoubleLeft || true == m_InputData.pureLeft )
+			m_eBoostDashState = BDS_LEFT;
+
+		m_bEnableBoostDash = false;
+	}
+
+	if( true == m_bEnableBoostDash )
+		StateChange( ENSI_EBS_BOOST_DASH_AIR_START );
+	else
+		StateChange( ENSI_JUMP_DASH );
+}
+
+// June 32965f00
+void CX2GUEve::June_ENSI_WAIT_StartFuture()
+{
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+
+	m_iJumpFlyCount = 0;
+	m_iDashJumpCount = 0;
+	m_iDashJumpUpCount = 0;
+	m_eBoostDashState = BDS_NONE;
+	m_bEnableBoostDash = false;
+}
+
+// June 329695f0
+void CX2GUEve::June_ENSI_WAIT_Start()
+{
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+}
+
+// June 32981680
+void CX2GUEve::June_ENSI_WAIT_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+	else if( m_InputData.oneZ == true && (m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f) )
+	{
+		StateChange( ENSI_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_COMBO_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32981910
+void CX2GUEve::June_ENSI_WALK_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+	else if( m_InputData.oneZ == true && (m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f) )
+	{
+		StateChange( ENSI_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_COMBO_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+// June 3297aad0
+void CX2GUEve::June_ENSI_JUMP_READY_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_Z );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+
+		m_pComboGuide->ShowComboCommand( L"J", L"JZ" );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_X );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+
+		m_pComboGuide->ShowComboCommand( L"J", L"JX" );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true
+		|| m_InputData.pureRight == true
+		|| m_InputData.pureLeft == true )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+}
+
+// June 3297acf0
+void CX2GUEve::June_ENSI_JUMP_UP_EventProcess()
+{
+	if( m_iDashJumpCount < June_GetMaxDashJumpCount() && m_InputData.pureDown == false &&
+		( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) )
+	{
+		June_StateChangeJumpDashIfPossible();
+	}
+	else if( m_InputData.oneUp == true && m_iJumpFlyCount == 0 )
+	{
+		StateChange( ENSI_JUMP_FLY_UP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_Z );
+		m_pComboGuide->ShowComboCommand( L"J", L"JZ" );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_X );
+		m_pComboGuide->ShowComboCommand( L"J", L"JX" );
+	}
+	else if( 0.0f < m_PhysicParam.nowSpeed.y )
+	{
+		if( true == GetRidingOn() )
+		{
+			StateChange( USI_RIDING_ON );
+		}
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 3297ae70
+void CX2GUEve::June_ENSI_JUMP_DOWN_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_bDownForce )
+		{
+			StateChange( ENSI_DASH_JUMP_POWER_LANDING );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( m_InputData.oneUp == true && m_iJumpFlyCount == 0 )
+	{
+		StateChange( ENSI_JUMP_FLY_UP );
+	}
+	else if( ( m_iDashJumpCount < June_GetMaxDashJumpCount() && false == m_InputData.pureDown &&
+			( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) ) ||
+		( m_sEGQueensThrone.m_bEnable == true && false == m_InputData.pureDown &&
+			( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) ) )
+	{
+		June_StateChangeJumpDashIfPossible();
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_Z );
+		m_pComboGuide->ShowComboCommand( L"J", L"JZ" );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_X );
+		m_pComboGuide->ShowComboCommand( L"J", L"JX" );
+	}
+	else if( m_InputData.pureDown == true )
+	{
+		m_bDownForce = true;
+	}
+	else if( m_PhysicParam.nowSpeed.y >= 0.0f )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32965f50
+void CX2GUEve::June_ENSI_JUMP_LANDING_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_iJumpFlyCount = 0;
+	m_iDashJumpCount = 0;
+	m_iDashJumpUpCount = 0;
+	m_eBoostDashState = BDS_NONE;
+	m_bEnableBoostDash = false;
+}
+
+// June 32981ba0
+void CX2GUEve::June_ENSI_JUMP_LANDING_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+	else if( m_InputData.oneZ == true && (m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f) )
+	{
+		StateChange( ENSI_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_COMBO_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 329cc1f0: a thunk to the DashStartFuture virtual ( slot 0x5fc; June's override body is 32965f80, CH1k )
+void CX2GUEve::June_ENSI_DASH_StartFuture()
+{
+	DashStartFuture();
+}
+
+// June 32981eb0
+void CX2GUEve::June_ENSI_DASH_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		if( m_iDashJumpCount < June_GetMaxDashJumpCount() )
+		{
+			June_StateChangeJumpDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_DASH_COMBO_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.oneUp == true && m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	// June halves the March 1.0 s hold to 0.5 s
+	if( true == m_bHighPoweredElectrics && 0.5f <= m_FrameDataFuture.unitCondition.fStateTime &&
+		NULL != GetUnit() && CX2Unit::UC_EVE_BATTLE_SERAPH == GetUnit()->GetClass() )
+	{
+		StateChange( ENSI_EBS_BOOST_DASH_START );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32977670
+void CX2GUEve::June_ENSI_DASH_END_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+}
+
+// June 32965fa0
+void CX2GUEve::June_ENSI_DASH_END_Start()
+{
+	CommonStateStart();
+}
+
+// June 32969620
+void CX2GUEve::June_ENSI_DASH_END_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimer( 0.4f ) == true )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+// June 329821a0
+void CX2GUEve::June_ENSI_DASH_END_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+	else if( m_InputData.oneZ == true && (m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f) )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 8.0f )
+		{
+			StateChange( ENSI_COMBO_Z );
+		}
+		else
+		{
+			StateChange( ENSI_DASH_COMBO_Z );
+		}
+	}
+	else if( m_InputData.oneX == true )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 8.0f )
+		{
+			StateChange( ENSI_COMBO_X );
+		}
+		else
+		{
+			StateChange( ENSI_DASH_COMBO_X );
+		}
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32965fb0
+void CX2GUEve::June_ENSI_DASH_JUMP_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_fCurrDashJumpTime = s_fMaxDashJumpTime;
+	m_iDashJumpCount += 1;
+	m_iJumpFlyCount += 1;
+	m_iDashJumpUpCount += 1;
+	m_bDownForce = false;
+	m_bDisableGravity = true;
+}
+
+// June 329824c0
+void CX2GUEve::June_ENSI_DASH_JUMP_Start()
+{
+	CommonStateStart();
+
+	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
+	{
+		CreateStepDust();
+	}
+
+	if( false == GetAbsoluteInvisibility() )
+	{
+		D3DXVECTOR3 vRot = GetRotateDegree();
+		vRot.z += 45.f;
+		if( false == GetIsRight() )
+		{
+			vRot.y -= 15.f;
+		}
+		else
+		{
+			vRot.y += 15.f;
+		}
+
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( vRot );
+			pSeq->SetAxisAngle( vRot );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+
+		vBonePos.y -= 60.f;
+		if( true == GetIsRight() )
+		{
+			vBonePos -= GetDirVector() * 60.f;
+		}
+		else
+		{
+			vBonePos += GetDirVector() * 60.f;
+		}
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack_Small", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( vRot );
+			pSeq->SetAxisAngle( vRot );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+}
+
+// June 329776b0
+void CX2GUEve::June_ENSI_DASH_JUMP_FrameMoveFuture()
+{
+	m_fCurrDashJumpTime -= m_fElapsedTime;
+
+	const float fValue = m_fCurrDashJumpTime / s_fMaxDashJumpTime;
+	const float NOW_FLY_SPEED_SCALE = s_fDashJumpSpeedScale * powf( fValue, 2 ) + s_fDashJumpSpeedLowerBound;
+
+	if( m_fCurrDashJumpTime < 0.f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( m_InputData.pureUp == true &&
+		m_InputData.pureRight == true && m_FrameDataNow.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed() * NOW_FLY_SPEED_SCALE;
+	}
+	else if( m_InputData.pureUp == true &&
+		m_InputData.pureLeft == true && m_FrameDataNow.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed() * NOW_FLY_SPEED_SCALE;
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32977810
+void CX2GUEve::June_ENSI_DASH_JUMP_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true && m_fReDashJumpXTime <= 0.0f )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_X );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		// both keys held: the key pressed this frame turns the unit, then it jumps or falls
+		bool bTurn = true;
+		if( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+			m_FrameDataFuture.syncData.bIsRight = false;
+		else
+			bTurn = false;
+
+		if( true == bTurn )
+		{
+			if( 0.0f < m_PhysicParam.nowSpeed.y )
+			{
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+				StateChange( USI_JUMP_UP );
+			}
+			else
+			{
+				StateChange( USI_JUMP_DOWN );
+			}
+		}
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			if( 0.0f < m_PhysicParam.nowSpeed.y )
+			{
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+				StateChange( USI_JUMP_UP );
+			}
+			else
+			{
+				StateChange( USI_JUMP_DOWN );
+			}
+		}
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( 0.0f < m_PhysicParam.nowSpeed.y )
+			{
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+				StateChange( USI_JUMP_UP );
+			}
+			else
+			{
+				StateChange( USI_JUMP_DOWN );
+			}
+		}
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if( m_InputData.oneUp == true && m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	if( m_InputData.oneDown == true )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32977a70
+void CX2GUEve::June_ENSI_DASH_JUMP_EndFuture()
+{
+	CommonStateEndFuture();
+
+	if( GetDashSpeed() < m_PhysicParam.nowSpeed.x )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	m_bAfterJumpDash = false;
+	m_bDisableGravity = false;
+}
+
+// June 32982790
+void CX2GUEve::June_ENSI_DASH_JUMP_LANDING_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+	{
+		StateChange( ENSI_EVE_RECOVERY );
+	}
+
+	if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_COMBO_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32965ff0
+void CX2GUEve::June_ENSI_DASH_JUMP_POWER_LANDING_StartFuture()
+{
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+}
+
+// June 32966020
+void CX2GUEve::June_ENSI_DASH_JUMP_POWER_LANDING_Start()
+{
+	CommonStateStart();
+	CreateStepDust();
+}
+
+// June 32982a00
+void CX2GUEve::June_ENSI_DASH_JUMP_POWER_LANDING_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.01f )
+	{
+		if( m_InputData.oneSit == true && true == June_CanEveRecovery() )
+		{
+			StateChange( ENSI_EVE_RECOVERY );
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			StateChange( ENSI_COMBO_Z );
+		}
+		else if( m_InputData.oneX == true )
+		{
+			StateChange( ENSI_COMBO_X );
+		}
+		else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+		{
+		}
+		else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( m_InputData.pureUp == true )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if( m_InputData.oneDown == true
+			&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32966040
+void CX2GUEve::June_ENSI_JUMP_FLY_UP_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_iJumpFlyCount += 1;
+	m_iDashJumpCount += 1;
+	m_bAfterJumpDash = false;
+	m_bEnableBoostDash = false;
+}
+
+// June 32982c00
+void CX2GUEve::June_ENSI_JUMP_FLY_UP_Start()
+{
+	CommonStateStart();
+
+	if( false == GetAbsoluteInvisibility() )
+	{
+		D3DXVECTOR3 vRot = GetRotateDegree();
+		vRot.z += 90.f;
+
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+		vBonePos.y -= 40.f;
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( vRot );
+			pSeq->SetAxisAngle( vRot );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+}
+
+// June 32977af0
+void CX2GUEve::June_ENSI_JUMP_FLY_UP_FrameMoveFuture()
+{
+	if( ( m_InputData.pureRight == true && m_FrameDataNow.syncData.bIsRight == true ) ||
+		( m_InputData.pureLeft == true && m_FrameDataNow.syncData.bIsRight == false ) )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	if( m_InputData.pureDown == true && m_InputData.pureUp == false )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+	}
+	CommonFrameMoveFuture();
+}
+
+// June 3297b070
+void CX2GUEve::June_ENSI_JUMP_FLY_UP_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChange( USI_WALK );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		m_PhysicParam.nowSpeed.y = 0.f;
+		StateChange( ENSI_JUMP_COMBO_Z );
+
+		m_pComboGuide->ShowComboCommand( L"j", L"JJZ" );
+	}
+	else if( m_InputData.oneX == true && m_fReDashJumpXTime <= 0.0f )
+	{
+		m_PhysicParam.nowSpeed.y = 0.f;
+		StateChange( ENSI_JUMP_COMBO_X );
+
+		m_pComboGuide->ShowComboCommand( L"j", L"JJX" );
+	}
+	else if( m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		StateChange( ENSI_JUMP_FLY_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32966070
+void CX2GUEve::June_ENSI_JUMP_FLY_UP_EndFuture()
+{
+	CommonStateEnd();
+}
+
+// June 32966080
+void CX2GUEve::June_ENSI_JUMP_FLY_DOWN_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_PhysicParam.fDownAccel = m_PhysicParam.fGAccel * -0.8f;
+}
+
+// June 32977b80
+void CX2GUEve::June_ENSI_JUMP_FLY_DOWN_FrameMoveFuture()
+{
+	if( m_InputData.pureRight == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = false;
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	if( m_InputData.pureDown == true && m_InputData.pureUp == false )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+	}
+	CommonFrameMoveFuture();
+}
+
+// June 3297b1f0
+void CX2GUEve::June_ENSI_JUMP_FLY_DOWN_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_bDownForce )
+		{
+			StateChange( ENSI_DASH_JUMP_POWER_LANDING );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_Z );
+		m_pComboGuide->ShowComboCommand( L"j", L"JJZ" );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_JUMP_COMBO_X );
+		m_pComboGuide->ShowComboCommand( L"j", L"JJX" );
+	}
+	else if( m_PhysicParam.nowSpeed.y >= 0.0f )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if( m_InputData.pureDown == true )
+	{
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+}
+
+// June 329660b0
+void CX2GUEve::June_ENSI_JUMP_FLY_DOWN_EndFuture()
+{
+	CommonStateEnd();
+
+	m_PhysicParam.fDownAccel = 0.f;
+}
+
+// June 329660d0
+void CX2GUEve::June_ENSI_JUMP_DASH_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_fCurrDashJumpTime = s_fMaxDashJumpTime;
+	m_iDashJumpCount += 1;
+	m_iJumpFlyCount += 1;
+	m_bDisableGravity = true;
+}
+
+// June 32982d30
+void CX2GUEve::June_ENSI_JUMP_DASH_Start()
+{
+	CommonStateStart();
+
+	if( false == GetAbsoluteInvisibility() )
+	{
+		D3DXVECTOR3 vRot = GetRotateDegree();
+		if( false == GetIsRight() )
+		{
+			vRot.y -= 15.f;
+		}
+		else
+		{
+			vRot.y += 15.f;
+		}
+
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( vRot );
+			pSeq->SetAxisAngle( vRot );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+
+		if( true == GetIsRight() )
+		{
+			vBonePos -= GetDirVector() * 60.f;
+		}
+		else
+		{
+			vBonePos += GetDirVector() * 60.f;
+		}
+
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack_Small", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( vRot );
+			pSeq->SetAxisAngle( vRot );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+}
+
+// June 32977c10
+void CX2GUEve::June_ENSI_JUMP_DASH_FrameMoveFuture()
+{
+	m_fCurrDashJumpTime -= m_fElapsedTime;
+
+	const float fValue = m_fCurrDashJumpTime / s_fMaxDashJumpTime;
+	const float NOW_FLY_SPEED_SCALE = s_fDashJumpSpeedScale * powf( fValue, 2 ) + s_fDashJumpSpeedLowerBound;
+
+	if( m_fCurrDashJumpTime < 0.f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureRight == true && m_FrameDataNow.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y = 0.f;
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureLeft == true && m_FrameDataNow.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y = 0.f;
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32977d30
+void CX2GUEve::June_ENSI_JUMP_DASH_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+		}
+		else if( m_bDownForce == true )
+		{
+			StateChange( ENSI_DASH_JUMP_POWER_LANDING );
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() &&
+		m_InputData.pureDown == false && m_InputData.pureUp == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true && m_fReDashJumpXTime <= 0.0f )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_X );
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			if( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if( 0.0f < m_PhysicParam.nowSpeed.y )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if( 0.0f < m_PhysicParam.nowSpeed.y )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if( m_InputData.oneUp == true && m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_InputData.pureDown == true )
+	{
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32977f80
+void CX2GUEve::June_ENSI_JUMP_DASH_EndFuture()
+{
+	CommonStateEnd();
+
+	m_bDisableGravity = false;
+	m_bAfterJumpDash = true;
+
+	if( GetDashSpeed() < m_PhysicParam.nowSpeed.x )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+}
+
+// June 329cc0d0 / 329cc170: thunks to the relationship-skill FrameMove / EventProcess virtuals ( slots 0x5f4 / 0x5f8 )
+void CX2GUEve::June_ENSI_THROW_ITEM_FrameMove()
+{
+	COMMON_RELATIONSHIP_SKILL_FrameMove();
+}
+
+void CX2GUEve::June_ENSI_THROW_ITEM_EventProcess()
+{
+	COMMON_RELATIONSHIP_SKILL_EventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 

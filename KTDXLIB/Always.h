@@ -10106,3 +10106,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June's message box dialogs name the background static StaticMsgBoxBG; fall back to it when StaticOKMsgBoxBG is missing
 #define SERV_IRUHADEV_JUNE_MSGBOX_BG_NAME
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-26
+// Description: June character port ( Eve ) Phase CH1a - inert June_* members of CX2GUEve, transcribed from June's class core ( movement and slot-head
+//              states: wait, walk, jump, dash, fly, throw item ). Nothing registers or calls them until CH1 wires them in, so the flag only adds
+//              members, three June-only fields and one enumerator ( ENSI_EVE_RECOVERY ). Needs JUNE_INPUT_SIT_KEY and JUNE_EFFECT_ALPHA_OPTION.
+//              Revert: undefine the flag ( JUNE_CHAR_EVE_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ) && ( !defined( SERV_IRUHADEV_JUNE_INPUT_SIT_KEY ) || !defined( SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION ) )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE needs SERV_IRUHADEV_JUNE_INPUT_SIT_KEY and SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//////////////////////////////////////////////////////////////////////////

@@ -292,6 +292,36 @@ function that makes them.
 `Motion Error` / missing-animation line against a pre-CH1 run; combos, dash, jump, damage, bounding and riding play June's animations; the Nasod
 Core shows in awakening (per decision 1); `charport_scan.py` / `charport_keys.py Eve_Nasod` show nothing new.
 
+### CH1a - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (`KTDXLIB/Always.h`, with a `#error` that `JUNE_INPUT_SIT_KEY` and `JUNE_EFFECT_ALPHA_OPTION` are defined), the commit "char-eve Phase CH1a". The 44 class-map rows of phase CH1a are 44 new `CX2GUEve::June_*` members:
+declarations at the end of `X2GuEve.h`, bodies at the end of `X2GuEve.cpp`, each with its June address. Nothing registers, calls or overrides them; March's members are untouched. 44 funcmap rows `Char Eve CH1a`.
+
+| June | Member (`June_` prefix) | June | Member |
+|---|---|---|---|
+| `32965f00` / `329695f0` | ENSI_WAIT_StartFuture / _Start | `32981680` | ENSI_WAIT_EventProcess |
+| `32981910` | ENSI_WALK_EventProcess | `3297aad0` | ENSI_JUMP_READY_EventProcess |
+| `3297acf0` / `3297ae70` | ENSI_JUMP_UP / _JUMP_DOWN_EventProcess | `32965f50` / `32981ba0` | ENSI_JUMP_LANDING_StartFuture / _EventProcess |
+| `329cc1f0` / `32981eb0` | ENSI_DASH_StartFuture (thunk) / _EventProcess | `32977670` `32965fa0` `32969620` `329821a0` | ENSI_DASH_END_StartFuture / _Start / _FrameMove / _EventProcess |
+| `32965fb0` `329824c0` `329776b0` `32977810` `32977a70` | ENSI_DASH_JUMP_StartFuture / _Start / _FrameMoveFuture / _EventProcess / _EndFuture | `32982790` | ENSI_DASH_JUMP_LANDING_EventProcess |
+| `32965ff0` `32966020` `32982a00` | ENSI_DASH_JUMP_POWER_LANDING_StartFuture / _Start / _EventProcess | `32966040` `32982c00` `32977af0` `3297b070` `32966070` | ENSI_JUMP_FLY_UP_StartFuture / _Start / _FrameMoveFuture / _EventProcess / _EndFuture |
+| `32966080` `32977b80` `3297b1f0` `329660b0` | ENSI_JUMP_FLY_DOWN_StartFuture / _FrameMoveFuture / _EventProcess / _EndFuture | `329660d0` `32982d30` `32977c10` `32977d30` `32977f80` | ENSI_JUMP_DASH_StartFuture / _Start / _FrameMoveFuture / _EventProcess / _EndFuture |
+| `329cc0d0` / `329cc170` | ENSI_THROW_ITEM_FrameMove / _EventProcess (thunks to the relationship-skill virtuals) | `32970880` `32976e40` `32976e90` `32976f00` | June_StateChangeJumpDashIfPossible, June_CanEveRecovery, June_GetMaxDashJumpCount, June_GetMaxDashJumpUpCount |
+
+**What differs from March** (the rest is March's body): the Code Recovery branch (`oneSit`, then cool time and MP) in WAIT, WALK, JUMP_LANDING, DASH, DASH_END, DASH_JUMP_LANDING and POWER_LANDING; the dash-jump limit (`32976e90`: Photon Booster float + 2, plus `ADD_AIR_DASH_COUNT` under BTI 671, plus skill 25419's air-move ability) and the dash-jump-up limit (`32976f00`) in JUMP_UP, JUMP_DOWN, DASH and JUMP_DASH; the Battle Seraph boost dash waits 0.5 s; DASH_JUMP's both-keys-held turn; five alpha tags (`329824c0` x2, `32982c00`, `32982d30` x2, checklist 7c); and the `m_bDownForce` resets June dropped (JUNE_BUGS 421). The others are March's code.
+
+**New, June-only, under the flag:** the enumerator `ENSI_EVE_RECOVERY` (June script id 238, appended after `ENSI_TRANSFORMED`; CH4c writes the state); three fields `m_iJuneAddAirDashCount` (+0x9c60), `m_fJuneCodeRecoveryCoolLeft` (+0x9c64), `m_fJuneCodeRecoveryConsumeMp` (+0x9c6c), set to 0 in the constructor (CH1k's `InitComponent` `329c47e0` fills +0x9c60 / +0x9c6c from the script, CH4c owns +0x9c64); Eve-local `June_GetSkillLevel` (`31fceab0`) and `June_GetLearnedSkillAbilityValue` (`32007b10`), copies of the pilot's.
+
+**Method, for CH1b-CH1l.**
+- New tool: `python june2017_re/charport_adis.py eve <va>... | --phase CH1b --out DIR` prints the raw listing with the state-id names (`ch0_state_skill.tsv`), member names (`char_eve/ch1_offsets.tsv`, 72 fields and vslots read in this phase), vslot names, constants at their real width and wide strings. Ghidra's decompile hides every `StateChange( id, 0 )` argument in functions with an SEH frame and has no function for six of these (`32965fa0` `32966070` `32981910` `32982a00` `329cc0d0` `329cc170`; `32981680` runs on into `32981910`). Read the listing, not only the decompile.
+- State ids: June's `USI_` ids are March's names (`0xd` WAIT .. `0x16` DASH_JUMP_LANDING); the Eve ids are in `ch0_state_skill.tsv` ("id N"); `0xee` is the one June-only name used here. `GetHyperModeStateID` (`32968470`) returns `0x17` = `USI_HYPER_MODE`, so the March macro with `USI_HYPER_MODE` is the port.
+- `ShowComboCommand` takes `( id, command )`: June constructs the second string first, so `"J"` is the first argument. `m_FrameDataFuture.syncData.bIsRight` is +0x7e56, the Now copy +0x80f6.
+- Constants: 0.65 is a float (`334c9ca8`), 1.85 / 1.0 / 0.5 / 45.0 / 30.0 are doubles; the inline `rate * (a ^ b ^ &c)` triples are `GetWalkSpeed` / `GetDashSpeed` (also called as `32071a80`) / `GetJumpSpeed` / `GetDashJumpSpeed`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h KTDXLIB/Always.h`: `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of `X2GuEve.cpp` under the US_SERVICE defines: 0 errors, and the `cl /P` output holds the block (flag live). Build: `DEPLOY OK: X2_offline.exe is 25,857,024 B, dated 2026-10-26 03:38:08, md5 911e793a83973d644378908a70bf0e11, equal to X2/US_SERVICE/x2.exe; built at main 11a8652d + 3 uncommitted code file(s).`
+
+**Open for the review** (named, not guessed): `+0x9c64` is named from its use as a cool time left (CH4c's writer confirms); `+0x96b4` is read as `m_sEGQueensThrone.m_bEnable`; ability type `0x80` is read as `SA_AIR_MOVE_COUNT` (March index 127 + 1); the shared `CX2GUUser` home for `June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue` (the pilot and Eve keep copies); JUNE_BUGS 421 needs a play-test of Down in the air once CH1 is live. Nothing to play-test now: the code is unreferenced. Next: `/x2-phase char-eve CH1a review` (Opus 5.5 high), then CH1b.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
