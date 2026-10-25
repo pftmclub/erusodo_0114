@@ -233,6 +233,26 @@ pre-CH0b `ErrorLog.txt` first. **If CH0 found a dropped animation March plays**,
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Eve per job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-10-26)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets only.
+- **Reference:** `ErrorLog.txt` (272,178 B, last run 2026-10-25 19:06) saved as `data\ErrorLog_pre_CH0b_eve.txt` before the copy.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_eve/ch0b_stage_list.tsv`:
+  `STAGE-JUNE OK: 40 kom(s), 5197 staged (4648 new, 549 replaced, 0 identical), 0 refused, 33s`. Replaced March files are backed up under
+  `24965799\kom_backup_stage_june61026_030148`.
+- **Packed:** `kom.py pack` x40, 40 `PACK OK`, 0 refusals (the list stages no Lua).
+- **Copied (user approved all 40, 2026-10-26):** `kom.py copy` x40, 40 `COPY OK` (data002 52,505,756 B / 2,632 entries; data018 88,473,587 B / 5,795 entries;
+  data033 144,652,971 B / 165 entries, which carries the 11 base `Motion_EVE*.x` together). `data203.kom` is a new archive (32,935,532 B / 54 entries, the June
+  emotion motions); `X2Main.cpp` mounts `data001-226`, so it is mounted. Backups in `kom_backup_tools`.
+- **Done-gate re-run:** `kom.py stage-june --dry-run` over the same list after staging: `5197 staged (0 new, 0 replaced, 5197 identical), 0 refused`. Every row is
+  June's bytes in `kom_contents`; 0 stay `missing` or `march-copy`.
+- **Save:** backup `db_backup\els_db_20261026_030525_pre_manual.sql`; added with `createchar.py` (lv 99, class costume + top gear): unit 57 EveExotic (Exotic Gear 18),
+  58 EveArchi (Architecture 19), 59 EveNemesis (Code: Nemesis 108), 60 EveSeraph (Battle Seraph 116). Existing: 22 weevwe (Nasod 5), 41 ElectraT (Electra 26),
+  19 Iivue / 27 jtCodeEmpress (Empress 109).
+- **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_eve.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh lines). Names that no June kom holds (the 113 `dangling` rows) may show as KEM 428 / 429: June's own.
+- **No new drift.**
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):

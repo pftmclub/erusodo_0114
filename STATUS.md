@@ -939,7 +939,7 @@ Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0 | **done 2026-10-26** (Done note in the plan doc; maps in `june2017_re/char_eve/ch0_*.tsv`) | Opus 5.5 / high | - | `june2017_re/char_eve/`, `charport_states.py`, `s3_no_state.py`, funcmap, plan doc, kickoffs | `CH0.md` |
-| CH0b | **ready** (5,197 files, 0 refused; no koms held for CH1) | Sonnet 5.5 / high, then user play-test | CH0 | Eve's motions / models / textures / equipment / effects / sounds in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
+| CH0b | **staged, packed and copied 2026-10-26; play-test pending** (5,197 files June byte-exact in 40 koms, 4,648 new / 549 replaced, new `data203.kom`; re-run 5197 identical; ErrorLog reference `data\ErrorLog_pre_CH0b_eve.txt`; save units 57-60 added) | Sonnet 5.5 / high, then user play-test | CH0 | Eve's motions / models / textures / equipment / effects / sounds in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
 | CH1a | waiting | Sonnet 5.5 / high, Opus review | CH0 (and CH0b may run beside) | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1a.md` |
 | CH1b | waiting | Sonnet 5.5 / high, Opus review | CH1a review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1b.md` |
 | CH1c | waiting | Sonnet 5.5 / high, Opus review | CH1b review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1c.md` |
