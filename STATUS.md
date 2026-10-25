@@ -934,7 +934,7 @@ Running together: B0 has no code and can run beside anything. B1-B4 edit `X2Stat
 
 Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `EVE <sub>`: `DATA`, `CORE`, `NCORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_EVE_*` (`_CORE`, `_LIVE`, `_NCORE`, `_SKILL`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-eve/` · backlog Stage 7 · created 2026-10-25.
 
-**Scope:** Eve (`CX2GUEve`, 7 classes 5 / 18 / 19 / 26 / 108 / 109 / 116) from her March kit to June 2017's, incl. the Nasod Core and her transcendence rows. June class `32965dd0`-`329cf86f` (643 carved functions, about 1.5x Aisha), so CH1 is planned as 17 sub-phases up front. **Decision 1 (Nasod Core: March's dormant `ADD_EVE_SYSTEM_2014` as the base, or a fresh June transcription) gates CH1q only.** `CH<n>0` Opus helper rows are added by CH0.
+**Scope:** Eve (`CX2GUEve`, 7 classes 5 / 18 / 19 / 26 / 108 / 109 / 116) from her March kit to June 2017's, incl. the Nasod Core and her transcendence rows. June class `32965dd0`-`329cf86f` (643 carved functions, about 1.5x Aisha), so CH1 is planned as 17 sub-phases up front. **Decision 1 answered (user, 2026-10-25): the Nasod Core (CH1q) builds on March's dormant `ADD_EVE_SYSTEM_2014` code under our flag, June's bodies where they differ.** `CH<n>0` Opus helper rows are added by CH0.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
@@ -956,7 +956,7 @@ Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH1n (base callbacks + slot head) | waiting | Opus 5.5 / high, Opus review | CH1m review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
 | CH1o (virtuals under `_LIVE`) | waiting | Opus 5.5 / high, Opus review | CH1n review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p (7ag pressed index + hooks + June-only keys) | waiting | Opus 5.5 / high, Opus review | CH1o review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
-| CH1q (Nasod Core) | waiting | Opus 5.5 / high, Opus review | CH1p review; **decision 1** (plan doc "Open decisions") | `X2GuEve.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.cpp`, `X2GUNPC.cpp`, `X2DamageManager.h`, Always.h | `CH1q.md` |
+| CH1q (Nasod Core) | waiting | Opus 5.5 / high, Opus review | CH1p review | `X2GuEve.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.cpp`, `X2GUNPC.cpp`, `X2DamageManager.h`, Always.h | `CH1q.md` |
 | CH1 (final) | waiting | Opus 5.5 / high, Opus review, then user play-test | CH1q review, CH0b | Always.h, data036 `Eve_Nasod.lua` + data037 summon scripts, motion koms | `CH1.md` |
 | CH2a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review (+ any `CH2a0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2a.md` |
 | CH2b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2a review (+ any `CH2b0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2b.md` |

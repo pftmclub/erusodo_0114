@@ -372,7 +372,7 @@ Routed by T0: the June UI readers -> Stage 9; the wire's 2-byte class -> Stage 8
 
 - Repeat Stages 5 and 6 per character with the proven recipe.
 - One phase doc per character, or one doc with a phase per character; the planning session chooses.
-- **Eve planned 2026-10-25** (`new-plan char-eve`): `JUNE_CHARACTER_EVE_PHASES.md` + `kickoffs/char-eve/` + the `char-eve` STATUS block. One doc per character. Eve is about 1.5x Aisha (643 carved June functions), so CH1 is 17 sub-phases up front. Found: the Nasod Core (`ADD_EVE_SYSTEM_2014`, dormant in March, live in June) is Eve's phase CH1q; its approach is an open decision below.
+- **Eve planned 2026-10-25** (`new-plan char-eve`): `JUNE_CHARACTER_EVE_PHASES.md` + `kickoffs/char-eve/` + the `char-eve` STATUS block. One doc per character. Eve is about 1.5x Aisha (643 carved June functions), so CH1 is 17 sub-phases up front. Found: the Nasod Core (`ADD_EVE_SYSTEM_2014`, dormant in March, live in June) is Eve's phase CH1q; the user chose March's dormant code as its base (decisions table).
 
 ### Stage 8: new characters (Lu/Ciel, Rose, Ain)
 
@@ -1168,7 +1168,7 @@ evidence `june2017_re/bottombar_buttons.tsv`).
 | **Guild quests offline** | 4 | Ask: parse-and-log or a real port. **Answered 2026-10-17: parse-and-log.** |
 | **Scaleform/GFx runtime** for EventScene and quest movies | 4 | Ask: a runtime, or skip with a log line. **Answered 2026-10-17: a runtime, plan `june-gfx` (`JUNE_GFX_RUNTIME_PHASES.md`); its G0 assigns the owed gates below, G5 ports the GFx ones, the rest go to Stage 9.** Whichever lands also owes June's two cut-in hide terms in `GetShowActiveSkillShow` (`31fd3180 @31fd3228`, left out by effect C3t-1): GFx UI `0xb` open (`[g_pKTDXApp+0x1c8]`, `isOpenUI` `31c44710`), and a movie playing (`g_pMain +0x80a`, June's movie table `+0x7f8`; funcmap `(C3t-1)`). Also owes June's ESC gates from effect C3p-2 (`31f1e1a0`, funcmap `(C3p-2)`): the result-UI mode `+0x210` switch (`@31f1e214`, with its setter `31ef7be0` and exit box `31f1dd70`), `closeToTopZorder` + the `CX2UIProfessionManager` close (`@31f1e262`), and the dialog manager's hide modes 2-4 (`31d03a10` / `31d05af0`). Insertion point: the C3p-2 Done note (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`); the C3p-2 review adds that June's end-of-game handlers (`324db6b0`, `3252ba10`) open the mode-1 window when result info exists, so ESC is eaten from the end packet until the result UI moves on, where March's ESC still works during the `m_bGameEnd` wait: that comes with this port. |
 | **`ADD_RENA_SYSTEM`** (Rena's natural force) | 5 or 7 | Ask when Rena is next. |
-| **Eve's Nasod Core** (`ADD_EVE_SYSTEM_2014` + `FIX_`, about 175 dormant March sites; June ships it) | 7 (`char-eve` CH1q) | Asked at the end of the `char-eve` planning session (2026-10-25): March's dormant code as the base, or a fresh June transcription. |
+| **Eve's Nasod Core** (`ADD_EVE_SYSTEM_2014` + `FIX_`, about 175 dormant March sites; June ships it) | 7 (`char-eve` CH1q) | **Answered (user, 2026-10-25): March's dormant code as the base**, enabled under `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, June's whole body wherever it differs. |
 | **Pilot character** | 5 | Chosen by data (`charport_scan.py` gap plus Stage 2's model diff); the user confirms. **Answered 2026-10-20: Aisha** (`JUNE_CHARACTER_AISHA_PHASES.md`). |
 
 ```sql

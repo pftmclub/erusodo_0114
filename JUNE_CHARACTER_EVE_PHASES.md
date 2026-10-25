@@ -207,7 +207,7 @@ pre-CH0b `ErrorLog.txt` first. **If CH0 found a dropped animation March plays**,
 | CH1n | Opus high, Opus review | The CX2GUUser base callbacks Eve registers; `SetEquippedSkillFuncBySkillSlotIndex` `329c8a00` head (bounds, slot tables, the 7i rule) + the dev free-skill gate |
 | CH1o | Opus high, Opus review | The virtuals under `_LIVE`; gaps the CH1a-CH1l reviews routed |
 | CH1p | Opus high, Opus review | 7ag pressed-index space (Mega Electronball, Taser Pilum, Kugelblitz encoders + every reader + the decode `:6151-6177`, together); hooks 7h / 7l / 7o / 7p / 7x; June-only script keys |
-| CH1q | Opus high, Opus review | Nasod Core (decision 1; `ch0_nasod_core.tsv`), flag `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, sub-tag `NCORE` |
+| CH1q | Opus high, Opus review | Nasod Core (decision 1 = (a): March's `ADD_EVE_SYSTEM_2014` code under our flag, June's bodies where they differ; `ch0_nasod_core.tsv`), flag `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, sub-tag `NCORE` |
 | CH1 | Opus high, Opus review, user play-test | Define `_LIVE`; adopt `Eve_Nasod.lua` and the summon scripts CH0 marks CH1; pack, ask, copy; the play-test |
 
 **Transcription rules (CH1a-CH1l):** each function whole, as an inert member `June_<March name>` (or `June_<STATE>_<Slot>`) under
@@ -298,10 +298,11 @@ she took, what changed in the recipe); backlog Stage 7 note; the `stage7-plan` r
 Dev console first; copy-ready lines with real values (unit, class, skill id and slot, `/additem`, `/qdone`); per check: where / paste /
 what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py --grep "JUNE_CHAR EVE <sub>"`.
 
-## Open decisions (for the user; asked at the end of planning)
+## Open decisions (for the user; asked at the end of planning; answered 2026-10-25)
 
 1. **The Nasod Core (`ADD_EVE_SYSTEM_2014`).** June 2017 ships it; March has the 2014 code dormant (about 175 sites, Eve's class, `X2GUUser`,
    the gauge UI, the NPC side). Options: **(a, recommended)** use March's dormant code as the base: CH1q defines the two March macros under
    `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, then replaces every function that differs from June with June's whole body (no partial updates) and
    drops what June removed; **(b)** transcribe June's Nasod Core fresh beside March's dead code, leaving both March macros off. (a) reuses
    members, enums and UI March already wired; (b) avoids reading March's 2014 code at all but rewrites the same members.
+   **Answered (user, 2026-10-25): (a), March's dormant code as the base**, June's whole body wherever it differs.
