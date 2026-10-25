@@ -13,9 +13,8 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Phase CH0 - Eve map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-# CH0 writes the exact column filters into 'Amended by CH0' below; these are the pilot's shape
 awk -F'\t' '$6=="CH1e"' june2017_re/char_eve/ch0_class_map.tsv
-awk -F'\t' '$NF=="CH1e"' june2017_re/char_eve/ch0_state_skill.tsv
+awk -F'\t' '$8=="CH1e"' june2017_re/char_eve/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1e/' june2017_re/char_eve/ch0_checklist_rows.tsv
 ```
 Then CH0's Done note. Pull a checklist section by heading only when a row above names it.
@@ -29,6 +28,10 @@ Transcribe every function the class map gives phase `CH1e` (the 17 `ENSI_DASH*` 
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1e` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 35** (`awk -F'\t' '$6=="CH1e"' june2017_re/char_eve/ch0_class_map.tsv`; helper 2, state-fn 33).
+  June addresses: `329662e0` `32966300` `3296cf50` `3296cf70` `3296e230` `3296e6b0` `3296e6d0` `3296e700` `3296e720` `3296e760` `3296e7c0` `3296e7e0` `3296e800` `3296e9d0` `3296e9f0` `3296ea70` `32978000` `32978030` `32978c60` `32979b30` `32985b50` `32985bb0` `329872a0` `32987340` `329876e0` `32987780` `32987b20` `32987bc0` `32987f60` `32988000` `329883a0` `32988440` `329b0c10` `329b13f0` `329cc500`.
+- **States: 9** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_DASH_COMBO_Z`, `ENSI_DASH_COMBO_X`, `ENSI_JUMP_COMBO_Z`, `ENSI_JUMP_COMBO_X`, `ENSI_JUMP_COMBO_X_LANDING`, `ENSI_DASH_JUMP_COMBO_Z`, `ENSI_DASH_JUMP_COMBO_ZZ`, `ENSI_DASH_JUMP_COMBO_ZZZ`, `ENSI_DASH_JUMP_COMBO_X`.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
+- **7c alpha-tag sites inside these functions: 5** (`c10a_alpha_sites.tsv`, by containing function).

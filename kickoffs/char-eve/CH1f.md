@@ -13,9 +13,8 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Phase CH0 - Eve map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-# CH0 writes the exact column filters into 'Amended by CH0' below; these are the pilot's shape
 awk -F'\t' '$6=="CH1f"' june2017_re/char_eve/ch0_class_map.tsv
-awk -F'\t' '$NF=="CH1f"' june2017_re/char_eve/ch0_state_skill.tsv
+awk -F'\t' '$8=="CH1f"' june2017_re/char_eve/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1f/' june2017_re/char_eve/ch0_checklist_rows.tsv
 ```
 Then CH0's Done note. Pull a checklist section by heading only when a row above names it.
@@ -29,6 +28,11 @@ Transcribe every function the class map gives phase `CH1f` (class 18 states and 
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1f` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 25** (`awk -F'\t' '$6=="CH1f"' june2017_re/char_eve/ch0_class_map.tsv`; state-fn 25).
+  June addresses: `329662b0` `32968510` `32968560` `32968570` `329685c0` `3296b690` `3296b6c0` `3296b7a0` `3296b880` `3296b8a0` `3296d440` `3296d470` `3296d550` `3296d630` `3296d8b0` `3296d990` `3296da80` `3296daa0` `3296e580` `329795a0` `329797d0` `329847f0` `32986440` `32986710` `32986f00`.
+- **States: 6** (`awk -F'\t' '$8=="CH1f"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_COMBO_ZZZdownZZ`, `ENSI_DASH_COMBO_ZZ`, `ENSI_DASH_COMBO_ZZZ`, `ENSI_DASH_COMBO_XZ`, `ENSI_EEG_DASH_JUMP_ZX`, `ENSI_EEG_DASH_JUMP_ZZX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
+- **7c alpha-tag sites inside these functions: 2** (`c10a_alpha_sites.tsv`, by containing function).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `32290490` CX2GameUnit::UpDownCrashCameraNoReset (X2GameUnit.cpp:13104) (confirmed).

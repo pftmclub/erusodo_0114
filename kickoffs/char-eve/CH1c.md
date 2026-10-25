@@ -13,9 +13,8 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Phase CH0 - Eve map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-# CH0 writes the exact column filters into 'Amended by CH0' below; these are the pilot's shape
 awk -F'\t' '$6=="CH1c"' june2017_re/char_eve/ch0_class_map.tsv
-awk -F'\t' '$NF=="CH1c"' june2017_re/char_eve/ch0_state_skill.tsv
+awk -F'\t' '$8=="CH1c"' june2017_re/char_eve/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1c/' june2017_re/char_eve/ch0_checklist_rows.tsv
 ```
 Then CH0's Done note. Pull a checklist section by heading only when a row above names it.
@@ -29,6 +28,8 @@ Transcribe every function the class map gives phase `CH1c` (the 27 `ENSI_RIDING*
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1c` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 24** (`awk -F'\t' '$6=="CH1c"' june2017_re/char_eve/ch0_class_map.tsv`; state-fn 24).
+  June addresses: `329ac330` `329cbff0` `329cc000` `329cc010` `329cc020` `329cc030` `329cc040` `329cc060` `329cc070` `329cc080` `329cc090` `329cc0a0` `329cc0f0` `329cc100` `329cc110` `329cc120` `329cc130` `329cc140` `329cc180` `329cc190` `329cc1a0` `329cc1b0` `329cc1c0` `329cc1d0`.
+- **States: 37** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_PEPPER_RUN_READY`, `ENSI_PEPPER_RUN`, `ENSI_PEPPER_RUN_END`, `ENSI_PEPPER_RUN_JUMP_UP`, `ENSI_PEPPER_RUN_JUMP_DOWN`, `ENSI_AMUSEMENT_ITEM_PHOENIX_RUN`, `ENSI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `ENSI_DANCE_Z`, `ENSI_DANCE_X`, `ENSI_DANCE_WAIT`, `ENSI_RIDING_START`, `ENSI_RIDING_ON`, `ENSI_RIDING_OFF`, `ENSI_RIDING_WAIT_HABIT`, `ENSI_RIDING_WAIT`, `ENSI_RIDING_WALK`, `ENSI_RIDING_JUMP_UP`, `ENSI_RIDING_JUMP_DOWN`, `ENSI_RIDING_JUMP_LANDING`, `ENSI_RIDING_DASH`, `ENSI_RIDING_DASH_END`, `ENSI_RIDING_DASH_JUMP`, `ENSI_RIDING_DASH_JUMP_LANDING`, `ENSI_RIDING_DAMAGE_FRONT`, `ENSI_RIDING_DAMAGE_FRONT`, `ENSI_RIDING_ATTACK_Z`, `ENSI_RIDING_ATTACK_X`, `ENSI_RIDING_JUMP_ATTACK_Z`, `ENSI_RIDING_ATTACK_SPECIAL`, `ENSI_RIDING_DIE`, `ENSI_RIDING_SPECIAL_MOVE`, `ENSI_RIDING_HYPER_MODE`, `ENSI_RIDING_SPECIFIC`, `ENSI_RIDING_ATTACK_X_READY`, `ENSI_RIDING_ATTACK_X_READY_2`, `ENSI_RIDING_ATTACK_X_END`, `ENSI_RIDING_DAMAGE_BACK`.

@@ -938,8 +938,8 @@ Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | ready | Opus 5.5 / high | - | `june2017_re/char_eve/`, `charport_*` tools, funcmap, plan doc, kickoffs | `CH0.md` |
-| CH0b | waiting | Sonnet 5.5 / high, then user play-test | CH0 | Eve's motions / models / textures / equipment / effects / sounds in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
+| CH0 | **done 2026-10-26** (Done note in the plan doc; maps in `june2017_re/char_eve/ch0_*.tsv`) | Opus 5.5 / high | - | `june2017_re/char_eve/`, `charport_states.py`, `s3_no_state.py`, funcmap, plan doc, kickoffs | `CH0.md` |
+| CH0b | **ready** (5,197 files, 0 refused; no koms held for CH1) | Sonnet 5.5 / high, then user play-test | CH0 | Eve's motions / models / textures / equipment / effects / sounds in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
 | CH1a | waiting | Sonnet 5.5 / high, Opus review | CH0 (and CH0b may run beside) | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1a.md` |
 | CH1b | waiting | Sonnet 5.5 / high, Opus review | CH1a review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1b.md` |
 | CH1c | waiting | Sonnet 5.5 / high, Opus review | CH1b review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1c.md` |
@@ -950,22 +950,32 @@ Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH1h | waiting | Sonnet 5.5 / high, Opus review | CH1g review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1h.md` |
 | CH1i | waiting | Sonnet 5.5 / high, Opus review | CH1h review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1i.md` |
 | CH1j | waiting | Sonnet 5.5 / high, Opus review | CH1i review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1j.md` |
-| CH1k | waiting | Sonnet 5.5 / high, Opus review | CH1j review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1k.md` |
+| CH1j20 (helpers: slot key-held / slot page) | waiting | Opus 5.5 / high, Opus review | CH1j review | `X2GUUser.*` / `X2GuEve.*`, Always.h | `CH1j20.md` |
+| CH1j2 | waiting | Sonnet 5.5 / high, Opus review | CH1j20 review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1j2.md` |
+| CH1k | waiting | Sonnet 5.5 / high, Opus review | CH1j2 review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1k.md` |
 | CH1l | waiting | Sonnet 5.5 / high, Opus review | CH1k review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1l.md` |
-| CH1m (registration + `_LIVE` gate) | waiting | Opus 5.5 / high, Opus review | CH1l review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
+| CH1l2 | waiting | Sonnet 5.5 / high, Opus review | CH1l review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1l2.md` |
+| CH1l3 | waiting | Sonnet 5.5 / high, Opus review | CH1l2 review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1l3.md` |
+| CH1l40 (helpers: effect-modifier setters, customize-item struct) | waiting | Opus 5.5 / high, Opus review | CH1l3 review | `X2GuEve.*`, effect / customize classes, Always.h | `CH1l40.md` |
+| CH1l4 | waiting | Sonnet 5.5 / high, Opus review | CH1l40 review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1l4.md` |
+| CH1m (registration + `_LIVE` gate) | waiting | Opus 5.5 / high, Opus review | CH1l4 review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
 | CH1n (base callbacks + slot head) | waiting | Opus 5.5 / high, Opus review | CH1m review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
 | CH1o (virtuals under `_LIVE`) | waiting | Opus 5.5 / high, Opus review | CH1n review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p (7ag pressed index + hooks + June-only keys) | waiting | Opus 5.5 / high, Opus review | CH1o review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
 | CH1q (Nasod Core) | waiting | Opus 5.5 / high, Opus review | CH1p review | `X2GuEve.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.cpp`, `X2GUNPC.cpp`, `X2DamageManager.h`, Always.h | `CH1q.md` |
 | CH1 (final) | waiting | Opus 5.5 / high, Opus review, then user play-test | CH1q review, CH0b | Always.h, data036 `Eve_Nasod.lua` + data037 summon scripts, motion koms | `CH1.md` |
-| CH2a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review (+ any `CH2a0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2a.md` |
-| CH2b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2a review (+ any `CH2b0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2b.md` |
-| CH2c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2b review (+ any `CH2c0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2c.md` |
-| CH3a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2c review (+ any `CH3a0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3a.md` |
-| CH3b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3a review (+ any `CH3b0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3b.md` |
-| CH3c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3b review (+ any `CH3c0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3c.md` |
+| CH2a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review | `X2GuEve.*`, `MODS.md` | `CH2a.md` |
+| CH2a2 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2a review | `X2GuEve.*`, `MODS.md` | `CH2a2.md` |
+| CH2b0 (helper: unit-cone collector) | waiting | Opus 5.5 / high, Opus review | CH2a2 review | `X2GuEve.*` / `X2GUUser.*`, Always.h | `CH2b0.md` |
+| CH2b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2a2 and CH2b0 reviews | `X2GuEve.*`, `MODS.md` | `CH2b.md` |
+| CH2c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2b review | `X2GuEve.*`, `MODS.md` | `CH2c.md` |
+| CH2c2 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2c review | `X2GuEve.*`, `MODS.md` | `CH2c2.md` |
+| CH3a0 (helpers: UI skill-tree notify, mesh float) | waiting | Opus 5.5 / high, Opus review | CH2c2 review | `X2GuEve.*` / `X2GUUser.*`, Always.h | `CH3a0.md` |
+| CH3a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2c2 and CH3a0 reviews | `X2GuEve.*`, `MODS.md` | `CH3a.md` |
+| CH3b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3a review | `X2GuEve.*`, `MODS.md` | `CH3b.md` |
+| CH3c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3b review | `X2GuEve.*`, `MODS.md` | `CH3c.md` |
 | CH3d | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3c review | `X2GuEve.*`, `Handlers_Quest.cpp`, `LevelUpEvent.lua`, transcendence data / pictures | `CH3d.md` |
-| CH4a | waiting | Opus 5.5 / high, Opus review, user play-test | CH2c review; not with a CH3 phase | `X2GuEve.*`, Always.h | `CH4a.md` |
+| CH4a | waiting | Opus 5.5 / high, Opus review, user play-test | CH2c2 review; not with a CH3 phase | `X2GuEve.*`, Always.h | `CH4a.md` |
 | CH4b | waiting | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GuEve.*`, `X2GameUnit.*`, Always.h | `CH4b.md` |
 | CH4c | waiting | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GuEve.*`, skill-tree / slot UI, Always.h | `CH4c.md` |
 | CH5 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` (Eve rows), cut-in table, Always.h | `CH5.md` |

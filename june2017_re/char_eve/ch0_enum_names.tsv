@@ -1,0 +1,428 @@
+# skill ids: 127 distinct; cpp SKILL_ID enum (X2SkillTree.h:92, 1047 parsed names): by name 1, value-only 0, lookalike-only 11, none 115
+# skill ids in core March Enum.lua SKILL_ID (data036 BOM source): name present 56, value-only 0, absent 71; June Enum.src.lua: all 127 present
+# states: 293 distinct ENSI_ tables in June Eve_Nasod.src.lua (295 top-level definitions; 2 defined twice: ENSI_RIDING_DAMAGE_FRONT, ENSI_HA_EBS_PSYCHIC_ARTILLERY; plus 6 INIT_*)
+# states vs cpp EVE_STATE_ID (X2GuEve.h:6, 77 names parsed): name in enum 73 (uncommented+live 68, uncommented but dead #if 4, commented 1), not in enum 220
+# states vs core March Enum.lua EVE_STATE_ID: present 101 (value differs from June 0), absent 192; June names missing from June Enum.src.lua: 192
+# of the 220 June states not in the cpp enum, 143 have a token in X2GuEve.cpp (e.g. MakeTableReference string with a dynamic stateID, X2GuEve.cpp:2742) and 77 have none (June-only states); they are also absent from both Enum.lua tables
+# NOTE: Lua EVE_STATE_ID values are not the C++ enum values (Lua ENSI_BASE=6, C++ ENSI_BASE=USI_END+1); value compare is June Lua vs March Lua only. Dead = #ifdef flag not defined in Always.h (ADD_EVE_SYSTEM_2014, FIX_ADD_EVE_SYSTEM_2014, EVE_COMBO_TEST_TEST); cpp_live is my own #ifdef read, not cl /P.
+kind	name	june_value	cpp_enum	cpp_line	cpp_commented	core_enum_lua	cpp_live	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	none			absent		
+skill	SI_ETC_WS_COMMON_LOVE	900	name	132	n	absent	y	case in X2GuEve.cpp
+skill	RNSI_SA_EVE_DIMENSION_LINK_SENTRY	25000	none			name; march=25000		
+skill	RNSI_SA_EVE_ILLUSION_STINGER	25001	none			name; march=25001		
+skill	RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN	25002	none			name; march=25002		
+skill	RNSI_SA_EEG_QUEENS_THRONE	25003	lookalike(SI_SA_EEG_QUEENS_THRONE=5005)	465	n	name; march=25003	y	
+skill	RNSI_SA_EEG_EXPLOSION_IMPACT	25004	lookalike(SI_SA_EEG_EXPLOSION_IMPACT=5004)	464	n	name; march=25004	y	
+skill	RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN	25005	none			name; march=25005		
+skill	RNSI_SA_EEG_HORNET_STING_EXPLOSION	25006	none			name; march=25006		
+skill	RNSI_SA_EEG_GENERATE_BLACKHOLE	25007	none			name; march=25007		
+skill	RNSI_SA_ECN_JUNK_BREAK	25008	none			name; march=25008		
+skill	RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR	25009	none			name; march=25009		
+skill	RNSI_SA_ECN_IRONSCRAPS	25010	none			name; march=25010		
+skill	RNSI_SA_ECN_ATOMIC_SHIELD	25011	none			name; march=25011		
+skill	RNSI_SA_EAT_HEAVENS_FIST_PRESSURE	25012	lookalike(SI_SA_EAT_HEAVENS_FIST_PRESSURE=5012)	472	n	name; march=25012	y	
+skill	RNSI_SA_EAT_SONIC_WAVE	25013	lookalike(SI_SA_EAT_SONIC_WAVE=5010)	470	n	name; march=25013	y	
+skill	RNSI_SA_EAT_OBERON_GUARD	25014	none			name; march=25014		
+skill	RNSI_SA_EAT_SURFACE_CUTING	25015	none			name; march=25015		
+skill	RNSI_SA_EAT_HEAVENS_FIST_SWEEPER	25016	lookalike(SI_SA_EAT_HEAVENS_FIST_SWEEPER=5013)	473	n	name; march=25016	y	
+skill	RNSI_SA_ECE_GENOCIDE_RIPPER	25017	none			name; march=25017		
+skill	RNSI_SA_ECE_ASSUALT_SPEAR_BURST	25018	none			name; march=25018		
+skill	RNSI_SA_ECE_SPACE_WRENCH	25019	none			name; march=25019		
+skill	RNSI_SA_ECE_ELECTRONIC_FIELD	25020	none			name; march=25020		
+skill	RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE	25021	lookalike(SI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE=5017)	477	n	name; march=25021	y	
+skill	RNSI_SA_EEL_PHOTON_FLARE	25022	lookalike(SI_SA_EEL_PHOTON_FLARE=5019)	479	n	name; march=25022	y	
+skill	RNSI_SA_EEL_PARTICLE_RAY	25023	lookalike(SI_SA_EEL_PARTICLE_RAY=5016)	476	n	name; march=25023	y	
+skill	RNSI_SA_EEL_KUGELBLITZ	25024	none			name; march=25024		
+skill	RNSI_SA_EEL_GIGA_STREAM	25025	lookalike(SI_SA_EEL_GIGA_STREAM=5020)	480	n	name; march=25025	y	
+skill	RNSI_SA_ECB_LINEAR_DIVIDER	25026	none			name; march=25026		
+skill	RNSI_SA_ECB_ENERGY_NEEDLES	25027	none			name; march=25027		
+skill	RNSI_SA_ECB_THOUSANDS_OF_STARS	25028	none			name; march=25028		
+skill	RNSI_SA_ECB_ENERGETIC_HEART	25029	none			name; march=25029		
+skill	RNSI_SA_EVE_DIMENSION_LINK_SENTRY_UPGRADE	25030	none			absent		
+skill	RNSI_SA_EVE_ILLUSION_STINGER_UPGRADE	25031	none			absent		
+skill	RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN_UPGRADE	25032	none			absent		
+skill	RNSI_SA_EEG_QUEENS_THRONE_UPGRADE	25037	none			absent		
+skill	RNSI_SA_EAT_HEAVENS_FIST_PRESSURE_UPGRADE	25038	none			absent		
+skill	RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE_UPGRADE	25039	none			absent		
+skill	RNSI_SA_EEG_EXPLOSION_IMPACT_UPGRADE	25040	none			absent		
+skill	RNSI_SA_EAT_SONIC_WAVE_UPGRADE	25041	none			absent		
+skill	RNSI_SA_EEL_PHOTON_FLARE_UPGRADE	25042	none			absent		
+skill	RNSI_SA_ENS_ILLUSIONIC_THORN	25043	none			name; march=25043		
+skill	RNSI_SA_ENS_EXTREMING_CUTTING	25044	none			name; march=25044		
+skill	RNSI_SA_EEP_TESLA_FLARE	25045	none			name; march=25045		
+skill	RNSI_SA_EEP_ELECTRONIC_THUNDER	25046	none			name; march=25046		
+skill	RNSI_SA_EBS_NEEDLES_CUTTING	25047	none			name; march=25047		
+skill	RNSI_SA_EBS_LASER_POLE	25048	none			name; march=25048		
+skill	RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN_UPGRADE	25049	none			absent		
+skill	RNSI_SA_EEG_HORNET_STING_EXPLOSION_UPGRADE	25050	none			absent		
+skill	RNSI_SA_EEG_GENERATE_BLACKHOLE_UPGRADE	25051	none			absent		
+skill	RNSI_SA_ECN_JUNK_BREAK_UPGRADE	25052	none			absent		
+skill	RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR_UPGRADE	25053	none			absent		
+skill	RNSI_SA_ECN_IRONSCRAPS_UPGRADE	25054	none			absent		
+skill	RNSI_SA_ECN_ATOMIC_SHIELD_UPGRADE	25055	none			absent		
+skill	RNSI_SA_EAT_OBERON_GUARD_UPGRADE	25056	none			absent		
+skill	RNSI_SA_EAT_SURFACE_CUTING_UPGRADE	25057	none			absent		
+skill	RNSI_SA_EAT_HEAVENS_FIST_SWEEPER_UPGRADE	25058	none			absent		
+skill	RNSI_SA_ECE_GENOCIDE_RIPPER_UPGRADE	25059	none			absent		
+skill	RNSI_SA_ECE_ASSUALT_SPEAR_BURST_UPGRADE	25060	none			absent		
+skill	RNSI_SA_ECE_SPACE_WRENCH_UPGRADE	25061	none			absent		
+skill	RNSI_SA_ECE_ELECTRONIC_FIELD_UPGRADE	25062	none			absent		
+skill	RNSI_SA_EEL_PARTICLE_RAY_UPGRADE	25063	none			absent		
+skill	RNSI_SA_EEL_KUGELBLITZ_UPGRADE	25064	none			absent		
+skill	RNSI_SA_EEL_GIGA_STREAM_UPGRADE	25065	none			absent		
+skill	RNSI_SA_ECB_LINEAR_DIVIDER_UPGRADE	25066	none			absent		
+skill	RNSI_SA_ECB_ENERGY_NEEDLES_UPGRADE	25067	none			absent		
+skill	RNSI_SA_ECB_THOUSANDS_OF_STARS_UPGRADE	25068	none			absent		
+skill	RNSI_SA_ECB_ENERGETIC_HEART_UPGRADE	25069	none			absent		
+skill	RNSI_A_EVE_PHOTON_BLINK	25200	none			name; march=25200		
+skill	RNSI_A_COMMON_AURA_ADDATK_ACCEL	25201	none			name; march=25201		
+skill	RNSI_A_EVE_SPECTRO_EL_CRYSTAL	25202	none			name; march=25202		
+skill	RNSI_A_EVE_CONVERSION	25203	none			name; march=25203		
+skill	RNSI_A_EEG_METAL_DUST_AURA	25204	lookalike(SI_A_EEG_METAL_DUST_AURA=5210)	498	n	name; march=25204	y	
+skill	RNSI_A_ECN_TESLA_SHOCK	25205	none			name; march=25205		
+skill	RNSI_A_ECN_SPEAR_BURST	25206	none			name; march=25206		
+skill	RNSI_A_EAT_MEGA_ELECTRONBALL	25207	none			name; march=25207		
+skill	RNSI_A_ECE_TESLA_SHOCK	25208	none			name; march=25208		
+skill	RNSI_A_ECE_SPIT_FIRE_FLUSH	25209	none			name; march=25209		
+skill	RNSI_A_ECB_TESLA_SHOCK	25211	none			name; march=25211		
+skill	RNSI_A_ECB_TASER_PILUM	25212	none			name; march=25212		
+skill	RNSI_A_EVE_PHOTON_BLINK_UPGRADE	25213	none			absent		
+skill	RNSI_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE	25214	none			absent		
+skill	RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE	25215	none			absent		
+skill	RNSI_A_EVE_CONVERSION_UPGRADE	25216	none			absent		
+skill	RNSI_A_EEG_METAL_DUST_AURA_UPGRADE	25218	none			absent		
+skill	RNSI_A_EAT_MEGA_ELECTRONBALL_UPGRADE	25219	none			absent		
+skill	RNSI_A_ENS_SHOT_GUN	25221	none			name; march=25221		
+skill	RNSI_A_EEP_SUMMON_TO_MIND	25222	none			absent		
+skill	RNSI_A_EBS_ELECTRONIC_MOVE	25223	none			absent		
+skill	RNSI_A_EAT_FAENA	25224	none			name; march=25224		
+skill	RNSI_A_EAT_FAENA_UPGRADE	25225	none			absent		
+skill	RNSI_A_ECN_TESLA_SHOCK_UPGRADE	25227	none			absent		
+skill	RNSI_A_ECN_SPEAR_BURST_UPGRADE	25228	none			absent		
+skill	RNSI_A_ECE_TESLA_SHOCK_UPGRADE	25229	none			absent		
+skill	RNSI_A_ECE_SPIT_FIRE_FLUSH_UPGRADE	25230	none			absent		
+skill	RNSI_A_ECB_TESLA_SHOCK_UPGRADE	25232	none			absent		
+skill	RNSI_A_ECB_TASER_PILUM_UPGRADE	25233	none			absent		
+skill	RNSI_SA_ECN_PSYKER_KINESIS	25235	none			name; march=25235		
+skill	RNSI_SA_ECE_REASON_PRIDE	25236	none			name; march=25236		
+skill	RNSI_SA_ECB_EXTREME_VIRTUAL	25237	none			name; march=25237		
+skill	RNSI_P_EEG_REFINED_STEP	25400	none			absent		
+skill	RNSI_P_ECN_NASOD_WEAPON	25401	none			absent		
+skill	RNSI_P_ECN_ENERGY_OF_CONCENTRATION	25402	none			absent		
+skill	RNSI_P_ECN_QUEEN_OF_VENGEANCE	25403	none			absent		
+skill	RNSI_P_ECN_QUEEN_OF_DESTROY	25404	none			absent		
+skill	RNSI_P_EAT_QUEENS_POTENTIAL	25405	none			absent		
+skill	RNSI_P_ECE_QUEENS_CONTROL	25406	none			absent		
+skill	RNSI_P_ECE_ELECTRON_BOOSTER	25407	none			absent		
+skill	RNSI_P_ECE_GRACE_OF_QUEEN	25408	none			absent		
+skill	RNSI_P_ECE_CHARGING_BOOSTER	25409	none			absent		
+skill	RNSI_P_EEL_SPECTRUM_DYNAMICS	25410	lookalike(SI_P_EEL_SPECTRUM_DYNAMICS=5409)	522	n	absent	y	
+skill	RNSI_P_ECB_HYPER_OPTICAL_RESEARCH	25411	none			absent		
+skill	RNSI_P_ECB_PHOTON_BOOSTER	25412	none			absent		
+skill	RNSI_P_ECB_HIGHPOWERED_ELECTRICS	25413	none			absent		
+skill	RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR	25414	none			absent		
+skill	RNSI_P_ENS_OPEN_MIND	25415	none			absent		
+skill	RNSI_P_ENS_CHEAT_CODE_DESTROY	25416	none			absent		
+skill	RNSI_P_EEP_OPEN_MIND	25417	none			absent		
+skill	RNSI_P_EEP_CHEAT_CODE_RULE_BREAK	25418	none			absent		
+skill	RNSI_P_EBS_OPEN_MIND	25419	none			absent		
+skill	RNSI_P_EBS_CHEAT_CODE_ELECTRONIC	25420	none			absent		
+skill	RNSI_HA_ECN_LUNATIC_SCUD	25600	none			name; march=25600		
+skill	RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION	25601	none			name; march=25601		
+skill	RNSI_HA_ECB_PSYCHIC_ARTILLERRY	25602	none			name; march=25602		
+skill	RNSI_HA_ECN_LUNATIC_SCUD_UPGRADE	25603	none			absent		
+skill	RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE	25604	none			absent		
+skill	RNSI_HA_ECB_PSYCHIC_ARTILLERRY_UPGRADE	25605	none			absent		
+state	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_AMUSEMENT_ITEM_PHOENIX_RUN_END		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_AT_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_AT_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1717
+state	ENSI_AT_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_AT_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_AT_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1712
+state	ENSI_A_EAT_FAENA		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EAT_HEAVENS_FIST		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2593
+state	ENSI_A_EAT_HEAVENS_FIST_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2599
+state	ENSI_A_EAT_HEAVENS_FIST_SWEEPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3078
+state	ENSI_A_EAT_OBERON_GUARD		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2554
+state	ENSI_A_EBS_ELECTRONIC_MOVE_DOWN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EBS_ELECTRONIC_MOVE_FRONT		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EBS_ELECTRONIC_MOVE_UP		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EBS_KUGELBLITZ		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3126
+state	ENSI_A_ECB_TESLA_SHOCK		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_ECE_TESLA_SHOCK		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_ECN_TESLA_SHOCK		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EEG_JUNK_BREAK		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2575
+state	ENSI_A_EEG_JUNK_BREAK_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2581
+state	ENSI_A_EEG_METAL_DUST_AURA		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2535
+state	ENSI_A_EEG_METAL_DUST_AURA_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2543
+state	ENSI_A_EEP_SPIT_FIRE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2683
+state	ENSI_A_EEP_SPIT_FIRE_GRENADE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3110
+state	ENSI_A_EEP_SPIT_FIRE_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2688
+state	ENSI_A_EEP_SUMMON_TO_MIND		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_ENS_BURST_SPEAR		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2631
+state	ENSI_A_ENS_BURST_SPEAR_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2637
+state	ENSI_A_ENS_BURST_SPEAR_Landing	121	name	97	n	name; march=121	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_A_ENS_BURST_SPEAR_Landing_HYPER	122	name	98	n	name; march=122	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_A_ENS_SHOT_GUN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_A_EN_TESLA_SHOCK		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2991
+state	ENSI_A_EPR_SPECTRO_EL_CRYSTAL		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2765
+state	ENSI_A_EVE_PHOTON_BLINK		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2742
+state	ENSI_BS_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_BS_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_BS_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_BS_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_BS_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_COMBO_X	64	name	38	n	name; march=64	y	
+state	ENSI_COMBO_XX	65	name	39	n	name; march=65	y	
+state	ENSI_COMBO_XXX	66	name	40	n	name; march=66	y	
+state	ENSI_COMBO_XXZ4	98	name	73	n	name; march=98	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_COMBO_XXdownX	69	name	45	n	name; march=69	y	
+state	ENSI_COMBO_XXdownXX	70	name	46	n	name; march=70	y	
+state	ENSI_COMBO_XXfrontX	67	name	42	n	name; march=67	y	
+state	ENSI_COMBO_XXfrontXX	68	name	43	n	name; march=68	y	
+state	ENSI_COMBO_Z	57	name	27	n	name; march=57	y	
+state	ENSI_COMBO_ZZ	58	name	28	n	name; march=58	y	
+state	ENSI_COMBO_ZZZ	59	name	29	n	name; march=59	y	
+state	ENSI_COMBO_ZZZX	61	name	32	n	name; march=61	y	
+state	ENSI_COMBO_ZZZZ	60	name	30	n	name; march=60	y	
+state	ENSI_COMBO_ZZZdownZ	62	name	33	n	name; march=62	y	
+state	ENSI_COMBO_ZZZdownZZ	63	name	34	n	name; march=63	y	
+state	ENSI_DAMAGE_AIR_DOWN	40	none			name; march=40		token in X2GuEve.cpp:911
+state	ENSI_DAMAGE_AIR_DOWN_INVINCIBLE	41	none			name; march=41		token in X2GuEve.cpp:917
+state	ENSI_DAMAGE_AIR_DOWN_LANDING	42	none			name; march=42		token in X2GuEve.cpp:923
+state	ENSI_DAMAGE_AIR_FALL	43	none			name; march=43		token in X2GuEve.cpp:931
+state	ENSI_DAMAGE_AIR_FLY_BACK	46	none			name; march=46		token in X2GuEve.cpp:949
+state	ENSI_DAMAGE_AIR_FLY_FRONT	45	none			name; march=45		token in X2GuEve.cpp:943
+state	ENSI_DAMAGE_AIR_SMALL	39	none			name; march=39		token in X2GuEve.cpp:904
+state	ENSI_DAMAGE_AIR_UP	44	none			name; march=44		token in X2GuEve.cpp:937
+state	ENSI_DAMAGE_BIG_BACK	34	none			name; march=34		token in X2GuEve.cpp:869
+state	ENSI_DAMAGE_BIG_FRONT	33	none			name; march=33		token in X2GuEve.cpp:862
+state	ENSI_DAMAGE_BOUNDING_DOWN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DAMAGE_BOUNDING_LANDCRASH		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DAMAGE_BOUNDING_UP		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DAMAGE_DOWN_BACK	36	none			name; march=36		token in X2GuEve.cpp:883
+state	ENSI_DAMAGE_DOWN_FRONT	35	none			name; march=35		token in X2GuEve.cpp:876
+state	ENSI_DAMAGE_GROGGY	30	none			name; march=30		token in X2GuEve.cpp:844
+state	ENSI_DAMAGE_REVENGE	47	none			name; march=47		token in X2GuEve.cpp:955
+state	ENSI_DAMAGE_SMALL_BACK	32	none			name; march=32		token in X2GuEve.cpp:856
+state	ENSI_DAMAGE_SMALL_FRONT	31	none			name; march=31		token in X2GuEve.cpp:850
+state	ENSI_DAMAGE_STANDUP_BACK	38	none			name; march=38		token in X2GuEve.cpp:897
+state	ENSI_DAMAGE_STANDUP_FRONT	37	none			name; march=37		token in X2GuEve.cpp:890
+state	ENSI_DANCE_WAIT		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DANCE_X		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DANCE_Z		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_DASH	21	none			name; march=21		token in X2GuEve.cpp:748
+state	ENSI_DASH_COMBO_X	72	name	55	n	name; march=72	y	
+state	ENSI_DASH_COMBO_XZ	101	name	76	n	name; march=101	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_DASH_COMBO_Z	71	name	51	n	name; march=71	y	
+state	ENSI_DASH_COMBO_ZX		name	53	n	absent	n	cond EVE_COMBO_TEST_TEST; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_DASH_COMBO_ZZ	99	name	74	n	name; march=99	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_DASH_COMBO_ZZZ	100	name	75	n	name; march=100	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_DASH_END	22	none			name; march=22		token in X2GuEve.cpp:757
+state	ENSI_DASH_JUMP	23	none			name; march=23		token in X2GuEve.cpp:766
+state	ENSI_DASH_JUMP_COMBO_X	79	name	65	n	name; march=79	y	
+state	ENSI_DASH_JUMP_COMBO_XZ	103	name	78	n	name; march=103	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_DASH_JUMP_COMBO_Z	76	name	61	n	name; march=76	y	
+state	ENSI_DASH_JUMP_COMBO_ZX	102	name	77	n	name; march=102	y	cond EVE_FIRST_CHANGE_JOB
+state	ENSI_DASH_JUMP_COMBO_ZZ	77	name	62	n	name; march=77	y	
+state	ENSI_DASH_JUMP_COMBO_ZZZ	78	name	63	n	name; march=78	y	
+state	ENSI_DASH_JUMP_LANDING	24	none			name; march=24		token in X2GuEve.cpp:776
+state	ENSI_DASH_JUMP_POWER_LANDING	25	name	10	n	name; march=25	y	
+state	ENSI_DIE_BACK	8	none			name; march=8		token in X2GuEve.cpp:688
+state	ENSI_DIE_FRONT	7	none			name; march=7		token in X2GuEve.cpp:679
+state	ENSI_EBS_BOOST_DASH		name	115	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_BOOST_DASH_AIR		name	118	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_BOOST_DASH_AIR_START		name	117	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_BOOST_DASH_START		name	114	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_DASH_JUMP_COMBO_XZ		name	120	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_DASH_JUMP_COMBO_ZDownX		name	124	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_DASH_JUMP_COMBO_ZFrontX		name	122	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_DASH_JUMP_COMBO_ZUpX		name	123	n	absent	y	cond SERV_EVE_BATTLE_SERAPH; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_EBS_ENERGETIC_HEART		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2948
+state	ENSI_EBS_ENERGY_NEEDLES		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2929
+state	ENSI_ECB_DASH_XX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECB_HYPER_MODE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECE_COMBO_ZZX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECE_COMBO_ZZXX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECE_DASH_XX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECE_HYPER_MODE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECN_COMBO_ZZX_END		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECN_COMBO_ZZX_LOOP		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECN_COMBO_ZZX_READY		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECN_DASH_JUMP_XZ		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_ECN_HYPER_MODE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EEG_DASH_JUMP_ZX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EEG_DASH_JUMP_ZZX		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EG_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EG_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1717
+state	ENSI_EG_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EG_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EG_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1712
+state	ENSI_EPR_COMBO_XXZ	124	name	105	n	name; march=124	y	cond EVE_ELECTRA
+state	ENSI_EPR_COMBO_ZZZfrontZ	123	name	104	n	name; march=123	y	cond EVE_ELECTRA
+state	ENSI_EPR_DASH_COMBO_ZZ	125	name	106	n	name; march=125	y	cond EVE_ELECTRA
+state	ENSI_EPR_DASH_COMBO_ZZZ	126	name	107	n	name; march=126	y	cond EVE_ELECTRA
+state	ENSI_EP_COMBO_XXdownX	120	name	95	n	name; march=120	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_EP_DASH_COMBO_ZZ	117	name	92	n	name; march=117	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_EP_DASH_COMBO_ZZZ	118	name	93	n	name; march=118	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_EP_JUMP_COMBO_ZX	119	name	94	n	name; march=119	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_EP_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EP_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EP_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EP_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EP_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_EVE_RECOVERY		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_FROZEN		name	152	y	absent	n	not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_HA_EBS_PSYCHIC_ARTILLERY		none			absent		not in June Enum.src.lua EVE_STATE_ID; defined twice in June script; token in X2GuEve.cpp:3199
+state	ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3173
+state	ENSI_HA_ENS_LUNATIC_SCUD		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3189
+state	ENSI_HYPER_MODE	29	none			name; march=29		token in X2GuEve.cpp:832
+state	ENSI_INVISIBILITY_ON	56	name	24	n	name; march=56	y	
+state	ENSI_JUMP_COMBO_X	74	name	58	n	name; march=74	y	
+state	ENSI_JUMP_COMBO_X_LANDING	75	name	59	n	name; march=75	y	
+state	ENSI_JUMP_COMBO_Z	73	name	57	n	name; march=73	y	
+state	ENSI_JUMP_DASH	28	name	14	n	name; march=28	y	
+state	ENSI_JUMP_DOWN	19	none			name; march=19		token in X2GuEve.cpp:733
+state	ENSI_JUMP_FLY_DOWN	27	name	13	n	name; march=27	y	
+state	ENSI_JUMP_FLY_UP	26	name	12	n	name; march=26	y	
+state	ENSI_JUMP_LANDING	20	none			name; march=20		token in X2GuEve.cpp:740
+state	ENSI_JUMP_READY	17	none			name; march=17		token in X2GuEve.cpp:720
+state	ENSI_JUMP_UP	18	none			name; march=18		token in X2GuEve.cpp:726
+state	ENSI_LOSE	13	none			name; march=13		no token in X2GuEve.cpp
+state	ENSI_LOSE2	14	none			name; march=14		token in X2GuEve.cpp:1717
+state	ENSI_NS_COMBO_XXZ	114	name	88	n	name; march=114	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_NS_COMBO_XXZZ8	115	name	89	n	name; march=115	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_NS_COMBO_XXZZ8Z	116	name	90	n	name; march=116	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_NS_DASH_COMBO_ZX	112	name	85	n	name; march=112	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_NS_DASH_COMBO_ZXX	113	name	86	n	name; march=113	y	cond EVE_SECOND_CLASS_CHANGE
+state	ENSI_NS_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_NS_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_NS_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_NS_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_NS_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_PARRYING		name	134	n	absent	n	cond ADD_EVE_SYSTEM_2014; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_PARRYING_BLINK		name	135	n	absent	n	cond ADD_EVE_SYSTEM_2014; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_PARRYING_SMALL		name	133	n	absent	n	cond ADD_EVE_SYSTEM_2014; not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_PEPPER_RUN	94	none			name; march=94		token in X2GuEve.cpp:1218
+state	ENSI_PEPPER_RUN_END	95	none			name; march=95		token in X2GuEve.cpp:1225
+state	ENSI_PEPPER_RUN_JUMP_DOWN	97	none			name; march=97		token in X2GuEve.cpp:1240
+state	ENSI_PEPPER_RUN_JUMP_UP	96	none			name; march=96		token in X2GuEve.cpp:1232
+state	ENSI_PEPPER_RUN_READY	93	none			name; march=93		token in X2GuEve.cpp:1212
+state	ENSI_PR_LOSE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_PR_LOSE2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_PR_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_PR_WIN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_PR_WIN2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_ATTACK_SPECIAL		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1463
+state	ENSI_RIDING_ATTACK_X		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1450
+state	ENSI_RIDING_ATTACK_X_END		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_ATTACK_X_READY		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_ATTACK_X_READY_2		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_ATTACK_Z		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1429
+state	ENSI_RIDING_DAMAGE_FRONT		none			absent		not in June Enum.src.lua EVE_STATE_ID; defined twice in June script; token in X2GuEve.cpp:1398
+state	ENSI_RIDING_DASH		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1354
+state	ENSI_RIDING_DASH_END		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1365
+state	ENSI_RIDING_DASH_JUMP		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1376
+state	ENSI_RIDING_DASH_JUMP_LANDING		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1388
+state	ENSI_RIDING_DIE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1418
+state	ENSI_RIDING_HYPER_MODE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1489
+state	ENSI_RIDING_JUMP_ATTACK_Z		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1439
+state	ENSI_RIDING_JUMP_DOWN		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1333
+state	ENSI_RIDING_JUMP_LANDING		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1344
+state	ENSI_RIDING_JUMP_READY		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_JUMP_UP		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1322
+state	ENSI_RIDING_OFF		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1282
+state	ENSI_RIDING_ON		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1271
+state	ENSI_RIDING_SPECIAL_MOVE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1471
+state	ENSI_RIDING_SPECIFIC		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_RIDING_START		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1260
+state	ENSI_RIDING_WAIT		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1301
+state	ENSI_RIDING_WAIT_HABIT		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1291
+state	ENSI_RIDING_WALK		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1311
+state	ENSI_SA_EAT_SPACE_WRENCH		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2518
+state	ENSI_SA_EAT_SPACE_WRENCH_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2525
+state	ENSI_SA_EBS_LASER_POLE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_EBS_NEEDLES_CUTTING		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ECB_EXTREME_VIRTUAL		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ECE_REASON_PRIDE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ECE_REASON_PRIDE_ACTION		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ECN_PSYKER_KINESIS		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_EEG_ATOMIC_SHIELD		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2722
+state	ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3008
+state	ENSI_SA_EEG_IRONSCRAPS		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2495
+state	ENSI_SA_EEG_IRONSCRAPS_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2503
+state	ENSI_SA_EEL_LINEAR_DIVIDER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3148
+state	ENSI_SA_EEL_SWEEP_ROLLING_TRI_VULCAN_END		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3067
+state	ENSI_SA_EEL_SWEEP_ROLLING_TRI_VULCAN_FIRE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3058
+state	ENSI_SA_EEL_SWEEP_ROLLING_TRI_VULCAN_READY		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3041
+state	ENSI_SA_EEP_ELECTRONIC_FIELD		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2666
+state	ENSI_SA_EEP_ELECTRONIC_FIELD_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2671
+state	ENSI_SA_EEP_ELECTRONIC_THUNDER		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_EEP_TESLA_FLARE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ENS_ASSUALT_SPEAR		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3094
+state	ENSI_SA_ENS_ATOMIC_BLASTER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2614
+state	ENSI_SA_ENS_ATOMIC_BLASTER_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2621
+state	ENSI_SA_ENS_ATOMIC_BLASTER_SONICGUN		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:3024
+state	ENSI_SA_ENS_EXTREMING_CUTTING		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_ENS_ILLUSIONIC_THORN		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SA_EN_ILLUSION_RAY		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2968
+state	ENSI_SA_EPP_ASSUALT_SPEAR		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2709
+state	ENSI_SA_EPP_ASSUALT_SPEAR_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2714
+state	ENSI_SA_EPR_PARTICLE_RAY		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2781
+state	ENSI_SA_EPR_PHOTON_FLARE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2853
+state	ENSI_SA_EPR_SWEEP_ROLLING_CHARGE	127	name	108	n	name; march=127	y	cond EVE_ELECTRA
+state	ENSI_SA_EPR_SWEEP_ROLLING_END	129	name	110	n	name; march=129	y	cond EVE_ELECTRA
+state	ENSI_SA_EPR_SWEEP_ROLLING_FIRE	128	name	109	n	name; march=128	y	cond EVE_ELECTRA
+state	ENSI_SA_EPR_SWEEP_ROLLING_READY		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2805
+state	ENSI_SA_EPR_THOUSANDS_OF_STARS		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2869
+state	ENSI_SA_GIGA_STREAM		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2881
+state	ENSI_SI1_AT_SURFACE_CUTING		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2390
+state	ENSI_SI1_AT_SURFACE_CUTING_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2395
+state	ENSI_SI1_COMMON_BUFF		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2177
+state	ENSI_SI1_COMMON_BUFF_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2181
+state	ENSI_SI1_DIMENSION_LINK		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2250
+state	ENSI_SI1_DIMENSION_LINK_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2256
+state	ENSI_SI1_EG_HORNET_STING		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2342
+state	ENSI_SI1_EG_HORNET_STING_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2348
+state	ENSI_SI1_ILLUSION_STRIKE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2232
+state	ENSI_SI1_ILLUSION_STRIKE_MEMO		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_SI2_AT_SONIC_WAVE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2403
+state	ENSI_SI2_AT_SONIC_WAVE_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2408
+state	ENSI_SI2_DIMENSION_LINK_BLADER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2291
+state	ENSI_SI2_DIMENSION_LINK_BLADER_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2296
+state	ENSI_SI2_EG_EXPLOSION_IMPACT		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2357
+state	ENSI_SI2_EG_EXPLOSION_IMPACT_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2364
+state	ENSI_SI2_ILLUSION_STINGER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2266
+state	ENSI_SI2_ILLUSION_STINGER_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2267
+state	ENSI_SI2_ILLUSION_STINGER_HYPER_MEMO		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2272
+state	ENSI_SI2_ILLUSION_STINGER_MEMO		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2271
+state	ENSI_SI3_AT_GENOCIDE_RIPPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2416
+state	ENSI_SI3_AT_GENOCIDE_RIPPER_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2424
+state	ENSI_SI3_DIMENSION_LINK_GUARDIAN		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2322
+state	ENSI_SI3_DIMENSION_LINK_GUARDIAN_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2329
+state	ENSI_SI3_EG_QUEENS_THRONE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2372
+state	ENSI_SI3_EG_QUEENS_THRONE_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2379
+state	ENSI_SI3_GENERATE_BLACKHOLE		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2304
+state	ENSI_SI3_GENERATE_BLACKHOLE_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2311
+state	ENSI_SI_A_EBS_TASER_PILUM		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2906
+state	ENSI_SI_A_EN_CONVERSION		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2452
+state	ENSI_SI_A_EN_CONVERSION_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2457
+state	ENSI_SI_A_EN_MEGA_ELECTRONBALL		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2465
+state	ENSI_SI_A_EN_MEGA_ELECTRONBALL_HYPER		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:2474
+state	ENSI_STANDUP_ATTACK_BACK	55	name	22	n	name; march=55	y	
+state	ENSI_STANDUP_ATTACK_FRONT	54	name	21	n	name; march=54	y	
+state	ENSI_STANDUP_ROLLING_BACK_BACK	53	name	19	n	name; march=53	y	
+state	ENSI_STANDUP_ROLLING_BACK_FRONT	52	name	18	n	name; march=52	y	
+state	ENSI_STANDUP_ROLLING_FRONT_BACK	51	name	17	n	name; march=51	y	
+state	ENSI_STANDUP_ROLLING_FRONT_FRONT	50	name	16	n	name; march=50	y	
+state	ENSI_START	9	none			name; march=9		no token in X2GuEve.cpp
+state	ENSI_START_INTRUDE	10	none			name; march=10		token in X2GuEve.cpp:697
+state	ENSI_THROW_ITEM		none			absent		not in June Enum.src.lua EVE_STATE_ID; token in X2GuEve.cpp:1249
+state	ENSI_TRANSFORMED		name	149	n	absent	y	not in June Enum.src.lua EVE_STATE_ID
+state	ENSI_WAIT	15	none			name; march=15		token in X2GuEve.cpp:705
+state	ENSI_WAIT_STATE_CHANGE		none			absent		not in June Enum.src.lua EVE_STATE_ID; no token in X2GuEve.cpp
+state	ENSI_WALK	16	none			name; march=16		token in X2GuEve.cpp:713
+state	ENSI_WALL_LANDING	92	name	69	n	name; march=92	y	
+state	ENSI_WIN	11	none			name; march=11		no token in X2GuEve.cpp
+state	ENSI_WIN2	12	none			name; march=12		token in X2GuEve.cpp:1712

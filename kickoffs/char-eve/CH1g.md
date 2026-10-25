@@ -13,9 +13,8 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Phase CH0 - Eve map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-# CH0 writes the exact column filters into 'Amended by CH0' below; these are the pilot's shape
 awk -F'\t' '$6=="CH1g"' june2017_re/char_eve/ch0_class_map.tsv
-awk -F'\t' '$NF=="CH1g"' june2017_re/char_eve/ch0_state_skill.tsv
+awk -F'\t' '$8=="CH1g"' june2017_re/char_eve/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1g/' june2017_re/char_eve/ch0_checklist_rows.tsv
 ```
 Then CH0's Done note. Pull a checklist section by heading only when a row above names it.
@@ -29,6 +28,9 @@ Transcribe every function the class map gives phase `CH1g` (class 108 states and
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1g` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 23** (`awk -F'\t' '$6=="CH1g"' june2017_re/char_eve/ch0_class_map.tsv`; state-fn 23).
+  June addresses: `32966ea0` `32966ec0` `32966ee0` `329685d0` `32968640` `32968650` `329686f0` `32968700` `32968710` `329709a0` `32970b50` `32970c30` `32970f10` `32971240` `32975bc0` `32975e20` `32975e60` `32975eb0` `3298db90` `3298dd30` `3298de80` `3298e090` `3298e710`.
+- **States: 9** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_ECN_COMBO_ZZX_READY`, `ENSI_ECN_COMBO_ZZX_LOOP`, `ENSI_ECN_COMBO_ZZX_END`, `ENSI_NS_COMBO_XXZ`, `ENSI_NS_COMBO_XXZZ8`, `ENSI_NS_COMBO_XXZZ8Z`, `ENSI_NS_DASH_COMBO_ZX`, `ENSI_NS_DASH_COMBO_ZXX`, `ENSI_ECN_DASH_JUMP_XZ`.
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).

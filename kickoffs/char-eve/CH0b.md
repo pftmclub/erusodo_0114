@@ -30,6 +30,12 @@ Do "Phase CH0b", the pilot's way (Aisha's CH0b Done note is the worked example):
 A file the list missed (a missing-file line in the play-test) is staged here and added to `ch0_assets.tsv`. Never keep March's copy to make
 something load.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the list, the koms, cross-kom moves, readers a June asset could break, the held koms if any.)
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7ad L723-744 (motions).
+- **The list:** `june2017_re/char_eve/ch0b_stage_list.tsv`, **5,197 files** (4,648 missing, 549 March copies; texture 3,446, mesh 1,450, sound 219, motion 65, other 17). 9,042 more of her files are June's bytes already. `kom.py stage-june --dry-run` over the list: 5,197 staged, 0 refused, placement equal to the list's column. Rebuild with `python june2017_re/char_eve/ch0_build_assets.py eve` (~4 min).
+- **Koms:** 40 placement koms (largest data018 2,538, data192 695, data130 402, datai010 317, data198 293, datai023 249, data094 191; the map is the `# stage kom map` line). **One new kom dir: `data203`** (54 June emotion motions, no March archive yet: the copy creates a new `data203.kom`, say so when asking); `data203 -> data033` 10 base motions.
+- **The motion question (answered): no animation is lost.** June moved `SI_SA_ENS_ATOMIC_BLASTER` from `Motion_EVE_NS.x` to `Motion_EVE_EG.x` and `SI_A_EBS_TASER_PILUM` from `Motion_EVE_BS.x` to `Motion_EVE_PR.x`; March's Code: Nemesis row loads EG + NS and Battle Seraph loads PR + BS (UnitTemplet l.664-689, 1053-1078), so March's script still finds both. `Motion_EVE_Common.x` only renames `PR_LobbyDownlanding` -> `PR_LobbyDownLanding` (its one March reader, `X2UnitViewerUI.cpp:4855`, is in a dead `#else`). Common is June's bytes already. **No koms are held for CH1**, but copy the 11 base `Motion_EVE*.x` together (never NS without EG, or BS without PR). Evidence: `ch0_motion_question.tsv`.
+- **Readers a June asset could break:** none found beyond the motion moves above.
+- **Not staged here, with owners:** the 4 `_INT.txt` particle / mesh-player definition files (March's, datai015; shared by every character; Eve's templets already compare June-equal: effect plan); 243 `Tutorial_Eve_*` / `Tuto_Eve_*` files (june-dungeons); `PET_Mystic_EVE_3` + pet assets (Stage 17); `POPUP_TR_*` (Stage 6, done there); 113 names neither March nor June has (`dangling`).
+- **Play-test units:** the save has 22 (Nasod 5, lv99), 19 / 27 (Empress 109, lv80), 41 (Electra 26, lv90); create Exotic Gear 18, Architecture 19, Code: Nemesis 108 and Battle Seraph 116 with `/x2-create-char`.

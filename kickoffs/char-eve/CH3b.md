@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-eve CH3b` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH3a review (and any Opus `CH3b0` helper phase CH0 wrote). One at a time: `X2GuEve.*` |
+| Depends on | CH3a review (CH0: no helper phase needed). One at a time: `X2GuEve.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`EVE SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | `kickoffs/char-eve/CH3b-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -24,6 +24,12 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Eve: CH3b)`.
 - Hand-off: the unit and class, each skill id and its A / B slot, what June's motion and effect look like.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 41** (`awk -F'\t' '$6=="CH3b"' june2017_re/char_eve/ch0_class_map.tsv`; helper 1, state-fn 40).
+  June addresses: `329666a0` `32966b00` `32966b90` `32966bb0` `32967110` `32967190` `329671e0` `32967250` `32968860` `32968890` `32968970` `3296f640` `3296f680` `3296fc00` `3296fc60` `3296fca0` `3296fd00` `329721e0` `329722c0` `329723a0` `32972540` `32972670` `32976c10` `32976e10` `32978280` `32978320` `3298c900` `3298cc60` `3298ce20` `3298d090` `3298d2f0` `32990060` `32990220` `3299a140` `3299a400` `3299ecb0` `3299ed30` `3299f060` `329ae470` `329ae4f0` `329cc290`.
+- **States: 15** (`awk -F'\t' '$8=="CH3b"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_SI3_AT_GENOCIDE_RIPPER`, `ENSI_SI3_AT_GENOCIDE_RIPPER_HYPER`, `ENSI_SA_EAT_SPACE_WRENCH`, `ENSI_SA_EAT_SPACE_WRENCH_HYPER`, `ENSI_SA_EEP_ELECTRONIC_FIELD`, `ENSI_A_EEP_SPIT_FIRE`, `ENSI_A_EEP_SPIT_FIRE_HYPER`, `ENSI_SA_EPP_ASSUALT_SPEAR`, `ENSI_SA_EPP_ASSUALT_SPEAR_HYPER`, `ENSI_A_ECE_TESLA_SHOCK`, `ENSI_A_EEP_SUMMON_TO_MIND`, `ENSI_SA_EEP_TESLA_FLARE`, `ENSI_SA_EEP_ELECTRONIC_THUNDER`, `ENSI_SA_ECE_REASON_PRIDE`, `ENSI_SA_ECE_REASON_PRIDE_ACTION`.
+- **Skill ids: 16** (`awk -F'\t' 'NF==7 && $6=="CH3b"' june2017_re/char_eve/ch0_state_skill.tsv`): 25017 RNSI_SA_ECE_GENOCIDE_RIPPER, 25018 RNSI_SA_ECE_ASSUALT_SPEAR_BURST, 25019 RNSI_SA_ECE_SPACE_WRENCH, 25020 RNSI_SA_ECE_ELECTRONIC_FIELD, 25045 RNSI_SA_EEP_TESLA_FLARE, 25046 RNSI_SA_EEP_ELECTRONIC_THUNDER, 25059 RNSI_SA_ECE_GENOCIDE_RIPPER_UPGRADE, 25060 RNSI_SA_ECE_ASSUALT_SPEAR_BURST_UPGRADE, 25061 RNSI_SA_ECE_SPACE_WRENCH_UPGRADE, 25062 RNSI_SA_ECE_ELECTRONIC_FIELD_UPGRADE, 25208 RNSI_A_ECE_TESLA_SHOCK, 25209 RNSI_A_ECE_SPIT_FIRE_FLUSH, 25222 RNSI_A_EEP_SUMMON_TO_MIND, 25229 RNSI_A_ECE_TESLA_SHOCK_UPGRADE, 25230 RNSI_A_ECE_SPIT_FIRE_FLUSH_UPGRADE, 25236 RNSI_SA_ECE_REASON_PRIDE.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8); §7h L410 (USEFUL_VALUE rows).
+- **7c alpha-tag sites inside these functions: 4** (`c10a_alpha_sites.tsv`, by containing function).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).

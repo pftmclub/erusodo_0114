@@ -1,0 +1,139 @@
+march_item	march_file_line	kind	june_va	june_evidence	verdict	phase	note
+CX2GUEve::CanParryingState	X2GuEve.cpp:33478	function	3297a640	callers DamageReact @3204777f, SetHold @31fd2a65; foot-on-line +0x80bc, state ids 0x10,0x11,0x15,0x19-0x2b	same	CH1q	class_map n/a: user-base code inside the Eve address range; not a vslot
+CX2GUEve::AddManeuverGauge	X2GuEve.cpp:33508	function	3297ee20	vtable 0x704; gauge(+0x9ba0 protected) += (+0x6c50 + 1.0) * arg; clamp 0..100	differs	CH1q	adds gain multiplier from CX2GUUser +0x6c50; March adds the raw arg
+CX2GUEve::DoParrying	X2GuEve.cpp:33518	function	329b4060	tail target of 329b41f0; gauge -= 30.0 (33439c68), --lv, ChangeManeuverCoreState(5) @329b41e4	differs	CH1q	cost skipped with chance +0x6d04 (rand vslot 0x1cc); stamps clock() into +0x9c44
+CX2GUEve::ENSI_PARRYING_StartFuture	X2GuEve.cpp:33535	function	32968390	ch0_reg PARRYING_SMALL/PARRYING StartFuture; vslot 0x7c0 CommonStateStartFuture	same	CH1q	
+CX2GUEve::ENSI_PARRYING_Start	X2GuEve.cpp:33539	function	329b41f0	ch0_reg Start; vslot 0x7c4, [+0x9bc0]=1, jmp DoParrying 329b4060	same	CH1q	
+CX2GUEve::ENSI_PARRYING_EventProcess	X2GuEve.cpp:33554	function	32975610	ch0_reg EventProcess; anim end -> state 0x11/0xd; oneX (+0x86ef) -> 0xe2 BLINK	same	CH1q	FIX branch (X only, no Z) live; 0.3s skill/hyper cancel tail present
+CX2GUEve::ENSI_PARRYING_StateEnd	X2GuEve.cpp:33591	function	329b8010	ch0_reg End; vslot 0x7dc, [+0x9bc0]=0, RestoreManeuverCore 329b5130	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_Init	X2GuEve.cpp:33597	function	329683a0	ch0_reg BLINK Init; 2-byte ret stub	same	CH1q	empty on both sides
+CX2GUEve::ENSI_PARRYING_BLINK_Start	X2GuEve.cpp:33603	function	32975740	ch0_reg BLINK Start; GetEquippedActiveSkillTemplet(0x6270 | 0x627d), ability 0x17 lvl 1	differs	CH1q	June skill ids RNSI_A_EVE_PHOTON_BLINK 25200 or _UPGRADE 25213, not SI_A_EN_PHOTON_BLINK
+CX2GUEve::ENSI_PARRYING_BLINK_StartFuture	X2GuEve.cpp:33630	function	329683b0	ch0_reg StartFuture; vslot 0x7c0, [+0x84f3]=1 (gravity off)	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_FrameMoveFuture	X2GuEve.cpp:33637	function	329757d0	ch0_reg FrameMoveFuture; two one-shot timers set nowSpeed.x (-backSpeed, -300.0)	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_FrameMove	X2GuEve.cpp:33650	function	32975860	ch0_reg FrameMove; alpha -=10*dt in 0.03-0.3s, +=5*dt in 0.3-0.8s; vslot 0x7cc	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_EventProcess	X2GuEve.cpp:33669	function	32975920	ch0_reg EventProcess; anim end -> 0x11/0xd; vslot 0x7d4	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_EndFuture	X2GuEve.cpp:33686	function	329683d0	ch0_reg EndFuture; gravity on, nowSpeed 0, passiveSpeed (-1,-1)	same	CH1q	
+CX2GUEve::ENSI_PARRYING_BLINK_End	X2GuEve.cpp:33694	function	32975970	ch0_reg End; blink flag off, render alpha reset if not invisible	same	CH1q	
+CX2GUEve::ManeuverCoreData::ManeuverCoreData	X2GuEve.cpp:33709	function	329759b0	0x20 B alloc in 329b4210; rotate (0,20.0,0), hEffect -1, state 0	same	CH1q	
+CX2GUEve::ManeuverCoreData::~ManeuverCoreData	X2GuEve.cpp:33717	function	32998930	called by 329ac350; DamageEffect destroy-by-handle (31f83830) of core+0x18	same	CH1q	
+CX2GUEve::ClearManeuverCore	X2GuEve.cpp:33724	function	329ac350	callers dtor, DIE_*, 329cf4b0; gauge=0,lv=0 on arg; +0x9bcc via DamageEffect (FIX); delete core	same	CH1q	June uses the FIX (DamageEffect pointer) branch
+CX2GUEve::RestoreManeuverCore	X2GuEve.cpp:33760	function	329b5130	destroys core effect + +0x9bcc, CreateManeuverCore(false) 329b4210, clears lock-on	same	CH1q	
+CX2GUEve::CreateManeuverCore	X2GuEve.cpp:33788	function	329b4210	string EffectSet_Eve_ManeuverCore_Beed_Up @329b461f; DUMMY_LEVEL_1..3(_HYPER) effects; Eve_Ensi_WaitStart01.ogg @329b464d	same	CH1q	offset (90,189,0) from 3373d134
+CX2GUEve::OnFrameMove_ManeuverCore	X2GuEve.cpp:33885	function	329b5230	called by CommonFrameMove @329c89a3; switch core+0x1c states 2-5; times 0.2/1.0/1.0/1.1	differs	CH1q	no gauge Verify/hack report; hyper-ball moved to gauge UI; AFTER_ATTACK cost skipped by chance +0x6d04
+CX2GUEve::AttackManeuverCore	X2GuEve.cpp:34111	function	329ac4a0	strings EffectSet_Eve_QueenCore_Before_Attack(_Hyper) 334d1848/334d18fc, DAMAGE_EFFECT_EVE_MANEUVER_CORE_ATTACK(_HYPER) 334d17f8/334d18a0	differs	CH1q	adds MP up +0x9bfc*lv (text "MP+ %d") and +0x9c00*lv (32894e40) on attack
+CX2GUEve::ChangePowerRateManeuverCore	X2GuEve.cpp:34193	function	32975a10	3.3/6.6/9.9 (334cccb0..b8) / 5.0 into effect +0x238/+0x23c; default -> Restore + state 0	same	CH1q	
+CX2GUEve::SetManeuverCoreTargetUnit	X2GuEve.cpp:34227	function	32968430	type 0/1 -> byte +0x9bac; uid -> +0x9bb0/b4 when attack type == 1	same	CH1q	ASSERT default dropped
+CX2GUEve::ClearManeuverCoreEffect	X2GuEve.cpp:34254	function	32998990	DamageEffect destroy of +0x9bcc (FIX branch); called by 329acaa0 and 329b5230	same	CH1q	
+CX2GUEve::ChangeManeuverCoreState	X2GuEve.cpp:34269	function	329acaa0	strings DAMAGE_EFFECT_Eve_QueenCore_Defence(_Hyper) 334d1928/334d1970; "Attack02" anim; case 3 calls 329ac4a0	same	CH1q	FIX branch; case 5 stores effect in +0x9bcc
+CX2GUEve::SetAttackManeuverCore	X2GuEve.cpp:34376	function	329acea0	vtable 0x70c; 329cd650 gate; lock-on +0x9bac/b0; ChangeManeuverCoreState(2)	differs	CH1q	adds clock() stamp into +0x9c44 (idle timer for OPEN_MIND)
+CX2GUEve::SetManeuverCoreEffectSetPosition	X2GuEve.cpp:34398	function	329acf70	called first by 329b5230; parry effect SetPos pos+(0,100,0); attack effect aimed via 32999200	same	CH1q	FIX branch
+CX2GUEve::GetManeuverCoreMeshInstance	X2GuEve.cpp:34473	function	32998a00	core+0x18 handle -> DamageEffect -> main mesh (31f6eb30)	same	CH1q	
+CX2GUEve::GetManeuverCoreEffect	X2GuEve.cpp:34495	function	32998a80	used by 329ac4a0 for power rate (+0x1d8)	same	CH1q	funcdis merges it with 32998a00
+CX2GUEve::GetManeuverCoreEffectHandle	X2GuEve.cpp:34508	function	-	inlined: core+0x18 != -1 tests in 329ac4a0 / 329b5230 / 329b5130	same	CH1q	no standalone June function
+CX2GUEve::MoveManeuverCoreByState	X2GuEve.cpp:34518	function	329ad1d0	called by 329b5230; coeff 0.05 / 1.0, offsets (90,189,0) / (200,100,0), x flip, bone-y adjust	same	CH1q	FIX branch (collision-data bone y)
+CX2GUEve::RotateManeuverCoreByState	X2GuEve.cpp:34596	function	329b46a0	Bip01_Spine1, offset (0,+-20,0); states 2-4 aim via 32999200	same	CH1q	FIX branch
+CX2GUEve::FindAndSetManeuverCoreTargetGameUnit	X2GuEve.cpp:34650	function	32998b00	game vslot 0xa8 NPC / 0xa0 user by uid, then 3297a370	same	CH1q	
+CX2GUEve::GetManeuverCoreTargetGameUnit	X2GuEve.cpp:34659	function	32998b90	FindAndSet(+0x9bb0,+0x9bac) then copy optr +0x9bb8	same	CH1q	
+CX2GUEve::SetManeuverCoreTargetGameUnit	X2GuEve.cpp:34666	function	3297a370	assigns observer ptr +0x9bb8 / valid byte +0x9bbc	same	CH1q	
+CX2GUEve::SetManeuverCoreRotateToTargetPos	X2GuEve.cpp:34672	function	329ad5e0	called by 329b46a0; sets mesh rotate +0x5b4 and move-axis +0x414	same	CH1q	
+CX2GUEve::ManeuverCoreData::GetManeuverCorePosition	X2GuEve.cpp:34686	function	32998bf0	core effect main mesh pos (+0x3f0..); zeros if absent	same	CH1q	
+CX2GUEve::ManeuverCoreData::GetManeuverCoreRotateExceptOffset	X2GuEve.cpp:34699	function	32998ca0	mesh rotate (+0x5b4) minus core offset (+0xc); zeros if absent	same	CH1q	
+CX2GUEve::GetBoneNameNearestImpactPoint (FIX)	X2GuEve.cpp:34714	function	32998d70	called by 329a4680 @329a4b16 with DD+0x460; scans target collision lists	same	CH1q	
+CX2GUEve::GetManeuverCoreTargetPosUsingCollisionData (FIX)	X2GuEve.cpp:34767	function	32999200	matches bone name +0x9bdc; falls back to target GetPos(false)	same	CH1q	GetPointStart inlined
+CX2GUEve::GetHyperModeStateID (FIX)	X2GuEve.cpp:34800	function	32968470	vtable 0x6b8; body is mov eax,0x17 (USI_HYPER_MODE, same as base 3208e1a0)	differs	CH1q	June drops the ENSI_BERSERK_MODE branch; always USI_HYPER_MODE; June name GetHypetMpdeStateID
+ManeuverCoreData::ChangeManeuverCoreState (inline)	X2GuEve.h:1007	function	-	inlined: store core+0x1c (329b5230 case 3 writes 4)	same	CH1q	no June function
+CX2GUEve::GetManeuverGauge (inline)	X2GuEve.h:1217	function	-	inlined: protected float triple +0x9ba0/a4/a8 XOR read	same	CH1q	
+CX2GUEve::GetCanAttackManeuverCore (inline)	X2GuEve.h:1220	function	329cd650	target non-null, hp > 0, LevelByGauge > 0, vslot 0x708	same	CH1q	
+CX2GUEve::GetManeuverCoreLevel (inline)	X2GuEve.h:1224	function	-	inlined: [+0x9b9c]	same	CH1q	
+CX2GUEve::GetManeuverCoreLevelByGauge (inline)	X2GuEve.h:1225	function	329cd410	gauge / 30.0 (33439c68) -> int	same	CH1q	
+CX2GUEve::CanParrying (inline)	X2GuEve.h:1242	function	-	inlined: byte [+0x9bc0] (DamageReact @320477b8, SetHold @31fd2a82)	same	CH1q	
+CX2GUEve::HyperModeBuffEffectEnd	X2GuEve.h:1246	function	329cf4b0	vtable 0xc8; base 31fd5d70, SetFullHyperMode(0), UpNowHp(MaxHp*gauge*0.0005), UpNowMp(gauge), Clear(1)	same	CH1q	
+CX2GUEve::IsFullHyperMode	X2GuEve.h:1260	function	329cf220	vtable 0x9c; [+0x9bc8]	same	CH1q	
+CX2GUEve::SetFullHyperMode	X2GuEve.h:1261	function	329cf230	vtable 0xa0; [+0x9bc8]=arg	same	CH1q	
+CX2GUEve::IsWaitManeuverCore	X2GuEve.h:1269	function	329cf240	vtable 0x708; core && state(+0x1c)==1	same	CH1q	
+CX2GUEve::IsAttackManeuverCore	X2GuEve.h:1282	function	329cf260	vtable 0x880; core && state-2 <= 2	same	CH1q	slot past the CX2GUUser vtable, as March (Eve-only virtual)
+CX2GUEve::IsSkillSummonedMonster	X2GuEve.h:1297	function	329cf280	vtable 0x710; ids 384-386,410,411,519,520,674,682,1454 + 0x655,0x656,0x82b	differs	CH1q	adds NUI 1621 SI_SA_AT_SURFACE_CUTING, 1622 SI_SA_EEP_ELECTRONIC_FIELD, 2091 ECA_OBERON_GUARD
+CX2GUEve::GetParrying (inline)	X2GuEve.h:1318	function	32070ed0	core && state(+0x1c)==5	same	CH1q	
+CX2EveMyGageUI::CX2EveMyGageUI	X2GageUI.cpp:4622	ui	32e64790	ctor; base 32e645b0; vtable 335336cc; created by 3248e290 @3248e5ef	differs	CH1q	also inits a new hyper-ball handle member +0x5c = -1
+CX2EveMyGageUI::InitWakeOrb	X2GageUI.cpp:4627	ui	32e5b7b0	vtable 0x54; RemovePictureByIndex 5,4,3,2 on StaticWakeOrb and StaticWakeSlot	same	CH1q	
+class CX2EveMyGageUI : CX2MyGageUI	X2GageUI.h:870	ui	335336cc	29-slot vtable; overrides dtor 0x0, OnFrameMove(float) 0x8, SetShow 0x20, InitWakeOrb 0x54	differs	CH1q	adds OnFrameMove, SetShow, dtor overrides and member +0x5c
+CX2EveMyGageUI::OnFrameMove(float) (June-only)	-	ui	32e71990	vtable 0x8; base 32e71620 then 32e6a210	june-only	CH1q	drives the hyper-ball particle
+CX2EveMyGageUI hyper-ball update (June-only)	-	ui	32e6a210	string Eve_PowerUp_UI_01 @32e6a31f; gage data +0xf4 == 3 creates over-UI sequence, else 32e5cfe0	june-only	CH1q	March did this in OnFrameMove_ManeuverCore :33900-33941
+CX2EveMyGageUI::SetShow (June-only)	-	ui	32e5eca0	vtable 0x20; base 32e5c380 then sequence show flag (+0x172) via handle +0x5c	june-only	CH1q	replaces March GetHideDialog check
+CX2EveMyGageUI::~CX2EveMyGageUI (June-only)	-	ui	32e725e0	scalar deleting dtor; destroys sequence handle +0x5c (31cefbc0)	june-only	CH1q	
+PGUWO_ORB_EVE enum	X2GageUI.h:52	enum	32e5b310	RemovePictureByIndex(6) in 32e5b310, 32e5b3a0, 32e5b470, 32e5b550, 32e5b650, 32e5b8a0	same	CH1q	index 6 after ARA(5)
+CX2MyGageUI::InitWakeOrb EVE removal	X2GageUI.cpp:1151,1163	ui	32e5b310	pushes 6,5,4,3 on both statics	same	CH1q	
+CX2ChungMyGageUI::InitWakeOrb EVE removal	X2GageUI.cpp:1929,1941	ui	32e5b3a0	pushes 6,5,4,2 on both statics	same	CH1q	
+CX2RavenMyGageUI::InitWakeOrb EVE removal	X2GageUI.cpp:2665,2677	ui	32e5b470	pushes 6,5,3,2 on both statics	same	CH1q	
+CX2AraMyGageUI::InitWakeOrb EVE removal	X2GageUI.cpp:3576,3588	ui	32e5b550	pushes 6,4,3,2 on both statics	same	CH1q	
+CX2AddMyGageUI::InitWakeOrb EVE removal	X2GageUI.cpp:4296,4311	ui	32e5b650	pushes 6..0 on both statics; 32e5b8a0 has the same shape	same	CH1q	unsure which of the two is Add; both include 6
+CX2GageManager::CreateMyGageUI Eve cases	X2GageManager.cpp:237	site	3248e290 @3248e5ef	switch cases 5,0x12,0x13,0x1a,0x6c,0x6d,0x74 -> CX2GageData + 32e64790	same	CH1q	7 Eve classes, same count as March
+namespace _CONST_EVE_	X2GuEve.cpp:23	const	329b5230	0.2 (334411a8), 1.0, 1.0, 1.1 (3348a3a8), max lv 3, (90,189,0), (200,100,0), HIT_VALUE 5.0 (334396b0)	same	CH1q	ATTACK_TIME_USING_GAUGE 1.133, COEFF 1.0, 3RD_WAKE_UP 0.1 unused in June
+DTT_EVE_MANEUVER_ATTACK	X2DamageManager.h:49	enum	-	June Enum.src.lua DTT_EVE_MANEUVER_ATTACK = 5; test 32610fb0(5) @329a4ad5	same	CH1q	June enum runs on to 70 (other systems); March tree already has JuneIsAttackTrigger = 32610fb0
+EVE_STATE_ID parry states	X2GuEve.h:132	enum	329b8030	ch0_reg ids 224,225,226 (0xe0..0xe2) = PARRYING_SMALL, PARRYING, PARRYING_BLINK	same	CH1q	ids follow the C++ enum position; Lua keys by name in Eve_Nasod.src.lua
+ENSI_BERSERK_MODE enum	X2GuEve.h:138	enum	-	no ENSI_BERSERK in exe strings (only ASI_ASD/AYR/AA/ASI_BERSERK_MODE), not in Eve_Nasod.src.lua, not in ch0_reg	absent-in-june	CH1q	searched exe image, Eve_Nasod.src.lua, ch0_reg.tsv
+MANEUVER_CORE_STATE / ATTACK_TYPE / UMGAT / ManeuverCoreData	X2GuEve.h:975	decl	329759b0	states 0-5 (+0x1c); attack type 1; UMGAT 0/1 via effect +0xb00; struct 0x20 B (hEffect +0x18)	same	CH1q	
+CX2GUEve maneuver method decls	X2GuEve.h:1208	decl	-	covered by the per-function rows above	same	CH1q	every March method has a June pair or is inlined
+FIX decls (TargetPos, BoneName, GetHyperModeStateID)	X2GuEve.h:1234	decl	32968470	June base virtual vslot 0x6b8 GetHypetMpdeStateID in CX2GUUser (3208e1a0); Eve override 32968470	differs	CH1q	March has no base virtual; June base returns 0x17
+Maneuver data members (+0x9b98..+0x9bdc)	X2GuEve.h:1653	decl	3299bd70	core 9b98, lv 9b9c, gauge 9ba0 (12 B), lock-on 9bac/9bb0, target optr 9bb8, canParry 9bc0, time 9bc4, hyper 9bc8, effect 9bd4, cool 9bd8	same	CH1q	gauge is a protected float; hyper-ball handle +0x9bd0 is only destroyed
+m_pManeuverCoreParryingEffect (FIX)	X2GuEve.h:1670	decl	329ac350	pointer +0x9bcc destroyed through DamageEffect (31f83960)	same	CH1q	ADD-not-FIX EffectSet handle form is absent in June
+m_wstrManeuverCoreTargetBoneName (FIX)	X2GuEve.h:1681	decl	3299bd70 @3299c890	wstring at +0x9bdc, ctor L"" via 31f54a10; read by 32999200	same	CH1q	
+Eve effect / sound keys	X2GuEve.cpp:33832-34464	decl	329b4210	June strings: DAMAGE_EFFECT_EVE_MANEUVER_CORE_*, EffectSet_Eve_ManeuverCore_Beed_Up(_Hyper), QueenCore_Before_Attack, DAMAGE_EFFECT_Eve_QueenCore_Defence, EffectSet_Eve_PARRING	same	CH1q	EVE_Attack_Hyper01 (commented in March) and EffectSet_Eve_QueenCore_Defence absent
+CX2GUEve ctor init ADD	X2GuEve.cpp:123	site	3299bd70 @3299c61d-3299c870	vtable 334cf45c; March members zeroed, hyper-ball +0x9bd0 = -1	same	CH1q	June ctor adds +0x9bf8/9bfc/9c00 floats and +0x9c44 tick
+CX2GUEve ctor init FIX parry ptr	X2GuEve.cpp:133	site	3299bd70 @3299c858	[+0x9bcc] = 0 (pointer form)	same	CH1q	
+CX2GUEve ctor init FIX bone name	X2GuEve.cpp:140	site	3299bd70 @3299c890	wstring +0x9bdc = L"" (31f54a10)	same	CH1q	
+CX2GUEve dtor ADD	X2GuEve.cpp:369	site	329aece0	body calls 329ac350(1); destroys hyper-ball +0x9bd0, +0x9bcc, +0x9bd4	same	CH1q	329aece0 is the dtor body; 329cf670 the scalar deleting wrapper
+CX2GUEve dtor FIX parry	X2GuEve.cpp:377	site	329aece0	+0x9bcc destroyed via DamageEffect 31f83960	same	CH1q	
+CX2GUEve::ReInit ADD	X2GuEve.cpp:466	site	329af460 @329af6e2-329af7ab	core ptr=0, lv=0, gauge=0, state time, lock-on, canParry, hyperState reset	same	CH1q	
+CX2GUEve::ReInit FIX parry	X2GuEve.cpp:476	site	329af460 @329af7b1	+0x9bcc destroyed through DamageEffect	same	CH1q	
+CX2GUEve::InitStateCommon parry states	X2GuEve.cpp:1500	site	329b8030	ch0_reg: PARRYING_SMALL/PARRYING (4 callbacks), PARRYING_BLINK (8 callbacks)	same	CH1q	callback sets match March exactly
+CX2GUEve::InitStateCommon BERSERK_MODE (FIX)	X2GuEve.cpp:1538	site	-	no ENSI_BERSERK_MODE registration in 329b8030 / ch0_reg; string absent in exe	absent-in-june	CH1q	drop in the port; nothing replaces it
+CX2GUEve::CommonFrameMoveFuture	X2GuEve.cpp:4222	site	32980f90 @32980ff8-32981006	protected field +0x7ec0 (Future syncData) assigned [+0x9b9c] when different	same	CH1q	
+CX2GUEve::CommonFrameMove	X2GuEve.cpp:5463	site	329c5bc0 @329c89a3	call 329b5230 (OnFrameMove_ManeuverCore)	same	CH1q	
+SpecialAttackEventProcess parry block	X2GuEve.cpp:5934	site	329b5af0 @329b67b6	core && state(+0x1c)==5 -> fail path	same	CH1q	June splits SpecialAttackEventProcess across vslots 0x7f4-0x800
+SpecialAttackEventProcess gauge from skill MP	X2GuEve.cpp:6126	site	32981130 @329814bc-3298155d	ST_SPECIAL_ACTIVE, hyper time>0, IsMyUnit; gauge += fMPConsume(+0x8ea8)/3.0 * (+0x6c50+1.0); clamp 100	differs	CH1q	adds the same +0x6c50 gain multiplier
+ENSI_DIE_FRONT_Start	X2GuEve.cpp:6702	site	329af800 @329af8f8	push 1; call 329ac350 (ClearManeuverCore(true))	same	CH1q	shared with ENSI_RIDING_DIE
+ENSI_DIE_BACK_Start	X2GuEve.cpp:6771	site	329af950 @329afa48	push 1; call 329ac350	same	CH1q	
+ENSI_WAIT_EventProcess hyper change (FIX)	X2GuEve.cpp:6849	site	32981680	ch0_reg WAIT EventProcess; calls vslot 0x6b8	same	CH1q	FIX if-branch live; result 0x17 = USI_HYPER_MODE
+ENSI_WALK_EventProcess hyper change (FIX)	X2GuEve.cpp:6905	site	32981910	ch0_reg WALK EventProcess; calls vslot 0x6b8 (scan merges it with WAIT)	same	CH1q	
+ENSI_JUMP_LANDING_EventProcess hyper change (FIX)	X2GuEve.cpp:7138	site	32981ba0	ch0_reg JUMP_LANDING EventProcess; calls vslot 0x6b8	same	CH1q	
+ENSI_DASH_EventProcess hyper change (FIX)	X2GuEve.cpp:7221	site	32981eb0	ch0_reg DASH EventProcess; calls vslot 0x6b8	same	CH1q	
+ENSI_DASH_END_EventProcess hyper change (FIX)	X2GuEve.cpp:7358	site	329821a0	ch0_reg DASH_END EventProcess; calls vslot 0x6b8	same	CH1q	
+ENSI_EBS_BOOST_DASH_START_EventProcess hyper change (FIX)	X2GuEve.cpp:30224	site	32995120	ch0_reg EBS_BOOST_DASH_START EventProcess; calls vslot 0x6b8	same	CH1q	
+ENSI_EBS_BOOST_DASH_EventProcess hyper change (FIX)	X2GuEve.cpp:30372	site	32995680	ch0_reg EBS_BOOST_DASH EventProcess; calls vslot 0x6b8	same	CH1q	
+ENSI_INVISIBILITY_ON_End team clear	X2GuEve.cpp:9208	site	329afaa0	m_bInvisibility(+0x3e58) && myUnit team != team -> 329ac350(0); then vslot 0x7dc	same	CH1q	class_map: function has no references in the exe (dead)
+AttackResultByType #ifndef early return	X2GuEve.cpp:26992	site	329a4680 @329a486d	thousand-star branch falls through to the Eve block @329a4900; no ret between	same	CH1q	ADD-on path (return removed)
+AttackResultByType gauge gain + DTT 5	X2GuEve.cpp:27020	site	329a4680 @329a4900-329a4b3b	attackType!=1, hyper time>0, IsMyUnit; gauge += max(phys,mag)*rate*4.0*(+0x6c50+1.0); 32610fb0(5) -> vslot 0x708/0x70c	differs	CH1q	gain scaled by +0x6c50+1.0; trigger test is multi-trigger JuneIsAttackTrigger
+AttackResultByType bone name (FIX)	X2GuEve.cpp:27038	site	329a4680 @329a4b16-329a4b2a	32998d70(DD+0x460) assigned to wstring +0x9bdc	same	CH1q	
+HyperModeBuffEffectStart gauge +40	X2GuEve.cpp:28878	site	32994750 @32994967-329949a6	gauge = min(gauge + 40.0 (33439c70), 100.0)	same	CH1q	vtable 0xc4
+CX2GUNPC::AttackResultByType Eve summon	X2GUNPC.cpp:32083	site	32773ee0 @327744a3-32774527	owner type 5, owner vslot 0x710(npc id), 32610fb0(5), vslot 0x708, vslot 0x70c	same	CH1q	trigger test is multi-trigger
+CX2GUUser ctor init m_bParryingState	X2GUUser.cpp:866	site	-	Raven member (UPGRADE_RAVEN), not an Eve field	same	CH1q	out of Nasod Core; no Eve action
+CX2GUUser ctor m_bManeuverParryingState=false	X2GUUser.cpp:1227	site	3203e850 @32042db1	word store [+0x929c]=0 in the CX2GUUser ctor	same	CH1q	
+CX2GUUser::DamageReact reset	X2GUUser.cpp:8888	site	320462a0 @32046327	[+0x929c]=0 at start	same	CH1q	
+CX2GUUser::DamageReact parry branch	X2GUUser.cpp:9947	site	320462a0 @3204776b-320477f6	vslot 0x880 false, 3297a640|32070ed0, hyper time>0, lv>0|canParry, !superarmor, attackerFront; sets [+0x929c]=1	same	CH1q	
+CX2GUUser::DamageReact block-damage test	X2GUUser.cpp:10007	site	320462a0 @32047837	cmp [+0x929c],0 in the block-damage condition	same	CH1q	
+CX2GUUser::DamageReact parry cut	X2GUUser.cpp:10400	site	320462a0 @32048645-320487f0	speed.x*0.7 (3344af88), y=0, damage*0.25, EffectSet_Eve_PARRING push @320487d2	same	CH1q	
+CX2GUUser::DamageReact gauge gain on hit	X2GUUser.cpp:11612	site	320462a0 @3204a679-3204a6d1	unit type 5, hyper time>0: vslot 0x704(damage/MaxHp*500)	same	CH1q	
+CX2GUUser::DamageReactStateChange parry	X2GUUser.cpp:13115	site	31feabd0 @31feac77-31feacac	[+0x929c] reset; if !canParry StateChange 0xe0 (small) / 0xe1; return	same	CH1q	
+CX2GUUser::RenderName gauge text (_OPEN_TEST_)	X2GUUser.cpp:27692	site	-	CX2GUUser::RenderName 3201a8f0: no vslot 0x704-0x710 call; no ": %5.2f(%d)" string in the exe	absent-in-june	CH1q	searched RenderName range and the whole image for the format string
+CX2GUUser::RenderName gauge text	X2GUUser.cpp:27850	site	-	same search; June RenderName 3201a8f0 has no Eve text	absent-in-june	CH1q	debug text dropped; nothing to port
+CX2GUUser::SetHold Eve parry window	X2GUUser.cpp:34966	site	31fd29c0 @31fd2a36-31fd2aa2	type 5, hyper time>0, 3297a640|32070ed0, lv>0|canParry, !superarmor, attackerFront -> return	same	CH1q	
+CX2GUUser virtual stubs (AddManeuverGauge/IsWait/SetAttack/IsSkillSummoned)	X2GUUser.h:3457	decl	3208ddc0	CX2GUUser vtable 0x704=3208ddc0, 0x708=31e4c550, 0x70c=3208ddc0, 0x710=331a4950	same	CH1q	0x880 has no base slot, as March
+CX2GUUser::m_bManeuverParryingState	X2GUUser.h:5006	decl	320462a0 @32047837	byte at CX2GUUser +0x929c	same	CH1q	
+OPEN_MIND passive gauge floor in CommonFrameMove (June-only)	-	site	329c5bc0 @329c5c0a-329c60f7	skill 0x6347 RNSI_P_ENS_OPEN_MIND learned, hyper time>0, (clock-[+0x9c44])/1000 > ability 0xa9 -> gauge<=30 set to 30.0	june-only	CH1q	uses the +0x9c44 idle stamp from DoParrying/SetAttack
+member +0x9c44 idle tick (June-only)	-	decl	329b4060 @329b40ab	clock() stored by DoParrying and SetAttackManeuverCore @329acedc; read @329c5c59	june-only	CH1q	
+members +0x9bf8/+0x9bfc/+0x9c00 (June-only)	-	decl	3297f290 @3297fc35-3297fcf1	floats set by InitPassiveSkillState from skills 0x633b/0x633c (RNSI_P_ECN_QUEEN_OF_VENGEANCE / _DESTROY)	june-only	CH4a	read by Eve::DamageReact and AttackManeuverCore
+CX2GUEve::DamageReact override (June-only)	-	function	32977130 @329771bb-329772df	vtable 0x60; base 320462a0 + 31feabd0; +0x9bf8>0 -> UpNowMp(MaxMp*+0x9bf8*hp-loss fraction)	june-only	CH1k	Queen-of-Vengeance MP return; not Nasod Core logic
+CX2GUUser members +0x6c50 / +0x6d04 (June-only)	-	decl	31f85910 @31f86c2f	gauge-gain multiplier (+0x6c50) and parry-cost skip chance (+0x6d04); skill-specialization floats	june-only	other	owner is the skill-specialization system; defaults needed
+# TOTAL rows: 126
+# per verdict: same 100, differs 13, june-only 9, absent-in-june 4, unsure 0
+# per kind: function 56, site 41, decl 12, enum 4, const 1, ui 12
+# verdict x kind: absent-in-june/enum 1; absent-in-june/site 3; differs/decl 1; differs/function 8; differs/site 2; differs/ui 2; june-only/decl 3; june-only/function 1; june-only/site 1; june-only/ui 4; same/const 1; same/decl 8; same/enum 3; same/function 47; same/site 35; same/ui 6
+# June functions CH1q must transcribe (distinct function va of differs/june-only rows, incl. Eve-adjacent): 19: 31f85910 32968470 32975740 32977130 3297ee20 3297f290 32981130 329a4680 329ac4a0 329acea0 329b4060 329b5230 329c5bc0 329cf280 32e5eca0 32e64790 32e6a210 32e71990 32e725e0
+# COUNT NOTE: X2GuEve.cpp:33476-34811 holds 39 ADD functions + 3 FIX = 42 (the footer of ch0_nasod_core_sites.tsv counts the FIX three inside the 42)
+# MODEL: June keeps the whole Nasod Core in the FIX form (DamageEffect parry effect pointer +0x9bcc, collision-data bone targeting); ENSI_BERSERK_MODE and the EffectSet handle form are dropped
+# OPEN: (1) +0x6c50 / +0x6d04 setters: CX2GUUser specialization floats written in 31f85910 and 32012b50 ranges (callers not traced); CH1q can default both to 0
+# OPEN: (2) CX2AddMyGageUI::InitWakeOrb is 32e5b650 or 32e5b8a0 (both remove pictures 0-6); not decided
+# OPEN: (3) AttackManeuverCore 32894e40 call (+0x9c00*lv) not identified (HP or MP-rate helper); read before porting that branch
+# OPEN: (4) the 0.3s SKILL_CANCEL tail of ENSI_PARRYING_EventProcess was matched by shape (hyper-change via vslot 0x6b8), not byte for byte
+# JUNE-ONLY pieces outside March: gauge UI OnFrameMove/SetShow/dtor + hyper ball (moved out of OnFrameMove_ManeuverCore); OPEN_MIND floor @329c5bc0; +0x9c44 tick; Queen passives +0x9bf8/9bfc/9c00; spec A/B +0x6c50/+0x6d04

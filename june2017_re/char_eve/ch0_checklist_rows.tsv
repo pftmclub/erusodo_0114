@@ -1,0 +1,67 @@
+section	checklist_line	row	eve_evidence	phase	note
+§1	L37-105	numerical-only DAMAGE_DATA + numerical override live	3 numerical-only tables (ENSI_A_EBS_ELECTRONIC_MOVE_FRONT / UP / DOWN, script l.13608 / 13718 / 13794); 209 DamageEffect* blocks keyed to 50 Eve ids (plan_numerical_rows.tsv)	CH3c	Electronic Move = 25223, Battle Seraph (116) only (correction: the plan said CH2c); NUM use lines from CH2a on; MODS.md March vs June damage per skill
+§2	L113	APPLIED_SKILL_ID (parsed since 8c)	3 uses, all RNSI_A_EBS_ELECTRONIC_MOVE (script l.13622 / 13732 / 13808)	CH3c	with §1
+§2	L114	NUMERICAL_DATA_INDEX	3 (each = 1)	CH3c	with §1
+§3	L141-154	systems absent	numerical data = §1; applied skill id = §2	n/a	covered by §1 / §2
+§4	L155-178	missing enum tables	ch0_enum_names.tsv: 126 / 127 RNSI names absent from the C++ SKILL_ID enum (house convention: raw id + /// RNSI_ comment); 71 absent from the core Enum.lua (add a member only if a Lua reader needs it)	CH1	rerun charport_scan.py after adopting the script
+§5	L179-195	per-character parser census	ch0_keys.tsv: 239 keys, june-only 16	CH1p CH4c	10 CODE_RECOVERY_* + ADD_AIR_DASH_COUNT read by 329c47e0 (InitComponent: CH1k / CH1l transcribe, CH4c consumes); camera keys Stage 9; EFFECT_SET_LIST_FINAL_ULTIMATE row 397 (32024ff0 @320268bf); IMMUNITY_EDT_LIST_AT_THIS_STATE Stage 2 (31fdaaa0 @31fdac15)
+§6	L196-212	order of work	-	n/a	step 6 = CH1's adopt-june; marks `(Eve: CHn)` per L211
+§7	L237	322a7660 set-stack-count, Eve caller 3299b7f9 (BFI 812)	3299b7f9 inside a class function (ch0_class_map.tsv)	CH1l4	3299b7f9 sits in 3299b790 (CH1l4, CommonFrameMove group); transcribe the call whole there
+§7	L238 L240-242 L245	every-user engine rows	-	n/a	engine owners (buff port / effect plan)
+§7	L248	32976fe0 PSYKER_KINESIS cooldown (caller 329b4ab1)	25235 RNSI_SA_ECN_PSYKER_KINESIS	CH3a	with the Psyker Kinesis state (helper follows its caller)
+§7	L249	IsSummonSkill / SetUserSummonedNPCInfo summon cases	Eve summons (Nasod Watch, Guardian, Atomic Shield, Ferdinand, Electronic Field) are June scripts already (ch0_assets owners)	n/a	engine; per-summon power rate rides L274
+§7	L250	class code scales the cached state power rate (+0x7cc8)	every state port	CH1a-CH3d	multiply m_fNowStatePowerRate as June does (7i)
+§7	L256	vslot 510 skill lookup	Eve 334cfc54 = 329b5af0 (funcmap l.1059 calls it slot 509; by address 510)	CH1o	with 509 SpecialAttackEventProcess 32969300; the quick-slot prefix is already in March's Eve (SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM)
+§7	L257	dev free-skill gate in the skill-use check	Eve's vslot 510 copy	CH1n	JuneIsDevUnlimitedSkillUse() around June's cool-time / MP / hyper-stone block (standing rule 2026-10-22)
+§7	L259	riding-key skill wait in vslot 510	Eve's vslot 510 copy	CH1o	March has it under SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT (X2GuEve.cpp:5784)
+§7	L272	spec A readers	3297ee20, 32981130, 329a4680 (Eve range)	CH1q CH1l3 CH1k	3297ee20 AddManeuverGauge (CH1q), 32981130 (CH1l3), 329a4680 AttackResultByType (CH1k)
+§7	L274	SetUserSummonedNPCInfo per-case flags	Dimension Link 25000 / Link Overcharge 25601 (L282)	CH2a CH3d	engine side ported; Eve's slots must hold June ids when her skills go live (L282)
+§7	L277	3201ad10 skill-group power socket rate from class code	3297762a, 329968a0 (Eve range)	CH1l CH3c	3297762a in 32977390 InitEquippedActiveSkillState (CH1l); 329968a0 (CH3c); check each caller adds 1.0
+§7	L280	SetSkillLevelStateData class callers	32968f20 (x9, Eve range)	see map
+§7	L281	SetMultiplyPowerRate_LUA in Nasod_Watch_Eve / SI_HA_FERDINAND	June NPC scripts (data037)	CH2a CH3d	adopt the summon scripts with their skills (ch0_assets phase CH1 / owners)
+§7	L282	engine readers keyed by March skill ids (25000, 25601)	Dimension Link, Link Overcharge Illusion	CH2a CH3d	slots hold June ids once Eve is on June's templets: confirm the reader keys in the play-test
+§7	L285	tutorial flag reader 32978ec2 (CX2GUEve vslot 0x6fc)	render-param call using the June-only guide manager step (g_pMain+0x8c4 +0xe4)	CH1l	vslot 0x6fc override; the guide manager is June-only (stand-in or route in CH1l)
+§7a	L296	AddDamageEffectModifier list	June-only system, port with the first class that needs it	CH1l4	first Eve user is CH1l4 (inert until _LIVE); that phase checks whether an earlier port already brought the list, else ports it
+§7a	L297	Eve projectile modifiers	3299a9d0 (SA_EBS_Extreme_Virtual), 329c12a0, 329a3040 / 329a3760 (Thousand Star), 32968c50, 3297bad0	CH1l4	3299a9d0 is CH3c; 329c12a0, 329a3040, 329a3760, 32968c50, 3297bad0 are CH1l4; each calls the modifier list (L296) whole
+§7b	L310-322	SetDamageExceptionProcess per-class block	329bc560 (June-only override, slot 0x2b8)	CH4b	whole function in one phase (no partial updates)
+§7b	L318-319	31fdbbb0 / 31fdbcc0 memo readers	329c8a00 head switch (25033 / 25070, 25034 / 25071, 25035-36 / 25072-73, 25217 / 25234)	CH1n CH3d	head branch inert until the memo skills; their states are CH3d (ch0_state_skill.tsv)
+§7c	L323-343	167 alpha-tag sites 32982623..329c84f8	c10a_alpha_sites.tsv l.27-193	CH1a CH1d CH1e CH1f CH1h CH1i CH1j CH1j2 CH1k CH1l CH1l3 CH1l4 CH2a CH2a2 CH2c CH2c2 CH3b CH3c CH3d	167 sites: 138 live by phase (CH1l4 30, CH1d 19, CH2c2 16, CH2a2 15, CH2a 9, CH1j2 9, CH1a/CH1e/CH1h/CH1i 5 each, CH3b/CH3d 4, CH2c/CH3c 3, CH1f 2, CH1j/CH1k/CH1l/CH1l3 1); 29 in dead functions: n/a
+§7e §7d §7g §7f §7g(b)	L344-397	other characters	-	n/a	OTHER
+§7h	L407	effect-set list variants	EFFECT_SET_LIST_FINAL_ULTIMATE x5	CH1	engine reader 32024ff0 row 397; data comes with the script
+§7h	L408	SOUND_PLAY_EX / STATE_SOUND_PLAY / CUSTOM_STATE_DELETE_SOUND	not in Eve's script	n/a
+§7h	L409	class writers of +0x3f00	none in Eve's range	n/a
+§7h	L410	USEFUL_VALUE rows	4 in Eve's script; readers 3299a9d0, 329ae4f0 (c9h4f_useful_value_readers.tsv l.93-94)	CH3c CH3b	3299a9d0 (CH3c), 329ae4f0 (CH3b)
+§7h	L411	USI_WAIT_STATE_CHANGE	329ba9c0 @329bae2a-329bae48, id 0x82	CH1m
+§7i	L413-428	SetEquippedSkillFuncBySkillSlotIndex drops 31fd2af0, sets +0x11	329c8a00	CH1n	skill cases follow their skills (CH2a-CH3d)
+§7j	L429-442	DamageReact steps	-	n/a	OTHER
+§7k	L443-448	class-set callback +0x8dc0	no Eve writer found	n/a
+§7l	L455	bounding user states	ENSI_DAMAGE_BOUNDING_DOWN / LANDCRASH / UP (ids 0x78-0x7a)	CH1b
+§7l	other rows	Add / Rose / Luciel	-	n/a	OTHER
+§7m	L461-467	Add die notify	-	n/a	OTHER
+§7n	L477	user-sync class-skill float	writer 3297d730, reader 329a67b0	CH2c	writer 3297d730 and reader 329a67b0 are both CH2c (Electra)
+§7o	L484-518	SET_LIMIT_MAX_G_SPEED -4000	script l.4095	CH1	script data
+§7p	L531	TIME_STOP_IMMUNE_STATE	3 states (HA_EEP_LINK_OVERCHARGE_ILLUSION, HA_ENS_LUNATIC_SCUD, HA_EBS_PSYCHIC_ARTILLERY)	CH1	script data; reader C3e-4
+§7p	other rows	Chung / Aisha / Elsword	-	n/a	OTHER
+§7q §7r	L536-558	Luciel / Chung	-	n/a	OTHER
+§7s	L559-570	dungeon-registry class tables	March reads EVE already	n/a
+§7t	L575	SHOW_HYPER_CUT_IN_TIME	3 (ECN / ECE / ECB hyper modes)	CH1	script data
+§7t	L577-584	hyper cut-in UnitTemplet + show option	m_HyperCutIn on 108 / 109 / 116 (ch0_unittemplet_eve.tsv)	CH5 CH3d	reader ported (SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME); first live hyper active in CH3d
+§7t	L600	sound sets SOUND_SET3_RATE+	Eve_Nasod named	CH1	script data
+§7t	L607	skill cut-in names -> June .gfx	X2GuEve.cpp:48-85; g4_cutin_names.tsv l.33-39	CH5	the .gfx files are CH0b assets
+§7u	L624	March-only effect names	EVE_EP_DASH_COMBO_Z (X2GuEve.cpp)	CH1i	goes away with June's EP dash combo functions
+§7v §7w §7z §7aa §7ab	L634-689	Lu/Ciel, CUSTOM_RENDER_STATE, Rose	-	n/a	OTHER
+§7x	L649-657	AT_COMMAND tags	23 in Eve's script	CH1	script data
+§7y	L658-667	GetLandPosition bMonster	Dimension Link FrameMoves pass true (already March's)	n/a
+§7ae	L690-722	254 tree rows with no state	ch0_state_skill.tsv part 2	CH2a-CH3d CH4a	types 1 / 5 / 8 no state (CH4a); Fayner 25224 / 25225 reach the default case (ENSI_A_EAT_FAENA)
+§7ad	L723-744	motions	Eve: none lost (r12b); ch0_motion_question.tsv	CH0b	see the motion question in the CH0 Done note
+§7ac	L745-760	CanDown June shape	not Eve	n/a	OTHER
+§7af	L761-777	camera tracking	not Eve	n/a	OTHER
+§7ag	L778-792	pressed-index space, slot 5	X2GuEve.cpp encoders :3391-3473, :5529-5537, :5590-5598, readers :5481, :22110, :29793, :32358, decode :6151-6177	CH1p	encoders, readers and the pressed index together
+§7ah	L793-805	Static_EveRecoveryGuide / _Cooltime / Button_EveRecoveryToolTip	June driver CX2Game 322cd5c0-322e07e0	CH4c
+§7ai	L806-819	BFI call arguments, 3 s skill-name string	s3e_bybfi_callers.tsv l.150-160 (Eve range)	CH1b CH1l3 CH1l4 CH2a CH2b CH3a CH3d CH4c	s3e_bybfi_callers.tsv Eve rows by containing function: CH1l3 3, CH2a 2, CH4c 2, CH1b/CH1l4/CH2b/CH3a/CH3d 1, n/a 1 (dead)
+§7aj	L820-837	El Crystal icon (class type 0x1a, tree +0x134), UpdateEveElectraSkillSlotIcon	-	CH4c
+§7ak	L838-843	decide-page ACK	not Eve	n/a	OTHER
+§7al	L844-852	class pieces in user base	not Eve	n/a	OTHER
+§7am	L866 L875-876	delegate lists	Eve none; NPC-side push owner UT_EVE skill 25417 (3275a120)	CH4b	registration lives in CX2GUNPC
+§7an	L890	GetCharacterSpecializationB reader 329b407b	-	CH1l3	reader 329b407b sits in 329b3cc0 (CH1l3)
+§7ao	L894-929	transcendence per class	hyper effect start 32994710 (vslot 19); the four base helpers; allow-list, LevelUpEvent row, DLG_Transcendental_Change_Guide_Eve	CH3d

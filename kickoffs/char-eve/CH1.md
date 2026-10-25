@@ -23,3 +23,11 @@ Then the CH1a-CH1q Done notes and reviews.
 3. Build, pack, ask before each copy (with CH0b's held koms if any), then hand over the play-test: an Eve save per job tier; combos, dash, jump, riding, a bounding hit, damage, awakening with the Nasod Core; the `ErrorLog.txt` lines to compare against a pre-CH1 run.
 - Check that March's `CommonStateStart` accepts June's empty `ANIM_NAME` on the wait-state-change table (7h).
 - Mark the ported checklist rows `(Eve: CH1)`.
+
+## Amended by CH0 (2026-10-26)
+
+- **Skill ids: 1** (`awk -F'\t' 'NF==7 && $6=="CH1"' june2017_re/char_eve/ch0_state_skill.tsv`): 900 SI_ETC_WS_COMMON_LOVE.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §4 L155-178 (missing enum tables); §7h L407 (effect-set list variants); §7o L484-518 (SET_LIMIT_MAX_G_SPEED -4000); §7p L531 (TIME_STOP_IMMUNE_STATE); §7t L575 (SHOW_HYPER_CUT_IN_TIME); §7t L600 (sound sets SOUND_SET3_RATE+); §7x L649-657 (AT_COMMAND tags).
+- **Lua to adopt:** `Eve_Nasod.lua` only. Her 14 skill NPC / summon scripts are June's `ljconv` bytecode already (`ch0_assets.tsv` owner `char-eve/done-elsewhere`): check them, do not re-adopt.
+- **CH0b holds no koms** (the motion question in CH0b's amendment); copy the 11 base motions together if CH0b has not.
+- The script's 3 numerical-only tables belong to Electronic Move (CH3c).

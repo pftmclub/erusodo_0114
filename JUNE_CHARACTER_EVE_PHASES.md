@@ -120,11 +120,11 @@ no Eve ENUM or KEYS line. (Run `charport_scan.py` with a short scratch dir: a lo
 |---|---|---|---|
 | CH0 | Eve map: class map, state / skill table, checklist rows, assets + effect closure, keys, registration listing check, S3 generator, unmapped helpers, the Nasod Core map, the motion question | Opus high | - |
 | CH0b | Every June Eve asset, whole, first | Sonnet high, user play-test | CH0 |
-| CH1a-CH1l | Class core transcription, inert `June_*` members (12 groups, below) | Sonnet high, Opus review each | CH0; one at a time |
+| CH1a-CH1l4 | Class core transcription, inert `June_*` members (16 groups after CH0's splits, below) | Sonnet high, Opus review each | CH0; one at a time |
 | CH1m-CH1p | Class core wiring behind `_LIVE` (registration; base callbacks + slot head; virtuals; 7ag + hooks + June-only keys) | Opus high, Opus review each | CH1a-CH1l reviews |
 | CH1q | Nasod Core (decision 1) | Opus high, Opus review | CH1p review |
 | CH1 | Final: define `_LIVE`, adopt the script, play-test | Opus high, Opus review, user play-test | CH1q review (and CH0b) |
-| CH2a-CH2c | Skills: Nasod + first jobs (5, 18, 19, 26) | Sonnet high, Opus review, user play-test | CH1 review |
+| CH2a-CH2c2 | Skills: Nasod + first jobs (5, 18, 19, 26; CH0 split CH2a / CH2c) | Sonnet high, Opus review, user play-test | CH1 review |
 | CH3a-CH3d | Skills: second jobs (108, 109, 116), hyper actives, transcendence rows | Sonnet high, Opus review, user play-test | CH2 reviews |
 | CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds, before the Sonnet phase that needs it (e.g. `CH2b0`) | Opus high, Opus review | as its phase |
 | CH4a-CH4c | Passives; damage exception + overrides; El Crystal / recovery HUD and tree-UI pieces | Opus high, Opus review, user play-test | CH2 reviews |
@@ -173,6 +173,54 @@ listing, all `~` rows and std::string-named rows (`USI_HYPER_MODE`, START / WIN 
 301 / 301 states and 127 / 127 ids mapped; assets union routes a / b / c; the motion question answered; the Nasod Core tsv exists; kickoffs
 amended; open questions listed.
 
+### CH0 - Done (2026-10-26)
+
+Read-only, no flag, no build. Outputs in `june2017_re/char_eve/`. The builders are the pilot's scripts copied with Eve's constants
+(`ch0_build_state_skill.py`, `ch0_build_class_map.py` + `ch0_hand_phases.tsv`), plus new ones: `ch0_build_assets.py eve`,
+`ch0_unmapped_callees.py`, `ch0_live_lines.py` (live lines from a `cl /E` `.i`), and `june2017_re/s3_no_state.py` (recipe defect 2).
+
+**Step 0.** `charport_states.py init 329b8030 329ba9c0 3202b110` -> `ch0_reg.tsv`; `ch0c_listing_check.py` reproduces **158 / 158** rows from the
+raw listing. I also checked the 6 `~` rows and the 4 std::string rows by hand. Three tool fixes, after which Aisha's `ch0c_reg.tsv` and `ch0c_skill.tsv` still reproduce unchanged:
+- the skill switch's epilogue label is found generically (was Aisha's `LAB_32cf06f8`);
+- `s_X_<va> + n` labels resolve (Eve's default case);
+- a case's own extra-state registrations now carry their callbacks (new column 10, incl. the `329cc2c0` copies).
+
+**Maps**
+- `ch0_class_map.tsv`: 854 functions in `32965dd0-329cf86f`: **802 to transcribe**, 37 dead, 15 not Eve's (CX2GUUser or shared code folded into the range, unwind funclets).
+  The three unowned functions are settled: `329cf6d0` PushBuffFactor is CH4b (shared with Rose and Ara); `329cf850` / `329cf860` are empty CX2GUUser stubs.
+- `ch0_state_skill.tsv`: 295 script tables, 293 names. 22 are dead data, and 3 March `_HYPER` states are dropped. June registers `ENSI_RIDING_DAMAGE_BACK` with no table: its script defines RIDING_DAMAGE_FRONT and HA_EBS_PSYCHIC_ARTILLERY twice each (JUNE_BUGS rows in CH1c / CH3d).
+  **127 / 127 ids**: CH2a 12, CH2a2 12, CH2b 12, CH2c 8, CH2c2 4, CH3a / CH3b / CH3c 16 each, CH3d 6, CH4a 24 (types 1 / 5 / 8), CH1 1 (900).
+  Fayner (25224 / 25225) has no case and plays the `default:` (`ENSI_A_EAT_FAENA`). 12 case ids outside June's tree are transcendence-memo skills (`31fdbcc0`): CH3d.
+- `ch0_vtable_slots.tsv` (69 overrides; 545 slots in `ch0_vtable_all.tsv`), `ch0_checklist_rows.tsv` (every row: a phase or n/a), `ch0_keys.tsv` (239 keys; the 16 June-only keys have owners).
+- `ch0_assets.tsv` 14,663 rows, routes a / b / c unioned; **`ch0b_stage_list.tsv` 5,197** (4,648 missing, 549 March copies; dry run: 0 refused; one new kom, `data203`).
+  `ch0_effect_closure.tsv`: 7,231 rows, 2,443 names, 86 missing (54 sounds, 34 names June never defines).
+- **The motion question:** no animation is lost. June moved Atomic Blaster NS -> EG and Taser Pilum BS -> PR; March's 108 / 116 rows load both files of each pair, so CH0b need not wait for CH1, but the 11 base motions are copied together (`ch0_motion_question.tsv`).
+- **Nasod Core** (`ch0_nasod_core.tsv`, 126 rows; March sites `ch0_nasod_core_sites.tsv`, 77 sites in 9 files, all dead today by `cl /E`): same 100, differs 13, june-only 9, absent 4.
+  CH1q transcribes 19 June functions; the rest keep March's ADD bodies. June uses the FIX form; `ENSI_BERSERK_MODE` is not in June; the gauge rules changed in 4 places.
+- Item 9: 126 / 127 RNSI names are not in the C++ `SKILL_ID` enum (keep raw ids + `/// RNSI_`); 71 are not in the core Enum.lua (add one only for a Lua reader). UnitTemplet (`ch0_unittemplet_eve.tsv`): every March key equals June's; June adds `m_fLobbyRotationY` (ignored) and `m_HyperCutIn` (108 / 109 / 116, read).
+- Item 6: 367 out-of-class callees, 94 cited nowhere; `ch0_unmapped_identified.tsv`: 45 confirmed, 45 candidate, 4 unknown. 34 confirmed engine / user ones are now funcmap rows.
+
+**Split** (rule: ~45): CH1j -> CH1j + CH1j2 (Battle Seraph); CH1l -> CH1l / CH1l2 (Common*) / CH1l3 (skill use) / CH1l4 (CommonFrameMove); CH2a -> CH2a + CH2a2 (18); CH2c -> CH2c + CH2c2 (Sweep Rolling, Giga Stream).
+Opus helper phases: **CH1j20** (June's slot key-held / slot-page helpers), **CH1l40** (7a modifier setters, customize-item struct), **CH2b0** (unit-cone collector), **CH3a0** (UI skill-tree notify, mesh float).
+Functions per phase:
+- CH1a 44, CH1b 39, CH1c 24, CH1d 45, CH1e 35, CH1f 25, CH1g 23, CH1h 11, CH1i 22, CH1j 30, CH1j2 46;
+- CH1k 39, CH1l 10, CH1l2 9, CH1l3 26, CH1l4 37, CH1m 3, CH1n 2, CH1p 2, CH1q 49 (19 to write);
+- CH2a 29, CH2a2 38, CH2b 21, CH2c 27, CH2c2 26, CH3a 39, CH3b 41, CH3c 35, CH3d 23, CH4a 7, CH4b 4, CH4c 2.
+
+Every kickoff CH0b-CH5 has its "Amended by CH0" section: filters, counts, addresses, checklist rows, callees.
+
+**Corrections to the plan:**
+- Electronic Move (the 3 numerical-only tables) is Battle Seraph-only: it moves from CH2c to CH3c.
+- 7n (writer `3297d730`, reader `329a67b0`) is Electra code: CH2c, not CH4c.
+- The 7an reader `329b407b` sits in `329b3cc0`: CH1l3.
+- June's InitState has no Electra cut-in case either (CH5 keeps set 0).
+- funcmap l.1059's "slot 509" for `329b5af0` is slot 510.
+
+**Drift** (scope rule): the 4 March `_INT.txt` definition files are now a bullet in backlog Stage 15. The `Tutorial_Eve_*` assets stay with june-dungeons; the guide-manager step stays with backlog l.480. Nothing needs a new plan.
+`funcmap.tsv`: 111 rows `Char Eve CH0`.
+
+**Open:** the Nasod Core map's 4 technical questions (in the CH1q kickoff). Next: CH0b (Sonnet) can start now; CH1a may run beside it.
+
 ## Phase CH0b - Every June Eve asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then
@@ -200,9 +248,13 @@ pre-CH0b `ErrorLog.txt` first. **If CH0 found a dropped animation March plays**,
 | CH1g | Sonnet high, Opus review | Code: Nemesis line (108) |
 | CH1h | Sonnet high, Opus review | Architecture line (19) |
 | CH1i | Sonnet high, Opus review | Code: Empress line (109) |
-| CH1j | Sonnet high, Opus review | Electra (26) and Code: Battle Seraph (116) lines |
+| CH1j | Sonnet high, Opus review | Electra (26) line |
+| CH1j2 | Sonnet high, Opus review | Code: Battle Seraph (116) line (split by CH0) |
 | CH1k | Sonnet high, Opus review | Overrides below vslot 0x600 (lifecycle, render, reaction virtuals; ctor / dtor offset map) |
-| CH1l | Sonnet high, Opus review | Overrides from vslot 0x600 |
+| CH1l | Sonnet high, Opus review | Overrides 0x600-0x7bc |
+| CH1l2 | Sonnet high, Opus review | Common* overrides 0x7c0-0x7ec except CommonFrameMove (split by CH0) |
+| CH1l3 | Sonnet high, Opus review | Skill-use overrides from 0x7f0 and their helpers (split by CH0) |
+| CH1l4 | Sonnet high, Opus review | CommonFrameMove 0x7cc and the helpers only it reaches (split by CH0) |
 | CH1m | Opus high, Opus review | Registration: June's `InitState` / `InitStateCommon`, the hyper-mode table name, START / WIN / LOSE roll, base event states, the `_LIVE` gate |
 | CH1n | Opus high, Opus review | The CX2GUUser base callbacks Eve registers; `SetEquippedSkillFuncBySkillSlotIndex` `329c8a00` head (bounds, slot tables, the 7i rule) + the dev free-skill gate |
 | CH1o | Opus high, Opus review | The virtuals under `_LIVE`; gaps the CH1a-CH1l reviews routed |
@@ -227,9 +279,11 @@ Sub-tags `SKILL`, `NUM`. A skill's line decides its phase: class 5 has it -> CH2
 
 | Sub-phase | Scope |
 |---|---|
-| CH2a | Nasod (5) and Exotic Gear (18) skills |
+| CH2a | Nasod (5) skills |
+| CH2a2 | Exotic Gear (18) skills (split by CH0) |
 | CH2b | Architecture (19) skills |
-| CH2c | Electra (26) skills, incl. Electronic Move (the 3 numerical-only tables, section 1) |
+| CH2c | Electra (26) skills except Sweep Rolling and Giga Stream |
+| CH2c2 | Sweep Rolling and Giga Stream (split by CH0). Electronic Move (the 3 numerical-only tables) is Battle Seraph only: CH3c (CH0 correction) |
 
 For each id: its case in `SetEquippedSkillFuncBySkillSlotIndex` with June's state functions whole; its attached rows (7c alpha tags, 7u
 names, 7ai BFI arguments, 7b blocks if CH0 puts them here); its effect closure (a name found only now is staged and added to `ch0_assets.tsv`).

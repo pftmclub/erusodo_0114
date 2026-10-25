@@ -1,0 +1,198 @@
+# UC_EVE_NASOD(5): March keys 24, June keys 25; same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 15
+# UC_EVE_EXOTIC_GEAR(18): March keys 24, June keys 25; same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 10
+# UC_EVE_ARCHITECTURE(19): March keys 24, June keys 25; same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_EVE_CODE_NEMESIS(108): March keys 24, June keys 26; same 24, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_ECN_Transcendence"
+#    m_fLobbyRotationY: - -> 1
+# UC_EVE_CODE_EMPRESS(109): March keys 24, June keys 26; same 24, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_ECE_Transcendence"
+#    m_fLobbyRotationY: - -> 1
+# UC_EVE_ELECTRA(26): March keys 24, June keys 25; same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_EVE_BATTLE_SERAPH(116): March keys 24, June keys 26; same 24, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_ECB_Transcendence"
+#    m_fLobbyRotationY: - -> 1
+# March AddUnitTemplet_LUA (X2Lib/X2UnitManager.cpp:836) does NOT read these June keys (present/changed in Eve rows): m_fLobbyRotationY (7 classes)
+# March keys the reader does read but absent in an Eve row are noted per class above as march-only/june-only; reader flags SEPARATION_MOTION/REFORM_ENTRY_POINT/SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME all defined in KTDXLIB/Always.h (lines 472, 3219, 6846; #ifdef not preprocessed)
+unit_class	key	march_value	june_value	diff
+UC_EVE_NASOD(5)	basicBodyItemID	37	37	same
+UC_EVE_NASOD(5)	basicFaceItemID	36	36	same
+UC_EVE_NASOD(5)	basicFootItemID	40	40	same
+UC_EVE_NASOD(5)	basicHairItemID	35	35	same
+UC_EVE_NASOD(5)	basicHandItemID	39	39	same
+UC_EVE_NASOD(5)	basicLegItemID	38	38	same
+UC_EVE_NASOD(5)	basicWeaponItemID	41	41	same
+UC_EVE_NASOD(5)	description	STR_ID_618	STR_ID_618	same
+UC_EVE_NASOD(5)	introMovieFIleName	"Movie_Create_Eve_Base.avi"	"Movie_Create_Eve_Base.avi"	same
+UC_EVE_NASOD(5)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_NASOD(5)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_NASOD(5)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_NASOD(5)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_NASOD(5)	m_GameMotion1	""	""	same
+UC_EVE_NASOD(5)	m_GameMotion2	""	""	same
+UC_EVE_NASOD(5)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_NASOD(5)	m_fLobbyRotationY		15	june-only
+UC_EVE_NASOD(5)	name	STR_ID_618	STR_ID_618	same
+UC_EVE_NASOD(5)	promotionBodyItemID	130135	130135	same
+UC_EVE_NASOD(5)	promotionFootItemID	130138	130138	same
+UC_EVE_NASOD(5)	promotionHandItemID	130137	130137	same
+UC_EVE_NASOD(5)	promotionLegItemID	130136	130136	same
+UC_EVE_NASOD(5)	promotionWeaponItemID	130134	130134	same
+UC_EVE_NASOD(5)	unitClass	UNIT_CLASS.UC_EVE_NASOD	UNIT_CLASS.UC_EVE_NASOD	same
+UC_EVE_NASOD(5)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_EXOTIC_GEAR(18)	basicBodyItemID	37	37	same
+UC_EVE_EXOTIC_GEAR(18)	basicFaceItemID	36	36	same
+UC_EVE_EXOTIC_GEAR(18)	basicFootItemID	40	40	same
+UC_EVE_EXOTIC_GEAR(18)	basicHairItemID	130335	130335	same
+UC_EVE_EXOTIC_GEAR(18)	basicHandItemID	39	39	same
+UC_EVE_EXOTIC_GEAR(18)	basicLegItemID	38	38	same
+UC_EVE_EXOTIC_GEAR(18)	basicWeaponItemID	41	41	same
+UC_EVE_EXOTIC_GEAR(18)	description	STR_ID_4239	STR_ID_4239	same
+UC_EVE_EXOTIC_GEAR(18)	introMovieFIleName	"Movie_Create_Eve_CN.avi"	"Movie_Create_Eve_CN.avi"	same
+UC_EVE_EXOTIC_GEAR(18)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_GameMotion1	"Motion_EVE_EG.x"	"Motion_EVE_EG.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_GameMotion2	""	""	same
+UC_EVE_EXOTIC_GEAR(18)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_EXOTIC_GEAR(18)	m_fLobbyRotationY		10	june-only
+UC_EVE_EXOTIC_GEAR(18)	name	STR_ID_618	STR_ID_618	same
+UC_EVE_EXOTIC_GEAR(18)	promotionBodyItemID	130331	130331	same
+UC_EVE_EXOTIC_GEAR(18)	promotionFootItemID	130334	130334	same
+UC_EVE_EXOTIC_GEAR(18)	promotionHandItemID	130333	130333	same
+UC_EVE_EXOTIC_GEAR(18)	promotionLegItemID	130332	130332	same
+UC_EVE_EXOTIC_GEAR(18)	promotionWeaponItemID	130378	130378	same
+UC_EVE_EXOTIC_GEAR(18)	unitClass	UNIT_CLASS.UC_EVE_EXOTIC_GEAR	UNIT_CLASS.UC_EVE_EXOTIC_GEAR	same
+UC_EVE_EXOTIC_GEAR(18)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_ARCHITECTURE(19)	basicBodyItemID	37	37	same
+UC_EVE_ARCHITECTURE(19)	basicFaceItemID	36	36	same
+UC_EVE_ARCHITECTURE(19)	basicFootItemID	40	40	same
+UC_EVE_ARCHITECTURE(19)	basicHairItemID	130345	130345	same
+UC_EVE_ARCHITECTURE(19)	basicHandItemID	39	39	same
+UC_EVE_ARCHITECTURE(19)	basicLegItemID	38	38	same
+UC_EVE_ARCHITECTURE(19)	basicWeaponItemID	41	41	same
+UC_EVE_ARCHITECTURE(19)	description	STR_ID_4240	STR_ID_4240	same
+UC_EVE_ARCHITECTURE(19)	introMovieFIleName	"Movie_Create_Eve_CE.avi"	"Movie_Create_Eve_CE.avi"	same
+UC_EVE_ARCHITECTURE(19)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_ARCHITECTURE(19)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_ARCHITECTURE(19)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_ARCHITECTURE(19)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_ARCHITECTURE(19)	m_GameMotion1	"Motion_EVE_AT.x"	"Motion_EVE_AT.x"	same
+UC_EVE_ARCHITECTURE(19)	m_GameMotion2	""	""	same
+UC_EVE_ARCHITECTURE(19)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_ARCHITECTURE(19)	m_fLobbyRotationY		1	june-only
+UC_EVE_ARCHITECTURE(19)	name	STR_ID_618	STR_ID_618	same
+UC_EVE_ARCHITECTURE(19)	promotionBodyItemID	130341	130341	same
+UC_EVE_ARCHITECTURE(19)	promotionFootItemID	130344	130344	same
+UC_EVE_ARCHITECTURE(19)	promotionHandItemID	130343	130343	same
+UC_EVE_ARCHITECTURE(19)	promotionLegItemID	130342	130342	same
+UC_EVE_ARCHITECTURE(19)	promotionWeaponItemID	130379	130379	same
+UC_EVE_ARCHITECTURE(19)	unitClass	UNIT_CLASS.UC_EVE_ARCHITECTURE	UNIT_CLASS.UC_EVE_ARCHITECTURE	same
+UC_EVE_ARCHITECTURE(19)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_CODE_NEMESIS(108)	basicBodyItemID	37	37	same
+UC_EVE_CODE_NEMESIS(108)	basicFaceItemID	36	36	same
+UC_EVE_CODE_NEMESIS(108)	basicFootItemID	40	40	same
+UC_EVE_CODE_NEMESIS(108)	basicHairItemID	54	54	same
+UC_EVE_CODE_NEMESIS(108)	basicHandItemID	39	39	same
+UC_EVE_CODE_NEMESIS(108)	basicLegItemID	38	38	same
+UC_EVE_CODE_NEMESIS(108)	basicWeaponItemID	41	41	same
+UC_EVE_CODE_NEMESIS(108)	description	STR_ID_4845	STR_ID_4845	same
+UC_EVE_CODE_NEMESIS(108)	introMovieFIleName	"Movie_Create_Eve_CN.avi"	"Movie_Create_Eve_CN.avi"	same
+UC_EVE_CODE_NEMESIS(108)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_GameMotion1	"Motion_EVE_EG.x"	"Motion_EVE_EG.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_GameMotion2	"Motion_EVE_NS.x"	"Motion_EVE_NS.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_HyperCutIn		"HQ_Cutin_ECN_Transcendence"	june-only
+UC_EVE_CODE_NEMESIS(108)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_CODE_NEMESIS(108)	m_fLobbyRotationY		1	june-only
+UC_EVE_CODE_NEMESIS(108)	name	STR_ID_4916	STR_ID_4916	same
+UC_EVE_CODE_NEMESIS(108)	promotionBodyItemID	131764	131764	same
+UC_EVE_CODE_NEMESIS(108)	promotionFootItemID	131767	131767	same
+UC_EVE_CODE_NEMESIS(108)	promotionHandItemID	131766	131766	same
+UC_EVE_CODE_NEMESIS(108)	promotionLegItemID	131765	131765	same
+UC_EVE_CODE_NEMESIS(108)	promotionWeaponItemID	131763	131763	same
+UC_EVE_CODE_NEMESIS(108)	unitClass	UNIT_CLASS.UC_EVE_CODE_NEMESIS	UNIT_CLASS.UC_EVE_CODE_NEMESIS	same
+UC_EVE_CODE_NEMESIS(108)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_CODE_EMPRESS(109)	basicBodyItemID	37	37	same
+UC_EVE_CODE_EMPRESS(109)	basicFaceItemID	36	36	same
+UC_EVE_CODE_EMPRESS(109)	basicFootItemID	40	40	same
+UC_EVE_CODE_EMPRESS(109)	basicHairItemID	55	55	same
+UC_EVE_CODE_EMPRESS(109)	basicHandItemID	39	39	same
+UC_EVE_CODE_EMPRESS(109)	basicLegItemID	38	38	same
+UC_EVE_CODE_EMPRESS(109)	basicWeaponItemID	41	41	same
+UC_EVE_CODE_EMPRESS(109)	description	STR_ID_4846	STR_ID_4846	same
+UC_EVE_CODE_EMPRESS(109)	introMovieFIleName	"Movie_Create_Eve_CE.avi"	"Movie_Create_Eve_CE.avi"	same
+UC_EVE_CODE_EMPRESS(109)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_GameMotion1	"Motion_EVE_AT.x"	"Motion_EVE_AT.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_GameMotion2	"Motion_EVE_EP.x"	"Motion_EVE_EP.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_HyperCutIn		"HQ_Cutin_ECE_Transcendence"	june-only
+UC_EVE_CODE_EMPRESS(109)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_CODE_EMPRESS(109)	m_fLobbyRotationY		1	june-only
+UC_EVE_CODE_EMPRESS(109)	name	STR_ID_4917	STR_ID_4917	same
+UC_EVE_CODE_EMPRESS(109)	promotionBodyItemID	131769	131769	same
+UC_EVE_CODE_EMPRESS(109)	promotionFootItemID	131772	131772	same
+UC_EVE_CODE_EMPRESS(109)	promotionHandItemID	131771	131771	same
+UC_EVE_CODE_EMPRESS(109)	promotionLegItemID	131770	131770	same
+UC_EVE_CODE_EMPRESS(109)	promotionWeaponItemID	131768	131768	same
+UC_EVE_CODE_EMPRESS(109)	unitClass	UNIT_CLASS.UC_EVE_CODE_EMPRESS	UNIT_CLASS.UC_EVE_CODE_EMPRESS	same
+UC_EVE_CODE_EMPRESS(109)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_ELECTRA(26)	basicBodyItemID	37	37	same
+UC_EVE_ELECTRA(26)	basicFaceItemID	36	36	same
+UC_EVE_ELECTRA(26)	basicFootItemID	40	40	same
+UC_EVE_ELECTRA(26)	basicHairItemID	40540	40540	same
+UC_EVE_ELECTRA(26)	basicHandItemID	39	39	same
+UC_EVE_ELECTRA(26)	basicLegItemID	38	38	same
+UC_EVE_ELECTRA(26)	basicWeaponItemID	41	41	same
+UC_EVE_ELECTRA(26)	description	STR_ID_15828	STR_ID_15828	same
+UC_EVE_ELECTRA(26)	introMovieFIleName	"Movie_Create_Eve_BS.avi"	"Movie_Create_Eve_BS.avi"	same
+UC_EVE_ELECTRA(26)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_ELECTRA(26)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_ELECTRA(26)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_ELECTRA(26)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_ELECTRA(26)	m_GameMotion1	"Motion_EVE_PR.x"	"Motion_EVE_PR.x"	same
+UC_EVE_ELECTRA(26)	m_GameMotion2	""	""	same
+UC_EVE_ELECTRA(26)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_ELECTRA(26)	m_fLobbyRotationY		1	june-only
+UC_EVE_ELECTRA(26)	name	STR_ID_15827	STR_ID_15827	same
+UC_EVE_ELECTRA(26)	promotionBodyItemID	40880	40880	same
+UC_EVE_ELECTRA(26)	promotionFootItemID	40910	40910	same
+UC_EVE_ELECTRA(26)	promotionHandItemID	40900	40900	same
+UC_EVE_ELECTRA(26)	promotionLegItemID	40890	40890	same
+UC_EVE_ELECTRA(26)	promotionWeaponItemID	40870	40870	same
+UC_EVE_ELECTRA(26)	unitClass	UNIT_CLASS.UC_EVE_ELECTRA	UNIT_CLASS.UC_EVE_ELECTRA	same
+UC_EVE_ELECTRA(26)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same
+UC_EVE_BATTLE_SERAPH(116)	basicBodyItemID	37	37	same
+UC_EVE_BATTLE_SERAPH(116)	basicFaceItemID	36	36	same
+UC_EVE_BATTLE_SERAPH(116)	basicFootItemID	40	40	same
+UC_EVE_BATTLE_SERAPH(116)	basicHairItemID	41290	41290	same
+UC_EVE_BATTLE_SERAPH(116)	basicHandItemID	39	39	same
+UC_EVE_BATTLE_SERAPH(116)	basicLegItemID	38	38	same
+UC_EVE_BATTLE_SERAPH(116)	basicWeaponItemID	41	41	same
+UC_EVE_BATTLE_SERAPH(116)	description	STR_ID_17432	STR_ID_17432	same
+UC_EVE_BATTLE_SERAPH(116)	introMovieFIleName	"Movie_Create_Eve_BS.avi"	"Movie_Create_Eve_BS.avi"	same
+UC_EVE_BATTLE_SERAPH(116)	m_CommonMotion	"Motion_EVE_Common.x"	"Motion_EVE_Common.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_EmotionMotion	"Motion_EVE_Emotion.x"	"Motion_EVE_Emotion.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_FieldMotion	"Motion_EVE_Field.x"	"Motion_EVE_Field.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_GameMotion0	"Motion_EVE.x"	"Motion_EVE.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_GameMotion1	"Motion_EVE_PR.x"	"Motion_EVE_PR.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_GameMotion2	"Motion_EVE_BS.x"	"Motion_EVE_BS.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_HyperCutIn		"HQ_Cutin_ECB_Transcendence"	june-only
+UC_EVE_BATTLE_SERAPH(116)	m_LobbyMotion	"Motion_EVE_Lobby.x"	"Motion_EVE_Lobby.x"	same
+UC_EVE_BATTLE_SERAPH(116)	m_fLobbyRotationY		1	june-only
+UC_EVE_BATTLE_SERAPH(116)	name	STR_ID_17433	STR_ID_17433	same
+UC_EVE_BATTLE_SERAPH(116)	promotionBodyItemID	41160	41160	same
+UC_EVE_BATTLE_SERAPH(116)	promotionFootItemID	41190	41190	same
+UC_EVE_BATTLE_SERAPH(116)	promotionHandItemID	41180	41180	same
+UC_EVE_BATTLE_SERAPH(116)	promotionLegItemID	41170	41170	same
+UC_EVE_BATTLE_SERAPH(116)	promotionWeaponItemID	41150	41150	same
+UC_EVE_BATTLE_SERAPH(116)	unitClass	UNIT_CLASS.UC_EVE_BATTLE_SERAPH	UNIT_CLASS.UC_EVE_BATTLE_SERAPH	same
+UC_EVE_BATTLE_SERAPH(116)	unitType	UNIT_TYPE.UT_EVE	UNIT_TYPE.UT_EVE	same

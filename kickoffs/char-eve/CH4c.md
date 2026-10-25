@@ -21,6 +21,11 @@ Then the Eve lines of the checklist rows named below (`june2017_re/char_eve/plan
 
 Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INIT_COMPONENT` keys (reader `329c47e0`, `ch0_keys.tsv`), the 7aj equipped-slot icon override for class type `0x1a` (El Crystal index at tree `+0x134`; March's `UpdateEveElectraSkillSlotIcon` becomes June's tail), the 7ah statics `Static_EveRecoveryGuide` / `_Cooltime` / `Button_EveRecoveryToolTip`, the 7n sync float, the 7a modifier. June's whole bodies, June quirks verbatim with `JUNE_BUGS.md` rows. You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). CP949 files through `bytepatch.py`. Mark rows `(Eve: CH4c)`. Done gate: each item's effect visible in game or in a named log line.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 2** (`awk -F'\t' '$6=="CH4c"' june2017_re/char_eve/ch0_class_map.tsv`; helper 1, state-fn 1).
+  June addresses: `329b4860` `329b57a0`.
+- **States: 1** (`awk -F'\t' '$8=="CH4c"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_EVE_RECOVERY`.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §5 L179-195 (per-character parser census); §7ai L806-819 (BFI call arguments, 3 s skill-name string).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate).
+- **Code Recovery:** state `ENSI_EVE_RECOVERY` (id 238; Start `329b57a0`, which reaches `329b4860`); the `INIT_COMPONENT` members `329c47e0` fills (`+0x9c68..+0x9c74`, see CH1p's amendment). 7ah statics, 7aj icon. **7n is CH2c's, not here:** writer `3297d730` and reader `329a67b0` are both Electra functions.

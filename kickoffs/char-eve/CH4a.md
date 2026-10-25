@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-eve CH4a` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH2c review, and no CH3 phase running (same files) |
+| Depends on | CH2c2 review, and no CH3 phase running (same files) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE` (+ `_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`EVE PASSIVE` / `EVE UI`) |
 | Review | `kickoffs/char-eve/CH4a-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -21,6 +21,12 @@ Then the Eve lines of the checklist rows named below (`june2017_re/char_eve/plan
 
 Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their objects and readers; the engine hooks they need (Aisha's CH4a-CH4c already ported the unit delegate lists and `JUNE_USER_PASSIVE_HOOKS`: reuse them). June's whole bodies, June quirks verbatim with `JUNE_BUGS.md` rows. You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). CP949 files through `bytepatch.py`. Mark rows `(Eve: CH4a)`. Done gate: each item's effect visible in game or in a named log line.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 7** (`awk -F'\t' '$6=="CH4a"' june2017_re/char_eve/ch0_class_map.tsv`; helper 3, override 4).
+  June addresses: `32978370` `3297a440` `3297f290` `329b3b50` `329cd810` `329ce7b0` `329ce830`.
+- **Skill ids: 24** (`awk -F'\t' 'NF==7 && $6=="CH4a"' june2017_re/char_eve/ch0_state_skill.tsv`): 106 RNSI_P_COMMON_HYPER_AURA, 25201 RNSI_A_COMMON_AURA_ADDATK_ACCEL, 25214 RNSI_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE, 25400 RNSI_P_EEG_REFINED_STEP, 25401 RNSI_P_ECN_NASOD_WEAPON, 25402 RNSI_P_ECN_ENERGY_OF_CONCENTRATION, 25403 RNSI_P_ECN_QUEEN_OF_VENGEANCE, 25404 RNSI_P_ECN_QUEEN_OF_DESTROY, 25405 RNSI_P_EAT_QUEENS_POTENTIAL, 25406 RNSI_P_ECE_QUEENS_CONTROL, 25407 RNSI_P_ECE_ELECTRON_BOOSTER, 25408 RNSI_P_ECE_GRACE_OF_QUEEN, 25409 RNSI_P_ECE_CHARGING_BOOSTER, 25410 RNSI_P_EEL_SPECTRUM_DYNAMICS, 25411 RNSI_P_ECB_HYPER_OPTICAL_RESEARCH, 25412 RNSI_P_ECB_PHOTON_BOOSTER, 25413 RNSI_P_ECB_HIGHPOWERED_ELECTRICS, 25414 RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR, 25415 RNSI_P_ENS_OPEN_MIND, 25416 RNSI_P_ENS_CHEAT_CODE_DESTROY, 25417 RNSI_P_EEP_OPEN_MIND, 25418 RNSI_P_EEP_CHEAT_CODE_RULE_BREAK, 25419 RNSI_P_EBS_OPEN_MIND, 25420 RNSI_P_EBS_CHEAT_CODE_ELECTRONIC.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7ae L690-722 (254 tree rows with no state).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `322de5d0` CX2Game::UpdateSkillSlotUI( bool ) (X2Game.cpp:13345) (confirmed); `320017d0` user (candidate); `3202ed60` user (candidate).
+- `InitPassiveSkillState` `3297f290` also sets the June-only Nasod Core members `+0x9bf8` / `+0x9bfc` / `+0x9c00` that CH1q's AttackManeuverCore reads; keep them consistent with CH1q.
+- 106 `RNSI_P_COMMON_HYPER_AURA`: no case; imm32 in class code at `329673c9`.

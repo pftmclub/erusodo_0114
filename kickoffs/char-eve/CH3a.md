@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-eve CH3a` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH2c review (and any Opus `CH3a0` helper phase CH0 wrote). One at a time: `X2GuEve.*` |
+| Depends on | CH2c2 review and CH3a0 review (Opus helper phase). One at a time: `X2GuEve.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`EVE SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | `kickoffs/char-eve/CH3a-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -24,6 +24,11 @@ Scope: the class-108 skill ids not in a first-job phase. For each id: its case i
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Eve: CH3a)`.
 - Hand-off: the unit and class, each skill id and its A / B slot, what June's motion and effect look like.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 39** (`awk -F'\t' '$6=="CH3a"' june2017_re/char_eve/ch0_class_map.tsv`; helper 2, state-fn 37).
+  June addresses: `329669b0` `32966a60` `32966a80` `32966ae0` `32966cf0` `329670d0` `329670f0` `32967300` `32967e30` `32968810` `32968840` `32968ab0` `3296fac0` `3296fb20` `3296fb60` `3296fbc0` `329701f0` `329704f0` `32971f70` `32971fe0` `32972020` `32972030` `32972060` `32972120` `329727a0` `32972800` `32974db0` `32976960` `32976a10` `32976fe0` `3297bb10` `3297bb40` `3298d920` `3298ff60` `3298ffc0` `32990020` `32990040` `329903e0` `3299a670`.
+- **States: 15** (`awk -F'\t' '$8=="CH3a"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_SA_EEG_IRONSCRAPS`, `ENSI_SA_EEG_IRONSCRAPS_HYPER`, `ENSI_A_EEG_JUNK_BREAK`, `ENSI_A_EEG_JUNK_BREAK_HYPER`, `ENSI_A_ENS_BURST_SPEAR`, `ENSI_A_ENS_BURST_SPEAR_HYPER`, `ENSI_A_ENS_BURST_SPEAR_Landing`, `ENSI_A_ENS_BURST_SPEAR_Landing_HYPER`, `ENSI_SA_EEG_ATOMIC_SHIELD`, `ENSI_SA_ENS_ASSUALT_SPEAR`, `ENSI_A_ECN_TESLA_SHOCK`, `ENSI_A_ENS_SHOT_GUN`, `ENSI_SA_ENS_ILLUSIONIC_THORN`, `ENSI_SA_ENS_EXTREMING_CUTTING`, `ENSI_SA_ECN_PSYKER_KINESIS`.
+- **Skill ids: 16** (`awk -F'\t' 'NF==7 && $6=="CH3a"' june2017_re/char_eve/ch0_state_skill.tsv`): 25008 RNSI_SA_ECN_JUNK_BREAK, 25009 RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR, 25010 RNSI_SA_ECN_IRONSCRAPS, 25011 RNSI_SA_ECN_ATOMIC_SHIELD, 25043 RNSI_SA_ENS_ILLUSIONIC_THORN, 25044 RNSI_SA_ENS_EXTREMING_CUTTING, 25052 RNSI_SA_ECN_JUNK_BREAK_UPGRADE, 25053 RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR_UPGRADE, 25054 RNSI_SA_ECN_IRONSCRAPS_UPGRADE, 25055 RNSI_SA_ECN_ATOMIC_SHIELD_UPGRADE, 25205 RNSI_A_ECN_TESLA_SHOCK, 25206 RNSI_A_ECN_SPEAR_BURST, 25221 RNSI_A_ENS_SHOT_GUN, 25227 RNSI_A_ECN_TESLA_SHOCK_UPGRADE, 25228 RNSI_A_ECN_SPEAR_BURST_UPGRADE, 25235 RNSI_SA_ECN_PSYKER_KINESIS.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7 L248 (32976fe0 PSYKER_KINESIS cooldown (caller 329b4ab1)); §7ai L806-819 (BFI call arguments, 3 s skill-name string).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `32071d20` CX2GUUser::GetXSkinAnimPtr (X2GUUser.h:2084) (candidate); `32d5da80` CX2UnitSlashTraceManager::AddSlashTraceData (X2UnitSlashTraceManager.cpp:88) (confirmed); `31fd0620` user (candidate); `31c82df0` engine (unknown).

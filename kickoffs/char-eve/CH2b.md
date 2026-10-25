@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-eve CH2b` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH2a review (and any Opus `CH2b0` helper phase CH0 wrote). One at a time: `X2GuEve.*` |
+| Depends on | CH2a2 review and CH2b0 review (Opus helper phase). One at a time: `X2GuEve.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`EVE SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | `kickoffs/char-eve/CH2b-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -24,6 +24,11 @@ Scope: the class-19 skill ids not in 5 / 18. For each id: its case in `SetEquipp
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Eve: CH2b)`.
 - Hand-off: the unit and class, each skill id and its A / B slot, what June's motion and effect look like.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 21** (`awk -F'\t' '$6=="CH2b"' june2017_re/char_eve/ch0_class_map.tsv`; state-fn 21).
+  June addresses: `32966620` `32966640` `32966c90` `32966cd0` `32966db0` `32967d10` `32968da0` `3296f5c0` `3296f600` `329700a0` `32970120` `32970760` `32970840` `32974bb0` `3298c730` `3298d550` `3298d710` `3299d390` `329a99a0` `329b2e10` `329c4380`.
+- **States: 7** (`awk -F'\t' '$8=="CH2b"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_SI1_AT_SURFACE_CUTING`, `ENSI_SI2_AT_SONIC_WAVE`, `ENSI_A_EAT_OBERON_GUARD`, `ENSI_A_EAT_HEAVENS_FIST`, `ENSI_A_EAT_HEAVENS_FIST_HYPER`, `ENSI_A_EAT_HEAVENS_FIST_SWEEPER`, `ENSI_A_EAT_FAENA`.
+- **Skill ids: 12** (`awk -F'\t' 'NF==7 && $6=="CH2b"' june2017_re/char_eve/ch0_state_skill.tsv`): 25012 RNSI_SA_EAT_HEAVENS_FIST_PRESSURE, 25013 RNSI_SA_EAT_SONIC_WAVE, 25014 RNSI_SA_EAT_OBERON_GUARD, 25015 RNSI_SA_EAT_SURFACE_CUTING, 25016 RNSI_SA_EAT_HEAVENS_FIST_SWEEPER, 25038 RNSI_SA_EAT_HEAVENS_FIST_PRESSURE_UPGRADE, 25041 RNSI_SA_EAT_SONIC_WAVE_UPGRADE, 25056 RNSI_SA_EAT_OBERON_GUARD_UPGRADE, 25057 RNSI_SA_EAT_SURFACE_CUTING_UPGRADE, 25058 RNSI_SA_EAT_HEAVENS_FIST_SWEEPER_UPGRADE, 25224 RNSI_A_EAT_FAENA, 25225 RNSI_A_EAT_FAENA_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7ai L806-819 (BFI call arguments, 3 s skill-name string).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate); `32290350` CX2GameUnit::UpDownCrashCamera (X2GameUnit.cpp:13091) (confirmed); `321e3100` CX2EffectSet::PlayEffectSetWithCustomPos_LUA( const char*, CX2GameUnit*, D3DXVECTOR3 vPos, D3DXVECTOR3 vRot ) (X2EffectSet.cpp:5804) (confirmed); `32783a90` CX2GUNPC::AttachParticle_LUA( bool, char*, char*, D3DXVECTOR3 ) (X2GUNPC.cpp:29395) (confirmed); `32009180` user (candidate).

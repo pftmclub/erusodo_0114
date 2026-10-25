@@ -1,0 +1,88 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_EVE.x	(no name dropped)	-	-	-	-	March 4315889 B, June 6102656 B; 5 new names
+Motion_EVE.x	Barrier	no	yes	no	Eve_Nasod.src.lua:12873,12894	new in June
+Motion_EVE.x	Dance_Wait	no	yes	no	Eve_Nasod.src.lua:6992	new in June
+Motion_EVE.x	Dance_X	no	yes	no	Eve_Nasod.src.lua:6987	new in June
+Motion_EVE.x	Dance_Z	no	yes	no	Eve_Nasod.src.lua:6982	new in June
+Motion_EVE.x	SI_SA_EVE_ILLUSIONSTRIKE_MEMO	no	yes	no	Eve_Nasod.src.lua:7345	new in June
+Motion_EVE_AT.x	(no name dropped)	-	-	-	-	March 1652348 B, June 2260878 B; 3 new names
+Motion_EVE_AT.x	AT_DashComboZX	no	yes	no	Eve_Nasod.src.lua:5969	new in June
+Motion_EVE_AT.x	SI_A_EAT_FAENA	no	yes	no	no	new in June
+Motion_EVE_AT.x	Wait4_Weapon	no	yes	no	no	new in June
+Motion_EVE_BS.x	SI_A_EBS_TASER_PILUM	yes	no	Eve_Nasod.lua bytecode const x2	Eve_Nasod.src.lua:11436,12249	moved to June Motion_EVE_PR.x
+Motion_EVE_BS.x	EBS_DASH_COMBO_XX	no	yes	no	Eve_Nasod.src.lua:6330	new in June
+Motion_EVE_BS.x	SI_SA_EBS_LASER_POLE	no	yes	no	Eve_Nasod.src.lua:13918	new in June
+Motion_EVE_BS.x	SI_SA_EBS_NEEDLES_CUTTING	no	yes	no	Eve_Nasod.src.lua:13824	new in June
+Motion_EVE_BS.x	SI_SA_ECB_EXTREME_VIRTUAL	no	yes	no	Eve_Nasod.src.lua:14101	new in June
+Motion_EVE_Common.x	PR_LobbyDownlanding	yes	no	X2Lib/X2UnitViewerUI.cpp:4855	no	case rename -> June has PR_LobbyDownLanding (June plays it through AnimationNameTable.lua:143)
+Motion_EVE_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_EVE_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_EVE_Common.x	PR_LobbyDownLanding	no	yes	no	no	new in June
+Motion_EVE_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_EVE_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_EVE_EG.x	(no name dropped)	-	-	-	-	March 1907285 B, June 2641577 B; 2 new names
+Motion_EVE_EG.x	EG_DashJumpCombo_ZX	no	yes	no	Eve_Nasod.src.lua:5711,5729	new in June
+Motion_EVE_EG.x	SI_SA_ENS_ATOMIC_BLASTER	no	yes	Eve_Nasod.lua bytecode const x3	Eve_Nasod.src.lua:10202,10274,11887	new in June
+Motion_EVE_Emotion.x	(no name dropped)	-	-	-	-	March 961642 B, June 1270526 B; 0 new names
+Motion_EVE_Emotion_APINK.X	(no name dropped)	-	-	-	-	March 785814 B, June 785814 B; 0 new names; identical bytes
+Motion_EVE_Emotion_APINK_LOVE.X	(no name dropped)	-	-	-	-	March 313114 B, June 313114 B; 0 new names; identical bytes
+Motion_EVE_Emotion_BIGBANG.X	(no name dropped)	-	-	-	-	March 986181 B, June 986181 B; 0 new names; identical bytes
+Motion_Eve_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 699973 B, June 699973 B; 0 new names; identical bytes
+Motion_Eve_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 458669 B, June 458669 B; 0 new names; identical bytes
+Motion_EVE_EP.x	(no name dropped)	-	-	-	-	March 1371947 B, June 2690935 B; 6 new names
+Motion_EVE_EP.x	EP_Combo_ZZX	no	yes	no	no	new in June
+Motion_EVE_EP.x	EP_Combo_ZZXX	no	yes	no	Eve_Nasod.src.lua:6035	new in June
+Motion_EVE_EP.x	EP_DashCombo_XX	no	yes	no	Eve_Nasod.src.lua:6100	new in June
+Motion_EVE_EP.x	SI_SA_EEP_ELECTRONIC_THUNDER	no	yes	no	Eve_Nasod.src.lua:13490	new in June
+Motion_EVE_EP.x	SI_SA_EEP_SUMMON_TO_MIND	no	yes	no	Eve_Nasod.src.lua:13322	new in June
+Motion_EVE_EP.x	SI_SA_EEP_TESLA_FLARE	no	yes	no	Eve_Nasod.src.lua:13387	new in June
+Motion_EVE_Field.x	(no name dropped)	-	-	-	-	March 441322 B, June 449459 B; 2 new names
+Motion_EVE_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_EVE_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_EVE_Lobby.x	(no name dropped)	-	-	-	-	March 1822129 B, June 1822735 B; 0 new names
+Motion_EVE_NS.x	SI_SA_ENS_ATOMIC_BLASTER	yes	no	Eve_Nasod.lua bytecode const x3	Eve_Nasod.src.lua:10202,10274,11887	moved to June Motion_EVE_EG.x
+Motion_EVE_NS.x	NS_Combo_ZZX_End	no	yes	no	Eve_Nasod.src.lua:5786	new in June
+Motion_EVE_NS.x	NS_Combo_ZZX_Loop	no	yes	no	Eve_Nasod.src.lua:5768	new in June
+Motion_EVE_NS.x	NS_Combo_ZZX_Ready	no	yes	no	Eve_Nasod.src.lua:5747	new in June
+Motion_EVE_NS.x	NS_DashCombo_XZ	no	yes	no	Eve_Nasod.src.lua:5898	new in June
+Motion_EVE_NS.x	SI_A_ENS_SHOT_GUN	no	yes	no	no	new in June
+Motion_EVE_NS.x	SI_SA_ENS_EXTREMING_CUTTING_Air	no	yes	no	no	new in June
+Motion_EVE_NS.x	SI_SA_ENS_EXTREMING_CUTTING_Stand	no	yes	no	Eve_Nasod.src.lua:13241	new in June
+Motion_EVE_NS.x	SI_SA_ENS_ILLUSIONIC_THORN	no	yes	no	Eve_Nasod.src.lua:13182	new in June
+Motion_EVE_PR.x	(no name dropped)	-	-	-	-	March 1836432 B, June 2621401 B; 2 new names
+Motion_EVE_PR.x	SI_A_EBS_TASER_PILUM	no	yes	Eve_Nasod.lua bytecode const x2	Eve_Nasod.src.lua:11436,12249	new in June
+Motion_EVE_PR.x	SI_A_EPR_SPECTRO_EL_CRYSTAL	no	yes	Eve_Nasod.lua bytecode const x1	Eve_Nasod.src.lua:10926	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_EVE.x	4315889	6102656	dropped=0	new=5	differs
+# Motion_EVE_AT.x	1652348	2260878	dropped=0	new=3	differs
+# Motion_EVE_BS.x	1691814	2636906	dropped=1	new=4	differs
+# Motion_EVE_Common.x	1578032	6062982	dropped=1	new=22	differs
+# Motion_EVE_EG.x	1907285	2641577	dropped=0	new=2	differs
+# Motion_EVE_Emotion.x	961642	1270526	dropped=0	new=0	differs
+# Motion_EVE_Emotion_APINK.X	785814	785814	dropped=0	new=0	identical
+# Motion_EVE_Emotion_APINK_LOVE.X	313114	313114	dropped=0	new=0	identical
+# Motion_EVE_Emotion_BIGBANG.X	986181	986181	dropped=0	new=0	identical
+# Motion_Eve_Emotion_CRAYONPOP_Sorted.X	699973	699973	dropped=0	new=0	identical
+# Motion_Eve_Emotion_DeepBow.X	458669	458669	dropped=0	new=0	identical
+# Motion_EVE_EP.x	1371947	2690935	dropped=0	new=6	differs
+# Motion_EVE_Field.x	441322	449459	dropped=0	new=2	differs
+# Motion_EVE_Lobby.x	1822129	1822735	dropped=0	new=0	differs
+# Motion_EVE_NS.x	2016900	3326557	dropped=1	new=8	differs
+# Motion_EVE_PR.x	1836432	2621401	dropped=0	new=2	differs

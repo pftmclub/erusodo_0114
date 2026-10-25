@@ -59,10 +59,10 @@ def fnval(rhs):
 
 
 def sname(tok):
-    m = re.match(r's_([A-Za-z0-9_]+?)_([0-9a-f]{8})$', tok.strip())
+    m = re.match(r's_([A-Za-z0-9_]+?)_([0-9a-f]{8})(?:\s*\+\s*(\d+))?$', tok.strip())
     if not m:
         return tok.strip()
-    d, o = exe(), int(m.group(2), 16) - BASE  # Ghidra cuts long labels: read the string itself
+    d, o = exe(), int(m.group(2), 16) - BASE + int(m.group(3) or 0)  # Ghidra cuts long labels: read the string; `+ n` starts n in
     e = d.find(b'\x00', o)
     return d[o:e].decode('latin-1') if 0 <= o < len(d) and 0 < e - o < 128 else m.group(1)
 
@@ -216,6 +216,11 @@ def cmd_init(vas):
             print(row)
 
 
+def epilogue(L, i):
+    """A label opening the epilogue (`local_4 = 0xffffffff;` then the 31fdf970 destructor) ends a case: Aisha's LAB_32cf06f8, Eve's LAB_329caa72."""
+    return i + 2 < len(L) and L[i + 1].strip() == 'local_4 = 0xffffffff;' and 'FUN_31fdf970(' in L[i + 2]
+
+
 def cmd_skill(fva):
     L = decompile(fva)
     labels = {}
@@ -245,9 +250,10 @@ def cmd_skill(fva):
             i += 1
         else:
             i += 1
-    print('fn\tline\tcases\tnormal_table\thyper_table\tnormal_callbacks\thyper_callbacks\textra_states\tcalls')
+    print('fn\tline\tcases\tnormal_table\thyper_table\tnormal_callbacks\thyper_callbacks\textra_states\tcalls\textra_callbacks')
     for st, vals in starts:
         N, H, var, names, extra, calls, tabs = {}, {}, {}, {}, [], set(), {'N': [], 'H': []}
+        loc, xcb, copy = {}, [], None  # the local UserUnitStateData an extra state is registered from (char-eve CH0)
         i, steps, seen = st, 0, set()
         while i < len(L) and steps < 600:
             ln = L[i]
@@ -256,7 +262,7 @@ def cmd_skill(fva):
                 break
             g = re.match(r'\s*goto (\w+);', ln)
             if g:
-                if g.group(1) in labels and g.group(1) not in seen and 'LAB_32cf06f8' != g.group(1):
+                if g.group(1) in labels and g.group(1) not in seen and not epilogue(L, labels[g.group(1)]):
                     seen.add(g.group(1))
                     i = labels[g.group(1)] + 1
                     continue
@@ -293,6 +299,13 @@ def cmd_skill(fva):
                 for nm in names.get(m.group(1).strip(), [sname(m.group(1))]):
                     if nm not in tabs[key]:
                         tabs[key].append(nm)
+            apply(ln, loc, {})
+            c = re.match(r'\s*(\w+) = FUN_31fd88f0\((0x[0-9a-f]+|\d+)\);', ln)
+            if c:
+                var[c.group(1) + '#state'] = str(int(c.group(2), 0))
+            c = re.match(r'\s*FUN_329cc2c0\((\w+)\);', ln)
+            if c and c.group(1) + '#state' in var:
+                copy = var[c.group(1) + '#state']   # Eve 329cc2c0: the local takes every callback of that state
             m = re.search(REG + r'\(([^,]+),([^,]+),', ln)
             if m:
                 sid = m.group(1).strip()
@@ -301,13 +314,19 @@ def cmd_skill(fva):
                 except ValueError:
                     pass
                 extra.append('%s:%s' % (sid, sname(m.group(2))))
+                r = REGCALL.search(ln)
+                if r:
+                    base = int(r.group(3), 16)
+                    cb = slotstr({base - n: v for n, v in loc.items() if v is not None and base - n > 0})
+                    xcb.append('%s:%s' % (sid, (('copy=%s ' % copy) if copy else '') + cb if (cb or copy) else '-'))
+                copy = None
             for f in re.findall(r'FUN_([0-9a-f]{8})\(', ln):
                 if f not in SKIP_CALLS:
                     calls.add(f)
             i += 1
         cv = ','.join(str(int(v, 0)) if re.match(r'^(0x[0-9a-f]+|\d+)$', v) else v for v in vals)
-        print('%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (fva, st, cv, ';'.join(tabs['N']), ';'.join(tabs['H']),
-              slotstr(N), slotstr(H), ' '.join(extra), ' '.join(sorted(calls))))
+        print('%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s' % (fva, st, cv, ';'.join(tabs['N']), ';'.join(tabs['H']),
+              slotstr(N), slotstr(H), ' '.join(extra), ' '.join(sorted(calls)), ' | '.join(xcb)))
 
 
 if __name__ == '__main__':

@@ -13,9 +13,8 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Phase CH0 - Eve map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-# CH0 writes the exact column filters into 'Amended by CH0' below; these are the pilot's shape
 awk -F'\t' '$6=="CH1i"' june2017_re/char_eve/ch0_class_map.tsv
-awk -F'\t' '$NF=="CH1i"' june2017_re/char_eve/ch0_state_skill.tsv
+awk -F'\t' '$8=="CH1i"' june2017_re/char_eve/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1i/' june2017_re/char_eve/ch0_checklist_rows.tsv
 ```
 Then CH0's Done note. Pull a checklist section by heading only when a row above names it.
@@ -29,6 +28,11 @@ Transcribe every function the class map gives phase `CH1i` (class 109 states and
 - `X2GuEve.*` are CP949 with mixed line endings: `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
 - Done gate: every class-map row with phase `CH1i` has a `June_` member (the Done note lists them with June addresses); the build passes. Nothing to play-test: the hand-off says so and names the next phase.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Functions: 22** (`awk -F'\t' '$6=="CH1i"' june2017_re/char_eve/ch0_class_map.tsv`; state-fn 22).
+  June addresses: `32966f00` `32966f30` `32966f60` `32966fa0` `32968720` `32968750` `32968790` `329687c0` `329715a0` `32971700` `329717f0` `32971820` `32976110` `32976440` `32976480` `3298e860` `3298ea30` `3298ec00` `3298eff0` `329994e0` `329998f0` `32999ce0`.
+- **States: 7** (`awk -F'\t' '$8=="CH1i"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_ECE_COMBO_ZZX`, `ENSI_ECE_COMBO_ZZXX`, `ENSI_EP_COMBO_XXdownX`, `ENSI_EP_DASH_COMBO_ZZ`, `ENSI_EP_DASH_COMBO_ZZZ`, `ENSI_ECE_DASH_XX`, `ENSI_EP_JUMP_COMBO_ZX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8); §7u L624 (March-only effect names).
+- **7c alpha-tag sites inside these functions: 5** (`c10a_alpha_sites.tsv`, by containing function).
+- **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).

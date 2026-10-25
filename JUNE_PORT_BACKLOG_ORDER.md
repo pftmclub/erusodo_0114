@@ -752,6 +752,11 @@ byte-exact. The plan is `JUNE_ASSET_PORT_PHASES.md` (STATUS block `june-asset-po
   break are routed to their owners.
 - **Also covered:** loose music, movie and eventscene files, and `XRenderer.fx` alone.
 - **Out of scope:** `.txt` stays with june-effect, and `.lua` with the ports.
+- **Added by char-eve CH0 (2026-10-26): the 4 `_INT.txt` definitions.** `UIMajorParticle_INT`, `GameMajorParticle_INT`, `UIMajorXMeshPlayer_INT`
+  and `GameMajorXMeshPlayer_INT.txt` are still March's (datai015); June's are bigger, in data036. The other 75 particle / mesh-player
+  definition files are June's bytes. june-effect is closed, so this stage takes them: stage the 4 byte-exact, then check the game and UI
+  particles still load (every character and the UI share them; the l.304 dimming layer needs `GameMajorParticle_INT`). Evidence:
+  `june2017_re/char_eve/ch0_effect_closure.tsv`.
 
 **Depends on:** Stage 14 (done). Every later stage benefits, because its assets are already in place.
 

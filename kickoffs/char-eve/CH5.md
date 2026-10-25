@@ -25,6 +25,8 @@ Then CH0's UnitTemplet note and the `CH5` rows of its tsvs.
 - The dialog / tree-UI pieces CH4 does not take.
 - Hand-off: a select-screen pass of all nine March characters, then an Eve skill cut-in and a hyper cut-in.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7t L577-584 (hyper cut-in UnitTemplet + show option); §7t L607 (skill cut-in names -> June .gfx).
+- **UnitTemplet** (`ch0_unittemplet_eve.tsv`): in all 7 rows every March key equals June's. June adds only `m_fLobbyRotationY` (all 7; March's reader ignores it) and `m_HyperCutIn` (108 / 109 / 116: `HQ_Cutin_ECN/ECE/ECB_Transcendence`; read under `SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`).
+- **Cut-ins:** June's InitState has no Electra case either (`329ba9c0`: 5 / 18 / 19 -> set 0, 108 -> 1, 109 -> 2, 116 -> 3), so Electra keeps set 0 as in March. June names: `g4_cutin_names.tsv` l.33-39 (no June `.gfx` under March's names; June's are `HQ_CutIn_Eve_01..03 / _NM_01 / _EP_01 / _BS_01` in data152).

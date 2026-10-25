@@ -23,6 +23,8 @@ Switch the virtual overrides CH1k / CH1l transcribed to their `June_*` bodies un
 
 You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). `X2GuEve.*` / `X2GUUser.*` are CP949: `bytepatch.py` only; `cl /P` each `#ifdef` you edit (the `SKILL_SLOT_10` / `UPGRADE_SKILL_SYSTEM_2013` pairs). Done gate: the build passes with `_LIVE` undefined, and a `cl /P` probe with it defined compiles the new path; no play-test.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-26)
 
-(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv`): §7 L256 (vslot 510 skill lookup); §7 L259 (riding-key skill wait in vslot 510).
+- **No class-map rows:** CH1o wires what CH1k / CH1l-CH1l4 transcribed. The 69 overrides are in `ch0_vtable_slots.tsv`. Seven have no name (0x56c, 0x584, 0x65c, 0x6a8, 0x6ac, 0x77c, 0x828); Eve overrides 25 slots Aisha does not (the tsv footer).
+- A March Eve virtual June does not override goes away (June wins); check `X2GuEve.h` against the tsv.

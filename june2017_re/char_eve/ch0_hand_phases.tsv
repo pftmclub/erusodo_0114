@@ -1,0 +1,77 @@
+fn	phase	why
+3297ee20	CH1q	Nasod Core: AddManeuverGauge (vslot 0x704)
+329cf240	CH1q	Nasod Core: IsWaitManeuverCore (vslot 0x708)
+329acea0	CH1q	Nasod Core: SetAttackManeuverCore (vslot 0x70c)
+329cf260	CH1q	Nasod Core: IsAttackManeuverCore (vslot 0x880)
+329b4210	CH1q	Nasod Core: spawns EffectSet_Eve_ManeuverCore_Beed_Up(_Hyper)
+32976fe0	CH3a	Psyker Kinesis (25235) cooldown + 3235a710 (checklist 7 l.248)
+32994710	CH1k	vslot 0x4c (7ao hyper effect start: transcribed whole in CH1k, its transcendence branch checked in CH3d)
+3299bd70	CH1k	constructor (writes vtable 334cf45c; called by CX2Game 3230f330 @3230f389): ctor / dtor offset map
+32990da0	CH1k	called by the constructor 3299bd70
+329cc3b0	CH1k	called by the constructor 3299bd70
+329cda50	CH1k	called by the constructor 3299bd70
+329b4860	CH4c	reached from ENSI_EVE_RECOVERY Start 329b57a0 @329b598f
+329759b0	CH1q	zeroes a member; called by the maneuver-core spawner 329b4210 @329b4368
+329a7f50	CH1p	engine hook: dungeon stage-load handler 324d9550 @324d97be calls it on Eve (+0x9a54 -> 329a7e70)
+329b1e00	CH1p	engine hook: dungeon stage-load handler 324d9550 @324d97b7 calls it on Eve (+0x9784 -> 3299ebd0)
+32977650	n/a	not Eve's: CX2GUUser 31fef4d0 @31fef544 calls it (DamageImpact particle preload, folded into Eve's range)
+32969220	n/a	not Eve's: only caller 32977650 (CX2GUUser's)
+329684c0	n/a	not Eve's: CX2Game 322d99d0 and CX2GUUser 31fc8a90 call it (3227baf0( 0x199 ))
+329cc340	n/a	folded helper (templet +0x178 != 0); callers are Add's only
+329cd4a0	n/a	folded setter; callers are Elesis's only
+329cd6f0	n/a	folded refcount release; callers are Elesis / Chung only
+329cf850	n/a	empty function between Eve and Add; CX2GUUser 31fca170 @31fca212 calls it (not Eve's)
+329cf860	n/a	empty function between Eve and Add; CX2GUUser 31fede50 @31fee01c calls it (not Eve's)
+32983340	dead	only callers 3299cf90 / 329afaa0 are dead
+329aa630	dead	only reference is its own recursion @329aa728
+329ce3c0	dead	only caller 3297c010 is dead
+329cd8e0	dead	only caller 329ce3c0 is dead
+329ce1c0	n/a	exception-unwind funclet (called from unwind code 329ce980)
+329ce640	n/a	exception-unwind funclet
+329ce680	n/a	exception-unwind funclet
+329ce8c0	n/a	exception-unwind funclet (unwind table 33251dd0 @3332c981)
+329ce920	n/a	exception-unwind funclet (@3332c98f)
+329ce980	n/a	exception-unwind funclet (@3332ce08)
+329cf220	CH1q	Nasod Core: IsFullHyperMode (vslot 0x9c; March X2GuEve.h:1260 inside ADD_EVE_SYSTEM_2014)
+329cf230	CH1q	Nasod Core: SetFullHyperMode (vslot 0xa0; March X2GuEve.h:1261 inside ADD_EVE_SYSTEM_2014)
+329cf4b0	CH1q	Nasod Core: HyperModeBuffEffectEnd (vslot 0xc8; March X2GuEve.h:1246 inline inside ADD_EVE_SYSTEM_2014)
+329cf280	CH1q	Nasod Core: IsSkillSummonedMonster (vslot 0x710; March X2GuEve.h:1297 inside ADD_EVE_SYSTEM_2014)
+329b4060	CH1q	Nasod Core: DoParrying (differs; ch0_nasod_core.tsv)
+32968390	CH1q	Nasod Core: ENSI_PARRYING_StartFuture (same; ch0_nasod_core.tsv)
+329b41f0	CH1q	Nasod Core: ENSI_PARRYING_Start (same; ch0_nasod_core.tsv)
+32975610	CH1q	Nasod Core: ENSI_PARRYING_EventProcess (same; ch0_nasod_core.tsv)
+329b8010	CH1q	Nasod Core: ENSI_PARRYING_StateEnd (same; ch0_nasod_core.tsv)
+329683a0	CH1q	Nasod Core: ENSI_PARRYING_BLINK_Init (same; ch0_nasod_core.tsv)
+32975740	CH1q	Nasod Core: ENSI_PARRYING_BLINK_Start (differs; ch0_nasod_core.tsv)
+329683b0	CH1q	Nasod Core: ENSI_PARRYING_BLINK_StartFuture (same; ch0_nasod_core.tsv)
+329757d0	CH1q	Nasod Core: ENSI_PARRYING_BLINK_FrameMoveFuture (same; ch0_nasod_core.tsv)
+32975860	CH1q	Nasod Core: ENSI_PARRYING_BLINK_FrameMove (same; ch0_nasod_core.tsv)
+32975920	CH1q	Nasod Core: ENSI_PARRYING_BLINK_EventProcess (same; ch0_nasod_core.tsv)
+329683d0	CH1q	Nasod Core: ENSI_PARRYING_BLINK_EndFuture (same; ch0_nasod_core.tsv)
+32975970	CH1q	Nasod Core: ENSI_PARRYING_BLINK_End (same; ch0_nasod_core.tsv)
+32998930	CH1q	Nasod Core: ManeuverCoreData::~ManeuverCoreData (same; ch0_nasod_core.tsv)
+329ac350	CH1q	Nasod Core: ClearManeuverCore (same; ch0_nasod_core.tsv)
+329b5130	CH1q	Nasod Core: RestoreManeuverCore (same; ch0_nasod_core.tsv)
+329b5230	CH1q	Nasod Core: OnFrameMove_ManeuverCore (differs; ch0_nasod_core.tsv)
+329ac4a0	CH1q	Nasod Core: AttackManeuverCore (differs; ch0_nasod_core.tsv)
+32975a10	CH1q	Nasod Core: ChangePowerRateManeuverCore (same; ch0_nasod_core.tsv)
+32968430	CH1q	Nasod Core: SetManeuverCoreTargetUnit (same; ch0_nasod_core.tsv)
+32998990	CH1q	Nasod Core: ClearManeuverCoreEffect (same; ch0_nasod_core.tsv)
+329acaa0	CH1q	Nasod Core: ChangeManeuverCoreState (same; ch0_nasod_core.tsv)
+329acf70	CH1q	Nasod Core: SetManeuverCoreEffectSetPosition (same; ch0_nasod_core.tsv)
+32998a00	CH1q	Nasod Core: GetManeuverCoreMeshInstance (same; ch0_nasod_core.tsv)
+32998a80	CH1q	Nasod Core: GetManeuverCoreEffect (same; ch0_nasod_core.tsv)
+329ad1d0	CH1q	Nasod Core: MoveManeuverCoreByState (same; ch0_nasod_core.tsv)
+329b46a0	CH1q	Nasod Core: RotateManeuverCoreByState (same; ch0_nasod_core.tsv)
+32998b00	CH1q	Nasod Core: FindAndSetManeuverCoreTargetGameUnit (same; ch0_nasod_core.tsv)
+32998b90	CH1q	Nasod Core: GetManeuverCoreTargetGameUnit (same; ch0_nasod_core.tsv)
+3297a370	CH1q	Nasod Core: SetManeuverCoreTargetGameUnit (same; ch0_nasod_core.tsv)
+329ad5e0	CH1q	Nasod Core: SetManeuverCoreRotateToTargetPos (same; ch0_nasod_core.tsv)
+32998bf0	CH1q	Nasod Core: ManeuverCoreData::GetManeuverCorePosition (same; ch0_nasod_core.tsv)
+32998ca0	CH1q	Nasod Core: ManeuverCoreData::GetManeuverCoreRotateExceptOffset (same; ch0_nasod_core.tsv)
+32998d70	CH1q	Nasod Core: GetBoneNameNearestImpactPoint (FIX) (same; ch0_nasod_core.tsv)
+32999200	CH1q	Nasod Core: GetManeuverCoreTargetPosUsingCollisionData (FIX) (same; ch0_nasod_core.tsv)
+32968470	CH1q	Nasod Core: GetHyperModeStateID (FIX) (differs; ch0_nasod_core.tsv)
+329cd650	CH1q	Nasod Core: GetCanAttackManeuverCore (inline) (same; ch0_nasod_core.tsv)
+329cd410	CH1q	Nasod Core: GetManeuverCoreLevelByGauge (inline) (same; ch0_nasod_core.tsv)
+3297a640	CH1q	Nasod Core: CanParryingState (same; folded: CX2GUUser 31fd29c0 / DamageReact 320462a0 also call it)
