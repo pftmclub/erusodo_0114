@@ -631,7 +631,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | stage6-plan | **done 2026-10-22**: `JUNE_TRANSCENDENCE_PHASES.md` (T0-T8, Z) + `kickoffs/june-transcend/` + the `june-transcend` block. June's transcendence is an int at CX2Unit `+0x3c` (beside the class; `KUnitInfo` / room / field / square infos, June event 0x596 `31ef82f0`), not a class id, so there is no `GBase_Item` gate. Evidence: `june2017_re/transcend/plan_*` and funcmap rows `Transcend S6`. Routed: the awakening customization effect -> Stage 12; resonance -> new Stage 30; achievements -> new Stage 31. User decisions (2026-10-22): a class allow-list (Aisha now); B-5 free for a transcended unit | Opus 5.5 / xhigh | dep: pilot-char-revamp Z (done), Stage 4 quests | docs, funcmap rows (`Transcend S6`) | `stage6-plan.md` |
 | stage30-plan | **ready** (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 planning) -> `JUNE_RESONANCE_PHASES.md` + `kickoffs/june-resonance/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
 | stage31-plan | **ready** (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> `JUNE_ACHIEVEMENT_PHASES.md` + `kickoffs/june-achievement/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
-| stage7-plan | **ready** (start: `/x2-phase new-plan char-eve`; one planning session per character: Eve, Chung, Elsword, Raven, Rena (after the `ADD_RENA_SYSTEM` decision), Ara, Elesis, Add): `JUNE_CHARACTER_<NAME>_PHASES.md` + `kickoffs/char-<name>/` from the Aisha template | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
+| stage7-plan | **Eve planned 2026-10-25** (`JUNE_CHARACTER_EVE_PHASES.md` + `kickoffs/char-eve/` + the `char-eve` block; next planning session: `/x2-phase new-plan char-chung`). **ready** (one planning session per character: Eve, Chung, Elsword, Raven, Rena (after the `ADD_RENA_SYSTEM` decision), Ara, Elesis, Add): `JUNE_CHARACTER_<NAME>_PHASES.md` + `kickoffs/char-<name>/` from the Aisha template | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 
@@ -929,6 +929,50 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 | Z | **done** 2026-10-24 (MODS.md entry, backlog Stage 32 closed, Stage 9 stub bullet checked against the final tsv; no code, no build) - plan CLOSED | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
 
 Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
+
+## char-eve - June character port, Stage 7: Eve
+
+Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `EVE <sub>`: `DATA`, `CORE`, `NCORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_EVE_*` (`_CORE`, `_LIVE`, `_NCORE`, `_SKILL`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-eve/` · backlog Stage 7 · created 2026-10-25.
+
+**Scope:** Eve (`CX2GUEve`, 7 classes 5 / 18 / 19 / 26 / 108 / 109 / 116) from her March kit to June 2017's, incl. the Nasod Core and her transcendence rows. June class `32965dd0`-`329cf86f` (643 carved functions, about 1.5x Aisha), so CH1 is planned as 17 sub-phases up front. **Decision 1 (Nasod Core: March's dormant `ADD_EVE_SYSTEM_2014` as the base, or a fresh June transcription) gates CH1q only.** `CH<n>0` Opus helper rows are added by CH0.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| CH0 | ready | Opus 5.5 / high | - | `june2017_re/char_eve/`, `charport_*` tools, funcmap, plan doc, kickoffs | `CH0.md` |
+| CH0b | waiting | Sonnet 5.5 / high, then user play-test | CH0 | Eve's motions / models / textures / equipment / effects / sounds in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
+| CH1a | waiting | Sonnet 5.5 / high, Opus review | CH0 (and CH0b may run beside) | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1a.md` |
+| CH1b | waiting | Sonnet 5.5 / high, Opus review | CH1a review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1b.md` |
+| CH1c | waiting | Sonnet 5.5 / high, Opus review | CH1b review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1c.md` |
+| CH1d | waiting | Sonnet 5.5 / high, Opus review | CH1c review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1d.md` |
+| CH1e | waiting | Sonnet 5.5 / high, Opus review | CH1d review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1e.md` |
+| CH1f | waiting | Sonnet 5.5 / high, Opus review | CH1e review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1f.md` |
+| CH1g | waiting | Sonnet 5.5 / high, Opus review | CH1f review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1g.md` |
+| CH1h | waiting | Sonnet 5.5 / high, Opus review | CH1g review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1h.md` |
+| CH1i | waiting | Sonnet 5.5 / high, Opus review | CH1h review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1i.md` |
+| CH1j | waiting | Sonnet 5.5 / high, Opus review | CH1i review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1j.md` |
+| CH1k | waiting | Sonnet 5.5 / high, Opus review | CH1j review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1k.md` |
+| CH1l | waiting | Sonnet 5.5 / high, Opus review | CH1k review | `X2GuEve.*` (inert `June_*` members), Always.h | `CH1l.md` |
+| CH1m (registration + `_LIVE` gate) | waiting | Opus 5.5 / high, Opus review | CH1l review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
+| CH1n (base callbacks + slot head) | waiting | Opus 5.5 / high, Opus review | CH1m review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
+| CH1o (virtuals under `_LIVE`) | waiting | Opus 5.5 / high, Opus review | CH1n review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
+| CH1p (7ag pressed index + hooks + June-only keys) | waiting | Opus 5.5 / high, Opus review | CH1o review | `X2GuEve.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
+| CH1q (Nasod Core) | waiting | Opus 5.5 / high, Opus review | CH1p review; **decision 1** (plan doc "Open decisions") | `X2GuEve.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.cpp`, `X2GUNPC.cpp`, `X2DamageManager.h`, Always.h | `CH1q.md` |
+| CH1 (final) | waiting | Opus 5.5 / high, Opus review, then user play-test | CH1q review, CH0b | Always.h, data036 `Eve_Nasod.lua` + data037 summon scripts, motion koms | `CH1.md` |
+| CH2a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review (+ any `CH2a0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2a.md` |
+| CH2b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2a review (+ any `CH2b0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2b.md` |
+| CH2c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2b review (+ any `CH2c0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH2c.md` |
+| CH3a | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2c review (+ any `CH3a0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3a.md` |
+| CH3b | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3a review (+ any `CH3b0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3b.md` |
+| CH3c | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3b review (+ any `CH3c0` helper phase) | `X2GuEve.*`, `MODS.md` | `CH3c.md` |
+| CH3d | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH3c review | `X2GuEve.*`, `Handlers_Quest.cpp`, `LevelUpEvent.lua`, transcendence data / pictures | `CH3d.md` |
+| CH4a | waiting | Opus 5.5 / high, Opus review, user play-test | CH2c review; not with a CH3 phase | `X2GuEve.*`, Always.h | `CH4a.md` |
+| CH4b | waiting | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GuEve.*`, `X2GameUnit.*`, Always.h | `CH4b.md` |
+| CH4c | waiting | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GuEve.*`, skill-tree / slot UI, Always.h | `CH4c.md` |
+| CH5 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` (Eve rows), cut-in table, Always.h | `CH5.md` |
+| CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3d, CH4c, CH5 reviews | save (test characters), plan doc | `CH6.md` |
+| Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, Aisha template, backlog | `Z.md` |
+
+Running together: CH0 is read-only and runs beside anything. CH1-CH4 all edit `X2GuEve.*`: one at a time, in table order. CH5 runs beside CH2-CH4. CH1a may start beside CH0b (inert code).
 
 ## Other plans
 

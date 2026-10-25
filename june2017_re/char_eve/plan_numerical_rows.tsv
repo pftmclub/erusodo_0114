@@ -1,0 +1,210 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+10	DamageEffect_Dungeon.lua	BOT_DamageEffect_A_EEG_MegaElectronBall	DAMAGE_DATA	25207	Mega Electron Ball	INDEX 1	ok	323	3.23	0.4	50	1	False
+182	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase1_1	DAMAGE_DATA	25602	Psychic Artillery	INDEX 1	ok	189	1.89	0.24	94	2	False
+183	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase1_1	DAMAGE_DATA_NEXT	25602	Psychic Artillery	INDEX 1	ok	189	1.89	0.24	94	2	False
+184	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase1_Before_Plane	DAMAGE_DATA	25602	Psychic Artillery	INDEX 1	ok	189	1.89	0.24	94	2	False
+185	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase1_Before_Plane	DAMAGE_DATA_NEXT	25602	Psychic Artillery	INDEX 1	ok	189	1.89	0.24	94	2	False
+186	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase2_1	DAMAGE_DATA	25602	Psychic Artillery	INDEX 3	ok	591	5.91	0.24	293	3.91	False
+187	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase2_1	DAMAGE_DATA_NEXT	25602	Psychic Artillery	INDEX 3	ok	591	5.91	0.24	293	3.91	False
+188	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase2_Before_Plane	DAMAGE_DATA	25602	Psychic Artillery	INDEX 3	ok	591	5.91	0.24	293	3.91	False
+189	DamageEffect.lua	DAMAGE_EFFECT_HA_EBS_Psychic_Artillery_Laser_Phase2_Before_Plane	DAMAGE_DATA_NEXT	25602	Psychic Artillery	INDEX 3	ok	591	5.91	0.24	293	3.91	False
+299	DamageEffect.lua	DE_EVE_EEG_METAL_DUST_AURA	DAMAGE_DATA	25204	Metal Dust Aura	INDEX 1	ok	217	2.17	0.4	50	0.75	False
+300	DamageEffect.lua	DE_EVE_EEG_METAL_DUST_AURA_ING	DAMAGE_DATA	25204	Metal Dust Aura	INDEX 2	ok	31	0.31	0.36	7	0.05	False
+301	DamageEffect.lua	DE_EVE_SI_A_OVERON_GUARD01	DAMAGE_DATA	25014	Oberon Guard	INDEX 1	ok	1146	11.46	0.32	525	3	False
+302	DamageEffect.lua	DE_EVE_SI_A_OVERON_GUARD02	DAMAGE_DATA	25014	Oberon Guard	INDEX 2	ok	223	2.23	0.32	113	1	False
+553	DamageEffect.lua	DamageEffect_A_EEG_MegaElectronBall	DAMAGE_DATA	25207	Mega Electron Ball	INDEX 1	ok	323	3.23	0.4	50	1	False
+554	DamageEffect.lua	DamageEffect_A_EEG_MegaElectronBall_Explosion	DAMAGE_DATA	25207	Mega Electron Ball	INDEX 2	ok	1102	11.02	0.4	200	2	False
+555	DamageEffect.lua	DamageEffect_A_EEG_MegaElectronBall_Filtered	DAMAGE_DATA	25207	Mega Electron Ball	INDEX 1	ok	323	3.23	0.4	50	1	False
+558	DamageEffect.lua	DamageEffect_A_ENS_Shot_Gun	DAMAGE_DATA	25006	Hornet Sting	INDEX 1	ok	359	3.59	0.4	150	3	False
+559	DamageEffect.lua	DamageEffect_A_ENS_Shot_Gun_Explosion	DAMAGE_DATA	25006	Hornet Sting	INDEX 2	ok	1332	13.32	0.4	600	9	False
+677	DamageEffect.lua	DamageEffect_Assualt_Spear_Nemesis	DAMAGE_DATA	25009	Assault Spear - Judgement	INDEX 1	ok	4014	40.14	0.4	1500	6.67	False
+678	DamageEffect.lua	DamageEffect_Assualt_Spear_Nemesis	DAMAGE_DATA_NEXT	25009	Assault Spear - Judgement	INDEX 2	ok	3018	30.18	0.4	1500	6.67	False
+679	DamageEffect.lua	DamageEffect_Assualt_Spear_Nemesis	DAMAGE_DATA_NEXT2	25009	Assault Spear - Judgement	INDEX 3	ok	2022	20.22	0.4	1500	6.67	False
+703	DamageEffect.lua	DamageEffect_ECE_Tesla_Shock	DAMAGE_DATA	25205	Tesla Shock: Short	INDEX 1	ok	670	6.7	0.36	150	1.5	False
+704	DamageEffect.lua	DamageEffect_EEL_Tesla_Shock	DAMAGE_DATA	25211	Tesla Shock: Spear	INDEX 1	ok	775	7.75	0.4	150	0.5	False
+705	DamageEffect.lua	DamageEffect_EEL_Tesla_Shock_AMPLIFY_FILTERED	DAMAGE_DATA	25211	Tesla Shock: Spear	INDEX 2	ok	930	9.3	0.4	150	0.5	False
+706	DamageEffect.lua	DamageEffect_EEL_Tesla_Shock_FUSION_FILTERED	DAMAGE_DATA	25211	Tesla Shock: Spear	INDEX 5	ok	349	3.49	0.4	150	0.23	False
+707	DamageEffect.lua	DamageEffect_EEL_Tesla_Shock_INDUCTION_FILTERED	DAMAGE_DATA	25211	Tesla Shock: Spear	INDEX 4	ok	426	4.26	0.4	150	0.5	False
+708	DamageEffect.lua	DamageEffect_EEL_Tesla_Shock_SPECTRUM_FILTERED	DAMAGE_DATA	25211	Tesla Shock: Spear	INDEX 3	ok	349	3.49	0.4	150	0.23	False
+719	DamageEffect.lua	DamageEffect_ENS_HA_Lunatic_Scud_Chain_Damage	DAMAGE_DATA	25600	Lunatic Scud	INDEX 4	ok	940	9.4	0.24	223	2.97	False
+720	DamageEffect.lua	DamageEffect_ENS_HA_Lunatic_Scud_Final_Damage	DAMAGE_DATA	25600	Lunatic Scud	INDEX 4	ok	940	9.4	0.24	223	2.97	False
+721	DamageEffect.lua	DamageEffect_ENS_HA_Machine_Gun_Bullet	DAMAGE_DATA	25600	Lunatic Scud	INDEX 1	ok	186	1.86	0.24	47	0.21	False
+722	DamageEffect.lua	DamageEffect_ENS_HA_Missile_Explosion	DAMAGE_DATA	25600	Lunatic Scud	INDEX 3	ok	1241	12.41	0.24	375	5	False
+723	DamageEffect.lua	DamageEffect_ENS_HA_Spear	DAMAGE_DATA	25600	Lunatic Scud	INDEX 2	ok	373	3.73	0.24	94	1.25	False
+724	DamageEffect.lua	DamageEffect_ENS_ShotGun_Remodel_01	DAMAGE_DATA	25221	Sin Scissors	INDEX 1	ok	310	3.1	0.4	33	0.33	False
+725	DamageEffect.lua	DamageEffect_ENS_ShotGun_Remodel_02	DAMAGE_DATA	25221	Sin Scissors	INDEX 1	ok	310	3.1	0.4	33	0.33	False
+726	DamageEffect.lua	DamageEffect_ENS_ShotGun_Remodel_03	DAMAGE_DATA	25221	Sin Scissors	INDEX 1	ok	310	3.1	0.4	33	0.33	False
+727	DamageEffect.lua	DamageEffect_ENS_ShotGun_Remodel_04	DAMAGE_DATA	25221	Sin Scissors	INDEX 1	ok	310	3.1	0.4	33	0.33	False
+741	DamageEffect.lua	DamageEffect_Ferdinand_AttackA	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 2	ok	1059	10.59	0.24	375	5	False
+742	DamageEffect.lua	DamageEffect_Ferdinand_AttackB	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 3	ok	1694	16.94	0.24	600	8	False
+743	DamageEffect.lua	DamageEffect_Ferdinand_AttackC_Missile_Explosion	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 4	ok	487	4.87	0.24	150	2	False
+744	DamageEffect.lua	DamageEffect_Ferdinand_AttackC_Missile_Explosion_Sub	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 4	ok	487	4.87	0.24	150	2	False
+745	DamageEffect.lua	DamageEffect_Ferdinand_Attack_Final	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 5	ok	2357	23.57	0.24	750	10	False
+746	DamageEffect.lua	DamageEffect_Ferdinand_Summon_Attack	DAMAGE_DATA	25601	Code: Thunderbolt	INDEX 1	ok	5294	52.94	0.24	1875	25	False
+751	DamageEffect.lua	DamageEffect_Genocide_Ripper_Attack	DAMAGE_DATA	25017	Genocide Ripper	INDEX 1	ok	306	3.06	0.4	141	3	False
+752	DamageEffect.lua	DamageEffect_Genocide_Ripper_Attack_7th	DAMAGE_DATA	25017	Genocide Ripper	INDEX 1	ok	306	3.06	0.4	141	3	False
+753	DamageEffect.lua	DamageEffect_Genocide_Ripper_Attack_Finish	DAMAGE_DATA	25017	Genocide Ripper	INDEX 1	ok	306	3.06	0.4	141	3	False
+757	DamageEffect_Character.lua	DamageEffect_GunFire_Eve_SI_SA_ENS_Atomic_Blaster01_Project_Bomb_Ultimate	DAMAGE_DATA	25005	Atomic Blaster	INDEX 3	ok	141	1.41	0.4	63	0	False
+805	DamageEffect.lua	DamageEffect_Heavens_Fist_Sweeper_MEMO_Hit	DAMAGE_DATA	25016	Heaven's Fist - Sweeper	INDEX 1	ok	1401	14.01	0.4	563	2.5	False
+806	DamageEffect.lua	DamageEffect_Heavens_Fist_Sweeper_MEMO_Sweep	DAMAGE_DATA	25016	Heaven's Fist - Sweeper	INDEX 2	ok	3464	34.64	0.4	1688	7.5	False
+807	DamageEffect.lua	DamageEffect_Heavens_Fist_Sweeper_MEMO_Sweep	DAMAGE_DATA_NEXT	25016	Heaven's Fist - Sweeper	INDEX 3	ok	1925	19.25	0.4	1688	7.5	False
+808	DamageEffect.lua	DamageEffect_Heavens_Fist_Sweeper_MEMO_Sweep	DAMAGE_DATA_NEXT2	25016	Heaven's Fist - Sweeper	INDEX 4	ok	1283	12.83	0.4	1688	7.5	False
+809	DamageEffect.lua	DamageEffect_Hornet_Sting_Shaped_Charge	DAMAGE_DATA	25006	Hornet Sting	INDEX 3	ok	1415	14.15	0.4	750	3.33	False
+894	DamageEffect.lua	DamageEffect_Linear_Divider	DAMAGE_DATA	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+895	DamageEffect.lua	DamageEffect_Linear_Divider	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+896	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper	DAMAGE_DATA	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+897	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+898	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Next	DAMAGE_DATA	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+899	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Next	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+900	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Next_Reverse	DAMAGE_DATA	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+901	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Next_Reverse	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+902	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Reverse	DAMAGE_DATA	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+903	DamageEffect.lua	DamageEffect_Linear_Divider_Hyper_Reverse	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 3	ok	156	1.56	0.4	113	1.5	False
+904	DamageEffect.lua	DamageEffect_Linear_Divider_Next	DAMAGE_DATA	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+905	DamageEffect.lua	DamageEffect_Linear_Divider_Next	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+906	DamageEffect.lua	DamageEffect_Linear_Divider_Next_Reverse	DAMAGE_DATA	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+907	DamageEffect.lua	DamageEffect_Linear_Divider_Next_Reverse	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+908	DamageEffect.lua	DamageEffect_Linear_Divider_Reverse	DAMAGE_DATA	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+909	DamageEffect.lua	DamageEffect_Linear_Divider_Reverse	DAMAGE_DATA_NEXT	25026	Linear Divider	INDEX 1	ok	122	1.22	0.4	113	1.5	False
+919	DamageEffect.lua	DamageEffect_OPHELIA_Attack_B_BOMB	DAMAGE_DATA	25020	Electronic Field	INDEX 4	ok	381	3.81	0.4	150	3	False
+920	DamageEffect.lua	DamageEffect_OPHELIA_Attack_B_BOMB_PVP	DAMAGE_DATA	25020	Electronic Field	INDEX 4	ok	381	3.81	0.4	150	3	False
+921	DamageEffect.lua	DamageEffect_OPHELIA_Attack_C_Missile_Explosion	DAMAGE_DATA	25020	Electronic Field	INDEX 5	ok	95	0.95	0.4	38	0.83	False
+922	DamageEffect.lua	DamageEffect_OPHELIA_Attack_C_Missile_Explosion_PVP	DAMAGE_DATA	25020	Electronic Field	INDEX 5	ok	95	0.95	0.4	38	0.83	False
+933	DamageEffect_Character.lua	DamageEffect_Pride_Ferdinand_Attack_Missile_Explosion_Sub	DAMAGE_DATA	25236	Riseon Pride	INDEX 2	ok	171	1.71	0.4	47	6	False
+1200	DamageEffect.lua	DamageEffect_SA_EAT_SonicWave_Oberon_Attack	DAMAGE_DATA	25013	Sonic Wave	INDEX 1	ok	760	7.6	0.4	281	5	False
+1201	DamageEffect.lua	DamageEffect_SA_EAT_SonicWave_Oberon_Attack	DAMAGE_DATA_NEXT	25013	Sonic Wave	INDEX 1	ok	760	7.6	0.4	281	5	False
+1202	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Blue	DAMAGE_DATA	25237	Final Strike	INDEX 3	ok	483	4.83	0.4	150	3	False
+1203	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Damage_Green_Left	DAMAGE_DATA	25237	Final Strike	INDEX 4	ok	518	5.18	0.28	161	3	False
+1204	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Damage_Green_Right	DAMAGE_DATA	25237	Final Strike	INDEX 4	ok	518	5.18	0.28	161	3	False
+1205	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Damage_Mix_Left	DAMAGE_DATA	25237	Final Strike	INDEX 5	ok	242	2.42	0.28	75	1.8	False
+1206	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Damage_Mix_Right	DAMAGE_DATA	25237	Final Strike	INDEX 5	ok	242	2.42	0.28	75	1.8	False
+1207	DamageEffect_Character.lua	DamageEffect_SA_EBS_Extreme_Virtual_Attack_Red	DAMAGE_DATA_NEXT	25237	Final Strike	INDEX 2	ok	7500	75	0.4	2250	33	False
+1208	DamageEffect.lua	DamageEffect_SA_EBS_Laser_Pole	DAMAGE_DATA	25048	Electronic Fall	INDEX 1	ok	357	3.57	0.4	107	1.43	False
+1209	DamageEffect.lua	DamageEffect_SA_EBS_Needles_Cutting_proj	DAMAGE_DATA	25047	Needles Cutting	INDEX 1	ok	34	0.34	0.36	7	0.1	False
+1210	DamageEffect_Character.lua	DamageEffect_SA_ECB_Extreme_Virtua_Default	DAMAGE_DATA_NEXT	25237	Final Strike	INDEX 1	ok	6818	68.18	0.4	2250	30	False
+1211	DamageEffect_Character.lua	DamageEffect_SA_ECE_Reaso_Pride_Landing_Damage	DAMAGE_DATA_NEXT	25236	Riseon Pride	INDEX 1	ok	6698	66.98	0.4	2250	20	False
+1212	DamageEffect_Character.lua	DamageEffect_SA_ECN_Psyker_Kinesis_Attack	DAMAGE_DATA	25235	Critical Strike	INDEX 1	ok	4584	45.84	0.4	1950	25	False
+1213	DamageEffect_Character.lua	DamageEffect_SA_ECN_Psyker_Kinesis_Spear_Attack	DAMAGE_DATA	25235	Critical Strike	INDEX 2	ok	349	3.49	0.4	75	0	False
+1214	DamageEffect_Character.lua	DamageEffect_SA_ECN_Psyker_Kinesis_Spear_Attack_Move	DAMAGE_DATA	25235	Critical Strike	INDEX 3	ok	325	3.25	0.36	75	1	False
+1215	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact	DAMAGE_DATA	25004	Explosion Impact	INDEX 1	ok	362	3.62	0.4	188	0.83	False
+1216	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact	DAMAGE_DATA_NEXT	25004	Explosion Impact	INDEX 1	ok	362	3.62	0.4	188	0.83	False
+1217	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact_Explosion	DAMAGE_DATA	25004	Explosion Impact	INDEX 2	ok	125	1.25	0.4	42	0.5	False
+1218	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact_Explosion	DAMAGE_DATA_NEXT	25004	Explosion Impact	INDEX 2	ok	125	1.25	0.4	42	0.5	False
+1219	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact_Explosion	DAMAGE_DATA_NEXT_ULTIMATE	25004	Explosion Impact	INDEX 2	ok	125	1.25	0.4	42	0.5	False
+1220	DamageEffect.lua	DamageEffect_SA_EEG_ExplosionImpact_Explosion	DAMAGE_DATA_ULTIMATE	25004	Explosion Impact	INDEX 2	ok	125	1.25	0.4	42	0.5	False
+1221	DamageEffect.lua	DamageEffect_SA_EEG_HornetSting_Explosion	DAMAGE_DATA	25006	Hornet Sting	INDEX 1	ok	359	3.59	0.4	150	3	False
+1222	DamageEffect.lua	DamageEffect_SA_EEG_HornetSting_Explosion_Explosion	DAMAGE_DATA	25006	Hornet Sting	INDEX 2	ok	1332	13.32	0.4	600	9	False
+1223	DamageEffect.lua	DamageEffect_SA_EEP_AssualtSpear_Burster_SpearAttack	DAMAGE_DATA	25018	Assault Spear - Buster	INDEX 1	ok	3151	31.51	0.4	1125	15	False
+1224	DamageEffect.lua	DamageEffect_SA_EEP_AssualtSpear_Burster_SpearExplosion	DAMAGE_DATA	25018	Assault Spear - Buster	INDEX 2	ok	95	0.95	0.4	47	0.63	False
+1225	DamageEffect.lua	DamageEffect_SA_EEP_AssualtSpear_Burster_SpearExplosion	DAMAGE_DATA_NEXT	25018	Assault Spear - Buster	INDEX 2	ok	95	0.95	0.4	47	0.63	False
+1226	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_1	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1227	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_1_PVP	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1228	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_2	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1229	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_2_PVP	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1230	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_3_EXPLOSION	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1231	DamageEffect.lua	DamageEffect_SA_EEP_ELECTRONIC_FIELD_OPHELIA_Attack_A_3_EXPLOSION_PVP	DAMAGE_DATA	25020	Electronic Field	INDEX 3	ok	191	1.91	0.4	75	6	False
+1232	DamageEffect.lua	DamageEffect_SA_EEP_Electronic_Thunder_Expl	DAMAGE_DATA	25046	Electronic Thunder	INDEX 1	ok	683	6.83	0.28	136	1.82	False
+1233	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_A	DAMAGE_DATA	25015	Surface Cutting	INDEX 2	ok	143	1.43	0.4	75	6	False
+1234	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_A_PVP	DAMAGE_DATA	25015	Surface Cutting	INDEX 2	ok	143	1.43	0.4	75	6	False
+1235	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_1st	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1236	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_1st_PVP	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1237	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_2nd	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1238	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_2nd_PVP	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1239	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_3rd	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1240	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_B_3rd_PVP	DAMAGE_DATA	25015	Surface Cutting	INDEX 3	ok	24	0.24	0.4	19	6	False
+1241	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_C	DAMAGE_DATA	25015	Surface Cutting	INDEX 4	ok	127	1.27	0.4	75	6	False
+1242	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_C	DAMAGE_DATA_ULTIMATE	25015	Surface Cutting	INDEX 4	ok	127	1.27	0.4	75	6	False
+1243	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_C_PVP	DAMAGE_DATA	25015	Surface Cutting	INDEX 4	ok	127	1.27	0.4	75	6	False
+1244	DamageEffect.lua	DamageEffect_SA_EEP_SURFACE_CUTING_OBERON_Attack_C_PVP	DAMAGE_DATA_ULTIMATE	25015	Surface Cutting	INDEX 4	ok	127	1.27	0.4	75	6	False
+1245	DamageEffect.lua	DamageEffect_SA_EEP_SpaceWrench_Projectile	DAMAGE_DATA	25019	Space Wrench	INDEX 1	ok	637	6.37	0.4	300	0.74	False
+1246	DamageEffect_Character.lua	DamageEffect_SA_EEP_SpaceWrench_Projectile_Main	DAMAGE_DATA	25019	Space Wrench	INDEX 2	ok	1678	16.78	0.4	750	0.74	False
+1247	DamageEffect_Character.lua	DamageEffect_SA_EEP_SpaceWrench_Projectile_Sub	DAMAGE_DATA	25019	Space Wrench	INDEX 3	ok	429	4.29	0.4	150	0.74	False
+1275	DamageEffect.lua	DamageEffect_SA_ENS_Extreming_Cutting_Expl	DAMAGE_DATA	25044	Extreme Cutter	INDEX 1	ok	5041	50.41	0.4	1500	20	False
+1276	DamageEffect.lua	DamageEffect_SA_ENS_Illusionic_Thorn	DAMAGE_DATA	25043	Illusion Thorns	INDEX 1	ok	571	5.71	0.36	188	2.5	False
+1289	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT	DAMAGE_DATA	25002	Dimension Link - Guardian	INDEX 4	ok	1297	12.97	0.4	750	3.33	False
+1290	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT	DAMAGE_DATA_NEXT	25002	Dimension Link - Guardian	INDEX 5	ok	973	9.73	0.4	750	3.33	False
+1291	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT	DAMAGE_DATA_NEXT2	25002	Dimension Link - Guardian	INDEX 6	ok	649	6.49	0.4	750	3.33	False
+1292	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT_Sub	DAMAGE_DATA	25002	Dimension Link - Guardian	INDEX 1	ok	354	3.54	0.4	150	6	False
+1293	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT_Sub	DAMAGE_DATA_NEXT	25002	Dimension Link - Guardian	INDEX 2	ok	266	2.66	0.4	150	6	False
+1294	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_LEFT_Sub	DAMAGE_DATA_NEXT2	25002	Dimension Link - Guardian	INDEX 3	ok	179	1.79	0.4	150	6	False
+1295	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT	DAMAGE_DATA	25002	Dimension Link - Guardian	INDEX 4	ok	1297	12.97	0.4	750	3.33	False
+1296	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT	DAMAGE_DATA_NEXT	25002	Dimension Link - Guardian	INDEX 5	ok	973	9.73	0.4	750	3.33	False
+1297	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT	DAMAGE_DATA_NEXT2	25002	Dimension Link - Guardian	INDEX 6	ok	649	6.49	0.4	750	3.33	False
+1298	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT_Sub	DAMAGE_DATA	25002	Dimension Link - Guardian	INDEX 1	ok	354	3.54	0.4	150	6	False
+1299	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT_Sub	DAMAGE_DATA_NEXT	25002	Dimension Link - Guardian	INDEX 2	ok	266	2.66	0.4	150	6	False
+1300	DamageEffect.lua	DamageEffect_SA_EVE_DemensionLinkGuardianWave_RIGHT_Sub	DAMAGE_DATA_NEXT2	25002	Dimension Link - Guardian	INDEX 3	ok	179	1.79	0.4	150	6	False
+1301	DamageEffect.lua	DamageEffect_SA_EVE_IllusionStinger_Explosion	DAMAGE_DATA	25001	Illusion Stinger	INDEX 2	ok	445	4.45	0.4	141	1.67	False
+1302	DamageEffect.lua	DamageEffect_SA_EVE_IllusionStinger_Explosion_All	DAMAGE_DATA	25001	Illusion Stinger	INDEX 1	ok	428	4.28	0.4	188	2.5	False
+1643	DamageEffect.lua	DamageEffect_SI_A_EAT_Faena_Damage	DAMAGE_DATA	25224	Fayner	INDEX 1	ok	833	8.33	0.36	150	1.5	False
+1726	DamageEffect.lua	DamageEffect_TRANScendence_EVE_2_Explosion	DAMAGE_DATA	25045	Tesla Flare	INDEX 1	ok	329	3.29	0.4	63	0.71	False
+1728	DamageEffect.lua	DamageEffect_Tesla_Shock	DAMAGE_DATA	25208	Tesla Shock: Swing	INDEX 1	ok	415	4.15	0.36	75	1.5	False
+1745	DamageEffect_Character.lua	Damage_EVE_Ophelia_Reason_Pride_Start	DAMAGE_DATA	25236	Riseon Pride	INDEX 4	ok	85	0.85	0.36	23	6	False
+1746	DamageEffect_Character.lua	Damage_EVE_Ophelia_Reason_Pride_Start	DAMAGE_DATA_NEXT	25236	Riseon Pride	INDEX 4	ok	85	0.85	0.36	23	6	False
+1747	DamageEffect.lua	Damage_KugelBlitz_Charge	DAMAGE_DATA	25024	Kugel Blitz	INDEX 1	ok	571	5.71	0.36	300	7.5	False
+1748	DamageEffect.lua	Damage_KugelBlitz_Charge	DAMAGE_DATA_NEXT	25024	Kugel Blitz	INDEX 2	ok	89	0.89	0.36	43	1.07	False
+1749	DamageEffect.lua	Damage_KugelBlitz_Charge	DAMAGE_DATA_NEXT2	25024	Kugel Blitz	INDEX 2	ok	89	0.89	0.36	43	1.07	False
+1750	DamageEffect.lua	Damage_KugelBlitz_Charge_FILTERED	DAMAGE_DATA	25024	Kugel Blitz	INDEX 1	ok	571	5.71	0.36	300	7.5	False
+1751	DamageEffect.lua	Damage_KugelBlitz_Charge_FILTERED	DAMAGE_DATA_NEXT	25024	Kugel Blitz	INDEX 2	ok	89	0.89	0.36	43	1.07	False
+1752	DamageEffect.lua	Damage_KugelBlitz_Charge_FILTERED	DAMAGE_DATA_NEXT2	25024	Kugel Blitz	INDEX 2	ok	89	0.89	0.36	43	1.07	False
+1780	DamageEffect.lua	EVE_EG_IRONSCRAPS	DAMAGE_DATA	25010	Iron Scraps	INDEX 1	ok	246	2.46	0.4	125	1.67	False
+1781	DamageEffect.lua	EVE_EG_IRONSCRAPS_HYPER	DAMAGE_DATA	25010	Iron Scraps	INDEX 2	ok	185	1.85	0.4	94	1.25	False
+1782	DamageEffect.lua	EVE_EG_SP3A_QT_START_SHOCKWAVE	DAMAGE_DATA	25003	Queen's Throne	INDEX 1	ok	2932	29.32	0.28	1500	20	False
+1783	DamageEffect.lua	EVE_ENERGY_NEEDLES	DAMAGE_DATA	25027	Energy Needles	INDEX 1	ok	61	0.61	0.28	25	0.14	False
+1784	DamageEffect.lua	EVE_ENERGY_NEEDLES	DAMAGE_DATA_NEXT	25027	Energy Needles	INDEX 2	ok	41	0.41	0.28	25	0.17	False
+1785	DamageEffect.lua	EVE_ENERGY_NEEDLES	DAMAGE_DATA_NEXT2	25027	Energy Needles	INDEX 3	ok	21	0.21	0.28	25	0.17	False
+1786	DamageEffect.lua	EVE_ENERGY_NEEDLES_FILTERED	DAMAGE_DATA	25027	Energy Needles	INDEX 4	ok	61	0.61	0.28	25	1	False
+1787	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER	DAMAGE_DATA	25025	Giga Stream	INDEX 1	ok	250	2.5	0.4	225	2	False
+1788	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER	DAMAGE_DATA_NEXT	25025	Giga Stream	INDEX 1	ok	250	2.5	0.4	225	2	False
+1789	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_HYPER	DAMAGE_DATA	25025	Giga Stream	INDEX 3	ok	319	3.19	0.4	225	2	False
+1790	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_HYPER	DAMAGE_DATA_NEXT	25025	Giga Stream	INDEX 3	ok	319	3.19	0.4	225	2	False
+1791	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_HYPER_NEXT	DAMAGE_DATA	25025	Giga Stream	INDEX 3	ok	319	3.19	0.4	225	2	False
+1792	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_HYPER_NEXT	DAMAGE_DATA_NEXT	25025	Giga Stream	INDEX 3	ok	319	3.19	0.4	225	2	False
+1793	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_NEXT	DAMAGE_DATA	25025	Giga Stream	INDEX 1	ok	250	2.5	0.4	225	2	False
+1794	DamageEffect.lua	EVE_EPR_GIGA_STREAM_LASER_NEXT	DAMAGE_DATA_NEXT	25025	Giga Stream	INDEX 1	ok	250	2.5	0.4	225	2	False
+1795	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER	DAMAGE_DATA	25023	Particle Ray	INDEX 1	ok	228	2.28	0.4	150	3	False
+1796	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER	DAMAGE_DATA_NEXT	25023	Particle Ray	INDEX 1	ok	228	2.28	0.4	150	3	False
+1797	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_HYPER	DAMAGE_DATA	25023	Particle Ray	INDEX 2	ok	292	2.92	0.4	150	3	False
+1798	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_HYPER	DAMAGE_DATA_NEXT	25023	Particle Ray	INDEX 2	ok	292	2.92	0.4	150	3	False
+1799	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_HYPER_NEXT	DAMAGE_DATA	25023	Particle Ray	INDEX 2	ok	292	2.92	0.4	150	3	False
+1800	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_HYPER_NEXT	DAMAGE_DATA_NEXT	25023	Particle Ray	INDEX 2	ok	292	2.92	0.4	150	3	False
+1801	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_NEXT	DAMAGE_DATA	25023	Particle Ray	INDEX 1	ok	228	2.28	0.4	150	3	False
+1802	DamageEffect.lua	EVE_EPR_PARTICLE_RAY_LASER_NEXT	DAMAGE_DATA_NEXT	25023	Particle Ray	INDEX 1	ok	228	2.28	0.4	150	3	False
+1803	DamageEffect.lua	EVE_EPR_PHOTON_FLARE	DAMAGE_DATA	25022	Photon Flare	INDEX 1	ok	1237	12.37	0.32	1125	15	False
+1804	DamageEffect.lua	EVE_EPR_PHOTON_FLARE_HYPER	DAMAGE_DATA	25022	Photon Flare	INDEX 2	ok	1579	15.79	0.32	1125	15	False
+1805	DamageEffect.lua	EVE_EP_ELECTRONIC_FIELD	DAMAGE_DATA	25020	Electronic Field	INDEX 1	ok	248	2.48	0.4	94	1.5	False
+1806	DamageEffect.lua	EVE_EP_ELECTRONIC_FIELD	DAMAGE_DATA_NEXT	25020	Electronic Field	INDEX 2	ok	1014	10.14	0.4	375	1.5	False
+1807	DamageEffect.lua	EVE_EP_SPIT_FIRE	DAMAGE_DATA	25209	Spitfire	INDEX 1	ok	882	8.82	0.4	150	1.5	False
+1808	DamageEffect.lua	EVE_EP_Spit_Fire_Grenade_EXPLOSION	DAMAGE_DATA	25209	Spitfire	INDEX 2	ok	282	2.82	0.4	50	0.5	False
+1809	DamageEffect.lua	EVE_EP_Spit_Fire_Grenade_Elastic_EXPLOSION	DAMAGE_DATA	25209	Spitfire	INDEX 2	ok	282	2.82	0.4	50	0.5	False
+1810	DamageEffect.lua	EVE_GENERATE_BLACKHOLE	DAMAGE_DATA	25007	Generate Black Hole	INDEX 1	ok	5021	50.21	0.32	2250	30	False
+1811	DamageEffect.lua	EVE_GENERATE_BLACKHOLE_HYPER	DAMAGE_DATA	25007	Generate Black Hole	INDEX 2	ok	193	1.93	0.32	60	1.2	False
+1812	DamageEffect.lua	EVE_GENERATE_BLACKHOLE_HYPER	DAMAGE_DATA_NEXT	25007	Generate Black Hole	INDEX 3	ok	2139	21.39	0.32	750	4.8	False
+1813	DamageEffect.lua	EVE_ILLUSION_STINGER_01	DAMAGE_DATA	25001	Illusion Stinger	INDEX 1	ok	428	4.28	0.4	188	2.5	False
+1814	DamageEffect.lua	EVE_ILLUSION_STINGER_02	DAMAGE_DATA	25001	Illusion Stinger	INDEX 1	ok	428	4.28	0.4	188	2.5	False
+1815	DamageEffect.lua	EVE_NS_ATOMIC_BLASTER_DUMMY	DAMAGE_DATA	25005	Atomic Blaster	INDEX 1	ok	114	1.14	0.36	63	0.83	False
+1816	DamageEffect.lua	EVE_NS_ATOMIC_BLASTER_DUMMY	DAMAGE_DATA_NEXT	25005	Atomic Blaster	INDEX 1	ok	114	1.14	0.36	63	0.83	False
+1817	DamageEffect.lua	EVE_NS_ATOMIC_BLASTER_DUMMY_HYPER	DAMAGE_DATA	25005	Atomic Blaster	INDEX 2	ok	146	1.46	0.36	63	0.83	False
+1818	DamageEffect.lua	EVE_NS_ATOMIC_BLASTER_DUMMY_HYPER	DAMAGE_DATA_NEXT	25005	Atomic Blaster	INDEX 2	ok	146	1.46	0.36	63	0.83	False
+1819	DamageEffect.lua	EVE_NS_SPEAR_BURST_EXPLOSION	DAMAGE_DATA	25206	Spear Burst	INDEX 2	ok	560	5.6	0.32	125	1.5	False
+1820	DamageEffect.lua	EVE_NS_SPEAR_BURST_SPEAR	DAMAGE_DATA	25206	Spear Burst	INDEX 1	ok	141	1.41	0.32	25	0.5	False
+1821	DamageEffect.lua	EVE_PHOTON_BLINK_DUMMY_EXPLOSION	DAMAGE_DATA	25200	Photon Flash	INDEX 1	ok	551	5.51	0.28	150	1.5	False
+1822	DamageEffect.lua	EVE_PHOTON_BLINK_DUMMY_EXPLOSION_REAL	DAMAGE_DATA	25200	Photon Flash	INDEX 1	ok	551	5.51	0.28	150	1.5	False
+1823	DamageEffect.lua	EVE_SWEEP_PARADE_TRIANGLE	DAMAGE_DATA	25021	Sweep Rolling	INDEX 1	ok	236	2.36	0.4	91	1.21	False
+1824	DamageEffect.lua	EVE_SWEEP_PARADE_TRIANGLE	DAMAGE_DATA_NEXT	25021	Sweep Rolling	INDEX 2	ok	472	4.72	0.4	91	1.21	False
+1825	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_0	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1826	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_0_FILTERED	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1827	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_1	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1828	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_1_FILTERED	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1829	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_2	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1830	DamageEffect.lua	EVE_TASER_PILUM_CHARGE_2_FILTERED	DAMAGE_DATA	25212	Taser Pilum	INDEX 1	ok	446	4.46	0.34	150	1.5	False
+1831	DamageEffect.lua	EVE_THOUSANDSTAR_MAGICBALL	DAMAGE_DATA	25028	Thousand Star	INDEX 1	ok	42	0.42	0.28	15	0.25	False
+1832	DamageEffect.lua	EVE_THOUSANDSTAR_MAGICBALL_ENTIRE	DAMAGE_DATA	25028	Thousand Star	INDEX 2	ok	84	0.84	0.28	15	1	False
+1833	DamageEffect.lua	EVE_THOUSANDSTAR_MAGICBALL_FILTERED	DAMAGE_DATA	25028	Thousand Star	INDEX 1	ok	42	0.42	0.28	15	0.25	False
+1848	DamageEffect.lua	HEAVENS_FIST	DAMAGE_DATA	25012	Heaven's Fist - Pressure	INDEX 1	ok	2475	24.75	0.26	1200	15	False
+1849	DamageEffect.lua	HEAVENS_FIST	DAMAGE_DATA_NEXT	25012	Heaven's Fist - Pressure	INDEX 2	ok	456	4.56	0.4	300	5	False
+1850	DamageEffect.lua	JUNK_BREAK	DAMAGE_DATA	25008	Junk Break	INDEX 1	ok	249	2.49	0.4	113	1.58	False
+1851	DamageEffect.lua	JUNK_BREAK	DAMAGE_DATA_NEXT	25008	Junk Break	INDEX 1	ok	249	2.49	0.4	113	1.58	False
+1852	DamageEffect.lua	JUNK_BREAK	DAMAGE_DATA_NEXT2	25008	Junk Break	INDEX 1	ok	249	2.49	0.4	113	1.58	False
+1853	DamageEffect.lua	JUNK_BREAK_HYPER	DAMAGE_DATA	25008	Junk Break	INDEX 2	ok	235	2.35	0.4	83	1.11	False
+1854	DamageEffect.lua	JUNK_BREAK_HYPER	DAMAGE_DATA_NEXT	25008	Junk Break	INDEX 2	ok	235	2.35	0.4	83	1.11	False
+1855	DamageEffect.lua	JUNK_BREAK_HYPER	DAMAGE_DATA_NEXT2	25008	Junk Break	INDEX 2	ok	235	2.35	0.4	83	1.11	False

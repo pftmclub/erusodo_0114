@@ -1,0 +1,24 @@
+script: june_src_fixed/data036_kom/Eve_Nasod.src.lua
+top-level tables: 301 (INIT_*: 6)   distinct keys: 239   key occurrences: 7459
+verdicts: june-only=16  neither=1  march-only-site=8  both=214
+june-only keys (a port item):
+  ADD_AIR_DASH_COUNT                       x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  BBT_CHANGE_NOW_HP_PER_SECOND             x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x3     damage-data            june=plain readers=none census=implemented/unassigned
+  CODE_RECOVERY_CONSUME_MP                 x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_CONSUME_MP_ECB             x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_CONSUME_MP_ECE             x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_CONSUME_MP_ECN             x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_COOL_TIME                  x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_COOL_TIME_ECE              x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_UP_HP_RATE                 x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  CODE_RECOVERY_UP_HP_RATE_ECE             x1     INIT_COMPONENT         june=xor readers=329c47e0:? 
+  EFFECT_SET_LIST_FINAL_ULTIMATE           x5     state                  june=plain readers=none 
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x7     state                  june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+neither (no reader found on either side):
+  HEAD_IK                                  x8     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+wrote char_eve/plan_charport_keys.tsv

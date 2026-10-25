@@ -1,0 +1,26 @@
+# June character Eve (Stage 7) - Phase CH4c - El Crystal and Code Recovery
+
+| | |
+|---|---|
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-eve CH4c` |
+| Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
+| Depends on | CH4b review |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_UI` (+ `_DEBUG`) |
+| Log tag | `[JUNE_CHAR]` (`EVE PASSIVE` / `EVE UI`) |
+| Review | `kickoffs/char-eve/CH4c-review.md` (Opus 5.5 high; the phase writes it when done) |
+
+## Read first (and nothing else from the plan doc unless you need it)
+
+```sh
+python tools/docsection.py JUNE_CHARACTER_EVE_PHASES.md "Rules" "Starting context" "Phase CH4 - Passives and class mechanics"
+python tools/docsection.py JUNE_CHARACTER_AISHA_PHASES.md "CH4 split (2026-10-22, Opus)"
+```
+Then the Eve lines of the checklist rows named below (`june2017_re/char_eve/plan_checklist_rows.md` gives the line numbers), the `CH4c` rows of `ch0_*.tsv`, and Aisha's matching CH4 Done note as the worked example.
+
+## Task
+
+Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INIT_COMPONENT` keys (reader `329c47e0`, `ch0_keys.tsv`), the 7aj equipped-slot icon override for class type `0x1a` (El Crystal index at tree `+0x134`; March's `UpdateEveElectraSkillSlotIcon` becomes June's tail), the 7ah statics `Static_EveRecoveryGuide` / `_Cooltime` / `Button_EveRecoveryToolTip`, the 7n sync float, the 7a modifier. June's whole bodies, June quirks verbatim with `JUNE_BUGS.md` rows. You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). CP949 files through `bytepatch.py`. Mark rows `(Eve: CH4c)`. Done gate: each item's effect visible in game or in a named log line.
+
+## Amended by CH0
+
+(CH0 fills this: the tsv filter, the function count, June addresses, any split.)
