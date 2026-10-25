@@ -390,6 +390,24 @@ Build: `DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-26 04:43:37, md
 
 Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1b-review.md` (also spot-checks CH1a2). Next: `/x2-phase char-eve CH1b review` (Opus 5.5 high), then CH1c.
 
+### CH1b - Review (2026-10-26)
+
+**PASS, no code fix.** I read all 38 members against June's raw listings (`charport_adis.py eve --phase CH1b`). The five helpers and the Die pair I read in full, and Ghidra spot-checks of `3299d140`, `32997c10` and the ctor `3299bd70` agree.
+- **`3299d140`**: the g_pX2Game handle test, then per unit: `GUT_NPC` (`+0x264 == 1`), id (templet `+0x85f8`, skipped for id 0), `GetNowHp() <= 0` (gage `+0xc04`; a NULL gage counts as alive, as March's inline does), AI `+0x7c98` with `NAT_ALLY` (1), and ally uid `+0x78/+0x7c` against vslot `0x54`.
+  The switch is exact. `0x5ae`: skip if `+0x8b40` (self-destructing), then `StartSelfDestruction( 0 )` (`31e4d560`) and `32997c10`. `0x180` / `0x207`: the same skip, then 3.0 s, plus `AttachParticle_LUA( true, "CountDown3", "Bip01_Head", (0, 80, 0) )` (Ghidra: `334cfd24` / `334cfd30`). `0x2aa` `0x655` `0x656` `0x82b`: vslot `0xf4` `SetNowHp( 0 )` with no self-destruct test. June dropped March's general "already self-destructing" skip, and the port follows June.
+- **`3298cfe0`**: `+0xc` `m_bEnable`, `+0xb8` `m_iSelectBoneNameID` (after `wstring[5]` at `+0x2c`), 4 mesh handles at `+0x14` and 2 particle handles at `+0x24`, each destroyed when valid and then set to -1, then `+0x0` = 30.0. This matches `EG_QueensThroneData`'s layout and the port.
+- **`3299bcd0`**: both effect sets are stopped through local copies (`321dafb0( h&, false )`, which is March's one-argument `StopEffectSet`). Only for `true`: `+0xc` -1.0, `+0` false, `+0x10` 1.0, both handles -1. Exact.
+- **`329ae670`**: BTI `0x233` erase (`3229e160` = `EraseBuffTempletFromGameUnit`, as in the buff port), `SetSelfDestructSummonedNPC( 0x82b )`, `StopEffectSet( m_hOberonGuard )` by reference (when valid), and `+0x9c08/+0x9c0c` = -1. **`32997c10`**: BTI `0x199` erase, then `IsMyUnit` (vslot `0x198`) -> `UpdateSkillSlotUI( false )`. Exact.
+- **Die pair**: `CommonStateStart`, `DyingStart` (vslot `0x338`), play speed 0.5, the six ids in June's order, the Throne reset, `DestroyInstanceHandle( +0x99c0, false )`, `329ac350( 1 )`, then the block (NULL-tested). FRONT and BACK differ only in the dust time (0.19 / 0.32; 1.12 both). June calls `329ac350` unconditionally. The `ADD_EVE_SYSTEM_2014` guard is CH1q's to lift, as already routed.
+- **Fields (ctor `3299bd70`, EBP = -1, EBX = 0)**: `+0x976c` = -1 (`@3299be62`), `+0x99c0` = -1 (`@3299c0d4`), `+0x9c08/+0x9c0c` = -1 (`@3299c89d/8a9`, so 64 bit, which matches `UidType`), `+0x9c50` = NULL (`@3299cd60`). The port's ctor lines agree.
+- **Thunks** against vtable `334cf45c`: `329cc0b0` -> `0x5d4` `31fd0230` (BOUNDING_DOWN EP), `329cc150` -> `0x5d8` `31fd0260` (LANDCRASH EP), `329cc1e0` -> `0x5dc` `31fc9d20` (UP StartFuture), `329cc050` -> `0x5e0` `31fd02d0` (UP Start), `329cc0c0` -> `0x5e4` `31fd0340` (UP EP), `329cc160` -> `0x5e8` `31fcbbe0` (GROGGY EP). Each port thunk makes the matching virtual call (`X2GUUser.h:2184`, `:2297-2301`).
+- **Body spot-check**: in `329696b0` (DAMAGE_DOWN_FRONT EP) all six flag-write branches, the 0.66 test, both `[4]` outcomes `0xa2` and the `CommonEventProcess` tail match the port.
+- **`3299b810`**: confirmed. The `3299d140` listing runs past the `int3` at `3299d38f` into `3299d390` (SURFACE_CUTING FrameMove), whose call at `3299d3cc` is the real caller. The CH2b kickoff amendment is right. I corrected the class-map row's caller column (`3299d140` -> `3299d390`).
+- **CH1a2 spot-check: PASS.** A `cl /P` probe of `X2GUUser.cpp`, `X2GuEve.cpp` and `X2GUArme_VioletMage.cpp` with the flag on shows exactly one definition of each helper, `CX2GUUser::June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue`, and none and no declarations in the two class files. All calls (Eve 2 + 2, Aisha 15 + 20) resolve to the base. Flag off, the `#ifndef` copies return.
+- **Hygiene** (`--range 8e3a2e2c^..8e3a2e2c`): `files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 2 deleted lines are the widened `#error` pair.
+
+No build (no code change). CH1c kickoff amended: `ENSI_RIDING_DIE` reuses CH1b's Die-front members. Next: `/x2-phase char-eve CH1c` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

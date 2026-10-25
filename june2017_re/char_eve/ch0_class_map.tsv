@@ -667,7 +667,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3299b2e0	helper	called by 329a7250	-	-	CH2c2	
 3299b440	helper	called by 3299b790 329ae0c0	-	-	CH1l4	
 3299b790	helper	called by 329c5bc0	-	-	CH1l4	
-3299b810	helper	called by 3299d140 329ae4f0	-	-	CH2b	callers 3299d390 (CH2b), 329ae4f0 (CH3b); CH0 read the 3299d140 listing overrun as a caller (CH1b)
+3299b810	helper	called by 3299d390 329ae4f0	-	-	CH2b	callers 3299d390 (CH2b), 329ae4f0 (CH3b); CH0 read the 3299d140 listing overrun as a caller (CH1b)
 3299ba70	helper	called by 3299ebd0 329ae4f0	-	-	CH1l3	
 3299bcd0	helper	called by 329aea60 329aece0 329af800 329af950	-	-	CH1b	
 3299bd70	helper	-	-	-	CH1k	constructor (writes vtable 334cf45c; called by CX2Game 3230f330 @3230f389): ctor / dtor offset map
