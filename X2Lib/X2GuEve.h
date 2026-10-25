@@ -2686,5 +2686,57 @@ protected:
 	void June_ENSI_JUMP_DASH_EndFuture();				/// June 32977f80
 	void June_ENSI_THROW_ITEM_FrameMove();				/// June 329cc0d0
 	void June_ENSI_THROW_ITEM_EventProcess();			/// June 329cc170
+
+	/// Phase CH1b: reactions ( damage, down / stand-up, die ) and the helpers only they reach
+	struct JuneEveBlock9c50					/// June +0x9c50: a pointer to this 0x14-byte block ( made in 3297a7b0, owner CH3a ); fields named by use
+	{
+		bool					m_bFlag0;			/// +0x0
+		CX2EffectSet::Handle	m_hEffectSet0;		/// +0x4
+		CX2EffectSet::Handle	m_hEffectSet1;		/// +0x8
+		float					m_fValueC;			/// +0xc ( -1 when reset )
+		float					m_fValue10;			/// +0x10 ( 1.0 when reset )
+		void					Reset( bool bResetFields_ );	/// June 3299bcd0
+	};
+	JuneEveBlock9c50*	m_pJuneBlock9c50;					/// June +0x9c50
+	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
+
+	void June_EGQueensThroneReset();					/// June 3298cfe0
+	void June_ResetLinkOverChargeIllusion();			/// June 32997c10
+	void June_SetSelfDestructSummonedNPC( const int iNPCID_ );	/// June 3299d140
+	void June_ClearGuardAndSummon();					/// June 329ae670
+
+	void June_ENSI_DIE_FRONT_StartFuture();				/// June 329694b0
+	void June_ENSI_DIE_FRONT_Start();					/// June 329af800
+	void June_ENSI_DIE_FRONT_FrameMove();				/// June 329af920
+	void June_ENSI_DIE_FRONT_EventProcess();			/// June 32969510
+	void June_ENSI_DIE_BACK_StartFuture();				/// June 32969550
+	void June_ENSI_DIE_BACK_Start();					/// June 329af950
+	void June_ENSI_DIE_BACK_FrameMove();				/// June 329afa70
+	void June_ENSI_DIE_BACK_EventProcess();				/// June 329695b0
+	void June_ENSI_DAMAGE_GROGGY_EventProcess();		/// June 329cc160 ( thunk, vslot 0x5e8 )
+	void June_ENSI_DAMAGE_DOWN_FRONT_FrameMove();		/// June 32969660
+	void June_ENSI_DAMAGE_DOWN_FRONT_EventProcess();	/// June 329696b0
+	void June_ENSI_DAMAGE_DOWN_BACK_FrameMove();		/// June 32969820
+	void June_ENSI_DAMAGE_DOWN_BACK_EventProcess();		/// June 32969860
+	void June_ENSI_DAMAGE_BOUNDING_DOWN_EventProcess();	/// June 329cc0b0 ( thunk, vslot 0x5d4 )
+	void June_ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess();	/// June 329cc150 ( thunk, vslot 0x5d8 )
+	void June_ENSI_DAMAGE_BOUNDING_UP_StartFuture();	/// June 329cc1e0 ( thunk, vslot 0x5dc )
+	void June_ENSI_DAMAGE_BOUNDING_UP_Start();			/// June 329cc050 ( thunk, vslot 0x5e0 )
+	void June_ENSI_DAMAGE_BOUNDING_UP_EventProcess();	/// June 329cc0c0 ( thunk, vslot 0x5e4 )
+	void June_ENSI_DAMAGE_AIR_DOWN_LANDING_EventProcess();	/// June 329699d0
+	void June_ENSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess();	/// June 32969af0
+	void June_ENSI_STANDUP_ROLLING_FRONT_FRONT_End();	/// June 32966110
+	void June_ENSI_STANDUP_ROLLING_FRONT_BACK_EventProcess();	/// June 32969b70
+	void June_ENSI_STANDUP_ROLLING_FRONT_BACK_End();	/// June 32966150
+	void June_ENSI_STANDUP_ROLLING_BACK_FRONT_EventProcess();	/// June 32969bf0
+	void June_ENSI_STANDUP_ROLLING_BACK_FRONT_End();	/// June 32966190
+	void June_ENSI_STANDUP_ROLLING_BACK_BACK_EventProcess();	/// June 32969c70
+	void June_ENSI_STANDUP_ROLLING_BACK_BACK_End();		/// June 329661d0
+	void June_ENSI_STANDUP_ATTACK_FRONT_FrameMove();	/// June 32966210
+	void June_ENSI_STANDUP_ATTACK_FRONT_EventProcess();	/// June 32969cf0
+	void June_ENSI_STANDUP_ATTACK_FRONT_End();			/// June 32966220
+	void June_ENSI_STANDUP_ATTACK_BACK_FrameMove();		/// June 32966260
+	void June_ENSI_STANDUP_ATTACK_BACK_EventProcess();	/// June 32969d70
+	void June_ENSI_STANDUP_ATTACK_BACK_End();			/// June 32966270
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

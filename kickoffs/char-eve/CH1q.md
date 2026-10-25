@@ -37,3 +37,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 - **Gauge rules June changed:** AddManeuverGauge, the AttackResultByType gain and the skill-MP / 3 gain are all scaled by `( +0x6c50 + 1.0 )`. DoParrying and the AFTER_ATTACK cost are skipped with chance `+0x6d04`, and DoParrying stamps `clock()` into `+0x9c44`. AttackManeuverCore adds MP `+0x9bfc * lv` and `+0x9c00 * lv` (members from `3297f290`, CH4a). The hyper ball moved into `CX2EveMyGageUI`. The March `_OPEN_TEST_` / hack-verify RenderName text is absent in June.
 - **Turning ADD on also removes** the live early `return;` at `X2GuEve.cpp:26992` (`#ifndef ADD_EVE_SYSTEM_2014`). `GetHyperModeStateID` has no live base declaration (FIX alone does not compile without ADD).
 - **Open (from the map):** the setters of user `+0x6c50` / `+0x6d04`; the `32894e40` call in AttackManeuverCore; `CX2AddMyGageUI::InitWakeOrb` = `32e5b650` or `32e5b8a0`; the PARRYING EventProcess 0.3 s SKILL_CANCEL tail was matched by shape only.
+
+## Amended by CH1b (2026-10-26)
+
+- `June_ENSI_DIE_FRONT_Start` / `_BACK_Start` (CH1b) call `ClearManeuverCore( true )` (June `329ac350`) under `#ifdef ADD_EVE_SYSTEM_2014`, which is undefined today. When this phase makes the Nasod Core code live, make those two calls live with it (June calls it after the Sweep Parade handle and before the `+0x9c50` block).

@@ -212,6 +212,8 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	m_iJuneAddAirDashCount					= 0;
 	m_fJuneCodeRecoveryCoolLeft				= 0.f;
 	m_fJuneCodeRecoveryConsumeMp				= 0.f;
+	m_pJuneBlock9c50						= NULL;
+	m_iJuneSummonNpcUid						= -1;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_fPhotonBlinkBackSpeedX				= 0.f;
 	m_fPhotonBlinkDummyLifeTime				= 0.f;
@@ -36178,6 +36180,718 @@ void CX2GUEve::June_ENSI_THROW_ITEM_FrameMove()
 void CX2GUEve::June_ENSI_THROW_ITEM_EventProcess()
 {
 	COMMON_RELATIONSHIP_SKILL_EventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1b ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's reactions ( damage, down / stand-up, die ) ( class map phase CH1b ); nothing calls them until CH1 wires them in.
+
+// June 3298cfe0: March's EG_QueensThroneData::Reset plus the max life time back to 30.0
+void CX2GUEve::June_EGQueensThroneReset()
+{
+	m_sEGQueensThrone.m_bEnable			= false;
+	m_sEGQueensThrone.m_iSelectBoneNameID	= 0;
+
+	for( int i = 0; i < ARRAY_SIZE( m_sEGQueensThrone.m_ahMajorMeshInstance ); ++i )
+	{
+		if( m_sEGQueensThrone.m_ahMajorMeshInstance[i] != INVALID_MESH_INSTANCE_HANDLE )
+			g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_sEGQueensThrone.m_ahMajorMeshInstance[i] );
+
+		m_sEGQueensThrone.m_ahMajorMeshInstance[i] = INVALID_MESH_INSTANCE_HANDLE;
+	}
+	for( int i = 0; i < ARRAY_SIZE( m_sEGQueensThrone.m_ahMajorParticleInstance ); ++i )
+	{
+		if( m_sEGQueensThrone.m_ahMajorParticleInstance[i] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+			g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_sEGQueensThrone.m_ahMajorParticleInstance[i] );
+
+		m_sEGQueensThrone.m_ahMajorParticleInstance[i] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	}
+
+	m_sEGQueensThrone.m_dMaxLifeTime = 30.0;
+}
+
+// June 3299bcd0: stops both effect sets through local copies; the fields are only cleared when asked
+void CX2GUEve::JuneEveBlock9c50::Reset( bool bResetFields_ )
+{
+	CX2EffectSet::Handle hEffectSet0 = m_hEffectSet0;
+	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet0 );
+
+	CX2EffectSet::Handle hEffectSet1 = m_hEffectSet1;
+	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet1 );
+
+	if( true == bResetFields_ )
+	{
+		m_fValueC		= -1.f;
+		m_bFlag0		= false;
+		m_fValue10		= 1.f;
+		m_hEffectSet0	= INVALID_EFFECTSET_HANDLE;
+		m_hEffectSet1	= INVALID_EFFECTSET_HANDLE;
+	}
+}
+
+// June 32997c10: the Ferdinand NPC's self-destruct hook ( March ResetLinkOverChargeIllusion kept its cool time and timer )
+void CX2GUEve::June_ResetLinkOverChargeIllusion()
+{
+	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 409 ) );		/// June BTI 0x199
+
+	if( true == IsMyUnit() )
+		g_pX2Game->UpdateSkillSlotUI( false );
+}
+
+// June 3299d140: March's SetSelfDestructSummonedNPC, six NPC ids; the kill cases use SetNowHp( 0 ) ( vslot 0xf4 ) where March used StartSelfDestruction( 0 )
+void CX2GUEve::June_SetSelfDestructSummonedNPC( const int iNPCID_ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit )
+			continue;
+
+		if( CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = (CX2GUNPC*) pUnit;
+		if( 0 != iNPCID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID_ )
+			continue;
+
+		if( pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		CX2AllyNPCAI* pAllyAI = (CX2AllyNPCAI*) pNPC->GetNPCAI();
+		if( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
+			continue;
+
+		switch( iNPCID_ )
+		{
+		case 0x5ae:		/// NUI_SI_HA_FERDINAND
+			if( false == pNPC->GetSelfDestruction() )
+			{
+				pNPC->StartSelfDestruction( 0.f );
+				June_ResetLinkOverChargeIllusion();
+			}
+			break;
+
+		case 0x180:		/// NUI_NASOD_WATCH_EVE
+		case 0x207:		/// NUI_NASOD_WATCH_EVE_MEMO
+			if( false == pNPC->GetSelfDestruction() )
+			{
+				pNPC->StartSelfDestruction( 3.f );
+				pNPC->AttachParticle_LUA( true, "CountDown3", "Bip01_Head", D3DXVECTOR3( 0, 80, 0 ) );
+			}
+			break;
+
+		case 0x2aa:		/// NUI_ATOMIC_SHIELD_EVE
+		case 0x655:		/// NUI_SI_SA_AT_SURFACE_CUTING
+		case 0x656:		/// NUI_SI_SA_EEP_ELECTRONIC_FIELD
+		case 0x82b:
+			pNPC->SetNowHp( 0.f );
+			break;
+		}
+	}
+}
+
+// June 329ae670: the die / FrameMove tail: BTI 0x233, the 0x82b NPC, the Oberon Guard effect set and the summon uid
+void CX2GUEve::June_ClearGuardAndSummon()
+{
+	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 563 ) );		/// June BTI 0x233
+
+	June_SetSelfDestructSummonedNPC( 0x82b );
+
+	if( INVALID_EFFECTSET_HANDLE != m_hOberonGuard )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hOberonGuard );
+
+	m_iJuneSummonNpcUid = -1;
+}
+
+// June 329694b0
+void CX2GUEve::June_ENSI_DIE_FRONT_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+}
+
+// June 329af800: March's Start with the six June self-destruct ids, June's Queen's Throne reset and the +0x9c50 block
+void CX2GUEve::June_ENSI_DIE_FRONT_Start()
+{
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+	June_SetSelfDestructSummonedNPC( 0x655 );
+	June_SetSelfDestructSummonedNPC( 0x656 );
+	June_SetSelfDestructSummonedNPC( 0x180 );
+	June_SetSelfDestructSummonedNPC( 0x207 );
+	June_SetSelfDestructSummonedNPC( 0x2aa );
+	June_SetSelfDestructSummonedNPC( 0x5ae );
+
+	June_EGQueensThroneReset();
+
+	if( m_hEffectSweepParadeTriangle != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectSweepParadeTriangle );
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 329ac350 ClearManeuverCore( true ): Nasod Core, live with CH1q
+	ClearManeuverCore( true );
+#endif ADD_EVE_SYSTEM_2014
+
+	if( NULL != m_pJuneBlock9c50 )
+		m_pJuneBlock9c50->Reset( true );
+}
+
+// June 329af920
+void CX2GUEve::June_ENSI_DIE_FRONT_FrameMove()
+{
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+
+	June_ClearGuardAndSummon();
+}
+
+// June 32969510
+void CX2GUEve::June_ENSI_DIE_FRONT_EventProcess()
+{
+	if ( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+}
+
+// June 32969550
+void CX2GUEve::June_ENSI_DIE_BACK_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+}
+
+// June 329af950: as 329af800
+void CX2GUEve::June_ENSI_DIE_BACK_Start()
+{
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+	June_SetSelfDestructSummonedNPC( 0x655 );
+	June_SetSelfDestructSummonedNPC( 0x656 );
+	June_SetSelfDestructSummonedNPC( 0x180 );
+	June_SetSelfDestructSummonedNPC( 0x207 );
+	June_SetSelfDestructSummonedNPC( 0x2aa );
+	June_SetSelfDestructSummonedNPC( 0x5ae );
+
+	June_EGQueensThroneReset();
+
+	if( m_hEffectSweepParadeTriangle != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectSweepParadeTriangle );
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 329ac350 ClearManeuverCore( true ): Nasod Core, live with CH1q
+	ClearManeuverCore( true );
+#endif ADD_EVE_SYSTEM_2014
+
+	if( NULL != m_pJuneBlock9c50 )
+		m_pJuneBlock9c50->Reset( true );
+}
+
+// June 329afa70
+void CX2GUEve::June_ENSI_DIE_BACK_FrameMove()
+{
+	const float TIME_CREATE_STEP_DUST = 0.32f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+
+	June_ClearGuardAndSummon();
+}
+
+// June 329695b0
+void CX2GUEve::June_ENSI_DIE_BACK_EventProcess()
+{
+	if ( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+}
+
+// June 329cc160: thunk to CX2GUUser::DAMAGE_GROGGY_EventProcess ( vslot 0x5e8 )
+void CX2GUEve::June_ENSI_DAMAGE_GROGGY_EventProcess()
+{
+	DAMAGE_GROGGY_EventProcess();
+}
+
+// June 32969660
+void CX2GUEve::June_ENSI_DAMAGE_DOWN_FRONT_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+// June 329696b0: = March ( the [4] branch rolls GetRandomInt( 0 ) against the percent and both outcomes are the same state )
+void CX2GUEve::June_ENSI_DAMAGE_DOWN_FRONT_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			if( GetRandomInt( 0 ) < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( ENSI_STANDUP_ATTACK_FRONT );
+			}
+			else
+			{
+				StateChange( ENSI_STANDUP_ATTACK_FRONT );
+			}
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			StateChange( ENSI_STANDUP_ATTACK_FRONT );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( ENSI_STANDUP_ROLLING_FRONT_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( ENSI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66 )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32969820
+void CX2GUEve::June_ENSI_DAMAGE_DOWN_BACK_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimer( 0.32f ) == true )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32969860: as 329696b0 with the BACK states
+void CX2GUEve::June_ENSI_DAMAGE_DOWN_BACK_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			if( GetRandomInt( 0 ) < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( ENSI_STANDUP_ATTACK_BACK );
+			}
+			else
+			{
+				StateChange( ENSI_STANDUP_ATTACK_BACK );
+			}
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			StateChange( ENSI_STANDUP_ATTACK_BACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( ENSI_STANDUP_ROLLING_BACK_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( ENSI_STANDUP_ROLLING_BACK_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_BACK );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66 )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 329cc0b0 / 329cc150 / 329cc1e0 / 329cc050 / 329cc0c0: thunks to the user's bounding virtuals ( vslots 0x5d4 .. 0x5e4 )
+void CX2GUEve::June_ENSI_DAMAGE_BOUNDING_DOWN_EventProcess()
+{
+	JuneBoundingDownEventProcess();
+}
+
+void CX2GUEve::June_ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess()
+{
+	JuneBoundingLandCrashEventProcess();
+}
+
+void CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_StartFuture()
+{
+	JuneBoundingUpStateStartFuture();
+}
+
+void CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_Start()
+{
+	JuneBoundingUpStateStart();
+}
+
+void CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_EventProcess()
+{
+	JuneBoundingUpEventProcess();
+}
+
+// June 329699d0: = March
+void CX2GUEve::June_ENSI_DAMAGE_AIR_DOWN_LANDING_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+			StateChange( ENSI_STANDUP_ATTACK_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( ENSI_STANDUP_ROLLING_FRONT_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( ENSI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+	{
+		if( m_InputData.oneZ == true || m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			}
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32969af0 / 32969b70 / 32969bf0 / 32969c70: the four rolling stand-ups end on the same body ( = March )
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_BACK_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_FRONT_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_BACK_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32966110 / 32966150 / 32966190 / 329661d0 / 32966220 / 32966270: CommonStateEnd, then 0.3 s of force and show invincibility ( vslots 0x11c / 0x120 )
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_FRONT_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_BACK_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_FRONT_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_BACK_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+// June 32966210 / 32966260: bare jumps to CommonFrameMove
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_FrameMove()
+{
+	CommonFrameMove();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32969cf0 / 32969d70 ( = March )
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+void CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_End()
+{
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
 }
 
 //}} Iruha : 2026-10-26

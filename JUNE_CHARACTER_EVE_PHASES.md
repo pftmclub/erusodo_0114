@@ -362,6 +362,34 @@ declarations at the end of `X2GuEve.h`, bodies at the end of `X2GuEve.cpp`, each
 - Deploy: `DEPLOY OK: X2_offline.exe is 25,857,024 B, dated 2026-10-26 04:19:19, md5 852dae1226f7571baef1067907cb406f, equal to X2/US_SERVICE/x2.exe (2026-10-26 04:19:12); built at main 7224239c + 7 uncommitted code file(s).`
 - Not run: the `cl /P` "no `::June_GetSkillLevel` definition" probe of the two class `.cpp`s; the `#ifndef` pairs are proven by `flagcheck`, and the CH1b review runs the probe. Nothing to play-test. Next: `/x2-phase char-eve CH1b`.
 
+### CH1b - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a second block at the end of `X2GuEve.cpp`, declarations at the end of the class). **38 of the 39 class-map rows** are new `CX2GUEve::June_*` members; the 39th, `3299b810`, was a CH0 attribution error (the `3299d140` listing runs on past an `int3` into `3299d390`) and is now CH2b's (class map row, CH2b kickoff amended). 38 funcmap rows `Char Eve CH1b`. Nothing registers or calls them.
+
+| June | Member (`June_` prefix) |
+|---|---|
+| `329af800` / `329af950` | ENSI_DIE_FRONT / BACK_Start |
+| `329af920` / `329afa70` | ENSI_DIE_FRONT / BACK_FrameMove |
+| `329694b0` `32969510` / `32969550` `329695b0` | ENSI_DIE_FRONT / BACK_StartFuture, _EventProcess |
+| `32969660` `329696b0` / `32969820` `32969860` | ENSI_DAMAGE_DOWN_FRONT / BACK_FrameMove, _EventProcess |
+| `329699d0` | ENSI_DAMAGE_AIR_DOWN_LANDING_EventProcess |
+| `32969af0` `32969b70` `32969bf0` `32969c70` | ENSI_STANDUP_ROLLING_{FRONT_FRONT, FRONT_BACK, BACK_FRONT, BACK_BACK}_EventProcess |
+| `32966110` `32966150` `32966190` `329661d0` | the four ROLLING _End |
+| `32969cf0` `32969d70` / `32966210` `32966260` / `32966220` `32966270` | ENSI_STANDUP_ATTACK_FRONT / BACK_EventProcess, _FrameMove, _End |
+| `329cc050` `329cc0b0` `329cc0c0` `329cc150` `329cc1e0` / `329cc160` | thunks: ENSI_DAMAGE_BOUNDING_UP_Start / DOWN_EventProcess / UP_EventProcess / LANDCRASH_EventProcess / UP_StartFuture; ENSI_DAMAGE_GROGGY_EventProcess |
+| `3298cfe0` `32997c10` `3299d140` `329ae670` `3299bcd0` | helpers: EGQueensThroneReset, ResetLinkOverChargeIllusion, SetSelfDestructSummonedNPC( int ), ClearGuardAndSummon, `JuneEveBlock9c50::Reset( bool )` |
+
+**What differs from March** (every damage / stand-up / rolling body is March's, line for line, checked against the listings): the Die Start/FrameMove pair. `Start` calls `SetSelfDestructSummonedNPC` for six ids (`0x655` `0x656` `0x180` `0x207` `0x2aa` `0x5ae`), resets the Queen's Throne (also `m_dMaxLifeTime = 30.0`), destroys the Sweep Parade handle (`+0x99c0`), and resets the `+0x9c50` block; `FrameMove` is `DieFrameMove` then `329ae670` (BTI `0x233` erased, id `0x82b` NPC, Oberon Guard effect set stopped, summon uid -1). In `June_SetSelfDestructSummonedNPC` the Atomic Shield and ids `0x655` `0x656` `0x82b` are killed with `SetNowHp( 0 )` (NPC vslot `0xf4` = slot 61, funcmap `3202ff60`); Ferdinand (`0x5ae`) and the watches (`0x180` `0x207`) skip an NPC that already self-destructs. The bounding / groggy rows are thunks to `CX2GUUser`'s June virtuals (`JuneBounding*`, `DAMAGE_GROGGY_EventProcess`); `Always.h`'s `#error` for the flag now also needs `SERV_IRUHADEV_JUNE_BOUNDING_STATE`.
+
+**Mapped to March members (by use + ctor `3299bd70`):** `+0x96a8` `m_sEGQueensThrone`, `+0x976c` `m_hOberonGuard`, `+0x99c0` `m_hEffectSweepParadeTriangle`. **New June-only, under the flag, set in the ctor:** `m_pJuneBlock9c50` (+0x9c50, pointer to a 0x14-byte block made in the otherwise dead `3297a7b0`; nested struct `JuneEveBlock9c50`, fields unnamed by meaning) and `m_iJuneSummonNpcUid` (+0x9c08, 64 bit). CH1k's ctor / dtor map owns their final names.
+
+**Left for others:** `ClearManeuverCore( true )` (`329ac350`) sits under `#ifdef ADD_EVE_SYSTEM_2014` (undefined today) in both Die Starts; CH1q makes it live (kickoff amended). No JUNE_BUGS row: nothing here looks unintended in June (the DOWN roll whose two outcomes are one state is March's own).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h KTDXLIB/Always.h`: `files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `2 deleted line(s)` (the flag's own `#error` pair in `Always.h`, widened), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-26 04:43:37, md5 9ec66c5f923f87058917836be5ff2fb4, equal to X2/US_SERVICE/x2.exe (2026-10-26 04:43:30); built at main 9caac394 + 3 uncommitted code file(s).`
+
+Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1b-review.md` (also spot-checks CH1a2). Next: `/x2-phase char-eve CH1b review` (Opus 5.5 high), then CH1c.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

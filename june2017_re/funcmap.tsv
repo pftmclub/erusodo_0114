@@ -4855,3 +4855,41 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 329cc1f0	CX2GUEve::June_ENSI_DASH_StartFuture	PORTED	Char Eve CH1a: inert ( not wired until CH1 ); ENSI_DASH / ENSI_RIDING_DASH StartFuture: a thunk to DashStartFuture ( vslot 0x5fc, June's override 32965f80 is CH1k )
 31fceab0	CX2GUUser::June_GetSkillLevel	PORTED	Char Eve CH1a2: the one shared home under SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS; Aisha's and Eve's private copies compiled out; later character ports call it, never copy it
 32007b10	CX2GUUser::June_GetLearnedSkillAbilityValue	PORTED	Char Eve CH1a2: the one shared home under SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS; Aisha's and Eve's private copies compiled out
+3298cfe0	CX2GUEve::June_EGQueensThroneReset	PORTED	Char Eve CH1b: inert; March EG_QueensThroneData::Reset (flag off, bone id 0, 4 major meshes and 2 major particles destroyed) plus m_dMaxLifeTime = 30.0; +0x96a8 = m_sEGQueensThrone (+0x9768 = m_TimerEGQTRefreshMsg, +0x976c = m_hOberonGuard)
+32997c10	CX2GUEve::June_ResetLinkOverChargeIllusion	PORTED	Char Eve CH1b: inert; June body is BTI 0x199 erased then, for my unit, UpdateSkillSlotUI( false ) (322de5d0); March also reset the Ferdinand life time / uid / cool time. Also called from 31fc8ac8
+3299bcd0	CX2GUEve::JuneEveBlock9c50::Reset	PORTED	Char Eve CH1b: inert; +0x9c50 is a pointer to a 0x14-byte block (made in 3297a7b0, owner CH3a): stops its two effect-set handles (+4, +8) through local copies; the argument true clears flag +0, floats +0xc = -1 / +0x10 = 1.0 and both handles
+3299d140	CX2GUEve::June_SetSelfDestructSummonedNPC	PORTED	Char Eve CH1b: inert; March SetSelfDestructSummonedNPC with ids 0x5ae (Ferdinand: StartSelfDestruction 0 + 32997c10) / 0x180, 0x207 (3.0 s + CountDown3) when not already self-destructing, and 0x2aa / 0x655 / 0x656 / 0x82b killed by SetNowHp( 0 ) (NPC vslot 0xf4); 31e4d560 = StartSelfDestruction( float ) (+0x8b40 flag, +0x8b44 time, +0x8b4c timer)
+329ae670	CX2GUEve::June_ClearGuardAndSummon	PORTED	Char Eve CH1b: inert; BTI 0x233 erased (3229e160), self-destruct id 0x82b, m_hOberonGuard (+0x976c) stopped, the 64-bit summon uid (+0x9c08, June-only) = -1; tail of DIE FrameMove
+329af800	CX2GUEve::June_ENSI_DIE_FRONT_Start	PORTED	Char Eve CH1b: inert; March plus the six June self-destruct ids, 3298cfe0 (Queens Throne), the Sweep Parade handle (+0x99c0) and 3299bcd0( true ) on +0x9c50; ClearManeuverCore( true ) (329ac350, CH1q) stays under ADD_EVE_SYSTEM_2014
+329af950	CX2GUEve::June_ENSI_DIE_BACK_Start	PORTED	Char Eve CH1b: inert; as 329af800
+329af920	CX2GUEve::June_ENSI_DIE_FRONT_FrameMove	PORTED	Char Eve CH1b: inert; DieFrameMove( 0.19, 1.12 ) then 329ae670
+329afa70	CX2GUEve::June_ENSI_DIE_BACK_FrameMove	PORTED	Char Eve CH1b: inert; DieFrameMove( 0.32, 1.12 ) then 329ae670
+329694b0	CX2GUEve::June_ENSI_DIE_FRONT_StartFuture	PORTED	Char Eve CH1b: inert; = March
+32969550	CX2GUEve::June_ENSI_DIE_BACK_StartFuture	PORTED	Char Eve CH1b: inert; = March
+32969510	CX2GUEve::June_ENSI_DIE_FRONT_EventProcess	PORTED	Char Eve CH1b: inert; = March
+329695b0	CX2GUEve::June_ENSI_DIE_BACK_EventProcess	PORTED	Char Eve CH1b: inert; = March
+32969660	CX2GUEve::June_ENSI_DAMAGE_DOWN_FRONT_FrameMove	PORTED	Char Eve CH1b: inert; = March (EventTimerOneshot 0.19 -> CreateStepDust)
+32969820	CX2GUEve::June_ENSI_DAMAGE_DOWN_BACK_FrameMove	PORTED	Char Eve CH1b: inert; = March (EventTimer 0.32)
+329696b0	CX2GUEve::June_ENSI_DAMAGE_DOWN_FRONT_EventProcess	PORTED	Char Eve CH1b: inert; = March (the [4] branch rolls GetRandomInt( 0 ) vs +0x4060; both outcomes are ATTACK_FRONT 0xa2); falls: AIR_FALL 0x26
+32969860	CX2GUEve::June_ENSI_DAMAGE_DOWN_BACK_EventProcess	PORTED	Char Eve CH1b: inert; as 329696b0 with ATTACK_BACK 0xa3, ROLLING_BACK_FRONT 0xa0 / _BACK 0xa1, STANDUP_BACK 0x21
+329699d0	CX2GUEve::June_ENSI_DAMAGE_AIR_DOWN_LANDING_EventProcess	PORTED	Char Eve CH1b: inert; = March
+32969af0	CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32969b70	CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_BACK_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32969bf0	CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_FRONT_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32969c70	CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_BACK_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32969cf0	CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32969d70	CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_EventProcess	PORTED	Char Eve CH1b: inert; = March (ATTACK: animation end first, then the line / dash / wait test)
+32966110	CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_FRONT_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+32966150	CX2GUEve::June_ENSI_STANDUP_ROLLING_FRONT_BACK_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+32966190	CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_FRONT_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+329661d0	CX2GUEve::June_ENSI_STANDUP_ROLLING_BACK_BACK_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+32966220	CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+32966270	CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_End	PORTED	Char Eve CH1b: inert; = March (CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3)
+32966210	CX2GUEve::June_ENSI_STANDUP_ATTACK_FRONT_FrameMove	PORTED	Char Eve CH1b: inert; = March (bare jump to CommonFrameMove)
+32966260	CX2GUEve::June_ENSI_STANDUP_ATTACK_BACK_FrameMove	PORTED	Char Eve CH1b: inert; = March (bare jump to CommonFrameMove)
+329cc050	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_Start	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5e0 = JuneBoundingUpStateStart 31fd02d0 (Eve does not override it)
+329cc0b0	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_DOWN_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5d4 = JuneBoundingDownEventProcess 31fd0230 (Eve does not override it)
+329cc0c0	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5e4 = JuneBoundingUpEventProcess 31fd0340 (Eve does not override it)
+329cc150	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5d8 = JuneBoundingLandCrashEventProcess 31fd0260 (Eve does not override it)
+329cc1e0	CX2GUEve::June_ENSI_DAMAGE_BOUNDING_UP_StartFuture	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5dc = JuneBoundingUpStateStartFuture 31fc9d20 (Eve does not override it)
+329cc160	CX2GUEve::June_ENSI_DAMAGE_GROGGY_EventProcess	PORTED	Char Eve CH1b: inert; thunk to vslot 0x5e8 = CX2GUUser::DAMAGE_GROGGY_EventProcess 31fcbbe0 (Eve does not override it)
