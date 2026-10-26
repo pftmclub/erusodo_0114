@@ -44444,12 +44444,6 @@ namespace _CONST_EVE_JUNE_CH1l_
 		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
 	}
 
-	/// June NPC byte +0x8751 ( no March member ): only 322ec9b1 sets it, for NPC 3112; June's default 0 stands in
-	bool JuneEveNpcByte8751( const CX2GameUnit* /*pUnit_*/ )
-	{
-		return false;
-	}
-
 	/// June 32205440: the aura accelerator's core particle by skill id ( March's table plus the June ids )
 	const WCHAR* JuneEveAccelCoreParticleName( const int iSkillID_ )
 	{
@@ -44699,7 +44693,8 @@ float CX2GUEve::June_Vslot65c( CX2GameUnit* pUnit_ )
 	if( JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO != iNpcID && JUNE_CH1L_NUI_NASOD_WATCH_EVE != iNpcID && JUNE_CH1K_NUI_1621 != iNpcID && JUNE_CH1K_NUI_1622 != iNpcID )
 		return fValue;
 
-	if( false == JuneEveNpcByte8751( pUnit_ ) )
+	/// June +0x8751 = CX2GUNPC::m_FlagList[0] ( GetFlag_LUA 31e4d2a0, SetFlag_LUA 31e4d280 )
+	if( false == static_cast<CX2GUNPC*>( pUnit_ )->GetFlag_LUA( 0 ) )
 		return fValue;
 
 	float fThreshold = 0.0f;
