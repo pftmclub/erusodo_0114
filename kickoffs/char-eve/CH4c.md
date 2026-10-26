@@ -37,3 +37,7 @@ Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INI
 ## Amended by CH1k (2026-10-26)
 
 - CH1k declared the Code Recovery fields `329c47e0` fills: `m_fJuneCodeRecoveryCoolTime` (`+0x9c68`), `m_fJuneCodeRecoveryUpHpRate` (`+0x9c70`), `m_fJuneCodeRecoveryNoneSummonMpCostRate` (`+0x9c74`); `m_fJuneCodeRecoveryConsumeMp` (`+0x9c6c`) and `m_iJuneAddAirDashCount` (`+0x9c60`) were CH1a's. `June_InitComponent` reads the ten keys; `June_UpdateEveRecoveryTooltip` (`329c3da0`) builds the text and ends with `/// June 322dee90( wstrTooltip ): call added in CH4c`. `June_Destructor` ends with `/// June 322e65c0( 0, 0.0 ): call added in CH4c`. Add both calls with the 7ah statics.
+
+## Amended by CH1m (2026-10-26)
+
+- June registers `ENSI_EVE_RECOVERY` (id 238) last in `InitStateCommon` `329b8030` @1405: Start `329b57a0`, EventProcess `31fcc350` (a CX2GUUser callback with no funcmap row yet: identify it). CH1m left the comment line `/// June 329b8030 @1405: ENSI_EVE_RECOVERY ( Code Recovery, CH4c registers it )` at the end of `CX2GUEve::June_InitStateCommon`: replace it with the registration, drop 238 from `ROUTED` in `june2017_re/char_eve/ch1m_regcheck.py` and re-run it (`0 problems`).

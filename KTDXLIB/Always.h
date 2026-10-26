@@ -10123,6 +10123,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-26
+// Description: June character port ( Eve ) Phase CH1m - Eve runs on June's class core: InitState calls June_InitState ( June's registration,
+//              329ba9c0 / 329b8030 ) and the later CH1 sub-phases switch the virtuals over. Stays undefined until CH1's final sub-phase
+//              ships it with June's Eve_Nasod.lua ( one deploy unit ). Needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE.
+//              Revert: undefine the flag ( JUNE_CHAR_EVE_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-26
 // Description: June character port ( Eve ) Phase CH1a2 - CX2GUUser::June_GetSkillLevel / June_GetLearnedSkillAbilityValue ( June 31fceab0 / 32007b10 ),
 //              the one home for the pair; Aisha's and Eve's private copies are compiled out. Needs JUNE_TRANSCEND_UNIT ( the hyper-class test reads m_iUnitClassTran ).
 //              Revert: undefine the flag ( JUNE_USER_SKILL_LEVEL_HELPERS ).

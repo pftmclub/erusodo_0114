@@ -36,3 +36,8 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 ## Amended by CH1l3 (2026-10-26)
 
 - The dev free-skill gate around June's cool-time / MP / hyper-stone block is already wired in `CX2GUEve::June_SpecialAttackLookup` ( CH1l3, as the pilot's, `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` ); CH1n wires the gate in `329c8a00`'s check only.
+
+## Amended by CH1m (2026-10-26)
+
+- CH1m left **no** base callback on a stand-in: every CX2GUUser target in Eve's two registrars resolves to a member Aisha's CH1j / CH1k already ported (`JuneStartStateStart`, `JuneDamageSmall/BigEventProcess`, `JuneDamageBigStart`, ...), or to the new `CX2GUUser::JuneHyperModeEnd` (`3201b8e0` = `32006c00`). CH1n's scope is the `329c8a00` head and the gate.
+- Re-run `python june2017_re/char_eve/ch1m_regcheck.py` after any edit to `June_InitState` / `June_InitStateCommon` (must stay `0 problems`).

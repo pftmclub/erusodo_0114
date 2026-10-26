@@ -52,3 +52,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 
 - Checklist 7an: the `GetCharacterSpecializationB` reader `329b407b` sits in `329b4060` (`DoParrying`, this phase), not in `329b3cc0` as CH0 said. CH1l3's ADD_EVE_SYSTEM_2014 blocks ( `June_SpecialAttackCooldown` gauge gain, `June_SpecialAttackLookup` parry refusal )
   are written against the March member names `m_fManeuverGauge` / `m_pManeuverCore` and compile with the flag defined ( probe ).
+
+## Amended by CH1m (2026-10-26)
+
+- June registers the three parrying states in `InitStateCommon` `329b8030` (@1385 / @1391 / @1401, ids 224-226). CH1m left three comment lines at the end of `CX2GUEve::June_InitStateCommon` (`/// June 329b8030 @1385: ENSI_PARRYING_SMALL ( Nasod Core, CH1q registers it )` ...): replace them with the registrations, callbacks from `june2017_re/char_eve/ch0_reg.tsv` (rows 1385-1401; SMALL and PARRYING share the four callbacks), then drop ids 224-226 from `ROUTED` in `ch1m_regcheck.py` and re-run it (`0 problems`).

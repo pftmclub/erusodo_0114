@@ -25882,6 +25882,22 @@ bool CX2GUUser::JuneSkillSlotKey::IsKeyReleased( const InputData& kInputData_ ) 
 	}
 	return true;
 }
+#ifndef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( CH1m ) needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( JuneIsHyperModeBuffPending )
+#endif
+// June 3201b8e0 ( vslot 0x604 ) = 32006c00 ( vslot 0x608 ): the base hyper / riding-hyper state end, vslot 0xc0 = ApplyHyperModeBuff
+void CX2GUUser::JuneHyperModeEnd()
+{
+	CommonStateEnd();
+
+	if( true == JuneIsHyperModeBuffPending() )
+	{
+		ShowMinorParticleHyperModeTrace();
+		ApplyHyperModeBuff();
+	}
+
+	m_iLastStateHyperModeCount = 0;
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)

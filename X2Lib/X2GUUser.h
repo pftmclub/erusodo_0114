@@ -3646,6 +3646,7 @@ public:
 			bool IsKeyReleased( const InputData& kInputData_ ) const;		/// June 31fc89a0
 		};
 		JuneSkillSlotKey m_kJuneSkillSlotKey;	/// June +0x8b58
+		void JuneHyperModeEnd();	/// June 3201b8e0 ( vslot 0x604 ) = 32006c00 ( vslot 0x608 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;

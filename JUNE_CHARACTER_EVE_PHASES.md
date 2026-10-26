@@ -1138,6 +1138,46 @@ The seven June `CX2GUUser` skill-use helpers and their six fields now live once,
 - **In game:** Aisha's skill use goes through these bodies. Skill 900 (the couple skill) is no longer refused in dungeons. Nothing else changes.
 - Next: `/x2-phase char-eve CH1m` (Opus 5.5 high).
 
+### CH1m - Done (2026-10-26)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`; the call sits behind the new `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`, added to `Always.h` commented out):
+- `June_InitStateCommon` (`329b8030`, 91 registrations) and `June_InitState` (`329ba9c0`, 43), whole, at the end of `X2GuEve.cpp` (block `//{{ ... CH1m`).
+  `CX2GUEve::InitState` runs `June_InitState()` under `_LIVE`, March's body in the `#else`.
+- **How it was derived.** The C++ is generated from `ch0_reg.tsv` (callbacks through the header `/// June` comments and funcmap), then checked two ways:
+  `june2017_re/char_eve/ch1m_regsim.py` walks both decompiles once per class (5 18 19 26 108 109 116; `ch1m_reg_by_class.tsv`, 904 rows), and
+  `ch1m_regcheck.py` parses the C++ per class: **771 registrations match slot by slot, 0 problems** (hooks and routed ids excluded).
+- **Gates, June's:** unit-data class @312 / @368 / @418 (18 / 108 `COMBO_ZZZdownZZ`, 19 / 109 `COMBO_XXZ4`, 26 / 116 the two EPR combos); `XXfrontXX`,
+  `XXdownXX` and the eight EBS states for every class; templet class (`+0xaf0`, null-tested as June) @995 (18 / 108 dash combos + `EEG_DASH_JUMP_ZX / ZZX`,
+  26 / 116 EPR dash combos, 109 EP dash combos), @1105 (108 NS + ECN, 109 EP + ECE, 116 `ECB_DASH_XX`), @1233 (19 / 109 `DASH_JUMP_COMBO_XZ`, `DASH_COMBO_ZX`).
+  June wins: `COMBO_ZZZdownZZ` is now 18 / 108 only (March also gave it to 19 / 109).
+- **Ids by name** through March's own registration of each table: 134 June ids map one-to-one (`ch1m_idmap.tsv`). 72 = `USI_RIDING_START` (March writes
+  `GetRidingStartStateID()`), 180 = `ENSI_JUNE_DASH_COMBO_ZX`. The numbers stay March's, as the pilot decided in CH1j: offline nothing reads them, and every
+  `June_*` body names its states. This settles the enumerator question CH1d / CH1e / CH1g routed here.
+- **Callbacks:** every target resolves to a `June_*` member (CH1a-CH1l4) or a `CX2GUUser` member (March's, or Aisha's CH1j / CH1k ones: `JuneStart*`,
+  `JuneWin/LoseStateStart`, `JuneRandomLoseEventProcess`, `JuneDamageSmall/Big*`). No stand-ins. Hyper id 23 takes `JuneGetHyperModeTableName( false )`
+  (no Init / CameraMove slot in June, as March); its FrameMove `32adf320` = vslot 0x600 = `June_HyperModeFrameMove`.
+- **New `CX2GUUser::JuneHyperModeEnd`** (`3201b8e0` = `32006c00`, flag `_CORE`, needs `JUNE_TRANSCEND_ENGINE`): the base hyper and riding-hyper StateEnd Eve
+  inherits (vslot 0x604 via `329cc0e0`; vslot 0x608 via the Aisha-folded `32cf0fa0`). March's `HyperModeEnd` lacks its middle block: when the `+0x952c`
+  pending byte is set, `ShowMinorParticleHyperModeTrace` + `ApplyHyperModeBuff` (the transcendence T5 note left these base readers to the class ports).
+- **Hooks:** `InitStateCommonRandom` (event states `3202b110` + roll `31fe22d0`), `JuneInitWaitStateChange( "ENSI_WAIT_STATE_CHANGE" )` (7h),
+  `JuneInitBoundingStates( "ENSI_" )` (7l). WIN2 / LOSE2 flags as June (`@329baead` / `@329baf14`). Tail: `InitPassiveSkillState` (March's until CH4a
+  ports `3297f290`), `June_InitEquippedActiveSkillState( false )`, `CX2GUUser::InitState`.
+- **Left out, comment lines with owners:** phoenix run 123-126 (PvP), dance 127-129 (Stage 10), riding 93-96, the `RIDING_ATTACK_X` frame move `32002f70`
+  and the riding-die end (Stage 17), die end `3202a7d0` (already run in `StateChange`), parrying 224-226 -> CH1q, recovery 238 -> CH4c (both kickoffs amended).
+  The March-only `_HYPER` states (`OBERON_GUARD`, `ATOMIC_SHIELD`, `ILLUSION_STRIKE`) are registered in March's `SetEquippedSkillFuncBySkillSlotIndex`, so
+  CH1n's head drops them. **JUNE_BUGS:** none new (`RIDING_DAMAGE_BACK` is row 422; the event states' tables live in `CommonSkillState.lua`).
+
+**Checks.** `cl /Zs` (US_SERVICE defines): `X2GuEve.cpp` with `_LIVE` off and on, and `X2GUUser.cpp`: 0 errors each. `cl /P` with `_LIVE`: both registrars,
+the call and `JuneInitBoundingStates( "ENSI_" )` are present; `JuneHyperModeEnd` is present in the `X2GUUser` `.i`. `enumscan --check X2GuEve.cpp X2GUUser.cpp`: 0 A/B.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2GuEve.cpp X2GuEve.h X2GUUser.cpp X2GUUser.h`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+OTHER is the `_LIVE` pair in `InitState`. `_LIVE` reports `FAIL: the flag is not #defined anywhere tracked`, by design until CH1 final (as Aisha's CH1j).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,100,224 B, dated 2026-10-26 23:08:17, md5 2438acc35dfbdb8315332d2c08b8990c, equal to X2/US_SERVICE/x2.exe (2026-10-26 23:08:10); built at main c5ac3186 + 7 uncommitted code file(s).`
+
+**In game:** nothing changes (`_LIVE` is undefined). Next: `/x2-phase char-eve CH1m review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

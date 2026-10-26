@@ -3206,5 +3206,9 @@ protected:
 	void		June_SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ );
 	void		June_AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ );
 	static void	June_AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ );	/// the first lines of June's 329c12a0 cases
+
+	/// June character port Phase CH1m: June's state registration; InitState calls June_InitState only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	void		June_InitStateCommon();					/// June 329b8030
+	void		June_InitState();						/// June 329ba9c0 ( vslot 0x7a4 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };
