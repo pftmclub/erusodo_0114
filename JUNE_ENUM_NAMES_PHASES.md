@@ -52,7 +52,7 @@ Known class-C candidates from Eve: skills 25419 (`JUNE_*_P_EBS_OPEN_MIND`), 2540
 - **Comments:** one short line (CLAUDE.md, 2026-10-20). Remaining file-local constants live in a named `_CONST_<CLASS>_JUNE_<phase>_` namespace plus `using` (CLAUDE.md, 2026-10-26); never `namespace { }`.
 - **Scope rule** (`JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules", *Scope*): a literal outside the listed files, or a studio (non-June) literal, is identified in the Done note and given its own bullet, not chased.
 - **CP949 files** (`X2GuEve.*`, `X2GUUser.*`, `X2GUArme_VioletMage.*`, `X2SkillTree.*`, ...): `bytepatch.py` only, `file` + `git diff --stat` after.
-- **Conflict with `char-eve`:** N3 edits `X2GuEve.cpp`, which every CH1l2..CH4c phase edits (one code phase at a time there). N3 runs between two char-eve phases, and says so in both STATUS blocks. Later Eve phases name ids from the first line.
+- **`char-eve` is paused (user, 2026-10-26) until this plan closes**, so N3 has `X2GuEve.cpp` to itself. If char-eve resumes before N3 is done, N3 runs between two of its phases, never beside one. Resumed Eve phases (CH1l2 onward) then name ids from the first line, under the NZ rule.
 
 ## Starting context
 
@@ -106,7 +106,7 @@ Run with: Sonnet 5.5 / high. Gate: `enumscan.py --check` on the three files.
 
 ## Phase NZ - Close (Opus)
 
-Scope: re-run `enumscan.py`: zero A / B rows in the eleven files, every C row has its verdict; review N2..N5c commits against the tsv; `flagcheck --range` over the plan's commits. Write the standing rule into `CLAUDE.md` and `kickoffs/TEMPLATE.md` (**needs the user's yes first**; ask once): "A June id that has a name in June's `Enum.lua` is written by that name (C++ member added under a flag if missing). A value with no Enum entry stays a number with a one-line comment." Save a memory entry. `MODS.md`: flag `SERV_IRUHADEV_JUNE_ENUM_NAMES` in the June flag index with its revert line. STATUS and the backlog get the closed plan.
+Scope: re-run `enumscan.py`: zero A / B rows in the eleven files, every C row has its verdict; review N2..N5c commits against the tsv; `flagcheck --range` over the plan's commits. Write the standing rule into `CLAUDE.md` (a `## Rule: no hardcoded enum literals (user, 2026-10-26)` section), `kickoffs/TEMPLATE.md` and the x2-phase skill's step 5 (**the user said yes on 2026-10-26; no question needed**): "An id that has a name in an Enum (June's `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself (a `.tsv` of ids), not code." Update the `june-enum-names-plan` memory entry to a standing-rule entry. `char-eve` resumes only after this closes; amend its kickoffs' Rules line to point at the new rule. `MODS.md`: flag `SERV_IRUHADEV_JUNE_ENUM_NAMES` in the June flag index with its revert line. STATUS and the backlog get the closed plan.
 Run with: Opus 5.5 / high. Gate: scanner `--check` exits 0 on all eleven files; deployed once (`DEPLOY OK`); smoke test below.
 
 ## Play-test hand-off (once, at NZ)

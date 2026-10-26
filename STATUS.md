@@ -983,7 +983,7 @@ Plan `JUNE_CHARACTER_EVE_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3d, CH4c, CH5 reviews | save (test characters), plan doc | `CH6.md` |
 | Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, Aisha template, backlog | `Z.md` |
 
-Running together: CH0 is read-only and runs beside anything. CH1-CH4 all edit `X2GuEve.*`: one at a time, in table order. CH5 runs beside CH2-CH4. CH1a may start beside CH0b (inert code). `june-enum-names` N3 also edits `X2GuEve.cpp`: it runs between two CH phases, never beside one.
+Running together: CH0 is read-only and runs beside anything. CH1-CH4 all edit `X2GuEve.*`: one at a time, in table order. CH5 runs beside CH2-CH4. CH1a may start beside CH0b (inert code). **Paused (user, 2026-10-26) until `june-enum-names` closes**; it resumes under that plan's no-hardcoded-enum-literals rule.
 
 ## june-enum-names - June ids written by enum name (refactor)
 
@@ -996,14 +996,14 @@ Plan `JUNE_ENUM_NAMES_PHASES.md` · branch `main` · log tag none (compile-time 
 | N0 (scanner) | ready | Sonnet 5.5 / high | - | `tools/enumscan.py`, `june2017_re/enum_literals.tsv`, `tools/README.md` | `N0.md` |
 | N1 (investigate class C) | waiting | Opus 5.5 / high | N0 | tsv, plan doc | `N1.md` |
 | N2 (register members) | waiting | Sonnet 5.5 / high, Opus review | N1 | `X2SkillTree.h`, `X2UnitManager.h`, `X2BuffFactor.h`, `XSLUnit.h`, `Always.h`, `Enum.lua` | `N2.md` |
-| N3 (Eve) | waiting | Sonnet 5.5 / high, Opus review | N2 review; **not while a char-eve code phase runs** | `X2GuEve.cpp` | `N3.md` |
+| N3 (Eve) | waiting | Sonnet 5.5 / high, Opus review | N2 review (char-eve is paused until this plan closes) | `X2GuEve.cpp` | `N3.md` |
 | N4 (Aisha) | waiting | Sonnet 5.5 / high, Opus review | N2 review | `X2GUArme_VioletMage.cpp` | `N4.md` |
 | N5a (X2GUUser) | waiting | Sonnet 5.5 / high | N2 review | `X2GUUser.cpp` | `N5a.md` |
 | N5b (skill tree + UI) | waiting | Sonnet 5.5 / high | N2 review | `X2SkillTree.cpp`, `X2UISkillTreeNew2015.cpp`, `X2UIInventory.cpp`, `X2KeyPad.cpp` | `N5b.md` |
 | N5c (units / NPC / game) | waiting | Sonnet 5.5 / high | N2 review | `X2GameUnit.cpp`, `X2GUNPC.cpp`, `X2Game.cpp` | `N5c.md` |
-| NZ (close) | waiting | Opus 5.5 / high, then user smoke test | N3, N4, N5a-c | `CLAUDE.md` + `kickoffs/TEMPLATE.md` (standing rule, needs the user's yes), `MODS.md`, memory | `NZ.md` |
+| NZ (close) | waiting | Opus 5.5 / high, then user smoke test | N3, N4, N5a-c | `CLAUDE.md` + `kickoffs/TEMPLATE.md` + x2-phase skill (standing rule, user said yes 2026-10-26), `MODS.md`, memory | `NZ.md` |
 
-Running together: N0 and N1 touch no game code and run beside anything. N3 edits `X2GuEve.cpp`: run it between two char-eve phases, never beside one. N3, N4, N5a-c touch different files and can run together (each waits its own turn in the build queue).
+Running together: N0 and N1 touch no game code and run beside anything. **char-eve is paused (user, 2026-10-26) until NZ closes**, so N3 has `X2GuEve.cpp` to itself. N3, N4, N5a-c touch different files and can run together (each waits its own turn in the build queue).
 
 ## Other plans
 

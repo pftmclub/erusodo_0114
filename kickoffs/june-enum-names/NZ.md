@@ -17,4 +17,4 @@ python tools/docsection.py JUNE_ENUM_NAMES_PHASES.md "Starting context" "Rules" 
 
 ## Task
 
-Close the plan per the phase section. Ask the user once for the yes on the standing rule before writing it into `CLAUDE.md` and `kickoffs/TEMPLATE.md`. Delegate the scanner re-run, `flagcheck --range`, build + deploy and the log read to subagents; keep the review of N2..N5c against the tsv. Finish with the play-test hand-off in the plan doc.
+Close the plan per the phase section. Write the standing rule (user said yes, 2026-10-26: no hardcoded enum literals) into `CLAUDE.md`, `kickoffs/TEMPLATE.md` and the x2-phase skill, wording in the plan doc; then amend char-eve's Rules line so the paused plan resumes under it. Delegate the scanner re-run, `flagcheck --range`, build + deploy and the log read to subagents; keep the review of N2..N5c against the tsv. Finish with the play-test hand-off in the plan doc.
