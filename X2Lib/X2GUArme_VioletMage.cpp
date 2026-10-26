@@ -21518,7 +21518,7 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GUArme_VioletMage::GetSkillUse
 // Float constants that unpacked_x2.exe stores as qwords are read as doubles ( 45.0 = LINE_RADIUS * 1.5f, 40.0, 3.0, 0.5, 1.2, 0.7 ... );
 // the values checked against June's bytes are listed in the Done note.
 
-namespace
+namespace _CONST_ARME_JUNE_CH1a_
 {
 	/// June CX2Game +0xc20 ( one byte ) has no March member. Its constructor 32306600 @323077a6 clears it and nothing else in June writes it
 	/// ( CH1a review: byte, setcc, word and dword writes at +0xc20 scanned over all of .text ), so false is June's value. Read by 32cd0200, 32cd21d0.
@@ -21542,6 +21542,7 @@ namespace
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1a_;
 
 //AVSI_WAIT
 // June 32cb6f70
@@ -22958,7 +22959,7 @@ void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess()
 //   - The inlined XOR-protected values of June ( a ^ b ^ &a ) are read as plain members: GetDashSpeed() ( +0x423c * +0x49c4 ), GetJumpSpeed()
 //     ( +0x4a78 ) and the two m_ExtraDamagePack times ( +0x2480 = m_EnchantShock, +0x1730 = m_Frozen: the order of March's test ).
 
-namespace
+namespace _CONST_ARME_JUNE_CH1b_
 {
 	/// June RNSI_A_AISHA_TELEPORT_UPGRADE ( 0x56c8 ), RNSI_P_AVP_LIMITED_MANA_MANAGEMENT ( 0x5787 ), RNSI_P_ADW_ADVANCED_TELEPORTATION ( 0x578b ):
 	/// June's Enum.lua ids ( the C++ SKILL_ID enum is March's numbering ).
@@ -22983,6 +22984,7 @@ namespace
 	{
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1b_;
 
 //AVSI_DIE_FRONT / AVSI_DIE_BACK ( June registers the four DIE_FRONT callbacks for AVSI_RIDING_DIE too; the riding attacks register no FrameMove, CH0c map )
 // June 32cb6ed0: DieFrameMove 31ffcba0( 0.19, 1.12 )
@@ -23828,7 +23830,7 @@ void CX2GUArme_VioletMage::June_RidingHyperModeEnd()
 // Inert June ground combos ( class map phase CH1c ); nothing registers or calls them until CH1.
 // June's second-skin anim ( +0x8e90 ) is Luciel's, so m_pXSkinAnimFuture is used throughout.
 
-namespace
+namespace _CONST_ARME_JUNE_CH1c_
 {
 	/// June Enum.lua skill ids ( 0x5606 / 0x5618 ); the C++ SKILL_ID enum is March's numbering.
 	const int JUNE_RNSI_SA_ABM_MAGICAL_MAKEUP					= 22022;
@@ -23851,6 +23853,7 @@ namespace
 		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1c_;
 
 /// The 12 keys of ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C and the 14 of the _ZXC form.
 #define JUNE_ARME_ANY_KEY_C \
@@ -26599,11 +26602,12 @@ void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_END_EventProcess()
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1e
 //{{ Iruha : 2026-10-20 // June character pilot Phase CH1f ( JUNE_CHARACTER_AISHA_PHASES.md )
 /// Inert June Dark Magician / Void Princess line states ( class map phase CH1f ); nothing registers or calls them.
-namespace
+namespace _CONST_ARME_JUNE_CH1f_
 {
 	/// June Enum.lua skill id 0x56c9; the C++ SKILL_ID enum is March's numbering.
 	const int JUNE_RNSI_A_AVP_SUMMON_BAT_HEAVY					= 22217;
 }
+using namespace _CONST_ARME_JUNE_CH1f_;
 
 #define JUNE_ARME_ANY_KEY_C \
 	( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true \
@@ -28158,7 +28162,7 @@ void CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove()
 //{{ Iruha : 2026-10-20 // June character pilot Phase CH1h ( JUNE_CHARACTER_AISHA_PHASES.md )
 // Inert June lifecycle, render and reaction overrides ( class map phase CH1h ); nothing calls them until CH1.
 
-namespace
+namespace _CONST_ARME_JUNE_CH1h_
 {
 	/// June CX2Unit +0x3c ( read by 31fceab0 as the transcended test ): Transcendence has no source yet ( Stage 6 ), so June's empty value.
 	bool June_UnitFlag3c( const CX2Unit* pUnit_ )
@@ -28180,6 +28184,7 @@ namespace
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1h_;
 
 // June 32cb6e00
 void CX2GUArme_VioletMage::June_DamageReact( CX2DamageManager::DamageData* pDamageData_ )
@@ -29045,7 +29050,7 @@ void CX2GUArme_VioletMage::June_Destructor()
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
 // Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); nothing calls them until CH1.
 
-namespace
+namespace _CONST_ARME_JUNE_CH1i_
 {
 	// June skill ids ( june2017_re/char_arme/ch0_state_skill.tsv )
 	const int JUNE_CH1I_ETC_WS_COMMON_LOVE					= 900;
@@ -29107,6 +29112,7 @@ namespace
 		return false;
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1i_;
 
 // June 32cb6ea0: a bare jump to the base
 void CX2GUArme_VioletMage::June_CommonStateEndFuture()
@@ -32733,7 +32739,7 @@ void CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_EventProcess()
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH1k ( JUNE_CHARACTER_AISHA_PHASES.md )
-namespace
+namespace _CONST_ARME_JUNE_CH1k_
 {
 	/// June Enum.lua RNSI ids; March's SI_HA_* are 2600 ..
 	const int JUNE_RNSI_HA_AEM_ELEMENTAL_STORM			= 22600;
@@ -32862,6 +32868,7 @@ namespace
 		return iSkillID_;
 	}
 }
+using namespace _CONST_ARME_JUNE_CH1k_;
 
 // June 32cede00 up to its skill switch: true when the skill case is still to be registered ( March's cases until CH2a-CH3b )
 bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ )
@@ -36072,7 +36079,7 @@ void CX2GUArme_VioletMage::June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 //{{ Iruha : 2026-10-22 // June character pilot Phase CH4a
-namespace
+namespace _CONST_ARME_JUNE_CH4a_
 {
 	const int JUNE_CH4A_P_AHM_FIREBALL_UP				= 22400;
 	const int JUNE_CH4A_P_AEM_UNLIMIT_MANA				= 22401;
@@ -36088,6 +36095,7 @@ namespace
 	const int JUNE_CH4A_SA_ABM_SUPER_NOVA				= 22023;
 	const int JUNE_CH4B_P_ADW_OPEN_MIND					= 22416;
 }
+using namespace _CONST_ARME_JUNE_CH4a_;
 
 // June 32cecd70
 void CX2GUArme_VioletMage::June_InitPassiveSkillState()
@@ -36284,7 +36292,7 @@ void CX2GUArme_VioletMage::June_OpenMindAttackResult( const CX2DamageManager::Da
 }
 //}} Iruha : 2026-10-22 // June character pilot Phase CH4a
 //{{ Iruha : 2026-10-22 // June character pilot Phase CH4c
-namespace
+namespace _CONST_ARME_JUNE_CH4c_
 {
 	const int JUNE_CH4C_P_COMMON_SUPPORT_AURA			= 105;
 	const int JUNE_CH4C_SA_COMMON_AURA_SHIELD_ACCEL		= 202;
@@ -36328,6 +36336,7 @@ namespace
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG
 }
+using namespace _CONST_ARME_JUNE_CH4c_;
 
 // June 32cccc70; Fitness ( 2413 ) is gone, Magical Staff takes its place
 void CX2GUArme_VioletMage::June_SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate )

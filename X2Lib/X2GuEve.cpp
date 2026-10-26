@@ -34824,7 +34824,7 @@ D3DXVECTOR3 CX2GUEve::GetManeuverCoreTargetPosUsingCollisionData ()
 //{{ Iruha : 2026-10-26 // June character port Phase CH1a ( JUNE_CHARACTER_EVE_PHASES.md )
 // Inert June class core: Eve's movement and slot-head states ( class map phase CH1a ); nothing calls them until CH1 wires them in.
 
-namespace
+namespace _CONST_EVE_JUNE_CH1a_
 {
 	/// June BTI 0x29f ( BTI_BUFF_CODE_RECOVERY_ECN ): the buff that adds ADD_AIR_DASH_COUNT dash jumps
 	const BUFF_TEMPLET_ID JUNE_CH1A_BTI_CODE_RECOVERY_ECN = static_cast<BUFF_TEMPLET_ID>( 671 );
@@ -34832,6 +34832,7 @@ namespace
 	/// June skill 0x634b ( RNSI_P_EBS_OPEN_MIND ): its ability 0x80 ( SA_AIR_MOVE_COUNT ) adds dash jumps
 	const int JUNE_CH1A_P_EBS_OPEN_MIND = 25419;
 }
+using namespace _CONST_EVE_JUNE_CH1a_;
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
@@ -38287,13 +38288,14 @@ void CX2GUEve::EveElectraSystem::June_CreatePlane( float _fZAngle/* = 0.f*/, flo
 // June reads the class through the unit templet ( +0xaf0, templet null-tested ) as a switch value
 #define JUNE_EVE_TEMPLET_CLASS_ID() ( ( NULL != GetUnit()->GetUnitTemplet() ) ? static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitClass ) : 0 )
 
-namespace
+namespace _CONST_EVE_JUNE_CH1e_
 {
 	/// June skill ids used by the boost attack ( Enum.lua numbering; the C++ SKILL_ID enum is March's )
 	const int JUNE_RNSI_A_EBS_ELECTRONIC_MOVE		= 25223;
 	const int JUNE_RNSI_P_EBS_OPEN_MIND				= 25419;
 	const int JUNE_SKILL_ID_BOOST_ATTACK_MP			= 25029;
 }
+using namespace _CONST_EVE_JUNE_CH1e_;
 
 // June 32007ce0: the ability of an equipped skill at the learned level ( IsPvpOrPve is false offline )
 bool CX2GUEve::June_TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const
@@ -43124,7 +43126,7 @@ void CX2GUEve::June_ENSI_ECB_DASH_XX_EventProcess()
 //{{ Iruha : 2026-10-26 // June character port Phase CH1k ( JUNE_CHARACTER_EVE_PHASES.md )
 // Inert June class core: lifecycle, render and reaction overrides, constructor / destructor / ReInit ( class map CH1k ); nothing calls them until CH1.
 
-namespace
+namespace _CONST_EVE_JUNE_CH1k_
 {
 	/// June ids ( Enum.lua numbering; the C++ enums are March's )
 	const int JUNE_CH1K_UC_EVE_EXOTIC_GEAR					= 18;		/// 0x12; Code Nemesis is 108
@@ -43192,6 +43194,7 @@ namespace
 	/// June 31febf50 ( candidate ): the Dark Dragon hyper-mode item effect; no such item offline
 	void JuneEveHyperModeItemEffect()		{}
 }
+using namespace _CONST_EVE_JUNE_CH1k_;
 
 // June 3229a470 ( user vslot 0x240 ) over 32028af0: the skill's buff factor uiIndex_ is on this unit
 bool CX2GUEve::June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ )
