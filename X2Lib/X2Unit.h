@@ -169,6 +169,8 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 			UC_AIN_LOFTY_EXACTER      = 44,
 			UC_AIN_LOFTY_ANPASSEN     = 45,
 			UC_AIN_LOFTY_WANDERER     = 46,
+			UC_ADD_MASTERMIND         = 123,
+			UC_ARA_ASURA              = 124,
 			UC_ELESIS_CRIMSON_AVENGER = 125,
 			UC_ADD_DIABOLIC_ESPER     = 126,
 			UC_LUCIEL_DREAD_LORD      = 127,

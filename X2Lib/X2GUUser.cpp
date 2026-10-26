@@ -3650,7 +3650,11 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 			/// ( June NUI_PVE_RED_KNIGHT_BASTARD_EVENT_TITLE 4119 / NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE 4120, June Enum.lua; March's
 			/// NPC_UNIT_ID has neither ) is filed only when the game type ( game vslot 0x10c ) is 2 = GT_DUNGEON; every other id as March.
 			/// June derefs its g_pX2Game handle unconditionally; the NULL test is March safety.
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			if( CX2UnitManager::NUI_PVE_RED_KNIGHT_BASTARD_EVENT_TITLE != kSocketData.m_iSummonNpcId && CX2UnitManager::NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE != kSocketData.m_iSummonNpcId )
+#else
 			if( 4119 != kSocketData.m_iSummonNpcId && 4120 != kSocketData.m_iSummonNpcId )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 				m_vecSummonNpcSocket.push_back(tSummonNpc);
 			else if( NULL != g_pX2Game && CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() )
 				m_vecSummonNpcSocket.push_back(tSummonNpc);
@@ -10711,7 +10715,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			/// Enum.lua; skills March lacks) double while the attacker has BTI_BUFF_SHADE_THE_ILLUSION. June calls
 			/// HaveThisBuff (3227baf0) with no null test and it dereferences this, so the NULL test is a crash guard.
 			const int iJuneUsedSkillID = static_cast<int>( pDamageData->m_eUsedSkillID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			if ( ( CX2SkillTree::SI_SA_SDK_BRUTAL_CUTTER == iJuneUsedSkillID || CX2SkillTree::SI_SA_SCA_CRIMSON_BREAK == iJuneUsedSkillID || CX2SkillTree::SI_SA_SCA_DREAD_WEAPON == iJuneUsedSkillID )
+#else
 			if ( ( 8021 == iJuneUsedSkillID || 8025 == iJuneUsedSkillID || 8026 == iJuneUsedSkillID )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 				&& NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION ) )
 				m_bDoubleAttack = true;
 		}
@@ -11498,8 +11506,16 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				if ( 0.0f != fForceDownMultiplierAttacked )
 				{
 					static std::set<int> s_setSeenForceDown;
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+					if ( s_setSeenForceDown.insert( pDamageData->m_bMeleeAttack ? BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED : BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED ).second )
+#else
 					if ( s_setSeenForceDown.insert( pDamageData->m_bMeleeAttack ? 106 : 107 ).second )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+						CX2JuneBuffCapture::Line( "first read BBT %d: force down decrease %g - %g", pDamageData->m_bMeleeAttack ? BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED : BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED, fDecreaseForceDown, fForceDownMultiplierAttacked );
+#else
 						CX2JuneBuffCapture::Line( "first read BBT %d: force down decrease %g - %g", pDamageData->m_bMeleeAttack ? 106 : 107, fDecreaseForceDown, fForceDownMultiplierAttacked );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 				}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				fDecreaseForceDown -= fForceDownMultiplierAttacked;
@@ -26522,6 +26538,62 @@ float CX2GUUser::GetSummonPowerRateByBuff( const int iSkillID_ ) const
 {
 	switch ( iSkillID_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	case CX2SkillTree::RNSI_SA_AVP_HELL_DROP:
+	case CX2SkillTree::RNSI_SA_ADW_DISTORTION:
+	case CX2SkillTree::RNSI_SA_AVP_HELL_DROP_ADD_TRANS:
+	case CX2SkillTree::RNSI_SA_RGA_GUNGNIR:
+	case CX2SkillTree::RNSI_A_RGA_ENTANGLE:
+	case CX2SkillTree::RNSI_A_RTR_ANGER_OF_ELF:
+	case CX2SkillTree::RNSI_A_RTR_EVOKE:
+	case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY:
+	case CX2SkillTree::RNSI_SA_ECN_ATOMIC_SHIELD:
+	case CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD:
+	case CX2SkillTree::RNSI_SA_EAT_SURFACE_CUTING:
+	case CX2SkillTree::RNSI_SA_ECE_ELECTRONIC_FIELD:
+	case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY_UPGRADE:
+	case CX2SkillTree::RNSI_SA_ECN_ATOMIC_SHIELD_UPGRADE:
+	case CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD_UPGRADE:
+	case CX2SkillTree::RNSI_SA_EAT_SURFACE_CUTING_UPGRADE:
+	case CX2SkillTree::RNSI_SA_ECE_ELECTRONIC_FIELD_UPGRADE:
+	case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION:
+	case CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA:
+	case CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER:
+	case CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA_UPGRADE:
+	case CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER_UPGRADE:
+	case CX2SkillTree::RNSI_SA_CTT_HEAVY_FIELD:
+	case CX2SkillTree::RNSI_A_CTT_AUTOMATIC_MORTAR:
+	case CX2SkillTree::RNSI_A_CTT_AUTOMATIC_MORTAR_UPGRADE:
+	case CX2SkillTree::RNSI_SA_SBH_WALL_OF_PROMINENCE:
+	case CX2SkillTree::RNSI_SA_SCA_BLOOD_CUTTER:
+	case CX2SkillTree::RNSI_SA_SBH_WALL_OF_PROMINENCE_UPGRADE:
+	case CX2SkillTree::RNSI_SA_SCA_BLOOD_CUTTER_UPGRADE:
+	case CX2SkillTree::RNSI_SA_AN_PARTICLE_PRISM:
+	case CX2SkillTree::RNSI_SA_AN_PARTICLE_PRISM_UPGRADE:
+	case CX2SkillTree::RNSI_HA_AMM_APOCALYPSE:
+	case CX2SkillTree::RNSI_SA_LLD_SUMMON_DARKNESS:
+	case CX2SkillTree::RNSI_SA_LCN_SHADOW_BOLT:
+	case CX2SkillTree::RNSI_SA_LDN_GARDEN_OF_HAURES:
+	case CX2SkillTree::RNSI_SA_ROSE_RX78_LAND_RUNNER:
+	case CX2SkillTree::RNSI_SA_ROSE_RX78_LAND_RUNNER_UPGRADE:
+	case CX2SkillTree::RNSI_SA_RHB_PROTON_BOMB:
+	case CX2SkillTree::RNSI_SA_RFY_NEIL_THE_SNIPER:
+	case CX2SkillTree::RNSI_SA_RMH_GALE_FORCE:
+	case CX2SkillTree::RNSI_SA_RMH_EZ_8_COUNT_DOWN:
+	case CX2SkillTree::RNSI_SA_RMH_SPARROW_FACTORY:
+	case CX2SkillTree::RNSI_SA_RMH_GALE_FORCE_UPGRADE:
+	case CX2SkillTree::RNSI_SA_RMH_EZ_8_COUNT_DOWN_UPGRADE:
+	case CX2SkillTree::RNSI_SA_RSR_PHOTON_SHOWER:
+	case CX2SkillTree::RNSI_SA_RFY_M18A1_CLAYMORE:
+	case CX2SkillTree::RNSI_SA_RHB_PROTON_BOMB_UPGRADE:
+	case CX2SkillTree::RNSI_SA_RFY_NEIL_THE_SNIPER_UPGRADE:
+	case CX2SkillTree::RNSI_SA_RMH_SPARROW_FACTORY_UPGRADE:
+	case CX2SkillTree::RNSI_SA_ROM_ARMORED_TEMPEST:
+	case CX2SkillTree::RNSI_A_RMH_ALL_BOMB:
+	case CX2SkillTree::RNSI_A_ROM_G_EX_MAGNETICFORCE:
+	case CX2SkillTree::RNSI_A_RMH_ALL_BOMB_UPGRADE:
+	case CX2SkillTree::RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE:
+#else
 	case 22020:	/// RNSI_SA_AVP_HELL_DROP
 	case 22027:	/// RNSI_SA_ADW_DISTORTION
 	case 22036:	/// RNSI_SA_AVP_HELL_DROP_ADD_TRANS
@@ -26576,6 +26648,7 @@ float CX2GUUser::GetSummonPowerRateByBuff( const int iSkillID_ ) const
 	case 31232:	/// RNSI_A_ROM_G_EX_MAGNETICFORCE
 	case 31234:	/// RNSI_A_RMH_ALL_BOMB_UPGRADE
 	case 31320:	/// RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		return true;
 
 	default:
@@ -31922,6 +31995,45 @@ std::string CX2GUUser::JuneGetHyperModeTableName( IN bool bCiel_ ) const
 	{
 		switch( static_cast<int>( pUnit->GetUnitData().m_UnitClass ) )
 		{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		case CX2Unit::UC_ELSWORD_LORD_KNIGHT:	strName = "ESSI_ELK_HYPER_MODE";	break;
+		case CX2Unit::UC_ELSWORD_RUNE_SLAYER:	strName = "ESSI_ERS_HYPER_MODE";	break;
+		case CX2Unit::UC_LIRE_WIND_SNEAKER:	strName = "LESI_LWS_HYPER_MODE";	break;
+		case CX2Unit::UC_LIRE_GRAND_ARCHER:	strName = "LESI_LGA_HYPER_MODE";	break;
+		case CX2Unit::UC_ARME_ELEMENTAL_MASTER:	strName = "AVSI_AEM_HYPER_MODE";	break;
+		case CX2Unit::UC_ARME_VOID_PRINCESS:	strName = "AVSI_AVP_HYPER_MODE";	break;
+		case CX2Unit::UC_RAVEN_BLADE_MASTER:	strName = "RSI_RBM_HYPER_MODE";		break;
+		case CX2Unit::UC_RAVEN_RECKLESS_FIST:	strName = "RSI_RRF_HYPER_MODE";		break;
+		case CX2Unit::UC_EVE_CODE_NEMESIS:	strName = "ENSI_ECN_HYPER_MODE";	break;
+		case CX2Unit::UC_EVE_CODE_EMPRESS:	strName = "ENSI_ECE_HYPER_MODE";	break;
+		case CX2Unit::UC_CHUNG_IRON_PALADIN:	strName = "CSI_CIP_HYPER_MODE";		break;
+		case CX2Unit::UC_CHUNG_DEADLY_CHASER:	strName = "CSI_CDC_HYPER_MODE";		break;
+		case CX2Unit::UC_ELSWORD_INFINITY_SWORD:	strName = "ESSI_EIS_HYPER_MODE";	break;
+		case CX2Unit::UC_ARME_DIMENSION_WITCH:	strName = "AVSI_ADW_HYPER_MODE";	break;
+		case CX2Unit::UC_LIRE_NIGHT_WATCHER:	strName = "LESI_LNW_HYPER_MODE";	break;
+		case CX2Unit::UC_RAVEN_VETERAN_COMMANDER:	strName = "RSI_RVC_HYPER_MODE";		break;
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:	strName = "ENSI_ECB_HYPER_MODE";	break;
+		case CX2Unit::UC_CHUNG_TACTICAL_TROOPER:	strName = "CSI_CTT_HYPER_MODE";		break;
+		case CX2Unit::UC_ARA_SAKRA_DEVANAM:	strName = "ASI_ASD_HYPER_MODE";		break;
+		case CX2Unit::UC_ARA_YAMA_RAJA:	strName = "ASI_AYR_HYPER_MODE";		break;
+		case CX2Unit::UC_ELESIS_GRAND_MASTER:	strName = "ESI_EGM_HYPER_MODE";		break;
+		case CX2Unit::UC_ELESIS_BLAZING_HEART:	strName = "ESI_EBH_HYPER_MODE";		break;
+		case CX2Unit::UC_ADD_LUNATIC_PSYKER:	strName = "ANSI_ALP_HYPER_MODE";	break;
+		case CX2Unit::UC_ADD_MASTERMIND:	strName = "ANSI_AMM_HYPER_MODE";	break;
+		case CX2Unit::UC_ARA_ASURA:	strName = "ASI_AA_HYPER_MODE";		break;
+		case CX2Unit::UC_ELESIS_CRIMSON_AVENGER:	strName = "ESI_ECA_HYPER_MODE";		break;
+		case CX2Unit::UC_ADD_DIABOLIC_ESPER:	strName = "ANSI_ADE_HYPER_MODE";	break;
+		case CX2Unit::UC_LUCIEL_DREAD_LORD:	strName = ( true == bCiel_ ? "LSI_LLD_CIEL_HYPER_MODE" : "LSI_LLD_LU_HYPER_MODE" );	break;
+		case CX2Unit::UC_LUCIEL_NOBLESSE:	strName = ( true == bCiel_ ? "LSI_LCN_CIEL_HYPER_MODE" : "LSI_LCN_LU_HYPER_MODE" );	break;
+		case CX2Unit::UC_LUCIEL_DEMONIO:	strName = ( true == bCiel_ ? "LSI_LDN_CIEL_HYPER_MODE" : "LSI_LDN_LU_HYPER_MODE" );	break;
+		case CX2Unit::UC_ROSE_CRIMSON_ROSE:	strName = "RSI_RCR_HYPER_MODE";		break;
+		case CX2Unit::UC_ROSE_STORM_TROOPER:	strName = "RSI_RSR_HYPER_MODE";		break;
+		case CX2Unit::UC_ROSE_OPTIMUS:	strName = "RSI_ROM_HYPER_MODE";		break;
+		case CX2Unit::UC_ROSE_FREYJA:	strName = "RSI_RFY_HYPER_MODE";		break;
+		case CX2Unit::UC_AIN_ARME_THAUMATURGY:	strName = "AASI_AAH_HYPER_MODE";	break;
+		case CX2Unit::UC_AIN_ERBLUHEN_EMOTION:	strName = "AASI_AEE_HYPER_MODE";	break;
+		case CX2Unit::UC_AIN_APOSTASIA:	strName = "AASI_AAP_HYPER_MODE";	break;
+#else
 		case 100:	strName = "ESSI_ELK_HYPER_MODE";	break;
 		case 101:	strName = "ESSI_ERS_HYPER_MODE";	break;
 		case 102:	strName = "LESI_LWS_HYPER_MODE";	break;
@@ -31959,6 +32071,7 @@ std::string CX2GUUser::JuneGetHyperModeTableName( IN bool bCiel_ ) const
 		case 134:	strName = "AASI_AAH_HYPER_MODE";	break;
 		case 135:	strName = "AASI_AEE_HYPER_MODE";	break;
 		case 136:	strName = "AASI_AAP_HYPER_MODE";	break;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		default:	break;
 		}
 	}
@@ -32428,8 +32541,16 @@ void CX2GUUser::HyperModeStart()
 // June 31fc8c20: 20 s to the next roll; a roll below 0.5 applies both transcendence-slot buffs
 void CX2GUUser::JuneApplyTranscendSlotBuffs()
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT = BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT;
+#else
 	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT = 843;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT = BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT;
+#else
 	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT = 844;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	m_fJuneTranscendSlotBuffTime = 20.f;
 	m_bJuneTranscendSlotBuffRolled = false;
@@ -32445,15 +32566,24 @@ void CX2GUUser::JuneApplyTranscendSlotBuffs()
 // June 31fce5f0: a transcended awakening ( BTI 822 / 823, or a transcended Ain's 966-968 )
 bool CX2GUUser::JuneIsTranscendHyperMode()
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	if ( true == HaveUnfinishedBuff( BTI_TRANSCENDENTAL_HYPER_MODE ) || true == HaveUnfinishedBuff( BTI_TRANSCENDENTAL_FORMATION_MODE ) )		// June 3227b860, not HaveThisBuff
+#else
 	if ( true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 822 ) ) || true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 823 ) ) )		// June 3227b860, not HaveThisBuff
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		return true;
 
 	if ( NULL == GetUnit() || NULL == GetUnit()->GetUnitTemplet() || 12 != static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitType )
 		|| 0 == GetUnit()->GetUnitData().m_iUnitClassTran )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	return true == HaveUnfinishedBuff( BTI_BUFF_HYPER_MODE_AIN_1ST ) || true == HaveUnfinishedBuff( BTI_BUFF_HYPER_MODE_AIN_2ND )
+		|| true == HaveUnfinishedBuff( BTI_BUFF_HYPER_MODE_AIN_3RD );
+#else
 	return true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 966 ) ) || true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 967 ) )
 		|| true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 968 ) );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef HYPER_MODE_FIX
@@ -37607,10 +37737,18 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 							eReturnVal = CX2SocketItem::SIEE_ACTIVE_BUFF;
 						}
 					}
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+					else if ( BTI_BUFF_ELPIERCE_INNERRAY == eBuffTempletID )		/// @3202978d: BTI_BUFF_ELPIERCE_INNERRAY at its limit -> BFI_BUFF_ELPIERCE_INNERRAY_HEAL
+#else
 					else if ( 1003 == eBuffTempletID )		/// @3202978d: BTI_BUFF_ELPIERCE_INNERRAY at its limit -> BFI_BUFF_ELPIERCE_INNERRAY_HEAL
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 					{
 						EraseBuffTempletFromGameUnit( eBuffTempletID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+						SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_ELPIERCE_INNERRAY_HEAL, 1 );
+#else
 						SetBuffFactorToGameUnitByBuffFactorID( 1081, 1 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 						SetJuneSocketCoolTime( pSocketData->m_ID, static_cast<float>( pSocketData->m_iCount ) );
 					}
 				}
@@ -37664,10 +37802,18 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 						EraseBuffTempletFromGameUnit( eBuffTempletID );
 						break;
 					}
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+					else if ( BTI_BUFF_SOCKET_ENERGY_OF_EL == eBuffTempletID )		/// @32029fbb: BTI_BUFF_SOCKET_ENERGY_OF_EL at its limit -> BFI_BUFF_SOCKET_BLESS_OF_EL
+#else
 					else if ( 910 == eBuffTempletID )		/// @32029fbb: BTI_BUFF_SOCKET_ENERGY_OF_EL at its limit -> BFI_BUFF_SOCKET_BLESS_OF_EL
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 					{
 						EraseBuffTempletFromGameUnit( eBuffTempletID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+						SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SOCKET_BLESS_OF_EL, 1 );
+#else
 						SetBuffFactorToGameUnitByBuffFactorID( 940, 1 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 						SetJuneSocketCoolTime( pSocketData->m_ID, static_cast<float>( pSocketData->m_iCount ) );
 						break;
 					}
