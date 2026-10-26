@@ -35,3 +35,7 @@ Transcribe every function the class map gives phase `CH1h` (class 19 states and 
 - **States: 3** (`awk -F'\t' '$8=="CH1h"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_COMBO_XXZ4`, `ENSI_DASH_COMBO_ZX`, `ENSI_DASH_JUMP_COMBO_XZ`.
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 5** (`c10a_alpha_sites.tsv`, by containing function).
+
+## Amended by CH1e (2026-10-26)
+
+- `ENSI_DASH_COMBO_ZX` (script id 180) is March's enumerator only under `EVE_COMBO_TEST_TEST` (undefined), so CH1e added `ENSI_JUNE_DASH_COMBO_ZX` for the dash Z EventProcess arm; use that name for the state's members and registration.

@@ -152,6 +152,15 @@ public:
 		ENSI_EVE_RECOVERY,					/// June script id 238 ( Code Recovery; CH4c writes the state )
 		ENSI_ECN_COMBO_ZZX_READY,			/// June script id 231 ( Code Nemesis ZZ X ready; CH1g owns the state )
 		ENSI_ECE_COMBO_ZZX,					/// June script id 234 ( Code Empress ZZ X; CH1i owns the state )
+		ENSI_EEG_DASH_JUMP_ZX,				/// June script id 228 ( Exotic Gear dash-jump Z X; CH1f owns the state )
+		ENSI_EEG_DASH_JUMP_ZZX,				/// June script id 229 ( Exotic Gear dash-jump Z Z X; CH1f owns the state )
+		ENSI_ECN_DASH_JUMP_XZ,				/// June script id 230 ( Code Nemesis dash-jump X Z; CH1g owns the state )
+		ENSI_ECE_DASH_XX,					/// June script id 236 ( Code Empress dash X X; CH1i owns the state )
+		ENSI_ECB_DASH_XX,					/// June script id 237 ( Code Battle Seraph dash X X; CH1j2 owns the state )
+		ENSI_A_EBS_ELECTRONIC_MOVE_FRONT,	/// June script id 239 ( Electronic Move front; CH3c owns the state )
+		ENSI_A_EBS_ELECTRONIC_MOVE_UP,		/// June script id 240 ( Electronic Move up; CH3c owns the state )
+		ENSI_A_EBS_ELECTRONIC_MOVE_DOWN,	/// June script id 241 ( Electronic Move down; CH3c owns the state )
+		ENSI_JUNE_DASH_COMBO_ZX,			/// June script id 180 ( Architecture / Empress dash Z X; March's ENSI_DASH_COMBO_ZX exists only under EVE_COMBO_TEST_TEST; CH1h owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -2646,6 +2655,8 @@ protected:
 	float		m_fJuneCodeRecoveryCoolLeft;			/// June +0x9c64 ( Code Recovery cool time left )
 	float		m_fJuneCodeRecoveryConsumeMp;			/// June +0x9c6c ( CODE_RECOVERY_CONSUME_MP )
 	float		m_fJuneElectronBallBigRate;				/// June +0x97bc ( chance of the BIG fire ball against GetRandomFloat( 0 ); skill 25407 ability 0x49 in InitPassiveSkillState 3297f290 @3297fd5a )
+	CX2DamageEffect::CEffect*	m_pJuneDashXFireBall;					/// June +0x9c20 ( the last dash X fire ball of a class that is not EG / Nemesis; CH1i reads it )
+	CX2GameUnit*				m_pJuneDashXTargetUnit;					/// June +0x9c24 ( the unit the Empress dash X follows; CH1l4's 3297b370 writes it, the dash X start clears it )
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	int			June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
@@ -2807,5 +2818,41 @@ protected:
 	void June_ENSI_COMBO_XXdownX_EventProcess();		/// June 3296cbd0
 	void June_ENSI_COMBO_XXdownXX_FrameMove();			/// June 32985930
 	void June_ENSI_COMBO_XXdownXX_EventProcess();		/// June 3296ce30
+	/// June character port Phase CH1e: inert June_* members of Eve's dash, jump and dash-jump combos; nothing calls them until CH1
+	bool June_TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
+	void June_StateChangeBoostAttackIfPossible();			/// June 32978c60
+	void June_ENSI_DASH_COMBO_Z_Start();					/// June 3296cf50
+	void June_ENSI_DASH_COMBO_Z_End();						/// June 32985b50
+	void June_ENSI_DASH_COMBO_Z_FrameMove();				/// June 32985bb0
+	void June_ENSI_DASH_COMBO_Z_EventProcess();				/// June 3296cf70
+	void June_ENSI_DASH_COMBO_X_FrameMove();				/// June 329b0c10
+	void June_ENSI_DASH_COMBO_X_EventProcess();				/// June 3296e230
+	void June_ENSI_JUMP_COMBO_Z_Start();					/// June 3296e6b0
+	void June_ENSI_JUMP_COMBO_Z_End();						/// June 329872a0
+	void June_ENSI_JUMP_COMBO_Z_FrameMove();				/// June 32987340
+	void June_ENSI_JUMP_COMBO_Z_EventProcess();				/// June 3296e6d0
+	void June_ENSI_JUMP_COMBO_X_Start();					/// June 3296e700
+	void June_ENSI_JUMP_COMBO_X_End();						/// June 329876e0
+	void June_ENSI_JUMP_COMBO_X_FrameMove();				/// June 32987780
+	void June_ENSI_JUMP_COMBO_X_EventProcess();				/// June 3296e720
+	void June_ENSI_JUMP_COMBO_X_LANDING_StartFuture();		/// June 329662e0
+	void June_ENSI_JUMP_COMBO_X_LANDING_Start();			/// June 32966300
+	void June_ENSI_JUMP_COMBO_X_LANDING_EventProcess();		/// June 3296e760
+	void June_ENSI_DASH_JUMP_COMBO_Z_Start();				/// June 3296e7c0
+	void June_ENSI_DASH_JUMP_COMBO_Z_End();					/// June 32987b20
+	void June_ENSI_DASH_JUMP_COMBO_Z_FrameMove();			/// June 32987bc0
+	void June_ENSI_DASH_JUMP_COMBO_Z_EventProcess();		/// June 32979b30
+	void June_ENSI_DASH_JUMP_COMBO_ZZ_Start();				/// June 3296e7e0
+	void June_ENSI_DASH_JUMP_COMBO_ZZ_End();				/// June 32987f60
+	void June_ENSI_DASH_JUMP_COMBO_ZZ_FrameMove();			/// June 32988000
+	void June_ENSI_DASH_JUMP_COMBO_ZZ_EventProcess();		/// June 3296e800
+	void June_ENSI_DASH_JUMP_COMBO_ZZZ_Start();				/// June 3296e9d0
+	void June_ENSI_DASH_JUMP_COMBO_ZZZ_End();				/// June 329883a0
+	void June_ENSI_DASH_JUMP_COMBO_ZZZ_FrameMove();			/// June 32988440
+	void June_ENSI_DASH_JUMP_COMBO_ZZZ_EventProcess();		/// June 3296e9f0
+	void June_ENSI_DASH_JUMP_COMBO_X_Start();				/// June 32978000
+	void June_ENSI_DASH_JUMP_COMBO_X_End();					/// June 32978030
+	void June_ENSI_DASH_JUMP_COMBO_X_FrameMove();			/// June 329b13f0
+	void June_ENSI_DASH_JUMP_COMBO_X_EventProcess();		/// June 3296ea70
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

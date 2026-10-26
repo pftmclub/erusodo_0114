@@ -42,3 +42,7 @@ Transcribe every function the class map gives phase `CH1k` (lifecycle, render an
 ## Amended by CH1c (2026-10-26)
 
 - **`329ac330` is CH1k's** (`ENSI_RIDING_HYPER_MODE` FrameMove; `June_ENSI_RIDING_HYPER_MODE_FrameMove`): it is `32997c60( 0.0f, 0.1f, true )` (`this`, then the two floats, then the bool), June's `CommonHyperModeFrameMove`. CH1c could not leave the call to an undefined body without a link error. Transcribe `329ac330` with `32997c60` (class map row moved to CH1k). `32997c60` is not a bare March copy: June adds the awakening effect-set calls (`32011d20`, `31fd66b0`, `32011f50`: the pilot's stand-ins `June_AwakeningEffectBegin` / `SetPresent` / `Play`, `JUNE_CHARACTER_AISHA_PHASES.md` CH1b review), `31febf50` (candidate, `ch0_unmapped_identified.tsv`), `32290350` (`ch0_unmapped_callees.tsv`) and the 0x6347 skill-level test; the Aisha copy `June_CommonHyperModeFrameMove` (`32ce12c0`) is the comparison. If a callee stays unmapped, say "this needs Opus".
+
+## Amended by CH1e (2026-10-26)
+
+- The ctor zeroes four dwords at +0x9c20 .. +0x9c2c (`3299bd70 @3299c900`). CH1e declared +0x9c20 (`m_pJuneDashXFireBall`) and +0x9c24 (`m_pJuneDashXTargetUnit`) and set them NULL in the ctor; +0x9c28 / +0x9c2c are not read by CH1e (their owner finds them).

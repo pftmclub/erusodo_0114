@@ -4958,3 +4958,40 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 329cdc80	CX2GUEve::EveElectraEffectData ( compiler-made )	not ported here	Char Eve CH1d: constructor / destructor / copy constructor / list node of the data AddEffectToSystem 32980580 pushes; March's struct has the same fields except June's +0x8c int ( -1 ) and +0x90 vector<int> ( no reader found )
 329cdf80	CX2GUEve::EveElectraEffectData ( compiler-made )	not ported here	Char Eve CH1d: constructor / destructor / copy constructor / list node of the data AddEffectToSystem 32980580 pushes; March's struct has the same fields except June's +0x8c int ( -1 ) and +0x90 vector<int> ( no reader found )
 329ce570	CX2GUEve::EveElectraEffectData ( compiler-made )	not ported here	Char Eve CH1d: constructor / destructor / copy constructor / list node of the data AddEffectToSystem 32980580 pushes; March's struct has the same fields except June's +0x8c int ( -1 ) and +0x90 vector<int> ( no reader found )
+3296cf50	CX2GUEve::June_ENSI_DASH_COMBO_Z_Start	PORTED	Char Eve CH1e: inert; CommonStateStart; Z mesh handle +0x95f0 and Electra effect handle +0x99cc = -1 ( March )
+32985b50	CX2GUEve::June_ENSI_DASH_COMBO_Z_End	PORTED	Char Eve CH1e: inert; = March: mesh handle -1, Electra effect handle destroyed, CommonStateEnd
+32985bb0	CX2GUEve::June_ENSI_DASH_COMBO_Z_FrameMove	PORTED	Char Eve CH1e: inert; March body + 2 alpha tags ( 32985d93, 32985ed8, checklist 7c ); 0.2 s effect: EG / Nemesis EVE_EG_, Architecture / Empress EVE_AT_ ( x +0x97c0, force down +0x97c4 ), Electra / Seraph EVE_PR_ ( 329cd320 = CreateInstanceHandle ), default EVE_DASH_COMBO_Z
+3296cf70	CX2GUEve::June_ENSI_DASH_COMBO_Z_EventProcess	PORTED	Char Eve CH1e: inert; March + a flag-0 arm ( event time 0, X by Architecture / Empress -> state 180 ENSI_JUNE_DASH_COMBO_ZX ) before SKILL_CANCEL_AFTER; the rest is March ( flags 1 / 2 / 3 / 4 ZZ / NS ZX / EP ZZ / EPR ZZ )
+329b0c10	CX2GUEve::June_ENSI_DASH_COMBO_X_FrameMove	PORTED	Char Eve CH1e: inert; March body + alpha tag ( 329b0dbc ); FlushMp( 4 x +0x97b0 ) ( March 8 ); non-EG / Nemesis fire ball: BIG pick ( +0x97bc ), effect pointer saved in +0x9c20, +0x9c24 = 0 at 0.1 s; power x +0x97c0; EG / Nemesis keeps one ball
+3296e230	CX2GUEve::June_ENSI_DASH_COMBO_X_EventProcess	PORTED	Char Eve CH1e: inert; March + flag-1 arm ( Empress X -> 236 ENSI_ECE_DASH_XX ) and flag-2 arm ( Battle Seraph X -> 237 ENSI_ECB_DASH_XX ), event times 0 / 1
+3296e6b0	CX2GUEve::June_ENSI_JUMP_COMBO_Z_Start	PORTED	Char Eve CH1e: inert; = March
+329872a0	CX2GUEve::June_ENSI_JUMP_COMBO_Z_End	PORTED	Char Eve CH1e: inert; = March ( no Ghidra function; raw listing )
+32987340	CX2GUEve::June_ENSI_JUMP_COMBO_Z_FrameMove	PORTED	Char Eve CH1e: inert; = March ( Queen's Throne effects, no alpha tag )
+3296e6d0	CX2GUEve::June_ENSI_JUMP_COMBO_Z_EventProcess	PORTED	Char Eve CH1e: inert; = March ( landing: cannot-attack 0.1 s )
+3296e700	CX2GUEve::June_ENSI_JUMP_COMBO_X_Start	PORTED	Char Eve CH1e: inert; = March
+329876e0	CX2GUEve::June_ENSI_JUMP_COMBO_X_End	PORTED	Char Eve CH1e: inert; = March ( no Ghidra function; raw listing )
+32987780	CX2GUEve::June_ENSI_JUMP_COMBO_X_FrameMove	PORTED	Char Eve CH1e: inert; = March ( Queen's Throne effects, no alpha tag )
+3296e720	CX2GUEve::June_ENSI_JUMP_COMBO_X_EventProcess	PORTED	Char Eve CH1e: inert; = March ( landing: cannot-attack 0.2 s )
+329662e0	CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_StartFuture	PORTED	Char Eve CH1e: inert; = March ( jump / dash-jump counts 0 )
+32966300	CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_Start	PORTED	Char Eve CH1e: inert; = March ( CommonStateStart, CreateStepDust vslot 0x7ec )
+3296e760	CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_EventProcess	PORTED	Char Eve CH1e: inert; = March
+3296e7c0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_Start	PORTED	Char Eve CH1e: inert; = March
+32987b20	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_End	PORTED	Char Eve CH1e: inert; = March ( no Ghidra function; raw listing )
+32987bc0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_FrameMove	PORTED	Char Eve CH1e: inert; = March ( Queen's Throne effects, no alpha tag )
+32979b30	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_EventProcess	PORTED	Char Eve CH1e: inert; March + flag-2 arm ( EG / Nemesis X -> 228 ENSI_EEG_DASH_JUMP_ZX, event time 0 ); the Battle Seraph case calls June's 32978c60 instead of March's StateChangeBoostAttackIfPossible
+3296e7e0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_Start	PORTED	Char Eve CH1e: inert; = March
+32987f60	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_End	PORTED	Char Eve CH1e: inert; = March ( no Ghidra function; raw listing )
+32988000	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_FrameMove	PORTED	Char Eve CH1e: inert; = March ( Queen's Throne effects, no alpha tag )
+3296e800	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_EventProcess	PORTED	Char Eve CH1e: inert; March + flag-2 arm ( EG / Nemesis X -> 229 ENSI_EEG_DASH_JUMP_ZZX, event time 0 )
+3296e9d0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_Start	PORTED	Char Eve CH1e: inert; = March
+329883a0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_End	PORTED	Char Eve CH1e: inert; = March ( no Ghidra function; raw listing )
+32988440	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_FrameMove	PORTED	Char Eve CH1e: inert; = March ( Queen's Throne effects, no alpha tag )
+3296e9f0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_EventProcess	PORTED	Char Eve CH1e: inert; = March
+32978000	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_Start	PORTED	Char Eve CH1e: inert; = March ( particle handles +0x95a8 / +0x95ac = -1, m_fPlaneZAngle = 0 )
+32978030	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_End	PORTED	Char Eve CH1e: inert; = March ( handles -1, CommonStateEnd )
+329b13f0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Eve CH1e: inert; March body + 2 alpha tags ( 329b15a4, 329b1765 ); FlushMp( 4 x +0x97b0 ) ( March 8 ); BIG pick ( +0x97bc ), BIG set keeps the small Spectrum name ( JUNE_BUGS 425 ); power x +0x97c0
+3296ea70	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_EventProcess	PORTED	Char Eve CH1e: inert; March + flag-2 arm ( Nemesis Z -> 230 ENSI_ECN_DASH_JUMP_XZ, event time 0 ); classes read through the unit templet except the Nemesis test ( unit data )
+32978c60	CX2GUEve::June_StateChangeBoostAttackIfPossible	PORTED	Char Eve CH1e: inert; June rewrite of March's StateChangeBoostAttackIfPossible: cost = GetActualMPConsume( 25223 Electronic Move ) when the future state skill is Electronic Move, else 5 ( 32007ce0 ( 0x1b, 25029 ) after 3 + max boost count, Open Mind 25419 raises the count ); state 239 / 240 / 241 for Electronic Move, else 219 / 220 / 221; also called by 32979da0 ( CH1j2 )
+32007ce0	CX2GUEve::June_TryGetEquippedSkillAbilityValue	PORTED	Char Eve CH1e: equipped-skill twin of the pilot's acquired helper 32007c40 ( skill level > 0, GetEquippedActiveSkillTemplet( id, upgrade swap ), JuneTryGetSkillAbilityValue( type, level, false, out ) )
+329cc500	CX2GUEve (helper)	not ported here	Char Eve CH1e: not called by 32978c60 ( class map error ); the only caller is InitInpuDataProcess 32978e80 ( 10 calls ): zeroes the 22-dword struct at arg0 and sets the byte at arg1; moved to CH1l
+329cd320	CX2DamageEffect::CreateInstanceHandle ( compiler-made wrapper )	not ported here	Char Eve CH1e: called by 32985bb0 for EVE_PR_DASH_COMBO_Z; = CreateInstance 31f8ff00 then the effect handle ( +0xe8 ) or -1; called through March's CreateInstanceHandle

@@ -38,3 +38,7 @@ Scope: the class-116 skill ids not in an earlier phase, incl. Electronic Move 25
 ## Amended by CH1d (2026-10-26)
 
 - `329968a0` calls `m_EveElectraSystem.June_AddEffectToSystem` (`32980580`, CH1d); `329809c0` (AddLockonToSystem) builds the same `EveElectraEffectData`-like record: see the CH1d Done note on June's two extra members (+0x8c, +0x90).
+
+## Amended by CH1e (2026-10-26)
+
+- The three Electronic Move state enumerators `ENSI_A_EBS_ELECTRONIC_MOVE_FRONT` / `_UP` / `_DOWN` (script ids 239 / 240 / 241) are already enumerators (CH1e added them for `June_StateChangeBoostAttackIfPossible`); do not add them again.

@@ -215,6 +215,8 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	m_pJuneBlock9c50						= NULL;
 	m_iJuneSummonNpcUid						= -1;
 	m_fJuneElectronBallBigRate					= 0.f;
+	m_pJuneDashXFireBall						= NULL;
+	m_pJuneDashXTargetUnit						= NULL;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_fPhotonBlinkBackSpeedX				= 0.f;
 	m_fPhotonBlinkDummyLifeTime				= 0.f;
@@ -38272,6 +38274,1188 @@ void CX2GUEve::EveElectraSystem::June_CreatePlane( float _fZAngle/* = 0.f*/, flo
 		g_pX2Game->JuneTagEffectAlphaParticle( m_pGUEve, pSeq );
 		pSeq = pMajorParticleSystem->CreateSequence( (CKTDGObject*) m_pGUEve,  L"eve_spectro_model_P03", pMeshInstPlane->GetBonePos( L"Dummy04" ) );
 		g_pX2Game->JuneTagEffectAlphaParticle( m_pGUEve, pSeq );
+	}
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1e ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's dash, jump and dash-jump combos ( class map phase CH1e ); nothing calls them until CH1 wires them in.
+
+// June reads the class through the unit templet ( +0xaf0, templet null-tested ) as a switch value
+#define JUNE_EVE_TEMPLET_CLASS_ID() ( ( NULL != GetUnit()->GetUnitTemplet() ) ? static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitClass ) : 0 )
+
+namespace
+{
+	/// June skill ids used by the boost attack ( Enum.lua numbering; the C++ SKILL_ID enum is March's )
+	const int JUNE_RNSI_A_EBS_ELECTRONIC_MOVE		= 25223;
+	const int JUNE_RNSI_P_EBS_OPEN_MIND				= 25419;
+	const int JUNE_SKILL_ID_BOOST_ATTACK_MP			= 25029;
+}
+
+// June 32007ce0: the ability of an equipped skill at the learned level ( IsPvpOrPve is false offline )
+bool CX2GUEve::June_TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const
+{
+	if( NULL == GetUnit() )
+		return false;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+	if( iSkillLevel <= 0 )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), bUpgradeSwap_ );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+}
+
+// ---- dash combos ----
+
+// June 3296cf50
+void CX2GUEve::June_ENSI_DASH_COMBO_Z_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_DashComboZ] = INVALID_MESH_INSTANCE_HANDLE;
+	m_hEffectElectraDashComboZ = INVALID_DAMAGE_EFFECT_HANDLE;
+}
+
+// June 32985b50
+void CX2GUEve::June_ENSI_DASH_COMBO_Z_End()
+{
+	m_ahMajorMeshInstance[MajorMID_DashComboZ] = INVALID_MESH_INSTANCE_HANDLE;
+
+	if( m_hEffectElectraDashComboZ != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectElectraDashComboZ );
+
+	CommonStateEnd();
+}
+
+// June 32985bb0
+void CX2GUEve::June_ENSI_DASH_COMBO_Z_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		if( false == GetAbsoluteInvisibility() )
+		{
+			D3DXVECTOR3 vRot = GetRotateDegree();
+			if( false == GetIsRight() )
+			{
+				vRot.y -= 15.f;
+			}
+			else
+			{
+				vRot.y += 15.f;
+			}
+
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+			if( true == GetIsRight() )
+			{
+				vBonePos += GetDirVector() * 90.f;
+			}
+			else
+			{
+				vBonePos -= GetDirVector() * 90.f;
+			}
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack", vBonePos );
+			if( NULL != pSeq )
+			{
+				pSeq->SetAddRotate( vRot );
+				pSeq->SetAxisAngle( vRot );
+				g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+			}
+
+			if( true == GetIsRight() )
+			{
+				vBonePos -= GetDirVector() * 60.f;
+			}
+			else
+			{
+				vBonePos += GetDirVector() * 60.f;
+			}
+
+			pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"DashWave01_Eve_DashAttack_Small", vBonePos );
+			if( NULL != pSeq )
+			{
+				pSeq->SetAddRotate( vRot );
+				pSeq->SetAxisAngle( vRot );
+				g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+			}
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+
+		CX2DamageEffect::CEffect* pEffect = NULL;
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_Z", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			break;
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_DASH_COMBO_Z", GetPowerRate() * m_fAttackPowerRateElectronBall,
+				vBonePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall );
+			break;
+		case CX2Unit::UC_EVE_ELECTRA:
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_hEffectElectraDashComboZ = g_pX2Game->GetDamageEffect()->CreateInstanceHandle(
+				this, L"EVE_PR_DASH_COMBO_Z", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			break;
+		default:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_DASH_COMBO_Z", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			break;
+		}
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_DashComboZ] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.2f &&
+		INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_DashComboZ] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_DashComboZ] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vBonePos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_DashComboZ] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	if( CX2DamageEffect::CEffect* pEffectElectraDashComboZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraDashComboZ ) )
+	{
+		if( CKTDGXMeshPlayer::CXMeshInstance *pMeshInstance = pEffectElectraDashComboZ->GetMainEffect() )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInstance->SetPos( vBonePos );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296cf70
+void CX2GUEve::June_ENSI_DASH_COMBO_Z_EventProcess()
+{
+	const bool bArchitectureOrEmpress = JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_ARCHITECTURE ) || JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_CODE_EMPRESS );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 0, 0, ( m_InputData.oneX == true && bArchitectureOrEmpress ), ENSI_JUNE_DASH_COMBO_ZX )
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+
+		StateChange( ENSI_DASH_COMBO_ZZ );
+	}
+	else if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.33f )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+			break;
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			m_FrameDataFuture.stateParam.bEventFlagList[3] = true;
+			break;
+		case CX2Unit::UC_EVE_ELECTRA:
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_FrameDataFuture.stateParam.bEventFlagList[4] = true;
+			break;
+		}
+	}
+	else if ( m_FrameDataFuture.stateParam.bEventFlagList[2] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+
+		StateChange( ENSI_NS_DASH_COMBO_ZX );
+	}
+	else if ( m_InputData.oneX == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.33f )
+	{
+		if( JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_CODE_NEMESIS ) )
+			m_FrameDataFuture.stateParam.bEventFlagList[2] = true;
+	}
+	else if ( m_FrameDataFuture.stateParam.bEventFlagList[3] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[3] = false;
+
+		StateChange( ENSI_EP_DASH_COMBO_ZZ );
+	}
+	else if ( m_FrameDataFuture.stateParam.bEventFlagList[4] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[4] = false;
+
+		StateChange( ENSI_EPR_DASH_COMBO_ZZ );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.7f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+// June 329b0c10
+void CX2GUEve::June_ENSI_DASH_COMBO_X_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += GetDirVector() * 110.f;
+		}
+		else
+		{
+			vPos -= GetDirVector() * 110.f;
+		}
+		vPos.y += 30.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_DashAttackX_FireImpact01", vPos );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		m_pJuneDashXTargetUnit = NULL;
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.13f ) )
+	{
+		D3DXVECTOR3 vBonePos1 = GetBonePos( L"Dummy1_Rhand" );
+		D3DXVECTOR3 vBonePos2 = GetBonePos( L"Dummy2_Lhand" );
+		D3DXVECTOR3 vBonePos = vBonePos1 * 0.8f + vBonePos2 * 0.2f;
+		D3DXVECTOR3 vDegree = GetRotateDegree();
+		vDegree.z += 70.f;
+
+		if( FlushMp( 4.f * m_fMPConsumeRateElectronBall ) == true )
+		{
+			if( JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_EXOTIC_GEAR ) || JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_CODE_NEMESIS ) )
+			{
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_X_FIRE_BALL", GetPowerRate() * m_fAttackPowerRateElectronBall,
+					vBonePos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+
+				if( NULL != pEffect )
+					pEffect->SetInheritForceDownRate( true );
+			}
+			else
+			{
+				if( m_fJuneElectronBallBigRate <= GetRandomFloat( 0 ) )
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_DASH_COMBO_X_FIRE_BALL", GetPowerRate() * m_fAttackPowerRateElectronBall,
+						vBonePos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+
+					if( NULL != pEffect )
+					{
+						m_pJuneDashXFireBall = pEffect;
+						m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"EVE_DASH_COMBO_X_FIRE_BALL_AMPLIFY_FILTERED",
+							L"EVE_DASH_COMBO_X_FIRE_BALL_SPECTRUM_FILTERED", L"EVE_DASH_COMBO_X_FIRE_BALL_INDUCTION_FILTERED",
+							L"EVE_DASH_COMBO_X_FIRE_BALL_FUSION_FILTERED" );
+						pEffect->SetInheritForceDownRate( true );
+					}
+				}
+				else
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_DASH_COMBO_X_FIRE_BALL_BIG", GetPowerRate() * m_fAttackPowerRateElectronBall,
+						vBonePos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+
+					if( NULL != pEffect )
+					{
+						m_pJuneDashXFireBall = pEffect;
+						m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"EVE_DASH_COMBO_X_FIRE_BALL_AMPLIFY_FILTERED_BIG",
+							L"EVE_DASH_COMBO_X_FIRE_BALL_SPECTRUM_FILTERED_BIG", L"EVE_DASH_COMBO_X_FIRE_BALL_INDUCTION_FILTERED_BIG",
+							L"EVE_DASH_COMBO_X_FIRE_BALL_FUSION_FILTERED_BIG" );
+						pEffect->SetInheritForceDownRate( true );
+					}
+				}
+			}
+
+			PlaySound( L"Eve_FireBigShot.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( ( vBonePos1 + vBonePos2 ) * 0.5f, 0.f, 0.f, vDegree.z );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.066f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( 70.f, 2.0f, 140.f, 230.f );
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e230
+void CX2GUEve::June_ENSI_DASH_COMBO_X_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 1, 0, ( JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_CODE_EMPRESS ) && m_InputData.oneX == true ), ENSI_ECE_DASH_XX )
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 2, 1, ( JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_BATTLE_SERAPH ) && m_InputData.oneX == true ), ENSI_ECB_DASH_XX )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		StateChange( ENSI_DASH_COMBO_XZ );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.33f )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+			break;
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.43f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+// ---- jump combos ----
+
+// June 3296e6b0
+void CX2GUEve::June_ENSI_JUMP_COMBO_Z_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 329872a0
+void CX2GUEve::June_ENSI_JUMP_COMBO_Z_End()
+{
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32987340
+void CX2GUEve::June_ENSI_JUMP_COMBO_Z_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) && m_sEGQueensThrone.m_bEnable == true )
+	{
+		D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_JUMP_ATTACK_Z_01", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] = pEffect->GetMainEffectHandle();
+		}
+
+		vPos = GetBonePos( L"Dummy1_Rhand" );
+		pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_JUMP_ATTACK_Z_02", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e6d0
+void CX2GUEve::June_ENSI_JUMP_COMBO_Z_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		m_fCanNotAttackTime = 0.1f;
+
+		StateChange( USI_JUMP_LANDING );
+	}
+	CommonEventProcess();
+}
+
+// June 3296e700
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] = INVALID_MESH_INSTANCE_HANDLE;
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 329876e0
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_End()
+{
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] = INVALID_MESH_INSTANCE_HANDLE;
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32987780
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) && m_sEGQueensThrone.m_bEnable == true )
+	{
+		D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_JUMP_ATTACK_X_01", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] = pEffect->GetMainEffectHandle();
+		}
+
+		vPos = GetBonePos( L"Dummy1_Rhand" );
+		pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_JUMP_ATTACK_X_02", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_01] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Jump_Attack_X_02] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e720
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		m_fCanNotAttackTime = 0.2f;
+
+		StateChange( ENSI_JUMP_COMBO_X_LANDING );
+	}
+	CommonEventProcess();
+}
+
+// June 329662e0
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_iJumpFlyCount = 0;
+	m_iDashJumpCount = 0;
+}
+
+// June 32966300
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_Start()
+{
+	CommonStateStart();
+	CreateStepDust();
+}
+
+// June 3296e760
+void CX2GUEve::June_ENSI_JUMP_COMBO_X_LANDING_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// ---- dash-jump combos ----
+
+// June 3296e7c0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 32987b20
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_End()
+{
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32987bc0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) && m_sEGQueensThrone.m_bEnable == true )
+	{
+		D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z1_01", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] = pEffect->GetMainEffectHandle();
+		}
+
+		vPos = GetBonePos( L"Dummy1_Rhand" );
+		pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z1_02", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_01] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_Z_02] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32979b30
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_Z_EventProcess()
+{
+	if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.13333f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 2, 0, ( m_InputData.oneX == true &&
+		( JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_EXOTIC_GEAR ) || JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_CODE_NEMESIS ) ) ), ENSI_EEG_DASH_JUMP_ZX )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.3f )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_ZZ );
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.266f )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			StateChange( ENSI_EP_JUMP_COMBO_ZX );
+			break;
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_iBoostAttackCount = 0;
+			m_bBoostUpAttack = false;
+			June_StateChangeBoostAttackIfPossible();
+			break;
+		}
+
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if( m_InputData.oneX == true )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+			break;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 3296e7e0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 32987f60
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_End()
+{
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32988000
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) && m_sEGQueensThrone.m_bEnable == true )
+	{
+		D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z2_01", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] = pEffect->GetMainEffectHandle();
+		}
+
+		vPos = GetBonePos( L"Dummy1_Rhand" );
+		pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z2_02", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e800
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZ_EventProcess()
+{
+	if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.1333f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 2, 0, ( m_InputData.oneX == true &&
+		( JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_EXOTIC_GEAR ) || JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_CODE_NEMESIS ) ) ), ENSI_EEG_DASH_JUMP_ZZX )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.333f )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_ZZZ );
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.266f )
+	{
+		StateChange( ENSI_EP_JUMP_COMBO_ZX );
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if( m_InputData.oneX == true )
+	{
+		if( JUNE_EVE_TEMPLET_CLASS_IS( CX2Unit::UC_EVE_CODE_EMPRESS ) )
+			m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	CommonEventProcess();
+}
+
+// June 3296e9d0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_Start()
+{
+	CommonStateStart();
+
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 329883a0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_End()
+{
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+	if( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] );
+	m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32988440
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) && m_sEGQueensThrone.m_bEnable == true )
+	{
+		D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z3_01", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] = pEffect->GetMainEffectHandle();
+		}
+
+		vPos = GetBonePos( L"Dummy1_Rhand" );
+		pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_DASH_JUMP_COMBO_Z3_02", m_sEGQueensThrone.m_fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pEffect )
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] = pEffect->GetMainEffectHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_01] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.01f && INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vPos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_EG_SP3_Dash_Jump_Combo_ZZZ_02] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e9f0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_ZZZ_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32978000
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_Start()
+{
+	CommonStateStart();
+
+	SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01, INVALID_PARTICLE_SEQUENCE_HANDLE );
+	SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02, INVALID_PARTICLE_SEQUENCE_HANDLE );
+
+	m_fPlaneZAngle = 0.f;
+}
+
+// June 32978030
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_End()
+{
+	SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01, INVALID_PARTICLE_SEQUENCE_HANDLE );
+	SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02, INVALID_PARTICLE_SEQUENCE_HANDLE );
+
+	CommonStateEnd();
+}
+
+// June 329b13f0
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+
+		if( true == GetIsRight() )
+		{
+			vBonePos += GetDirVector() * -30.f;
+		}
+		else
+		{
+			vBonePos -= GetDirVector() * -30.f;
+		}
+		vBonePos.y += 20.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq =
+			g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"LightParticle_IllusionStrike03", vBonePos, 80, 80, -1, -1, 0.4f );
+		if( NULL != pSeq )
+		{
+			SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01, pSeq->GetHandle() );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.266f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+
+		if( true == GetIsRight() )
+		{
+			vBonePos += GetDirVector() * 10.f;
+		}
+		else
+		{
+			vBonePos -= GetDirVector() * 10.f;
+		}
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq =
+			g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Ring_Eve_DashJumpattackX01", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( GetRotateDegree() );
+			pSeq->SetAxisAngle( GetRotateDegree() );
+
+			SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02, pSeq->GetHandle() );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+
+		vBonePos = GetBonePos( L"Bip01_Spine" );
+
+		if( FlushMp( 4.f * m_fMPConsumeRateElectronBall ) == true )
+		{
+			D3DXVECTOR3 vDegree = GetRotateDegree();
+
+			if( m_fJuneElectronBallBigRate <= GetRandomFloat( 0 ) )
+			{
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_COMBO_X_FIRE_BALL", GetPowerRate() * m_fAttackPowerRateElectronBall,
+					vBonePos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, m_fElectronBallRangeRate );
+
+				if( NULL != pEffect )
+				{
+					m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"EVE_COMBO_X_FIRE_BALL_AMPLIFY_FILTERED",
+						L"EVE_COMBO_X_FIRE_BALL_SPECTRUM_FILTERED", L"EVE_COMBO_X_FIRE_BALL_INDUCTION_FILTERED",
+						L"EVE_COMBO_X_FIRE_BALL_FUSION_FILTERED" );
+					pEffect->SetInheritForceDownRate( true );
+				}
+			}
+			else
+			{
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_COMBO_X_FIRE_BALL_BIG", GetPowerRate() * m_fAttackPowerRateElectronBall,
+					vBonePos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, m_fElectronBallRangeRate );
+
+				if( NULL != pEffect )
+				{
+					m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"EVE_COMBO_X_FIRE_BALL_AMPLIFY_FILTERED_BIG",
+						L"EVE_COMBO_X_FIRE_BALL_SPECTRUM_FILTERED", L"EVE_COMBO_X_FIRE_BALL_INDUCTION_FILTERED_BIG",
+						L"EVE_COMBO_X_FIRE_BALL_FUSION_FILTERED_BIG" );
+					pEffect->SetInheritForceDownRate( true );
+				}
+			}
+
+			PlaySound( L"Eve_FireShot1.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( m_fPlaneZAngle, 2.0f, 240.f, 130.f );
+	}
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != GetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01 ) )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq =
+			g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01 ) );
+
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+			if( true == GetIsRight() )
+			{
+				vBonePos += GetDirVector() * -30.f;
+			}
+			else
+			{
+				vBonePos -= GetDirVector() * -30.f;
+			}
+			vBonePos.y += 20.f;
+
+			pSeq->SetPosition( vBonePos );
+		}
+		else
+		{
+			SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_01, INVALID_PARTICLE_SEQUENCE_HANDLE );
+		}
+	}
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != GetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02) )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq =
+			g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02 ) );
+
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+
+			if( true == GetIsRight() )
+			{
+				vBonePos += GetDirVector() * 10.f;
+			}
+			else
+			{
+				vBonePos -= GetDirVector() * 10.f;
+			}
+
+			pSeq->SetPosition( vBonePos );
+		}
+		else
+		{
+			SetHandleEveMajorParticleByEnum( EVE_MAJOR_PII_DASH_JUMP_COMBO_X_02, INVALID_PARTICLE_SEQUENCE_HANDLE );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296ea70
+void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_X_EventProcess()
+{
+	if( m_InputData.oneX == true && m_FrameDataFuture.stateParam.bEventFlagList[1] == false )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+			break;
+		}
+	}
+	if( m_InputData.oneZ == true && m_FrameDataFuture.stateParam.bEventFlagList[0] == false )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+			break;
+		}
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 2, 0, ( m_InputData.oneZ == true && JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_CODE_NEMESIS ) ), ENSI_ECN_DASH_JUMP_XZ )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			StateChange( ENSI_DASH_JUMP_COMBO_XZ );
+			break;
+		case CX2Unit::UC_EVE_BATTLE_SERAPH:
+			StateChange( ENSI_EBS_DASH_JUMP_COMBO_XZ );
+			break;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32978c60: June's StateChangeBoostAttackIfPossible; the cost is the Electronic Move skill's or a flat 5 ( Open Mind raises it )
+void CX2GUEve::June_StateChangeBoostAttackIfPossible()
+{
+	float fFlushMp = 5.f;
+
+	const int iFutureStateSkillID = static_cast<int>( GetFutureStateSkillID() );
+	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == iFutureStateSkillID )
+	{
+		fFlushMp = GetActualMPConsume( static_cast<CX2SkillTree::SKILL_ID>( iFutureStateSkillID ), June_GetSkillLevel( iFutureStateSkillID ) );
+	}
+	else
+	{
+		int iBoostAttackMax = m_iAddBoostAttack;
+		if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+			iBoostAttackMax = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iBoostAttackMax );
+
+		if( m_iBoostAttackCount >= iBoostAttackMax + 3 )
+			June_TryGetEquippedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x1b ), JUNE_SKILL_ID_BOOST_ATTACK_MP, true, fFlushMp );
+	}
+
+	if( true == FlushMp( fFlushMp ) )
+	{
+		if( true == m_InputData.pureRight )
+		{
+			if( false == m_FrameDataFuture.syncData.bIsRight )
+			{
+				m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
+				m_FrameDataFuture.unitCondition.dirDegree.y	+= 180.0f;
+			}
+		}
+		else if( true == m_InputData.pureLeft )
+		{
+			if( true == m_FrameDataFuture.syncData.bIsRight )
+			{
+				m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
+				m_FrameDataFuture.unitCondition.dirDegree.y	+= 180.0f;
+			}
+		}
+
+		if( true == m_InputData.pureUp && false == m_bBoostUpAttack )
+		{
+			StateChange( ( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) ) ? ENSI_A_EBS_ELECTRONIC_MOVE_UP : ENSI_EBS_DASH_JUMP_COMBO_ZUpX );
+		}
+		else if( true == m_InputData.pureDown && m_FrameDataFuture.syncData.position.y > m_FrameDataFuture.unitCondition.landPosition.y + LINE_RADIUS )
+		{
+			StateChange( ( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) ) ? ENSI_A_EBS_ELECTRONIC_MOVE_DOWN : ENSI_EBS_DASH_JUMP_COMBO_ZDownX );
+		}
+		else
+		{
+			StateChange( ( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) ) ? ENSI_A_EBS_ELECTRONIC_MOVE_FRONT : ENSI_EBS_DASH_JUMP_COMBO_ZFrontX );
+		}
+	}
+	else
+	{
+		if( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
 	}
 }
 

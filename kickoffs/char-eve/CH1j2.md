@@ -36,3 +36,9 @@ Transcribe every function the class map gives phase `CH1j2` (class 116 and the E
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 9** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `32071a80` CX2GameUnit::GetDashSpeed (X2GameUnit.h:2799) (confirmed); `31fce710` user (candidate).
+
+## Amended by CH1e (2026-10-26)
+
+- `ENSI_ECB_DASH_XX` (script id 237) is already an enumerator (CH1e added it for the dash X EventProcess).
+- `32979da0` (`ENSI_EBS_BOOST_DASH_AIR.EventProcess`) calls `32978c60`: CH1e transcribed it as `CX2GUEve::June_StateChangeBoostAttackIfPossible()` (June's rewrite of March's `StateChangeBoostAttackIfPossible`); call that, do not re-transcribe it.
+- CH1e added `CX2GUEve::June_TryGetEquippedSkillAbilityValue( eType, iSkillID, bUpgradeSwap, float& )` (June `32007ce0`); reuse it for that call.

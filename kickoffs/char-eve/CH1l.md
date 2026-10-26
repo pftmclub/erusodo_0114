@@ -35,3 +35,7 @@ Transcribe every function the class map gives phase `CH1l` (overrides 0x600-0x7b
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7 L277 (3201ad10 skill-group power socket rate from class code); §7 L285 (tutorial flag reader 32978ec2 (CX2GUEve vslot 0x6fc)); §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 1** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate); `31edf560` user (candidate).
+
+## Amended by CH1e (2026-10-26)
+
+- `329cc500` moved here from CH1e (the CH0 caller `32978c60` was wrong: its only caller is `InitInpuDataProcess` `32978e80`, 10 calls). It zeroes the 22-dword struct at its first argument and sets the byte at its second.

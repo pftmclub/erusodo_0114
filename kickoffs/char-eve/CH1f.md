@@ -36,3 +36,7 @@ Transcribe every function the class map gives phase `CH1f` (class 18 states and 
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 2** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `32290490` CX2GameUnit::UpDownCrashCameraNoReset (X2GameUnit.cpp:13104) (confirmed).
+
+## Amended by CH1e (2026-10-26)
+
+- `ENSI_EEG_DASH_JUMP_ZX` (script id 228) and `ENSI_EEG_DASH_JUMP_ZZX` (229) are already enumerators (CH1e added them for the dash-jump Z / ZZ EventProcess); do not add them again.

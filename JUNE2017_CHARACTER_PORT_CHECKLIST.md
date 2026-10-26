@@ -334,7 +334,7 @@ option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect
 
 | June | Class | What it does | What the port must bring |
 |---|---|---|---|
-| 167 sites in 0x32965e30-0x329cf260 (`32296d60` particle x119, `32296ee0` mesh x41, `32296da0` / `32296e40` handles x7) | Eve | Tags her particles and meshes with her alpha category right after creating them | one `CX2Game` tag-helper call per site, inside the class code being ported (Eve: CH1a 5 of 167: `329824c0` x2, `32982c00`, `32982d30` x2) |
+| 167 sites in 0x32965e30-0x329cf260 (`32296d60` particle x119, `32296ee0` mesh x41, `32296da0` / `32296e40` handles x7) | Eve | Tags her particles and meshes with her alpha category right after creating them | one `CX2Game` tag-helper call per site, inside the class code being ported (Eve: CH1a 5 of 167: `329824c0` x2, `32982c00`, `32982d30` x2; CH1e 5: `32985d93`, `32985ed8`, `329b0dbc`, `329b15a4`, `329b1765`) |
 | 29 sites (`32d0d660` .. `32d1ecc0`) | Elsword | as above | as above |
 | 22 sites (`32ccdb70` .. `32ce0010`) | Aisha | as above | as above |
 | 12 sites (`329f4350`, `329f9ff0`, `32a03b70`, `32a27360`; four of them effect-set handles via `32296f30`) | Add | as above | as above |

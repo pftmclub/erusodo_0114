@@ -491,6 +491,37 @@ Build: `DEPLOY OK: X2_offline.exe is 25,890,816 B, dated 2026-10-26 07:22:46, md
 
 No build (no code change). CH1e kickoff amended (reuse the `JUNE_EVE_*` macros; the dash X fire ball has the same BIG pick). Next: `/x2-phase char-eve CH1e` (Sonnet 5.5 high).
 
+### CH1e - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a fifth block at the end of `X2GuEve.cpp`, 1,182 lines; declarations at the end of the class). **All 34 class-map rows of phase CH1e** (35 minus `329cc500`, below) are new `CX2GUEve::June_*` members: 33 state functions (`June_ENSI_<STATE>_<Slot>`) and `June_StateChangeBoostAttackIfPossible` (`32978c60`); plus one helper the phase needed, `June_TryGetEquippedSkillAbilityValue` (`32007ce0`). Nothing registers or calls them. 37 funcmap rows `Char Eve CH1e` (34 + `32007ce0` PORTED, 2 "not ported here").
+
+| State (`June_ENSI_` prefix) | June: Start / End / FrameMove / EventProcess |
+|---|---|
+| `DASH_COMBO_Z` | `3296cf50` / `32985b50` / `32985bb0` / `3296cf70` |
+| `DASH_COMBO_X` | - / - / `329b0c10` / `3296e230` |
+| `JUMP_COMBO_Z` `JUMP_COMBO_X` | `3296e6b0` `3296e700` / `329872a0` `329876e0` / `32987340` `32987780` / `3296e6d0` `3296e720` |
+| `JUMP_COMBO_X_LANDING` | StartFuture `329662e0`, Start `32966300`, EventProcess `3296e760` |
+| `DASH_JUMP_COMBO_Z` `_ZZ` `_ZZZ` | `3296e7c0` `3296e7e0` `3296e9d0` / `32987b20` `32987f60` `329883a0` / `32987bc0` `32988000` `32988440` / `32979b30` `3296e800` `3296e9f0` |
+| `DASH_JUMP_COMBO_X` | `32978000` / `32978030` / `329b13f0` / `3296ea70` |
+
+**What differs from March** (the rest is March's body; 25 of the 34 are March verbatim):
+- **New flag arms** (the CH1d macros, event time 0 unless noted): DASH_COMBO_Z flag 0 (X by Architecture / Empress -> state 180); DASH_COMBO_X flag 1 (Empress X -> 236) and flag 2, time 1 (Battle Seraph X -> 237); DASH_JUMP_COMBO_Z flag 2 (EG / Nemesis X -> 228), DASH_JUMP_COMBO_ZZ flag 2 (-> 229), DASH_JUMP_COMBO_X flag 2 (Nemesis Z -> 230). Unit-data class form in those arms (and DASH_COMBO_X's two), templet form (null -> 0) everywhere else. Class switches: DASH_JUMP_COMBO_X sets flag 0 for 18 19 108 109 116, flag 1 for 19 109 116; DASH_COMBO_Z flag 1 for 18 108, flag 3 for 109, flag 4 for 26 116.
+- **DASH_COMBO_Z FrameMove**: Empress takes `EVE_AT_DASH_COMBO_Z` (March `EVE_EP_...`) with power x `+0x97c0`, force down `+0x97c4`; the default case also covers Nasod; two alpha tags (7c).
+- **DASH_COMBO_X FrameMove**: `FlushMp( 4 * m_fMPConsumeRateElectronBall )` (March 8); every class but EG / Nemesis picks the BIG ball (`m_fJuneElectronBallBigRate <= GetRandomFloat( 0 )` = small) and stores the effect pointer in new field `m_pJuneDashXFireBall` (+0x9c20); `m_pJuneDashXTargetUnit` (+0x9c24) = NULL at 0.1 s; one alpha tag. **DASH_JUMP_COMBO_X FrameMove**: same cost and BIG pick (range rate `+0x97ac` as lifetime), two alpha tags (the handle is stored before the tag). The BIG set here keeps the small Spectrum name: **JUNE_BUGS 425**.
+- **`June_StateChangeBoostAttackIfPossible`**: June's rewrite. Cost 5, or `GetActualMPConsume( 25223 )` when the future state skill is Electronic Move; otherwise `m_iAddBoostAttack` (+0x9b5c), raised by Open Mind (25419, ability 0x80, `(int)( v + n )`), and `32007ce0( 0x1b, 25029, true )` replaces the 5 once `m_iBoostAttackCount >= max + 3`. States 239 / 240 / 241 (Electronic Move front / up / down) or 219 / 220 / 221; the turn, `pureDown` landing test and failed-MP landing are March's. `32979da0` (CH1j2) calls it.
+- Alpha tags: 5 (`32985d93` `32985ed8` `329b0dbc` `329b15a4` `329b1765`), checklist 7c updated.
+
+**New under the flag:** enumerators `ENSI_EEG_DASH_JUMP_ZX` 228, `_ZZX` 229, `ENSI_ECN_DASH_JUMP_XZ` 230, `ENSI_ECE_DASH_XX` 236, `ENSI_ECB_DASH_XX` 237, `ENSI_A_EBS_ELECTRONIC_MOVE_FRONT / _UP / _DOWN` 239 / 240 / 241 and `ENSI_JUNE_DASH_COMBO_ZX` 180 (March's `ENSI_DASH_COMBO_ZX` exists only under `EVE_COMBO_TEST_TEST`); fields `m_pJuneDashXFireBall` / `m_pJuneDashXTargetUnit`, both NULL in the constructor. `+0x9c24` is the Empress dash X's follow target (written by `3297b370`, CH1l4; read by `32999ce0`, CH1i).
+
+**Class-map corrections.** `329cc500` has no caller in `32978c60` (the CH0 column was wrong): its only caller is `InitInpuDataProcess` `32978e80`; the row moved to CH1l (kickoff amended). `329cd320` (called for `EVE_PR_DASH_COMBO_Z`) is the compiler-made `CreateInstanceHandle` wrapper (CH1j's row): called through March's method, not transcribed. Kickoffs amended: CH1f CH1g CH1h CH1i CH1j2 CH1k CH1l CH1l4 CH3c.
+
+**Checks.** A script compared the wide strings of every June listing with the string literals of its member (multiset, 34 of 34 equal); state ids, constants and the three jump tables (classes 18 19 108 109 116 / 18 108 / 26 116 / 109) were read from the raw listings; `32987340` and its four siblings (and the four End twins) are instruction-for-instruction the same shape after masking addresses and offsets.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of `X2GuEve.cpp`: 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 25,910,784 B, dated 2026-10-26 08:11:11, md5 26a071398ef653f7a9f7a72052e8793e, equal to X2/US_SERVICE/x2.exe (2026-10-26 08:11:04); built at main 6782ee63 + 2 uncommitted code file(s).`
+
+**Open for the review**: the class form per new arm (templet vs unit data); `+0x9c20` as a raw `CEffect*` (June stores the pointer, not a handle); the nine enumerator values vs June's ids (CH1m); `GetActualMPConsume` called without June's third (bool) argument (March's signature, the base passes true). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1e-review.md`. Next: `/x2-phase char-eve CH1e review` (Opus 5.5 high), then CH1f.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

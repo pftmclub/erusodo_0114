@@ -39,3 +39,7 @@ Transcribe every function the class map gives phase `CH1l4` (CommonFrameMove 329
 ## Amended by CH1d (2026-10-26)
 
 - `32994a10` / `3299f470` call `m_EveElectraSystem.June_DestroyPlaneAndCrystalEffect` (`32991a10`) and `32996c50` calls `June_AddEffectToSystem` (`32980580`) (all CH1d). June's `EveElectraEffectData` has two members March's lacks (+0x8c int, -1; +0x90 `std::vector<int>`; written by ctor `3297b6b0`, copied by `329cdf80`): CH1d found no reader in the class range, so check them while porting `ProcessSystem` `329c3bb0` and the effect data's frame move, and add them to the struct only if read.
+
+## Amended by CH1e (2026-10-26)
+
+- `3297b370` writes the Empress dash X's follow target into `m_pJuneDashXTargetUnit` (+0x9c24, field added by CH1e) from the effect in `m_pJuneDashXFireBall` (+0x9c20); use those names.

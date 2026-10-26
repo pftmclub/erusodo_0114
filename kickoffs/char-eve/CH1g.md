@@ -38,3 +38,7 @@ Transcribe every function the class map gives phase `CH1g` (class 108 states and
 ## Amended by CH1d (2026-10-26)
 
 - `ENSI_ECN_COMBO_ZZX_READY` (script id 231) is already an enumerator (CH1d added it for the ZZ / ZZZ EventProcess); add `_LOOP` / `_END` the same way if a member needs them.
+
+## Amended by CH1e (2026-10-26)
+
+- `ENSI_ECN_DASH_JUMP_XZ` (script id 230) is already an enumerator (CH1e added it for the dash-jump X EventProcess); do not add it again.

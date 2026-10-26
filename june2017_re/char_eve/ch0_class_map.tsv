@@ -432,7 +432,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32978890	state-fn	ENSI_EBS_BOOST_DASH_AIR_START.EventProcess	CX2GUEve::ENSI_EBS_BOOST_DASH_AIR_START_EventProcess	pair	CH1j2	
 32978ad0	state-fn	ENSI_EBS_BOOST_DASH_AIR.FrameMoveFuture	CX2GUEve::ENSI_EBS_BOOST_DASH_AIR_FrameMoveFuture	pair	CH1j2	
 32978bf0	state-fn	ENSI_EBS_BOOST_DASH_AIR.EndFuture	CX2GUEve::ENSI_EBS_BOOST_DASH_AIR_EndFuture	pair	CH1j2	
-32978c60	helper	called by 32979b30 32979da0	-	-	CH1e	
+32978c60	helper	called by 32979b30 32979da0	CX2GUEve::StateChangeBoostAttackIfPossible	pair	CH1e	June rewrite (CH1e: June_StateChangeBoostAttackIfPossible); CH1j2 calls it
 32978e80	override 0x6fc	InitInpuDataProcess	X2GuEve.h:1418 virtual void InitInpuDataProcess();	pair	CH1l	name: HINT
 32979350	helper	called by 32991090 329b2f60 329c5bc0	-	-	CH1l4	
 32979420	override 0x6a4	GetActualCoolTime	- (CX2GUUser only) X2GUUser.h:3193 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	june-only (base virtual exists in March)	CH4b	cool-time rules; name: CONF
@@ -819,7 +819,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cc390	helper	called by 32981130	-	-	CH1l3	
 329cc3b0	helper	-	-	-	CH1k	called by the constructor 3299bd70
 329cc4e0	helper	called by 329c12a0	-	-	CH1l4	
-329cc500	helper	called by 32978c60	-	-	CH1e	
+329cc500	helper	called by 32978e80 (InitInpuDataProcess; the CH0 caller 32978c60 was wrong)	-	-	CH1l	moved from CH1e by CH1e
 329cd320	helper	called by 32991f50 32992210 32993c40	-	-	CH1j	also called from outside the class: 329f36e8 32a028fc 32a151dc 32a24a62
 329cd410	helper	-	-	-	CH1q	Nasod Core: GetManeuverCoreLevelByGauge (inline) (same; ch0_nasod_core.tsv)
 329cd440	helper	called by 329ce0a0	-	-	CH1k	also called from outside the class: 31ed8c47 320908c9 32118637 32738b07

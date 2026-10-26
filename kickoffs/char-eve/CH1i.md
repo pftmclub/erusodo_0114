@@ -40,3 +40,8 @@ Transcribe every function the class map gives phase `CH1i` (class 109 states and
 ## Amended by CH1d (2026-10-26)
 
 - `ENSI_ECE_COMBO_ZZX` (script id 234) is already an enumerator (CH1d added it for the ZZ EventProcess); add the others the same way.
+
+## Amended by CH1e (2026-10-26)
+
+- `ENSI_ECE_DASH_XX` (script id 236) is already an enumerator (CH1e added it for the dash X EventProcess). Its FrameMove `32999ce0` reads `m_pJuneDashXTargetUnit` (+0x9c24, CH1e added the field; `329687c0` End clears it) and 3297b370 (CH1l4) writes it.
+- `m_pJuneDashXFireBall` (+0x9c20, a `CEffect*`) is written by CH1e's `June_ENSI_DASH_COMBO_X_FrameMove` for every class but EG / Nemesis; the field exists, init to NULL in the ctor.
