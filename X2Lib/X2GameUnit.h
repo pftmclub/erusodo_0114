@@ -3597,13 +3597,25 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		CKTDGXSkinAfterImage* GetAfterImage() const { return m_pAfterImage; }
 
 		void SetBasicStatValueChargeMpHitMeleeAttack( const float fValue_ ) { m_AdditionalChargeMpHitMeleeAttack.SetBasicStatValue( fValue_ ); }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+		void CheckAndUpdateAdditionalChargeMpHitMeleeAttack();	/// June 322b4130
+#else SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 		void CheckAndUpdateAdditionalChargeMpHitMeleeAttack()		{ m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValue(); }
+#endif SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 
 		void SetBasicStatValueChargeMpHitRangeAttack( const float fValue_ ) { m_AdditionalChargeMpHitRangeAttack.SetBasicStatValue( fValue_ ); }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+		void CheckAndUpdateAdditionalChargeMpHitRangeAttack();	/// June 322b4170
+#else SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 		void CheckAndUpdateAdditionalChargeMpHitRangeAttack()		{ m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValue(); }
+#endif SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 
 		void SetBasicStatValueChargeMpHitted( const float fValue_ ) { m_AdditionalChargeMpHitted.SetBasicStatValue( fValue_ ); }
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+		void CheckAndUpdateAdditionalChargeMpHitted();	/// June 320870a0
+#else SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 		void CheckAndUpdateAdditionalChargeMpHitted()	{ m_AdditionalChargeMpHitted.CheckAndUpdateResultValue(); }
+#endif SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 
 		/// ÀÌÆåÆ®°ø°ÝÈí¼ö
 		void CreateAndInsertAbsorbEffectAttack( const KBuffIdentity& BuffIdentity_, const float fAbsorbValue_ );

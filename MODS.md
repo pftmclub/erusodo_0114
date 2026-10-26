@@ -3636,6 +3636,7 @@ Flag-off compiles the original code (the `#else` branch). Extra rules:
 | `ENCHANT_PARITY` | 4956 | 2026-10-06 | June's attribute-enchant system. Chunk A: EDT_ENCHANT_* renumbered to June's values (a combined type is the sum of its slots' element values; Enum.lua renumbered with it, they ship together), June's compose 32707ce0, decompose 32708080 and ... |  | June effect completion C6c: the effect-set buff list |
 | `SOCKET_EDT` | 4971 | 2026-10-07 | June's handlers for the June-only socket EXTRA_DAMAGE_TYPEs (user 32034e50 / NPC 327995c0 Process_ExtraDamage): the effect-set spawns 68-72, 145-147, 149, 152-155, the buff calls 150/159, the 10-stack hit 151, June's second socket list ... | `JUNE_SOCKET_PARITY`, `JUNE_BUFF_BEHAVIOR_PARITY`, `JUNE_BUFF_ENUM` |  |
 | `SOCKET_FEVER` | 5004 | 2026-10-07 | the hyper-mode socket type HMET_FEVER (June 3206d480 @3206d6ab). With a party, a game and no fever pass running it calls June's PartyFeverAllUser( 30.0, true ), then starts the socket's cool time. | `JUNE_SOCKET_PARITY` |  |
+| `SOCKET_HIT_MP_CURVE` | 10183 | 2026-10-27 | the per-hit refreshes of MP members 24/25/26 (melee / range hit, hit taken) go through the socket option curve as June's 322b4130 / 322b4170 / 320870a0; March's plain refresh added the raw socket sum (+6722 MP per ranged hit). | `JUNE_SOCKET_PARITY` | Per-hit MP stats on the socket curve |
 | `SPAWN_INHERIT` | 5022 | 2026-10-07 | what a June damage effect carries from whatever created it. The five spawner-tail callees as CEffect methods (June 31f8fdb0 parent->child state copy, 31f649d0 damage rate, 31f64c00 attack-trigger copy, 31f65e40 / 31f65f90 ignore defence), ... | `JUNE_DAMAGEEFFECT_PARSE`, `JUNE_DAMAGEEFFECT_RUNTIME` | June effect completion C6b: the spawner tail, the effect-set stamps and RT_CREATE_EFFECT_SET |
 | `CREATE_EFFECT_SET` | 5040 | 2026-10-07 | AttackResult's RT_CREATE_EFFECT_SET case as June has it (31f85910 @31f86158-31f8672a). With a trace unit: the field-boss collision-box retarget gate (ported; its boss source is stubbed, March has no raid object). | `JUNE_DAMAGEDATA` | June effect completion C6b: the spawner tail, the effect-set stamps and RT_CREATE_EFFECT_SET |
 | `DAMAGE_DATA_TABLE` | 5059 | 2026-10-07 | June's Elsword_DamageData.lua table. Binds CX2DamageManager::InsertDamageData_LUA (June 32621080), loads Elsword_DamageData.lua in the damage manager ctor (June 32620940 from 32622080 @326221da) and applies a record onto a DamageData when ... | `JUNE_DAMAGEDATA` | June effect completion C9: Elsword_DamageData.lua (the `DAMAGE_DATA_KEY_NAME` table) |
@@ -5100,3 +5101,17 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Not ported:** June's resonance line under the unit info (`+0xa99`, hidden control `g_pStaticSelectUnitResonanceInfo`), Stage 30.
 - **Play-test passed 2026-10-24** (exe md5 4542f791, data034 md5 40924cd0): `offline_server.log` shows DELETE, RESTORE, DELETE, then "erased for good" after the 5-minute wait; 0 EXCEPTION.
 - **Revert:** undefine both flags; put the six dialogs back from `kom_backup_stage_june/20261024_152347`, pack and copy data034.
+
+### Per-hit MP stats on the socket curve (2026-10-27)
+
+**Flag:** `SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE` (`Always.h`; needs `JUNE_SOCKET_PARITY`). Files: `X2Lib/X2GameUnit.{h,cpp}`.
+
+- **Bug.** Aisha's MP jumped to full on every Z/X and skill hit. Buff Phase 16 seeds the raw socket sums (`m_fMPIncByAttack` / `m_fMPIncByAttacked`)
+  as the option value of members 24/25/26 and refreshes them through June's curve in `CheckAndUpdateAdditionalStat` (`32290950`). The per-hit
+  refreshes in `SetDamageExceptionProcess` and `DamageReact` stayed March's plain update, which adds the option value raw: +6722 MP per ranged hit.
+- **Fix.** The three `CheckAndUpdateAdditionalChargeMpHit*` helpers become June's `322b4130` / `322b4170` / `320870a0`: option-data refresh with
+  `CalculateFinalMpIncPercentByAttack` / `...ByAttacked` at the unit's level, modifier 1.0; March's plain refresh where the June curve is not loaded,
+  as the bulk refresh does. Found with a temporary `[MPJUMP]` probe (removed).
+- **Play-test passed 2026-10-27** (exe md5 4b68257a, with the probe): no hit-driven MP jumps; the only full-MP lines were consumables (`UseItemSpecialAbility`). Final build without the probe: DEPLOY OK md5 1cbce47e (2026-10-27 06:09).
+- **Follow-up:** backlog Stage 33 (June damage and character stat calculation) audits every other mixed March / June formula.
+- **Revert:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

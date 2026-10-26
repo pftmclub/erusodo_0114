@@ -13203,6 +13203,35 @@ void CX2GameUnit::UpNowMpPerHitOthersWithDamageEffect( const float fHitAddMp_, c
 	CX2GameUnit::UpNowMpPerHitOthers( fHitAddMp_, iAddValueByTeam_, fRel_ );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+// June 322b4130: the option-data refresh with CalculateFinalMpIncPercentByAttack; March's plain refresh where the curve is not loaded, as in CheckAndUpdateAdditionalStat
+void CX2GameUnit::CheckAndUpdateAdditionalChargeMpHitMeleeAttack()
+{
+	if ( false == CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+		m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValue();
+	else
+		m_AdditionalChargeMpHitMeleeAttack.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttack, GetUnitLevel() );
+}
+
+// June 322b4170: the range twin of 322b4130
+void CX2GameUnit::CheckAndUpdateAdditionalChargeMpHitRangeAttack()
+{
+	if ( false == CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+		m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValue();
+	else
+		m_AdditionalChargeMpHitRangeAttack.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttack, GetUnitLevel() );
+}
+
+// June 320870a0: the hit-taken member with CalculateFinalMpIncPercentByAttacked
+void CX2GameUnit::CheckAndUpdateAdditionalChargeMpHitted()
+{
+	if ( false == CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+		m_AdditionalChargeMpHitted.CheckAndUpdateResultValue();
+	else
+		m_AdditionalChargeMpHitted.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalMpIncPercentByAttacked, GetUnitLevel() );
+}
+#endif SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // 김태환
 /** @function	: UpNowHpPerHitOthers
 	@brief		: HIT_ADD_HP_PERCENT 를 통한 공격 성공시, 공격자의 체력 회복 ( 총 HP의 배율 )

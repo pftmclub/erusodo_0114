@@ -10175,3 +10175,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the one home for Aisha and Eve; Aisha's private copy is compiled out. Revert: undefine the flag ( JUNE_USER_COPY_STATE_CALLBACKS ).
 #define SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: Per-hit MP stats 24/25/26 refresh through the socket option curve as June's 322b4130 / 322b4170 / 320870a0 (was +raw socket sum per hit). Needs JUNE_SOCKET_PARITY.
+#define SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
+//////////////////////////////////////////////////////////////////////////
