@@ -4995,3 +4995,28 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 32007ce0	CX2GUEve::June_TryGetEquippedSkillAbilityValue	PORTED	Char Eve CH1e: equipped-skill twin of the pilot's acquired helper 32007c40 ( skill level > 0, GetEquippedActiveSkillTemplet( id, upgrade swap ), JuneTryGetSkillAbilityValue( type, level, false, out ) )
 329cc500	CX2GUEve (helper)	not ported here	Char Eve CH1e: not called by 32978c60 ( class map error ); the only caller is InitInpuDataProcess 32978e80 ( 10 calls ): zeroes the 22-dword struct at arg0 and sets the byte at arg1; moved to CH1l
 329cd320	CX2DamageEffect::CreateInstanceHandle ( compiler-made wrapper )	not ported here	Char Eve CH1e: called by 32985bb0 for EVE_PR_DASH_COMBO_Z; = CreateInstance 31f8ff00 then the effect handle ( +0xe8 ) or -1; called through March's CreateInstanceHandle
+3296b690	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_Init	PORTED	Char Eve CH1f: inert; preloads Eve_AT_ComboZ5a_Mesh.X for Architecture / Empress ( templet class; March read the unit class )
+3296b6c0	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_StartFuture	PORTED	Char Eve CH1f: inert; = March: EG / Nemesis EG_ComboZ5Down, Architecture / Empress AT_ComboZ5a ( templet class )
+3296b7a0	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_Start	PORTED	Char Eve CH1f: inert; = March: same two anims on the now anim
+3296b880	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_End	PORTED	Char Eve CH1f: inert; = March: mesh handle +0x95fc = -1, CommonStateEnd
+329847f0	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_FrameMove	PORTED	Char Eve CH1f: inert; March body + 2 alpha tags ( 32984a5b, 32984c26, checklist 7c ); Architecture / Empress EVE_AT_COMBO_ZZZdownZZ power x GetStatAtkRateOfSummoned ( +0x4064 ) x +0x97c0, force down +0x97c4; EG / Nemesis keeps March's "--vAngle.z += -30"
+3296b8a0	CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_EventProcess	PORTED	Char Eve CH1f: inert; = March ( skip time 0.45 for the four classes, else 0.7 )
+3296d440	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_Init	PORTED	Char Eve CH1f: inert; = March: Architecture only preloads Eve_AT_DashComboZ2_mesh.X
+3296d470	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_StartFuture	PORTED	Char Eve CH1f: inert; = March: EG_DashComboZ2 / AT_DashComboZ2
+3296d550	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_Start	PORTED	Char Eve CH1f: inert; = March: same two anims on the now anim
+329662b0	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_End	PORTED	Char Eve CH1f: inert; = March: CommonStateEnd ( tail jump )
+32986440	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_FrameMove	PORTED	Char Eve CH1f: inert; March body; Architecture / Empress EVE_AT_DASH_COMBO_ZZ power x GetStatAtkRateOfSummoned x +0x97c0, force down +0x97c4
+3296d630	CX2GUEve::June_ENSI_DASH_COMBO_ZZ_EventProcess	PORTED	Char Eve CH1f: inert; March with SKILL_CANCEL_AFTER( 0.01 ) ( the hyper-mode branch ); Z follow-up 0.53 to ENSI_DASH_COMBO_ZZZ ( 192 ) for EG / Nemesis
+3296d8b0	CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_StartFuture	PORTED	Char Eve CH1f: inert; = March: EG_DashComboZ3 / AT_DashComboZ3
+3296d990	CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_Start	PORTED	Char Eve CH1f: inert; = March: same two anims, then mesh handle +0x95f8 = -1
+3296da80	CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_End	PORTED	Char Eve CH1f: inert; = March: mesh handle +0x95f8 = -1, CommonStateEnd
+32986710	CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_FrameMove	PORTED	Char Eve CH1f: inert; March body; Architecture / Empress EVE_AT_DASH_COMBO_ZZZ power x GetStatAtkRateOfSummoned x +0x97c0, force down +0x97c4 ( no Ghidra function; listing )
+3296daa0	CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_EventProcess	PORTED	Char Eve CH1f: inert; March ( BALANCE_CODE_NEMESIS branch ) with the June BWALK / WALK / DASH cancel macros and the hyper-mode SKILL_CANCEL_AFTER ( no Ghidra function; listing )
+32986f00	CX2GUEve::June_ENSI_DASH_COMBO_XZ_FrameMove	PORTED	Char Eve CH1f: inert; = March: EVE_EG_DASH_COMBO_XZ01-04
+3296e580	CX2GUEve::June_ENSI_DASH_COMBO_XZ_EventProcess	PORTED	Char Eve CH1f: inert; = March ( skip time 1.2, EG / Nemesis 0.935 ) ( no Ghidra function; listing )
+32968510	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_Init	PORTED	Char Eve CH1f: inert; June-only state 228: preloads Arme_Critical / Arme_Damage_Center / Arme_Damage_Ring, ENS_QueensSpearMesh01.x, star2.dds
+32968560	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_FrameMove	PORTED	Char Eve CH1f: inert; June-only: CommonFrameMove ( tail jump )
+329795a0	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_EventProcess	PORTED	Char Eve CH1f: inert; June-only: anim end -> dash jump if count < 32976e90 else JUMP_DOWN; landing; hyper-mode / BWALK / WALK / DASH cancels ( no Ghidra function; listing )
+32968570	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_Init	PORTED	Char Eve CH1f: inert; June-only state 229: the same five preloads as 32968510
+329685c0	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove	PORTED	Char Eve CH1f: inert; June-only: CommonFrameMove ( tail jump )
+329797d0	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess	PORTED	Char Eve CH1f: inert; June-only: instruction-for-instruction the body of 329795a0 ( no Ghidra function; listing )

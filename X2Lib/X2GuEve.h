@@ -2854,5 +2854,31 @@ protected:
 	void June_ENSI_DASH_JUMP_COMBO_X_End();					/// June 32978030
 	void June_ENSI_DASH_JUMP_COMBO_X_FrameMove();			/// June 329b13f0
 	void June_ENSI_DASH_JUMP_COMBO_X_EventProcess();		/// June 3296ea70
+	/// June character port Phase CH1f: inert June_* members of Eve's Exotic Gear / Architecture ground states; nothing calls them until CH1
+	void June_ENSI_COMBO_ZZZdownZZ_Init();					/// June 3296b690
+	void June_ENSI_COMBO_ZZZdownZZ_StartFuture();			/// June 3296b6c0
+	void June_ENSI_COMBO_ZZZdownZZ_Start();					/// June 3296b7a0
+	void June_ENSI_COMBO_ZZZdownZZ_End();					/// June 3296b880
+	void June_ENSI_COMBO_ZZZdownZZ_FrameMove();				/// June 329847f0
+	void June_ENSI_COMBO_ZZZdownZZ_EventProcess();			/// June 3296b8a0
+	void June_ENSI_DASH_COMBO_ZZ_Init();					/// June 3296d440
+	void June_ENSI_DASH_COMBO_ZZ_StartFuture();				/// June 3296d470
+	void June_ENSI_DASH_COMBO_ZZ_Start();					/// June 3296d550
+	void June_ENSI_DASH_COMBO_ZZ_End();						/// June 329662b0
+	void June_ENSI_DASH_COMBO_ZZ_FrameMove();				/// June 32986440
+	void June_ENSI_DASH_COMBO_ZZ_EventProcess();			/// June 3296d630
+	void June_ENSI_DASH_COMBO_ZZZ_StartFuture();			/// June 3296d8b0
+	void June_ENSI_DASH_COMBO_ZZZ_Start();					/// June 3296d990
+	void June_ENSI_DASH_COMBO_ZZZ_End();					/// June 3296da80
+	void June_ENSI_DASH_COMBO_ZZZ_FrameMove();				/// June 32986710
+	void June_ENSI_DASH_COMBO_ZZZ_EventProcess();			/// June 3296daa0
+	void June_ENSI_DASH_COMBO_XZ_FrameMove();				/// June 32986f00
+	void June_ENSI_DASH_COMBO_XZ_EventProcess();			/// June 3296e580
+	void June_ENSI_EEG_DASH_JUMP_ZX_Init();					/// June 32968510
+	void June_ENSI_EEG_DASH_JUMP_ZX_FrameMove();			/// June 32968560
+	void June_ENSI_EEG_DASH_JUMP_ZX_EventProcess();			/// June 329795a0
+	void June_ENSI_EEG_DASH_JUMP_ZZX_Init();				/// June 32968570
+	void June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove();			/// June 329685c0
+	void June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess();		/// June 329797d0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

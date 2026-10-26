@@ -536,6 +536,31 @@ Build: `DEPLOY OK: X2_offline.exe is 25,910,784 B, dated 2026-10-26 08:11:11, md
 
 No build (no code change). Next: `/x2-phase char-eve CH1f` (Sonnet 5.5 high).
 
+### CH1f - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a sixth block at the end of `X2GuEve.cpp`, 603 lines; 26 declaration lines at the end of the class). **All 25 class-map rows of phase CH1f** are new `CX2GUEve::June_*` members (`June_ENSI_<STATE>_<Slot>`). Nothing registers or calls them. No new enumerator, field or helper: `ENSI_EEG_DASH_JUMP_ZX` / `_ZZX` came with CH1e, the two callees in the class range (`32976e90`, `32970880`) are CH1a's. 25 funcmap rows `Char Eve CH1f`.
+
+| State (`June_ENSI_` prefix) | June: Init / StartFuture / Start / End / FrameMove / EventProcess |
+|---|---|
+| `COMBO_ZZZdownZZ` | `3296b690` / `3296b6c0` / `3296b7a0` / `3296b880` / `329847f0` / `3296b8a0` |
+| `DASH_COMBO_ZZ` | `3296d440` / `3296d470` / `3296d550` / `329662b0` / `32986440` / `3296d630` |
+| `DASH_COMBO_ZZZ` | - / `3296d8b0` / `3296d990` / `3296da80` / `32986710` / `3296daa0` |
+| `DASH_COMBO_XZ` | FrameMove `32986f00`, EventProcess `3296e580` |
+| `EEG_DASH_JUMP_ZX` / `_ZZX` (June-only, ids 228 / 229) | Init `32968510` / `32968570`; FrameMove `32968560` / `329685c0`; EventProcess `329795a0` / `329797d0` |
+
+**What differs from March** (the rest is March's body, with the class read through the unit templet, `+0xaf0 -> +4`, where March read the unit class):
+- **Architecture / Empress power factor**: `EVE_AT_COMBO_ZZZdownZZ` (`329847f0`), `EVE_AT_DASH_COMBO_ZZ` (`32986440`) and `EVE_AT_DASH_COMBO_ZZZ` (`32986710`) are created with `GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall` (`+0x4064`, `+0x97c0`), force-down `m_fForceDownValueRateElectronBall` (`+0x97c4`), range 1.0, land position 0 (March: plain `GetPowerRate()`). The Exotic Gear / Nemesis effects keep `GetPowerRate()`.
+- **`329847f0` Exotic Gear half**: March's body plus two alpha tags (7c: `32984a5b`, `32984c26`), each inside the null check after `SetLandPosition`. March's `--vAngle.z += -30.f` (a 31 degree drop) is in June too.
+- **EventProcess `3296d630`** (dash Z-Z): March's `SKILL_CANCEL_BY_HYPER_MODE` branch, i.e. `SKILL_CANCEL_AFTER( 0.01 )` with the hyper-mode arm. **`3296daa0`** (dash Z-Z-Z): March's `BALANCE_CODE_NEMESIS_20121213` branch (EG / Nemesis: animation end, `ELSE_IF_ZX_PRESSED_AFTER`, skill cancel, then BWALK / WALK / DASH) with June's on-line tests (the CH1d `JUNE_EVE_*_CANCEL_AFTER` macros); every other class: animation end only.
+- **June-only `329795a0` / `329797d0`** (identical bodies, instruction for instruction): animation end -> `June_StateChangeJumpDashIfPossible` while `m_iDashJumpCount < June_GetMaxDashJumpCount()`, else `USI_JUMP_DOWN`; on the line -> `USI_JUMP_LANDING`; then the skill / BWALK / WALK / DASH cancels. Their Init preloads `Arme_Critical.dds`, `Arme_Damage_Center.dds`, `Arme_Damage_Ring.dds`, `ENS_QueensSpearMesh01.x`, `star2.dds`; FrameMove is `CommonFrameMove`.
+
+**Method notes.** Ghidra has no function object for `32986710` `3296daa0` `3296e580` `329795a0` `329797d0` (and `charport_adis.py` runs past their end): read the listing up to the next class-map address. A `[esp+N]` slot read after the `vslot 0x204` call (`GetPowerRate`) is a value stored before the argument pushes: here the `+0x4064` copy. Jump tables read with a script (`classes 18 108` / `19 109`; `18 19 108 109`; `19` alone for the ZZ Init).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,922,048 B, dated 2026-10-26 08:46:31, md5 897f267ad2e92002b5571c22597b19bb, equal to X2/US_SERVICE/x2.exe (2026-10-26 08:46:23); built at main 752019f2 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** no row (nothing in the 25 looks unintended; `--vAngle.z` is March's). **Drift:** none. **Open for the review**: `+0x4064` read as `GetStatAtkRateOfSummoned()` (the Aisha CH3c row calls it user `+0x4064`); the templet-vs-unit class read per site (all 25 read the templet). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1f-review.md`. Next: `/x2-phase char-eve CH1f review` (Opus 5.5 high), then CH1g.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

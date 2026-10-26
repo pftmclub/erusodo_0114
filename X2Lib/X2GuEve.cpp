@@ -39462,4 +39462,607 @@ void CX2GUEve::June_StateChangeBoostAttackIfPossible()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1f ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's Exotic Gear / Architecture ground states ( class map phase CH1f ); nothing calls them until CH1 wires them in.
+
+// ---- Z-Z-Z(down)-Z-Z ----
+
+// June 3296b690
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_Init()
+{
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		XSkinMeshReadyInBackground( L"Eve_AT_ComboZ5a_Mesh.X" );
+		break;
+	}
+}
+
+// June 3296b6c0
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_StartFuture()
+{
+	CommonStateStartFuture();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnimFuture->ChangeAnim( L"EG_ComboZ5Down", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnimFuture->ChangeAnim( L"AT_ComboZ5a", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+}
+
+// June 3296b7a0
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_Start()
+{
+	CommonStateStart();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnim->ChangeAnim( L"EG_ComboZ5Down", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnim->ChangeAnim( L"AT_ComboZ5a", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+}
+
+// June 3296b880
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_End()
+{
+	m_ahMajorMeshInstance[MajorMID_ComboZZZdownZ] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 329847f0
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Footsteps" );
+
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_COMBO_ZZZdownZZ", GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall,
+					vBonePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+			}
+			break;
+
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			{
+				D3DXVECTOR3 vBonePos	= GetBonePos( L"Dummy1_Rhand" );
+				D3DXVECTOR3 vAngle		= GetRotateDegree();
+				--vAngle.z += -30.f;
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_ComboZ5Down_Particle01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( vAngle );
+					pSeq->SetAxisAngle( vAngle );
+					pSeq->SetLandPosition( GetLandPosition().y );
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_ZZZdownZZ", GetPowerRate(), vBonePos, vAngle, vAngle );
+
+				UpDownCrashCameraNoReset( 5.f, 0.15f );
+
+				vBonePos = GetBonePos( L"Dummy2_Lhand" );
+
+				vAngle = GetRotateDegree();
+				vAngle.y += 180.f;
+				vAngle.z += -30.f;
+
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_ComboZ5Down_Particle01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( vAngle );
+					pSeq->SetAxisAngle( vAngle );
+					pSeq->SetLandPosition( GetLandPosition().y );
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_ZZZdownZZ", GetPowerRate(), vBonePos, vAngle, vAngle );
+			}
+			break;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296b8a0
+void CX2GUEve::June_ENSI_COMBO_ZZZdownZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.pureUp == true || m_InputData.pureDown == true
+		|| m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		float fSkipTime = 0.7f;
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			fSkipTime = 0.45f;
+			break;
+		}
+
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > fSkipTime )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// ---- dash Z-Z ----
+
+// June 3296d440
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_Init()
+{
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+		XSkinMeshReadyInBackground( L"Eve_AT_DashComboZ2_mesh.X" );
+		break;
+	}
+}
+
+// June 3296d470
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_StartFuture()
+{
+	CommonStateStartFuture();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnimFuture->ChangeAnim( L"EG_DashComboZ2", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnimFuture->ChangeAnim( L"AT_DashComboZ2", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+}
+
+// June 3296d550
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_Start()
+{
+	CommonStateStart();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnim->ChangeAnim( L"EG_DashComboZ2", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnim->ChangeAnim( L"AT_DashComboZ2", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+}
+
+// June 329662b0
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_End()
+{
+	CommonStateEnd();
+}
+
+// June 32986440
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Footsteps" );
+
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_ZZ", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			break;
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_DASH_COMBO_ZZ", GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall,
+				vBonePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+			break;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296d630
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.53f )
+	{
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			StateChange( ENSI_DASH_COMBO_ZZZ );
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+			break;
+		}
+	}
+	else if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.53f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		float fSkipTime = 0.8f;
+
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			fSkipTime = 0.6f;
+			break;
+		}
+
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > fSkipTime )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+// ---- dash Z-Z-Z ----
+
+// June 3296d8b0
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_StartFuture()
+{
+	CommonStateStartFuture();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnimFuture->ChangeAnim( L"EG_DashComboZ3", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnimFuture->ChangeAnim( L"AT_DashComboZ3", false );
+		m_pXSkinAnimFuture->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+}
+
+// June 3296d990
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_Start()
+{
+	CommonStateStart();
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		m_pXSkinAnim->ChangeAnim( L"EG_DashComboZ3", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		m_pXSkinAnim->ChangeAnim( L"AT_DashComboZ3", false );
+		m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		break;
+	}
+
+	m_ahMajorMeshInstance[MajorMID_DashComboZZZ] = INVALID_MESH_INSTANCE_HANDLE;
+}
+
+// June 3296da80
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_End()
+{
+	m_ahMajorMeshInstance[MajorMID_DashComboZZZ] = INVALID_MESH_INSTANCE_HANDLE;
+
+	CommonStateEnd();
+}
+
+// June 32986710
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_FrameMove()
+{
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Footsteps" );
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_ZZZ01", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_ZZZ02", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_ZZZ03", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_ZZZ04", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+		}
+		break;
+
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		if( m_pXSkinAnim->EventTimerOneshot( 0.23f ) )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy1_Rhand" );
+
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_DASH_COMBO_ZZZ", GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall,
+				vBonePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+
+			if( NULL != pEffect )
+			{
+				m_ahMajorMeshInstance[MajorMID_DashComboZZZ] = pEffect->GetMainEffectHandle();
+			}
+		}
+		break;
+	}
+
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.2f &&
+		INVALID_MESH_INSTANCE_HANDLE != m_ahMajorMeshInstance[MajorMID_DashComboZZZ] )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_ahMajorMeshInstance[MajorMID_DashComboZZZ] );
+		if( NULL != pMeshInst )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInst->SetPos( vBonePos );
+		}
+		else
+		{
+			m_ahMajorMeshInstance[MajorMID_DashComboZZZ] = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296daa0
+void CX2GUEve::June_ENSI_DASH_COMBO_ZZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		float fSkipTime = 1.5f;
+
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_ARCHITECTURE:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			fSkipTime = 0.75f;
+			break;
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_EMPRESS:
+			fSkipTime = 1.f;
+			break;
+		}
+
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > fSkipTime )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		{
+			if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+			{
+				StateChange( USI_WAIT );
+			}
+			ELSE_IF_ZX_PRESSED_AFTER( m_fAttackCancelAfter )
+			{
+				StateChange( USI_WAIT );
+			}
+			SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+			JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+			JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+			JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+		}
+		break;
+	default:
+		if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( USI_WAIT );
+		}
+		break;
+	}
+
+	CommonEventProcess();
+}
+
+// ---- dash X-Z ----
+
+// June 32986f00
+void CX2GUEve::June_ENSI_DASH_COMBO_XZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Footsteps" );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_XZ01", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_XZ02", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_XZ03", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_DASH_COMBO_XZ04", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 3296e580
+void CX2GUEve::June_ENSI_DASH_COMBO_XZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		float fSkipTime = 1.2f;
+		switch( JUNE_EVE_TEMPLET_CLASS_ID() )
+		{
+		case CX2Unit::UC_EVE_EXOTIC_GEAR:
+		case CX2Unit::UC_EVE_CODE_NEMESIS:
+			fSkipTime = 0.935f;
+			break;
+		}
+
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > fSkipTime )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+// ---- Exotic Gear dash-jump Z-X and Z-Z-X ( June-only states 228 / 229 ) ----
+
+// June 32968510
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	XSkinMeshReadyInBackground( L"ENS_QueensSpearMesh01.x" );
+	TextureReadyInBackground( L"star2.dds" );
+}
+
+// June 32968560
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 329795a0
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_iDashJumpCount < June_GetMaxDashJumpCount() )
+		{
+			June_StateChangeJumpDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// June 32968570
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	XSkinMeshReadyInBackground( L"ENS_QueensSpearMesh01.x" );
+	TextureReadyInBackground( L"star2.dds" );
+}
+
+// June 329685c0
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 329797d0
+void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_iDashJumpCount < June_GetMaxDashJumpCount() )
+		{
+			June_StateChangeJumpDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 
