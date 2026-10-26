@@ -6,7 +6,7 @@
 | Output | plan key `june-stat-calc` (`kickoffs/june-stat-calc/`, a `june-stat-calc` STATUS block) |
 | Plan doc | `JUNE_PORT_BACKLOG_ORDER.md` (Stage 33), output `JUNE_STAT_CALC_PHASES.md` (new) |
 | Branch | `main` |
-| Depends on | - (planning is read-only; code priority is proposed ahead of the next Stage 7 character, the user confirms) |
+| Depends on | - for planning (read-only, any time); code after the character ports, Stages 7 and 8 (user, 2026-10-27) |
 | Flag | one family, `SERV_IRUHADEV_JUNE_STATCALC_*` (none in this planning session: no code) |
 | Log tag | `JUNE_STATCALC` (propose it in the plan) |
 | Review | none (a planning session); each planned phase gets its own review kickoff |
@@ -56,5 +56,6 @@ Output:
 - funcmap rows tagged `StatCalc S33`;
 - the map `.tsv` in `june2017_re/statcalc/`.
 
-Play-test on a geared level-99 unit (51-54 Aisha), with and without sockets. Open design questions go to the user at the end, each with
-a recommendation, including the code priority against Stage 7.
+The code runs after the character ports (Stages 7 and 8; user, 2026-10-27), so plan the play-tests across every character, each on a
+geared level-99 unit with and without sockets. A mixed row that breaks play before then is fixed at once under *Scope* and marked June
+in the map. Open design questions go to the user at the end, each with a recommendation.
