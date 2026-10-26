@@ -167,6 +167,20 @@ Run with: Sonnet 5.5 / high, then Opus review (`kickoffs/june-enum-names/N2-revi
 Scope: replace the ~96 literals (class A / B rows of `X2GuEve.cpp`) with names; collapse duplicates (25419 as `JUNE_CH1A_P_EBS_OPEN_MIND` and `JUNE_RNSI_P_EBS_OPEN_MIND`; 25223 as `JUNE_RNSI_A_EBS_ELECTRONIC_MOVE` and `JUNE_CH1L_A_EBS_ELECTRONIC_MOVE`; 0x655 / 0x656 raw where `JUNE_CH1K_NUI_*` exist; `0x80` where `CX2SkillTree::SA_AIR_MOVE_COUNT` is used four lines away). `JuneEveAccelCoreParticleName` becomes named cases with `30301` / `30302` / `30303` explicit instead of the `0x765d..0x765f` range. Not while a char-eve code phase is running.
 Run with: Sonnet 5.5 / high, then Opus review. Gate: `enumscan.py --check X2Lib/X2GuEve.cpp` exits 0 (class C rows carry their N1 verdict comment).
 
+### Phase N3 - Done (2026-10-26, Sonnet 5.5; flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`)
+
+- **Landed:** `X2Lib/X2GuEve.cpp`: **93 literals** (92 tsv rows; the 0x765d..0x765f range became 3 cases) now use enum names, in 25 blocks, each `#ifdef` flag / new / `#else` original / `#endif` flag. The `bytepatch` spec was generated from the A / B rows of `enum_literals.tsv` (generator `gen_n3.py`, scratchpad). N1 amendments applied: 25029 -> `RNSI_SA_ECB_ENERGETIC_HEART`, DTT 44 -> `DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK`; `JuneEveAccelCoreParticleName` has the Luciel ids as cases `RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL` / `_UPGRADE` (30302) / `RNSI_BUFF_PHANTOM_CIRCLE`; `0x80` is `CX2SkillTree::SA_AIR_MOVE_COUNT`.
+- **One header edit (N2 gap):** the scanner offered `DTT_END` for the literal 5, but June's name is `DTT_EVE_MANEUVER_ATTACK` = 5, and March's own member is compiled out (`ADD_EVE_SYSTEM_2014` is off). Registered it in `X2DamageManager.h` after `DTT_END`, `#ifndef ADD_EVE_SYSTEM_2014` (3 lines). The probe caught it: the name did not compile before.
+- **Left as numbers on purpose:** `JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION = 242` (N1 verdict, char-eve CH3b); the four `0x8fe1..0x8fe4` STR_ID constants (class X).
+- **Aliases kept:** the local constants (`JUNE_CH1A_P_EBS_OPEN_MIND` / `JUNE_RNSI_P_EBS_OPEN_MIND` for 25419, `JUNE_RNSI_A_EBS_ELECTRONIC_MOVE` / `JUNE_CH1L_A_EBS_ELECTRONIC_MOVE` for 25223, the `JUNE_CH1K_NUI_*` / `JUNE_CH1L_NUI_*` pairs) now initialise from the enum member. The duplicate names remain: merging them is about 40 use-site edits and the gate does not need it. Left to the review.
+- **Gate:**
+  - `enumscan.py --check X2Lib/X2GuEve.cpp`: **exit 0** (`0 A/B row(s) remain`, C 1, X 4 ignored).
+  - Probe (`enumprobe.py`): **93 sites / 61 distinct names, every name equals the literal it replaced, 0 bad.**
+- **Hygiene (`flagcheck JUNE_ENUM_NAMES --worktree --files X2GuEve.cpp X2DamageManager.h`):** both PASS, `0 non-ASCII inserted, 0 EOL-mismatched, 0 encoding change(s)`; `RESULT: PASS`. "2 deleted lines" in `git diff` is blank-line alignment inside the Luciel block; the `#else` keeps the original.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 16:27:42, md5 b6f31ff5be91486f47f64e7cc39ba3ae, equal to X2/US_SERVICE/x2.exe (2026-10-26 16:27:34); built at main 155a03c6 + 9 uncommitted code file(s).` (the build was `COALESCED` into a peer's run that started after my last edit.)
+- **How to see it in game:** nothing changes (names equal the old literals). Eve skills behave as before; NZ smoke test covers it.
+- **Review:** `kickoffs/june-enum-names/N3-review.md` (Opus 5.5 high).
+
 ## Phase N4 - Aisha (`X2GUArme_VioletMage.cpp`)
 
 Scope: the ten `_CONST_ARME_JUNE_*_` blocks stop carrying `= id` constants that an enum member now names; ids duplicated across blocks (22413) are used once; ~21 raw uses (l.36258-36268, `static_cast<BUFF_TEMPLET_ID>( 420 )` l.29733) renamed. Constants for family-less ids (item ids 40930 / 41320, `June_PushInfoText( 2549 )`) stay, in one block, one comment.
@@ -191,10 +205,32 @@ Run with: Sonnet 5.5 / high. Gate: `enumscan.py --check X2Lib/X2GUUser.cpp`.
 Scope: `X2SkillTree.cpp` `s_aJuneSkillAbilityKey[]` (use the `SA_*` enumerators), `X2UISkillTreeNew2015.cpp` (82 UNIT_CLASS labels l.5495-5578, Eve skill ids l.673-674, A_AISHA_TELEPORT ids l.3963), `X2UIInventory.cpp`, `X2KeyPad.cpp`: only what is class A / B; `GET_STRING` ids, item ids and NetError ids stay numbers.
 Run with: Sonnet 5.5 / high. Gate: `enumscan.py --check` on the four files.
 
+### Phase N5b - Done (2026-10-26, Sonnet 5.5; flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`)
+
+- **Landed (3 sites, all `#ifdef` flag / `#else` original / `#endif` flag, block-level because the rows are contiguous):**
+  - `X2SkillTree.cpp` `s_aJuneSkillAbilityKey[]`: all 202 rows write `CX2SkillTree::<enumerator>` for the number (not only the 100+ rows the scanner counts, so the table is not half-converted). Three rows whose Lua key differs from the enumerator: `SA_TEAM_ATK_MAGIC_REL` -> `SA_TEAM_DEF_PHYSIC_REL` (the kept studio quirk, 13), `SA_CHARGE_CANNONBALL` -> `SA_CHARGE_CANNON_BALL` (87), `HP_CONSUME_REL` (113, no `SA_` prefix). The four `C_ASSERT( SA_x == N )` lines after the name table are replaced in the flag branch by one assert, `sizeof( s_apwszJuneSkillAbilityName ) / sizeof( [0] ) == SA_END` (a name asserted against its own number proves nothing); the originals stay in `#else`.
+  - `X2UISkillTreeNew2015.cpp`: `JuneGetUnitClassName` switch, 86 `case N:` -> `case CX2Unit::UC_*:` (the scanner's candidate for 123 / 124 was the sentinels `UC_VALIDE_END` / `UC_END`; the string says `UC_ADD_MASTERMIND` / `UC_ARA_ASURA`, which have those values, so those are used); Eve El Crystal ids l.673-674 (`RNSI_A_EVE_SPECTRO_EL_CRYSTAL` / `_UPGRADE`, `RNSI_SA_ECB_THOUSANDS_OF_STARS`); Aisha teleport l.3963 (`RNSI_A_AISHA_TELEPORT` / `_UPGRADE`).
+  - `X2UIInventory.cpp`, `X2KeyPad.cpp`: no A / B rows (only item ids, `GET_STRING` ids, NetError ids and widths), nothing to change.
+- **Proof:** `enumprobe.py` (chunks of 80) resolved 288 names (202 table rows + 86 UC) and 5 skill ids: every name equals the literal it replaces (0x6272 = 25202, 0x627f = 25215, 0x61c4 = 25028, 22200, 22216); the only two non-matches were the quirk row (12 vs 13, kept as 13 through `SA_TEAM_DEF_PHYSIC_REL`) and the key-name mismatch above. Gate: `enumscan.py --check` on the four files: **0 A/B row(s) remain** (C 0, D 12, X 45 ignored; the D rows are `IsEnableCode` codes, widths and NetError ids).
+- **Hygiene (`flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.cpp X2Lib/X2UISkillTreeNew2015.cpp`):** `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token` (the 5 bare `#else`, house style); `0 encoding change(s)`; `RESULT: PASS`. `file`: `X2SkillTree.cpp` still ISO-8859 CRLF+LF, `X2UISkillTreeNew2015.cpp` ASCII CRLF; `git diff --stat`: 311 insertions, 0 deletions.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 16:27:42, md5 b6f31ff5be91486f47f64e7cc39ba3ae, equal to X2/US_SERVICE/x2.exe (2026-10-26 16:27:34); built at main 155a03c6 + 9 uncommitted code file(s).` (the build also carried peers' N3 / N4 / N5a / N5c edits).
+- **How to see it in game:** nothing (refactor, behaviour identical); smoke test is at NZ.
+- **Found, not chased:** the table sits in the studio-era `namespace { }` of the June S2 block (`X2SkillTree.cpp:5277`); I only added rows inside it and did not rewrite it (CLAUDE.md: older anonymous namespaces are left unless touched). Scanner candidate for a value that is both a sentinel and a June member (123 / 124) picks the sentinel: N3 / N5a / N5c should check the string / context before trusting `UC_VALIDE_END` / `UC_END`.
+
 ## Phase N5c - Shared: units, NPC, game
 
 Scope: `X2GameUnit.cpp` (BBT 101 / 102 / 105 / 108 / 109 / 110 sites, `BUFF_TEMPLET_ID( 778 )`, `SKILL_ID( 30048 )`), `X2GUNPC.cpp` (NUI 1574 / 1575 / 1888 / 1900 / 495, skill ids 8021 / 8025 / 8026), `X2Game.cpp` (buff factor 0x286 / 0x287, `BUFF_TEMPLET_ID( 820 )`).
 Run with: Sonnet 5.5 / high. Gate: `enumscan.py --check` on the three files.
+
+### Done (2026-10-26, flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`)
+
+- 28 sites, each `#ifdef` name / `#else` literal / `#endif`: `X2GameUnit.cpp` 21 (DTT 40, the June BFI / BTI consts at 6524-6529, BFI 787 / 1118, BTI 762 / 778, BFI 788 / 804 / 845, SKILL 30048, SA 0x94, BBT 101 / 102 / 105 / 108 / 109 / 110 and 74 / 77 in the 7b debug slot test), `X2GUNPC.cpp` 4 (NUI 495 / 1574 / 1575, 1888 / 1900 twice, skills 8021 / 8025 / 8026), `X2Game.cpp` 3 (0x286 / 0x287, BTI 820).
+- Registered in `X2BuffFactor.h` (N2 block, June values from `Enum.src.lua`): `BFI_BUFF_HERO_STOP` 647, `BFI_DECREASE_ENEMY_RESIST` 787, `BFI_DECENT_TO_SHADOW` 1118 (the scanner had them as class D leads).
+- Proof: `enumprobe.py` on all 35 names = the literal each replaces. `enumscan.py --reuse --check` on the 3 files: 0 A/B (D 3, X 6, C 1 ignored). `flagcheck --worktree --files`: 4 PASS, 0 deleted, 0 encoding change, RESULT PASS.
+- Left as numbers: `X2GameUnit.cpp` 2119 / 2154 (`IsEnableCode` event codes, not NPC ids), 0x700 (nation flag), `X2GUNPC.cpp` 400 (log-line cap; tsv verdict `stray`).
+- Tool: `enumscan.py` skips the `#else` of any `#ifdef` on a June flag that is `#define`d in `Always.h` (it flagged the kept March originals at 14139 / 14223), and `--check` ignores an A/B row whose verdict starts `stray`.
+- Deploy: DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 16:27:42, md5 b6f31ff5be91486f47f64e7cc39ba3ae (COALESCED into a peer's build that started after my edits).
+- No behaviour change expected; no play-test here (smoke test at NZ). No drift found.
 
 ## Phase NZ - Close (Opus)
 

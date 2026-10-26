@@ -670,8 +670,13 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 		if ( NULL != g_pX2Game )
 		{
 			const int iSkillID = static_cast<int>( pSkillTemplet->m_eID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			if ( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == iSkillID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == iSkillID ||
+				 true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( m_eSkillID ), CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
+#else
 			if ( 0x6272 == iSkillID || 0x627f == iSkillID ||
 				 true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( m_eSkillID ), 0x61c4 ) )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			{
 				g_pX2Game->UpdateEveElectraSkillSlotIcon();
 			}
@@ -3960,7 +3965,11 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 
 	/// June 322055a0( templet id ): false for 0x56b8 and 0x56c8 = RNSI_A_AISHA_TELEPORT and _UPGRADE ( june_src_fixed Enum.src.lua:14477, :16593 )
 	const int iSkillID = static_cast<int>( pSkillTemplet->m_eID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	if ( CX2SkillTree::RNSI_A_AISHA_TELEPORT == iSkillID || CX2SkillTree::RNSI_A_AISHA_TELEPORT_UPGRADE == iSkillID )
+#else
 	if ( 22200 == iSkillID || 22216 == iSkillID )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		return;
 
 	/// June @328e5eef: 31aa6560( L"\n", 1 ) = append
@@ -5494,6 +5503,98 @@ void CX2SkillTree::JuneLoadMajorComboRows( const JuneSkillCommandDesc* pDesc_, c
 /// Transcribed from June's switch by class number, Luciel / Rose / Ain included ( March has no UNIT_CLASS names for them )
 /*static*/ std::string CX2SkillTree::JuneGetUnitClassName( int iUnitClass_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	switch ( iUnitClass_ )
+	{
+	case CX2Unit::UC_ELSWORD_SWORDMAN:	return "ELSWORD_SWORDMAN";
+	case CX2Unit::UC_ARME_VIOLET_MAGE:	return "ARME_VIOLET_MAGE";
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:	return "LIRE_ELVEN_RANGER";
+	case CX2Unit::UC_RAVEN_FIGHTER:	return "RAVEN_FIGHTER";
+	case CX2Unit::UC_EVE_NASOD:	return "EVE_NASOD";
+	case CX2Unit::UC_CHUNG_IRON_CANNON:	return "CHUNG_IRON_CANNON";
+	case CX2Unit::UC_ARA_MARTIAL_ARTIST:	return "ARA_MARTIAL_ARTIST";
+	case CX2Unit::UC_ELESIS_KNIGHT:	return "ELESIS_KNIGHT";
+	case CX2Unit::UC_ADD_NASOD_RULER:	return "ADD_NASOD_RULER";
+	case CX2Unit::UC_ELSWORD_KNIGHT:	return "ELSWORD_KNIGHT";
+	case CX2Unit::UC_ELSWORD_MAGIC_KNIGHT:	return "ELSWORD_MAGIC_KNIGHT";
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:	return "LIRE_COMBAT_RANGER";
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:	return "LIRE_SNIPING_RANGER";
+	case CX2Unit::UC_ARME_HIGH_MAGICIAN:	return "ARME_HIGH_MAGICIAN";
+	case CX2Unit::UC_ARME_DARK_MAGICIAN:	return "ARME_DARK_MAGICIAN";
+	case CX2Unit::UC_RAVEN_SOUL_TAKER:	return "RAVEN_SOUL_TAKER";
+	case CX2Unit::UC_RAVEN_OVER_TAKER:	return "RAVEN_OVER_TAKER";
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:	return "EVE_EXOTIC_GEAR";
+	case CX2Unit::UC_EVE_ARCHITECTURE:	return "EVE_ARCHITECTURE";
+	case CX2Unit::UC_CHUNG_FURY_GUARDIAN:	return "CHUNG_FURY_GUARDIAN";
+	case CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN:	return "CHUNG_SHOOTING_GUARDIAN";
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT:	return "ELSWORD_SHEATH_KNIGHT";
+	case CX2Unit::UC_ARME_BATTLE_MAGICIAN:	return "ARME_BATTLE_MAGICIAN";
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:	return "LIRE_TRAPPING_RANGER";
+	case CX2Unit::UC_RAVEN_WEAPON_TAKER:	return "RAVEN_WEAPON_TAKER";
+	case CX2Unit::UC_EVE_ELECTRA:	return "EVE_ELECTRA";
+	case CX2Unit::UC_CHUNG_SHELLING_GUARDIAN:	return "CHUNG_SHELLING_GUARDIAN";
+	case CX2Unit::UC_ARA_LITTLE_HSIEN:	return "ARA_LITTLE_HSIEN";
+	case CX2Unit::UC_ELESIS_SABER_KNIGHT:	return "ELESIS_SABER_KNIGHT";
+	case CX2Unit::UC_ELESIS_PYRO_KNIGHT:	return "ELESIS_PYRO_KNIGHT";
+	case CX2Unit::UC_ARA_LITTLE_DEVIL:	return "ARA_LITTLE_DEVIL";
+	case CX2Unit::UC_ADD_PSYCHIC_TRACER:	return "ADD_PSYCHIC_TRACER";
+	case CX2Unit::UC_ADD_ARC_TRACER:	return "ADD_ARC_TRACER";
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:	return "ARA_LITTLE_SPECTER";
+	case CX2Unit::UC_ELESIS_DARK_KNIGHT:	return "ELESIS_DARK_KNIGHT";
+	case CX2Unit::UC_ADD_TIME_TRACER:	return "ADD_TIME_TRACER";
+	case CX2Unit::UC_LUCIEL_CHILIARCH:	return "LUCIEL_CHILIARCH";
+	case CX2Unit::UC_LUCIEL_ROYAL_GUARD:	return "LUCIEL_ROYAL_GUARD";
+	case CX2Unit::UC_LUCIEL_DIABLURA:	return "LUCIEL_DIABLURA";
+	case CX2Unit::UC_ROSE_BLOODIA:	return "ROSE_BLOODIA";
+	case CX2Unit::UC_ROSE_HEAVY_BARREL:	return "ROSE_HEAVY_BARREL";
+	case CX2Unit::UC_ROSE_METAL_HEART:	return "ROSE_METAL_HEART";
+	case CX2Unit::UC_ROSE_VALKYRIE:	return "ROSE_VALKYRIE";
+	case CX2Unit::UC_AIN_LOFTY_EXACTER:	return "AIN_LOFTY_EXACTER";
+	case CX2Unit::UC_AIN_LOFTY_ANPASSEN:	return "AIN_LOFTY_ANPASSEN";
+	case CX2Unit::UC_AIN_LOFTY_WANDERER:	return "AIN_LOFTY_WANDERER";
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:	return "ELSWORD_LORD_KNIGHT";
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:	return "ELSWORD_RUNE_SLAYER";
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:	return "LIRE_WIND_SNEAKER";
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:	return "LIRE_GRAND_ARCHER";
+	case CX2Unit::UC_ARME_ELEMENTAL_MASTER:	return "ARME_ELEMENTAL_MASTER";
+	case CX2Unit::UC_ARME_VOID_PRINCESS:	return "ARME_VOID_PRINCESS";
+	case CX2Unit::UC_RAVEN_BLADE_MASTER:	return "RAVEN_BLADE_MASTER";
+	case CX2Unit::UC_RAVEN_RECKLESS_FIST:	return "RAVEN_RECKLESS_FIST";
+	case CX2Unit::UC_EVE_CODE_NEMESIS:	return "EVE_CODE_NEMESIS";
+	case CX2Unit::UC_EVE_CODE_EMPRESS:	return "EVE_CODE_EMPRESS";
+	case CX2Unit::UC_CHUNG_IRON_PALADIN:	return "CHUNG_IRON_PALADIN";
+	case CX2Unit::UC_CHUNG_DEADLY_CHASER:	return "CHUNG_DEADLY_CHASER";
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:	return "ELSWORD_INFINITY_SWORD";
+	case CX2Unit::UC_ARME_DIMENSION_WITCH:	return "ARME_DIMENSION_WITCH";
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:	return "LIRE_NIGHT_WATCHER";
+	case CX2Unit::UC_RAVEN_VETERAN_COMMANDER:	return "RAVEN_VETERAN_COMMANDER";
+	case CX2Unit::UC_EVE_BATTLE_SERAPH:	return "EVE_BATTLE_SERAPH";
+	case CX2Unit::UC_CHUNG_TACTICAL_TROOPER:	return "CHUNG_TACTICAL_TROOPER";
+	case CX2Unit::UC_ARA_SAKRA_DEVANAM:	return "ARA_SAKRA_DEVANAM";
+	case CX2Unit::UC_ARA_YAMA_RAJA:	return "ARA_YAMA_RAJA";
+	case CX2Unit::UC_ELESIS_GRAND_MASTER:	return "ELESIS_GRAND_MASTER";
+	case CX2Unit::UC_ELESIS_BLAZING_HEART:	return "ELESIS_BLAZING_HEART";
+	case CX2Unit::UC_ADD_LUNATIC_PSYKER:	return "ADD_LUNATIC_PSYKER";
+	case CX2Unit::UC_ADD_MASTERMIND:	return "ADD_MASTERMIND";
+	case CX2Unit::UC_ARA_ASURA:	return "ARA_ASURA";
+	case CX2Unit::UC_ELESIS_CRIMSON_AVENGER:	return "ELESIS_CRIMSON_AVENGER";
+	case CX2Unit::UC_ADD_DIABOLIC_ESPER:	return "ADD_DIABOLIC_ESPER";
+	case CX2Unit::UC_LUCIEL_DREAD_LORD:	return "LUCIEL_DREAD_LORD";
+	case CX2Unit::UC_LUCIEL_NOBLESSE:	return "LUCIEL_NOBLESSE";
+	case CX2Unit::UC_LUCIEL_DEMONIO:	return "LUCIEL_DEMONIO";
+	case CX2Unit::UC_ROSE_CRIMSON_ROSE:	return "ROSE_CRIMSON_ROSE";
+	case CX2Unit::UC_ROSE_STORM_TROOPER:	return "ROSE_STORM_TROOPER";
+	case CX2Unit::UC_ROSE_OPTIMUS:	return "ROSE_OPTIMUS";
+	case CX2Unit::UC_ROSE_FREYJA:	return "ROSE_FREYJA";
+	case CX2Unit::UC_AIN_ARME_THAUMATURGY:	return "AIN_ARME_THAUMATURGY";
+	case CX2Unit::UC_AIN_ERBLUHEN_EMOTION:	return "AIN_ERBLUHEN_EMOTION";
+	case CX2Unit::UC_AIN_APOSTASIA:	return "AIN_APOSTASIA";
+	case CX2Unit::UC_LUCIEL_DUO:	return "LUCIEL_DUO";
+	case CX2Unit::UC_ROSE_GUNNER:	return "ROSE_GUNNER";
+	case CX2Unit::UC_AIN_ANGEL:	return "AIN_ANGEL";
+	default:	return "";
+	}
+#else
 	switch ( iUnitClass_ )
 	{
 	case 1:	return "ELSWORD_SWORDMAN";
@@ -5584,6 +5685,7 @@ void CX2SkillTree::JuneLoadMajorComboRows( const JuneSkillCommandDesc* pDesc_, c
 	case 202:	return "AIN_ANGEL";
 	default:	return "";
 	}
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 }
 
 /// June 32207110( icon, out texture, out key ): the icon's m_IconTextureName / m_IconTetName ( only when the key is not empty )
