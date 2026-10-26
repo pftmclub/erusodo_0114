@@ -3078,5 +3078,19 @@ protected:
 	void June_ReInit( bool bRandom = false, int startPosIndex = -1 );	/// June 329af460 ( vslot 0x44 )
 	void June_Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
 	void June_ConstructorInit();							/// June 3299bd70
+
+	/// June character port Phase CH1l: inert June_* members of Eve's overrides 0x600-0x7bc and the helpers they reach first; nothing calls them until CH1
+	void		June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
+	void		June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
+	void		June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	/// June 32968f20 ( vslot 0x7b8 )
+	void		June_InitEquippedActiveSkillState( bool bOnlySkillLevel_ = false );	/// June 32977390 ( vslot 0x684 )
+	void		June_InitInpuDataProcess();				/// June 32978e80 ( vslot 0x6fc )
+	void		June_HyperModeFrameMove();				/// June 3299cf70 ( vslot 0x600 )
+	float		June_Vslot6a8( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, name unsettled )
+	float		June_Vslot65c( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, name unsettled )
+	void		June_Vslot6ac( const int iNpcID_ );		/// June 3298c580 ( vslot 0x6ac, name unsettled )
+	void		June_Vslot77c( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
+	CX2BuffFactorPtr	June_GetEnergyOfConcentrationBuffFactorClonePtr();	/// June 329b4ac0
+	void		June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ );	/// June 329b7390 ( vslot 0x7b0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

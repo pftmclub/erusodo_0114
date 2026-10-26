@@ -478,6 +478,7 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     - the gage-manager cooltime UI (`324943c0`, `32489e30`, `3248ac30`);
     - `32150f50`, `32151980`, `32457e70` / `32457b40` and `32676150` / `326765f0`;
     - the guide-manager step gates on the skill and riding slots (`+0xe4 < 3`), which need the June-only `CX2TutorialGuideManager`.
+    - the tutorial key mask `320708f0( InputData&, guide step +0xe4, unit +0xaf0 value )` (zeroes the held keys per step; step -1 does nothing), called by `CX2GUUser::InitInpuDataProcess` `31fcea10` and Eve's `32978e80` (handed here by char-eve CH1l, 2026-10-26; the Eve port leaves the call out).
   - What is left in `SetEnable`: the `+0x100` / `+0x101` slot-count modes and the unit `+0xdba` term.
   - What is left in the toggle body: the double refresh `31c91850`, the June-only `g_pMain+0x2aa` mirror and the `32e904d0` call.
   - Rows: `june2017_re/c14c_tutorial_reads.tsv`; Done note: `JUNE_BUFF_PORT_PHASES.md` "Phase 14c — Done".

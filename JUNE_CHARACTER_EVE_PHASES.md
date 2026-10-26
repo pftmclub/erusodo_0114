@@ -883,6 +883,36 @@ Build: `DEPLOY OK: X2_offline.exe is 25,994,240 B, dated 2026-10-26 13:37:05, md
 Hygiene (`--range 714ceb95^..714ceb95`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The fix (`--worktree --files X2Lib/X2GuEve.cpp`) also passes: 1 PASS, 4 replaced lines inside the flag.
 Build: `DEPLOY OK: X2_offline.exe is 25,994,240 B, dated 2026-10-26 13:57:16, md5 9fe9576f19692ae39bb1943ea1c1f67f, equal to X2/US_SERVICE/x2.exe (2026-10-26 13:57:09); built at main c7b9241c + 1 uncommitted code file(s).` Nothing in game. `CH1l.md` still matches. Next: `/x2-phase char-eve CH1l` (Sonnet 5.5 high).
 
+### CH1l - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a thirteenth block at the end of `X2GuEve.cpp`, namespace `_CONST_EVE_JUNE_CH1l_`, +507 lines; 14 declaration lines in `X2GuEve.h`). **All 11 class-map rows of phase CH1l** (the 10 + `329cc500`, moved from CH1e): 10 are new `CX2GUEve::June_*` members, `329cc500` is a namespace helper. Nothing registers or calls them. 18 funcmap rows `Char Eve CH1l`.
+
+| June | member (`June_` prefix) | notes |
+|---|---|---|
+| `32968f20` ( 0x7b8 ) | SetEquippedSkillLevel | 25021 -> states 211 / 212 / 213 ( each twice ), 5018 -> 222 / 223, 25223 -> 239-241, 25206 -> 205 / 206, 25236 -> 242 ( no null test ); every state through `June_SetSkillLevelStateDataByID` ( `32028190` ) / `June_SetSkillLevelStateData` ( `3201f850`, Eve copies of the Arme ones ) |
+| `32977390` ( 0x684 ) | InitEquippedActiveSkillState | Mega Electronball 25207 / Taser Pilum 25212 / Kugelblitz 25024 slot ids in June's 0-9 slot space; `m_iJune1c0` = 3 / 1; Queen's Throne rate x ( `3201ad10` + 1.0 ) |
+| `32978e80` ( 0x6fc ) | InitInpuDataProcess | ZXArrow, [tutorial mask left out], then Mega / Taser / Kugelblitz -> `Init` keeping the pure key of slot 0-9; `329cc500` = March's lambda |
+| `3299cf70` ( 0x600 ) | HyperModeFrameMove | `June_CommonHyperModeFrameMove( 0.05, 0.83, false )` |
+| `329b7390` + `329b4ac0` ( 0x7b0 ) | ApplyAuraAcceleratorBuffToGameUnit + GetEnergyOfConcentrationBuffFactorClonePtr | four arguments ( index ); skill 25402's clone; `AdjustBuffFactorByIndex( 25201 )`; `JuneSetTimeFinalizerValue`; no party test; alpha tag `329b77ad` |
+| `32977090` / `32979a70` / `3298c580` / `3299aee0` | Vslot6a8 / Vslot65c / Vslot6ac / Vslot77c | the four unnamed slots ( name unsettled until CH1o ) |
+
+**Resolved without a member:** `31fc66d0` = `InputData::Init`, `3226e2e0` = `IsCanNotIntput`, `32767930` = `CX2GUNPC::SetPosition`, `31f8b860` = `vector<int>::push_back`, `32089f60` = `CX2BuffFactor` levelled clone, `31edf580` = `CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill`. Eve-local copies: `31edf560` ( `JuneEveIsSkillOrUpgrade` ), `32007c40`, `32205440` ( `JuneEveAccelCoreParticleName`: March's `GetAccelCoreParticleName` lacks June's ids 0x56ba-0x56cf, 0x6271, 0x627e, 0x765d-0x765f ).
+
+**What differs from March:**
+- **`32977390`.** Slot space 0-9 ( A 0-4 / B 5-9 ) with no `GetEnabledSkillSlotB`; March keeps 4 + 4 under `SKILL_SLOT_10` ( CH1p converts every reader ). Only the Kugelblitz loop tests the B lock, on MY unit's tree ( JUNE_BUGS 432 ).
+- **`32978e80`.** March's body plus the Taser and Kugelblitz branches and the 10-key table ( June `+0x50` / `+0x54` = March `pureSkill5` / `pureSkillEx5`; June's `InputData` has one more key group before them ).
+- **`329b7390`.** Hands the base a literal 0 as the index ( JUNE_BUGS 433 ); applies to every same-team user in 700 units ( no PvP / party test ); the Energy of Concentration clone comes from `329b4ac0` ( level read with the hyper flag ).
+- **`32979a70`.** The NPC byte `+0x8751` has no March member ( only `322ec9b1` sets it, for NPC 3112 ): a labelled stand-in returns false, so the getter answers 0.0 until a phase finds the writer.
+
+**Offsets settled by `offsetprobe`** ( March layout, same base ): `+0x97e4` = `m_EveElectraSystem.m_bSystemEnable`, `+0x9978` = `m_bHyperOpticalResearch`, `+0x99a4` = `m_iJune1c0`, `+0x96b8` = `m_sEGQueensThrone.m_fPowerRate`, `+0x9a54` / `+0x9aac` = the Taser / Kugelblitz `m_bEnable`.
+
+**Checks.** `cl /Zs` of `X2GuEve.cpp`: 0 errors, 0 warnings in the block; the `cl /P` output holds the block ( flag live ).
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Build.** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 14:38:40, md5 110e8ca140fec75366f2ea457d9a45d9, equal to X2/US_SERVICE/x2.exe (2026-10-26 14:38:32); built at main 20d3622d + 2 uncommitted code file(s).` Nothing in game.
+
+**JUNE_BUGS:** 432, 433. **Checklist:** `3297762a` ( 7, L277 ), `32978ec2` ( 7, L285 ), `329b77ad` ( 7c ) marked `(Eve: CH1l)`.
+**Drift** ( scope rule ): the tutorial key mask `320708f0` ( InputData, per guide step; also called by `CX2GUUser::InitInpuDataProcess` `31fcea10` ) joins backlog Stage 9's guide-manager bullet ( l.480 ). **Open for the review:** the writer of the NPC byte `+0x8751`; the names of the four slots ( 0x65c / 0x6a8 / 0x6ac / 0x77c ). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1l-review.md`. Next: `/x2-phase char-eve CH1l review` ( Opus 5.5 high ), then CH1l2.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

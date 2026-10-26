@@ -44347,4 +44347,511 @@ void CX2GUEve::June_ConstructorInit()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: overrides 0x600-0x7bc and the helpers they reach first ( class map CH1l ); nothing calls them until CH1.
+
+namespace _CONST_EVE_JUNE_CH1l_
+{
+	/// June skill ids ( Enum.lua numbering; the C++ SKILL_ID enum is March's )
+	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_OVER_CHARGE	= 25021;	/// 0x61bd
+	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_TRI_VULCAN		= 5018;		/// 0x139a, June keeps the old id
+	const int JUNE_CH1L_A_EBS_ELECTRONIC_MOVE				= 25223;	/// 0x6287
+	const int JUNE_CH1L_A_ECN_SPEAR_BURST					= 25206;	/// 0x6276
+	const int JUNE_CH1L_SA_ECE_REASON_PRIDE					= 25236;	/// 0x6294
+	const int JUNE_CH1L_A_EAT_MEGA_ELECTRONBALL				= 25207;	/// 0x6277
+	const int JUNE_CH1L_A_ECB_TASER_PILUM					= 25212;	/// 0x627c
+	const int JUNE_CH1L_SA_EEL_KUGELBLITZ					= 25024;	/// 0x61c0
+	const int JUNE_CH1L_SA_EEG_QUEENS_THRONE				= 25003;	/// 0x61ab
+	const int JUNE_CH1L_P_ECN_ENERGY_OF_CONCENTRATION		= 25402;	/// 0x633a
+	const int JUNE_CH1L_P_ECE_GRACE_OF_QUEEN				= 25408;	/// 0x6340
+	const int JUNE_CH1L_A_COMMON_AURA_ADDATK_ACCEL			= 25201;	/// 0x6271
+
+	/// June state id with no March enumerator yet ( CH3b adds it )
+	const int JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION		= 242;		/// 0xf2
+
+	/// June NPC unit ids of the Nasod summons ( 0x655 / 0x656 are CH1k's 1621 / 1622 )
+	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE					= 0x180;
+	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO			= 0x207;
+
+	/// June 329cc500: clears the input, then sets the one pure key back when it was held
+	void JuneEveInitInputDataExceptKey( CX2GameUnit::InputData& sInputData_, bool& bPureKey_ )
+	{
+		if( true == bPureKey_ )
+		{
+			sInputData_.Init();
+			bPureKey_ = true;
+		}
+		else
+			sInputData_.Init();
+	}
+
+	/// June 329792cc / 329792f4 / 3297931c: the pure key of skill slot id 0-9 ( A S D C, Skill5, Q W E R, SkillEx5 ); NULL past the table
+	bool* JuneEveSlotPureKey( CX2GameUnit::InputData& sInputData_, const int iSlotID_ )
+	{
+		switch( iSlotID_ )
+		{
+		case 0:	return &sInputData_.pureA;
+		case 1:	return &sInputData_.pureS;
+		case 2:	return &sInputData_.pureD;
+		case 3:	return &sInputData_.pureC;
+		case 4:	return &sInputData_.pureSkill5;
+		case 5:	return &sInputData_.pureQ;
+		case 6:	return &sInputData_.pureW;
+		case 7:	return &sInputData_.pureE;
+		case 8:	return &sInputData_.pureR;
+		case 9:	return &sInputData_.pureSkillEx5;
+		}
+
+		return NULL;
+	}
+
+	/// June 31edf560: the skill tree must exist; then the ids are equal or the first is the "[Enhanced]" skill of the second
+	bool JuneEveIsSkillOrUpgrade( const int iSkillID_, const int iTarget_ )
+	{
+		if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return false;
+
+		if( iSkillID_ == iTarget_ )
+			return true;
+
+		return iSkillID_ == g_pData->GetSkillTree()->GetUpgradedSkillID( iTarget_ );
+	}
+
+	/// June 32890ee0 on MY unit's skill tree ( g_pData +0x68 +0x90 +0x494 ); no tree to ask counts as usable ( CH1j20's rule )
+	bool JuneEveIsMySlotUsable( const int iKey_ )
+	{
+		if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+			return true;
+
+		return g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.IsJuneSlotUsable( iKey_ );
+	}
+
+	/// June 32007c40: the ability of an acquired skill at the learned level ( IsPvpOrPve is false offline )
+	bool JuneEveTryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+	}
+
+	/// June NPC byte +0x8751 ( no March member ): only 322ec9b1 sets it, for NPC 3112; June's default 0 stands in
+	bool JuneEveNpcByte8751( const CX2GameUnit* /*pUnit_*/ )
+	{
+		return false;
+	}
+
+	/// June 32205440: the aura accelerator's core particle by skill id ( March's table plus the June ids )
+	const WCHAR* JuneEveAccelCoreParticleName( const int iSkillID_ )
+	{
+		switch( iSkillID_ )
+		{
+		case 200: case 0x56c4: case 0x56cf:
+			return L"BuffAttackCore";
+		case 201: case 0x56ba: case 0x56cd:
+			return L"BuffMagickCore";
+		case 202:
+			return L"ShieldBuffCore";
+		case 203: case 0x56bf: case 0x56ce:
+			return L"BuffSpeed_Core";
+		case 204:
+			return L"BuffElDefence_Core";
+		case 205:
+			return L"BuffCritical_Core";
+		case 206: case 0x627e: case 0x6271:
+			return L"BuffAddAtk_Core";
+		}
+
+		if( 0x765d <= iSkillID_ && iSkillID_ <= 0x765f )
+			return L"BuffAttackCore_Luciel";
+
+		return NULL;
+	}
+}
+using namespace _CONST_EVE_JUNE_CH1l_;
+
+// June 3201f850 ( CX2GUUser, June base form ): the state's skill level, power rate ( times the additional power rate + 1 ) and skill id
+void CX2GUEve::June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
+{
+	if( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	stateData_.m_SPLevel = static_cast<char>( iSkillLevel );
+	stateData_.m_fPowerRate = pSkillTemplet_->GetSkillPowerRateValue( iSkillLevel );
+	stateData_.m_eSkillID = pSkillTemplet_->m_eID;
+	stateData_.m_fPowerRate = ( GetSkillAdditionalPowerRateJune( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.0f ) * stateData_.m_fPowerRate;
+}
+
+// June 32028190 ( vslot 0x7a8 ): the same, for the state with this id ( none when that state is not registered )
+void CX2GUEve::June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ )
+{
+	UserUnitStateDataMap::iterator itState = JuneGetStateDataIterator( iStateID_ );
+	if( itState != m_StateList.end() )
+		June_SetSkillLevelStateData( pSkillTemplet_, itState->second );
+}
+
+// June 32968f20 ( vslot 0x7b8 ): June's dirty-state batch ( 3207c1a0 / 31fdf970 ) has no March form, every state goes through ByID
+void CX2GUEve::June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
+{
+	const int iSkillID = static_cast<int>( eSkillID_ );
+
+	if( true == bChangeAll_ || JUNE_CH1L_SA_EEL_SWEEP_ROLLING_OVER_CHARGE == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_SA_EEL_SWEEP_ROLLING_OVER_CHARGE ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_CHARGE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_CHARGE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_FIRE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_FIRE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_END );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EPR_SWEEP_ROLLING_END );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1L_SA_EEL_SWEEP_ROLLING_TRI_VULCAN == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_SA_EEL_SWEEP_ROLLING_TRI_VULCAN ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EEN_SWEEP_ROLLING_TRI_VULCAN_FIRE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EEN_SWEEP_ROLLING_TRI_VULCAN_FIRE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EEN_SWEEP_ROLLING_TRI_VULCAN_END );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_SA_EEN_SWEEP_ROLLING_TRI_VULCAN_END );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1L_A_EBS_ELECTRONIC_MOVE == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_A_EBS_ELECTRONIC_MOVE ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_A_EBS_ELECTRONIC_MOVE_FRONT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_A_EBS_ELECTRONIC_MOVE_UP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_A_EBS_ELECTRONIC_MOVE_DOWN );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1L_A_ECN_SPEAR_BURST == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_A_ECN_SPEAR_BURST ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_A_ENS_BURST_SPEAR_Landing );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, ENSI_A_ENS_BURST_SPEAR_Landing_HYPER );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1L_SA_ECE_REASON_PRIDE == iSkillID )
+	{
+		/// June has no null test before the call; the helper tests the templet itself
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_SA_ECE_REASON_PRIDE ), true );
+		June_SetSkillLevelStateDataByID( pSkillTemplet, JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION );
+	}
+}
+
+// June 32977390 ( vslot 0x684 ): the Mega Electronball / Taser Pilum / Kugelblitz slot ids in June's 0-9 slot space ( A 0-4, B 5-9; the 4 + 4 space of March's readers is CH1p's ), then the Queen's Throne power rate
+void CX2GUEve::June_InitEquippedActiveSkillState( bool bOnlySkillLevel_ )
+{
+	CX2GUUser::InitEquippedActiveSkillState( bOnlySkillLevel_ );
+
+	if( NULL != GetUnit() )
+	{
+		m_sMegaElectronBallData.SetSlotID( -1 );
+		for( int iSlot = 0; iSlot < 10; ++iSlot )
+		{
+			const bool bSlotB = ( iSlot > 4 ) ? true : false;
+			const int iSlotIndex = ( true == bSlotB ) ? iSlot - 5 : iSlot;
+			const CX2UserSkillTree::SkillSlotData* pSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
+			if( NULL != pSlotData && true == JuneEveIsSkillOrUpgrade( static_cast<int>( pSlotData->m_eID ), JUNE_CH1L_A_EAT_MEGA_ELECTRONBALL ) )
+			{
+				m_sMegaElectronBallData.SetSlotID( iSlot );
+				break;
+			}
+		}
+
+		m_sTaserPilumData.SetSlotID( TASER_PILUM_Data::ST_A, -1 );
+		m_sTaserPilumData.SetSlotID( TASER_PILUM_Data::ST_B, -1 );
+		for( int iType = 0; iType < static_cast<int>( TASER_PILUM_Data::ST_END ); ++iType )
+		{
+			for( int iSlot = 0; iSlot < 10; ++iSlot )
+			{
+				const bool bSlotB = ( iSlot > 4 ) ? true : false;
+				const int iSlotIndex = ( true == bSlotB ) ? iSlot - 5 : iSlot;
+				const CX2UserSkillTree::SkillSlotData* pSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
+				if( NULL != pSlotData && true == JuneEveIsSkillOrUpgrade( static_cast<int>( pSlotData->m_eID ), JUNE_CH1L_A_ECB_TASER_PILUM ) )
+				{
+					m_sTaserPilumData.SetSlotID( static_cast<TASER_PILUM_Data::SLOT_TYPE>( iType ), iSlot );
+					break;
+				}
+			}
+		}
+
+		/// June 32977494: +0x99a4 ( the Electra system's last member ) is 3 when the system is on and the hyper optical research is up, else 1
+		m_EveElectraSystem.m_iJune1c0 = ( true == m_EveElectraSystem.m_bSystemEnable && true == m_EveElectraSystem.m_bHyperOpticalResearch ) ? 3 : 1;
+
+		m_sKugelBlitz_Data.SetSlotID( SKugelBlitz_Data::ST_A, -1 );
+		m_sKugelBlitz_Data.SetSlotID( SKugelBlitz_Data::ST_B, -1 );
+		for( int iType = 0; iType < static_cast<int>( SKugelBlitz_Data::ST_END ); ++iType )
+		{
+			for( int iSlot = 0; iSlot < 10; ++iSlot )
+			{
+				const bool bSlotB = ( iSlot > 4 ) ? true : false;
+				const int iSlotIndex = ( true == bSlotB ) ? iSlot - 5 : iSlot;
+
+				/// only this loop tests the B slot lock, on my unit's tree ( the Mega Electronball and Taser Pilum loops do not )
+				if( false == JuneEveIsMySlotUsable( 0 ) && true == bSlotB )
+					break;
+
+				const CX2UserSkillTree::SkillSlotData* pSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
+				if( NULL != pSlotData && true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( pSlotData->m_eID ), JUNE_CH1L_SA_EEL_KUGELBLITZ ) )
+				{
+					m_sKugelBlitz_Data.SetSlotID( static_cast<SKugelBlitz_Data::SLOT_TYPE>( iType ), iSlot );
+					break;
+				}
+			}
+		}
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_SA_EEG_QUEENS_THRONE ), true );
+	if( NULL != pSkillTemplet && NULL != GetUnit() )
+	{
+		int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+		if( iSkillLevel < 1 )
+			iSkillLevel = 1;
+
+		/// June 3297762a: times ( the skill group's additional power rate + 1.0 ), as 3201f850 does
+		m_sEGQueensThrone.m_fPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
+		m_sEGQueensThrone.m_fPowerRate = ( GetSkillAdditionalPowerRateJune( static_cast<int>( pSkillTemplet->m_eID ) ) + 1.0f ) * m_sEGQueensThrone.m_fPowerRate;
+	}
+}
+
+// June 32978e80 ( vslot 0x6fc ): March's body with June's 10 slot keys and the Taser Pilum / Kugelblitz branches
+void CX2GUEve::June_InitInpuDataProcess()
+{
+	if( m_fCanNotInputTimeZXArrow > 0.f )
+		m_InputData.Init_ZXArrowOnly();
+
+	/// June 32978ec2: while the tutorial plays, 320708f0 masks the keys per guide step; the guide manager is June-only ( backlog l.480 ), no mask here
+
+	if( false == IsCanNotIntput() )
+		return;
+
+	if( true == m_sMegaElectronBallData.m_bEnable )
+	{
+		bool* pbKey = JuneEveSlotPureKey( m_InputData, m_sMegaElectronBallData.GetSkillSlotID() );
+		if( NULL != pbKey )
+			JuneEveInitInputDataExceptKey( m_InputData, *pbKey );
+	}
+	else if( true == m_sTaserPilumData.m_bEnable )
+	{
+		bool* pbKey = JuneEveSlotPureKey( m_InputData, m_sTaserPilumData.GetSkillSlotID() );
+		if( NULL != pbKey )
+			JuneEveInitInputDataExceptKey( m_InputData, *pbKey );
+	}
+	else if( true == m_sKugelBlitz_Data.m_bEnable )
+	{
+		bool* pbKey = JuneEveSlotPureKey( m_InputData, m_sKugelBlitz_Data.GetSkillSlotID() );
+		if( NULL != pbKey )
+			JuneEveInitInputDataExceptKey( m_InputData, *pbKey );
+	}
+	else
+		m_InputData.Init();
+}
+
+// June 3299cf70 ( vslot 0x600 )
+void CX2GUEve::June_HyperModeFrameMove()
+{
+	June_CommonHyperModeFrameMove( 0.05f, 0.83f, false );
+}
+
+// June 32977090 ( vslot 0x6a8, name unsettled ): float getter; the Psyker Kinesis value reads 0 while the 9c50 block holds a time
+float CX2GUEve::June_Vslot6a8( const float fValue_, const int iSkillID_ )
+{
+	if( JUNE_CH1K_SA_ECN_PSYKER_KINESIS == iSkillID_ && NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC )
+		return 0.0f;
+
+	return fValue_;
+}
+
+// June 32979a70 ( vslot 0x65c, name unsettled ): a Nasod summon's flag, with my HP at or under the Grace of Queen threshold, reads that skill's passive value 0xc2
+float CX2GUEve::June_Vslot65c( CX2GameUnit* pUnit_ )
+{
+	float fValue = 0.0f;
+	if( NULL == pUnit_ )
+		return fValue;
+
+	/// June reads the NPC templet slot of any unit ( JUNE_BUGS 431 ); a user unit has none, so it answers 0
+	const int iNpcID = ( CX2GameUnit::GUT_NPC == pUnit_->GetGameUnitType() ) ? static_cast<CX2GUNPC*>( pUnit_ )->GetNPCTemplet().m_nNPCUnitID : 0;
+	if( JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO != iNpcID && JUNE_CH1L_NUI_NASOD_WATCH_EVE != iNpcID && JUNE_CH1K_NUI_1621 != iNpcID && JUNE_CH1K_NUI_1622 != iNpcID )
+		return fValue;
+
+	if( false == JuneEveNpcByte8751( pUnit_ ) )
+		return fValue;
+
+	float fThreshold = 0.0f;
+	if( false == JuneEveTryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_RATE, JUNE_CH1L_P_ECE_GRACE_OF_QUEEN, fThreshold ) )
+		return fValue;
+
+	const float fHpRate = GetNowHp() / GetMaxHp();
+	if( fThreshold < fHpRate )
+		return fValue;
+
+	JuneEveTryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_CRITICAL_REL, JUNE_CH1L_P_ECE_GRACE_OF_QUEEN, fValue );
+	return fValue;
+}
+
+// June 3298c580 ( vslot 0x6ac, name unsettled ): every live ally summon of mine ( templet id iNpcID_, 0 = any ) moves to my position
+void CX2GUEve::June_Vslot6ac( const int iNpcID_ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNpcID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNpcID_ )
+			continue;
+
+		/// a unit without a gage passes the life test
+		if( NULL != pNPC->GetGageData() && pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		if( GetUnitUID() != static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() )
+			continue;
+
+		const D3DXVECTOR3 vMyPos = GetPos();
+		pNPC->SetPosition( vMyPos, GetIsRight() );
+	}
+}
+
+// June 3299aee0 ( vslot 0x77c, name unsettled ): for Code Empress, every Nasod summon of mine that is not self-destructing is added to the list
+void CX2GUEve::June_Vslot77c( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( true == pNPC->GetSelfDestruction() || JUNE_CH1K_UC_EVE_CODE_EMPRESS != iUnitClass_ )
+			continue;
+
+		const int iNpcID = pNPC->GetNPCTemplet().m_nNPCUnitID;
+		if( JUNE_CH1L_NUI_NASOD_WATCH_EVE != iNpcID && JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO != iNpcID && JUNE_CH1K_NUI_1621 != iNpcID && JUNE_CH1K_NUI_1622 != iNpcID )
+			continue;
+
+		if( static_cast<CX2GameUnit*>( this ) == static_cast<CX2GameUnit*>( pNPC->GetOwnerGameUnit() ) )
+			vecNPC_.push_back( pNPC );
+	}
+}
+
+// June 329b4ac0: a clone of the first buff factor of Energy of Concentration at the learned level, or none
+CX2BuffFactorPtr CX2GUEve::June_GetEnergyOfConcentrationBuffFactorClonePtr()
+{
+	if( NULL == GetUnit() || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return CX2BuffFactorPtr();
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_P_ECN_ENERGY_OF_CONCENTRATION ), true, 0, true );
+	if( iSkillLevel <= 0 )
+		return CX2BuffFactorPtr();
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_P_ECN_ENERGY_OF_CONCENTRATION ) );
+	if( NULL == pSkillTemplet || true == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+		return CX2BuffFactorPtr();
+
+	return pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevel );
+}
+
+// June 329b7390 ( vslot 0x7b0 ): March's body with a buff factor index, the skill-memo adjust of the aura clone, no party test, and the alpha tag on the core particle
+void CX2GUEve::June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ )
+{
+	CX2BuffFactorPtr ptrEnergyOfConcentrationFactor = June_GetEnergyOfConcentrationBuffFactorClonePtr();
+
+	if( NULL == ptrEnergyOfConcentrationFactor )
+	{
+		/// June hands the base its fourth argument as 0, not uiIndex_ ( the March base has three )
+		CX2GUUser::ApplyAuraAcceleratorBuffToGameUnit( pSkillTemplet_, fAddtionalAccelBuffTime_, vMyPos_ );
+		return;
+	}
+
+	if( true == pSkillTemplet_->m_vecBuffFactorPtr.empty() || NULL == GetUnit() )
+		return;
+
+	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	const size_t uiFactorIndex = ( pSkillTemplet_->m_vecBuffFactorPtr.size() > uiIndex_ ) ? uiIndex_ : 0;
+	CX2BuffFactorPtr ptrBuffFactorClone = pSkillTemplet_->m_vecBuffFactorPtr[uiFactorIndex]->GetClonePtr( iSkillLevel );
+	if( NULL == ptrBuffFactorClone )
+		return;
+
+	AdjustBuffFactorByIndex( ptrBuffFactorClone, JUNE_CH1L_A_COMMON_AURA_ADDATK_ACCEL );
+	ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+	ptrBuffFactorClone->JuneSetTimeFinalizerValue( fAddtionalAccelBuffTime_, true );
+
+	ptrEnergyOfConcentrationFactor->SetGameUnitBuffFactor( this );
+
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	ptrEnergyOfConcentrationFactor->JuneSetTimeFinalizerValue( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel, false ) + fAddtionalAccelBuffTime_, true );
+
+	const WCHAR* pwsCoreParticleName = JuneEveAccelCoreParticleName( static_cast<int>( pSkillTemplet_->m_eID ) );
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pGameUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pGameUnit )
+			continue;
+
+		if( pGameUnit->GetTeam() != GetTeam() || CX2GameUnit::GUT_USER != pGameUnit->GetGameUnitType() )
+			continue;
+
+		if( false == ( GetDistance3Sq( vMyPos_, pGameUnit->GetPos() ) < 490000.f ) )
+			continue;
+
+		if( false == pGameUnit->CanApplyBuffToGameUnit() )
+			continue;
+
+		if( true == pGameUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone ) && true == pGameUnit->SetBuffFactorToGameUnit( *ptrEnergyOfConcentrationFactor ) )
+		{
+			D3DXVECTOR3 vGameUnitPos = pGameUnit->GetPos();
+			vGameUnitPos.y += 100.0f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, pwsCoreParticleName, vGameUnitPos );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 
