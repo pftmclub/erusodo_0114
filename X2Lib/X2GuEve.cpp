@@ -43366,7 +43366,7 @@ void CX2GUEve::June_InitEnchantWeaponEffectUnitSpecific()
 // June 32977130 ( vslot 0x60 ): no Ferdinand block; +0x9bf8 > 0 returns MP for the HP fraction lost, while alive
 void CX2GUEve::June_DamageReact( CX2DamageManager::DamageData* pDamageData_ )
 {
-	float fNowHp = 0.0f;
+	float fNowHp = 1.0f;
 	float fMaxHp = 1.0f;
 	if( NULL != GetGageData() )
 	{
@@ -43380,7 +43380,7 @@ void CX2GUEve::June_DamageReact( CX2DamageManager::DamageData* pDamageData_ )
 
 	if( 0.0f < m_fJuneVengeanceMpRate )
 	{
-		/// June's defaults with no gage: now 1.0, max 1.0 ( not the 0 / 1 of the first read )
+		/// June's defaults with no gage: now 1.0, max 1.0 ( 32977164 / 32977226, both reads )
 		fNowHp = 1.0f;
 		fMaxHp = 1.0f;
 		bool bAlive = true;
@@ -43637,7 +43637,7 @@ void CX2GUEve::June_AttackResultPlayEffect()
 	}
 }
 
-// June 329a4680 ( vslot 0x4e0 ): March's Thousand Star and lock-on updates; trigger 44 moves summons 1621 / 1622 to the defender
+// June 329a4680 ( vslot 0x4e0 ): March's Thousand Star ( enemy defenders only, +0x278 team ) and lock-on updates; trigger 44 moves summons 1621 / 1622
 void CX2GUEve::June_AttackResultByType( CX2DamageManager::DamageData &pDamageData_ )
 {
 	if( true == pDamageData_.m_bIgnoreAttackSuccess )
@@ -43659,7 +43659,7 @@ void CX2GUEve::June_AttackResultByType( CX2DamageManager::DamageData &pDamageDat
 		NULL != m_pThousandStar &&
 		INVALID_DAMAGE_EFFECT_HANDLE != m_pThousandStar->m_hEffect &&
 		NULL != pDefenderUnit &&
-		pDefenderUnit->GetUnitUID() != GetUnitUID() )
+		pDefenderUnit->GetTeam() != GetTeam() )
 	{
 		if( CX2DamageEffect::CEffect* pTSEffect = m_pThousandStar->GetLiveDamageEffect() )
 		{
