@@ -25,6 +25,10 @@ Every session builds the same tree through one lock, and a full build takes abou
 
 When a play-test needs the user to hold an item, the hand-off gives the dev-console line `/additem <itemID> [qty]` (auth level 3, flag `SERV_IRUHADEV_ADMIN_CHEATS`). Do not insert the item into a shop list and do not point at `/b`: offline `/b` still charges ED and refuses unpriced items. `/qdone <questID>` is the matching command to finish a quest. Both are answered by `Handlers_Quest.cpp`; the log line is `[ADMIN_CHEAT]`.
 
+## Rule: no anonymous namespace; use the studio's named `_CONST_<NAME>_` namespaces (user, 2026-10-26)
+
+File-local constants and helpers in client source go in a **named namespace** `_CONST_<CLASS>_JUNE_<phase>_` (like the studio's `_CONST_EVE_`, `_CONST_GUUSER_`, `_CONST_RAVEN_`), followed by `using namespace <name>;` so the use sites stay unqualified. Never write `namespace { ... }`. One block per phase; the name carries the class and the phase tag, so it is unique across files (helpers get external linkage). The existing blocks in `X2GuEve.cpp` and `X2GUArme_VioletMage.cpp` were converted on 2026-10-26 (`d3f7b7db`); other files' older anonymous namespaces are not to be rewritten unless you touch them.
+
 ## Rule: a code comment is one short line (user, 2026-10-20)
 
 A comment in source says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or why June differs from March. No comment blocks, no offset / vslot / state-id / key-byte tables, no retelling of the code. The detail belongs in the Done note, `funcmap.tsv` or `JUNE_BUGS.md`, never in the source. This applies to every file and every plan; it does not ask you to rewrite old comments.
