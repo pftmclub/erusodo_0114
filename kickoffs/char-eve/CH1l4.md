@@ -60,3 +60,13 @@ Transcribe every function the class map gives phase `CH1l4` (CommonFrameMove 329
   `EveElectraSystem::June_GetFormationFactor` / `June_StartFormationEffect`, `June_StartElCrystalSystem`, `June_IsPhotonBlinkSkill`, and the Eve-local copies `June_MarkSkillSlotUsed`, `June_ReserveSkillUse`,
   `June_StateChangeBySkillSlot`, `June_SkillMemoMpRefund`, `June_CheckSkillUseNotPve` / `NotDungeon`, `June_UserNoStateChangeActionFrameMove`; the fields `m_iJune8ea0` / `8ea4` / `8ea8` / `8eb0`, `m_abJune90d3` / `90d0`.
   `329cc370` is the existing `CX2GUUser::IsRidingKeySkillWaiting`; `32972a70` / `329919a0` / the three `ResetParticle`s are March's members.
+
+## Amended by CH1l40 (2026-10-26)
+
+The helper phase named every unmapped engine callee CH0 left open for you (funcmap rows `Char Eve CH1l40`). Call them by these March names:
+- `31f649d0` / `31f65e40` / `31f65f90` = `CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float )` / `JuneSetIgnoreDefenceDown( bool )` / `JuneSetIgnoreStateDefenceDown( bool )` (C6b, protected; `CEffect` declares `friend class CX2GuEve` under `_CORE`). Call them on the child, as June does.
+- `31f8ae10` = `CKTDGXMeshPlayer::CXMeshInstance::SetManualDirDegree( D3DXVECTOR3 )` on the child's **main effect** (`GetMainEffect()`, CH0 said "the CEffect": a slip); the `+0x494 = 1` store after it is `UseManualDirDegree( true )`.
+- `32371c00` = `CX2DamageEffect::CEffect::SetAttackTime( D3DXVECTOR2 )` (`+0x840` is `m_AttackTime`); `329bc6e0 @329c0ebb` passes `( 0, [334355b8] )`, read the float from the binary.
+- `31f8adb0` = `CXMeshInstance::GetScale()` on the main effect (`m_vScale`, `+0x510`); `31c1a440` = `CXMeshInstance::SetScale( D3DXVECTOR3 )` (confirmed by the same offset).
+- `3297b720` does not touch the customize struct (CH0 slip): it is the INHERIT_CRITICAL_RATE helper (skill-memo test, `m_fCriticalRate` of the effect and its NEXT tables, then `m_bInheritCriticalRate = true`); reach the NEXT tables with `JuneGetNextTables` (the friend covers it). The customize struct `321cdbb0` / `321cd590` belongs to `3297b840` (CH2a2) and goes to Stage 12.
+- The modifier list applies tags 5 / 12 / 16 / 20 (`CX2EffectSet::ApplyDamageEffectModifiers`); none of your callers pushes a tag.

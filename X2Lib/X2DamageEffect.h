@@ -1301,6 +1301,10 @@ class CX2DamageEffect
 				public:
 				void JuneSetHyper( bool bHyper_ ) { m_bHyper = bHyper_; }
 				protected:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+				friend class CX2EffectSet;	/// June 321db1b0 tags 5 / 12 / 16 / 20 write the inherit gates
+				friend class CX2GuEve;		/// Eve's projectile modifiers call 31f649d0 / 31f65e40 / 31f65f90 on their children
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
 				// June effect completion C7: TOUCH_LAND_DAMAGE_EFFECT%d's runtime.

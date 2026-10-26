@@ -1029,6 +1029,25 @@ Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` ( a fifteenth block
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --range 20e9e61e^..20e9e61e`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `JUNE_ENUM_NAMES` same range: `0 PASS, 2 PASS~, 0 DEFINE, 2 OTHER`, same zero counts, `RESULT: PASS`. The review's worktree: `2 PASS, 1 PASS~`, `4 deleted line(s)` = CH1l3's own inert lines ( comment, call, two formulas ), `RESULT: PASS`. `enumscan --check`: 0 A/B.
 **Build.** `DEPLOY OK: X2_offline.exe is 26,013,184 B, dated 2026-10-26 19:41:35, md5 cf5797c17ac14f356a22525c3a0bef78, equal to X2/US_SERVICE/x2.exe (2026-10-26 19:41:28); built at main 20e9e61e + 3 uncommitted code file(s).` Nothing in game: the code is unreferenced. `kickoffs/char-eve/CH1l40.md` still matches. Next: `/x2-phase char-eve CH1l40` ( Opus 5.5 high ).
 
+### CH1l40 - Done (2026-10-26)
+
+Opus helper phase, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`, the commit "char-eve Phase CH1l40". Nine funcmap rows `Char Eve CH1l40`; every kickoff address has a March name, a body, or a recorded reason it needs none.
+
+| June | March home | What |
+|---|---|---|
+| `321db1b0` tags 20 / 5 / 12 / 16 | `CX2EffectSet::ApplyDamageEffectModifiers` (new cases) | 20: `m_bInheritCriticalRate = true` (`+0xad4`), falls into 5: CRITICAL_RATE added (`b == 1`) or multiplied, NEXT tables take the result (JUNE_BUGS 437). 12: `m_bInheritIgnoreStateDefence = b`, IGNORE_STATE_DEFENCE (own + NEXT) = `v > 0`. 16: `m_bInheritIgnoreDefence = b`, IGNORE_DEFENCE and `_ON_PVP` (own + NEXT) = `v > 0` |
+| `31f649d0` / `31f65e40` / `31f65f90` | C6b's `CEffect::JuneApplyInheritDamageRate` / `JuneSetIgnoreDefenceDown` / `JuneSetIgnoreStateDefenceDown` | already ported; `CEffect` now declares `friend class CX2EffectSet` and `friend class CX2GuEve` (end of its `JUNE_SPAWN_INHERIT` block) so the effect set and Eve's callers reach them and the gates |
+| `31f8ae10` | `CXMeshInstance::SetManualDirDegree` (existing) | ECX is the child's main effect, not the CEffect (CH0 slip); the `+0x494 = 1` after it is `UseManualDirDegree( true )` |
+| `32371c00` | `CEffect::SetAttackTime` (existing) | `+0x840` = `m_AttackTime` (ctor ATTACK_TIME_START `@31f7d5ed`, END `@31f7d720`; DamageData ends at `+0x840`) |
+| `31f8adb0` (bonus, CH1l4 unknown) | `CXMeshInstance::GetScale` (existing) | `+0x510` = `m_vScale`, the field `SetScale` `31c1a440` writes |
+| `321cdbb0` / `321cd590` / `3264e800` | none: Stage 12 | customize item struct ctor / dtor and `CX2CustomizeManager::GetItemData`; the only user is `3297b840 @3297b908` (the skill cut-in item override, CH2a2), not `3297b720` (CH0 slip). Same call as Aisha CH5 for `32cc9680`; the Stage 12 bullet names Eve's site |
+
+**Tags are numbers on purpose.** June's `Enum.lua` has no modifier-tag table, no Lua calls `AddDamageEffectModifier`, and March has no enum, so they stay numbers with a one-line comment each (rule: no Enum entry). `enumscan --check` on both files: 0 rows.
+**Drift / routed.** Eve pushes tag 15 (base scale) from Spit Fire (`3299ed30` / `3299f060`, CH3b) and Spit Fire Grenade (`329a9df0` x5, CH3d); it needs the base member and June's multiplying `SetScale` (checklist 7a, C3 review note). Routed to the Opus helper **CH3a0**, kickoff amended. Kickoffs CH1l4 (March names for every callee) and CH2a2 (leave the override out, Stage 12 marker) amended. Checklist 7a rows annotated.
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2DamageEffect.h X2Lib/X2EffectSet.cpp`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,013,696 B, dated 2026-10-26 20:00:03, md5 bca72610d5b224378f8964447b6a65d5, equal to X2/US_SERVICE/x2.exe (2026-10-26 19:59:56); built at main 93045203 + 2 uncommitted code file(s).` (compiled by a peer's coalesced build: `X2EffectSet.obj` 19:53, `X2DamageEffect.obj` 19:52, both newer than the edits at 19:50). Nothing in game: no ported class pushes tags 5 / 12 / 16 / 20 yet.
+**JUNE_BUGS:** 437. Review: `kickoffs/char-eve/CH1l40-review.md`. Next: `/x2-phase char-eve CH1l40 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

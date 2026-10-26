@@ -5904,6 +5904,46 @@ void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect
 					pMainEffect->SetMaxLifeTime( true == modifier.m_bAdd ? modifier.m_vValue.x + fLifeTime : modifier.m_vValue.x * fLifeTime );
 				}
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		case 20:
+			pEffect_->m_bInheritCriticalRate = true;	// June @321db4ba, then falls into tag 5
+		case 5:
+			{
+				// June 321db1b0 tag 5: CRITICAL_RATE added or multiplied; every NEXT table takes the result, not its own (JUNE_BUGS 437)
+				const float fCriticalRate = true == modifier.m_bAdd ? modifier.m_vValue.x + pEffect_->GetDamageData().m_fCriticalRate : modifier.m_vValue.x * pEffect_->GetDamageData().m_fCriticalRate;
+				pEffect_->GetDamageData().m_fCriticalRate = fCriticalRate;
+				std::vector<CX2DamageManager::DamageData*> vecTables;
+				pEffect_->JuneGetNextTables( vecTables );
+				for ( size_t j = 0; j < vecTables.size(); j++ )
+					vecTables[j]->m_fCriticalRate = fCriticalRate;
+			} break;
+		case 12:
+			{
+				// June @321db998: the gate takes the entry's b, IGNORE_STATE_DEFENCE ( own and NEXT tables ) = v > 0
+				const bool bValue = 0.f < modifier.m_vValue.x;
+				pEffect_->m_bInheritIgnoreStateDefence = modifier.m_bAdd;
+				pEffect_->GetDamageData().m_bIgnoreStateDefence = bValue;
+				std::vector<CX2DamageManager::DamageData*> vecTables;
+				pEffect_->JuneGetNextTables( vecTables );
+				for ( size_t j = 0; j < vecTables.size(); j++ )
+					vecTables[j]->m_bIgnoreStateDefence = bValue;
+			} break;
+		case 16:
+			{
+				// June @321dbb01: as tag 12 for IGNORE_DEFENCE and IGNORE_DEFENCE_ON_PVP
+				const bool bValue = 0.f < modifier.m_vValue.x;
+				pEffect_->m_bInheritIgnoreDefence = modifier.m_bAdd;
+				pEffect_->GetDamageData().m_bIgnoreDefence = bValue;
+				pEffect_->GetDamageData().m_bIgnoreDefenceOnPvp = bValue;
+				std::vector<CX2DamageManager::DamageData*> vecTables;
+				pEffect_->JuneGetNextTables( vecTables );
+				for ( size_t j = 0; j < vecTables.size(); j++ )
+				{
+					vecTables[j]->m_bIgnoreDefence = bValue;
+					vecTables[j]->m_bIgnoreDefenceOnPvp = bValue;
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		default:
 			{

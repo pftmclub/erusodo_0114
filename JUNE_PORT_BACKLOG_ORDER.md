@@ -687,6 +687,7 @@ rule that an unowned June system gets its own stage. What it covers:
 - **The class cut-in item override** (found by pilot-char-revamp CH5, 2026-10-21). Each class's `ShowActiveSkillCutInAndLight` (Aisha: `32cc9680`) asks `31fd8a50` for the user's applied skill
   cut-in item (unit map `+0x8e58`; needs the equipped custom item and `32890620` / `32206450`), looks it up in the customize manager (`31d70b60`, `3264e800`), and replaces the cut-in with
   `SkillCutIn( name )` (`32078b70`, 512 x 512). Aisha's port keeps the class table and skips the override; port it here for every class at once (`June_ShowActiveSkillCutInAndLight` marks the site).
+  Eve (char-eve CH1l40, 2026-10-26): her helper `3297b840 @3297b908` is the same block; `3264e800` = `CX2CustomizeManager::GetItemData( id, out )` (map `+0x10c`), the out struct is `321cdbb0` / `321cd590` (4 wstrings, a map, a vector) and the cut-in reads its `+0x2c` wstring. CH2a2 marks the site.
 
 - **The awakening customization effect** (moved here from Stage 6 by its planning, 2026-10-22). Every class's awakening frame-move calls:
   - `32011d20`: it finds the item with entry `[0x10] == 1` under key 15 of the applied-customize map (CX2Unit `+0xa48`), checks it with `3264ec50`, and

@@ -38,3 +38,7 @@ Scope: the skill ids class 18 has that class 5 does not. For each id: its case i
 
 - **Functions: 39.** Adds `3297baa0` (vslot 0x834 `ShowActiveSkillCutInAndLightByScript`: `3297b840( L"Dummy2_Lhand", time, m_iSkillCutInSetSubIndex ( +0x8acc ), bOnlyLight )`). CH1l3 moved it here because
   its only callee `3297b840` (Eve's own copy of the base cut-in function, `ActiveSkillShow` `31fde0f0` inside) is yours, together with `329cd890` / `329cd9c0`. March's body is `ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", time, m_iSkillCutInSetSubIndex, bOnlyLight_ )`.
+
+## Amended by CH1l40 (2026-10-26)
+
+- `3297b840 @3297b908-3297b978` (`31fd8a50() > 0` -> customize struct `321cdbb0`, `CX2CustomizeManager::GetItemData` `3264e800`, the cut-in takes the struct's `+0x2c` name, dtor `321cd590`) is the skill cut-in item override: leave it out with `// June 3297b908: skill cut-in item override -> Stage 12`, as Aisha CH5 did for `32cc9680` (backlog Stage 12 bullet names Eve's site).
