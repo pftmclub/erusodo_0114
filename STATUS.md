@@ -995,7 +995,7 @@ Plan `JUNE_ENUM_NAMES_PHASES.md` · branch `main` · log tag none (compile-time 
 |---|---|---|---|---|---|
 | N0 (scanner) | done 2026-10-26: `tools/enumscan.py` + `june2017_re/enum_literals.tsv` (668 rows: A 240 / B 350 / C 2 / D 19 / X 57); 201/201 enumerators match the compiler; the plan's "class-C candidates" are class B (June Enum has them); only ENSI 242 + `X2GUNPC.cpp:4910` are C | Sonnet 5.5 / high | - | `tools/enumscan.py`, `june2017_re/enum_literals.tsv`, `tools/README.md` | `N0.md` |
 | N1 (investigate class C) | done 2026-10-26: verdicts in the tsv (`verdict` / `evidence`, carried by `enumscan.py`); **no user decision**; ENSI 242 = June `ENSI_SA_ECE_REASON_PRIDE_ACTION` (value fix handed to char-eve CH3b), `X2GUNPC` 127 stray; 25029 / DTT 44 / 30301-30303 confirmed in Ghidra; N2 / N3 kickoffs amended | Opus 5.5 / high | N0 | tsv, plan doc | `N1.md` |
-| N2 (register members) | ready | Sonnet 5.5 / high, Opus review | N1 | `X2SkillTree.h`, `X2UnitManager.h`, `X2BuffFactor.h`, `XSLUnit.h`, `Always.h`, `Enum.lua` | `N2.md` |
+| N2 (register members) | done 2026-10-26: 271 members (SKILL_ID 193, UC 29, BTI 22, BFI 20, NUI 5, DTT 2) + 19 `Enum.lua` lines (not packed); probe 271/271, 0 collisions, class B 350 -> 0; review next | Sonnet 5.5 / high, Opus review | N1 | `X2SkillTree.h`, `X2UnitManager.h`, `X2BuffFactor.h`, `X2Unit.h`, `X2DamageManager.h`, `Always.h`, `Enum.lua` | `N2.md` |
 | N3 (Eve) | waiting | Sonnet 5.5 / high, Opus review | N2 review (char-eve is paused until this plan closes) | `X2GuEve.cpp` | `N3.md` |
 | N4 (Aisha) | waiting | Sonnet 5.5 / high, Opus review | N2 review | `X2GUArme_VioletMage.cpp` | `N4.md` |
 | N5a (X2GUUser) | waiting | Sonnet 5.5 / high | N2 review | `X2GUUser.cpp` | `N5a.md` |

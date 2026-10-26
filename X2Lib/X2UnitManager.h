@@ -2899,6 +2899,16 @@ class CX2UnitManager
 		//}}
 #endif SERV_IRUHADEV_ELYSION_PORT
             NUI_MAX_LIMIT,
+//{{ Iruha : 2026-10-26 // June enum names Phase N2 (JUNE_ENUM_NAMES_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// June NPC ids, after NUI_MAX_LIMIT so it keeps its value
+			NUI_SI_SA_AT_SURFACE_CUTING             = 1621,
+			NUI_SI_SA_EEP_ELECTRONIC_FIELD          = 1622,
+			NUI_ECA_OBERON_GUARD                    = 2091,
+			NUI_PVE_RED_KNIGHT_BASTARD_EVENT_TITLE  = 4119,
+			NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE = 4120,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //}} robobeg : 2013-02-27
 		};
 		

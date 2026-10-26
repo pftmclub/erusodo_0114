@@ -124,6 +124,32 @@ Scope: add every class-B member that a site in the eleven files needs: C++ enums
 Gate checks: a generated throw-away probe (`C_ASSERT( NAME == value )` per new member, built once and removed) and an `enumprobe` run proving no collision with an existing member under the live `#ifdef`s; `luasrc.py core --check` and `ledger --check` PASS; `flagcheck --worktree`.
 Run with: Sonnet 5.5 / high, then Opus review (`kickoffs/june-enum-names/N2-review.md`, written by this phase).
 
+### Phase N2 - Done (2026-10-26, Sonnet 5.5; flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`)
+
+- **Landed:** the flag (`Always.h`) and **271 members** with June's names and explicit June values, each block `#ifdef` flag / `#endif` flag with the house `//{{ //}}` markers. A generator (`gen_n2.py`, scratchpad) built the `bytepatch` spec from the class-B rows of `enum_literals.tsv` plus 30302 (N1), and **asserted every name's value against June's `Enum.src.lua`** before writing anything.
+
+| Enum | File | Members | Placed |
+|---|---|---|---|
+| `SKILL_ID` (`RNSI_*`, 3 `SI_*`) | `X2SkillTree.h` | 193 | before the closing `};` (after `SI_HA_ALP_DOOMS_DAY`); includes 30302 |
+| `NPC_UNIT_ID` | `X2UnitManager.h` | 5 | **after** `NUI_MAX_LIMIT` (it stays 10196) |
+| `UNIT_CLASS` (33-46, 125-136, 200-202) | `X2Unit.h` (`CX2Unit::UNIT_CLASS`, **not** `XSLUnit.h`: the client never compiles that one) | 29 | after `UC_END` (stays 124) |
+| `DAMAGE_TRIGGER_TYPE` (40, 44) | `X2DamageManager.h` | 2 | after `DTT_END` (N1 amendment; `DTT_END` is **5** in this build, not 6) |
+| `BUFF_TEMPLET_ID` | `X2BuffFactor.h` | 22 | after `BTI_BUFF_RURIEL_MANA_ENERGIZE_POTION` |
+| `BUFF_FACTOR_ID` | `X2BuffFactor.h` | 20 | after the `CUSTOM_FUNCTION` block |
+
+  No Eve `ENSI` member: ENSI 242 stays with char-eve CH3b (N1). Nothing existing is renamed, renumbered or deleted (`git diff --stat`: 309 insertions, 0 deletions).
+- **`Enum.lua` (live `kom_contents/data036_kom`): 19 lines** (14 `SKILL_ID`, 5 `NPC_UNIT_ID`), inserted at the head of each table (BOM + CRLF kept, the file is `file`-checked as UTF-8 BOM CRLF). These are the 19 of the 89 missing names that a **live shipped `.lua` actually indexes** (byte-scan of all 6,579 `kom_contents` `.lua`): `NPCStat.lua` (data037), `NPCStat_INT.lua` (datai016), `NewSkillTempletVer2.lua`, `Arme_VioletMage.lua`, `PVP_HERO_HINO.lua`. The other 70 names are C++-only (no Enum.lua line, per the Rules). `luasrc.py refresh data036 Enum.lua` re-recorded the sha. **Not packed**: it needs `/elstools pack data036` and (with your yes) `/x2-kom-packed copy data036`; nothing before NZ depends on it, so I left it.
+- **Gate:**
+  - Probe: `enumprobe.py` built 271 `(NAME == value ? 0 : 1)` expressions under the real `#ifdef`s (chunks of 80 for cl's 100-error cap): **271/271 = 0**; the probe cpp was removed by the tool.
+  - Collisions: `enumscan.py` (fresh `cl /P`) parsed the new tables: **0 value collisions, 0 duplicate names** among the 271 against every existing member; `UC_END` 124, `NUI_MAX_LIMIT` 10196, `DTT_END` 5 unchanged; `--verify 200`: 201 match, 0 mismatch.
+  - `enumscan.py --summary`: class B **350 -> 0** (all became A); the tsv was rewritten (668 rows, verdict columns carried).
+  - `luasrc.py ledger --check`: PASS. `luasrc.py core --check`: **FAIL, not N2's**: `data036 ResultData_new.lua` is BOM text off the core list (file dated 2026-10-19, `june-result` Stage 29). Before N2 the same file was there; N2's `Enum.lua` row is fine.
+- **Hygiene (`flagcheck JUNE_ENUM_NAMES --worktree --files <6 files>`):** `files: 0 PASS, 5 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 10 EOL-mismatched inserted line(s)` (all in `X2UnitManager.h`: the anchor line `NUI_MAX_LIMIT,` is CRLF inside an LF region, inserted lines take the anchor's EOL); `RESULT: PASS`. `file` on the 6 headers: encoding class unchanged.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 15:53:10, md5 e2b553c6c28756b99fb3c2d18ca61220, equal to X2/US_SERVICE/x2.exe (2026-10-26 15:53:02); built at main 73d437c4 + 6 uncommitted code file(s).`
+- **How to see it in game:** nothing (compile-time registration only; the flag adds enumerators, no code reads them yet). N3-N5 rename sites onto these members.
+- **Found, not chased:** `iJuneStateID > 127` etc. stay N1's verdicts. The 70 C++-only names have no `Enum.lua` line on purpose; if a later port adopts a June `.lua` that indexes one, that port adds the line.
+- **Open for the user:** pack + copy `data036` (19 `Enum.lua` lines) now or at NZ? Recommended: at NZ, with the smoke test.
+
 ## Phase N3 - Eve (`X2GuEve.cpp`)
 
 Scope: replace the ~96 literals (class A / B rows of `X2GuEve.cpp`) with names; collapse duplicates (25419 as `JUNE_CH1A_P_EBS_OPEN_MIND` and `JUNE_RNSI_P_EBS_OPEN_MIND`; 25223 as `JUNE_RNSI_A_EBS_ELECTRONIC_MOVE` and `JUNE_CH1L_A_EBS_ELECTRONIC_MOVE`; 0x655 / 0x656 raw where `JUNE_CH1K_NUI_*` exist; `0x80` where `CX2SkillTree::SA_AIR_MOVE_COUNT` is used four lines away). `JuneEveAccelCoreParticleName` becomes named cases with `30301` / `30302` / `30303` explicit instead of the `0x765d..0x765f` range. Not while a char-eve code phase is running.

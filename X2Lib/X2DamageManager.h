@@ -51,6 +51,13 @@ class CX2DamageManager
 			DTT_EVE_MANEUVER_ATTACK,
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 			DTT_END,
+//{{ Iruha : 2026-10-26 // June enum names Phase N2 (JUNE_ENUM_NAMES_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// after DTT_END: DTT_END is relied on as the March count
+			DTT_MULTIPLE_DAMAGE_BY_DEBUFF         = 40,
+			DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK = 44,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

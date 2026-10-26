@@ -152,6 +152,40 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 //{{ robobeg : 2013-02-27
             UC_END,
 //}} robobeg : 2013-02-27
+//{{ Iruha : 2026-10-26 // June enum names Phase N2 (JUNE_ENUM_NAMES_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// June classes, after UC_END so it keeps its value
+			UC_ADD_ARC_TRACER         = 33,
+			UC_ARA_LITTLE_SPECTER     = 34,
+			UC_ELESIS_DARK_KNIGHT     = 35,
+			UC_ADD_TIME_TRACER        = 36,
+			UC_LUCIEL_CHILIARCH       = 37,
+			UC_LUCIEL_ROYAL_GUARD     = 38,
+			UC_LUCIEL_DIABLURA        = 39,
+			UC_ROSE_BLOODIA           = 40,
+			UC_ROSE_HEAVY_BARREL      = 41,
+			UC_ROSE_METAL_HEART       = 42,
+			UC_ROSE_VALKYRIE          = 43,
+			UC_AIN_LOFTY_EXACTER      = 44,
+			UC_AIN_LOFTY_ANPASSEN     = 45,
+			UC_AIN_LOFTY_WANDERER     = 46,
+			UC_ELESIS_CRIMSON_AVENGER = 125,
+			UC_ADD_DIABOLIC_ESPER     = 126,
+			UC_LUCIEL_DREAD_LORD      = 127,
+			UC_LUCIEL_NOBLESSE        = 128,
+			UC_LUCIEL_DEMONIO         = 129,
+			UC_ROSE_CRIMSON_ROSE      = 130,
+			UC_ROSE_STORM_TROOPER     = 131,
+			UC_ROSE_OPTIMUS           = 132,
+			UC_ROSE_FREYJA            = 133,
+			UC_AIN_ARME_THAUMATURGY   = 134,
+			UC_AIN_ERBLUHEN_EMOTION   = 135,
+			UC_AIN_APOSTASIA          = 136,
+			UC_LUCIEL_DUO             = 200,
+			UC_ROSE_GUNNER            = 201,
+			UC_AIN_ANGEL              = 202,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 
 

@@ -10131,3 +10131,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-26
+// Description: June enum names Phase N2 - registers the June SKILL_ID / NPC_UNIT_ID / UNIT_CLASS / DTT / BTI / BFI members that later phases spell by name (JUNE_ENUM_NAMES_PHASES.md).
+//              Revert: undefine the flag; every later rename site keeps its literal in the #else.
+#define SERV_IRUHADEV_JUNE_ENUM_NAMES
+//////////////////////////////////////////////////////////////////////////
