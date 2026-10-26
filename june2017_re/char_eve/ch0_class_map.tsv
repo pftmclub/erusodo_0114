@@ -438,7 +438,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32979420	override 0x6a4	GetActualCoolTime	- (CX2GUUser only) X2GUUser.h:3193 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	june-only (base virtual exists in March)	CH4b	cool-time rules; name: CONF
 329795a0	state-fn	ENSI_EEG_DASH_JUMP_ZX.EventProcess	-	june-only	CH1f	
 329797d0	state-fn	ENSI_EEG_DASH_JUMP_ZZX.EventProcess	-	june-only	CH1f	
-32979a00	helper	called by 32979da0	-	-	CH1j2	
+32979a00	helper	June_CanContinueBoostAttack; called by 32979fe0 3297a110 3297a240 (CH1j2 review)	-	-	CH1j2	
 32979a70	override 0x65c	?	- (not found; name unsettled)	unnamed	CH1l	name: HINT
 32979b30	state-fn	ENSI_DASH_JUMP_COMBO_Z.EventProcess	CX2GUEve::ENSI_DASH_JUMP_COMBO_Z_EventProcess	pair	CH1e	
 32979da0	state-fn	ENSI_EBS_BOOST_DASH_AIR.EventProcess	CX2GUEve::ENSI_EBS_BOOST_DASH_AIR_EventProcess	pair	CH1j2	

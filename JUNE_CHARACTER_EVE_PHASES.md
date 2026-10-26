@@ -814,6 +814,24 @@ Build: `DEPLOY OK: X2_offline.exe is 25,980,416 B, dated 2026-10-26 12:16:32, md
 
 **JUNE_BUGS:** none. **Drift:** none new. **Open for the review**: the raw-read sites above; the helper's name and the `IsUpgradedSkillLearned` reading of `31fcf3e0`; the 12-vs-9 tag count. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1j2-review.md`. Next: `/x2-phase char-eve CH1j2 review` (Opus 5.5 high), then CH1k.
 
+### CH1j2 - Review (2026-10-26)
+
+**PASS, no code change.** All 46 members were read against `charport_adis.py eve --phase CH1j2` and, where a function object exists, the Ghidra decompile.
+
+- **Raw reads:** every `nowSpeed.y` store reads `+0x330` after `USI_DASH_JUMP` (`32995120`, `32995680`, `32978890`, `32979da0`) and `+0x32c` in the two jump-up caps of `32978890` / `32979da0`. These are March's `fDashJumpSpeed` / `fJumpSpeed` (`X2GameUnit.h:1093-1094`). Every `nowSpeed.x` store goes through the triple (`32071a80` = `+0x423c` x protected `+0x49c4`).
+- **Boost dash:** `32978500` is `( H + n ) * D + D` with n = 0.1 / 0.2 / 0.3 and `H * D + D` by default, i.e. the port's `D + D * ( H + n )`. The gate reads `pure*` and `m_BeforeInputData.pure*` (`+0x8682` / `+0x8686`). The 1 / 2 / 3 s steps run create, then `PlaySound`, then the tag. The start's 0.3 s and the 0.01 cancel match. June's `TryHyperModeStateChange( GetHyperModeStateID() )` equals the port's `USI_HYPER_MODE`: Eve's vslot 0x6b8 (`32968470`) returns 0x17.
+- **Facing (`329677d0`, tail of `32978500`):** both held: `oneRight` (`+0x86df`) -> right, else `oneLeft` (`+0x86db`) -> left. Otherwise a single held key sets the facing. Then vslot 0x7c8.
+- **Air start / air (`32978890`, `32979da0`):** the wall landing sets gravity off and then 0xbd. The up limit is `32976f00` inlined (BFI 0x29f -> `+0x9c60` + 1). No `m_bDownForce` reset. Air X does `+0x9b56` (short) = 0, `+0x9b58` = 0, then `32978c60`. The FrameMoveFutures (0.4 / 0.65, 1.85, 1.0, `pow( t, 2 )`) and the StartFuture / EndFuture stores match.
+- **Boost attack front / up / down:** the three EventProcess listings are identical apart from addresses. Add = `(int)( 32007b10( 0x80, 25419 ) + +0x9b5c )` when `31fceab0( 25419 ) > 0`. For 25223 it compares the skill id with `==`, then `JuneIsEquippedSkillKeyPressed` and add = 0. The windows are 0.13333 / 0.59 / 0.833. The helper's callers are `3297a07d` `3297a1ad` `3297a2dd`. Its three tests are right: `31edf580` = `JuneIsSameOrUpgradeSkill` with the skill-tree test, and `31fcf3e0` = `IsUpgradedSkillLearned`. The name stays. The Starts match: Front has no jump-fly count; Up / Down rotate by +-45 and +-90.
+- **XZ:** the plane is built as `( 0x9a3c + 0x99a8, 1.8, 150, -50 )`. The 0.533 arm takes the gage at `+0xc04` (NULL or time <= 0 -> plain names), which is March's `GetRemainHyperModeTime()`. AddLaser comes before the rotate, and the handle is stored last, inside `if( effect )`. The bands are 0.733-1.233 (z += 70.904 dt, offset Y 2) and 1.233-1.733 (0.904 dt), else Y 0, all on `m_pXSkinAnim`. The 1.833 block and the MP drain (0.6-1.866, 13.3333 dt, `Bip01_L_Finger2Nub`) match. EventProcess sets nowAction only when the value differs (the inlined Set).
+- **ECB dash X-X `329ad6c0`:** the chain order, the constants and the strings match. The offsets are 10 / -55 / 85 with y +50 / -80 / -80. The Triangle effect uses a 0.8 Rhand / 0.2 Lhand mix and rot.z + 70. MP is 4 x `+0x97b0`. CreateInstance's trailing arguments `landY, 0, -1, +0x97c4, 1, -1, -1, 0, -1, 0, 0` are March's defaults. Not enough MP puts `( Rhand + Lhand ) * 0.5` at z = rot.z + 70. EventProcess `329766f0` matches `32976480` instruction for instruction, and the two ports are line-identical.
+- **Alpha tags:** 9 unique `32296ee0` / `32296d60` call sites in the 46 listings, 12 port calls (`32995b6e` serves three steps; `329ae08f` serves the third Light and Triangle01). Confirmed.
+- **JUNE_BUGS 428 (new):** in `329ad6c0` the 0.23 s Triangle01 test sits after 0.315 in the else-if chain, so a frame that crosses both 0.2 and 0.23 shows only the 0.2 lights.
+- `ch0_class_map.tsv`'s helper row is relabelled from "called by 32979da0" to its three callers.
+
+Hygiene (`--range 722432b3^..722432b3`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: none (no code change; deployed md5 `3e84adb8`). `CH1k.md` still matches. Next: `/x2-phase char-eve CH1k` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
