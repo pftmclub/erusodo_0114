@@ -995,12 +995,12 @@ Plan `JUNE_ENUM_NAMES_PHASES.md` · branch `main` · log tag none (compile-time 
 |---|---|---|---|---|---|
 | N0 (scanner) | done 2026-10-26: `tools/enumscan.py` + `june2017_re/enum_literals.tsv` (668 rows: A 240 / B 350 / C 2 / D 19 / X 57); 201/201 enumerators match the compiler; the plan's "class-C candidates" are class B (June Enum has them); only ENSI 242 + `X2GUNPC.cpp:4910` are C | Sonnet 5.5 / high | - | `tools/enumscan.py`, `june2017_re/enum_literals.tsv`, `tools/README.md` | `N0.md` |
 | N1 (investigate class C) | done 2026-10-26: verdicts in the tsv (`verdict` / `evidence`, carried by `enumscan.py`); **no user decision**; ENSI 242 = June `ENSI_SA_ECE_REASON_PRIDE_ACTION` (value fix handed to char-eve CH3b), `X2GUNPC` 127 stray; 25029 / DTT 44 / 30301-30303 confirmed in Ghidra; N2 / N3 kickoffs amended | Opus 5.5 / high | N0 | tsv, plan doc | `N1.md` |
-| N2 (register members) | done 2026-10-26: 271 members (SKILL_ID 193, UC 29, BTI 22, BFI 20, NUI 5, DTT 2) + 19 `Enum.lua` lines (not packed); probe 271/271, 0 collisions, class B 350 -> 0; review next | Sonnet 5.5 / high, Opus review | N1 | `X2SkillTree.h`, `X2UnitManager.h`, `X2BuffFactor.h`, `X2Unit.h`, `X2DamageManager.h`, `Always.h`, `Enum.lua` | `N2.md` |
-| N3 (Eve) | waiting | Sonnet 5.5 / high, Opus review | N2 review (char-eve is paused until this plan closes) | `X2GuEve.cpp` | `N3.md` |
-| N4 (Aisha) | waiting | Sonnet 5.5 / high, Opus review | N2 review | `X2GUArme_VioletMage.cpp` | `N4.md` |
-| N5a (X2GUUser) | waiting | Sonnet 5.5 / high | N2 review | `X2GUUser.cpp` | `N5a.md` |
-| N5b (skill tree + UI) | waiting | Sonnet 5.5 / high | N2 review | `X2SkillTree.cpp`, `X2UISkillTreeNew2015.cpp`, `X2UIInventory.cpp`, `X2KeyPad.cpp` | `N5b.md` |
-| N5c (units / NPC / game) | waiting | Sonnet 5.5 / high | N2 review | `X2GameUnit.cpp`, `X2GUNPC.cpp`, `X2Game.cpp` | `N5c.md` |
+| N2 (register members) | done 2026-10-26: 271 members (SKILL_ID 193, UC 29, BTI 22, BFI 20, NUI 5, DTT 2) + `Enum.lua` lines (not packed); probe 271/271, 0 collisions, class B 350 -> 0. **Reviewed 2026-10-26 (Opus):** 271/271 June value + table, sentinels hold, flagcheck PASS; `Enum.lua` cut 19 -> 5 (14 were texture strings / trailing-space keys, nothing indexed them); no build; pack + copy at NZ | Sonnet 5.5 / high, Opus review | N1 | `X2SkillTree.h`, `X2UnitManager.h`, `X2BuffFactor.h`, `X2Unit.h`, `X2DamageManager.h`, `Always.h`, `Enum.lua` | `N2.md` |
+| N3 (Eve) | ready (N2 reviewed) | Sonnet 5.5 / high, Opus review | N2 review (char-eve is paused until this plan closes) | `X2GuEve.cpp` | `N3.md` |
+| N4 (Aisha) | ready (N2 reviewed) | Sonnet 5.5 / high, Opus review | N2 review | `X2GUArme_VioletMage.cpp` | `N4.md` |
+| N5a (X2GUUser) | ready (N2 reviewed) | Sonnet 5.5 / high | N2 review | `X2GUUser.cpp` | `N5a.md` |
+| N5b (skill tree + UI) | ready (N2 reviewed) | Sonnet 5.5 / high | N2 review | `X2SkillTree.cpp`, `X2UISkillTreeNew2015.cpp`, `X2UIInventory.cpp`, `X2KeyPad.cpp` | `N5b.md` |
+| N5c (units / NPC / game) | ready (N2 reviewed) | Sonnet 5.5 / high | N2 review | `X2GameUnit.cpp`, `X2GUNPC.cpp`, `X2Game.cpp` | `N5c.md` |
 | NZ (close) | waiting | Opus 5.5 / high, then user smoke test | N3, N4, N5a-c | `CLAUDE.md` + `kickoffs/TEMPLATE.md` + x2-phase skill (standing rule, user said yes 2026-10-26), `MODS.md`, memory | `NZ.md` |
 
 Running together: N0 and N1 touch no game code and run beside anything. **char-eve is paused (user, 2026-10-26) until NZ closes**, so N3 has `X2GuEve.cpp` to itself. N3, N4, N5a-c touch different files and can run together (each waits its own turn in the build queue).
