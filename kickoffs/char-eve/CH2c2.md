@@ -37,3 +37,7 @@ Scope: Sweep Rolling (25021 / 25039, states READY / CHARGE / FIRE / END) and Gig
 ## Amended by CH1d (2026-10-26)
 
 - `32993c40` calls `m_EveElectraSystem.June_AddEffectToSystem` (`32980580`, CH1d); never March's `AddEffectToSystem`.
+
+## Amended by CH1j20 (2026-10-26)
+
+- `31fce8b0` is `CX2GUUser::JuneIsEquippedSkillKeyReleased( m_InputData, eSkillID )` (`X2GUUser.h`, flag `_CORE`; funcmap `Char Eve CH1j20`): June's call passes `unit +0x86da` and the skill id. Call it; do not re-transcribe it.

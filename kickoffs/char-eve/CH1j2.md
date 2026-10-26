@@ -42,3 +42,7 @@ Transcribe every function the class map gives phase `CH1j2` (class 116 and the E
 - `ENSI_ECB_DASH_XX` (script id 237) is already an enumerator (CH1e added it for the dash X EventProcess).
 - `32979da0` (`ENSI_EBS_BOOST_DASH_AIR.EventProcess`) calls `32978c60`: CH1e transcribed it as `CX2GUEve::June_StateChangeBoostAttackIfPossible()` (June's rewrite of March's `StateChangeBoostAttackIfPossible`); call that, do not re-transcribe it.
 - CH1e added `CX2GUEve::June_TryGetEquippedSkillAbilityValue( eType, iSkillID, bUpgradeSwap, float& )` (June `32007ce0`); reuse it for that call.
+
+## Amended by CH1j20 (2026-10-26)
+
+- `31fce710` is `CX2GUUser::JuneIsEquippedSkillKeyPressed( m_InputData, eSkillID )` (`X2GUUser.h`, flag `_CORE`; funcmap `Char Eve CH1j20`): June's call passes `unit +0x86da` and the skill id. Call it; do not re-transcribe it.

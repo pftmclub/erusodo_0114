@@ -735,6 +735,37 @@ Build: `DEPLOY OK: X2_offline.exe is 25,960,960 B, dated 2026-10-26 11:14:08, md
 
 **JUNE_BUGS:** none found. **Drift:** none. Nothing to play-test (unreferenced). `CH1j20.md` still matches. Next: `/x2-phase char-eve CH1j20` (Opus 5.5 high).
 
+### CH1j20 - Done (2026-10-26)
+
+This phase covers the five June-only `CX2GUUser` helpers CH0 found (`ch0_unmapped_identified.tsv`). All five are ported whole under `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`, in one block after `JuneCommonSpecialAttackEventProcess` in `X2GUUser.cpp` and one block after `m_vecJuneSpecialOptionValue` in `X2GUUser.h`. They are inert: nothing calls them until CH1j2 / CH1l2 / CH1l3 / CH2c / CH2c2. Funcmap: 6 rows `Char Eve CH1j20`.
+
+| June | March | What |
+|---|---|---|
+| `31fce710` | `CX2GUUser::JuneIsEquippedSkillKeyPressed( const InputData&, SKILL_ID ) const` | the one-byte of the key on the skill's equipped slot (A, then B); B-lock gate on my unit's tree |
+| `31fce8b0` | `CX2GUUser::JuneIsEquippedSkillKeyReleased( ... ) const` | the same lookup without the gate; returns `pure == 0` |
+| `31fc89a0` | `CX2GUUser::JuneSkillSlotKey::IsKeyReleased( const InputData& ) const` | slot 0-9 -> `pure == 0`; any other index -> true |
+| `31fce670` | `JuneSkillSlotKey::FollowSlotSwap()` | the UI slot-swap byte changed -> index +5 (stored byte 1) / -5 (stored byte 0), byte flipped |
+| `31fce6d0` | `JuneSkillSlotKey::Set( int )` | index = arg, byte = `m_bSkillSlotSwap` |
+| `+0x8b58` | `CX2GUUser::m_kJuneSkillSlotKey` | a `CX2GUUser` member (it sits below `+0x93a8`); June's ctor `@320403b5` sets -1 / 0, so the struct's default ctor does the same |
+
+- **Key bytes are mapped by name.** March's `InputData` puts `Skill5` at `0x4c`, June at `0x50`. The mapping is A = A / S / D / C / Skill5 and B = Q / W / E / R / SkillEx5, checked against `31fcadd0`'s `+0x872b` = oneSkill5.
+- **UI `+0x115` is `m_bSkillSlotSwap`** (`GetSkillSlotSwap()`): June's `SwapSkillSlotTypeA` / `TypeB` (`328db100` / `328daed0`) write it.
+- **Correction to the CH0 tsv:** the re-base is +5 / -5 (`@31fce6a7`: neg / sbb / and -10 / +5), not "-11".
+- **The gate in `31fce710` is written out.** March's static `JuneIsMyUnitSlotUsable` was not reused: it returns false when a pointer is NULL, but June then skips the gate.
+- **No `g_pData` test** in `31fce670` / `31fce6d0`, as in June.
+- **Equivalents checked:** `JuneCommonSpecialAttackEventProcess` (`31fcadd0`) is the press-to-slot direction; nothing in March maps a skill to its key. The S0b / S5 slot-state API (`IsJuneSlotUsable`, `GetSkillEquippedSlotIndex`) is reused.
+
+Hygiene: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (worktree).
+Build: `DEPLOY OK: X2_offline.exe is 25,961,984 B, dated 2026-10-26 11:39:33, md5 b02ac58fa6482ab3af167ac552d8af39, equal to X2/US_SERVICE/x2.exe (2026-10-26 11:39:26); built at main 4972faf8 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:**
+- 426: the slot-swap re-base follows the stored byte, not the slot's row, so the index can leave 0-9 and read as "released".
+- 427: the B locks in `31fce710` are read from my unit's tree, like 415.
+
+**Kickoffs amended** ("Amended by CH1j20"): CH1j2, CH1l2 (`31fce710`), CH1l3, CH2c2 (`31fce8b0`), CH2c (the struct).
+**Open:** `+0x88bc`, the value Particle Ray StartFuture passes to `Set` minus 1, is not named. The candidates are `m_iNowSpecialAttack` and `m_eSpecialAttackKeyPressed`; CH2c settles it.
+**Drift:** none. Nothing to play-test (unreferenced). Review: `kickoffs/char-eve/CH1j20-review.md`.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

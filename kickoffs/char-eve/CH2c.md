@@ -37,3 +37,9 @@ Scope: the class-26 skill ids not in 5 / 18 / 19, except Sweep Rolling (25021 / 
 ## Amended by CH1d (2026-10-26)
 
 - `329a5ee0` / `329a67b0` call `m_EveElectraSystem.June_CreatePlane` (`329a1150`, CH1d); never March's `CreatePlane`.
+
+## Amended by CH1j20 (2026-10-26)
+
+- `31fce6d0` / `31fce670` / `31fc89a0` are `CX2GUUser::m_kJuneSkillSlotKey` (June `+0x8b58`, type `CX2GUUser::JuneSkillSlotKey`) `.Set( int )` / `.FollowSlotSwap()` / `.IsKeyReleased( m_InputData )` (funcmap `Char Eve CH1j20`). Call them; do not re-transcribe them.
+- Particle Ray StartFuture `32967560` calls `Set( [unit +0x88bc] - 1 )`. CH1j20 did not name `+0x88bc`: the candidates are March's `m_iNowSpecialAttack` and `m_eSpecialAttackKeyPressed` (both the slot index + 1). Settle it from a writer in the listing.
+- JUNE_BUGS 426: the re-base after a slot swap can push the index out of 0-9, which reads as "released". Keep it verbatim.

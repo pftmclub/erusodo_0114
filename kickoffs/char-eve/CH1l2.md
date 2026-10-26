@@ -38,3 +38,7 @@ Transcribe every function the class map gives phase `CH1l2` (CommonStateStartFut
 ## Amended by the CH1a review (2026-10-26)
 
 - `3297a400` (`June_CommonStateEndFuture`) is where June clears `m_bDownForce` (`+0x8bf8`) after its base call, unless the now-state index (state-data pointer `+0x7cbc` minus list base `+0x7cec`, / 100; see funcmap `3208e410` / `31fd8140`) is 21 (`USI_DASH_JUMP`). It replaces the clears March made in FLY_UP / JUMP_DASH StartFuture and on the landing branches (JUNE_BUGS 421, withdrawn). Port it whole; the CH1a movement members depend on it.
+
+## Amended by CH1j20 (2026-10-26)
+
+- `31fce710` is `CX2GUUser::JuneIsEquippedSkillKeyPressed( m_InputData, eSkillID )` (`X2GUUser.h`, flag `_CORE`; funcmap `Char Eve CH1j20`): June's call passes `unit +0x86da` and the skill id. Call it; do not re-transcribe it.

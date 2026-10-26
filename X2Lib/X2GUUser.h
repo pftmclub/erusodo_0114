@@ -3633,6 +3633,20 @@ public:
 		bool JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ );	/// June 31fcadd0: A 0-4, B 5-9
 		std::vector<float> m_vecJuneSpecialOptionValue;		/// June +0x93a8: the state's SPECIAL_OPTION_VALUE ( CommonStateStart @320608c8 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		bool JuneIsEquippedSkillKeyPressed( const InputData& kInputData_, CX2SkillTree::SKILL_ID eSkillID_ ) const;	/// June 31fce710
+		bool JuneIsEquippedSkillKeyReleased( const InputData& kInputData_, CX2SkillTree::SKILL_ID eSkillID_ ) const;	/// June 31fce8b0
+		struct JuneSkillSlotKey	/// June +0x8b58: a held skill's slot 0-9 and the slot-swap byte it was read under
+		{
+			int		m_iSlotIndex;
+			bool	m_bSlotSwap;
+			JuneSkillSlotKey() : m_iSlotIndex( -1 ), m_bSlotSwap( false ) {}	/// June CX2GUUser ctor @320403b5
+			void Set( const int iSlotIndex_ );								/// June 31fce6d0
+			void FollowSlotSwap();											/// June 31fce670
+			bool IsKeyReleased( const InputData& kInputData_ ) const;		/// June 31fc89a0
+		};
+		JuneSkillSlotKey m_kJuneSkillSlotKey;	/// June +0x8b58
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;
 

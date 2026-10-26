@@ -25747,6 +25747,114 @@ bool CX2GUUser::JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& 
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+// June 31fce710: the one-byte of the key on the skill's equipped slot, A searched first
+bool CX2GUUser::JuneIsEquippedSkillKeyPressed( const InputData& kInputData_, CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return false;
+	if( NULL != GetEquippedActiveSkillTemplet( eSkillID_, true ) )
+		eSkillID_ = GetEquippedActiveSkillTemplet( eSkillID_, true )->m_eID;
+
+	const CX2UserSkillTree& cUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	bool bSlotB = false;
+	int iSlotIndex = cUserSkillTree.GetSkillEquippedSlotIndex( eSkillID_, false );
+	if( -1 == iSlotIndex )
+	{
+		bSlotB = true;
+		iSlotIndex = cUserSkillTree.GetSkillEquippedSlotIndex( eSkillID_, true );
+		if( -1 == iSlotIndex )
+			return false;
+	}
+
+	// June tests the B locks on MY unit's tree, whoever asks (JUNE_BUGS 427)
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		const CX2UserSkillTree& cMyUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+		if( ( false == cMyUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB && 0 <= iSlotIndex && 4 != iSlotIndex )
+			|| ( false == cMyUserSkillTree.IsJuneSlotUsable( 1 ) && true == bSlotB && 4 == iSlotIndex ) )
+			return false;
+	}
+
+	switch( iSlotIndex )
+	{
+	case 0:		return ( true == bSlotB ? kInputData_.oneQ : kInputData_.oneA );
+	case 1:		return ( true == bSlotB ? kInputData_.oneW : kInputData_.oneS );
+	case 2:		return ( true == bSlotB ? kInputData_.oneE : kInputData_.oneD );
+	case 3:		return ( true == bSlotB ? kInputData_.oneR : kInputData_.oneC );
+	case 4:		return ( true == bSlotB ? kInputData_.oneSkillEx5 : kInputData_.oneSkill5 );
+	}
+	return false;
+}
+
+// June 31fce8b0: the key on the skill's equipped slot is up; no B lock test here
+bool CX2GUUser::JuneIsEquippedSkillKeyReleased( const InputData& kInputData_, CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return false;
+	if( NULL != GetEquippedActiveSkillTemplet( eSkillID_, true ) )
+		eSkillID_ = GetEquippedActiveSkillTemplet( eSkillID_, true )->m_eID;
+
+	const CX2UserSkillTree& cUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	bool bSlotB = false;
+	int iSlotIndex = cUserSkillTree.GetSkillEquippedSlotIndex( eSkillID_, false );
+	if( -1 == iSlotIndex )
+	{
+		bSlotB = true;
+		iSlotIndex = cUserSkillTree.GetSkillEquippedSlotIndex( eSkillID_, true );
+		if( -1 == iSlotIndex )
+			return false;
+	}
+
+	switch( iSlotIndex )
+	{
+	case 0:		return ( false == ( true == bSlotB ? kInputData_.pureQ : kInputData_.pureA ) );
+	case 1:		return ( false == ( true == bSlotB ? kInputData_.pureW : kInputData_.pureS ) );
+	case 2:		return ( false == ( true == bSlotB ? kInputData_.pureE : kInputData_.pureD ) );
+	case 3:		return ( false == ( true == bSlotB ? kInputData_.pureR : kInputData_.pureC ) );
+	case 4:		return ( false == ( true == bSlotB ? kInputData_.pureSkillEx5 : kInputData_.pureSkill5 ) );
+	}
+	return false;
+}
+
+// June 31fce6d0: no g_pData test in June
+void CX2GUUser::JuneSkillSlotKey::Set( const int iSlotIndex_ )
+{
+	m_iSlotIndex = iSlotIndex_;
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+		m_bSlotSwap = g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap();
+}
+
+// June 31fce670: the sign comes from the stored byte, not the slot's row (JUNE_BUGS 426)
+void CX2GUUser::JuneSkillSlotKey::FollowSlotSwap()
+{
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree()
+		&& m_bSlotSwap != g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() )
+	{
+		m_iSlotIndex += ( true == m_bSlotSwap ? 5 : -5 );
+		m_bSlotSwap = ( false == m_bSlotSwap );
+	}
+}
+
+// June 31fc89a0: an index outside 0-9 reads as released
+bool CX2GUUser::JuneSkillSlotKey::IsKeyReleased( const InputData& kInputData_ ) const
+{
+	switch( m_iSlotIndex )
+	{
+	case 0:		return ( false == kInputData_.pureA );
+	case 1:		return ( false == kInputData_.pureS );
+	case 2:		return ( false == kInputData_.pureD );
+	case 3:		return ( false == kInputData_.pureC );
+	case 4:		return ( false == kInputData_.pureSkill5 );
+	case 5:		return ( false == kInputData_.pureQ );
+	case 6:		return ( false == kInputData_.pureW );
+	case 7:		return ( false == kInputData_.pureE );
+	case 8:		return ( false == kInputData_.pureR );
+	case 9:		return ( false == kInputData_.pureSkillEx5 );
+	}
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
 /// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).
