@@ -27,3 +27,8 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 ## Amended by CH1l40 (2026-10-26)
 
 - **Effect-set modifier tag 15 (base scale).** Eve is the first class to push it: Spit Fire (`3299ed30 @3299efb8`, `3299f060 @3299f2e8`, CH3b) and Spit Fire Grenade (`329a9df0` x5, CH3d) call `321dad70( handle, 15, (s, s, s), 0 )`. Port `321db1b0` case 15 (`@321dbaa8-321dbaf4`: base `31f8af20` / `31f8aef0` at CEffect `+0xb24..`, then SetScale `31f6ff60`), the base member, and June's multiplying `CEffect::SetScale` (`31f6fdc0`) together, with the ctor's base step (DD `+0x5d0`, `@31f7c7f0-31f7c838`): checklist 7a "Added by june-effect C3 review" and its CH1l40 note. Add the `case 15` beside CH1l40's cases in `CX2EffectSet::ApplyDamageEffectModifiers`. Check every March `SetScale` caller keeps its scale when the base is (1, 1, 1).
+
+## Amended by CH1l40 review (2026-10-26)
+
+- **The tag-15 pushers call `321dad70` directly, not the float wrapper `321db050`.** They push the vector `(s, s, s)` (`3299ef92: PUSH 0xf`), and March has only the float form, `CX2EffectSet::AddDamageEffectModifier( h, tag, float, bool )` (`X2EffectSet.h:1118`, flag `SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER`). Add the `const D3DXVECTOR3&` overload (June `321dad70`, ret 0x10, entry `{b, tag, v, 0, 0}`) beside it under your flag. Make the float form call it, as `321db050 @321db07d` does, only if that changes nothing for the existing Aisha callers.
+- Files outside `X2GuEve.*` that this amendment touches: `X2Lib/X2EffectSet.*`, `X2Lib/X2DamageEffect.*` (the base member and `SetScale`), and possibly `KTDXLIB/KTDGXMeshPlayer.*`. The STATUS Touches column was widened to match.

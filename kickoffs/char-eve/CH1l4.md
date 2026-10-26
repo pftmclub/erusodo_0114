@@ -70,3 +70,7 @@ The helper phase named every unmapped engine callee CH0 left open for you (funcm
 - `31f8adb0` = `CXMeshInstance::GetScale()` on the main effect (`m_vScale`, `+0x510`); `31c1a440` = `CXMeshInstance::SetScale( D3DXVECTOR3 )` (confirmed by the same offset).
 - `3297b720` does not touch the customize struct (CH0 slip): it is the INHERIT_CRITICAL_RATE helper (skill-memo test, `m_fCriticalRate` of the effect and its NEXT tables, then `m_bInheritCriticalRate = true`); reach the NEXT tables with `JuneGetNextTables` (the friend covers it). The customize struct `321cdbb0` / `321cd590` belongs to `3297b840` (CH2a2) and goes to Stage 12.
 - The modifier list applies tags 5 / 12 / 16 / 20 (`CX2EffectSet::ApplyDamageEffectModifiers`); none of your callers pushes a tag.
+
+## Amended by CH1l40 review (2026-10-26)
+
+`3297b720` in detail (read from Ghidra; the bullet above said "skill-memo test", which is loose): skill templet `32206450( [arg +0x7c4], 1 )`, its type - 6 through a byte table; the value comes from `32007ce0` = `June_TryGetEquippedSkillAbilityValue( 0x33, 0x6343, 0, out )`; then for the effect's own DamageData (`+0x200`) and each non-NULL NEXT table: if `32610fb0( 0x27 )` (= `DamageData::JuneIsAttackTrigger`) is false, `m_fCriticalRate += value` and `31f8b860` pushes `0x27` onto `m_vecAdditionalAttackTriggerType` (`+0x544`); last, `+0xad4 = 1`. `0x27`, `0x33` and `0x6343` have Enum names to look up (trigger type, skill ability, skill id): the no-literal rule applies.
