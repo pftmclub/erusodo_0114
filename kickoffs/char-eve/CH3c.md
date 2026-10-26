@@ -34,3 +34,7 @@ Scope: the class-116 skill ids not in an earlier phase, incl. Electronic Move 25
 - **7c alpha-tag sites inside these functions: 3** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `322de5d0` CX2Game::UpdateSkillSlotUI( bool ) (X2Game.cpp:13345) (confirmed); `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate); `31e4cd60` CX2GameUnit::GetZVector (X2GameUnit.h:2545) (confirmed); `31fdbf00` user (candidate).
 - **Electronic Move 25223** is Battle Seraph only (CH0 correction: the plan said CH2c). Its states 239-241 copy the callbacks of states 219-221 (`ENSI_EBS_DASH_JUMP_COMBO_ZFrontX / ZUpX / ZDownX`) through `329cc2c0`; the 3 tables are numerical-only (checklist section 1).
+
+## Amended by CH1d (2026-10-26)
+
+- `329968a0` calls `m_EveElectraSystem.June_AddEffectToSystem` (`32980580`, CH1d); `329809c0` (AddLockonToSystem) builds the same `EveElectraEffectData`-like record: see the CH1d Done note on June's two extra members (+0x8c, +0x90).

@@ -446,6 +446,36 @@ Build: `DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-26 06:28:09, md
 
 No build (no code change). CH1d's kickoff still matches (45 class-map rows; depends on this review). Next: `/x2-phase char-eve CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a fourth block at the end of `X2GuEve.cpp`, 1,284 lines; declarations at the end of the class and inside `EveElectraSystem`). **All 45 class-map rows of phase CH1d**: 38 state functions are new `CX2GUEve::June_ENSI_COMBO_*` members, 3 helpers are new `EveElectraSystem::June_*` methods, 4 are compiler-made pieces of `EveElectraEffectData` (not ported, below). Nothing registers or calls them. 41 funcmap rows `Char Eve CH1d` PORTED, 4 "not ported here"; the 7 helper rows of the class map now carry their March pair.
+
+| State (`June_ENSI_COMBO_` prefix) | June: Start / End / FrameMove / EventProcess (and others) |
+|---|---|
+| `Z` `ZZ` `ZZZ` `ZZZZ` | `32969e20` `32983440` `329834a0` `32969e40` / `3296a1d0` `32983690` `329836f0` `3296a1f0` / `3296a700` `329838e0` `32983940` `3296a720` / `3296adc0` `32983b30` `32983b90` `3296ade0` |
+| `ZZZX` | FrameMove `32983f60`, EventProcess `3296b080` |
+| `ZZZdownZ` | StartFuture `3296b320`, Start `3296b380`, End `3296b3e0`, FrameMove `32984060`, EventProcess `3296b400` |
+| `X` `XX` `XXX` | Start `329673f0` `32967410` `32967430`, FrameMove `329afc70` `32984d60` `329b0260`, EventProcess `3296b9f0` `3296bd90` `3297c830` |
+| `XXfrontX` `XXfrontXX` `XXdownX` `XXdownXX` | EventProcess `3296c850` / FrameMove `32985710` + EventProcess `3296cab0` / EventProcess `3296cbd0` / FrameMove `32985930` + EventProcess `3296ce30` |
+| `EveElectraSystem::June_AddEffectToSystem` `June_DestroyPlaneAndCrystalEffect` `June_CreatePlane` | `32980580` `32991a10` `329a1150` (March's `AddEffectToSystem` four-name form, `DestroyPlaneAndCrystalEffect`, `CreatePlane` Battle Seraph form) |
+
+**What differs from March** (the rest is March's EVE_ELECTRA body):
+- **Event flags** (Z ZZ ZZZ X XX ZZZdownZ): the change arm fires on `t > stateChange` **or** when the animation has ended (`32969e40 @32969ea4`); the BWALK / WALK / DASH cancels also need `IsOnSomethingFuture`. Both are local macros at the head of the block (`JUNE_EVE_*`); `SKILL_CANCEL_AFTER` is the buff port's June expansion.
+- **ZZ** gains two arms (flags 1 and 2: Code Nemesis / Empress `X` -> `ENSI_ECN_COMBO_ZZX_READY` 231 / `ENSI_ECE_COMBO_ZZX` 234), **ZZZ** one (flag 4, Code Nemesis). Both ids are new enumerators under the flag (like `ENSI_EVE_RECOVERY`); CH1g / CH1i own the states.
+- **ZZZdownZ**: the follow-up flag needs EG or Code Nemesis (March: also Architecture, Empress) and uses `m_fEventTime[ 0 ]`; the non-EG effect `EVE_ZZZdownZ` is `GetPowerRate() * m_fAttackPowerRateElectronBall` with `m_fForceDownValueRateElectronBall`.
+- **X / XX FrameMove**: `FlushMp( 4 * m_fMPConsumeRateElectronBall )` (March 8); the fire ball is the `_BIG` set (own filtered names) when `GetRandomFloat( 0 ) < m_fJuneElectronBallBigRate` (new field, +0x97bc, default 0); effect power `GetPowerRate() * m_fAttackPowerRateElectronBall`; `AddEffectToSystem` before `SetInheritForceDownRate`. **XXX**: `FlushMp( 4 )` (March 7), non-EG triangle scaled like the above.
+- **XXfrontXX / XXdownXX FrameMove**: at 0.01 s with Queen's Throne on, `Effectset_EEG_QueensThrone_ComboX4Front` is played (March: none). The two functions are identical: **JUNE_BUGS 423**.
+- **XXX EventProcess** writes `nowAction` 14 / 15 below 0.4 s (`UAI_ELECTRA_PLANE_ANGLE_UP / DOWN`, same values as June's constants); XX flag 5 sets `m_iSuccessiveHit_OneZ` (`0x9698`) before the Nemesis state change.
+- **Alpha tags (7c)**: 19 sites, 20 calls (`329b07d7` serves both the third `Light_Eve_AttackX3` and the 0.23 s triangle): ZZZX 1, ZZZdownZ 3, X 1, XX 1, XXX 4, `CreatePlane` 10.
+- **Members by use**: `0x962c`.. = `m_ahMajorMeshInstance[ MajorMID_EG_SP3_Combo_Z1 ..]` (base `0x95f0`); `+0x97ac` range rate, `+0x97b0` MP rate (a `KProtectedType<float>` in June, March's plain float is used), `+0x97c0` / `+0x97c4` power and force-down rates (writers in `3297f290`, CH4a); `+0x99a8` `m_fPlaneZAngle`; `+0x9868` `m_EveElectraSystem.m_fPlaneZAngle`.
+- **Helpers**: `32980580` / `32991a10` / `329a1150` are March's methods (June's `329a1150` also tags its four meshes and six particles). `3297b6b0` `329cdc80` `329cdf80` `329ce570` are the data's constructor, destructor, copy constructor and list node: June's struct holds two members March's lacks (`+0x8c` int -1, `+0x90` `std::vector<int>`), nothing in the class range reads them (CH1l4 kickoff amended); not mirrored.
+- Later kickoffs amended: CH1g / CH1i (enumerators), CH1j / CH2c / CH2c2 / CH3c / CH1l4 (call the `June_*` Electra methods), CH4a (writer of `+0x97bc`).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of `X2GuEve.cpp`: 0 errors; the `cl /P` output holds the block. A script cross-check of every listing against its member (wide strings, `StateChange` ids, float constants): 0 differences.
+Build: `DEPLOY OK: X2_offline.exe is 25,890,816 B, dated 2026-10-26 07:22:46, md5 391777dd7cfe8d9104cd8379931b63c6, equal to X2/US_SERVICE/x2.exe (2026-10-26 07:22:39); built at main add2af39 + 2 uncommitted code file(s).`
+
+**Open for the review**: the two macros' shape (animation-end clause, on-line test); the class-read form per site (templet `+0xaf0` vs unit data `+0x38`); `m_fJuneElectronBallBigRate` as the name of `+0x97bc` (a chance against `GetRandomFloat`); the plane math of `329a1150` (matched call by call to March's, with the constants; the x87 arithmetic itself was not re-derived); the enumerator values vs June's ids (CH1m). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1d-review.md`. Next: `/x2-phase char-eve CH1d review` (Opus 5.5 high), then CH1e.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

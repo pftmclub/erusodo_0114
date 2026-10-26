@@ -34,3 +34,7 @@ Transcribe every function the class map gives phase `CH1g` (class 108 states and
   June addresses: `32966ea0` `32966ec0` `32966ee0` `329685d0` `32968640` `32968650` `329686f0` `32968700` `32968710` `329709a0` `32970b50` `32970c30` `32970f10` `32971240` `32975bc0` `32975e20` `32975e60` `32975eb0` `3298db90` `3298dd30` `3298de80` `3298e090` `3298e710`.
 - **States: 9** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_ECN_COMBO_ZZX_READY`, `ENSI_ECN_COMBO_ZZX_LOOP`, `ENSI_ECN_COMBO_ZZX_END`, `ENSI_NS_COMBO_XXZ`, `ENSI_NS_COMBO_XXZZ8`, `ENSI_NS_COMBO_XXZZ8Z`, `ENSI_NS_DASH_COMBO_ZX`, `ENSI_NS_DASH_COMBO_ZXX`, `ENSI_ECN_DASH_JUMP_XZ`.
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).
+
+## Amended by CH1d (2026-10-26)
+
+- `ENSI_ECN_COMBO_ZZX_READY` (script id 231) is already an enumerator (CH1d added it for the ZZ / ZZZ EventProcess); add `_LOOP` / `_END` the same way if a member needs them.

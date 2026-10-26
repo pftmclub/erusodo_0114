@@ -36,3 +36,7 @@ Transcribe every function the class map gives phase `CH1i` (class 109 states and
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8); §7u L624 (March-only effect names).
 - **7c alpha-tag sites inside these functions: 5** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).
+
+## Amended by CH1d (2026-10-26)
+
+- `ENSI_ECE_COMBO_ZZX` (script id 234) is already an enumerator (CH1d added it for the ZZ EventProcess); add the others the same way.

@@ -36,3 +36,7 @@ Transcribe every function the class map gives phase `CH1j` (class 26 and the EPR
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 1** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31f63d10` CX2DamageEffect::CEffect::SetLaserGroupID( int ) (X2DamageEffect.cpp:10757) (confirmed); `320017d0` user (candidate); `32290350` CX2GameUnit::UpDownCrashCamera (X2GameUnit.cpp:13091) (confirmed); `31f8b1c0` KObserverPtr<CX2GameUnit> operator bool (GetObservable() != NULL) (candidate); `31fd7500` user (candidate); `32000a90` user (candidate).
+
+## Amended by CH1d (2026-10-26)
+
+- `329a4c30` / `329a5430` call `m_EveElectraSystem.June_CreatePlane` (June `329a1150`, CH1d) and, if they add a damage effect, `June_AddEffectToSystem` (`32980580`); never March's `CreatePlane` / `AddEffectToSystem`.

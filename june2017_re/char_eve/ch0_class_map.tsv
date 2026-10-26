@@ -463,7 +463,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3297b370	helper	called by 329c5bc0	-	-	CH1l4	
 3297b4b0	override 0x56c	?	- (not found; name unsettled)	unnamed	CH1k	name: HINT
 3297b510	helper	called by 32980000	-	-	CH1j	
-3297b6b0	helper	called by 32980580 329809c0	-	-	CH1d	
+3297b6b0	helper	called by 32980580 329809c0	CX2GUEve::EveElectraEffectData ( compiler-made )	struct	CH1d	
 3297b720	helper	called by 3297bad0 329c12a0	-	-	CH1l4	
 3297b840	helper	called by 3297ba70 3297bb10 3297bb40 32988e40	-	-	CH2a2	
 3297ba70	state-fn	ENSI_EBS_ENERGETIC_HEART.FrameMove	CX2GUEve::ENSI_EBS_ENERGETIC_HEART_FrameMove	pair	CH3c	
@@ -496,7 +496,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3297f290	override 0x690	InitPassiveSkillState	X2GuEve.h:1358 virtual void InitPassiveSkillState();	pair	CH4a	InitPassiveSkillState; name: CONF
 3297fdd0	override 0x5f0	COMMON_BUFF_FrameMove	X2GuEve.h:2166 virtual void COMMON_BUFF_FrameMove();	pair	CH1k	name: CONF
 32980000	helper	called by 329a4c30 329a5430 329a5ee0 329a67b0	-	-	CH1j	
-32980580	helper	called by 32984d60 32993c40 329968a0 32996c50	-	-	CH1d	
+32980580	helper	called by 32984d60 32993c40 329968a0 32996c50	CX2GUEve::EveElectraSystem::AddEffectToSystem	pair	CH1d	
 329809c0	helper	called by 329ae0c0	-	-	CH3c	
 32980c90	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32980cf0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
@@ -591,7 +591,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32991090	helper	called by 329c3bb0	-	-	CH1l4	
 32991940	helper	called by 32991c40 32991c80 329936e0 32993700	-	-	CH1j	
 329919a0	helper	called by 32994a10 329a0ae0	-	-	CH1l3	
-32991a10	helper	called by 32994a10 3299f470 329a1150	-	-	CH1d	
+32991a10	helper	called by 32994a10 3299f470 329a1150	CX2GUEve::EveElectraSystem::DestroyPlaneAndCrystalEffect	pair	CH1d	
 32991ac0	helper	called by 3299fe60 329a1b90 329abb90	-	-	CH1l4	
 32991c00	helper	called by 329a4680 329b4f10	-	-	CH1k	
 32991c40	state-fn	ENSI_EPR_COMBO_ZZZfrontZ.End	CX2GUEve::ENSI_EPR_COMBO_ZZZfrontZ_End	pair	CH1j	
@@ -686,7 +686,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3299f470	helper	called by 329c3bb0	-	-	CH1l4	
 3299fe60	helper	called by 329c3bb0	-	-	CH1l4	
 329a0ae0	helper	called by 329a5d80 329b6810	-	-	CH1l3	
-329a1150	helper	called by 329a4c30 329a5430 329a5ee0 329a67b0	-	-	CH1d	
+329a1150	helper	called by 329a4c30 329a5430 329a5ee0 329a67b0	CX2GUEve::EveElectraSystem::CreatePlane	pair	CH1d	
 329a1b90	helper	called by 329a7250 329aafc0 329abb90	-	-	CH2c2	
 329a2910	helper	called by 329a2b70 329a3040 329a3760 329aece0	-	-	CH1k	
 329a2b70	helper	called by 329a6fe0	-	-	CH3c	
@@ -834,16 +834,16 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cd9c0	helper	called by 3297b840	-	-	CH2a2	also called from outside the class: 329e7fda 329e8034 32a5218a 32a521d1
 329cda50	helper	-	-	-	CH1k	called by the constructor 3299bd70
 329cdb50	helper	called by 32980000 32991940 329aece0 329c3bb0	-	-	CH1j	
-329cdc80	helper	called by 32980580 329809c0 329aece0 329c3bb0	-	-	CH1d	
+329cdc80	helper	called by 32980580 329809c0 329aece0 329c3bb0	CX2GUEve::EveElectraEffectData ( compiler-made )	struct	CH1d	
 329cdd90	helper	called by 329ce4a0	-	-	CH1j	
-329cdf80	helper	called by 329ce570	-	-	CH1d	
+329cdf80	helper	called by 329ce570	CX2GUEve::EveElectraEffectData ( compiler-made )	struct	CH1d	
 329ce0a0	helper	called by 329ce210	-	-	CH1k	also called from outside the class: 32d5dde1
 329ce1c0	helper	-	-	-	n/a	exception-unwind funclet (called from unwind code 329ce980)
 329ce210	helper	called by 329ce310	-	-	CH1k	
 329ce310	helper	called by 3297bb70	-	-	CH1k	also called from outside the class: 32c3eac5 32c87118
 329ce3c0	dead	-	-	june-dead-code (no reference in the exe)	n/a	only caller 3297c010 is dead
 329ce4a0	helper	called by 32980000	-	-	CH1j	
-329ce570	helper	called by 32980580 329809c0	-	-	CH1d	
+329ce570	helper	called by 32980580 329809c0	CX2GUEve::EveElectraEffectData ( compiler-made )	struct	CH1d	
 329ce640	helper	-	-	-	n/a	exception-unwind funclet
 329ce680	helper	-	-	-	n/a	exception-unwind funclet
 329ce7b0	helper	called by 3297f290	-	-	CH4a	also called from outside the class: 32d32642

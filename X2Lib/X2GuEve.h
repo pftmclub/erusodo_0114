@@ -150,6 +150,8 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		ENSI_EVE_RECOVERY,					/// June script id 238 ( Code Recovery; CH4c writes the state )
+		ENSI_ECN_COMBO_ZZX_READY,			/// June script id 231 ( Code Nemesis ZZ X ready; CH1g owns the state )
+		ENSI_ECE_COMBO_ZZX,					/// June script id 234 ( Code Empress ZZ X; CH1i owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -595,6 +597,13 @@ public:
 		void DestroyFormationMarkAndMsgParticle();
 		void DestroyPlaneAndCrystalEffect();
 		void DestroyGigaPlaneAndCrystalEffect();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		/// June character port Phase CH1d: inert June_* copies of the system methods the Z / X combos call
+		void June_AddEffectToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring AmplifyDamageEffectName = L"",
+								wstring SpectrumDamageEffectName = L"", wstring InductionDamageEffectName = L"", wstring FusionDamageEffectName = L"" );	/// June 32980580
+		void June_DestroyPlaneAndCrystalEffect();	/// June 32991a10
+		void June_CreatePlane( float _fZAngle = 0.f, float _LifeTime = 2.f, float _fDistance = 300.f, float _fHeight = 130.f, wstring PlaneMeshName = L"" );	/// June 329a1150
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		
 #ifdef SERV_EVE_BATTLE_SERAPH		/// √ ±§«– ø¨±∏
 		bool GetEnableHyperOpticalResearch(){ return m_bHyperOpticalResearch; }
@@ -2636,6 +2645,7 @@ protected:
 	int			m_iJuneAddAirDashCount;					/// June +0x9c60 ( ADD_AIR_DASH_COUNT )
 	float		m_fJuneCodeRecoveryCoolLeft;			/// June +0x9c64 ( Code Recovery cool time left )
 	float		m_fJuneCodeRecoveryConsumeMp;			/// June +0x9c6c ( CODE_RECOVERY_CONSUME_MP )
+	float		m_fJuneElectronBallBigRate;				/// June +0x97bc ( chance of the BIG fire ball against GetRandomFloat( 0 ); skill 25407 ability 0x49 in InitPassiveSkillState 3297f290 @3297fd5a )
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	int			June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
@@ -2757,5 +2767,45 @@ protected:
 	void June_ENSI_RIDING_JUMP_LANDING_EventProcess();	/// June 329cc000 ( thunk, vslot 0x61c )
 	void June_ENSI_RIDING_DASH_EventProcess();			/// June 329cc080 ( thunk, vslot 0x620 )
 	void June_ENSI_RIDING_DASH_END_EventProcess();		/// June 329cc110 ( thunk, vslot 0x624 )
+
+	/// Phase CH1d: Nasod ground combos ( Z chain and X chain )
+	void June_ENSI_COMBO_Z_Start();						/// June 32969e20
+	void June_ENSI_COMBO_Z_End();						/// June 32983440
+	void June_ENSI_COMBO_Z_FrameMove();					/// June 329834a0
+	void June_ENSI_COMBO_Z_EventProcess();				/// June 32969e40
+	void June_ENSI_COMBO_ZZ_Start();					/// June 3296a1d0
+	void June_ENSI_COMBO_ZZ_End();						/// June 32983690
+	void June_ENSI_COMBO_ZZ_FrameMove();				/// June 329836f0
+	void June_ENSI_COMBO_ZZ_EventProcess();				/// June 3296a1f0
+	void June_ENSI_COMBO_ZZZ_Start();					/// June 3296a700
+	void June_ENSI_COMBO_ZZZ_End();						/// June 329838e0
+	void June_ENSI_COMBO_ZZZ_FrameMove();				/// June 32983940
+	void June_ENSI_COMBO_ZZZ_EventProcess();			/// June 3296a720
+	void June_ENSI_COMBO_ZZZZ_Start();					/// June 3296adc0
+	void June_ENSI_COMBO_ZZZZ_End();					/// June 32983b30
+	void June_ENSI_COMBO_ZZZZ_FrameMove();				/// June 32983b90
+	void June_ENSI_COMBO_ZZZZ_EventProcess();			/// June 3296ade0
+	void June_ENSI_COMBO_ZZZX_FrameMove();				/// June 32983f60
+	void June_ENSI_COMBO_ZZZX_EventProcess();			/// June 3296b080
+	void June_ENSI_COMBO_ZZZdownZ_StartFuture();		/// June 3296b320
+	void June_ENSI_COMBO_ZZZdownZ_Start();				/// June 3296b380
+	void June_ENSI_COMBO_ZZZdownZ_End();				/// June 3296b3e0
+	void June_ENSI_COMBO_ZZZdownZ_FrameMove();			/// June 32984060
+	void June_ENSI_COMBO_ZZZdownZ_EventProcess();		/// June 3296b400
+	void June_ENSI_COMBO_X_Start();						/// June 329673f0
+	void June_ENSI_COMBO_X_FrameMove();					/// June 329afc70
+	void June_ENSI_COMBO_X_EventProcess();				/// June 3296b9f0
+	void June_ENSI_COMBO_XX_Start();					/// June 32967410
+	void June_ENSI_COMBO_XX_FrameMove();				/// June 32984d60
+	void June_ENSI_COMBO_XX_EventProcess();				/// June 3296bd90
+	void June_ENSI_COMBO_XXX_Start();					/// June 32967430
+	void June_ENSI_COMBO_XXX_FrameMove();				/// June 329b0260
+	void June_ENSI_COMBO_XXX_EventProcess();			/// June 3297c830
+	void June_ENSI_COMBO_XXfrontX_EventProcess();		/// June 3296c850
+	void June_ENSI_COMBO_XXfrontXX_FrameMove();			/// June 32985710
+	void June_ENSI_COMBO_XXfrontXX_EventProcess();		/// June 3296cab0
+	void June_ENSI_COMBO_XXdownX_EventProcess();		/// June 3296cbd0
+	void June_ENSI_COMBO_XXdownXX_FrameMove();			/// June 32985930
+	void June_ENSI_COMBO_XXdownXX_EventProcess();		/// June 3296ce30
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

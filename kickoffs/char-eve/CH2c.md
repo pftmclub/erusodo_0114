@@ -33,3 +33,7 @@ Scope: the class-26 skill ids not in 5 / 18 / 19, except Sweep Rolling (25021 / 
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8); §7n L477 (user-sync class-skill float).
 - **7c alpha-tag sites inside these functions: 3** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `31fc89a0` user (candidate); `31fce670` user (candidate); `31fce6d0` user (candidate).
+
+## Amended by CH1d (2026-10-26)
+
+- `329a5ee0` / `329a67b0` call `m_EveElectraSystem.June_CreatePlane` (`329a1150`, CH1d); never March's `CreatePlane`.

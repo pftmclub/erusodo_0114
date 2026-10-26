@@ -30,3 +30,7 @@ Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their ob
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `322de5d0` CX2Game::UpdateSkillSlotUI( bool ) (X2Game.cpp:13345) (confirmed); `320017d0` user (candidate); `3202ed60` user (candidate).
 - `InitPassiveSkillState` `3297f290` also sets the June-only Nasod Core members `+0x9bf8` / `+0x9bfc` / `+0x9c00` that CH1q's AttackManeuverCore reads; keep them consistent with CH1q.
 - 106 `RNSI_P_COMMON_HYPER_AURA`: no case; imm32 in class code at `329673c9`.
+
+## Amended by CH1d (2026-10-26)
+
+- `InitPassiveSkillState` `3297f290` writes `m_fJuneElectronBallBigRate` (+0x97bc, CH1d; ctor default 0) from skill 25407 (`0x633f`) ability `0x49` (@3297fd5a): the chance of the BIG fire ball in `June_ENSI_COMBO_X / XX_FrameMove`. The same skill's ability `0x1f` scales `m_fElectronBallRangeRate` (+0x97ac) and, protected, `m_fMPConsumeRateElectronBall` (+0x97b0) is a `KProtectedType<float>` in June (March: plain float).
