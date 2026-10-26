@@ -561,6 +561,21 @@ Build: `DEPLOY OK: X2_offline.exe is 25,922,048 B, dated 2026-10-26 08:46:31, md
 
 **JUNE_BUGS:** no row (nothing in the 25 looks unintended; `--vAngle.z` is March's). **Drift:** none. **Open for the review**: `+0x4064` read as `GetStatAtkRateOfSummoned()` (the Aisha CH3c row calls it user `+0x4064`); the templet-vs-unit class read per site (all 25 read the templet). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1f-review.md`. Next: `/x2-phase char-eve CH1f review` (Opus 5.5 high), then CH1g.
 
+### CH1f - Review (2026-10-26)
+
+**PASS, no code fix.** Checked against June's raw listings (`charport_adis.py eve --phase CH1f`, 25 files, each read to the next class-map address) and Ghidra decompiles of `329847f0` `32986440` `32986f00` `3297f290`.
+- **`+0x4064` is `m_SkillRelatedData.m_fStatAtkRateOfSummoned`**: June's `InitPassiveSkillState` (`3297f290`) sets it to 1.0 right after the base call and multiplies it by SA `0x12` (= `SA_SUMMON_ATK_REL`, counted in `X2SkillTree.h`) of skill `0x633e`, as March's `X2GuEve.cpp:3530` / `:3618` do. So `GetStatAtkRateOfSummoned()` is right.
+- **Power factor**: in `329847f0` and `32986710` the `fld [esi+0x4064]` is stored at E0+0x10 (E0 = esp after the four register pushes) and the `fmul [esp+0x60]` after the 0x50 bytes of argument pushes reads E0+0x10; `32986440` decompiles to `param_1[0x1019]` directly. Then `x +0x97c0`; tail `( 0, false, -1, +0x97c4, 1.0, -1, -1, 0, -1, false, false )` = the port's args plus March's defaults.
+- **`329847f0` Exotic Gear half**: z `- 1.0 - 30.0` (`--vAngle.z += -30`), then y `+ 180`, z `- 30`; AddRotate / AxisAngle (`+0x3e0` / `+0x404`), land y (`+0x320`), tag `32296d60` inside the null check (`32984a5b`, `32984c26`); `UpDownCrashCameraNoReset( 5.0, 0.15 )` between; both `EVE_EG_ZZZdownZZ` with `GetPowerRate()` and the default tail.
+- **`32986710`**: class switch first; EG / Nemesis at 0.01 `EVE_EG_DASH_COMBO_ZZZ01`-`04` in order (`334cd640` `334cd610` `334cd5e0` `334cd5b0`); Architecture / Empress at 0.23, `Dummy1_Rhand`, handle `+0x1e4` -> `+0x95f8`; then future time > 0.2 and handle != -1 -> SetPos( `Dummy1_Rhand` ) or handle = -1. `32986f00`: XZ01-04 in order.
+- **Class form**: every test reads the templet (`+0x867c -> +0xaf0 -> +4`, NULL -> 0). Jump tables decoded from the binary: `18 108` / `19 109` in the Start / StartFuture / FrameMoves; `18 19 108 109` for the 0.45 skip; ZZ Init `19` alone, ZZZdownZZ Init `19 109` (compares). `3296daa0`'s skip table is `19 108` -> 0.75 and `18 109` -> 1.0, which is March's own pairing (`X2GuEve.cpp`, `ENSI_DASH_COMBO_ZZZ_EventProcess`), ported as is.
+- **EventProcess chains**: `3296d630` = SKILL_CANCEL_AFTER( 0.01 ) (both arms, `+0x8d4c` set), flag 0 and time > 0.53 -> 0xc0 for 18 / 108 then cleared, oneZ and time < 0.53 sets it, skip C (no Z / X / LCtr), 0.8 / 0.6, `m_fCanNotAttackTime` 0.1. `3296daa0`: skip ZXCAS (LCtr last), 1.5 / 0.75 / 1.0; 18 / 108 then animation end, ZX `+0x8c8c`, skill `+0x8c90`, BWALK `+0x8c94`, WALK `+0x8c98`, DASH `+0x8c9c` (on-line tests as the CH1d macros); others animation end. `3296e580`: ZXC, 1.2 / 0.935. `3296b8a0`: arrows only, 0.7 / 0.45, no can-not-attack time.
+- **`329795a0` = `329797d0`**: 167 instructions equal over `0x22e` bytes. The skill arm's `SpecialAttackEventProcess` half is folded away by the compiler (it sits in the not-on-line else, so `IsOnSomethingFuture()` is false): `SKILL_CANCEL_AFTER` is equivalent. Init strings match by address (`334ca1e4` `334ca1b4` `334ca188` `334cc730` `334ca060`).
+- **JUNE_BUGS**: none needed; the mixed 0.75 / 1.0 pairing is March's.
+- **Hygiene** (`--range 96f05392^..96f05392`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+
+No build (no code change). `CH1g.md` still matches (CH1f added no enumerator). Next: `/x2-phase char-eve CH1g` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
