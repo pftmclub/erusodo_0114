@@ -26,6 +26,7 @@ Classes
   A  the name is already a C++ member                     -> rename the literal
   B  the name is in June's Enum.src.lua / live Enum.lua   -> add the member, then rename
   C  in no Enum                                           -> N1 investigates
+  A/B row with a hand-written verdict starting `stray` (a count or id that only looks like an enum value): --check ignores it
   D  lead only: no family could be read from the context, value matches some family (noise is expected; --check ignores D)
   X  a family with no Enum table in this project (STR_ID, item, dungeon, net-error ids): stays a number; --check ignores X
 Columns: file line literal hex context family class candidate_name in_cpp in_enumlua in_june note verdict evidence
@@ -54,6 +55,16 @@ CACHE = os.path.join(TRUNK, '.build', 'enumscan')
 PP_TU = 'X2GuEve.cpp'                  # one TU reaches every class header through stdafx.h
 ENUM_FLAG = 'SERV_IRUHADEV_JUNE_ENUM_NAMES'
 JUNE_FLAG_PREFIX = 'SERV_IRUHADEV_JUNE_'
+
+def defined_june_flags():
+    """June flags with a live #define in Always.h: the #else of their #ifdef is the kept March original, never June code"""
+    try:
+        txt = open(os.path.join(TRUNK, 'KTDXLIB', 'Always.h'), encoding='latin-1').read()
+    except OSError:
+        return set()
+    return set(re.findall(r'(?m)^[ 	]*#[ 	]*define[ 	]+(SERV_IRUHADEV_JUNE_\w+)', txt))
+
+DEFINED_JUNE = defined_june_flags()
 
 # the survey files (plan table); X2EffectSet / X2Main are the two clean ones
 DEFAULT_FILES = ['X2GuEve', 'X2GUArme_VioletMage', 'X2GUUser', 'X2UISkillTreeNew2015', 'X2SkillTree', 'X2GameUnit',
@@ -523,7 +534,7 @@ def scan_file(path):
                 nm = rest.split(' ')[0] if rest else ''
                 isj = nm.startswith(JUNE_FLAG_PREFIX)
                 flags.append({'if_j': isj and d == 'ifdef', 'else_j': isj and d == 'ifndef', 'branch': 0,
-                              'skip': nm == ENUM_FLAG and d == 'ifdef'})
+                              'skip': d == 'ifdef' and (nm == ENUM_FLAG or nm in DEFINED_JUNE)})
             elif d == 'if':
                 has = cond_has_june(rest)
                 neg = bool(re.match(r'!\s*defined', rest))
@@ -891,7 +902,9 @@ def main():
         return 0
     if a.check:
         rows = scan_all(a.check, a.reuse)
-        bad = [(r, L) for r, L in rows if L.cls in ('A', 'B')]
+        vd = load_verdicts(TSV)
+        bad = [(r, L) for r, L in rows if L.cls in ('A', 'B')
+               and not vd.get(verdict_key(r, L.text, L.ctx, L.family), ('', ''))[0].startswith('stray')]
         for r, L in bad:
             print('%s:%d  %s  %s  class %s  %s' % (r, L.line, L.text, L.family, L.cls, L.cand))
         print('check: %d A/B row(s) remain in %d file(s) (C %d, D %d, X %d ignored)' % (

@@ -3001,7 +3001,11 @@ void CX2GUNPC::ScaleMoveSpeed( float fScale )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 	/// June 32757560 scales only NPC 0x1ef, 0x626 and 0x627 ( the Hell Drop UFOs )
 	const int iJuneNpcID = static_cast<int>( GetNPCTemplet().m_nNPCUnitID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	if( CX2UnitManager::NUI_UFO_AISHA != iJuneNpcID && CX2UnitManager::NUI_UFO_AISHA_DROPPER != iJuneNpcID && CX2UnitManager::NUI_UFO_AISHA_DROPPER_MEMO != iJuneNpcID )
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( 495 != iJuneNpcID && 1574 != iJuneNpcID && 1575 != iJuneNpcID )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		return;
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 	ASSERT( CX2UnitManager::NUI_UFO_AISHA == GetNPCTemplet().m_nNPCUnitID );
@@ -8129,7 +8133,11 @@ static int SureynaNpcID( const CX2GUNPC* pNPC_ )
 static bool SureynaIsTarget( const CX2GUNPC* pNPC_ )
 {
 	const int iID = SureynaNpcID( pNPC_ );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	return CX2UnitManager::NUI_GEYSER_MULSAYRENA == iID || CX2UnitManager::NUI_GEYSER_MULSAYRENA_CALL == iID;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	return 1888 == iID || 1900 == iID;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 }
 
 static const char* SureynaStateName( const CX2GUNPC* pNPC_, int iState_ )
@@ -10849,7 +10857,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			/// m_bNoDamage test. June calls HaveThisBuff (3227baf0) with no null test and it dereferences this, so the
 			/// NULL test is a crash guard.
 			const int iJuneUsedSkillID = static_cast<int>( pDamageData->m_eUsedSkillID );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			if ( ( CX2SkillTree::SI_SA_SDK_BRUTAL_CUTTER == iJuneUsedSkillID || CX2SkillTree::SI_SA_SCA_CRIMSON_BREAK == iJuneUsedSkillID || CX2SkillTree::SI_SA_SCA_DREAD_WEAPON == iJuneUsedSkillID )
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			if ( ( 8021 == iJuneUsedSkillID || 8025 == iJuneUsedSkillID || 8026 == iJuneUsedSkillID )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 				&& NULL != pJuneDoubleAttacker && pJuneDoubleAttacker->HaveThisBuff( BTI_BUFF_SHADE_THE_ILLUSION ) )
 				bJuneDoubleAttack = true;
 		}
@@ -29702,7 +29714,11 @@ static void JuneCreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhi
 
 #ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	/// every request a Sureyna ( 1888 ) makes, and every request for a 1900, not under the 30-line cap below
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	if ( CX2UnitManager::NUI_GEYSER_MULSAYRENA == SureynaNpcID( pNPC_ ) || CX2UnitManager::NUI_GEYSER_MULSAYRENA_CALL == unitID )
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if ( 1888 == SureynaNpcID( pNPC_ ) || 1900 == unitID )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		CX2OfflineLog::Server( L"SUREYNA NPC-side create via=%s summoner uid=%d id=%d unit=%d level=%d active=%d noDrop=%d pos=(%.1f,%.1f,%.1f) right=%d delay=%.2f key=%d team=%d ai=%d elite=%d host=%d",
 			pwszWhich_, pNPC_->GetUID(), SureynaNpcID( pNPC_ ), unitID, level, bActive ? 1 : 0, bNoDrop ? 1 : 0, vPos.x, vPos.y, vPos.z, bRight ? 1 : 0,
 			fDelayTime, iKeyCode, (int) eTeam, (int) eAIType, bElite ? 1 : 0, g_pX2Game->IsHost() ? 1 : 0 );

@@ -3598,7 +3598,11 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		fFinalDamage += fIncreaseDamageByUnitType;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		if ( 0.0f != fIncreaseDamageByUnitType )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			JuneBuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER : BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC, fFinalDamage, fIncreaseDamageByUnitType );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			JuneBuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? 109 : 108, fFinalDamage, fIncreaseDamageByUnitType );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 		/// June 32286270-322862b9: BBT 87/96 scale the sum above, command attacks only (melee picks 87, else 96)
@@ -4022,7 +4026,11 @@ void CX2GameUnit::GetHpRateDamage( IN OUT float* pfDamage_, IN const CX2DamageMa
 */
 void CX2GameUnit::JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF = CX2DamageManager::DTT_MULTIPLE_DAMAGE_BY_DEBUFF;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF = 40;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const CX2DamageManager::JuneDamageTriggerData* pEntry = damageData_.JuneFindDamageTriggerData( JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF );
 	if ( NULL == pEntry )
 		return;
@@ -4805,7 +4813,11 @@ bool CX2GameUnit::ProcessEnchantExtraDamage( CX2DamageManager::DamageData* pDama
 		if ( IsImmuneEDTByBuff( basicExtraDamageType ) )
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			JuneBuffNewFlagFirstRead( BBT_IMMUNE_EDT, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			JuneBuffNewFlagFirstRead( 105, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			return false;
 		}
@@ -6521,12 +6533,36 @@ float CX2GameUnit::JuneEnchantAccumulationRateModifier( CX2DamageManager::Damage
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 /// June buff port Phase 15 step 2b: June's BFI / BTI of the enchant debuffs (June Enum.lua; March's Enum.lua has the same
 /// names and values, March's C++ enums have none). Their factors and templets are not in March data before Phase 13.
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const UINT JUNE_BFI_DEBUFF_HARD_BODY		= BFI_DEBUFF_HARD_BODY;	/// shock debuff, BTI 945
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const UINT JUNE_BFI_DEBUFF_HARD_BODY		= 1000;	/// shock debuff, BTI 945
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const UINT JUNE_BFI_DEBUFF_SLOW_POISON	= BFI_DEBUFF_SLOW_POISON;	/// poison slow, BTI 946
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const UINT JUNE_BFI_DEBUFF_SLOW_POISON	= 1001;	/// poison slow, BTI 946
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const UINT JUNE_BFI_DEBUFF_SLOW_FROZEN	= BFI_DEBUFF_SLOW_FROZEN;	/// frozen slow, BTI 958
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const UINT JUNE_BFI_DEBUFF_SLOW_FROZEN	= 1014;	/// frozen slow, BTI 958
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_HARD_BODY		= BTI_DEBUFF_HARD_BODY;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_HARD_BODY		= static_cast<BUFF_TEMPLET_ID>( 945 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_POISON	= BTI_DEBUFF_SLOW_POISON;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_POISON	= static_cast<BUFF_TEMPLET_ID>( 946 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_FROZEN	= BTI_DEBUFF_SLOW_FROZEN;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_FROZEN	= static_cast<BUFF_TEMPLET_ID>( 958 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 /// One "[JUNE_BUFF] enchant: BFI n has no factor" line per BFI and session. June null-checks the factor (@32068bfa) and skips silently.
 static bool JuneEnchantDebuffFactorPresent( const CX2BuffFactorPtr& ptrFactor_, const UINT uiBuffFactorID_, const char* szWhat_ )
@@ -14098,7 +14134,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			if ( NULL == pAttacker )
 				break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			const UINT uiBuffFactorID = ( CX2DamageManager::EDT_DECREASE_ENEMY_RESIST == extraDamageData_.m_ExtraDamageType ? BFI_DECREASE_ENEMY_RESIST : BFI_DECENT_TO_SHADOW );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const UINT uiBuffFactorID = ( CX2DamageManager::EDT_DECREASE_ENEMY_RESIST == extraDamageData_.m_ExtraDamageType ? 787 : 1118 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const int iLevel = extraDamageData_.m_iLevel;
 			const bool bSet = SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID( uiBuffFactorID, pAttacker->GetUnitUID(), true, static_cast<UINT>( iLevel ) );
 			if ( true == JuneSocketEdtFirstTime( iType ) )
@@ -14117,7 +14157,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				break;
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			const BUFF_TEMPLET_ID eStackTempletID = BTI_COMMAND_HIT_EXPLOSION;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const BUFF_TEMPLET_ID eStackTempletID = static_cast<BUFF_TEMPLET_ID>( 762 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			if ( 10 <= pAttacker->GetBuffAccumulationCountNowInFactor( eStackTempletID ) )
 			{
 				pAttacker->EraseBuffTempletFromGameUnit( eStackTempletID );
@@ -14134,7 +14178,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				const int iLevel = extraDamageData_.m_iLevel;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				/// S3e: June 320392ab ( user ) / 3279cf5a ( NPC ) pass ( 788, NULL, level, 0, no skip )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( BFI_COMMAND_HIT_EXPLOSION, static_cast<UINT>( iLevel ), NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ), NULL, 0, false );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ) );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -14208,7 +14256,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 					fRate = 0.f;
 
 				pUser->GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTimeByRateJune( fRate, false );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+				pUser->EraseBuffTempletFromGameUnit( BTI_COMMAND_HIT_COOLTIME_DECREASE );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 				pUser->EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 778 ) );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 				pUser->SetJuneCommandHit( 0, static_cast<float>( g_pKTDXApp->GetTime() ) );
 				if ( true == JuneSocketEdtFirstTime( iType + 20000 ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: 10th command hit (first this run): left skill cool times x %g, BTI 778 erased", iType, 1.f - fRate );
@@ -14218,7 +14270,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				const int iLevel = extraDamageData_.m_iLevel;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				/// S3e: June 32039624 ( user ) / 3279d43b ( NPC ) pass ( 804, NULL, level, 0, no skip )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( BFI_COMMAND_HIT_COOLTIME_DECREASE, static_cast<UINT>( iLevel ), NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ), NULL, 0, false );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ) );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -16627,7 +16683,11 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 	const CX2Unit* pJuneUnit = ( GUT_USER == GetGameUnitType() ? static_cast<CX2GUUser*>( this )->GetUnit() : NULL );
 	if ( NULL != pJuneUnit && 0 != pJuneUnit->GetUnitData().m_iUnitClassTran )
 	{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		const UINT JUNE_BFI_TRANSCENDENTAL_HYPER_MODE = BFI_TRANSCENDENTAL_HYPER_MODE;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 		const UINT JUNE_BFI_TRANSCENDENTAL_HYPER_MODE = 845;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_HYPER_MODE, 1 );		// June 32298590 @322988d3
 		bool bJuneWakeUpPlayed = false;
 		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
@@ -16795,7 +16855,11 @@ bool CX2GameUnit::CanApplyBuffToGameUnit() const
 static void JuneBuff7bFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
 {
 	static bool s_bSeen[5] = { false, false, false, false, false };
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int iSlot = ( BBT_DETONATION_IMPOSSIBLE == iType_ ? 0 : BBT_INVINCIBLE == iType_ ? 1 : BBT_IGNORE_HP_DECREASE == iType_ ? 2 : BBT_DETONATION_IMPOSSIBLE_GAGE_RESET == iType_ ? 3 : 4 );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int iSlot = ( 74 == iType_ ? 0 : 77 == iType_ ? 1 : 101 == iType_ ? 2 : 102 == iType_ ? 3 : 4 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if ( s_bSeen[iSlot] )
 		return;
 
@@ -16884,19 +16948,31 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 		case BBT_IGNORE_HP_DECREASE:
 			m_vecIgnoreHpDecreasePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			JuneBuff7bFirstApply( BBT_IGNORE_HP_DECREASE, "ignore hp decrease", BuffIdentity_ );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			JuneBuff7bFirstApply( 101, "ignore hp decrease", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_DETONATION_IMPOSSIBLE_GAGE_RESET:
 			m_vecDetonationImpossibleGageResetPtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			JuneBuff7bFirstApply( BBT_DETONATION_IMPOSSIBLE_GAGE_RESET, "detonation impossible gage reset", BuffIdentity_ );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			JuneBuff7bFirstApply( 102, "detonation impossible gage reset", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_AWAKE_IMPOSSIBLE:
 			m_vecAwakeImpossiblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			JuneBuff7bFirstApply( BBT_AWAKE_IMPOSSIBLE, "awake impossible", BuffIdentity_ );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			JuneBuff7bFirstApply( 110, "awake impossible", BuffIdentity_ );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
@@ -17521,8 +17597,16 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 			if ( NULL == pCreator )
 				break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			const CX2SkillTree::SKILL_ID eSinisterMind = CX2SkillTree::RNSI_SA_LDN_SINISTER_MIND;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const CX2SkillTree::SKILL_ID eSinisterMind = static_cast<CX2SkillTree::SKILL_ID>( 30048 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			const CX2SkillTree::SKILL_ABILITY_TYPE eJuneCoolTime1 = CX2SkillTree::SA_COOLTIME_1;
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const CX2SkillTree::SKILL_ABILITY_TYPE eJuneCoolTime1 = static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x94 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const int iMaxCount = static_cast<int>( JuneGetLearnedSkillAbilityValue( pCreator, CX2SkillTree::SA_EFFECTIVE_COUNT, eSinisterMind ) );
 			const float fDamageInterval = JuneGetLearnedSkillAbilityValue( pCreator, eJuneCoolTime1, eSinisterMind );
 			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffSinisterMind( BuffIdentity_, kCreatorInfo_.m_uidCreator,

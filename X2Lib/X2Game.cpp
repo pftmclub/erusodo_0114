@@ -9568,14 +9568,22 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 	for ( UINT i = 0; i < vecDeathBuff.size(); ++i )
 	{
 		pMyUnit->SetBuffFactorToGameUnitByBuffFactorID( vecDeathBuff[i], 1 );
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		if ( BFI_BUFF_HERO_STOP == vecDeathBuff[i] )
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 		if ( 0x287 == vecDeathBuff[i] )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		{
 			for ( int j = 0; j < GetNPCUnitListSize(); ++j )
 			{
 				CX2GUNPC* pNpc = GetNPCUnit( j );
 				if ( NULL != pNpc && pKilledNpc_ != pNpc
 					&& ( NULL == pNpc->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNpc->GetNPCAI()->GetAIType() ) )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+					pNpc->SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_HERO_STOP, 1 );
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 					pNpc->SetBuffFactorToGameUnitByBuffFactorID( 0x286, 1 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			}
 		}
 	}
@@ -13977,7 +13985,11 @@ void CX2Game::June_TranscendSlotGuideFrameMove()
 		bool bGlow = false;
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pEquippedData->m_eSkillID );
 		if( NULL != pSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType && CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet->m_eType
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			&& 0.f < pMyUnit->GetRemainHyperModeTime() && true == pMyUnit->HaveUnfinishedBuff( BTI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT ) )
+#else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			&& 0.f < pMyUnit->GetRemainHyperModeTime() && true == pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 820 ) ) )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			bGlow = true;
 
 		if( true == bShowBar && true == bGlow && true == g_pMain->JuneCanShowClassGuide( 4 ) && NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) )
