@@ -29,3 +29,4 @@ data034	DLG_UI_FIELD_MAP_Ranox_04_NEW.lua	march	edit: atlas A6 (2026-10-17) June
 data036	ShopItem.lua	march	edit: atlas E2 edit: atlas E2 adds June's VMI_ELYSION shop block	source	2026-10-17
 data036	UnitTemplet.lua	march	edit: pilot-char-revamp CH5 edit: pilot-char-revamp CH5 per-character rows	source	2026-10-21
 data036	LevelUpEvent.lua	march	edit: convert convert (format change only)	source	2026-10-23
+data036	ResultData_new.lua	march	edit: quest Q4c server-only room-server rank table (KncWX2Server/ServerResource/US), read by X2OfflineDungeonRank	source	2026-10-26
