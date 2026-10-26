@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-eve CH1m` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | CH1l4 review. One at a time: `X2GuEve.*` |
+| Depends on | CH1l5 review (added by the CH1l3 review: the skill-use helpers live in `CX2GUUser` first). One at a time: `X2GuEve.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`, `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (undefined until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`) |
 | Review | `kickoffs/char-eve/CH1m-review.md` (Opus 5.5 high; the phase writes it when done) |

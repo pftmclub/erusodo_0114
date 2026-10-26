@@ -2836,6 +2836,90 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeAll()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l3 review ( JUNE_CHARACTER_EVE_PHASES.md )
+// June 328941a0: mode 1 keeps the listed skill ids, 2 the listed skill types, 3 every slot while the X2 state is listed
+void CX2UserSkillTree::June_ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ )
+{
+	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
+	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
+
+	for ( int iCurrentIndex = 0; iCurrentIndex < iSizeOfIndex; ++iCurrentIndex )
+	{
+		bool bResetA = true;
+		bool bResetB = true;
+
+		if ( false == vecValue_.empty() )
+		{
+			const int iSkillIDA = static_cast<int>( m_aEquippedSkill[iCurrentIndex].m_eID );
+			const int iSkillIDB = static_cast<int>( m_aEquippedSkillSlotB[iCurrentIndex].m_eID );
+
+			if ( 1 == iMode_ )
+			{
+				for ( UINT i = 0; i < vecValue_.size(); ++i )
+				{
+					if ( iSkillIDA == vecValue_[i] )
+						bResetA = false;
+					if ( iSkillIDB == vecValue_[i] )
+						bResetB = false;
+				}
+			}
+			else if ( 2 == iMode_ )
+			{
+				int iSkillTypeA = CX2SkillTree::ST_NONE;
+				if ( 0 < iSkillIDA )
+				{
+					const CX2SkillTree::SkillTemplet* pSkillTempletA = GetUserSkillTemplet( GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillIDA ) ) );
+					if ( NULL != pSkillTempletA )
+						iSkillTypeA = pSkillTempletA->m_eType;
+				}
+
+				int iSkillTypeB = CX2SkillTree::ST_NONE;
+				if ( 0 < iSkillIDB )
+				{
+					const CX2SkillTree::SkillTemplet* pSkillTempletB = GetUserSkillTemplet( GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillIDB ) ) );
+					if ( NULL != pSkillTempletB )
+						iSkillTypeB = pSkillTempletB->m_eType;
+				}
+
+				for ( UINT i = 0; i < vecValue_.size(); ++i )
+				{
+					if ( iSkillTypeA == vecValue_[i] )
+						bResetA = false;
+					if ( iSkillTypeB == vecValue_[i] )
+						bResetB = false;
+				}
+			}
+			else if ( 3 == iMode_ )
+			{
+				bool bKeepAll = false;
+				for ( UINT i = 0; i < vecValue_.size(); ++i )
+				{
+					if ( static_cast<int>( g_pMain->GetNowStateID() ) == vecValue_[i] )
+						bKeepAll = true;
+				}
+
+				if ( true == bKeepAll )
+					continue;
+			}
+		}
+
+		if ( true == bResetA )
+		{
+			m_aEquippedSkill[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
+			pGageManager->SetMySkillCoolTimeList( iCurrentIndex, 0.0f );
+		}
+
+		if ( true == bResetB )
+		{
+			m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
+			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, 0.0f );	// June's B index, one short on a five-slot bar ( JUNE_BUGS 436 )
+		}
+	}
+}
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 #ifdef UPGRADE_SKILL_SYSTEM_2013 /// 김태환
 
 #ifdef ADDED_BBT_ALL_EQUIP_SKILL_SET_OR_RESET_COOLTIME					// 김종훈 / 13-07-04 / 모든 착용 중인 스킬의 쿨타임 최대치로 설정되게 하는 BBT 추가

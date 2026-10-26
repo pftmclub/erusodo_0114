@@ -45332,14 +45332,17 @@ bool CX2GUEve::June_CanUseChargingBooster( CX2SkillTree::SKILL_TYPE eSkillType_,
 	return m_ChargingBoosterSkillDataBasePtr->IsEndCoolTime();
 }
 
-// June 3297a800 ( UseChargingBooster ): 328941a0( 2, { 13, 12 } ) is March's ResetLeftSkillCoolTimeAll
+// June 3297a800 ( UseChargingBooster )
 void CX2GUEve::June_UseChargingBooster( CX2UserSkillTree& cUserSkillTree_ )
 {
 	const CX2SkillTree::SkillTemplet* pSkillTempletChargingBooster = cUserSkillTree_.GetUserSkillTemplet( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true );
 	June_SpecialAttackNoStageChange( pSkillTempletChargingBooster );
 
 	m_ChargingBoosterSkillDataBasePtr->SetTimerBasedOnCoolTime( m_ChargingBoosterSkillDataBasePtr->GetCoolTime() );
-	cUserSkillTree_.ResetLeftSkillCoolTimeAll();
+	std::vector<int> vecKeepSkillType;
+	vecKeepSkillType.push_back( CX2SkillTree::ST_HYPER_ACTIVE_SKILL );
+	vecKeepSkillType.push_back( CX2SkillTree::ST_RELATIONSHIP_SKILL );
+	cUserSkillTree_.June_ResetLeftSkillCoolTimeAll( 2, vecKeepSkillType );	// June mode 2: keep these skill types
 }
 
 // June 3297c570 ( SpecialAttackNoStageChange )
@@ -45796,7 +45799,7 @@ void CX2GUEve::June_SpecialAttackCooldown( const int iSkillID_, const float fMpC
 			{
 				const int iFormationFactor = m_EveElectraSystem.June_GetFormationFactor();
 				const float fAbility = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_OPEN_MIND );	// June ability 66
-				JuneUpNowMpWithText( static_cast<float>( fAbility * fMpConsume_ * static_cast<double>( iFormationFactor ) ) );
+				JuneUpNowMpWithText( static_cast<float>( static_cast<double>( fAbility ) * fMpConsume_ * iFormationFactor ) );
 			}
 		} break;
 	}
@@ -46024,7 +46027,7 @@ bool CX2GUEve::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITIO
 	if( CX2SkillTree::RNSI_A_EVE_CONVERSION == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_CONVERSION_UPGRADE == pSkillTemplet->m_eID )
 	{
 		// June reads the HP rate from +0x9c58 where March read ability SA_HP_REL_TO_MP_ABS_1
-		if( GetNowHp() <= static_cast<double>( GetMaxHp() * m_fJune9c58 ) )
+		if( GetNowHp() <= static_cast<double>( GetMaxHp() ) * m_fJune9c58 )
 		{
 			JuneEvePushInfoText( 2627 );
 			return false;

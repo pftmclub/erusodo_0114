@@ -338,6 +338,9 @@ public:		/// public function
 //{{ kimhc // 2010.11.2 // 엠프레스 - 충전 추진기
 #ifdef	NEW_SKILL_2010_11
 	void ResetLeftSkillCoolTimeAll();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	void June_ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ );	/// June 328941a0
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 /// 김태환
 
