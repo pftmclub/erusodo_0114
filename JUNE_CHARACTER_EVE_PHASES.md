@@ -1173,6 +1173,7 @@ the call and `JuneInitBoundingStates( "ENSI_" )` are present; `JuneHyperModeEnd`
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2GuEve.cpp X2GuEve.h X2GUUser.cpp X2GUUser.h`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 OTHER is the `_LIVE` pair in `InitState`. `_LIVE` reports `FAIL: the flag is not #defined anywhere tracked`, by design until CH1 final (as Aisha's CH1j).
+Commits `541b4795` (the phase) and `a8776d67` (the `Always.h` LIVE-needs-CORE guard rewritten as nested `#ifdef` / `#ifndef`: flagcheck's unifdef reports ERROR on the compound test, so each per-commit range pair errs on it; no compiled change, no rebuild). `flagcheck.py JUNE_CHAR_EVE_CORE --base 541b4795^ --files <the 5 files>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the second OTHER is `Always.h`).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,100,224 B, dated 2026-10-26 23:08:17, md5 2438acc35dfbdb8315332d2c08b8990c, equal to X2/US_SERVICE/x2.exe (2026-10-26 23:08:10); built at main c5ac3186 + 7 uncommitted code file(s).`
 
