@@ -407,8 +407,8 @@ public:
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hParticleGigaLaserCross[4];	/// 기가 스트림일 경우
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		wstring						m_wstrJuneName4;				/// June +0xc8: AddLaserToSystem's 14th argument ( reader in the laser OnFrameMove phase )
-		wstring						m_wstrJuneName5;				/// June +0xe4: AddLaserToSystem's 15th argument
+		wstring						m_wstrJuneInductionLaserName;			/// June +0xc8: induction laser name, empty = EVE_EBS_INDUCTION_LASER ( reader 329bc6e0 )
+		wstring						m_wstrJuneInductionLaserSpecialName;	/// June +0xe4: the AT_SPECIAL one, empty = EVE_EBS_INDUCTION_LASER_SPECIAL
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraLaserData( EveElectraSystem* _pEveElectraSystem );
 		void OnFrameMove( float fElapsedTime );
@@ -621,7 +621,7 @@ public:
 		void June_CreatePlane( float _fZAngle = 0.f, float _LifeTime = 2.f, float _fDistance = 300.f, float _fHeight = 130.f, wstring PlaneMeshName = L"" );	/// June 329a1150
 		void June_AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector, float _fVelocity,
 								float _fLaserPropagateTime = 0.3f, float _fLaserWidthScale = 1.f, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
-								wstring InductionDamageEffectName = L"", bool _bApplyLaserRangePassive = true, float _fRadiusScale = 1.f, wstring Name4 = L"", wstring Name5 = L"" );	/// June 32980000
+								wstring InductionDamageEffectName = L"", bool _bApplyLaserRangePassive = true, float _fRadiusScale = 1.f, wstring InductionLaserName = L"", wstring InductionLaserSpecialName = L"" );	/// June 32980000
 		void June_LaserAttackLineSet( CX2DamageEffect::CEffect* _pDamageEffect, float _fRadiusScale = 1.0f );	/// June 3297a8e0
 		void June_DeleteLaserFromSystem();	/// June 32991940
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE

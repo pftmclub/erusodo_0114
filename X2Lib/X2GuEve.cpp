@@ -41158,7 +41158,7 @@ void CX2GUEve::June_ENSI_ECE_DASH_XX_EventProcess()
 void CX2GUEve::EveElectraSystem::June_AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector,
 	float _fVelocity, float _fLaserPropagateTime /*= 0.3f*/, float _fLaserWidthScale /*= 1.f*/, wstring AmplifyDamageEffectName /*= L""*/,
 	wstring SpectrumDamageEffectName /*= L""*/, wstring InductionDamageEffectName /*= L""*/, bool _bApplyLaserRangePassive /*= true*/, float _fRadiusScale /*= 1.f*/,
-	wstring Name4 /*= L""*/, wstring Name5 /*= L""*/ )
+	wstring InductionLaserName /*= L""*/, wstring InductionLaserSpecialName /*= L""*/ )
 {
 	if( _pDamageEffect == NULL )
 		return;
@@ -41183,8 +41183,8 @@ void CX2GUEve::EveElectraSystem::June_AddLaserToSystem( CX2DamageEffect::CEffect
 	kEveElectraLaserData.m_SpectrumDamageEffectName = SpectrumDamageEffectName;
 	kEveElectraLaserData.m_InductionDamageEffectName = InductionDamageEffectName;
 	kEveElectraLaserData.m_iFireCount = 0;
-	kEveElectraLaserData.m_wstrJuneName4 = Name4;
-	kEveElectraLaserData.m_wstrJuneName5 = Name5;
+	kEveElectraLaserData.m_wstrJuneInductionLaserName = InductionLaserName;
+	kEveElectraLaserData.m_wstrJuneInductionLaserSpecialName = InductionLaserSpecialName;
 
 	if( AmplifyDamageEffectName == L"" )
 		kEveElectraLaserData.m_AmplifyDamageEffectName = L"EVE_PROTO_PURITY_LASER";
