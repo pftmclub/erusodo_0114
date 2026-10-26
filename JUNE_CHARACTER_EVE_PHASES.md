@@ -617,6 +617,30 @@ Build: `DEPLOY OK: X2_offline.exe is 25,930,752 B, dated 2026-10-26 09:17:18, md
 
 No build (no code change). `CH1h.md` still matches (CH1g added nothing it reads). Next: `/x2-phase char-eve CH1h` (Sonnet 5.5 high).
 
+### CH1h - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (an eighth block at the end of `X2GuEve.cpp`, 219 lines; 12 declaration lines at the end of the class). **All 11 class-map rows of phase CH1h** are new `CX2GUEve::June_*` members. Nothing registers or calls them. No new enumerator, field or helper (`ENSI_JUNE_DASH_COMBO_ZX` came with CH1e); every callee is an engine function called through its March counterpart. 11 funcmap rows `Char Eve CH1h`.
+
+| State (`June_` prefix) | June: Init / Start / End / FrameMove / EventProcess |
+|---|---|
+| `ENSI_COMBO_XXZ4` | `3296c580` / - / - / `32985300` / `3296c5d0` |
+| `ENSI_DASH_COMBO_ZX` (June-only, id 180) | - / `329662c0` / `329662d0` / `32986d30` / `3296df00` |
+| `ENSI_DASH_JUMP_COMBO_XZ` | `32966320` / - / `32966350` / `329889d0` / `3296ecc0` |
+
+**What differs from March** (Inits, both Ends, the dash Z-X Start and dash-jump X-Z EventProcess are March's body; the class is read through the unit templet, `+0xaf0 -> +4`):
+- **Power factor** (as CH1f): `EVE_AT_COMBO_XXZ4_START` (`32985300`) and `EVE_AT_DASH_JUMP_COMBO_XZ` (`329889d0`) take `GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall`, force-down `+0x97c4`, land 0, range 1.0, the rest of the tail is `CreateInstance`'s default.
+- **7c alpha tags, 5 sites**: XXZ4 mesh (`329854ac`) and 1.07 particle (`329856eb`); dash-jump X-Z guardian mesh (`32988afd`), particle (`32988bdd`, after `SetLandPosition`), blade-wave mesh (`32988e18`). The XXZ4 1.07 particle has no `SetLandPosition`, as March.
+- **XXZ4 EventProcess**: off line -> JUMP_DOWN and `y -= 45`; a separate animation-end `if`; then skill / BWALK / WALK / DASH as `else if` arms (CH1d macros).
+- **Dash Z-X (June-only)**: FrameMove plays `EffectSet_EVE_EAT_DashComboZX` (0.01) at the factored power rate. EventProcess: off line -> JUMP_DOWN (chain skipped), the four cancels, then two arms on `m_fAttackCancelAfter` (`+0x8c8c`): pureZ -> `GetComboZStateID()` (vslot `0x4b0`), pureX -> `GetComboXStateID()` (`0x4b4`), both with the on-line test March's `ZX_CANCEL_AFTER` lacks; the animation-end `if` comes after the chain on every path.
+- `+0x8e90` second-body clock in the cancel arms is checklist 7o, not ported (as CH1d-CH1g).
+
+**Method note.** `charport_adis.py` cut wide strings at 12 characters (`Eve_AT_DashJ` is `Eve_AT_DashJumpComboXa_Mesh_G.X`); CH1h fixed it to read 200 bytes. The 13 literals of the block equal the 13 push addresses read in full.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,935,360 B, dated 2026-10-26 09:43:07, md5 4602ab1452b3f1216ebd53cf33126643, equal to X2/US_SERVICE/x2.exe (2026-10-26 09:43:00); built at main d1c54066 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** no row. **Drift:** June's `PlayEffectSet` (`321e1e60`) takes one trailing float (default 1.0, stored in the instance at `+0x14c`, it reaches the set's damage effects' force-down slot); March's `PlayEffectSet` has none, and nothing in `X2EffectSet.*` ports it. Dash Z-X passes `m_fForceDownValueRateElectronBall` there; the member calls March's signature without it (one comment line). Owner: CH1o ("gaps the CH1a-CH1l reviews routed"); it only changes force-down on that set's hits when the Electron Ball rate is not 1. **Open for the review**: the gap above; the ZX arm split (two `else if` with the on-line test). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1h-review.md`. Next: `/x2-phase char-eve CH1h review` (Opus 5.5 high), then CH1i.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

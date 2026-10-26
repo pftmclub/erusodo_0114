@@ -5043,3 +5043,14 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 32975e60	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end or X released -> END ( 233 ), else off the line -> JUMP_DOWN
 32968710	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_FrameMove	PORTED	Char Eve CH1g: inert; June-only: CommonFrameMove ( tail jump )
 32975eb0	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end -> WAIT, then the SKILL / BWALK / WALK / DASH cancel chain
+3296c580	CX2GUEve::June_ENSI_COMBO_XXZ4_Init	PORTED	Char Eve CH1h: inert; = March: preloads Eve_AT_ComboX5a_mesh.X, Eve_Guardian_BladeWave01.X, DummyAttackBox_50x50x50.X for Architecture / Empress ( class read through the unit templet )
+32985300	CX2GUEve::June_ENSI_COMBO_XXZ4_FrameMove	PORTED	Char Eve CH1h: inert; March plus 7c: 0.01 mesh Mesh_Eve_AT_ComboX5a_Guardian tagged, EVE_AT_COMBO_XXZ4_START at GetPowerRate x GetStatAtkRateOfSummoned x m_fAttackPowerRateElectronBall ( force-down +0x97c4, range 1.0 ); 1.07 particle tagged
+3296c5d0	CX2GUEve::June_ENSI_COMBO_XXZ4_EventProcess	PORTED	Char Eve CH1h: inert; March plus June's chain: off line -> JUMP_DOWN, animation end -> WAIT, then the SKILL / BWALK / WALK / DASH cancels
+329662c0	CX2GUEve::June_ENSI_DASH_COMBO_ZX_Start	PORTED	Char Eve CH1h: inert; June-only state ( id 180 ): CommonStateStart ( tail jump )
+32986d30	CX2GUEve::June_ENSI_DASH_COMBO_ZX_FrameMove	PORTED	Char Eve CH1h: inert; June-only: 0.01 PlayEffectSet EffectSet_EVE_EAT_DashComboZX at the factored power rate; June's trailing force-down float has no March parameter
+3296df00	CX2GUEve::June_ENSI_DASH_COMBO_ZX_EventProcess	PORTED	Char Eve CH1h: inert; June-only: off line -> JUMP_DOWN, SKILL / BWALK / WALK / DASH cancels, pureZ / pureX at m_fAttackCancelAfter -> GetComboZ / XStateID ( on-line test ), then animation end -> WAIT
+329662d0	CX2GUEve::June_ENSI_DASH_COMBO_ZX_End	PORTED	Char Eve CH1h: inert; June-only: CommonStateEnd ( tail jump )
+32966320	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_XZ_Init	PORTED	Char Eve CH1h: inert; = March: preloads Eve_AT_DashJumpComboXa_Mesh_G.X, Eve_Guardian_BladeWave01.X
+329889d0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_XZ_FrameMove	PORTED	Char Eve CH1h: inert; March plus 7c: 0.01 guardian mesh and particle tagged, 0.1 EVE_AT_DASH_JUMP_COMBO_XZ at the factored power rate ( force-down +0x97c4, range 1.0 ), 0.15 blade wave mesh tagged
+3296ecc0	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_XZ_EventProcess	PORTED	Char Eve CH1h: inert; = March: on line -> JUMP_LANDING, CommonEventProcess
+32966350	CX2GUEve::June_ENSI_DASH_JUMP_COMBO_XZ_End	PORTED	Char Eve CH1h: inert; = March: CommonStateEnd ( tail jump )

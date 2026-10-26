@@ -56,7 +56,7 @@ def load(key):
 
 
 def wstr(a):
-    b = read_va(a, 24)
+    b = read_va(a, 200) or read_va(a, 24)
     if not b:
         return ''
     try:

@@ -2906,5 +2906,17 @@ protected:
 	void June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess();		/// June 32975e60
 	void June_ENSI_ECN_COMBO_ZZX_END_FrameMove();			/// June 32968710
 	void June_ENSI_ECN_COMBO_ZZX_END_EventProcess();		/// June 32975eb0
+	/// June character port Phase CH1h: inert June_* members of Eve's Architecture states; nothing calls them until CH1 wires them in.
+	void June_ENSI_COMBO_XXZ4_Init();						/// June 3296c580
+	void June_ENSI_COMBO_XXZ4_FrameMove();					/// June 32985300
+	void June_ENSI_COMBO_XXZ4_EventProcess();				/// June 3296c5d0
+	void June_ENSI_DASH_COMBO_ZX_Start();					/// June 329662c0
+	void June_ENSI_DASH_COMBO_ZX_FrameMove();				/// June 32986d30
+	void June_ENSI_DASH_COMBO_ZX_EventProcess();			/// June 3296df00
+	void June_ENSI_DASH_COMBO_ZX_End();						/// June 329662d0
+	void June_ENSI_DASH_JUMP_COMBO_XZ_Init();				/// June 32966320
+	void June_ENSI_DASH_JUMP_COMBO_XZ_FrameMove();			/// June 329889d0
+	void June_ENSI_DASH_JUMP_COMBO_XZ_EventProcess();		/// June 3296ecc0
+	void June_ENSI_DASH_JUMP_COMBO_XZ_End();				/// June 32966350
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

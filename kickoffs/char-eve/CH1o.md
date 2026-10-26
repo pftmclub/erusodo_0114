@@ -28,3 +28,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7 L256 (vslot 510 skill lookup); §7 L259 (riding-key skill wait in vslot 510).
 - **No class-map rows:** CH1o wires what CH1k / CH1l-CH1l4 transcribed. The 69 overrides are in `ch0_vtable_slots.tsv`. Seven have no name (0x56c, 0x584, 0x65c, 0x6a8, 0x6ac, 0x77c, 0x828); Eve overrides 25 slots Aisha does not (the tsv footer).
 - A March Eve virtual June does not override goes away (June wins); check `X2GuEve.h` against the tsv.
+
+## Amended by CH1h (2026-10-26)
+
+- **Gap routed here:** June's `PlayEffectSet` (`321e1e60`) has a trailing float (default 1.0, instance `+0x14c`, reaches the set's damage effects' force-down slot) that March's signature lacks. `June_ENSI_DASH_COMBO_ZX_FrameMove` (`32986d30`) passes `m_fForceDownValueRateElectronBall` there and the member omits it. Decide whether to add the parameter (engine change in `X2EffectSet.*`) before `_LIVE`.
