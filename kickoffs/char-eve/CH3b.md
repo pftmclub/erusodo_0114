@@ -33,3 +33,7 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8); §7h L410 (USEFUL_VALUE rows).
 - **7c alpha-tag sites inside these functions: 4** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed).
+
+## Amended by june-enum-names N1 (2026-10-26)
+
+- Register `ENSI_SA_ECE_REASON_PRIDE_ACTION` in `X2GuEve.h`'s June block (March numbering, `/// June script id 242`, like l.152-166). Then switch `June_SetEquippedSkillLevel`'s `JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION` (June's raw 242, `X2GuEve.cpp:44556`) to it: the state map is keyed by March ids, so 242 misses the entry (June `329c8a00` case 0x6294, `31fd89b0( 0xf2, ... )`).

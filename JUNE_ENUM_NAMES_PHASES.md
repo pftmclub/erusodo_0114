@@ -100,6 +100,24 @@ Scope: for every class-C row. Search all June Enum tables (not only the obvious 
 Run with: Opus 5.5 / high. Delegate reads and greps to Sonnet subagents (x2-phase "When the phase is Opus"); Opus keeps the Ghidra reads and the verdicts.
 Done gate: no class-C row without a verdict; the user-decision list is in the Done note (<= 60 lines).
 
+### Phase N1 - Done (2026-10-26, Opus 5.5; data + tool only, no game code, no build, no flag)
+
+- **Landed:** `verdict` + `evidence` columns in `june2017_re/enum_literals.tsv` (6 rows filled); `tools/enumscan.py` carries them over a rewrite, keyed by (file, literal, context, family), and prints `N class-C row(s) have no verdict` when one is open. Proof: `enumscan.py --reuse` rewrote the tsv byte-identical to the hand-written one, with no open-C line.
+- **User-decision list: empty.** No row is "real enum, absent from Enum". N2 can start.
+
+| Row | Verdict | Evidence (all Ghidra reads by this phase) |
+|---|---|---|
+| `X2GuEve.cpp:44371` ENSI 242 (C) | **registered-elsewhere:** June state `ENSI_SA_ECE_REASON_PRIDE_ACTION`, C++ only | June `329c8a00` case 0x6294 (25236) calls `31fd89b0( 0xf2, "ENSI_SA_ECE_REASON_PRIDE_ACTION" )`; June `Eve_Nasod.lua` l.14079 has the table; June Enum's `EVE_STATE_ID` stops at 129 |
+| `X2GUNPC.cpp:4910` `> 127` (C) | **stray:** our signed-char state-id cap, not an enum value | the site's comment already says why; no June address (June reads ids unsigned). Stays a number; no JUNE_BUGS row (it is ours, not June's) |
+| 25029 (B) | `RNSI_SA_ECB_ENERGETIC_HEART`; `JUNE_SKILL_ID_BOOST_ATTACK_MP` is our misnomer | June Enum SKILL_ID l.16092; `32978c60` @32978d0f pushes 0x61c5 with SA 0x1b into `32007ce0`, `32979a00` @32979a37; `329c8a00` case 0x61c5 registers `ENSI_EBS_ENERGETIC_HEART` |
+| DTT 44 (B) | `DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK` | June Enum `DAMAGE_TRIGGER_TYPE` l.7264 (2 / 5 in the same table); June `DamageEffect_Character.lua` l.5760 sets it as Reason Pride's `ATTACK_TRIGGER_TYPE`; `329a4680` @329a4b4d pushes 0x2c into `32610fb0` |
+| 0x765d..0x765f (B) | 30301 `RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL`, 30302 `..._UPGRADE`, 30303 `RNSI_BUFF_PHANTOM_CIRCLE` | June `32205440` @322054b9 / 322054c0 compares 0x765d / 0x765f itself, so the range is June's own; 30303 is "Phantom Circle", a buff (`NewSkillTempletVer2.lua` l.242379, `m_eType` 5) |
+
+**Three findings that change later phases (written into their kickoffs):**
+- **Eve 242 is a value bug, not a pure rename.** `June_SetEquippedSkillLevel` (l.44556) passes June's 242, while every sibling call passes a March `ENSI_*` member, and March numbers the June states its own way (`X2GuEve.h:152-166`, "June script id N"). The code is inert today, but once CH3b registers the state the lookup would miss it. The rule "new member == replaced literal" cannot hold here, so N3 leaves the number with a one-line verdict comment, and **char-eve CH3b** adds the member in March numbering and switches the call.
+- **DTT 44 goes after `DTT_END`.** March's `DAMAGE_TRIGGER_TYPE` is numbered implicitly, and `DTT_END = 6` is relied on (`X2DamageManager.h:1039`, `X2BuffTemplet.cpp:2079`). N2 appends the `= 44` member after it.
+- **30302 has no tsv row**, because the code only spells the range ends. N2 registers it as well, because N3 writes the three cases out.
+
 ## Phase N2 - Register the members
 
 Scope: add every class-B member that a site in the eleven files needs: C++ enums (SKILL_ID, NPC_UNIT_ID, BUFF_TEMPLET_ID, BUFF_FACTOR_ID, UNIT_CLASS 123-136, Eve ENSI) under the flag with explicit June values, and the Enum.lua lines for names June's data indexes (`_UPGRADE` ids, ...). Define the flag in `Always.h`. `touch X2Lib/stdafx.cpp` (PCH).

@@ -28,7 +28,8 @@ Classes
   C  in no Enum                                           -> N1 investigates
   D  lead only: no family could be read from the context, value matches some family (noise is expected; --check ignores D)
   X  a family with no Enum table in this project (STR_ID, item, dungeon, net-error ids): stays a number; --check ignores X
-Columns: file line literal hex context family class candidate_name in_cpp in_enumlua in_june note
+Columns: file line literal hex context family class candidate_name in_cpp in_enumlua in_june note verdict evidence
+verdict / evidence are hand-written (N1) and carried over a rewrite by (file, literal, context, family).
 """
 import argparse
 import bisect
@@ -771,12 +772,32 @@ def scan_all(files, reuse, T=None, dropped=None):
     return rows
 
 
-COLS = ['file', 'line', 'literal', 'hex', 'context', 'family', 'class', 'candidate_name', 'in_cpp', 'in_enumlua', 'in_june', 'note']
+COLS = ['file', 'line', 'literal', 'hex', 'context', 'family', 'class', 'candidate_name', 'in_cpp', 'in_enumlua', 'in_june', 'note',
+        'verdict', 'evidence']
 
 
-def row_text(rel, L):
+def verdict_key(rel, text, ctx, family):
+    return (rel, text, ctx, family)
+
+
+def load_verdicts(path):
+    out = {}
+    if os.path.exists(path):
+        lines = open(path, encoding='utf-8').read().split('\n')
+        head = lines[0].split('\t') if lines else []
+        if 'verdict' in head:
+            iv, ie = head.index('verdict'), head.index('evidence')
+            for line in lines[1:]:
+                r = line.split('\t')
+                if len(r) > ie and r[iv]:
+                    out[verdict_key(r[0], r[2], r[4], r[5])] = (r[iv], r[ie])
+    return out
+
+
+def row_text(rel, L, verdicts=None):
+    v = (verdicts or {}).get(verdict_key(rel, L.text, L.ctx, L.family), ('', ''))
     return '\t'.join([rel, str(L.line), L.text, '0x%x' % L.value, L.ctx, L.family, L.cls, L.cand,
-                      '|'.join(L.cpp[:4]), '|'.join(L.live_[:4]), '|'.join(L.june_[:4]), L.note])
+                      '|'.join(L.cpp[:4]), '|'.join(L.live_[:4]), '|'.join(L.june_[:4]), L.note, v[0], v[1]])
 
 
 def summary(rows_by_file):
@@ -883,10 +904,14 @@ def main():
     for rel, L in (dropped or []):
         if L.value >= 100:
             print('DROPPED %s:%d %s %s hints=%r' % (rel, L.line, L.text, L.ctx, L.hints[0]))
+    verdicts = load_verdicts(a.out)
     with open(a.out, 'w', encoding='utf-8', newline='\n') as fh:
         fh.write('\t'.join(COLS) + '\n')
         for rel, L in rows:
-            fh.write(row_text(rel, L) + '\n')
+            fh.write(row_text(rel, L, verdicts) + '\n')
+    open_c = sum(1 for rel, L in rows if L.cls == 'C' and verdict_key(rel, L.text, L.ctx, L.family) not in verdicts)
+    if open_c:
+        print('%d class-C row(s) have no verdict' % open_c)
     by = collections.OrderedDict()
     for rel, L in rows:
         by.setdefault(rel, []).append(row_text(rel, L).split('\t'))
