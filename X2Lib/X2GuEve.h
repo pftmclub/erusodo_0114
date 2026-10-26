@@ -406,6 +406,10 @@ public:
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hParticleLaserCross;			/// 레이저 충돌 위치 이펙트
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hParticleGigaLaserCross[4];	/// 기가 스트림일 경우
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		wstring						m_wstrJuneName4;				/// June +0xc8: AddLaserToSystem's 14th argument ( reader in the laser OnFrameMove phase )
+		wstring						m_wstrJuneName5;				/// June +0xe4: AddLaserToSystem's 15th argument
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraLaserData( EveElectraSystem* _pEveElectraSystem );
 		void OnFrameMove( float fElapsedTime );
 		void Delete();
@@ -615,6 +619,11 @@ public:
 								wstring SpectrumDamageEffectName = L"", wstring InductionDamageEffectName = L"", wstring FusionDamageEffectName = L"" );	/// June 32980580
 		void June_DestroyPlaneAndCrystalEffect();	/// June 32991a10
 		void June_CreatePlane( float _fZAngle = 0.f, float _LifeTime = 2.f, float _fDistance = 300.f, float _fHeight = 130.f, wstring PlaneMeshName = L"" );	/// June 329a1150
+		void June_AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector, float _fVelocity,
+								float _fLaserPropagateTime = 0.3f, float _fLaserWidthScale = 1.f, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
+								wstring InductionDamageEffectName = L"", bool _bApplyLaserRangePassive = true, float _fRadiusScale = 1.f, wstring Name4 = L"", wstring Name5 = L"" );	/// June 32980000
+		void June_LaserAttackLineSet( CX2DamageEffect::CEffect* _pDamageEffect, float _fRadiusScale = 1.0f );	/// June 3297a8e0
+		void June_DeleteLaserFromSystem();	/// June 32991940
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		
 #ifdef SERV_EVE_BATTLE_SERAPH		/// 초광학 연구
@@ -2942,5 +2951,27 @@ protected:
 	void June_ENSI_ECE_DASH_XX_End();						/// June 329687c0
 	void June_ENSI_ECE_DASH_XX_FrameMove();					/// June 32999ce0
 	void June_ENSI_ECE_DASH_XX_EventProcess();				/// June 32976480
+	/// June character port Phase CH1j: inert June_* members of Eve's Electra line states ( EPR combos and dashes ); nothing calls them until CH1 wires them in.
+	void June_ENSI_EPR_COMBO_ZZZfrontZ_Start();		/// June 32972af0
+	void June_ENSI_EPR_COMBO_ZZZfrontZ_FrameMove();		/// June 329a4c30
+	void June_ENSI_EPR_COMBO_ZZZfrontZ_EventProcess();	/// June 3297ccf0
+	void June_ENSI_EPR_COMBO_ZZZfrontZ_End();		/// June 32991c40
+	void June_ENSI_EPR_COMBO_XXZ_Start();			/// June 32972b30
+	void June_ENSI_EPR_COMBO_XXZ_FrameMove();		/// June 329a5430
+	void June_ENSI_EPR_COMBO_XXZ_EventProcess();		/// June 3297d050
+	void June_ENSI_EPR_COMBO_XXZ_End();			/// June 32991c80
+	void June_ENSI_EPR_DASH_COMBO_ZZ_Init();		/// June 32967450
+	void June_ENSI_EPR_DASH_COMBO_ZZ_StartFuture();		/// June 32967470
+	void June_ENSI_EPR_DASH_COMBO_ZZ_Start();		/// June 32991e10
+	void June_ENSI_EPR_DASH_COMBO_ZZ_EventProcess();	/// June 32972b80
+	void June_ENSI_EPR_DASH_COMBO_ZZ_FrameMove();		/// June 32991f50
+	void June_ENSI_EPR_DASH_COMBO_ZZ_End();			/// June 32992190
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_Init();		/// June 32967480
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_StartFuture();	/// June 32967490
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_Start();		/// June 32992210
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_EventProcess();	/// June 32972ed0
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_FrameMove();		/// June 32992440
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_EndFuture();		/// June 329674b0
+	void June_ENSI_EPR_DASH_COMBO_ZZZ_End();		/// June 32992f60
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

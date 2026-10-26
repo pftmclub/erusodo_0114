@@ -693,6 +693,31 @@ Build: `DEPLOY OK: X2_offline.exe is 25,945,600 B, dated 2026-10-26 10:09:25, md
 - **JUNE_BUGS:** none found. funcmap has the 22 `Char Eve CH1i` rows.
 - Hygiene: `flagcheck.py JUNE_CHAR_EVE_CORE --range cb1f7bca^..cb1f7bca`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. No rebuild (no code change). Nothing to play-test. `kickoffs/char-eve/CH1j.md` still matches. Next: `/x2-phase char-eve CH1j` (Sonnet 5.5 high).
 
+### CH1j - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a tenth block at the end of `X2GuEve.cpp`, 675 lines; declarations at the end of the class and inside `EveElectraSystem`). **All 30 class-map rows of phase CH1j**: 21 state members `June_ENSI_EPR_*` and 3 `EveElectraSystem` members; the other 6 helper rows are compiler-made or equal March's and are called, not copied. Nothing registers or calls the new members. No new enumerator. 29 funcmap rows `Char Eve CH1j` (`329cd320` keeps its CH1e row).
+
+| State (`June_` prefix) | June: Init / StartFuture / Start / FrameMove / EventProcess / EndFuture / End |
+|---|---|
+| `ENSI_EPR_COMBO_ZZZfrontZ` | - / - / `32972af0` / `329a4c30` / `3297ccf0` / - / `32991c40` |
+| `ENSI_EPR_COMBO_XXZ` | - / - / `32972b30` / `329a5430` / `3297d050` / - / `32991c80` |
+| `ENSI_EPR_DASH_COMBO_ZZ` | `32967450` / `32967470` / `32991e10` / `32991f50` / `32972b80` / - / `32992190` |
+| `ENSI_EPR_DASH_COMBO_ZZZ` | `32967480` / `32967490` / `32992210` / `32992440` / `32972ed0` / `329674b0` / `32992f60` |
+
+Helpers: `EveElectraSystem::June_AddLaserToSystem` `32980000`, `June_LaserAttackLineSet` `3297a8e0` (= March), `June_DeleteLaserFromSystem` `32991940` (= March). Called, not copied: `32990c50` (= `EveElectraLaserData::Delete`), `3297b510` / `329cdb50` / `329cdd90` / `329ce4a0` (the data's constructor, destructor, copy constructor, list node), `329cd320` (`CreateInstanceHandle`).
+
+**What differs from March** (the rest is March's body):
+- **`32980000` AddLaserToSystem** takes two more trailing wstrings (after `_fRadiusScale`), stored at data `+0xc8` / `+0xe4`: two new fields under the flag at the end of `EveElectraLaserData`, `m_wstrJuneName4` / `m_wstrJuneName5` (names by position; the reader is in a later group). June's data also has a 4-byte pad at `+0xc`; not reproduced. The three names default to `EVE_PROTO_PURITY_LASER`, the new two do not.
+- **Hyper arm** (`329a4c30` at 0.4, `329a5430` at 0.23333): while the gage (`this+0xc04`) hyper time (`+0xe8`) is above 0 (`GetRemainHyperModeTime() > 0.0f`) June creates `EVE_COMBO_ZZZFZ_LASER_HYPER` / `EVE_COMBO_XXZ_LASER_HYPER` and passes `EVE_PROTO_PURITY_LASER_HYPER` x3 / `EVE_COMBO_XXZ_LASER_NEXT_HYPER` x3; otherwise the March names. Both end `true, 2.0, L"", L""`. The effect handle is stored **after** AddLaser and only when the effect exists.
+- **Dash Z-Z `32991e10`**: one 7c alpha tag on `EvePurityDashComboZBladeLoopEnd`. Dash Z-Z-Z `32992440`: `FlushMp( 10, 0 )` (second argument constant 0).
+- **EventProcess x4**: March's shape with June's cancel macros (on-line test) and, for dash Z-Z, the June state-change macro (also fires on animation end). `+0x8e90` second-body clock in the cancel arms is checklist 7o, not ported.
+- Everything else (Starts, Ends, StartFutures, Inits, the rotate / offset / MP-drain blocks, constants) is March's, checked op for op.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,960,960 B, dated 2026-10-26 10:55:02, md5 a7ea820e9fcb98875112141fe4aaef3b, equal to X2/US_SERVICE/x2.exe (2026-10-26 10:54:54); built at main 25ef9949 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** none. **Drift:** none new. **Open for the review**: the names of the two extra laser strings; the hyper-time test as `GetRemainHyperModeTime()`; the `PlayEffectSet( "EffectSet_EVE_COMBO_XXZ_END" )` call uses defaults (its trailing force-down float is the default 1.0, as the decode reads it). Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1j-review.md`. Next: `/x2-phase char-eve CH1j review` (Opus 5.5 high), then CH1j20.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

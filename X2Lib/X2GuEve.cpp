@@ -41148,4 +41148,679 @@ void CX2GUEve::June_ENSI_ECE_DASH_XX_EventProcess()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1j ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's Electra line, the EPR combos and dashes and the laser methods they call ( class map phase CH1j ); nothing calls them until CH1 wires them in.
+
+// ---- Electra system: laser methods ----
+
+// June 32980000: 3297b510 / 329cdb50 / 329cdd90 / 329ce4a0 are the data's constructor, destructor, copy constructor and list node; March's body plus two trailing names
+void CX2GUEve::EveElectraSystem::June_AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector,
+	float _fVelocity, float _fLaserPropagateTime /*= 0.3f*/, float _fLaserWidthScale /*= 1.f*/, wstring AmplifyDamageEffectName /*= L""*/,
+	wstring SpectrumDamageEffectName /*= L""*/, wstring InductionDamageEffectName /*= L""*/, bool _bApplyLaserRangePassive /*= true*/, float _fRadiusScale /*= 1.f*/,
+	wstring Name4 /*= L""*/, wstring Name5 /*= L""*/ )
+{
+	if( _pDamageEffect == NULL )
+		return;
+
+	EveElectraLaserData kEveElectraLaserData( this );
+	kEveElectraLaserData.m_vecDamageEffect.push_back( _pDamageEffect->GetHandle() );
+	kEveElectraLaserData.m_vLaserStartPos	= _vLaserStartPos;
+
+	kEveElectraLaserData.m_vDirVector		= _vDirVector;
+	kEveElectraLaserData.m_fVelocity		= _fVelocity;
+	kEveElectraLaserData.m_fLaserPropagateTime	= _fLaserPropagateTime;
+	kEveElectraLaserData.m_TraceBone		= _TraceBone;
+	kEveElectraLaserData.m_fElapsedTime		= 0.f;
+	kEveElectraLaserData.m_fPenetrateTime	= 0.0f;
+	kEveElectraLaserData.m_bApplyLaserRangePassive = _bApplyLaserRangePassive;
+	kEveElectraLaserData.m_fLaserWidthScale = _fLaserWidthScale;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = _pDamageEffect->GetMainEffect();
+	kEveElectraLaserData.m_vInitRotateLocalDegree = ( pMainEffect != NULL ) ? pMainEffect->GetRotateLocalDegree() : D3DXVECTOR3(0,0,0);
+
+	kEveElectraLaserData.m_AmplifyDamageEffectName	= AmplifyDamageEffectName;
+	kEveElectraLaserData.m_SpectrumDamageEffectName = SpectrumDamageEffectName;
+	kEveElectraLaserData.m_InductionDamageEffectName = InductionDamageEffectName;
+	kEveElectraLaserData.m_iFireCount = 0;
+	kEveElectraLaserData.m_wstrJuneName4 = Name4;
+	kEveElectraLaserData.m_wstrJuneName5 = Name5;
+
+	if( AmplifyDamageEffectName == L"" )
+		kEveElectraLaserData.m_AmplifyDamageEffectName = L"EVE_PROTO_PURITY_LASER";
+
+	if( SpectrumDamageEffectName == L"" )
+		kEveElectraLaserData.m_SpectrumDamageEffectName = L"EVE_PROTO_PURITY_LASER";
+
+	if( InductionDamageEffectName == L"" )
+		kEveElectraLaserData.m_InductionDamageEffectName = L"EVE_PROTO_PURITY_LASER";
+
+	m_EveElectraLaserDataList.push_back( kEveElectraLaserData );
+
+	_pDamageEffect->SetLaserGroupID( m_iLaserGroupNum );
+	++m_iLaserGroupNum;
+	if ( m_iLaserGroupNum > 2 )
+		m_iLaserGroupNum = 1;
+
+	June_LaserAttackLineSet( _pDamageEffect, _fRadiusScale );
+}
+
+// June 3297a8e0: March's LaserAttackLineSet
+void CX2GUEve::EveElectraSystem::June_LaserAttackLineSet( CX2DamageEffect::CEffect* _pDamageEffect, float _fRadiusScale /*= 1.0f*/ )
+{
+	if( _pDamageEffect == NULL )
+		return;
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = _pDamageEffect->GetMainEffect();
+	if ( pMainEffect == NULL || pMainEffect->GetXSkinAnim() == NULL )
+		return;
+	CKTDXCollision::CollisionDataList* pCollisionDataList = &pMainEffect->GetXSkinAnim()->GetAttackDataListNonConst();
+	if ( pCollisionDataList == NULL )
+		return;
+
+	BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pColA, *pCollisionDataList )
+	{
+		ASSERT( pColA != NULL );
+		if( pColA->m_bEnable == false )
+			continue;
+
+		if( pColA->m_CollisionType == CKTDXCollision::CT_LINE )
+		{
+			pColA->m_bUseRadiusScaleY = true;
+			pColA->m_fRadiusScale = _fRadiusScale;
+		}
+	}
+}
+
+// June 32991940: 32990c50 is EveElectraLaserData::Delete, March's body
+void CX2GUEve::EveElectraSystem::June_DeleteLaserFromSystem()
+{
+	std::list< EveElectraLaserData >::iterator lit_Laser;
+	for( lit_Laser = m_EveElectraLaserDataList.begin(); lit_Laser != m_EveElectraLaserDataList.end(); )
+	{
+		EveElectraLaserData& kEveElectraLaserData = *lit_Laser;
+		kEveElectraLaserData.Delete();
+		lit_Laser = m_EveElectraLaserDataList.erase( lit_Laser );
+	}
+}
+
+// ---- Electra Z-Z-Z front Z ----
+
+// June 32972af0
+void CX2GUEve::June_ENSI_EPR_COMBO_ZZZfrontZ_Start()
+{
+	CommonStateStart();
+	m_fPlaneZAngle	= 0.f;
+	m_bNotEnoughMPZZZfrontZLaser = false;
+	m_hEffectElectraLaserZZZfrontZ = INVALID_DAMAGE_EFFECT_HANDLE;
+
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+}
+
+// June 329a4c30
+void CX2GUEve::June_ENSI_EPR_COMBO_ZZZfrontZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.02f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( 0.f, 2.0f, 240.f, 130.f );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3666f ) )
+	{
+		m_EveElectraSystem.m_fPlaneZAngle = m_fPlaneZAngle;
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetPos();
+		vDamageEffectPos.y += 130.f;
+		D3DXVECTOR3 vZeroYDirVector = GetDirVector();
+		vZeroYDirVector.y = 0.f;
+		D3DXVec3Normalize( &vZeroYDirVector, &vZeroYDirVector );
+
+		if(GetIsRight() == false)
+		{
+			vZeroYDirVector.x = -vZeroYDirVector.x;
+			vZeroYDirVector.z = -vZeroYDirVector.z;
+		}
+		vDamageEffectPos += (130.f * vZeroYDirVector);
+
+		// June picks the _HYPER effect and laser names while the gage's hyper time is above 0
+		const bool bHyper = ( GetRemainHyperModeTime() > 0.0f );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+			( bHyper ? L"EVE_COMBO_ZZZFZ_LASER_HYPER" : L"EVE_COMBO_ZZZFZ_LASER" ), GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		const WCHAR* pwszLaserName = ( bHyper ? L"EVE_PROTO_PURITY_LASER_HYPER" : L"" );
+
+		m_EveElectraSystem.June_AddLaserToSystem( pEffect, L"Bip01_L_Finger2Nub", vDamageEffectPos,
+			vZeroYDirVector, 5000.f, 0.108f, 0.5f, pwszLaserName, pwszLaserName, pwszLaserName, true, 2.f, L"", L"" );
+		if( NULL != pEffect )
+		{
+			m_hEffectElectraLaserZZZfrontZ = pEffect->GetHandle();
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.4f && m_pXSkinAnim->GetNowAnimationTime() < 1.23333f )
+	{
+		if( m_bNotEnoughMPZZZfrontZLaser == false && FlushMp(13.3333f * m_fElapsedTime ) == false )
+		{
+			m_EveElectraSystem.June_DeleteLaserFromSystem();
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Finger2Nub" );
+
+			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
+			m_bNotEnoughMPZZZfrontZLaser = true;
+		}
+	}
+
+	if ( CX2DamageEffect::CEffect* pEffectElectraLaserZZZfrontZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraLaserZZZfrontZ ) )
+	{
+		if( m_pXSkinAnim->GetNowAnimationTime() >= 0.4f && m_pXSkinAnim->GetNowAnimationTime() < 1.0f )
+		{
+			if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffectElectraLaserZZZfrontZ->GetMainEffect() )
+			{
+				D3DXVECTOR3 vRotateLocalDegree = pMeshInstance->GetRotateLocalDegree();
+				vRotateLocalDegree.z += (78.3f * m_fElapsedTime);
+				pMeshInstance->SetRotateLocalDegree(vRotateLocalDegree);
+			}
+
+			m_EveElectraSystem.m_fLaserEndOffsetY = 15.f;
+			m_EveElectraSystem.m_fLaserEndOffsetX = -8.f;
+		}
+		else
+		{
+			m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+			m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3297ccf0
+void CX2GUEve::June_ENSI_EPR_COMBO_ZZZfrontZ_EventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.3666f )
+	{
+		if( m_InputData.pureUp == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_UP;
+		}
+		else if( m_InputData.pureDown == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_DOWN;
+		}
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32991c40
+void CX2GUEve::June_ENSI_EPR_COMBO_ZZZfrontZ_End()
+{
+	m_EveElectraSystem.June_DeleteLaserFromSystem();
+	m_hEffectElectraLaserZZZfrontZ = INVALID_DAMAGE_EFFECT_HANDLE;
+
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+	CommonStateEnd();
+}
+
+// ---- Electra X-X-Z ----
+
+// June 32972b30
+void CX2GUEve::June_ENSI_EPR_COMBO_XXZ_Start()
+{
+	CommonStateStart();
+	m_fPlaneZAngle	= 0.f;
+	m_bXXZLaserEnd = false;
+	m_bNotEnoughMPXXZLaser = false;
+	m_hEffectElectraLaserXXZ = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+	SetNoDetonation(true);
+}
+
+// June 329a5430
+void CX2GUEve::June_ENSI_EPR_COMBO_XXZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.02f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( m_fPlaneZAngle, 2.4f, 220.f, 130.f );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		m_EveElectraSystem.m_fPlaneZAngle = m_fPlaneZAngle;
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.23333f ) )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetPos();
+		vDamageEffectPos.y += 130.f;
+		D3DXVECTOR3 vZeroYDirVector = GetDirVector();
+		vZeroYDirVector.y = 0.f;
+		D3DXVec3Normalize( &vZeroYDirVector, &vZeroYDirVector );
+
+		if(GetIsRight() == false)
+		{
+			vZeroYDirVector.x = -vZeroYDirVector.x;
+			vZeroYDirVector.z = -vZeroYDirVector.z;
+		}
+		vDamageEffectPos += (130.f * vZeroYDirVector);
+
+		// June picks the _HYPER effect and laser names while the gage's hyper time is above 0
+		const bool bHyper = ( GetRemainHyperModeTime() > 0.0f );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+			( bHyper ? L"EVE_COMBO_XXZ_LASER_HYPER" : L"EVE_COMBO_XXZ_LASER" ), GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		const WCHAR* pwszLaserName = ( bHyper ? L"EVE_COMBO_XXZ_LASER_NEXT_HYPER" : L"EVE_COMBO_XXZ_LASER_NEXT" );
+
+		m_EveElectraSystem.June_AddLaserToSystem( pEffect, L"Bip01_L_Finger2", vDamageEffectPos, vZeroYDirVector, 5000.f, 0.108f, 0.5f,
+			pwszLaserName, pwszLaserName, pwszLaserName, true, 2.f, L"", L"" );
+		if( NULL != pEffect )
+		{
+			m_hEffectElectraLaserXXZ = pEffect->GetHandle();
+		}
+	}
+
+	if ( CX2DamageEffect::CEffect* pEffectElectraLaserXXZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraLaserXXZ ) )
+	{
+		if( m_pXSkinAnim->GetNowAnimationTime() >= 0.83333f && m_pXSkinAnim->GetNowAnimationTime() < 1.93333f )
+		{
+			if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstanceLaserXXZ = pEffectElectraLaserXXZ->GetMainEffect() )
+			{
+				D3DXVECTOR3 vRotateLocalDegree = pMeshInstanceLaserXXZ->GetRotateLocalDegree();
+				vRotateLocalDegree.z += (41.904f * m_fElapsedTime);
+				pMeshInstanceLaserXXZ->SetRotateLocalDegree(vRotateLocalDegree);
+				m_EveElectraSystem.m_fLaserEndOffsetY = 2.f;
+			}
+		}
+		else
+		{
+			m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 1.76666f ) )
+	{
+		m_bXXZLaserEnd = true;
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EVE_COMBO_XXZ_END", static_cast< CX2GameUnit* >( this ) );
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.23333f && m_pXSkinAnim->GetNowAnimationTime() < 1.8666f )
+	{
+		if( m_bNotEnoughMPXXZLaser == false && FlushMp(13.3333f * m_fElapsedTime) == false )
+		{
+			m_EveElectraSystem.June_DeleteLaserFromSystem();
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Finger2Nub" );
+
+			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
+			m_bNotEnoughMPXXZLaser = true;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3297d050
+void CX2GUEve::June_ENSI_EPR_COMBO_XXZ_EventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.3f )
+	{
+		if( m_InputData.pureUp == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_UP;
+		}
+		else if( m_InputData.pureDown == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_DOWN;
+		}
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	if( m_InputData.pureZ == false )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.9f )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32991c80
+void CX2GUEve::June_ENSI_EPR_COMBO_XXZ_End()
+{
+	m_EveElectraSystem.June_DeleteLaserFromSystem();
+	if( m_bXXZLaserEnd == false )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EVE_COMBO_XXZ_END", static_cast< CX2GameUnit* >( this ) );
+	m_hEffectElectraLaserXXZ = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+	SetNoDetonation(false);
+	CommonStateEnd();
+}
+
+// ---- Electra dash Z-Z ----
+
+// June 32967450
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_AT_DashComboZ2_mesh.X" );
+}
+
+// June 32967470
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_StartFuture()
+{
+	CommonStateStartFuture();
+}
+
+// June 32991e10
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_Start()
+{
+	CommonStateStart();
+
+	D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"EvePurityDashComboZBladeLoopEnd", vBonePos, GetRotateDegree(), GetRotateDegree() );
+	if( NULL != pMeshInst )
+	{
+		m_hElectraDashComboZMesh = pMeshInst->GetHandle();
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+	}
+	m_hEffectElectraDashComboZZ = INVALID_DAMAGE_EFFECT_HANDLE;
+}
+
+// June 32972b80
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 0, 0, m_InputData.oneZ == true, ENSI_EPR_DASH_COMBO_ZZZ )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// June 32991f50
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy1_Rhand" );
+		m_hEffectElectraDashComboZZ = g_pX2Game->GetDamageEffect()->CreateInstanceHandle(
+			this, L"EVE_PR_DASH_COMBO_ZZ", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if( CX2DamageEffect::CEffect* pEffectElectraDashComboZZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraDashComboZZ ) )
+	{
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffectElectraDashComboZZ->GetMainEffect() )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInstance->SetPos( vBonePos );
+		}
+	}
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hElectraDashComboZMesh );
+	if( NULL != pMeshInst )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+		pMeshInst->SetPos( vBonePos );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32992190
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZ_End()
+{
+	if ( m_hEffectElectraDashComboZZ != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectElectraDashComboZZ );
+	g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hElectraDashComboZMesh );
+	CommonStateEnd();
+}
+
+// ---- Electra dash Z-Z-Z ----
+
+// June 32967480
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_Init()
+{
+}
+
+// June 32967490
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_StartFuture()
+{
+	CommonStateStartFuture();
+	m_bDisableGravity = true;
+}
+
+// June 32992210
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_Start()
+{
+	CommonStateStart();
+
+	m_bNotEnoughMPDashZZZ = false;
+
+	D3DXVECTOR3 vBonePosL = GetBonePos( L"Dummy2_Lhand" );
+	m_hEffectElectraDashComboZ = g_pX2Game->GetDamageEffect()->CreateInstanceHandle(
+		this, L"EVE_PR_DASH_COMBO_ZZZ_L", GetPowerRate(), vBonePosL, GetRotateDegree(), GetRotateDegree() );
+
+	D3DXVECTOR3 vBonePosR = GetBonePos( L"Dummy1_Rhand" );
+	m_hEffectElectraDashComboZZ = g_pX2Game->GetDamageEffect()->CreateInstanceHandle(
+		this, L"EVE_PR_DASH_COMBO_ZZZ_R", GetPowerRate(), vBonePosR, GetRotateDegree(), GetRotateDegree() );
+
+	m_fBlinkInvisibilityAlpha	= 1.f;
+	m_bBlinkInvisibility		= true;
+
+	SetAlphaObject( true );
+	m_RenderParam.bAlphaBlend = true;
+}
+
+// June 32972ed0
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.6f )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// June 32992440
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_FrameMove()
+{
+	if ( CX2DamageEffect::CEffect* pEffectElectraDashComboZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraDashComboZ ) )
+	{
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffectElectraDashComboZ->GetMainEffect() )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+			pMeshInstance->SetPos( vBonePos );
+		}
+	}
+
+	if ( CX2DamageEffect::CEffect* pEffectElectraDashComboZZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraDashComboZZ ) )
+	{
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffectElectraDashComboZZ->GetMainEffect() )
+		{
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy1_Rhand" );
+			pMeshInstance->SetPos( vBonePos );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.43333f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		if( FlushMp( 10.f ) == false )
+		{
+			m_bNotEnoughMPDashZZZ = true;
+		}
+		else
+		{
+			D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy2_Lhand" );
+			vDamageEffectPos.y += 0.f;
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+			if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+				pMeshInstance->SetGlobalTime( 0.2f);
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.46666f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy1_Rhand" );
+		vDamageEffectPos.y += 20.f;
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+			pMeshInstance->SetGlobalTime( 0.16666f);
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.5f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy2_Lhand" );
+		vDamageEffectPos.y += -40.f;
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+			pMeshInstance->SetGlobalTime( 0.13333f);
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.53333f ) )
+	{
+		if( m_bNotEnoughMPDashZZZ == true )
+		{
+			D3DXVECTOR3 vBonePosR = GetBonePos( L"Dummy2_Lhand" );
+
+			vBonePosR.y += 30.f;
+			CreateNotEnoughMPEffect( vBonePosR, 0.f, 180.f, 0.f );
+		}
+		else
+		{
+			D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy1_Rhand" );
+			vDamageEffectPos.y += 10.f;
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+			if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+				pMeshInstance->SetGlobalTime( 0.1f);
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.56666f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy2_Lhand" );
+		vDamageEffectPos.y += -20.f;
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+			pMeshInstance->SetGlobalTime( 0.06666f);
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.6f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy1_Rhand" );
+		vDamageEffectPos.y += 40.f;
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+			pMeshInstance->SetGlobalTime( 0.03333f);
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.6333f ) &&
+		m_bNotEnoughMPDashZZZ == false )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetBonePos( L"Dummy2_Lhand" );
+		vDamageEffectPos.y += 10.f;
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PR_DASH_COMBO_ZZZ_EXPLOSION", GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.2f && m_pXSkinAnim->GetNowAnimationTime() < 0.43333f)
+	{
+		m_fBlinkInvisibilityAlpha -= m_fElapsedTime * 20.f;
+		if( m_fBlinkInvisibilityAlpha < 0.3333f )
+			m_fBlinkInvisibilityAlpha = 0.3333f;
+	}
+	else if( m_pXSkinAnim->GetNowAnimationTime() > 0.43333f )
+	{
+		m_fBlinkInvisibilityAlpha += m_fElapsedTime * 20.f;
+		if( m_fBlinkInvisibilityAlpha > 1.f )
+			m_fBlinkInvisibilityAlpha = 1.f;
+	}
+
+	CommonFrameMove();
+}
+
+// June 329674b0
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_EndFuture()
+{
+	m_bDisableGravity = false;
+	CommonStateEndFuture();
+}
+
+// June 32992f60
+void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_End()
+{
+	if ( m_hEffectElectraDashComboZ != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectElectraDashComboZ );
+	if ( m_hEffectElectraDashComboZZ != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectElectraDashComboZZ );
+	CommonStateEnd();
+
+	m_bBlinkInvisibility			= false;
+
+	if( m_bInvisibility == false )
+	{
+		SetAlphaObject( false );
+		m_RenderParam.bAlphaBlend = false;
+		m_RenderParam.outLineColor.a	= 1.f;
+		m_RenderParam.color.a			= 1.f;
+	}
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 
