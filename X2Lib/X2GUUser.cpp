@@ -7083,6 +7083,21 @@ void CX2GUUser::JuneSnapshotBeforeSlotRebind( const int iSlotIndex_, const bool 
 	JuneSnapshotRunningStateFunc( JuneGetStateDataIterator( iNormalStateID )->second );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#ifdef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
+// June 329cc2c0: the hyper state takes every callback of the normal one
+void CX2GUUser::June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ )
+{
+	rHyperStateData_.StateInit			= rNormalStateData_.StateInit;
+	rHyperStateData_.StateStartFuture	= rNormalStateData_.StateStartFuture;
+	rHyperStateData_.StateStart			= rNormalStateData_.StateStart;
+	rHyperStateData_.OnFrameMoveFuture	= rNormalStateData_.OnFrameMoveFuture;
+	rHyperStateData_.OnFrameMove		= rNormalStateData_.OnFrameMove;
+	rHyperStateData_.OnCameraMove		= rNormalStateData_.OnCameraMove;
+	rHyperStateData_.OnEventProcess		= rNormalStateData_.OnEventProcess;
+	rHyperStateData_.StateEndFuture		= rNormalStateData_.StateEndFuture;
+	rHyperStateData_.StateEnd			= rNormalStateData_.StateEnd;
+}
+#endif SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 void CX2GUUser::DoStateEndStartFuture()
 {
 	KTDXPROFILE();

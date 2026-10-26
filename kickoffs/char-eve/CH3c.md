@@ -42,3 +42,8 @@ Scope: the class-116 skill ids not in an earlier phase, incl. Electronic Move 25
 ## Amended by CH1e (2026-10-26)
 
 - The three Electronic Move state enumerators `ENSI_A_EBS_ELECTRONIC_MOVE_FRONT` / `_UP` / `_DOWN` (script ids 239 / 240 / 241) are already enumerators (CH1e added them for `June_StateChangeBoostAttackIfPossible`); do not add them again.
+
+## Amended by CH1n (2026-10-27)
+
+- **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+- **The head registers March's members as stand-ins** for the memo-turned Energy Needles (25034 / 25071) and Thousand Stars (25035-36 / 25072-73): repoint them to the June bodies (`32967940` / `32967980` / `329968a0` / `329741a0` / `32967990`; `329676f0` / `329a6fe0` / `32973a70`). The hyper's missing Init is JUNE_BUGS 442.

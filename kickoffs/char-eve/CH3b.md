@@ -42,3 +42,7 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 
 - **Functions: 42.** Adds `3299ba70` (Electronic Field summon helper, NPC 1622 `NUI_SI_SA_EEP_ELECTRONIC_FIELD`; BFI `0x1ba` = `BFI_BUFF_OPHELIA` 442 and BTI `0x19d` = `BTI_BUFF_OPHELIA` 413 are not registered in C++ yet:
   register them under `SERV_IRUHADEV_JUNE_ENUM_NAMES` as CH1l3 did). CH0 gave it to CH1l3 because of a function-boundary slip (`3299ebd0` runs on into `3299ecb0`); its callers are `329ae4f0` and `3299ecb0`, both CH3b.
+
+## Amended by CH1n (2026-10-27)
+
+- **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.

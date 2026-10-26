@@ -1208,6 +1208,43 @@ Commits `541b4795` (the phase) and `a8776d67` (the `Always.h` LIVE-needs-CORE gu
 
 User owes nothing. Next: `/x2-phase char-eve CH1n` (Opus 5.5 high).
 
+### CH1n - Done (2026-10-27)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`; the call sits behind `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`, still commented out). Funcmap rows `(CH1n)`.
+- **`CX2GUEve::June_SetEquippedSkillFuncHead`** = `329c8a00` up to its id switch, Aisha's CH1k shape (block `//{{ ... CH1n` at the end of `X2GuEve.cpp`).
+  Under `_LIVE`, `SetEquippedSkillFuncBySkillSlotIndex` calls it in place of March's head and type switch (`#else`); `true` = the id switch is still March's.
+  - Bounds 0..4; normal tables `334c9e00` / `334c9e28` (A / B), hyper `334c9e14` / `334c9e3c`, read from the exe: 50.. / 60.. and 51.. / 61.., March's four
+    arrays (CH0's note had normal / hyper swapped). `31fd2af0` dropped (7i, the engine's), `+0x11` = `IsJuneSkillSlotState`, batch `3207c1a0` / `31fdf970` none.
+  - Transcendence memo (`31fdbcc0`, switch on the raw memo id): 25033 / 25070 -> `HORNET_STING_SHAPED_CHARGE`, 25034 / 25071 `ENERGY_NEEDLES`,
+    25035-36 / 25072-73 `THOUSANDS_OF_STARS`, 25217 / 25234 `SPIT_FIRE_GRENADE`; any other memo id registers nothing.
+  - Types: 5 `ENSI_SI1_COMMON_BUFF` (+`_HYPER`), 0xc + 900 `ENSI_THROW_ITEM` (CH1a's June members), 6 / 7 / 0xd-0x10 on the raw id: 25600 / 25603 Lunatic Scud,
+    25601 / 25604 Link Overcharge, 25602 / 25605 Psychic Artillery, `> 25600` Faena, else the id switch. Hyper slots as the listing: Link Overcharge's hyper
+    takes Start + FrameMove / EventProcess / End (`@329ca906`, then `329c9be9`; `ch0_skill.tsv` lists Start only), Lunatic Scud's EventProcess only.
+  - Callbacks: the memo / hyper-active bodies are CH3c / CH3d's; until then their March pairs (class map column 4) stand in, each with a `/// June <va>, CH3x` line.
+- **`June_SetFaenaSkillFunc`** (`@329ca9d1`, the default of both June switches): table `ENSI_A_EAT_FAENA`, `JuneGenericActiveSkillEventProcess` (`31fcc9d0`),
+  hyper copies. Its Init `32968da0` / FrameMove `329c4380` are June-only and CH2b's (kickoff amended). Under `_LIVE` March's id-switch `default:` (which falls
+  into Illusion Strike) calls it instead; March's skill cases, with the March-only `_HYPER` states, stay until their skill phases.
+- **`CX2GUUser::June_CopyStateCallbacks`** (`329cc2c0`), new flag `SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS`: one home for Aisha and Eve, as CH1a2 / CH1l5
+  did; Aisha's private copy is under `#ifndef`. The head does not call it; Eve's skill cases do (`ch0_skill.tsv` column `calls`; CH2a-CH3d kickoffs amended).
+- **Enum names** (`JUNE_ENUM_NAMES`, `X2SkillTree.h`): the 10 memo ids and Lunatic Scud / Psychic Artillery (+`_UPGRADE`), June's names and values; March's
+  `SI_HA_ENS_LUNATIC_SCUD` is 5600, no value shared.
+- **Dev free-skill gate:** `329c8a00` has no cool-time / MP / hyper-stone check; the gate is CH1l3's in `June_SpecialAttackLookup` (`329b5af0`). Checklist §7
+  L257, §7b L321 and 7i marked `(Eve: ...)`. **JUNE_BUGS 442:** the memo Energy Needles' hyper gets no StateInit (June rewrites the normal's, `@329ca048`).
+
+**Checks.** `cl /Zs` (US_SERVICE defines): `X2GuEve.cpp` with `_LIVE` off and on, `X2GUUser.cpp`, `X2GUArme_VioletMage.cpp` (ARME_LIVE off and on): 0 errors each.
+`cl /P` with `_LIVE`: the head call, both `June_SetFaenaSkillFunc` calls and the head body are present. `enumscan --check X2GuEve.cpp X2GUUser.cpp`: 0 A/B.
+`ch1m_regcheck.py`: `matched 771 registrations, 0 problems; ids mapped 134`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2GuEve.cpp X2GuEve.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the `_LIVE` pairs).
+`JUNE_USER_COPY_STATE_CALLBACKS --worktree --files <Always.h, X2GUUser.*, X2GUArme_VioletMage.*>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; same zero line; `RESULT: PASS`
+(OTHER = a peer's uncommitted `MP_JUMP_DEBUG` lines in `Always.h` / `X2GUUser.cpp`, not committed here). `JUNE_ENUM_NAMES --files X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; zero line; `RESULT: PASS`.
+`JUNE_CHAR_EVE_LIVE`: zero line; `RESULT: FAIL` (`the flag is not #defined anywhere tracked`, by design until CH1 final).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,103,808 B, dated 2026-10-27 05:37:19, md5 aeeacdf37aedbbd4b1df3f2d19c330a7, equal to X2/US_SERVICE/x2.exe (2026-10-27 05:37:13); built at main 3d566ea1 + 11 uncommitted code file(s).`
+
+**In game:** nothing changes (`_LIVE` is undefined; Aisha's copy helper is now the base's, same body). Next: `/x2-phase char-eve CH1n review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

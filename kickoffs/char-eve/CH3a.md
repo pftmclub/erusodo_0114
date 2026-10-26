@@ -39,3 +39,7 @@ Scope: the class-108 skill ids not in a first-job phase. For each id: its case i
   at its `Dummy02` bone through `329cc200`, then `JuneEveBlock9c50::Reset( true )`) and its only callee `329cc200`, from CH1l4.
 - **Add the calls** that CH1l3 and CH1l4 left out: `CX2GUEve::June_NoStateChangeActionFrameMove` case `JUNE_CH1L3_UAI_PSYKER_KINESIS` ( 0x40 ) calls `329aea60` then `32976fe0`; CH1l4's `329b4a60` ( the block's `+0xc` countdown ) does the same.
   `32976fe0` itself ends in `31fd0620( 25235, true )` ( UI notify, CH3a0 ).
+
+## Amended by CH1n (2026-10-27)
+
+- **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.

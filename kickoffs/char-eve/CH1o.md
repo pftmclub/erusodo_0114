@@ -37,3 +37,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 ## Amended by the CH1l5 review (2026-10-26)
 
 - **Gap routed here:** June's base slot 514 `31fc9410` (`CX2GUUser`) clears `+0x8eac` and `+0x8ea8` together. `m_fJune8ea8` now lives in `CX2GUUser` (CH1l5), so hoist that clear into the base `ClearSkillUseReserve` (`X2GUUser.h:3362`, under `SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS`) before Eve's skill use goes live; otherwise a cast leaves its MP reserved ("You need more mana", Aisha play-test fix 1, 2026-10-21). Aisha's override (`X2GUArme_VioletMage.cpp:35321`) then becomes redundant; keep or retire it in the same change.
+
+## Amended by CH1n (2026-10-27)
+
+- The CH1n head registers `COMMON_BUFF_FrameMove` (the virtual): June's FrameMove is the thunk `32a77a20` = vslot 0x5f0, so the head is right once this phase switches 0x5f0 to `June_COMMON_BUFF_FrameMove` under `_LIVE`.

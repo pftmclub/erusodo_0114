@@ -3210,5 +3210,9 @@ protected:
 	/// June character port Phase CH1m: June's state registration; InitState calls June_InitState only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	void		June_InitStateCommon();					/// June 329b8030
 	void		June_InitState();						/// June 329ba9c0 ( vslot 0x7a4 )
+
+	/// June character port Phase CH1n: the skill-slot head; SetEquippedSkillFuncBySkillSlotIndex calls it only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	bool		June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 329c8a00 up to its skill switch
+	void		June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

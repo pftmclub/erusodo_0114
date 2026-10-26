@@ -35303,6 +35303,7 @@ void CX2GUArme_VioletMage::June_AVSI_A_AV_FIRE_ROAD_EventProcess()
 	CommonEventProcess();
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 // June 329cc2c0: the hyper state takes every callback of the normal one
 void CX2GUArme_VioletMage::June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ )
 {
@@ -35316,6 +35317,7 @@ void CX2GUArme_VioletMage::June_CopyStateCallbacks( UserUnitStateData& rHyperSta
 	rHyperStateData_.StateEndFuture		= rNormalStateData_.StateEndFuture;
 	rHyperStateData_.StateEnd			= rNormalStateData_.StateEnd;
 }
+#endif SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 
 // June 31fc9410 ( slot 514 ): clears the reserved skill and its reserved MP; without the MP a cast leaves its cost behind and the next lookup asks for both
 void CX2GUArme_VioletMage::ClearSkillUseReserve()

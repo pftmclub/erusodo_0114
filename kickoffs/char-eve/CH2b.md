@@ -36,3 +36,8 @@ Scope: the class-19 skill ids not in 5 / 18. For each id: its case in `SetEquipp
 ## Amended by CH1b (2026-10-26)
 
 - **`3299b810` is CH2b's** (class map row moved from CH1b): the helper behind `ENSI_SI1_AT_SURFACE_CUTING` FrameMove (`3299d390`, called at `3299d3cc`) and `329ae4f0` (CH3b). It sets BFI `0x1b9` (441) at the equipped skill's level, rewrites the time of BTI `0x19c` (412)'s first Time finalizer, then `CreateNPCReq` for NPC `0x655` (`NUI_SI_SA_AT_SURFACE_CUTING`) at the position argument. Transcribe it whole here (BFI arguments: checklist 7ai, `s3e_bybfi_callers.tsv`); `June_SetSelfDestructSummonedNPC` and `June_ResetLinkOverChargeIllusion` already exist (CH1b).
+
+## Amended by CH1n (2026-10-27)
+
+- **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+- **Faena (25224 / 25225) is June's `default:` of both switches** (`329c8a00 @329ca9d1`): `CX2GUEve::June_SetFaenaSkillFunc` registers the table and `JuneGenericActiveSkillEventProcess` only. Add its StateInit `32968da0` and OnFrameMove `329c4380` (hyper copies the FrameMove) there; March's id-switch `default:` already calls it under `_LIVE`.

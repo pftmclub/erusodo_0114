@@ -36,3 +36,8 @@ Do the CH3d row of the plan doc: the 6 hyper actives (type 13), the 3 `SHOW_HYPE
 - **Hyper actives:** 25600-25605. 25600 reaches Lunatic Scud through `if ( id == 0x6400 )` beside the hyper sub-switch.
 - **Transcendence-memo skills** (ids not in June's tree, reached through `31fdbcc0`): 25033 / 25070 `ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE`, 25034 / 25071 (Energy Needles case), 25035-36 / 25072-73 (Thousand Star case), 25217 / 25234 `ENSI_A_EEP_SPIT_FIRE_GRENADE`, 25210 / 25220 `ENSI_SA_EN_ILLUSION_RAY` (id switch only).
 - 7ao: hyper effect start `32994710` = vslot 0x4c (CH1k transcribes it whole; check its transcendence branch here). The UnitTemplet `m_HyperCutIn` rows of 108 / 109 / 116 come with CH5.
+
+## Amended by CH1n (2026-10-27)
+
+- **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+- **The head registers March's members as stand-ins** for the memo-turned Hornet Sting Shaped Charge (25033 / 25070) and Spit Fire Grenade (25217 / 25234), and for the three hyper actives (Link Overcharge 25601 / 25604, Psychic Artillery 25602 / 25605, Lunatic Scud 25600 / 25603): repoint each to its June body (addresses on the head's comment lines).

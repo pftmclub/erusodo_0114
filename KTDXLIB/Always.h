@@ -10167,3 +10167,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS needs SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June character port ( Eve ) Phase CH1n - CX2GUUser::June_CopyStateCallbacks ( June 329cc2c0: the hyper state takes the normal state's nine callbacks ),
+//              the one home for Aisha and Eve; Aisha's private copy is compiled out. Revert: undefine the flag ( JUNE_USER_COPY_STATE_CALLBACKS ).
+#define SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
+//////////////////////////////////////////////////////////////////////////

@@ -1861,6 +1861,9 @@ public:
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool IsHyperState() { return m_NowStateData.m_bHyperState; }
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#ifdef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
+		void							June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0 ( Aisha and Eve )
+#endif SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 
 		virtual void				RenderName();
 

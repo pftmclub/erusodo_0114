@@ -2177,6 +2177,15 @@ void CX2GUEve::InitState()
 
 /*virtual*/ void CX2GUEve::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	UserUnitStateData* pJuneNormalStateData = NULL;
+	UserUnitStateData* pJuneHyperStateData = NULL;
+	if( false == June_SetEquippedSkillFuncHead( eSkillID_, iSlotIndex_, bSlotB_, &pJuneNormalStateData, &pJuneHyperStateData ) )
+		return;
+
+	UserUnitStateData& normalStateData = *pJuneNormalStateData;
+	UserUnitStateData& hyperStateData = *pJuneHyperStateData;
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
 		return;
 
@@ -2241,13 +2250,22 @@ void CX2GUEve::InitState()
 			return;
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////// 여기서 부터 ACTIVE, SPECIAL ACTIVE 스킬//////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	switch( eSkillID_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	default:
+		{
+			June_SetFaenaSkillFunc( normalStateData, hyperStateData );	/// June 329c8a00 @329ca9d1
+		} break;
+
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	default:
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_EN_ILLUSION_STRIKE:
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -51125,6 +51143,215 @@ void CX2GUEve::June_InitState()
 }
 
 //}} Iruha : 2026-10-26 // June character Eve Phase CH1m
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH1n ( JUNE_CHARACTER_EVE_PHASES.md )
+// June 329c8a00 up to its skill switch: true when the skill case is still to be registered ( March's cases until CH2-CH3 )
+bool CX2GUEve::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ )
+{
+	if( iSlotIndex_ < 0 || iSlotIndex_ > 4 )
+		return false;
+
+	/// June's state batch 3207c1a0 / 31fdf970 has no March form
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );
+	UserUnitStateData& normalStateData = m_StateList[ iNormalStateID ];
+	/// June's 31fd2af0 snapshot is the engine's ( checklist 7i )
+	normalStateData.Init();
+	normalStateData.stateID = iNormalStateID;	/// June's +0x11 = 1 is IsJuneSkillSlotState ( X2GUUser.cpp )
+
+	const int iHyperStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_] );
+	UserUnitStateData& hyperStateData = m_StateList[ iHyperStateID ];
+	hyperStateData.Init();
+	hyperStateData.m_bHyperState = true;
+	hyperStateData.stateID = iHyperStateID;
+
+	*ppNormalStateData_ = &normalStateData;
+	*ppHyperStateData_ = &hyperStateData;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	const int iTranscendenceSkillID = GetJuneTranscendenceMemoSkillID( eSkillID_ );
+	if( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
+	{
+		switch( iTranscendenceSkillID )
+		{
+		case CX2SkillTree::RNSI_SA_EEG_HORNET_STING_EXPLOSION_ADD_TRANS:
+		case CX2SkillTree::RNSI_SA_EEG_HORNET_STING_EXPLOSION_ADD_TRANS_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_SA_EEG_Hornet_Sting_Shaped_Charge_Init );		/// June 32967ae0, CH3d
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_SA_EEG_Hornet_Sting_Shaped_Charge_FrameMove );	/// June 32997350, CH3d
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_SA_EEG_Hornet_Sting_Shaped_Charge_EventProcess );	/// June 32974470, CH3d
+
+				m_LuaManager.MakeTableReference( "ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE", hyperStateData.stateID );
+				hyperStateData.m_bHyperState	= true;
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ECB_ENERGY_NEEDLES_ADD_TRANS:
+		case CX2SkillTree::RNSI_SA_ECB_ENERGY_NEEDLES_ADD_TRANS_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ENSI_EBS_ENERGY_NEEDLES", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_Init );			/// June 32967940, CH3c
+				normalStateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_Start );			/// June 32967980, CH3c
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_FrameMove );		/// June 329968a0, CH3c
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_EventProcess );	/// June 329741a0, CH3c
+				normalStateData.StateEnd		= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_End );				/// June 32967990, CH3c
+
+				m_LuaManager.MakeTableReference( "ENSI_EBS_ENERGY_NEEDLES", hyperStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_EBS_ENERGY_NEEDLES_Init );			/// June writes the normal Init again, not the hyper's ( JUNE_BUGS 442 )
+				hyperStateData.StateStart		= normalStateData.StateStart;
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				hyperStateData.StateEnd			= normalStateData.StateEnd;
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS_ADD_TRANS_1:
+		case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS_ADD_TRANS_2:
+		case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS_ADD_TRANS_1_UPGRADE:
+		case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS_ADD_TRANS_2_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ENSI_SA_EPR_THOUSANDS_OF_STARS", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_SA_EPR_THOUSANDS_OF_STARS_Init );			/// June 329676f0, CH3c
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_SA_EPR_THOUSANDS_OF_STARS_FrameMove );		/// June 329a6fe0, CH3c
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_SA_EPR_THOUSANDS_OF_STARS_EventProcess );	/// June 32973a70, CH3c
+
+				m_LuaManager.MakeTableReference( "ENSI_SA_EPR_THOUSANDS_OF_STARS", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			} break;
+
+		case CX2SkillTree::RNSI_A_ECE_SPIT_FIRE_FLUSH_ADD_TRANS:
+		case CX2SkillTree::RNSI_A_ECE_SPIT_FIRE_FLUSH_ADD_TRANS_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ENSI_A_EEP_SPIT_FIRE_GRENADE", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_A_EEP_Spit_Fire_Grenade_Init );			/// June 32967f00, CH3d
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_A_EEP_Spit_Fire_Grenade_FrameMove );		/// June 329a9df0, CH3d
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_A_EEP_Spit_Fire_Grenade_EventProcess );	/// June 32974fb0, CH3d
+
+				m_LuaManager.MakeTableReference( "ENSI_A_EEP_SPIT_FIRE_GRENADE", hyperStateData.stateID );
+				hyperStateData.m_bHyperState	= true;
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			} break;
+
+		default:
+			break;
+		}
+		return false;	/// June registers nothing for another transcended skill
+	}
+
+	switch( pSkillTemplet->m_eType )
+	{
+	case CX2SkillTree::ST_BUFF:
+		{
+			m_LuaManager.MakeTableReference( "ENSI_SI1_COMMON_BUFF", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, COMMON_BUFF_FrameMove );	/// June 32a77a20 = vslot 0x5f0
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );
+
+			m_LuaManager.MakeTableReference( "ENSI_SI1_COMMON_BUFF_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, COMMON_BUFF_FrameMove );
+			hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );
+		} return false;
+
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		{
+			switch( eSkillID_ )
+			{
+			case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION:
+			case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_Init );			/// June 32967ff0, CH3d
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_Start );			/// June 32968020, CH3d
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove );		/// June 32997940, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_EventProcess );	/// June 32975320, CH3d
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_End );				/// June 32997bc0, CH3d
+
+					m_LuaManager.MakeTableReference( "ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION", hyperStateData.stateID );
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+				} return false;
+
+			case CX2SkillTree::RNSI_HA_ECB_PSYCHIC_ARTILLERRY:
+			case CX2SkillTree::RNSI_HA_ECB_PSYCHIC_ARTILLERRY_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_HA_EBS_PSYCHIC_ARTILLERY", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EBS_PSYCHIC_ARTILLERY_Init );			/// June 32968270, CH3d
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_HA_EBS_PSYCHIC_ARTILLERY_FrameMove );		/// June 329abb90, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_HA_EBS_PSYCHIC_ARTILLERY_EventProcess );	/// June 329753a0, CH3d
+
+					m_LuaManager.MakeTableReference( "ENSI_HA_EBS_PSYCHIC_ARTILLERY", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case CX2SkillTree::RNSI_HA_ECN_LUNATIC_SCUD:
+			case CX2SkillTree::RNSI_HA_ECN_LUNATIC_SCUD_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_HA_ENS_LUNATIC_SCUD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_HA_ENS_LUNATIC_SCUD_Init );			/// June 32968030, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_HA_ENS_LUNATIC_SCUD_EventProcess );	/// June 32975360, CH3d
+
+					m_LuaManager.MakeTableReference( "ENSI_HA_ENS_LUNATIC_SCUD", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			default:
+				break;
+			}
+
+			if( CX2SkillTree::RNSI_HA_ECN_LUNATIC_SCUD < eSkillID_ )
+			{
+				June_SetFaenaSkillFunc( normalStateData, hyperStateData );
+				return false;
+			}
+		} return true;	/// June switches on the raw id; March's cases until CH2-CH3
+
+	case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+		{
+			if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == eSkillID_ )
+			{
+				m_LuaManager.MakeTableReference( "ENSI_THROW_ITEM", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, June_ENSI_THROW_ITEM_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, June_ENSI_THROW_ITEM_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ENSI_THROW_ITEM", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			}
+		} return false;
+
+	default:
+		break;
+	}
+
+	return false;
+}
+
+// June 329c8a00 @329ca9d1: Faena, the default of both skill switches; its Init 32968da0 and FrameMove 329c4380 are CH2b's
+void CX2GUEve::June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ )
+{
+	m_LuaManager.MakeTableReference( "ENSI_A_EAT_FAENA", rNormalStateData_.stateID );
+	rNormalStateData_.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+	m_LuaManager.MakeTableReference( "ENSI_A_EAT_FAENA", rHyperStateData_.stateID );
+	rHyperStateData_.OnFrameMove		= rNormalStateData_.OnFrameMove;
+	rHyperStateData_.OnEventProcess		= rNormalStateData_.OnEventProcess;
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH1n
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 
