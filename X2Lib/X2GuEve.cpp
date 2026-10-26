@@ -44483,7 +44483,7 @@ void CX2GUEve::June_ConstructorInit()
 	m_fJune9770						= 1.f;
 	m_iJune9c28						= 0;
 	m_iJune9c2c						= 0;
-	m_iJuneClock9c44				= 0;
+	m_iJuneClock9c44				= ::clock();
 }
 
 //}} Iruha : 2026-10-26
@@ -49619,13 +49619,13 @@ void CX2GUEve::June_CommonFrameMove()
 
 	if( m_sTaserPilumData.m_bEnable == true )
 	{
-		const float fTaserElapsed = static_cast<float>( m_sTaserPilumData.m_timerElapsedTime.elapsed() ) * m_sTaserPilumData.m_fJune34;
+		const float fTaserElapsed = static_cast<float>( m_sTaserPilumData.m_timerElapsedTime.elapsed() * m_sTaserPilumData.m_fJune34 );
 
 		if( m_sTaserPilumData.GetSkillSlotSwap() != g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() || false == ( GetNowHp() > 0 ) )
 		{
 			m_sTaserPilumData.Reset( false, &AccessFutureFrameData() );
 		}
-		else if( static_cast<float>( m_sTaserPilumData.m_dMaxTime ) <= fTaserElapsed )
+		else if( m_sTaserPilumData.m_dMaxTime <= fTaserElapsed )
 		{
 			static bool bIsFirstSucChargeTaser = false;
 
