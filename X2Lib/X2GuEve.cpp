@@ -40065,4 +40065,454 @@ void CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1g ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's Code: Nemesis states ( class map phase CH1g ); nothing calls them until CH1 wires them in.
+// The +0x8e90 second-body anim clock inside June's cancel arms is checklist 7o, not ported here ( as in CH1d-CH1f ).
+
+// ---- dash Z X ----
+
+// June 32966ea0
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_Init()
+{
+	XSkinMeshReadyInBackground( L"NS_DashComboZX_Spear.x" );
+}
+
+// June 32966ec0
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_Start()
+{
+	CommonStateStart();
+	m_iDashJumpCount++;
+}
+
+// June 3298db90
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_FrameMove()
+{
+	float fPowerRate = GetPowerRate();
+
+	if ( m_sEGQueensThrone.m_bEnable == true )
+		fPowerRate = m_sEGQueensThrone.m_fPowerRate;
+
+	D3DXVECTOR3 vPos = GetPos();
+	vPos.y -= 50;
+
+	if ( GetIsRight() == true )
+	{
+		vPos.x -= GetDirVector().x * 70;
+	}
+	else
+	{
+		vPos.x += GetDirVector().x * 70;
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_DASH_COMBO_ZX_SPEAR", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 329709a0
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_EventProcess()
+{
+	if( SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) == true )
+	{
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.46f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+
+		m_PhysicParam.nowSpeed = D3DXVECTOR2( 900, 900 );
+		StateChange( ENSI_NS_DASH_COMBO_ZXX );
+	}
+	else if( m_InputData.oneX == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.46f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER( 0.46f )
+	{
+		m_PhysicParam.nowSpeed = D3DXVECTOR2( 900, 900 );
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	if( true == IsOnSomethingFuture() && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.46f )
+	{
+		m_PhysicParam.nowSpeed = D3DXVECTOR2( 0, 0 );
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+// ---- dash Z X X ----
+
+// June 32966ee0
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_Init()
+{
+	XSkinMeshReadyInBackground( L"NS_DashComboZXX_Spear.x" );
+}
+
+// June 3298dd30
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_FrameMove()
+{
+	float fPowerRate = GetPowerRate();
+
+	if ( m_sEGQueensThrone.m_bEnable == true )
+		fPowerRate = m_sEGQueensThrone.m_fPowerRate;
+
+	D3DXVECTOR3 vPos = GetPos();
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_DASH_COMBO_ZXX_SPEAR", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32970b50
+void CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		m_FrameDataFuture.syncData.bIsRight = !(m_FrameDataFuture.syncData.bIsRight);
+		StateChange( USI_JUMP_LANDING );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.56f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// ---- X-X-Z ----
+
+// June 3298de80
+void CX2GUEve::June_ENSI_NS_COMBO_XXZ_FrameMove()
+{
+	float fPowerRate = GetPowerRate();
+
+	if ( m_sEGQueensThrone.m_bEnable == true )
+		fPowerRate = m_sEGQueensThrone.m_fPowerRate;
+
+	D3DXVECTOR3 vPos = GetPos();
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZ_SPEAR1", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZ_SPEAR2", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32970c30
+void CX2GUEve::June_ENSI_NS_COMBO_XXZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( m_iSuccessiveHit_OneZ >= 1 && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.53f )
+	{
+		m_iSuccessiveHit_OneZ = 0;
+		StateChange( ENSI_NS_COMBO_XXZZ8 );
+	}
+	else if ( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.53f )
+	{
+		m_iSuccessiveHit_OneZ++;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// ---- X-X-Z-Z (8 hits) ----
+
+// June 3298e090
+void CX2GUEve::June_ENSI_NS_COMBO_XXZZ8_FrameMove()
+{
+	float fPowerRate = GetPowerRate();
+
+	if ( m_sEGQueensThrone.m_bEnable == true )
+		fPowerRate = m_sEGQueensThrone.m_fPowerRate;
+
+	D3DXVECTOR3 vPos = GetPos();
+
+	if ( GetIsRight() == true )
+		vPos -= D3DXVECTOR3( 40.0f, 0.0f, 0.0f );
+	else
+		vPos += D3DXVECTOR3( 40.0f, 0.0f, 0.0f );
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR1", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.40f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR2", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.53f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR3", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.66f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR4", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.8f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR5", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.93f ) )
+	{
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8_SPEAR6", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32970f10
+void CX2GUEve::June_ENSI_NS_COMBO_XXZZ8_EventProcess()
+{
+	if ( m_InputData.oneZ == true )
+	{
+		m_iSuccessiveHit_OneZ++;
+	}
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( m_iSuccessiveHit_OneZ < 1 && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.33f )
+	{
+		m_iSuccessiveHit_OneZ = 0;
+		StateChange( ENSI_NS_COMBO_XXZZ8Z );
+	}
+	else if ( m_iSuccessiveHit_OneZ >= 1 && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.33f )
+	{
+		m_iSuccessiveHit_OneZ = 1;
+	}
+	else if ( m_iSuccessiveHit_OneZ < 2 && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.6f )
+	{
+		m_iSuccessiveHit_OneZ = 0;
+		StateChange( ENSI_NS_COMBO_XXZZ8Z );
+	}
+
+	if ( m_pXSkinAnimFuture->GetNowAnimationTime() > 1.05f || m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_iSuccessiveHit_OneZ = 0;
+		StateChange( ENSI_NS_COMBO_XXZZ8Z );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// ---- X-X-Z-Z-Z ----
+
+// June 3298e710
+void CX2GUEve::June_ENSI_NS_COMBO_XXZZ8Z_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.36f ) )
+	{
+		float fPowerRate = GetPowerRate();
+
+		if ( m_sEGQueensThrone.m_bEnable == true )
+			fPowerRate = m_sEGQueensThrone.m_fPowerRate;
+
+		D3DXVECTOR3 vPos = GetPos();
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_NS_COMBO_XXZZ8Z_Final_SPEAR", fPowerRate,
+			vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32971240
+void CX2GUEve::June_ENSI_NS_COMBO_XXZZ8Z_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( 0.46f )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	if ( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// ---- dash-jump X Z ( June-only ) ----
+
+// June 329685d0
+void CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	XSkinMeshReadyInBackground( L"EG_DashComboZ3_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"EG_DashComboZ3_Mesh02.X" );
+	XSkinMeshReadyInBackground( L"EG_DashComboZ3_Mesh03.X" );
+	XSkinMeshReadyInBackground( L"EG_DashComboZ3_Mesh04.X" );
+	TextureReadyInBackground( L"star2.dds" );
+}
+
+// June 32968640
+void CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32975bc0
+void CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// ---- Z-Z-X ready / loop / end ( June-only ) ----
+
+// June 32968650
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	XSkinMeshReadyInBackground( L"Darkcloud_AttackBox01_New.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"EVE_CircleP01.Y" );
+	XMeshReadyInBackground( L"EVE_CircleP02.Y" );
+	TextureReadyInBackground( L"LCG_Ring01.dds" );
+	XMeshReadyInBackground( L"Rena_ArrowMagicP03.Y" );
+	XSkinMeshReadyInBackground( L"SI_SA_EEG_JUNK_BREAK_Effect_Drill_Main.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	XSkinMeshReadyInBackground( L"ECN_ZZX_Finish_Drill.X" );
+}
+
+// June 329686f0
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32975e20
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( ENSI_ECN_COMBO_ZZX_LOOP );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32968700
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_LOOP_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32975e60
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( ENSI_ECN_COMBO_ZZX_END );
+	}
+	else if( false == m_InputData.pureX )
+	{
+		StateChange( ENSI_ECN_COMBO_ZZX_END );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32968710
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32975eb0
+void CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 

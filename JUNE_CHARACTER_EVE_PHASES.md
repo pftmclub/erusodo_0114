@@ -576,6 +576,34 @@ Build: `DEPLOY OK: X2_offline.exe is 25,922,048 B, dated 2026-10-26 08:46:31, md
 
 No build (no code change). `CH1g.md` still matches (CH1f added no enumerator). Next: `/x2-phase char-eve CH1g` (Sonnet 5.5 high).
 
+### CH1g - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a seventh block at the end of `X2GuEve.cpp`, 450 lines; 24 declaration lines at the end of the class). **All 23 class-map rows of phase CH1g** are new `CX2GUEve::June_*` members (`June_ENSI_<STATE>_<Slot>`). Nothing registers or calls them. No new field or helper: every callee is an engine function called through its March counterpart (`31d16ef0` / `31d16f90` / `31d170a0` = Texture / XSkinMesh / XMesh ReadyInBackground, `31d28e10` EventTimer, `31f8ff00` CreateInstance, `322731a0` / `32070cf0` / `32070d60` inside the CH1d macros); no class-range callee, no alpha tag (7c), no BFI call (7ai), no `m_fNowStatePowerRate` (7i). 23 funcmap rows `Char Eve CH1g`.
+
+| State (`June_ENSI_` prefix) | June: Init / Start / FrameMove / EventProcess |
+|---|---|
+| `NS_DASH_COMBO_ZX` | `32966ea0` / `32966ec0` / `3298db90` / `329709a0` |
+| `NS_DASH_COMBO_ZXX` | `32966ee0` / - / `3298dd30` / `32970b50` |
+| `NS_COMBO_XXZ` | - / - / `3298de80` / `32970c30` |
+| `NS_COMBO_XXZZ8` `NS_COMBO_XXZZ8Z` | - / - / `3298e090` `3298e710` / `32970f10` `32971240` |
+| `ECN_DASH_JUMP_XZ` (June-only, id 230) | `329685d0` / - / `32968640` / `32975bc0` |
+| `ECN_COMBO_ZZX_READY` / `_LOOP` / `_END` (June-only, ids 231 / 232 / 233) | `32968650` / - / `329686f0` `32968700` `32968710` / `32975e20` `32975e60` `32975eb0` |
+
+**What differs from March** (10 of the 23 are March's body verbatim, 3 more are March's plus the chain below; the Inits' strings and every timer, offset and effect name were read from the listings):
+- **FrameMoves and the dash Z-X / Z-X-X EventProcesses = March.** Spear effects at 0.27 / 0.1 / 0.001 (two spears) / 0.26 0.40 0.53 0.66 0.8 0.93 / 0.36, y -50 and x -/+ dir x 70 (dash Z-X), x -/+ 40 (X-X-Z-Z), Queen's Throne power rate, default CreateInstance tail (a masked block diff of the six XXZZ8 calls: identical but for register allocation).
+- **June's expanded cancel chain** after March's body in `32970c30` (XXZ: after the animation-end WAIT), `32970f10` (XXZZ8: after the 1.05 / animation-end change to XXZZ8Z), `32971240` (XXZZ8Z: `SKILL_CANCEL_AFTER( 0.46 )` first, then the four, then the animation-end WAIT), `32975bc0` and `32975eb0`: skill (`+0x8c90`), BWALK (`+0x8c94`), WALK (`+0x8c98`), DASH (`+0x8c9c`) with the on-line test, as the CH1d macros. March had these four only under `BALANCE_CODE_NEMESIS_20121213` (XXZZ8, XXZZ8Z) and had none in XXZ.
+- **June-only states.** Dash-jump X-Z (`32975bc0`): animation end -> `USI_JUMP_LANDING` when on a line (nested; off a line the chain is skipped), then the four cancels; Init preloads `Arme_Critical` / `_Damage_Center` / `_Damage_Ring`, `EG_DashComboZ3_Mesh01-04.X`, `star2.dds`. Z-Z-X ready (animation end -> loop 232, else off line -> JUMP_DOWN), loop (animation end, or X released -> end 233, else off line -> JUMP_DOWN), end (animation end -> WAIT, then the four); the three FrameMoves are `CommonFrameMove`; ready's Init preloads 12 effect assets (`ECN_ZZX_Finish_Drill.X`, `SI_SA_EEG_JUNK_BREAK_Effect_Drill_Main.X`, `EVE_CircleP01` / `02.Y`, ...).
+- The `+0x8e90` second-body anim clock inside June's cancel arms and `ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER` is checklist 7o, not ported (as CH1d-CH1f); one comment line says so.
+
+**New under the flag:** enumerators `ENSI_ECN_COMBO_ZZX_LOOP` 232, `_END` 233 (after `_READY`, which CH1d added; `ENSI_ECN_DASH_JUMP_XZ` came with CH1e). CH1m maps March values to June ids.
+
+**Checks.** The 33 wide strings of the 23 listings equal the 33 literals of the block (multiset). Branch directions of every x87 compare were read with the `fcom` / `fcomp` / `fcompp` idiom (`test ah, 5` / `0x41`, `jp` / `jnp`) and the OneZ ladder in `32970f10` re-derived arm by arm. No JUNE_BUGS row (nothing looks unintended).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,930,752 B, dated 2026-10-26 09:17:18, md5 729c12d112b9b6489be07e3a87c80533, equal to X2/US_SERVICE/x2.exe (2026-10-26 09:17:11); built at main 5a0048c0 + 2 uncommitted code file(s).`
+
+**Drift:** none. **Open for the review**: the animation-end position relative to the chain per function (XXZZ8Z has it after, XXZ / ZZX end before); the nested animation-end / on-line `if` in `32975bc0`; whether the Nemesis dash-jump X-Z and Z-Z-X ready preload lists need anything beyond a string compare. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1g-review.md`. Next: `/x2-phase char-eve CH1g review` (Opus 5.5 high), then CH1h.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

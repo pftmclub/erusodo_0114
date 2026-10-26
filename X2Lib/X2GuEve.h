@@ -151,6 +151,8 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		ENSI_EVE_RECOVERY,					/// June script id 238 ( Code Recovery; CH4c writes the state )
 		ENSI_ECN_COMBO_ZZX_READY,			/// June script id 231 ( Code Nemesis ZZ X ready; CH1g owns the state )
+		ENSI_ECN_COMBO_ZZX_LOOP,			/// June script id 232 ( Code Nemesis ZZ X loop; CH1g owns the state )
+		ENSI_ECN_COMBO_ZZX_END,				/// June script id 233 ( Code Nemesis ZZ X end; CH1g owns the state )
 		ENSI_ECE_COMBO_ZZX,					/// June script id 234 ( Code Empress ZZ X; CH1i owns the state )
 		ENSI_EEG_DASH_JUMP_ZX,				/// June script id 228 ( Exotic Gear dash-jump Z X; CH1f owns the state )
 		ENSI_EEG_DASH_JUMP_ZZX,				/// June script id 229 ( Exotic Gear dash-jump Z Z X; CH1f owns the state )
@@ -2880,5 +2882,29 @@ protected:
 	void June_ENSI_EEG_DASH_JUMP_ZZX_Init();				/// June 32968570
 	void June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove();			/// June 329685c0
 	void June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess();		/// June 329797d0
+	/// June character port Phase CH1g: inert June_* members of Eve's Code: Nemesis states; nothing calls them until CH1
+	void June_ENSI_NS_DASH_COMBO_ZX_Init();					/// June 32966ea0
+	void June_ENSI_NS_DASH_COMBO_ZX_Start();				/// June 32966ec0
+	void June_ENSI_NS_DASH_COMBO_ZX_FrameMove();			/// June 3298db90
+	void June_ENSI_NS_DASH_COMBO_ZX_EventProcess();			/// June 329709a0
+	void June_ENSI_NS_DASH_COMBO_ZXX_Init();				/// June 32966ee0
+	void June_ENSI_NS_DASH_COMBO_ZXX_FrameMove();			/// June 3298dd30
+	void June_ENSI_NS_DASH_COMBO_ZXX_EventProcess();		/// June 32970b50
+	void June_ENSI_NS_COMBO_XXZ_FrameMove();				/// June 3298de80
+	void June_ENSI_NS_COMBO_XXZ_EventProcess();				/// June 32970c30
+	void June_ENSI_NS_COMBO_XXZZ8_FrameMove();				/// June 3298e090
+	void June_ENSI_NS_COMBO_XXZZ8_EventProcess();			/// June 32970f10
+	void June_ENSI_NS_COMBO_XXZZ8Z_FrameMove();				/// June 3298e710
+	void June_ENSI_NS_COMBO_XXZZ8Z_EventProcess();			/// June 32971240
+	void June_ENSI_ECN_DASH_JUMP_XZ_Init();					/// June 329685d0
+	void June_ENSI_ECN_DASH_JUMP_XZ_FrameMove();			/// June 32968640
+	void June_ENSI_ECN_DASH_JUMP_XZ_EventProcess();			/// June 32975bc0
+	void June_ENSI_ECN_COMBO_ZZX_READY_Init();				/// June 32968650
+	void June_ENSI_ECN_COMBO_ZZX_READY_FrameMove();			/// June 329686f0
+	void June_ENSI_ECN_COMBO_ZZX_READY_EventProcess();		/// June 32975e20
+	void June_ENSI_ECN_COMBO_ZZX_LOOP_FrameMove();			/// June 32968700
+	void June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess();		/// June 32975e60
+	void June_ENSI_ECN_COMBO_ZZX_END_FrameMove();			/// June 32968710
+	void June_ENSI_ECN_COMBO_ZZX_END_EventProcess();		/// June 32975eb0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

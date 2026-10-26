@@ -5020,3 +5020,26 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 32968570	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_Init	PORTED	Char Eve CH1f: inert; June-only state 229: the same five preloads as 32968510
 329685c0	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove	PORTED	Char Eve CH1f: inert; June-only: CommonFrameMove ( tail jump )
 329797d0	CX2GUEve::June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess	PORTED	Char Eve CH1f: inert; June-only: instruction-for-instruction the body of 329795a0 ( no Ghidra function; listing )
+32966ea0	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_Init	PORTED	Char Eve CH1g: inert; = March: preloads NS_DashComboZX_Spear.x
+32966ec0	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_Start	PORTED	Char Eve CH1g: inert; = March: CommonStateStart, ++m_iDashJumpCount
+3298db90	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_FrameMove	PORTED	Char Eve CH1g: inert; = March: EVE_NS_DASH_COMBO_ZX_SPEAR at 0.27 ( Queen's Throne power rate, y -50, x -/+ dir x 70 )
+329709a0	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZX_EventProcess	PORTED	Char Eve CH1g: inert; = March: ASUT_AIR skill, X flag 0.46 -> ZXX ( speed 900 ), arrows / ZXASDC after 0.46 -> JUMP_DOWN, landing
+32966ee0	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_Init	PORTED	Char Eve CH1g: inert; = March: preloads NS_DashComboZXX_Spear.x
+3298dd30	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_FrameMove	PORTED	Char Eve CH1g: inert; = March: EVE_NS_DASH_COMBO_ZXX_SPEAR at 0.1
+32970b50	CX2GUEve::June_ENSI_NS_DASH_COMBO_ZXX_EventProcess	PORTED	Char Eve CH1g: inert; = March: landing flips the facing; ZXC skip after 0.56 -> WAIT
+3298de80	CX2GUEve::June_ENSI_NS_COMBO_XXZ_FrameMove	PORTED	Char Eve CH1g: inert; = March: EVE_NS_COMBO_XXZ_SPEAR1 / 2 at 0.001
+32970c30	CX2GUEve::June_ENSI_NS_COMBO_XXZ_EventProcess	PORTED	Char Eve CH1g: inert; March's body plus June's expanded cancel chain after the animation end ( SKILL / BWALK / WALK / DASH, on-line tests, CH1d macros )
+3298e090	CX2GUEve::June_ENSI_NS_COMBO_XXZZ8_FrameMove	PORTED	Char Eve CH1g: inert; = March: six spears at 0.26 0.40 0.53 0.66 0.8 0.93, x -/+ 40
+32970f10	CX2GUEve::June_ENSI_NS_COMBO_XXZZ8_EventProcess	PORTED	Char Eve CH1g: inert; March's BALANCE_CODE_NEMESIS_20121213 body with June's expanded cancel chain
+3298e710	CX2GUEve::June_ENSI_NS_COMBO_XXZZ8Z_FrameMove	PORTED	Char Eve CH1g: inert; = March: EVE_NS_COMBO_XXZZ8Z_Final_SPEAR at 0.36
+32971240	CX2GUEve::June_ENSI_NS_COMBO_XXZZ8Z_EventProcess	PORTED	Char Eve CH1g: inert; March's SKILL_CANCEL_BY_HYPER_MODE + BALANCE_CODE_NEMESIS_20121213 body with June's expanded cancel chain
+329685d0	CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_Init	PORTED	Char Eve CH1g: inert; June-only: preloads Arme_* textures, EG_DashComboZ3_Mesh01-04.X, star2.dds
+32968640	CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_FrameMove	PORTED	Char Eve CH1g: inert; June-only: CommonFrameMove ( tail jump )
+32975bc0	CX2GUEve::June_ENSI_ECN_DASH_JUMP_XZ_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end -> JUMP_LANDING on a line, else the SKILL / BWALK / WALK / DASH cancel chain
+32968650	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_Init	PORTED	Char Eve CH1g: inert; June-only: preloads 12 effect assets ( ECN_ZZX_Finish_Drill.X, SI_SA_EEG_JUNK_BREAK drill, EVE_CircleP01 / 02.Y ... )
+329686f0	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_FrameMove	PORTED	Char Eve CH1g: inert; June-only: CommonFrameMove ( tail jump )
+32975e20	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_READY_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end -> LOOP ( 232 ), else off the line -> JUMP_DOWN
+32968700	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_LOOP_FrameMove	PORTED	Char Eve CH1g: inert; June-only: CommonFrameMove ( tail jump )
+32975e60	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end or X released -> END ( 233 ), else off the line -> JUMP_DOWN
+32968710	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_FrameMove	PORTED	Char Eve CH1g: inert; June-only: CommonFrameMove ( tail jump )
+32975eb0	CX2GUEve::June_ENSI_ECN_COMBO_ZZX_END_EventProcess	PORTED	Char Eve CH1g: inert; June-only: animation end -> WAIT, then the SKILL / BWALK / WALK / DASH cancel chain
