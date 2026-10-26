@@ -78,7 +78,7 @@ CPP_FAMILY = {'SKILL_ID': 'SKILL_ID', 'NPC_UNIT_ID': 'NPC_UNIT_ID', 'UNIT_CLASS'
               'SKILL_ABILITY_TYPE': 'SKILL_ABILITY_TYPE'}
 LUA_FAMILY = dict((k, k) for k in CPP_FAMILY)
 LUA_FAMILY.update({'SKILL_ABILITY_TYPE': 'SKILL_ABILITY_TYPE'})
-NO_ENUM_FAMILIES = ('STR_ID', 'ITEM_ID', 'DUNGEON_ID', 'NET_ERROR')
+NO_ENUM_FAMILIES = ('STR_ID', 'ITEM_ID', 'DUNGEON_ID', 'NET_ERROR', 'USER_ACTION')
 SMALL = False                 # --small: values < 100 also in tables (case labels and JUNE_ declarations under a family hint always count)
 ID_FAMILIES = ['SKILL_ID', 'NPC_UNIT_ID', 'UNIT_CLASS', 'BUFF_TEMPLET_ID', 'BUFF_FACTOR_ID', 'BUFF_BEHAVIOR_TYPE',
                'DAMAGE_TYPE', 'DAMAGE_TRIGGER_TYPE', 'SKILL_ABILITY_TYPE', 'STATE']
@@ -364,6 +364,7 @@ TOK_SRC = re.compile(r'''
 # hint regexes: ordered, first match per hint string wins; a hint string can yield several families (kept in order)
 B_ = r'(?<![A-Za-z0-9])'      # prefix boundary that, unlike \b, lets an underscore precede (JUNE_CH1K_NUI_1621)
 HINTS = [
+    ('USER_ACTION', re.compile(B_ + r'UAI_')),     # CX2GUUser::USER_ACTION_ID: June ids without a March enumerator, never a BTI / BFI
     ('STR_ID', re.compile(r'GET_STRING|' + B_ + r'STR_|GetString|szTip|\bMessageBox|GetStr|GET_REPLACED_STRING|GuideDesc|(?i:string_?id)')),
     ('ITEM_ID', re.compile(r'(?i)itemid|item_id|' + B_ + r'ITEM_|iItem|\bGetItemTemplet|\bnItem')),
     ('DUNGEON_ID', re.compile(r'(?i)dungeonid|dungeon_id|' + B_ + r'S?DI_|iDungeon')),
