@@ -766,6 +766,22 @@ Build: `DEPLOY OK: X2_offline.exe is 25,961,984 B, dated 2026-10-26 11:39:33, md
 **Open:** `+0x88bc`, the value Particle Ray StartFuture passes to `Set` minus 1, is not named. The candidates are `m_iNowSpecialAttack` and `m_eSpecialAttackKeyPressed`; CH2c settles it.
 **Drift:** none. Nothing to play-test (unreferenced). Review: `kickoffs/char-eve/CH1j20-review.md`.
 
+### CH1j20 - Review (2026-10-26)
+
+**PASS, no code change.** All five bodies, the ctor store and the `+0x115` writers were re-read in Ghidra against `X2GUUser.cpp`.
+
+- **Key bytes:** June `+0x18..+0x55` from `+0x86da` = March C / A / S / D / Q / W / E / R at the same offsets; June `+0x50` / `+0x54` = March `Skill5` / `SkillEx5` (March `+0x4c` / `+0x50`; June's `+0x4c` is Sit, `+0x8726`). Every `one*` in `31fce710` and `pure* == 0` in `31fce8b0` / `31fc89a0` matches. The members are named by bar, not by key: `X2Game.cpp` fills `pureA` from `GA_SKILL_EX1` under the swap.
+- **`31fce710`:** two `31fca8e0( id, 1 )` calls with `this`, then `+8` = `SkillTemplet::m_eID`. A is searched before B on `unit +0x494`. The gate is skipped when `g_pData`, `+0x68` or `+0x90` is NULL. Key 0 is tested first (B, index >= 0 and not 4), then key 1 (B, index 4), the same order as the port.
+- **`31fce8b0`:** the same prelude with no gate; the port matches.
+- **`31fc89a0`:** 0-9 map to A / S / D / C / Skill5 / Q / W / E / R / SkillEx5; any other index returns true.
+- **`31fce670`:** `@31fce6a7` (dec / neg / sbb / and -10 / +5) gives +5 for stored byte 1 and -5 otherwise. `setz` flips the byte; with both bytes 0/1 and unequal, that equals copying the UI byte. Neither function tests `g_pData`. March's `GetUISkillTree()` is a plain accessor, like June's `3214f050` (`+0x3c`).
+- **JUNE_BUGS 426:** the wording is right. Slots 5-9 under byte 0 and 0-4 under byte 1 follow the held key (into 0-4 / 5-9); the other half leaves 0-9.
+- **`+0x115`** is written by `328db100` / `328daed0` (`SwapSkillSlotTypeA` / `TypeB`) = `m_bSkillSlotSwap`. **`+0x8b58`** is set in the `CX2GUUser` ctor `3203e850`: `@320403b5` stores EDI = -1 (`or edi,-1` `@3204029d`) and `@320403bb` stores BL = 0.
+- **`+0x88bc` = `m_iNowSpecialAttack`.** `32ccf4e0 @32ccf98d / @32ccf993` stores slot+1 to `+0x8ac0` and then `+0x88bc`. `32cb97a0 @32cb9872` stores only `+0x88bc`. The reviewed Aisha port maps these to `m_eSpecialAttackKeyPressed` / `m_iNowSpecialAttack` (`X2GUArme_VioletMage.cpp` ~30148 / 30239), so Particle Ray calls `Set( m_iNowSpecialAttack - 1 )`. `CH2c.md` and the funcmap row are amended.
+
+Hygiene (`--range 2c87c040^..2c87c040`): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: none. There was no code change; the deployed exe stays md5 `b02ac58f`. `CH1j2.md`'s "Amended by CH1j20" still matches. No new JUNE_BUGS row.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
