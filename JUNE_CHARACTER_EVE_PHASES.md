@@ -964,6 +964,19 @@ Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a fourteenth block
 
 **JUNE_BUGS:** none. **Checklist:** no CH1l2 rows. **Drift:** none. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1l2-review.md`. Next: `/x2-phase char-eve CH1l2 review` ( Opus 5.5 high ), then CH1l3.
 
+### CH1l2 - Review (2026-10-26, Opus)
+
+**Verdict: PASS, no code change.** All 9 listings (`charport_adis.py eve --phase CH1l2`) were read against the fourteenth `_CORE` block.
+
+**Confirmed against June:**
+- **`3297c390`.** Base `31fe7610` first. Mega: `+0x9784` gate, swap from `[g_pData +0x2cc]` -> `3214f050` -> `+0x115` written to `+0x978c` before the range test (March `X2GuEve.cpp:5488` makes the same call), `+0x97a0` in 0..9 (`js` / `jge 0xa`), key `0x6277`, then nowAction 7. Taser: `+0x9a54` gate, swap to `+0x9a5c`, `3288fe30( +0x9a78 ? +0x9a70 : +0x9a74, &idx, &bB )` with both outs unread (cdecl, out-params only: left out is right), no range test, key `0x627c`, nowAction 0x11. No Kugelblitz branch. The `3376cdd0` lookup feeds `32072ae0( &nowAction, &value, ... )`, the protected writer that stores the value, after June's decoded `!= value` test (16-bit compare): the transcription's guarded write is that. The literal `10` is `EQUIPPED_SKILL_SLOT_COUNT * 2` (a `static const int`, not an enum; March writes the product): style only.
+- **`32980f90`.** Both clamps (`< 0` -> 0, the first by `test ah,0x41`, the second by parity); the sync write is `323101d0` after `decoded( +0x7ec0 ) != [+0x9b9c]`; base `32061bf0`; the cool run-down only when `0 < cool`, clamped at 0. `+0x9b9c` = `m_iManeuverCoreLv`: March declares `m_pManeuverCore`, `m_iManeuverCoreLv`, `KProtectedType<float> m_fManeuverGauge` in that order, matching the ctor map's `+0x9b98` / `+0x9b9c` / protected `+0x9ba0`. `ADD_EVE_SYSTEM_2014` is off (`Always.h:58` commented, no other define), so the line is dead until CH1q: CH1q's kickoff now names this site. The `322e65c0` args read `( &true, !( cool <= 0 && GetNowMp() >= ConsumeMp ), cool )`, as the funcmap row says; CH4c line 35 already lists the CH1l2 site.
+- **`3297a400`.** `( decoded( +0x7cbc ) - +0x7cec ) / 100` (magic `0x51eb851f`, `sar 5`) against 0x15. Same reading as the shipped `JuneOverrideEffectAlphaCondition` (`X2GUUser.cpp:15410`), so `GetNowStateID()` is right. March's own `CommonStateEndFuture` is the bare base call.
+- **Small ones.** `32965e30` / `32965e50` match, and March's `CommonStateEnd` sets `m_bIsCheckEndElCrystal = true` at the same place (`FIX_EVE_ELCRYSTAL_BUG` is defined, `Always.h:903`), which confirms the `+0x9b70` re-label; `3297a440` writes `+0x9b6c` = buff id and `+0x9b70` = 1 / 0, matching the other one. `32965e70` passes the hidden pointer through (`ret 4`). `329694a0` compares `+0x3e59` with 1. `32976fb0` returns `0 < m_fValueC` (C0 parity test); the name stays neutral. The class map's "called by 3297c390" is not borne out: that listing has no call to `32976fb0`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --range 9f70f36e^..9f70f36e`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows. No rebuild (no code change; deployed md5 `33c0bab5` stands).
+**User owes nothing** (inert). CH1l3's kickoff still matches. Next: `/x2-phase char-eve CH1l3` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
