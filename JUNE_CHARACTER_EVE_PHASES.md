@@ -604,6 +604,19 @@ Build: `DEPLOY OK: X2_offline.exe is 25,930,752 B, dated 2026-10-26 09:17:18, md
 
 **Drift:** none. **Open for the review**: the animation-end position relative to the chain per function (XXZZ8Z has it after, XXZ / ZZX end before); the nested animation-end / on-line `if` in `32975bc0`; whether the Nemesis dash-jump X-Z and Z-Z-X ready preload lists need anything beyond a string compare. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1g-review.md`. Next: `/x2-phase char-eve CH1g review` (Opus 5.5 high), then CH1h.
 
+### CH1g - Review (2026-10-26)
+
+**PASS, no code fix.** Checked against June's raw listings (`charport_adis.py eve --phase CH1g`, 23 files) and March's `X2GuEve.cpp:20796-21140`.
+- **"= March" holds** for the ten: Inits `32966ea0` / `32966ee0` (XSkinMesh `31d16f90`), Start `32966ec0` (CommonStateStart, `++m_iDashJumpCount` `+0x95cc`), the five FrameMoves (Queen's Throne `+0x96b4` / `+0x96b8`; 0.27 with y -50 and x `-`/`+` dir.x x 70; 0.1; 0.001 two spears; 0.26 0.40 0.53 0.66 0.8 0.93 with x `-`/`+` 40; 0.36 with the power rate read inside the timer), `329709a0` (ASUT push 2 = `ASUT_AIR`, flag `+0x7d85`, 0.46, speed 900 / 0, the 14-key ZXASDC list) and `32970b50` (bIsRight toggle -> landing, ZXC list, 0.56, `m_fCanNotAttackTime` `+0xde0` 0.1). All eleven CreateInstance calls carry the same default tail (masked push / fld sequence equal).
+- **Strings**: the 33 push addresses read in full equal the block's 33 literals, in order; Texture / XSkinMesh / XMesh (`31d16ef0` / `31d16f90` / `31d170a0`) match each preload call.
+- **Cancel chains**: the skill / BWALK / WALK / DASH arms of `32970c30` `32970f10` `32971240` `32975bc0` `32975eb0` have the same test signature (`+0x8c90..+0x8c9c`, on-line, key pairs, hyper arm with `+0x8d4c`); the only differences are where the compiler places the shared StateChange( WAIT ) body. Animation end before the chain in XXZ and ZZX end, after it as a separate `if` reached on every path in XXZZ8Z (`3297156d`), nested in dash-jump X-Z (off a line the chain is skipped). XXZZ8: the 1.05 / animation-end block is the chain's head (`jnp` / `je` -> `3297120d`), and the OneZ ladder (< 1 and > 0.33; >= 1 and < 0.33 -> 1; < 2 and > 0.6) re-derived from the `fcom` flags. XXZZ8Z's `SKILL_CANCEL_AFTER( 0.46 )` comes first.
+- **June-only states**: `32975e20` end -> `0xe8`, else off line -> JUMP_DOWN; `32975e60` end or `!pureX` (`+0x86ee`) -> `0xe9`, else off line -> JUMP_DOWN; all four FrameMoves are a tail jump to CommonFrameMove (vslot 0x7cc).
+- **`+0x8e90`** second-body clock (7o) appears in every chain arm and in ZXASDC, as the block's comment says.
+- **Enumerators** `ENSI_ECN_COMBO_ZZX_LOOP` / `_END` stay new names; CH1m maps them to 232 / 233. **JUNE_BUGS**: none needed.
+- **Hygiene** (`--range 96ba8482^..96ba8482`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+
+No build (no code change). `CH1h.md` still matches (CH1g added nothing it reads). Next: `/x2-phase char-eve CH1h` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
