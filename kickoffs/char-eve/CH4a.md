@@ -34,3 +34,8 @@ Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their ob
 ## Amended by CH1d (2026-10-26)
 
 - `InitPassiveSkillState` `3297f290` writes `m_fJuneElectronBallBigRate` (+0x97bc, CH1d; ctor default 0) from skill 25407 (`0x633f`) ability `0x49` (@3297fd5a): the chance of the BIG fire ball in `June_ENSI_COMBO_X / XX_FrameMove`. The same skill's ability `0x1f` scales `m_fElectronBallRangeRate` (+0x97ac) and, protected, `m_fMPConsumeRateElectronBall` (+0x97b0) is a `KProtectedType<float>` in June (March: plain float).
+
+## Amended by CH1k (2026-10-26)
+
+- CH1k declared `m_fJuneVengeanceMpRate` (`+0x9bf8`, read by `June_DamageReact`: `UpNowMp( GetMaxMp x it x HP fraction lost )` while alive), `m_fJune9bfc` and `m_fJune9c00` (`+0x9bfc` / `+0x9c00`, ctor 0). `InitPassiveSkillState` `3297f290` writes them from skills `0x633b` / `0x633c`; use these names and drop any duplicate.
+- `3297f290` also calls `329ce7b0` (a protected-bool setter); CH1k keeps the bool as `m_bJune89fc` (`+0x89fc`, write-only so far). Set it there the same way.

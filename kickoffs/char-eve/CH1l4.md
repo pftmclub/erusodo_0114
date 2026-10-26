@@ -47,3 +47,7 @@ Transcribe every function the class map gives phase `CH1l4` (CommonFrameMove 329
 ## Amended by CH1j review (2026-10-26)
 
 - `329bc6e0`'s induction fire (March `X2GuEve.cpp` ~23337) takes the laser data's `+0xc8` `m_wstrJuneInductionLaserName` (empty = `EVE_EBS_INDUCTION_LASER`) or, when the main effect's attack type is `AT_SPECIAL` (`+0x208 == 1`), `+0xe4` `m_wstrJuneInductionLaserSpecialName` (empty = `EVE_EBS_INDUCTION_LASER_SPECIAL`); both fields were added by CH1j, use those names.
+
+## Amended by CH1k (2026-10-26)
+
+- The constructor map (`june2017_re/char_eve/ch1k_ctor_offsets.tsv`) shows June's `CX2GUEve` has no `m_timerSummoned` / `m_fSummonedLifeTime` / `m_ChargingBoosterSkillDataBasePtr` and no Atomic Shield pair (the mesh arrays start at `+0x95f0`). March's `CommonFrameMove` tail that destroys the Nasod Watch after `m_fSummonedLifeTime` has nothing to read in June: read `329c5bc0` and drop that block unless June keeps the timer elsewhere.

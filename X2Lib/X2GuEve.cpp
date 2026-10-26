@@ -43120,4 +43120,1228 @@ void CX2GUEve::June_ENSI_ECB_DASH_XX_EventProcess()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1k ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: lifecycle, render and reaction overrides, constructor / destructor / ReInit ( class map CH1k ); nothing calls them until CH1.
+
+namespace
+{
+	/// June ids ( Enum.lua numbering; the C++ enums are March's )
+	const int JUNE_CH1K_UC_EVE_EXOTIC_GEAR					= 18;		/// 0x12; Code Nemesis is 108
+	const int JUNE_CH1K_UC_EVE_CODE_NEMESIS					= 108;		/// 0x6c
+	const int JUNE_CH1K_UC_EVE_ARCHITECTURE					= 19;		/// 0x13; Code Empress is 109
+	const int JUNE_CH1K_UC_EVE_CODE_EMPRESS					= 109;		/// 0x6d
+	const int JUNE_CH1K_UC_EVE_ELECTRA						= 26;		/// 0x1a; Code Battle Seraph is 116
+	const int JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH			= 116;		/// 0x74
+
+	const int JUNE_CH1K_P_ECN_NASOD_WEAPON					= 25401;	/// 0x6339
+	const int JUNE_CH1K_P_ECN_NASOD_WEAPON_MEMO				= 25416;	/// 0x6348
+	const int JUNE_CH1K_SA_ECN_PSYKER_KINESIS				= 25235;	/// 0x6293
+	const int JUNE_CH1K_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE	= 25214;	/// 0x627e
+	const int JUNE_CH1K_P_ENS_OPEN_MIND						= 25415;	/// 0x6347
+
+	const int JUNE_CH1K_BTI_984								= 984;		/// 0x3d8
+	const int JUNE_CH1K_BTI_954								= 954;		/// 0x3ba
+	const int JUNE_CH1K_BTI_956								= 956;		/// 0x3bc
+	const int JUNE_CH1K_NUI_1621							= 0x655;
+	const int JUNE_CH1K_NUI_1622							= 0x656;
+
+	/// ATTACK_TRIGGER_TYPE ( June 32610fb0 arguments )
+	const int JUNE_CH1K_DTT_EVE_THOUSAND_STAR				= 2;
+	const int JUNE_CH1K_DTT_EVE_MANEUVER_ATTACK				= 5;
+	const int JUNE_CH1K_DTT_44								= 44;		/// 0x2c, name unknown
+
+	/// Code Recovery tooltip: buff factors and string ids ( June 329c3da0 )
+	const int JUNE_CH1K_BUFF_FACTOR_ECN						= 0x2a9;
+	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVE					= 0x2aa;
+	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVP					= 0x45f;
+	const int JUNE_CH1K_STR_RECOVERY_DEFAULT				= 0x8fe1;
+	const int JUNE_CH1K_STR_RECOVERY_ECN					= 0x8fe2;
+	const int JUNE_CH1K_STR_RECOVERY_ECE					= 0x8fe3;
+	const int JUNE_CH1K_STR_RECOVERY_ECB					= 0x8fe4;
+
+	/// June CX2Unit +0x3c ( the transcended test ): the pilot's stand-in
+	bool JuneEveUnitFlag3c( const CX2Unit* pUnit_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	}
+
+	/// June 32207210: the skill's m_iDeleteSkillIDByUpgrade when it has one, else the id itself
+	int JuneEveSkillIDByUpgrade( const int iSkillID_ )
+	{
+		if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return iSkillID_;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		if( NULL != pSkillTemplet && 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )
+			return pSkillTemplet->m_iDeleteSkillIDByUpgrade;
+
+		return iSkillID_;
+	}
+
+	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family, the pilot's stand-ins ( nothing plays )
+	void JuneEveAwakeningEffectBegin()		{}
+	bool JuneEveAwakeningEffectSetPresent()	{ return false; }
+	void JuneEveAwakeningEffectPlay()		{}
+
+	/// June 31febf50 ( candidate ): the Dark Dragon hyper-mode item effect; no such item offline
+	void JuneEveHyperModeItemEffect()		{}
+}
+
+// June 3229a470 ( user vslot 0x240 ) over 32028af0: the skill's buff factor uiIndex_ is on this unit
+bool CX2GUEve::June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ )
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( true == bLearnedOnly_ )
+	{
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == JuneEveUnitFlag3c( GetUnit() ) )
+			return false;
+	}
+
+	if( pSkillTemplet->m_vecBuffFactorPtr.size() <= uiIndex_ || NULL == pSkillTemplet->m_vecBuffFactorPtr[uiIndex_] )
+		return false;
+
+	return HaveThisBuff( pSkillTemplet->m_vecBuffFactorPtr[uiIndex_]->GetBuffTempletID() );
+}
+
+// June 31fcac90 ( CX2GUUser vslot 0x23c ): one buff factor ( iIndex_ >= 0 ) or all of a skill; false when none applied
+bool CX2GUEve::June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ )
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( true == bCheckLearned_ )
+	{
+		if( NULL == GetUnit() )
+			return false;
+
+		if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true ) <= 0 )
+			return false;
+
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == JuneEveUnitFlag3c( GetUnit() ) )
+			return false;
+	}
+
+	const int iBuffFactorCount = static_cast<int>( pSkillTemplet->m_vecBuffFactorPtr.size() );
+	if( 0 <= iIndex_ )
+	{
+		if( iBuffFactorCount <= iIndex_ )
+			return false;
+
+		SetBuffFactorToGameUnit( pSkillTemplet, iIndex_ );
+		return true;
+	}
+
+	if( 0 == iBuffFactorCount )
+		return false;
+
+	for( int i = 0; i < iBuffFactorCount; ++i )
+		SetBuffFactorToGameUnit( pSkillTemplet, i );
+
+	return true;
+}
+
+// June 320017d0 ( user, June-only ): the first live ally NPC of templet iNpcID_ ( 0 = any ) whose ally AI belongs to uid_
+CX2GUNPC* CX2GUEve::June_FindAllyNPC( const int iNpcID_, const UidType uid_ )
+{
+	if( NULL == g_pX2Game )
+		return NULL;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNpcID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNpcID_ )
+			continue;
+
+		if( pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		if( uid_ != static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() )
+			continue;
+
+		return pNPC;
+	}
+
+	return NULL;
+}
+
+// ---- lifecycle, render and reaction overrides ----
+
+// June 32965dd0 ( vslot 0x48 ): the two array builders are virtual calls, as in June
+void CX2GUEve::June_InitEffect()
+{
+	CX2GUUser::InitEffect();
+
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+}
+
+// June 32965e10 ( vslot 0x548 ): a bare jump to the base ( June has no Eve minor particle of its own )
+void CX2GUEve::June_CreateMinorParticleArray()
+{
+	CX2GUUser::CreateMinorParticleArray();
+}
+
+// June 32965f80 ( vslot 0x5fc ): the base, then the three dash counters ( not behind EVE_ELECTRA, no speed reset )
+void CX2GUEve::June_DashStartFuture()
+{
+	CX2GUUser::DashStartFuture();
+
+	m_iJumpFlyCount = 0;
+	m_iDashJumpCount = 0;
+	m_iDashJumpUpCount = 0;
+}
+
+// June 32968ea0 ( vslot 0x90 )
+void CX2GUEve::June_Win()
+{
+	CX2GUUser::Win();
+
+	if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+}
+
+// June 32968ee0 ( vslot 0x98 )
+void CX2GUEve::June_Draw()
+{
+	CX2GUUser::Draw();
+
+	if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+}
+
+// June 32977300 ( vslot 0x94 ): the HP test is skipped when there is no gage ( June reads the gage inline )
+void CX2GUEve::June_Lose()
+{
+	CX2GUUser::Lose();
+
+	if( IsMyUnit() == true && ( NULL == GetGageData() || GetNowHp() > 0.0f ) )
+	{
+		if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+}
+
+// June 32969190 ( vslot 0x54c ) = March
+void CX2GUEve::June_InitEnchantWeaponEffectUnitSpecific()
+{
+	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
+	{
+		Weapon* pWeapon = m_vecpWeapon[i];
+		pWeapon->InitEnchantParticleForBow();
+	}
+}
+
+// June 32977130 ( vslot 0x60 ): no Ferdinand block; +0x9bf8 > 0 returns MP for the HP fraction lost, while alive
+void CX2GUEve::June_DamageReact( CX2DamageManager::DamageData* pDamageData_ )
+{
+	float fNowHp = 0.0f;
+	float fMaxHp = 1.0f;
+	if( NULL != GetGageData() )
+	{
+		fNowHp = GetGageData()->GetNowHp();
+		fMaxHp = GetGageData()->GetMaxHp();
+	}
+	const float fHpRatioBefore = fNowHp / fMaxHp;
+
+	CX2GUUser::DamageReact( pDamageData_ );
+	CX2GUUser::DamageReactStateChange( pDamageData_, -1, -1 );
+
+	if( 0.0f < m_fJuneVengeanceMpRate )
+	{
+		/// June's defaults with no gage: now 1.0, max 1.0 ( not the 0 / 1 of the first read )
+		fNowHp = 1.0f;
+		fMaxHp = 1.0f;
+		bool bAlive = true;
+		if( NULL != GetGageData() )
+		{
+			fNowHp = GetGageData()->GetNowHp();
+			fMaxHp = GetGageData()->GetMaxHp();
+			bAlive = ( 0.0f < fNowHp );
+		}
+
+		if( true == bAlive )
+		{
+			const float fHpRatioAfter = fNowHp / fMaxHp;
+			if( fHpRatioAfter < fHpRatioBefore )
+			{
+				const float fHpRatioLost = fabs( fHpRatioBefore - fHpRatioAfter );
+				if( 0.01f <= fHpRatioLost )
+					UpNowMp( GetMaxMp() * m_fJuneVengeanceMpRate * fHpRatioLost );
+			}
+		}
+	}
+
+	m_fInvisibilityTime = 0.f;
+	m_bJune8fc2 = true;
+}
+
+// June 32973d30 ( vslot 0x3ac ): the Nasod Weapon is an AT_COMMAND proc; only magic damage and force down change
+void CX2GUEve::June_ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ )
+{
+	UNREFERENCED_PARAMETER( fAttackerPhysicDamage_ );
+
+	if( NULL == pDamageData_ || NULL == GetUnit() )
+		return;
+
+	if( JUNE_CH1K_UC_EVE_CODE_NEMESIS != static_cast<int>( GetUnit()->GetClass() ) || true == m_bHitNasodWeapon || CX2DamageManager::AT_COMMAND != pDamageData_->attackType )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1K_P_ECN_NASOD_WEAPON ), true );
+	if( NULL == pSkillTemplet || NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	int iSkillTempletLevel = 1;
+	if( userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, true, 0, true ) >= 1 )
+		iSkillTempletLevel = userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, true, 0, true );
+
+	const double dEffectiveRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillTempletLevel, false );
+	if( GetRandomFloat( 0 ) < dEffectiveRate || true == June_HaveSkillBuff( JUNE_CH1K_P_ECN_NASOD_WEAPON_MEMO, 1, true ) )
+	{
+		fAttackerMagicDamage_ += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillTempletLevel, false );
+		pDamageData_->fForceDownValue = pDamageData_->fForceDownValue - pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, iSkillTempletLevel, false );
+		m_bHitNasodWeapon = true;
+	}
+}
+
+// June 32973e70 ( vslot 0x3a8 ): March's branches; the last resets color.a unless the unit is an alpha object
+void CX2GUEve::June_ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
+{
+	if( m_bPassDash )
+		return;
+
+	if( true == m_bInvisibility )
+	{
+		if( 0.f == m_fInvisibilityAlpha && true == GetAbsoluteInvisibility() )
+			pRenderParam_->renderType = CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		else if( 0.f == m_fInvisibilityAlpha )
+			pRenderParam_->renderType = CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		else
+			pRenderParam_->renderType = CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+
+		pRenderParam_->outLineColor.a = m_fInvisibilityAlpha;
+		m_RenderParam.color.a = m_fInvisibilityAlpha;
+		return;
+	}
+
+	if( true == m_bBlinkInvisibility )
+	{
+		pRenderParam_->renderType = CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		pRenderParam_->outLineColor.a = m_fBlinkInvisibilityAlpha;
+		m_RenderParam.color.a = m_fBlinkInvisibilityAlpha;
+		return;
+	}
+
+	if( false == IsAlphaObject() )
+		m_RenderParam.color.a = 1.0f;
+
+	CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+}
+
+// June 32978420 ( vslot 0x314 ) = March
+void CX2GUEve::June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
+{
+	if( GetRemainHyperModeTime() > 0.0f )
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_RED;
+		pRenderParam_->outLineColor		= D3DXCOLOR( 1.f, 0.694f, 0.737f, 1.f );
+	}
+	else
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
+		pRenderParam_->outLineColor		= 0xffffffff;
+	}
+}
+
+// June 329770d0 ( vslot 0x584, name unsettled ): buff 984 is out; NPCs 1621 / 1622 need buff 954 / 956 absent
+bool CX2GUEve::June_Vslot584( CX2GameUnit* pUnit_ )
+{
+	if( true == pUnit_->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( JUNE_CH1K_BTI_984 ) ) )
+		return false;
+
+	/// June reads the NPC templet slot of any unit; a user unit has none, so it answers true
+	const int iNpcID = ( CX2GameUnit::GUT_NPC == pUnit_->GetGameUnitType() ) ? static_cast<CX2GUNPC*>( pUnit_ )->GetNPCTemplet().m_nNPCUnitID : 0;
+	if( JUNE_CH1K_NUI_1621 == iNpcID )
+		return false == pUnit_->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( JUNE_CH1K_BTI_954 ) );
+	if( JUNE_CH1K_NUI_1622 == iNpcID )
+		return false == pUnit_->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( JUNE_CH1K_BTI_956 ) );
+
+	return true;
+}
+
+// June 3297b4b0 ( vslot 0x56c, name unsettled ): skill 25235 shows the Eve Active 05 icon while the 9c50 block holds a value
+void CX2GUEve::June_Vslot56c( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ )
+{
+	if( JuneEveSkillIDByUpgrade( iSkillID_ ) == JUNE_CH1K_SA_ECN_PSYKER_KINESIS && NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC )
+	{
+		wstrIconTexName_ = L"DLG_SKILL_EveActive_05.tga";
+		wstrIconTexKey_ = L"RNSI_SA_ECN_PSYKER_KINESIS_1";
+	}
+}
+
+// June 3297a940 ( vslot 0x540 ) = March
+void CX2GUEve::June_CreateMajorParticleArray()
+{
+	CX2GUUser::CreateMajorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT,			L"DamageImpact",			2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE,		L"DamageImpactCore",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH,		L"DamageImpactSlash",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED,		L"DamageImpactRed",			2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED,	L"DamageImpactRingRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED,	L"DamageImpactCoreRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"DamageImpactSlashRed",	1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+}
+
+// June 3297bb70 ( vslot 0x27c ) = March; June passes the curve type explicitly ( 0, March's default )
+void CX2GUEve::June_AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ )
+{
+#ifdef UNIT_SLASH_TRACE_MANAGER_TEST
+	if( NULL == m_pUnitSlashTraceManager )
+		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
+
+	if( NULL != m_pUnitSlashTraceManager && CX2UnitSlashTraceManager::STC_NONE == eSlashTraceCondition_ )
+	{
+		const int vertexNum = ( IsMyUnit() ? 400 : 150 );
+
+		m_pUnitSlashTraceManager->AddSlashTraceData( L"Bip01_L_Finger2Nub", L"Bip01_L_Hand",
+			D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0, 0, 0, 0), D3DXCOLOR(0, 0, 0, 0),
+			vertexNum, 0.4f, 1,
+			0, 0, 0,
+			false, 0.f, L"", CKTDGSlashTrace::CT_SMOOTH_CURVE );
+
+		m_pUnitSlashTraceManager->AddSlashTraceData( L"Bip01_R_Finger2Nub", L"Bip01_R_Hand",
+			D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0, 0, 0, 0), D3DXCOLOR(0, 0, 0, 0),
+			vertexNum, 0.4f, 1,
+			0, 0, 0,
+			false, 0.f, L"", CKTDGSlashTrace::CT_SMOOTH_CURVE );
+	}
+#endif UNIT_SLASH_TRACE_MANAGER_TEST
+}
+
+// June 3297fdd0 ( vslot 0x5f0 ): no world-colour head; skill 25214 arms the super armor as the state opens
+void CX2GUEve::June_COMMON_BUFF_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		if( JUNE_CH1K_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE == static_cast<int>( GetNowStateSkillID() ) )
+		{
+			m_FrameDataNow.stateParam.bSuperArmor = true;
+			m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+			m_bJune89fc = true;
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.83f ) )
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.85f ) )
+	{
+		int	iSkillSlotIndex = 0;
+		bool bSlotB = false;
+
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 329cf210 ( vslot 0x4b0 ): the Z combo state ( June id 165 )
+int CX2GUEve::June_GetComboZStateID() const
+{
+	return ENSI_COMBO_Z;
+}
+
+// June 3299cdc0 ( vslot 0x4dc ) = March; the Nasod Weapon effect set plays at the hit's impact point
+void CX2GUEve::June_AttackResultPlayEffect()
+{
+	CX2GUUser::AttackResultPlayEffect();
+
+	if( DidHitNasodWeapon() == true &&
+		g_pX2Game != NULL &&
+		g_pX2Game->GetEffectSet() != NULL )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_NasodWeapon", static_cast< CX2GameUnit* >( this ),
+			NULL, false, -1.f, -1.f, D3DXVECTOR3( 1, 1, 1 ), true, m_DamageData.impactPoint );
+		SetHitNasodWeapon( false );
+	}
+}
+
+// June 329a4680 ( vslot 0x4e0 ): March's Thousand Star and lock-on updates; trigger 44 moves summons 1621 / 1622 to the defender
+void CX2GUEve::June_AttackResultByType( CX2DamageManager::DamageData &pDamageData_ )
+{
+	if( true == pDamageData_.m_bIgnoreAttackSuccess )
+		return;
+
+	CX2GUUser::AttackResultByType( pDamageData_ );
+
+	CX2GameUnit* pDefenderUnit = pDamageData_.optrDefenderGameUnit.GetObservable();
+	if( NULL != pDefenderUnit && CX2GameUnit::GUT_NPC == pDefenderUnit->GetGameUnitType() )
+	{
+		CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pDefenderUnit );
+		if( pNpc->GetNPCTemplet().m_ClassType != CX2UnitManager::NCT_BASIC )
+			return;
+	}
+
+	if( false == m_bDelayAttackThousandStar &&
+		false == pDamageData_.JuneIsAttackTrigger( JUNE_CH1K_DTT_EVE_THOUSAND_STAR ) &&
+		pDamageData_.m_fHpPercentUp <= 0.f &&
+		NULL != m_pThousandStar &&
+		INVALID_DAMAGE_EFFECT_HANDLE != m_pThousandStar->m_hEffect &&
+		NULL != pDefenderUnit &&
+		pDefenderUnit->GetUnitUID() != GetUnitUID() )
+	{
+		if( CX2DamageEffect::CEffect* pTSEffect = m_pThousandStar->GetLiveDamageEffect() )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pThousandStarMeshInstance = pTSEffect->GetMainEffect();
+			if( NULL != pThousandStarMeshInstance && pThousandStarMeshInstance->GetGlobalTime() > 3.f )
+			{
+				m_bDelayAttackThousandStar = true;
+				m_fDelayAttackTime = 0.f;
+				m_fThousandStarAttackTime = 0.f;
+
+				if( CX2DamageManager::AT_UNIT == pDamageData_.defenderType && NULL != pDefenderUnit )
+				{
+					if( CX2GameUnit::GUT_USER == pDefenderUnit->GetGameUnitType() )
+					{
+						m_bLockOnNpc = false;
+						m_iLockOnUid = pDefenderUnit->GetUnitUID();
+					}
+					else if( CX2GameUnit::GUT_NPC == pDefenderUnit->GetGameUnitType() )
+					{
+						m_bLockOnNpc = true;
+						m_iLockOnUid = pDefenderUnit->GetUnitUID();
+					}
+				}
+
+				pThousandStarMeshInstance->SetDirSpeed( 0.f );
+			}
+		}
+	}
+
+	if( pDamageData_.m_fHpPercentUp <= 0.f && CX2DamageManager::AT_UNIT == pDamageData_.defenderType && NULL != pDefenderUnit )
+	{
+		if( CX2GameUnit::GUT_USER == pDefenderUnit->GetGameUnitType() )
+		{
+			m_bLockOnNpc = false;
+			m_iLockOnUid = pDefenderUnit->GetUnitUID();
+		}
+		else if( CX2GameUnit::GUT_NPC == pDefenderUnit->GetGameUnitType() )
+		{
+			m_bLockOnNpc = true;
+			m_iLockOnUid = pDefenderUnit->GetUnitUID();
+		}
+	}
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 329a4680 @329a48f6-329a4b3f: maneuver gauge gain and attack; Nasod Core, live with CH1q
+	if( CX2DamageManager::AT_SPECIAL != pDamageData_.attackType && NULL != GetGageData() && GetRemainHyperModeTime() > 0.f )
+	{
+		if( IsMyUnit() == true )
+			m_fManeuverGauge += ( max( pDamageData_.damage.fPhysic, pDamageData_.damage.fMagic ) * pDamageData_.m_fRateModifier * 4.f ) * ( 1.f + m_fJuneSpecializationA );
+
+		if( m_fManeuverGauge > 100.f )
+			m_fManeuverGauge = 100.f;
+	}
+
+	if( true == pDamageData_.JuneIsAttackTrigger( JUNE_CH1K_DTT_EVE_MANEUVER_ATTACK ) && NULL != m_pManeuverCore && IsWaitManeuverCore() == true )
+	{
+		SetAttackManeuverCore( pDamageData_ );
+		m_wstrManeuverCoreTargetBoneName = GetBoneNameNearestImpactPoint( pDamageData_.impactPoint );
+	}
+
+#endif // ADD_EVE_SYSTEM_2014
+
+	if( false == m_bJune9c54 && true == pDamageData_.JuneIsAttackTrigger( JUNE_CH1K_DTT_44 ) && NULL != pDefenderUnit )
+	{
+		m_bJune9c54 = true;
+
+		const D3DXVECTOR3 vTargetPos = pDefenderUnit->GetPos();
+		CX2GUNPC* pNpc = June_FindAllyNPC( JUNE_CH1K_NUI_1621, GetUnitUID() );
+		if( NULL != pNpc )
+			pNpc->SetPosition( vTargetPos, true );
+
+		pNpc = June_FindAllyNPC( JUNE_CH1K_NUI_1622, GetUnitUID() );
+		if( NULL != pNpc )
+			pNpc->SetPosition( vTargetPos, true );
+	}
+}
+
+// ---- riding hyper mode ----
+
+// June 329ac330: a bare call to 32997c60 ( 0, 0.1, true )
+void CX2GUEve::June_ENSI_RIDING_HYPER_MODE_FrameMove()
+{
+	June_CommonHyperModeFrameMove( 0.f, 0.1f, true );
+}
+
+// ---- hyper mode ----
+
+// June 32994710 ( vslot 0x4c ): the base, the user's minor particle handles, then Eve's own ( = March DeleteMinorParticle )
+void CX2GUEve::June_DeleteMinorParticle()
+{
+	CX2GUUser::DeleteMinorParticle();
+
+	DeleteEveMinorParticle();
+}
+
+// June 32994750 ( vslot 0xc4 ): the hyper boost handles are skipped for a transcended unit or an awakening effect set
+void CX2GUEve::June_HyperModeBuffEffectStart()
+{
+	CX2GUUser::HyperModeBuffEffectStart();
+
+	if( !( NULL != GetUnit() && true == JuneEveUnitFlag3c( GetUnit() ) ) && false == JuneEveAwakeningEffectSetPresent() )
+	{
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+			m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightEve",		0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+			m_hHyperBoostLFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftEve",		0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+			m_hHyperBoostRArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightEve",		0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+			m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftEve",		0, 0, 0, 0, 0);
+	}
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 32994750 @32994947: the awakening fills 40 of the maneuver gauge; Nasod Core, live with CH1q
+	m_fManeuverGauge = min( m_fManeuverGauge + 40.0f, 100.0f );
+#endif // ADD_EVE_SYSTEM_2014
+}
+
+// June 32997c60: March's Eve body plus the awakening stand-ins, the item effect and the Open Mind reset
+void CX2GUEve::June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ )
+{
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		if( false == GetAbsoluteInvisibility() )
+		{
+			CKTDGParticleSystem::CParticleEventSequence* pSeqHyperModeChangeLine	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_HYPER_MODE_CHANGE_LINE ) );
+			CKTDGParticleSystem::CParticleEventSequence* pSeqHyperModeChangeCenter	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_HYPER_MODE_CHANGE_CENTER ) );
+
+			D3DXVECTOR3 pos = GetBonePos( L"Dummy1_Rhand" );
+			if( pSeqHyperModeChangeLine != NULL )
+			{
+				pSeqHyperModeChangeLine->SetPosition( pos );
+				pSeqHyperModeChangeLine->SetEmitRate( 40.0f, 80.0f );
+				pSeqHyperModeChangeLine->SetTriggerCount( 10 );
+
+				pSeqHyperModeChangeLine->SetBlackHolePosition( pos );
+				pSeqHyperModeChangeLine->UseLookPoint( true );
+				pSeqHyperModeChangeLine->SetLookPoint( pos );
+			}
+			if( pSeqHyperModeChangeCenter != NULL )
+			{
+				pSeqHyperModeChangeCenter->SetPosition( pos );
+				pSeqHyperModeChangeCenter->SetEmitRate( 20.0f, 40.0f );
+				pSeqHyperModeChangeCenter->SetTriggerCount( 10 );
+			}
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		if( false == GetAbsoluteInvisibility() )
+		{
+			JuneEveAwakeningEffectBegin();
+			if( true == JuneEveAwakeningEffectSetPresent() )
+			{
+				JuneEveAwakeningEffectPlay();
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeqGroundShockWave	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_GROUND_SHOCK_WAVE ) );
+				D3DXVECTOR3 pos = GetBonePos( L"Dummy1_Rhand" );
+				if( pSeqGroundShockWave != NULL )
+				{
+					D3DXVECTOR3 posl = m_FrameDataNow.unitCondition.landPosition;
+					posl.y += 5.0f;
+					pSeqGroundShockWave->SetPosition( posl );
+					pSeqGroundShockWave->SetEmitRate( 5.0f, 10.0f );
+					pSeqGroundShockWave->SetTriggerCount( 3 );
+				}
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeqWhiteShockWave		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_WHITE_SHOCK_WAVE ) );
+				if( pSeqWhiteShockWave != NULL )
+				{
+					pSeqWhiteShockWave->SetPosition( pos );
+					pSeqWhiteShockWave->SetEmitRate( 10.0f, 10.0f );
+					pSeqWhiteShockWave->SetTriggerCount( 1 );
+				}
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeqImpactTick 		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_IMPACT_TICK ) );
+				if( pSeqImpactTick != NULL )
+				{
+					pSeqImpactTick->SetPosition( pos );
+					pSeqImpactTick->SetEmitRate( 200.0f, 200.0f );
+					pSeqImpactTick->SetTriggerCount( 30 );
+					pSeqImpactTick->SetLandPosition( m_FrameDataNow.unitCondition.landPosition.y );
+				}
+			}
+		}
+
+		if ( GetShowSmallGageAndName() )
+		{
+			CKTDGParticleSystem::CParticleEventSequence* pSeqSTR_ToKang 		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleCommonMinorParticleByEnum( COMMON_MINOR_PII_STR_TOKANG ) );
+			D3DXVECTOR2 projPos = g_pKTDXApp->GetProj3DPos( m_FrameDataNow.syncData.position );
+			if( pSeqSTR_ToKang != NULL )
+			{
+				pSeqSTR_ToKang->SetPosition( D3DXVECTOR3( projPos.x, projPos.y, 0.0f ) );
+				pSeqSTR_ToKang->SetEmitRate( 100.0f, 100.0f );
+				pSeqSTR_ToKang->SetTriggerCount( 1 );
+			}
+
+			UpDownCrashCamera( 30.0f, 0.4f );
+			g_pKTDXApp->GetDGManager()->ClearScreen();
+		}
+
+		JuneEveHyperModeItemEffect();
+
+		if( false == JuneEveAwakeningEffectSetPresent() )
+		{
+			CKTDGParticleSystem::CParticleEventSequence* pSeq_RFoot = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostRFoot );
+			CKTDGParticleSystem::CParticleEventSequence* pSeq_LFoot = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostLFoot );
+			CKTDGParticleSystem::CParticleEventSequence* pSeq_RArm = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostRArm );
+			CKTDGParticleSystem::CParticleEventSequence* pSeq_LArm = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostLArm );
+
+			if( pSeq_RFoot != NULL )
+			{
+				pSeq_RFoot->SetPosition( GetBonePos( L"Bip01_R_Foot" ) );
+				pSeq_RFoot->SetEmitRate( 30, 40 );
+			}
+			if( pSeq_LFoot != NULL )
+			{
+				pSeq_LFoot->SetPosition( GetBonePos( L"Bip01_L_Foot" ) );
+				pSeq_LFoot->SetEmitRate( 30, 40 );
+			}
+			if( pSeq_RArm != NULL )
+			{
+				pSeq_RArm->SetPosition( GetBonePos( L"Bip01_R_UpperArm" ) );
+				pSeq_RArm->SetEmitRate( 30, 40 );
+			}
+			if( pSeq_LArm != NULL )
+			{
+				pSeq_LArm->SetPosition( GetBonePos( L"Bip01_L_UpperArm" ) );
+				pSeq_LArm->SetEmitRate( 30, 40 );
+			}
+
+			if( pSeq_RFoot != NULL && pSeq_LFoot != NULL && pSeq_RArm != NULL && pSeq_LArm != NULL )
+			{
+				pSeq_RFoot->SetTrace( true );
+				pSeq_LFoot->SetTrace( true );
+				pSeq_RArm->SetTrace( true );
+				pSeq_LArm->SetTrace( true );
+
+				const bool bShow = ( false == GetAbsoluteInvisibility() );
+				pSeq_RFoot->SetShowObject( bShow );
+				pSeq_LFoot->SetShowObject( bShow );
+				pSeq_RArm->SetShowObject( bShow );
+				pSeq_LArm->SetShowObject( bShow );
+			}
+		}
+
+		ApplyHyperModeBuff();
+
+		if( June_GetSkillLevel( JUNE_CH1K_P_ENS_OPEN_MIND ) > 0 )
+		{
+			June_SetSkillBuffFactors( JUNE_CH1K_P_ENS_OPEN_MIND, 0, true );
+			m_fJuneCodeRecoveryCoolLeft = 0.f;
+		}
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// ---- thousand star ----
+
+// June 329a2910 ( = March ClearThousandStar ): the die mesh is tagged for the effect-alpha option
+void CX2GUEve::June_ClearThousandStar()
+{
+	if ( CX2DamageEffect::CEffect* pTSEffect = ( m_pThousandStar != NULL ) ? m_pThousandStar->GetLiveDamageEffect() : NULL )
+	{
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pTSEffect->GetMainEffect() )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"EveThousandStarDie", pMeshInstance->GetPos(), GetRotateDegree(), GetRotateDegree() );
+			g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		}
+	}
+
+	if( m_pThousandStar != NULL )
+		SAFE_DELETE( m_pThousandStar );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleThousandStarFormation );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hCountDownThousandStar );
+	m_fElapsedTimeThousandStartCreated = 0.f;
+	m_fDelayAttackTimeEntireFire = 0.f;
+	m_iLockOnUid = -1;
+	m_bLockOnNpc = false;
+	m_bEntireFireMode = false;
+	m_iThousandStarCount = 0;
+	m_pThousandStar = NULL;
+}
+
+// ---- InitComponent and the Code Recovery tooltip ----
+
+// June 329c47e0 ( vslot 0x3c ): the slash trace, then the Code Recovery keys of INIT_COMPONENT per class group, then the tooltip
+void CX2GUEve::June_InitComponent()
+{
+	CX2GUUser::InitComponent();
+
+	if( m_LuaManager.BeginTable( "INIT_COMPONENT" ) == true )
+	{
+#ifdef UNIT_SLASH_TRACE_MANAGER_TEST
+		AddUnitSlashData( CX2UnitSlashTraceManager::STC_NONE );
+#endif UNIT_SLASH_TRACE_MANAGER_TEST
+
+		if( false == m_LuaManager.GetValue( "CODE_RECOVERY_COOL_TIME", m_fJuneCodeRecoveryCoolTime ) )
+			m_fJuneCodeRecoveryCoolTime = 30.f;
+
+		if( false == m_LuaManager.GetValue( "CODE_RECOVERY_CONSUME_MP", m_fJuneCodeRecoveryConsumeMp ) )
+			m_fJuneCodeRecoveryConsumeMp = 50.f;
+
+		if( false == m_LuaManager.GetValue( "CODE_RECOVERY_UP_HP_RATE", m_fJuneCodeRecoveryUpHpRate ) )
+			m_fJuneCodeRecoveryUpHpRate = 0.05f;
+
+		const int iUnitClass = ( NULL != GetUnit() ) ? static_cast<int>( GetUnit()->GetClass() ) : 0;
+		if( JUNE_CH1K_UC_EVE_EXOTIC_GEAR == iUnitClass || JUNE_CH1K_UC_EVE_CODE_NEMESIS == iUnitClass )
+		{
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_CONSUME_MP_ECN", m_fJuneCodeRecoveryConsumeMp ) )
+				m_fJuneCodeRecoveryConsumeMp = 30.f;
+
+			if( false == m_LuaManager.GetValue( "ADD_AIR_DASH_COUNT", m_iJuneAddAirDashCount ) )
+				m_iJuneAddAirDashCount = 3;
+		}
+		else if( JUNE_CH1K_UC_EVE_ARCHITECTURE == iUnitClass || JUNE_CH1K_UC_EVE_CODE_EMPRESS == iUnitClass )
+		{
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_COOL_TIME_ECE", m_fJuneCodeRecoveryCoolTime ) )
+				m_fJuneCodeRecoveryCoolTime = 30.f;
+
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_CONSUME_MP_ECE", m_fJuneCodeRecoveryConsumeMp ) )
+				m_fJuneCodeRecoveryConsumeMp = 50.f;
+
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_UP_HP_RATE_ECE", m_fJuneCodeRecoveryUpHpRate ) )
+				m_fJuneCodeRecoveryUpHpRate = 0.05f;
+
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE", m_fJuneCodeRecoveryNoneSummonMpCostRate ) )
+				m_fJuneCodeRecoveryNoneSummonMpCostRate = 1.f;
+		}
+		else if( JUNE_CH1K_UC_EVE_ELECTRA == iUnitClass || JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH == iUnitClass )
+		{
+			if( false == m_LuaManager.GetValue( "CODE_RECOVERY_CONSUME_MP_ECB", m_fJuneCodeRecoveryConsumeMp ) )
+				m_fJuneCodeRecoveryConsumeMp = 30.f;
+		}
+
+		June_UpdateEveRecoveryTooltip();
+
+		m_LuaManager.EndTable();
+	}
+}
+
+// June 329c3da0: builds the Code Recovery tooltip text of the unit's class group from the INIT_COMPONENT values
+void CX2GUEve::June_UpdateEveRecoveryTooltip()
+{
+	wstring wstrTooltip;
+
+	const int iConsumeMp = static_cast<int>( m_fJuneCodeRecoveryConsumeMp );
+	const int iCoolTime = static_cast<int>( m_fJuneCodeRecoveryCoolTime );
+	const int iUpHpPercent = static_cast<int>( m_fJuneCodeRecoveryUpHpRate * 100.0 + 0.5 );
+	const int iUnitClass = ( NULL != GetUnit() ) ? static_cast<int>( GetUnit()->GetClass() ) : 0;
+
+	if( JUNE_CH1K_UC_EVE_EXOTIC_GEAR == iUnitClass || JUNE_CH1K_UC_EVE_CODE_NEMESIS == iUnitClass )
+	{
+		int iBuffTime = 0;
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( JUNE_CH1K_BUFF_FACTOR_ECN );
+		if( NULL != ptrBuffFactor )
+		{
+			const CX2BuffFactor kClone( *ptrBuffFactor, 1 );
+			iBuffTime = static_cast<int>( June_GetFirstTimeFinalizerValue( kClone ) );
+		}
+
+		wstrTooltip = GET_REPLACED_STRING( ( JUNE_CH1K_STR_RECOVERY_ECN, "iiiii", iConsumeMp, iUpHpPercent, iCoolTime, iBuffTime, m_iJuneAddAirDashCount ) );
+	}
+	else if( JUNE_CH1K_UC_EVE_ARCHITECTURE == iUnitClass || JUNE_CH1K_UC_EVE_CODE_EMPRESS == iUnitClass )
+	{
+		wstrTooltip = GET_REPLACED_STRING( ( JUNE_CH1K_STR_RECOVERY_ECE, "iii", iConsumeMp, iUpHpPercent, iCoolTime ) );
+	}
+	else if( JUNE_CH1K_UC_EVE_ELECTRA == iUnitClass || JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH == iUnitClass )
+	{
+		/// June 322cc1a0 IsPvpOrPve: March has no GT_PVE
+		const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );
+		int iBuffTime = 0;	/// June leaves it unset when the buff factor is missing
+		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( true == bPvpGame ? JUNE_CH1K_BUFF_FACTOR_ECB_PVP : JUNE_CH1K_BUFF_FACTOR_ECB_PVE );
+		if( NULL != ptrBuffFactor )
+		{
+			const CX2BuffFactor kClone( *ptrBuffFactor, 1 );
+			iBuffTime = static_cast<int>( June_GetFirstTimeFinalizerValue( kClone ) );
+		}
+
+		wstrTooltip = GET_REPLACED_STRING( ( JUNE_CH1K_STR_RECOVERY_ECB, "iiii", iConsumeMp, iUpHpPercent, iCoolTime, iBuffTime ) );
+	}
+	else
+	{
+		wstrTooltip = GET_REPLACED_STRING( ( JUNE_CH1K_STR_RECOVERY_DEFAULT, "iii", iConsumeMp, iUpHpPercent, iCoolTime ) );
+	}
+
+	/// June 322dee90( wstrTooltip ): call added in CH4c ( the Eve Recovery tooltip static of CX2Game )
+}
+
+// June 32d417e0 ( user ): the second value of the first BFT_TIME finalizer, -1 when there is none or it holds one value
+float CX2GUEve::June_GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const
+{
+	const KBuffFinalizerFactor* pFinalizer = kBuffFactor_.JuneGetFirstFinalizer( BFT_TIME );
+	if( NULL != pFinalizer && pFinalizer->m_vecValues.size() > 1 )
+		return pFinalizer->m_vecValues[1];
+
+	return -1.0f;
+}
+
+// ---- ReInit and destructor ----
+
+// June 329cf170: stops both effect sets of the block, the fields stay
+void CX2GUEve::JuneEveBlock9c50::StopEffectSets()
+{
+	CX2EffectSet::Handle hEffectSet0 = m_hEffectSet0;
+	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet0 );
+
+	CX2EffectSet::Handle hEffectSet1 = m_hEffectSet1;
+	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet1 );
+}
+
+
+// June 329af460 ( vslot 0x44 ): six summon ids and the clear-guard tail replace March's Ferdinand block; no spectro slot rewrite
+void CX2GUEve::June_ReInit( bool bRandom, int startPosIndex )
+{
+	CX2GUUser::ReInit( bRandom, startPosIndex );
+	m_fReDashJumpXTime = 0.0f;
+
+	June_SetSelfDestructSummonedNPC( 0x180 );		/// NUI_NASOD_WATCH_EVE
+	June_SetSelfDestructSummonedNPC( 0x207 );		/// NUI_NASOD_WATCH_EVE_MEMO
+	June_SetSelfDestructSummonedNPC( 0x2aa );		/// NUI_ATOMIC_SHIELD_EVE
+	June_SetSelfDestructSummonedNPC( 0x5ae );		/// NUI_SI_HA_FERDINAND
+	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1621 );
+	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1622 );
+	June_ClearGuardAndSummon();
+
+	June_ClearThousandStar();
+
+	if ( m_hEffectSweepParadeTriangle != INVALID_DAMAGE_EFFECT_HANDLE )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectSweepParadeTriangle );
+
+	if ( INVALID_EFFECTSET_HANDLE != m_hEffectEnergeticHeart )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hEffectEnergeticHeart );
+
+	m_EveElectraSystem.m_fFormationSetElapsedTime = 0.f;
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticlePlane );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[0] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[1] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[2] );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[0] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[1] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[2] );
+
+	m_EveElectraSystem.SetSystemOperationTime( 0.f );
+	m_EveElectraSystem.SetExceptionSystemTime( 0.f );
+	m_EveElectraSystem.SetPlaneFormation( PFT_NONE );
+
+	if ( IsMyUnit() )
+		g_pX2Game->UpdateSkillSlotUI();
+
+	m_EveElectraSystem.m_iJune1c0 = 1;
+	m_EveElectraSystem.SetEnableSystem( false );
+
+	m_bStartSpectroElCrystal = false;
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 329af460 @329af6fe-329af7d6: the maneuver core state; Nasod Core, live with CH1q
+	m_pManeuverCore = NULL;
+	m_iManeuverCoreLv = 0;
+	m_fManeuverGauge = 0.f;
+	m_bManeuverCoreAttackLockOnNpc = false;
+	m_iManeuverCoreAttackLockOnUid = 0;
+	m_bCanParrying = false;
+	m_fManeuverCoreStateTime = 0.f;
+	m_bHyperState = false;
+
+	if ( m_pManeuverCoreParryingEffect != NULL )
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pManeuverCoreParryingEffect );
+#endif // ADD_EVE_SYSTEM_2014
+
+	if( NULL != m_pJuneBlock9c50 )
+		m_pJuneBlock9c50->Reset( true );
+}
+
+// June 329aece0 ( body of the scalar deleting destructor 329cf670 ): the implicit member destructors are not repeated
+void CX2GUEve::June_Destructor()
+{
+	June_ClearThousandStar();
+
+	June_EGQueensThroneReset();
+
+	for( int i=0; i<MajorMID_END; i++ )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_ahMajorMeshInstance[i] );
+
+	for( int i=0; i<MinorMID_END; i++ )
+		g_pX2Game->GetMinorXMeshPlayer()->DestroyInstanceHandle( m_ahMinorMeshInstance[i] );
+
+	DeleteEveMajorParticle();
+	DeleteEveMinorParticle();
+
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hOberonGuard );
+
+	June_SetSelfDestructSummonedNPC( 0x180 );		/// NUI_NASOD_WATCH_EVE
+	June_SetSelfDestructSummonedNPC( 0x207 );		/// NUI_NASOD_WATCH_EVE_MEMO
+	June_SetSelfDestructSummonedNPC( 0x2aa );		/// NUI_ATOMIC_SHIELD_EVE
+	June_SetSelfDestructSummonedNPC( 0x5ae );		/// NUI_SI_HA_FERDINAND
+	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1621 );
+	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1622 );
+
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_FullCharge.ogg" );
+
+	if ( INVALID_EFFECTSET_HANDLE != m_hEffectEnergeticHeart )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hEffectEnergeticHeart );
+
+	m_EveElectraSystem.m_fFormationSetElapsedTime = 0.f;
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticlePlane );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[0] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[1] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMark[2] );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[0] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[1] );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleFormationMsg[2] );
+
+	m_EveElectraSystem.SetSystemOperationTime( 0.f );
+	m_EveElectraSystem.SetExceptionSystemTime( 0.f );
+	m_EveElectraSystem.SetPlaneFormation( PFT_NONE );
+	m_EveElectraSystem.SetEnableSystem( false );
+
+#ifdef ADD_EVE_SYSTEM_2014		// June 329aece0 @329af074-329af13e: maneuver core teardown; Nasod Core, live with CH1q
+	ClearManeuverCore( true );
+	if( m_hSeqHyperBall != INVALID_PARTICLE_SEQUENCE_HANDLE )
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqHyperBall );
+
+	if ( NULL != g_pX2Game->GetDamageEffect() && NULL != m_pManeuverCoreParryingEffect )
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pManeuverCoreParryingEffect );
+
+	if ( m_pManeuverCoreAttackDamageEffect != NULL )
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pManeuverCoreAttackDamageEffect );
+#endif // ADD_EVE_SYSTEM_2014
+
+	June_ClearGuardAndSummon();
+
+	/// June 322e65c0( 0, 0.0 ): call added in CH4c ( the Eve Recovery guide static of CX2Game )
+
+	if( NULL != m_pJuneBlock9c50 )
+	{
+		m_pJuneBlock9c50->StopEffectSets();
+		SAFE_DELETE( m_pJuneBlock9c50 );
+	}
+}
+
+// June 3299bd70: the constructor's values for the declared members; nested struct ctors and unmapped slots are in ch1k_ctor_offsets.tsv
+void CX2GUEve::June_ConstructorInit()
+{
+	m_bReAttackZ1Right		= false;
+	m_fReAttackZ1Time		= 0.0f;
+	m_fReDashJumpXTime		= 0.0f;
+	m_iJumpFlyCount			= 0;
+	m_iDashJumpCount		= 0;
+	m_iDashJumpUpCount		= 0;
+	m_fCurrDashJumpTime		= 0.f;
+	m_fInvisibilityTime		= s_fEveDefaultInvisibilityTime;
+
+	for( int i=0; i<MajorMID_END; i++ )
+		m_ahMajorMeshInstance[i] = INVALID_MESH_INSTANCE_HANDLE;
+
+	for( int i=0; i<MinorMID_END; i++ )
+		m_ahMinorMeshInstance[i] = INVALID_MESH_INSTANCE_HANDLE;
+
+	InitializeEveMajorParticleArray();
+	InitializeEveMinorParticleArray();
+
+	m_hOberonGuard			= INVALID_EFFECTSET_HANDLE;
+	m_bIsWinMotion2			= false;	/// June +0x97e0 ( the Atomic Shield timer and life time that follow them in March are gone )
+	m_bIsLoseMotion2		= false;
+	m_bDoneSpearBurst		= false;	/// June +0x97e2
+	m_iSuccessiveHit_OneZ	= 0;
+	m_vSummonedUnitBonePos	= D3DXVECTOR3( 0.f, 0.f, 0.f );
+
+	for( int i = 0; i < EASI_END; ++i )
+		m_fEquippedActiveSkill[i] = -1;
+
+#ifdef SPECIAL_USE_ITEM
+	m_fThrowStartTime		= 0.8f;
+	m_vThrowStartPosOffset	= D3DXVECTOR3( 40.f, 130.f, 0.f );
+	m_vThrowStartVelocity	= D3DXVECTOR3( 1400.f, 400.f, 0.f );
+#endif SPECIAL_USE_ITEM
+
+	m_fPlaneZAngle			= 0.f;
+	m_bBlinkInvisibility	= false;
+	m_fBlinkInvisibilityAlpha	= 0.f;
+	m_iPhotonBoosterAdditionalDashJumpCount	= 0;
+	m_fPhotonBlinkBackSpeedX	= 0.f;
+	m_fPhotonBlinkDummyLifeTime	= 0.f;
+
+	m_hEffectSweepParadeTriangle	= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectSweepParadeLight		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectSweepParadeElectric	= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectElectraDashComboZ		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectElectraDashComboZZ		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectElectraLaserZZZfrontZ	= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectElectraLaserXXZ		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_fSweepParadeTriangleLIfeTime	= 0.f;
+	m_fInitDamageSweepParade		= 0.f;
+	m_hElectraDashComboZMesh		= INVALID_MESH_INSTANCE_HANDLE;
+	m_bXXZLaserEnd					= false;
+	m_bNotEnoughMPZZZfrontZLaser	= false;
+	m_bNotEnoughMPXXZLaser			= false;
+	m_bNotEnoughMPDashZZZ			= false;
+	m_hCountDownThousandStar		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_fElapsedTimeThousandStartCreated	= 0.f;
+	m_bLockOnNpc					= false;
+	m_iLockOnUid					= -1;
+	m_bDelayAttackThousandStar		= false;
+	m_fDelayAttackTime				= 0.f;
+	m_bEntireFireMode				= false;
+	m_fDelayAttackTimeEntireFire	= 0.f;
+	m_iThousandStarCount			= 0;
+	m_fThousandStarPowerRate		= 0.f;
+	m_fThousandStarAttackTime		= 0.f;
+	m_pThousandStar					= NULL;
+
+	m_bAfterJumpDash				= false;
+	m_bEnableBoostDash				= false;
+	m_eBoostDashState				= BDS_NONE;
+	m_bHighPoweredElectrics			= false;
+	m_fHighPoweredElectricsSpeed	= 0.f;
+	m_iAccumulateAccel				= 0;
+	m_bDashJumpXXLaserEnd			= false;
+	m_bNotEnoughMPDashJumpXZLaser	= false;
+	m_bExceptionPlane				= false;
+	m_fExceptioncPlaneZAngle		= 0.f;
+	m_hEffectElectraLaserDashJumpXZ	= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hBoostDashParticle			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+
+	m_fEffectStartTime				= 0.f;
+	m_fAddSpectrumTime				= 0.f;
+	m_fAddEnergeticHeartTime		= 0.f;
+	INIT_VECTOR3( m_vSonicGunRotate, 0.f, 0.f, 0.f );
+
+	m_bNotEnoughMPDashJumpZX		= false;
+	m_iBoostAttackCount				= 0;
+	m_bBoostUpAttack				= false;
+	m_iAddBoostAttack				= 0;
+	m_hEffectEnergeticHeart			= INVALID_EFFECTSET_HANDLE;
+	m_bStartSpectroElCrystal		= false;
+
+	/// June-only ( +0x9bf8 .. +0x9c74 )
+	m_fJuneVengeanceMpRate			= 0.f;
+	m_fJune9bfc						= 0.f;
+	m_fJune9c00						= 0.f;
+	m_iJuneSummonNpcUid				= -1;
+	m_pJuneDashXFireBall			= NULL;
+	m_pJuneDashXTargetUnit			= NULL;
+	for( int i = 0; i < 5; ++i )
+		m_aiJune9c30[i]				= -1;
+	m_iJune9c48						= -1;
+	m_fJune9c4c						= 1.f;
+	m_pJuneBlock9c50				= NULL;
+	m_bJune9c54						= false;
+	m_fJune9c58						= 0.f;
+	m_fJune9c5c						= 0.f;
+	m_iJuneAddAirDashCount			= 0;
+	m_fJuneCodeRecoveryCoolLeft		= 0.f;
+	m_fJuneCodeRecoveryCoolTime		= 99.f;
+	m_fJuneCodeRecoveryConsumeMp	= 100.f;
+	m_fJuneCodeRecoveryUpHpRate		= 0.f;
+	m_fJuneCodeRecoveryNoneSummonMpCostRate	= 1.f;
+	m_bJune8fc2						= false;
+	m_bJune89fc						= false;
+
+	m_EveElectraSystem.m_iJune1c0	= 1;
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 

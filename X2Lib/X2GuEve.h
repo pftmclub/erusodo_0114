@@ -548,6 +548,9 @@ public:
 
 		DelegateProcess				m_delegateChangePlaneFormation;		/// 일렉트라, 배틀 세라트의 ChangePlaneFormation 의 Delegate
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		int							m_iJune1c0;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraSystem( CX2GUEve* _pGUEve );
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
         void ProcessSystem( float fElapsedTime );
@@ -2729,6 +2732,7 @@ protected:
 		float					m_fValueC;			/// +0xc ( -1 when reset )
 		float					m_fValue10;			/// +0x10 ( 1.0 when reset )
 		void					Reset( bool bResetFields_ );	/// June 3299bcd0
+		void					StopEffectSets();				/// June 329cf170: stops both effect sets, keeps the fields
 	};
 	JuneEveBlock9c50*	m_pJuneBlock9c50;					/// June +0x9c50
 	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
@@ -3021,5 +3025,58 @@ protected:
 	void June_ENSI_ECB_DASH_XX_Init();						/// June 329687e0
 	void June_ENSI_ECB_DASH_XX_FrameMove();					/// June 329ad6c0
 	void June_ENSI_ECB_DASH_XX_EventProcess();				/// June 329766f0
+
+	/// June character port Phase CH1k: inert June_* members of Eve's lifecycle, render and reaction overrides, the constructor / destructor / ReInit bodies and their helpers; nothing calls them until CH1
+	/// June-only fields, named by their June offset where the role is unknown ( ch1k_ctor_offsets.tsv )
+	float		m_fJuneVengeanceMpRate;					/// June +0x9bf8 ( Queen of Vengeance MP return; set from skill 0x633b in InitPassiveSkillState 3297f290, CH4a )
+	float		m_fJune9bfc;							/// June +0x9bfc ( set from skill 0x633c in 3297f290; read by AttackManeuverCore )
+	float		m_fJune9c00;							/// June +0x9c00 ( as +0x9bfc )
+	int			m_aiJune9c30[5];						/// June +0x9c30 .. +0x9c40 ( -1 )
+	int			m_iJune9c48;							/// June +0x9c48 ( -1 )
+	float		m_fJune9c4c;							/// June +0x9c4c ( 1.0 )
+	bool		m_bJune9c54;							/// June +0x9c54 ( set by the first trigger-44 hit, AttackResultByType )
+	float		m_fJune9c58;							/// June +0x9c58 ( 0 )
+	float		m_fJune9c5c;							/// June +0x9c5c ( 0 )
+	float		m_fJuneCodeRecoveryCoolTime;			/// June +0x9c68 ( CODE_RECOVERY_COOL_TIME; constructor 99.0, INIT_COMPONENT default 30.0 )
+	float		m_fJuneCodeRecoveryUpHpRate;			/// June +0x9c70 ( CODE_RECOVERY_UP_HP_RATE; constructor 0, default 0.05 )
+	float		m_fJuneCodeRecoveryNoneSummonMpCostRate;	/// June +0x9c74 ( CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE; 1.0 )
+	bool		m_bJune8fc2;							/// June CX2GUUser +0x8fc2 ( set after DamageReact; read and cleared by the Lua-bound 31e4d140 )
+	bool		m_bJune89fc;							/// June CX2GUUser +0x89fc ( a protected bool; set by the Aura Add-ATK Accel upgrade, 329ce7b0 )
+	float		m_fJuneSpecializationA;					/// June CX2GUUser +0x6c50 ( skill specialization A; the maneuver gauge gain takes ( 1 + it ); 0 = absent, as the Nasod Core block reads it )
+
+	bool		June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June 3229a470 ( CX2GUUser vslot 0x240 )
+	bool		June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
+	CX2GUNPC*	June_FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
+	float		June_GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
+
+	void June_InitEffect();									/// June 32965dd0 ( vslot 0x48 )
+	void June_CreateMinorParticleArray();					/// June 32965e10 ( vslot 0x548 )
+	void June_CreateMajorParticleArray();					/// June 3297a940 ( vslot 0x540 )
+	void June_DashStartFuture();							/// June 32965f80 ( vslot 0x5fc )
+	void June_Win();										/// June 32968ea0 ( vslot 0x90 )
+	void June_Draw();										/// June 32968ee0 ( vslot 0x98 )
+	void June_Lose();										/// June 32977300 ( vslot 0x94 )
+	void June_InitEnchantWeaponEffectUnitSpecific();		/// June 32969190 ( vslot 0x54c )
+	void June_DamageReact( CX2DamageManager::DamageData* pDamageData_ );	/// June 32977130 ( vslot 0x60 )
+	void June_ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June 32973d30 ( vslot 0x3ac )
+	void June_ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32973e70 ( vslot 0x3a8 )
+	void June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32978420 ( vslot 0x314 )
+	bool June_Vslot584( CX2GameUnit* pUnit_ );				/// June 329770d0 ( vslot 0x584, name unsettled )
+	void June_Vslot56c( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c, name unsettled )
+	void June_AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );	/// June 3297bb70 ( vslot 0x27c )
+	void June_COMMON_BUFF_FrameMove();						/// June 3297fdd0 ( vslot 0x5f0 )
+	int  June_GetComboZStateID() const;						/// June 329cf210 ( vslot 0x4b0 )
+	void June_AttackResultPlayEffect();						/// June 3299cdc0 ( vslot 0x4dc )
+	void June_AttackResultByType( CX2DamageManager::DamageData &pDamageData_ );	/// June 329a4680 ( vslot 0x4e0 )
+	void June_ENSI_RIDING_HYPER_MODE_FrameMove();			/// June 329ac330
+	void June_DeleteMinorParticle();						/// June 32994710 ( vslot 0x4c )
+	void June_HyperModeBuffEffectStart();					/// June 32994750 ( vslot 0xc4 )
+	void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ = false );	/// June 32997c60
+	void June_ClearThousandStar();							/// June 329a2910
+	void June_InitComponent();								/// June 329c47e0 ( vslot 0x3c )
+	void June_UpdateEveRecoveryTooltip();					/// June 329c3da0
+	void June_ReInit( bool bRandom = false, int startPosIndex = -1 );	/// June 329af460 ( vslot 0x44 )
+	void June_Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
+	void June_ConstructorInit();							/// June 3299bd70
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

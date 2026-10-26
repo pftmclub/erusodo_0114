@@ -33,3 +33,7 @@ Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INI
 ## Amended by the CH1c review (2026-10-26)
 
 - **Port the 7ah statics `322e65c0` / `322dee90` here and add their calls.** CH1k (`329aece0`, `329c3da0`) and CH1l2 (`CommonFrameMoveFuture` `32980f90`) leave each call out and mark the spot `// June <va>: call added in CH4c`, because a declaration without a body does not link (VS2010 LNK2019 even when the caller is never called). `grep -an "call added in CH4c" X2Lib/X2GuEve.cpp` lists the sites.
+
+## Amended by CH1k (2026-10-26)
+
+- CH1k declared the Code Recovery fields `329c47e0` fills: `m_fJuneCodeRecoveryCoolTime` (`+0x9c68`), `m_fJuneCodeRecoveryUpHpRate` (`+0x9c70`), `m_fJuneCodeRecoveryNoneSummonMpCostRate` (`+0x9c74`); `m_fJuneCodeRecoveryConsumeMp` (`+0x9c6c`) and `m_iJuneAddAirDashCount` (`+0x9c60`) were CH1a's. `June_InitComponent` reads the ten keys; `June_UpdateEveRecoveryTooltip` (`329c3da0`) builds the text and ends with `/// June 322dee90( wstrTooltip ): call added in CH4c`. `June_Destructor` ends with `/// June 322e65c0( 0, 0.0 ): call added in CH4c`. Add both calls with the 7ah statics.

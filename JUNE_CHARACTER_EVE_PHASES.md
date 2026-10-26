@@ -832,6 +832,38 @@ Build: `DEPLOY OK: X2_offline.exe is 25,980,416 B, dated 2026-10-26 12:16:32, md
 Hygiene (`--range 722432b3^..722432b3`): `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 Build: none (no code change; deployed md5 `3e84adb8`). `CH1k.md` still matches. Next: `/x2-phase char-eve CH1k` (Sonnet 5.5 high).
 
+### CH1k - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a twelfth block at the end of `X2GuEve.cpp`, 1,223 lines; 57 declaration lines at the end of the class). **All 40 class-map rows of phase CH1k** (the 39 of the kickoff + `329ac330`, moved from CH1c): **30 are new `CX2GUEve::June_*` members** (29 functions + `JuneEveBlock9c50::StopEffectSets`), **10 resolve to March or engine code** and get no member. Nothing registers or calls them. 46 funcmap rows `Char Eve CH1k` (the 40 + 6 callee rows).
+
+| Group | June -> member (`June_` prefix) |
+|---|---|
+| lifecycle | `3299bd70` ConstructorInit, `329aece0` Destructor ( `329cf670` is its wrapper ), `329af460` ReInit, `329c47e0` InitComponent, `329c3da0` UpdateEveRecoveryTooltip |
+| effects / particles | `32965dd0` InitEffect, `32965e10` CreateMinorParticleArray, `3297a940` CreateMajorParticleArray, `32994710` DeleteMinorParticle, `32969190` InitEnchantWeaponEffectUnitSpecific, `3297bb70` AddUnitSlashData, `329a2910` ClearThousandStar |
+| reactions / render | `32977130` DamageReact, `32968ea0` / `32977300` / `32968ee0` Win / Lose / Draw, `32973d30` ModifyFinalDamage..., `32973e70` ApplyRenderParam, `32978420` ApplyRenderParamOnEmpty..., `3299cdc0` AttackResultPlayEffect, `329a4680` AttackResultByType |
+| states / misc | `3297fdd0` COMMON_BUFF_FrameMove, `32994750` HyperModeBuffEffectStart, `32997c60` CommonHyperModeFrameMove, `329ac330` ENSI_RIDING_HYPER_MODE_FrameMove, `32965f80` DashStartFuture, `329cf210` GetComboZStateID, `329770d0` Vslot584, `3297b4b0` Vslot56c, `329cf170` Block9c50::StopEffectSets |
+
+**Resolved without a member:** `329ce310` / `329ce210` / `329ce0a0` / `329cd860` / `329cd440` are the engine's `CX2UnitSlashTraceManager` and its vector (March's own; `June_AddUnitSlashData` calls it); `329cda50` (EG_QueensThroneData) and `329cc3b0` (ENERGY_NEEDLES_Data) are March's struct constructors, value for value; `32990da0` is March's `EveElectraSystem` constructor plus the June-only last member `+0x1c0 = 1` (new `EveElectraSystem::m_iJune1c0`); `32991c00` is `FlyingImpactData::GetLiveDamageEffect`.
+
+**What differs from March** (the rest is March's body; the Win / Draw / Lose, InitEffect, particle builders, slash trace, AttackResultPlayEffect, `32978420`, `32969190`, `32994710` are verbatim):
+- **`32973d30` (vslot 0x3ac).** June's hook takes `( DamageData*, float&, float& )` and runs for every attack that is not AT_SPECIAL; the Nasod Weapon is now an AT_COMMAND proc (class 108, flag `+0x8b62` clear): roll SA_EFFECTIVE_RATE or the memo buff 25416; only magic damage (+SA_DAMAGE_REL) and force down (-SA_FORCE_DOWN_ABS) change, no DT_MIX, no x2.
+- **`32977130`.** No Ferdinand block. `+0x9bf8` > 0 (Queen of Vengeance) and still alive: `UpNowMp( GetMaxMp x +0x9bf8 x HP fraction lost )` for a loss of 1% or more; then `m_fInvisibilityTime = 0` and the CX2GUUser byte `+0x8fc2` = 1.
+- **`3297fdd0`.** No world-colour / cut-in head; the new 0.01 oneshot arms the super armor (`bSuperArmor`, `bSuperArmorNotRed = false`, byte `+0x89fc`) for skill 25214.
+- **`329a4680`.** Returns early on DD `+0x628`; the thousand star fire needs the defender not to be me; the gauge gain takes ( 1 + `+0x6c50` ) and trigger 5 is March's (both under `ADD_EVE_SYSTEM_2014`, dead today); trigger 44 moves the live ally summons 1621 / 1622 (`320017d0`, `CX2GUNPC::SetPosition`) to the defender.
+- **`32997c60` / `32994750`.** The awakening effect-set stand-ins, the item effect `31febf50` (stand-in), the trace block only without the awakening set, and the Open Mind (25415) reset of the Code Recovery cool time; the four hyper boost handles are skipped for a transcended unit.
+- **`329c47e0` / `329c3da0`.** Ten Lua keys by class group (18 / 108: `..._ECN`, `ADD_AIR_DASH_COUNT`; 19 / 109: `..._ECE`; 26 / 116: `..._ECB`) with their June defaults; the tooltip text (string ids 0x8fe1-0x8fe4) is built, its `322dee90` call is left for CH4c. `329af460` / `329aece0` carry the six summon ids and `329ae670`; the `322e65c0` call is left for CH4c.
+- **Constructor.** `ch1k_ctor_offsets.tsv` classifies all 185 June stores: 79 March members and 29 June-only members (set by `June_ConstructorInit`), 45 inside nested structs, 15 Nasod Core (left to CH1q), 7 unmapped slots, 10 in the base classes. June's `CX2GUEve` has no `m_timerSummoned` / `m_fSummonedLifeTime` / `m_ChargingBoosterSkillDataBasePtr` and no Atomic Shield pair (CH1l4's kickoff amended); the base-class `MemoCondition*` at `+0x7d10` is not ported.
+- **Alpha tag (7c):** `329a2a0b` (the die mesh in `June_ClearThousandStar`). Checklist 7c and spec A (7) amended.
+
+**New June-only fields** (CX2GUEve unless noted): `m_fJuneVengeanceMpRate` `+0x9bf8`, `m_fJune9bfc`, `m_fJune9c00`, `m_aiJune9c30[5]`, `m_iJune9c48`, `m_fJune9c4c`, `m_bJune9c54`, `m_fJune9c58`, `m_fJune9c5c`, the Code Recovery `m_fJuneCodeRecoveryCoolTime` `+0x9c68` / `UpHpRate` `+0x9c70` / `NoneSummonMpCostRate` `+0x9c74`, and the CX2GUUser slots `m_bJune8fc2` (`+0x8fc2`), `m_bJune89fc` (`+0x89fc`, write-only), `m_fJuneSpecializationA` (`+0x6c50`). New callees: `June_HaveSkillBuff` / `June_SetSkillBuffFactors` (Eve-local copies), `June_FindAllyNPC` (`320017d0`), `June_GetFirstTimeFinalizerValue` (`32d417e0`).
+
+**Checks.** `cl /Zs` of `X2GuEve.cpp` (US_SERVICE defines): 0 errors, 0 warnings in the block, and the `cl /P` output holds it (flag live; the `ADD_EVE_SYSTEM_2014` bodies are dead). March's Nasod Core members do not exist in this build, so every function that touches them keeps that part under `ADD_EVE_SYSTEM_2014` with the June site in the comment.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,994,240 B, dated 2026-10-26 13:37:05, md5 1fa8b70c4c5e707c46f02c5dfce54361, equal to X2/US_SERVICE/x2.exe (2026-10-26 13:36:57); built at main 2516ab20 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** 429 (the unset tooltip buff time), 430 (the unguarded defender test), 431 (slot 0x584 reads the NPC templet of any unit). **Drift:** `31febf50` (the Dark Dragon hyper-mode item effect, called by every class's hyper-mode FrameMove) joins the awakening effect-set family in backlog Stage 12 (bullet amended). **Open for the review:** the names of vslots `0x56c` / `0x584`; the unmapped constructor slots (`+0x97a4 .. +0x97c7`, `+0x9b6c .. +0x9b97`); the 32-bit UID compare in `329a4680`. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1k-review.md`. Next: `/x2-phase char-eve CH1k review` (Opus 5.5 high), then CH1l.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

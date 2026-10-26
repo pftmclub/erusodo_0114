@@ -1,0 +1,186 @@
+june_off	width	june_value	site	class	name	note
+0x190	dword	0x334cf454	3299bdc8	base	multiple-inheritance vtable pointers	compiler
+0x1a0	dword	0x334cf44c	3299bdd2	base	multiple-inheritance vtable pointers	compiler
+0x7d10	dword	0	3299cd4c	CX2GUUser	MemoCondition* ( new 0xc bytes, vtable 334cccc0, 31fc8cd0 )	not ported: the skill-memo work owns it
+0x8d5c	dword	0.800000011920929	3299cb21	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d60	dword	0	3299cb3b	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d64	dword	eax	3299cb49	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d68	dword	0x3376cdc8	3299cb5d	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d6c	dword	0	3299cb71	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d70	dword	eax	3299cb7f	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x8d74	dword	0x3376cdc8	3299cb93	CX2GUUser	m_fThrowStartTime / m_vThrowStartPosOffset / m_vThrowStartVelocity	SPECIAL_USE_ITEM: 0.8, (40,130,0), (1400,400,0) = March
+0x9598	dword	-1	3299bde1	March member	m_ahEveMajorParticleInstance[0]	-1; InitializeEveMajorParticleArray
+0x959c	dword	-1	3299bde7	March member	m_ahEveMajorParticleInstance[1]	-1; InitializeEveMajorParticleArray
+0x95a0	dword	-1	3299bded	March member	m_ahEveMajorParticleInstance[2]	-1; InitializeEveMajorParticleArray
+0x95a4	dword	-1	3299bdf3	March member	m_ahEveMajorParticleInstance[3]	-1; InitializeEveMajorParticleArray
+0x95a8	dword	-1	3299bdf9	March member	m_ahEveMajorParticleInstance[4]	-1; InitializeEveMajorParticleArray
+0x95ac	dword	-1	3299bdff	March member	m_ahEveMajorParticleInstance[5]	-1; InitializeEveMajorParticleArray
+0x95b0	dword	-1	3299be05	March member	m_ahEveMajorParticleInstance[6]	-1; InitializeEveMajorParticleArray
+0x95b4	dword	-1	3299be0b	March member	m_ahEveMajorParticleInstance[7]	-1; InitializeEveMajorParticleArray
+0x95b8	dword	-1	3299be15	March member	m_ahEveMinorParticleInstance[0]	-1
+0x95bc	byte	bl	3299c98e	March member	m_bReAttackZ1Right	
+0x95c0	dword	0.0	3299c99a	March member	m_fReAttackZ1Time	
+0x95c4	dword	0.0	3299c9a6	March member	m_fReDashJumpXTime	
+0x95c8	dword	0	3299c994	March member	m_iJumpFlyCount	
+0x95cc	dword	0	3299c9a0	March member	m_iDashJumpCount	
+0x95d0	dword	0	3299c9ac	March member	m_iDashJumpUpCount	
+0x95d4	word	bx	3299ccb5	March member	m_bAfterJumpDash / m_bEnableBoostDash	one word store, both false
+0x95d8	dword	0	3299ccbc	March member	m_eBoostDashState	
+0x95dc	dword	0.0	3299c9b2	March member	m_fCurrDashJumpTime	
+0x95e0	dword	3.0	3299c9c4	March member	m_fInvisibilityTime	3.0 = s_fEveDefaultInvisibilityTime
+0x95e4	dword	eax	3299be21	March member	m_timerInvisibility	clock()
+0x95ec	dword	0	3299be27	unmapped	June 0 store after the invisibility timer	March has m_timerSummoned / m_fSummonedLifeTime / m_ChargingBoosterSkillDataBasePtr here; June has no room for them (the mesh arrays start at +0x95f0)
+0x9694	dword	-1	3299be47	March member	m_ahMinorMeshInstance[0]	-1; the 41 major mesh handles +0x95f0 .. +0x9693 are filled by one rep stosd
+0x9698	dword	0	3299ca26	March member	m_iSuccessiveHit_OneZ	
+0x969c	dword	0	3299ca4a	March member	m_vSummonedUnitBonePos.x	
+0x96a0	dword	eax	3299ca50	March member	m_vSummonedUnitBonePos.y	
+0x96a4	dword	0x29	3299ca56	March member	m_vSummonedUnitBonePos.z	
+0x9768	dword	eax	3299be5c	March member	m_TimerEGQTRefreshMsg	clock()
+0x976c	dword	-1	3299be62	March member	m_hOberonGuard	-1
+0x9770	dword	1.0	3299ca1e	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9778	qword	0.0	3299be68	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9780	dword	eax	3299be72	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9784	word	bx	3299be7c	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9788	dword	1	3299be83	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x978c	word	bx	3299be8d	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9790	dword	-1	3299bea0	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9794	dword	-1	3299bea6	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x9798	dword	-1	3299beae	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x979c	dword	-1	3299beb6	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
+0x97a0	dword	-1	3299be94	March member	m_fEquippedActiveSkill[0]	-1
+0x97a8	dword	-1.0	3299ca5c	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	March has the four 1.0 rates ( ElectronBallRangeRate .. ForceDownValueRateElectronBall ) here; the June layout differs, roles unknown
+0x97ac	dword	0.0	3299ca64	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	March has the four 1.0 rates ( ElectronBallRangeRate .. ForceDownValueRateElectronBall ) here; the June layout differs, roles unknown
+0x97bc	dword	0.0	3299cb15	June-only (CH1d)	m_fJuneElectronBallBigRate	0
+0x97c0	dword	1.0	3299caf9	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	March has the four 1.0 rates ( ElectronBallRangeRate .. ForceDownValueRateElectronBall ) here; the June layout differs, roles unknown
+0x97c4	dword	1.0	3299cb05	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	March has the four 1.0 rates ( ElectronBallRangeRate .. ForceDownValueRateElectronBall ) here; the June layout differs, roles unknown
+0x97c8	dword	eax	3299c0ad	struct	m_sATOveronGuardData	timer + Reset ( false, 0, 1.0 ) = March
+0x97cc	byte	bl	3299c0b5	struct	m_sATOveronGuardData	timer + Reset ( false, 0, 1.0 ) = March
+0x97d0	qword	0.0	3299c0a7	struct	m_sATOveronGuardData	timer + Reset ( false, 0, 1.0 ) = March
+0x97d8	dword	1.0	3299c0bb	struct	m_sATOveronGuardData	timer + Reset ( false, 0, 1.0 ) = March
+0x97e0	word	bx	3299c0c8	March member	m_bIsWinMotion2 / m_bIsLoseMotion2	one word store, both false
+0x97e2	byte	bl	3299c9b8	March member	m_bDoneSpearBurst	
+0x99a8	dword	0.0	3299cb8d	March member	m_fPlaneZAngle	
+0x99ac	byte	bl	3299caff	March member	m_bBlinkInvisibility	
+0x99b0	dword	0.0	3299cb99	March member	m_fBlinkInvisibilityAlpha	
+0x99b4	dword	0.0	3299cb9f	March member	m_iPhotonBoosterAdditionalDashJumpCount	
+0x99b8	dword	0.0	3299cba5	March member	m_fPhotonBlinkBackSpeedX	
+0x99bc	dword	0.0	3299cbab	March member	m_fPhotonBlinkDummyLifeTime	
+0x99c0	dword	-1	3299c0d4	March member	m_hEffectSweepParadeTriangle	-1
+0x99c4	dword	-1	3299c0da	March member	m_hEffectSweepParadeElectric	-1
+0x99c8	dword	-1	3299c0e0	March member	m_hEffectSweepParadeLight	-1
+0x99cc	dword	-1	3299c0e6	March member	m_hEffectElectraDashComboZ	-1
+0x99d0	dword	-1	3299c0ec	March member	m_hEffectElectraDashComboZZ	-1
+0x99d4	dword	-1	3299c0f8	March member	m_hEffectElectraLaserZZZfrontZ	-1
+0x99d8	dword	-1	3299c0fe	March member	m_hEffectElectraLaserXXZ	-1
+0x99e8	dword	0.0	3299cbe1	March member	m_fInitDamageSweepParade	
+0x99ec	dword	0.0	3299cbdb	March member	m_fSweepParadeTriangleLIfeTime	
+0x99f0	dword	0	3299cbed	March member	m_bXXZLaserEnd .. m_bNotEnoughMPDashZZZ	four bools, one dword store
+0x99f4	dword	-1	3299c106	March member	m_hElectraDashComboZMesh	-1
+0x99f8	dword	-1	3299c10e	March member	m_hCountDownThousandStar	-1
+0x99fc	dword	0.0	3299cc1d	March member	m_fElapsedTimeThousandStartCreated	
+0x9a00	byte	bl	3299cbf3	March member	m_bLockOnNpc	
+0x9a08	dword	-1	3299cbf9	March member	m_iLockOnUid	-1, 64 bit, 8-aligned
+0x9a0c	dword	-1	3299cbff	March member	m_iLockOnUid (high)	-1
+0x9a10	byte	bl	3299cc17	March member	m_bDelayAttackThousandStar	
+0x9a14	dword	0.0	3299cc0b	March member	m_fDelayAttackTime	
+0x9a18	byte	bl	3299cc23	March member	m_bEntireFireMode	
+0x9a1c	dword	0.0	3299cc2f	March member	m_fDelayAttackTimeEntireFire	
+0x9a2c	dword	0.0	3299cc29	March member	m_fThousandStarPowerRate	
+0x9a30	dword	0.0	3299cc11	March member	m_fThousandStarAttackTime	
+0x9a34	dword	0	3299cca9	March member	m_pThousandStar	
+0x9a38	word	bx	3299ccce	March member	m_bDashJumpXXLaserEnd / m_bNotEnoughMPDashJumpXZLaser	one word store
+0x9a3a	byte	bl	3299ccd5	March member	m_bExceptionPlane	
+0x9a3c	dword	0.0	3299ccaf	March member	m_fExceptioncPlaneZAngle	
+0x9a40	dword	-1	3299c307	March member	m_hEffectElectraLaserDashJumpXZ	-1
+0x9a44	dword	-1	3299c30d	March member	m_hBoostDashParticle	-1
+0x9a48	qword	0.0	3299c313	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a50	dword	eax	3299c31d	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a54	word	bx	3299c323	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a58	dword	1	3299c341	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a5c	byte	bl	3299c32a	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a60	dword	-1	3299c34d	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a64	dword	-1	3299c353	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a68	dword	-1	3299c359	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a6c	dword	-1	3299c35f	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a70	dword	-1	3299c330	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a74	dword	-1	3299c336	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a78	byte	al	3299c347	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a7c	dword	1.0	3299c365	struct	m_sTaserPilumData (TASER_PILUM_Data)	June stores inline; not repeated
+0x9a80	byte	bl	3299ccc2	March member	m_bHighPoweredElectrics	
+0x9a84	dword	0.0	3299cca3	March member	m_fHighPoweredElectricsSpeed	
+0x9a88	dword	0	3299ccc8	March member	m_iAccumulateAccel	
+0x9a90	dword	1	3299c36d	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9a94	dword	0	3299c379	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9a98	qword	0.0	3299c373	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9aa0	qword	0.0	3299c37f	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9aa8	dword	eax	3299c387	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9aac	word	bx	3299c38d	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ab0	dword	1	3299c394	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ab4	byte	bl	3299c39e	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ab8	dword	-1	3299c3b7	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9abc	dword	-1	3299c3bd	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ac0	dword	-1	3299c3c3	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ac4	dword	-1	3299c3c9	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ac8	dword	-1	3299c3ab	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9acc	dword	-1	3299c3b1	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ad0	byte	1	3299c3a4	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ad8	dword	eax	3299c3d3	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9adc	dword	1	3299c3d9	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ae0	dword	0	3299c3e3	struct	m_sTaserPilumTinyData / m_sKugelBlitz_Data / m_sKugelBlitz_TinyData	June stores inline; not repeated
+0x9ae4	dword	0.0	3299c3e9	March member	m_fEffectStartTime	
+0x9ae8	dword	0.0	3299c3ef	March member	m_fAddSpectrumTime	
+0x9aec	dword	0.0	3299c3fb	March member	m_fAddEnergeticHeartTime	
+0x9af0	dword	0.0	3299cd08	March member	m_vSonicGunRotate.x	
+0x9af4	dword	0.0	3299cd0e	March member	m_vSonicGunRotate.y	
+0x9af8	dword	0.0	3299cd16	March member	m_vSonicGunRotate.z	
+0x9b54	byte	bl	3299cce9	March member	m_bNotEnoughMPDashJumpZX	
+0x9b56	word	dx	3299ccef	March member	m_iBoostAttackCount	
+0x9b58	byte	bl	3299ccf6	March member	m_bBoostUpAttack	
+0x9b5c	dword	0	3299ccfc	March member	m_iAddBoostAttack	
+0x9b64	dword	-1	3299c412	March member	m_hEffectEnergeticHeart	-1
+0x9b68	byte	bl	3299cd1c	March member	m_bStartSpectroElCrystal	
+0x9b6c	dword	0	3299c420	unmapped	June +0x9b6c 0, +0x9b70 0 after m_bStartSpectroElCrystal	March has the Ferdinand members ( m_iFerdinandNPCUID -1, timer, life time -1 ) here; roles in June unknown
+0x9b70	byte	bl	3299c426	unmapped	June +0x9b6c 0, +0x9b70 0 after m_bStartSpectroElCrystal	March has the Ferdinand members ( m_iFerdinandNPCUID -1, timer, life time -1 ) here; roles in June unknown
+0x9b98	dword	0	3299c62b	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9b9c	dword	0	3299c631	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bac	byte	bl	3299c826	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bb0	dword	0	3299c82c	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bb4	dword	0	3299c832	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bb8	dword	0	3299c838	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bbc	byte	bl	3299c83e	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bc0	byte	bl	3299c84c	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bc4	dword	0.0	3299c846	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bc8	byte	bl	3299c852	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bcc	dword	0	3299c858	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bd0	dword	-1	3299c85e	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bd4	dword	0	3299c870	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bd8	dword	0.0	3299c864	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
+0x9bf8	dword	0.0	3299c897	June-only (CH1k)	m_fJuneVengeanceMpRate	Queen of Vengeance MP return rate
+0x9bfc	dword	0.0	3299c8a3	June-only (CH1k)	m_fJune9bfc	
+0x9c00	dword	0.0	3299c8af	June-only (CH1k)	m_fJune9c00	
+0x9c08	dword	-1	3299c89d	June-only (CH1b)	m_iJuneSummonNpcUid	-1, 64 bit
+0x9c0c	dword	-1	3299c8a9	June-only (CH1b)	m_iJuneSummonNpcUid (high)	-1
+0x9c14	dword	eax	3299c8d2	June-only	std::map head ( +0x9c14 node, +0x9c18 size ) at +0x9c10	type unknown; cleared by the destructor
+0x9c18	dword	0	3299c8bc	June-only	std::map head ( +0x9c14 node, +0x9c18 size ) at +0x9c10	type unknown; cleared by the destructor
+0x9c20	dword	0	3299c900	June-only (CH1e)	m_pJuneDashXFireBall	
+0x9c24	dword	0	3299c906	June-only (CH1e)	m_pJuneDashXTargetUnit	
+0x9c28	dword	0	3299c90c	June-only	+0x9c28 / +0x9c2c ( 0 )	read by no transcribed function
+0x9c2c	dword	0	3299c912	June-only	+0x9c28 / +0x9c2c ( 0 )	read by no transcribed function
+0x9c30	dword	-1	3299c918	June-only (CH1k)	m_aiJune9c30[0]	-1
+0x9c34	dword	-1	3299c91e	June-only (CH1k)	m_aiJune9c30[1]	-1
+0x9c38	dword	-1	3299c924	June-only (CH1k)	m_aiJune9c30[2]	-1
+0x9c3c	dword	-1	3299c92a	June-only (CH1k)	m_aiJune9c30[3]	-1
+0x9c40	dword	-1	3299c935	June-only (CH1k)	m_aiJune9c30[4]	-1
+0x9c44	dword	eax	3299c943	Nasod Core	+0x9c44 idle clock tick	CH1q ( DoParrying, OPEN_MIND floor )
+0x9c48	dword	-1	3299c949	June-only (CH1k)	m_iJune9c48	-1
+0x9c4c	dword	1.0	3299cd58	June-only (CH1k)	m_fJune9c4c	1.0
+0x9c50	dword	0	3299cd60	June-only (CH1b)	m_pJuneBlock9c50	NULL
+0x9c54	byte	bl	3299cd6c	June-only (CH1k)	m_bJune9c54	
+0x9c58	dword	0.0	3299cd66	June-only (CH1k)	m_fJune9c58	
+0x9c5c	dword	0.0	3299cd72	June-only (CH1k)	m_fJune9c5c	
+0x9c60	dword	0	3299c95b	June-only (CH1a)	m_iJuneAddAirDashCount	
+0x9c64	dword	0.0	3299c94f	June-only (CH1a)	m_fJuneCodeRecoveryCoolLeft	
+0x9c68	dword	99.0	3299c961	June-only (CH1k)	m_fJuneCodeRecoveryCoolTime	99.0
+0x9c6c	dword	100.0	3299c974	June-only (CH1a)	m_fJuneCodeRecoveryConsumeMp	100.0
+0x9c70	dword	0.0	3299c980	June-only (CH1k)	m_fJuneCodeRecoveryUpHpRate	
+0x9c74	dword	1.0	3299c988	June-only (CH1k)	m_fJuneCodeRecoveryNoneSummonMpCostRate	1.0
