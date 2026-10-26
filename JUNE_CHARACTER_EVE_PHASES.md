@@ -1240,6 +1240,9 @@ User owes nothing. Next: `/x2-phase char-eve CH1n` (Opus 5.5 high).
 `JUNE_USER_COPY_STATE_CALLBACKS --worktree --files <Always.h, X2GUUser.*, X2GUArme_VioletMage.*>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; same zero line; `RESULT: PASS`
 (OTHER = a peer's uncommitted `MP_JUMP_DEBUG` lines in `Always.h` / `X2GUUser.cpp`, not committed here). `JUNE_ENUM_NAMES --files X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; zero line; `RESULT: PASS`.
 `JUNE_CHAR_EVE_LIVE`: zero line; `RESULT: FAIL` (`the flag is not #defined anywhere tracked`, by design until CH1 final).
+After commit `e702d70e`, `--range e702d70e^..e702d70e`: `JUNE_CHAR_EVE_CORE` `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_USER_COPY_STATE_CALLBACKS` `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`; `JUNE_ENUM_NAMES --files X2SkillTree.h`
+`files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS` (unscoped it errs only on CH1l5's compound `#if` in `Always.h`); each with the zero line.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,103,808 B, dated 2026-10-27 05:37:19, md5 aeeacdf37aedbbd4b1df3f2d19c330a7, equal to X2/US_SERVICE/x2.exe (2026-10-27 05:37:13); built at main 3d566ea1 + 11 uncommitted code file(s).`
 
