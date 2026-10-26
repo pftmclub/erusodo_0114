@@ -67,6 +67,33 @@ Scope: write `tools/enumscan.py` and run it over the eleven files. For the June 
 Run with: Sonnet 5.5 / high. Read list: "Starting context", this section; `june2017_re/enumprobe.py` header; `tools/README.md` format.
 Done gate: the tsv exists; its counts per file are within 15% of the survey table (say so if not and why); the known Eve rows above appear with the classes the survey gave (spot-check 10 by hand); `--check` runs.
 
+### Phase N0 - Done (2026-10-26, Sonnet 5.5; tool + data only, no game code, no build, no flag)
+
+- **Landed:** `tools/enumscan.py`, `june2017_re/enum_literals.tsv` (668 rows), a `tools/README.md` row. Usage: `python tools/enumscan.py` (rewrites the tsv, ~50 s with a fresh `cl /P`), `--check FILE...` (exit 1 while an A or B row remains; D / X / C ignored), `--verify [N]`, `--summary`, `--reuse`, `--small`, `--dropped`.
+- **C++ side:** `cl /P` on `X2GuEve.cpp` under X2Lib's `US_SERVICE` defines (one TU reaches every class header), then a scope-tracking enum parser with its own constant evaluator. **`--verify 200` compiled a probe of 201 parsed enumerators (all families + states) with `enumprobe.py`'s C2440 trick: 201 match, 0 mismatch.** Families: SKILL_ID, SKILL_ABILITY_TYPE (C++ only), NPC_UNIT_ID, UNIT_CLASS, BUFF_TEMPLET_ID / FACTOR_ID / BEHAVIOR_TYPE, DAMAGE_TRIGGER_TYPE (= the plan's "DTT"; `DAMAGE_TYPE` is a different enum), per-class state enums (`ENSI_` = `CX2GUEve::EVE_STATE_ID`, 107..192). Lua side: `NAME = {` tables of live `Enum.lua` (`24965799\kom_contents\data036_kom`) and `june_src_fixed\...\Enum.src.lua`, name -> int per table.
+- **June code** = live branch of `#ifdef SERV_IRUHADEV_JUNE_*`, `June*` functions, `_CONST_*_JUNE_*` namespaces, `const ... JUNE_X`. The `#else` of `SERV_IRUHADEV_JUNE_ENUM_NAMES` is skipped, so N3-N5 sites drop out of the scan once renamed. Rule for what counts: value >= 100, plus any `case` label under a switch whose expression names a family and any `JUNE_` declaration whose name / comment names one (that is what puts the 82 UNIT_CLASS labels and Eve's UC 18 / 19 / 26 and DTT 2 / 5 / 44 in); table rows below 100 (the `SA_*` key table) need `--small`. Array sizes / subscripts, floats, colours (> 0xFFFFFF) and round decimals are never rows.
+- **Classes:** A 240, B 350, C 2, D 19 (family unreadable, value matches somewhere: leads, noise expected, `--check` ignores them), X 57 (STR_ID / item / dungeon ids: no Enum table, stay numbers). The 12 survey files; `X2EffectSet` and `X2Main` give 0 rows, as the survey said.
+
+| file | survey | rows | A / B / C / D / X |
+|---|---|---|---|
+| X2GuEve | ~96 | 97 | 42 / 50 / 1 / 0 / 4 |
+| X2GUArme_VioletMage | ~174 | 169 | 4 / 164 / 0 / 1 / 0 |
+| X2GUUser | ~119 | 110 | 25 / 82 / 0 / 1 / 2 |
+| X2UISkillTreeNew2015 | ~140 | 134 | 57 / 34 / 0 / 6 / 37 |
+| X2SkillTree | ~107 | 108 | 106 / 0 / 0 / 0 / 2 |
+| X2GameUnit | ~16 | 23 | 1 / 15 / 0 / 4 / 3 |
+| X2GUNPC | ~10 | 9 | 5 / 3 / 1 / 0 / 0 |
+| X2Game | ~6 | 6 | 0 / 2 / 0 / 1 / 3 |
+| X2UIInventory | ~6 | 8 | 0 / 0 / 0 / 6 / 2 |
+| X2KeyPad | ~4 | 4 | 0 / 0 / 0 / 0 / 4 |
+
+Ten files are within 15%; **X2GameUnit (+44%) and X2UIInventory (+33%) are over**, on small counts: GameUnit's 23 are 17 real A/B rows (BTI / BFI / NPC ids, `JUNE_DTT_... = 40`), 3 dungeon-id `case 41280` and 4 D leads (the survey's ~16 was a read-only grep, so the gap is the survey's, not a scan defect I could find); UIInventory's 8 are 2 item ids and 6 D leads (error codes like `iTranscendErr = 1687` that happen to equal NPC ids). The survey's "eleven files" lists twelve.
+
+**Spot-check of 10 Eve rows by hand (all agree with the Enum sources):** 25419 B `RNSI_P_EBS_OPEN_MIND` (June Enum l.14557); 0x56c4 B `RNSI_A_ABM_AURA_POWER_ACCEL` (live l.12713, June l.14841); 0x56cf B (June l.14453 only); 200 A `CX2SkillTree::SI_SA_COMMON_AURA_POWER_ACCEL` (`X2SkillTree.h:108`); 0x5ae A `NUI_SI_HA_FERDINAND` = 1454; 0x655 B `NUI_SI_SA_AT_SURFACE_CUTING` = 1621 (June l.4345, absent from C++); 25029 B `RNSI_SA_ECB_ENERGETIC_HEART` (the code's `BOOST_ATTACK_MP` name is wrong, N1 settles it); DTT 44 B `DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK` (June l.7264); 0x8fe1..0x8fe4 = 36833..36836 X (STR_ID); ENSI 242 C (not in `EVE_STATE_ID`, no Enum).
+
+**A correction N1 should read first.** The plan's "known class-C candidates from Eve" (25419, 25401, 25402, 25408, 25415, 25416, 25214, 22221-22223, 30302, NPC 0x655 / 0x656 / 0x82b) are **class B**: every one is in June's `Enum.src.lua` (`RNSI_P_ECN_NASOD_WEAPON` 25401, `RNSI_P_ECN_ENERGY_OF_CONCENTRATION` 25402, `RNSI_P_ECE_GRACE_OF_QUEEN` 25408, `RNSI_P_ENS_OPEN_MIND` 25415, `RNSI_P_ENS_CHEAT_CODE_DESTROY` 25416, `RNSI_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE` 25214, `RNSI_A_AHM_AURA_MAGIC_ACCEL_UPGRADE` 22221, `RNSI_A_ADM_AURA_SPEED_ACCEL_UPGRADE` 22222, `RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE` 30302, `NUI_SI_SA_EEP_ELECTRONIC_FIELD` 1622, `NUI_ECA_OBERON_GUARD` 2091). "Candidate" held only against March's C++. Only **ENSI 242** (Eve) and `iJuneStateID > 127` (`X2GUNPC.cpp:4910`, a state-count cap, probably not an enum value) are class C, so N1 is small; 30302 itself is not a literal in the code (`0x765d <= id <= 0x765f` is), it is the middle of the range.
+- **Limits, stated:** family comes from context heuristics (switch expression, callee, declaration name, neighbouring comment), so a row's class is "value found in the family the context names". An id the context never names (the 19 D rows: error codes that equal an NPC id, `NUI` ids in args of an unnamed callee, `IsEnableCode( 0x910 )`) stays a lead for N5 to triage. STATE lookups use the file's own class header. The scan needs the `cl /P` cache to be refreshed (`--check` without `--reuse`) after N2 adds members.
+
 ## Phase N1 - Investigate class C (Opus)
 
 Scope: for every class-C row. Search all June Enum tables (not only the obvious family), June `.lua` data that uses the value, `june2017_re/funcmap.tsv`, Ghidra at the June address (read-only), and the NPC / skill names already in nearby comments (`NUI_SI_SA_AT_SURFACE_CUTING` for 0x655 and so on). Write the verdict into the tsv (`verdict` + `evidence` columns): **registered-elsewhere** (becomes B), **real enum, absent from Enum** (listed for the user; the phase does not invent a name), **stray / other family** (stays a number, one-line comment at the site, `JUNE_BUGS.md` row only if it is a June quirk). Also settle the two known mismatches (25029, DTT 44) and the 0x765d..0x765f range (30301 / 30302 / 30303).
