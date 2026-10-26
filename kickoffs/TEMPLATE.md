@@ -21,3 +21,9 @@ python tools/docsection.py <PLAN>_PHASES.md "Starting context" "<section>" "<sec
 "done" means as a checkable gate (a census at 0, strings in the deployed exe, a log line).
 Say where to stop and hand a decision to the user. Do NOT repeat build/deploy/hygiene/log
 instructions: the x2-phase skill's Tools and Finish lists cover them for every phase.>
+
+No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
+`Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
+register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum
+entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself
+(a `.tsv` of ids), not code.

@@ -1225,6 +1225,10 @@ ORDER  BY UnitClass;
   - Otherwise the two projects disagree on the struct's size and nothing reports it. See the `KSession` sizeof split in `CLAUDE.md`.
   - Prove it with `cl /P` on a file from each project.
 - **CP949.** Make byte-level edits on CP949 files, then verify with `file` and `git diff --stat`.
+- **No hardcoded enum literals (user, 2026-10-26; every stage).** An id with a name in an Enum (June's `Enum.lua` or a C++ enum) is written as the member,
+  registered under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it; a value with no Enum entry stays a number with a one-line comment;
+  a `.tsv` of ids is data, not code. Gate: `python tools/enumscan.py --check <files>`. Rule in `CLAUDE.md`; set by plan `june-enum-names`
+  (`JUNE_ENUM_NAMES_PHASES.md`, N0-N5c + NZ, **CLOSED 2026-10-26**, flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`).
 - **Dev free-skill gate in every ported class (user, 2026-10-22; Stages 5, 7, 8).** March skips the skill cool-time / MP checks for a dev account in internal builds; June's service binary has no such check. Every class port that brings in June's skill-use check wraps that check (cool time, MP, hyper stone) with `false == JuneIsDevUnlimitedSkillUse()` under `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL`. The helper uses March's own macros (`TOGGLE_UNLIMITED_SKILL_USE` / `_SERVICE_`, auth `XUAL_DEV`), so defining `_SERVICE_` turns March's and ours off together. It is a dev convenience, not June behaviour, and needs no JUNE_BUGS row. Pattern: Aisha's `June_SpecialAttackLookup` (pilot CH4a). Checklist row in section 7.
 - **Packing.** The user packs `.lua` and assets. Build the degrade path, and name the files when the work is done ([[server-lua-packing-is-users-job]]).
 - **Game events are switched on from the save DB (user, 2026-10-21; Stages 18, 19 and every event feature).** A game event (a seasonal or limited-time event, event dungeon, event NPC, event reward) that June only activates inside a date window or on another original condition does not rely on that condition. Today some only run with the PC clock set back (e.g. to 2016); that is what this replaces.

@@ -53,6 +53,11 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    off-by-one, a value June sends as 0, a wrong-looking order. Port it as June has it, and add a
    row to `JUNE_BUGS.md` (its rules say what goes in a row) in the same commit, not a question. Ask only when
    copying June would break March (a crash, an unloadable script, a missing enum or system).
+   **No hardcoded enum literals** (user rule, 2026-10-26; CLAUDE.md): an id that has a name in an Enum
+   (June's `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the
+   member, and register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value
+   with no Enum entry stays a number with a one-line comment. The one exception is a table whose rows are the
+   data itself (a `.tsv` of ids), not code. `python tools/enumscan.py --check <files>` before committing.
 
 ## Tools (use these, not hand-rolled equivalents)
 

@@ -29,6 +29,14 @@ When a play-test needs the user to hold an item, the hand-off gives the dev-cons
 
 File-local constants and helpers in client source go in a **named namespace** `_CONST_<CLASS>_JUNE_<phase>_` (like the studio's `_CONST_EVE_`, `_CONST_GUUSER_`, `_CONST_RAVEN_`), followed by `using namespace <name>;` so the use sites stay unqualified. Never write `namespace { ... }`. One block per phase; the name carries the class and the phase tag, so it is unique across files (helpers get external linkage). The existing blocks in `X2GuEve.cpp` and `X2GUArme_VioletMage.cpp` were converted on 2026-10-26 (`d3f7b7db`); other files' older anonymous namespaces are not to be rewritten unless you touch them.
 
+## Rule: no hardcoded enum literals (user, 2026-10-26)
+
+An id that has a name in an Enum (June's `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself (a `.tsv` of ids), not code.
+
+- Authority for "has a name": `june_src_fixed/data036_kom/Enum.src.lua`, then the live `kom_contents/data036_kom/Enum.lua`; never a spreadsheet, never a name invented to fit. The same name can carry a different value on the two sides, so check the value, not only the name.
+- Registration shape: explicit `= value` with June's name, appended inside the existing enum body under the flag (`SERV_IRUHADEV_JUNE_ENUM_NAMES` in `X2SkillTree.h`, `X2Unit.h`, `X2BuffFactor.h`, `X2UnitManager.h`, `X2DamageManager.h` is the model). Never renumber or rename an existing member; when March's name and June's share a value, use March's.
+- Item, string, net-error and dungeon ids have no Enum here and stay numbers. `python tools/enumscan.py --check <files>` finds the rest (`june2017_re/enum_literals.tsv`; `JUNE_ENUM_NAMES_PHASES.md`).
+
 ## Rule: a code comment is one short line (user, 2026-10-20)
 
 A comment in source says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or why June differs from March. No comment blocks, no offset / vslot / state-id / key-byte tables, no retelling of the code. The detail belongs in the Done note, `funcmap.tsv` or `JUNE_BUGS.md`, never in the source. This applies to every file and every plan; it does not ask you to rewrite old comments.

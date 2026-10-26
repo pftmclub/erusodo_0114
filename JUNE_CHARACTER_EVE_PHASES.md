@@ -66,6 +66,10 @@ The Aisha plan's Rules hold unchanged (`python tools/docsection.py JUNE_CHARACTE
 - **Damage numbers.** Record March vs June damage per changed skill in `MODS.md`.
 - **Saves.** Eve's skills are on June's tree; no schema change expected. A phase that needs one snapshots `db_backup/` first.
 - **One code phase at a time in `X2GuEve.*`** (CH1-CH4). CH5 may run beside CH2-CH4.
+- **No hardcoded enum literals** (CLAUDE.md, user 2026-10-26; `june-enum-names` closed at NZ): every June id with an Enum name is
+  written by name from the first line, registered under a `SERV_IRUHADEV_` flag with June's value if C++ lacks it; `enumscan.py --check
+  X2Lib/X2GuEve.cpp` stays 0. A phase that touches a use of an N3 duplicate local (`JUNE_CH1K_*` / `JUNE_CH1L_*` / `JUNE_RNSI_*`, an
+  alias of an enum member) writes the member and drops the local after its last use.
 
 ## Starting context
 

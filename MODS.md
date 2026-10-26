@@ -3763,6 +3763,7 @@ Flag-off compiles the original code (the `#else` branch). Extra rules:
 | `SIMPLE_DLG` | 7002 | 2026-10-15 | a script-made dialog on CX2Game ( +0xba8: CreateSimpleDLG 322def10 / DeleteSimpleDLG 322cc520 / GetSimpleDLG 31e4de40, deleted by the game dtor 323080c0 ) with its 12 Lua methods ( binder 31d95080 @31e42615..@31e43fde ), and June's ... |  |  |
 | `WORLD_FESTIVAL` | 7017 | 2026-10-15 | June effect completion C3x-1: June's WorldData variants. AddWorldData_LUA ( 32805770 ) keeps the plain dataFileName, swaps in dataFileName_Festival while the clock is before 2016-03-16 04:00, and reads dataFileName_CodeEvent; CreateWorld ( ... |  |  |
 | `EL_DASHJUMP_XZ_FIREBALL` | 7393 | 2026-10-17 | Elesis SPK / SBH dash-jump X-Z (and its Z re-attack) fireball, June 32b770e0: CreateInstance of DamageEffect_Elesis_SPK/SBH_DashJump_Combo_XZ at Dummy2_Lhand, scale 1, angle z -45, MP via IsEnoughMPForAttack, instead of the x2 / z+10 effect set (June's data already carries the x2: the fireball drew at 2x, aimed up) ... |  |  |
+| `ENUM_NAMES` | 10140 | 2026-10-26 | June enum names N2-N5c: June ids in June-port code written by enum name; registers the June SKILL_ID / UNIT_CLASS / BTI / BFI / NPC_UNIT_ID / DTT members they need (June's value and name). Every site keeps its literal in the `#else`, so off = identical code. C++ only: the 5 `Enum.lua` lines N2 added (data036) stay either way, since June's data Lua indexes them |  | `JUNE_ENUM_NAMES_PHASES.md` |
 
 (Flag names above drop the `SERV_IRUHADEV_JUNE_` prefix; `needs` drops `SERV_IRUHADEV_`.)
 
