@@ -1248,6 +1248,37 @@ After commit `e702d70e`, `--range e702d70e^..e702d70e`: `JUNE_CHAR_EVE_CORE` `fi
 
 **In game:** nothing changes (`_LIVE` is undefined; Aisha's copy helper is now the base's, same body). Next: `/x2-phase char-eve CH1n review` (Opus 5.5 high).
 
+### CH1n - Review (2026-10-27)
+
+**Verdict: PASS, no code change** (no rebuild; the deployed `aeeacdf3` stands).
+
+- **Head, against the listing:** bounds `0 > id || 4 < id` before `3207c1a0`; normal `334c9e00` (A) / `334c9e28` (B) = 50.. / 60.., hyper `334c9e14` / `334c9e3c`
+  = 51.. / 61.. (exe bytes; equal to Aisha's `3351b05c` / `3351b184` / `3351b170` / `3351b198`, = March's interleaved `USI_SPECIAL_ATTACK_*`); `31fd2af0` on the
+  normal only (dropped, 7i); hyper `+0x10` / `+0x11` = `0x101`; `31fca8e0( id, 1 )` and `32206450( memo, 1 )` as Aisha's reviewed head.
+- **Memo switch** `@329c8b4a`: `memo - 25033`, `JA` past 0xc9; byte table `329caac8` (0xca entries) / targets `329caab4`: 25033 / 25070 -> 0, 25034 / 25071 -> 1,
+  25035-36 / 25072-73 -> 2, 25217 / 25234 -> 3, the rest -> `329caa72` (nothing). Bodies slot by slot: Hornet / Spit Fire hyper `+0x10 = 1` then FM + EP
+  (`329c8df4` / `329caa5a`); Energy Needles rewrites the normal Init (`puVar2[5..6]`, JUNE_BUGS 442) then hyper Start / FM / EP / End; Thousands of Stars FM + EP.
+- **Type switch** `@329c8ca0` (byte table `329caba4` / targets `329cab94`, `type - 5`): 5 -> buff, 6 / 7 / 0xd-0x10 -> actives, 0xc -> throw item, 8-0xb and
+  the rest -> nothing; March's enum gives 5 / 6 / 7 / 12 / 13 / 14-16. Actives: `> 25600` switch (25601 / 25604, 25602 / 25605, 25603, default `@329ca9d1`
+  Faena), `== 25600` Lunatic Scud, else the id switch (its default is also `329ca9d1`); the C++ order (cases first, then `> 25600`) is equivalent.
+  Link Overcharge's hyper: Start, then `329c9be9` / `329c9bf5` = FM, EP, End. Lunatic Scud EP only. Psychic Artillery `+0x10 = 1`, FM, EP. 900 -> `ENSI_THROW_ITEM`.
+- **Callbacks:** all 31 label thunks resolved from the exe bytes (`E9` jumps) to the addresses cited in the code; the 24 memo / hyper-active targets match
+  `char_eve/ch0_class_map.tsv` column 4 one for one; buff FM `32a77a20` (vslot 0x5f0, CH1o), buff EP `31fcbd60`, throw item `329cc0d0` / `329cc170`, Faena EP `31fcc9d0`.
+- **Call site:** March's head and type switch are the `#else`; nothing follows March's id switch, so the head's early return skips no code.
+- **Hoist:** `329cc2c0` copies dwords `+0x14..+0x58` = the nine `GUStateCBFunc` members after `m_bHyperState` (`+0x10`); Aisha's ten call sites resolve to the base.
+- **Enum names:** the 14 values equal `Enum.src.lua`; no other member of `SKILL_ID` sits in 20000-26999 except the RNSI block, so no value is shared.
+- **Routed:** between CH1 final and CH2b an equipped skill with no March case lands on June's default, Faena with EventProcess only (Init / FM are CH2b's);
+  `kickoffs/char-eve/CH1.md` amended so its play-test expects it.
+
+**Hygiene** (`--range e702d70e^..e702d70e`). `JUNE_CHAR_EVE_CORE`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+`JUNE_USER_COPY_STATE_CALLBACKS`: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+`JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+`JUNE_CHAR_EVE_LIVE`: `files: 0 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 8 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: FAIL` (`the flag is not #defined anywhere tracked`, by design).
+Each: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+`enumscan --check X2GuEve.cpp X2GUUser.cpp`: `0 A/B row(s) remain in 2 file(s)`. `ch1m_regcheck.py`: `matched 771 registrations, 0 problems; ids mapped 134`.
+
+User owes nothing. Next: `/x2-phase char-eve CH1o` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
