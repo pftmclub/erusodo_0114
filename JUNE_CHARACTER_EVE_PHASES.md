@@ -1096,6 +1096,20 @@ Nothing in game: nothing calls the members until CH1. **JUNE_BUGS:** 438-441. Re
 **Build.** `DEPLOY OK: X2_offline.exe is 26,072,576 B, dated 2026-10-26 21:59:58, md5 274b0abd1c15d8fe9240eac59c0024b0, equal to X2/US_SERVICE/x2.exe (2026-10-26 21:59:51); built at main 7ca59966 + 1 uncommitted code file(s).`
 Nothing in game. User owes nothing. Next: `/x2-phase char-eve CH1l5` ( Sonnet 5.5 high ).
 
+### CH1l5 - Done (2026-10-26)
+
+The seven June `CX2GUUser` skill-use helpers and their six fields now live once, in `X2GUUser.h` / `.cpp` (protected, non-virtual), flag `SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS` (`Always.h:10150`, `#error` unless `SERV_IRUHADEV_JUNE_ENUM_NAMES`, defined at `Always.h:10140`).
+- Members: `June_UserNoStateChangeActionFrameMove` (32008e40), `June_MarkSkillSlotUsed` (31fc86e0), `June_ReserveSkillUse` (31fc93e0), `June_StateChangeBySkillSlot` (31fd32e0), `June_SkillMemoMpRefund` (31fdbe70), `June_CheckSkillUseNotPve` (3202d140), `June_CheckSkillUseNotDungeon` (3202d3c0). Fields `m_iJune8ea0` / `m_iJune8ea4` / `m_fJune8ea8` / `m_fJune8eb0` (init list) and `m_abJune90d3[10]` / `m_abJune90d0[3]` (constructor body, before the first `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` block).
+- Diff of the two copies first: Aisha's and Eve's bodies agree line for line; the only differences are names (`June_PushInfoText` / `JuneEvePushInfoText`, `JUNE_CH1I_UAI_*` / `JUNE_CH1L3_UAI_*`) and Aisha's `#else` literals under `JUNE_ENUM_NAMES`. Nothing to stop on.
+- Constants in `_CONST_GUUSER_JUNE_CH1l5_` (user action ids 0x25 / 0x29 / 0x36-0x39, the PVE game type 4 which March lacks, the info-text helper). The memo test now reads `CX2SkillTree::MI_REGENERATE_1` (June's 10) instead of the literal.
+- Retired with `#ifndef` / `#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS`: Aisha's declarations, constructor zeroing and three body regions; Eve's declarations, fields, constructor zeroing and the one body region. Callers unchanged. Flag-off is the old tree.
+- **For later character plans:** CH1 kickoffs call the `CX2GUUser` members and never copy them (also in `kickoffs/june-backlog/stage7-plan.md`). `funcmap.tsv` has 7 new rows.
+- Probe (`cl /P`, US_SERVICE defines, subagent): in `X2GUArme_VioletMage.cpp` and `X2GuEve.cpp` the seven names have 0 class-qualified definitions and 0 class-local declarations, the six fields 0 class-local declarations; each has one declaration, in `CX2GUUser`.
+- Hygiene: `flagcheck.py JUNE_USER_SKILL_USE_HELPERS --worktree --files <7 files>`: `files: 6 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan.py --check` on the three `.cpp`s: 0 A/B rows.
+- Deploy: `DEPLOY OK: X2_offline.exe is 26,071,040 B, dated 2026-10-26 22:18:39, md5 f9fa8d34fe4df7c3e432b26b250d3f5f, equal to X2/US_SERVICE/x2.exe (2026-10-26 22:18:32); built at main 5509a8c1 + 7 uncommitted code file(s).`
+- **Play-test (Aisha, her skill use is live):** see the hand-off; log tag `JUNE_CHAR`. Eve's copies were inert, nothing of hers to test.
+- Next: `/x2-phase char-eve CH1l5 review` (Opus 5.5 high), then CH1m.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

@@ -28991,16 +28991,20 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 
 	m_fJuneDashJumpDownAccelRate = 1.1f;
 	m_fJuneDashJumpSpeedRate = 1.2f;
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	m_iJune8ea0 = 0;
 	m_iJune8ea4 = 0;
 	m_fJune8ea8 = 0.f;
 	m_fJune8eb0 = 0.f;
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	m_FrameDataFuture.syncData.iJuneClassSyncInt = 0;
 	m_FrameDataNow.syncData.iJuneClassSyncInt = 0;
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	for( int iJuneSlot = 0; iJuneSlot < 10; ++iJuneSlot )
 		m_abJune90d3[iJuneSlot] = false;
 	for( int iJuneSlot = 0; iJuneSlot < 3; ++iJuneSlot )
 		m_abJune90d0[iJuneSlot] = false;
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	m_bJuneAfterImageSaved = false;
 }
 
@@ -29795,6 +29799,7 @@ void CX2GUArme_VioletMage::June_ProcessEnergeticBodySkill()
 		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 32008e40: CX2GUUser's own NoStateChangeActionFrameMove ( March's is pure virtual ); the Arme override runs it first. Action ids are June's
 void CX2GUArme_VioletMage::June_UserNoStateChangeActionFrameMove()
 {
@@ -29850,6 +29855,7 @@ void CX2GUArme_VioletMage::June_UserNoStateChangeActionFrameMove()
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 32ccf9f0 ( vslot 0x80c )
 void CX2GUArme_VioletMage::June_NoStateChangeActionFrameMove()
 {
@@ -30122,6 +30128,7 @@ int CX2GUArme_VioletMage::June_SelectSkillSlotKind( const CX2UserSkillTree& user
 	return 1;
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 31fdbe70 ( vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
 void CX2GUArme_VioletMage::June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
 {
@@ -30179,6 +30186,7 @@ void CX2GUArme_VioletMage::June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eS
 	m_fJune8eb0 = 0.0f;
 }
 
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 32ccf4e0 ( vslot 0x800 ): the cooldown and the MP side of a skill use ( the 512th step of June's SpecialAttackEventProcess )
 void CX2GUArme_VioletMage::June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
 {
@@ -30595,6 +30603,7 @@ float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree
 }
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 3202d140: skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
 bool CX2GUArme_VioletMage::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
 {
@@ -30641,6 +30650,7 @@ bool CX2GUArme_VioletMage::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKI
 	return bUsable;
 }
 
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 3201f850 ( CX2GUUser, June base form ): the state's skill level, power rate ( times the additional power rate + 1 ) and skill id
 void CX2GUArme_VioletMage::June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
 {

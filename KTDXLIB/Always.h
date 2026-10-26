@@ -10139,3 +10139,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag; every later rename site keeps its literal in the #else.
 #define SERV_IRUHADEV_JUNE_ENUM_NAMES
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-26
+// Description: June character port ( Eve ) Phase CH1l5 - CX2GUUser::June_UserNoStateChangeActionFrameMove / MarkSkillSlotUsed / ReserveSkillUse / StateChangeBySkillSlot /
+//              SkillMemoMpRefund / CheckSkillUseNotPve / CheckSkillUseNotDungeon ( June 32008e40 / 31fc86e0 / 31fc93e0 / 31fd32e0 / 31fdbe70 / 3202d140 / 3202d3c0 ) and the state they keep
+//              ( +0x8ea0 / +0x8ea4 / +0x8ea8 / +0x8eb0, +0x90d0[3], +0x90d3[10] ), the one home; Aisha's and Eve's private copies are compiled out.
+//              Needs JUNE_ENUM_NAMES ( the bodies write BTI / BFI / SI / MI names ). Revert: undefine the flag ( JUNE_USER_SKILL_USE_HELPERS ).
+#define SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+#if defined( SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS needs SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+//////////////////////////////////////////////////////////////////////////

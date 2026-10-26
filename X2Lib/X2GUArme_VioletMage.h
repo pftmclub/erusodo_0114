@@ -1232,9 +1232,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		bool June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 3202d140 ( CX2GUUser )
 		bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
 		void June_UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		void June_NoStateChangeActionFrameMove();						/// June 32ccf9f0 ( vslot 0x80c )
 		bool June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	/// June 32ccbca0 ( vslot 0x810 )
 		void June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
@@ -1244,10 +1246,12 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cebe80 ( vslot 0x7f8, step 510 )
 		void June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ced640 ( vslot 0x7fc, step 511 )
 		void June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32ccf4e0 ( vslot 0x800, step 512 )
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		void June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
 		void June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
 		void June_StateChangeBySkillSlot( const int iSlotIndex_ );		/// June 31fd32e0 ( CX2GUUser )
 		void June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		int June_SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ );	/// June 32cc7e60 ( class map CH1 )
 		int June_GetMemoRiseEntry( const int* piIndex_ ) const;			/// June 32cc7df0 ( class map CH1 )
 		bool June_MemoRiseContains( const int* piSkillID_ ) const;		/// June 32cc7f10 ( vslot 0x880 )
@@ -1257,12 +1261,14 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_SweepMemoRise( const bool* pbRefresh_ );				/// June 32ce1770
 
 		/// June-only members the functions above use, named by their June offset ( CX2GUUser members in June unless noted )
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		int							m_iJune8ea0;			/// 0; the skill the lookup chose ( 32cebe80 )
 		int							m_iJune8ea4;			/// 0; its slot index
 		float						m_fJune8ea8;			/// 0; the MP a reserved skill keeps until its state starts
 		float						m_fJune8eb0;			/// 0; the MP the chosen skill costs
 		bool						m_abJune90d3[10];		/// false; slot used marks ( 31fc86e0 )
 		bool						m_abJune90d0[3];		/// false
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j ( JUNE_CHARACTER_AISHA_PHASES.md )

@@ -804,6 +804,12 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fJuneDashJumpDownAccelRate( 1.2f )		/// June @32040f01
 , m_fJuneDashJumpSpeedRate( 1.6f )			/// June @32040f15
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+, m_iJune8ea0( 0 )
+, m_iJune8ea4( 0 )
+, m_fJune8ea8( 0.f )
+, m_fJune8eb0( 0.f )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 , m_bSetCustomRenderParam( false )
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE
@@ -867,6 +873,12 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_bParryingState ( false )
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 {	
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+	for( int i = 0; i < ARRAY_SIZE( m_abJune90d3 ); ++i )
+		m_abJune90d3[i] = false;
+	for( int i = 0; i < ARRAY_SIZE( m_abJune90d0 ); ++i )
+		m_abJune90d0[i] = false;
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #ifdef SKILL_BALANCE_PATCH
@@ -41155,6 +41167,156 @@ float CX2GUUser::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABI
 	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
 }
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+namespace _CONST_GUUSER_JUNE_CH1l5_
+{
+	/// June user action ids that have no March enumerator ( CX2GUUser::USER_ACTION_ID )
+	const int JUNE_UAI_ERASE_BTI_420			= 0x25;
+	const int JUNE_UAI_CREST_OF_TIME_REVIVAL	= 0x29;
+	const int JUNE_UAI_MAGNIFYING_THIEF_USE_ITEM	= 0x36;
+	const int JUNE_UAI_BUFF_FACTOR_824			= 0x37;
+	const int JUNE_UAI_BUFF_FACTOR_825			= 0x38;
+	const int JUNE_UAI_BUFF_FACTOR_827			= 0x39;
+
+	const int JUNE_GAME_TYPE_PVE = 4;	// June CX2Game game type 4; March has no PVE type
+
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void JuneUserPushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+}
+using namespace _CONST_GUUSER_JUNE_CH1l5_;
+
+// June 32008e40: March's is pure virtual; a class override runs it first
+void CX2GUUser::June_UserNoStateChangeActionFrameMove()
+{
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case JUNE_UAI_ERASE_BTI_420:
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_SPECTER_WALK ) );
+		break;
+
+	case JUNE_UAI_CREST_OF_TIME_REVIVAL:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ATT_Common_Crest_of_Time_Revival", this );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_CREST_OF_TIME ) );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_CREST_OF_TIME_UPGRADE ) );
+		SetForceInvincible( 1.0f );
+		break;
+
+	case JUNE_UAI_MAGNIFYING_THIEF_USE_ITEM:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AMUSEMENT_ITEM_MAGNIFYING_THIEF_Stolen_UseItem", this );
+		break;
+
+	case JUNE_UAI_BUFF_FACTOR_824:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_PRESS, 1, NULL, 0, true );
+		break;
+
+	case JUNE_UAI_BUFF_FACTOR_825:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_MISSILE, 1, NULL, 0, true );
+		break;
+
+	case JUNE_UAI_BUFF_FACTOR_827:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_WATER_BALLOON, 1, NULL, 0, true );
+		break;
+	}
+}
+
+// June 31fc86e0: marks a skill slot ( 0-9 ) as used ( with bHyper_ the first three ); March counts uses in CountUsedSkill instead
+void CX2GUUser::June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
+{
+	if( false == bHyper_ )
+	{
+		if( 0 <= iSlotIndex_ && iSlotIndex_ < 10 )
+			m_abJune90d3[iSlotIndex_] = true;
+	}
+	else if( 0 <= iSlotIndex_ && iSlotIndex_ < 3 )
+	{
+		m_abJune90d0[iSlotIndex_] = true;
+	}
+}
+
+// June 31fc93e0 ( vslot 0x804 ): reserves the skill's use count and keeps its MP until the state starts
+void CX2GUUser::June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	ReserveSkillUseCount( eSkillID_ );
+	m_fJune8ea8 = m_fJune8eb0;
+	m_fJune8eb0 = 0.0f;
+}
+
+// June 31fd32e0 ( the skill slot index is June's 0-9 ): the skill state for a slot, the hyper table while awakened
+void CX2GUUser::June_StateChangeBySkillSlot( const int iSlotIndex_ )
+{
+	if( GetRemainHyperModeTime() > 0.f )
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] );
+	}
+	else
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] );
+	}
+}
+
+// June 31fdbe70 ( vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
+void CX2GUUser::June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
+{
+	const JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	if( NULL == pMemo )
+		return;
+
+	const float fChance = ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.0f;
+	const float fRate = ( pMemo->m_vecValue.size() > 1 ) ? pMemo->m_vecValue[1] : 0.0f;
+	if( CX2SkillTree::MI_REGENERATE_1 != pMemo->m_iType || false == bEnable_ )
+		return;
+
+	if( GetRandomFloat( 0 ) <= fChance )
+		UpNowMp( fRate * fMpConsume_ );
+}
+
+// June 3202d140: skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
+bool CX2GUUser::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && JUNE_GAME_TYPE_PVE != static_cast<int>( g_pX2Game->GetGameType() ) )
+		return true;
+
+	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		JuneUserPushInfoText( 0x8399 );
+	}
+
+	return bUsable;
+}
+
+// June 3202d3c0: skill 900 is refused in a dungeon game whose dungeon has attribute bit 0xd ( no March home: read as false ), or without a game
+bool CX2GUUser::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && CX2Game::GT_DUNGEON != g_pX2Game->GetGameType() )
+		return true;
+
+	const bool bJuneDungeonBitD = false;	// June 31edf8f0( dungeon id, 0xd ): the dungeon data bitset has no March counterpart
+	if( true == bJuneDungeonBitD )
+		return true;
+
+	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		JuneUserPushInfoText( 0xaf9a );
+	}
+
+	return bUsable;
+}
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 /** @function : HyperModeBuffEffectStart
 	@brief : 각성 시 나와야하는 이펙트들 시작
 */

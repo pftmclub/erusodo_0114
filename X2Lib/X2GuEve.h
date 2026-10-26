@@ -3139,6 +3139,7 @@ protected:
 	bool		June_IsBlock9c50ValueCPositive() const;	/// June 32976fb0
 
 	/// June character port Phase CH1l3: inert June_* members of Eve's skill-use overrides from vslot 0x7f4 and the helpers they reach; nothing calls them until CH1
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	/// June CX2GUUser state the skill use keeps ( Eve-local, as the pilot's )
 	int			m_iJune8ea0;							/// June CX2GUUser +0x8ea0 ( 0; the skill the lookup chose )
 	int			m_iJune8ea4;							/// June CX2GUUser +0x8ea4 ( 0; its slot index )
@@ -3146,6 +3147,7 @@ protected:
 	float		m_fJune8eb0;							/// June CX2GUUser +0x8eb0 ( 0; the MP the chosen skill costs )
 	bool		m_abJune90d3[10];						/// June CX2GUUser +0x90d3 ( false; slot used marks, 31fc86e0 )
 	bool		m_abJune90d0[3];						/// June CX2GUUser +0x90d0 ( false )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	bool		June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32969300 ( vslot 0x7f4, step 509 )
 	bool		June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
@@ -3162,6 +3164,7 @@ protected:
 	const CX2UserSkillTree::SkillSlotData*	June_GetSkillSlotDataTaserPilum( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ );	/// June 329b3cc0
 	void		June_StartElCrystalSystem();			/// June 329b4b40
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	/// copies of June CX2GUUser functions the skill use calls ( Eve-local, as the pilot's )
 	void		June_UserNoStateChangeActionFrameMove();	/// June 32008e40 ( CX2GUUser; March's is pure virtual )
 	void		June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
@@ -3170,6 +3173,7 @@ protected:
 	void		June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
 	bool		June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140 ( CX2GUUser )
 	bool		June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	/// June character port Phase CH1l4: inert June_* members of CommonFrameMove 0x7cc and the helpers only it reaches; nothing calls them until CH1
 	std::map<int, CX2EffectSet::Handle>	m_mapJuneNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; 3299b000 reads it, no phase of this port fills it yet )

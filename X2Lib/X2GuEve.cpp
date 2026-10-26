@@ -217,6 +217,7 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	m_fJuneElectronBallBigRate					= 0.f;
 	m_pJuneDashXFireBall						= NULL;
 	m_pJuneDashXTargetUnit						= NULL;
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	m_iJune8ea0						= 0;
 	m_iJune8ea4						= 0;
 	m_fJune8ea8						= 0.f;
@@ -225,6 +226,7 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 		m_abJune90d3[i] = false;
 	for( int i = 0; i < ARRAY_SIZE( m_abJune90d0 ); ++i )
 		m_abJune90d0[i] = false;
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_fPhotonBlinkBackSpeedX				= 0.f;
 	m_fPhotonBlinkDummyLifeTime				= 0.f;
@@ -45576,6 +45578,7 @@ void CX2GUEve::June_StartElCrystalSystem()
 	}
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 31fc86e0 ( CX2GUUser ): marks a skill slot ( 0-9 ) as used ( with bHyper_ the first three )
 void CX2GUEve::June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
 {
@@ -45705,6 +45708,7 @@ void CX2GUEve::June_UserNoStateChangeActionFrameMove()
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 32969300 ( vslot 0x7f4, step 509 )
 bool CX2GUEve::June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
 {

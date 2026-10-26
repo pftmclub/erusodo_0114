@@ -43,5 +43,6 @@ Plan one character as `JUNE_CHARACTER_<NAME>_PHASES.md` in the Aisha plan's shap
 - put the character's transcendence rows in a "waits for Stage 6" list, not in a phase;
 - the character's checklist section-7 rows go to the phase that owns them, with the `(<Name>: CHn)` mark made by that phase.
 - skill-level reads in the character's CH1 kickoffs call `CX2GUUser::June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue` (Eve CH1a2, flag `SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS`) and never copy them into the class.
+- skill-use reads in the character's CH1 kickoffs call the seven `CX2GUUser` helpers `June_UserNoStateChangeActionFrameMove` / `June_MarkSkillSlotUsed` / `June_ReserveSkillUse` / `June_StateChangeBySkillSlot` / `June_SkillMemoMpRefund` / `June_CheckSkillUseNotPve` / `June_CheckSkillUseNotDungeon` and the fields `m_iJune8ea0` / `m_iJune8ea4` / `m_fJune8ea8` / `m_fJune8eb0` / `m_abJune90d3` / `m_abJune90d0` (Eve CH1l5, flag `SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS`) and never copy them into the class.
 
 Output: the phase doc, `kickoffs/char-<name>/`, a STATUS block. No code, no build. Design questions go to the user at the end, each with a recommendation.

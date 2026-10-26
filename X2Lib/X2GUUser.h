@@ -4782,6 +4782,21 @@ public:
 	int June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0
 	float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+	void June_UserNoStateChangeActionFrameMove();	/// June 32008e40 ( March's is pure virtual; a class override runs it first )
+	void June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0
+	void June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 31fc93e0 ( vslot 0x804 )
+	void June_StateChangeBySkillSlot( const int iSlotIndex_ );	/// June 31fd32e0
+	void June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( vslot 0x764 )
+	bool June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140
+	bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0
+	int		m_iJune8ea0;		/// June +0x8ea0 ( 0; the skill the lookup chose )
+	int		m_iJune8ea4;		/// June +0x8ea4 ( 0; its slot index )
+	float	m_fJune8ea8;		/// June +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
+	float	m_fJune8eb0;		/// June +0x8eb0 ( 0; the MP the chosen skill costs )
+	bool	m_abJune90d3[10];	/// June +0x90d3 ( false; slot used marks, 31fc86e0 )
+	bool	m_abJune90d0[3];	/// June +0x90d0 ( false )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	/// June buff port Phase 14b: June +0x6ba4 (a protected bool; ctor 322a2700, setter 32082710), written by DamageReact
 	/// from HaveInstanceKillDebuff and consumed (cleared, HP to 0) after UpNowHp in the same function
