@@ -70,6 +70,7 @@ The user's remaining backlog, in the order they listed it:
 | 30 | June resonance system *(added 2026-10-22, june-transcend planning)* | - (found by june-result R0) | Not a backlog item but a missing system: June's level-99 progression. `KUnitInfo` carries five June-only fields (CX2Unit `+0xa99`..`+0xaa9`); gate `3247b460`; the dungeon result shows its bars. No March counterpart. Brief `kickoffs/june-backlog/stage30-plan.md`. |
 | 31 | June achievement system *(added 2026-10-22, june-transcend planning)* | - (found by june-transcend planning) | Not a backlog item but a missing system: `CX2AchievementManager`, `AchievementData.lua` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI.lua`. March has none. Brief `kickoffs/june-backlog/stage31-plan.md`. |
 | 32 | June bottom bar *(added 2026-10-24, user: split out of Stage 9)* | - (user request) | The village / field bottom bar as June draws it: June's `DLG_Menu_Button_NEW.lua` and its textures, the button row layout, the EXP bar and the stamina bar, and June's body for each working button. Buttons whose feature the project lacks are drawn and log a `STUB` click; their features stay Stage 9. Planned in full as `JUNE_BOTTOMBAR_PHASES.md` (B0-B4, Z); runs now, outside the Stage 9 order. |
+| 33 | June damage and character stat calculation *(added 2026-10-27, user)* | - (the Aisha instant-MP bug) | Not a backlog item but a correctness gap: June's stat and damage formulas were ported piecemeal, by the buff, socket, effect and skill plans. Where a June seed or refresh now sits beside a March helper, the result is neither game's number: one ranged hit gave +6722 MP. This stage maps every stat and damage formula as June / March / mixed and replaces each mixed one with June's whole calculation. Wrong combat numbers on a path the player hits count as playability (*Scope*), so it may run outside the Stage 9 order. Brief `kickoffs/june-backlog/stage33-plan.md`. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -1165,6 +1166,45 @@ evidence `june2017_re/bottombar_buttons.tsv`).
 - **Depends on:** nothing. Start: `/x2-phase june-bottombar B0` (Opus 5.5 high).
 - **CLOSED 2026-10-24 (plan `june-bottombar`, B0-B4 + review + Z; MODS.md "June bottom bar: Stage 32").** Flags `SERV_IRUHADEV_JUNE_BOTTOMBAR_IDS` / `_LAYOUT` / `_GAUGES` / `_BUTTONS`. Every June button is drawn;
   the Stage 9 bullets above hold the final stub list (`june2017_re/bottombar_buttons.tsv`) and the drift found on the way (spirit model, June guild UI, Surprise Sale, June-only refusal state).
+
+### Stage 33: June damage and character stat calculation (user, 2026-10-27)
+
+**Why.** An Aisha play-test showed MP jumping to full on every hit. Buff Phase 16 (`SERV_IRUHADEV_JUNE_SOCKET_PARITY`) changed two things:
+- it seeds the raw socket sum `m_fMPIncByAttack` / `m_fMPIncByAttacked` as the option value of MP members 24/25/26;
+- it moved their stat refresh `32290950` to June's option-data curve.
+
+The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2GUUser::DamageReact` stayed March's plain update. That update adds the option value raw, so every ranged hit gave +6722 MP. June uses the curve there as well (`322b4130` / `322b4170` / `320870a0`).
+- The fix is `SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE`.
+- The user's conclusion: stat and damage math must not be a March / June merge. Each formula is replaced with June's whole calculation.
+
+**In scope.** Every function that computes a number the player sees or feels:
+- **Character stat sheet:**
+  - base stats by level, equipment (June `item.kim`, K2), set items;
+  - sockets and options (`SocketData`, the `SocketOptionForm` curves, the option-data template `320839e0`);
+  - titles, pets, skill passives;
+  - buff stat members (seeds `32270dd0`, basics `32271540`, passive `322718e0`, refresh `32290950`);
+  - `SetGameStat` `322814a0` (June's seven-field `KStat`), `ResetMaxHP` / `ResetMaxMP` (`31fd2810`);
+  - the numbers the character-info UI prints.
+- **Damage:**
+  - `GetFinalDamage` `32284aa0` (variance `322788c0`, piercing, `32275ba0`, the critical threshold `32273480`);
+  - `SetDamageExceptionProcess` `322990e0` and the per-class overrides;
+  - user / NPC `DamageReact` (`320462a0` / `327b1f30`);
+  - defence, resist and enchant (buff Phase 15), PvE / PvP / boss rates.
+- **Resource gain:**
+  - MP on hit and on hit taken, the awakening-gauge gain, HP / MP regen;
+  - MP cost (`GetActualMPConsume`).
+
+**Method.**
+- A map phase first: one row per formula function and per stat member. Each row gives its June address, its March counterpart, its port state (**June / March / mixed**) and the flag that last touched it.
+- Mixed rows are the work; June rows are inherited and spot-checked, not redone. Already June: the buff plan's members, socket parity, effect C3 damage data, ExtraNPCStat, Stage 3 skill values, transcendence.
+- Each formula is ported as June's whole body, with March's code in `#else`, as [[no-partial-june-updates]] asks.
+- Verification:
+  - a stat-sheet and per-hit breakdown log under a `_DEBUG` flag (`SERV_IRUHADEV_MP_JUMP_DEBUG` is the model);
+  - pure formula functions run under Unicorn on June's binary against the port's outputs for the same inputs (precedent: buff Phase 16 review, `320839e0` on 360 input sets).
+
+**Depends on:** nothing for planning (read-only).
+**Code priority:** proposed ahead of the next Stage 7 character, since every character port sits on these formulas; the user confirms at the end of planning.
+**Brief:** `kickoffs/june-backlog/stage33-plan.md` (`/x2-phase new-plan june-stat-calc`).
 
 ## Open decisions that gate stages
 
