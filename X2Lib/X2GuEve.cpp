@@ -40734,4 +40734,418 @@ void CX2GUEve::June_ENSI_DASH_JUMP_COMBO_XZ_End()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1i ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's Code: Empress states ( class map phase CH1i ); nothing calls them until CH1 wires them in.
+// The +0x8e90 second-body anim clock inside June's cancel arms is checklist 7o, not ported here ( as in CH1d-CH1h ).
+
+// ---- Empress dash Z-Z ----
+
+// June 32966f00
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZ_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_Guardian_BladeWave01.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_DashComboZ3_Mesh01.X" );
+	TextureReadyInBackground( L"ColorBallGray.tga" );
+}
+
+// June 3298e860
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+	}
+
+	CommonFrameMove();
+}
+
+// June 329715a0
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.46f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+
+		StateChange( ENSI_EP_DASH_COMBO_ZZZ );
+	}
+	else if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.466667f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.6f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// ---- Empress dash Z-Z-Z ----
+
+// June 32966f30
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZZ_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_EP_DashComboZ3_Mesh02.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_JumpAttackZX_Mesh02.X" );
+}
+
+// June 3298ea30
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32971700
+void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.666667f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// ---- Empress jump Z-X ----
+
+// June 32966f60
+void CX2GUEve::June_ENSI_EP_JUMP_COMBO_ZX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_EP_JumpAttackZX_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_JumpAttackZX_Mesh02.X" );
+	XMeshReadyInBackground( L"Wind_Liner02.Y" );
+	TextureReadyInBackground( L"ColorBallGray.tga" );
+}
+
+// June 3298ec00
+void CX2GUEve::June_ENSI_EP_JUMP_COMBO_ZX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.06f ) )
+	{
+		// June's second FlushMp argument is the constant 0; the failure path inlines CreateNotEnoughMPEffect between the two hands
+		if( FlushMp( 3.f ) == true )
+		{
+			// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+		}
+		else
+		{
+			const D3DXVECTOR3 vRightHand = GetBonePos( L"Dummy1_Rhand" );
+			const D3DXVECTOR3 vLeftHand = GetBonePos( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( ( vRightHand + vLeftHand ) * 0.5f, 0.f, 0.f, GetRotateDegree().z );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 329717f0
+void CX2GUEve::June_ENSI_EP_JUMP_COMBO_ZX_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		m_fCanNotAttackTime = 0.1f;
+
+		StateChange( USI_JUMP_LANDING );
+	}
+	CommonEventProcess();
+}
+
+// ---- Empress X-X-down-X ----
+
+// June 32966fa0
+void CX2GUEve::June_ENSI_EP_COMBO_XXdownX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_EP_ComboX2DX_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_ComboX2DX_Mesh02.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_Grenade_Mesh01.X" );
+	TextureReadyInBackground( L"ColorBallFire.tga" );
+	TextureReadyInBackground( L"smoke02.tga" );
+	TextureReadyInBackground( L"DarkCloud02.tga" );
+	TextureReadyInBackground( L"Arme_Damage_Center.tga" );
+}
+
+// June 3298eff0
+void CX2GUEve::June_ENSI_EP_COMBO_XXdownX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_XXdownX", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32971820
+void CX2GUEve::June_ENSI_EP_COMBO_XXdownX_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.666667f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// ---- Empress Z-Z-X ( June-only state ) ----
+
+// June 32968720
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_AT_ComboX5a_mesh.X" );
+	XSkinMeshReadyInBackground( L"Eve_Guardian_BladeWave01.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+}
+
+// June 329994e0 ( the same body as June_ENSI_COMBO_XXZ4_FrameMove )
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vDamagePos = GetPos();
+
+		vDamagePos.y += 125.f;
+		if( GetIsRight() == true )
+		{
+			vDamagePos += ( GetDirVector() * 60.f );
+		}
+		else
+		{
+			vDamagePos -= ( GetDirVector() * 60.f );
+		}
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"Mesh_Eve_AT_ComboX5a_Guardian", GetPos(), GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_COMBO_XXZ4_START", GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall,
+			vDamagePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 1.07f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		vPos.y += 125.f;
+		if( GetIsRight() == true )
+		{
+			vPos.x += 60.f;
+		}
+		else
+		{
+			vPos.x -= 60.f;
+		}
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Particle_Eve_AT_ComboX5a01", vPos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( GetRotateDegree() );
+			pSeq->SetAxisAngle( GetRotateDegree() );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32976110
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX( 0, 0, ( JUNE_EVE_UNITDATA_CLASS_IS( CX2Unit::UC_EVE_CODE_EMPRESS ) && m_InputData.oneX == true ), ENSI_ECE_COMBO_ZZXX )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// ---- Empress Z-Z-X-X ( June-only state ) ----
+
+// June 32968750
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZXX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_EP_JumpAttackZX_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"Eve_EP_JumpAttackZX_Mesh02.X" );
+	XMeshReadyInBackground( L"Wind_Liner02.Y" );
+	TextureReadyInBackground( L"ColorBallGray.tga" );
+}
+
+// June 329998f0 ( June_ENSI_EP_JUMP_COMBO_ZX_FrameMove at 0.4 s and 4 MP )
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZXX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		if( FlushMp( 4.f ) == true )
+		{
+			// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+		}
+		else
+		{
+			const D3DXVECTOR3 vRightHand = GetBonePos( L"Dummy1_Rhand" );
+			const D3DXVECTOR3 vLeftHand = GetBonePos( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( ( vRightHand + vLeftHand ) * 0.5f, 0.f, 0.f, GetRotateDegree().z );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32976440
+void CX2GUEve::June_ENSI_ECE_COMBO_ZZXX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// ---- Empress dash X-X ( June-only state ) ----
+
+// June 32968790
+void CX2GUEve::June_ENSI_ECE_DASH_XX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_AT_DashJumpComboXa_Mesh_G.X" );
+	XSkinMeshReadyInBackground( L"Eve_Guardian_BladeWave01.X" );
+}
+
+// June 329687c0
+void CX2GUEve::June_ENSI_ECE_DASH_XX_End()
+{
+	m_pJuneDashXTargetUnit = NULL;
+	CommonStateEnd();
+}
+
+// June 32999ce0 ( the dash-jump X-Z effects placed on the follow target, or on Eve without one )
+void CX2GUEve::June_ENSI_ECE_DASH_XX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		const CX2GameUnit* pRefUnit = ( NULL != m_pJuneDashXTargetUnit ) ? m_pJuneDashXTargetUnit : this;
+		D3DXVECTOR3 vBonePos = pRefUnit->GetPos();
+		vBonePos.y += 200.f;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"Mesh_Eve_AT_DashJumpComboXa_Guardian", vBonePos, GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+
+		// June adds the 290 to the already raised y
+		vBonePos.y += 290.f;
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Particle_Eve_AT_Combo01", vBonePos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( GetRotateDegree() );
+			pSeq->SetAxisAngle( GetRotateDegree() );
+			pSeq->SetLandPosition( GetLandPosition().y );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		const CX2GameUnit* pRefUnit = ( NULL != m_pJuneDashXTargetUnit ) ? m_pJuneDashXTargetUnit : this;
+		m_vSummonedUnitBonePos = pRefUnit->GetPos();
+		m_vSummonedUnitBonePos.y += 350.f;
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_AT_DASH_JUMP_COMBO_XZ", GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall,
+			m_vSummonedUnitBonePos, GetRotateDegree(), GetRotateDegree(), 0.f, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"Mesh_Eve_AT_DashJumpComboXa_BladeWave01", m_vSummonedUnitBonePos, GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32976480
+void CX2GUEve::June_ENSI_ECE_DASH_XX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 

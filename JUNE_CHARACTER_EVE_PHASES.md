@@ -653,6 +653,33 @@ Build: `DEPLOY OK: X2_offline.exe is 25,935,360 B, dated 2026-10-26 09:43:07, md
 - **JUNE_BUGS:** none found.
 - Hygiene: `flagcheck.py JUNE_CHAR_EVE_CORE --range a55b61e4^..a55b61e4`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. No rebuild (no code change). Nothing to play-test. Next: `/x2-phase char-eve CH1i` (Sonnet 5.5 high).
 
+### CH1i - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a ninth block at the end of `X2GuEve.cpp`, 414 lines; 22 declarations at the end of the class). **All 22 class-map rows of phase CH1i** are new `CX2GUEve::June_*` members; nothing registers or calls them. New: the enumerator `ENSI_ECE_COMBO_ZZXX` (script id 235, after `ENSI_ECE_COMBO_ZZX`); no field or helper. 22 funcmap rows `Char Eve CH1i`.
+
+| State (`June_` prefix) | June: Init / End / FrameMove / EventProcess |
+|---|---|
+| `ENSI_EP_DASH_COMBO_ZZ` | `32966f00` / - / `3298e860` / `329715a0` |
+| `ENSI_EP_DASH_COMBO_ZZZ` | `32966f30` / - / `3298ea30` / `32971700` |
+| `ENSI_EP_JUMP_COMBO_ZX` | `32966f60` / - / `3298ec00` / `329717f0` |
+| `ENSI_EP_COMBO_XXdownX` | `32966fa0` / - / `3298eff0` / `32971820` |
+| `ENSI_ECE_COMBO_ZZX` (June-only, 234) | `32968720` / - / `329994e0` / `32976110` |
+| `ENSI_ECE_COMBO_ZZXX` (June-only, 235) | `32968750` / - / `329998f0` / `32976440` |
+| `ENSI_ECE_DASH_XX` (June-only, 236) | `32968790` / `329687c0` / `32999ce0` / `32976480` |
+
+**What differs from March** (the four pair Inits and EventProcess bodies are March's; checked op for op, key lists ZZ = ZXCAS, ZZZ / XXdownX = ZXC):
+- **Pair FrameMoves** (March: `CommonFrameMove` only): dash Z-Z, Z-Z-Z and X-X-down-X each play one `EffectSet_Eve_Code_Empress_*` at 0.01 with `GetPowerRate() x GetStatAtkRateOfSummoned() x m_fAttackPowerRateElectronBall` (listings identical to CH1h's dash Z-X apart from the name length).
+- **Jump Z-X `3298ec00` / Z-Z-X-X `329998f0`** (same body, 0.06 s / 3 MP and 0.4 s / 4 MP): `FlushMp( n )` (June's second argument is the constant 0); success -> `EffectSet_Eve_Code_Empress_JumpZX` then `_JumpZX_Grenade`; failure -> `CreateNotEnoughMPEffect` (`32007d80`) at the mid-point of `Dummy1_Rhand` / `Dummy2_Lhand`, angles 0, 0, rotate z (stack offsets re-derived).
+- **Z-Z-X `329994e0`** is op-for-op `32985300` (XXZ4). **Its EventProcess**: animation end -> WAIT on line / JUMP_DOWN off line, flag 0 on `m_fEventTime[0]` with class 109 (unit data `+0x38`) and `oneX` -> `ENSI_ECE_COMBO_ZZXX`, then the SKILL / BWALK / WALK / DASH cancels. Z-Z-X-X EventProcess is the animation-end step only; dash X-X EventProcess is that step plus the four cancels.
+- **Dash X-X `32999ce0`** = dash-jump X-Z effects placed on `m_pJuneDashXTargetUnit` (`+0x9c24`), or on Eve without one: 0.01 mesh at y +200 and particle at y +200 +290 (June adds 290 to the slot it already raised), `SetLandPosition` from Eve; 0.1 `m_vSummonedUnitBonePos` = target pos, y +350; 0.15 blade wave mesh. End clears `+0x9c24`.
+- **7c alpha tags, 5 sites**: `3299968c` / `329998cb` (Z-Z-X), `32999dda` / `32999ed4` / `3299a119` (dash X-X).
+- `+0x8e90` second-body clock in the cancel arms is checklist 7o, not ported (as CH1d-CH1h).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,945,600 B, dated 2026-10-26 10:09:25, md5 0634660931152d1e46dbe31978d59513, equal to X2/US_SERVICE/x2.exe (2026-10-26 10:09:18); built at main 39853ac4 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** no row. **Drift:** none new; the `PlayEffectSet` trailing force-down float (now also on four more sets) stays with CH1o. **Open for the review**: the particle y +490 on dash X-X (kept as the listing reads; decide whether it is a row); the ZZX / ZZXX flag arm is one `JUNE_EVE_ELSE_IF_STATE_CHANGE_ON_EX` with the class test first. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1i-review.md`. Next: `/x2-phase char-eve CH1i review` (Opus 5.5 high), then CH1j.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
