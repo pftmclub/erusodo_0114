@@ -210,6 +210,17 @@ Run with: Sonnet 5.5 / high, then Opus review. Gate: `enumscan.py --check` on th
 - **Deploy:** COALESCED into a peer's build that started after this edit was saved, then `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 16:27:42, md5 b6f31ff5be91486f47f64e7cc39ba3ae, equal to X2/US_SERVICE/x2.exe (2026-10-26 16:27:34); built at main 155a03c6 + 9 uncommitted code file(s).`
 - **Open:** none. No play-test for this phase (compile-time only); the one smoke test is NZ's. Review kickoff: `kickoffs/june-enum-names/N4-review.md`.
 
+### Phase N4 - Review (2026-10-26, Opus 5.5)
+
+- **Verdict: pass, no code change.** Commit `e7d18b29`; no fix, so no build of this review's own.
+- **The three hand-settled names, by value against `june_src_fixed/data036_kom/Enum.src.lua`:** `RNSI_A_AVP_SUMMON_BAT_ADD_TRANS = 22217` (l.14846), `SI_A_AVP_SHADOW_BODY = 2218` (l.14765), `SI_SA_COMMON_AURA_SHIELD_ACCEL = 202` (l.14886). Correction to the kickoff: June's Enum does name 2218, with the same name, so it is June's name as well as March's. The uses fit: 22217 is the Summon Bat Heavy templet / transcendence check, 202 a `case` in `June_GetActualMPConsume`'s skill-id switch beside the other aura-accel ids, 2218 the `JuneShowSkillNameStateString` quirk (one-line comment kept). `SA_DFG_CONSUME_REL` is also 202 (probe), so the scanner's pick was a value collision across families, rightly overridden.
+- **`UAI_` hint:** the full survey scanned with and without the new hint differs only in the 7 `JUNE_CH1I_UAI_*` declarations (l.29118-29124); the `UAI_` names in `X2GuEve.cpp` / `X2GUUser.cpp` are enumerators, not literals. Nothing else relied on the old class.
+- **Spot probe (`enumprobe.py`, 6 pairs):** `RNSI_A_AVP_SUMMON_BAT_ADD_TRANS` 22217, `SI_A_AVP_SHADOW_BODY` 2218, `SI_SA_COMMON_AURA_SHIELD_ACCEL` 202, `BTI_BUFF_SPECTER_WALK` 420, `BFI_AMUSEMENT_ITEM_WATER_BALLOON` 827, `RNSI_P_AEM_MAGICAL_BODY` 22413: all equal the `#else` literal. The six unqualified names (`BTI_BUFF_SPECTER_WALK`, `BTI_BUFF_CREST_OF_TIME` / `_UPGRADE`, `BFI_AMUSEMENT_ITEM_PRESS` / `_MISSILE` / `_WATER_BALLOON`) have one definition each (`X2BuffFactor.h`), so no class-scope name shadows them; every other name is `CX2SkillTree::`-qualified. The setter takes `const UINT`, not `const int` as the Done note says; same overload either way.
+- **Class D `0x8b3`:** agreed. `IF_EVENT_ENABLED` is `IsEnableCode( id )` (`X2InstanceData.h:11`), an event code; stays a number.
+- **Hygiene:** `flagcheck JUNE_ENUM_NAMES --range e7d18b29^..e7d18b29`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. Gate: `enumscan.py --check X2Lib/X2GUArme_VioletMage.cpp` exit 0 (C 0, D 1, X 7).
+- **Deploy:** N4's code is in the exe the N3 review deployed, built at `main e7d18b29` (md5 `aaa009f8`).
+- **In game:** nothing to see; the NZ smoke test covers Aisha.
+
 ## Phase N5a - Shared: `X2GUUser.cpp`
 
 Scope: `IsSummonSkillByJune` 54 cases (l.26525-26578) to member names, the 37 UNIT_CLASS `case`s (l.31926-31961; `UC_*` up to 122 exist, 123-136 are registered by N2), BBT 106/107 and other BBT / BTI sites (l.11501, 32448-32456, 37610-37682), skill ids at l.10714. Item ids, dungeon ids stay (the named `JUNE_SOCKET_ID_*` / `JUNE_DI_*` consts at l.3708 and l.32015 are the pattern to keep).
