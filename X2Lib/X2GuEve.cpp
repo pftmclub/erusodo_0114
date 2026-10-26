@@ -45018,4 +45018,127 @@ void CX2GUEve::June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::Skil
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l2 ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Common* overrides 0x7c0-0x7ec except CommonFrameMove ( class map CH1l2 ); nothing calls them until CH1.
+
+// June 32965e20: a bare jump to the base
+void CX2GUEve::June_CommonStateStartFuture()
+{
+	CX2GUUser::CommonStateStartFuture();
+}
+
+// June 32965e30
+void CX2GUEve::June_CommonStateStart()
+{
+	CX2GUUser::CommonStateStart();
+
+	m_fEffectStartTime = 0.f;
+}
+
+// June 32980f90: the Nasod Core level goes to the class sync int before the base; the Code Recovery cool time runs down after it
+void CX2GUEve::June_CommonFrameMoveFuture()
+{
+	m_fReAttackZ1Time -= m_fElapsedTime;
+	if( m_fReAttackZ1Time < 0.0f )
+		m_fReAttackZ1Time = 0.0f;
+
+	m_fReDashJumpXTime -= m_fElapsedTime;
+	if( m_fReDashJumpXTime < 0.0f )
+		m_fReDashJumpXTime = 0.0f;
+
+#ifdef ADD_EVE_SYSTEM_2014		// June +0x9b9c = m_iManeuverCoreLv; Nasod Core, live with CH1q
+	if( m_FrameDataFuture.syncData.iJuneClassSyncInt != m_iManeuverCoreLv )
+		m_FrameDataFuture.syncData.iJuneClassSyncInt = m_iManeuverCoreLv;
+#endif // ADD_EVE_SYSTEM_2014
+
+	CX2GUUser::CommonFrameMoveFuture();
+
+	if( 0.0f < m_fJuneCodeRecoveryCoolLeft )
+	{
+		m_fJuneCodeRecoveryCoolLeft = m_fJuneCodeRecoveryCoolLeft - m_fElapsedTime;
+		if( m_fJuneCodeRecoveryCoolLeft < 0.0f )
+			m_fJuneCodeRecoveryCoolLeft = 0.0f;
+	}
+
+	// June 322e65c0: call added in CH4c
+}
+
+// June 3297c390: Mega Electronball / Taser Pilum are started by the key of the slot the skill sits in ( no Kugelblitz here, no state lookup )
+void CX2GUEve::June_CommonEventProcess()
+{
+	CX2GUUser::CommonEventProcess();
+
+	if( false == m_sMegaElectronBallData.m_bEnable )
+	{
+		m_sMegaElectronBallData.SetSkillSlotSwap( g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() );
+
+		// slot space 0-9 ( A 0-4 / B 5-9 )
+		if( 0 <= m_sMegaElectronBallData.GetSkillSlotID() && m_sMegaElectronBallData.GetSkillSlotID() < 10 )
+		{
+			if( true == JuneIsEquippedSkillKeyPressed( m_InputData, static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_A_EAT_MEGA_ELECTRONBALL ) ) )
+			{
+				if( UAI_MEGA_ELECTRONBALL != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = UAI_MEGA_ELECTRONBALL;
+			}
+		}
+	}
+
+	if( false == m_sTaserPilumData.m_bEnable )
+	{
+		m_sTaserPilumData.SetSkillSlotSwap( g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() );
+
+		// June 3288fe30( slot id ) is called here and its ( index, slot B ) result is never read, no range test
+		if( true == JuneIsEquippedSkillKeyPressed( m_InputData, static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1L_A_ECB_TASER_PILUM ) ) )
+		{
+			if( UAI_TASER_PILUM != m_FrameDataFuture.syncData.nowAction )
+				m_FrameDataFuture.syncData.nowAction = UAI_TASER_PILUM;
+		}
+	}
+}
+
+// June 3297a400: the down-force flag is cleared here, except in the dash jump state ( JUNE_BUGS 421 withdrawn )
+void CX2GUEve::June_CommonStateEndFuture()
+{
+	CX2GUUser::CommonStateEndFuture();
+
+	if( USI_DASH_JUMP != GetNowStateID() )
+		m_bDownForce = false;
+}
+
+// June 32965e50
+void CX2GUEve::June_CommonStateEnd()
+{
+	CX2GUUser::CommonStateEnd();
+
+	m_fEffectStartTime = 0.f;
+#ifdef FIX_EVE_ELCRYSTAL_BUG		// June +0x9b70 = m_bIsCheckEndElCrystal ( +0x9b6c = m_eReserveEndElCrystalBuffID )
+	m_bIsCheckEndElCrystal = true;
+#endif // FIX_EVE_ELCRYSTAL_BUG
+}
+
+// June 32965e70: the base, handed back unchanged ( RENDER_HINT is returned through the hidden pointer )
+RENDER_HINT CX2GUEve::June_CommonRender_Prepare()
+{
+	return CX2GUUser::CommonRender_Prepare();
+}
+
+// June 329694a0
+void CX2GUEve::June_CreateStepDust()
+{
+	if( true == GetAbsoluteInvisibility() )
+		return;
+
+	CX2GUUser::CreateStepDust();
+}
+
+// June 32976fb0
+bool CX2GUEve::June_IsBlock9c50ValueCPositive() const
+{
+	return NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC;
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 

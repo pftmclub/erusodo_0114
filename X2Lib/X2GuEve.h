@@ -3092,5 +3092,16 @@ protected:
 	void		June_Vslot77c( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
 	CX2BuffFactorPtr	June_GetEnergyOfConcentrationBuffFactorClonePtr();	/// June 329b4ac0
 	void		June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ );	/// June 329b7390 ( vslot 0x7b0 )
+
+	/// June character port Phase CH1l2: inert June_* members of Eve's Common* overrides 0x7c0-0x7ec except CommonFrameMove; nothing calls them until CH1
+	void		June_CommonStateStartFuture();			/// June 32965e20 ( vslot 0x7c0 )
+	void		June_CommonStateStart();				/// June 32965e30 ( vslot 0x7c4 )
+	void		June_CommonFrameMoveFuture();			/// June 32980f90 ( vslot 0x7c8 )
+	void		June_CommonEventProcess();				/// June 3297c390 ( vslot 0x7d4 )
+	void		June_CommonStateEndFuture();			/// June 3297a400 ( vslot 0x7d8 )
+	void		June_CommonStateEnd();					/// June 32965e50 ( vslot 0x7dc )
+	RENDER_HINT	June_CommonRender_Prepare();			/// June 32965e70 ( vslot 0x7e8 )
+	void		June_CreateStepDust();					/// June 329694a0 ( vslot 0x7ec )
+	bool		June_IsBlock9c50ValueCPositive() const;	/// June 32976fb0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

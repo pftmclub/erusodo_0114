@@ -5224,3 +5224,14 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 31e4d280	CX2GUNPC::SetFlag_LUA( index, bool )	confirmed	Char Eve CH1l review: byte [this + index + 0x8751] = arg; +0x8751 = m_FlagList[0] (March X2GUNPC.h SetFlag_LUA)
 31e4d2a0	CX2GUNPC::GetFlag_LUA( index )	confirmed	Char Eve CH1l review: returns byte [this + index + 0x8751] (March X2GUNPC.h GetFlag_LUA); read as flag 0 by Eve 32979a70
 327572a0	CX2GUNPC::SetAllFlag_LUA( bool )	confirmed	Char Eve CH1l review: fills the 10 bytes +0x8751..+0x875a (m_FlagList[10]) with the argument
+32965e20	CX2GUEve::June_CommonStateStartFuture	PORTED	Char Eve CH1l2: inert; vslot 0x7c0; a bare jump to CX2GUUser::CommonStateStartFuture 320506f0
+32965e30	CX2GUEve::June_CommonStateStart	PORTED	Char Eve CH1l2: inert; vslot 0x7c4; base 32057b80, then m_fEffectStartTime (+0x9ae4) = 0
+32980f90	CX2GUEve::June_CommonFrameMoveFuture	PORTED	Char Eve CH1l2: inert; vslot 0x7c8; ReAttackZ1 / ReDashJumpX run down, iJuneClassSyncInt (+0x7ec0) = m_iManeuverCoreLv (+0x9b9c, under ADD_EVE_SYSTEM_2014), base 32061bf0, Code Recovery cool time (+0x9c64) runs down; the 322e65c0 call is left for CH4c
+3297c390	CX2GUEve::June_CommonEventProcess	PORTED	Char Eve CH1l2: inert; vslot 0x7d4; base 31fe7610, then Mega Electronball (slot id 0-9) and Taser Pilum set syncData.nowAction (+0x7e84) to UAI 7 / 17 on JuneIsEquippedSkillKeyPressed( 0x6277 / 0x627c ); no Kugelblitz branch; the nowAction write goes through the dirty-state batch (anti-tamper, nothing to port)
+3297a400	CX2GUEve::June_CommonStateEndFuture	PORTED	Char Eve CH1l2: inert; vslot 0x7d8; base 31fdd8e0, then m_bDownForce (+0x8bf8) = false unless the now state ((+0x7cbc - +0x7cec) / 100) is 21 = USI_DASH_JUMP
+32965e50	CX2GUEve::June_CommonStateEnd	PORTED	Char Eve CH1l2: inert; vslot 0x7dc; base 32015250, m_fEffectStartTime = 0, +0x9b70 = 1 (= March m_bIsCheckEndElCrystal; +0x9b6c = m_eReserveEndElCrystalBuffID)
+32965e70	CX2GUEve::June_CommonRender_Prepare	PORTED	Char Eve CH1l2: inert; vslot 0x7e8; calls CX2GUUser::CommonRender_Prepare 31fd07b0 and returns the hidden RENDER_HINT pointer (ret 4)
+329694a0	CX2GUEve::June_CreateStepDust	PORTED	Char Eve CH1l2: inert; vslot 0x7ec; m_bAbsoluteInvisibility (+0x3e59) returns, else a tail jump to CX2GUUser::CreateStepDust 32000930
+32976fb0	CX2GUEve::June_IsBlock9c50ValueCPositive	PORTED	Char Eve CH1l2: inert; m_pJuneBlock9c50 (+0x9c50) non-null and 0.0 < block +0xc (m_fValueC); also read inline by the Psyker Kinesis checks
+322e65c0	CX2Game::JuneUpdateEveRecoveryUI (June-only)	candidate	Char Eve CH1l2: called at the end of 32980f90 on the game singleton (31aad500( 0x3372c0fc )) with ( &true, !( cool left <= 0 && GetNowMp() >= m_fJuneCodeRecoveryConsumeMp ), cool left ); the call is left out, CH4c
+3214f050	CX2UIManager::GetUISkillTree (candidate)	candidate	Char Eve CH1l2: ecx = g_pData +0x2cc (UI manager); result +0x115 = GetSkillSlotSwap(), copied into Mega +0x978c / Taser +0x9a5c

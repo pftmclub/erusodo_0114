@@ -139,8 +139,8 @@ june_off	width	june_value	site	class	name	note
 0x9b5c	dword	0	3299ccfc	March member	m_iAddBoostAttack	
 0x9b64	dword	-1	3299c412	March member	m_hEffectEnergeticHeart	-1
 0x9b68	byte	bl	3299cd1c	March member	m_bStartSpectroElCrystal	
-0x9b6c	dword	0	3299c420	unmapped	June +0x9b6c 0, +0x9b70 0 after m_bStartSpectroElCrystal	March has the Ferdinand members ( m_iFerdinandNPCUID -1, timer, life time -1 ) here; roles in June unknown
-0x9b70	byte	bl	3299c426	unmapped	June +0x9b6c 0, +0x9b70 0 after m_bStartSpectroElCrystal	March has the Ferdinand members ( m_iFerdinandNPCUID -1, timer, life time -1 ) here; roles in June unknown
+0x9b6c	dword	0	3299c420	March member	m_eReserveEndElCrystalBuffID	CH1l2: June 3297a440 writes the buff templet id here, 32965e50 sets +0x9b70
+0x9b70	byte	bl	3299c426	March member	m_bIsCheckEndElCrystal	CH1l2: 32965e50 CommonStateEnd sets it to 1
 0x9b98	dword	0	3299c62b	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
 0x9b9c	dword	0	3299c631	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q
 0x9bac	byte	bl	3299c826	Nasod Core	m_pManeuverCore .. m_pManeuverCoreAttackDamageEffect and the gauge ( +0x9ba0 protected )	CH1q

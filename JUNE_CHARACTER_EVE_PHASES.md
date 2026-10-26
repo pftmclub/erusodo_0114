@@ -934,6 +934,36 @@ Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a thirteenth block
 **Build.** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-10-26 14:53:27, md5 7a087ca51a04a0e1b6bc80f5ae3158c4, equal to X2/US_SERVICE/x2.exe (2026-10-26 14:53:19); built at main c6eceb93 + 1 uncommitted code file(s).` Nothing in game.
 **Names** of 0x65c / 0x6a8 / 0x6ac / 0x77c stay unsettled (CH1o). User owes nothing (inert). Next: `/x2-phase char-eve CH1l2` (Sonnet 5.5 high); its kickoff still matches.
 
+### CH1l2 - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a fourteenth block at the end of `X2GuEve.cpp`, +123 lines; 11 declaration lines in `X2GuEve.h`). **All 9 class-map rows of phase CH1l2**: 8 overrides and the helper `32976fb0` are new `CX2GUEve::June_*` members. Nothing registers or calls them. 11 funcmap rows `Char Eve CH1l2`.
+
+| June | member (`June_` prefix) | notes |
+|---|---|---|
+| `32965e20` ( 0x7c0 ) | CommonStateStartFuture | a bare jump to `CX2GUUser::CommonStateStartFuture` ( `320506f0` ) |
+| `32965e30` ( 0x7c4 ) | CommonStateStart | base, then `m_fEffectStartTime` ( `+0x9ae4` ) = 0 |
+| `32980f90` ( 0x7c8 ) | CommonFrameMoveFuture | ReAttackZ1 / ReDashJumpX run down and clamp; `iJuneClassSyncInt` ( `+0x7ec0` ) = `m_iManeuverCoreLv` ( `+0x9b9c` ) before the base ( March wrote `m_CannonBallCount` ); then the Code Recovery cool time ( `+0x9c64` ) runs down. The `322e65c0` call is left out for CH4c |
+| `3297c390` ( 0x7d4 ) | CommonEventProcess | Mega Electronball ( slot id 0-9 ) and Taser Pilum start by `JuneIsEquippedSkillKeyPressed( 0x6277 / 0x627c )` and set `nowAction` ( `+0x7e84` ) to `UAI_MEGA_ELECTRONBALL` ( 7 ) / `UAI_TASER_PILUM` ( 17 ) |
+| `3297a400` ( 0x7d8 ) | CommonStateEndFuture | base, then `m_bDownForce` = false unless the now state is `USI_DASH_JUMP` ( 21 ) |
+| `32965e50` ( 0x7dc ) | CommonStateEnd | base, `m_fEffectStartTime` = 0, `+0x9b70` = 1 ( = March `m_bIsCheckEndElCrystal` ) |
+| `32965e70` ( 0x7e8 ) | CommonRender_Prepare | the base, handed back ( the hidden RENDER_HINT pointer, `ret 4` ) |
+| `329694a0` ( 0x7ec ) | CreateStepDust | `m_bAbsoluteInvisibility` returns, else the base |
+| `32976fb0` | IsBlock9c50ValueCPositive | `m_pJuneBlock9c50` set and `0.0 < m_fValueC` ( name neutral ) |
+
+**What differs from March:**
+- **`3297c390`.** June has no slot/state lookup and no Kugelblitz branch here; the skill is found by `JuneIsEquippedSkillKeyPressed` ( `31fce710` ) on the skill id. The Mega block range-tests the slot id ( 0-9 ); the Taser block does not, and June calls `3288fe30` ( slot id -> index, slot B ) there with the result never read ( left out ). The `3376cdd0` batch around the `nowAction` write is June's anti-tamper re-protect ( the write is kept, with June's `!= value` test ).
+- **`32980f90`.** `+0x9b9c` is the Nasod Core level ( ctor map: `m_pManeuverCore` `+0x9b98`, level `+0x9b9c`, protected gauge `+0x9ba0` ); the line sits under `ADD_EVE_SYSTEM_2014` ( off today, live with CH1q ), as March's does. The `322e65c0` call ( game singleton, args `( &true, !( cool <= 0 && GetNowMp() >= ConsumeMp ), cool )`, funcmap row ) is `// June 322e65c0: call added in CH4c`.
+- **`32965e50`.** `+0x9b6c` / `+0x9b70` are March's `m_eReserveEndElCrystalBuffID` / `m_bIsCheckEndElCrystal` ( same order; `3297a440` writes the id ): two ctor-map rows re-labelled.
+- **`3297a400`.** June's state index `( +0x7cbc - +0x7cec ) / 100` is the state id, so `GetNowStateID() != USI_DASH_JUMP` ( value 21 by `enumprobe` ).
+
+**Offsets** ( `offsetprobe`, March layout, structure-relative ): Mega `m_bEnable` / `m_bSkillSlotSwap` / `m_iSkillSlotID` = +0 / +8 / +0x1c ( June `+0x9784` / `+0x978c` / `+0x97a0` ); Taser `m_bEnable` / swap / `m_bSelectedSlot` = +0 / +8 / +0x24 ( June `+0x9a54` / `+0x9a5c` / `+0x9a78` ). Ids come from the CH1l namespace constants; `UAI_*` and `USI_DASH_JUMP` are C++ enum members.
+
+**Checks.** `cl /Zs` of `X2GuEve.cpp`: rc 0, no new warning.
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Build.** `DEPLOY OK: X2_offline.exe is 25,999,872 B, dated 2026-10-26 17:16:31, md5 33c0bab564325be9c620e0734eba7ce8, equal to X2/US_SERVICE/x2.exe (2026-10-26 17:16:24); built at main cb76692d + 2 uncommitted code file(s).` Nothing in game.
+
+**JUNE_BUGS:** none. **Checklist:** no CH1l2 rows. **Drift:** none. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1l2-review.md`. Next: `/x2-phase char-eve CH1l2 review` ( Opus 5.5 high ), then CH1l3.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
