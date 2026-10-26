@@ -1179,6 +1179,35 @@ Commits `541b4795` (the phase) and `a8776d67` (the `Always.h` LIVE-needs-CORE gu
 
 **In game:** nothing changes (`_LIVE` is undefined). Next: `/x2-phase char-eve CH1m review` (Opus 5.5 high).
 
+### CH1m - Review (2026-10-27)
+
+**Verdict: PASS, no code change** (no rebuild; the deployed `2438acc3` stands).
+
+- **Path simulation.** Fresh Ghidra decompiles of `329ba9c0` / `329b8030` through `ch1m_regsim.py` reproduce `ch1m_reg_by_class.tsv` row for row (904);
+  `ch1m_regcheck.py`: `matched 771 registrations, 0 problems; ids mapped 134`.
+- **Gates, against the listing:** the unit-data tests `@329baf1f` (0x12 / 0x6c), `@329bb02f` (0x13 / 0x6d), `@329bb118` (0x1a / 0x74), each `JNZ` past
+  its own registrations. Templet switch `@329bbbb8`: the byte table `329bc4f4` / targets `329bc4e4` (read from the exe) give 0x12 / 0x6c -> block 0,
+  0x1a / 0x74 -> 1, 0x6d -> 2, everything else (19 and 5 too) -> `329bbebb`, past the trailing call; null templet = class 0 = default, as the C++.
+  Chain `@329bbed2`: `SUB 0x6c` / `DEC` / `SUB 7` = 108 / 109 / 116, else `329bc2c2`. Joined test `@329bc2c2`: templet non-null and 0x13 or 0x6d only.
+- **Head:** cut-in table `329bc474` / `329bc460`: 5 / 18 / 19 -> 0, 108 -> 1, 109 -> 2, 116 -> 3, 26 falls to the default (no store); sub-index
+  `+0x8acc` 18 -> 1, 19 -> 2, else 0; `+0x4088` / `+0x7d04` = 0xd = `InitStateID`. Order `329b8030`, `3202b110`, `31fe22d0` (`32078bc0` is the
+  stateData constructor). START (Start / EventProcess / End), WIN (Start, `320718d0`), LOSE (Start only), 0x82, then WIN2 / LOSE2 compares on the rolled
+  names, bytes `+0x97e0` / `+0x97e1` set only. Tail vslots `0x690`, `0x684( 0 )`, `31fd8f00`.
+- **`JuneHyperModeEnd`:** `3201b8e0` and `32006c00` are the same 21 instructions (only the jump target differs): vslot 0x7dc, protected byte `+0x952c`
+  (`[+0x9530] ^ &+0x952c ^ [+0x9534]`) == 1 -> `31ffda00` + vslot 0xc0, `+0x8d44 = 0`. Eve's vtable holds them at 0x604 / 0x608 (`ch0_vtable_all.tsv`);
+  `329cc0e0` = `8b 01 ff a0 04 06 00 00`, `32cf0fa0` = `... 08 06 00 00` (exe bytes; Ghidra has no function there).
+- **Ids:** `ch1m_idmap.tsv` 134 rows, no duplicate on either side; 72 = `USI_RIDING_START`, 180 = `ENSI_JUNE_DASH_COMBO_ZX`.
+- **Left out:** the comment lines and owners match the kickoff; the die StateEnd is `SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR` in `StateChange` (DIE_FRONT / BACK only).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --range 541b4795^..541b4795`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 1 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL`
+(the ERROR is the compound `#if` in that commit's `Always.h`, rewritten in `a8776d67`). Base-to-now `--base 541b4795^ --files <5 files>`:
+`files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; same zero line; `RESULT: PASS`.
+`JUNE_CHAR_EVE_LIVE --range 541b4795^..541b4795`: `files: 0 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`; zero line; `RESULT: FAIL`
+(`the flag is not #defined anywhere tracked`, by design until CH1 final). `enumscan --check X2GuEve.cpp X2GUUser.cpp`: 0 A/B.
+
+User owes nothing. Next: `/x2-phase char-eve CH1n` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

@@ -41,3 +41,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 
 - CH1m left **no** base callback on a stand-in: every CX2GUUser target in Eve's two registrars resolves to a member Aisha's CH1j / CH1k already ported (`JuneStartStateStart`, `JuneDamageSmall/BigEventProcess`, `JuneDamageBigStart`, ...), or to the new `CX2GUUser::JuneHyperModeEnd` (`3201b8e0` = `32006c00`). CH1n's scope is the `329c8a00` head and the gate.
 - Re-run `python june2017_re/char_eve/ch1m_regcheck.py` after any edit to `June_InitState` / `June_InitStateCommon` (must stay `0 problems`).
+
+## Amended by CH1m review (2026-10-27)
+
+- Review PASS, no code change. The March-only `_HYPER` states (`OBERON_GUARD`, `ATOMIC_SHIELD`, `ILLUSION_STRIKE`) live in March's `SetEquippedSkillFuncBySkillSlotIndex`; June's `329c8a00` head has none, so they go to the `#else` with March's body.
