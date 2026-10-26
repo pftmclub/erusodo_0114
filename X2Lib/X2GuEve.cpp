@@ -143,6 +143,10 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_ConstructorInit();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	m_bReAttackZ1Right		= false;
 	m_fReAttackZ1Time		= 0.0f;
 	m_fReDashJumpXTime		= 0.0f;
@@ -317,9 +321,14 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	INIT_VECTOR3( m_vSonicGunRotate, 0.f, 0.f, 0.f );
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 CX2GUEve::~CX2GUEve(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_Destructor();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef EVE_ELECTRA
 	ClearThousandStar();
 #endif EVE_ELECTRA
@@ -413,9 +422,14 @@ CX2GUEve::~CX2GUEve(void)
 
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::ReInit( bool bRandom, int startPosIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_ReInit( bRandom, startPosIndex );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 	m_fReDashJumpXTime		= 0.0f;
 
@@ -507,6 +521,7 @@ void CX2GUEve::ReInit( bool bRandom, int startPosIndex )
 
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -518,6 +533,10 @@ void	CX2GUEve::AppendDeviceToDeviceList( CKTDXDeviceDataList& listInOut_ )
 
 void CX2GUEve::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_DamageReact( pDamageData );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::DamageReact( pDamageData );
 	CX2GUUser::DamageReactStateChange( pDamageData );
@@ -544,9 +563,14 @@ void CX2GUEve::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	m_fInvisibilityTime = 0.f;
 #endif
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /*virtual*/ void CX2GUEve::AttackResultPlayEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_AttackResultPlayEffect();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::AttackResultPlayEffect();
 
 	//{{ kimhc // 2010.02.10 //	네메시스 패시브 나소드 기어 강화
@@ -563,10 +587,15 @@ void CX2GUEve::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #endif	EVE_SECOND_CLASS_CHANGE
 	//}} kimhc // 2010.1.28 //	네메시스 패시브 나소드 기어 강화
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 void CX2GUEve::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_Win();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::Win();
 
 #ifdef RIDING_SYSTEM
@@ -578,9 +607,14 @@ void CX2GUEve::Win()
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_Lose();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::Lose();
 
 	if( IsMyUnit() == true && 
@@ -596,9 +630,14 @@ void CX2GUEve::Lose()
 #endif //RIDING_SYSTEM
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_Draw();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -610,10 +649,15 @@ void CX2GUEve::Draw()
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 void CX2GUEve::ParseCommonRandomState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	// June rolls the START / WIN / LOSE variants in June_InitState
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( true == m_LuaManager.BeginTable( "INIT_COMMON_RANDOM_STATE" ) )
 	{
 
@@ -669,6 +713,7 @@ void CX2GUEve::ParseCommonRandomState()
 		m_LuaManager.EndTable(); // INIT_COMMON_RANDOM_STATE
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
@@ -3256,6 +3301,10 @@ void CX2GUEve::InitState()
 
 /*virtual*/ void CX2GUEve::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_SetEquippedSkillLevel( eSkillID_, bChangeAll_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef EVE_ELECTRA
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	if ( true == bChangeAll_ || CX2SkillTree::SI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE == eSkillID_ )
@@ -3396,6 +3445,7 @@ void CX2GUEve::InitState()
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 /*static*/
@@ -3408,6 +3458,10 @@ void	CX2GUEve::AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ )
 
 void CX2GUEve::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_InitComponent();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::InitComponent();
 
 	if( m_LuaManager.BeginTable( "INIT_COMPONENT" ) == true )
@@ -3419,12 +3473,17 @@ void CX2GUEve::InitComponent()
 		m_LuaManager.EndTable();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
 
 void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_InitEquippedActiveSkillState( bOnlySkillLevel );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::InitEquippedActiveSkillState(bOnlySkillLevel);
 
 	// 메가일랙트론볼 슬롯아이디를 검색.
@@ -3552,6 +3611,7 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
@@ -4072,23 +4132,33 @@ void	CX2GUEve::AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2Dam
 
 void CX2GUEve::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_InitEffect();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::InitEffect();
 
 	CreateMajorParticleArray();
 	CreateMinorParticleArray();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
 
 /*virtual*/ void CX2GUEve::InitEnchantWeaponEffectUnitSpecific() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_InitEnchantWeaponEffectUnitSpecific();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
 	{
 		Weapon* pWeapon = m_vecpWeapon[i];
 		pWeapon->InitEnchantParticleForBow();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::DeleteEveMajorParticle()
 {
@@ -4144,6 +4214,10 @@ void	CX2GUEve::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ 
 
 /*virtual*/ void CX2GUEve::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CreateMajorParticleArray();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -4178,6 +4252,7 @@ void	CX2GUEve::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ 
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUEve::SetEveMajorParticleByEnum( EVE_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
 {
@@ -4216,8 +4291,13 @@ void	CX2GUEve::AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ 
 
 /*virtual*/ void CX2GUEve::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CreateMinorParticleArray();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::CreateMinorParticleArray();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUEve::SetEveMinorParticleByEnum( EVE_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
 {
@@ -4237,12 +4317,21 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUEve::SetEveMinorParticleByEnum
 
 void CX2GUEve::CommonStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonStateStartFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateStartFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonStateStart();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateStart();
 
@@ -4250,9 +4339,14 @@ void CX2GUEve::CommonStateStart()
 	m_fEffectStartTime = 0.f;
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::CommonFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonFrameMoveFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	m_fReAttackZ1Time -= m_fElapsedTime;
 	if( m_fReAttackZ1Time < 0.0f )
@@ -4269,9 +4363,14 @@ void CX2GUEve::CommonFrameMoveFuture()
 
 	CX2GUUser::CommonFrameMoveFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 
 
@@ -5509,10 +5608,15 @@ void CX2GUEve::CommonFrameMove()
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 /*virtual*/ void CX2GUEve::CommonEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonEventProcess();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonEventProcess();
 
@@ -5684,16 +5788,26 @@ void CX2GUEve::CommonFrameMove()
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 void CX2GUEve::CommonStateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonStateEndFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEndFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CommonStateEnd();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEnd();
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
@@ -5704,6 +5818,7 @@ void CX2GUEve::CommonStateEnd()
 	m_bIsCheckEndElCrystal = true;
 #endif // FIX_EVE_ELCRYSTAL_BUG
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 //{{ robobeg : 2008-10-28
 //void CX2GUEve::CommonRender()
@@ -5711,6 +5826,10 @@ void CX2GUEve::CommonStateEnd()
 RENDER_HINT CX2GUEve::CommonRender_Prepare()
 	//}} robobeg : 2008-10-28
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	return June_CommonRender_Prepare();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	KTDXPROFILE();
 	// 	if( GetRemainHyperModeTime() > 0.0f )
 	// 	{
@@ -5730,9 +5849,14 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 	return CX2GUUser::CommonRender_Prepare();
 	//}} robobeg : 2008-10-28
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /*virtual*/ bool CX2GUEve::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	return June_SpecialAttackEventProcess( eActiveSkillUseCondition );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Eve 329b5af0 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -6237,6 +6361,7 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 		return true;
 
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
@@ -6245,6 +6370,10 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 // 상태변화가 없는 필살기는 하드코딩해서 예외 처리 한다
 /*virtual*/ bool CX2GUEve::SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	return June_SpecialAttackNoStageChange( pSkillTemplet );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if ( pSkillTemplet == NULL )
 		return false;
 
@@ -6295,12 +6424,17 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 
 	return false;
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 
 
 /*virtual*/ void CX2GUEve::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_NoStateChangeActionFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
 	case UAI_MEGA_ELECTRONBALL:
@@ -6638,6 +6772,7 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 #endif //FINALITY_SKILL_SYSTEM
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 #ifndef SERV_9TH_NEW_CHARACTER // 김태환
 /// 다른 캐릭터들 전부 똑같은 함수를 쓰고 있으니, X2GUUser로 옮기자.
@@ -6661,11 +6796,16 @@ void CX2GUEve::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, float 
 
 /*virtual*/ void CX2GUEve::CreateStepDust()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CreateStepDust();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( true == GetAbsoluteInvisibility() )
 		return; 
 
 	CX2GUUser::CreateStepDust();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 void CX2GUEve::CancelComboWhenChangedDirection( int iFlagCount )
@@ -7211,6 +7351,10 @@ void CX2GUEve::ENSI_JUMP_LANDING_EventProcess()
 //ENSI_DASH
 /*virtual*/ void CX2GUEve::DashStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_DashStartFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.x = 0.0f;
@@ -7221,6 +7365,7 @@ void CX2GUEve::ENSI_JUMP_LANDING_EventProcess()
 #endif EVE_ELECTRA
 
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::ENSI_DASH_EventProcess()
 {
@@ -8272,6 +8417,10 @@ void CX2GUEve::ENSI_JUMP_DASH_EndFuture()
 //ENSI_HYPER_MODE
 void CX2GUEve::HyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_HyperModeFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 	CommonHyperModeFrameMove( 0.05f, 0.83f );
 #else
@@ -8429,6 +8578,7 @@ void CX2GUEve::HyperModeFrameMove()
 	CommonFrameMove();
 #endif // MODIFY_RIDING_PET_AWAKE
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 ////ENSI_DAMAGE_GROGGY
@@ -16245,6 +16395,10 @@ void CX2GUEve::ENSI_SI3_DIMENSION_LINK_GUARDIAN_HYPER_EventProcess()
 */
 /*virtual*/ void CX2GUEve::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_COMMON_BUFF_FrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // 공통 스킬 개편, 김종훈
 	// 각성 인지 아닌지에 따라 World색 변경
 	ChangeWorldColorByHyperMode();
@@ -16288,6 +16442,7 @@ void CX2GUEve::ENSI_SI3_DIMENSION_LINK_GUARDIAN_HYPER_EventProcess()
 
 	CommonFrameMove();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 // 소환된 몬스터가 있으면 자폭 시킨다
 void CX2GUEve::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*= CX2UnitManager::NUI_NONE*/ )
@@ -26980,6 +27135,10 @@ void CX2GUEve::AttackThousandStar()
 
 void CX2GUEve::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_AttackResultByType( pDamageData );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::AttackResultByType( pDamageData );
 
 	// 	if( pDamageData.pDefenderUnit == NULL || pDamageData.pDefenderUnit->GetNowHp() <= 0.f )
@@ -27087,6 +27246,7 @@ void CX2GUEve::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 	}
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::ENSI_COMBO_X_Start()
 {
@@ -28897,16 +29057,25 @@ void CX2GUEve::ENSI_SA_EPR_GIGA_STREAM_End()
 
 void CX2GUEve::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_DeleteMinorParticle();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteEveMinorParticle();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /** @function : HyperModeBuffEffectStart
 @brief : 각성 시 나와야하는 이펙트들 시작
 */
 /*virtual*/ void CX2GUEve::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_HyperModeBuffEffectStart();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2GUUser::HyperModeBuffEffectStart();
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
@@ -28926,6 +29095,7 @@ void CX2GUEve::DeleteMinorParticle()
 	m_fManeuverGauge = min( m_fManeuverGauge + 40.0f, 100.0f );	
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /** @function : GetAdditionalAccelBuffTime
 @brief : 엑셀레이터류 버프의 추가시간을 얻어오는 함수
@@ -29194,6 +29364,10 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 */
 /*virtual*/ void CX2GUEve::AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_AddUnitSlashData( eSlashTraceCondition_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef UNIT_SLASH_TRACE_MANAGER_TEST
 	if( NULL == m_pUnitSlashTraceManager )
 		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
@@ -29226,6 +29400,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 	}
 #endif UNIT_SLASH_TRACE_MANAGER_TEST	
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef BALANCE_CODE_NEMESIS_20121213
 /*virtual*/ void CX2GUEve::ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, OUT float& fAttackerMagicDamage_ , OUT float& fForceDownValue_ )
 {
@@ -29461,6 +29636,10 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 */
 /*virtual*/ void CX2GUEve::ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_ApplyRenderParam( pRenderParam_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -29502,9 +29681,14 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 	else 
 		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /*virtual*/ void CX2GUEve::ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( GetRemainHyperModeTime() > 0.0f )
 	{
 		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
@@ -29518,6 +29702,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		pRenderParam_->outLineColor		= 0xffffffff;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 /** @function : ChangePlaneForamtionSystem
@@ -33473,6 +33658,10 @@ void CX2GUEve::OnFrameMove_EndElCrystalSystem()
 #ifdef FIX_SHOOTING_MEGABALL_AT_JUMP_LINE_MAP
 /*virtual*/void CX2GUEve::InitInpuDataProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_InitInpuDataProcess();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	// #특정 키는 제외하고 초기화 시키는 함수.
 	auto InitInputDataExceptMegaBallKey = []( OUT InputData& sInputData_, OUT bool& bInputDataPureKey_)
 	{
@@ -33517,6 +33706,7 @@ void CX2GUEve::OnFrameMove_EndElCrystalSystem()
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #endif // FIX_SHOOTING_MEGABALL_AT_JUMP_LINE_MAP
 
 #ifdef ADD_EVE_SYSTEM_2014		// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
@@ -40719,9 +40909,14 @@ void CX2GUEve::June_ENSI_DASH_COMBO_ZX_FrameMove()
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 	{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EVE_EAT_DashComboZX", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EVE_EAT_DashComboZX", static_cast< CX2GameUnit* >( this ), NULL, false,
 			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	}
 
 	CommonFrameMove();
@@ -40856,9 +41051,14 @@ void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZ_FrameMove()
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 	{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
 			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	}
 
 	CommonFrameMove();
@@ -40913,9 +41113,14 @@ void CX2GUEve::June_ENSI_EP_DASH_COMBO_ZZZ_FrameMove()
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 	{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_DashZZZ", static_cast< CX2GameUnit* >( this ), NULL, false,
 			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	}
 
 	CommonFrameMove();
@@ -40965,11 +41170,18 @@ void CX2GUEve::June_ENSI_EP_JUMP_COMBO_ZX_FrameMove()
 		// June's second FlushMp argument is the constant 0; the failure path inlines CreateNotEnoughMPEffect between the two hands
 		if( FlushMp( 3.f ) == true )
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 			// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
 				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
 				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		}
 		else
 		{
@@ -41013,9 +41225,14 @@ void CX2GUEve::June_ENSI_EP_COMBO_XXdownX_FrameMove()
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 	{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_XXdownX", static_cast< CX2GameUnit* >( this ), NULL, false,
+			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_XXdownX", static_cast< CX2GameUnit* >( this ), NULL, false,
 			GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	}
 
 	CommonFrameMove();
@@ -41141,11 +41358,18 @@ void CX2GUEve::June_ENSI_ECE_COMBO_ZZXX_FrameMove()
 	{
 		if( FlushMp( 4.f ) == true )
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
+				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall, -1.f, D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), m_fForceDownValueRateElectronBall );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 			// June also passes m_fForceDownValueRateElectronBall as PlayEffectSet's trailing float; March's has none
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX", static_cast< CX2GameUnit* >( this ), NULL, false,
 				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Eve_Code_Empress_JumpZX_Grenade", static_cast< CX2GameUnit* >( this ), NULL, false,
 				GetPowerRate() * GetStatAtkRateOfSummoned() * m_fAttackPowerRateElectronBall );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		}
 		else
 		{
@@ -44414,6 +44638,13 @@ void CX2GUEve::June_ConstructorInit()
 
 	for( int i = 0; i < EASI_END; ++i )
 		m_fEquippedActiveSkill[i] = -1;
+
+	m_fMPConsumeRateElectronBall		= 1.f;	/// June +0x97b0 ( protected, @3299ca5c )
+	m_fJuneElectronBallBigRate			= 0.f;	/// June +0x97bc ( @3299cb15 )
+	m_fAttackPowerRateElectronBall		= 1.f;	/// June +0x97c0 ( @3299caf9 )
+	m_fForceDownValueRateElectronBall	= 1.f;	/// June +0x97c4 ( @3299cb05 )
+	m_fElectronBallRangeRate			= 1.f;	/// stand-in: March's value, June's slot is not mapped
+	m_fSummonedLifeTime					= 0.f;	/// stand-in: a March-only member, June has none
 
 #ifdef SPECIAL_USE_ITEM
 	m_fThrowStartTime		= 0.8f;
@@ -51353,5 +51584,32 @@ void CX2GUEve::June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, Use
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH1n
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH1o
+namespace _CONST_EVE_JUNE_CH1o_
+{
+	/// June's state-data byte +0x11, set by the slot head 329c8a00 on the slot's normal and hyper states ( the tables of X2GUUser.cpp's IsJuneSkillSlotState )
+	bool JuneEveIsSkillSlotState( const int iStateID_ )
+	{
+		for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+		{
+			if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateID[i] == iStateID_
+				|| _CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iStateID_ )
+				return true;
+		}
+		return false;
+	}
+}
+using namespace _CONST_EVE_JUNE_CH1o_;
+
+// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and 0x764 refunds the memo share
+/*virtual*/ void CX2GUEve::JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	June_SpecialAttackCooldown( iSkillID, m_fJune8ea8 );
+	June_SkillMemoMpRefund( iSkillID, JuneEveIsSkillSlotState( GetNowStateID() ), m_fJune8ea8 );
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH1o
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 

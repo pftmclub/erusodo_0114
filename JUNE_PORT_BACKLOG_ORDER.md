@@ -840,6 +840,10 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   if the code event is ever emulated.
 - **The roster is 42 riding pets, not 7.** June has 57 riding-pet scripts; March's 15 are all among them. The 7 named above carry the viewer and
   reserved keys; DarkChaser and Rakshasa carry the target-search keys (C9h-4).
+- **The pet `PlayEffectSet` force-down float** (char-eve CH1o, 2026-10-27). June's pet overload `321e2340` (called by `321e2510`) takes the same
+  trailing float as the game-unit one and stores it in EffectSetInstance `+0x14c`. CH1o ported the game-unit half
+  (`SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE`, `m_fJuneForceDownValueRate`); March's `PlayEffectSetByPet` has no parameter. It matters only
+  if a pet caller passes a rate other than 1.
 
 **Depends on:** june-effect C9h-2a and C9h-3 (the code they would exercise), Stage 13 (the items), Stage 14 (byte-exact assets).
 

@@ -937,6 +937,9 @@ public:
 		};
 		std::vector<JuneDamageEffectModifier>	m_vecJuneModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+		float							m_fJuneForceDownValueRate;	/// June EffectSetInstance +0x14c ( ctor 1.0 ), PlayEffectSet's trailing float
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 
 	private:
 		EffectSetInstance() {}; // do not use
@@ -1073,9 +1076,16 @@ public:
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2TFieldNpc* pFieldNpc );	// June 321e26d0, the village NPC's EFFECT_SET_NAME (Atlas E1c)
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit = NULL,
+		bool bHyper = false, float fPowerRate = -1.f, float fLifeTime = -1.f, D3DXVECTOR3 vScale = D3DXVECTOR3( 1, 1, 1 ),
+		bool bCustomPosition = false, const D3DXVECTOR3& vPosition = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vRotationDegree = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vDirVector = D3DXVECTOR3( 0, 0, 0 ),
+		float fForceDownValueRate = 1.f );	/// June 321e1e60
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit = NULL, 
 		bool bHyper = false, float fPowerRate = -1.f, float fLifeTime = -1.f, D3DXVECTOR3 vScale = D3DXVECTOR3( 1, 1, 1 ), 
 		bool bCustomPosition = false, const D3DXVECTOR3& vPosition = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vRotationDegree = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vDirVector = D3DXVECTOR3( 0, 0, 0 ) );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 
 #ifdef HANABI_VILLAGE
 	CX2EffectSet::Handle PlayEffectSetEvent( const wstring& wstrEffectSetName, CX2SquareUnitPtr pSquareUnit, D3DXVECTOR3 vPosition );

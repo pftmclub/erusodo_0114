@@ -1273,7 +1273,11 @@ public:
 
 	void		ChangePlaneForamtionSystem( const PlaneFormationType ePlaneFormatinoSystem_ );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	virtual int GetComboZStateID() const { return June_GetComboZStateID(); }	/// June 329cf210
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	virtual int GetComboZStateID() const { return ENSI_COMBO_Z; }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	virtual int GetComboXStateID() const { return ENSI_COMBO_X; }
 
 #ifdef ADD_EVE_SYSTEM_2014		// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
@@ -3214,5 +3218,10 @@ protected:
 	/// June character port Phase CH1n: the skill-slot head; SetEquippedSkillFuncBySkillSlotIndex calls it only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	bool		June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 329c8a00 up to its skill switch
 	void		June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	/// June character port Phase CH1o: the June-only user vslots Eve overrides
+	virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
+	virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

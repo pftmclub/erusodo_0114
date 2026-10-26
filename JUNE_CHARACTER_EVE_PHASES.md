@@ -284,6 +284,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 | CH1m | Opus high, Opus review | Registration: June's `InitState` / `InitStateCommon`, the hyper-mode table name, START / WIN / LOSE roll, base event states, the `_LIVE` gate |
 | CH1n | Opus high, Opus review | The CX2GUUser base callbacks Eve registers; `SetEquippedSkillFuncBySkillSlotIndex` `329c8a00` head (bounds, slot tables, the 7i rule) + the dev free-skill gate |
 | CH1o | Opus high, Opus review | The virtuals under `_LIVE`; gaps the CH1a-CH1l reviews routed |
+| CH1o2 | Opus high, Opus review | June-only and changed user virtuals that need a base + March call site first: 0x3ac, 0x7b0, 0x56c, 0x6a8, 0x65c, 0x584, 0x6ac (split by CH1o) |
 | CH1p | Opus high, Opus review | 7ag pressed-index space (Mega Electronball, Taser Pilum, Kugelblitz encoders + every reader + the decode `:6151-6177`, together); hooks 7h / 7l / 7o / 7p / 7x; June-only script keys |
 | CH1q | Opus high, Opus review | Nasod Core (decision 1 = (a): March's `ADD_EVE_SYSTEM_2014` code under our flag, June's bodies where they differ; `ch0_nasod_core.tsv`), flag `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, sub-tag `NCORE` |
 | CH1 | Opus high, Opus review, user play-test | Define `_LIVE`; adopt `Eve_Nasod.lua` and the summon scripts CH0 marks CH1; pack, ask, copy; the play-test |
@@ -1278,6 +1279,61 @@ Each: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 
 `enumscan --check X2GuEve.cpp X2GUUser.cpp`: `0 A/B row(s) remain in 2 file(s)`. `ch1m_regcheck.py`: `matched 771 registrations, 0 problems; ids mapped 134`.
 
 User owes nothing. Next: `/x2-phase char-eve CH1o` (Opus 5.5 high).
+
+### CH1o - Done (2026-10-27)
+
+Wiring under `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (still undefined), one new engine flag, two small CORE / HELPERS additions. The commit is "char-eve Phase CH1o".
+
+**1. The virtuals.** 38 March definitions in `X2GuEve.cpp` now run their `June_*` member under LIVE, with March's body whole in the `#else` (generated from the file's bytes, 76 pure insertions):
+- lifecycle: ctor (`June_ConstructorInit`), dtor (`June_Destructor`), `ReInit`, `InitComponent`, `InitEffect`, `InitEnchantWeaponEffectUnitSpecific`, both particle arrays, `DeleteMinorParticle`;
+- reactions / render: `DamageReact`, `Win` / `Lose` / `Draw`, `AttackResultPlayEffect`, `AttackResultByType`, `AddUnitSlashData`, `ApplyRenderParam`, `ApplyRenderParamOnEmptyRenderParamByBuff`, `HyperModeBuffEffectStart`, `HyperModeFrameMove` (0x600);
+- `COMMON_BUFF_FrameMove` (0x5f0, the CH1n head's registration), `DashStartFuture`, `InitEquippedActiveSkillState`, `InitInpuDataProcess`, `SetEquippedSkillLevel`;
+- `Common*` x7 + `CommonRender_Prepare`, `CreateStepDust`;
+- skill use: `SpecialAttackEventProcess` (509, which reaches 510 / 511 / 512 directly), `SpecialAttackNoStageChange`, `NoStateChangeActionFrameMove`;
+- `ParseCommonRandomState` (pure virtual in `CX2GUUser`): empty under LIVE, June rolls the variants in `June_InitState` (Aisha precedent).
+- `GetComboZStateID` (header inline) returns `June_GetComboZStateID()`.
+- **0x4b4 `GetComboXStateID` is an Eve override too:** `32cb6a20` (`mov eax, 0xac` = 172 = `ENSI_COMBO_X`) is a folded stub outside the class range, which CH0's in-range scan missed. March's inline stays. A whole-vtable scan for entries that differ from User's and point outside the range finds only this one (`ch0_vtable_slots.tsv` footer).
+- No `June_*` body calls its own wrapped virtual. `June_COMMON_BUFF_FrameMove` -> `CommonFrameMove()` (vslot 0x7cc) and `June_InitEffect` / `June_InitComponent` -> the particle / slash virtuals are intended.
+
+**2. June-only user vslots with a March hook already (Aisha's CH1l):** under `EVE_LIVE`, Eve overrides `JuneSummonedNPCInfo` (0x860 -> `June_Vslot860`) and `JuneReservedSkillStart` (32057b80 @32057c4c-cb2: `June_SpecialAttackCooldown( id, +0x8ea8 )`, then `June_SkillMemoMpRefund( id, slot-state byte +0x11, +0x8ea8 )`; the byte is `JuneEveIsSkillSlotState`, `_CONST_EVE_JUNE_CH1o_`, the same tables as `X2GUUser.cpp`'s static). The base virtuals (`X2GUUser.h`) and both call sites (`CountReservedSkillUse`, `CX2Game::SetUserSummonedNPCInfo`) existed only under `ARME_LIVE`. They are now also compiled for `EVE_LIVE` without `ARME_LIVE` (nested `#ifdef` / `#ifndef`, pure insertion).
+
+**3. Routed gaps.**
+- **PlayEffectSet force-down float (CH1h decision).** New flag `SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE` (`X2EffectSet.*`):
+  - the game-unit `PlayEffectSet` takes the trailing `float fForceDownValueRate = 1.f` (`321e1e60`);
+  - `EffectSetInstance::m_fJuneForceDownValueRate` (`+0x14c`, ctor 1.0 @321df48f, set @321e2017);
+  - every damage effect the set creates gets it as `CreateInstance`'s `fForceDownValueRate`. June does this in all three branches (pet @321ef3bb, normal / hyper @321ef462), with `fLandPos` 0, `bReserve` 0 and `fReserveTime` -1.0 (`[0x334380f0]`); March's five calls are switched.
+  - The eight Eve calls pass `m_fForceDownValueRateElectronBall` (`+0x97c4`, read in every listing). These are dash Z-X `32986d30`, Empress dash ZZ / ZZZ / XXdownX `3298e860` / `3298ea30` / `3298eff0`, and both jump Z-X pairs (`3298ec00`, `329998f0`, set + grenade). The old comment line stays in the `#else`.
+- **Base slot 514 (CH1l5 review).** Under `SKILL_USE_HELPERS`, `CX2GUUser::ClearSkillUseReserve` is virtual and clears `+0x8eac` and `+0x8ea8` together (`31fc9410`). Aisha's override is kept: it is redundant and harmless.
+- **Checklist §7 L256 / L259:** the quick-slot prefix and the riding-key wait are in `June_SpecialAttackLookup`, which now runs under LIVE; both rows are marked `(Eve: CH1o)`.
+
+**4. A gap found here: `June_ConstructorInit` lacked June's stores** `+0x97b0` (protected 1.0, @3299ca5c), `+0x97bc` 0 (@3299cb15), `+0x97c0` 1.0 (@3299caf9) and `+0x97c4` 1.0 (@3299cb05). Without them, the LIVE ctor would leave four Electron Ball rates unset. They are added (CORE), plus two labelled stand-ins that March's ctor sets: `m_fElectronBallRangeRate` 1.0 (June's slot is unmapped) and `m_fSummonedLifeTime` 0 (March-only).
+
+**5. Split: CH1o2 (new sub-phase).** These seven overrides need a base virtual and a June call site in March code before Eve can override them:
+
+| Slot | Why it needs its own sub-phase |
+|---|---|
+| 0x3ac | June's `( DD*, float&, float& )`. June's `GetFinalDamage` @322857fb sends every type but AT_SPECIAL there; March has a 4-arg form, AT_NORMAL only, with no `DamageData`. |
+| 0x7b0 | June passes a 4th argument, the index. |
+| 0x56c | Skill-slot icon override, `328e0aa0` @328e0ee4. |
+| 0x6a8 | Shown cool time, the skill-slot UI `322e07e0`. |
+| 0x65c | The NPC crit getter `3275a820` adds the owner's slot. |
+| 0x584 | Target filter, `32f0e260`; the base is `!HaveThisBuff( 984 )`. |
+| 0x6ac | `CX2DungeonGame::SubStageStart` @327cfb79. |
+
+- Bases and callers are in `ch1_offsets.tsv` (vslot rows) and `kickoffs/char-eve/CH1o2.md`.
+- 0x77c (callers only in Eve's CH2a / CH3b states) and 0x828 (the idle-timer reset `+0x91ac` @31fc87d0 / @3206f99f, Stage 9 as for Aisha) need no hook.
+- The CH4a / CH4b / CH1q / CH2a2 overrides stay with those phases.
+- CH1p now depends on the CH1o2 review.
+
+**Checks.** `/Zs` (`census.cl_cmd`) of `X2GuEve` / `X2GUUser` / `X2Game` / `X2EffectSet`: 0 errors with LIVE undefined and with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`. `enumscan --check` (4 files): `0 A/B row(s) remain`.
+**Hygiene** (`--worktree --files`, the 8 code files):
+- `JUNE_EFFECTSET_FORCE_DOWN_RATE`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`;
+- `JUNE_CHAR_EVE_LIVE`: `3 PASS, 5 OTHER, 0 FAIL`, `0 deleted line(s)`; its only FAIL is the by-design "not #defined";
+- `JUNE_CHAR_EVE_CORE`, `JUNE_USER_SKILL_USE_HELPERS`: `RESULT: PASS`, 0 deleted.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,105,344 B, dated 2026-10-27 06:54:23, md5 4f95ffbfc6bf9826dc1e0bc121226d15, equal to X2/US_SERVICE/x2.exe (2026-10-27 06:54:16); built at main a798331e + 8 uncommitted code file(s).`
+
+**JUNE_BUGS:** no row. **Drift:** June's pet `PlayEffectSet` (`321e2340`, called by `321e2510`) writes `+0x14c` from its own trailing float; March's `PlayEffectSetByPet` lacks it. It only matters if a pet set passes a non-1 rate, and goes to the pet owner (backlog Stage 17 bullet). **Open for the review:** whether any other March member the still-March paths read is left unset by `June_ConstructorInit`; the dtor's March-only frees.
+**In game:** nothing (LIVE undefined). Review: `kickoffs/char-eve/CH1o-review.md` (Opus 5.5 high).
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 

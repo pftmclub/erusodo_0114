@@ -71,3 +71,10 @@ offset	kind	name	note
 0x7dc	vslot	CommonStateEnd()
 0x7ec	vslot	CreateStepDust()
 0x7f4	vslot	SpecialAttackEventProcess( ASUT )	1 = ASUT_GROUND, 2 = ASUT_AIR
+0x56c	vslot	JuneSkillIconOverride( id, texName&, texKey& ) ( CH1o; caller 328e0aa0 @328e0ee4, base ret 0xc )
+0x584	vslot	JuneCanTargetUnit( CX2GameUnit* ) ( CH1o; caller 32f0e260, base 31fc8070 = !HaveThisBuff( 984 ) )
+0x65c	vslot	JuneSummonCriticalBonus( CX2GameUnit* npc ) ( CH1o; caller NPC getter 3275a820, base 322b5520 = 0.0 )
+0x6a8	vslot	JuneShownSkillCoolTime( float, id ) ( CH1o; caller skill-slot UI 322e07e0, base 3208e190 = arg )
+0x6ac	vslot	JuneSubStageStartSummons( npcId ) ( CH1o; caller CX2DungeonGame::SubStageStart 327cf620 @327cfb79, base 32001660 )
+0x77c	vslot	JuneCollectOwnWatchSummons( class, vector<CX2GUNPC*>& ) ( CH1o; callers Eve 3299a140 / 3299a400 / 329b1e20, base ret 8 )
+0x828	vslot	JuneIsNotCommonMoveState() ( CH1o; callers 31fc87d0 / 3206f99f reset the idle timer +0x91ac, base 31fd7640 )

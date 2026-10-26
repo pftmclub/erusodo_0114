@@ -10182,3 +10182,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: Per-hit MP stats 24/25/26 refresh through the socket option curve as June's 322b4130 / 322b4170 / 320870a0 (was +raw socket sum per hit). Needs JUNE_SOCKET_PARITY.
 #define SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June character port ( Eve ) Phase CH1o - June's PlayEffectSet ( game unit, 321e1e60 ) trailing float ( default 1.0 ): the instance keeps it ( +0x14c )
+//              and every damage effect the set creates takes it as CreateInstance's fForceDownValueRate ( 321ee600 @321ef3bb / @321ef462 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+//////////////////////////////////////////////////////////////////////////

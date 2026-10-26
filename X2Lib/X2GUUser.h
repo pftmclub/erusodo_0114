@@ -3361,11 +3361,15 @@ public:
 		/// June's skill-use reservation (slot 513 31fc93e0 / slot 514 31fc9410): +0x8eac the skill, +0x8eb4 a 1 s life. June also keeps
 		/// the skill's MP there (+0x8ea8) and spends it when the state starts; March spends it at use, so only the skill is kept
 		void ReserveSkillUseCount( const CX2SkillTree::SKILL_ID eSkillID_ ) { m_eSkillUseReservedSkillID = eSkillID_; m_fSkillUseReserveTime = 1.0f; }
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
+		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; m_fJune8ea8 = 0.f; }	/// June slot 514 ( 31fc9410 ): +0x8eac and +0x8ea8 together
+#else SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }	/// June slot 514 ( 31fc9410 ): Arme's override also clears the reserved MP
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		void CountReservedSkillUse();		/// June CommonStateStart 32057b80 @32057c23-d84
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 		bool JuneIsNotCommonMoveState();	/// June 31fd7640, the base of user vslot 0x828
@@ -3376,6 +3380,12 @@ public:
 		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) {}	/// June user vslot 0x860 ( base 3208ddc0, empty )
 		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c-cb2 ( vslots 0x800 / 0x764 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) {}	/// June user vslot 0x860 ( base 3208ddc0, empty )
+		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
 		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
 		virtual bool IsSkillUseCountExcludedState() const { return false; }

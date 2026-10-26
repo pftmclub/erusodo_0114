@@ -1115,7 +1115,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						if( pEffectSetInstance->m_pPet != NULL && pEffectSetInstance->m_pPet->GetNowIntimacy() >= 0.7f )
 							fPowerRatePet = ( pEffectSetInstance->m_pPet->GetNowIntimacy() - 0.6f + 1.f );
 						pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+								fPowerRate * fPowerRatePet, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate * fPowerRatePet, vEffectPos, vEffectRotation, vEffectRotation );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 						}
 						else
 						{
@@ -1123,12 +1127,20 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 								false == pEffectData->m_EffectNameHyper.empty() )
 							{
 								pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectNameHyper.c_str(), 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 							}
 							else
 							{
 								pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 							}
 						}
 #else
@@ -1136,12 +1148,20 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							false == pEffectData->m_EffectNameHyper.empty() )
 						{
 							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectNameHyper.c_str(), 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 						}
 						else
 						{
 							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 						}
 #endif
 					}
@@ -3334,11 +3354,20 @@ CX2EffectSet::EffectSetInstance*   CX2EffectSet::_CreateEffectSetInstance(
 
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit /*= NULL*/,
+												 bool bHyper /*= false*/, float fPowerRate /*= -1.f*/, float fLifeTime /*= -1.f */,
+												 D3DXVECTOR3 vScale /*= D3DXVECTOR3( 1, 1, 1 )*/,
+												 bool bCustomPosition /*= false*/, const D3DXVECTOR3& vPosition/* = D3DXVECTOR3(0, 0, 0)*/,
+												 const D3DXVECTOR3& vRotationDegree /*= D3DXVECTOR3(0, 0, 0)*/, const D3DXVECTOR3& vDirVector /*= D3DXVECTOR3(0, 0, 0)*/,
+												 float fForceDownValueRate /*= 1.f*/ )
+#else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit /*= NULL*/, 
 												 bool bHyper /*= false*/, float fPowerRate /*= -1.f*/, float fLifeTime /*= -1.f */, 
 												 D3DXVECTOR3 vScale /*= D3DXVECTOR3( 1, 1, 1 )*/, 
 												 bool bCustomPosition /*= false*/, const D3DXVECTOR3& vPosition/* = D3DXVECTOR3(0, 0, 0)*/, 
 												 const D3DXVECTOR3& vRotationDegree /*= D3DXVECTOR3(0, 0, 0)*/, const D3DXVECTOR3& vDirVector /*= D3DXVECTOR3(0, 0, 0)*/)
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 {
 	EffectSetData* pEffectSetData = GetEffectSetTemplet( wstrEffectSetName );
 	if( NULL == pEffectSetData )
@@ -3439,6 +3468,9 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 	pEffectSetInstance->m_bHyper = bHyper;
 	pEffectSetInstance->m_fPowerRate = fPowerRate;
 	pEffectSetInstance->m_fLifeTime = fLifeTime;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+	pEffectSetInstance->m_fJuneForceDownValueRate = fForceDownValueRate;	// June 321e1e60 @321e2017
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	pEffectSetInstance->m_vScale = vScale;
 
 /// 각 파티클 클래스 내에서 유닛 스케일을 적용해 주므로, 중복 적용 구문 제거
@@ -4841,6 +4873,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 , m_fPowerRateScale( 1.f )
 , m_fLifeTime( 0.f )
 , m_vScale( 1, 1, 1 )
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+, m_fJuneForceDownValueRate( 1.f )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 , m_bDamageEffectScale( false )
 , m_pEffectSetData( pEffectSetData ) 
 , m_fPrevElapsedTime( 0.f )

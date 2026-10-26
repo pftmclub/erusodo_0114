@@ -18242,6 +18242,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 			pUser->JuneSummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+			pUser->JuneSummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 		}
 	}
 }
