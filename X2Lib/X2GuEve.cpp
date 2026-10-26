@@ -34827,10 +34827,18 @@ D3DXVECTOR3 CX2GUEve::GetManeuverCoreTargetPosUsingCollisionData ()
 namespace _CONST_EVE_JUNE_CH1a_
 {
 	/// June BTI 0x29f ( BTI_BUFF_CODE_RECOVERY_ECN ): the buff that adds ADD_AIR_DASH_COUNT dash jumps
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const BUFF_TEMPLET_ID JUNE_CH1A_BTI_CODE_RECOVERY_ECN = static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_CODE_RECOVERY_ECN );
+#else
 	const BUFF_TEMPLET_ID JUNE_CH1A_BTI_CODE_RECOVERY_ECN = static_cast<BUFF_TEMPLET_ID>( 671 );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	/// June skill 0x634b ( RNSI_P_EBS_OPEN_MIND ): its ability 0x80 ( SA_AIR_MOVE_COUNT ) adds dash jumps
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1A_P_EBS_OPEN_MIND = CX2SkillTree::RNSI_P_EBS_OPEN_MIND;
+#else
 	const int JUNE_CH1A_P_EBS_OPEN_MIND = 25419;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 }
 using namespace _CONST_EVE_JUNE_CH1a_;
 
@@ -36239,7 +36247,11 @@ void CX2GUEve::JuneEveBlock9c50::Reset( bool bResetFields_ )
 // June 32997c10: the Ferdinand NPC's self-destruct hook ( March ResetLinkOverChargeIllusion kept its cool time and timer )
 void CX2GUEve::June_ResetLinkOverChargeIllusion()
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_FERDINAND ) );		/// June BTI 0x199
+#else
 	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 409 ) );		/// June BTI 0x199
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( true == IsMyUnit() )
 		g_pX2Game->UpdateSkillSlotUI( false );
@@ -36276,7 +36288,11 @@ void CX2GUEve::June_SetSelfDestructSummonedNPC( const int iNPCID_ )
 
 		switch( iNPCID_ )
 		{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		case CX2UnitManager::NUI_SI_HA_FERDINAND:
+#else
 		case 0x5ae:		/// NUI_SI_HA_FERDINAND
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			if( false == pNPC->GetSelfDestruction() )
 			{
 				pNPC->StartSelfDestruction( 0.f );
@@ -36284,8 +36300,13 @@ void CX2GUEve::June_SetSelfDestructSummonedNPC( const int iNPCID_ )
 			}
 			break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		case CX2UnitManager::NUI_NASOD_WATCH_EVE:
+		case CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO:
+#else
 		case 0x180:		/// NUI_NASOD_WATCH_EVE
 		case 0x207:		/// NUI_NASOD_WATCH_EVE_MEMO
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			if( false == pNPC->GetSelfDestruction() )
 			{
 				pNPC->StartSelfDestruction( 3.f );
@@ -36293,10 +36314,17 @@ void CX2GUEve::June_SetSelfDestructSummonedNPC( const int iNPCID_ )
 			}
 			break;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		case CX2UnitManager::NUI_ATOMIC_SHIELD_EVE:
+		case CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING:
+		case CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD:
+		case CX2UnitManager::NUI_ECA_OBERON_GUARD:
+#else
 		case 0x2aa:		/// NUI_ATOMIC_SHIELD_EVE
 		case 0x655:		/// NUI_SI_SA_AT_SURFACE_CUTING
 		case 0x656:		/// NUI_SI_SA_EEP_ELECTRONIC_FIELD
 		case 0x82b:
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			pNPC->SetNowHp( 0.f );
 			break;
 		}
@@ -36306,9 +36334,17 @@ void CX2GUEve::June_SetSelfDestructSummonedNPC( const int iNPCID_ )
 // June 329ae670: the die / FrameMove tail: BTI 0x233, the 0x82b NPC, the Oberon Guard effect set and the summon uid
 void CX2GUEve::June_ClearGuardAndSummon()
 {
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_OBERON_GUARD ) );		/// June BTI 0x233
+#else
 	EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 563 ) );		/// June BTI 0x233
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ECA_OBERON_GUARD );
+#else
 	June_SetSelfDestructSummonedNPC( 0x82b );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( INVALID_EFFECTSET_HANDLE != m_hOberonGuard )
 		g_pX2Game->GetEffectSet()->StopEffectSet( m_hOberonGuard );
@@ -36332,12 +36368,21 @@ void CX2GUEve::June_ENSI_DIE_FRONT_Start()
 
 	m_pXSkinAnim->SetPlaySpeed( 0.5f );
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ATOMIC_SHIELD_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+#else
 	June_SetSelfDestructSummonedNPC( 0x655 );
 	June_SetSelfDestructSummonedNPC( 0x656 );
 	June_SetSelfDestructSummonedNPC( 0x180 );
 	June_SetSelfDestructSummonedNPC( 0x207 );
 	June_SetSelfDestructSummonedNPC( 0x2aa );
 	June_SetSelfDestructSummonedNPC( 0x5ae );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	June_EGQueensThroneReset();
 
@@ -36388,12 +36433,21 @@ void CX2GUEve::June_ENSI_DIE_BACK_Start()
 
 	m_pXSkinAnim->SetPlaySpeed( 0.5f );
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ATOMIC_SHIELD_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+#else
 	June_SetSelfDestructSummonedNPC( 0x655 );
 	June_SetSelfDestructSummonedNPC( 0x656 );
 	June_SetSelfDestructSummonedNPC( 0x180 );
 	June_SetSelfDestructSummonedNPC( 0x207 );
 	June_SetSelfDestructSummonedNPC( 0x2aa );
 	June_SetSelfDestructSummonedNPC( 0x5ae );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	June_EGQueensThroneReset();
 
@@ -38291,9 +38345,15 @@ void CX2GUEve::EveElectraSystem::June_CreatePlane( float _fZAngle/* = 0.f*/, flo
 namespace _CONST_EVE_JUNE_CH1e_
 {
 	/// June skill ids used by the boost attack ( Enum.lua numbering; the C++ SKILL_ID enum is March's )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_RNSI_A_EBS_ELECTRONIC_MOVE		= CX2SkillTree::RNSI_A_EBS_ELECTRONIC_MOVE;
+	const int JUNE_RNSI_P_EBS_OPEN_MIND				= CX2SkillTree::RNSI_P_EBS_OPEN_MIND;
+	const int JUNE_SKILL_ID_BOOST_ATTACK_MP			= CX2SkillTree::RNSI_SA_ECB_ENERGETIC_HEART;
+#else
 	const int JUNE_RNSI_A_EBS_ELECTRONIC_MOVE		= 25223;
 	const int JUNE_RNSI_P_EBS_OPEN_MIND				= 25419;
 	const int JUNE_SKILL_ID_BOOST_ATTACK_MP			= 25029;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 }
 using namespace _CONST_EVE_JUNE_CH1e_;
 
@@ -39414,7 +39474,11 @@ void CX2GUEve::June_StateChangeBoostAttackIfPossible()
 	{
 		int iBoostAttackMax = m_iAddBoostAttack;
 		if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			iBoostAttackMax = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iBoostAttackMax );
+#else
 			iBoostAttackMax = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iBoostAttackMax );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 		if( m_iBoostAttackCount >= iBoostAttackMax + 3 )
 			June_TryGetEquippedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x1b ), JUNE_SKILL_ID_BOOST_ATTACK_MP, true, fFlushMp );
@@ -42743,7 +42807,11 @@ void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EventProcess()
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
 	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#else
 		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
 	{
@@ -42844,7 +42912,11 @@ void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EventProcess()
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
 	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#else
 		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
 	{
@@ -42945,7 +43017,11 @@ void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess()
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
 	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#else
 		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
 	{
@@ -43129,34 +43205,71 @@ void CX2GUEve::June_ENSI_ECB_DASH_XX_EventProcess()
 namespace _CONST_EVE_JUNE_CH1k_
 {
 	/// June ids ( Enum.lua numbering; the C++ enums are March's )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1K_UC_EVE_EXOTIC_GEAR					= CX2Unit::UC_EVE_EXOTIC_GEAR;		/// 0x12; Code Nemesis is 108
+	const int JUNE_CH1K_UC_EVE_CODE_NEMESIS					= CX2Unit::UC_EVE_CODE_NEMESIS;		/// 0x6c
+	const int JUNE_CH1K_UC_EVE_ARCHITECTURE					= CX2Unit::UC_EVE_ARCHITECTURE;		/// 0x13; Code Empress is 109
+	const int JUNE_CH1K_UC_EVE_CODE_EMPRESS					= CX2Unit::UC_EVE_CODE_EMPRESS;		/// 0x6d
+	const int JUNE_CH1K_UC_EVE_ELECTRA						= CX2Unit::UC_EVE_ELECTRA;		/// 0x1a; Code Battle Seraph is 116
+	const int JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH			= CX2Unit::UC_EVE_BATTLE_SERAPH;		/// 0x74
+#else
 	const int JUNE_CH1K_UC_EVE_EXOTIC_GEAR					= 18;		/// 0x12; Code Nemesis is 108
 	const int JUNE_CH1K_UC_EVE_CODE_NEMESIS					= 108;		/// 0x6c
 	const int JUNE_CH1K_UC_EVE_ARCHITECTURE					= 19;		/// 0x13; Code Empress is 109
 	const int JUNE_CH1K_UC_EVE_CODE_EMPRESS					= 109;		/// 0x6d
 	const int JUNE_CH1K_UC_EVE_ELECTRA						= 26;		/// 0x1a; Code Battle Seraph is 116
 	const int JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH			= 116;		/// 0x74
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1K_P_ECN_NASOD_WEAPON					= CX2SkillTree::RNSI_P_ECN_NASOD_WEAPON;	/// 0x6339
+	const int JUNE_CH1K_P_ECN_NASOD_WEAPON_MEMO				= CX2SkillTree::RNSI_P_ENS_CHEAT_CODE_DESTROY;	/// 0x6348
+	const int JUNE_CH1K_SA_ECN_PSYKER_KINESIS				= CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS;	/// 0x6293
+	const int JUNE_CH1K_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE	= CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE;	/// 0x627e
+	const int JUNE_CH1K_P_ENS_OPEN_MIND						= CX2SkillTree::RNSI_P_ENS_OPEN_MIND;	/// 0x6347
+#else
 	const int JUNE_CH1K_P_ECN_NASOD_WEAPON					= 25401;	/// 0x6339
 	const int JUNE_CH1K_P_ECN_NASOD_WEAPON_MEMO				= 25416;	/// 0x6348
 	const int JUNE_CH1K_SA_ECN_PSYKER_KINESIS				= 25235;	/// 0x6293
 	const int JUNE_CH1K_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE	= 25214;	/// 0x627e
 	const int JUNE_CH1K_P_ENS_OPEN_MIND						= 25415;	/// 0x6347
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1K_BTI_984								= BTI_DEBUFF_FESSEL_HEILIG;		/// 0x3d8
+	const int JUNE_CH1K_BTI_954								= BTI_BUFF_REASON_PRIDE_OBERON;		/// 0x3ba
+	const int JUNE_CH1K_BTI_956								= BTI_BUFF_REASON_PRIDE_OPHELIA;		/// 0x3bc
+	const int JUNE_CH1K_NUI_1621							= CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING;
+	const int JUNE_CH1K_NUI_1622							= CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD;
+#else
 	const int JUNE_CH1K_BTI_984								= 984;		/// 0x3d8
 	const int JUNE_CH1K_BTI_954								= 954;		/// 0x3ba
 	const int JUNE_CH1K_BTI_956								= 956;		/// 0x3bc
 	const int JUNE_CH1K_NUI_1621							= 0x655;
 	const int JUNE_CH1K_NUI_1622							= 0x656;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	/// ATTACK_TRIGGER_TYPE ( June 32610fb0 arguments )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1K_DTT_EVE_THOUSAND_STAR				= CX2DamageManager::DTT_EVE_THOUSAND_STAR;
+	const int JUNE_CH1K_DTT_EVE_MANEUVER_ATTACK				= CX2DamageManager::DTT_EVE_MANEUVER_ATTACK;
+	const int JUNE_CH1K_DTT_44								= CX2DamageManager::DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK;		/// 0x2c, name unknown
+#else
 	const int JUNE_CH1K_DTT_EVE_THOUSAND_STAR				= 2;
 	const int JUNE_CH1K_DTT_EVE_MANEUVER_ATTACK				= 5;
 	const int JUNE_CH1K_DTT_44								= 44;		/// 0x2c, name unknown
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	/// Code Recovery tooltip: buff factors and string ids ( June 329c3da0 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1K_BUFF_FACTOR_ECN						= BFI_BUFF_CODE_RECOVERY_ECN;
+	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVE					= BFI_BUFF_CODE_RECOVERY_ECB;
+	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVP					= BFI_BUFF_CODE_RECOVERY_ECB_PVP;
+#else
 	const int JUNE_CH1K_BUFF_FACTOR_ECN						= 0x2a9;
 	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVE					= 0x2aa;
 	const int JUNE_CH1K_BUFF_FACTOR_ECB_PVP					= 0x45f;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int JUNE_CH1K_STR_RECOVERY_DEFAULT				= 0x8fe1;
 	const int JUNE_CH1K_STR_RECOVERY_ECN					= 0x8fe2;
 	const int JUNE_CH1K_STR_RECOVERY_ECE					= 0x8fe3;
@@ -44092,10 +44205,17 @@ void CX2GUEve::June_ReInit( bool bRandom, int startPosIndex )
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 	m_fReDashJumpXTime = 0.0f;
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ATOMIC_SHIELD_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+#else
 	June_SetSelfDestructSummonedNPC( 0x180 );		/// NUI_NASOD_WATCH_EVE
 	June_SetSelfDestructSummonedNPC( 0x207 );		/// NUI_NASOD_WATCH_EVE_MEMO
 	June_SetSelfDestructSummonedNPC( 0x2aa );		/// NUI_ATOMIC_SHIELD_EVE
 	June_SetSelfDestructSummonedNPC( 0x5ae );		/// NUI_SI_HA_FERDINAND
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1621 );
 	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1622 );
 	June_ClearGuardAndSummon();
@@ -44168,10 +44288,17 @@ void CX2GUEve::June_Destructor()
 
 	g_pX2Game->GetEffectSet()->StopEffectSet( m_hOberonGuard );
 
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ATOMIC_SHIELD_EVE );
+	June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+#else
 	June_SetSelfDestructSummonedNPC( 0x180 );		/// NUI_NASOD_WATCH_EVE
 	June_SetSelfDestructSummonedNPC( 0x207 );		/// NUI_NASOD_WATCH_EVE_MEMO
 	June_SetSelfDestructSummonedNPC( 0x2aa );		/// NUI_ATOMIC_SHIELD_EVE
 	June_SetSelfDestructSummonedNPC( 0x5ae );		/// NUI_SI_HA_FERDINAND
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1621 );
 	June_SetSelfDestructSummonedNPC( JUNE_CH1K_NUI_1622 );
 
@@ -44354,6 +44481,20 @@ void CX2GUEve::June_ConstructorInit()
 namespace _CONST_EVE_JUNE_CH1l_
 {
 	/// June skill ids ( Enum.lua numbering; the C++ SKILL_ID enum is March's )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_OVER_CHARGE	= CX2SkillTree::RNSI_SA_EEL_SWEEP_ROLLING_OVER_CHARGE;	/// 0x61bd
+	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_TRI_VULCAN		= CX2SkillTree::SI_SA_EEL_SWEEP_ROLLING_TRI_VULCAN;		/// 0x139a, June keeps the old id
+	const int JUNE_CH1L_A_EBS_ELECTRONIC_MOVE				= CX2SkillTree::RNSI_A_EBS_ELECTRONIC_MOVE;	/// 0x6287
+	const int JUNE_CH1L_A_ECN_SPEAR_BURST					= CX2SkillTree::RNSI_A_ECN_SPEAR_BURST;	/// 0x6276
+	const int JUNE_CH1L_SA_ECE_REASON_PRIDE					= CX2SkillTree::RNSI_SA_ECE_REASON_PRIDE;	/// 0x6294
+	const int JUNE_CH1L_A_EAT_MEGA_ELECTRONBALL				= CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL;	/// 0x6277
+	const int JUNE_CH1L_A_ECB_TASER_PILUM					= CX2SkillTree::RNSI_A_ECB_TASER_PILUM;	/// 0x627c
+	const int JUNE_CH1L_SA_EEL_KUGELBLITZ					= CX2SkillTree::RNSI_SA_EEL_KUGELBLITZ;	/// 0x61c0
+	const int JUNE_CH1L_SA_EEG_QUEENS_THRONE				= CX2SkillTree::RNSI_SA_EEG_QUEENS_THRONE;	/// 0x61ab
+	const int JUNE_CH1L_P_ECN_ENERGY_OF_CONCENTRATION		= CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION;	/// 0x633a
+	const int JUNE_CH1L_P_ECE_GRACE_OF_QUEEN				= CX2SkillTree::RNSI_P_ECE_GRACE_OF_QUEEN;	/// 0x6340
+	const int JUNE_CH1L_A_COMMON_AURA_ADDATK_ACCEL			= CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL;	/// 0x6271
+#else
 	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_OVER_CHARGE	= 25021;	/// 0x61bd
 	const int JUNE_CH1L_SA_EEL_SWEEP_ROLLING_TRI_VULCAN		= 5018;		/// 0x139a, June keeps the old id
 	const int JUNE_CH1L_A_EBS_ELECTRONIC_MOVE				= 25223;	/// 0x6287
@@ -44366,13 +44507,19 @@ namespace _CONST_EVE_JUNE_CH1l_
 	const int JUNE_CH1L_P_ECN_ENERGY_OF_CONCENTRATION		= 25402;	/// 0x633a
 	const int JUNE_CH1L_P_ECE_GRACE_OF_QUEEN				= 25408;	/// 0x6340
 	const int JUNE_CH1L_A_COMMON_AURA_ADDATK_ACCEL			= 25201;	/// 0x6271
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	/// June state id with no March enumerator yet ( CH3b adds it )
 	const int JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION		= 242;		/// 0xf2
 
 	/// June NPC unit ids of the Nasod summons ( 0x655 / 0x656 are CH1k's 1621 / 1622 )
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE					= CX2UnitManager::NUI_NASOD_WATCH_EVE;
+	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO			= CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO;
+#else
 	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE					= 0x180;
 	const int JUNE_CH1L_NUI_NASOD_WATCH_EVE_MEMO			= 0x207;
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	/// June 329cc500: clears the input, then sets the one pure key back when it was held
 	void JuneEveInitInputDataExceptKey( CX2GameUnit::InputData& sInputData_, bool& bPureKey_ )
@@ -44449,6 +44596,27 @@ namespace _CONST_EVE_JUNE_CH1l_
 	{
 		switch( iSkillID_ )
 		{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		case CX2SkillTree::SI_SA_COMMON_AURA_POWER_ACCEL: case CX2SkillTree::RNSI_A_ABM_AURA_POWER_ACCEL: case CX2SkillTree::RNSI_A_ABM_AURA_POWER_ACCEL_UPGRADE:
+			return L"BuffAttackCore";
+		case CX2SkillTree::SI_SA_COMMON_AURA_MAGIC_ACCEL: case CX2SkillTree::RNSI_A_AHM_AURA_MAGIC_ACCEL: case CX2SkillTree::RNSI_A_AHM_AURA_MAGIC_ACCEL_UPGRADE:
+			return L"BuffMagickCore";
+		case CX2SkillTree::SI_SA_COMMON_AURA_SHIELD_ACCEL:
+			return L"ShieldBuffCore";
+		case CX2SkillTree::SI_SA_COMMON_AURA_SPEED_ACCEL: case CX2SkillTree::RNSI_A_ADM_AURA_SPEED_ACCEL: case CX2SkillTree::RNSI_A_ADM_AURA_SPEED_ACCEL_UPGRADE:
+			return L"BuffSpeed_Core";
+		case CX2SkillTree::SI_SA_COMMON_AURA_EL_DEFENCE_ACCEL:
+			return L"BuffElDefence_Core";
+		case CX2SkillTree::SI_SA_COMMON_AURA_CRITICAL_ACCEL:
+			return L"BuffCritical_Core";
+		case CX2SkillTree::SI_SA_COMMON_AURA_ADDATK_ACCEL: case CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL_UPGRADE: case CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL:
+			return L"BuffAddAtk_Core";
+		case CX2SkillTree::RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL:
+		case CX2SkillTree::RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE:
+		case CX2SkillTree::RNSI_BUFF_PHANTOM_CIRCLE:
+			return L"BuffAttackCore_Luciel";
+		}
+#else
 		case 200: case 0x56c4: case 0x56cf:
 			return L"BuffAttackCore";
 		case 201: case 0x56ba: case 0x56cd:
@@ -44467,6 +44635,7 @@ namespace _CONST_EVE_JUNE_CH1l_
 
 		if( 0x765d <= iSkillID_ && iSkillID_ <= 0x765f )
 			return L"BuffAttackCore_Luciel";
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 		return NULL;
 	}

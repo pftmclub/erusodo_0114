@@ -56,6 +56,9 @@ class CX2DamageManager
 			// after DTT_END: DTT_END is relied on as the March count
 			DTT_MULTIPLE_DAMAGE_BY_DEBUFF         = 40,
 			DTT_ECE_REASON_PRIDE_FERDINAND_ATTACK = 44,
+#ifndef ADD_EVE_SYSTEM_2014
+			DTT_EVE_MANEUVER_ATTACK               = 5,		// June value; March's own member sits under ADD_EVE_SYSTEM_2014
+#endif ADD_EVE_SYSTEM_2014
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 		};
