@@ -1304,6 +1304,7 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 				friend class CX2EffectSet;	/// June 321db1b0 tags 5 / 12 / 16 / 20 write the inherit gates
 				friend class CX2GuEve;		/// Eve's projectile modifiers call 31f649d0 / 31f65e40 / 31f65f90 on their children
+				friend class CX2GUEve;		/// CH1l4: the class is CX2GUEve ( CH1l40's friend line above names no class )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND

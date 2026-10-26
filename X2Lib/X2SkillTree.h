@@ -1763,6 +1763,12 @@ public:
 		RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE          = 25604,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's CommonFrameMove helpers spell (values from June's Enum.lua)
+		RNSI_P_ECB_HYPER_OPTICAL_RESEARCH                     = 25411,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion 스킬
 	}; 
 
@@ -2028,6 +2034,38 @@ public:
 	// 레이븐	604001 ~ 604999
 	// 이브		605001 ~ 605999
 	// 청		606001 ~ 606999
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	/// June's MEMO_ID ( Enum.lua ): the type of a skill memo row ( JuneSkillMemoEntry::m_iType )
+	enum JUNE_MEMO_ID
+	{
+		MI_NONE					= 0,
+		MI_ENHANCE				= 1,
+		MI_HUGE					= 2,
+		MI_LIGHT				= 3,
+		MI_HEAVY				= 4,
+		MI_USEFUL				= 5,
+		MI_MAXIMIZE				= 6,
+		MI_BRILLIANT			= 7,
+		MI_CRITICAL				= 8,
+		MI_FASTEST				= 9,
+		MI_REGENERATE_1			= 10,
+		MI_REGENERATE_2			= 11,
+		MI_BRUTAL				= 12,
+		MI_WICKED				= 13,
+		MI_TOUGH				= 14,
+		MI_CHECK_AND_KILL_1		= 15,
+		MI_CHECK_AND_KILL_2		= 16,
+		MI_ABSORB				= 17,
+		MI_PERSISTENT			= 18,
+		MI_TRANSCENDENCE_1		= 19,
+		MI_TRANSCENDENCE_2		= 20,
+		MI_SAGE					= 21,
+		MI_LONGSHOT				= 22,
+		MI_END					= 23,
+	};
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 	enum SKILL_MEMO_ID
 	{
 		SMI_NONE			= 0,

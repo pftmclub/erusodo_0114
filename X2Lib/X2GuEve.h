@@ -409,6 +409,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		wstring						m_wstrJuneInductionLaserName;			/// June +0xc8: induction laser name, empty = EVE_EBS_INDUCTION_LASER ( reader 329bc6e0 )
 		wstring						m_wstrJuneInductionLaserSpecialName;	/// June +0xe4: the AT_SPECIAL one, empty = EVE_EBS_INDUCTION_LASER_SPECIAL
+		void June_OnFrameMove( float fElapsedTime_ );	/// June 329bc6e0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraLaserData( EveElectraSystem* _pEveElectraSystem );
 		void OnFrameMove( float fElapsedTime );
@@ -435,7 +436,14 @@ public:
 #endif
 		EveElectraSystem*			m_pEveElectraSystem;			/// 일렉트라 시스템 포인트
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		CX2EffectSet::Handle				m_hJuneEffectSet;				/// June +0x8c ( -1 ): the Electra effect, when it is an effect set
+		std::vector<CX2EffectSet::Handle>	m_vecJuneEffectSetHandle;		/// June +0x90: the filtered effect sets played at the plane, until their damage effects took the modifiers
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraEffectData( EveElectraSystem* _pEveElectraSystem );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		void June_OnFrameMove( float fElapsedTime_ );	/// June 329c12a0
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		void OnFrameMove( float fElapsedTime );
 	};
 
@@ -458,6 +466,9 @@ public:
 		EveElectraSystem*			m_pEveElectraSystem;			/// 일렉트라 시스템 포인트
 
 		EveElectraLockonData( EveElectraSystem* _pEveElectraSystem );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		void June_OnFrameMove( float fElapsedTime_ );	/// June 329c3420
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		void OnFrameMove( float fElapsedTime );
 	};
 
@@ -552,6 +563,10 @@ public:
 		int							m_iJune1c0;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
 		void						June_StartFormationEffect();	/// June 329a0ae0
 		int								June_GetFormationFactor() const;	/// June 329cc390
+		void							June_ProcessPlane( float fElapsedTime_ );	/// June 3299f470
+		void							June_ProcessGigaPlane( float fElapsedTime_ );	/// June 3299fe60
+		void							June_ProcessFormation( float fElapsedTime_ );	/// June 32991090
+		void							June_ProcessSystem( float fElapsedTime_ );	/// June 329c3bb0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraSystem( CX2GUEve* _pGUEve );
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -939,6 +954,9 @@ public:
 		}
 
 		void OnFrameMove( IN CX2GUEve* pGUEve, IN float fElapsedTime_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		void June_OnFrameMove( IN CX2GUEve* pGUEve, IN float fElapsedTime_ );	/// June 32996c50
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	};
 #endif
 
@@ -3152,5 +3170,37 @@ protected:
 	void		June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
 	bool		June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140 ( CX2GUUser )
 	bool		June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
+
+	/// June character port Phase CH1l4: inert June_* members of CommonFrameMove 0x7cc and the helpers only it reaches; nothing calls them until CH1
+	std::map<int, CX2EffectSet::Handle>	m_mapJuneNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; 3299b000 reads it, no phase of this port fills it yet )
+	float		m_fJune9770;							/// June +0x9770 ( 1.0; the power rate of the Oberon Guard effect set )
+	int			m_iJune9c28;							/// June +0x9c28 ( 0; 2 makes the delayed Thousand Star attack fire twice )
+	int			m_iJune9c2c;							/// June +0x9c2c ( 0; the level of the queen's control buff stack )
+	clock_t		m_iJuneClock9c44;						/// June +0x9c44 ( clock() at the last parry, DoParrying 329b4060 writes it in CH1q; CommonFrameMove reads it for the Open Mind gauge floor )
+
+	void		June_OnFrameMove_EndElCrystalSystem();	/// June 329986e0
+	void		June_EndElCrystalSystem( bool bEnergeticHeartEnd_ );	/// June 32994a10
+	int			June_FindOberonGuardNpcUid();			/// June 3299ad60
+	void		June_StartOberonGuardEffect( const int iNpcUid_ );	/// June 329ae6e0
+	void		June_OberonGuardFrameMove();			/// June 329ae9a0
+	void		June_FrameMoveNpcEffectSets();			/// June 3299b000
+	int			June_GetQueensControlCount();			/// June 3299b440
+	void		June_UpdateQueensControlStack();		/// June 3299b790
+	static void	June_ShowParticleByInvisibility( CX2GUEve* pGUEve_, CKTDGParticleSystem::CParticleEventSequence* pSeq_ );	/// June 32979350
+	void		June_ApplyInvisibilityToMeshInstance( CX2GUEve* pGUEve_, CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// June 32975ac0
+	void		June_PlaySoundInMoveStates( const wstring& wstrSoundName_ );	/// June 3297a500
+	void		June_ApplyCodeRecoveryIgnoreDefence( CX2DamageEffect::CEffect* pChild_ );	/// June 32968c50
+	void		June_ApplyProjectileModifiers( CX2DamageEffect::CEffect* pChild_ );	/// June 3297bad0
+	void		June_ApplyInheritCriticalRate( CX2DamageEffect::CEffect* pEffect_ );	/// June 3297b720
+	void		June_UpdateDashXTargetUnit();			/// June 3297b370
+	void		June_ChangePlaneForamtionSystem( const PlaneFormationType ePlaneFormatinoSystem_ );	/// June 329a7d00
+	void		June_UpdateBlock9c50Timer();			/// June 329b4a60
+	void		June_DoFrameMoveThousandStar();			/// June 329b2f60
+	void		June_CommonFrameMove();					/// June 329c5bc0 ( vslot 0x7cc )
+	void		June_EntireAttackThousandStar();		/// June 329a3040
+	void		June_AttackThousandStar();				/// June 329a3760
+	void		June_SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ );
+	void		June_AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ );
+	static void	June_AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ );	/// the first lines of June's 329c12a0 cases
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

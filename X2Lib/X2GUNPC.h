@@ -2779,6 +2779,9 @@ class CX2GUNPC : public CX2GameUnit
 #else	// VERIFY_STAT_BY_BUFF
 		virtual void TransformScale( const D3DXVECTOR3& vScale_ );
 #endif // VERIFY_STAT_BY_BUFF
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		void June_SetBasicScale( const float fRate_, const bool bTransform_ );	/// June 327623f0 ( CX2GUNPC vslot 0x270; Eve's Oberon Guard 329ae6e0 calls it )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		// note!! 아마게돈 블레이드를 사용하는 몬스터를 위한 예외 코드
 		void						DeleteArmagedonBlade();

@@ -30302,6 +30302,28 @@ CX2EffectSet::Handle CX2GUNPC::GetEffectSet_LUA( int iIndex )
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+// June 327623f0: the basic scale times the rate; with bTransform_ the new basic scale is multiplied by the rate once more and applied through TransformScale ( JUNE_BUGS 438 )
+void CX2GUNPC::June_SetBasicScale( const float fRate_, const bool bTransform_ )
+{
+	if( fRate_ < 0.f )
+		return;
+
+	const D3DXVECTOR3 vScaled( m_vBasicScale.x * fRate_, m_vBasicScale.y * fRate_, m_vBasicScale.z * fRate_ );
+	if( vScaled.x != m_vBasicScale.x || vScaled.y != m_vBasicScale.y || vScaled.z != m_vBasicScale.z )
+		m_vBasicScale = vScaled;
+
+	if( true == bTransform_ )
+	{
+		const D3DXVECTOR3 vScaledAgain( m_vBasicScale.x * fRate_, m_vBasicScale.y * fRate_, m_vBasicScale.z * fRate_ );
+		if( vScaledAgain.x != m_vBasicScale.x || vScaledAgain.y != m_vBasicScale.y || vScaledAgain.z != m_vBasicScale.z )
+			m_vBasicScale = vScaledAgain;
+
+		TransformScale( m_vBasicScale );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 void CX2GUNPC::DeleteArmagedonBlade()
 {
 	m_SubAttackListSet.clear();

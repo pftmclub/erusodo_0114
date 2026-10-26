@@ -529,6 +529,17 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_REASON_PRIDE_EVE             = 961,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI names Eve's CommonFrameMove helpers spell
+	BTI_BUFF_CODE_RECOVERY_ECB            = 672,
+	BTI_BUFF_QUEENS_CONTROL               = 786,
+	BTI_BUFF_SENTRY                       = 410,
+	BTI_BUFF_ATOMIC_SHIELD                = 411,
+	BTI_BUFF_OBERON                       = 412,
+	BTI_BUFF_OPHELIA                      = 413,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID
@@ -695,6 +706,12 @@ enum BUFF_FACTOR_ID
 	BFI_BUFF_REASON_PRIDE_OBERON          = 1010,
 	BFI_BUFF_REASON_PRIDE_OPHELIA         = 1012,
 	BFI_BUFF_REASON_PRIDE_EVE             = 1017,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI names Eve's CommonFrameMove helpers spell
+	BFI_BUFF_QUEENS_CONTROL               = 812,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 };

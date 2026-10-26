@@ -5278,3 +5278,39 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 321cd590	~( June CX2CustomizeManager item data struct ) ( none in March )	routed	Char Eve CH1l40: dtor of 321cdbb0's struct ( 4 wstrings, map, vector ). Stage 12
 3264e800	CX2CustomizeManager::GetItemData( int iItemID, ItemData& out ) ( none in March )	routed	Char Eve CH1l40: this = 31d70b60() ( g_pMain +0x9e4 ), RET 8; map +0x10c ( end +0x110 ) find by item id, hit -> out = node +0x10 ( 3265cf40 ) and true. 3297b840 then reads out +0x2c ( the second wstring ) -> 32078b70 -> 329cd9c0 ( the cut-in name ). Stage 12
 3297b840 @3297b908-3297b978	CX2GUEve cut-in helper: the skill cut-in item override ( none in March )	routed	Char Eve CH1l40: if 31fd8a50() > 0: struct ctor 321cdbb0, GetItemData 3264e800, on a hit the cut-in takes the struct's +0x2c name, dtor 321cd590. CH2a2 transcribes 3297b840 without this block ( '// June 3297b908: skill cut-in item override -> Stage 12' ), as Aisha CH5 did for 32cc9680
+329673a0	CX2GUEve::EveElectraSystem::GetBuffTempletIdByPlaneFormation (March)	confirmed	Char Eve CH1l4: same table as March; no June_ member
+32968c50	CX2GUEve::June_ApplyCodeRecoveryIgnoreDefence	PORTED	Char Eve CH1l4: inert; Code Recovery child takes ignore-defence-down; callers 329a3760, 329c3420
+32975ac0	CX2GUEve::June_ApplyInvisibilityToMeshInstance	PORTED	Char Eve CH1l4: inert; cloak alpha / outline on a mesh instance; called by CommonFrameMove for the Queen's Throne meshes
+32979350	CX2GUEve::June_ShowParticleByInvisibility (static)	PORTED	Char Eve CH1l4: inert; hide the sequence while cloaked except on my own screen
+3297a500	CX2GUEve::June_PlaySoundInMoveStates	PORTED	Char Eve CH1l4: inert; plays only in the standing / walking / jumping / dashing / flying states
+3297b370	CX2GUEve::June_UpdateDashXTargetUnit	PORTED	Char Eve CH1l4: inert; CEffect +0x650 / +0x648 are DamageData::hitUnitList / bReAttack
+3297b720	CX2GUEve::June_ApplyInheritCriticalRate	PORTED	Char Eve CH1l4: inert; equipped-skill ability 0x33 of 25411 added to the effect and its NEXT tables
+3297bad0	CX2GUEve::June_ApplyProjectileModifiers	PORTED	Char Eve CH1l4: inert; Eve's projectile modifiers on a child effect
+32991090	CX2GUEve::EveElectraSystem::June_ProcessFormation	PORTED	Char Eve CH1l4: inert
+32991ac0	CX2GUEve::EveElectraSystem::DestroyGigaPlaneAndCrystalEffect (March)	confirmed	Char Eve CH1l4: same order as March; no June_ member
+32994a10	CX2GUEve::June_EndElCrystalSystem	PORTED	Char Eve CH1l4: inert
+32994cd0	CX2GUEve::EveElectraSystem::ChangeThousandsOfStarsFormation (March)	confirmed	Char Eve CH1l4: same as March; no June_ member
+32996c50	CX2GUEve::ENERGY_NEEDLES_Data::June_OnFrameMove	PORTED	Char Eve CH1l4: inert; uses rand() % 5 like June
+329986e0	CX2GUEve::June_OnFrameMove_EndElCrystalSystem	PORTED	Char Eve CH1l4: inert
+3299ad60	CX2GUEve::June_FindOberonGuardNpcUid	PORTED	Char Eve CH1l4: inert
+3299b000	CX2GUEve::June_FrameMoveNpcEffectSets	PORTED	Char Eve CH1l4: inert; m_mapJuneNpcEffectSet ( +0x9c10 ) is filled by a later phase
+3299b440	CX2GUEve::June_GetQueensControlCount	PORTED	Char Eve CH1l4: inert
+3299b790	CX2GUEve::June_UpdateQueensControlStack	PORTED	Char Eve CH1l4: inert; BFI_BUFF_QUEENS_CONTROL 812 stack count
+3299f470	CX2GUEve::EveElectraSystem::June_ProcessPlane	PORTED	Char Eve CH1l4: inert
+3299fe60	CX2GUEve::EveElectraSystem::June_ProcessGigaPlane	PORTED	Char Eve CH1l4: inert
+329a3040	CX2GUEve::June_EntireAttackThousandStar	PORTED	Char Eve CH1l4: inert
+329a3760	CX2GUEve::June_AttackThousandStar	PORTED	Char Eve CH1l4: inert
+329a7d00	CX2GUEve::June_ChangePlaneForamtionSystem	PORTED	Char Eve CH1l4: inert
+329ae6e0	CX2GUEve::June_StartOberonGuardEffect	PORTED	Char Eve CH1l4: inert
+329ae9a0	CX2GUEve::June_OberonGuardFrameMove	PORTED	Char Eve CH1l4: inert
+329b2f60	CX2GUEve::June_DoFrameMoveThousandStar	PORTED	Char Eve CH1l4: inert
+329b4a60	CX2GUEve::June_UpdateBlock9c50Timer	PORTED	Char Eve CH1l4: inert; the two CH3a calls ( 329aea60, 32976fe0 ) are left out with a comment
+329bc6e0	CX2GUEve::EveElectraLaserData::June_OnFrameMove	PORTED	Char Eve CH1l4: inert; March's laser frame move with June_LaserAttackLineSet, projectile modifiers, tag-alpha, m_bDie cleared on every live path and the induction / fusion rework (JUNE_BUGS 441)
+329c12a0	CX2GUEve::EveElectraEffectData::June_OnFrameMove	PORTED	Char Eve CH1l4: inert; effect-set path ( +0x8c / +0x90 fields ) and the tail loop (JUNE_BUGS 439, 440)
+329c3420	CX2GUEve::EveElectraLockonData::June_OnFrameMove	PORTED	Char Eve CH1l4: inert
+329c3bb0	CX2GUEve::EveElectraSystem::June_ProcessSystem	PORTED	Char Eve CH1l4: inert
+329c5bc0	CX2GUEve::June_CommonFrameMove	PORTED	Char Eve CH1l4: inert; vslot 0x7cc; Open Mind gauge floor ( RNSI_P_ENS_OPEN_MIND, SA_TIME_ABS, clock +0x9c44 ), buff-gated summon cleanup ( BTI 409-413 ), cloak, Queen's Throne meshes, Mega Electron Ball, Taser Pilum ( rate +0x34 ), June tails; 329b5230 ( Nasod Core ) -> CH1q, memo test 31fca9e0 false, Kugelblitz block gone
+329cb2f0	CKTDGXMeshPlayer::CXMeshInstance::SetRotateLocalDegree( D3DXVECTOR3 ) (March)	confirmed	Char Eve CH1l4: +0x5a8 = m_vRotateLocal; engine function, no June_ member
+329cc4e0	CX2GUEve::ResetTaserPilumTinyData (March)	confirmed	Char Eve CH1l4: rank 1, addDamageTime 0, timer 0 = March; no June_ member
+329cd740	CX2GUEve::EveElectraLockonData::~EveElectraLockonData (compiler-made)	confirmed	Char Eve CH1l4: three wstrings; no member
+327623f0	CX2GUNPC::June_SetBasicScale	PORTED	Char Eve CH1l4: NPC vslot 0x270; basic scale times the rate, with bTransform_ once more then TransformScale ( JUNE_BUGS 438 ); X2GUNPC.*, flag _CORE

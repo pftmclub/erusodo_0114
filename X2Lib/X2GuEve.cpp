@@ -24095,6 +24095,9 @@ void CX2GUEve::EveElectraLaserData::Delete()
 }
 CX2GUEve::EveElectraEffectData::EveElectraEffectData( EveElectraSystem* _pEveElectraSystem )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	m_hJuneEffectSet	= INVALID_EFFECTSET_HANDLE;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_pEveElectraSystem	= _pEveElectraSystem;
 	m_fElapsedTime		= 0.f;
 	m_bPlaneFront		= false;
@@ -44477,6 +44480,10 @@ void CX2GUEve::June_ConstructorInit()
 	m_bJune89fc						= false;
 
 	m_EveElectraSystem.m_iJune1c0	= 1;
+	m_fJune9770						= 1.f;
+	m_iJune9c28						= 0;
+	m_iJune9c2c						= 0;
+	m_iJuneClock9c44				= 0;
 }
 
 //}} Iruha : 2026-10-26
@@ -46252,6 +46259,3598 @@ void CX2GUEve::June_NoStateChangeActionFrameMove()
 			// June 329aea60 ( spear effects ) and 32976fe0 ( cool time ): calls added in CH3a
 		} break;
 	}
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: CommonFrameMove 0x7cc and the helpers only it reaches ( class map CH1l4 ); nothing calls them until CH1.
+
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( CH1l4 ) writes June ids by the names SERV_IRUHADEV_JUNE_ENUM_NAMES registers
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+
+
+
+namespace _CONST_EVE_JUNE_CH1l4_
+{
+	/// June's four effects the Electra split treats alike: the Sweep Parade triangle and the Triangle Vulcan bullet ( both with the memo name )
+	bool JuneEveIsSweepName( const wstring& wstrName_ )
+	{
+		return 0 == wstrName_.compare( L"EVE_SWEEP_PARADE_TRIANGLE" ) || 0 == wstrName_.compare( L"EVE_SWEEP_PARADE_TRIANGLE_MEMO" );
+	}
+
+	bool JuneEveIsVulcanName( const wstring& wstrName_ )
+	{
+		return 0 == wstrName_.compare( L"DamageEffect_Triangle_Vulcan_Bullet" ) || 0 == wstrName_.compare( L"DamageEffect_Triangle_Vulcan_Bullet_MEMO" );
+	}
+
+	bool JuneEveIsSweepOrVulcanName( const wstring& wstrName_ )
+	{
+		return JuneEveIsSweepName( wstrName_ ) || JuneEveIsVulcanName( wstrName_ );
+	}
+
+	/// the filtered effects of the induction and fusion split: the four above, Energy Needles, the three Taser Pilum charges and the Kugelblitz charge
+	bool JuneEveIsFilteredEffectName( const wstring& wstrName_ )
+	{
+		return JuneEveIsSweepOrVulcanName( wstrName_ ) || 0 == wstrName_.compare( L"EVE_ENERGY_NEEDLES_FILTERED" ) ||
+			0 == wstrName_.compare( L"EVE_TASER_PILUM_CHARGE_0_FILTERED" ) || 0 == wstrName_.compare( L"EVE_TASER_PILUM_CHARGE_1_FILTERED" ) ||
+			0 == wstrName_.compare( L"EVE_TASER_PILUM_CHARGE_2_FILTERED" ) || 0 == wstrName_.compare( L"Damage_KugelBlitz_Charge_FILTERED" );
+	}
+
+	/// June 31f8c280: LockOnData's assignment keeps the destination's m_setPreLockOnTarget
+	void JuneEveCopyLockOnData( CX2DamageEffect::LockOnData& kDst_, const CX2DamageEffect::LockOnData& kSrc_ )
+	{
+		const std::set<UidType> setKeep = kDst_.m_setPreLockOnTarget;
+		kDst_ = kSrc_;
+		kDst_.m_setPreLockOnTarget = setKeep;
+	}
+
+	/// June 322d7670: the nearest target within 1500 ( 1000 in a PvP game ) of the new effect; June stores its uid in the NPC slot whatever the target is ( JUNE_BUGS 440 )
+	void JuneEveSetLockOnNearstTarget( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ )
+	{
+		D3DXVECTOR2 vRange( 0.f, ( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() ) ? 1000.f : 1500.f );
+		bool bUserUnit = false;
+		const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( pGUEve_->GetTeam() ), pEffect_->GetPos(), vRange, bUserUnit );
+
+		pEffect_->SetLockOnNPCUID( static_cast<int>( gameUnitUID ) );
+		pEffect_->SetLockOnRandomSeed( pGUEve_->GetRandomInt( 0 ) );
+	}
+}
+using namespace _CONST_EVE_JUNE_CH1l4_;
+
+// June 329986e0: the El Crystal end check, the formation is June's m_ePlaneFormationType
+void CX2GUEve::June_OnFrameMove_EndElCrystalSystem()
+{
+	if( false == m_bIsCheckEndElCrystal )
+		return;
+
+	switch( m_eReserveEndElCrystalBuffID )
+	{
+	case BTI_BUFF_AMPLIFICATION_PLACE:
+		{
+			if( PFT_AMPLIFIER == m_EveElectraSystem.m_ePlaneFormationType )
+				June_EndElCrystalSystem( false );
+		} break;
+
+	case BTI_BUFF_SPECTRUM_PLACE:
+		{
+			if( PFT_SPECTRUM == m_EveElectraSystem.m_ePlaneFormationType )
+				June_EndElCrystalSystem( false );
+		} break;
+
+	case BTI_BUFF_INDUCTION_PLACE:
+		{
+			if( PFT_INDUCTION == m_EveElectraSystem.m_ePlaneFormationType )
+				June_EndElCrystalSystem( false );
+		} break;
+
+	case BTI_BUFF_SI_SA_EBS_ENERGETIC_HEART:
+		{
+			if( PFT_FUSION == m_EveElectraSystem.m_ePlaneFormationType )
+			{
+				m_EveElectraSystem.m_bExceptionSystem = false;
+
+				const BUFF_TEMPLET_ID eBuffTempletID = m_EveElectraSystem.GetBuffTempletIdByPlaneFormation( m_EveElectraSystem.m_ePrevSpectro );	// June 329673a0 = March's table
+				if( BTI_NONE == eBuffTempletID || false == HaveThisBuff( eBuffTempletID ) )
+				{
+					June_EndElCrystalSystem( true );
+				}
+				else
+				{
+					m_EveElectraSystem.m_ePlaneFormationType = m_EveElectraSystem.m_ePrevSpectro;
+
+					if( true == IsMyUnit() )
+						g_pX2Game->UpdateSkillSlotUI( false );
+				}
+
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Seraph_Energetic_Heart_End", this );
+			}
+			m_iAddBoostAttack = 0;
+		} break;
+	}
+
+	m_eReserveEndElCrystalBuffID = BTI_NONE;
+	m_bIsCheckEndElCrystal = false;
+}
+
+// June 32994a10: March's EndElCrystalSystem with June's formation reset, the use condition m_iJune1c0 = 1 and the memo scale on the cool time
+void CX2GUEve::June_EndElCrystalSystem( bool bEnergeticHeartEnd_ )
+{
+	if( NULL != m_pThousandStar )
+	{
+		CX2DamageEffect::CEffect* pTSEffect = m_pThousandStar->GetLiveDamageEffect();
+		if( NULL != pTSEffect )
+		{
+			g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_EveElectraSystem.m_hParticleThousandStarFormation );
+			m_EveElectraSystem.m_hParticleThousandStarFormation = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this, L"eve_thousandsOfStars_model_P01", pTSEffect->GetPos() );
+		}
+	}
+
+	m_EveElectraSystem.DestroyFormationMarkAndMsgParticle();
+	m_EveElectraSystem.June_DestroyPlaneAndCrystalEffect();
+
+	m_EveElectraSystem.m_ePlaneFormationType = PFT_AMPLIFIER;
+	m_EveElectraSystem.m_bSystemEnable = false;
+
+	if( true == IsMyUnit() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL, true );
+		if( NULL != pSkillTemplet )
+		{
+			if( true == m_EveElectraSystem.m_bHyperOpticalResearch )
+				m_EveElectraSystem.m_iJune1c0 = 1;
+
+			if( false == bEnergeticHeartEnd_ )
+			{
+				if( NULL == GetUnit() )
+					return;
+
+				CX2UserSkillTree& cUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+				const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+				float fCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel );	// June passes a third argument 0
+
+				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL );
+				if( NULL != pMemo && ( CX2SkillTree::MI_FASTEST == pMemo->m_iType || CX2SkillTree::MI_TOUGH == pMemo->m_iType ) )
+					fCoolTime = ( ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.0f ) * fCoolTime;
+
+				float fRemainCoolTime = fCoolTime - m_EveElectraSystem.m_fSystemOperationTime;
+				if( fRemainCoolTime < 0.f )
+					fRemainCoolTime = 0.f;
+				if( fRemainCoolTime < 0.f )
+					fRemainCoolTime = 0.f;
+
+				cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL, fRemainCoolTime );
+				cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE, fRemainCoolTime );
+			}
+		}
+
+		g_pX2Game->UpdateSkillSlotUI( false );
+	}
+
+#ifdef FIX_SPECTRO_EL_CRYSTAL_ACTIVE_BUG
+	SetStartSpectroElCrystal( false );
+#endif FIX_SPECTRO_EL_CRYSTAL_ACTIVE_BUG
+	m_EveElectraSystem.m_fSystemOperationTime = 0.0f;
+}
+
+// June 32996c50: March's ENERGY_NEEDLES_Data::OnFrameMove; the offset slot is rand() % 5 ( March's RandomInt( 0, 5 ) can reach the sixth ) and the effect goes to the June system
+void CX2GUEve::ENERGY_NEEDLES_Data::June_OnFrameMove( IN CX2GUEve* pGUEve, IN float fElapsedTime_ )
+{
+	if( false == m_bEnable )
+		return;
+
+	if( m_fMaxTime <= 0.f )
+	{
+		m_bEnable = false;
+		return;
+	}
+
+	if( m_fIntervalTime > 0.f )
+	{
+		m_fIntervalTime -= fElapsedTime_;
+		return;
+	}
+
+	D3DXVECTOR3 vBonePos = pGUEve->GetBonePos( L"Bip01" );
+
+	const int iRandVal = rand() % 5;
+
+	if( true == pGUEve->GetIsRight() )
+		vBonePos -= pGUEve->GetDirVector() * m_vEffectPos[iRandVal].x;
+	else
+		vBonePos += pGUEve->GetDirVector() * m_vEffectPos[iRandVal].x;
+
+	vBonePos.y += m_vEffectPos[iRandVal].y;
+
+	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, L"EVE_ENERGY_NEEDLES", m_fPowerRate, vBonePos,
+		pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+
+	if( NULL != pEffect )
+	{
+		pGUEve->m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"EVE_ENERGY_NEEDLES_FILTERED", L"EVE_ENERGY_NEEDLES_FILTERED",
+			L"EVE_ENERGY_NEEDLES_FILTERED", L"EVE_ENERGY_NEEDLES_FILTERED" );
+	}
+
+	m_fIntervalTime = 0.33f;
+	m_fMaxTime -= 0.33f;
+}
+
+// June 3299ad60: the uid of my live Oberon Guard NPC, -1 when there is none ( June has no NULL test on the NPC )
+int CX2GUEve::June_FindOberonGuardNpcUid()
+{
+	if( NULL == g_pX2Game )
+		return -1;
+
+	for( int iIndex = 0; iIndex < g_pX2Game->GetNPCUnitListSize(); ++iIndex )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( iIndex );
+		if( NULL == pNPC || CX2GameUnit::GUT_NPC != pNPC->GetGameUnitType() )
+			continue;
+
+		if( pNPC->GetNowHp() > 0.f && false == pNPC->GetSelfDestruction() && CX2GameUnit::GUSI_DIE != pNPC->GetGameUnitState() &&
+			NULL != pNPC->GetOwnerGameUnit() && CX2UnitManager::NUI_ECA_OBERON_GUARD == pNPC->GetUnitID() )
+		{
+			if( GetUnitUID() == pNPC->GetOwnerGameUnit()->GetUnitUID() )
+				return static_cast<int>( pNPC->GetUnitUID() );
+		}
+	}
+
+	return -1;
+}
+
+// June 329ae6e0: stores the Oberon Guard NPC uid and plays its effect set on that NPC; a missing game or damage effect manager clears the summon
+void CX2GUEve::June_StartOberonGuardEffect( const int iNpcUid_ )
+{
+	if( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() )
+	{
+		June_ClearGuardAndSummon();
+		return;
+	}
+
+	m_iJuneSummonNpcUid = iNpcUid_;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( static_cast<int>( m_iJuneSummonNpcUid ) );
+	if( NULL == pNPC )
+		return;
+
+	if( INVALID_EFFECTSET_HANDLE != m_hOberonGuard )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hOberonGuard );
+
+	if( NULL == GetUnit() )
+		return;
+
+	const D3DXVECTOR3 vPos = pNPC->GetPos();
+	const D3DXVECTOR3 vNpcRotate = pNPC->GetRotateDegree();
+	const D3DXVECTOR3 vRotate( vNpcRotate.x, vNpcRotate.y, 0.f );
+	D3DXVECTOR3 vScale( m_vBasicScale.x, m_vBasicScale.y, m_vBasicScale.z );
+
+	float fScaleRate = 0.f;
+	if( true == June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS, CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, true, fScaleRate ) )
+	{
+		pNPC->June_SetBasicScale( fScaleRate, true );
+		vScale *= fScaleRate;
+	}
+
+	m_hOberonGuard = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EAT_OBERON_GUARD", this, pNPC, false, m_fJune9770, -1.f, vScale, true, vPos, vRotate, vRotate );
+}
+
+// June 329ae9a0: the Oberon Guard upkeep of CommonFrameMove
+void CX2GUEve::June_OberonGuardFrameMove()
+{
+	if( true != HaveThisBuff( BTI_BUFF_OBERON_GUARD ) )
+	{
+		June_ClearGuardAndSummon();
+		return;
+	}
+
+	if( m_iJuneSummonNpcUid <= 0 )
+	{
+		const int iNpcUid = June_FindOberonGuardNpcUid();
+		if( 0 < iNpcUid )
+			June_StartOberonGuardEffect( iNpcUid );
+	}
+	else
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( static_cast<int>( m_iJuneSummonNpcUid ) );
+		if( NULL != pNPC && ( pNPC->GetNowHp() <= 0.f || CX2GameUnit::GUSI_DIE == pNPC->GetGameUnitState() ) )
+			June_ClearGuardAndSummon();
+	}
+}
+
+// June 3299b000: the effect sets in the +0x9c10 map ( NPC uid -> effect set handle ) follow their NPC's position
+void CX2GUEve::June_FrameMoveNpcEffectSets()
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( std::map<int, CX2EffectSet::Handle>::iterator mit = m_mapJuneNpcEffectSet.begin(); mit != m_mapJuneNpcEffectSet.end(); ++mit )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( mit->first );
+		if( NULL != pNPC )
+		{
+			CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( mit->second );
+			if( NULL != pEffectSetInstance && NULL != pEffectSetInstance->GetMeshInstanceByTargetMesh( 0 ) )
+			{
+				pEffectSetInstance->GetMeshInstanceByTargetMesh( 0 )->SetPos( pNPC->GetPos() );	// June writes the mesh position +0x3f0 .. +0x3f8
+			}
+		}
+	}
+}
+
+// June 3299b440: effect sets of the five +0x9c30 handles that are alive, and my live ally summons ( NPC ids below ) of the queen's control
+int CX2GUEve::June_GetQueensControlCount()
+{
+	int iCount = 0;
+
+	if( NULL == g_pX2Game )
+		return 0;
+
+	const int aiHandleOrder[5] = { 0, 1, 3, 2, 4 };
+	for( int i = 0; i < 5; ++i )
+	{
+		if( NULL != g_pX2Game->GetEffectSet()->GetEffectSetInstance( CX2EffectSet::Handle( m_aiJune9c30[aiHandleOrder[i]] ) ) )
+			++iCount;
+	}
+
+	for( int iIndex = 0; iIndex < g_pX2Game->GetNPCUnitListSize(); ++iIndex )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( iIndex );
+		if( NULL == pNPC || CX2GameUnit::GUT_NPC != pNPC->GetGameUnitType() )
+			continue;
+
+		switch( pNPC->GetUnitID() )
+		{
+		case CX2UnitManager::NUI_NASOD_WATCH_EVE:
+		case CX2UnitManager::NUI_WALLY_9TH_EVE:
+		case CX2UnitManager::NUI_NASOD_ELEMENT_FIRE_EVE:
+		case CX2UnitManager::NUI_GUARDIAN_SP1_EVE:
+		case CX2UnitManager::NUI_GUARDIAN_SP2_EVE:
+		case CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO:
+		case CX2UnitManager::NUI_GUARDIAN_SP2_EVE_MEMO:
+		case CX2UnitManager::NUI_GUARDIAN_SP1_EVE_MEMO:
+		case CX2UnitManager::NUI_ATOMIC_SHIELD_EVE:
+		case CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING:
+		case CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD:
+		case CX2UnitManager::NUI_ECA_OBERON_GUARD:
+			{
+				if( pNPC->GetNowHp() > 0.f && NULL != pNPC->GetNPCAI() && CX2NPCAI::NAT_ALLY == pNPC->GetNPCAI()->GetAIType() &&
+					static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() == GetUnitUID() )
+					++iCount;
+			} break;
+		}
+	}
+
+	return iCount;
+}
+
+// June 3299b790: keeps the queen's control buff stack at the count ( 10 at most ); the count is read twice
+void CX2GUEve::June_UpdateQueensControlStack()
+{
+	if( 0 < m_iJune9c2c )
+	{
+		const int iCount = ( June_GetQueensControlCount() < 11 ) ? June_GetQueensControlCount() : 10;
+
+		if( static_cast<UCHAR>( GetBuffAccumulationCountNowInFactor( BTI_BUFF_QUEENS_CONTROL ) ) != iCount )
+		{
+			SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_QUEENS_CONTROL, m_iJune9c2c, NULL, 0, false );
+			SetBuffAccumulationCount( BFI_BUFF_QUEENS_CONTROL, iCount, m_iJune9c2c, 0 );
+		}
+	}
+}
+
+// the Taser Pilum and Kugelblitz charges add their hit count to the new effect and reset ( March FIX_EVE_TASER_PILUM ); the same lines open June's 329c12a0 cases
+void CX2GUEve::June_AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ )
+{
+	const int iTaserAdd = pGUEve_->GetTaserPilumAddDamageTime();
+	if( 0 < iTaserAdd )
+	{
+		pGUEve_->ResetTaserPilumTinyData();
+		pEffect_->SetDamageTime( pEffect_->GetDamageTime() + iTaserAdd );
+	}
+
+	const int iKugelAdd = pGUEve_->GetKugelBlitzAddDamageTime();
+	if( 0 < iKugelAdd )
+	{
+		pGUEve_->ResetKugelBlitzTinyData();
+		pEffect_->SetDamageTime( pEffect_->GetDamageTime() + iKugelAdd );
+	}
+}
+
+// June 32979350 ( static ): a particle sequence is hidden while Eve is cloaked, except on my own screen, and shown otherwise
+void CX2GUEve::June_ShowParticleByInvisibility( CX2GUEve* pGUEve_, CKTDGParticleSystem::CParticleEventSequence* pSeq_ )
+{
+	if( NULL == pGUEve_ || NULL == pSeq_ )
+		return;
+
+	if( true == pGUEve_->m_bInvisibility )
+	{
+		if( true == pGUEve_->IsMyUnit() )
+			return;
+
+		pSeq_->SetShowObject( false );
+	}
+	else
+	{
+		pSeq_->SetShowObject( true );
+	}
+}
+
+// June 32975ac0: the cloak on a mesh instance of the effect ( the Queen's Throne meshes ); pGUEve_ is Eve, this is read for the cloak flag
+void CX2GUEve::June_ApplyInvisibilityToMeshInstance( CX2GUEve* pGUEve_, CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ )
+{
+	if( NULL == pGUEve_ || NULL == pMeshInst_ || NULL == pMeshInst_->GetXSkinAnim() )
+		return;
+
+	CKTDGXRenderer::RenderParam* pRenderParam = pMeshInst_->GetXSkinAnim()->GetRenderParam();
+	if( NULL == pRenderParam )
+		return;
+
+	if( true == m_bInvisibility )
+	{
+		const bool bMyUnit = pGUEve_->IsMyUnit();
+
+		pMeshInst_->SetAlphaObject( true );
+
+		if( true == bMyUnit )
+		{
+			pRenderParam->bAlphaBlend = true;
+			pRenderParam->outLineColor.a = pGUEve_->m_fInvisibilityAlpha;
+			pRenderParam->fOutLineWide = 0.f;
+			pMeshInst_->SetMeshAlphaColor( pGUEve_->m_fInvisibilityAlpha );
+			return;
+		}
+
+		pMeshInst_->SetMeshAlphaColor( 0.f );
+		pRenderParam->bAlphaBlend = true;
+		pRenderParam->outLineColor.a = 0.f;
+		pRenderParam->fOutLineWide = 0.f;
+		pRenderParam->renderType = CKTDGXRenderer::RT_REAL_COLOR;
+	}
+	else
+	{
+		pMeshInst_->SetAlphaObject( false );
+		pMeshInst_->SetMeshAlphaColor( 1.f );
+		pRenderParam->outLineColor.a = 1.f;
+		pRenderParam->renderType = CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam->bAlphaBlend = false;
+		pRenderParam->fOutLineWide = 1.2f;
+	}
+}
+
+// June 3297a500: plays the sound in the standing, walking, jumping, dashing and flying states
+void CX2GUEve::June_PlaySoundInMoveStates( const wstring& wstrSoundName_ )
+{
+	switch( GetNowStateID() )
+	{
+	case USI_WAIT:
+	case USI_WALK:
+	case USI_JUMP_READY:
+	case USI_JUMP_UP:
+	case USI_JUMP_DOWN:
+	case USI_DASH:
+	case USI_DASH_END:
+	case USI_DASH_JUMP:
+	case USI_DASH_JUMP_LANDING:
+	case USI_DAMAGE_GROGGY:
+	case ENSI_JUMP_FLY_UP:
+	case ENSI_JUMP_FLY_DOWN:
+	case ENSI_JUMP_DASH:
+	case ENSI_EBS_BOOST_DASH:
+	case ENSI_EBS_BOOST_DASH_AIR:
+		{
+			PlaySound( wstrSoundName_.c_str(), true, false );
+		} break;
+	}
+}
+
+// June 32968c50: a child of my projectile ignores the defence of the target while the Code Recovery buff is on
+void CX2GUEve::June_ApplyCodeRecoveryIgnoreDefence( CX2DamageEffect::CEffect* pChild_ )
+{
+	if( NULL == pChild_ )
+		return;
+
+	if( true == HaveThisBuff( BTI_BUFF_CODE_RECOVERY_ECB ) )
+	{
+		pChild_->JuneSetIgnoreStateDefenceDown( true );
+		pChild_->JuneSetIgnoreDefenceDown( true );
+	}
+}
+
+// June 3297bad0: 32968c50, then the Hyper Optical Research critical rate on the same child
+void CX2GUEve::June_ApplyProjectileModifiers( CX2DamageEffect::CEffect* pChild_ )
+{
+	if( NULL == pChild_ )
+		return;
+
+	June_ApplyCodeRecoveryIgnoreDefence( pChild_ );
+	June_ApplyInheritCriticalRate( pChild_ );
+}
+
+// June 3297b720: Hyper Optical Research adds its critical rate to the active skill's effect and its NEXT tables once ( trigger 39 ), then the effect inherits it
+void CX2GUEve::June_ApplyInheritCriticalRate( CX2DamageEffect::CEffect* pEffect_ )
+{
+	if( NULL == pEffect_ )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( pEffect_->m_iAppliedSkillID ) );
+	if( NULL == pSkillTemplet )
+		return;
+
+	switch( pSkillTemplet->m_eType )
+	{
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		{
+			float fCriticalRate = 0.f;
+			if( true == June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, CX2SkillTree::RNSI_P_ECB_HYPER_OPTICAL_RESEARCH, false, fCriticalRate ) )
+			{
+				CX2DamageManager::DamageData& kDamageData = pEffect_->m_DamageData;
+				if( false == kDamageData.JuneIsAttackTrigger( CX2DamageManager::DTT_EVE_HYPER_OPTICAL_RESEARCH_CHECK ) )
+				{
+					kDamageData.m_fCriticalRate += fCriticalRate;
+					kDamageData.m_vecAdditionalAttackTriggerType.push_back( CX2DamageManager::DTT_EVE_HYPER_OPTICAL_RESEARCH_CHECK );
+				}
+
+				std::vector<CX2DamageManager::DamageData*> vecNextTables;
+				pEffect_->JuneGetNextTables( vecNextTables );
+				for( UINT i = 0; i < vecNextTables.size(); ++i )
+				{
+					CX2DamageManager::DamageData* pNextDamageData = vecNextTables[i];
+					if( NULL != pNextDamageData && false == pNextDamageData->JuneIsAttackTrigger( CX2DamageManager::DTT_EVE_HYPER_OPTICAL_RESEARCH_CHECK ) )
+					{
+						pNextDamageData->m_fCriticalRate += fCriticalRate;
+						pNextDamageData->m_vecAdditionalAttackTriggerType.push_back( CX2DamageManager::DTT_EVE_HYPER_OPTICAL_RESEARCH_CHECK );
+					}
+				}
+
+				pEffect_->m_bInheritCriticalRate = true;
+			}
+		} break;
+	}
+}
+
+// June 3297b370: the Empress dash X follows the last living unit within 1000 of me out of the fire ball's hit unit list ( DamageData::hitUnitList, June CEffect +0x650 )
+void CX2GUEve::June_UpdateDashXTargetUnit()
+{
+	if( NULL == m_pJuneDashXFireBall )
+		return;
+
+	const CX2DamageManager::HitUnitVector& vecHitUnit = m_pJuneDashXFireBall->GetDamageData().hitUnitList;
+	for( CX2DamageManager::HitUnitVector::const_iterator it = vecHitUnit.begin(); it != vecHitUnit.end(); ++it )
+	{
+		CX2GameUnit* pHitUnit = ( null != it->optrHitGameUnit ) ? it->optrHitGameUnit.GetObservable() : NULL;
+		if( NULL != pHitUnit && pHitUnit->GetNowHp() > 0.f && pHitUnit->GetDistanceFrom( GetPos() ) <= 1000.0 )
+			m_pJuneDashXTargetUnit = pHitUnit;
+	}
+}
+
+// June 3299f470: March's ProcessPlane; June tests the crystal meshes and the frame for NULL, and tags the new particles with the alpha condition ( 7c )
+void CX2GUEve::EveElectraSystem::June_ProcessPlane( float fElapsedTime_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hEffectPlane );
+	if( NULL == pMeshInstPlane )
+	{
+		m_hEffectPlane = INVALID_MESH_INSTANCE_HANDLE;
+		June_DestroyPlaneAndCrystalEffect();
+		m_bPlaneEnable = false;
+		return;
+	}
+
+	if( m_fPlaneZAngle > 0 )
+	{
+		m_vPlaneNormal	= m_vPlaneNormalUpper;
+		m_PrimaryPlane	= m_PlaneUpper;
+
+		D3DXVECTOR3 vRotateDegree = pMeshInstPlane->GetRotateDegree();
+		vRotateDegree.z += fElapsedTime_ * 120.f;
+
+		if( vRotateDegree.z > m_fPlaneZAngle )
+			vRotateDegree.z = m_fPlaneZAngle;
+
+		pMeshInstPlane->SetRotateDegree( vRotateDegree );
+		pMeshInstPlane->SetMoveAxisAngleDegree( vRotateDegree );
+	}
+	else if( m_fPlaneZAngle < 0 )
+	{
+		m_vPlaneNormal	= m_vPlaneNormalLower;
+		m_PrimaryPlane	= m_PlaneLower;
+
+		D3DXVECTOR3 vRotateDegree = pMeshInstPlane->GetRotateDegree();
+		vRotateDegree.z += fElapsedTime_ * -120.f;
+
+		if( vRotateDegree.z < m_fPlaneZAngle )
+			vRotateDegree.z = m_fPlaneZAngle;
+
+		pMeshInstPlane->SetRotateDegree( vRotateDegree );
+		pMeshInstPlane->SetMoveAxisAngleDegree( vRotateDegree );
+	}
+	else
+	{
+		m_vPlaneNormal	= m_vPlaneNormalCenter;
+		m_PrimaryPlane	= m_PlaneCenter;
+		pMeshInstPlane->SetRotateDegree( m_vPlaneRotateDegreeCenter );
+		pMeshInstPlane->SetMoveAxisAngleDegree( m_vPlaneRotateDegreeCenter );
+	}
+
+	CKTDGXMeshPlayer* pMajorMeshPlayer = g_pX2Game->GetMajorXMeshPlayer();
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstCrystal1 = pMajorMeshPlayer->GetMeshInstance( m_hEffectCrystal1 );
+	pMeshInstPlane->GetCloneFrame( L"Dummy02" );
+	if( NULL != pMeshInstCrystal1 )
+		pMeshInstCrystal1->SetPos( pMeshInstPlane->GetBonePos( L"Dummy02" ) );
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstCrystal2 = pMajorMeshPlayer->GetMeshInstance( m_hEffectCrystal2 );
+	pMeshInstPlane->GetCloneFrame( L"Dummy03" );
+	if( NULL != pMeshInstCrystal2 )
+		pMeshInstCrystal2->SetPos( pMeshInstPlane->GetBonePos( L"Dummy03" ) );
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstCrystal3 = pMajorMeshPlayer->GetMeshInstance( m_hEffectCrystal3 );
+	pMeshInstPlane->GetCloneFrame( L"Dummy04" );
+	if( NULL != pMeshInstCrystal3 )
+		pMeshInstCrystal3->SetPos( pMeshInstPlane->GetBonePos( L"Dummy04" ) );
+
+	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
+	CKTDGParticleSystem::CParticleEventSequence* pSeqPlane = pMajorParticleSystem->GetInstanceSequence( m_hParticlePlane );
+	if( NULL != pSeqPlane )
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = pMeshInstPlane->GetCloneFrame( L"Dummy01" );
+		if( NULL != pMultiAnimFrame )
+			pSeqPlane->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqCrystal1 = pMajorParticleSystem->GetInstanceSequence( m_hParticleCrystal[0] );
+	if( NULL != pSeqCrystal1 )
+		pSeqCrystal1->SetPosition( pMeshInstPlane->GetBonePos( L"Dummy02" ), false, false );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqCrystal2 = pMajorParticleSystem->GetInstanceSequence( m_hParticleCrystal[1] );
+	if( NULL != pSeqCrystal2 )
+		pSeqCrystal2->SetPosition( pMeshInstPlane->GetBonePos( L"Dummy03" ), false, false );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqCrystal3 = pMajorParticleSystem->GetInstanceSequence( m_hParticleCrystal[2] );
+	if( NULL != pSeqCrystal3 )
+		pSeqCrystal3->SetPosition( pMeshInstPlane->GetBonePos( L"Dummy04" ), false, false );
+
+	if( true == pMeshInstPlane->EventTimerGlobal( 0.1f ) )
+	{
+		switch( m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				m_hParticlePlane = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+					L"eve_spectro_prism_Red_P01", pMeshInstPlane->GetBonePos( L"Dummy01" ) );
+			} break;
+		case PFT_SPECTRUM:
+			{
+				m_hParticlePlane = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+					L"eve_spectro_prism_Blue_P01", pMeshInstPlane->GetBonePos( L"Dummy01" ) );
+			} break;
+		case PFT_INDUCTION:
+			{
+				m_hParticlePlane = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+					L"eve_spectro_prism_Green_P01", pMeshInstPlane->GetBonePos( L"Dummy01" ) );
+			} break;
+		case PFT_FUSION:
+			{
+				m_hParticlePlane = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+					L"EBS_SA_energeticHeart_prism_White_P01", pMeshInstPlane->GetBonePos( L"Dummy01" ) );
+			} break;
+		}
+
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( m_pGUEve, m_hParticlePlane, false );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( 0.2f ) )
+	{
+		m_hParticleCrystal[0] = pMajorParticleSystem->CreateSequenceHandle( (CKTDGObject*) m_pGUEve, L"eve_spectro_model_P01", pMeshInstPlane->GetBonePos( L"Dummy02" ) );
+		m_hParticleCrystal[1] = pMajorParticleSystem->CreateSequenceHandle( (CKTDGObject*) m_pGUEve, L"eve_spectro_model_P01", pMeshInstPlane->GetBonePos( L"Dummy03" ) );
+		m_hParticleCrystal[2] = pMajorParticleSystem->CreateSequenceHandle( (CKTDGObject*) m_pGUEve, L"eve_spectro_model_P01", pMeshInstPlane->GetBonePos( L"Dummy04" ) );
+
+		g_pX2Game->JuneTagEffectAlphaParticleHandles( m_pGUEve, m_hParticleCrystal, 3, false );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( pMeshInstPlane->GetMaxLifeTime() - 0.2333f ) )
+	{
+		pMeshInstCrystal1->ChangeAnim( L"end", CKTDGXSkinAnim::XAP_ONE, 1.f );
+		pMeshInstCrystal2->ChangeAnim( L"end", CKTDGXSkinAnim::XAP_ONE, 1.f );
+		pMeshInstCrystal3->ChangeAnim( L"end", CKTDGXSkinAnim::XAP_ONE, 1.f );
+
+		pMajorParticleSystem->DestroyInstanceHandle( m_hParticleCrystal[0] );
+		pMajorParticleSystem->DestroyInstanceHandle( m_hParticleCrystal[1] );
+		pMajorParticleSystem->DestroyInstanceHandle( m_hParticleCrystal[2] );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( pMeshInstPlane->GetMaxLifeTime() - 0.1f ) )
+	{
+		pMajorParticleSystem->DestroyInstanceHandle( m_hParticlePlane );
+	}
+}
+
+// June 3299fe60: March's ProcessGigaPlane with the alpha tags ( 7c )
+void CX2GUEve::EveElectraSystem::June_ProcessGigaPlane( float fElapsedTime_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hEffectGigaPlane );
+	if( NULL == pMeshInstPlane )
+	{
+		m_hParticleGigaPlane = INVALID_PARTICLE_SEQUENCE_HANDLE;
+		DestroyGigaPlaneAndCrystalEffect();
+		m_bGigaPlaneEnable = false;
+		return;
+	}
+
+	CKTDGXMeshPlayer* pMajorMeshPlayer = g_pX2Game->GetMajorXMeshPlayer();
+	CKTDGXMeshPlayer::CXMeshInstance* apMeshInstCrystal[5];
+	const WCHAR* const awszDummyName[5] = { L"Dummy02", L"Dummy03", L"Dummy04", L"Dummy05", L"Dummy06" };
+	for( int i = 0; i < 5; ++i )
+	{
+		apMeshInstCrystal[i] = pMajorMeshPlayer->GetMeshInstance( m_hEffectGigaCrystal[i] );
+		apMeshInstCrystal[i]->SetPos( pMeshInstPlane->GetBonePos( awszDummyName[i] ) );	// June reads the clone frame's combined translation, ( 0, 0, 0 ) without the frame
+	}
+
+	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
+	CKTDGParticleSystem::CParticleEventSequence* pSeqPlane = pMajorParticleSystem->GetInstanceSequence( m_hParticleGigaPlane );
+	if( NULL != pSeqPlane )
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = pMeshInstPlane->GetCloneFrame( L"Dummy01" );
+		pSeqPlane->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+	}
+
+	for( int i = 0; i < 5; ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqCrystal = pMajorParticleSystem->GetInstanceSequence( m_hParticleGigaCrystal[i] );
+		if( NULL != pSeqCrystal )
+			pSeqCrystal->SetPosition( pMeshInstPlane->GetBonePos( awszDummyName[i] ), false, false );
+	}
+
+	if( true == pMeshInstPlane->EventTimerGlobal( 0.1f ) )
+	{
+		m_hParticleGigaPlane = pMajorParticleSystem->CreateSequenceHandle( (CKTDGObject*) m_pGUEve, L"eve_gigaStream_prism_red_P01", pMeshInstPlane->GetBonePos( L"Dummy01" ) );
+
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( m_pGUEve, m_hParticleGigaPlane, false );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( 0.2f ) )
+	{
+		for( int i = 0; i < 5; ++i )
+			m_hParticleGigaCrystal[i] = pMajorParticleSystem->CreateSequenceHandle( (CKTDGObject*) m_pGUEve, L"eve_spectro_model_P01", pMeshInstPlane->GetBonePos( awszDummyName[i] ) );
+
+		g_pX2Game->JuneTagEffectAlphaParticleHandles( m_pGUEve, m_hParticleGigaCrystal, 5, false );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( pMeshInstPlane->GetMaxLifeTime() - 0.2333f ) )
+	{
+		for( int i = 0; i < 5; ++i )
+			apMeshInstCrystal[i]->ChangeAnim( L"end", CKTDGXSkinAnim::XAP_ONE, 1.f );
+
+		for( int i = 0; i < 5; ++i )
+			pMajorParticleSystem->DestroyInstanceHandle( m_hParticleGigaCrystal[i] );
+	}
+	else if( true == pMeshInstPlane->EventTimerGlobal( pMeshInstPlane->GetMaxLifeTime() - 0.1f ) )
+	{
+		pMajorParticleSystem->DestroyInstanceHandle( m_hParticleGigaPlane );
+	}
+}
+
+// June 32991090: March's ProcessFormation; the marks and messages follow the cloak ( 32979350 ) and the new messages take the alpha tag ( 7c ), ids are June's formation types 0-2
+void CX2GUEve::EveElectraSystem::June_ProcessFormation( float fElapsedTime_ )
+{
+	if( false == m_bSystemEnable )
+		return;
+
+	const float fElapsedTimeBefore = m_fFormationSetElapsedTime;
+	m_fFormationSetElapsedTime += fElapsedTime_;
+
+	for( UINT i = 0; i < 3; ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqFormationMark = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleFormationMark[i] );
+		if( NULL != pSeqFormationMark )
+		{
+			pSeqFormationMark->SetPosition( m_pGUEve->GetBonePos( L"Bip01" ), false, false );
+
+			if( NULL != m_pGUEve )
+				CX2GUEve::June_ShowParticleByInvisibility( m_pGUEve, pSeqFormationMark );
+		}
+	}
+
+	for( UINT i = 0; i < 3; ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqFormationMsg = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleFormationMsg[i] );
+		if( NULL != pSeqFormationMsg )
+		{
+			pSeqFormationMsg->SetPosition( m_pGUEve->GetBonePos( L"Bip01" ), true, true );
+
+			if( NULL != m_pGUEve )
+				CX2GUEve::June_ShowParticleByInvisibility( m_pGUEve, pSeqFormationMsg );
+		}
+	}
+
+	const WCHAR* pwszMsgName = NULL;
+	int iMsgIndex = -1;
+
+	if( fElapsedTimeBefore <= 0.0f && m_fFormationSetElapsedTime > 0.0f )
+		iMsgIndex = 0;
+	else if( fElapsedTimeBefore <= 0.8f && m_fFormationSetElapsedTime > 0.8f )
+		iMsgIndex = 1;
+	else if( fElapsedTimeBefore <= 1.6f && m_fFormationSetElapsedTime > 1.6f )
+		iMsgIndex = 2;
+
+	if( iMsgIndex < 0 )
+		return;
+
+	static const WCHAR* const s_apwszMsgName[3][3] =
+	{
+		{ L"eve_spectro_Msg_red_01",	L"eve_spectro_Msg_red_02",	L"eve_spectro_Msg_red_03" },
+		{ L"eve_spectro_Msg_Blue_01",	L"eve_spectro_Msg_Blue_02",	L"eve_spectro_Msg_Blue_03" },
+		{ L"eve_spectro_Msg_Green_01",	L"eve_spectro_Msg_Green_02",	L"eve_spectro_Msg_Green_03" },
+	};
+
+	if( m_ePlaneFormationType < PFT_AMPLIFIER || PFT_INDUCTION < m_ePlaneFormationType )
+		return;
+
+	pwszMsgName = s_apwszMsgName[m_ePlaneFormationType][iMsgIndex];
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqFormationMsg = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) m_pGUEve, pwszMsgName, m_pGUEve->GetBonePos( L"Bip01" ) );
+	if( NULL != pSeqFormationMsg )
+	{
+		pSeqFormationMsg->SetAddRotate( m_pGUEve->GetRotateDegree() );
+		pSeqFormationMsg->SetAxisAngle( m_pGUEve->GetRotateDegree() );
+		m_hParticleFormationMsg[iMsgIndex] = pSeqFormationMsg->GetHandle();
+
+		g_pX2Game->JuneTagEffectAlphaParticle( m_pGUEve, pSeqFormationMsg );
+	}
+}
+
+// June 329c3bb0: March's ProcessSystem over the June plane / formation steps and the June OnFrameMove of the three data lists
+void CX2GUEve::EveElectraSystem::June_ProcessSystem( float fElapsedTime_ )
+{
+	June_ProcessPlane( fElapsedTime_ );
+	June_ProcessGigaPlane( fElapsedTime_ );
+	June_ProcessFormation( fElapsedTime_ );
+
+	if( false == m_EveElectraLaserDataList.empty() )
+	{
+		std::list< EveElectraLaserData >::iterator lit_Laser;
+		for( lit_Laser = m_EveElectraLaserDataList.begin(); lit_Laser != m_EveElectraLaserDataList.end(); )
+		{
+			EveElectraLaserData& kEveElectraLaserData = *lit_Laser;
+
+			if( kEveElectraLaserData.m_TraceBone != L"" )
+				kEveElectraLaserData.m_vLaserStartPos = m_pGUEve->GetBonePos( kEveElectraLaserData.m_TraceBone.c_str() );
+
+			kEveElectraLaserData.June_OnFrameMove( fElapsedTime_ );
+			if( true == kEveElectraLaserData.m_bDie )
+				lit_Laser = m_EveElectraLaserDataList.erase( lit_Laser );
+			else
+				++lit_Laser;
+		}
+	}
+
+	if( false == m_EveElectraEffectDataList.empty() )
+	{
+		std::list< EveElectraEffectData >::iterator lit_Effect;
+		for( lit_Effect = m_EveElectraEffectDataList.begin(); lit_Effect != m_EveElectraEffectDataList.end(); )
+		{
+			EveElectraEffectData& kEveElectraEffectData = *lit_Effect;
+			kEveElectraEffectData.June_OnFrameMove( fElapsedTime_ );
+			if( true == kEveElectraEffectData.m_bDie )
+				lit_Effect = m_EveElectraEffectDataList.erase( lit_Effect );
+			else
+				++lit_Effect;
+		}
+	}
+
+	if( false == m_EveElectraLockonDataList.empty() )
+	{
+		std::list< EveElectraLockonData >::iterator lit_Lockon;
+		for( lit_Lockon = m_EveElectraLockonDataList.begin(); lit_Lockon != m_EveElectraLockonDataList.end(); )
+		{
+			EveElectraLockonData& kEveElectraLockonData = *lit_Lockon;
+			kEveElectraLockonData.June_OnFrameMove( fElapsedTime_ );
+			if( true == kEveElectraLockonData.m_bDie )
+				lit_Lockon = m_EveElectraLockonDataList.erase( lit_Lockon );
+			else
+				++lit_Lockon;
+		}
+	}
+}
+
+// June 329c3420: March's EveElectraLockonData::OnFrameMove; each new effect also takes 32968c50 ( Code Recovery ignores the defence ), m_bDie is set after the handle is dropped
+void CX2GUEve::EveElectraLockonData::June_OnFrameMove( float fElapsedTime_ )
+{
+	m_fElapsedTime += fElapsedTime_;
+
+	CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_hDamageEffect );
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = ( NULL != pDamageEffect ) ? pDamageEffect->GetMainEffect() : NULL;
+
+	if( NULL == pDamageEffect || NULL == pMainEffect )
+	{
+		m_hDamageEffect = INVALID_DAMAGE_EFFECT_HANDLE;
+		m_bDie = true;
+		return;
+	}
+
+	const D3DXVECTOR3 vRotateDegree = pMainEffect->GetRotateDegree();
+	D3DXVECTOR3 vEffectNowPos = pMainEffect->GetPos();
+
+	if( false == m_pEveElectraSystem->m_bPlaneEnable )
+	{
+		m_bPlaneFront = false;
+		return;
+	}
+
+	if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_PrimaryPlane, &vEffectNowPos ) < 0.0f )
+	{
+		m_vPlaneIntersectPoint = vEffectNowPos;
+		m_bPlaneFront = true;
+		return;
+	}
+
+	if( true != m_bPlaneFront )
+		return;
+
+	D3DXVECTOR3 vEffectEndPos;
+	D3DXPlaneIntersectLine( &vEffectEndPos, &m_pEveElectraSystem->m_PrimaryPlane, &vEffectNowPos, &m_vPlaneIntersectPoint );
+
+	CX2GUEve* pGUEve = m_pEveElectraSystem->m_pGUEve;
+
+	switch( m_pEveElectraSystem->m_ePlaneFormationType )
+	{
+	case PFT_AMPLIFIER:
+		{
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pGUEve->GetPowerRate(), vEffectEndPos, vRotateDegree, vRotateDegree );
+
+			CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+			*pDamageData = pDamageEffect->GetDamageData();
+			pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+			pEffect->GetLockOnData().m_bLockOnUserUnit	= pDamageEffect->GetLockOnData().m_bLockOnUserUnit;
+			pEffect->GetLockOnData().m_LockOnUnitUID	= pDamageEffect->GetLockOnData().m_LockOnUnitUID;
+			pEffect->GetLockOnData().m_LockOnNPCUID		= pDamageEffect->GetLockOnData().m_LockOnNPCUID;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+			if( NULL != pMeshInstance )
+			{
+				pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+				pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() + 0.2f );
+			}
+
+			pDamageData->damage.fPhysic *= 1.2f;
+			pDamageData->damage.fMagic *= 1.2f;
+
+			pEffect->SetScale( D3DXVECTOR3( 1.3f, 1.3f, 1.3f ) );
+
+			D3DXVECTOR3 vManualDirDegree;
+			vManualDirDegree.x = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.x );
+			vManualDirDegree.y = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.y );
+			vManualDirDegree.z = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.z );
+
+			if( NULL != pMeshInstance )
+			{
+				pMeshInstance->SetManualDirDegree( vManualDirDegree );
+				pMeshInstance->UseManualDirDegree( true );
+			}
+
+			pGUEve->June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+		} break;
+
+	case PFT_SPECTRUM:
+		{
+			for( UINT i = 1; i <= 3; ++i )
+			{
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_SpectrumDamageEffectName.c_str(), pGUEve->GetPowerRate(), vEffectEndPos, vRotateDegree, vRotateDegree );
+
+				CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+				*pDamageData = pDamageEffect->GetDamageData();
+				pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+				pEffect->GetLockOnData().m_bLockOnUserUnit	= pDamageEffect->GetLockOnData().m_bLockOnUserUnit;
+				pEffect->GetLockOnData().m_LockOnUnitUID	= pDamageEffect->GetLockOnData().m_LockOnUnitUID;
+				pEffect->GetLockOnData().m_LockOnNPCUID		= pDamageEffect->GetLockOnData().m_LockOnNPCUID;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+				if( NULL != pMeshInstance )
+				{
+					pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+					pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() + 0.2f );
+				}
+
+				pDamageData->damage.fPhysic *= 0.5f;
+				pDamageData->damage.fMagic *= 0.5f;
+
+				pEffect->SetScale( D3DXVECTOR3( 0.8f, 0.8f, 0.8f ) );
+
+				D3DXVECTOR3 vRotationAxis;
+				D3DXVec3Cross( &vRotationAxis, &m_pEveElectraSystem->m_vPlaneNormal, &Y_AXIS );
+				D3DXVec3Normalize( &vRotationAxis, &vRotationAxis );
+
+				D3DXMATRIX matRotation_2;
+				D3DXMatrixRotationAxis( &matRotation_2, &vRotationAxis, D3DX_PI / 180.f * 30.f );
+
+				D3DXMATRIX matRotation_3;
+				D3DXMatrixRotationAxis( &matRotation_3, &vRotationAxis, D3DX_PI / 180.f * -30.f );
+
+				D3DXVECTOR4 v4DirVectorLockon_2;
+				D3DXVec3Transform( &v4DirVectorLockon_2, &m_pEveElectraSystem->m_vPlaneNormal, &matRotation_2 );
+				D3DXVECTOR3 vDirVectorLockon_2 = v4DirVectorLockon_2;
+
+				D3DXVECTOR4 v4DirVectorLockon_3;
+				D3DXVec3Transform( &v4DirVectorLockon_3, &m_pEveElectraSystem->m_vPlaneNormal, &matRotation_3 );
+				D3DXVECTOR3 vDirVectorLockon_3 = v4DirVectorLockon_3;
+
+				D3DXVECTOR3 vManualDirDegree1;
+				vManualDirDegree1.x = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.x );
+				vManualDirDegree1.y = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.y );
+				vManualDirDegree1.z = D3DXToDegree( m_pEveElectraSystem->m_vPlaneNormal.z );
+
+				D3DXVECTOR3 vManualDirDegree2;
+				vManualDirDegree2.x = D3DXToDegree( vDirVectorLockon_2.x );
+				vManualDirDegree2.y = D3DXToDegree( vDirVectorLockon_2.y );
+				vManualDirDegree2.z = D3DXToDegree( vDirVectorLockon_2.z );
+
+				D3DXVECTOR3 vManualDirDegree3;
+				vManualDirDegree3.x = D3DXToDegree( vDirVectorLockon_3.x );
+				vManualDirDegree3.y = D3DXToDegree( vDirVectorLockon_3.y );
+				vManualDirDegree3.z = D3DXToDegree( vDirVectorLockon_3.z );
+
+				if( NULL != pMeshInstance )
+				{
+					if( 2 == i )
+						pMeshInstance->SetManualDirDegree( vManualDirDegree2 );
+					else if( 3 == i )
+						pMeshInstance->SetManualDirDegree( vManualDirDegree3 );
+					else
+						pMeshInstance->SetManualDirDegree( vManualDirDegree1 );
+
+					pMeshInstance->UseManualDirDegree( true );
+				}
+
+				pGUEve->June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+			}
+		} break;
+	}
+
+	g_pX2Game->GetDamageEffect()->DestroyInstanceHandleSilently( m_hDamageEffect );
+	m_bDie = true;
+}
+
+// June 329c12a0: EveElectraEffectData::OnFrameMove. A damage effect crossing the plane splits into the filtered effects per formation ( March's OnFrameMove with June's
+// inherit rates instead of the damage cuts ); an effect set ( June +0x8c ) is stopped and played as the filtered effect sets, whose handles are kept in +0x90 until
+// their damage effects take the 32968c50 / 3297b720 modifiers.
+void CX2GUEve::EveElectraEffectData::June_OnFrameMove( float fElapsedTime_ )
+{
+	m_fElapsedTime += fElapsedTime_;
+
+	CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_hDamageEffect );
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = ( NULL != pDamageEffect ) ? pDamageEffect->GetMainEffect() : NULL;
+
+	CX2GUEve* pGUEve = m_pEveElectraSystem->m_pGUEve;
+
+	do
+	{
+		if( NULL != pDamageEffect && NULL != pMainEffect )
+		{
+			const D3DXVECTOR3 vRotateDegree = pMainEffect->GetRotateDegree();
+			D3DXVECTOR3 vEffectNowPos = pMainEffect->GetPos();
+
+			if( false == m_pEveElectraSystem->m_bPlaneEnable )
+			{
+				m_bPlaneFront = false;
+				break;
+			}
+
+			if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_PrimaryPlane, &vEffectNowPos ) < 0.0f )
+			{
+				m_vPlaneIntersectPoint = vEffectNowPos;
+				m_bPlaneFront = true;
+				break;
+			}
+
+			if( true != m_bPlaneFront )
+				break;
+
+			D3DXVECTOR3 vEffectEndPos;
+			D3DXPlaneIntersectLine( &vEffectEndPos, &m_pEveElectraSystem->m_PrimaryPlane, &vEffectNowPos, &m_vPlaneIntersectPoint );
+
+			switch( m_pEveElectraSystem->m_ePlaneFormationType )
+			{
+			case PFT_AMPLIFIER:
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pDamageEffect->GetPowerRate(),
+						vEffectEndPos, vRotateDegree, vRotateDegree );
+
+					CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+					*pDamageData = pDamageEffect->GetDamageData();
+					pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+					June_AddTinyDamageTime( pGUEve, pEffect );
+
+					CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+					if( NULL != pMeshInstance )
+					{
+						pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+						pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() + 0.13333f );
+					}
+
+					pEffect->JuneApplyInheritDamageRate( 1.2f );
+					pGUEve->June_ApplyProjectileModifiers( pEffect );
+
+					D3DXVECTOR3 vAmplifyScale = pDamageEffect->GetMainEffectScaleByUnit();
+					const D3DXVECTOR3 vScale = pMainEffect->GetScale();
+
+					if( false == JuneEveIsSweepOrVulcanName( m_AmplifyDamageEffectName ) )
+						pEffect->SetPassiveparticleTriggerTimeRate( pMainEffect->GetMaxLifeTime() + 0.13333f );
+
+					if( 0 == m_AmplifyDamageEffectName.compare( L"EVE_ENERGY_NEEDLES_FILTERED" ) )
+						JuneEveCopyLockOnData( pEffect->GetLockOnData(), pDamageEffect->GetLockOnData() );
+
+					const float fScaleRate = m_pEveElectraSystem->m_fHyperOpticalResearchScale + 1.3f;
+					vAmplifyScale.x = fScaleRate * vAmplifyScale.x * vScale.x;
+					vAmplifyScale.y = fScaleRate * vAmplifyScale.y * vScale.y;
+					vAmplifyScale.z = fScaleRate * vAmplifyScale.z * vScale.z;
+
+					pEffect->SetScale( vAmplifyScale );
+
+					D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+					vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle;
+					if( vRotateDegree.z != 0.f )
+						vSecondRotateDegree.z -= vRotateDegree.z;
+
+					if( NULL != pMeshInstance )
+					{
+						pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+						pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+					}
+				} break;
+
+			case PFT_SPECTRUM:
+				{
+					for( UINT i = 1; i <= 3; ++i )
+					{
+						CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_SpectrumDamageEffectName.c_str(), pDamageEffect->GetPowerRate(),
+							vEffectEndPos, vRotateDegree, vRotateDegree );
+
+						CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+						*pDamageData = pDamageEffect->GetDamageData();
+						pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+						June_AddTinyDamageTime( pGUEve, pEffect );
+
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+						if( NULL != pMeshInstance )
+						{
+							pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+							pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() + 0.13333f );
+						}
+
+						if( false == JuneEveIsSweepOrVulcanName( m_SpectrumDamageEffectName ) )
+							pEffect->SetPassiveparticleTriggerTimeRate( pMainEffect->GetMaxLifeTime() + 0.13333f );
+
+						pDamageData->fForceDownValue *= 0.333f;
+
+						pEffect->JuneApplyInheritDamageRate( 0.45f );
+
+						if( 0 == m_SpectrumDamageEffectName.compare( L"EVE_ENERGY_NEEDLES_FILTERED" ) )
+							JuneEveCopyLockOnData( pEffect->GetLockOnData(), pDamageEffect->GetLockOnData() );
+
+						D3DXVECTOR3 vSpectrumScale = pDamageEffect->GetMainEffectScaleByUnit();
+						const D3DXVECTOR3 vScale = pMainEffect->GetScale();
+						vSpectrumScale.x = vSpectrumScale.x * vScale.x * 0.8f;
+						vSpectrumScale.y = vSpectrumScale.y * vScale.y * 0.8f;
+						vSpectrumScale.z = 0.8f * vSpectrumScale.z * vScale.z;
+						pEffect->SetScale( vSpectrumScale );
+
+						D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+						if( 2 == i )
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle + 30.f;
+						else if( 3 == i )
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle - 30.f;
+						else
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle;
+
+						if( vRotateDegree.z != 0.f )
+							vSecondRotateDegree.z -= vRotateDegree.z;
+
+						if( NULL != pMeshInstance )
+						{
+							pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+							pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+						}
+
+						pGUEve->June_ApplyProjectileModifiers( pEffect );
+					}
+				} break;
+
+			case PFT_INDUCTION:
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_InductionDamageEffectName.c_str(), pDamageEffect->GetPowerRate(),
+						vEffectEndPos, vRotateDegree, vRotateDegree );
+
+					CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+					*pDamageData = pDamageEffect->GetDamageData();
+					pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+					CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+					if( NULL != pMeshInstance )
+						pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+
+					bool bSetScale = true;
+
+					if( true == JuneEveIsFilteredEffectName( m_InductionDamageEffectName ) )
+					{
+						if( 0 == m_InductionDamageEffectName.compare( L"Damage_KugelBlitz_Charge_FILTERED" ) )
+						{
+							const int iAddDamageTime = pGUEve->GetKugelBlitzAddDamageTime();
+
+							D3DXVECTOR3 vInductionScale = pDamageEffect->GetMainEffectScaleByUnit();
+							const D3DXVECTOR3 vScale = pMainEffect->GetScale();
+							vInductionScale.x = vInductionScale.x * vScale.x * 0.8f;
+							vInductionScale.y = vInductionScale.y * vScale.y * 0.8f;
+							vInductionScale.z = 0.8f * vInductionScale.z * vScale.z;
+							pEffect->SetScale( vInductionScale );
+							bSetScale = false;
+
+							if( 0 < iAddDamageTime )
+							{
+								pGUEve->ResetKugelBlitzTinyData();
+								pEffect->SetDamageTime( pEffect->GetDamageTime() + iAddDamageTime );
+							}
+						}
+						else if( false == JuneEveIsSweepOrVulcanName( m_InductionDamageEffectName ) )
+						{
+							const int iAddDamageTime = pGUEve->GetTaserPilumAddDamageTime();
+							pGUEve->ResetTaserPilumTinyData();
+							pEffect->SetDamageTime( pEffect->GetDamageTime() + iAddDamageTime );
+							bSetScale = false;
+						}
+					}
+					else
+					{
+						if( NULL != pMeshInstance )
+							pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() * 1.1f + 0.13333f );
+
+						pEffect->SetDamageTime( pEffect->GetDamageTime() + 1 );
+						pEffect->SetPassiveparticleTriggerTimeRate( pMainEffect->GetMaxLifeTime() * 1.1f + 0.13333f );
+
+						pEffect->JuneApplyInheritDamageRate( 0.55f );
+
+						pDamageData->bReAttack = true;
+						pDamageData->fHitGap = 0.3f;
+						pDamageData->m_fRateModifier *= 0.55f;
+						pDamageData->fHitAddMP *= 0.55f;
+						pDamageData->techPoint = int( pDamageData->techPoint * 0.55 );
+					}
+
+					if( true == bSetScale )
+					{
+						D3DXVECTOR3 vInductionScale = pDamageEffect->GetMainEffectScaleByUnit();
+						const D3DXVECTOR3 vScale = pMainEffect->GetScale();
+						vInductionScale.x = vInductionScale.x * vScale.x * 0.8f;
+						vInductionScale.y = vInductionScale.y * vScale.y * 0.8f;
+						vInductionScale.z = 0.8f * vInductionScale.z * vScale.z;
+						pEffect->SetScale( vInductionScale );
+					}
+
+					if( true == JuneEveIsSweepOrVulcanName( m_InductionDamageEffectName ) )
+					{
+						pDamageData->damage.fPhysic *= 1.1f;
+						pDamageData->damage.fMagic *= 1.1f;
+					}
+
+					D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+					vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle;
+					if( vRotateDegree.z != 0.f )
+						vSecondRotateDegree.z -= vRotateDegree.z;
+
+					if( 0 == m_InductionDamageEffectName.compare( L"EVE_ENERGY_NEEDLES_FILTERED" ) )
+					{
+						if( NULL != pMeshInstance )
+						{
+							pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+							pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+						}
+
+						JuneEveCopyLockOnData( pEffect->GetLockOnData(), pDamageEffect->GetLockOnData() );
+					}
+					else
+					{
+						if( NULL != pMeshInstance )
+						{
+							pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+							pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+
+							pMeshInstance->SetDirSpeed( pEffect->GetMainEffect()->GetVelocity().x );
+							pMeshInstance->SetVelocity( D3DXVECTOR3( 0.f, 0.f, 0.f ) );
+						}
+
+						pEffect->GetLockOnData().m_LockOnType = CX2DamageEffect::LOT_NEARST_UID_VECTOR_IN_RANGE;
+						pEffect->GetLockOnData().m_fCurveSpeed = 10;
+						pEffect->GetLockOnData().m_fTimeUnlockFromStart = 0.1f;
+					}
+
+					if( true == JuneEveIsVulcanName( m_InductionDamageEffectName ) )
+						pEffect->GetLockOnData().m_bIsNotTargetPreLockOnTarget = true;
+
+					JuneEveSetLockOnNearstTarget( pGUEve, pEffect );
+
+					pGUEve->June_ApplyProjectileModifiers( pEffect );
+				} break;
+
+			case PFT_FUSION:
+				{
+					for( UINT i = 1; i <= 3; ++i )
+					{
+						CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_FusionDamageEffectName.c_str(), pDamageEffect->GetPowerRate(),
+							vEffectEndPos, vRotateDegree, vRotateDegree );
+
+						CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+						*pDamageData = pDamageEffect->GetDamageData();
+						pDamageData->hAttackerEffect = pEffect->GetHandle();
+
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+						if( NULL != pMeshInstance )
+							pMeshInstance->SetNowLifeTime( pMainEffect->GetNowLifeTime() );
+
+						if( true == JuneEveIsFilteredEffectName( m_FusionDamageEffectName ) )
+						{
+							June_AddTinyDamageTime( pGUEve, pEffect );
+						}
+						else
+						{
+							if( NULL != pMeshInstance )
+								pMeshInstance->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() * 1.1f + 0.13333f );
+
+							pEffect->SetDamageTime( pEffect->GetDamageTime() + 1 );
+							pEffect->SetPassiveparticleTriggerTimeRate( pMainEffect->GetMaxLifeTime() * 1.1f + 0.13333f );
+
+							pEffect->JuneApplyInheritDamageRate( 0.5f );
+
+							pDamageData->fHitAddMP *= 0.25f;
+							pDamageData->bReAttack = true;
+							pDamageData->fHitGap = 0.3f;
+						}
+
+						pEffect->JuneApplyInheritDamageRate( 0.5f );
+
+						if( 0 == m_FusionDamageEffectName.compare( L"EVE_SWEEP_PARADE_TRIANGLE" ) || 0 == m_FusionDamageEffectName.compare( L"EVE_SWEEP_PARADE_TRIANGLE_MEMO" ) )
+							pDamageData->m_fRateModifier *= 0.5f;
+						else if( true == JuneEveIsVulcanName( m_FusionDamageEffectName ) )
+							pDamageData->m_fRateModifier *= 0.25f;
+
+						pDamageData->techPoint = int( pDamageData->techPoint * 0.5 );
+
+						D3DXVECTOR3 vFusionScale = pDamageEffect->GetMainEffectScaleByUnit();
+						const D3DXVECTOR3 vScale = pMainEffect->GetScale();
+						vFusionScale.x = vFusionScale.x * vScale.x * 0.75f;
+						vFusionScale.y = vFusionScale.y * vScale.y * 0.75f;
+						vFusionScale.z = 0.75f * vFusionScale.z * vScale.z;
+						pEffect->SetScale( vFusionScale );
+
+						D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+						if( 2 == i )
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle + 30.f;
+						else if( 3 == i )
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle - 30.f;
+						else
+							vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle;
+
+						if( vRotateDegree.z != 0.f )
+							vSecondRotateDegree.z -= vRotateDegree.z;
+
+						if( 0 == m_FusionDamageEffectName.compare( L"EVE_ENERGY_NEEDLES_FILTERED" ) )
+						{
+							if( NULL != pMeshInstance )
+							{
+								pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+								pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+							}
+
+							JuneEveCopyLockOnData( pEffect->GetLockOnData(), pDamageEffect->GetLockOnData() );
+						}
+						else
+						{
+							if( NULL != pMeshInstance )
+							{
+								pMeshInstance->SetRotateDegree( vSecondRotateDegree );
+								pMeshInstance->SetMoveAxisAngleDegree( vSecondRotateDegree );
+
+								pMeshInstance->SetDirSpeed( pEffect->GetMainEffect()->GetVelocity().x );
+								pMeshInstance->SetVelocity( D3DXVECTOR3( 0.f, 0.f, 0.f ) );
+							}
+
+							pEffect->GetLockOnData().m_LockOnType = CX2DamageEffect::LOT_NEARST_UID_VECTOR;
+							pEffect->GetLockOnData().m_fCurveSpeed = 10;
+							pEffect->GetLockOnData().m_fTimeUnlockFromStart = 0.1f;
+						}
+
+						if( true == JuneEveIsVulcanName( m_FusionDamageEffectName ) )
+							pEffect->GetLockOnData().m_bIsNotTargetPreLockOnTarget = true;
+
+						JuneEveSetLockOnNearstTarget( pGUEve, pEffect );
+
+						pGUEve->June_ApplyProjectileModifiers( pEffect );
+					}
+				} break;
+			}
+
+			g_pX2Game->GetDamageEffect()->DestroyInstanceHandleSilently( m_hDamageEffect );
+			m_bDie = true;
+			break;
+		}
+
+		if( m_hJuneEffectSet == INVALID_EFFECTSET_HANDLE )
+		{
+			m_bDie = true;
+			m_hDamageEffect = INVALID_DAMAGE_EFFECT_HANDLE;
+			m_hJuneEffectSet = INVALID_EFFECTSET_HANDLE;
+			break;
+		}
+
+		// the Electra effect is an effect set: the same plane crossing, the filtered effect sets are played at the end point
+		D3DXVECTOR3 vSetRotate( 0.f, 0.f, 0.f );
+		CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( m_hJuneEffectSet );
+		if( NULL != pEffectSetInstance )
+			vSetRotate = pEffectSetInstance->m_vRotationDegree;
+		vSetRotate.z = m_pEveElectraSystem->m_fPlaneZAngle + vSetRotate.z;
+
+		D3DXVECTOR3 vSetPos = g_pX2Game->GetEffectSet()->GetEffectPosition_LUA( m_hJuneEffectSet, 0 );
+
+		if( false == m_pEveElectraSystem->m_bPlaneEnable )
+		{
+			m_bPlaneFront = false;
+			break;
+		}
+
+		if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_PrimaryPlane, &vSetPos ) < 0.0f )
+		{
+			m_vPlaneIntersectPoint = vSetPos;
+			m_bPlaneFront = true;
+			break;
+		}
+
+		if( true != m_bPlaneFront )
+			break;
+
+		vSetPos = g_pX2Game->GetEffectSet()->GetEffectPosition_LUA( m_hJuneEffectSet, 0 );
+		D3DXVECTOR3 vSetEndPos;
+		D3DXPlaneIntersectLine( &vSetEndPos, &m_pEveElectraSystem->m_PrimaryPlane, &vSetPos, &m_vPlaneIntersectPoint );
+
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hJuneEffectSet );
+
+		const wstring* pwstrSetName = NULL;
+		switch( m_pEveElectraSystem->m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:	{ pwstrSetName = &m_AmplifyDamageEffectName; } break;
+		case PFT_SPECTRUM:	{ pwstrSetName = &m_SpectrumDamageEffectName; } break;
+		case PFT_INDUCTION:	{ pwstrSetName = &m_InductionDamageEffectName; } break;
+		case PFT_FUSION:	{ pwstrSetName = &m_FusionDamageEffectName; } break;
+		}
+
+		if( NULL == pwstrSetName )
+			break;
+
+		const D3DXVECTOR3 vOne( 1.f, 1.f, 1.f );
+		if( PFT_SPECTRUM == m_pEveElectraSystem->m_ePlaneFormationType || PFT_FUSION == m_pEveElectraSystem->m_ePlaneFormationType )
+		{
+			for( UINT i = 1; i <= 3; ++i )
+			{
+				D3DXVECTOR3 vLoopRotate = vSetRotate;
+				if( 2 == i )
+					vLoopRotate.z = 30.f + m_pEveElectraSystem->m_fPlaneZAngle;
+				else if( 3 == i )
+					vLoopRotate.z = m_pEveElectraSystem->m_fPlaneZAngle - 30.f;
+				else
+					vLoopRotate.z = m_pEveElectraSystem->m_fPlaneZAngle;
+				vLoopRotate.z += vSetRotate.z;
+
+				m_vecJuneEffectSetHandle.push_back( g_pX2Game->GetEffectSet()->PlayEffectSet( *pwstrSetName, pGUEve, NULL, false, -1.f, -1.f, vOne, true, vSetEndPos, vLoopRotate, vLoopRotate ) );
+			}
+		}
+		else
+		{
+			m_vecJuneEffectSetHandle.push_back( g_pX2Game->GetEffectSet()->PlayEffectSet( *pwstrSetName, pGUEve, NULL, false, -1.f, -1.f, vOne, true, vSetEndPos, vSetRotate, vSetRotate ) );
+		}
+	}
+	while( false );
+
+	// the effect sets played above: their damage effects take 32968c50 / 3297b720 once they exist, then the handle is dropped; June sets the flag once before the loop,
+	// so every handle after the first modified one is dropped too ( JUNE_BUGS 439 )
+	bool bModified = false;
+	for( std::vector<CX2EffectSet::Handle>::iterator vit = m_vecJuneEffectSetHandle.begin(); vit != m_vecJuneEffectSetHandle.end(); )
+	{
+		CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( *vit );
+		if( NULL != pEffectSetInstance )
+		{
+			for( UINT i = 0; i < pEffectSetInstance->m_vecpEffectInstance.size(); ++i )
+			{
+				CX2EffectSet::EffectInstance* pEffectInstance = pEffectSetInstance->m_vecpEffectInstance[i];
+				if( NULL != pEffectInstance )
+				{
+					CX2DamageEffect::CEffect* pChild = g_pX2Game->GetDamageEffect()->GetInstance( pEffectInstance->m_hDamageEffect );
+					if( NULL != pChild )
+					{
+						pGUEve->June_ApplyProjectileModifiers( pChild );
+						bModified = true;
+					}
+				}
+			}
+		}
+
+		if( true == bModified )
+			vit = m_vecJuneEffectSetHandle.erase( vit );
+		else
+			++vit;
+	}
+}
+
+// June 329a7d00: March's ChangePlaneForamtionSystem; the start flag is set without March's fix macro and the cool time of both Spectro El Crystal skills is cleared
+void CX2GUEve::June_ChangePlaneForamtionSystem( const PlaneFormationType ePlaneFormatinoSystem_ )
+{
+	if( true == IsMyUnit() && false == m_bStartSpectroElCrystal )
+	{
+		m_bStartSpectroElCrystal = true;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL, true );
+		if( NULL != pSkillTemplet && NULL != GetUnit() )
+		{
+			CX2UserSkillTree& cUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+			float fAdditionalTime = 0.f;
+			const bool bJuneMemo = false;	// June 31fca9e0 ( skill memo 605013 ): June's memo stub answers false
+			if( true == bJuneMemo )
+				fAdditionalTime = 3.0f;
+
+			const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			m_EveElectraSystem.m_fSystemOperationTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false ) + fAdditionalTime;
+
+			cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL, 0.f );
+			cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE, 0.f );
+		}
+
+		m_EveElectraSystem.m_ePlaneFormationType = ePlaneFormatinoSystem_;
+	}
+
+	m_EveElectraSystem.m_bSystemEnable = true;
+
+	if( ePlaneFormatinoSystem_ != m_EveElectraSystem.m_ePlaneFormationType )
+	{
+		switch( m_EveElectraSystem.m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				m_EveElectraSystem.m_ePlaneFormationType = PFT_SPECTRUM;
+			} break;
+		case PFT_SPECTRUM:
+			{
+				m_EveElectraSystem.m_ePlaneFormationType = ( true == m_EveElectraSystem.m_bHyperOpticalResearch ) ? PFT_INDUCTION : PFT_AMPLIFIER;
+			} break;
+		case PFT_INDUCTION:
+			{
+				m_EveElectraSystem.m_ePlaneFormationType = PFT_AMPLIFIER;
+			} break;
+		}
+	}
+
+	ChangeThousandsOfStarsFormation();	// June 32994cd0 = March's
+}
+
+// June 329b4a60: the countdown of the +0x9c50 block runs out
+void CX2GUEve::June_UpdateBlock9c50Timer()
+{
+	if( NULL != m_pJuneBlock9c50 && 0.f < m_pJuneBlock9c50->m_fValueC && true != m_pJuneBlock9c50->m_bFlag0 )
+	{
+		m_pJuneBlock9c50->m_fValueC -= m_fElapsedTime;
+
+		if( m_pJuneBlock9c50->m_fValueC <= 0.f )
+		{
+			// June 329aea60 / 32976fe0: calls added in CH3a
+		}
+	}
+}
+
+// June 329b2f60: March's DoFrameMoveThousandStar; the star's mesh takes the cloak, the delayed attack fires twice while +0x9c28 is 2, the 60 s end refunds MP and sets the
+// cool time from GetActualCoolTime, and the follow particles take the cloak ( 32979350 ) and the alpha tag
+void CX2GUEve::June_DoFrameMoveThousandStar()
+{
+	if( NULL != m_pThousandStar && INVALID_DAMAGE_EFFECT_HANDLE != m_pThousandStar->m_hEffect )
+	{
+		m_fElapsedTimeThousandStartCreated += m_fElapsedTime;
+
+		CX2DamageEffect::CEffect* pTSEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pThousandStar->m_hEffect );
+		if( NULL != pTSEffect )
+			June_ApplyInvisibilityToMeshInstance( this, pTSEffect->GetMainEffect() );
+	}
+
+	if( true == m_bEntireFireMode )
+	{
+		m_fDelayAttackTimeEntireFire += m_fElapsedTime;
+		if( m_fDelayAttackTimeEntireFire >= 0.033333f )
+		{
+			PlaySound( L"Raven_NasodCore_Attack.ogg", true, false );
+			for( UINT i = 0; i < 100; ++i )
+			{
+				June_EntireAttackThousandStar();
+				if( m_iThousandStarCount <= 0 )
+					break;
+			}
+			m_bEntireFireMode = false;
+			m_fDelayAttackTimeEntireFire = 0.f;
+		}
+	}
+	else
+	{
+		const bool bCountDown = ( m_fElapsedTimeThousandStartCreated >= 55.f && m_fElapsedTimeThousandStartCreated - m_fElapsedTime < 55.f &&
+			NULL != m_pThousandStar && INVALID_DAMAGE_EFFECT_HANDLE != m_pThousandStar->m_hEffect );
+
+		if( false == bCountDown )
+		{
+			if( m_fElapsedTimeThousandStartCreated < 60.f )
+			{
+				if( true == m_bDelayAttackThousandStar )
+				{
+					m_fDelayAttackTime += m_fElapsedTime;
+					if( m_fDelayAttackTime >= 0.3f )
+					{
+						if( 2 == m_iJune9c28 )
+							June_AttackThousandStar();
+						June_AttackThousandStar();
+						m_fDelayAttackTime = 0.f;
+						m_bDelayAttackThousandStar = false;
+					}
+				}
+			}
+			else
+			{
+				UpNowMp( m_iThousandStarCount * 1.25f );
+
+				if( NULL != g_pData->GetPicCharBlue() )
+				{
+					WCHAR wszText[64] = L"";
+					StringCchPrintfW( wszText, ARRAY_SIZE( wszText ), L"MP+ %d", (int) ( m_iThousandStarCount * 1.25f ) );
+
+					D3DXVECTOR3 vPos = GetPos();
+					vPos.y += 50.f;
+
+					g_pData->GetPicCharBlue()->DrawText( wszText, vPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+				}
+
+				m_iThousandStarCount = 0;
+
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, true );
+				if( NULL != pSkillTemplet )
+				{
+					if( NULL == GetUnit() )
+						return;
+
+					CX2UserSkillTree& cUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+					const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+					float fRemainCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel ) - m_fElapsedTimeThousandStartCreated;	// June passes a third argument 0
+					if( fRemainCoolTime < 0.f )
+						fRemainCoolTime = 0.f;
+
+					cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, fRemainCoolTime );
+					if( true == IsMyUnit() )
+						g_pX2Game->UpdateSkillSlotUI( false );
+				}
+
+				June_ClearThousandStar();
+			}
+		}
+		else
+		{
+			CX2DamageEffect::CEffect* pTSEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pThousandStar->m_hEffect );
+			if( NULL != pTSEffect )
+				m_hCountDownThousandStar = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this, L"CountDown5", pTSEffect->GetPos() );
+		}
+	}
+
+	D3DXVECTOR3 vDirVec = GetDirVector();
+
+	if( NULL != m_pThousandStar && INVALID_DAMAGE_EFFECT_HANDLE != m_pThousandStar->m_hEffect )
+	{
+		CX2DamageEffect::CEffect* pSTEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pThousandStar->m_hEffect );
+		if( NULL == pSTEffect )
+		{
+			June_ClearThousandStar();
+		}
+		else
+		{
+			D3DXVECTOR3 vZVec = GetZVector();
+			D3DXVec3Normalize( &vDirVec, &vDirVec );
+
+			CKTDGXMeshPlayer::CXMeshInstance* pThousandStarMeshInstance = pSTEffect->GetMainEffect();
+			if( NULL != pThousandStarMeshInstance && false == m_bEntireFireMode )
+			{
+				D3DXVECTOR3 vTargetPos = GetPos();
+				if( true == GetIsRight() )
+				{
+					vTargetPos += m_pThousandStar->m_vOffsetPos.x * vDirVec;
+					vTargetPos.y += m_pThousandStar->m_vOffsetPos.y;
+					vTargetPos += m_pThousandStar->m_vOffsetPos.z * vZVec;
+				}
+				else
+				{
+					vTargetPos -= m_pThousandStar->m_vOffsetPos.x * vDirVec;
+					vTargetPos.y += m_pThousandStar->m_vOffsetPos.y;
+					vTargetPos += m_pThousandStar->m_vOffsetPos.z * vZVec;
+				}
+
+				const float fCoeff = 0.05f;
+				const D3DXVECTOR3 vRotateDegree = GetRotateDegree() + m_pThousandStar->m_vOffsetRotate;
+				pThousandStarMeshInstance->SetRotateDegree( vRotateDegree );
+				pThousandStarMeshInstance->SetMoveAxisAngleDegree( GetRotateDegree() );
+
+				vTargetPos = vTargetPos * fCoeff + pThousandStarMeshInstance->GetPos() * ( 1.f - fCoeff );
+				pThousandStarMeshInstance->SetPos( vTargetPos );
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeqThousandStarFormation = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_EveElectraSystem.m_hParticleThousandStarFormation );
+				if( NULL != pSeqThousandStarFormation )
+				{
+					pSeqThousandStarFormation->SetPosition( pThousandStarMeshInstance->GetPos(), false, false );
+					June_ShowParticleByInvisibility( this, pSeqThousandStarFormation );
+				}
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeqCountDownThousandStar = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hCountDownThousandStar );
+				if( NULL != pSeqCountDownThousandStar )
+				{
+					D3DXVECTOR3 vCountDownPos = pThousandStarMeshInstance->GetPos();
+					vCountDownPos.y += 80.f;
+					pSeqCountDownThousandStar->SetPosition( vCountDownPos, false, false );
+					June_ShowParticleByInvisibility( this, pSeqCountDownThousandStar );
+				}
+			}
+
+			if( -1 != m_iLockOnUid )
+			{
+				CX2GameUnit* pGameUnit = NULL;
+				if( true == m_bLockOnNpc )
+					pGameUnit = g_pX2Game->GetNPCUnitByUID( (int)m_iLockOnUid );
+				else
+					pGameUnit = g_pX2Game->GetUserUnitByUID( m_iLockOnUid );
+
+				D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+
+				if( NULL != pGameUnit )
+				{
+					const CKTDXCollision::CollisionDataListSet& AttackListSet = pGameUnit->GetCollisionListSet();
+					vPos = pGameUnit->GetPos();
+					vPos.y += 100.f;
+
+					BOOST_FOREACH( const CKTDXCollision::CollisionDataList* collisionDataList, AttackListSet )
+					{
+						BOOST_FOREACH( CKTDXCollision::CollisionData* collisionData, *collisionDataList )
+						{
+							D3DXVECTOR3 vCollPos = collisionData->GetPointStart();
+							const float fDist = GetDistance( GetPos(), vCollPos );
+							const float fOldDist = GetDistance( GetPos(), vPos );
+
+							if( fDist <= fOldDist )
+								vPos = vCollPos;
+						}
+					}
+				}
+
+				if( NULL == pGameUnit || pGameUnit->GetNowHp() <= 0.f || GetDistance( GetPos(), vPos ) > 1000.f )
+					m_iLockOnUid = -1;
+			}
+		}
+	}
+}
+
+// June 329a3040: March's EntireAttackThousandStar; the child takes the Hyper Optical Research critical rate and Code Recovery's ignore-defence, the star count adds to its hit
+// count, the cool time at the end comes from GetActualCoolTime with the cheat-code floor
+void CX2GUEve::June_EntireAttackThousandStar()
+{
+	if( NULL == m_pThousandStar )
+		return;
+
+	CX2DamageEffect::CEffect* pTSEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pThousandStar->m_hEffect );
+	if( NULL == pTSEffect )
+		return;
+
+	D3DXVECTOR3 vRotateDegree = GetRotateDegree();
+
+	float fVarRotateZ = GetRandomFloat( m_iThousandStarCount ) * 270.f;
+	fVarRotateZ += 45.f;
+	const float fVarRotateX = GetRandomFloat( m_iThousandStarCount + m_iThousandStarCount ) * 360.f;
+
+	vRotateDegree.z += fVarRotateZ;
+	vRotateDegree.x += fVarRotateX;
+
+	const wstring wstrDamageEffectName = L"EVE_THOUSANDSTAR_MAGICBALL_ENTIRE";
+
+	CKTDGXMeshPlayer::CXMeshInstance* pThousandStarMeshInstance = pTSEffect->GetMainEffect();
+
+	if( NULL != pThousandStarMeshInstance )
+	{
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+
+		if( true == m_bLockOnNpc )
+			pEffect->GetLockOnData().m_LockOnNPCUID = (int)m_iLockOnUid;
+		else
+			pEffect->GetLockOnData().m_LockOnUnitUID = m_iLockOnUid;
+
+		if( true == m_EveElectraSystem.m_bSystemEnable &&
+			( PFT_AMPLIFIER == m_EveElectraSystem.m_ePlaneFormationType || PFT_SPECTRUM == m_EveElectraSystem.m_ePlaneFormationType ||
+			PFT_INDUCTION == m_EveElectraSystem.m_ePlaneFormationType || PFT_FUSION == m_EveElectraSystem.m_ePlaneFormationType ) )
+		{
+			pEffect->GetDamageData().damage.fPhysic *= 1.2f;
+			pEffect->GetDamageData().damage.fMagic *= 1.2f;
+
+			float fCriticalRate = 0.f;
+			if( true == June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, CX2SkillTree::RNSI_P_ECB_HYPER_OPTICAL_RESEARCH, false, fCriticalRate ) )
+				pEffect->GetDamageData().m_fJuneAddCriticalRate += fCriticalRate;
+
+			D3DXVECTOR3 vAmplifyScale = pEffect->GetMainEffectScaleByUnit();
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+			if( NULL != pMeshInstance )
+			{
+				const D3DXVECTOR3 vScale = pMeshInstance->GetScale();
+				vAmplifyScale.x = vAmplifyScale.x * vScale.x * 1.3f;
+				vAmplifyScale.y = vAmplifyScale.y * vScale.y * 1.3f;
+				vAmplifyScale.z = 1.3f * vAmplifyScale.z * vScale.z;
+				pEffect->SetScale( vAmplifyScale );
+			}
+
+			June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+		}
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( static_cast<CKTDGObject*>( this ), L"eve_thousandsOfStars_model_P02", pThousandStarMeshInstance->GetPos() );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+
+		float fAddHitCount = 1.f;
+		if( true == June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, true, fAddHitCount ) )
+			pEffect->SetDamageTime( pEffect->GetDamageTime() + static_cast<int>( fAddHitCount ) );
+	}
+
+	--m_iThousandStarCount;
+
+	if( m_iThousandStarCount <= 0 )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;
+
+			CX2UserSkillTree& cUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+			const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+			float fFloor = 5.f;
+			float fRemainCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel ) - m_fElapsedTimeThousandStartCreated;	// June passes a third argument 0
+
+			if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && 5 != JuneSkillCategory( *pSkillTemplet ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
+				fFloor = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * 5.0;
+
+			if( fRemainCoolTime <= fFloor )
+				fRemainCoolTime = fFloor;
+
+			cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, fRemainCoolTime );
+			if( true == IsMyUnit() )
+				g_pX2Game->UpdateSkillSlotUI( false );
+		}
+
+		June_ClearThousandStar();
+	}
+}
+
+// June 329a3760: March's AttackThousandStar; the children take the Hyper Optical Research critical rate and Code Recovery's ignore-defence, the end of the star sets the cool time
+// from GetActualCoolTime ( floor 0 )
+void CX2GUEve::June_AttackThousandStar()
+{
+	if( NULL == m_pThousandStar )
+		return;
+
+	CX2DamageEffect::CEffect* pTSEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pThousandStar->m_hEffect );
+	if( NULL == pTSEffect )
+		return;
+
+	D3DXVECTOR3 vRotateDegree = GetRotateDegree();
+
+	const float fVarRotateX = GetRandomFloat( m_iThousandStarCount ) * 360.f;
+	vRotateDegree.x += fVarRotateX;
+
+	const wstring wstrDamageEffectName = ( true == m_bEntireFireMode ) ? L"EVE_THOUSANDSTAR_MAGICBALL_ENTIRE" : L"EVE_THOUSANDSTAR_MAGICBALL";
+
+	CKTDGXMeshPlayer::CXMeshInstance* pThousandStarMeshInstance = pTSEffect->GetMainEffect();
+
+	bool bSkipEffects = false;
+	if( true == m_EveElectraSystem.m_bSystemEnable )
+	{
+		switch( m_EveElectraSystem.m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				if( NULL == pThousandStarMeshInstance )
+				{
+					bSkipEffects = true;
+					break;
+				}
+
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+				June_SetThousandStarLockOn( pEffect );
+
+				pEffect->GetDamageData().damage.fPhysic *= 1.2f;
+				pEffect->GetDamageData().damage.fMagic *= 1.2f;
+
+				June_AddHyperOpticalResearchCriticalRate( pEffect );
+
+				D3DXVECTOR3 vAmplifyScale = pEffect->GetMainEffectScaleByUnit();
+				CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+				if( NULL != pMeshInstance )
+				{
+					const D3DXVECTOR3 vScale = pMeshInstance->GetScale();
+					const float fScaleRate = m_EveElectraSystem.m_fHyperOpticalResearchScale + 1.3f;
+					vAmplifyScale.x = fScaleRate * vAmplifyScale.x * vScale.x;
+					vAmplifyScale.y = fScaleRate * vAmplifyScale.y * vScale.y;
+					vAmplifyScale.z = fScaleRate * vAmplifyScale.z * vScale.z;
+					pEffect->SetScale( vAmplifyScale );
+				}
+
+				June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+			} break;
+
+		case PFT_SPECTRUM:
+			{
+				for( UINT i = 0; i < 3; ++i )
+				{
+					if( 1 == i || 2 == i )
+						vRotateDegree.x += 120.f;
+
+					if( NULL != pThousandStarMeshInstance )
+					{
+						CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+						June_SetThousandStarLockOn( pEffect );
+
+						pEffect->GetDamageData().damage.fPhysic *= 0.5f;
+						pEffect->GetDamageData().damage.fMagic *= 0.5f;
+
+						June_AddHyperOpticalResearchCriticalRate( pEffect );
+
+						D3DXVECTOR3 vSpectrumScale = pEffect->GetMainEffectScaleByUnit();
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+						if( NULL != pMeshInstance )
+						{
+							const D3DXVECTOR3 vScale = pMeshInstance->GetScale();
+							vSpectrumScale.x = vSpectrumScale.x * vScale.x * 0.8f;
+							vSpectrumScale.y = vSpectrumScale.y * vScale.y * 0.8f;
+							vSpectrumScale.z = 0.8f * vSpectrumScale.z * vScale.z;
+							pEffect->SetScale( vSpectrumScale );
+						}
+
+						June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+					}
+				}
+			} break;
+
+		case PFT_INDUCTION:
+			{
+				if( NULL == pThousandStarMeshInstance )
+				{
+					bSkipEffects = true;
+					break;
+				}
+
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+				CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+
+				pEffect->SetDamageTime( pEffect->GetDamageTime() + 1 );
+				pDamageData->damage.fPhysic *= 0.55f;
+				pDamageData->damage.fMagic *= 0.55f;
+				pDamageData->fHitGap = 1.f;
+
+				June_AddHyperOpticalResearchCriticalRate( pEffect );
+
+				pDamageData->fHitGap = 1.f;
+				pDamageData->bReAttack = true;
+				pDamageData->m_fRateModifier *= 0.55f;
+				pDamageData->fHitAddMP *= 0.55f;
+				pDamageData->techPoint = int( pDamageData->techPoint * 0.55 );
+
+				June_SetThousandStarLockOn( pEffect );
+
+				D3DXVECTOR3 vInductionScale = pEffect->GetMainEffectScaleByUnit();
+				CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+				if( NULL != pMeshInstance )
+				{
+					const D3DXVECTOR3 vScale = pMeshInstance->GetScale();
+					vInductionScale.x = vInductionScale.x * vScale.x * 0.8f;
+					vInductionScale.y = vInductionScale.y * vScale.y * 0.8f;
+					vInductionScale.z = 0.8f * vInductionScale.z * vScale.z;
+					pEffect->SetScale( vInductionScale );
+				}
+
+				June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+			} break;
+
+		case PFT_FUSION:
+			{
+				CX2DamageEffect::CEffect* pEffect = NULL;
+				for( UINT i = 0; i < 3; ++i )
+				{
+					if( 1 == i || 2 == i )
+						vRotateDegree.x += 120.f;
+
+					if( NULL != pThousandStarMeshInstance )
+					{
+						pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+						CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+
+						pEffect->SetDamageTime( pEffect->GetDamageTime() + 1 );
+						pDamageData->damage.fPhysic *= 0.25f;
+						pDamageData->damage.fMagic *= 0.25f;
+						pDamageData->fHitGap = 1.f;
+
+						June_AddHyperOpticalResearchCriticalRate( pEffect );
+
+						pDamageData->fHitGap = 1.f;
+						pDamageData->bReAttack = true;
+						pDamageData->m_fRateModifier *= 0.25f;
+						pDamageData->fHitAddMP *= 0.25f;
+						pDamageData->techPoint = int( pDamageData->techPoint * 0.25 );
+
+						June_SetThousandStarLockOn( pEffect );
+
+						D3DXVECTOR3 vFusionScale = pEffect->GetMainEffectScaleByUnit();
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+						if( NULL != pMeshInstance )
+						{
+							const D3DXVECTOR3 vScale = pMeshInstance->GetScale();
+							vFusionScale.x = vFusionScale.x * vScale.x * 0.75f;
+							vFusionScale.y = vFusionScale.y * vScale.y * 0.75f;
+							vFusionScale.z = 0.75f * vFusionScale.z * vScale.z;
+							pEffect->SetScale( vFusionScale );
+						}
+					}
+
+					if( NULL != pEffect )
+						June_ApplyCodeRecoveryIgnoreDefence( pEffect );
+				}
+			} break;
+
+		default:
+			{
+				if( NULL != pThousandStarMeshInstance )
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+					if( NULL != pEffect )
+						June_SetThousandStarLockOn( pEffect );
+				}
+			} break;
+		}
+	}
+	else
+	{
+		if( NULL != pThousandStarMeshInstance )
+		{
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), m_fThousandStarPowerRate, pThousandStarMeshInstance->GetPos(), vRotateDegree, vRotateDegree );
+			if( NULL != pEffect )
+				June_SetThousandStarLockOn( pEffect );
+		}
+	}
+
+	if( false == bSkipEffects && NULL != pThousandStarMeshInstance )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"eve_thousandsOfStars_model_P02", pThousandStarMeshInstance->GetPos() );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+	}
+
+	PlaySound( L"Raven_NasodCore_Attack.ogg", true, false );
+
+	--m_iThousandStarCount;
+
+	if( m_iThousandStarCount <= 0 )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;
+
+			CX2UserSkillTree& cUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+			const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+			float fRemainCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel ) - m_fElapsedTimeThousandStartCreated;	// June passes a third argument 0
+			if( fRemainCoolTime < 0.f )
+				fRemainCoolTime = 0.f;
+
+			cUserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, fRemainCoolTime );
+			if( true == IsMyUnit() )
+				g_pX2Game->UpdateSkillSlotUI( false );
+		}
+
+		June_ClearThousandStar();
+	}
+}
+
+// the lock-on target of a Thousand Star child ( the same lines in 329a3040 / 329a3760 )
+void CX2GUEve::June_SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ )
+{
+	if( true == m_bLockOnNpc )
+		pEffect_->GetLockOnData().m_LockOnNPCUID = (int)m_iLockOnUid;
+	else
+		pEffect_->GetLockOnData().m_LockOnUnitUID = m_iLockOnUid;
+}
+
+// Hyper Optical Research adds its critical rate to a Thousand Star child ( ability 0x33 of 25411, no upgrade swap )
+void CX2GUEve::June_AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ )
+{
+	float fCriticalRate = 0.f;
+	if( true == June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, CX2SkillTree::RNSI_P_ECB_HYPER_OPTICAL_RESEARCH, false, fCriticalRate ) )
+		pEffect_->GetDamageData().m_fJuneAddCriticalRate += fCriticalRate;
+}
+
+// June 329bc6e0: March's EveElectraLaserData::OnFrameMove with LaserAttackLineSet 3297a8e0, the projectile modifiers 3297bad0, the tag-alpha 32296d60, m_bDie cleared on every live path and the induction / fusion rework
+void CX2GUEve::EveElectraLaserData::June_OnFrameMove( float fElapsedTime_ )
+{
+	m_fElapsedTime += fElapsedTime_;
+
+	CX2DamageEffect::CEffect* pDamageEffect0 = ( m_vecDamageEffect.size() > 0 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[0] ) : NULL;
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect0 = ( pDamageEffect0 != NULL ) ? pDamageEffect0->GetMainEffect() : NULL;
+
+	if( NULL == pMainEffect0 )
+	{
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hParticleLaserCross );
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hParticleGigaLaserCross[0] );
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hParticleGigaLaserCross[1] );
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hParticleGigaLaserCross[2] );
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hParticleGigaLaserCross[3] );
+
+		if( m_vecDamageEffect.empty() == false )
+			m_vecDamageEffect[0] = INVALID_DAMAGE_EFFECT_HANDLE;
+		m_bDie = true;
+		return;
+	}
+
+	const float MAGIC_LASER_LENGTH = 0.01f;
+	CX2GUEve* pGUEve = m_pEveElectraSystem->m_pGUEve;
+
+	D3DXVECTOR3 vRotateDegree = pMainEffect0->GetRotateLocalDegree();
+
+	D3DXVECTOR3 vRotationAxis;
+	D3DXVec3Cross( &vRotationAxis, &m_vDirVector, &Y_AXIS );
+	D3DXVec3Normalize( &vRotationAxis, &vRotationAxis );
+
+	D3DXMATRIX matRotation;
+	D3DXMatrixRotationAxis( &matRotation, &vRotationAxis, D3DX_PI / 180.f * vRotateDegree.z );
+
+	D3DXVECTOR4 v4DirVectorLaser;
+	D3DXVec3Transform( &v4DirVectorLaser, &m_vDirVector, &matRotation );
+
+	D3DXVECTOR3 vDirVectorLaser = v4DirVectorLaser;
+
+	pDamageEffect0->SetPos( m_vLaserStartPos );
+
+	D3DXVECTOR3 vLaserNowPos = m_vLaserStartPos + ( m_fVelocity * m_fElapsedTime * vDirVectorLaser );
+	D3DXVECTOR3 vLaserEndPos = m_vLaserStartPos + ( m_fVelocity * m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale * vDirVectorLaser );
+
+	if( m_fElapsedTime > m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale )
+		vLaserNowPos = vLaserEndPos;
+
+	D3DXVECTOR3 vPlaneIntersectPoint;
+	D3DXPlaneIntersectLine( &vPlaneIntersectPoint, &m_pEveElectraSystem->m_PrimaryPlane, &vLaserEndPos, &m_vLaserStartPos );
+
+	if( false == m_pEveElectraSystem->GetEnablePlane() )
+	{
+		if( false == m_pEveElectraSystem->GetEnableGigaPlane() )
+		{
+			float fLaserLength = D3DXVec3Length( &( vLaserNowPos - m_vLaserStartPos ) );
+			fLaserLength *= MAGIC_LASER_LENGTH;
+
+			pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+
+			for( UINT i = 1; i < m_vecDamageEffect.size(); ++i )
+			{
+				if( m_vecDamageEffect[i] != INVALID_DAMAGE_EFFECT_HANDLE )
+					g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_vecDamageEffect[i] );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 vGigaPlaneIntersectPoint;
+			D3DXPlaneIntersectLine( &vGigaPlaneIntersectPoint, &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserEndPos, &m_vLaserStartPos );
+
+			if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserNowPos ) < 0.0f )
+			{
+				float fLaserLength = D3DXVec3Length( &( vLaserNowPos - m_vLaserStartPos ) );
+				fLaserLength *= MAGIC_LASER_LENGTH;
+
+				pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+			}
+			else
+			{
+				float fLaserLength = D3DXVec3Length( &( vGigaPlaneIntersectPoint - m_vLaserStartPos ) );
+				fLaserLength *= MAGIC_LASER_LENGTH;
+
+				pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+
+				if( m_bPenetrate == false )
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pGUEve->GetPowerRate(), vGigaPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree(),
+						0, false, -1.f, 1.f, 1.f, -1, -1.f, 0, -1.f, true );
+					m_pEveElectraSystem->June_LaserAttackLineSet( pEffect, 1.0f );
+					if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+					{
+						pMeshInstance->SetNowLifeTime( pMainEffect0->GetNowLifeTime() );
+						pMeshInstance->SetMaxLifeTime( pMainEffect0->GetMaxLifeTime() );
+					}
+					pEffect->SetLaserGroupID( pDamageEffect0->GetLaserGroupID() );
+					m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+					CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+					*pDamageData = pDamageEffect0->GetDamageData();
+					pDamageData->hAttackerEffect = pEffect->GetHandle();
+					pDamageData->m_iLaserGroupID = pDamageEffect0->GetLaserGroupID();
+
+					pDamageData->damage.fPhysic *= 2.0f;
+					pDamageData->damage.fMagic *= 2.0f;
+
+					m_hParticleLaserCross = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) pGUEve, L"eve_spectro_giga_bump_P01", vGigaPlaneIntersectPoint );
+					CKTDGParticleSystem::CParticleEventSequence* pSeqLaserCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleLaserCross );
+					if( pSeqLaserCross != NULL )
+					{
+						pSeqLaserCross->SetScaleFactor( D3DXVECTOR3( m_fLaserWidthScale * 0.7f, m_fLaserWidthScale * 0.7f, m_fLaserWidthScale * 0.7f ) );
+						D3DXVECTOR3 vSeqRotateDegree = pGUEve->GetRotateDegree();
+						vSeqRotateDegree.z = m_pEveElectraSystem->m_fPlaneZAngle;
+						pSeqLaserCross->SetAxisAngle( vSeqRotateDegree );
+						pSeqLaserCross->SetAddRotate( vSeqRotateDegree );
+						g_pX2Game->JuneTagEffectAlphaParticle( pGUEve, pSeqLaserCross );
+					}
+
+					m_bPenetrate = true;
+					pGUEve->June_ApplyProjectileModifiers( pEffect );
+				}
+
+				CX2DamageEffect::CEffect* pDamageEffect1 = ( m_vecDamageEffect.size() > 1 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[1] ) : NULL;
+				if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffect1 = ( pDamageEffect1 != NULL ) ? pDamageEffect1->GetMainEffect() : NULL )
+				{
+					pDamageEffect1->SetPos( vGigaPlaneIntersectPoint );
+
+					D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+					vSecondRotateDegree.z += m_pEveElectraSystem->m_fPlaneZAngle + vSecondRotateDegree.z * 0.8f;
+
+					pMainEffect1->SetRotateLocalDegree( vSecondRotateDegree );
+
+					float fSecondLaserLength = D3DXVec3Length( &( vLaserNowPos - vGigaPlaneIntersectPoint ) );
+					fSecondLaserLength *= MAGIC_LASER_LENGTH;
+					pMainEffect1->SetScale( fSecondLaserLength, m_fLaserWidthScale * 5.0f, 1.f );
+
+					pMainEffect1->SetMeshAlphaColor( pMainEffect0->GetMeshAlphaColor() );
+				}
+			}
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeqLaserCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleLaserCross );
+			if( pSeqLaserCross != NULL )
+				pSeqLaserCross->SetPosition( vGigaPlaneIntersectPoint, false, false );
+		}
+
+		m_bDie = false;
+		return;
+	}
+
+	if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_PrimaryPlane, &vLaserNowPos ) < 0.0f )
+	{
+		float fLaserLength = D3DXVec3Length( &( vLaserNowPos - m_vLaserStartPos ) );
+		fLaserLength *= MAGIC_LASER_LENGTH;
+
+		pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+
+		m_bDie = false;
+		return;
+	}
+
+	if( m_fPenetrateTime > 0.f )
+	{
+		m_fPenetrateTime -= fElapsedTime_;
+		m_fElapsedTime -= fElapsedTime_;
+
+		float fLaserLength = D3DXVec3Length( &( vPlaneIntersectPoint - m_vLaserStartPos ) );
+		fLaserLength *= MAGIC_LASER_LENGTH;
+
+		pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+
+		m_bDie = false;
+		return;
+	}
+
+	float fLaserLength = D3DXVec3Length( &( vPlaneIntersectPoint - m_vLaserStartPos ) );
+	fLaserLength *= MAGIC_LASER_LENGTH;
+
+	pMainEffect0->SetScale( fLaserLength, m_fLaserWidthScale, 1.f );
+
+	if( m_bPenetrate == false )
+	{
+		switch( m_pEveElectraSystem->m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree(),
+					0, false, -1.f, 1.f, 1.f, -1, -1.f, 0, -1.f, true );
+
+				if( pEffect != NULL )
+				{
+					m_pEveElectraSystem->June_LaserAttackLineSet( pEffect, 1.0f );
+
+					if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+					{
+						pMeshInstance->SetNowLifeTime( pMainEffect0->GetNowLifeTime() );
+						pMeshInstance->SetMaxLifeTime( pMainEffect0->GetMaxLifeTime() );
+					}
+					pEffect->SetLaserGroupID( pDamageEffect0->GetLaserGroupID() );
+					m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+					CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+					*pDamageData = pDamageEffect0->GetDamageData();
+					pDamageData->hAttackerEffect = pEffect->GetHandle();
+					pDamageData->m_iLaserGroupID = pDamageEffect0->GetLaserGroupID();
+
+					pDamageData->damage.fPhysic *= 1.2f;
+					pDamageData->damage.fMagic *= 1.2f;
+
+					pGUEve->June_ApplyProjectileModifiers( pEffect );
+				}
+			} break;
+
+		case PFT_SPECTRUM:
+			{
+				for( UINT i = 1; i <= 3; ++i )
+				{
+					CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_SpectrumDamageEffectName.c_str(), pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree(),
+						0, false, -1.f, 1.f, 1.f, -1, -1.f, 0, -1.f, true );
+
+					if( pEffect != NULL )
+					{
+						m_pEveElectraSystem->June_LaserAttackLineSet( pEffect, 1.0f );
+
+						if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+						{
+							pMeshInstance->SetNowLifeTime( pMainEffect0->GetNowLifeTime() );
+							pMeshInstance->SetMaxLifeTime( pMainEffect0->GetMaxLifeTime() );
+						}
+						pEffect->SetLaserGroupID( i + ( pDamageEffect0->GetLaserGroupID() - 1 ) * 3 );
+						m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+						CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+						*pDamageData = pDamageEffect0->GetDamageData();
+						pDamageData->hAttackerEffect = pEffect->GetHandle();
+						pDamageData->m_iLaserGroupID = i + ( pDamageEffect0->GetLaserGroupID() - 1 ) * 3;
+
+						pDamageData->damage.fPhysic *= 0.45f;
+						pDamageData->damage.fMagic *= 0.45f;
+
+						pDamageData->fHitAddMP *= 0.45f;
+
+						pDamageData->m_fRateModifier *= 0.45f;
+
+						pDamageData->fForceDownValue *= 0.333f;
+
+						pGUEve->June_ApplyProjectileModifiers( pEffect );
+					}
+				}
+			} break;
+
+		case PFT_INDUCTION:
+			{
+				++m_iFireCount;
+			} break;
+
+		case PFT_FUSION:
+			{
+				++m_iFireCount;
+			} break;
+		}
+
+		m_hParticleLaserCross = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) pGUEve, L"eve_spectro_bump_P01", vPlaneIntersectPoint );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqLaserCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleLaserCross );
+		if( pSeqLaserCross != NULL )
+		{
+			pSeqLaserCross->SetScaleFactor( D3DXVECTOR3( m_fLaserWidthScale * 0.7f, m_fLaserWidthScale * 0.7f, m_fLaserWidthScale * 0.7f ) );
+			g_pX2Game->JuneTagEffectAlphaParticle( pGUEve, pSeqLaserCross );
+		}
+
+		m_bPenetrate = true;
+	}
+
+	switch( m_pEveElectraSystem->m_ePlaneFormationType )
+	{
+	case PFT_AMPLIFIER:
+		{
+			CX2DamageEffect::CEffect* pDamageEffect1 = ( m_vecDamageEffect.size() > 1 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[1] ) : NULL;
+			if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffect1 = ( pDamageEffect1 != NULL ) ? pDamageEffect1->GetMainEffect() : NULL )
+			{
+				pDamageEffect1->SetPos( vPlaneIntersectPoint );
+
+				D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+				vSecondRotateDegree.z += m_pEveElectraSystem->m_fEveZAngle + m_pEveElectraSystem->m_fPlaneZAngle + vSecondRotateDegree.z * 0.8f;
+
+				pMainEffect1->SetRotateLocalDegree( vSecondRotateDegree );
+
+				float fSecondLaserLength = D3DXVec3Length( &( vLaserNowPos - vPlaneIntersectPoint ) );
+				fSecondLaserLength *= MAGIC_LASER_LENGTH;
+				pMainEffect1->SetScale( fSecondLaserLength, m_fLaserWidthScale * ( 1.5f + m_pEveElectraSystem->m_fHyperOpticalResearchScale ), 1.f );
+
+				pMainEffect1->SetMeshAlphaColor( pMainEffect0->GetMeshAlphaColor() );
+			}
+		} break;
+
+	case PFT_SPECTRUM:
+		{
+			for( UINT i = 1; i <= 3; ++i )
+			{
+				CX2DamageEffect::CEffect* pDamageEffecti = ( m_vecDamageEffect.size() > i ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[i] ) : NULL;
+				if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffecti = ( pDamageEffecti != NULL ) ? pDamageEffecti->GetMainEffect() : NULL )
+				{
+					pDamageEffecti->SetPos( vPlaneIntersectPoint );
+
+					D3DXVECTOR3 vSecondRotateDegree = vRotateDegree;
+					vSecondRotateDegree.z += m_pEveElectraSystem->m_fEveZAngle + m_pEveElectraSystem->m_fPlaneZAngle + vSecondRotateDegree.z * 0.8f;
+
+					float vSpectrumZRotate = vRotateDegree.z - vSecondRotateDegree.z;
+					if( vSpectrumZRotate < 0.f )
+						vSpectrumZRotate = -vSpectrumZRotate;
+
+					if( m_pEveElectraSystem->m_fPlaneZAngle == 0.f )
+					{
+						if( i == 2 )
+							vSecondRotateDegree.z += ( 14.f + vSpectrumZRotate * 0.65f );
+						else if( i == 3 )
+							vSecondRotateDegree.z -= ( 14.f + vSpectrumZRotate * 0.65f );
+					}
+					else
+					{
+						if( i == 2 )
+							vSecondRotateDegree.z += vSpectrumZRotate * 0.6f;
+						else if( i == 3 )
+							vSecondRotateDegree.z -= vSpectrumZRotate * 0.6f;
+					}
+
+					pMainEffecti->SetRotateLocalDegree( vSecondRotateDegree );
+
+					float fSecondLaserLength = D3DXVec3Length( &( vLaserNowPos - vPlaneIntersectPoint ) );
+					fSecondLaserLength *= MAGIC_LASER_LENGTH;
+					pMainEffecti->SetScale( fSecondLaserLength, m_fLaserWidthScale * 0.7f, 1.f );
+
+					pMainEffecti->SetMeshAlphaColor( pMainEffect0->GetMeshAlphaColor() );
+				}
+			}
+		} break;
+
+	case PFT_INDUCTION:
+		{
+			pDamageEffect0->GetDamageData().bReAttack = false;
+
+			if( m_fElapsedTime < pMainEffect0->GetMaxLifeTime() &&
+				m_fElapsedTime <= pDamageEffect0->GetAttackTime().y &&
+				m_fElapsedTime > m_iFireCount * pDamageEffect0->GetDamageData().fHitGap )
+			{
+				++m_iFireCount;
+
+				D3DXVECTOR2 vLockOnRange( 0.f, 0.f );
+
+				CX2DamageEffect::CEffect* pEffect = NULL;
+
+				if( CX2DamageManager::AT_SPECIAL == pDamageEffect0->GetDamageData().attackType )
+				{
+					const WCHAR* wszName = ( m_wstrJuneInductionLaserSpecialName != L"" ) ? m_wstrJuneInductionLaserSpecialName.c_str() : L"EVE_EBS_INDUCTION_LASER_SPECIAL";
+					pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+					if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+					{
+						pMeshInstance->SetNowLifeTime( 0.f );
+						pMeshInstance->SetMaxLifeTime( 2.5f );
+					}
+
+					vLockOnRange.y = 1600.f;
+				}
+				else
+				{
+					const WCHAR* wszName = ( m_wstrJuneInductionLaserName != L"" ) ? m_wstrJuneInductionLaserName.c_str() : L"EVE_EBS_INDUCTION_LASER";
+					pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+					if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+					{
+						pMeshInstance->SetNowLifeTime( 0.f );
+						pMeshInstance->SetMaxLifeTime( 1.0f );
+					}
+
+					vLockOnRange.y = 800.f;
+				}
+
+				pEffect->SetAttackTime( D3DXVECTOR2( 0.f, 100.f ) );
+				CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+
+				D3DXVECTOR2 vBackSpeed = pDamageData->backSpeed;
+				*pDamageData = pDamageEffect0->GetDamageData();
+				pDamageData->hAttackerEffect = pEffect->GetHandle();
+				pDamageData->damage.fPhysic		*= 0.55f;
+				pDamageData->damage.fMagic		*= 0.55f;
+				pDamageData->fHitGap			= 0.5f;
+				pDamageData->bReAttack			= true;
+				pDamageData->fHitAddMP			*= 0.55f;
+				pDamageData->bArrangedFly		= false;
+				pDamageData->m_fRateModifier	*= 0.55f;
+				pDamageData->backSpeed			= vBackSpeed;
+				pDamageData->fForceDownValue	*= 0.5f;
+				pDamageData->techPoint			= int( pDamageData->techPoint * 0.55 );
+				pDamageData->m_iLaserGroupID	= -1;
+
+				if( CX2DamageManager::AT_SPECIAL == pDamageEffect0->GetDamageData().attackType )
+					pDamageData->m_fPvpRate *= 0.75f;
+
+				if( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() )
+					vLockOnRange.y *= 0.5f;
+
+				bool bUserUnit = false;
+				const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( pGUEve->GetTeam() ), pEffect->GetPos(), vLockOnRange, bUserUnit );
+
+				if( bUserUnit == true )
+					pEffect->SetLockOnUnitUID( gameUnitUID );
+				else
+					pEffect->SetLockOnNPCUID( static_cast<int>( gameUnitUID ) );
+
+				if( m_pEveElectraSystem->GetEnableGigaPlane() == true )
+					m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+				pGUEve->June_ApplyProjectileModifiers( pEffect );
+			}
+		} break;
+
+	case PFT_FUSION:
+		{
+			pDamageEffect0->GetDamageData().bReAttack = false;
+
+			if( m_fElapsedTime < pMainEffect0->GetMaxLifeTime() &&
+				m_fElapsedTime <= pDamageEffect0->GetAttackTime().y &&
+				m_fElapsedTime > m_iFireCount * pDamageEffect0->GetDamageData().fHitGap )
+			{
+				++m_iFireCount;
+
+				D3DXVECTOR2 vLockOnRange( 0.f, 0.f );
+
+				for( UINT i = 1; i <= 3; ++i )
+				{
+					CX2DamageEffect::CEffect* pEffect = NULL;
+
+					if( CX2DamageManager::AT_SPECIAL == pDamageEffect0->GetDamageData().attackType )
+					{
+						const WCHAR* wszName = ( m_wstrJuneInductionLaserSpecialName != L"" ) ? m_wstrJuneInductionLaserSpecialName.c_str() : L"EVE_EBS_INDUCTION_LASER_SPECIAL";
+						pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+						if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+						{
+							pMeshInstance->SetNowLifeTime( 0.f );
+							pMeshInstance->SetMaxLifeTime( 2.5f );
+						}
+
+						vLockOnRange.y = 1600.f;
+					}
+					else
+					{
+						const WCHAR* wszName = ( m_wstrJuneInductionLaserName != L"" ) ? m_wstrJuneInductionLaserName.c_str() : L"EVE_EBS_INDUCTION_LASER";
+						pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+						if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+						{
+							pMeshInstance->SetNowLifeTime( 0.f );
+							pMeshInstance->SetMaxLifeTime( 1.0f );
+						}
+
+						vLockOnRange.y = 800.f;
+					}
+
+					pEffect->SetAttackTime( D3DXVECTOR2( 0.f, 100.f ) );
+					CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+
+					D3DXVECTOR2 vBackSpeed = pDamageData->backSpeed;
+					*pDamageData = pDamageEffect0->GetDamageData();
+					pDamageData->hAttackerEffect = pEffect->GetHandle();
+					pDamageData->fHitGap			= 0.5f;
+					pDamageData->bReAttack			= true;
+					pDamageData->damage.fPhysic		*= 0.25f;
+					pDamageData->damage.fMagic		*= 0.25f;
+					pDamageData->fHitAddMP			*= 0.25f;
+					pDamageData->bArrangedFly		= false;
+					pDamageData->m_fRateModifier	*= 0.25f;
+					pDamageData->backSpeed			= vBackSpeed;
+					pDamageData->fForceDownValue	*= 0.166f;
+					pDamageData->techPoint			= int( pDamageData->techPoint * 0.25 );
+					pDamageData->m_iLaserGroupID	= -1;
+
+					if( CX2DamageManager::AT_SPECIAL == pDamageEffect0->GetDamageData().attackType )
+						pDamageData->m_fPvpRate *= 0.75f;
+
+					if( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() )
+						vLockOnRange.y *= 0.5f;
+
+					bool bUserUnit = false;
+					const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( pGUEve->GetTeam() ), pEffect->GetPos(), vLockOnRange, bUserUnit );
+
+					if( bUserUnit == true )
+						pEffect->SetLockOnUnitUID( gameUnitUID );
+					else
+						pEffect->SetLockOnNPCUID( static_cast<int>( gameUnitUID ) );
+
+					if( m_pEveElectraSystem->GetEnableGigaPlane() == true )
+						m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+					pGUEve->June_ApplyProjectileModifiers( pEffect );
+				}
+			}
+		} break;
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqLaserCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleLaserCross );
+	if( pSeqLaserCross != NULL )
+		pSeqLaserCross->SetPosition( vPlaneIntersectPoint, false, false );
+
+	if( m_pEveElectraSystem->GetEnableGigaPlane() == true )
+	{
+		switch( m_pEveElectraSystem->m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				CX2DamageEffect::CEffect* pDamageEffect1 = ( m_vecDamageEffect.size() > 1 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[1] ) : NULL;
+				if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffect1 = ( pDamageEffect1 != NULL ) ? pDamageEffect1->GetMainEffect() : NULL )
+				{
+					D3DXVECTOR3 vRotateDegree1 = pMainEffect1->GetRotateLocalDegree();
+
+					D3DXVECTOR3 vRotationAxis1;
+					D3DXVec3Cross( &vRotationAxis1, &m_vDirVector, &Y_AXIS );
+					D3DXVec3Normalize( &vRotationAxis1, &vRotationAxis1 );
+
+					D3DXMATRIX matRotation1;
+					D3DXMatrixRotationAxis( &matRotation1, &vRotationAxis1, D3DX_PI / 180.f * vRotateDegree1.z );
+
+					D3DXVECTOR4 v4DirVectorLaser1;
+					D3DXVec3Transform( &v4DirVectorLaser1, &m_vDirVector, &matRotation1 );
+
+					D3DXVECTOR3 vDirVectorLaser1 = v4DirVectorLaser1;
+
+					D3DXVECTOR3 vLaserStartPos = vPlaneIntersectPoint;
+
+					D3DXVECTOR3 vLaserNowPos1 = vLaserStartPos + ( m_fVelocity * m_fElapsedTime * vDirVectorLaser1 );
+					D3DXVECTOR3 vLaserEndPos1 = vLaserStartPos + ( m_fVelocity * m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale * vDirVectorLaser1 );
+
+					if( m_fElapsedTime > m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale )
+						vLaserNowPos1 = vLaserEndPos1;
+
+					D3DXVECTOR3 vGigaPlaneIntersectPoint;
+					D3DXPlaneIntersectLine( &vGigaPlaneIntersectPoint, &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserEndPos1, &vLaserStartPos );
+
+					if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserNowPos1 ) < 0.0f )
+					{
+						float fLaserLength1 = D3DXVec3Length( &( vLaserNowPos1 - vLaserStartPos ) );
+						fLaserLength1 *= MAGIC_LASER_LENGTH;
+
+						pMainEffect1->SetScale( fLaserLength1, m_fLaserWidthScale * 1.5f, 1.f );
+					}
+					else
+					{
+						float fLaserLength1 = D3DXVec3Length( &( vGigaPlaneIntersectPoint - vLaserStartPos ) );
+						fLaserLength1 *= MAGIC_LASER_LENGTH;
+
+						pMainEffect1->SetScale( fLaserLength1, m_fLaserWidthScale * 1.5f, 1.f );
+
+						if( m_bPenetrateGiga[0] == false )
+						{
+							CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pGUEve->GetPowerRate(), vGigaPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree(),
+								0, false, -1.f, 1.f, 1.f, -1, -1.f, 0, -1.f, true );
+							m_pEveElectraSystem->June_LaserAttackLineSet( pEffect, 1.0f );
+							if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+							{
+								pMeshInstance->SetNowLifeTime( pMainEffect1->GetNowLifeTime() );
+								pMeshInstance->SetMaxLifeTime( pMainEffect1->GetMaxLifeTime() );
+							}
+							pEffect->SetLaserGroupID( pDamageEffect0->GetLaserGroupID() );
+							m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+							CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+							*pDamageData = pDamageEffect1->GetDamageData();
+							pDamageData->hAttackerEffect = pEffect->GetHandle();
+							pDamageData->m_iLaserGroupID = pDamageEffect0->GetLaserGroupID();
+
+							pDamageData->damage.fPhysic *= 2.0f;
+							pDamageData->damage.fMagic *= 2.0f;
+
+							m_hParticleGigaLaserCross[0] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) pGUEve, L"eve_spectro_giga_bump_P01", vGigaPlaneIntersectPoint );
+							CKTDGParticleSystem::CParticleEventSequence* pSeqGigaCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleGigaLaserCross[0] );
+							if( pSeqGigaCross != NULL )
+							{
+								const float fGigaScale = m_fLaserWidthScale + m_pEveElectraSystem->m_fHyperOpticalResearchScale;
+								pSeqGigaCross->SetScaleFactor( D3DXVECTOR3( fGigaScale, fGigaScale, fGigaScale ) );
+								D3DXVECTOR3 vSeqRotateDegree = pGUEve->GetRotateDegree();
+								vSeqRotateDegree.z = m_pEveElectraSystem->m_fPlaneZAngle;
+								pSeqGigaCross->SetAxisAngle( vSeqRotateDegree );
+								pSeqGigaCross->SetAddRotate( vSeqRotateDegree );
+								g_pX2Game->JuneTagEffectAlphaParticle( pGUEve, pSeqGigaCross );
+							}
+
+							m_bPenetrateGiga[0] = true;
+							pGUEve->June_ApplyProjectileModifiers( pEffect );
+						}
+
+						CX2DamageEffect::CEffect* pDamageEffect2 = ( m_vecDamageEffect.size() > 2 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[2] ) : NULL;
+						if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffect2 = ( pDamageEffect2 != NULL ) ? pDamageEffect2->GetMainEffect() : NULL )
+						{
+							pDamageEffect2->SetPos( vGigaPlaneIntersectPoint );
+
+							pMainEffect2->SetRotateLocalDegree( vRotateDegree1 );
+
+							float fSecondLaserLength = D3DXVec3Length( &( vLaserNowPos1 - vGigaPlaneIntersectPoint ) );
+							fSecondLaserLength *= MAGIC_LASER_LENGTH;
+							pMainEffect2->SetScale( fSecondLaserLength, ( m_pEveElectraSystem->m_fHyperOpticalResearchScale + m_fLaserWidthScale ) * 7.5f, 1.f );
+
+							pMainEffect2->SetMeshAlphaColor( pMainEffect1->GetMeshAlphaColor() );
+						}
+					}
+
+					CKTDGParticleSystem::CParticleEventSequence* pSeqGigaCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleGigaLaserCross[0] );
+					if( pSeqGigaCross != NULL )
+						pSeqGigaCross->SetPosition( vGigaPlaneIntersectPoint, false, false );
+				}
+			} break;
+
+		case PFT_SPECTRUM:
+			{
+				for( UINT i = 1; i < 4; ++i )
+				{
+					CX2DamageEffect::CEffect* pDamageEffecti = ( m_vecDamageEffect.size() > i ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[i] ) : NULL;
+					if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffecti = ( pDamageEffecti != NULL ) ? pDamageEffecti->GetMainEffect() : NULL )
+					{
+						D3DXVECTOR3 vRotateDegreei = pMainEffecti->GetRotateLocalDegree();
+
+						D3DXVECTOR3 vRotationAxisi;
+						D3DXVec3Cross( &vRotationAxisi, &m_vDirVector, &Y_AXIS );
+						D3DXVec3Normalize( &vRotationAxisi, &vRotationAxisi );
+
+						D3DXMATRIX matRotationi;
+						D3DXMatrixRotationAxis( &matRotationi, &vRotationAxisi, D3DX_PI / 180.f * vRotateDegreei.z );
+
+						D3DXVECTOR4 v4DirVectorLaseri;
+						D3DXVec3Transform( &v4DirVectorLaseri, &m_vDirVector, &matRotationi );
+
+						D3DXVECTOR3 vDirVectorLaseri = v4DirVectorLaseri;
+
+						D3DXVECTOR3 vLaserStartPos = vPlaneIntersectPoint;
+
+						D3DXVECTOR3 vLaserNowPosi = vLaserStartPos + ( m_fVelocity * m_fElapsedTime * vDirVectorLaseri );
+						D3DXVECTOR3 vLaserEndPosi = vLaserStartPos + ( m_fVelocity * m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale * vDirVectorLaseri );
+
+						if( m_fElapsedTime > m_fLaserPropagateTime * m_pEveElectraSystem->m_fLaserRangeScale )
+							vLaserNowPosi = vLaserEndPosi;
+
+						D3DXVECTOR3 vGigaPlaneIntersectPoint;
+						D3DXPlaneIntersectLine( &vGigaPlaneIntersectPoint, &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserEndPosi, &vLaserStartPos );
+
+						if( D3DXPlaneDotCoord( &m_pEveElectraSystem->m_GigaStreamPlane, &vLaserNowPosi ) < 0.0f )
+						{
+							float fLaserLengthi = D3DXVec3Length( &( vLaserNowPosi - vLaserStartPos ) );
+							fLaserLengthi *= MAGIC_LASER_LENGTH;
+
+							pMainEffecti->SetScale( fLaserLengthi, m_fLaserWidthScale * 0.7f, 1.f );
+						}
+						else
+						{
+							float fLaserLengthi = D3DXVec3Length( &( vGigaPlaneIntersectPoint - vLaserStartPos ) );
+							fLaserLengthi *= MAGIC_LASER_LENGTH;
+
+							pMainEffecti->SetScale( fLaserLengthi, m_fLaserWidthScale * 0.7f, 1.f );
+
+							if( m_bPenetrateGiga[i] == false )
+							{
+								CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, m_AmplifyDamageEffectName.c_str(), pGUEve->GetPowerRate(), vGigaPlaneIntersectPoint, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree(),
+									0, false, -1.f, 1.f, 1.f, -1, -1.f, 0, -1.f, true );
+								m_pEveElectraSystem->June_LaserAttackLineSet( pEffect, 1.0f );
+								if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+								{
+									pMeshInstance->SetNowLifeTime( pMainEffecti->GetNowLifeTime() );
+									pMeshInstance->SetMaxLifeTime( pMainEffecti->GetMaxLifeTime() );
+								}
+								pEffect->SetLaserGroupID( pDamageEffecti->GetLaserGroupID() );
+								m_vecDamageEffect.push_back( pEffect->GetHandle() );
+
+								CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+								*pDamageData = pDamageEffecti->GetDamageData();
+								pDamageData->hAttackerEffect = pEffect->GetHandle();
+								pDamageData->m_iLaserGroupID = pDamageEffecti->GetLaserGroupID();
+
+								pDamageData->damage.fPhysic *= 2.0f;
+								pDamageData->damage.fMagic *= 2.0f;
+
+								m_hParticleGigaLaserCross[i] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) pGUEve, L"eve_spectro_giga_bump_P01", vGigaPlaneIntersectPoint );
+								CKTDGParticleSystem::CParticleEventSequence* pSeqGigaCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleGigaLaserCross[i] );
+								if( pSeqGigaCross != NULL )
+								{
+									pSeqGigaCross->SetScaleFactor( D3DXVECTOR3( m_fLaserWidthScale * 0.4f, m_fLaserWidthScale * 0.4f, m_fLaserWidthScale * 0.4f ) );
+									D3DXVECTOR3 vSeqRotateDegree = pGUEve->GetRotateDegree();
+									vSeqRotateDegree.z = m_pEveElectraSystem->m_fPlaneZAngle;
+									pSeqGigaCross->SetAxisAngle( vSeqRotateDegree );
+									pSeqGigaCross->SetAddRotate( vSeqRotateDegree );
+									g_pX2Game->JuneTagEffectAlphaParticle( pGUEve, pSeqGigaCross );
+								}
+
+								m_bPenetrateGiga[i] = true;
+								pGUEve->June_ApplyProjectileModifiers( pEffect );
+							}
+
+							CX2DamageEffect::CEffect* pDamageEffecti3 = ( m_vecDamageEffect.size() > i + 3 ) ? g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[i+3] ) : NULL;
+							if( CKTDGXMeshPlayer::CXMeshInstance* pMainEffecti3 = ( pDamageEffecti3 != NULL ) ? pDamageEffecti3->GetMainEffect() : NULL )
+							{
+								pDamageEffecti3->SetPos( vGigaPlaneIntersectPoint );
+
+								pMainEffecti3->SetRotateLocalDegree( vRotateDegreei );
+
+								float fSecondLaserLength = D3DXVec3Length( &( vLaserNowPosi - vGigaPlaneIntersectPoint ) );
+								fSecondLaserLength *= MAGIC_LASER_LENGTH;
+								pMainEffecti3->SetScale( fSecondLaserLength, m_fLaserWidthScale * 3.5f, 1.f );
+
+								pMainEffecti3->SetMeshAlphaColor( pMainEffecti->GetMeshAlphaColor() );
+							}
+						}
+
+						CKTDGParticleSystem::CParticleEventSequence* pSeqGigaCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hParticleGigaLaserCross[i] );
+						if( pSeqGigaCross != NULL )
+							pSeqGigaCross->SetPosition( vGigaPlaneIntersectPoint, false, false );
+					}
+				}
+			} break;
+
+		case PFT_INDUCTION:
+		case PFT_FUSION:
+			{
+				for( UINT i = 1; i < m_vecDamageEffect.size(); ++i )
+				{
+					CX2DamageEffect::CEffect* pDamageEffecti = g_pX2Game->GetDamageEffect()->GetInstance( m_vecDamageEffect[i] );
+					CKTDGXMeshPlayer::CXMeshInstance* pMainEffecti = ( pDamageEffecti != NULL ) ? pDamageEffecti->GetMainEffect() : NULL;
+					if( NULL == pMainEffecti )
+						continue;
+
+					D3DXVECTOR3 vEffectNowPos = pMainEffecti->GetPos();
+					D3DXVECTOR2 vLockOnRange( 0.f, 0.f );
+
+					if( false == pDamageEffecti->GetCheckSpectro() &&
+						0.f < D3DXPlaneDotCoord( &m_pEveElectraSystem->m_GigaStreamPlane, &vEffectNowPos ) )
+					{
+						D3DXVECTOR3 vEffectEndPos;
+						D3DXPlaneIntersectLine( &vEffectEndPos, &m_pEveElectraSystem->m_GigaStreamPlane, &vEffectNowPos, &vPlaneIntersectPoint );
+
+						CX2DamageEffect::CEffect* pEffect = NULL;
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = NULL;
+						if( CX2DamageManager::AT_SPECIAL == pDamageEffecti->GetDamageData().attackType )
+						{
+							const WCHAR* wszName = ( m_wstrJuneInductionLaserSpecialName != L"" ) ? m_wstrJuneInductionLaserSpecialName.c_str() : L"EVE_EBS_INDUCTION_LASER_SPECIAL";
+							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vEffectEndPos, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+							if( pMeshInstance = pEffect->GetMainEffect() )
+							{
+								pMeshInstance->SetNowLifeTime( 0.f );
+								pMeshInstance->SetMaxLifeTime( 2.5f );
+							}
+
+							vLockOnRange = D3DXVECTOR2( 1.f, 1500.f );
+						}
+						else
+						{
+							const WCHAR* wszName = ( m_wstrJuneInductionLaserName != L"" ) ? m_wstrJuneInductionLaserName.c_str() : L"EVE_EBS_INDUCTION_LASER";
+							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pGUEve, wszName, pGUEve->GetPowerRate(), vEffectEndPos, pGUEve->GetRotateDegree(), pGUEve->GetRotateDegree() );
+							if( pMeshInstance = pEffect->GetMainEffect() )
+							{
+								pMeshInstance->SetNowLifeTime( 0.f );
+								pMeshInstance->SetMaxLifeTime( 1.0f );
+							}
+
+							vLockOnRange = D3DXVECTOR2( 1.f, 400.f );
+						}
+
+						pEffect->SetAttackTime( D3DXVECTOR2( 0.f, 100.f ) );
+						CX2DamageManager::DamageData* pDamageData = &pEffect->GetDamageData();
+						*pDamageData = pDamageEffecti->GetDamageData();
+						pDamageData->hAttackerEffect = pEffect->GetHandle();
+						pDamageData->damage.fPhysic		*= 2.0f;
+						pDamageData->damage.fMagic		*= 2.0f;
+						pDamageData->fHitGap			= 0.5f;
+						pDamageData->bReAttack			= true;
+						pDamageData->bArrangedFly		= false;
+						pDamageData->m_iLaserGroupID	= -1;
+
+						bool bUserUnit = false;
+						const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( pGUEve->GetTeam() ), pEffect->GetPos(), vLockOnRange, bUserUnit );
+
+						if( bUserUnit == true )
+							pEffect->SetLockOnUnitUID( gameUnitUID );
+						else
+							pEffect->SetLockOnNPCUID( static_cast<int>( gameUnitUID ) );
+						pEffect->SetLockOnRandomSeed( pGUEve->GetRandomInt( 0 ) );
+
+						pEffect->SetCheckSpectro( true );
+						g_pX2Game->GetDamageEffect()->DestroyInstanceSilently( pDamageEffecti );
+
+						CKTDGParticleSystem::CParticleEventSequenceHandle hParticleCross = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) pGUEve, L"eve_spectro_giga_cross_P01", vEffectEndPos );
+						CKTDGParticleSystem::CParticleEventSequence* pSeqLaserCross = g_pX2Game->GetMajorParticle()->GetInstanceSequence( hParticleCross );
+
+						if( pSeqLaserCross != NULL )
+						{
+							if( pMeshInstance != NULL )
+								pSeqLaserCross->SetScaleFactor( pMeshInstance->GetScale() * 0.3f );
+							D3DXVECTOR3 vSeqRotateDegree = pGUEve->GetRotateDegree();
+							vSeqRotateDegree.z = m_pEveElectraSystem->m_fPlaneZAngle;
+							pSeqLaserCross->SetAxisAngle( vSeqRotateDegree );
+							pSeqLaserCross->SetAddRotate( vSeqRotateDegree );
+						}
+
+						pGUEve->June_ApplyProjectileModifiers( pEffect );
+					}
+				}
+			} break;
+		}
+	}
+
+	m_bDie = false;
+}
+
+// June 329c5bc0 ( vslot 0x7cc ): March's CommonFrameMove with the Open Mind gauge floor, the buff-gated summon cleanup, June's cloak and Queen's Throne meshes, and the June tails; the Nasod Core call 329b5230 is added in CH1q, the memo test 31fca9e0 is false in June and the Kugelblitz block is gone
+void CX2GUEve::June_CommonFrameMove()
+{
+	KTDXPROFILE();
+
+	CX2GUUser::CommonFrameMove();
+
+#ifdef ADD_EVE_SYSTEM_2014
+	if( 0 < June_GetSkillLevel( CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) && GetRemainHyperModeTime() > 0.f )
+	{
+		const double dElapsedFromParrying = static_cast<double>( ::clock() - m_iJuneClock9c44 ) / 1000.0;
+
+		if( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_TIME_ABS, CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) <= dElapsedFromParrying )
+		{
+			if( m_fManeuverGauge <= 30.f )
+				m_fManeuverGauge = 30.f;
+		}
+	}
+#endif ADD_EVE_SYSTEM_2014
+
+	if( false == HaveThisBuff( BTI_BUFF_SENTRY ) )
+	{
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+	}
+
+	if( false == HaveThisBuff( BTI_BUFF_ATOMIC_SHIELD ) )
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_ATOMIC_SHIELD_EVE );
+
+	if( false == HaveThisBuff( BTI_BUFF_FERDINAND ) )
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+
+	if( false == HaveThisBuff( BTI_BUFF_OBERON ) )
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
+
+	if( false == HaveThisBuff( BTI_BUFF_OPHELIA ) )
+		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD );
+
+	if( true == m_bInvisibility )
+	{
+		if( GetNowHp() > 0.f )
+		{
+			if( m_timerInvisibility.elapsed() > m_fInvisibilityTime || GetNowMp() < 1.f )
+			{
+				m_RenderParam.outLineColor.a	= 1.f;
+				m_RenderParam.bAlphaBlend		= false;
+				m_RenderParam.color.a			= 1.f;
+				SetAlphaObject( false );
+
+				m_bInvisibility			= false;
+				m_bAbsoluteInvisibility = false;
+			}
+			else
+			{
+				UpNowMp( m_fElapsedTime * m_fDecraseInvisibilityMP );
+			}
+		}
+		else
+		{
+			m_fInvisibilityAlpha	= 1.f;
+			m_bInvisibility			= false;
+			m_bAbsoluteInvisibility = false;
+		}
+
+		if( false == m_bInvisibility )
+		{
+			if( GetRemainHyperModeTime() > 0.f )
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq_RFoot = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostRFoot );
+				CKTDGParticleSystem::CParticleEventSequence* pSeq_RArm = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostRArm );
+				CKTDGParticleSystem::CParticleEventSequence* pSeq_LFoot = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostLFoot );
+				CKTDGParticleSystem::CParticleEventSequence* pSeq_LArm = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hHyperBoostLArm );
+
+				if( pSeq_RFoot != NULL )
+					pSeq_RFoot->SetShowObject( true );
+				if( pSeq_RArm != NULL )
+					pSeq_RArm->SetShowObject( true );
+				if( pSeq_LFoot != NULL )
+					pSeq_LFoot->SetShowObject( true );
+				if( pSeq_LArm != NULL )
+					pSeq_LArm->SetShowObject( true );
+			}
+
+			SetShowEnchantedWeaponEffectAtHand( true );
+			BOOST_TEST_FOREACH( CX2GameUnit::Weapon*, pWeapon, m_vecpWeapon )
+			{
+				pWeapon->SetEnchantParticleShow( true );
+			}
+
+			RemoveVecMoveSpeedFactor( CX2GameUnit::SFI_SPEED_13 );
+		}
+	}
+
+	if( false == m_bInvisibility && 1.f != m_fInvisibilityAlpha )
+	{
+		m_fInvisibilityAlpha += 0.05f;
+
+		if( m_fInvisibilityAlpha > 1.f )
+		{
+			m_fInvisibilityAlpha = 1.f;
+
+			if( false == IsMyUnit() && false == IsNullGageUI() )
+				m_pGageUI->SetAlpha( 255.0f );
+		}
+	}
+
+	if( true == m_bInvisibility )
+	{
+		if( true == GetStateparam(false).bAttackState || false == m_vecAttackTime.empty() )
+		{
+			m_bAbsoluteInvisibility = false;
+			m_fInvisibilityTime = 0.f;
+		}
+		else
+		{
+			m_bAbsoluteInvisibility = true;
+		}
+	}
+
+	if( m_sEGQueensThrone.m_bEnable == true )
+	{
+		if( m_sEGQueensThrone.m_dMaxLifeTime >= m_sEGQueensThrone.m_TimerElapsedTime.elapsed() )
+		{
+			if( INVALID_MESH_INSTANCE_HANDLE != m_sEGQueensThrone.m_ahMajorMeshInstance[0] )
+			{
+				CKTDXDeviceXSkinMesh::MultiAnimFrame*	pMultiAnimFrame	= m_pXSkinAnim->GetCloneFrame( L"Bip01_Spine1" );
+				D3DXVECTOR3	vBonePos = GetBonePos( L"Bip01_Spine1" );
+
+				for( int i = 0; i < ARRAY_SIZE(m_sEGQueensThrone.m_ahMajorMeshInstance); ++i )
+				{
+					CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_sEGQueensThrone.m_ahMajorMeshInstance[i] );
+					if( NULL != pMeshInst && NULL != pMultiAnimFrame )
+					{
+						pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+						pMeshInst->SetPos( vBonePos );
+						June_ApplyInvisibilityToMeshInstance( this, pMeshInst );
+					}
+				}
+
+				if( m_TimerEGQTRefreshMsg.elapsed() <= 0.6 )
+				{
+					if( m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_BODY] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+					{
+						CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_BODY] );
+						if( NULL != pSeq )
+						{
+							pSeq->SetPosition( GetBonePos( m_sEGQueensThrone.m_wstrBoneName[m_sEGQueensThrone.GetBoneNameID()].c_str() ), false, false );
+							June_ShowParticleByInvisibility( this, pSeq );
+						}
+					}
+
+					if( m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_WING] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+					{
+						CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_sEGQueensThrone.m_ahMajorMeshInstance[2] );
+						if( pMeshInst != NULL )
+						{
+							June_ApplyInvisibilityToMeshInstance( this, pMeshInst );
+
+							CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_WING] );
+							if( NULL != pSeq )
+							{
+								pSeq->SetPosition( pMeshInst->GetBonePos( L"Dummy01" ), false, false );
+								June_ShowParticleByInvisibility( this, pSeq );
+							}
+						}
+					}
+				}
+				else
+				{
+					m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_BODY] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+					WCHAR wstrParName[MAX_PATH] = L"";
+
+					StringCchPrintf( wstrParName, MAX_PATH, L"Eve_EG_Sp3a_QT_StateMsg0%d", ( rand() % 5 + 1 ) );
+
+					m_sEGQueensThrone.m_iSelectBoneNameID = rand() % 5;
+
+					CKTDGParticleSystem::CParticleEventSequence* pSeq =
+						g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, wstrParName, GetBonePos( m_sEGQueensThrone.m_wstrBoneName[m_sEGQueensThrone.GetBoneNameID()].c_str() ) );
+					if( NULL != pSeq )
+					{
+						m_sEGQueensThrone.m_ahMajorParticleInstance[EG_QueensThroneData::PP_BODY] = pSeq->GetHandle();
+						g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+					}
+
+					m_TimerEGQTRefreshMsg.restart();
+				}
+			}
+		}
+		else
+		{
+			June_EGQueensThroneReset();
+
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine1" );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"ShockWave_Eve_EG_Sp3a_QT_End02", vBonePos ) );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Ring_Eve_EG_Sp3a_QT_End01", vBonePos ) );
+
+			UpDownCrashCameraNoReset();
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_EG_SP3A_QT_END_RING", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree() );
+
+			PlaySound( L"Eve_EG_SP3_QueensThrone_Disappear.ogg" );
+		}
+	}
+
+	if( m_sMegaElectronBallData.m_bEnable == true )
+	{
+		if( m_sMegaElectronBallData.GetSkillSlotSwap() != g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() || false == ( GetNowHp() > 0 ) )
+		{
+			m_sMegaElectronBallData.June_Reset( false, &AccessFutureFrameData() );
+		}
+		else if( m_sMegaElectronBallData.m_dMaxTime <= m_sMegaElectronBallData.m_timerElapsedTime.elapsed() )
+		{
+			static bool bIsFirstSucChargeMEB = false;
+
+			if( m_sMegaElectronBallData.m_bIsSucCharge == false )
+			{
+				m_sMegaElectronBallData.m_bIsSucCharge = true;
+				m_sMegaElectronBallData.ResetParticle();
+
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Ring_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[0] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Ring_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[1] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[2] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_MEB_FullCharge01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[3] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				if( IsMyUnit() == true )
+				{
+					g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+					PlaySound( L"Eve_MEB_Condense_power_charge.ogg" );
+				}
+				bIsFirstSucChargeMEB = true;
+
+				June_PlaySoundInMoveStates( L"EveVoice_MegaElectronBall.ogg" );
+			}
+			else
+			{
+				if( m_sMegaElectronBallData.m_ahMajorParticleInstance[0] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[0] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sMegaElectronBallData.m_ahMajorParticleInstance[1] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[1] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sMegaElectronBallData.m_ahMajorParticleInstance[2] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[2] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						vBonePos.y += 5.f;
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sMegaElectronBallData.m_ahMajorParticleInstance[3] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[3] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+
+				if( bIsFirstSucChargeMEB == true )
+				{
+					bIsFirstSucChargeMEB = false;
+					if( IsMyUnit() == true && false == g_pKTDXApp->GetDeviceManager()->IsPlaying( L"Eve_MEB_FullCharge.ogg" ) )
+						g_pKTDXApp->GetDeviceManager()->PlaySound( L"Eve_MEB_FullCharge.ogg", true, false );
+				}
+			}
+		}
+		else
+		{
+			if( m_sMegaElectronBallData.m_ahMajorParticleInstance[0] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.x += 5.f;
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Hole_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[0] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[0] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.x += 5.f;
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+
+			if( m_sMegaElectronBallData.m_ahMajorParticleInstance[1] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[1] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[1] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+
+			if( m_sMegaElectronBallData.m_ahMajorParticleInstance[2] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sMegaElectronBallData.m_ahMajorParticleInstance[2] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[2] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+		}
+
+		for( int iParticle = 0; iParticle < 4; ++iParticle )
+		{
+			if( m_sMegaElectronBallData.m_ahMajorParticleInstance[iParticle] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sMegaElectronBallData.m_ahMajorParticleInstance[iParticle] );
+				if( pSeq != NULL && m_bInvisibility == true )
+					pSeq->SetShowObject( false );
+				else if( pSeq != NULL )
+					pSeq->SetShowObject( true );
+			}
+		}
+	}
+
+	if( m_ChargingBoosterSkillDataBasePtr && false == m_ChargingBoosterSkillDataBasePtr->IsEndCoolTime() )
+		m_ChargingBoosterSkillDataBasePtr->OnFrameMove( m_fElapsedTime );
+
+	m_EveElectraSystem.June_ProcessSystem( m_fElapsedTime );
+	June_DoFrameMoveThousandStar();
+
+	if( m_sTaserPilumData.m_bEnable == true )
+	{
+		const float fTaserElapsed = static_cast<float>( m_sTaserPilumData.m_timerElapsedTime.elapsed() ) * m_sTaserPilumData.m_fJune34;
+
+		if( m_sTaserPilumData.GetSkillSlotSwap() != g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap() || false == ( GetNowHp() > 0 ) )
+		{
+			m_sTaserPilumData.Reset( false, &AccessFutureFrameData() );
+		}
+		else if( static_cast<float>( m_sTaserPilumData.m_dMaxTime ) <= fTaserElapsed )
+		{
+			static bool bIsFirstSucChargeTaser = false;
+
+			if( m_sTaserPilumData.m_bIsSucCharge == false )
+			{
+				m_sTaserPilumData.m_bIsSucCharge = true;
+				m_sTaserPilumData.ResetParticle();
+
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Ring_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[0] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Ring_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[1] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[2] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"EBS_A_TASER_PILUM_ready_P01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[3] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+
+				if( IsMyUnit() == true )
+				{
+					g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+					PlaySound( L"Eve_MEB_Condense_power_charge.ogg" );
+				}
+				bIsFirstSucChargeTaser = true;
+
+				June_PlaySoundInMoveStates( L"EveVoice_MegaElectronBall.ogg" );
+			}
+			else
+			{
+				if( m_sTaserPilumData.m_ahMajorParticleInstance[0] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[0] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sTaserPilumData.m_ahMajorParticleInstance[1] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[1] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sTaserPilumData.m_ahMajorParticleInstance[2] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[2] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						vBonePos.y += 5.f;
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+				if( m_sTaserPilumData.m_ahMajorParticleInstance[3] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[3] );
+					if( NULL != pSeq )
+					{
+						pSeq->SetAddRotate( GetRotateDegree() );
+						pSeq->SetAxisAngle( GetRotateDegree() );
+						D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+						pSeq->SetPosition( vBonePos, false, false );
+					}
+				}
+
+				if( bIsFirstSucChargeTaser == true )
+				{
+					bIsFirstSucChargeTaser = false;
+					if( IsMyUnit() == true && false == g_pKTDXApp->GetDeviceManager()->IsPlaying( L"Eve_MEB_FullCharge.ogg" ) )
+						g_pKTDXApp->GetDeviceManager()->PlaySound( L"Eve_MEB_FullCharge.ogg", true, false );
+				}
+			}
+		}
+		else
+		{
+			if( m_sTaserPilumData.m_ahMajorParticleInstance[0] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.x += 5.f;
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Hole_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[0] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[0] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.x += 5.f;
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+
+			if( m_sTaserPilumData.m_ahMajorParticleInstance[1] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power01", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[1] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[1] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+
+			if( m_sTaserPilumData.m_ahMajorParticleInstance[2] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+				vBonePos.y += 5.f;
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Light_Eve_SI_A_EN_Condense_Power02", vBonePos );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+
+					m_sTaserPilumData.m_ahMajorParticleInstance[2] = pSeq->GetHandle();
+					g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+				}
+			}
+			else
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[2] );
+				if( NULL != pSeq )
+				{
+					pSeq->SetAddRotate( GetRotateDegree() );
+					pSeq->SetAxisAngle( GetRotateDegree() );
+					D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Finger2" );
+					vBonePos.y += 5.f;
+					pSeq->SetPosition( vBonePos, false, false );
+				}
+			}
+		}
+
+		for( int iParticle = 0; iParticle < 4; ++iParticle )
+		{
+			if( m_sTaserPilumData.m_ahMajorParticleInstance[iParticle] != INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_sTaserPilumData.m_ahMajorParticleInstance[iParticle] );
+				if( pSeq != NULL && m_bInvisibility == true )
+					pSeq->SetShowObject( false );
+				else if( pSeq != NULL )
+					pSeq->SetShowObject( true );
+			}
+		}
+	}
+
+	m_EnergyNiddleData.June_OnFrameMove( this, m_fElapsedTime );
+	June_OnFrameMove_EndElCrystalSystem();
+	// June 329b5230 ( the Nasod Core frame move ): the call is added in CH1q
+	June_OberonGuardFrameMove();
+	June_FrameMoveNpcEffectSets();
+	June_UpdateDashXTargetUnit();
+	June_UpdateQueensControlStack();
+	June_UpdateBlock9c50Timer();
 }
 
 //}} Iruha : 2026-10-26

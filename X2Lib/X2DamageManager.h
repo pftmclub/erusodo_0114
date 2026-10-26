@@ -61,6 +61,12 @@ class CX2DamageManager
 #endif ADD_EVE_SYSTEM_2014
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// after DTT_END: DTT_END is relied on as the March count
+			DTT_EVE_HYPER_OPTICAL_RESEARCH_CHECK  = 39,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 
