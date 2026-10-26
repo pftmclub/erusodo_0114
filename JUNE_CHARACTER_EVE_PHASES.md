@@ -1110,6 +1110,34 @@ The seven June `CX2GUUser` skill-use helpers and their six fields now live once,
 - **Play-test (Aisha, her skill use is live):** see the hand-off; log tag `JUNE_CHAR`. Eve's copies were inert, nothing of hers to test.
 - Next: `/x2-phase char-eve CH1l5 review` (Opus 5.5 high), then CH1m.
 
+### CH1l5 - Review (2026-10-26)
+
+**Verdict: PASS after two fixes** (same flag; `X2GUUser.cpp`, plus `X2Game.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES`).
+- **Copies:** a name-normalised diff of the seven bodies (Aisha's, Eve's, the new `CX2GUUser` ones) differs only in `MI_REGENERATE_1` (`X2SkillTree.h:2052`, June 10) and the PVE constant. Six fields: the scalars are in the `CX2GUUser` init list, the arrays are zeroed in the constructor body, and Aisha's and Eve's zeroing is compiled out. Header placement is protected (`X2GUUser.h:4125`). Flag-off is the old tree.
+- **Against June** (charport_adis listings + Ghidra; the files are in the session scratchpad):
+  - `31fc86e0`: June writes `+0x90d8 + (i-5)` for slots 5-9, which is `+0x90d3 + i`, so it matches.
+  - `31fc93e0`: `+0x8eac` = skill and `+0x8eb4` = 1.0 is `ReserveSkillUseCount` (`X2GUUser.h:3360`), then `ea8 = eb0` and `eb0 = 0`.
+  - `31fd32e0`: the four 5-entry tables are `33472040` / `054` / `068` / `07c` (normal A, hyper A, normal B, hyper B).
+  - `31fdbe70`: type 10, enable flag, `GetRandomFloat(0) <= chance`, `UpNowMp(rate * mp)`.
+  - `32008e40`:
+    - 0x25 erases BTI 420; 0x29 erases 436 / 926, then `SetForceInvincible(1)`.
+    - 0x37-0x39 call vslot 0x21c with `(824/825/827, creator 0, level 1, 0, skip 1)`, which is March's `(BFI, 1, NULL, 0, true)`.
+    - Case 0x29's vslot `0x854` is the empty `31f3f070` for Eve too (`ch0_vtable_all.tsv`), as for Aisha. **Later class ports:** check that slot in your own vtable.
+  - `3202d140`: correct for a game type other than 4 and for no game.
+- **Fix 1 (transcription, in all three copies since CH1i):**
+  - `3202d3c0` has its bit-`0xd` test inverted. At `@3202d490`, `je 0x3202d46a` returns "usable" when `31edf8f0(dungeon, 0xd)` is false, and June refuses skill 900 only when the bit is set or g_pData `+0x70` is null.
+  - The port refused whenever the bit read false. With the agreed stand-in (false), it now never refuses (`if( false == bJuneDungeonBitD ) return true`). Stage 22 owns the bitset.
+  - The retired copies keep the old line. They are compiled out.
+- **Fix 2 (enum rule):** June's `Enum.lua` names game type 4 `GAME_TYPE.GT_PVE`. It is now registered as `, GT_PVE = 4` after `GT_NUMS` in `CX2Game::GAME_TYPE` (`X2Game.h:71`, so the count stays 3), and the body compares `CX2Game::GT_PVE`. The `JUNE_GAME_TYPE_PVE` constant is gone.
+- **Routed to CH1o:** June's base slot 514 `31fc9410` clears `+0x8eac` and `+0x8ea8` together. With `ea8` now in `CX2GUUser`, hoist that clear into the base `ClearSkillUseReserve`; otherwise Eve's live skill use keeps its reserved MP (Aisha's play-test fix 1, 2026-10-21; her override is at `X2GUArme_VioletMage.cpp:35321`).
+- **`cl /P` probe:** the Done note holds it (0 class-local definitions).
+- **Hygiene:**
+  - Range `flagcheck.py JUNE_USER_SKILL_USE_HELPERS --range 70db3b35^..70db3b35`: `files: 6 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - Worktree fixes: `JUNE_ENUM_NAMES` on `X2Game.h` PASS (0 deleted). `JUNE_USER_SKILL_USE_HELPERS` on `X2GUUser.cpp` PASS; its 5 deleted lines are this flag's own CH1l5 lines. `enumscan --check X2GUUser.cpp` finds 0 A/B rows.
+- Deploy: `DEPLOY OK: X2_offline.exe is 26,071,040 B, dated 2026-10-26 22:36:45, md5 15d5acdf1e4f9b6174d2697b0498b1de, equal to X2/US_SERVICE/x2.exe (2026-10-26 22:36:39); built at main 70db3b35 + 2 uncommitted code file(s).`
+- **In game:** Aisha's skill use goes through these bodies. Skill 900 (the couple skill) is no longer refused in dungeons. Nothing else changes.
+- Next: `/x2-phase char-eve CH1m` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

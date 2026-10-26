@@ -41178,8 +41178,6 @@ namespace _CONST_GUUSER_JUNE_CH1l5_
 	const int JUNE_UAI_BUFF_FACTOR_825			= 0x38;
 	const int JUNE_UAI_BUFF_FACTOR_827			= 0x39;
 
-	const int JUNE_GAME_TYPE_PVE = 4;	// June CX2Game game type 4; March has no PVE type
-
 	/// June's pop-up line: font 3, white text with a black outline, centred
 	void JuneUserPushInfoText( const int iStringID_ )
 	{
@@ -41284,7 +41282,7 @@ bool CX2GUUser::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_
 {
 	bool bUsable = true;
 
-	if( NULL != g_pX2Game && JUNE_GAME_TYPE_PVE != static_cast<int>( g_pX2Game->GetGameType() ) )
+	if( NULL != g_pX2Game && CX2Game::GT_PVE != g_pX2Game->GetGameType() )
 		return true;
 
 	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
@@ -41296,7 +41294,7 @@ bool CX2GUUser::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_
 	return bUsable;
 }
 
-// June 3202d3c0: skill 900 is refused in a dungeon game whose dungeon has attribute bit 0xd ( no March home: read as false ), or without a game
+// June 3202d3c0: skill 900 is refused in a dungeon game whose dungeon has attribute bit 0xd ( no March home: read as false, so never )
 bool CX2GUUser::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
 {
 	bool bUsable = true;
@@ -41305,7 +41303,7 @@ bool CX2GUUser::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkil
 		return true;
 
 	const bool bJuneDungeonBitD = false;	// June 31edf8f0( dungeon id, 0xd ): the dungeon data bitset has no March counterpart
-	if( true == bJuneDungeonBitD )
+	if( false == bJuneDungeonBitD )
 		return true;
 
 	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )

@@ -68,6 +68,9 @@ class CX2Game : public CKTDXStage
 //#ifdef SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 			GT_NUMS
 //#endif//SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			, GT_PVE = 4	// June Enum.lua GAME_TYPE; after GT_NUMS so the count stays 3
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		};
 
 		enum CONNECT_TYPE
