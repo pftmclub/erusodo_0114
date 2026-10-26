@@ -282,6 +282,7 @@ Run with: Opus 5.5 / high. Gate: scanner `--check` exits 0 on all eleven files; 
 - **Standing rule written** (user yes, 2026-10-26): `CLAUDE.md` "Rule: no hardcoded enum literals", `kickoffs/TEMPLATE.md`, x2-phase skill step 5, memory `june-enum-names-plan` (now the rule). `MODS.md` June flag index: row `ENUM_NAMES` (revert = undefine; C++ only, the `Enum.lua` lines stay).
 - **char-eve resumes** under the rule: `JUNE_CHARACTER_EVE_PHASES.md` "Rules" gains the bullet (56 of 58 char-eve kickoffs read that section; `CH6` / `Z` do not and name no ids), including the N3 alias locals (`JUNE_CH1K_*` / `JUNE_CH1L_*` / `JUNE_RNSI_*`): a phase touching a use writes the member and drops the local after its last use. Next: `/x2-phase char-eve CH1l2`.
 - **Found, not chased:** none new. Literals outside the 12 files are covered by the rule as code is touched, not by a sweep.
+- **Smoke test PASSED 2026-10-26** (user; run 16:49-16:52 on exe md5 aaa009f8, data036 md5 29691ae1): 0 EXCEPTION; no `Enum.lua` / `NPCStat` load error. Lines seen, all older and not this plan's: `E_DISABLE_HB_CHECK_REQ` UNHANDLED x4, ErrorLog `TutorSystem.lua` empty, `ChainQuestInfo.lua` `AddGroupChainQuest` (quest plan), `DamageEffect.lua` `WALK_SPEED` (effect rebuild plan), `JUNE_FX unsupported APPLIED_SKILL_ID` x35 (the applied-skill-ID system, not an Enum name).
 
 ## Play-test hand-off (once, at NZ)
 
