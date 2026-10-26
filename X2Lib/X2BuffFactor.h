@@ -523,6 +523,12 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_ELPIERCE_INNERRAY            = 1003,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI names the Eve skill use spells
+	BTI_BUFF_REASON_PRIDE_EVE             = 961,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID
@@ -681,6 +687,14 @@ enum BUFF_FACTOR_ID
 	BFI_BUFF_ELPIERCE_INNERRAY_HEAL         = 1081,
 	BFI_DECENT_TO_SHADOW                    = 1118,
 	BFI_BUFF_CODE_RECOVERY_ECB_PVP          = 1119,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI names the Eve skill use spells
+	BFI_BUFF_REASON_PRIDE_OBERON          = 1010,
+	BFI_BUFF_REASON_PRIDE_OPHELIA         = 1012,
+	BFI_BUFF_REASON_PRIDE_EVE             = 1017,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 };

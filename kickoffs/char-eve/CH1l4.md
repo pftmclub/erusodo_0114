@@ -51,3 +51,12 @@ Transcribe every function the class map gives phase `CH1l4` (CommonFrameMove 329
 ## Amended by CH1k (2026-10-26)
 
 - The constructor map (`june2017_re/char_eve/ch1k_ctor_offsets.tsv`) shows June's `CX2GUEve` has no `m_timerSummoned` / `m_fSummonedLifeTime` / `m_ChargingBoosterSkillDataBasePtr` and no Atomic Shield pair (the mesh arrays start at `+0x95f0`). March's `CommonFrameMove` tail that destroys the Nasod Watch after `m_fSummonedLifeTime` has nothing to read in June: read `329c5bc0` and drop that block unless June keeps the timer elsewhere.
+
+## Amended by CH1l3 (2026-10-26)
+
+- **Functions: 35.** `329aea60` and `329cc200` (Psyker Kinesis release and its only callee) moved to CH3a (class map rows changed). `329b4a60` leaves its two calls out
+  (`329aea60`, then the tail jump `32976fe0`) with `// June 329aea60 / 32976fe0: calls added in CH3a`; CH1l3's `June_NoStateChangeActionFrameMove` case 0x40 does the same.
+- **Reuse, never copy again** (CH1l3, all `CX2GUEve` members): `June_GetSkillSlotDataMegaElectronBall` / `June_GetSkillSlotDataTaserPilum`, `MEGA_ELECTRONBALL_Data::June_Reset` (Taser and Kugelblitz: March's `Reset`),
+  `EveElectraSystem::June_GetFormationFactor` / `June_StartFormationEffect`, `June_StartElCrystalSystem`, `June_IsPhotonBlinkSkill`, and the Eve-local copies `June_MarkSkillSlotUsed`, `June_ReserveSkillUse`,
+  `June_StateChangeBySkillSlot`, `June_SkillMemoMpRefund`, `June_CheckSkillUseNotPve` / `NotDungeon`, `June_UserNoStateChangeActionFrameMove`; the fields `m_iJune8ea0` / `8ea4` / `8ea8` / `8eb0`, `m_abJune90d3` / `90d0`.
+  `329cc370` is the existing `CX2GUUser::IsRidingKeySkillWaiting`; `32972a70` / `329919a0` / the three `ResetParticle`s are March's members.

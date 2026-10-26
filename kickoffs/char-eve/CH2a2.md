@@ -33,3 +33,8 @@ Scope: the skill ids class 18 has that class 5 does not. For each id: its case i
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 15** (`c10a_alpha_sites.tsv`, by containing function).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `31d006b0` CKTDGParticleSystem::CreateSequence( obj, name, const D3DXVECTOR3& pos, ... ) inline overload (KTDGParticleSystem.h:2007) (confirmed); `31c19f50` CKTDGParticleSystem::CParticleEventSequence::SetAxisAngle (KTDGParticleSystem.h:1385) (confirmed); `32290490` CX2GameUnit::UpDownCrashCameraNoReset (X2GameUnit.cpp:13104) (confirmed); `321cd590` ~(June CX2CustomizeManager item data struct) (candidate); `321cdbb0` June CX2CustomizeManager item data struct ctor (candidate).
+
+## Amended by CH1l3 (2026-10-26)
+
+- **Functions: 39.** Adds `3297baa0` (vslot 0x834 `ShowActiveSkillCutInAndLightByScript`: `3297b840( L"Dummy2_Lhand", time, m_iSkillCutInSetSubIndex ( +0x8acc ), bOnlyLight )`). CH1l3 moved it here because
+  its only callee `3297b840` (Eve's own copy of the base cut-in function, `ActiveSkillShow` `31fde0f0` inside) is yours, together with `329cd890` / `329cd9c0`. March's body is `ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", time, m_iSkillCutInSetSubIndex, bOnlyLight_ )`.

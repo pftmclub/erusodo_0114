@@ -32,3 +32,10 @@ Scope: the class-108 skill ids not in a first-job phase. For each id: its case i
 - **Skill ids: 16** (`awk -F'\t' 'NF==7 && $6=="CH3a"' june2017_re/char_eve/ch0_state_skill.tsv`): 25008 RNSI_SA_ECN_JUNK_BREAK, 25009 RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR, 25010 RNSI_SA_ECN_IRONSCRAPS, 25011 RNSI_SA_ECN_ATOMIC_SHIELD, 25043 RNSI_SA_ENS_ILLUSIONIC_THORN, 25044 RNSI_SA_ENS_EXTREMING_CUTTING, 25052 RNSI_SA_ECN_JUNK_BREAK_UPGRADE, 25053 RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR_UPGRADE, 25054 RNSI_SA_ECN_IRONSCRAPS_UPGRADE, 25055 RNSI_SA_ECN_ATOMIC_SHIELD_UPGRADE, 25205 RNSI_A_ECN_TESLA_SHOCK, 25206 RNSI_A_ECN_SPEAR_BURST, 25221 RNSI_A_ENS_SHOT_GUN, 25227 RNSI_A_ECN_TESLA_SHOCK_UPGRADE, 25228 RNSI_A_ECN_SPEAR_BURST_UPGRADE, 25235 RNSI_SA_ECN_PSYKER_KINESIS.
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7 L248 (32976fe0 PSYKER_KINESIS cooldown (caller 329b4ab1)); §7ai L806-819 (BFI call arguments, 3 s skill-name string).
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31d170a0` CKTDXDeviceHolder::XMeshReadyInBackground (KTDXLIB/KTDXDeviceHolder.cpp:115) (confirmed); `32071d20` CX2GUUser::GetXSkinAnimPtr (X2GUUser.h:2084) (candidate); `32d5da80` CX2UnitSlashTraceManager::AddSlashTraceData (X2UnitSlashTraceManager.cpp:88) (confirmed); `31fd0620` user (candidate); `31c82df0` engine (unknown).
+
+## Amended by CH1l3 (2026-10-26)
+
+- **Functions: 41.** Adds `329aea60` (Psyker Kinesis release: the effect set `+0x9c50` block's handle `+8`, `GetEffectSetInstance` `321d97c0`, one `DamageEffect_SA_ECN_Psyker_Kinesis_Spear_Attack_Move` per live damage-effect element
+  at its `Dummy02` bone through `329cc200`, then `JuneEveBlock9c50::Reset( true )`) and its only callee `329cc200`, from CH1l4.
+- **Add the calls** that CH1l3 and CH1l4 left out: `CX2GUEve::June_NoStateChangeActionFrameMove` case `JUNE_CH1L3_UAI_PSYKER_KINESIS` ( 0x40 ) calls `329aea60` then `32976fe0`; CH1l4's `329b4a60` ( the block's `+0xc` countdown ) does the same.
+  `32976fe0` itself ends in `31fd0620( 25235, true )` ( UI notify, CH3a0 ).

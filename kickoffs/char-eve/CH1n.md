@@ -32,3 +32,7 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 - **`329c8a00` shape:** bounds 0..4; slot tables `334c9e00` / `334c9e14` (normal A / B) and `334c9e28` / `334c9e3c` (hyper A / B); `31fd2af0` (7i: dropped at the port), `+0x11 = 1`. Then a transcendence-memo switch on `31fdbcc0( id )` (25033 / 25070, 25034 / 25071, 25035-36 / 25072-73, 25217 / 25234), a type switch (5 = `ENSI_SI1_COMMON_BUFF`; 6 / 7 / 13-16 with id > 25600 = the hyper actives, `== 25600` Lunatic Scud; 12 + id 900 = `ENSI_THROW_ITEM`), then the id switch. **The `default:` plays `ENSI_A_EAT_FAENA`**: Fayner (25224 / 25225) has no case and arrives there. Epilogue label `LAB_329caa72`.
 - **Extra states a case registers itself** (`ch0_skill.tsv` column 10): 205 / 206 Burst Spear landing, 211-213 Sweep Rolling, 242 Reason Pride action; 239-241 Electronic Move take every callback of states 219-221 through `329cc2c0` (Aisha's `June_CopyStateCallbacks`: reuse it).
 - **Dev free-skill gate:** in the vslot 510 copy `329b5af0` (CH1l3 transcribes it, CH1n wires the gate).
+
+## Amended by CH1l3 (2026-10-26)
+
+- The dev free-skill gate around June's cool-time / MP / hyper-stone block is already wired in `CX2GUEve::June_SpecialAttackLookup` ( CH1l3, as the pilot's, `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` ); CH1n wires the gate in `329c8a00`'s check only.

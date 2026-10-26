@@ -1748,6 +1748,21 @@ public:
 		RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE                 = 31320,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Eve skill use spells (values from June's Enum.lua)
+		RNSI_A_EVE_PHOTON_BLINK                               = 25200,
+		RNSI_A_EVE_CONVERSION                                 = 25203,
+		RNSI_A_EVE_PHOTON_BLINK_UPGRADE                       = 25213,
+		RNSI_A_EVE_CONVERSION_UPGRADE                         = 25216,
+		RNSI_A_EAT_MEGA_ELECTRONBALL_UPGRADE                  = 25219,
+		RNSI_A_ECB_TASER_PILUM_UPGRADE                        = 25233,
+		RNSI_SA_ECB_THOUSANDS_OF_STARS_UPGRADE                = 25068,
+		RNSI_P_ECE_CHARGING_BOOSTER                           = 25409,
+		RNSI_P_EBS_CHEAT_CODE_ELECTRONIC                      = 25420,
+		RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE          = 25604,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion ½ºÅ³
 	}; 
 

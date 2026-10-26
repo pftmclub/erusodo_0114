@@ -47,3 +47,8 @@ You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-ph
 - CH1k left the Nasod Core parts of its functions under `#ifdef ADD_EVE_SYSTEM_2014` (dead today; the comment names the June site): `June_AttackResultByType` (`329a4680 @329a48f6-329a4b3f`: gauge gain x ( 1 + `+0x6c50` ) and trigger 5), `June_HyperModeBuffEffectStart` (`32994750 @32994947`: gauge = min( gauge + 40, 100 )), `June_ReInit` (`329af460 @329af6fe-329af7d6`) and `June_Destructor` (`329aece0 @329af074-329af13e`: `ClearManeuverCore( true )`, hyper ball, the two effects). Make them live with the NCORE flag and re-check them against June when you do.
 - CH1l2 (review 2026-10-26) adds one more: `June_CommonFrameMoveFuture` (`32980f90 @32980ff2-32981065`) writes `iJuneClassSyncInt` = `m_iManeuverCoreLv` under `#ifdef ADD_EVE_SYSTEM_2014`; June writes it unconditionally. It goes live with the NCORE flag.
 - `m_fJuneSpecializationA` ( CX2GUUser `+0x6c50`, default 0, setters still unknown ) is declared by CH1k for the gauge gain; `m_fJuneVengeanceMpRate` / `m_fJune9bfc` / `m_fJune9c00` ( `+0x9bf8` / `+0x9bfc` / `+0x9c00` ) are declared too ( CH4a fills them ). The constructor map `june2017_re/char_eve/ch1k_ctor_offsets.tsv` lists the Nasod Core range `+0x9b98 .. +0x9bf7` and `+0x9c44`.
+
+## Amended by CH1l3 (2026-10-26)
+
+- Checklist 7an: the `GetCharacterSpecializationB` reader `329b407b` sits in `329b4060` (`DoParrying`, this phase), not in `329b3cc0` as CH0 said. CH1l3's ADD_EVE_SYSTEM_2014 blocks ( `June_SpecialAttackCooldown` gauge gain, `June_SpecialAttackLookup` parry refusal )
+  are written against the March member names `m_fManeuverGauge` / `m_pManeuverCore` and compile with the flag defined ( probe ).

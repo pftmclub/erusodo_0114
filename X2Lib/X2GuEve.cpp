@@ -217,6 +217,14 @@ CX2GUEve::CX2GUEve( int unitIndex, int teamNum,
 	m_fJuneElectronBallBigRate					= 0.f;
 	m_pJuneDashXFireBall						= NULL;
 	m_pJuneDashXTargetUnit						= NULL;
+	m_iJune8ea0						= 0;
+	m_iJune8ea4						= 0;
+	m_fJune8ea8						= 0.f;
+	m_fJune8eb0						= 0.f;
+	for( int i = 0; i < ARRAY_SIZE( m_abJune90d3 ); ++i )
+		m_abJune90d3[i] = false;
+	for( int i = 0; i < ARRAY_SIZE( m_abJune90d0 ); ++i )
+		m_abJune90d0[i] = false;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	m_fPhotonBlinkBackSpeedX				= 0.f;
 	m_fPhotonBlinkDummyLifeTime				= 0.f;
@@ -45136,6 +45144,1111 @@ void CX2GUEve::June_CreateStepDust()
 bool CX2GUEve::June_IsBlock9c50ValueCPositive() const
 {
 	return NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC;
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1l3 ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: skill-use overrides from vslot 0x7f4 and the helpers they reach ( class map CH1l3 ); nothing calls them until CH1.
+
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( CH1l3 ) writes June ids by the names SERV_IRUHADEV_JUNE_ENUM_NAMES registers
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+
+namespace _CONST_EVE_JUNE_CH1l3_
+{
+	/// June user action ids that have no March enumerator ( CX2GUUser::USER_ACTION_ID )
+	const int JUNE_CH1L3_UAI_ERASE_BTI_420						= 0x25;
+	const int JUNE_CH1L3_UAI_CREST_OF_TIME_REVIVAL				= 0x29;
+	const int JUNE_CH1L3_UAI_MAGNIFYING_THIEF_USE_ITEM			= 0x36;
+	const int JUNE_CH1L3_UAI_BUFF_FACTOR_824					= 0x37;
+	const int JUNE_CH1L3_UAI_BUFF_FACTOR_825					= 0x38;
+	const int JUNE_CH1L3_UAI_BUFF_FACTOR_827					= 0x39;
+	const int JUNE_CH1L3_UAI_PSYKER_KINESIS						= 0x40;
+
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void JuneEvePushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool JuneEveIsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June 32205510: a special active skill type ( 7, 14-16 )
+	bool JuneEveIsSpecialActiveType( const int iSkillType_ )
+	{
+		return CX2SkillTree::ST_SPECIAL_ACTIVE == iSkillType_ ||
+			( CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1 <= iSkillType_ && iSkillType_ <= CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3 );
+	}
+}
+using namespace _CONST_EVE_JUNE_CH1l3_;
+
+// June 32968db0: Photon Blink and its upgrade
+bool CX2GUEve::June_IsPhotonBlinkSkill( const int iSkillID_ ) const
+{
+	return CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK == iSkillID_ || CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK_UPGRADE == iSkillID_;
+}
+
+// June 329cc390: 0 without the Nasod system, 3 in the fusion formation, else 1
+int CX2GUEve::EveElectraSystem::June_GetFormationFactor() const
+{
+	if( false == m_bSystemEnable )
+		return 0;
+
+	return ( PFT_FUSION == m_ePlaneFormationType ) ? 3 : 1;
+}
+
+// June 329a0ae0: March's StartFormationEffect ( 32972a70 and 329919a0 are March's ), then the alpha tag on the three mark handles ( 7c )
+void CX2GUEve::EveElectraSystem::June_StartFormationEffect()
+{
+	m_fFormationSetElapsedTime = 0.f;
+
+	DestroyFormationMarkAndMsgParticle();
+
+	switch( m_ePlaneFormationType )
+	{
+	case PFT_AMPLIFIER:
+		{
+			m_hParticleFormationMark[0] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_red_01", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[1] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_red_02", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[2] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_red_03", m_pGUEve->GetBonePos( L"Bip01" ) );
+		} break;
+	case PFT_SPECTRUM:
+		{
+			m_hParticleFormationMark[0] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Blue_01", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[1] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Blue_02", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[2] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Blue_03", m_pGUEve->GetBonePos( L"Bip01" ) );
+		} break;
+	case PFT_INDUCTION:
+		{
+			m_hParticleFormationMark[0] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Green_01", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[1] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Green_02", m_pGUEve->GetBonePos( L"Bip01" ) );
+			m_hParticleFormationMark[2] = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) m_pGUEve,
+				L"eve_spectro_MsgMark_Green_03", m_pGUEve->GetBonePos( L"Bip01" ) );
+		} break;
+	}
+
+	g_pX2Game->JuneTagEffectAlphaParticleHandles( m_pGUEve, m_hParticleFormationMark, 3, false );
+}
+
+// June 3299ebd0: March's Reset, and the June-only flag +0x15 goes false
+void CX2GUEve::MEGA_ELECTRONBALL_Data::June_Reset( bool bIsChargeTrue_, FrameData* pFrameDataFuture_ )
+{
+	if( false == bIsChargeTrue_ && NULL != pFrameDataFuture_ )
+	{
+		if( UAI_MEGA_ELECTRONBALL_CHARGE_FAIL != pFrameDataFuture_->syncData.nowAction )
+			pFrameDataFuture_->syncData.nowAction = UAI_MEGA_ELECTRONBALL_CHARGE_FAIL;
+	}
+
+	m_bEnable		= false;
+	m_bIsSucCharge	= false;
+
+	ResetParticle();
+
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_FullCharge.ogg" );
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+
+	m_bJune15		= false;
+}
+
+// June 3299f390: the slot of the charged Mega Electronball ( slots 0-9 ); a miss ends the charge
+const CX2UserSkillTree::SkillSlotData* CX2GUEve::June_GetSkillSlotDataMegaElectronBall( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ )
+{
+	const int iSlotID = m_sMegaElectronBallData.GetSkillSlotID();
+
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = cUserSkillTree_.GetSkillSlot( ( iSlotID > 4 ) ? iSlotID - 5 : iSlotID, iSlotID > 4 );
+	if( NULL == pSkillSlotData )
+		return NULL;
+
+	if( CX2SkillTree::SI_NONE != pSkillSlotData->m_eID && true == JuneEveIsSkillOrUpgrade( pSkillSlotData->m_eID, CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillSlotData->m_eID );
+
+		m_sMegaElectronBallData.June_Reset( false, &AccessFutureFrameData() );
+		if( NULL == pSkillTemplet )
+			return NULL;
+
+		iSkillSlotIndexPressed_ = m_sMegaElectronBallData.GetSkillSlotID();
+		return pSkillSlotData;
+	}
+
+	m_sMegaElectronBallData.June_Reset( false, &AccessFutureFrameData() );
+	return NULL;
+}
+
+// June 329b3cc0: the same for Taser Pilum ( 329a7e70 is March's TASER_PILUM_Data::Reset )
+const CX2UserSkillTree::SkillSlotData* CX2GUEve::June_GetSkillSlotDataTaserPilum( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ )
+{
+	const int iSlotID = m_sTaserPilumData.GetSkillSlotID();
+
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = cUserSkillTree_.GetSkillSlot( ( iSlotID > 4 ) ? iSlotID - 5 : iSlotID, iSlotID > 4 );
+	if( NULL != pSkillSlotData && CX2SkillTree::SI_NONE != pSkillSlotData->m_eID &&
+		true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( CX2SkillTree::RNSI_A_ECB_TASER_PILUM, pSkillSlotData->m_eID ) )	// June passes ( Taser, slot skill ): the reverse of the other callers
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillSlotData->m_eID );
+
+		m_sTaserPilumData.Reset( false, &AccessFutureFrameData() );
+		if( NULL == pSkillTemplet )
+			return NULL;
+
+		iSkillSlotIndexPressed_ = m_sTaserPilumData.GetSkillSlotID();
+		return pSkillSlotData;
+	}
+
+	m_sTaserPilumData.Reset( false, &AccessFutureFrameData() );
+	return NULL;
+}
+
+// June 32972480 ( CanUseChargingBooster ): special active types 7 and 14-16, the lookup takes the upgrade swap
+bool CX2GUEve::June_CanUseChargingBooster( CX2SkillTree::SKILL_TYPE eSkillType_, const IN CX2UserSkillTree& cUserSkillTree_ )
+{
+	if( false == JuneEveIsSpecialActiveType( eSkillType_ ) )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pChargingBoosterTemplet = cUserSkillTree_.GetUserSkillTemplet( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true );
+	if( NULL == pChargingBoosterTemplet )
+		return false;
+
+	const int iSkillTempletLevel = max( 1, cUserSkillTree_.GetSkillLevel( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true, 0, true ) );
+
+	const float fRateChargingBooster = pChargingBoosterTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillTempletLevel, false );
+	if( GetRandomFloat( 0 ) > fRateChargingBooster )
+		return false;
+
+	return m_ChargingBoosterSkillDataBasePtr->IsEndCoolTime();
+}
+
+// June 3297a800 ( UseChargingBooster ): 328941a0( 2, { 13, 12 } ) is March's ResetLeftSkillCoolTimeAll
+void CX2GUEve::June_UseChargingBooster( CX2UserSkillTree& cUserSkillTree_ )
+{
+	const CX2SkillTree::SkillTemplet* pSkillTempletChargingBooster = cUserSkillTree_.GetUserSkillTemplet( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true );
+	June_SpecialAttackNoStageChange( pSkillTempletChargingBooster );
+
+	m_ChargingBoosterSkillDataBasePtr->SetTimerBasedOnCoolTime( m_ChargingBoosterSkillDataBasePtr->GetCoolTime() );
+	cUserSkillTree_.ResetLeftSkillCoolTimeAll();
+}
+
+// June 3297c570 ( SpecialAttackNoStageChange )
+bool CX2GUEve::June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet )
+{
+	if( NULL == pSkillTemplet )
+		return false;
+
+	switch( pSkillTemplet->m_eID )
+	{
+	case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS:
+	case CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS_UPGRADE:
+		{
+			if( m_iThousandStarCount > 0 )
+			{
+				if( UAI_THOUSANDS_OF_STARS != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = UAI_THOUSANDS_OF_STARS;
+
+				return true;
+			}
+		} break;
+
+	case CX2SkillTree::SI_P_EEP_CHARGING_BOOSTER:
+	case CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER:
+		{
+			if( UAI_CHARGING_BOOSTER != m_FrameDataFuture.syncData.nowAction )
+				m_FrameDataFuture.syncData.nowAction = UAI_CHARGING_BOOSTER;
+		} break;
+
+	case CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL:
+	case CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE:
+		{
+			if( true == m_EveElectraSystem.m_bSystemEnable && true == m_EveElectraSystem.m_bHyperOpticalResearch )
+			{
+				if( UAI_CHANGE_SPECTRO_WITHOUT_MOTION != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = UAI_CHANGE_SPECTRO_WITHOUT_MOTION;
+
+				return true;
+			}
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS:
+		{
+			if( true == June_IsBlock9c50ValueCPositive() )
+			{
+				if( JUNE_CH1L3_UAI_PSYKER_KINESIS != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = JUNE_CH1L3_UAI_PSYKER_KINESIS;
+
+				if( NULL != m_pJuneBlock9c50 )
+					m_pJuneBlock9c50->m_bFlag0 = true;
+
+				return true;
+			}
+		} break;
+
+	case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION:
+	case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE:
+		{
+			if( true == HaveThisBuff( BTI_BUFF_FERDINAND ) )
+			{
+				if( UAI_EEP_LINK_OVERCHARGE_ILLUSION != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = UAI_EEP_LINK_OVERCHARGE_ILLUSION;
+
+				return true;
+			}
+		} break;
+	}
+
+	return false;
+}
+
+// June 3297a6d0 ( vslot 0x828 )
+bool CX2GUEve::June_Vslot828()
+{
+	if( false == JuneIsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	const int iStateID = GetNowStateID();
+	return ENSI_DASH_JUMP_POWER_LANDING != iStateID && ENSI_JUMP_FLY_UP != iStateID && ENSI_JUMP_FLY_DOWN != iStateID && ENSI_JUMP_DASH != iStateID &&
+		ENSI_EBS_BOOST_DASH_START != iStateID && ENSI_EBS_BOOST_DASH != iStateID && ENSI_EBS_BOOST_DASH_AIR_START != iStateID && ENSI_EBS_BOOST_DASH_AIR != iStateID;
+}
+
+// June 32976f30 ( vslot 0x860 ): Oberon / Ophelia summons with key code 2 take the pride buff from me
+void CX2GUEve::June_Vslot860( CX2GUNPC* pNPC_ )
+{
+	if( NULL == pNPC_ )
+		return;
+
+	const int iNpcID = static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID );
+	if( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING == iNpcID )
+	{
+		if( 2 != pNPC_->GetKeyCode() )	// June NPC +0x874c is m_KeyCode
+			return;
+
+		pNPC_->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_REASON_PRIDE_OBERON, 1, this, 0, false );
+	}
+	else if( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD == iNpcID )
+	{
+		if( 2 != pNPC_->GetKeyCode() )
+			return;
+
+		pNPC_->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_REASON_PRIDE_OPHELIA, 1, this, 0, false );
+	}
+	else
+	{
+		return;
+	}
+
+	if( false == HaveThisBuff( BTI_BUFF_REASON_PRIDE_EVE ) )
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_REASON_PRIDE_EVE, 1, NULL, 0, false );
+}
+
+// June 329b4b40 ( StartElCrystalSystem ): June's BTI lists, no assert, the added spectrum time, m_iJune1c0 = 3 for the hyper optical research
+void CX2GUEve::June_StartElCrystalSystem()
+{
+#ifdef FIX_SPECTRO_EL_CRYSTAL_ACTIVE_BUG
+	SetStartSpectroElCrystal( true );
+#endif FIX_SPECTRO_EL_CRYSTAL_ACTIVE_BUG
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL, true );
+	if( NULL == pSkillTemplet || NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& cUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+	if( true == m_EveElectraSystem.m_bSystemEnable && true == m_EveElectraSystem.m_bSpectrumDynamicsEnable )
+	{
+		vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+
+		switch( m_EveElectraSystem.m_ePlaneFormationType )
+		{
+		case PFT_AMPLIFIER:
+			{
+				m_EveElectraSystem.ChangePlaneFormation();
+
+				GetBuffFinalizerTempletPtrList( BTI_BUFF_AMPLIFICATION_PLACE, vecFinalizerPtr );
+				if( false == vecFinalizerPtr.empty() )
+				{
+					EraseBuffTempletFromGameUnit( BTI_BUFF_AMPLIFICATION_PLACE );
+					SetBuffFactorToGameUnit( pSkillTemplet, 1 );
+					ChangeBuffFinalizerTempletPtrList( BTI_BUFF_SPECTRUM_PLACE, vecFinalizerPtr );
+				}
+			} break;
+
+		case PFT_SPECTRUM:
+			{
+				m_EveElectraSystem.ChangePlaneFormation();
+
+				GetBuffFinalizerTempletPtrList( BTI_BUFF_SPECTRUM_PLACE, vecFinalizerPtr );
+				if( false == vecFinalizerPtr.empty() )
+				{
+					EraseBuffTempletFromGameUnit( BTI_BUFF_SPECTRUM_PLACE );
+					if( true == m_EveElectraSystem.m_bHyperOpticalResearch )
+					{
+						SetBuffFactorToGameUnit( pSkillTemplet, 2 );
+						ChangeBuffFinalizerTempletPtrList( BTI_BUFF_INDUCTION_PLACE, vecFinalizerPtr );
+					}
+					else
+					{
+						SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+						ChangeBuffFinalizerTempletPtrList( BTI_BUFF_AMPLIFICATION_PLACE, vecFinalizerPtr );
+					}
+				}
+			} break;
+
+		case PFT_INDUCTION:
+			{
+				m_EveElectraSystem.ChangePlaneFormation();
+
+				GetBuffFinalizerTempletPtrList( BTI_BUFF_INDUCTION_PLACE, vecFinalizerPtr );
+				if( false == vecFinalizerPtr.empty() )
+				{
+					EraseBuffTempletFromGameUnit( BTI_BUFF_INDUCTION_PLACE );
+					SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+					ChangeBuffFinalizerTempletPtrList( BTI_BUFF_AMPLIFICATION_PLACE, vecFinalizerPtr );
+				}
+			} break;
+		}
+
+		if( true == IsMyUnit() )
+			g_pX2Game->UpdateSkillSlotUI();
+	}
+	else if( false == m_EveElectraSystem.m_bSystemEnable )
+	{
+		if( true == CanApplyBuffToGameUnit() && false == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+		{
+			CX2BuffFactorPtr ptrBuffFactorClone = pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillTempletLevel );
+			if( NULL != ptrBuffFactorClone )
+			{
+				ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+
+				const bool bJuneMemoSpectro = false;	// June 31fca9e0 ( skill memo 605013 ): June's memo stub answers false
+				if( true == bJuneMemoSpectro )
+				{
+					const float fAdditionalTime = 3.0f;
+					ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime );
+
+					if( m_fAddSpectrumTime > 0.f )
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+
+					m_EveElectraSystem.m_fSystemOperationTime = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false ) + 3.0 ) + m_fAddSpectrumTime;
+				}
+				else
+				{
+					if( m_fAddSpectrumTime > 0.f )
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+
+					m_EveElectraSystem.m_fSystemOperationTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false ) + m_fAddSpectrumTime;
+				}
+
+				AdjustBuffFactorByIndex( ptrBuffFactorClone, CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL );
+
+				m_EveElectraSystem.m_ePlaneFormationType = PFT_AMPLIFIER;
+				SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+
+				if( true == IsMyUnit() )
+					g_pX2Game->UpdateSkillSlotUI();
+
+				if( true == m_EveElectraSystem.m_bHyperOpticalResearch )
+					m_EveElectraSystem.m_iJune1c0 = 3;	// ASUT_ANYTIME for the use condition of Spectro El Crystal ( March wrote the skill templet's condition )
+			}
+		}
+	}
+}
+
+// June 31fc86e0 ( CX2GUUser ): marks a skill slot ( 0-9 ) as used ( with bHyper_ the first three )
+void CX2GUEve::June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
+{
+	if( false == bHyper_ )
+	{
+		if( 0 <= iSlotIndex_ && iSlotIndex_ < 10 )
+			m_abJune90d3[iSlotIndex_] = true;
+	}
+	else if( 0 <= iSlotIndex_ && iSlotIndex_ < 3 )
+	{
+		m_abJune90d0[iSlotIndex_] = true;
+	}
+}
+
+// June 31fc93e0 ( CX2GUUser vslot 0x804 ): reserves the skill's use count and keeps its MP until the state starts
+void CX2GUEve::June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	ReserveSkillUseCount( eSkillID_ );
+	m_fJune8ea8 = m_fJune8eb0;
+	m_fJune8eb0 = 0.0f;
+}
+
+// June 31fd32e0 ( the skill slot index is June's 0-9 ): the skill state for a slot, the hyper table while awakened
+void CX2GUEve::June_StateChangeBySkillSlot( const int iSlotIndex_ )
+{
+	if( GetRemainHyperModeTime() > 0.f )
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] );
+	}
+	else
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] );
+	}
+}
+
+// June 31fdbe70 ( CX2GUUser vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
+void CX2GUEve::June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
+{
+	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	if( NULL == pMemo )
+		return;
+
+	const float fChance = ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.0f;
+	const float fRate = ( pMemo->m_vecValue.size() > 1 ) ? pMemo->m_vecValue[1] : 0.0f;
+	if( 10 != pMemo->m_iType || false == bEnable_ )
+		return;
+
+	if( GetRandomFloat( 0 ) <= fChance )
+		UpNowMp( fRate * fMpConsume_ );
+}
+
+// June 3202d140 ( CX2GUUser ): skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
+bool CX2GUEve::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && 4 != static_cast<int>( g_pX2Game->GetGameType() ) )	// June game type 4 is PVE
+		return true;
+
+	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		JuneEvePushInfoText( 0x8399 );
+	}
+
+	return bUsable;
+}
+
+// June 3202d3c0 ( CX2GUUser ): skill 900 is refused in a dungeon game; the dungeon bit 0xd test has no March home
+bool CX2GUEve::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && CX2Game::GT_DUNGEON != g_pX2Game->GetGameType() )
+		return true;
+
+	const bool bJuneDungeonBitD = false;	// June 31edf8f0( dungeon id, 0xd ): the dungeon data bitset has no March counterpart
+	if( true == bJuneDungeonBitD )
+		return true;
+
+	if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		JuneEvePushInfoText( 0xaf9a );
+	}
+
+	return bUsable;
+}
+
+// June 32008e40 ( CX2GUUser ): March's is pure virtual; the Eve override runs it first
+void CX2GUEve::June_UserNoStateChangeActionFrameMove()
+{
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case JUNE_CH1L3_UAI_ERASE_BTI_420:
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_SPECTER_WALK ) );
+		break;
+
+	case JUNE_CH1L3_UAI_CREST_OF_TIME_REVIVAL:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ATT_Common_Crest_of_Time_Revival", this );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_CREST_OF_TIME ) );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_CREST_OF_TIME_UPGRADE ) );
+		SetForceInvincible( 1.0f );
+		break;
+
+	case JUNE_CH1L3_UAI_MAGNIFYING_THIEF_USE_ITEM:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AMUSEMENT_ITEM_MAGNIFYING_THIEF_Stolen_UseItem", this );
+		break;
+
+	case JUNE_CH1L3_UAI_BUFF_FACTOR_824:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_PRESS, 1, NULL, 0, true );
+		break;
+
+	case JUNE_CH1L3_UAI_BUFF_FACTOR_825:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_MISSILE, 1, NULL, 0, true );
+		break;
+
+	case JUNE_CH1L3_UAI_BUFF_FACTOR_827:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_AMUSEMENT_ITEM_WATER_BALLOON, 1, NULL, 0, true );
+		break;
+	}
+}
+
+// June 32969300 ( vslot 0x7f4, step 509 )
+bool CX2GUEve::June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	const float fSavedReserved = m_fJune8ea8;
+	const int iSavedIndex = m_iJune8ea4;
+	const int iSavedSkillID = m_iJune8ea0;
+
+	bool bUsed = false;
+	if( true == June_SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iJune8ea0 )
+	{
+		bUsed = true;
+		June_SpecialAttackUse( m_iJune8ea0, true );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iJune8ea0 ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iJune8ea0 ), true );
+	if( NULL != pSkillTemplet )
+	{
+		int iUseCondition = static_cast<int>( pSkillTemplet->m_eActiveSkillUseCondtion );
+		if( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == pSkillTemplet->m_eID )
+			iUseCondition = m_EveElectraSystem.m_iJune1c0;
+
+		if( CX2SkillTree::ASUT_ANYTIME == iUseCondition || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == iUseCondition )
+		{
+			m_iJune8ea0 = iSavedSkillID;
+			m_fJune8ea8 = fSavedReserved;
+			m_iJune8ea4 = iSavedIndex;
+		}
+	}
+
+	if( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iJune8ea4 + 1;
+		return true;
+	}
+
+	m_iJune8ea0 = iSavedSkillID;
+	return false;
+}
+
+// June 329693e0 ( vslot 0x7fc, step 511 ): the skill use, run after the lookup
+void CX2GUEve::June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if( true == June_SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		June_SpecialAttackCooldown( pSkillTemplet->m_eID, m_fJune8eb0 );
+		June_SkillMemoMpRefund( iSkillID_, true, m_fJune8eb0 );
+		m_fJune8eb0 = 0.0f;
+		m_bSpecialAttackEventProcessedAtThisFrame = true;
+		return;
+	}
+
+	June_ReserveSkillUse( pSkillTemplet->m_eID );
+
+	if( CX2SkillTree::RNSI_A_EBS_ELECTRONIC_MOVE == pSkillTemplet->m_eID )
+	{
+		m_iBoostAttackCount = 0;
+		m_bBoostUpAttack = false;
+		StateChange( ENSI_A_EBS_ELECTRONIC_MOVE_FRONT );
+		m_bSpecialAttackEventProcessedAtThisFrame = true;
+		return;
+	}
+
+	June_StateChangeBySkillSlot( m_iJune8ea4 );
+	m_bSpecialAttackEventProcessedAtThisFrame = true;
+}
+
+// June 32981130 ( vslot 0x800, step 512 ): the cooldown and the MP side of a skill use
+void CX2GUEve::June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	June_MarkSkillSlotUsed( m_iJune8ea4, false );
+
+	switch( iSkillID_ )
+	{
+	case CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL:
+	case CX2SkillTree::RNSI_A_ECB_TASER_PILUM:
+	case CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL_UPGRADE:
+	case CX2SkillTree::RNSI_A_ECB_TASER_PILUM_UPGRADE:
+		break;
+
+	default:
+		{
+			UpNowMp( -fMpConsume_ );
+
+			if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+			{
+				const int iFormationFactor = m_EveElectraSystem.June_GetFormationFactor();
+				const float fAbility = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_OPEN_MIND );	// June ability 66
+				JuneUpNowMpWithText( static_cast<float>( fAbility * fMpConsume_ * static_cast<double>( iFormationFactor ) ) );
+			}
+		} break;
+	}
+
+	if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == JuneEveIsTrainingOrPhotozone() && false == HaveThisBuff( BTI_BUFF_FERDINAND ) )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	if( 0.0f <= GetActualCoolTime( pSkillTemplet, iSkillLevel ) )
+		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, GetActualCoolTime( pSkillTemplet, iSkillLevel ) );
+
+	if( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == pSkillTemplet->m_eID )
+	{
+		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, 0.0f );
+
+		if( false == m_EveElectraSystem.m_bExceptionSystem && true != m_FrameDataNow.stateParam.bNoChangSpectro )
+		{
+			const bool bSystemEnable = m_EveElectraSystem.m_bSystemEnable;
+			const bool bSpectrumDynamics = m_EveElectraSystem.m_bSpectrumDynamicsEnable;
+			const bool bHyperOptical = m_EveElectraSystem.m_bHyperOpticalResearch;
+
+			bool bSetCoolTime = true;
+			float fSpectroCoolTime = 0.0f;
+			if( false == bSystemEnable )
+			{
+				if( false == bSpectrumDynamics && false == bHyperOptical )
+					fSpectroCoolTime = GetActualCoolTime( pSkillTemplet, iSkillLevel );
+			}
+			else if( true == bHyperOptical )
+			{
+				fSpectroCoolTime = 0.5f;
+			}
+			else if( true == bSpectrumDynamics )
+			{
+				fSpectroCoolTime = 2.0f;
+			}
+			else
+			{
+				bSetCoolTime = false;
+			}
+
+			if( true == bSetCoolTime )
+			{
+				accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, fSpectroCoolTime );
+
+				if( true == IsMyUnit() )
+					g_pX2Game->UpdateSkillSlotUI( false );
+			}
+		}
+	}
+
+	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
+	{
+		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, 0.0f );
+		g_pX2Game->UpdateSkillSlotUI( false );
+	}
+
+#ifdef ADD_EVE_SYSTEM_2014		// June +0x9ba0 = m_fManeuverGauge; Nasod Core, live with CH1q
+	if( true == JuneEveIsSpecialActiveType( pSkillTemplet->m_eType ) && GetRemainHyperModeTime() > 0.f && true == IsMyUnit() )
+	{
+		/// June divides the reserved MP ( +0x8ea8 ), where March divided fMPConsume ( JUNE_BUGS )
+		m_fManeuverGauge += static_cast<float>( ( m_fJuneSpecializationA + 1.0 ) * ( m_fJune8ea8 / 3.0 ) );
+		if( m_fManeuverGauge > 100.f )
+			m_fManeuverGauge = 100.f;
+	}
+#endif // ADD_EVE_SYSTEM_2014
+
+	m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED) ( m_iJune8ea4 + 1 );
+
+	if( true == June_CanUseChargingBooster( pSkillTemplet->m_eType, accessUserSkillTree ) )
+	{
+		June_UseChargingBooster( accessUserSkillTree );
+		m_ChargingBoosterSkillDataBasePtr->ResetTimerBasedOnCoolTime();
+	}
+
+	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+}
+
+// June 329b5af0 ( vslot 0x7f8, step 510 )
+bool CX2GUEve::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	if( NULL == GetUnit() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if( false == JuneCommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	// Mega Electronball is used when its key is released, or after 5 s of charge
+	bool bMegaReleased = false;
+	if( true == m_sMegaElectronBallData.m_bEnable )
+	{
+		bMegaReleased = JuneIsEquippedSkillKeyReleased( m_InputData, CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL );
+		if( true == bMegaReleased || 5.0 <= m_sMegaElectronBallData.m_timerElapsedTime.elapsed() )
+		{
+			pSkillSlotData = June_GetSkillSlotDataMegaElectronBall( accessUserSkillTree, iPressedSkillSlotIndex );
+			bMegaReleased = true;
+		}
+	}
+
+	if( NULL != pSkillSlotData )
+	{
+		if( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL == g_pData->GetSkillTree()->GetUpgradeBaseSkillID( pSkillSlotData->m_eID ) && false == bMegaReleased )	// June 32207210
+			return false;
+	}
+
+	bool bTaserReleased = false;
+	if( true == m_sTaserPilumData.m_bEnable )
+	{
+		bTaserReleased = JuneIsEquippedSkillKeyReleased( m_InputData, CX2SkillTree::RNSI_A_ECB_TASER_PILUM );
+		if( true == bTaserReleased )
+			pSkillSlotData = June_GetSkillSlotDataTaserPilum( accessUserSkillTree, iPressedSkillSlotIndex );
+	}
+
+	if( NULL == pSkillSlotData )
+		return false;
+
+	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillSlotData->m_eID, CX2SkillTree::RNSI_A_ECB_TASER_PILUM ) && false == bTaserReleased )
+		return false;
+
+	m_iJune8ea4 = iPressedSkillSlotIndex;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		JuneEvePushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iJune8ea0 = pSkillTemplet->m_eID;
+
+	CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eSkillUseCondition = pSkillTemplet->m_eActiveSkillUseCondtion;
+	if( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == pSkillTemplet->m_eID )
+		eSkillUseCondition = static_cast<CX2SkillTree::ACTIVE_SKILL_USE_CONDITION>( m_EveElectraSystem.m_iJune1c0 );
+
+	if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == June_IsPhotonBlinkSkill( pSkillTemplet->m_eID ) )
+		eSkillUseCondition = CX2SkillTree::ASUT_AIR;
+
+	if( false == CheckSkillUseCondition( eActiveSkillUseCondition, eSkillUseCondition ) )
+		return false;
+
+	if( false == CheckSummonSpecialAttack( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( false == June_CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( false == June_CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	m_fJune8eb0 = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+
+	if( ( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == pSkillTemplet->m_eID ) &&
+		true == m_EveElectraSystem.m_bSystemEnable )
+		m_fJune8eb0 = 0.0f;
+
+	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) && m_iThousandStarCount > 0 )
+		m_fJune8eb0 = 0.0f;
+
+	float fCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
+	const float fActualCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel );
+	if( fCoolTimeLeft > fActualCoolTime )
+		fCoolTimeLeft = fActualCoolTime;
+
+	const bool bJuneSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if( false == bJuneSkillFree && false == JuneIsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if( false == bJuneSkillFree )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+		if( 0.0f < fCoolTimeLeft )
+		{
+			JuneEvePushInfoText( 226 );
+			return false;
+		}
+
+		if( m_fJune8ea8 + m_fJune8eb0 > GetNowMp() )
+		{
+			JuneEvePushInfoText( 2549 );
+			return false;
+		}
+
+		if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == JuneEveIsTrainingOrPhotozone() && false == HaveThisBuff( BTI_BUFF_FERDINAND ) )
+		{
+			if( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				JuneEvePushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	if( true == JuneEveIsSkillOrUpgrade( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_EEG_QUEENS_THRONE ) )
+		June_EGQueensThroneReset();
+
+	if( CX2SkillTree::RNSI_A_EVE_CONVERSION == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_CONVERSION_UPGRADE == pSkillTemplet->m_eID )
+	{
+		// June reads the HP rate from +0x9c58 where March read ability SA_HP_REL_TO_MP_ABS_1
+		if( GetNowHp() <= static_cast<double>( GetMaxHp() * m_fJune9c58 ) )
+		{
+			JuneEvePushInfoText( 2627 );
+			return false;
+		}
+
+		if( GetMaxMp() == GetNowMp() )
+		{
+			JuneEvePushInfoText( 2662 );
+			return false;
+		}
+	}
+
+#ifdef ADD_EVE_SYSTEM_2014		// June +0x9b98 = m_pManeuverCore; Nasod Core, live with CH1q
+	if( NULL != m_pManeuverCore && MCS_PARRYING == m_pManeuverCore->m_eManeuverCoreState )
+		return false;
+#endif // ADD_EVE_SYSTEM_2014
+
+	m_iJune8ea0 = pSkillTemplet->m_eID;
+	m_iJune8ea4 = iPressedSkillSlotIndex;
+	return true;
+}
+
+// June 329b6810 ( vslot 0x80c )
+void CX2GUEve::June_NoStateChangeActionFrameMove()
+{
+	June_UserNoStateChangeActionFrameMove();
+
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case UAI_MEGA_ELECTRONBALL:
+		{
+			if( true == GetRidingOn() )
+				break;
+
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL, true );
+			if( NULL == pSkillTemplet )
+				break;
+
+			m_sMegaElectronBallData.m_bEnable = true;
+			if( NULL == GetUnit() )
+				break;
+
+			int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL, false, 0, true );
+			if( iSkillLevel < 1 )
+				iSkillLevel = 1;
+
+			m_sMegaElectronBallData.m_dMaxTime = static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, iSkillLevel, false ) );
+			m_sMegaElectronBallData.m_timerElapsedTime.restart();
+
+			if( true == IsMyUnit() && false == g_pKTDXApp->GetDeviceManager()->IsPlaying( L"Eve_MEB_Condense_power.ogg" ) )
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"Eve_MEB_Condense_power.ogg", true, false );
+		} break;
+
+	case UAI_MEGA_ELECTRONBALL_CHARGE_FAIL:
+		{
+			m_sMegaElectronBallData.June_Reset( true, NULL );
+
+			if( true == IsMyUnit() )
+				g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+		} break;
+
+	case UAI_CHARGING_BOOSTER:
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_P_EEP_CHARGING_BOOSTER", this );
+		} break;
+
+	case UAI_ELECTRA_PLANE_ANGLE_UP:
+		{
+			m_fPlaneZAngle = 24.f;
+		} break;
+
+	case UAI_ELECTRA_PLANE_ANGLE_DOWN:
+		{
+			m_fPlaneZAngle = -24.f;
+		} break;
+
+	case UAI_THOUSANDS_OF_STARS:
+		{
+			if( true == GetRidingOn() || true == m_bEntireFireMode )
+				break;
+
+			CX2GameUnit* pGameUnit = NULL;
+			if( -1 != m_iLockOnUid )
+			{
+				if( true == m_bLockOnNpc )
+					pGameUnit = g_pX2Game->GetNPCUnitByUID( (int)m_iLockOnUid );
+				else
+					pGameUnit = g_pX2Game->GetUserUnitByUID( m_iLockOnUid );
+			}
+
+			if( NULL != pGameUnit && pGameUnit->GetNowHp() > 0.f && pGameUnit->GetTeam() != GetTeam() )
+			{
+				m_bEntireFireMode = true;
+
+				// even count halves, odd count halves and takes one more
+				if( 0 == m_iThousandStarCount % 2 )
+					m_iThousandStarCount = (int)( m_iThousandStarCount * 0.5 );
+				else
+					m_iThousandStarCount = 1 - (int)( m_iThousandStarCount * -0.5 );
+
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, true );
+				if( NULL != pSkillTemplet )
+				{
+					if( NULL == GetUnit() )
+						break;
+
+					CX2UserSkillTree& userSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+					int iSkillLevel = userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+					if( iSkillLevel < 1 )
+						iSkillLevel = 1;
+
+					float fRemainCoolTime = GetActualCoolTime( pSkillTemplet, iSkillLevel ) - m_fElapsedTimeThousandStartCreated;
+					if( fRemainCoolTime < 0.f )
+						fRemainCoolTime = 0.f;
+
+					userSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS, fRemainCoolTime );
+					if( true == IsMyUnit() )
+						g_pX2Game->UpdateSkillSlotUI( false );
+				}
+
+				PlaySound( L"EveVoice_ThousandStar_2.ogg", true, false );
+
+				if( NULL != g_pX2Game && true == GetShowCutInAndChangeWorldColor() )
+				{
+					g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+					g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 5.0f );
+				}
+			}
+
+			if( false == m_bEntireFireMode && true == IsMyUnit() )
+				JuneEvePushInfoText( 15829 );
+		} break;
+
+	case UAI_TASER_PILUM:
+		{
+			if( true == GetRidingOn() )
+				break;
+
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ECB_TASER_PILUM, true );
+			if( NULL == pSkillTemplet )
+				break;
+
+			m_sTaserPilumData.m_bEnable = true;
+			if( NULL == GetUnit() )
+				break;
+
+			int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ECB_TASER_PILUM, false, 0, true );
+			if( iSkillLevel < 1 )
+				iSkillLevel = 1;
+
+			m_sTaserPilumData.m_dMaxTime = static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, iSkillLevel, false ) );
+			m_sTaserPilumData.m_timerElapsedTime.restart();
+
+			if( true == IsMyUnit() && false == g_pKTDXApp->GetDeviceManager()->IsPlaying( L"Eve_MEB_Condense_power.ogg" ) )
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"Eve_MEB_Condense_power.ogg", true, false );
+
+			float fJuneRate = 1.0f;
+			June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_TIME_ABS, pSkillTemplet->m_eID, false, fJuneRate );	// June ability 169, default 1.0
+			m_sTaserPilumData.m_fJune34 = fJuneRate;
+		} break;
+
+	case UAI_TASER_PILUM_CHARGE_FAIL:
+		{
+			m_sTaserPilumData.Reset();
+
+			if( true == IsMyUnit() )
+				g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+		} break;
+
+	case UAI_CHANGE_SPECTRO_WITHOUT_MOTION:
+		{
+			if( false == GetRidingOn() && true == m_EveElectraSystem.m_bSystemEnable && PFT_FUSION != m_EveElectraSystem.m_ePlaneFormationType &&
+				true != m_FrameDataNow.stateParam.bNoChangSpectro )
+			{
+				June_StartElCrystalSystem();
+				m_EveElectraSystem.June_StartFormationEffect();
+				PlaySound( L"Eve_ElCrystal_1.ogg", true, false );
+			}
+		} break;
+
+	case UAI_KUGELBLITZ:
+		{
+			if( true == GetRidingOn() )
+				break;
+
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_EEL_KUGELBLITZ, true );
+			if( NULL == pSkillTemplet )
+				break;
+
+			m_sKugelBlitz_Data.m_bEnable = true;
+			if( NULL == GetUnit() )
+				break;
+
+			int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_EEL_KUGELBLITZ, false, 0, true );
+			if( iSkillLevel < 1 )
+				iSkillLevel = 1;
+
+			m_sKugelBlitz_Data.m_dMaxTime = static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, iSkillLevel, false ) );
+			m_sKugelBlitz_Data.m_timerElapsedTime.restart();
+
+			if( true == IsMyUnit() && false == g_pKTDXApp->GetDeviceManager()->IsPlaying( L"Eve_MEB_Condense_power.ogg" ) )
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"Eve_MEB_Condense_power.ogg", true, false );
+		} break;
+
+	case UAI_KUGELBLITZ_CHARGE_FAIL:
+		{
+			m_sKugelBlitz_Data.Reset();
+
+			if( true == IsMyUnit() )
+				g_pKTDXApp->GetDeviceManager()->StopSound( L"Eve_MEB_Condense_power.ogg" );
+		} break;
+
+	case UAI_EEP_LINK_OVERCHARGE_ILLUSION:
+		{
+			if( false == GetRidingOn() && true == HaveThisBuff( BTI_BUFF_FERDINAND ) )
+				June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+		} break;
+
+	case JUNE_CH1L3_UAI_PSYKER_KINESIS:
+		{
+			// June 329aea60 ( spear effects ) and 32976fe0 ( cool time ): calls added in CH3a
+		} break;
+	}
 }
 
 //}} Iruha : 2026-10-26

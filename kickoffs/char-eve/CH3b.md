@@ -37,3 +37,8 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 ## Amended by june-enum-names N1 (2026-10-26)
 
 - Register `ENSI_SA_ECE_REASON_PRIDE_ACTION` in `X2GuEve.h`'s June block (March numbering, `/// June script id 242`, like l.152-166). Then switch `June_SetEquippedSkillLevel`'s `JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION` (June's raw 242, `X2GuEve.cpp:44556`) to it: the state map is keyed by March ids, so 242 misses the entry (June `329c8a00` case 0x6294, `31fd89b0( 0xf2, ... )`).
+
+## Amended by CH1l3 (2026-10-26)
+
+- **Functions: 42.** Adds `3299ba70` (Electronic Field summon helper, NPC 1622 `NUI_SI_SA_EEP_ELECTRONIC_FIELD`; BFI `0x1ba` = `BFI_BUFF_OPHELIA` 442 and BTI `0x19d` = `BTI_BUFF_OPHELIA` 413 are not registered in C++ yet:
+  register them under `SERV_IRUHADEV_JUNE_ENUM_NAMES` as CH1l3 did). CH0 gave it to CH1l3 because of a function-boundary slip (`3299ebd0` runs on into `3299ecb0`); its callers are `329ae4f0` and `3299ecb0`, both CH3b.

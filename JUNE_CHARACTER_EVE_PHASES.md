@@ -977,6 +977,43 @@ Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (a fourteenth block
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --range 9f70f36e^..9f70f36e`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows. No rebuild (no code change; deployed md5 `33c0bab5` stands).
 **User owes nothing** (inert). CH1l3's kickoff still matches. Next: `/x2-phase char-eve CH1l3` (Sonnet 5.5 high).
 
+### CH1l3 - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` ( a fifteenth block at the end of `X2GuEve.cpp`, +1113 lines; declarations at the end of the class and inside `MEGA_ELECTRONBALL_Data`, `TASER_PILUM_Data`, `EveElectraSystem` ), the commit "char-eve Phase CH1l3". Nothing registers or calls the members.
+**Of the 26 class-map rows: 17 new `June_*` members, 7 resolved to March / existing code, 2 routed** ( a callee owned by a later group is never a bare declaration ). 34 funcmap rows `Char Eve CH1l3`.
+
+| June | Member ( `CX2GUEve::` ) |
+|---|---|
+| `32969300` `329b5af0` `329693e0` `32981130` | `June_SpecialAttackEventProcess` / `_Lookup` / `_Use` / `_Cooldown` ( vslots 0x7f4 / 0x7f8 / 0x7fc / 0x800, steps 509-512 ) |
+| `3297c570` `329b6810` | `June_SpecialAttackNoStageChange` ( 0x810 ) / `June_NoStateChangeActionFrameMove` ( 0x80c ) |
+| `3297a6d0` `32976f30` `32968db0` | `June_Vslot828` ( name unsettled ) / `June_Vslot860` ( `JuneSummonedNPCInfo` ) / `June_IsPhotonBlinkSkill` |
+| `32972480` `3297a800` | `June_CanUseChargingBooster` / `June_UseChargingBooster` |
+| `3299f390` `329b3cc0` `3299ebd0` | `June_GetSkillSlotDataMegaElectronBall` / `June_GetSkillSlotDataTaserPilum` / `MEGA_ELECTRONBALL_Data::June_Reset` |
+| `329b4b40` `329a0ae0` `329cc390` | `June_StartElCrystalSystem` / `EveElectraSystem::June_StartFormationEffect` / `EveElectraSystem::June_GetFormationFactor` |
+
+**Resolved, no `June_` member:** `32972a70` = March `ChangePlaneFormation`, `329919a0` = `DestroyFormationMarkAndMsgParticle`, `3298d8d0` / `32994fd0` / `329978d0` = the three `ResetParticle`s, `329a7e70` = `TASER_PILUM_Data::Reset` ( same body ), `329cc370` = the existing `CX2GUUser::IsRidingKeySkillWaiting`.
+**Routed ( class map + kickoffs amended ):** `3297baa0` ( cut-in by script, calls `3297b840` ) -> CH2a2; `3299ba70` ( Electronic Field summon, callers `329ae4f0` / `3299ecb0`; CH0's "called by `3299ebd0`" was a function-boundary slip ) -> CH3b; `329aea60` + `329cc200` ( Psyker Kinesis release ) -> CH3a, together with `32976fe0`: case 0x40 here and CH1l4's `329b4a60` leave those calls out.
+**New, June-only:** fields `m_iJune8ea0` / `8ea4` / `8ea8` / `8eb0`, `m_abJune90d3[10]` / `90d0[3]` ( CX2GUUser state, Eve-local as the pilot's, zero in the constructor ); `MEGA_ELECTRONBALL_Data::m_bJune15` ( struct +0x15, in the padding ), `TASER_PILUM_Data::m_fJune34` ( +0x34, 1.0 ); Eve-local copies of seven CX2GUUser functions ( `32008e40` `31fc86e0` `31fc93e0` `31fd32e0` `31fdbe70` `3202d140` `3202d3c0` ); registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: 10 `RNSI_*` ( 25200 / 25203 / 25213 / 25216 / 25219 / 25233 / 25068 / 25409 / 25420 / 25604 ), `BFI_BUFF_REASON_PRIDE_OBERON` / `_OPHELIA` / `_EVE` ( 1010 / 1012 / 1017 ), `BTI_BUFF_REASON_PRIDE_EVE` ( 961 ). Every id is written by name; `enumscan --check` is clean ( the ability ids 66 / 169 use the C++ `SA_MP_RETAKE_ABS` / `SA_TIME_ABS` ).
+
+**What differs from March:**
+- **Lookup ( `329b5af0` ).** Slots 0-9; Mega Electronball and Taser Pilum fire on the key release ( `31fce8b0` ), Mega also after 5 s; Spectro El Crystal's use condition is `m_iJune1c0` ( `+0x99a4` ), Photon Blink is an air skill with 25420; June's two ban checks and the riding-key wait; MP 0 for Spectro while the system runs and for Thousand Stars with a count; Conversion tests `+0x9c58` ( where March read an ability ); Link Overcharge Illusion's stone test uses BTI 409. The cool-time / MP / hyper block sits under the dev free-skill gate ( the pilot's form ).
+- **Cooldown ( `32981130` ).** No MP for Mega / Taser; Open Mind ( 25419 ) refunds ability 66 x MP x `329cc390`; the Spectro cool-time table ( E/S/O ) equals March's; Thousand Stars ( 25028 / 25068 ) cool time 0; the Nasod gauge divides the reserved MP ( JUNE_BUGS 435, under `ADD_EVE_SYSTEM_2014` ); Charging Booster through `32972480` / `3297a800`; the rate hook `3235a710` and `31fcd3d0` last.
+- **`329b6810`.** Thousand Stars needs an enemy lock-on and halves the count as `1 - (int)( n * -0.5 )`; no memo scaling of the Mega charge time; Taser stores ability 169 ( `+0x9a7c` ); the Spectro change calls `329b4b40` + `329a0ae0` ( alpha tag ); Kugelblitz and Ferdinand as March; case 0x40 ( Psyker Kinesis ) calls nothing until CH3a.
+- **`329b4b40`.** BTI lists 50 / 51 / 105, no assert; the new start adds `m_fAddSpectrumTime`, runs `AdjustBuffFactorByIndex( clone, 25202 )` and sets `m_iJune1c0` = 3 with the hyper optical research ( March wrote the templet's use condition ).
+- **`32976f30`.** NPC 1621 / 1622 with key code 2 take BFI 1010 / 1012 ( creator me, level 1, skip 0 ); I take BFI 1017 unless BTI 961 ( checklist 7ai ).
+
+**Decisions and open items for the review:**
+- `328941a0` ( `ResetLeftSkillCoolTimeAll( 2, { 13, 12 } )` ) is read as March's `ResetLeftSkillCoolTimeAll`; June's memo-swap type lookup, missing training branch and UI index + 4 differ ( JUNE_BUGS 436 ). Not verbatim; ask the user.
+- Seven CX2GUUser functions now exist as Eve-local copies ( the pilot has the same seven ): a CH1a2-style shared home is the user's call.
+- The dev free-skill gate is wired here ( the pilot's form ), not in CH1n.
+- `SetSkillCoolTimeLeft` is the March 2-argument form ( June's third argument 1 ); `GetEqippedSkillMemo( 605013 )` is June's stub ( false ), the memo branch of `329b4b40` stays dead.
+- CH0 corrections: the checklist 7an reader `329b407b` sits in `329b4060` ( CH1q ); `32207210` = `CX2SkillTree::GetUpgradeBaseSkillID`.
+- Checks: `cl /Zs` of `X2GuEve.cpp`: rc 0, also with `ADD_EVE_SYSTEM_2014` defined; `enumprobe` values of every registered name.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h X2Lib/X2BuffFactor.h`: `0 PASS, 2 PASS~, 0 FAIL, 0 ERROR`, same zero counts, `RESULT: PASS`.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,012,160 B, dated 2026-10-26 18:19:39, md5 4b5625f8b4a6c9103f5b817dc2d86b82, equal to X2/US_SERVICE/x2.exe (2026-10-26 18:19:32); built at main 43066238 + 4 uncommitted code file(s).` Nothing in game.
+**JUNE_BUGS:** 435 ( Nasod gauge line ), 436 ( `328941a0` UI index ). **Checklist:** 7 ( spec A ), 7c, 7ai, 7an rows annotated. **Drift:** none beyond the routed rows. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1l3-review.md`. Next: `/x2-phase char-eve CH1l3 review` ( Opus 5.5 high ), then CH1l40.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

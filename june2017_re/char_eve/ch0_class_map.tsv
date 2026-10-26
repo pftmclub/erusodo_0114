@@ -331,7 +331,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32972670	state-fn	ENSI_SA_EPP_ASSUALT_SPEAR.EventProcess ENSI_SA_EPP_ASSUALT_SPEAR_HYPER.EventProcess	CX2GUEve::ENSI_SA_EAT_ASSUALT_SPEAR_EventProcess / CX2GUEve::ENSI_SA_EAT_ASSUALT_SPEAR_HYPER_EventProcess	pair	CH3b	
 329727a0	state-fn	ENSI_SA_EEG_ATOMIC_SHIELD.Start	CX2GUEve::ENSI_SA_EEG_ATOMIC_SHIELD_StateStart	pair	CH3a	
 32972800	state-fn	ENSI_SA_EEG_ATOMIC_SHIELD.EventProcess	CX2GUEve::ENSI_SA_EEG_ATOMIC_SHIELD_EventProcess	pair	CH3a	
-32972a70	helper	called by 329b4b40	-	-	CH1l3	
+32972a70	helper	called by 329b4b40	-	-	CH1l3	resolved by CH1l3 to March EveElectraSystem::ChangePlaneFormation
 32972aa0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32972af0	state-fn	ENSI_EPR_COMBO_ZZZfrontZ.Start	CX2GUEve::ENSI_EPR_COMBO_ZZZfrontZ_Start	pair	CH1j	
 32972b30	state-fn	ENSI_EPR_COMBO_XXZ.Start	CX2GUEve::ENSI_EPR_COMBO_XXZ_Start	pair	CH1j	
@@ -467,7 +467,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3297b720	helper	called by 3297bad0 329c12a0	-	-	CH1l4	
 3297b840	helper	called by 3297ba70 3297bb10 3297bb40 32988e40	-	-	CH2a2	
 3297ba70	state-fn	ENSI_EBS_ENERGETIC_HEART.FrameMove	CX2GUEve::ENSI_EBS_ENERGETIC_HEART_FrameMove	pair	CH3c	
-3297baa0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GuEve.h:2316 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	pair	CH1l3	name: CONF
+3297baa0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GuEve.h:2316 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	pair	CH2a2	moved by CH1l3: calls 3297b840 (CH2a2); transcribe both there
 3297bad0	helper	called by 329bc6e0 329c12a0	-	-	CH1l4	
 3297bb10	state-fn	ENSI_A_EEG_JUNK_BREAK.FrameMove ENSI_A_EEG_JUNK_BREAK_HYPER.FrameMove	CX2GUEve::ENSI_A_EEG_JUNK_BREAK_FrameMove / CX2GUEve::ENSI_A_EEG_JUNK_BREAK_Hyper_FrameMove	pair	CH3a	
 3297bb40	state-fn	ENSI_A_EEG_JUNK_BREAK.FrameMove ENSI_A_EEG_JUNK_BREAK_HYPER.FrameMove	CX2GUEve::ENSI_A_EEG_JUNK_BREAK_FrameMove / CX2GUEve::ENSI_A_EEG_JUNK_BREAK_Hyper_FrameMove	pair	CH3a	
@@ -565,7 +565,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3298d2f0	state-fn	ENSI_SA_EAT_SPACE_WRENCH.FrameMove ENSI_SA_EAT_SPACE_WRENCH_HYPER.FrameMove	CX2GUEve::ENSI_SA_EAT_SPACE_WRENCH_FrameMove / CX2GUEve::ENSI_SA_EAT_SPACE_WRENCH_HYPER_FrameMove	pair	CH3b	
 3298d550	state-fn	ENSI_A_EAT_HEAVENS_FIST.FrameMove ENSI_A_EAT_HEAVENS_FIST_HYPER.FrameMove	CX2GUEve::ENSI_A_EAT_HEAVENS_FIST_FrameMove / CX2GUEve::ENSI_A_EAT_HEAVENS_FIST_Hyper_FrameMove	pair	CH2b	
 3298d710	state-fn	ENSI_A_EAT_HEAVENS_FIST.FrameMove ENSI_A_EAT_HEAVENS_FIST_HYPER.FrameMove	CX2GUEve::ENSI_A_EAT_HEAVENS_FIST_FrameMove / CX2GUEve::ENSI_A_EAT_HEAVENS_FIST_Hyper_FrameMove	pair	CH2b	
-3298d8d0	helper	called by 3299ebd0 329b6810 329c5bc0	-	-	CH1l3	
+3298d8d0	helper	called by 3299ebd0 329b6810 329c5bc0	-	-	CH1l3	resolved by CH1l3 to March MEGA_ELECTRONBALL_Data::ResetParticle
 3298d920	helper	called by 3298ff60 3298ffc0 32990020 32990040	-	-	CH3a	
 3298db90	state-fn	ENSI_NS_DASH_COMBO_ZX.FrameMove	CX2GUEve::ENSI_NS_DASH_COMBO_ZX_FrameMove	pair	CH1g	
 3298dd30	state-fn	ENSI_NS_DASH_COMBO_ZXX.FrameMove	CX2GUEve::ENSI_NS_DASH_COMBO_ZXX_FrameMove	pair	CH1g	
@@ -590,7 +590,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32990da0	helper	-	-	-	CH1k	called by the constructor 3299bd70
 32991090	helper	called by 329c3bb0	-	-	CH1l4	
 32991940	helper	called by 32991c40 32991c80 329936e0 32993700	-	-	CH1j	
-329919a0	helper	called by 32994a10 329a0ae0	-	-	CH1l3	
+329919a0	helper	called by 32994a10 329a0ae0	-	-	CH1l3	resolved by CH1l3 to March EveElectraSystem::DestroyFormationMarkAndMsgParticle
 32991a10	helper	called by 32994a10 3299f470 329a1150	CX2GUEve::EveElectraSystem::DestroyPlaneAndCrystalEffect	pair	CH1d	
 32991ac0	helper	called by 3299fe60 329a1b90 329abb90	-	-	CH1l4	
 32991c00	helper	called by 329a4680 329b4f10	-	-	CH1k	
@@ -616,7 +616,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32994750	override 0xc4	HyperModeBuffEffectStart	X2GuEve.h:1193 virtual void HyperModeBuffEffectStart();	pair	CH1k	name: CONF
 32994a10	helper	called by 329986e0	-	-	CH1l4	
 32994cd0	helper	called by 329a6fe0 329a7d00	-	-	CH1l4	
-32994fd0	helper	called by 329a7e70 329b6810 329c5bc0	-	-	CH1l3	
+32994fd0	helper	called by 329a7e70 329b6810 329c5bc0	-	-	CH1l3	resolved by CH1l3 to March TASER_PILUM_Data::ResetParticle
 32995020	state-fn	ENSI_EBS_BOOST_DASH_START.StartFuture	CX2GUEve::ENSI_EBS_BOOST_DASH_START_StartFuture	pair	CH1j2	
 32995120	state-fn	ENSI_EBS_BOOST_DASH_START.EventProcess	CX2GUEve::ENSI_EBS_BOOST_DASH_START_EventProcess	pair	CH1j2	
 32995470	state-fn	ENSI_EBS_BOOST_DASH.Start	CX2GUEve::ENSI_EBS_BOOST_DASH_Start	pair	CH1j2	
@@ -637,7 +637,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32997120	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32997350	state-fn	ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE.FrameMove	CX2GUEve::ENSI_SA_EEG_Hornet_Sting_Shaped_Charge_FrameMove	pair	CH3d	
 32997720	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
-329978d0	helper	called by 329aa630 329b6810	-	-	CH1l3	
+329978d0	helper	called by 329aa630 329b6810	-	-	CH1l3	resolved by CH1l3 to March SKugelBlitz_Data::ResetParticle
 32997920	state-fn	ENSI_SA_EEL_LINEAR_DIVIDER.End	CX2GUEve::ENSI_SA_EEL_LINEAR_DIVIDER_End	pair	CH3c	
 32997940	state-fn	ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION.FrameMove	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove	pair	CH3d	
 32997bc0	state-fn	ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION.End	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_End	pair	CH3d	
@@ -668,7 +668,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 3299b440	helper	called by 3299b790 329ae0c0	-	-	CH1l4	
 3299b790	helper	called by 329c5bc0	-	-	CH1l4	
 3299b810	helper	called by 3299d390 329ae4f0	-	-	CH2b	callers 3299d390 (CH2b), 329ae4f0 (CH3b); CH0 read the 3299d140 listing overrun as a caller (CH1b)
-3299ba70	helper	called by 3299ebd0 329ae4f0	-	-	CH1l3	
+3299ba70	helper	called by 3299ebd0 329ae4f0	-	-	CH3b	moved by CH1l3: callers are 329ae4f0 and 3299ecb0 (CH3b state functions); "called by 3299ebd0" was a function-boundary slip
 3299bcd0	helper	called by 329aea60 329aece0 329af800 329af950	-	-	CH1b	
 3299bd70	helper	-	-	-	CH1k	constructor (writes vtable 334cf45c; called by CX2Game 3230f330 @3230f389): ctor / dtor offset map
 3299cdc0	override 0x4dc	AttackResultPlayEffect	X2GuEve.h:1082 virtual void AttackResultPlayEffect();	pair	CH1k	name: HINT
@@ -703,7 +703,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329a7250	state-fn	ENSI_SA_GIGA_STREAM.FrameMove	CX2GUEve::ENSI_SA_EPR_GIGA_STREAM_FrameMove	pair	CH2c2	
 329a79c0	override 0x6a0	GetActualMPConsume	X2GuEve.h:1153 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	pair	CH4b	MP-consume rules; name: CONF
 329a7d00	helper	called by 329b2f60	-	-	CH1l4	
-329a7e70	helper	called by 329a7f50 329b3cc0 329c5bc0	-	-	CH1l3	
+329a7e70	helper	called by 329a7f50 329b3cc0 329c5bc0	-	-	CH1l3	resolved by CH1l3 to March TASER_PILUM_Data::Reset
 329a7f50	helper	-	-	-	CH1p	engine hook: dungeon stage-load handler 324d9550 @324d97be calls it on Eve (+0x9a54 -> 329a7e70)
 329a7f70	state-fn	ENSI_SI_A_EBS_TASER_PILUM.FrameMove	CX2GUEve::ENSI_A_EBS_TASER_PILUM_FrameMove	pair	CH3c	
 329a8840	state-fn	ENSI_EBS_DASH_JUMP_COMBO_XZ.FrameMove	CX2GUEve::ENSI_EBS_DASH_JUMP_COMBO_XZ_FrameMove	pair	CH1j2	
@@ -729,7 +729,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329ae670	helper	called by 329ae6e0 329ae9a0 329aece0 329af800	-	-	CH1b	
 329ae6e0	helper	called by 329ae9a0	-	-	CH1l4	
 329ae9a0	helper	called by 329c5bc0	-	-	CH1l4	
-329aea60	helper	called by 329b4a60	-	-	CH1l4	
+329aea60	helper	called by 329b4a60	-	-	CH3a	moved by CH1l3: Psyker Kinesis release; called by 329b4a60 (CH1l4) and 329b6810 case 0x40 (CH1l3), both leave the call out for CH3a
 329aece0	helper	called by 329cf670	-	-	CH1k	
 329af460	override 0x44	ReInit	X2GuEve.h:1079 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );	pair	CH1k	name: CONF
 329af800	state-fn	ENSI_DIE_FRONT.Start ENSI_RIDING_DIE.Start	CX2GUEve::ENSI_DIE_FRONT_Start	pair	CH1b	
@@ -811,11 +811,11 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 329cc1d0	state-fn	ENSI_DANCE_X.EventProcess	-	june-only	Stage10	not Eve: June-only CX2GUUser callback (Stage 10 dance / PvP amusement); thunk left out (CH1c)
 329cc1e0	state-fn	ENSI_DAMAGE_BOUNDING_UP.StartFuture	-	june-only	CH1b	
 329cc1f0	state-fn	ENSI_DASH.StartFuture ENSI_RIDING_DASH.StartFuture	CX2GUEve::DashStartFuture / CX2GUUser::DashStartFuture	pair	CH1a	
-329cc200	helper	called by 329aea60	-	-	CH1l4	
+329cc200	helper	called by 329aea60	-	-	CH3a	moved by CH1l3: only caller is 329aea60
 329cc290	helper	called by 3299ed30 3299f060	-	-	CH3b	
 329cc2c0	helper	called by 329c8a00	-	-	CH1n	also called from outside the class: 32a2a791 32a2a7f8 32a2a902 32a2a9c6
 329cc340	helper	-	-	-	n/a	folded helper (templet +0x178 != 0); callers are Add's only
-329cc370	helper	called by 329b5af0	-	-	CH1l3	also called from outside the class: 32a211cc 32a6e06a 32ad8254 32b3a61f
+329cc370	helper	called by 329b5af0	-	-	CH1l3	also called from outside the class: 32a211cc 32a6e06a 32ad8254 32b3a61f; resolved by CH1l3 to CX2GUUser::IsRidingKeySkillWaiting
 329cc390	helper	called by 32981130	-	-	CH1l3	
 329cc3b0	helper	-	-	-	CH1k	called by the constructor 3299bd70
 329cc4e0	helper	called by 329c12a0	-	-	CH1l4	

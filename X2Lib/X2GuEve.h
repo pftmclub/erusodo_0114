@@ -550,6 +550,8 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		int							m_iJune1c0;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
+		void						June_StartFormationEffect();	/// June 329a0ae0
+		int								June_GetFormationFactor() const;	/// June 329cc390
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraSystem( CX2GUEve* _pGUEve );
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -770,6 +772,10 @@ public:
 		bool			m_bSkillSlotSwap;	/// 슬롯 체인지 여부 기록
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		bool			m_bJune15;			/// June +0x15 ( false; cleared by June_Reset and the charge fail action )
+		void			June_Reset( bool bIsChargeTrue_ = true, FrameData* pFrameDataFuture_ = NULL );	/// June 3299ebd0
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_ahMajorParticleInstance[4];
 
 		MEGA_ELECTRONBALL_Data()
@@ -780,6 +786,9 @@ public:
 		m_ChargeRank(CR_RANK_1),
 		m_bIsSucCharge(false),
 		m_bSkillSlotSwap( false )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		, m_bJune15( false )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		{
 			for( int i = 0; i < ARRAY_SIZE(m_ahMajorParticleInstance); ++i )
 			{
@@ -856,6 +865,9 @@ public:
 			m_ChargeRank(CR_RANK_1),
 			m_bIsSucCharge(false),
 			m_bSkillSlotSwap(false)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+			, m_fJune34( 1.0f )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		{
 			m_iSkillSlotID[ST_A] = -1;
 			m_iSkillSlotID[ST_B] = -1;
@@ -890,6 +902,10 @@ public:
 	private:
 		int				m_iSkillSlotID[ST_END];	// -1 이 아니면 해당슬롯에 등록되어있다는 의미.
 		bool			m_bSelectedSlot;	// A : true | B : false
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	public:
+		float			m_fJune34;			/// June +0x34 ( 1.0; ability 0xa9 of the skill, set when the charge starts )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	};
 
 	enum BOOST_DASH_STATE
@@ -3103,5 +3119,38 @@ protected:
 	RENDER_HINT	June_CommonRender_Prepare();			/// June 32965e70 ( vslot 0x7e8 )
 	void		June_CreateStepDust();					/// June 329694a0 ( vslot 0x7ec )
 	bool		June_IsBlock9c50ValueCPositive() const;	/// June 32976fb0
+
+	/// June character port Phase CH1l3: inert June_* members of Eve's skill-use overrides from vslot 0x7f4 and the helpers they reach; nothing calls them until CH1
+	/// June CX2GUUser state the skill use keeps ( Eve-local, as the pilot's )
+	int			m_iJune8ea0;							/// June CX2GUUser +0x8ea0 ( 0; the skill the lookup chose )
+	int			m_iJune8ea4;							/// June CX2GUUser +0x8ea4 ( 0; its slot index )
+	float		m_fJune8ea8;							/// June CX2GUUser +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
+	float		m_fJune8eb0;							/// June CX2GUUser +0x8eb0 ( 0; the MP the chosen skill costs )
+	bool		m_abJune90d3[10];						/// June CX2GUUser +0x90d3 ( false; slot used marks, 31fc86e0 )
+	bool		m_abJune90d0[3];						/// June CX2GUUser +0x90d0 ( false )
+
+	bool		June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32969300 ( vslot 0x7f4, step 509 )
+	bool		June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
+	void		June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 329693e0 ( vslot 0x7fc, step 511 )
+	void		June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32981130 ( vslot 0x800, step 512 )
+	void		June_NoStateChangeActionFrameMove();	/// June 329b6810 ( vslot 0x80c )
+	bool		June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	/// June 3297c570 ( vslot 0x810 )
+	bool		June_Vslot828();						/// June 3297a6d0 ( vslot 0x828, name unsettled )
+	void		June_Vslot860( CX2GUNPC* pNPC_ );		/// June 32976f30 ( vslot 0x860, JuneSummonedNPCInfo )
+	bool		June_IsPhotonBlinkSkill( const int iSkillID_ ) const;	/// June 32968db0
+	bool		June_CanUseChargingBooster( CX2SkillTree::SKILL_TYPE eSkillType_, const IN CX2UserSkillTree& cUserSkillTree_ );	/// June 32972480
+	void		June_UseChargingBooster( CX2UserSkillTree& cUserSkillTree_ );	/// June 3297a800
+	const CX2UserSkillTree::SkillSlotData*	June_GetSkillSlotDataMegaElectronBall( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ );	/// June 3299f390
+	const CX2UserSkillTree::SkillSlotData*	June_GetSkillSlotDataTaserPilum( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ );	/// June 329b3cc0
+	void		June_StartElCrystalSystem();			/// June 329b4b40
+
+	/// copies of June CX2GUUser functions the skill use calls ( Eve-local, as the pilot's )
+	void		June_UserNoStateChangeActionFrameMove();	/// June 32008e40 ( CX2GUUser; March's is pure virtual )
+	void		June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
+	void		June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
+	void		June_StateChangeBySkillSlot( const int iSlotIndex_ );	/// June 31fd32e0 ( CX2GUUser )
+	void		June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
+	bool		June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140 ( CX2GUUser )
+	bool		June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };
