@@ -35,3 +35,8 @@ Transcribe every function the class map gives phase `CH1e` (the 17 `ENSI_DASH*` 
 - **States: 9** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_eve/ch0_state_skill.tsv`): `ENSI_DASH_COMBO_Z`, `ENSI_DASH_COMBO_X`, `ENSI_JUMP_COMBO_Z`, `ENSI_JUMP_COMBO_X`, `ENSI_JUMP_COMBO_X_LANDING`, `ENSI_DASH_JUMP_COMBO_Z`, `ENSI_DASH_JUMP_COMBO_ZZ`, `ENSI_DASH_JUMP_COMBO_ZZZ`, `ENSI_DASH_JUMP_COMBO_X`.
 - **Checklist rows** (`ch0_checklist_rows.tsv`): §7c L323-343 (167 alpha-tag sites 32982623..329c84f8).
 - **7c alpha-tag sites inside these functions: 5** (`c10a_alpha_sites.tsv`, by containing function).
+
+## Amended by the CH1d review (2026-10-26)
+
+- Reuse the `JUNE_EVE_*` macros at the head of CH1d's block in `X2GuEve.cpp` (event-flag arm with the animation-end clause; BWALK / WALK / DASH cancels with the on-line test) where June has the same shape; check each site against the listing, and write any other shape by hand.
+- `ENSI_DASH_COMBO_X` has June's `_BIG` fire-ball set too (`EVE_DASH_COMBO_X_FIRE_BALL_BIG`, strings `334d2040`-`334d21d0`): pick it as CH1d's X does (`GetRandomFloat( 0 ) < m_fJuneElectronBallBigRate`), check each filtered name in full (XX keeps a small name: JUNE_BUGS 424), and use the `+0x97ac` / `+0x97b0` / `+0x97c0` / `+0x97c4` members as CH1d does.
