@@ -2973,5 +2973,53 @@ protected:
 	void June_ENSI_EPR_DASH_COMBO_ZZZ_FrameMove();		/// June 32992440
 	void June_ENSI_EPR_DASH_COMBO_ZZZ_EndFuture();		/// June 329674b0
 	void June_ENSI_EPR_DASH_COMBO_ZZZ_End();		/// June 32992f60
+
+	/// June character port Phase CH1j2: inert June_* members of Eve's Battle Seraph line ( boost dashes, boost attacks, Electronic Move front / up / down ) and the Code Battle Seraph dash X-X; nothing calls them until CH1
+	bool June_CanContinueBoostAttack( const int iAddBoostAttack_ ) const;	/// June 32979a00
+	void June_ENSI_EBS_BOOST_DASH_START_FrameMoveFuture();	/// June 329677d0
+	void June_ENSI_EBS_BOOST_DASH_START_StartFuture();		/// June 32995020
+	void June_ENSI_EBS_BOOST_DASH_START_EventProcess();		/// June 32995120
+	void June_ENSI_EBS_BOOST_DASH_START_EndFuture();		/// June 329784c0
+	void June_ENSI_EBS_BOOST_DASH_StartFuture();			/// June 32967830
+	void June_ENSI_EBS_BOOST_DASH_Start();					/// June 32995470
+	void June_ENSI_EBS_BOOST_DASH_FrameMove();				/// June 32995550
+	void June_ENSI_EBS_BOOST_DASH_FrameMoveFuture();		/// June 32978500
+	void June_ENSI_EBS_BOOST_DASH_EventProcess();			/// June 32995680
+	void June_ENSI_EBS_BOOST_DASH_End();					/// June 32995ba0
+	void June_ENSI_EBS_BOOST_DASH_AIR_START_StartFuture();	/// June 329786e0
+	void June_ENSI_EBS_BOOST_DASH_AIR_START_Start();		/// June 32967850
+	void June_ENSI_EBS_BOOST_DASH_AIR_START_FrameMoveFuture();	/// June 32978770
+	void June_ENSI_EBS_BOOST_DASH_AIR_START_EventProcess();	/// June 32978890
+	void June_ENSI_EBS_BOOST_DASH_AIR_START_EndFuture();	/// June 32995c10
+	void June_ENSI_EBS_BOOST_DASH_AIR_StartFuture();		/// June 32967860
+	void June_ENSI_EBS_BOOST_DASH_AIR_Start();				/// June 32995d60
+	void June_ENSI_EBS_BOOST_DASH_AIR_FrameMove();			/// June 32995e40
+	void June_ENSI_EBS_BOOST_DASH_AIR_FrameMoveFuture();	/// June 32978ad0
+	void June_ENSI_EBS_BOOST_DASH_AIR_EventProcess();		/// June 32979da0
+	void June_ENSI_EBS_BOOST_DASH_AIR_EndFuture();			/// June 32978bf0
+	void June_ENSI_EBS_BOOST_DASH_AIR_End();				/// June 32995f70
+	void June_ENSI_EBS_DASH_JUMP_COMBO_XZ_Start();			/// June 32974000
+	void June_ENSI_EBS_DASH_JUMP_COMBO_XZ_FrameMove();		/// June 329a8840
+	void June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EventProcess();	/// June 3297e2a0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EndFuture();		/// June 32967890
+	void June_ENSI_EBS_DASH_JUMP_COMBO_XZ_End();			/// June 32995fc0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_Start();		/// June 32996020
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_FrameMove();	/// June 329678b0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EventProcess();	/// June 32979fe0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EndFuture();	/// June 329678c0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_End();		/// June 329740b0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_Start();		/// June 329962a0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_FrameMove();	/// June 329678e0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EventProcess();	/// June 3297a110
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EndFuture();	/// June 329678f0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_End();			/// June 32974100
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_Start();		/// June 329965a0
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_FrameMove();	/// June 32967910
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess();	/// June 3297a240
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EndFuture();	/// June 32967920
+	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_End();		/// June 32974150
+	void June_ENSI_ECB_DASH_XX_Init();						/// June 329687e0
+	void June_ENSI_ECB_DASH_XX_FrameMove();					/// June 329ad6c0
+	void June_ENSI_ECB_DASH_XX_EventProcess();				/// June 329766f0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

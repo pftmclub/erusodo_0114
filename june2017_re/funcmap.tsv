@@ -5111,3 +5111,49 @@ CX2Game +0x2ad (Result R3)	CX2Game::m_bCanUseESC	confirmed	Result R3: GetGameTyp
 31fce670	CX2GUUser::JuneSkillSlotKey::FollowSlotSwap()	PORTED	Char Eve CH1j20: UI manager ( g_pData +0x2cc, no g_pData test ) and its skill tree ( 3214f050 ) present and stored byte +4 != m_bSkillSlotSwap ( UI +0x115, written by 328db100 / 328daed0 ) -> index += stored byte 1 ? 5 : -5 ( @31fce6a7 ), byte flipped; JUNE_BUGS 426. Caller 3297d730, first thing
 31fce6d0	CX2GUUser::JuneSkillSlotKey::Set( int )	PORTED	Char Eve CH1j20: +0 = arg; with the UI skill tree, +4 = m_bSkillSlotSwap ( UI +0x115 ); no g_pData test. Caller 32967560 ( Particle Ray StartFuture: Set( +0x88bc - 1 ) on +0x8b58 ); +0x88bc = m_iNowSpecialAttack ( CH1j20 review: 32ccf4e0 @32ccf993, 32cb97a0 @32cb9872 )
 unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex, bool m_bSlotSwap +4 )	PORTED	Char Eve CH1j20: a CX2GUUser member ( below +0x93a8 ); June's ctor 3203e850 @320403b5 writes -1 and byte 0 = the struct's default ctor
+329677d0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_FrameMoveFuture	PORTED	Char Eve CH1j2: inert; June-only: both keys held -> oneRight / oneLeft set the facing, else the pressed key; then CommonFrameMoveFuture
+32995020	CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_StartFuture	PORTED	Char Eve CH1j2: inert; = March + the P_EBS_BoostDash_M01 mesh tagged ( 32296ee0 @329950fc, 7c )
+32995120	CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_EventProcess	PORTED	Char Eve CH1j2: inert; = March with 32976e90 / 32976f00 as the dash-jump limits, SKILL_CANCEL_AFTER( 0.01 ) and TryHyperModeStateChange; the +0x8e90 second-body clock is 7o, not ported
+329784c0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+32967830	CX2GUEve::June_ENSI_EBS_BOOST_DASH_StartFuture	PORTED	Char Eve CH1j2: inert; = March: CommonStateStartFuture, m_iAccumulateAccel = 0 ( +0x9a88 )
+32995470	CX2GUEve::June_ENSI_EBS_BOOST_DASH_Start	PORTED	Char Eve CH1j2: inert; = March ( 31cf90f0 CreateSequence inline = CreateSequenceHandle )
+32995550	CX2GUEve::June_ENSI_EBS_BOOST_DASH_FrameMove	PORTED	Char Eve CH1j2: inert; = March
+32978500	CX2GUEve::June_ENSI_EBS_BOOST_DASH_FrameMoveFuture	PORTED	Char Eve CH1j2: inert; = March speed steps ( +0.1 / +0.2 / +0.3 ) then the facing block of 329677d0
+32995680	CX2GUEve::June_ENSI_EBS_BOOST_DASH_EventProcess	PORTED	Char Eve CH1j2: inert; = 32995120 minus the 0.3 s step, plus the 1 / 2 / 3 s speed steps: each mesh + PlaySound( Eve_BoostDash4.ogg ) + tag ( 32296ee0 @32995b6e, one shared site, 7c )
+32995ba0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_End	PORTED	Char Eve CH1j2: inert; = March
+329786e0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_StartFuture	PORTED	Char Eve CH1j2: inert; = March without the m_bDownForce reset ( 3297a400 clears it, JUNE_BUGS 421 withdrawn )
+32967850	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_Start	PORTED	Char Eve CH1j2: inert; = March ( a tail jump to CommonStateStart )
+32978770	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_FrameMoveFuture	PORTED	Char Eve CH1j2: inert; = March ( 0.4 s window )
+32978890	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_EventProcess	PORTED	Char Eve CH1j2: inert; = March with the wall landing live ( bFootOnWall ), the dash-jump-up limit 32976f00 and no m_bDownForce resets
+32995c10	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_EndFuture	PORTED	Char Eve CH1j2: inert; = March + the mesh tagged ( 32296ee0 @32995d38, 7c ); gravity back on last
+32967860	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_StartFuture	PORTED	Char Eve CH1j2: inert; = March without the m_bDownForce reset; m_fCurrDashJumpTime = 0.65
+32995d60	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_Start	PORTED	Char Eve CH1j2: inert; = 32995470
+32995e40	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_FrameMove	PORTED	Char Eve CH1j2: inert; = 32995550
+32978ad0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_FrameMoveFuture	PORTED	Char Eve CH1j2: inert; = 32978770 with the 0.65 window
+32979da0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_EventProcess	PORTED	Char Eve CH1j2: inert; = 32978890 minus the 0.3 s step; X clears +0x9b56 / +0x9b58 and calls 32978c60 ( June_StateChangeBoostAttackIfPossible )
+32978bf0	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+32995f70	CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_End	PORTED	Char Eve CH1j2: inert; = March
+32974000	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_Start	PORTED	Char Eve CH1j2: inert; = March
+329a8840	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_FrameMove	PORTED	Char Eve CH1j2: inert; = March with June_CreatePlane ( 329a1150 ) and the 0.533 hyper arm ( _HYPER laser names while GetRemainHyperModeTime > 0 ); AddLaser ( 32980000 ) first, then the main-effect rotate and the handle store ( +0x9a40, only when the effect exists )
+3297e2a0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EventProcess	PORTED	Char Eve CH1j2: inert; = March ( the nowAction store is the inlined KProtectedType Set 32072ae0 )
+32967890	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+32995fc0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_End	PORTED	Char Eve CH1j2: inert; = March with June_DeleteLaserFromSystem
+32996020	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_Start	PORTED	Char Eve CH1j2: inert; = March + the boost mesh tagged ( 32296ee0 @32996163, 7c )
+329678b0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_FrameMove	PORTED	Char Eve CH1j2: inert; = March ( a tail jump to CommonFrameMove )
+32979fe0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EventProcess	PORTED	Char Eve CH1j2: inert; cap = 32979a00( add ) with add = +0x9b5c raised by Open Mind ( 25419, ability 0x80 ); Electronic Move ( 25223 ): X = JuneIsEquippedSkillKeyPressed ( 31fce710 ) and add 0; window 0.59-0.833; calls 32978c60
+329678c0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+329740b0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_End	PORTED	Char Eve CH1j2: inert; = March
+329962a0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_Start	PORTED	Char Eve CH1j2: inert; = March + the boost mesh tagged ( 32296ee0 @329963da, 7c )
+329678e0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_FrameMove	PORTED	Char Eve CH1j2: inert; = March
+3297a110	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EventProcess	PORTED	Char Eve CH1j2: inert; = 32979fe0 op for op
+329678f0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+32974100	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_End	PORTED	Char Eve CH1j2: inert; = March
+329965a0	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_Start	PORTED	Char Eve CH1j2: inert; = March + the boost mesh tagged ( 32296ee0 @329966da, 7c )
+32967910	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_FrameMove	PORTED	Char Eve CH1j2: inert; = March
+3297a240	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess	PORTED	Char Eve CH1j2: inert; = 32979fe0 op for op
+32967920	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EndFuture	PORTED	Char Eve CH1j2: inert; = March
+32974150	CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_End	PORTED	Char Eve CH1j2: inert; = March
+329687e0	CX2GUEve::June_ENSI_ECB_DASH_XX_Init	PORTED	Char Eve CH1j2: inert; June-only: preloads Eve_AT_ComboX5a_mesh.X, Eve_Guardian_BladeWave01.X, DummyAttackBox_50x50x50.X
+329ad6c0	CX2GUEve::June_ENSI_ECB_DASH_XX_FrameMove	PORTED	Char Eve CH1j2: inert; June-only: one else-if chain of oneshots 0.066 ( June_CreatePlane 70, 2, 140, 230 ), 0.2 ( three Light_Eve_AttackX3 at Bip01_Spine +-dir x 10 / -55 / 85, y +50 / -80 / -80, each tagged ), 0.315 ( FlushMp 4 x +0x97b0; DamageEffect_ECB_DASH_XX_Triangle at 0.8 R + 0.2 L hand +-dir x 50, power +0x97c0, force down +0x97c4; June_AddEffectToSystem with four empty names; Eve_FireBigShot.ogg; else CreateNotEnoughMPEffect ), 0.23 ( Eve_AttackX3_Triangle01 at GetPos +-dir x 10, y +85, tagged ); 3 tag sites 32296d60 @329ada7f @329adaf9 @329ae08f ( 7c )
+329766f0	CX2GUEve::June_ENSI_ECB_DASH_XX_EventProcess	PORTED	Char Eve CH1j2: inert; June-only: = the Empress dash X-X EventProcess 32976480 op for op ( animation end, then the four cancels )
+32979a00	CX2GUEve::June_CanContinueBoostAttack( int )	PORTED	Char Eve CH1j2: inert; not the CH0 label ( called by 32979da0 ): called by the ZFront / ZUp / ZDown EventProcess; ( !JuneIsSameOrUpgradeSkill( future state skill, 25223 ) && +0x9b5c > 0 && IsUpgradedSkillLearned( 25029 ) ) || +0x9b56 < arg + 3

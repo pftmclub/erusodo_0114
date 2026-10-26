@@ -782,6 +782,38 @@ Build: `DEPLOY OK: X2_offline.exe is 25,961,984 B, dated 2026-10-26 11:39:33, md
 Hygiene (`--range 2c87c040^..2c87c040`): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 Build: none. There was no code change; the deployed exe stays md5 `b02ac58f`. `CH1j2.md`'s "Amended by CH1j20" still matches. No new JUNE_BUGS row.
 
+### CH1j2 - Done (2026-10-26)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` (an eleventh block at the end of `X2GuEve.cpp`, 1,297 lines; 48 declaration lines at the end of the class). **All 46 class-map rows of phase CH1j2** (45 state functions + the helper `32979a00`) are new `CX2GUEve::June_*` members; nothing registers or calls them. No new enumerator, field or helper beyond `32979a00`. 46 funcmap rows `Char Eve CH1j2`.
+
+| State (`June_` prefix) | June: StartFuture / Start / FrameMove(Future) / EventProcess / EndFuture / End |
+|---|---|
+| `ENSI_EBS_BOOST_DASH_START` | `32995020` / - / FMF `329677d0` (June-only) / `32995120` / `329784c0` / - |
+| `ENSI_EBS_BOOST_DASH` | `32967830` / `32995470` / `32995550`, FMF `32978500` / `32995680` / - / `32995ba0` |
+| `ENSI_EBS_BOOST_DASH_AIR_START` | `329786e0` / `32967850` / FMF `32978770` / `32978890` / `32995c10` / - |
+| `ENSI_EBS_BOOST_DASH_AIR` | `32967860` / `32995d60` / `32995e40`, FMF `32978ad0` / `32979da0` / `32978bf0` / `32995f70` |
+| `ENSI_EBS_DASH_JUMP_COMBO_XZ` | - / `32974000` / `329a8840` / `3297e2a0` / `32967890` / `32995fc0` |
+| `..._ZFrontX` `_ZUpX` `_ZDownX` | - / `32996020` `329962a0` `329965a0` / `329678b0` `329678e0` `32967910` / `32979fe0` `3297a110` `3297a240` / `329678c0` `329678f0` `32967920` / `329740b0` `32974100` `32974150` |
+| `ENSI_ECB_DASH_XX` (June-only, 237) | Init `329687e0` / - / `329ad6c0` / `329766f0` / - / - |
+| helper | `June_CanContinueBoostAttack( int )` = `32979a00` |
+
+**What differs from March** (the rest is March's body, checked op for op; most of the 46 are March verbatim):
+- **Raw physic reads.** Every `nowSpeed.y = ...` here reads `m_PhysicParam` `+0x330` (dash jump) and `+0x32c` (jump), i.e. March's `m_PhysicParam.GetDashJumpSpeed()` / `GetJumpSpeed()`, not the unit-level triples CH1e used for the plain dash. `GetDashSpeed()` is the triple (`32071a80`).
+- **Boost dash start / boost dash EventProcess** (`32995120`, `32995680`): March with `June_GetMaxDashJumpCount` / `June_GetMaxDashJumpUpCount` and `SKILL_CANCEL_AFTER( 0.01f )`; the 1 / 2 / 3 s speed steps now tag each boost mesh (one shared tag site, `32995b6e`). The `+0x8e90` second-body clock in the cancel arm is 7o, not ported.
+- **Facing block** (`329677d0`, and at the tail of `32978500`): both keys held -> `oneRight` / `oneLeft` decides, else the single key; then `CommonFrameMoveFuture`.
+- **Air boost dash start / air** (`32978890`, `32979da0`): the wall landing is live, the up limit is `32976f00`, and the `m_bDownForce = false` resets are gone (`3297a400` clears it; JUNE_BUGS 421 stays withdrawn). Air X: `+0x9b56` = 0, `+0x9b58` = false, `June_StateChangeBoostAttackIfPossible`.
+- **Boost attack front / up / down EventProcess** (`32979fe0` + two copies): the cap is `32979a00( add )`; add = `+0x9b5c`, raised by Open Mind (25419, ability `0x80`); with Electronic Move (25223) as the future skill, X is `JuneIsEquippedSkillKeyPressed( m_InputData, skill )` and add = 0. The helper is true when the future skill is not Electronic Move (`JuneIsSameOrUpgradeSkill`), `+0x9b5c > 0` and the 25029 memo is learned (`IsUpgradedSkillLearned`), else when the count is below add + 3. CH0 labelled the helper "called by 32979da0"; its callers are the three EventProcess.
+- **Dash-jump X-Z FrameMove** (`329a8840`): `June_CreatePlane`, the 0.533 hyper arm (`_HYPER` effect and laser names while `GetRemainHyperModeTime() > 0`), AddLaser before the main-effect rotate, the handle stored last and only when the effect exists.
+- **Code Battle Seraph dash X-X** (`329ad6c0`, June-only): one else-if chain of oneshots 0.066 (plane 70 / 2 / 140 / 230), 0.2 (three `Light_Eve_AttackX3` at `Bip01_Spine` +- direction x 10 / -55 / 85, y +50 / -80 / -80), 0.315 (MP 4 x `+0x97b0`; `DamageEffect_ECB_DASH_XX_Triangle` at the 0.8 / 0.2 hand mix +- direction x 50, power `+0x97c0`, force down `+0x97c4`, `June_AddEffectToSystem` with four empty names, `Eve_FireBigShot.ogg`; else `CreateNotEnoughMPEffect`), 0.23 (`Eve_AttackX3_Triangle01` at `GetPos` +- direction x 10, y +85). EventProcess `329766f0` is the Empress dash X-X's `32976480` op for op.
+- **Alpha tags (7c):** 12 calls on the 9 sites of `c10a_alpha_sites.tsv` (`329950fc` `32995b6e` `32995d38` `32996163` `329963da` `329966da` `329ada7f` `329adaf9` `329ae08f`; the last and `32995b6e` are shared tails). Checklist 7c amended.
+
+**Checks.** `cl /Zs` of `X2GuEve.cpp` (US_SERVICE defines): 0 errors, and the `cl /P` output holds the block (flag live). Scripts compared every listing with its member: wide strings (46 of 46; the two extra listing strings are the next function's), float constants, and the state names / ids (the `ENSI_` vs `USI_` spellings differ only by the listing annotator).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_CORE --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,980,416 B, dated 2026-10-26 12:16:32, md5 3e84adb84e95b760280748e5e1c43e1e, equal to X2/US_SERVICE/x2.exe (2026-10-26 12:16:25); built at main d8f6c993 + 2 uncommitted code file(s).`
+
+**JUNE_BUGS:** none. **Drift:** none new. **Open for the review**: the raw-read sites above; the helper's name and the `IsUpgradedSkillLearned` reading of `31fcf3e0`; the 12-vs-9 tag count. Nothing to play-test: the code is unreferenced. Review: `kickoffs/char-eve/CH1j2-review.md`. Next: `/x2-phase char-eve CH1j2 review` (Opus 5.5 high), then CH1k.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

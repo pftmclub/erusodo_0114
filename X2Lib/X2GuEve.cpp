@@ -41823,4 +41823,1301 @@ void CX2GUEve::June_ENSI_EPR_DASH_COMBO_ZZZ_End()
 //}} Iruha : 2026-10-26
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+//{{ Iruha : 2026-10-26 // June character port Phase CH1j2 ( JUNE_CHARACTER_EVE_PHASES.md )
+// Inert June class core: Eve's Battle Seraph line, the boost dashes, the boost attacks and Electronic Move front / up / down, plus the Code Battle Seraph dash X-X ( class map phase CH1j2 ); nothing calls them until CH1 wires them in.
+
+// June 32979a00: false once the count reaches the cap, unless the memo of 25029 lifts it outside Electronic Move
+bool CX2GUEve::June_CanContinueBoostAttack( const int iAddBoostAttack_ ) const
+{
+	const bool bElectronicMove = ( NULL != g_pData && NULL != g_pData->GetSkillTree() &&
+		true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( GetFutureStateSkillID() ), JUNE_RNSI_A_EBS_ELECTRONIC_MOVE ) );
+
+	if( false == bElectronicMove && m_iAddBoostAttack > 0 && true == IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( JUNE_SKILL_ID_BOOST_ATTACK_MP ) ) )
+		return true;
+
+	return m_iBoostAttackCount < iAddBoostAttack_ + 3;
+}
+
+// ---- Boost dash start ----
+
+// June 329677d0: the facing follows the keys before CommonFrameMoveFuture
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_FrameMoveFuture()
+{
+	if( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		if( true == m_InputData.oneRight )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( true == m_InputData.oneLeft )
+			m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else if( true == m_InputData.pureRight )
+		m_FrameDataFuture.syncData.bIsRight = true;
+	else if( true == m_InputData.pureLeft )
+		m_FrameDataFuture.syncData.bIsRight = false;
+
+	CommonFrameMoveFuture();
+}
+
+// June 32995020
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_StartFuture()
+{
+	m_PhysicParam.nowSpeed.x = 0.0f;
+
+	CommonStateStartFuture();
+
+	if ( false == GetAbsoluteInvisibility() )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance(
+			(CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ), GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInstPlane );
+	}
+}
+
+// June 32995120: March's body with the dash-jump limits of 32976e90 / 32976f00
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_EventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.3f )
+	{
+		StateChange( ENSI_EBS_BOOST_DASH );
+	}
+
+	if( false == IsOnSomethingFuture() )
+	{
+		if( m_iDashJumpCount < June_GetMaxDashJumpCount() && false == m_InputData.pureDown &&
+			( m_InputData.pureLeft == true || m_InputData.pureRight == true ) )
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				m_eBoostDashState = BDS_RIGHT;
+				m_bEnableBoostDash = true;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				m_eBoostDashState = BDS_LEFT;
+				m_bEnableBoostDash = true;
+			}
+
+			June_StateChangeJumpDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_DASH_COMBO_X );
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_InputData.oneUp == true && m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+// June 329784c0
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_START_EndFuture()
+{
+	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+
+	CommonStateEndFuture();
+}
+
+// ---- Boost dash ----
+
+// June 32967830
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_iAccumulateAccel = 0;
+}
+
+// June 32995470
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_Start()
+{
+	CommonStateStart();
+
+	m_hBoostDashParticle = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"P_EBS_BoostDash_P01",
+		GetBonePos( L"Bip01" ) );
+}
+
+// June 32995550
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_FrameMove()
+{
+	CommonFrameMove();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hBoostDashParticle );
+	if( NULL != pSeq )
+	{
+		if ( false == GetAbsoluteInvisibility() )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Bip01" );
+
+			pSeq->SetPosition( vPos );
+			pSeq->SetShowObject( true );
+		}
+		else
+		{
+			pSeq->SetShowObject( false );
+		}
+	}
+}
+
+// June 32978500: March's speed steps, then the facing follows the keys
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_FrameMoveFuture()
+{
+	if( ( true == m_InputData.pureRight && true == m_BeforeInputData.pureRight ) ||
+		( true == m_InputData.pureLeft  && true == m_BeforeInputData.pureLeft  ) )
+	{
+		switch ( m_iAccumulateAccel )
+		{
+		case 1:
+			m_PhysicParam.nowSpeed.x = GetDashSpeed() + GetDashSpeed() * ( m_fHighPoweredElectricsSpeed + 0.1f );
+			break;
+
+		case 2:
+			m_PhysicParam.nowSpeed.x = GetDashSpeed() + GetDashSpeed() * ( m_fHighPoweredElectricsSpeed + 0.2f );
+			break;
+
+		case 3:
+			m_PhysicParam.nowSpeed.x = GetDashSpeed() + GetDashSpeed() * ( m_fHighPoweredElectricsSpeed + 0.3f );
+			break;
+
+		default:
+			m_PhysicParam.nowSpeed.x = GetDashSpeed() + GetDashSpeed() * m_fHighPoweredElectricsSpeed;
+			break;
+		}
+	}
+
+	if( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		if( true == m_InputData.oneRight )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( true == m_InputData.oneLeft )
+			m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else if( true == m_InputData.pureRight )
+		m_FrameDataFuture.syncData.bIsRight = true;
+	else if( true == m_InputData.pureLeft )
+		m_FrameDataFuture.syncData.bIsRight = false;
+
+	CommonFrameMoveFuture();
+}
+
+// June 32995680: March's body with the dash-jump limits, and each boost mesh tagged
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		if( m_iDashJumpCount < June_GetMaxDashJumpCount() && false == m_InputData.pureDown &&
+			( m_InputData.pureLeft == true || m_InputData.pureRight == true ) )
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				m_eBoostDashState = BDS_RIGHT;
+				m_bEnableBoostDash = true;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				m_eBoostDashState = BDS_LEFT;
+				m_bEnableBoostDash = true;
+			}
+
+			June_StateChangeJumpDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( ENSI_DASH_COMBO_X );
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_InputData.oneUp == true && m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if ( 1.0f <= m_FrameDataFuture.unitCondition.fStateTime && 0 == m_iAccumulateAccel )
+	{
+		m_iAccumulateAccel = 1;
+
+		if ( false == GetAbsoluteInvisibility() )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance(
+				(CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ), GetRotateDegree(), GetRotateDegree() );
+			PlaySound( L"Eve_BoostDash4.ogg" );
+			g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInstPlane );
+		}
+	}
+	else if ( 2.f <= m_FrameDataFuture.unitCondition.fStateTime && 1 == m_iAccumulateAccel )
+	{
+		m_iAccumulateAccel = 2;
+
+		if ( false == GetAbsoluteInvisibility() )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance(
+				(CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ), GetRotateDegree(), GetRotateDegree() );
+			PlaySound( L"Eve_BoostDash4.ogg" );
+			g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInstPlane );
+		}
+	}
+	else if ( 3.f <= m_FrameDataFuture.unitCondition.fStateTime && 2 == m_iAccumulateAccel )
+	{
+		m_iAccumulateAccel = 3;
+
+		if ( false == GetAbsoluteInvisibility() )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance(
+				(CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ), GetRotateDegree(), GetRotateDegree() );
+			PlaySound( L"Eve_BoostDash4.ogg" );
+			g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInstPlane );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32995ba0
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_End()
+{
+	CommonStateEnd();
+
+	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hBoostDashParticle );
+}
+
+// ---- Air boost dash start ----
+
+// June 329786e0
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_fCurrDashJumpTime	= 0.4f;
+
+	++m_iDashJumpCount;
+	++m_iJumpFlyCount;
+
+	m_bDisableGravity	= true;
+
+	m_bAfterJumpDash = true;
+
+	m_PhysicParam.nowSpeed.x = GetDashSpeed() + GetDashSpeed() * m_fHighPoweredElectricsSpeed;
+}
+
+// June 32967850
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_Start()
+{
+	CommonStateStart();
+}
+
+// June 32978770: March's body
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_FrameMoveFuture()
+{
+	m_fCurrDashJumpTime -= m_fElapsedTime;
+
+	const float fValue = m_fCurrDashJumpTime / 0.4f ;
+	const float NOW_FLY_SPEED_SCALE = ( s_fDashJumpSpeedScale + m_fHighPoweredElectricsSpeed ) * powf( fValue, 2 ) + s_fDashJumpSpeedLowerBound;
+
+	if( m_fCurrDashJumpTime < 0.f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureRight == true && m_FrameDataNow.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x	= GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y	= 0.f;
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureLeft == true && m_FrameDataNow.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x	= GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y	= 0.f;
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32978890: March's body with the wall landing live, the dash-jump-up limit and no m_bDownForce reset ( June's CommonStateEndFuture 3297a400 clears it )
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_EventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.3f )
+	{
+		StateChange( ENSI_EBS_BOOST_DASH_AIR );
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = m_PhysicParam.GetDashJumpSpeed();
+		}
+		else if( m_bDownForce == true )
+		{
+			StateChange( ENSI_DASH_JUMP_POWER_LANDING );
+		}
+		else
+		{
+			if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_JUMP_LANDING );
+			}
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() && m_InputData.pureDown == false && m_InputData.pureUp == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true && m_fReDashJumpXTime <= 0.0f )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_X );
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			if( m_PhysicParam.nowSpeed.y > m_PhysicParam.GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = m_PhysicParam.GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_PhysicParam.nowSpeed.y > m_PhysicParam.GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = m_PhysicParam.GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if( m_InputData.oneUp == true && m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_InputData.pureDown == true )
+	{
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32995c10
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_START_EndFuture()
+{
+	CommonStateEndFuture();
+
+	if( m_PhysicParam.nowSpeed.x > GetDashSpeed() )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	if ( false == GetAbsoluteInvisibility() )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInstPlane = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance(
+			(CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ), GetRotateDegree(), GetRotateDegree() );
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInstPlane );
+	}
+
+	m_bDisableGravity = false;
+}
+
+// ---- Air boost dash ----
+
+// June 32967860
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_fCurrDashJumpTime	= s_fMaxDashJumpTime;
+	m_bDisableGravity	= true;
+}
+
+// June 32995d60
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_Start()
+{
+	CommonStateStart();
+
+	m_hBoostDashParticle = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"P_EBS_BoostDash_P01",
+		GetBonePos( L"Bip01" ) );
+}
+
+// June 32995e40
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_FrameMove()
+{
+	CommonFrameMove();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hBoostDashParticle );
+	if( NULL != pSeq )
+	{
+		if ( false == GetAbsoluteInvisibility() )
+		{
+			D3DXVECTOR3 vPos = GetBonePos( L"Bip01" );
+
+			pSeq->SetPosition( vPos );
+			pSeq->SetShowObject( true );
+		}
+		else
+		{
+			pSeq->SetShowObject( false );
+		}
+	}
+}
+
+// June 32978ad0: March's body
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_FrameMoveFuture()
+{
+	m_fCurrDashJumpTime -= m_fElapsedTime;
+
+	const float fValue = m_fCurrDashJumpTime / s_fMaxDashJumpTime ;
+	const float NOW_FLY_SPEED_SCALE = ( s_fDashJumpSpeedScale + m_fHighPoweredElectricsSpeed ) * powf( fValue, 2 ) + s_fDashJumpSpeedLowerBound;
+
+	if( m_fCurrDashJumpTime < 0.f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureRight == true && m_FrameDataNow.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x	= GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y	= 0.f;
+	}
+	else if( m_InputData.pureDown == false &&
+		m_InputData.pureLeft == true && m_FrameDataNow.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x	= GetDashSpeed() * NOW_FLY_SPEED_SCALE;
+		m_PhysicParam.nowSpeed.y	= 0.f;
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32979da0: the air start's EventProcess without the 0.3 s step; X starts the boost attack ( 32978c60 ) with its count and up flag cleared
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = m_PhysicParam.GetDashJumpSpeed();
+		}
+		else if( m_bDownForce == true )
+		{
+			StateChange( ENSI_DASH_JUMP_POWER_LANDING );
+		}
+		else
+		{
+			if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_JUMP_LANDING );
+			}
+		}
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ENSI_WALL_LANDING );
+	}
+	else if( m_iDashJumpUpCount < June_GetMaxDashJumpUpCount() && m_InputData.pureDown == false && m_InputData.pureUp == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( ENSI_DASH_JUMP_COMBO_Z );
+	}
+	else if( m_InputData.oneX == true && m_fReDashJumpXTime <= 0.0f )
+	{
+		m_iBoostAttackCount = 0;
+		m_bBoostUpAttack = false;
+
+		June_StateChangeBoostAttackIfPossible();
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			if( m_PhysicParam.nowSpeed.y > m_PhysicParam.GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = m_PhysicParam.GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_PhysicParam.nowSpeed.y > m_PhysicParam.GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = m_PhysicParam.GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if( m_InputData.oneUp == true && m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_InputData.pureDown == true )
+	{
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32978bf0
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_EndFuture()
+{
+	CommonStateEndFuture();
+
+	m_bDisableGravity = false;
+
+	if( m_PhysicParam.nowSpeed.x > GetDashSpeed() )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+}
+
+// June 32995f70
+void CX2GUEve::June_ENSI_EBS_BOOST_DASH_AIR_End()
+{
+	CommonStateEnd();
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hBoostDashParticle );
+}
+
+// ---- Dash-jump X-Z ( Electra plane laser ) ----
+
+// June 32974000: March's body
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_Start()
+{
+	CommonStateStart();
+
+	SetNoDetonation( true );
+
+	m_bDisableGravity = true;
+	m_bDashJumpXXLaserEnd = false;
+	m_bExceptionPlane = true;
+	m_fExceptioncPlaneZAngle = -45.f;
+	m_bNotEnoughMPDashJumpXZLaser = false;
+	m_fPlaneZAngle = 0.f;
+	m_hEffectElectraLaserDashJumpXZ = INVALID_DAMAGE_EFFECT_HANDLE;
+
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+
+	m_PhysicParam.nowSpeed		= D3DXVECTOR2( 0, 0 );
+	m_PhysicParam.passiveSpeed	= D3DXVECTOR2( -1, -1 );
+
+	m_EveElectraSystem.m_fEveZAngle = 70.f;
+}
+
+// June 329a8840: March's body with June_CreatePlane, the hyper arm at 0.533, the handle stored after AddLaser and only when the effect exists
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( m_fPlaneZAngle + m_fExceptioncPlaneZAngle, 1.8f, 150.f, -50.f );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.333f ) )
+	{
+		m_EveElectraSystem.m_fPlaneZAngle = m_fPlaneZAngle + m_fExceptioncPlaneZAngle;
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.533f ) )
+	{
+		D3DXVECTOR3 vDamageEffectPos = GetPos();
+		vDamageEffectPos.y += 130.f;
+		D3DXVECTOR3 vZeroYDirVector = GetDirVector();
+		vZeroYDirVector.y = 0.f;
+		D3DXVec3Normalize( &vZeroYDirVector, &vZeroYDirVector );
+
+		if( GetIsRight() == false )
+		{
+			vZeroYDirVector.x = -vZeroYDirVector.x;
+			vZeroYDirVector.z = -vZeroYDirVector.z;
+		}
+		vDamageEffectPos += (130.f * vZeroYDirVector);
+
+		// June picks the _HYPER effect and laser names while the gage's hyper time is above 0
+		const bool bHyper = ( GetRemainHyperModeTime() > 0.0f );
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+			( bHyper ? L"EVE_DASHJUMP_COMBO_XZ_LASER_HYPER" : L"EVE_DASHJUMP_COMBO_XZ_LASER" ), GetPowerRate(), vDamageEffectPos, GetRotateDegree(), GetRotateDegree() );
+		const WCHAR* pwszLaserName = ( bHyper ? L"EVE_DASHJUMP_COMBO_XZ_LASER_NEXT_HYPER" : L"EVE_DASHJUMP_COMBO_XZ_LASER_NEXT" );
+
+		m_EveElectraSystem.June_AddLaserToSystem( pEffect, L"Bip01_L_Finger2Nub", vDamageEffectPos, vZeroYDirVector, 6000.f, 0.108f, 0.5f,
+			pwszLaserName, pwszLaserName, pwszLaserName, true, 2.f, L"", L"" );
+		if( NULL != pEffect )
+		{
+			if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect() )
+			{
+				D3DXVECTOR3 vRotateLocalDegree = pMeshInstance->GetRotateLocalDegree();
+
+				vRotateLocalDegree.z += m_fExceptioncPlaneZAngle;
+
+				pMeshInstance->SetRotateLocalDegree( vRotateLocalDegree );
+			}
+			m_hEffectElectraLaserDashJumpXZ = pEffect->GetHandle();
+		}
+	}
+
+	if( CX2DamageEffect::CEffect* pEffectElectraLaserDashJumpXZ = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectElectraLaserDashJumpXZ ) )
+	{
+		if ( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffectElectraLaserDashJumpXZ->GetMainEffect() )
+		{
+			if( m_pXSkinAnim->GetNowAnimationTime() >= 0.733f && m_pXSkinAnim->GetNowAnimationTime() < 1.233f )
+			{
+				D3DXVECTOR3 vRotateLocalDegree = pMeshInstance->GetRotateLocalDegree();
+				vRotateLocalDegree.z += ( 70.904f * m_fElapsedTime );
+				pMeshInstance->SetRotateLocalDegree( vRotateLocalDegree );
+				m_EveElectraSystem.m_fLaserEndOffsetY = 2.f;
+			}
+			else if ( m_pXSkinAnim->GetNowAnimationTime() >= 1.233f && m_pXSkinAnim->GetNowAnimationTime() < 1.733f )
+			{
+				D3DXVECTOR3 vRotateLocalDegree = pMeshInstance->GetRotateLocalDegree();
+				vRotateLocalDegree.z += ( 0.904f * m_fElapsedTime );
+				pMeshInstance->SetRotateLocalDegree( vRotateLocalDegree );
+			}
+			else
+			{
+				m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+			}
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 1.833f ) )
+	{
+		m_bDashJumpXXLaserEnd = true;
+		m_bExceptionPlane = false;
+		m_EveElectraSystem.m_fEveZAngle = 0.f;
+		m_fExceptioncPlaneZAngle = 0.f;
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EVE_COMBO_XXZ_END", this );
+		m_EveElectraSystem.June_DeleteLaserFromSystem();
+		m_hEffectElectraLaserDashJumpXZ = INVALID_DAMAGE_EFFECT_HANDLE;
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.600f && m_pXSkinAnim->GetNowAnimationTime() < 1.866f )
+	{
+		if( m_bNotEnoughMPDashJumpXZLaser == false && FlushMp( 13.3333f * m_fElapsedTime ) == false )
+		{
+			m_EveElectraSystem.June_DeleteLaserFromSystem();
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Finger2Nub" );
+			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
+			m_bNotEnoughMPDashJumpXZLaser = true;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 3297e2a0: March's body
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.3f )
+	{
+		if( m_InputData.pureUp == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_UP;
+		}
+		else if( m_InputData.pureDown == true )
+		{
+			m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_DOWN;
+		}
+	}
+
+	if( m_InputData.oneZ == true && m_FrameDataFuture.stateParam.bEventFlagList[0] == false )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	if( m_InputData.pureZ == false )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.9f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			m_PhysicParam.nowSpeed.y = -0.0001f;
+			m_bDisableGravity = false;
+
+			StateChange( ENSI_JUMP_FLY_DOWN );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.1f;
+		m_PhysicParam.nowSpeed.y = -0.0001f;
+		m_bDisableGravity = false;
+
+		StateChange( ENSI_JUMP_FLY_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32967890
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_EndFuture()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEndFuture();
+}
+
+// June 32995fc0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_XZ_End()
+{
+	m_EveElectraSystem.June_DeleteLaserFromSystem();
+
+	m_hEffectElectraLaserDashJumpXZ = INVALID_DAMAGE_EFFECT_HANDLE;
+
+	m_EveElectraSystem.m_fLaserEndOffsetX = 0.f;
+	m_EveElectraSystem.m_fLaserEndOffsetY = 0.f;
+
+	m_bExceptionPlane = false;
+	m_fExceptioncPlaneZAngle = 0.f;
+	m_bDisableGravity = false;
+	m_EveElectraSystem.m_fEveZAngle = 0.f;
+
+	SetNoDetonation( false );
+
+	CommonStateEnd();
+}
+
+// ---- Boost attack front / up / down ( also Electronic Move front / up / down ) ----
+
+// June 32996020: March's body with the boost mesh tagged
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_Start()
+{
+	CommonStateStart();
+
+	++m_iBoostAttackCount;
+	m_bDisableGravity = true;
+	m_bNotEnoughMPDashZX = false;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ),
+		GetRotateDegree(), GetRotateDegree() );
+	g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Seraph_Boost_Dash_Attack", this );
+
+	m_fBlinkInvisibilityAlpha	= 1.f;
+	m_bBlinkInvisibility		= true;
+
+	SetAlphaObject( true );
+	m_RenderParam.bAlphaBlend = true;
+}
+
+// June 329678b0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32979fe0: the cap comes from June_CanContinueBoostAttack; Open Mind ( 25419 ) raises it, Electronic Move reads its own key and uncaps nothing
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EventProcess()
+{
+	bool bOneX = m_InputData.oneX;
+	int iAddBoostAttack = m_iAddBoostAttack;
+	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+
+	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
+	{
+		bOneX = JuneIsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() );
+		iAddBoostAttack = 0;
+	}
+
+	if( true == bOneX && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.13333f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	if( true == June_CanContinueBoostAttack( iAddBoostAttack ) && true == m_FrameDataFuture.stateParam.bEventFlagList[1] &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > 0.59f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.833f )
+	{
+		June_StateChangeBoostAttackIfPossible();
+	}
+	else if ( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_PhysicParam.nowSpeed.y = -0.0001f;
+		m_bDisableGravity = false;
+
+		StateChange( ENSI_JUMP_FLY_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 329678c0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EndFuture()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEndFuture();
+}
+
+// June 329740b0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_End()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEnd();
+
+	m_bBlinkInvisibility	= false;
+
+	if( m_bInvisibility == false )
+	{
+		SetAlphaObject( false );
+		m_RenderParam.bAlphaBlend = false;
+		m_RenderParam.outLineColor.a	= 1.f;
+		m_RenderParam.color.a			= 1.f;
+	}
+}
+
+// June 329962a0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_Start()
+{
+	CommonStateStart();
+
+	++m_iBoostAttackCount;
+	++m_iJumpFlyCount;
+	m_bBoostUpAttack = true;
+	m_bDisableGravity = true;
+	m_bNotEnoughMPDashZX = false;
+
+	D3DXVECTOR3 vRot = GetRotateDegree();
+	vRot.z += 45.f;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ),
+		vRot, vRot );
+	g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+
+	CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Seraph_Boost_Dash_Attack", this );
+	if ( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+	{
+		if ( true != GetIsRight() )
+			vRot.z += 90.f;
+
+		pEffect->SetLocalRotateDegree( vRot );
+	}
+
+	m_fBlinkInvisibilityAlpha	= 1.f;
+	m_bBlinkInvisibility		= true;
+
+	SetAlphaObject( true );
+	m_RenderParam.bAlphaBlend = true;
+}
+
+// June 329678e0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 3297a110: the same body as the front boost attack
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EventProcess()
+{
+	bool bOneX = m_InputData.oneX;
+	int iAddBoostAttack = m_iAddBoostAttack;
+	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+
+	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
+	{
+		bOneX = JuneIsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() );
+		iAddBoostAttack = 0;
+	}
+
+	if( true == bOneX && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.13333f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	if( true == June_CanContinueBoostAttack( iAddBoostAttack ) && true == m_FrameDataFuture.stateParam.bEventFlagList[1] &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > 0.59f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.833f )
+	{
+		June_StateChangeBoostAttackIfPossible();
+	}
+	else if ( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_PhysicParam.nowSpeed.y = -0.0001f;
+		m_bDisableGravity = false;
+
+		StateChange( ENSI_JUMP_FLY_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 329678f0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EndFuture()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEndFuture();
+}
+
+// June 32974100
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZUpX_End()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEnd();
+
+	m_bBlinkInvisibility	= false;
+
+	if( m_bInvisibility == false )
+	{
+		SetAlphaObject( false );
+		m_RenderParam.bAlphaBlend = false;
+		m_RenderParam.outLineColor.a	= 1.f;
+		m_RenderParam.color.a			= 1.f;
+	}
+}
+
+// June 329965a0
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_Start()
+{
+	CommonStateStart();
+
+	++m_iBoostAttackCount;
+	++m_iJumpFlyCount;
+	m_bDisableGravity = true;
+	m_bNotEnoughMPDashZX = false;
+	m_bBoostUpAttack = false;
+
+	D3DXVECTOR3 vRot = GetRotateDegree();
+	vRot.z -= 45.f;
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this,  L"P_EBS_BoostDash_M01", GetBonePos( L"Bip01_Head" ),
+		vRot, vRot );
+	g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+
+	CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Seraph_Boost_Dash_Attack", this );
+	if ( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+	{
+		if ( true != GetIsRight() )
+			vRot.z -= 90.f;
+
+		pEffect->SetLocalRotateDegree( vRot );
+	}
+
+	m_fBlinkInvisibilityAlpha	= 1.f;
+	m_bBlinkInvisibility		= true;
+
+	SetAlphaObject( true );
+	m_RenderParam.bAlphaBlend = true;
+}
+
+// June 32967910
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 3297a240: the same body as the front boost attack
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess()
+{
+	bool bOneX = m_InputData.oneX;
+	int iAddBoostAttack = m_iAddBoostAttack;
+	if( June_GetSkillLevel( JUNE_RNSI_P_EBS_OPEN_MIND ) > 0 )
+		iAddBoostAttack = static_cast<int>( June_GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x80 ), JUNE_RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
+
+	if( JUNE_RNSI_A_EBS_ELECTRONIC_MOVE == static_cast<int>( GetFutureStateSkillID() ) )
+	{
+		bOneX = JuneIsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() );
+		iAddBoostAttack = 0;
+	}
+
+	if( true == bOneX && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.13333f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	if( true == June_CanContinueBoostAttack( iAddBoostAttack ) && true == m_FrameDataFuture.stateParam.bEventFlagList[1] &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > 0.59f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.833f )
+	{
+		June_StateChangeBoostAttackIfPossible();
+	}
+	else if ( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_PhysicParam.nowSpeed.y = -0.0001f;
+		m_bDisableGravity = false;
+
+		StateChange( ENSI_JUMP_FLY_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32967920
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EndFuture()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEndFuture();
+}
+
+// June 32974150
+void CX2GUEve::June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_End()
+{
+	m_bDisableGravity = false;
+
+	CommonStateEnd();
+
+	m_bBlinkInvisibility	= false;
+
+	if( m_bInvisibility == false )
+	{
+		SetAlphaObject( false );
+		m_RenderParam.bAlphaBlend = false;
+		m_RenderParam.outLineColor.a	= 1.f;
+		m_RenderParam.color.a			= 1.f;
+	}
+}
+
+// ---- Code Battle Seraph dash X-X ----
+
+// June 329687e0
+void CX2GUEve::June_ENSI_ECB_DASH_XX_Init()
+{
+	XSkinMeshReadyInBackground( L"Eve_AT_ComboX5a_mesh.X" );
+	XSkinMeshReadyInBackground( L"Eve_Guardian_BladeWave01.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+}
+
+// June 329ad6c0: an else-if chain of four one-shot events; the Triangle effect is added to the Electra system with no filtered names
+void CX2GUEve::June_ENSI_ECB_DASH_XX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.066f ) )
+	{
+		m_EveElectraSystem.June_CreatePlane( 70.f, 2.0f, 140.f, 230.f );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_Spine" );
+		D3DXVECTOR3 vPosA = vBonePos;
+		D3DXVECTOR3 vPosB = vBonePos;
+		D3DXVECTOR3 vPosC = vBonePos;
+
+		if( true == GetIsRight() )
+		{
+			vPosA += GetDirVector() * 10.f;
+			vPosB += GetDirVector() * -55.f;
+			vPosC += GetDirVector() * 85.f;
+		}
+		else
+		{
+			vPosA -= GetDirVector() * 10.f;
+			vPosB -= GetDirVector() * -55.f;
+			vPosC -= GetDirVector() * 85.f;
+		}
+		vPosA.y += 50.f;
+		vPosB.y -= 80.f;
+		vPosC.y -= 80.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Light_Eve_AttackX3", vPosA );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Light_Eve_AttackX3", vPosB );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Light_Eve_AttackX3", vPosC );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.315f ) )
+	{
+		D3DXVECTOR3 vBonePos1 = GetBonePos( L"Dummy1_Rhand" );
+		D3DXVECTOR3 vBonePos2 = GetBonePos( L"Dummy2_Lhand" );
+		D3DXVECTOR3 vBonePos = vBonePos1 * 0.8f + vBonePos2 * 0.2f;
+		D3DXVECTOR3 vDegree = GetRotateDegree();
+		D3DXVECTOR3 vEffectPos = vBonePos;
+		if( true == GetIsRight() )
+		{
+			vEffectPos += GetDirVector() * 50.f;
+		}
+		else
+		{
+			vEffectPos -= GetDirVector() * 50.f;
+		}
+		vDegree.z += 70.f;
+
+		if( FlushMp( 4.f * m_fMPConsumeRateElectronBall ) == true )
+		{
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_ECB_DASH_XX_Triangle", GetPowerRate() * m_fAttackPowerRateElectronBall,
+				vEffectPos, vDegree, vDegree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, 1.f );
+
+			if( NULL != pEffect )
+			{
+				m_EveElectraSystem.June_AddEffectToSystem( pEffect, L"", L"", L"", L"" );
+			}
+
+			PlaySound( L"Eve_FireBigShot.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( ( vBonePos1 + vBonePos2 ) * 0.5f, 0.f, 0.f, vDegree.z );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.23f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += GetDirVector() * 10.f;
+		}
+		else
+		{
+			vPos -= GetDirVector() * 10.f;
+		}
+		vPos.y += 85.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_AttackX3_Triangle01", vPos );
+		g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+	}
+
+	CommonFrameMove();
+}
+
+// June 329766f0: the Empress dash X-X's EventProcess ( 32976480 ) op for op
+void CX2GUEve::June_ENSI_ECB_DASH_XX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_EVE_BWALK_CANCEL_AFTER( m_fBWalkCancelAfter )
+	JUNE_EVE_WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	JUNE_EVE_DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+//}} Iruha : 2026-10-26
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+
 
