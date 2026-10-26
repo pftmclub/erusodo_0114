@@ -10128,8 +10128,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ships it with June's Eve_Nasod.lua ( one deploy unit ). Needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE.
 //              Revert: undefine the flag ( JUNE_CHAR_EVE_LIVE ).
 //#define SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
-#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 //////////////////////////////////////////////////////////////////////////
 
