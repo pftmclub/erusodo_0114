@@ -1801,6 +1801,12 @@ Architecture's twelve skill ids take June's `329c8a00` cases and state bodies (f
 
 **Play-test hand-off.** Save: unit 19 `Iivue` ( Eve Code Empress, level 80 ) now has 25015 in slot 0, 25013 in 1, 25014 ( added, level 1 ) in 2, 25012 in 3, 25016 in 4 and 25224 in 5; the old slots ( 25213 / 25030 / 25031 / 25214 in 0-3 ) are cleared. The backup is `db_backup\els_db_20261027_172852_pre_sql.sql`. Log tag `[JUNE_CHAR] EVE SKILL`.
 
+**Play-test 1 (2026-10-27 17:43): two defects, fixed the same day.**
+- **Oberon and Oberon Guard never showed** ( the Eve animation played; the log had `GAME spawning 1 NPC` and no error ). The live `data037 NPCTemplet.lua` ( core-list, March-merged ) had no rows for NPC 1621 `NUI_SI_SA_AT_SURFACE_CUTING` and 2091 `NUI_ECA_OBERON_GUARD`, and `data036 Enum.lua` had no `NUI_SI_SA_AT_SURFACE_CUTING = 1621`: the client could not build the NPC. Fix: June's two rows appended verbatim to `NPCTemplet.lua`, the Enum line added, both refreshed in the ledger ( `ledger --check` PASS ), `data036` and `data037` packed ( `PACK OK`, `~ Enum.lua` / `~ NPCTemplet.lua` only ). **Needs `/x2-kom-packed copy data036` and `data037`, with the user's yes.** `NUI_SI_SA_EEP_ELECTRONIC_FIELD` ( 1622, Ophelia ) lacks both too: CH2c's.
+- **Faena crashed** ( access violation in `vector<float>::push_back` under `BUFF_FACTOR( rhs, level )` from `GetClonePtr`, resolved from the crash bundle ): the second target's level was the previous clone's address ( JUNE_BUGS 451 ). The level is no longer clobbered; the skill-id register is, as before. JUNE_BUGS 451 now reads "partly kept".
+- The `_DEBUG` Surface Cuting / Oberon Guard lines also print whether the Oberon / guard buff is on.
+**Deploy ( fix ):** DEPLOY OK: X2_offline.exe is 26,119,168 B, dated 2026-10-27 17:52:09, md5 dac69b50ac758e77b87969f98f654ade, equal to X2/US_SERVICE/x2.exe ( 17:52:02 ); built at main e0f9580d + 1 uncommitted code file.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

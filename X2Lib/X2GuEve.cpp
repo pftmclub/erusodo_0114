@@ -53094,8 +53094,8 @@ void CX2GUEve::June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3&
 		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING, iHyperMode, true, vPos_,
 			GetIsRight(), 0.f, true, iKeyCode_, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_CHANGESTAGE_REMAIN );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL SURFACE_CUTING summon ( skill %d, level %d, key %d, hyper %d )",
-			static_cast<int>( GetNowStateSkillID() ), iSkillLevel, iKeyCode_, iHyperMode );
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL SURFACE_CUTING summon ( skill %d, level %d, key %d, hyper %d, oberon buff %d )",
+			static_cast<int>( GetNowStateSkillID() ), iSkillLevel, iKeyCode_, iHyperMode, true == HaveThisBuff( BTI_BUFF_OBERON ) ? 1 : 0 );
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 	}
 }
@@ -53148,7 +53148,7 @@ void CX2GUEve::June_ENSI_A_EAT_OBERON_GUARD_FrameMove()
 			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_ECA_OBERON_GUARD, 0, true, vPos,
 				bRight, JUNE_OBERON_GUARD_DELAY, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL OBERON_GUARD npc requested ( skill %d )", static_cast<int>( GetNowStateSkillID() ) );
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL OBERON_GUARD npc requested ( skill %d, guard buff %d )", static_cast<int>( GetNowStateSkillID() ), true == HaveThisBuff( BTI_BUFF_OBERON_GUARD ) ? 1 : 0 );
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 		}
 	}
@@ -53239,7 +53239,7 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 		if( NULL != GetUnit() )
 		{
 			UINT uiLevel = static_cast<UINT>( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ), false, 0, true ) );
-			int iAdjustSkillID = iSkillID;	// June keeps the level in ebp and the skill id in edi across the targets and overwrites both ( JUNE_BUGS 451 )
+			int iAdjustSkillID = iSkillID;	// June overwrites the skill id register after a boss target ( JUNE_BUGS 451 ); the level register it overwrites too is not kept: March's level clone crashes on it
 
 			for( std::vector<CX2GameUnit*>::iterator it = vecUnits.begin(); it != vecUnits.end(); ++it )
 			{
@@ -53257,7 +53257,6 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 						ptrBuffFactorClone->SetGameUnitBuffFactor( pUnit, GetUnitUID(), true );
 						pUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 					}
-					uiLevel = static_cast<UINT>( reinterpret_cast<UINT_PTR>( ptrBuffFactorClone.get() ) );
 				}
 
 				if( true == pUnit->GetIsBosRaidNPC() )
