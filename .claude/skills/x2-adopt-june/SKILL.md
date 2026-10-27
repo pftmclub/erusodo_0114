@@ -57,6 +57,7 @@ A sidecar (`X.src.lua`) is not a reason: `core --classify` showed 54 of the 65 s
 | `REFUSED X: T1 FAIL ...` + `BLOCKED X` (`--source`) | The decompile is not provably June's. Nothing was staged, the core row says `blocked: <reason>`. The file is an L5 (ljd) or T2 candidate (Opus audit + the user's yes); do not hand-fix a decompile into a pass. |
 | `ITER AUDIT X: N site(s), M order-sensitive` | Text loading builds table constants with the parser, so `pairs`/`next`/`foreach`/`foreachi` can walk them in another order than the bytecode build. Read each flagged line; `ipairs` is index order. |
 | `COMPARE OK: n of n ...` | The staged sha1s equal an earlier run's `shipped_sha1` and kom. |
+| any adopted script (default or `--source`) | Run `python tools/luabind.py check <NAME>` on it before the play-test: a method the script calls that March never bound stops that function at the call (no popup, one ErrorLog line). Bind it from June's function or record it in `tools/data/lua_unbound_known.tsv`. |
 | `ADOPT-JUNE OK / PARTIAL` | PARTIAL = something was refused (exit 4). The staged names are staged either way. |
 
 ## Steps this skill does NOT take

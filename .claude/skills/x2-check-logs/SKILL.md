@@ -8,7 +8,7 @@ description: Read the offline client's game logs (ErrorLog.txt, offline_server.l
 ```sh
 python tools/logs.py --tag JUNE_BUFF                # the phase's own tag; add --grep to narrow
 python tools/logs.py --tag JUNE_BUFF --grep "BBT (75|91|103)"
-python tools/logs.py                                # status + UNHANDLED/EXCEPTION summary only
+python tools/logs.py                                # status + UNHANDLED/EXCEPTION + "lua: N unbound name(s)" summary only (any name listed = a June script call died; run tools/luabind.py check on the script)
 ```
 
 Read the header first; it decides whether the lines mean anything:

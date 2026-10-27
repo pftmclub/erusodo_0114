@@ -114,6 +114,11 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    (`--files` keeps peers' uncommitted edits out of your verdict): RESULT must be PASS, every
    FAIL fixed, every OTHER row and deleted line explained. After committing, run it once more
    with `--range <your first commit>^..HEAD` and paste those summary lines.
+   **Lua binder gate (user, 2026-10-27):** for every June `.lua` the phase stages or depends on (an NPC / summon / dungeon script,
+   a class script), run `python tools/luabind.py check <NAME ...>`: every method it calls must be bound in March. An unbound
+   name is bound whole from June's function (address in the funcmap) or added to `tools/data/lua_unbound_known.tsv` with the
+   reason; otherwise the script dies at that line in game (Oberon's slash, 2026-10-27). The hand-off then lists the log lines
+   the user's test must produce (`ES_CREATE <effect set>`, the summon's state lines), and "check logs" confirms each by name.
 2. `build.py --deploy`: paste its `DEPLOY OK` line into the Done note. Check the phase's
    strings are in the deployed exe if the phase's gate asks for it.
 3. **Done note** in the plan doc, under the phase: what landed (commit, flag), hygiene lines

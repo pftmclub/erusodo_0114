@@ -143,6 +143,17 @@ def main():
         print("packets: %d UNHANDLED, %d EXCEPTION%s" % (len(un), len(ex), "" if not (un or ex) else ":"))
         for l in (un + ex)[:20]:
             print("   " + l.strip())
+    el = texts.get("errorlog", "")
+    if el:
+        lerr = {}
+        for m in re.finditer(r"lua error (?:at run time|while loading ([\w.]+)): can't find '(\w+)'(?: class variable)?", el):
+            lerr[m.group(2)] = lerr.get(m.group(2), 0) + 1
+        seen = re.findall(r"\(seen (\d+) times\) lua error at run time: can't find '(\w+)'", el)
+        for n, name in seen:
+            lerr[name] = lerr.get(name, 0) + int(n)
+        print("lua: %d unbound name(s) called by a script this run%s" % (len(lerr), "" if not lerr else " (a June script calls a function March never bound; the calling function stopped at that line; tools/luabind.py check <script>):"))
+        for name, n in sorted(lerr.items(), key=lambda kv: -kv[1])[:20]:
+            print("   %-40s x%d" % (name, n))
     srv = texts.get("server", "")
     census = [l for l in srv.splitlines() if "CENSUS" in l]
     if census:
