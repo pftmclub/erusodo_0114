@@ -1763,6 +1763,23 @@ The one unmapped callee CH0 left for CH2b, `32009180` (`ch0_unmapped_identified.
 **Branches not ported:** the 14 non-Eve callers belong to their own characters' ports (Stage 7 / 8 checklists); the funcmap row names them. Nothing drifted.
 User owes nothing (no play-test: nothing calls it yet). Next: `/x2-phase char-eve CH2b0 review` (Opus 5.5 high).
 
+### CH2b0 - Review (2026-10-27, Opus 5.5): PASS after one transcription fix (HP NaN sense)
+
+The whole listing `@32009180-3200977d` (RET 0x20) was read in Ghidra and compared with `CX2GUUser::JuneCollectEnemyUnitsInCone` line by line.
+- **Arguments:** out `+0xa0`, max distance `+0xa8`, min / max angle `+0xac` / `+0xb0`, facing byte `+0xb4` (`== 1`), cone `+0xb8`, invincible byte `+0xbc`. `+0xa4` is never read (JUNE_BUGS 450 real).
+- **Skip order:** NULL, `322ccf50` IsValidUnit, equal team (`+0x278` decrypt), vslot 0x174 `== 4`, gage `+0xc04` / HP gage `+0x20`, vslot 0x180 GetInvincible called before the `+0xbc` test. All match.
+- **Fix: the HP test.** `fldz / fcomp hp / test ah,1 / jz skip` (`@320092d7-320092f0`) keeps the unit when C0 is set, i.e. `0 < HP` **or unordered**. A NaN HP is kept. The port's `false == ( 0.f < HP )` dropped it. It is now `GetNowHp() <= 0.f`, the same as the twin C3c. The Done note's "a NaN refuses" was wrong; the funcmap row is corrected.
+- **Aim / facing / NPC size:** target vslot 0x3e4 ( out, my vslot 0x138( 0 ), L"" ); `32293b80` vs vslot 0x170; NPC `+0x264 == 1`, templet `+0x85f8 +4 != 0` skips, else ( `+0x3e34` + `+0x3e30` ) x 0.25. All match.
+- **Pitch band:** `@3200945b` skips `z < min`, `@32009471` skips `max < z`, and a NaN passes both. Match.
+- **Yaw cone:** the target yaw `< 0` (`test ah,5 / jp`: NaN and `>= 0` kept as is) becomes 360 - |y|, and vslot 0x150 `.y` gets the same; gap = |target - mine|. The gap wraps when `> 180` (`test ah,0x41 / jnz`). It skips on `gap < -h` (`@3200953f`) or `h < gap` (`@32009548`) with h = cone x 0.5. `charport_consts.py --fn 32009180` gives qwords 0.25 / 0.0 / 360.0 / 180.0 / 0.5. Match.
+- **Distance:** the x87 order is ( x*x + y*y ) + z*z, stored to a float, then `32fe2370` sqrt minus the NPC size. `test ah,0x41 / jp` keeps `<` and `==`, and refuses a NaN. Match. The sort `322acc40` = `std::_Sort` (`std::sort`), then the units are copied out. Match.
+- **Home:** the address range is the user class; `friend class CX2GUUser` in `CEffect` is under the flag. OK.
+- **Caller spot-check:** Faena `@329c43f1-329c447d` pushes ( &vec, 1, SA 0x1f, -SA 0x9f, SA 0x9e, 1, 180.0 `[3344d398]`, 0 ), as the CH2b kickoff says. No kickoff change.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GUUser.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`. It shows 1 deleted line: CH2b0's own HP line, which was replaced inside the flag's block. `RESULT: PASS`. `enumscan --check X2Lib/X2GUUser.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,107,904 B, dated 2026-10-27 17:02:57, md5 f7ef19b0d5186a975b3dcd44d159d5fe, equal to X2/US_SERVICE/x2.exe (2026-10-27 17:02:49); built at main 1dd00598 + 1 uncommitted code file(s).
+User owes nothing (the collector stays inert until CH2b). Next: `/x2-phase char-eve CH2b` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

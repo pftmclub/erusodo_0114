@@ -25960,7 +25960,7 @@ void CX2GUUser::JuneCollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecU
 			continue;
 		if ( GUSI_DIE == pUnit->GetGameUnitState() )
 			continue;
-		if ( false == ( 0.f < pUnit->GetNowHp() ) )
+		if ( pUnit->GetNowHp() <= 0.f )	// @320092ed test ah,1: a NaN HP is kept
 			continue;
 		if ( true == pUnit->GetInvincible() && true == bSkipInvincible_ )
 			continue;
