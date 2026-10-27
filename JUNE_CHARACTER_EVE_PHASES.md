@@ -1713,6 +1713,32 @@ Read against the listing / raw disassembly, not the Done note's claims.
 - `big` stayed 0: `m_fJuneElectronBallBigRate` is set by passive 25407 (CH4).
 - ErrorLog 0 matching lines, 0 EXCEPTION, only the known `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
 
+### CH2a3 - Review (2026-10-27, Opus 5.5): PASS, no transcription fix; `_SKILL_DEBUG` retired
+
+Checked against the raw listing `329b1e20-329b2e0f` (`charport_adis.py`), with stack offsets traced through each call, not against the Done note.
+- **Registration** (`329c8a00 @329c9225-329c92e9`): table names `334d4310` / `334d42e8` = `ENSI_SI_A_EN_MEGA_ELECTRONBALL` / `_HYPER` (`ch0_skill.tsv:59`). Both records store the same seven thunks at `+0x18` / `+0x20` / `+0x28` / `+0x30` / `+0x38` / `+0x48` / `+0x50`, which resolve to `32966910` / `32966960` / `3296f9a0` / `3296fa90` / `329b1e20` / `3297cba0` / `32966990`, the port's slots and cites. Cases 25207 / 25219.
+- **Gate:** the inlined `EventTimerOneshot` prelude (`+0x24c` < t) is March's `m_fAnimOneshotTimer < t && EventTimer( t )`. The 0.48 s shot needs `+0x978d == 1`. When `GetUnit()` is null the code jumps to `@329b2df1`, past `CommonFrameMove`.
+- **MP:** the templet vector `+0x130` is indexed at level - 1 (0 when out of range) = `GetSkillMPConsumptionValue`. GetSkillLevel is called as `( 25207, 0, 0, 1 )` and floored at 1.
+  - `0.3 < +0x214` (`m_fAnimCurrTime`) zeroes the cost. Then class 19 / 109 (the templet null-check is June's; March `GetClass` has none, and the templet always exists), memo, BBT 63, the `32358970` factor, in June's order.
+  - `FlushMp( mp, 0 )`: March's one-argument form. On failure, `32007d80` at `Dummy2_Lhand` with 0 / 0 / 0, checked in Ghidra.
+- **Rank** `+0x9788 - 2`: x1.25 / x1.125 and x1.5 / x1.25 on size (`0x20`) and range (`0x1f`). MP and power do not scale.
+- **Open Mind:** `31fceab0( 25419 ) > 0`, then the factor 0 / 1 / 3 (`June_GetFormationFactor`). `32007b10( 66, 25419 )` x mp x factor goes to `32278070`. `32007b10` was checked in Ghidra (default 1.0).
+- **Upgrade proc:** `32007c40( 5, now skill, 1, &f )`, checked in Ghidra: GetUserSkillTemplet( id, swap ) and IsPvpOrPve. The `fcompp` with `test ah, 1` gives `+0x978d = ( f >= rand )`, which is the port's `GetRandomFloat( 0 ) <= fRate`. A false return leaves the byte as it was.
+- **Balls:** power = `+0x97c0` x `GetPowerRate`.
+  - The BIG roll is `+0x97bc > GetRandomFloat( 29 )` for the main ball and `( size + 29 )` for each watch ball.
+  - CreateInstance's tail is ( landY, 0, -1.0, `+0x97c4`, `+0x97ac` x range, -1, -1.0, 0, -1.0, 0, 0 ), which equals March's defaults.
+  - The watch ball sits at the NPC's vslot 0x138 position + 150 y, with the NPC's rotation and the land y from vslot 0x134. Its power arg is the PvP-scaled one.
+  - SetScale goes on `vector.back()`, unchecked.
+  - Every ball gets `+0xacd = 1` and `_Filtered` x4. The sound is `( name, true, false )`.
+  - JUNE_BUGS 449 is real: the watch lights are at `esp+0x50`, the hand point.
+- **Enums / offsets** (by count, with tsv / header cites): 25207 / 25219 / 25419; SA 5 / 31 / 32 / 66; BBT 63; CR_RANK 2 / 3; UC 19 / 109; the `+0x97ac..+0x97c4`, `+0x99a8`, `+0x97e4` members; SkillTemplet `+0x178`; particle `+0x3e0` / `+0x404`.
+- **Note, no change:** the constructor note above ("`+0x97ac` ... June-only with no known role") is stale. CH1d / CH4a map `+0x97ac` to `m_fElectronBallRangeRate`, and its June ctor value 0 vs March's 1.0 stand-in belongs to CH4a's `3297f290` writer.
+
+**Retired** `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG`: the `Always.h` block and both log blocks are gone (17 lines; nothing else names the flag).
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; 17 deleted lines = the retired debug lines; `RESULT: PASS`. `--range a5fa41d4^..HEAD`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,104,832 B, dated 2026-10-27 16:36:53, md5 21c41e26d434f159ef145f1efdffa7c4, equal to X2/US_SERVICE/x2.exe (2026-10-27 16:36:46); built at main 22734bd4 + 2 uncommitted code file(s). The string `EVE SKILL MEGA` is not in the exe any more.
+User owes nothing: the `EVE SKILL MEGA` lines no longer print, and the play-test already passed. Next: `/x2-phase char-eve CH2b0` (Opus 5.5 high); the kickoff is in place.
+
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 

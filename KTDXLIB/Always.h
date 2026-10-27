@@ -10257,12 +10257,3 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE, SERV_IRUHADEV_JUNE_SKILL_NUMERICAL and SERV_IRUHADEV_JUNE_BUFF_BINDING
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 //////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-27
-// Description: June char-eve CH2a3 - temporary: one [JUNE_CHAR] EVE SKILL MEGA line per Mega Electronball shot ( June 329b1e20 ) in offline_server.log. Retired in the CH2a3 review. Revert: undefine.
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-#define SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-//////////////////////////////////////////////////////////////////////////

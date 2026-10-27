@@ -52893,19 +52893,11 @@ void CX2GUEve::June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove()
 			}
 
 			PlaySound( L"Eve_FireShot1.ogg" );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL MEGA shot at %.2f s ( skill %d, rank %d, mp %.2f, scale %.3f, range %.3f, big %d, watches %d, second ball armed %d )",
-				m_pXSkinAnim->GetNowAnimationTime(), static_cast<int>( GetNowStateSkillID() ), static_cast<int>( m_sMegaElectronBallData.m_ChargeRank ), fMpConsume, fScale, fRange,
-				true == bBig ? 1 : 0, static_cast<int>( vecNPC.size() ), true == m_sMegaElectronBallData.m_bJune15 ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 		}
 		else
 		{
 			const D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
 			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL MEGA not enough MP ( need %.2f, rank %d )", fMpConsume, static_cast<int>( m_sMegaElectronBallData.m_ChargeRank ) );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 		}
 	}
 
