@@ -129,6 +129,7 @@ no Eve ENUM or KEYS line. (Run `charport_scan.py` with a short scratch dir: a lo
 | CH1q | Nasod Core (decision 1) | Opus high, Opus review | CH1p review |
 | CH1 | Final: define `_LIVE`, adopt the script, play-test | Opus high, Opus review, user play-test | CH1q review (and CH0b) |
 | CH2a-CH2c2 | Skills: Nasod + first jobs (5, 18, 19, 26; CH0 split CH2a / CH2c) | Sonnet high, Opus review, user play-test | CH1 review |
+| CH2b2 | How June spawns a summon: one NPC per owner or many (raised by the CH2b play-test: repeated Surface Cuting leaves several Oberons) | Opus high, Opus review, user play-test | CH2b play-test 2 |
 | CH3a-CH3d | Skills: second jobs (108, 109, 116), hyper actives, transcendence rows | Sonnet high, Opus review, user play-test | CH2 reviews |
 | CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds, before the Sonnet phase that needs it (e.g. `CH2b0`) | Opus high, Opus review | as its phase |
 | CH4a-CH4c | Passives; damage exception + overrides; El Crystal / recovery HUD and tree-UI pieces | Opus high, Opus review, user play-test | CH2 reviews |
@@ -1806,6 +1807,14 @@ Architecture's twelve skill ids take June's `329c8a00` cases and state bodies (f
 - **Faena crashed** ( access violation in `vector<float>::push_back` under `BUFF_FACTOR( rhs, level )` from `GetClonePtr`, resolved from the crash bundle ): the second target's level was the previous clone's address ( JUNE_BUGS 451 ). The level is no longer clobbered; the skill-id register is, as before. JUNE_BUGS 451 now reads "partly kept".
 - The `_DEBUG` Surface Cuting / Oberon Guard lines also print whether the Oberon / guard buff is on.
 **Deploy ( fix ):** DEPLOY OK: X2_offline.exe is 26,119,168 B, dated 2026-10-27 17:52:09, md5 dac69b50ac758e77b87969f98f654ade, equal to X2/US_SERVICE/x2.exe ( 17:52:02 ); built at main e0f9580d + 1 uncommitted code file.
+
+## Phase CH2b2 - How June spawns a summon (added 2026-10-27, Opus)
+
+Raised by the CH2b play-test 2: repeated Surface Cuting casts leave up to 4 Oberons alive; the user expects one summon per owner and NPC type and asks whether
+that is a rule of June's NPC spawn path rather than of the skill. **Run with:** `/x2-phase char-eve CH2b2` (Opus 5.5 high). **Read:** `kickoffs/char-eve/CH2b2.md`.
+Scope: June's create-NPC chain (`3299b810` -> `31f8b010` -> `322e67c0`), the receive side and March's offline stand-in, NPC-side caps / replace keys, and a census of
+every June user-side `CreateNPCReq` caller. **Done gate:** the rule (or its absence) proven with June addresses; a flagged port or stand-in with a play-test hand-off, or a
+recorded "June allows many". Related: JUNE_BUGS 449 / 451, `June_ClearGuardAndSummon`, `June_SetSelfDestructSummonedNPC`.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
