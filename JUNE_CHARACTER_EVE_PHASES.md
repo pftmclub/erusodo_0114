@@ -1388,6 +1388,25 @@ CH1o's seven split slots each have a June base and a March call site; Eve overri
 
 **JUNE_BUGS:** no row. **In game:** nothing to test (LIVE undefined; the Fessel Heilig rule needs a June debuff source). Review: `kickoffs/char-eve/CH1o2-review.md` (Opus 5.5 high).
 
+### CH1o2 - Review (2026-10-27)
+
+**Verdict: PASS, no change.** Fresh capstone listings of every cited range, plus the ten slots read from all 13 RTTI user vtables (`.rdata` refs to the shared `3203cf60` at `+0x69c`).
+- **Bases.** `33108560` = `ret 0xc` (3 args: 0x3ac / 0x3b0 DD, &phys, &magic; 0x56c id, name&, key&). `31fc8070` = `!arg->HaveThisBuff( 0x3d8 )`: the argument (`[esp+4]`), not `this`; 0x3d8 = 984 = `BTI_DEBUFF_FESSEL_HEILIG`. `322b5520` = `fldz; ret 4`. `3208e190` = `fld [esp+4]; ret 8`. `32001660` = Eve's `3298c580` apart from the cookie and when `GetPos` is copied; both are March's `CallSummonedNPC` (gage-less passes, `NUI_NONE` = 0 = any).
+- **GetFinalDamage** @322857fb: `[DD+8] - 1 == 0` (AT_SPECIAL = 1) -> 0x3b0, else 0x3ac, args (DD, &[0x4c] phys, &[0x50] magic), after the fury scale and `32622780`; March has the same order (fury, `JuneApplyDivideDamageFromRange`, hook). Keeping March's AT_NORMAL 4-arg call is right: only Ara (`X2GUAra.h:663`) and Eve override it in March, Eve's is empty under LIVE, and Ara's moves at her port (§7ap).
+- **Icon.** `328e18d0` passes the protected id from `3288fe00( slot, B )`, the value it also stores to `this+0xc` (= `m_eSkillID`, the slot's own id, not `323511f0`'s). Name / key are copies of templet `+0x50` / `+0x6c`, the same strings `SetItemTex` (`31cd0850` @328e1c93) takes. The gates are June's: g_pData, `+0x2cc`, `3214f050`, the g_pX2Game handle, game vslot 0x98; a failed gate skips to `@328e0eed`. The `+0x130` / `+0x138` / `+0x139` blocks sit before the tail (CH4c / §7aj).
+- **Rally.** `32f10e60`'s order is ally null / die (vslot 0x174 == 4) / HP > 0 / master / class type / `+0x8e84` == 2 / id 0x401, then `32f0e260`, then `+0x88` / `+0x84` = March's insert point. `32f0e260`: ally `+0x264 == 0` (GUT_USER) -> ally vslot 0x584( master `+0x30` ), else `mov al, 1`.
+- **NPC crit** `3275a820` (`ret 8`): protected `+0x4d48` (= `GetCriticalRate()`, March's own first term) + `fExtraCritical` + owner `+0x8d5c` vslot 0x65c( this ), with no type test. March's owner is a `CX2GUUser` (`SetOwnerGameUnit` callers `X2Game.cpp:7719/7727`), so the GUT_USER test is a guard only.
+- **Cool time** `322e07e0`: vslot 0x6a8( protected cool `+0x24`, id `+0`) @322e132c, compared `> [0x3342e84c]` (= 0.0), then `bShowCoolTime`; the text reads it again @322e1442, then `ceil` / ftol. March already uses `GetMyUnit()` unchecked in that `else if` chain.
+- **Eve wiring.** The five overrides forward every argument; the 4-arg override is empty under LIVE (`BALANCE_CODE_NEMESIS_20121213` defined, `Always.h:2138`); `CallSummonedNPC` -> `June_CallSummonedNPC`. 0x7b0: `3202c360`'s four calls pass `push 0` @3202c530 / @3202c648 / decompile 397, 402, or `IsPvpOrPve()` (413). `322cc1a0` is type 1 or 4. March's `GAME_TYPE` stops at GT_BATTLE_FIELD, and `GT_PVE` = 4 is only a registered name that nothing sets, so index 0 is exact offline.
+- **Routing.** The vtables match §7ap exactly: 0x3ac Eve / Ara; 0x3b0 Ain; 0x56c Eve / Ain / Rose / Luciel; 0x6a8 those plus Ara / Chung / Lire; 0x584 / 0x65c / 0x6ac / 0x7b0 / 0x77c Eve only. Every class has its own 0x828 (Stage 9 idle timer, no hook here). The CH4c amendment, the backlog `+0x944c` bullet and the accelerator-aura note are present. `kickoffs/char-eve/CH1p.md` still matches.
+
+**Hygiene** (`--range 759fb289^..759fb289`):
+- five engine flags: `RESULT: PASS`, 0 deleted, 0 encoding changes (`ICON_OVERRIDE` 1 PASS~);
+- `JUNE_CHAR_EVE_LIVE`: 10 OTHER, 0 deleted, only the by-design "not #defined" FAIL;
+- `JUNE_CHAR_EVE_CORE`: `1 PASS, 9 OTHER`, 5 deleted = the five `June_Vslot*` renames in `X2GuEve.h`, `RESULT: PASS`.
+
+`enumscan --check` (9 files): 2 A/B rows, `X2GUUser.h:2537-2538` (older). `/Zs` of the 7 `.cpp`: 0 errors with LIVE undefined and with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`. No rebuild (no change).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
