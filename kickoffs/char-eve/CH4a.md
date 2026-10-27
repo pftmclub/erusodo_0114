@@ -44,3 +44,8 @@ Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their ob
 
 - `AttackManeuverCore` (`329ac4a0 @329aca06-329aca3d`) has one June branch CH1q left as a comment: `m_fJune9c00` ( `+0x9c00` ) x `m_iManeuverCoreLv` > 0 and `m_pUnit` -> `32894e40( f, false )` on the unit's `CX2UserSkillTree` ( `+0x494` ). `32894e40` (funcmap row, CH1q) is June-only: both bars, the force / ignore lists and type 12 / 13 filter of its sibling `32893e00` ( `ReduceLeftSkillCoolTimeByRateJune` ), left > 0 -> rate ? left x f : max( 0, left - f ), then it clears the reset lists. Port it whole as a `CX2UserSkillTree` member and make the call live in the same phase that fills `+0x9c00` ( the comment line sits after the Queen of Vengeance MP block, under `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE` ).
 - `+0x9bfc` ( Queen of Vengeance MP per core level ) is already read there ( `UpNowMp` + `MP+ %d` text ); filling it is enough.
+
+## Amended by CH2a (2026-10-27)
+
+- `3297f290 @3297f73a` writes `m_fJune4070` (ability `SA_EFFECTIVE_TIME` of Grace of Queen 25408 `RNSI_P_ECE_GRACE_OF_QUEEN`, 0 when absent; `@3297f722` writes `+0x406c` from ability `0x33`). The member exists since CH2a (`CX2GUEve::m_fJune4070`, default 0) and is read by Dimension Link's FrameMove (`32989b60`: sentry time `+0x9c4c` x 20 / 60 + it) and by `3299b914` / `3299bb74` (Electronic Field, CH3b). Write it here.
+

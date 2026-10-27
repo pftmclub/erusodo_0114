@@ -1788,6 +1788,16 @@ public:
 		RNSI_HA_ECB_PSYCHIC_ARTILLERRY_UPGRADE                = 25605,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)
+		RNSI_SA_EVE_ILLUSION_STINGER                          = 25001,
+		RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN                   = 25002,
+		RNSI_SA_EVE_ILLUSION_STINGER_UPGRADE                  = 25031,
+		RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN_UPGRADE           = 25032,
+		RNSI_P_EEP_CHEAT_CODE_RULE_BREAK                      = 25418,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion ½ºÅ³
 	}; 
 

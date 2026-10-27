@@ -714,6 +714,12 @@ enum BUFF_FACTOR_ID
 	BFI_BUFF_QUEENS_CONTROL               = 812,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI name Dimension Link's FrameMove spells
+	BFI_BUFF_SENTRY                       = 439,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 

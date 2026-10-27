@@ -10247,3 +10247,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH1r - a user state's effect sets load as June's LoadEffectSetFromScript ( 32024ff0 ): EX_TRANS_1 / _2 / _NO_TRANS, ULTIMATE_EX( _APPLIED_SKILL ), EX_APPLIED_SKILL, FINAL / FINAL_ULTIMATE ( 32020ec0 / 3200b030 ), and a FINAL row's CONSUME_MP gates its play ( 32007570 ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH2a - Eve's Nasod skills take June's registration cases and state bodies in June_SetEquippedSkillFuncHead: Dimension Link 25000 / 25030, Illusion Stinger 25001 / 25031, Dimension Link Guardian 25002 / 25032, Photon Blink 25200 / 25213, Conversion 25203 / 25216 ( Mega Electronball 25207 / 25219 waits for CH2a3 ). Needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( the head ), SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ( numerical rows ) and SERV_IRUHADEV_JUNE_BUFF_BINDING ( time finalizer setter ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) || !defined( SERV_IRUHADEV_JUNE_BUFF_BINDING ) )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE, SERV_IRUHADEV_JUNE_SKILL_NUMERICAL and SERV_IRUHADEV_JUNE_BUFF_BINDING
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+//////////////////////////////////////////////////////////////////////////

@@ -44874,6 +44874,9 @@ void CX2GUEve::June_ConstructorInit()
 	m_bJune9c54						= false;
 	m_fJune9c58						= 0.f;
 	m_fJune9c5c						= 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	m_fJune4070						= 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	m_iJuneAddAirDashCount			= 0;
 	m_fJuneCodeRecoveryCoolLeft		= 0.f;
 	m_fJuneCodeRecoveryCoolTime		= 99.f;
@@ -51569,6 +51572,19 @@ void CX2GUEve::June_InitState()
 //}} Iruha : 2026-10-26 // June character Eve Phase CH1m
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH2a ( JUNE_CHARACTER_EVE_PHASES.md )
+namespace _CONST_EVE_JUNE_CH2A_
+{
+	/// [JUNE_CHAR] EVE SKILL: one line per registered CH2a skill ( offline_server.log )
+	void June_LogEveSkill( const WCHAR* pwszName_, const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
+	{
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL registered %s ( skill %d, slot %d%s )", pwszName_, static_cast<int>( eSkillID_ ), iSlotIndex_, true == bSlotB_ ? L" B" : L" A" );
+	}
+}
+using namespace _CONST_EVE_JUNE_CH2A_;
+//}} Iruha : 2026-10-27 // June character Eve Phase CH2a
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH1n ( JUNE_CHARACTER_EVE_PHASES.md )
 // June 329c8a00 up to its skill switch: true when the skill case is still to be registered ( March's cases until CH2-CH3 )
@@ -51733,6 +51749,95 @@ bool CX2GUEve::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkil
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 				} return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+			case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY:
+			case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_SI1_DIMENSION_LINK", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_SI1_DIMENSION_LINK_Init );			/// June 329664f0 = March
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI1_DIMENSION_LINK_FrameMove );	/// June 32989b60
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_SI1_DIMENSION_LINK_EventProcess );	/// June 3296f020 = March
+
+					m_LuaManager.MakeTableReference( "ENSI_SI1_DIMENSION_LINK_HYPER", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					June_LogEveSkill( L"ENSI_SI1_DIMENSION_LINK", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
+			case CX2SkillTree::RNSI_SA_EVE_ILLUSION_STINGER:
+			case CX2SkillTree::RNSI_SA_EVE_ILLUSION_STINGER_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_SI2_ILLUSION_STINGER", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI2_ILLUSION_STINGER_Init );		/// June 329663c0
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_SI2_ILLUSION_STINGER_Start );			/// June 32978050 = March
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUEve, ENSI_SI2_ILLUSION_STINGER_End );			/// June 32978080 = March
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_SI2_ILLUSION_STINGER_EventProcess );	/// June 3296ef60 = March; FrameMove 32966440 is CommonFrameMove, left empty
+
+					m_LuaManager.MakeTableReference( "ENSI_SI2_ILLUSION_STINGER", hyperStateData.stateID );	/// June names the normal table for the hyper state too
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					June_LogEveSkill( L"ENSI_SI2_ILLUSION_STINGER", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
+			case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN:
+			case CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_GUARDIAN_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_SI3_DIMENSION_LINK_GUARDIAN", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init );			/// June 329665b0
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_FrameMove );	/// June 3298b9b0
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );			/// June 3296f0e0 ( Eve's inline copy )
+
+					m_LuaManager.MakeTableReference( "ENSI_SI3_DIMENSION_LINK_GUARDIAN", hyperStateData.stateID );	/// June names the normal table for the hyper state too
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					June_LogEveSkill( L"ENSI_SI3_DIMENSION_LINK_GUARDIAN", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
+			case CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK:
+			case CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_A_EVE_PHOTON_BLINK", normalStateData.stateID );
+					normalStateData.StateInit			= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_Init );					/// June 329674d0 = March ( empty )
+					normalStateData.StateStart			= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EVE_PHOTON_BLINK_Start );				/// June 32973150
+					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_StartFuture );				/// June 329674e0 = March
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_EventProcess );			/// June 329732b0 = March
+					normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_FrameMoveFuture );			/// June 32973220 = March
+					normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EVE_PHOTON_BLINK_FrameMove );			/// June 32993020
+					normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_EndFuture );				/// June 32973310 = March
+					normalStateData.StateEnd			= SET_CB_FUNC( CX2GUEve, ENSI_A_EVE_PHOTON_BLINK_End );						/// June 32973370 = March
+
+					m_LuaManager.MakeTableReference( "ENSI_A_EVE_PHOTON_BLINK", hyperStateData.stateID );
+					hyperStateData.StateStart			= normalStateData.StateStart;
+					hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+					hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+					hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+					hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+					hyperStateData.StateEndFuture		= normalStateData.StateEndFuture;
+					hyperStateData.StateEnd				= normalStateData.StateEnd;
+					June_LogEveSkill( L"ENSI_A_EVE_PHOTON_BLINK", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
+			case CX2SkillTree::RNSI_A_EVE_CONVERSION:
+			case CX2SkillTree::RNSI_A_EVE_CONVERSION_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_SI_A_EN_CONVERSION", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_CONVERSION_Init );					/// June 32966900 = March ( empty )
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EN_CONVERSION_Start );			/// June 329780b0
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_CONVERSION_EventProcess );			/// June 3296f8c0 = March
+
+					m_LuaManager.MakeTableReference( "ENSI_SI_A_EN_CONVERSION_HYPER", hyperStateData.stateID );
+					hyperStateData.StateInit		= normalStateData.StateInit;
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					/// June 329c8a00 @329c9a64: the HP rate and the MP gain come from the numerical rows, read at the slot's registration
+					m_fJune9c58 = static_cast<float>( static_cast<double>( June_GetSkillNumericalByName( L"HP_Consume", eSkillID_, true ) ) * 0.01 );
+					m_fJune9c5c = June_GetSkillNumericalByName( L"MP_Gain", eSkillID_, true );
+					June_LogEveSkill( L"ENSI_SI_A_EN_CONVERSION", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 			default:
 				break;
 			}
@@ -51777,6 +51882,380 @@ void CX2GUEve::June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, Use
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH1n
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH2a ( JUNE_CHARACTER_EVE_PHASES.md )
+// June 32007910 ( CX2GUUser, name / skill / upgrade swap ): the numerical row at the learned level x its PvP rate in PvP or PvE; 1.0 with no tree, unit, level or templet
+float CX2GUEve::June_GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.f;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ );
+	if( true == bUpgradeSwap_ )
+		eSkillID = userSkillTree.GetUpgradeSwappedSkillID( eSkillID );
+
+	const int iSkillLevel = userSkillTree.GetSkillLevel( eSkillID, false, 0, true );
+	if( iSkillLevel <= 0 )
+		return 1.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+	if( NULL == pSkillTemplet )
+		return 1.f;
+
+	CX2SkillTree::SkillTemplet::JuneNumericalRow kRow;
+	pSkillTemplet->JuneGetNumericalRowByName( pwszName_, iSkillLevel, kRow );
+
+	const bool bPvpOrPve = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+	return kRow.m_fValue * ( true == bPvpOrPve ? kRow.m_fPvpRate : 1.f );
+}
+
+// June 329663c0
+void CX2GUEve::June_ENSI_SI2_ILLUSION_STINGER_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+	XSkinMeshReadyInBackground( L"EVE_IllusionStingerDummy01.X" );
+	XSkinMeshReadyInBackground( L"Eve_Sp2a_IllusionStinger_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"Eve_Sp2a_IllusionStinger_Mesh02.X" );
+	TextureReadyInBackground( L"RRF_Trace_Gray001.dds" );
+	TextureReadyInBackground( L"star2.dds" );
+}
+
+// June 329665b0
+void CX2GUEve::June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init()
+{
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	XSkinMeshReadyInBackground( L"BREAKING_FIST_Attack_Box.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	XSkinMeshReadyInBackground( L"Motion_Nasod_Element_Fire_Eve.X" );
+	TextureReadyInBackground( L"star2.dds" );
+}
+
+// June 3298b9b0: the guardian's effect set plays at the start, scaled by the summon attack rate ( +0x4064 ); the particles and the NPC are in the script
+void CX2GUEve::June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		m_aiJune9c30[0] = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_EVE_DemensionLinkGuardian", this, NULL, false, GetPowerRate() * GetStatAtkRateOfSummoned() ).GetValue();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32989b60
+void CX2GUEve::June_ENSI_SI1_DIMENSION_LINK_FrameMove()
+{
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 0 );	/// June 3297b840 ( CH2a2 owns its body )
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += GetDirVector() * -110.f;
+		}
+		else
+		{
+			vPos -= GetDirVector() * -110.f;
+		}
+
+		vPos.y += 110.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_Sp1a_Spinliner01", vPos );
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vRotDegree1 = GetRotateDegree();
+			D3DXVECTOR3 vRotDegree2 = GetRotateDegree();
+			vRotDegree1 += D3DXVECTOR3( -180, 20, 90 );
+			vRotDegree2 += D3DXVECTOR3( 180, 20, 90 );
+
+			CKTDGParticleSystem::CParticleEvent_Rotate* pEventRotate = new CKTDGParticleSystem::CParticleEvent_Rotate();
+			pEventRotate->SetActualTime( CMinMax<float>( 0.f, 0.f ) );
+			pEventRotate->SetRotate( CMinMax<D3DXVECTOR3>( vRotDegree1, vRotDegree2 ) );
+
+			pSeq->m_EventList.push_back( pEventRotate );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += GetDirVector() * -100.f;
+		}
+		else
+		{
+			vPos -= GetDirVector() * -100.f;
+		}
+		vPos.y += 110.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_Sp1a_Magicsquare01", vPos );
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vRotateDegree = GetRotateDegree();
+			vRotateDegree += D3DXVECTOR3( 0, -70, -45 );
+
+			pSeq->SetAddRotate( vRotateDegree );
+			pSeq->SetAxisAngle( vRotateDegree );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+
+		vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += GetDirVector() * 90.f;
+		}
+		else
+		{
+			vPos -= GetDirVector() * 90.f;
+		}
+		vPos.y += 110.f;
+
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Eve_Sp1a_PinLight01", vPos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( GetRotateDegree() );
+			pSeq->SetAxisAngle( GetRotateDegree() );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+
+		/// June has no host test and no self-destruct of the earlier sentry: the sentry is made where the user stands, on the ground
+		vPos = GetPos();
+		int iNewLineIndex = m_FrameDataNow.syncData.lastTouchLineIndex;
+		if( NULL != g_pX2Game->GetLineMap() )
+		{
+			const D3DXVECTOR3 vNewPos = g_pX2Game->GetLineMap()->GetLandPosition( vPos, LINE_RADIUS, &iNewLineIndex );
+			if( -1 != iNewLineIndex )
+			{
+				vPos.x = vNewPos.x;
+				vPos.y = max( vPos.y, vNewPos.y );
+				vPos.z = vNewPos.z;
+			}
+		}
+
+		const int iHyperMode = ( true == IsHyperState() ) ? 1 : 0;	/// June +0x7cbc state data byte +0x10
+		if( true == IsMyUnit() )	/// June's gate ( vslot 0x198 ) is the first argument of CreateNPCReq
+		{
+			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_NASOD_WATCH_EVE, iHyperMode, true, vPos,
+				GetIsRight(), 0.f, true, 1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_CHANGESTAGE_REMAIN );	/// June key code 1 ( March: -1, the memo 1 )
+		}
+
+		/// the memo summon is now Rule Break's proc: the passive's effective rate against the user's random roll
+		if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0
+			&& GetRandomFloat( 0 ) < June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) )
+		{
+			if( true == IsMyUnit() )
+			{
+				g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO, iHyperMode, true, vPos,
+					GetIsRight(), 0.f, true, 1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_CHANGESTAGE_REMAIN );
+			}
+		}
+
+		/// the sentry's buff and its time ( 20 s, the upgrade 60 s, x +0x9c4c, + Grace of Queen's +0x4070 )
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY, true );
+		if( NULL != pSkillTemplet && NULL != GetUnit() )
+		{
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+			const int iSkillLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+			SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SENTRY, iSkillLevel, NULL, 0, false );
+
+			vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+			GetBuffFinalizerTempletPtrList( BTI_BUFF_SENTRY, vecFinalizerPtr );
+			if( false == vecFinalizerPtr.empty() )
+			{
+				CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( vecFinalizerPtr.front().get() );
+				if( NULL != pTimeFinalizer )
+				{
+					const double dSentryTime = ( CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY_UPGRADE == GetNowStateSkillID() ) ? 60.0 : 20.0;
+					pTimeFinalizer->SetDurationTime( static_cast<float>( m_fJune9c4c * dSentryTime + m_fJune4070 ) );
+				}
+			}
+			ChangeBuffFinalizerTempletPtrList( BTI_BUFF_SENTRY, vecFinalizerPtr );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 329780b0
+void CX2GUEve::June_ENSI_A_EN_CONVERSION_Start()
+{
+	CommonStateStart();
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EVE_CONVERSION, true );
+	if( NULL == pSkillTemplet )
+	{
+		StateChange( USI_WAIT );
+		return;
+	}
+
+	if( NULL == GetUnit() )
+		return;
+
+	float fHpConsume = GetMaxHp() * m_fJune9c58;	/// the HP rate was read at the slot's registration
+
+	bool bCheatCode = false;
+	if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 )
+	{
+		const float fRate = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC );
+		if( GetRandomFloat( 0 ) < fRate )
+		{
+			bCheatCode = true;
+			fHpConsume = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * fHpConsume;
+		}
+	}
+
+	if( 0.f < m_fJuneVengeanceMpRate )
+		UpNowMp( GetMaxMp() * m_fJuneVengeanceMpRate * m_fJune9c58 );
+
+	UpNowHp( -fHpConsume, 0.f );
+
+	float fMpGain = m_fJune9c5c;
+	if( true == bCheatCode )
+	{
+		fMpGain = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * fMpGain;
+		June_SetSkillBuffFactors( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC, 0, true );
+	}
+
+	UpNowMp( fMpGain );
+}
+
+// June 32973150
+void CX2GUEve::June_ENSI_A_EVE_PHOTON_BLINK_Start()
+{
+	CommonStateStart();
+
+	m_fPhotonBlinkBackSpeedX = 0.f;
+	m_fPhotonBlinkDummyLifeTime = 0.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK, true );
+	if( NULL != pSkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK, false, 0, true ) );
+		m_fPhotonBlinkBackSpeedX	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TELEPORT_RANGE_ABS, iSkillLevel, false );
+		m_fPhotonBlinkDummyLifeTime	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel, false );
+	}
+
+	m_fBlinkInvisibilityAlpha	= 1.f;
+	m_bBlinkInvisibility		= true;
+
+	SetAlphaObject( true );
+	m_RenderParam.bAlphaBlend = true;
+}
+
+// June 32993020
+void CX2GUEve::June_ENSI_A_EVE_PHOTON_BLINK_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		vector<CX2DamageEffect::CEffect*> vecDummyEffect;
+
+		const D3DXVECTOR3 vPos = GetPos();
+		vecDummyEffect.push_back( g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PHOTON_BLINK_DUMMY", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree() ) );
+
+		if( CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK_UPGRADE == GetNowStateSkillID() )
+		{
+			D3DXVECTOR3 vDummyPos = vPos;
+			if( true == GetIsRight() )
+			{
+				vDummyPos -= GetDirVector() * 75.f;
+			}
+			else
+			{
+				vDummyPos += GetDirVector() * 75.f;
+			}
+			vecDummyEffect.push_back( g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PHOTON_BLINK_DUMMY_REAL", GetPowerRate(), vDummyPos, GetRotateDegree(), GetRotateDegree() ) );
+
+			vDummyPos = vPos;
+			if( true == GetIsRight() )
+			{
+				vDummyPos += GetDirVector() * 75.f;
+			}
+			else
+			{
+				vDummyPos -= GetDirVector() * 75.f;
+			}
+			vecDummyEffect.push_back( g_pX2Game->GetDamageEffect()->CreateInstance( this, L"EVE_PHOTON_BLINK_DUMMY_REAL", GetPowerRate(), vDummyPos, GetRotateDegree(), GetRotateDegree() ) );
+		}
+
+		/// June 31fdbf20: Check and Kill 1's memo row on the state's skill adds the dummy time to the effect's own, else it replaces it
+		const CX2GUUser::JuneSkillMemoEntry* pMemoEntry = GetJuneSkillMemoEntry( GetNowStateSkillID() );
+		const bool bAddTime = ( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemoEntry->m_iType );
+
+		for( size_t i = 0; i < vecDummyEffect.size(); ++i )
+		{
+			CX2DamageEffect::CEffect* pEffect = vecDummyEffect[i];
+			if( NULL == pEffect )
+				continue;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pEffect->GetMainEffect();
+			if( NULL == pMeshInstance )
+				continue;
+
+			pMeshInstance->SetMaxLifeTime( true == bAddTime ? pMeshInstance->GetMaxLifeTime() + m_fPhotonBlinkDummyLifeTime : m_fPhotonBlinkDummyLifeTime );
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.03f && m_pXSkinAnim->GetNowAnimationTime() < 0.3f )
+	{
+		m_fBlinkInvisibilityAlpha -= m_fElapsedTime * 10.f;
+		if( m_fBlinkInvisibilityAlpha < 0.f )
+			m_fBlinkInvisibilityAlpha = 0.f;
+	}
+	else if( m_pXSkinAnim->GetNowAnimationTime() > 0.3f && m_pXSkinAnim->GetNowAnimationTime() < 0.8f )
+	{
+		m_fBlinkInvisibilityAlpha += m_fElapsedTime * 5.f;
+		if( m_fBlinkInvisibilityAlpha > 1.f )
+			m_fBlinkInvisibilityAlpha = 1.f;
+	}
+
+	/// June 31fca9e0 ( GetEqippedSkillMemo ) is a stub that always answers false: BFI_BUFF_PHOTON_BLINK_MEMO is never applied, only the timer is consumed
+	m_pXSkinAnim->EventTimerOneshot( 0.59f );
+
+	CommonFrameMove();
+}
+
+// June 32966910 ( registered by CH2a3 )
+void CX2GUEve::June_ENSI_A_EN_MEGA_ELECTRONBALL_Init()
+{
+	XMeshReadyInBackground( L"ADD_MM_Effect_Color01.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"SA_AEM_CHAIN_LIGHTNING_P01.X" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"eve_thousandsOfStars_gearLight.dds" );
+}
+
+// June 3296f9a0 ( registered by CH2a3 ): March's charge rank pick, then +0x99a8 = 0 and June's +0x15 cleared
+void CX2GUEve::June_ENSI_A_EN_MEGA_ELECTRONBALL_Start()
+{
+	CommonStateStart();
+
+	const double dElapsed = m_sMegaElectronBallData.m_timerElapsedTime.elapsed();
+	if( m_sMegaElectronBallData.m_dMaxTime * 0.5 >= dElapsed )
+		m_sMegaElectronBallData.m_ChargeRank = CR_RANK_1;
+	else if( m_sMegaElectronBallData.m_dMaxTime >= dElapsed )
+		m_sMegaElectronBallData.m_ChargeRank = CR_RANK_2;
+	else
+		m_sMegaElectronBallData.m_ChargeRank = CR_RANK_3;
+
+	m_fPlaneZAngle = 0.f;
+	m_sMegaElectronBallData.m_bJune15 = false;
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH2a
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH1o
 namespace _CONST_EVE_JUNE_CH1o_

@@ -3085,6 +3085,9 @@ protected:
 	bool		m_bJune9c54;							/// June +0x9c54 ( set by the first trigger-44 hit, AttackResultByType )
 	float		m_fJune9c58;							/// June +0x9c58 ( 0 )
 	float		m_fJune9c5c;							/// June +0x9c5c ( 0 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	float		m_fJune4070;							/// June CX2GameUnit +0x4070 ( 0; Grace of Queen's SA_EFFECTIVE_TIME, written by InitPassiveSkillState 3297f290 @3297f73a, CH4a; Dimension Link adds it to the sentry time )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	float		m_fJuneCodeRecoveryCoolTime;			/// June +0x9c68 ( CODE_RECOVERY_COOL_TIME; constructor 99.0, INIT_COMPONENT default 30.0 )
 	float		m_fJuneCodeRecoveryUpHpRate;			/// June +0x9c70 ( CODE_RECOVERY_UP_HP_RATE; constructor 0, default 0.05 )
 	float		m_fJuneCodeRecoveryNoneSummonMpCostRate;	/// June +0x9c74 ( CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE; 1.0 )
@@ -3228,6 +3231,19 @@ protected:
 	/// June character port Phase CH1n: the skill-slot head; SetEquippedSkillFuncBySkillSlotIndex calls it only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	bool		June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 329c8a00 up to its skill switch
 	void		June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	/// June character port Phase CH2a: Eve's Nasod skill states; the registration cases are in June_SetEquippedSkillFuncHead
+	float		June_GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910 ( CX2GUUser )
+	void		June_ENSI_SI2_ILLUSION_STINGER_Init();			/// June 329663c0
+	void		June_ENSI_SI1_DIMENSION_LINK_FrameMove();		/// June 32989b60
+	void		June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init();	/// June 329665b0
+	void		June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_FrameMove();	/// June 3298b9b0
+	void		June_ENSI_A_EN_CONVERSION_Start();				/// June 329780b0
+	void		June_ENSI_A_EVE_PHOTON_BLINK_Start();			/// June 32973150
+	void		June_ENSI_A_EVE_PHOTON_BLINK_FrameMove();		/// June 32993020
+	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Init();		/// June 32966910 ( registered by CH2a3 )
+	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Start();		/// June 3296f9a0 ( registered by CH2a3 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides
 	virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
