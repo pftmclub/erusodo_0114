@@ -1512,6 +1512,13 @@ public:
 	#else //ADD_MEMO_1ST_CLASS
 		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager );
 	#endif //ADD_MEMO_1ST_CLASS
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+		void						JuneLoadEffectSetPairs( IN KLuaManager& luaManager_ );	/// June 32024ff0: the open list's name / time pairs
+		void						JuneLoadEffectSetTables( IN KLuaManager& luaManager_, IN const bool bPossibleNasodBarrier_ );	/// June 32024ff0: the open list's { name, time, conditions } rows
+		bool						JuneLoadEffectSetAppliedSkillTables( IN KLuaManager& luaManager_ );	/// June 32024ff0: the rows when APPLIED_SKILL_ID is learned
+		bool						JuneLoadEffectSetListFinal( IN KLuaManager& luaManager_, IN const char* pszListName_ );	/// June 32020ec0
+		void						JuneLoadEffectSetFinalEntries( IN KLuaManager& luaManager_, IN const char* pszPrefix_, IN const int iIndex_ );	/// June 3200b030
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
         void                        CommonFrameMove_EffectSet( float fNowAnimationTime );
 
 		//{{ kimhc // 2010.11.3 // 신스킬 작업

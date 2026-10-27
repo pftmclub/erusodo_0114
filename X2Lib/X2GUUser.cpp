@@ -46308,6 +46308,86 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 #endif //ADD_MEMO_1ST_CLASS
 {
 	m_vecEffectSetToPlay.resize(0);
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#error SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS needs SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE (bJuneUltimate_)
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+	// June 32024ff0 @3202505f: EFFECT_SET_LIST_MEMO with the memo byte when it exists, else EFFECT_SET_LIST
+	if( true == IsEqippedMemo_ && true == luaManager.BeginTable( "EFFECT_SET_LIST_MEMO" ) )
+	{
+		JuneLoadEffectSetPairs( luaManager );
+		luaManager.EndTable(); //EFFECT_SET_LIST_MEMO
+	}
+	else if( true == luaManager.BeginTable( "EFFECT_SET_LIST" ) )
+	{
+		JuneLoadEffectSetPairs( luaManager );
+		luaManager.EndTable(); //EFFECT_SET_LIST
+	}
+
+	// June @32025361: the transcendence list by the now-state skill's memo row ( 31fdbbb0 ), read for every state
+	const char* pszJuneTransListName = "EFFECT_SET_LIST_EX_NO_TRANS";
+	const JuneSkillMemoEntry* pJuneStateMemo = GetJuneSkillMemoEntry( static_cast<int>( GetNowStateSkillID() ) );
+	if( NULL != pJuneStateMemo && CX2SkillTree::MI_TRANSCENDENCE_1 == pJuneStateMemo->m_iType )
+		pszJuneTransListName = "EFFECT_SET_LIST_EX_TRANS_1";
+	else if( NULL != pJuneStateMemo && CX2SkillTree::MI_TRANSCENDENCE_2 == pJuneStateMemo->m_iType )
+		pszJuneTransListName = "EFFECT_SET_LIST_EX_TRANS_2";
+	if( true == luaManager.BeginTable( pszJuneTransListName ) )
+	{
+		JuneLoadEffectSetTables( luaManager, false );
+		luaManager.EndTable();
+	}
+
+	// June @3202576e
+	bool bJuneExMemoRead = false;
+	if( true == IsEqippedMemo_ && true == luaManager.BeginTable( "EFFECT_SET_LIST_EX_MEMO" ) )
+	{
+		JuneLoadEffectSetTables( luaManager, false );
+		luaManager.EndTable(); //EFFECT_SET_LIST_EX_MEMO
+		bJuneExMemoRead = true;
+	}
+
+	// June @32025acf-@320260f9: an upgraded state skill reads ULTIMATE_EX_APPLIED_SKILL, else ULTIMATE_EX; EX_APPLIED_SKILL unless the first loaded
+	bool bJuneUltimateRead = false;
+	bool bJuneAppliedSkillRead = false;
+	if( true == bJuneUltimate_ )
+	{
+		if( true == luaManager.BeginTable( "EFFECT_SET_LIST_ULTIMATE_EX_APPLIED_SKILL" ) )
+		{
+			if( true == JuneLoadEffectSetAppliedSkillTables( luaManager ) )
+			{
+				bJuneUltimateRead = true;
+				bJuneAppliedSkillRead = true;
+			}
+			luaManager.EndTable(); //EFFECT_SET_LIST_ULTIMATE_EX_APPLIED_SKILL
+		}
+		if( false == bJuneUltimateRead && true == luaManager.BeginTable( "EFFECT_SET_LIST_ULTIMATE_EX" ) )
+		{
+			JuneLoadEffectSetTables( luaManager, false );
+			luaManager.EndTable(); //EFFECT_SET_LIST_ULTIMATE_EX
+			bJuneUltimateRead = true;
+		}
+	}
+	if( false == bJuneAppliedSkillRead && true == luaManager.BeginTable( "EFFECT_SET_LIST_EX_APPLIED_SKILL" ) )
+	{
+		if( true == JuneLoadEffectSetAppliedSkillTables( luaManager ) )
+			bJuneAppliedSkillRead = true;
+		luaManager.EndTable(); //EFFECT_SET_LIST_EX_APPLIED_SKILL
+	}
+
+	// June @320264f8-@320266ca: EFFECT_SET_LIST_EX unless EX_MEMO ( memo byte ) or an ultimate / applied-skill list ( no memo ) loaded
+	bool bJunePossibleNasodBarrier = false;
+	LUA_GET_VALUE( m_LuaManager, "POSSIBLE_NASOD_BARRIER", bJunePossibleNasodBarrier, false );
+	const bool bJuneReadEx = ( true == IsEqippedMemo_ ) ? ( false == bJuneExMemoRead ) : ( false == bJuneUltimateRead && false == bJuneAppliedSkillRead );
+	if( true == bJuneReadEx && true == luaManager.BeginTable( "EFFECT_SET_LIST_EX" ) )
+	{
+		JuneLoadEffectSetTables( luaManager, bJunePossibleNasodBarrier );
+		luaManager.EndTable(); //EFFECT_SET_LIST_EX
+	}
+
+	// June @320268b1: FINAL_ULTIMATE for an upgraded state skill when it exists, else FINAL
+	if( false == bJuneUltimate_ || false == JuneLoadEffectSetListFinal( luaManager, "EFFECT_SET_LIST_FINAL_ULTIMATE" ) )
+		JuneLoadEffectSetListFinal( luaManager, "EFFECT_SET_LIST_FINAL" );
+#else SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 
 #ifndef ADD_MEMO_1ST_CLASS
 #ifdef ADDITIONAL_MEMO
@@ -46527,6 +46607,7 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 	}
 #endif // MODIFY_EFFECT_SET_DELETE
 
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_STATE_END",		m_bDeleteEffectSetOnStateEnd,		false );
 	LUA_GET_VALUE( m_LuaManager, "DELETE_EFFECT_SET_ON_DAMAGE_REACT",	m_bDeleteEffectSetOnDamageReact,	false );
 
@@ -46562,6 +46643,161 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+// June 32024ff0 @3202505f: name / time pairs of the open list, at most 50
+void CX2GUUser::JuneLoadEffectSetPairs( IN KLuaManager& luaManager_ )
+{
+	std::wstring wstrEffectSetName = L"";
+	float fStartAnimationTime = 0.f;
+
+	for( int iValueIndex = 1; iValueIndex < 100; iValueIndex += 2 )
+	{
+		if( false == luaManager_.GetValue( iValueIndex, wstrEffectSetName ) )
+			break;
+
+		if( false == luaManager_.GetValue( iValueIndex + 1, fStartAnimationTime ) )
+			break;
+
+		m_vecEffectSetToPlay.push_back( EffectSetToPlay( wstrEffectSetName, fStartAnimationTime ) );
+	}
+}
+
+// June 32024ff0 @3202541e: { name, time, conditions... } rows of the open list; an empty name stops with its row left open, as March
+void CX2GUUser::JuneLoadEffectSetTables( IN KLuaManager& luaManager_, IN const bool bPossibleNasodBarrier_ )
+{
+	std::wstring wstrEffectSetName = L"";
+	float fStartAnimationTime = 0.f;
+	vector<DELETE_CONDITION_EFFECT_SET> vecDeleteCondition;
+
+	int iTableIndex = 1;
+	while( true == luaManager_.BeginTable( iTableIndex++ ) )
+	{
+		LUA_GET_VALUE( luaManager_, 1, wstrEffectSetName, L"" );
+		if( L"" == wstrEffectSetName )
+			break;
+
+		LUA_GET_VALUE( luaManager_, 2, fStartAnimationTime, 0.f );
+
+		int iTableCount = 3;
+		UINT uiDeleteConditionType = 0;
+		vecDeleteCondition.clear();
+		while( true == luaManager_.GetValue( iTableCount, uiDeleteConditionType ) )
+		{
+			iTableCount++;
+			vecDeleteCondition.push_back( static_cast<CX2GameUnit::DELETE_CONDITION_EFFECT_SET>( uiDeleteConditionType ) );
+		}
+
+		luaManager_.EndTable();
+
+		EffectSetToPlay effectSetToPlay( wstrEffectSetName, fStartAnimationTime, vecDeleteCondition );
+		effectSetToPlay.m_bJunePossibleNasodBarrier = bPossibleNasodBarrier_;
+		m_vecEffectSetToPlay.push_back( effectSetToPlay );
+	}
+}
+
+// June 32024ff0 @32025b66: the rows load only when the list's APPLIED_SKILL_ID is non-zero and learned ( 31fceab0 > 0 )
+bool CX2GUUser::JuneLoadEffectSetAppliedSkillTables( IN KLuaManager& luaManager_ )
+{
+	int iAppliedSkillID = 0;
+	if( false == luaManager_.GetValue( "APPLIED_SKILL_ID", iAppliedSkillID ) || 0 == iAppliedSkillID || 0 >= June_GetSkillLevel( iAppliedSkillID ) )
+		return false;
+
+	JuneLoadEffectSetTables( luaManager_, false );
+	return true;
+}
+
+// June 32020ec0: EFFECT_SET0.. of the list, then one EFFECT_SET_RANDOMn picked by the RATE weights against GetRandomFloat( 0 ) x 100
+bool CX2GUUser::JuneLoadEffectSetListFinal( IN KLuaManager& luaManager_, IN const char* pszListName_ )
+{
+	if( false == luaManager_.BeginTable( pszListName_ ) )
+		return false;
+
+	int iRandomIndex = -1;
+	if( true == luaManager_.BeginTable( "RATE" ) )
+	{
+		vector<float> vecRate;
+		int iRateIndex = 1;
+		float fRate = 0.f;
+		while( true == luaManager_.GetValue( iRateIndex, fRate ) )
+		{
+			vecRate.push_back( fRate );
+			++iRateIndex;
+		}
+		luaManager_.EndTable(); //RATE
+
+		const float fRoll = static_cast<float>( GetRandomFloat( 0 ) * 100.0 );
+		float fRateSum = 0.f;
+		for( UINT uiIndex = 0; uiIndex < vecRate.size(); ++uiIndex )
+		{
+			fRateSum += vecRate[uiIndex];
+			if( fRateSum >= fRoll )
+			{
+				iRandomIndex = static_cast<int>( uiIndex );
+				break;
+			}
+		}
+	}
+
+	JuneLoadEffectSetFinalEntries( luaManager_, "EFFECT_SET", -1 );
+	if( 0 <= iRandomIndex )
+		JuneLoadEffectSetFinalEntries( luaManager_, "EFFECT_SET_RANDOM", iRandomIndex );
+
+	luaManager_.EndTable();
+	return true;
+}
+
+// June 3200b030: rows "<prefix>0".. ( iIndex_ < 0 ) or the one row "<prefix><iIndex_>"; an empty EFFECT_NAME ends the list
+void CX2GUUser::JuneLoadEffectSetFinalEntries( IN KLuaManager& luaManager_, IN const char* pszPrefix_, IN const int iIndex_ )
+{
+	int iKeyIndex = ( 0 > iIndex_ ) ? 0 : iIndex_;
+	char szEffectSetKey[256] = "";
+	StringCchPrintfA( szEffectSetKey, ARRAY_SIZE( szEffectSetKey ), "%s%d", pszPrefix_, iKeyIndex );
+
+	while( true == luaManager_.BeginTable( szEffectSetKey ) )
+	{
+		EffectSetToPlay effectSetFinal;
+		LUA_GET_VALUE( luaManager_, "EFFECT_NAME", effectSetFinal.m_wstrEffectSetName, L"" );
+		if( true == effectSetFinal.m_wstrEffectSetName.empty() )
+		{
+			luaManager_.EndTable();
+			break;
+		}
+
+		// June @3200b59d: a non-zero IS_LEARN_SKILL_CHECK drops the row unless that skill is learned
+		bool bJuneLearned = true;
+		int iLearnSkillID = 0;
+		if( true == luaManager_.GetValue( "IS_LEARN_SKILL_CHECK", iLearnSkillID ) && 0 != iLearnSkillID
+			&& ( NULL == GetUnit() || 0 >= GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iLearnSkillID ), false, 0, true ) ) )
+			bJuneLearned = false;
+
+		LUA_GET_VALUE( luaManager_, "START_TIME", effectSetFinal.m_fStartAnimationTime, 0.f );
+		LUA_GET_VALUE( luaManager_, "CONSUME_MP", effectSetFinal.m_fJuneConsumeMP, -1.f );
+		LUA_GET_VALUE( luaManager_, "RELATE_SKILL_ID", effectSetFinal.m_iJuneRelateSkillID, 0 );
+		if( true == luaManager_.BeginTable( "DELETE_CONDITION" ) )
+		{
+			effectSetFinal.m_vecDeleteCondition.clear();
+			int iConditionIndex = 1;
+			UINT uiDeleteConditionType = 0;
+			while( true == luaManager_.GetValue( iConditionIndex, uiDeleteConditionType ) )
+			{
+				effectSetFinal.m_vecDeleteCondition.push_back( static_cast<CX2GameUnit::DELETE_CONDITION_EFFECT_SET>( uiDeleteConditionType ) );
+				++iConditionIndex;
+			}
+			luaManager_.EndTable(); //DELETE_CONDITION
+		}
+
+		if( true == bJuneLearned )
+			m_vecEffectSetToPlay.push_back( effectSetFinal );
+
+		luaManager_.EndTable();
+		if( 0 <= iIndex_ )
+			break;
+
+		++iKeyIndex;
+		StringCchPrintfA( szEffectSetKey, ARRAY_SIZE( szEffectSetKey ), "%s%d", pszPrefix_, iKeyIndex );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 {
 
@@ -46574,6 +46810,16 @@ void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 		if( 0.f == effectSetToPlay.m_fStartAnimationTime ||
 			fNowAnimationTime >= effectSetToPlay.m_fStartAnimationTime )
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+			// June 32007570 @320075e5: a row with CONSUME_MP > 0 plays only when IsEnoughMPForAttack at Bip01 passes ( slot 0x6f0 ), else it is dropped unplayed
+			if( 0.f < effectSetToPlay.m_fJuneConsumeMP
+				&& false == IsEnoughMPForAttack( effectSetToPlay.m_fJuneConsumeMP, GetBonePos( L"Bip01" ), 0.f, D3DXVECTOR3( 0.f, 0.f, 0.f ) ) )
+			{
+				m_vecEffectSetToPlay.erase( m_vecEffectSetToPlay.begin() + i );
+				--i;
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 			CX2EffectSet::Handle hEffectSetInst = g_pX2Game->GetEffectSet()->PlayEffectSet( effectSetToPlay.m_wstrEffectSetName, this, NULL, m_bHyperEffectSet, GetPowerRate(), m_fEffectSetLifeTime);
 			
 			// 기존에 애니메이션 시간을 기준으로 이펙트를 생성하던 것을 effectSetToPlay.m_fStartAnimationTime이 추가되면서 애니메이션을 기준으로 하지 않도록 변경해준다
@@ -46775,7 +47021,11 @@ bool CX2GUUser::IsEnoughMPForAttack( IN const float fConsumeMP, IN const D3DXVEC
 
 		/// Offset 위치 설정
 		if ( false == IsSamef( 0.f, fOffsetPos ) )
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+			vFirePos += ( true == GetIsRight() ) ? GetDirVector() * 100.f : GetDirVector() * -100.f;	// June 32007e90 @32007f48: -100 facing left
+#else SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 			vFirePos += ( true == GetIsRight() ) ? GetDirVector() * 100.f : GetDirVector() * 100.f;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 
 		CreateNotEnoughMPEffect( vFirePos, vRotDegree.x, vRotDegree.y, vRotDegree.z );
 	}

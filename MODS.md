@@ -5123,3 +5123,11 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - June's base virtuals and their March call sites, so class ports can override them (Eve's overrides sit under the undefined `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`). Details: `JUNE_CHARACTER_EVE_PHASES.md` "CH1o2 - Done".
 - **Live behaviour change, every class:** a summon under `BTI_DEBUFF_FESSEL_HEILIG` no longer rallies (teleports) to its user (June base `31fc8070`). The other four bases are empty or pass the value through.
 - **Revert:** comment out the `#define`s, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June effect-set list variants (char-eve CH1r, 2026-10-27)
+
+**Flag** (`Always.h`, defined): `SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS`. Files: `X2GUUser.{h,cpp}`, `X2GameUnit.h`.
+
+- A user state's effect sets load as June's `LoadEffectSetFromScript` (`32024ff0`): `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS`, `_ULTIMATE_EX( _APPLIED_SKILL )`, `_EX_APPLIED_SKILL`, `_FINAL` / `_FINAL_ULTIMATE` (`EFFECT_SET_RANDOM` by `RATE`). Details: `JUNE_CHARACTER_EVE_PHASES.md` "CH1r - Done".
+- **Live behaviour change, every class with June scripts:** a FINAL row with `CONSUME_MP` costs that MP and is skipped with the "magic fail" puff when MP is short (Eve's dash-jump Z-X spear: 4 MP); an upgraded skill reads `_ULTIMATE_EX` instead of `_EX` (Aisha's Chain Burst, Dark Cloud, Dark Burst `_Upgrade` effects).
+- **Revert:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

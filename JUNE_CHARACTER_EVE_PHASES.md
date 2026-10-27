@@ -1514,6 +1514,33 @@ Build: `DEPLOY OK: X2_offline.exe is 26,080,256 B, dated 2026-10-27 10:17:39, md
 - **The third-awakening ball on the portrait never shows** (CH1q's `June_UpdateHyperBall`). The override runs (`OnFrameMove( float )` is live), the gauge UI class is built for all 7 Eve classes, the particle is in data036. What June's gage data `+0xf4` holds (orb count or the awakening level used) and why the handle is never made need RE: **CH1s**.
 - **Eve's V key and its icon are missing:** June's Code Recovery (`ENSI_EVE_RECOVERY`, the `CODE_RECOVERY_*` keys, the 7ah UI statics `322e65c0` / `322dee90`) is CH4c's by plan; nothing new.
 
+### CH1r - Done (2026-10-27)
+
+Opus 5.5. Kickoff `kickoffs/char-eve/CH1r.md` (from the CH1 play-test). New flag `SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS` (`Always.h`, defined; engine, every class). Funcmap rows `32024ff0 (CH1r)`, `32020ec0`, `3200b030`, `32007570 @320075e5 (CH1r)`, `32007e90`.
+- **`CX2GUUser::LoadEffectSetFromScript`, the list part = June `32024ff0`** (the delete-key tail stays shared, C9h-4d's; March's list code in `#else`):
+  - `LIST_MEMO` (memo byte) else `LIST`.
+  - The TRANS list for every state: memo row of `GetNowStateSkillID()` (`31fdbbb0`) type `MI_TRANSCENDENCE_1` -> `EX_TRANS_1`, `_2` -> `EX_TRANS_2`, else `EX_NO_TRANS`.
+  - `EX_MEMO` (memo byte).
+  - Upgraded state skill (`bJuneUltimate_`, S3f): `ULTIMATE_EX_APPLIED_SKILL` when its `APPLIED_SKILL_ID` is learned (`31fceab0` > 0), else `ULTIMATE_EX`. Then `EX_APPLIED_SKILL` unless the first one loaded.
+  - `EX` iff (memo byte ? no `EX_MEMO` : no ultimate / applied-skill list) (`@32026685-320266ca`). Its rows carry `POSSIBLE_NASOD_BARRIER` (read from `m_LuaManager`, as June's this `+0x2b4`).
+  - `FINAL_ULTIMATE` (upgraded skill, when present) else `FINAL`.
+- **`32020ec0` / `3200b030`** = `JuneLoadEffectSetListFinal` / `JuneLoadEffectSetFinalEntries`:
+  - `EFFECT_SET0..` rows, plus one `EFFECT_SET_RANDOMn` picked by the `RATE` weights against `GetRandomFloat( 0 ) x 100`.
+  - Per row: `IS_LEARN_SKILL_CHECK` (no unit or level < 1 drops the row), `START_TIME`, `CONSUME_MP`, `RELATE_SKILL_ID`, `DELETE_CONDITION`.
+- **Play gate `32007570 @320075e5`:** a row with `CONSUME_MP > 0` plays only if `IsEnoughMPForAttack( mp, GetBonePos( L"Bip01" ), 0, 0 )` (slot 0x6f0 = March's `IsEnoughMPForAttack`, June `32007e90`). Otherwise it is erased unplayed, with the magic-fail puff. `IsEnoughMPForAttack` takes June's -100 offset when facing left (March: +100; both callers pass offset 0).
+- **`EffectSetToPlay`** gains June's entry `+0x34` / `+0x38` (`m_bJunePossibleNasodBarrier`, `m_iJuneRelateSkillID`), set in every ctor. No reader exists in the loader or the play site.
+- **Callers:** `CommonStateStart` `@3205ad90` ( `m_LuaManager`, `m_bApplyMemo` = false, upgraded byte ) and `CX2RidingPet::StateChange` `@32d343b5` ( pet lua, 0, 0 ) = March's two calls, unchanged. No class calls it (June xrefs).
+- **Data reached now:**
+  - Eve: `EFFECT_SET_LIST_FINAL` on `ENSI_EEG_DASH_JUMP_ZX` / `_ZZX` (`EffectSet_SA_ECE_Dashjump_ZX`, CONSUME_MP 4), Iron Scraps (+`_HYPER`), Assault Spear. `_FINAL_ULTIMATE` on Iron Scraps and Atomic Blaster (upgraded skills).
+  - Aisha: `ULTIMATE_EX` on Chain Burst, Dark Cloud (+`_HYPER`), Dark Burst (upgraded skills show the `_Upgrade` / `_Ultimate` sets).
+- **Drift, routed (checklist new l.412):** readers of `+0x34` / `+0x38`, and the per-class slots 0x4c4 / 0x4c8 around each play (base empty; Add / Ain / Rose / Ara override). Character ports. No JUNE_BUGS row (no June quirk kept beyond March's own empty-name stop).
+- **Checklist:** l.411 `(Eve: CH1r ...)`. MODS.md block "June effect-set list variants".
+
+Hygiene: `flagcheck.py JUNE_EFFECT_SET_LIST_VARIANTS --worktree --files` (4 files): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `/Zs` `X2GUUser.cpp`, `X2GUNPC.cpp`: 0 errors. Flag probe: the flag and its 9 prerequisites ON. `enumscan --check X2GUUser.cpp X2GUUser.h X2GameUnit.h`: 2 B rows, both older (`X2GUUser.h:2544-2545`), none in CH1r lines.
+Build: `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-10-27 11:44:33, md5 52ee62aea91586ee5c44b8b119dfdf1a, equal to X2/US_SERVICE/x2.exe (2026-10-27 11:44:26); built at main 83cde348 + 4 uncommitted code file(s).` No kom change.
+
+**Play-test (user) is the gate:** EveNemesis dash-jump Z-X spear plus 4 MP; low-MP puff; ArmeVP Dark Burst `_Upgrade`.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

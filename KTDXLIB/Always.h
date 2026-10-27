@@ -10240,3 +10240,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH1o2 - the skill slot's cool-time text shows my unit's June slot 0x6a8 of the cool time, base the cool time ( 322e07e0 @322e132c / @322e1442, 3208e190 ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1r - a user state's effect sets load as June's LoadEffectSetFromScript ( 32024ff0 ): EX_TRANS_1 / _2 / _NO_TRANS, ULTIMATE_EX( _APPLIED_SKILL ), EX_APPLIED_SKILL, FINAL / FINAL_ULTIMATE ( 32020ec0 / 3200b030 ), and a FINAL row's CONSUME_MP gates its play ( 32007570 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+//////////////////////////////////////////////////////////////////////////

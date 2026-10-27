@@ -2033,6 +2033,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 			float		m_fJuneConsumeMP;	/// June entry +0x30 ( entry 0x3c bytes ): CONSUME_MP of EFFECT_SET_LIST_FINAL; -1 ( 334380f0 ) in every ctor ( 32079750 / 320797f0 / 32079890 )
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+			bool		m_bJunePossibleNasodBarrier;	/// June entry +0x34: the state's POSSIBLE_NASOD_BARRIER on an EFFECT_SET_LIST_EX row ( 32079890's 4th argument )
+			int			m_iJuneRelateSkillID;			/// June entry +0x38: RELATE_SKILL_ID of a FINAL row ( 3200b030 )
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 #else // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 			DELETE_CONDITION_EFFECT_SET m_eDeleteCondition;
 #endif // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
@@ -2044,6 +2048,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 				, m_fJuneConsumeMP( -1.f )
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+				, m_bJunePossibleNasodBarrier( false )
+				, m_iJuneRelateSkillID( 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 			{
 				m_vecDeleteCondition.push_back( DCES_NONE );
 			}
@@ -2055,6 +2063,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 				m_fJuneConsumeMP = -1.f;
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+				m_bJunePossibleNasodBarrier = false;
+				m_iJuneRelateSkillID = 0;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 				m_vecDeleteCondition.push_back( DCES_NONE );
 			}
 			
@@ -2065,6 +2077,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 				m_fJuneConsumeMP = -1.f;
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+				m_bJunePossibleNasodBarrier = false;
+				m_iJuneRelateSkillID = 0;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 				m_vecDeleteCondition.clear();
 				m_vecDeleteCondition.resize( vecDeleteCondition.size() );
 				std::copy ( vecDeleteCondition.begin(), vecDeleteCondition.end(), m_vecDeleteCondition.begin() );
