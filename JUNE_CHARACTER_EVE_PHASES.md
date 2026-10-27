@@ -1948,6 +1948,39 @@ Flag `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE` (new; the factor is shared by ever
   - Two other load-time Lua errors already have owners: `AddGroupChainQuest` (quest-system plan) and `WALK_SPEED` (`DamageEffect.lua`, see `JUNE_BUGS.md`).
 - **Not ported, routed.** `+0x4074` (ctor 1.0; read by `322ece70` flag 0x10, NPC 2206 Gale Force, and by `32abe5c0` / `32abefb0`, written by `32ad1080`) is Rose's (Stage 8).
 
+### CH2b3 - Review (2026-10-27, Opus 5.5)
+
+**PASS, no code change.** Checked against June's raw listings (`disasm_range.py`), line by line:
+- **Setter / reset** `31e8d610` / `31e8d6a0`: the XOR-folded `+0x8ce4` is compared with the argument / 1.0 by `fucompp`. The `test ah,0x44; jnp` skips only an ordered equal, so NaN stores. March's `!=` does the same. The store is the protected set (`323101d0`); ported plain, as noted.
+- **`GetPowerRate`** `32759630`: `fld +0x8ce0; fmul` the protected `+0x8ce4`, then `fstp` / `fld dword`, which rounds to float. March's float `*` returned as `float` rounds the same way.
+- **`ApplyPassiveSkillOwnerUser_LUA`** `32763c10`:
+  - Owner gate: observer `+0x8d5c` -> observable -> `- 0x1a0`, each null -> return. This is March's `GetOwnerGameUnit()` (`m_optrOwnerGameUnit.GetObservable()`).
+  - `NPCUnitStat` init: ints 0, floats 0, `+0x50` = 9999 (`3346ede8`). That is March's ctor (`m_fScanNearRange` 9999). June's frame holds one more zeroed dword at `+0x60` that neither `32758d50` nor `32763950` reads.
+  - Offsets: `+8` / `+0xc` / `+0x5c` = `m_fAtkPhysic` / `m_fAtkMagic` / `m_fPercentCritical` (March's member order; `SUMMONED_NPC_ADDITIONAL_STAT`).
+  - Multiply by owner `+0x4068`, each product stored to float; then `fldz; fcomp +0x4064; test ah,5; jp` divides only when `0 < +0x4064` (NaN, 0 and negative skip). This is March's `0.f < m_fStatAtkRateOfSummoned`.
+  - Crit: `+0x5c + +0x406c`, then `fld1; fcom; test ah,5; jp` takes 1.0 only when `1.0 < x` (NaN keeps x). This is March's `if ( 1.f < crit )`.
+  - The three `3236ca50` calls (NPC `+0x6d18` / `+0x44ec` / `+0x45a0` <- owner results at block `+0xa0`) are byte-for-byte the `3230ca6d` tail (funcmap 935). That tail is `CopyJuneMaximizeAndRangeFrom`: DamageMaximize / physic range / magic range `GetResultValue()` -> `SetBasicStatValue`. `_BUFF_NEW_STAT` and `_BUFF_BEHAVIOR_PARITY` are both defined.
+- **`32758d50` / `32763950`** = March's `GetNPCStat` / `SetNPCStat` (`X2GUNPC.cpp:8070` / `:8098`):
+  - Get: KStat atk / def; MaxHP overwritten by the `+0xc04` chain; acc / avoid / crit results from `+0x4be0` / `+0x4c94` / `+0x4d48`; AI `+0x7c98` NAT_NORMAL scan.
+  - Set: KStat, `SetMaxHp`, vslot `0x1dc` SetGameStat, and `SetBasicStatValue` on `+0x4b40` / `+0x4bf4` / `+0x4ca8`; AI scan.
+  - June's compare-before-store on the KStat block changes nothing observable.
+- **Owner ctor values** `322a2700` @`322a4303`-`322a435d`, x87 stack traced: `+0x4064` = `+0x4068` = 1.0, `+0x406c` = 0.0. This matches `m_fJune4068` / `m_fJune406c`.
+  - The block is inline in `CX2GameUnit::CX2GameUnit`, whose callers are `3203e8b4` / `327af677` / `327b0a7d`.
+  - March's `SkillRelatedData::Init()` has one caller, the struct's own ctor; no `m_SkillRelatedData.Init` exists anywhere in `X2Lib`.
+  - June's `3297f290` entry reset (1 / 1 / 0) stays with CH4a, as amended.
+- **Stores** `322ece70` @`322ed37f`-`322ed3ae`: flag 0x200 -> `31e8d610( product )` and `+0x8800` = `3201ad10 + 1`; `+0x8ce0` is not written; otherwise `fstp +0x8ce0`. March matches this:
+  - Nasod Watch (`NUI_NASOD_WATCH_EVE` 384 / `_MEMO` 519, one case) -> `JuneApplySummonPowerRateToFactor`.
+  - Ferdinand 1454 -> `SetMultiplyPowerRate_LUA( fPowerRate )`.
+  - Of June's other 0x200 ids (funcmap 1503): 1604 / 1621 / 1622 are CH3d's (they still take March's default case), and 2206 / 2214 are Rose's (Stage 8, no March case).
+  - Every other `SetDefaultPowerRate` in `X2Game.cpp` belongs to a flags-without-0x200 case or to the event NPCs (1.0).
+- **Hygiene.** No later commit touches the flag (`git log -S SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE 2b99146f..HEAD` is empty). `luabind` PASS on 3 scripts, `enumscan` 0 A/B. `flagcheck --range 2b99146f^..2b99146f`:
+  `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  The PASS~ is the blank line before the new `X2GUNPC.cpp` block.
+- **Noted, not changed:** two older comments in `X2Game.cpp` now describe the `#else` path. They are `:16822-16824` ("March has no SetMultiplyPowerRate_LUA, so the store is dormant") and `:17072-17076` ("scaling March's default power rate"). The number store is live since CH2b3. Old comments are left as written (comment rule).
+
+No build (no code change). Next: CH2b4 (kickoff stands).
+
 ## Phase CH2b4 - A dying summon drops its owner's summon buff (added 2026-10-27 by CH2b2, Sonnet)
 
 Found by CH2b2: June's `CX2GUNPC::CommonFrameMove` `327b53b0` @`327bcdfd..327bcfe0` (the DYING_END block, before the animation ends): an owned summon not yet
