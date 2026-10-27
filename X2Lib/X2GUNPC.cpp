@@ -17886,6 +17886,70 @@ void CX2GUNPC::CommonStateStart()
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH2b4
+// June 32778b10: another live, not self-destructing ally NPC of my templet id and my owner
+bool CX2GUNPC::JuneIsAnotherSameSummonAlive()
+{
+	if( NULL == g_pX2Game || NULL == GetNPCAI() || CX2NPCAI::NAT_ALLY != GetNPCAI()->GetAIType() )
+		return false;
+
+	const int iNPCID = GetNPCTemplet().m_nNPCUnitID;
+	const UidType uMyOwnerUID = static_cast<CX2AllyNPCAI*>( GetNPCAI() )->GetAllyUnitUID();
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNPCID && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID )
+			continue;
+
+		if( false == ( 0.f < pNPC->GetNowHp() ) || true == pNPC->GetSelfDestruction() )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		if( uMyOwnerUID == static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() )
+			return true;
+	}
+
+	return false;
+}
+
+// June 327b53b0 @327bcdfd..327bcfe0: DYING_END, animation not ended: a summon with an owner drops the owner's summon buff, once
+void CX2GUNPC::JuneDropOwnerSummonBuffOnDying()
+{
+	CX2GUUser* pOwner = static_cast<CX2GUUser*>( GetOwnerGameUnit() );
+	if( NULL == pOwner || true == GetSelfDestruction() )
+		return;
+
+	const int iNPCID = GetNPCTemplet().m_nNPCUnitID;
+	if( CX2UnitManager::NUI_SI_HA_FERDINAND == iNPCID || CX2UnitManager::NUI_SI_HA_APOCALYPSE == iNPCID )
+	{
+		pOwner->JuneResetOnSummonEnd( NULL != pOwner->GetUnit() ? static_cast<int>( pOwner->GetUnit()->GetClass() ) : static_cast<int>( CX2Unit::UC_NONE ) );
+		SetSelfDestruction( true );
+		CX2OfflineLog::Server( L"[JUNE_SUMMON] npc %d uid %d died, owner %I64d reset by its unit class ( 31fc8a90 )", iNPCID, GetUID(), pOwner->GetUnitUID() );
+		return;
+	}
+
+	const int iBuffFactorID = CX2GUUser::JuneGetSummonBuffFactorID( iNPCID );
+	if( BFI_NONE == iBuffFactorID )
+		return;
+
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
+	if( NULL == ptrBuffFactor || true == JuneIsAnotherSameSummonAlive() )
+		return;
+
+	pOwner->EraseBuffTempletFromGameUnit( ptrBuffFactor->GetBuffTempletID() );
+	SetSelfDestruction( true );
+	CX2OfflineLog::Server( L"[JUNE_SUMMON] npc %d uid %d died, owner %I64d buff templet %d erased ( last of its id )", iNPCID, GetUID(), pOwner->GetUnitUID(), static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) );
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH2b4
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 void CX2GUNPC::CommonFrameMoveHost()
 {
 	KTDXPROFILE();
@@ -20718,6 +20782,7 @@ void CX2GUNPC::CommonFrameMove()
 
 #endif SUMMON_MONSTER_CARD_SYSTEM
 				//}}
+#ifndef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE	/// June's animation-end branch has no Ferdinand reset ( 327b53b0 @327bcadc..327bcdf8 ); it is in the else branch below
 #ifdef FINALITY_SKILL_SYSTEM
 					if( CX2UnitManager::NUI_SI_HA_FERDINAND == GetNPCTemplet().m_nNPCUnitID && NULL != GetOwnerGameUnit() )
 					{
@@ -20728,6 +20793,7 @@ void CX2GUNPC::CommonFrameMove()
 						}
 					}
 #endif //FINALITY_SKILL_SYSTEM
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 				SetRemainHyperModeTime( 0.0f );
 #ifndef DIE_NPC_TEST
 				SetAlphaObject( true );
@@ -20756,6 +20822,10 @@ void CX2GUNPC::CommonFrameMove()
 				}
 #endif // FIELD_BOSS_RAID
 			}
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+			else
+				JuneDropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 		}
 	}
 #ifdef BONUS_DROP

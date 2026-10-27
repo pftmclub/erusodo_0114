@@ -2786,6 +2786,9 @@ protected:
 	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
 
 	void June_EGQueensThroneReset();					/// June 3298cfe0
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+	friend class CX2GUUser;								/// JuneResetOnSummonEnd calls the member below
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 	void June_ResetLinkOverChargeIllusion();			/// June 32997c10
 	void June_SetSelfDestructSummonedNPC( const int iNPCID_ );	/// June 3299d140
 	void June_ClearGuardAndSummon();					/// June 329ae670

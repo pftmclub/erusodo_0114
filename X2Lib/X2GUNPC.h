@@ -2722,6 +2722,10 @@ class CX2GUNPC : public CX2GameUnit
 			m_SelfDestructionTimer.restart();
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+		bool JuneIsAnotherSameSummonAlive();	/// June 32778b10
+		void JuneDropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 		void StopSelfDestruction()
 		{
 			SetSelfDestruction( false );

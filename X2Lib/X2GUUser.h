@@ -3693,6 +3693,7 @@ public:
 	public:
 		static int JuneGetSummonBuffFactorID( const int iNPCID_ );	/// June 31fc96b0
 		void JuneKillOlderSummonsOfSameID( const int iNPCID_ );	/// June 3200bec0
+		void JuneResetOnSummonEnd( const int iUnitClass_ );	/// June 31fc8a90
 	protected:
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 

@@ -26086,6 +26086,27 @@ void CX2GUUser::JuneKillOlderSummonsOfSameID( const int iNPCID_ )
 		pNPC->SetNowHp( 0.f );
 	}
 }
+
+// June 31fc8a90: the dying Ferdinand / Apocalypse NPC's hook on its owner ( 327b53b0 @327bcf64 ), by the owner's unit class
+void CX2GUUser::JuneResetOnSummonEnd( const int iUnitClass_ )
+{
+	if( CX2Unit::UC_EVE_CODE_EMPRESS == iUnitClass_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		if( true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_FERDINAND ) ) )		/// 329684c0
+			static_cast<CX2GUEve*>( this )->June_ResetLinkOverChargeIllusion();
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	}
+	else if( CX2Unit::UC_ADD_MASTERMIND == iUnitClass_ )
+	{
+		if( true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_APOCALYPSE ) ) )		/// 329d4690
+		{
+			EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_APOCALYPSE ) );	/// 329fb6c0, whose Mastermind flag +0x98e4 = false lands with Stage 8
+			if( true == IsMyUnit() )
+				g_pX2Game->UpdateSkillSlotUI( false );
+		}
+	}
+}
 //}} Iruha : 2026-10-27 // June character Eve Phase CH2b2
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP

@@ -500,6 +500,7 @@ enum BUFF_TEMPLET_ID
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	// June BTI names a June-port site spells
 	BTI_BUFF_FERDINAND                    = 409,
+	BTI_BUFF_APOCALYPSE                   = 345,
 	BTI_BUFF_SPECTER_WALK                 = 420,
 	BTI_BUFF_CREST_OF_TIME                = 436,
 	BTI_BUFF_OBERON_GUARD                 = 563,
