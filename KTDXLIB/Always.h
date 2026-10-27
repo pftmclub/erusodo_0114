@@ -10257,3 +10257,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE, SERV_IRUHADEV_JUNE_SKILL_NUMERICAL and SERV_IRUHADEV_JUNE_BUFF_BINDING
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH2b - Architecture's Surface Cuting 25015 / 25057, Sonic Wave 25013 / 25041, Oberon Guard 25014 / 25056, Heavens Fist 25012 / 25038, Heavens Fist Sweeper 25016 / 25058 and Faena 25224 / 25225 take June's state bodies ( same flag as CH2a ).
+// Description: temporary _DEBUG: one [JUNE_CHAR] EVE SKILL line per Surface Cuting summon, Oberon Guard NPC request, Sweeper effect set and Faena target in offline_server.log. Retired in the CH2b review. Revert: undefine.
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+//////////////////////////////////////////////////////////////////////////

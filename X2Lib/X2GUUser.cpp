@@ -26011,6 +26011,11 @@ void CX2GUUser::JuneCollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecU
 	for ( size_t uFound = 0; uFound < vecFound.size(); ++uFound )
 		vecUnits_.push_back( vecFound[uFound].first );
 }
+
+D3DXVECTOR3 CX2GUUser::JuneGetUnitLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ ) const
+{
+	return CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit_, vFrom_ );
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)

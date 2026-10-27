@@ -3245,6 +3245,20 @@ protected:
 	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Init();		/// June 32966910 ( registered by CH2a3 )
 	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Start();		/// June 3296f9a0 ( registered by CH2a3 )
 	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove();	/// June 329b1e20 ( CH2a3 )
+	/// June character port Phase CH2b: Architecture's skill states
+	void		June_ENSI_SI2_AT_SONIC_WAVE_Init();				/// June 32966640
+	void		June_ENSI_SI2_AT_SONIC_WAVE_FrameMove();		/// June 3298c730
+	void		June_ENSI_A_EAT_HEAVENS_FIST_Init();			/// June 32966db0
+	void		June_ENSI_A_EAT_HEAVENS_FIST_FrameMove();		/// June 3298d550 / 3298d710
+	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_Init();	/// June 32967d10
+	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_FrameMove();	/// June 329a99a0
+	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_EventProcess();	/// June 32974bb0
+	void		June_ENSI_A_EAT_FAENA_Init();					/// June 32968da0
+	void		June_ENSI_A_EAT_FAENA_FrameMove();				/// June 329c4380
+	void		June_ENSI_A_EAT_OBERON_GUARD_Start();			/// June 329700a0
+	void		June_ENSI_A_EAT_OBERON_GUARD_FrameMove();		/// June 329b2e10
+	void		June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
+	void		June_ENSI_SI1_AT_SURFACE_CUTING_FrameMove();	/// June 3299d390
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ = false );	/// June 3297b840
 	void		June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 3297baa0 ( vslot 0x834 )

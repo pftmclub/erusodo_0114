@@ -720,6 +720,14 @@ enum BUFF_FACTOR_ID
 	BFI_BUFF_SENTRY                       = 439,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2b (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI names Surface Cuting, Oberon Guard and Faena spell
+	BFI_BUFF_OBERON                       = 441,
+	BFI_BUFF_OBERON_GUARD                 = 652,
+	BFI_DEBUFF_TARGET                     = 842,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 

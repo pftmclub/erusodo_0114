@@ -3687,6 +3687,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		void JuneCollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const float fConeDegree_, IN const bool bSkipInvincible_ );	/// June 32009180
+		D3DXVECTOR3 JuneGetUnitLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ ) const;	/// June vslot 0x3e4 ( user 31fd61a0, NPC 3275ac50 ): the class code asks a unit for its aim point
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;
