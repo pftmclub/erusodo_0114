@@ -44639,7 +44639,7 @@ void CX2GUEve::June_ConstructorInit()
 	for( int i = 0; i < EASI_END; ++i )
 		m_fEquippedActiveSkill[i] = -1;
 
-	m_fMPConsumeRateElectronBall		= 1.f;	/// June +0x97b0 ( protected, @3299ca5c )
+	m_fMPConsumeRateElectronBall		= 1.f;	/// June +0x97b0 ( protected setter @3299ca7a-caf0 )
 	m_fJuneElectronBallBigRate			= 0.f;	/// June +0x97bc ( @3299cb15 )
 	m_fAttackPowerRateElectronBall		= 1.f;	/// June +0x97c0 ( @3299caf9 )
 	m_fForceDownValueRateElectronBall	= 1.f;	/// June +0x97c4 ( @3299cb05 )

@@ -48,8 +48,8 @@ june_off	width	june_value	site	class	name	note
 0x9798	dword	-1	3299beae	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
 0x979c	dword	-1	3299beb6	struct	m_sMegaElectronBallData (MEGA_ELECTRONBALL_Data)	June stores inline; not repeated
 0x97a0	dword	-1	3299be94	March member	m_fEquippedActiveSkill[0]	-1
-0x97a8	dword	-1.0	3299ca5c	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	June-only, role unknown; +0x97b0 (protected 1.0) = m_fMPConsumeRateElectronBall (CH1e), +0x97a4 has no store; March's m_fElectronBallRangeRate has no confirmed slot (CH1k review)
-0x97ac	dword	0.0	3299ca64	unmapped	June +0x97a8 -1.0, +0x97ac 0, protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	June-only, role unknown; +0x97b0 (protected 1.0) = m_fMPConsumeRateElectronBall (CH1e), +0x97a4 has no store; March's m_fElectronBallRangeRate has no confirmed slot (CH1k review)
+0x97a8	dword	-1.0	3299ca5c	unmapped	June +0x97a8 -1.0, +0x97ac 1.0 (CH1o review: FST of ST0 after FXCH, stack [0, 1.0] @3299ca24), protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	June-only, role unknown; +0x97b0 (protected 1.0) = m_fMPConsumeRateElectronBall (CH1e), +0x97a4 has no store; March's m_fElectronBallRangeRate has no confirmed slot (CH1k review)
+0x97ac	dword	1.0	3299ca64	unmapped	June +0x97a8 -1.0, +0x97ac 1.0 (CH1o review: FST of ST0 after FXCH, stack [0, 1.0] @3299ca24), protected float +0x97b0 = 1.0, +0x97bc 0, +0x97c0 1.0, +0x97c4 1.0	June-only, role unknown; +0x97b0 (protected 1.0) = m_fMPConsumeRateElectronBall (CH1e), +0x97a4 has no store; March's m_fElectronBallRangeRate has no confirmed slot (CH1k review)
 0x97bc	dword	0.0	3299cb15	June-only (CH1d)	m_fJuneElectronBallBigRate	0
 0x97c0	dword	1.0	3299caf9	March member	m_fAttackPowerRateElectronBall	1.0 = March; +0x97c0 per CH1d / CH1e (CH1k review)
 0x97c4	dword	1.0	3299cb05	March member	m_fForceDownValueRateElectronBall	1.0 = March; +0x97c4 per CH1d / CH1e (CH1k review)

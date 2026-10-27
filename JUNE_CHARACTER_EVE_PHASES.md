@@ -1335,6 +1335,30 @@ Wiring under `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (still undefined), one new engin
 **JUNE_BUGS:** no row. **Drift:** June's pet `PlayEffectSet` (`321e2340`, called by `321e2510`) writes `+0x14c` from its own trailing float; March's `PlayEffectSetByPet` lacks it. It only matters if a pet set passes a non-1 rate, and goes to the pet owner (backlog Stage 17 bullet). **Open for the review:** whether any other March member the still-March paths read is left unset by `June_ConstructorInit`; the dtor's March-only frees.
 **In game:** nothing (LIVE undefined). Review: `kickoffs/char-eve/CH1o-review.md` (Opus 5.5 high).
 
+### CH1o - Review (2026-10-27, Opus): PASS, no logic change
+
+Two citation fixes and no code change. The commit is "char-eve Phase CH1o review".
+
+- **38 wraps:** each calls its own `June_*` with every argument in order (`ReInit` / `SetEquippedSkillLevel` checked against the declarations) and returns its result (`CommonRender_Prepare`, both `SpecialAttack*`). Every March body is whole in the `#else` (`X2GuEve.cpp`'s side of the commit is 76 pure insertions plus the force-down pairs). `ParseCommonRandomState` is empty; `GetComboZStateID` is inline.
+- **Header vs `ch0_vtable_slots.tsv`:** every `virtual` in `X2GuEve.h` is a June override, the dtor, 0x4b4, `ParseCommonRandomState` or the new hook. The one exception, `CreateNotEnoughMPEffect`, is dead (`#ifndef SERV_9TH_NEW_CHARACTER`, defined). 0x4b4: `32cb6a20` is `b8 ac 00 00 00 c3`, 172 = `ENSI_COMBO_X` in `ch1m_idmap.tsv` (0x4b0 165 = `ENSI_COMBO_Z`). March's inline stays.
+- **Constructor:** the March body sets nothing that `June_ConstructorInit` leaves unset. The March-only names are the initializer list (still runs under LIVE), the `#ifndef USER_SKILL_USE_HELPERS` fields (CX2GUUser's ctor sets them) and the `m_Effect*` pointers (dead `#else` of `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE`, KTDX.h:328). The six stores match `@3299ca40-cb15` (FPU stack `[0, 1.0]` from `@3299ca24`): `+0x97c0` / `+0x97c4` 1.0, `+0x97bc` 0, and the protected `+0x97b0` = 1.0 through the setter `@3299ca7a-caf0`. **Fixes:** the code comment cited `@3299ca5c` (that is the `+0x97a8` store), and `ch1k_ctor_offsets.tsv` gave `+0x97ac` 0, but it is 1.0 (FST of ST0 after the FXCH). `+0x97ac` stays unmapped. A 1.0 next to the Electron Ball rates fits March's `m_fElectronBallRangeRate`, which is not proven, and the stand-in is 1.0 either way.
+- **Destructor:** `June_Destructor` (`329aece0`, deleting dtor `329cf670`) frees everything March's does: ThousandStar, `ClearManeuverCore( true )`, both mesh arrays, particles, the four summons, sounds, the Electra handles, and the maneuver-core effects. The only heap members, `m_pThousandStar` and `m_pManeuverCore`, go through those clears. Nothing is March-only (no Aisha-style `m_pStrongMindData`).
+- **Force-down float:** `321e1e60` stores its last stack argument at `+0x14c` (`@321e2017`; `RET 0x3c` = return slot + March's 13 + 1). The ctor sets 1.0 (`@321df48f`, in `321df230`). Both `CreateInstance` sites of `321ee600` push the same tail: pet `@321ef3bb` and normal / hyper `@321ef462`. That tail is `fLandPos` 0, `bReserve` 0, `fReserveTime` -1.0 (`[0x334380f0]` = `00 00 80 bf`), `+0x14c`, `fLifeTimeRate` 1.0, `iHitCount` -1, `fHitGap` -1.0, mesh 0, `fHitAddMp` -1.0, and two false bools. Angle = move-axis = the rotation. This is March's five calls exactly. Spot-check `3298e860` (Empress dash ZZ, `@3298e947-e9c4`): vScale (1,1,1), three zero vectors, lifetime -1.0, `bCustomPosition` 0 and `+0x97c4` last, the same as CH1o's call. The pet overload `321e2340` writes `+0x14c` too (`@321e2430`, one caller `321e2586`): the drift note stands.
+- **Hooks:** `31fc9410` = `fldz; mov [ecx+0x8eac], 0; fstp [ecx+0x8ea8]; ret` = the HELPERS base. `@32057c4c-cb2` = `0x800( 0x524(), +0x8ea8 )`, then `0x764( 0x524(), 0x528( 0 ), +0x8ea8 )`, then `0x808`. That equals Eve's override, which is Aisha's shape. `JuneEveIsSkillSlotState` = `X2GUUser.cpp:16223` table for table. The 0x810 skip is not ported, as for Aisha. The base virtuals and both call sites compile for `EVE_LIVE` alone and once with both LIVE flags (nested `#ifndef`).
+- **Routing:** `CH1o2.md`'s table matches the Done note: 0x3ac, 0x7b0, 0x56c, 0x6a8, 0x65c, 0x584, 0x6ac; 0x77c and 0x828 need no hook. It needs no change.
+
+**Hygiene** (`--range 3c7c9b7e^..3c7c9b7e`). Every flag has `0 deleted line(s), 0 non-ASCII ..., 0 encoding change(s)`:
+- `JUNE_CHAR_EVE_LIVE`: `3 PASS, 0 PASS~, 0 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`. Its RESULT is FAIL only by design ("not #defined").
+- `JUNE_EFFECTSET_FORCE_DOWN_RATE`: `2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+- `JUNE_CHAR_EVE_CORE`, `JUNE_USER_SKILL_USE_HELPERS`: `0 PASS, 0 PASS~, 0 DEFINE, 8 OTHER, 0 FAIL`, `RESULT: PASS`.
+- This review's comment fix: `CORE --worktree --files X2Lib/X2GuEve.cpp` gives `1 PASS, 0 FAIL`, `1 deleted line(s)` (the replaced comment), `0 encoding change(s)`, `RESULT: PASS`.
+
+**Other checks.**
+- `enumscan --check` (4 files): `0 A/B row(s) remain`.
+- `/Zs` of `X2GuEve`, `X2GUUser`, `X2Game` and `X2EffectSet`: 0 errors each, with LIVE undefined and with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`. Warning counts are the same in both modes.
+
+**JUNE_BUGS:** no row. **In game:** nothing (LIVE undefined). No rebuild: the code fix is a comment, so the binary is the same as CH1o's (`4f95ffbf`).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
