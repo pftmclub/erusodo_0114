@@ -333,6 +333,7 @@ option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect
 - D8 hands those calls here: each character port adds its class's calls.
 - (Eve: CH1l3 - `329a0ae0` `EveElectraSystem::June_StartFormationEffect` tags the three formation mark handles ( `JuneTagEffectAlphaParticleHandles`, count 3, not minor ); the other CH1l3 site `3299ba70` moved to CH3b.)
 - (Eve: CH1l4 - all 30 sites of the CH1l4 functions: `32991090` formation messages ( one site for the three stages ), `3299f470` / `3299fe60` plane and crystal ( handle, handle array ), `329a3040` / `329a3760` Thousand Star, `329bc6e0` four laser bump sequences, `329c5bc0` 17 ( Queen's Throne messages and shock waves, Mega Electron Ball and Taser Pilum charge particles ); each is `g_pX2Game->JuneTagEffectAlpha*` right after the creation, as June.)
+- (Eve: CH2a2 - all 15 sites of the CH2a2 functions: `3298f220` / `3298f8f0` Atomic Blaster's bullet mesh ( `@3298f401` / `@3298fad1` ) and the 13 of `3299d3f0` Queen's Throne ( UpLight / Wing / four weapon meshes, the wing follow, five particles, the booster handle ), each `g_pX2Game->JuneTagEffectAlpha*` right after the creation, as June.)
 - Every site is a row in `june2017_re/c10a_alpha_sites.tsv` with disposition `checklist 7c`. The helpers' meaning is in
   the funcmap rows tagged `Effect C10a`.
 

@@ -1798,6 +1798,22 @@ public:
 		RNSI_P_EEP_CHEAT_CODE_RULE_BREAK                      = 25418,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2a2 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Exotic Gear skill cases spell (values from June's Enum.lua)
+		RNSI_SA_EEG_EXPLOSION_IMPACT                          = 25004,
+		RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN                  = 25005,
+		RNSI_SA_EEG_HORNET_STING_EXPLOSION                    = 25006,
+		RNSI_SA_EEG_GENERATE_BLACKHOLE                        = 25007,
+		RNSI_SA_EEG_QUEENS_THRONE_UPGRADE                     = 25037,
+		RNSI_SA_EEG_EXPLOSION_IMPACT_UPGRADE                  = 25040,
+		RNSI_SA_EEG_ATOMIC_BLASTER_PLASMAGUN_UPGRADE          = 25049,
+		RNSI_SA_EEG_HORNET_STING_EXPLOSION_UPGRADE            = 25050,
+		RNSI_SA_EEG_GENERATE_BLACKHOLE_UPGRADE                = 25051,
+		RNSI_A_EEG_METAL_DUST_AURA                            = 25204,
+		RNSI_A_EEG_METAL_DUST_AURA_UPGRADE                    = 25218,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion ½ºÅ³
 	}; 
 
