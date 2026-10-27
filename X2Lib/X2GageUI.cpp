@@ -4621,9 +4621,76 @@ void CX2RenaMyGageUI::UpdateNaturalForceUI()
 
 CX2EveMyGageUI::CX2EveMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLASS eOwnerUnitClass_ )
 	: CX2MyGageUI( pGageData_, eOwnerUnitClass_ )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	, m_hSeqHyperBall( INVALID_PARTICLE_SEQUENCE_HANDLE )		/// June 32e64790
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 {}
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+/*virtual*/ CX2EveMyGageUI::~CX2EveMyGageUI()
+{
+	if( NULL != g_pData && NULL != g_pData->GetGameMajorParticle() )
+		g_pData->GetGameMajorParticle()->DestroyInstanceHandle( m_hSeqHyperBall );
+}
+
+/*virtual*/ void CX2EveMyGageUI::OnFrameMove( float fElapsedTime_ )
+{
+	CX2MyGageUI::OnFrameMove( fElapsedTime_ );
+	June_UpdateHyperBall();
+}
+
+/*virtual*/ void CX2EveMyGageUI::SetShow( const bool bShow_ )
+{
+	CX2MyGageUI::SetShow( bShow_ );
+
+	if( NULL != g_pData && NULL != g_pData->GetGameMajorParticle() )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetGameMajorParticle()->GetInstanceSequence( m_hSeqHyperBall );
+		if( NULL != pSeq )
+			pSeq->SetShowObject( bShow_ );
+	}
+}
+
+/// June 32e6a210: the third-awakening ball, drawn by CX2GUEve::OnFrameMove_ManeuverCore in March
+void CX2EveMyGageUI::June_UpdateHyperBall()
+{
+	if( NULL == g_pX2Game || NULL == g_pData->GetGameMajorParticle() || NULL == m_pGageData )
+		return;
+
+	CKTDGParticleSystem* pParticle = g_pData->GetGameMajorParticle();
+	if( 3 != m_pGageData->GetHyperModeCount() )
+	{
+		pParticle->DestroyInstanceHandle( m_hSeqHyperBall );
+		return;
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqHyperBall )
+	{
+		const D3DXVECTOR3 vHyperBallPos( 72.f * g_pKTDXApp->GetResolutionScaleX(), 80.f * g_pKTDXApp->GetResolutionScaleY(), 0.f );
+		m_hSeqHyperBall = pParticle->CreateSequenceHandle( NULL, L"Eve_PowerUp_UI_01", vHyperBallPos );
+		if( NULL == pParticle->GetInstanceSequence( m_hSeqHyperBall ) )
+			return;
+
+		pSeq = pParticle->GetInstanceSequence( m_hSeqHyperBall );
+		pSeq->SetOverUI( true );
+	}
+	else
+	{
+		pSeq = pParticle->GetInstanceSequence( m_hSeqHyperBall );
+		if( NULL == pSeq )
+			return;
+
+		const D3DXVECTOR3 vHyperBallPos( 72.f * g_pKTDXApp->GetResolutionScaleX(), 80.f * g_pKTDXApp->GetResolutionScaleY(), 0.f );
+		pSeq->SetPosition( vHyperBallPos );
+	}
+
+	if( true == GetShow() )
+		pSeq->SetShowObject( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() );
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 /*virtual*/ void CX2EveMyGageUI::InitWakeOrb()
 {
 	CKTDGUIStatic* pStaticWakeOrb = static_cast<CKTDGUIStatic*>( m_pDLGMyUnit->GetControl(L"StaticPVPGameStateWakeOrb") );

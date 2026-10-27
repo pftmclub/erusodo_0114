@@ -1448,6 +1448,34 @@ Flags: `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (Eve, insert-only) and `SERV_IRUHADEV_
 
 `enumscan --check` (2 files): `0 A/B row(s)`. `/Zs`: `X2GuEve.cpp` 0 errors with LIVE off and on, `X2GUArme_VioletMage.cpp` 0 errors. No rebuild (no change). `kickoffs/char-eve/CH1q.md` still matches.
 
+### CH1q - Done (2026-10-27)
+
+Flag: `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE` (`Always.h`), defined **only when `_LIVE` is**, and it defines `ADD_EVE_SYSTEM_2014` / `FIX_ADD_EVE_SYSTEM_2014` (decision 1 = (a)). Eve stays on her March kit until CH1 final defines `_LIVE`; nothing changes in game today.
+
+**Turning the two studio macros on.** `/Zs` of `X2GuEve.cpp`, `X2GUUser.cpp`, `X2GageUI.cpp`, `X2GageManager.cpp`, `X2GUNPC.cpp`, `X2DamageManager.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`: 0 errors before and after this phase's edits, so March's dormant 2014 code compiles as is; the 77 sites of `ch0_nasod_core_sites.tsv` are all it switches on (grep: the 9 files + `Always.h`). `DTT_EVE_MANEUVER_ATTACK` comes out 5 = June's (`EVE_ELECTRA`, `SERV_ADD_CHUNG_SHELLING_GUARDIAN`, `BALANCE_PATCH_20131107` on); `DTT_END` becomes 6.
+
+**Every map row:** `june2017_re/char_eve/ch1q_nasod_core_outcome.tsv` (126 rows: June body 19, March = June 101, dropped 3, other 3). The June bodies:
+- `AddManeuverGauge` `3297ee20`: gauge + ( spec A + 1.0 ) x arg.
+- `DoParrying` `329b4060`: when `!( spec B > GetRandomFloat(0) )` the 30 cost, the level drop and the `+0x9c44` `clock()` stamp; `ChangeManeuverCoreState( MCS_PARRYING )` always.
+- `ENSI_PARRYING_BLINK_Start` `32975740`: `GetSkillTemplet( RNSI_A_EVE_PHOTON_BLINK )`, else `_UPGRADE`, ability `SA_TELEPORT_RANGE_ABS` at level 1.
+- `OnFrameMove_ManeuverCore` `329b5230`: no gauge `Verify` / hack report, no hyper ball (moved to the UI), AFTER_ATTACK cost behind the same spec B roll (`32070350`, before `IsMyUnit`); called by `June_CommonFrameMove` (`@329c89a3`, after the El Crystal end).
+- `AttackManeuverCore` `329ac4a0`: the normal branch tests the laser before `SetIndex` (the hyper one does not: JUNE_BUGS 443); `+0x9bfc` x level > 0 -> `UpNowMp` + blue `MP+ %d` at pos + 50.
+- `SetAttackManeuverCore` `329acea0`: `clock()` into `+0x9c44` after the gate. `GetHyperModeStateID`: `USI_HYPER_MODE` (`32968470`); `ENSI_BERSERK_MODE` enum and registration dropped.
+- `IsSkillSummonedMonster` `329cf280`: + `NUI_NASOD_WATCH_EVE_MEMO` (519, CH0 missed it), `NUI_SI_SA_AT_SURFACE_CUTING`, `NUI_SI_SA_EEP_ELECTRONIC_FIELD`, `NUI_ECA_OBERON_GUARD`.
+- `CX2EveMyGageUI`: `m_hSeqHyperBall` (`+0x5c`), dtor `32e725e0`, `OnFrameMove` `32e71990`, `SetShow` `32e5eca0`, `June_UpdateHyperBall` `32e6a210` (count `+0xf4` == 3 -> `Eve_PowerUp_UI_01` over the UI at ( 72, 80 ) x resolution, no owner; shown only while the gauge UI is, hidden with the dialogs; else destroyed).
+- Registrations: `ENSI_PARRYING_SMALL` / `ENSI_PARRYING` / `ENSI_PARRYING_BLINK` in `June_InitStateCommon` (callbacks = March's, `ch0_reg.tsv` 1385-1401). `ch1m_regcheck.py` with 224-226 out of `ROUTED`: `matched 792 registrations, 0 problems; ids mapped 137` (11 callback funcmap rows added).
+
+**Open questions resolved.** (1) `+0x6c50` / `+0x6d04` are the socket specialization results, `GetCharacterSpecializationA()` / `B()` (`+0x6bb0` / `+0x6c64` + `0xa0`; Aisha CH4c reads `+0x6d04` the same way): `m_fJuneSpecializationA` (CH1k) is replaced in `AddManeuverGauge`, `June_AttackResultByType` and `June_SpecialAttackCooldown` (it stays only in the `#else`). (2) Which of `32e5b650` / `32e5b8a0` is Add's `InitWakeOrb` does not touch Eve (both remove orb 6); left for Add's port. (3) `32894e40` = a June-only `CX2UserSkillTree` cool-time cut ( seconds or rate, both bars, then clears the reset lists ); **routed to CH4a** with `+0x9c00`, which stays 0 until CH4a, so the branch is a one-line comment now (CH4a kickoff amended). (4) The PARRYING 0.3 s tail: March = June (`SKILL_CANCEL_AFTER( 0.3f )`), not re-checked byte for byte.
+
+**Parked blocks now live with `_LIVE`:** CH1b `ClearManeuverCore( true )` (die front / back), CH1k `June_AttackResultByType` / `HyperModeBuffEffectStart` / `ReInit` / dtor, CH1l2 sync int, CH1l3 gauge gain and parry refusal, CH1l4 Open Mind floor. Re-checked against June: as ported, except spec A (above) and the DTT member (`CX2DamageManager::DTT_EVE_MANEUVER_ATTACK` under NCORE; the CH1k local stays for the `#else`).
+
+**Kept as March:** the dev overlay's Eve gauge text in `CX2GUUser::RenderName` (`#ifndef _SERVICE_`, dev auth + NPC names): June's service exe drops the whole overlay (no `Combo: %d` either), like Raven's rage text. The `X2GUUser` / `X2GUNPC` / `X2GageUI` ADD sites are March = June (map).
+
+**Checks.** `/Zs` LIVE on: 6 TUs 0 errors; LIVE off: `X2GuEve.cpp` / `X2GageUI.cpp` / `X2GageManager.cpp` 0 errors. `cl /P` with LIVE: the new code is in, `ENSI_BERSERK_MODE` and the old hyper ball are gone.
+**Hygiene.** `flagcheck JUNE_CHAR_EVE_NCORE --worktree --files` (5 files): `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 13 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. OTHER = `Always.h` (the two studio defines). `enumscan --check` (4 files): 0 A/B rows.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 09:49:07, md5 8289303b365464879add009ea90ce64f, equal to X2/US_SERVICE/x2.exe (2026-10-27 09:49:01); built at main 5fa7f8df + 5 uncommitted code file(s).`
+**In game.** Nothing until CH1 final (`_LIVE`); the CH1 kickoff now lists the Nasod Core play-test items. JUNE_BUGS 443 added, 435 now live. Checklist 7an / spec A / spec B rows marked `(Eve: CH1q)`. Review: `kickoffs/char-eve/CH1q-review.md`.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

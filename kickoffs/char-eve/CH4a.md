@@ -39,3 +39,8 @@ Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their ob
 
 - CH1k declared `m_fJuneVengeanceMpRate` (`+0x9bf8`, read by `June_DamageReact`: `UpNowMp( GetMaxMp x it x HP fraction lost )` while alive), `m_fJune9bfc` and `m_fJune9c00` (`+0x9bfc` / `+0x9c00`, ctor 0). `InitPassiveSkillState` `3297f290` writes them from skills `0x633b` / `0x633c`; use these names and drop any duplicate.
 - `3297f290` also calls `329ce7b0` (a protected-bool setter); CH1k keeps the bool as `m_bJune89fc` (`+0x89fc`, write-only so far). Set it there the same way.
+
+## Amended by CH1q (2026-10-27)
+
+- `AttackManeuverCore` (`329ac4a0 @329aca06-329aca3d`) has one June branch CH1q left as a comment: `m_fJune9c00` ( `+0x9c00` ) x `m_iManeuverCoreLv` > 0 and `m_pUnit` -> `32894e40( f, false )` on the unit's `CX2UserSkillTree` ( `+0x494` ). `32894e40` (funcmap row, CH1q) is June-only: both bars, the force / ignore lists and type 12 / 13 filter of its sibling `32893e00` ( `ReduceLeftSkillCoolTimeByRateJune` ), left > 0 -> rate ? left x f : max( 0, left - f ), then it clears the reset lists. Port it whole as a `CX2UserSkillTree` member and make the call live in the same phase that fills `+0x9c00` ( the comment line sits after the Queen of Vengeance MP block, under `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE` ).
+- `+0x9bfc` ( Queen of Vengeance MP per core level ) is already read there ( `UpNowMp` + `MP+ %d` text ); filling it is enough.

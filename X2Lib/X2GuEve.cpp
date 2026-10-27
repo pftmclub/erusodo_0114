@@ -1601,6 +1601,9 @@ void CX2GUEve::InitStateCommon()
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
 #ifdef FIX_ADD_EVE_SYSTEM_2014		// 김종훈, 2014 - 이브 추가 시스템 수정 사항
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	/// June 329b8030 registers no ENSI_BERSERK_MODE
+#else
 	stateData.Init();
 	stateData.stateID			= ENSI_BERSERK_MODE;
 	m_LuaManager.MakeTableReference( "ENSI_BERSERK_MODE", stateData.stateID );
@@ -1610,6 +1613,7 @@ void CX2GUEve::InitStateCommon()
 	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, HyperModeStartFuture );
 	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, HyperModeEnd );
 	m_StateList[stateData.stateID] = stateData;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 #endif // FIX_ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템 수정 사항
 
 
@@ -33797,7 +33801,11 @@ bool CX2GUEve::CanParryingState ()
 void CX2GUEve::AddManeuverGauge ( float fVal_ )
 {
 	// 기동 게이지를 추가한다.
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	m_fManeuverGauge = static_cast<float>( m_fManeuverGauge + ( GetCharacterSpecializationA() + 1.0 ) * fVal_ );		/// June 3297ee20
+#else
 	m_fManeuverGauge = m_fManeuverGauge + fVal_;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 	if( m_fManeuverGauge > 100.f )
 		m_fManeuverGauge = 100.f;
 	else if( m_fManeuverGauge < 0.f )
@@ -33810,6 +33818,21 @@ void CX2GUEve::DoParrying()
 		return;
 //	PlaySound(L"Raven_NasodCore_Trans_Parry.ogg");
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	/// June 329b4060: specialization B beating the roll skips the cost and the Open Mind stamp
+	if( false == ( GetCharacterSpecializationB() > GetRandomFloat( 0 ) ) )
+	{
+		m_iJuneClock9c44 = ::clock();
+
+		m_fManeuverGauge -= 30.f;
+		if( m_fManeuverGauge < 0.f )
+			m_fManeuverGauge = 0.f;
+
+		--m_iManeuverCoreLv;
+		if( m_iManeuverCoreLv < 0 )
+			m_iManeuverCoreLv = 0;
+	}
+#else
 	m_fManeuverGauge -= 30.f;
 	if( m_fManeuverGauge < 0.f )
 		m_fManeuverGauge = 0.f;		
@@ -33817,6 +33840,7 @@ void CX2GUEve::DoParrying()
 	--m_iManeuverCoreLv;
 	if( m_iManeuverCoreLv < 0 )
 		m_iManeuverCoreLv = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 	ChangeManeuverCoreState( MCS_PARRYING );
 }
@@ -33894,6 +33918,20 @@ void CX2GUEve::ENSI_PARRYING_BLINK_Start ()
 	CommonStateStart();
 	m_fPhotonBlinkBackSpeedX = 0.f;
 	m_fPhotonBlinkDummyLifeTime = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	/// June 32975740: Photon Blink ( or its upgrade ) from the skill tree, level 1
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK );
+	if( NULL == pSkillTemplet )
+		pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_EVE_PHOTON_BLINK_UPGRADE );
+
+	if( NULL != pSkillTemplet )
+	{
+		if ( NULL == GetUnit() )
+			return;
+
+		m_fPhotonBlinkBackSpeedX	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TELEPORT_RANGE_ABS, 1, false );
+	}
+#else
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet(CX2SkillTree::SI_A_EN_PHOTON_BLINK);
 
 	if( NULL != pSkillTemplet )
@@ -33908,6 +33946,7 @@ void CX2GUEve::ENSI_PARRYING_BLINK_Start ()
 
 		m_fPhotonBlinkBackSpeedX	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TELEPORT_RANGE_ABS, iSkillTempletLevel );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 	m_fBlinkInvisibilityAlpha	= 1.f;
 	m_bBlinkInvisibility		= true;
@@ -34176,14 +34215,21 @@ void CX2GUEve::OnFrameMove_ManeuverCore ()
 	// 아래 로직은 OnFrameMove 에서 항상 처리 합니다.
 
 	// 기동 게이지가 변조됐다면 해킹 유저로 리포트 한다.
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	/// June 329b5230 has no gauge Verify / hack report
+#else
 	if ( false == m_fManeuverGauge.Verify() )
 	{
 		if( g_pData->GetMyUser()->GetUserData().hackingUserType != CX2User::HUT_AGREE_HACK_USER )
 			g_pData->GetServerProtocol()->SendID( EGS_REPORT_HACK_USER_NOT );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 	// 기동 코어의 이펙트 셋의 포지션을 잡아준다. ( 기동 코어 위치가 아닌 이펙트 셋의 포지션! ) 
 	SetManeuverCoreEffectSetPosition();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	/// June 329b5230: the third-awakening ball moved to CX2EveMyGageUI ( 32e6a210 )
+#else
 
 	// 3각성 시 항상 처리 해야 할 것 
 	if( GetHyperModeCount() == 3 )
@@ -34228,6 +34274,7 @@ void CX2GUEve::OnFrameMove_ManeuverCore ()
 			g_pX2Game->GetMajorParticle()->DestroyInstanceHandle(m_hSeqHyperBall);
 		}	
 	}		
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 
 
@@ -34332,7 +34379,12 @@ void CX2GUEve::OnFrameMove_ManeuverCore ()
 					else 
 					{
 						// 연출이 끝났으면 삭제
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+						/// June 329b5230 @329b5547: specialization B beating the roll skips the cost
+						if( false == ( GetCharacterSpecializationB() > GetRandomFloat( 0 ) ) && IsMyUnit() == true )
+#else
 						if( IsMyUnit() == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 						{
 							m_fManeuverGauge = m_fManeuverGauge - (GetManeuverCoreLevelByGauge() * 30.f);
 						}
@@ -34444,7 +34496,12 @@ void CX2GUEve::AttackManeuverCore ()
 						pManeuverCoreEffectMeshInstance->GetPos(), m_pManeuverCore->GetManeuverCoreRotateExceptOffset(), m_pManeuverCore->GetManeuverCoreRotateExceptOffset() );
 
 					// Index 를 1 로 설정하면 그냥 데미지 이펙트
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+					if( NULL != m_pManeuverCoreAttackDamageEffect )		/// June @329ac84a tests it here only
+						m_pManeuverCoreAttackDamageEffect->SetIndex( UMGAT_NORMAL );
+#else
 					m_pManeuverCoreAttackDamageEffect->SetIndex( UMGAT_NORMAL );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 					PlaySound( L"Eve_Ensi_Attack02.ogg" );
 				}
@@ -34468,6 +34525,26 @@ void CX2GUEve::AttackManeuverCore ()
 					break;
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+			/// June 329ac4a0 @329ac908: Queen of Vengeance MP per core level ( +0x9bfc, CH4a sets it )
+			const float fJuneMpUp = m_fJune9bfc * static_cast<float>( m_iManeuverCoreLv );
+			if( 0.f < fJuneMpUp )
+			{
+				UpNowMp( fJuneMpUp );
+
+				if( NULL != g_pData->GetPicCharBlue() )
+				{
+					WCHAR wszText[64] = L"";
+					StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MP+ %d", (int) fJuneMpUp );
+
+					D3DXVECTOR3 pos = GetPos();
+					pos.y += 50.f;
+
+					g_pData->GetPicCharBlue()->DrawText( wszText, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+				}
+			}
+			/// June @329aca06: +0x9c00 x level > 0 takes seconds off every equipped cool time ( 32894e40 ); CH4a ports it with +0x9c00
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 		}				
 	}
 	// 정상적으로 타켓팅 할 수 없는 상태 일 때
@@ -34671,6 +34748,9 @@ void CX2GUEve::ChangeManeuverCoreState ( MANEUVER_CORE_STATE eState_ )
 		// 코어 상태가 Wait 일 때 		
 		if ( GetCanAttackManeuverCore ( pDamageData.optrDefenderGameUnit.GetObservable() ) )
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+			m_iJuneClock9c44 = ::clock();		/// June 329acea0 @329acedc: the Open Mind idle stamp
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 			// 기동 코어를 공격 상태로 변환한다.
 			if( CX2DamageManager::AT_UNIT == pDamageData.defenderType )
 			{
@@ -35088,10 +35168,14 @@ D3DXVECTOR3 CX2GUEve::GetManeuverCoreTargetPosUsingCollisionData ()
 
 /*virtual*/ const int CX2GUEve::GetHyperModeStateID()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	return static_cast<int>( USI_HYPER_MODE );		/// June 32968470 ( GetHypetMpdeStateID )
+#else
 	if ( 3 <= m_FrameDataFuture.syncData.m_HyperModeCount )
 		return static_cast<int>( ENSI_BERSERK_MODE );
 	else
 		return static_cast<int>( USI_HYPER_MODE );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 }
 
 
@@ -44133,13 +44217,21 @@ void CX2GUEve::June_AttackResultByType( CX2DamageManager::DamageData &pDamageDat
 	if( CX2DamageManager::AT_SPECIAL != pDamageData_.attackType && NULL != GetGageData() && GetRemainHyperModeTime() > 0.f )
 	{
 		if( IsMyUnit() == true )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+			m_fManeuverGauge += ( max( pDamageData_.damage.fPhysic, pDamageData_.damage.fMagic ) * pDamageData_.m_fRateModifier * 4.f ) * ( 1.f + GetCharacterSpecializationA() );		/// +0x6c50
+#else
 			m_fManeuverGauge += ( max( pDamageData_.damage.fPhysic, pDamageData_.damage.fMagic ) * pDamageData_.m_fRateModifier * 4.f ) * ( 1.f + m_fJuneSpecializationA );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 
 		if( m_fManeuverGauge > 100.f )
 			m_fManeuverGauge = 100.f;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	if( true == pDamageData_.JuneIsAttackTrigger( CX2DamageManager::DTT_EVE_MANEUVER_ATTACK ) && NULL != m_pManeuverCore && IsWaitManeuverCore() == true )
+#else
 	if( true == pDamageData_.JuneIsAttackTrigger( JUNE_CH1K_DTT_EVE_MANEUVER_ATTACK ) && NULL != m_pManeuverCore && IsWaitManeuverCore() == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 	{
 		SetAttackManeuverCore( pDamageData_ );
 		m_wstrManeuverCoreTargetBoneName = GetBoneNameNearestImpactPoint( pDamageData_.impactPoint );
@@ -46186,7 +46278,11 @@ void CX2GUEve::June_SpecialAttackCooldown( const int iSkillID_, const float fMpC
 	if( true == JuneEveIsSpecialActiveType( pSkillTemplet->m_eType ) && GetRemainHyperModeTime() > 0.f && true == IsMyUnit() )
 	{
 		/// June divides the reserved MP ( +0x8ea8 ), where March divided fMPConsume ( JUNE_BUGS )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+		m_fManeuverGauge += static_cast<float>( ( GetCharacterSpecializationA() + 1.0 ) * ( m_fJune8ea8 / 3.0 ) );		/// +0x6c50
+#else
 		m_fManeuverGauge += static_cast<float>( ( m_fJuneSpecializationA + 1.0 ) * ( m_fJune8ea8 / 3.0 ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 		if( m_fManeuverGauge > 100.f )
 			m_fManeuverGauge = 100.f;
 	}
@@ -50157,6 +50253,9 @@ void CX2GUEve::June_CommonFrameMove()
 	m_EnergyNiddleData.June_OnFrameMove( this, m_fElapsedTime );
 	June_OnFrameMove_EndElCrystalSystem();
 	// June 329b5230 ( the Nasod Core frame move ): the call is added in CH1q
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	OnFrameMove_ManeuverCore();
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 	June_OberonGuardFrameMove();
 	June_FrameMoveNpcEffectSets();
 	June_UpdateDashXTargetUnit();
@@ -50932,6 +51031,38 @@ void CX2GUEve::June_InitStateCommon()
 	/// June 329b8030 @1385: ENSI_PARRYING_SMALL ( Nasod Core, CH1q registers it )
 	/// June 329b8030 @1391: ENSI_PARRYING ( Nasod Core, CH1q registers it )
 	/// June 329b8030 @1401: ENSI_PARRYING_BLINK ( Nasod Core, CH1q registers it )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	stateData.Init();
+	stateData.stateID			= ENSI_PARRYING_SMALL;
+	m_LuaManager.MakeTableReference( "ENSI_PARRYING_SMALL", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_StartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_Start );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ENSI_PARRYING;
+	m_LuaManager.MakeTableReference( "ENSI_PARRYING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_StartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_Start );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ENSI_PARRYING_BLINK;
+	m_LuaManager.MakeTableReference( "ENSI_PARRYING_BLINK", stateData.stateID );
+	stateData.StateInit			= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_Init );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_Start );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_StartFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_EventProcess );
+	stateData.OnFrameMoveFuture = SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_FrameMove );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_EndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_End );
+	m_StateList[stateData.stateID] = stateData;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 	/// June 329b8030 @1405: ENSI_EVE_RECOVERY ( Code Recovery, CH4c registers it )
 }
 

@@ -873,5 +873,14 @@ class CX2EveMyGageUI : public CX2MyGageUI
 public:
 	CX2EveMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLASS eOwnerUnitClass_ );
 	virtual void			InitWakeOrb();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+	virtual ~CX2EveMyGageUI();										/// June 32e725e0
+	virtual void			OnFrameMove( float fElapsedTime_ );		/// June 32e71990
+	virtual void			SetShow( const bool bShow_ );			/// June 32e5eca0
+	void					June_UpdateHyperBall();					/// June 32e6a210
+
+private:
+	CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqHyperBall;		/// June +0x5c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 };
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어

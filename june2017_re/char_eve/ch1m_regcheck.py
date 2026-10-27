@@ -62,7 +62,7 @@ def sim(fn):
         out[p[1]].append({'id': p[3], 'table': p[4], 'cb': dict((x.split('=')[0], x.split('>')[-1]) for x in (p[5] if len(p) > 5 else '').split(' ') if '=' in x)})
     return out
 HOOK = {'ENSI_WAIT_STATE_CHANGE', 'ENSI_DAMAGE_BOUNDING_DOWN', 'ENSI_DAMAGE_BOUNDING_LANDCRASH', 'ENSI_DAMAGE_BOUNDING_UP'}
-ROUTED = {'93', '94', '95', '96', '123', '124', '125', '126', '127', '128', '129', '224', '225', '226', '238', '111', '112', '113', '115', '116'}
+ROUTED = {'93', '94', '95', '96', '123', '124', '125', '126', '127', '128', '129', '238', '111', '112', '113', '115', '116'}
 EMPTYOK = {'3202a7d0', '32002f70'}
 ROLL = {'9': 'tableNameStartUTF8.c_str()', '11': 'tableNameWinUTF8.c_str()', '12': 'tableNameLoseUTF8.c_str()', '23': 'strHyperModeTable.c_str()'}
 idmap = collections.defaultdict(set); bad = 0; n = 0

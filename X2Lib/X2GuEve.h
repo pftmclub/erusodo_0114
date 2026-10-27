@@ -136,7 +136,11 @@ public:
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
 #ifdef FIX_ADD_EVE_SYSTEM_2014		// 김종훈, 2014 - 이브 추가 시스템 수정 사항
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+		/// June has no ENSI_BERSERK_MODE ( not in 329b8030, the exe or Eve_Nasod.lua )
+#else
 		ENSI_BERSERK_MODE,
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 #endif // FIX_ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템 수정 사항
 
 
@@ -1382,6 +1386,12 @@ public:
 			case CX2UnitManager::NUI_GUARDIAN_SP1_EVE_MEMO :
 			case CX2UnitManager::NUI_GUARDIAN_SP2_EVE :
 			case CX2UnitManager::NUI_GUARDIAN_SP2_EVE_MEMO :
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+			case CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO :			/// June 329cf280 adds these four
+			case CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING :
+			case CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD :
+			case CX2UnitManager::NUI_ECA_OBERON_GUARD :
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 				return true;
 
 			default :

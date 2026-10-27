@@ -10137,6 +10137,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
+// Date: 2026-10-27
+// Description: June character port ( Eve ) Phase CH1q - the Nasod Core ( maneuver core, gauge, parrying, gauge-UI orb ) on March's dormant
+//              ADD_EVE_SYSTEM_2014 / FIX_ADD_EVE_SYSTEM_2014 code, June's bodies where they differ. Defined only with SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+//              ( June's Eve_Nasod.lua carries the parrying tables ), and it defines the two studio macros. Revert: comment out the #define ( JUNE_CHAR_EVE_NCORE ).
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+#define ADD_EVE_SYSTEM_2014
+#define FIX_ADD_EVE_SYSTEM_2014
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
 // Date: 2026-10-26
 // Description: June character port ( Eve ) Phase CH1a2 - CX2GUUser::June_GetSkillLevel / June_GetLearnedSkillAbilityValue ( June 31fceab0 / 32007b10 ),
 //              the one home for the pair; Aisha's and Eve's private copies are compiled out. Needs JUNE_TRANSCEND_UNIT ( the hyper-class test reads m_iUnitClassTran ).

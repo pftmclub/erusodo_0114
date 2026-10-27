@@ -39,3 +39,8 @@ Then the CH1a-CH1q Done notes and reviews.
 ## Amended by the CH1n review (2026-10-27)
 
 - Under `_LIVE` an equipped skill with neither a March case nor a CH1n case lands on June's default, Faena (`June_SetFaenaSkillFunc`: table + EventProcess, no Init / FrameMove until CH2b). The play-test equips skills March has cases for, or expects Faena's motion with no effects.
+
+## Amended by CH1q (2026-10-27)
+
+- `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE` is defined by `Always.h` only when `_LIVE` is, and it defines `ADD_EVE_SYSTEM_2014` / `FIX_ADD_EVE_SYSTEM_2014`: defining `_LIVE` turns the Nasod Core on, nothing else to flip.
+- Play-test items for the core ( any Eve job, awakened ): the core appears and follows her ( level = gauge / 30, max 3 ); a hit fills the gauge, a special active adds skill-MP / 3; the core fires on an enemy ( `EffectSet_Eve_QueenCore_Before_Attack` ) and the gauge drops by level x 30; parry ( `ENSI_PARRYING*`, blink on X ) costs 30; at third awakening the `Eve_PowerUp_UI_01` ball shows on the gauge UI and hides with the UI ( `Hide` key ). With a socket specialization B the parry / attack cost is sometimes skipped. The `.lua` keys come with June's `Eve_Nasod.lua` ( tables `ENSI_PARRYING_SMALL` / `ENSI_PARRYING` / `ENSI_PARRYING_BLINK` ).
