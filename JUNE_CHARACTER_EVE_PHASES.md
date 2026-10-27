@@ -288,6 +288,8 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 | CH1p | Opus high, Opus review | 7ag pressed-index space (Mega Electronball, Taser Pilum, Kugelblitz encoders + every reader + the decode `:6151-6177`, together); hooks 7h / 7l / 7o / 7p / 7x; June-only script keys |
 | CH1q | Opus high, Opus review | Nasod Core (decision 1 = (a): March's `ADD_EVE_SYSTEM_2014` code under our flag, June's bodies where they differ; `ch0_nasod_core.tsv`), flag `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE`, sub-tag `NCORE` |
 | CH1 | Opus high, Opus review, user play-test | Define `_LIVE`; adopt `Eve_Nasod.lua` and the summon scripts CH0 marks CH1; pack, ask, copy; the play-test |
+| CH1r | Opus high, Opus review, user play-test | CH1 play-test: June's `LoadEffectSetFromScript` `32024ff0` whole (`EFFECT_SET_LIST_FINAL` and the other June list variants; the dash-jump Z-X spear) |
+| CH1s | Opus high, Opus review, user play-test | CH1 play-test: the third-awakening portrait ball (June gage data `+0xf4`, `32e6a210`) |
 
 **Transcription rules (CH1a-CH1l):** each function whole, as an inert member `June_<March name>` (or `June_<STATE>_<Slot>`) under
 `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`; March's functions untouched; a class-range callee owned by a later group is declared with
@@ -1506,6 +1508,11 @@ Hygiene: `flagcheck.py JUNE_CHAR_EVE_LIVE --worktree --files` (4 files): `files:
 Build: `DEPLOY OK: X2_offline.exe is 26,080,256 B, dated 2026-10-27 10:17:39, md5 61de6ca0a8bb0309a47235dba918e638, equal to X2/US_SERVICE/x2.exe (2026-10-27 10:17:32); built at main b561b723 + 4 uncommitted code file(s).` `EVE DATA` is in the exe once.
 
 **Play-test (user) is the gate:** one Eve per job, START / combos / dash / jump / riding (Iivue owns two riding pets) / awakening with the Nasod Core; `EVE DATA` per class; ErrorLog against the pre-CH1 copy. No new JUNE_BUGS row, no drift.
+
+**Play-test 1 (user, 2026-10-27, run 10:51-11:04 on md5 `61de6ca0`):** `EVE DATA` for all 7 classes (5: 142 states, 18: 148, 19: 145, 26: 149, 108: 159, 109: 152, 116: 153), each `EVE_NASOD.lua` / `MOTION_EVE.X` / `wait_state_change 1`; the START fix works (`C3e-2` rolls `ENSI_START` / `ENSI_AT_START`, `ENSI_WIN2`, `ENSI_LOSE2`, no `list size 0`); 0 UNHANDLED besides the known HB check, 0 EXCEPTION; ErrorLog's new lines are map textures and event scenes, none Eve's. Three findings:
+- **Exotic Gear / Code: Nemesis dash-jump Z-X has no spear on the ground.** Its effect set is in June's `EFFECT_SET_LIST_FINAL`, which March's `LoadEffectSetFromScript` never reads (checklist l.411, `32024ff0`). CH0's key scan missed it (it matched the `_FINAL_ULTIMATE` text of a March comment). Eve has 5 such states, Aisha 4 unread `ULTIMATE_EX` lists. Playable combat on her combo path, so a phase of this plan: **CH1r** (June's `32024ff0` whole).
+- **The third-awakening ball on the portrait never shows** (CH1q's `June_UpdateHyperBall`). The override runs (`OnFrameMove( float )` is live), the gauge UI class is built for all 7 Eve classes, the particle is in data036. What June's gage data `+0xf4` holds (orb count or the awakening level used) and why the handle is never made need RE: **CH1s**.
+- **Eve's V key and its icon are missing:** June's Code Recovery (`ENSI_EVE_RECOVERY`, the `CODE_RECOVERY_*` keys, the 7ah UI statics `322e65c0` / `322dee90`) is CH4c's by plan; nothing new.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 

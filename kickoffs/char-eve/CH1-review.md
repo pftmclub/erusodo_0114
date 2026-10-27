@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-eve CH1 review` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | Phase CH1 done (its Done note, commit and the user's play-test) |
+| Depends on | Phase CH1 done (its Done note, commit and the user's play-test), CH1r and CH1s done (the play-test's two findings) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (defined here; it turns on `_NCORE`) |
 | Log tag | `[JUNE_CHAR]` (`EVE DATA`, `EVE NCORE`) |
 
