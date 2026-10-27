@@ -130,6 +130,7 @@ no Eve ENUM or KEYS line. (Run `charport_scan.py` with a short scratch dir: a lo
 | CH1 | Final: define `_LIVE`, adopt the script, play-test | Opus high, Opus review, user play-test | CH1q review (and CH0b) |
 | CH2a-CH2c2 | Skills: Nasod + first jobs (5, 18, 19, 26; CH0 split CH2a / CH2c) | Sonnet high, Opus review, user play-test | CH1 review |
 | CH2b2 | How June spawns a summon: one NPC per owner or many (raised by the CH2b play-test: repeated Surface Cuting leaves several Oberons) | Opus high, Opus review, user play-test | CH2b play-test 2 |
+| CH2b3 | Three unbound NPC Lua methods Oberon calls (`ApplyPassiveSkillOwnerUser_LUA`, `Reset/SetMultiplyPowerRate_LUA`) | Opus high, Opus review | CH2b play-test 2 |
 | CH3a-CH3d | Skills: second jobs (108, 109, 116), hyper actives, transcendence rows | Sonnet high, Opus review, user play-test | CH2 reviews |
 | CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds, before the Sonnet phase that needs it (e.g. `CH2b0`) | Opus high, Opus review | as its phase |
 | CH4a-CH4c | Passives; damage exception + overrides; El Crystal / recovery HUD and tree-UI pieces | Opus high, Opus review, user play-test | CH2 reviews |
@@ -1817,6 +1818,14 @@ that is a rule of June's NPC spawn path rather than of the skill. **Run with:** 
 Scope: June's create-NPC chain (`3299b810` -> `31f8b010` -> `322e67c0`), the receive side and March's offline stand-in, NPC-side caps / replace keys, and a census of
 every June user-side `CreateNPCReq` caller. **Done gate:** the rule (or its absence) proven with June addresses; a flagged port or stand-in with a play-test hand-off, or a
 recorded "June allows many". Related: JUNE_BUGS 449 / 451, `June_ClearGuardAndSummon`, `June_SetSelfDestructSummonedNPC`.
+
+## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
+
+Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`
+(June `32763c10`), `ResetMultiplyPowerRate_LUA` (`31e8d6a0`) and `SetMultiplyPowerRate_LUA` (`31e8d610`), none bound in March, so the function stops at the first call and
+`SetFlag_LUA( 0, true )` never runs. The two power-rate writers are small (protected float at NPC `+0x8ce4`, read by `GetPowerRate` `32759630`); the Apply call is the
+owner-passive / stat refresh of `SetUserSummonedNPCInfo` and belongs with the Stage 33 stat-calc rules. **Run with:** `/x2-phase char-eve CH2b3` (Opus 5.5 high).
+**Read:** `kickoffs/char-eve/CH2b3.md`. **Done gate:** `luabind.py check` PASS on the three Eve summon scripts, funcmap rows, no "can't find" in ErrorLog.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
