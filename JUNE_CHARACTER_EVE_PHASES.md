@@ -1872,6 +1872,31 @@ recorded "June allows many". Related: JUNE_BUGS 449 / 451, `June_ClearGuardAndSu
 - **Hygiene:** `flagcheck.py JUNE_SUMMON_UNIQUE --range ac295991^..ac295991`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 2 OTHER are `X2BuffFactor.h` / `X2UnitManager.h`, the `JUNE_ENUM_NAMES` registrations. `git log -SJUNE_SUMMON_UNIQUE ac295991..HEAD`: none.
 - `kickoffs/char-eve/CH2b4.md` checked: stands as written (its `+0x8b40` premise is confirmed above). User owes nothing.
 
+### CH2c - Done (2026-10-27, Sonnet 5.5)
+
+Electra's skill ids take June's `329c8a00` cases and state bodies (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, in `June_SetEquippedSkillFuncHead`). All 27 functions of the class map read from the raw listings (`charport_adis.py eve`; a listing runs on past the first `int3`: `32993730` ends at `32993c3e`). Rows: funcmap `Char Eve CH2c`.
+- **Registered ids:** Photon Flare 25022 / 25042, Particle Ray 25023, Particle Ray upgrade 25063 (its own tables), Kugelblitz 25024 / 25064, Spectro El Crystal 25202 / 25215. Five `RNSI_*` names added under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (`X2SkillTree.h`: 25022, 25023, 25042, 25063, 25064). Tables and callbacks are `ch0_skill.tsv`'s (both tables share one Lua table name per skill; the hyper tables of Photon Flare and Particle Ray have no Init).
+- **March bodies that are June's as is (14):** the Inits, Photon Flare Start / EventProcess / End, Particle Ray Start / StartFuture / FrameMoveFuture, Kugelblitz Start / StartFuture / FrameMoveFuture / EventProcess / EndFuture.
+- **New (13 `June_*` members):**
+  - Spectro: Start (`June_StartElCrystalSystem`), FrameMove (`June_StartFormationEffect`), EventProcess (cancel chain with the on-line test June added to the walk and dash cancels: `JUNE_EVE_*` macros).
+  - Particle Ray: FrameMove / EventProcess / End as one body each with a `bUpgrade_` flag. The upgrade adds StartFuture (`m_kJuneSkillSlotKey.Set( m_iNowSpecialAttack - 1 )`), Start / End (`m_iJune9c48`), the laser bone `Bip01_L_Finger3Nub`, the effect handle kept in `m_iJune9c48`, a per-frame turn of the beam's `RotateLocal` Z by the class-skill float (limit `SA_SCOPE_ABS_Z`, default 45) and the steering in EventProcess (`SetClassSkillFloat` +-`SA_SCOPE_ABS_Y`, default 5, while the held key is not released). The memo laser variants (`GetEqippedSkillMemo` is a June stub) are left out.
+  - Photon Flare FrameMove: range / time from `GetSkillAbilityValue`, a Check and Kill 1 memo (type 15) scales the time.
+  - Kugelblitz FrameMove: no MP, no charge-rank damage or hit count, scale = `SA_PROJECTILE_SIZE` + 1.5, three alpha-tagged fire particles, `Damage_KugelBlitz_Charge` plus the new `Damage_KugelBlitz_SelfDamage`.
+- **Assets:** every CH2c closure row is `june-bytes`; the 6 `missing` rows are names June's own code uses and does not define (5 preload `.tga`, `DummyAttackBox_100x50x50.X` of `ABOX_El_Crystal_Damage`). No kom change, no pack.
+- **Checklist / bugs:** 7c: the 3 alpha sites are Kugelblitz's particles; 7n: writer `3297d730` / reader `329a67b0` ported. JUNE_BUGS 452 (the class-skill float is never cleared). `luabind.py check Eve_Nasod`: 0 unbound. 
+- **Branches not ported:** none found outside the plan.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2SkillTree.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (the OTHER is the `JUNE_ENUM_NAMES` block in `X2SkillTree.h`); `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,129,920 B, dated 2026-10-27 20:45:51, md5 1ec950e484b2f1b2497c0aaf1f1979bb, equal to X2/US_SERVICE/x2.exe (2026-10-27 20:45:44); built at main 779e75d0 + 9 uncommitted code file(s) (CH2c's 3, a peer's 6). The strings `Damage_KugelBlitz_SelfDamage`, `Bip01_L_Finger3Nub` and `ENSI_SA_EPR_PARTICLE_RAY` are in the exe.
+
+**Play-test hand-off.** Save: unit 41 `ElectraT` (Eve Electra, level 90): A slots 0-3 = Photon Flare upgrade 25042, Particle Ray 25023, Kugelblitz upgrade 25064, Spectro upgrade 25215; B slot 5 = Particle Ray upgrade 25063 (25023 and 25063 are both level 1). The old slots (25213 / 25030 / 25031 / 25214) are cleared; backup `db_backup\els_db_20261027_203901_pre_sql.sql`. The base ids 25022 / 25024 / 25202 share their case with the upgrade ids and are not equipped. Log tag `[JUNE_CHAR] EVE SKILL` and `[JUNE_SKILL] NUM`.
+1. Photon Flare (A1): a white flash at 0.99 s and a big blast around Eve; scale follows the skill range. Look for `EVE SKILL registered ENSI_SA_EPR_PHOTON_FLARE`.
+2. Particle Ray (A2): hold up / down in the first 0.4 s to tilt the plane; a laser fires at 0.43 s from the left hand. Log `ENSI_SA_EPR_PARTICLE_RAY`.
+3. Particle Ray upgrade (B1 = slot 5): hold the key past 0.4 s and press up / down: the beam turns up to 45 degrees; release stops steering (JUNE_BUGS 452: it may keep turning). The laser starts at the left finger tip.
+4. Kugelblitz (A3): a ball with three fire particles plus a self-damage effect; no MP is spent by the shot itself.
+5. Spectro El Crystal (A4): crystal system starts, the formation effect plays at 0.5 s, `SPECTRO_EL_CRYSTAL_COMBO_DAMAGE` hits.
+No missing mesh / texture error is expected beyond the 6 June-undefined names above. Then say "check logs".
+
 ## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
 
 Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`

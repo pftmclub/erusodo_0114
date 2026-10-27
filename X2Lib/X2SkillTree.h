@@ -1809,6 +1809,16 @@ public:
 		RNSI_SA_EAT_HEAVENS_FIST_SWEEPER_UPGRADE              = 25058,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2c (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Electra skill cases spell (values from June's Enum.lua)
+		RNSI_SA_EEL_PHOTON_FLARE                              = 25022,
+		RNSI_SA_EEL_PARTICLE_RAY                              = 25023,
+		RNSI_SA_EEL_PHOTON_FLARE_UPGRADE                      = 25042,
+		RNSI_SA_EEL_PARTICLE_RAY_UPGRADE                      = 25063,
+		RNSI_SA_EEL_KUGELBLITZ_UPGRADE                        = 25064,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a2 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Exotic Gear skill cases spell (values from June's Enum.lua)

@@ -5173,6 +5173,19 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a ); temporary `SERV_
 - **Kept as June has it:** nothing beyond the bodies ( JUNE_BUGS 451 was withdrawn in the CH2b review: Faena takes one target, so no register carries over ). The PvP time scale of the Oberon buff, the Mega Electronball rate, the two skill-value helpers and the Electra recovery tooltip now test PvP or PvE ( `GT_PVE` ), as June's `322cc1a0` does.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the twelve ids fall back to March's cases ).
 
+### June Eve: Electra skills (char-eve CH2c, 2026-10-27)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a / CH2b ); no debug flag. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2c - Done"; log lines `[JUNE_CHAR] EVE SKILL registered ...`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's `329c8a00` cases for 25022 / 25042 Photon Flare, 25023 Particle Ray, 25063 Particle Ray ( upgrade, its own tables ), 25024 / 25064 Kugelblitz and 25202 / 25215 Spectro El Crystal ( five `RNSI_*` names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES` ). 14 of the 27 June functions are March's bodies as is ( the Inits, Photon Flare Start / EventProcess / End, Particle Ray Start / StartFuture / FrameMoveFuture, Kugelblitz Start / StartFuture / FrameMoveFuture / EventProcess / EndFuture ); 13 are new `CX2GUEve::June_*` members.
+- **What changes in game.**
+  - Spectro El Crystal: June's crystal start ( `June_StartElCrystalSystem` ) and formation effect; the walk and dash cancels need the ground ( June added the on-line test to March's macros ).
+  - Particle Ray: the laser runs through June's laser system ( `Bip01_L_Hand` ); the memo laser variants ( `SMI_EVE_MEMO14` ) are gone ( June's memo check is a stub ). The upgrade ( 25063 ) holds the beam while its key is held: up / down turns the beam's local Z by the class-skill float ( speed `SA_SCOPE_ABS_Y`, default 5; limit `SA_SCOPE_ABS_Z`, default 45 ) every frame; the laser comes from `Bip01_L_Finger3Nub`.
+  - Photon Flare: range / time from the skill's numerical data ( `SA_SCOPE_ABS` / `SA_EFFECTIVE_TIME`, `_HYPER` for the awakened ), a Check and Kill 1 memo scales the time.
+  - Kugelblitz: no MP is spent in the FrameMove and the charge rank no longer scales damage or hit count ( March: x1..2 power and + hits by charge time, 20 MP fallback ); the shot is `Damage_KugelBlitz_Charge` ( scale = `SA_PROJECTILE_SIZE` + 1.5 ) plus a new `Damage_KugelBlitz_SelfDamage` at the same point.
+- **Damage ( June level-1 value x0.01, `plan_numerical_rows.tsv` ).** Particle Ray `EVE_EPR_PARTICLE_RAY_LASER` 2.28 ( hyper 2.92 ); Photon Flare `EVE_EPR_PHOTON_FLARE` 12.37 ( hyper 15.79 ); Kugelblitz `Damage_KugelBlitz_Charge` 5.71 + 0.89 x2. Spectro El Crystal has no numerical block. March's values were not tabulated.
+- **Kept as June has it:** the unit-null early return of Photon Flare / Kugelblitz skips `CommonFrameMove`; the Kugelblitz second `GetSkillAbilityValue` ( `SA_PROJECTILE_PIERCING` ) is read and dropped ( not ported ); the Particle Ray laser keeps a stale `m_iJune9c48` handle until Start / End reset it.
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
+
 ### June summons: one per owner and NPC id (char-eve CH2b2, 2026-10-27)
 
 Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b2 - Done"; log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`.

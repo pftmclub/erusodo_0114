@@ -3259,6 +3259,22 @@ protected:
 	void		June_ENSI_A_EAT_OBERON_GUARD_FrameMove();		/// June 329b2e10
 	void		June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
 	void		June_ENSI_SI1_AT_SURFACE_CUTING_FrameMove();	/// June 3299d390
+	/// June character port Phase CH2c: Electra's skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_Start();		/// June 329b7370
+	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_FrameMove();	/// June 329a5d80
+	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_EventProcess();	/// June 329733b0
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( const bool bUpgrade_ );
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMove() { June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( false ); }					/// June 329a5ee0
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_FrameMove() { June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( true ); }			/// June 329a67b0
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( const bool bUpgrade_ );
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcess() { June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( false ); }			/// June 3297d3f0
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_EventProcess() { June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( true ); }	/// June 3297d730
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_End();				/// June 329936e0
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_StartFuture();	/// June 32967560
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_Start();		/// June 32973670
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_End();		/// June 32993700
+	void		June_ENSI_SA_EPR_PHOTON_FLARE_FrameMove();		/// June 32993730
+	void		June_ENSI_A_EBS_Kugelblitz_FrameMove();			/// June 329aa730
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ = false );	/// June 3297b840
 	void		June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 3297baa0 ( vslot 0x834 )

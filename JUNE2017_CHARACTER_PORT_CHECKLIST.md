@@ -335,6 +335,7 @@ option, the category (`CX2Game::GetEffectAlphaCondition`), the EffectSet/CEffect
 - (Eve: CH1l4 - all 30 sites of the CH1l4 functions: `32991090` formation messages ( one site for the three stages ), `3299f470` / `3299fe60` plane and crystal ( handle, handle array ), `329a3040` / `329a3760` Thousand Star, `329bc6e0` four laser bump sequences, `329c5bc0` 17 ( Queen's Throne messages and shock waves, Mega Electron Ball and Taser Pilum charge particles ); each is `g_pX2Game->JuneTagEffectAlpha*` right after the creation, as June.)
 - (Eve: CH2a2 - all 15 sites of the CH2a2 functions: `3298f220` / `3298f8f0` Atomic Blaster's bullet mesh ( `@3298f401` / `@3298fad1` ) and the 13 of `3299d3f0` Queen's Throne ( UpLight / Wing / four weapon meshes, the wing follow, five particles, the booster handle ), each `g_pX2Game->JuneTagEffectAlpha*` right after the creation, as June.)
 - (Eve: CH2a3 - all 6 sites of `329b1e20` Mega Electronball: the three hand particles ( `@329b231c` / `@329b23f5` / `@329b24c0` ) and the three per watch ( `@329b287e` / `@329b293d` / `@329b29ee` ), each `g_pX2Game->JuneTagEffectAlphaParticle` right after the creation, as June.)
+- (Eve: CH2c - all 3 sites of `329aa730` Kugelblitz: the three `EBS_A_TASER_PILUM_fire_P01..P03` particles ( `@329aaa87` / `@329aab49` / `@329aac0b` ), each `JuneTagEffectAlphaParticle` after the add-rotate and axis angle, as June. No other CH2c function has a site.)
 - Every site is a row in `june2017_re/c10a_alpha_sites.tsv` with disposition `checklist 7c`. The helpers' meaning is in
   the funcmap rows tagged `Effect C10a`.
 
@@ -481,7 +482,7 @@ it on Now. Nothing in March drives it until these rows are ported. Classes are c
 | Class | June writer (Future) | June reader (Now) | Notes |
 |---|---|---|---|
 | Rena | `32c88050` (Grand Archer `RNSI_P_RGA_RANDOM_SHOT_PLEASURE`, 23415: +/- by the up / down keys) | `32c86620`, `32c9d420`, `32ca2520` | Registered by `32cb06d0` (Rena vtable `33518d70`). |
-| Eve | `3297d730` | `329a67b0` | Registered by `329c8a00` (Eve vtable `334cfc10`). |
+| Eve | `3297d730` | `329a67b0` | Registered by `329c8a00` (Eve vtable `334cfc10`). (Eve: CH2c - the writer is `June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( true )` ( `SetClassSkillFloat`: +S up, -S down, 0 else, S = SA 0x9e, default 5 ); the reader is the upgrade's FrameMove ( `GetClassSkillFloat()` turns the beam's local Z, limit SA 0x9f, default 45 ).) |
 | Chung | `32c0ba60` | `32c0ba60` | Thunk `32c256f0`, registered by `32c1f530` (Chung vtable `33509e30`). |
 | Elesis | `32b73bf0` (StateStart: base vslot `0x7c0`, then the float = 0) | `32b7d550` | Thunks `32b906b0` / `32b909b0` from `32b864f0` (called by Elesis Init `32b87a60`). |
 
