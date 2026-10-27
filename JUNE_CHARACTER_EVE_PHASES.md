@@ -1682,7 +1682,7 @@ Read against the listing / raw disassembly, not the Done note's claims.
 - **"= March" spot-checks:** Metal Dust EventProcess `3296fe20` (14 keys, 0.66 s), Atomic Blaster EventProcess `32971910` (anim end, attack `+0x8c8c` with 14 keys, skill `+0x8c90`, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`), Atomic Blaster Start `3298f1c0` (3 handles), Explosion Impact / Queen's Throne Start / End (`+0x9620` / `+0x9628`, Common Start / End order kept).
 
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --range dc16df68^..dc16df68`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = `X2SkillTree.h` names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`); no later commit touches the flag. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows. No rebuild: the deployed md5 `f4202717` is the reviewed code.
-**Play-test:** still owed (the Done note's hand-off). Next: `/x2-phase char-eve CH2a3` (Opus 5.5 high), then `CH2b0`; both kickoffs are in place.
+**Play-test PASSED 2026-10-27** (user + logs, run 15:34): the six `EVE SKILL registered` lines (25037 / 25040 / 25050 / 25051 / 25218 on unit 57, 25005 on unit 59); ErrorLog 0 Motion Error / KEM; 0 EXCEPTION, only the known `E_DISABLE_HB_CHECK_REQ` UNHANDLED. Next: `/x2-phase char-eve CH2a3` (Opus 5.5 high), then `CH2b0`; both kickoffs are in place.
 
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
