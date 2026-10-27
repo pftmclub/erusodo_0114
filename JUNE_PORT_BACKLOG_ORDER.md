@@ -409,7 +409,7 @@ Everything from Stages 5 and 6, plus:
   (`KUnitInfo +0x15`, Room `+0x21`, Field `+0x24`, Square `+0x4a`: `movzx ... word ptr` in `3235eb20` / `32360090` / `323614c0` / `32361e00`);
   March's `m_cUnitClass` is a `char`, which ends at 127. Check it when a class id above 127 first appears (the new characters). Transcendence
   only adds the int after it (T1).
-**Hard gate:** the live-DB starter-item rows (below).
+**Hard gate:** the starter-item rows (below). The live DB has none for these classes (user, 2026-10-27), so each character's planning session derives them from `item.kim` by the name pattern of the existing classes' starter items, as a labelled stand-in under that character's own flag.
 
 ### Stage 9: UI sweep
 
@@ -1217,7 +1217,7 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
 
 | Decision | Gates | How to settle |
 |---|---|---|
-| **Starter items for classes the live DB never had.** Live `gup_create_unit` copies exactly ten `dbo.GBase_Item` rows per class and aborts with `-28` otherwise. Rose, Ain, Lu/Ciel, and possibly transcended classes, are almost certainly absent. The no-band-aid rule forbids inventing rows unless the user authorises it, as they did for A2's stat rows. | 8 (not 6: the Stage 6 planning found that transcendence adds no class IDs, 2026-10-22) | Ask the user for a live-DB pull (query below). If the rows are absent, the user decides the source: June data, if it exists anywhere, or an explicit, logged, user-chosen set. |
+| **Starter items for classes the live DB never had.** Live `gup_create_unit` copies exactly ten `dbo.GBase_Item` rows per class and aborts with `-28` otherwise. Rose, Ain, Lu/Ciel, and possibly transcended classes, are almost certainly absent. The no-band-aid rule forbids inventing rows unless the user authorises it, as they did for A2's stat rows. | 8 (not 6: the Stage 6 planning found that transcendence adds no class IDs, 2026-10-22) | **Answered 2026-10-27 (user): the live DB has no starter rows for Lu/Ciel, Rose or Ain.** No pull is needed. Each new character's planning session (`new-plan char-<name>`) derives the ten rows from `item.kim` (`tools/kim.py`, `/x2-kim`) by the name pattern of the existing classes' starter items (the `131641..`, `111094..`, `112700..` blocks). The result is a labelled stand-in under that character's own `SERV_IRUHADEV_` flag; the planning session records the pattern and the ids, and lists ambiguous picks for the user. Never an id that is not in `item.kim`. |
 | **Stat rows for June-only class IDs.** The user authorised inventing `StatTable`/`NpcExpTable` rows 81–99 only for classes that already exist (Atlas A2). The later class paths and the new characters need a **full** per-level row set, and `KncWX2Server/ServerResource/US/` has none for them. | 5, 7, 8 | First look for June-side data: the June binary, any June server Lua, or the live DB. If there is none, ask the user whether A2's permission extends to these classes, and how the rows should be derived. |
 | **Guild quests offline** | 4 | Ask: parse-and-log or a real port. **Answered 2026-10-17: parse-and-log.** |
 | **Scaleform/GFx runtime** for EventScene and quest movies | 4 | Ask: a runtime, or skip with a log line. **Answered 2026-10-17: a runtime, plan `june-gfx` (`JUNE_GFX_RUNTIME_PHASES.md`); its G0 assigns the owed gates below, G5 ports the GFx ones, the rest go to Stage 9.** Whichever lands also owes June's two cut-in hide terms in `GetShowActiveSkillShow` (`31fd3180 @31fd3228`, left out by effect C3t-1): GFx UI `0xb` open (`[g_pKTDXApp+0x1c8]`, `isOpenUI` `31c44710`), and a movie playing (`g_pMain +0x80a`, June's movie table `+0x7f8`; funcmap `(C3t-1)`). Also owes June's ESC gates from effect C3p-2 (`31f1e1a0`, funcmap `(C3p-2)`): the result-UI mode `+0x210` switch (`@31f1e214`, with its setter `31ef7be0` and exit box `31f1dd70`), `closeToTopZorder` + the `CX2UIProfessionManager` close (`@31f1e262`), and the dialog manager's hide modes 2-4 (`31d03a10` / `31d05af0`). Insertion point: the C3p-2 Done note (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`); the C3p-2 review adds that June's end-of-game handlers (`324db6b0`, `3252ba10`) open the mode-1 window when result info exists, so ESC is eaten from the end packet until the result UI moves on, where March's ESC still works during the `m_bGameEnd` wait: that comes with this port. |
@@ -1424,9 +1424,10 @@ scheduled. Output: one phase doc per character from the pilot's template.
 ```
 Plan backlog Stage 8 (Lu/Ciel, Rose, Ain). Read JUNE_PORT_BACKLOG_ORDER.md (fact 6,
 Stage 8, open decisions, Standing rules), the Stage 5-7 docs, and
-JUNE_BUFF_PORT_PHASES.md's dormant Rose/Ain/Lu/Ciel notes. Hard gate first: ask the
-user for the live GBase_Item pull (query in the order doc) and settle the starter-
-item source. Output: one phase doc per new character (UNIT_TYPE in the shared
+JUNE_BUFF_PORT_PHASES.md's dormant Rose/Ain/Lu/Ciel notes. Hard gate first: the live DB has
+no starter rows for these classes (user, 2026-10-27), so derive each character's
+ten starter items from item.kim by the name pattern of the existing classes'
+starter items (open decisions table), as a labelled stand-in under its own flag. Output: one phase doc per new character (UNIT_TYPE in the shared
 header, flag-gated, offline-only; creation + emulator create-unit; tutorial dungeon;
 DUO_TYPE / ROSE_WEAPON_TYPE; activating dormant buff code). Never launch
 X2_offline.exe without asking.
