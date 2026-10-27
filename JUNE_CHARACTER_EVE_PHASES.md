@@ -1432,6 +1432,22 @@ Flags: `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (Eve, insert-only) and `SERV_IRUHADEV_
 **Build.** `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 08:57:19, md5 d007ebca7c6c6e5dc2c1eef93e0bddec, equal to X2/US_SERVICE/x2.exe (2026-10-27 08:57:12); built at main 2023f592 + 2 uncommitted code file(s).`
 **In game.** Eve: nothing (LIVE is off). Aisha: Hell Drop's control on a Q / W / E / R slot now follows that key: **play-test PASSED 2026-10-27** (user, Hell Drop on Q). Funcmap: `329a7f50` / `329b1e00` confirmed, `32cd9d00` corrected. Review: `kickoffs/char-eve/CH1p-review.md`.
 
+### CH1p - Review (2026-10-27)
+
+**Verdict: PASS, no change.** Fresh capstone listings of every cited range, a `cl /P` of `X2GuEve.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` and of `X2GUArme_VioletMage.cpp` as built.
+- **The sweep.** In the LIVE `.i` the only readers of the key-pressed member are the two converted states (`:28692`, `:32406`); the only writer is `June_SpecialAttackCooldown` (`:46195`, `m_iJune8ea4 + 1`, = June `@329815fb-32981602`: `+0x8ea4` + 1 -> `+0x8ac0`). `InitEquippedActiveSkillState` / `CommonEventProcess` / `InitInpuDataProcess` are one-line `June_*` delegations; the March `GetSkillSlotData*` / `IsUpSkillSlot*` (Mega / Taser / Kugelblitz) have no caller; only the two `June_GetSkillSlotData*` are called (`:46231`, `:46247`). Byte scan of `32965dd0-329cf86f` for `0x8ac0`: one hit, the store `@32981602`.
+- **`JuneEveIsSkillKeyUp`.** Slot = value - 1 against `SKILL_SLOT_A1..B5_TC` (0-9 with `JUNE_SKILL_SLOT_10`, defined), F / T = `pureSkill5` / `pureSkillEx5`; an unmatched value returns false, which is March's (no OR term true). Tri-Vulcan keeps `&& m_fEffectStartTime >= 3.0f`; Sweep Rolling Charge had no extra term.
+- **Aisha.** `32cd9d18`: `ecx = +0x8ac0 - 1`, `ja` past 8 -> `xor al, al`; table `32cda1b0` = A S D C, `@32cd9d7c` (up), Q W E R; key offsets `+0x86f6 / 86fa / 86fe / 86f2 / 8706 / 870a / 870e / 8712`. The port's `default: false` covers index 4 and out of range. `ARME_LIVE` is defined (`Always.h:9648`), so the `.i` is the LIVE one: March's `AVSI_HELL_DROP_CONTROL_EventProcess` (`:16829`, `SAKP_*`) still compiles and is registered at `:3565-3645` under `case SI_A_ADM_HELL_DROP` (2214), but June's `NewSkillTempletVer2` tree has no 2214 row (Void Princess gets 22020), so it is never equipped; it goes when CH2a-CH3b remove March's cases. Raven / Chung read the member with March's own encoding; `X2GUUser` only initializes it.
+- **Hooks.** `324d979a-324d97be`: GetMyUnit (game vslot 0x98), null, `+0x867c` -> `+0xaf0` -> type 5, then `329b1e00`, `329a7f50` = March `X2StateDungeonGame.cpp:2943-2954` (`SERV_EVE_BATTLE_SERAPH` defined, `ServerDefine.h:3544`). `329b1e00`: `+0x9784` (= `+0x9778 + 0xc` bEnable) == 1 -> `3299ebd0( 0, +0x7d14 )` = `June_Reset( false, &future )`. `329a7f50`: same shape on `+0x9a48` -> `329a7e70` = March.
+- **`+0x9c60`.** Eight sites in the Eve range: readers `32976ebe` / `32976f17` (CH1a helpers) and the three inlined state copies, plus three the Done note did not list, all ported: `3299c95b` (ctor = 0), `329c3f01` (Recovery ECN tooltip arg, CH1k `:44464`) and `329c5084` (`InitComponent` load, CH1k `:44415`).
+- **7h / 7l / 7o / 7p / 7x.** As the Done note says; nothing new.
+
+**Hygiene** (`--range 8766131d^..8766131d`):
+- `JUNE_CHAR_EVE_LIVE`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), ... 0 encoding change(s)`; `RESULT: FAIL` = only "not #defined" (by design).
+- `JUNE_CHAR_ARME_SKILL`: `files: 1 PASS, ... 1 OTHER (other flags), 0 FAIL`; `in this flag's files: 9 deleted line(s), ... 0 encoding change(s)`; `RESULT: PASS`.
+
+`enumscan --check` (2 files): `0 A/B row(s)`. `/Zs`: `X2GuEve.cpp` 0 errors with LIVE off and on, `X2GUArme_VioletMage.cpp` 0 errors. No rebuild (no change). `kickoffs/char-eve/CH1q.md` still matches.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
