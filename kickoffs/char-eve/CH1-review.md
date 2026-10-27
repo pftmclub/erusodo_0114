@@ -22,7 +22,8 @@ Review CH1 final against its Done gate and the Aisha CH1 review's checks:
 - **`EVE DATA` lines:** state count per class against `ch1m_reg_by_class.tsv` (class gap equal, the constant offset explained as in Aisha's review), `wait_state_change 1`, `MOTION_EVE*.X`.
 - **The START fix** (`ParseCommonRandomState` -> `JuneParseCommonRandomState`): the 7 June table names = `JuneGetUnitClassName`'s Eve names; the rolls pick real tables (no `list size 0` / `re-bind skipped` for `ENSI_`).
 - **ErrorLog** against `data\ErrorLog_pre_CH1_eve.txt`: no new `KEM_ERROR` / `Motion Error` / missing Eve animation; anything new is routed.
-- **Nasod Core** (`EVE NCORE`) lines from the play-test agree with CH1q's play-test items.
+- **Nasod Core** (`EVE NCORE`) lines from the play-test agree with CH1q's play-test items. (CH1s's `EVE NCORE ball` line was retired in the CH1s review; its PASS is the user's play-test 2.)
+- **CH1s's data fix** is part of the deploy unit: data034 `DLG_PVP_Game_My_State_NEW.lua` = `june_adopt_20261027_123538.tsv` (sha1 `28b6cbc7`, `1B 4B 4C 81`), data057 Texture80 staged; `kom.py status data034 data057` in sync.
 - The six `(Eve: CH1 ...)` checklist marks and the §4 verdict.
 
 Hygiene: `python tools/flagcheck.py JUNE_CHAR_EVE_LIVE --range <CH1 commit>^..<CH1 commit>`; `enumscan --check X2Lib/X2GuEve.cpp`.

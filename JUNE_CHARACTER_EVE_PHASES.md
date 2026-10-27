@@ -1594,6 +1594,19 @@ to slide down to the third orb, and only 0 and 1 are left. Every class's `InitWa
 - **Play-test 2 (user, 2026-10-27, run 12:39-12:40 on exe `fcb84b19` + the copied koms): PASSED.** Three orbs, Eve's core third, plus the glow; logs clean (0 EXCEPTION, the known HB check only, no ErrorLog line for the dialog or Texture80).
 - **Standing rule added (user, 2026-10-27):** assume March does not have an asset ported code uses; check it by name before debugging code, stage June's if missing, replace with June's if present (CLAUDE.md).
 
+### CH1s - Review (2026-10-27)
+
+Opus 5.5. CH1q's `June_UpdateHyperBall` and CH1s's findings were read against June `32e6a210`, `3208eef0`, `31ffd490`, `32e5cfe0` and `31d03920` (Ghidra decompile and disassembly; bytes and constants read from `unpacked_x2.exe`). **Verdict: PASS, no transcription error; the diagnostic is retired.**
+- **`+0xf4` is the orb count.** The raw bytes of `3208eef0` (no Ghidra function) are `mov eax,[ecx+0xc04]` / `mov edx,[esp+4]` / `test eax,eax` / `jz` / `mov [eax+0xf4],dl`, then the mirror `lea esi,[ecx+0x7eb4]`. This is `SetHyperModeCount`. `HyperModeStart` `31ffd490` calls vslot 0xa8( 0 ) (funcmap l.4580 / 4643). So the ball shows while 3 orbs are held and goes away when the awakening starts. This is June's rule.
+- **Gate and destroy:** the `DAT_3372c0fc` observer + `type_info`, then `322ceaa0` != 0, then gage data `param_1[4]` != 0. That is the port's `g_pX2Game` / `GetGameMajorParticle()` / `m_pGageData` test. When the count is not 3, `32e5cfe0` destroys handle `+0x5c` on `[g_pData+0x84]`. This matches the port's `DestroyInstanceHandle( m_hSeqHyperBall )`.
+- **Create:** the args are ( 0, `Eve_PowerUp_UI_01`, ( 72 x `+0x1b8`, 80 x `+0x1bc`, 0 ), -1.0f, -1.0f, -1, -1, -1.0f, true, 0, false ). `334380f0` = -1.0f, and `33534178` / `33438090` are the doubles 72.0 / 80.0. These are March's `CreateSequenceHandle` defaults (`KTDGParticleSystem.h:1959`). After it, the byte at `+0x170` is set to 1 (OverUI). The else branch does `SetPosition` with the same vector. All match the port.
+- **Show block:** vslot 0x1c (`GetShow`) == 1, then `31d03920` on `g_pKTDXApp+0x1fc -> +0x38c`, which returns `+0xbc == 1 && +0x34 == 0`. That is March's `GetHideDialog` (`m_bCanHide && !m_bShow`, `KTDGUIDialogManager.cpp:1602`). `+0x172` is then set to !hidden, with vslot 0x28 on a change; this is `SetShowObject` with `NotifyShowObjectChanged` (`KTDGObject.h:324`). This matches the port.
+- **Play-test fix:** this is June's behaviour, not an engine gap. It is a same-name asset replacement with no code change. data034 `DLG_PVP_Game_My_State_NEW.lua` sha1 `28b6cbc7`, header `1B 4B 4C 81` = `june_adopt_20261027_123538.tsv`. `kom.py status data034` / `data057`: in sync, +0 / -0 / ~0 vs live.
+- **Retired `SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG`** by reversing `53743937`'s two code hunks exactly (`git apply -R`; neither file had changed since). `Always.h` and `X2GageUI.cpp` are now byte-identical to `53743937^` and still CP949. `enumscan --check X2Lib/X2GageUI.cpp`: 0 rows. No `_NCORE` change.
+
+Build: `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-10-27 12:55:07, md5 2ffc4610245c1f48c3202d08f5c12e80, equal to X2/US_SERVICE/x2.exe (2026-10-27 12:55:01); built at main 54b84dac + 2 uncommitted code file(s).` `EVE NCORE ball` is not in the exe.
+`kickoffs/char-eve/CH1-review.md` checked: it still matches. It now also checks CH1s's data034 / data057 fix and notes that the ball log line is gone.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

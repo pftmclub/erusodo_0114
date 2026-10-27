@@ -10247,10 +10247,3 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH1r - a user state's effect sets load as June's LoadEffectSetFromScript ( 32024ff0 ): EX_TRANS_1 / _2 / _NO_TRANS, ULTIMATE_EX( _APPLIED_SKILL ), EX_APPLIED_SKILL, FINAL / FINAL_ULTIMATE ( 32020ec0 / 3200b030 ), and a FINAL row's CONSUME_MP gates its play ( 32007570 ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 //////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-27
-// Description: June char-eve CH1s - temporary: one offline_server.log line a second on Eve's third-awakening ball ( June 32e6a210 ). Retired in the CH1s review.
-#define SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG
-//////////////////////////////////////////////////////////////////////////

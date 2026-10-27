@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include ".\X2GageUI.h"
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG
-#include "Offline/X2OfflineLog.h"
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG
 
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -4658,24 +4655,6 @@ CX2EveMyGageUI::CX2EveMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLA
 /// June 32e6a210: the third-awakening ball, drawn by CX2GUEve::OnFrameMove_ManeuverCore in March
 void CX2EveMyGageUI::June_UpdateHyperBall()
 {
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG
-	static double s_fJuneBallLogTime = -1.0;
-	if( s_fJuneBallLogTime < 0.0 || g_NowTime - s_fJuneBallLogTime >= 1.0 )
-	{
-		s_fJuneBallLogTime = g_NowTime;
-		CKTDGParticleSystem* pDbgParticle = ( NULL != g_pData ) ? g_pData->GetGameMajorParticle() : NULL;
-		CKTDGParticleSystem::CParticleEventSequence* pDbgSeq = ( NULL != pDbgParticle ) ? pDbgParticle->GetInstanceSequence( m_hSeqHyperBall ) : NULL;
-		const D3DXVECTOR3 vDbgPos = ( NULL != pDbgSeq ) ? pDbgSeq->GetPosition() : D3DXVECTOR3( 0.f, 0.f, 0.f );
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE NCORE ball game %d count %d handle %d templet %d seq %d live %d show %d hide %d seqshow %d drawn %d overui %d layer %d pos %.0f %.0f",
-			NULL != g_pX2Game ? 1 : 0, NULL != m_pGageData ? static_cast<int>( m_pGageData->GetHyperModeCount() ) : -1,
-			INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqHyperBall ? 1 : 0,
-			( NULL != pDbgParticle && NULL != pDbgParticle->GetTempletSequencesByName( L"Eve_PowerUp_UI_01" ) ) ? 1 : 0,
-			NULL != pDbgSeq ? 1 : 0, NULL != pDbgSeq ? pDbgSeq->GetLiveParticleNum() : -1, GetShow() ? 1 : 0,
-			g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() ? 1 : 0,
-			( NULL != pDbgSeq && pDbgSeq->GetShowObject() ) ? 1 : 0, ( NULL != pDbgSeq && pDbgSeq->IsInstantShow() ) ? 1 : 0,
-			( NULL != pDbgSeq && pDbgSeq->GetOverUI() ) ? 1 : 0, NULL != pDbgSeq ? pDbgSeq->GetLayer() : -1, vDbgPos.x, vDbgPos.y );
-	}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG
 	if( NULL == g_pX2Game || NULL == g_pData->GetGameMajorParticle() || NULL == m_pGageData )
 		return;
 
