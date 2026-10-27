@@ -1811,6 +1811,25 @@ Architecture's twelve skill ids take June's `329c8a00` cases and state bodies (f
 **Play-test 2 (user, 2026-10-27, run 19:25-19:26, md5 `7197b609`): Oberon's own attacks showed no slash; fixed, PASSED.** June's `OBERON_ATTACK_A/B/C_FRAME_MOVE` call `game:GetIsNowPVPCorrectionGame()` before `PlayEffectSet_LUA`; March never bound it (ErrorLog: "can't find 'GetIsNowPVPCorrectionGame' class variable"), so the function died before the effect set. Added `CX2Game::GetIsNowPVPCorrectionGame` ( June `322cc1a0`: `GetGameType()` is `GT_PVP` or `GT_PVE` ) and its Lua binding in `X2Main.cpp`, flag `_SKILL` ( also fixes Nasod Watch Eve and the Electronic Field NPC ). Log: `ES_CREATE` for `..._OBERON_Attack_A` x10, `_B` (1st + 3rd) x7, `_C` x7; 0 `PVPCorrection` errors. Hitstun: no change needed, every June Oberon state is `SUPER_ARMOR` / `INVINCIBLE` and `OBERON_DAMAGE` plays `Wait`. Several Oberons at once: handed to Phase CH2b2.
 **Deploy ( slash fix ):** DEPLOY OK: X2_offline.exe is 26,120,192 B, dated 2026-10-27 19:24:34, md5 7197b609955583a7e56fdef86baa2cbd, equal to X2/US_SERVICE/x2.exe ( 19:24:27 ); built at main ca0efe1a + 4 uncommitted code file(s).
 
+### CH2b - Review (2026-10-27, Opus 5.5): PASS after two transcription fixes (Faena takes one target; PvP or PvE)
+
+All 22 listings were read (`charport_adis.py eve`), plus registration rows `ch0_skill.tsv` 446 / 463 / 472 / 485 / 497 against the five cases and Faena's two callbacks.
+- **Fix 1, Faena `329c4380`: one target, not every target.** The only back edge (`@329c44c1`) skips NULL entries. Both paths after the first real unit (boss `@329c464c`, the other by falling through) reach `@329c4751`, release the factor and free the vector (`@329c4773`). Ghidra decompiles it as `if( unit ) { ...; break; }`. June marks the nearest enemy only (the collector sorts by distance; row 450's ignored count never shows). The `ebp` / `edi` reuse is ordinary register reuse after their one use. **JUNE_BUGS 451 is withdrawn.** The play-test-1 crash came from the port's own second pass, so the level and skill-id workarounds are gone (learned level, the skill id to slot 476).
+- **Fix 2, `322cc1a0` is PvP or PvE.** Surface Cuting's time scale tested `GT_PVP` only ("March has no GT_PVE"), but `GT_PVE` has been registered since the CH1l5 review. Now `GetIsNowPVPCorrectionGame()`. The same stale test was fixed in four more Eve sites: CH2a3's Mega Electronball rate, the two skill-value helpers `June_GetSkillNumericalByName` and `JuneEveTryGetAcquiredSkillAbilityValue`, and CH1k's recovery tooltip (`_CORE`, inline `GT_PVP || GT_PVE`). Three non-Eve sites (Aisha x2, `ParsingBuffFactorID`) are routed to Stage 33 ("known mixed sites").
+- **Confirmed as ported:**
+  - **`3299b810`:** the BFI 441 call is `( 0x1b9, creator 0, level, 0, 0 )`; `max( 1, level )`; BTI 412's first finalizer time is `+0x9c4c` x 60.0 + `+0x4070`, and `SA_DECREASE_REL` takes the 4-word push. The 18 forwarder words are gate, 1621, hyper byte (`+0x7cbc` state data `+0x10` = `m_bHyperState`), 1, pos, right, 0.0, 1, key = arg 1, team `+0x278`, `NAT_ALLY`, UID, 0, `TN_NONE`, `NCT_CHANGESTAGE_REMAIN` (3). vslot 0x54 takes no argument.
+  - **`329b2e10`:** BFI 652 is `( 0x28c, 0, 1, 0, 0 )`. The 19 words of `322e67c0` are 2091, 0, 1, pos, right, 0.3, 1, -1, team, 1, UID, 0, -1, `NCT_NONE`, gate, trailing 0.
+  - **`329700a0`:** `+0x304..+0x310` = nowSpeed ( 0, 0 ) / passiveSpeed ( -1, -1 ); `+0x9770` = `GetPowerRate()` x `+0x4064`.
+  - **Effect sets:** Heaven's Fist `3298d550` / `3298d710` (identical but for the EH handler) and Sweeper `329a99a0` call `PlayEffectSet( name, this, NULL, false, power x +0x4064, -1, GetVec3ScaleByUnit, true, pos, rot, dir, 1.0 )`. Sweeper puts `pos +- dir x 300` and rotation `+ ( 0, 180, 0 )` on the left. Its oneshot is `timer < 0.1`, else 1.241 s `UpDownCrashCamera( 80, 1 )`. Sonic Wave `3298c730` is the defaults + power, with the handle at `+0x9c34`.
+  - **`32974bb0`:** animation end -> JUMP_DOWN / WAIT on `bFootOnLine`; walk / dash cancels carry the on-line test; the skill cancel then the awake-lock chain (`322731a0`, oneLCtr, `+0x8d4c`, `GetHyperModeStateID`).
+  - **Faena's other arguments:** SA `0x1f` / `0x9e` / `0x9f` (700 / 35 / 35), cone `( 1, range, -0x9f, 0x9e, true, 180, false )`; boss vslot 0x3e4 with `L""` and the narrow name `334d3828`; the other path `( name, this, target, false, -1, -1, ( 1, 1, 1 ), false, 0, 0, 0, 1.0 )`.
+- **Ghidra spot-checks (read-only):** `329c4380` decompile (the `break`, SA ids, collector arguments); strings `334d37e8` / `334d3828` = `EffectSet_SI_A_EAT_Faena_Damage`. Both pass.
+- **Retired:** `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG` (define, four log blocks, the Oberon logger and its call / declaration).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --with JUNE_CHAR_EVE_SKILL_DEBUG --worktree --files X2GuEve.cpp X2GuEve.h Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`. The OTHER rows are the CH1k tooltip line under `_CORE` and a peer's uncommitted CH2b2 block in `Always.h`. `in this flag's files: 3 deleted line(s)` = the retired header declaration; 0 non-ASCII, 0 EOL-mismatched, 0 encoding changes; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY_LINE_PLACEHOLDER
+**User owes:** a short Faena re-test (below); nothing else.
+
 ## Phase CH2b2 - How June spawns a summon (added 2026-10-27, Opus)
 
 Raised by the CH2b play-test 2: repeated Surface Cuting casts leave up to 4 Oberons alive; the user expects one summon per owner and NPC type and asks whether
@@ -1819,13 +1838,45 @@ Scope: June's create-NPC chain (`3299b810` -> `31f8b010` -> `322e67c0`), the rec
 every June user-side `CreateNPCReq` caller. **Done gate:** the rule (or its absence) proven with June addresses; a flagged port or stand-in with a play-test hand-off, or a
 recorded "June allows many". Related: JUNE_BUGS 449 / 451, `June_ClearGuardAndSummon`, `June_SetSelfDestructSummonedNPC`.
 
+### CH2b2 - Done (2026-10-27, Opus 5.5)
+
+**Verdict: June's client has the rule, on the receive side of every summon, not in the skill.** A new summon of one of 28 NPC ids sets HP 0 on the owner's older live summons of the same id. Ported for all 28 under `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE`.
+- **Q1, create path: no rule.** `3299b810` -> `31f8b010` (the `IsMyUnit` gate, then the 19 words) -> `322e67c0` only fills a `KNPCUnitReq` and queues it in the game's `+0x448` delay map ( host / game-end checks only ). No NPC loop, cap or kill anywhere in the chain.
+- **Q2, receive side: the rule.** June's `CX2Game::CreateNPC` `3230d2b0` calls `SetUserSummonedNPCInfo` `3230c1a0` @`3230d9b2` (create type 0 / 3), and only then `AddUnit` (game vslot 0xd4 @`3230dc69`). The common tail of `3230c1a0` (every case, incl. Oberon 0x655 / 0x656 with flags 0x240) calls `3200bec0( unitID )` @`3230cb03` on the owner: when `31fc96b0( id )` is non-zero it walks the unit list and calls `SetNowHp( 0 )` (vslot 0xf4) on each NPC of that templet id with HP > 0, `m_bSelfDestruction` (`+0x8b40`) false, `NAT_ALLY` and the same owner UID. The new NPC is not in the list yet, so only older ones die. March, the offline emulator (`Handlers_Room.cpp:2899`) and the server source (`DungeonRoom.cpp:5803`, `KRoomUser::AddAllyNPC`) have no such rule: it was always client-side.
+- **Q3, NPC side: the map.** `31fc96b0` is "summon NPC -> the buff factor it gives its owner" (Oberon 1621 -> BFI 441). 28 ids, 26 BFIs ( `june2017_re/char_eve/ch2b2_summon_buff_map.tsv`, unicorn over ids 0-70000 ). Oberon's own Lua has no replace logic ( `SUMMON_END_STATE` / `SELF_DESTRUCTION_STATE` only ). `June_ClearGuardAndSummon` (Oberon Guard) is the only caller-side cleanup and stays.
+- **Q4, census.** 72 create-call sites (18 on `31f8b010`, 53 on `322e67c0` + the forwarder's own call, 2 Lua-only siblings `322e6aa0` / `322e6d40`): `june2017_re/char_eve/ch2b2_createnpc_census.tsv`. 27 sites create a mapped id; every mapped id but 1937 (`SUMMON_DARKNESS_PVP`, created through Lua) has a constant create site. So the rule is bound to how the NPC spawns, for a fixed set of single-instance summons:
+
+| Class | Mapped summons (id) |
+|---|---|
+| Eve | Nasod Watch 384 / 519, Atomic Shield 682, Ferdinand 1454, Apocalypse 1604, Oberon 1621, Ophelia 1622, Oberon Guard 2091, Void Impact memo 5188, Stardust Shower memo 5187 |
+| Chung | targeting 863 / 1419 |
+| Rena | Gungnir targeting 2083 |
+| `LLD` / `LCN` ids (callers in `32b2xxxx`) | Summon Darkness 1906 / 1937, Shadow Bolt 1908 |
+| Rose | Land Runner 2175 / 2194, Proton Bomb 2192, Gale Force 2206, All Bomb 2207, EZ-8 2209, Sparrow 2211, Magnetic Force 2213, Mecavolt 2214, Photon Shower 2397, Claymore 2398, Armored Tempest 2526 |
+
+- **Port.** `CX2GUUser::JuneGetSummonBuffFactorID` (`31fc96b0`, whole) and `CX2GUUser::JuneKillOlderSummonsOfSameID` (`3200bec0`) in `X2GUUser.*`; one call in March's `SetUserSummonedNPCInfo` tail after `CopyJuneMaximizeAndRangeFrom` (June's order, before `JuneSummonedNPCInfo`). 19 `NUI_*` and 23 `BFI_*` June names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (`X2UnitManager.h`, `X2BuffFactor.h`). Log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`. No JUNE_BUGS row: nothing June does here looks wrong.
+- **Branches found, not ported (scope rule):** (1) `3230c1a0` @`3230cafb` `3204e160` = Eve's Open Mind (25417) stacking BFI 877 per summon -> **CH4b** (its "7am NPC-side push, skill 25417"). (2) `327b53b0` @`327bcdfd` = a dying summon drops the owner's summon buff (BFI's templet) unless `32778b10` finds another live one; Ferdinand / Apocalypse take `31fc8a90` -> **new Phase CH2b4** (Eve's summons are its main users; the Oberon buff then ends with the last Oberon, as in June).
+
+**Hygiene.** `flagcheck.py JUNE_SUMMON_UNIQUE --worktree --files <the 6 files>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` (the 2 OTHER are the `JUNE_ENUM_NAMES` registrations); `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GUUser.cpp X2Lib/X2Game.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY_LINE
+
+**Play-test hand-off.** Unit 19 `Iivue`, Surface Cuting in slot 0: cast it 3 times in a row near enemies. Expect one Oberon at a time: each new one makes the old one die ( `[JUNE_SUMMON] npc 1621 ... replaced` per recast, and the `[JUNE_CHAR] EVE SKILL OBERON` debug lines show one uid at a time ).
+
 ## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
 
 Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`
 (June `32763c10`), `ResetMultiplyPowerRate_LUA` (`31e8d6a0`) and `SetMultiplyPowerRate_LUA` (`31e8d610`), none bound in March, so the function stops at the first call and
 `SetFlag_LUA( 0, true )` never runs. The two power-rate writers are small (protected float at NPC `+0x8ce4`, read by `GetPowerRate` `32759630`); the Apply call is the
 owner-passive / stat refresh of `SetUserSummonedNPCInfo` and belongs with the Stage 33 stat-calc rules. **Run with:** `/x2-phase char-eve CH2b3` (Opus 5.5 high).
-**Read:** `kickoffs/char-eve/CH2b3.md`. **Done gate:** `luabind.py check` PASS on the three Eve summon scripts, funcmap rows, no "can't find" in ErrorLog.
+**Read:** `kickoffs/char-eve/CH2b3.md`. **Done gate:** the three rows added to `tools/data/lua_unbound_known.tsv` on 2026-10-27 are deleted, `luabind.py check` PASS on the three Eve summon scripts, funcmap rows, no "can't find" in ErrorLog.
+
+## Phase CH2b4 - A dying summon drops its owner's summon buff (added 2026-10-27 by CH2b2, Sonnet)
+
+Found by CH2b2: June's `CX2GUNPC::CommonFrameMove` `327b53b0` @`327bcdfd..327bcfe0` (the DYING_END block, before the animation ends): an owned summon not yet
+self-destructing either runs `31fc8a90( owner unit class )` (Ferdinand 0x5ae / Apocalypse 0x644) or, for the other ids of `31fc96b0`
+(`CX2GUUser::JuneGetSummonBuffFactorID`, ported by CH2b2), erases the owner's buff templet of that BFI ( `3229e160` ) unless `32778b10` finds another live summon of the
+same id and owner; both set `m_bSelfDestruction`. March keeps the Oberon buff after the last Oberon dies. **Run with:** `/x2-phase char-eve CH2b4` (Sonnet 5.5 high, Opus review).
+**Read:** `kickoffs/char-eve/CH2b4.md`. **Done gate:** the block ported whole beside March's DYING_END code (March's Ferdinand reset compared), funcmap rows, a play-test where the buff icon goes with the last Oberon.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
