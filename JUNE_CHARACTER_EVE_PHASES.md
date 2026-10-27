@@ -1583,6 +1583,16 @@ Hygiene: `flagcheck.py JUNE_CHAR_EVE_DEBUG --worktree --files X2Lib/X2GageUI.cpp
 Build: `DEPLOY OK: X2_offline.exe is 26,082,304 B, dated 2026-10-27 12:16:44, md5 fcb84b19f5b00c09a35a0557250fee11, equal to X2/US_SERVICE/x2.exe (2026-10-27 12:16:38); built at main 2b623204 + 2 uncommitted code file(s).` `EVE NCORE ball` is in the exe once.
 **Play-test (user) is the gate:** one run, the log line before and during the awakening decides between "June's rule, nothing to fix" and a render / data fix. Review: `kickoffs/char-eve/CH1s-review.md` (retires `_DEBUG`).
 
+**Play-test 1 (user, 2026-10-27, run 12:28-12:30 on md5 `fcb84b19`):** the glow works as June has it (log: count 3 -> handle, seq, 4-5 live particles, drawn, OverUI, layer 14, pos 90 75; count 0 -> destroyed).
+The user's finding was a different piece: **Eve's own third orb (the core slot) is missing, only 2 orbs show.** Cause: data, not code. March's `DLG_PVP_Game_My_State_NEW.lua` (data034) has no
+`Bg_Eve_Core_Active` / `_InActive` pictures, so `StaticPVPGameStateWakeOrb` / `WakeSlot` end at index 5; `CX2EveMyGageUI::InitWakeOrb` removes 5, 4, 3, 2 expecting index 6 (`PGUWO_ORB_EVE`)
+to slide down to the third orb, and only 0 and 1 are left. Every class's `InitWakeOrb` already removes index 6 first (ADD_EVE_SYSTEM_2014 is on with NCORE), so the code wants June's 7-picture dialog.
+- **Fix (June same-name rule, no flag):** `luasrc.py adopt-june DLG_PVP_Game_My_State_NEW.lua` (June bytecode, record `june2017_re/june_adopt_20261027_123538.tsv`) and `kom.py stage-june`
+  `DLG_UI_Common_Texture80_NEW.TET` / `.tga` (data057; June's TET = March's keys incl. `BG_EVE_CORE_*` + `BT_TALK_*`). Every control the C++ reads off `m_pDLGMyUnit` is in June's dialog or in the
+  class dialogs opened on top (`DLG_Ara_ForcePower.lua` ...); June's `GAGE_UI_CUSTOM_MSG` / `UI_TOOLTIP_TYPE` tables are in Enum.lua. `PACK OK data034` (~1 changed), `PACK OK data057` (~2 changed). MODS.md entry added.
+- **Drift:** June's two invisible tooltip buttons (`opacity1` over the orbs, `opacity2` over the bars; msgs 54002 / 54003, `UTT_WAKE_ORB`) have no March handler, so no wake-orb tooltip: UI sweep (Stage 9).
+- **Standing rule added (user, 2026-10-27):** assume March does not have an asset ported code uses; check it by name before debugging code, stage June's if missing, replace with June's if present (CLAUDE.md).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

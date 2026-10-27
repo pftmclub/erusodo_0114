@@ -5131,3 +5131,9 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - A user state's effect sets load as June's `LoadEffectSetFromScript` (`32024ff0`): `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS`, `_ULTIMATE_EX( _APPLIED_SKILL )`, `_EX_APPLIED_SKILL`, `_FINAL` / `_FINAL_ULTIMATE` (`EFFECT_SET_RANDOM` by `RATE`). Details: `JUNE_CHARACTER_EVE_PHASES.md` "CH1r - Done".
 - **Live behaviour change, every class with June scripts:** a FINAL row with `CONSUME_MP` costs that MP and is skipped with the "magic fail" puff when MP is short (Eve's dash-jump Z-X spear: 4 MP); an upgraded skill reads `_ULTIMATE_EX` instead of `_EX` (Aisha's Chain Burst, Dark Cloud, Dark Burst `_Upgrade` effects).
 - **Revert:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June gauge dialog and Texture80: Eve's third orb (char-eve CH1s, 2026-10-27)
+**No flag** (asset replace, June same-name rule). `luasrc.py adopt-june DLG_PVP_Game_My_State_NEW.lua` (data034, June bytecode; record `june2017_re/june_adopt_20261027_123538.tsv`) and `kom.py stage-june` `DLG_UI_Common_Texture80_NEW.TET` / `.tga` (data057).
+
+- March's dialog had no `Bg_Eve_Core_*` pictures at orb / slot index 6 (`PGUWO_ORB_EVE`), so `CX2EveMyGageUI::InitWakeOrb` removed the third orb too; June's has them. June's also adds two invisible tooltip buttons (`opacity1` / `opacity2`, custom msgs 54002 / 54003) March does not handle. June's TET = March's keys + `BT_TALK_*`.
+- **Revert:** restore `24965799\kom_backup_stage_june\20261027_123538\` (dialog) and `...\20261027_123542\` (Texture80) over `kom_contents\`, then pack + copy data034 and data057.

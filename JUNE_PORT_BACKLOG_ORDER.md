@@ -466,6 +466,10 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     `g_pInstanceData +0xabd = 0` (`32478ecc`). The `Story_New` mark: `324708c0` @32471129 shows it from `+0xabd` (hidden in state 0xb); placed by
     `3245cba0`, the bar layout `3245bb70`. Quest-system Q10 writes `+0xabd` (`CX2InstanceData::m_bJuneStoryBookNew`).
 
+- **The own gauge's wake-orb tooltip** (handed here by char-eve CH1s, 2026-10-27).
+  - June's `DLG_PVP_Game_My_State_NEW.lua` (live since CH1s) has two invisible buttons, `opacity1` (orbs) and `opacity2` (bars), that send
+    `GAGE_UI_CUSTOM_MSG.STUCM_CHARACTER_SYSTEM_TOOLTIP_ON` / `_OFF` (54002 / 54003) with dummy int `UI_TOOLTIP_TYPE.UTT_WAKE_ORB`.
+  - March's `CX2GageManager::UICustomEventProc` knows only 54000 / 54001, so nothing shows. Find June's handler (xrefs to 54002) and port it.
 - **Effect-alpha option UI** (handed here by june-effect D9, user 2026-10-06).
   - June-effect C10b-2 builds the engine: the three values in `GameOptions.lua` under June's keys (`MY_EFFECT_ALPHA`,
     `MY_TEAM_EFFECT_ALPHA`, `ANOTHER_TEAM_EFFECT_ALPHA`), and `CKTDXApp::SetEffectAlpha` / `GetEffectAlpha`.

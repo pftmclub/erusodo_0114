@@ -258,6 +258,9 @@ March's copy, do not merge the two, and do not ask first.
   replaced whole; only the ported character's rows become June's, the rest stay March's until their own port (the file becomes core-list
   BOM source). See `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules".
 - Record each replace where the phase records its data (Done note, `MODS.md` revert line). The tools back up the replaced file.
+- **Assume March does not have the asset (user, 2026-10-27).** When ported code uses an asset (dialog `.lua`, texture / `.tet` key, particle,
+  mesh, sound), never assume March's copy is June's or is enough. Check it by name first, before debugging code: if March lacks it, stage June's;
+  if March has it, replace it with June's anyway. CH1s: Eve's third orb was missing because March's `DLG_PVP_Game_My_State_NEW.lua` had no Eve pictures.
 
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record
 
