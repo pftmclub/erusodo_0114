@@ -728,6 +728,34 @@ enum BUFF_FACTOR_ID
 	BFI_DEBUFF_TARGET                     = 842,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2b2 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI names of the summon buff map 31fc96b0
+	BFI_BUFF_APOCALYPSE                   = 369,
+	BFI_BUFF_FERDINAND                    = 438,
+	BFI_BUFF_ATOMIC_SHIELD                = 440,
+	BFI_BUFF_OPHELIA                      = 442,
+	BFI_BUFF_ARTILLERY_STRIKE_SCOPE       = 452,
+	BFI_BUFF_SUMMON_DARKNESS              = 541,
+	BFI_BUFF_SHADOW_BOLT                  = 548,
+	BFI_BUFF_VOID_IMPACT_MEMO             = 598,
+	BFI_BUFF_STARDUST_SHOWER_MEMO         = 600,
+	BFI_BUFF_GUNGNIR_SCOPE                = 627,
+	BFI_BUFF_ROSE_LAND_RUNNER             = 716,
+	BFI_DUMMY_GALE_FORCE                  = 753,
+	BFI_DUMMY_EZ_8_COUNT_DOWN             = 754,
+	BFI_DUMMY_SPARROW_FACTORY             = 755,
+	BFI_DUMMY_ALL_BOMB                    = 758,
+	BFI_BUFF_G_EX_MAGNETICFORCE           = 762,
+	BFI_DUMMY_MECAVOLT_MX                 = 765,
+	BFI_BUFF_ROSE_LAND_RUNNER_RX_79       = 781,
+	BFI_BUFF_SENTRY_RULE_BREAK            = 878,
+	BFI_BUFF_PROTON_BOMB                  = 899,
+	BFI_BUFF_SA_RFY_CLAYMORE              = 943,
+	BFI_BUFF_SA_RST_PHOTON_SHOWER         = 944,
+	BFI_BUFF_DUMMY_ARMORED_TEMPEST        = 989,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 

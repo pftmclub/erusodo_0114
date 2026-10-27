@@ -2909,6 +2909,30 @@ class CX2UnitManager
 			NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE = 4120,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-27 // June character port Phase CH2b2 (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// June NPC ids of the summon buff map 31fc96b0
+			NUI_SI_HA_APOCALYPSE                    = 1604,
+			NUI_SI_SA_LLD_SUMMON_DARKNESS           = 1906,
+			NUI_SI_SA_LCN_SHADOW_BOLT               = 1908,
+			NUI_SI_SA_LLD_SUMMON_DARKNESS_PVP       = 1937,
+			NUI_RENA_TARGETING_GUNGNIR              = 2083,
+			NUI_SI_SA_RG_RX78_LAND_RUNNER           = 2175,
+			NUI_PROTON_BOMB                         = 2192,
+			NUI_SI_SA_RG_RX78_LAND_RUNNER_UPGRADE   = 2194,
+			NUI_SA_RMH_GALE_FORCE                   = 2206,
+			NUI_A_RMH_ALL_BOMB                      = 2207,
+			NUI_SA_RMH_EZ_8_COUNT_DOWN              = 2209,
+			NUI_SA_RMH_SPARROW_FACTORY              = 2211,
+			NUI_A_ROM_G_EX_MAGNETICFORCE            = 2213,
+			NUI_HA_ROM_MECAVOLT_MX                  = 2214,
+			NUI_SA_RST_PHOTON_SHOWER                = 2397,
+			NUI_SA_RFY_CLAYMORE                     = 2398,
+			NUI_SA_ROM_ARMORED_TEMPEST              = 2526,
+			NUI_ATT_STARDUST_SHOWER_MEMO_TARGETING  = 5187,
+			NUI_ATT_VOID_IMPACT_MEMO                = 5188,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //}} robobeg : 2013-02-27
 		};
 		

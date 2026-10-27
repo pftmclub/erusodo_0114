@@ -5172,3 +5172,10 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a ); temporary `SERV_
 - **Lua binding.** `CX2Game::GetIsNowPVPCorrectionGame` ( June `322cc1a0`, game type PvP or PvE ) is bound in `X2Main.cpp` for the Oberon attack states ( and Nasod Watch Eve, Electronic Field ).
 - **Kept as June has it:** nothing beyond the bodies ( JUNE_BUGS 451 was withdrawn in the CH2b review: Faena takes one target, so no register carries over ). The PvP time scale of the Oberon buff, the Mega Electronball rate, the two skill-value helpers and the Electra recovery tooltip now test PvP or PvE ( `GT_PVE` ), as June's `322cc1a0` does.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the twelve ids fall back to March's cases ).
+
+### June summons: one per owner and NPC id (char-eve CH2b2, 2026-10-27)
+
+Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b2 - Done"; log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`.
+- **Client.** `CX2Game::SetUserSummonedNPCInfo`'s tail calls `CX2GUUser::JuneKillOlderSummonsOfSameID( unitID )` ( June `3200bec0` ): for the 28 NPC ids of June's summon buff map ( `CX2GUUser::JuneGetSummonBuffFactorID`, June `31fc96b0` ), the owner's older live ally NPCs of the same id get HP 0 before the new one joins the unit list. 19 `NUI_*` and 23 `BFI_*` June names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES`.
+- **What changes in game.** Recasting Surface Cuting ( and Nasod Watch, Atomic Shield, Ferdinand, Ophelia, Oberon Guard, Chung / Rena targeting, Rose's summons ... ) replaces the old summon instead of adding one.
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` ( summons stack again ); the names are inert without it.

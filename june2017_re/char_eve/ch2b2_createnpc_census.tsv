@@ -1,0 +1,75 @@
+call_va	callee	caller_entry_va	caller_name	npc_id	npc_name	summon_map_bfi	one_per_owner_3200bec0	npc_id_source	pre_create_cleanup	notes
+31f704e0	31f8b010	31f70330	CX2DamageEffect::CEffect::JuneDieCreateNpc	variable			lua/variable: by id at receive	edx <- mov edx, dword ptr [esi + 4] @31f704c3 ; arg 2 of the forwarder	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+31f8b07d	322e67c0	31f8b010	CX2Game::CreateNPCReq (June; a thin forwarder onto FUN_322e67c0)	variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x4c] @31f8b077 ; arg 1 of the core	no	forwarder passes its own stack arg through; not a separate spawn site
+32008465	322e67c0	32008280		variable			lua/variable: by id at receive	ebp <- mov ebp, [list entry at [esi+0x8d80] + ebx] @3200836e (loop var, set at the top of the walk, first dword of each 12-byte entry) ; arg 1 of the core	no	CX2GUUser method walking a timed list at this+0x8d80 (12-byte entries: float time, 2 words); id = first dword of the entry
+3200d3ba	322e67c0	3200d1d0	OnFrameMove of SNIPER_INIT / GUN_DANCE_INIT	4342	NUI_NEIL_THE_SNIPER_EVENT		no	push imm @3200d3b2 (arg1 = last push before call)	no	
+3200e233	322e67c0	3200e040		4343	NUI_PROTON_BOMB_EVENT		no	push imm @3200e22b (arg1 = last push before call)	no	
+322e9b7b	322e67c0	322e9af0		variable			lua/variable: by id at receive	ebx <- mov ebx, dword ptr [esp + 0x18] @322e9b0e ; arg 1 of the core	no	CX2Game-side wrapper (vslot 0x10c == 2 gate); id is incoming parameter
+322e9c82	322e67c0	322e9b90		variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x5c] @322e9c7c ; arg 1 of the core	no	CX2Game-side wrapper (vslot 0x10c == 2 gate); id is incoming parameter
+324d13f3	322e67c0	324d1290	none in March: June event 0x3e7 post-clear NPC spawn	1372	NUI_SEED_OF_DARK_PORTAL		no	push imm @324d13ec (arg1 = last push before call)	no	
+32773cba	322e67c0	32773ab0		variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x68] @32773cb4 ; arg 1 of the core	no	
+327791a8	322e67c0	327790e0	CX2GUNPC::CreateNPCReq_LUA (Lua binder wrapper, c3z4_bind_plan)	variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x50] @327791a2 ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779293	322e67c0	327791c0	CX2GUNPC::CreateNPCReq_LUA2 (Lua binder wrapper, c3z4_bind_plan)	variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x50] @3277928a ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779377	322e67c0	327792a0		variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x4c] @3277936e ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+327799a0	322e67c0	32779390		variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x100] @32779993 ; arg 1 of the core	no	large unnamed function; loops over a line-map list (+0x190), not the NPC list; no cleanup of NPCs
+32779ab8	322e67c0	327799c0		variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x58] @32779aaf ; arg 1 of the core	no	entry found after a ret 0x3c at 327799bd with no padding; Ghidra has no function here
+32779ba6	322e67c0	32779ad0	CX2GUNPC::CreateNPCReqElite (Lua binder wrapper, c3z4_bind_plan)	variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x50] @32779b9d ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779c96	322e67c0	32779bc0	CX2GUNPC::CreateNPCReqAlly (Lua binder wrapper, c3z4_bind_plan)	variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x50] @32779c8d ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779d7b	322e67c0	32779cb0	CX2GUNPC::PushCreateNPCReq_Lua (Lua binder wrapper, c3z4_bind_plan)	variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x50] @32779d75 ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779e67	322e67c0	32779d90		variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x4c] @32779e5e ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+32779ff8	322e67c0	32779e80		variable			lua/variable: by id at receive	ecx <- mov ecx, dword ptr [esp + 0x58] @32779fef ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+3277a0dd	322e67c0	3277a010		variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x50] @3277a0d7 ; arg 1 of the core	no	CX2GUNPC Lua-binder wrapper family (32779xxx); id is the Lua arg
+327c8f95	322e67c0	327c8c40		4209	NUI_EVENT_HENIR_PORTAL		no	push imm @327c8f84 (arg1 = last push before call)	no	
+3298a3f8	31f8b010	32989b60	CX2GUEve::June_ENSI_SI1_DIMENSION_LINK_FrameMove	384	NUI_NASOD_WATCH_EVE	439	yes	push imm @3298a3e4 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); funcmap entry; large function (block starts 32988e40)
+3298a4d7	31f8b010	32989b60	CX2GUEve::June_ENSI_SI1_DIMENSION_LINK_FrameMove	519	NUI_NASOD_WATCH_EVE_MEMO	878	yes	push imm @3298a4c3 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); funcmap entry; large function (block starts 32988e40)
+3298afc1	31f8b010	3298a630		385	NUI_WALLY_9TH_EVE		no	push imm @3298afb0 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); caller is June dead code (no pointer/call anywhere), char_*/ch0_class_map
+3298b981	31f8b010	3298aff0		385	NUI_WALLY_9TH_EVE		no	push imm @3298b970 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); caller is June dead code (no pointer/call anywhere), char_*/ch0_class_map
+3298c4c7	31f8b010	3298bb80		386	NUI_NASOD_ELEMENT_FIRE_EVE		no	push imm @3298c4b8 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); caller is June dead code (no pointer/call anywhere), char_*/ch0_class_map
+3298c54d	31f8b010	3298bb80		386	NUI_NASOD_ELEMENT_FIRE_EVE		no	push imm @3298c53e (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); caller is June dead code (no pointer/call anywhere), char_*/ch0_class_map
+32990bff	31f8b010	329903e0	CX2GUEve::ENSI_SA_EEG_ATOMIC_SHIELD_FrameMove	682	NUI_ATOMIC_SHIELD_EVE	440	yes	push imm @32990bee (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32997b6a	31f8b010	32997940	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove	1454	NUI_SI_HA_FERDINAND	438	yes	push imm @32997b5b (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+3299ba35	31f8b010	3299b810	CX2GUEve::June_SummonSurfaceCuting( iKeyCode, vPos )	1621	NUI_SI_SA_AT_SURFACE_CUTING	441	yes	push imm @3299ba28 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+3299bc95	31f8b010	3299ba70		1622	NUI_SI_SA_EEP_ELECTRONIC_FIELD	442	yes	push imm @3299bc88 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+329b2f38	322e67c0	329b2e10	CX2GUEve::June_ENSI_A_EAT_OBERON_GUARD_FrameMove	2091	NUI_ECA_OBERON_GUARD	652	yes	push imm @329b2f30 (arg1 = last push before call)	yes: 329ae670 June_ClearGuardAndSummon @329b2e49 (-> 3299d140 June_SetSelfDestructSummonedNPC, which loops the game NPC list, vslot 0xf8 count / 0xb0 get)	June_ClearGuardAndSummon (329ae670) = BTI 0x233 erase + June_SetSelfDestructSummonedNPC(0x82b) + stop guard effect handle +0x976c; runs before the create
+329f350a	322e67c0	329f3070		5188	NUI_ATT_VOID_IMPACT_MEMO	598	yes	push imm @329f3505 (arg1 = last push before call)	no	
+329f5430	31f8b010	329f5190		1604	NUI_SI_HA_APOCALYPSE	369	yes	push imm @329f5421 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+329feafb	322e67c0	329fe650		5188	NUI_ATT_VOID_IMPACT_MEMO	598	yes	push imm @329feaf6 (arg1 = last push before call)	no	
+32a05ace	322e67c0	32a05470		variable			lua/variable: by id at receive	eax <- mov eax, dword ptr [esp + 0x64] @32a05ac4 ; arg 1 of the core	no	
+32a0c997	31f8b010	32a0c740		1576	NUI_PARTICLE_PRISM_START		no	push imm @32a0c986 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32a0ca9d	31f8b010	32a0c740		1577	NUI_PARTICLE_PRISM_END		no	push imm @32a0ca8c (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32a69d56	31f8b010	32a69b80		2527	NUI_SA_ALE_FESSEL_HEILIG_GRAPNIR		no	push imm @32a69d3d (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32ab4e74	322e67c0	32ab4d60		2208	NUI_P_RMH_MECHANIC_MASTERY		no	push imm @32ab4e6f (arg1 = last push before call)	no	
+32ab81d9	322e67c0	32ab8080		2175	NUI_SI_SA_RG_RX78_LAND_RUNNER	716	yes	push imm @32ab81d4 (arg1 = last push before call)	no	
+32ab835c	322e67c0	32ab8080		2194	NUI_SI_SA_RG_RX78_LAND_RUNNER_UPGRADE	781	yes	push imm @32ab8357 (arg1 = last push before call)	no	
+32ab98dd	322e67c0	32ab9750		2192	NUI_PROTON_BOMB	899	yes	push imm @32ab98d5 (arg1 = last push before call)	no	
+32abd5ed	322e67c0	32abd460		2199	NUI_NEIL_THE_SNIPER		no	push imm @32abd5e5 (arg1 = last push before call)	no	
+32abe3c3	322e67c0	32abe2a0		2206	NUI_SA_RMH_GALE_FORCE	753	yes	push imm @32abe3be (arg1 = last push before call)	no	Ghidra xrefs_to missed this call (no Ghidra function carved)
+32abe592	322e67c0	32abe2a0		2209	NUI_SA_RMH_EZ_8_COUNT_DOWN	754	yes	push imm @32abe58d (arg1 = last push before call)	no	Ghidra xrefs_to missed this call (no Ghidra function carved)
+32abef88	322e67c0	32abedd0		2211	NUI_SA_RMH_SPARROW_FACTORY	755	yes	push imm @32abef83 (arg1 = last push before call)	no	
+32ac0fd4	322e67c0	32ac0e40		2207	NUI_A_RMH_ALL_BOMB	758	yes	push imm @32ac0fcf (arg1 = last push before call)	no	
+32ac1d13	322e67c0	32ac1b50		2213	NUI_A_ROM_G_EX_MAGNETICFORCE	762	yes	push imm @32ac1d0e (arg1 = last push before call)	no	
+32ac2009	322e67c0	32ac1ee0		2214	NUI_HA_ROM_MECAVOLT_MX	765	yes	push imm @32ac2004 (arg1 = last push before call)	no	
+32ac2238	322e67c0	32ac2090		2397	NUI_SA_RST_PHOTON_SHOWER	944	yes	push imm @32ac2233 (arg1 = last push before call)	no	
+32ac2414	322e67c0	32ac2260		2398	NUI_SA_RFY_CLAYMORE	943	yes	push imm @32ac240f (arg1 = last push before call)	no	entry found after ret at 32ac225f with no padding; Ghidra has no function here
+32ac349e	322e67c0	32ac3300		2526	NUI_SA_ROM_ARMORED_TEMPEST	989	yes	push imm @32ac3499 (arg1 = last push before call)	no	
+32b20486	31f8b010	32b20260		1906	NUI_SI_SA_LLD_SUMMON_DARKNESS	541	yes	push imm @32b2046d (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32b2fe73	322e67c0	32b2fba0		1908	NUI_SI_SA_LCN_SHADOW_BOLT	548	yes	push imm @32b2fe6b (arg1 = last push before call)	no	
+32b340ce	322e67c0	32b33dc0		2269	NUI_SA_LDN_GARDEN_OF_HAURES		no	push imm @32b340c9 (arg1 = last push before call)	no	w1f_candown_callers.tsv: CX2GULuciel LSI_SA_LDN_GARDEN_OF_HAURES FrameMove
+32b746e8	31f8b010	32b74500		1567	NUI_ELESIS_FIRE_BLOSSOM		no	push imm @32b746d7 (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al)
+32b7a058	322e67c0	32b79db0		1567	NUI_ELESIS_FIRE_BLOSSOM		no	push imm @32b7a050 (arg1 = last push before call)	no	
+32b7a442	322e67c0	32b7a0a0		1971	NUI_SI_SA_SBH_WALL_OF_PROMINENCE_FIREKING		no	push imm @32b7a43d (arg1 = last push before call)	no	w1c_land_position_callers.tsv: "Elesis anim-event NPC create (0x663 / 0x7b3) at a landed pos"
+32b7a4f5	322e67c0	32b7a0a0		1635	NUI_SI_SA_SBH_WALL_OF_PROMINENCE		no	push imm @32b7a4f0 (arg1 = last push before call)	no	w1c_land_position_callers.tsv: "Elesis anim-event NPC create (0x663 / 0x7b3) at a landed pos"
+32b8b3b7	322e67c0	32b8b0c0		1641	NUI_SI_SA_SCA_BLOOD_CUTTER		no	push imm @32b8b3b2 (arg1 = last push before call)	no	
+32bfe9ae	322e67c0	32bfe730		1419	NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER	452	yes	push imm @32bfe9a6 (arg1 = last push before call)	no	w1f_candown_callers.tsv: CX2GUChung CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY(_HYPER) FrameMove
+32bfea4d	31f8b010	32bfe730		863	NUI_TARGETING_CHUNG	452	yes	push imm @32bfea3c (2nd arg, just before the IsMyUnit vslot 0x198 gate push)	no	gate = IsMyUnit vslot 0x198 result (movzx al); w1f_candown_callers.tsv: CX2GUChung CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY(_HYPER) FrameMove
+32c0b97d	322e67c0	32c0b7f0		2525	NUI_TARGETING_CHUNG_HEAVY_FIELD		no	push imm @32c0b975 (arg1 = last push before call)	no	
+32c10f99	322e67c0	32c10d20		1100	NUI_REMOTE_MORTAR		no	push imm @32c10f94 (arg1 = last push before call)	no	
+32c95882	322e67c0	32c95790		457	NUI_ENTANGLE_TRAP_RENA		no	push imm @32c9587a (arg1 = last push before call)	no	
+32c99a1a	322e67c0	32c99690		1020	NUI_EVOKE_TRAP_LIRE		no	push imm @32c99a11 (arg1 = last push before call)	no	
+32c9e42e	322e67c0	32c9e250		1420	NUI_RENA_ANGER_OF_ELF		no	push imm @32c9e416 (arg1 = last push before call)	no	
+32ca11f2	322e67c0	32ca0e60		2083	NUI_RENA_TARGETING_GUNGNIR	627	yes	push imm @32ca11ea (arg1 = last push before call)	no	
+32cd8cc4	322e67c0	32cd8a80		501	NUI_STONE_WALL_AISHA		no	push imm @32cd8cbf (arg1 = last push before call)	no	caller is June dead code (no pointer/call anywhere), char_*/ch0_class_map
+32cd9925	322e67c0	32cd95d0	CX2GUArme_VioletMage Hell Drop FrameMove	1575	NUI_UFO_AISHA_DROPPER_MEMO		no	push imm @32cd9920 (arg1 = last push before call)	no	
+32cddc95	322e67c0	32cdda50	CX2GUArme_VioletMage::June_AVSI_SI_A_ADW_DISTORTION_FrameMove	1091	NUI_ADW_DISTORTION		no	push imm @32cddc90 (arg1 = last push before call)	no	
+31dc81e0	other:322e6aa0	31d95080		n/a			lua/variable: by id at receive	no E8/E9 callers; only a data reference (mov eax,322e6aa0 ; push eax) inside FUN_31d95080, a Lua-binder registration (Ghidra xrefs_to: 31dc81e0, 31dc81f2 DATA); id comes from the Lua call	no	overload ending ret 0x30; reachable only via the Lua binder
+31dc838e	other:322e6d40	31d95080		n/a			lua/variable: by id at receive	no E8/E9 callers; only a data reference inside FUN_31d95080, a Lua-binder registration (Ghidra xrefs_to: 31dc838e, 31dc83a7 DATA); id comes from the Lua call	no	overload ending ret 0x30; reachable only via the Lua binder

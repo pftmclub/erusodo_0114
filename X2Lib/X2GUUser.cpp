@@ -26017,6 +26017,77 @@ D3DXVECTOR3 CX2GUUser::JuneGetUnitLockOnAimPos( const CX2GameUnit* pUnit_, const
 	return CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit_, vFrom_ );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH2b2
+// June 31fc96b0: the buff factor a summon NPC gives its owner, BFI_NONE for any other NPC
+int CX2GUUser::JuneGetSummonBuffFactorID( const int iNPCID_ )
+{
+	switch( iNPCID_ )
+	{
+	case CX2UnitManager::NUI_NASOD_WATCH_EVE:						return BFI_BUFF_SENTRY;
+	case CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO:					return BFI_BUFF_SENTRY_RULE_BREAK;
+	case CX2UnitManager::NUI_ATOMIC_SHIELD_EVE:						return BFI_BUFF_ATOMIC_SHIELD;
+	case CX2UnitManager::NUI_TARGETING_CHUNG:
+	case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER:	return BFI_BUFF_ARTILLERY_STRIKE_SCOPE;
+	case CX2UnitManager::NUI_SI_HA_FERDINAND:						return BFI_BUFF_FERDINAND;
+	case CX2UnitManager::NUI_SI_HA_APOCALYPSE:						return BFI_BUFF_APOCALYPSE;
+	case CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING:				return BFI_BUFF_OBERON;
+	case CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD:			return BFI_BUFF_OPHELIA;
+	case CX2UnitManager::NUI_SI_SA_LLD_SUMMON_DARKNESS:
+	case CX2UnitManager::NUI_SI_SA_LLD_SUMMON_DARKNESS_PVP:			return BFI_BUFF_SUMMON_DARKNESS;
+	case CX2UnitManager::NUI_SI_SA_LCN_SHADOW_BOLT:					return BFI_BUFF_SHADOW_BOLT;
+	case CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR:				return BFI_BUFF_GUNGNIR_SCOPE;
+	case CX2UnitManager::NUI_ECA_OBERON_GUARD:						return BFI_BUFF_OBERON_GUARD;
+	case CX2UnitManager::NUI_SI_SA_RG_RX78_LAND_RUNNER:				return BFI_BUFF_ROSE_LAND_RUNNER;
+	case CX2UnitManager::NUI_PROTON_BOMB:							return BFI_BUFF_PROTON_BOMB;
+	case CX2UnitManager::NUI_SI_SA_RG_RX78_LAND_RUNNER_UPGRADE:		return BFI_BUFF_ROSE_LAND_RUNNER_RX_79;
+	case CX2UnitManager::NUI_SA_RMH_GALE_FORCE:						return BFI_DUMMY_GALE_FORCE;
+	case CX2UnitManager::NUI_A_RMH_ALL_BOMB:						return BFI_DUMMY_ALL_BOMB;
+	case CX2UnitManager::NUI_SA_RMH_EZ_8_COUNT_DOWN:				return BFI_DUMMY_EZ_8_COUNT_DOWN;
+	case CX2UnitManager::NUI_SA_RMH_SPARROW_FACTORY:				return BFI_DUMMY_SPARROW_FACTORY;
+	case CX2UnitManager::NUI_A_ROM_G_EX_MAGNETICFORCE:				return BFI_BUFF_G_EX_MAGNETICFORCE;
+	case CX2UnitManager::NUI_HA_ROM_MECAVOLT_MX:					return BFI_DUMMY_MECAVOLT_MX;
+	case CX2UnitManager::NUI_SA_RST_PHOTON_SHOWER:					return BFI_BUFF_SA_RST_PHOTON_SHOWER;
+	case CX2UnitManager::NUI_SA_RFY_CLAYMORE:						return BFI_BUFF_SA_RFY_CLAYMORE;
+	case CX2UnitManager::NUI_SA_ROM_ARMORED_TEMPEST:				return BFI_BUFF_DUMMY_ARMORED_TEMPEST;
+	case CX2UnitManager::NUI_ATT_STARDUST_SHOWER_MEMO_TARGETING:	return BFI_BUFF_STARDUST_SHOWER_MEMO;
+	case CX2UnitManager::NUI_ATT_VOID_IMPACT_MEMO:					return BFI_BUFF_VOID_IMPACT_MEMO;
+	default:														return BFI_NONE;
+	}
+}
+
+// June 3200bec0: a mapped summon replaces my older live, not self-destructing ally NPCs of the same id ( HP 0 )
+void CX2GUUser::JuneKillOlderSummonsOfSameID( const int iNPCID_ )
+{
+	if( BFI_NONE == JuneGetSummonBuffFactorID( iNPCID_ ) || NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNPCID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID_ )
+			continue;
+
+		if( pNPC->GetNowHp() <= 0.f || true == pNPC->GetSelfDestruction() )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		CX2AllyNPCAI* pAllyAI = (CX2AllyNPCAI*) pNPC->GetNPCAI();
+		if( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
+			continue;
+
+		CX2OfflineLog::Server( L"[JUNE_SUMMON] npc %d uid %d of owner %I64d replaced by a new summon ( HP 0 )", iNPCID_, pNPC->GetUID(), GetUnitUID() );
+		pNPC->SetNowHp( 0.f );
+	}
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH2b2
+#endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
 /// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).
