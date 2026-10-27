@@ -1541,6 +1541,8 @@ Build: `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-10-27 11:44:33, md
 
 **Play-test (user) is the gate:** EveNemesis dash-jump Z-X spear plus 4 MP; low-MP puff; ArmeVP Dark Burst `_Upgrade`.
 
+**Play-test PASSED (user, 2026-10-27, run 11:46-11:49 on md5 `52ee62ae`):** `EVE DATA` class 108 (EveNemesis); ArmeVP (unit 52) with Dark Burst 22060 in slot 0 B; 3 UNHANDLED (the known `E_DISABLE_HB_CHECK_REQ`), 0 EXCEPTION, clean exit; ErrorLog only the load-time `JUNE_FX ES_*` key notes, no effect-set miss.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
