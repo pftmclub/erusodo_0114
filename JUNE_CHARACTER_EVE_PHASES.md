@@ -2013,6 +2013,19 @@ June `327b53b0` @`327bcac9..327bcfe0` ported whole under `SERV_IRUHADEV_JUNE_SUM
 - **Deploy.** DEPLOY OK: X2_offline.exe is 26,130,432 B, dated 2026-10-27 21:28:46, md5 4f5c24d7687622d5a68500f29ba801eb, equal to X2/US_SERVICE/x2.exe; both `[JUNE_SUMMON]` death strings are in the exe.
 - **Play-test PASSED (2026-10-28, logs 00:04-00:05).** Unit 19, Surface Cuting twice then left to die: the two replaced Oberons (uids 1000026, 1000027) logged `replaced by a new summon` and no erase; the last (1000028) logged `[JUNE_SUMMON] npc 1621 uid 1000028 died, owner 19 buff templet 412 erased ( last of its id )`; 0 EXCEPTION. `BTI_BUFF_OBERON` (412) is a `BBT_EMPTY` marker with no icon in any June Lua, so the hand-off's "buff icon goes" was wrong: the erase line is the proof.
 
+### CH2b4 - Review (2026-10-28, Opus 5.5)
+
+**PASS after one fix.** Read against `charport_adis.py eve 327b53b0 32778b10 31fc8a90 329fb6c0 329684c0 329d4690 3200bec0`.
+- **Placement = June.** `@327bca8c..327bcac3`: `DYING_END` (`0x800000`), then the self-resurrection gate (`+0x8b30` / `+0x8b38` / `+0x84c4`), then `+0x8604 -> +0x2ac` (`IsAnimationEnd`) `jne @327bcdfd`: the port's `else` hangs on March's `IsAnimationEnd` inside the same two gates.
+- **Block `@327bcdfd..327bcfe7` = the port.** Owner `+0x8d5c` / `[ ]` / `- 0x1a0` tested twice before each use, `+0x8b40 == 0`; `0x5ae` (1454 `NUI_SI_HA_FERDINAND`) / `0x644` (1604 `NUI_SI_HA_APOCALYPSE`) -> `31fc8a90( owner +0x867c [+0x38], 0 without a unit )` + `+0x8b40 = 1`; else `31fc96b0` (0 -> out), `GetBuffFactorPtr` (null -> out), `32778b10` (true -> out), `3229e160( factor +0x28 )` (= `GetBuffTempletID`, buff Phase 9b) + `+0x8b40 = 1`. `SetSelfDestruction` is the plain store.
+- **Animation-end branch `@327bcadc..327bcdf8`:** no `0x5ae` compare, no `31fc8a90`, no `32997c10`; the `#ifndef` of March's Ferdinand reset stands.
+- **FIX `32778b10` HP test.** June: `fldz; fcomp HP; test ah,1; je skip` (`@32778bf7..32778c10`), the same instructions as `3200bec0` `@3200bfbc..3200bfd5`. A NaN HP sets C0 and counts as **alive**; the port's `false == ( 0.f < HP )` skipped it. Now `GetNowHp() <= 0.f`, as CH2b2 wrote it. A null `+0xc04` skips the test in June = March `GetNowHp()` returning 1. Rest = June: g_pX2Game test, `+0xf8` / `+0xb0` loop, `+0x264 == GUT_NPC`, id test skipped when mine is 0, `+0x8b40`, AI `+0x7c98` type `+0x38 == NAT_ALLY`, `+0x78` / `+0x7c` against my AI's, `this` not excluded. The added guard on my AI stays (June reads `+0x78` unchecked; a summon with an owner has an ally AI).
+- **`31fc8a90` = the port.** 109 / 123, `this` null test, `329684c0` = `HaveThisBuff( 0x199 )` 409, `329d4690` = `HaveThisBuff( 0x159 )` 345 = `BTI_BUFF_APOCALYPSE` in `Enum.src.lua:12455`; `329fb6c0`: `+0x98e4 = 0`, erase 345, vslot `0x198` `IsMyUnit` -> `UpdateSkillSlotUI( false )`, order kept.
+- **Mastermind `+0x98e4`:** it had no owner outside CH2b4's own note. Added funcmap row `329fb6c0` and checklist section 7 row `329fb6c0` (Add).
+- **Hygiene.** `flagcheck --range 6f4fdfec^..6f4fdfec`: 5 PASS, 1 OTHER (`X2BuffFactor.h`, `JUNE_ENUM_NAMES`), 0 deleted, RESULT PASS; `git log -S` after it: none. Fix: `--worktree --files X2Lib/X2GUNPC.cpp` 1 PASS (+1 -1, inside the flag's own block), RESULT PASS; enumscan 0 A/B.
+- **Deploy.** DEPLOY OK: X2_offline.exe is 26,130,432 B, dated 2026-10-28 00:11:59, md5 357ccfe675ddb781c95275e3a1daf39f, equal to X2/US_SERVICE/x2.exe (2026-10-28 00:11:52).
+- **Play-test:** none owed. The fix changes only a NaN HP, which play cannot produce; CH2b4's PASS stands.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

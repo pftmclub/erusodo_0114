@@ -17907,7 +17907,7 @@ bool CX2GUNPC::JuneIsAnotherSameSummonAlive()
 		if( 0 != iNPCID && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID )
 			continue;
 
-		if( false == ( 0.f < pNPC->GetNowHp() ) || true == pNPC->GetSelfDestruction() )
+		if( pNPC->GetNowHp() <= 0.f || true == pNPC->GetSelfDestruction() )
 			continue;
 
 		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
