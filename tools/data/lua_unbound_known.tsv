@@ -1,1 +1,4 @@
 # name	phase	reason  (an unbound Lua method a phase knowingly left absent; tools/luabind.py skips it)
+ApplyPassiveSkillOwnerUser_LUA	char-eve CH2b3	June 32763c10: owner passive / stat refresh of a summon; stat math, ported whole in CH2b3 with the Stage 33 stat-calc rules
+ResetMultiplyPowerRate_LUA	char-eve CH2b3	June 31e8d6a0: writes 1.0 to the protected NPC power factor +0x8ce4; ported with its reader GetPowerRate 32759630
+SetMultiplyPowerRate_LUA	char-eve CH2b3	June 31e8d610: writes the protected NPC power factor +0x8ce4 (used by Nasod_Watch_Eve, SI_HA_APOCALYPSE, SI_HA_FERDINAND); ported with its reader
