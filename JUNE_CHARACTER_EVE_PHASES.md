@@ -1704,6 +1704,15 @@ Read against the listing / raw disassembly, not the Done note's claims.
 
 **Play-test hand-off (as given).** Save: unit 22 `weevwe` (Eve Nasod, level 99) now also has Mega Electronball Enhanced 25219 in slot 7 (B, third key); Dimension Link Enhanced is in slot 1. The backup is `db_backup\els_db_20261027_155426_pre_sql.sql`. Log tag `[JUNE_CHAR] EVE SKILL`.
 
+**Play-test PASSED 2026-10-27** (user + logs, run 16:14-16:17 on md5 `379019c0`):
+- Registration: `EVE SKILL registered ENSI_SI_A_EN_MEGA_ELECTRONBALL ( skill 25219, slot 2 B )`.
+- 13 `MEGA shot` lines, ranks 1 / 2 / 3. Scale 1.500 / 1.875 / 2.250 and range 1.250 / 1.406 / 1.563 are the x1.25 / x1.125 and x1.5 / x1.25 steps. MP is 50 at every rank.
+- Second ball: armed twice. One fired at 0.49 s with `mp 0.00`; the other cast left the state before 0.48 s.
+- Watch copies: `watches 1` with the sentry up.
+- Out of MP: 6 `not enough MP` lines.
+- `big` stayed 0: `m_fJuneElectronBallBigRate` is set by passive 25407 (CH4).
+- ErrorLog 0 matching lines, 0 EXCEPTION, only the known `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
+
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
