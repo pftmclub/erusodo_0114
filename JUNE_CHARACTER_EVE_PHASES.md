@@ -1559,6 +1559,30 @@ Opus 5.5. Commit `31c8cc86` read line by line against June `32024ff0` (list part
 
 Hygiene: `flagcheck.py JUNE_EFFECT_SET_LIST_VARIANTS --range 31c8cc86^..31c8cc86`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2GUUser.cpp X2GUUser.h X2GameUnit.h`: 2 B rows (`X2GUUser.h:2544-2545`, `f07940fe`, `JUNE_EVENT_STATES`), none in CH1r lines; fresh `cl /P` runs failed transiently (exit 2, empty output), so this result is from `--reuse`. `/Zs` `X2GUUser.cpp`, `X2GUNPC.cpp`: 0 errors. Deployed exe stays md5 `52ee62ae` (play-test PASSED on it). `CH1s.md` re-checked: still matches (CH1r touched no gage code).
 
+### CH1s - Done (2026-10-27, diagnostic; play-test pending)
+
+Opus 5.5. Reading found no defect in CH1q's port; a temporary `SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG` line settles it in one play-test.
+- **Gage data `+0xf4` is the orb count.** User vslot 0xa8 `3208eef0` = `SetHyperModeCount( n )`: `+0xc04` (gage data) `+0xf4 = n`, then the encrypted mirror at `+0x7eb4`.
+  That is March's `CX2GUUser::SetHyperModeCount` (`GetGageData()->SetHyperModeCount`, `X2GUUser.h:1637`); the gauge set copies it into the UI's data every frame
+  (`UpdateDataFromGameUnit`, `X2GageData.cpp:237`). June's Raven ball `32e6d900` tests the same byte where March's Raven tests `GetHyperModeCount()`.
+  `HyperModeStart` zeroes the count (`X2GUUser.cpp:32578`, June `31ffd490`), so **the ball shows while 3 orbs are held and goes when the awakening starts**: an
+  "awakening ready" marker, never visible during the awakening. CH1's play-test looked during the awakening, so it may have seen June's behaviour.
+- **First gate:** `DAT_3372c0fc` + `type_info` = the `g_pX2Game` observer (the same gate opens Raven's `32e6d900`); the port's `NULL == g_pX2Game` test.
+- **Particle system:** `322ceaa0` = `g_pData+0x84` = March `GetGameMajorParticle()`, confirmed independently: June's Elesis Extinction `32b706a0` creates
+  `SA_SSK_EXTINCTION_CHARGE_P15` on `[g_pData+0x84]`, March on `GetGameMajorParticle()` (`X2GUEL.cpp:6718`). `Eve_PowerUp_UI_01` is a `PT_2D_PLANE` (RHW, screen
+  coordinates) in `GameMajorParticle25.txt`, opened at start-up under `JUNE_LOADER_GAPS` (`X2StateStartUp.cpp:166`).
+- **Create arguments:** owner 0, ( 72 x `+0x1b8`, 80 x `+0x1bc`, 0 ) = ( 72, 80 ) x resolution (`33534178` = 72.0, `33438090` = 80.0), defaults, OverUI (`+0x170`). As ported.
+  The owner only matters to `GIANT_UNIT_GIANT_EFFECT_TEST` scaling; a 0-radius sequence passes the DG frustum test (`KTDGObject.h:512`).
+- **Diagnostic:** `[JUNE_CHAR] EVE NCORE ball ...` once a second from `June_UpdateHyperBall` (before its gate): game, count, handle, templet, seq, live particles, GetShow,
+  hide-dialog, seq ShowObject, drawn last frame (`IsInstantShow`), OverUI, layer, pos. Flag defined in `Always.h`, include + block in `X2GageUI.cpp`.
+- **Drift (not Eve's):** March's Raven ball makes `raven_powrUp_UI_01` on `GetUIMajorParticle()`, but the template is only in `GameMajorParticle7.txt`, so March's
+  Raven ball is never created; June uses the game system at ( 74, 60 ). Routed to the checklist, new **7aq** (Raven's port).
+
+Hygiene: `flagcheck.py JUNE_CHAR_EVE_DEBUG --worktree --files X2Lib/X2GageUI.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 26,082,304 B, dated 2026-10-27 12:16:44, md5 fcb84b19f5b00c09a35a0557250fee11, equal to X2/US_SERVICE/x2.exe (2026-10-27 12:16:38); built at main 2b623204 + 2 uncommitted code file(s).` `EVE NCORE ball` is in the exe once.
+**Play-test (user) is the gate:** one run, the log line before and during the awakening decides between "June's rule, nothing to fix" and a render / data fix. Review: `kickoffs/char-eve/CH1s-review.md` (retires `_DEBUG`).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

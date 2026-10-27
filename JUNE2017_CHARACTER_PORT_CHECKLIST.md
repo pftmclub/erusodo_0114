@@ -947,3 +947,11 @@ attack type but AT_SPECIAL) and `JuneModifySpecialFinalDamageByGameUnitType` (0x
 - **Ain** (Stage 8): 0x3b0 `32a6a640`, 0x56c `32a67de0`, 0x6a8 `32a676a0` (skill use `32a6e0f1`). **Rose:** 0x56c `32aacd70`, 0x6a8 `32ab39e0` (`32ad833a`).
   **Lu/Ciel:** 0x56c `32b16220`, 0x6a8 `32aea8c0` (`32b3a6ba`).
 - Eve's are all done (CH1o2); her `328e0aa0` blocks (classes 0x1a / 0x6d) are CH4c's, the other classes' blocks stay in 7aj.
+
+### 7aq. The three-orb ball on the own gauge UI (from char-eve CH1s)
+
+June draws the "3 orbs held" ball in the class's own gauge UI, on `g_pData+0x84` (`322ceaa0` = March `GetGameMajorParticle()`), OverUI, while gage data `+0xf4` (the orb
+count, written by `SetHyperModeCount` = user vslot 0xa8 `3208eef0`) is 3; `HyperModeStart` zeroes the count, so it is gone during the awakening.
+- **Raven:** `32e6d900`, `raven_powrUp_UI_01` at ( 74, 60 ) x resolution (`3352d6c0` / `33457f50`; March 100, 120). March's `CX2RavenMyGageUI::UpdateHyperOrb` creates it on `GetUIMajorParticle()`, but the
+  template is only in `GameMajorParticle7.txt` (not in `UIMajorParticle.txt`), so March's Raven ball is never made; its dtor already destroys on the game system. Port June's body.
+- **Eve:** done (CH1q `June_UpdateHyperBall`, `32e6a210`; CH1s).
