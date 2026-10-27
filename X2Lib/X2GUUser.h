@@ -3386,6 +3386,18 @@ public:
 		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+		virtual void JuneSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ ) {}	/// June user vslot 0x56c ( base 33108560, empty )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+#ifdef SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+		virtual bool JuneCanAllyRallyToMe( CX2GameUnit* pNPC_ ) { return false == pNPC_->HaveThisBuff( BTI_DEBUFF_FESSEL_HEILIG ); }	/// June user vslot 0x584 ( base 31fc8070 )
+#endif SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+		virtual float JuneSummonCriticalBonus( CX2GameUnit* pNPC_ ) { return 0.f; }	/// June user vslot 0x65c ( base 322b5520 )
+#endif SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+#ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+		virtual float JuneShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; }	/// June user vslot 0x6a8 ( base 3208e190 )
+#endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
 		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
 		virtual bool IsSkillUseCountExcludedState() const { return false; }

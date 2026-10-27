@@ -933,3 +933,15 @@ Base-code branches that june-transcend T5 found and left to the class ports (non
 | Lu/Ciel | `32b1f0a0` (hyper effect start, vslot 19); `32b397a0` (CommonFrameMove override, vslot 499) | the branches (Stage 8) |
 | Rose | `32ab1c30` (hyper effect start, vslot 19) | the branch (Stage 8) |
 | Ain | `32a599c0` (hyper StateStart, calls `31fc8c20`); `32a6a990` (states `0x3c6`-`0x3c8`); `32a71a90` (ApplyHyperModeBuff) | each branch (Stage 8) |
+
+### 7ap. June slots CH1o2 gave a base and a March call site (from char-eve CH1o2)
+
+Engine hooks, each under its own flag (all defined; bases empty except 0x584): `CX2GameUnit::JuneModifyFinalDamageByGameUnitType` (0x3ac, `GetFinalDamage`, every
+attack type but AT_SPECIAL) and `JuneModifySpecialFinalDamageByGameUnitType` (0x3b0, AT_SPECIAL); `CX2GUUser::JuneSkillIconOverride` (0x56c, equipped slot icon),
+`JuneCanAllyRallyToMe` (0x584, `CX2AllyNPCAI::RallyToAlly`), `JuneSummonCriticalBonus` (0x65c, `CX2GUNPC::GetCriticalPercent`), `JuneShownSkillCoolTime`
+(0x6a8, `UpdateSkillCoolTime`). A class port overrides the ones its June vtable overrides:
+- **Ara:** 0x3ac `32ba45d0`. Move March's live 4-arg `ModifyFinalDamageByGameUnitType` body to June's override (empty the March one, as Eve's LIVE does); 0x6a8 `32b958e0`, also called from its skill use (`32bcff21`).
+- **Chung:** 0x6a8 `32bdba60` (skill use `32c17b82`). **Lire:** 0x6a8 `32c7bed0` (skill use `32cac5a0`).
+- **Ain** (Stage 8): 0x3b0 `32a6a640`, 0x56c `32a67de0`, 0x6a8 `32a676a0` (skill use `32a6e0f1`). **Rose:** 0x56c `32aacd70`, 0x6a8 `32ab39e0` (`32ad833a`).
+  **Lu/Ciel:** 0x56c `32b16220`, 0x6a8 `32aea8c0` (`32b3a6ba`).
+- Eve's are all done (CH1o2); her `328e0aa0` blocks (classes 0x1a / 0x6d) are CH4c's, the other classes' blocks stay in 7aj.

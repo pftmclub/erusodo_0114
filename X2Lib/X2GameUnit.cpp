@@ -3206,6 +3206,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #else
 		pAttacker->ModifyFinalDamageByGameUnitType( pAttDamageData->damageType, fAttackerPhysicDamage, fAttackerMagicDamage );
 #endif //BALANCE_CODE_NEMESIS_20121213
+#ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
+	/// June 32284aa0 @322857fb: March's AT_NORMAL call above stays for the classes not yet on June's slots
+	if ( CX2DamageManager::AT_SPECIAL == pAttDamageData->attackType )
+		pAttacker->JuneModifySpecialFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+	else
+		pAttacker->JuneModifyFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+#endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 
 	switch( pAttDamageData->damageType )
 	{

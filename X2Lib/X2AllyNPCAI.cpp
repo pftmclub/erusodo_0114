@@ -204,6 +204,12 @@ bool CX2AllyNPCAI::RallyToAlly()
 	if( CX2UnitManager::NUI_EVOKE_TRAP_LIRE_MEMO == m_pMasterNPC->GetNPCTemplet().m_nNPCUnitID )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+	/// June 32f10e60 @32f10f2e ( 32f0e260 ): a user ally asks its slot 0x584, any other ally lets the summon rally
+	if ( CX2GameUnit::GUT_USER == m_optrAllyGameUnit->GetGameUnitType() && false == static_cast<CX2GUUser*>( m_optrAllyGameUnit.GetObservable() )->JuneCanAllyRallyToMe( m_pMasterNPC ) )
+		return false;
+
+#endif SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
 	float fDist = GetDistance( m_optrAllyGameUnit->GetPos(), m_pMasterNPC->GetPos() );
 	if( fDist > m_AllyData.allyFarLostRange )
 	{

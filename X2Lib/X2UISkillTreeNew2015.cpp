@@ -578,6 +578,21 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_
+{
+	/// June 328e0aa0: its tree +0x130..+0x139 class blocks are CH4c's ( 0x1a / 0x6d ) and checklist 7aj's; the tail asks my unit's slot 0x56c
+	void JuneApplyEquippedSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ )
+	{
+		if ( NULL == g_pData || NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() || NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() )
+			return;
+
+		g_pX2Game->GetMyUnit()->JuneSkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ );
+	}
+}
+using namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_;
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+
 /// June 328e18d0
 /*virtual*/ void CX2EquippedSkillSlotData::UpdateUI( CKTDGUISlot* pSlot )
 {
@@ -634,7 +649,15 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 	{
 		/// 328e0aa0 ( the per-class icon override for runtime class states ) is character material: JUNE_SKILL_SYSTEM_PHASES.md S7b
 		/// hands it to the character port checklist.
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+		/// June 328e18d0 @328e1c62: the slot's own id ( not the transcendence one ) with copies of the templet's icon strings
+		wstring wstrIconTexName = pSkillTemplet->m_wstrIconName;
+		wstring wstrIconTexKey = pSkillTemplet->m_wstrIconPieceName;
+		JuneApplyEquippedSkillIconOverride( static_cast<int>( m_eSkillID ), wstrIconTexName, wstrIconTexKey );
+		pSlot->SetItemTex( wstrIconTexName.c_str(), wstrIconTexKey.c_str() );
+#else SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 		pSlot->SetItemTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 		pSlot->SetDragable( true );
 
 		const int iSkillLevel = refUserSkillTree.GetSkillLevel( m_eSkillID, true, 0, true );		/// June 328e1caf: 32890620( id, 1, 0, 1 )

@@ -14756,7 +14756,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 
 							pStaticCoolTime->SetString( iSlotIndex, L"" );
 						}
+#ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+						else if( GetMyUnit()->JuneShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) > 0.0f
+#else SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 						else if(pSlotData->m_fCoolTimeLeft > 0.0f
+#endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 #ifdef SERV_9TH_NEW_CHARACTER
 								&& true == bShowCoolTime 
 #endif // SERV_9TH_NEW_CHARACTER
@@ -14766,7 +14770,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 								pStatic_Skill_Cool_Time_Fade->GetPicture(iSlotIndex)->bShow = true;
 
 							wstringstream wstrstm;
+#ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+							wstrstm << (int)( ceil( GetMyUnit()->JuneShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) ) );
+#else SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 							wstrstm << (int)( ceil(pSlotData->m_fCoolTimeLeft) );
+#endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 							pStaticCoolTime->SetString( iSlotIndex, wstrstm.str().c_str() );
 						}
 #ifdef ELSWORD_WAY_OF_SWORD

@@ -16518,6 +16518,10 @@ void CX2GUEve::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*
 // 소환된 몬스터 캐릭터 위치로 데려온다
 void CX2GUEve::CallSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*= CX2UnitManager::NUI_NONE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	June_CallSummonedNPC( static_cast<int>( eNPCID ) );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( NULL == g_pX2Game )
 		return; 
 
@@ -16554,6 +16558,7 @@ void CX2GUEve::CallSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*= CX2UnitMa
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 void CX2GUEve::ResetMegaEletronCharge()
 {
@@ -29139,6 +29144,11 @@ void CX2GUEve::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUEve::ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	/// June vslot 0x7b0: 3202c360 passes 0 or IsPvpOrPve() ( 322cc1a0 ), which is false offline; March's caller has no index
+	June_ApplyAuraAcceleratorBuffToGameUnit( pSkillTemplet_, fAddtionalAccelBuffTime_, vMyPos_, 0 );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	CX2BuffFactorPtr ptrEnergyOfConcentrationFactor
 		= GetEnergyOfConcentrationBuffFactorClonePtr();
 
@@ -29213,6 +29223,7 @@ void CX2GUEve::DeleteMinorParticle()
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 /** @function : GetEnergyOfConcentrationBuffFactorClonePtr
 @brief : 집중의기운(네메) 패시브 스킬이 가지고 있는 버프팩터를 얻어오는 함수
@@ -29404,6 +29415,10 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 #ifdef BALANCE_CODE_NEMESIS_20121213
 /*virtual*/ void CX2GUEve::ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, OUT float& fAttackerMagicDamage_ , OUT float& fForceDownValue_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	/// June has no such slot: the Nasod Weapon proc is June_ModifyFinalDamageByGameUnitType ( vslot 0x3ac, SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK )
+}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if ( GetUnitClass() == CX2Unit::UC_EVE_CODE_NEMESIS && false == DidHitNasodWeapon() )
 	{
 		if ( NULL != GetUnit() )
@@ -29450,6 +29465,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #else
 /*virtual*/ void CX2GUEve::ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, OUT float& fAttackerMagicDamage_ )
 {
@@ -43860,8 +43876,8 @@ void CX2GUEve::June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::Re
 	}
 }
 
-// June 329770d0 ( vslot 0x584, name unsettled ): buff 984 is out; NPCs 1621 / 1622 need buff 954 / 956 absent
-bool CX2GUEve::June_Vslot584( CX2GameUnit* pUnit_ )
+// June 329770d0 ( vslot 0x584, JuneCanAllyRallyToMe ): buff 984 is out; NPCs 1621 / 1622 need buff 954 / 956 absent
+bool CX2GUEve::June_CanAllyRallyToMe( CX2GameUnit* pUnit_ )
 {
 	if( true == pUnit_->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( JUNE_CH1K_BTI_984 ) ) )
 		return false;
@@ -43876,8 +43892,8 @@ bool CX2GUEve::June_Vslot584( CX2GameUnit* pUnit_ )
 	return true;
 }
 
-// June 3297b4b0 ( vslot 0x56c, name unsettled ): skill 25235 shows the Eve Active 05 icon while the 9c50 block holds a value
-void CX2GUEve::June_Vslot56c( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ )
+// June 3297b4b0 ( vslot 0x56c, JuneSkillIconOverride ): skill 25235 shows the Eve Active 05 icon while the 9c50 block holds a value
+void CX2GUEve::June_SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ )
 {
 	if( JuneEveSkillIDByUpgrade( iSkillID_ ) == JUNE_CH1K_SA_ECN_PSYKER_KINESIS && NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC )
 	{
@@ -45112,8 +45128,8 @@ void CX2GUEve::June_HyperModeFrameMove()
 	June_CommonHyperModeFrameMove( 0.05f, 0.83f, false );
 }
 
-// June 32977090 ( vslot 0x6a8, name unsettled ): float getter; the Psyker Kinesis value reads 0 while the 9c50 block holds a time
-float CX2GUEve::June_Vslot6a8( const float fValue_, const int iSkillID_ )
+// June 32977090 ( vslot 0x6a8, JuneShownSkillCoolTime ): the Psyker Kinesis cool time shows 0 while the 9c50 block holds a time
+float CX2GUEve::June_ShownSkillCoolTime( const float fValue_, const int iSkillID_ )
 {
 	if( JUNE_CH1K_SA_ECN_PSYKER_KINESIS == iSkillID_ && NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC )
 		return 0.0f;
@@ -45121,8 +45137,8 @@ float CX2GUEve::June_Vslot6a8( const float fValue_, const int iSkillID_ )
 	return fValue_;
 }
 
-// June 32979a70 ( vslot 0x65c, name unsettled ): a Nasod summon's flag, with my HP at or under the Grace of Queen threshold, reads that skill's passive value 0xc2
-float CX2GUEve::June_Vslot65c( CX2GameUnit* pUnit_ )
+// June 32979a70 ( vslot 0x65c, JuneSummonCriticalBonus ): a Nasod summon's flag, with my HP at or under the Grace of Queen threshold, reads that skill's passive value 0xc2
+float CX2GUEve::June_SummonCriticalBonus( CX2GameUnit* pUnit_ )
 {
 	float fValue = 0.0f;
 	if( NULL == pUnit_ )
@@ -45149,8 +45165,8 @@ float CX2GUEve::June_Vslot65c( CX2GameUnit* pUnit_ )
 	return fValue;
 }
 
-// June 3298c580 ( vslot 0x6ac, name unsettled ): every live ally summon of mine ( templet id iNpcID_, 0 = any ) moves to my position
-void CX2GUEve::June_Vslot6ac( const int iNpcID_ )
+// June 3298c580 ( vslot 0x6ac = CallSummonedNPC, base 32001660 the same ): every live ally summon of mine ( templet id iNpcID_, 0 = any ) moves to my position
+void CX2GUEve::June_CallSummonedNPC( const int iNpcID_ )
 {
 	if( NULL == g_pX2Game )
 		return;

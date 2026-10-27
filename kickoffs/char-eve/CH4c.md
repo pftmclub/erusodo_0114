@@ -41,3 +41,13 @@ Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INI
 ## Amended by CH1m (2026-10-26)
 
 - June registers `ENSI_EVE_RECOVERY` (id 238) last in `InitStateCommon` `329b8030` @1405: Start `329b57a0`, EventProcess `31fcc350` (a CX2GUUser callback with no funcmap row yet: identify it). CH1m left the comment line `/// June 329b8030 @1405: ENSI_EVE_RECOVERY ( Code Recovery, CH4c registers it )` at the end of `CX2GUEve::June_InitStateCommon`: replace it with the registration, drop 238 from `ROUTED` in `june2017_re/char_eve/ch1m_regcheck.py` and re-run it (`0 problems`).
+
+## Amended by CH1o2 (2026-10-27)
+
+- **The 7aj icon blocks are Eve's two, both behind tree `+0x130`.** CH1o2 put the frame and tail of `328e0aa0` in `X2UISkillTreeNew2015.cpp`'s `JuneApplyEquippedSkillIconOverride`: it runs the gates, then my unit's slot 0x56c. The class blocks come before that tail and are this phase's:
+  - class 0x6d with skill 25601 / 25604 -> `DLG_SKILL_Hyper_Active_02.tga` / the `SI_HA_EEP_LINK_OVERCHARGE_ILLUSI...` key (`3348a8f8`; read the full string);
+  - class 0x1a with skills 0x6272 / 0x627f -> the four El Crystal icons by `+0x134`.
+- **Tree `+0x130` / `+0x134` are written only by the class icon functions** (ctor `328e76a0` zeroes them, with `+0x138` / `+0x139` for Add). Eve has two, both `CX2Game`:
+  - `322d9250` = June `UpdateEveElectraSkillSlotIcon`: per slot 0-9 with the lock test, `+0x130` = Eve `+0x97e4`, `+0x134` = Eve `+0x97f0` (@322d94ee / @322d950f), the slot texture, and the Thousand Stars `FIRE` icon by `+0x9a20` / `+0x9a18`;
+  - `322d99d0`, Code Empress's Link Overcharge icons (`Hyper_Active_01` / `_02`, 0x6401 / 0x6404), writing `+0x130` @322d9c30.
+  Port both whole with the two tree members: the first as the June tail of March's `UpdateEveElectraSkillSlotIcon`, the second at its June caller `322de5d0` (@322de683 / @322de691). `322d9250`'s callers: `328e18d0` @328e1e91 (S7b already calls March's) and any others `xrefs_to` lists.

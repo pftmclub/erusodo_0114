@@ -10190,3 +10190,38 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and every damage effect the set creates takes it as CreateInstance's fForceDownValueRate ( 321ee600 @321ef3bb / @321ef462 ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1o2 - GetFinalDamage asks the attacker's June slots 0x3ac ( every type but AT_SPECIAL ) / 0x3b0 ( AT_SPECIAL ), base empty ( 32284aa0 @322857fb ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1o2 - the equipped skill slot's icon passes through my unit's June slot 0x56c, base empty ( 328e0aa0 @328e0ee4 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1o2 - an ally summon rallies to its user only if the user's June slot 0x584 allows it; base: not under BTI_DEBUFF_FESSEL_HEILIG ( 32f10e60 / 32f0e260 / 31fc8070 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1o2 - an NPC's critical percent adds its owner's June slot 0x65c, base 0 ( 3275a820 / 322b5520 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH1o2 - the skill slot's cool-time text shows my unit's June slot 0x6a8 of the cool time, base the cool time ( 322e07e0 @322e132c / @322e1442, 3208e190 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+//////////////////////////////////////////////////////////////////////////

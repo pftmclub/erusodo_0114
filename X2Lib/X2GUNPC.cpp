@@ -28288,6 +28288,12 @@ float CX2GUNPC::GetCriticalPercent( BYTE byAttackType, float fExtraCritical )
 // 	}
 // 
 	fCriticalPercent += fExtraCritical;
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+	/// June 3275a820: plus the owner's slot 0x65c of me ( March's owner is always a CX2GUUser )
+	CX2GameUnit* pJuneOwner = GetOwnerGameUnit();
+	if ( NULL != pJuneOwner && CX2GameUnit::GUT_USER == pJuneOwner->GetGameUnitType() )
+		fCriticalPercent += static_cast<CX2GUUser*>( pJuneOwner )->JuneSummonCriticalBonus( this );
+#endif SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
 
 	return fCriticalPercent;
 }

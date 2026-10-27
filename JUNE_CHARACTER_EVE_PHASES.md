@@ -1359,6 +1359,35 @@ Two citation fixes and no code change. The commit is "char-eve Phase CH1o review
 
 **JUNE_BUGS:** no row. **In game:** nothing (LIVE undefined). No rebuild: the code fix is a comment, so the binary is the same as CH1o's (`4f95ffbf`).
 
+### CH1o2 - Done (2026-10-27)
+
+CH1o's seven split slots each have a June base and a March call site; Eve overrides them under `_LIVE` (still undefined). The commit is "char-eve Phase CH1o2". Every June caller was found by a whole-`.text` scan for `[reg + slot]` (the hits that are not vslot calls are data fields); the per-class vtable values come from the 13 RTTI vtables (`CX2GUUser` `334781f4`, Eve `334cf45c`, ...).
+
+| Slot | June base / caller | March site (new engine flag, defined) | Eve under LIVE |
+|---|---|---|---|
+| 0x3ac / 0x3b0 | empty `33108560`; `GetFinalDamage` @322857fb: AT_SPECIAL -> 0x3b0, every other type -> 0x3ac, after `32622780` | `CX2GameUnit::JuneModifyFinalDamageByGameUnitType` / `JuneModifySpecialFinalDamageByGameUnitType`, called after March's AT_NORMAL 4-arg call, which stays for Ara (`JUNE_FINAL_DAMAGE_UNIT_HOOK`) | 0x3ac = `June_ModifyFinalDamageByGameUnitType`; March's 4-arg override is empty |
+| 0x56c | empty; `328e0aa0` @328e0ee4, from `UpdateUI` `328e18d0` @328e1c62 | `CX2GUUser::JuneSkillIconOverride`; S7b's `CX2EquippedSkillSlotData::UpdateUI` copies the templet's icon strings, runs `JuneApplyEquippedSkillIconOverride` (the frame and tail of `328e0aa0`), then `SetItemTex` (`JUNE_USER_SKILL_ICON_OVERRIDE`) | `June_SkillIconOverride` (was `June_Vslot56c`) |
+| 0x584 | `31fc8070` = `!npc->HaveThisBuff( BTI_DEBUFF_FESSEL_HEILIG )`; `32f0e260` from `CX2AllyNPCAI::RallyToAlly` `32f10e60` | `CX2GUUser::JuneCanAllyRallyToMe`. `RallyToAlly` asks a user ally after the LIRE_MEMO test, before the distances; any other ally rallies (`JUNE_ALLY_RALLY_USER_GATE`) | `June_CanAllyRallyToMe` (was `June_Vslot584`) |
+| 0x65c | `322b5520` = 0; `CX2GUNPC::GetCriticalPercent` `3275a820` (NPC vtable `+0x1d4`) = rate + extra + owner's 0x65c | `CX2GUUser::JuneSummonCriticalBonus`, added in `CX2GUNPC::GetCriticalPercent` when the owner is a user. March's owner is always one (`SetOwnerGameUnit( CX2GUUser* )`); June calls it unchecked (`JUNE_SUMMON_CRITICAL_OWNER_BONUS`) | `June_SummonCriticalBonus` (was `June_Vslot65c`) |
+| 0x6a8 | `3208e190` = the cool time; `322e07e0` (March `UpdateSkillCoolTime`) @322e132c test > 0 / @322e1442 text | `CX2GUUser::JuneShownSkillCoolTime( cool, id )` in the cool-time `else if` and its `ceil` text (`JUNE_USER_SHOWN_SKILL_COOL_TIME`) | `June_ShownSkillCoolTime` (was `June_Vslot6a8`) |
+| 0x6ac | `32001660` = March's `CX2GUUser::CallSummonedNPC` (gage-less passes; March's `GetNowHp` returns 1 too) | none: `SubStageStart` already calls the virtual (`FIX_SUMMONED_MONSTER_POSITION`) | `CallSummonedNPC` -> `June_CallSummonedNPC` (was `June_Vslot6ac`; same body as the base) |
+| 0x7b0 | `32028790`; only caller `ProcessAcceleraterBuff` `3202c360`, which passes 0 or `IsPvpOrPve()` (`322cc1a0`) | none: the base and caller pair is backlog Stage 2's (accelerator auras bullet) | March's 3-arg `ApplyAuraAcceleratorBuffToGameUnit` -> `June_ApplyAura...( ..., 0 )`: the index is false offline |
+
+- **Other classes' June overrides of these slots** (vtables): 0x3ac Ara `32ba45d0`; 0x3b0 Ain `32a6a640`; 0x56c Ain / Rose / Luciel; 0x6a8 Ara `32b958e0`, Chung `32bdba60`, Lire `32c7bed0`, Ain / Rose / Luciel. Their skill-use code also calls 0x6a8 (`32bcff21`, `32c17b82`, `32cac5a0`, ...). These are checklist §7ap rows. 0x584 / 0x65c / 0x6ac / 0x7b0 are Eve-only.
+- **Live now for every class:** a summon under Fessel Heilig no longer teleports back to its user (0x584 base). The other four bases change nothing.
+- **`328e0aa0`'s class blocks are not ported.** They sit behind the tree's `+0x130` byte, which only the class icon functions write (Eve's `322d9250` = June `UpdateEveElectraSkillSlotIcon`, @322d94ee / @322d950f from Eve `+0x97e4` / `+0x97f0`). Eve's two blocks go to CH4c (kickoff amended): class 0x1a El Crystal by `+0x134`, and class 0x6d skills 25601 / 25604 -> `Hyper_Active_02`. The other blocks stay in checklist 7aj.
+- **No hook needed:** 0x77c has callers only in Eve (`3299a240`, `3299a47d`, `329b2769`: CH2a / CH3b); 0x828 at `31fc87d5` / `3206f99f` is the Stage 9 idle-timer reset. Both confirmed by the scan.
+- **Drift:** June's `SubStageStart` user loop also clears a June-only byte `+0x944c` next to `SetShieldDamageReduce( 1 )` (`+0x412c`). It is unidentified and every class's -> backlog Stage 2 bullet.
+
+**Checks.** `/Zs` (`census.cl_cmd`) of `X2GuEve`, `X2GUUser`, `X2Game`, `X2GameUnit`, `X2GUNPC`, `X2AllyNPCAI`, `X2UISkillTreeNew2015`: 0 errors with LIVE undefined and with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`. A probe TU confirms the five new defines resolve and LIVE does not. `enumscan --check` (8 files): 2 A/B rows, both pre-existing `X2GUUser.h:2537-2538` (`f07940fe`, not touched here).
+**Hygiene** (`--worktree --files`, the 10 changed code files):
+- the five new flags: `RESULT: PASS`, `0 deleted line(s) ... 0 encoding change(s)` each (`ICON_OVERRIDE` 1 PASS~ = a blank line next to its block);
+- `JUNE_CHAR_EVE_LIVE`: `0 deleted line(s)`; its only FAIL is the by-design "not #defined";
+- `JUNE_CHAR_EVE_CORE`: `1 PASS, 9 OTHER, 0 FAIL`, `5 deleted line(s)`, `RESULT: PASS`. The deletions are the renames: git shows 15 deleted lines, the five members' comment and signature lines (header 5, .cpp 10), all in CORE code.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 08:15:48, md5 75fe95cc419e2bf7c51c72b542ac5279, equal to X2/US_SERVICE/x2.exe (2026-10-27 08:15:41); built at main 8e39c047 + 10 uncommitted code file(s).`
+
+**JUNE_BUGS:** no row. **In game:** nothing to test (LIVE undefined; the Fessel Heilig rule needs a June debuff source). Review: `kickoffs/char-eve/CH1o2-review.md` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

@@ -3099,8 +3099,8 @@ protected:
 	void June_ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June 32973d30 ( vslot 0x3ac )
 	void June_ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32973e70 ( vslot 0x3a8 )
 	void June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32978420 ( vslot 0x314 )
-	bool June_Vslot584( CX2GameUnit* pUnit_ );				/// June 329770d0 ( vslot 0x584, name unsettled )
-	void June_Vslot56c( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c, name unsettled )
+	bool June_CanAllyRallyToMe( CX2GameUnit* pUnit_ );		/// June 329770d0 ( vslot 0x584, JuneCanAllyRallyToMe )
+	void June_SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c, JuneSkillIconOverride )
 	void June_AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );	/// June 3297bb70 ( vslot 0x27c )
 	void June_COMMON_BUFF_FrameMove();						/// June 3297fdd0 ( vslot 0x5f0 )
 	int  June_GetComboZStateID() const;						/// June 329cf210 ( vslot 0x4b0 )
@@ -3124,9 +3124,9 @@ protected:
 	void		June_InitEquippedActiveSkillState( bool bOnlySkillLevel_ = false );	/// June 32977390 ( vslot 0x684 )
 	void		June_InitInpuDataProcess();				/// June 32978e80 ( vslot 0x6fc )
 	void		June_HyperModeFrameMove();				/// June 3299cf70 ( vslot 0x600 )
-	float		June_Vslot6a8( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, name unsettled )
-	float		June_Vslot65c( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, name unsettled )
-	void		June_Vslot6ac( const int iNpcID_ );		/// June 3298c580 ( vslot 0x6ac, name unsettled )
+	float		June_ShownSkillCoolTime( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, JuneShownSkillCoolTime )
+	float		June_SummonCriticalBonus( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, JuneSummonCriticalBonus )
+	void		June_CallSummonedNPC( const int iNpcID_ );		/// June 3298c580 ( vslot 0x6ac = March's CallSummonedNPC )
 	void		June_Vslot77c( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
 	CX2BuffFactorPtr	June_GetEnergyOfConcentrationBuffFactorClonePtr();	/// June 329b4ac0
 	void		June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ );	/// June 329b7390 ( vslot 0x7b0 )
@@ -3222,6 +3222,22 @@ protected:
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides
 	virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
 	virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
+	/// June character port Phase CH1o2: the June slots that CH1o2 gave a base and a March call site
+#ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
+	virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) { June_ModifyFinalDamageByGameUnitType( pDamageData_, fAttackerPhysicDamage_, fAttackerMagicDamage_ ); }	/// June vslot 0x3ac
+#endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
+#ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+	virtual void JuneSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ ) { June_SkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ ); }	/// June vslot 0x56c
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
+#ifdef SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+	virtual bool JuneCanAllyRallyToMe( CX2GameUnit* pNPC_ ) { return June_CanAllyRallyToMe( pNPC_ ); }	/// June vslot 0x584
+#endif SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+	virtual float JuneSummonCriticalBonus( CX2GameUnit* pNPC_ ) { return June_SummonCriticalBonus( pNPC_ ); }	/// June vslot 0x65c
+#endif SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
+#ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+	virtual float JuneShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return June_ShownSkillCoolTime( fCoolTime_, iSkillID_ ); }	/// June vslot 0x6a8
+#endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 };

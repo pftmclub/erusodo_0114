@@ -4291,6 +4291,10 @@ public:
 #else
 		virtual void ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, OUT float& fAttackerMagicDamage_ ) {}
 #endif //BALANCE_CODE_NEMESIS_20121213
+#ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
+		virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3ac ( base 33108560, empty )
+		virtual void JuneModifySpecialFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3b0 ( base 33108560, empty )
+#endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 
 		bool	ApplyDrainHpBuff()
 		{

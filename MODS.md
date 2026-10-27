@@ -5115,3 +5115,11 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Play-test passed 2026-10-27** (exe md5 4b68257a, with the probe): no hit-driven MP jumps; the only full-MP lines were consumables (`UseItemSpecialAbility`). Final build without the probe: DEPLOY OK md5 1cbce47e (2026-10-27 06:09).
 - **Follow-up:** backlog Stage 33 (June damage and character stat calculation) audits every other mixed March / June formula.
 - **Revert:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June unit slots 0x3ac / 0x3b0 / 0x56c / 0x584 / 0x65c / 0x6a8 (char-eve CH1o2, 2026-10-27)
+
+**Flags** (`Always.h`, all defined): `SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK`, `..._JUNE_USER_SKILL_ICON_OVERRIDE`, `..._JUNE_ALLY_RALLY_USER_GATE`, `..._JUNE_SUMMON_CRITICAL_OWNER_BONUS`, `..._JUNE_USER_SHOWN_SKILL_COOL_TIME`. Files: `X2GameUnit.{h,cpp}`, `X2GUUser.h`, `X2GUNPC.cpp`, `X2AllyNPCAI.cpp`, `X2Game.cpp`, `X2UISkillTreeNew2015.cpp`.
+
+- June's base virtuals and their March call sites, so class ports can override them (Eve's overrides sit under the undefined `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`). Details: `JUNE_CHARACTER_EVE_PHASES.md` "CH1o2 - Done".
+- **Live behaviour change, every class:** a summon under `BTI_DEBUFF_FESSEL_HEILIG` no longer rallies (teleports) to its user (June base `31fc8070`). The other four bases are empty or pass the value through.
+- **Revert:** comment out the `#define`s, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
