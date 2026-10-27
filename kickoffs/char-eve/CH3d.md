@@ -49,3 +49,7 @@ Do the CH3d row of the plan doc: the 6 hyper actives (type 13), the 3 `SHOW_HYPE
   - Nasod Watch and Ferdinand already do (CH2b3). Ferdinand's product still holds March's `GetSkillPowerRateValue` term: port June's 0x260 case whole.
   - Today all three ids fall to March's default case.
 - `tools/data/lua_unbound_known.tsv` has four rows owned by CH3d, from `SI_HA_FERDINAND` / `SI_HA_APOCALYPSE`: `GetSummonAllyNpcForceTargetUnit` (CX2GUNPC), `ResponseEmergency` (CX2GUUser), `GetEffectSetInstance` and `SetLocalRotateDegree` (effect set). Bind each whole from June's function, then delete its row. `luabind.py check SI_HA_FERDINAND SI_HA_APOCALYPSE` must pass without them.
+
+## Amended by CH2c2 review (2026-10-28)
+
+- Psychic Artillery FrameMove `329abb90` calls `329a1b90`: it is ported as `CX2GUEve::EveElectraSystem::June_CreateGigaPlane` (CH2c2, flag `_SKILL`). Call it; do not port it again.
