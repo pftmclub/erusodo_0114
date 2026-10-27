@@ -1897,6 +1897,9 @@ Electra's skill ids take June's `329c8a00` cases and state bodies (flag `SERV_IR
 5. Spectro El Crystal (A4): crystal system starts, the formation effect plays at 0.5 s, `SPECTRO_EL_CRYSTAL_COMBO_DAMAGE` hits.
 No missing mesh / texture error is expected beyond the 6 June-undefined names above. Then say "check logs".
 
+**Play-test (user, 2026-10-27, run 20:48-20:53, md5 `1ec950e4`): PASSED.** Logs: all five registrations (`ENSI_SA_EPR_PHOTON_FLARE` 25042 A0, `ENSI_SA_EPR_PARTICLE_RAY` 25023 A1 and 25063 B0, `ENSI_A_EBS_KUGELBLITZ` 25064, `ENSI_A_EPR_SPECTRO_EL_CRYSTAL` 25215); hits for `EVE_EPR_PARTICLE_RAY_LASER` (+ `_NEXT` on the later cast), `EVE_EPR_PHOTON_FLARE` x3, `Damage_KugelBlitz_Charge` x3 and `Damage_KugelBlitz_SelfDamage` (hit uid 41, Eve herself), `SPECTRO_EL_CRYSTAL_COMBO_DAMAGE` created; 0 EXCEPTION, 0 Motion Error, clean exit, no EVE-related ErrorLog line. The log does not tell the Particle Ray upgrade from the base (same effect names), so the steering is the user's visual check.
+**Found, not CH2c's:** ErrorLog `DamageEffect.lua: can't find 'WALK_SPEED' class variable` (June line 351020, a Raven combo): the file stops loading there. Routed to Stage 7 (Raven) as a bullet in `JUNE_PORT_BACKLOG_ORDER.md`. `ChainQuestInfo.lua: AddGroupChainQuest` is Stage 4's (already listed).
+
 ## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
 
 Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`
