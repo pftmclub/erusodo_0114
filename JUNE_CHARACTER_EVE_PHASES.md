@@ -1936,7 +1936,13 @@ Flag `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE` (new; the factor is shared by ever
 - **luabind.** The three known-list rows are deleted. `luabind.py check SI_SA_AT_SURFACE_CUTING Nasod_Watch_Eve SI_SA_EEP_ELECTRONIC_FIELD SI_HA_FERDINAND SI_HA_APOCALYPSE` PASS.
   - Ferdinand / Apocalypse also call four other unbound names (`GetSummonAllyNpcForceTargetUnit`, `ResponseEmergency`, `GetEffectSetInstance`, `SetLocalRotateDegree`). They are now known-list rows owned by CH3d.
 - **Hygiene.** flagcheck worktree: 4 PASS, 1 PASS~ (the blank line before the new `X2GUNPC.cpp` block), 1 DEFINE, 0 OTHER, 0 deleted, 0 encoding change, RESULT: PASS. enumscan 0 A/B.
-- **Deploy.** `DEPLOY OK: X2_offline.exe is 26,129,920 B, dated 2026-10-27 20:45:51, md5 1ec950e484b2f1b2497c0aaf1f1979bb` (built with CH2c's uncommitted edits on disk; the three binding names and `[JUNE_CHAR] NPC POWER` x3 are in the exe). Play-test pending.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 26,129,920 B, dated 2026-10-27 20:45:51, md5 1ec950e484b2f1b2497c0aaf1f1979bb` (built with CH2c's uncommitted edits on disk; the three binding names and `[JUNE_CHAR] NPC POWER` x3 are in the exe). Play-test PASSED.
+- **Play-test (user, 2026-10-27, run 20:49-20:51, md5 `1ec950e4`).**
+  - Three Oberon casts by unit 19 `Iivue`: each logged `[JUNE_CHAR] NPC POWER npc 1621 ... owner passive applied: attack x 1 / 1, critical 0.07`. Oberon fought normally.
+  - Nasod Watch (npc 384) by unit 41 `ElectraT` logged the same `owner passive applied` line.
+  - Its factor lines did not log, because they fire only on a change. Unit 41 has no socket, buff or skill power term, so every factor value was 1.0.
+  - No "can't find" for the three names. 0 EXCEPTION.
+  - Two other load-time Lua errors already have owners: `AddGroupChainQuest` (quest-system plan) and `WALK_SPEED` (`DamageEffect.lua`, see `JUNE_BUGS.md`).
 - **Not ported, routed.** `+0x4074` (ctor 1.0; read by `322ece70` flag 0x10, NPC 2206 Gale Force, and by `32abe5c0` / `32abefb0`, written by `32ad1080`) is Rose's (Stage 8).
 
 ## Phase CH2b4 - A dying summon drops its owner's summon buff (added 2026-10-27 by CH2b2, Sonnet)
