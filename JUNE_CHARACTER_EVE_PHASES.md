@@ -243,7 +243,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 - **Reference:** `ErrorLog.txt` (272,178 B, last run 2026-10-25 19:06) saved as `data\ErrorLog_pre_CH0b_eve.txt` before the copy.
 - **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_eve/ch0b_stage_list.tsv`:
   `STAGE-JUNE OK: 40 kom(s), 5197 staged (4648 new, 549 replaced, 0 identical), 0 refused, 33s`. Replaced March files are backed up under
-  `24965799\kom_backup_stage_june61026_030148`.
+  `24965799\kom_backup_stage_june\20261026_030148`.
 - **Packed:** `kom.py pack` x40, 40 `PACK OK`, 0 refusals (the list stages no Lua).
 - **Copied (user approved all 40, 2026-10-26):** `kom.py copy` x40, 40 `COPY OK` (data002 52,505,756 B / 2,632 entries; data018 88,473,587 B / 5,795 entries;
   data033 144,652,971 B / 165 entries, which carries the 11 base `Motion_EVE*.x` together). `data203.kom` is a new archive (32,935,532 B / 54 entries, the June
@@ -1489,6 +1489,23 @@ Flag: `SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE` (`Always.h`), defined **only when `_LI
 - **Parked blocks / registrations.** The CH1b / CH1k / CH1l2-4 blocks were reviewed when they were parked, and their spec A switch matches. The three parry registrations use March's callbacks, and `ch1m_regcheck.py` gives `matched 792 registrations, 0 problems; ids mapped 137`.
 
 **Hygiene** (`--range d075e236^..d075e236`): `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 13 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = `Always.h`). `enumscan --check` (4 files): `0 A/B row(s)`. `/Zs` of `X2GuEve.cpp`, `X2GUUser.cpp`, `X2GageUI.cpp`, `X2GageManager.cpp`, `X2GUNPC.cpp`: 0 errors each, with LIVE on and with it off. No rebuild (no change). `kickoffs/char-eve/CH1.md` still matches.
+
+### CH1 - Done (2026-10-27)
+
+Opus 5.5. **The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` is defined (`Always.h:10130`); it turns on `_NCORE` (Nasod Core), so Eve runs June's registration, virtuals, skill head, pressed-slot space and core (CH1a-CH1q). Shipped together with the exe:
+- **Script:** `luasrc.py adopt-june data036 Eve_Nasod.lua`: June's file replaces March's whole, as `ljconv` bytecode (172,650 B; no core-list row, no edit). Backup `24965799\kom_backup_stage_june\20261027_100517`, record `june2017_re/june_adopt_20261027_100517.tsv`. `PACK OK data036` (vs live ~1 changed, `Eve_Nasod.lua`); `COPY OK data036 ... 14006609 bytes, 267 entries, md5 38b60f616a552c355dd2a35927e40a29` (user approved).
+- **Summon / skill NPC scripts:** all 14 `char-eve/done-elsewhere` rows of `ch0_assets.tsv` (13 in data037, `Eve_AT_Sp2a_SonicWave` in data119) are June's bytes already: header `1B 4B 4C 81`, `adopt-june --dry-run` = identical. Nothing re-adopted. CH0b held no koms.
+- **START fix, found before the play-test (Aisha's CH1 bug again):** Eve's LIVE `ParseCommonRandomState` was empty ("June rolls in June_InitState"), so START / WIN / LOSE would roll from empty lists. June parses in the base (`31feaac0` from `CX2GUUser::Init`); the LIVE override now calls `CX2GUUser::JuneParseCommonRandomState()`. June's 7 `INIT_COMMON_RANDOM_STATE` tables (`EVE_NASOD` .. `EVE_BATTLE_SERAPH`) equal `JuneGetUnitClassName`'s Eve names; March's parse used `UC_EVE_CODE_*` names June's script lacks. The helper's declaration and body get an Eve-only copy (`#ifdef EVE_LIVE / #ifndef ARME_LIVE`, the CH1o hook precedent).
+- **`[JUNE_CHAR] EVE DATA`** (LIVE, end of `June_InitState`, offline_server.log): class, script, motion, state count, `wait_state_change` (1 only with June's script: March's has no `ENSI_WAIT_STATE_CHANGE`). `X2GuEve.cpp` includes `Offline/X2OfflineLog.h` under LIVE (first build failed C2653 without it).
+- **7h:** June's `ENSI_WAIT_STATE_CHANGE` has `ANIM_NAME = ""`; March's `CommonStateStart` takes it as for Aisha (CH1 Done, Aisha plan): `ChangeAnim( L"" )` returns false, the pose holds until `USEFUL_VALUE0[0]`.
+- **Scans:** `charport_keys.py Eve_Nasod`: `june-only=6 neither=1 march-only-site=8 both=224` (plan: 16 / 1 / 8 / 214; CH1k ported the 10 `INIT_COMPONENT` keys). The 6 left all have CH0 owners (`ch0_keys.tsv`: buff sub-tables read already; `EFFECT_SET_LIST_FINAL_ULTIMATE` backlog 3c; camera keys Stage 9; immunity list Stage 2). `charport_scan.py` rerun (from `%TEMP%\cps`) still running at commit: its verdict and the §4 (enum tables) mark follow in a doc-only commit.
+- **Checklist:** `(Eve: CH1, script adopted)` on 7h list variants (l.411), 7o bounding (l.496), 7p time-stop (l.535), 7t cut-in script (l.579), 7t sound sets (l.605), 7x AT_COMMAND (l.660).
+- Reference log for the play-test: `data\ErrorLog_pre_CH1_eve.txt` (182,416 B, run 2026-10-27 09:07).
+
+Hygiene: `flagcheck.py JUNE_CHAR_EVE_LIVE --worktree --files` (4 files): `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s)` (the `//#define` and the LIVE comment the parse call replaces), `0 encoding change(s)`, `RESULT: PASS`. `enumscan --check X2GuEve.cpp`: 0 A/B.
+Build: `DEPLOY OK: X2_offline.exe is 26,080,256 B, dated 2026-10-27 10:17:39, md5 61de6ca0a8bb0309a47235dba918e638, equal to X2/US_SERVICE/x2.exe (2026-10-27 10:17:32); built at main b561b723 + 4 uncommitted code file(s).` `EVE DATA` is in the exe once.
+
+**Play-test (user) is the gate:** one Eve per job, START / combos / dash / jump / riding (Iivue owns two riding pets) / awakening with the Nasod Core; `EVE DATA` per class; ErrorLog against the pre-CH1 copy. No new JUNE_BUGS row, no drift.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 

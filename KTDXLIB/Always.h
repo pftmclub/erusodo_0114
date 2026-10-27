@@ -10127,7 +10127,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              329ba9c0 / 329b8030 ) and the later CH1 sub-phases switch the virtuals over. Stays undefined until CH1's final sub-phase
 //              ships it with June's Eve_Nasod.lua ( one deploy unit ). Needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE.
 //              Revert: undefine the flag ( JUNE_CHAR_EVE_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE

@@ -408,7 +408,7 @@ class scripts carry, so the character ports bring them (D8, no question). Funcma
 | June | Class | What it does | What the port must bring |
 |---|---|---|---|
 | Elsword 25 functions `32cf8230`..`32d06c50` (e.g. `32d01040`), Raven `32c2b360`, Lire `32cb9ee0` | Elsword, Raven, Lire | Per-class state EventProcess cancel branches. When `UPDOWN_CANCEL_AFTER` (user `+0x8ca4`, C9h-4c's member) is >= 0 and below the anim time (the second skin `+0x8e84` when `+0x8e90`), on the ground, with up or down pressed, they change state. Data: June's `RAVEN_FIGHTER` (and the riding pets C9h-4e covers). | The class states that carry these branches, with the member C9h-4c adds. |
-| `32024ff0` list variants: `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS` (picked by the skill-memo entry `31fdbbb0` of `GetNowStateSkillID`, see the `31fdbbb0` row in 7), `EFFECT_SET_LIST_ULTIMATE_EX(_APPLIED_SKILL)`, `EFFECT_SET_LIST_EX_APPLIED_SKILL` (an `APPLIED_SKILL_ID` with level > 0, `31fceab0`), `EFFECT_SET_LIST_FINAL` / `_FINAL_ULTIMATE` (`32020ec0`, picked by the loader's third argument) | every class with June scripts (ELESIS_KNIGHT, Arme_VioletMage, Lire_ElvenRanger, Luciel_Duo, Ain, Ara, Add, Elsword: 23 scripts for `_FINAL`, 10 for `_FINAL_ULTIMATE`) | June's `LoadEffectSetFromScript` reads the plain lists as March does, then these, choosing by skill memo, transcendence, applied-skill level or the ultimate flag. | The selection with the skill system it needs (memo entries, transcendence, the ultimate argument from each class's caller). C9h-4d ports only the delete keys of the same function. S3f (2026-10-19): the third argument now reaches March's `CX2GUUser::LoadEffectSetFromScript` as `bJuneUltimate_` (CommonStateStart's upgraded-skill flag, `@3205ad87`; unread until this row), and the memo argument is always 0 as in June (JUNE_BUGS 332). |
+| `32024ff0` list variants: `EFFECT_SET_LIST_EX_TRANS_1` / `_TRANS_2` / `_EX_NO_TRANS` (picked by the skill-memo entry `31fdbbb0` of `GetNowStateSkillID`, see the `31fdbbb0` row in 7), `EFFECT_SET_LIST_ULTIMATE_EX(_APPLIED_SKILL)`, `EFFECT_SET_LIST_EX_APPLIED_SKILL` (an `APPLIED_SKILL_ID` with level > 0, `31fceab0`), `EFFECT_SET_LIST_FINAL` / `_FINAL_ULTIMATE` (`32020ec0`, picked by the loader's third argument) | every class with June scripts (ELESIS_KNIGHT, Arme_VioletMage, Lire_ElvenRanger, Luciel_Duo, Ain, Ara, Add, Elsword: 23 scripts for `_FINAL`, 10 for `_FINAL_ULTIMATE`) | June's `LoadEffectSetFromScript` reads the plain lists as March does, then these, choosing by skill memo, transcendence, applied-skill level or the ultimate flag. | The selection with the skill system it needs (memo entries, transcendence, the ultimate argument from each class's caller). C9h-4d ports only the delete keys of the same function. S3f (2026-10-19): the third argument now reaches March's `CX2GUUser::LoadEffectSetFromScript` as `bJuneUltimate_` (CommonStateStart's upgraded-skill flag, `@3205ad87`; unread until this row), and the memo argument is always 0 as in June (JUNE_BUGS 332). | (Eve: CH1, script adopted: `EFFECT_SET_LIST_FINAL_ULTIMATE` x5; the pick stays off until backlog 3c)
 | `SOUND_PLAY_EX`, `STATE_SOUND_PLAY`, `CUSTOM_STATE_DELETE_SOUND` data | Add, Elesis, Luciel, Arme, Aisha (18 / 2 / 2 June scripts) | Engine readers ported by C9h-4a; the keys live only in class scripts. | Nothing extra in code: they work once the class scripts are adopted. |
 | Class code writing `+0x3f00` directly (`32ab9190`, `32ab9370`, `32b2c7d0`, `32b77b30`, `32c4a2a0`: `lea ecx,[esi+0x3f00]` + the pair push) and class callers of `AddEffectSetDeleteCondition` `3227a570` (`32ab8890`, `32aba550`, `32ac3100`, `32ac8a60`, `32b7db80` x2) | not identified (found by C9h-4d review's raw scan) | Register effect sets for June's `DCES_SKILL_STATE_END` list (C9h-4d's `m_vecJuneEffectSetToDeleteOnSkillStateEnd`) or for the delete conditions, from class state code. | The class code, calling `AddEffectSetDeleteCondition` (case 5 and the played-handle push are ported) or pushing the `{ handle, skill id }` pair. |
 | `USEFUL_VALUE0..4` per-state float rows (June user `+0x8ef4` Future set and `+0x8eb8` Now set, 5 rows x 3 floats, a miss is 0; C9h-4f ports both sets, both parses and the getters `JuneGetUsefulValueFuture( row, col )` / `JuneGetUsefulValueNow( row, col )` of `CX2GUUser`, flag `SERV_IRUHADEV_JUNE_USEFUL_VALUE`) | every class with June scripts: 37 Future-set readers and 72 Now-set readers in class code (`june2017_re/c9h4f_useful_value_readers.tsv`, e.g. Future `329d7220`, `32a02f10`, `32b6ced0`; Now `3299a9d0`, `32a5c2a0`, `32ac2090`) | The row-and-column meaning is per class state (a value is a time, an offset or a speed depending on the state: read the state's June function). | The class state functions, reading the getters instead of June's raw `+0x8ef4` / `+0x8eb8` offsets; the data is already in the June class script's state table (`USEFUL_VALUE0 = { a, b, c }`). **Engine readers that are June-only states and are not here:** `31fd0260` (USI_BOUNDING_LANDCRASH, C3d-3), `31fc8620` (each class's `*_WAIT_STATE_CHANGE`), `31fc9a20` / `3200d450` / `3200d1d0` (USI_EVENT_SNIPER_*): all in C9h-4g |
@@ -493,7 +493,7 @@ user half does nothing until a class port brings June's state tables. Carry the 
 
 | Class | June states with the key | Value |
 |---|---|---|
-| All 12 classes in 7l (13 tables: Lu and Ciel have one each) | `<prefix>DAMAGE_BOUNDING_DOWN` | -4000 | (Aisha: CH1m, user reader `X2GUUser.cpp` C3g; arrives with the script in the final CH1) (Aisha: CH1, script adopted)
+| All 12 classes in 7l (13 tables: Lu and Ciel have one each) | `<prefix>DAMAGE_BOUNDING_DOWN` | -4000 | (Aisha: CH1m, user reader `X2GUUser.cpp` C3g; arrives with the script in the final CH1) (Aisha: CH1, script adopted) (Eve: CH1, script adopted)
 | Raven | `RRF_DASH_JUMP_COMBO_XX` | -5000 |
 | Add | `ANSI_APT_DASH_JUMP_COMBO_ZX` | -4000 |
 
@@ -532,7 +532,7 @@ below still call the 1-argument form. Carry them over with June's arguments (`ju
 
 | Class | June site | June call |
 |---|---|---|
-| All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim | (Aisha: CH1m, 12 states, reader C3e-4; arrives with the script) (Aisha: CH1, script adopted)
+| All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim | (Aisha: CH1m, 12 states, reader C3e-4; arrives with the script) (Aisha: CH1, script adopted) (Eve: CH1, script adopted: 3 states)
 | Chung | DamageReact `32c0cf90` (vslot `0x60`) @32c0d18c / @32c0d19c / @32c0d1b4 | attacker `SetStopTime( 0.5, false, NULL, false )`, own `SetStopTime( 0.5, false, NULL, false )`, own `SetStop2Time( 0, false, NULL, false )` |
 | Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state **(Aisha CH0, 2026-10-20: n/a. `32cd5d60` has no pointer, call, jmp or thunk anywhere in the exe; June registers `AVSI_SI1_AV_BINDING_CIRCLE` for both slots with FrameMove `32cd57c0`, so June never runs this forced stop.)** |
 | Elsword | March `THROW_WOODEN_PIECE_FrameMove` `SetStopTime( 1.5f )` | no June `+0x100` call loads 1.5: confirm June dropped it, then drop it too |
@@ -576,7 +576,7 @@ already live; only the readers are missing. Count per class: `june2017_re/dungeo
 
 Since C3t (`SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`), `CX2GUUser::ShowHyperSkillCutInByScript` (June `32014fc0`) shows a texture at a state's
 `SHOW_HYPER_CUT_IN_TIME`. It stays dormant until a port brings all three of these:
-- **The class script:** every June class script sets the key in its awakening states (`ESSI_*_HYPER_MODE`, plus Ara's berserk ones), 17 files.
+- **The class script:** every June class script sets the key in its awakening states (`ESSI_*_HYPER_MODE`, plus Ara's berserk ones), 17 files. (Eve: CH1, script adopted: the ECN / ECE / ECB hyper modes; her `UnitTemplet.lua` rows are CH5)
   No March class script sets it.
 - **June's `UnitTemplet.lua`** (data036): the texture names, `m_HyperCutIn` per class (39 rows), `m_BerserkCutIn` (9),
   `m_MinorUnitHyperCutIn` (4) and the two `_Trans` keys. March's copy has none of them, so the name is `L""`. (Aisha: CH5 - her 7 rows swapped for June's in the core-list `UnitTemplet.lua`; other classes' rows stay March's until their port)
@@ -602,7 +602,7 @@ with the first ported hyper active: option on Hide, use it -> the cut-in shows; 
 `ASI_BERSERK_MODE` state picks as a plain state. The June class scripts bring the keys that only the June pick reads:
 `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` (June's spelling; `ELESIS_KNIGHT`, 3 states), `SOUND_SET3_RATE` and up (`Add_NasodRuler`,
 `Chung_Iron_Cannon`, `ELESIS_KNIGHT`, `Eve_Nasod`, `Rose_Ranger`), and `STATE_SOUND_PLAY<n>` inside a sound set (`Add_NasodRuler`, `ELESIS_KNIGHT`).
-Engine side done; nothing to port per class beyond the overrides.
+Engine side done; nothing to port per class beyond the overrides. (Eve: CH1, script adopted)
 
 **Skill cut-in names (from june-gfx G4, `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`):** June's user skill cut-in is a GFx widget: `ActiveSkillShow` appends `.gfx` to the name
 it is given and plays it (with `Common_CutIn_Frame` and a `CUT_IN_TALK_` balloon) through the root movie. June's class tables therefore hold names **without an extension**
@@ -657,7 +657,7 @@ untagged, which parses as `AT_NORMAL` in both clients (June `32632d46`-`32632d5e
 white seal: only `AT_COMMAND` breaks it) needs the tag, so Atlas E10 ships a stand-in, `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN`: a user's
 `AT_NORMAL` hit counts as `AT_COMMAND` for that test only (`X2GUNPC.h` `GetInvincibleByAttackType`). Every class port takes June's script with
 its tags; once all classes in play are ported, undefine the stand-in. Other `AT_COMMAND` readers (buff BBT 85/86/87/96, socket
-`EXTRA_DAMAGE_TYPE`) already depend on the same tags.
+`EXTRA_DAMAGE_TYPE`) already depend on the same tags. (Eve: CH1, script adopted: 23 tags)
 
 ### 7y. GetLandPosition's bMonster in class code (from June engine W1c)
 

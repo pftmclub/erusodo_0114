@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\X2GuEve.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 // dmlee 2009-05-23, 이브의 소환 몬스터의 stat은 cx2game::createnpc()함수 안에서 따로 이브의 stat의 기준으로 다시 설정해주게 되어 있음.
 
@@ -655,7 +658,7 @@ void CX2GUEve::Draw()
 void CX2GUEve::ParseCommonRandomState()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
-	// June rolls the START / WIN / LOSE variants in June_InitState
+	JuneParseCommonRandomState();	// June parses in CX2GUUser::Init ( 31feaac0 ), not per class
 }
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( true == m_LuaManager.BeginTable( "INIT_COMMON_RANDOM_STATE" ) )
@@ -51555,6 +51558,12 @@ void CX2GUEve::June_InitState()
 	InitPassiveSkillState();						/// June vslot 0x690 ( 3297f290, CH4a )
 	June_InitEquippedActiveSkillState( false );		/// June vslot 0x684 ( 32977390 )
 	CX2GUUser::InitState();							/// June 31fd8f00
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	// Not June: CH1 done-gate line, proves June's script (its WAIT_STATE_CHANGE table) and the motion loaded.
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 }
 
 //}} Iruha : 2026-10-26 // June character Eve Phase CH1m

@@ -5895,6 +5895,19 @@ void CX2GUUser::JuneParseCommonRandomState()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+/// June 31feaac0 ( same body as above, for an Eve-only build )
+void CX2GUUser::JuneParseCommonRandomState()
+{
+	if( true == m_LuaManager.BeginTable( "INIT_COMMON_RANDOM_STATE" ) )
+	{
+		ParseCommonRandomState( CX2SkillTree::JuneGetUnitClassName( static_cast<int>( GetUnit()->GetClass() ) ).c_str() );
+		m_LuaManager.EndTable();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 

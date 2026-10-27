@@ -3500,6 +3500,11 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		void JuneParseCommonRandomState();		/// June 31feaac0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		void JuneParseCommonRandomState();		/// June 31feaac0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 
 
 		
