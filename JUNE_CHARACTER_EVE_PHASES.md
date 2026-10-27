@@ -1935,6 +1935,9 @@ Sweep Rolling and Giga Stream take June's `329c8a00` cases and state bodies (fla
 2. Giga Stream (B slot 8, key R): plane at 0.02 s, a second giga plane with five crystals and sparks at 0.5 s (tilted when up / down was held in the first 0.4 s), and the big laser from the left hand at 0.9 s (hyper version while awakened). Log `ENSI_SA_GIGA_STREAM`, `EVE_EPR_GIGA_STREAM_LASER` hits.
 No missing mesh / texture error is expected beyond the 5 June-undefined `.tga` names of the READY Init. Then say "check logs".
 
+**Play-test (user, 2026-10-28, run 05:17-05:18, md5 `7a0e3cf9`): PASSED.** Logs: both registrations (`ENSI_SA_EPR_SWEEP_ROLLING_READY` 25039 A slot 1, `ENSI_SA_GIGA_STREAM` 25065 B slot 3); `EVE_SWEEP_PARADE_TRIANGLE` created 4+ times with 3 hits (ELECTRIC / LIGHT frames present), `EVE_EPR_GIGA_STREAM_LASER` / `_NEXT` 13 hits; 0 EXCEPTION, 0 UNHANDLED from this phase, no Eve mesh / texture error, clean exit. The Giga plane, crystals and Sweep Rolling charge scale are visual checks the log does not show.
+**Found, not CH2c2's:** (1) ErrorLog `HQ_CUTIN_EVE_1 / _3.DDS.GFX` (ErrorEnum 135) on every Eve skill cut-in: June's art is in data152 ( plan table "Cut-ins" ), owned by CH5 / the cut-in stage. (2) `JUNE_FX HIT ... DIFF` diagnostic line for `EVE_EPR_GIGA_STREAM_LASER` prints an uninitialised June impact (`june=0`) when June's path reports no hit: a diagnostic of the effect-hit comparison, no gameplay effect. (3) `DamageEffect.lua WALK_SPEED` and `ChainQuestInfo.lua AddGroupChainQuest` are the known Raven and Stage 4 items.
+
 ## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
 
 Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`
