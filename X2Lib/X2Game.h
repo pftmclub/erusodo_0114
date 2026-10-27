@@ -880,6 +880,9 @@ class CX2Game : public CKTDXStage
 
 		virtual GAME_TYPE			GetGameType()				{ return m_GameType; }
 		virtual void				SetGameType( GAME_TYPE gameType ) { m_GameType = gameType; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		bool						GetIsNowPVPCorrectionGame()	{ return GT_PVP == GetGameType() || GT_PVE == GetGameType(); }	/// June 322cc1a0 ( game type 1 or 4 ), Lua-bound for the Oberon / Nasod Watch PvP effect sets
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		virtual GAME_STATE			GetGameState()				{ return m_GameState; }
 		virtual void				SetGameState( GAME_STATE gs ) { m_GameState = gs; }
 

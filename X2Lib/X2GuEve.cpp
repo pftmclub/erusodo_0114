@@ -49633,6 +49633,9 @@ void CX2GUEve::June_CommonFrameMove()
 	if( false == HaveThisBuff( BTI_BUFF_FERDINAND ) )
 		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+	June_DebugLogOberons();
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 	if( false == HaveThisBuff( BTI_BUFF_OBERON ) )
 		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
 
@@ -53282,6 +53285,33 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+// temporary: once a second, one line per live Oberon of mine ( state, hp, target, distance )
+void CX2GUEve::June_DebugLogOberons()
+{
+	static DWORD s_dwLast = 0;
+	const DWORD dwNow = timeGetTime();
+	if( NULL == g_pX2Game || dwNow - s_dwLast < 1000 )
+		return;
+
+	for( int iIndex = 0; iIndex < g_pX2Game->GetNPCUnitListSize(); ++iIndex )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( iIndex );
+		if( NULL == pNPC || CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING != static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID ) )
+			continue;
+
+		s_dwLast = dwNow;
+		CX2GameUnit* pTarget = ( NULL != pNPC->GetNPCAI() ) ? pNPC->GetNPCAI()->GetTargetGameUnit() : NULL;
+		const char* pszState = pNPC->GetNowStateName();
+		D3DXVECTOR3 vGap( 0, 0, 0 );
+		if( NULL != pTarget )
+			vGap = pTarget->GetPos() - pNPC->GetPos();
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL OBERON uid %d state %d '%S' hp %.0f key %d target %d dist %.0f",
+			pNPC->GetUID(), pNPC->GetNowStateID(), NULL != pszState ? pszState : "-", pNPC->GetNowHp(), pNPC->GetKeyCode(),
+			NULL != pTarget ? static_cast<int>( pTarget->GetUnitUID() ) : -1, NULL != pTarget ? D3DXVec3Length( &vGap ) : -1.f );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH1o
 namespace _CONST_EVE_JUNE_CH1o_

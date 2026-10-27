@@ -4015,6 +4015,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2Game>( L, "CX2Game" );
 #ifdef ADDITIONAL_MEMO
 	lua_tinker::class_def<CX2Game>( L, "GetGameType",							&CX2Game::GetGameType );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	lua_tinker::class_def<CX2Game>( L, "GetIsNowPVPCorrectionGame",				&CX2Game::GetIsNowPVPCorrectionGame );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #endif
 	lua_tinker::class_def<CX2Game>( L, "IsHost",								&CX2Game::IsHost );
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
