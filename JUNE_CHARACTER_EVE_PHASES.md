@@ -1589,7 +1589,7 @@ The user's finding was a different piece: **Eve's own third orb (the core slot) 
 to slide down to the third orb, and only 0 and 1 are left. Every class's `InitWakeOrb` already removes index 6 first (ADD_EVE_SYSTEM_2014 is on with NCORE), so the code wants June's 7-picture dialog.
 - **Fix (June same-name rule, no flag):** `luasrc.py adopt-june DLG_PVP_Game_My_State_NEW.lua` (June bytecode, record `june2017_re/june_adopt_20261027_123538.tsv`) and `kom.py stage-june`
   `DLG_UI_Common_Texture80_NEW.TET` / `.tga` (data057; June's TET = March's keys incl. `BG_EVE_CORE_*` + `BT_TALK_*`). Every control the C++ reads off `m_pDLGMyUnit` is in June's dialog or in the
-  class dialogs opened on top (`DLG_Ara_ForcePower.lua` ...); June's `GAGE_UI_CUSTOM_MSG` / `UI_TOOLTIP_TYPE` tables are in Enum.lua. `PACK OK data034` (~1 changed), `PACK OK data057` (~2 changed). MODS.md entry added.
+  class dialogs opened on top (`DLG_Ara_ForcePower.lua` ...); June's `GAGE_UI_CUSTOM_MSG` / `UI_TOOLTIP_TYPE` tables are in Enum.lua. `PACK OK data034` (~1 changed), `PACK OK data057` (~2 changed). MODS.md entry added. `COPY OK data034 ... 981 entries, md5 10ae2dadc3908a147a272a8f61fa9bd9`, `COPY OK data057 ... 927 entries, md5 f039da1df3b1a58564afda846ed5f682` (user approved).
 - **Drift:** June's two invisible tooltip buttons (`opacity1` over the orbs, `opacity2` over the bars; msgs 54002 / 54003, `UTT_WAKE_ORB`) have no March handler, so no wake-orb tooltip: UI sweep (Stage 9).
 - **Standing rule added (user, 2026-10-27):** assume March does not have an asset ported code uses; check it by name before debugging code, stage June's if missing, replace with June's if present (CLAUDE.md).
 
