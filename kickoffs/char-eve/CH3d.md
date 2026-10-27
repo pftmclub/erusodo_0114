@@ -41,3 +41,11 @@ Do the CH3d row of the plan doc: the 6 hyper actives (type 13), the 3 `SHOW_HYPE
 
 - **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
 - **The head registers March's members as stand-ins** for the memo-turned Hornet Sting Shaped Charge (25033 / 25070) and Spit Fire Grenade (25217 / 25234), and for the three hyper actives (Link Overcharge 25601 / 25604, Psychic Artillery 25602 / 25605, Lunatic Scud 25600 / 25603): repoint each to its June body (addresses on the head's comment lines).
+
+## Amended by CH2b3 (2026-10-27)
+
+- The factor exists now: `CX2GUNPC::m_fJuneMultiplyPowerRate`, written by `SetMultiplyPowerRate_LUA` and read by `GetPowerRate` = default x factor (flag `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE`).
+  - When you port June's `3230c1a0` cases with flag 0x200 (Oberon 1621 / Ophelia 1622 0x240, Apocalypse 1604 0x220), store the summon power product in the factor (`SetMultiplyPowerRate_LUA`), not `SetDefaultPowerRate`, as `322ece70` @`322ed38c` does.
+  - Nasod Watch and Ferdinand already do (CH2b3). Ferdinand's product still holds March's `GetSkillPowerRateValue` term: port June's 0x260 case whole.
+  - Today all three ids fall to March's default case.
+- `tools/data/lua_unbound_known.tsv` has four rows owned by CH3d, from `SI_HA_FERDINAND` / `SI_HA_APOCALYPSE`: `GetSummonAllyNpcForceTargetUnit` (CX2GUNPC), `ResponseEmergency` (CX2GUUser), `GetEffectSetInstance` and `SetLocalRotateDegree` (effect set). Bind each whole from June's function, then delete its row. `luabind.py check SI_HA_FERDINAND SI_HA_APOCALYPSE` must pass without them.

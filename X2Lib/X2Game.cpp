@@ -16799,6 +16799,21 @@ static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const 
 	pNPC_->SetDefaultPowerRate( pNPC_->GetDefaultPowerRate() * fJuneRate );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE )
+/// June 322ece70 @322ed38c: with flag 0x200 the product goes to the factor ( 31e8d610 ) and +0x8ce0 keeps 1.0
+static void JuneApplySummonPowerRateToFactor( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+{
+	if ( NULL == pNPC_ || NULL == pUser_ )
+		return;
+
+	float fJuneRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	fJuneRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+	fJuneRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	pNPC_->SetMultiplyPowerRate_LUA( fJuneRate );
+}
+#endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE )
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 /// June buff port 16-step3b7 item 4: with flag 0x200, June's summon helper 322ece70 also stores ( 3201ad10( case skill ) + 1.0 ) as a
 /// double in the NPC's +0x8800 (@322ed394..322ed3a6) = m_NumberList[0] (Get/SetNumber_LUA, 31e4d340/31e4d350). The 0x200 cases of
@@ -17060,7 +17075,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// write the rate to the protected factor +0x8ce4 (31e8d610) instead of +0x8ce0; the NPC's power rate 32759630 is
 					/// +0x8ce0 x +0x8ce4, so scaling March's default power rate gives the same product
 					/// (user 2026-10-06, "follow June": the whole June power rate, with the buff terms and AT_SPECIAL, not only the socket term)
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+					JuneApplySummonPowerRateToFactor( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );	// June flags 0x240
+#else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 					/// 16-step3b7 item 4: flags 0x240 include 0x200 (322ece70 @322ed38c..322ed3a6), same case skill
 					JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -17109,7 +17128,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							npcStat.m_fDefPhysic	* fStatScale	* 1.f,
 							npcStat.m_fDefMagic		* fStatScale	* 1.f );
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+						pNPC->SetMultiplyPowerRate_LUA( fPowerRate );	// June flags 0x260: 0x200 stores in the factor ( 322ece70 @322ed38c )
+#else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 						pNPC->SetDefaultPowerRate( fPowerRate );
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						/// buff port 16-step3b7 item 4: Ferdinand (1454) reaches 322ece70 with flags 0x260 (3230c84f), 0x200 set: the number store,
 						/// with the skill 16-step3b3 passes to GetSummonPowerRateBySocket here

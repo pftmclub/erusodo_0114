@@ -2306,6 +2306,9 @@ void CX2GUNPC::CommonConstructor()
 	m_bAfterImageAlways			= false;
 	m_bAlwaysAlphaObject		= false;
 	m_fDefaultPowerRate			= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+	m_fJuneMultiplyPowerRate	= 1.f;	// June ctor 327b0263
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 #ifdef SERV_SECRET_HELL
 	m_bRenderLv					= false;
@@ -30769,11 +30772,69 @@ bool CX2GUNPC::IsRightTarget_LUA(CX2GUNPC *pStartNpc, D3DXVECTOR3 pos)
 
 /*virtual*/ float CX2GUNPC::GetPowerRate()
 {
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+	return m_fDefaultPowerRate * m_fJuneMultiplyPowerRate;	// June 32759630
+#else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 	return m_fDefaultPowerRate;
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 	// 나중에는 user처럼 각 상태별로 powerrate입력하도록 바꿔야
 	//return 1.f;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+/// June 31e8d610
+void CX2GUNPC::SetMultiplyPowerRate_LUA( float fRate_ )
+{
+	if ( fRate_ != m_fJuneMultiplyPowerRate )
+	{
+		m_fJuneMultiplyPowerRate = fRate_;
+		CX2OfflineLog::Server( L"[JUNE_CHAR] NPC POWER npc %d uid %d multiply power rate %g ( power rate %g )", (int) GetNPCTemplet().m_nNPCUnitID, GetUID(), fRate_, GetPowerRate() );
+	}
+}
+
+/// June 31e8d6a0
+void CX2GUNPC::ResetMultiplyPowerRate_LUA()
+{
+	if ( 1.f != m_fJuneMultiplyPowerRate )
+	{
+		m_fJuneMultiplyPowerRate = 1.f;
+		CX2OfflineLog::Server( L"[JUNE_CHAR] NPC POWER npc %d uid %d multiply power rate reset to 1 ( power rate %g )", (int) GetNPCTemplet().m_nNPCUnitID, GetUID(), GetPowerRate() );
+	}
+}
+
+/// June 32763c10
+void CX2GUNPC::ApplyPassiveSkillOwnerUser_LUA()
+{
+	CX2GameUnit* pOwner = GetOwnerGameUnit();
+	if ( NULL == pOwner )
+		return;
+
+	const CX2GameUnit::SkillRelatedData& OwnerData = pOwner->GetSkillRelatedData();
+
+	CX2UnitManager::NPCUnitStat NPCStat;
+	GetNPCStat( NPCStat );	// June 32758d50
+
+	NPCStat.m_fAtkPhysic *= OwnerData.m_fJune4068;
+	NPCStat.m_fAtkMagic *= OwnerData.m_fJune4068;
+	if ( 0.f < OwnerData.m_fStatAtkRateOfSummoned )
+	{
+		NPCStat.m_fAtkPhysic /= OwnerData.m_fStatAtkRateOfSummoned;
+		NPCStat.m_fAtkMagic /= OwnerData.m_fStatAtkRateOfSummoned;
+	}
+
+	NPCStat.m_fPercentCritical += OwnerData.m_fJune406c;
+	if ( 1.f < NPCStat.m_fPercentCritical )
+		NPCStat.m_fPercentCritical = 1.f;
+
+	SetNPCStat( NPCStat );	// June 32763950
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+	CopyJuneMaximizeAndRangeFrom( *pOwner );	// June @32763d4f-32763dce, the 3230ca6d copy
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] NPC POWER npc %d uid %d owner passive applied: attack x %g / %g, critical %g, physic attack %g", (int) GetNPCTemplet().m_nNPCUnitID, GetUID(), OwnerData.m_fJune4068, OwnerData.m_fStatAtkRateOfSummoned, NPCStat.m_fPercentCritical, NPCStat.m_fAtkPhysic );
+}
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 
 #ifndef SERV_9TH_NEW_CHARACTER // 김태환

@@ -2300,6 +2300,11 @@ class CX2GUNPC : public CX2GameUnit
 		double						GetNumber_LUA( int index ) { return m_NumberList[ index ]; }
 		void						SetNumber_LUA( int index, double dValue_ ) { m_NumberList[ index ] = dValue_; }
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		void						SetMultiplyPowerRate_LUA( float fRate_ );	/// June 31e8d610
+		void						ResetMultiplyPowerRate_LUA();	/// June 31e8d6a0
+		void						ApplyPassiveSkillOwnerUser_LUA();	/// June 32763c10
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 		void						SetMajorParticle_LUA( int index, CKTDGParticleSystem::CParticleEventSequenceHandle  hSeq ){ m_hMajorSeqList[index] = hSeq; }
 		void						SetMinorParticle_LUA( int index, CKTDGParticleSystem::CParticleEventSequenceHandle  hSeq ){ m_hMinorSeqList[index] = hSeq; }
@@ -4434,6 +4439,9 @@ class CX2GUNPC : public CX2GameUnit
 
 
 		float m_fDefaultPowerRate;
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		float m_fJuneMultiplyPowerRate;	/// June +0x8ce4 ( KProtectedType, ported plain ), 1.0 at the ctor 327b0263
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 #ifdef MONSTER_NOT_CULL
 		bool											m_bNotCull;

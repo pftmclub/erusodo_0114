@@ -1880,6 +1880,40 @@ Found while asking why effects keep going missing (play-test 2): `tools/luabind.
 owner-passive / stat refresh of `SetUserSummonedNPCInfo` and belongs with the Stage 33 stat-calc rules. **Run with:** `/x2-phase char-eve CH2b3` (Opus 5.5 high).
 **Read:** `kickoffs/char-eve/CH2b3.md`. **Done gate:** the three rows added to `tools/data/lua_unbound_known.tsv` on 2026-10-27 are deleted, `luabind.py check` PASS on the three Eve summon scripts, funcmap rows, no "can't find" in ErrorLog.
 
+### CH2b3 - Done (2026-10-27, Opus 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE` (new; the factor is shared by every June summon script, Rose's too). Log `[JUNE_CHAR] NPC POWER`. funcmap rows tagged `(CH2b3)`.
+- **The factor.** `CX2GUNPC::m_fJuneMultiplyPowerRate` = June's protected `+0x8ce4` (ported plain, 1.0 at the ctor `327b0263`). `GetPowerRate` is June's `32759630`: `m_fDefaultPowerRate` x the factor (March: the default alone).
+- **Bindings** (`X2Main.cpp`, beside `GetNumber_LUA`):
+  - `SetMultiplyPowerRate_LUA` `31e8d610`: writes the argument when it differs;
+  - `ResetMultiplyPowerRate_LUA` `31e8d6a0`: writes 1.0 when it differs;
+  - `ApplyPassiveSkillOwnerUser_LUA` `32763c10`, read in full:
+    - no owner (`GetOwnerGameUnit`, June's observer `+0x8d5c`): return;
+    - `GetNPCStat` (`32758d50`, = March);
+    - attack x owner `+0x4068`, then / owner `+0x4064` (`m_fStatAtkRateOfSummoned`) when it is > 0;
+    - critical += owner `+0x406c`, capped at 1.0;
+    - `SetNPCStat` (`32763950`, = March);
+    - the three owner copies @`32763d4f` = `CopyJuneMaximizeAndRangeFrom` (the `3230ca6d` copy).
+  - The whole call tree is ported or is already March's. Stat-calc check: no March / June mix inside it. Only its two new inputs have no writer yet (below).
+- **Owner fields.** `SkillRelatedData::m_fJune4068` (1.0) and `m_fJune406c` (0.0), June's `CX2GameUnit` ctor values (`322a434b` / `322a4357`).
+  - Their only writer is Eve's `InitPassiveSkillState` `3297f290`: Grace of Queen 25408, `SA_SUMMON_ATK_REL` and `SA_ATK_CRITICAL_RATE_ABS`.
+  - That function is CH4a's whole-body port, so the writes go there (CH4a kickoff amended). Until then Apply gives an Eve without Grace of Queen exactly June's numbers.
+  - Same amendment: March's `m_fStatAtkRateOfSummoned` writer still reads `SI_P_EN_QUEENS_CONTROL` (5401); June reads 25406.
+- **Writers of the factor (stores moved).** June's summon helper `322ece70` puts the power product in the factor when flag 0x200 is set (@`322ed38c`), and leaves `+0x8ce0` at 1.0. March's port had folded it into `m_fDefaultPowerRate`, which was the same product only while nothing reset the factor. Now:
+  - Nasod Watch (0x240): `JuneApplySummonPowerRateToFactor`;
+  - Ferdinand (0x260): `SetMultiplyPowerRate_LUA( fPowerRate )`, March's product terms unchanged;
+  - both keep the old store in `#else`.
+  - Oberon 1621, Ophelia 1622 and Apocalypse 1604 still use March's default case. Their June cases (0x240 / 0x220) are CH3d's (checklist L274 / L281; CH3d kickoff amended).
+- **What changes in game.**
+  - `OBERON_START_STATE_END` (and Ophelia's, Nasod Watch's start-attack end) runs to `SetFlag_LUA( 0, true )`.
+  - Nasod Watch's and Ferdinand's start power drops to 1.0 after the start state.
+  - Their dying-land / start blast uses `GetNumber_LUA` (skill power + 1) as the factor, as June does.
+- **luabind.** The three known-list rows are deleted. `luabind.py check SI_SA_AT_SURFACE_CUTING Nasod_Watch_Eve SI_SA_EEP_ELECTRONIC_FIELD SI_HA_FERDINAND SI_HA_APOCALYPSE` PASS.
+  - Ferdinand / Apocalypse also call four other unbound names (`GetSummonAllyNpcForceTargetUnit`, `ResponseEmergency`, `GetEffectSetInstance`, `SetLocalRotateDegree`). They are now known-list rows owned by CH3d.
+- **Hygiene.** flagcheck worktree: 4 PASS, 1 PASS~ (the blank line before the new `X2GUNPC.cpp` block), 1 DEFINE, 0 OTHER, 0 deleted, 0 encoding change, RESULT: PASS. enumscan 0 A/B.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 26,129,920 B, dated 2026-10-27 20:45:51, md5 1ec950e484b2f1b2497c0aaf1f1979bb` (built with CH2c's uncommitted edits on disk; the three binding names and `[JUNE_CHAR] NPC POWER` x3 are in the exe). Play-test pending.
+- **Not ported, routed.** `+0x4074` (ctor 1.0; read by `322ece70` flag 0x10, NPC 2206 Gale Force, and by `32abe5c0` / `32abefb0`, written by `32ad1080`) is Rose's (Stage 8).
+
 ## Phase CH2b4 - A dying summon drops its owner's summon buff (added 2026-10-27 by CH2b2, Sonnet)
 
 Found by CH2b2: June's `CX2GUNPC::CommonFrameMove` `327b53b0` @`327bcdfd..327bcfe0` (the DYING_END block, before the animation ends): an owned summon not yet

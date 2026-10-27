@@ -5179,3 +5179,10 @@ Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARAC
 - **Client.** `CX2Game::SetUserSummonedNPCInfo`'s tail calls `CX2GUUser::JuneKillOlderSummonsOfSameID( unitID )` ( June `3200bec0` ): for the 28 NPC ids of June's summon buff map ( `CX2GUUser::JuneGetSummonBuffFactorID`, June `31fc96b0` ), the owner's older live ally NPCs of the same id get HP 0 before the new one joins the unit list. 19 `NUI_*` and 23 `BFI_*` June names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES`.
 - **What changes in game.** Recasting Surface Cuting ( and Nasod Watch, Atomic Shield, Ferdinand, Ophelia, Oberon Guard, Chung / Rena targeting, Rose's summons ... ) replaces the old summon instead of adding one.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` ( summons stack again ); the names are inert without it.
+
+### June NPC power-rate factor and summon Lua methods (char-eve CH2b3, 2026-10-27)
+
+Flag `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b3 - Done"; log lines `[JUNE_CHAR] NPC POWER ...`.
+- **Client.** `CX2GUNPC::m_fJuneMultiplyPowerRate` (June `+0x8ce4`); `GetPowerRate` = default rate x factor (June `32759630`). Lua bindings `SetMultiplyPowerRate_LUA` / `ResetMultiplyPowerRate_LUA` / `ApplyPassiveSkillOwnerUser_LUA` (June `31e8d610` / `31e8d6a0` / `32763c10`). `SkillRelatedData::m_fJune4068` / `m_fJune406c` (June `+0x4068` / `+0x406c`, 1.0 / 0.0). Nasod Watch and Ferdinand store their summon power rate in the factor (June `322ece70` flag 0x200).
+- **What changes in game.** June's Oberon, Ophelia and Nasod Watch start states run to their end (`SetFlag_LUA( 0, true )`); Nasod Watch's and Ferdinand's power rate follows June's script (start product, reset to 1.0, skill power + 1 for the blast).
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE` (the three names go back to unbound and need their rows in `tools/data/lua_unbound_known.tsv` again).

@@ -49,3 +49,11 @@ Scope: `InitPassiveSkillState` and Eve's passive ids (types 1 / 5 / 8), their ob
 
 - `3297f290 @3297f73a` writes `m_fJune4070` (ability `SA_EFFECTIVE_TIME` of Grace of Queen 25408 `RNSI_P_ECE_GRACE_OF_QUEEN`, 0 when absent; `@3297f722` writes `+0x406c` from ability `0x33`). The member exists since CH2a (`CX2GUEve::m_fJune4070`, default 0) and is read by Dimension Link's FrameMove (`32989b60`: sentry time `+0x9c4c` x 20 / 60 + it) and by `3299b914` / `3299bb74` (Electronic Field, CH3b). Write it here.
 
+
+## Amended by CH2b3 (2026-10-27)
+
+- `InitPassiveSkillState` `3297f290` writes the owner fields that June's `ApplyPassiveSkillOwnerUser_LUA` `32763c10` reads. CH2b3 declared them as `CX2GameUnit::SkillRelatedData::m_fJune4068` (1.0) and `m_fJune406c` (0.0). Write them here:
+  - entry (@`3297f2ab`-`3297f2bc`): `m_fStatAtkRateOfSummoned` = `m_fJune4068` = 1, `m_fJune406c` = 0;
+  - 25406 (`0x633e`, no March name, register `RNSI_P_ECE_QUEENS_CONTROL`): `SA_SUMMON_ATK_REL` -> `m_fStatAtkRateOfSummoned *=` (@`3297f6ad`). March still reads `SI_P_EN_QUEENS_CONTROL` (5401), which a June tree never holds;
+  - 25408 `RNSI_P_ECE_GRACE_OF_QUEEN`: `SA_SUMMON_ATK_REL` -> `m_fJune4068 *=` (@`3297f704`), `SA_ATK_CRITICAL_RATE_ABS` -> `m_fJune406c =` (@`3297f722`).
+- Check in game: an Eve with Grace of Queen casts Surface Cuting. The `[JUNE_CHAR] NPC POWER ... owner passive applied: attack x <rate> / <rate>, critical <c>` line shows the rates instead of `x 1 / 1`.

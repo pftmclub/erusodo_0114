@@ -10264,3 +10264,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH2b2 - one summon per owner and NPC id: when a summon NPC is created, June's SetUserSummonedNPCInfo tail ( 3200bec0 ) sets HP 0 on the owner's older live summons of the same id, for the 28 NPC ids of June's summon buff map 31fc96b0 ( Oberon, Nasod Watch, Ferdinand, Atomic Shield, Oberon Guard ... ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-27
+// Description: June char-eve CH2b3 - the NPC power-rate factor ( June +0x8ce4; GetPowerRate 32759630 = default rate x factor ) and June's three NPC Lua methods its summon scripts call ( Oberon, Ophelia, Nasod Watch, Ferdinand, Apocalypse ): SetMultiplyPowerRate_LUA 31e8d610, ResetMultiplyPowerRate_LUA 31e8d6a0, ApplyPassiveSkillOwnerUser_LUA 32763c10. March's flag-0x200 summon cases ( Nasod Watch, Ferdinand ) store their power rate in the factor, as June's 322ece70 does. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+//////////////////////////////////////////////////////////////////////////

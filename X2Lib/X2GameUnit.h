@@ -1874,6 +1874,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			float m_fSkillCoolTimeLeft_SI_P_COMMON_SOFTBODY;
 			int m_iNoDownDamageAtStandUpAttackPercent;
 			float m_fStatAtkRateOfSummoned;						// 소환된 몬스터의 공격력 비율
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+			float m_fJune4068;	/// June +0x4068 ( ctor 1.0 ): Grace of Queen 25408 SA_SUMMON_ATK_REL, written by Eve's InitPassiveSkillState 3297f290 ( CH4a )
+			float m_fJune406c;	/// June +0x406c ( ctor 0.0 ): Grace of Queen 25408 SA_ATK_CRITICAL_RATE_ABS, written by 3297f290 @3297f722 ( CH4a )
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 		public: 
 			SkillRelatedData()
@@ -1889,6 +1893,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				m_fSkillCoolTimeLeft_SI_P_COMMON_SOFTBODY = 0.f;
 				m_iNoDownDamageAtStandUpAttackPercent = 0;
 				m_fStatAtkRateOfSummoned = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+				m_fJune4068 = 1.f;	// June ctor 322a434b
+				m_fJune406c = 0.f;	// June ctor 322a4357
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 			}
 
 			float GetForceDownValueRateOfRenaArrowAttack() const { return m_fForceDownValueRateOfRenaArrowAttack; }

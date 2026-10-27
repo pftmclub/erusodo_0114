@@ -4528,6 +4528,11 @@ void CX2Main::RegisterLuabind()
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
 	lua_tinker::class_def<CX2GUNPC>( L, "SetNumber_LUA",				&CX2GUNPC::SetNumber_LUA );
 	lua_tinker::class_def<CX2GUNPC>( L, "GetNumber_LUA",				&CX2GUNPC::GetNumber_LUA );
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+	lua_tinker::class_def<CX2GUNPC>( L, "SetMultiplyPowerRate_LUA",		&CX2GUNPC::SetMultiplyPowerRate_LUA );	/// June 31e8d610 (bound @31e0abe3)
+	lua_tinker::class_def<CX2GUNPC>( L, "ResetMultiplyPowerRate_LUA",		&CX2GUNPC::ResetMultiplyPowerRate_LUA );	/// June 31e8d6a0 (bound @31e0a802)
+	lua_tinker::class_def<CX2GUNPC>( L, "ApplyPassiveSkillOwnerUser_LUA",	&CX2GUNPC::ApplyPassiveSkillOwnerUser_LUA );	/// June 32763c10 (bound @31e0a70d)
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
 	lua_tinker::class_def<CX2GUNPC>( L, "SetAIEnable",					&CX2GUNPC::SetAIEnable);
 	lua_tinker::class_def<CX2GUNPC>( L, "SetTimePauseNPCAI",			&CX2GUNPC::SetTimePauseNPCAI);	
