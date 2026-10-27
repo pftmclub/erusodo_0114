@@ -5892,6 +5892,9 @@ void CX2EffectSet::StopEffectSetSilent_LUA( CX2EffectSet::Handle hHandle )
 // June 321db050 ( -> 321dad70 ): pushes { b, tag, ( v, 0, 0 ) } onto the set's list; a dead handle adds nothing
 void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, float fValue_, bool bAdd_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	AddDamageEffectModifier( hHandle_, iTag_, D3DXVECTOR3( fValue_, 0.f, 0.f ), bAdd_ );	// June @321db07d
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	EffectSetInstance* pEffectSetInstance = GetEffectSetInstance( hHandle_ );
 	if ( NULL == pEffectSetInstance )
 		return;
@@ -5901,7 +5904,24 @@ void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int i
 	modifier.m_iTag = iTag_;
 	modifier.m_vValue = D3DXVECTOR3( fValue_, 0.f, 0.f );
 	pEffectSetInstance->m_vecJuneModifier.push_back( modifier );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+
+// June 321dad70 ( ret 0x10 ): pushes { b, tag, v, 0, 0 } onto the set's list; a dead handle adds nothing
+void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, const D3DXVECTOR3& vValue_, bool bAdd_ )
+{
+	EffectSetInstance* pEffectSetInstance = GetEffectSetInstance( hHandle_ );
+	if ( NULL == pEffectSetInstance )
+		return;
+
+	EffectSetInstance::JuneDamageEffectModifier modifier;
+	modifier.m_bAdd = bAdd_;
+	modifier.m_iTag = iTag_;
+	modifier.m_vValue = vValue_;
+	pEffectSetInstance->m_vecJuneModifier.push_back( modifier );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 // June 321db1b0: v = v3.x; 'add' adds, otherwise multiplies. Tag 2 is the main effect's life time ( 321f2a30 / +0x44c ); the other tags log once and wait for their classes ( checklist 7a )
 void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::JuneDamageEffectModifier>& vecModifier_ )
@@ -5979,6 +5999,21 @@ void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect
 				}
 			} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		case 15:
+			{
+				// June @321dba36-321dbaf4: base scale = v + base or v * base; SetScale gets the old base, so a second tag 15 squares the first (JUNE_BUGS 453)
+				if ( NULL != pEffect_->GetMainEffect() )
+				{
+					const D3DXVECTOR3 vOldBase = pEffect_->JuneGetScaleBase();
+					if ( true == modifier.m_bAdd )
+						pEffect_->JuneSetScaleBase( modifier.m_vValue + vOldBase );
+					else
+						pEffect_->JuneSetScaleBase( D3DXVECTOR3( modifier.m_vValue.x * vOldBase.x, modifier.m_vValue.y * vOldBase.y, modifier.m_vValue.z * vOldBase.z ) );
+					pEffect_->SetScale( vOldBase.x, vOldBase.y, vOldBase.z );
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 		default:
 			{

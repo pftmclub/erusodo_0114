@@ -2318,6 +2318,37 @@ void CX2UISkillTreeNew::RecountJuneNewSkills()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+/// June 328da730 ( from 31fd0620 ): the first bar slot of SlotA1-5 / SlotB1-5 whose data holds the skill redraws
+void CX2UISkillTreeNew::JuneMarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	if ( NULL == m_pDLGGameSkillSlot )
+		return;
+
+	for ( int i = 0; i < 10; i++ )
+	{
+		WCHAR wszSlotName[16] = L"";
+		swprintf_s( wszSlotName, 16, L"%s%d", 5 <= i ? L"SlotB" : L"SlotA", ( 5 <= i ? i - 5 : i ) + 1 );
+		CKTDGUISlot* pSlot = static_cast<CKTDGUISlot*>( m_pDLGGameSkillSlot->GetControl( wszSlotName ) );
+		CKTDGUISlotData* pSlotData = NULL != pSlot ? pSlot->GetSlotData() : NULL;
+		if ( NULL == pSlotData )
+			continue;
+
+		// June reads the id at slot data +0x0c with no type test: equip and memorize slot data both keep it there
+		CX2SkillTree::SKILL_ID eSlotSkillID = static_cast<CX2EquippedSkillSlotData*>( pSlotData )->m_eSkillID;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		if ( CKTDGUISlotData::SDT_JUNE_MEMORIZE == pSlotData->m_eSlotDataType )
+			eSlotSkillID = static_cast<CX2MemorizeSkillSlotData*>( pSlotData )->m_eSkillID;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		if ( eSkillID_ == eSlotSkillID )
+		{
+			pSlotData->m_bDataUpdated = true;
+			return;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+
 /// June 328d98e0
 void CX2UISkillTreeNew::DecreaseJuneNewSkillCount()
 {

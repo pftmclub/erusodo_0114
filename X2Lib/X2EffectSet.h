@@ -1126,6 +1126,9 @@ public:
 	EffectSetInstance* GetEffectSetInstance( CX2EffectSet::Handle hHandle );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 	void AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, float fValue_, bool bAdd_ );	/// June 321db050 ( wrapper of 321dad70, v3 = ( v, 0, 0 ) )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	void AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, const D3DXVECTOR3& vValue_, bool bAdd_ );	/// June 321dad70
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::JuneDamageEffectModifier>& vecModifier_ );	/// June 321db1b0
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST

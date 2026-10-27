@@ -215,6 +215,9 @@ public:
 	void RecountJuneNewSkills();												/// 328da100
 	void DecreaseJuneNewSkillCount();											/// 328d98e0
 	int  GetJuneNewSkillCount() const { return m_iNewSkillCount; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	void JuneMarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkillID_ );	/// 328da730
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 	/// tabs ( 328d9fb0 / 328e89f0 ); the command list itself is S7e's
 	void SelectJuneTab( const bool bSkillTab_ );

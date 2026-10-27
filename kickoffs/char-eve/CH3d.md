@@ -53,3 +53,7 @@ Do the CH3d row of the plan doc: the 6 hyper actives (type 13), the 3 `SHOW_HYPE
 ## Amended by CH2c2 review (2026-10-28)
 
 - Psychic Artillery FrameMove `329abb90` calls `329a1b90`: it is ported as `CX2GUEve::EveElectraSystem::June_CreateGigaPlane` (CH2c2, flag `_SKILL`). Call it; do not port it again.
+
+## Amended by CH3a0 (2026-10-28)
+
+- **Modifier tag 15 is ported.** Push it with the vector overload `g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hHandle, 15, D3DXVECTOR3( s, s, s ), bAdd )` (June `321dad70`; take `bAdd` from the listing's last push), not the float form. `CX2EffectSet::ApplyDamageEffectModifiers` case 15 applies it (JUNE_BUGS 453). The tag has no enum name in June's `Enum.lua`, so it stays the number `15` with a one-line comment.

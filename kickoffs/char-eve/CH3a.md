@@ -43,3 +43,8 @@ Scope: the class-108 skill ids not in a first-job phase. For each id: its case i
 ## Amended by CH1n (2026-10-27)
 
 - **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+
+## Amended by CH3a0 (2026-10-28)
+
+- **`31fd0620` = `CX2GUUser::JuneRefreshSkillSlotUI( CX2SkillTree::SKILL_ID, bool bUpgradeSwap )`** (X2GUUser.cpp, flag `_SKILL`). Both Eve call sites pass `( CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS, true )`: `32976fe0 @3297707f` and `3299a670 @3299a993`. It calls `CX2UISkillTreeNew::JuneMarkEquipSlotUpdated` (June `328da730`); nothing else to port.
+- **`31c82df0` = March's `CKTDGXMeshPlayer::CXMeshInstance::SetNotCheckLandTime`** (`+0x36c` = `fNotCheckLandTime`). `3298d920 @3298db39` is Spear Burst's main-effect step: `SetLandPosition( land y )` (`+0x490`), then `SetNotCheckLandTime( gapY / 3500 + 0.17 )`, as March `X2GuEve.cpp:20988-20991` already does.

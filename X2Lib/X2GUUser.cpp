@@ -26016,6 +26016,17 @@ D3DXVECTOR3 CX2GUUser::JuneGetUnitLockOnAimPos( const CX2GameUnit* pUnit_, const
 {
 	return CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit_, vFrom_ );
 }
+
+// June 31fd0620: the own unit has the skill-tree UI redraw the bar slot holding the skill ( 328da730 )
+void CX2GUUser::JuneRefreshSkillSlotUI( CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ )
+{
+	if ( false == IsMyUnit() || NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() )
+		return;
+
+	if ( true == bUpgradeSwap_ && NULL != GetUnit() )
+		eSkillID_ = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( eSkillID_ );
+	g_pData->GetUIManager()->GetUISkillTree()->JuneMarkEquipSlotUpdated( eSkillID_ );
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH2b2

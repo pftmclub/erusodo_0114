@@ -46,3 +46,7 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 ## Amended by CH1n (2026-10-27)
 
 - **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+
+## Amended by CH3a0 (2026-10-28)
+
+- **Modifier tag 15 is ported.** Push it with the vector overload `g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hHandle, 15, D3DXVECTOR3( s, s, s ), bAdd )` (June `321dad70`; take `bAdd` from the listing's last push), not the float form. `CX2EffectSet::ApplyDamageEffectModifiers` case 15 applies it (JUNE_BUGS 453). The tag has no enum name in June's `Enum.lua`, so it stays the number `15` with a one-line comment.

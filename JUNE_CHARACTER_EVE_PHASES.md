@@ -2066,6 +2066,34 @@ June `327b53b0` @`327bcac9..327bcfe0` ported whole under `SERV_IRUHADEV_JUNE_SUM
 - **Deploy.** DEPLOY OK: X2_offline.exe is 26,130,432 B, dated 2026-10-28 00:11:59, md5 357ccfe675ddb781c95275e3a1daf39f, equal to X2/US_SERVICE/x2.exe (2026-10-28 00:11:52).
 - **Play-test:** none owed. The fix changes only a NaN HP, which play cannot produce; CH2b4's PASS stands.
 
+## Phase CH3a0 - Helpers for CH3a: UI skill-slot notify, mesh float, modifier tag 15 (added 2026-10-26 by CH0 / CH1l40, Opus)
+
+CH0 found two callees outside Eve's range that no doc had named (`ch0_unmapped_identified.tsv`), and CH1l40 added effect-set modifier tag 15.
+Map each in Ghidra, give it a March home under `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, and port its whole body so CH3a / CH3b / CH3d call it by name.
+**Run with:** `/x2-phase char-eve CH3a0` (Opus 5.5 high). **Read:** `kickoffs/char-eve/CH3a0.md`.
+
+### CH3a0 - Done (2026-10-28, Opus 5.5)
+
+**Landed** under `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` (already defined; no new flag). Inert until a class phase calls it, so there is no play-test.
+Funcmap: the six `Char Eve CH3a0` rows; `ch0_unmapped_identified.tsv` rows `31fd0620` / `31c82df0` set to confirmed.
+
+| June | March | What |
+|---|---|---|
+| `31fd0620` | `CX2GUUser::JuneRefreshSkillSlotUI( SKILL_ID, bool bUpgradeSwap )` (X2GUUser.cpp) | IsMyUnit (vt `+0x198`) && UI manager (`g_pData+0x2cc`) && `GetUISkillTree` (`3214f050`, now confirmed); swap `328905b0` = `m_UserSkillTree.GetUpgradeSwappedSkillID` when the byte is 1 and the unit is set; then `328da730` |
+| `328da730` | `CX2UISkillTreeNew::JuneMarkEquipSlotUpdated( SKILL_ID )` (X2UISkillTreeNew2015.cpp, ASCII) | `m_pDLGGameSkillSlot` (`+0x10c`), `SlotA1-5` / `SlotB1-5` (strings read from the exe: `SlotA`, `SlotB`, `%d`), slot data `+0xc` == id -> `m_bDataUpdated` (`+4`) = true, first match only |
+| `31c82df0` | **no port:** March `CKTDGXMeshPlayer::CXMeshInstance::SetNotCheckLandTime` (KTDGXMeshPlayer.cpp:2973) | one store to `+0x36c` = `m_TempletData.fNotCheckLandTime`. Its Eve caller `3298d920 @3298db39` (Spear Burst) computes `gapY / 3500.0 + 0.17` (constants `3349de60` / `334ce168`) after `SetLandPosition` (`+0x490`): March `X2GuEve.cpp:20988-20991` already does this |
+| `321dad70` | `CX2EffectSet::AddDamageEffectModifier( h, tag, const D3DXVECTOR3&, bool )` (X2EffectSet.*) | entry `{ b, tag, v, 0, 0 }`, dead handle adds nothing. The float form now calls it (`321db050 @321db07d`), so Aisha's two callers (tags 1 / 2) build the same entry; the old body stays in the `#else` |
+| `321db1b0` case 15 | `CX2EffectSet::ApplyDamageEffectModifiers` case 15 | jump-table target `321dba36` (table `321dbc60` idx 14): main effect required; base `v + base` (b == 1) or `v * base`; `SetScale( old base )` (JUNE_BUGS 453) |
+
+- **Tag 15's other pieces were already in.** Skill S3d (`SERV_IRUHADEV_JUNE_SKILL_MEMO_FX`) ported the base member `m_vJuneScaleBase` (ctor 1,1,1, X2DamageEffect.cpp:1579), the ctor's MI_HUGE base step (:1850) and the multiplying `CEffect::SetScale` (:6155). March `SetScale` callers keep their scale: the base is (1, 1, 1) unless the memo MI_HUGE step ran.
+- **`31fd0620` has 27 call sites.** Eve's two (`32976fe0`, `3299a670`) pass `( RNSI_SA_ECN_PSYKER_KINESIS, true )`; the rest (`32a49e7a`-`32ab05fb`) are later classes' cooldown code and reuse this home.
+- **JUNE_BUGS 453:** a second tag 15 on one effect squares the first (old x new); it also overwrites any earlier scale. Kept verbatim.
+- **Kickoffs amended:** CH3a names both March symbols; CH3b / CH3d push tag 15 with the vector overload (`15` stays a number: June's `Enum.lua` has no modifier-tag enum).
+- **Checklist:** the 7a tag-15 paragraph is marked `(Eve: CH3a0)`.
+- **Hygiene:** `flagcheck --worktree` over the 6 code files: 5 PASS, 1 PASS~ (X2UISkillTreeNew2015.cpp, one blank line outside the flag), 0 deleted, 0 non-ASCII, 0 EOL-mismatched, RESULT PASS. `enumscan --check` on the three .cpp: 0 A/B rows.
+- **Deploy:** DEPLOY OK: X2_offline.exe is 26,138,624 B, dated 2026-10-28 05:46:40, md5 3b77a3dc729a12ccfff67eb769e2b486, equal to X2/US_SERVICE/x2.exe (2026-10-28 05:46:34); built at main 2a23f973 + 6 uncommitted code file(s).
+- **No drift found.** No branch outside the three items was followed.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
