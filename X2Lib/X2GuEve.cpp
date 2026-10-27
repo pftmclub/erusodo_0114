@@ -16563,7 +16563,11 @@ void CX2GUEve::CallSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*= CX2UnitMa
 void CX2GUEve::ResetMegaEletronCharge()
 {
 	if( m_sMegaElectronBallData.m_bEnable == true )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+		m_sMegaElectronBallData.June_Reset( false, &AccessFutureFrameData() );	// June 329b1e00 ( stage load 324d9550 @324d97b7 )
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 		m_sMegaElectronBallData.Reset(false, &AccessFutureFrameData());
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 }
 
 #ifdef EVE_FIRST_CHANGE_JOB
@@ -28643,6 +28647,31 @@ void CX2GUEve::ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_FrameMove()
 	CommonFrameMove();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+namespace _CONST_EVE_JUNE_CH1p_
+{
+	/// 7ag: the key-pressed value is June's slot id ( 0-9 ) + 1 ( 32981130 @32981602 ); true when that slot's key is up
+	bool JuneEveIsSkillKeyUp( const CX2GameUnit::InputData& sInputData_, const int iSpecialAttackKeyPressed_ )
+	{
+		switch( iSpecialAttackKeyPressed_ - 1 )
+		{
+		case CX2UserSkillTree::SKILL_SLOT_A1:		return false == sInputData_.pureA;
+		case CX2UserSkillTree::SKILL_SLOT_A2:		return false == sInputData_.pureS;
+		case CX2UserSkillTree::SKILL_SLOT_A3:		return false == sInputData_.pureD;
+		case CX2UserSkillTree::SKILL_SLOT_A4:		return false == sInputData_.pureC;
+		case CX2UserSkillTree::SKILL_SLOT_A5_TC:	return false == sInputData_.pureSkill5;
+		case CX2UserSkillTree::SKILL_SLOT_B1:		return false == sInputData_.pureQ;
+		case CX2UserSkillTree::SKILL_SLOT_B2:		return false == sInputData_.pureW;
+		case CX2UserSkillTree::SKILL_SLOT_B3:		return false == sInputData_.pureE;
+		case CX2UserSkillTree::SKILL_SLOT_B4:		return false == sInputData_.pureR;
+		case CX2UserSkillTree::SKILL_SLOT_B5_TC:	return false == sInputData_.pureSkillEx5;
+		}
+
+		return false;
+	}
+}
+using namespace _CONST_EVE_JUNE_CH1p_;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 void CX2GUEve::ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_EventProcess()
 {
 #ifdef ADDITIONAL_MEMO
@@ -28659,6 +28688,9 @@ void CX2GUEve::ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_EventProcess()
 		m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_DOWN;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	if( true == JuneEveIsSkillKeyUp( m_InputData, m_eSpecialAttackKeyPressed ) )
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.pureA != true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.pureS != true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.pureD != true ||
@@ -28668,6 +28700,7 @@ void CX2GUEve::ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_EventProcess()
 		|| m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.pureE != true 
 		|| m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.pureR != true 
 		)
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	{
 		StateChange( ENSI_SA_EPR_SWEEP_ROLLING_FIRE );
 	}
@@ -32369,11 +32402,15 @@ void CX2GUEve::ENSI_SA_EEL_Sweep_Rolling_Tri_Vulcan_Fire_EventProcess()
 		m_FrameDataFuture.syncData.nowAction = UAI_ELECTRA_PLANE_ANGLE_DOWN;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	if( true == JuneEveIsSkillKeyUp( m_InputData, m_eSpecialAttackKeyPressed ) && m_fEffectStartTime >= 3.0f )
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	if( ( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.pureA != true || m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.pureS != true
 		|| m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.pureD != true || m_eSpecialAttackKeyPressed == SAKP_C && m_InputData.pureC != true 
 		|| m_eSpecialAttackKeyPressed == SAKP_Q && m_InputData.pureQ != true || m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.pureW != true 
 		|| m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.pureE != true || m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.pureR != true )
 		&& m_fEffectStartTime >= 3.0f )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	{
 		StateChange( ENSI_SA_EEN_SWEEP_ROLLING_TRI_VULCAN_END );
 	}

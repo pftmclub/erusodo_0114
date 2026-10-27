@@ -36070,44 +36070,44 @@ void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FrameMove()
 void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_EventProcess()
 {
 	bool bSpecialAttackKeyPressed = true;
-	switch( m_eSpecialAttackKeyPressed )
+	switch( static_cast<int>( m_eSpecialAttackKeyPressed ) - 1 )	// June 32cd9d18 ( table 32cda1b0 ): slot id + 1, F and T count as up
 	{
-	case SAKP_A:
+	case CX2UserSkillTree::SKILL_SLOT_A1:
 		if( m_InputData.pureA == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_S:
+	case CX2UserSkillTree::SKILL_SLOT_A2:
 		if( m_InputData.pureS == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_D:
+	case CX2UserSkillTree::SKILL_SLOT_A3:
 		if( m_InputData.pureD == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_C:
+	case CX2UserSkillTree::SKILL_SLOT_A4:
 		if( m_InputData.pureC == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_Q:
+	case CX2UserSkillTree::SKILL_SLOT_B1:
 		if( m_InputData.pureQ == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_W:
+	case CX2UserSkillTree::SKILL_SLOT_B2:
 		if( m_InputData.pureW == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_E:
+	case CX2UserSkillTree::SKILL_SLOT_B3:
 		if( m_InputData.pureE == false )
 			bSpecialAttackKeyPressed = false;
 		break;
 
-	case SAKP_R:
+	case CX2UserSkillTree::SKILL_SLOT_B4:
 		if( m_InputData.pureR == false )
 			bSpecialAttackKeyPressed = false;
 		break;

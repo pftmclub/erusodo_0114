@@ -1407,6 +1407,31 @@ CH1o's seven split slots each have a June base and a March call site; Eve overri
 
 `enumscan --check` (9 files): 2 A/B rows, `X2GUUser.h:2537-2538` (older). `/Zs` of the 7 `.cpp`: 0 errors with LIVE undefined and with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`. No rebuild (no change).
 
+### CH1p - Done (2026-10-27)
+
+Flags: `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (Eve, insert-only) and `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (an Aisha transcription fix). No new flag.
+
+**Method.** `cl /P` of `X2GuEve.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_EVE_LIVE`, then every surviving line that reads a slot id, the pressed index or the key-pressed value, each mapped to its function and checked for a caller that LIVE still reaches.
+
+**7ag, the pressed-index space.**
+- **Already June's** (CH1l / CH1l3 / CH1n): the encoders (`June_InitEquippedActiveSkillState` 0-9), the key table (`June_InitInpuDataProcess`, `JuneEveSlotPureKey`), the decoders (`June_GetSkillSlotData*`), the reader (`June_SpecialAttackLookup` -> `JuneCommonSpecialAttackEventProcess`, A 0-4 / B 5-9) and the state lookup (`June_StateChangeBySkillSlot`, `>= 5`).
+- **Dead under LIVE** (the March side, kept in `#else`): the encoders in `InitEquippedActiveSkillState`, the `:6151-6177` decode, `CommonEventProcess`'s three key switches and `InitInpuDataProcess`. The March `GetSkillSlotData*` and `IsUpSkillSlot*` still compile but have no caller.
+- **Converted.** June's `32981130 @32981602` stores slot id + 1 in the key-pressed member (`+0x8ac0`), but two March state functions that LIVE still registers (through the March switch of `SetEquippedSkillFuncBySkillSlotIndex`) read it as March's A S D C Q W E R: `ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_EventProcess` and `ENSI_SA_EEL_Sweep_Rolling_Tri_Vulcan_Fire_EventProcess`. A skill on Q would have ended at once, because the code tests W. Both now ask the new `JuneEveIsSkillKeyUp( input, value )` (namespace `_CONST_EVE_JUNE_CH1p_`), which takes slot = value - 1 and uses `SKILL_SLOT_*` members, F / T included. No June Eve function reads `+0x8ac0` (byte scan: one write only), so these two go when CH2c2 / CH3 replace the states.
+- **Aisha fix (live).** `June_AVSI_HELL_DROP_CONTROL_EventProcess` (`32cd9d00`) switched on March's `SAKP_*`, but June's table at `32cd9d18` (jump table `32cda1b0`) is slot + 1: 1-4 = A S D C, 5 (F) = up, 6-9 = Q W E R, anything else = up. The port read F as Q and Q as W, so Hell Drop on a B slot steered with the wrong key. The cases are now `SKILL_SLOT_A1..A4 / B1..B4`, keyed on value - 1. Checklist 7ag updated.
+
+**Engine hooks (CH0's two functions).** The stage-load handler `324d9550 @324d97a0-324d97be` (my unit, `GetUnit()`, unit type 5 = `UT_EVE`) is March's `DungeonStageLoadNot` block (`X2StateDungeonGame.cpp:2943`), in the same place (after the effect-set delete loop).
+- `329a7f50` = March's `ResetTaserPilumCharge`: no change.
+- `329b1e00` = `ResetMegaEletronCharge` calling `June_Reset` (`3299ebd0`, which also clears the June-only byte `+0x978d`). Under LIVE, `ResetMegaEletronCharge` now does that.
+
+**Hooks 7h / 7l / 7o / 7p / 7x.** 7h: `JuneInitWaitStateChange( "ENSI_WAIT_STATE_CHANGE" )` and WIN -> `JuneRandomLoseEventProcess` are registered (CH1m, `June_InitState`). 7l: `JuneInitBoundingStates( "ENSI_" )` (CH1m). 7o / 7p: the user readers (`SET_LIMIT_MAX_G_SPEED`, `TIME_STOP_IMMUNE_STATE`) run at every state start for every class, and the keys arrive with June's `Eve_Nasod.lua` (final CH1). Eve has no hit-stop class site in 7p. 7x: 23 `AT_COMMAND` tags in `Eve_Nasod.src.lua` arrive with the script; the Elysion stand-in stays (7x).
+
+**June-only keys (16).** `ADD_AIR_DASH_COUNT` (`+0x9c60`). The consumer is located and already ported: the readers in the Eve range are `32976e90` / `32976f00` (`June_GetMaxDashJumpCount` / `UpCount`, CH1a) and the inlined copies in `32977d30` / `32978890` / `32979da0` (the June_ JUMP_DASH / BOOST_DASH_AIR(_START) states call the CH1a helpers). `31d71408` is an immediate (an id), not the member. The 10 `CODE_RECOVERY_*` keys go to CH4c. The other five keep the owners in `ch0_keys.tsv` (row 397, Stage 2, Stage 9, buff tables).
+
+**Checks.** `/Zs`: `X2GuEve.cpp` 0 errors with LIVE on and off; `X2GUArme_VioletMage.cpp` and `X2StateDungeonGame.cpp` (LIVE on) 0 errors.
+**Hygiene.** `flagcheck JUNE_CHAR_EVE_LIVE --worktree --files X2Lib/X2GuEve.cpp`: `files: 1 PASS`, `0 deleted line(s)`, `0 encoding change(s)`; only the by-design "not #defined" FAIL. `flagcheck JUNE_CHAR_ARME_SKILL --worktree --files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS`, `9 deleted line(s)` (the switch line and the eight case labels, replaced inside the flag), `0 encoding change(s)`, `RESULT: PASS`. `enumscan --check`: 0 A/B rows.
+**Build.** `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 08:57:19, md5 d007ebca7c6c6e5dc2c1eef93e0bddec, equal to X2/US_SERVICE/x2.exe (2026-10-27 08:57:12); built at main 2023f592 + 2 uncommitted code file(s).`
+**In game.** Eve: nothing (LIVE is off). Aisha: Hell Drop's control on a Q / W / E / R slot now follows that key (an optional check, in the hand-off). Funcmap: `329a7f50` / `329b1e00` confirmed, `32cd9d00` corrected. Review: `kickoffs/char-eve/CH1p-review.md`.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

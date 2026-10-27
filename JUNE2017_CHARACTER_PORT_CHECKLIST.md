@@ -793,6 +793,7 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
   `iSkillSlotIndexPressed_ =` assignments, the three `GetSkillSlotData*` decoders (`> 3`, `-4`) and the state-array lookup. S5 first moved only the three encoder loops to June's numbering; the S5 review
   (2026-10-18) put them back to March's (`if( iSlot >= 8 ) break;`) and gave the two `GetSlotIndexAndSlotB` readers a March split, because that splitter is June's 5 + 5 now. An Eve port converts the
   encoders, every reader above and the pressed index together.
+  (Eve: CH1p. The June_* side was 0-9 already; the two March states LIVE still registers, Sweep Rolling Charge and Tri-Vulcan Fire, read the key-pressed value, which June stores as slot id + 1 (`32981130 @32981602`), not March's `SAKP_*`: converted. Aisha (CH1p fix): `June_AVSI_HELL_DROP_CONTROL_EventProcess` had the same March `SAKP_*` decode; June `32cd9d18` is slot + 1 with F / T = up. **Every class port: a reader of `m_eSpecialAttackKeyPressed` decodes slot + 1, never `SAKP_Q..R`.**)
 
 ### 7ah. The 10-slot dialog's class statics and the key-config rows (from June skill system S6)
 
