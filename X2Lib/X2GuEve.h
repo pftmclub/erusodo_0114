@@ -3234,6 +3234,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	/// June character port Phase CH2a: Eve's Nasod skill states; the registration cases are in June_SetEquippedSkillFuncHead
 	float		June_GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910 ( CX2GUUser )
+	void		June_EveSpecialActiveSkillEventProcess();		/// June 3296f0e0
 	void		June_ENSI_SI2_ILLUSION_STINGER_Init();			/// June 329663c0
 	void		June_ENSI_SI1_DIMENSION_LINK_FrameMove();		/// June 32989b60
 	void		June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init();	/// June 329665b0

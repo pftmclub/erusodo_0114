@@ -51786,7 +51786,7 @@ bool CX2GUEve::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkil
 					m_LuaManager.MakeTableReference( "ENSI_SI3_DIMENSION_LINK_GUARDIAN", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init );			/// June 329665b0
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUEve, June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_FrameMove );	/// June 3298b9b0
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );			/// June 3296f0e0 ( Eve's inline copy )
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUEve, June_EveSpecialActiveSkillEventProcess );				/// June 3296f0e0
 
 					m_LuaManager.MakeTableReference( "ENSI_SI3_DIMENSION_LINK_GUARDIAN", hyperStateData.stateID );	/// June names the normal table for the hyper state too
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -51831,7 +51831,7 @@ bool CX2GUEve::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkil
 					hyperStateData.StateStart		= normalStateData.StateStart;
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 
-					/// June 329c8a00 @329c9a64: the HP rate and the MP gain come from the numerical rows, read at the slot's registration
+					/// June 329c8a00 @329c9188: the HP rate and the MP gain come from the numerical rows, read at the slot's registration
 					m_fJune9c58 = static_cast<float>( static_cast<double>( June_GetSkillNumericalByName( L"HP_Consume", eSkillID_, true ) ) * 0.01 );
 					m_fJune9c5c = June_GetSkillNumericalByName( L"MP_Gain", eSkillID_, true );
 					June_LogEveSkill( L"ENSI_SI_A_EN_CONVERSION", eSkillID_, iSlotIndex_, bSlotB_ );
@@ -51910,6 +51910,36 @@ float CX2GUEve::June_GetSkillNumericalByName( const WCHAR* pwszName_, const int 
 	return kRow.m_fValue * ( true == bPvpOrPve ? kRow.m_fPvpRate : 1.f );
 }
 
+// June 3296f0e0: Eve's copy of 31fcc740 tests the back-walk window before the walk and dash windows
+void CX2GUEve::June_EveSpecialActiveSkillEventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN, false );
+		else
+			StateChange( USI_WAIT, false );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+	{
+		StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+}
 // June 329663c0
 void CX2GUEve::June_ENSI_SI2_ILLUSION_STINGER_Init()
 {
