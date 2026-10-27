@@ -156,7 +156,7 @@ All of it is outside this document, which covers only what the effect rebuild's 
 
 From `charport_scan.py`, section `ENUM`: June `Enum.lua` tables that March's `Enum.src.lua` and
 `DungeonEnum.src.lua` lack, as indexed by character scripts. Add the whole table, with June's exact
-values, before loading the script. Otherwise **every state after the first reference never loads**.
+values, before loading the script. Otherwise **every state after the first reference never loads**. (Eve: CH1, `charport_scan.py` ENUM has no Eve line: no table to add)
 
 | table (June `Enum.src.lua` line) | values | characters | what is lost on today's Enum |
 |---|---|---|---|
