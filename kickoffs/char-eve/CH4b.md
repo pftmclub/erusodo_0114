@@ -29,3 +29,7 @@ Scope: `SetDamageExceptionProcess` `329bc560` whole (June-only: no March body; 7
 - **Callees outside the class no doc had named** (`ch0_unmapped_identified.tsv`): `31e920b0` BUFF_FACTOR::~BUFF_FACTOR (X2BuffFactor.h:652, implicit) (candidate); `3234d840` engine (unknown).
 - `SetDamageExceptionProcess` `329bc560` calls `329cf6d0` (`DamageData::PushBuffFactor` variants, shared with Rose and Ara: port it once, in the shared place). Overrides: `329a79c0` GetActualMPConsume (0x6a0), `32979420` GetActualCoolTime (0x6a4); Eve overrides neither 0x428 nor 0x73c.
 - 7an: the reader `329b407b` sits in `329b3cc0` (CH1l3 transcribes it); CH4b checks the hook. 7am: the NPC-side push `3275a120` (owner `UT_EVE`, skill 25417).
+
+## Amended by CH2c2 (2026-10-28)
+
+- `3299b2e0` (class map says CH2c2, "called by 329a7250") is not called from 329a7250: its only caller is `329a79c0` @`329a7b25` (`GetActualMPConsume`). Port it with that override. Not read further by CH2c2: a loop over the game's units that counts those passing a state / target test (`0x180`, `0x207`, `+0x7c98`); funcmap row `3299b2e0`.

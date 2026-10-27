@@ -649,6 +649,9 @@ public:
 		void June_LaserAttackLineSet( CX2DamageEffect::CEffect* _pDamageEffect, float _fRadiusScale = 1.0f );	/// June 3297a8e0
 		void June_DeleteLaserFromSystem();	/// June 32991940
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		void June_CreateGigaPlane( float _fZAngle = 0.f, float _LifeTime = 5.f, float _fDistance = 500.f, float _fHeight = 130.f, float _fScale = 1.0f );	/// June 329a1b90
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		
 #ifdef SERV_EVE_BATTLE_SERAPH		/// √ ±§«– ø¨±∏
 		bool GetEnableHyperOpticalResearch(){ return m_bHyperOpticalResearch; }
@@ -3278,6 +3281,12 @@ protected:
 	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_End();		/// June 32993700
 	void		June_ENSI_SA_EPR_PHOTON_FLARE_FrameMove();		/// June 32993730
 	void		June_ENSI_A_EBS_Kugelblitz_FrameMove();			/// June 329aa730
+	/// June character port Phase CH2c2: Sweep Rolling and Giga Stream ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_ENSI_SA_EPR_SWEEP_ROLLING_READY_FrameMove();		/// June 329a6f20
+	void		June_ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_Start();			/// June 32993c40
+	void		June_ENSI_SA_EPR_SWEEP_ROLLING_CHARGE_EventProcess();	/// June 3297dcc0
+	void		June_ENSI_SA_EPR_SWEEP_ROLLING_FIRE_Start();			/// June 32994540
+	void		June_ENSI_SA_EPR_GIGA_STREAM_FrameMove();				/// June 329a7250
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ = false );	/// June 3297b840
 	void		June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 3297baa0 ( vslot 0x834 )

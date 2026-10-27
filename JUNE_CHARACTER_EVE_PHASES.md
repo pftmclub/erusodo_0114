@@ -1912,6 +1912,29 @@ No missing mesh / texture error is expected beyond the 6 June-undefined names ab
 - **Hygiene:** `flagcheck.py JUNE_CHAR_EVE_SKILL --range b196580a^..b196580a`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = `JUNE_ENUM_NAMES` in `X2SkillTree.h`); no later commit touches the flag. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
 - `kickoffs/char-eve/CH2c2.md` checked: stands. User owes nothing.
 
+### CH2c2 - Done (2026-10-28, Sonnet 5.5)
+
+Sweep Rolling and Giga Stream take June's `329c8a00` cases and state bodies (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, in `June_SetEquippedSkillFuncHead`). All 26 functions of the class map read from the raw listings (`charport_adis.py eve --phase CH2c2`). Rows: funcmap `Char Eve CH2c2`.
+- **Registered ids:** Sweep Rolling 25021 / 25039 (one case: READY plus the follow-up states CHARGE / FIRE / END, June ids 0xd3-0xd5, registered by the same case through March's `m_StateList` shape), Giga Stream 25025 / 25065. Three `RNSI_*` names added under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (`X2SkillTree.h`: 25025, 25039, 25065; 25021 and 25025 match the live `Enum.lua`, the two upgrade names are June's only).
+- **March bodies that are June's as is (16):** the Inits, READY Start / End / EventProcess, CHARGE FrameMove / End, FIRE FrameMove / End, END Start / FrameMove / EventProcess / End, Giga Stream Init / Start / StartFuture / FrameMoveFuture.
+- **Same bytes as a body already ported (3):** FIRE EventProcess `329737c0` = Spectro `329733b0`; Giga Stream EventProcess `3297de10` = Particle Ray `3297d3f0` (236 instructions, no difference); Giga Stream End `329946f0` = `329936e0`. They are registered as those members.
+- **New (5 `June_*` members + 1 system member):**
+  - READY FrameMove: June's cut-in helper and `June_CreatePlane( 0, 7.0, 340, 130, EveProtoPuritySweepParadePlane )`.
+  - CHARGE Start: `June_AddEffectToSystem`; CHARGE EventProcess: the held-key test `JuneIsEquippedSkillKeyReleased( input, future state skill id )`, END after 5 s. June's memo tests (`31fca9e0` stub) are dead: March's memo 5.5 s fire time and 1.2x scale are gone.
+  - FIRE Start: March's body without the memo's 5.6 s life time (no back speed: March's `#ifndef SERV_EVE_BATTLE_SERAPH`).
+  - Giga Stream FrameMove: cut-in, `June_CreatePlane`, the giga plane through `EveElectraSystem::June_CreateGigaPlane` (`329a1b90` = March's `CreateGigaPlane` plus 6 mesh and 10 particle alpha tags), and the 0.9 s laser through `June_AddLaserToSystem`.
+- **Assets:** every CH2c2 closure row is `june-bytes` except the `.tga` preload names June's own code uses and does not define (5, the READY Init); the effect names are the same in March and June. No kom change, no pack.
+- **Checklist / bugs:** 7c: the 16 alpha sites are all in `329a1b90` (checklist line added). No new JUNE_BUGS row. `luabind.py check Eve_Nasod`: 0 unbound.
+- **Found, not CH2c2's:** `3299b2e0` (class map: CH2c2, "called by 329a7250") is called from `329a79c0` @`329a7b25` (`GetActualMPConsume`): routed to CH4b (kickoff amended, funcmap row). Branches not ported: none.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2SkillTree.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (the OTHER is the `JUNE_ENUM_NAMES` block in `X2SkillTree.h`); `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,138,112 B, dated 2026-10-28 05:15:26, md5 7a0e3cf9f416bd7b8cacd9bbf30acbc1, equal to X2/US_SERVICE/x2.exe (2026-10-28 05:15:19); built at main c8e583e2 + 3 uncommitted code file(s) (CH2c2's 3). The strings `Bip01_L_Hand`, `EVE_EPR_GIGA_STREAM_LASER` and `ENSI_SA_GIGA_STREAM` are in the exe.
+
+**Play-test hand-off.** Save: unit 41 `ElectraT` (Eve Electra, level 90): A slot 1 (S) = Sweep Rolling upgrade 25039, B slot 8 (R) = Giga Stream upgrade 25065 (both level 1); the CH2c slots stay (A0 25042 Photon Flare, A2 25064 Kugelblitz, A3 25215 Spectro, B5 25063 Particle Ray); backup `db_backup\els_db_20261028_050624_pre_sql.sql`. The base ids 25021 / 25025 share their case with the upgrade ids and are not equipped. Log tag `[JUNE_CHAR] EVE SKILL` and `[JUNE_SKILL] NUM`.
+1. Sweep Rolling (A2, key S): READY shows the sweep plane at 0.4 s; hold S: CHARGE grows a triangle with electric and light effects in front of the right hand (up to 5 s); release S: FIRE sends it forward, then WAIT or JUMP_DOWN; hold the full 5 s: END (a short, harder-hitting throw). Up / down in READY and CHARGE tilts the plane. Look for `EVE SKILL registered ENSI_SA_EPR_SWEEP_ROLLING_READY`.
+2. Giga Stream (B slot 8, key R): plane at 0.02 s, a second giga plane with five crystals and sparks at 0.5 s (tilted when up / down was held in the first 0.4 s), and the big laser from the left hand at 0.9 s (hyper version while awakened). Log `ENSI_SA_GIGA_STREAM`, `EVE_EPR_GIGA_STREAM_LASER` hits.
+No missing mesh / texture error is expected beyond the 5 June-undefined `.tga` names of the READY Init. Then say "check logs".
+
 ## Phase CH2b3 - Three unbound NPC Lua methods (added 2026-10-27, Opus)
 
 Found while asking why effects keep going missing (play-test 2): `tools/luabind.py check` shows Oberon's `OBERON_START_STATE_END` calls `ApplyPassiveSkillOwnerUser_LUA`

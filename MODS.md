@@ -5186,6 +5186,16 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a / CH2b ); no debug 
 - **Kept as June has it:** the unit-null early return of Photon Flare / Kugelblitz skips `CommonFrameMove`; the Kugelblitz second `GetSkillAbilityValue` ( `SA_PROJECTILE_PIERCING` ) is read and dropped ( not ported ); the Particle Ray laser keeps a stale `m_iJune9c48` handle until Start / End reset it.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
 
+### June Eve: Sweep Rolling and Giga Stream (char-eve CH2c2, 2026-10-28)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH2c ); no debug flag. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2c2 - Done"; log lines `[JUNE_CHAR] EVE SKILL registered ENSI_SA_EPR_SWEEP_ROLLING_READY` / `ENSI_SA_GIGA_STREAM`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's `329c8a00` cases for 25021 / 25039 Sweep Rolling ( READY plus the CHARGE / FIRE / END follow-up states 0xd3-0xd5, registered by the same case ) and 25025 / 25065 Giga Stream ( three `RNSI_*` names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: 25025, 25039, 25065 ). Of the 26 June functions 16 are March's bodies as they stand ( Inits, Starts, Ends, END states, CHARGE FrameMove / End, FIRE FrameMove, READY EventProcess, Giga Stream StartFuture / FrameMoveFuture ), 3 are bytes already ported ( FIRE and Giga Stream EventProcess, Giga Stream End ), 5 are new `June_*` members and 1 is `EveElectraSystem::June_CreateGigaPlane` ( `329a1b90`, 16 alpha tags ). `3299b2e0` is CH4b's ( its caller is `329a79c0` ).
+- **What changes in game.**
+  - Sweep Rolling: June's `June_CreatePlane` and cut-in helper in READY; CHARGE adds the triangle through `June_AddEffectToSystem`; the key test is June's held-key test ( slot swap aware ); the fire time is 5 s ( March's memo 5.5 s is gone ); the walk and dash cancels after FIRE need the ground ( June's on-line test ).
+  - Giga Stream: June's plane, giga plane ( alpha-tagged plane, crystals and sparks ) and laser system ( `Bip01_L_Hand` ); its cancels need the ground.
+- **Damage ( June level-1 value x0.01, `plan_numerical_rows.tsv` ).** Sweep Rolling `EVE_SWEEP_PARADE_TRIANGLE` 2.36 ( `_NEXT` 4.72 ); Giga Stream `EVE_EPR_GIGA_STREAM_LASER` 2.50 ( hyper 3.19, `_NEXT` the same ). March's values were not tabulated.
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
+
 ### June summons: one per owner and NPC id (char-eve CH2b2, 2026-10-27)
 
 Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b2 - Done"; log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`.
