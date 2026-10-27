@@ -1430,7 +1430,7 @@ Flags: `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (Eve, insert-only) and `SERV_IRUHADEV_
 **Checks.** `/Zs`: `X2GuEve.cpp` 0 errors with LIVE on and off; `X2GUArme_VioletMage.cpp` and `X2StateDungeonGame.cpp` (LIVE on) 0 errors.
 **Hygiene.** `flagcheck JUNE_CHAR_EVE_LIVE --worktree --files X2Lib/X2GuEve.cpp`: `files: 1 PASS`, `0 deleted line(s)`, `0 encoding change(s)`; only the by-design "not #defined" FAIL. `flagcheck JUNE_CHAR_ARME_SKILL --worktree --files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS`, `9 deleted line(s)` (the switch line and the eight case labels, replaced inside the flag), `0 encoding change(s)`, `RESULT: PASS`. `enumscan --check`: 0 A/B rows.
 **Build.** `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 08:57:19, md5 d007ebca7c6c6e5dc2c1eef93e0bddec, equal to X2/US_SERVICE/x2.exe (2026-10-27 08:57:12); built at main 2023f592 + 2 uncommitted code file(s).`
-**In game.** Eve: nothing (LIVE is off). Aisha: Hell Drop's control on a Q / W / E / R slot now follows that key (an optional check, in the hand-off). Funcmap: `329a7f50` / `329b1e00` confirmed, `32cd9d00` corrected. Review: `kickoffs/char-eve/CH1p-review.md`.
+**In game.** Eve: nothing (LIVE is off). Aisha: Hell Drop's control on a Q / W / E / R slot now follows that key: **play-test PASSED 2026-10-27** (user, Hell Drop on Q). Funcmap: `329a7f50` / `329b1e00` confirmed, `32cd9d00` corrected. Review: `kickoffs/char-eve/CH1p-review.md`.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
