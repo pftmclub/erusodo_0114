@@ -1605,6 +1605,7 @@ Opus 5.5. CH1q's `June_UpdateHyperBall` and CH1s's findings were read against Ju
 - **Retired `SERV_IRUHADEV_JUNE_CHAR_EVE_DEBUG`** by reversing `53743937`'s two code hunks exactly (`git apply -R`; neither file had changed since). `Always.h` and `X2GageUI.cpp` are now byte-identical to `53743937^` and still CP949. `enumscan --check X2Lib/X2GageUI.cpp`: 0 rows. No `_NCORE` change.
 
 Build: `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-10-27 12:55:07, md5 2ffc4610245c1f48c3202d08f5c12e80, equal to X2/US_SERVICE/x2.exe (2026-10-27 12:55:01); built at main 54b84dac + 2 uncommitted code file(s).` `EVE NCORE ball` is not in the exe.
+Hygiene: `flagcheck.py JUNE_CHAR_EVE_DEBUG --range 53743937^..83df2d01`: `files: 2 PASS, 0 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `28 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 encoding change(s)`. Its `RESULT: FAIL` is only `define: NOT FOUND`, which is expected for a retired flag. Net zero: `git diff 53743937^ 83df2d01 -- KTDXLIB/Always.h X2Lib/X2GageUI.cpp` is empty, and the flag is in no tracked file.
 `kickoffs/char-eve/CH1-review.md` checked: it still matches. It now also checks CH1s's data034 / data057 fix and notes that the ball log line is gone.
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
