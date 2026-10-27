@@ -47,3 +47,9 @@ Scope: the class-26 skill ids not in 5 / 18 / 19, except Sweep Rolling (25021 / 
 ## Amended by CH1n (2026-10-27)
 
 - **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
+
+## Amended by the CH2b review (2026-10-27)
+
+- June `322cc1a0` (PvP **or** PvE) is `g_pX2Game->GetIsNowPVPCorrectionGame()`. Never test `GT_PVP` alone: `GT_PVE` has been registered since the CH1l5 review.
+- Before porting a target loop, find its back edges in the listing (Ghidra prints a `break`). CH2b's Faena loop ended after the first non-NULL unit, and porting it as a full loop crashed (JUNE_BUGS 451, withdrawn).
+- `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG` is retired. If this phase needs it, define it again with the CH2b block shape.

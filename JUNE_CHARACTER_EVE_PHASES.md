@@ -1827,8 +1827,8 @@ All 22 listings were read (`charport_adis.py eve`), plus registration rows `ch0_
 - **Retired:** `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG` (define, four log blocks, the Oberon logger and its call / declaration).
 
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --with JUNE_CHAR_EVE_SKILL_DEBUG --worktree --files X2GuEve.cpp X2GuEve.h Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`. The OTHER rows are the CH1k tooltip line under `_CORE` and a peer's uncommitted CH2b2 block in `Always.h`. `in this flag's files: 3 deleted line(s)` = the retired header declaration; 0 non-ASCII, 0 EOL-mismatched, 0 encoding changes; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
-**Deploy:** DEPLOY_LINE_PLACEHOLDER
-**User owes:** a short Faena re-test (below); nothing else.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,119,680 B, dated 2026-10-27 20:01:15, md5 1593f54c7697bc2b3818c6c525e041c6, equal to X2/US_SERVICE/x2.exe (2026-10-27 20:01:08); built at main 57a982fd + 8 uncommitted code file(s) (3 mine, 5 a peer's CH2b2 work in progress).
+**User owes:** one Faena cast into a group of enemies: only the nearest gets the mark and the damage effect set, and nothing crashes. (This section was first committed as a draft by the peer commit `57a982fd`.)
 
 ## Phase CH2b2 - How June spawns a summon (added 2026-10-27, Opus)
 

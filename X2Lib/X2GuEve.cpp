@@ -44569,8 +44569,8 @@ void CX2GUEve::June_UpdateEveRecoveryTooltip()
 	}
 	else if( JUNE_CH1K_UC_EVE_ELECTRA == iUnitClass || JUNE_CH1K_UC_EVE_CODE_BATTLE_SERAPH == iUnitClass )
 	{
-		/// June 322cc1a0 IsPvpOrPve: March has no GT_PVE
-		const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );
+		/// June 322cc1a0: PVP or PVE
+		const bool bPvpGame = ( NULL != g_pX2Game && ( CX2Game::GT_PVP == g_pX2Game->GetGameType() || CX2Game::GT_PVE == g_pX2Game->GetGameType() ) );
 		int iBuffTime = 0;	/// June leaves it unset when the buff factor is missing
 		CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( true == bPvpGame ? JUNE_CH1K_BUFF_FACTOR_ECB_PVP : JUNE_CH1K_BUFF_FACTOR_ECB_PVE );
 		if( NULL != ptrBuffFactor )
@@ -49633,9 +49633,6 @@ void CX2GUEve::June_CommonFrameMove()
 	if( false == HaveThisBuff( BTI_BUFF_FERDINAND ) )
 		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-	June_DebugLogOberons();
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 	if( false == HaveThisBuff( BTI_BUFF_OBERON ) )
 		June_SetSelfDestructSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
 
@@ -52106,7 +52103,7 @@ float CX2GUEve::June_GetSkillNumericalByName( const WCHAR* pwszName_, const int 
 	CX2SkillTree::SkillTemplet::JuneNumericalRow kRow;
 	pSkillTemplet->JuneGetNumericalRowByName( pwszName_, iSkillLevel, kRow );
 
-	const bool bPvpOrPve = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+	const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
 	return kRow.m_fValue * ( true == bPvpOrPve ? kRow.m_fPvpRate : 1.f );
 }
 
@@ -52827,7 +52824,7 @@ namespace _CONST_EVE_JUNE_CH2a3_
 		if( NULL == pSkillTemplet )
 			return false;
 
-		const bool bPvpOrPve = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: March has no GT_PVE
+		const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
 		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, bPvpOrPve, fOut_ );
 	}
 
@@ -52931,7 +52928,7 @@ void CX2GUEve::June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove()
 				pEffect->SetScale( fBallScale, fBallScale, fBallScale );
 			}
 
-			if( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )	// June 322cc1a0 IsPvpOrPve: March has no GT_PVE
+			if( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() )	// June 322cc1a0: PVP or PVE
 				fBallPowerRate *= 0.33f;
 
 			std::vector<CX2GUNPC*> vecNPC;
@@ -53084,7 +53081,7 @@ void CX2GUEve::June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3&
 		if( NULL != pTimeFinalizer )
 		{
 			float fTime = static_cast<float>( m_fJune9c4c * JUNE_SURFACE_CUTING_TIME + m_fJune4070 );
-			if( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )	// June 322cc1a0 IsPvpOrPve: March has no GT_PVE
+			if( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() )	// June 322cc1a0: PVP or PVE
 				fTime *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DECREASE_REL, iSkillLevel, false );
 			pTimeFinalizer->SetDurationTime( fTime );
 		}
@@ -53096,10 +53093,6 @@ void CX2GUEve::June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3&
 	{
 		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING, iHyperMode, true, vPos_,
 			GetIsRight(), 0.f, true, iKeyCode_, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_CHANGESTAGE_REMAIN );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL SURFACE_CUTING summon ( skill %d, level %d, key %d, hyper %d, oberon buff %d )",
-			static_cast<int>( GetNowStateSkillID() ), iSkillLevel, iKeyCode_, iHyperMode, true == HaveThisBuff( BTI_BUFF_OBERON ) ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 	}
 }
 
@@ -53150,9 +53143,6 @@ void CX2GUEve::June_ENSI_A_EAT_OBERON_GUARD_FrameMove()
 		{
 			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_ECA_OBERON_GUARD, 0, true, vPos,
 				bRight, JUNE_OBERON_GUARD_DELAY, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL OBERON_GUARD npc requested ( skill %d, guard buff %d )", static_cast<int>( GetNowStateSkillID() ), true == HaveThisBuff( BTI_BUFF_OBERON_GUARD ) ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 		}
 	}
 
@@ -53192,9 +53182,6 @@ void CX2GUEve::June_ENSI_SA_EAT_Heavens_Fist_Sweeper_FrameMove()
 				g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_SA_EAT_HeavensFist_Swerper_left", this, NULL, false, GetPowerRate() * fStatAtkRateOfSummoned, -1.f,
 					GetVec3ScaleByUnit(), true, vPos, GetRotateDegree() + D3DXVECTOR3( 0, 180, 0 ), GetDirVector() );
 			}
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL SWEEPER effect set played ( right %d )", true == GetIsRight() ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 		}
 	}
 	else if( m_pXSkinAnim->EventTimerOneshot( 1.241f ) )
@@ -53222,7 +53209,7 @@ void CX2GUEve::June_ENSI_SA_EAT_Heavens_Fist_Sweeper_EventProcess()
 	CommonEventProcess();
 }
 
-// June 329c4380: the enemies in the cone get the target mark ( BFI 842 ) and the damage effect set
+// June 329c4380: the nearest enemy in the cone gets the target mark ( BFI 842 ) and the damage effect set
 void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.271f ) )
@@ -53241,8 +53228,7 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 
 		if( NULL != GetUnit() )
 		{
-			UINT uiLevel = static_cast<UINT>( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ), false, 0, true ) );
-			int iAdjustSkillID = iSkillID;	// June overwrites the skill id register after a boss target ( JUNE_BUGS 451 ); the level register it overwrites too is not kept: March's level clone crashes on it
+			const UINT uiLevel = static_cast<UINT>( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ), false, 0, true ) );
 
 			for( std::vector<CX2GameUnit*>::iterator it = vecUnits.begin(); it != vecUnits.end(); ++it )
 			{
@@ -53256,7 +53242,7 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 					CX2BuffFactorPtr ptrBuffFactorClone = ptrBuffFactor->GetClonePtr( uiLevel );
 					if( NULL != ptrBuffFactorClone )
 					{
-						AdjustBuffFactorByIndex( ptrBuffFactorClone, iAdjustSkillID );
+						AdjustBuffFactorByIndex( ptrBuffFactorClone, iSkillID );
 						ptrBuffFactorClone->SetGameUnitBuffFactor( pUnit, GetUnitUID(), true );
 						pUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 					}
@@ -53266,17 +53252,13 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 				{
 					const D3DXVECTOR3 vAimPos = JuneGetUnitLockOnAimPos( pUnit, GetPos() );
 					g_pX2Game->GetEffectSet()->PlayEffectSetWithCustomPos_LUA( "EffectSet_SI_A_EAT_Faena_Damage", this, vAimPos, GetRotateDegree() );
-					iAdjustSkillID = -1;	// the skill id register holds the game pointer from here
 				}
 				else
 				{
 					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_A_EAT_Faena_Damage", this, pUnit, false, -1.f, -1.f,
 						D3DXVECTOR3( 1, 1, 1 ), false, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ) );
 				}
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL FAENA target uid %I64d ( skill %d, level arg %u, boss %d )", static_cast<__int64>( pUnit->GetUnitUID() ),
-					iSkillID, uiLevel, true == pUnit->GetIsBosRaidNPC() ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+				break;	// June @329c4751: the first non-NULL unit only, no back edge
 			}
 		}
 	}
@@ -53285,33 +53267,6 @@ void CX2GUEve::June_ENSI_A_EAT_FAENA_FrameMove()
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-// temporary: once a second, one line per live Oberon of mine ( state, hp, target, distance )
-void CX2GUEve::June_DebugLogOberons()
-{
-	static DWORD s_dwLast = 0;
-	const DWORD dwNow = timeGetTime();
-	if( NULL == g_pX2Game || dwNow - s_dwLast < 1000 )
-		return;
-
-	for( int iIndex = 0; iIndex < g_pX2Game->GetNPCUnitListSize(); ++iIndex )
-	{
-		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( iIndex );
-		if( NULL == pNPC || CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING != static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID ) )
-			continue;
-
-		s_dwLast = dwNow;
-		CX2GameUnit* pTarget = ( NULL != pNPC->GetNPCAI() ) ? pNPC->GetNPCAI()->GetTargetGameUnit() : NULL;
-		const char* pszState = pNPC->GetNowStateName();
-		D3DXVECTOR3 vGap( 0, 0, 0 );
-		if( NULL != pTarget )
-			vGap = pTarget->GetPos() - pNPC->GetPos();
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL OBERON uid %d state %d '%S' hp %.0f key %d target %d dist %.0f",
-			pNPC->GetUID(), pNPC->GetNowStateID(), NULL != pszState ? pszState : "-", pNPC->GetNowHp(), pNPC->GetKeyCode(),
-			NULL != pTarget ? static_cast<int>( pTarget->GetUnitUID() ) : -1, NULL != pTarget ? D3DXVec3Length( &vGap ) : -1.f );
-	}
-}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH1o
 namespace _CONST_EVE_JUNE_CH1o_

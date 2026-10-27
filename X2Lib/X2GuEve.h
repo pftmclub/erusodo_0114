@@ -3259,9 +3259,6 @@ protected:
 	void		June_ENSI_A_EAT_OBERON_GUARD_FrameMove();		/// June 329b2e10
 	void		June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
 	void		June_ENSI_SI1_AT_SURFACE_CUTING_FrameMove();	/// June 3299d390
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
-	void		June_DebugLogOberons();							/// temporary
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ = false );	/// June 3297b840
 	void		June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 3297baa0 ( vslot 0x834 )

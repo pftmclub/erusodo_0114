@@ -1201,6 +1201,7 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
   - `SetDamageExceptionProcess` `322990e0` and the per-class overrides;
   - user / NPC `DamageReact` (`320462a0` / `327b1f30`);
   - defence, resist and enchant (buff Phase 15), PvE / PvP / boss rates.
+  - known mixed sites (char-eve CH2b review, 2026-10-27): June `322cc1a0` (PvP **or** PvE) is still read as `GT_PVP` only at `X2DamageManager.cpp` `ParsingBuffFactorID` (`_BUFF_FACTOR_ID`) and Aisha's `June_AVSI_TELEPORT_START_UPGRADE_Start` / `June_GetPassiveSkillAbilityValue`. `GT_PVE` (4) is registered and `CX2Game::GetIsNowPVPCorrectionGame` exists; Eve's five sites were fixed in that review.
 - **Resource gain:**
   - MP on hit and on hit taken, the awakening-gauge gain, HP / MP regen;
   - MP cost (`GetActualMPConsume`).
