@@ -3244,6 +3244,7 @@ protected:
 	void		June_ENSI_A_EVE_PHOTON_BLINK_FrameMove();		/// June 32993020
 	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Init();		/// June 32966910 ( registered by CH2a3 )
 	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_Start();		/// June 3296f9a0 ( registered by CH2a3 )
+	void		June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove();	/// June 329b1e20 ( CH2a3 )
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ = false );	/// June 3297b840
 	void		June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 3297baa0 ( vslot 0x834 )

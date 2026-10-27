@@ -1684,6 +1684,26 @@ Read against the listing / raw disassembly, not the Done note's claims.
 **Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --range dc16df68^..dc16df68`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = `X2SkillTree.h` names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`); no later commit touches the flag. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows. No rebuild: the deployed md5 `f4202717` is the reviewed code.
 **Play-test PASSED 2026-10-27** (user + logs, run 15:34): the six `EVE SKILL registered` lines (25037 / 25040 / 25050 / 25051 / 25218 on unit 57, 25005 on unit 59); ErrorLog 0 Motion Error / KEM; 0 EXCEPTION, only the known `E_DISABLE_HB_CHECK_REQ` UNHANDLED. Next: `/x2-phase char-eve CH2a3` (Opus 5.5 high), then `CH2b0`; both kickoffs are in place.
 
+### CH2a3 - Done (2026-10-27, Opus 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`; temporary `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG`, retired in the review). Funcmap row `329b1e20` (PORTED, the whole decode), JUNE_BUGS 449, `MODS.md` "June Eve: Mega Electronball". Checklist: §7c (the last 6 Eve sites of CH2a's 9) and a §7ai note.
+- **Registration.** The case 25207 / 25219 in `June_SetEquippedSkillFuncHead` per `329c8a00 @329c9225`: both tables (`ENSI_SI_A_EN_MEGA_ELECTRONBALL` / `_HYPER`) take all seven callbacks, Init included: Init `32966910` and Start `3296f9a0` (CH2a's), FrameMove `329b1e20` (new), StartFuture / FMF / EP / EndFuture = March. Log `[JUNE_CHAR] EVE SKILL registered ENSI_SI_A_EN_MEGA_ELECTRONBALL ( skill N, slot S A|B )`.
+- **`329b1e20` -> `June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove`.** The function ends at `329b2e0f`. The kickoff's "BFI 0x28c" and the `322e67c0` packet call are in `329b2e10`, Oberon Guard's FrameMove (CH2b's): there is no int3 padding between the two, so CH0's tables merged them. The kickoff's "`JuneUpNowMpWithText` on failure" is wrong: the failure is `CreateNotEnoughMPEffect` (`32007d80`), and `32278070` is Open Mind's refund.
+  - 0.22 s: the plane. A shot fires on oneshot 0.23 s, or on oneshot 0.48 s when the upgrade's proc armed `+0x978d`.
+  - MP is the templet's cost at every rank (0 after 0.3 s: the second ball is free). It is then x class 19 / 109 rate, x memo rate, x BBT 63 rate, x `( 1 + 32358970( 0xb ) x 0.01 )`.
+  - The rank scales only size and range. Open Mind gives its refund. The upgrade's proc is `SA_EFFECTIVE_RATE` >= `GetRandomFloat( 0 )`.
+  - Particles: three at the hand. The ball is x1.5 power and size on the BIG roll (`+0x97bc`). Power is x0.33 in PvP.
+  - Each of Eve's Nasod watches (vslot 0x77c, `June_Vslot77c( UC_EVE_CODE_EMPRESS )`, a literal in June, so every Eve class qualifies) fires its own ball from its position + 150, with its own rotation and land y.
+  - Every ball gets `SetInheritForceDownRate( true )` and `_Filtered` x4; then the sound.
+- **Names reused:** `June_GetFormationFactor`, `JuneUpNowMpWithText`, `GetJuneSkillMemoMPRate`, `GetSkillRateByBuffBehavior`, `June_GetSkillLevel` / `June_GetLearnedSkillAbilityValue`, `JuneTagEffectAlphaParticle`, `m_fJuneElectronBallBigRate`, `m_iDeleteSkillIDByUpgrade`. New, file-local in `_CONST_EVE_JUNE_CH2a3_`: `JuneEveTryGetAcquiredSkillAbilityValueSwap` (`32007c40` with its swap argument, which the CH1l copy drops) and the particle helper.
+- **Kept / not kept:** JUNE_BUGS 449 is kept: a watch's two lights are drawn at Eve's hand, shifted +10 x per watch. June reads the templet, and scales the pushed ball, without a NULL check. The port checks both: on a null templet the shot is skipped and `CommonFrameMove` still runs. `32358970` stays 0, as in `GetActualMPConsume`.
+- **Assets:** all 6 names (`DamageEffect_A_EEG_MegaElectronBall`, `_Filtered`, `Ring_Eve_SI_A_EN_MEB01`, `Light_Eve_SI_A_EN_MEB02` / `03`, `Eve_FireShot1.ogg`) are `june-bytes` rows of `ch0_effect_closure.tsv` / `ch0_assets.tsv`. No kom change.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files <3 code files>`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-10-27 16:02:06, md5 379019c0ff45d1d59224861c4aee2624, equal to X2/US_SERVICE/x2.exe (2026-10-27 16:01:59); built at main fbb83e95 + 3 uncommitted code file(s). The strings `EVE SKILL MEGA shot`, `DamageEffect_A_EEG_MegaElectronBall_Filtered` and `ENSI_SI_A_EN_MEGA_ELECTRONBALL_HYPER` are in the deployed exe.
+
+**Play-test hand-off (as given).** Save: unit 22 `weevwe` (Eve Nasod, level 99) now also has Mega Electronball Enhanced 25219 in slot 7 (B, third key); Dimension Link Enhanced is in slot 1. The backup is `db_backup\els_db_20261027_155426_pre_sql.sql`. Log tag `[JUNE_CHAR] EVE SKILL`.
+
 
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 

@@ -51936,6 +51936,29 @@ bool CX2GUEve::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkil
 					June_LogEveSkill( L"ENSI_A_EEG_METAL_DUST_AURA", eSkillID_, iSlotIndex_, bSlotB_ );
 				} return false;
 
+			case CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL:
+			case CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "ENSI_SI_A_EN_MEGA_ELECTRONBALL", normalStateData.stateID );
+					normalStateData.StateInit			= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EN_MEGA_ELECTRONBALL_Init );			/// June 32966910
+					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_MEGA_ELECTRONBALL_StartFuture );			/// June 32966960 = March
+					normalStateData.StateStart			= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EN_MEGA_ELECTRONBALL_Start );			/// June 3296f9a0
+					normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_MEGA_ELECTRONBALL_FrameMoveFuture );		/// June 3296fa90 = March
+					normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUEve, June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove );		/// June 329b1e20
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_MEGA_ELECTRONBALL_EventProcess );		/// June 3297cba0 = March
+					normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GUEve, ENSI_A_EN_MEGA_ELECTRONBALL_EndFuture );			/// June 32966990 = March
+
+					m_LuaManager.MakeTableReference( "ENSI_SI_A_EN_MEGA_ELECTRONBALL_HYPER", hyperStateData.stateID );
+					hyperStateData.StateInit			= normalStateData.StateInit;
+					hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+					hyperStateData.StateStart			= normalStateData.StateStart;
+					hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+					hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+					hyperStateData.StateEndFuture		= normalStateData.StateEndFuture;
+					June_LogEveSkill( L"ENSI_SI_A_EN_MEGA_ELECTRONBALL", eSkillID_, iSlotIndex_, bSlotB_ );
+				} return false;
+
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 			default:
 				break;
@@ -52705,6 +52728,190 @@ void CX2GUEve::June_ENSI_SI3_EG_QUEENS_THRONE_FrameMove()
 	CommonFrameMove();
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH2a2
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+//{{ Iruha : 2026-10-27 // June character Eve Phase CH2a3 ( JUNE_CHARACTER_EVE_PHASES.md )
+namespace _CONST_EVE_JUNE_CH2a3_
+{
+	const int JUNE_MEGA_BIG_RANDOM_OFFSET = 29;		/// June 329b24e7: GetRandomFloat offset of the BIG roll ( plus the ball count for a watch's ball )
+
+	/// June 32007c40 with its upgrade-swap argument: the ability of an acquired skill at the learned level
+	bool JuneEveTryGetAcquiredSkillAbilityValueSwap( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), bUpgradeSwap_ );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		const bool bPvpOrPve = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: March has no GT_PVE
+		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, bPvpOrPve, fOut_ );
+	}
+
+	/// one Mega Electronball particle with Eve's rotation and alpha tag ( 7c )
+	void JuneEveMegaElectronBallParticle( CX2GUEve* pEve_, const WCHAR* pwszName_, const D3DXVECTOR3& vPos_ )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) pEve_, pwszName_, vPos_ );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAddRotate( pEve_->GetRotateDegree() );
+			pSeq->SetAxisAngle( pEve_->GetRotateDegree() );
+			g_pX2Game->JuneTagEffectAlphaParticle( pEve_, pSeq );
+		}
+	}
+}
+using namespace _CONST_EVE_JUNE_CH2a3_;
+
+// June 329b1e20: the ball ( x1.5 on the BIG roll ), a second one at 0.48 s on the upgrade's proc, and one from each of my Nasod watches
+void CX2GUEve::June_ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.22f ) )
+		m_EveElectraSystem.June_CreatePlane( m_fPlaneZAngle, 2.0f, 240.f, 130.f );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.23f ) || ( m_pXSkinAnim->EventTimerOneshot( 0.48f ) && true == m_sMegaElectronBallData.m_bJune15 ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL, true );
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL, false, 0, true ) );
+		if( NULL == pSkillTemplet )
+		{
+			CommonFrameMove();	// June reads the templet unchecked
+			return;
+		}
+
+		float fMpConsume = pSkillTemplet->GetSkillMPConsumptionValue( iSkillLevel );
+		const float fPowerRate = GetPowerRate();
+		float fScale = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, iSkillLevel, false );
+		float fRange = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel, false );
+
+		if( 0.3f < m_pXSkinAnim->GetNowAnimationTime() )
+			fMpConsume = 0.f;	// the 0.48 s ball is free
+
+		switch( m_sMegaElectronBallData.m_ChargeRank )
+		{
+		case CR_RANK_2:
+			fScale *= 1.25f;
+			fRange *= 1.125f;
+			break;
+
+		case CR_RANK_3:
+			fScale *= 1.5f;
+			fRange *= 1.25f;
+			break;
+
+		default:
+			break;
+		}
+
+		if( CX2Unit::UC_EVE_ARCHITECTURE == GetUnit()->GetClass() || CX2Unit::UC_EVE_CODE_EMPRESS == GetUnit()->GetClass() )
+			fMpConsume *= m_fMPConsumeRateElectronBall;
+
+		const float fJuneUnitAbility = 0.f;		// June 32358970( 0xb ) x 0.01: June's per-unit ability map, 0 in March
+		fMpConsume = GetJuneSkillMemoMPRate( static_cast<int>( GetNowStateSkillID() ) ) * fMpConsume;
+		fMpConsume = GetSkillRateByBuffBehavior( CX2SkillTree::RNSI_A_EAT_MEGA_ELECTRONBALL, BBT_CHANGE_CONSUME_MP_RATE ) * fMpConsume;
+		fMpConsume = ( fJuneUnitAbility + 1.f ) * fMpConsume;
+
+		if( true == FlushMp( fMpConsume ) || true == m_sMegaElectronBallData.m_bJune15 )
+		{
+			if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+			{
+				const int iFormationFactor = m_EveElectraSystem.June_GetFormationFactor();
+				const float fAbility = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_OPEN_MIND );
+				JuneUpNowMpWithText( static_cast<float>( static_cast<double>( fAbility ) * fMpConsume * iFormationFactor ) );
+			}
+
+			const CX2SkillTree::SkillTemplet* pNowSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+			if( NULL != pNowSkillTemplet && 0 != pNowSkillTemplet->m_iDeleteSkillIDByUpgrade )
+			{
+				float fRate = 0.f;
+				if( true == JuneEveTryGetAcquiredSkillAbilityValueSwap( GetUnit(), CX2SkillTree::SA_EFFECTIVE_RATE, GetNowStateSkillID(), true, fRate ) )
+					m_sMegaElectronBallData.m_bJune15 = ( GetRandomFloat( 0 ) <= fRate );
+			}
+
+			D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_R_Hand" );
+			JuneEveMegaElectronBallParticle( this, L"Ring_Eve_SI_A_EN_MEB01", vBonePos );
+			vBonePos.x += 10.f;
+			JuneEveMegaElectronBallParticle( this, L"Light_Eve_SI_A_EN_MEB02", vBonePos );
+			JuneEveMegaElectronBallParticle( this, L"Light_Eve_SI_A_EN_MEB03", vBonePos );
+
+			std::vector<CX2DamageEffect::CEffect*> vecEffect;
+			float fBallPowerRate = m_fAttackPowerRateElectronBall * fPowerRate;
+			const bool bBig = ( m_fJuneElectronBallBigRate > GetRandomFloat( JUNE_MEGA_BIG_RANDOM_OFFSET ) );
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_A_EEG_MegaElectronBall", true == bBig ? fBallPowerRate * 1.5f : fBallPowerRate,
+				vBonePos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_fForceDownValueRateElectronBall, m_fElectronBallRangeRate * fRange );
+			vecEffect.push_back( pEffect );
+			if( NULL != pEffect )	// June scales the pushed ball unchecked
+			{
+				const float fBallScale = ( true == bBig ? fScale * 1.5f : fScale );
+				pEffect->SetScale( fBallScale, fBallScale, fBallScale );
+			}
+
+			if( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )	// June 322cc1a0 IsPvpOrPve: March has no GT_PVE
+				fBallPowerRate *= 0.33f;
+
+			std::vector<CX2GUNPC*> vecNPC;
+			June_Vslot77c( CX2Unit::UC_EVE_CODE_EMPRESS, vecNPC );
+			for( std::vector<CX2GUNPC*>::iterator itNPC = vecNPC.begin(); itNPC != vecNPC.end(); ++itNPC )
+			{
+				CX2GUNPC* pNPC = *itNPC;
+				if( NULL == pNPC )
+					continue;
+
+				D3DXVECTOR3 vWatchPos = pNPC->GetPos();
+				vWatchPos.y += 150.f;
+				JuneEveMegaElectronBallParticle( this, L"Ring_Eve_SI_A_EN_MEB01", vWatchPos );
+				vBonePos.x += 10.f;		// June moves the hand point again and draws the lights there ( JUNE_BUGS 449 )
+				JuneEveMegaElectronBallParticle( this, L"Light_Eve_SI_A_EN_MEB02", vBonePos );
+				JuneEveMegaElectronBallParticle( this, L"Light_Eve_SI_A_EN_MEB03", vBonePos );
+
+				const bool bWatchBig = ( m_fJuneElectronBallBigRate > GetRandomFloat( static_cast<int>( vecEffect.size() ) + JUNE_MEGA_BIG_RANDOM_OFFSET ) );
+				pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_A_EEG_MegaElectronBall", true == bWatchBig ? fBallPowerRate * 1.5f : fBallPowerRate,
+					vWatchPos, pNPC->GetRotateDegree(), pNPC->GetRotateDegree(), pNPC->GetLandPos().y, false, -1.f, m_fForceDownValueRateElectronBall, m_fElectronBallRangeRate * fRange );
+				vecEffect.push_back( pEffect );
+				if( NULL != pEffect )
+				{
+					const float fWatchScale = ( true == bWatchBig ? fScale * 1.5f : fScale );
+					pEffect->SetScale( fWatchScale, fWatchScale, fWatchScale );
+				}
+			}
+
+			for( std::vector<CX2DamageEffect::CEffect*>::iterator itEffect = vecEffect.begin(); itEffect != vecEffect.end(); ++itEffect )
+			{
+				if( NULL == *itEffect )
+					continue;
+
+				( *itEffect )->SetInheritForceDownRate( true );
+				m_EveElectraSystem.June_AddEffectToSystem( *itEffect, L"DamageEffect_A_EEG_MegaElectronBall_Filtered", L"DamageEffect_A_EEG_MegaElectronBall_Filtered",
+					L"DamageEffect_A_EEG_MegaElectronBall_Filtered", L"DamageEffect_A_EEG_MegaElectronBall_Filtered" );
+			}
+
+			PlaySound( L"Eve_FireShot1.ogg" );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL MEGA shot at %.2f s ( skill %d, rank %d, mp %.2f, scale %.3f, range %.3f, big %d, watches %d, second ball armed %d )",
+				m_pXSkinAnim->GetNowAnimationTime(), static_cast<int>( GetNowStateSkillID() ), static_cast<int>( m_sMegaElectronBallData.m_ChargeRank ), fMpConsume, fScale, fRange,
+				true == bBig ? 1 : 0, static_cast<int>( vecNPC.size() ), true == m_sMegaElectronBallData.m_bJune15 ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+		}
+		else
+		{
+			const D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( vBonePos, 0.f, 0.f, 0.f );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL MEGA not enough MP ( need %.2f, rank %d )", fMpConsume, static_cast<int>( m_sMegaElectronBallData.m_ChargeRank ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL_DEBUG
+		}
+	}
+
+	CommonFrameMove();
+}
+//}} Iruha : 2026-10-27 // June character Eve Phase CH2a3
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH1o
