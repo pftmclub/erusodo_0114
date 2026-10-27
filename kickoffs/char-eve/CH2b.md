@@ -41,3 +41,7 @@ Scope: the class-19 skill ids not in 5 / 18. For each id: its case in `SetEquipp
 
 - **Case bodies go in `CX2GUEve::June_SetEquippedSkillFuncHead`** (`X2GuEve.cpp`, block CH1n), keyed on June's raw id as `329c8a00` switches (both base and `_UPGRADE` ids are cases; no `JuneSkillIDByUpgrade`), each case `return false`. A case whose hyper takes every callback (`329cc2c0`) calls `CX2GUUser::June_CopyStateCallbacks( hyperStateData, normalStateData )` (one home since CH1n, flag `JUNE_USER_COPY_STATE_CALLBACKS`); `ch0_skill.tsv` column `calls` names the cases.
 - **Faena (25224 / 25225) is June's `default:` of both switches** (`329c8a00 @329ca9d1`): `CX2GUEve::June_SetFaenaSkillFunc` registers the table and `JuneGenericActiveSkillEventProcess` only. Add its StateInit `32968da0` and OnFrameMove `329c4380` (hyper copies the FrameMove) there; March's id-switch `default:` already calls it under `_LIVE`.
+
+## Amended by CH2b0 (2026-10-27)
+
+- **`32009180` is `CX2GUUser::JuneCollectEnemyUnitsInCone( OUT vecUnits, iCount, fMaxDistance, fMinAngle, fMaxAngle, bFacingOnly, fConeDegree, bSkipInvincible )`** (`X2GUUser.cpp`, flag `_CHAR_EVE_SKILL`; funcmap row `32009180 (CH2b0)`). Faena's FrameMove `329c4380` calls it at `@329c447d` as `( vec, 1, SA 0x1f, -SA 0x9f, SA 0x9e, true, 180.f, false )`, the three SA values read through `32007c40` (`@329c43f1-329c4445`) with defaults 700 / 35 / 35. The count is never read (JUNE_BUGS 450): use the vector as June does.

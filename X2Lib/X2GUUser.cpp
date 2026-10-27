@@ -25927,6 +25927,91 @@ void CX2GUUser::JuneHyperModeEnd()
 	m_iLastStateHyperModeCount = 0;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#if !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ( CH2b0 ) needs SERV_IRUHADEV_JUNE_DAMAGEDATA, SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME and SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#endif
+namespace _CONST_GUUSER_JUNE_CH2B0_
+{
+	bool JuneConeUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, const std::pair<CX2GameUnit*, float>& rhs_ )
+	{
+		return lhs_.second < rhs_.second;
+	}
+}
+using namespace _CONST_GUUSER_JUNE_CH2B0_;
+
+// June 32009180: enemies in a distance / pitch band and a yaw cone around my rotation, nearest first; iCount_ is never read (JUNE_BUGS 450)
+void CX2GUUser::JuneCollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const float fConeDegree_, IN const bool bSkipInvincible_ )
+{
+	vecUnits_.clear();
+
+	if ( NULL == g_pX2Game )
+		return;
+
+	std::vector< std::pair<CX2GameUnit*, float> > vecFound;
+	for ( int iUnit = 0; iUnit < g_pX2Game->GetUnitNum(); ++iUnit )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( iUnit );
+		if ( NULL == pUnit )
+			continue;
+		if ( false == g_pX2Game->IsValidUnit( pUnit ) )
+			continue;
+		if ( GetTeam() == pUnit->GetTeam() )
+			continue;
+		if ( GUSI_DIE == pUnit->GetGameUnitState() )
+			continue;
+		if ( false == ( 0.f < pUnit->GetNowHp() ) )
+			continue;
+		if ( true == pUnit->GetInvincible() && true == bSkipInvincible_ )
+			continue;
+
+		const D3DXVECTOR3 vAimPos = CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit, GetPos( false ) );
+
+		if ( true == bFacingOnly_ && JuneIsPosAlongLastTouchLine( vAimPos ) != GetIsRight() )
+			continue;
+
+		float fExtraDistance = 0.f;
+		if ( GUT_NPC == pUnit->GetGameUnitType() )
+		{
+			CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pUnit );
+			if ( CX2UnitManager::NCT_BASIC != pNpc->GetNPCTemplet().m_ClassType )
+				continue;
+			fExtraDistance = ( pUnit->GetOrgUnitSize().x + pUnit->GetOrgUnitSize().y ) * 0.25f;
+		}
+
+		const D3DXVECTOR3 vToUnit = vAimPos - GetPos( false );
+		const D3DXVECTOR3 vDegree = GetDirVecToDegree( vToUnit );
+		if ( vDegree.z < fMinAngle_ || fMaxAngle_ < vDegree.z )
+			continue;
+
+		float fYaw = vDegree.y;
+		if ( fYaw < 0.f )
+			fYaw = 360.f - fabs( fYaw );
+		float fMyYaw = GetRotateDegree().y;
+		if ( fMyYaw < 0.f )
+			fMyYaw = 360.f - fabs( fMyYaw );
+		float fYawGap = fabs( fYaw - fMyYaw );
+		if ( 180.f < fYawGap )
+			fYawGap = 360.f - fYawGap;
+		const float fHalfCone = fConeDegree_ * 0.5f;
+		if ( fYawGap < -fHalfCone || fHalfCone < fYawGap )
+			continue;
+
+		const float fLengthSq = vToUnit.x * vToUnit.x + vToUnit.y * vToUnit.y + vToUnit.z * vToUnit.z;
+		const float fLength = sqrt( fLengthSq );
+		const float fDistance = fLength - fExtraDistance;
+		if ( false == ( fDistance <= fMaxDistance_ ) )
+			continue;
+
+		vecFound.push_back( std::make_pair( pUnit, fDistance ) );
+	}
+
+	std::sort( vecFound.begin(), vecFound.end(), JuneConeUnitNearer );	// June 322acc40 = std::_Sort
+
+	for ( size_t uFound = 0; uFound < vecFound.size(); ++uFound )
+		vecUnits_.push_back( vecFound[uFound].first );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
 /// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).

@@ -1259,6 +1259,9 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 				friend class CX2GameUnit;	/// C3c: CX2GameUnit::JuneCollectUnitsAround (June 32294e30) asks each unit for its aim point, like vtable slot 0x3e4
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+				friend class CX2GUUser;	/// Eve CH2b0: CX2GUUser::JuneCollectEnemyUnitsInCone (June 32009180) reads the aim point too
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				static D3DXVECTOR3	JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
 
 				// June2017 CREATE_DAMAGE_EFFECT loop runtime (Phase 7c); evidence in june2017_re/funcmap.tsv.

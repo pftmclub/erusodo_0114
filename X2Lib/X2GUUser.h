@@ -3685,6 +3685,9 @@ public:
 		JuneSkillSlotKey m_kJuneSkillSlotKey;	/// June +0x8b58
 		void JuneHyperModeEnd();	/// June 3201b8e0 ( vslot 0x604 ) = 32006c00 ( vslot 0x608 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		void JuneCollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const float fConeDegree_, IN const bool bSkipInvincible_ );	/// June 32009180
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;
 

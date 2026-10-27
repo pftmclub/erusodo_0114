@@ -1740,6 +1740,29 @@ Checked against the raw listing `329b1e20-329b2e0f` (`charport_adis.py`), with s
 User owes nothing: the `EVE SKILL MEGA` lines no longer print, and the play-test already passed. Next: `/x2-phase char-eve CH2b0` (Opus 5.5 high); the kickoff is in place.
 
 
+### CH2b0 - Done (2026-10-27, Opus 5.5)
+
+The one unmapped callee CH0 left for CH2b, `32009180` (`ch0_unmapped_identified.tsv`), is ported whole as `CX2GUUser::JuneCollectEnemyUnitsInCone( OUT vecUnits_, iCount_, fMaxDistance_, fMinAngle_, fMaxAngle_, bFacingOnly_, fConeDegree_, bSkipInvincible_ )` (`X2GUUser.cpp` / `.h`, flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`; inert until CH2b's Faena FrameMove calls it).
+- **What it is:** the twin of C3c's `CX2GameUnit::JuneCollectUnitsAround` (`32294e30`), in June's user-class range with 15 callers across several classes (funcmap row `32009180 (CH2b0)` lists them). The skip chain, aim point, facing test, NPC size and pitch band match the twin. It differs in three ways:
+  - **enemies only:** an equal team skips, and there is no team argument;
+  - **invincible skip:** `GetInvincible` (vslot 0x180) skips the unit when the last byte argument is set;
+  - **yaw cone:** a test against my `GetRotateDegree().y` (vslot 0x150), both yaws wrapped to 0-360, the gap wrapped at 180, kept within +-cone x 0.5. The constants are qwords (0.0 / 360.0 / 180.0 / 0.5) and a NaN passes, as June has it.
+- **Reused:** `JuneIsPosAlongLastTouchLine` (`32293b80`) and `CEffect::JuneGetLockOnAimPos` (vslot 0x3e4). `CEffect` gets a `friend class CX2GUUser` under the flag (`X2DamageEffect.h`), beside C3c's `friend class CX2GameUnit`.
+  - Aisha's `CX2Game::JuneIsUnitInViewCone` (`322f0e60`) is a different test (a tan pitch band and the line direction), so it is not used here.
+- **Precision and order kept from the listing:**
+  - the HP test is `!( 0 < HP )`, so a NaN refuses;
+  - the length is `( x*x + y*y ) + z*z`, stored as a float, then square-rooted;
+  - distance `<=` keeps and a NaN refuses;
+  - the sort is `std::sort`, which is what June's `322acc40` `std::_Sort` is (the twin uses `stable_sort`).
+  - June's "gage present, HP gage `+0x20` NULL" skip has no March shape: March's gage data always carries HP, and with no gage `GetNowHp` returns 1, which passes as June's does.
+- **JUNE_BUGS 450:** the count argument (stack `+0xa4`) is never read, like row 133.
+- **CH2b:** its kickoff now names the symbol and Faena's call `@329c447d`: `( vec, 1, SA 0x1f, -SA 0x9f, SA 0x9e, true, 180.f, false )`, defaults 700 / 35 / 35.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2DamageEffect.h`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GUUser.cpp`: 0 A/B rows. The `#error` guard's three flags (`_DAMAGEDATA`, `_DAMAGEEFFECT_RUNTIME`, `_CHAR_ARME_CORE`) are top-level `Always.h` defines.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,107,904 B, dated 2026-10-27 16:54:40, md5 07902c6423f5aaa310a5081e84472256, equal to X2/US_SERVICE/x2.exe (2026-10-27 16:54:33); built at main 8603f26f + 3 uncommitted code file(s).
+**Branches not ported:** the 14 non-Eve callers belong to their own characters' ports (Stage 7 / 8 checklists); the funcmap row names them. Nothing drifted.
+User owes nothing (no play-test: nothing calls it yet). Next: `/x2-phase char-eve CH2b0 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
