@@ -2094,6 +2094,16 @@ Funcmap: the six `Char Eve CH3a0` rows; `ch0_unmapped_identified.tsv` rows `31fd
 - **Deploy:** DEPLOY OK: X2_offline.exe is 26,138,624 B, dated 2026-10-28 05:46:40, md5 3b77a3dc729a12ccfff67eb769e2b486, equal to X2/US_SERVICE/x2.exe (2026-10-28 05:46:34); built at main 2a23f973 + 6 uncommitted code file(s).
 - **No drift found.** No branch outside the three items was followed.
 
+### CH3a0 - Review (2026-10-28, Opus 5.5): PASS, no code change
+
+All five items read against the raw listings (Ghidra `disassemble_function`).
+- **`31fd0620`:** gates in June's order (vt `+0x198`, `g_pData+0x2cc`, `3214f050` = `mov eax,[ecx+0x3c]`); swap only on `byte arg2 == 1` and `+0x867c` set (`328905b0` on `+0x494`); `@31fd066a` jumps past the reload of the id to `@31fd0670`, so the swapped id is passed on; `ret 8`. The port matches.
+- **`328da730`:** `i >= 5` (`setge bl`) picks `33473304` (wide `L"SlotB"`; Ghidra lists it as `lotB` at `+2`) over `334c2f70` (`L"SlotA"`), then `L"%d"` of `i % 5 + 1`. Slot `+0x3c4`, compare data `+0xc` to the arg, store byte data `+4` = 1, and return on the first match. June's per-pass handle test `31d41d90` *continues* the loop when the handle is empty. Nothing in the loop writes `+0x10c`, so the port's single test before the loop behaves the same. March's `CX2EquippedSkillSlotData` / `CX2MemorizeSkillSlotData` (and the skill-tree data) all keep `m_eSkillID` at `+0x0c` (X2UISkillTreeNew2015.h:362 / 388 / 405).
+- **Case 15:** jump-table entry `321dbc98` (= `321dbc60` + 14 x 4) -> `321dba36`; no main effect (`31f6eb30`) -> `321dbc15` (skip). `31f8af20` / `31f8aef0` = `+0xb24` get / set. If `b == 1`: `321f2aa0` (copy of v) + base. Otherwise `321f2ac0`, a per-component multiply. `31f6ff60` is the vector thunk of `31f6fdc0`, and it gets the old base (`[ESP+0x48..0x50]`, read after the set). `JuneGet/SetScaleBase` and the multiplying `SetScale` (X2DamageEffect.cpp:6148) are live under `SERV_IRUHADEV_JUNE_SKILL_MEMO_FX` (Always.h:8079).
+- **`321dad70`:** `-1` handle, then salt / index / null / serial tests return without a push. Entry `{ b, tag, v, ?, 0, 0 }`: `+0x14` is never written, same as the float form. `321db050` passes `( h, tag, &( f, 0, 0 ), b )`, so Aisha's tag 1 / 2 entries are unchanged.
+- **`31c82df0`:** `fld [esp+4]; fstp [ecx+0x36c]; ret 4` = March `SetNotCheckLandTime` (KTDGXMeshPlayer.cpp:2972-2975). `X2GuEve.cpp:20988-20991` does `SetLandPosition` + `fGapY / 3500 + 0.17f`, and the CH3a kickoff amendment names both.
+- **Hygiene:** `flagcheck JUNE_CHAR_EVE_SKILL --range c93180d0^..c93180d0`: 5 PASS, 1 PASS~ (the blank line), 0 deleted, 0 FAIL, RESULT PASS. `git log -S JuneRefreshSkillSlotUI c93180d0..HEAD`: none. `enumscan --check` on the three .cpp: 0 A/B rows. CH3a kickoff checked: no change needed.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
