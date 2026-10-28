@@ -2533,7 +2533,7 @@ Rewritten by Z on 2026-10-22 from what the pilot took. Stage 7 repeats this doc 
 
 The phase skeleton is:
 - CH0 (+ CH0c if the registration check fails);
-- CH0b (every June asset of the character, whole, first; deployed together with CH1 when the character has renamed animations, checklist 7ad);
+- CH0b (every June asset of the character, whole, first; deployed together with CH1 when the character has renamed animations, checklist 7ad). Its gate is `python tools/skillicons.py check <the class's skill-id range>` = PASS. Name-based staging misses the shared icon sheets (Aisha's transcendence passives sit in `DLG_SKILL_Passive_12` and Eve's in `_13`, both found by the user after the port), so stage the files the tool lists;
 - CH1a..CH1n then CH1 final (class core, behind `_LIVE`);
 - CH2 / CH3 (skills by job tier, one unmapped helper each);
 - CH4a..d (passive state, delegate lists, overrides, memorize-like HUD);
@@ -2548,7 +2548,8 @@ The new characters (Stage 8) follow the same asset rule: every June asset of the
 - Add the class's ids to T2's allow-list (`JuneTranscendCheck`, `Handlers_Quest.cpp`) and its `LevelUpEvent.lua` TYPE row + `DLG_Transcendental_Change_Guide_<Class>.lua`.
 - Port its 7ao row whole: hyper effect start (returns at once when transcended), the four base skill helpers with the flag test (`31fcac90`, `31fcad70`, `31fceab0` `== 1`, `31ff1e80`), its engine-code readers.
 - Check its hyper-class skills (`SPRT_HYPER_CLASS`), their states and `TRANSCENDENTAL_SKILL_DATA` rows, and its transcended hyper table in `JuneGetHyperModeTableName` (`31fdd490`) and `HQ_Cutin_*_Transcendence` names.
-- Add its `list_TR_*` unit-slot rows to `GetCharacterImageName` (T6c) and its transcended picture assets.
+- Add its `list_TR_*` unit-slot rows to `GetCharacterImageName` (T6c) and its transcended picture assets. Read the TR file + piece of every image type from June's row pushes, not from Aisha's file: Eve's 160by160 pair is in `DLG_UI_Common_Texture99`, not 98 (char-eve CH3d review).
+- CH3 / CH6: `python tools/skillicons.py check <range>` again after the transcendence rows (PASS), and the walk opens the skill tree on a transcended unit to see every icon, the transcendence passives included.
 - CH6 walk: one unit set transcended by `/tc` or `settranscend`, every hyper-class skill cast, awakening and TC slots A-5 / B-5 checked.
 
 What differs per character, as known on 2026-10-22 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):

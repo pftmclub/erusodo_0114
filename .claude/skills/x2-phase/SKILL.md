@@ -119,6 +119,10 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    name is bound whole from June's function (address in the funcmap) or added to `tools/data/lua_unbound_known.tsv` with the
    reason; otherwise the script dies at that line in game (Oberon's slash, 2026-10-27). The hand-off then lists the log lines
    the user's test must produce (`ES_CREATE <effect set>`, the summon's state lines), and "check logs" confirms each by name.
+   **Skill icon gate (user, 2026-10-28):** a character-port phase that adds or registers skills (CH0b, CH2-CH3, transcendence
+   rows, CH6) runs `python tools/skillicons.py check <the class's skill-id range>`. It must PASS, or the phase stages the files
+   it lists (`kom.py stage-june`, then pack). Shared sheets such as `DLG_SKILL_Passive_12` / `_13` (every class's transcendence
+   passives) are never caught by name-based staging; Aisha's and Eve's transcendence icons both shipped missing that way.
 2. `build.py --deploy`: paste its `DEPLOY OK` line into the Done note. Check the phase's
    strings are in the deployed exe if the phase's gate asks for it.
 3. **Done note** in the plan doc, under the phase: what landed (commit, flag), hygiene lines

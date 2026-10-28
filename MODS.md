@@ -5289,6 +5289,7 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( states, Ferdinand's two Lua methods 
 - **Damage.** No number changes ( all numerical tables were CH2-CH3c ).
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND` and / or `..._EVE_SKILL`; restore `LevelUpEvent.lua` from the scratchpad copy or delete its TYPE1 block and `luasrc.py refresh data036 LevelUpEvent.lua`.
 - **Review fix (2026-10-28).** The 160by160 / gray transcended pictures of 108 / 109 / 116 come from June's `DLG_UI_Common_Texture99_NEW.tga` / `_GRAY.tga` (pieces `TR_*_LARGE`, `_LARGE_GRAY`), the same `_EVE_TRANSCEND` flag. data215 got June's four Texture99 files (`.tga` + `.TET`, new, manifest 0). To revert, delete them from `kom_contents/data215_kom/` and its `_manifest.json`, then repack. They are inert with the flag off.
+- **Skill icons (2026-10-28).** data063 got June's `DLG_SKILL_Passive_08`, `_10` and `_13` (`.tga` + `.TET`, new, manifest 0), the sheets of Eve's transcendence passives and three more of her passives (they also hold other classes' pieces). To revert, delete them from `kom_contents/data063_kom/` and its `_manifest.json`, then repack.
 
 ### June quest system: the batch quest ACK and the IsForbiddenQuest guard (quest-system Q11, 2026-10-28)
 
