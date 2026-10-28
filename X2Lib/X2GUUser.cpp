@@ -26120,6 +26120,153 @@ void CX2GUUser::JuneResetOnSummonEnd( const int iUnitClass_ )
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH2b2
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4b2
+namespace _CONST_GUUSER_CH4b2_
+{
+	const float MAGNETIC_FORCE_UPGRADE_ADD_TIME = 5.0f;	// June [334396b0]
+}
+using namespace _CONST_GUUSER_CH4b2_;
+
+// June 3204e160 ( SetUserSummonedNPCInfo @3230cafb ): the summon's buff on its owner, Eve's Open Mind stack, Rose's magnetic force time
+void CX2GUUser::ApplySummonedNPCBuff( const int iNPCID_ )
+{
+	const int iBuffFactorID = JuneGetSummonBuffFactorID( iNPCID_ );
+	if( BFI_NONE == iBuffFactorID )
+		return;
+
+	SetBuffFactorToGameUnitByBuffFactorID( iBuffFactorID, 1, NULL, 0, false );
+
+	if( 0 < June_GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) )
+	{
+		CX2BuffFactorPtr ptrSummonBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
+		const BUFF_TEMPLET_ID eSummonBuffTempletID = ( NULL != ptrSummonBuffFactor ) ? ptrSummonBuffFactor->GetBuffTempletID() : BTI_NONE;	// June reads it unchecked
+		if( BTI_BUFF_SENTRY == eSummonBuffTempletID || BTI_BUFF_OBERON == eSummonBuffTempletID || BTI_BUFF_OPHELIA == eSummonBuffTempletID )
+		{
+			const UINT uiOpenMindLevel = static_cast<UINT>( June_GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) );
+			const bool bOpenMindOn = HaveSkillBuff( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true );
+			if( true == bOpenMindOn )
+			{
+				AddBuffAccumulationCount( BFI_BUFF_ECE_OPEN_MIND, -1, uiOpenMindLevel, CX2SkillTree::RNSI_P_EEP_OPEN_MIND );
+			}
+			else
+			{
+				SetSkillBuffFactors( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true );
+				int iStackCount = 1;
+				CX2BuffTempletPtr ptrOpenMindTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true ) );
+				if( NULL != ptrOpenMindTemplet )
+					iStackCount = static_cast<int>( ptrOpenMindTemplet->GetAccumulationLimit() );
+				SetBuffAccumulationCount( BFI_BUFF_ECE_OPEN_MIND, iStackCount, uiOpenMindLevel, CX2SkillTree::RNSI_P_EEP_OPEN_MIND );
+			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE open mind stack ( unit %I64d: npc %d, %s, count now %d )", GetUnitUID(), iNPCID_,
+				( true == bOpenMindOn ) ? L"-1" : L"set to the limit", static_cast<int>( GetBuffAccumulationCountNowInFactor( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true ) ) ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+		}
+	}
+
+	if( BFI_BUFF_G_EX_MAGNETICFORCE == iBuffFactorID && 0 < June_GetSkillLevel( CX2SkillTree::RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE ) )
+	{
+		CX2BuffFactorPtr ptrMagneticForceFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
+		if( NULL != ptrMagneticForceFactor )	// June reads it unchecked
+		{
+			const BUFF_TEMPLET_ID eMagneticForceTempletID = ptrMagneticForceFactor->GetBuffTempletID();
+			SetBuffTimeFinalizerDuration( eMagneticForceTempletID, GetBuffTimeFinalizerDuration( eMagneticForceTempletID ) + MAGNETIC_FORCE_UPGRADE_ADD_TIME );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE magnetic force time ( unit %I64d: npc %d, time now %.2f )", GetUnitUID(), iNPCID_, GetBuffTimeFinalizerDuration( eMagneticForceTempletID ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+		}
+	}
+}
+
+// June 32028af0 ( vslot 0x238 ): the skill's buff factor uiIndex_, cloned at the skill's level ( 1 at least )
+CX2BuffFactorPtr CX2GUUser::GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const
+{
+	CX2BuffFactorPtr ptrNone;
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return ptrNone;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return ptrNone;
+
+	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true, 0, true );
+	if( true == bLearnedOnly_ )
+	{
+		if( iSkillLevel <= 0 )
+			return ptrNone;
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 0 == GetUnit()->GetUnitData().m_iUnitClassTran )
+			return ptrNone;
+	}
+
+	if( pSkillTemplet->m_vecBuffFactorPtr.size() <= uiIndex_ || NULL == pSkillTemplet->m_vecBuffFactorPtr[uiIndex_] )
+		return ptrNone;
+
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	return pSkillTemplet->m_vecBuffFactorPtr[uiIndex_]->GetClonePtr( static_cast<UINT>( iSkillLevel ) );
+}
+
+// June 3229a470 ( vslot 0x240 ): the skill's buff factor uiIndex_ is on this unit
+bool CX2GUUser::HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( iSkillID_, uiIndex_, bLearnedOnly_ );
+	if( NULL == ptrBuffFactor )
+		return false;
+
+	return HaveThisBuff( ptrBuffFactor->GetBuffTempletID() );
+}
+
+// June 31fcac90 ( vslot 0x23c ): one buff factor of a skill ( iIndex_ >= 0 ) or all of them; false when none applied
+bool CX2GUUser::SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ )
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( true == bCheckLearned_ )
+	{
+		if( NULL == GetUnit() )
+			return false;
+		if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true, 0, true ) <= 0 )
+			return false;
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 0 == GetUnit()->GetUnitData().m_iUnitClassTran )
+			return false;
+	}
+
+	const int iBuffFactorCount = static_cast<int>( pSkillTemplet->m_vecBuffFactorPtr.size() );
+	if( 0 <= iIndex_ )
+	{
+		if( iBuffFactorCount <= iIndex_ )
+			return false;
+
+		SetBuffFactorToGameUnit( pSkillTemplet, iIndex_ );
+		return true;
+	}
+
+	if( 0 == iBuffFactorCount )
+		return false;
+
+	for( int i = 0; i < iBuffFactorCount; ++i )
+		SetBuffFactorToGameUnit( pSkillTemplet, i );
+	return true;
+}
+
+// June 3229a3d0: the templet id of the skill's buff factor uiIndex_, BTI_NONE without one
+BUFF_TEMPLET_ID CX2GUUser::GetSkillBuffTempletID( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const
+{
+	CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( iSkillID_, uiIndex_, bLearnedOnly_ );
+	if( NULL == ptrBuffFactor )
+		return BTI_NONE;
+
+	return ptrBuffFactor->GetBuffTempletID();
+}
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4b2
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
 /// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).

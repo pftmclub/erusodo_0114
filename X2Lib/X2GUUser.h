@@ -3700,6 +3700,15 @@ public:
 		void JuneResetOnSummonEnd( const int iUnitClass_ );	/// June 31fc8a90
 	protected:
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	public:
+		void ApplySummonedNPCBuff( const int iNPCID_ );	/// June 3204e160
+		CX2BuffFactorPtr GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 32028af0 ( vslot 0x238 )
+		bool HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June 3229a470 ( vslot 0x240 )
+		bool SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( vslot 0x23c )
+		BUFF_TEMPLET_ID GetSkillBuffTempletID( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 3229a3d0
+	protected:
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;
 

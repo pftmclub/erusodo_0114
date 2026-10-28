@@ -2505,6 +2505,38 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
   - Open Mind x0.85: June applies BFI 877 from `3204e160` (called from `SetUserSummonedNPCInfo` `@3230cafb`). CH2b2 had routed it to CH4b and this phase missed it, so it gets **its own sub-phase CH4b2** (`kickoffs/char-eve/CH4b2.md`). Its tail `@3204e2ed` (NPC 762 + Rose's 31320) goes with it, dormant until Stage 8.
   - The x0.8 cool time: the hand-off named Needles Cutting 25047; Energy Needles is 25027 / 25067. Unit 60's A3 now holds 25067 (backup `els_db_20261028_153811_pre_sql.sql`); the retest is in CH4b2.
 
+### CH4b2 - Done (2026-10-28, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4b2". Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE` (+ CH4b's temporary `..._OVERRIDE_DEBUG`); `BFI_BUFF_ECE_OPEN_MIND = 877` under `JUNE_ENUM_NAMES` (`X2BuffFactor.h`). Evidence in the `(CH4b2)` funcmap rows.
+- **`3204e160`, whole**, as `CX2GUUser::ApplySummonedNPCBuff( iNPCID_ )`. It is called from `SetUserSummonedNPCInfo` (`X2Game.cpp`) just before `JuneKillOlderSummonsOfSameID`, as at June's `@3230cafb`. It runs for every class:
+  - `31fc96b0` gives no factor -> return. Otherwise vslot `0x21c` = `SetBuffFactorToGameUnitByBuffFactorID( bfi, 1, NULL, 0, false )`.
+  - 25417 learned and the factor's BTI is 410 / 412 / 413 (Sentry, Oberon, Ophelia; Atomic Shield 411 is out):
+    - Open Mind's buff on (vslot `0x240`): `AddBuffAccumulationCount( 877, -1, level, 25417 )`.
+    - Otherwise: vslot `0x23c( 25417, 0, true )`, then `SetBuffAccumulationCount( 877, limit, level, 25417 )`. The limit is the templet's `+0x3c` = `m_uiAccumulationLimit`: 1 without a templet, 3 in June's `BTI_BUFF_ECE_OPEN_MIND`.
+    - So the first summon gives 3 stacks and each later summon takes one off.
+  - Tail: **BFI 762** `BFI_BUFF_G_EX_MAGNETICFORCE` (not NPC 762, as the kickoff said) with Rose's 31320 learned: the buff's Time finalizer duration **+5.0** (`[334396b0]` is the double 5.0, not 1.0). Dormant until Stage 8.
+- **Shared helpers** (new, `CX2GUUser`):
+  - `GetSkillBuffFactorPtr` (`32028af0`, vslot `0x238`), `HaveSkillBuff` (`3229a470`, `0x240`), `SetSkillBuffFactors` (`31fcac90`, `0x23c`) and `GetSkillBuffTempletID` (`3229a3d0`).
+  - Eve's and VioletMage's `June_*` copies of the first three stay; plan `june-march-divergence` merges them into these.
+- **`CX2GameUnit`**: `GetBuffTimeFinalizerDuration` (`3227bfa0`) and `SetBuffTimeFinalizerDuration` (`3227c110`). RTTI `33733af8` = `CX2BuffTimeFinalizerTemplet`; slots 15 / 14 both work on protected `+0x1c` = `m_fDurationTime` (March's `GetRemainTime` / `SetDurationTime`).
+- **`322a7660` / `322a8a70`** were already ported dormant (buff 4b-i part 5); this is their first Eve caller.
+- **Null guards:** June reads the summon factor unchecked; the port guards it (one-line comments).
+- **For the review** (`CH4b-review.md` amended):
+  - `CX2GUEve::June_SetSkillBuffFactors` passes `bBasicLevel = false`, where June's `31fcacc4` pushes 1. The new shared copy uses 1.
+  - June applies the summon buff twice: skill start at the skill level, then here at level 1. Confirm that the re-apply keeps the skill-start duration.
+- No JUNE_BUGS row; no drift. Checklist rows `322a7660` and `3230c1a0` marked `(Eve: CH4b2)`.
+
+**Hygiene.**
+- `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_OVERRIDE_DEBUG --worktree --files X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2GameUnit.cpp X2Lib/X2GameUnit.h X2Lib/X2Game.cpp`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2BuffFactor.h`: `1 PASS~, 0 FAIL`, `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GUUser.cpp X2Lib/X2GameUnit.cpp X2Lib/X2Game.cpp`: `0 A/B row(s) remain`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,216,448 B, dated 2026-10-28 16:02:06, md5 b612972193db6c88b1737f8ce8662686, equal to X2/US_SERVICE/x2.exe (2026-10-28 16:01:59); built at main 9ee83828 + 6 uncommitted code file(s).` Both new log strings are in the deployed exe.
+
+**Save:** unchanged. Unit 61 has 25417 and Enhanced Electronic Field 25062 in A4; unit 60 has 25067 in A3. Both are transcended.
+
+**In game:** `[JUNE_CHAR] EVE PASSIVE open mind stack ( unit 61: npc 1622, set to the limit | -1, count now N )`, then CH4b's `mp consume` line at x0.85, and `cool time ( skill 25067 ... )` x0.8 on unit 60.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

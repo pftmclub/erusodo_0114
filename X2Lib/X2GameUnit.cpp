@@ -14479,6 +14479,37 @@ void CX2GameUnit::OperateBuffBehaviorValue( const int iOperation_, const BUFF_TE
 	default:	break;
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4b2
+// June 3227bfa0: the first Time finalizer's duration on the buff eBuffTempletID_, 0 without one
+float CX2GameUnit::GetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_ )
+{
+	vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+	GetBuffFinalizerTempletPtrList( eBuffTempletID_, vecFinalizerPtr );
+	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, vecFinalizerPtr )
+	{
+		const CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<const CX2BuffTimeFinalizerTemplet*>( ptrFinalizer.get() );
+		if( NULL != pTimeFinalizer )
+			return pTimeFinalizer->GetRemainTime();
+	}
+	return 0.f;
+}
+
+// June 3227c110: every Time finalizer of the buff eBuffTempletID_ takes fDurationTime_
+void CX2GameUnit::SetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_, const float fDurationTime_ )
+{
+	vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+	GetBuffFinalizerTempletPtrList( eBuffTempletID_, vecFinalizerPtr );
+	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, vecFinalizerPtr )
+	{
+		CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( ptrFinalizer.get() );
+		if( NULL != pTimeFinalizer )
+			pTimeFinalizer->SetDurationTime( fDurationTime_ );
+	}
+	ChangeBuffFinalizerTempletPtrList( eBuffTempletID_, vecFinalizerPtr );
+}
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4b2
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : ReserveToFinishBuffTempletFromGameUnit

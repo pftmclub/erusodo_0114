@@ -18319,6 +18319,9 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			/// basics take the owner's results
 			pNPC->CopyJuneMaximizeAndRangeFrom( *pUser );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+			pUser->ApplySummonedNPCBuff( unitID );	// June 3230cafb
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 			pUser->JuneKillOlderSummonsOfSameID( unitID );	// June 3230cb03, before AddUnit so the new NPC is not in the list yet
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE

@@ -3146,6 +3146,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void SetBuffAccumulationCount( const UINT uiBuffFactorID_, const int iCount_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a7660
 		void AddBuffAccumulationCount( const UINT uiBuffFactorID_, const int iDelta_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a8a70
 		void OperateBuffBehaviorValue( const int iOperation_, const BUFF_TEMPLET_ID eBuffTempletID_, const UINT uiBehaviorIndex_, const float fValue_ );	/// June 3227c360
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+		float GetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_ );	/// June 3227bfa0
+		void SetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_, const float fDurationTime_ );	/// June 3227c110
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 		/// June unit slot 476 (users only, 32028250): adjusts the levelled factor by an index (June-only system)
 		virtual void AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ ) {}
 		/// June unit slot 141 (322b5630: empty; only Ain 32a6aa10 and Rose 32ac8f10 override it)
