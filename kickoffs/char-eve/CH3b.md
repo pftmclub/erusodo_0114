@@ -55,3 +55,7 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 
 - **Electronic Field's summon NPC ( 1622 `NUI_SI_SA_EEP_ELECTRONIC_FIELD` ) gets its setup in CH3a2**, not here: March has no `SetUserSummonedNPCInfo` case for it, and June's `3230c1a0` case is ported with the other Eve summons. If CH3b runs first, the field casts with default NPC stats and scale; say so in the hand-off.
 - Any state function here that reads a skill through an old `SI_*` id fails the same way March's Atomic Shield summon case did (CH3a review): use the `RNSI_*` id with the upgrade swap, as June does.
+
+## Amended by CH3a2 review (2026-10-28)
+
+- **Electronic Field's summon setup is in** (CH3a2, reviewed PASS): `CX2Game::SetUserSummonedNPCInfo` case `NUI_SI_SA_EEP_ELECTRONIC_FIELD` calls `CX2GUEve::June_SetSummonHelperInfo` with flags 0x240 on 25020 (upgrade-swapped). Do not add another stat set in the state functions. The hand-off lists the log line `[JUNE_CHAR] EVE SKILL summon npc 1622 skill 25020` (25062 when the upgrade is learned) `... flags 0x240`, and "check logs" confirms it by name.
