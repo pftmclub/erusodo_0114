@@ -2236,6 +2236,8 @@ The ten Code: Empress skills take June's `329c8a00` cases and state bodies (flag
 9. Reason of Pride (slot 4, F): a Surface Cuting appears about 150 in front of Eve and an Electronic Field about 150 behind, then the action state; logs `EVE SKILL summon npc 1621 ...` and `summon npc 1622 ...`.
 No missing mesh / texture error is expected beyond the six names June itself lacks. Then say "check logs".
 
+**Play-test 1 (user, 2026-10-28, md5 `21638825`) and fix.** Electronic Field played Eve's animation with no effect, and Reason of Pride spawned no Ophelia (Surface Cuting and the Ferdinand effect sets did appear). The log had no `summon npc 1622` line: the live `data037 NPCTemplet.lua` had no row for NPC 1622 `NUI_SI_SA_EEP_ELECTRONIC_FIELD` and `data036 Enum.lua` no `NUI_SI_SA_EEP_ELECTRONIC_FIELD = 1622`, the same hole CH2b closed for 1621 / 2091 and left open for 1622 ("CH2c's"). Fix: June's row appended verbatim to `NPCTemplet.lua`, the Enum line added, both refreshed in the ledger (`ledger --check` PASS), `data036` and `data037` packed (`PACK OK`, `~ Enum.lua` / `~ NPCTemplet.lua` only). **Needs `/x2-kom-packed copy data036` and `data037`, with the user's yes.** No exe change. Retest: Electronic Field (C) and Reason of Pride (F); expect `[JUNE_CHAR] EVE SKILL summon npc 1622 skill 25062 ...` and a standing Ophelia.
+
 ## Phase CH3 - Skills: second jobs (108, 109, 116), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
