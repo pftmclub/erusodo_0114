@@ -32,8 +32,8 @@ reach it. Port the writers:
 3. **CX2GUUser `31fd0880`** toggles skin anim `+0x851` on both anims when user `+0x9170` is set. Compare it with March's
    `X2GUUser.cpp:8371` / `:8381` (`SetHideNoRenderable`) and port the difference, if there is one.
 
-Done gate: the glow shows the log line for the RenderParam pass (`[JUNE_ENGINE] SMRT renderparam`, if R6's `_DEBUG` is still on), or
-a phase log line of its own, on an item June glows. Hand the user a play-test with an item from each branch (`/additem`).
+Done gate: a phase log line of its own (`[JUNE_ENGINE] EQRP`) on an item June glows. R6's `_DEBUG` (`SMRT renderparam`) is off since
+the R6 review; re-define it for one run only if the glow's RenderParam pass needs proving. Hand the user a play-test with an item from each branch (`/additem`).
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
 `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and

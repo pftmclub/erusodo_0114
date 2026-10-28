@@ -10291,5 +10291,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE needs SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 #endif
 // Short-lived: one ErrorLog.txt line per mesh name and draw path ( [JUNE_ENGINE] SMRT ). Revert: undefine.
-#define SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+//#define SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG		// off since the R6 review ( 2026-10-28 )
 //////////////////////////////////////////////////////////////////////////

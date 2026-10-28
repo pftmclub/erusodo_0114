@@ -1289,6 +1289,40 @@ Psyker Kinesis = the plain-alpha0 path; any character render = no regression). O
 
 **Play-test log 2026-10-28** (run after deploy md5 `91209397`, clean exit, 0 EXCEPTION, UNHANDLED = the 3x `E_DISABLE_HB_CHECK_REQ` baseline): `SMRT typed` for `MOTION_FIRE_DEVIL_FIGHTER_BODY.X` and `_BERSERKER_BODY.X` value 300 (SMRT_UV_ANIM, RT_REAL_COLOR) in Lanox Fire Temple, with their `JUNE_ATTACH_SKIN attach ... type=3 value=0.010`; `SMRT plain-alpha0 ECN_PSYKERKINESIS.X value 507` (SRCALPHA / DESTALPHA) as predicted, and the same path for `DUMMYATTACKBOX_50X50X50.X`, `RESPAWNLANDING01/02.X`, `LIGHTNING01.X`, `AISHA_LIGHTNING_SHOWER_M01.X`, `METEOR_STONE01_MS.X`; 0 `KEM_ERROR435`. No `alpha` / `renderparam` lines (no writer yet: R6b). **Play-test PASSED** (user, 2026-10-28: Fire Devils and characters look the same as usual).
 
+### Phase R6 -- Review
+
+**2026-10-28, Opus 5.5. PASS, no code change** (code `09dfb068`). Only edit: `SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG` undefined
+(the play-test log was read), so `[JUNE_ENGINE] SMRT` lines stop.
+
+**Checked in Ghidra (read-only) against the port:**
+- **`31d30380` whole:** head guard `+0x852` (= March `GetProcessFrameMove`); inline frame copy (`+0x32c` NULL -> `KEM_ERROR435`
+  with the first model's name, else 16 dwords into frame `+0x90` when `j < mesh +0x850`); lists `+0x820` / `+0x830` cleared;
+  main-pass param = `+0x728` copy, `tex2.y += +0x214`, outline cap. Per model: hide (`+0x851` && mesh `+0x8d0`), `+0xa2c` push
+  `{index, mesh}` (inside the BeginRender loop, as ported), light-flow frame skip, then the classification **in this order**:
+  (`+0x864 == 0` && `+0x868 == -1`) || `+0x853` -> draw; `+0x864` || pass `bAlphaBlend` (param `+0x64`) -> alpha list by `StrCmpW`
+  of the device id; `+0x868 >= 0` -> typed list by name. Then `31d2f000` (list by value), light flow, alpha pass, typed pass.
+- **Typed pass:** `std::sort` (`31d38800` / insertion `31d36970`) compares entry `+0x8` = mesh `+0x86c`. Entry 0xcc: mesh, index,
+  order, SMRT, skip `+0x10`, param `+0x14` (from mesh `+0x8d4`, `@31d3096f`), `+0xbc..+0xc8` = mesh `+0xa30..+0xa3c`. Per entry the
+  param is reset from `+0x728` (`31d3c0b0 @31d3100c`), then jump table **`31d314d8`** (`> 7` -> no change): all 8 cases match field
+  for field (cull 1/3, blends 5/6/7, case 5 wide = `33437810` = 0.01f, case 7 alpha test, case 3 accumulators `+0x858/+0x85c/+0x860`
+  and `tex0.x += U`, `tex0.y += value + V`). **CUSTOM (6)** = `31d3c0b0` from entry **`+0x14`** (`@31d3124d`). Remap: cartoon 8 / 0x13
+  (`CTT_DAMAGE` / `CTT_END`), RT 1/2/3 -> 4/5/6 (March `RT_*` values equal).
+- **`31d29720` field map:** every one of the 0x2b dwords lands on March `RenderParam` (`+0x65` zWrite <- `+0x2e`, `+0x66` zEnable
+  <- `+0x2d`, `lightPos` twice, fog bools from floats, packed ARGB * `334387b0` = 1/255 double). **`31d59130` defaults** all equal
+  `JuneRenderParamData()` (fog colour `334497f8/f4/f0` = 0xd8/0xe3/0xfe / 255, alpha 0). `334380f0` = -1.0 (cap constant).
+- **`31d2f000`:** param from mesh `+0x980`, hide test, the same plain-draw condition, draw through `31d3e7d0`.
+- `SKIN_MESH_RENDER_TYPE` names / values = June `Enum.src.lua:17526`; `enumscan --check`: 0 A/B rows.
+- `#else`: March's whole `OnFrameRender_Draw` unchanged; light flow in the June body uses the same members as March's.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE --range 09dfb068^..09dfb068`: `files: 6 PASS, 0 PASS~, 0 DEFINE,
+0 OTHER, 1 FAIL, 0 ERROR`, 0 deleted lines, 0 encoding changes; the FAIL is `Always.h` (the define block itself). No later commit
+touches the flag's code (`git log -S` = only the Done-note commit).
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 26,160,128 B, dated 2026-10-28 10:12:59, md5 ac3e8d5b75ad06e846644f4c506f5da1` (1,536 B
+smaller than R6's: the `_DEBUG` code is out). No play-test owed (the draw is unchanged; only log lines are gone).
+
+**Next:** R6b (kickoff amended: R6's `_DEBUG` is off, so its gate is its own `EQRP` line).
+
 ## Phase R6b - Equip mesh flags and the equip glow
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQUIP_MESH_RENDER`. Added by
