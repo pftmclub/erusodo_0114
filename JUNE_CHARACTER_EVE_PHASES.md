@@ -2447,7 +2447,7 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 - **Retired:** `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG`, its define and its 5 blocks; the `EVE PASSIVE` log lines are gone. `MODS.md` flag and revert lines updated.
 
 **Hygiene.** `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2UserSkillTree.cpp`: `0 A/B row(s)`. `flagcheck.py JUNE_CHAR_EVE_PASSIVE --worktree --files X2Lib/X2GuEve.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 26 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. OTHER = Always.h, the `_DEBUG` define. The deleted lines are the `_DEBUG` blocks and the replaced memo test, all CH4a code.
-**Range:** RANGE_PLACEHOLDER
+**Range (after commit `b86fc6d6`):** `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_PASSIVE_DEBUG --range a33b7569^..b86fc6d6`: `files: 4 PASS, 1 PASS~ (blank/marker only), 2 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `28 deleted line(s)` (the review's `_DEBUG` and memo lines, plus CH4a's own two), `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,209,280 B, dated 2026-10-28 14:26:09, md5 07f770e93fc460cd430afe55316aa0a2, equal to X2/US_SERVICE/x2.exe (2026-10-28 14:26:02); built at main 2be896e6 + 2 uncommitted code file(s).`
 **User owes nothing** (no play-test): the fix matters only with memo 12 equipped or frame scale on, and the rest of the change only removes debug lines.
 
