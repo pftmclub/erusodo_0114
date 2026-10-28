@@ -1876,6 +1876,27 @@ The checklist and its tooling are written; the user's play-test is the rest of t
   ( NetError 155 ), left out of the ACK`, ACK 8 bytes (empty vector), no crash. No `CRASH guard` line, no crash bundle after the deploy, 0 EXCEPTION, UNHANDLED =
   baseline `E_DISABLE_HB_CHECK_REQ`. Noted only, Q3's rule: 51 / 52 also gave up story quests 11010 / 11030 / 22162 / 22217 / 22219 (transcended class tail).
 
+### Q11 - Review (2026-10-28, Opus 5.5 high): PASS, no findings, no code change, no rebuild
+
+- **Stack accepted from the Done note.** The bundle `%TEMP%\X2_404A.tmp` is still there, but `X2/US_SERVICE/X2.map` is now the `2540fffd` build's, not
+  `21638825`'s, so `mdscan` was not re-run (kickoff rule).
+- **`+0x8d8` = `CX2Unit::m_pUnitTemplet`**: `X2Unit.h:1324` (`GetUnitTemplet()` `:724`). Deployed exe (capstone, base `0x32830000`), `IsForbiddenQuest`
+  `32cb5b30`: the guard is `mov ebp, [esi+0x8d8]` / `test ebp, ebp` at `32cb5b63`, the null path logs and returns `al = 0`; the old fault read is the same
+  cached `ebp` at `32cb5c25` (`[ebp+4]`), reached when the quest templet `+0xcc` (condition unit type) is set, so every templet read in the function is covered.
+- **Emulator:** `CompleteOneQuest` sets `m_iQuestID` and clears `m_kQuestAfter.m_bValid` at its top (`Handlers_Quest.cpp:311` / `:316`) and sets it valid
+  only on the `NET_OK` return (`:664-673`), so the `continue` drops nothing: every successful entry is pushed and its `AfterQuestComplete` work is queued as before.
+  An all-failed batch now answers `NET_OK` with an empty vector (live: an error ACK); the client loop is a no-op on it (play-test: 8-byte ACK, no popup).
+- **Guard value against the 8 callers** (false = not forbidden): `X2QuestManager.cpp:1402` / `:1531` / `:1571` (list builders: quest stays listed),
+  `:6320` `GiveUpForbiddenQuest` (gives nothing up on a broken unit), `X2UIQuestNew.cpp:2200` (dead `#else` of `JUNE_QUEST_UI`), `:3417` and
+  `X2UIQuestReceive.cpp:3037` `CanIAcceptQuest`, `X2UIQuestNewJune.cpp:456` `JuneIsQuestStartable` (the crash path). Same answer as the null-user / null-unit returns.
+- **Minidump gate: accepted.** The real access violation's 117 KB dump in the CrashRpt zip, symbolized against its own map, is stronger than a forced
+  test exception and needs no test-only code in `X2/`. The "3 launches" gate was met as one launch with three battlefield loads; the cause is state, not timing.
+- **Hygiene** (`--range 284cbe3b^..284cbe3b`): FORBIDDEN_GUARD `files: 1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted
+  line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`;
+  BATCH_ACK the same counts, `RESULT: PASS`. OTHER rows: `Always.h` (the other flag's define block) and the other flag's file in the same commit.
+- **Logs** (`logs.py --tag JUNE_QUEST --grep "BATCH|CRASH"`, run after deploy, exe md5 2540fffd): 3 `BATCH quest 11000 refused ( NetError 155 )`, 0 `CRASH`,
+  0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`; the one unbound Lua name `AddGroupChainQuest` is JUNE_BUGS 320 (kept). No newer crash bundle.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
