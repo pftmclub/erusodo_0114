@@ -10371,13 +10371,3 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_UI needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE, _GROUND_COMBO_END_EVENT, _USER_SKILL_ICON_OVERRIDE, _SKILL_STATE_BUFF, _ENUM_NAMES and _SKILL_SLOT_UI
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 //////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-28
-// Description: June char-eve CH4c - short-lived: [JUNE_CHAR] EVE UI lines from Code Recovery ( start, MP refused, summon heal / gather ), the recovery statics ( on change ), the tooltip and the slot icon swaps. Retire it in the review.
-#define SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
-#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_UI )
-#error SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_EVE_UI
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
-//////////////////////////////////////////////////////////////////////////

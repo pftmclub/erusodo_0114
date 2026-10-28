@@ -2635,6 +2635,48 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
 - Not exercised: Link Overcharge was not cast (the 17:37:03 Ferdinand set is Reason Pride's, skill 25057), so only `ferdinand 0` logged; unit 41 (El Crystal) was not played. Both are retests.
 **Retest PASSED (2026-10-28, logs 17:41-17:43, same exe; 0 EXCEPTION, ErrorLog 0 lines).** Unit 61: `icon link overcharge slot 9 ferdinand 1 -> DLG_SKILL_Hyper_Active_02.tga / SI_HA_EEP_LINK_OVERCHARGE_ILLUSION_01` on each cast (17:42:05, 17:42:13), back to `ferdinand 0` / `_01.tga` after. Unit 41 (26): `icon el crystal slot 3 enable 1 formation 0 / 1 -> ..._01 / ..._02` on every formation switch; recovery `class 26 mp 300 -> 260, cool 30`. User: icons changed in the bar and the skill window. **Phase play-test PASSED.**
 
+#### CH4c - Review (2026-10-28, Opus 5.5): PASS, no code change
+
+Each item was read against June's listing (Ghidra; `disasm_range.py` for `3299b180` and the `329b57a0` jump table). Enum values come from `enumprobe.py`, constants from the exe bytes.
+- **`329b57a0`.**
+  - MP test: `fcom` cost against MP, then `test ah, 0x41` / `jp` refuse. It goes on when cost <= MP; above that, or NaN, it returns before `+0x9c64` is written. The port's `false == ( cost <= MP )` is the same.
+  - `32007b10( 0x1b, 0x634a )`: `SA_MP_CONSUME_REL` = 27 and Rule Break = 25418, both probed.
+  - `[33436c90]` = -1.0 (double).
+  - HP: max HP from gage `+0x20` `+0x10..0x18` (1.0 with no gage, 0.0 with a null `+0x20`) x `+0x9c70`, then vslot `0xec` with 0.0 (the `fldz` left on the stack). The members map as the header says: `+0x9c64` / `+0x9c68` / `+0x9c6c` / `+0x9c70` = CoolLeft / CoolTime / ConsumeMp / UpHpRate.
+  - Class table: targets `329b5a74` = `58ad` / `58e2` / `59e0` / `5a44`. The index bytes `329b5a84` map 18 / 108 -> 0, 19 / 109 -> 1, 26 / 116 -> 2, and every other class to the default (cool time only). The `UC_EVE_*` values match.
+  - vslot `0x21c` is pushed `0, 0, 1, 0, BFI`, i.e. ( BFI, creator 0, level 1, 0, no skip ). That is March's ( BFI, 1, NULL, 0, false ) by the X2GUUser.cpp `0x21c` precedent. BFI 681 / 1119 / 682 match, and `322cc1a0` = PvP or PvE (true -> 1119).
+  - Gather order is 0x207, 0x180, 0x655, 0x656, 0x5ae and recover order is 0x180, 0x207, ...; `NUI_NASOD_WATCH_EVE` = 384 and `_MEMO` = 519 (probed, and the same in June's Enum). Recover runs only with 25418, and the cool time is set on every path past the MP test.
+- **`3299b180`.**
+  - Each unit is tested in order: `+0x264 == 1` (`GUT_NPC` = 1), templet id (0 = any), `HaveThisBuff( 0x3d8 )` = `BTI_DEBUFF_FESSEL_HEILIG` 984, AI `+0x7c98` present with `+0x38 == 1` (`NAT_ALLY` = 1).
+  - The owner test compares vslot `0x54`'s 64-bit UID with AI `+0x78` / `+0x7c`, then calls `32767930( pos, right )`.
+  - The `+0x3c` release / `+0x40` clear runs after the owner test for every ally AI, whoever owns it. The port's `ResetTarget()` call is placed the same way (row 465). The function ends with `RET 0xc`.
+- **`329b4860`.**
+  - No ally or owner test (row 465).
+  - Alive test: `fldz; fcomp HP; test ah, 1`, so HP > 0 is needed, a missing gage passes and a null `+0x20` skips. `+0x8b40` is self-destruction.
+  - Then UpNowHp( rate x `31e551a0`, 0 ), vslot `0x238( &out, 25418, 0, 1 )`, and the out pointer goes to vslot `0x224` with no test. The port's NULL guard and gage guard are the labelled stand-ins.
+- **`31fcc350`.**
+  - It matches March's body: `SKIP_TIME`, then not on something -> state 0x11 (`USI_JUMP_DOWN`) with y minus `[33472998]` = 45.0 (double), animation end -> wait, and the 14 `pure*` keys after skip -> wait.
+  - The chain sits in the same else as in June (`SKILL_CANCEL_AFTER` opens with `else if`). The skill cancel is `+0x8c90` with vslot `0x7f4`, then the hyper branch with `+0x8d4c = 1`.
+  - Walk: `+0x8c98` with pureRight / pureLeft -> state 0xd = `USI_WAIT` (probed). Dash: `+0x8c9c` with the double keys -> vslot `0x668`. There is no back-walk branch.
+- **`322e65c0` / callers.**
+  - Each of the three controls gets vslot `0x78( 0, 0 )`, then `( 1, 0 )` when shown. The guide uses `31f5ee50( 0x27 )` (`GAMEACTION_SIT` = 39). The cool time count is shown only when show and arg 2 are both set: `fcom 0; test ah, 0x41` -> `L""` at <= 0, else `ftol( cool + [334355b0] = 1.0 )`. The button gets `( show, show )`.
+  - Callers: ctor `@32307c00` and dtor `@3230898d` pass ( &false, false, 0.0 ), each right after the memorize call (`@32307bb4` / `@32308941`). Eve's dtor `@329af1cc` passes the same. `@32981120` passes ( &true, `sete` of ready, cool ) with no my-unit gate (row 464).
+  - `322dee90`: the button's `+0x1d0` gets `assign( text, len )` = March's `SetGuideDesc`.
+- **`322d9250` / `322d99d0` / `328e0aa0`.**
+  - The skip rule is `!32890ee0( 0 ) && B && !32890ee0( 1 ) && 3214f3d0 == 3`, so B's slot 9 is the only one skipped; `IsJuneSlotUsable` and `IsTranscendenceSlotIndex` match it.
+  - The icon is the templet's `+0x50` / `+0x6c`. `+0x97e4` / `+0x97f0` -> 0-3 (no default) and the tree `+0x130` / `+0x134` writes match. Thousand Stars is `31edf580( id, 0x61c4 )`, `+0x9a20` > 0 and `+0x9a18` == 0. `328da5b0( i, 0 )` maps to `GetEquippedSlot( i )` (5-9 -> B).
+  - `322d99d0` gates on class 0x6d, uses `329684c0` (Ferdinand 409) for 0x6401 / 0x6404 with Hyper_Active_02 / _01, and writes `+0x130` = that buff test.
+  - `328e0aa0`'s `+0x130` block handles 0x6d Link Overcharge first and class 0x1a El Crystal by `+0x134` (row 466). Then comes the Add block, then vslot `0x56c`.
+- **Hand-off check:** every line the CH4c hand-off listed was seen in the 17:34-17:43 play-tests (Done note above).
+- **Retired** `SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG`: the define block in `Always.h`, 3 blocks in `X2Game.cpp` and 6 in `X2GuEve.cpp`, removed with `bytepatch.py` (60 lines, encodings unchanged).
+- **Hygiene.**
+  - `flagcheck.py JUNE_CHAR_EVE_UI --with JUNE_CHAR_EVE_UI_DEBUG JUNE_GROUND_COMBO_END_EVENT --range bd2316cf^..HEAD`: `4 PASS, 2 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`.
+  - Worktree (`JUNE_CHAR_EVE_UI --with JUNE_CHAR_EVE_UI_DEBUG --files` the three files): `2 PASS, 1 DEFINE, 0 FAIL`. The `60 deleted line(s)` are the retirement; `RESULT: PASS`.
+  - `enumscan.py --check` (4 files): `0 A/B row(s) remain`. `ch1m_regcheck.py`: `matched 799 registrations, 0 problems`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,218,496 B, dated 2026-10-28 18:03:41, md5 ac9b6be837bf86e2cb53cb62f1a487f6, equal to X2/US_SERVICE/x2.exe (2026-10-28 18:03:35); built at main 2c516f0c + 3 uncommitted code file(s).`
+  - `EXESTR OK: 1 of 1 absent` (`[JUNE_CHAR] EVE UI`, wide) and `EXESTR OK: 2 of 2 found` (`Static_EveRecoveryCooltime`, `Button_EveRecoveryToolTip`), md5 `ac9b6be8`.
+- User owes nothing (no play-test: only the debug lines go away).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

@@ -14102,16 +14102,6 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 				pUISkillTree->SetClassSkillIconSwap( pEve->GetEnableElectraSystem() );
 				pUISkillTree->SetElectraFormationType( static_cast<int>( pEve->GetElectraFormationType() ) );
 			}
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
-			static int s_iLoggedElCrystal = -1;
-			const int iElCrystalKey = ( true == pEve->GetEnableElectraSystem() ? 10 : 0 ) + static_cast<int>( pEve->GetElectraFormationType() );
-			if( iElCrystalKey != s_iLoggedElCrystal )
-			{
-				s_iLoggedElCrystal = iElCrystalKey;
-				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI icon el crystal slot %d enable %d formation %d -> %s / %s", i, true == pEve->GetEnableElectraSystem() ? 1 : 0,
-					static_cast<int>( pEve->GetElectraFormationType() ), wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
-			}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
 
 			CKTDGUISlot* pSlot = ( NULL != pUISkillTree ) ? pUISkillTree->GetEquippedSlot( i ) : NULL;
 			if( NULL != pSlot )
@@ -14420,15 +14410,6 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 
 			if( NULL != pUISkillTree )
 				pUISkillTree->SetClassSkillIconSwap( GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
-			static int s_iLoggedLinkOvercharge = -1;
-			const int iLinkOverchargeKey = ( true == GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) ) ? 1 : 0;
-			if( iLinkOverchargeKey != s_iLoggedLinkOvercharge )
-			{
-				s_iLoggedLinkOvercharge = iLinkOverchargeKey;
-				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI icon link overcharge slot %d ferdinand %d -> %s / %s", i, iLinkOverchargeKey, wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
-			}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
 
 			CKTDGUISlot* pSlot = ( NULL != pUISkillTree ) ? pUISkillTree->GetEquippedSlot( i ) : NULL;
 			if( NULL != pSlot )
@@ -14659,17 +14640,6 @@ void CX2Game::UpdateEveRecoveryUI( const bool* pbShow_, const bool bShowCoolTime
 	CKTDGUIControl* pButtonToolTip = m_pDLGSkillSlot->GetControl( L"Button_EveRecoveryToolTip" );
 	if( NULL != pButtonToolTip )
 		pButtonToolTip->SetShowEnable( *pbShow_, *pbShow_ );
-
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
-	static int s_iLoggedRecoveryUI = -1;
-	const int iRecoveryUIKey = ( true == *pbShow_ ? 1 : 0 ) + ( true == bShowCoolTime_ ? 2 : 0 );
-	if( iRecoveryUIKey != s_iLoggedRecoveryUI )
-	{
-		s_iLoggedRecoveryUI = iRecoveryUIKey;
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery statics show %d cool %d ( %.1f s ) guide %d cooltime %d button %d", true == *pbShow_ ? 1 : 0, true == bShowCoolTime_ ? 1 : 0,
-			fCoolTimeLeft_, NULL != pStaticGuide ? 1 : 0, NULL != pStaticCoolTime ? 1 : 0, NULL != pButtonToolTip ? 1 : 0 );
-	}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
 }
 
 // June 322dee90: the recovery tooltip button's guide text
