@@ -1833,6 +1833,15 @@ The checklist and its tooling are written; the user's play-test is the rest of t
 - **User owes:** close the game, run the 3 setup lines at the top of the checklist (or say "closed" and the next session runs them), then play-test
   A, B and C in any order and say "check logs A/B/C". Findings are recorded as follow-ups on the owning phase's STATUS row; Q9 fixes nothing.
 
+## Phase Q11 - Chase the IsForbiddenQuest crash (added 2026-10-28 by char-eve CH3b)
+
+**Run with:** Opus 5.5 high, then a user play-test (3 launches). Flag `SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD` (+ `_DEBUG`), log `[JUNE_QUEST] CRASH`.
+
+- **Why:** one crash (user, 2026-10-28, first launch after `data036` / `data037` were copied; the relaunch of the same exe and koms ran clean): access violation in `CX2QuestManager::IsForbiddenQuest` +0xce, the select unit's `+0x8d8` pointer null or freed; the client had sent `EGS_CLIENT_QUIT_REQ` 0.1 s after the battlefield loaded, with no human action and no ErrorLog line; CrashRpt wrote a 0-byte `.dmp`. The quests `11000` and `37100` were given up on entry (`GiveUpForbiddenQuest`).
+- **Scope:** find the first quit request, find the caller that held the unit through the teardown, make CrashRpt write a usable minidump, add the guard. The full evidence and steps are in `kickoffs/quest-system/Q11.md`.
+- **Out of scope:** the quest give-up rules themselves (Q3 / Q4 own them); a quit caused outside the quest system goes to that system's owner.
+- **Done gate:** the guard is in (flagcheck PASS, `DEPLOY OK`), a minidump is written on a forced test exception, and 3 launches into the battlefield show no crash and no unexplained quit.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
