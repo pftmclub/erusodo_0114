@@ -218,6 +218,12 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void JuneMarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkillID_ );	/// 328da730
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	void SetClassSkillIconSwap( const bool bSwap_ ) { m_bClassSkillIconSwap = bSwap_; }
+	bool GetClassSkillIconSwap() const { return m_bClassSkillIconSwap; }
+	void SetElectraFormationType( const int iFormationType_ ) { m_iElectraFormationType = iFormationType_; }
+	int  GetElectraFormationType() const { return m_iElectraFormationType; }
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 	/// tabs ( 328d9fb0 / 328e89f0 ); the command list itself is S7e's
 	void SelectJuneTab( const bool bSkillTab_ );
@@ -325,6 +331,10 @@ private:
 	bool								m_bReplacedEsCounter;		/// +0x120 read by GetSkillSubDesc's default label; nothing in June's class writes it
 	CKTDGUIDialogType					m_pDLGBuyConfirm;			/// +0x124
 	int									m_iConfirmED;				/// +0x12c
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	bool								m_bClassSkillIconSwap;		/// +0x130 set only by the class icon functions ( Eve 322d9250 / 322d99d0 )
+	int									m_iElectraFormationType;	/// +0x134 Eve's El Crystal formation ( 322d9250 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 	map<CX2SkillTree::SKILL_ID, SkillSlotUI>	m_mapSkillSlotUISet;	/// +0x13c
 	CKTDGUIButton*						m_pHoveredMemoButton;		/// +0x14c the memo button under the mouse ( S7c sets it: 29076 / 29077 )

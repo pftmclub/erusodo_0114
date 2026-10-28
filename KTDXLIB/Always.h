@@ -10354,3 +10354,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS needs SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_RANOX_PORT
 #endif SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4c - CX2GUUser::GenericGroundComboEndEventProcess is June's 31fcc350: March's body, then the skill / walk / dash cancel chain ( no back-walk branch, unlike 31fcc9d0 ). March registers it nowhere; Eve's Code Recovery does. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4c - Eve's Code Recovery on the V key ( ENSI_EVE_RECOVERY: Start 329b57a0 with 329b4860 / 3299b180, EventProcess 31fcc350 ), the skill slot dialog's recovery guide / cool time / tooltip ( CX2Game 322e65c0 / 322dee90 ), and the El Crystal / Link Overcharge slot icons ( 322d9250 / 322d99d0, tree +0x130 / +0x134, 328e0aa0's Eve blocks ). Revert: undefine the flag ( JUNE_CHAR_EVE_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_UI ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_UI ) )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_UI needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE, _GROUND_COMBO_END_EVENT, _USER_SKILL_ICON_OVERRIDE, _SKILL_STATE_BUFF, _ENUM_NAMES and _SKILL_SLOT_UI
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4c - short-lived: [JUNE_CHAR] EVE UI lines from Code Recovery ( start, MP refused, summon heal / gather ), the recovery statics ( on change ), the tooltip and the slot icon swaps. Retire it in the review.
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_UI )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+//////////////////////////////////////////////////////////////////////////

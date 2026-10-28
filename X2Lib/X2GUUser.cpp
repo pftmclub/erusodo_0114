@@ -33187,6 +33187,20 @@ void CX2GUUser::GenericGroundComboEndEventProcess()
 	{
 		StateChange( m_CommonState.m_Wait );
 	}
+#ifdef SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT
+	// June 31fcc350: the cancel chain of 31fcc9d0 without its back-walk branch
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+	{
+		StateChangeDashIfPossible();
+	}
+#endif SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT
 
 	CommonEventProcess();
 

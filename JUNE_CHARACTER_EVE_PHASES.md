@@ -2580,6 +2580,54 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
 **Play-test PASSED (2026-10-28, logs 16:34-16:37 on md5 `fe61c50c`):** the user played EveEmpress / EveSeraph / EveNemesis (summon cost and Open Mind, Energy Needles x0.8, Queen's Throne cool times). 0 EXCEPTION, the 4 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, no `EVE PASSIVE` line (retired). The fix-1 path (Sander / Lanox secret dungeon with the event item) was not tested. Side note, not this phase: the June script function `AddGroupChainQuest` is called but not bound in March (1 call this run; not in `lua_unbound_known.tsv`).
 **User owes nothing.** Next: `/x2-phase char-eve CH4c` (Opus 5.5 high).
 
+### CH4c - Done (2026-10-28, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4c". Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI` (+ temporary `_UI_DEBUG`, `[JUNE_CHAR] EVE UI`) and engine flag `SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT`. Evidence in the `CH4c` funcmap rows. No June-prefixed names (standing rule).
+- **Code Recovery (V key).** March already entered `ENSI_EVE_RECOVERY` on `oneSit` at 7 sites, but never registered it. It is now registered at `329b8030 @1405`.
+  - Start `ENSI_EVE_RECOVERY_StateStart` (`329b57a0`, whole, jump table decoded). The cost is `+0x9c6c`, times Rule Break 25418's `SA_MP_CONSUME_REL` when learned. If the cost is above MP it returns with no cool time. Otherwise it takes the MP, heals `+0x9c70` x max HP, and does its class line's part:
+    - 18 / 108: BFI 681.
+    - 19 / 109: `GatherSummonedNPC` (`3299b180`) for 519 / 384 / 1621 / 1622 / 1454, then, with 25418, `RecoverSummonedNPC` (`329b4860`) for 384 / 519 / 1621 / 1622 / 1454.
+    - 26 / 116: BFI 1119 (PvP / PvE) or 682.
+    - Then the cool time is `+0x9c68`.
+  - EventProcess `31fcc350` = June's `CX2GUUser::GenericGroundComboEndEventProcess`: March's body plus `31fcc9d0`'s cancel chain without the back-walk branch. March registers it nowhere, so only Eve sees it.
+  - `ch1m_regcheck.py`: 238 dropped from `ROUTED`, `matched 799 registrations, 0 problems`.
+- **7ah statics.** New `CX2Game::UpdateEveRecoveryUI` (`322e65c0`) and `SetEveRecoveryToolTip` (`322dee90`) on `m_pDLGSkillSlot` (`+0x714`). They show the guide (`GetKeyString( GAMEACTION_SIT )`), the cool-time count (`ftol( cool + 1.0 )`) and the tooltip button.
+  - Calls: game ctor `@32307c00` and Release `@3230898d` (false); Eve's destructor `@329af1cc` (false); Eve's `CommonFrameMoveFuture` `@32981120` (true, `!ready`, cool); the tooltip text from `329c3da0 @329c42bf`.
+  - These replace CH1k's / CH1l2's three `call added in CH4c` comments.
+- **7aj icons.**
+  - `UpdateEveElectraSkillSlotIcon` and `UpdateCodeEmpressSkillSlotIcon` run June's `322d9250` / `322d99d0` (March's in `#else`). CH1o2's "none in March" for `322d99d0` was wrong: it is March's `FINALITY_SKILL_SYSTEM` function.
+  - Tree `+0x130` / `+0x134` = `CX2UISkillTreeNew::m_bClassSkillIconSwap` / `m_iElectraFormationType`.
+  - `328e0aa0`'s Eve blocks (0x6d Link Overcharge, 0x1a El Crystal) sit in `JuneApplyEquippedSkillIconOverride`. The 0x7b / 0x72 / 0x73 / 0x7e and Add blocks stay with their class ports (checklist 7aj).
+- **7n / 7a** were already done (CH2c; CH1l4 / CH1l40 / CH3c); nothing to port. **§5**: the 10 keys are read since CH1k; this phase consumes them.
+- **Asset.** June's `DLG_SKILL_Hyper_Active_02.tga` / `.tet` replace March's in data063 (`STAGE-JUNE OK`, `PACK OK data063`). The other icon sheets, `DLG_UI_Button24_NEW` (`BG_EVE_RECOVERY`), `Eve_Nasod.lua` (has `ENSI_EVE_RECOVERY`) and `DLG_GAME_SKILL_SLOT_NEW_10slot.lua` (the three controls) were already June's byte for byte. Strings 16473 / 36833-36836 are in `general.ess`.
+- **JUNE_BUGS 464-466:**
+  - 464: every Eve drives the statics; there is no my-unit gate.
+  - 465: Rule Break heals and buffs any owner's summons, and the gather resets any owner's AI target.
+  - 466: `328e0aa0` swaps El Crystal for 0x1a only.
+- **Null guards** (one-line comments): June applies the Rule Break factor unchecked, and reads 1.0 max HP without a gage.
+- No drift.
+- Checklist 7ah / 7aj marked `(Eve: CH4c)`. MODS.md has a CH4c section.
+
+**Hygiene.**
+- `flagcheck.py JUNE_CHAR_EVE_UI --with JUNE_CHAR_EVE_UI_DEBUG JUNE_GROUND_COMBO_END_EVENT --worktree --files` (8 code files):
+  - `files: 4 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - OTHER = `X2GUUser.cpp` (`JUNE_GROUND_COMBO_END_EVENT`, PASS on its own).
+- `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2Game.cpp X2Lib/X2UISkillTreeNew2015.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`.
+- `luabind.py check Eve_Nasod DLG_GAME_SKILL_SLOT_NEW_10slot`: `RESULT: PASS` (0 unbound).
+- `cl /Zs` on the four changed translation units: 0 errors.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,220,032 B, dated 2026-10-28 17:29:44, md5 49d25ddc462244c77458d1854b030279, equal to X2/US_SERVICE/x2.exe (2026-10-28 17:29:37); built at main 7998e342 + 8 uncommitted code file(s).` The phase's log strings and `ENSI_EVE_RECOVERY` are in the deployed exe.
+
+**Save:** unit 61 (EveEmpress) + Rule Break 25418 level 1, unsealed (backup `els_db_20261028_172139_pre_sql.sql`).
+
+**In game** (`[JUNE_CHAR] EVE UI`):
+- `recovery statics show 1 cool 0` on entering a dungeon.
+- V gives `recovery class N mp A -> B ( cost C ) hp ...`, then `statics show 1 cool 1`.
+- On Empress: `recovery gather npc 1622` and `recovery heal npc 1622 ... buff set`.
+- `recovery tooltip set`.
+- `icon el crystal ...` on unit 41 and `icon link overcharge ... ferdinand 1` on unit 61.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

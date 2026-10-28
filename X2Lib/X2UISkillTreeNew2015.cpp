@@ -11,6 +11,9 @@
 #ifdef UPGRADE_SKILL_SYSTEM_2013
 
 #include "Offline/X2OfflineLog.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+#include "X2GuEve.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 namespace
 {
@@ -587,6 +590,43 @@ namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_
 		if ( NULL == g_pData || NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() || NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() )
 			return;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+		/// June @328e0b4d: the 0x7b / 0x72 / 0x73 / 0x7e blocks between Eve's two and the Add block after them are their class ports' ( 7aj )
+		if ( true == g_pData->GetUIManager()->GetUISkillTree()->GetClassSkillIconSwap() && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		{
+			const CX2Unit::UNIT_CLASS eUnitClass = g_pData->GetMyUser()->GetSelectUnit()->GetClass();
+			if ( CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass &&
+				 ( CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION == iSkillID_ || CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE == iSkillID_ ) )
+			{
+				wstrIconTexName_ = L"DLG_SKILL_Hyper_Active_02.tga";
+				wstrIconTexKey_ = L"SI_HA_EEP_LINK_OVERCHARGE_ILLUSION_01";
+			}
+			else if ( CX2Unit::UC_EVE_ELECTRA == eUnitClass &&
+				 ( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == iSkillID_ || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == iSkillID_ ) )
+			{
+				switch ( g_pData->GetUIManager()->GetUISkillTree()->GetElectraFormationType() )
+				{
+				case CX2GUEve::PFT_AMPLIFIER:
+					wstrIconTexName_ = L"DLG_SKILL_EveActive_03.tga";
+					wstrIconTexKey_ = L"SI_A_EEL_SPECTRO_EL_CRYSTAL_01";
+					break;
+				case CX2GUEve::PFT_SPECTRUM:
+					wstrIconTexName_ = L"DLG_SKILL_EveActive_03.tga";
+					wstrIconTexKey_ = L"SI_A_EEL_SPECTRO_EL_CRYSTAL_02";
+					break;
+				case CX2GUEve::PFT_INDUCTION:
+					wstrIconTexName_ = L"DLG_SKILL_EveActive_04.tga";
+					wstrIconTexKey_ = L"SI_A_EBS_SPECTRO_EL_CRYSTAL_INDUCTION";
+					break;
+				case CX2GUEve::PFT_FUSION:
+					wstrIconTexName_ = L"DLG_SKILL_EveActive_04.tga";
+					wstrIconTexKey_ = L"SI_A_EBS_SPECTRO_EL_CRYSTAL_FUSION";
+					break;
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+
 		g_pX2Game->GetMyUnit()->JuneSkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ );
 	}
 }
@@ -900,6 +940,10 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 , m_pDLGBuyConfirm( NULL )
 , m_bReplacedEsCounter( false )
 , m_iConfirmED( 0 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+, m_bClassSkillIconSwap( false )
+, m_iElectraFormationType( 0 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 , m_pHoveredMemoButton( NULL )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 , m_pDLGJuneMemoMsgBox( NULL )

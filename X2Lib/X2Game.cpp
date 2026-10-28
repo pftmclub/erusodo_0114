@@ -459,6 +459,12 @@ m_bSkillSlotJustChanged(true)
 					June_ClearAllMemoRiseSlotParticle( true );		// June @32307e99, later in the ctor
 				}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+				{
+					const bool bShowEveRecovery = false;
+					UpdateEveRecoveryUI( &bShowEveRecovery, false, 0.0f );		// June @32307c00
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 			}
 		}
 	}
@@ -830,6 +836,10 @@ CX2Game::~CX2Game()
 		const bool bShowMemorize = false;
 		June_ShowMemorizeStatics( &bShowMemorize );		// June dtor @32308941
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+		const bool bShowEveRecovery = false;
+		UpdateEveRecoveryUI( &bShowEveRecovery, false, 0.0f );		// June dtor @3230898d
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	}
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	m_vecRemoveDamageEffect.clear();
@@ -14035,6 +14045,94 @@ void CX2Game::June_TranscendSlotGuideFrameMove()
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 void CX2Game::UpdateEveElectraSkillSlotIcon()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	// June 322d9250: every class, slots 0-9 ( B's transcendence slot only with a usable key ); El Crystal also feeds the tree's icon state
+	if( NULL == GetMyUnit() || NULL == GetMyUnit()->GetUnit() )
+		return;
+
+	const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
+	CX2UISkillTreeNew* pUISkillTree = ( NULL != g_pData->GetUIManager() ) ? g_pData->GetUIManager()->GetUISkillTree() : NULL;
+	for( int i = 0; i < 10; ++i )
+	{
+		const bool bSlotB = ( 4 < i );
+		const int iSlotIndex = ( i < 5 ) ? i : i - 5;
+		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsJuneSlotUsable( 1 ) &&
+			true == CX2UserSkillTree::IsTranscendenceSlotIndex( i ) )
+			continue;
+
+		const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
+		if( NULL == pSkillData || CX2SkillTree::SI_NONE == pSkillData->m_eID )
+			continue;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
+		if( NULL == pSkillTemplet )
+			continue;
+
+		wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
+		wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
+		const int iSkillID = static_cast<int>( pSkillData->m_eID );
+		if( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == iSkillID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == iSkillID )
+		{
+			CX2GUEve* pEve = static_cast< CX2GUEve* >( GetMyUnit() );
+			if( true == pEve->GetEnableElectraSystem() )
+			{
+				switch( pEve->GetElectraFormationType() )
+				{
+				case CX2GUEve::PFT_AMPLIFIER:
+					wstrTextureName = L"DLG_SKILL_EveActive_03.tga";
+					wstrTexturePieceName = L"SI_A_EEL_SPECTRO_EL_CRYSTAL_01";
+					break;
+				case CX2GUEve::PFT_SPECTRUM:
+					wstrTextureName = L"DLG_SKILL_EveActive_03.tga";
+					wstrTexturePieceName = L"SI_A_EEL_SPECTRO_EL_CRYSTAL_02";
+					break;
+				case CX2GUEve::PFT_INDUCTION:
+					wstrTextureName = L"DLG_SKILL_EveActive_04.tga";
+					wstrTexturePieceName = L"SI_A_EBS_SPECTRO_EL_CRYSTAL_INDUCTION";
+					break;
+				case CX2GUEve::PFT_FUSION:
+					wstrTextureName = L"DLG_SKILL_EveActive_04.tga";
+					wstrTexturePieceName = L"SI_A_EBS_SPECTRO_EL_CRYSTAL_FUSION";
+					break;
+				}
+			}
+
+			if( NULL != pUISkillTree )
+			{
+				pUISkillTree->SetClassSkillIconSwap( pEve->GetEnableElectraSystem() );
+				pUISkillTree->SetElectraFormationType( static_cast<int>( pEve->GetElectraFormationType() ) );
+			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+			static int s_iLoggedElCrystal = -1;
+			const int iElCrystalKey = ( true == pEve->GetEnableElectraSystem() ? 10 : 0 ) + static_cast<int>( pEve->GetElectraFormationType() );
+			if( iElCrystalKey != s_iLoggedElCrystal )
+			{
+				s_iLoggedElCrystal = iElCrystalKey;
+				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI icon el crystal slot %d enable %d formation %d -> %s / %s", i, true == pEve->GetEnableElectraSystem() ? 1 : 0,
+					static_cast<int>( pEve->GetElectraFormationType() ), wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+
+			CKTDGUISlot* pSlot = ( NULL != pUISkillTree ) ? pUISkillTree->GetEquippedSlot( i ) : NULL;
+			if( NULL != pSlot )
+				pSlot->SetItemTex( wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
+		}
+
+		if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( iSkillID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
+		{
+			CX2GUEve* pEve = static_cast< CX2GUEve* >( GetMyUnit() );
+			if( 0 < pEve->GetThousandStarCount() && false == pEve->GetThousandStarEntireFired() )
+			{
+				wstrTextureName = L"DLG_SKILL_EveActive_03.tga";
+				wstrTexturePieceName = L"SI_SA_EEL_THOUSANDS_OF_STARS_FIRE";
+			}
+
+			CKTDGUISlot* pSlot = ( NULL != pUISkillTree ) ? pUISkillTree->GetEquippedSlot( i ) : NULL;
+			if( NULL != pSlot )
+				pSlot->SetItemTex( wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	const CX2Unit::UNIT_CLASS eUnitClass = g_pData->GetMyUser()->GetSelectUnit()->GetClass();
 
 	if (
@@ -14129,6 +14227,7 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 			}	//if
 		}//for
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 }
 
 
@@ -14279,6 +14378,64 @@ void CX2Game::UpdateVeteranCommanderSkillSlotIcon()
 #ifdef FINALITY_SKILL_SYSTEM //±èÃ¢ÇÑ
 void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	// June 322d99d0: Code Empress, slots 0-9; Link Overcharge shows its thunderbolt icon while Ferdinand's buff holds, and feeds the tree's icon state
+	if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() ||
+		CX2Unit::UC_EVE_CODE_EMPRESS != g_pData->GetMyUser()->GetSelectUnit()->GetClass() || NULL == GetMyUnit() || NULL == GetMyUnit()->GetUnit() )
+		return;
+
+	const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
+	CX2UISkillTreeNew* pUISkillTree = ( NULL != g_pData->GetUIManager() ) ? g_pData->GetUIManager()->GetUISkillTree() : NULL;
+	for( int i = 0; i < 10; ++i )
+	{
+		const bool bSlotB = ( 4 < i );
+		const int iSlotIndex = ( i < 5 ) ? i : i - 5;
+		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsJuneSlotUsable( 1 ) &&
+			true == CX2UserSkillTree::IsTranscendenceSlotIndex( i ) )
+			continue;
+
+		const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
+		if( NULL == pSkillData || CX2SkillTree::SI_NONE == pSkillData->m_eID )
+			continue;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
+		if( NULL == pSkillTemplet )
+			continue;
+
+		wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
+		wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
+		const int iSkillID = static_cast<int>( pSkillData->m_eID );
+		if( CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION == iSkillID || CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE == iSkillID )
+		{
+			if( true == GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) )
+			{
+				wstrTextureName = L"DLG_SKILL_Hyper_Active_02.tga";
+				wstrTexturePieceName = L"SI_HA_EEP_LINK_OVERCHARGE_ILLUSION_01";
+			}
+			else if( false == GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) )
+			{
+				wstrTextureName = L"DLG_SKILL_Hyper_Active_01.tga";
+				wstrTexturePieceName = L"SI_HA_EEP_LINK_OVERCHARGE_ILLUSION";
+			}
+
+			if( NULL != pUISkillTree )
+				pUISkillTree->SetClassSkillIconSwap( GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+			static int s_iLoggedLinkOvercharge = -1;
+			const int iLinkOverchargeKey = ( true == GetMyUnit()->HaveThisBuff( BTI_BUFF_FERDINAND ) ) ? 1 : 0;
+			if( iLinkOverchargeKey != s_iLoggedLinkOvercharge )
+			{
+				s_iLoggedLinkOvercharge = iLinkOverchargeKey;
+				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI icon link overcharge slot %d ferdinand %d -> %s / %s", i, iLinkOverchargeKey, wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+
+			CKTDGUISlot* pSlot = ( NULL != pUISkillTree ) ? pUISkillTree->GetEquippedSlot( i ) : NULL;
+			if( NULL != pSlot )
+				pSlot->SetItemTex( wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	if(	g_pData->GetMyUser()->GetSelectUnit()->GetClass() == CX2Unit::UC_EVE_CODE_EMPRESS && 
 		GetMyUnit() != NULL )
 	{
@@ -14343,6 +14500,7 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 			}	//if
 		}//for
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 }
 #endif //FINALITY_SKILL_SYSTEM
 
@@ -14455,6 +14613,77 @@ void CX2Game::UpdateAddNasodRulerSkillSlotIcon()
 }
 #endif //SERV_9TH_NEW_CHARACTER
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4c
+// June 322e65c0: the skill slot dialog's Code Recovery guide ( the V key ), its cool time count and the tooltip button
+void CX2Game::UpdateEveRecoveryUI( const bool* pbShow_, const bool bShowCoolTime_, const float fCoolTimeLeft_ )
+{
+	if( NULL == m_pDLGSkillSlot )
+		return;
+
+	CKTDGUIStatic* pStaticGuide = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( L"Static_EveRecoveryGuide" ) );
+	if( NULL != pStaticGuide )
+	{
+		pStaticGuide->SetShowEnable( false, false );
+		if( true == *pbShow_ )
+		{
+			pStaticGuide->SetShowEnable( true, false );
+			if( NULL != pStaticGuide->GetString( 0 ) )
+				pStaticGuide->GetString( 0 )->msg = g_pMain->GetKeyPad()->GetKeyString( GAMEACTION_SIT );	// June game action 0x27
+		}
+	}
+
+	CKTDGUIStatic* pStaticCoolTime = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( L"Static_EveRecoveryCooltime" ) );
+	if( NULL != pStaticCoolTime )
+	{
+		pStaticCoolTime->SetShowEnable( false, false );
+		if( true == *pbShow_ && true == bShowCoolTime_ )
+		{
+			pStaticCoolTime->SetShowEnable( true, false );
+			if( NULL != pStaticCoolTime->GetString( 0 ) )
+			{
+				if( fCoolTimeLeft_ <= 0.0f )
+				{
+					pStaticCoolTime->GetString( 0 )->msg = L"";
+				}
+				else
+				{
+					WCHAR wszCoolTime[32] = L"";
+					StringCchPrintfW( wszCoolTime, ARRAY_SIZE( wszCoolTime ), L"%d", static_cast<int>( fCoolTimeLeft_ + 1.0 ) );
+					pStaticCoolTime->GetString( 0 )->msg = wszCoolTime;
+				}
+			}
+		}
+	}
+
+	CKTDGUIControl* pButtonToolTip = m_pDLGSkillSlot->GetControl( L"Button_EveRecoveryToolTip" );
+	if( NULL != pButtonToolTip )
+		pButtonToolTip->SetShowEnable( *pbShow_, *pbShow_ );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	static int s_iLoggedRecoveryUI = -1;
+	const int iRecoveryUIKey = ( true == *pbShow_ ? 1 : 0 ) + ( true == bShowCoolTime_ ? 2 : 0 );
+	if( iRecoveryUIKey != s_iLoggedRecoveryUI )
+	{
+		s_iLoggedRecoveryUI = iRecoveryUIKey;
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery statics show %d cool %d ( %.1f s ) guide %d cooltime %d button %d", true == *pbShow_ ? 1 : 0, true == bShowCoolTime_ ? 1 : 0,
+			fCoolTimeLeft_, NULL != pStaticGuide ? 1 : 0, NULL != pStaticCoolTime ? 1 : 0, NULL != pButtonToolTip ? 1 : 0 );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+}
+
+// June 322dee90: the recovery tooltip button's guide text
+void CX2Game::SetEveRecoveryToolTip( const wstring& wstrToolTip_ )
+{
+	if( NULL == m_pDLGSkillSlot )
+		return;
+
+	CKTDGUIControl* pButtonToolTip = m_pDLGSkillSlot->GetControl( L"Button_EveRecoveryToolTip" );
+	if( NULL != pButtonToolTip )
+		pButtonToolTip->SetGuideDesc( wstrToolTip_.c_str() );
+}
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 {
 	if( g_pData != NULL &&

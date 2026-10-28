@@ -1415,6 +1415,10 @@ class CX2Game : public CKTDXStage
 		void						June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
 		void						June_SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+		void						UpdateEveRecoveryUI( const bool* pbShow_, const bool bShowCoolTime_, const float fCoolTimeLeft_ );	/// June 322e65c0
+		void						SetEveRecoveryToolTip( const wstring& wstrToolTip_ );	/// June 322dee90
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 		void						June_TranscendSlotGuideFrameMove();		/// June 322d8100
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF

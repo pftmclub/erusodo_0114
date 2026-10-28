@@ -3140,6 +3140,11 @@ protected:
 	int			June_GetLiveAllySummonCount() const;		/// June 3299b2e0
 	CX2BuffFactorPtr	June_GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 32028af0 ( CX2GUUser vslot 0x238 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	void		ENSI_EVE_RECOVERY_StateStart();		/// June 329b57a0
+	void		GatherSummonedNPC( const int iNPCID_, const D3DXVECTOR3& vPos_, const bool bIsRight_ );	/// June 3299b180
+	void		RecoverSummonedNPC( const int iNPCID_ );	/// June 329b4860
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 	void June_InitEffect();									/// June 32965dd0 ( vslot 0x48 )
 	void June_CreateMinorParticleArray();					/// June 32965e10 ( vslot 0x548 )

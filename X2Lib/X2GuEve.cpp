@@ -44613,7 +44613,15 @@ void CX2GUEve::June_UpdateEveRecoveryTooltip()
 		wstrTooltip = GET_REPLACED_STRING( ( JUNE_CH1K_STR_RECOVERY_DEFAULT, "iii", iConsumeMp, iUpHpPercent, iCoolTime ) );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	if( NULL != g_pX2Game )
+		g_pX2Game->SetEveRecoveryToolTip( wstrTooltip );	// June @329c42bf
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery tooltip %s ( game %d ): %s", NULL != g_pX2Game ? L"set" : L"not set", NULL != g_pX2Game ? 1 : 0, wstrTooltip.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	/// June 322dee90( wstrTooltip ): call added in CH4c ( the Eve Recovery tooltip static of CX2Game )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 }
 
 // June 32d417e0 ( user ): the second value of the first BFT_TIME finalizer, -1 when there is none or it holds one value
@@ -44779,7 +44787,15 @@ void CX2GUEve::June_Destructor()
 
 	June_ClearGuardAndSummon();
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	if( NULL != g_pX2Game )
+	{
+		const bool bShowRecovery = false;
+		g_pX2Game->UpdateEveRecoveryUI( &bShowRecovery, false, 0.0f );	// June @329af1cc
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	/// June 322e65c0( 0, 0.0 ): call added in CH4c ( the Eve Recovery guide static of CX2Game )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 	if( NULL != m_pJuneBlock9c50 )
 	{
@@ -45530,7 +45546,16 @@ void CX2GUEve::June_CommonFrameMoveFuture()
 			m_fJuneCodeRecoveryCoolLeft = 0.0f;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	if( NULL != g_pX2Game )
+	{
+		const bool bShowRecovery = true;
+		const bool bRecoveryReady = ( m_fJuneCodeRecoveryCoolLeft <= 0.0f && GetNowMp() >= m_fJuneCodeRecoveryConsumeMp );
+		g_pX2Game->UpdateEveRecoveryUI( &bShowRecovery, false == bRecoveryReady, m_fJuneCodeRecoveryCoolLeft );	// June @32981120, every Eve, not only mine
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	// June 322e65c0: call added in CH4c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 }
 
 // June 3297c390: Mega Electronball / Taser Pilum are started by the key of the slot the skill sits in ( no Kugelblitz here, no state lookup )
@@ -51124,7 +51149,16 @@ void CX2GUEve::June_InitStateCommon()
 	stateData.StateEnd			= SET_CB_FUNC( CX2GUEve, ENSI_PARRYING_BLINK_End );
 	m_StateList[stateData.stateID] = stateData;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+	stateData.Init();
+	stateData.stateID			= ENSI_EVE_RECOVERY;	// June 329b8030 @1405
+	m_LuaManager.MakeTableReference( "ENSI_EVE_RECOVERY", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUEve, ENSI_EVE_RECOVERY_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericGroundComboEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	/// June 329b8030 @1405: ENSI_EVE_RECOVERY ( Code Recovery, CH4c registers it )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 }
 
 // June 329ba9c0 ( vslot 0x7a4 )
@@ -57064,5 +57098,151 @@ void CX2GUEve::June_SummonOpenMindAttackResult( CX2GUNPC* pSummon_ )
 }
 //}} Iruha : 2026-10-28 // June character Eve Phase CH4b
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4c
+// June 329b57a0: spend the MP ( Rule Break's rate ), heal, then the class line's part; the cool time starts only when the MP was there
+void CX2GUEve::ENSI_EVE_RECOVERY_StateStart()
+{
+	CommonStateStart();
+
+	float fConsumeMp = m_fJuneCodeRecoveryConsumeMp;
+	if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
+		fConsumeMp = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) * fConsumeMp;
+
+	if( false == ( fConsumeMp <= GetNowMp() ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery refused: mp %.1f < cost %.1f ( no cool time )", GetNowMp(), fConsumeMp );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+		return;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	const float fMpBefore = GetNowMp();
+	const float fHpBefore = GetNowHp();
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	UpNowMp( -fConsumeMp );
+	UpNowHp( m_fJuneCodeRecoveryUpHpRate * GetMaxHp(), 0.0f );
+
+	const int iUnitClass = ( NULL != GetUnit() ) ? static_cast<int>( GetUnit()->GetClass() ) : 0;
+	switch( iUnitClass )
+	{
+	case CX2Unit::UC_EVE_EXOTIC_GEAR:
+	case CX2Unit::UC_EVE_CODE_NEMESIS:
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_CODE_RECOVERY_ECN, 1, NULL, 0, false );
+		break;
+
+	case CX2Unit::UC_EVE_ARCHITECTURE:
+	case CX2Unit::UC_EVE_CODE_EMPRESS:
+		{
+			const D3DXVECTOR3 vPos = GetPos();
+			const bool bIsRight = GetIsRight();
+			GatherSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO, vPos, bIsRight );
+			GatherSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE, vPos, bIsRight );
+			GatherSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING, vPos, bIsRight );
+			GatherSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD, vPos, bIsRight );
+			GatherSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND, vPos, bIsRight );
+
+			if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
+			{
+				RecoverSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
+				RecoverSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );
+				RecoverSummonedNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING );
+				RecoverSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD );
+				RecoverSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND );
+			}
+		}
+		break;
+
+	case CX2Unit::UC_EVE_ELECTRA:
+	case CX2Unit::UC_EVE_BATTLE_SERAPH:
+		{
+			/// June 322cc1a0: PVP or PVE
+			const bool bPvpGame = ( NULL != g_pX2Game && ( CX2Game::GT_PVP == g_pX2Game->GetGameType() || CX2Game::GT_PVE == g_pX2Game->GetGameType() ) );
+			SetBuffFactorToGameUnitByBuffFactorID( true == bPvpGame ? BFI_BUFF_CODE_RECOVERY_ECB_PVP : BFI_BUFF_CODE_RECOVERY_ECB, 1, NULL, 0, false );
+		}
+		break;
+	}
+
+	m_fJuneCodeRecoveryCoolLeft = m_fJuneCodeRecoveryCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery class %d mp %.1f -> %.1f ( cost %.1f ) hp %.1f -> %.1f ( rate %.3f ) cool %.1f", iUnitClass,
+		fMpBefore, GetNowMp(), fConsumeMp, fHpBefore, GetNowHp(), m_fJuneCodeRecoveryUpHpRate, m_fJuneCodeRecoveryCoolLeft );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+}
+
+// June 3299b180: my ally summons with this id come to the spot; every ally summon with the id, mine or not, drops its target
+void CX2GUEve::GatherSummonedNPC( const int iNPCID_, const D3DXVECTOR3& vPos_, const bool bIsRight_ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNPCID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID_ )
+			continue;
+
+		if( true == pNPC->HaveThisBuff( BTI_DEBUFF_FESSEL_HEILIG ) )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		if( GetUnitUID() == static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID() )
+		{
+			pNPC->SetPosition( vPos_, bIsRight_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery gather npc %d", iNPCID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+		}
+		pNPC->GetNPCAI()->ResetTarget();
+	}
+}
+
+// June 329b4860: every live summon with this id, whoever owns it, gets the recovery HP share and Rule Break's buff
+void CX2GUEve::RecoverSummonedNPC( const int iNPCID_ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNPCID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID_ )
+			continue;
+
+		/// a unit without a gage passes the life test
+		if( NULL != pNPC->GetGageData() && pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if( true == pNPC->GetSelfDestruction() )
+			continue;
+
+		if( NULL != pNPC->GetGageData() )	/// June 31e551a0 reads 1.0 without a gage; March's GetMaxHp / UpNowHp need one
+		{
+			const float fUpHp = m_fJuneCodeRecoveryUpHpRate * pNPC->GetMaxHp();
+			pNPC->UpNowHp( fUpHp, 0.0f );
+		}
+
+		CX2BuffFactorPtr ptrBuffFactor = June_GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK, 0, true );
+		if( NULL != ptrBuffFactor )		/// June passes the factor unchecked
+			pNPC->SetBuffFactorToGameUnit( *ptrBuffFactor );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI recovery heal npc %d hp %.1f buff %s", iNPCID_, NULL != pNPC->GetGageData() ? pNPC->GetNowHp() : 0.0f, NULL != ptrBuffFactor ? L"set" : L"none" );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI_DEBUG
+	}
+}
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 
