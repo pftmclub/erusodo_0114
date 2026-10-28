@@ -3205,7 +3205,7 @@ protected:
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	/// June character port Phase CH1l4: inert June_* members of CommonFrameMove 0x7cc and the helpers only it reaches; nothing calls them until CH1
-	std::map<int, CX2EffectSet::Handle>	m_mapJuneNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; 3299b000 reads it, no phase of this port fills it yet )
+	std::map<int, CX2EffectSet::Handle>	m_mapJuneNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; Tesla Shock 3299a140 / Tesla Flare 3299a400 fill it, 3299b000 reads it )
 	float		m_fJune9770;							/// June +0x9770 ( 1.0; the power rate of the Oberon Guard effect set )
 	int			m_iJune9c28;							/// June +0x9c28 ( 0; 2 makes the delayed Thousand Star attack fire twice )
 	int			m_iJune9c2c;							/// June +0x9c2c ( 0; the level of the queen's control buff stack )
