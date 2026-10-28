@@ -50,3 +50,8 @@ Scope: the class-109 skill ids not in an earlier phase. For each id: its case in
 ## Amended by CH3a0 (2026-10-28)
 
 - **Modifier tag 15 is ported.** Push it with the vector overload `g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hHandle, 15, D3DXVECTOR3( s, s, s ), bAdd )` (June `321dad70`; take `bAdd` from the listing's last push), not the float form. `CX2EffectSet::ApplyDamageEffectModifiers` case 15 applies it (JUNE_BUGS 453). The tag has no enum name in June's `Enum.lua`, so it stays the number `15` with a one-line comment.
+
+## Amended by CH3a review (2026-10-28)
+
+- **Electronic Field's summon NPC ( 1622 `NUI_SI_SA_EEP_ELECTRONIC_FIELD` ) gets its setup in CH3a2**, not here: March has no `SetUserSummonedNPCInfo` case for it, and June's `3230c1a0` case is ported with the other Eve summons. If CH3b runs first, the field casts with default NPC stats and scale; say so in the hand-off.
+- Any state function here that reads a skill through an old `SI_*` id fails the same way March's Atomic Shield summon case did (CH3a review): use the `RNSI_*` id with the upgrade swap, as June does.

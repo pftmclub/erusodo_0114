@@ -1432,6 +1432,9 @@ public:
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	void June_SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 protected:
 	virtual void ParseCommonRandomState();
 	void				InitState();

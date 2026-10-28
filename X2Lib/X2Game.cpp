@@ -17397,6 +17397,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef NEW_SKILL_2010_11
  			case CX2UnitManager::NUI_ATOMIC_SHIELD_EVE:
  				{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+					/// June 3230c1a0 case 0x2aa: March read SI_SA_ENS_ATOMIC_SHIELD 5008, which the June tree does not equip
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetAtomicShieldSummonInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
  					float fMaxHpRel = 1.f;
  					float fShieldSize = 1.f;
  					const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_SA_ENS_ATOMIC_SHIELD );
@@ -17483,6 +17488,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 		#endif // UPGRADE_SKILL_SYSTEM_2013
 						pNPC->SetRealatedSkillLevel(iSkillLevel);
 	#endif //BALANCE_CODE_NEMESIS_20121213
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
  				} break;
 #endif NEW_SKILL_2010_11
 				//}} JHKang / ∞≠¡§»∆ / 2010/11/22 / ¿Ã∫Í æ∆≈‰πÕ ΩØµÂ
