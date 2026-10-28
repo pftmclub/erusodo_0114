@@ -1844,6 +1844,24 @@ public:
 		RNSI_A_ECN_SPEAR_BURST_UPGRADE                        = 25228,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-28 // June character port Phase CH3b (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Code: Empress skill cases spell (values from June's Enum.lua)
+		RNSI_SA_ECE_GENOCIDE_RIPPER                           = 25017,
+		RNSI_SA_ECE_ASSUALT_SPEAR_BURST                       = 25018,
+		RNSI_SA_ECE_SPACE_WRENCH                              = 25019,
+		RNSI_SA_EEP_TESLA_FLARE                               = 25045,
+		RNSI_SA_EEP_ELECTRONIC_THUNDER                        = 25046,
+		RNSI_SA_ECE_GENOCIDE_RIPPER_UPGRADE                   = 25059,
+		RNSI_SA_ECE_ASSUALT_SPEAR_BURST_UPGRADE               = 25060,
+		RNSI_SA_ECE_SPACE_WRENCH_UPGRADE                      = 25061,
+		RNSI_A_ECE_TESLA_SHOCK                                = 25208,
+		RNSI_A_ECE_SPIT_FIRE_FLUSH                            = 25209,
+		RNSI_A_EEP_SUMMON_TO_MIND                             = 25222,
+		RNSI_A_ECE_TESLA_SHOCK_UPGRADE                        = 25229,
+		RNSI_A_ECE_SPIT_FIRE_FLUSH_UPGRADE                    = 25230,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a2 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Exotic Gear skill cases spell (values from June's Enum.lua)

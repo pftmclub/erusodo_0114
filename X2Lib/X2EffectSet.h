@@ -940,6 +940,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		float							m_fJuneForceDownValueRate;	/// June EffectSetInstance +0x14c ( ctor 1.0 ), PlayEffectSet's trailing float
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+		D3DXVECTOR3						m_vJunePositionOffset;	/// June EffectSetInstance +0x1a4 ( ctor 0, 0, 0 ): class code writes it ( 329cc290 ); SetEffectSetOffset adds it to the effect's own offset
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 
 	private:
 		EffectSetInstance() {}; // do not use

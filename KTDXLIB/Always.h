@@ -10260,6 +10260,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH3b - an effect set instance carries a position offset ( June +0x1a4 ) that class code sets ( Spit Fire's SA_DEGREE_Y row, 329cc290 ) and that SetEffectSetOffset ( 321d9820 ) adds to the effect's own POSITION_OFFSET before it offsets the position. Needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME. Revert: undefine the flag ( JUNE_EFFECTSET_POSITION_OFFSET ).
+#define SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+#if defined( SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET ) && !defined( SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME )
+#error SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
 // Date: 2026-10-27
 // Description: June char-eve CH2b2 - one summon per owner and NPC id: when a summon NPC is created, June's SetUserSummonedNPCInfo tail ( 3200bec0 ) sets HP 0 on the owner's older live summons of the same id, for the 28 NPC ids of June's summon buff map 31fc96b0 ( Oberon, Nasod Watch, Ferdinand, Atomic Shield, Oberon Guard ... ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_SUMMON_UNIQUE

@@ -4876,6 +4876,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 , m_fJuneForceDownValueRate( 1.f )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+, m_vJunePositionOffset( 0, 0, 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 , m_bDamageEffectScale( false )
 , m_pEffectSetData( pEffectSetData ) 
 , m_fPrevElapsedTime( 0.f )
@@ -6243,7 +6246,11 @@ void CX2EffectSet::EffectSetInstance::SetEffectPoistion_EffectTool( IN const Eff
 */
 
 #ifdef FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE // ±Ë≈¬»Ø
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vJuneBaseOffsetPos_, IN const EffectData* pEffectData_ )
+#else SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vOffsetPos_, IN const EffectData* pEffectData_ )
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 #else //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
 void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vOffsetPos_ )
 #endif //FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE
@@ -6251,6 +6258,10 @@ void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 	if ( NULL == pEffectData_ )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
+	// June 321dcda4 / 321dd611: the instance's offset ( +0x1a4 ) and the effect's POSITION_OFFSET make the one offset every SetEffectSetOffset call of GetEffectPosition and GetEffectPositionByBoneName passes
+	const D3DXVECTOR3 vOffsetPos_ = vJuneBaseOffsetPos_ + m_vJunePositionOffset;
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 
 	// June2017 FUN_321d9820 @ 321d9847-321d9889: the unit whose facing orients the offset is the
 	// trace target when that is valid, else the owner. March always used the owner.

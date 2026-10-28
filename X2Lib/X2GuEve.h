@@ -168,6 +168,7 @@ public:
 		ENSI_A_EBS_ELECTRONIC_MOVE_UP,		/// June script id 240 ( Electronic Move up; CH3c owns the state )
 		ENSI_A_EBS_ELECTRONIC_MOVE_DOWN,	/// June script id 241 ( Electronic Move down; CH3c owns the state )
 		ENSI_JUNE_DASH_COMBO_ZX,			/// June script id 180 ( Architecture / Empress dash Z X; March's ENSI_DASH_COMBO_ZX exists only under EVE_COMBO_TEST_TEST; CH1h owns the state )
+		ENSI_SA_ECE_REASON_PRIDE_ACTION,	/// June script id 242 ( Reason of Pride action; CH3b owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -3321,6 +3322,34 @@ protected:
 	void		June_ReleasePsykerKinesis();						/// June 329aea60
 	D3DXVECTOR3	June_GetEffectBonePos( CX2DamageEffect::CEffect* pEffect_, const WCHAR* pwszBoneName_ );	/// June 329cc200
 	void		June_PsykerKinesisCooldown();						/// June 32976fe0
+	/// June character port Phase CH3b: Code: Empress skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_Init();					/// June 329666a0
+	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_Start();					/// June 3298c900
+	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_FrameMove();				/// June 3298cc60
+	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_HYPER_FrameMove();			/// June 3298ce20
+	void		June_ENSI_SA_EAT_SPACE_WRENCH_Init();						/// June 32966b00
+	void		June_ENSI_SA_EAT_SPACE_WRENCH_FrameMove();					/// June 3298d090 / 3298d2f0
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_Init();						/// June 32967250
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_StartFuture();				/// June 32978280
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_EndFuture();					/// June 32978320
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_FrameMove();					/// June 32990060
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_HYPER_FrameMove();			/// June 32990220
+	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_EventProcess();				/// June 32972540 / 32972670
+	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_Init();					/// June 32967110
+	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_FrameMove();				/// June 3299ecb0
+	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_EventProcess();			/// June 329721e0
+	void		June_SummonElectronicField( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299ba70
+	void		June_ENSI_A_EEP_SPIT_FIRE_Init();							/// June 32967190 / 329671e0
+	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( const bool bHyper_ );
+	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMove() { June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( false ); }			/// June 3299ed30
+	void		June_ENSI_A_EEP_SPIT_FIRE_Hyper_FrameMove() { June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( true ); }	/// June 3299f060
+	void		June_ENSI_A_EEP_SPIT_FIRE_EventProcess();					/// June 329722c0 / 329723a0
+	void		June_ENSI_A_ECE_TESLA_SHOCK_Start();						/// June 3299a140
+	void		June_ENSI_SA_EEP_TESLA_FLARE_FrameMove();					/// June 3299a400
+	void		June_ENSI_A_EEP_SUMMON_TO_MIND_FrameMove();					/// June 329ae470
+	void		June_ENSI_SA_ECE_REASON_PRIDE_Init();						/// June 32968970
+	void		June_ENSI_SA_ECE_REASON_PRIDE_FrameMove();					/// June 329ae4f0
+	void		June_ENSI_SA_ECE_REASON_PRIDE_EventProcess();				/// June 32976e10
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides
