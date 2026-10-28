@@ -2616,6 +2616,7 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
 - `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2Game.cpp X2Lib/X2UISkillTreeNew2015.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`.
 - `luabind.py check Eve_Nasod DLG_GAME_SKILL_SLOT_NEW_10slot`: `RESULT: PASS` (0 unbound).
 - `cl /Zs` on the four changed translation units: 0 errors.
+- **Range (after commit `bd2316cf`):** `flagcheck.py JUNE_CHAR_EVE_UI --with JUNE_CHAR_EVE_UI_DEBUG JUNE_GROUND_COMBO_END_EVENT --range bd2316cf^..bd2316cf`: `files: 4 PASS, 2 PASS~, 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,220,032 B, dated 2026-10-28 17:29:44, md5 49d25ddc462244c77458d1854b030279, equal to X2/US_SERVICE/x2.exe (2026-10-28 17:29:37); built at main 7998e342 + 8 uncommitted code file(s).` The phase's log strings and `ENSI_EVE_RECOVERY` are in the deployed exe.
 
