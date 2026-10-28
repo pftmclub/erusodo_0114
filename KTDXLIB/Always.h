@@ -10336,6 +10336,4 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE ) || !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) )
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE, _CHAR_EVE_SKILL, _ENUM_NAMES, _NPC_LUA_SUMMON_RATE, _BUFF_BEHAVIOR_PARITY and _SKILL_TEMPLET
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-// Description: temporary CH4a log lines [JUNE_CHAR] EVE PASSIVE ( init values, accel time, energetic heart, reason pride, queen of destroy ); retired in the CH4a review.
-#define SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////

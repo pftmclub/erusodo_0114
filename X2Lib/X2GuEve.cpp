@@ -34573,9 +34573,6 @@ void CX2GUEve::AttackManeuverCore ()
 			if( 0.f < fJuneCoolTimeCut && NULL != GetUnit() )
 			{
 				GetUnit()->AccessUnitData().m_UserSkillTree.JuneReduceLeftSkillCoolTime( fJuneCoolTimeCut, false );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
-				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE queen of destroy: core lv %d, cool times -%.2f s", m_iManeuverCoreLv, fJuneCoolTimeCut );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 			}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
@@ -56616,7 +56613,8 @@ void CX2GUEve::June_InitPassiveSkillState()
 		if( NULL != pSkillTemplet )
 		{
 			m_sATOveronGuardData.SetProjectileSize( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, iSkillLevel ) );
-			if( true == GetEqippedSkillMemo( CX2SkillTree::SMI_EVE_MEMO12 ) )
+			const bool bJuneMemo = false;	// June 31fca9e0 ( skill memo 605012 ): June's memo stub answers false
+			if( true == bJuneMemo )
 				m_sATOveronGuardData.SetEffectiveTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel ) * 0.5f );
 			else
 				m_sATOveronGuardData.SetEffectiveTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel ) );
@@ -56664,17 +56662,6 @@ void CX2GUEve::June_InitPassiveSkillState()
 	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, true, 0, true );
 	if( 0 < iSkillLevel )
 		JuneEveCH4aTryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, CX2SkillTree::RNSI_P_EEP_OPEN_MIND, m_fJune9c4c );
-
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
-	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE init unit %I64d class %d: walk x%.3f dash x%.3f jump x%.3f, air dash %.0f, critical +%.2f, ball range %.3f mp %.3f big %.3f, summon x%.3f / x%.3f critical %.3f time %.2f, control lv %d, charging %d",
-		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_AdditionalWalkSpeed.GetPassiveMultiple(), m_AdditionalDashSpeed.GetPassiveMultiple(), m_AdditionalJumpPower.GetPassiveMultiple(),
-		m_iPhotonBoosterAdditionalDashJumpCount, m_AdditionalCriticalRate.GetOptionValue(), m_fElectronBallRangeRate, m_fMPConsumeRateElectronBall, m_fJuneElectronBallBigRate,
-		m_SkillRelatedData.m_fStatAtkRateOfSummoned, m_SkillRelatedData.m_fJune4068, m_SkillRelatedData.m_fJune406c, m_fJune4070, m_iJune9c2c, ( !m_ChargingBoosterSkillDataBasePtr ? 0 : 1 ) );
-	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE init unit %I64d: laser x%.3f spectrum %d, optical %d %.3f, electrics %d %.3f, reactor %.2f / %.2f, oberon %.2f / %.2f, vengeance %.3f hyper x%.3f, destroy mp %.1f cool %.2f, open mind %.3f",
-		GetUnitUID(), m_EveElectraSystem.m_fLaserRangeScale, m_EveElectraSystem.GetEnableSpectrumDynamics() ? 1 : 0, m_EveElectraSystem.GetEnableHyperOpticalResearch() ? 1 : 0, m_EveElectraSystem.m_fHyperOpticalResearchScale,
-		m_bHighPoweredElectrics ? 1 : 0, m_fHighPoweredElectricsSpeed, m_fAddSpectrumTime, m_fAddEnergeticHeartTime, m_sATOveronGuardData.GetProjectileSize(), m_sATOveronGuardData.GetEffectiveTime(),
-		m_fJuneVengeanceMpRate, m_AdditionalHyperCharge.GetPassiveMultiple(), m_fJune9bfc, m_fJune9c00, m_fJune9c4c );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 }
 
 // June 32978370 ( vslot 0x7ac ): the skill id argument is unused
@@ -56694,9 +56681,6 @@ float CX2GUEve::June_GetAdditionalAccelBuffTime() const
 	if( NULL != pMemo && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemo->m_iType )
 		fAdditionalAccelBuffTime = ( ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.f ) + fAdditionalAccelBuffTime;
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
-	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE accel buff time +%.2f s ( memo %d )", fAdditionalAccelBuffTime, NULL != pMemo ? pMemo->m_iType : -1 );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 	return fAdditionalAccelBuffTime;
 }
 
@@ -56737,10 +56721,6 @@ void CX2GUEve::June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuff
 			m_EveElectraSystem.SetPlaneFormation( PFT_FUSION );
 			if( true == IsMyUnit() )
 				g_pX2Game->UpdateSkillSlotUI( false );
-
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE energetic heart on: boost attack %d, previous plane %d", m_iAddBoostAttack, static_cast<int>( m_EveElectraSystem.m_ePrevSpectro ) );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 		} break;
 
 	default:
@@ -56783,10 +56763,6 @@ void CX2GUEve::June_UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBu
 			pNpc = June_FindAllyNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD, GetUnitUID() );
 			if( NULL != pNpc )
 				pNpc->EraseBuffTempletFromGameUnit( BTI_BUFF_REASON_PRIDE_OPHELIA );
-
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE reason pride ends: summon buffs erased" );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
 		} break;
 
 	default:

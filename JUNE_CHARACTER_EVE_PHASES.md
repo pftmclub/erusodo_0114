@@ -2412,6 +2412,45 @@ B-5 work, the transcended picture and cut-in show.
 **Play-test PASSED (user, 2026-10-28; logs 13:54-13:59 on md5 `fc507678`, 0 EXCEPTION, 5 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, `AddGroupChainQuest` = quests).** Unit 59: walk / dash x1.120, air dash 3, critical +1519 (Energy of Concentration; 61 / 60 show +1430 without it), vengeance 0.150 hyper x1.100, destroy mp 1.0 cool 0.33; four `queen of destroy` cuts (core lv 3 -> -1.00 s, lv 2 -> -0.67 s). Unit 60: walk / dash x1.300, laser / ball x1.500, spectrum 1, optical 1 0.300, electrics 1 0.600; `energetic heart on: boost attack 3`. Unit 61: ball range 1.650 mp 0.700 big 0.440, summon x1.300 / x1.300 critical 0.500 time 5.00, control lv 4, charging 1, open mind 1.500. Three `reason pride ends` lines. June's own data: unit 59 `jump x0.000` (JUNE_BUGS 463), unit 60 `reactor 0.00 / 0.00` (25414 has only `SA_MAX_MP_ABS` / `SA_MP_REGENERATION_ABS`). For the review: whether March's `_IN_HOUSE_` `DISPLAY_ERROR` for a multiplier <= 0 (`CX2AdditionalStatByBuff::UpdateResultValue`) is reached by 463; ErrorLog had no such line and the user reported none.
 **In game:** two `[JUNE_CHAR] EVE PASSIVE init` lines per Eve load name every value; Nemesis' core attack logs `queen of destroy: ... cool times -N s` and the slot cool times drop; Energetic Heart logs `energetic heart on`.
 
+### CH4a - Review (2026-10-28, Opus 5.5): PASS after one fix
+
+Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; helpers `328905b0`, `32890720`, `32007c40`, `3229e160`) and with `funcdis.py` (`329b3b50`, `3297a440`, call site `329aca06`). Constants read from the exe: 0.5 (double `3342ebc8`), 1.0 (double `334355b0`, Queen's Potential `v + 1`), 0.0 (`334350e8`), 15.0 (`3345b368`).
+- **`3297f290`, block by block:** every skill id matches, and so do the level call `32890620( id, 1, 0, 1 )`, the templet source and the ability index. Templets come from `32206450` (tree), from `32890720( id, 1 )` (user, swap on) for 25409 / 25413, and from `31fca8e0( 25014, 1 )` for Oberon Guard. All 18 indexes resolve by name in `s0a_templet_keys.tsv`; 0x94 / 0xaa are June-only `SA_COOLTIME_1` / `SA_SOUL_ABS`.
+- **Offsets, each checked against a ported reader:**
+  - walk / dash / jump / dash-jump `+0x4870 / 4924 / 49d8 / 4a8c`: ctor reader; passive multiple `+0x18` = `3236ccc0`.
+  - critical `+0x4ca8`: March's own block writes `m_AdditionalCriticalRate.SetOptionValue` (`3236cb20`, `+0x24`).
+  - hyper charge `+0x63ec`: X2GUAdd reader.
+  - `+0x97ac` = `m_fElectronBallRangeRate`: the COMBO_X / XX / XXX, DASH_JUMP_COMBO_X and MEGA_ELECTRONBALL FrameMoves.
+  - `+0x95ec` = `m_ChargingBoosterSkillDataBasePtr`: June_CanUse / UseChargingBooster.
+  - `+0x9831 / 9834` = `m_bSpectrumDynamicsEnable` / `m_fLaserRangeScale`: June_StartElCrystalSystem.
+  - `+0x997c` = `m_fHyperOpticalResearchScale`: June_AttackThousandStar.
+  - `+0x9980 / 9990`: June_OnFrameMove_EndElCrystalSystem.
+  - `+0x97d0` double / `+0x97d8` float = `m_dEffectiveTime` / `m_fProjectileSize`.
+  - the rest: `ch1k_ctor_offsets.tsv`.
+- **What June drops:** only the constructor writes `+0x97c0` / `+0x97c4` (1.0 at `@3299caf9` / `@3299cb05`), so the two electronball rates stay 1.0, as in June. Charging Booster's create and its 15 s sit inside the `+0x95ec == 0` test (`@3297f758`..`@3297f804`).
+- **FIX (transcription):** Oberon Guard's memo test is June's `31fca9e0` stub, which always answers false (earlier Eve bodies write it as `bJuneMemo = false`). The port called March's `GetEqippedSkillMemo( SMI_EVE_MEMO12 )`, which answers true when memo 12 is equipped, and under `_IN_HOUSE_` whenever frame scale is on, so Oberon Guard's time was halved in those cases. It is now `const bool bJuneMemo = false`.
+- **Open Mind `32007c40`:** it reads the level with `( id, 0, 0, 1 )`, takes the user templet with swap on, and calls `32206fb0` with `322cc1a0`. The port passes PvP `false`, like the two earlier Eve copies of this helper ("IsPvpOrPve is false offline"). The CH4a helper duplicates `JuneEveTryGetAcquiredSkillAbilityValueSwap`; it was left as is, since it is not a defect.
+- **`32978370`:** never reads its argument. It returns 25402's `SA_EFFECTIVE_TIME + 0.0`, plus the first value of 25201's memo entry when that entry is type 15. = port.
+- **Set `329b3b50`:** jump table decoded from the exe (`329b3c64`, bytes `329b3c78`):
+  - 50 / 51 / 105 -> `329a7d00( 0 / 1 / 2 )`; 106 -> 25029 (equipped, swap on).
+  - 106: a null unit returns before the plane block; level `( id, 0, 0, 1 )`, at least 1; `SA_EFFECTIVE_COUNT` truncated to int into `+0x9b5c`.
+  - then `+0x9990 = +0x97f0`, `+0x97e4 = 1`, `+0x9980 = 1`, `+0x97f0 = 3`, vslot 0x198, then `322de5d0( 0 )`. = port.
+- **UnSet `3297a440`:** 50 / 51 / 105 / 106 run March's El-crystal branch (`+0x9b6c`, `+0x9b70`, laser list `+0x9954`, node byte `+0x51`). For 961, vslot 0x54 = `GetUnitUID` (funcmap), and `320017d0( 1621 / 1622, uid )` then `3229e160( 954 / 956 )` = March's `EraseBuffTempletFromGameUnit`. = port.
+- **`32894e40`:**
+  - Bars: A at `+0x48..`, B at `+0x23c..`, 5 slots each, stride 0x64.
+  - Templet: bar A's `328905b0` + map find + `32206450` is `32890720( id, 1 )`, and bar B inlines the same swap. Both equal March's `GetUserSkillTemplet( id, true )`.
+  - Filter order: force list, then not 12 / 13, then `32892060`, then the ignore list.
+  - Write: rate `left x f`, seconds `max( 0, left - f )`, only when the value changes. Then the lists clear and the mode resets to -1.
+  - Call site `@329aca06`: `+0x9c00 x +0x9b9c` (`m_iManeuverCoreLv`), only when `> 0` and the unit exists, in seconds.
+  - JUNE_BUGS 462 stands: no gage-manager write, unlike `32893e00`.
+- **JUNE_BUGS 463 and the popup question:** jump and dash-jump update through `CheckAndUpdateResultValueWithOptionData` (June `320839e0`, `X2GameUnit.cpp:15606-15607`). That path skips a product <= 0 and has no `DISPLAY_ERROR`, so `UpdateResultValue`'s `_IN_HOUSE_` popup is never reached; in `X2BuffTemplet.cpp` it is a `[JUNE_BUFF]` log line anyway. 463 stands.
+- **Retired:** `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG`, its define and its 5 blocks; the `EVE PASSIVE` log lines are gone. `MODS.md` flag and revert lines updated.
+
+**Hygiene.** `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2UserSkillTree.cpp`: `0 A/B row(s)`. `flagcheck.py JUNE_CHAR_EVE_PASSIVE --worktree --files X2Lib/X2GuEve.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 26 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. OTHER = Always.h, the `_DEBUG` define. The deleted lines are the `_DEBUG` blocks and the replaced memo test, all CH4a code.
+**Range:** RANGE_PLACEHOLDER
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,209,280 B, dated 2026-10-28 14:26:09, md5 07f770e93fc460cd430afe55316aa0a2, equal to X2/US_SERVICE/x2.exe (2026-10-28 14:26:02); built at main 2be896e6 + 2 uncommitted code file(s).`
+**User owes nothing** (no play-test): the fix matters only with memo 12 equipped or frame scale on, and the rest of the change only removes debug lines.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.
