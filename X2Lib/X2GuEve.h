@@ -3299,6 +3299,23 @@ protected:
 	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( const bool bHyper_ );
 	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMove() { June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( false ); }			/// June 3298f220
 	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_Hyper_FrameMove() { June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( true ); }	/// June 3298f8f0
+	/// June character port Phase CH3a: Code: Nemesis skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_ENSI_SA_EEG_IRONSCRAPS_Init();					/// June 329669b0
+	void		June_ENSI_A_EEG_JUNK_BREAK_Init();					/// June 32966cf0
+	void		June_ENSI_A_EEG_JUNK_BREAK_FrameMove();				/// June 3297bb10 / 3297bb40
+	void		June_ENSI_A_EEG_JUNK_BREAK_EventProcess();			/// June 329701f0
+	void		June_CreateSpearBurst();							/// June 3298d920
+	void		June_ENSI_A_ENS_BURST_SPEAR_FrameMove();			/// June 3298ff60 / 3298ffc0
+	void		June_ENSI_A_ENS_BURST_SPEAR_Landing_FrameMove();	/// June 32990020 / 32990040
+	void		June_ENSI_SA_EEG_ATOMIC_SHIELD_FrameMove();			/// June 329903e0
+	void		June_ENSI_SA_ENS_Assualt_Spear_Init();				/// June 32967e30
+	void		June_ENSI_SA_ENS_Assualt_Spear_EventProcess();		/// June 32974db0 / 32976a10
+	void		June_ENSI_A_ECN_TESLA_SHOCK_Init();					/// June 32968810
+	void		June_ENSI_SA_ECN_PSYKER_KINESIS_Init();				/// June 32968ab0
+	void		June_ENSI_SA_ECN_PSYKER_KINESIS_FrameMove();		/// June 3299a670
+	void		June_ReleasePsykerKinesis();						/// June 329aea60
+	D3DXVECTOR3	June_GetEffectBonePos( CX2DamageEffect::CEffect* pEffect_, const WCHAR* pwszBoneName_ );	/// June 329cc200
+	void		June_PsykerKinesisCooldown();						/// June 32976fe0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides

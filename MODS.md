@@ -5196,6 +5196,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH2c ); no debug fl
 - **Damage ( June level-1 value x0.01, `plan_numerical_rows.tsv` ).** Sweep Rolling `EVE_SWEEP_PARADE_TRIANGLE` 2.36 ( `_NEXT` 4.72 ); Giga Stream `EVE_EPR_GIGA_STREAM_LASER` 2.50 ( hyper 3.19, `_NEXT` the same ). March's values were not tabulated.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
 
+### June Eve: Code: Nemesis skills (char-eve CH3a, 2026-10-28)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH2c2 ); no debug flag. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH3a - Done"; log lines `[JUNE_CHAR] EVE SKILL registered <table>` and `[JUNE_SKILL] NUM use`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's `329c8a00` cases for Iron Scraps 25010 / 25054, Junk Break 25008 / 25052, Assault Spear 25009 / 25053, Atomic Shield 25011 / 25055, Illusionic Thorn 25043, Extreming Cutting 25044, Tesla Shock 25205 / 25227, Spear Burst 25206 / 25228 ( with its two landing states ), Shot Gun 25221 and Psyker Kinesis 25235 ( twelve `RNSI_*` names registered under `SERV_IRUHADEV_JUNE_ENUM_NAMES` ). Of the 41 June functions ( 39 of the class map, 2 moved in by CH1l3 ) 21 are March's bodies as they stand or bodies already ported, 20 are ported into 16 new `June_*` members.
+- **What changes in game.**
+  - Iron Scraps, Assault Spear and Tesla Shock: June's Init preloads; no C++ FrameMove ( June's script runs the effects, so the March cut-in and light are gone ). Assault Spear / Tesla Shock cancels need the ground.
+  - Junk Break: June's cut-in helper; the cancels need the ground; any key after 5.33 s ends the normal state.
+  - Spear Burst: the spear takes the state's power rate, the learned skill 25206 and the size ability ( `SA_SIZE_ABS` ) as its scale.
+  - Atomic Shield: size and numbers from skill 25011; the shield NPC is made only by the owning client, the earlier shield is not self-destructed, the hit-point key is `SA_DAMAGED_REL` x 100 ( PvP / PvE: `SA_DAMAGED_REL_PVP` ), and buff factor 440 replaces the summon timer.
+  - Psyker Kinesis: the attack ball and start effect sets, a 6 s ( or `SA_EFFECTIVE_TIME` ) countdown; at its end ( or on the key ) a spear effect is released from every damage effect of the ball and the skill's cool time starts.
+  - Shot Gun, Illusionic Thorn, Extreming Cutting: June's generic active-skill event process.
+- **Damage ( June level-1 value x0.01, `plan_numerical_rows.tsv` ).** Iron Scraps `EVE_EG_IRONSCRAPS` 2.46 ( hyper 1.85 ); Junk Break `JUNK_BREAK` 2.49 ( hyper 2.35 ); Assault Spear 40.14 / 30.18 / 20.22; Tesla Shock 6.70; Spear Burst `EVE_NS_SPEAR_BURST_SPEAR` 1.41, explosion 5.60; Sin Scissors ( Shot Gun ) 3.10; Illusion Thorns 5.71; Extreme Cutter 50.41; Psyker Kinesis attack 45.84, spear 3.49, spear move 3.25. Atomic Shield is an NPC and has no numerical block. March's values were not tabulated.
+- **Kept as June has it:** the Atomic Shield unit-null early return skips `CommonFrameMove`; its `SA_EFFECTIVE_TIME` is read and dropped; the Spear Burst and Tesla Shock templet / level lookups whose result is unused are not ported.
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
+
 ### June summons: one per owner and NPC id (char-eve CH2b2, 2026-10-27)
 
 Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b2 - Done"; log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`.

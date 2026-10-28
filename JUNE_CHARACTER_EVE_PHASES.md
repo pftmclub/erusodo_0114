@@ -2104,6 +2104,34 @@ All five items read against the raw listings (Ghidra `disassemble_function`).
 - **`31c82df0`:** `fld [esp+4]; fstp [ecx+0x36c]; ret 4` = March `SetNotCheckLandTime` (KTDGXMeshPlayer.cpp:2972-2975). `X2GuEve.cpp:20988-20991` does `SetLandPosition` + `fGapY / 3500 + 0.17f`, and the CH3a kickoff amendment names both.
 - **Hygiene:** `flagcheck JUNE_CHAR_EVE_SKILL --range c93180d0^..c93180d0`: 5 PASS, 1 PASS~ (the blank line), 0 deleted, 0 FAIL, RESULT PASS. `git log -S JuneRefreshSkillSlotUI c93180d0..HEAD`: none. `enumscan --check` on the three .cpp: 0 A/B rows. CH3a kickoff checked: no change needed.
 
+### CH3a - Done (2026-10-28, Sonnet 5.5)
+
+The ten Code: Nemesis skills take June's `329c8a00` cases and state bodies (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, in `June_SetEquippedSkillFuncHead`). All 41 functions read from the raw listings (`charport_adis.py eve --phase CH3a`; 39 of the class map plus `329aea60` / `329cc200` from CH1l3). Rows: funcmap `Char Eve CH3a` (30 rows).
+- **Registered ids (base + upgrade share a case):** Iron Scraps 25010 / 25054, Junk Break 25008 / 25052, Assault Spear 25009 / 25053, Atomic Shield 25011 / 25055, Tesla Shock 25205 / 25227, Spear Burst 25206 / 25228 (+ landing states 0xcd / 0xce), Illusionic Thorn 25043, Extreming Cutting 25044, Shot Gun 25221, Psyker Kinesis 25235. Twelve `RNSI_*` names added under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (`X2SkillTree.h`; the other four were in).
+- **March bodies that are June's as is, or already ported (21 functions):** Iron Scraps Start / EventProcess / End (+ hyper Init `32966a80`), Burst Spear Start / EventProcess / End / Landing EventProcess (hyper pairs equal), Atomic Shield Init / Start, Tesla Shock Start / End (= Iron Scraps'), the three event processes `329704f0` / `32972800` = `3296f0e0` (`June_EveSpecialActiveSkillEventProcess`), `31fcc9d0` / `31fcc740` / `329cc2c0` for Shot Gun, Illusionic Thorn, Extreming Cutting and Psyker Kinesis (`June_CopyStateCallbacks` for every hyper).
+- **New (16 `June_*` members, 20 functions):**
+  - Inits: Iron Scraps, Junk Break, Assault Spear, Tesla Shock, Psyker Kinesis (June's own preload lists). Iron Scraps, Assault Spear and Tesla Shock register no FrameMove: June's script runs the effects, so March's cut-in and light are gone.
+  - Junk Break: FrameMove with `3297b840` (`June_ShowActiveSkillCutInAndLight`), EventProcess (skill / BWALK / WALK / DASH chain with the on-line test, any key at 5.33 s). Assault Spear / Tesla Shock EventProcess: walk, skill, dash order.
+  - Spear Burst: `June_CreateSpearBurst` (`3298d920`: `GetPowerRate`, skill 25206 with memo swap, scale from `SA_SIZE_ABS` of the state skill), FrameMove and Landing FrameMove call it.
+  - Atomic Shield FrameMove (`329903e0`): skill 25011, `SA_SIZE_ABS`; 0.8 s: no self-destruct, no life timer, key = `SA_DAMAGED_REL` x 100 (`_PVP` in PvP / PvE), `IsMyUnit` gates `CreateNPCReq`, BFI 440 (`0 | 0 | level | 0 | 0x1b8`).
+  - Psyker Kinesis: FrameMove (makes the `+0x9c50` block: attack-ball and start effect sets, countdown, power rate), `June_ReleasePsykerKinesis` (`329aea60`, with `June_GetEffectBonePos` `329cc200`) and `June_PsykerKinesisCooldown` (`32976fe0`); the two calls CH1l3 / CH1l4 left out are added in `June_NoStateChangeActionFrameMove` case 0x40 and `June_UpdateBlock9c50Timer`.
+- **Assets:** no new `.lua`, no kom change, no pack (the ports use effect, mesh and texture names June's own data defines; the Nemesis closure rows in `ch0_assets.tsv` were staged in CH0b). `luabind.py check Eve_Nasod`: 0 unbound.
+- **Checklist / bugs:** 7 row `32976fe0` and section 1 marked `(Eve: CH3a)`; `MODS.md` section "June Eve: Code: Nemesis skills" (damage values at level 1). No JUNE_BUGS row. Watch item: the landing states are made with `Init()`, so a spear created there reads `GetNowStateSkillID()` = none and gets no size scale (June's own extra-state data not checked: CH3a review).
+- **Branches not ported:** none found outside the plan.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2SkillTree.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (the OTHER is the `JUNE_ENUM_NAMES` block in `X2SkillTree.h`); `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,150,912 B, dated 2026-10-28 07:38:58, md5 45722167272a33c93e3d1ab45c0a4427, equal to X2/US_SERVICE/x2.exe (2026-10-28 07:38:51); built at main b66160c3 + 3 uncommitted code file(s) (CH3a's 3). The strings `EffectSet_SA_ENS_Psyker_Kinesis_Attack_Ball`, `ECN_PsykerKinesis.X` and `Mesh_ASSUALT_SPEAR_RE.X` are in the exe.
+
+**Play-test hand-off.** Save: unit 59 `EveNemesis` (Eve Code: Nemesis, level 99): A slots 0-4 = Junk Break upgrade 25052 (A), Assault Spear upgrade 25053 (S), Iron Scraps upgrade 25054 (D), Atomic Shield upgrade 25055 (C), Illusionic Thorn 25043 (F); B slots 5-9 = Extreming Cutting 25044 (Q), Tesla Shock upgrade 25227 (W), Spear Burst upgrade 25228 (E), Shot Gun 25221 (R), Psyker Kinesis 25235 (T), all level 1; backup `db_backup\els_db_20261028_073256_pre_sql.sql`. The base ids share their cases with the upgrade ids and are not equipped. Log tag `[JUNE_CHAR] EVE SKILL` and `[JUNE_SKILL] NUM`.
+1. Junk Break (A): a spinning drill rush; hits `JUNK_BREAK`; cancel by walking or dashing after the cancel point on the ground; press any key after 5.3 s to end. Log `ENSI_A_EEG_JUNK_BREAK`.
+2. Assault Spear (S) and Iron Scraps (D): effects come from June's script (no cut-in light from C++); hits `DamageEffect_Assualt_Spear_Nemesis` x3 and `EVE_EG_IRONSCRAPS`.
+3. Atomic Shield (C): a shield effect at 0.02 s and the shield NPC at 0.8 s; look for the ally NPC and the log `ENSI_SA_EEG_ATOMIC_SHIELD`.
+4. Illusionic Thorn (F), Extreming Cutting (Q), Shot Gun (R): cast from the generic event process; hits `DamageEffect_SA_ENS_Illusionic_Thorn`, `..._Extreming_Cutting_Expl`, `DamageEffect_ENS_ShotGun_Remodel_01-04`.
+5. Tesla Shock (W): short electric strike, hits `DamageEffect_ECE_Tesla_Shock`.
+6. Spear Burst (E): jump up, a spear drops at 0.15 s and lands; look at the spear's size and the landing state; hits `EVE_NS_SPEAR_BURST_SPEAR` / `_EXPLOSION`.
+7. Psyker Kinesis (T): effect sets at 0.001 s; after about 6 s (or when the countdown ends) spear effects fly out of the ball and the cool time starts; look for hits `DamageEffect_SA_ECN_Psyker_Kinesis_Spear_Attack_Move`.
+No missing mesh / texture error is expected. Then say "check logs".
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

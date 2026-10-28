@@ -1827,6 +1827,23 @@ public:
 		RNSI_SA_EEL_GIGA_STREAM_UPGRADE                       = 25065,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-28 // June character port Phase CH3a (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Code: Nemesis skill cases spell (values from June's Enum.lua)
+		RNSI_SA_ECN_JUNK_BREAK                                = 25008,
+		RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR                 = 25009,
+		RNSI_SA_ECN_IRONSCRAPS                                = 25010,
+		RNSI_SA_ENS_ILLUSIONIC_THORN                          = 25043,
+		RNSI_SA_ENS_EXTREMING_CUTTING                         = 25044,
+		RNSI_SA_ECN_JUNK_BREAK_UPGRADE                        = 25052,
+		RNSI_SA_ECN_ASSAULT_SPEAR_ANNIHILATOR_UPGRADE         = 25053,
+		RNSI_SA_ECN_IRONSCRAPS_UPGRADE                        = 25054,
+		RNSI_A_ECN_TESLA_SHOCK                                = 25205,
+		RNSI_A_ENS_SHOT_GUN                                   = 25221,
+		RNSI_A_ECN_TESLA_SHOCK_UPGRADE                        = 25227,
+		RNSI_A_ECN_SPEAR_BURST_UPGRADE                        = 25228,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a2 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Exotic Gear skill cases spell (values from June's Enum.lua)
