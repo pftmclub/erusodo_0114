@@ -2487,6 +2487,7 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 - `flagcheck.py JUNE_SKILL_MP_DECREASE_RATE --worktree --files X2Lib/X2Unit.cpp KTDXLIB/Always.h`: `1 PASS, 1 OTHER, 0 FAIL`, `RESULT: PASS`.
 - `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2DamageManager.h`: `1 PASS~, 0 FAIL`, `RESULT: PASS`.
 - `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2GUNPC.cpp X2Lib/X2Unit.cpp`: no row in the CH4b lines (the 27 left are older code).
+- **Range (after commit `ee8162d4`):** `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_OVERRIDE_DEBUG --range ee8162d4^..ee8162d4`: `files: 2 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s)`, `RESULT: PASS`. `JUNE_SKILL_MP_DECREASE_RATE --range` the same: `RESULT: PASS`.
 - Build 1 failed in this phase's own `X2GUNPC.cpp` (`CX2GUEve` is incomplete there). The callback body moved to `X2GuEve.cpp`; build 2 is the deploy below.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,213,376 B, dated 2026-10-28 15:13:34, md5 56cd80ae403297ddc4a7f6a9732e961f, equal to X2/US_SERVICE/x2.exe (2026-10-28 15:13:27); built at main 5dd9ea98 + 7 uncommitted code file(s).` The five `EVE PASSIVE` log strings are in the deployed exe.
 **Save** (backup `els_db_20261028_150055_pre_sql.sql`):
