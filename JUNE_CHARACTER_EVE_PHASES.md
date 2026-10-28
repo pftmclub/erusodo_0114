@@ -2730,6 +2730,27 @@ after numbers in the Done note. A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
+### CH6 - Done (2026-10-28, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build** (deployed exe is CH5's, md5 `123e82d9`; data036 as CH5 left it). Save backed up before the walk: `data\db_backup\els_db_20261028_191755_pre_pre_ch6_walk.sql`.
+
+**Scans, before (planning 2026-10-25) -> after (now).**
+| Scan | Before | After |
+|---|---|---|
+| `census.py` | all PASS, `to-implement 0` (implemented 652, handed-off 9) | 26 PASS, 0 FAIL, `to-implement 0` (implemented 652, handed-off 9); regenerated `census.tsv` / KEY_MATRIX reverted |
+| `charport_keys.py Eve_Nasod` | 239 keys: june-only 16 / neither 1 / march-only-site 8 / both 214 | 239 keys: **5 / 1 / 8 / 225** (the 11 closed = 10 `CODE_RECOVERY_*` + `ADD_AIR_DASH_COUNT`, CH1/CH4 reader; left: `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME` damage data; `FORCE_DYNAMIC_CAMERA_INDEX`, `RETAIN_CAMERA_STATE` -> Stage 9; `IMMUNITY_EDT_LIST_AT_THIS_STATE` no reader; `neither` = `HEAD_IK`) |
+| `charport_scan.py` | `Eve_Nasod {'no NUMERICAL_DATA_INDEX': 25, 'no DAMAGE table': 3}`, no ENUM / KEYS line | **identical** (diff against `char_eve/plan_charport_scan_20261025.txt` empty on those lines) |
+| `s3_no_state.py --family X2GuEve.cpp --preprocess` | 261 rows / 127 ids, 254 no state | 261 rows, `no_state=65` (33 ids), **0 unexplained** (below) |
+
+**The 33 `no_state` ids.** The generator resolves `case SI_*` names only, so June ids whose March case is an `RNSI_*` label read as no state:
+- 9 have `case CX2SkillTree::RNSI_...` in `X2GuEve.cpp`: 25001, 25004, 25008, 25012, 25017, 25022, 25025, 25026 (the eight SAs) and 25200 (Photon Blink);
+- 25224 / 25225 Faena: June's own `default` case of both skill switches (`ch0_state_skill.tsv`; `June_SetFaenaSkillFunc`, CH2b);
+- 20 passives (type 8: 25400-25408, 25410-25420) and 106 / 900: no state in June (CH4a / CH4b data; common hyper aura / Heavenly Love in common code).
+
+**Walk units (already in the save).** 22 `weevwe` Nasod (99), 41 `ElectraT` Electra (90), 57 `EveExotic` Exotic Gear (99), 58 `EveArchi` Architecture (99), 59 `EveNemesis` Code Nemesis (99, transcended), 60 `EveSeraph` Battle Seraph (99, transcended), 61 `EveEmpress` Code Empress (99, transcended). Non-transcended units hold no skill in slot 4 / 9. Failures go back to the owning phase's flag (`JUNE_CHAR_EVE_*`), not here.
+
+**Gate status:** scans PASS; the walk and the `KEM_ERROR` check are owed (user plays, then "check logs"; tags `[JUNE_CHAR]`, `[JUNE_SKILL]`).
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Eve" section (flags, files, data, revert order: exe + data036 + motion koms
