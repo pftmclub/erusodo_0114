@@ -33,3 +33,8 @@ Scope: `SetDamageExceptionProcess` `329bc560` whole (June-only: no March body; 7
 ## Amended by CH2c2 (2026-10-28)
 
 - `3299b2e0` (class map says CH2c2, "called by 329a7250") is not called from 329a7250: its only caller is `329a79c0` @`329a7b25` (`GetActualMPConsume`). Port it with that override. Not read further by CH2c2: a loop over the game's units that counts those passing a state / target test (`0x180`, `0x207`, `+0x7c98`); funcmap row `3299b2e0`.
+
+## Amended by CH4a (2026-10-28)
+
+- `GetActualMPConsume` `329a79c0` reads 25402 (`@329a7a43` / `@329a7a63`) and 25417 Open Mind (`@329a7b49` / `@329a7b56`); `CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION` / `RNSI_P_EEP_OPEN_MIND` exist since CH4a. `m_fMPConsumeRateElectronBall` and `m_fJune9c4c` are written by CH4a's `June_InitPassiveSkillState`.
+- CH4a ported `CX2UserSkillTree::JuneReduceLeftSkillCoolTime` (`32894e40`) and its type filter `32892060` under `_PASSIVE`; reuse them, do not port again.

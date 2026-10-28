@@ -10327,3 +10327,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: Quest Q11 - the emulator's EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK leaves out a quest that failed to complete ( logged [JUNE_QUEST] BATCH ); its empty m_kUpdateUnitInfo made the client Reset the select unit to class 0. The live server never sends a failed entry ( GSUserGameCommon.cpp DBE_QUEST_COMPLETE_ACK ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4a - Eve's InitPassiveSkillState ( 3297f290 ), GetAdditionalAccelBuffTime ( 32978370 ) and Set / UnSetSpecificValueByBuffTempletID ( 329b3b50 / 3297a440 ) are June's; AttackManeuverCore's Queen of Destroy cut ( +0x9c00 x core level ) runs June's CX2UserSkillTree 32894e40. Revert: undefine the flag ( JUNE_CHAR_EVE_PASSIVE ).
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE ) || !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE, _CHAR_EVE_SKILL, _ENUM_NAMES, _NPC_LUA_SUMMON_RATE, _BUFF_BEHAVIOR_PARITY and _SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+// Description: temporary CH4a log lines [JUNE_CHAR] EVE PASSIVE ( init values, accel time, energetic heart, reason pride, queen of destroy ); retired in the CH4a review.
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////

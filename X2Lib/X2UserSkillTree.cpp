@@ -33,6 +33,9 @@ CX2UserSkillTree::CX2UserSkillTree(void)
 	ZeroMemory( m_arrSkillPoint, sizeof(m_arrSkillPoint) );
 	ZeroMemory( m_arrCashSkillPoint, sizeof(m_arrCashSkillPoint) );
 #endif //SKILL_PAGE_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	m_iJuneResetCoolTimeSkillTypeMode = -1;	// June ctor 32897d49
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 }
 
@@ -3240,6 +3243,81 @@ void CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune( const float fRate_, co
 	}
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+// June 32894e40: both bars; no gage-manager update, unlike 32893e00
+void CX2UserSkillTree::JuneReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ )
+{
+	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
+	for ( int iBar = 0; iBar < 2; ++iBar )
+	{
+		SkillSlotData* aSlotData = ( 0 == iBar ? m_aEquippedSkill : m_aEquippedSkillSlotB );
+		for ( int iCurrentIndex = 0; iCurrentIndex < iSizeOfIndex; ++iCurrentIndex )
+		{
+			SkillSlotData& slotData = aSlotData[iCurrentIndex];
+			const int iSkillID = static_cast<int>( slotData.m_eID );
+			if ( 0 >= iSkillID )
+				continue;
+
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( slotData.m_eID, true );
+			if ( NULL == pSkillTemplet )
+				continue;
+
+			if ( m_vecResetCoolTimeForceSkillID.end() == std::find( m_vecResetCoolTimeForceSkillID.begin(), m_vecResetCoolTimeForceSkillID.end(), iSkillID ) )
+			{
+				if ( CX2SkillTree::ST_RELATIONSHIP_SKILL == pSkillTemplet->m_eType || CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType )
+					continue;
+
+				if ( false == JuneIsResetCoolTimeSkillType( static_cast<int>( pSkillTemplet->m_eType ) ) )
+					continue;
+
+				if ( m_vecResetCoolTimeIgnoreSkillID.end() != std::find( m_vecResetCoolTimeIgnoreSkillID.begin(), m_vecResetCoolTimeIgnoreSkillID.end(), iSkillID ) )
+					continue;
+			}
+
+			const float fNowCoolTime = slotData.m_fCoolTimeLeft;
+			if ( 0.f < fNowCoolTime )
+			{
+				float fNewCoolTime = 0.f;
+				if ( true == bRate_ )
+					fNewCoolTime = fNowCoolTime * fValue_;
+				else if ( 0.f < fNowCoolTime - fValue_ )
+					fNewCoolTime = fNowCoolTime - fValue_;
+
+				if ( fNewCoolTime != fNowCoolTime )
+					slotData.m_fCoolTimeLeft = fNewCoolTime;
+			}
+		}
+	}
+
+	m_vecResetCoolTimeIgnoreSkillID.clear();
+	m_vecResetCoolTimeForceSkillID.clear();
+	m_iJuneResetCoolTimeSkillTypeMode = -1;
+	m_vecJuneResetCoolTimeSkillType.clear();
+}
+
+// June 328922d0
+void CX2UserSkillTree::JuneSetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ )
+{
+	m_iJuneResetCoolTimeSkillTypeMode = iMode_;
+	m_vecJuneResetCoolTimeSkillType = vecSkillType_;
+}
+
+// June 32892060: an empty list or another mode passes every type
+bool CX2UserSkillTree::JuneIsResetCoolTimeSkillType( const int iSkillType_ ) const
+{
+	if ( true == m_vecJuneResetCoolTimeSkillType.empty() )
+		return true;
+
+	const bool bListed = ( m_vecJuneResetCoolTimeSkillType.end() != std::find( m_vecJuneResetCoolTimeSkillType.begin(), m_vecJuneResetCoolTimeSkillType.end(), iSkillType_ ) );
+	if ( 0 == m_iJuneResetCoolTimeSkillTypeMode )
+		return !bListed;
+
+	if ( 1 == m_iJuneResetCoolTimeSkillTypeMode )
+		return bListed;
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #endif	NEW_SKILL_2010_11

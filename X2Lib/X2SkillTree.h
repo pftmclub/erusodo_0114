@@ -1895,6 +1895,22 @@ public:
 		RNSI_A_EEG_METAL_DUST_AURA_UPGRADE                    = 25218,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-28 // June character port Phase CH4a (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's InitPassiveSkillState spells (values from June's Enum.lua)
+		RNSI_P_EEG_REFINED_STEP                               = 25400,
+		RNSI_P_ECN_QUEEN_OF_VENGEANCE                         = 25403,
+		RNSI_P_ECN_QUEEN_OF_DESTROY                           = 25404,
+		RNSI_P_EAT_QUEENS_POTENTIAL                           = 25405,
+		RNSI_P_ECE_QUEENS_CONTROL                             = 25406,
+		RNSI_P_ECE_ELECTRON_BOOSTER                           = 25407,
+		RNSI_P_EEL_SPECTRUM_DYNAMICS                          = 25410,
+		RNSI_P_ECB_PHOTON_BOOSTER                             = 25412,
+		RNSI_P_ECB_HIGHPOWERED_ELECTRICS                      = 25413,
+		RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR                 = 25414,
+		RNSI_P_EEP_OPEN_MIND                                  = 25417,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion ½ºÅ³
 	}; 
 

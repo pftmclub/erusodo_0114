@@ -218,6 +218,10 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   Eve's June override `329b7390` (char-eve CH1o2) sits on March's 3-arg virtual and passes index 0 until this lands; it then becomes the 4-arg override.
 - **`SubStageStart`'s user byte `+0x944c`** (char-eve CH1o2, 2026-10-27): June's `327cf620` user loop calls vslot `0x6ac` (= March's `CallSummonedNPC`),
   sets `+0x412c` = 1.0 (`SetShieldDamageReduce`), then clears a June-only byte `+0x944c` that March lacks. Identify its readers; every class.
+- **Base buff-specific values** (char-eve CH4a, 2026-10-28): June's `CX2GUUser::SetSpecificValueByBuffTempletID` `3204b5e0` and
+  `UnSetSpecificValueByBuffTempletID` `3202ed60` (user vslots `0x24c` / `0x250`, called first by every class override) have about 25 cases each
+  (`0x93`-`0x97`, `0xb3`, `0xc6`, `0x104`, `0x133`-`0x135`, `0x1c4`, `0x214`, `0x2e4`-`0x2e7`, `0x31e`, `0x324`, `0x329`, `0x3ad`, `0x413`; effect sets
+  `EffectSet_SHASHA_STAGE0_AttackA / B`) against March's ten (`X2GUUser.cpp:41750` / `:41823`). Every class; port both whole, names from June's `Enum.lua`.
 - **Per-state immunity lists** (pilot-char-revamp CH1m, 2026-10-21). June `31fdaaa0`, called from `CX2GUUser::CommonStateStart` `@32057e68`, reads
   `IMMUNITY_LIST_AT_THIS_STATE` (ints into user `+0x8638`) and `IMMUNITY_EDT_LIST_AT_THIS_STATE` (`+0x8648`); March has neither key. Find the
   readers of `+0x8638 / +0x8648` (buff and extra-damage paths) and port the function with them. Aisha's June script has the EDT key in 12 states.

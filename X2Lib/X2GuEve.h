@@ -3122,6 +3122,12 @@ protected:
 	bool		June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
 	CX2GUNPC*	June_FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
 	float		June_GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	void		June_InitPassiveSkillState();													/// June 3297f290 ( vslot 0x690 )
+	float		June_GetAdditionalAccelBuffTime() const;										/// June 32978370 ( vslot 0x7ac )
+	void		June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 329b3b50 ( vslot 0x24c )
+	void		June_UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 3297a440 ( vslot 0x250 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	void June_InitEffect();									/// June 32965dd0 ( vslot 0x48 )
 	void June_CreateMinorParticleArray();					/// June 32965e10 ( vslot 0x548 )

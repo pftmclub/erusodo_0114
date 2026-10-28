@@ -365,6 +365,14 @@ public:		/// public function
 	/// June 32893e00 (EDT 156, through CX2Unit 3234ded0): every equipped skill's left cool time *= 1 - rate; keeps both lists
 	void ReduceLeftSkillCoolTimeByRateJune( const float fRate_, const bool bIncludeRelationAndHyper_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	/// June 32894e40: every equipped skill's left cool time minus fValue_ seconds, or times it; clears the lists
+	void JuneReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ );
+	/// June 328922d0
+	void JuneSetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ );
+	/// June 32892060
+	bool JuneIsResetCoolTimeSkillType( const int iSkillType_ ) const;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 private:
 	bool IsResetCoolTimeTarget( const CX2SkillTree::SKILL_TYPE eSkillType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_,
 		const bool bIsRelativeAllSkill_, const bool bForceSet_ ) const;
@@ -663,6 +671,10 @@ private:
 	vector<int>							m_vecResetCoolTimeIgnoreSkillID;	/// June +0x468: BBT_RESET_SKILL_COOL_TIME IGNORE_SKILL_ID
 	vector<int>							m_vecResetCoolTimeForceSkillID;		/// June +0x478: BBT_RESET_SKILL_COOL_TIME FORCE_SKILL_ID
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	int									m_iJuneResetCoolTimeSkillTypeMode;	/// June +0x488 ( -1; 0 skips the listed types, 1 keeps only them )
+	vector<int>							m_vecJuneResetCoolTimeSkillType;	/// June +0x48c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	SKILL_SLOT_B_EXPIRATION_STATE		m_eSkillSlotBExpirationState;
 	std::wstring						m_wstrSkillSlotBEndDate;

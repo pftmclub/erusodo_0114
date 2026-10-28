@@ -2390,6 +2390,26 @@ B-5 work, the transcended picture and cut-in show.
 **Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); El Crystal icons and the recovery guide show as June;
 0 Eve `no_state` rows left except passives with no state in June.
 
+### CH4a - Done (2026-10-28, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4a". Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE` (+ temporary `_DEBUG`).
+- **Four overrides are June's**, March's bodies in the `#else`: `InitPassiveSkillState` `3297f290`, `GetAdditionalAccelBuffTime` `32978370`, `SetSpecificValueByBuffTempletID` `329b3b50`, `UnSetSpecificValueByBuffTempletID` `3297a440` (the last two are not carved in Ghidra: `funcdis.py`; the Set jump table is decoded in the funcmap row).
+  - `3297f290`: 18 skill blocks on June's ids. Offsets -> March members: walk / dash / jump / dash-jump `+0x4870..+0x4a8c` (stride 0xb4; walk's result `+0x4910` = `GetWalkSpeed`), critical `+0x4ca8` (option value), hyper charge `+0x63ec` (Queen of Vengeance `SA_SOUL_ABS`), Electra `+0x9834 / 9831 / 997c / 9978`, `+0x95ec` = `m_ChargingBoosterSkillDataBasePtr` (CH1k's "unmapped" row), Oberon Guard `+0x97d0 / 97d8`. Ability names from `s0a_templet_keys.tsv` (June index -> name), e.g. 0x80 `SA_AIR_MOVE_COUNT`, 0x8b `SA_ATK_CRITICAL_RATE_ATK_BASE`, 0x94 `SA_COOLTIME_1`.
+  - It fills the members earlier phases left for CH4a: `m_fJuneVengeanceMpRate`, `m_fJune9bfc`, `m_fJune9c00`, `m_fJune4070`, `m_fJune4068` / `m_fJune406c` (with `m_fStatAtkRateOfSummoned` reset at entry), `m_fJuneElectronBallBigRate`, `m_iJune9c2c` (Queen's Control level), `m_fJune9c4c` (Open Mind 25417, through a swap-on copy of `32007c40`).
+  - June drops March's electronball up / master blocks (`m_fAttackPowerRateElectronBall` / `m_fForceDownValueRateElectronBall` keep their ctor 1.0) and the memo 5 / 12 fix paths; Charging Booster's 15 s is set only when the object is built (`@3297f7f5`).
+  - `32978370` ignores its argument: Energy of Concentration 25402's `SA_EFFECTIVE_TIME` plus the 25201 memo (type 15) value.
+  - `3297a440` adds BTI 961 `BUFF_REASON_PRIDE_EVE`: erase 954 from the ally Surface Cuting (1621) and 956 from Electronic Field (1622).
+- **Queen of Destroy cool-time cut is live**: `AttackManeuverCore @329aca06` (CH1q's comment) -> `CX2UserSkillTree::JuneReduceLeftSkillCoolTime( m_fJune9c00 x core level, false )` = June `32894e40`, ported whole with its type filter `32892060`, setter `328922d0` and members `+0x488` (-1) / `+0x48c`. 11 other-class callers -> their ports (funcmap row). JUNE_BUGS 462 (no gage-list update).
+- **Names.** 11 `RNSI_P_*` in `X2SkillTree.h` (`JUNE_ENUM_NAMES`): 25400, 25403-25407, 25410, 25412-25414, 25417. `enumscan`: 0 A/B rows.
+- **Readers of the 24 ids** (`scratchpad ch4a_reader_sites.tsv`, 88 sites): all in ported functions except `GetActualMPConsume` `329a79c0` (CH4b, amended), Code Recovery `329b57a0` / `329b4860` (CH4c, amended); `32968dd0` and `32988e40` are dead (no reference in the exe). `329ce7b0` is not called by `3297f290` (class map wrong; CH1k ported its real caller).
+- **Drift, own plan:** June's base `CX2GUUser::Set / UnSetSpecificValueByBuffTempletID` (`3204b5e0` / `3202ed60`, ~25 cases vs March's 10, every class) -> `JUNE_PORT_BACKLOG_ORDER.md` Stage 2 bullet.
+- Checklist §7ae marked `(Eve: CH4a ...)`. `MODS.md` section "June Eve: passives and buff-specific values".
+
+**Hygiene.** `/Zs` X2GuEve / X2UserSkillTree / X2GUUser: 0 errors; flag probe: every `#error` prerequisite ON. `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_PASSIVE_DEBUG --worktree --files ...`: `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = `X2SkillTree.h`, inside `JUNE_ENUM_NAMES`).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,211,328 B, dated 2026-10-28 13:49:24, md5 fc5076780ce9820639433128a2107c30, equal to X2/US_SERVICE/x2.exe (2026-10-28 13:49:17); built at main 0b0d5a89 + 6 uncommitted code file(s).` The strings `EVE PASSIVE init`, `queen of destroy` and `reason pride ends` are in the deployed exe. `skillicons.py check 25400-25420 25201 25214`: 23 skills, 0 misses, PASS.
+**Save** (backup `els_db_20261028_134038_pre_sql.sql`): unit 59 `EveNemesis` + Queen of Destroy 25404, unit 60 `EveSeraph` + El Energy Reactor 25414, unit 61 `EveEmpress` + Charging Booster 25409 (level 1 each).
+**In game:** two `[JUNE_CHAR] EVE PASSIVE init` lines per Eve load name every value; Nemesis' core attack logs `queen of destroy: ... cool times -N s` and the slot cool times drop; Energetic Heart logs `energetic heart on`.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

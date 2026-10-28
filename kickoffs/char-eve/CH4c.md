@@ -51,3 +51,8 @@ Scope: the Code Recovery mechanic behind the 10 June-only `CODE_RECOVERY_*` `INI
   - `322d9250` = June `UpdateEveElectraSkillSlotIcon`: per slot 0-9 with the lock test, `+0x130` = Eve `+0x97e4`, `+0x134` = Eve `+0x97f0` (@322d94ee / @322d950f), the slot texture, and the Thousand Stars `FIRE` icon by `+0x9a20` / `+0x9a18`;
   - `322d99d0`, Code Empress's Link Overcharge icons (`Hyper_Active_01` / `_02`, 0x6401 / 0x6404), writing `+0x130` @322d9c30.
   Port both whole with the two tree members: the first as the June tail of March's `UpdateEveElectraSkillSlotIcon`, the second at its June caller `322de5d0` (@322de683 / @322de691). `322d9250`'s callers: `328e18d0` @328e1e91 (S7b already calls March's) and any others `xrefs_to` lists.
+
+## Amended by CH4a (2026-10-28)
+
+- Code Recovery reads 25418 `RNSI_P_EEP_CHEAT_CODE_RULE_BREAK` in `329b57a0` (ENSI_EVE_RECOVERY Start, `@329b57c2` / `@329b57d6` / `@329b5974`) and its helper `329b4860` (`@329b49ec`).
+- The El Crystal end check is CH4a's `June_UnSetSpecificValueByBuffTempletID` (`3297a440`): BTI 50 / 51 / 105 / 106 set `m_eReserveEndElCrystalBuffID` / `m_bIsCheckEndElCrystal` as March's `FIX_EVE_ELCRYSTAL_BUG` branch.

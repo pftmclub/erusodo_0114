@@ -3624,6 +3624,9 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 
 void CX2GUEve::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	June_InitPassiveSkillState();
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 
 	// kimhc // 2009-11-27 // 패시브 스킬 초기화 시에 항등원으로 초기화
@@ -4123,6 +4126,7 @@ void CX2GUEve::InitPassiveSkillState()
 		}
 	} 
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
 
@@ -29149,6 +29153,9 @@ void CX2GUEve::DeleteMinorParticle()
 */
 /*virtual*/ float CX2GUEve::GetAdditionalAccelBuffTime( const CX2SkillTree::SKILL_ID eSkillID_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	return June_GetAdditionalAccelBuffTime();
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	float fAdditionalAccelBuffTime = 0.0f;
 
 	/// 엑조틱, 격려의 기운
@@ -29176,6 +29183,7 @@ void CX2GUEve::DeleteMinorParticle()
 	}
 
 	return fAdditionalAccelBuffTime;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
 /** @function : ApplyAuraAcceleratorBuffToGameUnit
@@ -29539,6 +29547,9 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 */
 /*virtual*/ void CX2GUEve::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	June_SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -29590,6 +29601,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
 /** @function : UnSetSpecificValueByBuffTempletID
@@ -29598,6 +29610,9 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 */
 /*virtual*/ void CX2GUEve::UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	June_UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -29682,6 +29697,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
 
@@ -34552,6 +34568,16 @@ void CX2GUEve::AttackManeuverCore ()
 				}
 			}
 			/// June @329aca06: +0x9c00 x level > 0 takes seconds off every equipped cool time ( 32894e40 ); CH4a ports it with +0x9c00
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+			const float fJuneCoolTimeCut = m_fJune9c00 * static_cast<float>( m_iManeuverCoreLv );
+			if( 0.f < fJuneCoolTimeCut && NULL != GetUnit() )
+			{
+				GetUnit()->AccessUnitData().m_UserSkillTree.JuneReduceLeftSkillCoolTime( fJuneCoolTimeCut, false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE queen of destroy: core lv %d, cool times -%.2f s", m_iManeuverCoreLv, fJuneCoolTimeCut );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE
 		}				
 	}
@@ -56406,5 +56432,368 @@ using namespace _CONST_EVE_JUNE_CH1o_;
 }
 //}} Iruha : 2026-10-27 // June character Eve Phase CH1o
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4a
+namespace _CONST_EVE_JUNE_CH4a_
+{
+	/// June 32007c40 with its upgrade-swap argument on ( Open Mind passes 1 )
+	bool JuneEveCH4aTryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID_, false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID_, true );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+	}
+}
+using namespace _CONST_EVE_JUNE_CH4a_;
+
+// June 3297f290 ( vslot 0x690 )
+void CX2GUEve::June_InitPassiveSkillState()
+{
+	CX2GUUser::InitPassiveSkillState();
+
+	m_SkillRelatedData.m_fStatAtkRateOfSummoned = 1.f;
+	m_SkillRelatedData.m_fJune4068 = 1.f;
+	m_SkillRelatedData.m_fJune406c = 0.f;
+	m_fElectronBallRangeRate = 1.f;
+	SetAdditionalMPChangeRateByPassive( 0.f );
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EEG_REFINED_STEP, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EEG_REFINED_STEP );
+		if( NULL != pSkillTemplet )
+		{
+			const float fMoveSpeed = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iSkillLevel );
+			m_AdditionalWalkSpeed.SetPassiveMultiple( m_AdditionalWalkSpeed.GetPassiveMultiple() * fMoveSpeed );
+			m_AdditionalDashSpeed.SetPassiveMultiple( m_AdditionalDashSpeed.GetPassiveMultiple() * fMoveSpeed );
+
+			const float fJumpSpeed = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_JUMP_SPEED, iSkillLevel );
+			m_AdditionalJumpPower.SetPassiveMultiple( m_AdditionalJumpPower.GetPassiveMultiple() * fJumpSpeed );
+			m_AdditionalDashJumpPower.SetPassiveMultiple( m_AdditionalDashJumpPower.GetPassiveMultiple() * fJumpSpeed );
+
+			m_iPhotonBoosterAdditionalDashJumpCount = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_AIR_MOVE_COUNT, iSkillLevel );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION );
+		if( NULL != pSkillTemplet )
+		{
+			const float fCriticalRateValueAtkBase = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ATK_BASE, iSkillLevel );
+			const float fMixAtk = ( GetStat().GetStat().m_fAtkPhysic + GetStat().GetStat().m_fAtkMagic ) * 0.5f;
+			m_AdditionalCriticalRate.SetOptionValue( m_AdditionalCriticalRate.GetOptionValue() + fMixAtk * fCriticalRateValueAtkBase );
+		}
+	}
+
+	m_fMPConsumeRateElectronBall = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EAT_QUEENS_POTENTIAL, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EAT_QUEENS_POTENTIAL );
+		if( NULL != pSkillTemplet )
+			m_fMPConsumeRateElectronBall *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel ) + 1.f;
+	}
+
+	m_iJune9c2c = 0;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECE_QUEENS_CONTROL, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECE_QUEENS_CONTROL );
+		if( NULL != pSkillTemplet )
+		{
+			const float fSummonAtkRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SUMMON_ATK_REL, iSkillLevel );
+			m_iJune9c2c = iSkillLevel;
+			m_SkillRelatedData.m_fStatAtkRateOfSummoned *= fSummonAtkRel;
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECE_GRACE_OF_QUEEN, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECE_GRACE_OF_QUEEN );
+		if( NULL != pSkillTemplet )
+		{
+			m_SkillRelatedData.m_fJune4068 *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SUMMON_ATK_REL, iSkillLevel );
+			m_SkillRelatedData.m_fJune406c = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, iSkillLevel );
+			m_fJune4070 = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+		}
+	}
+
+	// June sets the 15 s only when it builds the object; March set it on every call
+	const CX2SkillTree::SkillTemplet* pSkillTempletChargingBooster = userSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true );
+	if( NULL != pSkillTempletChargingBooster && !m_ChargingBoosterSkillDataBasePtr )
+	{
+		const float fCoolTime = pSkillTempletChargingBooster->GetSkillCoolTimeValue( userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, true, 0, true ) );
+		m_ChargingBoosterSkillDataBasePtr = CSkillDataBase::CSkillCreateSkillDataBasePtr( CX2SkillTree::RNSI_P_ECE_CHARGING_BOOSTER, fCoolTime );
+		m_ChargingBoosterSkillDataBasePtr->SetCoolTime( 15.0f );
+		m_ChargingBoosterSkillDataBasePtr->SetTimerBasedOnCoolTime( m_ChargingBoosterSkillDataBasePtr->GetCoolTime() );
+	}
+
+	m_EveElectraSystem.m_fLaserRangeScale = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EEL_SPECTRUM_DYNAMICS, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EEL_SPECTRUM_DYNAMICS );
+		if( NULL != pSkillTemplet )
+		{
+			const float fRangeScale = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fElectronBallRangeRate *= fRangeScale;
+			m_EveElectraSystem.m_fLaserRangeScale *= fRangeScale;
+		}
+		m_EveElectraSystem.SetEnableSpectrumDynamics( true );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECB_HYPER_OPTICAL_RESEARCH, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECB_HYPER_OPTICAL_RESEARCH );
+		if( NULL != pSkillTemplet )
+			m_EveElectraSystem.m_fHyperOpticalResearchScale = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS, iSkillLevel );
+		m_EveElectraSystem.SetEnableHyperOpticalResearch( true );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECB_PHOTON_BOOSTER, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECB_PHOTON_BOOSTER );
+		if( NULL != pSkillTemplet )
+		{
+			const float fMoveSpeed = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iSkillLevel );
+			m_AdditionalWalkSpeed.SetPassiveMultiple( m_AdditionalWalkSpeed.GetPassiveMultiple() * fMoveSpeed );
+			m_AdditionalDashSpeed.SetPassiveMultiple( m_AdditionalDashSpeed.GetPassiveMultiple() * fMoveSpeed );
+			m_iPhotonBoosterAdditionalDashJumpCount = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_AIR_MOVE_COUNT, iSkillLevel );
+		}
+	}
+
+	pSkillTemplet = userSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_ECB_HIGHPOWERED_ELECTRICS, true );
+	if( NULL != pSkillTemplet )
+	{
+		m_bHighPoweredElectrics = true;
+		const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECB_HIGHPOWERED_ELECTRICS, true, 0, true ) );
+		m_fHighPoweredElectricsSpeed = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iSkillTempletLevel );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR, true, 0, true );
+	m_fAddEnergeticHeartTime = 0.f;
+	m_fAddSpectrumTime = 0.f;
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR );
+		if( NULL != pSkillTemplet )
+		{
+			const float fCriticalRateValueAtkBase = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ATK_BASE, iSkillLevel );
+			const float fMixAtk = ( GetStat().GetStat().m_fAtkPhysic + GetStat().GetStat().m_fAtkMagic ) * 0.5f;
+			m_AdditionalCriticalRate.SetOptionValue( m_AdditionalCriticalRate.GetOptionValue() + fMixAtk * fCriticalRateValueAtkBase );
+
+			SetAdditionalMPChangeRateByPassive( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel ) );
+			ResetMPChangeRate( GetOriginalMPChangeRate() );
+
+			m_fAddSpectrumTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+			m_fAddEnergeticHeartTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME_HYPER, iSkillLevel );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, true );
+		if( NULL != pSkillTemplet )
+		{
+			m_sATOveronGuardData.SetProjectileSize( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, iSkillLevel ) );
+			if( true == GetEqippedSkillMemo( CX2SkillTree::SMI_EVE_MEMO12 ) )
+				m_sATOveronGuardData.SetEffectiveTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel ) * 0.5f );
+			else
+				m_sATOveronGuardData.SetEffectiveTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel ) );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECN_QUEEN_OF_VENGEANCE, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECN_QUEEN_OF_VENGEANCE );
+		if( NULL != pSkillTemplet )
+		{
+			m_fJuneVengeanceMpRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_HP_REL_TO_MP_ABS_1, iSkillLevel );
+
+			float fSoulRate = 1.f;
+			if( true == pSkillTemplet->JuneTryGetSkillAbilityValue( CX2SkillTree::SA_SOUL_ABS, iSkillLevel, false, fSoulRate ) )
+				m_AdditionalHyperCharge.SetPassiveMultiple( m_AdditionalHyperCharge.GetPassiveMultiple() * fSoulRate );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECN_QUEEN_OF_DESTROY, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECN_QUEEN_OF_DESTROY );
+		if( NULL != pSkillTemplet )
+		{
+			m_fJune9bfc = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_RECOVER_MP_ABS, iSkillLevel );
+			m_fJune9c00 = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECE_ELECTRON_BOOSTER, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ECE_ELECTRON_BOOSTER );
+		if( NULL != pSkillTemplet )
+		{
+			m_fElectronBallRangeRate *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fJuneElectronBallBigRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_MAGIC_FIRST_REL, iSkillLevel );
+			m_iPhotonBoosterAdditionalDashJumpCount = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_AIR_MOVE_COUNT, iSkillLevel );
+		}
+	}
+
+	m_fJune9c4c = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, true, 0, true );
+	if( 0 < iSkillLevel )
+		JuneEveCH4aTryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, CX2SkillTree::RNSI_P_EEP_OPEN_MIND, m_fJune9c4c );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE init unit %I64d class %d: walk x%.3f dash x%.3f jump x%.3f, air dash %.0f, critical +%.2f, ball range %.3f mp %.3f big %.3f, summon x%.3f / x%.3f critical %.3f time %.2f, control lv %d, charging %d",
+		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_AdditionalWalkSpeed.GetPassiveMultiple(), m_AdditionalDashSpeed.GetPassiveMultiple(), m_AdditionalJumpPower.GetPassiveMultiple(),
+		m_iPhotonBoosterAdditionalDashJumpCount, m_AdditionalCriticalRate.GetOptionValue(), m_fElectronBallRangeRate, m_fMPConsumeRateElectronBall, m_fJuneElectronBallBigRate,
+		m_SkillRelatedData.m_fStatAtkRateOfSummoned, m_SkillRelatedData.m_fJune4068, m_SkillRelatedData.m_fJune406c, m_fJune4070, m_iJune9c2c, ( !m_ChargingBoosterSkillDataBasePtr ? 0 : 1 ) );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE init unit %I64d: laser x%.3f spectrum %d, optical %d %.3f, electrics %d %.3f, reactor %.2f / %.2f, oberon %.2f / %.2f, vengeance %.3f hyper x%.3f, destroy mp %.1f cool %.2f, open mind %.3f",
+		GetUnitUID(), m_EveElectraSystem.m_fLaserRangeScale, m_EveElectraSystem.GetEnableSpectrumDynamics() ? 1 : 0, m_EveElectraSystem.GetEnableHyperOpticalResearch() ? 1 : 0, m_EveElectraSystem.m_fHyperOpticalResearchScale,
+		m_bHighPoweredElectrics ? 1 : 0, m_fHighPoweredElectricsSpeed, m_fAddSpectrumTime, m_fAddEnergeticHeartTime, m_sATOveronGuardData.GetProjectileSize(), m_sATOveronGuardData.GetEffectiveTime(),
+		m_fJuneVengeanceMpRate, m_AdditionalHyperCharge.GetPassiveMultiple(), m_fJune9bfc, m_fJune9c00, m_fJune9c4c );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+}
+
+// June 32978370 ( vslot 0x7ac ): the skill id argument is unused
+float CX2GUEve::June_GetAdditionalAccelBuffTime() const
+{
+	float fAdditionalAccelBuffTime = 0.f;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION );
+		if( NULL != pSkillTemplet )
+			fAdditionalAccelBuffTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+	}
+
+	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL );
+	if( NULL != pMemo && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemo->m_iType )
+		fAdditionalAccelBuffTime = ( ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.f ) + fAdditionalAccelBuffTime;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE accel buff time +%.2f s ( memo %d )", fAdditionalAccelBuffTime, NULL != pMemo ? pMemo->m_iType : -1 );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+	return fAdditionalAccelBuffTime;
+}
+
+// June 329b3b50 ( vslot 0x24c )
+void CX2GUEve::June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
+{
+	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch( eBuffTempletId_ )
+	{
+	case BTI_BUFF_AMPLIFICATION_PLACE:
+		June_ChangePlaneForamtionSystem( PFT_AMPLIFIER );
+		break;
+
+	case BTI_BUFF_SPECTRUM_PLACE:
+		June_ChangePlaneForamtionSystem( PFT_SPECTRUM );
+		break;
+
+	case BTI_BUFF_INDUCTION_PLACE:
+		June_ChangePlaneForamtionSystem( PFT_INDUCTION );
+		break;
+
+	case BTI_BUFF_SI_SA_EBS_ENERGETIC_HEART:
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ECB_ENERGETIC_HEART, true );
+			if( NULL != pSkillTemplet )
+			{
+				if( NULL == GetUnit() )
+					return;
+
+				const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+				m_iAddBoostAttack = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, iSkillTempletLevel ) );
+			}
+
+			m_EveElectraSystem.m_ePrevSpectro = m_EveElectraSystem.GetPlaneFormation();
+			m_EveElectraSystem.SetEnableSystem( true );
+			m_EveElectraSystem.SetEnableExceptionSystem( true );
+			m_EveElectraSystem.SetPlaneFormation( PFT_FUSION );
+			if( true == IsMyUnit() )
+				g_pX2Game->UpdateSkillSlotUI( false );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE energetic heart on: boost attack %d, previous plane %d", m_iAddBoostAttack, static_cast<int>( m_EveElectraSystem.m_ePrevSpectro ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+		} break;
+
+	default:
+		break;
+	}
+}
+
+// June 3297a440 ( vslot 0x250 )
+void CX2GUEve::June_UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
+{
+	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch( eBuffTempletId_ )
+	{
+	case BTI_BUFF_AMPLIFICATION_PLACE:
+	case BTI_BUFF_SPECTRUM_PLACE:
+	case BTI_BUFF_INDUCTION_PLACE:
+	case BTI_BUFF_SI_SA_EBS_ENERGETIC_HEART:
+		{
+			m_eReserveEndElCrystalBuffID = eBuffTempletId_;
+			m_bIsCheckEndElCrystal = true;
+
+			std::list< EveElectraLaserData >::iterator lit_Laser;
+			for( lit_Laser = m_EveElectraSystem.m_EveElectraLaserDataList.begin(); lit_Laser != m_EveElectraSystem.m_EveElectraLaserDataList.end(); ++lit_Laser )
+			{
+				if( true == lit_Laser->m_bPenetrate )
+				{
+					m_bIsCheckEndElCrystal = false;
+					break;
+				}
+			}
+		} break;
+
+	case BTI_BUFF_REASON_PRIDE_EVE:
+		{
+			CX2GUNPC* pNpc = June_FindAllyNPC( CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING, GetUnitUID() );
+			if( NULL != pNpc )
+				pNpc->EraseBuffTempletFromGameUnit( BTI_BUFF_REASON_PRIDE_OBERON );
+
+			pNpc = June_FindAllyNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD, GetUnitUID() );
+			if( NULL != pNpc )
+				pNpc->EraseBuffTempletFromGameUnit( BTI_BUFF_REASON_PRIDE_OPHELIA );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE reason pride ends: summon buffs erased" );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE_DEBUG
+		} break;
+
+	default:
+		break;
+	}
+}
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4a
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 

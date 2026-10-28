@@ -720,6 +720,7 @@ What a class port does with its rows:
   `SpecialAttackEventProcess` charges them before the state change. The port removes that path for its class by binding the state.
 - `lookalike_march_name` in the tsv names March's old skill with the same suffix (e.g. `RNSI_SA_ES_MEGASLASH` 21000 vs `SI_A_ES_MEGASLASH` 1200):
   a hint for where the old state's code lives, not proof that the June skill behaves the same.
+- (Eve: CH4a - her 24 passive / buff-data ids (106, 25201, 25214, 25400-25420) have no state in June either: `InitPassiveSkillState` `3297f290`, `GetAdditionalAccelBuffTime` `32978370` and the June_* states read them; 11 `RNSI_P_*` names added. Readers left: `GetActualMPConsume` `329a79c0` (CH4b), Code Recovery `329b57a0` / `329b4860` (CH4c); `32968dd0` / `32988e40` are dead.)
 - 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet.
 - **Since S3c (2026-10-18)** `CX2SkillTree::SKILL_TYPE` has `ST_SPECIAL_ACTIVE_GRADE_1..3` (14-16), `ST_CORE` (17) and `ST_CORE_PASSIVE` (18)
   (`SERV_IRUHADEV_JUNE_SKILL_TYPE`). A class switch names them as June's does (June's class `SetEquippedSkillFuncBySkillSlotIndex` blocks
