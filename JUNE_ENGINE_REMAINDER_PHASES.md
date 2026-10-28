@@ -1287,6 +1287,8 @@ confirms the path in play.
 **How to see it in game:** the hand-off in this session (Lanox Fire Temple Expert Fire Devil shells = SMRT_UV_ANIM on the new pass;
 Psyker Kinesis = the plain-alpha0 path; any character render = no regression). Open for the user: none.
 
+**Play-test log 2026-10-28** (run after deploy md5 `91209397`, clean exit, 0 EXCEPTION, UNHANDLED = the 3x `E_DISABLE_HB_CHECK_REQ` baseline): `SMRT typed` for `MOTION_FIRE_DEVIL_FIGHTER_BODY.X` and `_BERSERKER_BODY.X` value 300 (SMRT_UV_ANIM, RT_REAL_COLOR) in Lanox Fire Temple, with their `JUNE_ATTACH_SKIN attach ... type=3 value=0.010`; `SMRT plain-alpha0 ECN_PSYKERKINESIS.X value 507` (SRCALPHA / DESTALPHA) as predicted, and the same path for `DUMMYATTACKBOX_50X50X50.X`, `RESPAWNLANDING01/02.X`, `LIGHTNING01.X`, `AISHA_LIGHTNING_SHOWER_M01.X`, `METEOR_STONE01_MS.X`; 0 `KEM_ERROR435`. No `alpha` / `renderparam` lines (no writer yet: R6b). The visual verdict is the user's.
+
 ## Phase R6b - Equip mesh flags and the equip glow
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQUIP_MESH_RENDER`. Added by
