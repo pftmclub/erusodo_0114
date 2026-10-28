@@ -652,6 +652,8 @@ public:
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		void June_CreateGigaPlane( float _fZAngle = 0.f, float _LifeTime = 5.f, float _fDistance = 500.f, float _fHeight = 130.f, float _fScale = 1.0f );	/// June 329a1b90
+		void June_AddEffectSetToSystem( CX2EffectSet::Handle hEffectSet_, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
+								wstring InductionDamageEffectName = L"", wstring FusionDamageEffectName = L"" );	/// June 329809c0 ( CH3c )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		
 #ifdef SERV_EVE_BATTLE_SERAPH		/// √ ±§«– ø¨±∏
@@ -844,16 +846,25 @@ public:
 		CKTDXTimer		m_timerElapsedTime;
 		CHARGE_RANK		m_ChargeRank;		
 		int				m_iAddDamageTime;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		double			m_dJuneElapsedTime;	/// June +0x9a98 ( the charge seconds the Taser Pilum Start state took; June's tiny data keeps no timer )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 		TASER_PILUM_TinyData():
 		m_ChargeRank(CR_RANK_1),
 		m_iAddDamageTime(0)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		, m_dJuneElapsedTime( 0.0 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		{}
 
 		void reset()
 		{
 			m_ChargeRank = CR_RANK_1;
 			m_iAddDamageTime = 0;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+			m_dJuneElapsedTime = 0.0;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 			m_timerElapsedTime.ResetStartTime();
 		}
 	};
@@ -3350,6 +3361,23 @@ protected:
 	void		June_ENSI_SA_ECE_REASON_PRIDE_Init();						/// June 32968970
 	void		June_ENSI_SA_ECE_REASON_PRIDE_FrameMove();					/// June 329ae4f0
 	void		June_ENSI_SA_ECE_REASON_PRIDE_EventProcess();				/// June 32976e10
+	/// June character port Phase CH3c: Code: Battle Seraph skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_CreateThousandStar();									/// June 329a2b70
+	void		June_ENSI_SA_EPR_THOUSANDS_OF_STARS_FrameMove();			/// June 329a6fe0
+	void		June_ENSI_SA_EPR_THOUSANDS_OF_STARS_EventProcess();			/// June 32973a70
+	void		June_ENSI_EBS_ENERGY_NEEDLES_FrameMove();					/// June 329968a0
+	void		June_ENSI_EBS_ENERGETIC_HEART_Start();						/// June 329b4f10
+	void		June_ENSI_EBS_ENERGETIC_HEART_FrameMove();					/// June 3297ba70
+	void		June_ENSI_A_EBS_TASER_PILUM_Start();						/// June 32973f10
+	void		June_ENSI_A_EBS_TASER_PILUM_FrameMove();					/// June 329a7f70
+	void		June_ENSI_SA_EEL_LINEAR_DIVIDER_FrameMove();				/// June 329aafc0
+	void		June_ENSI_SA_EEL_LINEAR_DIVIDER_EventProcess();				/// June 3297eae0
+	void		June_ENSI_A_ECB_TESLA_SHOCK_Init();							/// June 329688b0
+	void		June_ENSI_A_ECB_TESLA_SHOCK_Start();						/// June 329688e0
+	void		June_ENSI_A_ECB_TESLA_SHOCK_FrameMove();					/// June 329ae0c0
+	void		June_ENSI_A_ECB_TESLA_SHOCK_EventProcess();					/// June 3297efc0
+	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_Init();					/// June 32968b20
+	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_FrameMove();				/// June 3299a9d0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides

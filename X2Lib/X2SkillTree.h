@@ -1862,6 +1862,21 @@ public:
 		RNSI_A_ECE_SPIT_FIRE_FLUSH_UPGRADE                    = 25230,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-28 // June character port Phase CH3c (JUNE_CHARACTER_EVE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Eve's Code: Battle Seraph skill cases spell (values from June's Enum.lua)
+		RNSI_SA_ECB_LINEAR_DIVIDER                            = 25026,
+		RNSI_SA_ECB_ENERGY_NEEDLES                            = 25027,
+		RNSI_SA_EBS_NEEDLES_CUTTING                           = 25047,
+		RNSI_SA_EBS_LASER_POLE                                = 25048,
+		RNSI_SA_ECB_LINEAR_DIVIDER_UPGRADE                    = 25066,
+		RNSI_SA_ECB_ENERGY_NEEDLES_UPGRADE                    = 25067,
+		RNSI_SA_ECB_ENERGETIC_HEART_UPGRADE                   = 25069,
+		RNSI_A_ECB_TESLA_SHOCK                                = 25211,
+		RNSI_A_ECB_TESLA_SHOCK_UPGRADE                        = 25232,
+		RNSI_SA_ECB_EXTREME_VIRTUAL                           = 25237,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a2 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Exotic Gear skill cases spell (values from June's Enum.lua)

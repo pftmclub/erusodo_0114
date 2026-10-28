@@ -5263,6 +5263,23 @@ Flag `SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET` in `KTDXLIB/Always.h` ( need
 - **What changes in game.** Only an effect set whose class code writes the offset moves; every other set adds 0.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET` ( Spit Fire's Y row is then not applied ).
 
+### June Eve: Code: Battle Seraph skills (char-eve CH3c, 2026-10-28)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH3b ); no debug flag. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH3c - Done"; log lines `[JUNE_CHAR] EVE SKILL registered <table>` and `[JUNE_SKILL] NUM`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's `329c8a00` cases for Linear Divider 25026 / 25066, Energy Needles 25027 / 25067, Thousand Stars 25028 / 25068, Energetic Heart 25029 / 25069, Needles Cutting 25047, Laser Pole 25048, Tesla Shock ( Battle Seraph ) 25211 / 25232, Taser Pilum 25212 / 25233, Electronic Move 25223 ( states 239-241 copy the Z-combo callbacks 219-221 ) and Extreme Virtual 25237; the memo-turned Energy Needles ( 25034 / 25071 ) and Thousand Stars ( 25035 / 25036 / 25072 / 25073 ) cases from CH1n now run June's bodies. 16 new `June_*` members ( 15 state bodies plus `June_CreateThousandStar` ) and `EveElectraSystem::June_AddEffectSetToSystem` ( `329809c0` ); ten `RNSI_*` names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`; the Taser Pilum tiny data keeps June's charge seconds ( `m_dJuneElapsedTime` ).
+- **What changes in game.**
+  - Thousand Stars: the memo ids set the star count ( 120 for the first memo, else 100 ) and the delayed double attack ( +0x9c28 ); the skill / walk / dash windows are June's.
+  - Energy Needles: the first needle locks on after its attack ( `LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE` ); the effect time comes from the memo templet; the power rate is x ( 1 + the skill-group rate ).
+  - Energetic Heart: the buff goes through the skill-memo scaling ( vslot 0x770 ).
+  - Taser Pilum: the charge seconds are the clock x the skill's speed ( ability 0xa9 ); the shot's MP is x the skill's MP buff rate; Open Mind ( 25419 ) returns MP ( SA_MP_RETAKE_ABS x the MP spent x 0 / 1 / 3 by the plane system / formation ); the three fire sequences carry the alpha category.
+  - Linear Divider: June's plane, giga plane and laser copies; the 1.3 x range memo is dead.
+  - Tesla Shock ( Battle Seraph ): a hover with a plane at 0.1 s and `EffectSet_Eve_Tesla_Shock_Electra` at 0.3 s that the Electra system keeps ( new `June_AddEffectSetToSystem` ).
+  - Extreme Virtual: `EffectSet_SA_EBS_Extreme_Virtual_*` by plane formation at the first USEFUL_VALUE0 row; Code Recovery makes it ignore guard ( modifiers 16, 12 ); Hyper Optical Research adds critical rate ( modifier 20 ).
+  - Electronic Move ( with the dash-jump Z ): states 239-241 exist; the numerical-only tables ( checklist section 1 ) are read through them.
+- **Damage ( June level-1 value x0.01, `plan_numerical_rows.tsv` ).** Energy Needles `EVE_ENERGY_NEEDLES` 0.61 ( next 0.41, then 0.21 ); Taser Pilum `EVE_TASER_PILUM_CHARGE_0 / 1 / 2` 4.46 ( the shot's power rate is x ( min( charge s, 3 ) / 3 + 1 ) above 0.13 s ). The other skills have no numerical-only block: their damage effects read June's `DamageEffect.lua` as is.
+- **Kept as June has it:** the Tesla Shock Fusion and normal arms are the same call; Taser Pilum's power rate is the larger of the charged value and `GetPowerRate()` ( so an uncharged shot never drops below 1.0 ); the Taser Pilum new effect is not null-tested by June ( JUNE_BUGS 461; the port tests it ).
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
+
 ### June quest system: the batch quest ACK and the IsForbiddenQuest guard (quest-system Q11, 2026-10-28)
 
 Flags `SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK` and `SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q11 - Done"; log tag `[JUNE_QUEST] BATCH` / `CRASH`.

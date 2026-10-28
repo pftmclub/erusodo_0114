@@ -2257,6 +2257,30 @@ Read against the raw listings (`charport_adis.py eve --phase CH3b`, 42 functions
 **One comment fix (no build):** `X2GuEve.h:3208` `m_mapJuneNpcEffectSet` said "no phase of this port fills it yet". It now names Tesla Shock `3299a140` / Tesla Flare `3299a400` as the writers. `bytepatch.py`, 1 line, encoding unchanged.
 **Open, not CH3b's:** the Empress cut-in `.gfx` name (CH5 / CH3d, as the Done note says); the `IsForbiddenQuest` crash is quest-system Q11 (`f7ab2f39`).
 
+### CH3c - Done (2026-10-28, Sonnet 5.5)
+
+The Code: Battle Seraph skills take June's `329c8a00` cases and state bodies (flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, in `June_SetEquippedSkillFuncHead`). All 35 functions read from the raw listings (`charport_adis.py eve --phase CH3c` plus `329c8a00`). Rows: funcmap `Char Eve CH3c` (36 rows).
+- **Registered ids (base + upgrade share a case):** Linear Divider 25026 / 25066, Energy Needles 25027 / 25067, Thousand Stars 25028 / 25068, Energetic Heart 25029 / 25069, Needles Cutting 25047, Laser Pole 25048, Tesla Shock (Battle Seraph) 25211 / 25232, Taser Pilum 25212 / 25233, Electronic Move 25223, Extreme Virtual 25237. The CH1n memo cases (Energy Needles 25034 / 25071, Thousand Stars 25035 / 25036 / 25072 / 25073) now point at June's FrameMove / EventProcess (`#else` keeps the March stand-ins). Ten `RNSI_*` names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`.
+- **March bodies that are June's as is (18 functions):** the Inits, Starts, Ends, Future and EventProcess bodies listed in the funcmap rows; Battle Seraph Tesla Shock End = Iron Scraps' End (`32968950` = `32968890`).
+- **New (16 `June_*` members + 1 system method):** `June_CreateThousandStar` (`329a2b70`: star count 120 when the memo flag +0x9c28 is 1), Thousand Stars FrameMove (memo switch) / EventProcess, Energy Needles FrameMove (memo templet for the time, equipped for level and power, `SetLockOn` type 8), Energetic Heart Start (skill-memo scaling, vslot 0x770) / FrameMove, Taser Pilum Start (rank table, tiny data keeps the seconds) / FrameMove (0.13 s gate, MP rate, Open Mind return, 3 alpha tags), Linear Divider FrameMove / EventProcess, Battle Seraph Tesla Shock Init / Start / FrameMove / EventProcess, Extreme Virtual Init / FrameMove, and `EveElectraSystem::June_AddEffectSetToSystem` (`329809c0`, handle at data +0x8c, read by CH1's `June_OnFrameMove`). Electronic Move registers states 239-241 as copies of 219-221 (`June_CopyStateCallbacks`).
+- **Assets:** no new `.lua`, no kom change, no pack: every preload name and effect name is in `ch0_assets.tsv` / `ch0_effect_closure.tsv`. `luabind.py check Eve_Nasod`: 0 unbound.
+- **Checklist / bugs:** section 1 bullet `(Eve: CH3c)` added; `MODS.md` section "June Eve: Code: Battle Seraph skills"; JUNE_BUGS 461 (Taser Pilum does not test the new effect; the port does).
+- **Branches not ported:** none new. The memo-turned variants need skill-note rows and are not in the hand-off.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2SkillTree.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (X2SkillTree.h: enum names), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `1 PASS~`, `RESULT: PASS`. `enumscan --check X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,198,016 B, dated 2026-10-28 11:32:06, md5 48bbf2a6f54e58162e34c8f82306f39d, equal to X2/US_SERVICE/x2.exe (2026-10-28 11:31:59); built at main 32cd5a8f + 3 uncommitted code file(s). The strings `EffectSet_SA_EBS_Extreme_Virtual_Mix`, `EffectSet_Eve_Tesla_Shock_Electra`, `EVE_TASER_PILUM_CHARGE_2` and `DamageEffect_Linear_Divider_Hyper_Reverse` are in the exe.
+
+**Play-test hand-off.** Save unit 60 `EveSeraph` (Code: Battle Seraph 116, level 99, transcended; backup `db_backup\els_db_20261028_112529_pre_ch3c_pre_seraph.sql`). Slots (level 1): A0 (A) Linear Divider upgrade 25066, A1 (S) Energy Needles upgrade 25067, A2 (D) Thousand Stars 25028, A3 (C) Energetic Heart upgrade 25069, slot 4 (F) Extreme Virtual 25237; slot 5 (Q) Tesla Shock upgrade 25232, slot 6 (W) Taser Pilum upgrade 25233, slot 7 (E) Electronic Move 25223. Log tag `[JUNE_CHAR] EVE SKILL` and `[JUNE_SKILL] NUM`.
+1. Linear Divider (A): two lasers (front and reverse) along the plane after about 0.9 s; ends on the ground. Log `registered ENSI_SA_EEL_LINEAR_DIVIDER`.
+2. Energy Needles (S): a first needle, then more every 0.33 s for the effect time. Log `registered ENSI_EBS_ENERGY_NEEDLES`.
+3. Thousand Stars (D): the star ring appears at 0.4 s and the formation changes at 1.93 s. Log `registered ENSI_SA_EPR_THOUSANDS_OF_STARS`.
+4. Energetic Heart (C): the buff icon; with Thousand Stars out and the Fusion formation the white formation particle shows.
+5. Extreme Virtual (F): an effect set by plane formation (cast Spectro El Crystal first for a coloured one). Log `ES_CREATE EffectSet_SA_EBS_Extreme_Virtual_`.
+6. Tesla Shock (Q): a hover, a plane at 0.1 s, the Electra effect set at 0.3 s. Log `ES_CREATE EffectSet_Eve_Tesla_Shock_Electra`.
+7. Taser Pilum (W): hold the key to charge, release: three fire flashes and the shot named by the charge rank (no log line besides `registered ENSI_SI_A_EBS_TASER_PILUM`); with Open Mind learned the MP bar jumps.
+8. Electronic Move (E): dash-jump, then Z (and Up+Z / Down+Z): the move states 239-241 play instead of the Z combo. Log `registered ENSI_A_EBS_ELECTRONIC_MOVE`.
+Needles Cutting 25047 and Laser Pole 25048 are not slotted (the A bar is full): say "swap SA" after the checks and I move them in (a save edit, no rebuild). No missing mesh / texture error is expected beyond the names June itself lacks. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (108, 109, 116), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
