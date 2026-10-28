@@ -2557,6 +2557,10 @@ The new characters (Stage 8) follow the same asset rule: every June asset of the
 - CH3 / CH6: `python tools/skillicons.py check <range>` again after the transcendence rows (PASS), and the walk opens the skill tree on a transcended unit to see every icon, the transcendence passives included.
 - CH6 walk: one unit set transcended by `/tc` or `settranscend`, every hyper-class skill cast, awakening and TC slots A-5 / B-5 checked.
 
+**What Eve took (2026-10-25 .. 2026-10-28, about 167 commits against the pilot's 96).** Planned at 17 CH1 sub-phases up front; the run ended at 29 CH1 sub-phases (CH1a-CH1s, CH1l2-CH1l5, CH1o2 ...), CH2 at 10 (a, a2, a3, b0, b, b2, b3, b4, c, c2), CH3 at 6 (a0, a, a2, b, c, d), CH4 at 4 plus CH4b2, CH5 and CH6 at 1 each, Z docs only.
+- Lessons: (1) summon spawn rules, unbound NPC Lua methods and the dying-summon buff each needed their own Opus sub-phase (CH2b2-CH2b4); find them in CH0 by listing every summon id. (2) `DamageEffect.lua` stopped loading at a Raven line (`INIT_PHYSIC.WALK_SPEED`): run a Lua load check on every core-list file after adoption. (3) Reviews caught a real defect in most phases (CH3a size, CH3d portrait sheet, CH4a memo stub, CH4b secret-dungeon ids); keep them. (4) The Nasod Core (dormant March code) took one sub-phase (CH1q) once the user chose March's code as the base. (5) The user's walk found the transcendence-slot glow carried into the village (CH6 fix `SLOTGLOW_CLEAR`): a walk should leave a game and return to the village.
+- Model choices: Opus for every unmapped helper, engine piece and review; Sonnet for straight transcriptions (CH2a-CH2c, CH3b, CH3c, CH5, CH6).
+
 What differs per character, as known on 2026-10-22 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):
 
 | Character | Gap | Templet-backed June-only class | Known extras |

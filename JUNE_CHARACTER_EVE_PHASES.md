@@ -2759,6 +2759,10 @@ after numbers in the Done note. A defect goes back to its phase's flag.
 together); no `_DEBUG` flag left defined; checklist rows marked `(Eve: CHn)`; the Aisha plan's "Template for Stage 7" gets an Eve row (what
 she took, what changed in the recipe); backlog Stage 7 note; the `stage7-plan` row points at the next character (`char-chung`).
 
+### Z - Done (2026-10-28, Sonnet 5.5)
+
+Docs only: no code, no build, no flag. `MODS.md` section `June character: Eve, the whole port` (flags, data, revert order: exe + data036 + motion koms together); checklist rows already carry `(Eve: CHn)` marks (50, CH1-CH5); Eve row and lessons added to the Aisha plan's "Template for Stage 7"; backlog Stage 7 closing note; `STATUS.md` Z row and `stage7-plan` row (next: `char-chung`). `Always.h`: only `JUNE_CHAR_EVE_CORE / LIVE / NCORE / SKILL / TRANSCEND / PASSIVE / UI` defined, no `_DEBUG`. **The char-eve plan is closed.** User owes nothing.
+
 ## Play-test hand-off (every phase)
 
 Dev console first; copy-ready lines with real values (unit, class, skill id and slot, `/additem`, `/qdone`); per check: where / paste /

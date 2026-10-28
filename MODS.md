@@ -5325,3 +5325,20 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI` (+ temporary `SERV_IRUHADEV_JUNE_CHAR_EVE_
 - **Numbers.** Cost `CODE_RECOVERY_CONSUME_MP*` x Rule Break's `SA_MP_CONSUME_REL`; HP `UP_HP_RATE` x max HP; cool time `COOL_TIME*` (all from `Eve_Nasod.lua` `INIT_COMPONENT`, CH1k). No March value changes.
 - **Asset.** `DLG_SKILL_Hyper_Active_02.tga` / `.tet` in data063 replaced with June's (backup `kom_backup_stage_june\20261028_171851`).
 - **Revert.** Comment out `#define SERV_IRUHADEV_JUNE_CHAR_EVE_UI` (and, for the engine part, `#define SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT`, after the UI flag), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Asset: restore the two files from the backup and `kom.py pack data063`. Save: unchanged.
+
+### June character: Eve, the whole port (char-eve, closed 2026-10-28)
+
+Plan `JUNE_CHARACTER_EVE_PHASES.md` (CH0-CH6, Z, about 167 commits from 2026-10-25); per-phase entries are the `June Eve:` sections above. All seven classes (5, 18, 19, 26, 108, 109, 116) run on June's class core, skills, passives, cut-ins, Nasod Core and El Crystal / Link Overcharge icons. CH6 walk PASSED on units 22 / 41 / 57-61 (0 KEM_ERROR).
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`, `_LIVE`, `_NCORE` | class core (inert until LIVE); LIVE is the switch, defined by the final CH1 and turns on NCORE (Nasod Core, March's dormant `ADD_EVE_SYSTEM_2014` code with June's bodies) |
+| `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`, `_TRANSCEND` | skill states CH2 / CH3 (summons, Empress / Seraph / Nemesis); transcended hyper actives, allow-list 108 / 109 / 116, pictures |
+| `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE`, `_UI` | CH4a-CH4b passives and overrides; CH4c Code Recovery, statics, slot icons, CH5 cut-in table |
+| engine pieces Eve needed (shared by later characters) | `JUNE_EFFECTSET_POSITION_OFFSET`, `JUNE_GROUND_COMBO_END_EVENT`, `JUNE_SKILL_MP_DECREASE_RATE`, `JUNE_SECRET_DUNGEON_IDS`, `JUNE_DAMAGE_EFFECT_INIT_PHYSIC`, `JUNE_USER_SKILL_LEVEL_HELPERS`, `JUNE_TRANSCEND_SLOTGLOW_CLEAR` |
+
+No `SERV_IRUHADEV_JUNE_CHAR_EVE_*_DEBUG` flag is defined (all retired in their reviews). JUNE_BUGS rows for Eve: 454, 460-466 and the CH1 rows.
+
+**Data (one deploy unit):** the Eve motion/mesh/texture/cut-in koms staged byte-exact by CH0b; data036 `Eve_Nasod.lua` = June's bytecode; data036 `UnitTemplet.lua`, `NPCTemplet.lua`, `Enum.lua`, `DamageEffect.lua` (core-list source) carry June's Eve rows / lines only; data063 skill icon sheets (`Passive_08 / _10 / _13`, `Hyper_Active_02`); data215 `DLG_UI_Common_Texture99(_GRAY)` for the transcended portraits.
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (the other Eve flags then compile March's code; `_NCORE` goes with it), (2) restore data036 `Eve_Nasod.lua`, `UnitTemplet.lua`, `NPCTemplet.lua`, `Enum.lua` from the kom backups and `kom.py copy data036`, (3) restore the motion koms and data063 / data215 from the `kom_backup_stage_june` backups, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together. Save: unchanged.
