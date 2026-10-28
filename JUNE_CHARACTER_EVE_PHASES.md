@@ -2633,6 +2633,7 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
 - Tooltip `set ( game 1 )` for all three lines (Attention / Trick Key / Breaker).
 - Unit 61 (109): cost 7.5 (50 x Rule Break's rate), cool 3.0 s, `gather npc 1621 / 1622` and `heal npc ... buff set` every press. Unit 59 (108): 300 -> 280 MP, HP +5 %, cool 30. Unit 60 (116): 375 -> 335 MP, cool 30.
 - Not exercised: Link Overcharge was not cast (the 17:37:03 Ferdinand set is Reason Pride's, skill 25057), so only `ferdinand 0` logged; unit 41 (El Crystal) was not played. Both are retests.
+**Retest PASSED (2026-10-28, logs 17:41-17:43, same exe; 0 EXCEPTION, ErrorLog 0 lines).** Unit 61: `icon link overcharge slot 9 ferdinand 1 -> DLG_SKILL_Hyper_Active_02.tga / SI_HA_EEP_LINK_OVERCHARGE_ILLUSION_01` on each cast (17:42:05, 17:42:13), back to `ferdinand 0` / `_01.tga` after. Unit 41 (26): `icon el crystal slot 3 enable 1 formation 0 / 1 -> ..._01 / ..._02` on every formation switch; recovery `class 26 mp 300 -> 260, cool 30`. User: icons changed in the bar and the skill window. **Phase play-test PASSED.**
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
