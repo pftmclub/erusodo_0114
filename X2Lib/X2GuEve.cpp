@@ -54455,6 +54455,73 @@ void CX2GUEve::June_SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::S
 
 	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL atomic shield npc skill %d lv %d size %.1f scale %.3f hp %.0f", iSummonSkillID, iSkillLevel, fShieldSize, vScale.x, npcStat_.m_fBaseHP * fStatScale * fHpRel );
 }
+
+// June 322ece70 ( rate 1.0, flags 0x20 / 0x40 / 0x200 ): stats and power rate of a summon of iSkillID_ after the upgrade swap, as 3230c1a0 calls it for the Eve summons
+void CX2GUEve::June_SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ )
+{
+	if( NULL == pNPC_ || NULL == GetUnit() )
+		return;
+
+	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	const int iSkillLevel = max( 1, June_GetSkillLevel( iSummonSkillID ) );
+
+	float fStatScale = fStatScale_;
+	float fHpRel = 1.f;
+	float fAtkPhysicRel = 1.f;
+	float fAtkMagicRel = 1.f;
+	float fDefPhysicRel = 1.f;
+	float fDefMagicRel = 1.f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSummonSkillID ), true );
+	if( NULL != pSkillTemplet )
+	{
+		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
+		if( 0 == ( uFlags_ & JSHF_NO_ATK_RATE ) )
+		{
+			fAtkPhysicRel = fStatAtkRate_;
+			fAtkMagicRel = fStatAtkRate_;
+		}
+
+		if( 0 != ( uFlags_ & JSHF_SKILL_ABILITY_REL ) )
+		{
+			/// June @322ed0e8: a found ability replaces the rate ( JUNE_BUGS 454 )
+			const bool bPvp = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );
+			float fValue = 1.f;
+			if( true == June_TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_MAX_HP_REL_PVP : CX2SkillTree::SA_MAX_HP_REL, iSummonSkillID, true, fValue ) )
+				fHpRel = fValue;
+			if( true == June_TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_ATK_PHYSIC_REL_PVP : CX2SkillTree::SA_ATK_PHYSIC_REL, iSummonSkillID, true, fValue ) )
+				fAtkPhysicRel = fValue;
+			if( true == June_TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_ATK_MAGIC_REL_PVP : CX2SkillTree::SA_ATK_MAGIC_REL, iSummonSkillID, true, fValue ) )
+				fAtkMagicRel = fValue;
+			if( true == June_TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_DEF_PHYSIC_REL_PVP : CX2SkillTree::SA_DEF_PHYSIC_REL, iSummonSkillID, true, fValue ) )
+				fDefPhysicRel = fValue;
+			if( true == June_TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_DEF_MAGIC_REL_PVP : CX2SkillTree::SA_DEF_MAGIC_REL, iSummonSkillID, true, fValue ) )
+				fDefMagicRel = fValue;
+		}
+	}
+
+	pNPC_->SetNPCStat( npcStat_.m_fBaseHP * fStatScale * fHpRel, npcStat_.m_fAtkPhysic * fStatScale * fAtkPhysicRel, npcStat_.m_fAtkMagic * fStatScale * fAtkMagicRel,
+		npcStat_.m_fDefPhysic * fStatScale * fDefPhysicRel, npcStat_.m_fDefMagic * fStatScale * fDefMagicRel );
+
+	const float fPowerRate = GetSummonPowerRateBySocket( iSummonSkillID ) * GetSummonPowerRateByBuff( iSummonSkillID ) * GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	if( 0 != ( uFlags_ & JSHF_NUMBER_STORE ) )
+	{
+		/// June @322ed38c: the factor ( 31e8d610 ) instead of +0x8ce0, and +0x8800 = m_NumberList[0]
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetMultiplyPowerRate_LUA( fPowerRate );
+#else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetDefaultPowerRate( fPowerRate );
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetNumber_LUA( 0, static_cast<double>( GetSkillAdditionalPowerRateJune( iSummonSkillID ) ) + 1.0 );
+	}
+	else
+	{
+		pNPC_->SetDefaultPowerRate( fPowerRate );
+	}
+	pNPC_->SetRealatedSkillLevel( iSkillLevel );	/// June @322ed3b8: NPC +0x8e74
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL summon npc %d skill %d lv %d flags 0x%x stat scale %.3f hp %.0f power rate %.3f", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ),
+		iSummonSkillID, iSkillLevel, uFlags_, fStatScale, npcStat_.m_fBaseHP * fStatScale * fHpRel, fPowerRate );
+}
 // June 32968ab0
 void CX2GUEve::June_ENSI_SA_ECN_PSYKER_KINESIS_Init()
 {

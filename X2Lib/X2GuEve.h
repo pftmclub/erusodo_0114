@@ -1434,6 +1434,8 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void June_SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
+	enum JUNE_SUMMON_HELPER_FLAG { JSHF_NO_ATK_RATE = 0x20, JSHF_SKILL_ABILITY_REL = 0x40, JSHF_NUMBER_STORE = 0x200 };	/// June 322ece70 flag bits
+	void June_SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 protected:
 	virtual void ParseCommonRandomState();

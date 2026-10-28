@@ -2161,6 +2161,21 @@ Hygiene and the INIT_PHYSIC fix: range flagcheck `1effbeb6^..HEAD` PASS ( 2 PASS
 
 **Play-test (user, 2026-10-28, run 09:13-09:14, md5 `e2d2cce4`): fix PASSED.** Log `atomic shield npc skill 25055 lv 1 size 600.0 scale 1.333 hp 329700`, `KILL_SELF` 10 s later. The user saw the shield stay but not follow Eve: June has no follow (`329c6159` in `CommonFrameMove` is only the buff-gone self-destruct; the NPC script is `NEVER_MOVE`; buff 411 is an empty timer), so the dome is stationary as in June. A follow would be a stand-in beyond June, the user's call.
 
+## Phase CH3a2 - Eve summon setup: June's `SetUserSummonedNPCInfo` cases (added 2026-10-28 by the CH3a review)
+
+### CH3a2 - Done (2026-10-28, Sonnet 5.5)
+
+June `3230c1a0` routes every Eve summon to `322ece70`; only the flag word differs. Read from the decompile (jump tables not byte-checked: review item): 0x180 / 0x207 / 0x655 / 0x656 -> flags 0x240, 0x5ae -> 0x260 then `31e57960( user )` (= `SetNearestGUUser`), 0x19b / 0x208 (Sonic Wave) and 0x82b (Oberon Guard) are in no case -> default flags 0. Rate argument is 1.0 everywhere.
+- **Code.** `CX2GUEve::June_SetSummonHelperInfo( npc, npcStat, scale, atkRate, baseSkillID, flags )` (`X2GuEve.cpp`, enum `JSHF_*` = 0x20 / 0x40 / 0x200 in `X2GuEve.h`): upgrade-swapped skill, level `max( 1, June_GetSkillLevel )`, stats = npcStat x scale x skill power rate x (summon attack rate unless 0x20; a found `SA_*_REL` / `_PVP` ability replaces the factor with 0x40, JUNE_BUGS 454), power rate = socket x buff x AT_SPECIAL to `SetDefaultPowerRate`, or with 0x200 to `SetMultiplyPowerRate_LUA` plus `SetNumber_LUA( 0, additional power rate + 1 )`, `SetRealatedSkillLevel`. Callers in `X2Game.cpp`: Sentry, Sonic Wave and Ferdinand cases (March's body in `#else`; Ferdinand keeps March's `SetNearestGUUser` / `SaveFerdinandNPCUID` tail), and three new cases for 1621 / 1622 / 2091. Atomic Shield's member (CH3a review) is left as is.
+- **Files:** `X2GuEve.cpp`, `X2GuEve.h`, `X2Game.cpp`, funcmap rows `3230c1a0 ... (CH3a2)`, `MODS.md` section "June Eve: summon setup cases". No new `.lua`, no kom, no JUNE_BUGS row (454 covers 0x40).
+- **Not testable yet:** Electronic Field 1622 (skill 25020 is CH3b's) and Ferdinand 1454 (skill 25601 is CH3d's) have no June cast state; their cases are in and read nothing else.
+- **Branches not ported:** none new. The pilot's `June_SetSummonStatAndPowerRate` (Arme) lacks the `+0x8e74` write: noted for the review, Arme's summon scripts not checked.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_EVE_SKILL --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2Game.cpp`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `enumscan --check`: 0 A/B rows.
+**Deploy:** DEPLOY OK: X2_offline.exe is 26,151,936 B, dated 2026-10-28 09:32:14, md5 1bcfe2866f8a6270dfa8dc19d3ce8674, equal to X2/US_SERVICE/x2.exe (2026-10-28 09:32:07); built at main ffae62d7 + 3 uncommitted code file(s).
+
+**Play-test hand-off.** Save unit 58 `EveArchi` (Architecture, 99): S (slot 1) Dimension Link Sentry upgrade 25030, Q (slot 5) Sonic Wave upgrade 25041, W (slot 6) Surface Cuting upgrade 25057, E (slot 7) Oberon Guard upgrade 25056 (added, level 1); backup `db_backup\els_db_20261028_092330_pre_sql.sql`. In a field: cast each once and look at the summon's size and a hit's damage number. Log lines `[JUNE_CHAR] EVE SKILL summon npc 384 skill 25030`, `npc 411 skill 25041`, `npc 1621 skill 25057`, `npc 2091 skill 25056` (each with `lv`, `stat scale`, `hp`, `power rate`). If one is missing, say which. Electronic Field and Ferdinand wait for CH3b / CH3d. Then say "check logs".
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.

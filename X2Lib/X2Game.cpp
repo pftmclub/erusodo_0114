@@ -17025,6 +17025,12 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			case CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO:
 #endif
 				{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x180 / 0x207): March read SI_A_EN_DIMENSION_LINK, which the June tree does not equip
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY,
+							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef NEW_SKILL_TREE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 					const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_EN_DIMENSION_LINK );
@@ -17083,6 +17089,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// 16-step3b7 item 4: flags 0x240 include 0x200 (322ece70 @322ed38c..322ed3a6), same case skill
 					JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				} break;
 
 #ifdef FINALITY_SKILL_SYSTEM //±Ë√¢«—
@@ -17091,6 +17098,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
 					{
 						float fPowerRate = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+						/// June 3230c1a0 case 0x5ae: 322ece70 flags 0x260, then SetNearestGUUser; March read SI_HA_EEP_LINK_OVERCHARGE_ILLUSION, which the June tree does not equip
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION,
+							CX2GUEve::JSHF_NO_ATK_RATE | CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 						const int iSkillLevel = pUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );	//ø•«¡∑πΩ∫ ±√±ÿ±‚ - ∏µ≈© ø¿πˆ¬˜¡ˆ Ω„¥ı∫º∆Æ
 						if( iSkillLevel > 0 )
 						{	
@@ -17138,6 +17150,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						/// with the skill 16-step3b3 passes to GetSummonPowerRateBySocket here
 						JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 						pNPC->SetNearestGUUser(pUser);
 						const int iNpcUid = pNPC->GetUID();
 						CX2GUEve* pEve = static_cast<CX2GUEve*>( pUser );
@@ -17336,6 +17349,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			case CX2UnitManager::NUI_GUARDIAN_SP2_EVE_MEMO:
 #endif
 				{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+					/// June 3230c1a0 default ( case 0x19b / 0x208 are not listed ): 322ece70 flags 0; March read SI_SA_EAT_SONIC_WAVE, which the June tree does not equip
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SONIC_WAVE, 0 );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef NEW_SKILL_TREE
 
 					const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_SA_EAT_SONIC_WAVE );
@@ -17389,10 +17407,35 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					fSummonMonsterPowerRate			*= pUser->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
 					pNPC->SetDefaultPowerRate( fSummonMonsterPowerRate );
 #endif ADD_SUMMON_NPC_SPECIAL_ACTOVE_POWER_RATE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 				} break;
 
 #endif EVE_FIRST_CHANGE_JOB
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+			case CX2UnitManager::NUI_SI_SA_AT_SURFACE_CUTING:
+				{
+					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x655), skill 25015 Surface Cutting; March has no case
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SURFACE_CUTING,
+							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
+				} break;
+
+			case CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD:
+				{
+					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x656), skill 25020 Electronic Field; March has no case
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_ECE_ELECTRONIC_FIELD,
+							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
+				} break;
+
+			case CX2UnitManager::NUI_ECA_OBERON_GUARD:
+				{
+					/// June 3230c1a0 default ( case 0x82b is not listed ): 322ece70 flags 0, skill 25014 Oberon Guard; March has no case
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, 0 );
+				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				//{{ JHKang / ∞≠¡§»∆ / 2010/11/22 / ¿Ã∫Í æ∆≈‰πÕ ΩØµÂ
 #ifdef NEW_SKILL_2010_11
  			case CX2UnitManager::NUI_ATOMIC_SHIELD_EVE:
