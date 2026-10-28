@@ -207,6 +207,9 @@ void CKTDGXSkinAfterImage::UpdateEquipView( CKTDGXSkinAnim* pOriginAnim )
 		{
 			sAfterIamgeData.pAnim->AddModelXSkinMesh(pDeviceXSkinMesh, NULL, NULL, NULL, false, false );
 		}
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		sAfterIamgeData.pAnim->SetJuneForceNormalDraw( true );	// June 3322aa80 @3322ab38
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 		// 헤어 포함되지 않았다면 (포함 되었다면 m_pHairXSkinMesh 은 NULL
 		// 미리 저장해둔 헤어 메시 추가

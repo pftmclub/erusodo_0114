@@ -42,6 +42,20 @@ class CKTDGXSkinAnim : public CKTDGObject
 			int m_indexMode;
 		};
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		struct JuneTyped_SkinMesh	// June 0xcc entry of the SMRT list +0x830
+		{
+			CKTDXDeviceXSkinMesh*			m_pSkinMesh;
+			int								m_indexMode;
+			int								m_iDrawOrder;
+			int								m_iRenderType;
+			bool							m_bSkip;
+			CKTDGXRenderer::RenderParam		m_RenderParam;
+			float							m_fSMValue;
+			D3DXVECTOR2						m_vSMUVSpeed;
+			bool							m_bSMUVAlpha;
+		};
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 	private:
 		CKTDGXSkinAnim();
@@ -395,6 +409,11 @@ class CKTDGXSkinAnim : public CKTDGObject
 	bool GetProcessFrameMove() const { return m_bIsProcessFrameMove; }
 	void SetProcessFrameMove(bool val) { m_bIsProcessFrameMove = val; }
 #endif // FIX_MESH_RENDER_BEFORE_INITINALIZE
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+	void SetJuneForceNormalDraw( bool bVal_ ) { m_bJuneForceNormalDraw = bVal_; }
+	void June_CopyModelFrameStructure();
+	void June_RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ );
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 
 #ifdef MODIFY_AFTER_IMAGE
@@ -854,6 +873,10 @@ class CKTDGXSkinAnim : public CKTDGObject
 		float						m_fSMUVAccU;			// June anim +0x85c
 		float						m_fSMUVAccV;			// June anim +0x860
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		std::vector<JuneTyped_SkinMesh>	m_vecJuneTypedSkinMesh;	// June anim +0x830
+		bool							m_bJuneForceNormalDraw;	// June anim +0x853
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef ARA_CHARACTER_BASE
 		std::vector<RenderParam_SkinMesh> m_vecRenderParamSkinMesh;
 #endif

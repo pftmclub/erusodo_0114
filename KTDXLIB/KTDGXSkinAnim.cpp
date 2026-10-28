@@ -152,6 +152,10 @@ CKTDGXSkinAnim::CKTDGXSkinAnim()
 #ifdef ARA_CHARACTER_BASE
 	m_vecRenderParamSkinMesh.reserve( 32 );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+	m_vecJuneTypedSkinMesh.reserve( 32 );
+	m_bJuneForceNormalDraw = false;
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 
 
@@ -1399,6 +1403,404 @@ RENDER_HINT   CKTDGXSkinAnim::OnFrameRender_Prepare()
 }//OnFrameRender_Prepare()
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+namespace _CONST_SKINANIM_JUNE_R6_
+{
+	const float JUNE_DG_OUTLINE_WIDE_CAP = -1.f;	// June DGManager +0x3c0: only its ctor 31cead50 writes it
+
+	void JuneCapOutLineWide( float& fOutLineWide_ )
+	{
+		if( JUNE_DG_OUTLINE_WIDE_CAP > -1.f && JUNE_DG_OUTLINE_WIDE_CAP <= fOutLineWide_ )
+			fOutLineWide_ = JUNE_DG_OUTLINE_WIDE_CAP;
+	}
+
+	DWORD JuneRoundToDword( float fValue_ )
+	{
+		__int64 iValue = 0;
+		__asm
+		{
+			fld fValue_
+			fistp iValue
+		}
+		return (DWORD)iValue;
+	}
+
+	void JuneMakeRenderParam( CKTDGXRenderer::RenderParam& renderParam_, const CKTDXDeviceXSkinMesh::JuneRenderParamData& data_ )
+	{
+		renderParam_.Init();
+		renderParam_.renderType			= (CKTDGXRenderer::RENDER_TYPE) data_.iRenderType;
+		renderParam_.cartoonTexType		= (CKTDGXRenderer::CARTOON_TEX_TYPE) data_.iCartoonTexType;
+		renderParam_.outLineColor		= data_.outLineColor;
+		renderParam_.fOutLineWide		= data_.fOutLineWide;
+		renderParam_.bAlphaBlend		= data_.bAlphaBlend;
+		renderParam_.cullMode			= (D3DCULL) data_.iCullMode;
+		renderParam_.srcBlend			= (D3DBLEND) data_.iSrcBlend;
+		renderParam_.destBlend			= (D3DBLEND) data_.iDestBlend;
+		renderParam_.bAlphaTestEnable	= data_.bAlphaTestEnable;
+		renderParam_.bZEnable			= data_.bZEnable;
+		renderParam_.bZWriteEnable		= data_.bZWriteEnable;
+		renderParam_.lightPos			= data_.lightPos;
+		renderParam_.lightPos			= data_.lightPos2;	// June 31d29720 writes both, the second wins
+		renderParam_.color				= data_.color;
+		renderParam_.fLightFlowWide		= data_.fLightFlowWide;
+		renderParam_.fLightFlowImpact	= data_.fLightFlowImpact;
+		renderParam_.lightFlowPoint		= data_.lightFlowPoint;
+		renderParam_.texOffsetStage0	= data_.texOffsetStage0;
+		renderParam_.texOffsetStage1	= data_.texOffsetStage1;
+		renderParam_.texOffsetStage2	= data_.texOffsetStage2;
+		renderParam_.bFog				= data_.bFog;
+		renderParam_.bFogShow			= data_.bFogShow;
+		renderParam_.fogColor			= data_.fogColor;
+		renderParam_.fogNearX			= data_.fogNearX;
+		renderParam_.bFog				= ( 0.f != data_.fFog );
+		renderParam_.bFogShow			= ( 0.f != data_.fFogShow );
+		const DWORD dwFogColor = JuneRoundToDword( data_.fFogColor );
+		const float fByteToUnit = (float)( 1.0 / 255.0 );
+		renderParam_.fogColor.r			= (float)( ( dwFogColor >> 16 ) & 0xff ) * fByteToUnit;
+		renderParam_.fogColor.g			= (float)( ( dwFogColor >> 8 ) & 0xff ) * fByteToUnit;
+		renderParam_.fogColor.b			= (float)( dwFogColor & 0xff ) * fByteToUnit;
+		renderParam_.fogColor.a			= (float)( dwFogColor >> 24 ) * fByteToUnit;
+		renderParam_.fogNearX			= data_.fFogNearX;
+	}
+
+	bool JuneTypedDrawOrderLess( const CKTDGXSkinAnim::JuneTyped_SkinMesh& lhs_, const CKTDGXSkinAnim::JuneTyped_SkinMesh& rhs_ )
+	{
+		return lhs_.m_iDrawOrder < rhs_.m_iDrawOrder;
+	}
+
+	bool JuneIsSameMeshName( CKTDXDeviceXSkinMesh* pListed_, CKTDXDeviceXSkinMesh* pXSkinMesh_ )
+	{
+		return NULL != pListed_ && 0 == StrCmpW( pListed_->GetDeviceID().c_str(), pXSkinMesh_->GetDeviceID().c_str() );
+	}
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+	void JuneSmrtLogOnce( const char* szPath_, CKTDXDeviceXSkinMesh* pXSkinMesh_, int iValue_ )
+	{
+		static std::set<std::string> s_setSeen;
+		std::string strName;
+		ConvertWCHARToChar( strName, pXSkinMesh_->GetDeviceID() );
+		if( false == s_setSeen.insert( std::string( szPath_ ) + "|" + strName ).second )
+			return;
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SMRT " << szPath_ << " mesh " << strName.c_str() << " value " << iValue_ << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+}
+using namespace _CONST_SKINANIM_JUNE_R6_;
+
+// June inlines this at the head of 31d30380
+void CKTDGXSkinAnim::June_CopyModelFrameStructure()
+{
+	for( int i = 0; i < (int)m_pModelXSkinMeshList.size(); i++ )
+	{
+		CKTDXDeviceXSkinMesh* pModel = m_pModelXSkinMeshList[i];
+		if( NULL == pModel )
+			continue;
+
+		for( int j = 0; j < m_FrameNum; j++ )
+		{
+			if( NULL == m_FrameMatrixList[j] )
+			{
+				WCHAR wszLog[256] = L"FrameMatrixList == NULL !!!!!";
+				if( false == m_pModelXSkinMeshList.empty() && NULL != m_pModelXSkinMeshList[0] )
+					StringCchPrintfW( wszLog, 256, L"FrameMatrixList == NULL :  Mesh : %s,", m_pModelXSkinMeshList[0]->GetDeviceID().c_str() );
+				ErrorLogMsg( KEM_ERROR435, wszLog );
+				continue;
+			}
+
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pModel->JuneGetFrameQuiet( j );
+			if( NULL != pFrame )
+				pFrame->combineMatrix = *m_FrameMatrixList[j];
+		}
+	}
+}
+
+// June 31d2f000: takes the list by value
+void CKTDGXSkinAnim::June_RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ )
+{
+	for( int iRenderParamIndex = 0; iRenderParamIndex < (int)vecRenderParamSkinMesh_.size(); ++iRenderParamIndex )
+	{
+		Alpha_SkinMesh& stRenderParamObj = vecRenderParamSkinMesh_[iRenderParamIndex];
+		CKTDXDeviceXSkinMesh* pXSkinMesh = stRenderParamObj.m_pAlphaSkinMesh;
+		if( NULL == pXSkinMesh )
+			continue;
+
+		CKTDGXRenderer::RenderParam renderParam;
+		JuneMakeRenderParam( renderParam, pXSkinMesh->GetJuneRenderParam() );
+
+		for( HRESULT hr = m_pRenderer->BeginRender( renderParam ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+		{
+			if( true == m_bHideNoRenderable && true == pXSkinMesh->GetNoRenderable() )
+				continue;
+
+			for( int j = 0; j < (int)pXSkinMesh->GetDrawFrameNum(); j++ )
+			{
+				if( ( false == pXSkinMesh->GetAlphaRender() && CKTDXDeviceXSkinMesh::SMRT_NONE == pXSkinMesh->GetSkinMeshRenderType() )
+					|| true == m_bJuneForceNormalDraw )
+				{
+					DrawFrame( pXSkinMesh->GetDrawFrame( j ), stRenderParamObj.m_indexMode );
+				}
+			}
+		}
+	}
+}
+
+/*virtual*/
+void CKTDGXSkinAnim::OnFrameRender_Draw()
+{
+	KTDXPROFILE();
+
+	if( false == GetProcessFrameMove() )
+		return;
+
+	June_CopyModelFrameStructure();
+
+	int modelIndex = 0;
+	m_vecAlphaSkinMesh.resize( 0 );
+	m_vecJuneTypedSkinMesh.resize( 0 );
+	std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh;
+
+	CKTDGXRenderer::RenderParam renderParam = m_RenderParam;
+	renderParam.texOffsetStage2.y += GetNowAnimationTime();
+	JuneCapOutLineWide( renderParam.fOutLineWide );
+
+	for( HRESULT hr = m_pRenderer->BeginRender( renderParam ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+	{
+		for( int i = 0; i < (int)m_pModelXSkinMeshList.size(); i++ )
+		{
+			CKTDXDeviceXSkinMesh* pXSkinMesh = m_pModelXSkinMeshList[i];
+			if( NULL == pXSkinMesh )
+				continue;
+			if( true == m_bHideNoRenderable && true == pXSkinMesh->GetNoRenderable() )
+				continue;
+
+			if( true == pXSkinMesh->GetJuneUseRenderParam() )
+			{
+				Alpha_SkinMesh stRenderParamObj = { pXSkinMesh, i };
+				vecRenderParamSkinMesh.push_back( stRenderParamObj );
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+				JuneSmrtLogOnce( "renderparam", pXSkinMesh, (int)pXSkinMesh->GetJuneRenderParam().iRenderType );
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+			}
+
+			for( int j = 0; j < (int)pXSkinMesh->GetDrawFrameNum(); j++ )
+			{
+				if( true == m_bLightFlow && m_pLightFlow == pXSkinMesh->GetDrawFrame( j ) )
+				{
+					modelIndex = i;
+					continue;
+				}
+
+				const bool bAlphaRender = pXSkinMesh->GetAlphaRender();
+				const int iSkinMeshRenderType = pXSkinMesh->GetSkinMeshRenderType();
+				if( ( false == bAlphaRender && CKTDXDeviceXSkinMesh::SMRT_NONE == iSkinMeshRenderType ) || true == m_bJuneForceNormalDraw )
+				{
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+					if( true == renderParam.bAlphaBlend && 0.f == renderParam.color.a )
+						JuneSmrtLogOnce( "plain-alpha0", pXSkinMesh, (int)renderParam.srcBlend * 100 + (int)renderParam.destBlend );
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+					DrawFrame( pXSkinMesh->GetDrawFrame( j ), i );
+				}
+				else if( true == bAlphaRender || true == renderParam.bAlphaBlend )
+				{
+					bool bListed = false;
+					for( int a = 0; a < (int)m_vecAlphaSkinMesh.size(); ++a )
+					{
+						if( true == JuneIsSameMeshName( m_vecAlphaSkinMesh[a].m_pAlphaSkinMesh, pXSkinMesh ) )
+						{
+							bListed = true;
+							break;
+						}
+					}
+					if( false == bListed )
+					{
+						Alpha_SkinMesh stAlphaObj = { pXSkinMesh, i };
+						m_vecAlphaSkinMesh.push_back( stAlphaObj );
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+						JuneSmrtLogOnce( "alpha", pXSkinMesh, ( true == bAlphaRender ) ? 1 : iSkinMeshRenderType * 10 );
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+					}
+				}
+				else if( 0 <= iSkinMeshRenderType )
+				{
+					bool bListed = false;
+					for( int t = 0; t < (int)m_vecJuneTypedSkinMesh.size(); ++t )
+					{
+						if( true == JuneIsSameMeshName( m_vecJuneTypedSkinMesh[t].m_pSkinMesh, pXSkinMesh ) )
+						{
+							bListed = true;
+							break;
+						}
+					}
+					if( false == bListed )
+					{
+						JuneTyped_SkinMesh stTypedObj;
+						stTypedObj.m_pSkinMesh		= pXSkinMesh;
+						stTypedObj.m_indexMode		= i;
+						stTypedObj.m_iDrawOrder		= pXSkinMesh->GetJuneDrawOrder();
+						stTypedObj.m_iRenderType	= iSkinMeshRenderType;
+						stTypedObj.m_bSkip			= false;
+						JuneMakeRenderParam( stTypedObj.m_RenderParam, pXSkinMesh->GetJuneTypedParam() );
+						stTypedObj.m_fSMValue		= pXSkinMesh->GetSMValue();
+						stTypedObj.m_vSMUVSpeed		= pXSkinMesh->GetSMUVSpeed();
+						stTypedObj.m_bSMUVAlpha		= pXSkinMesh->GetSMUVAlpha();
+						m_vecJuneTypedSkinMesh.push_back( stTypedObj );
+					}
+				}
+			}
+		}
+	}
+
+	June_RenderParamPass( vecRenderParamSkinMesh );
+
+	if( true == m_bLightFlow && NULL != m_pLightFlow )
+	{
+		CKTDGXRenderer::RenderParam renderParamLightFlow = m_RenderParam;
+		renderParamLightFlow.bAlphaBlend		= true;
+		renderParamLightFlow.renderType			= m_lightFlowType;
+		renderParamLightFlow.color.r			= m_coColor.r * m_RenderParam.color.r;
+		renderParamLightFlow.color.g			= m_coColor.g * m_RenderParam.color.g;
+		renderParamLightFlow.color.b			= m_coColor.b * m_RenderParam.color.b;
+		renderParamLightFlow.color.a			= m_coColor.a * m_RenderParam.color.a;
+		renderParamLightFlow.fLightFlowImpact	= m_fNowPoint;
+		renderParamLightFlow.fLightFlowWide		= m_fWide;
+
+		for( HRESULT hr = m_pRenderer->BeginRender( renderParamLightFlow ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+		{
+			DrawFrame( m_pLightFlow, modelIndex );
+		}
+	}
+
+	if( false == m_vecAlphaSkinMesh.empty() )
+	{
+		CKTDGXRenderer::RenderParam renderParamAlpha = m_RenderParam;
+		renderParamAlpha.texOffsetStage2.y += GetNowAnimationTime();
+		renderParamAlpha.bAlphaBlend = true;
+		JuneCapOutLineWide( renderParamAlpha.fOutLineWide );
+
+		for( HRESULT hr = m_pRenderer->BeginRender( renderParamAlpha ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+		{
+			for( int alphaIndex = 0; alphaIndex < (int)m_vecAlphaSkinMesh.size(); ++alphaIndex )
+			{
+				Alpha_SkinMesh& stAlphaObj = m_vecAlphaSkinMesh[alphaIndex];
+				for( int j = 0; j < (int)stAlphaObj.m_pAlphaSkinMesh->GetDrawFrameNum(); j++ )
+				{
+					DrawFrame( stAlphaObj.m_pAlphaSkinMesh->GetDrawFrame( j ), stAlphaObj.m_indexMode );
+				}
+			}
+		}
+	}
+
+	if( false == m_vecJuneTypedSkinMesh.empty() )
+	{
+		CKTDGXRenderer::RenderParam renderParamTyped = m_RenderParam;
+		std::sort( m_vecJuneTypedSkinMesh.begin(), m_vecJuneTypedSkinMesh.end(), JuneTypedDrawOrderLess );
+
+		for( int typedIndex = 0; typedIndex < (int)m_vecJuneTypedSkinMesh.size(); ++typedIndex )
+		{
+			JuneTyped_SkinMesh& stTypedObj = m_vecJuneTypedSkinMesh[typedIndex];
+			if( true == stTypedObj.m_bSkip )
+				continue;
+
+			renderParamTyped = m_RenderParam;
+			switch( stTypedObj.m_iRenderType )
+			{
+			case CKTDXDeviceXSkinMesh::SMRT_REAL_COLOR:
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_REAL_COLOR;
+				renderParamTyped.bAlphaBlend	= true;
+				renderParamTyped.bZWriteEnable	= true;
+				renderParamTyped.bZEnable		= true;
+				renderParamTyped.cullMode		= D3DCULL_CCW;
+				renderParamTyped.srcBlend		= D3DBLEND_SRCALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_DESTALPHA;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_CARTOON_BLACK_EDGE:
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+				renderParamTyped.bAlphaBlend	= false;
+				renderParamTyped.cullMode		= D3DCULL_NONE;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_CARTOON_BLACK_EDGE_ALPHA:
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+				renderParamTyped.bZWriteEnable	= true;
+				renderParamTyped.bZEnable		= true;
+				renderParamTyped.cullMode		= D3DCULL_NONE;
+				renderParamTyped.bAlphaBlend	= true;
+				renderParamTyped.srcBlend		= D3DBLEND_SRCALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_INVSRCALPHA;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_UV_ANIM:
+				m_fSMUVAccValue += stTypedObj.m_fSMValue;
+				if( m_fSMUVAccValue > 1.f )
+					m_fSMUVAccValue = 0.f;
+				renderParamTyped.texOffsetStage0.y += m_fSMUVAccValue;
+				m_fSMUVAccU += stTypedObj.m_vSMUVSpeed.x;
+				if( m_fSMUVAccU > 1.f )
+					m_fSMUVAccU = 0.f;
+				renderParamTyped.texOffsetStage0.x += m_fSMUVAccU;
+				m_fSMUVAccV += stTypedObj.m_vSMUVSpeed.y;
+				if( m_fSMUVAccV > 1.f )
+					m_fSMUVAccV = 0.f;
+				renderParamTyped.texOffsetStage0.y += m_fSMUVAccV;
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_REAL_COLOR;
+				renderParamTyped.bAlphaBlend	= stTypedObj.m_bSMUVAlpha;
+				renderParamTyped.srcBlend		= D3DBLEND_SRCALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_DESTALPHA;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_INVSRC_ALPHA_NOT_CULL:
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_REAL_COLOR;
+				renderParamTyped.fOutLineWide	= 0.f;
+				renderParamTyped.cullMode		= D3DCULL_NONE;
+				renderParamTyped.bAlphaBlend	= true;
+				renderParamTyped.srcBlend		= D3DBLEND_SRCALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_INVSRCALPHA;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_DESTALPHA_SRCALPHA_CCW:
+				renderParamTyped.cullMode		= D3DCULL_CCW;
+				renderParamTyped.fOutLineWide	= 0.01f;	// June const 33437810
+				renderParamTyped.bAlphaBlend	= true;
+				renderParamTyped.srcBlend		= D3DBLEND_DESTALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_SRCALPHA;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_CUSTOM:
+				renderParamTyped = stTypedObj.m_RenderParam;
+				break;
+			case CKTDXDeviceXSkinMesh::SMRT_CARTOON_ALPHA:
+				renderParamTyped.renderType		= CKTDGXRenderer::RT_REAL_COLOR;
+				renderParamTyped.bAlphaBlend	= true;
+				renderParamTyped.bZWriteEnable	= true;
+				renderParamTyped.bZEnable		= true;
+				renderParamTyped.cullMode		= D3DCULL_CCW;
+				renderParamTyped.srcBlend		= D3DBLEND_SRCALPHA;
+				renderParamTyped.destBlend		= D3DBLEND_DESTALPHA;
+				renderParamTyped.bAlphaTestEnable = true;
+				break;
+			}
+
+			// CTT_END ( 19 ) is the CartoonDamage_Raid ramp slot
+			if( CKTDGXRenderer::CTT_DAMAGE == renderParamTyped.cartoonTexType || CKTDGXRenderer::CTT_END == renderParamTyped.cartoonTexType )
+			{
+				if( CKTDGXRenderer::RT_CARTOON_BLACK_EDGE == renderParamTyped.renderType )
+					renderParamTyped.renderType = CKTDGXRenderer::RT_ADD_CARTOON_BLACK_EDGE;
+				else if( CKTDGXRenderer::RT_CARTOON_COLOR_EDGE == renderParamTyped.renderType )
+					renderParamTyped.renderType = CKTDGXRenderer::RT_ADD_CARTOON_COLOR_EDGE;
+				else if( CKTDGXRenderer::RT_CARTOON == renderParamTyped.renderType )
+					renderParamTyped.renderType = CKTDGXRenderer::RT_ADD_CARTOON;
+			}
+			renderParamTyped.texOffsetStage2.y += GetNowAnimationTime();
+			JuneCapOutLineWide( renderParamTyped.fOutLineWide );
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+			JuneSmrtLogOnce( "typed", stTypedObj.m_pSkinMesh, stTypedObj.m_iRenderType * 100 + (int)renderParamTyped.renderType );
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+
+			for( HRESULT hr = m_pRenderer->BeginRender( renderParamTyped ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+			{
+				for( int j = 0; j < (int)stTypedObj.m_pSkinMesh->GetDrawFrameNum(); j++ )
+				{
+					DrawFrame( stTypedObj.m_pSkinMesh->GetDrawFrame( j ), stTypedObj.m_indexMode );
+				}
+			}
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 /*virtual*/
 void CKTDGXSkinAnim::OnFrameRender_Draw()
 {
@@ -1638,6 +2040,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 //	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 //}} robobeg : 2008-10-16
 

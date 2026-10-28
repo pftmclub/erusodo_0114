@@ -1066,6 +1066,10 @@ void CKTDGXRenderer::DrawFrame( CKTDXDeviceXSkinMesh& kInXSkinMesh_, CKTDXDevice
             , CKTDXDeviceXET* pAnimAniExt, const wchar_t* pwszInNowAnimName_ )
 {
     ASSERT( m_bInBeginPass );
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+	if( false == kInFrame_.m_bJuneVisible )	// June 31d3e7d0 @31d3e872
+		return;
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 	KTDXPROFILE();
 

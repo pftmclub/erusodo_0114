@@ -10278,3 +10278,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH3a fix - DamageEffect.lua reads INIT_PHYSIC.WALK_SPEED at line 351018 ( a Raven combo ) while it loads, before any character script has set that global, so it stopped there and every effect after it ( Eve's Shot Gun, Illusionic Thorn, Extreming Cutting damage effects ) was undefined. The global gets WALK_SPEED 500 ( RAVEN_FIGHTER.lua's own value ) when it has none. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June engine R6 - June's whole skin-anim draw CKTDGXSkinAnim::OnFrameRender_Draw 31d30380: the frame-matrix copy, mesh hide, the per-mesh RenderParam pass 31d2f000 ( mesh +0xa2c / +0x980 ), alpha and SKIN_MESH_RENDER_TYPE lists de-duplicated by mesh name, all 8 SMRT cases sorted by mesh +0x86c with the damage-ramp remap, texOffsetStage2.y += anim time, the DG outline cap; June's 0xac mesh param struct ( 31d59130 / 31d29720 ), mesh +0xa30 = 0.01f, the frame visible byte +0xf8 ( DrawFrame 31d3e7d0 ), and the afterimage's force-normal-draw store ( 3322aa80 ). Replaces March's ARA_CHARACTER_BASE fixed pass and the SMRT_UV_ANIM-only pass. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+#ifndef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+#error SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE needs SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+#endif
+#ifndef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+#error SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE needs SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+#endif
+// Short-lived: one ErrorLog.txt line per mesh name and draw path ( [JUNE_ENGINE] SMRT ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
+//////////////////////////////////////////////////////////////////////////

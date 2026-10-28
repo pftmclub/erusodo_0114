@@ -184,10 +184,18 @@ CKTDXDeviceXSkinMesh::CKTDXDeviceXSkinMesh( LPDIRECT3DDEVICE9 pd3dDevice,
     m_bAlphaRender = false;
 #ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 	m_iSkinMeshRenderType = -1;
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+	m_fSMValue = 0.01f;	// June mesh ctor 31d4eff0 @31d4f1a4
+#else SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 	m_fSMValue = 0.f;
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 	m_vSMUVSpeed = D3DXVECTOR2( 0.f, 0.f );
 	m_bSMUVAlpha = true;
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+	m_iJuneDrawOrder = 0;
+	m_bJuneUseRenderParam = false;
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	m_bNoRenderable = false;
 #endif FACE_OFF_MONSTER_HEAD_TEST

@@ -53,6 +53,84 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 				std::string	m_strMoveBoneNameMB;
 		};
 
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		enum SKIN_MESH_RENDER_TYPE
+		{
+			SMRT_NONE						= -1,
+			SMRT_REAL_COLOR					= 0,
+			SMRT_CARTOON_BLACK_EDGE			= 1,
+			SMRT_CARTOON_BLACK_EDGE_ALPHA	= 2,
+			SMRT_UV_ANIM					= 3,
+			SMRT_INVSRC_ALPHA_NOT_CULL		= 4,
+			SMRT_DESTALPHA_SRCALPHA_CCW		= 5,
+			SMRT_CUSTOM						= 6,
+			SMRT_CARTOON_ALPHA				= 7,
+		};
+
+		struct JuneRenderParamData	// June 0xac mesh param ( +0x8d4 / +0x980 ), init 31d59130, read by 31d29720
+		{
+			int				iRenderType;
+			int				iCartoonTexType;
+			D3DXCOLOR		outLineColor;
+			float			fOutLineWide;
+			bool			bAlphaBlend;
+			int				iCullMode;
+			int				iSrcBlend;
+			int				iDestBlend;
+			bool			bAlphaTestEnable;
+			bool			bZEnable;
+			bool			bZWriteEnable;
+			D3DXVECTOR3		lightPos;
+			D3DXVECTOR3		lightPos2;
+			D3DXCOLOR		color;
+			float			fLightFlowWide;
+			float			fLightFlowImpact;
+			D3DXVECTOR3		lightFlowPoint;
+			D3DXVECTOR2		texOffsetStage0;
+			D3DXVECTOR2		texOffsetStage1;
+			D3DXVECTOR2		texOffsetStage2;
+			bool			bFog;
+			bool			bFogShow;
+			D3DXCOLOR		fogColor;
+			float			fogNearX;
+			float			fFog;
+			float			fFogShow;
+			float			fFogColor;	// packed ARGB stored as a number
+			float			fFogNearX;
+
+			JuneRenderParamData()
+			{
+				iRenderType			= 0;
+				iCartoonTexType		= 0;
+				outLineColor		= D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+				fOutLineWide		= 0.f;
+				bAlphaBlend			= false;
+				iCullMode			= D3DCULL_CCW;
+				iSrcBlend			= D3DBLEND_SRCALPHA;
+				iDestBlend			= D3DBLEND_INVSRCALPHA;
+				bAlphaTestEnable	= false;
+				bZEnable			= true;
+				bZWriteEnable		= true;
+				lightPos			= D3DXVECTOR3( 0.f, 0.f, 0.f );
+				lightPos2			= D3DXVECTOR3( 0.f, 0.f, 0.f );
+				color				= D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+				fLightFlowWide		= 0.f;
+				fLightFlowImpact	= 0.f;
+				lightFlowPoint		= D3DXVECTOR3( 0.f, 0.f, 0.f );
+				texOffsetStage0		= D3DXVECTOR2( 0.f, 0.f );
+				texOffsetStage1		= D3DXVECTOR2( 0.f, 0.f );
+				texOffsetStage2		= D3DXVECTOR2( 0.f, 0.f );
+				bFog				= false;
+				bFogShow			= true;
+				fogColor			= D3DXCOLOR( 0xd8e3fe );
+				fogNearX			= 0.f;
+				fFog				= 0.f;
+				fFogShow			= 0.f;
+				fFogColor			= 0.f;
+				fFogNearX			= 0.f;
+			}
+		};
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 		struct MultiAnimFrame : public D3DXFRAME
 		{
 			D3DXMATRIX		baseMatrix;
@@ -78,6 +156,9 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 			bool			m_bMoveBoneY;
 			float			m_fMoveBoneY;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+			bool			m_bJuneVisible;	// June frame +0xf8, only the frame ctor 31d360d0 writes it
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 			MultiAnimFrame()
 			{
@@ -106,6 +187,9 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 				m_bMoveBoneY		= false;
 				m_fMoveBoneY		= 0.f;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+				m_bJuneVisible		= true;
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 			}
 
 			~MultiAnimFrame()
@@ -382,6 +466,13 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 		void SetUseRenderParam( bool bValue_ ) { m_bUseRenderParam = bValue_; }
 		bool GetUseRenderParam() { return m_bUseRenderParam; }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		int GetJuneDrawOrder() const { return m_iJuneDrawOrder; }
+		const JuneRenderParamData& GetJuneTypedParam() const { return m_JuneTypedParam; }
+		const JuneRenderParamData& GetJuneRenderParam() const { return m_JuneRenderParam; }
+		bool GetJuneUseRenderParam() const { return m_bJuneUseRenderParam; }
+		MultiAnimFrame* JuneGetFrameQuiet( DWORD dwInIndex_ ) const { return ( dwInIndex_ < m_dwFrameNum ) ? m_apFrameList[ dwInIndex_ ] : NULL; }
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 		void SetNoRenderable(bool flag) { m_bNoRenderable = flag; }
 		bool GetNoRenderable() { return m_bNoRenderable; }
@@ -440,6 +531,12 @@ private:
 #ifdef ARA_CHARACTER_BASE
 		bool								m_bUseRenderParam;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		int									m_iJuneDrawOrder;		// June +0x86c, the SMRT pass sort key
+		JuneRenderParamData					m_JuneTypedParam;		// June +0x8d4, the SMRT_CUSTOM param
+		JuneRenderParamData					m_JuneRenderParam;		// June +0x980, the RenderParam pass param
+		bool								m_bJuneUseRenderParam;	// June +0xa2c
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 		D3DXVECTOR3							m_vCenter;
 		float								m_fMaxBoundingRadius;
