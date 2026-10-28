@@ -2686,6 +2686,24 @@ Each item was read against June's listing (Ghidra; `disasm_range.py` for `3299b1
 tree-UI pieces CH4 does not take. **Done gate:** a select-screen pass of all nine March characters with no new error; Eve's skill and hyper
 cut-ins play June's `.gfx`.
 
+### CH5 - Done (2026-10-28, Sonnet 5.5)
+
+- **`UnitTemplet.lua` (data036, core-list BOM source already):** Eve's 7 blocks (`UC_EVE_NASOD`, `_EXOTIC_GEAR`, `_ARCHITECTURE`, `_CODE_NEMESIS`, `_CODE_EMPRESS`, `_ELECTRA`, `_BATTLE_SERAPH`) are June's text, block-wise swap
+  (55 blocks before and after, the other 48 untouched, CRLF and BOM kept); `luasrc.py refresh data036 UnitTemplet.lua` REFRESHED, `ledger --check` PASS, `core --check` PASS, `luabind.py check UnitTemplet` PASS (0 unbound).
+  New keys: `m_fLobbyRotationY` (7 rows, March's reader ignores it) and `m_HyperCutIn` = `HQ_Cutin_ECN/ECE/ECB_Transcendence` on 108 / 109 / 116 (`.gfx` in data195). No reader change (CH0: every March key equals June's).
+  `kom.py pack data036`: PACK OK, the only changed entry vs the live kom is `UnitTemplet.lua`. **`COPY OK data036`** (user yes) md5 `dc83477a308df760288413acbfe55fbe`, backup `kom_backup_tools/data036.kom.20261028_185657`.
+- **Cut-in table (`SERV_IRUHADEV_JUNE_CHAR_EVE_UI`, already defined by CH4c):** `s_SkillCutInSet` = June `337abc00` (static init `333a4940`): 4 sets x 3 = `HQ_CutIn_Eve_01/02/03`, `NM_01` x3, `EP_01` x3, `BS_01` x3, no extension (all `.gfx` in data152, checked by name).
+  Same `SkillCutIn( name )` size / position as March; March's table stays in the `#else`. Event pair `s_SkillCutInSetEvent8b3` = `337abba0` / `337abbd0` (`HQ_CutIn_Eve_CASH_21` / `CASH_22`, also in data152); `CX2GUEve::June_ShowActiveSkillCutInAndLight`
+  takes it under `IF_EVENT_ENABLED( 0x8b3 )` (even `rand()` -> CASH_21, as `3297b9a7`). Electra (26) keeps set 0 as in June (`329ba9c0` has no Electra case). 0x8b3 stays a number: it is a code-event id with no Enum name
+  (2227 in `Enum.lua` is `NUI_SECRET_SUMMON_MAG_NOM`, a different enum); `enumscan --check X2GuEve.cpp`: 0 A/B rows. March's `ShowActiveSkillCutInAndLight` reads the same table, so March-state skills show the June art too.
+- **Logs:** `[JUNE_CHAR] EVE UI cut-in set <n> index <i> name <name>` (June path) and `[JUNE_CHAR] EVE UI hyper cut-in class <c> name <name>` (`CX2GUUser::ShowHyperSkillCutInByScript`, Eve only).
+- **Not ported, routed:** the cut-in item override (`3297b908` -> customize manager) -> Stage 12 bullet (same as Aisha's). Code event 0x8b3 is never set offline, so that branch is dormant (compiled in).
+- **Dialog / tree-UI pieces:** none left; CH0's rows map them to CH4 (CH4a-c took them); the only CH5 rows in `ch0_checklist_rows.tsv` are 7t L577-584 and 7t L607, both done above.
+- **Hygiene:** `flagcheck JUNE_CHAR_EVE_UI --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GUUser.cpp`: 2 PASS, 0 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatch; RESULT PASS.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,220,032 B, dated 2026-10-28 18:38:38, md5 123e82d9aba49d8c1fbcd5c67ea826f0`. `EXESTR OK: 2 of 2` (`EVE UI cut-in set`, `EVE UI hyper cut-in class`) and `EXESTR OK: 6 of 6` (`HQ_CutIn_Eve_01/NM_01/EP_01/BS_01/CASH_21/CASH_22`).
+- **See it in game:** select screen: all nine March characters' names and models; an Eve skill cut-in shows June hero art with the frame and balloon (set 0 on 5 / 18 / 19 / 26, 1 on 108, 2 on 109, 3 on 116); a transcendence hyper (108 / 109 / 116) shows `HQ_Cutin_E*_Transcendence`
+  only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH1's script does for the ECN / ECE / ECB hyper modes).
+
 ## Phase CH-N - not run for Eve
 
 All seven June Eve classes exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara runs it first.

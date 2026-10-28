@@ -48,6 +48,39 @@ namespace _CONST_EVE_
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
 // 필살기 쓸 때 cut in image 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+// June 337abc00: GFx names without extension ( ActiveSkillShow appends .gfx ); 4 sets of 3
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_02"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_03"),
+	},
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_NM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_NM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_NM_01"),
+	},
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_EP_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_EP_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_EP_01"),
+	},
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_BS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_BS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_BS_01"),
+	},
+};
+
+// June 337abba0 / 337abbd0: the cut-ins of code event 0x8b3
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Eve_CASH_22"),
+};
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = 
 {
 	// 이브, 엑조, 아키
@@ -86,6 +119,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 
 #endif
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 CX2GUEve::CX2GUEve( int unitIndex, int teamNum, 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -53257,9 +53291,18 @@ void CX2GUEve::June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, cons
 {
 	if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && GetShowCutInAndChangeWorldColor() && GetShowActiveSkillShow() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+
+		// not ported: the cut-in item override ( 3297b908, CX2CustomizeManager: backlog Stage 12 )
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 3297b9a7: even rand() -> CASH_21
+		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE UI cut-in set %d index %u name %s", m_iSkillCutInSetIndex, uiCutInIndex_, cutIn.fileName.c_str() );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 		const SkillCutIn& cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
 
 		// June 3297b908: skill cut-in item override -> Stage 12; the code event 0x8b3 cut-ins -> CH5
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 		ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 	}
 }
