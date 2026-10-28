@@ -27,6 +27,10 @@ packet proc).
   manager `+0x8a` = 1, now-state `32461a70` and, on the packet byte, `324639a0`.
 - Q10b ported only their story-slide-show forced Ends. Offline, the emulator's AI party sends neither packet, so these handlers are undriven: say so
   per handler (`IsClearTypeUndriven`-style labels are not needed; a log line is).
+- june-march-divergence D0c-3 (2026-10-29) found party March functions that June's party / local-map code calls with March's body: `Handler_EGS_PARTY_CHANGE_DUNGEON_REQ`
+  (`32433560`: Hero id remap to 120010), `GameStartCurrentMember` (`322c42f0`, ~700 lines), `SetDungeonButton` / `SetPVPButton` (`322c2670` / `322c23c0`:
+  global `+0xa90`), `UpdateBossItemList` (`322bf130`), `UpdateAdequateItemLevel` (`322beeb0`), `UpdatePvpPartyDlg` (`322c2230`, PvP only) and
+  `CX2LocalMapUI::UpdateHeroRecruitButton` (`32939530`). They are `tools/data/june_march_divergent.tsv` rows (owner Stage 28): put them in this plan.
 
 ## Task
 

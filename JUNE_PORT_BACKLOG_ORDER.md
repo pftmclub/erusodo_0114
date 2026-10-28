@@ -611,6 +611,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   `EffectSet_UI_Transcendence_Open` / `_Loop`. Identify it with the character-info / HUD family above.
   (3) June's `RenderRank` body (`31ff6aa0`, T5 review): a season emblem when `3241d290` == 2 (CX2Unit `+0xa0c`, `+0xa00` >= 5), otherwise the rank
   emblem only for ranks other than `PVPRANK_NONE` / `PVPRANK_RANK_ARRANGE`; March draws any rank. T5 ported only its bool return.
+- **March functions June's UI code still calls with March's body** *(from june-march-divergence D0c-3, 2026-10-29)*: `AddChatLog` (extra bool,
+  TwoSeater tab, chat types), `CX2Cursor::OnFrameRender` (June draws a June-only `CKTDXCursor`, `31ce5400`), `CX2UIManager::SetShowMenu` (state
+  list, notice manager), `ToggleCashShop`, `ToggleSystemMenu`, `OpenAdvertisementDialog`, `ShortCutKeyProcess`, `SetShowMiniMap`, `UpdateEventNotice`,
+  `IsValidPacket` (net-error lists and popups), `NetError::GetErrStr` (language table), `GetPVPEmblemData` (built-in rank table). Each is a
+  `tools/data/june_march_divergent.tsv` row (verdict `out`, owner Stage 9) with the June address and what differs.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -825,6 +830,9 @@ Routed elsewhere:
 - the division and render-division tables go to Stage 11;
 - `TranscendentalClassItem` goes to Stage 6;
 - the Lu/Ciel minor-unit fields go to Stage 8.
+- *(from june-march-divergence D0c-3, 2026-10-29)* three item-side March functions differ from June's: `CX2ItemManager::OpenScriptFile` (June
+  binds nine item globals, `3280d3c0`), `Handler_EGS_USE_ITEM_IN_INVENTORY_REQ` (June: temp code only when > 0, an extra wstring, no per-item
+  switch, `32172190`), `Handler_EGS_USE_FINALITY_SKILL_REQ` (a second item UID, `322eef30`). Rows in `tools/data/june_march_divergent.tsv` (owner Stage 16).
 
 **Depends on:** Stage 13 (K2).
 
@@ -1009,6 +1017,11 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
   `324dbc20` case 0x3e7) reads a position vector, sets state `+0x7a9`, makes the host create NPC 0x55c there (`322e67c0`), and plays a
   random line from NPC 0x959c by unit type. `+0x7a9` skips the result's 0.1 s wait and hides its exit button and retry. There is no
   March counterpart, and offline it is unreached (no emulator sends it). Related: `funcmap` row `324d1290 (Result R0)`.
+- **Hero / Bestera dungeon gates in March functions** *(from june-march-divergence D0c-3, 2026-10-29)*: June's `IsActiveDungeon` (`327da190`: Hero
+  remap via `32931be0`, Bestera 150000-150050 always active, Atlas event codes 0x8d4 / 0x8d5), `MakeDungeonNameString` (`327ddb60`: Hero names),
+  `UpdateDungeonClearStars` (`32936b00`: a Bestera branch in place of Valentine 41120), `GetLocalMapID` (`324f25f0`: map 0x271b), the boss-raid
+  field test `GetIsBossRaidCurrentField` (`32482650`: field type 2..4) and `Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` (`327d0370`: one-byte
+  packet). Rows in `tools/data/june_march_divergent.tsv` (owner Stage 22).
 
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 
@@ -1138,6 +1151,9 @@ in Stage 28, quest popups with quest-system.
 opened for the training result only. The drift went to Stages 6, 9, 22 and 28.
 *June-transcend T0 (2026-10-23):* the result state's class image (`324ce260`, `31ee0de0` type 1) passes the transcendence flag; it is this
 stage's when the result screen draws the class icon.
+*June-march-divergence D0c-3 (2026-10-29):* the result code calls two March functions June changed: `DungeonResultUnitInfo::GetTotalExp`
+(`327c9390`: 12 terms, three June-only bonus fields) and `CX2Game::Handler_EGS_LEAVE_ROOM_REQ` (`322ef3d0`: PLAY_INFO for states 0xb / 0x17,
+four more packet fields, no relay vector). Rows in `tools/data/june_march_divergent.tsv` (owner Stage 29).
 
 ### Stage 30: June resonance system (june-transcend planning, 2026-10-22)
 

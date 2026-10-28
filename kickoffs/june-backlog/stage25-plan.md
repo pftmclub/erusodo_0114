@@ -19,6 +19,10 @@ Then March's side: `KTDXLIB/KTDGFontManager.cpp` (`InstallFont` ~:1839 / ~:1875,
 ~:1538 and `InstallFont` ~:8005, `KTDXLIB/Always.h` ~:495-515 (`USE_FREE_TYPE` block). Grep the March and June config Lua for
 `InstallFont` (it is Lua-bound) before concluding only `Gulim.ttc` is installed.
 
+Also in scope (june-march-divergence D0c-3, 2026-10-29): two line-break functions June changed, `CWordLineHandler::LineBreakInTalkBoxManagerImp`
+(`31d436c0`: a max-length argument, cut at the end) and `CX2Main::GetStrByLienBreak` (`31d79390`: no break before `)` or `.`, leading-space trim).
+They are `tools/data/june_march_divergent.tsv` rows (owner Stage 25).
+
 ## Task
 
 1. **Measure March:** which faces load at run time and from which kom (`datai022`), which text paths use FreeType and which use

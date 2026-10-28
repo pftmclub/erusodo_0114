@@ -257,6 +257,50 @@ header body, and some callers' addresses are wrong (`33441c60` is a constant). T
 
 **Hygiene:** no code, no flag, no build. **Open for the user:** none.
 
+### D0c-3 Done (2026-10-29, data / UI / managers; no flag, no game code, no build)
+
+All 403 callees of area D0c-3 have a verdict in `june2017_re/diverge/d0c3_callees.tsv` (D0c-1's columns; `batch` = `ruleA` or the comparison
+batch). The gate holds: **70 new `june_march_divergent.tsv` rows** (replace 29, out 40, stage33 1; the ledger's 71 count `UpdateQuickQuestDLG` twice)
+and **166 funcmap rows** `(Diverge D0c-3)` (41 more June functions found were already mapped).
+
+**Method.** March bodies: a definition index over `X2Lib` / `KTDXLIB`, classified by shape. June: each call site's enclosing function and its June
+address (the census cache, `names.tsv`, funcmap), then the call matched in that function's decompile (or `funcdis.py` where Ghidra has no function),
+then June's callee decompiled. Six Sonnet subagents compared 252 callees. Opus ruled every `differs` and read the decisive ones in Ghidra.
+
+| Verdict | Count | How |
+|---|---|---|
+| same by rule | 151 | plain get / set / empty (June inlines: `324cf442` / `324cf452` read and write `CX2Game::m_bCanUseESC` (+0x2ad); `32447c00` reaches the skill tree with no accessor call; `ProcessShowMiniMap`'s empty base = June's no-op `3208ddc0`) |
+| same, compared | 166 | decompile or disassembly against the live body |
+| same, the tree already runs June's body under a defined flag | 10 | `JUNE_PARTY_UI` (7 party-UI functions), `JUNE_TUTORIAL_MODE`, `JUNE_QUEST_UI` (2) |
+| same, ruled | 5 | `GetPartyMemberData` (June returns the leader byte; every caller reads only that), Scaleform SDK calls (`Initialize`, `PushBack`), `SetAlpha` (plain virtual setter), `GetDungeonType` (June DungeonGame vtable `334bb094` slot 0x1c8 = `327c9ef0`) |
+| tsv row | 71 | below |
+
+**Re-read by Opus:** the four `CX2InformerManager::Get*Informer` (March's inner `pInformer` shadows the outer one, `X2InformerManager.cpp:37-49`, so the
+create branch returns an uninitialised pointer; June `328546a0` returns the new informer); `Handler_EGS_NEW_QUEST_REQ` (`323d2b40`: quests
+208020-208060 return without sending while manager `+0x5d` is 0; the tree's `JUNE_QUEST_UI` branch lacks it); `GetDungeonType` (above).
+
+**Replace (29, D1):** `Get{Guild,Skill,Quest,Inven}Informer`, `GetEDString`, `GetKeyString`, `CreateDummyEquip`, `DisplayAddHPInformation` /
+`DisplayAddMPInformation`, `SetMusic`, `SetMapDetail`, play guide `SetMouseClickIndex` (June: empty) and `StartGoEffect`; quest `GetQuestColor`,
+`GetNeedToClearDungeonList`, `SetHasDungeonQuest`, `Handler_EGS_NEW_QUEST_REQ`, `UpdateRewardItemSlot`, `UpdateNavi`, `UpdateQuickQuestDLG`,
+`UdateLocalMapQuestDesc`, `GetHenirDungeonIcnoDesc`, `UIOpened`, `SetNowDragItemReturn`; and five call-site fixes inside June bodies, where June removed
+the call: `IsEventValentineDungeon` / `GetEventValentineDungeonIconDesc`, `IsDefenceDungeon`, `GetPartyUI` (`X2LocalMapUI.cpp:283`), and
+`GetCloneBuffFactorPtr` (June goes through the unit's getter `3229a3d0` -> `32028af0`, `X2GUArme_VioletMage.cpp:29411`).
+**Open for D1:** `SetMapDetail`'s layer offsets are inferred; `UpdateQuickQuestDLG` brings June's three per-state slot setters.
+
+**Stage 33 (1):** `CX2Stat::Stat::SetKStat` (`323571c0`: two 7-value stat sets).
+
+**Drift, owned elsewhere (out 40 = 33 + C4 + 6):** each row names its owner, and each owner has a bullet now: Stage 9 (12: chat box, cursor, `SetShowMenu`,
+cash-shop / system-menu toggles, shortcut keys, minimap, event notice, `IsValidPacket`, `GetErrStr`, PvP emblem, advertisement); Stage 28 brief (8:
+party dungeon change, game start, the two button setters, boss items, item level, PvP party dlg, hero recruit); Stage 22 (6: Hero / Bestera gates,
+names, clear stars, local-map id, boss-raid field, sub-stage packet); Stage 16 (3: item-manager Lua globals, use-item and finality packets); Stage 29
+(2: `GetTotalExp`, leave-room packet); Stage 25 brief (2 line breaks); C4 (`SetOffsetPosSkillSLotStatic`: merge `SetOffsetPosJuneTCSlotUI` into it).
+Six have no June caller (debug log, our dev gate, a dead `#else`, two emulator functions, `ProcessQuestDesc` dead on US).
+
+**Batch-data caveats** (as D0c-1): eight caller addresses were wrong (a vtable `3348ffe4`, a `std::map` find `326ab090`, comment-picked neighbours).
+The subagents re-located each from the call site. Evidence cells cite scratch decompiles (`june/<va>.c`); D1 re-reads June before it ports.
+
+**Hygiene:** no code, no flag, no build. **Open for the user:** none.
+
 ## Phase C0 - Collapse tool (Sonnet 5.5, high)
 
 **Depends on:** D0a (format), D0b (map) for the selftest data.
