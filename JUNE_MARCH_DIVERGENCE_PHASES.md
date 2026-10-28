@@ -315,6 +315,38 @@ The subagents re-located each from the call site. Evidence cells cite scratch de
 - `--selftest` on fixtures: a twin merge, a rename blocked by a base-class name, a mixed-flag call site reported, a CP949 byte kept.
 **Gate:** selftest PASS; a dry run of C1's batch on `X2GuEve.cpp` reports counts that match the map.
 
+### Done (2026-10-29, no flag, no game code, no build)
+
+`tools/junecollapse.py` (new, README row added): `apply <batch> [--dry-run] [--files F ...] [--only OLD ...] [--report TSV] [--out-dir DIR] [--base REV]`, `--selftest`.
+Byte-level (comments and literals masked, every edit a splice of the original bytes), reuses `flagcheck.strip` / `enc_class` for the per-file checks.
+- **merge:** `X(..) { #ifdef F <June body> #else <March body> #endif F }`; June definition (and its attached `//` comment, moved to the top of the June branch)
+  and header declaration deleted; emptied `#ifdef <June flag>` frames removed; parameter names read in March's names; plain
+  `#ifdef F June_X #else X #endif` wrappers collapsed, other June branches that call a merged name listed as *mixed call site*.
+  **The port's own delegating wrapper** (`{ #ifdef LIVE June_X(..); } #else <March body> } #endif`, 37 of Eve's 410) is rewritten in place
+  under its LIVE flag, so those merges change no behaviour. Hand shapes (listed, not touched): inline definition in a header, braces split across
+  `#if` in any other way, differing parameter types / default arguments / return type, no March twin in the file, a note naming a hand shape.
+- **rename:** refuses a name the class, any base class (read from the headers) or the touched files already have, and two rows of a batch that
+  rename to the same name. A name carried by rows of several classes is renamed only in the row's own file and header (`name shared` sites reported).
+- **enum / namespace / class / lua / file / drop / keep:** matching rewrites; `lua` also rewrites the exact string literal; `file` is `git mv` + project files + `#include`.
+- **checks per file:** `flagcheck.strip` with every `SERV_IRUHADEV_JUNE_*` undefined, new vs the base revision with the same renames applied
+  (a rename outside every flag is neutral), byte for byte; encoding class unchanged. One failing file writes nothing.
+
+**Gate:** selftest PASS (twin merge, delegating wrapper, rename blocked by `CBase::Taken`, mixed site reported, CP949 bytes kept, header declaration,
+member / namespace / lua / enum / drop, a March-side change caught by the flag-off check). Dry run of C1 on `X2GuEve.cpp` + `.h`: merge 410, rename 182 (= map),
+checks PASS, ~36 s: merge 390 auto / 20 hand, rename 178 auto / 4 hand.
+Hand list (C1): 6 inline definitions in the header, 3 class copies of a base function, 2 namespace copies, 3 default-argument or overload mismatches, 6 "no March
+overload with June's parameter types" / missing twin, 1 collision (`ENSI_DASH_COMBO_ZX_EventProcess`), the notes the map already named. `--report` writes one row per map row.
+
+**Other batches, dry run (smoke only):** C2 460 rows (merge 300/314, rename 144/146, checks PASS); C3 577 (rename 548/554, merge 8/23); C4 726 (rename 565/583,
+class 70/101, lua 10/11, file 3/3, merge 1/26; 39 "no use found" are the census's header-only or macro rows); C5 1,579 (rename 1,133/1,327, enum 210/210,
+namespace 32/32, drop 5/5; 180 files; about 40 rows are locals whose new name exists in the file). No crash in any batch. Check status: C1, C2 PASS; C5 passes in every file except `Always.h` (item 2); the C3 and C4 summary lines were cut off in my smoke run, so their check status is not recorded: C3 and C4 re-run `--dry-run` first.
+
+**For the C phases:**
+1. **Reach points.** 354 of C1's 390 automatic merges sit under `_CORE`, not behind a delegating wrapper: March callers of those `X` now run June's body whenever `_CORE` is on
+   (the tool prints the count and tags each row `reach point` in `--report`). C1's Done note lists them; Eve is live, so the build already ran June through the `_LIVE` calls.
+2. `KTDXLIB/Always.h` is the only file that fails a C5 dry run: the flag-off check cannot evaluate its `#if defined(..) && ..` (line 10007), so C5 either does that file by hand or filters it with `--only`. Cause of the edit not traced.
+3. Mixed call sites (C1: ~48, all June branches under `_LIVE` / `_SKILL` / `_CORE` beside a different March branch) are in the report; a June call inside a bigger `#ifdef` alternative is not listed.
+
 ## Phase C1 - Collapse Eve (Sonnet 5.5, high)
 
 **Depends on:** C0. `X2GuEve.{h,cpp}` (+ Eve call sites elsewhere). Apply the Eve batch; hand-do the reported shapes; one commit per
