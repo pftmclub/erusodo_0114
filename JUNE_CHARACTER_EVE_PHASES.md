@@ -2355,6 +2355,7 @@ Read against `funcann.py` listings of the 23 functions, `32757ea0` / `32294460` 
 - Summon cases the CH2b3 amendment named: 1621 / 1622 (0x240) were done in CH3a2, and their 0x200 path stores into the factor; 1604 Apocalypse is Add's NPC.
 
 **Hygiene.** `flagcheck JUNE_CHAR_EVE_TRANSCEND --worktree --files X2Lib/X2Data.cpp`: `1 PASS ... 2 deleted line(s)` (the phase's own lines inside the flag), `0 non-ASCII`, `0 encoding change(s)`, `RESULT: PASS`. `enumscan`: only T2's untouched 104 / 105 / 113 rows.
+Range: `--with` over `7408593a^..7408593a` `8 PASS, 1 DEFINE, 3 OTHER, 0 FAIL ... 0 deleted ... RESULT: PASS`; `_EVE_TRANSCEND` over `a198b002^..a198b002` `1 PASS, 0 FAIL ... 2 deleted ... RESULT: PASS`.
 **Deploy.** `DEPLOY OK: X2_offline.exe is 26,208,256 B, dated 2026-10-28 13:06:46, md5 e6028729790b2d28e6638d4d7db1f660, equal to X2/US_SERVICE/x2.exe (2026-10-28 13:06:39); built at main fc3fd05f + 1 uncommitted code file(s).` Both Texture99 names are in the exe.
 **In game** (after data215 is copied): a transcended unit 59 / 60 / 61 shows the TR portrait in the skill-tree window (`X2UISkillTreeNew2015.cpp:1442`; also the dungeon result), logged as `[JUNE_TRANSCEND] IMAGE class 108 type 2 -> DLG_UI_Common_Texture99_NEW.tga / TR_C_NEMESIS_LARGE`.
 
