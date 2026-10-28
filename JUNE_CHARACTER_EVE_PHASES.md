@@ -2628,6 +2628,11 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
 - On Empress: `recovery gather npc 1622` and `recovery heal npc 1622 ... buff set`.
 - `recovery tooltip set`.
 - `icon el crystal ...` on unit 41 and `icon link overcharge ... ferdinand 1` on unit 61.
+**Play-test (2026-10-28, logs 17:34-17:39 on md5 `49d25ddc`; 0 EXCEPTION, 4 known `E_DISABLE_HB_CHECK_REQ`, ErrorLog 0 lines): checks 1-3 PASSED, 4 and 5 not exercised.**
+- Statics: `show 1 cool 0` on entry, `show 1 cool 1` after each V, back to `cool 0` when ready, `show 0` on leaving; all three controls found (`guide 1 cooltime 1 button 1`).
+- Tooltip `set ( game 1 )` for all three lines (Attention / Trick Key / Breaker).
+- Unit 61 (109): cost 7.5 (50 x Rule Break's rate), cool 3.0 s, `gather npc 1621 / 1622` and `heal npc ... buff set` every press. Unit 59 (108): 300 -> 280 MP, HP +5 %, cool 30. Unit 60 (116): 375 -> 335 MP, cool 30.
+- Not exercised: Link Overcharge was not cast (the 17:37:03 Ferdinand set is Reason Pride's, skill 25057), so only `ferdinand 0` logged; unit 41 (El Crystal) was not played. Both are retests.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
