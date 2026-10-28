@@ -121,7 +121,8 @@ damage-meter and customize windows; the item data behind earring / minime / seco
 - June files go in through `luasrc.py adopt-june` (Lua, ljconv bytecode) and `kom.py stage-june` (textures); never edited. `Enum.lua` is core-list BOM source:
   edit the text, then `luasrc.py refresh`; `ledger --check` stays PASS. Assume March lacks any asset the ported code uses: check by name first.
 - No hardcoded enum literals: CIM / NESI / `UI_MENU_*` / state ids by name (`enumscan.py --check`). June's UI-manager ids are mapped by name, never by number.
-- File-local helpers go in `_CONST_CHARINFO_JUNE_<phase>_` named namespaces (no anonymous namespace).
+- File-local helpers go in `_CONST_CHARINFO_<phase>_` named namespaces (no anonymous namespace, no `JUNE` in names: CLAUDE.md 2026-10-28).
+  June's body goes inside March's own `CX2UICharInfo` function under the flag; a function March lacks gets a plain name in the class's pattern.
 - June quirks verbatim with a `JUNE_BUGS.md` row; absent June state takes June's default or a labelled stand-in under its own flag; no popups, always log.
 - For every June `.lua` staged: `luabind.py check`. Pack with `/elstools pack`; **ask before every `/x2-kom-packed copy`**.
 - Hand-offs: dev console, `/additem <id> [qty]` for gear, copy-ready; never put skills in slots 4 / 9 of a non-transcended save.

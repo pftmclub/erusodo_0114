@@ -58,6 +58,13 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    member, and register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value
    with no Enum entry stays a number with a one-line comment. The one exception is a table whose rows are the
    data itself (a `.tsv` of ids), not code. `python tools/enumscan.py --check <files>` before committing.
+   **No `June` prefix** (user rule, 2026-10-28; CLAUDE.md): June's body goes inside March's own function under the flag,
+   March's in `#else`; never a `June_X` / `JuneX` copy. A function March lacks is created under a name that follows the
+   class's own pattern (look at its neighbours), with no `June` in any function, member, class, file, namespace or Lua name.
+   Every name, locals and constants included, says what the thing is in context; never a Ghidra address or a phase tag
+   (`June32481fa0`, `JUNE_CH1I_...`, `bJuneMemo`): the address goes in the one-line comment.
+   Call a March function from June code only if June's namesake does the same; if June's is a stub or differs, replace
+   March's definition instead (`tools/data/june_march_divergent.tsv` once plan `june-march-divergence` writes it).
 
 ## Tools (use these, not hand-rolled equivalents)
 

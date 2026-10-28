@@ -27,3 +27,8 @@ No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name 
 register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum
 entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself
 (a `.tsv` of ids), not code.
+
+No `June` prefix (user, 2026-10-28; CLAUDE.md): June's body goes inside March's own function under the flag,
+March's in `#else`. A function March lacks gets a name in the class's own pattern, never with `June` in it.
+Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
+Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.

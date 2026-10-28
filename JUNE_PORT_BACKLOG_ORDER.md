@@ -1256,12 +1256,16 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
   left uncommitted) found one more hit, `X2GUArme_VioletMage.cpp:27702` in `June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove` (`SMI_AISHA_MEMO5`).
 - **Not in scope:** collapsing the `June_*` prefix into March's functions (a separate per-character cleanup, the user's call, after each
   character's Z phase).
-- **Planned 2026-10-28 (Opus):** `JUNE_MARCH_DIVERGENCE_PHASES.md` (`june-march-divergence`: D0 table, D1 replace at the definition +
-  review, D2 idiom gate + sweep + review/close). **Direction (user): replace the divergent March function at its definition**, the
-  studio's own update pattern, instead of policing calls; June's removals apply to unported callers too. The gate covers only idioms no
-  single function carries (`322cc1a0` as `GT_PVP`-only, `322ece70`). The draft tool named above never existed; D2 writes it.
-- **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0`. At close it becomes a
-  standing rule (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
+- **Planned 2026-10-28 (Opus):** `JUNE_MARCH_DIVERGENCE_PHASES.md` (`june-march-divergence`). **Scope widened the same day (user):**
+  every change so far. The ~1,505 June-prefixed functions merge into their March twin (the studio's in-place pattern) or take a name in
+  the class's pattern; members, locals, constants, namespaces, Lua names and `CX2UIQuestNewJune` follow; every March function June code
+  calls (~1,300) is audited and a divergent one is replaced at its definition. June's removals apply; a merge that would crash an unported
+  class is guarded. Phases: D0a census, D0b rulings, D0c-1..3, C0 tool, C1-C5 collapse (+ reviews), D1 replace (+ review), D2 gate + close.
+  The draft tool named above never existed.
+- **Supersedes "Not in scope" above:** collapsing the `June_*` prefix is now this stage's C phases. The naming rule is in `CLAUDE.md`
+  from 2026-10-28 for all new code ("no `June` prefix; June's body goes into March's own function").
+- **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0a`. D2's close adds the gate
+  and table rule as standing rules (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
 
 ## Open decisions that gate stages
 

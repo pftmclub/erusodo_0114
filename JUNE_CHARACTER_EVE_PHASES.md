@@ -70,6 +70,9 @@ The Aisha plan's Rules hold unchanged (`python tools/docsection.py JUNE_CHARACTE
   written by name from the first line, registered under a `SERV_IRUHADEV_` flag with June's value if C++ lacks it; `enumscan.py --check
   X2Lib/X2GuEve.cpp` stays 0. A phase that touches a use of an N3 duplicate local (`JUNE_CH1K_*` / `JUNE_CH1L_*` / `JUNE_RNSI_*`, an
   alias of an enum member) writes the member and drops the local after its last use.
+- **No `June` prefix from CH4c on (CLAUDE.md, user 2026-10-28).** Eve is live, so a June body for a function March's `CX2GUEve` / `CX2GUUser`
+  has goes inside that function under the phase's flag, March's in `#else`. A function March lacks gets a plain name in the class's pattern.
+  New code may still call the existing `June_*` members; plan `june-march-divergence` merges them after Z. New namespaces are `_CONST_EVE_<phase>_`.
 
 ## Starting context
 
