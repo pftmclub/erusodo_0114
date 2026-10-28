@@ -6178,6 +6178,18 @@ bool CX2QuestManager::IsForbiddenQuest( int iQuestID )
 
 	if( NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return false;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD
+	if( NULL == g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet() )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		static int s_iGuardCount = 0;
+		if( 0 == s_iGuardCount++ % 500 )
+			CX2OfflineLog::Server( L"[JUNE_QUEST] CRASH guard: select unit %I64d has no unit templet, quest %d read as not forbidden ( %d calls )",
+				(__int64)g_pData->GetMyUser()->GetSelectUnit()->GetUID(), iQuestID, s_iGuardCount );
+#endif SERV_IRUHADEV_OFFLINE
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD
 
 
 #ifdef SERV_SKILL_NOTE

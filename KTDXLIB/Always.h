@@ -10303,3 +10303,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Short-lived: one ErrorLog.txt line per mesh name and draw path ( [JUNE_ENGINE] SMRT ). Revert: undefine.
 //#define SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG		// off since the R6 review ( 2026-10-28 )
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: Quest Q11 - CX2QuestManager::IsForbiddenQuest returns false ( not forbidden, like its null-user / null-unit returns ) when the select unit has no unit templet, and logs [JUNE_QUEST] CRASH; the 2026-10-28 crash read CX2Unit +0x8d8 = NULL after a Reset from an empty KUnitInfo. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: Quest Q11 - the emulator's EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK leaves out a quest that failed to complete ( logged [JUNE_QUEST] BATCH ); its empty m_kUpdateUnitInfo made the client Reset the select unit to class 0. The live server never sends a failed entry ( GSUserGameCommon.cpp DBE_QUEST_COMPLETE_ACK ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK
+//////////////////////////////////////////////////////////////////////////

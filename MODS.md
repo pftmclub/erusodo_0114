@@ -5262,3 +5262,11 @@ Flag `SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET` in `KTDXLIB/Always.h` ( need
 - **Client.** `CX2EffectSet::EffectSetInstance::m_vJunePositionOffset` ( June `+0x1a4`, zero at creation ) is added to the effect's own `POSITION_OFFSET` inside `SetEffectSetOffset` ( June `321d9820`; its six callers in `GetEffectPosition` and `GetEffectPositionByBoneName` pass the sum, `@321dcda4` / `@321dd611` ). Class code sets it; Eve's Spit Fire writes ( 0, its `SA_DEGREE_Y` row, 0 ).
 - **What changes in game.** Only an effect set whose class code writes the offset moves; every other set adds 0.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET` ( Spit Fire's Y row is then not applied ).
+
+### June quest system: the batch quest ACK and the IsForbiddenQuest guard (quest-system Q11, 2026-10-28)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK` and `SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q11 - Done"; log tag `[JUNE_QUEST] BATCH` / `CRASH`.
+- **Emulator.** `Handlers_Quest.cpp` `Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_REQ`: a quest that fails to complete is logged and left out of the ACK (its empty unit info made the client reset the select unit to class 0).
+- **Client.** `X2QuestManager.cpp` `IsForbiddenQuest`: a select unit with no unit templet reads as not forbidden and logs `CRASH guard`.
+- **What changes in game.** No crash when the "hand in visited quests" batch on entering a field carries a quest that was just given up.
+- **Revert:** comment out either define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change (the Q11 play-test seeded quest 11000 on units 61 / 51 / 52; backup `els_db_20261028_105659_pre_sql.sql`).

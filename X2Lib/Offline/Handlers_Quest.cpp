@@ -802,6 +802,15 @@ bool CX2OfflineServer::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_REQ( KOfflineSes
 		KEGS_QUEST_COMPLETE_ACK kOne;
 		kOne.m_iOK = CompleteOneQuest( kSes, kReq.m_vecQuestCompleteReq[i], kOne );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK
+		// a failed entry has an empty m_kUpdateUnitInfo, and the client Resets the select unit from every entry
+		if( NetError::NET_OK != kOne.m_iOK )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] BATCH quest %d refused ( NetError %d ), left out of the ACK",
+				kOne.m_kCompleteQuestInfo.m_iQuestID, kOne.m_iOK );
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK
 		kAck.m_vecQuestCompleteAck.push_back( kOne );
 
 		if( true == m_kQuestAfter.m_bValid )

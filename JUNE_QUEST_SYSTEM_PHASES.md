@@ -1842,6 +1842,36 @@ The checklist and its tooling are written; the user's play-test is the rest of t
 - **Out of scope:** the quest give-up rules themselves (Q3 / Q4 own them); a quit caused outside the quest system goes to that system's owner.
 - **Done gate:** the guard is in (flagcheck PASS, `DEPLOY OK`), a minidump is written on a forced test exception, and 3 launches into the battlefield show no crash and no unexplained quit.
 
+### Q11 - Done (2026-10-28, Opus 5.5 high)
+
+**The crash was in the emulator's batch quest ACK, not in a teardown.** Read from the crash bundle `%TEMP%\X2_404A.tmp` (a CrashRpt zip with a 117 KB
+`X2_offline.dmp`; `tools/mdscan.py` against `X2/US_SERVICE/X2.map`, exe md5 `21638825` = the map's build):
+- **Stack:** `CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK` +0x1c3 -> `JuneResetQuestUI` -> radio `SetChecked` -> `JuneUpdateOngoingQuestInfo`
+  -> `JuneAddFirstStoryQuests` -> `JuneIsQuestStartable` -> `IsForbiddenQuest` +0xce. `edx` = 0.
+- **`+0x8d8` is `CX2Unit::m_pUnitTemplet`** (`X2Unit.h:1324`). `@32cb5bf8`: templet `+0xcc` (condition unit type) != 0 -> `GetType()` = `[m_pUnitTemplet]`.
+- **Why it was NULL:** the emulator's `Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_REQ` pushed every entry, failed ones too, and a failed entry's
+  `m_kUpdateUnitInfo` is empty. The client's ACK loop calls `GetSelectUnit()->Reset( entry.m_kUpdateUnitInfo.m_kUnitInfo )` for each entry. That reset the unit
+  to uid 0 / class 0 (the `[JUNE_TRANSCEND] UNIT 0 class 0 ( select )` line at 10:40:55.66) with no unit templet, and the next `ResetQuestUI` faulted.
+  The live server never sends a failed entry (`GSUserGameCommon.cpp` `DBE_QUEST_COMPLETE_ACK`: a failure is an error ACK with an empty vector).
+  The failed quest was most likely 11000 (Visit Ruben): unit 61's visit step was done, the client queued it for `CompleteQuestToVisitVillage`, and
+  `GiveUpForbiddenQuest` gave it up first (transcended unit, Q3's class-tail rule), so the batch asked to complete a quest the emulator no longer held.
+- **The "unexplained quit" is CrashRpt.** `CrashReportCallback` (`X2Main.cpp:512-518`) writes `mem: curr-...` to State.log, then sends `EGS_CLIENT_QUIT_REQ`
+  (`ERR_CLIENT_QUIT_02`). The bundle's State.log ends on that line at 10:40:55, so the fault was at about 10:40:55.70. 10:40:56.8 is only when the bundle
+  was written; the second quit at 10:40:57.06 is most likely the handler's second pass. Nothing to route.
+- **Minidump:** CrashRpt does write a usable dump, **inside the zip** `X2_<hex>.tmp`. The bare `X2_offline.dmp` and the two small `X2_*.tmp` after each
+  crash are 0 bytes (same pattern on the 10-21 / 10-24 / 10-27 crashes; likely the second pass). No `X2/` change. The gate's "forced test exception" is met by this real crash's dump (review: accept or ask).
+- **Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK` (emulator, `Handlers_Quest.cpp`): a failed entry is logged `[JUNE_QUEST] BATCH quest N refused
+  ( NetError E ), left out of the ACK` and dropped, the rest go out as before. Flag `SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD` (`X2QuestManager.cpp`
+  `IsForbiddenQuest`): a select unit with no unit templet reads as not forbidden. That is the same answer as its existing null-user / null-unit returns;
+  true would make `GiveUpForbiddenQuest` drop every quest. It logs `[JUNE_QUEST] CRASH guard` (once per 500 calls). No `_DEBUG` flag was needed.
+  No JUNE_BUGS row: the bug was ours (emulator), not June's.
+- **Hygiene:** flagcheck worktree: FORBIDDEN_GUARD 1 PASS, BATCH_ACK 1 PASS, 0 FAIL, 0 deleted, 0 encoding change (RESULT PASS both).
+  enumscan: 2 rows at `X2QuestManager.cpp:6296-6297` belong to Q3's class-tail block, not to Q11 lines.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,177,536 B, dated 2026-10-28 11:06:50, md5 2540fffd47b3b598573f79048c778d45` (both log strings are in the exe).
+- **Save:** backup `db_backup\els_db_20261028_105659_pre_sql.sql`, then units 61 / 51 / 52 (transcended, parked at 40035) were given quest 11000 with sub
+  11000 done (`unit_quest` + `unit_subquest`), the crash run's state.
+- **Not ported / open:** the client's ACK loop still trusts every entry (March and June code alike). The guard covers the one reader that crashed.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
