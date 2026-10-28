@@ -2530,6 +2530,7 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 - `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_OVERRIDE_DEBUG --worktree --files X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2GameUnit.cpp X2Lib/X2GameUnit.h X2Lib/X2Game.cpp`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 - `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2BuffFactor.h`: `1 PASS~, 0 FAIL`, `RESULT: PASS`.
 - `enumscan.py --check X2Lib/X2GUUser.cpp X2Lib/X2GameUnit.cpp X2Lib/X2Game.cpp`: `0 A/B row(s) remain`.
+- **Range (after commit `0fc946b2`):** `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_OVERRIDE_DEBUG --range 0fc946b2^..0fc946b2`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s)`; `RESULT: PASS`. OTHER = `X2BuffFactor.h` (`JUNE_ENUM_NAMES`).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,216,448 B, dated 2026-10-28 16:02:06, md5 b612972193db6c88b1737f8ce8662686, equal to X2/US_SERVICE/x2.exe (2026-10-28 16:01:59); built at main 9ee83828 + 6 uncommitted code file(s).` Both new log strings are in the deployed exe.
 
