@@ -45,7 +45,7 @@ An id that has a name in an Enum (June's `Enum.lua`, or a C++ enum) is never wri
 
 - Authority for "has a name": `june_src_fixed/data036_kom/Enum.src.lua`, then the live `kom_contents/data036_kom/Enum.lua`; never a spreadsheet, never a name invented to fit. The same name can carry a different value on the two sides, so check the value, not only the name.
 - Registration shape: explicit `= value` with June's name, appended inside the existing enum body under the flag (`SERV_IRUHADEV_JUNE_ENUM_NAMES` in `X2SkillTree.h`, `X2Unit.h`, `X2BuffFactor.h`, `X2UnitManager.h`, `X2DamageManager.h` is the model). Never renumber or rename an existing member; when March's name and June's share a value, use March's.
-- Item, string, net-error and dungeon ids have no Enum here and stay numbers. `python tools/enumscan.py --check <files>` finds the rest (`june2017_re/enum_literals.tsv`; `JUNE_ENUM_NAMES_PHASES.md`).
+- Item, string and net-error ids have no Enum here and stay numbers. A dungeon id is named whenever June's `DungeonEnum.lua` or `SEnum::DUNGEON_ID` has it (register a missing one in `DungeonEnum.h` under `JUNE_ENUM_NAMES`; user, 2026-10-28); `enumscan.py` skips dungeon ids, so check them by hand. `python tools/enumscan.py --check <files>` finds the rest (`june2017_re/enum_literals.tsv`; `JUNE_ENUM_NAMES_PHASES.md`).
 
 ## Rule: a code comment is one short line (user, 2026-10-20)
 

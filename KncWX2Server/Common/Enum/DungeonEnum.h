@@ -509,6 +509,13 @@ namespace SEnum
 		DI_RANOX_SECRET_HELL					= 41271,
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
+	//{{ Iruha : 2026-10-28 // June character Eve Phase CH4b review -- June DungeonEnum's Sander / Lanox secret dungeons
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		DI_SANDER_SECRET_COMMON					= 41140,
+		DI_SANDER_SECRET_HELL					= 41141,
+		DI_RANOX_SECRET_COMMON					= 41270,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+	//}}
 #ifdef SERV_IRUHADEV_ELYSION_PORT
 	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- DUNGEON_ID, Hero rows are june-dungeons
 		DI_ATLASDEVELOPMENT_NORMAL = 33330,

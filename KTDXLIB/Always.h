@@ -10341,16 +10341,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-28
-// Description: June char-eve CH4b ( flag JUNE_CHAR_EVE_PASSIVE ) - Eve's SetDamageExceptionProcess ( 329bc560 ), GetActualMPConsume ( 329a79c0, summon count 3299b2e0 ) and GetActualCoolTime ( 32979420 ) are June's; every NPC runs June's 3275f0a0 from Init ( Open Mind 25417's MP roll for an Eve owner's summon, 3275a120 ). Short-lived: [JUNE_CHAR] EVE PASSIVE lines from those, at most once a second per site. Revert: undefine.
-#define SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
-#error SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+// Description: June char-eve CH4b - CX2Unit::GetSkillMpDecreaseRate is June's 3234d840: the hyper-skill event item ( 60008066 ) cuts the MP cost to 0.8 only in a dungeon game that is neither Henir nor secret; March also cut it outside a dungeon. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-28
-// Description: June char-eve CH4b - CX2Unit::GetSkillMpDecreaseRate is June's 3234d840: the hyper-skill event item ( 60008066 ) cuts the MP cost to 0.8 only in a dungeon game that is neither Henir nor secret; March also cut it outside a dungeon. Revert: undefine.
-#define SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
+// Description: June char-eve CH4b review - CX2Dungeon::IsSecretDungeon is June's 32931950: the Sander and Lanox secret dungeons ( 41140 / 41141, 41270 / 41271 ) count as secret too, for GetSkillMpDecreaseRate ( 3234d840 ) and March's other callers. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS
+#if defined( SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS ) && ( !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_RANOX_PORT ) )
+#error SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS needs SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_RANOX_PORT
+#endif SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS
 //////////////////////////////////////////////////////////////////////////

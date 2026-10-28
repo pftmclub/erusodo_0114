@@ -43778,7 +43778,7 @@ bool CX2GUEve::June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_,
 		if( NULL == GetUnit() )
 			return false;
 
-		if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true ) <= 0 )
+		if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true, 0, true ) <= 0 )	// June 31fcacc4 pushes bBasicLevel 1
 			return false;
 
 		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == JuneEveUnitFlag3c( GetUnit() ) )
@@ -56800,18 +56800,6 @@ namespace _CONST_EVE_JUNE_CH4b_
 		return pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel, false );
 	}
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-	bool JuneEveCH4bLogDue( const int iSite_ )
-	{
-		static DWORD s_adwLastTick[8] = { 0, };
-		const DWORD dwNow = ::GetTickCount();
-		if( iSite_ < 0 || 8 <= iSite_ || dwNow - s_adwLastTick[iSite_] < 1000 )
-			return false;
-
-		s_adwLastTick[iSite_] = dwNow;
-		return true;
-	}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 }
 using namespace _CONST_EVE_JUNE_CH4b_;
 
@@ -56829,21 +56817,12 @@ using namespace _CONST_EVE_JUNE_CH4b_;
 		const double dAbility = static_cast<double>( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_ATK_MAGIC_REL, CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) );
 		const float fMagicRate = static_cast<float>( 1.0 + static_cast<double>( iFormationFactor ) * ( dAbility - 1.0 ) );
 		pDamageData_->damage.fMagic = pDamageData_->damage.fMagic * fMagicRate;
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-		if( 0 != iFormationFactor && JuneEveCH4bLogDue( 0 ) )
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE open mind ( unit %I64d: formation %d, magic x%.3f -> %.2f )", GetUnitUID(), iFormationFactor, fMagicRate, pDamageData_->damage.fMagic );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 	}
 
 	if( June_GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == pDamageData_->JuneIsAttackTrigger( CX2DamageManager::DTT_ECB_KUGELBLITZ_SELF_DAMAGE ) )
 	{
 		CX2BuffFactorPtr ptrBuffFactor = June_GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC, 1, true );
 		pDamageData_->PushBuffFactor( ptrBuffFactor, true );	// June 329cf6d0 = March's PushBuffFactor
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-		if( JuneEveCH4bLogDue( 1 ) )
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE cheat code electronic ( unit %I64d: skill %d, buff factor %s, %d factor(s) on the hit )", GetUnitUID(), pDamageData_->m_iAppliedSkillID,
-				( NULL != ptrBuffFactor ? L"pushed" : L"none" ), static_cast<int>( pDamageData_->m_vecBuffFactorPtr.size() ) );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 	}
 
 	const int iAppliedSkillID = pDamageData_->m_iAppliedSkillID;
@@ -56857,10 +56836,6 @@ using namespace _CONST_EVE_JUNE_CH4b_;
 			float fValue = 0.f;
 			June_TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_VALUE_REL, iAppliedSkillID, true, fValue );
 			pDamageData_->fForceDownValue = pDamageData_->fForceDownValue - fValue;
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-			if( JuneEveCH4bLogDue( 2 ) )
-				CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE tesla shock ( unit %I64d: skill %d, force down -%.2f -> %.2f )", GetUnitUID(), iAppliedSkillID, fValue, pDamageData_->fForceDownValue );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 		}
 		break;
 
@@ -56874,7 +56849,6 @@ using namespace _CONST_EVE_JUNE_CH4b_;
 float CX2GUEve::June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
-	const float fBaseMpConsumption = fMpConsumption;
 	CX2GUEve* pThis = const_cast<CX2GUEve*>( this );
 	int iSummonCount = -1;
 
@@ -56941,12 +56915,6 @@ float CX2GUEve::June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_,
 #endif SERV_BALANCE_FINALITY_SKILL_EVENT
 	fMpConsumption = fMpDecreaseRate * fMpConsumption;
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-	if( fMpConsumption != fBaseMpConsumption && JuneEveCH4bLogDue( 3 ) )
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE mp consume ( unit %I64d: skill %d, %.2f -> %.2f, summons %d, decrease %.2f )", GetUnitUID(), static_cast<int>( eSkillID_ ), fBaseMpConsumption, fMpConsumption, iSummonCount, fMpDecreaseRate );
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-	UNREFERENCED_PARAMETER( fBaseMpConsumption );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 	return fMpConsumption;
 }
 
@@ -56994,10 +56962,6 @@ float CX2GUEve::June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_,
 	if( fCoolTime < 0.f )
 		fCoolTime = 0.f;
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-	if( fCoolTime != fBaseCoolTime && JuneEveCH4bLogDue( 4 ) )
-		CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE cool time ( unit %I64d: skill %d level %d, %.2f -> %.2f )", GetUnitUID(), static_cast<int>( pSkillTemplet_->m_eID ), iSkillLevel, fBaseCoolTime, fCoolTime );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 	return fCoolTime;
 }
 
@@ -57096,10 +57060,6 @@ void CX2GUEve::June_SummonOpenMindAttackResult( CX2GUNPC* pSummon_ )
 	{
 		const float fMpRetake = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EEP_OPEN_MIND );
 		JuneUpNowMpWithText( fMpRetake );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-		if( JuneEveCH4bLogDue( 5 ) )
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE open mind summon ( unit %I64d: npc %d, roll %.3f < %.3f, mp +%.1f )", GetUnitUID(), pSummon_->GetUnitID(), fRoll, fRate, fMpRetake );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 	}
 }
 //}} Iruha : 2026-10-28 // June character Eve Phase CH4b

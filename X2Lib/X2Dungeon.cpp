@@ -490,6 +490,12 @@ bool CX2Dungeon::IsSecretDungeon( const SEnum::DUNGEON_ID eDungeonId_ )
 		//}} 
 	case SEnum::DI_HAMEL_SECRET_COMMON:
 	case SEnum::DI_HAMEL_SECRET_HELL:
+#ifdef SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS
+	case SEnum::DI_SANDER_SECRET_COMMON:	// June 32931950
+	case SEnum::DI_SANDER_SECRET_HELL:
+	case SEnum::DI_RANOX_SECRET_COMMON:
+	case SEnum::DI_RANOX_SECRET_HELL:
+#endif SERV_IRUHADEV_JUNE_SECRET_DUNGEON_IDS
 		return true;
 	}
 

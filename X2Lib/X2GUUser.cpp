@@ -26158,10 +26158,6 @@ void CX2GUUser::ApplySummonedNPCBuff( const int iNPCID_ )
 					iStackCount = static_cast<int>( ptrOpenMindTemplet->GetAccumulationLimit() );
 				SetBuffAccumulationCount( BFI_BUFF_ECE_OPEN_MIND, iStackCount, uiOpenMindLevel, CX2SkillTree::RNSI_P_EEP_OPEN_MIND );
 			}
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE open mind stack ( unit %I64d: npc %d, %s, count now %d )", GetUnitUID(), iNPCID_,
-				( true == bOpenMindOn ) ? L"-1" : L"set to the limit", static_cast<int>( GetBuffAccumulationCountNowInFactor( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true ) ) ) );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 		}
 	}
 
@@ -26172,9 +26168,6 @@ void CX2GUUser::ApplySummonedNPCBuff( const int iNPCID_ )
 		{
 			const BUFF_TEMPLET_ID eMagneticForceTempletID = ptrMagneticForceFactor->GetBuffTempletID();
 			SetBuffTimeFinalizerDuration( eMagneticForceTempletID, GetBuffTimeFinalizerDuration( eMagneticForceTempletID ) + MAGNETIC_FORCE_UPGRADE_ADD_TIME );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_CHAR] EVE PASSIVE magnetic force time ( unit %I64d: npc %d, time now %.2f )", GetUnitUID(), iNPCID_, GetBuffTimeFinalizerDuration( eMagneticForceTempletID ) );
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
 		}
 	}
 }
