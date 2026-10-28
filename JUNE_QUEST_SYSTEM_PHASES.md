@@ -1871,6 +1871,10 @@ The checklist and its tooling are written; the user's play-test is the rest of t
 - **Save:** backup `db_backup\els_db_20261028_105659_pre_sql.sql`, then units 61 / 51 / 52 (transcended, parked at 40035) were given quest 11000 with sub
   11000 done (`unit_quest` + `unit_subquest`), the crash run's state.
 - **Not ported / open:** the client's ACK loop still trusts every entry (March and June code alike). The guard covers the one reader that crashed.
+- **Play-test PASSED 2026-10-28** (user + log; exe md5 2540fffd; one launch, three selects at 11:08-11:10): EveEmpress (61), ArmeEM (51), ArmeVP (52) each loaded
+  into battlefield 40035, gave up 11000 (`EGS_GATHER_GIVE_UP_QUEST_REQ`) and then sent the batch with 11000. Each time `[JUNE_QUEST] BATCH quest 11000 refused
+  ( NetError 155 ), left out of the ACK`, ACK 8 bytes (empty vector), no crash. No `CRASH guard` line, no crash bundle after the deploy, 0 EXCEPTION, UNHANDLED =
+  baseline `E_DISABLE_HB_CHECK_REQ`. Noted only, Q3's rule: 51 / 52 also gave up story quests 11010 / 11030 / 22162 / 22217 / 22219 (transcended class tail).
 
 ## Phase Z - Close-out
 
