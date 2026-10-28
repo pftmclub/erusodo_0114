@@ -51,7 +51,7 @@ Other forms:
 - **Never launch `X2_offline.exe` or `start_offline.bat`.** Ask the user, every time.
 - The build includes every uncommitted change in the tree (other sessions share it). The script
   prints the dirty code files; if some are not yours, say so in your report.
-- "Strings are in the deployed exe" (a phase's Done gate): after DEPLOY OK, check with
-  `python -c "import sys;d=open(r'<game dir>\X2_offline.exe','rb').read();print(b'[JUNE_BUFF] your string' in d)"`
-  or the UTF-16 form for wide strings (`'...'.encode('utf-16-le')`).
+- "Strings are in the deployed exe" (a phase's Done gate): after DEPLOY OK, run
+  `python tools/exestr.py "<string>" ...` (skill `x2-exe-strings`; narrow and UTF-16 forms, `--absent` for flag-off).
+  Never write a one-off script for it.
 - Server Lua / data the change needs is packed by the user (CLAUDE.md rule): name the file when reporting done.

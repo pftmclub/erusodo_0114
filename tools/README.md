@@ -6,6 +6,7 @@ has `--help`. Run from the Trunk root. Python 3, standard library only.
 | Script | Replaces | Skill |
 |---|---|---|
 | `build.py` | the hand-typed msbuild chain, PCH touching, deploy copy + size/mtime/md5 check | x2-build-deploy |
+| `exestr.py` | hand-written python that opens the exe and tests `b'...' in d`: strings (narrow cp949 + UTF-16LE, `--form`, `--file`) must be present, or `--absent`; `--exe deploy\|build\|<path>`; prints counts/offsets and one `EXESTR OK` line with size, mtime, md5; exit 1 on a miss | x2-exe-strings |
 | `logs.py` | grepping ErrorLog.txt / offline_*.log and guessing whether they are from the new exe | x2-check-logs |
 | `flagcheck.py` | the per-review "fresh byte-level unifdef" scripts, `file` + `git diff --stat` hygiene | x2-byte-edit |
 | `bytepatch.py` | ad-hoc Python byte patches of CP949 sources | x2-byte-edit |

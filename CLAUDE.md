@@ -21,6 +21,10 @@ Every session builds the same tree through one lock, and a full build takes abou
 3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` really is defined at that line: resolve it with `cl /EP` (see *Toolchains*), not by reading `#ifdef`s. If your own edit breaks the build, fixing or backing it out comes before anything else.
 4. **A build that fails in someone else's edit is not yours to fix.** Do not edit that file and do not keep re-running. Report the error line and its owner (the flag's `Always.h` comment names the phase), then wait. Re-run once the owner has fixed it.
 
+## Rule: exe string checks use `tools/exestr.py`, never a throwaway script (user, 2026-10-28)
+
+To show a string is compiled into the built or deployed exe (a phase's "strings are in the deployed exe" gate), or that a flag-off debug tag is not, run `python tools/exestr.py "<string>" ...` (skill `x2-exe-strings`; `--form wide` for `L"..."` literals, `--absent` for the negative). Do not write a python one-liner or a scratch script that opens the exe. Paste its `EXESTR OK` line beside `DEPLOY OK` in the Done note. If the tool lacks something, extend `exestr.py`, then use it.
+
 ## Rule: play-test items come from `/additem`, not the shop (user, 2026-10-23)
 
 When a play-test needs the user to hold an item, the hand-off gives the dev-console line `/additem <itemID> [qty]` (auth level 3, flag `SERV_IRUHADEV_ADMIN_CHEATS`). Do not insert the item into a shop list and do not point at `/b`: offline `/b` still charges ED and refuses unpriced items. `/qdone <questID>` is the matching command to finish a quest. Both are answered by `Handlers_Quest.cpp`; the log line is `[ADMIN_CHEAT]`.
@@ -63,6 +67,7 @@ Added 2026-10-04. Every repeated step of the phase loop is a script. A session t
 | Edit a CP949 source | `python tools/bytepatch.py show / find / apply <spec>` | x2-byte-edit |
 | Flag hygiene (insert-only, `#else` intact, flag-off = base) | `python tools/flagcheck.py <FLAG> [--range A..B / --worktree / --base REV]` | x2-byte-edit |
 | Build and deploy | `python tools/build.py --deploy` (run in background) | x2-build-deploy |
+| Prove strings are in the built / deployed exe (or absent) | `python tools/exestr.py "<string>" ... [--form wide] [--absent]` | x2-exe-strings |
 | Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
 | Pack a March kom (`kom_contents/dataNNN_kom` -> `dataNNN_packed.kom`) | `python tools/kom.py pack dataNNN` | `/elstools pack dataNNN` |
 | Deploy a packed kom (-> game dir `dataNNN.kom`) | `python tools/kom.py copy dataNNN` | `/x2-kom-packed copy dataNNN` |
