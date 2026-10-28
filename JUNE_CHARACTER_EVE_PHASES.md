@@ -2538,6 +2538,18 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 
 **In game:** `[JUNE_CHAR] EVE PASSIVE open mind stack ( unit 61: npc 1622, set to the limit | -1, count now N )`, then CH4b's `mp consume` line at x0.85, and `cool time ( skill 25067 ... )` x0.8 on unit 60.
 
+**Play-test PASSED (2026-10-28, logs 16:04-16:07 on md5 `b6129721`; 0 EXCEPTION, 3 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, ErrorLog 0 lines).**
+- Unit 61, Open Mind stack:
+  - `npc 1622, set to the limit, count now 3` (16:04:56).
+  - A second round at 16:05:38: 3, then `-1` 2 / 1 / 0, and the buff ends at 0.
+  - 16:05:51: `npc 1621` set 3, then `npc 1622` -1 to 2.
+- Unit 61, cost: `mp consume ( skill 25062, 100.00 -> 85.00, summons 1 )` while Open Mind is on. It goes back to `-> 75.00` once the field dies.
+  - `63.75` is never seen: Open Mind's buff lasted about 9 s, the field about 18 s, so the buff never runs with no summon out. Not a defect.
+- Unit 60, `cool time` x0.8 while Energy Needles runs:
+  - 25067 `13.00 -> 10.40`, 25237 `22.00 -> 17.60`, 25069 `25.00 -> 20.00`, 25233 `7.00 -> 5.60`, 25232 `8.00 -> 6.40`.
+  - Closes CH4b's last open line.
+- No `magnetic force time` line (Rose, dormant), as expected.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.
