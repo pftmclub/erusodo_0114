@@ -10371,3 +10371,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_UI needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE, _GROUND_COMBO_END_EVENT, _USER_SKILL_ICON_OVERRIDE, _SKILL_STATE_BUFF, _ENUM_NAMES and _SKILL_SLOT_UI
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: the transcendence-slot glow ( guide particle type 4 ) is removed when the game is destroyed, so it does not carry into the village
+#define SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR ) && !defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR needs SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF ( the guide particle )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
+//////////////////////////////////////////////////////////////////////////

@@ -602,6 +602,14 @@ CX2Game::~CX2Game()
 	/*
 	Release() 에서 수행
 	*/
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
+	// the glow is only removed by the game's own frame loop, so it would outlive the game
+	if( NULL != g_pData && NULL != g_pData->GetUIManager() )
+	{
+		g_pData->GetUIManager()->JuneRemoveGuideParticle( 4, 4 );
+		g_pData->GetUIManager()->JuneRemoveGuideParticle( 4, 9 );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD
     CX2GUNPC::ResetReactionSimulationCounter();
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD

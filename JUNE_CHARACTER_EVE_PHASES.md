@@ -2749,7 +2749,9 @@ after numbers in the Done note. A defect goes back to its phase's flag.
 
 **Walk units (already in the save).** 22 `weevwe` Nasod (99), 41 `ElectraT` Electra (90), 57 `EveExotic` Exotic Gear (99), 58 `EveArchi` Architecture (99), 59 `EveNemesis` Code Nemesis (99, transcended), 60 `EveSeraph` Battle Seraph (99, transcended), 61 `EveEmpress` Code Empress (99, transcended). Non-transcended units hold no skill in slot 4 / 9. Failures go back to the owning phase's flag (`JUNE_CHAR_EVE_*`), not here.
 
-**Gate status:** scans PASS; the walk and the `KEM_ERROR` check are owed (user plays, then "check logs"; tags `[JUNE_CHAR]`, `[JUNE_SKILL]`).
+**Gate status: PASSED (2026-10-28).** Walk on units 22 / 41 / 57-61 (run 19:49-20:00): user reports all tests passed; `ErrorLog.txt` 0 `KEM_ERROR`, packets only the known `E_DISABLE_HB_CHECK_REQ`. Lua: `AddGroupChainQuest` unbound in one quest script (Stage 4's, not Eve's).
+
+**Fix found in the walk (user, 2026-10-28): the transcendence-slot glow carried into the village.** Guide particle type 4 (A-5 / B-5) is removed only by `CX2Game::June_TranscendSlotGuideFrameMove`, so it outlived the game. `CX2Game::~CX2Game` now removes slots 4 and 9; flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR` (`Always.h`, needs `_SLOTBUFF`); flagcheck worktree PASS. DEPLOY OK: X2_offline.exe 26,220,032 B, md5 `0b82f2d2`, built at main fdd2c6ab + 2 uncommitted code files. Play-test owed: awaken in a dungeon, leave to the village, no glow.
 
 ## Phase Z - Close-out
 
