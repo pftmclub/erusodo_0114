@@ -3021,8 +3021,9 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CIT_160by160:
 	case CIT_160by160Gray:
 		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass )
-			return true;	/// June's TR texture files carry no large piece for Eve's classes
-		pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture98_NEW.tga" : L"DLG_UI_Common_Texture98_GRAY.tga";
+			pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture99_NEW.tga" : L"DLG_UI_Common_Texture99_GRAY.tga";	/// June 33376520 / 3337b76b: Eve's large TR rows are in Texture99
+		else
+			pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture98_NEW.tga" : L"DLG_UI_Common_Texture98_GRAY.tga";
 		pwszSuffix = ( CIT_160by160 == eImageType ) ? L"_LARGE" : L"_LARGE_GRAY";
 		break;
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND

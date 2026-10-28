@@ -2333,6 +2333,31 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` (states, Ferdinand's Lua methods) and 
 **Play-test set-up (save, backed up).** Unit 59 `EveNemesis` transcended, 25600 Lunatic Scud in A-5 (slot 4); unit 60 `EveSeraph` 25602 Psychic Artillery in B-5 (slot 9); unit 61 `EveEmpress` 25601 Link Overcharge in B-5 (slot 9; Summon to Mind 25222 unequipped).
 **Open for the review:** the Link Overcharge argument mapping of `31f8b010` (read from the raw pushes, equal to the CH3b Electronic Field call); Hornet cannon mesh `CreateInstance` default last argument; whether `June_ENSI_A_EN_ILLUSION_RAY_End` should be dropped for March's equal End.
 
+### CH3d - Review (2026-10-28, Opus 5.5): PASS, 1 fix (transcended 160by160 pictures)
+
+Read against `funcann.py` listings of the 23 functions, `32757ea0` / `32294460` / `31e4d140`, and the image-table initialisers. Ghidra's decompile of `329a9df0` was not usable (it lost the stack).
+- **Fix: Eve's transcended large pictures.** The Done note said June has no 160by160 pair for Eve. It does: the row pushes at `33376520` (Nemesis), `33376665` (Empress), `3337749a` (Seraph) and the gray rows at `3337b76b` / `3337b8b0` / `3337c6e5` give
+  `TR_C_NEMESIS_LARGE` / `TR_C_EMPRESS_LARGE` / `TR_B_SERAPH_LARGE` (+ `_GRAY`) in `DLG_UI_Common_Texture99_NEW.tga` / `_GRAY.tga`. Aisha's rows use Texture98, which is the file the phase looked in.
+  `GetCharacterImageName` (`X2Data.cpp`, flag `_EVE_TRANSCEND`) now takes Texture99 for 108 / 109 / 116 instead of returning the normal picture. March had no Texture99, so June's four files went into data215 (`stage-june`, 4 new, manifest 0; `PACK OK data215`; the copy waits for the user's yes).
+  The six piece names are in the staged TETs. The other types match June's rows: MEDIUM / ICON / PARTY in Texture100, STATE in Texture97, and the unit slot `list_TR_*` (`333988f0` / `3339ead0`).
+- **Link Overcharge `32997940`:** gate 0.8 = `EventTimerOneshot`; `GetEquippedActiveSkillTemplet( 0x6401, 1 )`; `GetUnit()` NULL returns without CommonFrameMove; `GetSkillLevel( id, 0, 0, 1 )` floored at 1.
+  vslot 0x21c `( 438, NULL, level, 0, 0 )` is June's `( BFI, creator, level, adjust, skip )`, the same as the port's March-order call. The position is +-300 (a double, exact in float) along `GetDirVector`.
+  `31f8b010( IsMyUnit, 1454, hyper, 1, pos, right, 0.f, 1, -1, team +0x278, 1 = NAT_ALLY, UID, 0, -1 = TN_NONE, 3 = NCT_CHANGESTAGE_REMAIN )` is the port's call, which matches the funcmap row-183 mapping. `UpdateSkillSlotUI( 0 )` is gated by `IsMyUnit`.
+- **Hornet `32997350`:** world colour, then the cut-in `( "Dummy2_Lhand", 0.02, 0, 0 )`. The cannon at 0.06 uses `GetPos` and mesh `CreateInstance` with last argument -1 (= March's `layer` default), then the alpha tag; `else if` at 0.47. The three sequences and the damage effect all sit at `Bip01_L_Finger1` (stack offsets traced). Every default argument matches March's declarations. Memo `31fca9e0( 0x93b58 )` is the stub.
+- **Spit Grenade `329a9df0`:** `32007ce0` is `ret 0x10`, so the call is `( 0x52 = SA_SIZE_ABS, GetNowStateSkillID() (vslot 0x524, no argument), false, &scale )`, as ported. The five set names are right, and `PlayEffectSet( name, this, NULL, bHyper, power x +0x4064, ... defaults )` takes bHyper for all five (one register). Tag 15 `bAdd` = 0, applied when `scale >= 0`.
+- **Psychic Artillery `329abb90`:** the planes `( 0, 2.5, 249.56, 130, 1 )` / `( 0, 2.5, 159.56, 260, 2 )` and `+0x9868 = 0` match. Lasers 10000 / 0.3 / 1.0, bone `""` / `"Bip01_L_Hand"`, `false`, `1.0`, trailing `""` `""`. June's empty 2.6 s `EventTimer` block (also in March) is dropped: `EventTimer` is pure.
+- **Illusion Ray:** Init's 9 preloads in order. FrameMove `June_CreatePlane( +0x99a8, 1, 185, 130, L"" )` and the non-memo laser (0.12, `EVE_EPR_ILLUSION_RAY_LASER` x3) match; the memo branch needs `31fca9e0( 0x93b65 )`. End = CommonStateEnd + `32991940` (kept).
+  Registration = `ch0_skill.tsv` row 62 (hyper takes everything but Init). UAI 14 / 15 = `UAI_ELECTRA_PLANE_ANGLE_UP / DOWN`.
+- **EventProcess cancel orders** (fields `+0x8c90` skill / `+0x8c94` bwalk / `+0x8c98` walk / `+0x8c9c` dash): Illusion Ray and Psychic go SKILL, BWALK, WALK, DASH; Hornet and Spit go WALK, SKILL, DASH. All equal to March.
+- **Ferdinand binds:** `32757ea0` = AI `+0x7c98`, type `+0x38 == 1`, then `32294460` on AI +0x158 (UID `> -1`, the game unit vector `+0x304`, `GetUnitUID` and type `+0x264` vs +0x160), as ported. `31e4d140` = read and clear byte +0x8fc2.
+  A `.text` scan shows Add's DamageReact (`@32a080fe`) also sets the byte, so it went to the checklist as an Add row (the Add port overrides the virtual). The play-test showed no Ferdinand "can't find".
+- **Transcendence data:** allow-list 104 / 105 / 113 / 108 / 109 / 116. `LevelUpEvent.lua` TYPE1 = June's TYPE4 row byte for byte (conditions, dialog, two voices); the key number follows March's event 6, which holds only Aisha's TYPE0.
+- Summon cases the CH2b3 amendment named: 1621 / 1622 (0x240) were done in CH3a2, and their 0x200 path stores into the factor; 1604 Apocalypse is Add's NPC.
+
+**Hygiene.** `flagcheck JUNE_CHAR_EVE_TRANSCEND --worktree --files X2Lib/X2Data.cpp`: `1 PASS ... 2 deleted line(s)` (the phase's own lines inside the flag), `0 non-ASCII`, `0 encoding change(s)`, `RESULT: PASS`. `enumscan`: only T2's untouched 104 / 105 / 113 rows.
+**Deploy.** `DEPLOY OK: X2_offline.exe is 26,208,256 B, dated 2026-10-28 13:06:46, md5 e6028729790b2d28e6638d4d7db1f660, equal to X2/US_SERVICE/x2.exe (2026-10-28 13:06:39); built at main fc3fd05f + 1 uncommitted code file(s).` Both Texture99 names are in the exe.
+**In game** (after data215 is copied): a transcended unit 59 / 60 / 61 shows the TR portrait in the skill-tree window (`X2UISkillTreeNew2015.cpp:1442`; also the dungeon result), logged as `[JUNE_TRANSCEND] IMAGE class 108 type 2 -> DLG_UI_Common_Texture99_NEW.tga / TR_C_NEMESIS_LARGE`.
+
 ## Phase CH3 - Skills: second jobs (108, 109, 116), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
