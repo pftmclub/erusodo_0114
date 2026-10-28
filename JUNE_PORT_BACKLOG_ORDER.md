@@ -71,6 +71,7 @@ The user's remaining backlog, in the order they listed it:
 | 31 | June achievement system *(added 2026-10-22, june-transcend planning)* | - (found by june-transcend planning) | Not a backlog item but a missing system: `CX2AchievementManager`, `AchievementData.lua` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI.lua`. March has none. Brief `kickoffs/june-backlog/stage31-plan.md`. |
 | 32 | June bottom bar *(added 2026-10-24, user: split out of Stage 9)* | - (user request) | The village / field bottom bar as June draws it: June's `DLG_Menu_Button_NEW.lua` and its textures, the button row layout, the EXP bar and the stamina bar, and June's body for each working button. Buttons whose feature the project lacks are drawn and log a `STUB` click; their features stay Stage 9. Planned in full as `JUNE_BOTTOMBAR_PHASES.md` (B0-B4, Z); runs now, outside the Stage 9 order. |
 | 33 | June damage and character stat calculation *(added 2026-10-27, user)* | - (the Aisha instant-MP bug) | Not a backlog item but a correctness gap: June's stat and damage formulas were ported piecemeal, by the buff, socket, effect and skill plans. Where a June seed or refresh now sits beside a March helper, the result is neither game's number: one ranged hit gave +6722 MP. This stage maps every stat and damage formula as June / March / mixed and replaces each mixed one with June's whole calculation. Its code runs after the character ports (Stages 7 and 8), so every character's damage can be tested on June's formulas (user, 2026-10-27). A mixed formula that breaks play before then is still fixed at once (*Scope*). Brief `kickoffs/june-backlog/stage33-plan.md`. |
+| 34 | June character info window *(added 2026-10-28, user: split out of Stage 9)* | - (user request) | The U-key window as June draws it: June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's `CX2UICharInfo` bodies (header, equipment, the stat panels with the socket total, the viewer, light, switching, unequip-all). Buttons for missing systems are drawn and log a `STUB` click. Planned in full as `JUNE_CHARINFO_PHASES.md` (C0-C5, review, Z); runs now, outside the Stage 9 order. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -416,6 +417,8 @@ Everything from Stages 5 and 6, plus:
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
+- **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below.
+
 - **Two result-flow leftovers (june-result R3, 2026-10-22).**
   - June's `AddTimedMessagePopup` (`31d94a20`) takes one more argument than March's, an ( x, y ) pair after the time-out message (the result
     retry box passes ( 230, 200 ), constants `33478a84` / `33457460`); R3 calls March's form. Read what June does with it before porting.
@@ -532,7 +535,7 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   *June-result R0 (2026-10-22):* `CX2StatePVEGame` (vtable `3349d06c`) shares the dungeon state's retry vslots 0xe0 / 0xe4 / 0xe8 / 0xec
   (`324d8600`, `324c83f0`, `324d11e0`, `324c9990`), so the PvE result's retry is the same code R3 ports; its mode step is `324ac1f0`.
   *June-result R1 (2026-10-22):* the dungeon fill `324d60e0` opens with two walks over the dialog stack (`31d05fe0` / `31d05ec0`: for every dialog whose byte `+0x144` / `+0x146` is 1, `FUN_31d08590` -> Release -> delete) on the object at `g_pKTDXApp +0x1fc +0x38c`, run when the state's vslot `0xf8` is false. Not ported: no March counterpart found (probably a June-only `CKTDGUIDialogManager` close-on-result flag pair). Offline reach: every dungeon clear. Related: funcmap `(Result R1)` row `324d60e0`.
-- **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
+- **Moved to Stage 34 (2026-10-28), phase C3.** **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
   are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
   sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.
   Brief: `kickoffs/skill-system-core/S7p.md` (identify, then port whole; June-only item data `+0x8c` / `+0x9c` / `+0xac` stays with Stage 16).
@@ -1218,6 +1221,22 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
 **Depends on:** nothing for planning (read-only).
 **Code priority (user, 2026-10-27):** after the character ports (Stages 7 and 8), so the damage of every character is tested on June's formulas at once. A mixed formula that breaks play before then (as the MP bug did) is fixed at once under *Scope*, in its own flag, and the map marks it June.
 **Brief:** `kickoffs/june-backlog/stage33-plan.md` (`/x2-phase new-plan june-stat-calc`).
+
+### Stage 34: June character info window (user, 2026-10-28; split out of Stage 9)
+
+The user asked for the U-key window as June has it. Plan `JUNE_CHARINFO_PHASES.md` (`june-charinfo`, C0-C5, review, Z; evidence
+`june2017_re/charinfo_functions.tsv`, funcmap rows `CharInfo S34`).
+- **Same technology both sides:** June's `CX2UICharInfo` (vtable `334c5f1c`, ctor `32916920`) is a KTDGUI Lua dialog, no GFx. June builds
+  `DLG_UI_CHARACTER_NEW_4.lua` (`3214fd30`); March builds `DLG_UI_CHARACTER_NEW_2.lua` (`X2UIManager.cpp:3582-3597`).
+- **In the plan:** June's dialog and textures (byte-exact), CIM 10007-10024 and `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG`, June's whole bodies for SetShow
+  `3291df90`, SetTitle, equipment, UICustomEventProc `3291db60`, UIServerEventProc `32915080`, the stat panels (`3291cfb0`, `32915ab0`, `32919430`, `32916160`,
+  `32915620`, the Lua coefficient callers), the socket total (`3291ba40` family; was this file's S7p bullet in Stage 9), the viewer / light / slot paths,
+  switching (unit `+0xe40`) and unequip-all `32918c70` with their emulator answers.
+- **Drawn, click logs `STUB` (user, 2026-10-28):** Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Rose's weapon change / lock -> Stage 8,
+  Damage Meter -> owner set by C0.
+- **Stays Stage 9:** `CX2UIWatch` (user, 2026-10-28), the transcend-UI leftovers. **Stage 33** keeps the `CX2Stat` sums under the printed numbers; C3 records
+  its display rows in that map.
+- **Depends on:** nothing. Start: `/x2-phase june-charinfo C0` (Opus 5.5 high).
 
 ## Open decisions that gate stages
 

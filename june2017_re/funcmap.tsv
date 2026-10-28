@@ -5621,3 +5621,17 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 329753a0	CX2GUEve::ENSI_HA_EBS_PSYCHIC_ARTILLERY_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end; cancels SKILL / BWALK / WALK / DASH
 32757ea0	CX2GUNPC::GetSummonAllyNpcForceTargetUnit	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): Lua-bound; ally AI +0x158 UID / +0x160 type via 32294460 over the unit list; AI members added, no setter ported (stubs in CX2GUUser)
 31e4d140	CX2GUUser::ResponseEmergency	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): Lua-bound; reads and clears +0x8fc2 (Eve: m_bJune8fc2, set by DamageReact)
+3214fd30 (CharInfo S34)	CX2UIManager::CreateUICharInfo	planned	CharInfo S34 planning 2026-10-28: builds DLG_UI_CHARACTER_NEW_4.lua (334795e8), 0x270 B; March X2UIManager.cpp:3582 builds _NEW_2
+32916920 (CharInfo S34)	CX2UICharInfo::CX2UICharInfo	planned	CharInfo S34 planning 2026-10-28: vtable 334c5f1c, listener vtable 334c5f04 at +0xd8; March X2UICharInfo.cpp:11
+3291df90 (CharInfo S34)	CX2UICharInfo::SetShow	planned	CharInfo S34 planning 2026-10-28: phase C2; PvE record, resonance, switching controls; Static_CharIcon already T6c
+3291db60 (CharInfo S34)	CX2UICharInfo::UICustomEventProc	planned	CharInfo S34 planning 2026-10-28: phase C2; not a Ghidra function; jump table 3291df1c, CIM 10000-10022; title-manager pre-forward 326f7d20 / 32703a70
+32915080 (CharInfo S34)	CX2UICharInfo::UIServerEventProc	planned	CharInfo S34 planning 2026-10-28: phase C2; not a Ghidra function; 0x62c / 0x62d (customize)
+32915100 (CharInfo S34)	CX2UICharInfo::SetTitle	planned	CharInfo S34 planning 2026-10-28: phase C2; March :1327
+329146d0 / 32914440 (CharInfo S34)	CX2UICharInfo::ResetNowEquipUI / UpdateItemLevel	planned	CharInfo S34 planning 2026-10-28: phase C2; March :2656 / :3173
+3291cfb0 / 3291d2e0 (CharInfo S34)	CX2UICharInfo::ResetStat (+ public wrapper)	planned	CharInfo S34 planning 2026-10-28: phase C3; March :1423
+32915ab0 (CharInfo S34)	CX2UICharInfo::UpdateBasicStatUI	planned	CharInfo S34 planning 2026-10-28: phase C3; Lua CalculateFinalDamageMaximizeRate; March :1496
+32919430 (CharInfo S34)	CX2UICharInfo::UpdateOptionStatUI	planned	CharInfo S34 planning 2026-10-28: phase C3; 13 rows incl. Maximize, MpIncByAttack(ed), SpecializationA/B; March :1543
+32916160 / 32915620 (CharInfo S34)	CX2UICharInfo::UpdateResistanceStatUI / PvE-PvP opacity	planned	CharInfo S34 planning 2026-10-28: phase C3; March :2086 / none
+3291d390 / 32912d90 / 329148d0 (CharInfo S34)	CX2UICharInfo::MsgProc / UnitHandling / ResetUnitViewerUI	planned	CharInfo S34 planning 2026-10-28: phase C4; March :310 / :161 / :2803
+329142a0 / 32912c50 (CharInfo S34)	CX2UICharInfo light toggle / switching view	planned	CharInfo S34 planning 2026-10-28: phase C4; June-only (CharWindowCharLightSet; +0x25a, viewer +0xd80)
+32918c70 (CharInfo S34)	CX2UICharInfo unequip all	planned	CharInfo S34 planning 2026-10-28: phase C5; June-only (CIM_ALL_EQUIPPED_ITEM_RELEASE)

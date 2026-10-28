@@ -632,6 +632,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | stage30-plan | **ready** (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 planning) -> `JUNE_RESONANCE_PHASES.md` + `kickoffs/june-resonance/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
 | stage31-plan | **ready** (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> `JUNE_ACHIEVEMENT_PHASES.md` + `kickoffs/june-achievement/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
 | stage33-plan | **ready** (start: `/x2-phase new-plan june-stat-calc`): June's damage and character stat calculation. Map every stat / damage formula as June / March / mixed, then replace each mixed one with June's whole function (user, 2026-10-27; trigger: Aisha +6722 MP per hit, fixed by `SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE`) -> `JUNE_STAT_CALC_PHASES.md` + `kickoffs/june-stat-calc/` | Opus 5.5 / xhigh | dep: -; runs with anything (read-only); code after the character ports, Stages 7 and 8 (user, 2026-10-27) | docs, `june2017_re/statcalc/`, funcmap rows (`StatCalc S33`) | `stage33-plan.md` |
+| stage34-plan | **done 2026-10-28** (written directly on the user's request, no brief): `JUNE_CHARINFO_PHASES.md` (C0-C5, review, Z) + `kickoffs/june-charinfo/` + the `june-charinfo` block; the U-key character window split out of Stage 9; user: missing-system buttons drawn + STUB log, `CX2UIWatch` stays Stage 9 | Opus 5.5 / high | - | docs, kickoffs, funcmap rows (`CharInfo S34`) | - |
 | stage7-plan | **Eve planned 2026-10-25** (`JUNE_CHARACTER_EVE_PHASES.md` + `kickoffs/char-eve/` + the `char-eve` block; next planning session: `/x2-phase new-plan char-chung`). **ready** (one planning session per character: Eve, Chung, Elsword, Raven, Rena (after the `ADD_RENA_SYSTEM` decision), Ara, Elesis, Add): `JUNE_CHARACTER_<NAME>_PHASES.md` + `kickoffs/char-<name>/` from the Aisha template | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
@@ -932,6 +933,25 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 | Z | **done** 2026-10-24 (MODS.md entry, backlog Stage 32 closed, Stage 9 stub bullet checked against the final tsv; no code, no build) - plan CLOSED | Sonnet 5.5 / medium | B4 review | `MODS.md`, backlog, memory | `Z.md` |
 
 Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
+
+## june-charinfo - June character info window (U key): dialog, header, stat panels, viewer, actions
+
+Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · flags `SERV_IRUHADEV_JUNE_CHARINFO_*` (`_DLG`, `_SHOW`, `_STATS`, `_VIEW`, `_ACTIONS`, + `_DEBUG`) · kickoffs `kickoffs/june-charinfo/` · evidence `june2017_re/charinfo_functions.tsv` (C0) · backlog Stage 34, split out of Stage 9 (user, 2026-10-28) · planned on Opus 2026-10-28.
+
+**Scope:** June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's whole `CX2UICharInfo` bodies: SetShow / header / equipment, the stat panels (13 option rows, resistances, PvE / PvP) with the socket total (Stage 9's S7p), the unit viewer, light and slots, switching and unequip-all with their emulator answers. Customize (12), Resonance (30), Achievement (31), Damage Meter and Rose's weapon buttons (8) are drawn and log `STUB`. `CX2UIWatch` stays Stage 9.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| C0 | **ready** (start: `/x2-phase june-charinfo C0`; read-only: function verdicts, the six packets, asset list, stub owners) | Opus 5.5 / high | - | `june2017_re/`, funcmap | `C0.md` |
+| C1 | waiting on C0 | Sonnet 5.5 / high | C0 | data034 Lua + texture koms, `Enum.lua` (core list), `X2UICharInfo.h`, `X2UIManager.cpp`, `Always.h` | `C1.md` |
+| C2 | waiting on C1 | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}` | `C2.md` |
+| C3 | waiting on C2 | Opus 5.5 / high | C2 | `X2UICharInfo.{h,cpp}` | `C3.md` |
+| C4 | waiting on C3 | Sonnet 5.5 / high | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.cpp` | `C4.md` |
+| C5 | waiting on C4 | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp`, `X2Lib/Offline/Handlers_*.cpp`, `X2OfflineDB` | `C5.md` |
+| C5 review | waiting on C5 (covers C1-C5) | Opus 5.5 / high | C5 | - | `C5-review.md` |
+| Z | waiting on the review | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |
+
+Running together: C0 has no code and can run beside anything. C1-C5 edit `X2UICharInfo.*` / `X2UIManager.cpp`: not alongside another running code row on those files (char ports' title / HUD hooks, quest-system). C1 packs data034 / data036 and texture koms that asset and character rows also pack: check STATUS before packing.
 
 ## char-eve - June character port, Stage 7: Eve
 
