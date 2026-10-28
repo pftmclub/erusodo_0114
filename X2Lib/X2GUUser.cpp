@@ -26105,7 +26105,7 @@ void CX2GUUser::JuneResetOnSummonEnd( const int iUnitClass_ )
 	{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		if( true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( BTI_BUFF_FERDINAND ) ) )		/// 329684c0
-			static_cast<CX2GUEve*>( this )->June_ResetLinkOverChargeIllusion();
+			static_cast<CX2GUEve*>( this )->ResetLinkOverChargeIllusion();
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	}
 	else if( CX2Unit::UC_ADD_MASTERMIND == iUnitClass_ )
