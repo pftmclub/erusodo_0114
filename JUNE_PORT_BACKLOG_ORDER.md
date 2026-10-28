@@ -222,6 +222,10 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   `UnSetSpecificValueByBuffTempletID` `3202ed60` (user vslots `0x24c` / `0x250`, called first by every class override) have about 25 cases each
   (`0x93`-`0x97`, `0xb3`, `0xc6`, `0x104`, `0x133`-`0x135`, `0x1c4`, `0x214`, `0x2e4`-`0x2e7`, `0x31e`, `0x324`, `0x329`, `0x3ad`, `0x413`; effect sets
   `EffectSet_SHASHA_STAGE0_AttackA / B`) against March's ten (`X2GUUser.cpp:41750` / `:41823`). Every class; port both whole, names from June's `Enum.lua`.
+- **Equip change sets a cool time** (char-eve CH4b, 2026-10-28): June's 4-arg `CX2GUUser::ChangeEquippedSkillState` `31fd8ff0` calls vslot `0x6a4`
+  (`GetActualCoolTime`) with June's third argument true (`@31fd9069`) and writes the result with `32893880`. It is the only caller that passes true; Eve's
+  override `32979420` then returns the base cool time for Link Overcharge Illusion 25601 / 25604 instead of -1 under Ferdinand (BTI 409). March's equip
+  change sets no cool time and its virtual has two arguments. Every class; port `31fd8ff0` whole, with the third argument on every override.
 - **Per-state immunity lists** (pilot-char-revamp CH1m, 2026-10-21). June `31fdaaa0`, called from `CX2GUUser::CommonStateStart` `@32057e68`, reads
   `IMMUNITY_LIST_AT_THIS_STATE` (ints into user `+0x8638`) and `IMMUNITY_EDT_LIST_AT_THIS_STATE` (`+0x8648`); March has neither key. Find the
   readers of `+0x8638 / +0x8648` (buff and extra-damage paths) and port the function with them. Aisha's June script has the EDT key in 12 states.

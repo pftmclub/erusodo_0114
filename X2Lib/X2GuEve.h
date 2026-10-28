@@ -3128,6 +3128,18 @@ protected:
 	void		June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 329b3b50 ( vslot 0x24c )
 	void		June_UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 3297a440 ( vslot 0x250 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+public:
+#ifdef MODIFY_SET_DAMAGE_DATA
+	virtual void	SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate );	/// June 329bc560 ( vslot 0x2b8 )
+#endif MODIFY_SET_DAMAGE_DATA
+	virtual float	GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32979420 ( vslot 0x6a4 )
+	void		June_SummonOpenMindAttackResult( CX2GUNPC* pSummon_ );		/// June 3275a120, the owner half
+protected:
+	float		June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	/// June 329a79c0 ( vslot 0x6a0 )
+	int			June_GetLiveAllySummonCount() const;		/// June 3299b2e0
+	CX2BuffFactorPtr	June_GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 32028af0 ( CX2GUUser vslot 0x238 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	void June_InitEffect();									/// June 32965dd0 ( vslot 0x48 )
 	void June_CreateMinorParticleArray();					/// June 32965e10 ( vslot 0x548 )

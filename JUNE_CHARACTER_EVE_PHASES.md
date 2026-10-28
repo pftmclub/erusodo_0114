@@ -2454,6 +2454,47 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,209,280 B, dated 2026-10-28 14:26:09, md5 07f770e93fc460cd430afe55316aa0a2, equal to X2/US_SERVICE/x2.exe (2026-10-28 14:26:02); built at main 2be896e6 + 2 uncommitted code file(s).`
 **User owes nothing** (no play-test): the fix matters only with memo 12 equipped or frame scale on, and the rest of the change only removes debug lines.
 
+### CH4b - Done (2026-10-28, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4b". Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE` (+ temporary `SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG`); engine flag `SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE`. Evidence in the `(CH4b)` funcmap rows.
+- **`SetDamageExceptionProcess` `329bc560`** (new Eve override, June-only, whole). After the base:
+  - Open Mind 25419: magic damage x `1 + n x ( SA_ATK_MAGIC_REL - 1 )`, where n = `June_GetFormationFactor` (0 off, 1, 3 fusion). At level 1 that is x1.05.
+  - Cheat Code: Electro 25420, on a `DTT_ECB_KUGELBLITZ_SELF_DAMAGE` hit: pushes vslot `0x238` factor 1 (Kugelblitz MP regen) with clear. The trigger is 25, newly named under `JUNE_ENUM_NAMES`; the only hit that carries it is `Damage_KugelBlitz_SelfDamage`, an ATTACK_ONLY_ME hit. The push `329cf6d0` is March's own `PushBuffFactor`.
+  - Tesla Shock 25205 / 25208 / 25211, upgrade learned: force down minus `SA_EFFECTIVE_VALUE_REL`. Only the upgrade templets 25229 / 25232 have that ability.
+- **`GetActualMPConsume` `329a79c0`.** June's body replaces March's; the memo cases and `GetActiveLinkOverChargeIllusion` are gone.
+  - Auras: x `SA_MP_CONSUME_REL` of 25402, then of 105.
+  - Summons for classes 19 / 109 (Dimension Link, Surface Cutting, Electronic Field, base and upgrade): x `CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE` (0.75) when `3299b2e0` finds no live summon of mine (384 / 519 / 1621 / 1622). Also x0.85 under 25417's buff.
+  - Mega Electronball: x `m_fMPConsumeRateElectronBall`.
+  - Psyker Kinesis: 0 while the `9c50` block runs. Link Overcharge: 0 under Ferdinand (BTI 409).
+  - Then the clamp, then x `GetSkillMpDecreaseRate` on my unit.
+- **`GetActualCoolTime` `32979420`** (new override):
+  - Under 25416's factor-0 buff (Queen's Throne), Sin Scissors 25221 takes 25416's `SA_COOLTIME_1` (1 s) and Iron Scraps 25010 / 25054 its `_2` (3 s), replacing the cool time.
+  - Psyker Kinesis and Link Overcharge return -1, so no cool time is set (the June-live callers test `>= 0`).
+  - With 25420 learned, while Energy Needles runs: x0.8 for non-hyper skills.
+  - June's third argument is false from every caller March has. Its one `true` caller is the unported base `31fd8ff0`, now a Stage 2 bullet.
+- **7am `3275a120`.**
+  - `CX2GUNPC::June_InitDelegateProcess` (June `3275f0a0`, NPC vslot `0x340`) runs from `Init` right after `InitEtc` (`@3277c0d6`) and pushes `June_EveSummonAttackResult`.
+  - The owner half, `CX2GUEve::June_SummonOpenMindAttackResult`: with 25417 learned, a roll of `GetRandomFloat( (int)( state time x 10 ) )` under `SA_EFFECTIVE_RATE` (1.0) gives `JuneUpNowMpWithText( SA_MP_RETAKE_ABS )`, i.e. +3 MP.
+  - A GUT_USER test stands in for June's unchecked owner read. Rena's `3275a490` joins the same function with her port.
+- **`3234d840`** is June's `CX2Unit::GetSkillMpDecreaseRate` (`_SKILL_MP_DECREASE_RATE`, every class). The hyper event item 60008066 cuts to 0.8 only in a dungeon game that is neither Henir nor secret; March's 0.8 outside a dungeon is gone.
+- **7an** `329b407b` belongs to `DoParrying`, already ported in CH1q. **7ae** `32895390`: Eve never calls it. Checklist §7b / §7ae / §7am marked `(Eve: CH4b)`.
+- **Names.** Every id is written by member; values checked against `cpp_enums.json`. June data comes from `NewSkillTempletVer2.src.lua`. No JUNE_BUGS row: the Kugelblitz self-hit has no factor of its own for the clear to drop.
+- **For the review:** NPC `+0x8408` is read as March's `GetStateTime()` (the user's twin is `+0x8088`). `32931920` / `32931950` are taken as `IsHenirDungeon` / `IsSecretDungeon` by position.
+- **Drift:** `31fd8ff0` -> `JUNE_PORT_BACKLOG_ORDER.md` Stage 2, "Equip change sets a cool time".
+
+**Hygiene.**
+- `flagcheck.py JUNE_CHAR_EVE_PASSIVE --with JUNE_CHAR_EVE_OVERRIDE_DEBUG --worktree --files X2Lib/X2GuEve.cpp X2Lib/X2GuEve.h X2Lib/X2GUNPC.cpp X2Lib/X2GUNPC.h KTDXLIB/Always.h`: `files: 2 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. OTHER = Always.h (the two new defines).
+- `flagcheck.py JUNE_SKILL_MP_DECREASE_RATE --worktree --files X2Lib/X2Unit.cpp KTDXLIB/Always.h`: `1 PASS, 1 OTHER, 0 FAIL`, `RESULT: PASS`.
+- `flagcheck.py JUNE_ENUM_NAMES --worktree --files X2Lib/X2DamageManager.h`: `1 PASS~, 0 FAIL`, `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GuEve.cpp X2Lib/X2GUNPC.cpp X2Lib/X2Unit.cpp`: no row in the CH4b lines (the 27 left are older code).
+- Build 1 failed in this phase's own `X2GUNPC.cpp` (`CX2GUEve` is incomplete there). The callback body moved to `X2GuEve.cpp`; build 2 is the deploy below.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,213,376 B, dated 2026-10-28 15:13:34, md5 56cd80ae403297ddc4a7f6a9732e961f, equal to X2/US_SERVICE/x2.exe (2026-10-28 15:13:27); built at main 5dd9ea98 + 7 uncommitted code file(s).` The five `EVE PASSIVE` log strings are in the deployed exe.
+**Save** (backup `els_db_20261028_150055_pre_sql.sql`):
+- Unit 59 gets Cheat Code: Destruction 25416 (unsealed) and Queen's Throne upgrade 25037 in B3 (Spear Burst upgrade 25228 taken out).
+- Unit 60 gets Cheat Code: Electro 25420 (unsealed) and Kugelblitz upgrade 25064 in B3 (Electronic Move 25223 taken out).
+
+**In game:** `[JUNE_CHAR] EVE PASSIVE` lines `open mind`, `cheat code electronic`, `tesla shock`, `mp consume`, `cool time`, `open mind summon` (at most once a second per site).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

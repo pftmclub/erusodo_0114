@@ -6009,6 +6009,21 @@ float CX2Unit::GetSkillCoolTimeDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2
 
 float CX2Unit::GetSkillMpDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillTree::SKILL_TYPE eSkillType) const
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
+	// June 3234d840: the item's cut needs a dungeon game; March's 0.8 outside a dungeon is gone
+	float fDecreaseRate = 1.0f;
+
+	if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == eSkillType
+		&& NULL != GetInventory().GetItemByTID( FINALITY_SKILL_COOL_ACTIVATE_ITEM_EVENT, false, false )
+		&& g_pMain->GetNowStateID() == CX2Main::XS_DUNGEON_GAME
+		&& NULL != g_pData->GetPartyManager()
+		&& NULL != g_pData->GetPartyManager()->GetMyPartyData()
+		&& false == CX2Dungeon::IsHenirDungeon( static_cast<SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) )
+		&& false == CX2Dungeon::IsSecretDungeon( static_cast<SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ) )
+		fDecreaseRate = 0.8f;
+
+	return fDecreaseRate;
+#else SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
 	float fDecreaseRate = 1.0f;
 
 	if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == eSkillType )
@@ -6029,5 +6044,6 @@ float CX2Unit::GetSkillMpDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillT
 	}
 
 	return fDecreaseRate;
+#endif SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
 }
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT

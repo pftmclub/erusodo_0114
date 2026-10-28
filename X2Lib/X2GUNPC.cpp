@@ -2888,6 +2888,9 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 	InitEffect();
 	InitState();
 	InitEtc();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	June_InitDelegateProcess();		/// June 3277c030 @3277c0d6, right after InitEtc ( vslot 0x33c )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	SetCenter( m_pMotion->GetCenter() );
 
@@ -2929,6 +2932,17 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 		m_NPCFrameData.stateParam.bCanPassUnit = m_bJuneCanPassUnitAtFirstFrame;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+//{{ Iruha : 2026-10-28 // June character Eve Phase CH4b
+// June 3275f0a0 ( vslot 0x340 ): the base 3226dbe0 is empty, then the attack-result list ( +0x66ac ) takes the Eve push
+void CX2GUNPC::June_InitDelegateProcess()
+{
+	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, June_EveSummonAttackResult ) );
+}
+// June 3275a120 ( June_EveSummonAttackResult ) is defined in X2GuEve.cpp, where CX2GUEve is complete
+//}} Iruha : 2026-10-28 // June character Eve Phase CH4b
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 #ifdef INDEPENDENT_ANIMATION_TIME
 const CKTDXCollision::CollisionDataListSet&	CX2GUNPC::GetCollisionListSet()

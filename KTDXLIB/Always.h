@@ -10337,3 +10337,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE, _CHAR_EVE_SKILL, _ENUM_NAMES, _NPC_LUA_SUMMON_RATE, _BUFF_BEHAVIOR_PARITY and _SKILL_TEMPLET
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4b ( flag JUNE_CHAR_EVE_PASSIVE ) - Eve's SetDamageExceptionProcess ( 329bc560 ), GetActualMPConsume ( 329a79c0, summon count 3299b2e0 ) and GetActualCoolTime ( 32979420 ) are June's; every NPC runs June's 3275f0a0 from Init ( Open Mind 25417's MP roll for an Eve owner's summon, 3275a120 ). Short-lived: [JUNE_CHAR] EVE PASSIVE lines from those, at most once a second per site. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH4b - CX2Unit::GetSkillMpDecreaseRate is June's 3234d840: the hyper-skill event item ( 60008066 ) cuts the MP cost to 0.8 only in a dungeon game that is neither Henir nor secret; March also cut it outside a dungeon. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE
+//////////////////////////////////////////////////////////////////////////
