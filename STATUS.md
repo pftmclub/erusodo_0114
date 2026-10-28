@@ -1047,10 +1047,10 @@ Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` · branch `main` · log tag none · flags
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| D0a (census tool) | char-eve complete 2026-10-28, can start (start: `/x2-phase june-march-divergence D0a`) | Sonnet 5.5 / high | char-eve Z | `tools/junecensus.py`, `june2017_re/diverge/` | `D0a.md` |
-| D0b (rulings + names) | waiting on D0a | Opus 5.5 / high | D0a | `june_march_divergent.tsv`, `collapse_map.tsv`, C / D0c kickoffs | `D0b.md` |
+| D0a (census tool) | **done 2026-10-28** (`tools/junecensus.py`; counts in the plan's Done note; found 295 free functions, 103 June-named types, 26 event ids / packets the Context lacked) | Sonnet 5.5 / high | char-eve Z | `tools/junecensus.py`, `june2017_re/diverge/` | `D0a.md` |
+| D0b (rulings + names) | can start (start: `/x2-phase june-march-divergence D0b`) | Opus 5.5 / high | D0a | `june_march_divergent.tsv`, `collapse_map.tsv`, C / D0c kickoffs | `D0b.md` |
 | D0c-1..3 (never-compared callees) | waiting on D0b | Opus 5.5 / high | D0b; beside the C phases | `june_march_divergent.tsv`, funcmap rows | `D0c-1.md`..`D0c-3.md` |
-| C0 (collapse tool) | waiting on D0a | Sonnet 5.5 / high | D0a (+ D0b for selftest data) | `tools/junecollapse.py` | `C0.md` |
+| C0 (collapse tool) | can start (start: `/x2-phase june-march-divergence C0`; selftest data waits for D0b) | Sonnet 5.5 / high | D0a (+ D0b for selftest data) | `tools/junecollapse.py` | `C0.md` |
 | C1 (Eve) | waiting on C0, D0b | Sonnet 5.5 / high, then smoke | C0, D0b | `X2GuEve.{h,cpp}` | `C1.md` |
 | C2 (Aisha) | waiting on C0, D0b | Sonnet 5.5 / high, then smoke | C0, D0b; beside C1 | `X2GUArme_VioletMage.{h,cpp}` | `C2.md` |
 | C2 review (C1 + C2) | waiting | Opus 5.5 / high | C1, C2 | as C1 / C2 | `C2-review.md` |

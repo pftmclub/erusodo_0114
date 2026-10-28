@@ -104,6 +104,50 @@ Projects: `X2Lib/X2Lib_2010.vcxproj` (+ `.filters`) for the class / file rename.
 - `--summary` prints the census table of the Context. `--check-twins` lists the twin pairs.
 **Gate:** the counts land within a few percent of the Context's (explain any gap); spot-check 10 rows by hand.
 
+### Done (2026-10-28, no flag, no game code, no build)
+
+`tools/junecensus.py` (new, README row added). `python tools/junecensus.py` scans 1,016 files (X2Lib incl. Offline, KTDXLIB, X2, plus the
+`KncWX2Server/Common` headers that name June) in ~15 s cold, ~3 s from the `.build/junecensus` cache, and writes `june2017_re/diverge/`:
+`names.tsv` (4,176 rows, one per definition), `callees.tsv` (2,731 rows), `census_meta.json`. Flags: `--summary` (default; it rescans, so a
+gate is live), `--check-twins`, `--file PATH`, `--gate` (exit 1 while a June-named identifier remains: C5 / D2), `--no-scan`, `--rescan`. The
+`#ifdef` handling keeps the studio frames, evaluates `SERV_IRUHADEV_*` against `Always.h`, and restores the brace stack at `#else`.
+
+**Gate (counts vs the Context; this tool / Context):**
+| Row | Result |
+|---|---|
+| prefixed member functions in `.cpp` | 1,510 / ~1,505 (+122 inline in headers). Eve 560 / 568, Aisha 451 / 453, X2GUUser 110 / 108, X2GameUnit, quest, DamageEffect, X2Game, emblem, KTDXApp equal |
+| ... with a March twin (`.cpp`) | **740 / ~604 (+22%)**: Eve 401 / 373, Aisha 307 / 200, quest 17, X2GUUser 8 / 9. Cause: the Context's rough script. Hand-checked: `DashJumpAttackX2FrameMove`, `AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove`, `RidingHyperModeFrameMove`, `JumpUpEventProcess` all exist as March Aisha functions |
+| `m_*June*` occurrences in headers | 724 / ~700; X2GUUser.h 87, X2GameUnit.h 74, X2GUNPC.h 48, X2GuEve.h 47: exact |
+| locals with a type prefix | **447 distinct, 2,465 uses / ~400, ~2,150**: a raw text scan finds 454 distinct, so the Context under-counted (it missed bodies whose `{` follows an `#endif`) |
+| `JUNE_*` constants / phase-tag aliases | 366 / 193 vs ~364 / 195; alias def + use 540 vs 545 (raw text count 540) |
+| address-named / Lua-bound / namespaces | 1 = 1; 11 vs 10 (the extra is the registered class `CX2JuneSkillTypeColorTable`); 30 vs 29 `_CONST_*_JUNE_*_` (one more than the Context, cause not found) |
+| distinct callees from June-named bodies | 1,272 (1,121 march + 151 ours) / ~1,300; 15,511 sites / ~15,000. Not counted: 145 names with no project definition, 21 constructor names |
+| funcmap: with a row / hint / never compared | 422 / 100 / 850 vs 453 / 93 / 847. Row match is by function name and a class related to the owner; hint words: stub, always true/false, returns 0/false/true, no-op, differs, none in March, June form/overload/only, dead, not ported |
+
+**Spot check (hand, against the source):** 13 name rows (member function x3, free function, data member x2, local x2, constant x2, namespace,
+Lua name, class) and 8 callee rows (owner, origin, first site) all match; the known slip `X2GUArme_VioletMage.cpp:27702`
+(`GetEqippedSkillMemo`, `hint: stub`, funcmap `31fca9e0`) is in `callees.tsv`. Two bugs found while checking, fixed: class rows pointed at the `{`
+line; an `#endif` between `)` and `{` hid function bodies (unresolved names fell from 119 to 1).
+
+**Found beyond the Context (all plan subject; D0b rules names, C4 / C5 carry them):**
+1. **295 June-named free functions** (54 in `_CONST_*_JUNE_*` namespaces, 241 at file scope, e.g. `JuneEveIsSkillKeyUp`, X2GuEve 29, X2DamageManager 24,
+   X2UISkillTreeNew2015 22, X2GUUser 20): not in the ~1,505 and not in any C kickoff yet.
+2. **103 June-named types**: 72 structs / classes (17 of them `JuneGfx*`, all in `KTDGGFXManager`; the rest `JuneDamageDataRecord`, `JuneSlotState`,
+   `CX2JuneBuffRuntimeScope`, ...), 10 enums (`JUNE_MEMO_ID`, `JUNE_MENU_SLOT`), 5 typedefs, 12 packet structs, 4 data structs. The Context knew `CX2UIQuestNewJune` only.
+3. **26 June-named event ids and packet structs** in the shared headers (`EGS_JUNE_*`, `KEGS_JUNE_*`, `KJuneIntPair`, `KJuneSkillExtraData`): same
+   rule as C++ names, but they sit in `KncWX2Server/Common`; D0b decides whether the collapse touches them.
+4. Two Offline files and namespaces named June (`X2OfflineJuneQuestMig`, `X2OfflineJuneSkillAutoLearn`); three June-named source files in all.
+5. `twin_check` is mostly **unverified** (623 of 749): funcmap names no March function for those June addresses, so D0b proves each twin through Ghidra.
+   `yes` 95, `conflict` 3 (funcmap maps the address to another function, e.g. `June_CopyModelFrameStructure`), `unmapped` 28.
+6. 151 callees are `origin ours` (declared only behind our flags or in `Offline/`); June bodies call them and they are not March.
+7. Plus the live branches of defined June flags: 1,961 march-origin callees, 24,728 sites (June code that is not June-named).
+
+**Known limits:** `ptr->F()` has no type information, so `owner` is the root declaring class(es) (`owner_n` > 1 = ambiguous); `uses` of a
+class member is by name for the whole tree (two rows of one name share the number); one name stays `unresolved` (`pJuneHealer`,
+`X2GUNPC.cpp:11463`: `DamageReact`'s `#ifdef` branches split braces); functions made by macros are not seen.
+
+**Open for the user:** none. **Next:** `/x2-phase june-march-divergence D0b` on Opus 5.5 high; C0 (collapse tool, Sonnet 5.5 high) may start beside it.
+
 ## Phase D0b - Rulings: twins, funcmap hints, names (Opus 5.5, high)
 
 **Depends on:** D0a. Read-only plus tsvs. Delegate pulls; keep every June reading.
