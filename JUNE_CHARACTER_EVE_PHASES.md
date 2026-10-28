@@ -2496,6 +2496,15 @@ Read in Ghidra (`3297f290`, `32978370`, `32894e40`, `32892060`, `328922d0`; help
 
 **In game:** `[JUNE_CHAR] EVE PASSIVE` lines `open mind`, `cheat code electronic`, `tesla shock`, `mp consume`, `cool time`, `open mind summon` (at most once a second per site).
 
+**Play-test (2026-10-28, logs 15:31-15:35 on md5 `56cd80ae`; 0 EXCEPTION, 4 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, ErrorLog 0 lines).**
+- Unit 61: `mp consume ( skill 25062, 100.00 -> 75.00, summons 0 )`. The line stops while a field is alive (no change, no log) and comes back when it ends; it repeats every second because the slot UI asks for the cost.
+- Unit 61: 58 `open mind summon` lines (npc 1622 / 1621 / Ferdinand 1454, `mp +3.0`), and Link Overcharge `25601, 300.00 -> 0.00` under Ferdinand.
+- Unit 59: `cool time ( skill 25221, 6.00 -> 1.00 )` and `( skill 25054, 15.00 -> 3.00 )` under Queen's Throne.
+- Unit 60: `cheat code electronic ( skill 25024, buff factor pushed )` x2, `open mind ( formation 3, magic x1.150 )`, and `tesla shock ( skill 25211, force down -10.00 -> -50.00 )`.
+- **Not seen, with the reason:**
+  - Open Mind x0.85: June applies BFI 877 from `3204e160` (called from `SetUserSummonedNPCInfo` `@3230cafb`). CH2b2 had routed it to CH4b and this phase missed it, so it gets **its own sub-phase CH4b2** (`kickoffs/char-eve/CH4b2.md`). Its tail `@3204e2ed` (NPC 762 + Rose's 31320) goes with it, dormant until Stage 8.
+  - The x0.8 cool time: the hand-off named Needles Cutting 25047; Energy Needles is 25027 / 25067. Unit 60's A3 now holds 25067 (backup `els_db_20261028_153811_pre_sql.sql`); the retest is in CH4b2.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_UI`. Sub-tag `UI`.

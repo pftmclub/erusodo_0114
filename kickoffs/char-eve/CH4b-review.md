@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-eve CH4b review` |
 | Plan doc | `JUNE_CHARACTER_EVE_PHASES.md` (branch `main`) |
-| Depends on | Phase CH4b done and play-tested (its Done note and commit) |
+| Depends on | Phase CH4b done and play-tested, and CH4b2 (`3204e160`, CH4b's missed piece; this review covers both) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE` (+ `SERV_IRUHADEV_JUNE_CHAR_EVE_OVERRIDE_DEBUG`, retired here), `SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE` |
 | Log tag | `[JUNE_CHAR]` (`EVE PASSIVE`) |
 
