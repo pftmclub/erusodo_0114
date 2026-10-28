@@ -2599,7 +2599,7 @@ Read in Ghidra (`329bc560`, `3275a120`, `3234d840`, `3204e160`, `3229a470`, `322
   - Tree `+0x130` / `+0x134` = `CX2UISkillTreeNew::m_bClassSkillIconSwap` / `m_iElectraFormationType`.
   - `328e0aa0`'s Eve blocks (0x6d Link Overcharge, 0x1a El Crystal) sit in `JuneApplyEquippedSkillIconOverride`. The 0x7b / 0x72 / 0x73 / 0x7e and Add blocks stay with their class ports (checklist 7aj).
 - **7n / 7a** were already done (CH2c; CH1l4 / CH1l40 / CH3c); nothing to port. **§5**: the 10 keys are read since CH1k; this phase consumes them.
-- **Asset.** June's `DLG_SKILL_Hyper_Active_02.tga` / `.tet` replace March's in data063 (`STAGE-JUNE OK`, `PACK OK data063`). The other icon sheets, `DLG_UI_Button24_NEW` (`BG_EVE_RECOVERY`), `Eve_Nasod.lua` (has `ENSI_EVE_RECOVERY`) and `DLG_GAME_SKILL_SLOT_NEW_10slot.lua` (the three controls) were already June's byte for byte. Strings 16473 / 36833-36836 are in `general.ess`.
+- **Asset.** June's `DLG_SKILL_Hyper_Active_02.tga` / `.tet` replace March's in data063 (`STAGE-JUNE OK`, `PACK OK data063`, `COPY OK data063` md5 `e4d3a0e5`). The other icon sheets, `DLG_UI_Button24_NEW` (`BG_EVE_RECOVERY`), `Eve_Nasod.lua` (has `ENSI_EVE_RECOVERY`) and `DLG_GAME_SKILL_SLOT_NEW_10slot.lua` (the three controls) were already June's byte for byte. Strings 16473 / 36833-36836 are in `general.ess`.
 - **JUNE_BUGS 464-466:**
   - 464: every Eve drives the statics; there is no my-unit gate.
   - 465: Rule Break heals and buffs any owner's summons, and the gather resets any owner's AI target.
