@@ -159,6 +159,49 @@ class member is by name for the whole tree (two rows of one name share the numbe
    (alias -> enum member) / `class` / `file` / `namespace` / `lua`), split into the C1-C5 batches, and the D0c split (by callee owner).
 **Gate:** every name and every hinted callee has a verdict; the C1-C5 kickoffs list their batches; the D0c kickoffs exist.
 
+### Done (2026-10-28, no flag, no game code, no build)
+
+Wrote `june2017_re/diverge/collapse_map.tsv` (3,934 rows, one per definition of the 4,176 census rows; columns `old new action file
+class flag june_va guard note batch kind`), `tools/data/june_march_divergent.tsv` (232 callee rows), `june2017_re/diverge/d0c_areas.tsv`
+(1,325 never-compared March callees by area) and the evidence `d0b_naming.tsv` / `d0b_callee_digest.tsv` (subagent drafts, each row
+approved or overruled here). Kickoffs C0-C5 carry their batch, D0c-1..3 their area.
+
+**1. Twins (754 pairs).** Proven from our own state tables: June_X registered at the same Lua state and slot as March's X (557); the
+Aisha evasion states (7: March registers them at `AVSI_TELEPORT_*` under `UPGRADE_SKILL_SYSTEM_2013`); macro-registered Hell Drop
+control states (11); March's X dispatching to June_X under the flag (86); the port's Ghidra comment ("June 329b2f60: March's
+DoFrameMoveThousandStar ...", 89). Ghidra spot checks: `31fca9e0` = `return 0`; the census picked a second address from the comment
+for `EveElectraEffectData::OnFrameMove` (329c12a0), `DoFrameMoveThousandStar` (329b2f60), `GetActualMPConsume` (3203cf60). All merge
+except `June_ENSI_DASH_COMBO_ZX_*` (rename to March's name: March's copy is only under the undefined `EVE_COMBO_TEST_TEST`) and
+`JuneParseCommonRandomState` (rename `ParseCommonRandomStateByUnitClass`: March's is a pure virtual per class). Twins the census
+missed: Aisha's four vslot overrides, Eve/Aisha copies of the base's `SetSkillBuffFactors` / `HaveSkillBuff` / `GetSkillBuffFactorPtr`,
+the `June_X` bodies behind `JuneX` virtual forwarders (4), three copies of June 32007c40, the June/March state tables
+`s_akStatesPostEffect` / `akRSICKTDGUIDialog`, `LEVEL_UP_EVENT_ID`, and `m_bUseRenderParam` (+0xa2c is what June's equip glow sets;
+March's glow sets March's: same field, a reach point for C4). Signature merges (hand shapes): `SetShow`, `GetActualMPConsume`,
+`EnchantAccumulationRateModifier`, `ModifyFinalDamageByGameUnitType`. Aisha's vslots: 0x604 / 0x608 = `HyperModeEnd` /
+`RidingHyperModeEnd` overrides (base made virtual in C3), 0x60c = `RidingOffStart`.
+
+**2. Names.** Default = `June` stripped, then a collision check against the class, its bases, the function and (free / global names)
+the tree. 197 vague, colliding, offset- or vslot-named rows got context names (subagent, 102 high / 82 med / 13 low; all approved,
+low ones marked in the note). 30 debug log helpers / throttles named after effect-phase tags were named from their bodies. `drop`:
+five Aisha members only set in the constructor. 211 `enum` rows: each `JUNE_*` alias resolved by value through `cl /P` to one member.
+One phase-tag constant is not an alias: `JUNE_CH1L_ENSI_SA_ECE_REASON_PRIDE_ACTION` is 242, the C++ state 196 (C5 note). Base / override
+groups go to the base's batch (38 rows moved to C3 / C4), so no override is ever split between two batches. Shared-header event ids and
+packets are renamed client-side (offline only). Lua names: dev-console bindings, no `.lua` calls them.
+
+**3. Callees (`june_march_divergent.tsv`).** 208 hinted rows + 24 Context seeds: out 209 (already June's at the definition, a funcmap
+row about another class, or owned elsewhere: render R9, transcendence T5, Stage 2, Stage 8 Lu/Ciel, checklist 7j), **replace 10**
+(`GetEqippedSkillMemo`, `MemoCondition`, `FlushMp`, `SetNowMp` x2, `SetNowHp`, `GetLockOnNearstTargetInRange`, `UnrefDevice`,
+`StartDisplayer`, `CX2GUUser::UpdateEquipCollisionData`; D1 flags `SERV_IRUHADEV_JUNE_DIVERGE_<NAME>`), **idiom 5** (`322cc1a0` PvP-or-PvE,
+`322ece70` stat / power split, the hit-stop lists, BBT 80-84, `ParsingBuffFactorID`: D2's idiom list), **stage33 8** (handed to the
+Stage 33 brief).
+
+**4. Batches.** C1 592 (Eve), C2 460 (Aisha), C3 577 (16 shared unit files plus the Eve / Aisha overrides of June-named bases), C4 726
+(95 UI / data / engine / offline files, classes, files, Lua), C5 1,579 (members, locals, constants, namespaces). D0c areas (default
+three kept): D0c-1 unit classes 409, D0c-2 engine / effect / damage / buff / world 513, D0c-3 data / UI / managers 403.
+
+**Hygiene:** no code, no flag, no build. **Open for the user:** none (no name was left unsettled).
+**Next:** C0 (Sonnet 5.5 high) and D0c-1..3 (Opus 5.5 high, read-only) can start; they do not overlap.
+
 ## Phase D0c - Never-compared callees (Opus 5.5, high; one session per area D0b sets, default three)
 
 **Depends on:** D0b. Read-only; runs beside the C phases. For each callee in its area with no funcmap row: clear by rule (plain getter,

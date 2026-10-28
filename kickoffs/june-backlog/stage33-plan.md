@@ -20,6 +20,8 @@ grep -n -E "GetFinalDamage|SetDamageExceptionProcess|DamageReact|SetGameStat|Res
 grep -n "SERV_IRUHADEV_JUNE_SOCKET_HIT_MP_CURVE" X2Lib/X2GameUnit.cpp X2Lib/X2GameUnit.h
 ```
 
+Also `tools/data/june_march_divergent.tsv` rows with verdict `stage33` (8 formulas plan `june-march-divergence` D0b handed here, 2026-10-28).
+
 ## Task
 
 Plan the replacement of every mixed March / June stat and damage formula with June's whole calculation (the user, 2026-10-27).

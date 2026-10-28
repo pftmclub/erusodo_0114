@@ -1,0 +1,1326 @@
+# callee	owner	owner_n	sites	area	first_sites
+GetEnchantLevel	CX2Eqip	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30957
+GetEqipPos	CX2Eqip	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:37488 X2Lib/X2GUArme_VioletMage.cpp:37524
+GetNormalAnim	CX2Eqip	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30994 X2Lib/X2GUArme_VioletMage.cpp:31029 X2Lib/X2GUArme_VioletMage.cpp:37472
+GetItemUID	CX2Eqip|CX2OfflineInventory|CX2SlotItem	3	1	D0c-1	X2Lib/X2UIInventory.cpp:6719
+SetSlotID	CX2GUAra::sMoonLightSlashData|CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data|CX2SlotItem	5	8	D0c-1	X2Lib/X2GuEve.cpp:45252 X2Lib/X2GuEve.cpp:45260 X2Lib/X2GuEve.cpp:45265 X2Lib/X2GuEve.cpp:45266
+CreateNotEnoughMPEffect	CX2GUArme_VioletMage	1	34	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23625 X2Lib/X2GUArme_VioletMage.cpp:24200 X2Lib/X2GUArme_VioletMage.cpp:24251 X2Lib/X2GUArme_VioletMage.cpp:24312
+GetHandleAishaMajorParticleByEnum	CX2GUArme_VioletMage	1	9	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23613 X2Lib/X2GUArme_VioletMage.cpp:24122 X2Lib/X2GUArme_VioletMage.cpp:24134 X2Lib/X2GUArme_VioletMage.cpp:24605
+GetHandleAishaMinorParticleByEnum	CX2GUArme_VioletMage	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23602 X2Lib/X2GUArme_VioletMage.cpp:28586 X2Lib/X2GUArme_VioletMage.cpp:28595
+GetTransformTime	CX2GUArme_VioletMage	1	5	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28323 X2Lib/X2GUArme_VioletMage.cpp:28325 X2Lib/X2GUArme_VioletMage.cpp:29626 X2Lib/X2GUArme_VioletMage.cpp:29628
+GetUFO	CX2GUArme_VioletMage	1	31	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29484 X2Lib/X2GUArme_VioletMage.cpp:29505 X2Lib/X2GUArme_VioletMage.cpp:29505 X2Lib/X2GUArme_VioletMage.cpp:29506
+InitStateID	CX2GUArme_VioletMage	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:31898
+ResetUFO	CX2GUArme_VioletMage	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29512 X2Lib/X2GUArme_VioletMage.cpp:36012
+SetHandleAishaMajorParticleByEnum	CX2GUArme_VioletMage	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28576
+SetHandleAishaMinorParticleByEnum	CX2GUArme_VioletMage	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28591
+SetTransformTime	CX2GUArme_VioletMage	1	4	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29628 X2Lib/X2GUArme_VioletMage.cpp:29630 X2Lib/X2GUArme_VioletMage.cpp:35551 X2Lib/X2GUArme_VioletMage.cpp:35575
+SetUFO	CX2GUArme_VioletMage	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36681
+TransformStart	CX2GUArme_VioletMage	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35555 X2Lib/X2GUArme_VioletMage.cpp:35557
+GetChungGageData	CX2GUChung	1	1	D0c-1	X2Lib/X2GUChung.cpp:465
+GetDamageRelByCannonBallMastery	CX2GUChung	1	1	D0c-1	X2Lib/X2GUChung.cpp:13139
+IsFullHyperMode	CX2GUChung	1	1	D0c-1	X2Lib/X2GUChung.cpp:464
+SetCannonBallCount	CX2GUChung	1	1	D0c-1	X2Lib/X2GUChung.cpp:465
+GetFireBallPowerRate	CX2GUEL	1	1	D0c-1	X2Lib/X2GUEL.cpp:7277
+CancelComboWhenChangedDirection	CX2GUEve	1	8	D0c-1	X2Lib/X2GuEve.cpp:37579 X2Lib/X2GuEve.cpp:37654 X2Lib/X2GuEve.cpp:37734 X2Lib/X2GuEve.cpp:37942
+ChangeThousandsOfStarsFormation	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:48353 X2Lib/X2GuEve.cpp:55711
+ClearManeuverCore	CX2GUEve	1	3	D0c-1	X2Lib/X2GuEve.cpp:36825 X2Lib/X2GuEve.cpp:36890 X2Lib/X2GuEve.cpp:44808
+CreateNotEnoughMPEffect	CX2GUEve	1	14	D0c-1	X2Lib/X2GuEve.cpp:38168 X2Lib/X2GuEve.cpp:38270 X2Lib/X2GuEve.cpp:38417 X2Lib/X2GuEve.cpp:39091
+DeleteEveMajorParticle	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:44765
+DeleteEveMinorParticle	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:44341 X2Lib/X2GuEve.cpp:44766
+GetBoneNameNearestImpactPoint	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:44306
+GetComboXStateID	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:41149
+GetEnableElectraSystem	CX2GUEve	1	2	D0c-1	X2Lib/X2Game.cpp:14085 X2Lib/X2Game.cpp:14110
+GetHandleEveMajorParticleByEnum	CX2GUEve	1	4	D0c-1	X2Lib/X2GuEve.cpp:39790 X2Lib/X2GuEve.cpp:39793 X2Lib/X2GuEve.cpp:39816 X2Lib/X2GuEve.cpp:39819
+GetKugelBlitzAddDamageTime	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:47175 X2Lib/X2GuEve.cpp:48002
+GetTaserPilumAddDamageTime	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:47168 X2Lib/X2GuEve.cpp:48020
+GetThousandStarCount	CX2GUEve	1	1	D0c-1	X2Lib/X2Game.cpp:14122
+GetThousandStarEntireFired	CX2GUEve	1	1	D0c-1	X2Lib/X2Game.cpp:14122
+InitStateID	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:51229
+InitializeEveMajorParticleArray	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:44856
+InitializeEveMinorParticleArray	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:44857
+ResetKugelBlitzTinyData	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:47178 X2Lib/X2GuEve.cpp:48014
+SetHandleEveMajorParticleByEnum	CX2GUEve	1	8	D0c-1	X2Lib/X2GuEve.cpp:39681 X2Lib/X2GuEve.cpp:39682 X2Lib/X2GuEve.cpp:39690 X2Lib/X2GuEve.cpp:39691
+SetStartSpectroElCrystal	CX2GUEve	1	2	D0c-1	X2Lib/X2GuEve.cpp:45979 X2Lib/X2GuEve.cpp:46955
+ShowActiveSkillCutInAndLight	CX2GUEve	1	1	D0c-1	X2Lib/X2GuEve.cpp:52984
+SetProjectileSize	CX2GUEve::ATOveronGuardData	1	1	D0c-1	X2Lib/X2GuEve.cpp:56693
+SetEffectiveTime	CX2GUEve::ATOveronGuardData|CX2GUUser::CSkillDataBase	2	2	D0c-1	X2Lib/X2GuEve.cpp:56696 X2Lib/X2GuEve.cpp:56698
+GetBoneNameID	CX2GUEve::EG_QueensThroneData	1	2	D0c-1	X2Lib/X2GuEve.cpp:49856 X2Lib/X2GuEve.cpp:49887
+GetEnableGigaPlane	CX2GUEve::EveElectraSystem	1	4	D0c-1	X2Lib/X2GuEve.cpp:48959 X2Lib/X2GuEve.cpp:49313 X2Lib/X2GuEve.cpp:49393 X2Lib/X2GuEve.cpp:49406
+GetEnablePlane	CX2GUEve::EveElectraSystem	1	7	D0c-1	X2Lib/X2GuEve.cpp:38580 X2Lib/X2GuEve.cpp:48957 X2Lib/X2GuEve.cpp:54580 X2Lib/X2GuEve.cpp:54582
+GetEnableSystem	CX2GUEve::EveElectraSystem	1	4	D0c-1	X2Lib/X2GuEve.cpp:38631 X2Lib/X2GuEve.cpp:54106 X2Lib/X2GuEve.cpp:55914 X2Lib/X2GuEve.cpp:56168
+GetPlaneFormation	CX2GUEve::EveElectraSystem	1	5	D0c-1	X2Lib/X2GuEve.cpp:55815 X2Lib/X2GuEve.cpp:55915 X2Lib/X2GuEve.cpp:56170 X2Lib/X2GuEve.cpp:56191
+SetEnableExceptionSystem	CX2GUEve::EveElectraSystem	1	1	D0c-1	X2Lib/X2GuEve.cpp:56798
+SetEnableGigaPlane	CX2GUEve::EveElectraSystem	1	1	D0c-1	X2Lib/X2GuEve.cpp:54455
+SetEnableHyperOpticalResearch	CX2GUEve::EveElectraSystem	1	1	D0c-1	X2Lib/X2GuEve.cpp:56643
+SetEnablePlane	CX2GUEve::EveElectraSystem	1	1	D0c-1	X2Lib/X2GuEve.cpp:38719
+SetEnableSpectrumDynamics	CX2GUEve::EveElectraSystem	1	1	D0c-1	X2Lib/X2GuEve.cpp:56634
+SetEnableSystem	CX2GUEve::EveElectraSystem	1	3	D0c-1	X2Lib/X2GuEve.cpp:44730 X2Lib/X2GuEve.cpp:44805 X2Lib/X2GuEve.cpp:56797
+SetExceptionSystemTime	CX2GUEve::EveElectraSystem	1	2	D0c-1	X2Lib/X2GuEve.cpp:44723 X2Lib/X2GuEve.cpp:44803
+SetPlaneFormation	CX2GUEve::EveElectraSystem	1	3	D0c-1	X2Lib/X2GuEve.cpp:44724 X2Lib/X2GuEve.cpp:44804 X2Lib/X2GuEve.cpp:56799
+SetSystemOperationTime	CX2GUEve::EveElectraSystem	1	2	D0c-1	X2Lib/X2GuEve.cpp:44722 X2Lib/X2GuEve.cpp:44802
+ResetParticle	CX2GUEve::MEGA_ELECTRONBALL_Data	1	1	D0c-1	X2Lib/X2GuEve.cpp:45777
+GetSkillSlotID	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data	3	9	D0c-1	X2Lib/X2GuEve.cpp:45334 X2Lib/X2GuEve.cpp:45340 X2Lib/X2GuEve.cpp:45346 X2Lib/X2GuEve.cpp:45602
+SetSkillSlotSwap	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data	3	2	D0c-1	X2Lib/X2GuEve.cpp:45599 X2Lib/X2GuEve.cpp:45614
+GetSkillSlotSwap	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data|CX2UISkillTree|CX2UISkillTreeNew	5	10	D0c-1	X2Lib/X2GUUser.cpp:25881 X2Lib/X2GUUser.cpp:25888 X2Lib/X2Game.cpp:13758 X2Lib/X2Game.cpp:13965
+reset	CX2GUEve::SKugelBlitz_TinyData|CX2GUEve::TASER_PILUM_TinyData	2	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30960 X2Lib/X2GUNPC.cpp:30199 X2Lib/X2GuEve.cpp:55850
+GetElectraFormationType	CX2GUEve|CX2UISkillTreeNew	2	3	D0c-1	X2Lib/X2Game.cpp:14087 X2Lib/X2Game.cpp:14111 X2Lib/X2UISkillTreeNew2015.cpp:607
+CommonRender_Draw	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:9214
+CreateAndSetAinmXSkinMesh	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30202
+DoFrameMove	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:9041 X2Lib/X2GUNPC.cpp:9044
+GetApplyCinematicUI	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonGame.cpp:2597
+GetBossNameTexture	CX2GUNPC	1	2	D0c-1	X2Lib/X2DungeonSubStage.cpp:1328 X2Lib/X2DungeonSubStage.cpp:1336
+GetClassType	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:32713 X2Lib/X2Game.cpp:9505
+GetDefaultPowerRate	CX2GUNPC	1	4	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30943 X2Lib/X2GUArme_VioletMage.cpp:36647 X2Lib/X2GUArme_VioletMage.cpp:36679 X2Lib/X2Game.cpp:17006
+GetDirVector	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:18263
+GetFocusCameraAtCurrentState	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonGame.cpp:2591
+GetFocusCameraForce	CX2GUNPC	1	3	D0c-1	X2Lib/X2DungeonGame.cpp:2619 X2Lib/X2DungeonGame.cpp:2628 X2Lib/X2PVPGame.cpp:871
+GetInitStateData	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:30110 X2Lib/X2GUNPC.cpp:30272
+GetIsRight	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:13922
+GetLandPos	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:32267
+GetNPCAI	CX2GUNPC	1	39	D0c-1	X2Lib/X2BuffTemplet.cpp:2577 X2Lib/X2BuffTemplet.cpp:2578 X2Lib/X2DamageManager.cpp:5228 X2Lib/X2GUArme_VioletMage.cpp:29505
+GetNPCSyncData	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.h:2750
+GetNPCTemplet	CX2GUNPC	1	40	D0c-1	X2Lib/X2DamageEffect.cpp:3761 X2Lib/X2DamageEffect.cpp:9124 X2Lib/X2DungeonSubStage.cpp:2649 X2Lib/X2GUArme_VioletMage.cpp:30938
+GetNowAnimationTime	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:17883 X2Lib/X2GUNPC.cpp:18339
+GetOwnerGameUnitUID	CX2GUNPC	1	1	D0c-1	X2Lib/X2Game.cpp:12968
+GetPos	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30149
+GetRandomFloat	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:10726 X2Lib/X2GUNPC.cpp:11805
+GetRandomInt	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:16620
+GetSelfDestruction	CX2GUNPC	1	8	D0c-1	X2Lib/X2GUNPC.cpp:17924 X2Lib/X2GUNPC.cpp:17941 X2Lib/X2GUUser.cpp:26086 X2Lib/X2GuEve.cpp:36728
+GetShowBossName	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonSubStage.cpp:1288
+GetShowBossNameDelayTime	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonSubStage.cpp:1288
+GetShowSubBossName	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonSubStage.cpp:1291
+GetSiegeMode	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30156
+GetStartState	CX2GUNPC	1	6	D0c-1	X2Lib/X2DungeonGame.cpp:2560 X2Lib/X2DungeonGame.cpp:2590 X2Lib/X2DungeonGame.cpp:2629 X2Lib/X2DungeonGame.cpp:2637
+GetStateTime	CX2GUNPC	1	1	D0c-1	X2Lib/X2GuEve.cpp:57132
+GetStopAtCurrentState	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonGame.cpp:2581
+GetStopAtStartState	CX2GUNPC	1	1	D0c-1	X2Lib/X2DungeonGame.cpp:2558
+GetUID	CX2GUNPC	1	7	D0c-1	X2Lib/X2GUNPC.cpp:17832 X2Lib/X2GUNPC.cpp:17949 X2Lib/X2GUNPC.cpp:17963 X2Lib/X2GUNPC.cpp:25595
+IsLocalUnit	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:14882
+IsOnSomething	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:13929
+IsSuperArmor	CX2GUNPC	1	15	D0c-1	X2Lib/X2GUNPC.cpp:10283 X2Lib/X2GUNPC.cpp:13381 X2Lib/X2GUNPC.cpp:13383 X2Lib/X2GUNPC.cpp:13471
+IsUnitID	CX2GUNPC	1	1	D0c-1	X2Lib/X2DamageEffect.cpp:10766
+LevelCorrectionExtraDamage	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:11660
+SetApplyCinematicUI	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUUser.cpp:23241 X2Lib/X2GUUser.cpp:23427
+SetDamageOutScreen	CX2GUNPC	1	1	D0c-1	X2Lib/X2GuEve.cpp:54933
+SetDefaultPowerRate	CX2GUNPC	1	7	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30944 X2Lib/X2GUArme_VioletMage.cpp:36656 X2Lib/X2Game.cpp:17006 X2Lib/X2Game.cpp:17142
+SetFocusCameraForce	CX2GUNPC	1	7	D0c-1	X2Lib/X2GUUser.cpp:23218 X2Lib/X2GUUser.cpp:23240 X2Lib/X2GUUser.cpp:23354 X2Lib/X2GUUser.cpp:23404
+SetRealatedSkillLevel	CX2GUNPC	1	2	D0c-1	X2Lib/X2GuEve.cpp:54927 X2Lib/X2GuEve.cpp:54999
+SetSelfDestruction	CX2GUNPC	1	2	D0c-1	X2Lib/X2GUNPC.cpp:17948 X2Lib/X2GUNPC.cpp:17962
+SetShowBossName	CX2GUNPC	1	1	D0c-1	X2Lib/X2Game.cpp:12556
+StartSelfDestruction	CX2GUNPC	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36646 X2Lib/X2GuEve.cpp:36730 X2Lib/X2GuEve.cpp:36744
+StateChange	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:13948
+StateChange_Reaction_FIRST	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:13946
+TransformScale	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30415
+_IsDyingState	CX2GUNPC	1	1	D0c-1	X2Lib/X2GUNPC.cpp:25617
+GetLastTouchLineIndex	CX2GUNPC|CX2GUNPCAI|CX2GUUser|CX2SquareUnit	4	10	D0c-1	X2Lib/X2BuffTemplet.cpp:2002 X2Lib/X2DamageEffect.cpp:8417 X2Lib/X2GUArme_VioletMage.cpp:25143 X2Lib/X2GUArme_VioletMage.cpp:25156
+GetCombineMatrixFromBoneName	CX2GUNPC|CX2GUUser	2	1	D0c-1	X2Lib/X2EffectSet.cpp:5674
+GetGameUnitState	CX2GUNPC|CX2GUUser	2	22	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2955 X2Lib/X2BuffBehaviorTemplet.cpp:3212 X2Lib/X2DungeonGame.cpp:2557 X2Lib/X2DungeonGame.cpp:2560
+GetLandPos	CX2GUNPC|CX2GUUser	2	9	D0c-1	X2Lib/X2BuffTemplet.cpp:1668 X2Lib/X2BuffTemplet.cpp:1874 X2Lib/X2EffectSet.cpp:2745 X2Lib/X2EffectSet.cpp:2767
+GetSkinAnimPtr	CX2GUNPC|CX2GUUser	2	2	D0c-1	X2Lib/X2BuffTemplet.cpp:1757 X2Lib/X2BuffTemplet.cpp:1759
+GetUnitCondition	CX2GUNPC|CX2GUUser	2	2	D0c-1	X2Lib/X2GUUser.cpp:13288 X2Lib/X2GUUser.cpp:13392
+IsLocalUnit	CX2GUNPC|CX2GUUser	2	1	D0c-1	X2Lib/X2GameUnit.cpp:18563
+IsSuperArmor	CX2GUNPC|CX2GUUser	2	1	D0c-1	X2Lib/X2GameUnit.cpp:3837
+SetStateToNowAnimation	CX2GUNPC|CX2GUUser	2	1	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2952
+GetHyperModeCount	CX2GUNPC|CX2GUUser|CX2GageData	3	1	D0c-1	X2Lib/X2GageUI.cpp:4662
+GetUnitHeight	CX2GUNPC|CX2GUUser|CX2RidingPet	3	3	D0c-1	X2Lib/X2BuffTemplet.cpp:1954 X2Lib/X2BuffTemplet.cpp:1962 X2Lib/X2GUArme_VioletMage.cpp:35494
+GetUnitWidth	CX2GUNPC|CX2GUUser|CX2RidingPet	3	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35494
+GetUID	CX2GUNPC|CX2Item|CX2SquareUnit|CX2Unit|CX2User	5	29	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36697 X2Lib/X2GUNPC.cpp:29831 X2Lib/X2GUNPC.cpp:29834 X2Lib/X2GUUser.cpp:26096
+GetHasBossGage	CX2GUNPC|CX2OldGageManager	2	1	D0c-1	X2Lib/X2RandomMission.cpp:682
+SetNumber_LUA	CX2GUNPC|CX2PET|CX2SimpleDLG_WithLuaFunc	3	2	D0c-1	X2Lib/X2Game.cpp:17038 X2Lib/X2GuEve.cpp:54993
+SendPacket	CX2GUNPC|CX2SquareUnit	2	10	D0c-1	X2Lib/X2Main.cpp:11905 X2Lib/X2Main.cpp:11909 X2Lib/X2Main.cpp:12186 X2Lib/X2RandomMission.cpp:349
+AccessFutureFrameData	CX2GUUser	1	7	D0c-1	X2Lib/X2GuEve.cpp:16612 X2Lib/X2GuEve.cpp:45798 X2Lib/X2GuEve.cpp:45806 X2Lib/X2GuEve.cpp:45821
+AccessVecNowSuperArmorTime	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23352 X2Lib/X2GUArme_VioletMage.cpp:27706
+COMMON_RELATIONSHIP_SKILL_EventProcess	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:36626
+COMMON_RELATIONSHIP_SKILL_FrameMove	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:36621
+ChangeDamageData	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:39355
+CheckSkillUsePVPOfficial	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30486 X2Lib/X2GuEve.cpp:46488
+CheckSummonSpecialAttack	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30483 X2Lib/X2GuEve.cpp:46485
+CommonCameraMove	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23701
+CreateBoneShield	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:38031
+CreateWeapon	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30965
+DeleteGUUserMinorParticle	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28477
+DidHitNasodWeapon	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:44209
+DieFrameMove	CX2GUUser	1	4	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22999 X2Lib/X2GUArme_VioletMage.cpp:23017 X2Lib/X2GuEve.cpp:36838 X2Lib/X2GuEve.cpp:36903
+DyingStart	CX2GUUser	1	4	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23041 X2Lib/X2GUArme_VioletMage.cpp:23058 X2Lib/X2GuEve.cpp:36799 X2Lib/X2GuEve.cpp:36864
+EventCheck	CX2GUUser	1	66	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22095 X2Lib/X2GUArme_VioletMage.cpp:22104 X2Lib/X2GUArme_VioletMage.cpp:23078 X2Lib/X2GUArme_VioletMage.cpp:23094
+EventTimer	CX2GUUser	1	8	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22733 X2Lib/X2GUArme_VioletMage.cpp:22765 X2Lib/X2GUArme_VioletMage.cpp:23005 X2Lib/X2GUArme_VioletMage.cpp:23023
+ForceChangeHyperModeWithoutMotion	CX2GUUser	1	1	D0c-1	X2Lib/X2Game.cpp:7433
+GetCanChangeHyperModeInHyperModeState	CX2GUUser	1	7	D0c-1	X2Lib/X2GUAra.cpp:6387 X2Lib/X2GUAra.cpp:6486 X2Lib/X2GUAra.cpp:6614 X2Lib/X2GUAra.cpp:6837
+GetChargeMpStateID	CX2GUUser	1	2	D0c-1	X2Lib/X2GUUser.cpp:41528 X2Lib/X2Game.cpp:12266
+GetComboXStateID	CX2GUUser	1	5	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23948 X2Lib/X2GUArme_VioletMage.cpp:35870 X2Lib/X2GUArme_VioletMage.cpp:35994 X2Lib/X2GUUser.cpp:23596
+GetDamageAirDownLanding	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:8589
+GetDamageDownLandBack	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:8589
+GetDamageDownLandFront	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:8589
+GetDashEndStateID	CX2GUUser	1	1	D0c-1	X2Lib/X2Game.cpp:12268
+GetDashStateID	CX2GUUser	1	1	D0c-1	X2Lib/X2Game.cpp:12265
+GetFutureStateID	CX2GUUser	1	6	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30474 X2Lib/X2GUUser.cpp:15960 X2Lib/X2GUUser.cpp:15983 X2Lib/X2GUUser.cpp:16369
+GetFutureStateSkillID	CX2GUUser	1	19	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36520 X2Lib/X2GUArme_VioletMage.cpp:36525 X2Lib/X2GUUser.cpp:15911 X2Lib/X2Game.cpp:12275
+GetGrap	CX2GUUser	1	2	D0c-1	X2Lib/X2GUUser.cpp:21269 X2Lib/X2GUUser.cpp:21310
+GetHandleCommonMinorParticleByEnum	CX2GUUser	1	6	D0c-1	X2Lib/X2GuEve.cpp:44378 X2Lib/X2GuEve.cpp:44379 X2Lib/X2GuEve.cpp:44411 X2Lib/X2GuEve.cpp:44422
+GetHyperModeCount	CX2GUUser	1	2	D0c-1	X2Lib/X2GUUser.cpp:17165 X2Lib/X2GUUser.cpp:17196
+GetIsRight	CX2GUUser	1	105	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23607 X2Lib/X2GUArme_VioletMage.cpp:24129 X2Lib/X2GUArme_VioletMage.cpp:24144 X2Lib/X2GUArme_VioletMage.cpp:24168
+GetJumpDownStateID	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:41530
+GetLandPos	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:26186 X2Lib/X2GUArme_VioletMage.cpp:35952
+GetLandPosition	CX2GUUser	1	10	D0c-1	X2Lib/X2GUUser.cpp:9592 X2Lib/X2GuEve.cpp:37982 X2Lib/X2GuEve.cpp:38006 X2Lib/X2GuEve.cpp:38030
+GetLastTouchLineIndex	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:25118 X2Lib/X2GUUser.cpp:22316
+GetManaRecoveryTime	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:37972
+GetManaRecoveryVal	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:37980
+GetNowFrameData	CX2GUUser	1	2	D0c-1	X2Lib/X2Game.cpp:12262 X2Lib/X2Game.cpp:12389
+GetNowMPChange	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:37980
+GetOriginalMPChangeRate	CX2GUUser	1	5	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22581 X2Lib/X2GUArme_VioletMage.cpp:22857 X2Lib/X2GUArme_VioletMage.cpp:36776 X2Lib/X2GUArme_VioletMage.cpp:36816
+GetRandomFloat	CX2GUUser	1	43	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23788 X2Lib/X2GUArme_VioletMage.cpp:24812 X2Lib/X2GUArme_VioletMage.cpp:30273 X2Lib/X2GUArme_VioletMage.cpp:37362
+GetRandomInt	CX2GUUser	1	8	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23129 X2Lib/X2GUArme_VioletMage.cpp:23211 X2Lib/X2GUArme_VioletMage.cpp:34886 X2Lib/X2GUArme_VioletMage.cpp:35092
+GetRidingStartStateID	CX2GUUser	1	2	D0c-1	X2Lib/X2GUUser.cpp:7933 X2Lib/X2GUUser.cpp:31529
+GetRidingWaitStateID	CX2GUUser	1	1	D0c-1	X2Lib/X2DungeonGame.cpp:1019
+GetSkillLevelValue	CX2GUUser	1	1	D0c-1	X2Lib/X2GUAdd.cpp:9279
+GetSkillSlotIndexUsed	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28357 X2Lib/X2GuEve.cpp:44181
+GetStatAtkRateOfSummoned	CX2GUUser	1	27	D0c-1	X2Lib/X2GuEve.cpp:40041 X2Lib/X2GuEve.cpp:40199 X2Lib/X2GuEve.cpp:40334 X2Lib/X2GuEve.cpp:41057
+GetStateList	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:36
+GetStateparam	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:49818
+GetUnit	CX2GUUser	1	394	D0c-1	X2Lib/X2GUAra.cpp:3956 X2Lib/X2GUAra.cpp:3957 X2Lib/X2GUArme_VioletMage.cpp:23106 X2Lib/X2GUArme_VioletMage.cpp:23110
+GetUnitClass	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:24849
+GetUnitUID	CX2GUUser	1	49	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29506 X2Lib/X2GUArme_VioletMage.cpp:36032 X2Lib/X2GUArme_VioletMage.cpp:36472 X2Lib/X2GUArme_VioletMage.cpp:36964
+GetWalkStateID	CX2GUUser	1	1	D0c-1	X2Lib/X2Game.cpp:12264
+InitStateCommonRandom	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:31904 X2Lib/X2GuEve.cpp:51235
+InitializeGUUserMajorParticleArray	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28560
+IsHyperState	CX2GUUser	1	10	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28367 X2Lib/X2GUArme_VioletMage.cpp:31084 X2Lib/X2GUArme_VioletMage.cpp:35349 X2Lib/X2GUArme_VioletMage.cpp:36063
+IsOnSomethingFuture	CX2GUUser	1	248	D0c-1	X2Lib/X2BuffTemplet.cpp:2290 X2Lib/X2BuffTemplet.cpp:2306 X2Lib/X2GUArme_VioletMage.cpp:21575 X2Lib/X2GUArme_VioletMage.cpp:21647
+IsSuperArmor	CX2GUUser	1	7	D0c-1	X2Lib/X2GUUser.cpp:9614 X2Lib/X2GUUser.cpp:13682 X2Lib/X2GUUser.cpp:13691 X2Lib/X2GUUser.cpp:13825
+IsTransformed	CX2GUUser	1	18	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:21879 X2Lib/X2GUArme_VioletMage.cpp:22330 X2Lib/X2GUArme_VioletMage.cpp:24417 X2Lib/X2GUArme_VioletMage.cpp:24730
+IsValideSlotChange	CX2GUUser	1	3	D0c-1	X2Lib/X2SkillTree.cpp:1768 X2Lib/X2SkillTree.cpp:4489 X2Lib/X2UISkillTreeNew2015.cpp:5336
+LevelCorrectionExtraDamage	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:11930
+PlayAnimationWaitStart	CX2GUUser	1	4	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:21552 X2Lib/X2GUArme_VioletMage.cpp:21561 X2Lib/X2GuEve.cpp:35398 X2Lib/X2GuEve.cpp:35411
+PlayCommonBuffMinorParticle	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28344 X2Lib/X2GuEve.cpp:44172
+ResetMPChangeRate	CX2GUUser	1	6	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22586 X2Lib/X2GUArme_VioletMage.cpp:22857 X2Lib/X2GUArme_VioletMage.cpp:36776 X2Lib/X2GUArme_VioletMage.cpp:36816
+ResetOnSomethingFuture	CX2GUUser	1	3	D0c-1	X2Lib/X2GUUser.cpp:13602 X2Lib/X2GUUser.cpp:13699 X2Lib/X2GUUser.cpp:13833
+Send_SKILL_USE_REQ	CX2GUUser	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30378 X2Lib/X2GuEve.cpp:46232
+SetChangeGroggyState	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:45374
+SetCustomAnimName	CX2GUUser	1	2	D0c-1	X2Lib/X2GUUser.cpp:15773 X2Lib/X2GUUser.cpp:16530
+SetGrapStateID	CX2GUUser	1	4	D0c-1	X2Lib/X2GUUser.cpp:13709 X2Lib/X2GUUser.cpp:13715 X2Lib/X2GUUser.cpp:13724 X2Lib/X2GUUser.cpp:13730
+SetHitNasodWeapon	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:44215
+SetHoldStateID	CX2GUUser	1	5	D0c-1	X2Lib/X2GUUser.cpp:13518 X2Lib/X2GUUser.cpp:13708 X2Lib/X2GUUser.cpp:13714 X2Lib/X2GUUser.cpp:13723
+SetHyperModeCount	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:32911
+SetManaRecoveryTime	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:37979
+SetManaRecoveryVal	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:37978
+SetNoDetonation	CX2GUUser	1	13	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23663 X2Lib/X2GUArme_VioletMage.cpp:23671 X2Lib/X2GUArme_VioletMage.cpp:26316 X2Lib/X2GUArme_VioletMage.cpp:26351
+SetShowEnchantedWeaponEffectAtHand	CX2GUUser	1	1	D0c-1	X2Lib/X2GuEve.cpp:49793
+SetStop2Time	CX2GUUser	1	1	D0c-1	X2Lib/X2GUUser.cpp:10335
+SetUnitReForm	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:37436
+SetUseChangeWeapon	CX2GUUser	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:31013 X2Lib/X2GUArme_VioletMage.cpp:37446 X2Lib/X2GUArme_VioletMage.cpp:37506
+ShowMinorParticleHyperModeChange	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23736
+ShowMinorParticleHyperModeShock	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23754
+ShowMinorParticleHyperModeTrace	CX2GUUser	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23767 X2Lib/X2GUArme_VioletMage.cpp:29255 X2Lib/X2GUUser.cpp:25923
+StateChangeDashIfPossible	CX2GUUser	1	47	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:21593 X2Lib/X2GUArme_VioletMage.cpp:21665 X2Lib/X2GUArme_VioletMage.cpp:21787 X2Lib/X2GUArme_VioletMage.cpp:21927
+UpdateNotRenderingOtherEquipList	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:37550
+UpdateWeaponEnchantEffectAndExtraDamageType	CX2GUUser	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28251
+CSkillCreateSkillDataBasePtr	CX2GUUser::CSkillDataBase	1	1	D0c-1	X2Lib/X2GuEve.cpp:56618
+IsEndCoolTime	CX2GUUser::CSkillDataBase	1	2	D0c-1	X2Lib/X2GuEve.cpp:45849 X2Lib/X2GuEve.cpp:50138
+ResetTimerBasedOnCoolTime	CX2GUUser::CSkillDataBase	1	1	D0c-1	X2Lib/X2GuEve.cpp:46405
+SetTimerBasedOnCoolTime	CX2GUUser::CSkillDataBase	1	2	D0c-1	X2Lib/X2GuEve.cpp:45858 X2Lib/X2GuEve.cpp:56620
+GetCoolTime	CX2GUUser::CSkillDataBase|CX2Item::ItemTemplet|KItemFormatTemplet	3	2	D0c-1	X2Lib/X2GuEve.cpp:45858 X2Lib/X2GuEve.cpp:56620
+SetCoolTime	CX2GUUser::CSkillDataBase|KItemFormatTemplet	2	1	D0c-1	X2Lib/X2GuEve.cpp:56619
+GetUnit	CX2GUUser|CX2Game|CX2Room::SlotData|CX2SquareUnit|CX2UnitViewerUI	5	114	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:1475 X2Lib/X2BuffBehaviorTemplet.cpp:1480 X2Lib/X2BuffBehaviorTemplet.cpp:1592 X2Lib/X2BuffBehaviorTemplet.cpp:1595
+GetUnitClass	CX2GUUser|CX2Item::ItemTemplet|CX2SkillNoteManager|CX2TitleManager|CX2UserSkillTree|KItemFormatTemplet	6	7	D0c-1	X2Lib/Offline/Handlers_Shop.cpp:632 X2Lib/Offline/Handlers_Shop.cpp:633 X2Lib/X2ItemManager.cpp:476 X2Lib/X2Unit.cpp:1464
+GetSetItemOptions	CX2GUUser|CX2Item::KItemFormatSetItemData|CX2ItemManager|KItemFormatSetItemData	4	2	D0c-1	X2Lib/X2Unit.cpp:1425 X2Lib/X2Unit.cpp:1632
+SetScriptFileName	CX2GUUser|CX2SquareUnit	2	2	D0c-1	X2Lib/X2State.cpp:9636 X2Lib/X2State.cpp:9649
+GetNowEmotionId	CX2GUUser|CX2SquareUnit|CX2UnitViewerUI	3	2	D0c-1	X2Lib/X2EffectSet.cpp:348 X2Lib/X2EffectSet.cpp:353
+GetActivateForceDown	CX2GageData	1	2	D0c-1	X2Lib/X2GUNPC.cpp:17816 X2Lib/X2GUUser.cpp:45356
+SetCanChargeMpForDetonation	CX2GageData	1	3	D0c-1	X2Lib/X2GUUser.cpp:14119 X2Lib/X2GUUser.cpp:22703 X2Lib/X2GUUser.cpp:22707
+UpNowForceDown	CX2GageData	1	1	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:4353
+GetMyGageData	CX2GageManager	1	3	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2110 X2Lib/X2RandomMission.cpp:713 X2Lib/X2State.cpp:4101
+GetGageData	CX2GageManager::CX2GageSet|CX2GameUnit	2	8	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2954 X2Lib/X2BuffBehaviorTemplet.cpp:3210 X2Lib/X2BuffBehaviorTemplet.cpp:4342 X2Lib/X2GUArme_VioletMage.cpp:29508
+ClearBuffList	CX2GageManager|CX2GageUI	2	1	D0c-1	X2Lib/X2GameUnit.cpp:16611
+EraseBuff	CX2GageManager|CX2GageUI	2	2	D0c-1	X2Lib/X2PremiumBuffManager.cpp:531 X2Lib/X2PremiumBuffManager.cpp:741
+PushBuff	CX2GageManager|CX2GageUI	2	1	D0c-1	X2Lib/X2PremiumBuffManager.cpp:786
+ResetGageUIEtc	CX2GageManager|CX2MyGageUI	2	1	D0c-1	X2Lib/X2State.cpp:9341
+SetCharacterImage	CX2GageManager|CX2MyGageUI|CX2PVPPlayerGageUI|CX2PartyMemberGageUI	4	3	D0c-1	X2Lib/X2State.cpp:4102 X2Lib/X2State.cpp:9268 X2Lib/X2State.cpp:9339
+AbsorbEffectAttackProcess	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:9608
+ChangeBuffFinalizerTempletPtrList	CX2GameUnit	1	9	D0c-1	X2Lib/X2GameEdit.cpp:665 X2Lib/X2GameUnit.cpp:14509 X2Lib/X2GuEve.cpp:46004 X2Lib/X2GuEve.cpp:46019
+ClearHitUnitList_LUA	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35464
+CureExtraDamage	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:37995
+DieDamageEffectProc	CX2GameUnit	1	1	D0c-1	X2Lib/X2DamageEffect.cpp:2373
+DoDelegateProcessInAttackResult	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUNPC.cpp:14707
+EraseBuffTempletFromGameUnit	CX2GameUnit	1	22	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28230 X2Lib/X2GUArme_VioletMage.cpp:28231 X2Lib/X2GUArme_VioletMage.cpp:35541 X2Lib/X2GUEL.cpp:6439
+EraseChangeAttackByType	CX2GameUnit	1	2	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:3379 X2Lib/X2BuffBehaviorTemplet.cpp:3427
+EraseFreezeByBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2950
+GetAbsoluteInvisibility	CX2GameUnit	1	16	D0c-1	X2Lib/X2GuEve.cpp:35928 X2Lib/X2GuEve.cpp:36264 X2Lib/X2GuEve.cpp:36446 X2Lib/X2GuEve.cpp:38836
+GetAddSkillLevelByBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2Unit.cpp:5222
+GetAdditionalDefence	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUNPC.cpp:11015 X2Lib/X2GUUser.cpp:10901
+GetAfterImage	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30911
+GetAllyTeam	CX2GameUnit	1	1	D0c-1	X2Lib/X2Game.cpp:7017
+GetAnimSpeedValue	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageEffect.cpp:3259 X2Lib/X2GUNPC.cpp:30310
+GetAntiCritialRate	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:2612
+GetAppliedBuffCount	CX2GameUnit	1	4	D0c-1	X2Lib/X2BuffFinalizerTemplet.cpp:2114 X2Lib/X2BuffFinalizerTemplet.cpp:2117 X2Lib/X2BuffFinalizerTemplet.cpp:2244 X2Lib/X2BuffFinalizerTemplet.cpp:2247
+GetAttackListSet	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageManager.cpp:2518 X2Lib/X2DamageManager.cpp:2696
+GetBuffFactorList	CX2GameUnit	1	1	D0c-1	X2Lib/X2DamageManager.cpp:4870
+GetBuffFinalizerTempletPtrList	CX2GameUnit	1	10	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35356 X2Lib/X2GameEdit.cpp:658 X2Lib/X2GameUnit.cpp:14488 X2Lib/X2GameUnit.cpp:14502
+GetChangeDamageType	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:42760
+GetCollisionListSet	CX2GameUnit	1	11	D0c-1	X2Lib/X2BuffTemplet.cpp:1973 X2Lib/X2DamageEffect.cpp:9143 X2Lib/X2DamageEffect.cpp:9181 X2Lib/X2DamageManager.cpp:2603
+GetCombineMatrixFromRidingPetBoneName	CX2GameUnit	1	1	D0c-1	X2Lib/X2EffectSet.cpp:5683
+GetCombineMatrixFromWeaponBoneName	CX2GameUnit	1	1	D0c-1	X2Lib/X2EffectSet.cpp:5678
+GetCriticalValue	CX2GameUnit	1	2	D0c-1	X2Lib/X2GameUnit.cpp:2654 X2Lib/X2GameUnit.cpp:2674
+GetDashJumpSpeed	CX2GameUnit	1	7	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:22051 X2Lib/X2GUArme_VioletMage.cpp:22191 X2Lib/X2GuEve.cpp:35764 X2Lib/X2GuEve.cpp:35985
+GetDistanceFrom	CX2GameUnit	1	1	D0c-1	X2Lib/X2GuEve.cpp:47349
+GetEnableDash	CX2GameUnit	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:21745 X2Lib/X2GUArme_VioletMage.cpp:21802 X2Lib/X2GuEve.cpp:35352
+GetEnchantResist	CX2GameUnit	1	11	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:325 X2Lib/X2BuffBehaviorTemplet.cpp:638 X2Lib/X2BuffBehaviorTemplet.cpp:678 X2Lib/X2BuffBehaviorTemplet.cpp:1267
+GetExtraDamagePack	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:3058
+GetForceInvincible	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUUser.cpp:21172 X2Lib/X2GameUnit.cpp:19830
+GetGageData	CX2GameUnit	1	34	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28280 X2Lib/X2GUNPC.cpp:9301 X2Lib/X2GUNPC.cpp:9306 X2Lib/X2GUNPC.cpp:17816
+GetGameUnitType	CX2GameUnit	1	141	D0c-1	X2Lib/X2AllyNPCAI.cpp:213 X2Lib/X2BuffBehaviorTemplet.cpp:1472 X2Lib/X2BuffBehaviorTemplet.cpp:1589 X2Lib/X2BuffBehaviorTemplet.cpp:2960
+GetHitCount	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUNPC.cpp:14884 X2Lib/X2GUNPC.cpp:14888
+GetHitCreateDamageEffectPowerRate	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageEffect.cpp:5399 X2Lib/X2GUUser.cpp:14953
+GetHittedCount	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUNPC.cpp:11289 X2Lib/X2GUUser.cpp:10541
+GetJumpSpeed	CX2GameUnit	1	21	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:21726 X2Lib/X2GUArme_VioletMage.cpp:22242 X2Lib/X2GUArme_VioletMage.cpp:22243 X2Lib/X2GUArme_VioletMage.cpp:23399
+GetMagicAttackValue	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:2508
+GetNumOfBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:16598
+GetNumOfDeBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:16598
+GetOrgUnitSize	CX2GameUnit	1	8	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35745 X2Lib/X2GUArme_VioletMage.cpp:35745 X2Lib/X2GUArme_VioletMage.cpp:37587 X2Lib/X2GUArme_VioletMage.cpp:37587
+GetPhysicAttackValue	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:2507
+GetScale	CX2GameUnit	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36506 X2Lib/X2GUArme_VioletMage.cpp:36506 X2Lib/X2GUArme_VioletMage.cpp:36506
+GetShowSmallGageAndName	CX2GameUnit	1	1	D0c-1	X2Lib/X2GuEve.cpp:44441
+GetSizeOfPairSubAttackListSet	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageManager.cpp:2523 X2Lib/X2DamageManager.cpp:2701
+GetSkillRelatedData	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30918
+GetSocketData	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUUser.cpp:26469 X2Lib/X2GUUser.cpp:26469
+GetStat	CX2GameUnit	1	4	D0c-1	X2Lib/X2GuEve.cpp:56574 X2Lib/X2GuEve.cpp:56574 X2Lib/X2GuEve.cpp:56676 X2Lib/X2GuEve.cpp:56676
+GetSubAttackListGetFromPair	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageManager.cpp:2527 X2Lib/X2DamageManager.cpp:2705
+GetSubAttackListSet	CX2GameUnit	1	2	D0c-1	X2Lib/X2DamageManager.cpp:2520 X2Lib/X2DamageManager.cpp:2698
+GetTeam	CX2GameUnit	1	61	D0c-1	X2Lib/X2DamageEffect.cpp:4030 X2Lib/X2DamageEffect.cpp:4079 X2Lib/X2DamageEffect.cpp:4092 X2Lib/X2DamageEffect.cpp:4103
+GetTemporaryBuffFactorList	CX2GameUnit	1	1	D0c-1	X2Lib/X2DamageManager.cpp:4881
+GetUnitIndex	CX2GameUnit	1	2	D0c-1	X2Lib/X2BuffTemplet.cpp:1860 X2Lib/X2BuffTemplet.cpp:1861
+GetUnitLevel	CX2GameUnit	1	16	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:1338 X2Lib/X2DungeonGame.cpp:187 X2Lib/X2DungeonGame.cpp:188 X2Lib/X2GameUnit.cpp:13220
+GetUnitUID	CX2GameUnit	1	20	D0c-1	X2Lib/X2GUNPC.cpp:2034 X2Lib/X2GUNPC.cpp:10487 X2Lib/X2GUNPC.cpp:13941 X2Lib/X2GUNPC.cpp:16469
+HyperModeBuffEffectOnFrameMove	CX2GameUnit	1	1	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:1966
+InsertDelegateProcessToAttackResult	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36963 X2Lib/X2GUNPC.cpp:2941
+IsDamagedReaction	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:14122
+IsFullHyperMode	CX2GameUnit	1	3	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2012 X2Lib/X2BuffBehaviorTemplet.cpp:2078 X2Lib/X2GUUser.cpp:17195
+IsNullGageUI	CX2GameUnit	1	1	D0c-1	X2Lib/X2GuEve.cpp:49811
+MakeEffectSetBeDeletedWhenDie	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36683
+OnCameraMove	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:8082
+PlaySequenceByTriggerCount	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23605
+PlaySequenceByTriggerTime	CX2GameUnit	1	7	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23616 X2Lib/X2GUArme_VioletMage.cpp:24125 X2Lib/X2GUArme_VioletMage.cpp:24135 X2Lib/X2GUArme_VioletMage.cpp:24608
+RemoveVecMoveSpeedFactor	CX2GameUnit	1	1	D0c-1	X2Lib/X2GuEve.cpp:49799
+SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID	CX2GameUnit	1	2	D0c-1	X2Lib/X2BuffTemplet.cpp:2448 X2Lib/X2GameUnit.cpp:14179
+SetCanNotInputTime_LUA	CX2GameUnit	1	4	D0c-1	X2Lib/X2DungeonGame.cpp:244 X2Lib/X2Game.cpp:12560 X2Lib/X2SkillTree.cpp:3265 X2Lib/X2SkillTree.cpp:4553
+SetFullHyperMode	CX2GameUnit	1	2	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:2013 X2Lib/X2BuffBehaviorTemplet.cpp:2079
+SetHitCount	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUNPC.cpp:14884 X2Lib/X2GUNPC.cpp:14888
+SetHitCreateDamageEffectPowerRate	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36911
+SetHitCreateDamageEffectRate	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:36910
+SetHittedCount	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUNPC.cpp:11289 X2Lib/X2GUUser.cpp:10541
+SetMaxMp	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:34463
+SetNumOfBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:16598
+SetNumOfDeBuff	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:16598
+SetRemainHyperModeTime	CX2GameUnit	1	4	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:1965 X2Lib/X2BuffBehaviorTemplet.cpp:2020 X2Lib/X2BuffBehaviorTemplet.cpp:2086 X2Lib/X2BuffBehaviorTemplet.cpp:2114
+SetShowGage	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUNPC.cpp:30248
+SetStatUpBufferBySocketItem	CX2GameUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:37962
+SetSubAttackList	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29299 X2Lib/X2GUArme_VioletMage.cpp:29671
+SetUseWorldColor	CX2GameUnit	1	2	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:35552 X2Lib/X2GUArme_VioletMage.cpp:37411
+UnSetSpecificValueByBuffTempletID	CX2GameUnit	1	1	D0c-1	X2Lib/X2GameUnit.cpp:16599
+UpNowDPValue	CX2GameUnit	1	1	D0c-1	X2Lib/X2Game.cpp:7430
+UpNowMp	CX2GameUnit	1	18	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:23808 X2Lib/X2GUArme_VioletMage.cpp:30215 X2Lib/X2GUArme_VioletMage.cpp:30280 X2Lib/X2GUUser.cpp:41677
+UpdatePassiveAndActiveSkillState	CX2GameUnit	1	3	D0c-1	X2Lib/X2PremiumBuffManager.cpp:611 X2Lib/X2Room.cpp:1700 X2Lib/X2Room.cpp:1722
+Init_ZXArrowOnly	CX2GameUnit::InputData	1	1	D0c-1	X2Lib/X2GuEve.cpp:45325
+GetForceDownValueRateOfMeleeAttack	CX2GameUnit::SkillRelatedData	1	1	D0c-1	X2Lib/X2GUUser.cpp:39342
+AppendEnchantParticleForSwordToDeviceList	CX2GameUnit::Weapon	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28859
+GetOwnerUnit	CX2GameUnit::Weapon	1	1	D0c-1	X2Lib/X2GameUnit.cpp:11418
+InitEnchantParticleForSword	CX2GameUnit::Weapon	1	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:28306
+SetEnchantParticleShow	CX2GameUnit::Weapon	1	1	D0c-1	X2Lib/X2GuEve.cpp:49796
+GetDashJumpSpeed	CX2GameUnit|CX2GameUnit::PhysicParam|CX2PET::PhysicParam	3	4	D0c-1	X2Lib/X2GuEve.cpp:42453 X2Lib/X2GuEve.cpp:42611 X2Lib/X2GuEve.cpp:42757 X2Lib/X2GuEve.cpp:42939
+GetJumpSpeed	CX2GameUnit|CX2GameUnit::PhysicParam|CX2PET::PhysicParam	3	8	D0c-1	X2Lib/X2GuEve.cpp:42800 X2Lib/X2GuEve.cpp:42801 X2Lib/X2GuEve.cpp:42813 X2Lib/X2GuEve.cpp:42814
+GetStat	CX2GameUnit|CX2Item|CX2Item::ItemTemplet|CX2Stat	4	10	D0c-1	X2Lib/X2BuffFactor.cpp:1132 X2Lib/X2BuffFactor.cpp:1132 X2Lib/X2GuEve.cpp:56574 X2Lib/X2GuEve.cpp:56574
+AddForceDownGage	CX2GameUnit|CX2OldGageManager	2	1	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:34736
+GetSocketData	CX2GameUnit|CX2SocketItem	2	25	D0c-1	X2Lib/X2GUUser.cpp:29558 X2Lib/X2GUUser.cpp:29588 X2Lib/X2GUUser.cpp:37959 X2Lib/X2GUUser.cpp:37975
+GetEquippingItemByEquipPos	CX2Inventory	1	1	D0c-1	X2Lib/X2GameUnit.cpp:3772
+GetItem	CX2Inventory	1	1	D0c-1	X2Lib/X2Inventory.cpp:263
+GetNumItemByTID	CX2Inventory	1	3	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30555 X2Lib/X2GuEve.cpp:46539 X2Lib/X2UIQuestNewJune.cpp:475
+GetShopImage	CX2Item::ItemTemplet|CX2Item::KItemFormatTemplet|KItemFormatTemplet	3	1	D0c-1	X2Lib/X2UIDungeonResultAdapter.cpp:117
+GetSpecialAbility	CX2Item::ItemTemplet|CX2Item::KItemFormatTemplet|KItemFormatTemplet	3	2	D0c-1	X2Lib/X2Game.cpp:12349 X2Lib/X2ItemManager.cpp:490
+GetAddMaxMP	CX2Item::ItemTemplet|KItemFormatTemplet	2	1	D0c-1	X2Lib/X2Inventory.cpp:1202
+GetBuyPvpRankCondition	CX2Item::ItemTemplet|KItemFormatTemplet	2	2	D0c-1	X2Lib/X2ItemManager.cpp:499 X2Lib/X2ItemManager.cpp:501
+GetEqipPosition	CX2Item::ItemTemplet|KItemFormatTemplet	2	8	D0c-1	X2Lib/X2Eqip.cpp:2295 X2Lib/X2Eqip.cpp:2295 X2Lib/X2Eqip.cpp:2564 X2Lib/X2Eqip.cpp:2564
+GetItemGrade	CX2Item::ItemTemplet|KItemFormatTemplet	2	2	D0c-1	X2Lib/X2UIDungeonResultAdapter.cpp:556 X2Lib/X2UIDungeonResultAdapter.cpp:556
+GetItemType	CX2Item::ItemTemplet|KItemFormatTemplet	2	2	D0c-1	X2Lib/Offline/X2OfflineInventory.cpp:163 X2Lib/X2ItemManager.cpp:478
+GetUseLevel	CX2Item::ItemTemplet|KItemFormatTemplet	2	5	D0c-1	X2Lib/X2ItemStatCalculator.cpp:293 X2Lib/X2Unit.cpp:1478 X2Lib/X2Unit.cpp:1478 X2Lib/X2Unit.cpp:1659
+GetStateID	CX2RidingPet	1	1	D0c-1	X2Lib/X2RidingPet.cpp:1070
+GetUserInfo	CX2RidingPet	1	1	D0c-1	X2Lib/X2RidingPet.cpp:196
+GetXSkinAnimFuturePtr	CX2RidingPet	1	2	D0c-1	X2Lib/X2GUUser.cpp:44351 X2Lib/X2GUUser.cpp:44352
+SetPos	CX2RidingPet	1	1	D0c-1	X2Lib/X2RidingPet.cpp:197
+GetHasRidingPet	CX2RidingPetManager	1	1	D0c-1	X2Lib/X2StateMenu.cpp:5502
+GetMyRidingPet	CX2RidingPetManager	1	1	D0c-1	X2Lib/X2Unit.cpp:1528
+GetRidingOnState	CX2RidingPetManager	1	2	D0c-1	X2Lib/X2Game.cpp:6044 X2Lib/X2UIPetInfo.cpp:938
+GetRidingPetPtr	CX2RidingPetManager	1	1	D0c-1	X2Lib/X2SquareUnit.cpp:1176
+GetRidingPetTemplet	CX2RidingPetManager	1	1	D0c-1	X2Lib/X2Unit.cpp:1532
+UpdateSkillSlotString	CX2RidingPetSkillSlot|CX2UISkillTree|CX2UISkillTreeNew	3	1	D0c-1	X2Lib/X2State.cpp:9309
+GetPlanRender	CX2SquareUnit	1	1	D0c-1	X2Lib/X2RidingPet.cpp:256
+GetRidingOn	CX2SquareUnit	1	1	D0c-1	X2Lib/X2SquareUnit.cpp:1174
+GetSquareUnitScriptFileName	CX2SquareUnit	1	2	D0c-1	X2Lib/X2State.cpp:9636 X2Lib/X2State.cpp:9649
+GetStateID	CX2SquareUnit	1	1	D0c-1	X2Lib/X2SquareUnit.cpp:460
+GetUnit	CX2SquareUnit	1	1	D0c-1	X2Lib/X2SquareUnit.cpp:918
+InitViewer	CX2SquareUnit	1	2	D0c-1	X2Lib/X2State.cpp:9638 X2Lib/X2State.cpp:9651
+InitWaitMotion	CX2SquareUnit	1	2	D0c-1	X2Lib/X2State.cpp:9640 X2Lib/X2State.cpp:9653
+StateEnd	CX2SquareUnit	1	1	D0c-1	X2Lib/X2GUUser.cpp:7232
+GetUnitViewer	CX2SquareUnit|CX2StateBeginning|CX2StateServerSelect	3	6	D0c-1	X2Lib/X2EffectSet.cpp:5692 X2Lib/X2EffectSet.cpp:5692 X2Lib/X2EffectSet.cpp:5694 X2Lib/X2EffectSet.cpp:7013
+GetNickName	CX2SquareUnit|CX2Unit	2	2	D0c-1	X2Lib/X2UIDungeonResultAdapter.cpp:395 X2Lib/X2UIDungeonResultAdapter.cpp:407
+AccessInventory	CX2Unit	1	1	D0c-1	X2Lib/X2SkillTree.cpp:3590
+AccessUnitData	CX2Unit	1	39	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29373 X2Lib/X2GUArme_VioletMage.cpp:30200 X2Lib/X2GUArme_VioletMage.cpp:30410 X2Lib/X2GUArme_VioletMage.cpp:35401
+AddClearDungeon	CX2Unit	1	1	D0c-1	X2Lib/X2UIDungeonResultAdapter.cpp:1086
+ClearNewlyOpenedDungeonAtLocalMap	CX2Unit	1	1	D0c-1	X2Lib/X2LocalMapUI.cpp:1596
+GetClass	CX2Unit	1	84	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:24001 X2Lib/X2GUArme_VioletMage.cpp:24021 X2Lib/X2GUArme_VioletMage.cpp:24021 X2Lib/X2GUArme_VioletMage.cpp:24282
+GetFashionEqipNum	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1991
+GetFashionEqipUID	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1993
+GetGuildSkillStat	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1782
+GetInventory	CX2Unit	1	17	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:30220 X2Lib/X2GUArme_VioletMage.cpp:30555 X2Lib/X2GUArme_VioletMage.cpp:37538 X2Lib/X2GUArme_VioletMage.cpp:37539
+GetNormalEqipNum	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:2009
+GetNormalEqipUID	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:2011
+GetPetInfo	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1488
+GetPrevLevel	CX2Unit	1	1	D0c-1	X2Lib/X2UIQuestNewJune.cpp:567
+GetPvpRank	CX2Unit	1	1	D0c-1	X2Lib/X2GUUser.cpp:28625
+GetRecentEnterDungeonID	CX2Unit	1	1	D0c-1	X2Lib/X2PartyUI.cpp:1852
+GetRidingPetInfo	CX2Unit	1	1	D0c-1	X2Lib/X2GUUser.cpp:31528
+GetSetIDNPartsNum	CX2Unit	1	2	D0c-1	X2Lib/X2Unit.cpp:1420 X2Lib/X2Unit.cpp:1628
+GetSkillStat	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1780
+GetTitleId	CX2Unit	1	3	D0c-1	X2Lib/X2GUUser.cpp:38231 X2Lib/X2TitleManager.cpp:2142 X2Lib/X2TitleManager.cpp:2259
+GetType	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1260
+GetUID	CX2Unit	1	6	D0c-1	X2Lib/X2Unit.cpp:1498 X2Lib/X2Unit.cpp:1554 X2Lib/X2Unit.cpp:1775 X2Lib/X2Unit.cpp:1794
+GetUnitData	CX2Unit	1	202	D0c-1	X2Lib/X2BuffBehaviorTemplet.cpp:1480 X2Lib/X2BuffBehaviorTemplet.cpp:1595 X2Lib/X2BuffTemplet.cpp:2325 X2Lib/X2DamageManager.cpp:102
+GetUnitTemplet	CX2Unit	1	1	D0c-1	X2Lib/X2Unit.cpp:1260
+IsClearDungeon	CX2Unit	1	1	D0c-1	X2Lib/X2UIDungeonResultAdapter.cpp:1085
+IsNewlyOpenedDungeon	CX2Unit	1	1	D0c-1	X2Lib/X2LocalMapUI.cpp:1572
+ResetIncreaseSkillLevelBySocket	CX2Unit	1	3	D0c-1	X2Lib/X2PremiumBuffManager.cpp:814 X2Lib/X2SkillTree.cpp:4579 X2Lib/X2Unit.cpp:1580
+GetNPCUnitTemplet	CX2UnitManager	1	1	D0c-1	X2Lib/X2GUUser.cpp:23101
+GetUnitTemplet	CX2UnitManager	1	1	D0c-1	X2Lib/X2UnitManager.cpp:267
+GetUnitTemplet	CX2Unit|CX2UnitManager	2	48	D0c-1	X2Lib/X2BuffTemplet.cpp:2152 X2Lib/X2BuffTemplet.cpp:2154 X2Lib/X2EmblemManager.cpp:441 X2Lib/X2EmblemManager.cpp:1507
+AddSkillUnsealed	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2SkillTree.cpp:3162
+CalcUsedSPointAndCSPoint	CX2UserSkillTree	1	2	D0c-1	X2Lib/X2StateMenu.cpp:5513 X2Lib/X2UISkillTreeNew2015.cpp:4702
+ConstructGuildSkillTreeNotMyUnit	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2Room.cpp:1666
+ConstructSkillTreeNotMyUnit	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2Room.cpp:1667
+GetCashSkillPoint	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:5259
+GetEnabledSkillSlotB	CX2UserSkillTree	1	3	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:3320 X2Lib/X2UISkillTreeNew2015.cpp:3471 X2Lib/X2UserSkillTree.cpp:2635
+GetOpenedPage	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:3594
+GetSelectPage	CX2UserSkillTree	1	4	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:338 X2Lib/X2UISkillTreeNew2015.cpp:3595 X2Lib/X2UISkillTreeNew2015.cpp:5349 X2Lib/X2UISkillTreeNew2015.cpp:5353
+GetSkillPoint	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:5258
+GetUsingPage	CX2UserSkillTree	1	4	D0c-1	X2Lib/X2State.cpp:9360 X2Lib/X2UISkillTreeNew2015.cpp:337 X2Lib/X2UISkillTreeNew2015.cpp:1133 X2Lib/X2UISkillTreeNew2015.cpp:5349
+SetEqipSkillMemo	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2Room.cpp:1674
+SetOpenedPage	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2SkillTree.cpp:4407
+SetSelectPage	CX2UserSkillTree	1	4	D0c-1	X2Lib/X2SkillTree.cpp:4532 X2Lib/X2UISkillTreeNew2015.cpp:1133 X2Lib/X2UISkillTreeNew2015.cpp:5257 X2Lib/X2UISkillTreeNew2015.cpp:5342
+SetSkillCoolTimeLeft	CX2UserSkillTree	1	18	D0c-1	X2Lib/X2GUArme_VioletMage.cpp:29388 X2Lib/X2GUArme_VioletMage.cpp:30249 X2Lib/X2GUArme_VioletMage.cpp:35403 X2Lib/X2GuEve.cpp:46338
+SetSkillLevelAndCSP	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:365
+SetUnsealedSkill	CX2UserSkillTree	1	2	D0c-1	X2Lib/X2State.cpp:9283 X2Lib/X2State.cpp:9286
+SetUsingPage	CX2UserSkillTree	1	1	D0c-1	X2Lib/X2SkillTree.cpp:4531
+GetTotalSkillLevel	CX2UserSkillTree::UserSkillData	1	1	D0c-1	X2Lib/X2UserSkillTree.cpp:616
+GetIncreaseSkillLevel	CX2UserSkillTree|CX2UserSkillTree::UserSkillData	2	1	D0c-1	X2Lib/X2UISkillTreeNew2015.cpp:722
+ConvertCharToWCHAR		1	3	D0c-2	X2Lib/X2Game.cpp:6207 X2Lib/X2Game.cpp:6331 X2Lib/X2Game.cpp:6462
+ConvertUtf8ToWCHAR		1	14	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:59 KTDXLIB/KTDGEnvBoxMap.cpp:345 X2Lib/X2GFXEventScene.cpp:614 X2Lib/X2GFXEventScene.cpp:623
+ConvertWCHARToChar		1	24	D0c-2	KTDXLIB/KTDGLineMap.cpp:28 KTDXLIB/KTDGLineMap.cpp:29 KTDXLIB/KTDGLineMap.cpp:3233 KTDXLIB/KTDGLineMap.cpp:3234
+DXUTGetBackBufferSurfaceDesc		1	1	D0c-2	KTDXLIB/KTDGXRenderer.cpp:1420
+DXUTGetDeviceSettings		1	2	D0c-2	KTDXLIB/KTDXApp.cpp:1868 KTDXLIB/KTDXApp.cpp:1896
+DXUTIsWindowed		1	2	D0c-2	KTDXLIB/KTDGStateManager.cpp:660 KTDXLIB/KTDGStateManager.cpp:690
+DeSerialize		1	11	D0c-2	X2Lib/X2RandomMission.cpp:722 X2Lib/X2RandomMission.cpp:733 X2Lib/X2SkillTree.cpp:3480 X2Lib/X2SkillTree.cpp:3553
+DisplayErrorMessage		1	5	D0c-2	X2Lib/X2BuffTempletManager.cpp:138 X2Lib/X2BuffTempletManager.cpp:145 X2Lib/X2BuffTempletManager.cpp:161 X2Lib/X2BuffTempletManager.cpp:639
+GetDirVecToDegree		1	4	D0c-2	KTDXLIB/KTDGLineMap.cpp:3128 X2Lib/X2GUArme_VioletMage.cpp:35749 X2Lib/X2GUUser.cpp:25983 X2Lib/X2GameUnit.cpp:12900
+GetDistance		1	27	D0c-2	KTDXLIB/KTDGObject.h:519 X2Lib/X2BuffTemplet.cpp:1982 X2Lib/X2BuffTemplet.cpp:2027 X2Lib/X2BuffTemplet.cpp:2032
+GetDistance3Sq		1	4	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34729 X2Lib/X2GUArme_VioletMage.cpp:35347 X2Lib/X2GUUser.cpp:40967 X2Lib/X2GuEve.cpp:45517
+GetExpirationDateDesc		1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:4709
+GetFramePos		1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:29610 X2Lib/X2GUArme_VioletMage.cpp:29616
+GetX2UnitClassCompatibility		1	2	D0c-2	X2Lib/X2Unit.cpp:1465 X2Lib/X2Unit.cpp:1654
+IsSamef		1	21	D0c-2	KTDXLIB/KTDGCamera.cpp:152 KTDXLIB/KTDGCamera.cpp:287 KTDXLIB/KTDGCamera.cpp:289 KTDXLIB/KTDGCamera.cpp:313
+MakeUpperCase		1	9	D0c-2	KTDXLIB/KGCMassFileManager.cpp:990 KTDXLIB/KGCMassFileManager.cpp:996 KTDXLIB/KGCMassFileManager.cpp:1008 KTDXLIB/KGCMassFileManager.cpp:1014
+TableBind		1	10	D0c-2	KTDXLIB/KTDGLineMap.cpp:3148 X2Lib/X2ItemManager.cpp:181 X2Lib/X2QuestManager.cpp:3567 X2Lib/X2SkillNoteManager.cpp:306
+_Deserialize		1	4	D0c-2	X2Lib/X2UDPPacket.cpp:346 X2Lib/X2UDPPacket.cpp:433 X2Lib/X2UDPPacket.cpp:440 X2Lib/X2UDPPacket.cpp:447
+_Serialize		1	4	D0c-2	X2Lib/X2UDPPacket.cpp:263 X2Lib/X2UDPPacket.cpp:305 X2Lib/X2UDPPacket.cpp:309 X2Lib/X2UDPPacket.cpp:313
+AddRef	CBandiCaptureLibrary|CBandiVideoFileReader|CBandiVideoLibrary|CBandiVideoSound_DS|CBandiVideoSound_NULL|CBattleFieldData|CBattleFieldMiddleBossInfo|CBattleFieldPortalMovingInfo|CBattleFieldRiskInfo|CKTDGEffectStateManager|CKTDGObject|CNpcCreatedInfo|CX2BuffBehaviorTemplet|CX2BuffDisplayerTemplet|CX2BuffFactor|CX2BuffFinalizerTemplet|CX2BuffIdentity|CX2BuffRenderParamDisplayerTemplet::BuffRenderParam|CX2BuffTemplet|CX2ComboAndSkillChainInfoList|CX2ComboAndSkillChainSystem|CX2GUAra::SLockOnSystem|CX2GUAra::sMoonLightSlashData|CX2GUChung::CFuryGuardianGuardSkill|CX2GUElsword_SwordMan::CElswordGuardSkill|CX2GULire_ElvenRanger::RapidShotData|CX2GURaven::WildChargeData|CX2GUUser::CSkillDataBase|CX2GageData|CX2GageManager::CX2GageSet|CX2GageUI|CX2GameUnit::DamageEffectGroupData|CX2PremiumBuffIcon|CX2PremiumBuffTemplet|KGCMassFileBuffer|KLuaManagerProxyLuaTable|KObserverHandle|KObserverHandle::KObserverPtrAccess	38	5	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:71 KTDXLIB/KTDGDeviceSurfaceManager.cpp:94 KTDXLIB/KTDGDeviceSurfaceManager.cpp:122 KTDXLIB/KTDGDeviceSurfaceManager.cpp:148
+Verify	CBandiCaptureLibrary|CBandiVideoLibrary|CX2AdditionalStatByBuff|CX2BuffIdentity|CX2ComboManager|CX2DamageManager::ExtraDamageData|CX2DropItemManager::DropItemData|CX2GUUser::SyncData|CX2Game|CX2GameUnit|CX2GameUnit::ExtraDamagePack|CX2GameUnit::StateParam|CX2OldGageManager::Gage|CX2RidingPet::RidingPetInfo|CX2RidingPetManager::RidingPetSkillInfo|CX2RidingPetManager::sRidingPetInfo|CX2Stat|CX2Stat::Stat|CX2Unit::UnitData|CX2UserSkillTree::SkillSlotData|KProtectedType|PROTECT_VECTOR2|PROTECT_VECTOR3	23	30	D0c-2	X2Lib/X2GameUnit.cpp:19642 X2Lib/X2GameUnit.cpp:19643 X2Lib/X2GameUnit.cpp:19644 X2Lib/X2GameUnit.cpp:19645
+Start	CBandiCaptureLibrary|CBandiVideoSound_DS|CBandiVideoSound_NULL|CDXUTTimer|CX2DungeonSubStage|CX2IGA|CX2SlideShotScripted|CX2StateDungeonGame::DungeonEndingEvent|CX2StateDungeonGame::SecretStageEnteringEvent	9	1	D0c-2	X2Lib/X2Data.cpp:2539
+EndFrame	CBandiVideoDevice_DX9	1	1	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1444
+GetStatus	CBandiVideoLibrary	1	2	D0c-2	X2Lib/X2Main.cpp:11838 X2Lib/X2Main.cpp:11940
+GetTime	CBandiVideoSound_DS|CBandiVideoSound_NULL|CDXUTTimer|CKTDGParticleSystem::CParticleEventSequence|CKTDXApp|CX2GUNPC::TIME_ELAPSED	6	5	D0c-2	KTDXLIB/KTDGHeatShimmer.cpp:119 X2Lib/X2GUArme_VioletMage.cpp:29297 X2Lib/X2GUArme_VioletMage.cpp:29669 X2Lib/X2GameUnit.cpp:14282
+GetFormat	CBandiVideoTexture_DX9|CKTDXDeviceRenderTargetTexture|CWaveFile	3	3	D0c-2	KTDXLIB/KTDXApp.cpp:1429 KTDXLIB/KTDXApp.cpp:1440 KTDXLIB/KTDXApp.cpp:1471
+Lock	CBandiVideoTexture_DX9|CSLockTemplate|KFileSerializer	3	1	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:222
+Unlock	CBandiVideoTexture_DX9|CSLockTemplate|KFileSerializer	3	1	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:238
+GetChecked	CDXUTCheckBox|CKTDGUICheckBox|CKTDGUIRadioButton	3	1	D0c-2	X2Lib/X2UIQuestNewJune.cpp:1456
+GetItem	CDXUTComboBox|CDXUTListBox|CKTDGUIComboBox|CKTDGUIListBox|CKTDGUIListControl|CX2Eqip|CX2Inventory	7	8	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30955 X2Lib/X2GUArme_VioletMage.cpp:30958 X2Lib/X2GUArme_VioletMage.cpp:37538 X2Lib/X2GUArme_VioletMage.cpp:37539
+GetItemData	CDXUTComboBox|CKTDGUIComboBox|CX2Item	3	20	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30222 X2Lib/X2GUArme_VioletMage.cpp:31052 X2Lib/X2GUArme_VioletMage.cpp:31053 X2Lib/X2GameUnit.cpp:3775
+GetType	CDXUTControl|CKTDGUIControl|CX2BuffBehaviorTemplet|CX2BuffDisplayerTemplet|CX2BuffFinalizerTemplet|CX2DamageEffect::CEffect|CX2Informer|CX2Item::SpecialAbility|CX2Unit|KItemFormatSpecialAbility	10	40	D0c-2	KTDXLIB/KTDGGFXManager.cpp:2220 KTDXLIB/KTDGUIDialog.cpp:800 X2Lib/X2BuffTemplet.cpp:769 X2Lib/X2EmblemManager.cpp:443
+SetID	CDXUTControl|CKTDGUIDialog|CKTDGUISlot	3	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1275 X2Lib/X2UISkillTreeNew2015.cpp:5180
+GetID	CDXUTControl|CKTDGUIDialog|CKTDGUISlot|CKTDNDP|CX2Channel	5	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:4935 X2Lib/X2UISkillTreeNew2015.cpp:5007
+AddControl	CDXUTDialog|CKTDGUIComboBox|CKTDGUIDialog|CKTDGUIListBox	4	8	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1422 X2Lib/X2UISkillTreeNew2015.cpp:1666 X2Lib/X2UISkillTreeNew2015.cpp:1667 X2Lib/X2UISkillTreeNew2015.cpp:1854
+RequestFocus	CDXUTDialog|CKTDGUIControl|CKTDGUIDialog	3	5	D0c-2	X2Lib/X2UIQuestNewJune.cpp:1528 X2Lib/X2UIQuestNewJune.cpp:1545 X2Lib/X2UIQuestNewJune.cpp:1564 X2Lib/X2UIQuestNewJune.cpp:1574
+GetControl	CDXUTDialog|CKTDGUIDialog|CX2UIGuild::GuildInfoControl	3	273	D0c-2	X2Lib/X2EmblemManager.cpp:1084 X2Lib/X2EmblemManager.cpp:1107 X2Lib/X2EmblemManager.cpp:1331 X2Lib/X2EmblemManager.cpp:1345
+SetText	CDXUTEditBox|CDXUTStatic|CKTDGUIEditBox|CKTDGUIIMEEditBox|CKTDGUIUniBuffer|CUniBuffer	6	1	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1697
+InsertItem	CDXUTListBox|CKTDGUIContolList|CKTDGUIListBox|CX2OfflineDB|CX2OfflineInventory	5	13	D0c-2	X2Lib/Offline/X2OfflineQuest.cpp:2018 X2Lib/X2UISkillTreeNew2015.cpp:1261 X2Lib/X2UISkillTreeNew2015.cpp:1262 X2Lib/X2UISkillTreeNew2015.cpp:1263
+SetMatrix	CDXUTMeshFrame	1	3	D0c-2	KTDXLIB/KTDGHeatShimmer.cpp:121 KTDXLIB/KTDGHeatShimmer.cpp:126 KTDXLIB/KTDGXRenderer.cpp:846
+GetMatrix	CDXUTMeshFrame|CKTDGMatrix|CKTDGObject	3	39	D0c-2	KTDXLIB/KTDGParticleSystem.cpp:5382 KTDXLIB/KTDGXMeshPlayer.cpp:1765 KTDXLIB/KTDGXSkinAnim.cpp:2386 X2Lib/X2GUArme_VioletMage.cpp:22691
+SetFVF	CDXUTMesh|CKTDGEffectStateManager|CKTDGStateManager	3	1	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:616
+Scroll	CDXUTScrollBar|CKTDGUIScrollBar	2	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1095 X2Lib/X2UISkillTreeNew2015.cpp:1100
+Begin	CDXUTTextHelper|CX2GUArme_VioletMage::BLAZE_STEP_DATA|CX2OfflineDB	3	2	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:497 KTDXLIB/KTDGHeatShimmer.cpp:149
+Advance	CDXUTTimer|CKTDGGFXUI	2	3	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1038 KTDXLIB/KTDGGFXManager.cpp:1069 KTDXLIB/KTDGGFXManager.cpp:1435
+GetElapsedTime	CDXUTTimer|CKTDXApp|CX2GameUnit	3	8	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:1960 X2Lib/X2BuffFinalizerTemplet.cpp:1874 X2Lib/X2BuffTemplet.cpp:1770 X2Lib/X2BuffTemplet.cpp:2071
+LookAt	CKTDGCamera	1	1	D0c-2	X2Lib/X2SlideShotScripted.cpp:460
+LookAtRel	CKTDGCamera	1	2	D0c-2	KTDXLIB/KTDGCamera.cpp:295 KTDXLIB/KTDGCamera.cpp:315
+MoveRel	CKTDGCamera	1	2	D0c-2	KTDXLIB/KTDGCamera.cpp:291 KTDXLIB/KTDGCamera.cpp:301
+GetEye	CKTDGCamera|CX2World	2	8	D0c-2	KTDXLIB/KTDGManager.cpp:1592 KTDXLIB/KTDGManager.cpp:2466 KTDXLIB/KTDGXRenderer.cpp:526 KTDXLIB/KTDGXRenderer.cpp:849
+GetLookAt	CKTDGCamera|CX2World	2	4	D0c-2	KTDXLIB/KTDGXRenderer.cpp:850 X2Lib/X2SlideShotScripted.cpp:231 X2Lib/X2WorldObjectMesh.cpp:177 X2Lib/X2WorldObjectSkinMesh.cpp:451
+Buffering	CKTDGDeviceFont	1	4	D0c-2	KTDXLIB/KTDGDeviceFont.cpp:1393 KTDXLIB/KTDGDeviceFont.cpp:1415 KTDXLIB/KTDGDeviceFont.cpp:1510 KTDXLIB/KTDGDeviceFont.cpp:1568
+OutTextMultiline	CKTDGDeviceFont|CKTDGDeviceFontBase|CKTDGDeviceFontTH|CKTDGFontManager::CUKFont|CKTDGFreeTypeFont	5	7	D0c-2	KTDXLIB/KTDGFontManager.cpp:1369 KTDXLIB/KTDGUIButton.cpp:374 KTDXLIB/KTDGUIRadioButton.cpp:288 KTDXLIB/KTDGUISlot.cpp:482
+DrawPrimitive	CKTDGDynamicVBManager	1	2	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:618 KTDXLIB/KTDXApp.cpp:1597
+PostCommitChanges	CKTDGEffectStateManager	1	2	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:470 KTDXLIB/KTDGHeatShimmer.cpp:103
+PrepareEffectState	CKTDGEffectStateManager	1	2	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:489 KTDXLIB/KTDGHeatShimmer.cpp:141
+RestoreEffectState	CKTDGEffectStateManager	1	4	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:512 KTDXLIB/KTDGEnvBoxMap.cpp:522 KTDXLIB/KTDGHeatShimmer.cpp:166 KTDXLIB/KTDGHeatShimmer.cpp:195
+SetRenderState	CKTDGEffectStateManager|CKTDGStateManager	2	11	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1175 KTDXLIB/KTDGGFXManager.cpp:1176 KTDXLIB/KTDGGFXManager.cpp:1177 KTDXLIB/KTDGGFXManager.cpp:1178
+Delete2DFont	CKTDGFontManager::CKTDGFont|CKTDGFontManager::CUKFont	2	1	D0c-2	X2Lib/X2TalkBoxManagerImp.cpp:2405
+Draw2DText	CKTDGFontManager::CKTDGFont|CKTDGFontManager::CUKFont	2	2	D0c-2	KTDXLIB/KTDGUIStatic.cpp:317 KTDXLIB/KTDGUIStatic.cpp:326
+OutTextMultiline	CKTDGFontManager::CUKFont	1	1	D0c-2	KTDXLIB/KTDGFontManager.cpp:1819
+GetShow	CKTDGGFXManager|CKTDGUIControl|CKTDGUIControl::CMovieData|CKTDGUIControl::CPictureData|CKTDGUIDialog|CKTDGUIDialogManager|CX2Book|CX2ChatWindow|CX2ClassChangePopup|CX2GageData|CX2GageManager::CX2GageSet|CX2GageUI|CX2GameEdit|CX2LoadingAnimation|CX2MiniMapUI|CX2PartyUI|CX2PetManager|CX2PostBox|CX2ProfileManager|CX2RidingPetManager|CX2SecurityPad|CX2State::MouseClickUI|CX2StateDungeonGame::DungeonMapUI|CX2TFieldGame::SquareUI|CX2TFieldNpcShop|CX2TextManager::CX2Text|CX2TitleManager|CX2TitleSystem|CX2UICharInfo|CX2UIComboTree|CX2UIGuildBoard|CX2UIGuildSkillTree|CX2UIGuildSkillTreeInfo|CX2UIHeroMatch|CX2UIInventory|CX2UIItemExchangeShop|CX2UIManager|CX2UIManufacture|CX2UIPersonalShop|CX2UIPersonalShopBoard|CX2UIPersonalTrade|CX2UIPetInfo|CX2UIPetInventory|CX2UIPrivateBank|CX2UIQuest|CX2UIQuestNew|CX2UIQuestReceive|CX2UIQuickSlot|CX2UIRankingInfo|CX2UIRecordVideo|CX2UIResolveItem|CX2UIShop|CX2UISkillNote|CX2UISkillTree|CX2UISkillTreeNew|CX2UISocketItem|CX2UISynthesisItem|CX2UITempInventory|CX2UIWatch|CX2UnitSlashTraceManager|CX2WorldMapUI	61	31	D0c-2	KTDXLIB/KTDGUIDialogManager.cpp:1084 KTDXLIB/KTDGUIDialogManager.cpp:1162 KTDXLIB/KTDGUIDialogManager.cpp:1169 KTDXLIB/KTDGUIDialogManager.cpp:1201
+SetViewport	CKTDGGFXUI|CKTDGStateManager|CKTDXApp	3	4	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1058 KTDXLIB/KTDGGFXManager.cpp:1068 KTDXLIB/KTDGGFXManager.cpp:1403 KTDXLIB/KTDGGFXManager.cpp:1480
+BeginPass	CKTDGGrayScale::DeviceShader	1	3	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:501 KTDXLIB/KTDGHeatShimmer.cpp:154 KTDXLIB/KTDGHeatShimmer.cpp:185
+EndPass	CKTDGGrayScale::DeviceShader	1	2	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:520 KTDXLIB/KTDGHeatShimmer.cpp:179
+SetTechnique	CKTDGGrayScale::DeviceShader	1	4	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:297 KTDXLIB/KTDGEnvBoxMap.cpp:478 KTDXLIB/KTDGHeatShimmer.cpp:74 KTDXLIB/KTDGHeatShimmer.cpp:115
+GetColor	CKTDGLensFlare::CLensFlareSpot|CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEvent_Color|CKTDGUIControl|CKTDGUIControl::CPictureData|CKTDGUIDialog|CKTDGXMeshPlayer::CXMeshEvent_Color|CX2AfterImageByBuff|CX2GameUnit|CX2WeaponAfterImageByBuff|CX2WorldLayer	11	14	D0c-2	KTDXLIB/KTDGUIButton.cpp:1146 KTDXLIB/KTDGUIButton.cpp:1147 KTDXLIB/KTDGUIButton.cpp:1148 KTDXLIB/KTDGUIButton.cpp:1149
+AccessLineData	CKTDGLineMap	1	3	D0c-2	KTDXLIB/KTDGLineMap.cpp:1197 KTDXLIB/KTDGLineMap.cpp:3080 KTDXLIB/KTDGLineMap.cpp:3093
+GetFixedDistancePosition	CKTDGLineMap	1	4	D0c-2	X2Lib/X2GUUser.cpp:23221 X2Lib/X2GUUser.cpp:23408 X2Lib/X2GuEve.cpp:55576 X2Lib/X2GuEve.cpp:55580
+GetFixedDistancePositionInAllLine	CKTDGLineMap	1	1	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34967
+GetLineData	CKTDGLineMap	1	4	D0c-2	KTDXLIB/KTDGLineMap.cpp:3108 KTDXLIB/KTDGLineMap.cpp:3121 KTDXLIB/KTDGLineMap.cpp:3370 KTDXLIB/KTDGLineMap.cpp:3429
+MakeLine	CKTDGLineMap	1	2	D0c-2	KTDXLIB/KTDGLineMap.cpp:3086 KTDXLIB/KTDGLineMap.cpp:3100
+ReBuildLineGroup	CKTDGLineMap	1	1	D0c-2	KTDXLIB/KTDGLineMap.cpp:4116
+GetLandHeight	CKTDGLineMap|CX2Camera|CXSLLineMap	3	4	D0c-2	X2Lib/X2Game.cpp:7216 X2Lib/X2Game.cpp:7216 X2Lib/X2Game.cpp:7217 X2Lib/X2Game.cpp:7219
+SetLandHeight	CKTDGLineMap|CX2Camera|CXSLLineMap	3	2	D0c-2	X2Lib/X2Game.cpp:7217 X2Lib/X2Game.cpp:7221
+GetLineData	CKTDGLineMap|CXSLLineMap	2	18	D0c-2	X2Lib/X2BuffTemplet.cpp:2002 X2Lib/X2DamageEffect.cpp:8261 X2Lib/X2GUArme_VioletMage.cpp:25143 X2Lib/X2GUArme_VioletMage.cpp:25175
+GetNumLineData	CKTDGLineMap|CXSLLineMap	2	2	D0c-2	X2Lib/X2DamageEffect.cpp:8259 X2Lib/X2GameUnit.cpp:12811
+ClearScreen	CKTDGManager	1	4	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:23764 X2Lib/X2GUArme_VioletMage.cpp:28346 X2Lib/X2GuEve.cpp:44174 X2Lib/X2GuEve.cpp:44453
+GetCamera	CKTDGManager	1	2	D0c-2	KTDXLIB/KTDGManager.cpp:1592 KTDXLIB/KTDGManager.cpp:2466
+GetClearColor	CKTDGManager	1	1	D0c-2	KTDXLIB/KTDXApp.cpp:1289
+GetDialogManager	CKTDGManager	1	79	D0c-2	KTDXLIB/KTDGUIDialog.cpp:964 KTDXLIB/KTDGUIDialog.cpp:967 KTDXLIB/KTDGUIDialog.cpp:968 KTDXLIB/KTDXApp.cpp:1634
+GetFar	CKTDGManager	1	5	D0c-2	KTDXLIB/KTDGUIDialog.cpp:525 KTDXLIB/KTDGUIDialog.cpp:543 KTDXLIB/KTDGUIDialog.cpp:573 KTDXLIB/KTDGUIDialog.cpp:585
+GetNear	CKTDGManager	1	5	D0c-2	KTDXLIB/KTDGUIDialog.cpp:525 KTDXLIB/KTDGUIDialog.cpp:543 KTDXLIB/KTDGUIDialog.cpp:573 KTDXLIB/KTDGUIDialog.cpp:585
+GetPerspective	CKTDGManager	1	2	D0c-2	KTDXLIB/KTDGUIDialog.cpp:511 KTDXLIB/KTDGUIDialog.cpp:559
+GetRSICKTDGUIDialog	CKTDGManager	1	3	D0c-2	KTDXLIB/KTDGUIDialog.cpp:456 KTDXLIB/KTDGUIDialogManager.cpp:1187 KTDXLIB/KTDGUISlot.cpp:508
+GetRSICKTDXDeviceTexture	CKTDGManager	1	4	D0c-2	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:393 KTDXLIB/KTDXDeviceTexture.cpp:533 KTDXLIB/KTDXDeviceTexture.cpp:638 KTDXLIB/KTDXDeviceTexture.cpp:714
+GetXRenderer	CKTDGManager|CKTDGXSkinAnim	2	12	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:184 KTDXLIB/KTDGEnvBoxMap.cpp:185 KTDXLIB/KTDGEnvBoxMap.cpp:192 KTDXLIB/KTDGEnvBoxMap.cpp:193
+GetCamera	CKTDGManager|CX2Camera|CX2SquareGame|CX2TFieldGame|CX2WeddingGame	5	11	D0c-2	KTDXLIB/KTDGXRenderer.cpp:526 KTDXLIB/KTDGXRenderer.cpp:848 X2Lib/X2EmblemManager.cpp:1538 X2Lib/X2SlideShotScripted.cpp:229
+SetProjection	CKTDGManager|CX2World	2	5	D0c-2	KTDXLIB/KTDGUIDialog.cpp:525 KTDXLIB/KTDGUIDialog.cpp:543 KTDXLIB/KTDGUIDialog.cpp:573 KTDXLIB/KTDGUIDialog.cpp:585
+RotateDegree	CKTDGMatrix	1	10	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:23528 X2Lib/X2GUArme_VioletMage.cpp:24749 X2Lib/X2GUArme_VioletMage.cpp:24751 X2Lib/X2GUArme_VioletMage.cpp:24753
+GetRotate	CKTDGMatrix|CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEvent_Rotate|CKTDGXMeshPlayer::CXMeshEvent_Rotate|CX2UIUnit	5	5	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:400 X2Lib/X2BaseUnitViewerUI.cpp:400 X2Lib/X2GUArme_VioletMage.cpp:29523 X2Lib/X2GUArme_VioletMage.cpp:29540
+Scale	CKTDGMatrix|CKTDGUIControl::UIPointData	2	9	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1765 X2Lib/X2GUArme_VioletMage.cpp:22691 X2Lib/X2GUArme_VioletMage.cpp:22696 X2Lib/X2GUArme_VioletMage.cpp:22703
+GetXPos	CKTDGMatrix|CKTDIDevice|CX2GUNPC|CX2GUUser|CX2SquareUnit	5	2	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1745 KTDXLIB/KTDGUISlot.cpp:511
+GetYPos	CKTDGMatrix|CKTDIDevice|CX2GUNPC|CX2GUUser|CX2SquareUnit	5	4	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1746 KTDXLIB/KTDGUISlot.cpp:512 X2Lib/X2GUUser.cpp:32482 X2Lib/X2GuEve.cpp:35923
+GetBoundingRadius	CKTDGObject	1	2	D0c-2	KTDXLIB/KTDGObject.h:521 X2Lib/X2WorldObjectSkinMesh.cpp:1095
+GetCenter	CKTDGObject	1	1	D0c-2	X2Lib/X2WorldObjectSkinMesh.cpp:1078
+GetDistanceToCamera	CKTDGObject	1	6	D0c-2	KTDXLIB/KTDGManager.cpp:1536 KTDXLIB/KTDGManager.cpp:1536 KTDXLIB/KTDGManager.cpp:1538 KTDXLIB/KTDGManager.cpp:1538
+GetLayer	CKTDGObject	1	1	D0c-2	X2Lib/X2WorldObjectMesh.cpp:184
+GetManagerObject	CKTDGObject	1	1	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1764
+GetMatrix	CKTDGObject	1	17	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:2386 X2Lib/X2BaseUnitViewerUI.cpp:114 X2Lib/X2BaseUnitViewerUI.cpp:400 X2Lib/X2BaseUnitViewerUI.cpp:400
+GetObjectType	CKTDGObject	1	4	D0c-2	X2Lib/X2World.cpp:346 X2Lib/X2World.cpp:348 X2Lib/X2World.cpp:2207 X2Lib/X2World.cpp:2242
+GetRenderParam	CKTDGObject	1	56	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22557 X2Lib/X2GUArme_VioletMage.cpp:22558 X2Lib/X2GUArme_VioletMage.cpp:22559 X2Lib/X2GUArme_VioletMage.cpp:22560
+GetRenderStateID	CKTDGObject	1	14	D0c-2	KTDXLIB/KTDGManager.cpp:887 KTDXLIB/KTDGManager.cpp:890 KTDXLIB/KTDGManager.cpp:910 KTDXLIB/KTDGManager.cpp:913
+GetScaleByUnit	CKTDGObject	1	26	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1755 KTDXLIB/KTDGXMeshPlayer.cpp:1756 KTDXLIB/KTDGXMeshPlayer.cpp:1757 X2Lib/X2GUArme_VioletMage.cpp:35522
+GetScaledBoundingRadius	CKTDGObject	1	1	D0c-2	KTDXLIB/KTDGObject.h:524
+GetTransformCenter	CKTDGObject	1	1	D0c-2	KTDXLIB/KTDGObject.h:518
+GetVec3ScaleByUnit	CKTDGObject	1	9	D0c-2	X2Lib/X2GuEve.cpp:53968 X2Lib/X2GuEve.cpp:53987 X2Lib/X2GuEve.cpp:53993 X2Lib/X2GuEve.cpp:54514
+IsAlphaObject	CKTDGObject	1	3	D0c-2	KTDXLIB/KTDGParticleSystem.h:1272 KTDXLIB/KTDGXMeshPlayer.h:1179 X2Lib/X2GuEve.cpp:44046
+IsManagedByDGManager	CKTDGObject	1	2	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:499 X2Lib/X2BaseUnitViewerUI.cpp:820
+SetAlphaObject	CKTDGObject	1	22	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22548 X2Lib/X2GUArme_VioletMage.cpp:22551 X2Lib/X2GUArme_VioletMage.cpp:22554 X2Lib/X2GUArme_VioletMage.cpp:28401
+SetBoundingRadius	CKTDGObject	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:29293 X2Lib/X2GUArme_VioletMage.cpp:29665
+SetDistanceToCamera	CKTDGObject	1	1	D0c-2	KTDXLIB/KTDGObject.h:519
+SetInstantShow	CKTDGObject	1	3	D0c-2	KTDXLIB/KTDGObject.h:155 KTDXLIB/KTDGObject.h:160 X2Lib/X2GUNPC.cpp:25955
+SetIsCulled	CKTDGObject	1	2	D0c-2	KTDXLIB/KTDGObject.h:531 KTDXLIB/KTDGObject.h:534
+SetLayer	CKTDGObject	1	2	D0c-2	X2Lib/X2WorldObjectMesh.cpp:196 X2Lib/X2WorldObjectMesh.cpp:227
+SetManagerObject	CKTDGObject	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30986 X2Lib/X2GUArme_VioletMage.cpp:37425
+SetOverUI	CKTDGObject	1	16	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:681 X2Lib/X2BaseUnitViewerUI.cpp:755 X2Lib/X2CashShop.cpp:12721 X2Lib/X2EffectSet.cpp:653
+SetShowObject	CKTDGObject	1	1	D0c-2	X2Lib/X2GUNPC.cpp:30080
+GetLayer	CKTDGObject|CKTDGUIDialog	2	12	D0c-2	KTDXLIB/KTDGManager.cpp:882 KTDXLIB/KTDGManager.cpp:931 KTDXLIB/KTDGManager.cpp:1534 KTDXLIB/KTDGManager.cpp:1534
+SetLayer	CKTDGObject|CKTDGUIDialog|CKTDGUIDialog::CKTDGUIDialogManagerAccess|CX2Community|CX2PartyUI|CX2UICharInfo|CX2UIComboTree|CX2UIEnduranceChecker|CX2UIGuildBoard|CX2UIGuildSkillTree|CX2UIGuildSkillTreeInfo|CX2UIInventory|CX2UIItemExchangeShop|CX2UIManufacture|CX2UIPersonalShop|CX2UIPersonalShopBoard|CX2UIPersonalTrade|CX2UIPetInfo|CX2UIPetInventory|CX2UIPrivateBank|CX2UIQuest|CX2UIQuestNew|CX2UIQuestReceive|CX2UIQuickSlot|CX2UIRankingInfo|CX2UIRecordVideo|CX2UIShop|CX2UISkillNote|CX2UISkillTree|CX2UISkillTreeNew|CX2UISocketItem|CX2UISynthesisItem|CX2UITempInventory|CX2UIWatch	34	11	D0c-2	X2Lib/X2EffectSet.cpp:654 X2Lib/X2GUArme_VioletMage.cpp:22549 X2Lib/X2GUArme_VioletMage.cpp:22552 X2Lib/X2GUArme_VioletMage.cpp:22555
+EnableParticleCulling	CKTDGParticleSystem	1	4	D0c-2	X2Lib/X2State.cpp:1194 X2Lib/X2State.cpp:1199 X2Lib/X2State.cpp:1209 X2Lib/X2State.cpp:1216
+GameUnitCreateSequence_LUA	CKTDGParticleSystem	1	1	D0c-2	X2Lib/X2GUUser.cpp:9587
+ApplyFunctionToParticles	CKTDGParticleSystem::CParticleEventSequence	1	1	D0c-2	KTDXLIB/KTDGParticleSystem.cpp:5510
+ChangeTexForce	CKTDGParticleSystem::CParticleEventSequence	1	2	D0c-2	X2Lib/X2DungeonGame.cpp:3229 X2Lib/X2TalkBoxManagerImp.cpp:2327
+GetAddRotateRel	CKTDGParticleSystem::CParticleEventSequence	1	1	D0c-2	X2Lib/X2EffectSet.cpp:3070
+GetUseLand	CKTDGParticleSystem::CParticleEventSequence	1	6	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:508 X2Lib/X2BaseUnitViewerUI.cpp:761 X2Lib/X2EffectSet.cpp:2744 X2Lib/X2EffectSet.cpp:2766
+SetAddRotateRel	CKTDGParticleSystem::CParticleEventSequence	1	1	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:492
+SetBlackHolePosition	CKTDGParticleSystem::CParticleEventSequence	1	3	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22657 X2Lib/X2GUUser.cpp:9593 X2Lib/X2GuEve.cpp:44388
+SetEmitRate	CKTDGParticleSystem::CParticleEventSequence	1	33	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:21900 X2Lib/X2GUArme_VioletMage.cpp:21905 X2Lib/X2GUArme_VioletMage.cpp:21967 X2Lib/X2GUArme_VioletMage.cpp:21972
+SetLookPoint	CKTDGParticleSystem::CParticleEventSequence	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22658 X2Lib/X2GuEve.cpp:44390
+SetResolutionConvert	CKTDGParticleSystem::CParticleEventSequence	1	1	D0c-2	X2Lib/X2EffectSet.cpp:2110
+SetReverseY	CKTDGParticleSystem::CParticleEventSequence	1	1	D0c-2	X2Lib/X2TalkBoxManagerImp.cpp:2311
+SetScaleFactor	CKTDGParticleSystem::CParticleEventSequence	1	7	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:495 X2Lib/X2BaseUnitViewerUI.cpp:753 X2Lib/X2GuEve.cpp:49016 X2Lib/X2GuEve.cpp:49171
+SetTrace	CKTDGParticleSystem::CParticleEventSequence	1	4	D0c-2	X2Lib/X2GuEve.cpp:44488 X2Lib/X2GuEve.cpp:44489 X2Lib/X2GuEve.cpp:44490 X2Lib/X2GuEve.cpp:44491
+SetTriggerWait	CKTDGParticleSystem::CParticleEventSequence	1	47	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:28607 X2Lib/X2GUArme_VioletMage.cpp:28611 X2Lib/X2GUArme_VioletMage.cpp:28615 X2Lib/X2GUArme_VioletMage.cpp:28619
+UseLookPoint	CKTDGParticleSystem::CParticleEventSequence	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:28447 X2Lib/X2GuEve.cpp:44389
+SetName	CKTDGParticleSystem::CParticleEventSequence|CKTDGUIControl|CKTDGUIDialog|CX2WorldObject	4	17	D0c-2	X2Lib/X2SlideShotScripted.cpp:94 X2Lib/X2UISkillTreeNew2015.cpp:1326 X2Lib/X2UISkillTreeNew2015.cpp:1337 X2Lib/X2UISkillTreeNew2015.cpp:1344
+GetGravity	CKTDGParticleSystem::CParticleEventSequence|CKTDGXMeshPlayer::CXMeshInstance	2	2	D0c-2	X2Lib/X2DamageEffect.cpp:3357 X2Lib/X2DamageEffect.cpp:3361
+SetLandPosition	CKTDGParticleSystem::CParticleEventSequence|CKTDGXMeshPlayer::CXMeshInstance	2	17	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:509 X2Lib/X2BaseUnitViewerUI.cpp:766 X2Lib/X2DamageEffect.cpp:3529 X2Lib/X2EffectSet.cpp:2745
+SetPerFrameSimulation	CKTDGParticleSystem::CParticleEventSequence|CKTDGXMeshPlayer::CXMeshInstance	2	7	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:29290 X2Lib/X2GUArme_VioletMage.cpp:29662 X2Lib/X2GuEve.cpp:38714 X2Lib/X2GuEve.cpp:38724
+OpenTexture	CKTDGParticleSystem::CParticleEventSequence|CKTDXDeviceManager	2	6	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:258 KTDXLIB/KTDGEnvBoxMap.cpp:346 KTDXLIB/KTDGUISlot.cpp:801 KTDXLIB/KTDGUISlot.cpp:842
+SetParticleType	CKTDGParticleSystem::CParticleEventSequence|CX2WorldObjectParticle	2	1	D0c-2	X2Lib/X2EffectSet.cpp:2109
+SetTriggerCount	CKTDGParticleSystem::CParticleEventSequence|CX2WorldObjectParticle	2	6	D0c-2	X2Lib/X2GuEve.cpp:44386 X2Lib/X2GuEve.cpp:44396 X2Lib/X2GuEve.cpp:44419 X2Lib/X2GuEve.cpp:44427
+GetCount	CKTDGParticleSystem::CParticleEventSequence|FontTranslator	2	1	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1416
+GetTexUV	CKTDGParticleSystem::CParticleEvent_Tex0UV|CKTDGParticleSystem::CParticleEvent_Tex1UV|CKTDGParticleSystem::CParticleEvent_Tex2UV|CKTDXDeviceTET_Preprocessing|CKTDXDeviceTexture|CX2WorldLayer	6	4	D0c-2	KTDXLIB/KTDGUISlot.cpp:816 X2Lib/X2GUUser.cpp:28631 X2Lib/X2GUUser.cpp:28661 X2Lib/X2Game.cpp:6477
+SetActualTime	CKTDGParticleSystem::CParticleEvent|CKTDGXMeshPlayer::CXMeshEvent	2	1	D0c-2	X2Lib/X2GuEve.cpp:53009
+GetEventType	CKTDGParticleSystem::CParticleEvent|CKTDGXMeshPlayer::CXMeshEvent|CX2DLLManager::DLLEvent|CX2RandomMission	4	1	D0c-2	X2Lib/X2RandomMission.cpp:514
+GetVelocity	CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEventSequence|CKTDGParticleSystem::CParticleEvent_Velocity|CKTDGXMeshPlayer::CXMeshEvent_Velocity|CKTDGXMeshPlayer::CXMeshInstance	5	6	D0c-2	X2Lib/X2DamageEffect.cpp:3357 X2Lib/X2DamageEffect.cpp:3362 X2Lib/X2EffectSet.cpp:1199 X2Lib/X2EffectSet.cpp:5943
+SetVelocity	CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEventSequence|CKTDGParticleSystem::CParticleEvent_Velocity|CKTDGXMeshPlayer::CXMeshEvent_Velocity|CKTDGXMeshPlayer::CXMeshInstance	5	8	D0c-2	X2Lib/X2BuffTemplet.cpp:1684 X2Lib/X2EffectSet.cpp:1210 X2Lib/X2EffectSet.cpp:5952 X2Lib/X2GUNPC.cpp:32269
+SetRotate	CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEvent_Rotate|CKTDGXMeshPlayer::CXMeshEvent_Rotate|CX2SubEquip|CX2UIUnit	5	3	D0c-2	KTDXLIB/KTDGParticleSystem.cpp:5508 KTDXLIB/KTDGParticleSystem.cpp:5516 X2Lib/X2GuEve.cpp:53010
+GetDirSpeed	CKTDGParticleSystem::CParticle|CKTDGXMeshPlayer::CXMeshEvent_DirSpeed|CKTDGXMeshPlayer::CXMeshInstance	3	3	D0c-2	X2Lib/X2DamageEffect.cpp:4109 X2Lib/X2DamageEffect.cpp:4223 X2Lib/X2DamageEffect.cpp:9477
+SetDirSpeed	CKTDGParticleSystem::CParticle|CKTDGXMeshPlayer::CXMeshEvent_DirSpeed|CKTDGXMeshPlayer::CXMeshInstance	3	7	D0c-2	X2Lib/X2DamageEffect.cpp:4057 X2Lib/X2DamageEffect.cpp:4110 X2Lib/X2DamageEffect.cpp:4159 X2Lib/X2DamageEffect.cpp:4224
+SetEnable	CKTDGParticleSystem|CKTDGPostEffect|CKTDGUIControl|CKTDGUIDialog|CKTDGXMeshPlayer|CKTDIManager|CX2GUArme_VioletMage::BLAZE_STEP_DATA|CX2GUEve::ATOveronGuardData|CX2GageData|CX2GameEdit|CX2GameUnit::Weapon|CX2OldGageManager|CX2PacketLog|CX2SlotManager|CX2SlotManager::CX2Slot|CX2TFieldNpc|CX2TextManager::CX2Text|CX2UIGuild::GuildInfoControl|CX2UnitSlashTraceManager	19	17	D0c-2	KTDXLIB/KTDGUIDialog.cpp:805 X2Lib/X2PartyUI.cpp:2058 X2Lib/X2PartyUI.cpp:2079 X2Lib/X2PartyUI.cpp:5403
+CreateInstanceNonTemplet	CKTDGParticleSystem|CKTDGXMeshPlayer	2	3	D0c-2	X2Lib/X2EmblemManager.cpp:390 X2Lib/X2EmblemManager.cpp:403 X2Lib/X2EmblemManager.cpp:1464
+IsLiveInstance	CKTDGParticleSystem|CKTDGXMeshPlayer|CX2DamageEffect	3	3	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:401 X2Lib/X2DamageManager.cpp:3100 X2Lib/X2DamageManager.cpp:3132
+IsLiveInstanceHandle	CKTDGParticleSystem|CKTDGXMeshPlayer|CX2DamageEffect|CX2EffectSet	4	5	D0c-2	X2Lib/X2DamageEffect.cpp:10559 X2Lib/X2EmblemManager.cpp:1223 X2Lib/X2EmblemManager.cpp:1543 X2Lib/X2EmblemManager.cpp:1575
+AppendToDeviceList	CKTDGParticleSystem|CKTDGXMeshPlayer|CX2Eqip|CX2GUNPC::InitData|CX2GUUser::InitData|CX2GameUnit::InitDeviceData|CX2PET::InitData|CX2PET::InitDeviceData|CX2RidingPet::InitData|CX2RidingPet::InitDeviceData|CX2SquareUnit|CX2UnitViewerUI	12	47	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:28780 X2Lib/X2GUArme_VioletMage.cpp:28781 X2Lib/X2GUArme_VioletMage.cpp:28782 X2Lib/X2GUArme_VioletMage.cpp:28783
+DestroyInstance	CKTDGParticleSystem|CX2BossRaidManager|CX2BuffTempletManager|CX2DamageEffect|CX2EmblemManager|CX2GageManager|CX2MailLogManager|CX2RandomMissionManager|CX2RidingPetManager|CX2SkillNoteManager|CX2SlideShotScriptedManager	11	3	D0c-2	X2Lib/X2GuEve.cpp:44745 X2Lib/X2GuEve.cpp:44813 X2Lib/X2GuEve.cpp:44816
+CreateSequenceHandle	CKTDGParticleSystem|CX2GUNPC::AttachedParticle	2	53	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:473 X2Lib/X2GFXEventScene.cpp:273 X2Lib/X2GUArme_VioletMage.cpp:28438 X2Lib/X2GUArme_VioletMage.cpp:28439
+GetInstanceSequence	CKTDGParticleSystem|CX2GUNPC::AttachedParticle|CX2GUNPC::ParticleEffectData	3	120	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:369 X2Lib/X2BaseUnitViewerUI.cpp:476 X2Lib/X2BaseUnitViewerUI.cpp:702 X2Lib/X2BaseUnitViewerUI.cpp:802
+SetWidth	CKTDGPicChar|CKTDGUIItem	2	1	D0c-2	X2Lib/X2Data.cpp:1599
+GetEnable	CKTDGPostEffect|CKTDGUIControl|CKTDGUIDialog|CKTDGXSkinAfterImage|CX2GUArme_VioletMage::BLAZE_STEP_DATA|CX2GUEve::ATOveronGuardData|CX2GageData|CX2GameEdit|CX2PostBox|CX2SlotManager::CX2Slot|CX2TFieldNpc|CX2TextManager::CX2Text|CX2UIQuickSlot|CX2UnitSlashTraceManager	14	4	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30916 X2Lib/X2GUArme_VioletMage.cpp:30924 X2Lib/X2LocalMapUI.cpp:1570 X2Lib/X2UISkillTreeNew2015.cpp:577
+CheckDepthStencilMatch	CKTDGStateManager	1	2	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:119 KTDXLIB/KTDGDeviceSurfaceManager.cpp:129
+CheckDeviceFormat	CKTDGStateManager	1	1	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:76
+GetBackBuffer	CKTDGStateManager	1	3	D0c-2	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:370 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:620 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:655
+GetBackBufferDesc	CKTDGStateManager	1	3	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:55 KTDXLIB/KTDXApp.cpp:1405 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:373
+GetBackBufferZStencilDesc	CKTDGStateManager	1	1	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:128
+GetRenderState	CKTDGStateManager	1	2	D0c-2	KTDXLIB/KTDGParticleSystem.cpp:3417 KTDXLIB/KTDGXMeshPlayer.cpp:2517
+GetRenderTarget	CKTDGStateManager	1	2	D0c-2	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:72 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:321
+GetStackTop	CKTDGStateManager	1	5	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:488 KTDXLIB/KTDGHeatShimmer.cpp:130 KTDXLIB/KTDGManager.cpp:869 KTDXLIB/KTDGUIDialog.cpp:500
+InvalidateDeviceObjects	CKTDGStateManager	1	1	D0c-2	KTDXLIB/KTDXApp.cpp:1934
+PopRenderState	CKTDGStateManager	1	1	D0c-2	KTDXLIB/KTDXApp.cpp:1385
+PopStates	CKTDGStateManager	1	15	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:492 KTDXLIB/KTDGEnvBoxMap.cpp:513 KTDXLIB/KTDGEnvBoxMap.cpp:524 KTDXLIB/KTDGHeatShimmer.cpp:144
+PushRenderState	CKTDGStateManager	1	15	D0c-2	KTDXLIB/KTDGHeatShimmer.cpp:131 KTDXLIB/KTDGHeatShimmer.cpp:132 KTDXLIB/KTDGHeatShimmer.cpp:133 KTDXLIB/KTDGHeatShimmer.cpp:134
+PushSamplerState	CKTDGStateManager	1	1	D0c-2	KTDXLIB/KTDGXRenderer.cpp:1522
+PushStates	CKTDGStateManager	1	15	D0c-2	KTDXLIB/KTDGManager.cpp:891 KTDXLIB/KTDGManager.cpp:914 KTDXLIB/KTDGManager.cpp:946 KTDXLIB/KTDGManager.cpp:963
+PushTextureStageState	CKTDGStateManager	1	3	D0c-2	KTDXLIB/KTDGXRenderer.cpp:1483 KTDXLIB/KTDGXRenderer.cpp:1496 KTDXLIB/KTDGXRenderer.cpp:1521
+SetRenderState	CKTDGStateManager	1	4	D0c-2	KTDXLIB/KTDGParticleSystem.cpp:3419 KTDXLIB/KTDGParticleSystem.cpp:3515 KTDXLIB/KTDGXMeshPlayer.cpp:2519 KTDXLIB/KTDGXMeshPlayer.cpp:2589
+SetRenderTarget	CKTDGStateManager	1	3	D0c-2	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:297 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:332 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:367
+SetSamplerState	CKTDGStateManager	1	17	D0c-2	KTDXLIB/KTDGXRenderer.cpp:238 KTDXLIB/KTDGXRenderer.cpp:1547 KTDXLIB/KTDGXRenderer.cpp:1548 KTDXLIB/KTDGXRenderer.cpp:1549
+GetViewport	CKTDGStateManager|CKTDXApp	2	4	D0c-2	KTDXLIB/KTDGGFXManager.cpp:878 KTDXLIB/KTDGGFXManager.cpp:1401 KTDXLIB/KTDGGFXManager.cpp:1478 KTDXLIB/KTDXApp.cpp:1578
+DrawEdge	CKTDGUIButton	1	2	D0c-2	KTDXLIB/KTDGUIButton.cpp:281 KTDXLIB/KTDGUIButton.cpp:315
+GetCustomMsgMouseUp	CKTDGUIButton	1	2	D0c-2	X2Lib/X2StateMenu.cpp:498 X2Lib/X2StateMenu.cpp:501
+GetNormalPoint	CKTDGUIButton	1	2	D0c-2	X2Lib/X2StateMenu.cpp:5412 X2Lib/X2StateMenu.cpp:5415
+SetDownPoint	CKTDGUIButton	1	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1688 X2Lib/X2UISkillTreeNew2015.cpp:1862 X2Lib/X2UISkillTreeNew2015.cpp:2087
+SetDownStateAtNormal	CKTDGUIButton	1	1	D0c-2	X2Lib/X2StateServerSelect.cpp:11366
+SetDownTex	CKTDGUIButton	1	4	D0c-2	X2Lib/X2UIQuestNewJune.cpp:2037 X2Lib/X2UISkillTreeNew2015.cpp:1678 X2Lib/X2UISkillTreeNew2015.cpp:1857 X2Lib/X2UISkillTreeNew2015.cpp:2076
+SetEnableClick	CKTDGUIButton	1	2	D0c-2	X2Lib/X2UIQuestNewJune.cpp:2039 X2Lib/X2UIQuestNewJune.cpp:2063
+SetNormalPoint	CKTDGUIButton	1	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1686 X2Lib/X2UISkillTreeNew2015.cpp:1860 X2Lib/X2UISkillTreeNew2015.cpp:2085
+SetNormalTex	CKTDGUIButton	1	7	D0c-2	X2Lib/X2UIQuestNewJune.cpp:1328 X2Lib/X2UIQuestNewJune.cpp:1333 X2Lib/X2UIQuestNewJune.cpp:2034 X2Lib/X2UIQuestNewJune.cpp:2061
+SetOverPoint	CKTDGUIButton	1	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1687 X2Lib/X2UISkillTreeNew2015.cpp:1861 X2Lib/X2UISkillTreeNew2015.cpp:2086
+SetEdge	CKTDGUIButton|CKTDGUIControl::CPictureData	2	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:2190
+SetCustomMsgMouseOut	CKTDGUIButton|CKTDGUIDialog|CKTDGUIRadioButton|CKTDGUISlot	4	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:2084 X2Lib/X2UISkillTreeNew2015.cpp:4908 X2Lib/X2UISkillTreeNew2015.cpp:4981
+SetCustomMsgMouseOver	CKTDGUIButton|CKTDGUIDialog|CKTDGUIRadioButton|CKTDGUISlot	4	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:2083 X2Lib/X2UISkillTreeNew2015.cpp:4907 X2Lib/X2UISkillTreeNew2015.cpp:4980
+SetOverTex	CKTDGUIButton|CKTDGUIRadioButton	2	7	D0c-2	X2Lib/X2UIQuestNewJune.cpp:1329 X2Lib/X2UIQuestNewJune.cpp:1334 X2Lib/X2UIQuestNewJune.cpp:2036 X2Lib/X2UIQuestNewJune.cpp:2062
+SetCustomMsgMouseUp	CKTDGUIButton|CKTDGUISlot|CKTDGUIStatic	3	2	D0c-2	X2Lib/X2StateMenu.cpp:499 X2Lib/X2StateMenu.cpp:503
+GetYScroolBar	CKTDGUIContolList	1	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1086 X2Lib/X2UISkillTreeNew2015.cpp:1089
+SetIndex	CKTDGUIContolList|CKTDGUIControl::CPictureData|CX2DamageEffect::CEffect|CX2PremiumBuffIcon|CX2RelationshipEffectManager::RelationEffectInfo	5	5	D0c-2	X2Lib/X2EffectSet.cpp:1239 X2Lib/X2GuEve.cpp:34563 X2Lib/X2UISkillTreeNew2015.cpp:1299 X2Lib/X2UISkillTreeNew2015.cpp:1467
+AddDummyInt	CKTDGUIControl	1	1	D0c-2	KTDXLIB/KTDGUIControl.cpp:169
+GetMouseOver	CKTDGUIControl	1	2	D0c-2	X2Lib/X2LocalMapUI.cpp:103 X2Lib/X2LocalMapUI.cpp:107
+GetNowPoint	CKTDGUIControl	1	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:455 X2Lib/X2UISkillTreeNew2015.cpp:812
+GetOutOfControlList	CKTDGUIControl	1	2	D0c-2	KTDXLIB/KTDGUIDialog.cpp:465 KTDXLIB/KTDGUIDialog.cpp:484
+OnFrameRenderEnd	CKTDGUIControl	1	2	D0c-2	KTDXLIB/KTDGUIDialog.cpp:485 KTDXLIB/KTDGUIDialog.cpp:487
+RenderVertex	CKTDGUIControl	1	3	D0c-2	KTDXLIB/KTDGUISlot.cpp:529 KTDXLIB/KTDGUIStatic.cpp:208 KTDXLIB/KTDGUIStatic.cpp:215
+SendInternelEvent	CKTDGUIControl	1	3	D0c-2	KTDXLIB/KTDGUIComboBox.cpp:911 KTDXLIB/KTDGUIComboBox.cpp:914 KTDXLIB/KTDGUIComboBox.cpp:931
+SetDummyInt	CKTDGUIControl	1	4	D0c-2	X2Lib/X2UIQuestNewJune.cpp:2024 X2Lib/X2UISkillTreeNew2015.cpp:4979 X2Lib/X2UISkillTreeNew2015.cpp:5201 X2Lib/X2UISkillTreeNew2015.cpp:5202
+SetGuideDesc	CKTDGUIControl	1	19	D0c-2	X2Lib/X2Game.cpp:14661 X2Lib/X2LocalMapUI.cpp:166 X2Lib/X2LocalMapUI.cpp:176 X2Lib/X2LocalMapUI.cpp:185
+SetGuideDescLT	CKTDGUIControl	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1043
+SetGuideDescOffsetPos	CKTDGUIControl	1	5	D0c-2	X2Lib/X2StateMenu.cpp:5547 X2Lib/X2UIQuestNewJune.cpp:1396 X2Lib/X2UISkillTreeNew2015.cpp:3134 X2Lib/X2UISkillTreeNew2015.cpp:3141
+SetGuideDesc_LUA	CKTDGUIControl	1	4	D0c-2	X2Lib/X2KeyPad.cpp:1302 X2Lib/X2KeyPad.cpp:1354 X2Lib/X2KeyPad.cpp:1822 X2Lib/X2KeyPad.cpp:1874
+SetOffsetPos	CKTDGUIControl	1	17	D0c-2	KTDXLIB/KTDGUIComboBox.cpp:162 X2Lib/X2SlideShotScripted.cpp:601 X2Lib/X2SlideShotScripted.cpp:602 X2Lib/X2StateMenu.cpp:5393
+SetOutOfControlList	CKTDGUIControl	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1347
+SetMovieFileName	CKTDGUIControl::CMovieData	1	1	D0c-2	X2Lib/X2Main.cpp:11834
+GetOriginalSize	CKTDGUIControl::CPictureData	1	4	D0c-2	X2Lib/X2Game.cpp:6492 X2Lib/X2Game.cpp:6504 X2Lib/X2StateMenu.cpp:3883 X2Lib/X2StateMenu.cpp:4000
+SetFlicker	CKTDGUIControl::CPictureData	1	7	D0c-2	X2Lib/X2LocalMapUI.cpp:982 X2Lib/X2PartyUI.cpp:3901 X2Lib/X2UIQuestNewJune.cpp:2050 X2Lib/X2UISkillTreeNew2015.cpp:467
+SetSizeX	CKTDGUIControl::CPictureData	1	6	D0c-2	X2Lib/X2Game.cpp:6492 X2Lib/X2StateMenu.cpp:148 X2Lib/X2UISkillTreeNew2015.cpp:502 X2Lib/X2UISkillTreeNew2015.cpp:852
+SetSizeY	CKTDGUIControl::CPictureData	1	2	D0c-2	X2Lib/X2Game.cpp:6504 X2Lib/X2UISkillTreeNew2015.cpp:853
+SetTex_LUA	CKTDGUIControl::CPictureData	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:3281
+SetTex	CKTDGUIControl::CPictureData|CX2WorldLayer	2	37	D0c-2	X2Lib/X2EmblemManager.cpp:1094 X2Lib/X2EmblemManager.cpp:1353 X2Lib/X2PartyUI.cpp:2091 X2Lib/X2RandomMission.cpp:264
+SetAutoPointByTextureSize	CKTDGUIControl::UIPointData	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:53
+SetTextureUV	CKTDGUIControl::UITextureData	1	4	D0c-2	KTDXLIB/KTDGUISlot.cpp:824 KTDXLIB/KTDGUISlot.cpp:869 X2Lib/X2Game.cpp:6491 X2Lib/X2Game.cpp:6503
+AddDummyInt	CKTDGUIControl|CKTDGUIDialog	2	14	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1356 X2Lib/X2UISkillTreeNew2015.cpp:1357 X2Lib/X2UISkillTreeNew2015.cpp:1378 X2Lib/X2UISkillTreeNew2015.cpp:1379
+AddDummyPos	CKTDGUIControl|CKTDGUIDialog	2	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1824 X2Lib/X2UISkillTreeNew2015.cpp:2081
+GetDummyPos	CKTDGUIControl|CKTDGUIDialog	2	4	D0c-2	X2Lib/X2SlideShotScripted.cpp:600 X2Lib/X2UISkillTreeNew2015.cpp:1178 X2Lib/X2UISkillTreeNew2015.cpp:1828 X2Lib/X2UISkillTreeNew2015.cpp:2249
+GetDummyString	CKTDGUIControl|CKTDGUIDialog	2	4	D0c-2	X2Lib/X2LocalMapUI.cpp:1512 X2Lib/X2LocalMapUI.cpp:1653 X2Lib/X2LocalMapUI.cpp:1692 X2Lib/X2UISkillTreeNew2015.cpp:2266
+GetIsMoving	CKTDGUIControl|CKTDGUIDialog|CX2TextManager::CX2Text	3	1	D0c-2	X2Lib/X2Game.cpp:6413
+SetShowEnable	CKTDGUIControl|CKTDGUIDialog|CX2UIGuild::GuildInfoControl	3	152	D0c-2	X2Lib/X2Game.cpp:13664 X2Lib/X2Game.cpp:13699 X2Lib/X2Game.cpp:13722 X2Lib/X2Game.cpp:13739
+GetSound	CKTDGUIControl|CKTDXDeviceSound	2	1	D0c-2	X2Lib/X2DamageEffect.cpp:3606
+SetSound	CKTDGUIControl|CX2GameOption	2	2	D0c-2	X2Lib/X2Main.cpp:11808 X2Lib/X2Main.cpp:11861
+GetOffsetPos	CKTDGUIControl|CX2State::FadeInOutNotice	2	2	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:4622 X2Lib/X2UISkillTreeNew2015.cpp:4657
+CheckControl	CKTDGUIDialog	1	1	D0c-2	X2Lib/X2GageUI.cpp:1783
+ClearFocus	CKTDGUIDialog	1	1	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1713
+CreateMovie	CKTDGUIDialog	1	2	D0c-2	KTDXLIB/KTDGGFXManager.cpp:258 KTDXLIB/KTDGGFXManager.cpp:1030
+GetButton_LUA	CKTDGUIDialog	1	3	D0c-2	X2Lib/X2StateClassChange.cpp:496 X2Lib/X2StateClassChange.cpp:497 X2Lib/X2StateClassChange.cpp:498
+GetCloseCustomUIEventID	CKTDGUIDialog	1	1	D0c-2	X2Lib/X2UIDungeonResultAdapter.cpp:740
+GetControlList	CKTDGUIDialog	1	2	D0c-2	X2Lib/X2LocalMapUI.cpp:1660 X2Lib/X2LocalMapUI.cpp:1661
+GetControlSize	CKTDGUIDialog	1	5	D0c-2	X2Lib/X2LocalMapUI.cpp:889 X2Lib/X2LocalMapUI.cpp:1402 X2Lib/X2LocalMapUI.cpp:1645 X2Lib/X2LocalMapUI.cpp:1686
+GetFront	CKTDGUIDialog	1	3	D0c-2	KTDXLIB/KTDGUIDialogManager.cpp:1156 KTDXLIB/KTDGUIDialogManager.cpp:1199 X2Lib/X2UIDungeonResultAdapter.cpp:719
+GetGuideControl	CKTDGUIDialog	1	2	D0c-2	KTDXLIB/KTDGUIDialogManager.cpp:1201 KTDXLIB/KTDGUIDialogManager.cpp:1204
+GetName	CKTDGUIDialog	1	1	D0c-2	KTDXLIB/KTDGUIDialog.cpp:968
+GetStatic_LUA	CKTDGUIDialog	1	4	D0c-2	X2Lib/X2StateClassChange.cpp:456 X2Lib/X2StateClassChange.cpp:484 X2Lib/X2StateClassChange.cpp:491 X2Lib/X2StateClassChange.cpp:499
+GetTimeForSelfDelete	CKTDGUIDialog	1	2	D0c-2	KTDXLIB/KTDGUIDialog.cpp:442 KTDXLIB/KTDGUIDialog.cpp:444
+SetCloseCustomUIEventID	CKTDGUIDialog	1	1	D0c-2	X2Lib/X2UIDungeonResultAdapter.cpp:758
+SetHasUnit	CKTDGUIDialog	1	2	D0c-2	X2Lib/X2StateClassChange.cpp:200 X2Lib/X2StateClassChange.cpp:517
+AddDlg	CKTDGUIDialogManager	1	17	D0c-2	X2Lib/X2EmblemManager.cpp:414 X2Lib/X2Game.cpp:6281 X2Lib/X2LocalMapUI.cpp:1714 X2Lib/X2Main.cpp:11823
+ChangeLayer	CKTDGUIDialogManager	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1002
+CheckDlg	CKTDGUIDialogManager	1	10	D0c-2	X2Lib/X2LocalMapUI.cpp:83 X2Lib/X2LocalMapUI.cpp:463 X2Lib/X2Main.cpp:11859 X2Lib/X2Main.cpp:11928
+CheckFrontModalDlg	CKTDGUIDialogManager	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1020
+DeleteDlg	CKTDGUIDialogManager	1	2	D0c-2	X2Lib/X2Main.cpp:11816 X2Lib/X2Main.cpp:11881
+GetDialog	CKTDGUIDialogManager	1	2	D0c-2	KTDXLIB/KTDGUIDialogManager.cpp:843 KTDXLIB/KTDGUIDialogManager.cpp:1083
+GetUKFont	CKTDGUIDialogManager|CX2TalkBoxManager|CX2TalkBoxManagerImp	3	11	D0c-2	KTDXLIB/KTDXWordWrap.cpp:43 KTDXLIB/KTDXWordWrap.cpp:159 X2Lib/X2EmblemManager.cpp:1413 X2Lib/X2Game.cpp:12663
+ChangeSequence	CKTDGUIDialog|CKTDGUIDialogManager	2	8	D0c-2	X2Lib/X2UIQuestNewJune.cpp:2048 X2Lib/X2UIQuestNewJune.cpp:2241 X2Lib/X2UISkillTreeNew2015.cpp:385 X2Lib/X2UISkillTreeNew2015.cpp:1003
+GetIsMouseOver	CKTDGUIDialog|CX2UIInventory	2	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1050 X2Lib/X2UISkillTreeNew2015.cpp:1056 X2Lib/X2UISkillTreeNew2015.cpp:1065
+SetFont_LUA	CKTDGUIIMEEditBox	1	1	D0c-2	KTDXLIB/KTDGUIIMEEditBox.cpp:3373
+GetGroupID	CKTDGUIIMEEditBox|CKTDGUIRadioButton	2	1	D0c-2	KTDXLIB/KTDGUIDialog.cpp:803
+AddString	CKTDGUIListBox|CKTDGUIStatic|CX2GameEdit	3	3	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1431 X2Lib/X2UISkillTreeNew2015.cpp:1871 X2Lib/X2UISkillTreeNew2015.cpp:2001
+SetBGTex	CKTDGUINavigation	1	6	D0c-2	X2Lib/X2WorldMapUI.cpp:2437 X2Lib/X2WorldMapUI.cpp:2440 X2Lib/X2WorldMapUI.cpp:2443 X2Lib/X2WorldMapUI.cpp:2446
+SetRelativeWindowPos	CKTDGUINavigation	1	1	D0c-2	X2Lib/X2UIQuestNew.cpp:3138
+DrawCheckedEdge	CKTDGUIRadioButton	1	2	D0c-2	KTDXLIB/KTDGUIRadioButton.cpp:212 KTDXLIB/KTDGUIRadioButton.cpp:246
+ChangeState	CKTDGUISlot	1	2	D0c-2	KTDXLIB/KTDGUISlot.cpp:877 KTDXLIB/KTDGUISlot.cpp:900
+GetDroppedSlot	CKTDGUISlot	1	1	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:2590
+SetDragable	CKTDGUISlot	1	11	D0c-2	X2Lib/X2KeyPad.cpp:1300 X2Lib/X2KeyPad.cpp:1352 X2Lib/X2KeyPad.cpp:1820 X2Lib/X2KeyPad.cpp:1872
+SetMouseOverTex	CKTDGUISlot	1	4	D0c-2	X2Lib/X2KeyPad.cpp:1299 X2Lib/X2KeyPad.cpp:1351 X2Lib/X2KeyPad.cpp:1819 X2Lib/X2KeyPad.cpp:1871
+SetSlotData	CKTDGUISlot	1	12	D0c-2	X2Lib/X2Game.cpp:13698 X2Lib/X2UISkillTreeNew2015.cpp:1276 X2Lib/X2UISkillTreeNew2015.cpp:2837 X2Lib/X2UISkillTreeNew2015.cpp:2841
+UpdateDraggingVertex	CKTDGUISlot	1	1	D0c-2	KTDXLIB/KTDGUISlot.cpp:523
+AddPicture	CKTDGUISlot|CKTDGUIStatic	2	8	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:515 X2Lib/X2UISkillTreeNew2015.cpp:861 X2Lib/X2UISkillTreeNew2015.cpp:1440 X2Lib/X2UISkillTreeNew2015.cpp:1449
+GetState	CKTDGUISlot|CKTDGXMeshPlayer::CXMeshInstance|CKTDGXSkinAnim|CX2RandomMissionManager	4	9	D0c-2	X2Lib/X2DungeonGame.cpp:362 X2Lib/X2GUArme_VioletMage.cpp:23500 X2Lib/X2GUArme_VioletMage.cpp:24713 X2Lib/X2GUArme_VioletMage.cpp:25705
+GetSlotData	CKTDGUISlot|CX2Room	2	30	D0c-2	X2Lib/X2UISkillTreeNew2015.cpp:1038 X2Lib/X2UISkillTreeNew2015.cpp:2299 X2Lib/X2UISkillTreeNew2015.cpp:2301 X2Lib/X2UISkillTreeNew2015.cpp:2317
+DrawEdge	CKTDGUIStatic	1	2	D0c-2	KTDXLIB/KTDGUIStatic.cpp:193 KTDXLIB/KTDGUIStatic.cpp:228
+GetMovie	CKTDGUIStatic	1	2	D0c-2	X2Lib/X2Main.cpp:11831 X2Lib/X2Main.cpp:11935
+GetPictureIndex	CKTDGUIStatic	1	2	D0c-2	X2Lib/X2LocalMapUI.cpp:949 X2Lib/X2LocalMapUI.cpp:951
+GetPictureNum	CKTDGUIStatic	1	11	D0c-2	X2Lib/X2Game.cpp:6344 X2Lib/X2Game.cpp:6348 X2Lib/X2Game.cpp:6536 X2Lib/X2Game.cpp:6580
+SetPlaySpeed	CKTDGXMeshPlayer::CXMeshEvent_AniName|CKTDGXSkinAnim	2	18	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1728 X2Lib/X2GUArme_VioletMage.cpp:22595 X2Lib/X2GUArme_VioletMage.cpp:22600 X2Lib/X2GUArme_VioletMage.cpp:22735
+GetPlayType	CKTDGXMeshPlayer::CXMeshEvent_AniName|CKTDGXSkinAnim|CX2WorldObjectSkinMesh	3	4	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1724 X2Lib/X2GUNPC.h:3167 X2Lib/X2GUUser.cpp:30032 X2Lib/X2GUUser.cpp:30035
+EventTimerGlobal	CKTDGXMeshPlayer::CXMeshInstance	1	10	D0c-2	X2Lib/X2DamageEffect.cpp:2844 X2Lib/X2DamageEffect.cpp:3414 X2Lib/X2GuEve.cpp:47439 X2Lib/X2GuEve.cpp:47467
+GetDirVec	CKTDGXMeshPlayer::CXMeshInstance	1	3	D0c-2	X2Lib/X2DamageEffect.cpp:5285 X2Lib/X2DamageEffect.cpp:9478 X2Lib/X2DamageEffect.cpp:10601
+GetGlobalTime	CKTDGXMeshPlayer::CXMeshInstance	1	4	D0c-2	X2Lib/X2DamageEffect.cpp:3295 X2Lib/X2DamageEffect.cpp:3296 X2Lib/X2DamageEffect.cpp:3301 X2Lib/X2GuEve.cpp:44246
+GetMaxLifeTime	CKTDGXMeshPlayer::CXMeshInstance	1	30	D0c-2	X2Lib/X2DamageEffect.cpp:1883 X2Lib/X2DamageEffect.cpp:5264 X2Lib/X2DamageEffect.cpp:5305 X2Lib/X2DamageEffect.cpp:6008
+GetMeshAlphaColor	CKTDGXMeshPlayer::CXMeshInstance	1	5	D0c-2	X2Lib/X2GuEve.cpp:49042 X2Lib/X2GuEve.cpp:49196 X2Lib/X2GuEve.cpp:49237 X2Lib/X2GuEve.cpp:49503
+GetNowLifeTime	CKTDGXMeshPlayer::CXMeshInstance	1	20	D0c-2	X2Lib/X2DamageEffect.cpp:2836 X2Lib/X2DamageEffect.cpp:3086 X2Lib/X2DamageEffect.cpp:5264 X2Lib/X2DamageEffect.cpp:5305
+GetRotateLocalDegree	CKTDGXMeshPlayer::CXMeshInstance	1	10	D0c-2	X2Lib/X2GuEve.cpp:41712 X2Lib/X2GuEve.cpp:41852 X2Lib/X2GuEve.cpp:41976 X2Lib/X2GuEve.cpp:43109
+GetXSkinMesh	CKTDGXMeshPlayer::CXMeshInstance	1	1	D0c-2	X2Lib/X2DamageEffect.cpp:1884
+SetBlackHolePos	CKTDGXMeshPlayer::CXMeshInstance	1	2	D0c-2	X2Lib/X2DamageEffect.cpp:3940 X2Lib/X2DamageEffect.cpp:3952
+SetGlobalTime	CKTDGXMeshPlayer::CXMeshInstance	1	6	D0c-2	X2Lib/X2GuEve.cpp:42241 X2Lib/X2GuEve.cpp:42252 X2Lib/X2GuEve.cpp:42262 X2Lib/X2GuEve.cpp:42280
+SetMaxLifeTime	CKTDGXMeshPlayer::CXMeshInstance	1	25	D0c-2	X2Lib/X2DamageEffect.cpp:1883 X2Lib/X2DamageEffect.cpp:10352 X2Lib/X2DamageEffect.cpp:10699 X2Lib/X2EffectSet.cpp:5962
+SetMeshAlphaColor	CKTDGXMeshPlayer::CXMeshInstance	1	8	D0c-2	X2Lib/X2GuEve.cpp:47223 X2Lib/X2GuEve.cpp:47227 X2Lib/X2GuEve.cpp:47236 X2Lib/X2GuEve.cpp:49042
+SetNowLifeTime	CKTDGXMeshPlayer::CXMeshInstance	1	23	D0c-2	X2Lib/X2DamageEffect.cpp:3086 X2Lib/X2DamageEffect.cpp:6008 X2Lib/X2DamageEffect.cpp:7380 X2Lib/X2DamageEffect.cpp:7751
+UseManualDirDegree	CKTDGXMeshPlayer::CXMeshInstance	1	2	D0c-2	X2Lib/X2GuEve.cpp:47750 X2Lib/X2GuEve.cpp:47824
+GetXSkinAnim	CKTDGXMeshPlayer::CXMeshInstance|CKTDGXSkinAfterImage|CX2GUUser|CX2PET|CX2RidingPet|CX2TFieldNpc|CX2UnitViewerUI|CX2WorldObjectSkinMesh	8	48	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:661 X2Lib/X2BaseUnitViewerUI.cpp:664 X2Lib/X2BaseUnitViewerUI.cpp:735 X2Lib/X2BaseUnitViewerUI.cpp:738
+GetMeshInstance	CKTDGXMeshPlayer|CX2GUNPC::MeshPlayerEffectData	2	56	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:360 X2Lib/X2BaseUnitViewerUI.cpp:430 X2Lib/X2BaseUnitViewerUI.cpp:520 X2Lib/X2BaseUnitViewerUI.cpp:631
+SetRenderPassFogAndMaxSkinningVertices	CKTDGXRenderer	1	4	D0c-2	KTDXLIB/KTDGManager.cpp:893 KTDXLIB/KTDGManager.cpp:916 KTDXLIB/KTDGManager.cpp:965 KTDXLIB/KTDGManager.cpp:988
+CreateSkinAfterImage	CKTDGXSkinAfterImage	1	1	D0c-2	X2Lib/X2GUNPC.cpp:30216
+Disable	CKTDGXSkinAfterImage	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30919 X2Lib/X2GameUnit.cpp:18283
+Enable	CKTDGXSkinAfterImage	1	1	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:30925
+SetAfterImageColor	CKTDGXSkinAfterImage	1	2	D0c-2	X2Lib/X2GUNPC.cpp:30219 X2Lib/X2GameUnit.cpp:18262
+SetRenderParam	CKTDGXSkinAfterImage|CX2Eqip|CX2SubEquip	3	1	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:29622
+CreateSkinAnim	CKTDGXSkinAnim	1	8	D0c-2	X2Lib/X2Eqip.cpp:2341 X2Lib/X2GUArme_VioletMage.cpp:22534 X2Lib/X2GUArme_VioletMage.cpp:22535 X2Lib/X2GUArme_VioletMage.cpp:22536
+DrawFrame	CKTDGXSkinAnim	1	5	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1539 KTDXLIB/KTDGXSkinAnim.cpp:1600 KTDXLIB/KTDGXSkinAnim.cpp:1668 KTDXLIB/KTDGXSkinAnim.cpp:1686
+EventTimerOneshot	CKTDGXSkinAnim	1	281	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22093 X2Lib/X2GUArme_VioletMage.cpp:22102 X2Lib/X2GUArme_VioletMage.cpp:23076 X2Lib/X2GUArme_VioletMage.cpp:23092
+GetAttackDataListNonConst	CKTDGXSkinAnim	1	2	D0c-2	X2Lib/X2DamageEffect.cpp:1886 X2Lib/X2GuEve.cpp:41748
+GetCloneFrameRoot	CKTDGXSkinAnim	1	2	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:119 X2Lib/X2Eqip.cpp:2765
+GetMaxAnimationTime	CKTDGXSkinAnim	1	10	D0c-2	X2Lib/X2EffectSet.cpp:361 X2Lib/X2EffectSet.cpp:449 X2Lib/X2GUArme_VioletMage.cpp:22123 X2Lib/X2GUArme_VioletMage.cpp:22134
+GetNowAnimName	CKTDGXSkinAnim	1	6	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1723 X2Lib/X2EffectSet.cpp:360 X2Lib/X2EffectSet.cpp:382 X2Lib/X2EffectSet.cpp:448
+GetNowAnimationTime	CKTDGXSkinAnim	1	3	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1562 KTDXLIB/KTDGXSkinAnim.cpp:1675 KTDXLIB/KTDGXSkinAnim.cpp:1787
+GetNowPlayCount	CKTDGXSkinAnim	1	4	D0c-2	X2Lib/X2EffectSet.cpp:361 X2Lib/X2EffectSet.cpp:381 X2Lib/X2EffectSet.cpp:449 X2Lib/X2EffectSet.cpp:465
+GetProcessFrameMove	CKTDGXSkinAnim	1	1	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1551
+IsAnimationEnd	CKTDGXSkinAnim	1	168	D0c-2	KTDXLIB/KTDGXMeshPlayer.cpp:1850 X2Lib/X2BaseUnitViewerUI.cpp:586 X2Lib/X2EffectSet.cpp:199 X2Lib/X2GUArme_VioletMage.cpp:21716
+ResetOneshotPerformed	CKTDGXSkinAnim	1	2	D0c-2	X2Lib/X2GUNPC.cpp:30209 X2Lib/X2RidingPet.cpp:1515
+SetJiggleMesh	CKTDGXSkinAnim	1	2	D0c-2	X2Lib/X2Eqip.cpp:2613 X2Lib/X2Eqip.cpp:2700
+UseDXMatrix	CKTDGXSkinAnim	1	1	D0c-2	X2Lib/X2Eqip.cpp:2350
+GetAttackDataList	CKTDGXSkinAnim|CKTDXDeviceXSkinMesh	2	13	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1088 X2Lib/X2DamageManager.cpp:2602 X2Lib/X2DamageManager.cpp:2738 X2Lib/X2DamageManager.cpp:2781
+GetCollisionDataList	CKTDGXSkinAnim|CKTDXDeviceXSkinMesh	2	8	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1075 X2Lib/X2GUArme_VioletMage.cpp:30997 X2Lib/X2GUArme_VioletMage.cpp:30998 X2Lib/X2GUArme_VioletMage.cpp:31032
+GetNowAnimationTime	CKTDGXSkinAnim|CX2GUNPC|CX2GUUser	3	270	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:395 X2Lib/X2BaseUnitViewerUI.cpp:469 X2Lib/X2BuffTemplet.cpp:1759 X2Lib/X2DamageEffect.cpp:3309
+GetCloneFramePosition	CKTDGXSkinAnim|CX2GameUnit	2	78	D0c-2	X2Lib/X2EffectSet.cpp:5265 X2Lib/X2EffectSet.cpp:7014 X2Lib/X2EffectSet.cpp:7025 X2Lib/X2EffectSet.cpp:7053
+GetButtonState	CKTDIDevice	1	2	D0c-2	X2Lib/X2SlideShotScripted.cpp:273 X2Lib/X2SlideShotScripted.cpp:284
+GetKeyState	CKTDIDevice|CKTDIDeviceWinKey	2	9	D0c-2	X2Lib/X2GFXEventScene.cpp:507 X2Lib/X2GFXEventScene.cpp:509 X2Lib/X2GFXEventScene.cpp:513 X2Lib/X2GFXEventScene.cpp:518
+ReleaseAllButtonsAndKeys	CKTDIDevice|CKTDIDeviceWinKey	2	3	D0c-2	X2Lib/X2StateMenu.cpp:2136 X2Lib/X2StateMenu.cpp:2138 X2Lib/X2StateMenu.cpp:2140
+SetAction	CKTDIDevice|CKTDIDeviceWinKey	2	6	D0c-2	KTDXLIB/KTDIManager.cpp:444 KTDXLIB/KTDIManager.cpp:445 KTDXLIB/KTDIManager.cpp:457 KTDXLIB/KTDIManager.cpp:466
+GetJoystic	CKTDIManager	1	2	D0c-2	X2Lib/X2StateMenu.cpp:2139 X2Lib/X2StateMenu.cpp:2140
+GetMouse	CKTDIManager	1	9	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1743 KTDXLIB/KTDGGFXManager.cpp:1745 KTDXLIB/KTDGGFXManager.cpp:1746 KTDXLIB/KTDGUISlot.cpp:511
+Getkeyboard	CKTDIManager	1	13	D0c-2	X2Lib/X2GFXEventScene.cpp:507 X2Lib/X2GFXEventScene.cpp:509 X2Lib/X2GFXEventScene.cpp:513 X2Lib/X2GFXEventScene.cpp:518
+BroadCast	CKTDNDP|CKTDNTransfer|CKTDNUDP	3	1	D0c-2	X2Lib/X2World.cpp:2380
+SendToPeer	CKTDNUDP	1	1	D0c-2	X2Lib/X2GUUser.cpp:18340
+GetPlayingFileName	CKTDSMP3Play	1	1	D0c-2	X2Lib/X2SlideShotScripted.cpp:181
+GetMP3Play	CKTDSManager	1	6	D0c-2	X2Lib/X2SlideShotScripted.cpp:53 X2Lib/X2SlideShotScripted.cpp:181 X2Lib/X2SlideShotScripted.cpp:182 X2Lib/X2SlideShotScripted.cpp:510
+GetSystem	CKTDSManager	1	2	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1341 KTDXLIB/KTDGGFXManager.cpp:1350
+GetInit	CKTDSManager|CX2SquareUnit	2	1	D0c-2	X2Lib/X2SlideShotScripted.cpp:53
+ConvertByResolution	CKTDXApp	1	1	D0c-2	X2Lib/X2TalkBoxManagerImp.cpp:2374
+GetDGManager	CKTDXApp	1	171	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:184 KTDXLIB/KTDGEnvBoxMap.cpp:184 KTDXLIB/KTDGEnvBoxMap.cpp:185 KTDXLIB/KTDGEnvBoxMap.cpp:192
+GetDIManager	CKTDXApp	1	21	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1743 KTDXLIB/KTDGGFXManager.cpp:1743 KTDXLIB/KTDGGFXManager.cpp:1745 KTDXLIB/KTDGGFXManager.cpp:1746
+GetDSManager	CKTDXApp	1	11	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1341 KTDXLIB/KTDGGFXManager.cpp:1341 KTDXLIB/KTDGGFXManager.cpp:1350 X2Lib/X2SlideShotScripted.cpp:53
+GetDVBManager	CKTDXApp	1	1	D0c-2	KTDXLIB/KTDXApp.cpp:1597
+GetDevice	CKTDXApp	1	28	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:214 KTDXLIB/KTDGEnvBoxMap.cpp:276 KTDXLIB/KTDGEnvBoxMap.cpp:616 KTDXLIB/KTDGEnvBoxMap.cpp:617
+GetDeviceManager	CKTDXApp	1	132	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:171 KTDXLIB/KTDGEnvBoxMap.cpp:177 KTDXLIB/KTDGEnvBoxMap.cpp:198 KTDXLIB/KTDGEnvBoxMap.cpp:205
+GetFindHacking	CKTDXApp	1	1	D0c-2	X2Lib/X2UIDungeonResultAdapter.cpp:934
+GetLuaBinder	CKTDXApp	1	69	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:322 KTDXLIB/KTDGEnvBoxMap.cpp:359 KTDXLIB/KTDGLineMap.cpp:3146 KTDXLIB/KTDGLineMap.cpp:3148
+GetResolutionScaleX	CKTDXApp	1	17	D0c-2	KTDXLIB/KTDGFontManager.cpp:1282 KTDXLIB/KTDGFontManager.cpp:1369 KTDXLIB/KTDGGFXManager.cpp:1887 KTDXLIB/KTDXWordWrap.cpp:35
+GetResolutionScaleY	CKTDXApp	1	11	D0c-2	KTDXLIB/KTDGFontManager.cpp:1283 KTDXLIB/KTDGFontManager.cpp:1370 KTDXLIB/KTDGGFXManager.cpp:877 KTDXLIB/KTDGGFXManager.cpp:1887
+GetViewProjectionTransform	CKTDXApp	1	1	D0c-2	KTDXLIB/KTDGHeatShimmer.cpp:120
+GetViewTransform	CKTDXApp	1	1	D0c-2	KTDXLIB/KTDGXRenderer.cpp:845
+InsertStage	CKTDXApp	1	1	D0c-2	KTDXLIB/KTDXApp.cpp:501
+LoadAndDoMemory	CKTDXApp	1	8	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:325 X2Lib/Offline/X2OfflineDungeonRank.cpp:193 X2Lib/Offline/X2OfflineDungeonRank.cpp:197 X2Lib/X2GameUnit.cpp:4293
+LoadAndDoMemory_ErrorCode	CKTDXApp	1	3	D0c-2	X2Lib/X2BuffTempletManager.cpp:228 X2Lib/X2BuffTempletManager.cpp:669 X2Lib/X2PremiumBuffManager.cpp:1240
+LoadLuaTinker	CKTDXApp	1	10	D0c-2	KTDXLIB/KTDGUIControl.cpp:2222 X2Lib/X2DamageManager.cpp:3905 X2Lib/X2Data.cpp:3756 X2Lib/X2Data.cpp:3758
+MouseConvertByResolution	CKTDXApp	1	1	D0c-2	KTDXLIB/KTDGUISlot.cpp:513
+SendGameMessage	CKTDXApp	1	2	D0c-2	X2Lib/X2UIDungeonResultAdapter.cpp:740 X2Lib/X2UIDungeonResultAdapter.cpp:1025
+SetProjectionTransform	CKTDXApp	1	2	D0c-2	KTDXLIB/KTDGUIDialog.cpp:544 KTDXLIB/KTDGUIDialog.cpp:586
+SetViewTransform	CKTDXApp	1	6	D0c-2	KTDXLIB/KTDGCamera.cpp:140 KTDXLIB/KTDGCamera.cpp:413 KTDXLIB/KTDGUIDialog.cpp:523 KTDXLIB/KTDGUIDialog.cpp:546
+SetWorldTransform	CKTDXApp	1	4	D0c-2	KTDXLIB/KTDGUIDialog.cpp:519 KTDXLIB/KTDGUIDialog.cpp:545 KTDXLIB/KTDGUIDialog.cpp:567 KTDXLIB/KTDGUIDialog.cpp:587
+GetHWND	CKTDXApp|CSSOWebBrowser	2	4	D0c-2	KTDXLIB/KTDGGFXManager.cpp:1499 KTDXLIB/KTDGUIComboBox.cpp:911 KTDXLIB/KTDGUIComboBox.cpp:914 KTDXLIB/KTDGUIComboBox.cpp:931
+CheckAndResetElapsedTime	CKTDXCheckElapsedTime	1	3	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:4340 X2Lib/X2BuffTemplet.cpp:1827 X2Lib/X2BuffTemplet.cpp:2104
+SetTargetTime	CKTDXCheckElapsedTime	1	1	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:4318
+CollisionDataCheck	CKTDXCollision	1	6	D0c-2	X2Lib/X2DamageManager.cpp:2606 X2Lib/X2DamageManager.cpp:2696 X2Lib/X2DamageManager.cpp:2698 X2Lib/X2DamageManager.cpp:2706
+LineToLine	CKTDXCollision	1	1	D0c-2	X2Lib/X2DamageManager.cpp:2403
+GetPointEnd	CKTDXCollision::CollisionData	1	4	D0c-2	X2Lib/X2DamageManager.cpp:2385 X2Lib/X2DamageManager.cpp:2403 X2Lib/X2DamageManager.cpp:2419 X2Lib/X2DamageManager.cpp:2654
+GetPointStart	CKTDXCollision::CollisionData	1	13	D0c-2	X2Lib/X2BuffTemplet.cpp:1982 X2Lib/X2DamageEffect.cpp:9148 X2Lib/X2DamageEffect.cpp:9190 X2Lib/X2DamageManager.cpp:2384
+GetScaleRadius	CKTDXCollision::CollisionData	1	4	D0c-2	X2Lib/X2DamageManager.cpp:2386 X2Lib/X2DamageManager.cpp:2396 X2Lib/X2DamageManager.cpp:2643 X2Lib/X2DamageManager.cpp:2656
+GetDeviceState	CKTDXDevice	1	1	D0c-2	KTDXLIB/KTDXDeviceManager.cpp:809
+GetDeviceType	CKTDXDevice	1	1	D0c-2	KTDXLIB/KTDXDeviceManager.cpp:1164
+SetDeviceTexture	CKTDXDeviceBaseTexture	1	10	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:611 KTDXLIB/KTDGEnvBoxMap.cpp:614 KTDXLIB/KTDGXRenderer.cpp:807 KTDXLIB/KTDGXRenderer.cpp:1448
+AccessReadyDeviceList	CKTDXDeviceHolder	1	1	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:32770
+DeviceReady	CKTDXDeviceHolder	1	7	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22531 X2Lib/X2GUArme_VioletMage.cpp:22532 X2Lib/X2GUArme_VioletMage.cpp:22898 X2Lib/X2GUArme_VioletMage.cpp:22899
+TextureReadyInBackground	CKTDXDeviceHolder	1	251	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:23067 X2Lib/X2GUArme_VioletMage.cpp:23678 X2Lib/X2GUArme_VioletMage.cpp:23679 X2Lib/X2GUArme_VioletMage.cpp:23680
+XSkinMeshReadyInBackground	CKTDXDeviceHolder	1	174	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:23068 X2Lib/X2GUArme_VioletMage.cpp:26040 X2Lib/X2GUArme_VioletMage.cpp:26042 X2Lib/X2GUArme_VioletMage.cpp:26098
+AppendXSkinMesh	CKTDXDeviceManager	1	3	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:28849 X2Lib/X2GUArme_VioletMage.cpp:28850 X2Lib/X2GUArme_VioletMage.cpp:28851
+GetMassFileManager	CKTDXDeviceManager	1	8	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:263 KTDXLIB/KTDGGFXManager.cpp:124 KTDXLIB/KTDGGFXManager.cpp:1374 KTDXLIB/KTDGHeatShimmer.cpp:42
+OpenSound	CKTDXDeviceManager	1	3	D0c-2	X2Lib/X2BaseUnitViewerUI.cpp:571 X2Lib/X2EffectSet.cpp:181 X2Lib/X2GFXEventScene.cpp:331
+OpenXET	CKTDXDeviceManager	1	8	D0c-2	X2Lib/X2Eqip.cpp:2290 X2Lib/X2Eqip.cpp:2291 X2Lib/X2Eqip.cpp:2292 X2Lib/X2Eqip.cpp:2293
+OpenXSkinMesh	CKTDXDeviceManager	1	15	D0c-2	X2Lib/X2Eqip.cpp:2327 X2Lib/X2Eqip.cpp:2335 X2Lib/X2Eqip.cpp:2674 X2Lib/X2GUArme_VioletMage.cpp:22529
+StopSound	CKTDXDeviceManager	1	12	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:22887 X2Lib/X2GUArme_VioletMage.cpp:22888 X2Lib/X2GuEve.cpp:44784 X2Lib/X2GuEve.cpp:44785
+OnLostDevice	CKTDXDeviceRenderTargetTexture	1	1	D0c-2	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:69
+DeleteMultiTexStage2	CKTDXDeviceXET	1	3	D0c-2	X2Lib/X2Eqip.cpp:2303 X2Lib/X2Eqip.cpp:2315 X2Lib/X2Eqip.cpp:2477
+GetMultiTex	CKTDXDeviceXET	1	3	D0c-2	KTDXLIB/KTDGXRenderer.cpp:1482 KTDXLIB/KTDGXRenderer.cpp:1495 X2Lib/X2Eqip.cpp:1866
+SetMultiTexStage2	CKTDXDeviceXET	1	1	D0c-2	X2Lib/X2Eqip.cpp:1860
+GetAlphaRender	CKTDXDeviceXSkinMesh	1	2	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1536 KTDXLIB/KTDGXSkinAnim.cpp:1592
+GetDrawFrame	CKTDXDeviceXSkinMesh	1	5	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1539 KTDXLIB/KTDGXSkinAnim.cpp:1586 KTDXLIB/KTDGXSkinAnim.cpp:1600 KTDXLIB/KTDGXSkinAnim.cpp:1686
+GetDrawFrameNum	CKTDXDeviceXSkinMesh	1	4	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1534 KTDXLIB/KTDGXSkinAnim.cpp:1584 KTDXLIB/KTDGXSkinAnim.cpp:1684 KTDXLIB/KTDGXSkinAnim.cpp:1795
+GetIsOnlyModelData	CKTDXDeviceXSkinMesh	1	1	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:560
+GetNoRenderable	CKTDXDeviceXSkinMesh	1	2	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:1531 KTDXLIB/KTDGXSkinAnim.cpp:1572
+GetFrameNum	CKTDXDeviceXSkinMesh|CKTDXDeviceXSkinMesh::XSkinMeshProxy	2	2	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:911 KTDXLIB/KTDGXSkinAnim.cpp:912
+GetFrameRoot	CKTDXDeviceXSkinMesh|CKTDXDeviceXSkinMesh::XSkinMeshProxy	2	2	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:2387 KTDXLIB/KTDGXSkinAnim.cpp:2391
+GetDeviceID	CKTDXDevice|CKTDXDeviceXSkinMesh::XSkinMeshProxy	2	16	D0c-2	KTDXLIB/KTDGXSkinAnim.cpp:280 KTDXLIB/KTDGXSkinAnim.cpp:305 KTDXLIB/KTDGXSkinAnim.cpp:630 KTDXLIB/KTDGXSkinAnim.cpp:637
+IsLoaded	CKTDXDevice|CX2OfflineAttribTable|CX2OfflineCashShop|CX2OfflineDropTable|CX2OfflineEnchantTable|CX2OfflineInventory|CX2OfflineMapData|CX2OfflineRandomItem|CX2OfflineResolveTable|CX2OfflineSocketTable|CX2OfflineStatTable	11	2	D0c-2	X2Lib/Offline/X2OfflineQuest.cpp:1958 X2Lib/Offline/X2OfflineQuest.cpp:2051
+GetRandomFloat	CKTDXRandomNumbers|CX2GUNPC|CX2GUUser	3	6	D0c-2	X2Lib/X2BuffTemplet.cpp:1859 X2Lib/X2BuffTemplet.cpp:1860 X2Lib/X2BuffTemplet.cpp:1861 X2Lib/X2DamageEffect.cpp:10582
+GetRandomInt	CKTDXRandomNumbers|CX2GUNPC|CX2GUUser|CX2PET	4	2	D0c-2	X2Lib/X2GuEve.cpp:46839 X2Lib/X2GuEve.cpp:49682
+GetStageState	CKTDXStage	1	5	D0c-2	KTDXLIB/KTDXApp.cpp:1359 KTDXLIB/KTDXApp.cpp:1370 KTDXLIB/KTDXApp.cpp:1382 KTDXLIB/KTDXApp.cpp:1394
+GetGeneralString	CKTDXStringTable	1	1	D0c-2	X2Lib/X2QuestManager.cpp:4070
+elapsed	CKTDXTimer	1	13	D0c-2	KTDXLIB/KTDGManager.cpp:549 KTDXLIB/KTDGUIDialog.cpp:444 X2Lib/X2GUArme_VioletMage.cpp:36060 X2Lib/X2GUArme_VioletMage.cpp:36125
+restart	CKTDXTimer	1	8	D0c-2	KTDXLIB/KTDGManager.cpp:552 X2Lib/X2GUArme_VioletMage.cpp:29335 X2Lib/X2GUArme_VioletMage.cpp:36047 X2Lib/X2GuEve.cpp:46601
+CheckAndUpdateResultValue	CX2AdditionalStatByBuff	1	36	D0c-2	X2Lib/X2GUUser.cpp:34461 X2Lib/X2GameUnit.cpp:13218 X2Lib/X2GameUnit.cpp:13227 X2Lib/X2GameUnit.cpp:13236
+CreateAndInsertStatFactor	CX2AdditionalStatByBuff	1	27	D0c-2	X2Lib/X2GameUnit.cpp:14692 X2Lib/X2GameUnit.cpp:14715 X2Lib/X2GameUnit.cpp:14725 X2Lib/X2GameUnit.cpp:14865
+EraseStatFactor	CX2AdditionalStatByBuff	1	14	D0c-2	X2Lib/X2GameUnit.cpp:15325 X2Lib/X2GameUnit.cpp:15356 X2Lib/X2GameUnit.cpp:15366 X2Lib/X2GameUnit.cpp:15506
+GetBasicStatValue	CX2AdditionalStatByBuff	1	1	D0c-2	X2Lib/X2BuffTemplet.h:1217
+GetMustChangeResultValue	CX2AdditionalStatByBuff	1	1	D0c-2	X2Lib/X2GameUnit.cpp:15625
+GetOptionValue	CX2AdditionalStatByBuff	1	8	D0c-2	X2Lib/X2BuffTemplet.h:1221 X2Lib/X2GameUnit.h:2875 X2Lib/X2GameUnit.h:2876 X2Lib/X2GameUnit.h:2877
+GetPassiveMultiple	CX2AdditionalStatByBuff	1	8	D0c-2	X2Lib/X2BuffTemplet.h:1233 X2Lib/X2GuEve.cpp:56556 X2Lib/X2GuEve.cpp:56557 X2Lib/X2GuEve.cpp:56560
+GetPassiveSum	CX2AdditionalStatByBuff	1	1	D0c-2	X2Lib/X2BuffTemplet.h:1233
+GetResultValue	CX2AdditionalStatByBuff	1	33	D0c-2	X2Lib/X2GUUser.cpp:34463 X2Lib/X2GUUser.cpp:34467 X2Lib/X2GameUnit.cpp:14682 X2Lib/X2GameUnit.cpp:14683
+SetMustChangeResultValue	CX2AdditionalStatByBuff	1	1	D0c-2	X2Lib/X2BuffTemplet.h:1244
+SetResultValue	CX2AdditionalStatByBuff	1	2	D0c-2	X2Lib/X2BuffTemplet.h:1213 X2Lib/X2BuffTemplet.h:1242
+UpdateAddtionalStatFactor	CX2AdditionalStatByBuff	1	13	D0c-2	X2Lib/X2GameUnit.cpp:14981 X2Lib/X2GameUnit.cpp:14995 X2Lib/X2GameUnit.cpp:15212 X2Lib/X2GameUnit.cpp:15218
+DidStart	CX2BuffBehaviorTemplet	1	25	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:328 X2Lib/X2BuffBehaviorTemplet.cpp:641 X2Lib/X2BuffBehaviorTemplet.cpp:680 X2Lib/X2BuffBehaviorTemplet.cpp:1270
+GetType	CX2BuffBehaviorTemplet	1	57	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:315 X2Lib/X2BuffBehaviorTemplet.cpp:629 X2Lib/X2BuffBehaviorTemplet.cpp:669 X2Lib/X2BuffBehaviorTemplet.cpp:1247
+SetStart	CX2BuffBehaviorTemplet|CX2BuffDisplayerTemplet|CX2CubeOpenImageManager	3	3	D0c-2	X2Lib/X2BuffTemplet.cpp:699 X2Lib/X2BuffTemplet.cpp:720 X2Lib/X2BuffTemplet.cpp:733
+GetValueOrPercentPerSecond	CX2BuffChangeNowMpPerSecondBehaviorTemplet	1	2	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:639 X2Lib/X2BuffBehaviorTemplet.cpp:679
+SelectDelegate	CX2BuffChangeNowMpPerSecondBehaviorTemplet	1	2	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:636 X2Lib/X2BuffBehaviorTemplet.cpp:676
+ApplyExternalFactorToFinalizer	CX2BuffFactor	1	4	D0c-2	X2Lib/X2GuEve.cpp:46059 X2Lib/X2GuEve.cpp:46062 X2Lib/X2GuEve.cpp:46069 X2Lib/X2GuEve.cpp:55805
+CreateBuffFactorPtr	CX2BuffFactor	1	1	D0c-2	X2Lib/X2BuffTempletManager.cpp:635
+GetBuffTempletID	CX2BuffFactor	1	1	D0c-2	X2Lib/X2BuffFactor.cpp:629
+GetFinalizerFactor	CX2BuffFactor	1	3	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:1893 X2Lib/X2BuffFinalizerTemplet.cpp:2028 X2Lib/X2BuffFinalizerTemplet.cpp:2160
+GetIgnoreRegistForRate	CX2BuffFactor	1	2	D0c-2	X2Lib/X2GameUnit.cpp:13589 X2Lib/X2GameUnit.cpp:18119
+GetIsUserUID	CX2BuffFactor	1	5	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:2528 X2Lib/X2BuffFactor.cpp:1123 X2Lib/X2BuffFinalizerTemplet.cpp:1898 X2Lib/X2BuffTemplet.cpp:225
+GetUidGameUnit	CX2BuffFactor	1	8	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:1084 X2Lib/X2BuffBehaviorTemplet.cpp:2529 X2Lib/X2BuffFactor.cpp:1124 X2Lib/X2BuffFactor.cpp:1126
+ParsingTableForWhile	CX2BuffFactor	1	7	D0c-2	X2Lib/X2BuffFactor.cpp:719 X2Lib/X2BuffFactor.cpp:1944 X2Lib/X2BuffFactor.cpp:1977 X2Lib/X2BuffFactor.cpp:2061
+SetBuffIdentity	CX2BuffFactor	1	1	D0c-2	X2Lib/X2GameUnit.cpp:15816
+SetIsUserUID	CX2BuffFactor	1	1	D0c-2	X2Lib/X2BuffFactor.cpp:892
+SetUidGameUnit	CX2BuffFactor	1	1	D0c-2	X2Lib/X2BuffFactor.cpp:891
+GetBuffIdentity	CX2BuffFactor|CX2BuffTemplet	2	49	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:1247 X2Lib/X2BuffBehaviorTemplet.cpp:1273 X2Lib/X2BuffBehaviorTemplet.cpp:1302 X2Lib/X2BuffBehaviorTemplet.cpp:1463
+GetBuffTempletID	CX2BuffFactor|CX2BuffTemplet|CX2JuneBuffRuntimeScope	3	55	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:1897 X2Lib/X2BuffTemplet.cpp:2541 X2Lib/X2BuffTempletManager.cpp:384 X2Lib/X2BuffTempletManager.cpp:387
+DidReserveToFinish	CX2BuffFinalizerTemplet	1	2	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:2061 X2Lib/X2BuffFinalizerTemplet.cpp:2192
+GetType	CX2BuffFinalizerTemplet	1	6	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:1893 X2Lib/X2BuffFinalizerTemplet.cpp:1946 X2Lib/X2BuffFinalizerTemplet.cpp:2028 X2Lib/X2BuffFinalizerTemplet.cpp:2072
+EraseBuffTempletFromGameUnit	CX2BuffFinishOtherBuffDebuffBehaviorTemplet|CX2GameUnit	2	9	D0c-2	X2Lib/X2BuffTemplet.cpp:2248 X2Lib/X2BuffTemplet.cpp:2275 X2Lib/X2BuffTemplet.cpp:2307 X2Lib/X2GUNPC.cpp:17961
+IsSame	CX2BuffIdentity	1	1	D0c-2	X2Lib/X2GameUnit.cpp:16025
+CreateBuffTempletPtr	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2BuffTempletManager.cpp:374
+GetAccumulationLimit	CX2BuffTemplet	1	6	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:4809 X2Lib/X2BuffBehaviorTemplet.cpp:5158 X2Lib/X2GUUser.cpp:26158 X2Lib/X2GUUser.cpp:38474
+GetBuffDesc	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2PremiumBuffManager.cpp:787
+GetBuffName	CX2BuffTemplet	1	3	D0c-2	X2Lib/X2PremiumBuffManager.cpp:787 X2Lib/X2RandomMission.cpp:156 X2Lib/X2RandomMission.cpp:175
+GetBuffTempletID	CX2BuffTemplet	1	9	D0c-2	X2Lib/X2BuffTemplet.cpp:214 X2Lib/X2BuffTemplet.cpp:290 X2Lib/X2BuffTemplet.cpp:419 X2Lib/X2BuffTemplet.cpp:445
+GetDidFinish	CX2BuffTemplet	1	2	D0c-2	X2Lib/X2BuffTemplet.cpp:481 X2Lib/X2GameUnit.cpp:14003
+GetFinalizerTempletPtrList	CX2BuffTemplet	1	2	D0c-2	X2Lib/X2BuffTemplet.cpp:749 X2Lib/X2GameUnit.cpp:16481
+GetIconFileName	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2PremiumBuffManager.cpp:786
+GetIconKeyName	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2PremiumBuffManager.cpp:787
+GetUseBuffIcon	CX2BuffTemplet	1	2	D0c-2	X2Lib/X2PremiumBuffManager.cpp:740 X2Lib/X2PremiumBuffManager.cpp:783
+IsDeBuff	CX2BuffTemplet	1	9	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:275 X2Lib/X2BuffTemplet.cpp:2714 X2Lib/X2BuffTempletManager.cpp:334 X2Lib/X2GameUnit.cpp:2425
+IsWorldBuff	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2BuffFinalizerTemplet.cpp:275
+SetDidFinish	CX2BuffTemplet	1	1	D0c-2	X2Lib/X2BuffTemplet.cpp:471
+GetBuffFactorPtrFromBuffFactorList	CX2BuffTempletManager	1	1	D0c-2	X2Lib/X2SkillTree.cpp:6121
+GetInstance	CX2BuffTempletManager	1	39	D0c-2	X2Lib/X2BuffBehaviorTemplet.cpp:1466 X2Lib/X2BuffBehaviorTemplet.cpp:1586 X2Lib/X2EffectSet.cpp:3854 X2Lib/X2GUAra.cpp:13946
+PlayLuaCamera	CX2Camera	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:23709 X2Lib/X2GUArme_VioletMage.cpp:23717
+GetAttackType	CX2ChangeAttackByType	1	1	D0c-2	X2Lib/X2GameUnit.cpp:15939
+GetBuffChangeType	CX2ChangeEnchantAttackRate	1	1	D0c-2	X2Lib/X2GameUnit.cpp:16027
+GetBuffEnchantAttributeType	CX2ChangeEnchantAttackRate	1	1	D0c-2	X2Lib/X2GameUnit.cpp:16026
+GetAttackTime	CX2DamageEffect::CEffect	1	2	D0c-2	X2Lib/X2GuEve.cpp:49247 X2Lib/X2GuEve.cpp:49325
+GetCheckSpectro	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2GuEve.cpp:49631
+GetDamageData	CX2DamageEffect::CEffect	1	6	D0c-2	X2Lib/X2DamageEffect.cpp:10582 X2Lib/X2DamageEffect.cpp:10664 X2Lib/X2DamageEffect.cpp:10665 X2Lib/X2DamageEffect.cpp:10677
+GetDamageTime	CX2DamageEffect::CEffect	1	10	D0c-2	X2Lib/X2GuEve.cpp:47172 X2Lib/X2GuEve.cpp:47179 X2Lib/X2GuEve.cpp:48015 X2Lib/X2GuEve.cpp:48022
+GetLaserGroupID	CX2DamageEffect::CEffect	1	10	D0c-2	X2Lib/X2GuEve.cpp:49001 X2Lib/X2GuEve.cpp:49007 X2Lib/X2GuEve.cpp:49103 X2Lib/X2GuEve.cpp:49109
+GetLive	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2DamageManager.cpp:2780
+GetLockOnData	CX2DamageEffect::CEffect	1	42	D0c-2	X2Lib/X2BuffTemplet.cpp:2609 X2Lib/X2BuffTemplet.cpp:2611 X2Lib/X2DamageEffect.cpp:3042 X2Lib/X2DamageEffect.cpp:3044
+GetMainEffectHandle	CX2DamageEffect::CEffect	1	23	D0c-2	X2Lib/X2EffectSet.cpp:1847 X2Lib/X2GuEve.cpp:37555 X2Lib/X2GuEve.cpp:37630 X2Lib/X2GuEve.cpp:37707
+GetName	CX2DamageEffect::CEffect	1	57	D0c-2	X2Lib/X2DamageEffect.cpp:2630 X2Lib/X2DamageEffect.cpp:2637 X2Lib/X2DamageEffect.cpp:3043 X2Lib/X2DamageEffect.cpp:3103
+GetType	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2DamageEffect.cpp:10577
+SetCheckSpectro	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2GuEve.cpp:49684
+SetDamageTime	CX2DamageEffect::CEffect	1	11	D0c-2	X2Lib/X2GUUser.cpp:38111 X2Lib/X2GuEve.cpp:47172 X2Lib/X2GuEve.cpp:47179 X2Lib/X2GuEve.cpp:48015
+SetFollowLineRight	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2EffectSet.cpp:1227
+SetInheritForceDownRate	CX2DamageEffect::CEffect	1	13	D0c-2	X2Lib/X2DamageEffect.cpp:10692 X2Lib/X2GuEve.cpp:38146 X2Lib/X2GuEve.cpp:38159 X2Lib/X2GuEve.cpp:38248
+SetLandPositionOnLineMap	CX2DamageEffect::CEffect	1	1	D0c-2	X2Lib/X2DamageEffect.cpp:3531
+SetLockOnNPCUID	CX2DamageEffect::CEffect	1	5	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34884 X2Lib/X2GuEve.cpp:46838 X2Lib/X2GuEve.cpp:49311 X2Lib/X2GuEve.cpp:49391
+SetLockOnRandomSeed	CX2DamageEffect::CEffect	1	3	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34886 X2Lib/X2GuEve.cpp:46839 X2Lib/X2GuEve.cpp:49682
+SetLockOnUnitUID	CX2DamageEffect::CEffect	1	5	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34882 X2Lib/X2GuEve.cpp:49309 X2Lib/X2GuEve.cpp:49389 X2Lib/X2GuEve.cpp:49679
+SetPassiveparticleTriggerTimeRate	CX2DamageEffect::CEffect	1	4	D0c-2	X2Lib/X2GuEve.cpp:47901 X2Lib/X2GuEve.cpp:47946 X2Lib/X2GuEve.cpp:48032 X2Lib/X2GuEve.cpp:48123
+GetDamageData	CX2DamageEffect::CEffect|CX2GameUnit	2	90	D0c-2	X2Lib/X2BuffTemplet.cpp:2376 X2Lib/X2BuffTemplet.cpp:2376 X2Lib/X2BuffTemplet.cpp:2377 X2Lib/X2BuffTemplet.cpp:2377
+SetBuffFactorToDamageDataByBuffFactorID	CX2DamageManager	1	1	D0c-2	X2Lib/X2DamageManager.cpp:5246
+GetAllDamage	CX2DamageManager::Damage	1	1	D0c-2	X2Lib/X2BuffTemplet.cpp:1834
+Copy	CX2DamageManager::ExtraDamageData	1	1	D0c-2	X2Lib/X2Unit.cpp:1336
+swap	CX2DamageManager|indexed_list	2	8	D0c-2	KTDXLIB/KTDGGFXManager.cpp:167 X2Lib/Offline/X2OfflineQuest.cpp:2038 X2Lib/Offline/X2OfflineSkill.cpp:981 X2Lib/X2DamageEffect.cpp:149
+GetEffectPosition_LUA	CX2EffectSet	1	2	D0c-2	X2Lib/X2GuEve.cpp:48215 X2Lib/X2GuEve.cpp:48233
+SetEffectScale	CX2EffectSet::EffectSetInstance	1	3	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:34696 X2Lib/X2GUArme_VioletMage.cpp:35522 X2Lib/X2GuEve.cpp:54837
+SetLocalRotateDegree	CX2EffectSet::EffectSetInstance	1	2	D0c-2	X2Lib/X2GuEve.cpp:43359 X2Lib/X2GuEve.cpp:43464
+SetPowerRateScale	CX2EffectSet::EffectSetInstance	1	2	D0c-2	X2Lib/X2GUArme_VioletMage.cpp:29447 X2Lib/X2GUArme_VioletMage.cpp:35521
+GetSkillIDByUnicClassAndGropID	CX2SocketItem	1	2	D0c-2	X2Lib/X2Unit.cpp:1315 X2Lib/X2Unit.cpp:1321
+GetLinearHyperGageChargeSpeedValue	CX2SocketItem::SocketData	1	1	D0c-2	X2Lib/X2SocketItem.h:1479
+CanActiveTrigger	CX2World	1	1	D0c-2	X2Lib/X2Game.cpp:19572
+FadeOriginWorldColor	CX2World	1	1	D0c-2	X2Lib/X2Game.cpp:6777
+GetBGMName	CX2World	1	1	D0c-2	X2Lib/X2QuestManager.cpp:3712
+GetGravityAndSpeedRate	CX2World	1	1	D0c-2	X2Lib/X2GameUnit.cpp:4438
+GetLineMap	CX2World	1	5	D0c-2	X2Lib/X2World.cpp:1854 X2Lib/X2World.cpp:1856 X2Lib/X2World.cpp:1867 X2Lib/X2World.cpp:1879
+Play3DEffectBGM	CX2World	1	1	D0c-2	X2Lib/X2WorldManager.cpp:190
+PlayAllEffectBGM	CX2World	1	2	D0c-2	X2Lib/X2SlideShotScripted.cpp:479 X2Lib/X2SlideShotScripted.cpp:488
+PlayEffectBGM	CX2World	1	1	D0c-2	X2Lib/X2WorldManager.cpp:189
+SetBGMName	CX2World	1	2	D0c-2	X2Lib/X2QuestManager.cpp:3713 X2Lib/X2QuestManager.cpp:3730
+StopAllEffectBGM	CX2World	1	2	D0c-2	X2Lib/X2SlideShotScripted.cpp:146 X2Lib/X2SlideShotScripted.cpp:151
+OpenWorldMap	CX2WorldMapUI	1	1	D0c-2	X2Lib/X2GFXEventScene.cpp:315
+GetDefenceDungeonIcnoDesc	CX2WorldMissionManager	1	1	D0c-2	X2Lib/X2LocalMapUI.cpp:165
+GetNowDefenceDungeonLevel	CX2WorldMissionManager	1	1	D0c-2	X2Lib/X2PartyUI.cpp:2015
+IsActiveDefenceDungeon	CX2WorldMissionManager	1	1	D0c-2	X2Lib/X2LocalMapUI.cpp:1491
+GetXMeshName	CX2WorldObjectLightFlow|CX2WorldObjectMesh	2	1	D0c-2	X2Lib/X2World.cpp:2330
+GetBillboardType	CX2WorldObjectMesh	1	1	D0c-2	X2Lib/X2WorldObjectMesh.cpp:178
+IsValidLODMesh	CX2WorldObjectMesh	1	1	D0c-2	X2Lib/X2WorldObjectMesh.cpp:165
+IsValidMesh	CX2WorldObjectMesh	1	1	D0c-2	X2Lib/X2WorldObjectMesh.cpp:169
+RayHit	CX2WorldObjectMesh	1	1	D0c-2	X2Lib/X2WorldObjectMesh.cpp:177
+GetXSkinMeshName	CX2WorldObjectSkinMesh	1	3	D0c-2	X2Lib/X2World.cpp:1727 X2Lib/X2World.cpp:2245 X2Lib/X2World.cpp:2262
+GetXSkinMotionMesh	CX2WorldObjectSkinMesh	1	1	D0c-2	X2Lib/X2World.cpp:2273
+CloseBrowser	KBrowserWrapper|KNMBrowserWrapper	2	1	D0c-2	X2Lib/X2StateMenu.cpp:2123
+IsClosed	KBrowserWrapper|KNMBrowserWrapper	2	1	D0c-2	X2Lib/X2StateMenu.cpp:2121
+LoadDataFile	KGCMassFileManager	1	5	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:263 KTDXLIB/KTDGHeatShimmer.cpp:42 X2Lib/Offline/X2OfflineDungeonRank.cpp:179 X2Lib/X2GFXEventScene.cpp:104
+GetMemberFile	KGCMassFileManager::CMassFile	1	1	D0c-2	KTDXLIB/KGCMassFileManager.cpp:1018
+_GetBit	KItemFormatTemplet	1	1	D0c-2	X2Lib/X2Item_Preprocessing.inl:531
+_GetBit2	KItemFormatTemplet	1	2	D0c-2	X2Lib/X2Item_Preprocessing.inl:529 X2Lib/X2Item_Preprocessing.inl:533
+_SetBit	KItemFormatTemplet	1	1	D0c-2	X2Lib/X2Item_Preprocessing.inl:530
+_SetBit2	KItemFormatTemplet	1	2	D0c-2	X2Lib/X2Item_Preprocessing.inl:528 X2Lib/X2Item_Preprocessing.inl:532
+BeginTable	KLuaManagerProxy	1	210	D0c-2	KTDXLIB/KTDGLineMap.cpp:9 KTDXLIB/KTDGLineMap.cpp:2938 KTDXLIB/KTDGLineMap.cpp:3161 KTDXLIB/KTDGLineMap.cpp:3210
+EndTable	KLuaManagerProxy	1	211	D0c-2	KTDXLIB/KTDGLineMap.cpp:20 KTDXLIB/KTDGLineMap.cpp:2941 KTDXLIB/KTDGLineMap.cpp:3173 KTDXLIB/KTDGLineMap.cpp:3217
+GetNumIndexedTables	KLuaManagerProxy	1	1	D0c-2	X2Lib/X2GUNPC.cpp:5582
+GetObservable	KObserverHandle|KObserverPtr	2	47	D0c-2	X2Lib/X2AllyNPCAI.cpp:213 X2Lib/X2BuffFinalizerTemplet.cpp:1878 X2Lib/X2BuffTemplet.cpp:1829 X2Lib/X2BuffTemplet.cpp:2107
+back	indexed_list	1	38	D0c-2	KTDXLIB/KTDGGFXManager.cpp:585 KTDXLIB/KTDGUIDialogManager.cpp:1151 KTDXLIB/KTDGUIDialogManager.cpp:1153 KTDXLIB/KTDGUIDialogManager.cpp:1155
+begin	indexed_list	1	290	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:59 KTDXLIB/KTDGDeviceSurfaceManager.cpp:110 KTDXLIB/KTDGDeviceSurfaceManager.cpp:172 KTDXLIB/KTDGDeviceSurfaceManager.cpp:192
+empty	indexed_list	1	353	D0c-2	KTDXLIB/KGCMassFileManager.cpp:987 KTDXLIB/KGCMassFileManager.cpp:1004 KTDXLIB/KTDGEnvBoxMap.cpp:77 KTDXLIB/KTDGEnvBoxMap.cpp:320
+end	indexed_list	1	480	D0c-2	KTDXLIB/KGCMassFileManager.cpp:991 KTDXLIB/KGCMassFileManager.cpp:997 KTDXLIB/KGCMassFileManager.cpp:1017 KTDXLIB/KTDGDeviceSurfaceManager.cpp:59
+front	indexed_list	1	10	D0c-2	X2Lib/X2BuffTempletManager.cpp:113 X2Lib/X2EmblemManager.cpp:1059 X2Lib/X2GFXEventScene.cpp:468 X2Lib/X2GUUser.cpp:45586
+push_back	indexed_list	1	570	D0c-2	KTDXLIB/KTDGDeviceSurfaceManager.cpp:96 KTDXLIB/KTDGDeviceSurfaceManager.cpp:150 KTDXLIB/KTDGEnvBoxMap.cpp:352 KTDXLIB/KTDGEnvBoxMap.cpp:404
+reserve	indexed_list	1	4	D0c-2	KTDXLIB/KTDGManager.cpp:417 KTDXLIB/KTDGXSkinAnim.cpp:146 KTDXLIB/KTDGXSkinAnim.cpp:156 X2Lib/X2UIQuestNewJune.cpp:669
+size	indexed_list	1	771	D0c-2	KTDXLIB/KTDGEnvBoxMap.cpp:79 KTDXLIB/KTDGEnvBoxMap.cpp:83 KTDXLIB/KTDGEnvBoxMap.cpp:160 KTDXLIB/KTDGEnvBoxMap.cpp:165
+Clear	BTTrace|CKTDGDeviceSurfaceManager|CKTDGPicChar|CKTDGUIUniBuffer|CKTDIDevice|CKTDIDeviceWinKey|CKTDSMP3Play|CKTDXDeviceRenderTargetTexture|CSSOWEBURLString|CUniBuffer|CX2DeparturePrevention|CX2DisUseKeySlotData|CX2EventScene|CX2IGA|CX2Inventory|CX2Main::DeveloperScriptSet|CX2NPCIndicator|CX2OfflineInventory|CX2OfflineQuest|CX2OfflineServer::KAutoPartyMatch|CX2OfflineServer::KOfflineRoom|CX2OfflineSkill|CX2OfflineTitle|CX2PremiumBuffManager|CX2RelationshipManager::WeddingItemInfo|CX2TalkBoxManager|CX2TalkBoxManagerImp|CX2TalkBoxManagerUI|CX2UIGuild::GuildInfoControl|CX2UseKeySlotData|HANDLE_NODE|KFileSerializer|KFileVerifier|KHandleArrayC|KHelpSystem	35	8	D0c-3	KTDXLIB/KTDGEnvBoxMap.cpp:599 KTDXLIB/KTDGGFXManager.cpp:1021 KTDXLIB/KTDGManager.cpp:551 KTDXLIB/KTDGManager.cpp:565
+GetHandle	BTTrace|CKTDGParticleSystem::CParticle|CKTDGParticleSystem::CParticleEventSequence|CKTDGUIDialogHandle|CKTDGXMeshPlayer::CXMeshInstance|CX2DamageEffect::CEffect|CX2EffectSet::EffectSetInstance|CX2WorldObjectParticle	8	77	D0c-3	X2Lib/X2BaseUnitViewerUI.cpp:415 X2Lib/X2BuffTemplet.cpp:1673 X2Lib/X2BuffTemplet.cpp:2607 X2Lib/X2DamageEffect.cpp:3080
+GetDialog	BadAttitudeUserWarningDialog|CKTDGUIControl|CKTDGUIDialogManager|CX2PageManager::CX2PageSlot|CX2PopupUIBase|CX2SlotManager::CX2Slot|CX2UIRecordVideo|CreateMonsterListDialog|ItemViewListDialog|MonsterStateListDialog	10	13	D0c-3	X2Lib/X2Game.cpp:13805 X2Lib/X2Game.cpp:14016 X2Lib/X2PartyUI.cpp:329 X2Lib/X2State.cpp:2135
+Load	BasicExcel|CKTDGDeviceFont|CKTDGDeviceFontBase|CKTDGDeviceFontTH|CKTDGFontManager::CUKFont|CKTDGFreeTypeFont|CKTDGGFXUI|CKTDXStringLoader|CNMRunParam|CX2OfflineInventory|CX2OfflineQuest|CX2OfflineSkill|CX2OfflineTitle|CX2SlideShotScriptedManager	14	10	D0c-3	KTDXLIB/KTDGGFXManager.cpp:1394 X2Lib/Offline/Handlers_Shop.cpp:968 X2Lib/Offline/Handlers_Skill.cpp:530 X2Lib/Offline/Handlers_Skill.cpp:584
+Move	Block|CKTDGCamera|CKTDGMatrix|CKTDGUIControl|CKTDGUIControl::UIPointData|CKTDGUIDialog|CX2TextManager::CX2Text	7	21	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:23527 X2Lib/X2GUArme_VioletMage.cpp:24748 X2Lib/X2GUArme_VioletMage.cpp:24750 X2Lib/X2GUArme_VioletMage.cpp:24752
+Initialize	CBattleFieldData|CBattleFieldMiddleBossInfo|CBattleFieldPortalMovingInfo|CBattleFieldRiskInfo|CDXUTIMEEditBox|CKTDGUIIMEEditBox|CKTDGUIUniBuffer|CSoundManager|CUniBuffer|CX2Item::ItemData|CX2Room::ROOM_PACKET_DATA|CX2UICouponBox|CX2UIUnitManager|CX2UnitLoader|CompoundFile::Header	15	1	D0c-3	KTDXLIB/KTDGGFXManager.cpp:1351
+GetReturnVillageId	CBattleFieldData|CX2BattleFieldManager	2	1	D0c-3	X2Lib/X2QuestManager.cpp:1786
+AddListener	CLIKDataBindingAdapter|CX2DLLManager	2	4	D0c-3	KTDXLIB/KTDGGFXManager.cpp:1050 KTDXLIB/KTDGGFXManager.cpp:1839 KTDXLIB/KTDGGFXManager.cpp:2056 KTDXLIB/KTDGGFXManager.cpp:2171
+RemoveListener	CLIKDataBindingAdapter|CX2DLLManager	2	3	D0c-3	KTDXLIB/KTDGGFXManager.cpp:1851 KTDXLIB/KTDGGFXManager.cpp:2066 KTDXLIB/KTDGGFXManager.cpp:2188
+GetInfo	CNPGameLib|CX2RidingPet	2	1	D0c-3	X2Lib/X2Unit.cpp:1532
+GetFocusCamera	CNpcCreatedInfo|CX2GUNPC	2	3	D0c-3	X2Lib/X2DungeonGame.cpp:2590 X2Lib/X2DungeonGame.cpp:2629 X2Lib/X2PVPGame.cpp:872
+GetKeyCode	CNpcCreatedInfo|CX2GUNPC	2	4	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:30939 X2Lib/X2Game.cpp:6754 X2Lib/X2GuEve.cpp:45954 X2Lib/X2GuEve.cpp:45961
+SetFocusCamera	CNpcCreatedInfo|CX2GUNPC	2	7	D0c-3	X2Lib/X2GUUser.cpp:23217 X2Lib/X2GUUser.cpp:23239 X2Lib/X2GUUser.cpp:23353 X2Lib/X2GUUser.cpp:23403
+GetAIType	CNpcCreatedInfo|CX2NPCAI	2	14	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:29505 X2Lib/X2GUNPC.cpp:14706 X2Lib/X2GUNPC.cpp:17908 X2Lib/X2GUNPC.cpp:17927
+GetStrByLineBreakInX2MainWithEllipse	CWordLineHandler	1	4	D0c-3	X2Lib/X2PartyUI.cpp:1956 X2Lib/X2RandomMission.cpp:199 X2Lib/X2UIQuestNewJune.cpp:1392 X2Lib/X2UIQuestNewJune.cpp:1616
+LineBreakInTalkBoxManagerImp	CWordLineHandler	1	1	D0c-3	X2Lib/X2TalkBoxManagerImp.cpp:2375
+LineBreakInX2Main	CWordLineHandler	1	1	D0c-3	X2Lib/X2SlideShotScripted.cpp:581
+ProcessQuestDescInUIQuestNew	CWordLineHandler	1	2	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1093 X2Lib/X2UIQuestNewJune.cpp:1102
+GetAllyUnitUID	CX2AllyNPCAI	1	13	D0c-3	X2Lib/X2DamageManager.cpp:5229 X2Lib/X2DamageManager.cpp:5231 X2Lib/X2GUArme_VioletMage.cpp:29506 X2Lib/X2GUNPC.cpp:17912
+SetAllyGameUnit	CX2AllyNPCAI	1	1	D0c-3	X2Lib/X2GUNPC.cpp:1855
+GetIsNpcLoadComplete	CX2BattleFieldGame	1	1	D0c-3	X2Lib/X2GUUser.cpp:22975
+GetBattleFieldIdWhereIam	CX2BattleFieldManager	1	2	D0c-3	X2Lib/X2DamageEffect.cpp:10738 X2Lib/X2DamageEffect.cpp:10753
+GetBattleFieldNameByBattleFieldId	CX2BattleFieldManager	1	3	D0c-3	X2Lib/X2EmblemManager.cpp:933 X2Lib/X2EmblemManager.cpp:934 X2Lib/X2WorldMapUI.cpp:503
+GetIsBossRaidCurrentField	CX2BattleFieldManager	1	3	D0c-3	X2Lib/X2DamageEffect.cpp:9075 X2Lib/X2EmblemManager.cpp:676 X2Lib/X2UIQuestNewJune.cpp:1958
+GetX2Camera	CX2BeginningGame|CX2Game	2	2	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:23709 X2Lib/X2GUArme_VioletMage.cpp:23717
+GetWorld	CX2BeginningGame|CX2Game|CX2SquareGame|CX2TFieldGame|CX2WeddingGame	5	84	D0c-3	X2Lib/X2DamageEffect.cpp:7619 X2Lib/X2DamageEffect.cpp:8137 X2Lib/X2DamageEffect.cpp:8254 X2Lib/X2DropItemManager.cpp:170
+SetEnableCameraProcess	CX2BeginningGame|CX2SquareGame|CX2TFieldGame|CX2WeddingGame	4	2	D0c-3	X2Lib/X2SlideShotScripted.cpp:239 X2Lib/X2SlideShotScripted.cpp:480
+GetBossRaidCreatorMapID	CX2BossRaidManager	1	1	D0c-3	X2Lib/X2EmblemManager.cpp:927
+GetBossRaidMapID	CX2BossRaidManager	1	1	D0c-3	X2Lib/X2EmblemManager.cpp:930
+GetInstance	CX2BossRaidManager	1	2	D0c-3	X2Lib/X2EmblemManager.cpp:927 X2Lib/X2EmblemManager.cpp:930
+RemoveChoicedItem	CX2CashShop	1	1	D0c-3	X2Lib/X2CashShop.cpp:13747
+SetMenuTypeCallingCashShop	CX2CashShop	1	4	D0c-3	X2Lib/X2LVUpEventMgr.cpp:372 X2Lib/X2StateMenu.cpp:1987 X2Lib/X2UISkillTreeNew2015.cpp:5285 X2Lib/X2UISkillTreeNew2015.cpp:5379
+SetChoicedItemBuy	CX2CashShop::BuyItemPopup	1	1	D0c-3	X2Lib/X2CashShop.cpp:2633
+GetOpen	CX2CashShop|CX2CashShop::PresentItemPopup|CX2Community|CX2StatePVPRoom::CX2MapSelectWindow	4	5	D0c-3	X2Lib/X2EmblemManager.cpp:616 X2Lib/X2Game.cpp:3498 X2Lib/X2State.cpp:4090 X2Lib/X2State.cpp:9254
+AddChatLog	CX2ChatBox	1	7	D0c-3	X2Lib/X2EmblemManager.cpp:932 X2Lib/X2GUUser.cpp:16380 X2Lib/X2Game.cpp:12376 X2Lib/X2Game.cpp:12474
+GetFocusChatEditBox	CX2ChatBox	1	1	D0c-3	X2Lib/X2Game.cpp:6030
+GetNowCannonBallCount	CX2ChungGageData	1	1	D0c-3	X2Lib/X2GUChung.cpp:465
+ResetChainingFromNext	CX2ComboAndSkillChainInfo	1	1	D0c-3	X2Lib/X2GUAra.cpp:3456
+SetChaining	CX2ComboAndSkillChainInfo	1	1	D0c-3	X2Lib/X2GUAra.cpp:3455
+PushBack	CX2ComboAndSkillChainInfoList	1	2	D0c-3	KTDXLIB/KTDGGFXManager.cpp:2007 KTDXLIB/KTDGGFXManager.cpp:2010
+ResetOtherListChaining	CX2ComboAndSkillChainSystem	1	1	D0c-3	X2Lib/X2GUAra.cpp:3457
+GetCurorState	CX2Cursor	1	1	D0c-3	X2Lib/X2GFXEventScene.cpp:398
+OnFrameRender	CX2Cursor	1	1	D0c-3	X2Lib/X2Cursor.cpp:436
+GetBattleFieldManager	CX2Data	1	9	D0c-3	X2Lib/X2DamageEffect.cpp:9075 X2Lib/X2DamageEffect.cpp:10738 X2Lib/X2DamageEffect.cpp:10753 X2Lib/X2EmblemManager.cpp:676
+GetCashShop	CX2Data	1	21	D0c-3	X2Lib/X2EmblemManager.cpp:615 X2Lib/X2EmblemManager.cpp:616 X2Lib/X2Game.cpp:3498 X2Lib/X2Game.cpp:3498
+GetClassChangePopup	CX2Data	1	2	D0c-3	X2Lib/X2State.cpp:4082 X2Lib/X2State.cpp:9262
+GetComboTree	CX2Data	1	1	D0c-3	X2Lib/X2UIComboTree.cpp:352
+GetDamageManager	CX2Data	1	22	D0c-3	X2Lib/X2DamageEffect.cpp:1825 X2Lib/X2DamageEffect.cpp:1837 X2Lib/X2DamageEffect.cpp:1839 X2Lib/X2DamageEffect.cpp:2160
+GetDungeonManager	CX2Data	1	43	D0c-3	X2Lib/Offline/X2OfflineQuest.cpp:1055 X2Lib/Offline/X2OfflineQuest.cpp:1059 X2Lib/X2DungeonSubStage.cpp:2631 X2Lib/X2LocalMapUI.cpp:161
+GetDungeonResultInfo	CX2Data	1	4	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:362 X2Lib/X2UIDungeonResultAdapter.cpp:868 X2Lib/X2UIDungeonResultAdapter.cpp:926 X2Lib/X2UIDungeonResultAdapter.cpp:1089
+GetDungeonRoom	CX2Data	1	13	D0c-3	X2Lib/X2DungeonSubStage.cpp:2630 X2Lib/X2GUUser.cpp:28150 X2Lib/X2GUUser.cpp:28151 X2Lib/X2StateDungeonGame.cpp:303
+GetEXPTable	CX2Data	1	2	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:444 X2Lib/X2UIDungeonResultAdapter.cpp:444
+GetEnchantItem	CX2Data	1	6	D0c-3	X2Lib/X2GameUnit.cpp:6499 X2Lib/X2GameUnit.cpp:6503 X2Lib/X2GameUnit.cpp:6505 X2Lib/X2GameUnit.cpp:6602
+GetEventScene	CX2Data	1	2	D0c-3	X2Lib/X2GFXEventScene.cpp:243 X2Lib/X2GFXEventScene.cpp:243
+GetGameMajorParticle	CX2Data	1	136	D0c-3	X2Lib/X2GFXEventScene.cpp:260 X2Lib/X2GUArme_VioletMage.cpp:28793 X2Lib/X2GUArme_VioletMage.cpp:28796 X2Lib/X2GUArme_VioletMage.cpp:28797
+GetGameMinorParticle	CX2Data	1	14	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:28778 X2Lib/X2GUArme_VioletMage.cpp:28780 X2Lib/X2GUArme_VioletMage.cpp:28781 X2Lib/X2GUArme_VioletMage.cpp:28782
+GetGameUDP	CX2Data	1	4	D0c-3	X2Lib/X2GUUser.cpp:18339 X2Lib/X2GUUser.cpp:18340 X2Lib/X2World.cpp:2361 X2Lib/X2World.cpp:2380
+GetGuildManager	CX2Data	1	6	D0c-3	X2Lib/X2QuestManager.cpp:1544 X2Lib/X2QuestManager.cpp:1544 X2Lib/X2StateMenu.cpp:2026 X2Lib/X2StateMenu.cpp:2026
+GetItemManager	CX2Data	1	40	D0c-3	X2Lib/Offline/Handlers_Shop.cpp:583 X2Lib/Offline/X2OfflineCashShop.cpp:167 X2Lib/Offline/X2OfflineDropTable.cpp:37 X2Lib/Offline/X2OfflineDropTable.cpp:38
+GetItemStatCalculator	CX2Data	1	4	D0c-3	X2Lib/X2State.cpp:4087 X2Lib/X2State.cpp:4088 X2Lib/X2StateServerSelect.cpp:3677 X2Lib/X2Unit.cpp:271
+GetLocationManager	CX2Data	1	13	D0c-3	X2Lib/X2DungeonManager.cpp:763 X2Lib/X2DungeonManager.cpp:765 X2Lib/X2DungeonManager.cpp:766 X2Lib/X2LocalMapUI.cpp:924
+GetModelDetailPercent	CX2Data	1	1	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:37459
+GetMyUser	CX2Data	1	320	D0c-3	X2Lib/X2EmblemManager.cpp:439 X2Lib/X2EmblemManager.cpp:440 X2Lib/X2EmblemManager.cpp:441 X2Lib/X2EmblemManager.cpp:443
+GetPVPRoom	CX2Data	1	3	D0c-3	X2Lib/X2GUUser.cpp:28148 X2Lib/X2GUUser.cpp:28149 X2Lib/X2Game.cpp:12331
+GetPartyManager	CX2Data	1	72	D0c-3	X2Lib/X2BuffFinalizerTemplet.cpp:1978 X2Lib/X2BuffFinalizerTemplet.cpp:1978 X2Lib/X2DamageManager.cpp:1127 X2Lib/X2GUUser.cpp:40868
+GetPetManager	CX2Data	1	11	D0c-3	X2Lib/X2GUUser.cpp:32631 X2Lib/X2GUUser.cpp:32664 X2Lib/X2NPCUnitViewerUI.cpp:205 X2Lib/X2NPCUnitViewerUI.cpp:206
+GetPicCharBlue	CX2Data	1	20	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:23815 X2Lib/X2GUArme_VioletMage.cpp:23816 X2Lib/X2GUArme_VioletMage.cpp:23820 X2Lib/X2GUArme_VioletMage.cpp:23821
+GetPicCharGreen	CX2Data	1	2	D0c-3	X2Lib/X2GameUnit.cpp:19925 X2Lib/X2GameUnit.cpp:19926
+GetPicCharRed	CX2Data	1	10	D0c-3	X2Lib/X2GameUnit.cpp:6004 X2Lib/X2GameUnit.cpp:6005 X2Lib/X2GameUnit.cpp:6102 X2Lib/X2GameUnit.cpp:6103
+GetPlayGuide	CX2Data	1	6	D0c-3	X2Lib/X2LocalMapUI.cpp:379 X2Lib/X2LocalMapUI.cpp:380 X2Lib/X2LocalMapUI.cpp:382 X2Lib/X2LocalMapUI.cpp:387
+GetPremiumBuffManager	CX2Data	1	3	D0c-3	X2Lib/X2StateLoading.cpp:776 X2Lib/X2Unit.cpp:1567 X2Lib/X2Unit.cpp:1570
+GetQuestManager	CX2Data	1	61	D0c-3	X2Lib/Offline/X2OfflineQuest.cpp:1158 X2Lib/Offline/X2OfflineQuest.cpp:1160 X2Lib/Offline/X2OfflineQuest.cpp:1758 X2Lib/Offline/X2OfflineQuest.cpp:1761
+GetRelationshipManager	CX2Data	1	6	D0c-3	X2Lib/X2State.cpp:9291 X2Lib/X2State.cpp:9291 X2Lib/X2State.cpp:9298 X2Lib/X2UISkillTreeNew2015.cpp:346
+GetServerCurrentTime64	CX2Data	1	3	D0c-3	X2Lib/X2QuestManager.cpp:3914 X2Lib/X2QuestManager.cpp:3942 X2Lib/X2StateServerSelect.cpp:10725
+GetServerProtocol	CX2Data	1	20	D0c-3	X2Lib/X2Main.cpp:11905 X2Lib/X2Main.cpp:11909 X2Lib/X2Main.cpp:12186 X2Lib/X2RandomMission.cpp:344
+GetSkillTree	CX2Data	1	232	D0c-3	X2Lib/Offline/Handlers_Skill.cpp:534 X2Lib/Offline/Handlers_Skill.cpp:535 X2Lib/Offline/X2OfflineSkill.cpp:876 X2Lib/Offline/X2OfflineSkill.cpp:879
+GetSocketItem	CX2Data	1	27	D0c-3	X2Lib/X2GUUser.cpp:29558 X2Lib/X2GUUser.cpp:29588 X2Lib/X2GUUser.cpp:37959 X2Lib/X2GUUser.cpp:37975
+GetTitleManager	CX2Data	1	10	D0c-3	X2Lib/X2EmblemManager.cpp:1092 X2Lib/X2State.cpp:2136 X2Lib/X2State.cpp:2137 X2Lib/X2State.cpp:2145
+GetUIMajorXMeshPlayer	CX2Data	1	23	D0c-3	X2Lib/X2BaseUnitViewerUI.cpp:277 X2Lib/X2BaseUnitViewerUI.cpp:285 X2Lib/X2BaseUnitViewerUI.cpp:359 X2Lib/X2BaseUnitViewerUI.cpp:360
+GetUIManager	CX2Data	1	139	D0c-3	X2Lib/X2GFXEventScene.cpp:297 X2Lib/X2GFXEventScene.cpp:297 X2Lib/X2GFXEventScene.cpp:300 X2Lib/X2GFXEventScene.cpp:479
+GetUIMinorParticle	CX2Data	1	1	D0c-3	X2Lib/X2EffectSet.cpp:110
+GetUIMinorXMeshPlayer	CX2Data	1	6	D0c-3	X2Lib/X2EffectSet.cpp:106 X2Lib/X2EffectSet.cpp:2547 X2Lib/X2EffectSet.cpp:3038 X2Lib/X2EffectSet.cpp:3039
+GetUnitManager	CX2Data	1	17	D0c-3	X2Lib/X2GUNPC.cpp:1970 X2Lib/X2GUUser.cpp:23101 X2Lib/X2GUUser.cpp:34215 X2Lib/X2GUUser.cpp:34220
+GetWorldMissionManager	CX2Data	1	4	D0c-3	X2Lib/X2LocalMapUI.cpp:165 X2Lib/X2LocalMapUI.cpp:1491 X2Lib/X2PartyUI.cpp:2015 X2Lib/X2PartyUI.cpp:2015
+GetSlideShot	CX2Data|CX2Game	2	4	D0c-3	X2Lib/X2DungeonGame.cpp:320 X2Lib/X2DungeonGame.cpp:321 X2Lib/X2GUArme_VioletMage.cpp:21614 X2Lib/X2GUArme_VioletMage.cpp:22821
+GetUIEffectSet	CX2Data|CX2PET	2	36	D0c-3	X2Lib/X2BaseUnitViewerUI.cpp:199 X2Lib/X2BaseUnitViewerUI.cpp:205 X2Lib/X2EffectSet.cpp:472 X2Lib/X2EffectSet.cpp:475
+GetUIMajorParticle	CX2Data|CX2PET	2	59	D0c-3	X2Lib/X2BaseUnitViewerUI.cpp:294 X2Lib/X2BaseUnitViewerUI.cpp:302 X2Lib/X2BaseUnitViewerUI.cpp:368 X2Lib/X2BaseUnitViewerUI.cpp:369
+SetSummonItemPickupPet	CX2DropItemManager	1	2	D0c-3	X2Lib/X2Unit.cpp:1500 X2Lib/X2Unit.cpp:1501
+GetNowStage	CX2Dungeon	1	17	D0c-3	X2Lib/X2DungeonGame.cpp:219 X2Lib/X2DungeonGame.cpp:227 X2Lib/X2DungeonGame.cpp:227 X2Lib/X2DungeonGame.cpp:230
+GetNumberOfStageData	CX2Dungeon	1	1	D0c-3	X2Lib/X2Game.cpp:6654
+IsEventValentineDungeon	CX2Dungeon	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:181
+GetDungeon	CX2DungeonGame	1	11	D0c-3	X2Lib/X2DungeonGame.cpp:2074 X2Lib/X2DungeonGame.cpp:2074 X2Lib/X2DungeonGame.cpp:2074 X2Lib/X2DungeonGame.cpp:2075
+Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ	CX2DungeonGame	1	1	D0c-3	X2Lib/X2DungeonGame.cpp:227
+GetTotalExp	CX2DungeonGame::DungeonResultUnitInfo	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:461
+GetDifficultyColor	CX2DungeonManager	1	3	D0c-3	X2Lib/X2PartyUI.cpp:2009 X2Lib/X2PartyUI.cpp:2066 X2Lib/X2PartyUI.cpp:5458
+IsActiveDungeon	CX2DungeonManager	1	3	D0c-3	X2Lib/X2LocalMapUI.cpp:1526 X2Lib/X2LocalMapUI.cpp:1535 X2Lib/X2PartyUI.cpp:1878
+IsDungeonEnable	CX2DungeonManager	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:1449 X2Lib/X2PartyUI.cpp:1838
+MakeDungeonNameString	CX2DungeonManager	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:653
+IsDefenceDungeon	CX2DungeonManager|CX2DungeonRoom	2	6	D0c-3	X2Lib/X2LocalMapUI.cpp:161 X2Lib/X2LocalMapUI.cpp:1481 X2Lib/X2PartyUI.cpp:1846 X2Lib/X2PartyUI.cpp:2001
+GetDungeonType	CX2DungeonManager|CX2Game	2	4	D0c-3	X2Lib/X2GUUser.cpp:26597 X2Lib/X2GUUser.cpp:29597 X2Lib/X2GUUser.cpp:42708 X2Lib/X2LocalMapUI.cpp:233
+GetDungeonID	CX2DungeonRoom|CX2Game|CX2TrainingCenterTable	3	8	D0c-3	X2Lib/X2DungeonSubStage.cpp:2630 X2Lib/X2GUUser.cpp:28151 X2Lib/X2GUUser.cpp:32646 X2Lib/X2StateDungeonGame.cpp:304
+CloseBeforeSubStage	CX2DungeonStage	1	1	D0c-3	X2Lib/X2DungeonGame.cpp:230
+GetBeforeSubStageIndex	CX2DungeonStage	1	1	D0c-3	X2Lib/X2DungeonGame.cpp:227
+GetNowSubStage	CX2DungeonStage	1	6	D0c-3	X2Lib/X2DungeonGame.cpp:2074 X2Lib/X2DungeonGame.cpp:2075 X2Lib/X2GUUser.cpp:7716 X2Lib/X2GUUser.cpp:7717
+GetStageData	CX2DungeonStage	1	2	D0c-3	X2Lib/X2Game.cpp:12292 X2Lib/X2Game.cpp:12295
+GetNowSubStageIndex	CX2DungeonStage|CX2Game	2	1	D0c-3	X2Lib/X2DungeonGame.cpp:227
+GetIsBossStage	CX2DungeonSubStage	1	1	D0c-3	X2Lib/X2RandomMission.cpp:691
+GetStarted	CX2DungeonSubStage|CX2GUUser	2	3	D0c-3	X2Lib/X2Game.cpp:12392 X2Lib/X2Game.cpp:12461 X2Lib/X2Game.cpp:12484
+GetDungeonData	CX2Dungeon|CX2DungeonManager	2	9	D0c-3	X2Lib/Offline/X2OfflineQuest.cpp:1059 X2Lib/X2LocalMapUI.cpp:1436 X2Lib/X2PartyUI.cpp:1899 X2Lib/X2PartyUI.cpp:1900
+GetNowStageIndex	CX2Dungeon|CX2Game	2	2	D0c-3	X2Lib/X2DungeonGame.cpp:1117 X2Lib/X2Game.cpp:6654
+GetEXPData	CX2EXPTable	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:444
+CreateEventSequence	CX2EmblemManager	1	3	D0c-3	X2Lib/X2EmblemManager.cpp:383 X2Lib/X2EmblemManager.cpp:396 X2Lib/X2EmblemManager.cpp:1460
+GetInstance	CX2EmblemManager	1	14	D0c-3	X2Lib/X2BossRaidManager.cpp:256 X2Lib/X2BossRaidManager.cpp:264 X2Lib/X2BossRaidManager.cpp:266 X2Lib/X2PremiumBuffManager.cpp:560
+HasEmblem	CX2EmblemManager	1	1	D0c-3	X2Lib/X2EmblemManager.cpp:277
+GetTexture1stPos	CX2EmblemManager::EmblemTemplet	1	1	D0c-3	X2Lib/X2EmblemManager.cpp:388
+GetTexture2ndPos	CX2EmblemManager::EmblemTemplet	1	1	D0c-3	X2Lib/X2EmblemManager.cpp:400
+OpenScriptFile	CX2EnchantItem	1	1	D0c-3	X2Lib/X2EnchantItem.cpp:10
+GetSlotID	CX2EquippedSkillSlotData	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:675 X2Lib/X2UISkillTreeNew2015.cpp:706 X2Lib/X2UISkillTreeNew2015.cpp:714
+GetSlotID	CX2EquippedSkillSlotData|CX2GUAra::sMoonLightSlashData|CX2SlotItem|CX2SlotManager::CX2Slot	4	6	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:2601 X2Lib/X2UISkillTreeNew2015.cpp:2603 X2Lib/X2UISkillTreeNew2015.cpp:2610 X2Lib/X2UISkillTreeNew2015.cpp:2633
+GetIsPlayingEventScene	CX2EventScene	1	2	D0c-3	X2Lib/X2Data.cpp:2511 X2Lib/X2GFXEventScene.cpp:243
+IsPresentNow	CX2EventScene|CX2SlideShot	2	2	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:21614 X2Lib/X2GUArme_VioletMage.cpp:22821
+GetUnitUID	CX2FrameUDPPack|CX2GameUnit|CX2OfflineInventory|CX2OfflineQuest|CX2OfflineSkill|CX2OfflineTitle	6	87	D0c-3	X2Lib/X2BuffDisplayerTemplet.cpp:416 X2Lib/X2BuffDisplayerTemplet.cpp:416 X2Lib/X2BuffDisplayerTemplet.cpp:1036 X2Lib/X2BuffDisplayerTemplet.cpp:1036
+GetShow	CX2GageUI	1	1	D0c-3	X2Lib/X2GageUI.cpp:4689
+SetAlpha	CX2GageUI|CX2OldGageManager	2	1	D0c-3	X2Lib/X2GuEve.cpp:49812
+AddRemoveDamageEffect	CX2Game	1	2	D0c-3	X2Lib/X2BuffTemplet.cpp:1673 X2Lib/X2BuffTemplet.cpp:1675
+CanNotInputAndDisalbeNPCAI	CX2Game	1	6	D0c-3	X2Lib/X2DungeonGame.cpp:2560 X2Lib/X2DungeonGame.cpp:2564 X2Lib/X2DungeonGame.cpp:2583 X2Lib/X2Game.cpp:2515
+DisplayAddHPInformation	CX2Game	1	1	D0c-3	X2Lib/X2GUUser.cpp:45993
+DisplayAddMPInformation	CX2Game	1	1	D0c-3	X2Lib/X2GUUser.cpp:46238
+GetCanUseEscFlag	CX2Game	1	2	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:851 X2Lib/X2UIDungeonResultAdapter.cpp:895
+GetDamageEffect	CX2Game	1	217	D0c-3	X2Lib/X2BuffTemplet.cpp:1666 X2Lib/X2BuffTemplet.cpp:1872 X2Lib/X2BuffTemplet.cpp:2136 X2Lib/X2BuffTemplet.cpp:2368
+GetDropItemManager	CX2Game	1	3	D0c-3	X2Lib/X2Unit.cpp:1497 X2Lib/X2Unit.cpp:1500 X2Lib/X2Unit.cpp:1501
+GetEffectSet	CX2Game	1	198	D0c-3	X2Lib/X2BuffDisplayerTemplet.cpp:482 X2Lib/X2BuffTemplet.cpp:2229 X2Lib/X2BuffTemplet.cpp:2243 X2Lib/X2BuffTemplet.cpp:2352
+GetEnableAllKeyProcess	CX2Game	1	1	D0c-3	X2Lib/X2Game.cpp:12389
+GetFocusUnit	CX2Game	1	2	D0c-3	X2Lib/X2Game.cpp:7439 X2Lib/X2Game.cpp:7440
+GetGameEnd	CX2Game	1	1	D0c-3	X2Lib/X2GUUser.cpp:22981
+GetInfoTextManager	CX2Game	1	7	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:29133 X2Lib/X2GUUser.cpp:41584 X2Lib/X2Game.cpp:12363 X2Lib/X2Game.cpp:12434
+GetLastKillCheck	CX2Game	1	1	D0c-3	X2Lib/X2GUUser.cpp:22982
+GetMajorParticle	CX2Game	1	6	D0c-3	X2Lib/X2Game.cpp:7445 X2Lib/X2Game.cpp:7455 X2Lib/X2Game.cpp:7456 X2Lib/X2Game.cpp:7457
+GetMajorXMeshPlayer	CX2Game	1	1	D0c-3	X2Lib/X2Game.cpp:13059
+GetMinorParticle	CX2Game	1	4	D0c-3	X2Lib/X2DungeonGame.cpp:302 X2Lib/X2DungeonGame.cpp:3226 X2Lib/X2Game.cpp:12998 X2Lib/X2Game.cpp:13040
+GetMinorXMeshPlayer	CX2Game	1	1	D0c-3	X2Lib/X2Game.cpp:13059
+GetNPCUnit	CX2Game	1	8	D0c-3	X2Lib/X2DungeonSubStage.cpp:1280 X2Lib/X2GUNPC.cpp:30153 X2Lib/X2GUNPC.cpp:30245 X2Lib/X2GUUser.cpp:38235
+GetNPCUnitByUID	CX2Game	1	34	D0c-3	X2Lib/X2BuffDisplayerTemplet.cpp:475 X2Lib/X2BuffFactor.cpp:1126 X2Lib/X2BuffTemplet.cpp:228 X2Lib/X2BuffTemplet.cpp:2570
+GetNPCUnitListSize	CX2Game	1	8	D0c-3	X2Lib/X2DungeonSubStage.cpp:1278 X2Lib/X2GUNPC.cpp:30150 X2Lib/X2GUNPC.cpp:30242 X2Lib/X2GUUser.cpp:38233
+GetUserUnit	CX2Game	1	4	D0c-3	X2Lib/X2Game.cpp:12616 X2Lib/X2StateDungeonGame.cpp:2935 X2Lib/X2World.cpp:1873 X2Lib/X2World.cpp:2005
+GetUserUnitListSize	CX2Game	1	4	D0c-3	X2Lib/X2Game.cpp:12614 X2Lib/X2StateDungeonGame.cpp:2933 X2Lib/X2World.cpp:1871 X2Lib/X2World.cpp:2004
+GetWorld	CX2Game	1	13	D0c-3	X2Lib/X2Game.cpp:1322 X2Lib/X2Game.cpp:1324 X2Lib/X2Game.cpp:6776 X2Lib/X2Game.cpp:6777
+Handler_EGS_WORLD_TRIGGER_RELOCATION_REQ	CX2Game	1	1	D0c-3	X2Lib/X2Game.cpp:3136
+InitFocusUnit	CX2Game	1	2	D0c-3	X2Lib/X2GUUser.cpp:23371 X2Lib/X2GUUser.cpp:23550
+IsHost	CX2Game	1	4	D0c-3	X2Lib/X2GUUser.cpp:32607 X2Lib/X2GUUser.cpp:32629 X2Lib/X2GUUser.cpp:32662 X2Lib/X2World.cpp:2353
+ResetFocusUnit	CX2Game	1	11	D0c-3	X2Lib/X2DungeonGame.cpp:2606 X2Lib/X2DungeonGame.cpp:2622 X2Lib/X2DungeonGame.cpp:2633 X2Lib/X2DungeonGame.cpp:2643
+SetCanUseEscFlag	CX2Game	1	2	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:852 X2Lib/X2UIDungeonResultAdapter.cpp:896
+SetEnableAllKeyProcess	CX2Game	1	2	D0c-3	X2Lib/X2Game.cpp:12402 X2Lib/X2Game.cpp:12442
+PushText	CX2Game::InfoTextManager	1	7	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:29133 X2Lib/X2GUUser.cpp:41584 X2Lib/X2Game.cpp:12363 X2Lib/X2Game.cpp:12434
+GetIsSkillUITypeA	CX2GameOption	1	6	D0c-3	X2Lib/X2Game.cpp:6298 X2Lib/X2Game.cpp:13645 X2Lib/X2Game.cpp:13734 X2Lib/X2Game.cpp:20200
+GetOptionList	CX2GameOption	1	8	D0c-3	X2Lib/X2GameUnit.cpp:7036 X2Lib/X2GameUnit.cpp:7039 X2Lib/X2Main.cpp:2346 X2Lib/X2Main.cpp:11733
+GetStateCutinShowState	CX2GameOption	1	1	D0c-3	X2Lib/X2GUUser.cpp:40853
+SetMusic	CX2GameOption	1	2	D0c-3	X2Lib/X2Main.cpp:11809 X2Lib/X2Main.cpp:11862
+SetPlayGuide	CX2GameOption|CX2PlayGuide|CX2PlayGuide::PlayGuideData|CX2TFieldNpcShop	4	1	D0c-3	X2Lib/X2TitleManager.cpp:140
+SetMapDetail	CX2GameOption|CX2World	2	1	D0c-3	X2Lib/X2WorldManager.cpp:186
+Handler_EGS_USE_FINALITY_SKILL_REQ	CX2Game|CX2OfflineServer	2	2	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:30222 X2Lib/X2GuEve.cpp:46330
+Handler_EGS_LEAVE_ROOM_REQ	CX2Game|CX2OfflineServer|CX2Room|CX2StateDungeonRoom|CX2StateField|CX2StatePVPGame|CX2StatePVPRoom	7	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:1117
+GetTalkBoxManager	CX2Game|CX2PetManager|CX2SquareGame|CX2TFieldGame|CX2UIPersonalTrade|CX2WeddingGame	6	1	D0c-3	X2Lib/X2World.cpp:2036
+GetUnitList	CX2Game|CX2SquareGame|CX2TFieldGame|CX2WeddingGame	4	5	D0c-3	X2Lib/X2DamageEffect.cpp:9272 X2Lib/X2DamageEffect.cpp:9319 X2Lib/X2DamageEffect.cpp:9411 X2Lib/X2DamageManager.cpp:1096
+GetMajorParticle	CX2Game|CX2SquareGame|CX2WeddingGame	3	177	D0c-3	X2Lib/X2DamageEffect.cpp:576 X2Lib/X2DamageEffect.cpp:587 X2Lib/X2EffectSet.cpp:111 X2Lib/X2EffectSet.cpp:3053
+GetMajorXMeshPlayer	CX2Game|CX2SquareGame|CX2WeddingGame	3	93	D0c-3	X2Lib/X2DamageEffect.cpp:3894 X2Lib/X2DamageEffect.cpp:10559 X2Lib/X2DamageEffect.cpp:10564 X2Lib/X2EffectSet.cpp:107
+GetMinorParticle	CX2Game|CX2SquareGame|CX2WeddingGame	3	81	D0c-3	X2Lib/X2DungeonSubStage.cpp:1294 X2Lib/X2DungeonSubStage.cpp:1298 X2Lib/X2DungeonSubStage.cpp:1317 X2Lib/X2DungeonSubStage.cpp:1322
+GetMinorXMeshPlayer	CX2Game|CX2SquareGame|CX2WeddingGame	3	13	D0c-3	X2Lib/X2EffectSet.cpp:108 X2Lib/X2EffectSet.cpp:2549 X2Lib/X2EffectSet.cpp:3046 X2Lib/X2EffectSet.cpp:3047
+GetUnitNum	CX2Game|CX2User	2	22	D0c-3	X2Lib/X2DamageEffect.cpp:10761 X2Lib/X2DamageManager.cpp:2779 X2Lib/X2GUArme_VioletMage.cpp:25125 X2Lib/X2GUArme_VioletMage.cpp:34704
+GetLineMap	CX2Game|CX2World	2	56	D0c-3	X2Lib/X2BuffTemplet.cpp:1999 X2Lib/X2BuffTemplet.cpp:2002 X2Lib/X2DamageEffect.cpp:7619 X2Lib/X2DamageEffect.cpp:8137
+DidJoinGuild	CX2GuildManager	1	2	D0c-3	X2Lib/X2QuestManager.cpp:1544 X2Lib/X2StateMenu.cpp:5493
+GetUIGuild	CX2GuildManager	1	1	D0c-3	X2Lib/X2StateMenu.cpp:2026
+SetTalkBoxOffsetPos	CX2Informer	1	4	D0c-3	X2Lib/X2StateMenu.cpp:5557 X2Lib/X2StateMenu.cpp:5566 X2Lib/X2StateMenu.cpp:5573 X2Lib/X2StateMenu.cpp:5576
+GetGuildInformer	CX2InformerManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5462 X2Lib/X2StateMenu.cpp:5576
+GetInvenInformer	CX2InformerManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5445 X2Lib/X2StateMenu.cpp:5557
+GetQuestInformer	CX2InformerManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5457 X2Lib/X2StateMenu.cpp:5573
+GetSkillInformer	CX2InformerManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5451 X2Lib/X2StateMenu.cpp:5566
+GetMiniMapUI	CX2InstanceData	1	8	D0c-3	X2Lib/X2GFXEventScene.cpp:308 X2Lib/X2GFXEventScene.cpp:310 X2Lib/X2Main.cpp:17738 X2Lib/X2Main.cpp:17739
+GetSendGameStartReqPacket	CX2InstanceData	1	1	D0c-3	X2Lib/X2SkillTree.cpp:1760
+IsElapsedPacketTiming	CX2InstanceData	1	1	D0c-3	X2Lib/X2SkillTree.cpp:1756
+SetCodeEvent	CX2InstanceData	1	1	D0c-3	X2Lib/X2State.cpp:13405
+GetServerGroupID	CX2InstanceData|CX2Unit	2	2	D0c-3	X2Lib/X2QuestManager.cpp:3766 X2Lib/X2QuestManager.cpp:6462
+CreateDummyEquip	CX2ItemManager	1	3	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:30982 X2Lib/X2GUArme_VioletMage.cpp:30984 X2Lib/X2GUArme_VioletMage.cpp:37424
+GetCashItem	CX2ItemManager	1	1	D0c-3	X2Lib/X2CashShop.cpp:2617
+GetItemTempletFromIndex	CX2ItemManager	1	1	D0c-3	X2Lib/X2ItemManager.cpp:471
+OpenScriptFile	CX2ItemManager	1	1	D0c-3	X2Lib/X2ItemManager.cpp:291
+SetUnitData	CX2ItemStatCalculator|CX2Unit	2	1	D0c-3	X2Lib/X2State.cpp:4087
+GetKeyString	CX2KeyPad	1	20	D0c-3	X2Lib/X2Game.cpp:13702 X2Lib/X2Game.cpp:14621 X2Lib/X2KeyPad.cpp:2104 X2Lib/X2KeyPad.cpp:2104
+GetLVUpEvent	CX2LVUpEventMgr	1	2	D0c-3	X2Lib/X2LVUpEventMgr.cpp:356 X2Lib/X2LVUpEventMgr.cpp:401
+DeleteDialog	CX2LVUpEventMgr::LVUpEvent	1	2	D0c-3	X2Lib/X2LVUpEventMgr.cpp:358 X2Lib/X2LVUpEventMgr.cpp:403
+DrawLocalMapQuestDesc	CX2LocalMapUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:154
+DropDownDungeonButton	CX2LocalMapUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:1574
+GetEventValentineDungeonIconDesc	CX2LocalMapUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:184
+GetHenirDungeonIcnoDesc	CX2LocalMapUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:175
+GetLocalMapDLG	CX2LocalMapUI	1	6	D0c-3	X2Lib/X2LocalMapUI.cpp:96 X2Lib/X2LocalMapUI.cpp:854 X2Lib/X2LocalMapUI.cpp:1385 X2Lib/X2LocalMapUI.cpp:1611
+UdateLocalMapQuestDesc	CX2LocalMapUI	1	4	D0c-3	X2Lib/X2LocalMapUI.cpp:1429 X2Lib/X2LocalMapUI.cpp:1496 X2Lib/X2LocalMapUI.cpp:1541 X2Lib/X2LocalMapUI.cpp:1765
+UpdateDefenceDungeonIcon	CX2LocalMapUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:1493
+UpdateDungeonClearStars	CX2LocalMapUI	1	3	D0c-3	X2Lib/X2LocalMapUI.cpp:1427 X2Lib/X2LocalMapUI.cpp:1539 X2Lib/X2LocalMapUI.cpp:1763
+UpdateHeroRecruitButton	CX2LocalMapUI	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:1132 X2Lib/X2LocalMapUI.cpp:1703
+GetCurrentVillageID	CX2LocationManager	1	1	D0c-3	X2Lib/X2QuestManager.cpp:1783
+GetLocalMapID	CX2LocationManager	1	2	D0c-3	X2Lib/X2DungeonManager.cpp:766 X2Lib/X2PartyUI.cpp:1990
+GetLocalMapTemplet	CX2LocationManager	1	2	D0c-3	X2Lib/X2DungeonManager.cpp:765 X2Lib/X2LocalMapUI.cpp:924
+GetVillageMapTemplet	CX2LocationManager	1	4	D0c-3	X2Lib/X2QuestManager.cpp:1809 X2Lib/X2StateMenu.cpp:6907 X2Lib/X2UIInventory.cpp:14168 X2Lib/X2WorldMapUI.cpp:501
+GetHouseTemplet	CX2LocationManager|CX2TFieldNpc	2	1	D0c-3	X2Lib/X2QuestManager.cpp:1814
+DeleteServerPacket	CX2Main	1	11	D0c-3	X2Lib/X2Game.cpp:19591 X2Lib/X2RandomMission.cpp:735 X2Lib/X2SkillTree.cpp:3555 X2Lib/X2SkillTree.cpp:3582
+GetBrowserWrapper	CX2Main	1	2	D0c-3	X2Lib/X2StateMenu.cpp:2121 X2Lib/X2StateMenu.cpp:2123
+GetConnectedChannelID	CX2Main	1	1	D0c-3	X2Lib/X2EnchantItem.cpp:853
+GetEDString	CX2Main	1	2	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3762 X2Lib/X2UISkillTreeNew2015.cpp:3763
+GetGameEdit	CX2Main	1	5	D0c-3	X2Lib/X2Game.cpp:12956 X2Lib/X2State.cpp:1232 X2Lib/X2State.cpp:1233 X2Lib/X2StateLoading.cpp:1009
+GetGameOption	CX2Main	1	11	D0c-3	X2Lib/X2GUUser.cpp:40853 X2Lib/X2Game.cpp:2549 X2Lib/X2Game.cpp:6298 X2Lib/X2Game.cpp:13645
+GetInformerManager	CX2Main	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5431 X2Lib/X2StateMenu.cpp:5537
+GetIsExitingTutorial	CX2Main	1	6	D0c-3	X2Lib/X2DungeonGame.cpp:315 X2Lib/X2DungeonGame.cpp:320 X2Lib/X2DungeonGame.cpp:327 X2Lib/X2StatePvPLobby.cpp:267
+GetIsPlayingTutorial	CX2Main	1	25	D0c-3	X2Lib/X2EmblemManager.cpp:658 X2Lib/X2GUUser.cpp:11220 X2Lib/X2GUUser.cpp:11225 X2Lib/X2GUUser.cpp:13678
+GetKeyPad	CX2Main	1	9	D0c-3	X2Lib/X2Game.cpp:13702 X2Lib/X2Game.cpp:14621 X2Lib/X2StateMenu.cpp:5598 X2Lib/X2TitleManager.cpp:138
+GetManualLogin	CX2Main	1	1	D0c-3	X2Lib/X2StateLogin.cpp:412
+GetMemoryHolder	CX2Main	1	2	D0c-3	X2Lib/X2Eqip.cpp:2326 X2Lib/X2Eqip.cpp:2334
+GetNationFlag	CX2Main	1	1	D0c-3	X2Lib/X2GameUnit.cpp:6814
+GetNowState	CX2Main	1	3	D0c-3	X2Lib/X2Main.cpp:11820 X2Lib/X2Main.cpp:17733 X2Lib/X2Main.cpp:17734
+GetPVPChannelClass	CX2Main	1	1	D0c-3	X2Lib/X2EnchantItem.cpp:853
+GetPartyUI	CX2Main	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:283 X2Lib/X2LocalMapUI.cpp:285
+GetStrByLienBreak	CX2Main	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:2174
+GetTextManager	CX2Main	1	2	D0c-3	X2Lib/X2State.cpp:1230 X2Lib/X2StateLoading.cpp:1007
+IsMyAuthLevelHigherThan	CX2Main	1	2	D0c-3	X2Lib/X2GUUser.cpp:25747 X2Lib/X2GUUser.cpp:25751
+IsThereTimedMessagePopup	CX2Main	1	5	D0c-3	X2Lib/X2State.cpp:4390 X2Lib/X2StateMenu.cpp:1253 X2Lib/X2UIDungeonResultAdapter.cpp:733 X2Lib/X2UIDungeonResultAdapter.cpp:1024
+IsUnlimitedSkillUse	CX2Main	1	1	D0c-3	X2Lib/X2GUUser.cpp:25747
+IsValidPacket	CX2Main	1	10	D0c-3	X2Lib/X2Game.cpp:19593 X2Lib/X2RandomMission.cpp:737 X2Lib/X2SkillTree.cpp:3555 X2Lib/X2SkillTree.cpp:3582
+IsWaitingServerPacket	CX2Main	1	8	D0c-3	X2Lib/X2Game.cpp:19548 X2Lib/X2SkillNoteManager.cpp:761 X2Lib/X2SkillNoteManager.cpp:779 X2Lib/X2SkillTree.cpp:3249
+KTDGUIOKMsgBox	CX2Main	1	22	D0c-3	X2Lib/X2DamageEffect.cpp:8407 X2Lib/X2QuestManager.cpp:4070 X2Lib/X2SkillTree.cpp:3558 X2Lib/X2SkillTree.cpp:3585
+RemoveTimedMessagePopup	CX2Main	1	3	D0c-3	X2Lib/X2StateDungeonGame.cpp:1805 X2Lib/X2StateDungeonGame.cpp:1814 X2Lib/X2UIDungeonResultAdapter.cpp:1038
+SetIsExitingTutorial	CX2Main	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:1147
+GetNowState	CX2Main|CX2PET|CX2RidingPet|CX2SquareUnit	4	77	D0c-3	X2Lib/X2DungeonGame.cpp:2599 X2Lib/X2DungeonGame.cpp:2611 X2Lib/X2EmblemManager.cpp:413 X2Lib/X2GFXEventScene.cpp:394
+GetPVPEmblem	CX2Main|CX2Unit	2	5	D0c-3	X2Lib/X2GUUser.cpp:28621 X2Lib/X2GUUser.cpp:28625 X2Lib/X2GUUser.cpp:28627 X2Lib/X2GUUser.cpp:28627
+LoadEquip	CX2MemoryHolder	1	2	D0c-3	X2Lib/X2Eqip.cpp:2326 X2Lib/X2Eqip.cpp:2334
+GetCurrentMiniMapType	CX2MiniMapUI	1	1	D0c-3	X2Lib/X2GFXEventScene.cpp:311
+GetWorldMapUI	CX2MiniMapUI	1	3	D0c-3	X2Lib/X2GFXEventScene.cpp:312 X2Lib/X2Main.cpp:17739 X2Lib/X2Main.cpp:17739
+SetShowMiniMap	CX2MiniMapUI	1	1	D0c-3	X2Lib/X2GFXEventScene.cpp:311
+UpdateEventNotice	CX2MiniMapUI	1	1	D0c-3	X2Lib/X2State.cpp:1236
+ResetTarget	CX2NPCAI	1	1	D0c-3	X2Lib/X2GuEve.cpp:57230
+SetAIType	CX2NPCAI	1	1	D0c-3	X2Lib/X2GUNPC.cpp:1856
+SetTargetGameUnit	CX2NPCAI	1	1	D0c-3	X2Lib/X2BuffTemplet.cpp:2578
+GetIsPlayGuide	CX2NoviceGuide	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:395
+GetNowGuideStep	CX2NoviceGuide	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:395 X2Lib/X2LocalMapUI.cpp:431
+SetNotifyGuide	CX2NoviceGuide	1	3	D0c-3	X2Lib/X2LocalMapUI.cpp:399 X2Lib/X2LocalMapUI.cpp:403 X2Lib/X2LocalMapUI.cpp:433
+SetMouseClickIndex	CX2NoviceGuide|CX2PlayGuide	2	1	D0c-3	X2Lib/X2LocalMapUI.cpp:387
+GetAuthLevel	CX2OfflineDB|CX2User	2	8	D0c-3	X2Lib/X2LocalMapUI.cpp:965 X2Lib/X2LocalMapUI.cpp:1530 X2Lib/X2LocalMapUI.cpp:1534 X2Lib/X2Main.cpp:12180
+SetSkillSlot	CX2OfflineDB|CX2UserSkillTree	2	3	D0c-3	X2Lib/Offline/X2OfflineSkill.cpp:1063 X2Lib/Offline/X2OfflineSkill.cpp:1078 X2Lib/Offline/X2OfflineSkill.cpp:1115
+DeleteItem	CX2OfflineInventory|CX2UIResolveItem|CX2UISynthesisItem	3	1	D0c-3	X2Lib/Offline/X2OfflineQuest.cpp:2069
+Handler_EGS_LEAVE_PARTY_REQ	CX2OfflineServer|CX2PartyManager	2	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:1119
+Handler_EGS_PARTY_CHANGE_DUNGEON_REQ	CX2OfflineServer|CX2PartyManager	2	4	D0c-3	X2Lib/X2LocalMapUI.cpp:255 X2Lib/X2PartyUI.cpp:1896 X2Lib/X2PartyUI.cpp:2025 X2Lib/X2PartyUI.cpp:5916
+Handler_EGS_NEW_QUEST_REQ	CX2OfflineServer|CX2UIQuestNew|CX2UIQuestReceive	3	1	D0c-3	X2Lib/X2QuestManager.cpp:4067
+GetPVPEmblemData	CX2PVPEmblem	1	3	D0c-3	X2Lib/X2GUUser.cpp:28625 X2Lib/X2GUUser.cpp:28627 X2Lib/X2ItemSlotManager.cpp:3570
+GetPVPGameType	CX2PVPRoom	1	2	D0c-3	X2Lib/X2GUUser.cpp:28149 X2Lib/X2Game.cpp:12332
+AmIPartyLeader	CX2PartyManager	1	2	D0c-3	X2Lib/X2PartyUI.cpp:1893 X2Lib/X2PartyUI.cpp:2023
+GetMyPartyData	CX2PartyManager	1	23	D0c-3	X2Lib/X2Game.cpp:12305 X2Lib/X2Game.cpp:12307 X2Lib/X2Game.cpp:12592 X2Lib/X2LocalMapUI.cpp:237
+GetProcessDungeonMatch	CX2PartyManager	1	3	D0c-3	X2Lib/X2PartyUI.cpp:1444 X2Lib/X2PartyUI.cpp:1464 X2Lib/X2PartyUI.cpp:3917
+GetProcessPvpMatch	CX2PartyManager	1	4	D0c-3	X2Lib/X2PartyUI.cpp:1442 X2Lib/X2PartyUI.cpp:1476 X2Lib/X2PartyUI.cpp:3918 X2Lib/X2StateMenu.cpp:1306
+Send_EGS_PARTY_GAME_START_OPINION_CHECK_REPLY_NOT	CX2PartyManager	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:1039
+Send_EGS_REQUEST_GET_AUTO_PARTY_BONUS_INFO_NOT	CX2PartyManager	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:1131 X2Lib/X2PartyUI.cpp:1929
+UpdateSelectedDungeon	CX2PartyManager	1	3	D0c-3	X2Lib/X2LocalMapUI.cpp:216 X2Lib/X2PartyUI.cpp:1928 X2Lib/X2PartyUI.cpp:5921
+GetPartyMemberCount	CX2PartyManager::PartyData	1	3	D0c-3	X2Lib/X2PartyUI.cpp:5342 X2Lib/X2PartyUI.cpp:5350 X2Lib/X2PartyUI.cpp:5373
+GetPartyMemberData	CX2PartyManager::PartyData	1	2	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:311 X2Lib/X2UIDungeonResultAdapter.cpp:634
+GameStartCurrentMember	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:330
+GetLocalMapUI	CX2PartyUI	1	2	D0c-3	X2Lib/X2PartyUI.cpp:5877 X2Lib/X2PartyUI.cpp:5878
+SetDungeonButton	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:3920
+SetPVPButton	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:3921
+UpdateAdequateItemLevel	CX2PartyUI	1	2	D0c-3	X2Lib/X2PartyUI.cpp:1908 X2Lib/X2PartyUI.cpp:5904
+UpdateAdequateMemberCount	CX2PartyUI	1	3	D0c-3	X2Lib/X2PartyUI.cpp:2053 X2Lib/X2PartyUI.cpp:2074 X2Lib/X2PartyUI.cpp:5101
+UpdateBossItemList	CX2PartyUI	1	2	D0c-3	X2Lib/X2PartyUI.cpp:2087 X2Lib/X2PartyUI.cpp:5909
+UpdateDifficultyButton	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:5091
+UpdateDifficultyButtonForSpecialDungeon	CX2PartyUI	1	3	D0c-3	X2Lib/X2PartyUI.cpp:2052 X2Lib/X2PartyUI.cpp:2073 X2Lib/X2PartyUI.cpp:5099
+UpdateDifficultyUI	CX2PartyUI	1	3	D0c-3	X2Lib/X2PartyUI.cpp:2016 X2Lib/X2PartyUI.cpp:2033 X2Lib/X2PartyUI.cpp:5896
+UpdateDungeonThumbnailQuestMark	CX2PartyUI	1	2	D0c-3	X2Lib/X2PartyUI.cpp:1913 X2Lib/X2PartyUI.cpp:5911
+UpdateDungeonTypeButton	CX2PartyUI	1	3	D0c-3	X2Lib/X2PartyUI.cpp:2051 X2Lib/X2PartyUI.cpp:2072 X2Lib/X2PartyUI.cpp:5088
+UpdateNormalOnly	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:5103
+UpdatePartyDLG	CX2PartyUI	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:285
+UpdatePvpPartyDlg	CX2PartyUI	1	1	D0c-3	X2Lib/X2PartyUI.cpp:1819
+GetMyPet	CX2PetManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5500 X2Lib/X2UIQuickSlot.cpp:554
+GetPet	CX2PetManager	1	2	D0c-3	X2Lib/X2GUUser.cpp:32631 X2Lib/X2GUUser.cpp:32664
+GetPetTemplet	CX2PetManager	1	2	D0c-3	X2Lib/X2Unit.cpp:1506 X2Lib/X2Unit.cpp:1508
+GetActiveNoviceGuide	CX2PlayGuide	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:380
+GetGuideStep	CX2PlayGuide	1	1	D0c-3	X2Lib/X2LocalMapUI.cpp:382
+StartGoEffect	CX2PlayGuide	1	1	D0c-3	X2Lib/X2PlayGuide.cpp:1102
+GetPremiumBuffList	CX2PremiumBuffManager|CX2Unit::UnitData	2	1	D0c-3	X2Lib/X2Unit.cpp:1570
+GetChangeJobQuest	CX2QuestManager	1	1	D0c-3	X2Lib/X2QuestManager.cpp:4060
+GetEpicGroupTitle	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1221
+GetMapCompleteQuest	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:434
+GetMapQuestTemplet	CX2QuestManager	1	1	D0c-3	X2Lib/Offline/X2OfflineQuest.cpp:1761
+GetNeedToClearDungeonList	CX2QuestManager	1	2	D0c-3	X2Lib/X2LocalMapUI.cpp:975 X2Lib/X2LocalMapUI.cpp:1053
+GetQuestColor	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1405
+GetSubQuestTemplet	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNew.cpp:4221
+GetUnitQuestMap	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:374
+GiveUpForbiddenQuest	CX2QuestManager	1	2	D0c-3	X2Lib/X2SkillTree.cpp:3201 X2Lib/X2State.cpp:4098
+OpenScriptFile	CX2QuestManager	1	1	D0c-3	X2Lib/X2QuestManager.cpp:3695
+SetHasDungeonQuest	CX2QuestManager	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:903
+GetSubQuest	CX2QuestManager::QuestInst	1	4	D0c-3	X2Lib/X2QuestManager.cpp:6002 X2Lib/X2QuestManager.cpp:6016 X2Lib/X2QuestManager.cpp:6028 X2Lib/X2QuestManager.cpp:6042
+GetMyRelationshipInfo	CX2RelationshipManager	1	4	D0c-3	X2Lib/X2State.cpp:9291 X2Lib/X2State.cpp:9298 X2Lib/X2UISkillTreeNew2015.cpp:347 X2Lib/X2UISkillTreeNew2015.cpp:349
+GetBuffRenderParam	CX2RenderParamByBuff	1	1	D0c-3	X2Lib/X2GameUnit.cpp:16690
+GetMySlot	CX2Room	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:928
+GetSlotNum	CX2Room	1	1	D0c-3	X2Lib/X2Unit.cpp:1607
+SetNotEnoughSpirit	CX2Room	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:1132
+GetSlotState	CX2Room::SlotData	1	2	D0c-3	X2Lib/X2Unit.cpp:1610 X2Lib/X2Unit.cpp:1610
+GetDesc	CX2SMTPMail	1	7	D0c-3	KTDXLIB/KTDGDeviceSurfaceManager.cpp:91 KTDXLIB/KTDGDeviceSurfaceManager.cpp:145 KTDXLIB/KTDGDeviceSurfaceManager.cpp:165 KTDXLIB/KTDXDeviceRenderTargetTexture.cpp:88
+GetErrorText	CX2SMTPMail|JuneGfxConfigParser	2	1	D0c-3	KTDXLIB/KTDGGFXManager.cpp:565
+DestroyInstance	CX2SkillNoteManager	1	2	D0c-3	X2Lib/X2Main.cpp:2236 X2Lib/X2SkillNoteManager.cpp:245
+ResetSkillNoteManager	CX2SkillNoteManager	1	1	D0c-3	X2Lib/X2StateLoading.cpp:911
+GetSealSkillItemTemplet	CX2SkillTree	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:4226
+GetSkillLevelTextureKey	CX2SkillTree	1	4	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:442 X2Lib/X2UISkillTreeNew2015.cpp:478 X2Lib/X2UISkillTreeNew2015.cpp:780 X2Lib/X2UISkillTreeNew2015.cpp:825
+GetSkillLevelTextureName	CX2SkillTree	1	4	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:441 X2Lib/X2UISkillTreeNew2015.cpp:477 X2Lib/X2UISkillTreeNew2015.cpp:779 X2Lib/X2UISkillTreeNew2015.cpp:824
+GetSkillTreeTemplet	CX2SkillTree	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:316 X2Lib/X2UISkillTreeNew2015.cpp:4381 X2Lib/X2UISkillTreeNew2015.cpp:4390
+GetSkillTreeTempletMap	CX2SkillTree	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1229
+SetSkillPowerRate	CX2SkillTree	1	1	D0c-3	X2Lib/X2SkillTree.cpp:6055
+SetSkillSlotChanging	CX2SkillTree	1	1	D0c-3	X2Lib/X2SkillTree.cpp:3260
+GetCloneBuffFactorPtr	CX2SkillTree::SkillTemplet	1	1	D0c-3	X2Lib/X2GUArme_VioletMage.cpp:29411
+GetSkillMPConsumptionValue	CX2SkillTree::SkillTemplet	1	7	D0c-3	X2Lib/X2GUUser.cpp:26377 X2Lib/X2GuEve.cpp:53674 X2Lib/X2GuEve.cpp:55890 X2Lib/X2UISkillTreeNew2015.cpp:3973
+GetSkillRequireLevelValue	CX2SkillTree::SkillTemplet	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:4123
+GetAddOnStat	CX2Stat	1	2	D0c-3	X2Lib/X2GameUnit.cpp:3225 X2Lib/X2GameUnit.cpp:3239
+SetKStat	CX2Stat::Stat	1	1	D0c-3	X2Lib/X2Room.cpp:1660
+CheckIsReady	CX2State	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:4580 X2Lib/X2UISkillTreeNew2015.cpp:4595 X2Lib/X2UISkillTreeNew2015.cpp:4638
+GetCursor	CX2State	1	3	D0c-3	X2Lib/X2GFXEventScene.cpp:397 X2Lib/X2GFXEventScene.cpp:424 X2Lib/X2SlideShotScripted.cpp:48
+GetEnableShortCutKey	CX2State	1	4	D0c-3	X2Lib/X2Game.cpp:6031 X2Lib/X2UISkillTreeNew2015.cpp:2510 X2Lib/X2UISkillTreeNew2015.cpp:2587 X2Lib/X2UISkillTreeNew2015.cpp:2623
+OpenAdvertisementDialog	CX2State	1	1	D0c-3	X2Lib/X2StateMenu.cpp:2129
+ProcessShowMiniMap	CX2State	1	1	D0c-3	X2Lib/X2State.cpp:12464
+ReturnToPlaceWhereBeforeDungeonStart	CX2State	1	4	D0c-3	X2Lib/X2State.cpp:2112 X2Lib/X2UIDungeonResultAdapter.cpp:1092 X2Lib/X2UIDungeonResultAdapter.cpp:1124 X2Lib/X2UIDungeonResultAdapter.cpp:1151
+ShortCutKeyProcess	CX2State	1	1	D0c-3	X2Lib/X2State.cpp:763
+ShowOkAndCancelMsgForUnReadyBySkill	CX2State	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:4582 X2Lib/X2UISkillTreeNew2015.cpp:4597 X2Lib/X2UISkillTreeNew2015.cpp:4640
+GetDungeonEndingEvent	CX2StateDungeonGame	1	1	D0c-3	X2Lib/X2Main.cpp:17734
+OpenExitDLG	CX2StateDungeonGame	1	1	D0c-3	X2Lib/X2StateDungeonGame.cpp:993
+SetGuideString	CX2StateMenu	1	12	D0c-3	X2Lib/X2StateMenu.cpp:5602 X2Lib/X2StateMenu.cpp:5605 X2Lib/X2StateMenu.cpp:5608 X2Lib/X2StateMenu.cpp:5611
+ToggleCashShop	CX2StateMenu	1	8	D0c-3	X2Lib/X2LVUpEventMgr.cpp:385 X2Lib/X2State.cpp:4094 X2Lib/X2State.cpp:9258 X2Lib/X2StateMenu.cpp:505
+ToggleSystemMenu	CX2StateMenu	1	1	D0c-3	X2Lib/X2StateMenu.cpp:1254
+GetDisableSkillUIOpen	CX2StatePVPRoom	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1142
+GetOwnerUnitClass	CX2StatusGageUI	1	3	D0c-3	X2Lib/X2GageUI.cpp:1576 X2Lib/X2GageUI.cpp:2125 X2Lib/X2GageUI.cpp:3656
+CloseBuffNameForce	CX2TFieldGame	1	1	D0c-3	X2Lib/X2StateMenu.cpp:1322
+CloseFieldName	CX2TFieldGame	1	3	D0c-3	X2Lib/X2StateMenu.cpp:1320 X2Lib/X2UISkillTreeNew2015.cpp:5284 X2Lib/X2UISkillTreeNew2015.cpp:5378
+GetJoinNpc	CX2TFieldGame	1	1	D0c-3	X2Lib/X2Main.cpp:11872
+GetNoviceGuide	CX2TFieldGame	1	8	D0c-3	X2Lib/X2LocalMapUI.cpp:393 X2Lib/X2LocalMapUI.cpp:395 X2Lib/X2LocalMapUI.cpp:395 X2Lib/X2LocalMapUI.cpp:399
+CreateTalkBoxManger	CX2TalkBoxManager	1	2	D0c-3	X2Lib/X2Game.cpp:426 X2Lib/X2UISkillTreeNew2015.cpp:954
+SetFaceUV	CX2TalkBoxManagerImp	1	1	D0c-3	X2Lib/X2TalkBoxManagerImp.cpp:2441
+ResetFontPos	CX2TalkBoxManagerImp::TalkBox	1	1	D0c-3	X2Lib/X2TalkBoxManagerImp.cpp:1993
+GetTalkBoxByUID	CX2TalkBoxManager|CX2TalkBoxManagerImp	2	3	D0c-3	X2Lib/X2Game.cpp:20186 X2Lib/X2Game.cpp:20187 X2Lib/X2TalkBoxManagerImp.cpp:1977
+GetSocketStat	CX2TitleManager	1	1	D0c-3	X2Lib/X2Unit.cpp:1784
+GetTitleInfo	CX2TitleManager	1	2	D0c-3	X2Lib/X2Unit.cpp:1543 X2Lib/X2Unit.cpp:1545
+Handler_EGS_EQUIP_TITLE_REQ	CX2TitleManager	1	2	D0c-3	X2Lib/X2TitleManager.cpp:2143 X2Lib/X2TitleManager.cpp:2261
+GetMapSkillSlotUISet	CX2UIGuildSkillTree|CX2UIGuildSkillTreeInfo|CX2UISkillTree|CX2UISkillTreeNew	4	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:328
+UpdateDLGSkillUnsealed	CX2UIGuildSkillTree|CX2UIGuildSkillTreeInfo|CX2UISkillTree|CX2UISkillTreeNew	4	1	D0c-3	X2Lib/X2SkillTree.cpp:3191
+Handler_EGS_USE_ITEM_IN_INVENTORY_REQ	CX2UIInventory	1	1	D0c-3	X2Lib/X2UIInventory.cpp:6719
+GetShowSkillslot	CX2UIManager	1	1	D0c-3	X2Lib/X2Main.cpp:17743
+GetUIInventory	CX2UIManager	1	4	D0c-3	X2Lib/X2SkillTree.cpp:3602 X2Lib/X2SkillTree.cpp:3603 X2Lib/X2State.cpp:9314 X2Lib/X2State.cpp:9315
+GetUIPetList	CX2UIManager	1	2	D0c-3	X2Lib/X2StateMenu.cpp:5499 X2Lib/X2StateMenu.cpp:5499
+GetUIQuestNew	CX2UIManager	1	12	D0c-3	X2Lib/X2GFXEventScene.cpp:297 X2Lib/X2GFXEventScene.cpp:300 X2Lib/X2GFXEventScene.cpp:479 X2Lib/X2GFXEventScene.cpp:480
+GetUIQuickSlot	CX2UIManager	1	4	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:882 X2Lib/X2UIDungeonResultAdapter.cpp:883 X2Lib/X2UIDungeonResultAdapter.cpp:1064 X2Lib/X2UIDungeonResultAdapter.cpp:1065
+SetNowDragItemReturn	CX2UIManager	1	1	D0c-3	X2Lib/X2UIManager.h:409
+SetShowMenu	CX2UIManager	1	2	D0c-3	X2Lib/X2UIManager.cpp:4359 X2Lib/X2UIManager.cpp:4409
+SetShowQucikQuest	CX2UIManager	1	1	D0c-3	X2Lib/X2UIManager.cpp:4327
+SetShowQuickSlot	CX2UIManager	1	3	D0c-3	X2Lib/X2StateDungeonGame.cpp:306 X2Lib/X2UIManager.cpp:4319 X2Lib/X2UIManager.cpp:4397
+SetUILayerIndex	CX2UIManager	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1058
+UIClosed	CX2UIManager	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1124
+UIOpened	CX2UIManager	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1153
+GetPetListSize	CX2UIPetInfo	1	1	D0c-3	X2Lib/X2StateMenu.cpp:5499
+CreateStringNPCQuestDescription	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1099
+CreateStringQuestClearCondition	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1089
+GetIsValidDayTheWeekQuest	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:674
+HideUIQuestSlotInfo	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1085
+InitRewardItemSlot	CX2UIQuestNew	1	9	D0c-3	X2Lib/X2UIQuestNewJune.cpp:928 X2Lib/X2UIQuestNewJune.cpp:989 X2Lib/X2UIQuestNewJune.cpp:1011 X2Lib/X2UIQuestNewJune.cpp:1050
+InitUIQuestSlotInfo	CX2UIQuestNew	1	7	D0c-3	X2Lib/X2UIQuestNewJune.cpp:988 X2Lib/X2UIQuestNewJune.cpp:1010 X2Lib/X2UIQuestNewJune.cpp:1049 X2Lib/X2UIQuestNewJune.cpp:1120
+InitUserShowQuickQuestDLG	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2State.cpp:9324
+NewEpicStartEffect	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2GFXEventScene.cpp:480
+ProcessQuestDesc	CX2UIQuestNew	1	2	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1095 X2Lib/X2UIQuestNewJune.cpp:1104
+ReturnToQuestListUI	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1078
+SetOpenEpicCategory	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:858
+ShowUIDesc	CX2UIQuestNew	1	2	D0c-3	X2Lib/X2UIQuestNew.cpp:7758 X2Lib/X2UIQuestNewJune.cpp:923
+ToggleUserShowQuickQuestDLG	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2StateDungeonGame.cpp:5049
+UpdateNPCQuestDescription	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1106
+UpdateNavi	CX2UIQuestNew	1	2	D0c-3	X2Lib/X2UIQuestNewJune.cpp:917 X2Lib/X2UIQuestNewJune.cpp:1994
+UpdateQuestClearCondition	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1097
+UpdateQuestMonster	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:899
+UpdateQuickQuestDLG	CX2UIQuestNew	1	2	D0c-3	X2Lib/X2UIQuestNew.cpp:7758 X2Lib/X2UIQuestNewJune.cpp:920
+UpdateRewardInfo	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1108
+UpdateRewardItemSlot	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:1109
+UserShowQuickQuestDLG	CX2UIQuestNew	1	1	D0c-3	X2Lib/X2UIQuestNew.cpp:7758
+UpdateQuickQuestDLG	CX2UIQuest|CX2UIQuestNew	2	1	D0c-3	X2Lib/X2LocalMapUI.cpp:1399
+GetDLGUISkillTree	CX2UISkillTreeNew	1	2	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:317 X2Lib/X2UISkillTreeNew2015.cpp:385
+GetEquippedSlot	CX2UISkillTreeNew	1	8	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3524 X2Lib/X2UISkillTreeNew2015.cpp:3526 X2Lib/X2UISkillTreeNew2015.cpp:3536 X2Lib/X2UISkillTreeNew2015.cpp:3538
+GetEquippedSlotData	CX2UISkillTreeNew	1	4	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:2831 X2Lib/X2UISkillTreeNew2015.cpp:3039 X2Lib/X2UISkillTreeNew2015.cpp:3061 X2Lib/X2UISkillTreeNew2015.cpp:3153
+InitEquippedSkillSlotData	CX2UISkillTreeNew	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1191
+SetOffsetPosEtcSkillSlotUI	CX2UISkillTreeNew	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3489
+SetOffsetPosSkillSLotStatic	CX2UISkillTreeNew	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3530 X2Lib/X2UISkillTreeNew2015.cpp:3542 X2Lib/X2UISkillTreeNew2015.cpp:3581
+SetOffsetStatic	CX2UISkillTreeNew	1	12	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3403 X2Lib/X2UISkillTreeNew2015.cpp:3404 X2Lib/X2UISkillTreeNew2015.cpp:3405 X2Lib/X2UISkillTreeNew2015.cpp:3406
+ShowUIDesc	CX2UISkillTreeNew	1	7	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1121 X2Lib/X2UISkillTreeNew2015.cpp:4559 X2Lib/X2UISkillTreeNew2015.cpp:4567 X2Lib/X2UISkillTreeNew2015.cpp:4618
+SwapSkillSlotTypeA	CX2UISkillTreeNew	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3386
+SwapSkillSlotTypeB	CX2UISkillTreeNew	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3390
+UpdateSkillEquipedSlotUI	CX2UISkillTreeNew	1	3	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:1150 X2Lib/X2UISkillTreeNew2015.cpp:2287 X2Lib/X2UISkillTreeNew2015.cpp:4585
+UpdateSkillSlotString	CX2UISkillTreeNew	1	1	D0c-3	X2Lib/X2UISkillTreeNew2015.cpp:3490
+GetDLGGameSkillSLot	CX2UISkillTree|CX2UISkillTreeNew	2	3	D0c-3	X2Lib/X2Game.cpp:13636 X2Lib/X2UIManager.cpp:349 X2Lib/X2UIManager.cpp:349
+GetEquippedSlot	CX2UISkillTree|CX2UISkillTreeNew	2	5	D0c-3	X2Lib/X2Game.cpp:13856 X2Lib/X2Game.cpp:13947 X2Lib/X2Game.cpp:14114 X2Lib/X2Game.cpp:14128
+GetEquippedSlotData	CX2UISkillTree|CX2UISkillTreeNew	2	3	D0c-3	X2Lib/X2Game.cpp:13853 X2Lib/X2Game.cpp:13943 X2Lib/X2Game.cpp:13987
+GetIsSkillUiTypeA	CX2UISkillTree|CX2UISkillTreeNew	2	2	D0c-3	X2Lib/X2Game.cpp:13757 X2Lib/X2Game.cpp:13964
+IsExpandSkillSlot	CX2UISkillTree|CX2UISkillTreeNew	2	1	D0c-3	X2Lib/X2GUUser.cpp:25789
+AccessUserData	CX2User	1	1	D0c-3	X2Lib/X2UIDungeonResultAdapter.cpp:940
+GetIsPCRoom	CX2User	1	1	D0c-3	X2Lib/X2UIQuestNewJune.cpp:619
+GetSelectUnit	CX2User	1	217	D0c-3	X2Lib/X2EmblemManager.cpp:440 X2Lib/X2EmblemManager.cpp:441 X2Lib/X2EmblemManager.cpp:443 X2Lib/X2EmblemManager.cpp:1506
+GetErrStr	NetError	1	2	D0c-3	X2Lib/X2UIInventory.cpp:6715 X2Lib/X2UIQuickSlot.cpp:557
+IsSameCategory	RENDER_HINT	1	1	D0c-3	KTDXLIB/KTDGManager.cpp:882

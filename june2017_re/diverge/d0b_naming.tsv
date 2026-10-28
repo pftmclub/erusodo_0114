@@ -1,0 +1,198 @@
+kind	name	file	line	scope	proposal	confidence	note
+class	JuneSkillTypeRate	X2Lib/X2BuffBehaviorTemplet.h	466		BuffSkillTypeRate	med	pair{skill type,rate} of BBT 89; SkillTypeRate is the nested typedef (BuffTemplet.h:1511)
+class	JuneSkillIDRateBlock	X2Lib/X2BuffBehaviorTemplet.h	467		BuffSkillIDRateBlock	med	{rate,skillIDs} block BBT 90/91; SkillIDRateBlock is the nested typedef (BuffTemplet.h:1545)
+constant	JUNE_MAX_LEVEL	X2Lib/Offline/X2OfflineCap99Exp.h	30		EXP_TABLE_MAX_LEVEL	med	top level of the 100-row exp table (JUNE_TOTAL_EXP); MAX_LEVEL is OfflineDB.cpp:1244 using-ns name
+data member	m_uidJuneCreator	X2Lib/X2BuffTemplet.h	271	CX2BuffTemplet	m_uidCreator	high	factor creator UID in CX2BuffTemplet; the :648/:947 hits are other structs, no clash
+data member	m_vJunePositionOffset	X2Lib/X2EffectSet.h	944	CX2EffectSet::EffectSetInstance	m_vInstancePositionOffset	med	instance offset class code writes (X2EffectSet.cpp:6263); m_vPositionOffset is EffectData own offset
+data member	m_fJuneValuePos	X2Lib/X2RidingPet.h	571	CX2RidingPet	m_fValuePos	med	Lua key VALUE_POS (X2RidingPet.cpp:1137); no clash in CX2RidingPet
+free function	JuneGetString	KTDXLIB/KTDGEnvBoxMap.cpp	54		GetTableString	med	reads string key of a Lua table (KTDGEnvBoxMap.cpp:369); GetString clashes are class members
+free function	JuneGetVec3	KTDXLIB/KTDGEnvBoxMap.cpp	64		GetTableVec3	med	reads Vec3 key of a Lua table (KTDGEnvBoxMap.cpp:371); GetVec3 clash is a KTDXApp member
+free function	JuneSetOverUI	X2Lib/X2EffectSet.cpp	650		SetParticleSequenceOverUI	high	over-UI + XDL_DIRECTING layer on a particle sequence (EffectSet.cpp:650); SetOverUI is a member
+free function	June32481fa0	X2Lib/X2GUArme_VioletMage.cpp	34651		IsBossRaidBattleField	med	June boss-raid field ids, stub false (VioletMage.cpp:34650); March one is data-driven
+free function	JuneIsUnitTranscended	X2Lib/X2GUUser.cpp	32348		IsUnitTranscended	med	CX2Unit transcended flag helper (GUUser.cpp:32348); Offline hit is a CX2OfflineSkill member
+free function	JuneDoIHaveThisSkill	X2Lib/X2UISkillTreeNew2015.cpp	80		SAME:CX2UserSkillTree::DoIHaveThisSkill	med	June 32890a30 = namesake (UserSkillTree.h:512); bodies differ (no learn-now fallback)
+free function	JuneGetSkillEffectiveDescValue	X2Lib/X2UISkillTreeNew2015.cpp	171		SAME:CX2SkillTree::SkillTemplet::GetSkillEffectiveDescValue	med	June 328ee280 is the namesake (X2SkillTree.h:2618); bodies differ: fold under flag
+local	szJuneBuf	KTDXLIB/KTDGGFXManager.cpp	2385	CKTDGGFXManager	szBuf	high	debug log buffer, 10-line block, no clash
+local	iJuneName	KTDXLIB/KTDGUIDialogManager.cpp	841	CKTDGUIDialogManager	iName	high	default is clear in context
+local	iJuneName	KTDXLIB/KTDGUIDialogManager.cpp	1081	CKTDGUIDialogManager	iName	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	334	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	336	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	338	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	340	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	2593	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	2595	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	2597	CKTDGXSkinAnim	u	high	default is clear in context
+local	uJune	KTDXLIB/KTDGXSkinAnim.cpp	2599	CKTDGXSkinAnim	u	high	default is clear in context
+local	iJuneResult	KTDXLIB/KTDXDeviceManager.cpp	1273	CKTDXDeviceManager	iResult	high	FMOD callback register result in a block; iJuneRegistered stays separate
+local	iJune	X2Lib/Offline/X2OfflineQuest.cpp	1432	CX2OfflineQuest	iNetError	med	CheckJuneRepeat result compared to NET_OK; later `i` is a sibling for-loop
+local	pJuneBehaviorFactor	X2Lib/X2BuffBehaviorTemplet.cpp	4202	CX2BuffChangeConsumeMpRate	pBehaviorFactor	high	default only collides with the #else (March) branch text
+local	itJune	X2Lib/X2DamageEffect.cpp	1887		it	med	attack-data list iterator; `it` hits in the ctor are comments
+local	pJuneData	X2Lib/X2DamageEffect.cpp	1889		pData	high	default is clear in context
+local	uiJune	X2Lib/X2DamageEffect.cpp	2381	CX2DamageEffect::CEffect	ui	high	default is clear in context
+local	eJuneResult	X2Lib/X2DamageEffect.cpp	2388	CX2DamageEffect::CEffect	eResult	high	default is clear in context
+local	pJuneLineData	X2Lib/X2DamageEffect.cpp	8261	CX2DamageEffect::CEffect	pLineData	med	line data of the loop; pLineData at :8142 is in a sibling block
+local	wszJuneValue	X2Lib/X2DamageManager.cpp	340	CX2DamageManager	wszValue	high	value text for unsupported-key log; sibling blocks only
+local	wszJuneValue	X2Lib/X2DamageManager.cpp	398	CX2DamageManager	wszValue	high	value text for unsupported-key log; sibling blocks only
+local	wszJuneValue	X2Lib/X2DamageManager.cpp	595	CX2DamageManager	wszValue	high	default is clear in context
+local	pJuneSkillTemplet	X2Lib/X2DamageManager.cpp	5128	CX2DamageManager	pSkillTemplet	high	skill templet of the relative skill id; no other use in function
+local	wszJuneItem	X2Lib/X2Data.cpp	1875	CX2Data	wszItemLog	med	holds the transcend item load log line (X2Data.cpp:1876)
+local	hJuneTargetMesh	X2Lib/X2EffectSet.cpp	2517	CX2EffectSet	hTargetMesh	high	only parameter names in X2EffectSet.h; none inside this function
+local	pJuneMemo	X2Lib/X2EffectSet.cpp	3412	CX2EffectSet	pMemo	high	skill memo entry of the applied skill
+local	pJuneEffectInstance	X2Lib/X2EffectSet.cpp	4828	CX2EffectSet::EffectSetInstance	pEffectInstance	med	pEffectInstance at :4834 is the next foreach (own scope)
+local	fJuneY	X2Lib/X2EffectSet.cpp	5268	CX2EffectSet::EffectSetInstance	fY	high	default is clear in context
+local	fJuneY	X2Lib/X2EffectSet.cpp	7027	CX2EffectSet::EffectSetInstance	fY	high	default is clear in context
+local	iJune	X2Lib/X2EnchantItem.cpp	147	CX2EnchantItem	i	high	for-loop index over Lua values; no other i in function
+local	iJune	X2Lib/X2EnchantItem.cpp	153	CX2EnchantItem	i	high	for-loop index over Lua values; no other i in function
+local	iJune	X2Lib/X2EnchantItem.cpp	159	CX2EnchantItem	i	high	for-loop index over Lua values; no other i in function
+local	iJune	X2Lib/X2EnchantItem.h	187	CX2EnchantItem::EnchantData	i	high	default is clear in context
+local	wszJuneMultiTexName	X2Lib/X2Eqip.cpp	2297	CX2Eqip	wszMultiTexName	high	no other use in InitSkin
+local	bJuneMemo	X2Lib/X2GUArme_VioletMage.cpp	29873	CX2GUArme_VioletMage	bManaShieldMemoEquipped	high	memo stub answering false, in UAI_MANA_SHIELD case (:29873)
+local	pszJuneName	X2Lib/X2GUNPC.cpp	4928	CX2GUNPC	pszName	high	bounding state name literal
+local	iJuneStateID	X2Lib/X2GUNPC.cpp	4930	CX2GUNPC	iBoundingStateID	med	iStateID is declared later in the enclosing block (:4953)
+local	iJune	X2Lib/X2GUNPC.cpp	5318	CX2GUNPC	iBoundingIndex	med	0..2 index into the three bounding source types; `i` at :5031 is another loop
+local	iJuneNum	X2Lib/X2GUNPC.cpp	5327	CX2GUNPC	iStateCount	med	size of m_vecStateData; iNum at :5002 is another block
+local	iJuneIndex	X2Lib/X2GUNPC.cpp	5801	CX2GUNPC	iIndex	high	default is clear in context
+local	pJuneAttackerUnit	X2Lib/X2GUNPC.cpp	13916	CX2GUNPC	SAME:pAttackerUnit	med	same GetObservable() value as pAttackerUnit declared at :13312 in the same function
+local	iJune	X2Lib/X2GUNPC.cpp	15938	CX2GUNPC	i	high	default is clear in context
+local	eJuneUnitType	X2Lib/X2GUUser.cpp	3436	CX2GUUser	eUnitType	high	eUnitType at :3488 is in the #else branch
+local	fJuneTime	X2Lib/X2GUUser.cpp	6117		fTime	high	7-line function
+local	fJuneValue	X2Lib/X2GUUser.cpp	6135		fValue	high	18-line function
+local	pJuneMemo	X2Lib/X2GUUser.cpp	6185	CX2GUUser	pMemo	high	default is clear in context
+local	iJuneIndex	X2Lib/X2GUUser.cpp	15705		iIndex	high	default is clear in context
+local	uiJune	X2Lib/X2GUUser.cpp	15952	CX2GUUser	ui	high	default is clear in context
+local	iJuneSoundIndex	X2Lib/X2GUUser.cpp	17205	CX2GUUser	iSoundIndex	med	iSoundIndex at :16969 is in a separate earlier block
+local	iJuneStateSoundIndex	X2Lib/X2GUUser.cpp	17221	CX2GUUser	iStateSoundIndex	med	iStateSoundIndex at :17057 is in a separate earlier block
+local	fJuneValue	X2Lib/X2GUUser.cpp	17574	CX2GUUser	fValue	high	default is clear in context
+local	vJuneSpeed	X2Lib/X2GUUser.cpp	17764	CX2GUUser	vTimeSpeed	med	vSpeed would read as TIME_SPEED::vSpeed member used all over the function
+local	vJuneSpeed	X2Lib/X2GUUser.cpp	17771	CX2GUUser	vTimeSpeed	med	vSpeed would read as TIME_SPEED::vSpeed member used all over the function
+local	vJuneSpeed	X2Lib/X2GUUser.cpp	17778	CX2GUUser	vTimeSpeed	med	vSpeed would read as TIME_SPEED::vSpeed member used all over the function
+local	kJuneRecord	X2Lib/X2GUUser.cpp	18786	CX2GUUser	kRecord	high	default is clear in context
+local	pJuneMemo	X2Lib/X2GUUser.cpp	21409	CX2GUUser	pMemo	high	default is clear in context
+local	pJuneMemo	X2Lib/X2GUUser.cpp	26268	CX2GUUser	pMemo	high	skill memo entry; pMemo hits at :26293 are another function
+local	kJuneEntry	X2Lib/X2GUUser.cpp	33909	CX2GUUser	kEntry	high	default is clear in context
+local	kJuneEntry	X2Lib/X2GUUser.cpp	33952	CX2GUUser	kEntry	high	default is clear in context
+local	pJuneSkillTemplet	X2Lib/X2GUUser.cpp	40887	CX2GUUser	pSkillTemplet	high	no other use in function
+local	szJuneBuf	X2Lib/X2GUUser.cpp	40909	CX2GUUser	szBuf	high	default is clear in context
+local	juneHyperCutIn	X2Lib/X2GUUser.cpp	41048	CX2GUUser	hyperCutIn	med	SkillCutIn instance for the hyper cut-in; default juneHyperCutIn is not a name change
+local	uiJuneBuffFactorID	X2Lib/X2GUUser.cpp	45567	CX2GUUser	uiBuffFactorID	high	no clash in function
+local	uiJuneBuffFactorID	X2Lib/X2GUUser.cpp	45586	CX2GUUser	uiBuffFactorID	high	no clash in function
+local	pJuneStateMemo	X2Lib/X2GUUser.cpp	46680	CX2GUUser	pStateMemo	high	default is clear in context
+local	iJuneState	X2Lib/X2Game.cpp	6680	CX2Game	iLuaStateID	med	state id numbering exposed to Lua (GetNowStateID_LUA); iMarchState is the C++ one
+local	pJuneNPC	X2Lib/X2Game.cpp	12538	CX2Game	pNPC	high	debug-log NPC; 12-line function
+local	fJuneRate	X2Lib/X2Game.cpp	17001		fSummonPowerRate	med	product of summon power rates applied to the NPC
+local	fJuneRate	X2Lib/X2Game.cpp	17016		fSummonPowerRate	med	product of summon power rates applied to the NPC
+local	vJunePos	X2Lib/X2GameUnit.cpp	6002	CX2GameUnit	vTextPos	med	floating HP/MP loss text position
+local	vJunePos	X2Lib/X2GameUnit.cpp	6100	CX2GameUnit	vTextPos	med	floating HP/MP loss text position
+local	pJuneUnit	X2Lib/X2GameUnit.cpp	16750	CX2GameUnit	pUnit	high	default is clear in context
+local	pJuneAttackerUser	X2Lib/X2GameUnit.cpp	19402	CX2GameUnit	pAttackerUser	med	pAttackerUser at :19447 is the #else March branch
+local	fJuneSkillDamage	X2Lib/X2GameUnit.cpp	19406	CX2GameUnit	fSkillDamage	med	fSkillDamage at :19449 is the #else March branch
+local	fJuneRate	X2Lib/X2GameUnit.cpp	19408	CX2GameUnit	fSkillDamageRate	med	fSkillDamage + 1
+local	fJuneRate	X2Lib/X2GuEve.cpp	46711	CX2GUEve	fTimeAbsRate	med	SA_TIME_ABS ability value (default 1.0) stored into the Taser Pilum data
+local	bJuneMemo	X2Lib/X2GuEve.cpp	48318	CX2GUEve	bSpectroElCrystalMemoEquipped	med	memo 605013 stub (+3 s Spectro El Crystal time)
+local	bJuneMemo	X2Lib/X2GuEve.cpp	53372	CX2GUEve	bMetalDustAuraMemoEquipped	med	memo 605011 stub, picks the buff factor index
+local	bJuneMemo	X2Lib/X2GuEve.cpp	56694	CX2GUEve	bOberonGuardMemoEquipped	med	memo 605012 stub, halves the Oberon Guard effective time
+local	itJuneEqip	X2Lib/X2ItemStatCalculator.cpp	295	CX2ItemStatCalculator	itEqip	high	no clash in function
+local	wstrJuneSetName	X2Lib/X2NPCUnitViewerUI.cpp	257	CX2NPCUnitViewerUI	wstrSetName	high	default is clear in context
+local	wstrJuneSetName	X2Lib/X2NPCUnitViewerUI.cpp	590	CX2NPCUnitViewerUI	wstrSetName	high	default is clear in context
+local	iJuneDifficulty	X2Lib/X2QuestManager.cpp	3531	CX2QuestManager	SAME:iDifficulty	med	same m_cDifficulty read into the same field as iDifficulty declared at :2622 in the enclosing block
+local	vJunePos	X2Lib/X2RidingPet.cpp	192	CX2RidingPet	vPos	med	same init as vPos at :151 but in a sibling block, no overlap
+local	bJuneIsRight	X2Lib/X2RidingPet.cpp	193	CX2RidingPet	bIsRight	med	same init as bIsRight at :152 but in a sibling block, no overlap
+local	junePushPass	X2Lib/X2RidingPet.cpp	971	CX2RidingPet	canPushUnitTime	med	CAN_PUSH_UNIT_TIME record; GUUser.cpp names its TIME_PUSHPASS this
+local	junePushPass	X2Lib/X2RidingPet.cpp	984	CX2RidingPet	canPassUnitTime	med	CAN_PASS_UNIT_TIME record; GUUser.cpp names its TIME_PUSHPASS this
+local	mapJuneMemo	X2Lib/X2Room.cpp	1676	CX2Room	mapActiveMemo	med	active-memo map from m_kJuneSkillExtraData.m_mapIntInt merged into the skill tree
+local	vJuneDownPos	X2Lib/X2SimplePathFinder.cpp	892	CX2SimplePathFinder	vDownPos	med	vDownPos at :990 is in a sibling block
+local	iJuneCurrLineDataIndex	X2Lib/X2SimplePathFinder.cpp	893	CX2SimplePathFinder	iCanDownLineDataIndex	med	copy of iCurrLineDataIndex handed to CanDown as in-index; iCurrLineDataIndex exists
+local	pJuneUnitData	X2Lib/X2SkillTree.cpp	4406	CX2SkillTree	pUnitData	med	same AccessUnitData() expr as pUnitData at :4432 but in a sibling block
+local	pJuneUnit	X2Lib/X2SkillTree.cpp	4527	CX2SkillTree	pUnit	high	no clash in function
+local	fJuneRate	X2Lib/X2SocketItem.cpp	801	CX2SocketItem	fAdditionalPowerRate	med	m_fSkillAdditionalPowerRate value read from Lua
+local	kJuneRecord	X2Lib/X2SquareUnit.cpp	445	CX2SquareUnit	kRecord	high	condition-equip effect set record
+local	kJuneRecord	X2Lib/X2SquareUnit.cpp	1781	CX2SquareUnit	kRecord	high	default is clear in context
+local	mapJuneMemo	X2Lib/X2State.cpp	9280	CX2State	mapActiveMemo	med	active-memo map from m_kJuneSkillExtraData.m_mapIntInt merged into the skill tree
+local	wstrJuneSoundName	X2Lib/X2StateClassChange.cpp	936	CX2ClassChangePopup	wstrSoundName	high	wstrSoundName at :946 is the #else March branch
+local	szJuneBuf	X2Lib/X2StateDungeonGame.cpp	1006	CX2StateDungeonGame	szBuf	high	default is clear in context
+local	pJuneUser	X2Lib/X2StateDungeonGame.cpp	2935	CX2StateDungeonGame	pUser	high	pUser at :2961 is a later sibling loop
+local	kJuneUnitData	X2Lib/X2StateMenu.cpp	1978	CX2StateMenu	kUnitData	high	default is clear in context
+local	pJuneQuestTemplet	X2Lib/X2UIQuestNew.cpp	1773	CX2UIQuestNew	pCompletedQuestTemplet	low	same lookup as pQuestTemplet later in same block; reuse needs hoisting, so distinct name
+local	pJuneQuestTemplet	X2Lib/X2UIQuestNew.cpp	2399	CX2UIQuestNew	pCompletedQuestTemplet	low	same lookup as pQuestTemplet later in same block; reuse needs hoisting, so distinct name
+local	kJuneAggregate	X2Lib/X2Unit.cpp	1250	CX2Unit	kSocketAggregate	med	the socket aggregate struct; kAggregate is its m_kSocketData member reference
+local	kJuneAggregate	X2Lib/X2Unit.cpp	1445	CX2Unit	kSocketAggregate	med	the socket aggregate struct (same type as :1250)
+local	mapJuneMemo	X2Lib/X2Unit.cpp	4485	CX2Unit::UnitData	mapActiveMemo	med	active-memo map from m_kJuneSkillExtraData.m_mapIntInt merged into the skill tree
+local	mapJuneMemo	X2Lib/X2Unit.cpp	4687	CX2Unit::UnitData	mapActiveMemo	med	active-memo map from m_kJuneSkillExtraData.m_mapIntInt merged into the skill tree
+local	pJuneEquip	X2Lib/X2UnitViewerUI.cpp	1035	CX2UnitViewerUI	pEquip	high	no clash in function
+local	kJuneRecord	X2Lib/X2UnitViewerUI.cpp	1041	CX2UnitViewerUI	kRecord	high	default is clear in context
+local	pJuneTemplet	X2Lib/X2UserSkillTree.cpp	605	CX2UserSkillTree	pSkillTemplet	high	skill templet of eSkillID_; no clash
+local	mapJuneAcquired	X2Lib/X2UserSkillTree.cpp	630	CX2UserSkillTree	mapAcquired	high	acquired skill map of the page in use
+local	eJuneSkillID	X2Lib/X2UserSkillTree.cpp	647	CX2UserSkillTree	eSwappedSkillID	med	eSkillID is the parameter; this is the upgrade-swapped id
+local	mitJune	X2Lib/X2UserSkillTree.cpp	648	CX2UserSkillTree	mit	high	mit at :660/:695/:704 is the #else March branch
+member function	GetJuneValuePos	X2Lib/X2RidingPet.h	468	CX2RidingPet	GetValuePos	high	default is clear in context
+member function	GetJuneMemo	X2Lib/X2SkillNoteManager.cpp	536	CX2SkillNoteManager	GetMemo	med	accessor of the memo (skill note) table; March class in the #else branch has none of these
+member function	GetJuneMemoList	X2Lib/X2SkillNoteManager.cpp	572	CX2SkillNoteManager	GetMemoList	med	accessor of the memo (skill note) table; March class in the #else branch has none of these
+member function	GetJuneMemoValue	X2Lib/X2SkillNoteManager.cpp	597	CX2SkillNoteManager	GetMemoValue	med	accessor of the memo (skill note) table; March class in the #else branch has none of these
+member function	GetJuneMemoState	X2Lib/X2SkillNoteManager.cpp	644	CX2SkillNoteManager	GetMemoState	med	accessor of the memo (skill note) table; March class in the #else branch has none of these
+member function	GetJuneMemoName	X2Lib/X2SkillNoteManager.cpp	661	CX2SkillNoteManager	GetMemoName	med	accessor of the memo (skill note) table; March class in the #else branch has none of these
+data member	m_hJune96dc	X2Lib/X2GUArme_VioletMage.h	1169	CX2GUArme_VioletMage	m_hAngorHammerMesh	high	mesh handle of Angor Hammer in the right hand (VioletMage.cpp:29292)
+data member	m_fJune96e0	X2Lib/X2GUArme_VioletMage.h	1170	CX2GUArme_VioletMage	m_fHellStoneRecastTime	high	recast window, 5.0 on first cast, counts down (VioletMage.cpp:29633,35390)
+data member	m_iJune96e4	X2Lib/X2GUArme_VioletMage.h	1171	CX2GUArme_VioletMage	m_iHellStoneRecastCount	high	casts in the window, 3rd ends it (VioletMage.cpp:35389-35393)
+data member	m_iJune96e8	X2Lib/X2GUArme_VioletMage.h	1172	CX2GUArme_VioletMage	m_iSkillSlotKind	med	kind from June_SelectSkillSlotKind: 1 recast-window, 2 memorize, 3 MemoRise (:30204,30501)
+data member	m_fJune9734	X2Lib/X2GUArme_VioletMage.h	1173	CX2GUArme_VioletMage	?	low	only zeroed in the ctor (VioletMage.cpp:28948), no read or write; role unknown
+data member	m_fJune9740	X2Lib/X2GUArme_VioletMage.h	1174	CX2GUArme_VioletMage	?	low	only zeroed in the ctor (VioletMage.cpp:28949), no read or write; role unknown
+data member	m_iJune9754	X2Lib/X2GUArme_VioletMage.h	1175	CX2GUArme_VioletMage	m_iMemoRiseSkillID	med	skill id cast through MemoRise; synced to other units (VioletMage.cpp:29345,30206)
+data member	m_fJune9758	X2Lib/X2GUArme_VioletMage.h	1176	CX2GUArme_VioletMage	m_fMemoRiseInputDelay	med	0.1 s debounce on memorizing a skill (VioletMage.cpp:30431-30434)
+data member	m_iJune975c	X2Lib/X2GUArme_VioletMage.h	1177	CX2GUArme_VioletMage	m_iMemoRiseCastFlag	med	1 while the current state is the MemoRise-boosted cast (VioletMage.cpp:29354,29187)
+data member	m_hJune977c	X2Lib/X2GUArme_VioletMage.h	1178	CX2GUArme_VioletMage	m_hBlazeStepEffectSet	high	EffectSet_SA_AEM_BlazeStep handle (VioletMage.cpp:35885)
+data member	m_fJune9780	X2Lib/X2GUArme_VioletMage.h	1179	CX2GUArme_VioletMage	m_fEffectSetFadeOutTime	low	timer fading power of m_ahEffectSet[EffSetID_June2] then stopping it (:29434); never set non-zero
+data member	m_bJune978c	X2Lib/X2GUArme_VioletMage.h	1180	CX2GUArme_VioletMage	?	low	only cleared in the ctor (VioletMage.cpp:28962), no other use; role unknown
+data member	m_bJune978d	X2Lib/X2GUArme_VioletMage.h	1181	CX2GUArme_VioletMage	m_bManaflowOverdrive	high	ADW Mana Flow Overdrive passive on (VioletMage.cpp:29397,36944)
+data member	m_fJune9790	X2Lib/X2GUArme_VioletMage.h	1182	CX2GUArme_VioletMage	m_fManaflowMaxMoveIncrease	high	SA_MAX_INCREASE_MOVEMENT_BY_MANA (VioletMage.cpp:36952)
+data member	m_fJune9794	X2Lib/X2GUArme_VioletMage.h	1183	CX2GUArme_VioletMage	m_fManaflowMinMoveIncrease	high	SA_MIN_INCREASE_MOVEMENT_BY_MANA (VioletMage.cpp:36953)
+data member	m_fJune9798	X2Lib/X2GUArme_VioletMage.h	1184	CX2GUArme_VioletMage	?	low	only set 0 in the ctor (VioletMage.cpp:28966), no other use; role unknown
+data member	m_fJune979c	X2Lib/X2GUArme_VioletMage.h	1185	CX2GUArme_VioletMage	?	low	only set 1.0 in the ctor (VioletMage.cpp:28967), no other use; role unknown
+data member	m_fJune97a0	X2Lib/X2GUArme_VioletMage.h	1186	CX2GUArme_VioletMage	m_fAdvancedTeleportMpConsumeRate	high	SA_MP_CONSUME_REL of ADW Advanced Teleportation, scales teleport MP (:36931,37218)
+data member	m_afJune97a4	X2Lib/X2GUArme_VioletMage.h	1187	CX2GUArme_VioletMage	m_afRuinLoopData	high	Ruin loop: [0] clock [1] next tick [2] effective time [3] charging time [4] MP per tick
+data member	m_vecJune9848	X2Lib/X2GUArme_VioletMage.h	1189	CX2GUArme_VioletMage	m_vecEquipViewChange	med	equip view changes queued while transformed (VioletMage.cpp:31054,37536)
+data member	m_vecJune9848	X2Lib/X2GUArme_VioletMage.h	1191	CX2GUArme_VioletMage	m_vecEquipViewChange	med	equip view changes queued while transformed (VioletMage.cpp:31054,37536)
+data member	m_iJune8ea0	X2Lib/X2GUArme_VioletMage.h	1265	CX2GUArme_VioletMage	m_iChosenSkillID	high	skill the lookup chose (VioletMage.cpp:30458); same in GUUser/VioletMage/Eve
+data member	m_iJune8ea4	X2Lib/X2GUArme_VioletMage.h	1266	CX2GUArme_VioletMage	m_iChosenSkillSlotIndex	high	slot index of the chosen skill (VioletMage.cpp:30564); same in GUUser/VioletMage/Eve
+data member	m_fJune8ea8	X2Lib/X2GUArme_VioletMage.h	1267	CX2GUArme_VioletMage	m_fReservedSkillMp	high	MP a reserved skill keeps until its state starts (GUUser.cpp:41641); same in GUUser/VioletMage/Eve
+data member	m_fJune8eb0	X2Lib/X2GUArme_VioletMage.h	1268	CX2GUArme_VioletMage	m_fChosenSkillMp	high	MP the chosen skill costs (VioletMage.cpp:30507); same in GUUser/VioletMage/Eve
+data member	m_abJune90d3	X2Lib/X2GUArme_VioletMage.h	1269	CX2GUArme_VioletMage	m_abSkillSlotUsed	high	slot 0-9 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41629); same in GUUser/VioletMage/Eve
+data member	m_abJune90d0	X2Lib/X2GUArme_VioletMage.h	1270	CX2GUArme_VioletMage	m_abHyperSkillSlotUsed	high	hyper slot 0-2 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41633); same in GUUser/VioletMage/Eve
+data member	m_iJune8ea0	X2Lib/X2GUUser.h	4855	CX2GUUser	m_iChosenSkillID	high	skill the lookup chose (VioletMage.cpp:30458); same in GUUser/VioletMage/Eve
+data member	m_iJune8ea4	X2Lib/X2GUUser.h	4856	CX2GUUser	m_iChosenSkillSlotIndex	high	slot index of the chosen skill (VioletMage.cpp:30564); same in GUUser/VioletMage/Eve
+data member	m_fJune8ea8	X2Lib/X2GUUser.h	4857	CX2GUUser	m_fReservedSkillMp	high	MP a reserved skill keeps until its state starts (GUUser.cpp:41641); same in GUUser/VioletMage/Eve
+data member	m_fJune8eb0	X2Lib/X2GUUser.h	4858	CX2GUUser	m_fChosenSkillMp	high	MP the chosen skill costs (VioletMage.cpp:30507); same in GUUser/VioletMage/Eve
+data member	m_abJune90d3	X2Lib/X2GUUser.h	4859	CX2GUUser	m_abSkillSlotUsed	high	slot 0-9 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41629); same in GUUser/VioletMage/Eve
+data member	m_abJune90d0	X2Lib/X2GUUser.h	4860	CX2GUUser	m_abHyperSkillSlotUsed	high	hyper slot 0-2 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41633); same in GUUser/VioletMage/Eve
+data member	m_fJune4068	X2Lib/X2GameUnit.h	1878	CX2GameUnit::SkillRelatedData	m_fSummonedAtkRateByPassive	med	Grace of Queen SA_SUMMON_ATK_REL, multiplies summon NPC atk (GUNPC.cpp:30923)
+data member	m_fJune406c	X2Lib/X2GameUnit.h	1879	CX2GameUnit::SkillRelatedData	m_fSummonedCriticalRateByPassive	med	Grace of Queen SA_ATK_CRITICAL_RATE_ABS added to summon crit (GUNPC.cpp:30931)
+data member	m_iJune1c0	X2Lib/X2GuEve.h	568	CX2GUEve::EveElectraSystem	m_iSkillUseCondition	med	ACTIVE_SKILL_USE_CONDITION of Spectro El Crystal, 1 or 3 (GuEve.cpp:46477)
+data member	m_fJune9bfc	X2Lib/X2GuEve.h	3103	CX2GUEve	m_fQueenOfDestroyRecoverMp	med	P_ECN_QUEEN_OF_DESTROY SA_RECOVER_MP_ABS x core level (GuEve.cpp:34592,56722)
+data member	m_fJune9c00	X2Lib/X2GuEve.h	3104	CX2GUEve	m_fQueenOfDestroyCoolTimeCut	med	P_ECN_QUEEN_OF_DESTROY SA_COOLTIME_1 x core level (GuEve.cpp:34610,56723)
+data member	m_aiJune9c30	X2Lib/X2GuEve.h	3105	CX2GUEve	m_aiQueensControlEffectSetHandle	med	5 effect set handles counted for the queen control stack (GuEve.cpp:47115)
+data member	m_iJune9c48	X2Lib/X2GuEve.h	3106	CX2GUEve	m_iUpgradeLaserEffectHandle	med	damage effect handle of the upgraded laser (GuEve.cpp:54172,54178)
+data member	m_fJune9c4c	X2Lib/X2GuEve.h	3107	CX2GUEve	m_fOpenMindSummonTimeRate	med	P_EEP_OPEN_MIND SA_EFFECTIVE_TIME, multiplies sentry/cutting time (GuEve.cpp:53108,56742)
+data member	m_bJune9c54	X2Lib/X2GuEve.h	3108	CX2GUEve	m_bAllyNpcMovedToTarget	low	first trigger-44 hit moves ally NPCs 1621/1622 to target (GuEve.cpp:44311); reset :55571
+data member	m_fJune9c58	X2Lib/X2GuEve.h	3109	CX2GUEve	m_fConversionHpConsumeRate	high	HP_Consume of ENSI_SI_A_EN_CONVERSION (GuEve.cpp:52011,53133)
+data member	m_fJune9c5c	X2Lib/X2GuEve.h	3110	CX2GUEve	m_fConversionMpGain	high	MP_Gain of ENSI_SI_A_EN_CONVERSION (GuEve.cpp:52012,53151)
+data member	m_fJune4070	X2Lib/X2GuEve.h	3112	CX2GUEve	m_fGraceOfQueenEffectiveTime	high	Grace of Queen SA_EFFECTIVE_TIME added to sentry time (GuEve.cpp:56609,53108)
+data member	m_bJune8fc2	X2Lib/X2GuEve.h	3117	CX2GUEve	m_bEmergencyResponse	med	set after DamageReact, read+cleared by ResponseEmergency (GuEve.cpp:43986,56477)
+data member	m_bJune89fc	X2Lib/X2GuEve.h	3118	CX2GUEve	m_bAuraAddAtkAccelUpgrade	low	set when the Aura Add-ATK Accel upgrade state runs (GuEve.cpp:44166); never read
+data member	m_iJune8ea0	X2Lib/X2GuEve.h	3207	CX2GUEve	m_iChosenSkillID	high	skill the lookup chose (VioletMage.cpp:30458); same in GUUser/VioletMage/Eve
+data member	m_iJune8ea4	X2Lib/X2GuEve.h	3208	CX2GUEve	m_iChosenSkillSlotIndex	high	slot index of the chosen skill (VioletMage.cpp:30564); same in GUUser/VioletMage/Eve
+data member	m_fJune8ea8	X2Lib/X2GuEve.h	3209	CX2GUEve	m_fReservedSkillMp	high	MP a reserved skill keeps until its state starts (GUUser.cpp:41641); same in GUUser/VioletMage/Eve
+data member	m_fJune8eb0	X2Lib/X2GuEve.h	3210	CX2GUEve	m_fChosenSkillMp	high	MP the chosen skill costs (VioletMage.cpp:30507); same in GUUser/VioletMage/Eve
+data member	m_abJune90d3	X2Lib/X2GuEve.h	3211	CX2GUEve	m_abSkillSlotUsed	high	slot 0-9 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41629); same in GUUser/VioletMage/Eve
+data member	m_abJune90d0	X2Lib/X2GuEve.h	3212	CX2GUEve	m_abHyperSkillSlotUsed	high	hyper slot 0-2 used marks (June_MarkSkillSlotUsed, GUUser.cpp:41633); same in GUUser/VioletMage/Eve
+data member	m_fJune9770	X2Lib/X2GuEve.h	3243	CX2GUEve	m_fOberonGuardPowerRate	high	power rate of the Oberon Guard effect set (GuEve.cpp:47058,53937)
+data member	m_iJune9c28	X2Lib/X2GuEve.h	3244	CX2GUEve	m_iThousandStarTransMemoKind	med	0/1/2 Thousand Stars transcend memo; 2 fires the delayed attack twice (GuEve.cpp:48417,55691)
+data member	m_iJune9c2c	X2Lib/X2GuEve.h	3245	CX2GUEve	m_iQueensControlLevel	high	P_ECE_QUEENS_CONTROL skill level for the buff stack (GuEve.cpp:47159,56596)
+member function	June_Vslot60c	X2Lib/X2GUArme_VioletMage.cpp	29236	CX2GUArme_VioletMage	RidingOffStateStart	low	CommonStateStart + Magical Makeup value; AVSI_RIDING_OFF start jumps to it (VioletMage.cpp:23833)
+member function	June_Vslot604	X2Lib/X2GUArme_VioletMage.cpp	29245	CX2GUArme_VioletMage	HyperModeStateEnd	med	CommonStateEnd then hyper mode buff + Limited Mana Management; USI_HYPER_MODE StateEnd (:31251)
+member function	June_Vslot608	X2Lib/X2GUArme_VioletMage.cpp	29263	CX2GUArme_VioletMage	SAME:CX2GUArme_VioletMage::HyperModeStateEnd	med	June 32ccda40 has the same body as 32ccda90 (header :1207); RidingHyperModeEnd jumps to it
+member function	June_Vslot828	X2Lib/X2GUArme_VioletMage.cpp	30895	CX2GUArme_VioletMage	SAME:CX2GUUser::JuneIsNotCommonMoveState	low	June user vslot 0x828, base 31fd7640 (GUUser.h:3385); class override adds states; no caller yet
+member function	June_Vslot850	X2Lib/X2GUArme_VioletMage.cpp	30909	CX2GUArme_VioletMage	SAME:CX2GUArme_VioletMage::JuneAfterImageFrameMove	med	the virtual only calls it (VioletMage.h:1315): put the body in the override
+member function	June_Vslot860	X2Lib/X2GUArme_VioletMage.cpp	30933	CX2GUArme_VioletMage	SAME:CX2GUArme_VioletMage::JuneSummonedNPCInfo	med	the virtual only calls it (VioletMage.h:1316): put the body in the override
+member function	June_Vslot654	X2Lib/X2GUArme_VioletMage.cpp	31008	CX2GUArme_VioletMage	SAME:CX2GUArme_VioletMage::JuneAfterEquipSlotChange	med	the virtual only calls it (VioletMage.h:1314): put the body in the override
+member function	June_Vslot77c	X2Lib/X2GuEve.cpp	45429	CX2GUEve	GetOwnNasodSummonList	med	owned Nasod summons (Watch/1621/1622) for Code Empress into a vector (GuEve.cpp:53745)
+member function	June_Vslot828	X2Lib/X2GuEve.cpp	45935	CX2GUEve	SAME:CX2GUUser::JuneIsNotCommonMoveState	low	June user vslot 0x828, base 31fd7640 (GUUser.h:3385); class override adds states; no caller yet
+member function	June_Vslot860	X2Lib/X2GuEve.cpp	45946	CX2GUEve	SAME:CX2GUEve::JuneSummonedNPCInfo	med	the virtual only calls it (GuEve.h:3417): put the body in the override
