@@ -2751,7 +2751,7 @@ after numbers in the Done note. A defect goes back to its phase's flag.
 
 **Gate status: PASSED (2026-10-28).** Walk on units 22 / 41 / 57-61 (run 19:49-20:00): user reports all tests passed; `ErrorLog.txt` 0 `KEM_ERROR`, packets only the known `E_DISABLE_HB_CHECK_REQ`. Lua: `AddGroupChainQuest` unbound in one quest script (Stage 4's, not Eve's).
 
-**Fix found in the walk (user, 2026-10-28): the transcendence-slot glow carried into the village.** Guide particle type 4 (A-5 / B-5) is removed only by `CX2Game::June_TranscendSlotGuideFrameMove`, so it outlived the game. `CX2Game::~CX2Game` now removes slots 4 and 9; flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR` (`Always.h`, needs `_SLOTBUFF`); flagcheck worktree PASS. DEPLOY OK: X2_offline.exe 26,220,032 B, md5 `0b82f2d2`, built at main fdd2c6ab + 2 uncommitted code files. Play-test owed: awaken in a dungeon, leave to the village, no glow.
+**Fix found in the walk (user, 2026-10-28): the transcendence-slot glow carried into the village.** Guide particle type 4 (A-5 / B-5) is removed only by `CX2Game::June_TranscendSlotGuideFrameMove`, so it outlived the game. `CX2Game::~CX2Game` now removes slots 4 and 9; flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR` (`Always.h`, needs `_SLOTBUFF`); flagcheck worktree PASS. DEPLOY OK: X2_offline.exe 26,220,032 B, md5 `0b82f2d2`, built at main fdd2c6ab + 2 uncommitted code files. Play-test PASSED (user, 2026-10-28): no glow in the village.
 
 ## Phase Z - Close-out
 
