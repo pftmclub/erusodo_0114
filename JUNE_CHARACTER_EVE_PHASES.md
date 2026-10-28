@@ -2705,6 +2705,18 @@ cut-ins play June's `.gfx`.
 - **See it in game:** select screen: all nine March characters' names and models; an Eve skill cut-in shows June hero art with the frame and balloon (set 0 on 5 / 18 / 19 / 26, 1 on 108, 2 on 109, 3 on 116); a transcendence hyper (108 / 109 / 116) shows `HQ_Cutin_E*_Transcendence`
   only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH1's script does for the ECN / ECE / ECB hyper modes).
 
+#### CH5 - Review (2026-10-28, Opus 5.5): PASS, no code change
+
+I read each item against June's code: Ghidra for `333a4940`, `333a47b0` and `3297b840`. The `329ba9c0` jump table was decoded from the exe bytes, because Ghidra does not follow it.
+- **Table `333a4940`.** It holds 12 `SkillCutIn` entries at `337abc00..337abe10` (stride 0x30, index `( set * 3 + i ) * 0x30` as `3297b840` reads it). The names are, in order, `HQ_CutIn_Eve_01 / 02 / 03`, `NM_01` x3, `EP_01` x3, `BS_01` x3. That is the port's table.
+  Each entry stores size `( [334367ac], [334367ac] )` and position `( [33435598], [334367ac], uninitialised )` (FLD / FST order @333a4831). That is March's `SkillCutIn( name )`: 512 x 512 at ( 256, 512 ), floats read in the Aisha CH5 review. The `#else` still holds March's table.
+- **Event pair `333a47b0`.** `337abba0` = `HQ_CutIn_Eve_CASH_21` and `337abbd0` = `CASH_22`, with the same ctor shape. In `3297b840`, the entry copy comes first, then the item override (`31fd8a50`, not ported, Stage 12). Then `[33775864] != 0 && 31e5a860( 0x8b3 )` runs, which is `IF_EVENT_ENABLED( 0x8b3 )`. On it, `rand() & 0x80000001 == 0` (even) takes `337abba0`. The port follows the same order.
+- **Set index `329ba9c0`.** The byte map `329bc474` (class - 5) into the targets `329bc460` gives: 5 / 18 / 19 -> `+0x8ac8 = 0` (EBX), 108 -> 1 (EDI), 109 -> 2 (ECX), 116 -> 3. Every other class is left as it is, so Electra keeps the ctor's 0 (`X2GUUser.cpp:687`). That equals `CX2GUEve::June_InitState`, and no index can reach past set 3.
+- **UnitTemplet.** I compared block-wise by `unitClass`, with CRLF normalised only, against the June decompile and against the `UnitTemplet.lua` extracted from `kom_backup_tools/data036.kom.20261028_185657`. Eve's 7 blocks are identical to June's, and the other 48 are identical to the pre-phase file (55 blocks, same class set). The file has a BOM and 0 lone LF. `luasrc.py ledger --check`: PASS, 0 FAIL, 0 WARN. `core --check`: PASS.
+- **Play-test lines.** The last run (19:09-19:11) has `EVE UI hyper cut-in class 116 / 109 / 108` -> `HQ_Cutin_ECB / ECE / ECN_Transcendence`. The skill cut-in set lines 2 / 3 / 1 come from the CH5 run the Done note quotes. ErrorLog has 0 `EVE UI` errors.
+- **Hygiene.** `flagcheck JUNE_CHAR_EVE_UI --range 2bfcd090^..HEAD`: 2 PASS, 0 FAIL, 0 deleted lines, 0 non-ASCII, 0 EOL mismatch, RESULT PASS. `enumscan --check X2Lib/X2GuEve.cpp`: 0 A/B rows. There was no rebuild; the deployed exe stays md5 `123e82d9`.
+- **Next.** `kickoffs/char-eve/CH6.md` checked. Its dependencies (the CH3d, CH4c and CH5 reviews) are all done.
+
 ## Phase CH-N - not run for Eve
 
 All seven June Eve classes exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara runs it first.
