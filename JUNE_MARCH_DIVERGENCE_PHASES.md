@@ -209,6 +209,54 @@ STL, engine accessor June shares, checked once per kind) or find June's version 
 the funcmap) and compare. Each difference becomes a `june_march_divergent.tsv` row; each June function found gets a funcmap row.
 **Gate:** every callee in the area is `same (how checked)` or a tsv row.
 
+### D0c-1 Done (2026-10-29, unit classes; no flag, no game code, no build)
+
+All 409 callees of area D0c-1 have a verdict in `june2017_re/diverge/d0c1_callees.tsv` (callee, owner, sites, verdict, June va, how
+checked, batch). The gate holds: **42 new `june_march_divergent.tsv` rows** (replace 29, stage33 8, out 5) and **127 funcmap rows**
+`(Diverge D0c-1)`.
+
+**Method.** March's live bodies came from `cl /P` of the 27 TUs that define them, so no `#ifdef` was read by eye. June's versions were
+found three ways: the June caller's call list (offline capstone, voting over every ported caller), funcmap, and the June vtables
+(`334781f4` CX2GUUser, `3351d0b4` Aisha, `334ba584` CX2GUNPC). Nine Sonnet subagents compared 187 callees; Opus re-read the decisive
+ones in Ghidra (below). Every other `differs` row is a subagent reading with June addresses, which D1 reads again before it ports.
+
+| Verdict | Count | How |
+|---|---|---|
+| same by rule | 221 | plain get / ref (June inlines: `32cc5ae0` GetUnit = `[ecx+0x867c]`), set (`329b4b40` @329b4b70), protected value (`322788c0` reads +0x44d8), STL op (`3293b5e0` @3293c177 vector clear), one-line forward (`3208e0d0` = GetRandomFloat, vslot 0x1cc), constant state id (`3208df10` = `USI_WAIT` 0xd; Aisha has no override in June either) |
+| same / inlined-same | 131 | decompiled or disassembled against the live body |
+| virtual-stub / already-june / dead / no June call | 6 / 5 / 2 / 2 | `EventCheck` is dead (`X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE`); `OnCameraMove` is a state-table name; `SendPacket` / `StateEnd` have no June call |
+| tsv row | 42 | below |
+
+**Re-read by Opus in Ghidra (all agree with the subagents):** NPC `StateChange` refuses while `m_vecFreezePtr` is non-empty (`32758fe0`
+@32759074, the vector `EraseFreezeByBuff` walks); NPC `GetStateID` returns the first state whose name **contains** the argument
+(`3275aaf0`, `StrStrA` @3275ab27; D1 adds a `JUNE_BUGS` row); `LevelCorrectionExtraDamage` adds 0xa140 (@3276044e); absorb MP
+only when |sum| > epsilon (@322746df); `MAJOR_` bone prefix (@31fd925e); `GetSkillLevelValue` 0 for a hyper skill before transcendence
+(`31fceab0`); `CureExtraDamage`'s March sort stops one short (`X2GameUnit.cpp:9722`); and one **port slip**: `X2BuffBehaviorTemplet.cpp:2012`
+/ `:2078` call `IsFullHyperMode` (vslot 0x9c) where June calls vslot 0xa4 (`32e7de0a`) = `JuneIsBerserkByChance` (the comment above it
+already says slot 41). It differs only for Chung (not ported).
+
+**Replace (29, D1):** NPC `StateChange` / `StateChange_Reaction_FIRST` / `GetStateID`; user `GetCombineMatrixFromBoneName`,
+`CheckSkillUsePVPOfficial`, `CheckSummonSpecialAttack`, `CommonCameraMove`, `DieFrameMove`, `DyingStart` (June's die packet: the
+emulator's handler follows), `ForceChangeHyperModeWithoutMotion`, `GetSkillLevelValue`, `PlayAnimationWaitStart`, `SetCustomAnimName` (June's
+base is not empty), `SetUnitReForm`, `UpdateNotRenderingOtherEquipList`, `UpdateWeaponEnchantEffectAndExtraDamageType`; `CureExtraDamage`,
+`UpNowMp` (with D0b's `SetNowMp` / `FlushMp`); the three weapon enchant-particle functions (66 EDT values, register June's enum names);
+`GetNumItemByTID`; riding `GetUserInfo`, `GetRidingOnState`; `ConstructSkillTreeNotMyUnit`, `SetSkillCoolTimeLeft`; and two call-site fixes
+(the buff-site vslot 0xa4 above; June's socket sum reads `GetRidingPetTemplet( manager +0x40 )`, the port's `GetMyRidingPet` route is a stand-in).
+**Open for D1:** member +0x89e0 (`PlayAnimationWaitStart`), June's riding-hyper state 0x2c vs March's 0x2b, member +0x9200 (`SetCustomAnimName`).
+
+**Stage 33 (8, map rows):** `GetEnchantResist` (June user override `31fd8790`), `LevelCorrectionExtraDamage`, `ResetMPChangeRate`,
+`AbsorbEffectAttackProcess`, `CX2Item::GetStat`, `GetEquippingItemByEquipPos` (a `GetFinalDamage` helper), `GetSetIDNPartsNum`,
+`ResetIncreaseSkillLevelBySocket`.
+
+**Drift, owned elsewhere (out, 5):** Eve's equipped-item cut-in (Stage 12, as the source already marks it); gage `EraseBuff` / `PushBuff`
+(June's third gage set and BuffIcon shape: Stage 9 UI sweep); square-unit `InitWaitMotion` (Stage 10, funcmap 1817); Ara's
+`SetFullHyperMode` +0x9700 and `IsFullHyperMode` arm (Ara port, checklist). Each row names its owner; nothing new to plan.
+
+**Batch-data caveats** (for D0c-2 / D0c-3, which can reuse the method): a name-only owner sometimes points at another class's inline
+header body, and some callers' addresses are wrong (`33441c60` is a constant). The subagents re-located those from the call site.
+
+**Hygiene:** no code, no flag, no build. **Open for the user:** none.
+
 ## Phase C0 - Collapse tool (Sonnet 5.5, high)
 
 **Depends on:** D0a (format), D0b (map) for the selftest data.

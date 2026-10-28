@@ -1,0 +1,410 @@
+# callee	owner	sites	verdict	june_va	how_checked	batch
+GetEnchantLevel	CX2Eqip	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetEqipPos	CX2Eqip	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNormalAnim	CX2Eqip	3	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetItemUID	CX2Eqip|CX2OfflineInventory|CX2SlotItem	1	same	31eca410	call site X2UIInventory.cpp:6719 is CX2SlotItem::GetItemUID (pItemSlot is CX2SlotItem*); June OnRClickedItem 321aa5d0 case 288493 jumps to shared tail 321b898e, call @321b89ab; disassembled	data
+SetSlotID	CX2GUAra::sMoonLightSlashData|CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data|CX2SlotItem	8	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+CreateNotEnoughMPEffect	CX2GUArme_VioletMage	34	same	32007d80	funcmap rows 3957/5371 name 32007d80; decompiled and compared to X2GUUser.cpp:47345 + PlaySequenceByTriggerCount (X2GameUnit.h:4007)	class
+GetHandleAishaMajorParticleByEnum	CX2GUArme_VioletMage	9	inlined-same	-	June_SetAishaMajorParticleByEnum 32cce230 decompiled; funcmap 3899	class
+GetHandleAishaMinorParticleByEnum	CX2GUArme_VioletMage	3	inlined-same	-	June_SetAishaMinorParticleByEnum 32cce370 decompiled; funcmap 3899	class
+GetTransformTime	CX2GUArme_VioletMage	5	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUFO	CX2GUArme_VioletMage	31	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+InitStateID	CX2GUArme_VioletMage	1	inlined-same	32cea0c0	disasm of June_InitState 32cea0c0 @32cea176-32cea180; AVSI_CHARGE_MP=0x9d from funcmap 3852/4448	class
+ResetUFO	CX2GUArme_VioletMage	2	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+SetHandleAishaMajorParticleByEnum	CX2GUArme_VioletMage	1	inlined-same	-	June_SetAishaMajorParticleByEnum 32cce230 decompiled	class
+SetHandleAishaMinorParticleByEnum	CX2GUArme_VioletMage	1	inlined-same	-	June_SetAishaMinorParticleByEnum 32cce370 decompiled	class
+SetTransformTime	CX2GUArme_VioletMage	4	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetUFO	CX2GUArme_VioletMage	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+TransformStart	CX2GUArme_VioletMage	2	already-june	-	live body forwards to June_TransformStart (June 32cc91b0; collapse_map merge)	ruleA
+GetChungGageData	CX2GUChung	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetDamageRelByCannonBallMastery	CX2GUChung	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsFullHyperMode	CX2GUChung	1	row: replace	32c24b50 (vslot 0x9c)	vtslot.py 0x9c/0xa4 on CX2GU*; decompiled 32e7dbb0, disassembled 32e7ddb0, 32bf4880, 32057b80	stub
+SetCannonBallCount	CX2GUChung	1	inlined-same	32bf4880	funcmap 1018; disasm of 32bf4880 (CX2GUChung slot 201) and decompile of 3231d7a0 (gage setter)	class
+GetFireBallPowerRate	CX2GUEL	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+CancelComboWhenChangedDirection	CX2GUEve	8	inlined-same	-	disasm of June 32969e40 (@32969e4a-32969e6b), 3296a720 (@3296a72a-3296a756), 3296b9f0 (@3296b9fa-3296ba1d)	class
+ChangeThousandsOfStarsFormation	CX2GUEve	2	same	32994cd0	funcmap 5292 (confirmed); decompiled 32994cd0	class
+ClearManeuverCore	CX2GUEve	3	same	329ac350	funcmap 4863; decompiled 329ac350 against the March live body	class
+CreateNotEnoughMPEffect	CX2GUEve	14	same	32007d80	same function as row 5 (CX2GUUser::CreateNotEnoughMPEffect, shared by all classes; no CX2GUEve override)	class
+DeleteEveMajorParticle	CX2GUEve	1	inlined-same	-	disasm of June_Destructor 329aece0 @329aedac-329aedee	class
+DeleteEveMinorParticle	CX2GUEve	2	same	32994710	funcmap 4705/5178; decompiled 32994710 (vslot 0x4c) and disasm of destructor 329aece0 @329aedf0-329aee25	class
+GetBoneNameNearestImpactPoint	CX2GUEve	1	same	32998d70	decompiled 32998d70 (unique candidate df1); compared with March foreach body	class
+GetComboXStateID	CX2GUEve	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetEnableElectraSystem	CX2GUEve	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetHandleEveMajorParticleByEnum	CX2GUEve	4	inlined-same	-	disasm of 329b13f0 (@329b1b78 read of +0x95a8, @329b1ca6 +0x95ac) and 32978000 Start	class
+GetKugelBlitzAddDamageTime	CX2GUEve	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetTaserPilumAddDamageTime	CX2GUEve	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetThousandStarCount	CX2GUEve	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetThousandStarEntireFired	CX2GUEve	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+InitStateID	CX2GUEve	1	inlined-same	329ba9c0	disasm of June_InitState 329ba9c0 @329baa74-329baa7e	class
+InitializeEveMajorParticleArray	CX2GUEve	1	inlined-same	3299bd70	disasm of June_ConstructorInit 3299bd70 @3299bde1-3299be15 and CX2GUUser ctor 3203e850 @32042e8c	class
+InitializeEveMinorParticleArray	CX2GUEve	1	inlined-same	3299bd70	disasm of June_ConstructorInit 3299bd70 @3299be15	class
+ResetKugelBlitzTinyData	CX2GUEve	2	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+SetHandleEveMajorParticleByEnum	CX2GUEve	8	inlined-same	-	disasm of 32978000 (Start @32978012/18), 32978030 (End), 329b13f0 (@329b159b, @329b175f)	class
+SetStartSpectroElCrystal	CX2GUEve	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+ShowActiveSkillCutInAndLight	CX2GUEve	1	row: out	3297b840	funcmap 5382; decompiled 3297b840	class
+SetProjectileSize	CX2GUEve::ATOveronGuardData	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEffectiveTime	CX2GUEve::ATOveronGuardData|CX2GUUser::CSkillDataBase	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+GetBoneNameID	CX2GUEve::EG_QueensThroneData	2	inlined-same	-	disasm of June_CommonFrameMove 329c5bc0 @329c688b-329c68a4 and @329c69b8-329c69cb	class
+GetEnableGigaPlane	CX2GUEve::EveElectraSystem	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetEnablePlane	CX2GUEve::EveElectraSystem	7	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetEnableSystem	CX2GUEve::EveElectraSystem	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetPlaneFormation	CX2GUEve::EveElectraSystem	5	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetEnableExceptionSystem	CX2GUEve::EveElectraSystem	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEnableGigaPlane	CX2GUEve::EveElectraSystem	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEnableHyperOpticalResearch	CX2GUEve::EveElectraSystem	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEnablePlane	CX2GUEve::EveElectraSystem	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEnableSpectrumDynamics	CX2GUEve::EveElectraSystem	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetEnableSystem	CX2GUEve::EveElectraSystem	3	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetExceptionSystemTime	CX2GUEve::EveElectraSystem	2	inlined-same	-	disasm of destructor 329aece0 @329af04d-329af05d and ReInit 329af460 @329af69d-329af6a3	class
+SetPlaneFormation	CX2GUEve::EveElectraSystem	3	inlined-same	-	disasm of destructor 329aece0 @329af063, ReInit 329af460 @329af6b1, SetSpecificValueByBuffTempletID 329b3b50 @329b3c3b	class
+SetSystemOperationTime	CX2GUEve::EveElectraSystem	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+ResetParticle	CX2GUEve::MEGA_ELECTRONBALL_Data	1	same	3298d8d0	funcmap 5257 (confirmed); decompiled 3298d8d0	class
+GetSkillSlotID	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data	9	inlined-same	-	disasm of June_InitInpuDataProcess 32978e80 (@32978f19 Mega, @3297903d-32979062 Taser, @3297917d-3297919f Kugelblitz); funcmap 5249/5250	class
+SetSkillSlotSwap	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+GetSkillSlotSwap	CX2GUEve::MEGA_ELECTRONBALL_Data|CX2GUEve::SKugelBlitz_Data|CX2GUEve::TASER_PILUM_Data|CX2UISkillTree|CX2UISkillTreeNew	10	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+reset	CX2GUEve::SKugelBlitz_TinyData|CX2GUEve::TASER_PILUM_TinyData	3	same	-	disasm of June_ENSI_A_EBS_TASER_PILUM_Start 32973f10 @32973fa4-32973fc6 (only Eve caller; the Aisha and CX2GUNPC call sites are shared_ptr.reset(), not this callee; Kugelblitz tiny has no caller in this batch, not checked)	class
+GetElectraFormationType	CX2GUEve|CX2UISkillTreeNew	3	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+CommonRender_Draw	CX2GUNPC	1	same	3275a710	caller 32768c70 calls vslot 0x464 @32768d29; funcmap row 2350; disassembled 3275a710 vs March live body	npc1
+CreateAndSetAinmXSkinMesh	CX2GUNPC	1	same	3275c950	ChangeMotion_LUA comment names 3275c950; disassembled + Ghidra decompile (7 GetCloneFrame names match)	npc1
+DoFrameMove	CX2GUNPC	2	same	3277d320	funcmap 2779 gives 3277d320 = DoFrameMove(bool); disassembled it (843 lines) and matched branch and call order to March live DoFrameMove(bool) in pp/X2GUNPC.i; structural, inlined NonHostReaction helpers not line by line	stub
+GetApplyCinematicUI	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetBossNameTexture	CX2GUNPC	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetClassType	CX2GUNPC	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetDefaultPowerRate	CX2GUNPC	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetDirVector	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetFocusCameraAtCurrentState	CX2GUNPC	1	inlined-same	327cea70	June caller 327cea70 inlines it: NowStateData (31e8a990) word0 & 0x20000000; funcmap row 2428 (bit 0x1d = FOCUS_CAMERA_AT_CURRENT_STATE key)	npc1
+GetFocusCameraForce	CX2GUNPC	3	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetInitStateData	CX2GUNPC	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetIsRight	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetLandPos	CX2GUNPC	1	same	327559c0 (NPC) / 3208e120 (User)	June caller 322f0e60 uses vslot 0x134; vtslot.py 0x134 -> NPC 327559c0, User 3208e120; disassembled	npc1
+GetNPCAI	CX2GUNPC	39	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNPCSyncData	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNPCTemplet	CX2GUNPC	40	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNowAnimationTime	CX2GUNPC	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetOwnerGameUnitUID	CX2GUNPC	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetPos	CX2GUNPC	1	same	32755b90 (NPC) / 3208e5c0 (User)	only game-unit call is CX2BuffNeverMoveBehaviorTemplet::SetFactor (June 32e744c0 @32e744ef vslot 0x138 GetPos(true)); vtslot.py 0x138; the other listed callers call dialog GetPos / GetMatrix().GetPos (unrelated classes) and the listed March defs (BattleFieldNpcAi / BuffTemplet / DamageEffect GetPos) are other classes trivial getters	npc1
+GetRandomFloat	CX2GUNPC	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetRandomInt	CX2GUNPC	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetSelfDestruction	CX2GUNPC	8	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetShowBossName	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetShowBossNameDelayTime	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetShowSubBossName	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSiegeMode	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStartState	CX2GUNPC	6	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStateTime	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStopAtCurrentState	CX2GUNPC	1	inlined-same	327cea70	June caller 327cea70 inlines it: NowStateData (31e8a990) word1 & 0x2000000; funcmap row 2428 (bit 0x39 = STOP_AT_CURRENT_STATE key)	npc1
+GetStopAtStartState	CX2GUNPC	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUID	CX2GUNPC	7	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsLocalUnit	CX2GUNPC	1	same	3276b3b0 (vslot 0x19c)	vtslot.py 0x19c; disassembled 3276b3b0 and 31aad500/31aada50 (g_pX2Game holder 0x3372c0fc)	stub
+IsOnSomething	CX2GUNPC	1	same	31e8ae10	funcmap row 2174 names 31e8ae10 (call @32769e45 in DamageReactStateChange); disassembled	npc1
+IsSuperArmor	CX2GUNPC	15	same	32758440	funcmap row 730 (NPC vslot 153); disassembled	npc1
+IsUnitID	CX2GUNPC	1	inlined-same	inlined @31f862b0-31f862c5	listed caller address 33441c60 is the 99999.0 constant, not code; real June function 31f85910 (funcmap row 1531) inlines it	npc1
+LevelCorrectionExtraDamage	CX2GUNPC	1	row: stage33	32760210	June NPC DamageReact_ExtraDamage 3279d620 calls 32760210 x7; Ghidra decompile + disasm; March live body is plain March (no June comments)	npc1
+SetApplyCinematicUI	CX2GUNPC	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetDamageOutScreen	CX2GUNPC	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetDefaultPowerRate	CX2GUNPC	7	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetFocusCameraForce	CX2GUNPC	7	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetRealatedSkillLevel	CX2GUNPC	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetSelfDestruction	CX2GUNPC	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetShowBossName	CX2GUNPC	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+StartSelfDestruction	CX2GUNPC	3	same	31e4d560	candidate 31e4d560 votes 2/2; disassembled	npc1
+StateChange	CX2GUNPC	1	row: replace	32758fe0	funcmap row 2334 + vslot 0x19c prologue; Ghidra decompile of 32758fe0 + disasm (int,bool overload; the const char* overload has no listed caller and was not checked)	npc1
+StateChange_Reaction_FIRST	CX2GUNPC	1	row: replace	327590c0	funcmap row 2334 (327590c0, ret 0x10) + disasm; call @32769e70 from DamageReactStateChange	npc1
+TransformScale	CX2GUNPC	1	same	32761720 (vslot 0x26c)	June_SetBasicScale 327623f0 call edx @32762629 = [vtable+0x26c]; vtslot.py 0x26c; decompiled 32761720; March live = VERIFY_STAT_BY_BUFF PROTECT_VECTOR3 form (pp/X2GUNPC.i:1405665)	stub
+_IsDyingState	CX2GUNPC	1	inlined-same	inlined @3277fb52-3277fbce	June CommonStateEnd 3277ee10 inlines it (funcmap row 333; March site X2GUNPC.cpp:25617); disassembled	npc1
+GetLastTouchLineIndex	CX2GUNPC|CX2GUNPCAI|CX2GUUser|CX2SquareUnit	10	same	32755e30 (NPC) / 3208e100 (User)	June vslot 0x12c (funcmap rows 1189/2778/4403); vtslot.py 0x12c -> NPC 32755e30, User 3208e100; CX2GUNPCAI / CX2SquareUnit versions are not called by the listed game-unit callers	npc1
+GetCombineMatrixFromBoneName	CX2GUNPC|CX2GUUser	1	row: replace	32759370 (NPC) / 31fd9200 (User)	June caller 321dc550 calls vslot 0x88 @321dc6d7/@321dc6ec with EffectData BONE_NAME; vtslot.py 0x88 -> NPC 32759370, User 31fd9200; disasm + Ghidra decompile of both	npc1
+GetGameUnitState	CX2GUNPC|CX2GUUser	22	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetLandPos	CX2GUNPC|CX2GUUser	9	same	327559c0 (NPC) / 3208e120 (User)	same function and callers as row 77; vtslot.py 0x134; disassembled	npc1
+GetSkinAnimPtr	CX2GUNPC|CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitCondition	CX2GUNPC|CX2GUUser	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+IsLocalUnit	CX2GUNPC|CX2GUUser	1	same	3276b3b0 (NPC), 31fc7b30 -> 31ff1f30 (user), vslot 0x19c	vtslot.py 0x19c / 0x198; disassembled 3276b3b0, 31fc7b30, 31ff1f30	stub
+IsSuperArmor	CX2GUNPC|CX2GUUser	1	same	32758440 (NPC) / 31fcd7b0 (User)	funcmap rows 730 and 671; disassembled both; ported callers pass arg 0 (funcmap rows 2136/2148)	npc1
+SetStateToNowAnimation	CX2GUNPC|CX2GUUser	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetHyperModeCount	CX2GUNPC|CX2GUUser|CX2GageData	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitHeight	CX2GUNPC|CX2GUUser|CX2RidingPet	3	same	32755d30 (NPC) / 3208e060 (User)	June callers use vslot 0x18c (funcmap rows 1190/1191; 327574e0 @32757506); vtslot.py 0x18c; disassembled; CX2RidingPet version not called by these callers	npc1
+GetUnitWidth	CX2GUNPC|CX2GUUser|CX2RidingPet	1	same	32755d00 (NPC) / 3208e030 (User)	vtslot.py 0x188 (width precedes height slot 0x18c); disassembled; CX2RidingPet version not called by the caller	npc1
+GetUID	CX2GUNPC|CX2Item|CX2SquareUnit|CX2Unit|CX2User	29	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetHasBossGage	CX2GUNPC|CX2OldGageManager	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetNumber_LUA	CX2GUNPC|CX2PET|CX2SimpleDLG_WithLuaFunc	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SendPacket	CX2GUNPC|CX2SquareUnit	10	no-june-call	-	name collision: every caller uses CX2ServerProtocol::SendPacket<T> (X2ServerProtocol.h:212), not a unit-class SendPacket	npc1
+AccessFutureFrameData	CX2GUUser	7	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+AccessVecNowSuperArmorTime	CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+COMMON_RELATIONSHIP_SKILL_EventProcess	CX2GUUser	1	same	31fcdc30	funcmap 4336 thunk 329cc170 -> vslot 0x5f8 = 31fcdc30; decompiled	user1
+COMMON_RELATIONSHIP_SKILL_FrameMove	CX2GUUser	1	same	320018c0	funcmap 4335 thunk 329cc0d0 -> vslot 0x5f4 = 320018c0; decompiled	user1
+ChangeDamageData	CX2GUUser	1	virtual-stub	31f3f070 (vslot 0x83c)	funcmap 3543 (31fcd280 = CX2GUUser::SetDamageData); disassembled 31fcd280 and 31f3f070; vtslot.py 0x83c CX2GU	stub
+CheckSkillUsePVPOfficial	CX2GUUser	2	row: replace	3202cba0	caller 329b5af0 call order 31fca9f0, 3202daf0, 3202cba0, 3202d140; decompiled 3202cba0	user1
+CheckSummonSpecialAttack	CX2GUUser	2	row: replace	3202daf0	caller 329b5af0 call order (CheckSkillUseCondition 31fca9f0 then 3202daf0 then CheckSkillUsePVPOfficial 3202cba0); decompiled 3202daf0, 3201bd60, 31fc8200	user1
+CommonCameraMove	CX2GUUser	1	row: replace	31ff5df0	funcmap 3890 (vslot 0x7d0); vtable 334781f4+0x7d0 = 31ff5df0; decompiled and disassembled	user1
+CreateBoneShield	CX2GUUser	1	same	3201bed0	caller 32028790 site @32028fbf (push socketdata; call 3201bed0); decompiled	user1
+CreateWeapon	CX2GUUser	1	same	32000c90	voting candidate 32000c90 (df1) matched against the March body; decompiled and disassembled	user1
+DeleteGUUserMinorParticle	CX2GUUser	1	same	31fefc00	funcmap 4095 names base 31fefc00; decompiled	user1
+DidHitNasodWeapon	CX2GUUser	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+DieFrameMove	CX2GUUser	4	row: replace	31ffcba0	funcmap 3857/4865 (31ffcba0 = DieFrameMove 0.19,1.12); decompiled 31ffcba0, 31fe8220, 31e8c9d0	user1
+DyingStart	CX2GUUser	4	row: replace	32014810	funcmap 3862 (vslot 0x338 = DyingStart 32014810); decompiled	user1
+EventCheck	CX2GUUser	66	dead	-	CX2GUUser::EventCheck (X2GUUser.cpp:27374) sits under #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE, absent from cl /P output	opus
+EventTimer	CX2GUUser	8	same	31fc7b80	funcmap 3858 (31fc7b80 = EventTimer(4.0,true)); 32cd1830 calls it with (5.0|1.5,false); disassembled	user1
+ForceChangeHyperModeWithoutMotion	CX2GUUser	1	row: replace	31ff7300	caller CX2Game::PartyFeverAllUser 322d4f80 calls vslot 0x550 = 31ff7300 (vtable 334781f4); decompiled and disassembled	user1
+GetCanChangeHyperModeInHyperModeState	CX2GUUser	7	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetChargeMpStateID	CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetComboXStateID	CX2GUUser	5	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetDamageAirDownLanding	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetDamageDownLandBack	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetDamageDownLandFront	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetDashEndStateID	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetDashStateID	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetFutureStateID	CX2GUUser	6	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetFutureStateSkillID	CX2GUUser	19	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetGrap	CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetHandleCommonMinorParticleByEnum	CX2GUUser	6	inlined-same		Eve caller 32997c60 disassembled	user1
+GetHyperModeCount	CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetIsRight	CX2GUUser	105	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetJumpDownStateID	CX2GUUser	1	same	3208de10	caller 31fd7640: vslot 0x458 compared to GetNowStateID; vtable 334781f4+0x458 = 3208de10; disassembled	user1
+GetLandPos	CX2GUUser	2	same	3208e120	caller 322f0e60 uses vslot 0x134; vtables 334781f4 and NPC 334ba584; disassembled	user1
+GetLandPosition	CX2GUUser	10	same	3208e0f0	Eve caller 32984060 @32984193 calls vslot 0x554; vtable 334781f4+0x554 = 3208e0f0; disassembled	user1
+GetLastTouchLineIndex	CX2GUUser	2	same	3208e100	callers 322cfe20 / 32293b80 use vslot 0x12c; vtables 334781f4 and 334ba584; disassembled	user1
+GetManaRecoveryTime	CX2GUUser	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetManaRecoveryVal	CX2GUUser	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNowFrameData	CX2GUUser	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNowMPChange	CX2GUUser	1	same	31fd2cb0	caller 32028790 @32028d5c (ResetMPChangeRate(31fd2cb0()+ManaRecoveryVal)); disassembled	user1
+GetOriginalMPChangeRate	CX2GUUser	5	same	31fd2c20	funcmap 3836/5643 name 31fd2c20; disassembled	user1
+GetRandomFloat	CX2GUUser	43	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetRandomInt	CX2GUUser	8	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetRidingStartStateID	CX2GUUser	2	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetRidingWaitStateID	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+GetSkillLevelValue	CX2GUUser	1	row: replace	31fceab0	caller 329e7820 @329e78a6-@329e78ad (push skill; call 31fceab0 feeds GetActualMPConsume 31fd1840); decompiled 31fceab0	user1
+GetSkillSlotIndexUsed	CX2GUUser	2	same	31fd7500	voting candidates + callers 3297fdd0 / 32cc6e50; disassembled incl. jump table 31fd7604 and byte map 31fd762c	user1
+GetStatAtkRateOfSummoned	CX2GUUser	27	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStateList	CX2GUUser	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStateparam	CX2GUUser	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetUnit	CX2GUUser	394	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitClass	CX2GUUser	1	inlined-same	inlined 32365e06 / 31ed43fe	June callers JuneInitSocketData 32365d30 and JuneGetPartySocketOptionSources 31ed40c0 disassembled (funcdis); the addressed call sites are the item-templet GetUnitClass, not CX2GUUser's	user2
+GetUnitUID	CX2GUUser	49	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetWalkStateID	CX2GUUser	1	same	-	rule: constant state-id getter; checked June 3208df10 = return 0xd (USI_WAIT), CX2GUUser vtable 334781f4 and Aisha 3351d0b4 slots 0x4b0/0x4b4 = March base	ruleA
+InitStateCommonRandom	CX2GUUser	2	already-june	31fe22d0 (+3202b110)	funcmap rows 2341/2395; decompiled 31fe22d0: rand() once per list (START, WIN, LOSE), accumulated percent, index counted, map[9/0xb/0xc]=index, byte +0x8abc=0	user2
+InitializeGUUserMajorParticleArray	CX2GUUser	1	same	31fca420	funcmap row 4102 (31fca420 is the base of Arme's 32cb9160); decompiled	user2
+IsHyperState	CX2GUUser	10	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsOnSomethingFuture	CX2GUUser	248	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsSuperArmor	CX2GUUser	7	same	31fcd7b0 (vslot 0x264)	funcmap row 671; funcdis 31fcd7b0; argument checked at June callers 3298ff60 @3298ff6b and 320462a0 @32046ce3 (push 0)	user2
+IsTransformed	CX2GUUser	18	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsValideSlotChange	CX2GUUser	3	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+LevelCorrectionExtraDamage	CX2GUUser	1	same	31fe6db0	funcmap row 1572 (called from 3203c9a0); decompiled 31fe6db0 and walked branch by branch	user2
+PlayAnimationWaitStart	CX2GUUser	4	row: replace	31fe1dd0	via June_WaitStart callers; decompiled 31fe1dd0 (candidate list hit)	user2
+PlayCommonBuffMinorParticle	CX2GUUser	2	same	32000a90	funcdis 32cc6e50 call order; decompiled 32000a90; constants read from the exe	user2
+ResetMPChangeRate	CX2GUUser	6	row: stage33	31fd9e00	funcmap rows 3836/5643; decompiled + Ghidra-disassembled 31fd9e00	user2
+ResetOnSomethingFuture	CX2GUUser	3	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+Send_SKILL_USE_REQ	CX2GUUser	2	same	32006b30	funcmap rows 4136/5238; decompiled 32006b30	user2
+SetChangeGroggyState	CX2GUUser	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetCustomAnimName	CX2GUUser	2	row: replace	31fdaf30 (vslot 0x6ec)	found June's slot by following the Add 'Formation_Dash' wide string (0x334d710c, ref @329e74bb in Add override 329e73a0 = vslot 0x6ec); call site in 320506f0 @32051266; disassembled 31fdaf30 and 329e73a0	stub
+SetGrapStateID	CX2GUUser	4	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHitNasodWeapon	CX2GUUser	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHoldStateID	CX2GUUser	5	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHyperModeCount	CX2GUUser	1	same	3208eef0 (vslot 0xa8)	funcmap 4580/4643: vslot 0xa8 on 0; vtable 334781f4+0xa8 read from the exe; funcdis 3208eef0	user2
+SetManaRecoveryTime	CX2GUUser	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetManaRecoveryVal	CX2GUUser	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetNoDetonation	CX2GUUser	13	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+SetShowEnchantedWeaponEffectAtHand	CX2GUUser	1	inlined-same	inlined @329c62f9-329c6565	funcdis 329c5bc0 (June_CommonFrameMove target); four consecutive handle blocks	user2
+SetStop2Time	CX2GUUser	1	already-june	31ffe750 (vslot 0x104); NPC 32772c10	funcmap 2257/2274/2279; vtslot.py 0x104; 320462a0 calls [vtable+0x100] @3204834a and [vtable+0x104] @32048363	stub
+SetUnitReForm	CX2GUUser	1	row: replace	31fda0d0	funcmap row 4467 names 31fda0d0; decompiled + funcdis	user2
+SetUseChangeWeapon	CX2GUUser	3	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+ShowMinorParticleHyperModeChange	CX2GUUser	1	same	31ffd630	brief's 31fd66b0 is a different function (awakening-set test); real call in 32ce12c0 (VioletMage CommonHyperModeFrameMove) @32ce13cc; disassembled 31ffd630	stub
+ShowMinorParticleHyperModeShock	CX2GUUser	1	same	31ffd7b0	disassembled 31ffd7b0 beside 31ffd630; constants decoded from the exe	stub
+ShowMinorParticleHyperModeTrace	CX2GUUser	3	same	31ffda00	funcmap row 5327 names 31ffda00; decompiled; constants read	user2
+StateChangeDashIfPossible	CX2GUUser	47	same	31fc85b0 (vslot 0x668)	funcmap row 1957 (vslot 0x668); vtable 334781f4+0x668 read; funcdis 31fc85b0	user2
+UpdateNotRenderingOtherEquipList	CX2GUUser	1	row: replace	3201c3a0	funcmap none; decompiled 3201c3a0 (2199 lines) vs March live body	user2
+UpdateWeaponEnchantEffectAndExtraDamageType	CX2GUUser	1	row: replace	3201bce0 (vslot 0x28c)	funcmap 4083 vslot 0x28c; vtable 334781f4+0x28c; funcdis 3201bce0	user2
+CSkillCreateSkillDataBasePtr	CX2GUUser::CSkillDataBase	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+IsEndCoolTime	CX2GUUser::CSkillDataBase	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+ResetTimerBasedOnCoolTime	CX2GUUser::CSkillDataBase	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+SetTimerBasedOnCoolTime	CX2GUUser::CSkillDataBase	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+GetCoolTime	CX2GUUser::CSkillDataBase|CX2Item::ItemTemplet|KItemFormatTemplet	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetCoolTime	CX2GUUser::CSkillDataBase|KItemFormatTemplet	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+GetUnit	CX2GUUser|CX2Game|CX2Room::SlotData|CX2SquareUnit|CX2UnitViewerUI	114	inlined-same	inlined (+0x867c / list +0x304)	funcdis 31f85910 region @31f8627f-31f86310 (field boss box loop); user GetUnit sites read +0x867c elsewhere	user2
+GetUnitClass	CX2GUUser|CX2Item::ItemTemplet|CX2SkillNoteManager|CX2TitleManager|CX2UserSkillTree|KItemFormatTemplet	7	inlined-same	inlined 32365e06 / 31ed43fe	same callers as row 179; item-templet field read	user2
+GetSetItemOptions	CX2GUUser|CX2Item::KItemFormatSetItemData|CX2ItemManager|KItemFormatSetItemData	2	same	325bb840 / 32867ee0	funcmap rows 1802/1805; decompiled both	user2
+SetScriptFileName	CX2GUUser|CX2SquareUnit	2	inlined-same	inlined @31efd5c7 (31f54910)	funcmap 3640 (31efd510); funcdis: GetSquareUnitScriptFileName 323ed320, then wstring assign into unit+0x1a4	user2
+GetNowEmotionId	CX2GUUser|CX2SquareUnit|CX2UnitViewerUI	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetActivateForceDown	CX2GageData	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetCanChargeMpForDetonation	CX2GageData	3	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+UpNowForceDown	CX2GageData	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetMyGageData	CX2GageManager	3	same	32489200	funcmap 602 names GetMyGageData = 324943c0 -> 32489200; decompiled	misc1
+GetGageData	CX2GageManager::CX2GageSet|CX2GameUnit	8	inlined-same	32489200 (GageSet inline); GameUnit +0xc04 direct reads	32489200 reads gage set +8 inline; funcmap rows 2415/2423 show GameUnit GetGageData as a +0xc04 field read	misc1
+ClearBuffList	CX2GageManager|CX2GageUI	1	same	32489980	funcmap 326 (FinishAndClearAllBuff -> ClearBuffList 32489980); decompiled	misc1
+EraseBuff	CX2GageManager|CX2GageUI	2	row: out	324898c0	caller 326c9530 call @326c96a7 (and @326c91a9 in 326c9030); decompiled 324898c0	misc1
+PushBuff	CX2GageManager|CX2GageUI	1	row: out	32489810	caller 326c9530 call @326c9958 (PushBuff site of Handler_EGS_UPDATE_BUFF_INFO_NOT); decompiled 32489810 and 322ab560	misc1
+ResetGageUIEtc	CX2GageManager|CX2MyGageUI	1	virtual-stub	3208ddc0 (vslot 0x58 base stub)	funcmap 3480 area (gage vslot 0x4c then 0x58, caller 31f276b0); MyGageUI vtable 3353336c read from the exe: slot 22 (0x58) = 3208ddc0 empty stub	misc1
+SetCharacterImage	CX2GageManager|CX2MyGageUI|CX2PVPPlayerGageUI|CX2PartyMemberGageUI	3	same	32e5f3a0	June callers 31ef82f0 / 31f276b0 reach MyGageUI vslot 0x4c; MyGageUI vtable 3353336c slot 19 = 32e5f3a0; decompiled	misc1
+AbsorbEffectAttackProcess	CX2GameUnit	1	row: stage33	32274660	via caller DamageReact 320462a0 call @32046f30; decompiled + disassembled	gameunit1
+ChangeBuffFinalizerTempletPtrList	CX2GameUnit	9	same	3227ba10	funcmap rows 781/1130/5667 (3227beb0 and SetBuffTimeFinalizerDuration 3227c110 call 3227b920 then 3227ba10); decompiled 3227ba10	gameunit1
+ClearHitUnitList_LUA	CX2GameUnit	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+CureExtraDamage	CX2GameUnit	1	row: replace	3229dd90	via caller ProcessSocketEffectEx 32028ba0 SIEE_CURE_DEBUFF call @32028e15 (arg = SocketData count); decompiled; (the EXTRA_DAMAGE_TYPE overload has no June call site here, not compared)	gameunit1
+DieDamageEffectProc	CX2GameUnit	1	virtual-stub	3208ddc0 (vslot 0x2c4)	funcmap 2229/2230; vtable diff User vs Add at 0x2c4	stub
+DoDelegateProcessInAttackResult	CX2GameUnit	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+EraseBuffTempletFromGameUnit	CX2GameUnit	22	same	3229e160	funcmap line 323; decompiled 3229e160	gameunit1
+EraseChangeAttackByType	CX2GameUnit	2	same	32279b70	funcmap line 634 (32279b70 erase) + caller SetFactor 32e77070; decompiled; 322a9090 = find_if on buff identity (funcmap 918)	gameunit1
+EraseFreezeByBuff	CX2GameUnit	1	same	3227a470	via caller DoFinish 32e76d10 first call @32e76d22 (funcmap does not list 3227a470); decompiled; 322a9090 = identity find_if	gameunit1
+GetAbsoluteInvisibility	CX2GameUnit	16	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetAddSkillLevelByBuff	CX2GameUnit	1	same	32274910	funcmap line 1166 (CX2Unit::GetIncreaseSkillLevelByBuff calls 32274910); decompiled	gameunit1
+GetAdditionalDefence	CX2GameUnit	2	same	-	rule: protected-value accessor (GetResultValue); June inlines the XOR triple (322788c0, iType 1 reads +0x44d8 = GetMagicAttackValue)	ruleA
+GetAfterImage	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetAllyTeam	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetAnimSpeedValue	CX2GameUnit	2	same	-	rule: protected-value accessor (GetResultValue); June inlines the XOR triple (322788c0, iType 1 reads +0x44d8 = GetMagicAttackValue)	ruleA
+GetAntiCritialRate	CX2GameUnit	1	same	-	rule: protected-value accessor (GetResultValue); June inlines the XOR triple (322788c0, iType 1 reads +0x44d8 = GetMagicAttackValue)	ruleA
+GetAppliedBuffCount	CX2GameUnit	4	same	32281480	March comment names 32281480; June caller 32ec18f0 (UseCountType 1 -> push 0, type 2 -> push 1, @32ec19a7/@32ec19fb); decompiled 32281480 -> 322adfe0	gameunit1
+GetAttackListSet	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetBuffFactorList	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetBuffFinalizerTempletPtrList	CX2GameUnit	10	same	3227b920	funcmap rows 781/1130/5666 (3227b920 = GetBuffFinalizerTempletPtrList); decompiled	gameunit1
+GetChangeDamageType	CX2GameUnit	1	inlined-same	-	via caller SetDamageExceptionProcess 32045340 (sde disasm); no call, fields read inline	gameunit1
+GetCollisionListSet	CX2GameUnit	11	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetCombineMatrixFromRidingPetBoneName	CX2GameUnit	1	same	32273d70	via caller 321dc550 call @321dc787 (virtual +0x8c on the game unit after 31e55340 optr deref); vtslot.py 0x8c: all CX2GU* primary vtables slot 0x8c = 32273d70; decompiled	gameunit1
+GetCombineMatrixFromWeaponBoneName	CX2GameUnit	1	same	322730d0	via caller 321dc550 call @321dc74b (weapon-bone branch after +0x88 name test); decompiled 322730d0	gameunit1
+GetCriticalValue	CX2GameUnit	2	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetDashJumpSpeed	CX2GameUnit	7	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetDistanceFrom	CX2GameUnit	1	same	31e4cf00	via caller 3297b370 call @3297b448; disassembled 31e4cf00 (candidate list) - sqrt via 32fe2370	gameunit1
+GetEnableDash	CX2GameUnit	3	same	3226ddb0	via caller sites (vote 3/3); decompiled 3226ddb0; June caller notes 3226ddb0( 2 ) = EDS_END	gameunit1
+GetEnchantResist	CX2GameUnit	11	row: stage33	32274b00 base; 31fd8790 CX2GUUser override; 32757c50 CX2GUNPC override	funcmap 289/303 (virtual slot 195 = +0x30c); vtslot.py 0x30c CX2GU / CX2GameUnit; decompiled 32274b00, disassembled 31fd8790 and 32757c50	gameunit1
+GetExtraDamagePack	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetForceInvincible	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetGageData	CX2GameUnit	34	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetGameUnitType	CX2GameUnit	141	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetHitCount	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetHitCreateDamageEffectPowerRate	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetHittedCount	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetJumpSpeed	CX2GameUnit	21	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetMagicAttackValue	CX2GameUnit	1	same	-	rule: protected-value accessor (GetResultValue); June inlines the XOR triple (322788c0, iType 1 reads +0x44d8 = GetMagicAttackValue)	ruleA
+GetNumOfBuff	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNumOfDeBuff	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetOrgUnitSize	CX2GameUnit	8	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetPhysicAttackValue	CX2GameUnit	1	same	-	rule: protected-value accessor (GetResultValue); June inlines the XOR triple (322788c0, iType 1 reads +0x44d8 = GetMagicAttackValue)	ruleA
+GetScale	CX2GameUnit	3	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetShowSmallGageAndName	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSizeOfPairSubAttackListSet	CX2GameUnit	2	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+GetSkillRelatedData	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSocketData	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStat	CX2GameUnit	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSubAttackListGetFromPair	CX2GameUnit	2	same	32272080	funcmap 1339 (pair sub sets in UnitToEffect 326413c0); xrefs_to 32272080 shows call @32646fa7 in 326413c0; decompiled	gameunit1
+GetSubAttackListSet	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetTeam	CX2GameUnit	61	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetTemporaryBuffFactorList	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitIndex	CX2GameUnit	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitLevel	CX2GameUnit	16	same	3231f510 base; 3208e460 user; 32758150 NPC	via caller GetValue 32e764f0 (virtual +0x20c @32e76553); vtslot.py 0x20c CX2GU*; decompiled / disassembled all three	gameunit1
+GetUnitUID	CX2GameUnit	20	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+HyperModeBuffEffectOnFrameMove	CX2GameUnit	1	same	32291060	June caller 32e7dae0 calls vslot 0xcc (@32e7db8a); vtslot.py 0xcc gives 32291060 for every class; disassembled	gameunit2
+InsertDelegateProcessToAttackResult	CX2GameUnit	2	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+IsDamagedReaction	CX2GameUnit	1	same	3226de80	funcmap rows 1239/425 name 3226de80; jump table decoded from exe	gameunit2
+IsFullHyperMode	CX2GameUnit	3	row: replace	31e4c550 (vslot 0x9c)	same evidence as row 19	stub
+IsNullGageUI	CX2GameUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+MakeEffectSetBeDeletedWhenDie	CX2GameUnit	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+OnCameraMove	CX2GameUnit	1	dead	-	read the March site X2GUUser.cpp:8082	gameunit2
+PlaySequenceByTriggerCount	CX2GameUnit	1	inlined-same	32cd5360	caller is June 32cd5360 (batch va 322ceab0 is the g_pData minor-particle getter, funcmap row 3884 gives 32cd5360); disassembled	gameunit2
+PlaySequenceByTriggerTime	CX2GameUnit	7	inlined-same	32cd5360 / 32cd2b10	June 32cd5360 @32cd555e-32cd55a2 and 32cd2b10 @32cd2c1a-32cd2c68, @32cd2da1-32cd2deb (2 of the 6 callers checked); disassembled	gameunit2
+RemoveVecMoveSpeedFactor	CX2GameUnit	1	same	3226df30	scanned 329c5bc0 direct call targets for empty-body functions: only 3226df30 (ret 4) qualifies; call @329c661d push 0xb	stub
+SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID	CX2GameUnit	2	same	322a6b60 (vslot 0x220)	funcmap 3239 names 322a6b60; disassembled it beside March X2GameUnit.cpp:13442 (already carries the June 322a6b60 @322a6c07 gate)	stub
+SetCanNotInputTime_LUA	CX2GameUnit	4	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetFullHyperMode	CX2GameUnit	2	row: out	3208ddc0	June caller 32e7dbb0 calls vslot 0xa0 @32e7dc53 (funcmap C3t confirms 0xa0); vtslot.py 0xa0 over CX2GU* classes; disassembled each override	gameunit2
+SetHitCount	CX2GameUnit	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHitCreateDamageEffectPowerRate	CX2GameUnit	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHitCreateDamageEffectRate	CX2GameUnit	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetHittedCount	CX2GameUnit	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetMaxMp	CX2GameUnit	1	same	3208dc50	vtslot.py 0xe0 gives 3208dc50 (unit); gage vslot 0x14 = 322b34d0; GageManager 3248a800 via funcmap row 3519; disassembled	gameunit2
+SetNumOfBuff	CX2GameUnit	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetNumOfDeBuff	CX2GameUnit	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetRemainHyperModeTime	CX2GameUnit	4	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+SetShowGage	CX2GameUnit	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+SetStatUpBufferBySocketItem	CX2GameUnit	1	inlined-same	32028ba0	June ProcessSocketEffectEx 32028ba0 disassembled around the SIEE_STAT_UP case @32028c30	gameunit2
+SetSubAttackList	CX2GameUnit	2	same	32274c70	callers 32ce6f40 @32ce7137 and 32cce4b0 @32ccf2c3 both call 32274c70 (funcdis grep); disassembled	gameunit2
+SetUseWorldColor	CX2GameUnit	2	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+UnSetSpecificValueByBuffTempletID	CX2GameUnit	1	virtual-stub	3208ddc0 (vslot 0x250)	vtable diff; funcmap 292/736 (EraseBuff... uses vslot 148); disassembled 3297a440	stub
+UpNowDPValue	CX2GameUnit	1	virtual-stub	33093ad0 (vslot 0x2a4)	funcmap 1574 (322d4f80 PartyFeverAllUser); disassembled 322d4f80 (call [edx+0x2a4] @322d4fee); vtable diff	stub
+UpNowMp	CX2GameUnit	18	row: replace	3208dd00	unit vslot 0xf0 = 3208dd00 (vtslot.py) -> gage vslot 0xc = 322b33d0 (funcmap row 3467); disassembled; March live body already holds the June RM0 tail JuneRandomMissionMpSpent	gameunit2
+UpdatePassiveAndActiveSkillState	CX2GameUnit	3	virtual-stub	31f3f070 (vslot 0x2c0)	funcmap 726/268 note 'user slot 176' = vslot 0x2c0; disassembled 31ffe920	stub
+Init_ZXArrowOnly	CX2GameUnit::InputData	1	inlined-same	32978e80	June 32978e80 disassembled (only caller, inline)	gameunit2
+GetForceDownValueRateOfMeleeAttack	CX2GameUnit::SkillRelatedData	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+AppendEnchantParticleForSwordToDeviceList	CX2GameUnit::Weapon	1	row: replace	3226ecc0	funcmap 4114 names 3226ecc0; decompiled via Ghidra and emulated the switch over all values with a script against March's enum values	gameunit2
+GetOwnerUnit	CX2GameUnit::Weapon	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+InitEnchantParticleForSword	CX2GameUnit::Weapon	1	row: replace	3228cb30	funcmap 4088 names 3228cb30; disassembled and emulated the switch the same way	gameunit2
+SetEnchantParticleShow	CX2GameUnit::Weapon	1	row: replace	3295cd30 -> 3295bf90	June caller 329c5bc0 @329c6567-329c65f5: SetShowEnchantedWeaponEffectAtHand(true) vslot 0x394, then loop over m_ViewEqipList (+0x8834) calling 3295cd30(true,-1); no Weapon::SetEnchantParticleShow call exists; disassembled 3295cd30 / 3295bf90	gameunit2
+GetDashJumpSpeed	CX2GameUnit|CX2GameUnit::PhysicParam|CX2PET::PhysicParam	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetJumpSpeed	CX2GameUnit|CX2GameUnit::PhysicParam|CX2PET::PhysicParam	8	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStat	CX2GameUnit|CX2Item|CX2Item::ItemTemplet|CX2Stat	10	row: stage33	328842f0 (CX2Item::GetStat); GameUnit and CX2Stat getters trivial	callers' pItem->GetStat() = CX2Item::GetStat(bool=false); June JuneInitSocketData @32365e45 calls 328842f0; disassembled 328842f0 (1350 lines); GameUnit::GetStat().GetStat() sites (BuffFactor 1132, Eve 56574) are plain member getters (same)	gameunit2
+AddForceDownGage	CX2GameUnit|CX2OldGageManager	1	same	320826e0	June caller 32cd57c0 @32cd5c03 calls 320826e0 (memo type 0x12 branch); disassembled	gameunit2
+GetSocketData	CX2GameUnit|CX2SocketItem	25	same	32715320	caller 32028ba0 call @32028c69 uses 32715320 on g_pData+0x280; disassembled	gameunit2
+GetEquippingItemByEquipPos	CX2Inventory	1	row: stage33	32869e10	funcmap row for GetFinalDamage 32284aa0; call @32286616..3228661c (push 0,0,2 on inventory +0x2a4); disassembled 32869e10 and its jump tables	data
+GetItem	CX2Inventory	1	same	3286a230 (UID,bool) / 3286a280 (sortType,slot)	disassembled both June overloads; June callers JuneInitSocketData / JuneGetPartySocketOptionSources use the UID overload; VioletMage June_ChangeWeapon/TransformEnd calls are CX2Eqip::GetItem() (m_pUserWeaponEquip->GetItem()), not CX2Inventory	data
+GetNumItemByTID	CX2Inventory	3	row: replace	32869b80	funcmap row 5261; June callers pass (tid,0,0,1,0): @323cac24 (quest), @329b6308 (Eve hyper stone 0x1fca0); disassembled 32869b80 (ret 0x14, 5 args)	data
+GetShopImage	CX2Item::ItemTemplet|CX2Item::KItemFormatTemplet|KItemFormatTemplet	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetSpecialAbility	CX2Item::ItemTemplet|CX2Item::KItemFormatTemplet|KItemFormatTemplet	2	same	328673e0	funcmap row 1794; disassembled 328673e0	data
+GetAddMaxMP	CX2Item::ItemTemplet|KItemFormatTemplet	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetBuyPvpRankCondition	CX2Item::ItemTemplet|KItemFormatTemplet	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetEqipPosition	CX2Item::ItemTemplet|KItemFormatTemplet	8	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetItemGrade	CX2Item::ItemTemplet|KItemFormatTemplet	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetItemType	CX2Item::ItemTemplet|KItemFormatTemplet	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUseLevel	CX2Item::ItemTemplet|KItemFormatTemplet	5	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetStateID	CX2RidingPet	1	row: replace	3275aaf0 (GUNPC); 32d3e450 (RidingPet); 323f5870 (SquareUnit)	funcmap 2432 + decompile 3275aaf0 and disassembly @3275ab27; RidingPet 32d3e450 and SquareUnit 323f5870 decompiled for the other two owners	misc1
+GetUserInfo	CX2RidingPet	1	row: replace	32d2d7e0	funcmap 1925 (OnFrameMove 32d2ec80 runs GetUserInfo 32d2d7e0 + SetPos 32d2db50); decompiled 32d2d7e0 and 321f2e60	misc1
+GetXSkinAnimFuturePtr	CX2RidingPet	2	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetPos	CX2RidingPet	1	same	32d2db50	funcmap 1925; decompiled 32d2db50 (the other brief callers call other SetPos classes)	misc1
+GetHasRidingPet	CX2RidingPetManager	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+GetMyRidingPet	CX2RidingPetManager	1	row: replace	-	caller region @323664c8-@32366528 (CX2Unit socket sum, funcmap 3567) disassembled; 321f5b10 decompiled	misc1
+GetRidingOnState	CX2RidingPetManager	2	row: replace	321fa590	funcmap 1075 names the manager; 321fa590 identified by the callers 322f7170 / 329031f0 and the state/name tests; decompiled	misc1
+GetRidingPetPtr	CX2RidingPetManager	1	same	321f5ac0	funcmap 1953 (sound player 323f17b0 calls 321f7130 + 321f5ac0 by uid; the brief va 323f1770 is a different function); decompiled 321f5ac0	misc1
+GetRidingPetTemplet	CX2RidingPetManager	1	same	321f5b10	call @323664f8 in the CX2Unit socket sum (funcmap 3567); xrefs list 321f5b10 callers incl. 3206d770 InitSocketData; decompiled	misc1
+UpdateSkillSlotString	CX2RidingPetSkillSlot|CX2UISkillTree|CX2UISkillTreeNew	1	already-june	328e1170	funcmap 3632 (328e1680 / 328e1170, caller 31f276b0); March X2UISkillTreeNew2015.cpp:3426 comment says June 328e1170	misc1
+GetPlanRender	CX2SquareUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetRidingOn	CX2SquareUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSquareUnitScriptFileName	CX2SquareUnit	2	same	323ed320	followed the class arg in 31efd510 (funcmap 3640) to the static call @31efd591; disassembled 323ed320; read the string at 0x3349432c	stub
+GetStateID	CX2SquareUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnit	CX2SquareUnit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+InitViewer	CX2SquareUnit	2	same	323f7380	called from 31efd510 (ResetUnitViewerInFieldSquare) in the order SetScriptFileName / 323f3660 InitSystem / 323f7380 / 323f59f0 InitState / 323fa700 InitWaitMotion; decompiled 323f7380	misc1
+InitWaitMotion	CX2SquareUnit	2	row: out	323fa700	funcmap 1817 (323fa700 sit/stand/WAIT motion setup, caller 31efd628); decompiled 323fa700	misc1
+StateEnd	CX2SquareUnit	1	no-june-call	-	no June call: DoStateEndStart 3203c3a0 dispatches the state delegate / CommonStateEnd (vslot 0x7dc)	misc1
+GetUnitViewer	CX2SquareUnit|CX2StateBeginning|CX2StateServerSelect	6	inlined-same	inline: square unit +0x2ec	funcmap 97 (321f3020 reads the square unit viewer +0x2ec, then skin anim 31fac3c0) and 323f7380 writes +0x2ec	misc1
+GetNickName	CX2SquareUnit|CX2Unit	2	inlined-same	inline (brief va 31d05fe0 is wrong; real caller 324d60e0)	31d05fe0 decompiled is an unrelated object-list function; funcmap 4528 puts the result fill at 324d60e0; accessor not pinned there	misc1
+AccessInventory	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+AccessUnitData	CX2Unit	39	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+AddClearDungeon	CX2Unit	1	same	32356a30	funcmap row 4548 names AddClearDungeon 32356a30; call @324db8b4; disassembled	data
+ClearNewlyOpenedDungeonAtLocalMap	CX2Unit	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+GetClass	CX2Unit	84	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetFashionEqipNum	CX2Unit	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+GetFashionEqipUID	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetGuildSkillStat	CX2Unit	1	inlined-same	inlined @3235a4aa-3235a522 (inner 328902f0)	funcmap rows 3570/3576; disassembled caller 3235a160 and 328902f0	data
+GetInventory	CX2Unit	17	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetNormalEqipNum	CX2Unit	1	same	-	rule: STL / observer op on a member; June inlines (3293b5e0 @3293c177-3293c1a9 vector clear = ClearNewlyOpenedDungeonAtLocalMap)	ruleA
+GetNormalEqipUID	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetPetInfo	CX2Unit	1	inlined-same	inlined @3236627c-323662a6	disassembled June 32365d30 (JuneInitSocketData, vtable 3348ffe4) near funcmap row 3567	data
+GetPrevLevel	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetPvpRank	CX2Unit	1	inlined-same	inlined @31ff6b9d-31ff6bc5	funcmap row 4649 (RenderRank 31ff6aa0); disassembled	data
+GetRecentEnterDungeonID	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetRidingPetInfo	CX2Unit	1	same	3234ca90	funcmap row 1069 names 3234ca90; disassembled	data
+GetSetIDNPartsNum	CX2Unit	2	row: stage33	32350cb0	funcmap row 3568 (32350cb0 = March GetSetIDNPartsNum + extra tests); disassembled	data
+GetSkillStat	CX2Unit	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetTitleId	CX2Unit	3	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetType	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUID	CX2Unit	6	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitData	CX2Unit	202	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetUnitTemplet	CX2Unit	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+IsClearDungeon	CX2Unit	1	same	3234f870 (int) / 3234f8a0 (vector<int>)	funcmap row 4548; disassembled both	data
+IsNewlyOpenedDungeon	CX2Unit	1	same	3293d940	June caller 3293b5e0: call @3293bfa6 (ecx = my unit, push dungeon id) followed by drop-down 32935910; disassembled	data
+ResetIncreaseSkillLevelBySocket	CX2Unit	3	row: stage33	3235a080	funcmap row 3567 mentions 3235a080(31d717e0()); callers @32366cbc (JuneInitSocketData) and @326c9b68 (premium buff); disassembled 3235a080 and 32357a70	data
+GetNPCUnitTemplet	CX2UnitManager	1	same	323737a0	not in funcmap; March caller JuneEventCreateNpc comment says its templet test is 'Not June'; identified 323737a0 by scanning June for calls on g_pData+0x38 (unit manager) - callers incl. CX2Game::ProcessExpListByNpcUnitDie 322f8920 and MakeSubQuestString 32337db0 (NPC ids); disassembled	data
+GetUnitTemplet	CX2UnitManager	1	same	32373770	scan of June unit-manager (+0x38) calls; 32373770 callers: funcmap rows 3542 (CX2Unit reset), 4570 (@32362841 store to unit +0xaf0); disassembled	data
+GetUnitTemplet	CX2Unit|CX2UnitManager	48	inlined-same	inlined [unit+0xaf0]	funcmap row 152 (31e4d0e0 = GetUnit()->GetUnitTemplet()->m_UnitType); disassembled 31e4d0e0 and CX2Unit::Reset 32362730 (@3236284c stores 32373770 result to +0xaf0)	data
+AddSkillUnsealed	CX2UserSkillTree	1	same	32891b40	March caller comment names 32891b40; disassembled	data
+CalcUsedSPointAndCSPoint	CX2UserSkillTree	2	same	328903c0	june2017_re/bottombar_functions.tsv row (3245aa20 Skill hide test: 328903c0 = CalcUsedSPointAndCSPoint); disassembled	data
+ConstructGuildSkillTreeNotMyUnit	CX2UserSkillTree	1	same	32898520	funcmap row 3477 (31ed4c80: 32898520 guild); disassembled 32898520 and Reset 328983b0	data
+ConstructSkillTreeNotMyUnit	CX2UserSkillTree	1	row: replace	328926f0	funcmap row 3477 (31ed4c80: 328926f0 passives); disassembled 328926f0 and helpers 32892590 / 3289298f	data
+GetCashSkillPoint	CX2UserSkillTree	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetEnabledSkillSlotB	CX2UserSkillTree	3	already-june	32890ee0 (IsJuneSlotUsable key 0)	June has no GetEnabledSkillSlotB: callers call 32890ee0(key 0) directly (funcmap 2817; 328e1680 @328e16f8 push 0; 328dfab0 @328e008f); March live = IsJuneSlotUsable( 0 ) under SERV_IRUHADEV_JUNE_SKILL_SLOT_10	stub
+GetOpenedPage	CX2UserSkillTree	1	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSelectPage	CX2UserSkillTree	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+GetSkillPoint	CX2UserSkillTree	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetUsingPage	CX2UserSkillTree	4	same	-	rule: plain member get/ref; June inlines (32cc5ae0 @32cc5ae0 GetUnit = [ecx+0x867c], @32cc5af1 GetUnitData = lea +0x494)	ruleA
+SetEqipSkillMemo	CX2UserSkillTree	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetOpenedPage	CX2UserSkillTree	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetSelectPage	CX2UserSkillTree	4	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+SetSkillCoolTimeLeft	CX2UserSkillTree	18	row: replace	32893880	funcmap rows 394/955 (SetSkillCoolTimeLeft 32893880 written by 3235a710); disassembled slot A loop and slot B loop	data
+SetSkillLevelAndCSP	CX2UserSkillTree	1	same	32897240	UnequipRelationSkill 3220f740 caller 328dcd50 (CX2SkillTreeSlotData::UpdateUI) then call 32897240 @328dcfbb with (id, level, 0, page); read the whole body and compared with pp/X2UserSkillTree.i:1376285	stub
+SetUnsealedSkill	CX2UserSkillTree	2	same	32891560	March caller comment names 32891560; disassembled	data
+SetUsingPage	CX2UserSkillTree	1	same	-	rule: plain member set; June inlines (329b4b40 @329b4b70 SetStartSpectroElCrystal(true) = mov byte [esi+0x9b68],1)	ruleA
+GetTotalSkillLevel	CX2UserSkillTree::UserSkillData	1	same	-	rule: one-line forward / guarded forward to a shared accessor; checked GetRandomFloat = June CX2GUUser vslot 0x1cc 3208e0d0 (RandomFloat(word +0x80f8 + iOffset), same)	ruleA
+GetIncreaseSkillLevel	CX2UserSkillTree|CX2UserSkillTree::UserSkillData	1	same	32891120	June caller 328e18d0: call @328e1dcd (ecx = user tree, id) before ShowSlotPicture 328e0460; disassembled	data
