@@ -5211,6 +5211,13 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH2c2 ); no debug f
 - **Kept as June has it:** the Atomic Shield unit-null early return skips `CommonFrameMove`; its `SA_EFFECTIVE_TIME` is read and dropped; the Spear Burst and Tesla Shock templet / level lookups whose result is unused are not ported.
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
 
+### June DamageEffect.lua loads past line 351018 (char-eve CH3a fix, 2026-10-28)
+
+Flag `SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH3a - Done"; log line `[JUNE_CHAR] DAMAGE_EFFECT INIT_PHYSIC.WALK_SPEED = 500 set before <file>`.
+- **Client.** `CX2DamageEffect::OpenScriptFile` checks (raw lookups) that the Lua global `INIT_PHYSIC` is a table with a numeric `WALK_SPEED`; if not it sets `INIT_PHYSIC = { WALK_SPEED = 500 }` ( Raven's `RAVEN_FIGHTER.lua` value ) before the script runs. June's `DamageEffect.lua:351018` (`BACK_SPEED_X = INIT_PHYSIC.WALK_SPEED + 250`, Raven's combo X) needs it at load time.
+- **What changes in game.** `DamageEffect.lua` no longer stops there: the ~8,400 lines after it are defined ( Eve's Shot Gun, Illusionic Thorn, Extreming Cutting, Raven combos and others ).
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC` ( the file stops loading at that line again ).
+
 ### June summons: one per owner and NPC id (char-eve CH2b2, 2026-10-27)
 
 Flag `SERV_IRUHADEV_JUNE_SUMMON_UNIQUE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH2b2 - Done"; log line `[JUNE_SUMMON] npc <id> uid <uid> of owner <uid> replaced by a new summon ( HP 0 )`.

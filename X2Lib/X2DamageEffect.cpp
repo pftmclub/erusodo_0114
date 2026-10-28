@@ -221,6 +221,33 @@ CX2DamageEffect::~CX2DamageEffect(void)
 
 void CX2DamageEffect::OpenScriptFile( const WCHAR* pFilename )
 {
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC
+	{
+		lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+		bool bHasWalkSpeed = false;
+		lua_pushvalue( L, LUA_GLOBALSINDEX );
+		lua_pushstring( L, "INIT_PHYSIC" );
+		lua_rawget( L, -2 );
+		if( lua_istable( L, -1 ) )
+		{
+			lua_pushstring( L, "WALK_SPEED" );
+			lua_rawget( L, -2 );
+			bHasWalkSpeed = ( 0 != lua_isnumber( L, -1 ) );
+			lua_pop( L, 1 );
+		}
+		lua_pop( L, 2 );
+
+		if( false == bHasWalkSpeed )
+		{
+			lua_newtable( L );
+			lua_pushstring( L, "WALK_SPEED" );
+			lua_pushnumber( L, 500 );	/// RAVEN_FIGHTER.lua INIT_PHYSIC.WALK_SPEED; the only reader is Raven's combo X ( DamageEffect.lua:351018 )
+			lua_rawset( L, -3 );
+			lua_setglobal( L, "INIT_PHYSIC" );
+			CX2OfflineLog::Server( L"[JUNE_CHAR] DAMAGE_EFFECT INIT_PHYSIC.WALK_SPEED = 500 set before %s", pFilename );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC
 
     if ( g_pKTDXApp->LoadAndDoMemory( &m_LuaManager, pFilename ) == false )
     {

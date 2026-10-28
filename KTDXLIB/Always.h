@@ -10271,3 +10271,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June char-eve CH2b3 - the NPC power-rate factor ( June +0x8ce4; GetPowerRate 32759630 = default rate x factor ) and June's three NPC Lua methods its summon scripts call ( Oberon, Ophelia, Nasod Watch, Ferdinand, Apocalypse ): SetMultiplyPowerRate_LUA 31e8d610, ResetMultiplyPowerRate_LUA 31e8d6a0, ApplyPassiveSkillOwnerUser_LUA 32763c10. March's flag-0x200 summon cases ( Nasod Watch, Ferdinand ) store their power rate in the factor, as June's 322ece70 does. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
+// Description: June char-eve CH3a fix - DamageEffect.lua reads INIT_PHYSIC.WALK_SPEED at line 351018 ( a Raven combo ) while it loads, before any character script has set that global, so it stopped there and every effect after it ( Eve's Shot Gun, Illusionic Thorn, Extreming Cutting damage effects ) was undefined. The global gets WALK_SPEED 500 ( RAVEN_FIGHTER.lua's own value ) when it has none. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC
+//////////////////////////////////////////////////////////////////////////
