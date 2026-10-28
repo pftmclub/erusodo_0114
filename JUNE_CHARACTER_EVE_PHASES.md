@@ -2159,6 +2159,8 @@ Hygiene and the INIT_PHYSIC fix: range flagcheck `1effbeb6^..HEAD` PASS ( 2 PASS
 
 **Play-test hand-off.** Save unit 59 `EveNemesis`, Atomic Shield upgrade 25055 on C (slot 3). Cast it in a field, stand still: a large blue dome (about Eve's height and more around her) stays at the cast spot for 10 s, then breaks. Step out and in: damage taken inside is lower. Log `[JUNE_CHAR] EVE SKILL atomic shield npc skill <25011 or 25055> lv 1 size <S> scale <S/450>` with a size well above 1 (March's broken path was 1). If the dome is still tiny: say so and give the scale value from that line.
 
+**Play-test (user, 2026-10-28, run 09:13-09:14, md5 `e2d2cce4`): fix PASSED.** Log `atomic shield npc skill 25055 lv 1 size 600.0 scale 1.333 hp 329700`, `KILL_SELF` 10 s later. The user saw the shield stay but not follow Eve: June has no follow (`329c6159` in `CommonFrameMove` is only the buff-gone self-destruct; the NPC script is `NEVER_MOVE`; buff 411 is an empty timer), so the dome is stationary as in June. A follow would be a stand-in beyond June, the user's call.
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
