@@ -971,3 +971,9 @@ count, written by `SetHyperModeCount` = user vslot 0xa8 `3208eef0`) is 3; `Hyper
 - **Raven:** `32e6d900`, `raven_powrUp_UI_01` at ( 74, 60 ) x resolution (`3352d6c0` / `33457f50`; March 100, 120). March's `CX2RavenMyGageUI::UpdateHyperOrb` creates it on `GetUIMajorParticle()`, but the
   template is only in `GameMajorParticle7.txt` (not in `UIMajorParticle.txt`), so March's Raven ball is never made; its dtor already destroys on the game system. Port June's body.
 - **Eve:** done (CH1q `June_UpdateHyperBall`, `32e6a210`; CH1s).
+
+### 7ar. Item class compatibility for classes March lacks (from june-march-divergence D0c-2)
+
+June's `GetX2UnitClassCompatibility` (`31ed6500`, March `X2Unit.cpp:1465`) has 86 switch cases; the 55 March classes accept the same item
+classes as March's. The other 31 (unit classes 33-46, 123-136, 200-202) belong to classes March does not have: the port that adds such a class
+adds its cases from June's switch, under that port's flag (`tools/data/june_march_divergent.tsv` row `GetX2UnitClassCompatibility`, verdict `out`).

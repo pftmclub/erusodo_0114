@@ -301,6 +301,46 @@ The subagents re-located each from the call site. Evidence cells cite scratch de
 
 **Hygiene:** no code, no flag, no build. **Open for the user:** none.
 
+### D0c-2 Done (2026-10-29, engine / effect / damage / buff / world; no flag, no game code, no build)
+
+All 513 callees of area D0c-2 have a verdict in `june2017_re/diverge/d0c2_callees.tsv` (callee, owner, sites, verdict, June va, how
+checked, batch). The gate holds: **25 new `june_march_divergent.tsv` rows** (replace 19, out 6) and **91 funcmap rows** `(Diverge D0c-2)`.
+
+| Verdict | Count | How |
+|---|---|---|
+| same by rule | 370 | 238 plain accessors, 26 STL / DXUT / D3D / GFx calls, 106 one-line helpers and forwarders (bodies read). Spot-checked in Ghidra: `31c8f1b0` GetLayer (walks the manager chain = March's recursion), `31d28b10` IsManagedByDGManager, `31cfe4a0` SetShowObject, `31cd2dc0` dialog SetLayer: all = March. `EventTimerOneshot` (281 sites) = `+0x24c < t && 31d28e10` (funcmap 2234, 2437, 3544) |
+| same, compared | 98 | June decompile against the live March body (lists A / B / C, three Sonnet subagents) |
+| already June / ours / dead | 9 / 9 / 2 | font and edge draws with June's pass argument (`JUNE_RENDER_DRAW_PASS`, `JUNE_UI_CONTROL_PASS`), the R6 skin draw, the RT `OnLostDevice`; 9 names defined only under our flags; `TableBind` compiled out, state-manager `SetRenderTarget` uncalled |
+| tsv row | 25 | below |
+
+**Re-read by Opus in Ghidra:** `SetTex` x2 / `SetMouseOverTex` (refill in place, against `SetDownTex` `31cace60`, which still deletes and
+recreates like March), `OpenTexture` (FAILED device -> NULL), `GetKeyState` / `GetButtonState`, `EventTimerGlobal` (before-time reset),
+`SetManagerObject` (`31d28a00`, pointer only; the subagent had marked it unsure), `SetBuffFactorToDamageDataByBuffFactorID` (= March:
+`322b5320( factor, level, false )`), `GetDefenceDungeonIcnoDesc` (`328a0230` = March; the subagent had not found it in `3293d280` case 0x4653).
+
+**Replace (19, D1):** `CPictureData::SetTex` (both), `CKTDGUISlot::SetMouseOverTex`; `OpenTexture` / `OpenXET` / `OpenXSkinMesh` (NULL
+for a FAILED device, no resource log: D1 keeps a log line), `OpenSound` (OGG / INT variants); `GetButtonState` (SM_SWAPBUTTON),
+`GetKeyState` (allow-list; its setter `31d25490` goes to Stage 9 beside the tutorial guide, so the check is inert until then);
+`GetFixedDistancePosition` / `...InAllLine` (a negative distance flips the side), `ApplyFunctionToParticles` (NULL particle system),
+`EventTimerGlobal`, `SetManagerObject`; `ApplyExternalFactorToFinalizer` (June's third argument: set or add); the four buff popups June
+dropped (`SelectDelegate`, `GetFinalizerFactor`, `ParsingTableForWhile`, `GetBuffFactorPtrFromBuffFactorList`: drop the popup, keep a log);
+and one **port slip**, a call-site fix: Aisha's `June_ChangeWeapon` (`32cc8980`) reads the equip's `m_pItemTemplet` (+0x198) where the port
+tests and reads `GetItem()` (`X2GUArme_VioletMage.cpp:30955`); C2 fixes it in the merge.
+
+**Out, owned elsewhere (6):** `GetX2UnitClassCompatibility` (the 55 March classes match; 31 cases for classes March lacks: checklist 7ar,
+new); `CX2Eqip::SetRenderParam` (`32963c80`, june-engine R6b); `CollisionDataCheck` (June's math is in the hit tests since Effect C8a; the
+remaining calls are the JuneFx comparison trace, March on purpose); `LoadDataFile` / `GetMemberFile` (June's kom reader and archive format;
+March's loose-first order is the in-house config the dev overlay uses); `CX2AdditionalStatByBuff::Verify` (no June counterpart found).
+
+**Drift:** the `GetKeyState` setter got a sub-bullet under Stage 9's tutorial-guide item (`JUNE_PORT_BACKLOG_ORDER.md`); class
+compatibility got checklist 7ar. Nothing else is new.
+
+**Batch-data caveats** (as D0c-1 / D0c-3): harvested addresses for rule rows can belong to a same-named function of another class
+(`SetIndex`, `GetRenderParam`, `SetLayer`), so rule rows carry no June va; `def` named the wrong overload for `RenderVertex` /
+`CheckControl` and a dead `GetTexUV` (the live one is `CKTDXDeviceTET_Preprocessing::GetTexUV`, `31d15c10`). D1 re-reads June before it ports.
+
+**Hygiene:** no code, no flag, no build. **Open for the user:** none.
+
 ## Phase C0 - Collapse tool (Sonnet 5.5, high)
 
 **Depends on:** D0a (format), D0b (map) for the selftest data.
