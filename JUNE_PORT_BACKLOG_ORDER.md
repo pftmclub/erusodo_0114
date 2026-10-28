@@ -1256,7 +1256,12 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
   left uncommitted) found one more hit, `X2GUArme_VioletMage.cpp:27702` in `June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove` (`SMI_AISHA_MEMO5`).
 - **Not in scope:** collapsing the `June_*` prefix into March's functions (a separate per-character cleanup, the user's call, after each
   character's Z phase).
-- **Depends on:** nothing. Start: `/x2-phase new-plan june-march-divergence` (brief `kickoffs/june-backlog/stage35-plan.md`).
+- **Planned 2026-10-28 (Opus):** `JUNE_MARCH_DIVERGENCE_PHASES.md` (`june-march-divergence`: D0 table, D1 replace at the definition +
+  review, D2 idiom gate + sweep + review/close). **Direction (user): replace the divergent March function at its definition**, the
+  studio's own update pattern, instead of policing calls; June's removals apply to unported callers too. The gate covers only idioms no
+  single function carries (`322cc1a0` as `GT_PVP`-only, `322ece70`). The draft tool named above never existed; D2 writes it.
+- **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0`. At close it becomes a
+  standing rule (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
 
 ## Open decisions that gate stages
 
