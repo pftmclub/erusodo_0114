@@ -26,3 +26,7 @@ Hygiene is one command: `python tools/flagcheck.py <the phase's flag> --range <f
 Spot-check 2-3 items in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same
 flag (then `tools/build.py --deploy`); hand design decisions to the user. Write "Phase R6 -- Review" into the plan doc, update the
 STATUS row, check the next phase's kickoff, and commit.
+
+R6 specifics (2026-10-28): the code is `09dfb068`; check the SMRT switch against table `31d314d8`, the CUSTOM case (entry `+0x14`),
+`31d29720`'s field map, and the main-pass classification order. Once the play-test log is read, undefine
+`SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG` (rebuild). The next phase is R6b (`kickoffs/june-engine/R6b.md`).

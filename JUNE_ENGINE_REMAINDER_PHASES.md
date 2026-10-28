@@ -1242,6 +1242,59 @@ equipped-item effects and the talk boxes look as before.
 (R0 item 5) in `KTDGXSkinAnim`'s typed pass, next to the existing UV_ANIM case. **R0b:** June rebuilt the whole
 `OnFrameRender_Draw` (`31d30380` + `31d2f000`); port all of it (kickoff amendments).
 
+### Phase R6 -- Done
+
+**2026-10-28, Opus 5.5.** Flag `SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE` (needs `JUNE_ATTACH_SKIN_MESH_ANIM` and `JUNE_RENDER_CARTOON_TEX`, `#error`
+guards) + short-lived `_DEBUG`. 10 funcmap rows `(R6)`; JUNE_BUGS 455-459. Code commit `09dfb068`.
+
+**What landed** (June's whole `CKTDGXSkinAnim::OnFrameRender_Draw` `31d30380`, March's body in `#else`):
+- **Head:** June's inline frame-matrix copy (`June_CopyModelFrameStructure`): a NULL matrix logs `KEM_ERROR435` "FrameMatrixList == NULL", the
+  frame bounds test is silent (March logged `KEM_ERROR209`).
+- **Main pass:** hide = anim `+0x851` && mesh `+0x8d0` (= March's `m_bHideNoRenderable` / `m_bNoRenderable`); mesh `+0xa2c` queues the mesh
+  for the RenderParam pass (and it still draws normally); per frame: light-flow skip; (alpha 0 && SMRT -1) || anim `+0x853` -> draw;
+  else alpha || the pass's `bAlphaBlend` -> alpha list; else SMRT >= 0 -> SMRT list. Both lists de-duplicated by mesh name (`StrCmpW`).
+- **RenderParam pass `31d2f000`** (`June_RenderParamPass`, list by value): param from mesh `+0x980` through `31d29720`. Replaces March's
+  `ARA_CHARACTER_BASE` fixed REAL_COLOR / DESTALPHA pass; March's `SetUseRenderParam` (Ara hair 41510 ...) is no longer read (June dropped it, R6b).
+- **SMRT pass:** `std::sort` by mesh `+0x86c`; all 8 cases (table `31d314d8`): 0 REAL_COLOR, 1 / 2 cartoon black edge (2 alpha), 3 UV_ANIM
+  (wraps only above +1.0: JUNE_BUGS 455), 4 / 5 / 7 as the R0 tsv, **6 CUSTOM = the mesh's own param** (`+0x8d4`, entry `+0x14`; the R0 tsv
+  said "no change": corrected). Then CTT_DAMAGE or 19 (`CTT_END`, Damage_Raid) remaps RT 1/2/3 to the ADD_ variants.
+- **Every pass but light flow:** `texOffsetStage2.y += m_fAnimCurrTime` (anim `+0x214`) and `fOutLineWide` capped at DG `+0x3c0`.
+  **Correction to R0:** it is a cap (`v > -1.0 && v <= wide -> wide = v`), not a floor, and DG `+0x3c0` is -1.0 from the DG ctor with no
+  other writer, so it never fires (JUNE_BUGS 459; kept as code with the constant).
+- **Mesh:** `SKIN_MESH_RENDER_TYPE` enum (June `Enum.lua` names / values); June's 0xac param struct `JuneRenderParamData` (init `31d59130`,
+  conversion `31d29720`, quirks JUNE_BUGS 458) at `+0x8d4` / `+0x980`; `+0x86c` draw order; `+0xa2c`; `+0xa30` = 0.01f (was 0).
+- **Frame `+0xf8` visible:** `m_bJuneVisible`, tested at the top of `CKTDGXRenderer::DrawFrame` as June `@31d3e872`. Only the frame ctor
+  `31d360d0` writes it (1). The frame's other new fields `+0xfc..+0x110` have no reader in anything R6 ports: not added.
+- **After-image** `3322aa80 @3322ab38`: its anim gets `+0x853` (force normal draw) = 1 after the model meshes are added (R12 had marked the
+  function "same").
+
+**Writers mapped, not ported -> new phase R6b** (scope rule: the plan's subject): the CX2Eqip mesh-flag switch `32964ae0` (new alpha ids,
+Ara cases gone), the equip glow `3295b970` (only writer of `+0x980` / `+0xa2c`), CX2GUUser `31fd0880` (anim `+0x851`). Mesh `+0x868` /
+`+0xa30..+0xa3c` writers = the NPC init `327a0fa0`, already March's (`JUNE_ATTACH_SKIN_MESH_ANIM`). Nothing writes `+0x8d4` but the ctor.
+
+**Psyker Kinesis test case (char-eve CH3a review).** June's draw does not explain it. Nothing in June's mesh player writes the mesh
+alpha / SMRT fields, so `ECN_PsykerKinesis_Spear_Dummy` takes the plain path in June exactly as in March: anim param alpha-blended,
+SRCALPHA / DESTALPHA, colour alpha 0 (render-param copy `31c87b80 @31c88c4a-31c88cc4` = March's). The only June deltas on that path are
+`texOffsetStage2.y` and the dead outline cap, and neither touches REAL_COLOR alpha. Leads for whoever owns it next: the `_Dummy`
+entries (about 1036 with this blend / alpha) look like invisible anchors by design, so June's gear ball may be another entry or effect set
+in the skill; or the destination alpha of June's scene target (R4b). The `_DEBUG` line `plain-alpha0 ... ECN_PsykerKinesis.X value 507`
+confirms the path in play.
+
+**Hygiene.** `flagcheck --range 09dfb068^..09dfb068`: `files: 6 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 1 FAIL, 0 ERROR`; 0 deleted lines, 0 encoding changes. The FAIL is `Always.h` (the define block with its two `#error` guards; both guarded flags resolved defined with `cl /P`). `enumscan --check`: 0.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 26,161,664 B, dated 2026-10-28 09:49:01, md5 912093972269906580d5934448fa62e8` (first build failed in R6 code: `GetDeviceID` is non-const; fixed, rebuilt).
+
+**How to see it in game:** the hand-off in this session (Lanox Fire Temple Expert Fire Devil shells = SMRT_UV_ANIM on the new pass;
+Psyker Kinesis = the plain-alpha0 path; any character render = no regression). Open for the user: none.
+
+## Phase R6b - Equip mesh flags and the equip glow
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQUIP_MESH_RENDER`. Added by
+R6 (2026-10-28): the June writers of the mesh fields R6's draw reads. The CX2Eqip mesh-flag switch `32964ae0 @32965400-329654f9` (face
+hide `+0x8d0`, alpha `+0x864` for 202560 / 202610 and `0x435b3..0x450c3`; March's Ara `SetUseRenderParam` cases gone), the equip glow
+`3295b970` (caller `32963c80`, struct copy `3295a6c0`; only writer of mesh `+0x980` / `+0xa2c`, which feed R6's RenderParam pass), and
+CX2GUUser `31fd0880` (anim `+0x851`, against March `X2GUUser.cpp:8371` / `:8381`). Kickoff `kickoffs/june-engine/R6b.md`.
+
 ## Phase R7 - Hookable textures
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_HOOKABLE_TEXTURE`.
