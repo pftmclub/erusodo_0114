@@ -2176,6 +2176,8 @@ June `3230c1a0` routes every Eve summon to `322ece70`; only the flag word differ
 
 **Play-test hand-off.** Save unit 58 `EveArchi` (Architecture, 99): S (slot 1) Dimension Link Sentry upgrade 25030, Q (slot 5) Sonic Wave upgrade 25041, W (slot 6) Surface Cuting upgrade 25057, E (slot 7) Oberon Guard upgrade 25056 (added, level 1); backup `db_backup\els_db_20261028_092330_pre_sql.sql`. In a field: cast each once and look at the summon's size and a hit's damage number. Log lines `[JUNE_CHAR] EVE SKILL summon npc 384 skill 25030`, `npc 411 skill 25041`, `npc 1621 skill 25057`, `npc 2091 skill 25056` (each with `lv`, `stat scale`, `hp`, `power rate`). If one is missing, say which. Electronic Field and Ferdinand wait for CH3b / CH3d. Then say "check logs".
 
+**Play-test (user, 2026-10-28, run 09:35-09:37, md5 `1bcfe286`): PASSED ("seems ok").** Logs: `summon npc 384 skill 25030 lv 1 flags 0x240`, `npc 1621 skill 25057 lv 1 flags 0x240`, `npc 2091 skill 25056 lv 1 flags 0x0`, each several times (stat scale 1.000, hp 164850, power rate 1.000 at level 1); ErrorLog 0 lines; 0 EXCEPTION. No line for npc 411 / 520: June's Sonic Wave FrameMove (`3298c730`, `June_ENSI_SI2_AT_SONIC_WAVE_FrameMove`) only plays `EffectSet_SA_EAT_SonicWave` with `GetPowerRate() * GetStatAtkRateOfSummoned()` and never creates the guardian NPC, so the 411 / 520 case is unreachable on the June state (like Stone Wall); it stays as June's table has it. The one unbound-Lua line of the run is `AddGroupChainQuest` (Stage 4, not this phase).
+
 ## Phase CH2 - Skills: Nasod and the first jobs (classes 5, 18, 19, 26)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL`.
