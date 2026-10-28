@@ -1242,6 +1242,22 @@ The user asked for the U-key window as June has it. Plan `JUNE_CHARINFO_PHASES.m
   its display rows in that map.
 - **Depends on:** nothing. Start: `/x2-phase june-charinfo C0` (Opus 5.5 high).
 
+### Stage 35: March behaviour inside June code (user, 2026-10-28)
+
+The user does not want March's behaviour leaking into June's logic again. A June port is written with March's functions by name, and some of
+those names behave differently in June. The char-eve CH4a review found the latest case. `CX2GUEve::June_InitPassiveSkillState` called March's
+`GetEqippedSkillMemo( SMI_EVE_MEMO12 )`. March's answers true when memo 12 is equipped, or under `_IN_HOUSE_` when frame scale is on. June's
+`31fca9e0` is a stub that always answers false. The slip compiled, read right and passed the play-test; only the listing review caught it.
+Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE flag `322cc1a0`) and Aisha CH3c (`322ece70` power-rate flags).
+- **Goal:** a table of every March function whose June namesake is a stub or behaves differently, plus an automatic gate that flags any call
+  to one inside June code. The gate goes into x2-phase "Finish" next to `enumscan` / `luabind` / `skillicons`, and the hits it finds in the
+  tree today get fixed.
+- **Lead:** the draft `tools/junediverge.py` + `tools/data/june_march_divergent.tsv` (one row, `GetEqippedSkillMemo`; written in the CH4a review,
+  left uncommitted) found one more hit, `X2GUArme_VioletMage.cpp:27702` in `June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove` (`SMI_AISHA_MEMO5`).
+- **Not in scope:** collapsing the `June_*` prefix into March's functions (a separate per-character cleanup, the user's call, after each
+  character's Z phase).
+- **Depends on:** nothing. Start: `/x2-phase new-plan june-march-divergence` (brief `kickoffs/june-backlog/stage35-plan.md`).
+
 ## Open decisions that gate stages
 
 | Decision | Gates | How to settle |
