@@ -13618,7 +13618,7 @@ void CX2Game::June_RefreshMemoRiseSlot()
 		return;
 
 	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
-	if( true == pArme->June_IsMemoRiseEmpty() )
+	if( true == pArme->IsMemoRiseEmpty() )
 	{
 		const bool bShow = false;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
@@ -13658,7 +13658,7 @@ void CX2Game::June_RefreshMemoRiseSlot()
 		if( NULL == pSlot )
 			continue;
 
-		const int iSkillID = pArme->June_GetMemoRiseEntry( &i );
+		const int iSkillID = pArme->GetMemoRiseEntry( &i );
 		if( iSkillID < 1 )
 		{
 			pSlot->SetShowEnable( false, false );
@@ -13760,7 +13760,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 
 	for( int i = 0; i < 10; ++i )
 	{
-		if( NULL == m_pDLGSkillSlot || false == m_pDLGSkillSlot->GetShow() || false == pArme->June_IsMemoRiseChargeActive() )
+		if( NULL == m_pDLGSkillSlot || false == m_pDLGSkillSlot->GetShow() || false == pArme->IsMemoRiseChargeActive() )
 		{
 			June_ClearMemoRiseSlotParticle( i, true );
 			continue;
@@ -13780,7 +13780,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 			continue;
 		CKTDGUIStatic* pStaticFade = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_Fade" ) );
 		const int iSkillID = static_cast<int>( pSlotData->m_eID );
-		if( true == pArme->June_MemoRiseContains( &iSkillID ) )
+		if( true == pArme->MemoRiseContains( &iSkillID ) )
 		{
 			June_ClearMemoRiseSlotParticle( i, true );
 			continue;
@@ -13924,10 +13924,10 @@ bool CX2Game::June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pS
 
 	const int iSkillID = static_cast<int>( pSlotData_->m_eID );
 	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
-	if( false == pArme->June_IsMemorizableSkill( &iSkillID ) )
+	if( false == pArme->IsMemorizableSkill( &iSkillID ) )
 		return false;
 	// vslot 0x714 is June's shared return-false stub 331a4950 for Aisha
-	if( false == pArme->June_IsMemoRiseChargeActive() )
+	if( false == pArme->IsMemoRiseChargeActive() )
 		return false;
 	return g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow();
 }
@@ -17235,7 +17235,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x180 / 0x207): March read SI_A_EN_DIMENSION_LINK, which the June tree does not equip
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY,
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EVE_DIMENSION_LINK_SENTRY,
 							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef NEW_SKILL_TREE
@@ -17307,7 +17307,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						float fPowerRate = 1.f;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 						/// June 3230c1a0 case 0x5ae: 322ece70 flags 0x260, then SetNearestGUUser; March read SI_HA_EEP_LINK_OVERCHARGE_ILLUSION, which the June tree does not equip
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION,
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION,
 							CX2GUEve::JSHF_NO_ATK_RATE | CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 						const int iSkillLevel = pUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );	//¿¥ÇÁ·¹½º ±Ã±Ø±â - ¸µÅ© ¿À¹öÂ÷Áö ½ã´õº¼Æ®
@@ -17559,7 +17559,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 					/// June 3230c1a0 default ( case 0x19b / 0x208 are not listed ): 322ece70 flags 0; March read SI_SA_EAT_SONIC_WAVE, which the June tree does not equip
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SONIC_WAVE, 0 );
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SONIC_WAVE, 0 );
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef NEW_SKILL_TREE
 
@@ -17624,7 +17624,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 				{
 					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x655), skill 25015 Surface Cutting; March has no case
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SURFACE_CUTING,
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_SURFACE_CUTING,
 							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
 				} break;
 
@@ -17632,7 +17632,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 				{
 					/// June 3230c1a0 @3230ca64 flags 0x240 (case 0x656), skill 25020 Electronic Field; March has no case
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_ECE_ELECTRONIC_FIELD,
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_ECE_ELECTRONIC_FIELD,
 							CX2GUEve::JSHF_SKILL_ABILITY_REL | CX2GUEve::JSHF_NUMBER_STORE );
 				} break;
 
@@ -17640,7 +17640,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 				{
 					/// June 3230c1a0 default ( case 0x82b is not listed ): 322ece70 flags 0, skill 25014 Oberon Guard; March has no case
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, 0 );
+						static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_EAT_OBERON_GUARD, 0 );
 				} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				//{{ JHKang / °­Á¤ÈÆ / 2010/11/22 / ÀÌºê ¾ÆÅä¹Í ½¯µå
@@ -17650,7 +17650,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 					/// June 3230c1a0 case 0x2aa: March read SI_SA_ENS_ATOMIC_SHIELD 5008, which the June tree does not equip
 					if( NULL != pUser->GetUnit() && CX2Unit::UT_EVE == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUEve*>( pUser )->June_SetAtomicShieldSummonInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate );
+						static_cast<CX2GUEve*>( pUser )->SetAtomicShieldSummonInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
  					float fMaxHpRel = 1.f;
  					float fShieldSize = 1.f;
@@ -17858,7 +17858,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x1ef: the UFO follows June's Hell Drop 22020 after the upgrade swap
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
@@ -17933,7 +17933,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x627: same body as case 0x1ef
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
@@ -18065,7 +18065,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 					/// June 3230c1a0 case 0x1f5: June's tree has no March Stone Wall skill, so its end is AddStoneWall( uid, 1.0 )
 					if( NULL == pSkillTemplet && CX2Unit::UT_ARME == pUser->GetUnit()->GetType() )
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetStoneWallSummonInfo( pNPC );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->SetStoneWallSummonInfo( pNPC );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 				} break;
 
@@ -18322,7 +18322,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x443: the power rate and the life time follow June's skill 22027
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetDistortionSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->SetDistortionSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADW_DISTORTION );
 						if( NULL != pSkillTemplet )

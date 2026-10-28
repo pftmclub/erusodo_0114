@@ -2938,7 +2938,7 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 // June 3275f0a0 ( vslot 0x340 ): the base 3226dbe0 is empty, then the attack-result list ( +0x66ac ) takes the Eve push
 void CX2GUNPC::June_InitDelegateProcess()
 {
-	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, June_EveSummonAttackResult ) );
+	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, EveSummonAttackResult ) );
 }
 // June 3275a120 ( June_EveSummonAttackResult ) is defined in X2GuEve.cpp, where CX2GUEve is complete
 //}} Iruha : 2026-10-28 // June character Eve Phase CH4b

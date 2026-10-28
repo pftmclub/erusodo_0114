@@ -567,7 +567,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		int							m_iJune1c0;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
 		void						June_StartFormationEffect();	/// June 329a0ae0
-		int								June_GetFormationFactor() const;	/// June 329cc390
+		int								GetFormationFactor() const;	/// June 329cc390
 		void							June_ProcessPlane( float fElapsedTime_ );	/// June 3299f470
 		void							June_ProcessGigaPlane( float fElapsedTime_ );	/// June 3299fe60
 		void							June_ProcessFormation( float fElapsedTime_ );	/// June 32991090
@@ -652,7 +652,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		void June_CreateGigaPlane( float _fZAngle = 0.f, float _LifeTime = 5.f, float _fDistance = 500.f, float _fHeight = 130.f, float _fScale = 1.0f );	/// June 329a1b90
-		void June_AddEffectSetToSystem( CX2EffectSet::Handle hEffectSet_, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
+		void AddEffectSetToSystem( CX2EffectSet::Handle hEffectSet_, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
 								wstring InductionDamageEffectName = L"", wstring FusionDamageEffectName = L"" );	/// June 329809c0 ( CH3c )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		
@@ -1445,9 +1445,9 @@ public:
 
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-	void June_SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
+	void SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
 	enum JUNE_SUMMON_HELPER_FLAG { JSHF_NO_ATK_RATE = 0x20, JSHF_SKILL_ABILITY_REL = 0x40, JSHF_NUMBER_STORE = 0x200 };	/// June 322ece70 flag bits
-	void June_SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
+	void SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 protected:
 	virtual void ParseCommonRandomState();
@@ -2745,9 +2745,9 @@ protected:
 	int			June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
 	float		June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-	bool		June_CanEveRecovery();					/// June 32976e40
-	int			June_GetMaxDashJumpCount();				/// June 32976e90
-	int			June_GetMaxDashJumpUpCount();			/// June 32976f00
+	bool		CanEveRecovery();					/// June 32976e40
+	int			GetMaxDashJumpCount();				/// June 32976e90
+	int			GetMaxDashJumpUpCount();			/// June 32976f00
 	void		June_StateChangeJumpDashIfPossible();	/// June 32970880
 
 	void June_ENSI_WAIT_StartFuture();					/// June 32965f00
@@ -2759,7 +2759,7 @@ protected:
 	void June_ENSI_JUMP_DOWN_EventProcess();			/// June 3297ae70
 	void June_ENSI_JUMP_LANDING_StartFuture();			/// June 32965f50
 	void June_ENSI_JUMP_LANDING_EventProcess();			/// June 32981ba0
-	void June_ENSI_DASH_StartFuture();					/// June 329cc1f0
+	void ENSI_DASH_StartFuture();					/// June 329cc1f0
 	void June_ENSI_DASH_EventProcess();					/// June 32981eb0
 	void June_ENSI_DASH_END_StartFuture();				/// June 32977670
 	void June_ENSI_DASH_END_Start();					/// June 32965fa0
@@ -2788,8 +2788,8 @@ protected:
 	void June_ENSI_JUMP_DASH_FrameMoveFuture();			/// June 32977c10
 	void June_ENSI_JUMP_DASH_EventProcess();			/// June 32977d30
 	void June_ENSI_JUMP_DASH_EndFuture();				/// June 32977f80
-	void June_ENSI_THROW_ITEM_FrameMove();				/// June 329cc0d0
-	void June_ENSI_THROW_ITEM_EventProcess();			/// June 329cc170
+	void ENSI_THROW_ITEM_FrameMove();				/// June 329cc0d0
+	void ENSI_THROW_ITEM_EventProcess();			/// June 329cc170
 
 	/// Phase CH1b: reactions ( damage, down / stand-up, die ) and the helpers only they reach
 	struct JuneEveBlock9c50					/// June +0x9c50: a pointer to this 0x14-byte block ( made in 3297a7b0, owner CH3a ); fields named by use
@@ -2805,13 +2805,13 @@ protected:
 	JuneEveBlock9c50*	m_pJuneBlock9c50;					/// June +0x9c50
 	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
 
-	void June_EGQueensThroneReset();					/// June 3298cfe0
+	void EGQueensThroneReset();					/// June 3298cfe0
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 	friend class CX2GUUser;								/// JuneResetOnSummonEnd calls the member below
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 	void June_ResetLinkOverChargeIllusion();			/// June 32997c10
 	void June_SetSelfDestructSummonedNPC( const int iNPCID_ );	/// June 3299d140
-	void June_ClearGuardAndSummon();					/// June 329ae670
+	void ClearGuardAndSummon();					/// June 329ae670
 
 	void June_ENSI_DIE_FRONT_StartFuture();				/// June 329694b0
 	void June_ENSI_DIE_FRONT_Start();					/// June 329af800
@@ -2821,16 +2821,16 @@ protected:
 	void June_ENSI_DIE_BACK_Start();					/// June 329af950
 	void June_ENSI_DIE_BACK_FrameMove();				/// June 329afa70
 	void June_ENSI_DIE_BACK_EventProcess();				/// June 329695b0
-	void June_ENSI_DAMAGE_GROGGY_EventProcess();		/// June 329cc160 ( thunk, vslot 0x5e8 )
+	void ENSI_DAMAGE_GROGGY_EventProcess();		/// June 329cc160 ( thunk, vslot 0x5e8 )
 	void June_ENSI_DAMAGE_DOWN_FRONT_FrameMove();		/// June 32969660
 	void June_ENSI_DAMAGE_DOWN_FRONT_EventProcess();	/// June 329696b0
 	void June_ENSI_DAMAGE_DOWN_BACK_FrameMove();		/// June 32969820
 	void June_ENSI_DAMAGE_DOWN_BACK_EventProcess();		/// June 32969860
-	void June_ENSI_DAMAGE_BOUNDING_DOWN_EventProcess();	/// June 329cc0b0 ( thunk, vslot 0x5d4 )
-	void June_ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess();	/// June 329cc150 ( thunk, vslot 0x5d8 )
-	void June_ENSI_DAMAGE_BOUNDING_UP_StartFuture();	/// June 329cc1e0 ( thunk, vslot 0x5dc )
-	void June_ENSI_DAMAGE_BOUNDING_UP_Start();			/// June 329cc050 ( thunk, vslot 0x5e0 )
-	void June_ENSI_DAMAGE_BOUNDING_UP_EventProcess();	/// June 329cc0c0 ( thunk, vslot 0x5e4 )
+	void ENSI_DAMAGE_BOUNDING_DOWN_EventProcess();	/// June 329cc0b0 ( thunk, vslot 0x5d4 )
+	void ENSI_DAMAGE_BOUNDING_LANDCRASH_EventProcess();	/// June 329cc150 ( thunk, vslot 0x5d8 )
+	void ENSI_DAMAGE_BOUNDING_UP_StartFuture();	/// June 329cc1e0 ( thunk, vslot 0x5dc )
+	void ENSI_DAMAGE_BOUNDING_UP_Start();			/// June 329cc050 ( thunk, vslot 0x5e0 )
+	void ENSI_DAMAGE_BOUNDING_UP_EventProcess();	/// June 329cc0c0 ( thunk, vslot 0x5e4 )
 	void June_ENSI_DAMAGE_AIR_DOWN_LANDING_EventProcess();	/// June 329699d0
 	void June_ENSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess();	/// June 32969af0
 	void June_ENSI_STANDUP_ROLLING_FRONT_FRONT_End();	/// June 32966110
@@ -2848,23 +2848,23 @@ protected:
 	void June_ENSI_STANDUP_ATTACK_BACK_End();			/// June 32966270
 
 	/// Phase CH1c: pepper-run and riding thunks ( each makes the CX2GUUser virtual call at its vslot )
-	void June_ENSI_PEPPER_RUN_READY_EventProcess();		/// June 329cc180 ( thunk, vslot 0x58c )
-	void June_ENSI_PEPPER_RUN_FrameMoveFuture();		/// June 329cbff0 ( thunk, vslot 0x590 )
-	void June_ENSI_PEPPER_RUN_EventProcess();			/// June 329cc070 ( thunk, vslot 0x594 )
-	void June_ENSI_PEPPER_RUN_END_FrameMove();			/// June 329cc100 ( thunk, vslot 0x598 )
-	void June_ENSI_PEPPER_RUN_END_EventProcess();		/// June 329cc1a0 ( thunk, vslot 0x59c )
-	void June_ENSI_PEPPER_RUN_JUMP_UP_StartFuture();	/// June 329cc010 ( thunk, vslot 0x5a0 )
-	void June_ENSI_PEPPER_RUN_JUMP_UP_FrameMoveFuture();	/// June 329cc090 ( thunk, vslot 0x5a4 )
-	void June_ENSI_PEPPER_RUN_JUMP_UP_EventProcess();	/// June 329cc120 ( thunk, vslot 0x5a8 )
-	void June_ENSI_PEPPER_RUN_JUMP_DOWN_StartFuture();	/// June 329cc1b0 ( thunk, vslot 0x5ac )
-	void June_ENSI_PEPPER_RUN_JUMP_DOWN_FrameMoveFuture();	/// June 329cc020 ( thunk, vslot 0x5b0 )
-	void June_ENSI_PEPPER_RUN_JUMP_DOWN_EventProcess();	/// June 329cc0a0 ( thunk, vslot 0x5b4 )
-	void June_ENSI_RIDING_OFF_End();					/// June 329cc060 ( thunk, vslot 0x610 )
-	void June_ENSI_RIDING_WAIT_EventProcess();			/// June 329cc0f0 ( thunk, vslot 0x614 )
-	void June_ENSI_RIDING_WALK_EventProcess();			/// June 329cc190 ( thunk, vslot 0x618 )
-	void June_ENSI_RIDING_JUMP_LANDING_EventProcess();	/// June 329cc000 ( thunk, vslot 0x61c )
-	void June_ENSI_RIDING_DASH_EventProcess();			/// June 329cc080 ( thunk, vslot 0x620 )
-	void June_ENSI_RIDING_DASH_END_EventProcess();		/// June 329cc110 ( thunk, vslot 0x624 )
+	void ENSI_PEPPER_RUN_READY_EventProcess();		/// June 329cc180 ( thunk, vslot 0x58c )
+	void ENSI_PEPPER_RUN_FrameMoveFuture();		/// June 329cbff0 ( thunk, vslot 0x590 )
+	void ENSI_PEPPER_RUN_EventProcess();			/// June 329cc070 ( thunk, vslot 0x594 )
+	void ENSI_PEPPER_RUN_END_FrameMove();			/// June 329cc100 ( thunk, vslot 0x598 )
+	void ENSI_PEPPER_RUN_END_EventProcess();		/// June 329cc1a0 ( thunk, vslot 0x59c )
+	void ENSI_PEPPER_RUN_JUMP_UP_StartFuture();	/// June 329cc010 ( thunk, vslot 0x5a0 )
+	void ENSI_PEPPER_RUN_JUMP_UP_FrameMoveFuture();	/// June 329cc090 ( thunk, vslot 0x5a4 )
+	void ENSI_PEPPER_RUN_JUMP_UP_EventProcess();	/// June 329cc120 ( thunk, vslot 0x5a8 )
+	void ENSI_PEPPER_RUN_JUMP_DOWN_StartFuture();	/// June 329cc1b0 ( thunk, vslot 0x5ac )
+	void ENSI_PEPPER_RUN_JUMP_DOWN_FrameMoveFuture();	/// June 329cc020 ( thunk, vslot 0x5b0 )
+	void ENSI_PEPPER_RUN_JUMP_DOWN_EventProcess();	/// June 329cc0a0 ( thunk, vslot 0x5b4 )
+	void ENSI_RIDING_OFF_End();					/// June 329cc060 ( thunk, vslot 0x610 )
+	void ENSI_RIDING_WAIT_EventProcess();			/// June 329cc0f0 ( thunk, vslot 0x614 )
+	void ENSI_RIDING_WALK_EventProcess();			/// June 329cc190 ( thunk, vslot 0x618 )
+	void ENSI_RIDING_JUMP_LANDING_EventProcess();	/// June 329cc000 ( thunk, vslot 0x61c )
+	void ENSI_RIDING_DASH_EventProcess();			/// June 329cc080 ( thunk, vslot 0x620 )
+	void ENSI_RIDING_DASH_END_EventProcess();		/// June 329cc110 ( thunk, vslot 0x624 )
 
 	/// Phase CH1d: Nasod ground combos ( Z chain and X chain )
 	void June_ENSI_COMBO_Z_Start();						/// June 32969e20
@@ -2906,7 +2906,7 @@ protected:
 	void June_ENSI_COMBO_XXdownXX_FrameMove();			/// June 32985930
 	void June_ENSI_COMBO_XXdownXX_EventProcess();		/// June 3296ce30
 	/// June character port Phase CH1e: inert June_* members of Eve's dash, jump and dash-jump combos; nothing calls them until CH1
-	bool June_TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
+	bool TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
 	void June_StateChangeBoostAttackIfPossible();			/// June 32978c60
 	void June_ENSI_DASH_COMBO_Z_Start();					/// June 3296cf50
 	void June_ENSI_DASH_COMBO_Z_End();						/// June 32985b50
@@ -2961,12 +2961,12 @@ protected:
 	void June_ENSI_DASH_COMBO_ZZZ_EventProcess();			/// June 3296daa0
 	void June_ENSI_DASH_COMBO_XZ_FrameMove();				/// June 32986f00
 	void June_ENSI_DASH_COMBO_XZ_EventProcess();			/// June 3296e580
-	void June_ENSI_EEG_DASH_JUMP_ZX_Init();					/// June 32968510
-	void June_ENSI_EEG_DASH_JUMP_ZX_FrameMove();			/// June 32968560
-	void June_ENSI_EEG_DASH_JUMP_ZX_EventProcess();			/// June 329795a0
-	void June_ENSI_EEG_DASH_JUMP_ZZX_Init();				/// June 32968570
-	void June_ENSI_EEG_DASH_JUMP_ZZX_FrameMove();			/// June 329685c0
-	void June_ENSI_EEG_DASH_JUMP_ZZX_EventProcess();		/// June 329797d0
+	void ENSI_EEG_DASH_JUMP_ZX_Init();					/// June 32968510
+	void ENSI_EEG_DASH_JUMP_ZX_FrameMove();			/// June 32968560
+	void ENSI_EEG_DASH_JUMP_ZX_EventProcess();			/// June 329795a0
+	void ENSI_EEG_DASH_JUMP_ZZX_Init();				/// June 32968570
+	void ENSI_EEG_DASH_JUMP_ZZX_FrameMove();			/// June 329685c0
+	void ENSI_EEG_DASH_JUMP_ZZX_EventProcess();		/// June 329797d0
 	/// June character port Phase CH1g: inert June_* members of Eve's Code: Nemesis states; nothing calls them until CH1
 	void June_ENSI_NS_DASH_COMBO_ZX_Init();					/// June 32966ea0
 	void June_ENSI_NS_DASH_COMBO_ZX_Start();				/// June 32966ec0
@@ -2981,24 +2981,24 @@ protected:
 	void June_ENSI_NS_COMBO_XXZZ8_EventProcess();			/// June 32970f10
 	void June_ENSI_NS_COMBO_XXZZ8Z_FrameMove();				/// June 3298e710
 	void June_ENSI_NS_COMBO_XXZZ8Z_EventProcess();			/// June 32971240
-	void June_ENSI_ECN_DASH_JUMP_XZ_Init();					/// June 329685d0
-	void June_ENSI_ECN_DASH_JUMP_XZ_FrameMove();			/// June 32968640
-	void June_ENSI_ECN_DASH_JUMP_XZ_EventProcess();			/// June 32975bc0
-	void June_ENSI_ECN_COMBO_ZZX_READY_Init();				/// June 32968650
-	void June_ENSI_ECN_COMBO_ZZX_READY_FrameMove();			/// June 329686f0
-	void June_ENSI_ECN_COMBO_ZZX_READY_EventProcess();		/// June 32975e20
-	void June_ENSI_ECN_COMBO_ZZX_LOOP_FrameMove();			/// June 32968700
-	void June_ENSI_ECN_COMBO_ZZX_LOOP_EventProcess();		/// June 32975e60
-	void June_ENSI_ECN_COMBO_ZZX_END_FrameMove();			/// June 32968710
-	void June_ENSI_ECN_COMBO_ZZX_END_EventProcess();		/// June 32975eb0
+	void ENSI_ECN_DASH_JUMP_XZ_Init();					/// June 329685d0
+	void ENSI_ECN_DASH_JUMP_XZ_FrameMove();			/// June 32968640
+	void ENSI_ECN_DASH_JUMP_XZ_EventProcess();			/// June 32975bc0
+	void ENSI_ECN_COMBO_ZZX_READY_Init();				/// June 32968650
+	void ENSI_ECN_COMBO_ZZX_READY_FrameMove();			/// June 329686f0
+	void ENSI_ECN_COMBO_ZZX_READY_EventProcess();		/// June 32975e20
+	void ENSI_ECN_COMBO_ZZX_LOOP_FrameMove();			/// June 32968700
+	void ENSI_ECN_COMBO_ZZX_LOOP_EventProcess();		/// June 32975e60
+	void ENSI_ECN_COMBO_ZZX_END_FrameMove();			/// June 32968710
+	void ENSI_ECN_COMBO_ZZX_END_EventProcess();		/// June 32975eb0
 	/// June character port Phase CH1h: inert June_* members of Eve's Architecture states; nothing calls them until CH1 wires them in.
 	void June_ENSI_COMBO_XXZ4_Init();						/// June 3296c580
 	void June_ENSI_COMBO_XXZ4_FrameMove();					/// June 32985300
 	void June_ENSI_COMBO_XXZ4_EventProcess();				/// June 3296c5d0
-	void June_ENSI_DASH_COMBO_ZX_Start();					/// June 329662c0
+	void ENSI_DASH_COMBO_ZX_Start();					/// June 329662c0
 	void June_ENSI_DASH_COMBO_ZX_FrameMove();				/// June 32986d30
 	void June_ENSI_DASH_COMBO_ZX_EventProcess();			/// June 3296df00
-	void June_ENSI_DASH_COMBO_ZX_End();						/// June 329662d0
+	void ENSI_DASH_COMBO_ZX_End();						/// June 329662d0
 	void June_ENSI_DASH_JUMP_COMBO_XZ_Init();				/// June 32966320
 	void June_ENSI_DASH_JUMP_COMBO_XZ_FrameMove();			/// June 329889d0
 	void June_ENSI_DASH_JUMP_COMBO_XZ_EventProcess();		/// June 3296ecc0
@@ -3016,16 +3016,16 @@ protected:
 	void June_ENSI_EP_COMBO_XXdownX_Init();					/// June 32966fa0
 	void June_ENSI_EP_COMBO_XXdownX_FrameMove();			/// June 3298eff0
 	void June_ENSI_EP_COMBO_XXdownX_EventProcess();			/// June 32971820
-	void June_ENSI_ECE_COMBO_ZZX_Init();					/// June 32968720
-	void June_ENSI_ECE_COMBO_ZZX_FrameMove();				/// June 329994e0
-	void June_ENSI_ECE_COMBO_ZZX_EventProcess();			/// June 32976110
-	void June_ENSI_ECE_COMBO_ZZXX_Init();					/// June 32968750
-	void June_ENSI_ECE_COMBO_ZZXX_FrameMove();				/// June 329998f0
-	void June_ENSI_ECE_COMBO_ZZXX_EventProcess();			/// June 32976440
-	void June_ENSI_ECE_DASH_XX_Init();						/// June 32968790
-	void June_ENSI_ECE_DASH_XX_End();						/// June 329687c0
-	void June_ENSI_ECE_DASH_XX_FrameMove();					/// June 32999ce0
-	void June_ENSI_ECE_DASH_XX_EventProcess();				/// June 32976480
+	void ENSI_ECE_COMBO_ZZX_Init();					/// June 32968720
+	void ENSI_ECE_COMBO_ZZX_FrameMove();				/// June 329994e0
+	void ENSI_ECE_COMBO_ZZX_EventProcess();			/// June 32976110
+	void ENSI_ECE_COMBO_ZZXX_Init();					/// June 32968750
+	void ENSI_ECE_COMBO_ZZXX_FrameMove();				/// June 329998f0
+	void ENSI_ECE_COMBO_ZZXX_EventProcess();			/// June 32976440
+	void ENSI_ECE_DASH_XX_Init();						/// June 32968790
+	void ENSI_ECE_DASH_XX_End();						/// June 329687c0
+	void ENSI_ECE_DASH_XX_FrameMove();					/// June 32999ce0
+	void ENSI_ECE_DASH_XX_EventProcess();				/// June 32976480
 	/// June character port Phase CH1j: inert June_* members of Eve's Electra line states ( EPR combos and dashes ); nothing calls them until CH1 wires them in.
 	void June_ENSI_EPR_COMBO_ZZZfrontZ_Start();		/// June 32972af0
 	void June_ENSI_EPR_COMBO_ZZZfrontZ_FrameMove();		/// June 329a4c30
@@ -3050,8 +3050,8 @@ protected:
 	void June_ENSI_EPR_DASH_COMBO_ZZZ_End();		/// June 32992f60
 
 	/// June character port Phase CH1j2: inert June_* members of Eve's Battle Seraph line ( boost dashes, boost attacks, Electronic Move front / up / down ) and the Code Battle Seraph dash X-X; nothing calls them until CH1
-	bool June_CanContinueBoostAttack( const int iAddBoostAttack_ ) const;	/// June 32979a00
-	void June_ENSI_EBS_BOOST_DASH_START_FrameMoveFuture();	/// June 329677d0
+	bool CanContinueBoostAttack( const int iAddBoostAttack_ ) const;	/// June 32979a00
+	void ENSI_EBS_BOOST_DASH_START_FrameMoveFuture();	/// June 329677d0
 	void June_ENSI_EBS_BOOST_DASH_START_StartFuture();		/// June 32995020
 	void June_ENSI_EBS_BOOST_DASH_START_EventProcess();		/// June 32995120
 	void June_ENSI_EBS_BOOST_DASH_START_EndFuture();		/// June 329784c0
@@ -3093,9 +3093,9 @@ protected:
 	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess();	/// June 3297a240
 	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EndFuture();	/// June 32967920
 	void June_ENSI_EBS_DASH_JUMP_COMBO_ZDownX_End();		/// June 32974150
-	void June_ENSI_ECB_DASH_XX_Init();						/// June 329687e0
-	void June_ENSI_ECB_DASH_XX_FrameMove();					/// June 329ad6c0
-	void June_ENSI_ECB_DASH_XX_EventProcess();				/// June 329766f0
+	void ENSI_ECB_DASH_XX_Init();						/// June 329687e0
+	void ENSI_ECB_DASH_XX_FrameMove();					/// June 329ad6c0
+	void ENSI_ECB_DASH_XX_EventProcess();				/// June 329766f0
 
 	/// June character port Phase CH1k: inert June_* members of Eve's lifecycle, render and reaction overrides, the constructor / destructor / ReInit bodies and their helpers; nothing calls them until CH1
 	/// June-only fields, named by their June offset where the role is unknown ( ch1k_ctor_offsets.tsv )
@@ -3120,8 +3120,8 @@ protected:
 
 	bool		June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June 3229a470 ( CX2GUUser vslot 0x240 )
 	bool		June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
-	CX2GUNPC*	June_FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
-	float		June_GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
+	CX2GUNPC*	FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
+	float		GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	void		June_InitPassiveSkillState();													/// June 3297f290 ( vslot 0x690 )
 	float		June_GetAdditionalAccelBuffTime() const;										/// June 32978370 ( vslot 0x7ac )
@@ -3134,10 +3134,10 @@ public:
 	virtual void	SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate );	/// June 329bc560 ( vslot 0x2b8 )
 #endif MODIFY_SET_DAMAGE_DATA
 	virtual float	GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32979420 ( vslot 0x6a4 )
-	void		June_SummonOpenMindAttackResult( CX2GUNPC* pSummon_ );		/// June 3275a120, the owner half
+	void		SummonOpenMindAttackResult( CX2GUNPC* pSummon_ );		/// June 3275a120, the owner half
 protected:
 	float		June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	/// June 329a79c0 ( vslot 0x6a0 )
-	int			June_GetLiveAllySummonCount() const;		/// June 3299b2e0
+	int			GetLiveAllySummonCount() const;		/// June 3299b2e0
 	CX2BuffFactorPtr	June_GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 32028af0 ( CX2GUUser vslot 0x238 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
@@ -3165,20 +3165,20 @@ protected:
 	int  June_GetComboZStateID() const;						/// June 329cf210 ( vslot 0x4b0 )
 	void June_AttackResultPlayEffect();						/// June 3299cdc0 ( vslot 0x4dc )
 	void June_AttackResultByType( CX2DamageManager::DamageData &pDamageData_ );	/// June 329a4680 ( vslot 0x4e0 )
-	void June_ENSI_RIDING_HYPER_MODE_FrameMove();			/// June 329ac330
+	void ENSI_RIDING_HYPER_MODE_FrameMove();			/// June 329ac330
 	void June_DeleteMinorParticle();						/// June 32994710 ( vslot 0x4c )
 	void June_HyperModeBuffEffectStart();					/// June 32994750 ( vslot 0xc4 )
 	void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ = false );	/// June 32997c60
 	void June_ClearThousandStar();							/// June 329a2910
 	void June_InitComponent();								/// June 329c47e0 ( vslot 0x3c )
-	void June_UpdateEveRecoveryTooltip();					/// June 329c3da0
+	void UpdateEveRecoveryTooltip();					/// June 329c3da0
 	void June_ReInit( bool bRandom = false, int startPosIndex = -1 );	/// June 329af460 ( vslot 0x44 )
-	void June_Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
-	void June_ConstructorInit();							/// June 3299bd70
+	void Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
+	void ConstructorInit();							/// June 3299bd70
 
 	/// June character port Phase CH1l: inert June_* members of Eve's overrides 0x600-0x7bc and the helpers they reach first; nothing calls them until CH1
-	void		June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
-	void		June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
+	void		SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
+	void		SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
 	void		June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	/// June 32968f20 ( vslot 0x7b8 )
 	void		June_InitEquippedActiveSkillState( bool bOnlySkillLevel_ = false );	/// June 32977390 ( vslot 0x684 )
 	void		June_InitInpuDataProcess();				/// June 32978e80 ( vslot 0x6fc )
@@ -3186,7 +3186,7 @@ protected:
 	float		June_ShownSkillCoolTime( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, JuneShownSkillCoolTime )
 	float		June_SummonCriticalBonus( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, JuneSummonCriticalBonus )
 	void		June_CallSummonedNPC( const int iNpcID_ );		/// June 3298c580 ( vslot 0x6ac = March's CallSummonedNPC )
-	void		June_Vslot77c( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
+	void		GetOwnNasodSummonList( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
 	CX2BuffFactorPtr	June_GetEnergyOfConcentrationBuffFactorClonePtr();	/// June 329b4ac0
 	void		June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ );	/// June 329b7390 ( vslot 0x7b0 )
 
@@ -3199,7 +3199,7 @@ protected:
 	void		June_CommonStateEnd();					/// June 32965e50 ( vslot 0x7dc )
 	RENDER_HINT	June_CommonRender_Prepare();			/// June 32965e70 ( vslot 0x7e8 )
 	void		June_CreateStepDust();					/// June 329694a0 ( vslot 0x7ec )
-	bool		June_IsBlock9c50ValueCPositive() const;	/// June 32976fb0
+	bool		IsBlock9c50ValueCPositive() const;	/// June 32976fb0
 
 	/// June character port Phase CH1l3: inert June_* members of Eve's skill-use overrides from vslot 0x7f4 and the helpers they reach; nothing calls them until CH1
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
@@ -3213,14 +3213,14 @@ protected:
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	bool		June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32969300 ( vslot 0x7f4, step 509 )
-	bool		June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
-	void		June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 329693e0 ( vslot 0x7fc, step 511 )
-	void		June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32981130 ( vslot 0x800, step 512 )
+	bool		SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
+	void		SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 329693e0 ( vslot 0x7fc, step 511 )
+	void		SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32981130 ( vslot 0x800, step 512 )
 	void		June_NoStateChangeActionFrameMove();	/// June 329b6810 ( vslot 0x80c )
 	bool		June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	/// June 3297c570 ( vslot 0x810 )
 	bool		June_Vslot828();						/// June 3297a6d0 ( vslot 0x828, name unsettled )
 	void		June_Vslot860( CX2GUNPC* pNPC_ );		/// June 32976f30 ( vslot 0x860, JuneSummonedNPCInfo )
-	bool		June_IsPhotonBlinkSkill( const int iSkillID_ ) const;	/// June 32968db0
+	bool		IsPhotonBlinkSkill( const int iSkillID_ ) const;	/// June 32968db0
 	bool		June_CanUseChargingBooster( CX2SkillTree::SKILL_TYPE eSkillType_, const IN CX2UserSkillTree& cUserSkillTree_ );	/// June 32972480
 	void		June_UseChargingBooster( CX2UserSkillTree& cUserSkillTree_ );	/// June 3297a800
 	const CX2UserSkillTree::SkillSlotData*	June_GetSkillSlotDataMegaElectronBall( IN const CX2UserSkillTree& cUserSkillTree_, OUT int& iSkillSlotIndexPressed_ );	/// June 3299f390
@@ -3247,40 +3247,40 @@ protected:
 
 	void		June_OnFrameMove_EndElCrystalSystem();	/// June 329986e0
 	void		June_EndElCrystalSystem( bool bEnergeticHeartEnd_ );	/// June 32994a10
-	int			June_FindOberonGuardNpcUid();			/// June 3299ad60
-	void		June_StartOberonGuardEffect( const int iNpcUid_ );	/// June 329ae6e0
-	void		June_OberonGuardFrameMove();			/// June 329ae9a0
-	void		June_FrameMoveNpcEffectSets();			/// June 3299b000
-	int			June_GetQueensControlCount();			/// June 3299b440
-	void		June_UpdateQueensControlStack();		/// June 3299b790
-	static void	June_ShowParticleByInvisibility( CX2GUEve* pGUEve_, CKTDGParticleSystem::CParticleEventSequence* pSeq_ );	/// June 32979350
-	void		June_ApplyInvisibilityToMeshInstance( CX2GUEve* pGUEve_, CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// June 32975ac0
-	void		June_PlaySoundInMoveStates( const wstring& wstrSoundName_ );	/// June 3297a500
-	void		June_ApplyCodeRecoveryIgnoreDefence( CX2DamageEffect::CEffect* pChild_ );	/// June 32968c50
-	void		June_ApplyProjectileModifiers( CX2DamageEffect::CEffect* pChild_ );	/// June 3297bad0
-	void		June_ApplyInheritCriticalRate( CX2DamageEffect::CEffect* pEffect_ );	/// June 3297b720
-	void		June_UpdateDashXTargetUnit();			/// June 3297b370
+	int			FindOberonGuardNpcUid();			/// June 3299ad60
+	void		StartOberonGuardEffect( const int iNpcUid_ );	/// June 329ae6e0
+	void		OberonGuardFrameMove();			/// June 329ae9a0
+	void		FrameMoveNpcEffectSets();			/// June 3299b000
+	int			GetQueensControlCount();			/// June 3299b440
+	void		UpdateQueensControlStack();		/// June 3299b790
+	static void	ShowParticleByInvisibility( CX2GUEve* pGUEve_, CKTDGParticleSystem::CParticleEventSequence* pSeq_ );	/// June 32979350
+	void		ApplyInvisibilityToMeshInstance( CX2GUEve* pGUEve_, CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// June 32975ac0
+	void		PlaySoundInMoveStates( const wstring& wstrSoundName_ );	/// June 3297a500
+	void		ApplyCodeRecoveryIgnoreDefence( CX2DamageEffect::CEffect* pChild_ );	/// June 32968c50
+	void		ApplyProjectileModifiers( CX2DamageEffect::CEffect* pChild_ );	/// June 3297bad0
+	void		ApplyInheritCriticalRate( CX2DamageEffect::CEffect* pEffect_ );	/// June 3297b720
+	void		UpdateDashXTargetUnit();			/// June 3297b370
 	void		June_ChangePlaneForamtionSystem( const PlaneFormationType ePlaneFormatinoSystem_ );	/// June 329a7d00
-	void		June_UpdateBlock9c50Timer();			/// June 329b4a60
+	void		UpdateBlock9c50Timer();			/// June 329b4a60
 	void		June_DoFrameMoveThousandStar();			/// June 329b2f60
 	void		June_CommonFrameMove();					/// June 329c5bc0 ( vslot 0x7cc )
 	void		June_EntireAttackThousandStar();		/// June 329a3040
 	void		June_AttackThousandStar();				/// June 329a3760
-	void		June_SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ );
-	void		June_AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ );
-	static void	June_AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ );	/// the first lines of June's 329c12a0 cases
+	void		SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ );
+	void		AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ );
+	static void	AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ );	/// the first lines of June's 329c12a0 cases
 
 	/// June character port Phase CH1m: June's state registration; InitState calls June_InitState only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	void		June_InitStateCommon();					/// June 329b8030
 	void		June_InitState();						/// June 329ba9c0 ( vslot 0x7a4 )
 
 	/// June character port Phase CH1n: the skill-slot head; SetEquippedSkillFuncBySkillSlotIndex calls it only under SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
-	bool		June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 329c8a00 up to its skill switch
-	void		June_SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
+	bool		SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 329c8a00 up to its skill switch
+	void		SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	/// June character port Phase CH2a: Eve's Nasod skill states; the registration cases are in June_SetEquippedSkillFuncHead
-	float		June_GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910 ( CX2GUUser )
-	void		June_EveSpecialActiveSkillEventProcess();		/// June 3296f0e0
+	float		GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910 ( CX2GUUser )
+	void		EveSpecialActiveSkillEventProcess();		/// June 3296f0e0
 	void		June_ENSI_SI2_ILLUSION_STINGER_Init();			/// June 329663c0
 	void		June_ENSI_SI1_DIMENSION_LINK_FrameMove();		/// June 32989b60
 	void		June_ENSI_SI3_DIMENSION_LINK_GUARDIAN_Init();	/// June 329665b0
@@ -3299,26 +3299,26 @@ protected:
 	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_Init();	/// June 32967d10
 	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_FrameMove();	/// June 329a99a0
 	void		June_ENSI_SA_EAT_Heavens_Fist_Sweeper_EventProcess();	/// June 32974bb0
-	void		June_ENSI_A_EAT_FAENA_Init();					/// June 32968da0
-	void		June_ENSI_A_EAT_FAENA_FrameMove();				/// June 329c4380
-	void		June_ENSI_A_EAT_OBERON_GUARD_Start();			/// June 329700a0
+	void		ENSI_A_EAT_FAENA_Init();					/// June 32968da0
+	void		ENSI_A_EAT_FAENA_FrameMove();				/// June 329c4380
+	void		ENSI_A_EAT_OBERON_GUARD_Start();			/// June 329700a0
 	void		June_ENSI_A_EAT_OBERON_GUARD_FrameMove();		/// June 329b2e10
-	void		June_SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
+	void		SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
 	void		June_ENSI_SI1_AT_SURFACE_CUTING_FrameMove();	/// June 3299d390
 	/// June character port Phase CH2c: Electra's skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_Start();		/// June 329b7370
 	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_FrameMove();	/// June 329a5d80
 	void		June_ENSI_A_EPR_SPECTRO_EL_CRYSTAL_EventProcess();	/// June 329733b0
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( const bool bUpgrade_ );
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMove() { June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( false ); }					/// June 329a5ee0
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_FrameMove() { June_ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( true ); }			/// June 329a67b0
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( const bool bUpgrade_ );
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcess() { June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( false ); }			/// June 3297d3f0
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_EventProcess() { June_ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( true ); }	/// June 3297d730
+	void		ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( const bool bUpgrade_ );
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMove() { ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( false ); }					/// June 329a5ee0
+	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_FrameMove() { ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( true ); }			/// June 329a67b0
+	void		ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( const bool bUpgrade_ );
+	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcess() { ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( false ); }			/// June 3297d3f0
+	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_EventProcess() { ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( true ); }	/// June 3297d730
 	void		June_ENSI_SA_EPR_PARTICLE_RAY_End();				/// June 329936e0
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_StartFuture();	/// June 32967560
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_Start();		/// June 32973670
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_End();		/// June 32993700
+	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_StartFuture();	/// June 32967560
+	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_Start();		/// June 32973670
+	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_End();		/// June 32993700
 	void		June_ENSI_SA_EPR_PHOTON_FLARE_FrameMove();		/// June 32993730
 	void		June_ENSI_A_EBS_Kugelblitz_FrameMove();			/// June 329aa730
 	/// June character port Phase CH2c2: Sweep Rolling and Giga Stream ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
@@ -3336,9 +3336,9 @@ protected:
 	void		June_ENSI_SI3_EG_QUEENS_THRONE_Init();			/// June 32966890
 	void		June_ENSI_SI3_EG_QUEENS_THRONE_FrameMove();		/// June 3299d3f0
 	void		June_ENSI_A_EEG_METAL_DUST_AURA_FrameMove();	/// June 3296fda0 / 3296ff50
-	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( const bool bHyper_ );
-	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMove() { June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( false ); }			/// June 3298f220
-	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_Hyper_FrameMove() { June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( true ); }	/// June 3298f8f0
+	void		ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( const bool bHyper_ );
+	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMove() { ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( false ); }			/// June 3298f220
+	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_Hyper_FrameMove() { ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( true ); }	/// June 3298f8f0
 	/// June character port Phase CH3a: Code: Nemesis skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		June_ENSI_SA_EEG_IRONSCRAPS_Init();					/// June 329669b0
 	void		June_ENSI_A_EEG_JUNK_BREAK_Init();					/// June 32966cf0
@@ -3350,40 +3350,40 @@ protected:
 	void		June_ENSI_SA_EEG_ATOMIC_SHIELD_FrameMove();			/// June 329903e0
 	void		June_ENSI_SA_ENS_Assualt_Spear_Init();				/// June 32967e30
 	void		June_ENSI_SA_ENS_Assualt_Spear_EventProcess();		/// June 32974db0 / 32976a10
-	void		June_ENSI_A_ECN_TESLA_SHOCK_Init();					/// June 32968810
-	void		June_ENSI_SA_ECN_PSYKER_KINESIS_Init();				/// June 32968ab0
-	void		June_ENSI_SA_ECN_PSYKER_KINESIS_FrameMove();		/// June 3299a670
-	void		June_ReleasePsykerKinesis();						/// June 329aea60
-	D3DXVECTOR3	June_GetEffectBonePos( CX2DamageEffect::CEffect* pEffect_, const WCHAR* pwszBoneName_ );	/// June 329cc200
-	void		June_PsykerKinesisCooldown();						/// June 32976fe0
+	void		ENSI_A_ECN_TESLA_SHOCK_Init();					/// June 32968810
+	void		ENSI_SA_ECN_PSYKER_KINESIS_Init();				/// June 32968ab0
+	void		ENSI_SA_ECN_PSYKER_KINESIS_FrameMove();		/// June 3299a670
+	void		ReleasePsykerKinesis();						/// June 329aea60
+	D3DXVECTOR3	GetEffectBonePos( CX2DamageEffect::CEffect* pEffect_, const WCHAR* pwszBoneName_ );	/// June 329cc200
+	void		PsykerKinesisCooldown();						/// June 32976fe0
 	/// June character port Phase CH3b: Code: Empress skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_Init();					/// June 329666a0
 	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_Start();					/// June 3298c900
 	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_FrameMove();				/// June 3298cc60
 	void		June_ENSI_SI3_AT_GENOCIDE_RIPPER_HYPER_FrameMove();			/// June 3298ce20
-	void		June_ENSI_SA_EAT_SPACE_WRENCH_Init();						/// June 32966b00
+	void		ENSI_SA_EAT_SPACE_WRENCH_Init();						/// June 32966b00
 	void		June_ENSI_SA_EAT_SPACE_WRENCH_FrameMove();					/// June 3298d090 / 3298d2f0
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_Init();						/// June 32967250
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_StartFuture();				/// June 32978280
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_EndFuture();					/// June 32978320
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_FrameMove();					/// June 32990060
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_HYPER_FrameMove();			/// June 32990220
-	void		June_ENSI_SA_EPP_ASSUALT_SPEAR_EventProcess();				/// June 32972540 / 32972670
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_Init();						/// June 32967250
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_StartFuture();				/// June 32978280
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_EndFuture();					/// June 32978320
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_FrameMove();					/// June 32990060
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_HYPER_FrameMove();			/// June 32990220
+	void		ENSI_SA_EPP_ASSUALT_SPEAR_EventProcess();				/// June 32972540 / 32972670
 	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_Init();					/// June 32967110
 	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_FrameMove();				/// June 3299ecb0
 	void		June_ENSI_SA_EEP_ELECTRONIC_FIELD_EventProcess();			/// June 329721e0
-	void		June_SummonElectronicField( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299ba70
+	void		SummonElectronicField( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299ba70
 	void		June_ENSI_A_EEP_SPIT_FIRE_Init();							/// June 32967190 / 329671e0
-	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( const bool bHyper_ );
-	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMove() { June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( false ); }			/// June 3299ed30
-	void		June_ENSI_A_EEP_SPIT_FIRE_Hyper_FrameMove() { June_ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( true ); }	/// June 3299f060
+	void		ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( const bool bHyper_ );
+	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMove() { ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( false ); }			/// June 3299ed30
+	void		June_ENSI_A_EEP_SPIT_FIRE_Hyper_FrameMove() { ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( true ); }	/// June 3299f060
 	void		June_ENSI_A_EEP_SPIT_FIRE_EventProcess();					/// June 329722c0 / 329723a0
-	void		June_ENSI_A_ECE_TESLA_SHOCK_Start();						/// June 3299a140
-	void		June_ENSI_SA_EEP_TESLA_FLARE_FrameMove();					/// June 3299a400
-	void		June_ENSI_A_EEP_SUMMON_TO_MIND_FrameMove();					/// June 329ae470
-	void		June_ENSI_SA_ECE_REASON_PRIDE_Init();						/// June 32968970
-	void		June_ENSI_SA_ECE_REASON_PRIDE_FrameMove();					/// June 329ae4f0
-	void		June_ENSI_SA_ECE_REASON_PRIDE_EventProcess();				/// June 32976e10
+	void		ENSI_A_ECE_TESLA_SHOCK_Start();						/// June 3299a140
+	void		ENSI_SA_EEP_TESLA_FLARE_FrameMove();					/// June 3299a400
+	void		ENSI_A_EEP_SUMMON_TO_MIND_FrameMove();					/// June 329ae470
+	void		ENSI_SA_ECE_REASON_PRIDE_Init();						/// June 32968970
+	void		ENSI_SA_ECE_REASON_PRIDE_FrameMove();					/// June 329ae4f0
+	void		ENSI_SA_ECE_REASON_PRIDE_EventProcess();				/// June 32976e10
 	/// June character port Phase CH3c: Code: Battle Seraph skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		June_CreateThousandStar();									/// June 329a2b70
 	void		June_ENSI_SA_EPR_THOUSANDS_OF_STARS_FrameMove();			/// June 329a6fe0
@@ -3395,19 +3395,19 @@ protected:
 	void		June_ENSI_A_EBS_TASER_PILUM_FrameMove();					/// June 329a7f70
 	void		June_ENSI_SA_EEL_LINEAR_DIVIDER_FrameMove();				/// June 329aafc0
 	void		June_ENSI_SA_EEL_LINEAR_DIVIDER_EventProcess();				/// June 3297eae0
-	void		June_ENSI_A_ECB_TESLA_SHOCK_Init();							/// June 329688b0
-	void		June_ENSI_A_ECB_TESLA_SHOCK_Start();						/// June 329688e0
-	void		June_ENSI_A_ECB_TESLA_SHOCK_FrameMove();					/// June 329ae0c0
-	void		June_ENSI_A_ECB_TESLA_SHOCK_EventProcess();					/// June 3297efc0
-	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_Init();					/// June 32968b20
-	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_FrameMove();				/// June 3299a9d0
+	void		ENSI_A_ECB_TESLA_SHOCK_Init();							/// June 329688b0
+	void		ENSI_A_ECB_TESLA_SHOCK_Start();						/// June 329688e0
+	void		ENSI_A_ECB_TESLA_SHOCK_FrameMove();					/// June 329ae0c0
+	void		ENSI_A_ECB_TESLA_SHOCK_EventProcess();					/// June 3297efc0
+	void		ENSI_SA_ECB_EXTREME_VIRTUAL_Init();					/// June 32968b20
+	void		ENSI_SA_ECB_EXTREME_VIRTUAL_FrameMove();				/// June 3299a9d0
 	/// June character port Phase CH3d: hyper actives and the transcendence-memo states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
-	void		June_ENSI_A_EN_ILLUSION_RAY_Init();							/// June 329679d0
-	void		June_ENSI_A_EN_ILLUSION_RAY_FrameMove();					/// June 329a9290
-	void		June_ENSI_A_EN_ILLUSION_RAY_End();							/// June 32997100
-	void		June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_Init();			/// June 32967ae0
-	void		June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_FrameMove();	/// June 32997350
-	void		June_ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove();				/// June 329a9df0
+	void		ENSI_A_EN_ILLUSION_RAY_Init();							/// June 329679d0
+	void		ENSI_A_EN_ILLUSION_RAY_FrameMove();					/// June 329a9290
+	void		ENSI_A_EN_ILLUSION_RAY_End();							/// June 32997100
+	void		ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_Init();			/// June 32967ae0
+	void		ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_FrameMove();	/// June 32997350
+	void		ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove();				/// June 329a9df0
 	void		June_ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove();		/// June 32997940
 	void		June_ENSI_HA_EBS_PSYCHIC_ARTILLERY_FrameMove();				/// June 329abb90
 	virtual bool ResponseEmergency();											/// June 31e4d140: Ferdinand's owner check
