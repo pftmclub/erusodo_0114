@@ -5280,6 +5280,15 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( same flag as CH2a-CH3b ); no debug fl
 - **Kept as June has it:** the Tesla Shock Fusion and normal arms are the same call; Taser Pilum's power rate is the larger of the charged value and `GetPowerRate()` ( so an uncharged shot never drops below 1.0 ); the Taser Pilum new effect is not null-tested by June ( JUNE_BUGS 461; the port tests it ).
 - **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( the ids fall back to March's cases ).
 
+### June Eve: hyper actives, transcendence-memo states, Eve on the transcendence list (char-eve CH3d, 2026-10-28)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL` ( states, Ferdinand's two Lua methods ) and `SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND` ( allow-list, pictures ). Plan `JUNE_CHARACTER_EVE_PHASES.md` "CH3d - Done"; log lines `[JUNE_CHAR] EVE SKILL registered <table>`, `[JUNE_TRANSCEND] IMAGE`.
+- **Client.** 8 new `June_*` state members ( Illusion Ray Init / FrameMove / End, Hornet Sting Shaped Charge Init / FrameMove, Spit Fire Grenade FrameMove, Link Overcharge FrameMove, Psychic Artillery FrameMove ); the other 15 of the 23 functions are March's bodies. `June_SetEquippedSkillFuncHead` repoints them and gets the Illusion Ray case ( `RNSI_A_EEL_ILLUSION_RAY` 25210 / 25220, names under `JUNE_ENUM_NAMES`; the ids are not in the skill tree, so it never runs ). Lua `GetSummonAllyNpcForceTargetUnit` ( `32757ea0`, new ally-AI force-target members ) and `ResponseEmergency` ( `31e4d140` ) are bound, so Ferdinand's script runs.
+- **What changes in game.** Link Overcharge summons Ferdinand with the buff at the skill level and no life-time / cool-time bookkeeping ( the NPC owns its life, CH3a2 ); Psychic Artillery uses June's giga plane and laser copies; the Hornet / Illusion Ray / Spit Grenade memo states only run if a memo skill id enters the tree.
+- **Offline / data.** `JuneTranscendCheck` accepts Nemesis, Empress and Battle Seraph ( 1726 for the rest ); `LevelUpEvent.lua` event 6 gets TYPE1 ( Eve's classes, `DLG_Transcendental_Change_Guide_Eve.lua` ); transcended pictures `TR_C_NEMESIS / TR_C_EMPRESS / TR_B_SERAPH` for 50by50, 20by20, gauge, party and the unit slot ( no 160by160 pair in June's files ).
+- **Damage.** No number changes ( all numerical tables were CH2-CH3c ).
+- **Revert.** Undefine `SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND` and / or `..._EVE_SKILL`; restore `LevelUpEvent.lua` from the scratchpad copy or delete its TYPE1 block and `luasrc.py refresh data036 LevelUpEvent.lua`.
+
 ### June quest system: the batch quest ACK and the IsForbiddenQuest guard (quest-system Q11, 2026-10-28)
 
 Flags `SERV_IRUHADEV_JUNE_QUEST_BATCH_ACK` and `SERV_IRUHADEV_JUNE_QUEST_FORBIDDEN_GUARD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q11 - Done"; log tag `[JUNE_QUEST] BATCH` / `CRASH`.

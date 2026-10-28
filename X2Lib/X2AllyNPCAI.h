@@ -157,6 +157,12 @@ private:
 	CX2GameUnitoPtr				m_optrAllyGameUnit;
 	UidType						m_AllyUnitUID;	
 	CX2GameUnit::GAME_UNIT_TYPE	m_eAllyUnitType;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+public:
+	UidType						m_uiJuneForceTargetUID;		/// June ally AI +0x158: the owner's summon target ( set by 31fd05c0, cleared by 32011960 ); -1 = none
+	CX2GameUnit::GAME_UNIT_TYPE	m_eJuneForceTargetType;		/// June ally AI +0x160
+private:
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 
 	AllyData		m_AllyData;

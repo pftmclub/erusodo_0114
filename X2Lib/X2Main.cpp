@@ -4954,6 +4954,10 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	lua_tinker::class_def<CX2GUUser>( L, "SetShowHpSmallGage",			&CX2GUUser::SetShowHpSmallGage );	/// Atlas E7: June 31e4d150 (bound @31e14d42)
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+	lua_tinker::class_def<CX2GUNPC>( L, "GetSummonAllyNpcForceTargetUnit",	&CX2GUNPC::GetSummonAllyNpcForceTargetUnit );	/// June 32757ea0 (bound @31df803d)
+	lua_tinker::class_def<CX2GUUser>( L, "ResponseEmergency",				&CX2GUUser::ResponseEmergency );				/// June 31e4d140 (bound @31e138fb)
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 //{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
 #ifdef SERV_IRUHADEV_JUNE_USER_UNIT_TYPE
 	lua_tinker::class_def<CX2GUUser>( L, "GetUnitType",					&CX2GUUser::GetUnitType );				/// June 31e4d0e0 (bound @31e13a93)

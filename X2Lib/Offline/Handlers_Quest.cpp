@@ -1416,8 +1416,14 @@ int CX2OfflineServer::JuneTranscendCheck( const KOfflineUnitRow& kRow ) const
 	if( kRow.m_iUnitClass < 100 || kRow.m_iUnitClass > 199 || kRow.m_iLevel < 70 )
 		return s_iJuneErrTranscendLevel;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
+	if( CX2Unit::UC_ARME_ELEMENTAL_MASTER != kRow.m_iUnitClass && CX2Unit::UC_ARME_VOID_PRINCESS != kRow.m_iUnitClass && CX2Unit::UC_ARME_DIMENSION_WITCH != kRow.m_iUnitClass
+		&& CX2Unit::UC_EVE_CODE_NEMESIS != kRow.m_iUnitClass && CX2Unit::UC_EVE_CODE_EMPRESS != kRow.m_iUnitClass && CX2Unit::UC_EVE_BATTLE_SERAPH != kRow.m_iUnitClass )
+		return s_iJuneErrTranscendCannot;
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	if( 104 != kRow.m_iUnitClass && 105 != kRow.m_iUnitClass && 113 != kRow.m_iUnitClass )
 		return s_iJuneErrTranscendCannot;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 
 	return NetError::NET_OK;
 }

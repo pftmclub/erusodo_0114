@@ -30852,6 +30852,27 @@ bool CX2GUNPC::IsRightTarget_LUA(CX2GUNPC *pStartNpc, D3DXVECTOR3 pos)
 	//return 1.f;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+/// June 32757ea0 ( Lua-bound ): an ally summon's AI holds the owner's summon target as a UID and a unit type; 32294460 finds it in the game's unit list
+CX2GameUnit* CX2GUNPC::GetSummonAllyNpcForceTargetUnit()
+{
+	if( NULL == m_pAI || CX2NPCAI::NAT_ALLY != m_pAI->GetAIType() )
+		return NULL;
+
+	const CX2AllyNPCAI* pAllyAI = static_cast<const CX2AllyNPCAI*>( m_pAI );
+	if( pAllyAI->m_uiJuneForceTargetUID < 0 || NULL == g_pX2Game )
+		return NULL;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pGameUnit = g_pX2Game->GetUnit( i );
+		if( NULL != pGameUnit && pGameUnit->GetUnitUID() == pAllyAI->m_uiJuneForceTargetUID && pGameUnit->GetGameUnitType() == pAllyAI->m_eJuneForceTargetType )
+			return pGameUnit;
+	}
+
+	return NULL;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 /// June 31e8d610
 void CX2GUNPC::SetMultiplyPowerRate_LUA( float fRate_ )

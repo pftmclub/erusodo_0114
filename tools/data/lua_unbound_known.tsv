@@ -1,5 +1,3 @@
 # name	phase	reason  (an unbound Lua method a phase knowingly left absent; tools/luabind.py skips it)
-GetSummonAllyNpcForceTargetUnit	char-eve CH3d	June CX2GUNPC binding, unmapped: SI_HA_FERDINAND lines 442-555 (Ferdinand target); found by CH2b3 luabind
-ResponseEmergency	char-eve CH3d	June CX2GUUser binding, unmapped: SI_HA_FERDINAND 976 / SI_HA_APOCALYPSE 817; found by CH2b3 luabind
-GetEffectSetInstance	char-eve CH3d	June CX2EffectSet binding, unmapped: SI_HA_APOCALYPSE 445 / 488; found by CH2b3 luabind
-SetLocalRotateDegree	char-eve CH3d	June effect-set instance binding, unmapped: SI_HA_APOCALYPSE 453 / 496; found by CH2b3 luabind
+GetEffectSetInstance	add port (Stage 8)	June CX2EffectSet binding 321d97c0 (bound @31e17d9e): SI_HA_APOCALYPSE 445 / 488; Apocalypse is Add's summon (created at 329f5430 in CX2GUAdd), not Eve's; routed by char-eve CH3d
+SetLocalRotateDegree	add port (Stage 8)	June CX2EffectSet instance binding 31e4c520 (bound @31e17fa5): SI_HA_APOCALYPSE 453 / 496; Add's summon, routed by char-eve CH3d

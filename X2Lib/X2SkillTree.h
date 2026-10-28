@@ -1786,6 +1786,8 @@ public:
 		RNSI_HA_ECB_PSYCHIC_ARTILLERRY                        = 25602,
 		RNSI_HA_ECN_LUNATIC_SCUD_UPGRADE                      = 25603,
 		RNSI_HA_ECB_PSYCHIC_ARTILLERRY_UPGRADE                = 25605,
+		RNSI_A_EEL_ILLUSION_RAY                               = 25210,
+		RNSI_A_EEL_ILLUSION_RAY_UPGRADE                       = 25220,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)

@@ -3002,6 +3002,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case 104:	pwszPrefix = L"E_MASTER";	break;
 	case 105:	pwszPrefix = L"V_PRINCESS";	break;
 	case 113:	pwszPrefix = L"D_WITCH";	break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
+	case CX2Unit::UC_EVE_CODE_NEMESIS:	pwszPrefix = L"C_NEMESIS";	break;
+	case CX2Unit::UC_EVE_CODE_EMPRESS:	pwszPrefix = L"C_EMPRESS";	break;
+	case CX2Unit::UC_EVE_BATTLE_SERAPH:	pwszPrefix = L"B_SERAPH";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
 
@@ -3012,8 +3017,18 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	switch( eImageType )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
+	case CIT_160by160:
+	case CIT_160by160Gray:
+		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass )
+			return true;	/// June's TR texture files carry no large piece for Eve's classes
+		pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture98_NEW.tga" : L"DLG_UI_Common_Texture98_GRAY.tga";
+		pwszSuffix = ( CIT_160by160 == eImageType ) ? L"_LARGE" : L"_LARGE_GRAY";
+		break;
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	case CIT_160by160:		pwszFile = L"DLG_UI_Common_Texture98_NEW.tga";		pwszSuffix = L"_LARGE";		break;
 	case CIT_160by160Gray:	pwszFile = L"DLG_UI_Common_Texture98_GRAY.tga";		pwszSuffix = L"_LARGE_GRAY";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	case CIT_50by50:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_MEDIUM";	break;
 	case CIT_20by20:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_ICON";		break;
 	case CIT_MyGage:		pwszFile = L"DLG_UI_Common_Texture97_NEW.tga";		pwszSuffix = L"_STATE";		break;

@@ -5596,3 +5596,28 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 3297e150	CX2GUEve::ENSI_A_EBS_TASER_PILUM_EventProcess	= March	Char Eve CH3c ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): plane angle keys below 0.4 s; 0.36 gravity on; anim end -> JUMP_DOWN / WAIT
 32997920	CX2GUEve::ENSI_SA_EEL_LINEAR_DIVIDER_End	= March	Char Eve CH3c ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): CommonStateEnd; DeleteLaserFromSystem ( 32991940 = June_DeleteLaserFromSystem )
 329c8a00 (CH3c)	CX2GUEve::June_SetEquippedSkillFuncHead cases	PORTED	Char Eve CH3c ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 25026 / 25066, 25027 / 25067 ( memo 25034 / 25071 repointed ), 25028 / 25068 ( memo 25035 / 25036 / 25072 / 25073 repointed ), 25029 / 25069, 25047, 25048, 25211 / 25232, 25212 / 25233, 25223 ( states 239-241 copy 219-221 ), 25237; hyper tables as ch0_skill.tsv
+329679d0	CX2GUEve::June_ENSI_A_EN_ILLUSION_RAY_Init	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): March's 5 preloads + eve_induction_beam.X, eve_particleRay_laser.X, eve_thousandsOfStars_gearLight.dds, eve_particleRay_end_circle_Red.dds
+32967a50	CX2GUEve::ENSI_A_EN_Illusion_Ray_Start	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): CommonStateStart; m_fPlaneZAngle = 0
+32967a70	CX2GUEve::ENSI_A_EN_Illusion_Ray_StartFuture	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): CommonStateStartFuture; m_bApplyMotionOffset = 0
+32974220	CX2GUEve::ENSI_A_EN_Illusion_Ray_FrameMoveFuture	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 0.01 s: nowSpeed.x = 0; CommonFrameMoveFuture
+3297e430	CX2GUEve::ENSI_A_EN_Illusion_Ray_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): plane angle keys below 0.4 s (UAI 14 / 15), anim end, cancels SKILL / BWALK / WALK / DASH
+329a9290	CX2GUEve::June_ENSI_A_EN_ILLUSION_RAY_FrameMove	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): March's body on June_CreatePlane / June_AddLaserToSystem; memo branch (31fca9e0 stub) off
+32997100	CX2GUEve::June_ENSI_A_EN_ILLUSION_RAY_End	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): CommonStateEnd + 32991940 (= March's DeleteLaserFromSystem; the twin is kept)
+32967ae0	CX2GUEve::June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_Init	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 7 preloads (March 3)
+32974470	CX2GUEve::ENSI_SA_EEG_Hornet_Sting_Shaped_Charge_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end, cancels WALK / SKILL / DASH
+32997350	CX2GUEve::June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_FrameMove	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): cut-in 3297b840, cannon mesh 0.06 s and 3 bursts 0.47 s with 4 alpha tags (32296ee0 / 32296d60); memo bonus stub off
+32967f00	CX2GUEve::ENSI_A_EEP_Spit_Fire_Grenade_Init	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 5 preloads
+32974fb0	CX2GUEve::ENSI_A_EEP_Spit_Fire_Grenade_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end, cancels WALK / SKILL / DASH
+329a9df0	CX2GUEve::June_ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 0.1 s: 5 effect sets (Grenade, _1.._4) x GetPowerRate x summon stat; SA_SIZE_ABS (0x52) of the state skill as modifier tag 15 when >= 0
+32967ff0	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_Init	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): CHARGING BOOSTER.X + 2 textures
+32968020	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_Start	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): tail jump to CommonStateStart
+32975320	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end -> JUMP_DOWN / WAIT; CommonEventProcess
+32997940	CX2GUEve::June_ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 0.8 s: buff BFI 438 at the skill level (322a6960), Ferdinand NPC 1454 300 in front via CreateNPCReq gated by IsMyUnit, UpdateSkillSlotUI; no life-time / cool-time fields
+32997bc0	CX2GUEve::ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_End	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): IsMyUnit: UpdateSkillSlotUI; CommonStateEnd
+32968030	CX2GUEve::ENSI_HA_ENS_LUNATIC_SCUD_Init	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 47 preloads
+32975360	CX2GUEve::ENSI_HA_ENS_LUNATIC_SCUD_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end -> JUMP_DOWN / WAIT; CommonEventProcess
+32968270	CX2GUEve::ENSI_HA_EBS_PSYCHIC_ARTILLERY_Init	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): 22 preloads
+329abb90	CX2GUEve::June_ENSI_HA_EBS_PSYCHIC_ARTILLERY_FrameMove	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): March's body on June_CreateGigaPlane (329a1b90) and June_AddLaserToSystem (32980000)
+329753a0	CX2GUEve::ENSI_HA_EBS_PSYCHIC_ARTILLERY_EventProcess	= March	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): anim end; cancels SKILL / BWALK / WALK / DASH
+32757ea0	CX2GUNPC::GetSummonAllyNpcForceTargetUnit	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): Lua-bound; ally AI +0x158 UID / +0x160 type via 32294460 over the unit list; AI members added, no setter ported (stubs in CX2GUUser)
+31e4d140	CX2GUUser::ResponseEmergency	PORTED	Char Eve CH3d ( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ): Lua-bound; reads and clears +0x8fc2 (Eve: m_bJune8fc2, set by DamageReact)

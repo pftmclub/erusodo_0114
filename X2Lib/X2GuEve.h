@@ -3378,6 +3378,16 @@ protected:
 	void		June_ENSI_A_ECB_TESLA_SHOCK_EventProcess();					/// June 3297efc0
 	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_Init();					/// June 32968b20
 	void		June_ENSI_SA_ECB_EXTREME_VIRTUAL_FrameMove();				/// June 3299a9d0
+	/// June character port Phase CH3d: hyper actives and the transcendence-memo states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
+	void		June_ENSI_A_EN_ILLUSION_RAY_Init();							/// June 329679d0
+	void		June_ENSI_A_EN_ILLUSION_RAY_FrameMove();					/// June 329a9290
+	void		June_ENSI_A_EN_ILLUSION_RAY_End();							/// June 32997100
+	void		June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_Init();			/// June 32967ae0
+	void		June_ENSI_SA_EEG_HORNET_STING_SHAPED_CHARGE_FrameMove();	/// June 32997350
+	void		June_ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove();				/// June 329a9df0
+	void		June_ENSI_HA_EEP_LINK_OVERCHARGE_ILLUSION_FrameMove();		/// June 32997940
+	void		June_ENSI_HA_EBS_PSYCHIC_ARTILLERY_FrameMove();				/// June 329abb90
+	virtual bool ResponseEmergency();											/// June 31e4d140: Ferdinand's owner check
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides

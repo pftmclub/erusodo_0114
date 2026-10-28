@@ -2300,6 +2300,9 @@ class CX2GUNPC : public CX2GameUnit
 		double						GetNumber_LUA( int index ) { return m_NumberList[ index ]; }
 		void						SetNumber_LUA( int index, double dValue_ ) { m_NumberList[ index ] = dValue_; }
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		CX2GameUnit*				GetSummonAllyNpcForceTargetUnit();	/// June 32757ea0
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 		void						SetMultiplyPowerRate_LUA( float fRate_ );	/// June 31e8d610
 		void						ResetMultiplyPowerRate_LUA();	/// June 31e8d6a0

@@ -2137,6 +2137,9 @@ public:
 		virtual void JuneClearSummonTarget( const bool bEraseMarks_ ) {}														/// June CX2GUUser 32011960: Summon NPC Target ctor (1), dtor (0)
 		virtual void JuneSetSummonTarget( CX2GameUnit* pTarget_ ) {}															/// June CX2GUUser 31fd0590: Summon NPC Target ctor
 		virtual void JuneApplySummonTargetToSummons() {}																		/// June CX2GUUser 32011ab0: Summon NPC Target ctor
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+		virtual bool ResponseEmergency() { return false; }																		/// June CX2GUUser 31e4d140 ( Lua-bound ): reads and clears the byte +0x8fc2
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 

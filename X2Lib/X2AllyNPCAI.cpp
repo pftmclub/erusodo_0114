@@ -5,6 +5,10 @@ CX2AllyNPCAI::CX2AllyNPCAI( CX2GUNPC* pMasterNPC ) :
 CX2NPCAI( pMasterNPC, CX2NPCAI::NAT_ALLY ), 
 m_AllyUnitUID( -1 ), 
 m_eAllyUnitType( CX2GameUnit::GUT_USER ),
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+m_uiJuneForceTargetUID( -1 ),
+m_eJuneForceTargetType( CX2GameUnit::GUT_USER ),
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 m_iFinalDestLineIndex( -1 ),
 m_vFinalDest( 0, 0, 0 )
 , m_fMaxJumpRight( 0.f )

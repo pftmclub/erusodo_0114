@@ -10261,6 +10261,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-28
+// Description: June char-eve CH3d - Eve's Nemesis ( 108 ), Empress ( 109 ) and Battle Seraph ( 116 ) join T2's transcendence allow-list ( JuneTranscendCheck ) and the transcended class pictures ( T6c rows TR_C_NEMESIS / TR_C_EMPRESS / TR_B_SERAPH: 50by50, 20by20, gauge, party, unit slot; June's 160by160 table has no pair for them ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL, SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE and SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-28
 // Description: June char-eve CH3b - an effect set instance carries a position offset ( June +0x1a4 ) that class code sets ( Spit Fire's SA_DEGREE_Y row, 329cc290 ) and that SetEffectSetOffset ( 321d9820 ) adds to the effect's own POSITION_OFFSET before it offsets the position. Needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME. Revert: undefine the flag ( JUNE_EFFECTSET_POSITION_OFFSET ).
 #define SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 #if defined( SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET ) && !defined( SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME )
