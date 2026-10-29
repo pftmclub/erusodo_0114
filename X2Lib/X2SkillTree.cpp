@@ -1014,10 +1014,6 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 
 	return true;
 #else
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	/// Phase S2: June's loader (32216320). Under _DEBUG the scratch load can still run March's body (m_bJuneMarchParser) to compare the two.
-		return AddSkillTemplet_LUA();
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
 #ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );

@@ -5495,9 +5495,6 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 #else
-#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-	InitPassiveSkillState();
-#else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 
@@ -5784,7 +5781,6 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		m_fMagicStaffSize = 1.f; //pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS );
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
-#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 }
 

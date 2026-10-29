@@ -16920,7 +16920,7 @@ bool CX2GameUnit::CanApplyBuffToGameUnit() const
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 /// One "[JUNE_BUFF] first apply BBT n" line per Phase 7b identity type and session
-static void Buff7bFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
+static void LogFirstBuffBehaviorApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
 {
 	static bool s_bSeen[5] = { false, false, false, false, false };
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -17004,22 +17004,22 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 		case BBT_DETONATION_IMPOSSIBLE:
 			m_vecDetonationImpossiblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			Buff7bFirstApply( 74, "detonation impossible", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( 74, "detonation impossible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_INVINCIBLE:
 			m_vecInvinciblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			Buff7bFirstApply( 77, "invincible", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( 77, "invincible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_IGNORE_HP_DECREASE:
 			m_vecIgnoreHpDecreasePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( BBT_IGNORE_HP_DECREASE, "ignore hp decrease", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( BBT_IGNORE_HP_DECREASE, "ignore hp decrease", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( 101, "ignore hp decrease", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( 101, "ignore hp decrease", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
@@ -17027,9 +17027,9 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			m_vecDetonationImpossibleGageResetPtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( BBT_DETONATION_IMPOSSIBLE_GAGE_RESET, "detonation impossible gage reset", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( BBT_DETONATION_IMPOSSIBLE_GAGE_RESET, "detonation impossible gage reset", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( 102, "detonation impossible gage reset", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( 102, "detonation impossible gage reset", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
@@ -17037,9 +17037,9 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			m_vecAwakeImpossiblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( BBT_AWAKE_IMPOSSIBLE, "awake impossible", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( BBT_AWAKE_IMPOSSIBLE, "awake impossible", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			Buff7bFirstApply( 110, "awake impossible", BuffIdentity_ );
+			LogFirstBuffBehaviorApply( 110, "awake impossible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;

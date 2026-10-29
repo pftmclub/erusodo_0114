@@ -1176,6 +1176,27 @@ class Collapse(object):
 
 # ------------------------------------------------------------------------------------------------ report
 
+def nested_same_flag(data):
+    """Lines of `#ifdef F` inside F's own `#else`: never compiled. A merge leaves one when March's X held a dispatch
+    `#ifdef F return June_X(); #endif F` that the rename turned into a call of X itself (C3 review, 2026-10-29)."""
+    hits, st = [], []
+    for i, line in enumerate(data.split(b'\n'), 1):
+        m = DIR_RX.match(line)
+        if not m:
+            continue
+        k, arg = m.group(1), m.group(2).split()
+        flag = arg[0] if arg else b''
+        if k in (b'ifdef', b'ifndef', b'if'):
+            if k == b'ifdef' and any(s[0] == flag and s[1] for s in st):
+                hits.append((i, flag.decode('ascii', 'replace')))
+            st.append([flag if k == b'ifdef' else b'', False])
+        elif k == b'else' and st:
+            st[-1][1] = True
+        elif k == b'endif' and st:
+            st.pop()
+    return hits
+
+
 def summarize(c, rows_all_of_batch, bad, out=print):
     cnt = collections.OrderedDict()
     for r in c.rows:
@@ -1196,6 +1217,18 @@ def summarize(c, rows_all_of_batch, bad, out=print):
     out('sites reported for the phase: %d' % len(mixed))
     for r, s in mixed[:12]:
         out('  %s: %s' % (r.old, s))
+    dead = []
+    for rel, data in sorted(c.out.items()):
+        base = c.fs.base(rel) if c.fs.exists(rel) else None
+        known = collections.Counter(f for _, f in nested_same_flag(base)) if base else collections.Counter()
+        for ln, f in nested_same_flag(data):
+            if known[f] > 0:
+                known[f] -= 1
+            else:
+                dead.append('%s:%d %s' % (rel, ln, f))
+    out('dead dispatches (#ifdef F inside its own #else; delete the block by hand): %d' % len(dead))
+    for s in dead:
+        out('  ' + s)
     for rel, w in bad:
         out('FAIL %s: %s' % (rel, w))
     out('files changed: %d, checks %s' % (len(c.out), 'FAILED' if bad else 'PASS'))

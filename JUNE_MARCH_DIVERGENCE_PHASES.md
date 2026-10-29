@@ -537,6 +537,59 @@ the deletions are the removed `June_X` declarations / definitions and renamed li
 DEPLOY OK: X2_offline.exe is 25,816,576 B, dated 2026-10-29 08:27:03, md5 d0fbc7c838bc92c312431ee3c941e377, equal to X2/US_SERVICE/x2.exe (built at main 6c7726f4 + this phase's 67 code files).
 **Smoke:** none here (user, 2026-10-29: one smoke at the end of the plan); the end smoke must take Elsword and Eve or Aisha through a dungeon, B-slot skills on both.
 
+## Phase C3 - Review (Opus 5.5, high)
+
+The guards, every merge against its June address, the reach points, flag-off equivalence per flag, the smoke logs.
+
+### Done (2026-10-29, Opus 5.5; reviews `fb062a6b`, `d0b2b8f9`; fixes keep each body's flag)
+
+**Verdict: C3 passes.** Two kinds of fix landed (below); no merge or guard needed a code change.
+- **Merges against June (Ghidra / raw listing):** `CommonSpecialAttackEventProcess` 31fcadd0 (key order A S D C Skill5, T on MY unit's tree @g_pData+0x68+0x90,
+  the expand-slot test, B 5-8; every exit returns 1 as June does), `HyperModeEnd` 3201b8e0 (= 32006c00 body: vslot 0x7dc end, pending byte, 31ffda00 + vslot 0xc0,
+  +0x9544 = 0), `WinStateStart` 320004b0 / `LoseStateStart` 320007e0 (pet, +0x8625, vslot 0x11c with the result-UI time + 5, the 41470 particles), `StartEventProcess`
+  3201b390 (code event 0x85f, `StateChange( 13, 0 )`), `GenericActiveSkillEventProcess` 31fcc9d0 and `GenericSpecialActiveSkillEventProcess` 31fcc740 (not carved; raw listing:
+  `StateChange( 0x11, 0 )`, then the cancel chain behind 322731a0 / 32070cf0 / 32070d60). All seven are the June counterpart and read as that address's body.
+  The hand shapes read right: the 3-arg `GetActualMPConsume` overload (2-arg virtual = June slot 424 with true, Add's one false caller qualified), `EnchantAccumulationRateModifier`
+  one name per flag state, the third `ModifyFinalDamageByGameUnitType` virtual (Eve overrides it; Ara's 4-arg override hides it only for calls on an Ara type, none exist),
+  Eve's five forwarder bodies declared and defined under the same LIVE + feature flags, `IsNotCommonMoveState` virtual with both overrides calling `CX2GUUser::`,
+  Aisha's `HyperModeEnd` / `RidingHyperModeEnd` reached through `SET_CB_FUNC( CX2GUUser, ... )` by the virtual.
+- **Guards (`guards.tsv`, both kept as written):** the slot-index guard is needed and minimal: for a March class it returns exactly what March's own branch did (F and T
+  give no slot, B reports 4-7, an empty slot sets no index); it drops the March branch's `[JUNE_TRANSCEND] SLOT F / T pressed on a March class` log line. The Add
+  guard is needed (`CX2GUAdd::ApplyHyperModeBuff`, `X2GUAdd.cpp:9529`, never reaches `ClearHyperModeBuffPending` in `X2GameUnit.cpp:16774`) and minimal; Ara / Chung / Raven call
+  the base first, Elsword / Lire / Elesis use it, Eve and Aisha have no override.
+- **Reach points, one correction:** the Generic* pair is registered by unported classes too (`CX2GUUser, Generic*` in Elsword, Lire, Chung, Aisha 65, Eve 12). The cancel
+  members default to 9999 (`X2GUUser.cpp:1259-1262`) and are read from each state's Lua (`:17479-17482`), so an Elsword / Lire / Chung skill state whose March Lua sets
+  `SKILL_CANCEL_AFTER` / `WALK_` / `DASH_` / `BWALK_CANCEL_AFTER` now cancels as June's base does. C3's "no class state is touched" holds only for states without those keys;
+  this is June's base behaviour (rule: June removed it, so it is removed here), for the end smoke. Win / Lose now give every class the result invincibility
+  (`GetStateResultUITime()` is the 0 stand-in, so 5 s). `HyperModeEnd` now applies a pending hyper buff when an unported class leaves the hyper state before its own apply.
+- **Fixed here: dead dispatches** (`bytepatch.py`). Where March's `X` held `#ifdef F return June_X(); #endif F` (or `#ifdef F June_X(); #else <March body>`), the merge renamed the
+  call to `X` inside F's own `#else`: never compiled, but it reads as recursion. Six: `X2SkillTree.cpp` `AddSkillTemplet_LUA` (C3), Aisha `InitPassiveSkillState` (C2), Eve
+  `InitPassiveSkillState`, `GetActualMPConsume`, `SetSpecificValueByBuffTempletID`, `UnSetSpecificValueByBuffTempletID` (C1). Each `#ifdef F` / call / `#else F` and its inner
+  `#endif F` is gone; preprocessed output is unchanged in every flag state. `tools/junecollapse.py` now reports new ones after an apply (`nested_same_flag`, compared
+  with the base so the studio's own nestings are not counted); `--selftest` PASS. Four older nestings outside this plan stay (`Handlers_Unit.cpp:926`, `X2GUUser.cpp:46136`,
+  `X2TFieldNpc.cpp:1115` / `1225`).
+- **Fixed here: one name.** `Buff7bFirstApply` (buff port Phase 7b) -> `LogFirstBuffBehaviorApply` (`junecollapse.py apply` with a scratch map; map row updated).
+- **Rename audit (all 577 rows):** no `old` survives in code (169 mentions, all comments); every `new` is present; no new name overrides or collides with a base member.
+  Same-name non-virtual pairs (`DashJumpStart` family and `DamageSmall` / `DamageBig*` in `CX2GUUser` and Add / Ara / Chung / EL / Elsword / Lire / Aisha) bind as before:
+  every June caller is `SET_CB_FUNC( CX2GUUser, ... )`. The three `Handler_EGS_*` renames wait for C5's `EGS_JUNE_*` event-id rows (noted in the C5 kickoff).
+  The tool-refused names: `IsSkillSlotState` (static, `X2GUUser.cpp:16236`), `IsUnitTranscended` (`_CONST_GUUSER_CH1j_`), `ParseCommonRandomStateByUnitClass` (CX2GUUser member).
+- **Routed:** `JUNE_DI_EVENT_2017_TREASURE` (41470) is named in June's `DungeonEnum.lua:573`; its C5 row is now an `enum` row to `SEnum::DI_EVENT_2017_TREASURE`, registered
+  in `KncWX2Server/Common/Enum/DungeonEnum.h` first (C5 kickoff). `ResetLeftSkillCoolTimeAll()` (March, 0-arg) stays beside June's mode overload: June's only caller of
+  328941a0 is Eve's booster, so the 0-arg's June counterpart is not identified; nothing to do in a C phase.
+- **Hygiene, C3** (`flagcheck <FLAG> --range fb062a6b^..fb062a6b`): ARME_CORE `1 PASS, 65 OTHER, 0 FAIL, 1 ERROR` (36 deleted), EVE_CORE `1 PASS, 65 OTHER, 0 FAIL, 1 ERROR` (35),
+  ARME_LIVE `0 PASS, 66 OTHER, 0 FAIL, 1 ERROR` (13), EVE_LIVE `0 PASS, 66 OTHER, 1 FAIL, 0 ERROR` (13), ENCHANT_PARITY `1 PASS, 65 OTHER, 1 ERROR` (15), SOCKET_PARITY
+  `1 PASS, 65 OTHER, 1 ERROR` (14), SKILL_TEMPLET `0 PASS, 66 OTHER, 1 ERROR` (13), FINAL_DAMAGE_UNIT_HOOK `0 PASS, 66 OTHER, 1 FAIL` (13). Every FAIL / ERROR is
+  `KTDXLIB/Always.h` (+13 -13): the identifiers inside 13 `#error ... needs ...` message texts renamed with their functions (`HasJuneForceCinematicState` -> `HasForceCinematicState`, ...),
+  which the per-flag mode cannot evaluate in a compound `#if`; no `#define` or condition changed. All-flags (`--with` the other 455, `--base fb062a6b^ --at fb062a6b`): `1 PASS, 65 OTHER,
+  0 FAIL, 1 ERROR`, the ERROR again `Always.h`; no code file is non-PASS. Deleted lines are the removed `June_X` declarations / definitions and renamed lines.
+  `enumscan --check` (8 files): 2 A/B rows, `X2GUUser.h:2550-2551` (NUI 4342 / 4343), from `f07940fe`, not on a C3 line.
+- **Hygiene, this review** (`--worktree --files` the 4 code files): SKILL_TEMPLET `1 PASS, 3 OTHER` (4 deleted), ARME_PASSIVE `1 PASS, 3 OTHER` (4), EVE_PASSIVE `1 PASS, 3 OTHER` (16):
+  RESULT PASS each; the deletions are the dead dispatches. BUFF_DEBUG: `1 PASS, 3 OTHER`, RESULT FAIL only for "not #defined" (`Always.h:4788` keeps it commented out; the rename
+  sits in that compiled-out block). Encoding unchanged.
+- **Smoke logs:** none (user, 2026-10-29: one smoke at the end of the plan). It must take Elsword and Eve or Aisha through a dungeon with B-slot skills on both, end a
+  hyper mode early on Elsword, and finish the dungeon (result invincibility).
+- DEPLOY OK: X2_offline.exe is 25,816,576 B, dated 2026-10-29 09:03:02, md5 9d9d18bbd44a418f5e7784a7e1ddbeef, equal to X2/US_SERVICE/x2.exe (2026-10-29 09:02:50); built at main d0b2b8f9 + 4 uncommitted code file(s).
+
 ## Phase C4 - Collapse UI, data, engine, offline; class, file and Lua names (Sonnet 5.5, high)
 
 **Depends on:** C3 review. Quest (`CX2UIQuestNewJune` -> its March twin or a pattern name, file + vcxproj), skill-tree UI, result adapter,

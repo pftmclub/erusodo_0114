@@ -1448,7 +1448,7 @@ JuneApplyEnchantShockDebuff	ApplyEnchantShockDebuff	rename	X2Lib/X2GameUnit.cpp	
 JuneApplyEnchantSlowDebuff	ApplyEnchantSlowDebuff	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY	32068a41			C3	member function
 JuneApplyMultipleDamageByDebuff	ApplyMultipleDamageByDebuff	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_BUFF_BINDING	3227c940			C3	member function
 JuneBeginSoundPlayTable	BeginSoundPlayTable	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_UNIT_SOUND	32078fd0			C3	member function
-JuneBuff7bFirstApply	Buff7bFirstApply	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
+JuneBuff7bFirstApply	LogFirstBuffBehaviorApply	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
 JuneBuffNewFlagFirstRead	BuffNewFlagFirstRead	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
 JuneBuffNewStatFirstApply	BuffNewStatFirstApply	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
 JuneBuffNewStatFirstRead	BuffNewStatFirstRead	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
@@ -3075,7 +3075,7 @@ JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT	BFI_TRANSCENDENTAL_SLOT_COOLTIME_EF
 _CONST_GUUSER_JUNE_CH1l5_	_CONST_GUUSER_CH1l5_	namespace	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS				C5	namespace
 _CONST_GUUSER_JUNE_CH2B0_	_CONST_GUUSER_CH2B0_	namespace	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL				C5	namespace
 JUNE_CODE_EVENT_START_SUMMON	CODE_EVENT_START_SUMMON	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	3201b390			C5	constant
-JUNE_DI_EVENT_2017_TREASURE	DI_EVENT_2017_TREASURE	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	3201b390			C5	constant
+JUNE_DI_EVENT_2017_TREASURE	SEnum::DI_EVENT_2017_TREASURE	enum	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	3201b390		C3 review: first register DI_EVENT_2017_TREASURE = 41470 (June DungeonEnum.lua:573) in KncWX2Server/Common/Enum/DungeonEnum.h under SERV_IRUHADEV_JUNE_ENUM_NAMES	C5	constant
 JUNE_SOCKET_ID_COOLTIME_ON_HIT	SOCKET_ID_COOLTIME_ON_HIT	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT	32050009			C5	constant
 JUNE_UAI_BUFF_FACTOR_824	UAI_BUFF_FACTOR_824	rename	X2Lib/X2GUUser.cpp	_CONST_GUUSER_JUNE_CH1l5_	SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS				C5	constant
 JUNE_UAI_BUFF_FACTOR_825	UAI_BUFF_FACTOR_825	rename	X2Lib/X2GUUser.cpp	_CONST_GUUSER_JUNE_CH1l5_	SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS				C5	constant

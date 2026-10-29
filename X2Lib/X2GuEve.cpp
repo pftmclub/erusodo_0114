@@ -6082,9 +6082,6 @@ void CX2GUEve::InitPassiveSkillState()
 	if( 0 < iSkillLevel )
 		EveTryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, CX2SkillTree::RNSI_P_EEP_OPEN_MIND, true, m_fJune9c4c );
 #else
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	InitPassiveSkillState();
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 
 	// kimhc // 2009-11-27 // 패시브 스킬 초기화 시에 항등원으로 초기화
@@ -6584,7 +6581,6 @@ void CX2GUEve::InitPassiveSkillState()
 		}
 	} 
 #endif //UPGRADE_SKILL_SYSTEM_2013
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
@@ -43012,9 +43008,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 
 	return fMpConsumption;
 #else
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	return GetActualMPConsume( eSkillID_, iSkillLevel_ );
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 	switch ( eSkillID_ )
@@ -43116,7 +43109,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
@@ -43312,9 +43304,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		break;
 	}
 #else
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	SetSpecificValueByBuffTempletID( eBuffTempletId_ );
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -43367,7 +43356,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		break;
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
 /** @function : UnSetSpecificValueByBuffTempletID
@@ -43416,9 +43404,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		break;
 	}
 #else
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -43503,7 +43488,6 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 	default:
 		break;
 	}
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 }
 
