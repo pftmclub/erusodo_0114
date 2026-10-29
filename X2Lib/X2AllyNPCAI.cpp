@@ -210,7 +210,7 @@ bool CX2AllyNPCAI::RallyToAlly()
 
 #ifdef SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
 	/// June 32f10e60 @32f10f2e ( 32f0e260 ): a user ally asks its slot 0x584, any other ally lets the summon rally
-	if ( CX2GameUnit::GUT_USER == m_optrAllyGameUnit->GetGameUnitType() && false == static_cast<CX2GUUser*>( m_optrAllyGameUnit.GetObservable() )->JuneCanAllyRallyToMe( m_pMasterNPC ) )
+	if ( CX2GameUnit::GUT_USER == m_optrAllyGameUnit->GetGameUnitType() && false == static_cast<CX2GUUser*>( m_optrAllyGameUnit.GetObservable() )->CanAllyRallyToMe( m_pMasterNPC ) )
 		return false;
 
 #endif SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE

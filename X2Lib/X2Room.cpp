@@ -1674,7 +1674,7 @@ bool CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT( KEGS_CHANGE_SKILL_INFO_
 			kSlotSkillTree.SetEqipSkillMemo( kEvent_.m_UnitSkillData.m_vecSkillNote );
 			kSlotSkillTree.ClearJuneActiveMemo();
 			const std::map<int, int>& mapJuneMemo = kEvent_.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
-			kSlotSkillTree.MergeJuneActiveMemo( std::multimap<int, int>( mapJuneMemo.begin(), mapJuneMemo.end() ) );
+			kSlotSkillTree.MergeActiveMemo( std::multimap<int, int>( mapJuneMemo.begin(), mapJuneMemo.end() ) );
 			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO room unit %I64d: %d note(s), %d active memo(s) merged", kEvent_.m_iUnitUID,
 				(int)kEvent_.m_UnitSkillData.m_vecSkillNote.size(), (int)mapJuneMemo.size() );
 		}

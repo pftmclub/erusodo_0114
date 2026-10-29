@@ -3861,7 +3861,7 @@ bool CX2UIInventory::Handler_EGS_CHANGE_INVENTORY_SLOT_ACK(  HWND hWnd, UINT uMs
 				pMyUser->UpdateNotRenderingOtherEquipList();
 #endif	NOT_RENDERING_OTHER_EQUIP_POS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-				pMyUser->JuneAfterEquipSlotChange();	// June 321a2c5d ( vslot 0x654 )
+				pMyUser->AfterEquipSlotChange();	// June 321a2c5d ( vslot 0x654 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 				pMyUser->UpdateEquipCollisionData();
 
@@ -3883,7 +3883,7 @@ bool CX2UIInventory::Handler_EGS_CHANGE_INVENTORY_SLOT_ACK(  HWND hWnd, UINT uMs
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 				/// June 321a29a0 @321a2d0a: out of a game ( the default case ), 3235a160 after the pick / drop sound
 				if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-					g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+					g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 #ifdef FIX_WRONG_EQUIP

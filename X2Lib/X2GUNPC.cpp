@@ -1963,7 +1963,7 @@ CX2GUNPC::CX2GUNPC( const CNpcCreatedInfoPtr NpcCreatedInfoPtr_
 /// June buff port 16-step3b2 review: June's unit info +0xdc == 1 (see X2GUNPC.h). The grade is the battlefield spawn's
 /// (X2BattleFieldGame.cpp, ExtraNPCStat port), and June writes it only for an NPC ID with an ExtraNPCStat row. June keeps
 /// it in the shared per-ID unit info (last spawn of that ID wins); this keeps it per NPC, as the ExtraNPCStat port does.
-bool CX2GUNPC::IsJuneSocketBossGrade() const
+bool CX2GUNPC::IsSocketBossGrade() const
 {
 	if ( 1 != m_iExtraNPCStatMonsterGrade )
 		return false;
@@ -1985,7 +1985,7 @@ bool CX2GUNPC::IsJuneSocketBossGrade() const
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
 /// One ErrorLog line per event, capped at 400 lines for the whole run ( a dungeon starts thousands of sounds ).
-static void JuneNpcSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
+static void NpcSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
 {
 	static int s_iLogged = 0;
 	if( s_iLogged > 400 )
@@ -2004,7 +2004,7 @@ static void JuneNpcSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, 
 /// June 3277c2d0 ( ReInit ) / 3279fb60 ( dtor ): CKTDXDeviceSound::Stop on every non-null handle of the played-sound list ( +0x8f74 ), then clear it
 /// ( 31f8b7e0( 0 ) ). June's CommonStateEnd 3277ee10 @3277f9cb-3277fa0e stops them only when the ending state has STOP_SOUND_AT_STATE_END, and
 /// clears the list either way ( bStop_ false ). The sound devices are shared per file name, so a stop also cuts the same file on another unit.
-void CX2GUNPC::JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ )
+void CX2GUNPC::StopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ )
 {
 	int iStopped = 0;
 	if( true == bStop_ )
@@ -2021,7 +2021,7 @@ void CX2GUNPC::JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ )
 	}
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
 	if( false == m_vecJunePlayedSound.empty() )
-		JuneNpcSoundLog( ( true == bStop_ ) ? L"stop" : L"clear", pwszWhy_, ( true == bStop_ ) ? iStopped : static_cast<int>( m_vecJunePlayedSound.size() ), static_cast<int>( GetUnitUID() ) );
+		NpcSoundLog( ( true == bStop_ ) ? L"stop" : L"clear", pwszWhy_, ( true == bStop_ ) ? iStopped : static_cast<int>( m_vecJunePlayedSound.size() ), static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
 	m_vecJunePlayedSound.resize( 0 );
 }
@@ -2182,7 +2182,7 @@ CX2GUNPC::~CX2GUNPC(void)
 
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 	/// June ~CX2GUNPC 3279fb60 @327a01a3-327a0236 ( C9h-4b ): stop and clear the played-sound list, before the loop-sound lists below
-	JuneStopPlayedSounds( true, L"dtor" );
+	StopPlayedSounds( true, L"dtor" );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	m_vecSoundPlayLoop.clear();
 	for(int iSound=0; iSound<(int)m_vecLoopSound.size(); ++iSound)
@@ -2889,7 +2889,7 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 	InitState();
 	InitEtc();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	June_InitDelegateProcess();		/// June 3277c030 @3277c0d6, right after InitEtc ( vslot 0x33c )
+	InitDelegateProcess();		/// June 3277c030 @3277c0d6, right after InitEtc ( vslot 0x33c )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	SetCenter( m_pMotion->GetCenter() );
@@ -2936,7 +2936,7 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 //{{ Iruha : 2026-10-28 // June character Eve Phase CH4b
 // June 3275f0a0 ( vslot 0x340 ): the base 3226dbe0 is empty, then the attack-result list ( +0x66ac ) takes the Eve push
-void CX2GUNPC::June_InitDelegateProcess()
+void CX2GUNPC::InitDelegateProcess()
 {
 	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, EveSummonAttackResult ) );
 }
@@ -3081,7 +3081,7 @@ void CX2GUNPC::ReInit( bool bUseTeamPos, int startPosIndex )
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 	/// June ReInit 3277c2d0 ( C9h-4b ): stop and clear the played-sound list ( +0x8f74 ) first, then the loop-sound lists as March does
-	JuneStopPlayedSounds( true, L"reinit" );
+	StopPlayedSounds( true, L"reinit" );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 	m_vecSoundPlayLoop.resize( 0 );
 	for(int iSound=0; iSound<(int)m_vecLoopSound.size(); ++iSound)
@@ -6241,7 +6241,7 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
         std::vector<SoundPlayData>& vecSoundPlayData = nowStateData.m_avecSoundPlayData[ SOUND_SET_DEFUALT ];
         vecSoundPlayData.reserve( luaManager_.GetNumIndexedTables( "SOUND_PLAY" ) );
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
-	    while( JuneBeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278db12 / @3278dc0a ( C9h-4b )
+	    while( BeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278db12 / @3278dc0a ( C9h-4b )
 #else
 	    while( luaManager_.BeginTable( "SOUND_PLAY", index ) == true )
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
@@ -6333,7 +6333,7 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 			        index = 0;
                     vecSoundPlayData.reserve( luaManager_.GetNumIndexedTables( "SOUND_PLAY" ) );
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
-			        while( JuneBeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278e701 / @3278e7fa ( C9h-4b )
+			        while( BeginSoundPlayTable( luaManager_, "SOUND_PLAY", index ) == true )	/// June 32078fd0 @3278e701 / @3278e7fa ( C9h-4b )
 #else
 			        while( luaManager_.BeginTable( "SOUND_PLAY", index ) == true )
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
@@ -8964,7 +8964,7 @@ HRESULT CX2GUNPC::OnFrameMove( double fTime, float fElapsedTime )
 			m_pXSkinAnim->GetMatrix().Scale(m_vFinalScale);
 	}
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	JuneFrameMoveAlphaFade();	/// Atlas E7: June OnFrameMove 3277dfd0 @3277e60f, after the scale fade
+	FrameMoveAlphaFade();	/// Atlas E7: June OnFrameMove 3277dfd0 @3277e60f, after the scale fade
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	if(m_bUnitFade == true)
@@ -10206,7 +10206,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	/// June CX2GUNPC::DamageReact 327b1f30 @327b2be6-327b2c03 ( C3d-3 ): a hit from a unit stores that attacker's game-unit type and UID ( +0x40e8 / +0x40e0 ),
 	/// ahead of the guard test
 	if( NULL != pAttackerUnit )
-		SetJuneLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
+		SetLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
     // 가드여부 판정
@@ -10442,7 +10442,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		/// June buff port Phase 9b, CX2GUNPC::DamageReact @327b306b-327b3071: a damaging hit first records its attack
 		/// serial (DamageData +0x5e8) as this unit's last-hit serial (+0x40dc)
-		SetJuneLastHitAttackSerial( pDamageData->m_iJuneAttackSerial );
+		SetLastHitAttackSerial( pDamageData->m_iJuneAttackSerial );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef GRAPPLING_TEST
 		ResetGrapplingState();
@@ -10503,7 +10503,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	/// IsSuperArmor() != true is gone: a super-armored NPC takes the short stop ), and m_fCoolTime ( +0x864c ) = 0 on every one of its paths
 	if( pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->reActResult != CX2DamageManager::RT_NO_DAMAGE )
 	{
-		JuneDamageReactHitStop( *pDamageData );
+		DamageReactHitStop( *pDamageData );
 		m_fCoolTime = 0.0f;
 	}
 #else SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
@@ -10723,7 +10723,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef	CASH_SKILL_FOR_CHUNG_2011_04				
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June buff port 16-step3b2 item 2: June @327b375d..327b3786 (GetJuneCriticalThresholdTerm = June 32273480)
-			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate + GetJuneCriticalThresholdTerm() )
+			if( GetRandomFloat( CKTDXRandomNumbers::SRO_ATTACK_CRITICAL ) <= fCriticalRate + GetCriticalThresholdTerm() )
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			if( GetCriticalValueFromDefender() <= fCriticalRate )
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -10746,7 +10746,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// June buff port 16-step3b2 item 2: June @327b37d3..327b39cb (GetJuneCriticalDamageRate, no afflicted term on an NPC)
 				{
-					const float fCritical = GetJuneCriticalDamageRate( pDamageData->optrAttackerGameUnit.GetObservable(), pDamageData, fDefenderCriticalValue, false );
+					const float fCritical = GetCriticalDamageRate( pDamageData->optrAttackerGameUnit.GetObservable(), pDamageData, fDefenderCriticalValue, false );
 					if ( fCritical >= 1.0f )
 						fFinalDamage *= fCritical;
 				}
@@ -11135,7 +11135,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		/// June @327b47a4-327b4800, function scope, after the socket block and before the custom-function slot 6: 322cfca0 on
 		/// the game, then the attacker's vslot 0x304( damage, DD ) ( skipped for a null attacker )
 		if ( NULL != g_pX2Game )
-			g_pX2Game->JunePvpAmusementHalveDamage( pDamageData, &fFinalDamage );
+			g_pX2Game->PvpAmusementHalveDamage( pDamageData, &fFinalDamage );
 		if ( null != pDamageData->optrAttackerGameUnit )
 			pDamageData->optrAttackerGameUnit->OnDamageDoneToDefender_Slot304( fFinalDamage, pDamageData );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
@@ -11326,7 +11326,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			if( pAttackerUnit != NULL )
 			{
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-				JuneProcessThorns( pAttackerUnit, fFinalDamage );	/// Atlas E7: June 327b1f30 @327b4c9b, first thing for a known attacker
+				ProcessThorns( pAttackerUnit, fFinalDamage );	/// Atlas E7: June 327b1f30 @327b4c9b, first thing for a known attacker
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 				if( pAttackerUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 				{
@@ -12947,7 +12947,7 @@ void CX2GUNPC::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamageD
 	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
 	case CX2DamageManager::EDT_DECENT_TO_SHADOW:
 		{
-			JuneProcessSocketExtraDamage( pDamageData, extraDamageData, true );
+			ProcessSocketExtraDamage( pDamageData, extraDamageData, true );
 		} break;
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 	default:
@@ -13214,7 +13214,7 @@ void CX2GUNPC::DamageReact_Rage( CX2DamageManager::DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED	// the NOT_UP_STATE gate logs through it too ( its flag needs this one )
 // JUNE_FX C3i npc <uid> ( <script> ) RT <n>: <what> ( nowSpeed.y <y> ). Use-time proof lines for the C3i reaction gates
 // ( offline_server.log ), at most 32 per session.
-static void JuneC3iReactLog( CX2GUNPC* pNPC_, int iReActResult_, const WCHAR* pwszWhat_, float fSpeedY_ )
+static void LogForceBackSpeedReact( CX2GUNPC* pNPC_, int iReActResult_, const WCHAR* pwszWhat_, float fSpeedY_ )
 {
 	static int s_iJuneC3iReactLines = 0;
 	if ( s_iJuneC3iReactLines >= 32 )
@@ -13387,7 +13387,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 					m_PhysicParam.nowSpeed.x	-= GetWalkSpeed()/3.0f;
 				else
 					m_PhysicParam.nowSpeed.x	+= GetWalkSpeed()/3.0f;
-				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: air knock only, no state", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: air knock only, no state", m_PhysicParam.nowSpeed.y );
 				break;
 			}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13473,7 +13473,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			if( IsSuperArmor() )
 			{
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
-				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
 				break;
 			}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13552,7 +13552,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			if( IsSuperArmor() )
 			{
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
-				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
 				break;
 			}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13614,7 +13614,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 				if( true == m_bJuneNotUpState )		/// @32769b1a: NOT_UP_STATE drops the forced launch as well, so the hit does nothing
 				{
-					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+					LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
 					break;
 				}
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
@@ -13622,7 +13622,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
 				else
 					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
-				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
 				break;
 			}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13644,7 +13644,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			/// June C3i @32769b72: NOT_UP_STATE skips only the launch speed; nowSpeed.y keeps its value and m_UpDamage still starts
 			if( true == m_bJuneNotUpState )
-				JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the up state still starts", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the up state still starts", m_PhysicParam.nowSpeed.y );
 			else
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			if( m_FlyCount > 2 )
@@ -13674,7 +13674,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 				if( true == m_bJuneNotUpState )		/// @32769be9: NOT_UP_STATE drops the forced launch as well, so the hit does nothing
 				{
-					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+					LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
 					break;
 				}
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
@@ -13682,7 +13682,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
 				else
 					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
-				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
 				break;
 			}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13704,7 +13704,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			/// June C3i @32769c41: NOT_UP_STATE skips only the launch speed; nowSpeed.y keeps its value and the fly state still starts
 			if( true == m_bJuneNotUpState )
-				JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
+				LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
 			else
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			if( m_FlyCount > 2 )
@@ -13743,12 +13743,12 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 					if( true == m_bJuneNotUpState )		/// @32769cad: NOT_UP_STATE drops the forced speed as well, so the hit does nothing
 					{
-						JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+						LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
 						break;
 					}
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
-					JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+					LogForceBackSpeedReact( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
 					break;
 				}
 #else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
@@ -13770,7 +13770,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
 				/// June C3i @32769ced: NOT_UP_STATE skips only the drag-up speed; nowSpeed.y keeps its value and the fly state still starts
 				if( true == m_bJuneNotUpState )
-					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no drag-up speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
+					LogForceBackSpeedReact( this, pDamageData->reActResult, L"NOT_UP_STATE: no drag-up speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
 				else
 #endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
@@ -13921,7 +13921,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 						float fBackSpeedX = pDamageData->m_fBoundingBackSpeedX;
 						if( true == GetIsRight() )
 							fBackSpeedX = -fBackSpeedX;
-						SetJuneBoundingBackSpeed( fBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+						SetBoundingBackSpeed( fBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
 					}
 
 					iJuneBoundingState = m_JuneBoundingDown;
@@ -13939,7 +13939,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 					s_bLogged = true;
 					CX2OfflineLog::Server( L"JUNE_FX C3d-3 NPC RT_BOUNDING (first seen): npc %I64d, state %d ( down %d, landcrash %d, up %d ), back speed ( %.1f, %.1f )",
 						GetUnitUID(), iJuneBoundingState, m_JuneBoundingDown, m_JuneBoundingLandCrash, m_JuneBoundingUp,
-						GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y );
+						GetBoundingBackSpeed().x, GetBoundingBackSpeed().y );
 				}
 
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -16460,7 +16460,7 @@ void CX2GUNPC::CommonStateStart()
 		float fJuneLimitMaxGSpeed = 1.f;
 		LUA_GET_VALUE( m_LuaManager, "SET_LIMIT_MAX_G_SPEED", fJuneLimitMaxGSpeed, 1.f );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
-		SetJuneLimitMaxGSpeed( fJuneLimitMaxGSpeed );
+		SetLimitMaxGSpeed( fJuneLimitMaxGSpeed );
 		static int s_iJuneC3gNpcLines = 0;
 		if ( fJuneLimitMaxGSpeed < 0.f && s_iJuneC3gNpcLines < 32 )
 		{
@@ -17829,7 +17829,7 @@ void CX2GUNPC::CommonStateStart()
 	/// arms the game's skip-the-start list ( 322d8010 resets it first when it is empty ) and adds this NPC's UID ( +0x270 = GetUID() ).
 	/// June runs it after the force-down block ( C3f-1 item 2b ) and before the cinematic-UI store below.
 	if ( true == NOWSTATE_FLAG( DIRECTION_STATE ) && NULL != g_pX2Game )
-		g_pX2Game->JuneSkipStartArm( GetUID() );
+		g_pX2Game->SkipStartArm( GetUID() );
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af38e-327af3a4 ( C3o ): every state start sets m_bIsApplyCinematicUI ( +0x8e39 ) from the state's
@@ -17862,8 +17862,8 @@ void CX2GUNPC::CommonStateStart()
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 		const D3DXVECTOR2 vJuneC3j1Before = m_PhysicParam.nowSpeed;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
-		m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
-		m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
+		m_PhysicParam.nowSpeed.x = GetBoundingBackSpeed().x;
+		m_PhysicParam.nowSpeed.y = GetBoundingBackSpeed().y;
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 		/// JUNE_FX C3j-1 overwrite: once per NPC unit ( at most 32 ), the first time this write fires.
 		static std::set<UidType> s_setJuneC3j1Overwritten;
@@ -17903,7 +17903,7 @@ void CX2GUNPC::CommonStateStart()
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH2b4
 // June 32778b10: another live, not self-destructing ally NPC of my templet id and my owner
-bool CX2GUNPC::JuneIsAnotherSameSummonAlive()
+bool CX2GUNPC::IsAnotherSameSummonAlive()
 {
 	if( NULL == g_pX2Game || NULL == GetNPCAI() || CX2NPCAI::NAT_ALLY != GetNPCAI()->GetAIType() )
 		return false;
@@ -17935,7 +17935,7 @@ bool CX2GUNPC::JuneIsAnotherSameSummonAlive()
 }
 
 // June 327b53b0 @327bcdfd..327bcfe0: DYING_END, animation not ended: a summon with an owner drops the owner's summon buff, once
-void CX2GUNPC::JuneDropOwnerSummonBuffOnDying()
+void CX2GUNPC::DropOwnerSummonBuffOnDying()
 {
 	CX2GUUser* pOwner = static_cast<CX2GUUser*>( GetOwnerGameUnit() );
 	if( NULL == pOwner || true == GetSelfDestruction() )
@@ -17944,18 +17944,18 @@ void CX2GUNPC::JuneDropOwnerSummonBuffOnDying()
 	const int iNPCID = GetNPCTemplet().m_nNPCUnitID;
 	if( CX2UnitManager::NUI_SI_HA_FERDINAND == iNPCID || CX2UnitManager::NUI_SI_HA_APOCALYPSE == iNPCID )
 	{
-		pOwner->JuneResetOnSummonEnd( NULL != pOwner->GetUnit() ? static_cast<int>( pOwner->GetUnit()->GetClass() ) : static_cast<int>( CX2Unit::UC_NONE ) );
+		pOwner->ResetOnSummonEnd( NULL != pOwner->GetUnit() ? static_cast<int>( pOwner->GetUnit()->GetClass() ) : static_cast<int>( CX2Unit::UC_NONE ) );
 		SetSelfDestruction( true );
 		CX2OfflineLog::Server( L"[JUNE_SUMMON] npc %d uid %d died, owner %I64d reset by its unit class ( 31fc8a90 )", iNPCID, GetUID(), pOwner->GetUnitUID() );
 		return;
 	}
 
-	const int iBuffFactorID = CX2GUUser::JuneGetSummonBuffFactorID( iNPCID );
+	const int iBuffFactorID = CX2GUUser::GetSummonBuffFactorID( iNPCID );
 	if( BFI_NONE == iBuffFactorID )
 		return;
 
 	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
-	if( NULL == ptrBuffFactor || true == JuneIsAnotherSameSummonAlive() )
+	if( NULL == ptrBuffFactor || true == IsAnotherSameSummonAlive() )
 		return;
 
 	pOwner->EraseBuffTempletFromGameUnit( ptrBuffFactor->GetBuffTempletID() );
@@ -18220,7 +18220,7 @@ void CX2GUNPC::CommonFrameMoveHost_ExtraDamage()
 			const float fBeforeHP = GetNowHp();
 			UpNowHp(-m_ExtraDamagePack.m_EnchantBlaze.m_DamagePerSec);
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
-			const float fJuneNowMpBefore = JuneEnchantBlazeMpDrain( false );	/// June 3276b400 @3276b8a0..: the NPC drain has no resist term
+			const float fJuneNowMpBefore = EnchantBlazeMpDrain( false );	/// June 3276b400 @3276b8a0..: the NPC drain has no resist term
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 #ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
@@ -18260,7 +18260,7 @@ void CX2GUNPC::CommonFrameMoveHost_ExtraDamage()
 					{
 						D3DXVECTOR3 vJuneMpPos = numPos;
 						vJuneMpPos.y -= 80.0f;
-						JuneDrawMpLossText( fJuneNowMpBefore - GetNowMp(), vJuneMpPos, GetDirVector(), false );
+						DrawMpLossText( fJuneNowMpBefore - GetNowMp(), vJuneMpPos, GetDirVector(), false );
 					}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 				}
@@ -18346,7 +18346,7 @@ void CX2GUNPC::CommonFrameMove()
 			}
 			else
 			{
-				RestoreJuneWorldColor();
+				RestoreWorldColor();
 			}
 		}
 	}
@@ -19538,7 +19538,7 @@ void CX2GUNPC::CommonFrameMove()
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			/// June 327b53b0 @327b8e93..@327b9225 = the user tick's code: BFI 1001 from the attacker's lists (March: the user table's
 			/// Slow percents clamped the local rates)
-			JuneApplyEnchantSlowDebuff( 3 );
+			ApplyEnchantSlowDebuff( 3 );
 #else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = g_pData->GetEnchantItem()->GetEnchantData( CX2DamageManager::EDT_ENCHANT_POISON );
 			if ( pEnchantData != NULL )
@@ -19644,7 +19644,7 @@ void CX2GUNPC::CommonFrameMove()
 		m_ExtraDamagePack.m_EnchantPoison.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantPoison.m_Accumulation = 0;
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
-		JuneEraseEnchantSlowDebuff( 3 );	/// June @327b9507: BTI 946 ends with the poison
+		EraseEnchantSlowDebuff( 3 );	/// June @327b9507: BTI 946 ends with the poison
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
@@ -19818,7 +19818,7 @@ void CX2GUNPC::CommonFrameMove()
 #endif //BALANCE_PATCH_20110303
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 					/// June @327b9fba..@327ba220, at the end of this alive branch: the shock debuff (BFI 1000)
-					JuneApplyEnchantShockDebuff();
+					ApplyEnchantShockDebuff();
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 				}
 
@@ -19958,7 +19958,7 @@ void CX2GUNPC::CommonFrameMove()
 
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			/// June @327ba9c3..@327bad58: BFI 1014 from the attacker's lists, as the user tick
-			JuneApplyEnchantSlowDebuff( 2 );
+			ApplyEnchantSlowDebuff( 2 );
 #else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			const CX2EnchantItem::EnchantData* pEnchantData = g_pData->GetEnchantItem()->GetEnchantData( CX2DamageManager::EDT_ENCHANT_FROZEN );
 			if ( pEnchantData != NULL )
@@ -20164,7 +20164,7 @@ void CX2GUNPC::CommonFrameMove()
 		m_ExtraDamagePack.m_EnchantFrozen.m_fElapsedTimeToEffectDamage = 0.0f;
 		m_ExtraDamagePack.m_EnchantFrozen.m_Accumulation = 0;
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
-		JuneEraseEnchantSlowDebuff( 2 );	/// June @327bb698: BTI 958 ends with the frozen
+		EraseEnchantSlowDebuff( 2 );	/// June @327bb698: BTI 958 ends with the frozen
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	}
 
@@ -20838,7 +20838,7 @@ void CX2GUNPC::CommonFrameMove()
 			}
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 			else
-				JuneDropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
+				DropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 		}
 	}
@@ -21460,7 +21460,7 @@ void CX2GUNPC::CommonFrameMove_TimedEvent()
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 						// June2017 CX2GUNPC::CommonFrameMove_TimedEvent 327970d0 @327975f9, after the scale factor: the particle takes this NPC's category
 						if( NULL != g_pX2Game )
-							g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+							g_pX2Game->TagEffectAlphaParticle( this, pSeq );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 					}
@@ -22084,7 +22084,7 @@ void CX2GUNPC::CommonFrameMove_TimedEvent()
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 				    m_vecJunePlayedSound.push_back( pSound );	/// June @32798771: pushed even when NULL
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
-				    JuneNpcSoundLog( L"play", soundPlayData.m_SoundPlayName.c_str(), static_cast<int>( soundPlayData.m_vecDeleteCondition.size() ), static_cast<int>( GetUnitUID() ) );
+				    NpcSoundLog( L"play", soundPlayData.m_SoundPlayName.c_str(), static_cast<int>( soundPlayData.m_vecDeleteCondition.size() ), static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 			    }
@@ -25583,7 +25583,7 @@ void CX2GUNPC::CommonStateEnd()
 	DeleteEffectSetOnStateEnd();
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June NPC CommonStateEnd 3277ee10 @3277f857: 3228a120 right after 3228a200 and the sound stop ( see the user's, C9h-4d )
-	JuneStopCreateNewEffectOnStateEnd();
+	StopCreateNewEffectOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 	DoCustomFunctionByBuffInCommonStateEnd();
@@ -25592,12 +25592,12 @@ void CX2GUNPC::CommonStateEnd()
 	/// skip-the-start list is disarmed and reset, every NPC's m_bShowBossName is cleared and my unit's can-not-input time is zeroed. June runs it
 	/// after DoCustomFunctionByBuffInCommonStateEnd ( 322755a0 ) and before the played-sound block ( @3277f9bc ).
 	if ( true == NOWSTATE_FLAG( DIRECTION_STATE ) && NULL != g_pX2Game )
-		g_pX2Game->JuneSkipStartEndDirection( GetUID() );
+		g_pX2Game->SkipStartEndDirection( GetUID() );
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 	/// June NPC CommonStateEnd 3277ee10 @3277f9cb-3277fa0e ( C9h-4b ): the played-sound list ( +0x8f74 ) is stopped only when the ending state has
 	/// STOP_SOUND_AT_STATE_END ( June bit 0x4e ), and cleared whatever the flag says. June runs this after the staging block and before FinishAndClearAllBuff.
-	JuneStopPlayedSounds( NOWSTATE_FLAG( STOP_SOUND_AT_STATE_END ), L"state_end" );
+	StopPlayedSounds( NOWSTATE_FLAG( STOP_SOUND_AT_STATE_END ), L"state_end" );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 #ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277f9f7-3277fa48: right after the played-sound clear, a state that queued dramatic rows
@@ -25621,7 +25621,7 @@ void CX2GUNPC::CommonStateEnd()
 	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277fbe0 ( C3r; C3o missed it ): every path ends in a tail jump to 32296be0, so an NPC state that ends inside
 	/// its CHANGE_WORLD_COLOR_DATA window fades the world back and clears the window. The user's CommonStateEnd fades back on its own ( March's
 	/// FadeWorldColor after TRANSITION; June 32015250 @3201572f-3201574f ).
-	RestoreJuneWorldColor();
+	RestoreWorldColor();
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 }
 
@@ -26599,7 +26599,7 @@ void CX2GUNPC::PhysicProcess()
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 			    /// June PhysicProcess 3277fbf0 @32780462-327806d7 ( C3g ): per sub-step, the cap is SET_LIMIT_MAX_G_SPEED when below 0,
 			    /// else fMaxGSpeed * buoyancy ( @327806c1 ); both clamps use it
-			    const float fJuneMaxGSpeedCap = JuneGetMaxGSpeedCap( fBuoyancy );
+			    const float fJuneMaxGSpeedCap = GetMaxGSpeedCap( fBuoyancy );
 			    m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fOneShotElapsedTime * fBuoyancy;
 			    if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
 				    m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
@@ -26619,7 +26619,7 @@ void CX2GUNPC::PhysicProcess()
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 			/// June PhysicProcess 3277fbf0 @32780462 ( C3g ): the same cap without the adaptive frame loop
-			const float fJuneMaxGSpeedCap = JuneGetMaxGSpeedCap( fBuoyancy );
+			const float fJuneMaxGSpeedCap = GetMaxGSpeedCap( fBuoyancy );
 			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime * fBuoyancy;
 			if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
 				m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
@@ -28379,7 +28379,7 @@ float CX2GUNPC::GetCriticalPercent( BYTE byAttackType, float fExtraCritical )
 	/// June 3275a820: plus the owner's slot 0x65c of me ( March's owner is always a CX2GUUser )
 	CX2GameUnit* pJuneOwner = GetOwnerGameUnit();
 	if ( NULL != pJuneOwner && CX2GameUnit::GUT_USER == pJuneOwner->GetGameUnitType() )
-		fCriticalPercent += static_cast<CX2GUUser*>( pJuneOwner )->JuneSummonCriticalBonus( this );
+		fCriticalPercent += static_cast<CX2GUUser*>( pJuneOwner )->SummonCriticalBonus( this );
 #endif SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
 
 	return fCriticalPercent;
@@ -29774,7 +29774,7 @@ void CX2GUNPC::SetFuryMode( bool bFuryMode_ )
 	@brief : June GetFinalDamage 32284aa0 @32285781-322857a6: the attacker NPC's Fury byte (+0x8fb7) is 1 and its current
 			 state has FURY_MODE (322afe40); then the rate is that state's ATTACK_POWER_RATE_FURY (+0x414), never tested.
 */
-bool CX2GUNPC::JuneGetFuryAttackPowerRate( float& fRate_ ) const
+bool CX2GUNPC::GetFuryAttackPowerRate( float& fRate_ ) const
 {
 	if ( true != m_bFuryMode )
 		return false;
@@ -29798,7 +29798,7 @@ bool CX2GUNPC::JuneGetFuryAttackPowerRate( float& fRate_ ) const
 			 create type 0. June's last argument, the summoner's templet unit ID ( +0x85f8[0] ), fills a KNPCUnitReq
 			 field March does not have: not carried ( user 2026-10-10, its own STATUS row ).
 */
-static void JuneCreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhich_, int unitID, int level, bool bActive,
+static void CreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhich_, int unitID, int level, bool bActive,
 	D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop, int iKeyCode, CX2Room::TEAM_NUM eTeam, CX2NPCAI::NPC_AI_TYPE eAIType,
 	bool bElite )
 {
@@ -29838,21 +29838,21 @@ static void JuneCreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhi
 /// June 327790e0: keycode -1, TN_MONSTER, NAT_NORMAL
 void CX2GUNPC::CreateNPCReq_LUA( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop )
 {
-	JuneCreateNPCReqFromNPC( this, L"CreateNPCReq_LUA", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
+	CreateNPCReqFromNPC( this, L"CreateNPCReq_LUA", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
 		-1, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
 }
 
 /// June 327791c0: delay = .x, keycode = (int) .y ( ftol 32fe25f0 ), TN_MONSTER, NAT_NORMAL
 void CX2GUNPC::CreateNPCReq_LUA2( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop )
 {
-	JuneCreateNPCReqFromNPC( this, L"CreateNPCReq_LUA2", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+	CreateNPCReqFromNPC( this, L"CreateNPCReq_LUA2", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
 		(int) vfDelayTimeNKeyCode.y, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
 }
 
 /// June 32779ad0: as LUA2, plus the elite flag
 void CX2GUNPC::CreateNPCReqElite( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, bool bElite )
 {
-	JuneCreateNPCReqFromNPC( this, L"CreateNPCReqElite", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+	CreateNPCReqFromNPC( this, L"CreateNPCReqElite", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
 		(int) vfDelayTimeNKeyCode.y, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, bElite );
 }
 
@@ -29860,14 +29860,14 @@ void CX2GUNPC::CreateNPCReqElite( int unitID, int level, bool bActive, D3DXVECTO
 /// ( CX2Game::CreateNPC ): an NPC UID finds none, so the summon gets no owner user, as in June ( no user has it either ).
 void CX2GUNPC::CreateNPCReqAlly( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, int iTeam )
 {
-	JuneCreateNPCReqFromNPC( this, L"CreateNPCReqAlly", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+	CreateNPCReqFromNPC( this, L"CreateNPCReqAlly", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
 		(int) vfDelayTimeNKeyCode.y, (CX2Room::TEAM_NUM) iTeam, CX2NPCAI::NAT_ALLY, false );
 }
 
 /// June 32779cb0: the NPC version calls the create core directly, not the push list ( kept, JUNE_BUGS ).
 void CX2GUNPC::PushCreateNPCReq_Lua( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop, int iKeyCode )
 {
-	JuneCreateNPCReqFromNPC( this, L"PushCreateNPCReq_Lua", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
+	CreateNPCReqFromNPC( this, L"PushCreateNPCReq_Lua", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
 		iKeyCode, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
 }
 #endif SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
@@ -30056,7 +30056,7 @@ void CX2GUNPC::StartAlphaFade( float fTime_, bool bFadeIn_, bool bHideAtEnd_ )
 	( fldz, fcom rate, test ah,0x41 / jp @3275a373-3275a380 ): a rate of 0 or above ( a fade in ) puts bAlphaBlend, the origin
 	bAlphaBlend and the alpha object back to the old bAlphaBlend ( +0x9069 ) and leaves the alpha; a negative rate ( a fade out ) sets
 	alpha 0 and, with hide at the end, SetShowObject( false ). Both end with fading off and rate 0. */
-void CX2GUNPC::JuneFrameMoveAlphaFade()
+void CX2GUNPC::FrameMoveAlphaFade()
 {
 	if ( true != m_bJuneAlphaFade )
 		return;
@@ -30397,7 +30397,7 @@ CX2EffectSet::Handle CX2GUNPC::GetEffectSet_LUA( int iIndex )
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 // June 327623f0: the basic scale times the rate; with bTransform_ the new basic scale is multiplied by the rate once more and applied through TransformScale ( JUNE_BUGS 438 )
-void CX2GUNPC::June_SetBasicScale( const float fRate_, const bool bTransform_ )
+void CX2GUNPC::SetBasicScale( const float fRate_, const bool bTransform_ )
 {
 	if( fRate_ < 0.f )
 		return;
@@ -30589,7 +30589,7 @@ float CX2GUNPC::GetStopTime()
 
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 /// C3e-4 play-test lines: monsters with either stop-immunity key only ( so the trash mobs do not use up the cap ), stops above 0 only
-static void JuneC3e4NpcLine( CX2GUNPC* pNpc, const wchar_t* wszWhich, float fStopTime, bool bDamageDataStop, bool bTimeStopKey, bool bDamageDataKey, bool bBlocked )
+static void LogNpcTimeStop( CX2GUNPC* pNpc, const wchar_t* wszWhich, float fStopTime, bool bDamageDataStop, bool bTimeStopKey, bool bDamageDataKey, bool bBlocked )
 {
 	static int s_iJuneC3e4NpcLines = 0;
 	if( s_iJuneC3e4NpcLines >= 400 || fStopTime <= 0.0f || ( false == bTimeStopKey && false == bDamageDataKey ) )
@@ -30613,12 +30613,12 @@ void CX2GUNPC::SetStopTime( float fStopTime )
 	if( true == ( bDamageDataStop ? m_bJuneImmunityDamageDataStopTime : m_bImmunityTimeStop ) )
 	{
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
-		JuneC3e4NpcLine( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
+		LogNpcTimeStop( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 		return;
 	}
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
-	JuneC3e4NpcLine( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
+	LogNpcTimeStop( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 #else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef IMMUNITY_TIME_STOP
@@ -30656,12 +30656,12 @@ void CX2GUNPC::SetStop2Time( float fStopTime )
 	if( true == ( bDamageDataStop ? m_bJuneImmunityDamageDataStopTime : m_bImmunityTimeStop ) )
 	{
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
-		JuneC3e4NpcLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
+		LogNpcTimeStop( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 		return;
 	}
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
-	JuneC3e4NpcLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
+	LogNpcTimeStop( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 #else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef IMMUNITY_TIME_STOP
@@ -30934,7 +30934,7 @@ void CX2GUNPC::ApplyPassiveSkillOwnerUser_LUA()
 
 	SetNPCStat( NPCStat );	// June 32763950
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
-	CopyJuneMaximizeAndRangeFrom( *pOwner );	// June @32763d4f-32763dce, the 3230ca6d copy
+	CopyMaximizeAndRangeFrom( *pOwner );	// June @32763d4f-32763dce, the 3230ca6d copy
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 	CX2OfflineLog::Server( L"[JUNE_CHAR] NPC POWER npc %d uid %d owner passive applied: attack x %g / %g, critical %g, physic attack %g", (int) GetNPCTemplet().m_nNPCUnitID, GetUID(), OwnerData.m_fJune4068, OwnerData.m_fStatAtkRateOfSummoned, NPCStat.m_fPercentCritical, NPCStat.m_fAtkPhysic );
@@ -32258,7 +32258,7 @@ void CX2GUNPC::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// buff port 16-step3b7 item 2: then x ( 3201ad10( 0x6666 ) + 1.0 ) on the same owner (@32774310, 334355b0 = 1.0)
-				fShellPowerRate = ( pOwnerUnit->GetSkillAdditionalPowerRateJune( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) + 1.f ) * fShellPowerRate;
+				fShellPowerRate = ( pOwnerUnit->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) + 1.f ) * fShellPowerRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
@@ -34159,7 +34159,7 @@ void    CX2GUNPC::SetOwnerGameUnit( CX2GUUser* pOwnerGameUnit_ )
 	if ( NULL == pOwnerUnit || NULL == pOwnerUnit->GetUnitTemplet() || CX2Unit::UT_NONE == pOwnerUnit->GetType() )
 		return;
 
-	pOwnerUser->JuneApplySkillMemoToDamageData( pDamageData_ );
+	pOwnerUser->ApplySkillMemoToDamageData( pDamageData_ );
 }
 #endif defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) && defined( MODIFY_SET_DAMAGE_DATA )
 

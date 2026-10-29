@@ -1233,7 +1233,7 @@ int CX2SquareUnit::JuneRidingPetStateChangeSounds( KLuaManager& luaManager_ )
 {
 	JuneStopSoundOnStateEnd();
 	m_vecSoundPlayData.resize( 0 );
-	return CX2GameUnit::JuneLoadSoundPlayAllOption( luaManager_, m_vecSoundPlayData );
+	return CX2GameUnit::LoadSoundPlayAllOption( luaManager_, m_vecSoundPlayData );
 }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
@@ -2558,7 +2558,7 @@ void CX2SquareUnit::StateStart()
 		m_vecSoundPlayData.resize(0);
 		int iSoundDataIndex = 0;
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
-		while( true == CX2GameUnit::JuneBeginSoundPlayTable( m_LuaManager, "SOUND_PLAY", iSoundDataIndex ) )	/// June StateStart 323fad80 @323fdfbb / @323fe0ba ( C9h-4b ): the nation reader, 4 fields as March
+		while( true == CX2GameUnit::BeginSoundPlayTable( m_LuaManager, "SOUND_PLAY", iSoundDataIndex ) )	/// June StateStart 323fad80 @323fdfbb / @323fe0ba ( C9h-4b ): the nation reader, 4 fields as March
 #else
 		while( true == m_LuaManager.BeginTable( "SOUND_PLAY", iSoundDataIndex ) )
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
@@ -4045,7 +4045,7 @@ bool CX2SquareUnit::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId)
 			// June: StateChange above already ran StateStart, which stopped +0x7ac. June widened the enclosing condition to its own
 			// avatar-emotion list (the missing emotion system); March's list still ends at AVATAR7, so this is INERT here.
 			{
-				const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+				const std::wstring wstrJuneEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
 				if( false == wstrJuneEmotionSetName.empty() && NULL != g_pData )
 					m_hJuneEmotionEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, CX2SquareUnitPtr( this ) );
 			}

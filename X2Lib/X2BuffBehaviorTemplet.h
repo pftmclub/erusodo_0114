@@ -464,12 +464,12 @@ private:
 /// June buff port Phase 6: the data the behavior classes below hold. X2Main.h includes this header BEFORE X2BuffTemplet.h, so the types live here;
 /// X2BuffTemplet.h's CX2SkillTypeRateByBuff / CX2SkillIDRateByBuff (the unit list elements) alias them.
 typedef std::pair<int, float>	JuneSkillTypeRate;		/// BBT 89: { SKILL_TYPE, rate }
-struct JuneSkillIDRateBlock							/// BBT 90 and 91: one { rate, skill IDs } block
+struct SkillIDRateBlock							/// BBT 90 and 91: one { rate, skill IDs } block
 {
 	float			m_fRate;
 	vector<int>		m_vecSkillID;
 
-	JuneSkillIDRateBlock() : m_fRate( 1.0f ) {}
+	SkillIDRateBlock() : m_fRate( 1.0f ) {}
 };
 
 /** @class : CX2BuffDoubleAttackBuffBehaviorTemplet
@@ -555,7 +555,7 @@ protected:
 	{}
 
 private:
-	vector<JuneSkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
+	vector<SkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
 };
 
 /** @class : CX2BuffChargeMpHitBySkillIDBehaviorTemplet
@@ -579,7 +579,7 @@ protected:
 	{}
 
 private:
-	vector<JuneSkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
+	vector<SkillIDRateBlock>	m_vecBlock;	/// June +0x10, element 0x14
 };
 
 /** @class : CX2AddDamageOfSkillSlotType

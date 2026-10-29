@@ -2190,7 +2190,7 @@ bool CX2TitleManager::Handler_EGS_EQUIP_TITLE_ACK( HWND hWnd, UINT uMsg, WPARAM 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 			/// June 327032c0 @32703345: after AttachTitle and 3235a080( 0 ), 3235a160
 			if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+				g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 			/// June 327032c0 @32703350: title 10's box was answered OK -> open the character window ( June UI 0x13 = UI_MENU_CHARINFO;
@@ -2339,7 +2339,7 @@ bool CX2TitleManager::Handler_EGS_TITLE_EXPIRATION_NOT( HWND hWnd, UINT uMsg, WP
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	/// June 32703390 @327036af: after the chat line, 3235a080( 0 ) ( ResetIncreaseSkillLevelBySocket, not in March's handler ) and 3235a160
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	switch ( g_pMain->GetNowStateID() )
 	{

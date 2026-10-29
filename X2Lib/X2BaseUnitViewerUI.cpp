@@ -17,7 +17,7 @@
 // creates nothing, OnFrameMove 329585f0 traces them, creates them (32957980) and plays their sounds (329582b0).
 
 // X2EffectSet.cpp: the no-set variant of June 321dfc40 (mesh trigger runner), called from 329585f0 @32958b12
-void JuneRunViewerMeshTriggers( CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2EffectSet::EffectData* pEffectData_,
+void RunViewerMeshTriggers( CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2EffectSet::EffectData* pEffectData_,
 								std::vector<CX2EffectSet::MeshTriggerData>& vecTrigger_, CKTDGXSkinAnim* pSkinAnim_,
 								int iCode1_, int iCode2_ );
 
@@ -684,7 +684,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			pMesh->SetShowObject( m_bJuneFxShow );
 
 			// the triggers (321dfc40, no set, the two viewer codes)
-			JuneRunViewerMeshTriggers( pMesh, pEffectData, pEntry->m_vecTrigger, pXSkinAnim, m_iJuneFxTriggerCode1, m_iJuneFxTriggerCode2 );
+			RunViewerMeshTriggers( pMesh, pEffectData, pEntry->m_vecTrigger, pXSkinAnim, m_iJuneFxTriggerCode1, m_iJuneFxTriggerCode2 );
 		}
 	}
 

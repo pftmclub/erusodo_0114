@@ -2431,7 +2431,7 @@ void CX2World::SetGravityAndSpeedRate( float val )
 				for ( UINT i = 0; i < vecUnitList.size(); ++i )
 				{
 					if ( NULL != vecUnitList[i] )
-						vecUnitList[i]->ApplyJuneWorldGravityRate();
+						vecUnitList[i]->ApplyWorldGravityRate();
 				}
 				iUnitNum = (int) vecUnitList.size();
 			}

@@ -1313,7 +1313,7 @@ class CX2DamageManager
 
 			/// June 32610fb0 (ADDITIONAL_ATTACK_TRIGGER_TYPE consumer): true when ATTACK_TRIGGER_TYPE == iTrigger_ or iTrigger_
 			/// is in the additional list. About 60 June call sites, mostly per-class code (the character ports).
-			bool JuneIsAttackTrigger( const int iTrigger_ ) const
+			bool IsAttackTrigger( const int iTrigger_ ) const
 			{
 				if ( static_cast<int>( m_eDamageTrigger ) == iTrigger_ )
 					return true;
@@ -1326,7 +1326,7 @@ class CX2DamageManager
 			}
 
 			/// June 32610e60: the first DAMAGE_TRIGGER_DATA entry whose type is iTrigger_, else NULL.
-			const JuneDamageTriggerData* JuneFindDamageTriggerData( const int iTrigger_ ) const
+			const JuneDamageTriggerData* FindDamageTriggerData( const int iTrigger_ ) const
 			{
 				for ( std::vector<JuneDamageTriggerData>::const_iterator it = m_vecDamageTriggerData.begin(); it != m_vecDamageTriggerData.end(); ++it )
 				{
@@ -1890,25 +1890,25 @@ class CX2DamageManager
 		/// Phase 8c: the templet name SetDamageDataFromLUA prints in its rule-5 JUNE_FX lines. A caller
 		/// that has one (CEffect's ctor) sets it with a JuneDamageDataTempletScope local for the
 		/// duration of its reads; the scope restores the previous name, so nested templets unwind.
-		void			SetJuneDamageDataTemplet( const WCHAR* pwszTemplet_ ) { m_pwszJuneDamageDataTemplet = pwszTemplet_; }
-		const WCHAR*	GetJuneDamageDataTemplet() const { return m_pwszJuneDamageDataTemplet; }
+		void			SetDamageDataTemplet( const WCHAR* pwszTemplet_ ) { m_pwszJuneDamageDataTemplet = pwszTemplet_; }
+		const WCHAR*	GetDamageDataTemplet() const { return m_pwszJuneDamageDataTemplet; }
 
-		class JuneDamageDataTempletScope
+		class DamageDataTempletScope
 		{
 		public:
-			JuneDamageDataTempletScope( CX2DamageManager* pDamageManager_, const WCHAR* pwszTemplet_ )
+			DamageDataTempletScope( CX2DamageManager* pDamageManager_, const WCHAR* pwszTemplet_ )
 				: m_pDamageManager( pDamageManager_ ), m_pwszPrevTemplet( NULL )
 			{
 				if( NULL != m_pDamageManager )
 				{
-					m_pwszPrevTemplet = m_pDamageManager->GetJuneDamageDataTemplet();
-					m_pDamageManager->SetJuneDamageDataTemplet( pwszTemplet_ );
+					m_pwszPrevTemplet = m_pDamageManager->GetDamageDataTemplet();
+					m_pDamageManager->SetDamageDataTemplet( pwszTemplet_ );
 				}
 			}
-			~JuneDamageDataTempletScope()
+			~DamageDataTempletScope()
 			{
 				if( NULL != m_pDamageManager )
-					m_pDamageManager->SetJuneDamageDataTemplet( m_pwszPrevTemplet );
+					m_pDamageManager->SetDamageDataTemplet( m_pwszPrevTemplet );
 			}
 		private:
 			CX2DamageManager*	m_pDamageManager;
@@ -1920,7 +1920,7 @@ class CX2DamageManager
 		/// InsertDamageData_LUA (June FUN_32621080) and copied onto a DamageData by JuneApplyDamageDataRecord
 		/// (June FUN_3261a1a0 + FUN_3264a5d0) when a DAMAGE_DATA block names it with DAMAGE_DATA_KEY_NAME.
 		/// Field order is June's record order (rec[0]..rec[8]).
-		struct JuneDamageDataRecord
+		struct DamageDataRecord
 		{
 			int		m_iDamageType;			/// rec[0]: 0 physic, 1 magic, 2 mix; computed from PHYSIC/MAGIC, not read
 			float	m_fPvpRate;				/// rec[1]: DAMAGE_PVP_RATE, default 1.0
@@ -1932,7 +1932,7 @@ class CX2DamageManager
 			int		m_iAppliedSkillID;		/// rec[7]: DAMAGE_SKILL_ID (copied only when non-zero; skill reform = character ports)
 			int		m_iAttackType;			/// rec[8]: DAMAGE_ATTACK_TYPE
 
-			JuneDamageDataRecord()
+			DamageDataRecord()
 				: m_iDamageType( 0 ), m_fPvpRate( 1.0f ), m_iTechPoint( 0 ), m_fPhysic( 0.0f ), m_fMagic( 0.0f )
 				, m_fForceDown( 0.0f ), m_fHitAddMP( 0.0f ), m_iAppliedSkillID( 0 ), m_iAttackType( 0 )
 			{
@@ -1940,15 +1940,15 @@ class CX2DamageManager
 		};
 
 		bool	InsertDamageData_LUA();
-		bool	OpenJuneDamageDataScript( const WCHAR* wszFileName );
-		bool	JuneApplyDamageDataRecord( const std::wstring& wstrKeyName_, DamageData* pDamageData_ );
+		bool	OpenDamageDataScript( const WCHAR* wszFileName );
+		bool	ApplyDamageDataRecord( const std::wstring& wstrKeyName_, DamageData* pDamageData_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 	private:
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		const WCHAR*	m_pwszJuneDamageDataTemplet;	/// Phase 8c, see SetJuneDamageDataTemplet
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
-		std::map<std::wstring, JuneDamageDataRecord>	m_mapJuneDamageDataRecord;	/// June CX2DamageManager +0x4bfc map (C9)
+		std::map<std::wstring, DamageDataRecord>	m_mapJuneDamageDataRecord;	/// June CX2DamageManager +0x4bfc map (C9)
 		int		m_iJuneDamageDataSkippedEmptyName;		/// InsertDamageData_LUA calls skipped: empty DAMAGE_KEY_NAME
 		int		m_iJuneDamageDataSkippedDuplicate;		/// InsertDamageData_LUA calls skipped: name already present (first wins)
 #endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE

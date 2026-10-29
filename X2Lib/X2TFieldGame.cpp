@@ -4750,7 +4750,7 @@ bool CX2TFieldGame::Handler_EGS_CHAR_LEVEL_UP_NOT( HWND hWnd, UINT uMsg, WPARAM 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 		/// June 323ae130 @323ae277: my own unit's level-up feeds the "new skill or memo" emblem
 		if( NULL != g_pData->GetSkillTree() )
-			g_pData->GetSkillTree()->JuneShowNewSkillOrMemoEmblem();
+			g_pData->GetSkillTree()->ShowNewSkillOrMemoEmblem();
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	}
 	// 던전 라운지 이면
@@ -4929,7 +4929,7 @@ bool CX2TFieldGame::Handler_EGS_CHAR_LEVEL_UP_NOT( HWND hWnd, UINT uMsg, WPARAM 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	/// June 323ae130 @323ae5c9: below level 11 the newly unlocked castables go into free slots
 	if( NULL != g_pData->GetSkillTree() )
-		g_pData->GetSkillTree()->JuneAutoEquipOnLevelUp();
+		g_pData->GetSkillTree()->AutoEquipOnLevelUp();
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	return true;
 }

@@ -2230,7 +2230,7 @@ bool CX2UIShop::Handler_EGS_REPAIR_ITEM_ACK( HWND hWnd, UINT uMsg, WPARAM wParam
 				}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 				/// June's repair ACK ( 32457ef0 @3245811c, copies 32dd6ef0 / 32dedb20 ): 3235a160 after the inventory UI, before the character window
-				pUnit->JuneResetHudMaxHpMp();
+				pUnit->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 				
 				if(g_pData->GetUIManager()->GetShow(CX2UIManager::UI_MENU_CHARINFO))

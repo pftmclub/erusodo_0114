@@ -156,8 +156,8 @@ public:
 	float GetCreatorPowerRate() const { return m_fCreatorPowerRate; }
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	/// C10b-2: the creator's UID (June templet +0xb0) and whether it is not a user (+0xb8), for the effect-set displayer's creator lookup
-	UidType GetJuneCreatorUID() const { return m_uidJuneCreator; }
-	bool IsJuneCreatorNotUser() const { return m_bJuneCreatorNotUser; }
+	UidType GetCreatorUID() const { return m_uidJuneCreator; }
+	bool IsCreatorNotUser() const { return m_bJuneCreatorNotUser; }
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
@@ -1542,7 +1542,7 @@ typedef boost::shared_ptr<CX2SkillIDRateByBuff> CX2SkillIDRateByBuffPtr;
 class CX2SkillIDRateByBuff : public CX2BuffIdentity
 {
 public:
-	typedef JuneSkillIDRateBlock		SkillIDRateBlock;
+	typedef ::SkillIDRateBlock		SkillIDRateBlock;
 
 	CX2SkillIDRateByBuff( const KBuffIdentity& BuffIdentity_, const vector<SkillIDRateBlock>& vecBlock_ )
 		: CX2BuffIdentity( BuffIdentity_ ), m_vecBlock( vecBlock_ )

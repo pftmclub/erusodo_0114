@@ -1058,7 +1058,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	/// June buff port Phase 15 step 2b: June 32d418a0 ( bbt, value, op ), used by the enchant slow / shock debuffs. The first
 	/// behavior of type eType_ holding more than one value gets value[1] += / *= / = fValue_ (op 0 / 1 / 2); others untouched.
-	void JuneSetBehaviorValue( const BUFF_BEHAVIOR_TYPE eType_, const float fValue_, const int iOperation_ )
+	void SetBehaviorValue( const BUFF_BEHAVIOR_TYPE eType_, const float fValue_, const int iOperation_ )
 	{
 		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffBehaviorFactors.size(); ++i )
 		{
@@ -1076,7 +1076,7 @@ public:
 	}
 	/// June 32d41910 ( type, value, bAdd ): every BFT_TIME finalizer holding more than one value gets value[1] (FO_NORMAL_TIME)
 	/// = fValue_, or += when bAdd_. June ignores its type argument and tests the finalizer type against 1 (BFT_TIME) itself.
-	void JuneSetTimeFinalizerValue( const float fValue_, const bool bAdd_ )
+	void SetTimeFinalizerValue( const float fValue_, const bool bAdd_ )
 	{
 		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
 		{
@@ -1093,7 +1093,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 	/// S3d: June 32d417b0 ( type, &out ): the first finalizer of type eType_, with no size test; NULL when there is none
-	const KBuffFinalizerFactor* JuneGetFirstFinalizer( const BUFF_FINALIZER_TYPE eType_ ) const
+	const KBuffFinalizerFactor* GetFirstFinalizer( const BUFF_FINALIZER_TYPE eType_ ) const
 	{
 		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
 		{
@@ -1103,12 +1103,12 @@ public:
 		return NULL;
 	}
 	/// S3d: June 32d42000 ( &out ): a copy of the behavior list (+0x8..+0xc)
-	vector<KBuffBehaviorFactor> JuneCopyBehaviorFactors() const { return m_pDataBuffFactor->m_vecBuffBehaviorFactors; }
+	vector<KBuffBehaviorFactor> CopyBehaviorFactors() const { return m_pDataBuffFactor->m_vecBuffBehaviorFactors; }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 	/// June 32d41960 ( type, value, op ) -> 32d40dd0, the finalizer twin of JuneSetBehaviorValue (32d418a0), used by the effect-set buff
 	/// list (effect completion C6c). Every finalizer whose type is eType_ AND is BFT_TIME (June tests the argument against 1) with 2 or 3
 	/// values gets value[1..n-1] += / *= / = fValue_ (op 0 / 1 / 2); index 0 is skipped, any other op does nothing.
-	void JuneSetFinalizerValue( const BUFF_FINALIZER_TYPE eType_, const float fValue_, const int iOperation_ )
+	void SetFinalizerValue( const BUFF_FINALIZER_TYPE eType_, const float fValue_, const int iOperation_ )
 	{
 		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
 		{

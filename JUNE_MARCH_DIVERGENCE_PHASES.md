@@ -497,6 +497,44 @@ reached and now runs June's), flag-off equivalence per flag, the smoke logs.
 list). Opus because merges here reach unported classes: write each `stand-in: <class> not ported` guard (`guards.tsv`). Smoke: one ported
 and one unported class (Elsword) through a dungeon. **Review:** `C3 review` (Opus): the guards, every reach point, the smoke logs.
 
+### Done (2026-10-29, Opus 5.5; no new flag, each body keeps its flag)
+
+`python tools/junecollapse.py apply C3`: 577 rows, 555 by the tool in 62 files (merge 8, rename 547), 22 by hand; flag-off equivalence PASS per file.
+Tool fix: `verify()` skips the `#if` strip when a file's new bytes equal the base with the same renames (`Always.h` `#error` text was "not evaluable").
+**Hand shapes (`bytepatch.py`):**
+- Shared-name sites the tool leaves outside each row's own files: the 12 it reports (`GetNearestCollisionFrameName`, `IsPosAlongLastTouchLine` x3,
+  `DamageDataTempletScope`, `GetDefenceRateBySkill`, `CopyStateCallbacks` in Eve) and 10 it does not (`pUser->` calls of `CanAllyRallyToMe`, `SummonCriticalBonus`,
+  `OverrideEffectAlphaCondition`, `ShownSkillCoolTime` x2, `SummonedNPCInfo` x2, `AfterEquipSlotChange`, `SkillIconOverride`; the two `X2Main.cpp` binding pointers,
+  whose Lua strings stay for C4's `lua` rows), found by the first build.
+- **Virtuals.** `CX2GUUser::HyperModeEnd` / `RidingHyperModeEnd` become virtual under ARME_CORE (vslots 0x604 / 0x608, March's non-virtual in `#else`); Aisha's
+  `June_Vslot604` / `June_Vslot608` are the overrides `HyperModeEnd` / `RidingHyperModeEnd`, `June_RidingHyperModeEnd` (bare jump 32cf0fa0) is deleted and both states
+  register `SET_CB_FUNC( CX2GUUser, ... )`. `IsNotCommonMoveState` is virtual (vslot 0x828); Aisha's and Eve's (`June_Vslot828`) overrides call `CX2GUUser::` (Aisha's
+  unqualified call would have recursed). Forwarders: Aisha `AfterEquipSlotChange` / `AfterImageFrameMove` / `SummonedNPCInfo`, Eve `SummonedNPCInfo` / `SkillIconOverride`
+  / `CanAllyRallyToMe` / `SummonCriticalBonus` / `ShownSkillCoolTime` are the bodies now (the `June_X` copies gone), defined under the forwarder's own flags (LIVE, plus
+  the feature flag on Eve's four), so CORE alone stays inert.
+- **Signatures.** `GetActualMPConsumeJune` -> a non-virtual 3-arg overload `GetActualMPConsume( id, level, bApplySocketMPCostCut_ )` (the 2-arg virtual and the 10 class
+  overrides untouched; Add's one `false` caller is base-qualified). `EnchantAccumulationRateModifier`: one name, `#ifndef ENCHANT_PARITY` March's 3-arg, `#else` June's
+  `( DamageData*, ... )`. `ModifyFinalDamageByGameUnitType`: June's `( DamageData*, phys, magic )` is a third overload. `SetSkillAbilityMap` (June's key argument) and
+  `ResetLeftSkillCoolTimeAll` (June's mode + list) are overloads of March's name.
+- Renames the tool refused (name used elsewhere, different scope): `IsSkillSlotState`, `IsUnitTranscended`, `ParseCommonRandomStateByUnitClass`.
+- **Constructor rows rename their struct**, uses in other files did not follow: `ComboRow`, `SkillCommandDesc`, `SocketOptionSource`, `SSkillMemoTemplet` (C4 class row
+  run here with `--base $(git stash create)`), and `CX2SkillIDRateByBuff` keeps `typedef ::SkillIDRateBlock SkillIDRateBlock;`.
+- **Order (the tool does not move helpers):** `X2GUUser.cpp` CH1k constants hoisted above `StartEventProcess` as `_CONST_GUUSER_CH1k_` (CH1j's anonymous namespace is
+  `_CONST_GUUSER_CH1j_`), the cancel-chain macro's `#undef` dropped; `X2SkillTree.cpp` ability-key table hoisted above `AddSkillTemplet_LUA` as `_CONST_SKILLTREE_S2_`.
+**Reach points** (March callers now run the June body when the flag is on): `CommonSpecialAttackEventProcess`, `GenericActiveSkillEventProcess`,
+`GenericSpecialActiveSkillEventProcess`, `WinStateStart`, `LoseStateStart`, `StartEventProcess` (ARME_CORE), `HyperModeEnd` (EVE_CORE), `AddSkillTemplet_LUA`
+(SKILL_TEMPLET; March's already dispatched to it, so unchanged). Win / Lose / Start add June's result invincibility and treasure particles; the Generic* pair adds June's
+skill / walk / dash / back-walk cancel chain, which fires only on keys a state's own Lua sets: no class state is touched, no guard.
+**Guards** (`june2017_re/diverge/guards.tsv`, 2 rows): `CommonSpecialAttackEventProcess` returns June's slot index (A 0-3, F 4, B 5-8, T 9); every class but Eve and
+Aisha reads March's 0-7, so for them F / T give no slot and B reports 4-7. `HyperModeEnd` applies the pending hyper buff; Add's `ApplyHyperModeBuff` skips the base
+that clears the flag, so Add is skipped (Ara / Chung / Raven call the base; Elsword / Lire / Elesis use it).
+**Found, not ported (D1):** June's riding-hyper end 32006c00 (vslot 0x608) is HyperModeEnd's body; March's `RidingHyperModeEnd` stays March's: row added to
+`tools/data/june_march_divergent.tsv` (`replace`, guard: Add as above).
+**Hygiene:** all-flags flag-off check (`flagcheck ARME_CORE --base HEAD --with` all 456 `SERV_IRUHADEV_*`, 65 files): RESULT PASS, 0 FAIL, 0 ERROR; `Always.h` changes
+are `#error` texts only. `enumscan --check` (5 hand-edited files): 0 A/B rows. Per-flag ranges after the commit: below.
+DEPLOY OK: X2_offline.exe is 25,816,576 B, dated 2026-10-29 08:27:03, md5 d0fbc7c838bc92c312431ee3c941e377, equal to X2/US_SERVICE/x2.exe (built at main 6c7726f4 + this phase's 67 code files).
+**Smoke:** none here (user, 2026-10-29: one smoke at the end of the plan); the end smoke must take Elsword and Eve or Aisha through a dungeon, B-slot skills on both.
+
 ## Phase C4 - Collapse UI, data, engine, offline; class, file and Lua names (Sonnet 5.5, high)
 
 **Depends on:** C3 review. Quest (`CX2UIQuestNewJune` -> its March twin or a pattern name, file + vcxproj), skill-tree UI, result adapter,

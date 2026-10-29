@@ -2934,7 +2934,7 @@ bool CX2StateDungeonGame::DungeonStageLoadNot( HWND hWnd, UINT uMsg, WPARAM wPar
 		{
 			CX2GUUser* pJuneUser = m_pDungeonGame->GetUserUnit( i );
 			if( pJuneUser != NULL )
-				pJuneUser->JuneDeleteEffectSetOnStageEnd();
+				pJuneUser->DeleteEffectSetOnStageEnd();
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE

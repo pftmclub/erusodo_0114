@@ -794,7 +794,7 @@ public:
 		/// GetEffectPositionByBoneName take the trace target's bone of that name instead of the effect's own bone.
 		/// Effect completion C5. Instances are never reused, so there is no reset path.
 		std::wstring					m_wstrTraceNearestBone;
-		bool JuneSetTraceNearestBone( IN const D3DXVECTOR3& vPos_, IN CX2GameUnit* pTraceUnit_ );
+		bool SetTraceNearestBone( IN const D3DXVECTOR3& vPos_, IN CX2GameUnit* pTraceUnit_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef SERV_PET_SYSTEM
@@ -928,14 +928,14 @@ public:
 		bool							m_bJuneStopSilently;	/// Atlas E7: June EffectSetInstance +0x1b0 ( set by StopEffectSet( h, true ) 321e3ee0 @321e3f61 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
-		struct JuneDamageEffectModifier
+		struct DamageEffectModifier
 		{
 			bool			m_bAdd;
 			int				m_iTag;
 			D3DXVECTOR3		m_vValue;
-			JuneDamageEffectModifier() : m_bAdd( false ), m_iTag( 0 ), m_vValue( 0.f, 0.f, 0.f ) {}
+			DamageEffectModifier() : m_bAdd( false ), m_iTag( 0 ), m_vValue( 0.f, 0.f, 0.f ) {}
 		};
-		std::vector<JuneDamageEffectModifier>	m_vecJuneModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
+		std::vector<DamageEffectModifier>	m_vecJuneModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 		float							m_fJuneForceDownValueRate;	/// June EffectSetInstance +0x14c ( ctor 1.0 ), PlayEffectSet's trailing float
@@ -1132,7 +1132,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, const D3DXVECTOR3& vValue_, bool bAdd_ );	/// June 321dad70
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-	void ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::JuneDamageEffectModifier>& vecModifier_ );	/// June 321db1b0
+	void ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::DamageEffectModifier>& vecModifier_ );	/// June 321db1b0
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 	// June2017 321e3650 / 321ee480 (effect completion C6c)

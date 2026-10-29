@@ -470,7 +470,7 @@ class CX2Game : public CKTDXStage
 #endif
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		int							GetLineTypeByLineID_LUA( int iLineIndex_ );	// June 322d0800 ( bound @31dcaa7b ), Atlas E5
-		void						JuneUpdateCameraLandHeight();				// June 322cfe20, Atlas E5
+		void						UpdateCameraLandHeight();				// June 322cfe20, Atlas E5
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		virtual CX2World*			GetWorld()					{ return m_pWorld; }
 		virtual CX2Camera*			GetX2Camera()				{ return m_pCamera; }
@@ -490,11 +490,11 @@ class CX2Game : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		// June2017 C10b-2: the effect-alpha option's category of an effect owner (CKTDXApp::AEACBO_*) and the helpers that tag what an owner creates
 		BYTE						GetEffectAlphaCondition( CX2GameUnit* pOwner );											/// 322d4d10
-		void						JuneTagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq );	/// 32296d60
-		void						JuneTagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor );	/// 32296da0
-		void						JuneTagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor );	/// 32296e40
-		void						JuneTagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh );		/// 32296ee0
-		void						JuneTagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer );	/// 32296f30
+		void						TagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq );	/// 32296d60
+		void						TagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor );	/// 32296da0
+		void						TagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor );	/// 32296e40
+		void						TagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh );		/// 32296ee0
+		void						TagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer );	/// 32296f30
 		CKTDGParticleSystem::CParticleEventSequence*	CreateApplyAlphaParticleSequence_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pSequenceName, D3DXVECTOR3 pos, D3DXVECTOR2 emitRate, D3DXVECTOR2 trigger );	/// 322f2660
 		CKTDGXMeshPlayer::CXMeshInstance*				CreateApplyAlphaMeshInstance_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pMeshName, D3DXVECTOR3 pos, D3DXVECTOR3 angleDegree, D3DXVECTOR3 moveAxisDegree, int iLayer );	/// 322f2720
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
@@ -642,14 +642,14 @@ class CX2Game : public CKTDXStage
 		void						PlayWorldAllSound( bool bPlay_ );							// June 322cc060
 		void						SetShowAdditionalWorld( UINT uiIndex_, bool bShow_ );		// June 322cf8f0
 		void						PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ );	// June 322cf930
-		void						ClearJuneAdditionalWorld();									// June 322d7f90
+		void						ClearAdditionalWorld();									// June 322d7f90
 		int							FindRandomSelectUserUnitsFromRange_LUA( float fRange_, D3DXVECTOR3 vPos_, UINT uiCount_ );	// June 322dd990
 		CX2GUUser*					GetFindedRandomSelectUserUnits_LUA( UINT uiIndex_ );		// June 322d0030
 		CX2GUUser*					GetRandomSelectUserUnitFromRange( float fRange_, D3DXVECTOR3 vPos_, int iRand_ );	// June 322dc3c0
 		UINT						GetUserIndexByUserUID( UidType iUserUID_ );					// June 322cfc00
 		CX2GameUnit*				GetNearestUnitInSpecificRange_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ );	// June 322d7090
 		CX2GameUnit*				GetNearestUnitInSpecificRange_IncludeSameTeam_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ );	// June 322d7060
-		CX2GameUnit*				GetNearestUnitInSpecificRangeJune( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ );	// June 322d55b0
+		CX2GameUnit*				GetNearestUnitInSpecificRange( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ );	// June 322d55b0
 		void						StartFadeInCustomColor( float fTime_, D3DXCOLOR color_ );	// June 322cfef0
 		void						StartFadeOutCustomColor( float fTime_, D3DXCOLOR color_ );	// June 322cff30
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -672,7 +672,7 @@ class CX2Game : public CKTDXStage
 		bool 						IsAllUserHPPercentMoreThan( float fHPPercent );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		void 						PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ );	/// June 322d4f80
-		bool						IsJunePartyFeverInProgress() const { return m_bJunePartyFeverInProgress; }
+		bool						IsPartyFeverInProgress() const { return m_bJunePartyFeverInProgress; }
 #else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		void 						PartyFeverAllUser( float fAddHyperModeTime );
 #endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
@@ -1236,16 +1236,16 @@ class CX2Game : public CKTDXStage
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 		/// effect completion C10e: June 322cfca0( DamageData, float* damage ), called from the user and NPC DamageReact
-		void						JunePvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ );
+		void						PvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 		/// effect completion C3p: June's skip-the-start ( ESC ) list at game +0xb40 ( bool armed, bool sent, vector of NPC UIDs ).
-		void						JuneSkipStartReset();							/// 322d8010
-		void						JuneSkipStartArm( int iNPCUID_ );				/// CX2GUNPC::CommonStateStart @327af274-327af360
-		void						JuneSkipStartEndDirection( int iNPCUID_ );		/// CX2GUNPC::CommonStateEnd @3277f87c-3277f9b7
-		bool						JuneSkipStartRequest();							/// 322f4c60 ( ESC )
-		void						JuneSkipStart();								/// 322f11d0
-		void						JuneRenderSkipStartHint();						/// 32305be0
+		void						SkipStartReset();							/// 322d8010
+		void						SkipStartArm( int iNPCUID_ );				/// CX2GUNPC::CommonStateStart @327af274-327af360
+		void						SkipStartEndDirection( int iNPCUID_ );		/// CX2GUNPC::CommonStateEnd @3277f87c-3277f9b7
+		bool						SkipStartRequest();							/// 322f4c60 ( ESC )
+		void						SkipStart();								/// 322f11d0
+		void						RenderSkipStartHint();						/// 32305be0
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: June's CX2Game +0xbae, whether left and right are both held this frame (KeyProcess, 322cfc60).
@@ -1405,28 +1405,28 @@ class CX2Game : public CKTDXStage
 		void						UpdateElswordSkillSlotEffect();
 #endif ELSWORD_WAY_OF_SWORD
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-		void						June_RefreshMemoRiseSlot();										/// June 322deb80
-		void						June_ShowMemorizeStatics( const bool* pbShow_ );				/// June 322cf350
-		void						June_MemoRiseSlotFrameMove();									/// June 322f4740
-		void						June_ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ );	/// June 322eca50
-		void						June_ClearAllMemoRiseSlotParticle( const bool bErase_ );		/// June 322ecb60
-		void						June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ );	/// June 322f4480
-		bool						June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ );	/// June 322cf810
-		void						June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
-		void						June_SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
+		void						RefreshMemoRiseSlot();										/// June 322deb80
+		void						ShowMemorizeStatics( const bool* pbShow_ );				/// June 322cf350
+		void						MemoRiseSlotFrameMove();									/// June 322f4740
+		void						ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ );	/// June 322eca50
+		void						ClearAllMemoRiseSlotParticle( const bool bErase_ );		/// June 322ecb60
+		void						CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ );	/// June 322f4480
+		bool						IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ );	/// June 322cf810
+		void						ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
+		void						SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 		void						UpdateEveRecoveryUI( const bool* pbShow_, const bool bShowCoolTime_, const float fCoolTimeLeft_ );	/// June 322e65c0
 		void						SetEveRecoveryToolTip( const wstring& wstrToolTip_ );	/// June 322dee90
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
-		void						June_TranscendSlotGuideFrameMove();		/// June 322d8100
+		void						TranscendSlotGuideFrameMove();		/// June 322d8100
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 		bool IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit );
 #endif
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
-		bool JuneIsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ );	/// June 322f0e60
+		bool IsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ );	/// June 322f0e60
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void						UpdateEveElectraSkillSlotIcon();
 	#ifdef SERV_RENA_NIGHT_WATCHER
@@ -1891,7 +1891,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		/// June's timed focus ( +0x2ec, a small class with a vtable 0x3348a4b8; ctor 32311680, operator= 323108d0, Reset 32311720 ). Replaces
 		/// m_fFocusTime, which is left in place unused.
-		struct JuneTimerFocusUnit
+		struct TimerFocusUnit
 		{
 			CX2GameUnitoPtr		m_optrUnit;			/// +0x2f0 ( +0x2f4 its valid byte )
 			float				m_fTime;			/// +0x2f8, counted down by m_fElapsedTime
@@ -1899,7 +1899,7 @@ protected:
 			bool				m_bCanNotInput;		/// +0x300, CanNotInputAndDisalbeNPCAI( true ) every frame it holds
 			bool				m_bTrackingCamera;	/// +0x301, NomalTrackingCamera instead of NomalDirectCamera
 
-			JuneTimerFocusUnit() : m_fTime( 0.f ), m_fDistance( -1.f ), m_bCanNotInput( false ), m_bTrackingCamera( false ) {}	/// ctor 32306600 @32306765-323067b0
+			TimerFocusUnit() : m_fTime( 0.f ), m_fDistance( -1.f ), m_bCanNotInput( false ), m_bTrackingCamera( false ) {}	/// ctor 32306600 @32306765-323067b0
 			void Reset()			/// 32311720
 			{
 				m_optrUnit.Reset();
@@ -1909,7 +1909,7 @@ protected:
 				m_fDistance = -1.f;
 			}
 		};
-		JuneTimerFocusUnit			m_kJuneTimerFocusUnit;
+		TimerFocusUnit			m_kJuneTimerFocusUnit;
 #endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 		vector<CX2GameUnit*>		m_UnitList;			/// 유저, 몬스터 모두의 포인터를 다 가지고 있는 벡터 // 근데.. 굳이 이것을 가지고 있어야 할 이유는 없는듯...

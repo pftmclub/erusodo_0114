@@ -6646,7 +6646,7 @@ bool CX2UnitViewerUI::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wst
 	// returns at once on a NULL one (@32959680). Group 1 is stopped by the viewer dtor and by June's sit-item block (the
 	// missing emotion system). INERT in March: the name is empty for every id March has.
 	{
-		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetJuneEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
 		if( false == wstrJuneEmotionSetName.empty() )
 			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneEmotionSetName, 1 );
 	}

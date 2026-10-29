@@ -1977,7 +1977,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				return true;
 			const CX2Unit::UnitData& kJuneUnitData = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
 			const bool bJuneSlotA = ( SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP == wParam );
-			if ( ( true == bJuneSlotA ) ? ( 0 != kJuneUnitData.m_iUnitClassTran ) : ( 0 != kJuneUnitData.m_UserSkillTree.GetJuneSlotState( 1 ) ) )
+			if ( ( true == bJuneSlotA ) ? ( 0 != kJuneUnitData.m_iUnitClassTran ) : ( 0 != kJuneUnitData.m_UserSkillTree.GetSlotState( 1 ) ) )
 				return true;
 			if ( g_pX2Game != NULL && g_pMain->GetNowStateID() != CX2Main::XS_BATTLE_FIELD )
 			{
@@ -5164,7 +5164,7 @@ bool CX2StateMenu::Hander_EGS_ZERO_ENDURANCE_ITEM_IN_ROOM_NOT( HWND hWnd, UINT u
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 		/// June 32473f70 @324744a5: after the level-up flag, the NOT for my own unit ( vtable +0x198 ) feeds the "new skill or memo" emblem
 		if( true == pUser->IsMyUnit() && NULL != g_pData->GetSkillTree() )
-			g_pData->GetSkillTree()->JuneShowNewSkillOrMemoEmblem();
+			g_pData->GetSkillTree()->ShowNewSkillOrMemoEmblem();
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 		DisplayLevelUpEffect( pUser );
@@ -5273,7 +5273,7 @@ bool CX2StateMenu::Hander_EGS_ZERO_ENDURANCE_ITEM_IN_ROOM_NOT( HWND hWnd, UINT u
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 		/// June 32473f70 @32474a7f ( inside the living-unit block, for any unit's NOT ): below level 11 my newly unlocked castables go into free slots
 		if( NULL != g_pData->GetSkillTree() )
-			g_pData->GetSkillTree()->JuneAutoEquipOnLevelUp();
+			g_pData->GetSkillTree()->AutoEquipOnLevelUp();
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	}
 

@@ -1113,7 +1113,7 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 	m_fTime			= (float)fTime;
 	m_fElapsedTime	= fElapsedTime;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	JuneFrameMoveHpChangeText();	/// Atlas E7: June 3229ecc0 runs it before OnFrameMoveBuff ( 3229d620 @3229f4f3 )
+	FrameMoveHpChangeText();	/// Atlas E7: June 3229ecc0 runs it before OnFrameMoveBuff ( 3229d620 @3229f4f3 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -1133,7 +1133,7 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 	}
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	JuneFrameMoveSimpleTimer();	/// Atlas E7: June 3229ecc0 @3229fabc ( later in the same function; the timer reads only its own fields )
+	FrameMoveSimpleTimer();	/// Atlas E7: June 3229ecc0 @3229fabc ( later in the same function; the timer reads only its own fields )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
@@ -1280,7 +1280,7 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 #endif // SERV_NEW_DEFENCE_DUNGEON
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 	/// June effect completion C4: CX2GameUnit::OnFrameMove 3229ecc0 @3229fab5 ticks the DIVISION window map here, last before 32299af0.
-	JuneTickDivisionWindow( m_fElapsedTime );
+	TickDivisionWindow( m_fElapsedTime );
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 
 	return S_OK;
@@ -1295,7 +1295,7 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 			 sets neither. Otherwise, a super-armored unit inside its cooldown included, the DamageData's own fStopTimeDef ( JUNE_BUGS 191 ).
 			 SetStop2Time( 0 ) on every path. All stops pass bDamageDataStop = true, no attacker, no force ( C3e-4 ).
 */
-void CX2GameUnit::JuneDamageReactHitStop( const CX2DamageManager::DamageData& damageData_ )
+void CX2GameUnit::DamageReactHitStop( const CX2DamageManager::DamageData& damageData_ )
 {
 	/// the jump tables are indexed by the enum's value: these names must keep June's numbers ( June Enum.lua RT_FLIP_SAME_DIR = 18 )
 	static_assert( CX2DamageManager::RT_SMALL_DAMAGE == 1 && CX2DamageManager::RT_FLIP_SAME_DIR == 18, "REACT_TYPE no longer matches June's numbering" );
@@ -1524,7 +1524,7 @@ void CX2GameUnit::SetSphereAttackBoxScale( const wstring& attackBoxName, float f
 			 type, gets m_fRadiusScale (+0x8c) x= scale; a non-empty name keeps only the boxes of that name (31c1c1a0). March's
 			 SetSphereAttackBoxScale instead sets one named sphere.
 */
-void CX2GameUnit::JuneMultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ )
+void CX2GameUnit::MultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ )
 {
 	if ( !( FLT_EPSILON < fabs( fScale_ - 1.f ) ) )
 		return;
@@ -2212,7 +2212,7 @@ float CX2GameUnit::CalcExtraAttackPower( CX2DamageManager::DamageData* pAttDamag
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 /// June buff port Phase 5 debug: one "[JUNE_BUFF] first apply" line per new ChangeStat-class type, so a play-test log
 /// shows the value the store actually received (ErrorLog.txt).
-static void JuneBuffNewStatFirstApply( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const BUFF_CHANGE_TYPE eChangeType_, const float fValue_ )
+static void BuffNewStatFirstApply( const BUFF_BEHAVIOR_TYPE eBehaviorType_, const BUFF_CHANGE_TYPE eChangeType_, const float fValue_ )
 {
 	static std::set<int> s_setSeen;
 	if ( s_setSeen.insert( static_cast<int>( eBehaviorType_ ) ).second )
@@ -2220,7 +2220,7 @@ static void JuneBuffNewStatFirstApply( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 }
 
 /// One line per call site key the first time a read site actually changes a value (iKey_ = the BBT it belongs to).
-static void JuneBuffNewStatFirstRead( const int iKey_, const float fBase_, const float fFactor_ )
+static void BuffNewStatFirstRead( const int iKey_, const float fBase_, const float fFactor_ )
 {
 	static std::set<int> s_setSeen;
 	if ( s_setSeen.insert( iKey_ ).second )
@@ -2231,7 +2231,7 @@ static void JuneBuffNewStatFirstRead( const int iKey_, const float fBase_, const
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 /// June buff port Phase 5 console hook (declaration in X2GameUnit.h). The identity is a made-up BTI (900000 + type) with
 /// unique number 1, so the same line with iInsert_ 0 removes exactly what an insert put in.
-void CX2GameUnit::JuneBuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ )
+void CX2GameUnit::BuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ )
 {
 	const KBuffIdentity BuffIdentity( 900000 + iBehaviorType_, 1 );
 	const BUFF_BEHAVIOR_TYPE eBehaviorType = static_cast<BUFF_BEHAVIOR_TYPE>( iBehaviorType_ );
@@ -2339,7 +2339,7 @@ bool CX2GameUnit::IsDoubleAttackBuffByBuff()
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 /// One "[JUNE_BUFF] first read BBT n" line per reader and session, the first time it changes the outcome (each call site passes its own literal)
-static void JuneBuffNewFlagFirstRead( const int iType_, const char* szWhat_, const int iValue_ )
+static void BuffNewFlagFirstRead( const int iType_, const char* szWhat_, const int iValue_ )
 {
 	static std::set<const char*> s_setSeen;
 	if ( !s_setSeen.insert( szWhat_ ).second )
@@ -2425,7 +2425,7 @@ void CX2GameUnit::DeleteNonControlDebuff()
 		if ( NULL != ptrBuffTemplet && ptrBuffTemplet->IsDeBuff() && ptrBuffTemplet->IsNonControlDebuff() )
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			JuneBuffNewFlagFirstRead( 95, "an existing non-control debuff was erased, BTI", static_cast<int>( ptrBuffTemplet->GetBuffTempletID() ) );
+			BuffNewFlagFirstRead( 95, "an existing non-control debuff was erased, BTI", static_cast<int>( ptrBuffTemplet->GetBuffTempletID() ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			EraseBuffTempletFromGameUnitByIterator( m_vecBuffTempletPtr.begin() + uiIndex );
 		}
@@ -2469,7 +2469,7 @@ bool CX2GameUnit::IsImmuneEDTByBuff( const int iExtraDamageType_ ) const
 
 /// June buff port Phase 16: 92's degrade path. June's SocketOptionForm.lua defines CalculateFinalDamageMaximizeRate,
 /// March's does not; until June's file is packed, 92 refreshes without the curve and the roll reads 0.
-/*static*/ bool CX2GameUnit::IsJuneDamageMaximizeCurveLoaded()
+/*static*/ bool CX2GameUnit::IsDamageMaximizeCurveLoaded()
 {
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	static int s_iLoaded = -1;
@@ -2485,9 +2485,9 @@ bool CX2GameUnit::IsImmuneEDTByBuff( const int iExtraDamageType_ ) const
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 }
 
-float CX2GameUnit::GetJuneDamageMaximizeForRoll() const
+float CX2GameUnit::GetDamageMaximizeForRoll() const
 {
-	return IsJuneDamageMaximizeCurveLoaded() ? GetDamageMaximizeRate() : 0.0f;
+	return IsDamageMaximizeCurveLoaded() ? GetDamageMaximizeRate() : 0.0f;
 }
 
 /// June 322788c0, transcribed. Only when the attacker's range result is above 0: maximize = attacker's 92 result
@@ -2495,7 +2495,7 @@ float CX2GameUnit::GetJuneDamageMaximizeForRoll() const
 /// normal( base + range x maximize, range x 0.5 ) value (boost's classic Box-Muller, 322ab740 / 322ab1c0); the
 /// result is max( base - range + 2 x range x maximize, draw ), capped at base + range. Physic and magic share the
 /// seed, so both take the same first draw.
-void CX2GameUnit::JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ )
+void CX2GameUnit::DamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ )
 {
 	if ( NULL == pAttacker_ )
 		return;
@@ -2512,7 +2512,7 @@ void CX2GameUnit::JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iTy
 	if ( !( 0.0f < fRange ) )
 		return;
 
-	const float fMaximize = pAttacker_->GetJuneDamageMaximizeForRoll() * pAttacker_->GetDamageMaximizeMultiplier( pDamageData_ );
+	const float fMaximize = pAttacker_->GetDamageMaximizeForRoll() * pAttacker_->GetDamageMaximizeMultiplier( pDamageData_ );
 
 	boost::mt19937 kEngine( static_cast<boost::uint32_t>( GetRandomTableIndex( 0 ) & 0xffff ) );
 	boost::normal_distribution<double> kNormal( fBase + fRange * fMaximize, fRange * 0.5 );
@@ -2538,7 +2538,7 @@ void CX2GameUnit::JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iTy
 }
 
 /// June 3230ca6d (SetUserSummonedNPCInfo, after every summon case): 3236ca50 = SetBasicStatValue
-void CX2GameUnit::CopyJuneMaximizeAndRangeFrom( const CX2GameUnit& Owner_ )
+void CX2GameUnit::CopyMaximizeAndRangeFrom( const CX2GameUnit& Owner_ )
 {
 	m_AdditionalDamageMaximize.SetBasicStatValue( Owner_.GetDamageMaximizeRate() );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -2554,7 +2554,7 @@ void CX2GameUnit::CopyJuneMaximizeAndRangeFrom( const CX2GameUnit& Owner_ )
 /// share of the player's own attack, the same share for physic and magic. A balance value, not June data: retune here.
 static const float JUNE_DESIGNED_ATTACK_RANGE_RATE = 0.10f;
 
-void CX2GameUnit::SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ )
+void CX2GameUnit::SetDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ )
 {
 	if ( GUT_USER != GetGameUnitType() )	/// NPCs keep range 0, as June's SetNPCStat (32763770); summons copy their owner's
 		return;
@@ -2574,7 +2574,7 @@ void CX2GameUnit::SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ )
 /// June buff port 16-step3b2 item 1: June GetFinalDamage's DT_PHYSIC / DT_MAGIC / DT_MIX cases (@32285849..32285bef, run
 /// under Unicorn) scale each defence by 1 - min( the attacker's piercing rate, 0.2 ), clamped at 0, before the piercing
 /// defence factor. The weapon cases read no rate. A negative rate raises the defence (no lower clamp in June).
-static float JuneSocketPiercingKeep( const float fPiercingRate_ )
+static float SocketPiercingKeep( const float fPiercingRate_ )
 {
 	const float fRate = ( 0.2f < fPiercingRate_ ) ? 0.2f : fPiercingRate_;
 	const float fKeep = 1.0f - fRate;
@@ -2582,7 +2582,7 @@ static float JuneSocketPiercingKeep( const float fPiercingRate_ )
 }
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 /// 16-step3b2: one "[JUNE_BUFF] first socket <term>" line per socket term, the first time it changes a value
-static void JuneSocketFirstApply( bool& bSeen_, const char* szTerm_, const float fRate_, const float fBefore_, const float fAfter_ )
+static void SocketFirstApply( bool& bSeen_, const char* szTerm_, const float fRate_, const float fBefore_, const float fAfter_ )
 {
 	if ( bSeen_ )
 		return;
@@ -2592,7 +2592,7 @@ static void JuneSocketFirstApply( bool& bSeen_, const char* szTerm_, const float
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #if defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 /// Phase 15 step 2b debug: the first 20 "[JUNE_BUFF] enchant ..." lines of each kind per session (ticks run once a second per unit)
-static bool JuneEnchantDebugBudget( int& iCount_ )
+static bool EnchantDebugBudget( int& iCount_ )
 {
 	return ( iCount_++ < 20 );
 }
@@ -2603,7 +2603,7 @@ static bool JuneEnchantDebugBudget( int& iCount_ )
 /// (unit vslot 0x1cc = 3208e0d0), in place of March's GetCriticalValueFromDefender() <= rate. March subtracted the
 /// panic and anti-critical terms from the random value, so the anti-critical rate RAISED the attacker's chance; June
 /// subtracts it from the threshold, so it lowers it. The socket anti-critical option (+0x5a14) is a percent (x 0.01).
-float CX2GameUnit::GetJuneCriticalThresholdTerm() const
+float CX2GameUnit::GetCriticalThresholdTerm() const
 {
 	float fTerm = 0.0f;
 	/// protected +0x2b28 / +0x2bc4 = m_Panic's time / m_fCriticalRateToDefender (March GetCriticalValueFromDefender's term)
@@ -2627,7 +2627,7 @@ float CX2GameUnit::GetJuneCriticalThresholdTerm() const
 	{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		static bool s_bSeenAntiCritical = false;
-		JuneSocketFirstApply( s_bSeenAntiCritical, "anti-critical (critical threshold)", fSocketAntiCritical, fTerm, fTerm - fSocketAntiCritical * 0.01f );
+		SocketFirstApply( s_bSeenAntiCritical, "anti-critical (critical threshold)", fSocketAntiCritical, fTerm, fTerm - fSocketAntiCritical * 0.01f );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		fTerm -= fSocketAntiCritical * 0.01f;
 	}
@@ -2645,7 +2645,7 @@ float CX2GameUnit::GetJuneCriticalThresholdTerm() const
 ///   type (March skipped that test for its magic types).
 /// The physic rate is June's user +0x8dfc (32070e00 = min( it, 1 )), next to the magic one (+0x8df8, 32070de0 = March's
 /// GetAddMagicAttackCriticalDamageRate). March has no writer for it (June's is class code, checklist section 7), so it is 0.
-float CX2GameUnit::GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ )
+float CX2GameUnit::GetCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ )
 {
 	float fCritical = 0.0f;
 	if ( CX2GameUnit::GUT_USER == pAttacker_->GetGameUnitType() )
@@ -2661,10 +2661,10 @@ float CX2GameUnit::GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2
 		case CX2DamageManager::DT_MIX:
 		case CX2DamageManager::DT_WEAPON_MIX:
 			fCritical += pGUUser->GetAddMagicAttackCriticalDamageRate() * 0.5f;
-			fCritical += pGUUser->GetJuneAddPhysicAttackCriticalDamageRate() * 0.5f;
+			fCritical += pGUUser->GetAddPhysicAttackCriticalDamageRate() * 0.5f;
 			break;
 		default:
-			fCritical += pGUUser->GetJuneAddPhysicAttackCriticalDamageRate();
+			fCritical += pGUUser->GetAddPhysicAttackCriticalDamageRate();
 			break;
 		}
 		fCritical += pDamageData_->m_fApplyCriticalDamage;
@@ -2680,7 +2680,7 @@ float CX2GameUnit::GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2
 		if ( 0.0f != fAfflicted )
 		{
 			static bool s_bSeenAfflicted = false;
-			JuneSocketFirstApply( s_bSeenAfflicted, "critical afflicted (critical damage)", fAfflicted, fCritical, fCritical + fAfflicted );
+			SocketFirstApply( s_bSeenAfflicted, "critical afflicted (critical damage)", fAfflicted, fCritical, fCritical + fAfflicted );
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		fCritical += fAfflicted;
@@ -2728,8 +2728,8 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	float fMagicAttack = pAttacker->GetMagicAttackValue();
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	/// June buff port Phase 16: GetFinalDamage @32284c1f / @32284c2f rolls both attacks right here (no-op at range 0)
-	JuneDamageMaximizeRoll( pAttacker, 0, pAttDamageData, fPhysicAttack );
-	JuneDamageMaximizeRoll( pAttacker, 1, pAttDamageData, fMagicAttack );
+	DamageMaximizeRoll( pAttacker, 0, pAttDamageData, fPhysicAttack );
+	DamageMaximizeRoll( pAttacker, 1, pAttDamageData, fMagicAttack );
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	float fPhysicDefence = pDefender->GetPhysicDefenceValue();
 	float fMagicDefence = pDefender->GetMagicDefenceValue();
@@ -2954,7 +2954,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				static bool s_bSeenEnemyHPFew = false;
-				JuneSocketFirstApply( s_bSeenEnemyHPFew, "enemy-HP-few damage (physic attack)", fEnemyHPFewRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fEnemyHPFewRate );
+				SocketFirstApply( s_bSeenEnemyHPFew, "enemy-HP-few damage (physic attack)", fEnemyHPFewRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fEnemyHPFewRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				fPhysicAttack += fPhysicAttack * fEnemyHPFewRate;
 				fMagicAttack += fMagicAttack * fEnemyHPFewRate;
@@ -2966,7 +2966,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			static bool s_bSeenAttackedDamage = false;
-			JuneSocketFirstApply( s_bSeenAttackedDamage, "additional attacked damage (physic attack)", fAttackedDamageRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fAttackedDamageRate );
+			SocketFirstApply( s_bSeenAttackedDamage, "additional attacked damage (physic attack)", fAttackedDamageRate, fPhysicAttack, fPhysicAttack + fPhysicAttack * fAttackedDamageRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			fPhysicAttack += fPhysicAttack * fAttackedDamageRate;
 			fMagicAttack += fMagicAttack * fAttackedDamageRate;
@@ -2980,7 +2980,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				static bool s_bSeenMyHpFew = false;
-				JuneSocketFirstApply( s_bSeenMyHpFew, "my-HP-few damage (physic attack)", fMyHpFewScaled, fPhysicAttack, fPhysicAttack + fPhysicAttack * fMyHpFewScaled );
+				SocketFirstApply( s_bSeenMyHpFew, "my-HP-few damage (physic attack)", fMyHpFewScaled, fPhysicAttack, fPhysicAttack + fPhysicAttack * fMyHpFewScaled );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				fPhysicAttack += fPhysicAttack * fMyHpFewScaled;
 				fMagicAttack += fMagicAttack * fMyHpFewScaled;
@@ -3167,7 +3167,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	{
 		const CX2GUNPC* pJuneFuryNPC = dynamic_cast<const CX2GUNPC*>( pAttacker );
 		float fJuneFuryRate = 1.f;
-		if ( NULL != pJuneFuryNPC && true == pJuneFuryNPC->JuneGetFuryAttackPowerRate( fJuneFuryRate ) )
+		if ( NULL != pJuneFuryNPC && true == pJuneFuryNPC->GetFuryAttackPowerRate( fJuneFuryRate ) )
 		{
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 			const float fJuneFuryPhysicBefore = fAttackerPhysicDamage;
@@ -3197,7 +3197,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	/// DamageData's damage at @32285749-32285753) go to 32622780 before the attacker's slot 0x3ac / 0x3b0 hook (March: the
 	/// ModifyFinalDamageByGameUnitType call below). It scales both by the DIVIDE_DAMAGE_FROM_RANGE rate for the effect-to-defender
 	/// distance, only when that rate is below 1.0. Only these locals change, never pAttDamageData->damage.
-	CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( *pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+	CX2DamageEffect::CEffect::ApplyDivideDamageFromRange( *pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
 #endif defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 	
 	if ( CX2DamageManager::AT_NORMAL == pAttDamageData->attackType )
@@ -3209,9 +3209,9 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 	/// June 32284aa0 @322857fb: March's AT_NORMAL call above stays for the classes not yet on June's slots
 	if ( CX2DamageManager::AT_SPECIAL == pAttDamageData->attackType )
-		pAttacker->JuneModifySpecialFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+		pAttacker->ModifySpecialFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
 	else
-		pAttacker->JuneModifyFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
+		pAttacker->ModifyFinalDamageByGameUnitType( pAttDamageData, fAttackerPhysicDamage, fAttackerMagicDamage );
 #endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 
 	switch( pAttDamageData->damageType )
@@ -3223,7 +3223,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June @32285850: the attacker's physic piercing rate (16-step3b2 item 1, JuneSocketPiercingKeep)
 			fDefencePower = fPhysicDefence + pDefenderStat->GetAddOnStat().m_fDefPhysic;
-			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * JuneSocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() ) );
+			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * SocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() ) );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = fPhysicDefence + pDefenderStat->GetAddOnStat().m_fDefPhysic;
 			fDefencePower *= fPiercingDefenceFactor;
@@ -3237,7 +3237,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June @32285952: the attacker's magic piercing rate (16-step3b2 item 1, JuneSocketPiercingKeep)
 			fDefencePower = fMagicDefence + pDefenderStat->GetAddOnStat().m_fDefMagic;
-			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * JuneSocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() ) );
+			fDefencePower = fPiercingDefenceFactor * ( fDefencePower * SocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() ) );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = fMagicDefence + pDefenderStat->GetAddOnStat().m_fDefMagic;
 			fDefencePower *= fPiercingDefenceFactor;
@@ -3252,8 +3252,8 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June @32285a54 / @32285b3a: each defence takes its own piercing rate before the average (16-step3b2 item 1)
-			fDefencePowerPhysic *= JuneSocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() );
-			fDefencePowerMagic *= JuneSocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() );
+			fDefencePowerPhysic *= SocketPiercingKeep( pAttacker->GetAtkPhysicPiercingRate() );
+			fDefencePowerMagic *= SocketPiercingKeep( pAttacker->GetAtkMagicPiercingRate() );
 			fDefencePower = fPiercingDefenceFactor * ( ( fDefencePowerMagic + fDefencePowerPhysic ) * 0.5f );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fDefencePower = (fDefencePowerPhysic + fDefencePowerMagic) * 0.5f;
@@ -3342,7 +3342,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	float fDefenceRateBySkill = 1.f; 
 #ifdef SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
-		fDefenceRateBySkill = static_cast<CX2GUUser*>( pAttacker )->JuneGetDefenceRateBySkill( static_cast<int>( pAttDamageData->attackType ) );	// June 32284aa0 @32285cf9 ( vslot 0x428 )
+		fDefenceRateBySkill = static_cast<CX2GUUser*>( pAttacker )->GetDefenceRateBySkill( static_cast<int>( pAttDamageData->attackType ) );	// June 32284aa0 @32285cf9 ( vslot 0x428 )
 #else SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 #ifdef NEW_SKILL_TREE
 	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
@@ -3606,9 +3606,9 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		if ( 0.0f != fIncreaseDamageByUnitType )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER : BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC, fFinalDamage, fIncreaseDamageByUnitType );
+			BuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER : BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC, fFinalDamage, fIncreaseDamageByUnitType );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? 109 : 108, fFinalDamage, fIncreaseDamageByUnitType );
+			BuffNewStatFirstRead( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() ? 109 : 108, fFinalDamage, fIncreaseDamageByUnitType );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
@@ -3618,7 +3618,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			const float fCommandRate = ( pAttDamageData->m_bMeleeAttack ? pAttacker->GetMeleeCommandDamageRate() : pAttacker->GetRangeCommandDamageRate() );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			if ( 1.0f != fCommandRate )
-				JuneBuffNewStatFirstRead( pAttDamageData->m_bMeleeAttack ? 87 : 96, fFinalDamage, fCommandRate );
+				BuffNewStatFirstRead( pAttDamageData->m_bMeleeAttack ? 87 : 96, fFinalDamage, fCommandRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			fFinalDamage *= fCommandRate;
 		}
@@ -3631,7 +3631,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		if ( false == pAttDamageData->m_bIgnoreStateDefence )
-			JuneBuffNewFlagFirstRead( 73, "the defender's buff makes this hit ignore its state defence, reduce %", m_DamageReducePercent );
+			BuffNewFlagFirstRead( 73, "the defender's buff makes this hit ignore its state defence, reduce %", m_DamageReducePercent );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		pAttDamageData->m_bIgnoreStateDefence = true;
 	}
@@ -3711,11 +3711,11 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 				/// damage *= the attacker's m_fIncreaseDmgRateToBoss result (basic 1.0; an NPC attacker's is 2.0, JUNE_BUGS #46).
 				/// June's other boss route (@32286482..32286505: an NPC listed in the custom event manager's +0x604 map, only in
 				/// DI_SPACE_OF_THOUGHT_1/2/3/DUMMY = 41480-41510, June DungeonEnum.lua) has neither half in March: not ported.
-				if ( pGUNPC->IsJuneSocketBossGrade() )
+				if ( pGUNPC->IsSocketBossGrade() )
 				{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					static bool s_bSeenToBoss = false;
-					JuneSocketFirstApply( s_bSeenToBoss, "damage to boss (final damage)", pAttacker->GetIncreaseDmgRateToBoss(), fFinalDamage, pAttacker->GetIncreaseDmgRateToBoss() * fFinalDamage );
+					SocketFirstApply( s_bSeenToBoss, "damage to boss (final damage)", pAttacker->GetIncreaseDmgRateToBoss(), fFinalDamage, pAttacker->GetIncreaseDmgRateToBoss() * fFinalDamage );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					fFinalDamage = pAttacker->GetIncreaseDmgRateToBoss() * fFinalDamage;
 				}
@@ -3773,13 +3773,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 				fPiercingDamage = GetItemAttackPower( pAttacker, pItem );
 				if ( true == CX2EnchantItem::JuneIsEnchantStatScaleOn() && NULL != pItem )
 					fPiercingDamage *= ENCHANT_STAT_SCALE[ pItem->GetItemData().m_EnchantLevel ];
-				pJuneEnchantData = JuneGetAttackerEnchantData( pAttacker, true, false );
+				pJuneEnchantData = GetAttackerEnchantData( pAttacker, true, false );
 			} break;
 
 		case CX2GameUnit::GUT_NPC:
 			{
 				fPiercingDamage = fPhysicAttack + fMagicAttack;
-				pJuneEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+				pJuneEnchantData = GetAttackerEnchantData( pAttacker, false, false );
 			} break;
 		}
 		const float fJuneBase = fPiercingDamage;
@@ -3788,7 +3788,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		const float fJuneKeep = 1.f - pDefender->GetEnchantResist( CX2EnchantItem::ET_WIND ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		static int s_iPiercingLines = 0;
-		if ( JuneEnchantDebugBudget( s_iPiercingLines ) )
+		if ( EnchantDebugBudget( s_iPiercingLines ) )
 			CX2JuneBuffCapture::Line( "enchant piercing: base %g, factor %g, keep %g -> damage %g + %g", fJuneBase,
 				( NULL != pJuneEnchantData ? pJuneEnchantData->m_fPiercingDamageFactor : -1.f ), fJuneKeep, fFinalDamage, fJuneKeep * fPiercingDamage );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -3932,7 +3932,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			static bool s_bSeenDefMyHPFew = false;
-			JuneSocketFirstApply( s_bSeenDefMyHPFew, "my-HP-few defence (final damage)", fDefMyHPFewRate, fFinalDamage, ( 1.f - fDefMyHPFewRate ) * fFinalDamage );
+			SocketFirstApply( s_bSeenDefMyHPFew, "my-HP-few defence (final damage)", fDefMyHPFewRate, fFinalDamage, ( 1.f - fDefMyHPFewRate ) * fFinalDamage );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			fFinalDamage = ( 1.f - fDefMyHPFewRate ) * fFinalDamage;
 		}
@@ -3960,7 +3960,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	// (@32286995-322869a8), 3227c940 multiplies the damage by the attacker's DAMAGE_TRIGGER_DATA rate for
 	// DTT_MULTIPLE_DAMAGE_BY_DEBUFF, scaled by this (the defender's) stack count of the entry's buff.
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BINDING
-	JuneApplyMultipleDamageByDebuff( fFinalDamage, *pAttDamageData );
+	ApplyMultipleDamageByDebuff( fFinalDamage, *pAttDamageData );
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	
@@ -4031,14 +4031,14 @@ void CX2GameUnit::GetHpRateDamage( IN OUT float* pfDamage_, IN const CX2DamageMa
 			 damage *= rate. The arithmetic is x87 (double 1.0 @334355b0, 0.0 @334350e8), so it is done in double and
 			 rounded to float once, at the store (@3227c994).
 */
-void CX2GameUnit::JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ )
+void CX2GameUnit::ApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF = CX2DamageManager::DTT_MULTIPLE_DAMAGE_BY_DEBUFF;
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF = 40;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const CX2DamageManager::JuneDamageTriggerData* pEntry = damageData_.JuneFindDamageTriggerData( JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF );
+	const CX2DamageManager::JuneDamageTriggerData* pEntry = damageData_.FindDamageTriggerData( JUNE_DTT_MULTIPLE_DAMAGE_BY_DEBUFF );
 	if ( NULL == pEntry )
 		return;
 
@@ -4069,7 +4069,7 @@ void CX2GameUnit::JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN co
 	@brief : June 32278580 (this = the unit, OUT name, pos): the frame name of the collision point nearest vPos_
 			 (walks the collision list set, GetPointStart, strict <, from 99999; empty without collision data).
 */
-std::wstring CX2GameUnit::JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const
+std::wstring CX2GameUnit::GetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const
 {
 	std::wstring wstrNearestFrame;
 	float fNearest = 99999.f;
@@ -4430,7 +4430,7 @@ void CX2GameUnit::InitStat()
 // unit ( the bool is cleared only by the ctor ) copies the whole m_PhysicParam to the backup; then reload / G accel / max G speed = backup x the world
 // rate. No MAGIC_GRAVITY_SCALE and no != 1 test, unlike ResetPhysicParam ( JUNE_BUGS 150 ); a ResetPhysicParam at a rate != 1 before the first
 // call bakes a scaled value into the backup, which this then scales again ( JUNE_BUGS 149 ). Both kept verbatim.
-void CX2GameUnit::ApplyJuneWorldGravityRate()
+void CX2GameUnit::ApplyWorldGravityRate()
 {
 	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() )
 		return;
@@ -4451,7 +4451,7 @@ void CX2GameUnit::ApplyJuneWorldGravityRate()
 // June 32296be0 ( C3o ), called by the NPC CommonFrameMove window ( 327b53b0 @327b5578 ) and by the user's ( 32063650 @3206cdcb, C3r ). Only while a window
 // is set ( START >= 0, @32296be3-32296bf3 ): fade the world back to its origin colour over 1 s ( world +0xc4..+0xd0 = +0x90..+0x9c, +0xd4 = 1.0, which is
 // CX2World::FadeWorldColor( GetOriginColor(), 1 ) ), then both times = -1. June fetches g_pX2Game and the world without a null check: the checks are ours.
-void CX2GameUnit::RestoreJuneWorldColor()
+void CX2GameUnit::RestoreWorldColor()
 {
 	if ( 0.f <= m_fJuneWorldColorStartTime )
 	{
@@ -4760,7 +4760,7 @@ bool CX2GameUnit::ProcessEnchantExtraDamage( CX2DamageManager::DamageData* pDama
 		float fRate = pWeaponEnchantData->m_fRate;
 #ifdef ENCHANT_ACCUMULATION_RATE_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
-		fRate = JuneEnchantAccumulationRateModifier( pDamageData, basicExtraDamageType, miscExtraDamageType, fRate );	/// June 322a0510 -> 32272d90
+		fRate = EnchantAccumulationRateModifier( pDamageData, basicExtraDamageType, miscExtraDamageType, fRate );	/// June 322a0510 -> 32272d90
 #else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		fRate = EnchantAccumulationRateModifier(basicExtraDamageType, miscExtraDamageType, fRate);
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
@@ -4821,9 +4821,9 @@ bool CX2GameUnit::ProcessEnchantExtraDamage( CX2DamageManager::DamageData* pDama
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuffNewFlagFirstRead( BBT_IMMUNE_EDT, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
+			BuffNewFlagFirstRead( BBT_IMMUNE_EDT, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuffNewFlagFirstRead( 105, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
+			BuffNewFlagFirstRead( 105, "this unit's buff refused the enchant extra damage, EDT", static_cast<int>( basicExtraDamageType ) );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			return false;
@@ -6388,6 +6388,7 @@ const CX2EnchantItem::EnchantData* CX2GameUnit::GetWeaponEnchantData( CX2DamageM
 }
 
 #ifdef ENCHANT_ACCUMULATION_RATE_MODIFIER
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 float CX2GameUnit::EnchantAccumulationRateModifier( CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate )
 {
 	switch(basicExtraDamageType)
@@ -6488,11 +6489,11 @@ float CX2GameUnit::EnchantAccumulationRateModifier( CX2DamageManager::EXTRA_DAMA
 	}
 	return fRate;
 }
-#ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 /// June buff port Phase 15: June 32272d90. R = the misc EDT's m_fAttribReiterationRate from the attacker's own table
 /// (user or NPC; the misc EDT's table directly, so USE_OWNERS_ENCHANT does not apply); only the basic
 /// blaze/frozen/poison with one of that element's four tiers qualifies; accumulation (before this proc) 1 -> + R, 2 -> + 2R.
-float CX2GameUnit::JuneEnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate )
+float CX2GameUnit::EnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate )
 {
 	float fReiterationRate = 0.0f;
 	CX2GameUnit* pAttacker = ( NULL != pDamageData_ ) ? pDamageData_->optrAttackerGameUnit.GetObservable() : NULL;
@@ -6572,7 +6573,7 @@ static const BUFF_TEMPLET_ID JUNE_BTI_DEBUFF_SLOW_FROZEN	= static_cast<BUFF_TEMP
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 /// One "[JUNE_BUFF] enchant: BFI n has no factor" line per BFI and session. June null-checks the factor (@32068bfa) and skips silently.
-static bool JuneEnchantDebuffFactorPresent( const CX2BuffFactorPtr& ptrFactor_, const UINT uiBuffFactorID_, const char* szWhat_ )
+static bool EnchantDebuffFactorPresent( const CX2BuffFactorPtr& ptrFactor_, const UINT uiBuffFactorID_, const char* szWhat_ )
 {
 	if ( NULL != ptrFactor_ )
 		return true;
@@ -6585,19 +6586,19 @@ static bool JuneEnchantDebuffFactorPresent( const CX2BuffFactorPtr& ptrFactor_, 
 	return false;
 }
 
-CX2DamageManager::EXTRA_DAMAGE_TYPE CX2GameUnit::JuneGetWeaponEnchantExtraDamageType()
+CX2DamageManager::EXTRA_DAMAGE_TYPE CX2GameUnit::GetWeaponEnchantExtraDamageType()
 {
 	if ( CX2GameUnit::GUT_NPC == GetGameUnitType() && true == m_kJuneUseOwnersEnchant.m_bUse )
 	{
 		/// June reads the owner observer (+0x8d5c) directly; March's getter is the same observer
 		CX2GameUnit* pOwner = static_cast<CX2GUNPC*>( this )->GetOwnerGameUnit();
 		if ( NULL != pOwner )
-			return pOwner->JuneGetWeaponEnchantExtraDamageType();
+			return pOwner->GetWeaponEnchantExtraDamageType();
 	}
 	return m_eWeaponEnchantExtraDamageType;
 }
 
-const CX2EnchantItem::EnchantData* CX2GameUnit::JuneGetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ )
+const CX2EnchantItem::EnchantData* CX2GameUnit::GetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ )
 {
 	if ( NULL == pAttacker_ || NULL == g_pData->GetEnchantItem() )
 		return NULL;
@@ -6608,7 +6609,7 @@ const CX2EnchantItem::EnchantData* CX2GameUnit::JuneGetAttackerEnchantData( CX2G
 
 	CX2DamageManager::EXTRA_DAMAGE_TYPE eFirst = CX2DamageManager::EDT_NONE;
 	CX2DamageManager::EXTRA_DAMAGE_TYPE eSecond = CX2DamageManager::EDT_NONE;
-	CX2EnchantItem::DecomposeEnchantExtraDamage( pAttacker_->JuneGetWeaponEnchantExtraDamageType(), eFirst, eSecond );
+	CX2EnchantItem::DecomposeEnchantExtraDamage( pAttacker_->GetWeaponEnchantExtraDamageType(), eFirst, eSecond );
 	const CX2DamageManager::EXTRA_DAMAGE_TYPE ePart = ( true == bSecondPart_ && CX2DamageManager::EDT_NONE != eSecond ) ? eSecond : eFirst;
 
 	if ( true == bUser || true == bUserMapAlways_ )
@@ -6616,7 +6617,7 @@ const CX2EnchantItem::EnchantData* CX2GameUnit::JuneGetAttackerEnchantData( CX2G
 	return g_pData->GetEnchantItem()->GetNPCEnchantData( ePart );
 }
 
-void CX2GameUnit::JuneApplyEnchantSlowDebuff( const int iElement_ )
+void CX2GameUnit::ApplyEnchantSlowDebuff( const int iElement_ )
 {
 	const bool bFrozen = ( 2 == iElement_ );
 	CX2DamageManager::ExtraDamageData& kElement = ( true == bFrozen ? m_ExtraDamagePack.m_EnchantFrozen : m_ExtraDamagePack.m_EnchantPoison );
@@ -6624,7 +6625,7 @@ void CX2GameUnit::JuneApplyEnchantSlowDebuff( const int iElement_ )
 	CX2GameUnit* pAttacker = kElement.m_optrGameUnit.GetObservable();
 	if ( NULL == pAttacker )
 		return;
-	const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+	const CX2EnchantItem::EnchantData* pEnchantData = GetAttackerEnchantData( pAttacker, false, false );
 	if ( NULL == pEnchantData )
 		return;
 
@@ -6651,31 +6652,31 @@ void CX2GameUnit::JuneApplyEnchantSlowDebuff( const int iElement_ )
 		fRunValue = 1.0f;
 
 	const BUFF_TEMPLET_ID eBuffTempletID = ( true == bFrozen ? JUNE_BTI_DEBUFF_SLOW_FROZEN : JUNE_BTI_DEBUFF_SLOW_POISON );
-	if ( true == HaveUnfinishedBuff( eBuffTempletID ) && false == JuneIsEnchantAccumulationRose( iElement_ ) )
+	if ( true == HaveUnfinishedBuff( eBuffTempletID ) && false == IsEnchantAccumulationRose( iElement_ ) )
 		return;
 
 	const UINT uiBuffFactorID = ( true == bFrozen ? JUNE_BFI_DEBUFF_SLOW_FROZEN : JUNE_BFI_DEBUFF_SLOW_POISON );
 	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorID );
-	if ( false == JuneEnchantDebuffFactorPresent( ptrBuffFactor, uiBuffFactorID, true == bFrozen ? "frozen slow" : "poison slow" ) )
+	if ( false == EnchantDebuffFactorPresent( ptrBuffFactor, uiBuffFactorID, true == bFrozen ? "frozen slow" : "poison slow" ) )
 		return;
 
 	EraseBuffTempletFromGameUnit( eBuffTempletID );
 	CX2BuffFactorPtr ptrClone = ptrBuffFactor->GetClonePtr();
-	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_ANIM_SPEED, fAnimValue, 2 );		/// BBT 11
-	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_JUMP_POWER, fJumpValue, 2 );		/// BBT 13
-	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_WALK_RUN_SPEED, fRunValue, 2 );	/// BBT 12
+	ptrClone->SetBehaviorValue( BBT_CHANGE_ANIM_SPEED, fAnimValue, 2 );		/// BBT 11
+	ptrClone->SetBehaviorValue( BBT_CHANGE_JUMP_POWER, fJumpValue, 2 );		/// BBT 13
+	ptrClone->SetBehaviorValue( BBT_CHANGE_WALK_RUN_SPEED, fRunValue, 2 );	/// BBT 12
 	ptrClone->SetGameUnitBuffFactor( this, -1, true );
 	SetBuffFactorToGameUnit( *ptrClone );
 	m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1] = false;	/// June 322727a0( element, 0 )
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	static int s_iSlowLines = 0;
-	if ( JuneEnchantDebugBudget( s_iSlowLines ) )
+	if ( EnchantDebugBudget( s_iSlowLines ) )
 		CX2JuneBuffCapture::Line( "enchant %s slow: accumulation %d, resist %g, anim %g jump %g run %g (BFI %u)", true == bFrozen ? "frozen" : "poison",
 			iIndex + 1, fResist, fAnimValue, fJumpValue, fRunValue, uiBuffFactorID );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 }
 
-void CX2GameUnit::JuneApplyEnchantShockDebuff()
+void CX2GameUnit::ApplyEnchantShockDebuff()
 {
 	if ( true == HaveUnfinishedBuff( JUNE_BTI_DEBUFF_HARD_BODY ) )
 		EraseBuffTempletFromGameUnit( JUNE_BTI_DEBUFF_HARD_BODY );
@@ -6684,12 +6685,12 @@ void CX2GameUnit::JuneApplyEnchantShockDebuff()
 	if ( NULL == pAttacker )
 		return;
 	/// June @32068b18: the second decomposed part when there is one, and the user map for an NPC attacker too (JUNE_BUGS)
-	const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, true, true );
+	const CX2EnchantItem::EnchantData* pEnchantData = GetAttackerEnchantData( pAttacker, true, true );
 	if ( NULL == pEnchantData )
 		return;
 
 	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( JUNE_BFI_DEBUFF_HARD_BODY );
-	if ( false == JuneEnchantDebuffFactorPresent( ptrBuffFactor, JUNE_BFI_DEBUFF_HARD_BODY, "shock debuff" ) )
+	if ( false == EnchantDebuffFactorPresent( ptrBuffFactor, JUNE_BFI_DEBUFF_HARD_BODY, "shock debuff" ) )
 		return;
 
 	/// June @32068c22: r = 1 - light resist / 500; physic and magic attack (BBT 7, 8) both become 1 - r x factor, time = time x r
@@ -6697,26 +6698,26 @@ void CX2GameUnit::JuneApplyEnchantShockDebuff()
 	const float fKeep = 1.0f - GetEnchantResist( CX2EnchantItem::ET_LIGHT ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE );
 	const float fValue = 1.0f - fKeep * pEnchantData->m_fShockDebuffDamageFactor;
 	const float fTime = static_cast<float>( pEnchantData->m_iShockDebuffTime ) * fKeep;
-	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_PHYSIC_ATTACK, fValue, 2 );
-	ptrClone->JuneSetBehaviorValue( BBT_CHANGE_MAGIC_ATTACK, fValue, 2 );
-	ptrClone->JuneSetTimeFinalizerValue( fTime, false );
+	ptrClone->SetBehaviorValue( BBT_CHANGE_PHYSIC_ATTACK, fValue, 2 );
+	ptrClone->SetBehaviorValue( BBT_CHANGE_MAGIC_ATTACK, fValue, 2 );
+	ptrClone->SetTimeFinalizerValue( fTime, false );
 	ptrClone->SetGameUnitBuffFactor( this, -1, true );
 	SetBuffFactorToGameUnit( *ptrClone );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	static int s_iShockLines = 0;
-	if ( JuneEnchantDebugBudget( s_iShockLines ) )
+	if ( EnchantDebugBudget( s_iShockLines ) )
 		CX2JuneBuffCapture::Line( "enchant shock debuff: keep %g, attack x %g, time %g s (BFI %u)", fKeep, fValue, fTime, JUNE_BFI_DEBUFF_HARD_BODY );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 }
 
-void CX2GameUnit::JuneEraseEnchantSlowDebuff( const int iElement_ )
+void CX2GameUnit::EraseEnchantSlowDebuff( const int iElement_ )
 {
 	const BUFF_TEMPLET_ID eBuffTempletID = ( 2 == iElement_ ? JUNE_BTI_DEBUFF_SLOW_FROZEN : JUNE_BTI_DEBUFF_SLOW_POISON );
 	if ( true == HaveUnfinishedBuff( eBuffTempletID ) )
 		EraseBuffTempletFromGameUnit( eBuffTempletID );
 }
 
-float CX2GameUnit::JuneEnchantBlazeMpDrain( const bool bResist_ )
+float CX2GameUnit::EnchantBlazeMpDrain( const bool bResist_ )
 {
 	const float fNowMpBefore = GetNowMp();
 	if ( fNowMpBefore > 0.0f )
@@ -6725,13 +6726,13 @@ float CX2GameUnit::JuneEnchantBlazeMpDrain( const bool bResist_ )
 		if ( NULL != pAttacker )
 		{
 			const float fKeep = ( true == bResist_ ? 1.0f - GetEnchantResist( CX2EnchantItem::ET_BLAZE ) / static_cast<float>( CX2EnchantItem::EAR_MAX_VALUE ) : 1.0f );
-			const CX2EnchantItem::EnchantData* pEnchantData = JuneGetAttackerEnchantData( pAttacker, false, false );
+			const CX2EnchantItem::EnchantData* pEnchantData = GetAttackerEnchantData( pAttacker, false, false );
 			if ( NULL != pEnchantData )
 			{
 				UpNowMp( -( pEnchantData->m_fBlazeMpDrain * fKeep ) );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				static int s_iDrainLines = 0;
-				if ( JuneEnchantDebugBudget( s_iDrainLines ) )
+				if ( EnchantDebugBudget( s_iDrainLines ) )
 					CX2JuneBuffCapture::Line( "enchant blaze MP drain (%s): MP %g, drain %g x keep %g -> MP %g", true == bResist_ ? "user" : "NPC",
 						fNowMpBefore, pEnchantData->m_fBlazeMpDrain, fKeep, GetNowMp() );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -6741,7 +6742,7 @@ float CX2GameUnit::JuneEnchantBlazeMpDrain( const bool bResist_ )
 	return fNowMpBefore;
 }
 
-void CX2GameUnit::JuneDrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ )
+void CX2GameUnit::DrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ )
 {
 	WCHAR wszText[64] = L"";
 	swprintf_s( wszText, 64, ( true == bPercent_ ? L"MP- %d PERCENT" : L"MP- %d" ), static_cast<int>( fValue_ + 0.5 ) );
@@ -6806,7 +6807,7 @@ CKTDXDeviceSound* CX2GameUnit::PlaySound( const WCHAR* pName, bool b3DSound, boo
 /// misses), then falls back to "<name><index>". June's NF_BR is 0x700; March's enum gives NF_BR 0x1000 and 0x700 to NF_VN. June's
 /// literals are kept, so March's own BR/VN builds would swap, which this US build never meets. March's US flag is NF_US = 0x400
 /// (the same value as June's), and no corpus carries a "_US" table, so every read here falls back to the plain name.
-bool CX2GameUnit::JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ )
+bool CX2GameUnit::BeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ )
 {
 	DWORD dwNationFlag = 0;
 #ifdef CLIENT_USE_NATION_FLAG
@@ -6834,7 +6835,7 @@ bool CX2GameUnit::JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char*
 }
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
-static void JuneUnitSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszList_, CKTDXDeviceSound* pSound_, int iUnitUID_ )
+static void UnitSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszList_, CKTDXDeviceSound* pSound_, int iUnitUID_ )
 {
 	WCHAR wszJuneFx[256] = {0};
 	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_SOUND %s list=%s name=%s unit=%d",
@@ -6885,7 +6886,7 @@ void CX2GameUnit::AttachSoundDeleteCondition( CKTDXDeviceSound* pSound_, const v
 				break;
 			iLen += iWritten;
 		}
-		JuneUnitSoundLog( L"attach", ( 0 == iLen ) ? L"(none)" : wszList, pSound_, static_cast<int>( GetUnitUID() ) );
+		UnitSoundLog( L"attach", ( 0 == iLen ) ? L"(none)" : wszList, pSound_, static_cast<int>( GetUnitUID() ) );
 	}
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
 }
@@ -6893,14 +6894,14 @@ void CX2GameUnit::AttachSoundDeleteCondition( CKTDXDeviceSound* pSound_, const v
 /// June 32276ce0 / 32276ca0 / 32276d20 / 32276d60: CKTDXDeviceSound::Stop ( 31d416c0 ) on every non-null handle of one list, then
 /// clear it. The handle's reference is never released ( PlaySound opens the device and nothing closes it ), so a stored pointer cannot
 /// dangle; the sound device is shared per file name, so a stop also cuts any other instance of that file.
-static void JuneStopSoundList( vector<CKTDXDeviceSound*>& vecSound_, const WCHAR* pwszList_, int iUnitUID_ )
+static void StopSoundList( vector<CKTDXDeviceSound*>& vecSound_, const WCHAR* pwszList_, int iUnitUID_ )
 {
 	for( vector<CKTDXDeviceSound*>::iterator it = vecSound_.begin(); it != vecSound_.end(); ++it )
 	{
 		if( NULL != *it )
 		{
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
-			JuneUnitSoundLog( L"stop", pwszList_, *it, iUnitUID_ );
+			UnitSoundLog( L"stop", pwszList_, *it, iUnitUID_ );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
 			( *it )->Stop();
 		}
@@ -6910,23 +6911,23 @@ static void JuneStopSoundList( vector<CKTDXDeviceSound*>& vecSound_, const WCHAR
 
 void CX2GameUnit::StopSoundOnDamageReact()
 {
-	JuneStopSoundList( m_vecSoundToDeleteOnDamageReact, L"damage_react", static_cast<int>( GetUnitUID() ) );
+	StopSoundList( m_vecSoundToDeleteOnDamageReact, L"damage_react", static_cast<int>( GetUnitUID() ) );
 }
 
 void CX2GameUnit::StopSoundOnStateEnd()
 {
-	JuneStopSoundList( m_vecSoundToDeleteOnStateEnd, L"state_end", static_cast<int>( GetUnitUID() ) );
+	StopSoundList( m_vecSoundToDeleteOnStateEnd, L"state_end", static_cast<int>( GetUnitUID() ) );
 }
 
 /// June 32276d20: no caller anywhere in June's image (JUNE_BUGS 116), so a DCS_DIE sound is never stopped. Ported, called nowhere.
 void CX2GameUnit::StopSoundOnDie()
 {
-	JuneStopSoundList( m_vecSoundToDeleteOnDie, L"die", static_cast<int>( GetUnitUID() ) );
+	StopSoundList( m_vecSoundToDeleteOnDie, L"die", static_cast<int>( GetUnitUID() ) );
 }
 
 void CX2GameUnit::StopSoundOnCustomState()
 {
-	JuneStopSoundList( m_vecSoundToDeleteOnCustomState, L"custom_state", static_cast<int>( GetUnitUID() ) );
+	StopSoundList( m_vecSoundToDeleteOnCustomState, L"custom_state", static_cast<int>( GetUnitUID() ) );
 }
 
 /// June 32278200 (only caller: the user's CommonStateStart @320606a9): users only. Every { sound, skill id } pair whose skill id differs
@@ -6947,7 +6948,7 @@ void CX2GameUnit::StopSoundOnSkillStateEnd( int iNowStateSkillID_ )
 		if( NULL != it->first )
 		{
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
-			JuneUnitSoundLog( L"stop", L"skill_state_end", it->first, static_cast<int>( GetUnitUID() ) );
+			UnitSoundLog( L"stop", L"skill_state_end", it->first, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG
 			it->first->Stop();
 		}
@@ -6960,7 +6961,7 @@ void CX2GameUnit::StopSoundOnSkillStateEnd( int iNowStateSkillID_ )
 /// June 32d2f560 ( C9h-4e ), the user copy @32d32853-@32d33049 and the village copy @32d35163-@32d359f4 are the same loop: SOUND_PLAY_ALL_OPTION<n> =
 /// { SOUND_NAME ( ""), PLAY_TIME ( -1 ), RATE ( 100 ), ONLY_IF_MY_UNIT ( false ), MAX_SOUND_DISTANCE ( -1 ), ENABLE_3D_SOUND ( true ), LOOP ( false ),
 /// DELETE_CONDITION = { ... } }; a DELETE_CONDITION table replaces the ctor's DCS_NONE seed ( erase( all ) @32d35951 ).
-int CX2GameUnit::JuneLoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ )
+int CX2GameUnit::LoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ )
 {
 	int iAllOptionIndex = 0;
 	while( luaManager_.BeginTable( "SOUND_PLAY_ALL_OPTION", iAllOptionIndex ) == true )
@@ -7677,7 +7678,7 @@ void CX2GameUnit::DeleteEffectSetOnDamageReact()
 	m_vecEffectSetToDeleteOnDamageReact.resize(0);
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June 3228a270 @3228a2d1: after the DAMAGE_REACT stops, a user hit early in a skill state stops every effect set played in it ( C9h-4d review )
-	JuneStopPlayedEffectSetOnEarlyDamageReact();
+	StopPlayedEffectSetOnEarlyDamageReact();
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 }
 
@@ -7713,7 +7714,7 @@ void CX2GameUnit::DeleteEffectSetOnCustomState()
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
-static void JuneEffectSetDeleteLog( const WCHAR* pwszEvent_, int iCount_, int iExtra_, int iUnitUID_ )
+static void EffectSetDeleteLog( const WCHAR* pwszEvent_, int iCount_, int iExtra_, int iUnitUID_ )
 {
 	WCHAR wszJuneFx[256] = {0};
 	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EFFECT_SET_DELETE %s n=%d extra=%d unit=%d", pwszEvent_, iCount_, iExtra_, iUnitUID_ );
@@ -7724,7 +7725,7 @@ static void JuneEffectSetDeleteLog( const WCHAR* pwszEvent_, int iCount_, int iE
 /// June 3228a190 (STAGE_END, +0x3ea0) and 3228a3b0 (OFF_RIDING, +0x3ee0): stop every handle of the list ( June queues the stop, 321dafb0;
 /// March stops at once ), then resize( 0 ). The result is how many live instances were stopped ( the debug count; C9h-4d review: with
 /// STAGE_END on by default the list holds every played handle, mostly ended ones, which stop nothing ).
-static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHandle_ )
+static int StopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHandle_ )
 {
 	int iStopped = 0;
 	if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
@@ -7740,30 +7741,30 @@ static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHan
 	return iStopped;
 }
 
-void CX2GameUnit::JuneDeleteEffectSetOnStageEnd()
+void CX2GameUnit::DeleteEffectSetOnStageEnd()
 {
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	const int iJuneListed = static_cast<int>( m_vecJuneEffectSetToDeleteOnStageEnd.size() );	/// review diagnostic: listed handles before the drain
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
-	const int iStopped = JuneStopEffectSetHandles( m_vecJuneEffectSetToDeleteOnStageEnd );
+	const int iStopped = StopEffectSetHandles( m_vecJuneEffectSetToDeleteOnStageEnd );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	/// review diagnostic: always printed ( n = live instances stopped, extra = handles listed )
-	JuneEffectSetDeleteLog( L"stage_end", iStopped, iJuneListed, static_cast<int>( GetUnitUID() ) );
+	EffectSetDeleteLog( L"stage_end", iStopped, iJuneListed, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 }
 
-void CX2GameUnit::JuneDeleteEffectSetOffRiding()
+void CX2GameUnit::DeleteEffectSetOffRiding()
 {
-	const int iStopped = JuneStopEffectSetHandles( m_vecJuneEffectSetToDeleteOffRiding );
+	const int iStopped = StopEffectSetHandles( m_vecJuneEffectSetToDeleteOffRiding );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	if( 0 < iStopped )
-		JuneEffectSetDeleteLog( L"off_riding", iStopped, 0, static_cast<int>( GetUnitUID() ) );
+		EffectSetDeleteLog( L"off_riding", iStopped, 0, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 }
 
 /// June 3228a490: users only, with a game and an effect set. Every { handle, skill id } pair whose skill id differs from the unit's
 /// now-state skill id is stopped and erased; the pairs of the skill that is still running stay.
-void CX2GameUnit::JuneDeleteEffectSetOnSkillStateEnd()
+void CX2GameUnit::DeleteEffectSetOnSkillStateEnd()
 {
 	if( GUT_USER != GetGameUnitType() || NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
 		return;
@@ -7778,7 +7779,7 @@ void CX2GameUnit::JuneDeleteEffectSetOnSkillStateEnd()
 		}
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
-		JuneEffectSetDeleteLog( L"skill_state_end", 1, it->second, static_cast<int>( GetUnitUID() ) );
+		EffectSetDeleteLog( L"skill_state_end", 1, it->second, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 		CX2EffectSet::Handle hHandle = it->first;
 		g_pX2Game->GetEffectSet()->StopEffectSet( hHandle );
@@ -7791,7 +7792,7 @@ void CX2GameUnit::JuneDeleteEffectSetOnSkillStateEnd()
 /// the Now unitCondition.fStateTime: vslot 0x124 = GetUnitCondition returns +0x8084; fcomp 0.5 / test ah,5 / jp, so NaN skips ) stops every
 /// live instance of +0x3e90 ( June queues the stop via 321dafb0, March stops at once ). The list is NOT cleared here; 3228a120 drains it at
 /// CommonStateEnd. Called from DeleteEffectSetOnDamageReact, so the user's DamageReact, the shock-enchant end and the NPC ( skipped ) all reach it.
-void CX2GameUnit::JuneStopPlayedEffectSetOnEarlyDamageReact()
+void CX2GameUnit::StopPlayedEffectSetOnEarlyDamageReact()
 {
 	if( GUT_USER != GetGameUnitType() || NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
 		return;
@@ -7824,14 +7825,14 @@ void CX2GameUnit::JuneStopPlayedEffectSetOnEarlyDamageReact()
 	}
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	if( 0 < iStopped )
-		JuneEffectSetDeleteLog( L"damage_react_all", iStopped, iNowStateSkillID, static_cast<int>( GetUnitUID() ) );
+		EffectSetDeleteLog( L"damage_react_all", iStopped, iNowStateSkillID, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 }
 /// June 3228a120 (callers: the user's and the NPC's CommonStateEnd, right after 3228a200 = DeleteEffectSetOnStateEnd): walks +0x3e90, the
 /// handle of every played effect set, and calls 321da070 on each live instance, then resize( 0 ). 321da070 = EffectSetInstance::StopCreateNewEffect:
 /// when the templet has STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE ( EffectSetData +0x50 ) it marks every effect of the instance as created, so the
 /// effects that have not started yet never start. ( C9h-4d: the writer of this list is AddEffectSetDeleteCondition. )
-void CX2GameUnit::JuneStopCreateNewEffectOnStateEnd()
+void CX2GameUnit::StopCreateNewEffectOnStateEnd()
 {
 	if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
 	{
@@ -7847,7 +7848,7 @@ void CX2GameUnit::JuneStopCreateNewEffectOnStateEnd()
 			for( int i = 0; i < iSize; ++i )
 				pEffectSetInst->m_vecEffectInstanceCreated[i] = true;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
-			JuneEffectSetDeleteLog( L"stop_create", iSize, 0, static_cast<int>( GetUnitUID() ) );
+			EffectSetDeleteLog( L"stop_create", iSize, 0, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 		}
 	}
@@ -12767,12 +12768,12 @@ void CX2GameUnit::ProcessTransitDebuff( const CX2DamageManager::DamageData* pDam
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifndef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
-#error SERV_IRUHADEV_JUNE_DAMAGEDATA's CX2GameUnit::JuneCollectUnitsAround needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME (CEffect::JuneGetLockOnAimPos)
+#error SERV_IRUHADEV_JUNE_DAMAGEDATA's CX2GameUnit::CollectUnitsAround needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME (CEffect::GetLockOnAimPos)
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 /// June 32293b80 (CX2GameUnit, pos by value): the same test as X2BuffTemplet.cpp's file-static JuneIsPosAlongLastTouchLine, which this file cannot reach.
 /// True without game, world or line map; false when the unit's last touched line (GetLastTouchLineIndex( true )) has no data; else whether the way from
 /// the unit to vPos_ runs along that line's dirVector: the dot product of the two normalised vectors is above 0.
-static bool JuneCollectIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+static bool CollectIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
 {
 	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetLineMap() )
 		return true;
@@ -12789,19 +12790,19 @@ static bool JuneCollectIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const
 }
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-bool CX2GameUnit::JuneIsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const
+bool CX2GameUnit::IsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const
 {
-	return JuneCollectIsPosAlongLastTouchLine( this, vPos_ );
+	return CollectIsPosAlongLastTouchLine( this, vPos_ );
 }
 
 /// June 32293f80: my collision bone nearest vPos_, moved in x / z to the nearest point of an enabled line other than LT_WALL / LT_MONSTER_ROAD.
-D3DXVECTOR3 CX2GameUnit::JuneGetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const
+D3DXVECTOR3 CX2GameUnit::GetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const
 {
 	D3DXVECTOR3 vOut = vPos_;
 	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() || NULL == g_pX2Game->GetWorld()->GetLineMap() )
 		return vOut;
 
-	const std::wstring wstrBoneName = JuneGetNearestCollisionFrameName( vPos_ );
+	const std::wstring wstrBoneName = GetNearestCollisionFrameName( vPos_ );
 	if ( false == GetBonePos( wstrBoneName.c_str(), vOut ) )
 		return GetPos( false );
 
@@ -12843,7 +12844,7 @@ D3DXVECTOR3 CX2GameUnit::JuneGetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const
 	return vOut;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-static bool JuneCollectUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, const std::pair<CX2GameUnit*, float>& rhs_ )
+static bool CollectUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, const std::pair<CX2GameUnit*, float>& rhs_ )
 {
 	return lhs_.second < rhs_.second;
 }
@@ -12859,7 +12860,7 @@ static bool JuneCollectUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, c
 ///   distance = the length of that way minus the NPC size must be <= fMaxDistance_ (not above, so a NaN refuses, @32295177). The survivors are sorted by
 ///   distance ascending (322acc40 = std::_Sort with a float compare, @322aa820-322aa839) and copied out. iCount_ ( stack arg +0xa0 ) is never read: the
 ///   output is not cut to it (JUNE_BUGS). June's null game pointer would crash here; this returns an empty list
-void CX2GameUnit::JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ )
+void CX2GameUnit::CollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ )
 {
 	vecUnits_.clear();		// @32294e90-32294e98: June zeroes the out vector's three pointers
 
@@ -12882,9 +12883,9 @@ void CX2GameUnit::JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnit
 			continue;
 
 		const D3DXVECTOR3 vMyPos = GetPos( false );
-		const D3DXVECTOR3 vAimPos = CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit, vMyPos );
+		const D3DXVECTOR3 vAimPos = CX2DamageEffect::CEffect::GetLockOnAimPos( pUnit, vMyPos );
 
-		if ( true == bFacingOnly_ && JuneCollectIsPosAlongLastTouchLine( this, vAimPos ) != GetIsRight() )
+		if ( true == bFacingOnly_ && CollectIsPosAlongLastTouchLine( this, vAimPos ) != GetIsRight() )
 			continue;
 
 		float fExtraDistance = 0.f;
@@ -12908,7 +12909,7 @@ void CX2GameUnit::JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnit
 		vecFound.push_back( std::make_pair( pUnit, fDistance ) );
 	}
 
-	std::stable_sort( vecFound.begin(), vecFound.end(), JuneCollectUnitNearer );
+	std::stable_sort( vecFound.begin(), vecFound.end(), CollectUnitNearer );
 
 	for ( size_t uFound = 0; uFound < vecFound.size(); ++uFound )
 		vecUnits_.push_back( vecFound[uFound].first );
@@ -13289,7 +13290,7 @@ void CX2GameUnit::UpNowHpPerHitbyAttackPower( IN const float fHitAddHpPer_ )
 				  is ftol-truncated, 32fe25f0; wide string 33487238) is drawn at GetPos() + ( 0, textOffsetY, 0 ) with the CX2Data blue pic char
 				  (g_pData +0x158, tested for NULL @322737a3; the HP twin draws green, +0x15c). Both June callers pass 140.0 ([33443958]).
 */
-void CX2GameUnit::JuneUpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ )
+void CX2GameUnit::UpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ )
 {
 	float fAddMp = 1.f;
 	if( 1.f < GetMaxMp() * fHitAddMpPercent_ )
@@ -13343,7 +13344,7 @@ void CX2GameUnit::JuneUpNowMpPerHitOthersPercent( IN const float fHitAddMpPercen
 /// June 322a6960 / 322a6b60 look the factor up first and pass its BTI to the can-apply check (slot 132).
 /// A missing factor returns false in June before the check; here the check sees BTI 0 and the factor test
 /// right after returns false, the same outcome (the check has no side effects).
-static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
+static BUFF_TEMPLET_ID BuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 {
 	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId_ );
 	return NULL != ptrBuffFactor ? ptrBuffFactor->GetBuffTempletID() : BTI_NONE;
@@ -13377,7 +13378,7 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 	{
 		if ( false == bSkipAdjust_ )
 		{
-			const int iJuneAdjustSkillID = ( 0 != iAdjustSkillID_ ) ? iAdjustSkillID_ : static_cast<CX2GUUser*>( this )->GetJuneStateBuffSkillID();
+			const int iJuneAdjustSkillID = ( 0 != iAdjustSkillID_ ) ? iAdjustSkillID_ : static_cast<CX2GUUser*>( this )->GetStateBuffSkillID();
 			AdjustBuffFactorByIndex( ptrBuffFactorClone, iJuneAdjustSkillID );
 		}
 		OnBuffAccumulationFactorReady( ptrBuffFactorClone, 0 );
@@ -13407,7 +13408,7 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 {
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
-	if ( CanApplyBuffToGameUnit( JuneBuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6960 @322a6a08
+	if ( CanApplyBuffToGameUnit( BuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6960 @322a6a08
 #else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( CanApplyBuffToGameUnit() )
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
@@ -13449,7 +13450,7 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_GROUP
-	if ( CanApplyBuffToGameUnit( JuneBuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6b60 @322a6c07
+	if ( CanApplyBuffToGameUnit( BuffTempletIDOfFactor( uiBuffFactorId_ ) ) )	/// June 322a6b60 @322a6c07
 #else SERV_IRUHADEV_JUNE_BUFF_GROUP
 	if ( CanApplyBuffToGameUnit() )
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
@@ -13888,7 +13889,7 @@ bool CX2GameUnit::IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTemplet
 		|| ( !m_setImmuneAllDebuff.empty() && ptrBuffTemplet->IsDeBuff() ) )
 	{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewFlagFirstRead( 94, "ALL_BUFF / ALL_DEBUFF refused BTI", static_cast<int>( eBuffTempletID_ ) );
+		BuffNewFlagFirstRead( 94, "ALL_BUFF / ALL_DEBUFF refused BTI", static_cast<int>( eBuffTempletID_ ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		return true;
 	}
@@ -13898,7 +13899,7 @@ bool CX2GameUnit::IsImmuneBuffByBuffBehavior( const BUFF_TEMPLET_ID eBuffTemplet
 		if ( kEntry.m_vecBuffTempletID.end() != std::find( kEntry.m_vecBuffTempletID.begin(), kEntry.m_vecBuffTempletID.end(), static_cast<int>( eBuffTempletID_ ) ) )
 		{
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			JuneBuffNewFlagFirstRead( 94, "IMMUNE_BUFF_TEMPLATE_ID refused BTI", static_cast<int>( eBuffTempletID_ ) );
+			BuffNewFlagFirstRead( 94, "IMMUNE_BUFF_TEMPLATE_ID refused BTI", static_cast<int>( eBuffTempletID_ ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			return true;
 		}
@@ -13924,7 +13925,7 @@ bool CX2GameUnit::IsImmuneNonControlDebuffByBuffBehavior( const CX2BuffTempletPt
 	const bool bImmune = ptrBuffTemplet_->IsNonControlDebuff();
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( bImmune )
-		JuneBuffNewFlagFirstRead( 95, "a new non-control debuff was refused, BTI", static_cast<int>( ptrBuffTemplet_->GetBuffTempletID() ) );
+		BuffNewFlagFirstRead( 95, "a new non-control debuff was refused, BTI", static_cast<int>( ptrBuffTemplet_->GetBuffTempletID() ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return bImmune;
 #else
@@ -14050,7 +14051,7 @@ UCHAR CX2GameUnit::GetBuffAccumulationCountNowInFactor( const BUFF_TEMPLET_ID eB
 //{{ Iruha : 2026-10-07 // June buff port Phase 16-step3c (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 /// One "[JUNE_BUFF]" line per key and run (an EXTRA_DAMAGE_TYPE, or an effect-set name below)
-static bool JuneSocketEdtFirstTime( const int iKey_ )
+static bool SocketEdtFirstTime( const int iKey_ )
 {
 	static std::set<int> s_setLogged;
 	return s_setLogged.insert( iKey_ ).second;
@@ -14058,7 +14059,7 @@ static bool JuneSocketEdtFirstTime( const int iKey_ )
 
 /// PlayEffectSet as every June spawn case below calls it (321e1e60): owned by the attacker, no trace target, not hyper, no power
 /// rate or life time, custom position. June's trailing 1.0 is March's behaviour. A name March's data lacks gives an invalid handle.
-static void JunePlaySocketEdtEffectSet( const int iType_, const WCHAR* wszName_, CX2GameUnit* pAttacker_, const D3DXVECTOR3& vScale_,
+static void PlaySocketEdtEffectSet( const int iType_, const WCHAR* wszName_, CX2GameUnit* pAttacker_, const D3DXVECTOR3& vScale_,
 	const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_, const D3DXVECTOR3& vDirVector_ )
 {
 	CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( wszName_, pAttacker_, NULL, false, -1.f, -1.f,
@@ -14077,7 +14078,7 @@ static void JunePlaySocketEdtEffectSet( const int iType_, const WCHAR* wszName_,
 			 and 151's attacker IsMyUnit gate (vslot 0x198) is on the user side only.
 			 156 is 16-step3c2's (below); 157 calls June's Lanox Secret Ammo 322a0180 (character-port checklist 7) and is logged.
 */
-void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
+void CX2GameUnit::ProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
 	const bool bNpcDefender_ )
 {
 	const int iType = static_cast<int>( extraDamageData_.m_ExtraDamageType );
@@ -14106,7 +14107,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			case CX2DamageManager::EDT_FIRE_FALL:		wszName = L"EffectSet_EDT_Fire_Fall";		break;
 			default:																				break;
 			}
-			JunePlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, pAttacker->GetPos(), pAttacker->GetRotateDegree(), pAttacker->GetDirVector() );
+			PlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, pAttacker->GetPos(), pAttacker->GetRotateDegree(), pAttacker->GetDirVector() );
 		} break;
 
 	/// 145 (user @32038728, NPC @3279c855), 146 and 147 (user only, @3203883c / @32038a1f): June-class skill effect sets at the
@@ -14122,7 +14123,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			const int iCodeEvent = ( CX2DamageManager::EDT_EJECTION_BUSTER == extraDamageData_.m_ExtraDamageType ? 2119 : 2154 );
 			if ( NULL == g_pInstanceData || false == g_pInstanceData->IsEnableCode( iCodeEvent ) )
 			{
-				if ( true == JuneSocketEdtFirstTime( iType ) )
+				if ( true == SocketEdtFirstTime( iType ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): code event %d is off (no server sends it), nothing plays, as in June",
 						iType, iCodeEvent );
 				break;
@@ -14134,16 +14135,16 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			switch ( extraDamageData_.m_ExtraDamageType )
 			{
 			case CX2DamageManager::EDT_EJECTION_BUSTER:
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_SDK_EJECTION_BUSTER_Attack_1000_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_SDK_EJECTION_BUSTER_Attack_1000_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
 				break;
 			case CX2DamageManager::EDT_SUPREME_PUNISHMENT:
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_Mother_Projectile_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LLD_SUPREME_PUNISHMENT_Mother_Projectile_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
 				break;
 			default:
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_FX_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Damage_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
-				JunePlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Specter_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_FX_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Damage_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
+				PlaySocketEdtEffectSet( iType, L"EffectSet_SI_SA_LCN_SPECTRAL_SPEAR_Specter_INT", pAttacker, vOne, vBonePos, pAttacker->GetRotateDegree(), vZero );
 				break;
 			}
 		} break;
@@ -14157,7 +14158,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				break;
 
 			const D3DXVECTOR3 vScale( pAttacker->m_vBasicScale.x, pAttacker->m_vBasicScale.y, pAttacker->m_vBasicScale.z );
-			JunePlaySocketEdtEffectSet( iType, L"EffectSet_EDT_BALLISTA_BOLT", pAttacker, vScale, pDamageData_->impactPoint,
+			PlaySocketEdtEffectSet( iType, L"EffectSet_EDT_BALLISTA_BOLT", pAttacker, vScale, pDamageData_->impactPoint,
 				pAttacker->GetRotateDegree(), pAttacker->GetDirVector() );
 		} break;
 
@@ -14177,7 +14178,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const int iLevel = extraDamageData_.m_iLevel;
 			const bool bSet = SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID( uiBuffFactorID, pAttacker->GetUnitUID(), true, static_cast<UINT>( iLevel ) );
-			if ( true == JuneSocketEdtFirstTime( iType ) )
+			if ( true == SocketEdtFirstTime( iType ) )
 				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): BFI %u level %d on the hit unit -> %s", iType, uiBuffFactorID, iLevel,
 					true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
 		} break;
@@ -14206,7 +14207,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				const float fDamageRate = extraDamageData_.m_DamagePerSec;
 				pDamageData->damage.fMagic	*= fDamageRate;
 				pDamageData->damage.fPhysic	*= fDamageRate;
-				if ( true == JuneSocketEdtFirstTime( iType + 10000 ) )
+				if ( true == SocketEdtFirstTime( iType + 10000 ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: 10th stack, damage x %g (first this run)", iType, fDamageRate );
 			}
 			else
@@ -14222,12 +14223,12 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ) );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
-				if ( true == JuneSocketEdtFirstTime( iType ) )
+				if ( true == SocketEdtFirstTime( iType ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): BFI 788 level %d on the attacker -> %s", iType, iLevel,
 						true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
 			}
 #else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
-			if ( true == JuneSocketEdtFirstTime( iType ) )
+			if ( true == SocketEdtFirstTime( iType ) )
 				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: needs SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER (322a0090), skipped", iType );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		} break;
@@ -14250,7 +14251,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			case CX2DamageManager::EDT_FORWARD300_WINDGROUND:	wszName = L"EffectSet_Socket_HeroDungeonSet_WindGround";	break;
 			default:																										break;
 			}
-			JunePlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, GetLandPos(), GetRotateDegree(), vZero );
+			PlaySocketEdtEffectSet( iType, wszName, pAttacker, vOne, GetLandPos(), GetRotateDegree(), vZero );
 		} break;
 
 	/// 156 (user @32039514, NPC @3279d323, the same on both sides; 16-step3c2): only an AT_COMMAND hit by a user with a CX2Unit.
@@ -14265,7 +14266,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 		{
 			if ( CX2DamageManager::AT_COMMAND != pDamageData_->attackType || GUT_USER != pAttacker->GetGameUnitType() )
 			{
-				if ( true == JuneSocketEdtFirstTime( iType ) )
+				if ( true == SocketEdtFirstTime( iType ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): attack type %d, attacker %s -> nothing (June counts only AT_COMMAND hits by a user)",
 						iType, static_cast<int>( pDamageData_->attackType ),
 						NULL == pAttacker ? "none" : ( GUT_USER == pAttacker->GetGameUnitType() ? "user" : "not a user" ) );
@@ -14278,11 +14279,11 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			if ( NULL == pUser->GetUnit() )
 				break;
 
-			const float fLastTime = pUser->GetJuneCommandHitTime();
+			const float fLastTime = pUser->GetCommandHitTime();
 			if ( g_pKTDXApp->GetTime() - static_cast<double>( fLastTime ) <= 1.0 )
 				break;
 
-			const int iCount = pUser->GetJuneCommandHitCount() + 1;
+			const int iCount = pUser->GetCommandHitCount() + 1;
 			if ( 10 <= iCount )
 			{
 				float fRate = extraDamageData_.m_DamagePerSec;
@@ -14291,14 +14292,14 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 				else if ( 0.f >= fRate )
 					fRate = 0.f;
 
-				pUser->GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTimeByRateJune( fRate, false );
+				pUser->GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTimeByRate( fRate, false );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 				pUser->EraseBuffTempletFromGameUnit( BTI_COMMAND_HIT_COOLTIME_DECREASE );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
 				pUser->EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 778 ) );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
-				pUser->SetJuneCommandHit( 0, static_cast<float>( g_pKTDXApp->GetTime() ) );
-				if ( true == JuneSocketEdtFirstTime( iType + 20000 ) )
+				pUser->SetCommandHit( 0, static_cast<float>( g_pKTDXApp->GetTime() ) );
+				if ( true == SocketEdtFirstTime( iType + 20000 ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: 10th command hit (first this run): left skill cool times x %g, BTI 778 erased", iType, 1.f - fRate );
 			}
 			else
@@ -14314,8 +14315,8 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ) );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
-				pUser->SetJuneCommandHit( iCount, fLastTime );
-				if ( true == JuneSocketEdtFirstTime( iType + 10000 ) )
+				pUser->SetCommandHit( iCount, fLastTime );
+				if ( true == SocketEdtFirstTime( iType + 10000 ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: command hit %d counted (first this run): BFI 804 level %d on the attacker -> %s", iType, iCount, iLevel,
 						true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
 			}
@@ -14323,7 +14324,7 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 
 	case CX2DamageManager::EDT_MAGI_HIT_COUNT_ATTACK:
 		{
-			if ( true == JuneSocketEdtFirstTime( iType ) )
+			if ( true == SocketEdtFirstTime( iType ) )
 				CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): not ported (June 322a0180 Lanox Secret Ammo, character-port checklist 7)", iType );
 		} break;
 
@@ -14418,7 +14419,7 @@ void CX2GameUnit::SetBuffAccumulationCount( const UINT uiBuffFactorID_, const in
 	{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		/// S3e, June2017 322a7660 @322a776d-322a777b: slot 476 gets the caller's index, or the user's +0x9274 when it is 0
-		AdjustBuffFactorByIndex( ptrLevelledFactor, ( 0 != iAdjustIndex_ ) ? iAdjustIndex_ : static_cast<CX2GUUser*>( this )->GetJuneStateBuffSkillID() );
+		AdjustBuffFactorByIndex( ptrLevelledFactor, ( 0 != iAdjustIndex_ ) ? iAdjustIndex_ : static_cast<CX2GUUser*>( this )->GetStateBuffSkillID() );
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		AdjustBuffFactorByIndex( ptrLevelledFactor, iAdjustIndex_ );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -14656,7 +14657,7 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	case BBT_CHANGE_EVERY_ATTRIBUTE_DEFENCE_HAVE_BUFF_OWNER:
 	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_MELEE_ATTACKED:
 	case BBT_CHANGE_FORCE_DOWN_MULTIPLIER_RANGE_ATTACKED:
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 		break;
 
 	default:
@@ -14864,49 +14865,49 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	case BBT_CHANGE_HYPER_DURATION:		/// June 32282ddc
 		m_AdditionalHyperDuration.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE:		/// June 32282ee6
 		m_AdditionalRangeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE:		/// June 32282ec3
 		m_AdditionalMeleeCommandMpGainRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_MELEE_COMMAND_DAMAGE_RATE:		/// June 32282f09
 		m_AdditionalMeleeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_RANGE_COMMAND_DAMAGE_RATE:		/// June 32282f2c
 		m_AdditionalRangeCommandDamageRate.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_NPC:		/// June 32282f72
 		m_AdditionalFinalDamageMultiplierNpc.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
 	case BBT_CHANGE_FINAL_DAMAGE_MULTIPLIER_USER:		/// June 32282f95
 		m_AdditionalFinalDamageMultiplierUser.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
@@ -14923,7 +14924,7 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	case BBT_TYPE_ADDITIONAL_ATTACK_MULTIPLIER:
 		m_AdditionalTypeAdditionalAttackMultiplier.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 
@@ -14931,7 +14932,7 @@ void CX2GameUnit::InsertAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_,
 	case BBT_CHANGE_MAXIMIZE:
 		m_AdditionalDamageMaximize.CreateAndInsertStatFactor( eChangeType_, BuffIdentity_, fValue_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-		JuneBuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
+		BuffNewStatFirstApply( eBehaviorType_, eChangeType_, fValue_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		break;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
@@ -15573,7 +15574,7 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	m_AdditionalPhysicAttack.SetBasicStatValue( kStat.m_fAtkPhysic );
 	m_AdditionalMagicAttack.SetBasicStatValue( kStat.m_fAtkMagic );
 #if defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
-	SetJuneDesignedAttackRangeBasic( kStat );
+	SetDesignedAttackRangeBasic( kStat );
 #endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	m_AdditionalPhysicDefence.SetBasicStatValue( kStat.m_fDefPhysic );
 	m_AdditionalMagicDefence.SetBasicStatValue( kStat.m_fDefMagic );	
@@ -15595,7 +15596,7 @@ void CX2GameUnit::EraseAdditionalStat( const BUFF_BEHAVIOR_TYPE eBehaviorType_, 
 	m_AdditionalPhysicAttack.SetBasicStatValue( kStat.m_fAtkPhysic );
 	m_AdditionalMagicAttack.SetBasicStatValue( kStat.m_fAtkMagic );
 #if defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
-	SetJuneDesignedAttackRangeBasic( kStat );
+	SetDesignedAttackRangeBasic( kStat );
 #endif defined( SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN ) && defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
 	m_AdditionalPhysicDefence.SetBasicStatValue( kStat.m_fDefPhysic );
 	m_AdditionalMagicDefence.SetBasicStatValue( kStat.m_fDefMagic );	
@@ -15719,7 +15720,7 @@ void CX2GameUnit::CheckAndUpdateAdditionalStat()
 	m_AdditionalTypeAdditionalAttackMultiplier.CheckAndUpdateResultValue();
 	/// June buff port Phase 16, 32290950 (@32290ecd..32290eeb): 92 refreshes through the option-data template with
 	/// CalculateFinalDamageMaximizeRate, modifier 1.0; without the curve it takes the plain update and the roll reads 0
-	if ( IsJuneDamageMaximizeCurveLoaded() )
+	if ( IsDamageMaximizeCurveLoaded() )
 	{
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		m_AdditionalDamageMaximize.CheckAndUpdateResultValueWithOptionData( &CX2SocketItem::GetFinalDamageMaximizeRate, GetUnitLevel() );
@@ -16452,7 +16453,7 @@ void CX2GameUnit::SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vec
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June effect completion C3c, 322a6d00 (the per-factor packet apply; 322a6fd0, June's vector form, is a loop over it, and 322a8240's ProcessTransitDebuff
 		/// calls it per element): vslot 0x3e0( BTI ) true skips the factor (class code, default false)
-		if ( true == JuneIsPacketBuffRefused( static_cast<BUFF_TEMPLET_ID>( kBuffFactor.m_BuffIdentity.m_eBuffTempletID ) ) )
+		if ( true == IsPacketBuffRefused( static_cast<BUFF_TEMPLET_ID>( kBuffFactor.m_BuffIdentity.m_eBuffTempletID ) ) )
 			continue;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		auto FindFunc = [&kBuffFactor]( CX2BuffTempletPtr ptr_ ) {
@@ -16761,7 +16762,7 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 		{
 			// June keeps no handle for it ( @32298ab4 )
 			const CX2EffectSet::Handle hJuneWakeUp = g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_TRANScendence_WakeUp_FX", this );
-			g_pX2Game->JuneTagEffectAlphaEffectSet( this, hJuneWakeUp, 1, false );
+			g_pX2Game->TagEffectAlphaEffectSet( this, hJuneWakeUp, 1, false );
 			bJuneWakeUpPlayed = ( NULL != g_pX2Game->GetEffectSet()->GetEffectSetInstance( hJuneWakeUp ) );
 		}
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE awakening: class %d, BFI 845 instead of the hyper buff, Effectset_TRANScendence_WakeUp_FX %s",
@@ -16770,7 +16771,7 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 	else
 		SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
 	if ( GUT_USER == GetGameUnitType() )
-		static_cast<CX2GUUser*>( this )->JuneClearHyperModeBuffPending();		// June 32298590 @32298d08 ( 32083190( 0 ) )
+		static_cast<CX2GUUser*>( this )->ClearHyperModeBuffPending();		// June 32298590 @32298d08 ( 32083190( 0 ) )
 #else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
@@ -16919,7 +16920,7 @@ bool CX2GameUnit::CanApplyBuffToGameUnit() const
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 /// One "[JUNE_BUFF] first apply BBT n" line per Phase 7b identity type and session
-static void JuneBuff7bFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
+static void Buff7bFirstApply( const int iType_, const char* szName_, const KBuffIdentity& BuffIdentity_ )
 {
 	static bool s_bSeen[5] = { false, false, false, false, false };
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -17003,22 +17004,22 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 		case BBT_DETONATION_IMPOSSIBLE:
 			m_vecDetonationImpossiblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			JuneBuff7bFirstApply( 74, "detonation impossible", BuffIdentity_ );
+			Buff7bFirstApply( 74, "detonation impossible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_INVINCIBLE:
 			m_vecInvinciblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			JuneBuff7bFirstApply( 77, "invincible", BuffIdentity_ );
+			Buff7bFirstApply( 77, "invincible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
 		case BBT_IGNORE_HP_DECREASE:
 			m_vecIgnoreHpDecreasePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( BBT_IGNORE_HP_DECREASE, "ignore hp decrease", BuffIdentity_ );
+			Buff7bFirstApply( BBT_IGNORE_HP_DECREASE, "ignore hp decrease", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( 101, "ignore hp decrease", BuffIdentity_ );
+			Buff7bFirstApply( 101, "ignore hp decrease", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
@@ -17026,9 +17027,9 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			m_vecDetonationImpossibleGageResetPtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( BBT_DETONATION_IMPOSSIBLE_GAGE_RESET, "detonation impossible gage reset", BuffIdentity_ );
+			Buff7bFirstApply( BBT_DETONATION_IMPOSSIBLE_GAGE_RESET, "detonation impossible gage reset", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( 102, "detonation impossible gage reset", BuffIdentity_ );
+			Buff7bFirstApply( 102, "detonation impossible gage reset", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
@@ -17036,9 +17037,9 @@ void CX2GameUnit::CreateAndInsertBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, 
 			m_vecAwakeImpossiblePtr.push_back( ptrBuffIdentity );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( BBT_AWAKE_IMPOSSIBLE, "awake impossible", BuffIdentity_ );
+			Buff7bFirstApply( BBT_AWAKE_IMPOSSIBLE, "awake impossible", BuffIdentity_ );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneBuff7bFirstApply( 110, "awake impossible", BuffIdentity_ );
+			Buff7bFirstApply( 110, "awake impossible", BuffIdentity_ );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			break;
@@ -17120,7 +17121,7 @@ void CX2GameUnit::EraseBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, const KBuf
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 // Temporary CH4b proof: each list's first run per user / NPC, then its non-empty runs at most once a second
-void CX2GameUnit::JuneLogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const
+void CX2GameUnit::LogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const
 {
 	int iList = -1;
 	const wchar_t* pwszList = L"";
@@ -17158,7 +17159,7 @@ void CX2GameUnit::DoDelegateProcess( const vector<DelegateProcess>& vecDelegateP
 			if ( delegateProcess )
 				++uiBound;
 		}
-		JuneLogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
+		LogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
 	}
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 	if ( !vecDelegateProcess_.empty() )
@@ -17185,7 +17186,7 @@ void CX2GameUnit::DoDelegateProcessWithDamageData( const vector<DelegateProcessW
 			if ( delegateProcess )
 				++uiBound;
 		}
-		JuneLogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
+		LogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
 	}
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 	if ( !vecDelegateProcess_.empty() )
@@ -17586,7 +17587,7 @@ D3DXVECTOR3 CX2GameUnit::GetChangeUnitScaleByBuff()
 /// and with a skill templet, the templet's ability at that level, else 1.0. June's templet getter (32206e50) also
 /// takes IsPvpOrPve (322cc1a0) for June's PvP split of ability values; March's SkillTemplet keeps one value per level.
 /// The caller's 31fcf430 first swaps the id for its skill-memo version (328905b0, June's memo map); unchanged here.
-static float JuneGetLearnedSkillAbilityValue( const CX2GUUser* pUser_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_ )
+static float GetLearnedSkillAbilityValue( const CX2GUUser* pUser_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_ )
 {
 	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == pUser_->GetUnit() )
 		return 1.0f;
@@ -17624,7 +17625,7 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 			if ( GUT_USER != GetGameUnitType() )
 				break;
 
-			const float fCoolTime = JuneGetLearnedSkillAbilityValue( static_cast<CX2GUUser*>( this ), CX2SkillTree::SA_READY_TIME_REL, CX2SkillTree::SI_SA_CHG_BIGBANG_STREAM );
+			const float fCoolTime = GetLearnedSkillAbilityValue( static_cast<CX2GUUser*>( this ), CX2SkillTree::SA_READY_TIME_REL, CX2SkillTree::SI_SA_CHG_BIGBANG_STREAM );
 			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffBigBangStream( BuffIdentity_, this, fCoolTime ) );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			static bool s_bSeenBigBang = false;
@@ -17674,8 +17675,8 @@ void CX2GameUnit::CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& Buff
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
 			const CX2SkillTree::SKILL_ABILITY_TYPE eJuneCoolTime1 = static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( 0x94 );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
-			const int iMaxCount = static_cast<int>( JuneGetLearnedSkillAbilityValue( pCreator, CX2SkillTree::SA_EFFECTIVE_COUNT, eSinisterMind ) );
-			const float fDamageInterval = JuneGetLearnedSkillAbilityValue( pCreator, eJuneCoolTime1, eSinisterMind );
+			const int iMaxCount = static_cast<int>( GetLearnedSkillAbilityValue( pCreator, CX2SkillTree::SA_EFFECTIVE_COUNT, eSinisterMind ) );
+			const float fDamageInterval = GetLearnedSkillAbilityValue( pCreator, eJuneCoolTime1, eSinisterMind );
 			ptrCustomFunctionByBuff = CX2CustomFunctionByBuffPtr( new CX2CustomFunctionByBuffSinisterMind( BuffIdentity_, kCreatorInfo_.m_uidCreator,
 				iMaxCount, fDamageInterval, this ) );
 		} break;
@@ -17997,7 +17998,7 @@ bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::Dama
 		if ( true != CanApplyBuffToGameUnit( eBuffTempletID ) )
 			continue;
 
-		if ( true != JuneCheckDivisionWindow( pDamageData_ ) )
+		if ( true != CheckDivisionWindow( pDamageData_ ) )
 			continue;
 
 		if ( vecImmunityAtThisState.end() != std::find( vecImmunityAtThisState.begin(), vecImmunityAtThisState.end(), eBuffTempletID ) )
@@ -18030,7 +18031,7 @@ bool CX2GameUnit::ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::Dama
 			 hit shuts it for every later factor of that hit (JUNE_BUGS). 322749f0 ticks the times down (JuneTickDivisionWindow),
 			 32275da0 resets one (JuneRearmDivisionWindow, SetDamageDataFromLUA's tail).
 */
-bool CX2GameUnit::JuneCheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ )
+bool CX2GameUnit::CheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ )
 {
 	if ( NULL == pDamageData_ )								// @3227a96f
 		return true;
@@ -18075,7 +18076,7 @@ bool CX2GameUnit::JuneCheckDivisionWindow( const CX2DamageManager::DamageData* p
 			 (+0x20) -= the frame's elapsed time (+0x2b0) and the entry is erased when that is <= 0 (x87 emulated, june2017_re
 			 c4_x87: erased at <= 0, kept for NaN).
 */
-void CX2GameUnit::JuneTickDivisionWindow( float fElapsedTime_ )
+void CX2GameUnit::TickDivisionWindow( float fElapsedTime_ )
 {
 	std::map<JuneDivisionKey, float>::iterator it = m_mapJuneDivisionWindow.begin();
 	while ( m_mapJuneDivisionWindow.end() != it )
@@ -18092,7 +18093,7 @@ void CX2GameUnit::JuneTickDivisionWindow( float fElapsedTime_ )
 	@brief : June 32275da0 (this, attacker UID, DIVISION_NUM, time), only caller 32622ad0: if this unit holds that window, its time is
 			 set to fTime_ (June's SetDamageDataFromLUA passes DIVISION_OFF_TIME for every unit of the game).
 */
-void CX2GameUnit::JuneRearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ )
+void CX2GameUnit::RearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ )
 {
 	JuneDivisionKey key;
 	key.m_uidAttacker	= uidAttacker_;
@@ -18595,8 +18596,8 @@ void CX2GameUnit::SetStartOfDelayedFiringEmoticon()		/// 지연의 신호탄 이모티콘 
 	// arrow-of-explosion emoticon (+0x41e0) go through its effect-alpha category (major particle system)
 	if( NULL != pJuneLastLocalUnit && NULL != g_pX2Game )
 	{
-		g_pX2Game->JuneTagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hStartOfDelayedFiringOverlap, false );
-		g_pX2Game->JuneTagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hSeqEnchant_ArrowOfExplosion, false );
+		g_pX2Game->TagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hStartOfDelayedFiringOverlap, false );
+		g_pX2Game->TagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hSeqEnchant_ArrowOfExplosion, false );
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
@@ -18940,7 +18941,7 @@ void CX2GameUnit::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* p
 	/// June2017 SetDamageExceptionProcess 322990e0 @32299712-3229971e (effect completion C6b): the hit carries the effect-set index stamp
 	/// (the unit's vslot 0x2e0, GetJuneDamageEffectIndex; -1 on the base) after the Phase 9b attacker-state and serial fields. Its only
 	/// readers are Luciel's (checklist 7a), so in March it is written and never read.
-	pDamageData_->m_iJuneDamageEffectIndex = GetJuneDamageEffectIndex();
+	pDamageData_->m_iJuneDamageEffectIndex = GetDamageEffectIndex();
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 }
 #endif //MODIFY_SET_DAMAGE_DATA
@@ -19815,7 +19816,7 @@ void CX2GameUnit::AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectS
 			 - thorns ( +0x75d8 ) on, and the attacker's force-invincible time ( protected +0xdbc ) not above 0;
 			 - the attacker gets JuneUpNowHpWithText( -( damage * rate +0x75dc ) ) ( 322780b0 ).
 */
-void CX2GameUnit::JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ )
+void CX2GameUnit::ProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ )
 {
 	if ( NULL == pAttacker_ )
 		return;
@@ -19838,11 +19839,11 @@ void CX2GameUnit::JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ )
 			fDamage_ * m_fJuneThornsRate, fDamage_, m_fJuneThornsRate, pAttacker_->GetUnitUID() );
 	}
 #endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
-	pAttacker_->JuneUpNowHpWithText( -( fDamage_ * m_fJuneThornsRate ) );
+	pAttacker_->UpNowHpWithText( -( fDamage_ * m_fJuneThornsRate ) );
 }
 
 /** June 322780b0 ( RET 4 ): UpNowHp( fDelta_, 0 ) ( vslot 0xec ), then fDelta_ + 0.005 ( 33438ad8 ) onto +0x68c0 ( 31fac820 push_back ) */
-void CX2GameUnit::JuneUpNowHpWithText( float fDelta_ )
+void CX2GameUnit::UpNowHpWithText( float fDelta_ )
 {
 	UpNowHp( fDelta_, 0.f );
 	m_vecJuneHpChangeText.push_back( fDelta_ + 0.005f );
@@ -19850,14 +19851,14 @@ void CX2GameUnit::JuneUpNowHpWithText( float fDelta_ )
 
 #ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 // June 32278070
-void CX2GameUnit::JuneUpNowMpWithText( float fDelta_ )
+void CX2GameUnit::UpNowMpWithText( float fDelta_ )
 {
 	UpNowMp( fDelta_ );
 	m_vecJuneMpChangeText.push_back( fDelta_ + 0.005f );
 }
 
 // June 3229ecc0 @3229ed1f-3229f127: true when the MP timer fired this frame, text or not
-bool CX2GameUnit::JuneFrameMoveMpChangeText()
+bool CX2GameUnit::FrameMoveMpChangeText()
 {
 	if ( true == m_vecJuneMpChangeText.empty() )
 		return false;
@@ -19895,10 +19896,10 @@ bool CX2GameUnit::JuneFrameMoveMpChangeText()
 	( g_pData +0x15c ), a sum below 0 L"HP -" (int)-sum in PicCharRed ( +0x154 ), at GetPos( false ) + ( 0, 50, 0 ) ( 33449120 ) with
 	GetDirVector ( vslot 0x16c ), AT_CENTER. June first runs the same for a second queue ( +0x68ac, timer +0x68a8 ) and, when that one
 	showed text this frame, only restarts this timer ( cl, @3229f166 ); that queue is not ported ( no March writer ), so this one never waits. */
-void CX2GameUnit::JuneFrameMoveHpChangeText()
+void CX2GameUnit::FrameMoveHpChangeText()
 {
 #ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
-	const bool bMpTextFired = JuneFrameMoveMpChangeText();
+	const bool bMpTextFired = FrameMoveMpChangeText();
 #endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 	if ( true == m_vecJuneHpChangeText.empty() )
 		return;
@@ -20000,7 +20001,7 @@ void CX2GameUnit::StopAndDeleteSimpleTimerCount()
 /** June 32299af0 ( from 3229ecc0 ): count above -1 -> time -= elapsed; once time has fallen to count - 1 or below ( fild, fcompp
 	@32299b32 ), count = max( count - 1, 0 ), the digit texture follows ( 32296520 ) and a non-empty sound plays ( 32276220( sound, true,
 	false ) ). Then a live sequence follows GetPos + offset ( SetPosition 31cf1a40( pos, false, false ) ). It never stops by itself. */
-void CX2GameUnit::JuneFrameMoveSimpleTimer()
+void CX2GameUnit::FrameMoveSimpleTimer()
 {
 	if ( m_iJuneSimpleTimerCount <= -1 )
 		return;

@@ -264,10 +264,10 @@ private:
 	void JuneCreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_, const bool bMinor_ );			/// 328e8820
 	void JuneSetCommandDescription( const bool bMinor_ );												/// 328e73f0
 	void JuneFitDescriptionText( CKTDGUIStatic* pStatic_ );											/// 328df060
-	void JuneCreateMajorCommandRows( const std::vector<CX2SkillTree::JuneComboRow>& vecRow_, const int iGroup_ );	/// 328e5290
+	void JuneCreateMajorCommandRows( const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e5290
 	void JuneCreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e7ba0
-	void JuneLoadComboRows( KLuaManager& luaManager_, const char* pszTableName_, std::vector<CX2SkillTree::JuneComboRow>& vecRow_ );	/// 328df4c0
-	void JuneCreateCommandRows( CKTDGUIContolList* pControlList_, const std::vector<CX2SkillTree::JuneComboRow>& vecRow_, const int iGroup_ );	/// 328e4bd0
+	void JuneLoadComboRows( KLuaManager& luaManager_, const char* pszTableName_, std::vector<CX2SkillTree::ComboRow>& vecRow_ );	/// 328df4c0
+	void JuneCreateCommandRows( CKTDGUIContolList* pControlList_, const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e4bd0
 	CKTDGUIButton* JuneCreateCommandToolTipButton( const int iIcon_, CKTDGUIStatic* pStatic_ );		/// 328de9a0
 	int JuneGetCommandToolTipStringID( const int iIcon_ ) const;										/// 328da200
 	bool JuneGetCommandToolTipColor( const int iIcon_, D3DXVECTOR3& vColor_ ) const;					/// 328da290
@@ -303,7 +303,7 @@ private:
 	int									m_iJuneCommandRow;			/// +0x28 the next CommandControlList row ( 328e7ba0 resets it, 328e4bd0 counts )
 	bool								m_bJuneCommandToolTip;		/// +0x38 a command tooltip button is under the mouse ( 29071 / 29072 )
 	bool								m_bJuneCommandMovieToolTip;	/// +0x39 a command movie control is under the mouse ( 29073 / 29074 )
-	CX2SkillTree::JuneSkillCommandDesc	m_kJuneSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
+	CX2SkillTree::SkillCommandDesc	m_kJuneSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
 	std::map< int, CX2SkillTree::JuneCommandIconData >	m_mapJuneCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
 																	/// JUNE_BUGS: nothing in June fills it, so no tooltip button is built
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS

@@ -2745,9 +2745,9 @@ bool CX2UISkillTreeNew::JuneAutoEquipNewSkills( const std::vector< int >& vecSki
 
 	std::vector< int > vecEmptyA;
 	std::vector< int > vecEmptyB;
-	m_pUserSkillTree->GetJuneEmptySlotIndexList( vecEmptyA, false, false );
-	if( true == m_pUserSkillTree->IsJuneSlotUsable( 0 ) )
-		m_pUserSkillTree->GetJuneEmptySlotIndexList( vecEmptyB, true, false );
+	m_pUserSkillTree->GetEmptySlotIndexList( vecEmptyA, false, false );
+	if( true == m_pUserSkillTree->IsSlotUsable( 0 ) )
+		m_pUserSkillTree->GetEmptySlotIndexList( vecEmptyB, true, false );
 
 	if( true == vecEmptyA.empty() && true == vecEmptyB.empty() )
 		return false;
@@ -2837,7 +2837,7 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 	}
 
 	/// B-TC ( slot 9 ): slot-state key 1 ( 32890ea0( 1 ) ) in { 1, 2 } unlocks it
-	const bool bBTCLocked = ( false == m_pUserSkillTree->IsJuneSlotUsable( 1 ) );
+	const bool bBTCLocked = ( false == m_pUserSkillTree->IsSlotUsable( 1 ) );
 	if( false == bBTCLocked )
 	{
 		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", false );
@@ -2855,7 +2855,7 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 	}
 
 	/// B ( slots 5-8 ): slot-state key 0 ( 32890ea0( 0 ) ) in { 1, 2 }; the emulator sends key 0 = 2, so the offline game never locks it
-	const bool bBLocked = ( false == m_pUserSkillTree->IsJuneSlotUsable( 0 ) );
+	const bool bBLocked = ( false == m_pUserSkillTree->IsSlotUsable( 0 ) );
 	if( false == bBLocked )
 	{
 		m_bIsExpandSkillSlot = true;
@@ -2898,8 +2898,8 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 	{
 		s_iLastLockState = iLockState;
 		CX2OfflineLog::Server( L"[JUNE_SKILL] UI slot locks: A-TC %s ( transcendence is Stage 6 ), B-TC %s ( key 1 state %d ), B %s ( key 0 state %d ), B expand flag %d",
-			( false == bTranscendent ) ? L"locked" : L"open", ( true == bBTCLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetJuneSlotState( 1 ),
-			( true == bBLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetJuneSlotState( 0 ), ( true == m_bIsExpandSkillSlot ) ? 1 : 0 );
+			( false == bTranscendent ) ? L"locked" : L"open", ( true == bBTCLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetSlotState( 1 ),
+			( true == bBLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetSlotState( 0 ), ( true == m_bIsExpandSkillSlot ) ? 1 : 0 );
 	}
 }
 

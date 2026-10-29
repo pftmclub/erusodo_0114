@@ -2484,7 +2484,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float GetSphereAttackBoxScale( const wstring& attackBoxName );
 		void SetSphereAttackBoxScale( const wstring& attackBoxName, float fScale );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		void JuneMultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ );	/// June 32274310 (S3d)
+		void MultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ );	/// June 32274310 (S3d)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 
@@ -2504,7 +2504,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		virtual float				GetStopTime() = NULL;
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 		/// C3e-5: June's DamageReact hit-stop, shared by CX2GUUser::DamageReact 320462a0 @32046ce3 and CX2GUNPC::DamageReact 327b1f30 @327b3163
-		void						JuneDamageReactHitStop( const CX2DamageManager::DamageData& damageData_ );
+		void						DamageReactHitStop( const CX2DamageManager::DamageData& damageData_ );
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 
 #ifdef STOP_UNIT_STOP_EFFECT_TEST
@@ -2523,17 +2523,17 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectSetHandle_, int iDeleteCondition_ );	/// Atlas E7: June 3227a670
 		/// Atlas E7 ( region_engine.tsv B35, B36 )
 		void SetThornsInfo( bool bThorns_, float fThornsRate_ ) { m_bJuneThorns = bThorns_; m_fJuneThornsRate = fThornsRate_; }	/// June 3226e350
-		void JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ );	/// June 32278150 ( both DamageReacts )
-		void JuneUpNowHpWithText( float fDelta_ );		/// June 322780b0
-		void JuneFrameMoveHpChangeText();				/// June 3229ecc0 @3229f11f-3229f4e6
+		void ProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ );	/// June 32278150 ( both DamageReacts )
+		void UpNowHpWithText( float fDelta_ );		/// June 322780b0
+		void FrameMoveHpChangeText();				/// June 3229ecc0 @3229f11f-3229f4e6
 #ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
-		void JuneUpNowMpWithText( float fDelta_ );		/// June 32278070
-		bool JuneFrameMoveMpChangeText();				/// June 3229ecc0 @3229ed1f-3229f127
+		void UpNowMpWithText( float fDelta_ );		/// June 32278070
+		bool FrameMoveMpChangeText();				/// June 3229ecc0 @3229ed1f-3229f127
 #endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 		void StartSimpleTimerCount( float fTime_, float fOffsetX_, float fOffsetY_, float fOffsetZ_, const char* pszSoundName_ );	/// June 32299890
 		int GetSimpleTimerCount() { return m_iJuneSimpleTimerCount; }	/// June 3226e3c0
 		void StopAndDeleteSimpleTimerCount();			/// June 322963a0
-		void JuneFrameMoveSimpleTimer();				/// June 32299af0
+		void FrameMoveSimpleTimer();				/// June 32299af0
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		virtual const UnitCondition& GetUnitCondition( bool bFuture = false ) const	= NULL;
@@ -2626,7 +2626,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June2017 C10b-2: vslot 0x418, the effect-alpha category an owned NPC carries (0 for everything else: a user's own body and weapon never fade)
 		virtual BYTE				GetOwnedEffectAlphaCondition() const { return 0; }
 		/// June2017 C10b-2: vslot 0x41c ( 3208ddc0, a no-op ), the owner's say on its own category; a user overrides it
-		virtual void				JuneOverrideEffectAlphaCondition( BYTE* pbyResult ) const {}
+		virtual void				OverrideEffectAlphaCondition( BYTE* pbyResult ) const {}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		virtual bool				IsLocalUnit() const		= NULL;
 		virtual bool				IsFocusUnit() const		= NULL;
@@ -2681,7 +2681,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
 		/// June 32078fd0: BeginTable( name + index ), nation-suffixed first ( g_pMain->GetNationFlag() ), plain name as the fallback
-		static bool					JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ );
+		static bool					BeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ );
 		/// June 3227a740: sort a played sound into the delete-condition lists. iNowStateSkillID_ is the user's GetNowStateSkillID() (vslot 0x524 in June, which is CX2GUUser-only in March); the NPC passes 0
 		void						AttachSoundDeleteCondition( CKTDXDeviceSound* pSound_, const vector<int>& vecDeleteCondition_, int iNowStateSkillID_ );
 		void						StopSoundOnDamageReact();	/// June 32276ce0
@@ -2693,7 +2693,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 		/// C9h-4e: the riding pet's two SOUND_PLAY_ALL_OPTION<n> loops ( June 32d2f560 @32d32853-@32d33049 user, @32d35163-@32d359f4 village ): same keys and defaults
 		/// as CommonStateStart's block; appends to vecOut_ and returns how many records were read
-		static int	JuneLoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ );
+		static int	LoadSoundPlayAllOption( KLuaManager& luaManager_, std::vector<SoundPlayData>& vecOut_ );
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 		
 		void						ClearHitUnitList_LUA()
@@ -2860,15 +2860,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// June slot 121: multiplies 92's maximize in the roll. 1.0 for every class but Rose (32a7ece0, checklist section 7).
 		virtual float						GetDamageMaximizeMultiplier( CX2DamageManager::DamageData* /*pDamageData_*/ ) const { return 1.0f; }
 		/// 92's result as the roll sees it: 0 while CalculateFinalDamageMaximizeRate is not loaded (one [JUNE_BUFF] line)
-		float								GetJuneDamageMaximizeForRoll() const;
-		static bool							IsJuneDamageMaximizeCurveLoaded();
+		float								GetDamageMaximizeForRoll() const;
+		static bool							IsDamageMaximizeCurveLoaded();
 		/// June 322788c0: this is the unit taking the hit (it seeds the engine), pAttacker_ the hitter; iType_ 0 physic, 1 magic
-		void								JuneDamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ );
+		void								DamageMaximizeRoll( CX2GameUnit* pAttacker_, const int iType_, CX2DamageManager::DamageData* pDamageData_, float& fAttack_ );
 		/// June 3230ca6d: a user's summon takes the owner's 92 and physic / magic range results as its basics
-		void								CopyJuneMaximizeAndRangeFrom( const CX2GameUnit& Owner_ );
+		void								CopyMaximizeAndRangeFrom( const CX2GameUnit& Owner_ );
 #ifdef SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
 		/// DESIGNED, NOT JUNE (user decision 2026-10-04, plan Phase 16 Q3): a user's range basics from its own attack
-		void								SetJuneDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ );
+		void								SetDesignedAttackRangeBasic( const CX2Stat::Stat& Stat_ );
 #endif SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port Phase 16: the socket option members' readers (option value = M+0x24, result = M+0xa0)
@@ -2891,8 +2891,8 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float								GetDecreaseMPCostRate() const { return m_AdditionalDecreaseMPCostRate.GetResultValue(); }
 		float								GetIncreaseDmgRateMyHpFew() const { return m_AdditionalIncreaseDmgRateMyHpFew.GetResultValue(); }
 		/// June buff port 16-step3b2 item 2: June 32273480 and the DamageReacts' critical damage multiplier (X2GameUnit.cpp)
-		float								GetJuneCriticalThresholdTerm() const;
-		float								GetJuneCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ );
+		float								GetCriticalThresholdTerm() const;
+		float								GetCriticalDamageRate( CX2GameUnit* pAttacker_, const CX2DamageManager::DamageData* pDamageData_, const float fDefenderCriticalValue_, const bool bAddCriticalAfflicted_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port Phase 5c: BBT 88 store (June list +0x67dc). Insert 32282390, erase 3227a8c0, reader 32274970 (the defender's, in GetFinalDamage)
 		void								InsertIgnoreDefence( const KBuffIdentity& BuffIdentity_, const float fIgnoreDefenceRate_ );
@@ -2902,7 +2902,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 		/// June buff port Phase 5 console hook (DEBUG only): puts one new-type factor straight into its store, or takes it out.
 		/// iInsert_ 1 inserts, 0 erases. The shipped March buff data has no factor carrying these types.
-		void								JuneBuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ );
+		void								BuffTestNewStat_LUA( const int iBehaviorType_, const int iChangeType_, const float fValue_, const int iInsert_ );
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 
 		float								GetAdditionalDefence() const { return m_AdditionalChangeAdditionalDefence.GetResultValue(); }
@@ -2925,8 +2925,8 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void								DoDelegateProcessWithDamageDataInDamageReact ( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecDelegateProcessWithDamageDataInDamageReact, damageData_ ); }
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		/// June +0x66ec, run by AreaHit 32624610 @32624f7b; June registers nothing on it
-		void								InsertJuneDelegateProcessToAreaHit( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecJuneDelegateProcessInAreaHit.push_back( delegateProcess_ ); }
-		void								DoJuneDelegateProcessInAreaHit( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecJuneDelegateProcessInAreaHit, damageData_ ); }
+		void								InsertDelegateProcessToAreaHit( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecJuneDelegateProcessInAreaHit.push_back( delegateProcess_ ); }
+		void								DoDelegateProcessInAreaHit( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecJuneDelegateProcessInAreaHit, damageData_ ); }
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		
 		/// CommonFrameMove에서 수행될 Delegate프로세스
@@ -3073,11 +3073,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void DeleteEffectSetOnCustomState();
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-		void JuneDeleteEffectSetOnStageEnd();		/// June 3228a190
-		void JuneDeleteEffectSetOffRiding();		/// June 3228a3b0
-		void JuneDeleteEffectSetOnSkillStateEnd();	/// June 3228a490 (user only)
-		void JuneStopCreateNewEffectOnStateEnd();	/// June 3228a120 (the +0x3e90 list of every played handle -> 321da070)
-		void JuneStopPlayedEffectSetOnEarlyDamageReact();	/// June 3228a270 @3228a2d1 (DeleteEffectSetOnDamageReact's second block, user only)
+		void DeleteEffectSetOnStageEnd();		/// June 3228a190
+		void DeleteEffectSetOffRiding();		/// June 3228a3b0
+		void DeleteEffectSetOnSkillStateEnd();	/// June 3228a490 (user only)
+		void StopCreateNewEffectOnStateEnd();	/// June 3228a120 (the +0x3e90 list of every played handle -> 321da070)
+		void StopPlayedEffectSetOnEarlyDamageReact();	/// June 3228a270 @3228a2d1 (DeleteEffectSetOnDamageReact's second block, user only)
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		void PushEffectSetToDeleteOnDie( const CX2EffectSet::Handle& hEffectSet_ ) { m_vecEffectSetToDeleteOnDie.push_back(hEffectSet_); }
 
@@ -3161,7 +3161,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		bool ApplyBuffToGameUnitInDamageReact( const CX2DamageManager::DamageData* pDamageData_ );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 		/// June-only socket EXTRA_DAMAGE_TYPEs, one body for the user (32034e50) and NPC (327995c0) Process_ExtraDamage (X2GameUnit.cpp)
-		void JuneProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
+		void ProcessSocketExtraDamage( const CX2DamageManager::DamageData* pDamageData_, const CX2DamageManager::ExtraDamageData& extraDamageData_,
 			const bool bNpcDefender_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
@@ -3235,7 +3235,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		int GetBuffAccumulationCountNow( const BUFF_TEMPLET_ID eBuffTempletID_ );		/// June 3227bbc0 (Lua: GetBuffAccumulationCountNow)
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June 3227c940 (effect completion C5): DAMAGE_TRIGGER_DATA's DTT_MULTIPLE_DAMAGE_BY_DEBUFF rate, this = the defender
-		void JuneApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ );
+		void ApplyMultipleDamageByDebuff( IN OUT float& fDamage_, IN const CX2DamageManager::DamageData& damageData_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 #if defined( SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_DAMAGEDATA )
@@ -3250,11 +3250,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June 32278580 (effect completion C5): the frame name of this unit's collision point nearest vPos_ (empty without one).
 		/// Outside SERV_IRUHADEV_JUNE_BUFF_BINDING (C5 review): it has no buff dependency and X2EffectSet.cpp calls it.
-		std::wstring JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
+		std::wstring GetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-		D3DXVECTOR3 JuneGetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const;			/// June 32293f80
-		bool JuneIsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const;		/// June 32293b80
+		D3DXVECTOR3 GetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const;			/// June 32293f80
+		bool IsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const;		/// June 32293b80
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		/// June effect completion C4 (renamed from CheckDamageDataKeyName): the DIVISION window gate and its tick / re-arm, see X2GameUnit.cpp.
@@ -3269,9 +3269,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				return m_iDivisionNum < rhs_.m_iDivisionNum;
 			}
 		};
-		bool JuneCheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ );		/// June 3227a960
-		void JuneTickDivisionWindow( float fElapsedTime_ );										/// June 322749f0
-		void JuneRearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ );	/// June 32275da0
+		bool CheckDivisionWindow( const CX2DamageManager::DamageData* pDamageData_ );		/// June 3227a960
+		void TickDivisionWindow( float fElapsedTime_ );										/// June 322749f0
+		void RearmDivisionWindow( UidType uidAttacker_, int iDivisionNum_, float fTime_ );	/// June 32275da0
 		bool IsBuffBlockedBeforeApply( const CX2BuffFactor& buffFactor_ );						/// June 322a7960 (slot 139, +0x22c)
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 //}}
@@ -3365,7 +3365,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		int  GetDamageTimes() { return m_iDamageTimes; }
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		/// June +0x4108: the attack type the damage-type change applies to; -1 = every attack type (see CX2GUUser::SetDamageExceptionProcess)
-		int  GetJuneChangeDamageAttackType() const { return m_iJuneChangeDamageAttackType; }
+		int  GetChangeDamageAttackType() const { return m_iJuneChangeDamageAttackType; }
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif
 		
@@ -3386,7 +3386,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June effect completion C3c, 32294e30 (CX2GameUnit method, single caller: Process_ExtraDamage's EDT_TRANSIT_DEBUFF member loop): fills
 		/// vecUnits_ with the game units around this one, nearest first. iCount_ is June's second argument, which its body never reads
-		void JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ );
+		void CollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		bool GetEnableWeaponRenderEffect(){ return m_bEnableWeaponRenderEffect; }
 		void SetEnableWeaponRenderEffect( bool _bVal );
@@ -3467,7 +3467,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June effect completion C3: June 322736f0, the MP twin of UpNowHpPerHitOthers (HIT_ADD_MP_PERCENT: MP += max( 1, MaxMp * percent ), "MP +%d" text)
-		void	JuneUpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ );
+		void	UpNowMpPerHitOthersPercent( IN const float fHitAddMpPercent_, IN const float fTextOffsetY_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
  		/// 좌우반전
@@ -3494,33 +3494,33 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void DoCustomFunctionByBuffInNpcFinalDamage( IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ );	/// June 322757b0: slot 6
 		void DoCustomFunctionByBuffInSetBuffFactor( IN const CX2BuffFactor& buffFactor_ );	/// June 32275860: slot 7
 		/// June buff port Phase 9b: June's per-unit fields the custom-function classes read
-		int GetJuneLastHitAttackSerial() const { return m_iJuneLastHitAttackSerial; }	/// June +0x40dc (Chain Viper's count seed)
-		void SetJuneLastHitAttackSerial( const int iSerial_ ) { m_iJuneLastHitAttackSerial = iSerial_; }
-		bool GetJuneReservedDeath() const { return m_bJuneReservedDeath; }		/// June +0x258 (a protected bool)
-		void SetJuneReservedDeath( const bool bReserved_ ) { m_bJuneReservedDeath = bReserved_; }	/// June 32082790 (Death Sign's erase hook sets it)
+		int GetLastHitAttackSerial() const { return m_iJuneLastHitAttackSerial; }	/// June +0x40dc (Chain Viper's count seed)
+		void SetLastHitAttackSerial( const int iSerial_ ) { m_iJuneLastHitAttackSerial = iSerial_; }
+		bool GetReservedDeath() const { return m_bJuneReservedDeath; }		/// June +0x258 (a protected bool)
+		void SetReservedDeath( const bool bReserved_ ) { m_bJuneReservedDeath = bReserved_; }	/// June 32082790 (Death Sign's erase hook sets it)
 #else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		/// C3d-3: June +0x40f0 / +0x40f4 ( the back speed the bounding states launch with ) and +0x40e0 / +0x40e8 ( the last attacker's UID and
 		/// game-unit type, written by both DamageReacts ). The Lu/Ciel hook that reads the last attacker is class code ( checklist 7l ).
-		const D3DXVECTOR2& GetJuneBoundingBackSpeed() const { return m_vJuneBoundingBackSpeed; }
-		void SetJuneBoundingBackSpeed( const float fX_, const float fY_ ) { m_vJuneBoundingBackSpeed.x = fX_; m_vJuneBoundingBackSpeed.y = fY_; }
-		GAME_UNIT_TYPE GetJuneLastAttackerUnitType() const { return m_eJuneLastAttackerUnitType; }
-		UidType GetJuneLastAttackerUID() const { return m_uidJuneLastAttacker; }
-		void SetJuneLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
+		const D3DXVECTOR2& GetBoundingBackSpeed() const { return m_vJuneBoundingBackSpeed; }
+		void SetBoundingBackSpeed( const float fX_, const float fY_ ) { m_vJuneBoundingBackSpeed.x = fX_; m_vJuneBoundingBackSpeed.y = fY_; }
+		GAME_UNIT_TYPE GetLastAttackerUnitType() const { return m_eJuneLastAttackerUnitType; }
+		UidType GetLastAttackerUID() const { return m_uidJuneLastAttacker; }
+		void SetLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
 		/// C3j: June vslots 0x2f0 / 0x2f4. June's base ( 31aa1d30 ) is a trap stub ( a log, then a write to address 0 ), so both are pure here; the user
 		/// and the NPC override them. The only June caller is Lu/Ciel class code ( 32b34680 ). ( The C3d-3 review's 0x2f4 / 0x2f8 was one slot off. )
-		virtual bool JuneIsBoundingUp() const = 0;
-		virtual bool JuneIsBoundingLandCrash() const = 0;
+		virtual bool IsBoundingUp() const = 0;
+		virtual bool IsBoundingLandCrash() const = 0;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		/// C3g: June +0x40f8 ( a protected float, ctor 1.0 ), the state's SET_LIMIT_MAX_G_SPEED. PhysicProcess ( user 32015b30 @32016f5e,
 		/// NPC 3277fbf0 @32780466 ) does fldz / fcomp / test ah,0x41 / jne: only a value strictly below 0 replaces the cap; 0, positive and
 		/// NaN keep fMaxGSpeed * buoyancy ( x87 run, C3g ). The negative limit is used as it is: no buoyancy, no unit scale.
-		float GetJuneLimitMaxGSpeed() const { return m_fJuneLimitMaxGSpeed; }
-		void SetJuneLimitMaxGSpeed( const float fLimit_ ) { m_fJuneLimitMaxGSpeed = fLimit_; }
-		float JuneGetMaxGSpeedCap( const float fBuoyancy_ ) const { return ( m_fJuneLimitMaxGSpeed < 0.f ) ? m_fJuneLimitMaxGSpeed : m_PhysicParam.fMaxGSpeed * fBuoyancy_; }
+		float GetLimitMaxGSpeed() const { return m_fJuneLimitMaxGSpeed; }
+		void SetLimitMaxGSpeed( const float fLimit_ ) { m_fJuneLimitMaxGSpeed = fLimit_; }
+		float GetMaxGSpeedCap( const float fBuoyancy_ ) const { return ( m_fJuneLimitMaxGSpeed < 0.f ) ? m_fJuneLimitMaxGSpeed : m_PhysicParam.fMaxGSpeed * fBuoyancy_; }
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		void EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ );
 		void DoCustomFunctionByBuffInCommonStateStart();
@@ -3717,11 +3717,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 		/// June effect completion C6b: two base virtuals the effect set's index stamp uses. Luciel's and Ain's overrides are class code (checklist 7a).
-		virtual void JuneStampEffectSetIndex( CX2EffectSet::EffectSetInstance* pEffectSetInstance_ ) {}	/// June vslot 0x248 (3226e220), base no-op
-		virtual int GetJuneDamageEffectIndex() const { return -1; }											/// June vslot 0x2e0 (31abe300), base -1
+		virtual void StampEffectSetIndex( CX2EffectSet::EffectSetInstance* pEffectSetInstance_ ) {}	/// June vslot 0x248 (3226e220), base no-op
+		virtual int GetDamageEffectIndex() const { return -1; }											/// June vslot 0x2e0 (31abe300), base -1
 		/// June effect completion C7: run on the owner late in every CEffect ctor (June 31f7aab0 @31f7f61e-31f7f62b). CX2GameUnit, CX2GUUser
 		/// and CX2GUNPC all hold the base (3208ddc0, RET 4); the class overrides that seed the create-damage-effect rate are checklist 7a.
-		virtual void JuneOnDamageEffectCreated( CX2DamageEffect::CEffect* pEffect_ ) {}						/// June vslot 0x328 (3208ddc0), base no-op
+		virtual void OnDamageEffectCreated( CX2DamageEffect::CEffect* pEffect_ ) {}						/// June vslot 0x328 (3208ddc0), base no-op
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7: the unit stores of BBT 73 (June list +0x67cc), 94 (sets +0x65d4 / +0x65e4, list +0x65c4) and 95 (list +0x75ac)
@@ -3782,7 +3782,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		/// June CX2GameUnit vslot 0x3e0( BTI ), called first by the per-factor packet apply 322a6d00: true skips that factor. Base 331a4950 returns
 		/// false; CX2GUAdd 329d4640 overrides it (BTI 0x156 / 0x1b6 -> true), CX2GUAin 32a38f80 returns false: class code, JUNE2017_CHARACTER_PORT_CHECKLIST.md 7l
-		virtual bool JuneIsPacketBuffRefused( const BUFF_TEMPLET_ID eBuffTempletID_ ) const { return false; }
+		virtual bool IsPacketBuffRefused( const BUFF_TEMPLET_ID eBuffTempletID_ ) const { return false; }
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		
 		/// 필드<->던전 이동 시 자신에게 걸린 버프를 GageManager에 임시로 저장 했던 것을 다시 GameUnit에 적용하는 함수
@@ -3963,10 +3963,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		
 		virtual void		ResetPhysicParam(bool bPreserveNowSpeed = false );
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
-		void				ApplyJuneWorldGravityRate();	/// June 32296290 ( C3n ): the world gravity rate, now, from a one-time PhysicParam backup
+		void				ApplyWorldGravityRate();	/// June 32296290 ( C3n ): the world gravity rate, now, from a one-time PhysicParam backup
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 #ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
-		void				RestoreJuneWorldColor();	/// June 32296be0 ( C3o ): end a CHANGE_WORLD_COLOR_DATA window, fading the world back to its origin colour
+		void				RestoreWorldColor();	/// June 32296be0 ( C3o ): end a CHANGE_WORLD_COLOR_DATA window, fading the world back to its origin colour
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 		virtual void		ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
 		virtual void DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ ) {}
@@ -4091,20 +4091,22 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		virtual float	GetEnchantAttack( CX2DamageManager::EXTRA_DAMAGE_TYPE extraDamageType );
 #endif
 #ifdef ENCHANT_ACCUMULATION_RATE_MODIFIER
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		float EnchantAccumulationRateModifier( CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		/// June buff port Phase 15: June 32272d90 ( pDD, basic, misc, rate ): + 1x / 2x the attacker's m_fAttribReiterationRate
 		/// at the defender's accumulation 1 / 2 (March: x2 at 1-2)
-		float JuneEnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
+		float EnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
 		/// June 32272780 ( element 1 blaze / 2 frozen / 3 poison ): did that accumulation rise on its last proc (bytes +0x7c7c..+0x7c7e,
 		/// cleared at the start of each body, zeroed in the ctor @322a5eb8). Read by the slow ticks.
-		bool JuneIsEnchantAccumulationRose( const int iElement_ ) const { return m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1]; }
-		struct JuneEnchantAccumulationRose
+		bool IsEnchantAccumulationRose( const int iElement_ ) const { return m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1]; }
+		struct EnchantAccumulationRose
 		{
 			bool m_abRose[3];
-			JuneEnchantAccumulationRose() { m_abRose[0] = m_abRose[1] = m_abRose[2] = false; }
+			EnchantAccumulationRose() { m_abRose[0] = m_abRose[1] = m_abRose[2] = false; }
 		};
-		JuneEnchantAccumulationRose m_kJuneEnchantAccumulationRose;
+		EnchantAccumulationRose m_kJuneEnchantAccumulationRose;
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
@@ -4113,32 +4115,32 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// (CX2GUUser::CommonFrameMove 32063650) and the NPC hosts (327b53b0, 3276b400) run the same code for these blocks.
 		/// June slot 111 (+0x1bc), the weapon's composed EDT: user 3208e090 returns m_eWeaponEnchantExtraDamageType; NPC 3275aa20
 		/// forwards to the owner's slot 111 when USE_OWNERS_ENCHANT is set and the owner is live. March's getter is not virtual.
-		CX2DamageManager::EXTRA_DAMAGE_TYPE JuneGetWeaponEnchantExtraDamageType();
+		CX2DamageManager::EXTRA_DAMAGE_TYPE GetWeaponEnchantExtraDamageType();
 		/// June's attacker-table lookup, inlined at each tick and in GetFinalDamage: decompose (32708080) the attacker's slot 111,
 		/// take the first part (bSecondPart_: the second part when it is not EDT_NONE, else the first), then the user map
 		/// (32708ce0) for a user attacker or the NPC map (32708d10) for an NPC one (bUserMapAlways_: the user map for both).
-		static const CX2EnchantItem::EnchantData* JuneGetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ );
+		static const CX2EnchantItem::EnchantData* GetAttackerEnchantData( CX2GameUnit* pAttacker_, const bool bSecondPart_, const bool bUserMapAlways_ );
 		/// June poison @32067d0c / frozen @3206a228 (NPC @327b8e93 / @327ba9c3): element 3 / 2 builds BFI 1001 / 1014 from the
 		/// attacker's speed lists; re-applied only when absent or when the accumulation rose on the last proc
-		void JuneApplyEnchantSlowDebuff( const int iElement_ );
+		void ApplyEnchantSlowDebuff( const int iElement_ );
 		/// June @32068a41 (NPC @327b9fba): BFI 1000 when the shock stun ends with the unit alive
-		void JuneApplyEnchantShockDebuff();
+		void ApplyEnchantShockDebuff();
 		/// June @32068ef9 / @3206ae28 (NPC @327b9507 / @327bb698): when poison (3) / frozen (2) ends, its slow debuff goes too
-		void JuneEraseEnchantSlowDebuff( const int iElement_ );
+		void EraseEnchantSlowDebuff( const int iElement_ );
 		/// June's blaze MP drain, right after the tick's HP write (user @32069046, NPC 3276b400 @3276b8a0). Returns the MP before
 		/// it; nothing is drained unless that is > 0 and the attacker is live. bResist_: the user host scales the drain by
 		/// (1 - blaze resist / 500), the NPC host does not (JUNE_BUGS)
-		float JuneEnchantBlazeMpDrain( const bool bResist_ );
+		float EnchantBlazeMpDrain( const bool bResist_ );
 		/// June 322d39e0 (a CX2Game method in June): red "MP- %d" ("MP- %d PERCENT" when bPercent_), skipped while the dialogs
 		/// are hidden (31d03920 = CKTDGUIDialogManager::GetHideDialog)
-		static void JuneDrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ );
+		static void DrawMpLossText( const float fValue_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vDir_, const bool bPercent_ );
 	protected:
-		struct JuneUseOwnersEnchant
+		struct UseOwnersEnchant
 		{
 			bool m_bUse;	/// June +0x7c7f: INIT_COMPONENT USE_OWNERS_ENCHANT (June 32289090 @32289d44), read by NPC slots 111/112
-			JuneUseOwnersEnchant() : m_bUse( false ) {}
+			UseOwnersEnchant() : m_bUse( false ) {}
 		};
-		JuneUseOwnersEnchant m_kJuneUseOwnersEnchant;
+		UseOwnersEnchant m_kJuneUseOwnersEnchant;
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		
 
@@ -4246,7 +4248,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void DoDelegateProcess( const vector<DelegateProcess>& vecDelegateProcess_ );
 		void DoDelegateProcessWithDamageData( const vector<DelegateProcessWithDamageData>& vecDelegateProcess_, const CX2DamageManager::DamageData& damageData_ );
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
-		void JuneLogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const;
+		void LogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const;
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 
 		void AddToDamagedMap( const CX2GameUnit* pAttackerGameUnit_, const float fFinalDamage_ );
@@ -4320,8 +4322,8 @@ public:
 		virtual void ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, OUT float& fAttackerMagicDamage_ ) {}
 #endif //BALANCE_CODE_NEMESIS_20121213
 #ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
-		virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3ac ( base 33108560, empty )
-		virtual void JuneModifySpecialFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3b0 ( base 33108560, empty )
+		virtual void ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3ac ( base 33108560, empty )
+		virtual void ModifySpecialFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) {}	/// June unit vslot 0x3b0 ( base 33108560, empty )
 #endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 
 		bool	ApplyDrainHpBuff()

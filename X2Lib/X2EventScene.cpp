@@ -1288,7 +1288,7 @@ bool CX2EventScene::LoadEventSequence( KLuaManager& luaManager, std::list<EventS
 
 		int idxSoundPlay = 0;
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
-		while( CX2GameUnit::JuneBeginSoundPlayTable( luaManager, "SOUND_PLAY", idxSoundPlay ) == true )	/// June 325b6280 @325b65dc / @325b6722 ( C9h-4b ): the nation reader, the only change
+		while( CX2GameUnit::BeginSoundPlayTable( luaManager, "SOUND_PLAY", idxSoundPlay ) == true )	/// June 325b6280 @325b65dc / @325b6722 ( C9h-4b ): the nation reader, the only change
 #else
 		while( luaManager.BeginTable( "SOUND_PLAY", idxSoundPlay ) == true )
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND

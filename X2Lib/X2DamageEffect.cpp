@@ -8,7 +8,7 @@
 #include "Offline/X2OfflineLog.h"
 // JUNE_FX DE_SOUND <effect> <what> <detail>: one line per damage-effect sound play, list push and dtor
 // stop ( C9h-8 ). Discrete events, not per frame, so no throttle. offline_server.log.
-static void JuneDeSoundLog( const WCHAR* pwszEffect_, const WCHAR* pwszWhat_, const WCHAR* pwszDetail_ )
+static void DeSoundLog( const WCHAR* pwszEffect_, const WCHAR* pwszWhat_, const WCHAR* pwszDetail_ )
 {
 	CX2OfflineLog::Server( L"JUNE_FX DE_SOUND %s %s %s", ( NULL != pwszEffect_ ? pwszEffect_ : L"-" ), pwszWhat_, pwszDetail_ );
 }
@@ -22,7 +22,7 @@ static void JuneDeSoundLog( const WCHAR* pwszEffect_, const WCHAR* pwszWhat_, co
 // Code review fix: no-op when SERV_IRUHADEV_OFFLINE is off -- CX2OfflineLog only exists under it
 // (X2OfflineLog.h), so this keeps SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME independently buildable
 // and revertible, rather than tying it to offline mode by accident.
-static void JuneFxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszWhy_ )
+static void FxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszWhy_ )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
@@ -50,7 +50,7 @@ static void JuneFxCeOnce( const WCHAR* pwszTag_, const WCHAR* pwszEffect_, const
 // CEffect::OnFrameMove / FollowLine (plan Phase 7a), at most one a second per (effect, key).
 // The detail (times, positions) is not part of the throttle key. Runtime, so it goes to
 // offline_server.log. No-op when SERV_IRUHADEV_OFFLINE is off, same reason as JuneFxCeOnce above.
-static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
+static void FxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, const WCHAR* pwszDetail_ )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
@@ -76,7 +76,7 @@ static void JuneFxCeFrame( const WCHAR* pwszEffect_, const WCHAR* pwszKey_, cons
 // JUNE_FX CE_LOCKON <effect> <branch> <detail>: one line per June lock-on branch taken (plan
 // Phase 7b), at most one a second per (effect, branch); the detail is printf-formatted and not
 // part of the throttle key. No-op when SERV_IRUHADEV_OFFLINE is off, as JuneFxCeFrame above.
-static void JuneFxLockOn( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
+static void FxLockOn( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
@@ -108,7 +108,7 @@ static void JuneFxLockOn( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, co
 // Phase 7d: AttackResult, the hit / die / CREATE_DAMAGE_EFFECT spawners, SetDamageDataNext), at
 // most one a second per (effect, branch); the detail is printf-formatted and not part of the
 // throttle key. No-op when SERV_IRUHADEV_OFFLINE is off, as JuneFxCeFrame above.
-static void JuneFxHit( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
+static void FxHit( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const WCHAR* pwszFormat_, ... )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	const WCHAR* pwszEffectName = ( NULL != pwszEffect_ ? pwszEffect_ : L"-" );
@@ -143,7 +143,7 @@ static void JuneFxHit( const WCHAR* pwszEffect_, const WCHAR* pwszBranch_, const
 // pre-lock-on hit set (June LockOnData +0x40, March m_setPreLockOnTarget), which the destination keeps. March's implicit operator=
 // copies the set too since Phase 7b added it, so June's two callers (the die spawner's INHERITLOCKONDATA @31f83126 and the
 // CREATE_DAMAGE_EFFECT loop @31f89e2b) use this instead.
-static void JuneAssignLockOnData( CX2DamageEffect::LockOnData& kDest_, const CX2DamageEffect::LockOnData& kSource_ )
+static void AssignLockOnData( CX2DamageEffect::LockOnData& kDest_, const CX2DamageEffect::LockOnData& kSource_ )
 {
 	std::set<UidType> setKeptPreLockOnTarget;
 	setKeptPreLockOnTarget.swap( kDest_.m_setPreLockOnTarget );
@@ -793,7 +793,7 @@ void    CX2DamageEffect::DestroyInstanceHandle( CEffectHandle& hInstance, bool b
 	// life, and the manager's own delete loops (which SAFE_DELETE directly), leave children alone.
 	{
 		std::vector<CEffectHandle> vecDieWithMasterChildEffects;
-		pInstance->JuneTakeDieWithMasterChildEffects( vecDieWithMasterChildEffects );
+		pInstance->TakeDieWithMasterChildEffects( vecDieWithMasterChildEffects );
 		for( size_t iDieWithMaster = 0; iDieWithMaster < vecDieWithMasterChildEffects.size(); iDieWithMaster++ )
 			DestroyInstanceHandle( vecDieWithMasterChildEffects[iDieWithMaster], false );
 
@@ -1822,7 +1822,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// Phase 8c: every SetDamageDataFromLUA call below (DAMAGE_DATA[_ULTIMATE], DAMAGE_DATA_NEXT and its
 	// numbered chain) prints this templet's name in its rule-5 JUNE_FX unsupported lines. Restored when
 	// the ctor returns.
-	CX2DamageManager::JuneDamageDataTempletScope kJuneDamageDataTempletScope( g_pData->GetDamageManager(), GetName() );
+	CX2DamageManager::DamageDataTempletScope kJuneDamageDataTempletScope( g_pData->GetDamageManager(), GetName() );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
@@ -2257,7 +2257,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// is told about the new effect (vslot 0x328). The base does nothing; class overrides (checklist 7a) seed the rate.
 	m_fJuneCreateDamageEffectRate = -1.f;
 	if( NULL != pGameUnit )
-		pGameUnit->JuneOnDamageEffectCreated( this );
+		pGameUnit->OnDamageEffectCreated( this );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 
@@ -2349,9 +2349,9 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// @31f889e9-31f88a8b (TRACE_OWNER_BONE_ONLY_ROTATE): see those addresses for what June does
 	// at run time. Both are rule-5 unsupported systems here (effect-alpha option; Rose/UT_ROSE).
 	if( 0 != m_iApplyEffectAlphaConditionByOption )
-		JuneFxCeOnce( L"unsupported", GetName(), L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"effect-alpha option absent" );
+		FxCeOnce( L"unsupported", GetName(), L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"effect-alpha option absent" );
 	if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
-		JuneFxCeOnce( L"unsupported", GetName(), L"TRACE_OWNER_BONE_ONLY_ROTATE", L"Rose (UT_ROSE) absent" );
+		FxCeOnce( L"unsupported", GetName(), L"TRACE_OWNER_BONE_ONLY_ROTATE", L"Rose (UT_ROSE) absent" );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 	m_fElapsedTime = 0.f;
@@ -2393,7 +2393,7 @@ CX2DamageEffect::CEffect::~CEffect()
 		WCHAR wszJuneDetail[96] = {0};
 		StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"entry=%u fmod=%d match=%d",
 			uiJune, (int) eJuneResult, ( FMOD_OK == eJuneResult && pJuneCurrentSound == m_vecJuneDeleteWhenEffectEndSound[uiJune].second ) ? 1 : 0 );
-		JuneDeSoundLog( m_Name.c_str(), ( true == bJuneStop ? ( FMOD_OK != eJuneResult ? L"stop-err" : L"stop" ) : L"skip" ), wszJuneDetail );
+		DeSoundLog( m_Name.c_str(), ( true == bJuneStop ? ( FMOD_OK != eJuneResult ? L"stop-err" : L"stop" ) : L"skip" ), wszJuneDetail );
 #endif
 	}
 	m_vecJuneDeleteWhenEffectEndSound.clear();
@@ -2591,7 +2591,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		|| g_pX2Game->GetMajorXMeshPlayer()->IsDyingByCrash( m_hMeshInstHandle ) == true
 #endif RAVEN_WEAPON_TAKER
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
-		|| true == JuneEvaluateDieCheckCondition()
+		|| true == EvaluateDieCheckCondition()
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		)
 	{
@@ -2627,14 +2627,14 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 				{
 					pMeshInst->SetPos( vTraceOwnerBonePos );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					JuneFxCeFrame( GetName(), L"TRACE_OWNER_BONE", m_strTraceOwnerBone.c_str() );
+					FxCeFrame( GetName(), L"TRACE_OWNER_BONE", m_strTraceOwnerBone.c_str() );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 				else
 				{
 					pMeshInst->SetPos( pTraceOwnerBoneUnit->GetPos( false ) );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					JuneFxCeFrame( GetName(), L"TRACE_OWNER_BONE", L"bone not found, unit GetPos" );
+					FxCeFrame( GetName(), L"TRACE_OWNER_BONE", L"bone not found, unit GetPos" );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 			}
@@ -3040,10 +3040,10 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 								// child's pre-lock-on hit set alone instead of handing it the parent's.
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 								if( false == GetLockOnData().m_setPreLockOnTarget.empty() )
-									JuneFxHit( GetName(), L"CREATE_LOCKON_COPY", L"%s parentPreLockOn=%d childKept=%d", pData->damageEffectName.c_str(),
+									FxHit( GetName(), L"CREATE_LOCKON_COPY", L"%s parentPreLockOn=%d childKept=%d", pData->damageEffectName.c_str(),
 										(int)GetLockOnData().m_setPreLockOnTarget.size(), (int)kLockOnData.m_setPreLockOnTarget.size() );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
-								JuneAssignLockOnData( kLockOnData, GetLockOnData() );
+								AssignLockOnData( kLockOnData, GetLockOnData() );
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 								kLockOnData = GetLockOnData();
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -3100,7 +3100,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 								pEffect->GetDamageData().damage.fMagic	= m_DamageData.damage.fMagic;
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-								JuneFxHit( GetName(), L"INHERIT_DAMAGE_SPAWN", L"%s physic=%.3f magic=%.3f",
+								FxHit( GetName(), L"INHERIT_DAMAGE_SPAWN", L"%s physic=%.3f magic=%.3f",
 									pData->damageEffectName.c_str(), m_DamageData.damage.fPhysic, m_DamageData.damage.fMagic );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 							}
@@ -3113,16 +3113,16 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 								pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 							if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate )
-								JuneFxHit( GetName(), L"CREATE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f",
+								FxHit( GetName(), L"CREATE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f",
 									pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
 									(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 							// June2017 FUN_31f88790 @31f89d8b: 31f8fdb0 on every CREATE_DAMAGE_EFFECT child, unconditionally, once the INHERIT_DAMAGE flag
 							// (@31f89cfb) is set. June calls it ahead of INHERIT_BUFF_FACTOR; the fields it writes are independent of that block.
-							JuneInheritFromParent( pEffect );
+							InheritFromParent( pEffect );
 							// @31f89dbc: 31f64c00 right after INHERIT_BUFF_FACTOR; INHERIT_LIFE_TIME in between only sets the main-effect clock.
-							JuneCopyAttackTriggerToChild( pEffect );
+							CopyAttackTriggerToChild( pEffect );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -3156,11 +3156,11 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 							// June2017 FUN_31f88790 @31f89ee0-31f89f10: the other three callees at the end of the spawn: 31f649d0 with the entry's +0xb0,
 							// then 31f65e40 / 31f65f90 when the entry carries +0xb4 / +0xb5 (31f64c00 ran above, @31f89dbc).
-							pEffect->JuneApplyInheritDamageRate( pData->fInheritDamageRate );
+							pEffect->ApplyInheritDamageRate( pData->fInheritDamageRate );
 							if( true == pData->bInheritIgnoreDefence )
-								pEffect->JuneSetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
+								pEffect->SetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
 							if( true == pData->bInheritIgnoreStateDefence )
-								pEffect->JuneSetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
+								pEffect->SetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 
 		#ifdef LOOP_CREATE_DAMAGE_EFFECT // 김태환
@@ -3267,7 +3267,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 				WCHAR wszJuneFxSpeed[160] = L"";
 				StringCchPrintfW( wszJuneFxSpeed, ARRAY_SIZE(wszJuneFxSpeed), L"speed=%.3f window=(%.3f,%.3f)->(%.3f,%.3f)", fOwnerAttackSpeed,
 					fJuneAttackTimeStart, fJuneAttackTimeEnd, m_fOwnerAttackSpeedAttackTimeStart, m_fOwnerAttackSpeedAttackTimeEnd );
-				JuneFxCeFrame( GetName(), L"USE_OWNER_ATTACK_SPEED", wszJuneFxSpeed );
+				FxCeFrame( GetName(), L"USE_OWNER_ATTACK_SPEED", wszJuneFxSpeed );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 			}
 			fJuneAttackTimeStart	= m_fOwnerAttackSpeedAttackTimeStart;
@@ -3299,7 +3299,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 					WCHAR wszJuneFxWindow[128] = L"";
 					StringCchPrintfW( wszJuneFxWindow, ARRAY_SIZE(wszJuneFxWindow), L"global window=(%.3f,%.3f) t=%.3f",
 						fJuneAttackTimeStart, fJuneAttackTimeEnd, pMeshInst->GetGlobalTime() );
-					JuneFxCeFrame( GetName(), L"USE_GLOBAL_TIME", wszJuneFxWindow );
+					FxCeFrame( GetName(), L"USE_GLOBAL_TIME", wszJuneFxWindow );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
 				}
@@ -3357,11 +3357,11 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		if( pMeshInst->GetGravity().y < 0.f && pMeshInst->GetVelocityBefore().y < 0.f && pMeshInst->GetVelocity().y > 0.f )
 		{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-			JuneFxHit( GetName(), L"TOUCH_LAND_GATE", L"entries=%d gravity.y=%.1f velocityBefore.y=%.1f velocity.y=%.1f",
+			FxHit( GetName(), L"TOUCH_LAND_GATE", L"entries=%d gravity.y=%.1f velocityBefore.y=%.1f velocity.y=%.1f",
 				(int)m_DamageEffectDataInLua.m_vecTouchLandDamageEffect.size(), pMeshInst->GetGravity().y,
 				pMeshInst->GetVelocityBefore().y, pMeshInst->GetVelocity().y );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
-			JuneTouchLandDamageEffect();
+			TouchLandDamageEffect();
 		}
 #endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 		if( pMeshInst->GetXSkinAnim()->EventTimer( m_fDamageDataChangeTime ) == true && m_fDamageDataChangeTime != -1.0f )
@@ -3419,7 +3419,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			WCHAR wszJuneFxChange[96] = L"";
 			StringCchPrintfW( wszJuneFxChange, ARRAY_SIZE(wszJuneFxChange), L"%s index=%d time=%.3f",
 				( 0 == iJuneChangeTimeKind ? L"anim" : L"global" ), m_iDamageDataChangeTimeIndex, fJuneChangeTime );
-			JuneFxCeFrame( GetName(), L"DAMAGE_DATA_CHANGE_TIME", wszJuneFxChange );
+			FxCeFrame( GetName(), L"DAMAGE_DATA_CHANGE_TIME", wszJuneFxChange );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 			SetDamageDataNextByChainIndex( &m_DamageData, m_iDamageDataChangeTimeIndex );
 			m_iDamageDataChangeTimeIndex++;
@@ -3534,7 +3534,7 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 			else
 			{
-				JuneFxCeFrame( GetName(), L"REFRESH_LAND_POS", L"crash-land probe y == -1, skipped" );
+				FxCeFrame( GetName(), L"REFRESH_LAND_POS", L"crash-land probe y == -1, skipped" );
 			}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -3595,7 +3595,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 					StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s loop=%d 3d=%d del=%d dev=%d channel=%d",
 						pSoundData->fileName.c_str(), pSoundData->bLoop ? 1 : 0, (int) *( const unsigned char* ) &pSoundData->bThreeDimensionalSound,
 						pSoundData->bDeleteWhenEffectEnd ? 1 : 0, ( NULL != pSound ) ? 1 : 0, ( NULL != pSound && NULL != pSound->GetChannel() ) ? 1 : 0 );
-					JuneDeSoundLog( m_Name.c_str(), L"play", wszJuneDetail );
+					DeSoundLog( m_Name.c_str(), L"play", wszJuneDetail );
 				}
 #endif
 				if( NULL != pSound )
@@ -3608,7 +3608,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 						WCHAR wszJuneDetail[96] = {0};
 						StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s entries=%u",
 							pSoundData->fileName.c_str(), (UINT) m_vecJuneDeleteWhenEffectEndSound.size() );
-						JuneDeSoundLog( m_Name.c_str(), L"push", wszJuneDetail );
+						DeSoundLog( m_Name.c_str(), L"push", wszJuneDetail );
 #endif
 					}
 					// @31f6ee0e: June's set-and-apply 31d41710( mesh instance +0x3f0 ) after the play ( March: store-only
@@ -3662,7 +3662,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 #endif SERV_IRUHADEV_OFFLINE
 // JUNE_FX C3i blackhole unit <uid> type <n>: <why>. Use-time proof lines for the June black-hole exclusions ( offline_server.log ),
 // at most 16 per reason per session: the pull runs every frame for every unit in range.
-static void JuneC3iBlackHoleLog( CX2GameUnit* pUnit_, int iReason_, const WCHAR* pwszWhy_ )
+static void LogBlackHoleEffect( CX2GameUnit* pUnit_, int iReason_, const WCHAR* pwszWhy_ )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	static int s_aiJuneC3iBlackHoleLines[3] = { 0, 0, 0 };
@@ -3750,7 +3750,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 					/// June OnFrameMove_BlackHoleData 31f6eea0 @31f6f0ab-31f6f0b9 ( C3i ): not while the NPC's state sets NO_FALL_DOWN_AT_STATE ( StateData +0x401 )
-					if( true == pNPC->GetJuneNoFallDownAtState() )
+					if( true == pNPC->GetNoFallDownAtState() )
 					{
 #ifdef SERV_IRUHADEV_OFFLINE
 						static int s_iJuneC3iNoFallDownLines = 0;	// JUNE_FX C3i proof line, at most 16 per session ( per-frame loop )
@@ -3766,9 +3766,9 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 #ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 					/// June @31f6f0bf ( C3i ): never an NPC whose INIT_COMPONENT sets NOT_AFFECT_BLACKHOLE ( +0x8ac5 ). The siege-mode test below is June's +0x8aa0 ( 32756e10 = SetSiegeMode )
-					if( true == pNPC->GetJuneNotAffectBlackHole() )
+					if( true == pNPC->GetNotAffectBlackHole() )
 					{
-						JuneC3iBlackHoleLog( pUnit, 1, L"NOT_AFFECT_BLACKHOLE: never pulled" );
+						LogBlackHoleEffect( pUnit, 1, L"NOT_AFFECT_BLACKHOLE: never pulled" );
 						continue;
 					}
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
@@ -3842,7 +3842,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 			/// June 31f6eea0 @31f6f29c-31f6f2c1 ( C3i ): a NaN distance ( _isnan ) or an invincible unit ( GetInvincible, vslot 0x180 ) is not moved;
 			/// a user in range is still marked as held by the hole below ( @31f6f384 )
 			if( 0 != _isnan( fDist ) || true == pUnit->GetInvincible() )
-				JuneC3iBlackHoleLog( pUnit, 2, L"in range but not moved: invincible or NaN distance" );
+				LogBlackHoleEffect( pUnit, 2, L"in range but not moved: invincible or NaN distance" );
 			else
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 			{
@@ -3919,7 +3919,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 			return;
 		m_LockOnData.m_iUnlockStartAfterAttack = -1;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"UNLOCK_START_AFTER_ATTACK", L"released at hit %d", m_DamageTimeNow );
+		FxLockOn( GetName(), L"UNLOCK_START_AFTER_ATTACK", L"released at hit %d", m_DamageTimeNow );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	}
 
@@ -3974,7 +3974,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 				break;
 
 			bool bFoundCollision = false;
-			VectorLockOn( JuneGetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision ) );
+			VectorLockOn( GetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision ) );
 
 			// @31f8407a-31f840a9: re-target when the target died or -- new -- when it is invincible and
 			// NOT_LOCKON_INVINCIBLE_TARGET is set (FUN_31f63d80).
@@ -3994,10 +3994,10 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 			// CX2Game::GetLockOnTarget (different index, owner-range filter). Its out bool is the byte
 			// that held the collision-found flag, so a miss writes -1 where that flag points.
 			bool bUserUnit = bFoundCollision;
-			const UidType uid = JunePickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
-			JuneSetLockOnTargetUID( uid, bUserUnit );
+			const UidType uid = PickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
+			SetLockOnTargetUID( uid, bUserUnit );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-			JuneFxLockOn( GetName(), L"UID_VECTOR_RETARGET", L"reason=%s seed=%d -> uid=%I64d user=%d", ( bDead ? L"dead" : L"invincible" ), m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
+			FxLockOn( GetName(), L"UID_VECTOR_RETARGET", L"reason=%s seed=%d -> uid=%I64d user=%d", ( bDead ? L"dead" : L"invincible" ), m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		}
 		break;
@@ -4019,7 +4019,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 				break;
 
 			bool bFoundCollision = false;
-			VectorLockOn( JuneGetNearestCollisionPos( pGameUnit, pOwnerUnit->GetPos(), bFoundCollision ) );
+			VectorLockOn( GetNearestCollisionPos( pGameUnit, pOwnerUnit->GetPos(), bFoundCollision ) );
 
 			if( 0.f >= pGameUnit->GetNowHp() && null != m_optrOwnerUnit )
 			{
@@ -4028,7 +4028,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 
 				bool bUserUnit = false;
 				const UidType gameUnitUID = g_pX2Game->GetLockOnNearstTarget( static_cast<CX2Room::TEAM_NUM>( m_optrOwnerUnit->GetTeam() ), pOwnerUnit->GetPos(), bUserUnit );
-				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				SetLockOnTargetUID( gameUnitUID, bUserUnit );
 			}
 		}
 		break;
@@ -4044,7 +4044,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 			// New: the ranges are DUNGEON_/PVP_TARGET_RANGE_MIN_MAX (their defaults are March's hardcoded
 			// 150/750 and 150/300), and every pick is FUN_322d7670, handed the per-effect target list only
 			// when NOT_TARGET_PRE_LOCK_ON_TARGET is non-zero (@31f851ed, @31f853ac, @31f85571).
-			const D3DXVECTOR2 vRange = JuneGetLockOnTargetRange();
+			const D3DXVECTOR2 vRange = GetLockOnTargetRange();
 			D3DXVECTOR2 vRangeScaled = vRange;
 			if( m_LockOnData.m_fRange > 0.f )
 				vRangeScaled = vRange * m_LockOnData.m_fRange;
@@ -4065,7 +4065,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					break;
 
 				bool bFoundCollision = false;
-				const D3DXVECTOR3 vPos = JuneGetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision );
+				const D3DXVECTOR3 vPos = GetNearestCollisionPos( pTarget, pOwnerUnit->GetPos(), bFoundCollision );
 				VectorLockOn( vPos );
 
 				// @31f85175-31f852a2: the hit-count re-target, unscaled range as in March. New: it needs a
@@ -4076,8 +4076,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					m_LockOnData.m_fRetargetCooltimeNow = m_LockOnData.m_fRetargetCooltimeAfterAttack;
 
 					bool bUserUnit = false;
-					const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), vPos, vRange, bUseTargetList, bUserUnit );
-					JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+					const UidType gameUnitUID = GetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), vPos, vRange, bUseTargetList, bUserUnit );
+					SetLockOnTargetUID( gameUnitUID, bUserUnit );
 				}
 
 				// @31f852a2-31f85444: the target died -- re-target around the main effect.
@@ -4089,8 +4089,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					break;
 
 				bool bUserUnit = false;
-				const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
-				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				const UidType gameUnitUID = GetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
+				SetLockOnTargetUID( gameUnitUID, bUserUnit );
 			}
 			else
 			{
@@ -4100,8 +4100,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					break;
 
 				bool bUserUnit = false;
-				const UidType gameUnitUID = JuneGetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
-				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				const UidType gameUnitUID = GetLockOnNearstTargetInRange( m_optrOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRangeScaled, bUseTargetList, bUserUnit );
+				SetLockOnTargetUID( gameUnitUID, bUserUnit );
 
 				if( LOCSD_NOT_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop	// @31f85628-31f85686, unchanged
 					&& m_LockOnData.m_LockOnUnitUID < 0 && m_LockOnData.m_LockOnNPCUID < 0 )
@@ -4111,7 +4111,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_SAVE_DIR_SPEED;
 				}
 
-				JuneLockOnSteerForward( pMeshInst );	// @31f85688-31f856f9
+				LockOnSteerForward( pMeshInst );	// @31f85688-31f856f9
 			}
 		}
 		break;
@@ -4150,7 +4150,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 			else if ( -1 != m_LockOnData.m_LockOnNPCUID )
 				pTarget = g_pX2Game->GetNPCUnitByUID( m_LockOnData.m_LockOnNPCUID );
 
-			const D3DXVECTOR2 vRange = JuneGetLockOnTargetRange();	// never scaled by TARGET_RANGE in this case
+			const D3DXVECTOR2 vRange = GetLockOnTargetRange();	// never scaled by TARGET_RANGE in this case
 
 			if ( NULL != pTarget )
 			{
@@ -4168,11 +4168,11 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 
 				// @31f845c7-31f8465c: aim at the target's lock-on point as seen from m_Pos (June +0x100),
 				// raised by LOCK_ON_OFFSET_Y_POS.
-				D3DXVECTOR3 vAim = JuneGetLockOnAimPos( pTarget, m_Pos );
+				D3DXVECTOR3 vAim = GetLockOnAimPos( pTarget, m_Pos );
 				vAim.y += m_LockOnData.m_fLockOnOffsetYPos;
 				VectorLockOn( vAim );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-				JuneFxLockOn( GetName(), L"AFTER_ATTACK_IN_RANGE", L"aim=(%.0f,%.0f,%.0f) hits=%d", vAim.x, vAim.y, vAim.z, m_DamageTimeNow );
+				FxLockOn( GetName(), L"AFTER_ATTACK_IN_RANGE", L"aim=(%.0f,%.0f,%.0f) hits=%d", vAim.x, vAim.y, vAim.z, m_DamageTimeNow );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 				// @31f84667-31f84728: the hit-count re-target, a random pick around the aim point
@@ -4185,8 +4185,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					m_LockOnData.m_LockOnNPCUID		= -1;
 
 					bool bUserUnit = false;
-					const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), vAim, vRange, bUserUnit );
-					JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+					const UidType gameUnitUID = GetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), vAim, vRange, bUserUnit );
+					SetLockOnTargetUID( gameUnitUID, bUserUnit );
 				}
 
 				// @31f84728-31f847e4: the target died -- re-target around the main effect.
@@ -4198,8 +4198,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					break;
 
 				bool bUserUnit = false;
-				const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
-				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				const UidType gameUnitUID = GetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
+				SetLockOnTargetUID( gameUnitUID, bUserUnit );
 			}
 			else
 			{
@@ -4214,8 +4214,8 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					break;
 
 				bool bUserUnit = false;
-				const UidType gameUnitUID = JuneGetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
-				JuneSetLockOnTargetUID( gameUnitUID, bUserUnit );
+				const UidType gameUnitUID = GetLockOnRandomTargetInRange( pOwnerUnit->GetTeam(), GetMainEffect()->GetPos(), vRange, bUserUnit );
+				SetLockOnTargetUID( gameUnitUID, bUserUnit );
 
 				if( LOCSD_NOT_SAVE_DIR_SPEED == m_LockOnData.m_eNotFindTargetMoveStop	// @31f848f0-31f8496f
 					&& m_LockOnData.m_LockOnUnitUID < 0 && m_LockOnData.m_LockOnNPCUID < 0 )
@@ -4225,7 +4225,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_LockOnData(  float fElapsedTime_ )
 					m_LockOnData.m_eNotFindTargetMoveStop = LOCSD_SAVE_DIR_SPEED;
 				}
 
-				JuneLockOnSteerForward( pMeshInst );	// @31f8497c-31f84a0e
+				LockOnSteerForward( pMeshInst );	// @31f8497c-31f84a0e
 			}
 		}
 		break;
@@ -5015,12 +5015,12 @@ void CX2DamageEffect::CEffect::AttackResult()
 		// June2017 CEffect::AttackResult 31f85910 @31f85a9b-31f85b36 (effect completion C3), after the two HP terms above (+0x404 @31f85a2f, +0x5a0 @31f85a77):
 		// HIT_ADD_MP_PERCENT (+0x410, CEffect +0x610): |x - 0.0| > FLT_EPSILON ([334490f8]) -> owner->322736f0( x, 140.0 [33443958] ).
 		if( fabsf( m_DamageData.m_fHitAddMpPercent ) > 1.1920928955078125e-07f )
-			pOwnerGameUnit->JuneUpNowMpPerHitOthersPercent( m_DamageData.m_fHitAddMpPercent, 140.f );
+			pOwnerGameUnit->UpNowMpPerHitOthersPercent( m_DamageData.m_fHitAddMpPercent, 140.f );
 		// @31f85b07-31f85b24: an effect whose owner is a user marks the owner's attack as successful unless IGNORE_ATTACK_SUCCESS (+0x628, CEffect
 		// +0x828, @31f85b10) is set: 31fcee10( owner, true, true ) = unitCondition.bHit of the FUTURE frame. June then also runs 31fcee40( owner, false )
 		// @31f85b2d (a short hit counter at unit +0x80ce, no March member; not ported, see JUNE2017_EFFECT_KEY_MATRIX.md).
 		if( CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() && false == m_DamageData.m_bIgnoreAttackSuccess )
-			static_cast<CX2GUUser*>( pOwnerGameUnit )->JuneSetAttackSuccess( true, true );
+			static_cast<CX2GUUser*>( pOwnerGameUnit )->SetAttackSuccess( true, true );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 		{
 			static bool s_bJuneC3AttackSuccessLogged = false;
@@ -5224,9 +5224,9 @@ void CX2DamageEffect::CEffect::AttackResult()
 						}
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
-						JuneInheritFromParent( pJuneCreatedEffect );
+						InheritFromParent( pJuneCreatedEffect );
 						// @31f86148 (effect completion C7): then 31f6ea20, whether or not the child was created (it null-tests inside).
-						JuneApplyCreateDamageEffectRate( pJuneCreatedEffect );
+						ApplyCreateDamageEffectRate( pJuneCreatedEffect );
 #else SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
@@ -5272,7 +5272,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 						{
 							// @31f861e2-31f86521: the field-boss collision-box retarget. The gate holds only in a June raid field (unreachable in March), and
 							// then the set traces the nearest NUI_FIELD_BOSS_COLLISION_BOX_1 instead; otherwise March's call. LIFTTIME applies on this path only.
-							CX2GameUnit* pJuneBoxUnit = JuneFindFieldBossCollisionBox( pTraceUnit );
+							CX2GameUnit* pJuneBoxUnit = FindFieldBossCollisionBox( pTraceUnit );
 							hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit,
 								( NULL != pJuneBoxUnit ? pJuneBoxUnit : pTraceUnit ), false, m_fPowerRate, fMainEffectLifeTime );
 						}
@@ -5285,7 +5285,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 								-1.f, D3DXVECTOR3( 1, 1, 1 ), true, pMeshInst->GetPos(), pMeshInst->GetRotateDegree(), pMeshInst->GetDirVec() );
 						}
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-						JuneFxHit( GetName(), L"CREATE_EFFECT_SET", L"%s path=%s mesh=%d handleValid=%d", m_DamageData.m_wstrCreateEffectSetName.c_str(),
+						FxHit( GetName(), L"CREATE_EFFECT_SET", L"%s path=%s mesh=%d handleValid=%d", m_DamageData.m_wstrCreateEffectSetName.c_str(),
 							( NULL != pTraceUnit ? L"trace_unit" : L"no_trace_unit" ), (int)( NULL != pMeshInst ), (int)( INVALID_EFFECTSET_HANDLE != hEffectSet ) );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #else SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
@@ -5311,7 +5311,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 							// and the main-effect mesh (ebp = the mesh instance GetMeshInstance returned, [ebp + 0x3f0] its
 							// position), 321da350 stores the trace unit's nearest collision frame onto the instance.
 							if( m_DamageData.m_bTraceNearestBone && NULL != pTraceUnit && NULL != pMeshInst )
-								pInstance->JuneSetTraceNearestBone( pMeshInst->GetPos(), pTraceUnit );
+								pInstance->SetTraceNearestBone( pMeshInst->GetPos(), pTraceUnit );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 							pInstance->m_bTraceUnitDieDeleteEffectSet = m_DamageData.m_bTraceUnitDieDeleteEffectSet;
@@ -5933,7 +5933,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 		SetHitDamageEffect();
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		// June2017 FUN_31f85910 @31f87b16-31f87b1a: HIT_EFFECT_SET%d runtime, right after SetHitDamageEffect().
-		JuneSetHitEffectSet( GetOwnerUnit(), pDefenderGameUnit );
+		SetHitEffectSet( GetOwnerUnit(), pDefenderGameUnit );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 		//{{ kimhc // 2010.02.10 //	네메시스 패시브 나소드 기어 강화
@@ -6007,7 +6007,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 		{
 			pResetMainEffect->SetNowLifeTime( pResetMainEffect->GetMaxLifeTime() * m_fResetMainEffectLifeTimeRateByHit );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-			JuneFxHit( GetName(), L"RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT", L"rate=%.3f now=%.3f max=%.3f hit=%d/%d",
+			FxHit( GetName(), L"RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT", L"rate=%.3f now=%.3f max=%.3f hit=%d/%d",
 				m_fResetMainEffectLifeTimeRateByHit, pResetMainEffect->GetNowLifeTime(), pResetMainEffect->GetMaxLifeTime(),
 				(int)m_DamageTimeNow, (int)m_DamageTime );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -6590,7 +6590,7 @@ void CX2DamageEffect::CEffect::SetHitDamageEffect()
 // zeroed vec3 locals) -- so June passes March's defaults explicitly rather than differing from
 // them. @31f701f6-31f70200: both units must be non-null or the whole call is skipped. Entry +0x0
 // (EVENT_TIME) is parsed but never loaded by FUN_31f70130; no delay is implemented.
-void CX2DamageEffect::CEffect::JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit )
+void CX2DamageEffect::CEffect::SetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit )
 {
 	if( NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
 		return;
@@ -6605,7 +6605,7 @@ void CX2DamageEffect::CEffect::JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit,
 
 		g_pX2Game->GetEffectSet()->PlayEffectSet( pData->strEffectSetName.c_str(), pOwnerGameUnit, pDefenderGameUnit, false, m_fPowerRate );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxHit( GetName(), L"HIT_EFFECT_SET", L"%s", pData->strEffectSetName.c_str() );
+		FxHit( GetName(), L"HIT_EFFECT_SET", L"%s", pData->strEffectSetName.c_str() );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	}
 }
@@ -6659,7 +6659,7 @@ void CX2DamageEffect::CEffect::JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit,
 // crash @X2DamageEffect.cpp:2529, screen shake @:2589). Confirmed, not just inferred by position:
 // slot 0x198 has no Ghidra function (disassembled raw, GUUser vtable 334781f4+0x198 = 31ff1f30),
 // and its decompile is exactly `g_pX2Game->GetMyUnit() == this`, i.e. March's own IsMyUnit().
-void CX2DamageEffect::CEffect::JuneDieCreateNpc()
+void CX2DamageEffect::CEffect::DieCreateNpc()
 {
 	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
 		return;
@@ -6691,7 +6691,7 @@ void CX2DamageEffect::CEffect::JuneDieCreateNpc()
 			(CX2Room::TEAM_NUM)pOwnerGameUnit->GetTeam(), CX2NPCAI::NAT_ALLY, pOwnerGameUnit->GetUnitUID(), false,
 			CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxHit( GetName(), L"DIE_CREATE_NPC", L"npcId=%d pos=(%.1f,%.1f,%.1f) team=%d",
+		FxHit( GetName(), L"DIE_CREATE_NPC", L"npcId=%d pos=(%.1f,%.1f,%.1f) team=%d",
 			data.iNpcID, m_vMainEffectPosition.x, m_vMainEffectPosition.y, m_vMainEffectPosition.z, (int)pOwnerGameUnit->GetTeam() );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	}
@@ -6701,7 +6701,7 @@ void CX2DamageEffect::CEffect::JuneDieCreateNpc()
 void CX2DamageEffect::CEffect::SetDieDamageEffect()
 {
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
-	JuneDieCreateNpc();	// June2017: FUN_31f70330 pairs with FUN_31f83400 (this function) at all six confirmed June die-path call sites
+	DieCreateNpc();	// June2017: FUN_31f70330 pairs with FUN_31f83400 (this function) at all six confirmed June die-path call sites
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 	//{{ kimhc // 2009-10-20 // 기존의 Set함수를 Load와 Set 으로 분류(일명 독구름 작업)
 #ifdef	DAMAGE_EFFECT_WORK
@@ -7356,7 +7356,7 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				// June2017 FUN_31f810c0 @31f8198f: 31f8fdb0 (the parent's state to the child) comes right after the crit inherit 31f8af50
 				// and before INHERIT_BUFF_FACTOR. March's crit block sits after the buff-factor copy here; the fields are independent.
-				JuneInheritFromParent( pEffect );
+				InheritFromParent( pEffect );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
@@ -7381,7 +7381,7 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 				}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 				if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate || true == pData->bInheritLifeTime )
-					JuneFxHit( GetName(), L"HIT_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
+					FxHit( GetName(), L"HIT_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
 						pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
 						(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage, (int)pData->bInheritLifeTime );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -7405,7 +7405,7 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 				pEffect->SetScale( D3DXVECTOR3( pData->vScale.x * m_vHitDamageScale.x, pData->vScale.y * m_vHitDamageScale.y, pData->vScale.z * m_vHitDamageScale.z ) );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 				if( D3DXVECTOR3( 1.f, 1.f, 1.f ) != pData->vScale )
-					JuneFxHit( GetName(), L"HIT_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
+					FxHit( GetName(), L"HIT_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
 						pData->damageEffectName.c_str(), pData->vScale.x, pData->vScale.y, pData->vScale.z, m_vHitDamageScale.x, m_vHitDamageScale.y, m_vHitDamageScale.z );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -7433,7 +7433,7 @@ void CX2DamageEffect::CEffect::CreateHitDamageEffect( vector<DamageEffectData*>&
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				// June2017 FUN_31f810c0 @31f81afd-31f81b35: the post-create tail, after the first-attack copy: 31f649d0 (the entry's +0xb0
 				// down the child's tree), 31f64c00, then 31f65e40 / 31f65f90 when the entry carries +0xb4 / +0xb5.
-				JuneSpawnTail( pEffect, pData );
+				SpawnTail( pEffect, pData );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			}
 		}
@@ -7727,7 +7727,7 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				// June2017 FUN_31f82210 @31f82f3e: 31f8fdb0 right after the crit inherit 31f8af50, before INHERIT_BUFF_FACTOR (as the hit spawner).
 				// It copies m_iIndex too, which March already did for die children under SERV_RENA_NIGHT_WATCHER below.
-				JuneInheritFromParent( pEffect );
+				InheritFromParent( pEffect );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				/// 버프팩터를 상속함
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
@@ -7752,7 +7752,7 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 				if( true == m_bInheritCriticalRate || true == m_bInheritCriticalDamageRate || true == pData->bInheritLifeTime )
-					JuneFxHit( GetName(), L"DIE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
+					FxHit( GetName(), L"DIE_DAMAGE_EFFECT_INHERIT", L"%s critRate=%d->%.3f critDamage=%d->%.3f lifeTime=%d",
 						pData->damageEffectName.c_str(), (int)m_bInheritCriticalRate, pEffect->GetDamageData().m_fCriticalRate,
 						(int)m_bInheritCriticalDamageRate, pEffect->GetDamageData().m_fApplyCriticalDamage, (int)pData->bInheritLifeTime );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -7765,7 +7765,7 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				pEffect->SetScale( D3DXVECTOR3( pData->vScale.x * m_vDieDamageScale.x, pData->vScale.y * m_vDieDamageScale.y, pData->vScale.z * m_vDieDamageScale.z ) );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 				if( D3DXVECTOR3( 1.f, 1.f, 1.f ) != pData->vScale )
-					JuneFxHit( GetName(), L"DIE_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
+					FxHit( GetName(), L"DIE_DAMAGE_EFFECT_SCALE", L"%s entry=(%.3f,%.3f,%.3f) parent=(%.3f,%.3f,%.3f)",
 						pData->damageEffectName.c_str(), pData->vScale.x, pData->vScale.y, pData->vScale.z, m_vDieDamageScale.x, m_vDieDamageScale.y, m_vDieDamageScale.z );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -7816,16 +7816,16 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				// pre-lock-on hit set. March parsed the key and never read it.
 				if( true == pData->bInheritLockOnData )
 				{
-					JuneAssignLockOnData( pEffect->GetLockOnData(), GetLockOnData() );
+					AssignLockOnData( pEffect->GetLockOnData(), GetLockOnData() );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					JuneFxHit( GetName(), L"INHERITLOCKONDATA", L"%s lockOnType=%d unit=%I64d npc=%d", pData->damageEffectName.c_str(),
+					FxHit( GetName(), L"INHERITLOCKONDATA", L"%s lockOnType=%d unit=%I64d npc=%d", pData->damageEffectName.c_str(),
 						(int)pEffect->GetLockOnData().m_LockOnType, pEffect->GetLockOnData().m_LockOnUnitUID, pEffect->GetLockOnData().m_LockOnNPCUID );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				// June2017 FUN_31f82210 @31f83137-31f8316f: the same tail as the hit spawner, after the first-attack copy.
-				JuneSpawnTail( pEffect, pData );
+				SpawnTail( pEffect, pData );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			}
 		}
@@ -8152,7 +8152,7 @@ void CX2DamageEffect::CEffect::FollowLine()
 					angle.x = pMeshInst->GetRotateDegree().x;
 					angle.z = pMeshInst->GetRotateDegree().z;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					JuneFxCeFrame( GetName(), L"FOLLOW_LINE_WITH_CUSTOM_ROTATE", L"kept own x/z rotation" );
+					FxCeFrame( GetName(), L"FOLLOW_LINE_WITH_CUSTOM_ROTATE", L"kept own x/z rotation" );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 				else
@@ -8205,7 +8205,7 @@ void CX2DamageEffect::CEffect::FollowLine()
 						// a behaviour neither build has. So the near-line case is NOT transcribed: it is deferred
 						// to Phase 10 (KTDGXMeshPlayer) and logged, and the March assignment below runs for both.
 						if( true == m_bFollowLineGravity && fabs( outPos.y - pMeshInst->GetPos().y ) < 30.f )
-							JuneFxCeOnce( L"deferred", GetName(), L"FOLLOW_LINE_GRAVITY", L"near-line case needs the CXMeshInstance move-enable flag (June mesh +0x633), Phase 10" );
+							FxCeOnce( L"deferred", GetName(), L"FOLLOW_LINE_GRAVITY", L"near-line case needs the CXMeshInstance move-enable flag (June mesh +0x633), Phase 10" );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 						outPos.y = pMeshInst->GetPos().y;
 					}
@@ -8296,7 +8296,7 @@ void CX2DamageEffect::CEffect::FollowLine()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 					WCHAR wszJuneFxGravity[96] = L"";
 					StringCchPrintfW( wszJuneFxGravity, ARRAY_SIZE(wszJuneFxGravity), L"nearest line=%d distance=%.1f", iJuneNearestLine, fJuneNearestDistance );
-					JuneFxCeFrame( GetName(), L"FOLLOW_LINE_GRAVITY", wszJuneFxGravity );
+					FxCeFrame( GetName(), L"FOLLOW_LINE_GRAVITY", wszJuneFxGravity );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 				else
@@ -8561,17 +8561,17 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 	m_LockOnData.m_wstrTargetBoneName = m_LockOnData.m_strLockOnTargetBoneName;
 #endif SERV_9TH_NEW_CHARACTER
 
-	JuneSelectLockOnRangeFromOwner();
+	SelectLockOnRangeFromOwner();
 
 	// @31f73732-31f737e2: INIT_TARGET -- an immediate seeded pick (FUN_322dadd0) at load, when the
 	// owner is live. The out bool starts true (@31f7376d).
 	if( true == m_LockOnData.m_bInitTarget && null != m_optrOwnerUnit )
 	{
 		bool bUserUnit = true;
-		const UidType uid = JunePickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
-		JuneSetLockOnTargetUID( uid, bUserUnit );
+		const UidType uid = PickLockOnTargetBySeed( m_LockOnData.m_iRandomSeed, bUserUnit );
+		SetLockOnTargetUID( uid, bUserUnit );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"INIT_TARGET", L"seed=%d -> uid=%I64d user=%d", m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
+		FxLockOn( GetName(), L"INIT_TARGET", L"seed=%d -> uid=%I64d user=%d", m_LockOnData.m_iRandomSeed, uid, ( bUserUnit ? 1 : 0 ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	}
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -8801,7 +8801,7 @@ void CX2DamageEffect::CEffect::LoadDieCheckCondition()
 // locked-on unit or NPC UID is set and still resolves to a live unit
 // (g_pX2Game->GetUserUnitByUID/GetNPCUnitByUID, the same lookup used everywhere else in this
 // file), compared against IS_EXIST.
-bool CX2DamageEffect::CEffect::JuneEvaluateDieCheckCondition()
+bool CX2DamageEffect::CEffect::EvaluateDieCheckCondition()
 {
 	if( true == m_vecDieCheckCondition.empty() )
 		return false;
@@ -8893,10 +8893,10 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
 	// June2017 FUN_31f73a10 @31f73a3c-31f73a55: nothing is steered while the aim point is farther from
 	// the owner than LOCK_ON_RANGE_FROM_OWNER (FUN_31f647c0). 99999 unless a LOCK_ON_DATA table is
 	// loaded in a battle field (1000 by default there), see JuneSelectLockOnRangeFromOwner.
-	if( true == JuneIsOutOfLockOnRangeFromOwner( targetPos ) )
+	if( true == IsOutOfLockOnRangeFromOwner( targetPos ) )
 	{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"RANGE_FROM_OWNER_REJECT", L"range=%.0f dist=%.0f", m_LockOnData.m_fLockOnRangeFromOwner,
+		FxLockOn( GetName(), L"RANGE_FROM_OWNER_REJECT", L"range=%.0f dist=%.0f", m_LockOnData.m_fLockOnRangeFromOwner,
 			( null != m_optrOwnerUnit ? GetDistance( targetPos, m_optrOwnerUnit->GetPos() ) : -1.f ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		return;
@@ -8979,7 +8979,7 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
 		m_LockOnData.m_bYDirInit = false;
 		nowVecDegree.y *= -1.f;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"Y_DIR_INIT", L"dir=(%.1f,%.1f,%.1f)", nowVecDegree.x, nowVecDegree.y, nowVecDegree.z );
+		FxLockOn( GetName(), L"Y_DIR_INIT", L"dir=(%.1f,%.1f,%.1f)", nowVecDegree.x, nowVecDegree.y, nowVecDegree.z );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	}
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
@@ -9042,7 +9042,7 @@ void CX2DamageEffect::CEffect::VectorLockOn( const D3DXVECTOR3& targetPos )
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 // ---- June2017 lock-on runtime helpers (plan Phase 7b; evidence in june2017_re/funcmap.tsv) ----
 
-void CX2DamageEffect::CEffect::JuneSetLockOnTargetUID( UidType uid_, bool bUserUnit_ )
+void CX2DamageEffect::CEffect::SetLockOnTargetUID( UidType uid_, bool bUserUnit_ )
 {
 	if( true == bUserUnit_ )
 		m_LockOnData.m_LockOnUnitUID = uid_;
@@ -9052,7 +9052,7 @@ void CX2DamageEffect::CEffect::JuneSetLockOnTargetUID( UidType uid_, bool bUserU
 
 // June2017 FUN_31f647c0 (RET 0xc): true only when vPos_ is strictly farther from the owner than the
 // LOCK_ON_RANGE_FROM_OWNER value selected at load (June +0x9d0); false with no owner.
-bool CX2DamageEffect::CEffect::JuneIsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ )
+bool CX2DamageEffect::CEffect::IsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ )
 {
 	if( null == m_optrOwnerUnit )
 		return false;
@@ -9064,7 +9064,7 @@ bool CX2DamageEffect::CEffect::JuneIsOutOfLockOnRangeFromOwner( const D3DXVECTOR
 // differ, so the March enum names are used). With the table: AT_PVP in XS_PVP_GAME, AT_RAID_FIELD /
 // AT_FIELD in XS_BATTLE_FIELD, else AT_DUNGEON. Without it: 1000 in a non-raid battle field, else
 // 99999. June's XS_PVE_GAME row (5000, and no AT_* read) has no March state.
-void CX2DamageEffect::CEffect::JuneSelectLockOnRangeFromOwner()
+void CX2DamageEffect::CEffect::SelectLockOnRangeFromOwner()
 {
 	const int iState = ( NULL != g_pMain ) ? static_cast<int>( g_pMain->GetNowStateID() ) : static_cast<int>( CX2Main::XS_INVALID );
 	bool bRaidField = false;
@@ -9093,7 +9093,7 @@ void CX2DamageEffect::CEffect::JuneSelectLockOnRangeFromOwner()
 }
 
 // DUNGEON_/PVP_TARGET_RANGE_MIN_MAX, PVP in XS_PVP_GAME (June: state 9 selects +0x978, e.g. @31f851b8).
-D3DXVECTOR2 CX2DamageEffect::CEffect::JuneGetLockOnTargetRange() const
+D3DXVECTOR2 CX2DamageEffect::CEffect::GetLockOnTargetRange() const
 {
 	if( NULL != g_pMain && CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() )
 		return D3DXVECTOR2( m_LockOnData.m_fPvpTargetRangeMin, m_LockOnData.m_fPvpTargetRangeMax );
@@ -9104,7 +9104,7 @@ D3DXVECTOR2 CX2DamageEffect::CEffect::JuneGetLockOnTargetRange() const
 // team, not invincible (vtable 0x180), alive (FUN_31e4f900), and for an NPC not a boss-raid NPC (vtable
 // 0x3c8: User returns 0, NPC tests MG_BOSS_NPC) nor NCT_THING_TRAP / NCT_THING_CHECKER (0x66 / 0x6a).
 // Not ported: June also skips an NPC whose byte +0x8fb6 is 1 -- that member is not identified.
-bool CX2DamageEffect::CEffect::JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ )
+bool CX2DamageEffect::CEffect::IsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ )
 {
 	if( NULL == pUnit_ )
 		return false;
@@ -9136,7 +9136,7 @@ bool CX2DamageEffect::CEffect::JuneIsLockOnCandidate( const CX2GameUnit* pUnit_,
 // The collision point of pUnit_ nearest vFrom_ (ties go to the later point), else its position
 // raised by 100 -- March's inline loop from OnFrameMove_LockOnData, which June repeats per case
 // (e.g. @31f83e15-31f8403f).
-D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ )
+D3DXVECTOR3 CX2DamageEffect::CEffect::GetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ )
 {
 	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
 	bFound_ = false;
@@ -9171,7 +9171,7 @@ D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetNearestCollisionPos( const CX2GameU
 // else whichever is nearer vFrom_ (a tie -> the bone). Not ported: the tail @3275ae4f-3275b01d, which
 // in a flagged battle field (32481fa0) with an unidentified mode test (3266ce90 / 3266ce80) falls back
 // to the position when the bone position is zero.
-D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ )
+D3DXVECTOR3 CX2DamageEffect::CEffect::GetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ )
 {
 	if( CX2GameUnit::GUT_NPC != pUnit_->GetGameUnitType() )
 		return pUnit_->GetPos();
@@ -9212,7 +9212,7 @@ D3DXVECTOR3 CX2DamageEffect::CEffect::JuneGetLockOnAimPos( const CX2GameUnit* pU
 // whose RANGE is not above dist; 1.0 before any. Only a rate below 1.0 scales anything: physic and magic locals are both multiplied.
 // Polarities from june2017_re's x87 emulation (scratchpad c4_x87.py): the walk stops at the first RANGE with dist < RANGE, so a NaN
 // distance takes every entry; the multiply needs rate < 1.0 strictly (1.0, above 1.0 and NaN do nothing: JUNE_BUGS).
-void CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ )
+void CX2DamageEffect::CEffect::ApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ )
 {
 	if ( true == damageData_.m_mapDivideDamageFromRange.empty() )		// @326227c0-@326227c8
 		return;
@@ -9229,7 +9229,7 @@ void CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( const CX2DamageMa
 		return;
 
 	const D3DXVECTOR3 vEffectPos = pEffect->GetPos();					// @3262289f-@326228b3
-	const D3DXVECTOR3 vAimPos = JuneGetLockOnAimPos( pDefender, vEffectPos );	// vslot 0x3e4 @326228ec
+	const D3DXVECTOR3 vAimPos = GetLockOnAimPos( pDefender, vEffectPos );	// vslot 0x3e4 @326228ec
 	const float fDist = GetDistance( vEffectPos, vAimPos );			// 31c7b560 @326228f4
 
 	float fRate = 1.f;												// @32622909
@@ -9259,7 +9259,7 @@ void CX2DamageEffect::CEffect::JuneApplyDivideDamageFromRange( const CX2DamageMa
 // their aim point (slot 0x3e4 from the owner) inside LOCK_ON_RANGE_FROM_OWNER; the pick is
 // eligible[ (unsigned)( seed % modulus + 1 ) % count ] (IDIV @322dae65, DIV @322db035). March's
 // CX2Game::GetLockOnTarget walks the list cyclically instead and finds nothing at seed -1.
-UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ /*= 30*/ )
+UidType CX2DamageEffect::CEffect::PickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ /*= 30*/ )
 {
 	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
 		return -1;
@@ -9273,9 +9273,9 @@ UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bo
 	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
 	{
 		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
-		if( false == JuneIsLockOnCandidate( pUnit, iTeam ) )
+		if( false == IsLockOnCandidate( pUnit, iTeam ) )
 			continue;
-		if( true == JuneIsOutOfLockOnRangeFromOwner( JuneGetLockOnAimPos( pUnit, vOwnerPos ) ) )
+		if( true == IsOutOfLockOnRangeFromOwner( GetLockOnAimPos( pUnit, vOwnerPos ) ) )
 			continue;
 		vecEligible.push_back( pUnit );
 	}
@@ -9283,7 +9283,7 @@ UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bo
 	if( true == vecEligible.empty() )
 	{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=0 -> none", iSeed_, iKey );
+		FxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=0 -> none", iSeed_, iKey );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		return -1;
 	}
@@ -9293,7 +9293,7 @@ UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bo
 	bUserUnit_ = ( CX2GameUnit::GUT_USER == pPick->GetGameUnitType() );
 	const UidType uid = pPick->GetUnitUID();
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=%u index=%u -> uid=%I64d", iSeed_, iKey,
+	FxLockOn( GetName(), L"SEED_PICK", L"seed=%d key=%d eligible=%u index=%u -> uid=%I64d", iSeed_, iKey,
 		static_cast<UINT>( vecEligible.size() ), uiPick, uid );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return uid;
@@ -9305,7 +9305,7 @@ UidType CX2DamageEffect::CEffect::JunePickLockOnTargetBySeed( int iSeed_, OUT bo
 // non-zero). On a miss (@322d783f-322d78cd): CLEAR empties it, SAVE_ONE empties it when it holds more
 // than one unit, SAVE_HIT_UNIT forgets the saved unit and searches again if that unit is listed, else
 // empties it. June discards that second search's result and returns -1 (the studio's code; kept).
-UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ )
+UidType CX2DamageEffect::CEffect::GetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ )
 {
 	if( NULL == g_pX2Game )
 		return -1;
@@ -9320,7 +9320,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, 
 	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
 	{
 		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
-		if( false == JuneIsLockOnCandidate( pUnit, iTeam_ ) )
+		if( false == IsLockOnCandidate( pUnit, iTeam_ ) )
 			continue;
 
 		if( true == bUseTargetList_ )
@@ -9353,14 +9353,14 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, 
 		if( true == bUseTargetList_ && NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT == iListType )
 			m_LockOnData.m_SaveHitUnitUID = uid;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"IN_RANGE_PICK", L"list=%d set=%u skipped=%d range=(%.0f,%.0f) -> uid=%I64d dist=%.0f",
+		FxLockOn( GetName(), L"IN_RANGE_PICK", L"list=%d set=%u skipped=%d range=(%.0f,%.0f) -> uid=%I64d dist=%.0f",
 			iListType, static_cast<UINT>( setList.size() ), iSkippedByList, vRange_.x, vRange_.y, uid, fNearst );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		return uid;
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"IN_RANGE_MISS", L"list=%d set=%u skipped=%d range=(%.0f,%.0f)",
+	FxLockOn( GetName(), L"IN_RANGE_MISS", L"list=%d set=%u skipped=%d range=(%.0f,%.0f)",
 		iListType, static_cast<UINT>( setList.size() ), iSkippedByList, vRange_.x, vRange_.y );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	if( false == bUseTargetList_ )
@@ -9379,7 +9379,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, 
 		if( setList.end() != setList.find( m_LockOnData.m_SaveHitUnitUID ) )
 		{
 			m_LockOnData.m_SaveHitUnitUID = -1;
-			JuneGetLockOnNearstTargetInRange( iTeam_, vPos_, vRange_, bUseTargetList_, bUserUnit_ );
+			GetLockOnNearstTargetInRange( iTeam_, vPos_, vRange_, bUseTargetList_, bUserUnit_ );
 		}
 		else
 			setList.clear();
@@ -9388,7 +9388,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, 
 		break;
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"TARGET_LIST_MISS_RULE", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
+	FxLockOn( GetName(), L"TARGET_LIST_MISS_RULE", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return -1;
 }
@@ -9397,7 +9397,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnNearstTargetInRange( int iTeam_, 
 // candidates within range.y of vPos_ (squared test, 31c7b5c0; range.x unused), not on this effect's
 // hit list, with the aim point inside LOCK_ON_RANGE_FROM_OWNER. Index (unsigned)( rand() % 100 ) %
 // count. On a miss: CLEAR and SAVE_HIT_UNIT empty the list, SAVE_ONE when it holds more than one.
-UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ )
+UidType CX2DamageEffect::CEffect::GetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ )
 {
 	if( NULL == g_pX2Game || null == m_optrOwnerUnit )
 		return -1;
@@ -9412,14 +9412,14 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, 
 	for( UINT uiIndex = 0; uiIndex < vecUnit.size(); ++uiIndex )
 	{
 		const CX2GameUnit* pUnit = vecUnit[ uiIndex ];
-		if( false == JuneIsLockOnCandidate( pUnit, iTeam_ ) )
+		if( false == IsLockOnCandidate( pUnit, iTeam_ ) )
 			continue;
 		if( NTPLOTT_NONE != iListType && false == setList.empty() && setList.end() != setList.find( pUnit->GetUnitUID() ) )
 			continue;
 		const D3DXVECTOR3 vDiff = pUnit->GetPos() - vPos_;
 		if( D3DXVec3LengthSq( &vDiff ) > fRangeSq )
 			continue;
-		if( true == JuneIsOutOfLockOnRangeFromOwner( JuneGetLockOnAimPos( pUnit, vOwnerPos ) ) )
+		if( true == IsOutOfLockOnRangeFromOwner( GetLockOnAimPos( pUnit, vOwnerPos ) ) )
 			continue;
 		vecEligible.push_back( pUnit );
 	}
@@ -9431,7 +9431,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, 
 		bUserUnit_ = ( CX2GameUnit::GUT_USER == pPick->GetGameUnitType() );
 		const UidType uid = pPick->GetUnitUID();
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-		JuneFxLockOn( GetName(), L"RANDOM_PICK", L"list=%d set=%u eligible=%u index=%u -> uid=%I64d",
+		FxLockOn( GetName(), L"RANDOM_PICK", L"list=%d set=%u eligible=%u index=%u -> uid=%I64d",
 			iListType, static_cast<UINT>( setList.size() ), static_cast<UINT>( vecEligible.size() ), uiPick, uid );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		return uid;
@@ -9451,7 +9451,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, 
 		break;
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"RANDOM_MISS", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
+	FxLockOn( GetName(), L"RANDOM_MISS", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return -1;
 }
@@ -9460,7 +9460,7 @@ UidType CX2DamageEffect::CEffect::JuneGetLockOnRandomTargetInRange( int iTeam_, 
 // (NOT_CLEAR / SAVE_ONE / SAVE_HIT_UNIT) the effect steers at the point one DirSpeed ahead along its
 // heading at its own height -- it levels off. 31c82e40 = CXMeshInstance::GetDirVec, mesh +0x5cc =
 // DirSpeed.
-void CX2DamageEffect::CEffect::JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ )
+void CX2DamageEffect::CEffect::LockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ )
 {
 	switch( m_LockOnData.m_iNotTargetPreLockOnTarget )
 	{
@@ -9479,7 +9479,7 @@ void CX2DamageEffect::CEffect::JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshI
 	const D3DXVECTOR3 vMeshPos = pMeshInst_->GetPos();
 	const D3DXVECTOR3 vAhead( vMeshPos.x + fDirSpeed * vDir.x, vMeshPos.y, vMeshPos.z + fDirSpeed * vDir.z );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"STEER_FORWARD", L"list=%d speed=%.0f", m_LockOnData.m_iNotTargetPreLockOnTarget, fDirSpeed );
+	FxLockOn( GetName(), L"STEER_FORWARD", L"list=%d speed=%.0f", m_LockOnData.m_iNotTargetPreLockOnTarget, fDirSpeed );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	VectorLockOn( vAhead );
 }
@@ -9487,14 +9487,14 @@ void CX2DamageEffect::CEffect::JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshI
 // June2017 FUN_3262b6e0 (CX2DamageManager::EffectToUnit) @3262f389-3262f3ca / @3262f4b9-3262f4fb:
 // after a non-laser-group hit is recorded, a non-zero NOT_TARGET_PRE_LOCK_ON_TARGET puts the hit
 // unit on this effect's list (set<__int64>::insert 32641140). June fills the list nowhere else.
-void CX2DamageEffect::CEffect::JuneOnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ )
+void CX2DamageEffect::CEffect::OnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ )
 {
 	if( NTPLOTT_NONE == m_LockOnData.m_iNotTargetPreLockOnTarget || null == optrHitUnit_ )
 		return;
 	const UidType uid = optrHitUnit_->GetUnitUID();
 	m_LockOnData.m_setPreLockOnTarget.insert( uid );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxLockOn( GetName(), L"TARGET_LIST_INSERT", L"list=%d uid=%I64d -> set=%u", m_LockOnData.m_iNotTargetPreLockOnTarget, uid,
+	FxLockOn( GetName(), L"TARGET_LIST_INSERT", L"list=%d uid=%I64d -> set=%u", m_LockOnData.m_iNotTargetPreLockOnTarget, uid,
 		static_cast<UINT>( m_LockOnData.m_setPreLockOnTarget.size() ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
@@ -10271,7 +10271,7 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 			pDamageDataNext->damage.fPhysic	= pDamageData->damage.fPhysic;
 			pDamageDataNext->damage.fMagic	= pDamageData->damage.fMagic;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-			JuneFxHit( GetName(), L"INHERIT_DAMAGE_NEXT", L"chain=%d physic=%.3f magic=%.3f",
+			FxHit( GetName(), L"INHERIT_DAMAGE_NEXT", L"chain=%d physic=%.3f magic=%.3f",
 				iChainIndex, pDamageData->damage.fPhysic, pDamageData->damage.fMagic );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 		}
@@ -10292,7 +10292,7 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 // and every spawn entry in four lists on the instance (die +0x8, CREATE +0x78, hit +0x98, touch-land +0xa8). March keeps the first NEXT table in
 // m_pDamageDataNext (NULL when the effect has none, where June's vector is simply empty) and NEXT2.. in m_vecDamageDataNextChain; the lists are
 // m_DamageEffectDataInLua's, parsed per instance, so a change reaches only this effect and what it spawns later.
-void CX2DamageEffect::CEffect::JuneGetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ )
+void CX2DamageEffect::CEffect::GetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ )
 {
 	if( NULL != m_DamageEffectDataInLua.m_pDamageDataNext )
 		vecTables_.push_back( m_DamageEffectDataInLua.m_pDamageDataNext );
@@ -10300,7 +10300,7 @@ void CX2DamageEffect::CEffect::JuneGetNextTables( std::vector<CX2DamageManager::
 	vecTables_.insert( vecTables_.end(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.begin(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.end() );
 }
 
-void CX2DamageEffect::CEffect::JuneCollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ )
+void CX2DamageEffect::CEffect::CollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ )
 {
 	// June 31ed7480 x3 builds die + CREATE + hit; the touch-land list (by value in June) is walked beside it.
 	vecEntries_.insert( vecEntries_.end(), m_DamageEffectDataInLua.m_vecDieDamageEffect.begin(), m_DamageEffectDataInLua.m_vecDieDamageEffect.end() );
@@ -10314,7 +10314,7 @@ void CX2DamageEffect::CEffect::JuneCollectSpawnEntries( std::vector<DamageEffect
 // June 31f8fdb0 (called by the hit, die, touch-land and CREATE_DAMAGE_EFFECT spawners and RT_CREATE_DAMAGE_EFFECT): this = the parent, the
 // argument = the child (NULL returns). The gate flags are set only by class code, so in March only the unconditional m_iIndex, m_bHyper and
 // alpha-option copies and the child's own b66 branch act.
-void CX2DamageEffect::CEffect::JuneInheritFromParent( CEffect* pChild_ )
+void CX2DamageEffect::CEffect::InheritFromParent( CEffect* pChild_ )
 {
 	if( NULL == pChild_ )
 		return;
@@ -10372,7 +10372,7 @@ void CX2DamageEffect::CEffect::JuneInheritFromParent( CEffect* pChild_ )
 #else SERV_RENA_NIGHT_WATCHER
 	const int iJuneChildIndex = -1;
 #endif SERV_RENA_NIGHT_WATCHER
-	JuneFxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d index=%d",
+	FxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d index=%d",
 		pChild_->GetName(), (int)m_bInheritIgnoreStateDefence, (int)m_bInheritCountAsOwnerSkillHit, (int)m_bInheritBuffFactorToChild,
 		(int)m_bInheritIgnoreDefence, (int)m_bInheritMainEffectLifeTimeRate, m_fMainEffectLifeTimeRate, (int)m_bInheritAttackTriggerType,
 		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster, iJuneChildIndex );
@@ -10382,7 +10382,7 @@ void CX2DamageEffect::CEffect::JuneInheritFromParent( CEffect* pChild_ )
 // June 31f649d0: this = the child, called with the spawning entry's +0xb0. Returns unless the rate differs from 1.0 by more than FLT_EPSILON
 // (@31f649e0; the constants 334355b0 / 334490f8). Entry +0xb0 starts at 1.0 and only this function and class code change it, so in March
 // every call is a no-op.
-void CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float fRate_ )
+void CX2DamageEffect::CEffect::ApplyInheritDamageRate( float fRate_ )
 {
 	if( fabs( (double)fRate_ - 1.0 ) <= (double)FLT_EPSILON )
 		return;
@@ -10391,7 +10391,7 @@ void CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float fRate_ )
 	m_DamageData.damage.fMagic	*= fRate_;
 
 	std::vector<CX2DamageManager::DamageData*> vecTables;
-	JuneGetNextTables( vecTables );
+	GetNextTables( vecTables );
 	for( size_t i = 0; i < vecTables.size(); i++ )
 	{
 		vecTables[i]->damage.fPhysic	*= fRate_;
@@ -10402,7 +10402,7 @@ void CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float fRate_ )
 	if( fRate_ >= 0.f )
 	{
 		std::vector<DamageEffectData*> vecEntries;
-		JuneCollectSpawnEntries( vecEntries );
+		CollectSpawnEntries( vecEntries );
 		for( size_t i = 0; i < vecEntries.size(); i++ )
 		{
 			if( NULL != vecEntries[i] )
@@ -10414,7 +10414,7 @@ void CX2DamageEffect::CEffect::JuneApplyInheritDamageRate( float fRate_ )
 // June 31f64c00: this = the parent, the argument = the child. The parent's ADDITIONAL_ATTACK_TRIGGER_TYPE values 0x1d and 0x1e go onto the
 // child's list (June Enum.lua DTT_RCR_TRANSCENDENCE_REVOLVER / _NOT_REVOLVER, Rose; March's DAMAGE_TRIGGER_TYPE ends at 6, so literals). Then,
 // under b65, the child takes the parent's ATTACK_TRIGGER_TYPE and the whole list (32853ff0 assign, replacing the pushes).
-void CX2DamageEffect::CEffect::JuneCopyAttackTriggerToChild( CEffect* pChild_ )
+void CX2DamageEffect::CEffect::CopyAttackTriggerToChild( CEffect* pChild_ )
 {
 	if( NULL == pChild_ )
 		return;
@@ -10436,13 +10436,13 @@ void CX2DamageEffect::CEffect::JuneCopyAttackTriggerToChild( CEffect* pChild_ )
 // June 31f65e40: this = the child, called with the parent's IGNORE_DEFENCE when the spawning entry's +0xb4 is set. Own IGNORE_DEFENCE and
 // IGNORE_DEFENCE_ON_PVP, every NEXT table's, and +0xb4 = 1 on every spawn entry, true even when the value is false, so a descendant takes
 // the parent's value over its own Lua one (JUNE_BUGS). The NEXT tables are not null-tested in June (JUNE_BUGS).
-void CX2DamageEffect::CEffect::JuneSetIgnoreDefenceDown( bool bValue_ )
+void CX2DamageEffect::CEffect::SetIgnoreDefenceDown( bool bValue_ )
 {
 	m_DamageData.m_bIgnoreDefence		= bValue_;
 	m_DamageData.m_bIgnoreDefenceOnPvp	= bValue_;
 
 	std::vector<CX2DamageManager::DamageData*> vecTables;
-	JuneGetNextTables( vecTables );
+	GetNextTables( vecTables );
 	for( size_t i = 0; i < vecTables.size(); i++ )
 	{
 		vecTables[i]->m_bIgnoreDefence		= bValue_;
@@ -10450,7 +10450,7 @@ void CX2DamageEffect::CEffect::JuneSetIgnoreDefenceDown( bool bValue_ )
 	}
 
 	std::vector<DamageEffectData*> vecEntries;
-	JuneCollectSpawnEntries( vecEntries );
+	CollectSpawnEntries( vecEntries );
 	for( size_t i = 0; i < vecEntries.size(); i++ )
 	{
 		if( NULL != vecEntries[i] )
@@ -10459,17 +10459,17 @@ void CX2DamageEffect::CEffect::JuneSetIgnoreDefenceDown( bool bValue_ )
 }
 
 // June 31f65f90: as 31f65e40 for IGNORE_STATE_DEFENCE (DamageData +0x541) and the entries' +0xb5.
-void CX2DamageEffect::CEffect::JuneSetIgnoreStateDefenceDown( bool bValue_ )
+void CX2DamageEffect::CEffect::SetIgnoreStateDefenceDown( bool bValue_ )
 {
 	m_DamageData.m_bIgnoreStateDefence = bValue_;
 
 	std::vector<CX2DamageManager::DamageData*> vecTables;
-	JuneGetNextTables( vecTables );
+	GetNextTables( vecTables );
 	for( size_t i = 0; i < vecTables.size(); i++ )
 		vecTables[i]->m_bIgnoreStateDefence = bValue_;
 
 	std::vector<DamageEffectData*> vecEntries;
-	JuneCollectSpawnEntries( vecEntries );
+	CollectSpawnEntries( vecEntries );
 	for( size_t i = 0; i < vecEntries.size(); i++ )
 	{
 		if( NULL != vecEntries[i] )
@@ -10479,20 +10479,20 @@ void CX2DamageEffect::CEffect::JuneSetIgnoreStateDefenceDown( bool bValue_ )
 
 // The hit and die spawners' tail in June's order (31f810c0 @31f81afd-31f81b35, 31f82210 @31f83137-31f8316f): this = the parent,
 // the argument = the child just created, pData = the spawning entry.
-void CX2DamageEffect::CEffect::JuneSpawnTail( CEffect* pChild_, const DamageEffectData* pData_ )
+void CX2DamageEffect::CEffect::SpawnTail( CEffect* pChild_, const DamageEffectData* pData_ )
 {
 	if( NULL == pChild_ || NULL == pData_ )
 		return;
 
-	pChild_->JuneApplyInheritDamageRate( pData_->fInheritDamageRate );
-	JuneCopyAttackTriggerToChild( pChild_ );
+	pChild_->ApplyInheritDamageRate( pData_->fInheritDamageRate );
+	CopyAttackTriggerToChild( pChild_ );
 	if( true == pData_->bInheritIgnoreDefence )
-		pChild_->JuneSetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
+		pChild_->SetIgnoreDefenceDown( m_DamageData.m_bIgnoreDefence );
 	if( true == pData_->bInheritIgnoreStateDefence )
-		pChild_->JuneSetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
+		pChild_->SetIgnoreStateDefenceDown( m_DamageData.m_bIgnoreStateDefence );
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxHit( GetName(), L"SPAWN_TAIL", L"child=%s rate=%.3f entryIgnoreDefence=%d entryIgnoreStateDefence=%d parentTrigger=%d",
+	FxHit( GetName(), L"SPAWN_TAIL", L"child=%s rate=%.3f entryIgnoreDefence=%d entryIgnoreStateDefence=%d parentTrigger=%d",
 		pChild_->GetName(), pData_->fInheritDamageRate, (int)pData_->bInheritIgnoreDefence, (int)pData_->bInheritIgnoreStateDefence,
 		(int)m_bInheritAttackTriggerType );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -10503,7 +10503,7 @@ void CX2DamageEffect::CEffect::JuneSpawnTail( CEffect* pChild_, const DamageEffe
 // is above 0; only class code sets the rate (checklist 7a), so in March it stays -1 and this returns.
 // The rate test is June's polarity (@31f6ea3a-31f6ea49: fcom against 0, test ah,0x41, jnp return): it returns on <= 0 only, so a
 // NaN rate goes on (x87-emulated in the C7 review); "<= 0.f" keeps that under /fp:precise, "!( > 0.f )" would not.
-void CX2DamageEffect::CEffect::JuneApplyCreateDamageEffectRate( CEffect* pChild_ )
+void CX2DamageEffect::CEffect::ApplyCreateDamageEffectRate( CEffect* pChild_ )
 {
 	if( NULL == pChild_ || m_fJuneCreateDamageEffectRate <= 0.f )
 		return;
@@ -10528,7 +10528,7 @@ void CX2DamageEffect::CEffect::JuneApplyCreateDamageEffectRate( CEffect* pChild_
 	kChildData.techPoint *= static_cast<int>( m_fJuneCreateDamageEffectRate );
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	JuneFxHit( GetName(), L"CREATE_DAMAGE_EFFECT_RATE", L"child=%s rate=%.3f type=%d physic=%.3f magic=%.3f hitAddMP=%.3f techPoint=%d",
+	FxHit( GetName(), L"CREATE_DAMAGE_EFFECT_RATE", L"child=%s rate=%.3f type=%d physic=%.3f magic=%.3f hitAddMP=%.3f techPoint=%d",
 		pChild_->GetName(), m_fJuneCreateDamageEffectRate, (int)kChildData.damageType, kChildData.damage.fPhysic, kChildData.damage.fMagic,
 		kChildData.fHitAddMP, kChildData.techPoint );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -10541,7 +10541,7 @@ void CX2DamageEffect::CEffect::JuneApplyCreateDamageEffectRate( CEffect* pChild_
 // June 31f83380, called from OnFrameMove @31f8a38b when the gate holds: each entry of the instance's touch-land list (+0xa8, by value)
 // is copied into a scratch list (+0xa38, 31f8e750), the spawner 31f81ba0 spawns from the copy, and the copy is freed (31f8c660 /
 // 31f8b5f0). The spawner and its tail only read the entries, so March spawns from the instance's own list directly.
-void CX2DamageEffect::CEffect::JuneTouchLandDamageEffect()
+void CX2DamageEffect::CEffect::TouchLandDamageEffect()
 {
 	CreateTouchLandDamageEffect( m_DamageEffectDataInLua.m_vecTouchLandDamageEffect );
 }
@@ -10658,7 +10658,7 @@ void CX2DamageEffect::CEffect::CreateTouchLandDamageEffect( vector<DamageEffectD
 					pEffect->GetDamageData().m_fApplyCriticalDamage += m_DamageData.m_fApplyCriticalDamage;
 
 				// @31f82005: 31f8fdb0, the parent's state
-				JuneInheritFromParent( pEffect );
+				InheritFromParent( pEffect );
 
 				// @31f8200a-31f8202f: INHERIT_BUFF_FACTOR (entry +0x80), only when the parent has buff factors
 				if ( pData->bInheritBuffFactor && !GetDamageData().m_vecBuffFactorPtr.empty() )
@@ -10706,10 +10706,10 @@ void CX2DamageEffect::CEffect::CreateTouchLandDamageEffect( vector<DamageEffectD
 #endif ADD_RENA_SYSTEM
 
 				// @31f8216e-31f821b5: the spawner tail (31f649d0, 31f64c00, 31f65e40 / 31f65f90)
-				JuneSpawnTail( pEffect, pData );
+				SpawnTail( pEffect, pData );
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-				JuneFxHit( GetName(), L"TOUCH_LAND", L"%s pos=(%.1f,%.1f,%.1f) rotateOrigin=%d rotatedOffset=%d scale=(%.3f,%.3f,%.3f) forceDown=%.3f",
+				FxHit( GetName(), L"TOUCH_LAND", L"%s pos=(%.1f,%.1f,%.1f) rotateOrigin=%d rotatedOffset=%d scale=(%.3f,%.3f,%.3f) forceDown=%.3f",
 					pData->damageEffectName.c_str(), vPosition.x, vPosition.y, vPosition.z, (int)pData->bApplyRotateOrigin,
 					(int)pData->bApplyRotatedOffset, pData->vScale.x, pData->vScale.y, pData->vScale.z, fForceDownRate );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -10727,7 +10727,7 @@ void CX2DamageEffect::CEffect::CreateTouchLandDamageEffect( vector<DamageEffectD
 // Then the nearest NPC with ID 0x621 (NUI_FIELD_BOSS_COLLISION_BOX_1) to the impact point wins: distance 31c7b560( impactPoint, GetPos( 0 ) ), strict <,
 // from 99999 (33441c60), no alive check. NULL (no gate, no unit, no box) leaves March's own call. March has no raid object, so part 2 is a stub that
 // returns NULL and says so once in the log (plan rule 5); part 1 cannot hold in March either, so the search below is unreachable today.
-CX2GameUnit* CX2DamageEffect::CEffect::JuneFindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ )
+CX2GameUnit* CX2DamageEffect::CEffect::FindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ )
 {
 	if( NULL == pTraceUnit_ || NULL == g_pX2Game || NULL == g_pMain || NULL == g_pData )
 		return NULL;
@@ -10750,7 +10750,7 @@ CX2GameUnit* CX2DamageEffect::CEffect::JuneFindFieldBossCollisionBox( CX2GameUni
 	if( false == s_bJuneRaidObjectLogged )
 	{
 		s_bJuneRaidObjectLogged = true;
-		JuneFxHit( GetName(), L"CREATE_EFFECT_SET", L"raid object (g_pMain +0x115c) absent in March: boss unit stubbed to NULL, field=%u", g_pData->GetBattleFieldManager().GetBattleFieldIdWhereIam() );
+		FxHit( GetName(), L"CREATE_EFFECT_SET", L"raid object (g_pMain +0x115c) absent in March: boss unit stubbed to NULL, field=%u", g_pData->GetBattleFieldManager().GetBattleFieldIdWhereIam() );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	if( NULL == pJuneRaidBossUnit || pJuneRaidBossUnit->GetUnitUID() != pTraceUnit_->GetUnitUID() )

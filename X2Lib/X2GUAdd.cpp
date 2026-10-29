@@ -9276,7 +9276,7 @@ const float CX2GUAdd::GetActualDPConsume( IN const CX2UserSkillTree::SkillSlotDa
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June buff port 16-step3b3 item 0: June's GetActualDPConsume (329e7820 @329e78a6) is the one caller that passes the base
 			/// GetActualMPConsume a false bool, so the socket MP cost cut does not lower the DP cost
-			const float fMPConsume = CX2GUUser::GetActualMPConsumeJune( pSkillSlotData_->m_eID, GetSkillLevelValue( pSkillSlotData_->m_eID ), false );
+			const float fMPConsume = CX2GUUser::GetActualMPConsume( pSkillSlotData_->m_eID, GetSkillLevelValue( pSkillSlotData_->m_eID ), false );
 #else // SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			const float fMPConsume = CX2GUUser::GetActualMPConsume( pSkillSlotData_->m_eID, GetSkillLevelValue( pSkillSlotData_->m_eID ) );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY

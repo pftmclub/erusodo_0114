@@ -154,7 +154,7 @@ bool CX2SkillTree::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pSkillDa
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	OpenScriptFilePostProcess();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	JuneLogLoadSummary();
+	LogLoadSummary();
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	return true;
@@ -350,11 +350,673 @@ bool CX2SkillTree::AddSkillTreeTemplet_LUA()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+namespace _CONST_SKILLTREE_S2_
+{
+	/// June 32216320: the SA_* tables in June's parse order (june2017_re/s0a_templet_keys.tsv rows 39-240). m_iType is the stored
+	/// ability id. SA_TEAM_ATK_MAGIC_REL is stored as 13 (SA_TEAM_DEF_PHYSIC_REL): a studio quirk that March has too, kept.
+	struct JuneSkillAbilityKey
+	{
+		const char* m_pszKey;
+		int         m_iType;
+	};
+
+	const JuneSkillAbilityKey s_aJuneSkillAbilityKey[] =
+	{
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		{ "SA_EFFECTIVE_TIME",	CX2SkillTree::SA_EFFECTIVE_TIME },
+		{ "SA_EFFECTIVE_COUNT",	CX2SkillTree::SA_EFFECTIVE_COUNT },
+		{ "SA_SKILL_ID",	CX2SkillTree::SA_SKILL_ID },
+		{ "SA_COMBO_ID",	CX2SkillTree::SA_COMBO_ID },
+		{ "SA_EFFECTIVE_RATE",	CX2SkillTree::SA_EFFECTIVE_RATE },
+		{ "SA_ATK_REL",	CX2SkillTree::SA_ATK_REL },
+		{ "SA_ATK_PHYSIC_REL",	CX2SkillTree::SA_ATK_PHYSIC_REL },
+		{ "SA_ATK_MAGIC_REL",	CX2SkillTree::SA_ATK_MAGIC_REL },
+		{ "SA_DEF_PHYSIC_REL",	CX2SkillTree::SA_DEF_PHYSIC_REL },
+		{ "SA_DEF_MAGIC_REL",	CX2SkillTree::SA_DEF_MAGIC_REL },
+		{ "SA_TEAM_ATK_PHYSIC_REL",	CX2SkillTree::SA_TEAM_ATK_PHYSIC_REL },
+		{ "SA_TEAM_ATK_MAGIC_REL",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL },
+		{ "SA_TEAM_DEF_PHYSIC_REL",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL },
+		{ "SA_TEAM_DEF_MAGIC_REL",	CX2SkillTree::SA_TEAM_DEF_MAGIC_REL },
+		{ "SA_DAMAGE_REL",	CX2SkillTree::SA_DAMAGE_REL },
+		{ "SA_DAMAGED_REL",	CX2SkillTree::SA_DAMAGED_REL },
+		{ "SA_UNFIXED_DEFENSE_REL",	CX2SkillTree::SA_UNFIXED_DEFENSE_REL },
+		{ "SA_SUMMON_ATK_REL",	CX2SkillTree::SA_SUMMON_ATK_REL },
+		{ "SA_MAX_HP_ABS",	CX2SkillTree::SA_MAX_HP_ABS },
+		{ "SA_MAX_HP_REL",	CX2SkillTree::SA_MAX_HP_REL },
+		{ "SA_MAX_MP_ABS",	CX2SkillTree::SA_MAX_MP_ABS },
+		{ "SA_MAX_MP_REL",	CX2SkillTree::SA_MAX_MP_REL },
+		{ "SA_TELEPORT_RANGE_ABS",	CX2SkillTree::SA_TELEPORT_RANGE_ABS },
+		{ "SA_CHARGING_TIME",	CX2SkillTree::SA_CHARGING_TIME },
+		{ "SA_HP_REL_TO_MP_ABS_1",	CX2SkillTree::SA_HP_REL_TO_MP_ABS_1 },
+		{ "SA_HP_REL_TO_MP_ABS_2",	CX2SkillTree::SA_HP_REL_TO_MP_ABS_2 },
+		{ "SA_MP_CONSUME_REL",	CX2SkillTree::SA_MP_CONSUME_REL },
+		{ "SA_MP_GAIN_ON_HIT_REL",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL },
+		{ "SA_SCOPE_ABS",	CX2SkillTree::SA_SCOPE_ABS },
+		{ "SA_PROJECTILE_FIRE_COUNT",	CX2SkillTree::SA_PROJECTILE_FIRE_COUNT },
+		{ "SA_PROJECTILE_RANGE_REL",	CX2SkillTree::SA_PROJECTILE_RANGE_REL },
+		{ "SA_PROJECTILE_RANGE_REL_2",	CX2SkillTree::SA_PROJECTILE_RANGE_REL_2 },
+		{ "SA_PROJECTILE_SIZE",	CX2SkillTree::SA_PROJECTILE_SIZE },
+		{ "SA_PROJECTILE_PIERCING",	CX2SkillTree::SA_PROJECTILE_PIERCING },
+		{ "SA_MOVE_SPEED",	CX2SkillTree::SA_MOVE_SPEED },
+		{ "SA_JUMP_SPEED",	CX2SkillTree::SA_JUMP_SPEED },
+		{ "SA_ATK_PHYSIC_TO_ATK_MAGIC",	CX2SkillTree::SA_ATK_PHYSIC_TO_ATK_MAGIC },
+		{ "SA_ATK_MAGIC_TO_ATK_PHYSIC",	CX2SkillTree::SA_ATK_MAGIC_TO_ATK_PHYSIC },
+		{ "SA_READY_TIME_REL",	CX2SkillTree::SA_READY_TIME_REL },
+		{ "SA_FORCE_DOWN_REL",	CX2SkillTree::SA_FORCE_DOWN_REL },
+		{ "SA_FORCE_DOWN_MELEE_REL",	CX2SkillTree::SA_FORCE_DOWN_MELEE_REL },
+		{ "SA_FORCE_DOWN_RANGE_REL",	CX2SkillTree::SA_FORCE_DOWN_RANGE_REL },
+		{ "SA_FORCE_DOWN_ABS",	CX2SkillTree::SA_FORCE_DOWN_ABS },
+		{ "SA_MP_REGENERATION_ABS",	CX2SkillTree::SA_MP_REGENERATION_ABS },
+		{ "SA_MP_INTAKE_ABS",	CX2SkillTree::SA_MP_INTAKE_ABS },
+		{ "SA_TARGET_ANI_SPEED",	CX2SkillTree::SA_TARGET_ANI_SPEED },
+		{ "SA_TARGET_MOVE_SPEED",	CX2SkillTree::SA_TARGET_MOVE_SPEED },
+		{ "SA_TARGET_JUMP_SPEED",	CX2SkillTree::SA_TARGET_JUMP_SPEED },
+		{ "SA_TARGET_ATK_REL",	CX2SkillTree::SA_TARGET_ATK_REL },
+		{ "SA_HP_INTAKE_REL_DAMAGE",	CX2SkillTree::SA_HP_INTAKE_REL_DAMAGE },
+		{ "SA_ATK_CRITICAL_DAM_ABS",	CX2SkillTree::SA_ATK_CRITICAL_DAM_ABS },
+		{ "SA_ATK_CRITICAL_RATE_ABS",	CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS },
+		{ "SA_DEF_CRITICAL_DAM_ABS",	CX2SkillTree::SA_DEF_CRITICAL_DAM_ABS },
+		{ "SA_DEF_CRITICAL_RATE_ABS",	CX2SkillTree::SA_DEF_CRITICAL_RATE_ABS },
+		{ "SA_BACK_SPEED_X",	CX2SkillTree::SA_BACK_SPEED_X },
+		{ "SA_ITEM_SPECIAL_ABILITY_REL",	CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL },
+		{ "SA_MP_GAIN_GET_HIT_REL",	CX2SkillTree::SA_MP_GAIN_GET_HIT_REL },
+		{ "SA_SOUL_GAIN_ON_HIT_REL",	CX2SkillTree::SA_SOUL_GAIN_ON_HIT_REL },
+		{ "SA_SOUL_GAIN_GET_HIT_REL",	CX2SkillTree::SA_SOUL_GAIN_GET_HIT_REL },
+		{ "SA_HP_GAIN_REL_MAX_HP",	CX2SkillTree::SA_HP_GAIN_REL_MAX_HP },
+		{ "SA_ED_GAIN_REL",	CX2SkillTree::SA_ED_GAIN_REL },
+		{ "SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL",	CX2SkillTree::SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL },
+		{ "SA_EXP_GAIN_REL",	CX2SkillTree::SA_EXP_GAIN_REL },
+		{ "SA_DAMAGE_ABSORB_REL_MAX_HP",	CX2SkillTree::SA_DAMAGE_ABSORB_REL_MAX_HP },
+		{ "SA_STRONG_MIND_ACTIVE_REL",	CX2SkillTree::SA_STRONG_MIND_ACTIVE_REL },
+		{ "SA_STRONG_MIND_SPECIAL_ACTIVE_REL",	CX2SkillTree::SA_STRONG_MIND_SPECIAL_ACTIVE_REL },
+		{ "SA_MP_RETAKE_ABS",	CX2SkillTree::SA_MP_RETAKE_ABS },
+		{ "SA_RESIST_FIRE_ABS",	CX2SkillTree::SA_RESIST_FIRE_ABS },
+		{ "SA_RESIST_WATER_ABS",	CX2SkillTree::SA_RESIST_WATER_ABS },
+		{ "SA_RESIST_GREEN_ABS",	CX2SkillTree::SA_RESIST_GREEN_ABS },
+		{ "SA_RESIST_WIND_ABS",	CX2SkillTree::SA_RESIST_WIND_ABS },
+		{ "SA_RESIST_LIGHT_ABS",	CX2SkillTree::SA_RESIST_LIGHT_ABS },
+		{ "SA_RESIST_DARK_ABS",	CX2SkillTree::SA_RESIST_DARK_ABS },
+		{ "SA_ATK_MAGIC_FIRST_REL",	CX2SkillTree::SA_ATK_MAGIC_FIRST_REL },
+		{ "SA_ATK_MAGIC_SECOND_REL",	CX2SkillTree::SA_ATK_MAGIC_SECOND_REL },
+		{ "SA_ATK_MAGIC_THIRD_REL",	CX2SkillTree::SA_ATK_MAGIC_THIRD_REL },
+		{ "SA_REMOTE_SPEED_ABS",	CX2SkillTree::SA_REMOTE_SPEED_ABS },
+		{ "SA_DAMAGE_TYPE_CHANGE",	CX2SkillTree::SA_DAMAGE_TYPE_CHANGE },
+		{ "SA_DAMAGE_TIME",	CX2SkillTree::SA_DAMAGE_TIME },
+		{ "SA_RECOVER_MP_ABS",	CX2SkillTree::SA_RECOVER_MP_ABS },
+		{ "SA_TARGET_MANA",	CX2SkillTree::SA_TARGET_MANA },
+		{ "SA_TARGET_MANA_REL",	CX2SkillTree::SA_TARGET_MANA_REL },
+		{ "SA_SIZE_ABS",	CX2SkillTree::SA_SIZE_ABS },
+		{ "SA_REFLECT_REL",	CX2SkillTree::SA_REFLECT_REL },
+		{ "SA_EL_DEFENCE_ABS",	CX2SkillTree::SA_EL_DEFENCE_ABS },
+		{ "SA_TARGET_HP_REL",	CX2SkillTree::SA_TARGET_HP_REL },
+		{ "SA_TARGET_HITRATE_REL",	CX2SkillTree::SA_TARGET_HITRATE_REL },
+		{ "SA_CHARGE_CANNONBALL",	CX2SkillTree::SA_CHARGE_CANNON_BALL },
+		{ "SA_FIRE_DEFENCE_ABS",	CX2SkillTree::SA_FIRE_DEFENCE_ABS },
+		{ "SA_WATER_DEFENCE_ABS",	CX2SkillTree::SA_WATER_DEFENCE_ABS },
+		{ "SA_NATURE_DEFENCE_ABS",	CX2SkillTree::SA_NATURE_DEFENCE_ABS },
+		{ "SA_WIND_DEFENCE_ABS",	CX2SkillTree::SA_WIND_DEFENCE_ABS },
+		{ "SA_LIGHT_DEFENCE_ABS",	CX2SkillTree::SA_LIGHT_DEFENCE_ABS },
+		{ "SA_DARK_DEFENCE_ABS",	CX2SkillTree::SA_DARK_DEFENCE_ABS },
+		{ "SA_EDT_FIRE_RESIST_REL",	CX2SkillTree::SA_EDT_FIRE_RESIST_REL },
+		{ "SA_EDT_FROZEN_RESIST_REL",	CX2SkillTree::SA_EDT_FROZEN_RESIST_REL },
+		{ "SA_EDT_ICE_RESIST_REL",	CX2SkillTree::SA_EDT_ICE_RESIST_REL },
+		{ "SA_EDT_POISON_RESIST_REL",	CX2SkillTree::SA_EDT_POISON_RESIST_REL },
+		{ "SA_EDT_Y_PRESSED_RESIST_REL",	CX2SkillTree::SA_EDT_Y_PRESSED_RESIST_REL },
+		{ "SA_EDT_LEG_WOUND_RESIST_REL",	CX2SkillTree::SA_EDT_LEG_WOUND_RESIST_REL },
+		{ "SA_EDT_STUN_RESIST_REL",	CX2SkillTree::SA_EDT_STUN_RESIST_REL },
+		{ "SA_EDT_CURSE_RESIST_REL",	CX2SkillTree::SA_EDT_CURSE_RESIST_REL },
+		{ "SA_EXPAND_CB",	CX2SkillTree::SA_EXPAND_CB },
+		{ "SA_ANI_SPEED",	CX2SkillTree::SA_ANI_SPEED },
+		{ "SA_ACCURACY_PERCENT_ABS",	CX2SkillTree::SA_ACCURACY_PERCENT_ABS },
+		{ "SA_CRITICAL_EVASION_REL",	CX2SkillTree::SA_CRITICAL_EVASION_REL },
+		{ "SA_DECREASE_REL",	CX2SkillTree::SA_DECREASE_REL },
+		{ "SA_ATK_ADD_DAMAGE_FIRST_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FIRST_ABS },
+		{ "SA_ATK_ADD_DAMAGE_SECOND_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_SECOND_ABS },
+		{ "SA_ATK_ADD_DAMAGE_THIRD_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_THIRD_ABS },
+		{ "SA_ATK_ADD_DAMAGE_FOURTH_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FOURTH_ABS },
+		{ "SA_ATK_ADD_DAMAGE_FIFTH_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FIFTH_ABS },
+		{ "SA_TELEPORT_SPEED_REL",	CX2SkillTree::SA_TELEPORT_SPEED_REL },
+		{ "HP_CONSUME_REL",	CX2SkillTree::HP_CONSUME_REL },
+		{ "SA_MP_BURN_ABS",	CX2SkillTree::SA_MP_BURN_ABS },
+		{ "SA_SKILLDAMAGE_MULTIPLE_01",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_02",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_03",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_04",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_04 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_01_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01_RATE },
+		{ "SA_SKILLDAMAGE_MULTIPLE_02_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02_RATE },
+		{ "SA_SKILLDAMAGE_MULTIPLE_03_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03_RATE },
+		{ "SA_SKILLDAMAGE_MULTIPLE_04_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_04_RATE },
+		{ "SA_EVASION_REL",	CX2SkillTree::SA_EVASION_REL },
+		{ "SA_REDUCE_EDT_TIME_REL",	CX2SkillTree::SA_REDUCE_EDT_TIME_REL },
+		{ "SA_OVERHEAT_HP",	CX2SkillTree::SA_OVERHEAT_HP },
+		{ "SA_OVERHEAT_HP_PVP",	CX2SkillTree::SA_OVERHEAT_HP_PVP },
+		{ "SA_DECREASE_REL_2",	CX2SkillTree::SA_DECREASE_REL_2 },
+		{ "SA_SCOPE_ABS_HYPER",	CX2SkillTree::SA_SCOPE_ABS_HYPER },
+		{ "SA_EFFECTIVE_TIME_HYPER",	CX2SkillTree::SA_EFFECTIVE_TIME_HYPER },
+		{ "SA_AIR_MOVE_COUNT",	CX2SkillTree::SA_AIR_MOVE_COUNT },
+		{ "SA_NOT_CANNONBALL_REL",	CX2SkillTree::SA_NOT_CANNONBALL_REL },
+		{ "SA_INSERT_CANNONBALL_REL",	CX2SkillTree::SA_INSERT_CANNONBALL_REL },
+		{ "SA_BE_SHOT_CANNONBALL_REL",	CX2SkillTree::SA_BE_SHOT_CANNONBALL_REL },
+		{ "SA_CANNONBALL_DAMAGE_UP_REL",	CX2SkillTree::SA_CANNONBALL_DAMAGE_UP_REL },
+		{ "SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE",	CX2SkillTree::SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE },
+		{ "SA_SIEGE_SHELLING_REL",	CX2SkillTree::SA_SIEGE_SHELLING_REL },
+		{ "SA_EFFECTIVE_DAMAGED_ATTACK_BASE",	CX2SkillTree::SA_EFFECTIVE_DAMAGED_ATTACK_BASE },
+		{ "SA_FIRST_HYPER_EFFECTIVE",	CX2SkillTree::SA_FIRST_HYPER_EFFECTIVE },
+		{ "SA_SECOND_HYPER_EFFECTIVE",	CX2SkillTree::SA_SECOND_HYPER_EFFECTIVE },
+		{ "SA_THIRD_HYPER_EFFECTIVE",	CX2SkillTree::SA_THIRD_HYPER_EFFECTIVE },
+		{ "SA_ATK_CRITICAL_RATE_ATK_BASE",	CX2SkillTree::SA_ATK_CRITICAL_RATE_ATK_BASE },
+		{ "SA_PROJECTILE_CURVE_SPEED_REL",	CX2SkillTree::SA_PROJECTILE_CURVE_SPEED_REL },
+		{ "SA_DP_GAIN_REL",	CX2SkillTree::SA_DP_GAIN_REL },
+		{ "SA_DP_USE_REL",	CX2SkillTree::SA_DP_USE_REL },
+		{ "SA_MP_CONSUMPTION",	CX2SkillTree::SA_MP_CONSUMPTION },
+		{ "SA_WAY_OF_SWORD_POINT_MULTIPLIER",	CX2SkillTree::SA_WAY_OF_SWORD_POINT_MULTIPLIER },
+		{ "SA_COOLTIME_1",	CX2SkillTree::SA_COOLTIME_1 },
+		{ "SA_COOLTIME_2",	CX2SkillTree::SA_COOLTIME_2 },
+		{ "SA_COOLTIME_3",	CX2SkillTree::SA_COOLTIME_3 },
+		{ "SA_MP_GAIN_ON_HIT_REL_2",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL_2 },
+		{ "SA_MP_GAIN_ON_HIT_REL_3",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL_3 },
+		{ "SA_USE_DP_REL_AT_FORMATION_MODE",	CX2SkillTree::SA_USE_DP_REL_AT_FORMATION_MODE },
+		{ "SA_RECOVERY_VALUE_REL",	CX2SkillTree::SA_RECOVERY_VALUE_REL },
+		{ "SA_ADD_MP_VALUE_ABS",	CX2SkillTree::SA_ADD_MP_VALUE_ABS },
+		{ "SA_ADD_DP_VALUE_ABS",	CX2SkillTree::SA_ADD_DP_VALUE_ABS },
+		{ "SA_SCOPE_ABS_PVP",	CX2SkillTree::SA_SCOPE_ABS_PVP },
+		{ "SA_SCOPE_ABS_Y",	CX2SkillTree::SA_SCOPE_ABS_Y },
+		{ "SA_SCOPE_ABS_Z",	CX2SkillTree::SA_SCOPE_ABS_Z },
+		{ "SA_MP_REGENERATION_ABS_PVP",	CX2SkillTree::SA_MP_REGENERATION_ABS_PVP },
+		{ "SA_ATK_PHYSIC_REL_PVP",	CX2SkillTree::SA_ATK_PHYSIC_REL_PVP },
+		{ "SA_ATK_MAGIC_REL_PVP",	CX2SkillTree::SA_ATK_MAGIC_REL_PVP },
+		{ "SA_DEF_PHYSIC_REL_PVP",	CX2SkillTree::SA_DEF_PHYSIC_REL_PVP },
+		{ "SA_DEF_MAGIC_REL_PVP",	CX2SkillTree::SA_DEF_MAGIC_REL_PVP },
+		{ "SA_TEAM_ATK_PHYSIC_REL_PVP",	CX2SkillTree::SA_TEAM_ATK_PHYSIC_REL_PVP },
+		{ "SA_TEAM_ATK_MAGIC_REL_PVP",	CX2SkillTree::SA_TEAM_ATK_MAGIC_REL_PVP },
+		{ "SA_TEAM_DEF_PHYSIC_REL_PVP",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL_PVP },
+		{ "SA_TEAM_DEF_MAGIC_REL_PVP",	CX2SkillTree::SA_TEAM_DEF_MAGIC_REL_PVP },
+		{ "SA_TIME_ABS",	CX2SkillTree::SA_TIME_ABS },
+		{ "SA_SOUL_ABS",	CX2SkillTree::SA_SOUL_ABS },
+		{ "SA_MAX_HP_REL_PVP",	CX2SkillTree::SA_MAX_HP_REL_PVP },
+		{ "SA_RECOVER_MP_ABS_2",	CX2SkillTree::SA_RECOVER_MP_ABS_2 },
+		{ "SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE",	CX2SkillTree::SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE },
+		{ "SA_MAX_INCREASE_MOVEMENT_BY_MANA",	CX2SkillTree::SA_MAX_INCREASE_MOVEMENT_BY_MANA },
+		{ "SA_MIN_INCREASE_MOVEMENT_BY_MANA",	CX2SkillTree::SA_MIN_INCREASE_MOVEMENT_BY_MANA },
+		{ "SA_CHAIN_SKILL_ANI_SPEED_REL",	CX2SkillTree::SA_CHAIN_SKILL_ANI_SPEED_REL },
+		{ "SA_HIT_COUNT_1",	CX2SkillTree::SA_HIT_COUNT_1 },
+		{ "SA_HIT_COUNT_2",	CX2SkillTree::SA_HIT_COUNT_2 },
+		{ "SA_HIT_COUNT_3",	CX2SkillTree::SA_HIT_COUNT_3 },
+		{ "SA_FORCE_DOWN_GAIN_REL",	CX2SkillTree::SA_FORCE_DOWN_GAIN_REL },
+		{ "SA_MUTATION_CONSUME_MAX_COUNT",	CX2SkillTree::SA_MUTATION_CONSUME_MAX_COUNT },
+		{ "SA_DAMAGED_REL_PVP",	CX2SkillTree::SA_DAMAGED_REL_PVP },
+		{ "SA_ECP_REL",	CX2SkillTree::SA_ECP_REL },
+		{ "SA_SUMMON_ALL_STAT_REL",	CX2SkillTree::SA_SUMMON_ALL_STAT_REL },
+		{ "SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK",	CX2SkillTree::SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK },
+		{ "SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME",	CX2SkillTree::SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME },
+		{ "SA_FP_CANCEL_SKILL",	CX2SkillTree::SA_FP_CANCEL_SKILL },
+		{ "SA_FP_UP_ABS",	CX2SkillTree::SA_FP_UP_ABS },
+		{ "SA_FP_DOWN_ABS",	CX2SkillTree::SA_FP_DOWN_ABS },
+		{ "SA_EFFECTIVE_VALUE_REL",	CX2SkillTree::SA_EFFECTIVE_VALUE_REL },
+		{ "SA_CRITICAL_REL",	CX2SkillTree::SA_CRITICAL_REL },
+		{ "SA_CRITICAL_DAMAGE_REL",	CX2SkillTree::SA_CRITICAL_DAMAGE_REL },
+		{ "SA_MAXIMIZE_REL",	CX2SkillTree::SA_MAXIMIZE_REL },
+		{ "SA_ADD_LEARN_SKILL_LIST_1",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_1 },
+		{ "SA_ADD_LEARN_SKILL_LIST_2",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_2 },
+		{ "SA_ADD_LEARN_SKILL_LIST_3",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_3 },
+		{ "SA_DEGREE_X",	CX2SkillTree::SA_DEGREE_X },
+		{ "SA_DEGREE_Y",	CX2SkillTree::SA_DEGREE_Y },
+		{ "SA_DEGREE_Z",	CX2SkillTree::SA_DEGREE_Z },
+		{ "SA_DEGREE_MAX",	CX2SkillTree::SA_DEGREE_MAX },
+		{ "SA_DFG_GAIN_REL",	CX2SkillTree::SA_DFG_GAIN_REL },
+		{ "SA_DFG_CONSUME_REL",	CX2SkillTree::SA_DFG_CONSUME_REL },
+#else
+		{ "SA_EFFECTIVE_TIME",	1 },
+		{ "SA_EFFECTIVE_COUNT",	2 },
+		{ "SA_SKILL_ID",	3 },
+		{ "SA_COMBO_ID",	4 },
+		{ "SA_EFFECTIVE_RATE",	5 },
+		{ "SA_ATK_REL",	6 },
+		{ "SA_ATK_PHYSIC_REL",	7 },
+		{ "SA_ATK_MAGIC_REL",	8 },
+		{ "SA_DEF_PHYSIC_REL",	9 },
+		{ "SA_DEF_MAGIC_REL",	10 },
+		{ "SA_TEAM_ATK_PHYSIC_REL",	11 },
+		{ "SA_TEAM_ATK_MAGIC_REL",	13 },
+		{ "SA_TEAM_DEF_PHYSIC_REL",	13 },
+		{ "SA_TEAM_DEF_MAGIC_REL",	14 },
+		{ "SA_DAMAGE_REL",	15 },
+		{ "SA_DAMAGED_REL",	16 },
+		{ "SA_UNFIXED_DEFENSE_REL",	17 },
+		{ "SA_SUMMON_ATK_REL",	18 },
+		{ "SA_MAX_HP_ABS",	19 },
+		{ "SA_MAX_HP_REL",	20 },
+		{ "SA_MAX_MP_ABS",	21 },
+		{ "SA_MAX_MP_REL",	22 },
+		{ "SA_TELEPORT_RANGE_ABS",	23 },
+		{ "SA_CHARGING_TIME",	24 },
+		{ "SA_HP_REL_TO_MP_ABS_1",	25 },
+		{ "SA_HP_REL_TO_MP_ABS_2",	26 },
+		{ "SA_MP_CONSUME_REL",	27 },
+		{ "SA_MP_GAIN_ON_HIT_REL",	28 },
+		{ "SA_SCOPE_ABS",	29 },
+		{ "SA_PROJECTILE_FIRE_COUNT",	30 },
+		{ "SA_PROJECTILE_RANGE_REL",	31 },
+		{ "SA_PROJECTILE_RANGE_REL_2",	144 },
+		{ "SA_PROJECTILE_SIZE",	32 },
+		{ "SA_PROJECTILE_PIERCING",	33 },
+		{ "SA_MOVE_SPEED",	34 },
+		{ "SA_JUMP_SPEED",	35 },
+		{ "SA_ATK_PHYSIC_TO_ATK_MAGIC",	36 },
+		{ "SA_ATK_MAGIC_TO_ATK_PHYSIC",	37 },
+		{ "SA_READY_TIME_REL",	38 },
+		{ "SA_FORCE_DOWN_REL",	39 },
+		{ "SA_FORCE_DOWN_MELEE_REL",	40 },
+		{ "SA_FORCE_DOWN_RANGE_REL",	41 },
+		{ "SA_FORCE_DOWN_ABS",	42 },
+		{ "SA_MP_REGENERATION_ABS",	43 },
+		{ "SA_MP_INTAKE_ABS",	44 },
+		{ "SA_TARGET_ANI_SPEED",	45 },
+		{ "SA_TARGET_MOVE_SPEED",	46 },
+		{ "SA_TARGET_JUMP_SPEED",	47 },
+		{ "SA_TARGET_ATK_REL",	48 },
+		{ "SA_HP_INTAKE_REL_DAMAGE",	49 },
+		{ "SA_ATK_CRITICAL_DAM_ABS",	50 },
+		{ "SA_ATK_CRITICAL_RATE_ABS",	51 },
+		{ "SA_DEF_CRITICAL_DAM_ABS",	52 },
+		{ "SA_DEF_CRITICAL_RATE_ABS",	53 },
+		{ "SA_BACK_SPEED_X",	54 },
+		{ "SA_ITEM_SPECIAL_ABILITY_REL",	55 },
+		{ "SA_MP_GAIN_GET_HIT_REL",	56 },
+		{ "SA_SOUL_GAIN_ON_HIT_REL",	57 },
+		{ "SA_SOUL_GAIN_GET_HIT_REL",	58 },
+		{ "SA_HP_GAIN_REL_MAX_HP",	59 },
+		{ "SA_ED_GAIN_REL",	60 },
+		{ "SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL",	61 },
+		{ "SA_EXP_GAIN_REL",	62 },
+		{ "SA_DAMAGE_ABSORB_REL_MAX_HP",	63 },
+		{ "SA_STRONG_MIND_ACTIVE_REL",	64 },
+		{ "SA_STRONG_MIND_SPECIAL_ACTIVE_REL",	65 },
+		{ "SA_MP_RETAKE_ABS",	66 },
+		{ "SA_RESIST_FIRE_ABS",	67 },
+		{ "SA_RESIST_WATER_ABS",	68 },
+		{ "SA_RESIST_GREEN_ABS",	69 },
+		{ "SA_RESIST_WIND_ABS",	70 },
+		{ "SA_RESIST_LIGHT_ABS",	71 },
+		{ "SA_RESIST_DARK_ABS",	72 },
+		{ "SA_ATK_MAGIC_FIRST_REL",	73 },
+		{ "SA_ATK_MAGIC_SECOND_REL",	74 },
+		{ "SA_ATK_MAGIC_THIRD_REL",	75 },
+		{ "SA_REMOTE_SPEED_ABS",	76 },
+		{ "SA_DAMAGE_TYPE_CHANGE",	77 },
+		{ "SA_DAMAGE_TIME",	78 },
+		{ "SA_RECOVER_MP_ABS",	79 },
+		{ "SA_TARGET_MANA",	80 },
+		{ "SA_TARGET_MANA_REL",	81 },
+		{ "SA_SIZE_ABS",	82 },
+		{ "SA_REFLECT_REL",	83 },
+		{ "SA_EL_DEFENCE_ABS",	84 },
+		{ "SA_TARGET_HP_REL",	85 },
+		{ "SA_TARGET_HITRATE_REL",	86 },
+		{ "SA_CHARGE_CANNONBALL",	87 },
+		{ "SA_FIRE_DEFENCE_ABS",	88 },
+		{ "SA_WATER_DEFENCE_ABS",	89 },
+		{ "SA_NATURE_DEFENCE_ABS",	90 },
+		{ "SA_WIND_DEFENCE_ABS",	91 },
+		{ "SA_LIGHT_DEFENCE_ABS",	92 },
+		{ "SA_DARK_DEFENCE_ABS",	93 },
+		{ "SA_EDT_FIRE_RESIST_REL",	94 },
+		{ "SA_EDT_FROZEN_RESIST_REL",	95 },
+		{ "SA_EDT_ICE_RESIST_REL",	96 },
+		{ "SA_EDT_POISON_RESIST_REL",	97 },
+		{ "SA_EDT_Y_PRESSED_RESIST_REL",	98 },
+		{ "SA_EDT_LEG_WOUND_RESIST_REL",	99 },
+		{ "SA_EDT_STUN_RESIST_REL",	100 },
+		{ "SA_EDT_CURSE_RESIST_REL",	101 },
+		{ "SA_EXPAND_CB",	102 },
+		{ "SA_ANI_SPEED",	103 },
+		{ "SA_ACCURACY_PERCENT_ABS",	104 },
+		{ "SA_CRITICAL_EVASION_REL",	105 },
+		{ "SA_DECREASE_REL",	106 },
+		{ "SA_ATK_ADD_DAMAGE_FIRST_ABS",	107 },
+		{ "SA_ATK_ADD_DAMAGE_SECOND_ABS",	108 },
+		{ "SA_ATK_ADD_DAMAGE_THIRD_ABS",	109 },
+		{ "SA_ATK_ADD_DAMAGE_FOURTH_ABS",	110 },
+		{ "SA_ATK_ADD_DAMAGE_FIFTH_ABS",	111 },
+		{ "SA_TELEPORT_SPEED_REL",	112 },
+		{ "HP_CONSUME_REL",	113 },
+		{ "SA_MP_BURN_ABS",	114 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_01",	115 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_02",	116 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_03",	117 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_04",	118 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_01_RATE",	119 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_02_RATE",	120 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_03_RATE",	121 },
+		{ "SA_SKILLDAMAGE_MULTIPLE_04_RATE",	122 },
+		{ "SA_EVASION_REL",	123 },
+		{ "SA_REDUCE_EDT_TIME_REL",	124 },
+		{ "SA_OVERHEAT_HP",	125 },
+		{ "SA_OVERHEAT_HP_PVP",	145 },
+		{ "SA_DECREASE_REL_2",	146 },
+		{ "SA_SCOPE_ABS_HYPER",	126 },
+		{ "SA_EFFECTIVE_TIME_HYPER",	127 },
+		{ "SA_AIR_MOVE_COUNT",	128 },
+		{ "SA_NOT_CANNONBALL_REL",	129 },
+		{ "SA_INSERT_CANNONBALL_REL",	130 },
+		{ "SA_BE_SHOT_CANNONBALL_REL",	131 },
+		{ "SA_CANNONBALL_DAMAGE_UP_REL",	132 },
+		{ "SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE",	133 },
+		{ "SA_SIEGE_SHELLING_REL",	134 },
+		{ "SA_EFFECTIVE_DAMAGED_ATTACK_BASE",	135 },
+		{ "SA_FIRST_HYPER_EFFECTIVE",	136 },
+		{ "SA_SECOND_HYPER_EFFECTIVE",	137 },
+		{ "SA_THIRD_HYPER_EFFECTIVE",	138 },
+		{ "SA_ATK_CRITICAL_RATE_ATK_BASE",	139 },
+		{ "SA_PROJECTILE_CURVE_SPEED_REL",	140 },
+		{ "SA_DP_GAIN_REL",	141 },
+		{ "SA_DP_USE_REL",	142 },
+		{ "SA_MP_CONSUMPTION",	143 },
+		{ "SA_WAY_OF_SWORD_POINT_MULTIPLIER",	147 },
+		{ "SA_COOLTIME_1",	148 },
+		{ "SA_COOLTIME_2",	149 },
+		{ "SA_COOLTIME_3",	150 },
+		{ "SA_MP_GAIN_ON_HIT_REL_2",	151 },
+		{ "SA_MP_GAIN_ON_HIT_REL_3",	152 },
+		{ "SA_USE_DP_REL_AT_FORMATION_MODE",	153 },
+		{ "SA_RECOVERY_VALUE_REL",	154 },
+		{ "SA_ADD_MP_VALUE_ABS",	155 },
+		{ "SA_ADD_DP_VALUE_ABS",	156 },
+		{ "SA_SCOPE_ABS_PVP",	157 },
+		{ "SA_SCOPE_ABS_Y",	158 },
+		{ "SA_SCOPE_ABS_Z",	159 },
+		{ "SA_MP_REGENERATION_ABS_PVP",	160 },
+		{ "SA_ATK_PHYSIC_REL_PVP",	161 },
+		{ "SA_ATK_MAGIC_REL_PVP",	162 },
+		{ "SA_DEF_PHYSIC_REL_PVP",	163 },
+		{ "SA_DEF_MAGIC_REL_PVP",	164 },
+		{ "SA_TEAM_ATK_PHYSIC_REL_PVP",	165 },
+		{ "SA_TEAM_ATK_MAGIC_REL_PVP",	166 },
+		{ "SA_TEAM_DEF_PHYSIC_REL_PVP",	167 },
+		{ "SA_TEAM_DEF_MAGIC_REL_PVP",	168 },
+		{ "SA_TIME_ABS",	169 },
+		{ "SA_SOUL_ABS",	170 },
+		{ "SA_MAX_HP_REL_PVP",	171 },
+		{ "SA_RECOVER_MP_ABS_2",	172 },
+		{ "SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE",	173 },
+		{ "SA_MAX_INCREASE_MOVEMENT_BY_MANA",	174 },
+		{ "SA_MIN_INCREASE_MOVEMENT_BY_MANA",	175 },
+		{ "SA_CHAIN_SKILL_ANI_SPEED_REL",	176 },
+		{ "SA_HIT_COUNT_1",	177 },
+		{ "SA_HIT_COUNT_2",	178 },
+		{ "SA_HIT_COUNT_3",	179 },
+		{ "SA_FORCE_DOWN_GAIN_REL",	180 },
+		{ "SA_MUTATION_CONSUME_MAX_COUNT",	181 },
+		{ "SA_DAMAGED_REL_PVP",	182 },
+		{ "SA_ECP_REL",	183 },
+		{ "SA_SUMMON_ALL_STAT_REL",	184 },
+		{ "SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK",	189 },
+		{ "SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME",	190 },
+		{ "SA_FP_CANCEL_SKILL",	188 },
+		{ "SA_FP_UP_ABS",	191 },
+		{ "SA_FP_DOWN_ABS",	192 },
+		{ "SA_EFFECTIVE_VALUE_REL",	193 },
+		{ "SA_CRITICAL_REL",	194 },
+		{ "SA_CRITICAL_DAMAGE_REL",	195 },
+		{ "SA_MAXIMIZE_REL",	196 },
+		{ "SA_ADD_LEARN_SKILL_LIST_1",	185 },
+		{ "SA_ADD_LEARN_SKILL_LIST_2",	186 },
+		{ "SA_ADD_LEARN_SKILL_LIST_3",	187 },
+		{ "SA_DEGREE_X",	197 },
+		{ "SA_DEGREE_Y",	198 },
+		{ "SA_DEGREE_Z",	199 },
+		{ "SA_DEGREE_MAX",	200 },
+		{ "SA_DFG_GAIN_REL",	201 },
+		{ "SA_DFG_CONSUME_REL",	202 },
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+	};
+
+	/// June g_SkillAbilityName[ 203 ] (3379e6b0, filled in the CX2SkillTree ctor 3221afb0), indexed by SKILL_ABILITY_TYPE. It decides which
+	/// NUMERICAL_DATA block belongs to an ability. Slot 12 is the name March's enum gives it; 13 is where the quirk above stores it.
+	const WCHAR* const s_apwszJuneSkillAbilityName[ 203 ] =
+	{
+		L"SA_INVALID", L"SA_EFFECTIVE_TIME", L"SA_EFFECTIVE_COUNT", L"SA_SKILL_ID",
+		L"SA_COMBO_ID", L"SA_EFFECTIVE_RATE", L"SA_ATK_REL", L"SA_ATK_PHYSIC_REL",
+		L"SA_ATK_MAGIC_REL", L"SA_DEF_PHYSIC_REL", L"SA_DEF_MAGIC_REL", L"SA_TEAM_ATK_PHYSIC_REL",
+		L"SA_TEAM_ATK_MAGIC_REL", L"SA_TEAM_DEF_PHYSIC_REL", L"SA_TEAM_DEF_MAGIC_REL", L"SA_DAMAGE_REL",
+		L"SA_DAMAGED_REL", L"SA_UNFIXED_DEFENSE_REL", L"SA_SUMMON_ATK_REL", L"SA_MAX_HP_ABS",
+		L"SA_MAX_HP_REL", L"SA_MAX_MP_ABS", L"SA_MAX_MP_REL", L"SA_TELEPORT_RANGE_ABS",
+		L"SA_CHARGING_TIME", L"SA_HP_REL_TO_MP_ABS_1", L"SA_HP_REL_TO_MP_ABS_2", L"SA_MP_CONSUME_REL",
+		L"SA_MP_GAIN_ON_HIT_REL", L"SA_SCOPE_ABS", L"SA_PROJECTILE_FIRE_COUNT", L"SA_PROJECTILE_RANGE_REL",
+		L"SA_PROJECTILE_SIZE", L"SA_PROJECTILE_PIERCING", L"SA_MOVE_SPEED", L"SA_JUMP_SPEED",
+		L"SA_ATK_PHYSIC_TO_ATK_MAGIC", L"SA_ATK_MAGIC_TO_ATK_PHYSIC", L"SA_READY_TIME_REL", L"SA_FORCE_DOWN_REL",
+		L"SA_FORCE_DOWN_MELEE_REL", L"SA_FORCE_DOWN_RANGE_REL", L"SA_FORCE_DOWN_ABS", L"SA_MP_REGENERATION_ABS",
+		L"SA_MP_INTAKE_ABS", L"SA_TARGET_ANI_SPEED", L"SA_TARGET_MOVE_SPEED", L"SA_TARGET_JUMP_SPEED",
+		L"SA_TARGET_ATK_REL", L"SA_HP_INTAKE_REL_DAMAGE", L"SA_ATK_CRITICAL_DAM_ABS", L"SA_ATK_CRITICAL_RATE_ABS",
+		L"SA_DEF_CRITICAL_DAM_ABS", L"SA_DEF_CRITICAL_RATE_ABS", L"SA_BACK_SPEED_X", L"SA_ITEM_SPECIAL_ABILITY_REL",
+		L"SA_MP_GAIN_GET_HIT_REL", L"SA_SOUL_GAIN_ON_HIT_REL", L"SA_SOUL_GAIN_GET_HIT_REL", L"SA_HP_GAIN_REL_MAX_HP",
+		L"SA_ED_GAIN_REL", L"SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL", L"SA_EXP_GAIN_REL", L"SA_DAMAGE_ABSORB_REL_MAX_HP",
+		L"SA_STRONG_MIND_ACTIVE_REL", L"SA_STRONG_MIND_SPECIAL_ACTIVE_REL", L"SA_MP_RETAKE_ABS", L"SA_RESIST_FIRE_ABS",
+		L"SA_RESIST_WATER_ABS", L"SA_RESIST_GREEN_ABS", L"SA_RESIST_WIND_ABS", L"SA_RESIST_LIGHT_ABS",
+		L"SA_RESIST_DARK_ABS", L"SA_ATK_MAGIC_FIRST_REL", L"SA_ATK_MAGIC_SECOND_REL", L"SA_ATK_MAGIC_THIRD_REL",
+		L"SA_REMOTE_SPEED_ABS", L"SA_DAMAGE_TYPE_CHANGE", L"SA_DAMAGE_TIME", L"SA_RECOVER_MP_ABS",
+		L"SA_TARGET_MANA", L"SA_TARGET_MANA_REL", L"SA_SIZE_ABS", L"SA_REFLECT_REL",
+		L"SA_EL_DEFENCE_ABS", L"SA_TARGET_HP_REL", L"SA_TARGET_HITRATE_REL", L"SA_CHARGE_CANNONBALL",
+		L"SA_FIRE_DEFENCE_ABS", L"SA_WATER_DEFENCE_ABS", L"SA_NATURE_DEFENCE_ABS", L"SA_WIND_DEFENCE_ABS",
+		L"SA_LIGHT_DEFENCE_ABS", L"SA_DARK_DEFENCE_ABS", L"SA_EDT_FIRE_RESIST_REL", L"SA_EDT_FROZEN_RESIST_REL",
+		L"SA_EDT_ICE_RESIST_REL", L"SA_EDT_POISON_RESIST_REL", L"SA_EDT_Y_PRESSED_RESIST_REL", L"SA_EDT_LEG_WOUND_RESIST_REL",
+		L"SA_EDT_STUN_RESIST_REL", L"SA_EDT_CURSE_RESIST_REL", L"SA_EXPAND_CB", L"SA_ANI_SPEED",
+		L"SA_ACCURACY_PERCENT_ABS", L"SA_CRITICAL_EVASION_REL", L"SA_DECREASE_REL", L"SA_ATK_ADD_DAMAGE_FIRST_ABS",
+		L"SA_ATK_ADD_DAMAGE_SECOND_ABS", L"SA_ATK_ADD_DAMAGE_THIRD_ABS", L"SA_ATK_ADD_DAMAGE_FOURTH_ABS", L"SA_ATK_ADD_DAMAGE_FIFTH_ABS",
+		L"SA_TELEPORT_SPEED_REL", L"HP_CONSUME_REL", L"SA_MP_BURN_ABS", L"SA_SKILLDAMAGE_MULTIPLE_01",
+		L"SA_SKILLDAMAGE_MULTIPLE_02", L"SA_SKILLDAMAGE_MULTIPLE_03", L"SA_SKILLDAMAGE_MULTIPLE_04", L"SA_SKILLDAMAGE_MULTIPLE_01_RATE",
+		L"SA_SKILLDAMAGE_MULTIPLE_02_RATE", L"SA_SKILLDAMAGE_MULTIPLE_03_RATE", L"SA_SKILLDAMAGE_MULTIPLE_04_RATE", L"SA_EVASION_REL",
+		L"SA_REDUCE_EDT_TIME_REL", L"SA_OVERHEAT_HP", L"SA_SCOPE_ABS_HYPER", L"SA_EFFECTIVE_TIME_HYPER",
+		L"SA_AIR_MOVE_COUNT", L"SA_NOT_CANNONBALL_REL", L"SA_INSERT_CANNONBALL_REL", L"SA_BE_SHOT_CANNONBALL_REL",
+		L"SA_CANNONBALL_DAMAGE_UP_REL", L"SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE", L"SA_SIEGE_SHELLING_REL", L"SA_EFFECTIVE_DAMAGED_ATTACK_BASE",
+		L"SA_FIRST_HYPER_EFFECTIVE", L"SA_SECOND_HYPER_EFFECTIVE", L"SA_THIRD_HYPER_EFFECTIVE", L"SA_ATK_CRITICAL_RATE_ATK_BASE",
+		L"SA_PROJECTILE_CURVE_SPEED_REL", L"SA_DP_GAIN_REL", L"SA_DP_USE_REL", L"SA_MP_CONSUMPTION",
+		L"SA_PROJECTILE_RANGE_REL_2", L"SA_OVERHEAT_HP_PVP", L"SA_DECREASE_REL_2", L"SA_WAY_OF_SWORD_POINT_MULTIPLIER",
+		L"SA_COOLTIME_1", L"SA_COOLTIME_2", L"SA_COOLTIME_3", L"SA_MP_GAIN_ON_HIT_REL_2",
+		L"SA_MP_GAIN_ON_HIT_REL_3", L"SA_USE_DP_REL_AT_FORMATION_MODE", L"SA_RECOVERY_VALUE_REL", L"SA_ADD_MP_VALUE_ABS",
+		L"SA_ADD_DP_VALUE_ABS", L"SA_SCOPE_ABS_PVP", L"SA_SCOPE_ABS_Y", L"SA_SCOPE_ABS_Z",
+		L"SA_MP_REGENERATION_ABS_PVP", L"SA_ATK_PHYSIC_REL_PVP", L"SA_ATK_MAGIC_REL_PVP", L"SA_DEF_PHYSIC_REL_PVP",
+		L"SA_DEF_MAGIC_REL_PVP", L"SA_TEAM_ATK_PHYSIC_REL_PVP", L"SA_TEAM_ATK_MAGIC_REL_PVP", L"SA_TEAM_DEF_PHYSIC_REL_PVP",
+		L"SA_TEAM_DEF_MAGIC_REL_PVP", L"SA_TIME_ABS", L"SA_SOUL_ABS", L"SA_MAX_HP_REL_PVP",
+		L"SA_RECOVER_MP_ABS_2", L"SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE", L"SA_MAX_INCREASE_MOVEMENT_BY_MANA", L"SA_MIN_INCREASE_MOVEMENT_BY_MANA",
+		L"SA_CHAIN_SKILL_ANI_SPEED_REL", L"SA_HIT_COUNT_1", L"SA_HIT_COUNT_2", L"SA_HIT_COUNT_3",
+		L"SA_FORCE_DOWN_GAIN_REL", L"SA_MUTATION_CONSUME_MAX_COUNT", L"SA_DAMAGED_REL_PVP", L"SA_ECP_REL",
+		L"SA_SUMMON_ALL_STAT_REL", L"SA_ADD_LEARN_SKILL_LIST_1", L"SA_ADD_LEARN_SKILL_LIST_2", L"SA_ADD_LEARN_SKILL_LIST_3",
+		L"SA_FP_CANCEL_SKILL", L"SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK", L"SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME", L"SA_FP_UP_ABS",
+		L"SA_FP_DOWN_ABS", L"SA_EFFECTIVE_VALUE_REL", L"SA_CRITICAL_REL", L"SA_CRITICAL_DAMAGE_REL",
+		L"SA_MAXIMIZE_REL", L"SA_DEGREE_X", L"SA_DEGREE_Y", L"SA_DEGREE_Z",
+		L"SA_DEGREE_MAX", L"SA_DFG_GAIN_REL", L"SA_DFG_CONSUME_REL",
+	};
+}
+using namespace _CONST_SKILLTREE_S2_;
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 bool CX2SkillTree::AddSkillTemplet_LUA()
 {
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+/// June 32216320, whole. Differences from March's AddSkillTemplet_LUA ( s0a_templet_keys.tsv ): no padding of m_SkillCoolTime /
+/// m_MPConsumption / m_RequireCharacterLevel to 30; an empty SA_* table inserts nothing; IN_HOUSE_TEST_ONLY drops the templet;
+/// a duplicate id is not added and the function still returns true; new fields m_ExtraIconInfo<n>, m_DeleteSkillIDByUpgrade
+/// ( also fills the upgrade map ), NUMERICAL_DATA<n>, and SA ids 143-202. 31c59710 ( anti-tamper registration ) is not ported.
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	bool bInHouseTestOnly = false;
+	LUA_GET_VALUE( luaManager,      "IN_HOUSE_TEST_ONLY",           bInHouseTestOnly,   false );
+	if( true == bInHouseTestOnly )
+	{
+		++m_JuneLoadStats.m_iInHouseDropped;
+		return false;
+	}
+
+	SkillTemplet* pSkillTemplet = new SkillTemplet();
+
+	LUA_GET_VALUE_ENUM( luaManager,     "m_eType",                      pSkillTemplet->m_eType,                         SKILL_TYPE,         ST_NONE                 );
+
+	switch ( pSkillTemplet->m_eType )
+	{
+	case ST_GUILD_PASSIVE_PHYSIC_ATTACK_MAGIC_DEFENCE:
+	case ST_GUILD_PASSIVE_MAGIC_ATTCK_PHYSIC_DEFENCE:
+	case ST_GUILD_PASSIVE:
+		{
+			pSkillTemplet->m_bGuildSkill = true;
+		} break;
+	}
+
+	LUA_GET_VALUE_ENUM( luaManager,     "m_eID",                        pSkillTemplet->m_eID,                           SKILL_ID,           SI_NONE                 );
+
+	/// a duplicate id: the insert fails, the templet is not added, the function returns true
+	if( false == m_mapSkillTemplet.insert( std::make_pair( pSkillTemplet->m_eID, pSkillTemplet ) ).second )
+	{
+		++m_JuneLoadStats.m_iDuplicate;
+		SAFE_DELETE( pSkillTemplet );
+		return true;
+	}
+
+	/// fill flag 0: no padding to 30 ( March pads these three )
+	if( true == luaManager.BeginTable( "m_SkillCoolTime" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecSkillCoolTime, false );
+	if( true == luaManager.BeginTable( "m_MPConsumption" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecMPConsumption, false );
+	if( true == luaManager.BeginTable( "m_RequireCharacterLevel" ) )    SetSkillVlaue( luaManager, pSkillTemplet->m_vecRequireCharacterLevel, false );
+
+	{
+		/// the padding March would have done: arrays of 1-29 entries
+		const int iId = static_cast<int>( pSkillTemplet->m_eID );
+		const size_t nCool = pSkillTemplet->m_vecSkillCoolTime.size();
+		const size_t nMp = pSkillTemplet->m_vecMPConsumption.size();
+		const size_t nReq = pSkillTemplet->m_vecRequireCharacterLevel.size();
+		if( nCool >= 1 && nCool < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
+		{
+			++m_JuneLoadStats.m_iShortCoolTime;
+			LogShortArray( iId, 0, static_cast<int>( nCool ) );
+		}
+		if( nMp >= 1 && nMp < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
+		{
+			++m_JuneLoadStats.m_iShortMP;
+			LogShortArray( iId, 1, static_cast<int>( nMp ) );
+		}
+		if( nReq >= 1 && nReq < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
+		{
+			++m_JuneLoadStats.m_iShortReqLevel;
+			LogShortArray( iId, 2, static_cast<int>( nReq ) );
+		}
+	}
+
+#ifdef NEW_CHARACTER_CHUNG
+	LUA_GET_VALUE( luaManager,          "m_usCBConsumption",            pSkillTemplet->m_usCBConsumption,               0       );
+#endif NEW_CHARACTER_CHUNG
+
+#ifdef ARA_CHARACTER_BASE
+	LUA_GET_VALUE( luaManager,          "m_usFPGainCount",              pSkillTemplet->m_usFPGainCount,                 0       );
+	LUA_GET_VALUE( luaManager,          "m_usFPConsumtion",             pSkillTemplet->m_usFPConsumtion,                0       );
+#endif
+
+	LUA_GET_VALUE( luaManager,          "m_wstrName",                   pSkillTemplet->m_wstrName,                      L""     );
+	LUA_GET_VALUE( luaManager,          "m_wstrMainDesc",               pSkillTemplet->m_wstrMainDesc,                  L""     );
+
+	if( true == luaManager.BeginTable( "m_EffectiveDesc" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecEffectiveDesc, false );
+
+	LUA_GET_VALUE( luaManager,          "m_bBornSealed",                pSkillTemplet->m_bBornSealed,                   false   );
+
+	LUA_GET_VALUE( luaManager,          "m_wstrIconTextureName",        pSkillTemplet->m_wstrIconName,                  L""     );
+	LUA_GET_VALUE( luaManager,          "m_wstrIconTexturePieceName",   pSkillTemplet->m_wstrIconPieceName,             L""     );
+
+	/// m_ExtraIconInfo1, 2, ... while BeginTable succeeds ( new in June, stored for the tree UI )
+	for( int iExtra = 1; ; ++iExtra )
+	{
+		char szExtraKey[ 32 ];
+		StringCchPrintfA( szExtraKey, ARRAY_SIZE( szExtraKey ), "m_ExtraIconInfo%d", iExtra );
+		if( false == luaManager.BeginTable( szExtraKey ) )
+			break;
+
+		std::pair<wstring, wstring> pairExtraIcon;
+		LUA_GET_VALUE( luaManager,      "m_wstrTextureName",            pairExtraIcon.first,                            L""     );
+		LUA_GET_VALUE( luaManager,      "m_wstrTexturePieceName",       pairExtraIcon.second,                           L""     );
+		luaManager.EndTable();
+
+		pSkillTemplet->m_vecExtraIconInfo.push_back( pairExtraIcon );
+		++m_JuneLoadStats.m_iExtraIcon;
+	}
+
+	LUA_GET_VALUE( luaManager,          "m_wstrImageTextureName",       pSkillTemplet->m_wstrImageName,                 L""     );
+	LUA_GET_VALUE( luaManager,          "m_wstrImageTexturePieceName",  pSkillTemplet->m_wstrImagePieceName,            L""     );
+
+	SKILL_POWER_RATE_TYPE ePowerRate = SPRT_BASIC_CLASS;
+	LUA_GET_VALUE_ENUM( luaManager,     "m_ePowerRate",                 ePowerRate,                                     SKILL_POWER_RATE_TYPE,          SPRT_BASIC_CLASS    );
+	SetSkillPowerRate( ePowerRate, pSkillTemplet->m_vecPowerRate );     /// 32207430: copied only when the type's row has exactly 30 entries
+#ifdef SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+	pSkillTemplet->m_eSkillPowerRateType = ePowerRate;
+#endif SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+	pSkillTemplet->m_eJunePowerRateType = ePowerRate;
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+
+	LUA_GET_VALUE_ENUM( luaManager,     "m_eActiveSkillUseCondtion",    pSkillTemplet->m_eActiveSkillUseCondtion,       ACTIVE_SKILL_USE_CONDITION,     ASUT_NONE   );
+
+	LUA_GET_VALUE( luaManager,          "m_bShowSkillLevel",            pSkillTemplet->m_bShowSkillLevel,               false   );
+	LUA_GET_VALUE( luaManager,          "m_iRequireLearnSkillPoint",    pSkillTemplet->m_iRequireLearnSkillPoint,       0       );
+	LUA_GET_VALUE( luaManager,          "m_iRequireUpgradeSkillPoint",  pSkillTemplet->m_iRequireUpgradeSkillPoint,     0       );
+	LUA_GET_VALUE( luaManager,          "m_usWOSType",                  static_cast<int>( pSkillTemplet->m_iWOSType ),  0       );
+
+	/// the skill this one replaces once learned ( June templet +0x178 ); non-zero also fills the upgrade map ( base id -> this id )
+	LUA_GET_VALUE( luaManager,          "m_DeleteSkillIDByUpgrade",     pSkillTemplet->m_iDeleteSkillIDByUpgrade,       0       );
+	if( 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )
+		m_mapUpgradeSkill.insert( std::make_pair( pSkillTemplet->m_iDeleteSkillIDByUpgrade, static_cast<int>( pSkillTemplet->m_eID ) ) );
+
+	/// NUMERICAL_DATA1, 2, ... while BeginTable succeeds. Rows are 16 B { value, pvp rate, tech point, hit add mp }; each side array is
+	/// clamped to its last entry, m_Pvp_Rate defaults to 1.0 and the other two to 0.
+	for( int iNumerical = 1; ; ++iNumerical )
+	{
+		char szNumericalKey[ 32 ];
+		StringCchPrintfA( szNumericalKey, ARRAY_SIZE( szNumericalKey ), "NUMERICAL_DATA%d", iNumerical );
+		if( false == luaManager.BeginTable( szNumericalKey ) )
+			break;
+
+		SkillTemplet::JuneNumericalData numericalData;
+		LUA_GET_VALUE( luaManager,      "m_wstrName",                   numericalData.m_wstrName,                       L""     );
+		LUA_GET_VALUE( luaManager,      "m_ParamType",                  numericalData.m_wstrParamType,                  L"i"    );
+
+		vector<float> vecValue;
+		vector<float> vecPvpRate;
+		vector<float> vecTechPoint;
+		vector<float> vecHitAddMP;
+		if( true == luaManager.BeginTable( "m_Value" ) )                SetSkillVlaue( luaManager, vecValue, false );
+		if( true == luaManager.BeginTable( "m_Pvp_Rate" ) )             SetSkillVlaue( luaManager, vecPvpRate, false );
+		if( true == luaManager.BeginTable( "m_Tech_Point" ) )           SetSkillVlaue( luaManager, vecTechPoint, false );
+		if( true == luaManager.BeginTable( "m_Hit_Add_MP" ) )           SetSkillVlaue( luaManager, vecHitAddMP, false );
+		luaManager.EndTable();
+
+		for( size_t iRow = 0; iRow < vecValue.size(); ++iRow )
+		{
+			SkillTemplet::JuneNumericalRow row;
+			row.m_fValue = vecValue[ iRow ];
+			row.m_fPvpRate = true == vecPvpRate.empty() ? 1.f : vecPvpRate[ iRow < vecPvpRate.size() ? iRow : vecPvpRate.size() - 1 ];
+			row.m_fTechPoint = true == vecTechPoint.empty() ? 0.f : vecTechPoint[ iRow < vecTechPoint.size() ? iRow : vecTechPoint.size() - 1 ];
+			row.m_fHitAddMP = true == vecHitAddMP.empty() ? 0.f : vecHitAddMP[ iRow < vecHitAddMP.size() ? iRow : vecHitAddMP.size() - 1 ];
+			numericalData.m_vecRow.push_back( row );
+		}
+
+		pSkillTemplet->m_vecJuneNumericalData.push_back( numericalData );
+		++m_JuneLoadStats.m_iNumericalBlock;
+	}
+
+	SetSkillStat( luaManager, pSkillTemplet->m_vecStat );
+
+	for( int iKey = 0; iKey < static_cast<int>( ARRAY_SIZE( s_aJuneSkillAbilityKey ) ); ++iKey )
+	{
+		if( true == luaManager.BeginTable( s_aJuneSkillAbilityKey[ iKey ].m_pszKey ) )
+			SetSkillAbilityMap( &luaManager, static_cast<SKILL_ABILITY_TYPE>( s_aJuneSkillAbilityKey[ iKey ].m_iType ), pSkillTemplet, s_aJuneSkillAbilityKey[ iKey ].m_pszKey );
+	}
+
+	if( false == m_bJuneScratch )
+		CX2BuffTempletManager::GetInstance()->GetBuffFactorPtrFromBuffFactorList( luaManager, pSkillTemplet->m_vecBuffFactorPtr, pSkillTemplet->m_vecBuffFactorID );
+
+	return true;
+#else
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	/// Phase S2: June's loader (32216320). Under _DEBUG the scratch load can still run March's body (m_bJuneMarchParser) to compare the two.
-		return AddSkillTemplet_JuneLUA();
+		return AddSkillTemplet_LUA();
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
 #ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
@@ -1005,6 +1667,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 }
 
 #ifdef LUA_TRANS_DEVIDE
@@ -1623,18 +2286,18 @@ bool CX2SkillTree::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	case EGS_JUNE_ACQUIRE_SKILL_NOT:
 		{
-			return Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( hWnd, uMsg, wParam, lParam );
+			return Handler_EGS_ACQUIRE_SKILL_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	case EGS_JUNE_ACTIVE_SKILL_MEMO_ACK:
 		{
-			return Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
+			return Handler_EGS_ACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
 		} break;
 
 	case EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK:
 		{
-			return Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
+			return Handler_EGS_DEACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
@@ -1771,8 +2434,8 @@ bool CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ( int iSlotID, CX2SkillTree:
 	/// B slots 5-8 need slot-state key 0, the B-TC slot 9 key 1; an unequip ( skill 0 ) always passes
 	const CX2UserSkillTree& kJuneUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
 	const bool bJuneSlotB = ( 5 <= iSlotID && iSlotID <= 8 );
-	if( ( false == kJuneUserSkillTree.IsJuneSlotUsable( 0 ) && true == bJuneSlotB && 0 != static_cast<int>( eSkillID ) ) ||
-		( false == kJuneUserSkillTree.IsJuneSlotUsable( 1 ) && 9 == iSlotID && 0 != static_cast<int>( eSkillID ) ) )
+	if( ( false == kJuneUserSkillTree.IsSlotUsable( 0 ) && true == bJuneSlotB && 0 != static_cast<int>( eSkillID ) ) ||
+		( false == kJuneUserSkillTree.IsSlotUsable( 1 ) && 9 == iSlotID && 0 != static_cast<int>( eSkillID ) ) )
 		return false;
 
 	/// the same ( slot, skill ) already queued: accepted, not queued twice
@@ -2503,7 +3166,7 @@ bool CX2SkillTree::Handler_EGS_RESET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 			/// June 322112d0 @3221186a: 3235a160 at the end of the OK path
 			if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+				g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 
@@ -2733,7 +3396,7 @@ bool CX2SkillTree::Handler_EGS_INIT_SKILL_TREE_ACK( HWND hWnd, UINT uMsg, WPARAM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 			/// June 3220ea50 @3220ede2: the HUD max MP / HP refresh 3235a160 on my select unit, last on the OK path
 			if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+				g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 			//g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), L"모든 스킬을 초기화 하였습니다.", m_pNowStage );
@@ -3157,7 +3820,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 #ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 	/// June 3220ee30
 	CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree;
-	refUserSkillTree.AddJuneAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
+	refUserSkillTree.AddAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
 	for( size_t i = 0; i < kEvent.m_vecUnsealedSkillID.size(); ++i )
 		refUserSkillTree.AddSkillUnsealed( static_cast<CX2SkillTree::SKILL_ID>( kEvent.m_vecUnsealedSkillID[i] ) );	/// 32891b40
 
@@ -3191,7 +3854,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 				pUISkillTree->UpdateDLGSkillUnsealed( eDlgSkillID );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 				if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-					g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+					g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 			}
 		}
@@ -3201,7 +3864,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 		g_pData->GetQuestManager()->GiveUpForbiddenQuest();	/// 3232ecd0
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 	/// my unit's vslot 420 InitPassiveSkillState; June has no NULL test on GetMyUnit
@@ -3222,7 +3885,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 		/// June 3220ee30 @3220f004: 3235a160 after the tree redraw ( June runs that block only when AddSkillUnsealed 328914b0 returns true )
 		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-			g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+			g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	}
 
@@ -3234,7 +3897,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	/// June 3220ee30 @3220f035: 3235a160 again, after the quest manager's 3232ecd0 ( June calls it twice )
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 #endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 
@@ -3244,7 +3907,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 /// June 3220e5f0: the send half of the slot-change queue
-bool CX2SkillTree::JuneSendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID )
+bool CX2SkillTree::SendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID )
 {
 	if( true == g_pMain->IsWaitingServerPacket( EGS_CHANGE_SKILL_SLOT_ACK ) )
 		return false;
@@ -3268,13 +3931,13 @@ bool CX2SkillTree::JuneSendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_
 }
 
 /// June 322105c0: one queued change per frame; it leaves the queue only once it was sent
-void CX2SkillTree::JuneFrameMoveSkillSlotQueue()
+void CX2SkillTree::FrameMoveSkillSlotQueue()
 {
 	if( true == m_deqJuneSkillSlotChange.empty() )
 		return;
 
 	const std::pair< int, int > pairFront = m_deqJuneSkillSlotChange.front();
-	if( true == JuneSendChangeSkillSlotReq( pairFront.first, static_cast<CX2SkillTree::SKILL_ID>( pairFront.second ) ) &&
+	if( true == SendChangeSkillSlotReq( pairFront.first, static_cast<CX2SkillTree::SKILL_ID>( pairFront.second ) ) &&
 		false == m_deqJuneSkillSlotChange.empty() )
 	{
 		m_deqJuneSkillSlotChange.pop_front();
@@ -3285,7 +3948,7 @@ void CX2SkillTree::JuneFrameMoveSkillSlotQueue()
 namespace
 {
 	/// my unit's CX2Unit +0x3c is not 0 ( the hyper-class skips of 32206d30 / 3220d2b0 )
-	bool JuneTreeIsMyUnitTranscended()
+	bool TreeIsMyUnitTranscended()
 	{
 		if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 			return false;
@@ -3296,7 +3959,7 @@ namespace
 
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 /// June 32206d30: every tree skill of the class whose required-level list holds ( level / 5 ) * 5
-void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const
+void CX2SkillTree::GetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const
 {
 	UnitSkillTreeTempletMap::const_iterator mitClass = m_mapUnitSkillTreeTemplet.find( iUnitClass );
 	if( mitClass == m_mapUnitSkillTreeTemplet.end() )
@@ -3312,7 +3975,7 @@ void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT 
 
 		/// +0x174 == 5 ( SPRT_HYPER_CLASS ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ), which March has no field for ( Stage 6 )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == JuneTreeIsMyUnitTranscended() )
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == TreeIsMyUnitTranscended() )
 			continue;
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
@@ -3332,7 +3995,7 @@ void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT 
 
 /// The block June's three level-up handlers end with ( 323ae130, 32473f70, 325346e0 ). It reads my own unit's level and class
 /// whichever unit the NOT is for ( JUNE_BUGS ), and it only runs below level 11.
-void CX2SkillTree::JuneAutoEquipOnLevelUp()
+void CX2SkillTree::AutoEquipOnLevelUp()
 {
 	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return;
@@ -3343,7 +4006,7 @@ void CX2SkillTree::JuneAutoEquipOnLevelUp()
 		return;
 
 	std::vector< int > vecSkillID;
-	JuneGetSkillListByLevel( iLevel, static_cast<int>( pUnit->GetClass() ), vecSkillID );
+	GetSkillListByLevel( iLevel, static_cast<int>( pUnit->GetClass() ), vecSkillID );
 
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ level-up L=%d: %d skill(s) at band %d", iLevel, static_cast<int>( vecSkillID.size() ), ( iLevel / 5 ) * 5 );
@@ -3358,7 +4021,7 @@ void CX2SkillTree::JuneAutoEquipOnLevelUp()
 /// set ) when its first required level is the level, 4 when a later required level is, and 2 for each memo row of the level whose
 /// skill is this one ( 32451250 ). A hyper-class row ( +0x174 == 5 ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ),
 /// which March has no field for ( as 32206d30 ).
-void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const
+void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const
 {
 	UnitSkillTreeTempletMap::const_iterator mitClass = m_mapUnitSkillTreeTemplet.find( iUnitClass_ );
 	if( mitClass == m_mapUnitSkillTreeTemplet.end() )
@@ -3372,7 +4035,7 @@ void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, O
 			continue;
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == JuneTreeIsMyUnitTranscended() )
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == TreeIsMyUnitTranscended() )
 			continue;
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
@@ -3381,31 +4044,31 @@ void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, O
 
 		const int iFirstLevel = ( true == pTemplet->m_vecRequireCharacterLevel.empty() ) ? 0 : pTemplet->m_vecRequireCharacterLevel[0];
 		if( iLevel_ == iFirstLevel )
-			JuneAddNewSkillOrMemo( ( pTemplet->m_iDeleteSkillIDByUpgrade < 1 ) ? 1 : 3, pTemplet, mapNew_ );
+			AddNewSkillOrMemo( ( pTemplet->m_iDeleteSkillIDByUpgrade < 1 ) ? 1 : 3, pTemplet, mapNew_ );
 
 		for( UINT i = 0; i < pTemplet->m_vecRequireCharacterLevel.size(); ++i )
 		{
 			if( iLevel_ == pTemplet->m_vecRequireCharacterLevel[i] )
 			{
 				if( 0 < i )
-					JuneAddNewSkillOrMemo( 4, pTemplet, mapNew_ );
+					AddNewSkillOrMemo( 4, pTemplet, mapNew_ );
 				break;
 			}
 		}
 
 		/// @3220d4a0: the memo rows are re-read for every skill ( June )
-		std::vector<const SJuneSkillMemoTemplet*> vecMemo;
+		std::vector<const SSkillMemoTemplet*> vecMemo;
 		CX2SkillNoteManager::GetInstance()->GetJuneMemoList( 0, iLevel_, iUnitClass_, 0, vecMemo );
 		for( UINT i = 0; i < vecMemo.size(); ++i )
 		{
 			if( NULL != vecMemo[i] && vecMemo[i]->m_iSkillID == static_cast<int>( pTemplet->m_eID ) )
-				JuneAddNewSkillOrMemo( 2, pTemplet, mapNew_ );
+				AddNewSkillOrMemo( 2, pTemplet, mapNew_ );
 		}
 	}
 }
 
 /// June 3220b990: add the templet under its type unless a templet with the same id ( +8 ) is there already
-/*static*/ void CX2SkillTree::JuneAddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ )
+/*static*/ void CX2SkillTree::AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ )
 {
 	if( NULL == pTemplet_ )
 		return;
@@ -3430,7 +4093,7 @@ void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, O
 /// June 31d885e0 ( a CX2Main method in June; called for my own unit by 323ae130 @323ae277, 32473f70 @324744af, 325346e0 @32534832 ):
 /// only for a class with memo rows ( 324511a0 ), what opens at my unit's level goes to the emblem manager's +0x64 rows
 /// ( skill id, type, 1 ) in type order, and emblem 17 is shown again ( 32447d70( 0x11, true ) ) when anything opened
-void CX2SkillTree::JuneShowNewSkillOrMemoEmblem() const
+void CX2SkillTree::ShowNewSkillOrMemoEmblem() const
 {
 	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return;
@@ -3442,7 +4105,7 @@ void CX2SkillTree::JuneShowNewSkillOrMemoEmblem() const
 
 	const int iLevel = pUnit->GetUnitData().m_Level;
 	JuneNewSkillOrMemoMap mapNew;
-	JuneGetNewSkillOrMemoByLevel( iLevel, iUnitClass, mapNew );
+	GetNewSkillOrMemoByLevel( iLevel, iUnitClass, mapNew );
 
 	int iRows = 0;
 	for( JuneNewSkillOrMemoMap::const_iterator mit = mapNew.begin(); mit != mapNew.end(); ++mit )
@@ -3473,7 +4136,7 @@ void CX2SkillTree::JuneShowNewSkillOrMemoEmblem() const
 
 /// June's server-pushed skill grant. June handles it in its states ( village 323b0770, menu 324631a0, 32535be0 ); March routes skill
 /// packets here from every state ( CX2State::UIServerEventProc ).
-bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2SkillTree::Handler_EGS_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_JUNE_ACQUIRE_SKILL_NOT kEvent;
@@ -3486,7 +4149,7 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 	if( pUnit->GetUID() != kEvent.m_iUnitUID )
 		return true;
 
-	pUnit->AccessUnitData().m_UserSkillTree.AddJuneAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
+	pUnit->AccessUnitData().m_UserSkillTree.AddAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
 
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ NOT unitUID=%I64d: %d skill(s) added", (__int64)kEvent.m_iUnitUID, static_cast<int>( kEvent.m_vecSkillData.size() ) );
@@ -3514,7 +4177,7 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	/// skill Phase S7k: that is the HUD max MP / HP refresh ( 323b0770 @323b0888, 324631a0 @3246334e ); 324943c0 is March's CX2GageManager
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	return true;
 }
@@ -3523,7 +4186,7 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 /// June 31f1bdb0 @31f1c008..31f1c162 ( the same block in 31f1c1d0 ): with a game whose my-unit ( vslot 0x98 ) has unit data, each of the five
 /// slots of bar A then bar B ( 3288fe00( i, b ) ) that holds a skill ( > 0 ) is rebuilt: 31fd84c0( unit data, skill, i, b ), March's
 /// 4-argument ChangeEquippedSkillState ( 31fd6880 = CalcEquippedSkillLevelPlusAndMPCostBySlotID, slots 493 / 495 / 494 ).
-/*static*/ void CX2SkillTree::JuneRefreshEquippedSkillsForMemo()
+/*static*/ void CX2SkillTree::RefreshEquippedSkillsForMemo()
 {
 	if( NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return;
@@ -3546,7 +4209,7 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 
 /// June 31f1bdb0 ( ACK 0x555 ): wait over and OK -> "Selected trait has been registered." ( 0x8b98, 250 x 300 ); with my unit, the memo goes
 /// into its tree ( 328923e0( skill, memo ) ), the equipped skills are rebuilt, and the tree UI redrawn ( 328e7b70( 1, 1, 0 ) ).
-bool CX2SkillTree::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2SkillTree::Handler_EGS_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK kEvent;
@@ -3560,10 +4223,10 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg,
 	if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return true;
 
-	g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree.AddJuneActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
+	g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree.AddActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
 	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO ACK activated skill=%d memo=%d", kEvent.m_iSkillID, kEvent.m_iMemoID );
 
-	JuneRefreshEquippedSkillsForMemo();
+	RefreshEquippedSkillsForMemo();
 
 	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
 		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );
@@ -3573,7 +4236,7 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg,
 /// June 31f1c1d0 ( ACK 0x557 ): wait over and OK -> "Selected trait has been removed." ( 0x8b99 ); with my unit: the inventory takes the
 /// changed slots ( 3286d590( vec, 0 ) ), the memo leaves the tree ( 32891050( skill, memo ) ), the equipped skills are rebuilt and the tree
 /// UI redrawn ( 1, 1, 0 ). Then, unit or not, an open inventory window takes the slots too ( 321524d0( 0x1f ) -> 32196a00( vec, 1, 1 ) ).
-bool CX2SkillTree::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2SkillTree::Handler_EGS_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK kEvent;
@@ -3588,11 +4251,11 @@ bool CX2SkillTree::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMs
 	{
 		CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
 		pUnit->AccessInventory().UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo );
-		pUnit->AccessUnitData().m_UserSkillTree.RemoveJuneActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
+		pUnit->AccessUnitData().m_UserSkillTree.RemoveActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
 		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO ACK deactivated skill=%d memo=%d, %d inventory slot(s)", kEvent.m_iSkillID, kEvent.m_iMemoID,
 			static_cast<int>( kEvent.m_vecInventorySlotInfo.size() ) );
 
-		JuneRefreshEquippedSkillsForMemo();
+		RefreshEquippedSkillsForMemo();
 
 		if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
 			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );
@@ -4405,7 +5068,7 @@ bool CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_ACK( HWND hWnd, UINT uMsg, WPAR
 	{
 		CX2Unit::UnitData* pJuneUnitData = &g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
 		pJuneUnitData->m_UserSkillTree.SetOpenedPage( static_cast<USHORT>( kEvent.m_iTheNumberOfSkillPagesAvailable ) );
-		pJuneUnitData->m_UserSkillTree.JuneGrowSkillPages();	/// local: the new page's skill map ( X2UserSkillTree.h )
+		pJuneUnitData->m_UserSkillTree.GrowSkillPages();	/// local: the new page's skill map ( X2UserSkillTree.h )
 
 		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, true );
 		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( STR_ID_29386 ), g_pMain->GetNowState() );
@@ -4544,7 +5207,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 		kJuneTree.SetEquippedSkill( aJuneSlotA, aJuneSlotB );
 
 		kJuneTree.ClearJuneActiveMemo();																					/// 32892050
-		kJuneTree.MergeJuneActiveMemo( std::multimap< int, int >( kJunePage.m_mapIntInt.begin(), kJunePage.m_mapIntInt.end() ) );	/// 32892410
+		kJuneTree.MergeActiveMemo( std::multimap< int, int >( kJunePage.m_mapIntInt.begin(), kJunePage.m_mapIntInt.end() ) );	/// 32892410
 
 		/// in a game ( g_pX2Game, my unit vslot 0x98 ): input is held for 0.5 s ( +0xde8 = _DAT_3343777c ) and the equipped skill states rebuilt
 		/// ( vslot 0x684( 0 ) ); unit type 2 ( 32ce1770 ) and 9 ( the tree's 328e0290 ) add class pieces: checklist 7ak
@@ -4565,7 +5228,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 		/// bar-B entry; June passes the entry's index for both bars, so a B skill is refreshed under the A slot id ( JUNE_BUGS )
 		for ( UINT i = 0; i < kJunePage.m_vecSkillDataA.size(); ++i )
 			g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataA[i].m_iSkillID );
-		if ( 0 < kJuneTree.GetJuneSlotState( 0 ) )
+		if ( 0 < kJuneTree.GetSlotState( 0 ) )
 		{
 			for ( UINT i = 0; i < kJunePage.m_vecSkillDataB.size(); ++i )
 				g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataB[i].m_iSkillID );
@@ -5274,485 +5937,6 @@ bool CX2SkillTree::SkillTemplet::GetSkillEffectiveDescExpand ( OUT wstring & wst
 // Description: June skill system core, Phase S2 (JUNE_SKILL_SYSTEM_PHASES.md). June's skill templet loader (32216320) with its stored
 //              fields (m_DeleteSkillIDByUpgrade, NUMERICAL_DATA<n>, m_ExtraIconInfo<n>, SA 143-202), the upgrade map (32205c00) and the
 //              numerical-first ability lookup (32206e50 / 32206fb0). Data stays March's; see MODS.md "June skill templet".
-namespace
-{
-	/// June 32216320: the SA_* tables in June's parse order (june2017_re/s0a_templet_keys.tsv rows 39-240). m_iType is the stored
-	/// ability id. SA_TEAM_ATK_MAGIC_REL is stored as 13 (SA_TEAM_DEF_PHYSIC_REL): a studio quirk that March has too, kept.
-	struct JuneSkillAbilityKey
-	{
-		const char* m_pszKey;
-		int         m_iType;
-	};
-
-	const JuneSkillAbilityKey s_aJuneSkillAbilityKey[] =
-	{
-#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		{ "SA_EFFECTIVE_TIME",	CX2SkillTree::SA_EFFECTIVE_TIME },
-		{ "SA_EFFECTIVE_COUNT",	CX2SkillTree::SA_EFFECTIVE_COUNT },
-		{ "SA_SKILL_ID",	CX2SkillTree::SA_SKILL_ID },
-		{ "SA_COMBO_ID",	CX2SkillTree::SA_COMBO_ID },
-		{ "SA_EFFECTIVE_RATE",	CX2SkillTree::SA_EFFECTIVE_RATE },
-		{ "SA_ATK_REL",	CX2SkillTree::SA_ATK_REL },
-		{ "SA_ATK_PHYSIC_REL",	CX2SkillTree::SA_ATK_PHYSIC_REL },
-		{ "SA_ATK_MAGIC_REL",	CX2SkillTree::SA_ATK_MAGIC_REL },
-		{ "SA_DEF_PHYSIC_REL",	CX2SkillTree::SA_DEF_PHYSIC_REL },
-		{ "SA_DEF_MAGIC_REL",	CX2SkillTree::SA_DEF_MAGIC_REL },
-		{ "SA_TEAM_ATK_PHYSIC_REL",	CX2SkillTree::SA_TEAM_ATK_PHYSIC_REL },
-		{ "SA_TEAM_ATK_MAGIC_REL",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL },
-		{ "SA_TEAM_DEF_PHYSIC_REL",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL },
-		{ "SA_TEAM_DEF_MAGIC_REL",	CX2SkillTree::SA_TEAM_DEF_MAGIC_REL },
-		{ "SA_DAMAGE_REL",	CX2SkillTree::SA_DAMAGE_REL },
-		{ "SA_DAMAGED_REL",	CX2SkillTree::SA_DAMAGED_REL },
-		{ "SA_UNFIXED_DEFENSE_REL",	CX2SkillTree::SA_UNFIXED_DEFENSE_REL },
-		{ "SA_SUMMON_ATK_REL",	CX2SkillTree::SA_SUMMON_ATK_REL },
-		{ "SA_MAX_HP_ABS",	CX2SkillTree::SA_MAX_HP_ABS },
-		{ "SA_MAX_HP_REL",	CX2SkillTree::SA_MAX_HP_REL },
-		{ "SA_MAX_MP_ABS",	CX2SkillTree::SA_MAX_MP_ABS },
-		{ "SA_MAX_MP_REL",	CX2SkillTree::SA_MAX_MP_REL },
-		{ "SA_TELEPORT_RANGE_ABS",	CX2SkillTree::SA_TELEPORT_RANGE_ABS },
-		{ "SA_CHARGING_TIME",	CX2SkillTree::SA_CHARGING_TIME },
-		{ "SA_HP_REL_TO_MP_ABS_1",	CX2SkillTree::SA_HP_REL_TO_MP_ABS_1 },
-		{ "SA_HP_REL_TO_MP_ABS_2",	CX2SkillTree::SA_HP_REL_TO_MP_ABS_2 },
-		{ "SA_MP_CONSUME_REL",	CX2SkillTree::SA_MP_CONSUME_REL },
-		{ "SA_MP_GAIN_ON_HIT_REL",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL },
-		{ "SA_SCOPE_ABS",	CX2SkillTree::SA_SCOPE_ABS },
-		{ "SA_PROJECTILE_FIRE_COUNT",	CX2SkillTree::SA_PROJECTILE_FIRE_COUNT },
-		{ "SA_PROJECTILE_RANGE_REL",	CX2SkillTree::SA_PROJECTILE_RANGE_REL },
-		{ "SA_PROJECTILE_RANGE_REL_2",	CX2SkillTree::SA_PROJECTILE_RANGE_REL_2 },
-		{ "SA_PROJECTILE_SIZE",	CX2SkillTree::SA_PROJECTILE_SIZE },
-		{ "SA_PROJECTILE_PIERCING",	CX2SkillTree::SA_PROJECTILE_PIERCING },
-		{ "SA_MOVE_SPEED",	CX2SkillTree::SA_MOVE_SPEED },
-		{ "SA_JUMP_SPEED",	CX2SkillTree::SA_JUMP_SPEED },
-		{ "SA_ATK_PHYSIC_TO_ATK_MAGIC",	CX2SkillTree::SA_ATK_PHYSIC_TO_ATK_MAGIC },
-		{ "SA_ATK_MAGIC_TO_ATK_PHYSIC",	CX2SkillTree::SA_ATK_MAGIC_TO_ATK_PHYSIC },
-		{ "SA_READY_TIME_REL",	CX2SkillTree::SA_READY_TIME_REL },
-		{ "SA_FORCE_DOWN_REL",	CX2SkillTree::SA_FORCE_DOWN_REL },
-		{ "SA_FORCE_DOWN_MELEE_REL",	CX2SkillTree::SA_FORCE_DOWN_MELEE_REL },
-		{ "SA_FORCE_DOWN_RANGE_REL",	CX2SkillTree::SA_FORCE_DOWN_RANGE_REL },
-		{ "SA_FORCE_DOWN_ABS",	CX2SkillTree::SA_FORCE_DOWN_ABS },
-		{ "SA_MP_REGENERATION_ABS",	CX2SkillTree::SA_MP_REGENERATION_ABS },
-		{ "SA_MP_INTAKE_ABS",	CX2SkillTree::SA_MP_INTAKE_ABS },
-		{ "SA_TARGET_ANI_SPEED",	CX2SkillTree::SA_TARGET_ANI_SPEED },
-		{ "SA_TARGET_MOVE_SPEED",	CX2SkillTree::SA_TARGET_MOVE_SPEED },
-		{ "SA_TARGET_JUMP_SPEED",	CX2SkillTree::SA_TARGET_JUMP_SPEED },
-		{ "SA_TARGET_ATK_REL",	CX2SkillTree::SA_TARGET_ATK_REL },
-		{ "SA_HP_INTAKE_REL_DAMAGE",	CX2SkillTree::SA_HP_INTAKE_REL_DAMAGE },
-		{ "SA_ATK_CRITICAL_DAM_ABS",	CX2SkillTree::SA_ATK_CRITICAL_DAM_ABS },
-		{ "SA_ATK_CRITICAL_RATE_ABS",	CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS },
-		{ "SA_DEF_CRITICAL_DAM_ABS",	CX2SkillTree::SA_DEF_CRITICAL_DAM_ABS },
-		{ "SA_DEF_CRITICAL_RATE_ABS",	CX2SkillTree::SA_DEF_CRITICAL_RATE_ABS },
-		{ "SA_BACK_SPEED_X",	CX2SkillTree::SA_BACK_SPEED_X },
-		{ "SA_ITEM_SPECIAL_ABILITY_REL",	CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL },
-		{ "SA_MP_GAIN_GET_HIT_REL",	CX2SkillTree::SA_MP_GAIN_GET_HIT_REL },
-		{ "SA_SOUL_GAIN_ON_HIT_REL",	CX2SkillTree::SA_SOUL_GAIN_ON_HIT_REL },
-		{ "SA_SOUL_GAIN_GET_HIT_REL",	CX2SkillTree::SA_SOUL_GAIN_GET_HIT_REL },
-		{ "SA_HP_GAIN_REL_MAX_HP",	CX2SkillTree::SA_HP_GAIN_REL_MAX_HP },
-		{ "SA_ED_GAIN_REL",	CX2SkillTree::SA_ED_GAIN_REL },
-		{ "SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL",	CX2SkillTree::SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL },
-		{ "SA_EXP_GAIN_REL",	CX2SkillTree::SA_EXP_GAIN_REL },
-		{ "SA_DAMAGE_ABSORB_REL_MAX_HP",	CX2SkillTree::SA_DAMAGE_ABSORB_REL_MAX_HP },
-		{ "SA_STRONG_MIND_ACTIVE_REL",	CX2SkillTree::SA_STRONG_MIND_ACTIVE_REL },
-		{ "SA_STRONG_MIND_SPECIAL_ACTIVE_REL",	CX2SkillTree::SA_STRONG_MIND_SPECIAL_ACTIVE_REL },
-		{ "SA_MP_RETAKE_ABS",	CX2SkillTree::SA_MP_RETAKE_ABS },
-		{ "SA_RESIST_FIRE_ABS",	CX2SkillTree::SA_RESIST_FIRE_ABS },
-		{ "SA_RESIST_WATER_ABS",	CX2SkillTree::SA_RESIST_WATER_ABS },
-		{ "SA_RESIST_GREEN_ABS",	CX2SkillTree::SA_RESIST_GREEN_ABS },
-		{ "SA_RESIST_WIND_ABS",	CX2SkillTree::SA_RESIST_WIND_ABS },
-		{ "SA_RESIST_LIGHT_ABS",	CX2SkillTree::SA_RESIST_LIGHT_ABS },
-		{ "SA_RESIST_DARK_ABS",	CX2SkillTree::SA_RESIST_DARK_ABS },
-		{ "SA_ATK_MAGIC_FIRST_REL",	CX2SkillTree::SA_ATK_MAGIC_FIRST_REL },
-		{ "SA_ATK_MAGIC_SECOND_REL",	CX2SkillTree::SA_ATK_MAGIC_SECOND_REL },
-		{ "SA_ATK_MAGIC_THIRD_REL",	CX2SkillTree::SA_ATK_MAGIC_THIRD_REL },
-		{ "SA_REMOTE_SPEED_ABS",	CX2SkillTree::SA_REMOTE_SPEED_ABS },
-		{ "SA_DAMAGE_TYPE_CHANGE",	CX2SkillTree::SA_DAMAGE_TYPE_CHANGE },
-		{ "SA_DAMAGE_TIME",	CX2SkillTree::SA_DAMAGE_TIME },
-		{ "SA_RECOVER_MP_ABS",	CX2SkillTree::SA_RECOVER_MP_ABS },
-		{ "SA_TARGET_MANA",	CX2SkillTree::SA_TARGET_MANA },
-		{ "SA_TARGET_MANA_REL",	CX2SkillTree::SA_TARGET_MANA_REL },
-		{ "SA_SIZE_ABS",	CX2SkillTree::SA_SIZE_ABS },
-		{ "SA_REFLECT_REL",	CX2SkillTree::SA_REFLECT_REL },
-		{ "SA_EL_DEFENCE_ABS",	CX2SkillTree::SA_EL_DEFENCE_ABS },
-		{ "SA_TARGET_HP_REL",	CX2SkillTree::SA_TARGET_HP_REL },
-		{ "SA_TARGET_HITRATE_REL",	CX2SkillTree::SA_TARGET_HITRATE_REL },
-		{ "SA_CHARGE_CANNONBALL",	CX2SkillTree::SA_CHARGE_CANNON_BALL },
-		{ "SA_FIRE_DEFENCE_ABS",	CX2SkillTree::SA_FIRE_DEFENCE_ABS },
-		{ "SA_WATER_DEFENCE_ABS",	CX2SkillTree::SA_WATER_DEFENCE_ABS },
-		{ "SA_NATURE_DEFENCE_ABS",	CX2SkillTree::SA_NATURE_DEFENCE_ABS },
-		{ "SA_WIND_DEFENCE_ABS",	CX2SkillTree::SA_WIND_DEFENCE_ABS },
-		{ "SA_LIGHT_DEFENCE_ABS",	CX2SkillTree::SA_LIGHT_DEFENCE_ABS },
-		{ "SA_DARK_DEFENCE_ABS",	CX2SkillTree::SA_DARK_DEFENCE_ABS },
-		{ "SA_EDT_FIRE_RESIST_REL",	CX2SkillTree::SA_EDT_FIRE_RESIST_REL },
-		{ "SA_EDT_FROZEN_RESIST_REL",	CX2SkillTree::SA_EDT_FROZEN_RESIST_REL },
-		{ "SA_EDT_ICE_RESIST_REL",	CX2SkillTree::SA_EDT_ICE_RESIST_REL },
-		{ "SA_EDT_POISON_RESIST_REL",	CX2SkillTree::SA_EDT_POISON_RESIST_REL },
-		{ "SA_EDT_Y_PRESSED_RESIST_REL",	CX2SkillTree::SA_EDT_Y_PRESSED_RESIST_REL },
-		{ "SA_EDT_LEG_WOUND_RESIST_REL",	CX2SkillTree::SA_EDT_LEG_WOUND_RESIST_REL },
-		{ "SA_EDT_STUN_RESIST_REL",	CX2SkillTree::SA_EDT_STUN_RESIST_REL },
-		{ "SA_EDT_CURSE_RESIST_REL",	CX2SkillTree::SA_EDT_CURSE_RESIST_REL },
-		{ "SA_EXPAND_CB",	CX2SkillTree::SA_EXPAND_CB },
-		{ "SA_ANI_SPEED",	CX2SkillTree::SA_ANI_SPEED },
-		{ "SA_ACCURACY_PERCENT_ABS",	CX2SkillTree::SA_ACCURACY_PERCENT_ABS },
-		{ "SA_CRITICAL_EVASION_REL",	CX2SkillTree::SA_CRITICAL_EVASION_REL },
-		{ "SA_DECREASE_REL",	CX2SkillTree::SA_DECREASE_REL },
-		{ "SA_ATK_ADD_DAMAGE_FIRST_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FIRST_ABS },
-		{ "SA_ATK_ADD_DAMAGE_SECOND_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_SECOND_ABS },
-		{ "SA_ATK_ADD_DAMAGE_THIRD_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_THIRD_ABS },
-		{ "SA_ATK_ADD_DAMAGE_FOURTH_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FOURTH_ABS },
-		{ "SA_ATK_ADD_DAMAGE_FIFTH_ABS",	CX2SkillTree::SA_ATK_ADD_DAMAGE_FIFTH_ABS },
-		{ "SA_TELEPORT_SPEED_REL",	CX2SkillTree::SA_TELEPORT_SPEED_REL },
-		{ "HP_CONSUME_REL",	CX2SkillTree::HP_CONSUME_REL },
-		{ "SA_MP_BURN_ABS",	CX2SkillTree::SA_MP_BURN_ABS },
-		{ "SA_SKILLDAMAGE_MULTIPLE_01",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_02",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_03",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_04",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_04 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_01_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01_RATE },
-		{ "SA_SKILLDAMAGE_MULTIPLE_02_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02_RATE },
-		{ "SA_SKILLDAMAGE_MULTIPLE_03_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03_RATE },
-		{ "SA_SKILLDAMAGE_MULTIPLE_04_RATE",	CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_04_RATE },
-		{ "SA_EVASION_REL",	CX2SkillTree::SA_EVASION_REL },
-		{ "SA_REDUCE_EDT_TIME_REL",	CX2SkillTree::SA_REDUCE_EDT_TIME_REL },
-		{ "SA_OVERHEAT_HP",	CX2SkillTree::SA_OVERHEAT_HP },
-		{ "SA_OVERHEAT_HP_PVP",	CX2SkillTree::SA_OVERHEAT_HP_PVP },
-		{ "SA_DECREASE_REL_2",	CX2SkillTree::SA_DECREASE_REL_2 },
-		{ "SA_SCOPE_ABS_HYPER",	CX2SkillTree::SA_SCOPE_ABS_HYPER },
-		{ "SA_EFFECTIVE_TIME_HYPER",	CX2SkillTree::SA_EFFECTIVE_TIME_HYPER },
-		{ "SA_AIR_MOVE_COUNT",	CX2SkillTree::SA_AIR_MOVE_COUNT },
-		{ "SA_NOT_CANNONBALL_REL",	CX2SkillTree::SA_NOT_CANNONBALL_REL },
-		{ "SA_INSERT_CANNONBALL_REL",	CX2SkillTree::SA_INSERT_CANNONBALL_REL },
-		{ "SA_BE_SHOT_CANNONBALL_REL",	CX2SkillTree::SA_BE_SHOT_CANNONBALL_REL },
-		{ "SA_CANNONBALL_DAMAGE_UP_REL",	CX2SkillTree::SA_CANNONBALL_DAMAGE_UP_REL },
-		{ "SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE",	CX2SkillTree::SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE },
-		{ "SA_SIEGE_SHELLING_REL",	CX2SkillTree::SA_SIEGE_SHELLING_REL },
-		{ "SA_EFFECTIVE_DAMAGED_ATTACK_BASE",	CX2SkillTree::SA_EFFECTIVE_DAMAGED_ATTACK_BASE },
-		{ "SA_FIRST_HYPER_EFFECTIVE",	CX2SkillTree::SA_FIRST_HYPER_EFFECTIVE },
-		{ "SA_SECOND_HYPER_EFFECTIVE",	CX2SkillTree::SA_SECOND_HYPER_EFFECTIVE },
-		{ "SA_THIRD_HYPER_EFFECTIVE",	CX2SkillTree::SA_THIRD_HYPER_EFFECTIVE },
-		{ "SA_ATK_CRITICAL_RATE_ATK_BASE",	CX2SkillTree::SA_ATK_CRITICAL_RATE_ATK_BASE },
-		{ "SA_PROJECTILE_CURVE_SPEED_REL",	CX2SkillTree::SA_PROJECTILE_CURVE_SPEED_REL },
-		{ "SA_DP_GAIN_REL",	CX2SkillTree::SA_DP_GAIN_REL },
-		{ "SA_DP_USE_REL",	CX2SkillTree::SA_DP_USE_REL },
-		{ "SA_MP_CONSUMPTION",	CX2SkillTree::SA_MP_CONSUMPTION },
-		{ "SA_WAY_OF_SWORD_POINT_MULTIPLIER",	CX2SkillTree::SA_WAY_OF_SWORD_POINT_MULTIPLIER },
-		{ "SA_COOLTIME_1",	CX2SkillTree::SA_COOLTIME_1 },
-		{ "SA_COOLTIME_2",	CX2SkillTree::SA_COOLTIME_2 },
-		{ "SA_COOLTIME_3",	CX2SkillTree::SA_COOLTIME_3 },
-		{ "SA_MP_GAIN_ON_HIT_REL_2",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL_2 },
-		{ "SA_MP_GAIN_ON_HIT_REL_3",	CX2SkillTree::SA_MP_GAIN_ON_HIT_REL_3 },
-		{ "SA_USE_DP_REL_AT_FORMATION_MODE",	CX2SkillTree::SA_USE_DP_REL_AT_FORMATION_MODE },
-		{ "SA_RECOVERY_VALUE_REL",	CX2SkillTree::SA_RECOVERY_VALUE_REL },
-		{ "SA_ADD_MP_VALUE_ABS",	CX2SkillTree::SA_ADD_MP_VALUE_ABS },
-		{ "SA_ADD_DP_VALUE_ABS",	CX2SkillTree::SA_ADD_DP_VALUE_ABS },
-		{ "SA_SCOPE_ABS_PVP",	CX2SkillTree::SA_SCOPE_ABS_PVP },
-		{ "SA_SCOPE_ABS_Y",	CX2SkillTree::SA_SCOPE_ABS_Y },
-		{ "SA_SCOPE_ABS_Z",	CX2SkillTree::SA_SCOPE_ABS_Z },
-		{ "SA_MP_REGENERATION_ABS_PVP",	CX2SkillTree::SA_MP_REGENERATION_ABS_PVP },
-		{ "SA_ATK_PHYSIC_REL_PVP",	CX2SkillTree::SA_ATK_PHYSIC_REL_PVP },
-		{ "SA_ATK_MAGIC_REL_PVP",	CX2SkillTree::SA_ATK_MAGIC_REL_PVP },
-		{ "SA_DEF_PHYSIC_REL_PVP",	CX2SkillTree::SA_DEF_PHYSIC_REL_PVP },
-		{ "SA_DEF_MAGIC_REL_PVP",	CX2SkillTree::SA_DEF_MAGIC_REL_PVP },
-		{ "SA_TEAM_ATK_PHYSIC_REL_PVP",	CX2SkillTree::SA_TEAM_ATK_PHYSIC_REL_PVP },
-		{ "SA_TEAM_ATK_MAGIC_REL_PVP",	CX2SkillTree::SA_TEAM_ATK_MAGIC_REL_PVP },
-		{ "SA_TEAM_DEF_PHYSIC_REL_PVP",	CX2SkillTree::SA_TEAM_DEF_PHYSIC_REL_PVP },
-		{ "SA_TEAM_DEF_MAGIC_REL_PVP",	CX2SkillTree::SA_TEAM_DEF_MAGIC_REL_PVP },
-		{ "SA_TIME_ABS",	CX2SkillTree::SA_TIME_ABS },
-		{ "SA_SOUL_ABS",	CX2SkillTree::SA_SOUL_ABS },
-		{ "SA_MAX_HP_REL_PVP",	CX2SkillTree::SA_MAX_HP_REL_PVP },
-		{ "SA_RECOVER_MP_ABS_2",	CX2SkillTree::SA_RECOVER_MP_ABS_2 },
-		{ "SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE",	CX2SkillTree::SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE },
-		{ "SA_MAX_INCREASE_MOVEMENT_BY_MANA",	CX2SkillTree::SA_MAX_INCREASE_MOVEMENT_BY_MANA },
-		{ "SA_MIN_INCREASE_MOVEMENT_BY_MANA",	CX2SkillTree::SA_MIN_INCREASE_MOVEMENT_BY_MANA },
-		{ "SA_CHAIN_SKILL_ANI_SPEED_REL",	CX2SkillTree::SA_CHAIN_SKILL_ANI_SPEED_REL },
-		{ "SA_HIT_COUNT_1",	CX2SkillTree::SA_HIT_COUNT_1 },
-		{ "SA_HIT_COUNT_2",	CX2SkillTree::SA_HIT_COUNT_2 },
-		{ "SA_HIT_COUNT_3",	CX2SkillTree::SA_HIT_COUNT_3 },
-		{ "SA_FORCE_DOWN_GAIN_REL",	CX2SkillTree::SA_FORCE_DOWN_GAIN_REL },
-		{ "SA_MUTATION_CONSUME_MAX_COUNT",	CX2SkillTree::SA_MUTATION_CONSUME_MAX_COUNT },
-		{ "SA_DAMAGED_REL_PVP",	CX2SkillTree::SA_DAMAGED_REL_PVP },
-		{ "SA_ECP_REL",	CX2SkillTree::SA_ECP_REL },
-		{ "SA_SUMMON_ALL_STAT_REL",	CX2SkillTree::SA_SUMMON_ALL_STAT_REL },
-		{ "SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK",	CX2SkillTree::SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK },
-		{ "SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME",	CX2SkillTree::SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME },
-		{ "SA_FP_CANCEL_SKILL",	CX2SkillTree::SA_FP_CANCEL_SKILL },
-		{ "SA_FP_UP_ABS",	CX2SkillTree::SA_FP_UP_ABS },
-		{ "SA_FP_DOWN_ABS",	CX2SkillTree::SA_FP_DOWN_ABS },
-		{ "SA_EFFECTIVE_VALUE_REL",	CX2SkillTree::SA_EFFECTIVE_VALUE_REL },
-		{ "SA_CRITICAL_REL",	CX2SkillTree::SA_CRITICAL_REL },
-		{ "SA_CRITICAL_DAMAGE_REL",	CX2SkillTree::SA_CRITICAL_DAMAGE_REL },
-		{ "SA_MAXIMIZE_REL",	CX2SkillTree::SA_MAXIMIZE_REL },
-		{ "SA_ADD_LEARN_SKILL_LIST_1",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_1 },
-		{ "SA_ADD_LEARN_SKILL_LIST_2",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_2 },
-		{ "SA_ADD_LEARN_SKILL_LIST_3",	CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_3 },
-		{ "SA_DEGREE_X",	CX2SkillTree::SA_DEGREE_X },
-		{ "SA_DEGREE_Y",	CX2SkillTree::SA_DEGREE_Y },
-		{ "SA_DEGREE_Z",	CX2SkillTree::SA_DEGREE_Z },
-		{ "SA_DEGREE_MAX",	CX2SkillTree::SA_DEGREE_MAX },
-		{ "SA_DFG_GAIN_REL",	CX2SkillTree::SA_DFG_GAIN_REL },
-		{ "SA_DFG_CONSUME_REL",	CX2SkillTree::SA_DFG_CONSUME_REL },
-#else
-		{ "SA_EFFECTIVE_TIME",	1 },
-		{ "SA_EFFECTIVE_COUNT",	2 },
-		{ "SA_SKILL_ID",	3 },
-		{ "SA_COMBO_ID",	4 },
-		{ "SA_EFFECTIVE_RATE",	5 },
-		{ "SA_ATK_REL",	6 },
-		{ "SA_ATK_PHYSIC_REL",	7 },
-		{ "SA_ATK_MAGIC_REL",	8 },
-		{ "SA_DEF_PHYSIC_REL",	9 },
-		{ "SA_DEF_MAGIC_REL",	10 },
-		{ "SA_TEAM_ATK_PHYSIC_REL",	11 },
-		{ "SA_TEAM_ATK_MAGIC_REL",	13 },
-		{ "SA_TEAM_DEF_PHYSIC_REL",	13 },
-		{ "SA_TEAM_DEF_MAGIC_REL",	14 },
-		{ "SA_DAMAGE_REL",	15 },
-		{ "SA_DAMAGED_REL",	16 },
-		{ "SA_UNFIXED_DEFENSE_REL",	17 },
-		{ "SA_SUMMON_ATK_REL",	18 },
-		{ "SA_MAX_HP_ABS",	19 },
-		{ "SA_MAX_HP_REL",	20 },
-		{ "SA_MAX_MP_ABS",	21 },
-		{ "SA_MAX_MP_REL",	22 },
-		{ "SA_TELEPORT_RANGE_ABS",	23 },
-		{ "SA_CHARGING_TIME",	24 },
-		{ "SA_HP_REL_TO_MP_ABS_1",	25 },
-		{ "SA_HP_REL_TO_MP_ABS_2",	26 },
-		{ "SA_MP_CONSUME_REL",	27 },
-		{ "SA_MP_GAIN_ON_HIT_REL",	28 },
-		{ "SA_SCOPE_ABS",	29 },
-		{ "SA_PROJECTILE_FIRE_COUNT",	30 },
-		{ "SA_PROJECTILE_RANGE_REL",	31 },
-		{ "SA_PROJECTILE_RANGE_REL_2",	144 },
-		{ "SA_PROJECTILE_SIZE",	32 },
-		{ "SA_PROJECTILE_PIERCING",	33 },
-		{ "SA_MOVE_SPEED",	34 },
-		{ "SA_JUMP_SPEED",	35 },
-		{ "SA_ATK_PHYSIC_TO_ATK_MAGIC",	36 },
-		{ "SA_ATK_MAGIC_TO_ATK_PHYSIC",	37 },
-		{ "SA_READY_TIME_REL",	38 },
-		{ "SA_FORCE_DOWN_REL",	39 },
-		{ "SA_FORCE_DOWN_MELEE_REL",	40 },
-		{ "SA_FORCE_DOWN_RANGE_REL",	41 },
-		{ "SA_FORCE_DOWN_ABS",	42 },
-		{ "SA_MP_REGENERATION_ABS",	43 },
-		{ "SA_MP_INTAKE_ABS",	44 },
-		{ "SA_TARGET_ANI_SPEED",	45 },
-		{ "SA_TARGET_MOVE_SPEED",	46 },
-		{ "SA_TARGET_JUMP_SPEED",	47 },
-		{ "SA_TARGET_ATK_REL",	48 },
-		{ "SA_HP_INTAKE_REL_DAMAGE",	49 },
-		{ "SA_ATK_CRITICAL_DAM_ABS",	50 },
-		{ "SA_ATK_CRITICAL_RATE_ABS",	51 },
-		{ "SA_DEF_CRITICAL_DAM_ABS",	52 },
-		{ "SA_DEF_CRITICAL_RATE_ABS",	53 },
-		{ "SA_BACK_SPEED_X",	54 },
-		{ "SA_ITEM_SPECIAL_ABILITY_REL",	55 },
-		{ "SA_MP_GAIN_GET_HIT_REL",	56 },
-		{ "SA_SOUL_GAIN_ON_HIT_REL",	57 },
-		{ "SA_SOUL_GAIN_GET_HIT_REL",	58 },
-		{ "SA_HP_GAIN_REL_MAX_HP",	59 },
-		{ "SA_ED_GAIN_REL",	60 },
-		{ "SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL",	61 },
-		{ "SA_EXP_GAIN_REL",	62 },
-		{ "SA_DAMAGE_ABSORB_REL_MAX_HP",	63 },
-		{ "SA_STRONG_MIND_ACTIVE_REL",	64 },
-		{ "SA_STRONG_MIND_SPECIAL_ACTIVE_REL",	65 },
-		{ "SA_MP_RETAKE_ABS",	66 },
-		{ "SA_RESIST_FIRE_ABS",	67 },
-		{ "SA_RESIST_WATER_ABS",	68 },
-		{ "SA_RESIST_GREEN_ABS",	69 },
-		{ "SA_RESIST_WIND_ABS",	70 },
-		{ "SA_RESIST_LIGHT_ABS",	71 },
-		{ "SA_RESIST_DARK_ABS",	72 },
-		{ "SA_ATK_MAGIC_FIRST_REL",	73 },
-		{ "SA_ATK_MAGIC_SECOND_REL",	74 },
-		{ "SA_ATK_MAGIC_THIRD_REL",	75 },
-		{ "SA_REMOTE_SPEED_ABS",	76 },
-		{ "SA_DAMAGE_TYPE_CHANGE",	77 },
-		{ "SA_DAMAGE_TIME",	78 },
-		{ "SA_RECOVER_MP_ABS",	79 },
-		{ "SA_TARGET_MANA",	80 },
-		{ "SA_TARGET_MANA_REL",	81 },
-		{ "SA_SIZE_ABS",	82 },
-		{ "SA_REFLECT_REL",	83 },
-		{ "SA_EL_DEFENCE_ABS",	84 },
-		{ "SA_TARGET_HP_REL",	85 },
-		{ "SA_TARGET_HITRATE_REL",	86 },
-		{ "SA_CHARGE_CANNONBALL",	87 },
-		{ "SA_FIRE_DEFENCE_ABS",	88 },
-		{ "SA_WATER_DEFENCE_ABS",	89 },
-		{ "SA_NATURE_DEFENCE_ABS",	90 },
-		{ "SA_WIND_DEFENCE_ABS",	91 },
-		{ "SA_LIGHT_DEFENCE_ABS",	92 },
-		{ "SA_DARK_DEFENCE_ABS",	93 },
-		{ "SA_EDT_FIRE_RESIST_REL",	94 },
-		{ "SA_EDT_FROZEN_RESIST_REL",	95 },
-		{ "SA_EDT_ICE_RESIST_REL",	96 },
-		{ "SA_EDT_POISON_RESIST_REL",	97 },
-		{ "SA_EDT_Y_PRESSED_RESIST_REL",	98 },
-		{ "SA_EDT_LEG_WOUND_RESIST_REL",	99 },
-		{ "SA_EDT_STUN_RESIST_REL",	100 },
-		{ "SA_EDT_CURSE_RESIST_REL",	101 },
-		{ "SA_EXPAND_CB",	102 },
-		{ "SA_ANI_SPEED",	103 },
-		{ "SA_ACCURACY_PERCENT_ABS",	104 },
-		{ "SA_CRITICAL_EVASION_REL",	105 },
-		{ "SA_DECREASE_REL",	106 },
-		{ "SA_ATK_ADD_DAMAGE_FIRST_ABS",	107 },
-		{ "SA_ATK_ADD_DAMAGE_SECOND_ABS",	108 },
-		{ "SA_ATK_ADD_DAMAGE_THIRD_ABS",	109 },
-		{ "SA_ATK_ADD_DAMAGE_FOURTH_ABS",	110 },
-		{ "SA_ATK_ADD_DAMAGE_FIFTH_ABS",	111 },
-		{ "SA_TELEPORT_SPEED_REL",	112 },
-		{ "HP_CONSUME_REL",	113 },
-		{ "SA_MP_BURN_ABS",	114 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_01",	115 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_02",	116 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_03",	117 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_04",	118 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_01_RATE",	119 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_02_RATE",	120 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_03_RATE",	121 },
-		{ "SA_SKILLDAMAGE_MULTIPLE_04_RATE",	122 },
-		{ "SA_EVASION_REL",	123 },
-		{ "SA_REDUCE_EDT_TIME_REL",	124 },
-		{ "SA_OVERHEAT_HP",	125 },
-		{ "SA_OVERHEAT_HP_PVP",	145 },
-		{ "SA_DECREASE_REL_2",	146 },
-		{ "SA_SCOPE_ABS_HYPER",	126 },
-		{ "SA_EFFECTIVE_TIME_HYPER",	127 },
-		{ "SA_AIR_MOVE_COUNT",	128 },
-		{ "SA_NOT_CANNONBALL_REL",	129 },
-		{ "SA_INSERT_CANNONBALL_REL",	130 },
-		{ "SA_BE_SHOT_CANNONBALL_REL",	131 },
-		{ "SA_CANNONBALL_DAMAGE_UP_REL",	132 },
-		{ "SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE",	133 },
-		{ "SA_SIEGE_SHELLING_REL",	134 },
-		{ "SA_EFFECTIVE_DAMAGED_ATTACK_BASE",	135 },
-		{ "SA_FIRST_HYPER_EFFECTIVE",	136 },
-		{ "SA_SECOND_HYPER_EFFECTIVE",	137 },
-		{ "SA_THIRD_HYPER_EFFECTIVE",	138 },
-		{ "SA_ATK_CRITICAL_RATE_ATK_BASE",	139 },
-		{ "SA_PROJECTILE_CURVE_SPEED_REL",	140 },
-		{ "SA_DP_GAIN_REL",	141 },
-		{ "SA_DP_USE_REL",	142 },
-		{ "SA_MP_CONSUMPTION",	143 },
-		{ "SA_WAY_OF_SWORD_POINT_MULTIPLIER",	147 },
-		{ "SA_COOLTIME_1",	148 },
-		{ "SA_COOLTIME_2",	149 },
-		{ "SA_COOLTIME_3",	150 },
-		{ "SA_MP_GAIN_ON_HIT_REL_2",	151 },
-		{ "SA_MP_GAIN_ON_HIT_REL_3",	152 },
-		{ "SA_USE_DP_REL_AT_FORMATION_MODE",	153 },
-		{ "SA_RECOVERY_VALUE_REL",	154 },
-		{ "SA_ADD_MP_VALUE_ABS",	155 },
-		{ "SA_ADD_DP_VALUE_ABS",	156 },
-		{ "SA_SCOPE_ABS_PVP",	157 },
-		{ "SA_SCOPE_ABS_Y",	158 },
-		{ "SA_SCOPE_ABS_Z",	159 },
-		{ "SA_MP_REGENERATION_ABS_PVP",	160 },
-		{ "SA_ATK_PHYSIC_REL_PVP",	161 },
-		{ "SA_ATK_MAGIC_REL_PVP",	162 },
-		{ "SA_DEF_PHYSIC_REL_PVP",	163 },
-		{ "SA_DEF_MAGIC_REL_PVP",	164 },
-		{ "SA_TEAM_ATK_PHYSIC_REL_PVP",	165 },
-		{ "SA_TEAM_ATK_MAGIC_REL_PVP",	166 },
-		{ "SA_TEAM_DEF_PHYSIC_REL_PVP",	167 },
-		{ "SA_TEAM_DEF_MAGIC_REL_PVP",	168 },
-		{ "SA_TIME_ABS",	169 },
-		{ "SA_SOUL_ABS",	170 },
-		{ "SA_MAX_HP_REL_PVP",	171 },
-		{ "SA_RECOVER_MP_ABS_2",	172 },
-		{ "SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE",	173 },
-		{ "SA_MAX_INCREASE_MOVEMENT_BY_MANA",	174 },
-		{ "SA_MIN_INCREASE_MOVEMENT_BY_MANA",	175 },
-		{ "SA_CHAIN_SKILL_ANI_SPEED_REL",	176 },
-		{ "SA_HIT_COUNT_1",	177 },
-		{ "SA_HIT_COUNT_2",	178 },
-		{ "SA_HIT_COUNT_3",	179 },
-		{ "SA_FORCE_DOWN_GAIN_REL",	180 },
-		{ "SA_MUTATION_CONSUME_MAX_COUNT",	181 },
-		{ "SA_DAMAGED_REL_PVP",	182 },
-		{ "SA_ECP_REL",	183 },
-		{ "SA_SUMMON_ALL_STAT_REL",	184 },
-		{ "SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK",	189 },
-		{ "SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME",	190 },
-		{ "SA_FP_CANCEL_SKILL",	188 },
-		{ "SA_FP_UP_ABS",	191 },
-		{ "SA_FP_DOWN_ABS",	192 },
-		{ "SA_EFFECTIVE_VALUE_REL",	193 },
-		{ "SA_CRITICAL_REL",	194 },
-		{ "SA_CRITICAL_DAMAGE_REL",	195 },
-		{ "SA_MAXIMIZE_REL",	196 },
-		{ "SA_ADD_LEARN_SKILL_LIST_1",	185 },
-		{ "SA_ADD_LEARN_SKILL_LIST_2",	186 },
-		{ "SA_ADD_LEARN_SKILL_LIST_3",	187 },
-		{ "SA_DEGREE_X",	197 },
-		{ "SA_DEGREE_Y",	198 },
-		{ "SA_DEGREE_Z",	199 },
-		{ "SA_DEGREE_MAX",	200 },
-		{ "SA_DFG_GAIN_REL",	201 },
-		{ "SA_DFG_CONSUME_REL",	202 },
-#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
-	};
-
-	/// June g_SkillAbilityName[ 203 ] (3379e6b0, filled in the CX2SkillTree ctor 3221afb0), indexed by SKILL_ABILITY_TYPE. It decides which
-	/// NUMERICAL_DATA block belongs to an ability. Slot 12 is the name March's enum gives it; 13 is where the quirk above stores it.
-	const WCHAR* const s_apwszJuneSkillAbilityName[ 203 ] =
-	{
-		L"SA_INVALID", L"SA_EFFECTIVE_TIME", L"SA_EFFECTIVE_COUNT", L"SA_SKILL_ID",
-		L"SA_COMBO_ID", L"SA_EFFECTIVE_RATE", L"SA_ATK_REL", L"SA_ATK_PHYSIC_REL",
-		L"SA_ATK_MAGIC_REL", L"SA_DEF_PHYSIC_REL", L"SA_DEF_MAGIC_REL", L"SA_TEAM_ATK_PHYSIC_REL",
-		L"SA_TEAM_ATK_MAGIC_REL", L"SA_TEAM_DEF_PHYSIC_REL", L"SA_TEAM_DEF_MAGIC_REL", L"SA_DAMAGE_REL",
-		L"SA_DAMAGED_REL", L"SA_UNFIXED_DEFENSE_REL", L"SA_SUMMON_ATK_REL", L"SA_MAX_HP_ABS",
-		L"SA_MAX_HP_REL", L"SA_MAX_MP_ABS", L"SA_MAX_MP_REL", L"SA_TELEPORT_RANGE_ABS",
-		L"SA_CHARGING_TIME", L"SA_HP_REL_TO_MP_ABS_1", L"SA_HP_REL_TO_MP_ABS_2", L"SA_MP_CONSUME_REL",
-		L"SA_MP_GAIN_ON_HIT_REL", L"SA_SCOPE_ABS", L"SA_PROJECTILE_FIRE_COUNT", L"SA_PROJECTILE_RANGE_REL",
-		L"SA_PROJECTILE_SIZE", L"SA_PROJECTILE_PIERCING", L"SA_MOVE_SPEED", L"SA_JUMP_SPEED",
-		L"SA_ATK_PHYSIC_TO_ATK_MAGIC", L"SA_ATK_MAGIC_TO_ATK_PHYSIC", L"SA_READY_TIME_REL", L"SA_FORCE_DOWN_REL",
-		L"SA_FORCE_DOWN_MELEE_REL", L"SA_FORCE_DOWN_RANGE_REL", L"SA_FORCE_DOWN_ABS", L"SA_MP_REGENERATION_ABS",
-		L"SA_MP_INTAKE_ABS", L"SA_TARGET_ANI_SPEED", L"SA_TARGET_MOVE_SPEED", L"SA_TARGET_JUMP_SPEED",
-		L"SA_TARGET_ATK_REL", L"SA_HP_INTAKE_REL_DAMAGE", L"SA_ATK_CRITICAL_DAM_ABS", L"SA_ATK_CRITICAL_RATE_ABS",
-		L"SA_DEF_CRITICAL_DAM_ABS", L"SA_DEF_CRITICAL_RATE_ABS", L"SA_BACK_SPEED_X", L"SA_ITEM_SPECIAL_ABILITY_REL",
-		L"SA_MP_GAIN_GET_HIT_REL", L"SA_SOUL_GAIN_ON_HIT_REL", L"SA_SOUL_GAIN_GET_HIT_REL", L"SA_HP_GAIN_REL_MAX_HP",
-		L"SA_ED_GAIN_REL", L"SA_ATK_PHYSIC_PLUS_ATK_MAGIC_REL", L"SA_EXP_GAIN_REL", L"SA_DAMAGE_ABSORB_REL_MAX_HP",
-		L"SA_STRONG_MIND_ACTIVE_REL", L"SA_STRONG_MIND_SPECIAL_ACTIVE_REL", L"SA_MP_RETAKE_ABS", L"SA_RESIST_FIRE_ABS",
-		L"SA_RESIST_WATER_ABS", L"SA_RESIST_GREEN_ABS", L"SA_RESIST_WIND_ABS", L"SA_RESIST_LIGHT_ABS",
-		L"SA_RESIST_DARK_ABS", L"SA_ATK_MAGIC_FIRST_REL", L"SA_ATK_MAGIC_SECOND_REL", L"SA_ATK_MAGIC_THIRD_REL",
-		L"SA_REMOTE_SPEED_ABS", L"SA_DAMAGE_TYPE_CHANGE", L"SA_DAMAGE_TIME", L"SA_RECOVER_MP_ABS",
-		L"SA_TARGET_MANA", L"SA_TARGET_MANA_REL", L"SA_SIZE_ABS", L"SA_REFLECT_REL",
-		L"SA_EL_DEFENCE_ABS", L"SA_TARGET_HP_REL", L"SA_TARGET_HITRATE_REL", L"SA_CHARGE_CANNONBALL",
-		L"SA_FIRE_DEFENCE_ABS", L"SA_WATER_DEFENCE_ABS", L"SA_NATURE_DEFENCE_ABS", L"SA_WIND_DEFENCE_ABS",
-		L"SA_LIGHT_DEFENCE_ABS", L"SA_DARK_DEFENCE_ABS", L"SA_EDT_FIRE_RESIST_REL", L"SA_EDT_FROZEN_RESIST_REL",
-		L"SA_EDT_ICE_RESIST_REL", L"SA_EDT_POISON_RESIST_REL", L"SA_EDT_Y_PRESSED_RESIST_REL", L"SA_EDT_LEG_WOUND_RESIST_REL",
-		L"SA_EDT_STUN_RESIST_REL", L"SA_EDT_CURSE_RESIST_REL", L"SA_EXPAND_CB", L"SA_ANI_SPEED",
-		L"SA_ACCURACY_PERCENT_ABS", L"SA_CRITICAL_EVASION_REL", L"SA_DECREASE_REL", L"SA_ATK_ADD_DAMAGE_FIRST_ABS",
-		L"SA_ATK_ADD_DAMAGE_SECOND_ABS", L"SA_ATK_ADD_DAMAGE_THIRD_ABS", L"SA_ATK_ADD_DAMAGE_FOURTH_ABS", L"SA_ATK_ADD_DAMAGE_FIFTH_ABS",
-		L"SA_TELEPORT_SPEED_REL", L"HP_CONSUME_REL", L"SA_MP_BURN_ABS", L"SA_SKILLDAMAGE_MULTIPLE_01",
-		L"SA_SKILLDAMAGE_MULTIPLE_02", L"SA_SKILLDAMAGE_MULTIPLE_03", L"SA_SKILLDAMAGE_MULTIPLE_04", L"SA_SKILLDAMAGE_MULTIPLE_01_RATE",
-		L"SA_SKILLDAMAGE_MULTIPLE_02_RATE", L"SA_SKILLDAMAGE_MULTIPLE_03_RATE", L"SA_SKILLDAMAGE_MULTIPLE_04_RATE", L"SA_EVASION_REL",
-		L"SA_REDUCE_EDT_TIME_REL", L"SA_OVERHEAT_HP", L"SA_SCOPE_ABS_HYPER", L"SA_EFFECTIVE_TIME_HYPER",
-		L"SA_AIR_MOVE_COUNT", L"SA_NOT_CANNONBALL_REL", L"SA_INSERT_CANNONBALL_REL", L"SA_BE_SHOT_CANNONBALL_REL",
-		L"SA_CANNONBALL_DAMAGE_UP_REL", L"SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE", L"SA_SIEGE_SHELLING_REL", L"SA_EFFECTIVE_DAMAGED_ATTACK_BASE",
-		L"SA_FIRST_HYPER_EFFECTIVE", L"SA_SECOND_HYPER_EFFECTIVE", L"SA_THIRD_HYPER_EFFECTIVE", L"SA_ATK_CRITICAL_RATE_ATK_BASE",
-		L"SA_PROJECTILE_CURVE_SPEED_REL", L"SA_DP_GAIN_REL", L"SA_DP_USE_REL", L"SA_MP_CONSUMPTION",
-		L"SA_PROJECTILE_RANGE_REL_2", L"SA_OVERHEAT_HP_PVP", L"SA_DECREASE_REL_2", L"SA_WAY_OF_SWORD_POINT_MULTIPLIER",
-		L"SA_COOLTIME_1", L"SA_COOLTIME_2", L"SA_COOLTIME_3", L"SA_MP_GAIN_ON_HIT_REL_2",
-		L"SA_MP_GAIN_ON_HIT_REL_3", L"SA_USE_DP_REL_AT_FORMATION_MODE", L"SA_RECOVERY_VALUE_REL", L"SA_ADD_MP_VALUE_ABS",
-		L"SA_ADD_DP_VALUE_ABS", L"SA_SCOPE_ABS_PVP", L"SA_SCOPE_ABS_Y", L"SA_SCOPE_ABS_Z",
-		L"SA_MP_REGENERATION_ABS_PVP", L"SA_ATK_PHYSIC_REL_PVP", L"SA_ATK_MAGIC_REL_PVP", L"SA_DEF_PHYSIC_REL_PVP",
-		L"SA_DEF_MAGIC_REL_PVP", L"SA_TEAM_ATK_PHYSIC_REL_PVP", L"SA_TEAM_ATK_MAGIC_REL_PVP", L"SA_TEAM_DEF_PHYSIC_REL_PVP",
-		L"SA_TEAM_DEF_MAGIC_REL_PVP", L"SA_TIME_ABS", L"SA_SOUL_ABS", L"SA_MAX_HP_REL_PVP",
-		L"SA_RECOVER_MP_ABS_2", L"SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE", L"SA_MAX_INCREASE_MOVEMENT_BY_MANA", L"SA_MIN_INCREASE_MOVEMENT_BY_MANA",
-		L"SA_CHAIN_SKILL_ANI_SPEED_REL", L"SA_HIT_COUNT_1", L"SA_HIT_COUNT_2", L"SA_HIT_COUNT_3",
-		L"SA_FORCE_DOWN_GAIN_REL", L"SA_MUTATION_CONSUME_MAX_COUNT", L"SA_DAMAGED_REL_PVP", L"SA_ECP_REL",
-		L"SA_SUMMON_ALL_STAT_REL", L"SA_ADD_LEARN_SKILL_LIST_1", L"SA_ADD_LEARN_SKILL_LIST_2", L"SA_ADD_LEARN_SKILL_LIST_3",
-		L"SA_FP_CANCEL_SKILL", L"SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK", L"SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME", L"SA_FP_UP_ABS",
-		L"SA_FP_DOWN_ABS", L"SA_EFFECTIVE_VALUE_REL", L"SA_CRITICAL_REL", L"SA_CRITICAL_DAMAGE_REL",
-		L"SA_MAXIMIZE_REL", L"SA_DEGREE_X", L"SA_DEGREE_Y", L"SA_DEGREE_Z",
-		L"SA_DEGREE_MAX", L"SA_DFG_GAIN_REL", L"SA_DFG_CONSUME_REL",
-	};
-}
-
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 C_ASSERT( sizeof( s_apwszJuneSkillAbilityName ) / sizeof( s_apwszJuneSkillAbilityName[ 0 ] ) == CX2SkillTree::SA_END );
 #else
@@ -5773,7 +5957,7 @@ C_ASSERT( CX2SkillTree::SPRT_HYPER_CLASS == 5 );
 
 /// June 320716c0: the row for a level is min( level - 1, count - 1 ), compared as unsigned, so level 0 takes the last row.
 /// An empty element gives four zeros.
-/*static*/ void CX2SkillTree::SkillTemplet::JuneGetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ )
+/*static*/ void CX2SkillTree::SkillTemplet::GetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ )
 {
 	rowOut_.m_fValue = 0.f;
 	rowOut_.m_fPvpRate = 0.f;
@@ -5792,7 +5976,7 @@ C_ASSERT( CX2SkillTree::SPRT_HYPER_CLASS == 5 );
 }
 
 /// June 3221e930: the first element whose name matches.
-const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet::JuneFindNumericalData( const WCHAR* pwszName_ ) const
+const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet::FindNumericalData( const WCHAR* pwszName_ ) const
 {
 	if( NULL == pwszName_ )
 		return NULL;
@@ -5808,7 +5992,7 @@ const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 /// June 320717e0 ( this templet, row out, index, level ): the element at the 1-based index; an index of 0 or past the count gives four zeros
 /// ( @32071802: count < index unsigned, or index <= 0 ). The element's row is picked by the clamp 320716c0.
-void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const
 {
 	if( iIndex_ <= 0 || static_cast<unsigned int>( m_vecJuneNumericalData.size() ) < static_cast<unsigned int>( iIndex_ ) )
 	{
@@ -5819,13 +6003,13 @@ void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByIndex( int iIndex_, int iL
 		return;
 	}
 
-	JuneGetNumericalRow( m_vecJuneNumericalData[ iIndex_ - 1 ], iLevel_, rowOut_ );
+	GetNumericalRow( m_vecJuneNumericalData[ iIndex_ - 1 ], iLevel_, rowOut_ );
 }
 
 /// June 32078060 ( this templet, row out, name, level ): the first element whose name matches ( wstring::compare ), none gives four zeros.
-void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+void CX2SkillTree::SkillTemplet::GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const
 {
-	const JuneNumericalData* pData = JuneFindNumericalData( pwszName_ );
+	const JuneNumericalData* pData = FindNumericalData( pwszName_ );
 	if( NULL == pData )
 	{
 		rowOut_.m_fValue = 0.f;
@@ -5835,31 +6019,31 @@ void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByName( const WCHAR* pwszNam
 		return;
 	}
 
-	JuneGetNumericalRow( *pData, iLevel_, rowOut_ );
+	GetNumericalRow( *pData, iLevel_, rowOut_ );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 /// June 32206e50 / 32206fb0, first half: a NUMERICAL_DATA block named after the ability type. Found: value * ( bPvp ? pvp rate : 1.0 ),
 /// no x0.01.
-bool CX2SkillTree::SkillTemplet::JuneGetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
+bool CX2SkillTree::SkillTemplet::GetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
 {
 	if( true == m_vecJuneNumericalData.empty() )
 		return false;
 
-	const JuneNumericalData* pData = JuneFindNumericalData( CX2SkillTree::GetSkillAbilityName( static_cast<int>( eType_ ) ) );
+	const JuneNumericalData* pData = FindNumericalData( CX2SkillTree::GetSkillAbilityName( static_cast<int>( eType_ ) ) );
 	if( NULL == pData )
 		return false;
 
 	JuneNumericalRow row;
-	JuneGetNumericalRow( *pData, iLevel_, row );
+	GetNumericalRow( *pData, iLevel_, row );
 	fOut_ = row.m_fValue * ( true == bPvp_ ? row.m_fPvpRate : 1.f );
 	return true;
 }
 
 /// June 32206fb0 ( type, level, &out, bPvp ): the numerical block first, else the +0x164 map. False, fOut_ untouched, when neither has the type
 /// or the level is past the map's table ( @322070a6-322070e3; S2 review fix: it returned true with 0 there ).
-bool CX2SkillTree::SkillTemplet::JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
+bool CX2SkillTree::SkillTemplet::TryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
 {
-	if( true == JuneGetNumericalAbilityValue( eType_, iLevel_, bPvp_, fOut_ ) )
+	if( true == GetNumericalAbilityValue( eType_, iLevel_, bPvp_, fOut_ ) )
 		return true;
 
 	std::map< CX2SkillTree::SKILL_ABILITY_TYPE, vector<float> >::const_iterator it = m_mapSkillAbility.find( eType_ );
@@ -5878,7 +6062,7 @@ bool CX2SkillTree::SkillTemplet::JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE
 float CX2SkillTree::SkillTemplet::GetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_ ) const
 {
 	float fValue = 0.f;
-	if( true == JuneTryGetSkillAbilityValue( eType_, iLevel_, bPvp_, fValue ) )
+	if( true == TryGetSkillAbilityValue( eType_, iLevel_, bPvp_, fValue ) )
 		return fValue;
 
 	return 0.f;
@@ -5915,7 +6099,7 @@ CX2SkillTree::SKILL_ID CX2SkillTree::GetUpgradeBaseSkillID( SKILL_ID eSkillID_ )
 }
 
 /// June 3220b740: one SA_* table. A table with no number inserts nothing ( March inserts { 0.f } ).
-void CX2SkillTree::JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ )
+void CX2SkillTree::SetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ )
 {
 	vector<float>   vecSkillValue;
 	int             iTableIndex = 1;
@@ -5940,200 +6124,16 @@ void CX2SkillTree::JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABIL
 	pSkillTemplet_->m_mapSkillAbility.insert( std::make_pair( eSkillAbility_, vecSkillValue ) );
 }
 
-/// June 32216320, whole. Differences from March's AddSkillTemplet_LUA ( s0a_templet_keys.tsv ): no padding of m_SkillCoolTime /
-/// m_MPConsumption / m_RequireCharacterLevel to 30; an empty SA_* table inserts nothing; IN_HOUSE_TEST_ONLY drops the templet;
-/// a duplicate id is not added and the function still returns true; new fields m_ExtraIconInfo<n>, m_DeleteSkillIDByUpgrade
-/// ( also fills the upgrade map ), NUMERICAL_DATA<n>, and SA ids 143-202. 31c59710 ( anti-tamper registration ) is not ported.
-bool CX2SkillTree::AddSkillTemplet_JuneLUA()
-{
-	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
-#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
-	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
-#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
-
-	bool bInHouseTestOnly = false;
-	LUA_GET_VALUE( luaManager,      "IN_HOUSE_TEST_ONLY",           bInHouseTestOnly,   false );
-	if( true == bInHouseTestOnly )
-	{
-		++m_JuneLoadStats.m_iInHouseDropped;
-		return false;
-	}
-
-	SkillTemplet* pSkillTemplet = new SkillTemplet();
-
-	LUA_GET_VALUE_ENUM( luaManager,     "m_eType",                      pSkillTemplet->m_eType,                         SKILL_TYPE,         ST_NONE                 );
-
-	switch ( pSkillTemplet->m_eType )
-	{
-	case ST_GUILD_PASSIVE_PHYSIC_ATTACK_MAGIC_DEFENCE:
-	case ST_GUILD_PASSIVE_MAGIC_ATTCK_PHYSIC_DEFENCE:
-	case ST_GUILD_PASSIVE:
-		{
-			pSkillTemplet->m_bGuildSkill = true;
-		} break;
-	}
-
-	LUA_GET_VALUE_ENUM( luaManager,     "m_eID",                        pSkillTemplet->m_eID,                           SKILL_ID,           SI_NONE                 );
-
-	/// a duplicate id: the insert fails, the templet is not added, the function returns true
-	if( false == m_mapSkillTemplet.insert( std::make_pair( pSkillTemplet->m_eID, pSkillTemplet ) ).second )
-	{
-		++m_JuneLoadStats.m_iDuplicate;
-		SAFE_DELETE( pSkillTemplet );
-		return true;
-	}
-
-	/// fill flag 0: no padding to 30 ( March pads these three )
-	if( true == luaManager.BeginTable( "m_SkillCoolTime" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecSkillCoolTime, false );
-	if( true == luaManager.BeginTable( "m_MPConsumption" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecMPConsumption, false );
-	if( true == luaManager.BeginTable( "m_RequireCharacterLevel" ) )    SetSkillVlaue( luaManager, pSkillTemplet->m_vecRequireCharacterLevel, false );
-
-	{
-		/// the padding March would have done: arrays of 1-29 entries
-		const int iId = static_cast<int>( pSkillTemplet->m_eID );
-		const size_t nCool = pSkillTemplet->m_vecSkillCoolTime.size();
-		const size_t nMp = pSkillTemplet->m_vecMPConsumption.size();
-		const size_t nReq = pSkillTemplet->m_vecRequireCharacterLevel.size();
-		if( nCool >= 1 && nCool < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
-		{
-			++m_JuneLoadStats.m_iShortCoolTime;
-			JuneLogShortArray( iId, 0, static_cast<int>( nCool ) );
-		}
-		if( nMp >= 1 && nMp < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
-		{
-			++m_JuneLoadStats.m_iShortMP;
-			JuneLogShortArray( iId, 1, static_cast<int>( nMp ) );
-		}
-		if( nReq >= 1 && nReq < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
-		{
-			++m_JuneLoadStats.m_iShortReqLevel;
-			JuneLogShortArray( iId, 2, static_cast<int>( nReq ) );
-		}
-	}
-
-#ifdef NEW_CHARACTER_CHUNG
-	LUA_GET_VALUE( luaManager,          "m_usCBConsumption",            pSkillTemplet->m_usCBConsumption,               0       );
-#endif NEW_CHARACTER_CHUNG
-
-#ifdef ARA_CHARACTER_BASE
-	LUA_GET_VALUE( luaManager,          "m_usFPGainCount",              pSkillTemplet->m_usFPGainCount,                 0       );
-	LUA_GET_VALUE( luaManager,          "m_usFPConsumtion",             pSkillTemplet->m_usFPConsumtion,                0       );
-#endif
-
-	LUA_GET_VALUE( luaManager,          "m_wstrName",                   pSkillTemplet->m_wstrName,                      L""     );
-	LUA_GET_VALUE( luaManager,          "m_wstrMainDesc",               pSkillTemplet->m_wstrMainDesc,                  L""     );
-
-	if( true == luaManager.BeginTable( "m_EffectiveDesc" ) )            SetSkillVlaue( luaManager, pSkillTemplet->m_vecEffectiveDesc, false );
-
-	LUA_GET_VALUE( luaManager,          "m_bBornSealed",                pSkillTemplet->m_bBornSealed,                   false   );
-
-	LUA_GET_VALUE( luaManager,          "m_wstrIconTextureName",        pSkillTemplet->m_wstrIconName,                  L""     );
-	LUA_GET_VALUE( luaManager,          "m_wstrIconTexturePieceName",   pSkillTemplet->m_wstrIconPieceName,             L""     );
-
-	/// m_ExtraIconInfo1, 2, ... while BeginTable succeeds ( new in June, stored for the tree UI )
-	for( int iExtra = 1; ; ++iExtra )
-	{
-		char szExtraKey[ 32 ];
-		StringCchPrintfA( szExtraKey, ARRAY_SIZE( szExtraKey ), "m_ExtraIconInfo%d", iExtra );
-		if( false == luaManager.BeginTable( szExtraKey ) )
-			break;
-
-		std::pair<wstring, wstring> pairExtraIcon;
-		LUA_GET_VALUE( luaManager,      "m_wstrTextureName",            pairExtraIcon.first,                            L""     );
-		LUA_GET_VALUE( luaManager,      "m_wstrTexturePieceName",       pairExtraIcon.second,                           L""     );
-		luaManager.EndTable();
-
-		pSkillTemplet->m_vecExtraIconInfo.push_back( pairExtraIcon );
-		++m_JuneLoadStats.m_iExtraIcon;
-	}
-
-	LUA_GET_VALUE( luaManager,          "m_wstrImageTextureName",       pSkillTemplet->m_wstrImageName,                 L""     );
-	LUA_GET_VALUE( luaManager,          "m_wstrImageTexturePieceName",  pSkillTemplet->m_wstrImagePieceName,            L""     );
-
-	SKILL_POWER_RATE_TYPE ePowerRate = SPRT_BASIC_CLASS;
-	LUA_GET_VALUE_ENUM( luaManager,     "m_ePowerRate",                 ePowerRate,                                     SKILL_POWER_RATE_TYPE,          SPRT_BASIC_CLASS    );
-	SetSkillPowerRate( ePowerRate, pSkillTemplet->m_vecPowerRate );     /// 32207430: copied only when the type's row has exactly 30 entries
-#ifdef SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
-	pSkillTemplet->m_eSkillPowerRateType = ePowerRate;
-#endif SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
-#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	pSkillTemplet->m_eJunePowerRateType = ePowerRate;
-#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
-
-	LUA_GET_VALUE_ENUM( luaManager,     "m_eActiveSkillUseCondtion",    pSkillTemplet->m_eActiveSkillUseCondtion,       ACTIVE_SKILL_USE_CONDITION,     ASUT_NONE   );
-
-	LUA_GET_VALUE( luaManager,          "m_bShowSkillLevel",            pSkillTemplet->m_bShowSkillLevel,               false   );
-	LUA_GET_VALUE( luaManager,          "m_iRequireLearnSkillPoint",    pSkillTemplet->m_iRequireLearnSkillPoint,       0       );
-	LUA_GET_VALUE( luaManager,          "m_iRequireUpgradeSkillPoint",  pSkillTemplet->m_iRequireUpgradeSkillPoint,     0       );
-	LUA_GET_VALUE( luaManager,          "m_usWOSType",                  static_cast<int>( pSkillTemplet->m_iWOSType ),  0       );
-
-	/// the skill this one replaces once learned ( June templet +0x178 ); non-zero also fills the upgrade map ( base id -> this id )
-	LUA_GET_VALUE( luaManager,          "m_DeleteSkillIDByUpgrade",     pSkillTemplet->m_iDeleteSkillIDByUpgrade,       0       );
-	if( 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )
-		m_mapUpgradeSkill.insert( std::make_pair( pSkillTemplet->m_iDeleteSkillIDByUpgrade, static_cast<int>( pSkillTemplet->m_eID ) ) );
-
-	/// NUMERICAL_DATA1, 2, ... while BeginTable succeeds. Rows are 16 B { value, pvp rate, tech point, hit add mp }; each side array is
-	/// clamped to its last entry, m_Pvp_Rate defaults to 1.0 and the other two to 0.
-	for( int iNumerical = 1; ; ++iNumerical )
-	{
-		char szNumericalKey[ 32 ];
-		StringCchPrintfA( szNumericalKey, ARRAY_SIZE( szNumericalKey ), "NUMERICAL_DATA%d", iNumerical );
-		if( false == luaManager.BeginTable( szNumericalKey ) )
-			break;
-
-		SkillTemplet::JuneNumericalData numericalData;
-		LUA_GET_VALUE( luaManager,      "m_wstrName",                   numericalData.m_wstrName,                       L""     );
-		LUA_GET_VALUE( luaManager,      "m_ParamType",                  numericalData.m_wstrParamType,                  L"i"    );
-
-		vector<float> vecValue;
-		vector<float> vecPvpRate;
-		vector<float> vecTechPoint;
-		vector<float> vecHitAddMP;
-		if( true == luaManager.BeginTable( "m_Value" ) )                SetSkillVlaue( luaManager, vecValue, false );
-		if( true == luaManager.BeginTable( "m_Pvp_Rate" ) )             SetSkillVlaue( luaManager, vecPvpRate, false );
-		if( true == luaManager.BeginTable( "m_Tech_Point" ) )           SetSkillVlaue( luaManager, vecTechPoint, false );
-		if( true == luaManager.BeginTable( "m_Hit_Add_MP" ) )           SetSkillVlaue( luaManager, vecHitAddMP, false );
-		luaManager.EndTable();
-
-		for( size_t iRow = 0; iRow < vecValue.size(); ++iRow )
-		{
-			SkillTemplet::JuneNumericalRow row;
-			row.m_fValue = vecValue[ iRow ];
-			row.m_fPvpRate = true == vecPvpRate.empty() ? 1.f : vecPvpRate[ iRow < vecPvpRate.size() ? iRow : vecPvpRate.size() - 1 ];
-			row.m_fTechPoint = true == vecTechPoint.empty() ? 0.f : vecTechPoint[ iRow < vecTechPoint.size() ? iRow : vecTechPoint.size() - 1 ];
-			row.m_fHitAddMP = true == vecHitAddMP.empty() ? 0.f : vecHitAddMP[ iRow < vecHitAddMP.size() ? iRow : vecHitAddMP.size() - 1 ];
-			numericalData.m_vecRow.push_back( row );
-		}
-
-		pSkillTemplet->m_vecJuneNumericalData.push_back( numericalData );
-		++m_JuneLoadStats.m_iNumericalBlock;
-	}
-
-	SetSkillStat( luaManager, pSkillTemplet->m_vecStat );
-
-	for( int iKey = 0; iKey < static_cast<int>( ARRAY_SIZE( s_aJuneSkillAbilityKey ) ); ++iKey )
-	{
-		if( true == luaManager.BeginTable( s_aJuneSkillAbilityKey[ iKey ].m_pszKey ) )
-			JuneSetSkillAbilityMap( &luaManager, static_cast<SKILL_ABILITY_TYPE>( s_aJuneSkillAbilityKey[ iKey ].m_iType ), pSkillTemplet, s_aJuneSkillAbilityKey[ iKey ].m_pszKey );
-	}
-
-	if( false == m_bJuneScratch )
-		CX2BuffTempletManager::GetInstance()->GetBuffFactorPtrFromBuffFactorList( luaManager, pSkillTemplet->m_vecBuffFactorPtr, pSkillTemplet->m_vecBuffFactorID );
-
-	return true;
-}
-
-/// the padding difference, logged for the first 25 skills of each array and counted for the summary
-void CX2SkillTree::JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ )
+void CX2SkillTree::LogShortArray( int iSkillID_, int iKind_, int iSize_ )
 {
 }
 
 /// debug: a runtime read past the end of a short array ( level above the raw size ), once per skill and array
-/*static*/ void CX2SkillTree::JuneLogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ )
+/*static*/ void CX2SkillTree::LogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ )
 {
 }
 
-void CX2SkillTree::JuneLogLoadSummary()
+void CX2SkillTree::LogLoadSummary()
 {
 	if( true == m_bJuneScratch )
 		return;

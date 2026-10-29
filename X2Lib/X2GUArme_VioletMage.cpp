@@ -282,7 +282,7 @@ namespace _CONST_ARME_JUNE_CH1a_
 	{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		if( NULL != g_pX2Game )
-			g_pX2Game->June_SetMemoRiseTimer( fValue_ );	// June 32cd1830 @32cd204d
+			g_pX2Game->SetMemoRiseTimer( fValue_ );	// June 32cd1830 @32cd204d
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
 		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO timer set %.2f ( charge 1.5 s )", fValue_ );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
@@ -408,7 +408,7 @@ namespace _CONST_ARME_JUNE_CH1h_
 	{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		if( NULL != g_pX2Game )
-			g_pX2Game->June_RefreshMemoRiseSlot();
+			g_pX2Game->RefreshMemoRiseSlot();
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 }
@@ -484,7 +484,7 @@ namespace _CONST_ARME_JUNE_CH1k_
 	bool IsInvincibleForSpecial( CX2GameUnit* pUnit_ )
 	{
 		return ( CX2GameUnit::GUT_NPC == pUnit_->GetGameUnitType() ) ?
-			static_cast<CX2GUNPC*>( pUnit_ )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit_->GetInvincible();
+			static_cast<CX2GUNPC*>( pUnit_ )->GetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit_->GetInvincible();
 	}
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -1154,14 +1154,14 @@ void CX2GUArme_VioletMage::InitComponent()
 	m_hSeqMPCharge2Up			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up", 0,0,0, 0,0 );
 	m_hSeqMPCharge2Up2			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up2", 0,0,0, 0,0 );
 
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepRight, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepLeft, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPEnergy, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPEnergyCenter, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPChargeWave, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2MagicCircle, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up, true );
-	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up2, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepRight, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepLeft, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPEnergy, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPEnergyCenter, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPChargeWave, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPCharge2MagicCircle, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up2, true );
 #else
 	CX2GUUser::InitComponent();
 
@@ -1728,7 +1728,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMajor
 			g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_ );
 
 		SetHandleAishaMajorParticleByEnum( eVal_, hHandle );
-		g_pX2Game->JuneTagEffectAlphaParticleHandle( this, hHandle, false );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, false );
 	}
 
 	return g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleAishaMajorParticleByEnum( eVal_ ) );
@@ -1853,7 +1853,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMinor
 			g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_ );
 
 		SetHandleAishaMinorParticleByEnum( eVal_, hHandle );
-		g_pX2Game->JuneTagEffectAlphaParticleHandle( this, hHandle, true );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, true );
 	}
 
 	return g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleAishaMinorParticleByEnum( eVal_ ) );
@@ -1876,7 +1876,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMinor
 void CX2GUArme_VioletMage::ParseCommonRandomState()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-	JuneParseCommonRandomState();	// June parses in CX2GUUser::Init ( 31feaac0 ), not per class
+	ParseCommonRandomStateByUnitClass();	// June parses in CX2GUUser::Init ( 31feaac0 ), not per class
 }
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
@@ -1986,26 +1986,26 @@ void CX2GUArme_VioletMage::InitState()
 	stateData.Init();
 	stateData.stateID			= USI_START;
 	m_LuaManager.MakeTableReference( tableNameStartUTF8.c_str(), stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneStartStateStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneStartEventProcess );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, StartStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartEventProcess );
 	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_WIN;
 	m_LuaManager.MakeTableReference( tableNameWinUTF8.c_str(), stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneWinStateStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneRandomLoseEventProcess );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, WinStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RandomLoseEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_LOSE;
 	m_LuaManager.MakeTableReference( tableNameLoseUTF8.c_str(), stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneLoseStateStart );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, LoseStateStart );
 	m_StateList[stateData.stateID] = stateData;
 
 	/// June 32cea0c0 @307 ( id 0x82, checklist 7h )
-	JuneInitWaitStateChange( "AVSI_WAIT_STATE_CHANGE" );
+	InitWaitStateChange( "AVSI_WAIT_STATE_CHANGE" );
 	switch( eClass )
 	{
 	case CX2Unit::UC_ARME_DARK_MAGICIAN:
@@ -3523,7 +3523,7 @@ void CX2GUArme_VioletMage::InitStateCommon()
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 // June 32ce77b0: each switch is June's branch on the unit class
 	const CX2Unit::UNIT_CLASS eClass = GetUnit()->GetUnitData().m_UnitClass;
-	const std::string strHyperModeTable = JuneGetHyperModeTableName( false );
+	const std::string strHyperModeTable = GetHyperModeTableName( false );
 	UserUnitStateData stateData;
 
 	stateData.Init();
@@ -3628,11 +3628,11 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	stateData.Init();
 	stateData.stateID			= USI_DASH_JUMP;
 	m_LuaManager.MakeTableReference( "AVSI_DASH_JUMP", stateData.stateID );
-	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, JuneDashJumpStartFuture );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneDashJumpStart );
-	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JuneDashJumpFrameMoveFuture );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashJumpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashJumpFrameMoveFuture );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, DashJumpEventProcess );
-	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, JuneDashJumpEndFuture );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, DashJumpEndFuture );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
@@ -3669,7 +3669,7 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, HyperModeFrameMove );
 	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUArme_VioletMage, HyperModeCameraMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, HyperModeEventProcess );
-	stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, June_Vslot604 );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, HyperModeEnd );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
@@ -3693,27 +3693,27 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_SMALL_FRONT;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_SMALL_FRONT", stateData.stateID );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageSmallEventProcess );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_SMALL_BACK;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_SMALL_BACK", stateData.stateID );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageSmallEventProcess );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_BIG_FRONT;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_BIG_FRONT", stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneDamageBigStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageBigEventProcess );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_BIG_BACK;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_BIG_BACK", stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneDamageBigStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageBigEventProcess );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
@@ -4066,7 +4066,7 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	/// June 32ce77b0 @1372: AVSI_DANCE_X, a June-only user state ( dance state, Stage 10 )
 	/// June 32ce77b0 @1376: AVSI_DANCE_WAIT, a June-only user state ( dance state, Stage 10 )
 	/// June 32ce77b0 @1380-: the three DAMAGE_BOUNDING states ( ids 120-122, checklist 7l )
-	JuneInitBoundingStates( "AVSI_" );
+	InitBoundingStates( "AVSI_" );
 	stateData.Init();
 	stateData.stateID			= USI_THROW_ITEM;
 	m_LuaManager.MakeTableReference( "AVSI_THROW_ITEM", stateData.stateID );
@@ -4273,7 +4273,7 @@ void CX2GUArme_VioletMage::InitStateCommon()
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, RidingHyperModeFrameMove );
 	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUArme_VioletMage, RidingHyperModeCameraMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingHyperModeEventProcess );
-	stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, June_RidingHyperModeEnd );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingHyperModeEnd );
 	m_StateList[stateData.stateID] = stateData;
 
 	/// June 32ce77b0 @1634: AVSI_RIDING_SPECIFIC, a June-only user state ( riding, Stage 17 )
@@ -5337,17 +5337,17 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		m_pJuneMpRefund->m_fSpecialActiveSkillRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_STRONG_MIND_SPECIAL_ACTIVE_REL, iStrongMindLevel, false );
 		m_pJuneMpRefund->m_fMPRestoreRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iStrongMindLevel, false );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( 0 < June_GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
+		if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( 0 < June_GetSkillLevel( JUNE_CH4A_P_AVP_DARK_DEAL ) )
+		if( 0 < GetSkillLevel( JUNE_CH4A_P_AVP_DARK_DEAL ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			m_pJuneMpRefund->m_fChance = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_AVP_DARK_DEAL );
-			m_pJuneMpRefund->m_fRate = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_AVP_DARK_DEAL );
+			m_pJuneMpRefund->m_fChance = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_AVP_DARK_DEAL );
+			m_pJuneMpRefund->m_fRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_AVP_DARK_DEAL );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			m_pJuneMpRefund->m_fChance = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, JUNE_CH4A_P_AVP_DARK_DEAL );
-			m_pJuneMpRefund->m_fRate = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, JUNE_CH4A_P_AVP_DARK_DEAL );
+			m_pJuneMpRefund->m_fChance = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, JUNE_CH4A_P_AVP_DARK_DEAL );
+			m_pJuneMpRefund->m_fRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, JUNE_CH4A_P_AVP_DARK_DEAL );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		}
 	}
@@ -5448,9 +5448,9 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iOpenMindLevel = June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iOpenMindLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iOpenMindLevel = June_GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
+	const int iOpenMindLevel = GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( 0 < iOpenMindLevel )
 		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUArme_VioletMage, OpenMindAttackResult ) );
@@ -5484,13 +5484,13 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		GetPassiveSkillAbilityValue( 22417, CX2SkillTree::SA_COOLTIME_1, fCoolDW );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ARME passives ( unit %I64d: transcended %d, hyper table %S, open mind EM %d cool %.3f, magical body %d count %.3f mp %.3f, open mind VP %d scope %.3f mp %.3f cool %.3f, dark deal %d, open mind DW %d, time limit %d cool %.3f )",
-			GetUnitUID(), 0 != GetUnit()->GetUnitData().m_iUnitClassTran ? 1 : 0, JuneGetHyperModeTableName( false ).c_str(),
+			GetUnitUID(), 0 != GetUnit()->GetUnitData().m_iUnitClassTran ? 1 : 0, GetHyperModeTableName( false ).c_str(),
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			June_GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ), fCoolEM, June_GetSkillLevel( CX2SkillTree::RNSI_P_AEM_MAGICAL_BODY ), fCount, fMp,
-			June_GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), fScope, fMpRate, fCoolVP, June_GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ), June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND ), June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ), fCoolDW );
+			GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ), fCoolEM, GetSkillLevel( CX2SkillTree::RNSI_P_AEM_MAGICAL_BODY ), fCount, fMp,
+			GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), fScope, fMpRate, fCoolVP, GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ), GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND ), GetSkillLevel( CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ), fCoolDW );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			June_GetSkillLevel( 22412 ), fCoolEM, June_GetSkillLevel( 22413 ), fCount, fMp,
-			June_GetSkillLevel( 22414 ), fScope, fMpRate, fCoolVP, June_GetSkillLevel( 22415 ), June_GetSkillLevel( 22416 ), June_GetSkillLevel( 22417 ), fCoolDW );
+			GetSkillLevel( 22412 ), fCoolEM, GetSkillLevel( 22413 ), fCount, fMp,
+			GetSkillLevel( 22414 ), fScope, fMpRate, fCoolVP, GetSkillLevel( 22415 ), GetSkillLevel( 22416 ), GetSkillLevel( 22417 ), fCoolDW );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
@@ -7832,7 +7832,7 @@ void CX2GUArme_VioletMage::CommonFrameMove()
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
 	const int iHellDropSkillID = JUNE_CH1I_SA_AVP_HELL_DROP;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( iHellDropSkillID != GetJuneTranscendenceMemoSkillID( iHellDropSkillID ) && NULL != GetUFO() )
+	if( iHellDropSkillID != GetTranscendenceMemoSkillID( iHellDropSkillID ) && NULL != GetUFO() )
 	{
 		bool bSkipUFO = IsSkillSlotState( GetNowStateID() );
 		switch( GetNowStateID() )
@@ -8983,7 +8983,7 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 // June 32ccf9f0 ( vslot 0x80c )
-	June_UserNoStateChangeActionFrameMove();
+	UserNoStateChangeActionFrameMove();
 
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
@@ -8998,7 +8998,7 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 					SetBuffFactorToGameUnit( pSkillTemplet, true == bJuneMemo ? 1 : 0 );
 					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ManaShield", this );
 					PlaySound( L"Aisha_ManaShield.ogg", true, false );
-					JuneShowSkillNameStateString( CX2SkillTree::SI_A_AV_MANA_SHIELD );
+					ShowSkillNameStateString( CX2SkillTree::SI_A_AV_MANA_SHIELD );
 				}
 			}
 		} break;
@@ -9015,9 +9015,9 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 			SetBuffFactorToGameUnit( pSkillTemplet, 1 );
 			m_bInMeditation = true;
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( CX2SkillTree::RNSI_A_AHM_MEDITATION );
+			ShowSkillNameStateString( CX2SkillTree::RNSI_A_AHM_MEDITATION );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( JUNE_CH1I_A_AHM_MEDITATION );
+			ShowSkillNameStateString( JUNE_CH1I_A_AHM_MEDITATION );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		} break;
 
@@ -9039,9 +9039,9 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 		{
 			ProcessShiningBodySkill();
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( CX2SkillTree::RNSI_A_AEM_ELEMENTAL_BODY );
+			ShowSkillNameStateString( CX2SkillTree::RNSI_A_AEM_ELEMENTAL_BODY );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( JUNE_CH1I_A_AEM_ELEMENTAL_BODY );
+			ShowSkillNameStateString( JUNE_CH1I_A_AEM_ELEMENTAL_BODY );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		} break;
 
@@ -9049,9 +9049,9 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 		{
 			ProcessShadowBodySkill();
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( CX2SkillTree::SI_A_AVP_SHADOW_BODY );	// June shows id 2218's name, not 22210 ( JUNE_BUGS )
+			ShowSkillNameStateString( CX2SkillTree::SI_A_AVP_SHADOW_BODY );	// June shows id 2218's name, not 22210 ( JUNE_BUGS )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( JUNE_CH1I_A_SHADOW_BODY_NAME );
+			ShowSkillNameStateString( JUNE_CH1I_A_SHADOW_BODY_NAME );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		} break;
 
@@ -9059,9 +9059,9 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 		{
 			ProcessEnergeticBodySkill();
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( CX2SkillTree::RNSI_A_ADW_ENERGETIC_BODY );
+			ShowSkillNameStateString( CX2SkillTree::RNSI_A_ADW_ENERGETIC_BODY );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			JuneShowSkillNameStateString( JUNE_CH1I_A_ADW_ENERGETIC_BODY );
+			ShowSkillNameStateString( JUNE_CH1I_A_ADW_ENERGETIC_BODY );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		} break;
 
@@ -9256,18 +9256,18 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < June_GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < June_GetSkillLevel( JUNE_CH4C_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevel( JUNE_CH4C_P_AVP_OPEN_MIND ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	{
 		const std::set<UidType> setExceptUID;
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( NULL == GetNearestEnemyInRange( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), setExceptUID ) )
-			fMpConsumption *= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_AVP_OPEN_MIND );
+		if( NULL == GetNearestEnemyInRange( GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), setExceptUID ) )
+			fMpConsumption *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_AVP_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( NULL == GetNearestEnemyInRange( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, JUNE_CH4C_P_AVP_OPEN_MIND ), setExceptUID ) )
-			fMpConsumption *= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, JUNE_CH4C_P_AVP_OPEN_MIND );
+		if( NULL == GetNearestEnemyInRange( GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, JUNE_CH4C_P_AVP_OPEN_MIND ), setExceptUID ) )
+			fMpConsumption *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, JUNE_CH4C_P_AVP_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
 
@@ -13350,7 +13350,7 @@ void CX2GUArme_VioletMage::EvasionEndFrameMove()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	}
 
@@ -13649,7 +13649,7 @@ void CX2GUArme_VioletMage::EvasionStandupAttackFrameMove()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 		m_pEvasionAttackAnim->GetMatrix().Move( pos );
@@ -17216,7 +17216,7 @@ void CX2GUArme_VioletMage::DashComboZ2aStartFuture()
 
 		// June slot 94 with AT_COMMAND
 		const bool bInvincible = ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() ) ?
-			static_cast<CX2GUNPC*>( pUnit )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_COMMAND ) : pUnit->GetInvincible();
+			static_cast<CX2GUNPC*>( pUnit )->GetInvincibleByAttackTypeId( CX2DamageManager::AT_COMMAND ) : pUnit->GetInvincible();
 		if( true == bInvincible )
 			continue;
 
@@ -17230,7 +17230,7 @@ void CX2GUArme_VioletMage::DashComboZ2aStartFuture()
 		if( NULL == pLineData || CKTDGLineMap::LT_NORMAL != pLineData->lineType || false == pLineData->bEnable )
 			continue;
 
-		const D3DXVECTOR3 vLandPos = pUnit->JuneGetBoneLinePos( vMyPos );
+		const D3DXVECTOR3 vLandPos = pUnit->GetBoneLinePos( vMyPos );
 		if( true != pLineMap->CanDown( vLandPos, LINE_RADIUS, NULL, NULL, NULL, false, false, true, false ) )
 			continue;
 
@@ -17238,7 +17238,7 @@ void CX2GUArme_VioletMage::DashComboZ2aStartFuture()
 		if( false == ( fDistance < 700.f ) )
 			continue;
 
-		const bool bAlong = ( JuneIsPosAlongLastTouchLine( vLandPos ) == GetIsRight() );
+		const bool bAlong = ( IsPosAlongLastTouchLine( vLandPos ) == GetIsRight() );
 		const int iLineIndex = pUnit->GetLastTouchLineIndex( false );
 		bool bPick = ( fDistance < fBestDistance && bBestAlong == bAlong && ( iMyLineIndex == iLineIndex || iBestLineIndex != iMyLineIndex ) );
 		if( false == bBestAlong && true == bAlong )
@@ -17350,7 +17350,7 @@ void CX2GUArme_VioletMage::DashComboZ2aFrameMove()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	}
 
@@ -17486,7 +17486,7 @@ void CX2GUArme_VioletMage::AVSI_EM_DASH_COMBO_Z2a_FrameMove()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	}
 
@@ -17657,7 +17657,7 @@ void CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_FrameMove()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	}
 
@@ -19189,7 +19189,7 @@ void CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
 
 			// June slot 94 with AT_SPECIAL ( 1 )
 			const bool bInvincible = ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() ) ?
-				static_cast<CX2GUNPC*>( pUnit )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit->GetInvincible();
+				static_cast<CX2GUNPC*>( pUnit )->GetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit->GetInvincible();
 			if( true == bInvincible )
 				continue;
 
@@ -19211,7 +19211,7 @@ void CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
 				iCount++;
 				pUnit->SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_DEBUFF_BIND ), 1, this, 0, false );
 
-				const CX2GUUser::JuneSkillMemoEntry* pMemo = ( NULL != pSkillTemplet ) ? GetJuneSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) ) : NULL;
+				const CX2GUUser::JuneSkillMemoEntry* pMemo = ( NULL != pSkillTemplet ) ? GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) ) : NULL;
 				if( NULL != pMemo && 18 == pMemo->m_iType )
 					pUnit->AddForceDownGage( pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0] );
 			}
@@ -23306,7 +23306,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove()
 		{
 			D3DXVECTOR3 vBonePos = GetWeaponBonePos( 0, L"Center_Jewel", 0 );
 			pSeq->SetPosition( vBonePos );
-			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+			g_pX2Game->TagEffectAlphaParticle( this, pSeq );
 		}
 		else
 		{
@@ -27685,7 +27685,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 			m_FrameDataNow.unitCondition.dirDegree,
 			XL_EFFECT_0 );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+		g_pX2Game->TagEffectAlphaMesh( this, pMeshInst );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 		if( m_iAdvancedTeleportationLv > 0 && GetEqippedSkillMemo( CX2SkillTree::SMI_AISHA_MEMO5 ) == true )
@@ -28214,7 +28214,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 					continue;
 				if( CX2GameUnit::GUSI_DIE == pUnit->GetGameUnitState() || pUnit->GetNowHp() <= 0.f )
 					continue;
-				if( false == g_pX2Game->JuneIsUnitInViewCone( this, pUnit, 80.f, 40.f, 45.f ) )
+				if( false == g_pX2Game->IsUnitInViewCone( this, pUnit, 80.f, 40.f, 45.f ) )
 					continue;
 
 				float fOffset = 0.f;
@@ -28386,7 +28386,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 				m_DamageData.m_fDrainMpByReact		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel );
 				m_DamageData.m_fDrainMpRate			= fDrainRate;
 
-				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) );
+				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) );
 				if( NULL != pMemo && 18 == pMemo->m_iType )
 					m_DamageData.fForceDownValue += pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
 
@@ -30079,9 +30079,9 @@ void CX2GUArme_VioletMage::SetDamageExceptionProcess( CX2DamageManager::DamageDa
 		if( NULL != pCycloneTemplet && 0 != pCycloneTemplet->m_iDeleteSkillIDByUpgrade )
 		{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			pDamageData_->m_fDecreaseForceDown = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, CX2SkillTree::RNSI_SA_AEM_CYCLONE_UPGRADE );
+			pDamageData_->m_fDecreaseForceDown = GetLearnedSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, CX2SkillTree::RNSI_SA_AEM_CYCLONE_UPGRADE );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			pDamageData_->m_fDecreaseForceDown = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, JUNE_CH4C_SA_AEM_CYCLONE_UPGRADE );
+			pDamageData_->m_fDecreaseForceDown = GetLearnedSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, JUNE_CH4C_SA_AEM_CYCLONE_UPGRADE );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG
 			if( OverrideLogDue( 0 ) )
@@ -30094,9 +30094,9 @@ void CX2GUArme_VioletMage::SetDamageExceptionProcess( CX2DamageManager::DamageDa
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( JUNE_CH4A_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevel( JUNE_CH4A_P_ADW_MAGICAL_STAFF );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( iSkillLevel <= 0 )
 		return;
@@ -32115,12 +32115,6 @@ void CX2GUArme_VioletMage::RidingOffStart()
 		SetSpecificValueByBuffTempletID( BTI_SI_SA_ABM_MAGICAL_MAKEUP );
 }
 
-//AVSI_RIDING_HYPER_MODE ( End )
-// June 32cf0fa0: a bare jump to vslot 0x608
-void CX2GUArme_VioletMage::June_RidingHyperModeEnd()
-{
-	June_Vslot608();
-}
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1b
 
 //{{ Iruha : 2026-10-20 // June character pilot Phase CH1c ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -32150,7 +32144,7 @@ namespace _CONST_ARME_JUNE_CH1c_
 		if( NULL == pSkillTemplet )
 			return false;
 
-		return pSkillTemplet->JuneTryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
 	}
 }
 using namespace _CONST_ARME_JUNE_CH1c_;
@@ -32164,7 +32158,7 @@ bool CX2GUArme_VioletMage::FlushMpWithRefund( const float fMp_ )
 	{
 		if( GetRandomFloat( 0 ) < m_pJuneMpRefund->m_fChance )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-			JuneUpNowMpWithText( m_pJuneMpRefund->m_fRate * fMp_ );
+			UpNowMpWithText( m_pJuneMpRefund->m_fRate * fMp_ );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 			UpNowMp( m_pJuneMpRefund->m_fRate * fMp_ );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
@@ -33391,14 +33385,14 @@ void CX2GUArme_VioletMage::SetShowViewList( bool bShow_ )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 // June 32ccda90 ( 0x604 ) = 32ccda40 ( 0x608 ): the +0x952c byte is read as JuneIsHyperModeState(), 31ffda00 = ShowMinorParticleHyperModeTrace
-void CX2GUArme_VioletMage::June_Vslot604()
+void CX2GUArme_VioletMage::HyperModeEnd()
 {
 	CommonStateEnd();
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
-	if( true == JuneIsHyperModeBuffPending() )
+	if( true == IsHyperModeBuffPending() )
 #else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
-	if( true == JuneIsHyperModeState() )
+	if( true == IsHyperModeState() )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	{
 		ShowMinorParticleHyperModeTrace();
@@ -33409,9 +33403,9 @@ void CX2GUArme_VioletMage::June_Vslot604()
 	m_iLastStateHyperModeCount = 0;
 }
 
-void CX2GUArme_VioletMage::June_Vslot608()
+void CX2GUArme_VioletMage::RidingHyperModeEnd()
 {
-	June_Vslot604();
+	HyperModeEnd();
 }
 
 // June 32cf25a0 ( vslot 0x680 ): the transform weapon, copied out
@@ -33509,9 +33503,9 @@ void CX2GUArme_VioletMage::ManaflowOverdriveFrameMove()
 		{
 			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
+			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, June_GetSkillLevel( JUNE_CH1I_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
+			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevel( JUNE_CH1I_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		}
 	}
@@ -33519,7 +33513,7 @@ void CX2GUArme_VioletMage::ManaflowOverdriveFrameMove()
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
-int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
+int CX2GUArme_VioletMage::GetSkillLevel( const int iSkillID_ ) const
 {
 	if( NULL == GetUnit() )
 		return 1;
@@ -33540,7 +33534,7 @@ int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 32008e40: CX2GUUser's own NoStateChangeActionFrameMove ( March's is pure virtual ); the Arme override runs it first. Action ids are June's
-void CX2GUArme_VioletMage::June_UserNoStateChangeActionFrameMove()
+void CX2GUArme_VioletMage::UserNoStateChangeActionFrameMove()
 {
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
@@ -33724,9 +33718,9 @@ int CX2GUArme_VioletMage::SelectSkillSlotKind( const CX2UserSkillTree& userSkill
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 31fdbe70 ( vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
-void CX2GUArme_VioletMage::June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
+void CX2GUArme_VioletMage::SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
 {
-	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
 	if( NULL == pMemo )
 		return;
 
@@ -33740,7 +33734,7 @@ void CX2GUArme_VioletMage::June_SkillMemoMpRefund( const int iSkillID_, const bo
 }
 
 // June 31fd32e0 ( the skill slot index is June's 0-9 ): the skill state for a slot, the hyper table while awakened
-void CX2GUArme_VioletMage::June_StateChangeBySkillSlot( const int iSlotIndex_ )
+void CX2GUArme_VioletMage::StateChangeBySkillSlot( const int iSlotIndex_ )
 {
 	if( GetRemainHyperModeTime() > 0.f )
 	{
@@ -33759,7 +33753,7 @@ void CX2GUArme_VioletMage::June_StateChangeBySkillSlot( const int iSlotIndex_ )
 }
 
 // June 31fc86e0: marks a skill slot ( 0-9 ) as used ( with bHyper_ the first three ); March counts uses in CountUsedSkill instead
-void CX2GUArme_VioletMage::June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
+void CX2GUArme_VioletMage::MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
 {
 	if( false == bHyper_ )
 	{
@@ -33773,7 +33767,7 @@ void CX2GUArme_VioletMage::June_MarkSkillSlotUsed( const int iSlotIndex_, const 
 }
 
 // June 31fc93e0 ( vslot 0x804 ): reserves the skill's use count and keeps its MP until the state starts
-void CX2GUArme_VioletMage::June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ )
+void CX2GUArme_VioletMage::ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ )
 {
 	ReserveSkillUseCount( eSkillID_ );
 	m_fJune8ea8 = m_fJune8eb0;
@@ -33793,7 +33787,7 @@ void CX2GUArme_VioletMage::SpecialAttackCooldown( const int iSkillID_, const flo
 
 	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
 
-	June_MarkSkillSlotUsed( m_iJune8ea4, false );
+	MarkSkillSlotUsed( m_iJune8ea4, false );
 
 	if( 3 == m_iJune96e8 )
 	{
@@ -33827,16 +33821,16 @@ void CX2GUArme_VioletMage::SpecialAttackCooldown( const int iSkillID_, const flo
 		if( 0.0f < fCoolTime )
 		{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			if( June_GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iJune96e8 )
+			if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iJune96e8 )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			if( June_GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 && 2 == m_iJune96e8 )
+			if( GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 && 2 == m_iJune96e8 )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			{
 				const int iGameType = static_cast<int>( g_pX2Game->GetGameType() );	// June 322cc1a0: PVP or PVE
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-				fCoolTime = June_GetLearnedSkillAbilityValue( ( 1 == iGameType || 4 == iGameType ) ? CX2SkillTree::SA_COOLTIME_2 : CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) * fCoolTime;
+				fCoolTime = GetLearnedSkillAbilityValue( ( 1 == iGameType || 4 == iGameType ) ? CX2SkillTree::SA_COOLTIME_2 : CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) * fCoolTime;
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-				fCoolTime = June_GetLearnedSkillAbilityValue( ( 1 == iGameType || 4 == iGameType ) ? CX2SkillTree::SA_COOLTIME_2 : CX2SkillTree::SA_COOLTIME_1, JUNE_CH1I_P_AEM_OPEN_MIND ) * fCoolTime;
+				fCoolTime = GetLearnedSkillAbilityValue( ( 1 == iGameType || 4 == iGameType ) ? CX2SkillTree::SA_COOLTIME_2 : CX2SkillTree::SA_COOLTIME_1, JUNE_CH1I_P_AEM_OPEN_MIND ) * fCoolTime;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			}
 
@@ -33925,14 +33919,14 @@ void CX2GUArme_VioletMage::SpecialAttackUse( const int iSkillID_, const bool bUn
 		if( true == SpecialAttackNoStageChange( pSkillTemplet ) )
 		{
 			SpecialAttackCooldown( pSkillTemplet->m_eID, m_fJune8eb0 );
-			June_SkillMemoMpRefund( iSkillID_, true, m_fJune8eb0 );
+			SkillMemoMpRefund( iSkillID_, true, m_fJune8eb0 );
 			m_fJune8eb0 = 0.0f;
 			m_bSpecialAttackEventProcessedAtThisFrame = true;
 			return;
 		}
 
-		June_ReserveSkillUse( pSkillTemplet->m_eID );
-		June_StateChangeBySkillSlot( m_iJune8ea4 );
+		ReserveSkillUse( pSkillTemplet->m_eID );
+		StateChangeBySkillSlot( m_iJune8ea4 );
 		m_bSpecialAttackEventProcessedAtThisFrame = true;
 		return;
 	}
@@ -33967,7 +33961,7 @@ bool CX2GUArme_VioletMage::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_C
 	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
 	int iPressedSkillSlotIndex = 0;
 
-	if( false == JuneCommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+	if( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
 		return false;
 
 	int iKind = SelectSkillSlotKind( accessUserSkillTree, &pSkillSlotData, &iPressedSkillSlotIndex );
@@ -34041,10 +34035,10 @@ bool CX2GUArme_VioletMage::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_C
 	if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
 		return false;
 
-	if( false == June_CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+	if( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
 		return false;
 
-	if( false == June_CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+	if( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
 		return false;
 
 	if( true == IsRidingKeySkillWaiting() )
@@ -34073,17 +34067,17 @@ bool CX2GUArme_VioletMage::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_C
 	else if( 2 == iKind )
 	{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( June_GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
-			m_fJune8eb0 = m_fJune8eb0 * June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, CX2SkillTree::RNSI_P_AEM_OPEN_MIND );
+		if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
+			m_fJune8eb0 = m_fJune8eb0 * GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, CX2SkillTree::RNSI_P_AEM_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( June_GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 )
-			m_fJune8eb0 = m_fJune8eb0 * June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, JUNE_CH1I_P_AEM_OPEN_MIND );
+		if( GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 )
+			m_fJune8eb0 = m_fJune8eb0 * GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, JUNE_CH1I_P_AEM_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
 
 	const bool bJuneSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
 #ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
-	if( false == bJuneSkillFree && 3 != iKind && false == JuneIsDevUnlimitedSkillUse() )
+	if( false == bJuneSkillFree && 3 != iKind && false == IsDevUnlimitedSkillUse() )
 #else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 	if( false == bJuneSkillFree && 3 != iKind )
 #endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
@@ -34141,7 +34135,7 @@ const CX2SkillTree::SkillTemplet* CX2GUArme_VioletMage::GetLearnedSkillTemplet( 
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 // June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
-float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
+float CX2GUArme_VioletMage::GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
 {
 	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
 		return 1.0f;
@@ -34160,7 +34154,7 @@ float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 // June 3202d140: skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
-bool CX2GUArme_VioletMage::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
+bool CX2GUArme_VioletMage::CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
 {
 	bool bUsable = true;
 
@@ -34181,7 +34175,7 @@ bool CX2GUArme_VioletMage::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_I
 }
 
 // June 3202d3c0: skill 900 is refused in a dungeon game ( 2 ) whose dungeon has attribute bit 0xd ( no March home: read as false ), or without a game
-bool CX2GUArme_VioletMage::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
+bool CX2GUArme_VioletMage::CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
 {
 	bool bUsable = true;
 
@@ -34219,13 +34213,13 @@ void CX2GUArme_VioletMage::SetSkillLevelStateData( const CX2SkillTree::SkillTemp
 	stateData_.m_SPLevel = static_cast<char>( iSkillLevel );
 	stateData_.m_fPowerRate = pSkillTemplet_->GetSkillPowerRateValue( iSkillLevel );
 	stateData_.m_eSkillID = pSkillTemplet_->m_eID;
-	stateData_.m_fPowerRate = ( GetSkillAdditionalPowerRateJune( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.0f ) * stateData_.m_fPowerRate;
+	stateData_.m_fPowerRate = ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.0f ) * stateData_.m_fPowerRate;
 }
 
 // June 32028190 ( vslot 0x7a8 ): the same, for the state with this id ( none when that state is not registered )
 void CX2GUArme_VioletMage::SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ )
 {
-	UserUnitStateDataMap::iterator itState = JuneGetStateDataIterator( iStateID_ );
+	UserUnitStateDataMap::iterator itState = GetStateDataIterator( iStateID_ );
 	if( itState != m_StateList.end() )
 		SetSkillLevelStateData( pSkillTemplet_, itState->second );
 }
@@ -34235,10 +34229,10 @@ bool CX2GUArme_VioletMage::IsMemoRiseChargeActive()
 	return m_deqJuneMemoRise.size() < 3 && AVSI_CHARGE_MP == GetNowStateID() && 1.5f <= m_FrameDataNow.unitCondition.fStateTime;
 }
 
-// June 32cc7b90 ( vslot 0x828 ): the base test 31fd7640 ( not a common move state ) is not ported, so it answers false
+// June 32cc7b90 ( vslot 0x828 ): the base test 31fd7640 less Aisha's levitation, power-landing and MP-charge states
 bool CX2GUArme_VioletMage::IsNotCommonMoveState()
 {
-	const bool bJuneNotCommonState = JuneIsNotCommonMoveState();	// June 31fd7640
+	const bool bJuneNotCommonState = CX2GUUser::IsNotCommonMoveState();	// June 31fd7640
 	if( true == bJuneNotCommonState )
 	{
 		const int iStateID = GetNowStateID();
@@ -34250,7 +34244,8 @@ bool CX2GUArme_VioletMage::IsNotCommonMoveState()
 }
 
 // June 32cc7c30 ( vslot 0x850 ): the after-image is suspended while waiting or charging MP and restored after; it runs every frame
-void CX2GUArme_VioletMage::June_Vslot850()
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+void CX2GUArme_VioletMage::AfterImageFrameMove()
 {
 	CKTDGXSkinAfterImage* pAfterImage = GetAfterImage();
 	const int iStateID = GetNowStateID();
@@ -34272,9 +34267,11 @@ void CX2GUArme_VioletMage::June_Vslot850()
 	if( NULL != pAfterImage )
 		pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 // June 32ccdae0 ( vslot 0x860 ): a Hell Drop UFO's power factor x ( specialization A + 1 ) x 0.7 ( March: its default power rate )
-void CX2GUArme_VioletMage::June_Vslot860( CX2GUNPC* pNPC )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+void CX2GUArme_VioletMage::SummonedNPCInfo( CX2GUNPC* pNPC )
 {
 	if( NULL == pNPC )
 		return;
@@ -34288,6 +34285,7 @@ void CX2GUArme_VioletMage::June_Vslot860( CX2GUNPC* pNPC )
 		pNPC->SetDefaultPowerRate( ( GetCharacterSpecializationA() + 1.0f ) * 0.7f * fFactor );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::RidingOffEnd()
 {
@@ -34324,7 +34322,8 @@ void CX2GUArme_VioletMage::RidingOffEnd()
 }
 
 // June 32cc8cf0 ( vslot 0x654 ): a transformed Aisha puts the transform weapon on again
-void CX2GUArme_VioletMage::June_Vslot654()
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+void CX2GUArme_VioletMage::AfterEquipSlotChange()
 {
 	if( true == IsTransformed() )
 	{
@@ -34335,6 +34334,7 @@ void CX2GUArme_VioletMage::June_Vslot654()
 		m_bNeedToUpdateWeaponEffect = false;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 // June 32cc8d30 ( vslot 0x638 ): March's walk + the transform weapon boxes; June's riding pet part and item-type anim choice are not ported
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
@@ -34511,7 +34511,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 	if( NULL == pSkillTemplet )
 		return false;
 
-	const int iTranscendenceSkillID = GetJuneTranscendenceMemoSkillID( eSkillID_ );
+	const int iTranscendenceSkillID = GetTranscendenceMemoSkillID( eSkillID_ );
 	if( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
 	{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -34523,7 +34523,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 			m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT_HEAVY", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AVP_Summon_Bat_Heavy_Init );
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AVP_Summon_Bat_Heavy_FrameMove );
-			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 			m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT_HEAVY", hyperStateData.stateID );
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
@@ -34565,11 +34565,11 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					m_LuaManager.MakeTableReference( "AVSI_HA_AEM_ELEMENTAL_STORM", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HA_AEM_Elemental_Storm_Init );	/// June 32cb8650, CH3b
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_HA_AEM_ELEMENTAL_STORM", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
-					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -34582,11 +34582,11 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					m_LuaManager.MakeTableReference( "AVSI_HA_AVP_ABYSS_ANGOR", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HA_AVP_Abyss_Angor_Init );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_HA_AVP_ABYSS_ANGOR", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
-					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -34599,11 +34599,11 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					m_LuaManager.MakeTableReference( "AVSI_HA_ADW_FATE_SPACE", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HA_ADW_Fate_space_Init );	/// June 32cb89b0, CH3b
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_HA_ADW_FATE_SPACE", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
-					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
@@ -34823,7 +34823,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_Chain_Lightning_EventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CHAIN_LIGHTNING", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -34843,7 +34843,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AV_Teleport_EventProcess );	/// June 32cb71d0 = March's
 
 					m_LuaManager.MakeTableReference( "AVSI_TELEPORT_START_UPGRADE", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );
+					CopyStateCallbacks( hyperStateData, normalStateData );
 
 					if( NULL != GetUnit() )
 					{
@@ -34870,7 +34870,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AV_FIRE_ROAD_EventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_A_AV_FIRE_ROAD", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );
+					CopyStateCallbacks( hyperStateData, normalStateData );
 				} return false;
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -34960,11 +34960,11 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_MAGICAL_MAKEUP_Init );	/// June 32cc1140 = March's
 					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_MAGICAL_MAKEUP", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );
+					CopyStateCallbacks( hyperStateData, normalStateData );
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -34976,7 +34976,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"SA_ABM_SUPER_NOVA", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_SUPER_NOVA", normalStateData.stateID );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_SUPER_NOVA", hyperStateData.stateID );
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -35007,7 +35007,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					stateData.Init();
 					stateData.stateID			= AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END;
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END", stateData.stateID );
-					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 					m_StateList[stateData.stateID] = stateData;
 				} return false;
 
@@ -35020,7 +35020,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"SA_ADW_HEAVY_PRESS", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_HEAVY_PRESS", normalStateData.stateID );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_HEAVY_PRESS", hyperStateData.stateID );
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -35149,7 +35149,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CYCLONE", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_CYCLONE_Init );	/// June 32cb7c00 = March's
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_CYCLONE_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CYCLONE", hyperStateData.stateID );
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -35170,7 +35170,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SKILL_EventProcess );	/// June 32cbed50 = 32cbe6a0
 
 					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_CHAIN_BURST", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -35262,7 +35262,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					stateData.Init();
 					stateData.stateID			= AVSI_HELL_DROP_CONTROL_DYING;
 					m_LuaManager.MakeTableReference( "AVSI_HELL_DROP_CONTROL_DYING", stateData.stateID );
-					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 					m_StateList[stateData.stateID] = stateData;
 				} return false;
 
@@ -35290,7 +35290,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_AEM_CIRCLE_ELEMENTAL", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CIRCLE_ELEMENTAL", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CIRCLE_ELEMENTAL", hyperStateData.stateID );
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
@@ -35304,7 +35304,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_AEM_ELEMENTAL_EDGE", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ELEMENTAL_EDGE", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ELEMENTAL_EDGE", hyperStateData.stateID );
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
@@ -35318,7 +35318,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_AVP_SUMMON_BAT_MILLIONS", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_SUMMON_BAT_MILLIONS", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_SUMMON_BAT_MILLIONS", hyperStateData.stateID );
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
@@ -35348,7 +35348,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					stateData.Init();
 					stateData.stateID			= AVSI_SA_AVP_RUIN_END;
 					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_RUIN_END", stateData.stateID );
-					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 					m_StateList[stateData.stateID] = stateData;
 
 					SetRuinValues( pSkillTemplet );
@@ -35363,10 +35363,10 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"SA_AEM_ICICLE_SPEAR", eSkillID_, iSlotIndex_, bSlotB_ );
 					/// June's Init 32cb8ec0 is an empty function
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ICICLE_SPEAR", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ICICLE_SPEAR", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -35378,10 +35378,10 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"SA_AVP_ABYSS_FIELD", eSkillID_, iSlotIndex_, bSlotB_ );
 					/// June's Init 32cb8ed0 is an empty function
 					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_ABYSS_FIELD", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_ABYSS_FIELD", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -35400,7 +35400,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_READY_EndFuture );	/// June 32cb7870 = March's
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_A_AV_CIRCLE_FLAME_READY", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );
+					CopyStateCallbacks( hyperStateData, normalStateData );
 
 					UserUnitStateData stateData;
 
@@ -35429,7 +35429,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AVP_Summon_Bat_Heavy_Init );	/// June 32cb7bd0 = the Heavy Init's list ( mesh + AVP_Effect128.tga )
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AVP_SUMMON_BAT_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT", hyperStateData.stateID );
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -35499,7 +35499,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"A_AEM_FIRE_RING", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_A_AEM_FIRE_RING", normalStateData.stateID );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AEM_FIRE_RING_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_A_AEM_FIRE_RING", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
@@ -35516,7 +35516,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"A_AVP_DARK_RING", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_A_AVP_DARK_RING", normalStateData.stateID );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AVP_DARK_RING_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_A_AVP_DARK_RING", hyperStateData.stateID );
 					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
@@ -35534,7 +35534,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_ABM_ENERGY_SPURT", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_ENERGY_SPURT", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_ENERGY_SPURT", hyperStateData.stateID );
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
@@ -35553,7 +35553,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_ADW_DISTORTION_Init );
 					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_ADW_DISTORTION_StateStart );	/// June 32cdd900 = March's
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_ADW_DISTORTION_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_A_ADW_DISTORTION", hyperStateData.stateID );
 					hyperStateData.StateInit		= normalStateData.StateInit;
@@ -35572,7 +35572,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_ADW_SCREW_DRIVER", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ADW_SCREWDRIVER", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ADW_SCREWDRIVER", hyperStateData.stateID );
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
@@ -35591,10 +35591,10 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ADW_MORNING_STAR_StartFuture );
 					normalStateData.StateStart			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_Chain_Lightning_Start );	/// June 32cc1b10 = 32cc23c0
 					normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ADW_MORNING_STAR_FrameMove );
-					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ADW_MORNING_STAR", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -35618,7 +35618,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					stateData.Init();
 					stateData.stateID			= AVSI_SA_ADW_AIR_STUNNER_END;
 					m_LuaManager.MakeTableReference( "AVSI_SA_ADW_AIR_STUNNER_END", stateData.stateID );
-					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 					m_StateList[stateData.stateID] = stateData;
 				} return false;
 
@@ -35630,7 +35630,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 				{
 					LogArmeSkill( L"SA_ADW_CRAZY_WORM", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_SA_ADW_CRAZY_WORM", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_ADW_CRAZY_WORM", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
@@ -35646,10 +35646,10 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"SA_ADW_IMPACT_ZONE", eSkillID_, iSlotIndex_, bSlotB_ );
 					/// June's Init 32cb8ee0 is an empty function
 					m_LuaManager.MakeTableReference( "AVSI_SA_ADW_IMPACT_ZONE", normalStateData.stateID );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SA_ADW_IMPACT_ZONE", hyperStateData.stateID );
-					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+					CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
 				} return false;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -35665,7 +35665,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_ADW_Worm_Hole_Init );	/// June 32cb8530 = March's
 					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_ADW_Worm_Hole_StateStart );	/// June 32ce0e00 = March's
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_ADW_Worm_Hole_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_SI_A_ADW_WORM_HOLE", hyperStateData.stateID );
 					hyperStateData.StateInit		= normalStateData.StateInit;
@@ -35683,7 +35683,7 @@ bool CX2GUArme_VioletMage::SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_I
 					LogArmeSkill( L"A_ADW_ENERGY_RING", eSkillID_, iSlotIndex_, bSlotB_ );
 					m_LuaManager.MakeTableReference( "AVSI_A_ADW_ENERGY_RING", normalStateData.stateID );
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_ADW_ENERGY_RING_FrameMove );
-					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
 
 					m_LuaManager.MakeTableReference( "AVSI_A_ADW_ENERGY_RING", hyperStateData.stateID );
 					hyperStateData.m_bHyperState	= true;
@@ -35765,11 +35765,11 @@ void CX2GUArme_VioletMage::AVSI_SA_AVP_RUIN_LOOP_EventProcess()
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH1l
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 // June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and 0x764 refunds the memo share
-/*virtual*/ void CX2GUArme_VioletMage::JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+/*virtual*/ void CX2GUArme_VioletMage::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
 {
 	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
 	SpecialAttackCooldown( iSkillID, m_fJune8ea8 );
-	June_SkillMemoMpRefund( iSkillID, IsSkillSlotState( GetNowStateID() ), m_fJune8ea8 );
+	SkillMemoMpRefund( iSkillID, IsSkillSlotState( GetNowStateID() ), m_fJune8ea8 );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1l
@@ -35852,7 +35852,7 @@ void CX2GUArme_VioletMage::AVSI_SA_AEM_Chain_Lightning_Start()
 		bool bApplyAnimSpeedByItemAbility = true;
 		LUA_GET_VALUE( m_LuaManager, "APPLY_ANIM_SPEED_BY_ITEM_ABILITY", bApplyAnimSpeedByItemAbility, true );
 		ResetAnimSpeed( m_fAnimSpeed, bApplyAnimSpeedByItemAbility, false,
-			June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, static_cast<int>( GetNowStateSkillID() ) ) );
+			GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, static_cast<int>( GetNowStateSkillID() ) ) );
 	}
 }
 
@@ -35868,7 +35868,7 @@ void CX2GUArme_VioletMage::RNSI_SA_AVM_METEO_CALL_NEW_FrameMove()
 			if( false == g_pX2Game->IsValidUnit( pUnit ) || GetTeam() == pUnit->GetTeam() || CX2GameUnit::GUSI_DIE == pUnit->GetGameUnitState() || pUnit->GetNowHp() <= 0.f )
 				continue;
 
-			if( GetIsRight() != JuneIsPosAlongLastTouchLine( pUnit->GetPos( false ) ) )
+			if( GetIsRight() != IsPosAlongLastTouchLine( pUnit->GetPos( false ) ) )
 				continue;
 
 			if( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() && CX2UnitManager::NCT_BASIC != static_cast<CX2GUNPC*>( pUnit )->GetNPCTemplet().m_ClassType )
@@ -36070,7 +36070,7 @@ void CX2GUArme_VioletMage::AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove()
 
 #ifndef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 // June 329cc2c0: the hyper state takes every callback of the normal one
-void CX2GUArme_VioletMage::June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ )
+void CX2GUArme_VioletMage::CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ )
 {
 	rHyperStateData_.StateInit			= rNormalStateData_.StateInit;
 	rHyperStateData_.StateStartFuture	= rNormalStateData_.StateStartFuture;
@@ -36266,7 +36266,7 @@ void CX2GUArme_VioletMage::RNSI_A_ABM_ENERGETIC_ROAD_FrameMove()
 			const int iLearnedLevel = userSkillTree.GetSkillLevel( eRoadSkillID, false, 0, true );
 			const CX2SkillTree::SkillTemplet* pLearnedTemplet = ( 0 < iLearnedLevel ) ? userSkillTree.GetUserSkillTemplet( eRoadSkillID, true ) : NULL;
 			float fMoveSpeed = 1.f;
-			if( NULL != pLearnedTemplet && true == pLearnedTemplet->JuneTryGetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iLearnedLevel, false, fMoveSpeed ) )
+			if( NULL != pLearnedTemplet && true == pLearnedTemplet->TryGetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iLearnedLevel, false, fMoveSpeed ) )
 				g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hEffectSet, 1, fMoveSpeed, false );
 		}
 	}
@@ -36370,10 +36370,10 @@ void CX2GUArme_VioletMage::PlayRingOnAimedTarget( const WCHAR* pwszEffectSetName
 {
 	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 	{
-		const float fDegreeX	= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_X, static_cast<int>( GetNowStateSkillID() ) );
-		const float fDegreeY	= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_Y, static_cast<int>( GetNowStateSkillID() ) );
-		const float fDegreeZ	= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_Z, static_cast<int>( GetNowStateSkillID() ) );
-		const float fRange		= June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, static_cast<int>( GetNowStateSkillID() ) );
+		const float fDegreeX	= GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_X, static_cast<int>( GetNowStateSkillID() ) );
+		const float fDegreeY	= GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_Y, static_cast<int>( GetNowStateSkillID() ) );
+		const float fDegreeZ	= GetLearnedSkillAbilityValue( CX2SkillTree::SA_DEGREE_Z, static_cast<int>( GetNowStateSkillID() ) );
+		const float fRange		= GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, static_cast<int>( GetNowStateSkillID() ) );
 
 		const D3DXVECTOR3 vCoefficient( tan( fDegreeX * D3DX_PI / 180.f ), -tan( fDegreeY * D3DX_PI / 180.f ), fDegreeZ * D3DX_PI / 180.f );
 
@@ -36410,7 +36410,7 @@ void CX2GUArme_VioletMage::AVSI_SI_SA_ADW_MORNING_STAR_StartFuture()
 		bool bApplyAnimSpeedByItemAbility = true;
 		LUA_GET_VALUE( m_LuaManager, "APPLY_ANIM_SPEED_BY_ITEM_ABILITY", bApplyAnimSpeedByItemAbility, true );
 		ResetAnimSpeed( m_fAnimSpeedFuture, bApplyAnimSpeedByItemAbility, true,
-			June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, static_cast<int>( GetFutureStateSkillID() ) ) );
+			GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, static_cast<int>( GetFutureStateSkillID() ) ) );
 	}
 }
 
@@ -36419,12 +36419,12 @@ void CX2GUArme_VioletMage::PushBuffFactorWithMemoRate( CX2DamageManager::DamageD
 {
 	damageData_.PushBuffFactor( ptrBuffFactor_->GetClonePtr( iLevel_ ) );
 
-	const JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
 	if( NULL == pMemo || ( 0xf != pMemo->m_iType && 0x10 != pMemo->m_iType ) || true == damageData_.m_vecBuffFactorPtr.empty() || NULL == damageData_.m_vecBuffFactorPtr.back() )
 		return;
 
 	const float fMemoValue = pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
-	JuneRescaleBuffFactorByMemoRate( *damageData_.m_vecBuffFactorPtr.back(), ( 0xf == pMemo->m_iType ) ? fMemoValue : 1.f, ( 0x10 == pMemo->m_iType ) ? fMemoValue : 1.f );
+	RescaleBuffFactorByMemoRate( *damageData_.m_vecBuffFactorPtr.back(), ( 0xf == pMemo->m_iType ) ? fMemoValue : 1.f, ( 0x10 == pMemo->m_iType ) ? fMemoValue : 1.f );
 }
 
 void CX2GUArme_VioletMage::AVSI_SA_ADW_AIR_STUNNER_EventProcess()
@@ -36464,16 +36464,16 @@ void CX2GUArme_VioletMage::SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2St
 	float fStatScale = fStatScale_;
 	if( NULL != pSkillTemplet )
 	{
-		iSkillLevel = max( 1, June_GetSkillLevel( iSummonSkillID ) );
+		iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
 		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
 	}
 	SetSummonStatAndPowerRate( pNPC_, npcStat_, fStatScale, fStatAtkRate_, iSummonSkillID );
 
-	float fRemainTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSummonSkillID );
+	float fRemainTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSummonSkillID );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( CX2SkillTree::RNSI_SA_ADW_DISTORTION );
+	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_SA_ADW_DISTORTION );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( JUNE_CH3B_SA_ADW_DISTORTION );
+	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( JUNE_CH3B_SA_ADW_DISTORTION );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( NULL != pMemo && 0xf == pMemo->m_iType )
 		fRemainTime *= pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
@@ -36507,7 +36507,7 @@ void CX2GUArme_VioletMage::SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat
 	float fStatScale = fStatScale_;
 	if( NULL != pSkillTemplet )
 	{
-		iSkillLevel = max( 1, June_GetSkillLevel( iSummonSkillID ) );
+		iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
 		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
 	}
 	SetSummonStatAndPowerRate( pNPC_, npcStat_, fStatScale, fStatAtkRate_, iSummonSkillID );
@@ -36517,7 +36517,7 @@ void CX2GUArme_VioletMage::SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat
 	const CX2EffectSet::Handle hUfoEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AVP_HellDrop_Summon_Loop", pNPC_ );
 	pNPC_->MakeEffectSetBeDeletedWhenDie( hUfoEffect );
 
-	const float fMoveScale = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_REMOTE_SPEED_ABS, iSummonSkillID );
+	const float fMoveScale = GetLearnedSkillAbilityValue( CX2SkillTree::SA_REMOTE_SPEED_ABS, iSummonSkillID );
 	pNPC_->ScaleMoveSpeed( fMoveScale );
 
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL summon Hell Drop UFO ( npc %d, skill %d, level %d, stat scale %.3f, power rate %.3f, move scale %.3f )", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ), iSummonSkillID, iSkillLevel, fStatScale, fPowerRate, fMoveScale );
@@ -36539,15 +36539,15 @@ void CX2GUArme_VioletMage::SetStoneWallSummonInfo( CX2GUNPC* pNPC_ )
 void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
+	const int iSkillLevel = GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( 0 >= iSkillLevel )
 		return;
 
 	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
-	if( NULL == pDefender || false == damageData_.JuneIsAttackTrigger( 17 ) )
+	if( NULL == pDefender || false == damageData_.IsAttackTrigger( 17 ) )
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -36597,7 +36597,7 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		if( true == IsPvpOrPveGame() )
 		{
-			const float fAddCoolTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, static_cast<int>( pSkillTemplet_->m_eID ) );
+			const float fAddCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, static_cast<int>( pSkillTemplet_->m_eID ) );
 			if( 0.f < fAddCoolTime )
 				fCoolTime += fAddCoolTime;
 		}
@@ -36610,18 +36610,18 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 	fCoolTime = m_fElementalResearchRate * fCoolTime;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < June_GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < June_GetSkillLevel( JUNE_CH4C_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevel( JUNE_CH4C_P_AVP_OPEN_MIND ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	{
 		const std::set<UidType> setExceptUID;
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( NULL == GetNearestEnemyInRange( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), setExceptUID ) )
-			fCoolTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) * fCoolTime;
+		if( NULL == GetNearestEnemyInRange( GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), setExceptUID ) )
+			fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) * fCoolTime;
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( NULL == GetNearestEnemyInRange( June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, JUNE_CH4C_P_AVP_OPEN_MIND ), setExceptUID ) )
-			fCoolTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, JUNE_CH4C_P_AVP_OPEN_MIND ) * fCoolTime;
+		if( NULL == GetNearestEnemyInRange( GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, JUNE_CH4C_P_AVP_OPEN_MIND ), setExceptUID ) )
+			fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, JUNE_CH4C_P_AVP_OPEN_MIND ) * fCoolTime;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
 
@@ -36632,9 +36632,9 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		&& CX2SkillTree::ST_HYPER_ACTIVE_SKILL != iSkillType && CX2SkillTree::ST_RELATIONSHIP_SKILL != iSkillType )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		fCoolTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ) * fCoolTime;
+		fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ) * fCoolTime;
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		fCoolTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, JUNE_CH4C_P_ADW_TIME_LIMIT ) * fCoolTime;
+		fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, JUNE_CH4C_P_ADW_TIME_LIMIT ) * fCoolTime;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
 	if( fCoolTime < 0.f )
@@ -36648,7 +36648,7 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 }
 
 // June 32cc28b0 ( vslot 0x428 ): Shadow Death, a chance that a non-special attack ignores the defence
-/*virtual*/ float CX2GUArme_VioletMage::JuneGetDefenceRateBySkill( const int iAttackType_ )
+/*virtual*/ float CX2GUArme_VioletMage::GetDefenceRateBySkill( const int iAttackType_ )
 {
 	float fDefenceRate = 1.f;
 	if( NULL == GetUnit() )
@@ -36683,15 +36683,15 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 }
 
 // June 32cc5c30 ( vslot 0x73c ): Magical Staff, more MP from a physical hit taken
-/*virtual*/ float CX2GUArme_VioletMage::JuneGetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ )
+/*virtual*/ float CX2GUArme_VioletMage::GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ )
 {
 	if( NULL == pDamageData_ || CX2DamageManager::DT_PHYSIC != pDamageData_->damageType )
 		return 1.f;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = June_GetSkillLevel( JUNE_CH4A_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevel( JUNE_CH4A_P_ADW_MAGICAL_STAFF );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( iSkillLevel <= 0 )
 		return 1.f;

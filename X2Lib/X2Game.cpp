@@ -338,7 +338,7 @@ m_bSkillSlotJustChanged(true)
 	m_pJuneSimpleDLG = NULL;	/// June CX2Game ctor 32306600 @32307743
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
-	JuneSkipStartReset();	/// June CX2Game ctor 32306600 @323076e0-323076fe: the skip-the-start list ( +0xb40 ) is built and reset ( 322d8010 )
+	SkipStartReset();	/// June CX2Game ctor 32306600 @323076e0-323076fe: the skip-the-start list ( +0xb40 ) is built and reset ( 322d8010 )
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 
 // #ifndef _SERVICE_
@@ -455,8 +455,8 @@ m_bSkillSlotJustChanged(true)
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 				{
 					const bool bShowMemorize = false;
-					June_ShowMemorizeStatics( &bShowMemorize );		// June @32307bb4
-					June_ClearAllMemoRiseSlotParticle( true );		// June @32307e99, later in the ctor
+					ShowMemorizeStatics( &bShowMemorize );		// June @32307bb4
+					ClearAllMemoRiseSlotParticle( true );		// June @32307e99, later in the ctor
 				}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
@@ -757,7 +757,7 @@ CX2Game::~CX2Game()
 	/// Atlas E7 (order fixed in E10): June Release 323080c0 deletes the main world (+0x39c), clears the additional worlds
 	/// (322d7f90 @323083ff), then deletes the camera (+0x3b0 @32308404). An additional world's dtor unloads the world camera
 	/// through GetX2Camera(), so after the camera's delete it read NULL (E10 play-test crash at the result screen).
-	ClearJuneAdditionalWorld();
+	ClearAdditionalWorld();
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	SAFE_DELETE( m_pCamera );
 	SAFE_DELETE( m_pDamageEffect );
@@ -842,7 +842,7 @@ CX2Game::~CX2Game()
 		g_pData->GetUIManager()->GetUISkillTree()->GetDLGGameSkillSLot()->SetEnable(true);
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		const bool bShowMemorize = false;
-		June_ShowMemorizeStatics( &bShowMemorize );		// June dtor @32308941
+		ShowMemorizeStatics( &bShowMemorize );		// June dtor @32308941
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 		const bool bShowEveRecovery = false;
@@ -853,7 +853,7 @@ CX2Game::~CX2Game()
 	m_vecRemoveDamageEffect.clear();
 #endif
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-	June_ClearAllMemoRiseSlotParticle( true );		// June dtor @32308a9b
+	ClearAllMemoRiseSlotParticle( true );		// June dtor @32308a9b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 	bool bLoop      = true;
@@ -2977,11 +2977,11 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		UpdateSkillCoolTime( fElapsedTime );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		if( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() )
-			June_MemoRiseSlotFrameMove();		// June @3230901b, right after 322e07e0
+			MemoRiseSlotFrameMove();		// June @3230901b, right after 322e07e0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 		if( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() )
-			June_TranscendSlotGuideFrameMove();		// June @3230906f
+			TranscendSlotGuideFrameMove();		// June @3230906f
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 
 		if( true == g_pKTDXApp->GetDSManager()->GetCapable3DSound() &&
@@ -3936,7 +3936,7 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 #endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-	JuneUpdateCameraLandHeight();	/// June 322cfe20, the last call of OnFrameMove ( @3230aa28 )
+	UpdateCameraLandHeight();	/// June 322cfe20, the last call of OnFrameMove ( @3230aa28 )
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	return S_OK;
 }
@@ -4324,7 +4324,7 @@ HRESULT	CX2Game::OnFrameRender()
 #endif //REFORM_UI_SKILLSLOT
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 	/// June CX2Game render 3230aa60 @3230b73f-3230b745: the skip-the-start hint ( 32305be0 ) is the last thing drawn, after the skill-guide text.
-	JuneRenderSkipStartHint();
+	RenderSkipStartHint();
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 	return S_OK;
 }
@@ -6228,7 +6228,7 @@ namespace
 {
 	/// June 31d28c20: a == b -> a; else rand() / 32767.0 ( 334380f8 ) * | b - a | + a.
 	/// ( March's RandomFloat draws rand() % 10001 / 10000 instead, so June's own draw is kept. )
-	float JuneRandomRange( float fMin_, float fMax_ )
+	float RandomRange( float fMin_, float fMax_ )
 	{
 		if ( fMin_ == fMax_ )
 			return fMin_;
@@ -6426,18 +6426,18 @@ void CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA( float fRed_, float
 	const D3DXCOLOR colorWhite( 1.f, 1.f, 1.f, 1.f );
 
 	D3DXVECTOR2 vShakePos;
-	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
-	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	vShakePos.x = RandomRange( fMinX, fMaxX );
+	vShakePos.y = RandomRange( fMinY, fMaxY );
 	m_pDLG->Move( vShakePos, colorFlash, fTime_, true, false, false, 1, true );
 	m_pDLG->Move( vHomePos, colorFlash, fTime_, false, false, false, 1, true );
 
-	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
-	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	vShakePos.x = RandomRange( fMinX, fMaxX );
+	vShakePos.y = RandomRange( fMinY, fMaxY );
 	m_pDLG->Move( vShakePos, colorFlash, fTime_, false, false, false, 1, true );
 	m_pDLG->Move( vHomePos, colorWhite, fTime_, false, false, false, 1, true );
 
-	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
-	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	vShakePos.x = RandomRange( fMinX, fMaxX );
+	vShakePos.y = RandomRange( fMinY, fMaxY );
 	m_pDLG->Move( vShakePos, colorFlash, fTime_, false, false, false, 1, true );
 	m_pDLG->Move( vHomePos, colorWhite, fTime_, false, false, false, 1, true );
 
@@ -6903,7 +6903,7 @@ void CX2Game::PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ )
 }
 
 /** June 322d7f90: delete each world of the +0x3a0 vector ( vslot 0 with 1 ), then empty it */
-void CX2Game::ClearJuneAdditionalWorld()
+void CX2Game::ClearAdditionalWorld()
 {
 	for ( UINT i = 0; i < m_vecJuneAdditionalWorld.size(); i++ )
 	{
@@ -6979,12 +6979,12 @@ UINT CX2Game::GetUserIndexByUserUID( UidType iUserUID_ )
 /** June 322d7090 / 322d7060: the core 322d55b0 with bIncludeSameTeam 0 / 1 */
 CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ )
 {
-	return GetNearestUnitInSpecificRangeJune( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, false );
+	return GetNearestUnitInSpecificRange( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, false );
 }
 
 CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange_IncludeSameTeam_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ )
 {
-	return GetNearestUnitInSpecificRangeJune( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, true );
+	return GetNearestUnitInSpecificRange( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, true );
 }
 
 /** June 322d55b0 ( RET 0x1c, read from the disassembly ), March's ADDITIONAL_MEMO GetNearestUnit grown:
@@ -7000,7 +7000,7 @@ CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange_IncludeSameTeam_LUA( CX2Game
 	- distance d ( 31c7b560 ) between the two positions: kept when d < best, fMinRange_ <= d and d <= fMaxRange_; best starts at
 	  fMaxRange_ ( @322d55c2 -> [esp+0x1c] ).
 */
-CX2GameUnit* CX2Game::GetNearestUnitInSpecificRangeJune( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ )
+CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ )
 {
 	CX2GameUnit* pMyUnit = pUnit_;
 	if ( NULL == pMyUnit )
@@ -7204,7 +7204,7 @@ int CX2Game::GetLineTypeByLineID_LUA( int iLineIndex_ )
 
 /** June 322cfe20 ( the end of OnFrameMove ): with a world, a line map, the DG manager ( g_pKTDXApp +0x1fc ) and my unit, the camera's
 	land height ( +0x3c, m_fLand ) follows my unit's line: its CAMERA_LAND_HEIGHT, else the line map's land height ( +0x1b4 ) */
-void CX2Game::JuneUpdateCameraLandHeight()
+void CX2Game::UpdateCameraLandHeight()
 {
 	if ( NULL == GetWorld() || NULL == GetWorld()->GetLineMap() || NULL == g_pKTDXApp->GetDGManager() || NULL == GetMyUnit() || NULL == m_pCamera )
 		return;
@@ -9550,7 +9550,7 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 		return;
 
 	const vector<CX2SocketItem::SocketData::JuneConditionalBuff>& vecConditionalBuff = pMyUnit->GetSocketData().m_vecConditionalBuff;
-	if ( 0 != pKilledNpc_->GetJuneAbsoluteMonsterState() )
+	if ( 0 != pKilledNpc_->GetAbsoluteMonsterState() )
 	{
 		for ( UINT i = 0; i < vecConditionalBuff.size(); ++i )
 		{
@@ -9582,7 +9582,7 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 		}
 	}
 
-	const vector<int>& vecDeathBuff = pKilledNpc_->GetJuneAbsoluteDeathBuffFactorIDList();
+	const vector<int>& vecDeathBuff = pKilledNpc_->GetAbsoluteDeathBuffFactorIDList();
 	for ( UINT i = 0; i < vecDeathBuff.size(); ++i )
 	{
 		pMyUnit->SetBuffFactorToGameUnitByBuffFactorID( vecDeathBuff[i], 1 );
@@ -10996,7 +10996,7 @@ bool CX2Game::Handler_EGS_GET_ITEM_NOT( KEGS_GET_ITEM_NOT& kEGS_GET_ITEM_NOT )
 
 #ifdef SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
 		/// C9h-4h: June 3230bdd0 @3230bf35 ( after the HP / GUSI_DIE returns, before the outlay item ): the packet's item id ( +8 = m_iItemID ) may start an event kit
-		pCX2GUUser->JuneStartEventKit( kEGS_GET_ITEM_NOT.m_iItemID );
+		pCX2GUUser->StartEventKit( kEGS_GET_ITEM_NOT.m_iItemID );
 #endif SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
 
 		ProcessGetOutlayItem(pItemTemplet, pCX2GUUser, 
@@ -12317,7 +12317,7 @@ bool CX2Game::CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ )
 /// the PvP room ( g_pData +0x6c ) set with PVP_GAME_TYPE ( +0xd8 ) == 8 and DD attackType ( +8 ) != 2: *damage *= 0.5 ( 3342ebc8 ).
 /// March's enums stop at PGT_TAG 3 and (without SERV_IRUHADEV_JUNE_BUFF_ENUM) AT_SPECIAL 1, so both values are named here.
 /// Inert on March data: there is no PvP room of type 8 and no offline PvP.
-void CX2Game::JunePvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ )
+void CX2Game::PvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ )
 {
 	const int JUNE_PGT_AMUSEMENT_ITEM	= 8;	/// June Enum.lua:736 PVP_GAME_TYPE
 	const int JUNE_AT_COMMAND			= 2;	/// June Enum.lua ATTACK_TYPE
@@ -12514,7 +12514,7 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 /// June 322d8010: armed and sent false ( one word store ), the list cleared, then the now state's subtitle cleared ( g_pMain +0x90 ->
 /// 31ef7370( 27, -1 ) = CX2State::SetMovieDescriptionData; string 27 is empty ). Callers: the ctor, the arming ( empty list ), the end of a
 /// DIRECTION_STATE state ( 3277f9b7 ).
-void CX2Game::JuneSkipStartReset()
+void CX2Game::SkipStartReset()
 {
 	m_bJuneSkipStartArmed	= false;
 	m_bJuneSkipStartSent	= false;
@@ -12527,10 +12527,10 @@ void CX2Game::JuneSkipStartReset()
 
 /// June CX2GUNPC::CommonStateStart 327ac9d0 @327af274-327af360: an empty list ( +0xb44 == +0xb48 ) is reset first ( 322d8010 ), then armed = 1
 /// and the NPC's UID ( +0x270 ) is pushed ( 31f8b860 ). An NPC that enters a second DIRECTION_STATE state is pushed again, as in June.
-void CX2Game::JuneSkipStartArm( int iNPCUID_ )
+void CX2Game::SkipStartArm( int iNPCUID_ )
 {
 	if ( true == m_vecJuneSkipStartNPCUID.empty() )
-		JuneSkipStartReset();
+		SkipStartReset();
 
 	m_bJuneSkipStartArmed = true;
 	m_vecJuneSkipStartNPCUID.push_back( iNPCUID_ );
@@ -12546,7 +12546,7 @@ void CX2Game::JuneSkipStartArm( int iNPCUID_ )
 /// over the NPC list +0x324 ); my unit ( vslot 0x98 ) m_fCanNotInputTime ( +0xde8 ) = 0; then the reset ( 322d8010 ). A boss whose name banner
 /// has not shown yet ( SHOW_BOSS_NAME_DELAY_TIME ) does not show it, and the flip-on-hit and last-kill tests that read the flag change with it
 /// ( JUNE_BUGS ).
-void CX2Game::JuneSkipStartEndDirection( int iNPCUID_ )
+void CX2Game::SkipStartEndDirection( int iNPCUID_ )
 {
 	m_bJuneSkipStartArmed = false;
 
@@ -12559,7 +12559,7 @@ void CX2Game::JuneSkipStartEndDirection( int iNPCUID_ )
 	if ( NULL != GetMyUnit() )
 		GetMyUnit()->SetCanNotInputTime_LUA( 0.f );
 
-	JuneSkipStartReset();
+	SkipStartReset();
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 	CX2OfflineLog::Server( L"JUNE_FX C3p end: npc %d left its DIRECTION_STATE state; list disarmed, %d NPC boss-name flags cleared, input unlocked",
 		iNPCUID_, (int)m_NPCUnitList.size() );
@@ -12571,7 +12571,7 @@ void CX2Game::JuneSkipStartEndDirection( int iNPCUID_ )
 /// June's event 0x4ac ( 31e57100 ), which the server relays and each member answers with the skip ( 324cf360, from 324dc4f2 ); solo runs the
 /// skip at once ( 322f11d0 ). Returns true either way. Offline there is never a party ( the emulator answers every party request with "no
 /// party" and the AI-party bots are NPCs ), so the party branch only logs: March has no event for it and nothing relays it.
-bool CX2Game::JuneSkipStartRequest()
+bool CX2Game::SkipStartRequest()
 {
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 	static int s_iJuneC3pEsc = 0;
@@ -12599,7 +12599,7 @@ bool CX2Game::JuneSkipStartRequest()
 		return true;
 	}
 
-	JuneSkipStart();
+	SkipStart();
 	return true;
 }
 
@@ -12608,7 +12608,7 @@ bool CX2Game::JuneSkipStartRequest()
 /// WAIT_STATE ( vslot 0x5c StateChange( +0x4088, false ) ), the list is cleared ( both bools, one word ) and the subtitle too ( 31ef7370( 27, -1 ) ).
 /// The walk is over a copy: an NPC whose DIRECTION_STATE state ends inside StateChange resets the list ( JuneSkipStartEndDirection ), and June
 /// only survives that because it holds the vector's begin / end in registers ( @322f12c7-322f12cb ).
-void CX2Game::JuneSkipStart()
+void CX2Game::SkipStart()
 {
 	int iJuneUsers = 0;
 	for ( int i = 0; i < GetUserUnitListSize(); ++i )
@@ -12655,7 +12655,7 @@ void CX2Game::JuneSkipStart()
 /// footage."; sent: 31003 "Waiting for party members to end the video footage." ( never seen offline: a solo ESC clears the list at once ).
 /// Font 2 ( XUF_DODUM_15_BOLD in both builds' X2_UK_FONT ), at ( 970, 740 ), white, FS_SHELL with a black outline, DT_RIGHT. June's string-ID
 /// debug prefix ( 31c31060 +0x40 ) and its extra OutTextXY argument ( passed through from the render's caller ) have no March counterpart.
-void CX2Game::JuneRenderSkipStartHint()
+void CX2Game::RenderSkipStartHint()
 {
 	if ( false == m_bJuneSkipStartArmed )
 		return;
@@ -12979,21 +12979,21 @@ BYTE CX2Game::GetEffectAlphaCondition( CX2GameUnit* pOwner )
 		else
 			byResult = CKTDXApp::AEACBO_MY_TEAM_EFFECT;
 
-		pOwner->JuneOverrideEffectAlphaCondition( &byResult );
+		pOwner->OverrideEffectAlphaCondition( &byResult );
 	}
 
 	return byResult;
 }
 
 /// June2017 32296d60: a particle sequence takes its owner's category (sequence +0x1b0)
-void CX2Game::JuneTagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq )
+void CX2Game::TagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq )
 {
 	if( NULL != pSeq )
 		pSeq->SetEffectAlphaCondition( GetEffectAlphaCondition( pUnit ) );
 }
 
 /// June2017 32296da0: the same for a handle on the major (bMinor false) or minor particle system
-void CX2Game::JuneTagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor )
+void CX2Game::TagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor )
 {
 	CKTDGParticleSystem* pParticleSystem = ( true == bMinor ? GetMinorParticle() : GetMajorParticle() );
 	if( NULL == pParticleSystem )
@@ -13005,17 +13005,17 @@ void CX2Game::JuneTagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticl
 }
 
 /// June2017 32296e40: 32296da0 over an array of handles
-void CX2Game::JuneTagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor )
+void CX2Game::TagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor )
 {
 	if( NULL == pHandles )
 		return;
 
 	for( int i = 0; i < iCount; ++i )
-		JuneTagEffectAlphaParticleHandle( pUnit, pHandles[i], bMinor );
+		TagEffectAlphaParticleHandle( pUnit, pHandles[i], bMinor );
 }
 
 /// June2017 32296ee0: a mesh instance takes its owner's category (mesh +0x4a8 and its two slash traces)
-void CX2Game::JuneTagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh )
+void CX2Game::TagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh )
 {
 	if( NULL != pMesh )
 		pMesh->SetEffectAlphaCondition( GetEffectAlphaCondition( pUnit ) );
@@ -13023,7 +13023,7 @@ void CX2Game::JuneTagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMe
 
 /// June2017 32296f30: an effect-set instance (on the UI effect-set manager with bByPointer, else this game's) takes byCategory when it is not 0,
 /// else its owner's category (instance +0x1bc)
-void CX2Game::JuneTagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer )
+void CX2Game::TagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer )
 {
 	CX2EffectSet* pEffectSet = ( true == bByPointer ? ( NULL != g_pData ? g_pData->GetUIEffectSet() : NULL ) : GetEffectSet() );
 	if( NULL == pEffectSet )
@@ -13048,7 +13048,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2Game::CreateApplyAlphaParticleSe
 		pos.x, pos.y, pos.z, emitRate.x, emitRate.y, -1, (int)trigger.x, trigger.y );
 
 	if( NULL != pUnit )
-		JuneTagEffectAlphaParticle( pUnit, pSeq );
+		TagEffectAlphaParticle( pUnit, pSeq );
 
 	return pSeq;
 }
@@ -13066,7 +13066,7 @@ CKTDGXMeshPlayer::CXMeshInstance* CX2Game::CreateApplyAlphaMeshInstance_LUA( boo
 	CKTDGXMeshPlayer::CXMeshInstance* pMesh = pMeshPlayer->CreateInstance( pUnit, wstrMeshName.c_str(), pos, angleDegree, moveAxisDegree, iLayer );
 
 	if( NULL != pUnit )
-		JuneTagEffectAlphaMesh( pUnit, pMesh );
+		TagEffectAlphaMesh( pUnit, pMesh );
 
 	return pMesh;
 }
@@ -13611,7 +13611,7 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 #endif ELSWORD_WAY_OF_SWORD
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 // June 322deb80: the memorize slots of the 10-slot dialog for the own Aisha
-void CX2Game::June_RefreshMemoRiseSlot()
+void CX2Game::RefreshMemoRiseSlot()
 {
 	CX2GUUser* pMyUnit = GetMyUnit();
 	if( NULL == pMyUnit || NULL == pMyUnit->GetUnit() || CX2Unit::UT_ARME != pMyUnit->GetUnit()->GetType() )
@@ -13624,12 +13624,12 @@ void CX2Game::June_RefreshMemoRiseSlot()
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
 		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO HUD hidden ( no memorized skill )" );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
-		June_ShowMemorizeStatics( &bShow );
+		ShowMemorizeStatics( &bShow );
 		return;
 	}
 
 	const bool bShow = true;
-	June_ShowMemorizeStatics( &bShow );
+	ShowMemorizeStatics( &bShow );
 
 	if( NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() )
 		return;
@@ -13704,7 +13704,7 @@ void CX2Game::June_RefreshMemoRiseSlot()
 }
 
 // June 322cf350: hide every memorize static, then show the current UI type's set
-void CX2Game::June_ShowMemorizeStatics( const bool* pbShow_ )
+void CX2Game::ShowMemorizeStatics( const bool* pbShow_ )
 {
 	if( NULL == m_pDLGSkillSlot )
 		return;
@@ -13741,7 +13741,7 @@ void CX2Game::June_ShowMemorizeStatics( const bool* pbShow_ )
 }
 
 // June 322f4740: the memorize sparkle on the slots a charging Aisha can memorize
-void CX2Game::June_MemoRiseSlotFrameMove()
+void CX2Game::MemoRiseSlotFrameMove()
 {
 	CX2GUUser* pMyUnit = GetMyUnit();
 	if( NULL == pMyUnit || NULL == pMyUnit->GetUnit() || CX2Unit::UT_ARME != pMyUnit->GetUnit()->GetType() )
@@ -13762,7 +13762,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 	{
 		if( NULL == m_pDLGSkillSlot || false == m_pDLGSkillSlot->GetShow() || false == pArme->IsMemoRiseChargeActive() )
 		{
-			June_ClearMemoRiseSlotParticle( i, true );
+			ClearMemoRiseSlotParticle( i, true );
 			continue;
 		}
 
@@ -13772,7 +13772,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 			iIndex -= 5;
 			bSlotB = true;
 		}
-		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB )
+		if( false == refUserSkillTree.IsSlotUsable( 0 ) && true == bSlotB )
 			break;
 
 		const CX2UserSkillTree::SkillSlotData* pSlotData = refUserSkillTree.GetSkillSlot( iIndex, bSlotB );
@@ -13782,7 +13782,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 		const int iSkillID = static_cast<int>( pSlotData->m_eID );
 		if( true == pArme->MemoRiseContains( &iSkillID ) )
 		{
-			June_ClearMemoRiseSlotParticle( i, true );
+			ClearMemoRiseSlotParticle( i, true );
 			continue;
 		}
 
@@ -13799,7 +13799,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 		}
 
 		if( NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) && false == pStaticFade->GetPicture( iIndex )->bShow &&
-			true == June_IsMemoRiseSignSlot( pSlotData ) && true == bShowBar )
+			true == IsMemoRiseSignSlot( pSlotData ) && true == bShowBar )
 		{
 			CKTDGUIControl::CPictureData* pPicture = pStaticFade->GetPicture( iIndex );
 			const D3DXVECTOR2 vDialogPos = pStaticFade->GetDialog()->GetPos();
@@ -13829,13 +13829,13 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 
 			if( 2.8f <= m_fJuneMemoRiseTimer )
 			{
-				June_ClearMemoRiseSlotParticle( i, true );
-				June_CreateMemoRiseSlotParticle( i, fX, fY );
+				ClearMemoRiseSlotParticle( i, true );
+				CreateMemoRiseSlotParticle( i, fX, fY );
 			}
 			continue;
 		}
 
-		June_ClearMemoRiseSlotParticle( i, true );
+		ClearMemoRiseSlotParticle( i, true );
 	}
 
 	if( 2.8f <= m_fJuneMemoRiseTimer )
@@ -13843,7 +13843,7 @@ void CX2Game::June_MemoRiseSlotFrameMove()
 }
 
 // June 322eca50: drop slot i's memorize sign and sparkle
-void CX2Game::June_ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ )
+void CX2Game::ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ )
 {
 	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
 	{
@@ -13875,17 +13875,17 @@ void CX2Game::June_ClearMemoRiseSlotParticle( const int iSlot_, const bool bEras
 }
 
 // June 322ecb60: 322eca50 for all ten slots
-void CX2Game::June_ClearAllMemoRiseSlotParticle( const bool bErase_ )
+void CX2Game::ClearAllMemoRiseSlotParticle( const bool bErase_ )
 {
 	for( int i = 0; i < 10; ++i )
-		June_ClearMemoRiseSlotParticle( i, bErase_ );
+		ClearMemoRiseSlotParticle( i, bErase_ );
 }
 
 // June 322f4480: the sign on slot i and five Aisha_Memorise_P0n sparkles at ( x, y )
-void CX2Game::June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ )
+void CX2Game::CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ )
 {
 	const bool bShowSign = true;
-	June_ShowMemoRiseSign( &iSlot_, &bShowSign );
+	ShowMemoRiseSign( &iSlot_, &bShowSign );
 
 	std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > vecHandle;
 	for( int k = 1; k <= 5; ++k )
@@ -13906,7 +13906,7 @@ void CX2Game::June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_
 	}
 
 	if( m_mapJuneMemoRiseParticle.end() != m_mapJuneMemoRiseParticle.find( iSlot_ ) )
-		June_ClearMemoRiseSlotParticle( iSlot_, true );
+		ClearMemoRiseSlotParticle( iSlot_, true );
 	m_mapJuneMemoRiseParticle.insert( std::make_pair( iSlot_, vecHandle ) );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO sparkle slot %d at ( %.0f, %.0f ), %u sequence(s)", iSlot_, fX_, fY_, static_cast<UINT>( vecHandle.size() ) );
@@ -13914,7 +13914,7 @@ void CX2Game::June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_
 }
 
 // June 322cf810: may the slot's skill take the memorize sign now
-bool CX2Game::June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ )
+bool CX2Game::IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ )
 {
 	if( false == g_pMain->JuneCanShowClassGuide( 3 ) )
 		return false;
@@ -13933,7 +13933,7 @@ bool CX2Game::June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pS
 }
 
 // June 322cf790: show or hide the memorize sign on equipped slot i ( 0-9 )
-void CX2Game::June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ )
+void CX2Game::ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ )
 {
 	if( NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() )
 		return;
@@ -13951,7 +13951,7 @@ void CX2Game::June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 // June 322d8100: the guide-type-4 glow on A-5 / B-5 while BTI 820 holds in an awakening
-void CX2Game::June_TranscendSlotGuideFrameMove()
+void CX2Game::TranscendSlotGuideFrameMove()
 {
 	CX2GUUser* pMyUnit = GetMyUnit();
 	if( NULL == g_pData->GetSkillTree() || NULL == pMyUnit || NULL == g_pData->GetUIMajorParticle() || NULL == g_pData->GetUIManager() )
@@ -13979,7 +13979,7 @@ void CX2Game::June_TranscendSlotGuideFrameMove()
 		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
 		{
 			CX2Unit* pSelectUnit = g_pData->GetMyUser()->GetSelectUnit();
-			if( false == pSelectUnit->GetUnitData().m_UserSkillTree.IsJuneSlotUsable( 1 )
+			if( false == pSelectUnit->GetUnitData().m_UserSkillTree.IsSlotUsable( 1 )
 				&& ( true == bSlotB || 0 == pSelectUnit->GetUnitData().m_iUnitClassTran ) )
 				return;
 		}
@@ -14064,7 +14064,7 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 	{
 		const bool bSlotB = ( 4 < i );
 		const int iSlotIndex = ( i < 5 ) ? i : i - 5;
-		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsJuneSlotUsable( 1 ) &&
+		if( false == refUserSkillTree.IsSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsSlotUsable( 1 ) &&
 			true == CX2UserSkillTree::IsTranscendenceSlotIndex( i ) )
 			continue;
 
@@ -14388,7 +14388,7 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 	{
 		const bool bSlotB = ( 4 < i );
 		const int iSlotIndex = ( i < 5 ) ? i : i - 5;
-		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsJuneSlotUsable( 1 ) &&
+		if( false == refUserSkillTree.IsSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsSlotUsable( 1 ) &&
 			true == CX2UserSkillTree::IsTranscendenceSlotIndex( i ) )
 			continue;
 
@@ -14964,7 +14964,7 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 							pStaticCoolTime->SetString( iSlotIndex, L"" );
 						}
 #ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
-						else if( GetMyUnit()->JuneShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) > 0.0f
+						else if( GetMyUnit()->ShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) > 0.0f
 #else SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 						else if(pSlotData->m_fCoolTimeLeft > 0.0f
 #endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
@@ -14978,7 +14978,7 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 
 							wstringstream wstrstm;
 #ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
-							wstrstm << (int)( ceil( GetMyUnit()->JuneShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) ) );
+							wstrstm << (int)( ceil( GetMyUnit()->ShownSkillCoolTime( pSlotData->m_fCoolTimeLeft, pSlotData->m_eID ) ) );
 #else SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 							wstrstm << (int)( ceil(pSlotData->m_fCoolTimeLeft) );
 #endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
@@ -15134,10 +15134,10 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 									}
 									g_pKTDXApp->GetDeviceManager()->PlaySound( L"Skill_Refresh.ogg", false, false );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-									if( NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() && true == June_IsMemoRiseSignSlot( pSlotData ) )
+									if( NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() && true == IsMemoRiseSignSlot( pSlotData ) )
 									{
 										const bool bShowSign = true;
-										June_ShowMemoRiseSign( &i, &bShowSign );		// June 322e07e0 @322e1bcc
+										ShowMemoRiseSign( &i, &bShowSign );		// June 322e07e0 @322e1bcc
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
 										CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO sign slot %d ( cool time ended while charging )", i );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
@@ -15758,7 +15758,7 @@ bool CX2Game::Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK( KEGS_RESURRECT_TO_C
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 					/// June Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK @3230ec71-3230ecaa ( C3i ): a fall-down NPC whose state sets NO_FALL_DOWN_AT_STATE
 					/// ( StateData +0x401 ) is not knocked down; June tests it before GetIsFallDownState ( vslot 0x184 )
-					if( true == pCX2GUNPC->GetJuneNoFallDownAtState() )
+					if( true == pCX2GUNPC->GetNoFallDownAtState() )
 					{
 #ifdef SERV_IRUHADEV_OFFLINE
 						CX2OfflineLog::Server( L"JUNE_FX C3i resurrect npc %I64d ( %s ): NO_FALL_DOWN_AT_STATE, not knocked down",
@@ -16993,7 +16993,7 @@ D3DXVECTOR3 CX2Game::GetEmptyStartPos()
 /// is still the ctor's 1.0 when these cases run (X2GUNPC.cpp m_fDefaultPowerRate = 1.f; no writer before SetUserSummonedNPCInfo), so
 /// scaling is the store. The case skill is June's 31fcf520( NPC id ) mapped to March (emulated over ids 0-70000: 51 ids, every one
 /// March has gets its own case, so the switch default is 0).
-static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+static void ApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
 {
 	if ( NULL == pNPC_ || NULL == pUser_ )
 		return;
@@ -17008,7 +17008,7 @@ static void JuneApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const 
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE )
 /// June 322ece70 @322ed38c: with flag 0x200 the product goes to the factor ( 31e8d610 ) and +0x8ce0 keeps 1.0
-static void JuneApplySummonPowerRateToFactor( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+static void ApplySummonPowerRateToFactor( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
 {
 	if ( NULL == pNPC_ || NULL == pUser_ )
 		return;
@@ -17029,12 +17029,12 @@ static void JuneApplySummonPowerRateToFactor( CX2GUNPC* pNPC_, CX2GUUser* pUser_
 /// SI_HA_FERDINAND call SetMultiplyPowerRate_LUA( GetNumber_LUA() ), and SetMultiplyPowerRate_LUA is 31e8d610 itself (the +0x8ce4
 /// writer). March's scripts never call GetNumber_LUA and March has no SetMultiplyPowerRate_LUA, so the store is dormant until those
 /// June scripts and the binding are adopted.
-static void JuneStoreSummonGroupPowerRateNumber( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
+static void StoreSummonGroupPowerRateNumber( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int iSkillID_ )
 {
 	if ( NULL == pNPC_ || NULL == pUser_ )
 		return;
 
-	const double dNumber = static_cast<double>( pUser_->GetSkillAdditionalPowerRateJune( iSkillID_ ) ) + 1.0;	/// fadd qword 334355b0
+	const double dNumber = static_cast<double>( pUser_->GetSkillAdditionalPowerRate( iSkillID_ ) ) + 1.0;	/// fadd qword 334355b0
 	pNPC_->SetNumber_LUA( 0, dNumber );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	static std::set<int> s_setJuneSummonNumberSeen;
@@ -17138,18 +17138,18 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			/// team than my unit's is hidden ( @3230ce01: 31cfe4a0 = SetShowObject( false, true ) ).
 			if( CX2GUUser::JUNE_NUI_NEIL_THE_SNIPER_EVENT == static_cast<int>( unitID ) )
 			{
-				pUser->JuneSetEventNpcUID( pNPC->GetUID() );
+				pUser->SetEventNpcUID( pNPC->GetUID() );
 				pNPC->SetDefaultPowerRate( 1.f );
 			}
 			else if( CX2GUUser::JUNE_NUI_PROTON_BOMB_EVENT == static_cast<int>( unitID ) )
 			{
-				if( -1 != pUser->JuneGetEventBombNpcUID() && NULL != GetNPCUnitByUID( pUser->JuneGetEventBombNpcUID() ) )
+				if( -1 != pUser->GetEventBombNpcUID() && NULL != GetNPCUnitByUID( pUser->GetEventBombNpcUID() ) )
 				{
 					pNPC->SetFocusCamera( false );
 					pNPC->SetFocusCameraForce( false );
 					pNPC->SetNowHp( 0.f );
 				}
-				pUser->JuneSetEventBombNpcUID( pNPC->GetUID() );
+				pUser->SetEventBombNpcUID( pNPC->GetUID() );
 				pNPC->SetDefaultPowerRate( 1.f );
 				if( NULL != GetMyUnit() && pUser->GetTeam() != GetMyUnit()->GetTeam() )
 					pNPC->SetShowObject( false, true );
@@ -17222,7 +17222,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 1: June's switch default reaches 322ece70 with flags 0 (3230c1a0 @3230ca64), and its
 					/// NPC -> skill map 31fcf520 returns 0 for an id it does not list (Phase 6b review), so the case skill is 0. The AI-party bots come here.
-					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+					ApplySummonPowerRate( pNPC, pUser, 0 );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -17289,12 +17289,12 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// +0x8ce0 x +0x8ce4, so scaling March's default power rate gives the same product
 					/// (user 2026-10-06, "follow June": the whole June power rate, with the buff terms and AT_SPECIAL, not only the socket term)
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
-					JuneApplySummonPowerRateToFactor( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );	// June flags 0x240
+					ApplySummonPowerRateToFactor( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );	// June flags 0x240
 #else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
-					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
+					ApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 					/// 16-step3b7 item 4: flags 0x240 include 0x200 (322ece70 @322ed38c..322ed3a6), same case skill
-					JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
+					StoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_A_EN_DIMENSION_LINK );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				} break;
@@ -17355,7 +17355,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 						/// buff port 16-step3b7 item 4: Ferdinand (1454) reaches 322ece70 with flags 0x260 (3230c84f), 0x200 set: the number store,
 						/// with the skill 16-step3b3 passes to GetSummonPowerRateBySocket here
-						JuneStoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
+						StoreSummonGroupPowerRateNumber( pNPC, pUser, CX2SkillTree::SI_HA_EEP_LINK_OVERCHARGE_ILLUSION );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 						pNPC->SetNearestGUUser(pUser);
@@ -17760,7 +17760,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 1: Entangle Trap (457 = 0x1c9) reaches 322ece70 with flags 0 (3230c1a0). 16-step3b3 review:
 					/// June's 31fcf520 maps 457 to 23213 (RNSI_A_RGA_ENTANGLE), March's SI_A_LSR_ENTANGLE (the skill that creates 457)
-					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_LSR_ENTANGLE );
+					ApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_LSR_ENTANGLE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 
@@ -18060,7 +18060,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 1: Stone Wall (501 = 0x1f5) reaches 322ece70 with flags 10. 16-step3b3 review: June's
 					/// 31fcf520 does not list 501 (returns 0), so the case skill is 0
-					JuneApplySummonPowerRate( pNPC, pUser, 0 );
+					ApplySummonPowerRate( pNPC, pUser, 0 );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 					/// June 3230c1a0 case 0x1f5: June's tree has no March Stone Wall skill, so its end is AddStoneWall( uid, 1.0 )
@@ -18451,7 +18451,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 1: Fire Blossom (1567 = 0x61f) reaches 322ece70 with flags 0. 16-step3b3 review: June's
 					/// 31fcf520 maps 1567 to 28211 (RNSI_A_SBH_SCALET_ROSE), March's SI_A_SBH_SCALET_ROSE
-					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_SBH_SCALET_ROSE );
+					ApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_SBH_SCALET_ROSE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE //±èÃ¢ÇÑ
@@ -18516,7 +18516,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					}
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 1: Particle Prism (1576/1577 = 0x628/0x629) reaches 322ece70 with flags 0x148
-					JuneApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_SA_AN_PARTICLE_PRISM );
+					ApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_SA_AN_PARTICLE_PRISM );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
 #endif // SERV_9TH_NEW_CHARACTER
@@ -18524,20 +18524,20 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 			/// June buff port Phase 16: June 3230ca6d, reached by every summon case above: the summon's 92 and range
 			/// basics take the owner's results
-			pNPC->CopyJuneMaximizeAndRangeFrom( *pUser );
+			pNPC->CopyMaximizeAndRangeFrom( *pUser );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 			pUser->ApplySummonedNPCBuff( unitID );	// June 3230cafb
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
-			pUser->JuneKillOlderSummonsOfSameID( unitID );	// June 3230cb03, before AddUnit so the new NPC is not in the list yet
+			pUser->KillOlderSummonsOfSameID( unitID );	// June 3230cb03, before AddUnit so the new NPC is not in the list yet
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-			pUser->JuneSummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
+			pUser->SummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-			pUser->JuneSummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
+			pUser->SummonedNPCInfo( pNPC );	// June 3230cb1b ( vslot 0x860 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 		}
@@ -19712,7 +19712,7 @@ bool CX2Game::IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit )
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 // June 322f0e60: target in my view cone ( height band on the land offset, side angle to my last touched line ); June ignores this
-bool CX2Game::JuneIsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ )
+bool CX2Game::IsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ )
 {
 	const float fUpTan = tanf( static_cast<float>( fUpDegree_ * 3.1415927410125732 / 180.0 ) );
 	const float fDownTan = -tanf( static_cast<float>( fDownDegree_ * 3.1415927410125732 / 180.0 ) );

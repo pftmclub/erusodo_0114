@@ -243,7 +243,7 @@ void CX2RidingPetManager::NotifyShowObjectChanged( IN UidType uUserUid_, IN bool
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	/// June 321f5cb0 (C9h-3a): the pet found by the UID ends with 32d291a0( bVal_ ), show / hide of every UI set (it zeroes the pet's hide mirror whatever bVal_ is: JUNE_BUGS 110)
 	if ( NULL != pRidingPet )
-		pRidingPet->JuneShowHideAllUiSets( bVal_ );
+		pRidingPet->ShowHideAllUiSets( bVal_ );
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 }
 #pragma endregion 
@@ -465,7 +465,7 @@ CX2RidingPetManager::RidingPetMap::iterator CX2RidingPetManager::RemoveRidingPet
 		iter = m_mapRidingPet.erase( iter );
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 		/// June 321f6190 (C9h-3a): after the erase the removed pet stops and clears every UI set (32d293e0); its dtor never does (JUNE_BUGS 109)
-		pRidingPet1->JuneStopAllUiSets();
+		pRidingPet1->StopAllUiSets();
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	}
 
@@ -1112,7 +1112,7 @@ bool CX2RidingPetManager::Handler_EGS_UNSUMMON_RIDING_PET_ACK( HWND hWnd, UINT u
 						pMyUnit->GetUnit()->ClearRidingPetInfo();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 						/// June 321ff5d0 @321ff6e9: in the village states ( June 0xe / 0xf ), 3235a160 on the field game's my unit's CX2Unit ( +8 -> +0x1a0 )
-						pMyUnit->GetUnit()->JuneResetHudMaxHpMp();
+						pMyUnit->GetUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 					}
 				}

@@ -881,7 +881,7 @@ int CX2OfflineSkill::GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT
 	}
 
 	const CX2SkillTree* pTree = g_pData->GetSkillTree();
-	const CX2SkillTree::SkillTreeTempletMap* pRows = pTree->JuneFindSkillTreeTempletMap( iUnitClass );
+	const CX2SkillTree::SkillTreeTempletMap* pRows = pTree->FindSkillTreeTempletMap( iUnitClass );
 	if( NULL == pRows )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ grant: class %d has no tree rows", iUnitClass );

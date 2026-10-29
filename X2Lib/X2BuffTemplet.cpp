@@ -1453,7 +1453,7 @@ void CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter( CX2Gam
 	// June2017 CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter 3236d920 @3236dbc6, after the mesh block (the helper takes NULL): the mesh
 	// takes the unit's effect-alpha category
 	if( NULL != g_pX2Game )
-		g_pX2Game->JuneTagEffectAlphaMesh( pGameUnit_, pMeshInstCenter );
+		g_pX2Game->TagEffectAlphaMesh( pGameUnit_, pMeshInstCenter );
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 
@@ -1818,7 +1818,7 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 		damageData_.reActResult != CX2DamageManager::RT_SENSOR &&
 		damageData_.hitType != CX2DamageManager::HT_GROUND_HIT &&
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		false == damageData_.JuneIsAttackTrigger( CX2DamageManager::DTT_MARK_OF_COMMANDER ) &&	/// June 32610fb0( 3 ) @3236df5b (16-step3c)
+		false == damageData_.IsAttackTrigger( CX2DamageManager::DTT_MARK_OF_COMMANDER ) &&	/// June 32610fb0( 3 ) @3236df5b (16-step3c)
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		damageData_.m_eDamageTrigger != CX2DamageManager::DTT_MARK_OF_COMMANDER &&
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -1842,7 +1842,7 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// buff port 16-step3b7 item 1: June @3236e002 3201ad10( 0x6666 ) on the attacker user (esi), + 1.0 (334355b0) below;
 			/// June's 26214 is March's SI_A_CHG_MARK_OF_COMMANDER, the key 16-step3b5's slot pass files the rate under
-			const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRateJune( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
+			const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -1947,7 +1947,7 @@ if( damageData_.m_fHpPercentUp <= 0.f &&
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 /// June unit vslot 178 (0x2c8): a user's centre is GetPos( false ) plus half its height (CX2GUUser 31fc9380);
 /// every other unit answers GetPos( false ) (CX2GUNPC 322b5530). No class overrides it.
-static D3DXVECTOR3 JuneGetUnitCenterPos( const CX2GameUnit* pUnit_ )
+static D3DXVECTOR3 GetUnitCenterPos( const CX2GameUnit* pUnit_ )
 {
 	D3DXVECTOR3 vPos = pUnit_->GetPos( false );
 	if ( CX2GameUnit::GUT_USER == pUnit_->GetGameUnitType() )
@@ -1956,7 +1956,7 @@ static D3DXVECTOR3 JuneGetUnitCenterPos( const CX2GameUnit* pUnit_ )
 }
 
 /// June CX2GUNPC vslot 269 (0x434, 327574e0): GetPos( false ) plus half the height (an NPC-only virtual).
-static D3DXVECTOR3 JuneGetNpcCenterPos( const CX2GameUnit* pNpc_ )
+static D3DXVECTOR3 GetNpcCenterPos( const CX2GameUnit* pNpc_ )
 {
 	D3DXVECTOR3 vPos = pNpc_->GetPos( false );
 	vPos.y += pNpc_->GetUnitHeight( false ) * 0.5f;
@@ -1966,7 +1966,7 @@ static D3DXVECTOR3 JuneGetNpcCenterPos( const CX2GameUnit* pNpc_ )
 /// June 32278580 (target, OUT name, pos): the frame name of the target's collision point nearest vPos_
 /// (GetPointStart, strict <, from 99999; empty without collision data). The same walk as the effect port's
 /// JuneGetLockOnAimPos (X2DamageEffect.cpp), which inlines it.
-static std::wstring JuneGetNearestCollisionFrameName( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+static std::wstring GetNearestCollisionFrameName( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
 {
 	std::wstring wstrNearestFrame;
 	float fNearest = 99999.f;
@@ -1994,7 +1994,7 @@ static std::wstring JuneGetNearestCollisionFrameName( const CX2GameUnit* pUnit_,
 /// unit's last touched line (vslot 0x12c, GetLastTouchLineIndex( true )) is out of range or has no data;
 /// else whether the way from the unit (GetPos( false )) to vPos_ runs along that line's dirVector (+0x54):
 /// the dot product of the two normalised vectors is above 0.
-static bool JuneIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+static bool IsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
 {
 	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetLineMap() )
 		return true;
@@ -2017,16 +2017,16 @@ static bool JuneIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVE
 /// the centre is; else the centre is. Mode 1 also needs the answer to lie the way the attacker faces along
 /// its line (32293b80 == GetIsRight), and a refused bone falls back to the centre under the same test.
 /// Returns false, vOut_ untouched, when nothing passes (or for a mode other than 0/1).
-static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* pTarget_, const bool bCenter_, const BYTE byMode_, OUT D3DXVECTOR3& vOut_ )
+static bool GetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* pTarget_, const bool bCenter_, const BYTE byMode_, OUT D3DXVECTOR3& vOut_ )
 {
 	if ( NULL == pTarget_ )
 		return false;
 
-	const D3DXVECTOR3 vMyPos = ( bCenter_ ? JuneGetUnitCenterPos( pAttacker_ ) : pAttacker_->GetPos( false ) );
-	const D3DXVECTOR3 vTargetPos = ( bCenter_ ? JuneGetNpcCenterPos( pTarget_ ) : pTarget_->GetPos( false ) );
+	const D3DXVECTOR3 vMyPos = ( bCenter_ ? GetUnitCenterPos( pAttacker_ ) : pAttacker_->GetPos( false ) );
+	const D3DXVECTOR3 vTargetPos = ( bCenter_ ? GetNpcCenterPos( pTarget_ ) : pTarget_->GetPos( false ) );
 	const float fTargetDistance = GetDistance( vTargetPos, vMyPos );
 
-	const std::wstring wstrFrameName = JuneGetNearestCollisionFrameName( pTarget_, vTargetPos );
+	const std::wstring wstrFrameName = GetNearestCollisionFrameName( pTarget_, vTargetPos );
 	D3DXVECTOR3 vBonePos( 0.0f, 0.0f, 0.0f );
 	if ( true == pTarget_->GetBonePos( wstrFrameName.c_str(), vBonePos )
 		&& 700.0f < GetDistance( vTargetPos, vBonePos )
@@ -2039,7 +2039,7 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 		}
 		else if ( 1 == byMode_ )
 		{
-			if ( JuneIsPosAlongLastTouchLine( pAttacker_, vBonePos ) == pAttacker_->GetIsRight() )
+			if ( IsPosAlongLastTouchLine( pAttacker_, vBonePos ) == pAttacker_->GetIsRight() )
 			{
 				vOut_ = vBonePos;
 				return true;
@@ -2054,7 +2054,7 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 		vOut_ = vTargetPos;
 		return true;
 	}
-	else if ( 1 == byMode_ && JuneIsPosAlongLastTouchLine( pAttacker_, vTargetPos ) == pAttacker_->GetIsRight() )
+	else if ( 1 == byMode_ && IsPosAlongLastTouchLine( pAttacker_, vTargetPos ) == pAttacker_->GetIsRight() )
 	{
 		vOut_ = vTargetPos;
 		return true;
@@ -2095,7 +2095,7 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| true == damageData_.JuneIsAttackTrigger( JUNE_DTT_PANDEMONIUM_FEAR )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
+		|| true == damageData_.IsAttackTrigger( JUNE_DTT_PANDEMONIUM_FEAR )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| JUNE_DTT_PANDEMONIUM_FEAR == static_cast<int>( damageData_.m_eDamageTrigger )
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -2127,9 +2127,9 @@ static bool JuneGetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUni
 		break;
 	}
 
-	D3DXVECTOR3 vPos = JuneGetUnitCenterPos( pGameUnit_ );
+	D3DXVECTOR3 vPos = GetUnitCenterPos( pGameUnit_ );
 	if ( CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() && CX2GameUnit::GUT_NPC == pGameUnit_->GetGameUnitType() )
-		JuneGetTargetHitPos( pAttackerGameUnit, pGameUnit_, true, 1, vPos );
+		GetTargetHitPos( pAttackerGameUnit, pGameUnit_, true, 1, vPos );
 
 	fPowerRate *= m_fPowerRate;
 
@@ -2147,7 +2147,7 @@ static const int JUNE_UT_AIN = 12;
 static const int JUNE_RNSI_SA_LDN_SINISTER_MIND = 30048;
 
 /// June 31e4d0e0: the user's GetUnit()->GetUnitTemplet()->m_UnitType ([[user +0x867c] +0xaf0] -> [0]), 0 without one
-static int JuneGetUserUnitType( const CX2GUUser* pUser_ )
+static int GetUserUnitType( const CX2GUUser* pUser_ )
 {
 	if ( NULL == pUser_ || NULL == pUser_->GetUnit() || NULL == pUser_->GetUnit()->GetUnitTemplet() )
 		return 0;
@@ -2155,7 +2155,7 @@ static int JuneGetUserUnitType( const CX2GUUser* pUser_ )
 }
 
 /// CX2Game slot 40 (322cca00, GetUserUnitByUID) with the creator UID, as every 9b class does
-static CX2GUUser* JuneGetCreatorUser( const UidType uidCreator_ )
+static CX2GUUser* GetCreatorUser( const UidType uidCreator_ )
 {
 	return ( NULL != g_pX2Game ? g_pX2Game->GetUserUnitByUID( uidCreator_ ) : NULL );
 }
@@ -2163,7 +2163,7 @@ static CX2GUUser* JuneGetCreatorUser( const UidType uidCreator_ )
 /// Mark of Commander's and Pandemonium Fear's DamageReact guards (June 3236e2a0 / 32370430 @3237046b-32370509), with the
 /// class's own damage trigger: false (no reaction) for a heal-up hit, a damage-effect or no-damage react type, a dummy or
 /// sensor result, a ground hit, the trigger itself, a NO_DAMAGE hit or a hit without an attacker.
-static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageData& damageData_, const int iTrigger_ )
+static bool CustomFunctionDamageReactGuards( const CX2DamageManager::DamageData& damageData_, const int iTrigger_ )
 {
 	if ( 0.f < damageData_.m_fHpPercentUp
 		|| CX2DamageManager::RT_CREATE_DAMAGE_EFFECT == damageData_.reActType
@@ -2172,7 +2172,7 @@ static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageD
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| true == damageData_.JuneIsAttackTrigger( iTrigger_ )	/// June 32610fb0( 7 ) @323704cb (16-step3c)
+		|| true == damageData_.IsAttackTrigger( iTrigger_ )	/// June 32610fb0( 7 ) @323704cb (16-step3c)
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| iTrigger_ == static_cast<int>( damageData_.m_eDamageTrigger )
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -2193,7 +2193,7 @@ static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageD
 /*virtual*/ void CX2CustomFunctionByBuffMoonlightRhapsody::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
 	const int JUNE_DTT_MOONLIGHT_RHAPSODY = 7;
-	if ( false == JuneCustomFunctionDamageReactGuards( damageData_, JUNE_DTT_MOONLIGHT_RHAPSODY ) )
+	if ( false == CustomFunctionDamageReactGuards( damageData_, JUNE_DTT_MOONLIGHT_RHAPSODY ) )
 		return;
 
 	CX2GameUnit* pAttackerGameUnit = damageData_.optrAttackerGameUnit.GetObservable();
@@ -2219,7 +2219,7 @@ static bool JuneCustomFunctionDamageReactGuards( const CX2DamageManager::DamageD
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// buff port 16-step3b7 item 1: June @323705a2 3201ad10( 0x7160 = 29024 ) on the attacker user (edi), + 1.0 below. 29024 is a
 		/// June-only skill (no March SKILL_ID), so no equipped slot files a rate under it: 0 until that skill is ported
-		const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRateJune( 29024 );
+		const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( 29024 );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -2258,8 +2258,8 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 	{
 		m_pUser = pGameUnit_;
 		CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
-		if ( JUNE_UT_ROSE == JuneGetUserUnitType( pUser ) )
-			pUser->JuneRoseServoNitro( true );
+		if ( JUNE_UT_ROSE == GetUserUnitType( pUser ) )
+			pUser->RoseServoNitro( true );
 	}
 }
 
@@ -2274,8 +2274,8 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 
 	m_pUser->EraseBuffTempletFromGameUnit( BTI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR );
 	CX2GUUser* pUser = static_cast<CX2GUUser*>( m_pUser );
-	if ( JUNE_UT_ROSE == JuneGetUserUnitType( pUser ) )
-		pUser->JuneRoseServoNitro( false );
+	if ( JUNE_UT_ROSE == GetUserUnitType( pUser ) )
+		pUser->RoseServoNitro( false );
 }
 
 /** @function : FunctionInCommonStateStart
@@ -2312,7 +2312,7 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 /// first, a no-op here) times, in June's order, the templet's power rate at the learned level (< 1 -> 1; 32071720 =
 /// GetSkillPowerRateValue), GetAdditionalAttackByType( AT_SPECIAL ) (32274d60), GetSkillDamageRateByBuff (31fd7cc0) and
 /// ( 1 + 3201ad10 ), 3201ad10 being 0 here (Phase 9a).
-static float JuneSinisterMindPowerRate( CX2GUUser* pCreator_ )
+static float SinisterMindPowerRate( CX2GUUser* pCreator_ )
 {
 	if ( NULL == pCreator_ )
 		return 1.0f;
@@ -2328,7 +2328,7 @@ static float JuneSinisterMindPowerRate( CX2GUUser* pCreator_ )
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// buff port 16-step3b7 item 1: June @32369c98 3201ad10( 0x7560 ) on the creator (esi), + 1.0 below; June-only skill, 0 as above
-		const float fJuneSkillDamageAddRate = pCreator_->GetSkillAdditionalPowerRateJune( JUNE_RNSI_SA_LDN_SINISTER_MIND );
+		const float fJuneSkillDamageAddRate = pCreator_->GetSkillAdditionalPowerRate( JUNE_RNSI_SA_LDN_SINISTER_MIND );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7560 ), see Phase 9a
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -2352,7 +2352,7 @@ static float JuneSinisterMindPowerRate( CX2GUUser* pCreator_ )
 	if ( NULL != g_pX2Game->GetEffectSet() )
 		g_pX2Game->GetEffectSet()->StopEffectSet( m_hSeedEffectSet );
 
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
 	if ( NULL != pCreator && true == g_pX2Game->IsValidUnit( m_pGameUnit ) )
 		CreateSeedDamage( pCreator, m_pGameUnit, false );
 }
@@ -2369,7 +2369,7 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 		return;
 
 	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pCreator_, L"DamageEffect_SA_LDN_Sinister_Mind_Seed_Damage",
-		JuneSinisterMindPowerRate( pCreator_ ), pGameUnit_->GetPos( false ), pCreator_->GetRotateDegree(), pCreator_->GetRotateDegree() );
+		SinisterMindPowerRate( pCreator_ ), pGameUnit_->GetPos( false ), pCreator_->GetRotateDegree(), pCreator_->GetRotateDegree() );
 	if ( NULL == pEffect )
 		return;
 
@@ -2395,7 +2395,7 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 */
 /*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInCommonFrameMove( CX2GameUnit* pGameUnit_, KLuaManager& luaManager_ )
 {
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
 	if ( NULL == pGameUnit_ || NULL == pCreator )
 		return;
 
@@ -2458,13 +2458,13 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 CX2CustomFunctionBySummonNpcTarget::CX2CustomFunctionBySummonNpcTarget( const KBuffIdentity& BuffIdentity_, const UidType uidCreator_, CX2GameUnit* pGameUnit_ )
 	: CX2CustomFunctionByBuff( BuffIdentity_ ), m_uidCreator( uidCreator_ ), m_pGameUnit( pGameUnit_ )
 {
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
 	if ( NULL == pCreator )
 		return;
 
-	pCreator->JuneClearSummonTarget( true );
-	pCreator->JuneSetSummonTarget( m_pGameUnit );
-	pCreator->JuneApplySummonTargetToSummons();
+	pCreator->ClearSummonTarget( true );
+	pCreator->SetSummonTarget( m_pGameUnit );
+	pCreator->ApplySummonTargetToSummons();
 }
 
 /** @function : ~CX2CustomFunctionBySummonNpcTarget
@@ -2472,16 +2472,16 @@ CX2CustomFunctionBySummonNpcTarget::CX2CustomFunctionBySummonNpcTarget( const KB
 */
 /*virtual*/ CX2CustomFunctionBySummonNpcTarget::~CX2CustomFunctionBySummonNpcTarget()
 {
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
 	if ( NULL != pCreator )
-		pCreator->JuneClearSummonTarget( false );
+		pCreator->ClearSummonTarget( false );
 }
 
 /// the creator user when it is a Rose (the check every Chain Viper hook makes), else NULL
 CX2GUUser* CX2CustomFunctionByChainViper::GetRoseCreator() const
 {
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
-	return ( JUNE_UT_ROSE == JuneGetUserUnitType( pCreator ) ? pCreator : NULL );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
+	return ( JUNE_UT_ROSE == GetUserUnitType( pCreator ) ? pCreator : NULL );
 }
 
 /** @function : CX2CustomFunctionByChainViper
@@ -2497,7 +2497,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 	if ( NULL == pCreator || NULL == m_pGameUnit )
 		return;
 
-	m_iCount = m_pGameUnit->GetJuneLastHitAttackSerial() + 1;
+	m_iCount = m_pGameUnit->GetLastHitAttackSerial() + 1;
 	KBuffBehaviorFactor& kWritableFactor = const_cast<KBuffBehaviorFactor&>( kBuffBehaviorFactor_ );
 	if ( false == kWritableFactor.m_vecValues.empty() )
 	{
@@ -2508,7 +2508,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 			m_iCount = iValue;
 	}
 
-	pCreator->JuneRoseChainViperBegin( m_pGameUnit, m_iCount );
+	pCreator->RoseChainViperBegin( m_pGameUnit, m_iCount );
 }
 
 /** @function : ~CX2CustomFunctionByChainViper
@@ -2518,7 +2518,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 {
 	CX2GUUser* pCreator = GetRoseCreator();
 	if ( NULL != pCreator )
-		pCreator->JuneRoseChainViperEnd( m_pGameUnit, m_iCount );
+		pCreator->RoseChainViperEnd( m_pGameUnit, m_iCount );
 }
 
 /** @function : FunctionInNpcFinalDamage
@@ -2529,7 +2529,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 {
 	CX2GUUser* pCreator = GetRoseCreator();
 	if ( NULL != pCreator && NULL != pfFinalDamage_ )
-		pCreator->JuneRoseChainViperNpcFinalDamage( m_pGameUnit, *pfFinalDamage_, m_iCount );
+		pCreator->RoseChainViperNpcFinalDamage( m_pGameUnit, *pfFinalDamage_, m_iCount );
 }
 
 /** @function : FunctionInSetBuffFactor
@@ -2543,7 +2543,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 
 	CX2GUUser* pCreator = GetRoseCreator();
 	if ( NULL != pCreator )
-		pCreator->JuneRoseChainViperBuffApplied( m_pGameUnit, buffFactor_, m_iCount );
+		pCreator->RoseChainViperBuffApplied( m_pGameUnit, buffFactor_, m_iCount );
 }
 
 /** @function : FunctionInDamageReact
@@ -2593,11 +2593,11 @@ CX2CustomFunctionByGeistHerrschaft::CX2CustomFunctionByGeistHerrschaft( const KB
 	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() || NULL == m_pGameUnit )
 		return;
 
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
 	if ( NULL == pCreator )
 		return;
 
-	const std::wstring wstrFrameName = JuneGetNearestCollisionFrameName( m_pGameUnit, m_pGameUnit->GetPos( false ) );
+	const std::wstring wstrFrameName = GetNearestCollisionFrameName( m_pGameUnit, m_pGameUnit->GetPos( false ) );
 	const D3DXVECTOR3 vBonePos = m_pGameUnit->GetBonePos( wstrFrameName.c_str() );
 	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pCreator, L"DamageEffect_Debuff_Geist_Herrschaft",
 		m_fPowerRate, vBonePos, pCreator->GetRotateDegree(), pCreator->GetRotateDegree() );
@@ -2635,8 +2635,8 @@ CX2CustomFunctionByGeistHerrschaft::CX2CustomFunctionByGeistHerrschaft( const KB
 /// June 32370150: the creator user when it is an Ain, else NULL
 CX2GUUser* CX2CustomFunctionByModer::GetAinCreator() const
 {
-	CX2GUUser* pCreator = JuneGetCreatorUser( m_uidCreator );
-	return ( JUNE_UT_AIN == JuneGetUserUnitType( pCreator ) ? pCreator : NULL );
+	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
+	return ( JUNE_UT_AIN == GetUserUnitType( pCreator ) ? pCreator : NULL );
 }
 
 /** @function : CX2CustomFunctionByModer
@@ -2652,7 +2652,7 @@ CX2CustomFunctionByModer::CX2CustomFunctionByModer( const KBuffIdentity& BuffIde
 	if ( NULL == pAin )
 		return;
 
-	pAin->JuneAinModerMark( m_pGameUnit->GetUnitUID(), static_cast<int>( m_pGameUnit->GetGameUnitType() ) );
+	pAin->AinModerMark( m_pGameUnit->GetUnitUID(), static_cast<int>( m_pGameUnit->GetGameUnitType() ) );
 	m_bMarked = true;
 }
 
@@ -2667,7 +2667,7 @@ CX2CustomFunctionByModer::CX2CustomFunctionByModer( const KBuffIdentity& BuffIde
 	CX2GUUser* pAin = GetAinCreator();
 	if ( NULL != pAin )
 	{
-		pAin->JuneAinModerUnmark();
+		pAin->AinModerUnmark();
 		m_bMarked = false;
 	}
 }
@@ -2687,7 +2687,7 @@ CX2CustomFunctionByModer::CX2CustomFunctionByModer( const KBuffIdentity& BuffIde
 	CX2GUUser* pAin = GetAinCreator();
 	if ( NULL != pAin )
 	{
-		pAin->JuneAinModerUnmark();
+		pAin->AinModerUnmark();
 		m_bMarked = false;
 	}
 }
@@ -2699,7 +2699,7 @@ CX2CustomFunctionByModer::CX2CustomFunctionByModer( const KBuffIdentity& BuffIde
 /*virtual*/ void CX2CustomFunctionByBuffDeathSign::FunctionInErase( CX2GameUnit* pGameUnit_ )
 {
 	if ( NULL != pGameUnit_ )
-		pGameUnit_->SetJuneReservedDeath( true );
+		pGameUnit_->SetReservedDeath( true );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}

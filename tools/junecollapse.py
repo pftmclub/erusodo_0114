@@ -1154,6 +1154,8 @@ class Collapse(object):
             if not rel.lower().endswith(SRC_EXT):
                 continue
             base = self.premap(rel, base)       # a rename outside every flag is neutral: compare against the base with the same renames
+            if base == new:
+                continue                        # renames only: neutral without evaluating any #if (Always.h #error text)
             flags = set(JUNE_FLAG_RX.findall(base)) | set(JUNE_FLAG_RX.findall(new))
             targets = set(f.decode() for f in flags)
             if not targets:

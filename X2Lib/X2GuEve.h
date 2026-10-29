@@ -2722,8 +2722,8 @@ protected:
 	CX2GameUnit*				m_pJuneDashXTargetUnit;					/// June +0x9c24 ( the unit the Empress dash X follows; CH1l4's 3297b370 writes it, the dash X start clears it )
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-	int			June_GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
-	float		June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
+	int			GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
+	float		GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	bool		CanEveRecovery();					/// June 32976e40
 	int			GetMaxDashJumpCount();				/// June 32976e90
@@ -2866,8 +2866,6 @@ protected:
 	void		RecoverSummonedNPC( const int iNPCID_ );	/// June 329b4860
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
-	bool June_CanAllyRallyToMe( CX2GameUnit* pUnit_ );		/// June 329770d0 ( vslot 0x584, JuneCanAllyRallyToMe )
-	void June_SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c, JuneSkillIconOverride )
 	void ENSI_RIDING_HYPER_MODE_FrameMove();			/// June 329ac330
 	void UpdateEveRecoveryTooltip();					/// June 329c3da0
 	void Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
@@ -2876,8 +2874,6 @@ protected:
 	/// June character port Phase CH1l: inert June_* members of Eve's overrides 0x600-0x7bc and the helpers they reach first; nothing calls them until CH1
 	void		SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
 	void		SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
-	float		June_ShownSkillCoolTime( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, JuneShownSkillCoolTime )
-	float		June_SummonCriticalBonus( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, JuneSummonCriticalBonus )
 	void		GetOwnNasodSummonList( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
 
 	/// June character port Phase CH1l2: inert June_* members of Eve's Common* overrides 0x7c0-0x7ec except CommonFrameMove; nothing calls them until CH1
@@ -2897,19 +2893,18 @@ protected:
 	bool		SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
 	void		SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 329693e0 ( vslot 0x7fc, step 511 )
 	void		SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32981130 ( vslot 0x800, step 512 )
-	bool		June_Vslot828();						/// June 3297a6d0 ( vslot 0x828, name unsettled )
-	void		June_Vslot860( CX2GUNPC* pNPC_ );		/// June 32976f30 ( vslot 0x860, JuneSummonedNPCInfo )
+	virtual bool	IsNotCommonMoveState();				/// June 3297a6d0 ( vslot 0x828 )
 	bool		IsPhotonBlinkSkill( const int iSkillID_ ) const;	/// June 32968db0
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	/// copies of June CX2GUUser functions the skill use calls ( Eve-local, as the pilot's )
-	void		June_UserNoStateChangeActionFrameMove();	/// June 32008e40 ( CX2GUUser; March's is pure virtual )
-	void		June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
-	void		June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
-	void		June_StateChangeBySkillSlot( const int iSlotIndex_ );	/// June 31fd32e0 ( CX2GUUser )
-	void		June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
-	bool		June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140 ( CX2GUUser )
-	bool		June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
+	void		UserNoStateChangeActionFrameMove();	/// June 32008e40 ( CX2GUUser; March's is pure virtual )
+	void		MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
+	void		ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
+	void		StateChangeBySkillSlot( const int iSlotIndex_ );	/// June 31fd32e0 ( CX2GUUser )
+	void		SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
+	bool		CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140 ( CX2GUUser )
+	bool		CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	/// June character port Phase CH1l4: inert June_* members of CommonFrameMove 0x7cc and the helpers only it reaches; nothing calls them until CH1
@@ -3003,23 +2998,23 @@ protected:
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	/// June character port Phase CH1o: the June-only user vslots Eve overrides
-	virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
-	virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
+	virtual void SummonedNPCInfo( CX2GUNPC* pNPC_ );	/// June 32976f30 ( vslot 0x860 )
+	virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
 	/// June character port Phase CH1o2: the June slots that CH1o2 gave a base and a March call site
 #ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
-	virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June vslot 0x3ac
+	virtual void ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June vslot 0x3ac
 #endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
-	virtual void JuneSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ ) { June_SkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ ); }	/// June vslot 0x56c
+	virtual void SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 #ifdef SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
-	virtual bool JuneCanAllyRallyToMe( CX2GameUnit* pNPC_ ) { return June_CanAllyRallyToMe( pNPC_ ); }	/// June vslot 0x584
+	virtual bool CanAllyRallyToMe( CX2GameUnit* pNPC_ );	/// June 329770d0 ( vslot 0x584 )
 #endif SERV_IRUHADEV_JUNE_ALLY_RALLY_USER_GATE
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
-	virtual float JuneSummonCriticalBonus( CX2GameUnit* pNPC_ ) { return June_SummonCriticalBonus( pNPC_ ); }	/// June vslot 0x65c
+	virtual float SummonCriticalBonus( CX2GameUnit* pNPC_ );	/// June 32979a70 ( vslot 0x65c )
 #endif SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS
 #ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
-	virtual float JuneShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return June_ShownSkillCoolTime( fCoolTime_, iSkillID_ ); }	/// June vslot 0x6a8
+	virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8 )
 #endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE

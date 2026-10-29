@@ -509,7 +509,7 @@ void CX2BattleFieldGame::SwapWorld()
 	{
 		SetWorldId( uiWorldId );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		ClearJuneAdditionalWorld();	// Atlas E7: June 32d54ae0 @32d54b07 ( 322d7f90 ) before 32803f60
+		ClearAdditionalWorld();	// Atlas E7: June 32d54ae0 @32d54b07 ( 322d7f90 ) before 32803f60
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		CX2World* pNewWorld = g_pData->GetWorldManager()->CreateWorld( static_cast<CX2World::WORLD_ID>( uiWorldId ), NULL, true );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B

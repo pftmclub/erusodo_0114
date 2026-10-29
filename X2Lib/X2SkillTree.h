@@ -2552,14 +2552,14 @@ public:
 		vector<JuneNumericalData>           m_vecJuneNumericalData;     /// June +0x17c
 		vector< std::pair<wstring, wstring> >   m_vecExtraIconInfo;     /// June +0x88: ( m_wstrTextureName, m_wstrTexturePieceName ) of m_ExtraIconInfo<n>
 
-		static void JuneGetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ );     /// 320716c0
-		const JuneNumericalData* JuneFindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
+		static void GetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ );     /// 320716c0
+		const JuneNumericalData* FindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-		void JuneGetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const;                  /// 320717e0
-		void JuneGetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const;        /// 32078060
+		void GetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const;                  /// 320717e0
+		void GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const;        /// 32078060
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-		bool JuneGetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;
-		bool JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;     /// 32206fb0
+		bool GetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;
+		bool TryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;     /// 32206fb0
 		float GetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_ ) const;                         /// 32206e50
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
@@ -2601,7 +2601,7 @@ public:
 			if ( 0 != m_iDeleteSkillIDByUpgrade )
 			{
 				float fUltimatePowerRate = 0.f;
-				if ( true == JuneTryGetSkillAbilityValue( SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE, iLevel, false, fUltimatePowerRate ) )
+				if ( true == TryGetSkillAbilityValue( SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE, iLevel, false, fUltimatePowerRate ) )
 					return fUltimatePowerRate;
 			}
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -2666,7 +2666,7 @@ public:
 			/// June 32206e50: a NUMERICAL_DATA block named after the ability wins over the +0x164 map
 			{
 				float fNumerical = 0.f;
-				if ( true == JuneGetNumericalAbilityValue( eType, iLevel, false, fNumerical ) )
+				if ( true == GetNumericalAbilityValue( eType, iLevel, false, fNumerical ) )
 					return fNumerical;
 			}
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -2937,16 +2937,15 @@ public:
 	// oasis907 : ±ËªÛ¿± [2009.11.25] // ∫ªº∑ ∆ƒΩÃ ¿ß«ÿ ¿Ãµø
 	bool AddGuildSkillTreeTemplet_LUA(); //{{ oasis907 : ±ËªÛ¿± //// 2009-11-12 //// 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	bool    AddSkillTemplet_JuneLUA();                                  /// June 32216320
 	void    OpenScriptFilePostProcessLua() {}                           /// June binds the Lua name OpenScriptFilePostProcess to a bare RET ( 31f3f070 )
 	int     GetUpgradedSkillID( int iSkillID_ ) const;                  /// June 32205c00: the "[Enhanced]" skill of a base skill, or -1
 	bool    IsUpgradedSkill( SKILL_ID eSkillID_ ) const;                /// June 32206d00
 	SKILL_ID GetUpgradeBaseSkillID( SKILL_ID eSkillID_ ) const;         /// June 32207210
 	static const WCHAR* GetSkillAbilityName( int iType_ );              /// June g_SkillAbilityName
-	static void JuneLogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ );
-	void    JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ );   /// 3220b740
-	void    JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ );
-	void    JuneLogLoadSummary();
+	static void LogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ );
+	void    SetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ );   /// 3220b740
+	void    LogShortArray( int iSkillID_, int iKind_, int iSize_ );
+	void    LogLoadSummary();
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	int GetMaxSkillLevel( int iUnitClass, SKILL_ID eSkillID );
@@ -2991,27 +2990,27 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	/// June's slot-change queue: Handler_EGS_CHANGE_SKILL_SLOT_REQ only queues ( 3220e3b0 ), this sends ( 3220e5f0 ), and
 	/// JuneFrameMoveSkillSlotQueue ( 322105c0, from CX2Data::OnFrameMove 31ee9f50 ) sends the front once per frame.
-	bool JuneSendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID );
-	void JuneFrameMoveSkillSlotQueue();
+	bool SendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID );
+	void FrameMoveSkillSlotQueue();
 	/// June 32206d30: the class's tree skills with a required level equal to ( level / 5 ) * 5.
-	void JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const;
+	void GetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const;
 	/// the class's tree rows, or NULL ( GetSkillTreeTempletMap asserts and falls back to the first class ); the emulator's grant reads it
-	const SkillTreeTempletMap* JuneFindSkillTreeTempletMap( int iUnitClass ) const
+	const SkillTreeTempletMap* FindSkillTreeTempletMap( int iUnitClass ) const
 	{
 		UnitSkillTreeTempletMap::const_iterator mit = m_mapUnitSkillTreeTemplet.find( iUnitClass );
 		return ( mit != m_mapUnitSkillTreeTemplet.end() ) ? &mit->second : NULL;
 	}
 	/// The block June's level-up handlers end with ( 323ae130 @323ae5c9, 32473f70 @32474a7f, 325346e0 @32534b1b ).
-	void JuneAutoEquipOnLevelUp();
-	bool Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	void AutoEquipOnLevelUp();
+	bool Handler_EGS_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	/// S7i: what opens at a level, by type ( 1 new skill, 2 a memo, 3 new upgraded skill, 4 next skill level ), June 3220d2b0
 	typedef std::map< int, std::vector< const SkillTemplet* > > JuneNewSkillOrMemoMap;
-	void JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const;
-	static void JuneAddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ );	/// June 3220b990
+	void GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const;
+	static void AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ );	/// June 3220b990
 	/// June 31d885e0 ( a CX2Main method in June ): my unit's level-up feeds the emblem manager and plays emblem 17
-	void JuneShowNewSkillOrMemoEmblem() const;
+	void ShowNewSkillOrMemoEmblem() const;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// S7e: the data behind June's tree panels. JuneSkillCommandDesc is the tree UI's +0x3c block ( 0x50 bytes, reset by 328ee430 );
@@ -3027,7 +3026,7 @@ public:
 		int			m_iIndex;			/// [2]: the INDEX_n row of the class's ComboTree.lua table ( -1 when absent )
 		int			m_iStringID;		/// [3]: the row's text ( -1 when absent )
 	};
-	struct JuneSkillCommandDesc
+	struct SkillCommandDesc
 	{
 		JuneDescGroup				m_kTranscendental;		/// +0x00 TRANSCENDENTAL_SKILL_DATA
 		JuneDescGroup				m_kSkill;				/// +0x14 SKILL_DATA ( the shown group; 328e42d0 copies +0x00 over it when transcended )
@@ -3035,16 +3034,16 @@ public:
 		std::vector<JuneMajorCombo>	m_vecMajorCombo;		/// +0x2c
 		int							m_iMinorDescStringID;	/// +0x3c COMMAND_DATA_MINOR
 		std::vector<JuneMajorCombo>	m_vecMinorCombo;		/// +0x40
-		JuneSkillCommandDesc() { Reset(); }
+		SkillCommandDesc() { Reset(); }
 		void Reset();				/// June 328ee430: the four ids to -1, the four vectors cleared
 	};
-	struct JuneComboRow
+	struct ComboRow
 	{
 		int					m_iComboType;	/// 32205870( table name ): 0 normal, 1 dash, 2 jump, 3 dash jump ( 0 for any other name )
 		std::wstring		m_wstrMovie;	/// INDEX_n [1] ( 328df4c0 reads it; 3220d4d0 leaves it empty )
 		std::vector<int>	m_vecIcon;		/// INDEX_n [2..]: COMBO_TREE_ICON values
 		int					m_iStringID;	/// 3220d4d0: the MAJOR_COMBO row's text; 328df4c0: -1
-		JuneComboRow() : m_iComboType( 0 ), m_iStringID( -1 ) {}
+		ComboRow() : m_iComboType( 0 ), m_iStringID( -1 ) {}
 	};
 	struct JuneCommandIconData
 	{
@@ -3056,9 +3055,9 @@ public:
 		float			m_fOffsetY;					/// +0x8c m_fOffsetY ( default 0 )
 		std::vector< std::pair< int, int > >	m_vecToolTipString;	/// +0x90 m_ToolTipString rows: { unit type ( 0 when absent ), string id }
 	};
-	void JuneLoadSkillCommandDescription( int iUnitClass_, bool bMinor_, JuneSkillCommandDesc* pDesc_ );	/// 3220bdb0
-	void JuneLoadMajorComboRows( const JuneSkillCommandDesc* pDesc_, const std::string& strClassName_, bool bMinor_,
-		std::vector<JuneComboRow>& vecRow_ );																/// 3220d4d0
+	void JuneLoadSkillCommandDescription( int iUnitClass_, bool bMinor_, SkillCommandDesc* pDesc_ );	/// 3220bdb0
+	void JuneLoadMajorComboRows( const SkillCommandDesc* pDesc_, const std::string& strClassName_, bool bMinor_,
+		std::vector<ComboRow>& vecRow_ );																/// 3220d4d0
 	static int JuneGetComboType( const std::string& strTableName_ );		/// 32205870
 	static int JuneGetComboTitleStringID( int iComboType_ );				/// 32205610
 	static std::string JuneGetUnitClassName( int iUnitClass_ );			/// 32375e30 ( narrows 32375530's wide name )
@@ -3070,10 +3069,10 @@ public:
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c: June's memo ACKs ( CX2State handlers 31f1bdb0 / 31f1c1d0; March routes skill packets here from every state )
-	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-	bool Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	bool Handler_EGS_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	bool Handler_EGS_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	/// both ACKs then rebuild every equipped skill of my game unit ( 31fd84c0 = ChangeEquippedSkillState, slots 0-4 of bar A and B )
-	static void JuneRefreshEquippedSkillsForMemo();
+	static void RefreshEquippedSkillsForMemo();
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 
@@ -3287,7 +3286,7 @@ private:
 	vector<int>	m_vecNowLearnSkill;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	struct JuneLoadStats
+	struct LoadStats
 	{
 		int     m_iNumericalBlock;
 		int     m_iExtraIcon;
@@ -3299,14 +3298,14 @@ private:
 		int     m_iShortReqLevel;
 		std::set<std::string>   m_setKeysSeen;
 
-		JuneLoadStats()
+		LoadStats()
 			: m_iNumericalBlock( 0 ), m_iExtraIcon( 0 ), m_iEmptySASkipped( 0 ), m_iDuplicate( 0 ), m_iInHouseDropped( 0 )
 			, m_iShortCoolTime( 0 ), m_iShortMP( 0 ), m_iShortReqLevel( 0 )
 		{}
 	};
 
 	std::map<int, int>  m_mapUpgradeSkill;      /// June CX2SkillTree +0x20: base skill id -> "[Enhanced]" skill id ( filled by m_DeleteSkillIDByUpgrade )
-	JuneLoadStats       m_JuneLoadStats;
+	LoadStats       m_JuneLoadStats;
 	bool                m_bJuneScratch;         /// a throw-away debug tree: no buff factor parse
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS

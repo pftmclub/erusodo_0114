@@ -937,7 +937,7 @@ class CX2DamageEffect
 
 				CKTDGXMeshPlayer::CXMeshInstanceHandle GetMainEffectHandle() { return m_hMeshInstHandle; }
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-				void JuneSetEffectAlphaCondition( int iEffectAlphaCondition ){ m_iApplyEffectAlphaConditionByOption = iEffectAlphaCondition; }	/// June2017 CEffect +0xb32
+				void SetEffectAlphaCondition( int iEffectAlphaCondition ){ m_iApplyEffectAlphaConditionByOption = iEffectAlphaCondition; }	/// June2017 CEffect +0xb32
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				CKTDGXMeshPlayer::CXMeshInstance* GetMainEffect();
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -949,7 +949,7 @@ class CX2DamageEffect
 
 				LockOnData&		GetLockOnData(){ return m_LockOnData; }
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
-				void			JuneOnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ );	/// June2017 FUN_3262b6e0 (EffectToUnit) @3262f389-3262f3ca / @3262f4b9-3262f4fb
+				void			OnLockOnHitUnit( CX2GameUnitoPtr optrHitUnit_ );	/// June2017 FUN_3262b6e0 (EffectToUnit) @3262f389-3262f3ca / @3262f4b9-3262f4fb
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				void			SetLockOnUnitUID( UidType unitUID ){ m_LockOnData.m_LockOnUnitUID = unitUID; }
 				void			SetLockOnNPCUID( int NPCUID ){ m_LockOnData.m_LockOnNPCUID = NPCUID; }
@@ -983,7 +983,7 @@ class CX2DamageEffect
 #if defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 				/// June effect completion C4: June 32622780 (a DamageData method there, called from GetFinalDamage). It sits on CEffect here because
 				/// it needs the protected aim-point helper JuneGetLockOnAimPos and the effect's position.
-				static void		JuneApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ );
+				static void		ApplyDivideDamageFromRange( const CX2DamageManager::DamageData& damageData_, float& fPhysic_, float& fMagic_ );
 #endif defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 #ifdef EVE_ELECTRA
 				D3DXVECTOR3		GetBeforePos() { return m_BeforePos; }
@@ -1045,8 +1045,8 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 				/// S3d: June 31f8af20 / 31f8aef0, the per-instance scale base (+0xb24) that June's SetScale multiplies by. June's one caller of both is
 				/// the effect-set modifier list 321db1b0 (its scale tag is character-checklist material, 7a)
-				D3DXVECTOR3 JuneGetScaleBase() const { return m_vJuneScaleBase; }
-				void JuneSetScaleBase( const D3DXVECTOR3& vBase_ ) { m_vJuneScaleBase = vBase_; }
+				D3DXVECTOR3 GetScaleBase() const { return m_vJuneScaleBase; }
+				void SetScaleBase( const D3DXVECTOR3& vBase_ ) { m_vJuneScaleBase = vBase_; }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 				void SetPassiveparticleTriggerTimeRate( float fPassiveParticleTriggerTimeRate ){ m_fPassiveParticleTriggerTimeRate = fPassiveParticleTriggerTimeRate; }
@@ -1187,8 +1187,8 @@ class CX2DamageEffect
 				// (31f81ba0) has blocks CreateHitDamageEffect does not cover (invoke-rate,
 				// damage-rate multiply, force-down-rate, SetScaleByUnit, SetMaxLifeTime -- see
 				// funcmap.tsv's 31f81ba0 row). See JUNE2017_EFFECT_REBUILD_PLAN.md, Phase 7e.
-				void JuneSetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit );	/// June FUN_31f70130, called from AttackResult @31f87b1a
-				void JuneDieCreateNpc();					/// June FUN_31f70330, called on every die path
+				void SetHitEffectSet( CX2GameUnit* pOwnerGameUnit, CX2GameUnit* pDefenderGameUnit );	/// June FUN_31f70130, called from AttackResult @31f87b1a
+				void DieCreateNpc();					/// June FUN_31f70330, called on every die path
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				
 				void SetCameraData();
@@ -1246,23 +1246,23 @@ class CX2DamageEffect
 				void VectorLockOn( const D3DXVECTOR3& targetPos );
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				// June2017 lock-on runtime (Phase 7b); evidence per function in june2017_re/funcmap.tsv.
-				void			JuneSetLockOnTargetUID( UidType uid_, bool bUserUnit_ );
-				bool			JuneIsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ );				/// FUN_31f647c0
-				void			JuneSelectLockOnRangeFromOwner();									/// FUN_31f71930 @31f73130-31f73540
-				D3DXVECTOR2		JuneGetLockOnTargetRange() const;									/// DUNGEON_/PVP_TARGET_RANGE_MIN_MAX by state
-				UidType			JunePickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ = 30 );	/// FUN_322dadd0
-				UidType			JuneGetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ );	/// FUN_322d7670
-				UidType			JuneGetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ );	/// FUN_322daa10
-				void			JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// FUN_31f83aa0 @31f8497c-31f84a0e
-				static bool		JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ );
-				static D3DXVECTOR3	JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ );	/// vtable slot 0x3e4 (NPC 3275ac50, User 31fd61a0)
+				void			SetLockOnTargetUID( UidType uid_, bool bUserUnit_ );
+				bool			IsOutOfLockOnRangeFromOwner( const D3DXVECTOR3& vPos_ );				/// FUN_31f647c0
+				void			SelectLockOnRangeFromOwner();									/// FUN_31f71930 @31f73130-31f73540
+				D3DXVECTOR2		GetLockOnTargetRange() const;									/// DUNGEON_/PVP_TARGET_RANGE_MIN_MAX by state
+				UidType			PickLockOnTargetBySeed( int iSeed_, OUT bool& bUserUnit_, int iModulus_ = 30 );	/// FUN_322dadd0
+				UidType			GetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ );	/// FUN_322d7670
+				UidType			GetLockOnRandomTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ );	/// FUN_322daa10
+				void			LockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// FUN_31f83aa0 @31f8497c-31f84a0e
+				static bool		IsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ );
+				static D3DXVECTOR3	GetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ );	/// vtable slot 0x3e4 (NPC 3275ac50, User 31fd61a0)
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 				friend class CX2GameUnit;	/// C3c: CX2GameUnit::JuneCollectUnitsAround (June 32294e30) asks each unit for its aim point, like vtable slot 0x3e4
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 				friend class CX2GUUser;	/// Eve CH2b0: CX2GUUser::JuneCollectEnemyUnitsInCone (June 32009180) reads the aim point too
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-				static D3DXVECTOR3	JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
+				static D3DXVECTOR3	GetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
 
 				// June2017 CREATE_DAMAGE_EFFECT loop runtime (Phase 7c); evidence in june2017_re/funcmap.tsv.
 				// SET_DIE_WHEN_MASTER_EFFECT_DIE @31f89e77-31f89e95: June pushes the new child's handle onto
@@ -1270,7 +1270,7 @@ class CX2DamageEffect
 				// DestroyInstanceHandle 31f83830 @31f838c5 (see CX2DamageEffect::DestroyInstanceHandle).
 				std::vector<CEffectHandle>	m_vecDieWithMasterChildEffects;
 				public:
-				void JuneTakeDieWithMasterChildEffects( std::vector<CEffectHandle>& vecOut_ ) { vecOut_.swap( m_vecDieWithMasterChildEffects ); }
+				void TakeDieWithMasterChildEffects( std::vector<CEffectHandle>& vecOut_ ) { vecOut_.swap( m_vecDieWithMasterChildEffects ); }
 				protected:
 
 				// INHERIT_DAMAGE @31f89cf5-31f89cfb: propagated onto the child at spawn time, as June's own
@@ -1292,17 +1292,17 @@ class CX2DamageEffect
 				bool						m_bInheritAttackTriggerType;			/// +0xb65
 				float						m_fJuneCreateDamageEffectRate;			/// +0xb18, ctor -1.f (31f7aab0 @31f7f612-31f7f618); set by class code only (checklist 7a)
 
-				void JuneGetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ );	/// m_pDamageDataNext (when set) + the NEXT2.. chain: June's +0xd8 vector
-				void JuneCollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ );		/// June's die + CREATE + hit + touch-land entry lists
-				void JuneInheritFromParent( CEffect* pChild_ );						/// June 31f8fdb0, this = the parent
-				void JuneApplyInheritDamageRate( float fRate_ );					/// June 31f649d0, this = the child
-				void JuneCopyAttackTriggerToChild( CEffect* pChild_ );				/// June 31f64c00, this = the parent
-				void JuneSetIgnoreDefenceDown( bool bValue_ );						/// June 31f65e40, this = the child
-				void JuneSetIgnoreStateDefenceDown( bool bValue_ );					/// June 31f65f90, this = the child
-				void JuneSpawnTail( CEffect* pChild_, const DamageEffectData* pData_ );	/// the hit and die spawners' tail, in June's order
-				void JuneApplyCreateDamageEffectRate( CEffect* pChild_ );			/// June 31f6ea20, this = the parent (RT_CREATE_DAMAGE_EFFECT)
+				void GetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ );	/// m_pDamageDataNext (when set) + the NEXT2.. chain: June's +0xd8 vector
+				void CollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ );		/// June's die + CREATE + hit + touch-land entry lists
+				void InheritFromParent( CEffect* pChild_ );						/// June 31f8fdb0, this = the parent
+				void ApplyInheritDamageRate( float fRate_ );					/// June 31f649d0, this = the child
+				void CopyAttackTriggerToChild( CEffect* pChild_ );				/// June 31f64c00, this = the parent
+				void SetIgnoreDefenceDown( bool bValue_ );						/// June 31f65e40, this = the child
+				void SetIgnoreStateDefenceDown( bool bValue_ );					/// June 31f65f90, this = the child
+				void SpawnTail( CEffect* pChild_, const DamageEffectData* pData_ );	/// the hit and die spawners' tail, in June's order
+				void ApplyCreateDamageEffectRate( CEffect* pChild_ );			/// June 31f6ea20, this = the parent (RT_CREATE_DAMAGE_EFFECT)
 				public:
-				void JuneSetHyper( bool bHyper_ ) { m_bHyper = bHyper_; }
+				void SetHyper( bool bHyper_ ) { m_bHyper = bHyper_; }
 				protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 				friend class CX2EffectSet;	/// June 321db1b0 tags 5 / 12 / 16 / 20 write the inherit gates
@@ -1312,17 +1312,17 @@ class CX2DamageEffect
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_TOUCH_LAND
 				// June effect completion C7: TOUCH_LAND_DAMAGE_EFFECT%d's runtime.
-				void JuneTouchLandDamageEffect();											/// June 31f83380, called from OnFrameMove @31f8a38b
+				void TouchLandDamageEffect();											/// June 31f83380, called from OnFrameMove @31f8a38b
 				void CreateTouchLandDamageEffect( vector<DamageEffectData*>& vecTouchLandDamageEffect );	/// June 31f81ba0
 #endif SERV_IRUHADEV_JUNE_TOUCH_LAND
 #ifdef SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
-				CX2GameUnit* JuneFindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ );	/// June 31f85910 @31f861e2-31f86521 (RT_CREATE_EFFECT_SET); NULL = March's own call
+				CX2GameUnit* FindFieldBossCollisionBox( CX2GameUnit* pTraceUnit_ );	/// June 31f85910 @31f861e2-31f86521 (RT_CREATE_EFFECT_SET); NULL = March's own call
 #endif SERV_IRUHADEV_JUNE_CREATE_EFFECT_SET
 
 				// DAMAGE_EFFECT_DIE_CHECK_CONDITION evaluator (FUN_31f765b0/31f76010, called
 				// OnFrameMove @31f888e5 after IsDyingByCrash): AND of the AND_OPERATION entries, AND-ed
 				// with the OR of the OR_OPERATION entries when any exist. Empty list -> false.
-				bool JuneEvaluateDieCheckCondition();
+				bool EvaluateDieCheckCondition();
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
 				

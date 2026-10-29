@@ -462,19 +462,19 @@ public:
 	bool GetOnGroundChangedState() const { return m_bJuneOnGroundChanged; }
 	void ResetOnGroundChangedState() { m_bJuneOnGroundChanged = false; }
 	/// June +0x450..+0x45c: stored only; the reader is the user's target search 31fe2420 (C9h-4)
-	float GetJuneTargetRange() const { return m_fJuneTargetRange; }
-	float GetJuneLimitZDepth() const { return m_fJuneLimitZDepth; }
-	float GetJuneDegreeRange() const { return m_fJuneDegreeRange; }
-	float GetJuneValuePos() const { return m_fJuneValuePos; }
+	float GetTargetRange() const { return m_fJuneTargetRange; }
+	float GetLimitZDepth() const { return m_fJuneLimitZDepth; }
+	float GetDegreeRange() const { return m_fJuneDegreeRange; }
+	float GetValuePos() const { return m_fJuneValuePos; }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	/// June pet +0x33c / +0x324 (m_ConditionData.m_vLandPosition / m_vDirDegree), read by the UI effect set holder (CX2EffectSet, C9h-3a)
-	const D3DXVECTOR3& GetJuneLandPosition() const { return m_ConditionData.m_vLandPosition; }
-	const D3DXVECTOR3& GetJuneDirDegree() const { return m_ConditionData.m_vDirDegree; }
+	const D3DXVECTOR3& GetLandPosition() const { return m_ConditionData.m_vLandPosition; }
+	const D3DXVECTOR3& GetDirDegree() const { return m_ConditionData.m_vDirDegree; }
 	/// June 32d291a0 (callers: the manager's NotifyShowObjectChanged, OnFrameRender_Prepare's village branch): show / hide every UI set, then the hide mirror = false
-	bool JuneShowHideAllUiSets( IN bool bShow_ );
+	bool ShowHideAllUiSets( IN bool bShow_ );
 	/// June 32d293e0 (only caller: the manager's RemoveRidingPet): stop every UI set and clear both vectors
-	void JuneStopAllUiSets();
+	void StopAllUiSets();
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 #ifdef FIX_HIT_FLY_RIDING_PET_MOTION // ±Ë≈¬»Ø
@@ -491,16 +491,16 @@ private:
 	void PlayAnimAtPlayEnd();		/// June 32d286c0, called at the end of OnFrameMove (@32d2f3b1)
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
-	void JuneLoadInitEffect();															/// June 32d2b0d0, called by SetRidingPet / SetGameRidingPet after InitState
-	std::wstring JuneGetReservedSetName( IN int iIndex_ ) const;						/// June 32d29240
-	CX2EffectSet::Handle JuneFindReservedSet( IN int iIndex_ );							/// June 32d292b0 (scans the kept vector only)
-	void JuneDeleteReservedUiSets( OUT std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June StateChange @32d31013 (the stops are queued in June)
-	void JuneStateChangeUiSets();														/// June StateChange @32d35a05 (village path only)
-	void JunePlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June 32d2bad0, then the queued stops (JUNE_BUGS 111)
+	void LoadInitEffect();															/// June 32d2b0d0, called by SetRidingPet / SetGameRidingPet after InitState
+	std::wstring GetReservedSetName( IN int iIndex_ ) const;						/// June 32d29240
+	CX2EffectSet::Handle FindReservedSet( IN int iIndex_ );							/// June 32d292b0 (scans the kept vector only)
+	void DeleteReservedUiSets( OUT std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June StateChange @32d31013 (the stops are queued in June)
+	void StateChangeUiSets();														/// June StateChange @32d35a05 (village path only)
+	void PlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& vecPendingStop_ );	/// June 32d2bad0, then the queued stops (JUNE_BUGS 111)
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
-	void JuneVillageStateChangeSounds();	/// June StateChange village block @32d350e0 ( C9h-4e )
+	void VillageStateChangeSounds();	/// June StateChange village block @32d350e0 ( C9h-4e )
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 	void InitDevice();
 	void InitSystem();

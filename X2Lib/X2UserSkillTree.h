@@ -6,14 +6,14 @@
 /// June2017 CX2SkillNoteManager memo row, 28 bytes (built by AddNewSkillNoteTemplet 32454840, read by 324510e0 / 32451140 / 32451250):
 /// +0 MEMO_ID, +4 skill id, +8 the unit level the memo needs (-1 when the row has none; 32455150 compares the unit's level), +0xc five
 /// values (-1.0 where the row has none). Declared here because X2Main.h includes this header before X2GUUser.h and X2SkillNoteManager.h.
-struct SJuneSkillMemoTemplet
+struct SSkillMemoTemplet
 {
 	int					m_iType;
 	int					m_iSkillID;
 	int					m_iRequireLevel;
 	std::vector<float>	m_vecValue;
 
-	SJuneSkillMemoTemplet() : m_iType( 0 ), m_iSkillID( 0 ), m_iRequireLevel( -1 ) {}
+	SSkillMemoTemplet() : m_iType( 0 ), m_iSkillID( 0 ), m_iRequireLevel( -1 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 /** @class	CX2UserSkillTree
@@ -274,11 +274,11 @@ public:		/// public function
 	const CX2SkillTree::SkillTemplet* GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ = false ) const;    /// June 32890720
 	CX2SkillTree::SKILL_ID GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID ) const;                                       /// June 328905b0
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
-	void AddJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                           /// June 328924c0
+	void AddAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                           /// June 328924c0
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
-	void ResetJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                         /// June 328929e0
+	void ResetAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                         /// June 328929e0
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
-	void GetJuneEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const;   /// June 328920d0
+	void GetEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const;   /// June 328920d0
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	const CX2SkillTree::SkillTemplet* GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID) const; 
@@ -339,7 +339,7 @@ public:		/// public function
 #ifdef	NEW_SKILL_2010_11
 	void ResetLeftSkillCoolTimeAll();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-	void June_ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ );	/// June 328941a0
+	void ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ );	/// June 328941a0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 /// ±Ë≈¬»Ø
@@ -363,15 +363,15 @@ public:		/// public function
 	void SetResetCoolTimeForceSkillID( const vector<int>& vecSkillID_ ) { m_vecResetCoolTimeForceSkillID = vecSkillID_; }
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 	/// June 32893e00 (EDT 156, through CX2Unit 3234ded0): every equipped skill's left cool time *= 1 - rate; keeps both lists
-	void ReduceLeftSkillCoolTimeByRateJune( const float fRate_, const bool bIncludeRelationAndHyper_ );
+	void ReduceLeftSkillCoolTimeByRate( const float fRate_, const bool bIncludeRelationAndHyper_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 	/// June 32894e40: every equipped skill's left cool time minus fValue_ seconds, or times it; clears the lists
-	void JuneReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ );
+	void ReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ );
 	/// June 328922d0
-	void JuneSetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ );
+	void SetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ );
 	/// June 32892060
-	bool JuneIsResetCoolTimeSkillType( const int iSkillType_ ) const;
+	bool IsResetCoolTimeSkillType( const int iSkillType_ ) const;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 private:
 	bool IsResetCoolTimeTarget( const CX2SkillTree::SKILL_TYPE eSkillType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_,
@@ -419,57 +419,57 @@ public:
 	/// June skill slot state ( S5 ): replaces the B end date / expiration state. Key 0 = B slots 5-8, key 1 = B-TC slot 9. A key not in the
 	/// map has state 0; state 1 ( SSBES_NOT_EXPIRED ) and 2 ( SSBES_PERMANENT ) are usable ( June 32890ee0 ). SKILL_SLOT_B_FREE is retired
 	/// here: the emulator sends key 0 = 2 ( permanent ) instead, and June's lock code runs unchanged.
-	struct JuneSlotState
+	struct SlotState
 	{
 		int				m_iState;
 		std::wstring	m_wstrDate;
-		JuneSlotState() : m_iState( 0 ) {}
+		SlotState() : m_iState( 0 ) {}
 	};
-	void SetJuneSlotState( const int iKey_, const int iState_, const std::wstring& wstrDate_ )	/// June 32892a00
+	void SetSlotState( const int iKey_, const int iState_, const std::wstring& wstrDate_ )	/// June 32892a00
 	{
-		JuneSlotState& kState = m_mapJuneSlotState[iKey_];
+		SlotState& kState = m_mapJuneSlotState[iKey_];
 		kState.m_iState = iState_;
 		kState.m_wstrDate = wstrDate_;
 	}
-	int GetJuneSlotState( const int iKey_ ) const												/// June 32890ea0: the state, 0 when the key is absent
+	int GetSlotState( const int iKey_ ) const												/// June 32890ea0: the state, 0 when the key is absent
 	{
-		std::map<int, JuneSlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
+		std::map<int, SlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
 		return ( m_mapJuneSlotState.end() == it ) ? 0 : it->second.m_iState;
 	}
-	bool IsJuneSlotUsable( const int iKey_ ) const											/// June 32890ee0: state 1 or 2
+	bool IsSlotUsable( const int iKey_ ) const											/// June 32890ee0: state 1 or 2
 	{
-		const int iState = GetJuneSlotState( iKey_ );
+		const int iState = GetSlotState( iKey_ );
 		return ( 1 == iState || 2 == iState );
 	}
-	const std::wstring& GetJuneSlotDate( const int iKey_ ) const
+	const std::wstring& GetSlotDate( const int iKey_ ) const
 	{
 		static const std::wstring s_wstrEmpty;
-		std::map<int, JuneSlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
+		std::map<int, SlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
 		return ( m_mapJuneSlotState.end() == it ) ? s_wstrEmpty : it->second.m_wstrDate;
 	}
 	/// The select-unit feed: June 3235eb20 passes the first two elements of KUnitSkillData's slot-state vector to 32892a00
-	void SetJuneSlotStateFromVector( const std::vector<KJuneSkillSlotState>& vecState_ )
+	void SetSlotStateFromVector( const std::vector<KJuneSkillSlotState>& vecState_ )
 	{
 		for ( size_t i = 0; i < vecState_.size() && i < 2; ++i )
-			SetJuneSlotState( vecState_[i].m_iKey, vecState_[i].m_iState, vecState_[i].m_wstrDate );
+			SetSlotState( vecState_[i].m_iKey, vecState_[i].m_iState, vecState_[i].m_wstrDate );
 	}
 	/// Combined slot index 4 ( A-TC ) and 9 ( B-TC ), June 3214f3d0
 	static bool IsTranscendenceSlotIndex( const int iCombinedIndex_ ) { return 4 == iCombinedIndex_ || 9 == iCombinedIndex_; }
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
-	void LogJuneSlotCensus( const wchar_t* wszWhere_ ) const;	/// [JUNE_SKILL] SLOT census line ( short-lived )
+	void LogSlotCensus( const wchar_t* wszWhere_ ) const;	/// [JUNE_SKILL] SLOT census line ( short-lived )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 
 	CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE GetSkillSlotBExpirationState() const
 	{
-		return static_cast<SKILL_SLOT_B_EXPIRATION_STATE>( GetJuneSlotState( 0 ) );
+		return static_cast<SKILL_SLOT_B_EXPIRATION_STATE>( GetSlotState( 0 ) );
 	}
 	void SetSkillSlotBExpirationState(CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE val)
 	{
-		SetJuneSlotState( 0, static_cast<int>( val ), GetJuneSlotDate( 0 ) );
+		SetSlotState( 0, static_cast<int>( val ), GetSlotDate( 0 ) );
 	}
 	bool GetEnabledSkillSlotB() const;
-	const std::wstring& GetSkillSlotBEndDateString() const { return GetJuneSlotDate( 0 ); }
-	void SetSkillSlotBEndDateString(std::wstring val) { SetJuneSlotState( 0, GetJuneSlotState( 0 ), val ); }
+	const std::wstring& GetSkillSlotBEndDateString() const { return GetSlotDate( 0 ); }
+	void SetSkillSlotBEndDateString(std::wstring val) { SetSlotState( 0, GetSlotState( 0 ), val ); }
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE GetSkillSlotBExpirationState() const
 	{
@@ -535,13 +535,13 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
 	/// June2017 active skill memos: a multimap skill id -> MEMO_ID at +0x458 (ctor 32897b70, dtor 32898120; Reset 328983b0 leaves it).
 	/// June writes it only from the memo ACKs (0x555 -> 328923e0, 0x557 -> 32891050) and the unit-info refresh (32892050 + 32892410).
-	bool IsJuneMemoActive( int iSkillID_, int iMemoID_ ) const;					/// June 32890f90: the id as given, no base mapping
-	void GetJuneActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const;	/// June 32891e10: the base id (32207210), memos > 0
-	void AddJuneActiveMemo( int iSkillID_, int iMemoID_ );						/// June 328923e0
-	void RemoveJuneActiveMemo( int iSkillID_, int iMemoID_ );					/// June 32891050: memo 0 removes every memo of the skill
+	bool IsMemoActive( int iSkillID_, int iMemoID_ ) const;					/// June 32890f90: the id as given, no base mapping
+	void GetActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const;	/// June 32891e10: the base id (32207210), memos > 0
+	void AddActiveMemo( int iSkillID_, int iMemoID_ );						/// June 328923e0
+	void RemoveActiveMemo( int iSkillID_, int iMemoID_ );					/// June 32891050: memo 0 removes every memo of the skill
 	void ClearJuneActiveMemo() { m_mmapJuneActiveMemo.clear(); }					/// June 32892050
-	void MergeJuneActiveMemo( const std::multimap<int, int>& mmapMemo_ );		/// June 32892410: adds the pairs not active yet
-	const std::multimap<int, int>& GetJuneActiveMemoMap() const { return m_mmapJuneActiveMemo; }
+	void MergeActiveMemo( const std::multimap<int, int>& mmapMemo_ );		/// June 32892410: adds the pairs not active yet
+	const std::multimap<int, int>& GetActiveMemoMap() const { return m_mmapJuneActiveMemo; }
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 	bool IsChangedSkillSlot( const int iSlotIndex_, const bool bSlotB_, const KSkillData& kSkillData_ ) const
@@ -598,7 +598,7 @@ public:
 	/// Local, not June ( S7d ): June's expand ACK ( 32214c60 ) only raises the opened page count, but March reads
 	/// m_vecSkillDataMap[ m_usUsingPage ] without a bound ( AccessMapSkillAcquired ). Every opened page gets its skill map here, a copy of
 	/// the page in use: the offline save keeps one shared skill list, a page holds only its bar.
-	void JuneGrowSkillPages()
+	void GrowSkillPages()
 	{
 		while ( m_vecSkillDataMap.size() < m_usOpenedPage )
 		{
@@ -679,7 +679,7 @@ private:
 	SKILL_SLOT_B_EXPIRATION_STATE		m_eSkillSlotBExpirationState;
 	std::wstring						m_wstrSkillSlotBEndDate;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-	std::map<int, JuneSlotState>			m_mapJuneSlotState;		/// June +0x434: slot-state key -> { state, date }
+	std::map<int, SlotState>			m_mapJuneSlotState;		/// June +0x434: slot-state key -> { state, date }
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	int									m_iUnitClass;

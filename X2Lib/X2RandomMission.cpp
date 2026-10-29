@@ -691,8 +691,8 @@ void CX2RandomMissionManager::OnBossDamage( CX2GUNPC* pNpc_, CX2GUUser* pMyUnit_
 	if( false == pDungeon->GetNowStage()->GetNowSubStage()->GetIsBossStage() )
 		return;
 
-	const float fTotal = fFinalDamage_ + pMyUnit_->GetJuneMissionBossDamage();
-	pMyUnit_->SetJuneMissionBossDamage( fTotal );
+	const float fTotal = fFinalDamage_ + pMyUnit_->GetMissionBossDamage();
+	pMyUnit_->SetMissionBossDamage( fTotal );
 
 	float fMaxHp = pNpc_->GetMaxHp();
 	if( fMaxHp <= 0.f )

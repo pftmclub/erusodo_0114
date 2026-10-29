@@ -128,10 +128,10 @@ public:
 
 	/// The readers. A skill id goes through 32207210 (an [Enhanced] id reads as its base) where June does it, noted per function.
 	bool HasJuneMemoClass( int iUnitClass_ ) const;																	/// June 324511a0
-	const SJuneSkillMemoTemplet* GetJuneMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const;				/// June 324510e0
-	const SJuneSkillMemoTemplet* GetJuneMemoByIndex( int iSkillID_, int iIndex_, int iUnitClass_ ) const;			/// June 32451140
+	const SSkillMemoTemplet* GetJuneMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const;				/// June 324510e0
+	const SSkillMemoTemplet* GetJuneMemoByIndex( int iSkillID_, int iIndex_, int iUnitClass_ ) const;			/// June 32451140
 	void GetJuneMemoList( int iSkillID_, int iRequireLevel_, int iUnitClass_, int iMemoID_,
-		OUT std::vector<const SJuneSkillMemoTemplet*>& vecMemo_ ) const;											/// June 32451250
+		OUT std::vector<const SSkillMemoTemplet*>& vecMemo_ ) const;											/// June 32451250
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// June 32452150 returns a bool ( ret 0xc, tested CMP AL,1 by 3235b070 ): the class has a row with the memo and the base skill.
 	/// S3b read it as a value getter; it had no caller.
@@ -158,7 +158,7 @@ private:
 	static CX2SkillNoteManager*								m_pManager;
 
 	/// June +0x4: UNIT_CLASS -> memo rows (the class's own rows after its parents', 32454840)
-	std::map< int, std::vector<SJuneSkillMemoTemplet> >	m_mapJuneMemoTemplet;
+	std::map< int, std::vector<SSkillMemoTemplet> >	m_mapJuneMemoTemplet;
 	/// June +0x14: MEMO_ID -> item id, a multimap (31ef1410, the insert CX2UserSkillTree +0x458 also uses)
 	std::multimap<int, int>								m_mmapJuneMemoMatchItemID;
 	/// June +0x24: the item ids that remove a memo

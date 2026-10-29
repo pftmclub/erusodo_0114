@@ -4446,7 +4446,7 @@ bool CX2State::HandleMsgByESC()
 		/// June CX2State::HandleMsgByESC ( vslot 0x1e8, 31f1e1a0 @31f1e359-31f1e3ba ): with a live g_pX2Game, an armed skip-the-start list takes
 		/// the ESC ( 322f4c60 ) and HandleMsgByESCImp ( vslot 0x1ec, a tail jump in June ) is not called. The June-only gates earlier in
 		/// 31f1e1a0 ( state +0x210, the tutorial guide manager, the chat box ) belong to June's ESC handler, not to this chain.
-		if ( NULL != g_pX2Game && true == g_pX2Game->JuneSkipStartRequest() )
+		if ( NULL != g_pX2Game && true == g_pX2Game->SkipStartRequest() )
 			return false;
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 		return HandleMsgByESCImp();
@@ -9278,11 +9278,11 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 	{
 		/// @31f2791a: the unit info's active memos ( KUnitInfo +0x1ce ) merge again ( Reset's SetKUnitInfo has merged them once )
 		const std::map< int, int >& mapJuneMemo = kEvent.m_kUnitInfo.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
-		refJuneTree.MergeJuneActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );	/// 32892410
+		refJuneTree.MergeActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );	/// 32892410
 	}
 	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560
 	refJuneTree.Reset( false, false, true, false, false );						/// 32895c40( 0, 1, 0, 0 ): both bars' slots only
-	refJuneTree.ResetJuneAcquiredSkills( kEvent.m_vecJuneAcquiredSkill );		/// 328929e0
+	refJuneTree.ResetAcquiredSkills( kEvent.m_vecJuneAcquiredSkill );		/// 328929e0
 	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560, a second time
 
 	if( NULL != g_pData->GetSkillTree() )
@@ -9296,7 +9296,7 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 		vecJuneLove[0].Init();
 		vecJuneLove[0].m_iSkillID		= static_cast<short>( 900 );	/// SI_ETC_WS_COMMON_LOVE
 		vecJuneLove[0].m_cSkillLevel	= static_cast<UCHAR>( g_pData->GetRelationshipManager()->GetMyRelationshipInfo()->m_eRelationStateType );
-		refJuneTree.AddJuneAcquiredSkills( vecJuneLove );
+		refJuneTree.AddAcquiredSkills( vecJuneLove );
 	}
 
 	if( NULL != g_pData->GetUIManager() )
@@ -9349,7 +9349,7 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();				/// 3235a160 @31f27bd2
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();				/// 3235a160 @31f27bd2
 
 	/// Not ported, June-only with no March home: in the village / square / field ( states 0xe / 0xf / 0x15 ) with a job class ( 10 - 199 ),
 	/// g_pMain +0xd80 32161070 ( emblem 16, the long-time boss raid UI; S7l ), and last the state's vslot 0x104 ( 3245abd0, the class-up
@@ -9548,7 +9548,7 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	/// June's class-change NOT 31f276b0 @31f27bd2: 3235a160 after the skill / memo merge ( S7h ports the handler whole )
 	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 	if( g_pData != NULL && g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL &&

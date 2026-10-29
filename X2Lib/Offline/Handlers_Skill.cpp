@@ -529,7 +529,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& 
 	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 	pSkill->Load( kRow.m_nUnitUID );
 
-	const SJuneSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetJuneMemo( kReq.m_iSkillID, kReq.m_iMemoID, kRow.m_iUnitClass );
+	const SSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetJuneMemo( kReq.m_iSkillID, kReq.m_iMemoID, kRow.m_iUnitClass );
 	int iUpgradedSkillID = -1;
 	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
 		iUpgradedSkillID = g_pData->GetSkillTree()->GetUpgradedSkillID( kReq.m_iSkillID );

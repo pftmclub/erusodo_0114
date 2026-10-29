@@ -471,10 +471,10 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 	if( NULL != g_pX2Game )
 	{
 		CX2GameUnit* pJuneCreatorGameUnit = NULL;
-		if( true == pBuffTemplet_->IsJuneCreatorNotUser() )
-			pJuneCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetJuneCreatorUID() ) );
+		if( true == pBuffTemplet_->IsCreatorNotUser() )
+			pJuneCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetCreatorUID() ) );
 		else
-			pJuneCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetJuneCreatorUID() );
+			pJuneCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetCreatorUID() );
 		const BYTE byJuneCreatorCondition = g_pX2Game->GetEffectAlphaCondition( pJuneCreatorGameUnit );
 
 		BOOST_FOREACH( CX2EffectSet::Handle& hHandleTag, m_vecHandleEffectSet )
@@ -808,7 +808,7 @@ void CX2BuffWeaponParticleDisplayerTemplet::StartDisplayerByBuffTempletID( CX2Ga
 	if( NULL != g_pX2Game && NULL != pGameUnit_ )
 	{
 		for( UINT uiIndexTag = 0; uiIndexTag < m_vecHandleParticle.size(); ++uiIndexTag )
-			g_pX2Game->JuneTagEffectAlphaParticleHandle( pGameUnit_, m_vecHandleParticle[uiIndexTag], false );
+			g_pX2Game->TagEffectAlphaParticleHandle( pGameUnit_, m_vecHandleParticle[uiIndexTag], false );
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

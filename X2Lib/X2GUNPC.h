@@ -2022,8 +2022,8 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		/// C3j: June CX2GameUnit vslots 0x2f0 / 0x2f4, NPC 3275a010 / 3275a030. The only caller is Lu/Ciel class code ( 32b34680, checklist 7l ). LANDCRASH
 		/// also matches the queued nextState ( June's word +0x8404 ). No 0 != guard: June has none and nothing in March calls these yet.
-		virtual bool JuneIsBoundingUp() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingUp; }
-		virtual bool JuneIsBoundingLandCrash() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingLandCrash || m_NPCFrameData.unitCondition.nextState == m_JuneBoundingLandCrash; }
+		virtual bool IsBoundingUp() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingUp; }
+		virtual bool IsBoundingLandCrash() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingLandCrash || m_NPCFrameData.unitCondition.nextState == m_JuneBoundingLandCrash; }
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7b: CX2GUNPC slot 96 (June 32758760) is true while a BBT_INVINCIBLE buff is on
@@ -2056,7 +2056,7 @@ class CX2GUNPC : public CX2GameUnit
 		}
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 		/// June CX2GUNPC slot 94 3275bc30 ( the user's slot 94 is plain GetInvincible )
-		bool						JuneGetInvincibleByAttackTypeId( const int iAttackType_ ) const
+		bool						GetInvincibleByAttackTypeId( const int iAttackType_ ) const
 		{
 			for ( UINT i = 0; i < m_vecJuneInvincibleAttackTypeNow.size(); i++ )
 			{
@@ -2190,8 +2190,8 @@ class CX2GUNPC : public CX2GameUnit
 
 		CX2NPCAI*					GetNPCAI() { return m_pAI; }
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		int							GetJuneAbsoluteMonsterState() const { return m_iJuneAbsoluteMonsterState; }
-		const vector<int>&			GetJuneAbsoluteDeathBuffFactorIDList() const { return m_vecJuneAbsoluteDeathBuffFactorID; }
+		int							GetAbsoluteMonsterState() const { return m_iJuneAbsoluteMonsterState; }
+		const vector<int>&			GetAbsoluteDeathBuffFactorIDList() const { return m_vecJuneAbsoluteDeathBuffFactorID; }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		void						PushAIMessage( STATE_CHANGE_TYPE message, bool bIsRight );
@@ -2480,7 +2480,7 @@ class CX2GUNPC : public CX2GameUnit
 		/// KNPCUnitReq.m_bShowBossName != 0 (32d528f0 @32d5292c, req +0x52 = m_bShowBossName, 327edc2d) or
 		/// NpcCreatedInfo.m_uiBossGroupId > 0 (32d539c0 @32d539f5): the ExtraNPCStat port's m_iExtraNPCStatMonsterGrade.
 		/// The dungeon caller 327ef570 passes NPCData +0x44 (KNPCUnitReq.m_cMonsterGrade, 0 offline): not plumbed here (0).
-		bool						IsJuneSocketBossGrade() const;		/// X2GUNPC.cpp
+		bool						IsSocketBossGrade() const;		/// X2GUNPC.cpp
 #endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_EXTRA_NPC_STAT )
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT_DEBUG
 		// Iruha : 2026-09-27 // Phase 4 diagnostic only, short-lived with the
@@ -2548,10 +2548,10 @@ class CX2GUNPC : public CX2GameUnit
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 		bool							m_bJuneNotAffectBlackHole;	/// June +0x8ac5: the NPC's INIT key NOT_AFFECT_BLACKHOLE ( 327a0fa0 @327a5f0b ); a black hole never pulls this NPC ( 31f6eea0 @31f6f0bf, C3i )
-		bool							GetJuneNotAffectBlackHole() const { return m_bJuneNotAffectBlackHole; }
+		bool							GetNotAffectBlackHole() const { return m_bJuneNotAffectBlackHole; }
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
-		bool							GetJuneNoFallDownAtState() const { return GetNowStateData().m_bJuneNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
+		bool							GetNoFallDownAtState() const { return GetNowStateData().m_bJuneNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 		int							GetAirFallState() const { return m_AirFallState; }
 		int							GetRideStateID() const { return m_RideState; }
@@ -2653,9 +2653,9 @@ class CX2GUNPC : public CX2GameUnit
 
 #ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		/// June effect completion C3s: INIT_COMPONENT FORCE_CINEMATIC_STATE ( June +0x8f8c, a narrow string, "" when absent ).
-		const std::string& GetJuneForceCinematicState() const { return m_strJuneForceCinematicState; }
+		const std::string& GetForceCinematicState() const { return m_strJuneForceCinematicState; }
 		/// June 327d65d0: true when the script names a forced cinematic state.
-		bool HasJuneForceCinematicState() const { return false == m_strJuneForceCinematicState.empty(); }
+		bool HasForceCinematicState() const { return false == m_strJuneForceCinematicState.empty(); }
 #endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		bool GetShowSubBossName() const { return m_bShowSubBossName; }
 		void SetShowSubBossName(bool val) { m_bShowSubBossName = val; }
@@ -2726,8 +2726,8 @@ class CX2GUNPC : public CX2GameUnit
 		}
 
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
-		bool JuneIsAnotherSameSummonAlive();	/// June 32778b10
-		void JuneDropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
+		bool IsAnotherSameSummonAlive();	/// June 32778b10
+		void DropOwnerSummonBuffOnDying();	/// June 327b53b0 @327bcdfd
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 		void StopSelfDestruction()
 		{
@@ -2742,7 +2742,7 @@ class CX2GUNPC : public CX2GameUnit
 		virtual int GetRandomInt( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomInt( GetNPCSyncData().m_usRandomTableIndex + iOffset ); }
 		virtual float GetRandomFloat( int iOffset = 0 ) { return CKTDXRandomNumbers::GetRandomFloat( GetNPCSyncData().m_usRandomTableIndex + iOffset ); }
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-		void June_InitDelegateProcess();		/// June 3275f0a0 ( vslot 0x340 ); Rena's push 3275a490 comes with her port
+		void InitDelegateProcess();		/// June 3275f0a0 ( vslot 0x340 ); Rena's push 3275a490 comes with her port
 		void EveSummonAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 3275a120
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
@@ -2796,7 +2796,7 @@ class CX2GUNPC : public CX2GameUnit
 		virtual void TransformScale( const D3DXVECTOR3& vScale_ );
 #endif // VERIFY_STAT_BY_BUFF
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		void June_SetBasicScale( const float fRate_, const bool bTransform_ );	/// June 327623f0 ( CX2GUNPC vslot 0x270; Eve's Oberon Guard 329ae6e0 calls it )
+		void SetBasicScale( const float fRate_, const bool bTransform_ );	/// June 327623f0 ( CX2GUNPC vslot 0x270; Eve's Oberon Guard 329ae6e0 calls it )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		// note!! 아마게돈 블레이드를 사용하는 몬스터를 위한 예외 코드
@@ -3246,7 +3246,7 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 		void SetFuryMode( bool bFuryMode_ );		/// June 31e4d7c0 (Lua: SetFuryMode); stores only, the speed follows at the next ResetAnimSpeed
 		bool GetFuryMode() const { return m_bFuryMode; }	/// June 31e4d7d0 (Lua: GetFuryMode)
-		bool JuneGetFuryAttackPowerRate( float& fRate_ ) const;	/// June GetFinalDamage @32285781-322857a6 gate: Fury byte && FURY_MODE on the current state
+		bool GetFuryAttackPowerRate( float& fRate_ ) const;	/// June GetFinalDamage @32285781-322857a6 gate: Fury byte && FURY_MODE on the current state
 #endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 #if defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
 		void SetMultiplicationAnimSpeed( float fRate_ ) { m_fMultiplicationAnimSpeed = fRate_; }	/// June stores +0x8fdc directly (327ef570 @327ef8a4, phase C4d); the speed follows at the next ResetAnimSpeed
@@ -3285,7 +3285,7 @@ class CX2GUNPC : public CX2GameUnit
 		int GetSyncDummyValue() { return m_iJuneSyncDummyValue; }		/// June 31e4d880 ( +0x9064 )
 		void SetSyncDummyValue_Host( int iValue_ );						/// June 32778ea0
 		void StartAlphaFade( float fTime_, bool bFadeIn_, bool bHideAtEnd_ );	/// June 3275a240
-		void JuneFrameMoveAlphaFade();									/// June 3275a320
+		void FrameMoveAlphaFade();									/// June 3275a320
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //}}
 //{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv batch 2)
@@ -4769,7 +4769,7 @@ class CX2GUNPC : public CX2GameUnit
 		/// June CX2GUNPC +0x8f74 ( C9h-4b ): every sound the TimedEvent player starts, pushed even when PlaySound returned NULL. Stopped and cleared at ReInit and in
 		/// the dtor; at CommonStateEnd it is cleared every time and stopped only when the ending state has STOP_SOUND_AT_STATE_END. June 3275cf80 ( stop + clear ) has no caller.
 		std::vector<CKTDXDeviceSound*>					m_vecJunePlayedSound;
-		void											JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ );
+		void											StopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

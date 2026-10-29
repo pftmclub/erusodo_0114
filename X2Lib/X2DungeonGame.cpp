@@ -2552,9 +2552,9 @@ void CX2DungeonGame::JuneUpdateUnitPointerNPCWalk()
 			// June effect completion C3s: June CX2DungeonGame::UpdateUnitPointer 327cea70 @327ceaaf-327ceb43. A FORCE_CINEMATIC_STATE
 			// ( +0x8f8c ) replaces the start-state test: input stops while the NPC is in that state ( GetStateID 3275aaf0 vs nowState
 			// +0x8454 ), whether or not m_bStopAtStartState ( +0x8e38 ) is set. Without the key June runs March's test.
-			const bool bJuneForceCinematic = pCX2GUNPC->HasJuneForceCinematicState();
+			const bool bJuneForceCinematic = pCX2GUNPC->HasForceCinematicState();
 			const bool bJuneInForceCinematic = true == bJuneForceCinematic
-				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetJuneForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());
+				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());
 			if( true == pCX2GUNPC->GetStopAtStartState() && false == bJuneForceCinematic )
 			{
 				CanNotInputAndDisalbeNPCAI( pCX2GUNPC->GetStartState() == static_cast<int>(pCX2GUNPC->GetGameUnitState()) );

@@ -1281,7 +1281,7 @@ void CX2DungeonSubStage::ShowBossNameAtStart( float fElapsedTimeSubStage )
 			if( pCX2GUNPC == NULL )
 				continue;
 
-			const bool bForceCinematic = pCX2GUNPC->HasJuneForceCinematicState();
+			const bool bForceCinematic = pCX2GUNPC->HasForceCinematicState();
 
 			/// @327ef2dd-327ef315: ( m_bShowBossName && sub-stage time > delay ) || FORCE_CINEMATIC_STATE set -> the boss intro below;
 			/// otherwise the sub-boss branch ( @327ef487 ).
@@ -1310,7 +1310,7 @@ void CX2DungeonSubStage::ShowBossNameAtStart( float fElapsedTimeSubStage )
 
 			/// @327ef31b-327ef355: a forced state gates the intro, also when m_bShowBossName and the delay already allow it.
 			if( true == bForceCinematic
-				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetJuneForceCinematicState() ) != static_cast<int>(pCX2GUNPC->GetGameUnitState()) )
+				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetForceCinematicState() ) != static_cast<int>(pCX2GUNPC->GetGameUnitState()) )
 				continue;
 
 			CKTDGParticleSystem::CParticleEventSequence* pSeq =

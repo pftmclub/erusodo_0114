@@ -805,7 +805,7 @@ CX2SkillTree::SKILL_ID CX2UserSkillTree::GetUpgradeSwappedSkillID( CX2SkillTree:
 				a new one first erases the skill it upgrades ( templet +0x178 m_iDeleteSkillIDByUpgrade, 32891500 ), then is inserted with
 				the pushed level ( 32898c80 ). The acquired map is the page in use ( June +0x4a8 ).
 */
-void CX2UserSkillTree::AddJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
+void CX2UserSkillTree::AddAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
 {
 	if( true == m_vecSkillDataMap.empty() || m_usUsingPage >= m_vecSkillDataMap.size() )
 	{
@@ -849,12 +849,12 @@ void CX2UserSkillTree::AddJuneAcquiredSkills( const std::vector< KSkillData >& v
 	@brief		June 328929e0 ( the class-change notice, 31f276b0 @31f2795c ): the acquired map ( +0x4a8, March: the page in use ) is
 				emptied ( 31d06e90 ), then takes the pushed skills ( 328924c0 ). The other pages are not touched.
 */
-void CX2UserSkillTree::ResetJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
+void CX2UserSkillTree::ResetAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
 {
 	if( m_usUsingPage < m_vecSkillDataMap.size() )
 		m_vecSkillDataMap[ m_usUsingPage ].clear();
 
-	AddJuneAcquiredSkills( vecSkillData_ );
+	AddAcquiredSkills( vecSkillData_ );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 
@@ -862,7 +862,7 @@ void CX2UserSkillTree::ResetJuneAcquiredSkills( const std::vector< KSkillData >&
 	@brief		June 328920d0: the empty slot indices ( 0-4 ) of bar A or B; the transcendence slot ( 3214f3d0( i ) == 3, index 4 ) only
 				when bWithTC_
 */
-void CX2UserSkillTree::GetJuneEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const
+void CX2UserSkillTree::GetEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const
 {
 	vecSlotIndex_.clear();
 
@@ -2624,14 +2624,14 @@ int CX2UserSkillTree::GetSkillEquippedSlotIndex( CX2SkillTree::SKILL_ID eSkillID
 	@brief : S5 gate: what the client holds after the select-unit feed. Slot ids A 0-4 / B 5-9, the slot-state keys 0 / 1 and what
 		GetEnabledSkillSlotB() answers.
 */
-void CX2UserSkillTree::LogJuneSlotCensus( const wchar_t* wszWhere_ ) const
+void CX2UserSkillTree::LogSlotCensus( const wchar_t* wszWhere_ ) const
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT census %s: A %d/%d/%d/%d/%d B %d/%d/%d/%d/%d key0 state %d usable %d, key1 state %d usable %d, enabledB %d, slots per bar %d",
 		wszWhere_,
 		(int)m_aEquippedSkill[0].m_eID, (int)m_aEquippedSkill[1].m_eID, (int)m_aEquippedSkill[2].m_eID, (int)m_aEquippedSkill[3].m_eID, (int)m_aEquippedSkill[4].m_eID,
 		(int)m_aEquippedSkillSlotB[0].m_eID, (int)m_aEquippedSkillSlotB[1].m_eID, (int)m_aEquippedSkillSlotB[2].m_eID, (int)m_aEquippedSkillSlotB[3].m_eID, (int)m_aEquippedSkillSlotB[4].m_eID,
-		GetJuneSlotState( 0 ), IsJuneSlotUsable( 0 ) ? 1 : 0, GetJuneSlotState( 1 ), IsJuneSlotUsable( 1 ) ? 1 : 0,
+		GetSlotState( 0 ), IsSlotUsable( 0 ) ? 1 : 0, GetSlotState( 1 ), IsSlotUsable( 1 ) ? 1 : 0,
 		GetEnabledSkillSlotB() ? 1 : 0, (int)EQUIPPED_SKILL_SLOT_COUNT );
 #endif SERV_IRUHADEV_OFFLINE
 }
@@ -2639,7 +2639,7 @@ void CX2UserSkillTree::LogJuneSlotCensus( const wchar_t* wszWhere_ ) const
 bool CX2UserSkillTree::GetEnabledSkillSlotB() const
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 {
-	return IsJuneSlotUsable( 0 );
+	return IsSlotUsable( 0 );
 }
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 {
@@ -2842,7 +2842,7 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeAll()
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 review ( JUNE_CHARACTER_EVE_PHASES.md )
 // June 328941a0: mode 1 keeps the listed skill ids, 2 the listed skill types, 3 every slot while the X2 state is listed
-void CX2UserSkillTree::June_ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ )
+void CX2UserSkillTree::ResetLeftSkillCoolTimeAll( const int iMode_, const std::vector<int>& vecValue_ )
 {
 	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
@@ -3211,7 +3211,7 @@ bool CX2UserSkillTree::ApplyResetCoolTime( SkillSlotData& slotData_, const CX2Sk
 			 skill-ID remaps (328905b0 bar A, 32205c00 bar B) are June-only; GetUserSkillTemplet is the lookup here, as in
 			 ResetLeftSkillCoolTimeByBuff.
 */
-void CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune( const float fRate_, const bool bIncludeRelationAndHyper_ )
+void CX2UserSkillTree::ReduceLeftSkillCoolTimeByRate( const float fRate_, const bool bIncludeRelationAndHyper_ )
 {
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
 	if ( NULL == pGageManager )
@@ -3245,7 +3245,7 @@ void CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune( const float fRate_, co
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 // June 32894e40: both bars; no gage-manager update, unlike 32893e00
-void CX2UserSkillTree::JuneReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ )
+void CX2UserSkillTree::ReduceLeftSkillCoolTime( const float fValue_, const bool bRate_ )
 {
 	const int iSizeOfIndex = ARRAY_SIZE( m_aEquippedSkill );
 	for ( int iBar = 0; iBar < 2; ++iBar )
@@ -3267,7 +3267,7 @@ void CX2UserSkillTree::JuneReduceLeftSkillCoolTime( const float fValue_, const b
 				if ( CX2SkillTree::ST_RELATIONSHIP_SKILL == pSkillTemplet->m_eType || CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType )
 					continue;
 
-				if ( false == JuneIsResetCoolTimeSkillType( static_cast<int>( pSkillTemplet->m_eType ) ) )
+				if ( false == IsResetCoolTimeSkillType( static_cast<int>( pSkillTemplet->m_eType ) ) )
 					continue;
 
 				if ( m_vecResetCoolTimeIgnoreSkillID.end() != std::find( m_vecResetCoolTimeIgnoreSkillID.begin(), m_vecResetCoolTimeIgnoreSkillID.end(), iSkillID ) )
@@ -3296,14 +3296,14 @@ void CX2UserSkillTree::JuneReduceLeftSkillCoolTime( const float fValue_, const b
 }
 
 // June 328922d0
-void CX2UserSkillTree::JuneSetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ )
+void CX2UserSkillTree::SetResetCoolTimeSkillType( const int iMode_, const vector<int>& vecSkillType_ )
 {
 	m_iJuneResetCoolTimeSkillTypeMode = iMode_;
 	m_vecJuneResetCoolTimeSkillType = vecSkillType_;
 }
 
 // June 32892060: an empty list or another mode passes every type
-bool CX2UserSkillTree::JuneIsResetCoolTimeSkillType( const int iSkillType_ ) const
+bool CX2UserSkillTree::IsResetCoolTimeSkillType( const int iSkillType_ ) const
 {
 	if ( true == m_vecJuneResetCoolTimeSkillType.empty() )
 		return true;
@@ -3376,7 +3376,7 @@ bool CX2UserSkillTree::GetEqipSkillMemo(int iSkillMemo) const
 //슬롯 B에 장착 할 때 레벨값을 갱신하지 않는 오류 수정
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
 /// June2017 32890f90: equal_range( skill ) on the +0x458 multimap, true when one value is the memo
-bool CX2UserSkillTree::IsJuneMemoActive( int iSkillID_, int iMemoID_ ) const
+bool CX2UserSkillTree::IsMemoActive( int iSkillID_, int iMemoID_ ) const
 {
 	typedef std::multimap<int, int>::const_iterator MemoIt;
 	std::pair<MemoIt, MemoIt> range = m_mmapJuneActiveMemo.equal_range( iSkillID_ );
@@ -3389,7 +3389,7 @@ bool CX2UserSkillTree::IsJuneMemoActive( int iSkillID_, int iMemoID_ ) const
 }
 
 /// June2017 32891e10: the skill through 32207210 (an [Enhanced] id reads as its base), then every memo > 0 of it, appended
-void CX2UserSkillTree::GetJuneActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const
+void CX2UserSkillTree::GetActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const
 {
 	int iBaseSkillID = iSkillID_;
 	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
@@ -3405,13 +3405,13 @@ void CX2UserSkillTree::GetJuneActiveMemoList( int iSkillID_, OUT std::vector<int
 }
 
 /// June2017 328923e0: multimap insert, the ids as given (the 0x555 ACK's skill and memo)
-void CX2UserSkillTree::AddJuneActiveMemo( int iSkillID_, int iMemoID_ )
+void CX2UserSkillTree::AddActiveMemo( int iSkillID_, int iMemoID_ )
 {
 	m_mmapJuneActiveMemo.insert( std::make_pair( iSkillID_, iMemoID_ ) );
 }
 
 /// June2017 32891050: erase, inside equal_range( skill ), every pair whose memo matches, or all of them when the memo is 0
-void CX2UserSkillTree::RemoveJuneActiveMemo( int iSkillID_, int iMemoID_ )
+void CX2UserSkillTree::RemoveActiveMemo( int iSkillID_, int iMemoID_ )
 {
 	typedef std::multimap<int, int>::iterator MemoIt;
 	std::pair<MemoIt, MemoIt> range = m_mmapJuneActiveMemo.equal_range( iSkillID_ );
@@ -3426,12 +3426,12 @@ void CX2UserSkillTree::RemoveJuneActiveMemo( int iSkillID_, int iMemoID_ )
 }
 
 /// June2017 32892410: every source pair not already active (32890f90) is inserted
-void CX2UserSkillTree::MergeJuneActiveMemo( const std::multimap<int, int>& mmapMemo_ )
+void CX2UserSkillTree::MergeActiveMemo( const std::multimap<int, int>& mmapMemo_ )
 {
 	typedef std::multimap<int, int>::const_iterator MemoIt;
 	for( MemoIt it = mmapMemo_.begin(); it != mmapMemo_.end(); ++it )
 	{
-		if( false == IsJuneMemoActive( it->first, it->second ) )
+		if( false == IsMemoActive( it->first, it->second ) )
 			m_mmapJuneActiveMemo.insert( std::make_pair( it->first, it->second ) );
 	}
 }

@@ -7281,7 +7281,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ctor 327cef70, Release 327d2240 ). Data: BOSS_NAME0..7 come from June's GameMinorParticle.txt ( data036 ).
 #define SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 #if defined(SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START) && !defined(SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE)
-#error SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START needs SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE ( CX2GUNPC::HasJuneForceCinematicState )
+#error SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START needs SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE ( CX2GUNPC::HasForceCinematicState )
 #endif
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -7305,10 +7305,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              lists and reads SOUND_PLAY<n> ( nation reader ) and STATE_SOUND_PLAY<n> inside it. The NPC copy of the roll is C3t-3.
 #define SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 #if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK) && !defined(SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME)
-#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( JuneIsHyperModeState, JuneIsBerserkByChance )
+#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsHyperModeState, IsBerserkByChance )
 #endif
 #if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK) && !defined(SERV_IRUHADEV_JUNE_UNIT_SOUND)
-#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_UNIT_SOUND ( JuneBeginSoundPlayTable, m_vecStateSoundPlayData )
+#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_UNIT_SOUND ( BeginSoundPlayTable, m_vecStateSoundPlayData )
 #endif
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -8024,7 +8024,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_NOTE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (GetUpgradeBaseSkillID 32207210)
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifndef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-#error SERV_IRUHADEV_JUNE_SKILL_NOTE needs SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION (CX2GUUser::GetJuneSkillMemoEntry, the C8b memo switch)
+#error SERV_IRUHADEV_JUNE_SKILL_NOTE needs SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION (CX2GUUser::GetSkillMemoEntry, the C8b memo switch)
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 //////////////////////////////////////////////////////////////////////////
@@ -8106,7 +8106,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the memo lookup 31fdbbb0)
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 #ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
-#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY (CX2BuffFactor::JuneSetBehaviorValue / JuneSetTimeFinalizerValue)
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY (CX2BuffFactor::SetBehaviorValue / SetTimeFinalizerValue)
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifndef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST (its helpers sit in X2BuffFactor.h:959)
@@ -8164,7 +8164,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE needs SERV_IRUHADEV_JUNE_SKILL_NOTE (31fdbcc0)
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 #ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-#error SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (IsJuneSkillSlotState, slot 330)
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (IsSkillSlotState, slot 330)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
 //////////////////////////////////////////////////////////////////////////
@@ -9235,16 +9235,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( June's KSkillData, the packet's last vector )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
-#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddJuneAcquiredSkills 328924c0, the emulator's acquired list )
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddAcquiredSkills 328924c0, the emulator's acquired list )
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #ifndef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET ( MergeJuneActiveMemo 32892410 )
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET ( MergeActiveMemo 32892410 )
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI ( June's UpdateUI 328e7b70 arguments )
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #ifndef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
-#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP ( JuneResetHudMaxHpMp = 3235a160 )
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP ( ResetHudMaxHpMp = 3235a160 )
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 #ifndef ADDED_RELATIONSHIP_SYSTEM
 #error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs ADDED_RELATIONSHIP_SYSTEM ( the couple skill 900 takes the relation state )
@@ -9728,7 +9728,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              KncWX2Server/Common/ServerDefine.h ( ClientPacket.h precedes Always.h ); toggle both together. Revert: JUNE_UNSEAL_SKILL_NOT in MODS.md.
 #define SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 #if defined( SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT ) && !defined( SERV_IRUHADEV_JUNE_SKILL_ACQUIRE )
-#error SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddJuneAcquiredSkills, GrantJuneSkillsByLevel )
+#error SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddAcquiredSkills, GrantJuneSkillsByLevel )
 #endif
 //////////////////////////////////////////////////////////////////////////
 
@@ -9755,7 +9755,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June's MP change text ( 32278070, 3229ecc0 ): queued MP changes show as "MP +n" / "MP -n" every 0.2 s, before the HP queue. Revert: undefine the flag ( JUNE_MP_CHANGE_TEXT ).
 #define SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 #if defined( SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT ) && !defined( SERV_IRUHADEV_ELYSION_SCRIPT_B )
-#error SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT needs SERV_IRUHADEV_ELYSION_SCRIPT_B ( JuneFrameMoveHpChangeText )
+#error SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT needs SERV_IRUHADEV_ELYSION_SCRIPT_B ( FrameMoveHpChangeText )
 #endif
 //////////////////////////////////////////////////////////////////////////
 
@@ -10025,7 +10025,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June transcendence T5 - the transcended combat engine: HyperModeStart's slot buffs ( 31ffd490 -> 31fc8c20: BFI 843 / 844 on a 0.5 roll, re-rolled every 20 s by OnFrameMove 3206eaf0 @3206fed1 while 31fce5f0 holds ), ApplyHyperModeBuff ( 32298590: BFI 845 and Effectset_TRANScendence_WakeUp_FX instead of the hyper buff ), RenderName ( 3201a8f0 ) with the ICON_TR mark ( 31ff6920 ), the summon awake factor 1.3 ( 322ece70 ), the hyper-class skill-level gate in ParsingBuffFactorID ( 31fceab0 ), and TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE ( 328d7890 / 328d6c90 ). Log [JUNE_TRANSCEND] ENGINE. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #if defined( SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) || !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ) || !defined( SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY ) )
-#error SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE, SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION, SERV_IRUHADEV_JUNE_SKILL_TEMPLET, SERV_IRUHADEV_JUNE_SOCKET_PARITY, SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( JuneIsHyperModeState ) and SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY ( HaveUnfinishedBuff )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE, SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION, SERV_IRUHADEV_JUNE_SKILL_TEMPLET, SERV_IRUHADEV_JUNE_SOCKET_PARITY, SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsHyperModeState ) and SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY ( HaveUnfinishedBuff )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 //////////////////////////////////////////////////////////////////////////
 
@@ -10045,7 +10045,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June transcendence T6b - the transcendence-slot glow: June's CX2Game loop 322d8100 puts the UI manager's guide-type-4 particles ( Transcendence_Loop_P1-P5 / Open_P1-P5, June table 32154f60 ) on A-5 / B-5 while BTI 820 holds in an awakening, and removes them when it ends. The UI manager's guide table ( add 321536e0, find 32151190, remove 32151fa0, spawn 32153880, timer 32155eb0 ) is ported for type 4 only. Log [JUNE_TRANSCEND] SLOTBUFF. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 #if defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TREE_UI ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ) )
-#error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( HaveUnfinishedBuff, m_iUnitClassTran ), SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ( JuneCanShowClassGuide ), SERV_IRUHADEV_JUNE_SKILL_TREE_UI and SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( IsJuneSlotUsable )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( HaveUnfinishedBuff, m_iUnitClassTran ), SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ( JuneCanShowClassGuide ), SERV_IRUHADEV_JUNE_SKILL_TREE_UI and SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( IsSlotUsable )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 //////////////////////////////////////////////////////////////////////////
 

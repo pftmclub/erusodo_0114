@@ -174,7 +174,7 @@ m_TexDataMovingGage( L"DLG_LOADING_BAR.tga", L"LOADING_BAR" )
 	/// June's field state ctor 32509d30 @3250a208: the HUD max MP / HP refresh 3235a160 at the end, so entering a village sets the HUD
 	/// from unit data ( June's select-unit ACK has no such call: the KGamePlayStatus maxima March sets there stay until this )
 	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+		g_pData->GetMyUser()->GetSelectUnit()->ResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 }//CX2StateField::CX2StateField()
 

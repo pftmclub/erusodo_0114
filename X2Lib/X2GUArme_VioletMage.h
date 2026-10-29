@@ -841,9 +841,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void AVSI_TELEPORT_STAND_UP_START_EventProcess();			/// June 32cb7210
 		void DashJumpAttackZStartFuture();							/// June 32cb7530
 		void ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
-		void June_Vslot608();											/// June 32ccda40 ( vslot 0x608 )
+		virtual void RidingHyperModeEnd();								/// June 32ccda40 ( vslot 0x608 ); 32cf0fa0 is a bare jump to it
 		void RidingOffStart();										/// June 32cf0f90
-		void June_RidingHyperModeEnd();									/// June 32cf0fa0
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
 
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1c ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -866,8 +865,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		void OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
 		virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32ce1cc0 ( vslot 0x6a4 )
-		virtual float JuneGetDefenceRateBySkill( const int iAttackType_ );	/// June 32cc28b0 ( vslot 0x428 )
-		virtual float JuneGetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32cc5c30 ( vslot 0x73c )
+		virtual float GetDefenceRateBySkill( const int iAttackType_ );	/// June 32cc28b0 ( vslot 0x428 )
+		virtual float GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32cc5c30 ( vslot 0x73c )
 		CX2GameUnit* GetNearestEnemyInRange( float fRange_, const std::set<UidType>& setExceptUID_ ) const;	/// June CX2Game 322d7920
 		struct JuneEquipViewChange { UidType m_iItemUIDToAdd; UidType m_iItemUIDToRemove; };	/// June +0x9848 element ( 16 bytes )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
@@ -972,27 +971,24 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); definitions at the end of
 		/// X2GUArme_VioletMage.cpp with the June address of each.
-		void June_Vslot604();											/// June 32ccda90 ( vslot 0x604 ); 32ccda40 ( 0x608 ) is the same body
+		virtual void HyperModeEnd();									/// June 32ccda90 ( vslot 0x604 ); 32ccda40 ( 0x608 ) is the same body
 		CX2EqipPtr GetTransformWeapon() const;						/// June 32cf25a0 ( vslot 0x680 )
-		bool IsNotCommonMoveState();											/// June 32cc7b90 ( vslot 0x828 ): base test 31fd7640 is a stand-in
-		void June_Vslot850();											/// June 32cc7c30 ( vslot 0x850 )
-		void June_Vslot860( CX2GUNPC* pNPC );							/// June 32ccdae0 ( vslot 0x860 )
+		virtual bool IsNotCommonMoveState();									/// June 32cc7b90 ( vslot 0x828 )
 		void RidingOffEnd();										/// June 32cc8ae0 ( vslot 0x610 )
-		void June_Vslot654();											/// June 32cc8cf0 ( vslot 0x654 )
 		void AngorHammerMesh();									/// June 32ce6f40
 		void EndHellStoneWindow();									/// June 32cc2ab0
 		void ManaflowOverdriveFrameMove();							/// June 32cc5b20
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-		int June_GetSkillLevel( const int iSkillID_ ) const;			/// June 31fceab0 ( CX2GUUser )
+		int GetSkillLevel( const int iSkillID_ ) const;			/// June 31fceab0 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		const CX2SkillTree::SkillTemplet* GetLearnedSkillTemplet( const int iSkillID_ ) const;	/// June 31fcad70 ( CX2GUUser )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-		float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
+		float GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		bool June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 3202d140 ( CX2GUUser )
-		bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
-		void June_UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )
+		bool CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 3202d140 ( CX2GUUser )
+		bool CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
+		void UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		void SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
 		void SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
@@ -1000,10 +996,10 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ced640 ( vslot 0x7fc, step 511 )
 		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32ccf4e0 ( vslot 0x800, step 512 )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		void June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
-		void June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
-		void June_StateChangeBySkillSlot( const int iSlotIndex_ );		/// June 31fd32e0 ( CX2GUUser )
-		void June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
+		void MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
+		void ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
+		void StateChangeBySkillSlot( const int iSlotIndex_ );		/// June 31fd32e0 ( CX2GUUser )
+		void SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		int SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ );	/// June 32cc7e60 ( class map CH1 )
 		int GetMemoRiseEntry( const int* piIndex_ ) const;			/// June 32cc7df0 ( class map CH1 )
@@ -1043,10 +1039,10 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );	/// June vslot 0x644
 		using CX2GUUser::UpdateEquipCollisionData;
 		virtual void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ );	/// June vslot 0x638
-		virtual void JuneAfterEquipSlotChange() { June_Vslot654(); }	/// June vslot 0x654
-		virtual void JuneAfterImageFrameMove() { June_Vslot850(); }	/// June vslot 0x850
-		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
-		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
+		virtual void AfterEquipSlotChange();	/// June 32cc8cf0 ( vslot 0x654 )
+		virtual void AfterImageFrameMove();	/// June 32cc7c30 ( vslot 0x850 )
+		virtual void SummonedNPCInfo( CX2GUNPC* pNPC_ );	/// June 32ccdae0 ( vslot 0x860 )
+		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1l
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2a ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -1066,7 +1062,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool PlayFireRoad();
 		void AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove();					/// June 32cdc4a0
 #ifndef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
-		void June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
+		void CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
 #endif SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 		virtual void ClearSkillUseReserve();								/// June slot 514 ( 31fc9410 ): +0x8eac = 0 and +0x8ea8 ( the reserved MP ) = 0
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
