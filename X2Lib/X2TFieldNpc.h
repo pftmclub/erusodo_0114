@@ -157,8 +157,8 @@ class CX2TFieldNpc : public CKTDGObject
 		CX2EffectSet::Handle GetEffectSetHandle() const { return m_hEffectSet; }		// +0x190 (the field game's NPC loop shows / hides it, 323b7263)
 		void SetCheckCompletableQuest( bool val ) { m_bCheckCompletableQuest = val; }	// +0x239 (written by that loop, 323b72fa / 323b7303)
 		CKTDGXSkinAnim* GetXSkinAnim() const { return m_pXSkinAnim; }					// +0x1b8
-		D3DXVECTOR3 JuneGetBonePos( const WCHAR* wszBoneName );						// June 321f2c10 (the effect set's bone helpers)
-		bool JuneGetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos );			// June 321f2c70
+		D3DXVECTOR3 GetBonePos( const WCHAR* wszBoneName );						// June 321f2c10 (the effect set's bone helpers)
+		bool GetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos );			// June 321f2c70
 #else SERV_IRUHADEV_ELYSION_VILLAGE
 		void SetEnable(bool val) { m_bEnable = val; }
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
@@ -190,7 +190,7 @@ class CX2TFieldNpc : public CKTDGObject
 		bool Handler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 		// June motion-map keys (CreateFieldNpc 325ca980 block 15: the templet's *_MOTION_NAME -> NPC +0x1f4).
-		enum JUNE_NPC_MOTION_KEY
+		enum NPC_MOTION_KEY
 		{
 			JNMK_NORMAL		= 0,
 			JNMK_WAIT01		= 1,

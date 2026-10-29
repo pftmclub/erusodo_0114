@@ -11,7 +11,7 @@
 /// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
 /// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_BEHAVIOR_FACTOR( func_, type_ ) \
@@ -278,7 +278,7 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_, bool b
 #endif EXCEPTION_BUFF_FACTOR_VER2
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Factor Type" );	/// false 리턴
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -448,7 +448,7 @@ bool CX2BuffFactor::ParsingCombinationBehavior( KLuaManager& luaManager_ )
 
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Factor Type" );	/// false 리턴
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -536,7 +536,7 @@ bool CX2BuffFactor::ParsingCombinationFinalizer( KLuaManager& luaManager_ )
 
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BFT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BFT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Finalizer Factor Type" );	/// false 리턴
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -621,7 +621,7 @@ void CX2BuffFactor::UpdateValueByRelationType( const BUFF_RELATION_TYPE eRelatio
 	data (CX2DamageManager::ParsingBuffFactor) this one reports. */
 bool CX2BuffFactor::ParsingBuffFactor( KLuaManager& luaManager_, bool bIsSkill/* = true*/ )
 {
-	CX2JuneBuffCapture kCapture;
+	CX2BuffCapture kCapture;
 	const bool bParsed = ParsingBuffFactorBody( luaManager_, bIsSkill );
 	if ( kCapture.IsOwner() )
 	{

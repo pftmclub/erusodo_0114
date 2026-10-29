@@ -964,8 +964,8 @@ bool CKTDGUIDialog::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 				if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 				{
 					// June 31cd8940 @31cd8c22: hidden in mode 2-4, only a dialog in the mode's name list is handled; the rest return false ( @31cd91e2 )
-					if( g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideModeKeepingHidden() == false
-						|| g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideName( GetName() ) == false )
+					if( g_pKTDXApp->GetDGManager()->GetDialogManager()->IsHideModeKeepingHidden() == false
+						|| g_pKTDXApp->GetDGManager()->GetDialogManager()->IsHideName( GetName() ) == false )
 						return false;
 				}
 #else SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE

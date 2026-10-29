@@ -1591,7 +1591,7 @@ void CX2Data::LoadPicCharYellowSmall()
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = m_pUIMajorParticle->CreateSequence( NULL,  L"PicCharYellowSmall", 0.0f, 0.0f, 0.0f,  0.0f, 0.0f );
 	if ( NULL == pSeq )
 	{
-		CX2JuneBuffCapture::Line( "unsupported (data not packed): eventsequence \"PicCharYellowSmall\" is missing from UIMajorParticle.txt, so BBT_RESET_SKILL_COOL_TIME DRAW_TEXT draws nothing. Pack the staged kom_contents/data036_kom/UIMajorParticle.txt into data036.kom." );
+		CX2BuffCapture::Line( "unsupported (data not packed): eventsequence \"PicCharYellowSmall\" is missing from UIMajorParticle.txt, so BBT_RESET_SKILL_COOL_TIME DRAW_TEXT draws nothing. Pack the staged kom_contents/data036_kom/UIMajorParticle.txt into data036.kom." );
 		return;
 	}
 
@@ -1865,7 +1865,7 @@ CX2ItemManager* CX2Data::ResetItemManager()
 	// June2017 ResetItemManager 31edda90 loads ... ItemConvertTable.lua, ItemManager.lua, CoordiItem.lua (encrypted),
 	// CoboRenderDivisionItemTemplet.lua, DivisionItemTemplet.lua, RenderDivisionItemTemplet.lua, GuildAgitShopItem.lua ... March loads
 	// none of the five after ItemConvertTable.lua; only RenderDivisionItemTemplet.lua carries the CEPE block (the other two: Stage 11).
-	m_pItemManager->OpenJuneDivisionItemTempletFile( L"RenderDivisionItemTemplet.lua" );
+	m_pItemManager->OpenDivisionItemTempletFile( L"RenderDivisionItemTemplet.lua" );
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
@@ -1915,12 +1915,12 @@ CX2UnitManager* CX2Data::ResetUnitManager( const WCHAR* pFileName, const WCHAR* 
 #ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	// June 31ee6100 @31ee6217: AnimationNameTable.lua is opened after SelectVoiceTable.lua (not ported) and just before
 	// UnitViewerEffectSetTable.lua (@31ee6224)
-	m_pUnitManager->OpenJuneAnimationNameTable( L"AnimationNameTable.lua" );
+	m_pUnitManager->OpenAnimationNameTable( L"AnimationNameTable.lua" );
 #endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	// June 31ee6100 @31ee6224: UnitViewerEffectSetTable.lua is the last OpenDataScriptFile, after CorrelateUnitClassTemplet.lua.
 	// June's SelectVoiceTable.lua and AnimationNameTable.lua opens in between are not ported here.
-	m_pUnitManager->OpenJuneUnitViewerEffectSetTable( L"UnitViewerEffectSetTable.lua" );
+	m_pUnitManager->OpenUnitViewerEffectSetTable( L"UnitViewerEffectSetTable.lua" );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 	return m_pUnitManager;
 }
@@ -1992,7 +1992,7 @@ CX2QuestManager* CX2Data::ResetQuestManager( const WCHAR* pQuestFileName, const 
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	// June 3258c470 @32590890: then the player is made again ( 31edee40 )
-	ResetJuneSlideShotScripted();
+	ResetSlideShotScripted();
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	m_pQuestManager->LogLoadCensus( NULL != m_pGuildManager ? m_pGuildManager->GetGuildCoopQuestRewardRowCount() : 0 );
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
@@ -2503,7 +2503,7 @@ CX2GFXEventScene* CX2Data::ResetGFXEventScene()
 }
 
 /// June 3226a010 behind the readers' "+0x274 != 0" test. The Lua scene is asked on its own when there is no GFX scene, so a reader never sees less than before.
-bool CX2Data::JuneIsEventScenePlaying()
+bool CX2Data::IsEventScenePlaying()
 {
 	if( NULL != m_pGFXEventScene && true == m_pGFXEventScene->IsPlaying() )
 		return true;
@@ -2525,26 +2525,26 @@ CX2SlideShot* CX2Data::ResetSlideShot()
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 /// June 31edee40: delete the old player ( dtor 328c3290 ), make a new one ( 0xc8 B, ctor 328c34b0 )
-CX2SlideShotScripted* CX2Data::ResetJuneSlideShotScripted()
+CX2SlideShotScripted* CX2Data::ResetSlideShotScripted()
 {
 	SAFE_DELETE( m_pJuneSlideShotScripted );
 	m_pJuneSlideShotScripted = new CX2SlideShotScripted();
 	return m_pJuneSlideShotScripted;
 }
 
-bool CX2Data::JuneStartStorySlideShot( int iQuestID_ )
+bool CX2Data::StartStorySlideShot( int iQuestID_ )
 {
 	if( NULL == m_pJuneSlideShotScripted )
 		return false;
 	return m_pJuneSlideShotScripted->Start( iQuestID_ );
 }
 
-bool CX2Data::JuneIsStorySlideShotRunning()
+bool CX2Data::IsStorySlideShotRunning()
 {
 	return NULL != m_pJuneSlideShotScripted && true == m_pJuneSlideShotScripted->IsRunning();
 }
 
-void CX2Data::JuneEndStorySlideShot()
+void CX2Data::EndStorySlideShot()
 {
 	if( NULL != m_pJuneSlideShotScripted )
 		m_pJuneSlideShotScripted->End();
@@ -3751,34 +3751,34 @@ float CX2Data::RotateYSelectCharacterType( CX2Unit::UNIT_CLASS eClass_ )
 			 the event-scene scripts. They fill the three rank tables rank-linked sockets scale by (SumSocketOption).
 			 Degrade: a missing file leaves its table empty, every lookup then reads 0 and such sockets add no stats.
 */
-void CX2Data::LoadJuneRankReferData()
+void CX2Data::LoadRankReferData()
 {
 	if ( false == g_pKTDXApp->LoadLuaTinker( L"PVPData.lua" ) )
-		CX2JuneBuffCapture::Line( "PVPData.lua did not load: rank-linked sockets get rate 0 (no stats). Pack June's PVPData.lua into data036.kom." );
+		CX2BuffCapture::Line( "PVPData.lua did not load: rank-linked sockets get rate 0 (no stats). Pack June's PVPData.lua into data036.kom." );
 	if ( false == g_pKTDXApp->LoadLuaTinker( L"PVEData.lua" ) )
-		CX2JuneBuffCapture::Line( "PVEData.lua did not load: PVE-rank-linked sockets get rate 0 (no stats). Pack June's PVEData.lua (and the Enum with PVE_RANK) into data036.kom." );
-	CX2JuneBuffCapture::Line( "June rank tables: PVP %d, PVE %d, PVE for MP %d row(s)",
+		CX2BuffCapture::Line( "PVEData.lua did not load: PVE-rank-linked sockets get rate 0 (no stats). Pack June's PVEData.lua (and the Enum with PVE_RANK) into data036.kom." );
+	CX2BuffCapture::Line( "June rank tables: PVP %d, PVE %d, PVE for MP %d row(s)",
 		static_cast<int>( m_mapJunePvpReferData.size() ), static_cast<int>( m_mapJunePveReferData.size() ), static_cast<int>( m_mapJunePveReferDataForMP.size() ) );
 }
 
 /// June 31ee36c0 / 31ee37c0 / 31ee3800: map insert (32821f20), so a repeated rank keeps its first rate
-void CX2Data::AddJunePvpReferData_LUA( int iRank_, float fRate_ )
+void CX2Data::AddPvpReferData_LUA( int iRank_, float fRate_ )
 {
 	m_mapJunePvpReferData.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
-void CX2Data::AddJunePveReferData_LUA( int iRank_, float fRate_ )
+void CX2Data::AddPveReferData_LUA( int iRank_, float fRate_ )
 {
 	m_mapJunePveReferData.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
-void CX2Data::AddJunePveReferDataForMP_LUA( int iRank_, float fRate_ )
+void CX2Data::AddPveReferDataForMP_LUA( int iRank_, float fRate_ )
 {
 	m_mapJunePveReferDataForMP.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
 /// June 31edfe70: the PVP table's rate for the rank, 0 when absent
-float CX2Data::GetJunePvpReferData( const int iRank_ ) const
+float CX2Data::GetPvpReferData( const int iRank_ ) const
 {
 	std::map<int, float>::const_iterator mit = m_mapJunePvpReferData.find( iRank_ );
 	return ( m_mapJunePvpReferData.end() != mit ? mit->second : 0.f );
@@ -3787,18 +3787,18 @@ float CX2Data::GetJunePvpReferData( const int iRank_ ) const
 /// June 31edfeb0: bForMP_ picks the MP table (+0x404) over the PVE table (+0x3f4). June tests the found node against
 /// the PVE table's end (+0x3f8) in both cases, so a rank missing from the MP table reads that table's head node, an
 /// undefined value (JUNE_BUGS #49). Not June: such a miss reads 0 here. June's PVEData.lua fills every rank in both.
-float CX2Data::GetJunePveReferData( const int iRank_, const bool bForMP_ ) const
+float CX2Data::GetPveReferData( const int iRank_, const bool bForMP_ ) const
 {
 	const std::map<int, float>& mapRate = ( true == bForMP_ ? m_mapJunePveReferDataForMP : m_mapJunePveReferData );
 	std::map<int, float>::const_iterator mit = mapRate.find( iRank_ );
 	return ( mapRate.end() != mit ? mit->second : 0.f );
 }
 
-void CX2Data::JuneDataCallNotPorted( const char* szName_ )
+void CX2Data::DataCallNotPorted( const char* szName_ )
 {
 	static std::set<std::string> s_setLogged;
 	if ( true == s_setLogged.insert( szName_ ).second )
-		CX2JuneBuffCapture::Line( "June-only, not ported: g_pData:%s (PVPData.lua / PVEData.lua)", szName_ );
+		CX2BuffCapture::Line( "June-only, not ported: g_pData:%s (PVPData.lua / PVEData.lua)", szName_ );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_GLOBAL_MISSION_MANAGER

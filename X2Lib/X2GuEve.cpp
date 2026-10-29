@@ -5719,7 +5719,7 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 					break;
 
 				const CX2UserSkillTree::SkillSlotData* pSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
-				if( NULL != pSlotData && true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( pSlotData->m_eID ), JUNE_CH1L_SA_EEL_KUGELBLITZ ) )
+				if( NULL != pSlotData && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( static_cast<int>( pSlotData->m_eID ), JUNE_CH1L_SA_EEL_KUGELBLITZ ) )
 				{
 					m_sKugelBlitz_Data.SetSlotID( static_cast<SKugelBlitz_Data::SLOT_TYPE>( iType ), iSlot );
 					break;
@@ -27489,7 +27489,7 @@ void CX2GUEve::ENSI_SI3_EG_QUEENS_THRONE_FrameMove()
 		m_sEGQueensThrone.m_bEnable = true;
 
 		/// June 31fdbbb0: a Check and Kill 1 memo on the state's skill scales the life time by its first value ( the lookup is June's stub here, 445 )
-		const CX2GUUser::JuneSkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
+		const CX2GUUser::SkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
 		if( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemoEntry->m_iType )
 		{
 			const float fMemoValue = ( true == pMemoEntry->m_vecValue.empty() ? 0.f : pMemoEntry->m_vecValue[0] );
@@ -41251,7 +41251,7 @@ void CX2GUEve::ENSI_A_EVE_PHOTON_BLINK_FrameMove()
 		}
 
 		/// June 31fdbf20: Check and Kill 1's memo row on the state's skill adds the dummy time to the effect's own, else it replaces it
-		const CX2GUUser::JuneSkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
+		const CX2GUUser::SkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
 		const bool bAddTime = ( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemoEntry->m_iType );
 
 		for( size_t i = 0; i < vecDummyEffect.size(); ++i )
@@ -41719,7 +41719,7 @@ void CX2GUEve::ENSI_SA_EPR_PHOTON_FLARE_FrameMove()
 			pEffectDamage->SetScale( D3DXVECTOR3( fEffectScale, fEffectScale, fEffectScale ) );
 			pEffectDamage->GetDamageData().m_ExtraDamage.m_fTime = fEffectiveTime;
 
-			const CX2GUUser::JuneSkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
+			const CX2GUUser::SkillMemoEntry* pMemoEntry = GetSkillMemoEntry( GetNowStateSkillID() );
 			if( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemoEntry->m_iType )
 			{
 				const float fMemoValue = ( true == pMemoEntry->m_vecValue.empty() ? 0.f : pMemoEntry->m_vecValue[0] );
@@ -42699,7 +42699,7 @@ void CX2GUEve::DeleteMinorParticle()
 			fAdditionalAccelBuffTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
 	}
 
-	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL );
+	const CX2GUUser::SkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL );
 	if( NULL != pMemo && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemo->m_iType )
 		fAdditionalAccelBuffTime = ( ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.f ) + fAdditionalAccelBuffTime;
 
@@ -44018,7 +44018,7 @@ void CX2GUEve::EndElCrystalSystem( bool bEnergeticHeartEnd_/* = false */ )
 
 				float fCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel );	// June passes a third argument 0
 
-				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL );
+				const CX2GUUser::SkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL );
 				if( NULL != pMemo && ( CX2SkillTree::MI_FASTEST == pMemo->m_iType || CX2SkillTree::MI_TOUGH == pMemo->m_iType ) )
 					fCoolTime = ( ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.0f ) * fCoolTime;
 
@@ -44190,7 +44190,7 @@ const CX2UserSkillTree::SkillSlotData* CX2GUEve::GetSkillSlotDataTaserPilum( IN 
 
 	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = cUserSkillTree_.GetSkillSlot( ( iSlotID > 4 ) ? iSlotID - 5 : iSlotID, iSlotID > 4 );
 	if( NULL != pSkillSlotData && CX2SkillTree::SI_NONE != pSkillSlotData->m_eID &&
-		true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( CX2SkillTree::RNSI_A_ECB_TASER_PILUM, pSkillSlotData->m_eID ) )	// June passes ( Taser, slot skill ): the reverse of the other callers
+		true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( CX2SkillTree::RNSI_A_ECB_TASER_PILUM, pSkillSlotData->m_eID ) )	// June passes ( Taser, slot skill ): the reverse of the other callers
 	{
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillSlotData->m_eID );
 
@@ -51447,7 +51447,7 @@ void CX2GUEve::EGQueensThroneReset()
 }
 
 // June 3299bcd0: stops both effect sets through local copies; the fields are only cleared when asked
-void CX2GUEve::JuneEveBlock9c50::Reset( bool bResetFields_ )
+void CX2GUEve::PsykerKinesisData::Reset( bool bResetFields_ )
 {
 	CX2EffectSet::Handle hEffectSet0 = m_hEffectSet0;
 	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet0 );
@@ -52173,7 +52173,7 @@ void CX2GUEve::ENSI_ECE_DASH_XX_EventProcess()
 bool CX2GUEve::CanContinueBoostAttack( const int iAddBoostAttack_ ) const
 {
 	const bool bElectronicMove = ( NULL != g_pData && NULL != g_pData->GetSkillTree() &&
-		true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( GetFutureStateSkillID() ), JUNE_RNSI_A_EBS_ELECTRONIC_MOVE ) );
+		true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( static_cast<int>( GetFutureStateSkillID() ), JUNE_RNSI_A_EBS_ELECTRONIC_MOVE ) );
 
 	if( false == bElectronicMove && m_iAddBoostAttack > 0 && true == IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( JUNE_SKILL_ID_BOOST_ATTACK_MP ) ) )
 		return true;
@@ -52490,7 +52490,7 @@ float CX2GUEve::GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) 
 // ---- ReInit and destructor ----
 
 // June 329cf170: stops both effect sets of the block, the fields stay
-void CX2GUEve::JuneEveBlock9c50::StopEffectSets()
+void CX2GUEve::PsykerKinesisData::StopEffectSets()
 {
 	CX2EffectSet::Handle hEffectSet0 = m_hEffectSet0;
 	g_pX2Game->GetEffectSet()->StopEffectSet( hEffectSet0 );
@@ -52947,7 +52947,7 @@ void CX2GUEve::StateChangeBySkillSlot( const int iSlotIndex_ )
 // June 31fdbe70 ( CX2GUUser vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
 void CX2GUEve::SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
 {
-	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
+	const CX2GUUser::SkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
 	if( NULL == pMemo )
 		return;
 
@@ -53153,7 +53153,7 @@ void CX2GUEve::SpecialAttackCooldown( const int iSkillID_, const float fMpConsum
 		}
 	}
 
-	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
+	if( true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
 	{
 		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, 0.0f );
 		g_pX2Game->UpdateSkillSlotUI( false );
@@ -53231,7 +53231,7 @@ bool CX2GUEve::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 	if( NULL == pSkillSlotData )
 		return false;
 
-	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillSlotData->m_eID, CX2SkillTree::RNSI_A_ECB_TASER_PILUM ) && false == bTaserReleased )
+	if( true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( pSkillSlotData->m_eID, CX2SkillTree::RNSI_A_ECB_TASER_PILUM ) && false == bTaserReleased )
 		return false;
 
 	m_iJune8ea4 = iPressedSkillSlotIndex;
@@ -53283,7 +53283,7 @@ bool CX2GUEve::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 		true == m_EveElectraSystem.m_bSystemEnable )
 		m_fJune8eb0 = 0.0f;
 
-	if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) && m_iThousandStarCount > 0 )
+	if( true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) && m_iThousandStarCount > 0 )
 		m_fJune8eb0 = 0.0f;
 
 	float fCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
@@ -54943,7 +54943,7 @@ float CX2GUEve::GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkil
 	if( NULL == pSkillTemplet )
 		return 1.f;
 
-	CX2SkillTree::SkillTemplet::JuneNumericalRow kRow;
+	CX2SkillTree::SkillTemplet::NumericalRow kRow;
 	pSkillTemplet->GetNumericalRowByName( pwszName_, iSkillLevel, kRow );
 
 	const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
@@ -55474,7 +55474,7 @@ void CX2GUEve::ENSI_SA_ECN_PSYKER_KINESIS_FrameMove()
 	{
 		if( NULL == m_pJuneBlock9c50 )
 		{
-			m_pJuneBlock9c50 = new JuneEveBlock9c50;
+			m_pJuneBlock9c50 = new PsykerKinesisData;
 			m_pJuneBlock9c50->m_bFlag0		= false;
 			m_pJuneBlock9c50->m_hEffectSet0	= INVALID_EFFECTSET_HANDLE;
 			m_pJuneBlock9c50->m_hEffectSet1	= INVALID_EFFECTSET_HANDLE;

@@ -328,7 +328,7 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	/// June RESERVED_EFFECT_SET_PLAY_COND / RESERVED_UI_EFFECT_SET_DELETE_COND (data036 Enum.lua, C9h-3a)
-	enum JUNE_RESERVED_UI_EFFECT_SET_COND
+	enum RESERVED_UI_EFFECT_SET_COND
 	{
 		JUNE_RESPC_NONE			= 0,
 		JUNE_RESPC_NOT_PLAY		= 1,	/// do not play when a set of that name is already in the kept vector
@@ -337,13 +337,13 @@ public:
 	};
 
 	/// June reserved UI effect set map node (+0x4d0, std::map<int, node>: key +0xc, deleteCond +0x10, playCond +0x14, name +0x18; INIT_EFFECT.RIDINGPET_RESERVED_UI_EFFECT_SET_LIST)
-	struct JuneReservedUiSet
+	struct ReservedUiSet
 	{
 		int				m_iDeleteCond;
 		int				m_iPlayCond;
 		std::wstring	m_wstrName;
 	};
-	typedef std::map< int, JuneReservedUiSet > JuneReservedUiSetMap;
+	typedef std::map< int, ReservedUiSet > ReservedUiSetMap;
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	#pragma region typedef
 	typedef boost::bimaps::bimap< char, string > StateBiMap;				/// 기존 두 개의 맵을 사용한 것을 bimap으로 바뀜
@@ -583,7 +583,7 @@ private:
 	bool							m_bJuneUiSetHidden;				/// +0x4ac: hide mirror (players use SetShowObject( !m_bJuneUiSetHidden )); 32d291a0 zeroes it whatever it was asked
 	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetKept;			/// +0x4b0: INIT BY_UIEFFECTSET, reserved and non-delete-on-end state sets
 	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetState;		/// +0x4c0: DELETE_EFFECT_SET_ON_STATE_END sets; stopped through copies on every state, never cleared (JUNE_BUGS 107)
-	JuneReservedUiSetMap			m_mapJuneReservedUiSet;			/// +0x4d0
+	ReservedUiSetMap			m_mapJuneReservedUiSet;			/// +0x4d0
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 #pragma endregion variable
 

@@ -808,7 +808,7 @@ void CKTDXDeviceSound::Set3DPosition( const D3DXVECTOR3& pos )
 // June 31d41710: only with a channel ( +0x60 ); store the position ( +0x4c ), Update3DPosition ( 31d411c0 ),
 // and when that returns true FMOD_Channel_SetPaused( m_pChannel, false ) ( 31d6293a -> fmodex.dll RVA 0x96100 ).
 // Without a channel the position is not stored.
-void CKTDXDeviceSound::JuneSet3DPositionAndUpdate( const D3DXVECTOR3& pos )
+void CKTDXDeviceSound::Set3DPositionAndUpdate( const D3DXVECTOR3& pos )
 {
 	if( NULL == m_pChannel )
 		return;

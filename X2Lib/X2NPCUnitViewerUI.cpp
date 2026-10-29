@@ -203,7 +203,7 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 				std::wstring wstrJuneXet = wstrChangeTex.substr( 0, wstrChangeTex.length() - 5 );
 				std::wstring wstrJuneSuffix = L"";
 				if( NULL != g_pData && NULL != g_pData->GetPetManager() )
-					wstrJuneSuffix = g_pData->GetPetManager()->JuneGetVariantXetSuffix( petId, cVariant );
+					wstrJuneSuffix = g_pData->GetPetManager()->GetVariantXetSuffix( petId, cVariant );
 				if( true == wstrJuneSuffix.empty() )
 				{
 					if( 1 == cVariant )
@@ -248,7 +248,7 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 #ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	// June 32e50de0 @32e51cf2-32e51e73, after ResetRenderParam (32e4f770): stop group 1 (329594c0), then INIT_EFFECT.
 	// UNIT_VIEWER_EFFECT_SET_LIST[1..99] plays into group 1 (32959640( skin, name, 1 )). A missing table plays nothing.
-	JuneViewerFxStop( 1 );
+	ViewerFxStop( 1 );
 	int iJuneGroup1 = 0;
 	if( true == luaManager.BeginTable( "INIT_EFFECT" ) )
 	{
@@ -259,7 +259,7 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 			{
 				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
 					break;
-				JuneViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
+				ViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
 				++iJuneGroup1;
 			}
 			luaManager.EndTable(); // UNIT_VIEWER_EFFECT_SET_LIST
@@ -479,14 +479,14 @@ bool CX2NPCUnitViewerUI::IsAnimExist( const WCHAR* pName )
 	if( m_pXSkinAnim == NULL || NULL == pName )
 		return false;
 
-	return m_pXSkinAnim->JuneIsAnimSetExist( pName );
+	return m_pXSkinAnim->IsAnimSetExist( pName );
 }
 
 // June 32e4fde0: with g_pData, each handle of the vector goes to the UI effect-set manager's stop (321dafb0, called as thiscall on
 // g_pData +0x9c). June stops a COPY of the handle: the vector entry keeps its (now stale) value, and the vector is never erased
 // (JUNE_BUGS 104). June's 321dafb0 queues the stop in the manager (+0x30, drained by DeleteEffect 321e3ee0); March has the
 // immediate StopEffectSet( Handle& ), which earlier phases (C9c-1, C9d, C9f) already use for every 321dafb0 call.
-void CX2NPCUnitViewerUI::JuneStopUIEffectSets()
+void CX2NPCUnitViewerUI::StopUIEffectSets()
 {
 	if( NULL == g_pData )
 		return;
@@ -604,7 +604,7 @@ bool CX2NPCUnitViewerUI::ResetRidingPet( int RidingPetId )
 			{
 				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
 					break;
-				JuneViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
+				ViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
 				++iJuneGroup1;
 			}
 			luaManager.EndTable(); // RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST

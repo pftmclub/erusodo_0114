@@ -9,7 +9,7 @@
 
 // June2017 party UI (JUNE_UI_PARITY_PHASES.md Phase 5): one line to ErrorLog.txt
 // (and offline_server.log) when a June dialog lua is missing or is still March's.
-static void JunePartyUILog( const WCHAR* wszMsg )
+static void PartyUILog( const WCHAR* wszMsg )
 {
 	WCHAR buff[512] = {0};
 	StringCchPrintf( buff, 512, L"[JUNE_PARTYUI] %s", wszMsg );
@@ -24,12 +24,12 @@ static void JunePartyUILog( const WCHAR* wszMsg )
 // branches read as June wrote them.
 #ifdef SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 // Shared since effect completion C4d: one copy, in CX2DungeonManager.
-static bool JuneIsHeroDungeon( int iDungeonID )
+static bool IsHeroDungeon( int iDungeonID )
 {
-	return CX2DungeonManager::JuneIsHeroDungeon( iDungeonID );
+	return CX2DungeonManager::IsHeroDungeon( iDungeonID );
 }
 #else SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
-static bool JuneIsHeroDungeon( int iDungeonID )
+static bool IsHeroDungeon( int iDungeonID )
 {
 	return ( 100000 <= iDungeonID && iDungeonID < 100533 ) ||
 		( 110001 <= iDungeonID && iDungeonID < 110311 ) ||
@@ -39,7 +39,7 @@ static bool JuneIsHeroDungeon( int iDungeonID )
 
 // June FUN_32863880: event dungeons that show no difficulty boxes at all
 // (41480, 41490, 41500, 41510; June-only content, never present in March).
-static bool JuneIsNoDifficultyDungeon( int iDungeonID )
+static bool IsNoDifficultyDungeon( int iDungeonID )
 {
 	return 41480 == iDungeonID || 41490 == iDungeonID || 41500 == iDungeonID || 41510 == iDungeonID;
 }
@@ -1781,7 +1781,7 @@ void CX2PartyUI::CreatePartyDlg()
 		// UpdateDifficultyButtonForSpecialDungeon return early unless all three exist. So
 		// with March's copy still packed the difficulty boxes stop updating. Say so once.
 		if( NULL == m_pDLGParty->GetControl( L"VSFOUR" ) )
-			JunePartyUILog( L"DLG_UI_PARTY_LENGTH_NEW.lua has no VSFOUR: data034.kom still holds the pre-June copy; repack it. Difficulty boxes will not update until then." );
+			PartyUILog( L"DLG_UI_PARTY_LENGTH_NEW.lua has no VSFOUR: data034.kom still holds the pre-June copy; repack it. Difficulty boxes will not update until then." );
 #endif SERV_IRUHADEV_JUNE_PARTY_UI
 	}
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -1983,7 +1983,7 @@ void CX2PartyUI::UpdatePartyDLG( bool /*bRenamePartyTitle = false*/ )
 		const int iPlateDungeonID = pDungeonData->m_DungeonID;
 		if( SEnum::DI_ELDER_HENIR_SPACE != iPlateDungeonID &&
 			41120 != iPlateDungeonID && 41130 != iPlateDungeonID && 41131 != iPlateDungeonID &&
-			false == JuneIsHeroDungeon( iPlateDungeonID ) &&
+			false == IsHeroDungeon( iPlateDungeonID ) &&
 			false == ( 150000 <= iPlateDungeonID && iPlateDungeonID < 150051 ) )
 		{
 			const CX2LocationManager::LOCAL_MAP_ID eLocalIDForDungeon =
@@ -3887,7 +3887,7 @@ void CX2PartyUI::OpenPartyMenu(bool bOpen)
 		// leave no dungeon/PvP toggle at all. Fall back to March's file and say so, once.
 		if( NULL == m_pDLGPartyMenu->GetControl( L"g_pCheckBox_DUNGEON" ) )
 		{
-			JunePartyUILog( L"DLG_UI_PARTY_BOTTON_NEW_20161103.lua is missing or empty: data034.kom does not carry it yet; repack it. Using March's DLG_UI_PARTY_BOTTON_NEW.lua." );
+			PartyUILog( L"DLG_UI_PARTY_BOTTON_NEW_20161103.lua is missing or empty: data034.kom does not carry it yet; repack it. Using March's DLG_UI_PARTY_BOTTON_NEW.lua." );
 			SAFE_DELETE_DIALOG( m_pDLGPartyMenu );
 			m_pDLGPartyMenu = new CKTDGUIDialog( m_pCurrStage, L"DLG_UI_PARTY_BOTTON_NEW.lua" );
 			g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGPartyMenu );
@@ -5127,7 +5127,7 @@ void CX2PartyUI::UpdateDifficultyButton(CX2Dungeon::DIFFICULTY_LEVEL eDifficulty
 	pCheckBox_HellHero->SetChecked( false );
 
 	const CX2PartyManager::PartyData* pPartyData = g_pData->GetPartyManager()->GetMyPartyData();
-	if( NULL != pPartyData && true == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) )
+	if( NULL != pPartyData && true == IsHeroDungeon( pPartyData->m_iDungeonID ) )
 	{
 		pCheckBox_Normal->SetShowEnable( false, false );
 		pCheckBox_Hard->SetShowEnable( false, false );
@@ -5273,14 +5273,14 @@ void CX2PartyUI::UpdateDungeonTypeButton(CX2Dungeon::DUNGEON_TYPE eDungeonType_)
 			if( NULL == pPartyData )
 				break;
 
-			if( false == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) &&
-				false == JuneIsNoDifficultyDungeon( pPartyData->m_iDungeonID ) )
+			if( false == IsHeroDungeon( pPartyData->m_iDungeonID ) &&
+				false == IsNoDifficultyDungeon( pPartyData->m_iDungeonID ) )
 			{
 				pCheckBox_Normal->SetShowEnable( true, true );
 				pCheckBox_Hard->SetShowEnable( true, true );
 				pCheckBox_Expert->SetShowEnable( true, true );
 			}
-			else if( true == JuneIsHeroDungeon( pPartyData->m_iDungeonID ) )
+			else if( true == IsHeroDungeon( pPartyData->m_iDungeonID ) )
 			{
 				pCheckBox_Normal_Ex->SetShowEnable( true, true );
 				pCheckBox_HellHero->SetShowEnable( true, true );

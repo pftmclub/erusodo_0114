@@ -11,7 +11,7 @@
 /// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
 /// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : ParsingScript
@@ -211,7 +211,7 @@ bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
 bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
@@ -287,7 +287,7 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 bool CX2BuffTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	SetUniqueNum( kBuffFactor_.m_BuffIdentity.m_uiUniqueNum );
 
@@ -416,7 +416,7 @@ void CX2BuffTemplet::OnFrameMoveBehavior( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -442,7 +442,7 @@ void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
 	{
@@ -495,7 +495,7 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( !m_vecDisplayerPtr.empty() )
 	{
@@ -517,7 +517,7 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -532,7 +532,7 @@ void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 void CX2BuffTemplet::DoFinishDisplayer( CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
 	{
@@ -587,7 +587,7 @@ void CX2BuffTemplet::GetFactor( OUT KBuffFactor& kBuffFactor_, const CX2GameUnit
 bool CX2BuffTemplet::SetFactorToOnlyFinalizer( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// 종료조건 셋팅
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
@@ -712,7 +712,7 @@ void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGame
 void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2JuneBuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -771,7 +771,7 @@ void CX2BuffTemplet::DoFinishStickShake( CX2GameUnit* pGameUnit_ )
 			pGameUnit_->EndStickShake();
 			pGameUnit_->IncreaseBuffSyncCount();	/// @3236a6cc
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-			CX2JuneBuffCapture::Line( "BFT 15 end hook, BTI %d: stick shaking %d, count %d, buff-change counter %I64u",
+			CX2BuffCapture::Line( "BFT 15 end hook, BTI %d: stick shaking %d, count %d, buff-change counter %I64u",
 				static_cast<int>( GetBuffTempletID() ), pGameUnit_->IsStickShaking() ? 1 : 0, pGameUnit_->GetStickShakeCount(), pGameUnit_->GetBuffSyncCount() );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		}
@@ -2434,7 +2434,7 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 		const int iStep = static_cast<int>( static_cast<double>( m_iMaxCount ) / 3.0 );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		if ( 0 == iStep )	/// Phase 9c: the last line a crash bundle's ErrorLog.txt holds before June's divide
-			CX2JuneBuffCapture::Line( "Sinister Mind: max count %d gives a 0 step; June divides by it at 3236e516 (JUNE_BUGS #33): divide by zero next", m_iMaxCount );
+			CX2BuffCapture::Line( "Sinister Mind: max count %d gives a 0 step; June divides by it at 3236e516 (JUNE_BUGS #33): divide by zero next", m_iMaxCount );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		const int iLevel = m_iCount / iStep;	/// June 3236e506-3236e516: idiv, no zero check
 		if ( m_iSeedLevel < iLevel && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )

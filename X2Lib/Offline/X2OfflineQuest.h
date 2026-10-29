@@ -387,7 +387,7 @@ private:
 #endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 
 	/// Quest Q4. QRT_WEEK / QRT_MONTH expiry ( June 32322050 / 32321d10 ) and the chain-day rule ( 3232caf0 ), NET_OK or ERR_QUEST_04.
-	int		CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const;
+	int		CheckRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const;
 
 	/// Quest Q4. Where a quest's rows live: an account quest under the account key, everything else under the unit.
 	UidType	SaveKey( int iQuestID ) const;

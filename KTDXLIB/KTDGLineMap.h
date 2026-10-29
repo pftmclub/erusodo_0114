@@ -1346,7 +1346,7 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 		/// June 31c6b8e0: a unit left auto-disabled line iLine. true when the line is invalid or not marked, or when the UID was listed ( it is erased );
 		/// false when the line is marked and the UID is not listed. bUser picks the 8-byte user list, else the NPC list ( the UID's low dword ).
-		bool JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser );
+		bool AutoDisableRelease( int iLine, __int64 uid, bool bUser );
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 		__forceinline const int GetNumLineData() { return (int)m_LineList.size(); }
 		__forceinline const float GetLandHeight() { return m_fLandHeight; }		
@@ -1763,7 +1763,7 @@ class CKTDGLineMap : public CKTDGObject
 		void SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float fDistance_, bool bCheckCanDown_ );	/// June 31c6afb0
 #endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
-		D3DXVECTOR3 June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ );	/// June 31c69af0
+		D3DXVECTOR3 GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ );	/// June 31c69af0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 //}} kimhc // 2010.7.6 // 몬스터가 생성한 라인맵
 		

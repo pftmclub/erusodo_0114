@@ -52,7 +52,7 @@ namespace
 
 /// 32679bf0 ( the ctor ) + 326798b0 ( SetMission's field copy ): id +4, type +0xc, goal +0x14, seconds +0x28 / +0x2c, description
 /// +0x18, and the two reward words. The packet's +0x3c lands on +0x1c, its +0x38 on +0x20, the counter starts at 0.
-CX2RandomMission::CX2RandomMission( const KEGS_JUNE_RANDOM_MISSION_NOT& kNot_ )
+CX2RandomMission::CX2RandomMission( const KEGS_RANDOM_MISSION_NOT& kNot_ )
 	: m_iMissionID( kNot_.m_iMissionID )
 	, m_iResult( MR_NONE )
 	, m_iEventType( kNot_.m_iEventType )
@@ -344,10 +344,10 @@ void CX2RandomMission::SendComplete()
 	if( NULL == g_pData || NULL == g_pData->GetServerProtocol() )
 		return;
 
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ kPacket;
+	KEGS_RANDOM_MISSION_COMPLETE_REQ kPacket;
 	kPacket.m_iMissionID = m_iMissionID;
-	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ, kPacket );
-	g_pMain->AddServerPacket( EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK, RM_WAIT_COMPLETE_ACK );
+	g_pData->GetServerProtocol()->SendPacket( EGS_RANDOM_MISSION_COMPLETE_REQ, kPacket );
+	g_pMain->AddServerPacket( EGS_RANDOM_MISSION_COMPLETE_ACK, RM_WAIT_COMPLETE_ACK );
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_QUEST] RM complete request sent: mission %d", m_iMissionID );
 #endif SERV_IRUHADEV_OFFLINE
@@ -605,7 +605,7 @@ void CX2RandomMissionManager::OnFrameMove( float fElapsedTime_ )
 }
 
 /// 326798b0: state received, a new mission from the push ( the old one goes ), its dialogs made
-void CX2RandomMissionManager::SetMission( const KEGS_JUNE_RANDOM_MISSION_NOT& kNot_ )
+void CX2RandomMissionManager::SetMission( const KEGS_RANDOM_MISSION_NOT& kNot_ )
 {
 	m_iState = MS_RECEIVED;
 	SAFE_DELETE( m_pMission );
@@ -708,17 +708,17 @@ void CX2RandomMissionManager::OnMpSpent( float fSpent_ )
 		AddEvent( static_cast<int>( fSpent_ ) );
 }
 
-void CX2GageData::JuneRandomMissionMpSpent( float fChangeOfNowMp_ )
+void CX2GageData::RandomMissionMpSpent( float fChangeOfNowMp_ )
 {
 	if( fChangeOfNowMp_ < 0.f && NULL != CX2GageManager::GetInstance() && this == CX2GageManager::GetInstance()->GetMyGageData() )
 		CX2RandomMissionManager::GetInstance()->OnMpSpent( -fChangeOfNowMp_ );
 }
 
 /// 31efe2a0 ( dispatch 31f2ab80 case 0x492 ): read the push, make the manager, set the mission
-bool CX2State::Handler_EGS_JUNE_RANDOM_MISSION_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2State::Handler_EGS_RANDOM_MISSION_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_RANDOM_MISSION_NOT kEvent;
+	KEGS_RANDOM_MISSION_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
 
 	CX2RandomMissionManager::GetInstance()->SetMission( kEvent );
@@ -726,13 +726,13 @@ bool CX2State::Handler_EGS_JUNE_RANDOM_MISSION_NOT( HWND hWnd, UINT uMsg, WPARAM
 }
 
 /// 324c94d0 ( CX2StateDungeonGame, dispatcher 324dbc20 ): the complete request's ACK. Clears the wait entry, checks the OK word.
-bool CX2StateDungeonGame::Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2StateDungeonGame::Handler_EGS_RANDOM_MISSION_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK kEvent;
+	KEGS_RANDOM_MISSION_COMPLETE_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 
-	if( g_pMain->DeleteServerPacket( EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK ) == true )
+	if( g_pMain->DeleteServerPacket( EGS_RANDOM_MISSION_COMPLETE_ACK ) == true )
 	{
 		if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 			return true;
@@ -743,25 +743,25 @@ bool CX2StateDungeonGame::Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( HWND hWn
 /// 322f0db0 / 322f0e00 / 322f0e30: the dev-console cheats ( GameEditCommandList Slash_rm / Slash_rmexp / Slash_rmbuff ). Plain sends.
 void CX2Game::SendRandomMissionCheat( int iA_, int iB_, int iC_ )
 {
-	KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ kPacket;
+	KEGS_RANDOM_MISSION_CHEAT_REQ kPacket;
 	kPacket.m_iA = iA_;
 	kPacket.m_iB = iB_;
 	kPacket.m_iC = iC_;
-	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_RANDOM_MISSION_CHEAT_REQ, kPacket );
+	g_pData->GetServerProtocol()->SendPacket( EGS_RANDOM_MISSION_CHEAT_REQ, kPacket );
 }
 
 void CX2Game::SendRandomMissionRewardEXPCheat( int iValue_ )
 {
-	KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ kPacket;
+	KEGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ kPacket;
 	kPacket.m_iValue = iValue_;
-	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ, kPacket );
+	g_pData->GetServerProtocol()->SendPacket( EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ, kPacket );
 }
 
 void CX2Game::SendRandomMissionRewardBuffCheat( int iValue_ )
 {
-	KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ kPacket;
+	KEGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ kPacket;
 	kPacket.m_iValue = iValue_;
-	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, kPacket );
+	g_pData->GetServerProtocol()->SendPacket( EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, kPacket );
 }
 
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION

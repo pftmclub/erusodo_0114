@@ -539,7 +539,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
 
 		// type 0 is "before transcendence only" ( 1727 ); the quest's check says 1688, which is June's text for a /tc on a transcended unit
-		const int iTranscendErr = ( 0 != kTranscendUnit.m_iTranscendence ) ? 1727 : JuneTranscendCheck( kTranscendUnit );
+		const int iTranscendErr = ( 0 != kTranscendUnit.m_iTranscendence ) ? 1727 : TranscendCheck( kTranscendUnit );
 		if( NetError::NET_OK != iTranscendErr )
 		{
 			kAck.m_iOK = iTranscendErr;
@@ -1047,7 +1047,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 		CX2OfflineDB::Instance()->SaveUnitTranscendence( kSes.m_nSelectedUnitUID, 1 );
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM book %d used: unit %I64d transcendence 0 -> 1 (the medal it mails in June is not given: key 1 is permanent)",
 			kRow.m_iItemID, (__int64)kSes.m_nSelectedUnitUID );
-		JuneSendTranscendNot( kSes, 1 );
+		SendTranscendNot( kSes, 1 );
 	}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
@@ -1202,7 +1202,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 		// June's NOT carries the learned skills; which ones is server-only, so the level grant stands in.
 		KOfflineUnitRow kUnseal;
 		if( true == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kUnseal ) )
-			pSkill->GrantJuneSkillsByLevel( kUnseal.m_iUnitClass, kUnseal.m_iLevel, kNot.m_vecSkillData );
+			pSkill->GrantSkillsByLevel( kUnseal.m_iUnitClass, kUnseal.m_iLevel, kNot.m_vecSkillData );
 		kNot.m_vecUnsealedSkillID.push_back( static_cast<short>( iUnsealSkillID ) );
 #endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 

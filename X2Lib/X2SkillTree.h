@@ -2179,7 +2179,7 @@ public:
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l4 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	/// June's MEMO_ID ( Enum.lua ): the type of a skill memo row ( JuneSkillMemoEntry::m_iType )
-	enum JUNE_MEMO_ID
+	enum MEMO_ID
 	{
 		MI_NONE					= 0,
 		MI_ENHANCE				= 1,
@@ -2535,28 +2535,28 @@ public:
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		/// June 32216320 NUMERICAL_DATA<n> element ( 0x48 B in a vector at templet +0x17c ); rows are 16 B { value, pvp rate, tech point, hit add mp }
-		struct JuneNumericalRow
+		struct NumericalRow
 		{
 			float   m_fValue;
 			float   m_fPvpRate;
 			float   m_fTechPoint;
 			float   m_fHitAddMP;
 		};
-		struct JuneNumericalData
+		struct NumericalData
 		{
 			wstring                     m_wstrName;         /// m_wstrName ( an SA_* name for the ability lookup )
 			wstring                     m_wstrParamType;    /// m_ParamType, default L"i" ( unused by the damage override )
-			vector<JuneNumericalRow>    m_vecRow;
+			vector<NumericalRow>    m_vecRow;
 		};
 		int                                 m_iDeleteSkillIDByUpgrade;  /// June +0x178 m_DeleteSkillIDByUpgrade: the base skill this one replaces once learned
-		vector<JuneNumericalData>           m_vecJuneNumericalData;     /// June +0x17c
+		vector<NumericalData>           m_vecJuneNumericalData;     /// June +0x17c
 		vector< std::pair<wstring, wstring> >   m_vecExtraIconInfo;     /// June +0x88: ( m_wstrTextureName, m_wstrTexturePieceName ) of m_ExtraIconInfo<n>
 
-		static void GetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ );     /// 320716c0
-		const JuneNumericalData* FindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
+		static void GetNumericalRow( const NumericalData& data_, int iLevel_, NumericalRow& rowOut_ );     /// 320716c0
+		const NumericalData* FindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-		void GetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const;                  /// 320717e0
-		void GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const;        /// 32078060
+		void GetNumericalRowByIndex( int iIndex_, int iLevel_, NumericalRow& rowOut_ ) const;                  /// 320717e0
+		void GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, NumericalRow& rowOut_ ) const;        /// 32078060
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		bool GetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;
 		bool TryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;     /// 32206fb0
@@ -2615,6 +2615,9 @@ public:
 		/** @function	: GetSkillEffectiveDescValue
 			@brief		: 스킬 타입에 해당하는 스킬 효과 툴팁 값을 가져옴
 		*/
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+		const wstring GetSkillEffectiveDescValue( int iLevel ) const;		// June 328ee280, defined in X2UISkillTreeNew2015.cpp
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 		const wstring GetSkillEffectiveDescValue( int iLevel ) const
 		{
 			const int iIndex = iLevel - 1;
@@ -2632,6 +2635,7 @@ public:
 			}
 			return L"";
 		}
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 
 		/** @function	: GetSkillMPConsumption
 			@brief		: 스킬 레벨에 해당하는 MP소비값을 가져옴
@@ -3006,21 +3010,21 @@ public:
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	/// S7i: what opens at a level, by type ( 1 new skill, 2 a memo, 3 new upgraded skill, 4 next skill level ), June 3220d2b0
-	typedef std::map< int, std::vector< const SkillTemplet* > > JuneNewSkillOrMemoMap;
-	void GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const;
-	static void AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ );	/// June 3220b990
+	typedef std::map< int, std::vector< const SkillTemplet* > > NewSkillOrMemoMap;
+	void GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT NewSkillOrMemoMap& mapNew_ ) const;
+	static void AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT NewSkillOrMemoMap& mapNew_ );	/// June 3220b990
 	/// June 31d885e0 ( a CX2Main method in June ): my unit's level-up feeds the emblem manager and plays emblem 17
 	void ShowNewSkillOrMemoEmblem() const;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// S7e: the data behind June's tree panels. JuneSkillCommandDesc is the tree UI's +0x3c block ( 0x50 bytes, reset by 328ee430 );
 	/// a combo row is June's 0x34-byte record ( 328df4c0 / 3220d4d0 ); a command icon is one CommandIconData.lua row ( map +0xc4 ).
-	struct JuneDescGroup
+	struct DescGroup
 	{
 		int										m_iDescStringID;	/// DESCRIPTION_STRING_ID ( -1 when absent )
 		std::vector< std::pair< int, int > >	m_vecSkill;			/// SKILL_ID read in pairs: { skill id, string id }
 	};
-	struct JuneMajorCombo
+	struct MajorCombo
 	{
 		std::string	m_strComboName;		/// MAJOR_COMBO row [1]: NORMAL_COMBO / DASH_COMBO / JUMP_COMBO / DASH_JUMP_COMBO ( "" when absent )
 		int			m_iIndex;			/// [2]: the INDEX_n row of the class's ComboTree.lua table ( -1 when absent )
@@ -3028,12 +3032,12 @@ public:
 	};
 	struct SkillCommandDesc
 	{
-		JuneDescGroup				m_kTranscendental;		/// +0x00 TRANSCENDENTAL_SKILL_DATA
-		JuneDescGroup				m_kSkill;				/// +0x14 SKILL_DATA ( the shown group; 328e42d0 copies +0x00 over it when transcended )
+		DescGroup				m_kTranscendental;		/// +0x00 TRANSCENDENTAL_SKILL_DATA
+		DescGroup				m_kSkill;				/// +0x14 SKILL_DATA ( the shown group; 328e42d0 copies +0x00 over it when transcended )
 		int							m_iCommandDescStringID;	/// +0x28 COMMAND_DATA
-		std::vector<JuneMajorCombo>	m_vecMajorCombo;		/// +0x2c
+		std::vector<MajorCombo>	m_vecMajorCombo;		/// +0x2c
 		int							m_iMinorDescStringID;	/// +0x3c COMMAND_DATA_MINOR
-		std::vector<JuneMajorCombo>	m_vecMinorCombo;		/// +0x40
+		std::vector<MajorCombo>	m_vecMinorCombo;		/// +0x40
 		SkillCommandDesc() { Reset(); }
 		void Reset();				/// June 328ee430: the four ids to -1, the four vectors cleared
 	};
@@ -3045,7 +3049,7 @@ public:
 		int					m_iStringID;	/// 3220d4d0: the MAJOR_COMBO row's text; 328df4c0: -1
 		ComboRow() : m_iComboType( 0 ), m_iStringID( -1 ) {}
 	};
-	struct JuneCommandIconData
+	struct CommandIconData
 	{
 		std::wstring	m_wstrIconTextureName;		/// node +0x10 m_IconTextureName ( default DLG_UI_Common_Texture_NewSkill_02.TGA )
 		std::wstring	m_wstrIconTetName;			/// +0x2c m_IconTetName ( a row without it is not added )
@@ -3055,17 +3059,17 @@ public:
 		float			m_fOffsetY;					/// +0x8c m_fOffsetY ( default 0 )
 		std::vector< std::pair< int, int > >	m_vecToolTipString;	/// +0x90 m_ToolTipString rows: { unit type ( 0 when absent ), string id }
 	};
-	void JuneLoadSkillCommandDescription( int iUnitClass_, bool bMinor_, SkillCommandDesc* pDesc_ );	/// 3220bdb0
-	void JuneLoadMajorComboRows( const SkillCommandDesc* pDesc_, const std::string& strClassName_, bool bMinor_,
+	void LoadSkillCommandDescription( int iUnitClass_, bool bMinor_, SkillCommandDesc* pDesc_ );	/// 3220bdb0
+	void LoadMajorComboRows( const SkillCommandDesc* pDesc_, const std::string& strClassName_, bool bMinor_,
 		std::vector<ComboRow>& vecRow_ );																/// 3220d4d0
-	static int JuneGetComboType( const std::string& strTableName_ );		/// 32205870
-	static int JuneGetComboTitleStringID( int iComboType_ );				/// 32205610
-	static std::string JuneGetUnitClassName( int iUnitClass_ );			/// 32375e30 ( narrows 32375530's wide name )
-	bool JuneGetCommandIconTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;		/// 32207110
-	bool JuneGetCommandOutLineTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;	/// 32207190
-	void JuneAddCommandIconPicture( int iIcon_, float fX_, float fY_, CKTDGUIStatic* pStatic_ ) const;			/// 32207630
+	static int GetComboType( const std::string& strTableName_ );		/// 32205870
+	static int GetComboTitleStringID( int iComboType_ );				/// 32205610
+	static std::string GetUnitClassName( int iUnitClass_ );			/// 32375e30 ( narrows 32375530's wide name )
+	bool GetCommandIconTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;		/// 32207110
+	bool GetCommandOutLineTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;	/// 32207190
+	void AddCommandIconPicture( int iIcon_, float fX_, float fY_, CKTDGUIStatic* pStatic_ ) const;			/// 32207630
 	void AddCommandIconData_LUA();		/// 3220f8d0
-	void JuneOpenCommandIconData();		/// 32207dd0 ( OpenScriptFile's tail @322092f2 )
+	void OpenCommandIconData();		/// 32207dd0 ( OpenScriptFile's tail @322092f2 )
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c: June's memo ACKs ( CX2State handlers 31f1bdb0 / 31f1c1d0; March routes skill packets here from every state )
@@ -3309,6 +3313,6 @@ private:
 	bool                m_bJuneScratch;         /// a throw-away debug tree: no buff factor parse
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-	std::map< int, JuneCommandIconData >	m_mapJuneCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON
+	std::map< int, CommandIconData >	m_mapJuneCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 }; // class CX2SkillTree

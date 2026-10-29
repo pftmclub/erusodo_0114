@@ -1156,12 +1156,12 @@ void CX2TFieldGame::RemoveUnit( UidType unitUID )
 			// June CX2TFieldGame::RemoveUnit 323af8f0 @323af9e6: for the leaving unit, 323f4640 stops its per-emotion effect set
 			// (+0x7ac) before the list erase. 323f6fb0( 0 ) (+0x734 sit-item bone records) is the missing emotion system and
 			// 323f56d0 is not identified, so neither is called.
-			pCX2FieldUnit->StopJuneEmotionEffectSet();
+			pCX2FieldUnit->StopEmotionEffectSet();
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 			// June CX2TFieldGame::RemoveUnit 323af8f0 @323af9f6, right after 323f4640 (@323af9e6): 323f56d0 stops the leaving unit's
 			// per-equip effect sets (identified by phase C9f, after the comment above was written).
-			pCX2FieldUnit->StopJuneEquipEffectSets();
+			pCX2FieldUnit->StopEquipEffectSets();
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 			m_UserUnitList.erase( m_UserUnitList.begin() + i );	
 			break;
@@ -1840,7 +1840,7 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 		if( m_bJoinNpc == true || m_bUserHide == true 
 #ifdef EVENT_SCENE
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
-			|| g_pData->JuneIsEventScenePlaying() == true		/// June 323ae6a0: 3226a010 ( the GFX scene, or the Lua scene )
+			|| g_pData->IsEventScenePlaying() == true		/// June 323ae6a0: 3226a010 ( the GFX scene, or the Lua scene )
 #else SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 			|| g_pData->GetEventScene()->GetIsPlayingEventScene() == true
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE

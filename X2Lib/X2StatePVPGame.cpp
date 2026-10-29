@@ -792,7 +792,7 @@ bool CX2StatePVPGame::ShortCutKeyProcess()
 	{
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 		/// June 32523dc0 @325247a0 -> 31f02f50: the hide-mode toggle ( see CX2State::ProcessGameScoreAndPostEffect ) + the GFx shown byte
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneToggleHide();
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->ToggleHide();
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
 #else SERV_IRUHADEV_JUNE_GFX_GATES
 		bool bShow = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow();

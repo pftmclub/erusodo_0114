@@ -145,7 +145,7 @@ class CKTDGManager : public CKTDXStage
 		bool BeginRender();
 		void EndRender();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
-		bool JuneBeginRenderCountdown();						// June 31ce63f0: BeginRender without the default Clear ( the scene target clears )
+		bool BeginRenderCountdown();						// June 31ce63f0: BeginRender without the default Clear ( the scene target clears )
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 		void ObjectChainSort();
@@ -270,7 +270,7 @@ class CKTDGManager : public CKTDXStage
 		CKTDGFontManager*			GetFontManager(){ return m_pFontManager; }
 		CKTDGUIDialogManager*		GetDialogManager(){ return m_pDialogManager; }
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-		CKTDGHeatShimmer*			GetJuneHeatShimmer(){ return m_pJuneHeatShimmer; }
+		CKTDGHeatShimmer*			GetHeatShimmer(){ return m_pJuneHeatShimmer; }
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 		//CKTDGGrayScale*				GetGrayScale(){ return m_pGrayScale; }
 

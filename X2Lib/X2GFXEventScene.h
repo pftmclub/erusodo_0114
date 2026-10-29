@@ -13,7 +13,7 @@
 
 #include "KTDGGFXManager.h"
 
-class CX2GFXEventScene : public IJuneGfxEventSceneHost
+class CX2GFXEventScene : public IGfxEventSceneHost
 {
 public:
 	CX2GFXEventScene();					// 3226aed0
@@ -45,13 +45,13 @@ public:
 	virtual void	OnSceneAsEnd();
 	virtual void	OnSceneAsPlaySound( const std::wstring& wstrKey );
 	virtual int		OnSceneAsGetMentID( int iFrame );
-	virtual bool	OnSceneAsGetFrames( std::vector< KJuneGfxSceneFrame >& vecFrames );
+	virtual bool	OnSceneAsGetFrames( std::vector< KGfxSceneFrame >& vecFrames );
 
 private:
 	struct SceneInfo
 	{
 		std::string							m_strSwfFileName;
-		std::vector< KJuneGfxSceneFrame >	m_vecFrame;
+		std::vector< KGfxSceneFrame >	m_vecFrame;
 	};
 
 	struct QueueEntry		// June: a 0x20 B node, wstring + int
@@ -86,6 +86,6 @@ private:
 };
 
 // Lua bindings, June's CX2Main::RegisterLuabind 31d95080 ( @31de31c0 / @31de342a )
-void JuneGfxPlayEventScene_LUA( const char* szName );					// 327ccad0: Play( name, -1, 0 )
-bool JuneGfxIsRecentlyPlayedEventScene_LUA( const char* szName );		// 327ccb20
+void GfxPlayEventScene_LUA( const char* szName );					// 327ccad0: Play( name, -1, 0 )
+bool GfxIsRecentlyPlayedEventScene_LUA( const char* szName );		// 327ccb20
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE

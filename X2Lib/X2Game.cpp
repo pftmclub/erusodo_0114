@@ -606,8 +606,8 @@ CX2Game::~CX2Game()
 	// the glow is only removed by the game's own frame loop, so it would outlive the game
 	if( NULL != g_pData && NULL != g_pData->GetUIManager() )
 	{
-		g_pData->GetUIManager()->JuneRemoveGuideParticle( 4, 4 );
-		g_pData->GetUIManager()->JuneRemoveGuideParticle( 4, 9 );
+		g_pData->GetUIManager()->RemoveGuideParticle( 4, 4 );
+		g_pData->GetUIManager()->RemoveGuideParticle( 4, 9 );
 	}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD
@@ -823,7 +823,7 @@ CX2Game::~CX2Game()
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	// June CX2Game::Release 323080c0 @3230880d..32308817: right after the old slide show and before g_pX2Game is cleared ( @32308828 ),
 	// the story slide show ends ( m_pWorld is already deleted, so End's battle-field branch finds no world here, as in June )
-	g_pData->JuneEndStorySlideShot();
+	g_pData->EndStorySlideShot();
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	g_pX2Game	= NULL;
 
@@ -3463,7 +3463,7 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
 		{
 			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-			if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+			if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
 				pJuneWorld->OnFrameMove( fTime, fElapsedTime );
 		}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -3495,7 +3495,7 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		// June 32309d68..32309d8e: the focus unit does not move the camera while the story slide show runs ( its start fade moved it away )
-		if ( ( NULL == g_pData->GetCashShop() ||	!g_pData->GetCashShop()->GetOpen() ) && false == g_pData->JuneIsStorySlideShotRunning() )
+		if ( ( NULL == g_pData->GetCashShop() ||	!g_pData->GetCashShop()->GetOpen() ) && false == g_pData->IsStorySlideShotRunning() )
 #else SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		if ( NULL == g_pData->GetCashShop() ||	!g_pData->GetCashShop()->GetOpen() )
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
@@ -3955,22 +3955,22 @@ HRESULT	CX2Game::OnFrameRender()
 		}
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 		if( m_pWorld != NULL )
-			m_pWorld->JuneRenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June CX2Game::OnFrameRender 322d7260 @322d7294-322d72a1: world slot 2 gets the game's unit ( vslot 0x98 )
+			m_pWorld->RenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June CX2Game::OnFrameRender 322d7260 @322d7294-322d72a1: world slot 2 gets the game's unit ( vslot 0x98 )
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		// Atlas E7: June 322d7260 @322d72a4-322d72e5: after the main world, each additional world whose +0x1ac is 1, then the chain sort
 		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
 		{
 			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-			if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+			if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
 				pJuneWorld->OnFrameRender();
 		}
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 		for ( UINT iJuneEnvWorld = 0; iJuneEnvWorld < m_vecJuneAdditionalWorld.size(); iJuneEnvWorld++ )
 		{
 			CX2World* pJuneEnvWorld = m_vecJuneAdditionalWorld[iJuneEnvWorld];
-			if ( NULL != pJuneEnvWorld && true == pJuneEnvWorld->GetJuneShowWorld() )
-				pJuneEnvWorld->JuneRenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June 322d72c9-322d72e0, the same call for each additional world
+			if ( NULL != pJuneEnvWorld && true == pJuneEnvWorld->GetShowWorld() )
+				pJuneEnvWorld->RenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June 322d72c9-322d72e0, the same call for each additional world
 		}
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -4446,7 +4446,7 @@ HRESULT	CX2Game::OnResetDevice()
 	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
 	{
 		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-		if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+		if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
 			pJuneWorld->OnResetDevice();
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -4481,7 +4481,7 @@ HRESULT	CX2Game::OnLostDevice()
 	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
 	{
 		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-		if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+		if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
 			pJuneWorld->OnLostDevice();
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -6114,7 +6114,7 @@ void CX2Game::KeyProcess()
 	}
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	// June 322f8321..322f8338: no unit input while the story slide show runs either
-	if( true == g_pData->JuneIsStorySlideShotRunning() )
+	if( true == g_pData->IsStorySlideShotRunning() )
 	{
 		m_InputData.Init();
 	}
@@ -7094,7 +7094,7 @@ bool CX2Game::Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ()
 {
 	if ( GT_DUNGEON != GetGameType() )
 		return false;
-	const bool bSent = static_cast<CX2DungeonGame*>( this )->JuneSendGoNextReq( false );
+	const bool bSent = static_cast<CX2DungeonGame*>( this )->SendGoNextReq( false );
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 	CX2OfflineLog::Server( L"JUNE_FX C3z-4b Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ -> %d", bSent ? 1 : 0 );
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -7449,7 +7449,7 @@ void CX2Game::PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ )
 		if ( false == s_bJuneFeverTitleLogged )
 		{
 			s_bJuneFeverTitleLogged = true;
-			CX2JuneBuffCapture::Line( "unsupported (data not packed): eventsequence \"Fever_Mode_Title\" is missing from GameMajorParticle3.txt (June's has it), so the Fever socket's title particle draws nothing (June 322d4f80)" );
+			CX2BuffCapture::Line( "unsupported (data not packed): eventsequence \"Fever_Mode_Title\" is missing from GameMajorParticle3.txt (June's has it), so the Fever socket's title particle draws nothing (June 322d4f80)" );
 		}
 	}
 	GetMajorParticle()->CreateSequence( NULL,  L"Fever_Mode01", 0,0,0 );
@@ -9549,7 +9549,7 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 	if ( NULL == pMyUnit )
 		return;
 
-	const vector<CX2SocketItem::SocketData::JuneConditionalBuff>& vecConditionalBuff = pMyUnit->GetSocketData().m_vecConditionalBuff;
+	const vector<CX2SocketItem::SocketData::ConditionalBuff>& vecConditionalBuff = pMyUnit->GetSocketData().m_vecConditionalBuff;
 	if ( 0 != pKilledNpc_->GetAbsoluteMonsterState() )
 	{
 		for ( UINT i = 0; i < vecConditionalBuff.size(); ++i )
@@ -9561,7 +9561,7 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 				if ( false == s_bLoggedKillBuff )
 				{
 					s_bLoggedKillBuff = true;
-					CX2JuneBuffCapture::Line( "first socket kill buff (322d6f20): BFI %u level %d on NPC %d", vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel, pKilledNpc_->GetUID() );
+					CX2BuffCapture::Line( "first socket kill buff (322d6f20): BFI %u level %d on NPC %d", vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel, pKilledNpc_->GetUID() );
 				}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				pMyUnit->SetBuffFactorToGameUnitByBuffFactorID( vecConditionalBuff[i].m_uiBuffFactorID, vecConditionalBuff[i].m_iBuffLevel );
@@ -9577,7 +9577,7 @@ void CX2Game::ApplyBuffFactorOnNpcKill( CX2GUNPC* pKilledNpc_ )
 			if ( true == vecConditionalBuff[i].m_bKillAbsoluteMonster )
 			{
 				s_bLoggedNoAbsoluteMonster = true;
-				CX2JuneBuffCapture::Line( "socket kill buff BFI %u not applied: no NPC is an absolute monster (June's server-sent stage data, read by 3277cf10, is not ported)", vecConditionalBuff[i].m_uiBuffFactorID );
+				CX2BuffCapture::Line( "socket kill buff BFI %u not applied: no NPC is an absolute monster (June's server-sent stage data, read by 3277cf10, is not ported)", vecConditionalBuff[i].m_uiBuffFactorID );
 			}
 		}
 	}
@@ -11413,7 +11413,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 		if ( !s_bSeenItemRecovery )
 		{
 			s_bSeenItemRecovery = true;
-			CX2JuneBuffCapture::Line( "first socket item recovery: item %d, HP recovery %g (HP up, MP up, HP %% up rate + %g; MP %% up x %g)",
+			CX2BuffCapture::Line( "first socket item recovery: item %d, HP recovery %g (HP up, MP up, HP %% up rate + %g; MP %% up x %g)",
 				static_cast<int>( pItemTemplet->GetItemID() ), fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate + 1.f );
 		}
 	}
@@ -12411,7 +12411,7 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 						*pbAllow_ = false;		/// @322faf5d
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 						if ( true == bArmedBeforeStart )
-							CX2JuneBuffCapture::Line( "quick-slot special item armed before the start and then refused (item %d)", pItemTemplet_->GetItemID() );
+							CX2BuffCapture::Line( "quick-slot special item armed before the start and then refused (item %d)", pItemTemplet_->GetItemID() );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					}
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -12421,7 +12421,7 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 						if ( !s_bSeenPreStartAllow )
 						{
 							s_bSeenPreStartAllow = true;
-							CX2JuneBuffCapture::Line( "first pre-start quick-slot allow (322f5140): item %d, now stage start motion %d, start-motion delay %g",
+							CX2BuffCapture::Line( "first pre-start quick-slot allow (322f5140): item %d, now stage start motion %d, start-motion delay %g",
 								pItemTemplet_->GetItemID(), IsNowStageStartMotion() ? 1 : 0, NULL != GetMyUnit() ? GetMyUnit()->GetStartMotionDelayTime() : 0.f );
 						}
 					}
@@ -12446,7 +12446,7 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 					if ( !s_bSeenArm )
 					{
 						s_bSeenArm = true;
-						CX2JuneBuffCapture::Line( "first arm quick-slot special item wait: item %d, %g s", pItemTemplet_->GetItemID(), pUser_->m_fQuickSlotSpecialItemWaitTime );
+						CX2BuffCapture::Line( "first arm quick-slot special item wait: item %d, %g s", pItemTemplet_->GetItemID(), pUser_->m_fQuickSlotSpecialItemWaitTime );
 					}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 					break;
@@ -13916,7 +13916,7 @@ void CX2Game::CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, con
 // June 322cf810: may the slot's skill take the memorize sign now
 bool CX2Game::IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ )
 {
-	if( false == g_pMain->JuneCanShowClassGuide( 3 ) )
+	if( false == g_pMain->CanShowClassGuide( 3 ) )
 		return false;
 	CX2GUUser* pMyUnit = GetMyUnit();
 	if( NULL == pMyUnit || NULL == pSlotData_ )
@@ -14010,7 +14010,7 @@ void CX2Game::TranscendSlotGuideFrameMove()
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			bGlow = true;
 
-		if( true == bShowBar && true == bGlow && true == g_pMain->JuneCanShowClassGuide( 4 ) && NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) )
+		if( true == bShowBar && true == bGlow && true == g_pMain->CanShowClassGuide( 4 ) && NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) )
 		{
 			CKTDGUIControl::CPictureData* pPicture = pStaticFade->GetPicture( iIndex );
 			const D3DXVECTOR2 vDialogPos = pStaticFade->GetDialog()->GetPos();
@@ -14020,10 +14020,10 @@ void CX2Game::TranscendSlotGuideFrameMove()
 			if( true == bSwap )
 				fY = ( true == bSlotB ) ? fCenterY + 47.f : fCenterY - 47.f;
 
-			CX2UIManager::JuneGuideParticle* pGuide = pUIManager->JuneFindGuideParticle( 4, i );
+			CX2UIManager::GuideParticle* pGuide = pUIManager->FindGuideParticle( 4, i );
 			if( NULL == pGuide )
 			{
-				pUIManager->JuneAddGuideParticle( 4, i, fX, fY );
+				pUIManager->AddGuideParticle( 4, i, fX, fY );
 			}
 			else if( false == pGuide->m_vecHandle.empty() )
 			{
@@ -14046,7 +14046,7 @@ void CX2Game::TranscendSlotGuideFrameMove()
 		}
 		else
 		{
-			pUIManager->JuneRemoveGuideParticle( 4, i );
+			pUIManager->RemoveGuideParticle( 4, i );
 		}
 	}
 }
@@ -14116,7 +14116,7 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 				pSlot->SetItemTex( wstrTextureName.c_str(), wstrTexturePieceName.c_str() );
 		}
 
-		if( true == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( iSkillID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
+		if( true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( iSkillID, CX2SkillTree::RNSI_SA_ECB_THOUSANDS_OF_STARS ) )
 		{
 			CX2GUEve* pEve = static_cast< CX2GUEve* >( GetMyUnit() );
 			if( 0 < pEve->GetThousandStarCount() && false == pEve->GetThousandStarEntireFired() )
@@ -17039,7 +17039,7 @@ static void StoreSummonGroupPowerRateNumber( CX2GUNPC* pNPC_, CX2GUUser* pUser_,
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	static std::set<int> s_setJuneSummonNumberSeen;
 	if ( true == s_setJuneSummonNumberSeen.insert( pNPC_->GetNPCTemplet().m_nNPCUnitID ).second )
-		CX2JuneBuffCapture::Line( "first summon group-power number: NPC %d, skill %d, m_NumberList[0] = %g (June's SetMultiplyPowerRate_LUA reader is not in March)",
+		CX2BuffCapture::Line( "first summon group-power number: NPC %d, skill %d, m_NumberList[0] = %g (June's SetMultiplyPowerRate_LUA reader is not in March)",
 			static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ), iSkillID_, dNumber );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 }

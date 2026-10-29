@@ -1508,7 +1508,7 @@ typedef boost::shared_ptr<CX2SkillTypeRateByBuff> CX2SkillTypeRateByBuffPtr;
 class CX2SkillTypeRateByBuff : public CX2BuffIdentity
 {
 public:
-	typedef JuneSkillTypeRate		SkillTypeRate;
+	typedef ::SkillTypeRate			SkillTypeRate;
 
 	CX2SkillTypeRateByBuff( const KBuffIdentity& BuffIdentity_, const vector<SkillTypeRate>& vecSkillTypeRate_ )
 		: CX2BuffIdentity( BuffIdentity_ ), m_vecSkillTypeRate( vecSkillTypeRate_ )

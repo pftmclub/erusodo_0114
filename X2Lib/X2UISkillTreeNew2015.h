@@ -174,9 +174,9 @@ public:
 	CKTDGUISlot* GetEquippedSlot( int index, bool bSlotB = false );
 	void InitEquippedSkillSlotData();
 	void UpdateSkillEquipedSlotUI();
-	void UpdateJuneSkillSlotLockUI();
-	void SetOffsetPosJuneTCSlotUI( const bool bTypeA_ );
-	bool JuneAutoEquipNewSkills( const std::vector<int>& vecSkillID_ );
+	void UpdateSkillSlotLockUI();
+	void SetOffsetPosTCSlotUI( const bool bTypeA_ );
+	bool AutoEquipNewSkills( const std::vector<int>& vecSkillID_ );
 	void UpdateSkillCoolTime( float fElapsedTime );
 	bool GetSkillSlotSwap() const { return m_bSkillSlotSwap; }
 	void SwapSkillSlot( bool bVal, bool bForce = false );
@@ -211,12 +211,12 @@ public:
 	bool ProcessEquipSlotRMouseUp( LPARAM lParam );
 
 	/// June's new-skill marks ( +0x150 )
-	void MarkJuneNewSkills( const std::vector<KSkillData>& vecSkillData_ );	/// 328da2e0
-	void RecountJuneNewSkills();												/// 328da100
-	void DecreaseJuneNewSkillCount();											/// 328d98e0
-	int  GetJuneNewSkillCount() const { return m_iNewSkillCount; }
+	void MarkNewSkills( const std::vector<KSkillData>& vecSkillData_ );	/// 328da2e0
+	void RecountNewSkills();												/// 328da100
+	void DecreaseNewSkillCount();											/// 328d98e0
+	int  GetNewSkillCount() const { return m_iNewSkillCount; }
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-	void JuneMarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkillID_ );	/// 328da730
+	void MarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkillID_ );	/// 328da730
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	void SetClassSkillIconSwap( const bool bSwap_ ) { m_bClassSkillIconSwap = bSwap_; }
@@ -226,16 +226,16 @@ public:
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
 	/// tabs ( 328d9fb0 / 328e89f0 ); the command list itself is S7e's
-	void SelectJuneTab( const bool bSkillTab_ );
-	void UpdateJuneTabUI();
+	void SelectTab( const bool bSkillTab_ );
+	void UpdateTabUI();
 
 	/// June 322074e0 ( CX2SkillTree ): the two ids are equal, or eTarget_'s upgrade map / m_iDeleteSkillIDByUpgrade gives eSkill_
-	static bool JuneIsSameOrUpgradeSkill( const int iSkill_, const int iTarget_ );
+	static bool IsSameOrUpgradeSkill( const int iSkill_, const int iTarget_ );
 	/// June reads CX2Unit +0x3c ( transcendence ); March has no transcendence ( Stage 6 ), so the TC rules see "not transcended"
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-	static bool JuneIsMyUnitTranscended();
+	static bool IsMyUnitTranscended();
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-	static bool JuneIsMyUnitTranscended() { return false; }
+	static bool IsMyUnitTranscended() { return false; }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	/// March API the June class does not have. Kept so the callers compile; each returns what June's absence means.
@@ -247,49 +247,49 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// June 328e8cd0: the command group shown ( +0x8c ) and Command_Description's text for it. June's only caller is the Luciel form
 	/// change on the unit ( 3234d930 ), character material ( checklist )
-	void JuneSetCommandGroup( const int iGroup_ );
+	void SetCommandGroup( const int iGroup_ );
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 
 private:
 	void CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass );		/// 328de040
 	void CreateSkillTreeLevelRows();									/// 328dc680
 	void CreateSkillTreePortrait( CX2Unit::UNIT_CLASS eUnitClass, bool bTranscended_ );		/// 328e8e90
-	void JuneRegisterMajorSkillPanelControls();							/// the group half of 328e42d0
-	void JuneRegisterMajorCommandPanelControls();						/// the group half of 328e8820
-	void JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
-	void JuneShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
+	void RegisterMajorSkillPanelControls();							/// the group half of 328e42d0
+	void RegisterMajorCommandPanelControls();						/// the group half of 328e8820
+	void AddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
+	void ShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// S7e: the description panels and the command tab
-	void JuneCreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e42d0
-	void JuneCreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_, const bool bMinor_ );			/// 328e8820
-	void JuneSetCommandDescription( const bool bMinor_ );												/// 328e73f0
-	void JuneFitDescriptionText( CKTDGUIStatic* pStatic_ );											/// 328df060
-	void JuneCreateMajorCommandRows( const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e5290
-	void JuneCreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e7ba0
-	void JuneLoadComboRows( KLuaManager& luaManager_, const char* pszTableName_, std::vector<CX2SkillTree::ComboRow>& vecRow_ );	/// 328df4c0
-	void JuneCreateCommandRows( CKTDGUIContolList* pControlList_, const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e4bd0
-	CKTDGUIButton* JuneCreateCommandToolTipButton( const int iIcon_, CKTDGUIStatic* pStatic_ );		/// 328de9a0
-	int JuneGetCommandToolTipStringID( const int iIcon_ ) const;										/// 328da200
-	bool JuneGetCommandToolTipColor( const int iIcon_, D3DXVECTOR3& vColor_ ) const;					/// 328da290
-	void JuneShowCommandDescPopup( const bool bShow_, const float fPosY_, const int iStringID_, const wstring& wstrMovie_,
+	void CreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e42d0
+	void CreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_, const bool bMinor_ );			/// 328e8820
+	void SetCommandDescription( const bool bMinor_ );												/// 328e73f0
+	void FitDescriptionText( CKTDGUIStatic* pStatic_ );											/// 328df060
+	void CreateMajorCommandRows( const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e5290
+	void CreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e7ba0
+	void LoadComboRows( KLuaManager& luaManager_, const char* pszTableName_, std::vector<CX2SkillTree::ComboRow>& vecRow_ );	/// 328df4c0
+	void CreateCommandRows( CKTDGUIContolList* pControlList_, const std::vector<CX2SkillTree::ComboRow>& vecRow_, const int iGroup_ );	/// 328e4bd0
+	CKTDGUIButton* CreateCommandToolTipButton( const int iIcon_, CKTDGUIStatic* pStatic_ );		/// 328de9a0
+	int GetCommandToolTipStringID( const int iIcon_ ) const;										/// 328da200
+	bool GetCommandToolTipColor( const int iIcon_, D3DXVECTOR3& vColor_ ) const;					/// 328da290
+	void ShowCommandDescPopup( const bool bShow_, const float fPosY_, const int iStringID_, const wstring& wstrMovie_,
 		const D3DXVECTOR3& vEdgeColor_ );																/// 328e6cd0
-	bool JunePanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );				/// cases 29061 / 29062 / 29069-29074
+	bool PanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );				/// cases 29061 / 29062 / 29069-29074
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-	bool JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
+	bool SkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-	bool JunePageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// June's page cases ( S7d )
+	bool PageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// June's page cases ( S7d )
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c: the memo half of the tree. June keeps each side as 3 dwords of SkillSlotUI: state ( +0x14 / +0x20: 0 locked, 1 open, 2 active ),
 	/// the button ( +0x18 / +0x24 ) and the state icon ( +0x1c / +0x28 ); bRight_ picks +0x20 and the class's second memo row of the skill.
-	void JuneUpdateMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dda50
-	void JuneHideMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dcae0
-	void JuneOpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRight_ );			/// 328e9b30
-	bool JuneMemoCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// UICustomEventProc 29065-29068 / 29076 / 29077
+	void UpdateMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dda50
+	void HideMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dcae0
+	void OpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRight_ );			/// 328e9b30
+	bool MemoCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// UICustomEventProc 29065-29068 / 29076 / 29077
 public:
-	void JuneReplaceUpgradedSkillSlots( const std::vector<KSkillData>& vecSkillData_ );	/// 328df480 ( the grant handlers' call )
+	void ReplaceUpgradedSkillSlots( const std::vector<KSkillData>& vecSkillData_ );	/// 328df480 ( the grant handlers' call )
 private:
-	void JuneReplaceUpgradedSkillSlot( const int iSkillID_ );							/// 328ded60
+	void ReplaceUpgradedSkillSlot( const int iSkillID_ );							/// 328ded60
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 private:
@@ -304,7 +304,7 @@ private:
 	bool								m_bJuneCommandToolTip;		/// +0x38 a command tooltip button is under the mouse ( 29071 / 29072 )
 	bool								m_bJuneCommandMovieToolTip;	/// +0x39 a command movie control is under the mouse ( 29073 / 29074 )
 	CX2SkillTree::SkillCommandDesc	m_kJuneSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
-	std::map< int, CX2SkillTree::JuneCommandIconData >	m_mapJuneCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
+	std::map< int, CX2SkillTree::CommandIconData >	m_mapJuneCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
 																	/// JUNE_BUGS: nothing in June fills it, so no tooltip button is built
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 

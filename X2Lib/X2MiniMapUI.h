@@ -207,8 +207,8 @@ public:
 
 	bool	GetShow()const {return m_bShow;}
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	void	JuneSetShowMiniControl( bool bShow );		// 31f2d850
-	bool	JuneGetShowMiniControl();					// 31f2d8b0
+	void	SetShowMiniControl( bool bShow );		// 31f2d850
+	bool	GetShowMiniControl();					// 31f2d8b0
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 	void CloseWorldMapUI() {if( NULL != m_pWorldMapUI )m_pWorldMapUI->CloseWorldMapUI();}

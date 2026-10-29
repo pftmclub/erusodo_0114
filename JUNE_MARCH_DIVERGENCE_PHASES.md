@@ -597,6 +597,40 @@ emblem, `X2Main`, `KTDXApp` and the rest of KTDXLIB, X2Lib/Offline; the 10 Lua-b
 (`luasrc.py refresh`, `luabind.py check`; pack, ask before copy). Smoke: quest window, skill tree, dungeon result, character info.
 **Review:** `C4 review` (Opus).
 
+### Done (2026-10-29, Sonnet 5.5; no new flag, each body keeps its flag)
+
+`python tools/junecollapse.py apply C4`: 726 rows, 184 files written (565 renames, 55 classes, 1 merge, 8 Lua names, 2 file renames by the tool). Three follow-up
+maps (`june2017_re/diverge/c4{x,y,z}_followup_map.tsv`, run with `--allow-existing --base $(git stash create)`) finished the rest: **x** 39 shared / half-done names
+(`KJuneGfxResult*` / `SceneFrame` / `SceneSymbol`, the 15 packet structs, `CX2JuneBuffCapture` / `BuffRuntimeScope`, `ClearJuneActiveMemo`, the `JuneResult*` state
+members, `JuneKimGuard` / `KimLine`, `SJuneVillageNpcRenderOption`, ...), **y** 6 renames + 17 quest twins, **z** the 14 `EGS_JUNE_*` event ids (C5 rows, pulled forward:
+`DECL_PACKET( X )` derives the struct `KX`, so a `KEGS_JUNE_*` rename without its id does not compile; C5's rows for them now find nothing). Flag-off equivalence PASS per file.
+**Tool fixes** (`tools/junecollapse.py`, `--selftest` PASS): the flag-off check allows for file-name renames in comments (`Always.h`); a `file` row whose `new` is not a name
+is a hand row; `--allow-existing` for finishing a half-done rename; `KncWX2Server/Common` is scanned (the packet names live there).
+**Hand shapes (`bytepatch.py`):**
+- Overloads, not merges: `SetShow( bool, int hideMode )` (`CKTDGUIDialogManager`; `KTDXApp.cpp` Lua binding casts to the 1-argument form), `GetAddMaxMPValue( int )` (`CX2Inventory`).
+  `CopyModelFrameStructure`: June's out-of-line body under `SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE`, March's `__forceinline` in `#else`. `GetXSkinAnim`: also under `JUNE_MOVABLE_LINE`
+  (March's is tool-only). `SetNowDragItemReturn`: June's alias wrapper gone, the March member is public under the flag. `LEVEL_UP_EVENT_ID`: `LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL = 6`
+  inside the March enum under the flag. `SkillTypeRate`: global `typedef std::pair<int,float> SkillTypeRate`, the class typedef reads `::SkillTypeRate`.
+- Field merge: `m_bJuneUseRenderParam` (+0xa2c, never set here) and `GetJuneUseRenderParam` are gone; the June typed pass reads March's `GetUseRenderParam()`.
+- `CX2UserSkillTree::DoIHaveThisSkill`: June's `GetSkillLevel( id, false, 0, true ) > 0` under `SKILL_TREE_UI`, March's learn-now fallback in `#else`.
+  `CX2SkillTree::SkillTemplet::GetSkillEffectiveDescValue`: declared under the flag in `X2SkillTree.h`, June's body defined in `X2UISkillTreeNew2015.cpp` (it is a compile unit of
+  `X2UISkillTreeNew.cpp`; the two format helpers stay in its anonymous namespace), March's inline in `#else`; the four UI call sites call the member.
+- Quest: the whole body of `X2UIQuestNewJune.cpp` was byte-copied into `X2UIQuestNew.cpp` before `#endif SERV_EPIC_QUEST` (`git rm` + vcxproj line), 15 twins merged by the tool, `GetNPCFaceTextureKey`
+  (March takes the enum, June's `int` body now sits in it) and `ResetQuestUI` (default arguments differ) by hand, 16 dead dispatches removed (15 quest + `X2StateMenu`), and 5 file-local
+  helpers hoisted above their first use into `_CONST_UIQUESTNEW_HELPERS_`. June's NPC ids in that switch stay numbers (moved verbatim, not touched code of this phase's own).
+- Files renamed: `X2OfflineQuestMig.h`, `X2OfflineSkillAutoLearn.h` (`git mv`, vcxproj, `#include`s). Lua: none of the 11 bound names is called by any `.lua` in `kom_contents`; no Lua edited, nothing to pack.
+**Reach points** (March callers now run the June body when the flag is on): `UpdateMenuString` (`JUNE_BOTTOMBAR_LAYOUT`, `X2StateMenu.cpp`), the 15 quest twins (`JUNE_QUEST_UI`; March callers already
+returned into them, unchanged), `DoIHaveThisSkill` (every caller: `X2UserSkillTree.cpp` can-learn / can-reset chains, `X2UIGuildSkillTree`), `GetSkillEffectiveDescValue` (`X2UIGuildSkillTree.cpp` x2),
+`GetUseRenderParam` (the June typed pass now collects March's glow meshes).
+**Hygiene:** all-flags flag-off check (`flagcheck JUNE_QUEST_UI --base HEAD --with` the other 455 flags, 204 files): `2 PASS, 201 OTHER, 1 FAIL, 1 ERROR`; the FAIL is the deleted
+`X2UIQuestNewJune.cpp` (its only content outside the flag was `#include "StdAfx.h"`), the ERROR `Always.h` (a compound `#if` around renamed `#error` texts). `enumscan --check` (9 hand-edited files): 0 A/B rows.
+Gone from code: all 667 old C4 names (`leftover` scan, comments stripped), except the `keep` row.
+DEPLOY OK: X2_offline.exe is 25,809,920 B, dated 2026-10-29 09:57:16, md5 6a33fb1f07faca0c32b57824b3cacf30, equal to X2/US_SERVICE/x2.exe (built at main 5883066e + 206 uncommitted code files).
+EXESTR OK: `ResultOpen` / `ResultClose` present; the old `JuneGfxShow` / `JuneGfxCutIn` / `JuneResultOpen` / `JuneEmblem` / `JuneBuffTestNewSkill_LUA` absent (`GfxShow`, `GfxCutIn`, `Emblem_LUA`,
+`BuffTestNewSkill_LUA` are compiled out: dev bindings under flags that are off).
+**Smoke:** none here (user, 2026-10-29: one smoke at the end of the plan). It must open the quest window (all tabs, a quest detail, Remind / Skip Epic), the skill tree (a learned skill's
+description, a skill with a memo), the dungeon result, the character info, the bottom bar, and wear a glowing (Ara) weapon in a village.
+
 ## Phase C5 - Members, locals, constants, namespaces (Sonnet 5.5, high)
 
 **Depends on:** C4 review. `m_*June*` members (merge into a March twin of the same type and meaning, else rename), `bJuneMemo`-style

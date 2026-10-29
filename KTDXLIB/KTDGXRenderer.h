@@ -325,13 +325,13 @@ public:
 		/// June R3: what CKTDGEnvBoxMap::Render ( 31d0a410 ) writes. Lut: +0x59 present, +0x5c / +0x60 the LUT texture ( one of them is NULL ). Rim: +0x64 override
 		/// flag and, unless bFlagOnly, +0x68 .. +0x7c ( colour, power, wide, forced ). The world reads the +0x80 switch ( 327fb61e ).
 		bool    IsEnvBoxEnable() const { return m_bEnvBox; }
-		void    JuneSetEnvBoxLut( bool bPresent, CKTDXDeviceBaseTexture* pLut0, CKTDXDeviceBaseTexture* pLut1 )
+		void    SetEnvBoxLut( bool bPresent, CKTDXDeviceBaseTexture* pLut0, CKTDXDeviceBaseTexture* pLut1 )
 		{
 			m_bGradingLutPresent = bPresent;
 			m_apGradingLut[0] = pLut0;
 			m_apGradingLut[1] = pLut1;
 		}
-		void    JuneSetEnvBoxRim( bool bOverride, const D3DXVECTOR3& vColor, float fPower, float fWide, float fForced, bool bFlagOnly )
+		void    SetEnvBoxRim( bool bOverride, const D3DXVECTOR3& vColor, float fPower, float fWide, float fForced, bool bFlagOnly )
 		{
 			m_bEnvBoxRimOverride = bOverride;
 			if( false == bFlagOnly )
@@ -383,13 +383,13 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
         /// Setters that skip a parameter the loaded XRenderer.fx does not have (March's file lacks the 14 new ones).
-        void                        _JuneSetBool( EFFECT_PARAMETER eInParam_, bool bInValue_ );
-        void                        _JuneSetInt( EFFECT_PARAMETER eInParam_, int iInValue_ );
-        void                        _JuneSetFloat( EFFECT_PARAMETER eInParam_, float fInValue_ );
-        void                        _JuneSetVector( EFFECT_PARAMETER eInParam_, const D3DXVECTOR4& vInValue_ );
-        void                        _JuneSetEdgeParams();
-        void                        _JuneBindCartoonRamps( const RenderParam& InRenderParam_, bool bInTypeGuard_, bool bInStoreRimIndex_, bool& bOutRimRamp_ );
-        void                        _JuneSetUpperStages( CKTDXDeviceBaseTexture* pInTex1_, CKTDXDeviceBaseTexture* pInTex2_, CKTDXDeviceXET* pInMultiTexXET_ );
+        void                        SetBool( EFFECT_PARAMETER eInParam_, bool bInValue_ );
+        void                        SetInt( EFFECT_PARAMETER eInParam_, int iInValue_ );
+        void                        SetFloat( EFFECT_PARAMETER eInParam_, float fInValue_ );
+        void                        SetVector( EFFECT_PARAMETER eInParam_, const D3DXVECTOR4& vInValue_ );
+        void                        SetEdgeParams();
+        void                        BindCartoonRamps( const RenderParam& InRenderParam_, bool bInTypeGuard_, bool bInStoreRimIndex_, bool& bOutRimRamp_ );
+        void                        SetUpperStages( CKTDXDeviceBaseTexture* pInTex1_, CKTDXDeviceBaseTexture* pInTex2_, CKTDXDeviceXET* pInMultiTexXET_ );
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 
         CKTDXDeviceBaseTexture*     _SetNowTexture( CKTDXDeviceBaseTexture* orgTex, int stage,

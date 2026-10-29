@@ -47,7 +47,7 @@ class CKTDXStage : public CKTDXDeviceHolder
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
 		/// June CKTDXStage vtable 33446fa8 slot 0x2c ( 3208ddc0, "ret 4" ): called with the movie wrapper by CKTDXApp 31be2fd0. CX2State
 		/// overrides it ( 31ef9940 ) to hand the wrapper to a June-only handler list at +0x1f8, which Stage 9's screens fill.
-		virtual void	JuneGfxSetMovieUI( void* /*pMovieUI*/ ) {}
+		virtual void	GfxSetMovieUI( void* /*pMovieUI*/ ) {}
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 		void			SetStageName( const WCHAR* wszStageName ) { m_StageName = wszStageName; }

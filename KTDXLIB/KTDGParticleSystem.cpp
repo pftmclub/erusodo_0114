@@ -14,7 +14,7 @@ CKTDGParticleSystem::CParticleEventSequenceHandle CKTDGParticleSystem::s_iNextPa
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE
 // JUNE_FX unsupported <KEY> in <templet>: <why>. Plan rule 5's line; KTDXLIB cannot reach CX2OfflineLog,
 // so it goes to ErrorLog.txt through KLOG (plan rule 4's ErrorLogMsg fallback), as in KTDGXMeshPlayer.cpp.
-static void JuneParticleLogUnsupported( const WCHAR* pwszTempletName_, const char* pszKey_, const char* pszWhy_ )
+static void ParticleLogUnsupported( const WCHAR* pwszTempletName_, const char* pszKey_, const char* pszWhy_ )
 {
 	std::string strTempletName;
 	ConvertWCHARToChar( strTempletName, NULL != pwszTempletName_ ? pwszTempletName_ : L"" );
@@ -741,7 +741,7 @@ CKTDGParticleSystem::CParticleEventSequence* CKTDGParticleSystem::CreateSequence
     retval->SetHandle( handle );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
     // June 31cf90f0 @31cf929b-31cf92a1: the new handle goes to the sequence's handle ( +0x430 ) and to its alpha-sort key ( +0x14c )
-    retval->SetJuneSortKey( (int) dwHandle );
+    retval->SetSortKey( (int) dwHandle );
 #endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	retval->SetHandle( s_iNextParticleEventSequenceHandle );
@@ -1562,7 +1562,7 @@ bool CKTDGParticleSystem::ProcessEventSequenceBlock(CParticleEventSequence &seq,
 						// m_bAlphaObject && m_bPostEffect), consumed only by the DG manager's post-effect pass
 						// (FUN_31cd7810 mode 1). March has no such pass. FALSE is the default, so only TRUE is reported.
 						if( true == bValue )
-							JuneParticleLogUnsupported( seq.GetName(), "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
+							ParticleLogUnsupported( seq.GetName(), "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
 					}
 					else if (savedtoken.IsWireFrame())			{ seq.SetWireFrame(bValue); }
 #endif SERV_IRUHADEV_JUNE_PARTICLE
@@ -2886,7 +2886,7 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 /// June2017 CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE 31cf4ed0 @31cf580e-31cf5836: the vertex colour's alpha (its stored byte / 255)
 /// times GetEffectAlpha( category ). Category 0 / 1 give 1.0 and leave the colour as it was.
-DWORD CKTDGParticleSystem::CParticleEventSequence::JuneApplyEffectAlphaToColor( DWORD dwColor ) const
+DWORD CKTDGParticleSystem::CParticleEventSequence::ApplyEffectAlphaToColor( DWORD dwColor ) const
 {
 	const float fAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
 	if( 1.0f == fAlpha )
@@ -4048,7 +4048,7 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->tex.x = 0.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 0.0f + pPart->GetTexStage0UV().y;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// June2017 31cf4ed0 @31cf580e (vertex 1)
+				pVertices->color = ApplyEffectAlphaToColor( pVertices->color );	/// June2017 31cf4ed0 @31cf580e (vertex 1)
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
@@ -4064,7 +4064,7 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->tex.x = 0.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 1.0f + pPart->GetTexStage0UV().y;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 2)
+				pVertices->color = ApplyEffectAlphaToColor( pVertices->color );	/// (vertex 2)
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
@@ -4080,7 +4080,7 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->tex.x = 1.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 0.0f + pPart->GetTexStage0UV().y;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 3; vertices 4 and 5 copy 3 and 1)
+				pVertices->color = ApplyEffectAlphaToColor( pVertices->color );	/// (vertex 3; vertices 4 and 5 copy 3 and 1)
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
@@ -4104,7 +4104,7 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->tex.x = 1.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 1.0f + pPart->GetTexStage0UV().y;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 6)
+				pVertices->color = ApplyEffectAlphaToColor( pVertices->color );	/// (vertex 6)
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 

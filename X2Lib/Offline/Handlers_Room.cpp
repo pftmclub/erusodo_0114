@@ -4865,11 +4865,11 @@ bool CX2OfflineServer::Handler_EGS_RESULT_SUCCESS_REQ( KOfflineSession& kSes, co
 }
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
-bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )
+bool CX2OfflineServer::Handler_EGS_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )
 {
 	// No request body (SendID). June's server restarted the run and the client does nothing on OK ( 324c95b0 ), so this is a stand-in
 	// ( user, 2026-10-22 ): the same dungeon, difficulty, mode, loot rule and bots as a fresh dungeon start, through the quick-start path.
-	KEGS_JUNE_DUNGEON_RETRY_ACK kAck;
+	KEGS_DUNGEON_RETRY_ACK kAck;
 	kAck.m_iOK = NetError::NET_OK;
 
 	if( false == m_kRoom.m_bActive || true == m_kRoom.m_bTutorial ||
@@ -4878,7 +4878,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes
 		CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry refused: no retryable dungeon room (active=%d tutorial=%d dungeonID=%d)",
 			(int)m_kRoom.m_bActive, (int)m_kRoom.m_bTutorial, m_kRoom.m_kInfo.m_iDungeonID );
 		kAck.m_iOK = NetError::ERR_ROOM_00;
-		return Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+		return Reply( kSes, EGS_DUNGEON_RETRY_ACK, kAck );
 	}
 
 	KEGS_QUICK_START_DUNGEON_GAME_REQ kStart;
@@ -4900,7 +4900,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes
 	{
 		CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry failed: could not reopen the dungeon room" );
 		kAck.m_iOK = NetError::ERR_ROOM_00;
-		return Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+		return Reply( kSes, EGS_DUNGEON_RETRY_ACK, kAck );
 	}
 	m_kRoom.m_vecBot = vecBot;
 	// A fresh start gives bots the player's level ( MakePartyBots ); the run may have levelled the player.
@@ -4910,7 +4910,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes
 	CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry: restarting dungeonID=%d dif=%d mode=%d with %u bot(s) (stand-in for June's server restart)",
 		kStart.m_iDungeonID, (int)kStart.m_DifficultyLevel, (int)kStart.m_cDungeonMode, (unsigned int)vecBot.size() );
 
-	Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+	Reply( kSes, EGS_DUNGEON_RETRY_ACK, kAck );
 
 	return SendDungeonGameStartNot( kSes, kRow );
 }

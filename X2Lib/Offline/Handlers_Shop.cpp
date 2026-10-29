@@ -594,7 +594,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 		else if( 1 == iTranscendItemType && 0 == kTranscendUnit.m_iTranscendence )
 			iTranscendErr = 1686;
 		else if( 288319 == iItemID || 288493 == iItemID )
-			iTranscendErr = JuneTranscendCheck( kTranscendUnit );
+			iTranscendErr = TranscendCheck( kTranscendUnit );
 
 		if( NetError::NET_OK != iTranscendErr )
 		{
@@ -617,7 +617,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 
 			kAck.m_iOK = NetError::NET_OK;
 			Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
-			JuneSendTranscendNot( kSes, 1 );
+			SendTranscendNot( kSes, 1 );
 			return true;
 		}
 	}
@@ -656,7 +656,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 				KOfflineUnitRow kTarget = kUnit;
 				kTarget.m_iTranscendence	= 0;
 				kTarget.m_iUnitClass		= iNewClass;
-				iTicketErr = JuneTranscendCheck( kTarget );
+				iTicketErr = TranscendCheck( kTarget );
 			}
 
 			if( NetError::NET_OK != iTicketErr )
@@ -869,8 +869,8 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 		{
 			CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 			std::vector< KSkillData > vecGranted;
-			const int iRaised = pSkill->GrantJuneSkillsByLevel( iNewClass, kAfter.m_iLevel, vecGranted );
-			pSkill->GetJuneAcquiredSkillData( kNot.m_vecJuneAcquiredSkill );
+			const int iRaised = pSkill->GrantSkillsByLevel( iNewClass, kAfter.m_iLevel, vecGranted );
+			pSkill->GetAcquiredSkillData( kNot.m_vecJuneAcquiredSkill );
 			pSkill->GetUnsealedSkills( kNot.m_vecSkillUnsealed );
 
 			CX2OfflineLog::Server( L"[JUNE_SKILL] CLASS NOT build unitUID=%I64d class %d L%d: %d acquired skill(s)"
@@ -969,7 +969,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
 
 		int iPageCount = 1, iActivePage = 1;
-		pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+		pSkill->GetSkillPageInfo( iPageCount, iActivePage );
 		if( iPageCount >= CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
 		{
 			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE cash expand refused: %d page(s) already ( the deposit line is left in place )", iPageCount );
@@ -983,7 +983,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
 		}
 
-		pSkill->ExpandJuneSkillPage( iQuantity, iPageCount );
+		pSkill->ExpandSkillPage( iQuantity, iPageCount );
 
 		kAck.m_iOK = NetError::NET_OK;
 		Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );

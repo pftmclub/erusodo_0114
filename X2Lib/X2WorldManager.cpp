@@ -161,7 +161,7 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 			 PlayEffectBGM( false ) 327fb2a0, Play3DEffectBGM( false ) 327fb320, push_back into the caller's vector.
 			 Not the latest-world reference ( June writes +0x2c for the main world only ).
 */
-void CX2WorldManager::CreateJuneAdditionalWorlds( const CX2World::WORLD_ID worldID, std::vector<CX2World*>& vecAdditionalWorld_, KLuabinder* pKLuabinder /*= NULL*/, const bool bBackgroundLoad_ /*= false*/ )
+void CX2WorldManager::CreateAdditionalWorlds( const CX2World::WORLD_ID worldID, std::vector<CX2World*>& vecAdditionalWorld_, KLuabinder* pKLuabinder /*= NULL*/, const bool bBackgroundLoad_ /*= false*/ )
 {
 	CX2World::WorldData* pWorldData = NULL;
 	{

@@ -144,12 +144,12 @@ class CX2Eqip : public CKTDGObject
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		// June effect completion C9f-2: the per-equip effect set of DITT_CONDITION_EQUIP_PLAY_EFFECT_SET (June +0x15f4..+0x1604).
 		// June's play sites read the equip's own templet (+0x198) and id (+0x1a0 = m_ItemID, the DISPLAYED templet's id).
-		const CX2Item::ItemTemplet*	GetJuneItemTemplet() const	{ return m_pItemTemplet; }
-		void	ReleaseJuneEquipEffectSet( bool bStop );			// 3295ca60
-		bool	StepJuneEquipEffectSetTimer( int* pSel );			// 32961060
-		void	SetJuneEquipEffectSetHandle( const CX2EffectSet_EffectSetInstanceHandle& hHandle ) { m_hJuneEquipEffectSet = hHandle; }
-		void	ResetJuneEquipEffectSetStartTime() { m_fJuneEquipEffectSetStartTime = 0.f; }						// +0x15f4 = 0
-		void	ResetJuneEquipEffectSetSwitchTime( int iSel ) { m_afJuneEquipEffectSetSwitchTime[iSel] = 0.f; }	// +0x15fc + 4 * sel = 0
+		const CX2Item::ItemTemplet*	GetItemTemplet() const	{ return m_pItemTemplet; }
+		void	ReleaseEquipEffectSet( bool bStop );			// 3295ca60
+		bool	StepEquipEffectSetTimer( int* pSel );			// 32961060
+		void	SetEquipEffectSetHandle( const CX2EffectSet_EffectSetInstanceHandle& hHandle ) { m_hJuneEquipEffectSet = hHandle; }
+		void	ResetEquipEffectSetStartTime() { m_fJuneEquipEffectSetStartTime = 0.f; }						// +0x15f4 = 0
+		void	ResetEquipEffectSetSwitchTime( int iSel ) { m_afJuneEquipEffectSetSwitchTime[iSel] = 0.f; }	// +0x15fc + 4 * sel = 0
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		UidType					GetItemUID() const			{ return m_ItemUID; }
 		CX2Unit::EQIP_POSITION	GetEqipPos() const			{ return m_EqipPos; }

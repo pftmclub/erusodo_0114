@@ -42,7 +42,7 @@ sys.path.insert(0, HERE)
 import flagcheck  # noqa: E402
 
 MAP_PATH = os.path.join(TRUNK, 'june2017_re', 'diverge', 'collapse_map.tsv')
-SRC_DIRS = ('X2Lib', 'KTDXLIB', 'X2')
+SRC_DIRS = ('X2Lib', 'KTDXLIB', 'X2', 'KncWX2Server/Common')     # Common: the EGS_ / KEGS_ packet names are renamed client-side (C4)
 SRC_EXT = ('.cpp', '.h', '.inl', '.hpp', '.c')
 SKIP_DIRS = {'debug', 'release', 'ipch', 'us_service', 'us_internal', 'us_test', 'x2tool', '.svn', 'cximage', 'fmod', 'tinyxml'}
 PROJ_FILES = ('X2Lib/X2Lib_2010.vcxproj', 'X2Lib/X2Lib_2010.vcxproj.filters', 'KTDXLIB/KTDXLIB_2010.vcxproj',
@@ -610,6 +610,7 @@ class Collapse(object):
         self.out = {}            # rel -> new bytes
         self._srcs = {}
         self.hier = None
+        self.allow_existing = False     # --allow-existing: finish a rename that earlier rows left half done (the new name is already in use)
 
     # -- scope of a name: which files a row's old name may be renamed in
     def shared(self, r):
@@ -681,7 +682,7 @@ class Collapse(object):
                 if hit:
                     r.hand('refused: %s already declares %s%s' % (hit, r.new, '' if hit == r.cls else ' (base class of %s)' % r.cls))
                     continue
-            else:
+            elif not self.allow_existing:
                 where = self.name_exists(r)
                 if where:
                     r.hand('refused: %s already used in %s' % (r.new, where))
@@ -1116,6 +1117,9 @@ class Collapse(object):
             if not self.fs.exists(r.file):
                 r.hand('file %s not found' % r.file)
                 continue
+            if r.new.startswith('('):
+                r.hand('file merged by hand: %s' % r.new)
+                continue
             d = os.path.dirname(r.file)
             self.renames.append((r.file, (d + '/' if d else '') + r.new))
             ob, nb = os.path.basename(r.file).encode(), r.new.encode()
@@ -1133,9 +1137,12 @@ class Collapse(object):
             mp[r.old.encode()] = r.new.rsplit('::', 1)[-1].encode() if r.action != 'enum' else r.new.encode()
             if r.action == 'lua':
                 lit[b'"' + r.old.encode() + b'"'] = b'"' + r.new.encode() + b'"'
-        if not mp:
+        for r in self.rows:
+            if r.status == 'auto' and r.action == 'file' and not r.new.startswith('('):
+                lit[os.path.basename(r.file).encode()] = r.new.encode()     # pass_files renames the name in every text, comments too
+        if not mp and not lit:
             return base
-        out, _ = sub_idents(base, mp)
+        out = sub_idents(base, mp)[0] if mp else base
         for a, b in lit.items():
             out = out.replace(a, b)
         return out
@@ -1246,6 +1253,7 @@ def cmd_apply(args):
     fs = DiskFS(TRUNK, args.base)
     rows = load_map(args.map)
     c = Collapse(fs, rows, args.batch, files=args.files, only=set(args.only) if args.only else None)
+    c.allow_existing = args.allow_existing
     if not c.rows:
         print('no rows for batch %s' % args.batch)
         return 2
@@ -1382,6 +1390,7 @@ def main():
     ap.add_argument('cmd', nargs='?', choices=['apply'])
     ap.add_argument('batch', nargs='?')
     ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--allow-existing', action='store_true', help='do not refuse a class / lua / free rename whose new name is already in use (finishing a half-done rename)')
     ap.add_argument('--files', nargs='+')
     ap.add_argument('--only', nargs='+')
     ap.add_argument('--map', default=MAP_PATH)

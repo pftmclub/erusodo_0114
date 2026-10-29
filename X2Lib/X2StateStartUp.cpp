@@ -272,7 +272,7 @@ void CX2StateStartUp::LoadData()
 	// Field_Data.lua ÆÄ½Ì
 	g_pData->ResetBattleFieldManager( L"BattleFieldData.lua" );
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
-	g_pMain->JuneMakeSimpleWidgetPlayer();	/// June 3259bb20 @3259bc88: 31d70c60 at the end of the StartUp state's script load, after main.gfx is up
+	g_pMain->MakeSimpleWidgetPlayer();	/// June 3259bb20 @3259bc88: 31d70c60 at the end of the StartUp state's script load, after main.gfx is up
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 }
 

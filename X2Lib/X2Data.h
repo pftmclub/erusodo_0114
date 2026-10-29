@@ -117,21 +117,21 @@ class CX2Data : public CKTDXStage
 		void LoadPVPResultTable();
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June buff port Phase 16-step3b, item 8: the rank tables June's PVPData.lua / PVEData.lua fill
-		void LoadJuneRankReferData();
-		void AddJunePvpReferData_LUA( int iRank_, float fRate_ );				/// June 31ee36c0 (AddPvpReferData_LUA)
-		void AddJunePveReferData_LUA( int iRank_, float fRate_ );				/// June 31ee37c0 (AddPveReferData_LUA)
-		void AddJunePveReferDataForMP_LUA( int iRank_, float fRate_ );			/// June 31ee3800 (AddPveReferDataForMP_LUA)
-		float GetJunePvpReferData( const int iRank_ ) const;					/// June 31edfe70
-		float GetJunePveReferData( const int iRank_, const bool bForMP_ ) const;	/// June 31edfeb0
+		void LoadRankReferData();
+		void AddPvpReferData_LUA( int iRank_, float fRate_ );				/// June 31ee36c0 (AddPvpReferData_LUA)
+		void AddPveReferData_LUA( int iRank_, float fRate_ );				/// June 31ee37c0 (AddPveReferData_LUA)
+		void AddPveReferDataForMP_LUA( int iRank_, float fRate_ );			/// June 31ee3800 (AddPveReferDataForMP_LUA)
+		float GetPvpReferData( const int iRank_ ) const;					/// June 31edfe70
+		float GetPveReferData( const int iRank_, const bool bForMP_ ) const;	/// June 31edfeb0
 		/// The other June-only calls in the two files: bound as no-ops that log their name once (not ported)
-		void JuneSetPVPRewardItemList_LUA()				{ JuneDataCallNotPorted( "SetPVPRewardItemList_LUA" ); }
-		void JuneSetPVPRewardRankLinkedItemList_LUA()	{ JuneDataCallNotPorted( "SetPVPRewardRankLinkedItemList_LUA" ); }
-		void JuneAddContinueKillSoundEffect_LUA()		{ JuneDataCallNotPorted( "AddContinueKillSoundEffect_LUA" ); }
-		void JuneSetSendPveGameSyncPacketTimer_LUA()	{ JuneDataCallNotPorted( "SetSendPveGameSyncPacketTimer_LUA" ); }
-		void JuneSetPveBalanceBuffGiveScore_LUA()		{ JuneDataCallNotPorted( "SetPveBalanceBuffGiveScore_LUA" ); }
-		void JuneSetPveGameTimeStopDistance_LUA()		{ JuneDataCallNotPorted( "SetPveGameTimeStopDistance_LUA" ); }
-		void JuneSetPveAreaTypeByPortalLineMap_LUA()	{ JuneDataCallNotPorted( "SetPveAreaTypeByPortalLineMap_LUA" ); }
-		void JuneDataCallNotPorted( const char* szName_ );
+		void SetPVPRewardItemList_LUA()				{ DataCallNotPorted( "SetPVPRewardItemList_LUA" ); }
+		void SetPVPRewardRankLinkedItemList_LUA()	{ DataCallNotPorted( "SetPVPRewardRankLinkedItemList_LUA" ); }
+		void AddContinueKillSoundEffect_LUA()		{ DataCallNotPorted( "AddContinueKillSoundEffect_LUA" ); }
+		void SetSendPveGameSyncPacketTimer_LUA()	{ DataCallNotPorted( "SetSendPveGameSyncPacketTimer_LUA" ); }
+		void SetPveBalanceBuffGiveScore_LUA()		{ DataCallNotPorted( "SetPveBalanceBuffGiveScore_LUA" ); }
+		void SetPveGameTimeStopDistance_LUA()		{ DataCallNotPorted( "SetPveGameTimeStopDistance_LUA" ); }
+		void SetPveAreaTypeByPortalLineMap_LUA()	{ DataCallNotPorted( "SetPveAreaTypeByPortalLineMap_LUA" ); }
+		void DataCallNotPorted( const char* szName_ );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		CKTDGPicChar*	GetPicChar(){ return m_pPicChar; }
@@ -331,7 +331,7 @@ class CX2Data : public CKTDXStage
 		CX2GFXEventScene* GetGFXEventScene() { return m_pGFXEventScene; }
 		CX2GFXEventScene* ResetGFXEventScene();			/// 31edc620 + the scene XMLs ( 31eed660 / 31eed7a0 )
 		/// June's IsPlaying ( 3226a010 ) as the readers see it: the GFX scene, or the Lua scene ( the one March's readers asked alone )
-		bool JuneIsEventScenePlaying();
+		bool IsEventScenePlaying();
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 		CX2SlideShot* ResetSlideShot();
@@ -340,19 +340,19 @@ class CX2Data : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 		/// quest-system Q10: June g_pData +0x570, { m_iEpisodeGroupID: { completed quest id that has a story } }, rebuilt by
 		/// CX2QuestManager::JuneRebuildStoryBookQuest ( 32335f50 ) and read by the story book ( CX2UIStoryBook, Q10c )
-		const std::map< int, std::set<int> >& GetJuneStoryBookQuestMap() const { return m_mapJuneStoryBookQuest; }
-		void SetJuneStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapJuneStoryBookQuest = mapStoryBook_; }
+		const std::map< int, std::set<int> >& GetStoryBookQuestMap() const { return m_mapJuneStoryBookQuest; }
+		void SetStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapJuneStoryBookQuest = mapStoryBook_; }
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		/// quest-system Q10b: June g_pData +0x288, the story slide-show player ( CX2SlideShotScripted ). Reset 31edee40 by the quest loader.
-		CX2SlideShotScripted* ResetJuneSlideShotScripted();
-		CX2SlideShotScripted* GetJuneSlideShotScripted() { return m_pJuneSlideShotScripted; }
+		CX2SlideShotScripted* ResetSlideShotScripted();
+		CX2SlideShotScripted* GetSlideShotScripted() { return m_pJuneSlideShotScripted; }
 		/// June's callers: "+0x288 != 0 -> Start( id )" ( 323e5a50, 323e294c, 32d74141 ); false when there is no player
-		bool JuneStartStorySlideShot( int iQuestID_ );
+		bool StartStorySlideShot( int iQuestID_ );
 		/// June's readers: "+0x288 != 0 && +0x51 == 1" ( 32276284, 322f8326, 32309d80, 32e90649, the party forced Ends )
-		bool JuneIsStorySlideShotRunning();
+		bool IsStorySlideShotRunning();
 		/// June's forced Ends ( 3243cff1, 3243d35c, 3243d76c, 323080c0 @32308817 ): End when there is a player ( End itself needs it running )
-		void JuneEndStorySlideShot();
+		void EndStorySlideShot();
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 		//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업

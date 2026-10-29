@@ -274,7 +274,7 @@ CX2Eqip::CX2Eqip( CX2Item* pItem, CKTDGXSkinAnimPtr pUnitXSkinAnim, int enchantL
 // June2017 3295ca60: stop the per-equip effect set (+0x15f8) on the UI effect set (g_pData +0x9c) only when bStop and the handle is
 // valid; the handle is forgotten (-1) either way. The GUUser and square miss paths pass false, so the set plays on to its own end;
 // only the square's RemoveUnit stop (323f56d0) passes true. June has no CX2Eqip dtor stop (3 callers only). Both: JUNE_BUGS.md.
-void CX2Eqip::ReleaseJuneEquipEffectSet( bool bStop )
+void CX2Eqip::ReleaseEquipEffectSet( bool bStop )
 {
 	if( true == bStop && NULL != g_pData && INVALID_EFFECTSET_HANDLE != m_hJuneEquipEffectSet )
 		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEquipEffectSet );
@@ -285,12 +285,12 @@ void CX2Eqip::ReleaseJuneEquipEffectSet( bool bStop )
 // the switch roll turns it into 3 = play the switch set (the timer is NOT reset here: the caller zeroes it when it plays the switch).
 // Elapsed time is the global one: June reads the protected float at g_pKTDXApp +0x2c, whose ctor value is 1/85 = m_fConstElapsedTime.
 // So the first play waits START_TIME, and a set that ended replays about one frame later.
-bool CX2Eqip::StepJuneEquipEffectSetTimer( int* pSel )
+bool CX2Eqip::StepEquipEffectSetTimer( int* pSel )
 {
 	if( NULL == g_pData || NULL == g_pData->GetItemManager() )
 		return false;
 
-	CX2ItemManager::JuneConditionEquipPlayEffectSet kRecord;
+	CX2ItemManager::ConditionEquipPlayEffectSet kRecord;
 	if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( m_ItemID, kRecord ) )
 		return false;
 
@@ -1839,7 +1839,7 @@ void CX2Eqip::ChangeNormalMode()
 // ChangeEnchantLevel 3295f250, the skin XET open 3295ffd0 (InitSkin 32963eb0), the attach-anim init 3295dfa0.
 //   >= 13 "13Gang_Protect.tga", 9..12 "11Gang_Protect.tga" (June tests < 11, then < 9), 7..8 "Gate_Protect_G01.tga", < 7 none.
 // March (ENCHANT_WEAPON_EFFECT_LEVEL_1 / _2 = 7 / 11, ADD_UPGRADE_WEAPON_PARTICLE on): 7..10 G01, >= 11 11Gang.
-static const char* JuneEnchantStage2Texture( int iEnchantLevel )
+static const char* EnchantStage2Texture( int iEnchantLevel )
 {
 	if( iEnchantLevel >= 13 )
 		return "13Gang_Protect.tga";	// 334c9b14; a June-only asset (June data045), june-asset-port P4a brings it
@@ -1852,9 +1852,9 @@ static const char* JuneEnchantStage2Texture( int iEnchantLevel )
 
 // 31d40160( "*.*" 334c9b10, texture, 7 = D3DTOP_ADD ) at every June site. One "[JUNE_ENGINE] EQSKIN" line per choice: the first 60
 // per run, then every 100th; "MISSING" = the texture did not open (no glow).
-static void JuneSetEnchantStage2( CKTDXDeviceXET* pXET, int iEnchantLevel, const char* pSite, int iItemID )
+static void SetEnchantStage2( CKTDXDeviceXET* pXET, int iEnchantLevel, const char* pSite, int iItemID )
 {
-	const char* pTexture = JuneEnchantStage2Texture( iEnchantLevel );
+	const char* pTexture = EnchantStage2Texture( iEnchantLevel );
 	if( NULL == pTexture )
 		return;
 	pXET->SetMultiTexStage2( "*.*", pTexture, D3DTOP_ADD );
@@ -2297,25 +2297,25 @@ void CX2Eqip::InitSkin()
 			WCHAR wszJuneMultiTexName[256] = L"";
 			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
 			m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
-			if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+			if( NULL == EnchantStage2Texture( m_EnchantLevel ) )
 			{
 				if( NULL != m_pNormalMultiTexXET )
 					m_pNormalMultiTexXET->DeleteMultiTexStage2();
 			}
 			else
-				JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitSkin", m_ItemID );
+				SetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitSkin", m_ItemID );
 
 			// The hyper name takes m_ModelNameHyper[0] (+0x724), and June stores the XET in m_pHyperTexChangeXET (+0x814 @32960287), over the
 			// tex-change XET opened above (its reference is never closed), not in m_pHyperMultiTexXET (+0x818): JUNE_BUGS.md.
 			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_HYPER_%s_%dl", m_ModelNameHyper[0].c_str(), m_ItemUID );
 			m_pHyperTexChangeXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
-			if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+			if( NULL == EnchantStage2Texture( m_EnchantLevel ) )
 			{
 				if( NULL != m_pHyperTexChangeXET )
 					m_pHyperTexChangeXET->DeleteMultiTexStage2();
 			}
 			else
-				JuneSetEnchantStage2( m_pHyperTexChangeXET, m_EnchantLevel, "InitSkinHyper", m_ItemID );
+				SetEnchantStage2( m_pHyperTexChangeXET, m_EnchantLevel, "InitSkinHyper", m_ItemID );
 		}
 
 		// Routed (R14 Done note), both keyed by the item templet's id: when the device manager's item map (+0x260, 31cdcc70) holds the id,
@@ -2471,13 +2471,13 @@ void CX2Eqip::InitAttatchAnim()
 #ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
 	// June2017 3295dfa0 @3295e10c-3295e15c: below 7 stage 2 is deleted, else the June texture by level. The rest of June's
 	// attach-anim init (minor-unit model, UT_ADD index remap, appearance templet, jiggle) is R14b.
-	if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+	if( NULL == EnchantStage2Texture( m_EnchantLevel ) )
 	{
 		if( m_pNormalMultiTexXET != NULL )
 			m_pNormalMultiTexXET->DeleteMultiTexStage2();
 	}
 	else
-		JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitAttatchAnim", m_ItemID );
+		SetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitAttatchAnim", m_ItemID );
 #else SERV_IRUHADEV_JUNE_EQIP_SKIN
 	if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_1 )
 	{		
@@ -2638,8 +2638,8 @@ void CX2Eqip::InitAttatchAnim()
 		    m_pHyperMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszMultiTexName, true );
 #ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
 		    // June2017 3295dfa0 @3295e79c-3295e7ca: from level 7 the June texture by level; below 7 nothing (as March).
-		    if( NULL != JuneEnchantStage2Texture( m_EnchantLevel ) )
-			    JuneSetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "InitAttatchAnimHyper", m_ItemID );
+		    if( NULL != EnchantStage2Texture( m_EnchantLevel ) )
+			    SetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "InitAttatchAnimHyper", m_ItemID );
 #else SERV_IRUHADEV_JUNE_EQIP_SKIN
 		    if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_1 )
 		    {			
@@ -3128,7 +3128,7 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 #ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
 		// June2017 3295f250 @3295f348-3295f399: the June texture by level (this branch is level >= 7).
 		if( NULL != m_pNormalMultiTexXET )
-			JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "ChangeEnchantLevel", m_ItemID );
+			SetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "ChangeEnchantLevel", m_ItemID );
 #else SERV_IRUHADEV_JUNE_EQIP_SKIN
 		if( NULL != m_pNormalMultiTexXET )
 		{
@@ -3176,7 +3176,7 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 #ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
 			// June2017 3295f250 @3295f497-3295f4e8: the same choice for the hyper XET.
 			if( NULL != m_pHyperMultiTexXET )
-				JuneSetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "ChangeEnchantLevelHyper", m_ItemID );
+				SetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "ChangeEnchantLevelHyper", m_ItemID );
 #else SERV_IRUHADEV_JUNE_EQIP_SKIN
 			if( NULL != m_pHyperMultiTexXET )
 			{

@@ -868,7 +868,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		virtual float GetDefenceRateBySkill( const int iAttackType_ );	/// June 32cc28b0 ( vslot 0x428 )
 		virtual float GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32cc5c30 ( vslot 0x73c )
 		CX2GameUnit* GetNearestEnemyInRange( float fRange_, const std::set<UidType>& setExceptUID_ ) const;	/// June CX2Game 322d7920
-		struct JuneEquipViewChange { UidType m_iItemUIDToAdd; UidType m_iItemUIDToRemove; };	/// June +0x9848 element ( 16 bytes )
+		struct EquipViewChange { UidType m_iItemUIDToAdd; UidType m_iItemUIDToRemove; };	/// June +0x9848 element ( 16 bytes )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 
@@ -963,7 +963,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		float						m_fJune97a0;			/// 1.0
 		float						m_afJune97a4[5];		/// 0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-		std::vector<JuneEquipViewChange>	m_vecJune9848;	/// June +0x9848: equip view changes queued while transformed
+		std::vector<EquipViewChange>	m_vecJune9848;	/// June +0x9848: equip view changes queued while transformed
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE

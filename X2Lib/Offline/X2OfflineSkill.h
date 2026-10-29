@@ -156,10 +156,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// June's skill memos ( S7c ): skill -> MEMO_ID, one per skill, persisted in unit_skill_note ( v19 )
 
-	const std::map< int, int >&	GetJuneActiveMemos() const	{ return m_mapJuneActiveMemo; }
-	int		GetJuneActiveMemo( int iSkillID ) const;		///< 0 when the skill has none
-	bool	SetJuneActiveMemo( int iSkillID, int iMemoID );
-	bool	ClearJuneActiveMemo( int iSkillID );
+	const std::map< int, int >&	GetActiveMemos() const	{ return m_mapJuneActiveMemo; }
+	int		GetActiveMemo( int iSkillID ) const;		///< 0 when the skill has none
+	bool	SetActiveMemo( int iSkillID, int iMemoID );
+	bool	ClearActiveMemo( int iSkillID );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
@@ -169,16 +169,16 @@ public:
 	enum { JUNE_MAX_SKILL_PAGE = 3 };	///< KUserSkillTree::MAX_COUNT_OF_PAGES_AVAILABLE ( UserSkillTree.h:345 ); June's USHORT[3] at tree +0x8 / +0xe
 
 	/// Page count and page in use of the loaded unit ( 1 / 1 without a row ).
-	void	GetJuneSkillPageInfo( OUT int& iPageCount, OUT int& iActivePage ) const;
+	void	GetSkillPageInfo( OUT int& iPageCount, OUT int& iActivePage ) const;
 	/// Adds up to iAdd pages ( capped at JUNE_MAX_SKILL_PAGE ); a new page has an empty bar. ERR_SKILL_PAGE_02 when none could be added.
-	int		ExpandJuneSkillPage( int iAdd, OUT int& iPageCount );
+	int		ExpandSkillPage( int iAdd, OUT int& iPageCount );
 	/// Stores the bar in use under its page, puts the asked page's bar on the slots ( a skill no longer learned is dropped with a log
 	/// line ) and makes it the page in use. ERR_SKILL_PAGE_03 for a page that is not open.
-	int		SwitchJuneSkillPage( int iPage );
+	int		SwitchSkillPage( int iPage );
 	/// The bar in use as June's two vectors of KJuneSkillExtraData ( 5 entries each, id + level ).
-	void	GetJuneEquippedSkillVectors( OUT std::vector< KSkillData >& vecA_, OUT std::vector< KSkillData >& vecB_ ) const;
+	void	GetEquippedSkillVectors( OUT std::vector< KSkillData >& vecA_, OUT std::vector< KSkillData >& vecB_ ) const;
 	/// A whole-tree reset: every slot empty ( June's INIT ACK 3220ea50 empties the client's bar ) and every stored page bar gone.
-	void	ClearJuneSkillBars();
+	void	ClearSkillBars();
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	//////////////////////////////////////////////////////////////////////////
@@ -216,10 +216,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	/// June skill system S3, the Q1 stand-in: June's SkillData.lua has no default
 	/// skills, so a new character, a job change and a full tree reset get every
-	/// free row of the class tree the level allows (X2OfflineJuneSkillAutoLearn.h,
+	/// free row of the class tree the level allows (X2OfflineSkillAutoLearn.h,
 	/// the rows the v17 migration granted). Rows already learned are left alone;
 	/// castable ones fill free A slots. Loads the unit.
-	bool	SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel );
+	bool	SeedAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel );
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
@@ -228,9 +228,9 @@ public:
 	/// every tree row of the class gets one level per m_RequireCharacterLevel entry at or below the
 	/// unit's level, capped at the row's master level. Works on the loaded unit; returns the rows it
 	/// raised (and persisted) in vecGranted_.
-	int		GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT std::vector< KSkillData >& vecGranted_ );
+	int		GrantSkillsByLevel( int iUnitClass, int iUnitLevel, OUT std::vector< KSkillData >& vecGranted_ );
 	/// Every acquired skill as June's 7-byte KSkillData (the NOT after a whole-tree reset).
-	void	GetJuneAcquiredSkillData( OUT std::vector< KSkillData >& vecOut_ ) const;
+	void	GetAcquiredSkillData( OUT std::vector< KSkillData >& vecOut_ ) const;
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 	/// SP for levelling from iFromLevel to iToLevel, summed out of the client's

@@ -1,0 +1,24 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+JuneSetShow	SetShow	class	KTDXLIB/KTDGUIDialogManager.cpp		SERV_IRUHADEV_JUNE_GFX_GATES			C4 follow-up	C4y	class
+JuneGetAddMaxMPValue	GetAddMaxMPValue	class	X2Lib/X2Inventory.cpp		SERV_IRUHADEV_JUNE_SKILL_MAX_MP			C4 follow-up	C4y	class
+June_CopyModelFrameStructure	CopyModelFrameStructure	class	KTDXLIB/KTDGXSkinAnim.cpp		SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE			C4 follow-up	C4y	class
+GetJuneXSkinAnim	GetXSkinAnim	class	X2Lib/X2WorldObjectSkinMesh.h		SERV_IRUHADEV_JUNE_MOVABLE_LINE			C4 follow-up	C4y	class
+JuneSetNowDragItemReturn	SetNowDragItemReturn	class	X2Lib/X2UIManager.h		SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN			C4 follow-up	C4y	class
+JuneClearMovieTemplet	ClearMovieTemplet	class	X2Lib/X2Main.h		SERV_IRUHADEV_JUNE_QUEST_MOVIE			C4 follow-up	C4y	class
+JuneConvertToQuestTypeSort	ConvertToQuestTypeSort	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d5650		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneConvertToRepeatTypeSort	ConvertToRepeatTypeSort	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI			C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneDetermineUIModeWithTabPriority	DetermineUIModeWithTabPriority	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323c9250		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneGetNPCFaceTextureKey	GetNPCFaceTextureKey	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323cc280		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneGetQuestPictureNumber	GetQuestPictureNumber	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323c86f0		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneGetUnitQuest	GetUnitQuest	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323cf570		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneHandler_EGS_TALK_WITH_NPC_ACK	Handler_EGS_TALK_WITH_NPC_ACK	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323e4930		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneResetQuestList	ResetQuestList	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d9400		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneResetQuestUI	ResetQuestUI	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323dfa80		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneReturnToQuestListUI	ReturnToQuestListUI	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323ca520		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneSetNowQuestUIMode	SetNowQuestUIMode	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323c9e80		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneSetUIQuestSlotInfoToCategory	SetUIQuestSlotInfoToCategory	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d80d0		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneUpdateAvailQuestInfo	UpdateAvailQuestInfo	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d0770		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneUpdateDetailQuestTitle	UpdateDetailQuestTitle	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323ce6f0		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneUpdateOngoingQuestInfo	UpdateOngoingQuestInfo	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d5650		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneUpdateQuestButton	UpdateQuestButton	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323ccbc0		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function
+JuneUpdateUIQuestSlotInfo	UpdateUIQuestSlotInfo	merge	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI	323d8be0		C4 quest twin, June body folded into X2UIQuestNew.cpp	C4y	member function

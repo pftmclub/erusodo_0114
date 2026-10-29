@@ -261,9 +261,9 @@ bool CX2BossRaidManager::Handler_EGS_BATTLE_FIELD_BOSS_GATE_OPEN_NOT( HWND hWnd,
 		wstrAreaTextureName = L"RaidField_Area_0.dds";
 	else if( SEnum::VMI_FIELD_BOSSRAID_VALLEY_OF_ABYSS == m_eCurrentRaidMapID )
 		wstrAreaTextureName = L"RaidField_Area_1.dds";
-	CX2EmblemManager::GetInstance()->JuneAddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
+	CX2EmblemManager::GetInstance()->AddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
 		CX2EmblemManager::EmblemExpandTexture( wstrFieldOpenTextureName, 570.f, 265.f, true ) );
-	CX2EmblemManager::GetInstance()->JuneAddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
+	CX2EmblemManager::GetInstance()->AddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
 		CX2EmblemManager::EmblemExpandTexture( wstrAreaTextureName, 570.f, 295.f, true ) );
 #else SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	CX2EmblemManager::GetInstance()->PlayEmblem(CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID, true);

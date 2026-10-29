@@ -472,10 +472,10 @@ void CX2DungeonSubStage::PrepareClearSubStage( int iClearConditionIndex )
 			 reader is Death Sign's reserved death (CX2GUUser::OnFrameMove, June @3206f971): 4 (CT_GAME) spares the user.
 			 June's state machine around it (+0x30, the NOT, the CT_GAME/CT_FAILURE work in the ACK) is not ported.
 */
-void CX2DungeonSubStage::SetJuneClearType( const int iClearType_, const char* szSite_ )
+void CX2DungeonSubStage::SetClearType( const int iClearType_, const char* szSite_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	CX2JuneBuffCapture::Line( "sub-stage %d clear type %d -> %d (%s)", m_SubStageIndex, m_iJuneClearType, iClearType_, szSite_ );
+	CX2BuffCapture::Line( "sub-stage %d clear type %d -> %d (%s)", m_SubStageIndex, m_iJuneClearType, iClearType_, szSite_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	m_iJuneClearType = iClearType_;
 }
@@ -491,7 +491,7 @@ void CX2DungeonSubStage::ClearSubStage( int clearType, int nextStageNum, int nex
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 	/// June buff port Phase 9c: June stores the clear type (+0x48) before it acts on the clear, host or not
 	/// (327f03c0, the NOT every client gets; the switch below is June's 327eee60).
-	SetJuneClearType( clearType, "ClearSubStage, June 327f03c0" );
+	SetClearType( clearType, "ClearSubStage, June 327f03c0" );
 
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
@@ -996,7 +996,7 @@ void CX2DungeonSubStage::CheckIfSubStageCleared()
 
 #ifdef SERV_STAGE_CLEAR_IN_SERVER// 작업날짜: 2013-10-30	// 박세훈
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
-		SetJuneClearType( 5, "clear REQ, June 327f0c10 @327f127c" );	/// June resets it as it sends the request
+		SetClearType( 5, "clear REQ, June 327f0c10 @327f127c" );	/// June resets it as it sends the request
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		PrepareClearSubStage( iCompletedClearCondIndex );
 #else // SERV_STAGE_CLEAR_IN_SERVER
@@ -2637,11 +2637,11 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 			s_bJuneHeroAnimLogged = true;
 			WCHAR wszLog[512] = {0};
 			StringCchPrintfW( wszLog, ARRAY_SIZE(wszLog), L"JUNE_FX HERO_ANIM Add_HeroDungeon_ExtraStatForException rows=%d (0 = HeroDungeonData_Client.lua not loaded; March has no hero dungeons), dungeon=%d hero=%d",
-				(int)vecHeroStat.size(), iDungeonID, ( true == CX2DungeonManager::JuneIsHeroDungeon( iDungeonID ) ? 1 : 0 ) );
+				(int)vecHeroStat.size(), iDungeonID, ( true == CX2DungeonManager::IsHeroDungeon( iDungeonID ) ? 1 : 0 ) );
 			ErrorLogMsg( XEM_ERROR142, wszLog );
 		}
 
-		if( true == CX2DungeonManager::JuneIsHeroDungeon( iDungeonID ) )
+		if( true == CX2DungeonManager::IsHeroDungeon( iDungeonID ) )
 		{
 			// June compares the dungeon ID, then the NPC templet's ID ([+0x85f8]); the walk never breaks, so the last match wins (JUNE_BUGS #99)
 			for( UINT i = 0; i < vecHeroStat.size(); ++i )

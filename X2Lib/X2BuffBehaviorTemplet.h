@@ -463,7 +463,7 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 /// June buff port Phase 6: the data the behavior classes below hold. X2Main.h includes this header BEFORE X2BuffTemplet.h, so the types live here;
 /// X2BuffTemplet.h's CX2SkillTypeRateByBuff / CX2SkillIDRateByBuff (the unit list elements) alias them.
-typedef std::pair<int, float>	JuneSkillTypeRate;		/// BBT 89: { SKILL_TYPE, rate }
+typedef std::pair<int, float>	SkillTypeRate;		/// BBT 89: { SKILL_TYPE, rate }
 struct SkillIDRateBlock							/// BBT 90 and 91: one { rate, skill IDs } block
 {
 	float			m_fRate;
@@ -531,7 +531,7 @@ protected:
 	{}
 
 private:
-	vector<JuneSkillTypeRate>	m_vecSkillTypeRate;	/// June +0x10
+	vector<SkillTypeRate>	m_vecSkillTypeRate;	/// June +0x10
 };
 
 /** @class : CX2BuffChangeSkillDamageBySkillIDBehaviorTemplet

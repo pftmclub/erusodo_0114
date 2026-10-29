@@ -1311,14 +1311,14 @@ void CX2UIPetInfo::SetShow(bool val, UidType eTab)
 #ifdef RIDING_SYSTEM
 		if( NULL != m_pRidingPetViewerUI )
 		{
-			m_pRidingPetViewerUI->JuneStopUIEffectSets();
-			m_pRidingPetViewerUI->JuneViewerFxStop( 1 );
+			m_pRidingPetViewerUI->StopUIEffectSets();
+			m_pRidingPetViewerUI->ViewerFxStop( 1 );
 		}
 #endif //RIDING_SYSTEM
 		if( NULL != m_pNPCViewerUI )
 		{
-			m_pNPCViewerUI->JuneStopUIEffectSets();
-			m_pNPCViewerUI->JuneViewerFxStop( 1 );
+			m_pNPCViewerUI->StopUIEffectSets();
+			m_pNPCViewerUI->ViewerFxStop( 1 );
 		}
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 	}
@@ -2854,13 +2854,13 @@ void CX2UIPetInfo::Select_Tab( UidType eTab )
 	// viewer first. The viewers stay shown; the tab's own viewer reset plays them again.
 	if( NULL != m_pRidingPetViewerUI )
 	{
-		m_pRidingPetViewerUI->JuneStopUIEffectSets();
-		m_pRidingPetViewerUI->JuneViewerFxStop( 1 );
+		m_pRidingPetViewerUI->StopUIEffectSets();
+		m_pRidingPetViewerUI->ViewerFxStop( 1 );
 	}
 	if( NULL != m_pNPCViewerUI )
 	{
-		m_pNPCViewerUI->JuneStopUIEffectSets();
-		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+		m_pNPCViewerUI->StopUIEffectSets();
+		m_pNPCViewerUI->ViewerFxStop( 1 );
 	}
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW
 	CKTDGUIRadioButton* pRadioButtonTab = NULL;

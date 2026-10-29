@@ -33,7 +33,7 @@ public:
 	FMOD_SOUND* GetSound() const { return m_pSound; }
 	// June 31d41710 ( no symbol; its only caller is that sound play @31f6ee0e ). June keeps March's store-only
 	// Set3DPosition too ( 31d41070 ); this one also applies the position to the playing channel.
-	void JuneSet3DPositionAndUpdate( const D3DXVECTOR3& pos );
+	void Set3DPositionAndUpdate( const D3DXVECTOR3& pos );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 	void Set3DPosition( const D3DXVECTOR3& pos );
 	void SetMax3DDistance( float fMaxDistance );

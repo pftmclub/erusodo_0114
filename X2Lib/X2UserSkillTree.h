@@ -448,7 +448,7 @@ public:
 		return ( m_mapJuneSlotState.end() == it ) ? s_wstrEmpty : it->second.m_wstrDate;
 	}
 	/// The select-unit feed: June 3235eb20 passes the first two elements of KUnitSkillData's slot-state vector to 32892a00
-	void SetSlotStateFromVector( const std::vector<KJuneSkillSlotState>& vecState_ )
+	void SetSlotStateFromVector( const std::vector<KSkillSlotState>& vecState_ )
 	{
 		for ( size_t i = 0; i < vecState_.size() && i < 2; ++i )
 			SetSlotState( vecState_[i].m_iKey, vecState_[i].m_iState, vecState_[i].m_wstrDate );
@@ -539,7 +539,7 @@ public:
 	void GetActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const;	/// June 32891e10: the base id (32207210), memos > 0
 	void AddActiveMemo( int iSkillID_, int iMemoID_ );						/// June 328923e0
 	void RemoveActiveMemo( int iSkillID_, int iMemoID_ );					/// June 32891050: memo 0 removes every memo of the skill
-	void ClearJuneActiveMemo() { m_mmapJuneActiveMemo.clear(); }					/// June 32892050
+	void ClearActiveMemo() { m_mmapJuneActiveMemo.clear(); }					/// June 32892050
 	void MergeActiveMemo( const std::multimap<int, int>& mmapMemo_ );		/// June 32892410: adds the pairs not active yet
 	const std::multimap<int, int>& GetActiveMemoMap() const { return m_mmapJuneActiveMemo; }
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE

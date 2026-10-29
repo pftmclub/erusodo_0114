@@ -1596,7 +1596,7 @@ m_pMemoryHolder( NULL )
 	m_bJuneClearMovieOrgMusic		= false;
 	m_bJuneReservedAdminComplete	= false;
 	m_pDLGJuneClearMovie			= NULL;
-	JuneResetClearMovieState();
+	ResetClearMovieState();
 	OpenScriptFile( L"DungeonClearMovieTemplet.lua" );
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #if defined(CHECK_KOM_EU)
@@ -3000,7 +3000,7 @@ HRESULT CX2Main::OnFrameMove( double fTime, float fElapsedTime )
 #endif
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
-	JuneCheckClearMovieEnd();	// June 31d90300 @31d91398-31d91419, after the info-box lifetime block
+	CheckClearMovieEnd();	// June 31d90300 @31d91398-31d91419, after the info-box lifetime block
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef BANDICAM_CAPTURE
 	m_fCaptureDelay -= fElapsedTime;
@@ -3375,16 +3375,16 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Data>( L, "GetMyUser",						&CX2Data::GetMyUser );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// June buff port Phase 16-step3b: the calls June's PVPData.lua / PVEData.lua make (June binder 31d95080)
-	lua_tinker::class_def<CX2Data>( L, "AddPvpReferData_LUA",					&CX2Data::AddJunePvpReferData_LUA );
-	lua_tinker::class_def<CX2Data>( L, "AddPveReferData_LUA",					&CX2Data::AddJunePveReferData_LUA );
-	lua_tinker::class_def<CX2Data>( L, "AddPveReferDataForMP_LUA",				&CX2Data::AddJunePveReferDataForMP_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardItemList_LUA",				&CX2Data::JuneSetPVPRewardItemList_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardRankLinkedItemList_LUA",	&CX2Data::JuneSetPVPRewardRankLinkedItemList_LUA );
-	lua_tinker::class_def<CX2Data>( L, "AddContinueKillSoundEffect_LUA",		&CX2Data::JuneAddContinueKillSoundEffect_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetSendPveGameSyncPacketTimer_LUA",	&CX2Data::JuneSetSendPveGameSyncPacketTimer_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetPveBalanceBuffGiveScore_LUA",		&CX2Data::JuneSetPveBalanceBuffGiveScore_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetPveGameTimeStopDistance_LUA",		&CX2Data::JuneSetPveGameTimeStopDistance_LUA );
-	lua_tinker::class_def<CX2Data>( L, "SetPveAreaTypeByPortalLineMap_LUA",	&CX2Data::JuneSetPveAreaTypeByPortalLineMap_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddPvpReferData_LUA",					&CX2Data::AddPvpReferData_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddPveReferData_LUA",					&CX2Data::AddPveReferData_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddPveReferDataForMP_LUA",				&CX2Data::AddPveReferDataForMP_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardItemList_LUA",				&CX2Data::SetPVPRewardItemList_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPVPRewardRankLinkedItemList_LUA",	&CX2Data::SetPVPRewardRankLinkedItemList_LUA );
+	lua_tinker::class_def<CX2Data>( L, "AddContinueKillSoundEffect_LUA",		&CX2Data::AddContinueKillSoundEffect_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetSendPveGameSyncPacketTimer_LUA",	&CX2Data::SetSendPveGameSyncPacketTimer_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveBalanceBuffGiveScore_LUA",		&CX2Data::SetPveBalanceBuffGiveScore_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveGameTimeStopDistance_LUA",		&CX2Data::SetPveGameTimeStopDistance_LUA );
+	lua_tinker::class_def<CX2Data>( L, "SetPveAreaTypeByPortalLineMap_LUA",	&CX2Data::SetPveAreaTypeByPortalLineMap_LUA );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	lua_tinker::class_def<CX2Data>( L, "GetUIMajorParticle",			&CX2Data::GetUIMajorParticle );
 	lua_tinker::class_def<CX2Data>( L, "GetUIMajorXMeshPlayer",			&CX2Data::GetUIMajorXMeshPlayer );
@@ -5629,15 +5629,15 @@ void CX2Main::RegisterLuabind()
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	// June2017 31d95080 @31de31c0 / @31de342a: the global Lua functions PlayEventScene( name ) and IsRecentlyPlayedEventScene( name ) ( 327ccad0 / 327ccb20 )
-	lua_tinker::def( L, "PlayEventScene",				&JuneGfxPlayEventScene_LUA );
-	lua_tinker::def( L, "IsRecentlyPlayedEventScene",	&JuneGfxIsRecentlyPlayedEventScene_LUA );
+	lua_tinker::def( L, "PlayEventScene",				&GfxPlayEventScene_LUA );
+	lua_tinker::def( L, "IsRecentlyPlayedEventScene",	&GfxIsRecentlyPlayedEventScene_LUA );
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
-	lua_tinker::def( L, "JuneGfxCutIn",					&GfxCutIn_LUA );	/// G4 debug: JuneGfxCutIn( "HQ_CutIn_Elsword_01" )
+	lua_tinker::def( L, "GfxCutIn",					&GfxCutIn_LUA );	/// G4 debug: JuneGfxCutIn( "HQ_CutIn_Elsword_01" )
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	lua_tinker::def( L, "JuneResultOpen",				&JuneResultOpen_LUA );	/// R1 debug: in a dungeon, opens the GFx result widget ( UI 8 ) and fills it from the result info
-	lua_tinker::def( L, "JuneResultClose",				&JuneResultClose_LUA );
+	lua_tinker::def( L, "ResultOpen",				&ResultOpen_LUA );	/// R1 debug: in a dungeon, opens the GFx result widget ( UI 8 ) and fills it from the result info
+	lua_tinker::def( L, "ResultClose",				&ResultClose_LUA );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
@@ -5668,7 +5668,7 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 		}
 #endif EVENT_SCENE
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-		g_pKTDXApp->JuneGfxClearMessageStage();		/// June StateChange 31d88bf0 @31d88c9e: 31be3000
+		g_pKTDXApp->GfxClearMessageStage();		/// June StateChange 31d88bf0 @31d88c9e: 31be3000
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 		g_pKTDXApp->RemoveStage( m_pNowState, true );
 		m_pNowState = NULL; 
@@ -5894,7 +5894,7 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 					// June StateChange 31d88bf0 @31d896bd..31d896fb ( the village block ): the quest scene NEW_QUEST_NOT deferred in state 5. June skips it while a
 					// tutorial guide runs ( 31fbda90 on g_pMain +0x8c4 ): March has no tutorial-guide manager ( Stage 9 ).
-					CX2UIQuestNew::JunePlayDeferredQuestScene();
+					CX2UIQuestNew::PlayDeferredQuestScene();
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 				}
@@ -5974,7 +5974,7 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 					m_pNowState = new CX2StateBattleField();
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 					// June StateChange 31d88bf0 @31d896bd..31d896fb ( the battle field block ): the same deferred quest scene
-					CX2UIQuestNew::JunePlayDeferredQuestScene();
+					CX2UIQuestNew::PlayDeferredQuestScene();
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 				} break;
 
@@ -6000,7 +6000,7 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetStage( m_pNowState );
 		g_pKTDXApp->InsertStage( m_pNowState );
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-		g_pKTDXApp->JuneGfxSetMessageStage( m_pNowState );	/// June @31d89c26: 31be2fd0( the new state ) right after InsertStage
+		g_pKTDXApp->GfxSetMessageStage( m_pNowState );	/// June @31d89c26: 31be2fd0( the new state ) right after InsertStage
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 		CX2GageManager::StateChange( stateID );
@@ -6658,8 +6658,8 @@ CKTDGUIDialogType CX2Main::KTDGUIMsgBox( D3DXVECTOR2 pos, const WCHAR* pText, CK
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 		// June 31d7ea40 @31d7eab5: no unhide while the now state ( g_pMain +0x90 ) is in a result-UI mode
-		if ( m_pNowState != NULL && static_cast< CX2State* >( m_pNowState )->GetJuneResultUIMode() == 0 )
-			g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
+		if ( m_pNowState != NULL && static_cast< CX2State* >( m_pNowState )->GetResultUIMode() == 0 )
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true, 0 );
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true );
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -6838,8 +6838,8 @@ CKTDGUIDialogType CX2Main::KTDGUIOkAndCancelMsgBox( D3DXVECTOR2 pos, const WCHAR
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 		// June 31d7efc0 @31d7f0c5: no unhide while the stage ( NULL: g_pMain +0x90 ) is in a result-UI mode ( +0x210 )
 		CKTDXStage* pJuneResultStage = ( pNowState != NULL ) ? pNowState : m_pNowState;
-		if ( pJuneResultStage != NULL && static_cast< CX2State* >( pJuneResultStage )->GetJuneResultUIMode() == 0 )
-			g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
+		if ( pJuneResultStage != NULL && static_cast< CX2State* >( pJuneResultStage )->GetResultUIMode() == 0 )
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true, 0 );
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true );
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -11690,7 +11690,7 @@ void CX2Main::DeleteNMCachData()
 bool CX2Main::AddDungeonClearMovieTemplet_LUA()
 {
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
-	JuneClearMovieTemplet kTemplet;
+	ClearMovieTemplet kTemplet;
 
 	LUA_GET_VALUE( luaManager, "m_wstrMovieFileName",			kTemplet.m_wstrMovieFileName,		L"" );
 	LUA_GET_VALUE( luaManager, "m_bIntroMovie",				kTemplet.m_bIntroMovie,				false );
@@ -11726,7 +11726,7 @@ bool CX2Main::AddDungeonClearMovieTemplet_LUA()
 /// June 31d79960 ( ecx = this +0x808 ): with g_pMain, +0x808 = option +0x41 ( m_bSound ) and +0x809 = option +0x40 ( m_bMusic ); then the
 /// playing flag, the movie name and the reserved complete request ( quest 0, NPC 0, empty map, both bools ) are cleared. The admin flag
 /// ( +0x842 ) and the dialog ( +0x844 ) are left as they are.
-void CX2Main::JuneResetClearMovieState()
+void CX2Main::ResetClearMovieState()
 {
 	if( NULL != g_pMain )
 	{
@@ -11741,11 +11741,11 @@ void CX2Main::JuneResetClearMovieState()
 /// June 31d7a240 ( the complete request by value, bool admin ): called first by the quest window's complete requests ( 323d24f0 normal,
 /// 323d1fc0 admin ). The first row with a movie file whose m_iQuestID is the request's quest: its file becomes the next movie ( +0x80c ),
 /// the playing flag is set and the request is kept to be sent when the movie ends ( 31e87cc0 into +0x828, admin into +0x842 ).
-void CX2Main::JunePlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ )
+void CX2Main::PlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ )
 {
-	JuneResetClearMovieState();
+	ResetClearMovieState();
 
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		if( false == it->m_wstrMovieFileName.empty() && kReq_.m_iQuestID == it->m_iQuestID )
@@ -11764,12 +11764,12 @@ void CX2Main::JunePlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, boo
 
 /// June 31d75950 ( quest id, out id ): with rows and the quest manager ( g_pData +0x4c ), the first row whose m_iQuestID matches gives
 /// its m_eMovieCategory ( +0x2c ). No movie-file test here.
-bool CX2Main::JuneGetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const
+bool CX2Main::GetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const
 {
 	if( true == m_vecJuneClearMovieTemplet.empty() || NULL == g_pData || NULL == g_pData->GetQuestManager() )
 		return false;
 
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		if( iQuestID_ == it->m_iQuestID )
@@ -11782,7 +11782,7 @@ bool CX2Main::JuneGetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const
 }
 
 /// June 31d78bf0 ( id, bool ): +0x84c gets { id, bool } unless the id is already there.
-void CX2Main::JuneAddSeenClearMovie( int iMovieID_, bool bValue_ )
+void CX2Main::AddSeenClearMovie( int iMovieID_, bool bValue_ )
 {
 	vector< std::pair<int, bool> >::const_iterator it;
 	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
@@ -11798,7 +11798,7 @@ void CX2Main::JuneAddSeenClearMovie( int iMovieID_, bool bValue_ )
 /// ( 33457d9c ) is created on the now state ( 0.07, layer 0 ) and added, the UI is hidden ( SetShowUI( false, true ) ), and the
 /// "DungeonClearMovie" static's movie 0 opens the file ( 31c9c250 ), plays ( vslot 0x1c ) and shows ( +0x8c ). The name is cleared
 /// either way, then the UI mode is set ( 31d87560 ). Returns whether the movie started.
-bool CX2Main::JuneStartClearMovie()
+bool CX2Main::StartClearMovie()
 {
 	bool bStarted = false;
 	BVL_STATUS eStatus = BVL_STATUS_CLOSED;
@@ -11845,7 +11845,7 @@ bool CX2Main::JuneStartClearMovie()
 		( BVL_STATUS_PLAYING == eStatus ) ? L"playing" : L"not playing: is the file in data\\movie\\ ? the skip button still ends it" );
 
 	m_wstrJuneClearMovieFileName = L"";
-	JuneSetClearMovieUIMode( bStarted );
+	SetClearMovieUIMode( bStarted );
 	return bStarted;
 }
 
@@ -11853,7 +11853,7 @@ bool CX2Main::JuneStartClearMovie()
 /// ( SetShowUI( true, true ) ) except in June states 7 / 8 ( PvP lobby / room ) and, in states 14 / 15 ( village; 15 is June's guild agit,
 /// none in March ), when there is no field game or an NPC is joined ( 323a91b0 = CX2TFieldGame::GetJoinNpc ). The dialog is deleted, the
 /// reserved complete request is sent ( 31d822b0 ), the state is reset ( 31d79960 ) and the UI mode cleared ( 31d87560( 0 ) ).
-void CX2Main::JuneStopClearMovie()
+void CX2Main::StopClearMovie()
 {
 	// June tests the dialog handle ( 31d41cd0 resolves it ); March holds a pointer, so the dialog manager is asked whether it still lives
 	if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovie ) )
@@ -11884,9 +11884,9 @@ void CX2Main::JuneStopClearMovie()
 
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE stop: reserved complete request for quest %d", m_kJuneReservedQuestComplete.m_iQuestID );
 
-	JuneSendReservedQuestComplete();
-	JuneResetClearMovieState();
-	JuneSetClearMovieUIMode( false );
+	SendReservedQuestComplete();
+	ResetClearMovieState();
+	SetClearMovieUIMode( false );
 	// June then runs the party manager's reserved request ( g_pData +0x5c -> 32438fa0: the dungeon-start request an intro movie parked,
 	// 32434710 ). March has no intro-movie park; that path is backlog Stage 26's ( june-movies ).
 }
@@ -11894,7 +11894,7 @@ void CX2Main::JuneStopClearMovie()
 /// June 31d822b0: a reserved request ( quest id != 0 ) goes out as ADMIN_QUEST_COMPLETE_REQ ( 0xf2, +0x842 then cleared ) or
 /// QUEST_COMPLETE_REQ ( 0xf0 ), and QUEST_COMPLETE_ACK ( 0xf1 ) is waited for with g_pMain +0x144's time-out. June then calls the
 /// profession manager ( 32396dc0 -> 3239d810( 1 ) ), which March does not have ( Stage 9 ).
-void CX2Main::JuneSendReservedQuestComplete()
+void CX2Main::SendReservedQuestComplete()
 {
 	if( 0 == m_kJuneReservedQuestComplete.m_iQuestID )
 		return;
@@ -11914,7 +11914,7 @@ void CX2Main::JuneSendReservedQuestComplete()
 /// June 31d87560( bool playing ): mode = playing ? 2 : 0 goes to the now state's vslot 0xb4 ( a no-op in June's field state 3208ddc0; the
 /// battle field 324bafc0 sends June event 0x3af ) and, with g_pX2Game and my unit, to its user ( 32044a80 = the busy emotion 0x11 shown over
 /// the head ). Both bodies are battle-field / game-side and belong to backlog Stage 26 ( june-movies ); March has neither, so this keeps June's call shape only.
-void CX2Main::JuneSetClearMovieUIMode( bool bPlaying_ )
+void CX2Main::SetClearMovieUIMode( bool bPlaying_ )
 {
 	const int iMode = ( true == bPlaying_ ) ? 2 : 0;
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE ui mode %d ( state %d; the battle-field notify and the user emotion are backlog Stage 26's )", iMode, (int)GetNowStateID() );
@@ -11923,7 +11923,7 @@ void CX2Main::JuneSetClearMovieUIMode( bool bPlaying_ )
 /// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419: while the movie dialog lives, its "DungeonClearMovie" static's movie 0 is
 /// asked for its status ( 31c936e0: Bandi GetStatus, vslot 0x38 ); READY ( 2 ) or PLAYEND ( 5 ) ends the movie ( 31d883a0 ).
 /// March's CMovieData::OnFrameMove stops a finished movie, which leaves it READY.
-void CX2Main::JuneCheckClearMovieEnd()
+void CX2Main::CheckClearMovieEnd()
 {
 	if( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovie ) )
 		return;
@@ -11941,16 +11941,16 @@ void CX2Main::JuneCheckClearMovieEnd()
 	if( BVL_STATUS_PLAYEND == eStatus || BVL_STATUS_READY == eStatus )
 	{
 		CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE end ( video status %d )", (int)eStatus );
-		JuneStopClearMovie();
+		StopClearMovie();
 	}
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 /// June 31d75b50 ( id ): the first row whose m_eMovieCategory ( +0x2c ) is the id, else NULL. June's 31d759e0 / 31d75a70 ( the row's movie
 /// texture name +0x30 / key +0x4c, L"" without a row ) and 31d76230 ( a copy of the row, false without one ) are the same walk.
-const CX2Main::JuneClearMovieTemplet* CX2Main::JuneGetClearMovieTemplet( int iMovieID_ ) const
+const CX2Main::ClearMovieTemplet* CX2Main::GetClearMovieTemplet( int iMovieID_ ) const
 {
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		if( iMovieID_ == it->m_eMovieCategory )
@@ -11960,7 +11960,7 @@ const CX2Main::JuneClearMovieTemplet* CX2Main::JuneGetClearMovieTemplet( int iMo
 }
 
 /// June 31d759a0 ( id ): is the id in the seen list ( +0x84c )
-bool CX2Main::JuneIsSeenClearMovie( int iMovieID_ ) const
+bool CX2Main::IsSeenClearMovie( int iMovieID_ ) const
 {
 	vector< std::pair<int, bool> >::const_iterator it;
 	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
@@ -11972,7 +11972,7 @@ bool CX2Main::JuneIsSeenClearMovie( int iMovieID_ ) const
 }
 
 /// June 31d75b80 ( id ): the first seen entry's bool ( true = not watched from the tab yet, the NewTexture mark ), false without one
-bool CX2Main::JuneIsNewClearMovie( int iMovieID_ ) const
+bool CX2Main::IsNewClearMovie( int iMovieID_ ) const
 {
 	vector< std::pair<int, bool> >::const_iterator it;
 	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
@@ -11984,7 +11984,7 @@ bool CX2Main::JuneIsNewClearMovie( int iMovieID_ ) const
 }
 
 /// June 31d75bb0 ( id, bool ): every seen entry with the id gets the bool ( the tab's play clears it, 323e408f )
-void CX2Main::JuneSetNewClearMovie( int iMovieID_, bool bNew_ )
+void CX2Main::SetNewClearMovie( int iMovieID_, bool bNew_ )
 {
 	vector< std::pair<int, bool> >::iterator it;
 	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
@@ -11995,9 +11995,9 @@ void CX2Main::JuneSetNewClearMovie( int iMovieID_, bool bNew_ )
 }
 
 /// June 31d75b00 ( id ): -1 without a row, else 1 when the row has a movie file ( +0x00 ) and 0 when it has none
-int CX2Main::JuneGetClearMovieFileState( int iMovieID_ ) const
+int CX2Main::GetClearMovieFileState( int iMovieID_ ) const
 {
-	const JuneClearMovieTemplet* pTemplet = JuneGetClearMovieTemplet( iMovieID_ );
+	const ClearMovieTemplet* pTemplet = GetClearMovieTemplet( iMovieID_ );
 	if( NULL == pTemplet )
 		return -1;
 	return ( false == pTemplet->m_wstrMovieFileName.empty() ) ? 1 : 0;
@@ -12005,9 +12005,9 @@ int CX2Main::JuneGetClearMovieFileState( int iMovieID_ ) const
 
 /// June 31d758c0 ( dungeon id, out id ): the rows in order, each row's m_eDungeonID list ( +0x1c ) in order; the first listed dungeon whose
 /// row has a movie file gives that row's m_eMovieCategory. A match in a row without a file is passed over and the walk goes on.
-bool CX2Main::JuneGetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const
+bool CX2Main::GetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const
 {
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		for( UINT i = 0; i < it->m_vecDungeonID.size(); ++i )
@@ -12024,17 +12024,17 @@ bool CX2Main::JuneGetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) co
 
 /// June 31d79ac0 ( the last call of CX2QuestManager::SetUnitQuest 32336e80, @323372ff ): with rows and the quest manager ( g_pData +0x4c ),
 /// every row whose m_iQuestID is a completed quest ( 32322260 ) adds its id to the seen list as watched ( 31d78bf0( id, false ) ).
-void CX2Main::JuneAddSeenClearMovieByQuest()
+void CX2Main::AddSeenClearMovieByQuest()
 {
 	if( true == m_vecJuneClearMovieTemplet.empty() || NULL == g_pData || NULL == g_pData->GetQuestManager() )
 		return;
 
 	const int iBefore = (int)m_vecJuneSeenClearMovie.size();
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		if( true == g_pData->GetQuestManager()->GetUnitCompleteQuest( it->m_iQuestID ) )
-			JuneAddSeenClearMovie( it->m_eMovieCategory, false );
+			AddSeenClearMovie( it->m_eMovieCategory, false );
 	}
 
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE seen list: %d added from completed quests ( %d seen )",
@@ -12043,7 +12043,7 @@ void CX2Main::JuneAddSeenClearMovieByQuest()
 
 /// June 324625b0 @32462657 ( CX2StateMenu::ProcessStateChangeUnitSelectWithOptionWindow ): the seen list is emptied on the way back to the
 /// character select; the next character's SetUnitQuest and CX2Unit::Reset fill it again.
-void CX2Main::JuneClearSeenClearMovie()
+void CX2Main::ClearSeenClearMovie()
 {
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE seen list cleared ( %d entries, character select )", (int)m_vecJuneSeenClearMovie.size() );
 	m_vecJuneSeenClearMovie.clear();
@@ -12051,11 +12051,11 @@ void CX2Main::JuneClearSeenClearMovie()
 
 /// June 31d884f0 ( id ): 31d79960 first; the first row whose m_eMovieCategory is the id gives the next movie ( its file into +0x80c ) and
 /// sets the playing flag ( +0x80a ); 31d880b0 then starts it either way. No complete request is reserved, so the stop sends nothing.
-void CX2Main::JunePlayClearMovieByID( int iMovieID_ )
+void CX2Main::PlayClearMovieByID( int iMovieID_ )
 {
-	JuneResetClearMovieState();
+	ResetClearMovieState();
 
-	vector<JuneClearMovieTemplet>::const_iterator it;
+	vector<ClearMovieTemplet>::const_iterator it;
 	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
 	{
 		if( iMovieID_ == it->m_eMovieCategory )
@@ -12068,7 +12068,7 @@ void CX2Main::JunePlayClearMovieByID( int iMovieID_ )
 
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab play %d: %s", iMovieID_,
 		( true == m_bJuneClearMoviePlaying ) ? m_wstrJuneClearMovieFileName.c_str() : L"no row" );
-	JuneStartClearMovie();
+	StartClearMovie();
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 void CX2Main::LoadLuaEnum()
@@ -17704,7 +17704,7 @@ void CX2Main::SetIsPlayingTutorial( bool bPlaying )
 
 	if( true == bPlaying && NULL != m_pKeyPad && false == m_bJuneTutorialKeyLatch )
 	{
-		m_pKeyPad->JuneApplyTutorialDefaultKeys();
+		m_pKeyPad->ApplyTutorialDefaultKeys();
 		m_bJuneTutorialKeyLatch = true;
 	}
 }
@@ -17712,11 +17712,11 @@ void CX2Main::SetIsPlayingTutorial( bool bPlaying )
 /// June 327d2160 (CX2DungeonGame::Release 327d2240 @327d23fb, when exiting the tutorial): restore the key map saved by
 /// 31f5e290 (31f5d4a0) and clear the latch. June restores whenever the key pad exists; here only while the latch is set,
 /// because March also raises m_bIsExitingTutorial on paths that never entered the tutorial (JUNE_BUGS.md).
-void CX2Main::JuneOnExitTutorialRestoreKeys()
+void CX2Main::OnExitTutorialRestoreKeys()
 {
 	if( NULL != m_pKeyPad && true == m_bJuneTutorialKeyLatch )
 	{
-		m_pKeyPad->JuneRestoreKeysAfterTutorial();
+		m_pKeyPad->RestoreKeysAfterTutorial();
 		m_bJuneTutorialKeyLatch = false;
 	}
 }
@@ -17724,16 +17724,16 @@ void CX2Main::JuneOnExitTutorialRestoreKeys()
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 // June 31d71810: may a class HUD guide show now ( guide 1-7; the id is only range-checked )
-bool CX2Main::JuneCanShowClassGuide( const int iGuide_ )
+bool CX2Main::CanShowClassGuide( const int iGuide_ )
 {
 	if( iGuide_ <= 0 || 7 < iGuide_ )
 		return true;
-	if( NULL != g_pData && true == g_pData->JuneIsEventScenePlaying() )
+	if( NULL != g_pData && true == g_pData->IsEventScenePlaying() )
 		return false;
 	if( XS_DUNGEON_GAME == GetNowStateID() && NULL != GetNowState() &&
 		true == static_cast<CX2StateDungeonGame*>( GetNowState() )->GetDungeonEndingEvent()->m_bStarted )
 		return false;
-	if( true == JuneIsClearMoviePlaying() )
+	if( true == IsClearMoviePlaying() )
 		return false;
 	if( XS_BATTLE_FIELD == GetNowStateID() && NULL != g_pInstanceData && NULL != g_pInstanceData->GetMiniMapUI() &&
 		NULL != g_pInstanceData->GetMiniMapUI()->GetWorldMapUI() && true == g_pInstanceData->GetMiniMapUI()->GetWorldMapUI()->GetShow() )

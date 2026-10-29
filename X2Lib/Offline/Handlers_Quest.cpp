@@ -345,7 +345,7 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 		1 == pTemplet->m_Reward.m_iChangeUnitClassTran );
 	if( true == bTranscendReward )
 	{
-		const int iTranscendErr = JuneTranscendCheck( kRow );
+		const int iTranscendErr = TranscendCheck( kRow );
 		if( NetError::NET_OK != iTranscendErr )
 		{
 			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE quest %d refused for unit %I64d class %d level %d: NetError %d",
@@ -604,13 +604,13 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 		CX2OfflineSkill::Instance()->Load( kRow.m_nUnitUID );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 		// June skill system S3: the new class's free tree rows for this level (June has no default list; Q1 stand-in).
-		CX2OfflineSkill::Instance()->SeedJuneAutoLearn( kRow.m_nUnitUID, iNewClass, kRow.m_iLevel );
+		CX2OfflineSkill::Instance()->SeedAutoLearn( kRow.m_nUnitUID, iNewClass, kRow.m_iLevel );
 #else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 		CX2OfflineSkill::Instance()->SeedDefaultSkills( kRow.m_nUnitUID, iNewClass );
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 		// June skill system S7: the new class's level-earned skills (stand-in grant), pushed now.
-		PushJuneSkillGrant( kSes, kRow.m_nUnitUID, iNewClass, kRow.m_iLevel, false, L"job change" );
+		PushSkillGrant( kSes, kRow.m_nUnitUID, iNewClass, kRow.m_iLevel, false, L"job change" );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 		bChangedJob = true;
@@ -696,7 +696,7 @@ void CX2OfflineServer::AfterQuestComplete( KOfflineSession& kSes )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	// June sends 0x596 after the completion ACK
 	if( true == bTranscended )
-		JuneSendTranscendNot( kSes, kRow.m_iTranscendence );
+		SendTranscendNot( kSes, kRow.m_iTranscendence );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	std::vector< KQuestInstance > vecQuestChanged;
@@ -1277,7 +1277,7 @@ namespace
 	/// STAND-IN ( not June's server ): the description string of each event type, from June's own General.ess
 	/// ( 30677-30689 ). Type 1 and 2 are the "keep attacking" and "boss damage" lines, 4 is the door line, 9 the MP line, 10-12
 	/// the "use [type] skills" line ( its first argument is the skill type's name, filled in by the client ).
-	int JuneRandomMissionDescStrID( int iEventType )
+	int RandomMissionDescStrID( int iEventType )
 	{
 		switch( iEventType )
 		{
@@ -1303,9 +1303,9 @@ namespace
 }
 
 /// 0x493 ( 32676870 ): the client reports a finished mission. June's server paid the reward here; this one does not.
-bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ kReq;
+	KEGS_RANDOM_MISSION_COMPLETE_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
@@ -1313,20 +1313,20 @@ bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( KOfflineSes
 		kReq.m_iMissionID );
 
 	// The ACK the client waits 10 s for ( 324c94d0 deletes the wait entry and checks the OK word ).
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK kAck;
+	KEGS_RANDOM_MISSION_COMPLETE_ACK kAck;
 	kAck.m_iOK = NetError::NET_OK;
-	return Reply( kSes, EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK, kAck );
+	return Reply( kSes, EGS_RANDOM_MISSION_COMPLETE_ACK, kAck );
 }
 
 /// 0x495 ( 322f0db0 ): Slash_rm( a, b, c ). STAND-IN reading ( user, 2026-10-19 ): a = event type 1-12, b = goal, c = time limit in
 /// seconds ( 0 = none ). The mission id counts up from 1; the description comes from the table above; the reward word is +10% EXP.
-bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ kReq;
+	KEGS_RANDOM_MISSION_CHEAT_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
-	const int iDescStrID = JuneRandomMissionDescStrID( kReq.m_iA );
+	const int iDescStrID = RandomMissionDescStrID( kReq.m_iA );
 	if( iDescStrID < 0 || kReq.m_iB < 1 )
 	{
 		CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu cheat refused: a = %d ( event type, 1-12 ), b = %d ( goal, 1 or more ), c = %d ( seconds )",
@@ -1336,7 +1336,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSessio
 
 	static int s_iNextMissionID = 1;
 
-	KEGS_JUNE_RANDOM_MISSION_NOT kNot;
+	KEGS_RANDOM_MISSION_NOT kNot;
 	kNot.m_iMissionID		= s_iNextMissionID++;
 	kNot.m_iEventType		= kReq.m_iA;
 	kNot.m_iGoal			= kReq.m_iB;
@@ -1348,13 +1348,13 @@ bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSessio
 	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu cheat ( stand-in reading ): mission %d type %d goal %d seconds %d desc STR %d reward +%d%% EXP",
 		kNot.m_iMissionID, kNot.m_iEventType, kNot.m_iGoal, kNot.m_iSeconds, kNot.m_iDescStrID, kNot.m_iRewardExpRate );
 
-	return Reply( kSes, EGS_JUNE_RANDOM_MISSION_NOT, kNot );
+	return Reply( kSes, EGS_RANDOM_MISSION_NOT, kNot );
 }
 
 /// 0x496 ( 322f0e00 ): Slash_rmexp( n ) - n EXP to the character, through the same path every other EXP grant uses.
-bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ kReq;
+	KEGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
@@ -1373,9 +1373,9 @@ bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOf
 }
 
 /// 0x497 ( 322f0e30 ): Slash_rmbuff( n ) - buff n through the emulator's buff path ( CX2OfflineBuff, BuffTemplet.lua ).
-bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ kReq;
+	KEGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
@@ -1408,7 +1408,7 @@ static const int s_iJuneErrTranscendCannot		= 1726;
 
 /// June's server decides who may transcend; here the conditions are T0's ( a second job class 100-199 at level 70 or more, not yet transcended ) and then
 /// a labelled stand-in allow-list ( user, 2026-10-22 ): Aisha's EM ( 104 ), VP ( 105 ) and DW ( 113 ); each class port adds its class.
-int CX2OfflineServer::JuneTranscendCheck( const KOfflineUnitRow& kRow ) const
+int CX2OfflineServer::TranscendCheck( const KOfflineUnitRow& kRow ) const
 {
 	if( 0 != kRow.m_iTranscendence )
 		return s_iJuneErrTranscendAlready;
@@ -1429,7 +1429,7 @@ int CX2OfflineServer::JuneTranscendCheck( const KOfflineUnitRow& kRow ) const
 }
 
 /// June 0x596: two ints, the first is June's server value ( unknown, 0 ), the second the unit's new flag.
-void CX2OfflineServer::JuneSendTranscendNot( KOfflineSession& kSes, int iUnitClassTran )
+void CX2OfflineServer::SendTranscendNot( KOfflineSession& kSes, int iUnitClassTran )
 {
 	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT kNot;
 	kNot.m_iJuneUnread		= 0;
@@ -1462,7 +1462,7 @@ bool CX2OfflineServer::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOffli
 
 	if( 1 == iValue )
 	{
-		kAck.m_iOK = JuneTranscendCheck( kRow );
+		kAck.m_iOK = TranscendCheck( kRow );
 		if( NetError::NET_OK != kAck.m_iOK )
 		{
 			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE /tc %d refused for unit %I64d class %d level %d: NetError %d",
@@ -1476,7 +1476,7 @@ bool CX2OfflineServer::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOffli
 		kReq.m_iValue, (__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, kRow.m_iTranscendence, iValue );
 
 	Reply( kSes, EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK, kAck );
-	JuneSendTranscendNot( kSes, iValue );
+	SendTranscendNot( kSes, iValue );
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE

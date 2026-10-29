@@ -785,9 +785,9 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 	/// Q5b. June 323cb2e0( quest, mode ): mode 0 the start scene, 1 the end scene ( + every additional scene quest's ), 2 both. 323cb190 is the row lookup.
-	void		JunePlayQuestScene( int iQuestID, int iMode );
+	void		PlayQuestScene( int iQuestID, int iMode );
 	/// Q5b. June StateChange 31d88bf0 @31d896bd..31d896fb: the scene NEW_QUEST_NOT deferred in state 5.
-	static void	JunePlayDeferredQuestScene();
+	static void	PlayDeferredQuestScene();
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 	void UpdateQuestMonster();
 private:
@@ -806,7 +806,7 @@ private:
 	bool GetIsValidDayTheWeekQuest( int iQuestID_ ) ;
 #endif //DAY_OF_THE_WEEK_QUEST
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
-	// June quest system Phase Q5a: June's quest window ( X2UIQuestNewJune.cpp ). June offsets in the comments ( 323d0ca0 ctor ).
+	// June quest system Phase Q5a: June's quest window. June offsets in the comments ( 323d0ca0 ctor ).
 	CKTDGUIButton*		m_pButtonSkipEpicQuest;			// +0x1c4 Button_Skip_Epic_Quest of the detail window
 	vector<QuestInfo>	m_vecOnGoingGuildQuestInfo;		// +0x488
 	vector<QuestInfo>	m_vecOnGoingStoryQuestInfo;		// +0x498
@@ -818,45 +818,28 @@ private:
 	int					m_iCompleteStoryCategory;		// +0x760
 	int					m_iOngoingStoryCategory;		// +0x764
 
-	void	JuneInitMembers();
-	void	JuneSetNowQuestUIMode( QUEST_UI_MODE eMode );
-	void	JuneReturnToQuestListUI();
-	QUEST_UI_MODE	JuneDetermineUIModeWithTabPriority();
-	QUEST_TYPE_SORT	JuneConvertToQuestTypeSort( int iQuestType );
-	REPEAT_TYPE_SORT	JuneConvertToRepeatTypeSort( int iQuestRepeatType );
-	int		JuneGetQuestPictureNumber( QUEST_TYPE_SORT eTypeSort, REPEAT_TYPE_SORT eRepeatSort );
-	wstring	JuneGetNPCFaceTextureKey( int iNpcID );
-	bool	JuneGetUnitQuest( std::vector<int>& vecQuestID );
-	bool	JuneGetCompleteQuestOfType( std::vector<int>& vecQuestID, int iQuestType );
-	bool	JuneIsQuestStartable( int iQuestID );
-	void	JuneAddFirstStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
-	void	JuneAddNextStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
-	void	JuneSetOpenStoryCategory();
-	void	JuneUpdateAvailQuestInfo( CX2UnitManager::NPC_UNIT_ID eNPCID = CX2UnitManager::NUI_NONE );
-	void	JuneUpdateOngoingQuestInfo();
-	void	JuneFillQuestSlots();
-	void	JuneResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool bIgnoreTabPriority );
-	void	JuneResetQuestList( QUEST_UI_MODE eQuestUIMode );
-	void	JuneSetUIQuestSlotInfoToCategory( UINT iQuestSlotInfoIndex, QuestInfo& kQuestInfo );
-	void	JuneUpdateUIQuestSlotInfo( UINT iQuestSlotInfoIndex, QuestInfo& kQuestInfo );
-	void	JuneUpdateQuestButton();
-	void	JuneUpdateDetailQuestTitle();
-	bool	JuneHandler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-	void	JuneSelectTab( QUEST_UI_MODE eMode );
-	void	JuneOpenSkipEpicMsgBox();
-	void	JuneSkipEpicQuestOk();
-	void	JuneHideMovieTab();
+	void	InitMembers();
+	bool	GetCompleteQuestOfType( std::vector<int>& vecQuestID, int iQuestType );
+	bool	IsQuestStartable( int iQuestID );
+	void	AddFirstStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
+	void	AddNextStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
+	void	SetOpenStoryCategory();
+	void	FillQuestSlots();
+	void	SelectTab( QUEST_UI_MODE eMode );
+	void	OpenSkipEpicMsgBox();
+	void	SkipEpicQuestOk();
+	void	HideMovieTab();
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	// quest-system Q8b: the Video tab ( RadioButton_Movie )
 	int		m_iJuneMovieStartID;		// +0x770: the movie id shown in Button_Movie_1 ( 1, 4, 7, ... )
 	bool	m_bJuneMovieTab;			// +0x774: the Video tab is open ( ResetQuestUI then does nothing )
 	int		m_iJuneMovieCount;			// +0x778: movie table rows ( ctor 323d1664 )
 	int		m_iJuneMovieNaviStep;		// +0x77c: rows of three, rounded up ( ctor 323d1684 )
-	bool	JuneOpenMovieTab();
-	void	JuneUpdateMovieList( bool bUpdateNavi );
-	wstring	JuneGetMovieLockDesc( int iMovieID );
-	void	JunePlayMovieFromTab( CKTDGUIControl* pButton );
-	void	JuneMarkMovieButton( CKTDGUIControl* pButton, bool bFront );
+	bool	OpenMovieTab();
+	void	UpdateMovieList( bool bUpdateNavi );
+	wstring	GetMovieLockDesc( int iMovieID );
+	void	PlayMovieFromTab( CKTDGUIControl* pButton );
+	void	MarkMovieButton( CKTDGUIControl* pButton, bool bFront );
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 };

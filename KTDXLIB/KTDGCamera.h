@@ -328,9 +328,9 @@ class CKTDGCamera
 		float	m_fRollTrack;			// June +0x84: the roll rate, ( target - roll ) / Time, set by SetTracking
 		bool	m_bLinearTrack;			// June +0x90: SetTracking's 9th argument; UpdateCamera steps the tracking by +0x94, not dt
 		float	m_fLinearTrackTime;		// June +0x94: the step time for the linear tracking, consumed ( set to 0 ) by UpdateCamera
-		void	JuneApplyViewRoll();
+		void	ApplyViewRoll();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
-		void	JuneCamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime );
+		void	CamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime );
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 

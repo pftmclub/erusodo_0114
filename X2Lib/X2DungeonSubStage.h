@@ -453,8 +453,8 @@ class CX2DungeonSubStage
 		bool				GetDoneClearSubStage() const { return m_bDoneClearSubStage; }
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		/// June sub-stage +0x48: the clear type of the clear in progress, 5 when none (see SetJuneClearType)
-		int					GetJuneClearType() const { return m_iJuneClearType; }
-		void				SetJuneClearType( const int iClearType_, const char* szSite_ );
+		int					GetClearType() const { return m_iJuneClearType; }
+		void				SetClearType( const int iClearType_, const char* szSite_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 
 

@@ -62,7 +62,7 @@ namespace
 	const int					JUNE_GFX_SDK_LOG_CAP	= 300;
 #endif SERV_IRUHADEV_JUNE_GFX_DEBUG
 
-	void JuneGfxLogLine( const std::string& strLine )
+	void GfxLogLine( const std::string& strLine )
 	{
 		if ( s_bJuneGfxLogInit == false )
 		{
@@ -81,17 +81,17 @@ namespace
 		LeaveCriticalSection( &s_csJuneGfxLog );
 	}
 
-	void JuneGfxLog( const char* szFormat, ... )
+	void GfxLog( const char* szFormat, ... )
 	{
 		char szBuf[2048] = { 0, };
 		va_list args;
 		va_start( args, szFormat );
 		_vsnprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, szFormat, args );
 		va_end( args );
-		JuneGfxLogLine( std::string( "[JUNE_GFX] MGR " ) + szBuf );
+		GfxLogLine( std::string( "[JUNE_GFX] MGR " ) + szBuf );
 	}
 
-	std::string JuneGfxToUTF8( const wchar_t* wsz )
+	std::string GfxToUTF8( const wchar_t* wsz )
 	{
 		if ( wsz == NULL || wsz[0] == 0 )
 			return std::string();
@@ -102,7 +102,7 @@ namespace
 		return str;
 	}
 
-	std::wstring JuneGfxFromUTF8( const char* sz )
+	std::wstring GfxFromUTF8( const char* sz )
 	{
 		if ( sz == NULL || sz[0] == 0 )
 			return std::wstring();
@@ -115,7 +115,7 @@ namespace
 
 	// June reads its .gfx / fontconfig.font out of the koms through the mass-file map only ( r3dGFXFileOpener 31c47a00 -> 31c4c170,
 	// ConfigParser 31d22280 -> 31c4c3d0, fontlib check 31c4bcb0 ); KGCMassFileManager::LoadDataFile_MassFileOnly is that lookup.
-	bool JuneGfxLoadFromKom( const std::wstring& wstrName, std::vector< unsigned char >& vecOut )
+	bool GfxLoadFromKom( const std::wstring& wstrName, std::vector< unsigned char >& vecOut )
 	{
 		vecOut.clear();
 		if ( g_pKTDXApp == NULL || g_pKTDXApp->GetDeviceManager() == NULL )
@@ -149,7 +149,7 @@ public:
 			std::string strLine( szBuf );
 			while ( strLine.empty() == false && ( strLine[ strLine.size() - 1 ] == '\n' || strLine[ strLine.size() - 1 ] == '\r' ) )
 				strLine.erase( strLine.size() - 1 );
-			JuneGfxLogLine( std::string( "[JUNE_GFX] MGR gfx: " ) + strLine );
+			GfxLogLine( std::string( "[JUNE_GFX] MGR gfx: " ) + strLine );
 		}
 #endif SERV_IRUHADEV_JUNE_GFX_DEBUG
 	}
@@ -161,20 +161,20 @@ public:
 // March's GetMemberFile does its own formats ). A miss, or an empty member, goes to the SDK FileOpener::OpenFile ( 33087ed0 ): SysFile on
 // disk with the url as given. That is how the loose eventscene\X.swf ( GetPullPath full paths ) open.
 // ---------------------------------------------------------------------------------------------------------------------------------------
-class JuneGfxKomFileBuffer
+class GfxKomFileBuffer
 {
 protected:
-	explicit JuneGfxKomFileBuffer( std::vector< unsigned char >& vecData ) { m_vecData.swap( vecData ); }
+	explicit GfxKomFileBuffer( std::vector< unsigned char >& vecData ) { m_vecData.swap( vecData ); }
 	std::vector< unsigned char >	m_vecData;
 };
 
 // MemoryFile neither copies nor owns its buffer: the buffer base is declared first, so it is built ( and holds the kom bytes ) before
 // MemoryFile is handed their address
-class JuneGfxKomFile : protected JuneGfxKomFileBuffer, public SF::MemoryFile
+class GfxKomFile : protected GfxKomFileBuffer, public SF::MemoryFile
 {
 public:
-	JuneGfxKomFile( const char* szURL, std::vector< unsigned char >& vecData )
-		: JuneGfxKomFileBuffer( vecData ), SF::MemoryFile( szURL, &m_vecData[0], (int)m_vecData.size() )
+	GfxKomFile( const char* szURL, std::vector< unsigned char >& vecData )
+		: GfxKomFileBuffer( vecData ), SF::MemoryFile( szURL, &m_vecData[0], (int)m_vecData.size() )
 	{
 	}
 };
@@ -184,12 +184,12 @@ class r3dGFXFileOpener : public SFG::FileOpener
 public:
 	virtual SF::File* OpenFile( const char* purl, int flags, int modes )
 	{
-		std::wstring wstrName = JuneGfxFromUTF8( purl );
+		std::wstring wstrName = GfxFromUTF8( purl );
 		std::transform( wstrName.begin(), wstrName.end(), wstrName.begin(), towlower );
 
 		std::vector< unsigned char > vecData;
-		if ( JuneGfxLoadFromKom( wstrName, vecData ) == true && vecData.empty() == false )
-			return new JuneGfxKomFile( purl, vecData );
+		if ( GfxLoadFromKom( wstrName, vecData ) == true && vecData.empty() == false )
+			return new GfxKomFile( purl, vecData );
 
 		return SFG::FileOpener::OpenFile( purl, flags, modes );
 	}
@@ -269,7 +269,7 @@ public:
 	int									m_iMapCount;
 };
 
-class JuneGfxConfigParser
+class GfxConfigParser
 {
 public:
 	enum TOKEN_TYPE { TT_ERROR = 0, TT_EOL = 1, TT_EOF = 2, TT_CHAR = 3, TT_STRING = 4, TT_IDENT = 5, TT_NUMBER = 6 };
@@ -282,10 +282,10 @@ public:
 	};
 
 	// 31d22280: the file comes from the koms ( 31c4c3d0 ); UTF-16 LE / BE by BOM, UTF-8 BOM skipped, else read as UTF-8
-	explicit JuneGfxConfigParser( const char* szFileName ) : m_uPos( 0 ), m_iLine( 1 ), m_iErrorIndex( -1 ), m_iTokenLine( 1 )
+	explicit GfxConfigParser( const char* szFileName ) : m_uPos( 0 ), m_iLine( 1 ), m_iErrorIndex( -1 ), m_iTokenLine( 1 )
 	{
 		std::vector< unsigned char > vecData;
-		if ( JuneGfxLoadFromKom( JuneGfxFromUTF8( szFileName ), vecData ) == false || vecData.empty() == true )
+		if ( GfxLoadFromKom( GfxFromUTF8( szFileName ), vecData ) == false || vecData.empty() == true )
 			return;
 		if ( vecData.size() >= 2 && vecData[0] == 0xff && vecData[1] == 0xfe )
 		{
@@ -305,7 +305,7 @@ public:
 		{
 			size_t uSkip = ( vecData.size() >= 3 && vecData[0] == 0xef && vecData[1] == 0xbb && vecData[2] == 0xbf ) ? 3 : 0;
 			std::string strUTF8( (const char*)&vecData[ uSkip ], vecData.size() - uSkip );
-			m_wstrText = JuneGfxFromUTF8( strUTF8.c_str() );
+			m_wstrText = GfxFromUTF8( strUTF8.c_str() );
 		}
 	}
 
@@ -372,7 +372,7 @@ public:
 				if ( kToken.eType != TT_NUMBER )
 					return false;
 				if ( pfNumber != NULL )
-					*pfNumber = (float)atof( JuneGfxToUTF8( m_wstrText.substr( kToken.uStart, kToken.uLen ).c_str() ).c_str() );
+					*pfNumber = (float)atof( GfxToUTF8( m_wstrText.substr( kToken.uStart, kToken.uLen ).c_str() ).c_str() );
 			}
 			// any other letter: the token is skipped ( 31d22220 )
 			if ( *p == 0 )
@@ -528,14 +528,14 @@ public:
 		else if ( _wcsicmp( wstrStyle.c_str(), L"noautofit" ) == 0 )	uFlag = 0x20;
 		else
 		{
-			JuneGfxLog( "Warning: FontConfig(%d) - unknown map font style '%s'", iLine, JuneGfxToUTF8( wstrStyle.c_str() ).c_str() );
+			GfxLog( "Warning: FontConfig(%d) - unknown map font style '%s'", iLine, GfxToUTF8( wstrStyle.c_str() ).c_str() );
 			return uPrev;
 		}
 		if ( uPrev == 0x10 )
 			return uFlag;
 		if ( ( uPrev == 0 && ( uFlag & 3 ) != 0 ) || ( uFlag == 0 && ( uPrev & 3 ) != 0 ) )
 		{
-			JuneGfxLog( "Warning: FontConfig(%d) - unexpected map font style '%s'", iLine, JuneGfxToUTF8( wstrStyle.c_str() ).c_str() );
+			GfxLog( "Warning: FontConfig(%d) - unexpected map font style '%s'", iLine, GfxToUTF8( wstrStyle.c_str() ).c_str() );
 			return uPrev;
 		}
 		return uPrev | uFlag;
@@ -550,7 +550,7 @@ public:
 	}
 
 	// 31d227e0 ( June's errors go to stderr; here they are log lines )
-	void Parse( JuneGfxConfigParser& kParser )
+	void Parse( GfxConfigParser& kParser )
 	{
 		m_vecConfigs.clear();
 		if ( kParser.HasData() == false )
@@ -562,7 +562,7 @@ public:
 		{
 			if ( kParser.GetErrorIndex() != -1 )
 			{
-				JuneGfxLog( "Error: FontConfig(%d) - %s", kParser.GetLine(), kParser.GetErrorText() );
+				GfxLog( "Error: FontConfig(%d) - %s", kParser.GetLine(), kParser.GetErrorText() );
 				break;
 			}
 			if ( kParser.Match( L"[%i]", L"FontConfig" ) == true )
@@ -579,7 +579,7 @@ public:
 				continue;
 			if ( m_vecConfigs.empty() == true )
 			{
-				JuneGfxLog( "Error: FontConfig(%d) - file mappings outside of [FontConfig] section", kParser.GetLine() );
+				GfxLog( "Error: FontConfig(%d) - file mappings outside of [FontConfig] section", kParser.GetLine() );
 				break;
 			}
 			FontConfig* pConfig = m_vecConfigs.back();
@@ -597,12 +597,12 @@ public:
 			else if ( kParser.Match( L"%i%s=%s%I%I%n", L"map", &a, &b, &c, &d, &fScale ) == true )
 				AddMap( pConfig, a, b, ParseStyle( ParseStyle( 0x10, c, kParser.GetLine() ), d, kParser.GetLine() ), fScale );
 			else if ( kParser.Match( L"%i%s", L"fontlib", &a ) == true )
-				pConfig->m_vecFontLibFiles.push_back( JuneGfxToUTF8( a.c_str() ) );	// parser +0x18 path prefix: empty for a kom file name
+				pConfig->m_vecFontLibFiles.push_back( GfxToUTF8( a.c_str() ) );	// parser +0x18 path prefix: empty for a kom file name
 			else if ( kParser.Match( L"%i%s=%s", L"tr", &a, &b ) == true )
 				pConfig->m_pTranslator->AddTranslation( a, b );
 			else
 			{
-				JuneGfxLog( "Error: FontConfig(%d) - unexpected statement", kParser.GetLine() );
+				GfxLog( "Error: FontConfig(%d) - unexpected statement", kParser.GetLine() );
 				break;
 			}
 		}
@@ -617,10 +617,10 @@ public:
 // AddListener is 31d1f690. The manager's own listener ( mgr +4, name "GFXManager", 31c48570 ) is callback 31c45ed0. Stage 9's screens
 // add theirs to the same map.
 // ---------------------------------------------------------------------------------------------------------------------------------------
-class IJuneGfxListener
+class IGfxListener
 {
 public:
-	virtual ~IJuneGfxListener() {}
+	virtual ~IGfxListener() {}
 	virtual std::string	GetListenerName() const = 0;
 	virtual bool		OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount ) = 0;
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
@@ -642,7 +642,7 @@ public:
 // The two value objects the event scene registers: "EventScene.nextScene" ( vtable 33471e28, GetValue 31fc76f0 = Null ) and
 // "EventScene.bExactFit" ( vtable 334c9084, GetValue 32948f70 = Boolean at +8 ).
 // ---------------------------------------------------------------------------------------------------------------------------------------
-enum JUNE_GFX_BINDING_KIND
+enum GFX_BINDING_KIND
 {
 	JGBK_TRIGGER	= 0,
 	JGBK_BOOL		= 1,
@@ -655,53 +655,53 @@ enum JUNE_GFX_BINDING_KIND
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 };
 
-struct KJuneGfxBindingObserver
+struct KGfxBindingObserver
 {
 	SFG::Value	m_kClosure;		// record +0x00: the Value the notify invokes
 	SFG::Value	m_kExtra;		// record +0x18: compared on delete only
 };
 
-struct KJuneGfxBinding
+struct KGfxBinding
 {
 	int			m_iKind;
 	bool		m_bValue;
-	std::vector< KJuneGfxBindingObserver >	m_vecObserver;
+	std::vector< KGfxBindingObserver >	m_vecObserver;
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
-	KJuneGfxResultInfo	m_kResultInfo;		// R1: the 0x88 B value object
-	KJuneGfxResultItem	m_kResultItem;		// R1: the 0x40 B value object
+	KGfxResultInfo	m_kResultInfo;		// R1: the 0x88 B value object
+	KGfxResultItem	m_kResultItem;		// R1: the 0x40 B value object
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	int			m_iWidgetID;		// value object +8
 	std::string	m_strFileName;		// +0xc
 	int			m_iParameter1;		// +0x28
 	int			m_iParameter2;		// +0x2c
-	KJuneGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ), m_iWidgetID( 0 ), m_iParameter1( 0 ), m_iParameter2( 0 ) {}
+	KGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ), m_iWidgetID( 0 ), m_iParameter1( 0 ), m_iParameter2( 0 ) {}
 #else SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
-	KJuneGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ) {}
+	KGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ) {}
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 };
 
 // The link a native function keeps to its owner: the movie can outlive the C++ object that registered the function, a late call is dropped
-class CJuneGfxOwnerLink : public SF::RefCountBase< CJuneGfxOwnerLink, SF::Stat_Default_Mem >
+class CGfxOwnerLink : public SF::RefCountBase< CGfxOwnerLink, SF::Stat_Default_Mem >
 {
 public:
-	explicit CJuneGfxOwnerLink( void* pOwner ) : m_pOwner( pOwner ) {}
+	explicit CGfxOwnerLink( void* pOwner ) : m_pOwner( pOwner ) {}
 	void*	m_pOwner;
 };
 
 // June's 0xc B function objects ( vtable 3344ded0 / 33531fc8, Call 32eee800 ): the Params go to a plain function with the owner
-class CJuneGfxFunctionHandler : public SFG::FunctionHandler
+class CGfxFunctionHandler : public SFG::FunctionHandler
 {
 public:
 	typedef void ( *PFN_CALLBACK )( void* pOwner, int iID, const SFG::FunctionHandler::Params& kParams );
-	CJuneGfxFunctionHandler( CJuneGfxOwnerLink* pLink, PFN_CALLBACK pfn, int iID ) : m_pLink( pLink ), m_pfn( pfn ), m_iID( iID ) {}
+	CGfxFunctionHandler( CGfxOwnerLink* pLink, PFN_CALLBACK pfn, int iID ) : m_pLink( pLink ), m_pfn( pfn ), m_iID( iID ) {}
 	virtual void Call( const Params& kParams )
 	{
 		if ( m_pLink && m_pLink->m_pOwner != NULL && m_pfn != NULL )
 			m_pfn( m_pLink->m_pOwner, m_iID, kParams );
 	}
 private:
-	SF::Ptr< CJuneGfxOwnerLink >	m_pLink;
+	SF::Ptr< CGfxOwnerLink >	m_pLink;
 	PFN_CALLBACK					m_pfn;
 	int								m_iID;
 };
@@ -725,13 +725,13 @@ public:
 			return;
 		}
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
-		for ( std::map< std::string, IJuneGfxListener* >::iterator it = m_mapListener.begin(); it != m_mapListener.end(); ++it )
+		for ( std::map< std::string, IGfxListener* >::iterator it = m_mapListener.begin(); it != m_mapListener.end(); ++it )
 		{
 			if ( it->second != NULL && it->second->OnExternalCall( pmovieView, methodName, args, argCount ) == true )
 				break;
 		}
 	}
-	void AddListener( IJuneGfxListener* pListener )
+	void AddListener( IGfxListener* pListener )
 	{
 		if ( pListener == NULL )
 			return;
@@ -739,9 +739,9 @@ public:
 	}
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
-	CLIKDataBindingAdapter() : m_pOwnerLink( *new CJuneGfxOwnerLink( this ) ), m_pMovie( NULL ) {}
+	CLIKDataBindingAdapter() : m_pOwnerLink( *new CGfxOwnerLink( this ) ), m_pMovie( NULL ) {}
 #else SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
-	CLIKDataBindingAdapter() : m_pOwnerLink( *new CJuneGfxOwnerLink( this ) ) {}
+	CLIKDataBindingAdapter() : m_pOwnerLink( *new CGfxOwnerLink( this ) ) {}
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	~CLIKDataBindingAdapter() { m_pOwnerLink->m_pOwner = NULL; }
 
@@ -752,7 +752,7 @@ public:
 	// 31fc75e0: the playSimpleWidget value object's four fields ( id +8, fileName +0xc, parameter1 +0x28, parameter2 +0x2c )
 	void SetBindingWidget( const std::string& strName, int iWidgetID, const char* szFileName, int iParameter1, int iParameter2 )
 	{
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( strName );
 		if ( it == m_mapBinding.end() )
 			return;
 		it->second.m_iWidgetID		= iWidgetID;
@@ -769,7 +769,7 @@ public:
 
 	void AddBinding( const std::string& strName, int iKind )	// 31d1f900: the table takes a fresh record for the name
 	{
-		KJuneGfxBinding kBinding;
+		KGfxBinding kBinding;
 		kBinding.m_iKind = iKind;
 		m_mapBinding[ strName ] = kBinding;
 	}
@@ -783,20 +783,20 @@ public:
 	}
 	void SetBindingBool( const std::string& strName, bool bValue )		// the bool value object's +8 ( 32e59900 @32e59a8a )
 	{
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( strName );
 		if ( it != m_mapBinding.end() )
 			it->second.m_bValue = bValue;
 	}
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
-	void SetBindingResultInfo( const std::string& strName, const KJuneGfxResultInfo& kInfo )	// 32eeae30: the 0x88 B value object
+	void SetBindingResultInfo( const std::string& strName, const KGfxResultInfo& kInfo )	// 32eeae30: the 0x88 B value object
 	{
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( strName );
 		if ( it != m_mapBinding.end() )
 			it->second.m_kResultInfo = kInfo;
 	}
-	void SetBindingResultItem( const std::string& strName, const KJuneGfxResultItem& kItem )	// 32eea6a0: the 0x40 B value object
+	void SetBindingResultItem( const std::string& strName, const KGfxResultItem& kItem )	// 32eea6a0: the 0x40 B value object
 	{
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( strName );
 		if ( it != m_mapBinding.end() )
 			it->second.m_kResultItem = kItem;
 	}
@@ -808,7 +808,7 @@ public:
 	// 31d1ee10 + 31d1ec40. June walks the live vector; a copy is walked here so an AS callback that deletes its binding cannot invalidate it.
 	void NotifyBinding( const std::string& strName )
 	{
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( strName );
 		if ( it == m_mapBinding.end() )
 			return;
 		SFG::Value kValue;
@@ -826,7 +826,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		else
 			kValue.SetNull();
-		std::vector< KJuneGfxBindingObserver > vecObserver = it->second.m_vecObserver;
+		std::vector< KGfxBindingObserver > vecObserver = it->second.m_vecObserver;
 		for ( size_t i = 0; i < vecObserver.size(); ++i )
 		{
 			if ( vecObserver[i].m_kClosure.IsClosure() )
@@ -835,15 +835,15 @@ public:
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 private:
-	std::map< std::string, IJuneGfxListener* >	m_mapListener;	// +0x18
+	std::map< std::string, IGfxListener* >	m_mapListener;	// +0x18
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
-	std::map< std::string, KJuneGfxBinding >	m_mapBinding;	// +0xc
-	SF::Ptr< CJuneGfxOwnerLink >				m_pOwnerLink;
+	std::map< std::string, KGfxBinding >	m_mapBinding;	// +0xc
+	SF::Ptr< CGfxOwnerLink >				m_pOwnerLink;
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	SFG::Movie*									m_pMovie;		// +0x10 ( not owned: the wrapper clears it before its movie goes )
 
 	// GetValue 31fc7720( movie, out ): only with a movie ( June's "if param_2 != 0" ): a new object with widgetID, fileName, parameter1, parameter2
-	void BuildWidgetValue( const KJuneGfxBinding& kBinding, SFG::Value* pValue )
+	void BuildWidgetValue( const KGfxBinding& kBinding, SFG::Value* pValue )
 	{
 		if ( m_pMovie == NULL )
 			return;
@@ -857,7 +857,7 @@ private:
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	// GetValue 32eeb1d0 ( DW_DUNGEON_RESULT_VALUE ): only with a movie. Types as June sets them: UInt 4, Number 5, Boolean 2, StringW 7.
-	void BuildResultInfoValue( const KJuneGfxResultInfo& kInfo, SFG::Value* pValue )
+	void BuildResultInfoValue( const KGfxResultInfo& kInfo, SFG::Value* pValue )
 	{
 		if ( m_pMovie == NULL )
 			return;
@@ -884,10 +884,10 @@ private:
 		// 32eeb1d0 @32eeba5f..: category_<rank><category> and its four siblings, ranks in the list's order
 		for ( size_t i = 0; i < kInfo.m_vecCategory.size(); ++i )
 		{
-			const std::vector< KJuneGfxResultEntry >& vecEntry = kInfo.m_vecCategory[ i ];
+			const std::vector< KGfxResultEntry >& vecEntry = kInfo.m_vecCategory[ i ];
 			for ( size_t j = 0; j < vecEntry.size(); ++j )
 			{
-				const KJuneGfxResultEntry& kEntry = vecEntry[ j ];
+				const KGfxResultEntry& kEntry = vecEntry[ j ];
 				char szName[ 260 ] = { 0, };
 				sprintf_s( szName, sizeof( szName ), "category_%d%d", (int)j, (int)i );
 				pValue->SetMember( szName, SFG::Value( (SF::UInt32)kEntry.m_iCategory ) );
@@ -922,7 +922,7 @@ private:
 	}
 
 	// GetValue 32eeaff0: { itemID, iconPath, iNum }
-	void BuildResultItemValue( const KJuneGfxResultItem& kItem, SFG::Value* pValue )
+	void BuildResultItemValue( const KGfxResultItem& kItem, SFG::Value* pValue )
 	{
 		if ( m_pMovie == NULL )
 			return;
@@ -936,7 +936,7 @@ private:
 	// the table 3344de9c: ( name, native function ) pairs, set on the object dataBindingInit hands over
 	void AttachBindingFunction( SFG::Movie* pMovie, SFG::Value& kObject, const char* szName, int iID )
 	{
-		SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pOwnerLink.GetPtr(), &CLIKDataBindingAdapter::OnBindingFunction, iID );
+		SF::Ptr< CGfxFunctionHandler > pHandler = *new CGfxFunctionHandler( m_pOwnerLink.GetPtr(), &CLIKDataBindingAdapter::OnBindingFunction, iID );
 		SFG::Value kFunction;
 		pMovie->CreateFunction( &kFunction, pHandler );
 		kObject.SetMember( szName, kFunction );
@@ -956,17 +956,17 @@ private:
 	{
 		if ( kParams.ArgCount < 3 || kParams.pArgs == NULL || kParams.pArgs[0].IsString() == false )
 			return;
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
 		if ( it == m_mapBinding.end() )
 			return;
-		KJuneGfxBindingObserver kObserver;
+		KGfxBindingObserver kObserver;
 		kObserver.m_kClosure	= kParams.pArgs[1];
 		kObserver.m_kExtra		= kParams.pArgs[2];
 		it->second.m_vecObserver.push_back( kObserver );
 		// 31d1ed90: the listeners are told the name; the scene's ( 32e597d0 ) and the manager's answer false, so nothing follows from it
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		const std::string strBindingName = kParams.pArgs[0].GetString();
-		for ( std::map< std::string, IJuneGfxListener* >::iterator itL = m_mapListener.begin(); itL != m_mapListener.end(); ++itL )
+		for ( std::map< std::string, IGfxListener* >::iterator itL = m_mapListener.begin(); itL != m_mapListener.end(); ++itL )
 		{
 			if ( itL->second != NULL && itL->second->OnBindingCreated( strBindingName ) == true )
 				break;
@@ -979,10 +979,10 @@ private:
 	{
 		if ( kParams.ArgCount < 3 || kParams.pArgs == NULL || kParams.pArgs[0].IsString() == false )
 			return;
-		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
+		std::map< std::string, KGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
 		if ( it == m_mapBinding.end() )
 			return;
-		std::vector< KJuneGfxBindingObserver >& vecObserver = it->second.m_vecObserver;
+		std::vector< KGfxBindingObserver >& vecObserver = it->second.m_vecObserver;
 		for ( size_t i = 0; i < vecObserver.size(); ++i )
 		{
 			if ( vecObserver[i].m_kExtra == kParams.pArgs[2] && vecObserver[i].m_kClosure == kParams.pArgs[1] )
@@ -1003,7 +1003,7 @@ private:
 class CKTDGGFXUI
 {
 public:
-	CKTDGGFXUI( SFG::Loader* pLoader, IJuneGfxListener* pListener )
+	CKTDGGFXUI( SFG::Loader* pLoader, IGfxListener* pListener )
 		: m_pLoader( pLoader ), m_pListener( pListener ), m_iBufW( 0 ), m_iBufH( 0 ), m_iLeft( 0 ), m_iTop( 0 ), m_iWidth( 0 ), m_iHeight( 0 )
 	{
 	}
@@ -1106,7 +1106,7 @@ public:
 
 private:
 	SFG::Loader*						m_pLoader;			// +0x40 ( June keeps the manager; the loader is its +8 )
-	IJuneGfxListener*					m_pListener;		// +0x5c ( mgr +4 )
+	IGfxListener*					m_pListener;		// +0x5c ( mgr +4 )
 	SF::Ptr< SFG::Movie >				m_pMovie;			// +0x3c
 	SFG::MovieDisplayHandle				m_hDisplay;			// +0x38
 	int									m_iBufW, m_iBufH, m_iLeft, m_iTop, m_iWidth, m_iHeight;	// +0x44..+0x58
@@ -1116,10 +1116,10 @@ private:
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_BLEND
 // June's D3D9::HAL::applyBlendModeImpl ( 33214cd0 ): two tables, Erase / Alpha keep the destination
-class JuneGfxHAL : public SFR::D3D9::HAL
+class GfxHAL : public SFR::D3D9::HAL
 {
 public:
-	JuneGfxHAL() : SFR::D3D9::HAL( NULL ) {}
+	GfxHAL() : SFR::D3D9::HAL( NULL ) {}
 
 	virtual void applyBlendModeImpl( SFR::BlendMode mode, bool sourceAc = false, bool forceAc = false )
 	{
@@ -1192,7 +1192,7 @@ public:
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The manager's Scaleform-typed half
 // ---------------------------------------------------------------------------------------------------------------------------------------
-class CKTDGGFXManagerImpl : public IJuneGfxListener
+class CKTDGGFXManagerImpl : public IGfxListener
 {
 public:
 	CKTDGGFXManagerImpl( HWND hWnd )
@@ -1291,15 +1291,15 @@ public:
 		m_Loader.SetTextClipboard( SF::Ptr< SFG::TextClipboard >( *new FxPlayerTextClipboard() ) );
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_BLEND
-		m_pHAL = *SF_NEW JuneGfxHAL();									// 3321a190( 0 ) -> +0x3c, June's applyBlendMode tables
-		JuneGfxLog( "blend: June applyBlendMode tables" );
+		m_pHAL = *SF_NEW GfxHAL();									// 3321a190( 0 ) -> +0x3c, June's applyBlendMode tables
+		GfxLog( "blend: June applyBlendMode tables" );
 #else
 		m_pHAL = *SF_NEW SFR::D3D9::HAL( NULL );						// 3321a190( 0 ) -> +0x3c
 #endif SERV_IRUHADEV_JUNE_GFX_BLEND
 		m_pRenderer = *SF_NEW SFR::Renderer2D( m_pHAL );				// 31af9560( HAL ) -> +0x40
 		if ( !m_pRenderer )
 		{
-			JuneGfxLog( "Renderer2D not made: no GFx states set" );		// June returns 0 here ( Init ignores it )
+			GfxLog( "Renderer2D not made: no GFx states set" );		// June returns 0 here ( Init ignores it )
 			return;
 		}
 
@@ -1318,15 +1318,15 @@ public:
 
 		// IME manager ( 33030d00, 0x70 B, ime.xml / IME.swf, state 0x17 ): the SDK has SF_ENABLE_IME off and no Win32 IME source, and
 		// neither file is in June's data. Not made; the IME events below still go to the movie as June sends them.
-		JuneGfxLog( "IME manager skipped ( SDK without IME support; no ime.xml / IME.swf in June's data )" );
+		GfxLog( "IME manager skipped ( SDK without IME support; no ime.xml / IME.swf in June's data )" );
 
 		InitSound();
 
-		JuneGfxConfigParser kParser( "fontconfig.font" );
+		GfxConfigParser kParser( "fontconfig.font" );
 		m_kFontConfigs.Parse( kParser );
 		m_iFontConfig = m_kFontConfigs.m_vecConfigs.empty() ? -1 : 0;		// 31c43d00
 		if ( kParser.HasData() == false )
-			JuneGfxLog( "fontconfig.font not found in the koms ( data036 ): no font config" );
+			GfxLog( "fontconfig.font not found in the koms ( data036 ): no font config" );
 		FontConfig* pConfig = ( m_iFontConfig != -1 ) ? PickFontConfig() : NULL;
 		if ( pConfig != NULL )
 			pConfig->Apply( m_Loader );
@@ -1340,7 +1340,7 @@ public:
 	{
 		if ( g_pKTDXApp == NULL || g_pKTDXApp->GetDSManager() == NULL || g_pKTDXApp->GetDSManager()->GetSystem() == NULL )
 		{
-			JuneGfxLog( "sound: no FMOD system on KTDS, GFx sound off" );
+			GfxLog( "sound: no FMOD system on KTDS, GFx sound off" );
 			return;
 		}
 		m_pSoundRenderer = *SF::Sound::SoundRendererFMOD::CreateSoundRenderer();		// 33221b20 -> +0x110
@@ -1350,13 +1350,13 @@ public:
 		FMOD::System* pSystem = reinterpret_cast< FMOD::System* >( g_pKTDXApp->GetDSManager()->GetSystem() );
 		if ( m_pSoundRenderer->Initialize( pSystem, true, true ) == false )
 		{
-			JuneGfxLog( "sound: SoundRendererFMOD::Initialize failed, GFx sound off" );
+			GfxLog( "sound: SoundRendererFMOD::Initialize failed, GFx sound off" );
 			return;
 		}
 		m_Loader.SetAudio( SF::Ptr< SFG::Audio >( *new SFG::Audio( m_pSoundRenderer, 0.1f, 15, SFG::AudioBase::AudioMaster ) ) );	// 0x1c
 		m_pSoundRenderer->SetMasterVolume( 100.f );		// vslot 0x1c ( 334355b8 )
 		m_pSoundRenderer->Mute( false );				// vslot 0x24
-		JuneGfxLog( "sound: FMOD renderer up on KTDS's FMOD system" );
+		GfxLog( "sound: FMOD renderer up on KTDS's FMOD system" );
 	}
 
 	// 31c44ff0: the first config whose fontlib files are all kom members ( 31c4bcb0 ), else the next one round; NULL when none has them
@@ -1372,13 +1372,13 @@ public:
 			for ( ; i < pConfig->m_vecFontLibFiles.size(); ++i )
 			{
 				if ( g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->IsValidFile_MassFileOnly(
-						JuneGfxFromUTF8( pConfig->m_vecFontLibFiles[i].c_str() ) ) == false )
+						GfxFromUTF8( pConfig->m_vecFontLibFiles[i].c_str() ) ) == false )
 					break;
 			}
 			if ( i == pConfig->m_vecFontLibFiles.size() )
 				return pConfig;
-			JuneGfxLog( "Fontlib file '%s' cannot be found. Skipping config '%s'..", pConfig->m_vecFontLibFiles[i].c_str(),
-				JuneGfxToUTF8( pConfig->m_wstrName.c_str() ).c_str() );
+			GfxLog( "Fontlib file '%s' cannot be found. Skipping config '%s'..", pConfig->m_vecFontLibFiles[i].c_str(),
+				GfxToUTF8( pConfig->m_wstrName.c_str() ).c_str() );
 			m_iFontConfig = ( m_iFontConfig + 1 ) % (int)m_kFontConfigs.m_vecConfigs.size();
 			if ( m_iFontConfig == iStart )
 				return NULL;
@@ -1394,7 +1394,7 @@ public:
 		if ( m_pUI->Load( "main.gfx" ) == false )
 		{
 			SAFE_DELETE( m_pUI );
-			JuneGfxLog( "main.gfx FAILED to load ( data036 ): no GFx movie" );
+			GfxLog( "main.gfx FAILED to load ( data036 ): no GFx movie" );
 			return;
 		}
 		D3DVIEWPORT9 kViewport;
@@ -1410,14 +1410,14 @@ public:
 			? (FontConfig*)m_kFontConfigs.m_vecConfigs[ m_iFontConfig ] : NULL;
 		if ( pConfig != NULL )
 		{
-			JuneGfxLog( "main.gfx loaded, font config \"%s\" ( %d fontlib%s%s, %d map, %d tr )", JuneGfxToUTF8( pConfig->m_wstrName.c_str() ).c_str(),
+			GfxLog( "main.gfx loaded, font config \"%s\" ( %d fontlib%s%s, %d map, %d tr )", GfxToUTF8( pConfig->m_wstrName.c_str() ).c_str(),
 				(int)pConfig->m_vecFontLibFiles.size(), pConfig->m_vecFontLibFiles.empty() ? "" : " ",
 				pConfig->m_vecFontLibFiles.empty() ? "" : pConfig->m_vecFontLibFiles[0].c_str(), pConfig->m_iMapCount,
 				(int)pConfig->m_pTranslator->GetCount() );
 		}
 		else
 		{
-			JuneGfxLog( "main.gfx loaded, no font config applied" );
+			GfxLog( "main.gfx loaded, no font config applied" );
 		}
 	}
 
@@ -1465,7 +1465,7 @@ public:
 			SFR::D3D9::HALInitParams kParams( pDevice, m_kPresentParams, SFR::D3D9::HALConfig_NoSceneCalls );
 			kParams.RenderQueueSize = 0x100;
 			if ( m_pHAL->InitHAL( kParams ) == false )
-				JuneGfxLog( "D3D9 HAL InitHAL failed: the movie will not draw" );
+				GfxLog( "D3D9 HAL InitHAL failed: the movie will not draw" );
 			// wrapper +0x80 = HAL vslot 0xa8 ( the texture manager ) and 31c40030( device ) feed the Stage 9 character view
 		}
 		else
@@ -1815,22 +1815,22 @@ namespace
 	const char*	JGES_BINDING_NEXT_SCENE	= "EventScene.nextScene";
 	const char*	JGES_BINDING_EXACT_FIT	= "EventScene.bExactFit";
 
-	void JuneGfxSceneLog( const char* szFormat, ... )
+	void GfxSceneLog( const char* szFormat, ... )
 	{
 		char szBuf[2048] = { 0, };
 		va_list args;
 		va_start( args, szFormat );
 		_vsnprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, szFormat, args );
 		va_end( args );
-		JuneGfxLogLine( std::string( "[JUNE_GFX] SCENE " ) + szBuf );
+		GfxLogLine( std::string( "[JUNE_GFX] SCENE " ) + szBuf );
 	}
 }
 
-class CKTDGGFXEventSceneBridge::CImpl : public IJuneGfxListener
+class CKTDGGFXEventSceneBridge::CImpl : public IGfxListener
 {
 public:
-	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IJuneGfxEventSceneHost* pHost )
-		: m_pHost( pHost ), m_pLink( *new CJuneGfxOwnerLink( this ) )
+	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IGfxEventSceneHost* pHost )
+		: m_pHost( pHost ), m_pLink( *new CGfxOwnerLink( this ) )
 	{
 		if ( pMgrImpl != NULL && pMgrImpl->m_pUI != NULL )
 			m_pAdapter = pMgrImpl->m_pUI->GetAdapter();
@@ -1840,7 +1840,7 @@ public:
 			m_pAdapter->AddBinding( JGES_BINDING_NEXT_SCENE, JGBK_TRIGGER );					// @32e59cc1: the 8 B trigger object
 			m_pAdapter->AddBinding( JGES_BINDING_EXACT_FIT, JGBK_BOOL );						// @32e59d2a: the 0xc B bool object, false
 		}
-		JuneGfxSceneLog( "bridge: %s", m_pAdapter ? "listener + 2 bindings on the root movie's adapter" : "no root movie ( GFx scenes cannot play )" );
+		GfxSceneLog( "bridge: %s", m_pAdapter ? "listener + 2 bindings on the root movie's adapter" : "no root movie ( GFx scenes cannot play )" );
 	}
 
 	~CImpl()
@@ -1875,7 +1875,7 @@ public:
 			kObject.GetMember( s_aszFunction[ i ], &kCurrent );
 			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32e59a20: types 8 / 9 / 10 are left alone
 			{
-				SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+				SF::Ptr< CGfxFunctionHandler > pHandler = *new CGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
 				SFG::Value kFunction;
 				pMovie->CreateFunction( &kFunction, pHandler );
 				kObject.SetMember( s_aszFunction[ i ], kFunction );
@@ -1918,7 +1918,7 @@ private:
 		case 1:		// playEventSceneSound 32e59d40: a String argument, UTF-8, at most 0xff wide characters
 			if ( m_pHost != NULL && kParams.pArgs != NULL && kParams.ArgCount >= 1 && kParams.pArgs[0].IsString() )
 			{
-				std::wstring wstrKey = JuneGfxFromUTF8( kParams.pArgs[0].GetString() );
+				std::wstring wstrKey = GfxFromUTF8( kParams.pArgs[0].GetString() );
 				if ( wstrKey.size() > 0xfe )
 					wstrKey.resize( 0xfe );
 				m_pHost->OnSceneAsPlaySound( wstrKey );
@@ -1974,7 +1974,7 @@ private:
 			return;
 		SFG::Movie* pMovie = kParams.pMovie;
 		pMovie->CreateObject( kParams.pRetVal );			// @32e59f7f
-		std::vector< KJuneGfxSceneFrame > vecFrame;
+		std::vector< KGfxSceneFrame > vecFrame;
 		if ( m_pHost->OnSceneAsGetFrames( vecFrame ) == false )
 			return;											// June returns the empty object
 
@@ -1982,7 +1982,7 @@ private:
 		pMovie->CreateArray( &kArray );
 		for ( size_t i = 0; i < vecFrame.size(); ++i )
 		{
-			const KJuneGfxSceneFrame& kFrame = vecFrame[ i ];
+			const KGfxSceneFrame& kFrame = vecFrame[ i ];
 			SFG::Value kFrameObject;
 			pMovie->CreateObject( &kFrameObject );
 			kFrameObject.SetMember( "frame",			SFG::Value( (SF::SInt32)kFrame.m_iFrame ) );
@@ -1997,7 +1997,7 @@ private:
 			pMovie->CreateArray( &kSymbolArray );
 			for ( size_t j = 0; j < kFrame.m_vecSymbol.size(); ++j )
 			{
-				const KJuneGfxSceneSymbol& kSymbol = kFrame.m_vecSymbol[ j ];
+				const KGfxSceneSymbol& kSymbol = kFrame.m_vecSymbol[ j ];
 				SFG::Value kSymbolObject;
 				pMovie->CreateObject( &kSymbolObject );
 				kSymbolObject.SetMember( "symbolName",	SFG::Value( kSymbol.m_strSymbolName.c_str() ) );
@@ -2012,12 +2012,12 @@ private:
 		kParams.pRetVal->SetMember( "arrEventSceneData", kArray );		// @32e5a8eb
 	}
 
-	IJuneGfxEventSceneHost*				m_pHost;
-	SF::Ptr< CJuneGfxOwnerLink >		m_pLink;
+	IGfxEventSceneHost*				m_pHost;
+	SF::Ptr< CGfxOwnerLink >		m_pLink;
 	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
 };
 
-CKTDGGFXEventSceneBridge::CKTDGGFXEventSceneBridge( CKTDGGFXManager* pManager, IJuneGfxEventSceneHost* pHost )
+CKTDGGFXEventSceneBridge::CKTDGGFXEventSceneBridge( CKTDGGFXManager* pManager, IGfxEventSceneHost* pHost )
 	: m_pImpl( new CImpl( pManager != NULL ? pManager->m_pImpl : NULL, pHost ) )
 {
 }
@@ -2044,7 +2044,7 @@ namespace
 	const char*	JGSW_BINDING_CLEAR	= "SimpleWidgetPlayer.clearSimpleWidgetPlayer";		// 33471d50
 }
 
-class CKTDGGFXSimpleWidgetPlayer::CImpl : public IJuneGfxListener
+class CKTDGGFXSimpleWidgetPlayer::CImpl : public IGfxListener
 {
 public:
 	explicit CImpl( CKTDGGFXManagerImpl* pMgrImpl )
@@ -2127,7 +2127,7 @@ namespace
 	// table 33539ea8, in June's order ( the spelling "notfy" is June's )
 	const char* const s_aszResultFunction[ 5 ] = { "notifyCloseResultUI", "notfyRetryButton", "notifyInitialize", "notfyitemSlotArrowLeft", "notfyitemSlotArrowRight" };
 
-	std::string JuneGfxResultItemBindingName( int iIndex )
+	std::string GfxResultItemBindingName( int iIndex )
 	{
 		char szName[ 64 ] = { 0, };
 		sprintf_s( szName, sizeof( szName ), "GameResult.getItem%d", iIndex );		// 3349f68c is the state's "GameResult.getItem%d"
@@ -2139,10 +2139,10 @@ namespace
 // June 3353a074 / Call 32eee800 for the five result callbacks: their targets ignore the owner, so the id goes to the dispatcher the adapter registered
 static void ( *s_pfnJuneResultDispatch )( int iID ) = NULL;
 
-class CJuneGfxResultFunctionHandler : public SFG::FunctionHandler
+class CGfxResultFunctionHandler : public SFG::FunctionHandler
 {
 public:
-	explicit CJuneGfxResultFunctionHandler( int iID ) : m_iID( iID ) {}
+	explicit CGfxResultFunctionHandler( int iID ) : m_iID( iID ) {}
 	virtual void Call( const Params& /*kParams*/ )
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
@@ -2158,11 +2158,11 @@ private:
 };
 #endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 
-class CKTDGGFXResultBridge::CImpl : public IJuneGfxListener
+class CKTDGGFXResultBridge::CImpl : public IGfxListener
 {
 public:
-	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IJuneGfxResultHost* pHost )
-		: m_pHost( pHost ), m_pLink( *new CJuneGfxOwnerLink( this ) )
+	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IGfxResultHost* pHost )
+		: m_pHost( pHost ), m_pLink( *new CGfxOwnerLink( this ) )
 	{
 		if ( pMgrImpl != NULL && pMgrImpl->m_pUI != NULL )
 			m_pAdapter = pMgrImpl->m_pUI->GetAdapter();
@@ -2171,7 +2171,7 @@ public:
 			m_pAdapter->AddListener( this );
 			m_pAdapter->AddBinding( JGRS_BINDING_INFO, JGBK_RESULT_INFO );
 			for ( int i = 0; i < JGRS_ITEM_COUNT; ++i )
-				m_pAdapter->AddBinding( JuneGfxResultItemBindingName( i ), JGBK_RESULT_ITEM );
+				m_pAdapter->AddBinding( GfxResultItemBindingName( i ), JGBK_RESULT_ITEM );
 			m_pAdapter->AddBinding( JGRS_BINDING_TAB_KEY, JGBK_TRIGGER );
 			m_pAdapter->AddBinding( JGRS_BINDING_SHOW_RETRY, JGBK_BOOL );
 			m_pAdapter->SetBindingBool( JGRS_BINDING_SHOW_RETRY, true );		// the 0xc B bool objects start at 1
@@ -2188,7 +2188,7 @@ public:
 			m_pAdapter->RemoveListener( GetListenerName() );
 			m_pAdapter->RemoveBinding( JGRS_BINDING_INFO );
 			for ( int i = 0; i < JGRS_ITEM_COUNT; ++i )
-				m_pAdapter->RemoveBinding( JuneGfxResultItemBindingName( i ) );
+				m_pAdapter->RemoveBinding( GfxResultItemBindingName( i ) );
 			m_pAdapter->RemoveBinding( JGRS_BINDING_TAB_KEY );
 			m_pAdapter->RemoveBinding( JGRS_BINDING_SHOW_RETRY );
 			m_pAdapter->RemoveBinding( JGRS_BINDING_ENABLE_RETRY );
@@ -2224,9 +2224,9 @@ public:
 			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32eea4c6: types 8 / 9 / 10 are left alone
 			{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
-				SF::Ptr< CJuneGfxResultFunctionHandler > pHandler = *new CJuneGfxResultFunctionHandler( i );
+				SF::Ptr< CGfxResultFunctionHandler > pHandler = *new CGfxResultFunctionHandler( i );
 #else SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
-				SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+				SF::Ptr< CGfxFunctionHandler > pHandler = *new CGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
 #endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 				SFG::Value kFunction;
 				pMovie->CreateFunction( &kFunction, pHandler );
@@ -2251,7 +2251,7 @@ public:
 
 	bool IsBound() const { return m_pAdapter.GetPtr() != NULL; }
 
-	void UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )		// 32eeae30
+	void UpdateDungeonInfo( const KGfxResultInfo& kInfo )		// 32eeae30
 	{
 		if ( !m_pAdapter )
 			return;
@@ -2259,11 +2259,11 @@ public:
 		m_pAdapter->NotifyBinding( JGRS_BINDING_INFO );
 	}
 
-	void SetItem( int iIndex, const KJuneGfxResultItem& kItem )		// 32eea6a0
+	void SetItem( int iIndex, const KGfxResultItem& kItem )		// 32eea6a0
 	{
 		if ( !m_pAdapter )
 			return;
-		const std::string strName = JuneGfxResultItemBindingName( iIndex );
+		const std::string strName = GfxResultItemBindingName( iIndex );
 		if ( m_pAdapter->HasBinding( strName ) == false )
 			return;
 		m_pAdapter->SetBindingResultItem( strName, kItem );
@@ -2307,12 +2307,12 @@ private:
 		}
 	}
 
-	IJuneGfxResultHost*					m_pHost;
-	SF::Ptr< CJuneGfxOwnerLink >		m_pLink;
+	IGfxResultHost*					m_pHost;
+	SF::Ptr< CGfxOwnerLink >		m_pLink;
 	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
 };
 
-CKTDGGFXResultBridge::CKTDGGFXResultBridge( CKTDGGFXManager* pManager, IJuneGfxResultHost* pHost )
+CKTDGGFXResultBridge::CKTDGGFXResultBridge( CKTDGGFXManager* pManager, IGfxResultHost* pHost )
 	: m_pImpl( new CImpl( pManager != NULL ? pManager->m_pImpl : NULL, pHost ) )
 {
 }
@@ -2323,8 +2323,8 @@ CKTDGGFXResultBridge::~CKTDGGFXResultBridge()
 }
 
 bool CKTDGGFXResultBridge::IsBound() const															{ return m_pImpl->IsBound(); }
-void CKTDGGFXResultBridge::UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )						{ m_pImpl->UpdateDungeonInfo( kInfo ); }
-void CKTDGGFXResultBridge::SetItem( int iIndex, const KJuneGfxResultItem& kItem )					{ m_pImpl->SetItem( iIndex, kItem ); }
+void CKTDGGFXResultBridge::UpdateDungeonInfo( const KGfxResultInfo& kInfo )						{ m_pImpl->UpdateDungeonInfo( kInfo ); }
+void CKTDGGFXResultBridge::SetItem( int iIndex, const KGfxResultItem& kItem )					{ m_pImpl->SetItem( iIndex, kItem ); }
 void CKTDGGFXResultBridge::ShowRetryButton( bool bShow )											{ m_pImpl->SetBool( JGRS_BINDING_SHOW_RETRY, bShow ); }
 void CKTDGGFXResultBridge::EnableRetryButton( bool bEnable )										{ m_pImpl->SetBool( JGRS_BINDING_ENABLE_RETRY, bEnable ); }
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -2386,7 +2386,7 @@ bool CKTDGGFXManager::closeToTopZorder()
 		_snprintf( szJuneBuf, sizeof( szJuneBuf ) - 1, "[JUNE_GFX] GATE closeToTopZorder raw: type %d isBool %d bool %d, isOpenUI( 0xb ) %d, isVisibleI( 0xb ) %d",
 			static_cast< int >( kResult.GetType() ), kResult.IsBool() ? 1 : 0, ( kResult.IsBool() && kResult.GetBool() ) ? 1 : 0,
 			isOpenUI( 0xb ) ? 1 : 0, isVisibleI( 0xb ) ? 1 : 0 );
-		JuneGfxLogLine( szJuneBuf );
+		GfxLogLine( szJuneBuf );
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 	return kResult.IsBool() ? kResult.GetBool() : false;
@@ -2452,30 +2452,30 @@ void CKTDGGFXManager::FirstFrameLog()
 // ---------------------------------------------------------------------------------------------------------------------------------------
 namespace
 {
-	CKTDGGFXManager* JuneGfxDebugManager()
+	CKTDGGFXManager* GfxDebugManager()
 	{
-		CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
+		CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetGFXManager() : NULL;
 		if ( pManager == NULL || pManager->IsMovieLoaded() == false )
 		{
-			JuneGfxLog( "debug: no GFx movie ( main.gfx not loaded )" );
+			GfxLog( "debug: no GFx movie ( main.gfx not loaded )" );
 			return NULL;
 		}
 		return pManager;
 	}
 }
 
-void JuneGfxOpenUI_LUA( int iUIID )
+void GfxOpenUI_LUA( int iUIID )
 {
-	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	CKTDGGFXManager* pManager = GfxDebugManager();
 	if ( pManager == NULL )
 		return;
 	pManager->openUI( iUIID );
-	JuneGfxLog( "debug: openUI( %d ), isOpenUI -> %d", iUIID, pManager->isOpenUI( iUIID ) ? 1 : 0 );
+	GfxLog( "debug: openUI( %d ), isOpenUI -> %d", iUIID, pManager->isOpenUI( iUIID ) ? 1 : 0 );
 }
 
-void JuneGfxLoadWidget_LUA( int iUIID, const char* szName )
+void GfxLoadWidget_LUA( int iUIID, const char* szName )
 {
-	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	CKTDGGFXManager* pManager = GfxDebugManager();
 	if ( pManager == NULL || szName == NULL )
 		return;
 	// as CX2GFXEventScene::Play ( 3226b130 ): GetPullPath on the name, then loadUserWidget( id, full path, 0, 0 )
@@ -2484,25 +2484,25 @@ void JuneGfxLoadWidget_LUA( int iUIID, const char* szName )
 	WCHAR* wszPath = g_pKTDXApp->GetDeviceManager()->GetPullPath( wszName );
 	std::wstring wstrPath = ( wszPath != NULL ) ? wszPath : wszName;
 	pManager->loadUserWidget( iUIID, wstrPath.c_str(), 0, 0 );
-	JuneGfxLog( "debug: loadUserWidget( %d, \"%s\", 0, 0 )", iUIID, JuneGfxToUTF8( wstrPath.c_str() ).c_str() );
+	GfxLog( "debug: loadUserWidget( %d, \"%s\", 0, 0 )", iUIID, GfxToUTF8( wstrPath.c_str() ).c_str() );
 }
 
-void JuneGfxUnloadWidget_LUA( int iUIID )
+void GfxUnloadWidget_LUA( int iUIID )
 {
-	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	CKTDGGFXManager* pManager = GfxDebugManager();
 	if ( pManager == NULL )
 		return;
 	pManager->unloadUserWidget( iUIID );
-	JuneGfxLog( "debug: unloadUserWidget( %d )", iUIID );
+	GfxLog( "debug: unloadUserWidget( %d )", iUIID );
 }
 
-void JuneGfxShow_LUA( bool bShow )
+void GfxShow_LUA( bool bShow )
 {
-	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	CKTDGGFXManager* pManager = GfxDebugManager();
 	if ( pManager == NULL )
 		return;
 	pManager->SetShow( bShow );
-	JuneGfxLog( "debug: GFx shown ( +0x108 ) = %d", bShow ? 1 : 0 );
+	GfxLog( "debug: GFx shown ( +0x108 ) = %d", bShow ? 1 : 0 );
 }
 #endif SERV_IRUHADEV_JUNE_GFX_DEBUG
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER

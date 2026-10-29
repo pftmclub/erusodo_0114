@@ -1509,10 +1509,10 @@ void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 	if( true == bForce )
 	{
 		if( NULL != g_pKTDXApp )
-			g_pKTDXApp->JuneSetAntiAliasLevel( m_OptionList.m_iAntiAliasingLevel );
+			g_pKTDXApp->SetAntiAliasLevel( m_OptionList.m_iAntiAliasingLevel );
 	}
 	if( true == bForce && NULL != g_pKTDXApp )
-		g_pKTDXApp->JuneSetSceneEffectRenderTarget( m_OptionList.m_bJuneSceneRenderTarget, m_OptionList.m_bJuneEffectRenderTarget );
+		g_pKTDXApp->SetSceneEffectRenderTarget( m_OptionList.m_bJuneSceneRenderTarget, m_OptionList.m_bJuneEffectRenderTarget );
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 	// SOUND
@@ -1546,7 +1546,7 @@ void CX2GameOption::SetAntiAliasingLevel( int iLevel_, bool bForce_ /*= false*/ 
 	if( true == bForce_ || m_OptionList.m_iAntiAliasingLevel != iLevel_ )
 	{
 		if( NULL != g_pKTDXApp )
-			g_pKTDXApp->JuneSetAntiAliasLevel( iLevel_ );
+			g_pKTDXApp->SetAntiAliasLevel( iLevel_ );
 		m_OptionList.m_iAntiAliasingLevel = iLevel_;
 	}
 }
@@ -1559,7 +1559,7 @@ void CX2GameOption::SetSceneEffectRenderTarget( bool bScene_, bool bEffect_, boo
 		m_OptionList.m_bJuneSceneRenderTarget = bScene_;
 		m_OptionList.m_bJuneEffectRenderTarget = bEffect_;
 		if( NULL != g_pKTDXApp )
-			g_pKTDXApp->JuneSetSceneEffectRenderTarget( bScene_, bEffect_ );
+			g_pKTDXApp->SetSceneEffectRenderTarget( bScene_, bEffect_ );
 	}
 }
 

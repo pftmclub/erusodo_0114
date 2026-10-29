@@ -170,7 +170,7 @@ public:
 	static CX2BuffDisplayerTempletPtr	CreateBuffDisplayerTempletPtr() { return CX2BuffDisplayerTempletPtr( new CX2BuffRenderParamDisplayerTemplet ); }
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// June 32eb7d50 / 32ebad40: stores each render-param key only when the script has it (m_bHas*).
-	static void JuneParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ );
+	static void ParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 	virtual void StartDisplayer( CX2GameUnit* pGameUnit_, const CX2BuffTemplet* pBuffTemplet_ );

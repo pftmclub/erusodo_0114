@@ -268,7 +268,7 @@ bool CX2EnchantItem::GetAttribEnchantRequireED( bool bWeapon, int iCurrEnchanted
 		if ( false == s_bJuneMissingLogged )
 		{
 			s_bJuneMissingLogged = true;
-			CX2JuneBuffCapture::Line( "enchant: GetAttribEnchantRequiredED is not loaded (AttribEnchantRequireED.lua missing from data036); March's ED formula is used" );
+			CX2BuffCapture::Line( "enchant: GetAttribEnchantRequiredED is not loaded (AttribEnchantRequireED.lua missing from data036); March's ED formula is used" );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
@@ -847,7 +847,7 @@ bool CX2EnchantItem::ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::D
 }
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 /// June buff port Phase 15: June 32708c50 (g_pMain state 9 = XS_PVP_GAME and the connected channel's class 9 = PCC_FREE -> 0)
-/*static*/ bool CX2EnchantItem::JuneIsEnchantStatScaleOn()
+/*static*/ bool CX2EnchantItem::IsEnchantStatScaleOn()
 {
 	if ( NULL != g_pMain && CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() &&
 		KPVPChannelInfo::PCC_FREE == g_pMain->GetPVPChannelClass( g_pMain->GetConnectedChannelID() ) )

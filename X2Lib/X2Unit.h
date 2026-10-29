@@ -1266,7 +1266,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 #ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
 		/// June skill Phase S7k: the unit's own socket aggregate ( June +0xe1c ) with the unit vectors +0xe20 / +0xe30 its fill writes.
 		/// Defined in X2Unit.cpp ( CX2SocketItem is not declared yet here ); the holder deep-copies so a copied CX2Unit owns its own.
-		struct JuneSocketAggregate;
+		struct SocketAggregate;
 		class SocketAggregateHolder
 		{
 		public:
@@ -1275,7 +1275,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 			SocketAggregateHolder& operator=( const SocketAggregateHolder& rhs_ );
 			~SocketAggregateHolder();
 			void	Recreate();				/// June CX2Unit::Init 32363ca0 @32363cb9..32363d53
-			JuneSocketAggregate*	m_p;
+			SocketAggregate*	m_p;
 		};
 		SocketAggregateHolder	m_kJuneSocketAggregate;
 

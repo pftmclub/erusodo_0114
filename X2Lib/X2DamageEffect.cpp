@@ -3613,7 +3613,7 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 					}
 					// @31f6ee0e: June's set-and-apply 31d41710( mesh instance +0x3f0 ) after the play ( March: store-only
 					// Set3DPosition before the play, which Play applies )
-					pSound->JuneSet3DPositionAndUpdate( pMeshInst->GetPos() );
+					pSound->Set3DPositionAndUpdate( pMeshInst->GetPos() );
 				}
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->OpenSound( pSoundData->fileName.c_str() );
@@ -6087,7 +6087,7 @@ bool CX2DamageEffect::CEffect::SetMainEffectScale( float fX, float fY, float fZ 
 			pMeshInst->SetScale( fX, fY, fZ );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 			// June2017 31f6fca0 @31f6fd70: the new scale reaches the skin matrix and the bones at once
-			pMeshInst->JuneRefreshScale();
+			pMeshInst->RefreshScale();
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 			return true;
 		}

@@ -268,7 +268,7 @@ public:
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-	void			JuneRandomMissionMpSpent( float fChangeOfNowMp_ );	/// X2RandomMission.cpp ( June 322b33d0 @322b3492 )
+	void			RandomMissionMpSpent( float fChangeOfNowMp_ );	/// X2RandomMission.cpp ( June 322b33d0 @322b3492 )
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	void			UpNowMp( const float fChangeOfNowMp_ )
 	{
@@ -277,7 +277,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		/// June 322b33d0 @322b3492..322b34b7: a request below zero is MP spent, the random mission's event 9
 		if ( NULL != m_pMpGage )
-			JuneRandomMissionMpSpent( fChangeOfNowMp_ );
+			RandomMissionMpSpent( fChangeOfNowMp_ );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	}
 

@@ -1339,10 +1339,10 @@ class CKTDGParticleSystem
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				void SetEffectAlphaCondition( BYTE byEffectAlphaCondition ){ m_byEffectAlphaCondition = byEffectAlphaCondition; }	/// June2017 sequence +0x1b0
 				BYTE GetEffectAlphaCondition() const { return m_byEffectAlphaCondition; }
-				DWORD JuneApplyEffectAlphaToColor( DWORD dwColor ) const;	/// June2017 31cf4ed0 @31cf580e: vertex colour with this category's alpha
+				DWORD ApplyEffectAlphaToColor( DWORD dwColor ) const;	/// June2017 31cf4ed0 @31cf580e: vertex colour with this category's alpha
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
-				void SetJuneOutOfDGManager( bool bVal ){ m_bJuneOutOfDGManager = bVal; }	/// June2017 sequence +0x45a
+				void SetOutOfDGManager( bool bVal ){ m_bJuneOutOfDGManager = bVal; }	/// June2017 sequence +0x45a
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 
 				void SetLightPos( D3DXVECTOR3 lightPos ){ m_LightPos = lightPos; }

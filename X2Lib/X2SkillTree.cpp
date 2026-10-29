@@ -150,7 +150,7 @@ bool CX2SkillTree::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pSkillDa
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-	JuneOpenCommandIconData();		/// June 322083e0 @322092f2: 32207dd0( L"CommandIconData.lua" ), then the post-process 32206050
+	OpenCommandIconData();		/// June 322083e0 @322092f2: 32207dd0( L"CommandIconData.lua" ), then the post-process 32206050
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	OpenScriptFilePostProcess();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -355,13 +355,13 @@ namespace _CONST_SKILLTREE_S2_
 {
 	/// June 32216320: the SA_* tables in June's parse order (june2017_re/s0a_templet_keys.tsv rows 39-240). m_iType is the stored
 	/// ability id. SA_TEAM_ATK_MAGIC_REL is stored as 13 (SA_TEAM_DEF_PHYSIC_REL): a studio quirk that March has too, kept.
-	struct JuneSkillAbilityKey
+	struct SkillAbilityKey
 	{
 		const char* m_pszKey;
 		int         m_iType;
 	};
 
-	const JuneSkillAbilityKey s_aJuneSkillAbilityKey[] =
+	const SkillAbilityKey s_aJuneSkillAbilityKey[] =
 	{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		{ "SA_EFFECTIVE_TIME",	CX2SkillTree::SA_EFFECTIVE_TIME },
@@ -973,7 +973,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 		if( false == luaManager.BeginTable( szNumericalKey ) )
 			break;
 
-		SkillTemplet::JuneNumericalData numericalData;
+		SkillTemplet::NumericalData numericalData;
 		LUA_GET_VALUE( luaManager,      "m_wstrName",                   numericalData.m_wstrName,                       L""     );
 		LUA_GET_VALUE( luaManager,      "m_ParamType",                  numericalData.m_wstrParamType,                  L"i"    );
 
@@ -989,7 +989,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 
 		for( size_t iRow = 0; iRow < vecValue.size(); ++iRow )
 		{
-			SkillTemplet::JuneNumericalRow row;
+			SkillTemplet::NumericalRow row;
 			row.m_fValue = vecValue[ iRow ];
 			row.m_fPvpRate = true == vecPvpRate.empty() ? 1.f : vecPvpRate[ iRow < vecPvpRate.size() ? iRow : vecPvpRate.size() - 1 ];
 			row.m_fTechPoint = true == vecTechPoint.empty() ? 0.f : vecTechPoint[ iRow < vecTechPoint.size() ? iRow : vecTechPoint.size() - 1 ];
@@ -2280,18 +2280,18 @@ bool CX2SkillTree::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		} break;
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
-	case EGS_JUNE_ACQUIRE_SKILL_NOT:
+	case EGS_ACQUIRE_SKILL_NOT:
 		{
 			return Handler_EGS_ACQUIRE_SKILL_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	case EGS_JUNE_ACTIVE_SKILL_MEMO_ACK:
+	case EGS_ACTIVE_SKILL_MEMO_ACK:
 		{
 			return Handler_EGS_ACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
 		} break;
 
-	case EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK:
+	case EGS_DEACTIVE_SKILL_MEMO_ACK:
 		{
 			return Handler_EGS_DEACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
 		} break;
@@ -3824,7 +3824,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 	{
 		CX2UISkillTreeNew* pUISkillTree = g_pData->GetUIManager()->GetUISkillTree();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-		pUISkillTree->JuneReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );	/// 328df480
+		pUISkillTree->ReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );	/// 328df480
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		if( true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SKILL ) )
 			pUISkillTree->UpdateUI( false, true, true );
@@ -4009,7 +4009,7 @@ void CX2SkillTree::AutoEquipOnLevelUp()
 #endif SERV_IRUHADEV_OFFLINE
 
 	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
-		g_pData->GetUIManager()->GetUISkillTree()->JuneAutoEquipNewSkills( vecSkillID );
+		g_pData->GetUIManager()->GetUISkillTree()->AutoEquipNewSkills( vecSkillID );
 }
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
@@ -4017,7 +4017,7 @@ void CX2SkillTree::AutoEquipOnLevelUp()
 /// set ) when its first required level is the level, 4 when a later required level is, and 2 for each memo row of the level whose
 /// skill is this one ( 32451250 ). A hyper-class row ( +0x174 == 5 ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ),
 /// which March has no field for ( as 32206d30 ).
-void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const
+void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT NewSkillOrMemoMap& mapNew_ ) const
 {
 	UnitSkillTreeTempletMap::const_iterator mitClass = m_mapUnitSkillTreeTemplet.find( iUnitClass_ );
 	if( mitClass == m_mapUnitSkillTreeTemplet.end() )
@@ -4054,7 +4054,7 @@ void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT J
 
 		/// @3220d4a0: the memo rows are re-read for every skill ( June )
 		std::vector<const SSkillMemoTemplet*> vecMemo;
-		CX2SkillNoteManager::GetInstance()->GetJuneMemoList( 0, iLevel_, iUnitClass_, 0, vecMemo );
+		CX2SkillNoteManager::GetInstance()->GetMemoList( 0, iLevel_, iUnitClass_, 0, vecMemo );
 		for( UINT i = 0; i < vecMemo.size(); ++i )
 		{
 			if( NULL != vecMemo[i] && vecMemo[i]->m_iSkillID == static_cast<int>( pTemplet->m_eID ) )
@@ -4064,12 +4064,12 @@ void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT J
 }
 
 /// June 3220b990: add the templet under its type unless a templet with the same id ( +8 ) is there already
-/*static*/ void CX2SkillTree::AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ )
+/*static*/ void CX2SkillTree::AddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT NewSkillOrMemoMap& mapNew_ )
 {
 	if( NULL == pTemplet_ )
 		return;
 
-	JuneNewSkillOrMemoMap::iterator mit = mapNew_.find( iType_ );
+	NewSkillOrMemoMap::iterator mit = mapNew_.find( iType_ );
 	if( mit == mapNew_.end() )
 	{
 		std::vector< const SkillTemplet* > vecTemplet;
@@ -4096,22 +4096,22 @@ void CX2SkillTree::ShowNewSkillOrMemoEmblem() const
 
 	const CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
 	const int iUnitClass = static_cast<int>( pUnit->GetClass() );
-	if( false == CX2SkillNoteManager::GetInstance()->HasJuneMemoClass( iUnitClass ) )
+	if( false == CX2SkillNoteManager::GetInstance()->HasMemoClass( iUnitClass ) )
 		return;
 
 	const int iLevel = pUnit->GetUnitData().m_Level;
-	JuneNewSkillOrMemoMap mapNew;
+	NewSkillOrMemoMap mapNew;
 	GetNewSkillOrMemoByLevel( iLevel, iUnitClass, mapNew );
 
 	int iRows = 0;
-	for( JuneNewSkillOrMemoMap::const_iterator mit = mapNew.begin(); mit != mapNew.end(); ++mit )
+	for( NewSkillOrMemoMap::const_iterator mit = mapNew.begin(); mit != mapNew.end(); ++mit )
 	{
 		for( UINT i = 0; i < mit->second.size(); ++i )
 		{
 			if( NULL == mit->second[i] )
 				continue;
 
-			CX2EmblemManager::GetInstance()->JunePushNewSkillOrMemo(
+			CX2EmblemManager::GetInstance()->PushNewSkillOrMemo(
 				D3DXVECTOR3( static_cast<float>( mit->second[i]->m_eID ), static_cast<float>( mit->first ), 1.f ) );
 			++iRows;
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -4135,7 +4135,7 @@ void CX2SkillTree::ShowNewSkillOrMemoEmblem() const
 bool CX2SkillTree::Handler_EGS_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_ACQUIRE_SKILL_NOT kEvent;
+	KEGS_ACQUIRE_SKILL_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
 
 	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
@@ -4157,7 +4157,7 @@ bool CX2SkillTree::Handler_EGS_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM w
 		/// every copy, when the tree UI exists ( 3214f050 ): 328df480( the granted skills ) -> 328ded60, an upgraded skill takes its base's
 		/// tree slot and memo buttons
 		if( NULL != g_pData->GetUIManager()->GetUISkillTree() )
-			g_pData->GetUIManager()->GetUISkillTree()->JuneReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );
+			g_pData->GetUIManager()->GetUISkillTree()->ReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		/// 32535be0's copy redraws the tree when the skill window is shown ( UpdateUI( 0, 1, 0 ) ); every copy also lights the new skills'
 		/// memo buttons ( 328df480 -> 328ded60 ), which come with June's tree UI ( S7b )
@@ -4208,10 +4208,10 @@ bool CX2SkillTree::Handler_EGS_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM w
 bool CX2SkillTree::Handler_EGS_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK kEvent;
+	KEGS_ACTIVE_SKILL_MEMO_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 
-	if( false == g_pMain->DeleteServerPacket( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+	if( false == g_pMain->DeleteServerPacket( EGS_ACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
 		return true;
 
 	g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), GET_STRING( 35736 ), g_pMain->GetNowState(), -1, -1.f );
@@ -4235,10 +4235,10 @@ bool CX2SkillTree::Handler_EGS_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPAR
 bool CX2SkillTree::Handler_EGS_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK kEvent;
+	KEGS_DEACTIVE_SKILL_MEMO_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 
-	if( false == g_pMain->DeleteServerPacket( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+	if( false == g_pMain->DeleteServerPacket( EGS_DEACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
 		return true;
 
 	g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), GET_STRING( 35737 ), g_pMain->GetNowState(), -1, -1.f );
@@ -5185,7 +5185,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 	{
 		CX2Unit* pJuneUnit = g_pData->GetMyUser()->GetSelectUnit();
 		CX2UserSkillTree& kJuneTree = pJuneUnit->AccessUnitData().m_UserSkillTree;
-		const KJuneSkillExtraData& kJunePage = kEvent.m_kJuneSkillExtraData;
+		const KSkillExtraData& kJunePage = kEvent.m_kJuneSkillExtraData;
 
 		kJuneTree.SetUsingPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
 		kJuneTree.SetSelectPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
@@ -5202,7 +5202,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 		}
 		kJuneTree.SetEquippedSkill( aJuneSlotA, aJuneSlotB );
 
-		kJuneTree.ClearJuneActiveMemo();																					/// 32892050
+		kJuneTree.ClearActiveMemo();																					/// 32892050
 		kJuneTree.MergeActiveMemo( std::multimap< int, int >( kJunePage.m_mapIntInt.begin(), kJunePage.m_mapIntInt.end() ) );	/// 32892410
 
 		/// in a game ( g_pX2Game, my unit vslot 0x98 ): input is held for 0.5 s ( +0xde8 = _DAT_3343777c ) and the equipped skill states rebuilt
@@ -5953,7 +5953,7 @@ C_ASSERT( CX2SkillTree::SPRT_HYPER_CLASS == 5 );
 
 /// June 320716c0: the row for a level is min( level - 1, count - 1 ), compared as unsigned, so level 0 takes the last row.
 /// An empty element gives four zeros.
-/*static*/ void CX2SkillTree::SkillTemplet::GetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ )
+/*static*/ void CX2SkillTree::SkillTemplet::GetNumericalRow( const NumericalData& data_, int iLevel_, NumericalRow& rowOut_ )
 {
 	rowOut_.m_fValue = 0.f;
 	rowOut_.m_fPvpRate = 0.f;
@@ -5972,7 +5972,7 @@ C_ASSERT( CX2SkillTree::SPRT_HYPER_CLASS == 5 );
 }
 
 /// June 3221e930: the first element whose name matches.
-const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet::FindNumericalData( const WCHAR* pwszName_ ) const
+const CX2SkillTree::SkillTemplet::NumericalData* CX2SkillTree::SkillTemplet::FindNumericalData( const WCHAR* pwszName_ ) const
 {
 	if( NULL == pwszName_ )
 		return NULL;
@@ -5988,7 +5988,7 @@ const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 /// June 320717e0 ( this templet, row out, index, level ): the element at the 1-based index; an index of 0 or past the count gives four zeros
 /// ( @32071802: count < index unsigned, or index <= 0 ). The element's row is picked by the clamp 320716c0.
-void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel_, NumericalRow& rowOut_ ) const
 {
 	if( iIndex_ <= 0 || static_cast<unsigned int>( m_vecJuneNumericalData.size() ) < static_cast<unsigned int>( iIndex_ ) )
 	{
@@ -6003,9 +6003,9 @@ void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel
 }
 
 /// June 32078060 ( this templet, row out, name, level ): the first element whose name matches ( wstring::compare ), none gives four zeros.
-void CX2SkillTree::SkillTemplet::GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+void CX2SkillTree::SkillTemplet::GetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, NumericalRow& rowOut_ ) const
 {
-	const JuneNumericalData* pData = FindNumericalData( pwszName_ );
+	const NumericalData* pData = FindNumericalData( pwszName_ );
 	if( NULL == pData )
 	{
 		rowOut_.m_fValue = 0.f;
@@ -6025,11 +6025,11 @@ bool CX2SkillTree::SkillTemplet::GetNumericalAbilityValue( SKILL_ABILITY_TYPE eT
 	if( true == m_vecJuneNumericalData.empty() )
 		return false;
 
-	const JuneNumericalData* pData = FindNumericalData( CX2SkillTree::GetSkillAbilityName( static_cast<int>( eType_ ) ) );
+	const NumericalData* pData = FindNumericalData( CX2SkillTree::GetSkillAbilityName( static_cast<int>( eType_ ) ) );
 	if( NULL == pData )
 		return false;
 
-	JuneNumericalRow row;
+	NumericalRow row;
 	GetNumericalRow( *pData, iLevel_, row );
 	fOut_ = row.m_fValue * ( true == bPvp_ ? row.m_fPvpRate : 1.f );
 	return true;

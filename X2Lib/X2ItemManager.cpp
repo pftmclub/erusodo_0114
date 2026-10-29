@@ -196,7 +196,7 @@ void CX2ItemManager::AddDivisionItemTemplet_LUA()
 	// - every other type (81 included) -> 328186c4: 32814170( table, m_eType ) (Stage 11), then 328186d1.
 	// 328186d1 is the rest of the chain, each parser on the same table: 32810700, 328144f0, 32814da0, 32817470, 32815af0. Only
 	// 32814da0 (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET) is ported; the others are JUNE_PORT_BACKLOG_ORDER.md Stage 11.
-	ParseJuneConditionEquipPlayEffectSet( luaManager );
+	ParseConditionEquipPlayEffectSet( luaManager );
 }
 
 // June2017 32814da0. It runs on EVERY block that reaches the default chain, not only on m_eType 81. For i = 0, 1, ... while the table
@@ -205,7 +205,7 @@ void CX2ItemManager::AddDivisionItemTemplet_LUA()
 // map (+0x380; std::map insert, so the FIRST record for an id wins) and into a per-call set. After the loop a non-empty set goes
 // into the group map (+0x230) under the hard-coded key 0x51 = 81, again first wins: a later block's group-81 set is dropped while
 // its records stay (JUNE_BUGS.md).
-void CX2ItemManager::ParseJuneConditionEquipPlayEffectSet( KLuaManager& luaManager )
+void CX2ItemManager::ParseConditionEquipPlayEffectSet( KLuaManager& luaManager )
 {
 	std::set<int> setItemID;
 
@@ -214,7 +214,7 @@ void CX2ItemManager::ParseJuneConditionEquipPlayEffectSet( KLuaManager& luaManag
 	StringCchPrintfA( szListName, ARRAY_SIZE(szListName), "m_EffectSetList%d", iList );
 	while( true == luaManager.BeginTable( szListName ) )
 	{
-		JuneConditionEquipPlayEffectSet kRecord;
+		ConditionEquipPlayEffectSet kRecord;
 		if( false == luaManager.GetValue( "m_eCondition", kRecord.m_eCondition ) )
 			kRecord.m_eCondition = 0;
 		if( false == luaManager.GetValue( "EFFECT_SET_NAME", kRecord.m_wstrEffectSetName ) )
@@ -259,9 +259,9 @@ void CX2ItemManager::ParseJuneConditionEquipPlayEffectSet( KLuaManager& luaManag
 }
 
 // June2017 3280b640: a hit on the item-id map (+0x380, end +0x384) copies the record out and returns true.
-bool CX2ItemManager::GetConditionEquipPlayEffectSet( int iItemID, JuneConditionEquipPlayEffectSet& kRecord ) const
+bool CX2ItemManager::GetConditionEquipPlayEffectSet( int iItemID, ConditionEquipPlayEffectSet& kRecord ) const
 {
-	std::map< int, JuneConditionEquipPlayEffectSet >::const_iterator it = m_mapJuneConditionEquipPlayEffectSet.find( iItemID );
+	std::map< int, ConditionEquipPlayEffectSet >::const_iterator it = m_mapJuneConditionEquipPlayEffectSet.find( iItemID );
 	if( m_mapJuneConditionEquipPlayEffectSet.end() == it )
 		return false;
 
@@ -283,7 +283,7 @@ bool CX2ItemManager::IsDivisionItem( int iDivisionType, int iItemID ) const
 // carries the CEPE block. load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as
 // UNIT_VIEWER_FX_LOAD does). lists = m_EffectSetList tables read, items = item ids with a record, group81 = ids in the group-81
 // set, skipped_duplicate = item ids whose record was dropped because an earlier record already held the id (first wins).
-bool CX2ItemManager::OpenJuneDivisionItemTempletFile( const WCHAR* pFileName )
+bool CX2ItemManager::OpenDivisionItemTempletFile( const WCHAR* pFileName )
 {
 	m_iJuneEquipFxLists = 0;
 	m_iJuneEquipFxSkippedDuplicate = 0;
@@ -460,7 +460,7 @@ static void IruhaKimLoadedLine( DWORD dwNumItems_, DWORD dwNumSetIDs_, DWORD dwS
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
 /// June item.kim K2: one pass over every record after a good load: the June values March has no slot, enum or handler for, each
 /// guarded where it is read (JUNE_ITEM_KIM_PHASES.md K1, june_item_kim/k1_code_census.tsv). Counts only; nothing is changed here.
-static void IruhaJuneKimCensus( const CX2ItemManager* pItemManager_ )
+static void IruhaKimCensus( const CX2ItemManager* pItemManager_ )
 {
     int iUnitType = 0, iUnitClass = 0, iCustom = 0, iEqipEnd = 0, iEqip26 = 0, iEqip27 = 0, iSpecialAbility = 0;
     int iPvpRank9 = 0, iPvpRank10 = 0, iPvpEquip = 0, iMinorUnit = 0;
@@ -477,7 +477,7 @@ static void IruhaJuneKimCensus( const CX2ItemManager* pItemManager_ )
             ++iUnitClass;
         if ( CX2Item::IT_CUSTOM == pTemplet->GetItemType() )
             ++iCustom;
-        const BYTE byEqip = pTemplet->GetJuneRawEqipPosition();
+        const BYTE byEqip = pTemplet->GetRawEqipPosition();
         if ( byEqip >= (BYTE) CX2Unit::EP_END )
             ++iEqipEnd;
         if ( 26 == byEqip )
@@ -558,7 +558,7 @@ bool    CX2ItemManager::DoMemoryNotEncrypt( const char* pBuffer, long nSize )
                 IruhaKimLoadedLine( dwNumItem, kHeader.m_dwNumSetIDs, dwFileStride, nSize );
 #endif SERV_IRUHADEV_KIM_LAYOUT_CHECK
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-                IruhaJuneKimCensus( this );
+                IruhaKimCensus( this );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
                 return true;
             }
@@ -655,7 +655,7 @@ bool	CX2ItemManager::OpenItemScriptFile( const WCHAR* pKimFile, unsigned uNumScr
             /// June item.kim K2: KProxy2 fills the June struct through the same setters, so this dev path writes June's 228-byte layout,
             /// but Item.lua has no keys for the June-only fields and they stay 0. X2ScriptPreprocessingTool (not built here) does not
             /// include Always.h and still writes March's 188-byte kim.
-            CX2Item::KItemFormatTemplet::JuneKimLine( "Lua fallback: item.kim was not used; %u item(s) built from Item.lua with June-only fields defaulted (damage range, minor-unit id, equipment group, expiry dates, desc-in-shop type, all-stat level)",
+            CX2Item::KItemFormatTemplet::KimLine( "Lua fallback: item.kim was not used; %u item(s) built from Item.lua with June-only fields defaulted (damage range, minor-unit id, equipment group, expiry dates, desc-in-shop type, all-stat level)",
                 (unsigned) kProxy.m_setItemIDs.size() );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
@@ -4394,13 +4394,13 @@ int CX2ItemManager::GetPreviewRidingPetIdByItemID( int iItemID_ )
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 namespace
 {
-	bool JunePreviewHas( const std::vector<int>& vecID_, int iID_ )
+	bool PreviewHas( const std::vector<int>& vecID_, int iID_ )
 	{
 		return vecID_.end() != std::find( vecID_.begin(), vecID_.end(), iID_ );
 	}
 
 	// June 325f3d20 on the found iterator: erases the first match, if any
-	void JunePreviewErase( std::vector<int>& vecID_, int iID_ )
+	void PreviewErase( std::vector<int>& vecID_, int iID_ )
 	{
 		std::vector<int>::iterator vit = std::find( vecID_.begin(), vecID_.end(), iID_ );
 		if( vecID_.end() != vit )
@@ -4409,7 +4409,7 @@ namespace
 
 	// June 31c55270: the plain parse (31c55010 = KncUtil::ConvertStringToCTime), then
 	// time += ( CX2Data+0x470 - _timezone ). A failed parse returns false without shifting.
-	bool JunePreviewParseDate( const std::wstring& wstrDate_, CTime& ctDate_ )
+	bool PreviewParseDate( const std::wstring& wstrDate_, CTime& ctDate_ )
 	{
 		if( false == KncUtil::ConvertStringToCTime( wstrDate_, ctDate_ ) )
 			return false;
@@ -4421,19 +4421,19 @@ namespace
 	}
 
 	// June's "second id" in effect: the pet is replaced by the second id (added once)
-	void JunePreviewUseSecond( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
+	void PreviewUseSecond( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
 	{
-		if( false == JunePreviewHas( vecID_, iSecondID_ ) )
+		if( false == PreviewHas( vecID_, iSecondID_ ) )
 		{
-			JunePreviewErase( vecID_, iPetID_ );
+			PreviewErase( vecID_, iPetID_ );
 			vecID_.push_back( iSecondID_ );
 		}
 	}
 
 	// June's "second id" not in effect: the pet, unless it or the second id is already there
-	void JunePreviewUsePet( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
+	void PreviewUsePet( std::vector<int>& vecID_, int iPetID_, int iSecondID_ )
 	{
-		if( false == JunePreviewHas( vecID_, iPetID_ ) && false == JunePreviewHas( vecID_, iSecondID_ ) )
+		if( false == PreviewHas( vecID_, iPetID_ ) && false == PreviewHas( vecID_, iSecondID_ ) )
 			vecID_.push_back( iPetID_ );
 	}
 }
@@ -4471,8 +4471,8 @@ int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetTyp
 				{
 					CTime ctStart( 0 );
 					CTime ctEnd( 0 );
-					if( true == JunePreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
-						true == JunePreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
+					if( true == PreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
+						true == PreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
 						ctStart < ctNow && ctNow < ctEnd )
 					{
 						vecPetID.push_back( iPetID );
@@ -4484,22 +4484,22 @@ int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetTyp
 				// no empty-date test: an empty date fails the parse and falls to the pet
 				CTime ctStart( 0 );
 				CTime ctEnd( 0 );
-				if( true == JunePreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
-					true == JunePreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
+				if( true == PreviewParseDate( PreviewData.wstrStartDate, ctStart ) &&
+					true == PreviewParseDate( PreviewData.wstrEndDate, ctEnd ) &&
 					ctStart < ctNow && ctNow < ctEnd )
 				{
-					JunePreviewUseSecond( vecPetID, iPetID, iSecondID );
+					PreviewUseSecond( vecPetID, iPetID, iSecondID );
 				}
 				else
 				{
-					JunePreviewUsePet( vecPetID, iPetID, iSecondID );
+					PreviewUsePet( vecPetID, iPetID, iSecondID );
 				}
 			}
 		}
 		else
 		{
 			// June 32822650: g_pInstanceData's code-event set +0xa94
-			const bool bEventOn = ( NULL != g_pInstanceData && true == g_pInstanceData->JuneIsCodeEventOn( PreviewData.iCodeEvent ) );
+			const bool bEventOn = ( NULL != g_pInstanceData && true == g_pInstanceData->IsCodeEventOn( PreviewData.iCodeEvent ) );
 
 			if( iSecondID < 1 )
 			{
@@ -4508,11 +4508,11 @@ int	CX2ItemManager::GetPreviewIDByItemID( int iItemID_, PREVIEW_PET_TYPE ePetTyp
 			}
 			else if( true == bEventOn )
 			{
-				JunePreviewUseSecond( vecPetID, iPetID, iSecondID );
+				PreviewUseSecond( vecPetID, iPetID, iSecondID );
 			}
 			else
 			{
-				JunePreviewUsePet( vecPetID, iPetID, iSecondID );
+				PreviewUsePet( vecPetID, iPetID, iSecondID );
 			}
 		}
 	}
@@ -4637,7 +4637,7 @@ void CX2ItemManager::CreateShopImageNameList()
 			&& FALSE != GetFileAttributesExW( L"data036.kom", GetFileExInfoStandard, &kKomFile )
 			&& CompareFileTime( &kListFile.ftLastWriteTime, &kKomFile.ftLastWriteTime ) > 0 )
 		{
-			CX2Item::KItemFormatTemplet::JuneKimLine( "ShopImageName.txt is newer than data036.kom: listing skipped (%u items)", GetItemNum() );
+			CX2Item::KItemFormatTemplet::KimLine( "ShopImageName.txt is newer than data036.kom: listing skipped (%u items)", GetItemNum() );
 			return;
 		}
 	}
@@ -4674,7 +4674,7 @@ void CX2ItemManager::CreateShopImageNameList()
 	ofs << strmResourceList.str();
 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-	CX2Item::KItemFormatTemplet::JuneKimLine( "ShopImageName.txt written: %u items in %u ms", uiNumItems, (unsigned) ( GetTickCount() - dwJuneKimListStart ) );
+	CX2Item::KItemFormatTemplet::KimLine( "ShopImageName.txt written: %u items in %u ms", uiNumItems, (unsigned) ( GetTickCount() - dwJuneKimListStart ) );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	ofs.flush();
 	ofs.close();

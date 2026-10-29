@@ -628,35 +628,35 @@ public:
 	virtual HRESULT OnLostDevice();
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	// June dungeon result R1: the state owns the GFx result widget's adapter ( June +0x7c4 ), its vslots 0xb8-0xe4 are these. Bodies: X2UIDungeonResultAdapter.cpp
-	void	JuneResultCreateAdapter();										/// 324c8b80 ( vslot 0xb8 )
-	void	JuneResultDeleteAdapter();										/// 324c8320 ( vslot 0xbc )
-	void	JuneResultFill();												/// 324d60e0 ( vslot 0xc0 )
-	void	JuneResultCloseUI();											/// 324c8c20 ( vslot 0xc4 )
-	void	JuneResultRecreateAdapter();									/// 324c8350 ( vslot 0xc8 )
-	void	JuneResultCloseAndDelete();										/// 324c8370 ( vslot 0xcc )
-	void	JuneResultEnableRetry( bool bEnable, float fCoolTime );			/// 324c83f0 ( vslot 0xe4 )
-	bool	JuneResultRetryAllowed();										/// 324d1120
-	void	JuneResultFillItems();											/// 324cf8b0
-	void	JuneResultItemPageNext();										/// 324d1210
-	void	JuneResultItemPagePrev();										/// 324d1270
-	void	JuneResultOnClose();											/// notifyCloseResultUI 32eea2c0
-	void	JuneResultOnRetry();											/// notfyRetryButton 32eea2e0
-	void	JuneResultOnInitialize();										/// notifyInitialize 32eea300
-	bool	JuneResultIsBound() const;										/// the adapter exists and has a root movie
-	bool	JuneResultNpcEventActive() const { return m_bJuneResultNpcEvent; }	/// +0x7a9 ( vslot 0xf8 ): Stage 22's post-clear NPC flag, never set offline
+	void	ResultCreateAdapter();										/// 324c8b80 ( vslot 0xb8 )
+	void	ResultDeleteAdapter();										/// 324c8320 ( vslot 0xbc )
+	void	ResultFill();												/// 324d60e0 ( vslot 0xc0 )
+	void	ResultCloseUI();											/// 324c8c20 ( vslot 0xc4 )
+	void	ResultRecreateAdapter();									/// 324c8350 ( vslot 0xc8 )
+	void	ResultCloseAndDelete();										/// 324c8370 ( vslot 0xcc )
+	void	ResultEnableRetry( bool bEnable, float fCoolTime );			/// 324c83f0 ( vslot 0xe4 )
+	bool	ResultRetryAllowed();										/// 324d1120
+	void	ResultFillItems();											/// 324cf8b0
+	void	ResultItemPageNext();										/// 324d1210
+	void	ResultItemPagePrev();										/// 324d1270
+	void	ResultOnClose();											/// notifyCloseResultUI 32eea2c0
+	void	ResultOnRetry();											/// notfyRetryButton 32eea2e0
+	void	ResultOnInitialize();										/// notifyInitialize 32eea300
+	bool	ResultIsBound() const;										/// the adapter exists and has a root movie
+	bool	ResultNpcEventActive() const { return m_bJuneResultNpcEvent; }	/// +0x7a9 ( vslot 0xf8 ): Stage 22's post-clear NPC flag, never set offline
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	virtual void	JuneResultSetModeFour();									/// 324c8390 ( vslot 0xd0 )
-	virtual void	JuneResultModeFrameMove( float fElapsedTime );				/// 324cf3d0 ( vslot 0xd4 )
-	virtual void	JuneResultRetry();											/// 324d8600 ( vslot 0xe0 )
-	virtual void	JuneResultRefreshRetryButton();								/// 324d11e0 ( vslot 0xe8 )
-	virtual void	JuneResultEscWithRetryPopup();								/// 324c9990 ( vslot 0xec )
-	virtual void	JuneResultTabKey();											/// 324c8c40 ( vslot 0x294 )
-	virtual bool	JuneResultSendConfirm( bool bQuit );						/// 324d84c0 ( vslot 0xf0 )
-	bool			JuneResultSendRetryReq();									/// 324c9530
-	bool			JuneResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT& kPacket );	/// 324db6b0
+	virtual void	ResultSetModeFour();									/// 324c8390 ( vslot 0xd0 )
+	virtual void	ResultModeFrameMove( float fElapsedTime );				/// 324cf3d0 ( vslot 0xd4 )
+	virtual void	ResultRetry();											/// 324d8600 ( vslot 0xe0 )
+	virtual void	ResultRefreshRetryButton();								/// 324d11e0 ( vslot 0xe8 )
+	virtual void	ResultEscWithRetryPopup();								/// 324c9990 ( vslot 0xec )
+	virtual void	ResultTabKey();											/// 324c8c40 ( vslot 0x294 )
+	virtual bool	ResultSendConfirm( bool bQuit );						/// 324d84c0 ( vslot 0xf0 )
+	bool			ResultSendRetryReq();									/// 324c9530
+	bool			ResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT& kPacket );	/// 324db6b0
 	bool			Handler_EGS_RESULT_SUCCESS_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );			/// 324d4cd0
 	bool			Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// 324dbb30
-	bool			Handler_EGS_JUNE_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// 324c95b0
+	bool			Handler_EGS_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// 324c95b0
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 private:
 	CX2UIDungeonResultAdapter*	m_pJuneResultAdapter;			/// +0x7c4
@@ -768,7 +768,7 @@ protected:
 	virtual bool UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	virtual bool UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-	bool Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 324c94d0 ( X2RandomMission.cpp )
+	bool Handler_EGS_RANDOM_MISSION_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 324c94d0 ( X2RandomMission.cpp )
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	virtual bool UIP2PEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 

@@ -414,11 +414,11 @@ CX2State::~CX2State(void)
 	SAFE_DELETE_DIALOG( m_pDLGJuneClearMovieSkip );
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	JuneSetResultUIMode( 0, 0.f );		// June 31f00c00 @31f014f7
+	SetResultUIMode( 0, 0.f );		// June 31f00c00 @31f014f7
 	SAFE_DELETE_DIALOG( m_pDLGJuneExitBox );
 	SAFE_DELETE_DIALOG( m_pDLGJunePartyResult );
 	if ( NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetDialogManager() )
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );		// @31f017a9
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );		// @31f017a9
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	SAFE_DELETE_DIALOG(m_pMsgOkFailToConnectServer);
 	SAFE_DELETE_DIALOG( m_pDLGLastMsgPopUp );
@@ -1142,7 +1142,7 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	if ( 0 != m_iJuneResultMode )
-		JuneResultModeFrameMove( fElapsedTime );		// June 31f0d390 @31f0e191
+		ResultModeFrameMove( fElapsedTime );		// June 31f0d390 @31f0e191
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 	if( NULL != g_pData->GetGlobalMissionManager() )
@@ -1250,13 +1250,13 @@ HRESULT CX2State::OnFrameRenderAfter()
 	if ( g_pKTDXApp->GetDGManager() != NULL )
 	{
 		CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
-		if ( pDialogManager != NULL && pDialogManager->GetJuneFlaggedDialogsOnly() == true )
+		if ( pDialogManager != NULL && pDialogManager->GetFlaggedDialogsOnly() == true )
 			pDialogManager->OnFrameRender( true, 0 );
 	}
 #ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	// June 31be3800 @31be3c7c: CKTDXCursor 31ce5400( 0 ) after this pass; March's CX2Cursor stands in while a GFx scene plays
 	if ( NULL != m_pCursor )
-		m_pCursor->JuneOnFrameRenderAfterGFx();
+		m_pCursor->OnFrameRenderAfterGFx();
 #endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 
 	return S_OK;
@@ -2111,19 +2111,19 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				if ( true == m_bJuneResultConfirmSent )
 					ReturnToPlaceWhereBeforeDungeonStart();
 				else
-					JuneResultSendConfirm( true );
+					ResultSendConfirm( true );
 			}
 		} break;
 	case SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX:
 		{
 			// June @31f25103
-			if ( NULL != g_pKTDXApp->GetJuneGFXManager() )
-				g_pKTDXApp->GetJuneGFXManager()->SetShow( true );
+			if ( NULL != g_pKTDXApp->GetGFXManager() )
+				g_pKTDXApp->GetGFXManager()->SetShow( true );
 			if ( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneExitBox ) )
 				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneExitBox, NULL, false );
 			m_pDLGJuneExitBox = NULL;
-			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
-			JuneResultEnableRetry( true, -1.f );
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );
+			ResultEnableRetry( true, -1.f );
 		} break;
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
@@ -2134,7 +2134,7 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			if( NULL != pControl )
 				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
 			if( NULL != g_pData->GetTitleManager() )
-				g_pData->GetTitleManager()->JuneEquipTitleTen();
+				g_pData->GetTitleManager()->EquipTitleTen();
 		} break;
 	case SUCM_JUNE_TITLE_TEN_CANCEL:
 		{
@@ -2142,7 +2142,7 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
 			if( NULL != pControl )
 				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
-			g_pData->GetTitleManager()->JuneCancelTitleTen();
+			g_pData->GetTitleManager()->CancelTitleTen();
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
@@ -2166,7 +2166,7 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneClearMovieSkip, NULL, false );
 			m_pDLGJuneClearMovieSkip = NULL;
 			if( NULL != g_pMain )
-				g_pMain->JuneStopClearMovie();
+				g_pMain->StopClearMovie();
 		} break;
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	}
@@ -3071,9 +3071,9 @@ bool CX2State::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			return Handler_EGS_GAME_START_TIME_COUNT_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-	case EGS_JUNE_RANDOM_MISSION_NOT:
+	case EGS_RANDOM_MISSION_NOT:
 		{
-			return Handler_EGS_JUNE_RANDOM_MISSION_NOT( hWnd, uMsg, wParam, lParam );
+			return Handler_EGS_RANDOM_MISSION_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #ifdef SERV_IRUHADEV_ADMIN_CHEATS
@@ -4388,9 +4388,9 @@ bool CX2State::HandleMsgByESC()
 			if ( 1 != m_iJuneResultMode && 2 != m_iJuneResultMode )
 			{
 				if ( true == g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) )
-					JuneResultEscWithRetryPopup();
+					ResultEscWithRetryPopup();
 				else
-					JuneOpenExitBox( false == JuneIsExitBoxShown() );
+					OpenExitBox( false == IsExitBoxShown() );
 			}
 			return false;
 		}
@@ -4400,9 +4400,9 @@ bool CX2State::HandleMsgByESC()
 		/// hide-toggle block: the GFx manager ( g_pKTDXApp +0x1c8 ) runs ActionScript closeToTopZorder ( 31c43bb0 ); a true takes the ESC. June then looks
 		/// for the profession manager ( CX2UIProfessionManager 32396dc0, +4 shown -> SetShow( 0 ) 3239d190 ) and returns false whatever it finds;
 		/// March has no profession screen ( Stage 9 note ), so the true case is just the return. A false carries on to the hide-toggle block.
-		if( NULL != g_pKTDXApp->GetJuneGFXManager() )
+		if( NULL != g_pKTDXApp->GetGFXManager() )
 		{
-			const bool bJuneClosed = g_pKTDXApp->GetJuneGFXManager()->closeToTopZorder();
+			const bool bJuneClosed = g_pKTDXApp->GetGFXManager()->closeToTopZorder();
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 			KLOG( "ErrorLog.txt" ) << ( bJuneClosed ? "[JUNE_GFX] GATE ESC closeToTopZorder -> 1 ( ESC taken )" : "[JUNE_GFX] GATE ESC closeToTopZorder -> 0" ) << fileout;
 #endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
@@ -4417,7 +4417,7 @@ bool CX2State::HandleMsgByESC()
 			{
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 				/// June @31f1e2d1-31f1e2f3: 31d03a10 ( the current hide mode is 2, 3 or 4 ) -> return false without unhiding. Only Stage 9 code enters those modes.
-				if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideModeKeepingHidden() )
+				if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->IsHideModeKeepingHidden() )
 					return false;
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 				g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow(true);
@@ -12458,7 +12458,7 @@ bool CX2State::ProcessGameScoreAndPostEffect()
 	{
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 		/// June 31f036a0 -> 31f02f50: the hide-mode toggle ( modes 2-4 -> hide all, mode before 2-4 -> back to it, else the plain toggle ) + the GFx shown byte
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneToggleHide();
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->ToggleHide();
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
 
 		ProcessShowMiniMap( bHide );
@@ -13403,7 +13403,7 @@ bool CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT( HWND hWnd, UINT uMsg, WPARAM w
 		// June 31f00970: the map, then the two sets ( +0xa94 / +0xaa4 ). June has none of the two event blocks below; it
 		// ends with 32344880() and a state virtual at +0x100, which are routed (STATUS C9h-2e), not ported here.
 		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
-		g_pInstanceData->JuneSetCodeEventSets( kEvent.m_setJuneCodeEventA, kEvent.m_setJuneCodeEventB );
+		g_pInstanceData->SetCodeEventSets( kEvent.m_setJuneCodeEventA, kEvent.m_setJuneCodeEventB );
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 		// June 31f00970 @31f00a61 (Atlas E1c): the village NPC relation refresh after the code events changed.
 		if( NULL != g_pData && NULL != g_pData->GetQuestManager() )

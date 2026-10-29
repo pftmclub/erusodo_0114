@@ -3,7 +3,7 @@
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 /// June's DIRECT_MOVE_DATA reader, inlined in AddMovableLineData_LUA ( 31c75470 ) and AddTrigger_LUA ( @31c79cb9 ): the open table's
 /// rows 1, 2, ... until one is missing, each row's fields 1-4 ( 0 when missing )
-static void JuneReadDirectMoveData( KLuaManager& luaManager_, vector<D3DXVECTOR4>& vecDirectMoveData_ )
+static void ReadDirectMoveData( KLuaManager& luaManager_, vector<D3DXVECTOR4>& vecDirectMoveData_ )
 {
 	D3DXVECTOR4 vRow( 0.f, 0.f, 0.f, 0.f );
 	for ( int iRow = 1; true == luaManager_.BeginTable( iRow ); ++iRow )
@@ -22,7 +22,7 @@ static void JuneReadDirectMoveData( KLuaManager& luaManager_, vector<D3DXVECTOR4
 }
 
 /// June logs its AddMovableLineData_LUA errors ( wide format strings 33449310 .. 33449500 ); here in ASCII, to ErrorLog.txt
-static void JuneMovableLineError( const char* pszWhat_, const wstring& wstrFileName_, const wstring& wstrDetail_ )
+static void MovableLineError( const char* pszWhat_, const wstring& wstrFileName_, const wstring& wstrDetail_ )
 {
 	std::string strFile, strDetail;
 	ConvertWCHARToChar( strFile, wstrFileName_ );
@@ -1192,7 +1192,7 @@ D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, float fRadius, int* 
 
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 /// June 31c6b8e0 ( thiscall, ret 0x10 ). Callers: CX2GUUser::CommonFrameMove @3206bcda ( uses the result ), CX2GUNPC::PhysicProcess @32782ed9 ( ignores it )
-bool CKTDGLineMap::JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser )
+bool CKTDGLineMap::AutoDisableRelease( int iLine, __int64 uid, bool bUser )
 {
 	LineData* pLineData = AccessLineData( iLine );
 	if ( NULL == pLineData || true != pLineData->m_bJuneAutoDisable )
@@ -2937,7 +2937,7 @@ bool CKTDGLineMap::AddTrigger_LUA()
 						triggerDataLine.m_bEnable = false;
 					if ( true == luaManager.BeginTable( "DIRECT_MOVE_DATA" ) )
 					{
-						JuneReadDirectMoveData( luaManager, triggerDataLine.m_vecDirectMoveData );
+						ReadDirectMoveData( luaManager, triggerDataLine.m_vecDirectMoveData );
 						luaManager.EndTable();
 					}
 				}
@@ -3154,7 +3154,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 	int iLineIndex = -1;
 	if ( false == luaManager.GetValue( "LINE_ID", iLineIndex ) || static_cast<UINT>( iLineIndex ) >= uiNumLine )
 	{
-		JuneMovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"" );	/// June 33449500
+		MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"" );	/// June 33449500
 		return false;
 	}
 
@@ -3165,7 +3165,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 		{
 			if ( static_cast<UINT>( iFollowerLineIndex ) >= uiNumLine )
 			{
-				JuneMovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"(FOLLOWER_LINE_ID)" );	/// June: the same 33449500
+				MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"(FOLLOWER_LINE_ID)" );	/// June: the same 33449500
 				return false;
 			}
 			kData.m_vecFollowerLineID.push_back( iFollowerLineIndex );
@@ -3191,7 +3191,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 				return false;
 			if ( kData.m_wstrTargetMeshName.empty() != kData.m_wstrTargetBoneName.empty() )
 			{
-				JuneMovableLineError( "LineMap info wrong!! only one of TARGET_MESH_NAME, TARGET_BONE_NAME is set.", m_wstrJuneLineMapFileName,
+				MovableLineError( "LineMap info wrong!! only one of TARGET_MESH_NAME, TARGET_BONE_NAME is set.", m_wstrJuneLineMapFileName,
 					L"TARGET_MESH_NAME : " + kData.m_wstrTargetMeshName + L" / TARGET_BONE_NAME : " + kData.m_wstrTargetBoneName );	/// June 33449310
 				return false;
 			}
@@ -3209,11 +3209,11 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 				kData.m_bIsRight = true;
 			if ( false == luaManager.BeginTable( "DIRECT_MOVE_DATA" ) )
 			{
-				JuneMovableLineError( ( LMT_SPIN == kData.m_iMoveType ) ? "LMT_SPIN DIRECT_MOVE_DATA is 0!!!" : "LMT_PATROL DIRECT_MOVE_DATA is 0!!!",
+				MovableLineError( ( LMT_SPIN == kData.m_iMoveType ) ? "LMT_SPIN DIRECT_MOVE_DATA is 0!!!" : "LMT_PATROL DIRECT_MOVE_DATA is 0!!!",
 					m_wstrJuneLineMapFileName, L"" );	/// June 33449470 / 33449400
 				return false;
 			}
-			JuneReadDirectMoveData( luaManager, kData.m_vecDirectMoveData );
+			ReadDirectMoveData( luaManager, kData.m_vecDirectMoveData );
 			luaManager.EndTable();
 		} break;
 
@@ -3303,7 +3303,7 @@ bool CKTDGLineMap::GetMovableLineDataByMeshName( const wstring& wstrMeshName_, O
 
 		if ( true == bFound )
 		{
-			JuneMovableLineError( "DIRECT MOVE TYPE line map Target Mesh name is set twice!! A mesh may follow one line only, fix it.",
+			MovableLineError( "DIRECT MOVE TYPE line map Target Mesh name is set twice!! A mesh may follow one line only, fix it.",
 				m_wstrJuneLineMapFileName, L"Mesh Name : " + wstrMeshName_ );	/// June 334491e0 in 33449198
 			continue;
 		}
@@ -4120,7 +4120,7 @@ void CKTDGLineMap::SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float f
 #endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
-static float June_Clamp01( float f_ )
+static float Clamp01( float f_ )
 {
 	if ( f_ > 1.f )
 		return 1.f;
@@ -4130,7 +4130,7 @@ static float June_Clamp01( float f_ )
 }
 
 // June 31c69af0: closest point of each line to the drop ( x, 99999, z ) .. ( x, 0, z ); the drop ends at y 0 ( JUNE_BUGS )
-D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ )
+D3DXVECTOR3 CKTDGLineMap::GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ )
 {
 	D3DXVECTOR3 vOut( vPos_.x, ( true == bUnderPos_ ? -99999.f : 99999.f ), vPos_.z );
 
@@ -4165,7 +4165,7 @@ D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool 
 			if ( 100.f <= fE )
 			{
 				const D3DXVECTOR3 vQP = vP0 - vQ0;
-				vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQP, &vD2 ) / fE );
+				vB = vQ0 + vD2 * Clamp01( D3DXVec3Dot( &vQP, &vD2 ) / fE );
 			}
 		}
 		else if ( fE < 10000.f )
@@ -4173,7 +4173,7 @@ D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool 
 			if ( 100.f <= fA )
 			{
 				const D3DXVECTOR3 vPQ = vQ0 - vP0;
-				vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPQ, &vD1 ) / fA );
+				vA = vP0 + vD1 * Clamp01( D3DXVec3Dot( &vPQ, &vD1 ) / fA );
 			}
 		}
 		else
@@ -4198,28 +4198,28 @@ D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool 
 					{
 						if ( false == bSIn )
 						{
-							vA = vP0 + vD1 * June_Clamp01( fS );
+							vA = vP0 + vD1 * Clamp01( fS );
 							vB = vQ0;
 							if ( 100.f <= fE )
 							{
 								const D3DXVECTOR3 vQA = vA - vQ0;
-								vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
+								vB = vQ0 + vD2 * Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
 							}
 						}
 						else
 						{
-							vB = vQ0 + vD2 * June_Clamp01( fT );
+							vB = vQ0 + vD2 * Clamp01( fT );
 							vA = vP0;
 							if ( 100.f <= fA )
 							{
 								const D3DXVECTOR3 vPB = vB - vP0;
-								vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
+								vA = vP0 + vD1 * Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
 							}
 						}
 					}
 					else
 					{
-						vA = vP0 + vD1 * June_Clamp01( fS );
+						vA = vP0 + vD1 * Clamp01( fS );
 						vB = vQ0;
 						if ( 100.f <= fE )
 						{
@@ -4230,19 +4230,19 @@ D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool 
 
 						if ( fT < 0.f || 1.f < fT )
 						{
-							const D3DXVECTOR3 vBT = vQ0 + vD2 * June_Clamp01( fT );
+							const D3DXVECTOR3 vBT = vQ0 + vD2 * Clamp01( fT );
 							vA = vP0;
 							if ( 100.f <= fA )
 							{
 								const D3DXVECTOR3 vPB = vBT - vP0;
-								vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
+								vA = vP0 + vD1 * Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
 							}
 
 							vB = vQ0;
 							if ( 100.f <= fE )
 							{
 								const D3DXVECTOR3 vQA = vA - vQ0;
-								vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
+								vB = vQ0 + vD2 * Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
 							}
 						}
 					}
@@ -4264,7 +4264,7 @@ D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool 
 				{
 					if ( fS0 <= 1.f || fS1 <= 1.f )
 					{
-						vA = vP0 + vD1 * ( ( June_Clamp01( fS0 ) + June_Clamp01( fS1 ) ) * 0.5f );
+						vA = vP0 + vD1 * ( ( Clamp01( fS0 ) + Clamp01( fS1 ) ) * 0.5f );
 						if ( 100.f <= fE )
 						{
 							const D3DXVECTOR3 vQA = vA - vQ0;

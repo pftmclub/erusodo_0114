@@ -2,9 +2,9 @@
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 // June effect completion C9c-2b: the entry types are defined in X2BaseUnitViewerUI.cpp
-struct JuneViewerFxEntry;
-struct JuneViewerFxSound;
-struct JuneViewerFxPlayingSound;
+struct ViewerFxEntry;
+struct ViewerFxSound;
+struct ViewerFxPlayingSound;
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 class CX2BaseUnitViewerUI : public CKTDGObject
 {
@@ -19,11 +19,11 @@ public:
 	virtual RENDER_HINT		OnFrameRender_Prepare();										// 32957260
 	virtual void			OnFrameRender_Draw();											// 32957330
 
-	void	JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ );	// 32959640
-	void	JuneViewerFxStop( int iGroup_ );												// 329594c0
-	void	JuneViewerFxStopSounds( int iGroup_ );											// 32959250
+	void	ViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ );	// 32959640
+	void	ViewerFxStop( int iGroup_ );												// 329594c0
+	void	ViewerFxStopSounds( int iGroup_ );											// 32959250
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-	bool	JuneViewerFxIsPlaying( const std::wstring& wstrSetName_ );						// 329581c0
+	bool	ViewerFxIsPlaying( const std::wstring& wstrSetName_ );						// 329581c0
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #else SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	CX2BaseUnitViewerUI(void) {};
@@ -32,19 +32,19 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 protected:
-	std::vector<JuneViewerFxEntry*>			m_vecJuneFxMesh;			// +0x194 mesh entries (0x40 bytes)
-	std::vector<JuneViewerFxEntry*>			m_vecJuneFxParticle;		// +0x1a4 particle entries
-	std::vector<JuneViewerFxSound*>			m_vecJuneFxPendingSound;	// +0x1b4 pending sounds (0x30 bytes)
-	std::vector<JuneViewerFxPlayingSound*>	m_vecJuneFxPlayingSound;	// +0x1c4 playing sounds (8 bytes)
+	std::vector<ViewerFxEntry*>			m_vecJuneFxMesh;			// +0x194 mesh entries (0x40 bytes)
+	std::vector<ViewerFxEntry*>			m_vecJuneFxParticle;		// +0x1a4 particle entries
+	std::vector<ViewerFxSound*>			m_vecJuneFxPendingSound;	// +0x1b4 pending sounds (0x30 bytes)
+	std::vector<ViewerFxPlayingSound*>	m_vecJuneFxPlayingSound;	// +0x1c4 playing sounds (8 bytes)
 	bool									m_bJuneFxShow;				// +0x190, set by Play, never cleared
 	bool									m_bJuneFxLandDirty;			// +0x1d4, set by SetPositionOnScr (June 31f99f70); read once per frame
 	int										m_iJuneFxTriggerCode1;		// +0x1d8, written by the viewer's frame move (m_ePlayedEmotion)
 	int										m_iJuneFxTriggerCode2;		// +0x1dc, motion type 7 -> 2, 8 -> 1, else 0 (always 0 in March)
 
 private:
-	void			JuneViewerFxCreatePass();																	// 32957980
-	void			JuneViewerFxSoundPass();																	// 329582b0
-	D3DXVECTOR3		JuneViewerFxLandPosition( bool bUseLand_, CKTDGXSkinAnim* pXSkinAnim_ );					// 32957170
-	void			JuneViewerFxLinkTraceTargets();																// 32959640 @3295987e
+	void			ViewerFxCreatePass();																	// 32957980
+	void			ViewerFxSoundPass();																	// 329582b0
+	D3DXVECTOR3		ViewerFxLandPosition( bool bUseLand_, CKTDGXSkinAnim* pXSkinAnim_ );					// 32957170
+	void			ViewerFxLinkTraceTargets();																// 32959640 @3295987e
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 };

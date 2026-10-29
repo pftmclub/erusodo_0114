@@ -850,12 +850,12 @@ CX2PVPGame::PVPResultInfo::~PVPResultInfo()
 	if( true == CX2Game::UpdateUnitPointer() )
 		return true;
 
-	JuneUpdateUnitPointerNPCWalk();
+	UpdateUnitPointerNPCWalk();
 	return true;
 }
 
 /// March's NPC focus walk, unchanged; the base call it started with is made by UpdateUnitPointer() above.
-void CX2PVPGame::JuneUpdateUnitPointerNPCWalk()
+void CX2PVPGame::UpdateUnitPointerNPCWalk()
 {
 #else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2PVPGame::UpdateUnitPointer()

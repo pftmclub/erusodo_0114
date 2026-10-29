@@ -33,7 +33,7 @@ public:
 	void SetScale( const D3DXVECTOR3& vScale );
 #ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	bool IsAnimExist( const WCHAR* pName );		// 32e4fe30
-	void JuneStopUIEffectSets();					// 32e4fde0
+	void StopUIEffectSets();					// 32e4fde0
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 #ifdef SERV_PET_SYSTEM

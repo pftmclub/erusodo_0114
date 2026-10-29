@@ -167,10 +167,10 @@ private:
 		//{{ kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 		float		GetAddMaxMPValue() const;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
-		float		JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const;    /// June 32869f80
+		float		GetAddMaxMPValue( const int iJuneEquipGroup_ ) const;    /// June 32869f80
 #endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
-		int			JuneGetEquipGroup( const UidType itemUID_ ) const;    /// June 3286a4b0
+		int			GetEquipGroup( const UidType itemUID_ ) const;    /// June 3286a4b0
 #endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 		//}} kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 

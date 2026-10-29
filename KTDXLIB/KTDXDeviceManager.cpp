@@ -138,7 +138,7 @@ HRESULT CKTDXDeviceManager::OnFrameMove( double fTime, float fElapsedTime )
 		const size_t uCount = m_vecJuneAutoRelease.size();
 		for ( size_t i = 0; i < uCount; ++i )
 		{
-			JuneCloseDeviceByPointer( m_vecJuneAutoRelease[i] );
+			CloseDeviceByPointer( m_vecJuneAutoRelease[i] );
 		}
 		m_vecJuneAutoRelease.clear();
 	}
@@ -1126,7 +1126,7 @@ bool CKTDXDeviceManager::IsPlaying( const WCHAR* pFileName )
 
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 // "JUNE_FX SOUND_RELEASE <event> <name> ref=<n> deleted=<0|1>" ( _DEBUG only )
-static void JuneSoundReleaseLog( const char* pszEvent_, const wstring& wstrName_, int iRef_, int iDeleted_ )
+static void SoundReleaseLog( const char* pszEvent_, const wstring& wstrName_, int iRef_, int iDeleted_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 	std::string strName;
@@ -1143,19 +1143,19 @@ static void JuneSoundReleaseLog( const char* pszEvent_, const wstring& wstrName_
 }
 
 // June 31cdcca0: FMOD_CHANNEL_CALLBACKTYPE_END ( type 0 ) -> 31cdcbb0 on the app's device manager, returns FMOD_OK.
-static FMOD_RESULT F_CALLBACK JuneSoundAutoReleaseCallback( FMOD_CHANNEL* pChannel_, FMOD_CHANNEL_CALLBACKTYPE eType_, void* pCommandData1_, void* pCommandData2_ )
+static FMOD_RESULT F_CALLBACK SoundAutoReleaseCallback( FMOD_CHANNEL* pChannel_, FMOD_CHANNEL_CALLBACKTYPE eType_, void* pCommandData1_, void* pCommandData2_ )
 {
 	if ( eType_ == FMOD_CHANNEL_CALLBACKTYPE_END )
 	{
 		if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDeviceManager() != NULL )
-			g_pKTDXApp->GetDeviceManager()->JuneQueueAutoRelease( pChannel_ );
+			g_pKTDXApp->GetDeviceManager()->QueueAutoRelease( pChannel_ );
 	}
 	return FMOD_OK;
 }
 
 // June 31cdcbb0: under m_DeviceLock, the FIRST sound device whose current channel is the ended one
 // goes into the queue ( +0x240 ), then break. A replay changes m_pChannel, so a replayed device is not queued.
-void CKTDXDeviceManager::JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
+void CKTDXDeviceManager::QueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
 {
 	CSLock locker( m_DeviceLock );
 	for ( DeviceMap::iterator it = m_DeviceMap.begin(); it != m_DeviceMap.end(); ++it )
@@ -1167,11 +1167,11 @@ void CKTDXDeviceManager::JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
 		if ( pSound->GetChannel() == pEndedChannel_ )
 		{
 			m_vecJuneAutoRelease.push_back( pSound );
-			JuneSoundReleaseLog( "queue", pSound->GetDeviceID(), -1, 0 );
+			SoundReleaseLog( "queue", pSound->GetDeviceID(), -1, 0 );
 			return;
 		}
 	}
-	JuneSoundReleaseLog( "end-nomatch", L"-", -1, 0 );
+	SoundReleaseLog( "end-nomatch", L"-", -1, 0 );
 }
 
 // June 31cdd8d0 ( CloseDevice( CKTDXDevice* ) ): returns at a count <= 0; at a count > 1 one decrement and
@@ -1179,7 +1179,7 @@ void CKTDXDeviceManager::JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
 // THIS pointer, delete ( inside the lock, as June does ). March's CloseDevice( name ) is not used: it would
 // delete at a count <= 0 and does not compare the pointer. June's lock-free compare-exchange is March's
 // m_csDeviceState-guarded decrement ( m_RefCount is a plain int here ).
-void CKTDXDeviceManager::JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ )
+void CKTDXDeviceManager::CloseDeviceByPointer( CKTDXDevice* pDevice_ )
 {
 	if ( pDevice_ == NULL )
 		return;
@@ -1193,7 +1193,7 @@ void CKTDXDeviceManager::JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ )
 		if ( iRef > 1 )
 		{
 			pDevice_->m_RefCount = iRef - 1;
-			JuneSoundReleaseLog( "close", wstrName, iRef, 0 );
+			SoundReleaseLog( "close", wstrName, iRef, 0 );
 			return;
 		}
 	}
@@ -1212,17 +1212,17 @@ void CKTDXDeviceManager::JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ )
 			}
 		}
 	}
-	JuneSoundReleaseLog( "close", wstrName, 1, iDeleted );
+	SoundReleaseLog( "close", wstrName, 1, iDeleted );
 }
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 // June 31cdd4e0: registers JuneSoundAutoReleaseCallback ( 31cdcca0 ) on the channel. PlaySound uses the same call.
-int CKTDXDeviceManager::JuneRegisterAutoRelease( FMOD_CHANNEL* pChannel_ )
+int CKTDXDeviceManager::RegisterAutoRelease( FMOD_CHANNEL* pChannel_ )
 {
 	if ( pChannel_ == NULL )
 		return -1;
-	return (int) FMOD_Channel_SetCallback( pChannel_, JuneSoundAutoReleaseCallback );
+	return (int) FMOD_Channel_SetCallback( pChannel_, SoundAutoReleaseCallback );
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -1274,9 +1274,9 @@ out:
 				if ( bJuneAutoRelease_ == true && pSound->GetChannel() != NULL )
 				{
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-					iJuneResult = JuneRegisterAutoRelease( pSound->GetChannel() );
+					iJuneResult = RegisterAutoRelease( pSound->GetChannel() );
 #else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-					iJuneResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), JuneSoundAutoReleaseCallback );
+					iJuneResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), SoundAutoReleaseCallback );
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 					iJuneRegistered = 1;
 				}
@@ -1284,7 +1284,7 @@ out:
 				// ref = arg 4 ( auto-release ), deleted = callback registered, then the FMOD result in the name
 				WCHAR wszJuneOpen[64] = {0};
 				StringCchPrintfW( wszJuneOpen, ARRAY_SIZE(wszJuneOpen), L" fmod=%d channel=%d", iJuneResult, ( pSound->GetChannel() != NULL ) ? 1 : 0 );
-				JuneSoundReleaseLog( "open", wstring( deviceIDUpper ) + wszJuneOpen, ( bJuneAutoRelease_ == true ) ? 1 : 0, iJuneRegistered );
+				SoundReleaseLog( "open", wstring( deviceIDUpper ) + wszJuneOpen, ( bJuneAutoRelease_ == true ) ? 1 : 0, iJuneRegistered );
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 			}
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE

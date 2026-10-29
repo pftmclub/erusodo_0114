@@ -750,8 +750,8 @@ public:
     static HRESULT CheckDeviceFormat( DWORD Usage, D3DRESOURCETYPE RType, D3DFORMAT CheckFormat );
     static HRESULT CheckDepthStencilMatch( D3DFORMAT BackBufferFormat, D3DFORMAT DepthFormat );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-    static HRESULT JuneCheckDeviceMultiSampleType( D3DFORMAT SurfaceFormat, D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels );    /// June 31c5a0d0
-    static HRESULT JuneGetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels );    /// June 31c5a120
+    static HRESULT CheckDeviceMultiSampleType( D3DFORMAT SurfaceFormat, D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels );    /// June 31c5a0d0
+    static HRESULT GetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels );    /// June 31c5a120
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
     static void ClearBackBuffer( D3DCOLOR d3dColor = 0xffffffff, float fZ = 1.0f, DWORD dwStencil = 0x00000000 );

@@ -427,7 +427,7 @@ HRESULT CX2Cursor::OnFrameRender()
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 // June 31be3800 @31be3c7c: the scene cursor is the frame's last draw, after GFx ( @31be3c68 ) and the 0x18 pass ( @31be3c6f )
-HRESULT CX2Cursor::JuneOnFrameRenderAfterGFx()
+HRESULT CX2Cursor::OnFrameRenderAfterGFx()
 {
 	if ( m_bJuneDrawAfterGFx == false )
 		return S_OK;

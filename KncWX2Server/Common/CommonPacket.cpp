@@ -758,7 +758,7 @@ SERIALIZE_DEFINE_GET( KSkillData, obj, ks )
 		;
 }
 
-SERIALIZE_DEFINE_PUT( KJuneSkillSlotState, obj, ks )
+SERIALIZE_DEFINE_PUT( KSkillSlotState, obj, ks )
 {
 	return PUT( m_iKey )
 		&& PUT( m_iState )
@@ -766,7 +766,7 @@ SERIALIZE_DEFINE_PUT( KJuneSkillSlotState, obj, ks )
 		;
 }
 
-SERIALIZE_DEFINE_GET( KJuneSkillSlotState, obj, ks )
+SERIALIZE_DEFINE_GET( KSkillSlotState, obj, ks )
 {
 	return GET( m_iKey )
 		&& GET( m_iState )
@@ -774,21 +774,21 @@ SERIALIZE_DEFINE_GET( KJuneSkillSlotState, obj, ks )
 		;
 }
 
-SERIALIZE_DEFINE_PUT( KJuneIntPair, obj, ks )
+SERIALIZE_DEFINE_PUT( KIntPair, obj, ks )
 {
 	return PUT( m_iFirst )
 		&& PUT( m_iSecond )
 		;
 }
 
-SERIALIZE_DEFINE_GET( KJuneIntPair, obj, ks )
+SERIALIZE_DEFINE_GET( KIntPair, obj, ks )
 {
 	return GET( m_iFirst )
 		&& GET( m_iSecond )
 		;
 }
 
-SERIALIZE_DEFINE_PUT( KJuneSkillExtraData, obj, ks )
+SERIALIZE_DEFINE_PUT( KSkillExtraData, obj, ks )
 {
 	return PUT( m_vecSkillDataA )
 		&& PUT( m_vecSkillDataB )
@@ -797,7 +797,7 @@ SERIALIZE_DEFINE_PUT( KJuneSkillExtraData, obj, ks )
 		;
 }
 
-SERIALIZE_DEFINE_GET( KJuneSkillExtraData, obj, ks )
+SERIALIZE_DEFINE_GET( KSkillExtraData, obj, ks )
 {
 	return GET( m_vecSkillDataA )
 		&& GET( m_vecSkillDataB )

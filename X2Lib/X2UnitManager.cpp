@@ -238,7 +238,7 @@ bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
 		return false;
 	}
 
-	JuneUnitViewerEffectSet kRow;
+	UnitViewerEffectSet kRow;
 	kRow.m_iUnitType	= static_cast<int>( lua_tointeger( L, 3 ) );
 	kRow.m_iUnitClass	= static_cast<int>( lua_tointeger( L, 4 ) );
 	ConvertUtf8ToWCHAR( kRow.m_wstrEffectSetName, lua_tostring( L, 5 ) );
@@ -257,11 +257,11 @@ bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
 bool CX2UnitManager::GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
 	std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop )
 {
-	std::map<std::wstring, JuneUnitViewerEffectSet>::const_iterator it = m_mapJuneUnitViewerEffectSet.find( wstrMotion );
+	std::map<std::wstring, UnitViewerEffectSet>::const_iterator it = m_mapJuneUnitViewerEffectSet.find( wstrMotion );
 	if( m_mapJuneUnitViewerEffectSet.end() == it )
 		return false;
 
-	const JuneUnitViewerEffectSet& kRow = it->second;
+	const UnitViewerEffectSet& kRow = it->second;
 
 	int iUnitType = static_cast<int>( CX2Unit::UT_NONE );
 	const CX2Unit::UnitTemplet* pUnitTemplet = GetUnitTemplet( eUnitClass );
@@ -283,7 +283,7 @@ bool CX2UnitManager::GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2
 
 // Loader half (June 31ee6100 @31ee6224 runs OpenDataScriptFile on the file; 32376f10 = LoadLuaTinker on the main state).
 // load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as DAMAGE_DATA_LOAD does).
-bool CX2UnitManager::OpenJuneUnitViewerEffectSetTable( const WCHAR* pFileName )
+bool CX2UnitManager::OpenUnitViewerEffectSetTable( const WCHAR* pFileName )
 {
 	m_mapJuneUnitViewerEffectSet.clear();
 	m_iJuneUnitViewerEffectSetSkippedDuplicate = 0;
@@ -369,7 +369,7 @@ std::wstring CX2UnitManager::GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, i
 
 // Loader half (June 31ee6100 @31ee6217 runs 32376f10 = LoadLuaTinker on the file, after SelectVoiceTable.lua (not ported)
 // and before UnitViewerEffectSetTable.lua). Load time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt.
-bool CX2UnitManager::OpenJuneAnimationNameTable( const WCHAR* pFileName )
+bool CX2UnitManager::OpenAnimationNameTable( const WCHAR* pFileName )
 {
 	m_mapJuneAnimationName.clear();
 	m_iJuneAnimationNameRows = 0;

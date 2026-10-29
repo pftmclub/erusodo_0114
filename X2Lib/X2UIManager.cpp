@@ -241,18 +241,18 @@ void CX2UIManager::ResetUIManager()
 	//m_pPvPLobby = new CX2UIPvPList(g_pMain->GetNowState(), L"DLG_UI_Emulate.lua" );
 	//m_pWatch	= new CX2UIWatch(g_pMain->GetNowState(), L"DLG_UI_Watch.lua" );
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
-	JuneInitGuideParticleType();	// June ctor 32157c10
+	InitGuideParticleType();	// June ctor 32157c10
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 }
 
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 // June 32154f60: June's table also holds types 1 / 2 ( Luciel ) and 5-7 ( Ain ), left to their ports
-void CX2UIManager::JuneInitGuideParticleType()
+void CX2UIManager::InitGuideParticleType()
 {
 	const WCHAR* apwszName[] = { L"Transcendence_Loop_P1", L"Transcendence_Loop_P2", L"Transcendence_Loop_P3", L"Transcendence_Loop_P4", L"Transcendence_Loop_P5",
 		L"Transcendence_Open_P1", L"Transcendence_Open_P2", L"Transcendence_Open_P3", L"Transcendence_Open_P4", L"Transcendence_Open_P5" };
-	JuneGuideParticleType kType;
+	GuideParticleType kType;
 	kType.m_fRespawnTime = 9999.f;
 	for( int i = 0; i < ARRAY_SIZE( apwszName ); ++i )
 		kType.m_vecName.push_back( apwszName[i] );
@@ -260,10 +260,10 @@ void CX2UIManager::JuneInitGuideParticleType()
 }
 
 // June 32151190
-CX2UIManager::JuneGuideParticle* CX2UIManager::JuneFindGuideParticle( const int iType_, const int iSlot_ )
+CX2UIManager::GuideParticle* CX2UIManager::FindGuideParticle( const int iType_, const int iSlot_ )
 {
-	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
-	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; ++it )
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; ++it )
 	{
 		if( iSlot_ == it->second.m_iSlot )
 			return &it->second;
@@ -272,14 +272,14 @@ CX2UIManager::JuneGuideParticle* CX2UIManager::JuneFindGuideParticle( const int 
 }
 
 // June 321536e0: the particles come on the next UI frame, when the type's timer reaches 0
-void CX2UIManager::JuneAddGuideParticle( const int iType_, const int iSlot_, const float fX_, const float fY_ )
+void CX2UIManager::AddGuideParticle( const int iType_, const int iSlot_, const float fX_, const float fY_ )
 {
 	if( NULL == g_pData->GetUIMajorParticle() || m_mapJuneGuideParticleType.end() == m_mapJuneGuideParticleType.find( iType_ ) )
 		return;
-	if( NULL != JuneFindGuideParticle( iType_, iSlot_ ) )
-		JuneRemoveGuideParticle( iType_, iSlot_ );
+	if( NULL != FindGuideParticle( iType_, iSlot_ ) )
+		RemoveGuideParticle( iType_, iSlot_ );
 
-	JuneGuideParticle kParticle;
+	GuideParticle kParticle;
 	kParticle.m_iSlot = iSlot_;
 	kParticle.m_fX = fX_;
 	kParticle.m_fY = fY_;
@@ -288,13 +288,13 @@ void CX2UIManager::JuneAddGuideParticle( const int iType_, const int iSlot_, con
 }
 
 // June 32151fa0
-void CX2UIManager::JuneRemoveGuideParticle( const int iType_, const int iSlot_ )
+void CX2UIManager::RemoveGuideParticle( const int iType_, const int iSlot_ )
 {
 	if( NULL == g_pData->GetUIMajorParticle() )
 		return;
 
-	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
-	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; )
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; )
 	{
 		if( iSlot_ != it->second.m_iSlot )
 		{
@@ -315,36 +315,36 @@ void CX2UIManager::JuneRemoveGuideParticle( const int iType_, const int iSlot_ )
 }
 
 // June 32155eb0 @3215631c: a type's timer at 0 re-spawns all its entries and restarts at the type's period
-void CX2UIManager::JuneGuideParticleFrameMove( const float fElapsedTime_ )
+void CX2UIManager::GuideParticleFrameMove( const float fElapsedTime_ )
 {
 	for( std::map<int, float>::iterator mit = m_mapJuneGuideParticleTimer.begin(); mit != m_mapJuneGuideParticleTimer.end(); ++mit )
 	{
-		std::map<int, JuneGuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( mit->first );
+		std::map<int, GuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( mit->first );
 		if( m_mapJuneGuideParticleType.end() == tit )
 			continue;
 		mit->second -= fElapsedTime_;
 		if( mit->second <= 0.f )
 		{
-			JuneRespawnGuideParticle( mit->first );
+			RespawnGuideParticle( mit->first );
 			mit->second = tit->second.m_fRespawnTime;
 		}
 	}
 }
 
 // June 32155e20
-void CX2UIManager::JuneRespawnGuideParticle( const int iType_ )
+void CX2UIManager::RespawnGuideParticle( const int iType_ )
 {
-	std::map<int, JuneGuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( iType_ );
+	std::map<int, GuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( iType_ );
 	if( m_mapJuneGuideParticleType.end() == tit )
 		return;
 
-	std::pair< std::multimap<int, JuneGuideParticle>::iterator, std::multimap<int, JuneGuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
-	for( std::multimap<int, JuneGuideParticle>::iterator it = range.first; it != range.second; ++it )
-		JuneCreateGuideParticle( it->second, tit->second );
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; ++it )
+		CreateGuideParticle( it->second, tit->second );
 }
 
 // June 32153880; its skip for game type 5 with hidden dialogs has no March game type
-void CX2UIManager::JuneCreateGuideParticle( JuneGuideParticle& kParticle_, const JuneGuideParticleType& kType_ )
+void CX2UIManager::CreateGuideParticle( GuideParticle& kParticle_, const GuideParticleType& kType_ )
 {
 	if( NULL == GetUISkillTree() || NULL == GetUISkillTree()->GetDLGGameSkillSLot() || false == GetUISkillTree()->GetDLGGameSkillSLot()->GetShow()
 		|| NULL == g_pData->GetUIMajorParticle() )
@@ -573,7 +573,7 @@ HRESULT CX2UIManager::OnFrameMove( double fTime, float fElapsedTime )
 #endif //SERV_RELATIONSHIP_SYSTEM_LAUNCHING_EVENT
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
-	JuneGuideParticleFrameMove( fElapsedTime );		// June 32155eb0 @3215631c
+	GuideParticleFrameMove( fElapsedTime );		// June 32155eb0 @3215631c
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
     return S_OK;
 }

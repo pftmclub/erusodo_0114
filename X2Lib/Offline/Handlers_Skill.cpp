@@ -361,7 +361,7 @@ bool CX2OfflineServer::Handler_EGS_INIT_SKILL_TREE_REQ( KOfflineSession& kSes, c
 	// SetDefaultSkill, and June has no default skills), so every skill the level earns goes back out
 	// after it.
 	const bool bAckSent = Reply( kSes, EGS_INIT_SKILL_TREE_ACK, kAck );
-	PushJuneSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"tree reset" );
+	PushSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"tree reset" );
 	return bAckSent;
 #else SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	return Reply( kSes, EGS_INIT_SKILL_TREE_ACK, kAck );
@@ -508,13 +508,13 @@ UidType CX2OfflineServer::FindItemByID( int iItemID )
 // info carries a map, skill -> memo ), spend the removal item the client named, and log every decision. A refusal answers
 // ERR_UNKNOWN, which the client shows through IsValidPacket. The skill in both REQs is already the base ( 32207210 ).
 //////////////////////////////////////////////////////////////////////////
-bool CX2OfflineServer::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ kReq;
+	KEGS_ACTIVE_SKILL_MEMO_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
-	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK kAck;
+	KEGS_ACTIVE_SKILL_MEMO_ACK kAck;
 	kAck.m_iOK		= NetError::ERR_UNKNOWN;
 	kAck.m_iSkillID	= kReq.m_iSkillID;
 	kAck.m_iMemoID	= kReq.m_iMemoID;
@@ -523,13 +523,13 @@ bool CX2OfflineServer::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& 
 	if( false == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu activate refused: no selected unit" );
-		return Reply( kSes, EGS_JUNE_ACTIVE_SKILL_MEMO_ACK, kAck );
+		return Reply( kSes, EGS_ACTIVE_SKILL_MEMO_ACK, kAck );
 	}
 
 	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 	pSkill->Load( kRow.m_nUnitUID );
 
-	const SSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetJuneMemo( kReq.m_iSkillID, kReq.m_iMemoID, kRow.m_iUnitClass );
+	const SSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetMemo( kReq.m_iSkillID, kReq.m_iMemoID, kRow.m_iUnitClass );
 	int iUpgradedSkillID = -1;
 	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
 		iUpgradedSkillID = g_pData->GetSkillTree()->GetUpgradedSkillID( kReq.m_iSkillID );
@@ -540,34 +540,34 @@ bool CX2OfflineServer::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& 
 		szRefusal = L"the class has no such memo row";
 	else if( kRow.m_iLevel < pMemo->m_iRequireLevel )
 		szRefusal = L"below the row's level";
-	else if( 0 != pSkill->GetJuneActiveMemo( kReq.m_iSkillID ) )
+	else if( 0 != pSkill->GetActiveMemo( kReq.m_iSkillID ) )
 		szRefusal = L"the skill already has a memo";
 	else if( false == bLearned )
 		szRefusal = L"the skill is not learned";
-	else if( false == pSkill->SetJuneActiveMemo( kReq.m_iSkillID, kReq.m_iMemoID ) )
+	else if( false == pSkill->SetActiveMemo( kReq.m_iSkillID, kReq.m_iMemoID ) )
 		szRefusal = L"save failed";
 
 	if( NULL != szRefusal )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu activate refused unit=%I64d class=%d L%d skill=%d memo=%d ( %s; active %d )",
 			(__int64)kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, kReq.m_iSkillID, kReq.m_iMemoID, szRefusal,
-			pSkill->GetJuneActiveMemo( kReq.m_iSkillID ) );
-		return Reply( kSes, EGS_JUNE_ACTIVE_SKILL_MEMO_ACK, kAck );
+			pSkill->GetActiveMemo( kReq.m_iSkillID ) );
+		return Reply( kSes, EGS_ACTIVE_SKILL_MEMO_ACK, kAck );
 	}
 
 	kAck.m_iOK = NetError::NET_OK;
 	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu activated unit=%I64d skill=%d memo=%d ( %u active memo(s), stand-in )",
-		(__int64)kRow.m_nUnitUID, kReq.m_iSkillID, kReq.m_iMemoID, (unsigned int)pSkill->GetJuneActiveMemos().size() );
-	return Reply( kSes, EGS_JUNE_ACTIVE_SKILL_MEMO_ACK, kAck );
+		(__int64)kRow.m_nUnitUID, kReq.m_iSkillID, kReq.m_iMemoID, (unsigned int)pSkill->GetActiveMemos().size() );
+	return Reply( kSes, EGS_ACTIVE_SKILL_MEMO_ACK, kAck );
 }
 
-bool CX2OfflineServer::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+bool CX2OfflineServer::Handler_EGS_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
-	KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ kReq;
+	KEGS_DEACTIVE_SKILL_MEMO_REQ kReq;
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
-	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK kAck;
+	KEGS_DEACTIVE_SKILL_MEMO_ACK kAck;
 	kAck.m_iOK		= NetError::ERR_UNKNOWN;
 	kAck.m_iSkillID	= kReq.m_iSkillID;
 	kAck.m_iMemoID	= kReq.m_iMemoID;
@@ -576,7 +576,7 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession
 	if( false == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu deactivate refused: no selected unit" );
-		return Reply( kSes, EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, kAck );
+		return Reply( kSes, EGS_DEACTIVE_SKILL_MEMO_ACK, kAck );
 	}
 
 	CX2OfflineSkill*		pSkill	= CX2OfflineSkill::Instance();
@@ -584,13 +584,13 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession
 	pSkill->Load( kRow.m_nUnitUID );
 
 	std::vector< int > vecRemovableItemID;
-	CX2SkillNoteManager::GetInstance()->GetJuneRemovableMemoItemIDList( vecRemovableItemID );
+	CX2SkillNoteManager::GetInstance()->GetRemovableMemoItemIDList( vecRemovableItemID );
 
 	// every check first, then the item is spent, then the memo row goes ( the order Handler_EGS_REG_SKILL_NOTE_MEMO_REQ keeps )
 	KOfflineItemRow kItemRow;
 	const bool bInBag = pInven->GetItemRow( kReq.m_iItemUID, kItemRow );
 	const wchar_t* szRefusal = NULL;
-	if( 0 == kReq.m_iMemoID || kReq.m_iMemoID != pSkill->GetJuneActiveMemo( kReq.m_iSkillID ) )
+	if( 0 == kReq.m_iMemoID || kReq.m_iMemoID != pSkill->GetActiveMemo( kReq.m_iSkillID ) )
 		szRefusal = L"the memo is not active on the skill";
 	else if( false == bInBag )
 		szRefusal = L"the removal item is not in the bag";
@@ -600,22 +600,22 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession
 	KInventoryItemInfo kSlotInfo;
 	if( NULL == szRefusal && false == pInven->ConsumeOne( kReq.m_iItemUID, kSlotInfo ) )
 		szRefusal = L"the item could not be spent";
-	if( NULL == szRefusal && false == pSkill->ClearJuneActiveMemo( kReq.m_iSkillID ) )
+	if( NULL == szRefusal && false == pSkill->ClearActiveMemo( kReq.m_iSkillID ) )
 		szRefusal = L"save failed";
 
 	if( NULL != szRefusal )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu deactivate refused unit=%I64d skill=%d memo=%d itemUID=%I64d ( %s; active %d )",
 			(__int64)kRow.m_nUnitUID, kReq.m_iSkillID, kReq.m_iMemoID, (__int64)kReq.m_iItemUID, szRefusal,
-			pSkill->GetJuneActiveMemo( kReq.m_iSkillID ) );
-		return Reply( kSes, EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, kAck );
+			pSkill->GetActiveMemo( kReq.m_iSkillID ) );
+		return Reply( kSes, EGS_DEACTIVE_SKILL_MEMO_ACK, kAck );
 	}
 
 	kAck.m_iOK = NetError::NET_OK;
 	kAck.m_vecInventorySlotInfo.push_back( kSlotInfo );
 	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO emu deactivated unit=%I64d skill=%d memo=%d, spent item %d ( uid %I64d ), stand-in",
 		(__int64)kRow.m_nUnitUID, kReq.m_iSkillID, kReq.m_iMemoID, kItemRow.m_iItemID, (__int64)kReq.m_iItemUID );
-	return Reply( kSes, EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, kAck );
+	return Reply( kSes, EGS_DEACTIVE_SKILL_MEMO_ACK, kAck );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
@@ -641,7 +641,7 @@ bool CX2OfflineServer::Handler_EGS_GET_NEXT_SKILL_PAGE_ED_REQ( KOfflineSession& 
 		return Reply( kSes, EGS_GET_NEXT_SKILL_PAGE_ED_ACK, kAck );
 
 	int iPageCount = 1, iActivePage = 1;
-	pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+	pSkill->GetSkillPageInfo( iPageCount, iActivePage );
 	if( iPageCount < CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
 	{
 		kAck.m_iOK	= NetError::NET_OK;
@@ -669,7 +669,7 @@ bool CX2OfflineServer::Handler_EGS_EXPAND_SKILL_PAGE_REQ( KOfflineSession& kSes,
 	kAck.m_iED = kRow.m_iED;
 
 	int iPageCount = 1, iActivePage = 1;
-	pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+	pSkill->GetSkillPageInfo( iPageCount, iActivePage );
 	if( iPageCount >= CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
 		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
 
@@ -680,7 +680,7 @@ bool CX2OfflineServer::Handler_EGS_EXPAND_SKILL_PAGE_REQ( KOfflineSession& kSes,
 		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
 	}
 
-	kAck.m_iOK = pSkill->ExpandJuneSkillPage( 1, iPageCount );
+	kAck.m_iOK = pSkill->ExpandSkillPage( 1, iPageCount );
 	if( NetError::NET_OK != kAck.m_iOK )
 		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
 
@@ -716,7 +716,7 @@ bool CX2OfflineServer::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( KOfflineSe
 	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) || false == pSkill->Load( kRow.m_nUnitUID ) )
 		return Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
 
-	kAck.m_iOK = pSkill->SwitchJuneSkillPage( kReq.m_iSkillPagesNumberDecidedToUse );
+	kAck.m_iOK = pSkill->SwitchSkillPage( kReq.m_iSkillPagesNumberDecidedToUse );
 	if( NetError::NET_OK != kAck.m_iOK )
 		return Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
 
@@ -737,7 +737,7 @@ bool CX2OfflineServer::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( KOfflineSe
 		kAck.m_kUserSkillPageData.m_usCashSkillPoint	= 0;
 
 		kAck.m_kJuneSkillExtraData.m_mapIntInt = kUnitSkill.m_kJuneSkillExtraData.m_mapIntInt;
-		pSkill->GetJuneEquippedSkillVectors( kAck.m_kJuneSkillExtraData.m_vecSkillDataA, kAck.m_kJuneSkillExtraData.m_vecSkillDataB );
+		pSkill->GetEquippedSkillVectors( kAck.m_kJuneSkillExtraData.m_vecSkillDataA, kAck.m_kJuneSkillExtraData.m_vecSkillDataB );
 	}
 
 	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE decide: page %d in use, A %d/%d/%d/%d B %d/%d/%d/%d, %d memo(s)",
@@ -749,7 +749,7 @@ bool CX2OfflineServer::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( KOfflineSe
 		(int)kAck.m_kJuneSkillExtraData.m_mapIntInt.size() );
 
 	const bool bAckSent = Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
-	PushJuneSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"page switch" );
+	PushSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"page switch" );
 	return bAckSent;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE

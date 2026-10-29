@@ -214,7 +214,7 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 			 and with the argument the before sub-stage closed ( 327f3b20 ). This is the block March's frame move and
 			 SubStageOpen run inline; June's handler takes the sub-stage, March's the before / now indices.
 */
-bool CX2DungeonGame::JuneSendGoNextReq( bool bCloseBeforeSubStage_ )
+bool CX2DungeonGame::SendGoNextReq( bool bCloseBeforeSubStage_ )
 {
 	if ( NULL == m_pDungeon || NULL == m_pDungeon->GetNowStage() )
 		return false;
@@ -318,14 +318,14 @@ CX2DungeonGame::~CX2DungeonGame(void)
 #if defined( SERV_IRUHADEV_ELYSION_SCRIPT_B ) && defined( SERV_IRUHADEV_JUNE_TUTORIAL_MODE )
 	/// Atlas E7: the same June 327d2160 clears the slide shot's scene-ended byte ( 325c4a70 @327d2187 ) before the key restore
 	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() && NULL != g_pData && NULL != g_pData->GetSlideShot() )
-		g_pData->GetSlideShot()->ResetJuneSceneEnded();
+		g_pData->GetSlideShot()->ResetSceneEnded();
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	/// June buff port Phase 14c, CX2DungeonGame::Release 327d2240 @327d23fb -> 327d2160: when the tutorial is being left,
 	/// restore the keys the tutorial replaced (31f5d4a0) and clear the latch. 327d2160's other calls drive June-only
 	/// systems (the tutorial guide manager, its event scene and play-guide UI) and are not ported.
 	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() )
-		g_pMain->JuneOnExitTutorialRestoreKeys();
+		g_pMain->OnExitTutorialRestoreKeys();
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 
 	CX2Game::Release();	/// 상위 클래스의 소멸자가 나중에 호출
@@ -896,7 +896,7 @@ void CX2DungeonGame::StageLoading( int stageNum )
 		// Atlas E7: June 327cd1b0 @327cd470 calls 32803f60( this +0x39c, this +0x3a0, ... ): the main world, then the stage
 		// world's dataFileName_Additional worlds into CX2Game +0x3a0. June never empties that list on a stage change (only
 		// Release 323080c0 and the battle field swap 32d54ae0 do): JUNE_BUGS.
-		g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( pStageData->m_WorldID, m_vecJuneAdditionalWorld );
+		g_pData->GetWorldManager()->CreateAdditionalWorlds( pStageData->m_WorldID, m_vecJuneAdditionalWorld );
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef DEEP_WATER_DUNGEON_TEST
@@ -2072,7 +2072,7 @@ bool CX2DungeonGame::Handler_EGS_DUNGEON_SUB_STAGE_CLEAR_ACK( KEGS_DUNGEON_SUB_S
 		/// refused request both reset the sub-stage's clear type to 5 first. On success ClearSubStage below then
 		/// stores the new one, as June's NOT (327f03c0) does after its ACK.
 		if ( NULL != GetDungeon() && NULL != GetDungeon()->GetNowStage() && NULL != GetDungeon()->GetNowStage()->GetNowSubStage() )
-			GetDungeon()->GetNowStage()->GetNowSubStage()->SetJuneClearType( 5, "clear ACK, June 327eec80" );
+			GetDungeon()->GetNowStage()->GetNowSubStage()->SetClearType( 5, "clear ACK, June 327eec80" );
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		if( g_pMain->IsValidPacket( kEGS_DUNGEON_SUB_STAGE_CLEAR_ACK.m_iOK ) == true )
 		{
@@ -2529,12 +2529,12 @@ void CX2DungeonGame::TextOutTutorial_LUA( int nMsg, float fTime )
 	if( true == CX2Game::UpdateUnitPointer() )
 		return true;
 
-	JuneUpdateUnitPointerNPCWalk();
+	UpdateUnitPointerNPCWalk();
 	return true;
 }
 
 /// March's NPC focus walk, unchanged; the base call it started with is made by UpdateUnitPointer() above.
-void CX2DungeonGame::JuneUpdateUnitPointerNPCWalk()
+void CX2DungeonGame::UpdateUnitPointerNPCWalk()
 {
 #else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2DungeonGame::UpdateUnitPointer()

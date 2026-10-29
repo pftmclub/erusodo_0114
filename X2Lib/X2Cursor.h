@@ -70,9 +70,9 @@ class CX2Cursor
 		HCURSOR GetCursorHandle() { return m_hCursor; }
 #ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 		// June draws the GFx scene's cursor last ( CKTDXCursor 31ce5400 @31be3c7c, after GFx 31c43b20 ); CX2GFXEventScene Play / End set this
-		void	SetJuneDrawAfterGFx( bool bAfter ) { m_bJuneDrawAfterGFx = bAfter; }
-		bool	GetJuneDrawAfterGFx() const { return m_bJuneDrawAfterGFx; }
-		HRESULT	JuneOnFrameRenderAfterGFx();		// CX2State::OnFrameRenderAfter ( 0x18 pass, after GFx )
+		void	SetDrawAfterGFx( bool bAfter ) { m_bJuneDrawAfterGFx = bAfter; }
+		bool	GetDrawAfterGFx() const { return m_bJuneDrawAfterGFx; }
+		HRESULT	OnFrameRenderAfterGFx();		// CX2State::OnFrameRenderAfter ( 0x18 pass, after GFx )
 #endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 
 		

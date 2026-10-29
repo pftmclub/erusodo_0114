@@ -20,7 +20,7 @@ static const CKTDGStateManager::KState s_akStates[] =
 // JUNE_FX unsupported <KEY> in <templet>: <why>. Plan rule 5's line for a June templet key whose
 // system this build lacks. CX2OfflineLog lives in X2Lib, which KTDXLIB cannot reach, so the line goes
 // to ErrorLog.txt through the engine's own KLOG stream (plan rule 4's ErrorLogMsg fallback).
-static void JuneMeshPlayerLogUnsupported( const std::wstring& wstrTempletName_, const char* pszKey_, const char* pszWhy_ )
+static void MeshPlayerLogUnsupported( const std::wstring& wstrTempletName_, const char* pszKey_, const char* pszWhy_ )
 {
 	std::string strTempletName;
 	ConvertWCHARToChar( strTempletName, wstrTempletName_.c_str() );
@@ -32,7 +32,7 @@ static void JuneMeshPlayerLogUnsupported( const std::wstring& wstrTempletName_, 
 // one line per CrashLand death in PlayProcess. June's PlayProcess (FUN_31c82f00) runs the same crash test
 // as March, so this settles RANOX_EFFECT_RUNTIME_UNKNOWNS 4.1 in play from the data side: whether a
 // gravity-arced projectile (MAG_CHARGER_Attack_A) reaches the ground before its target. ErrorLog.txt, as above.
-static void JuneMeshPlayerLogCrash( const std::wstring& wstrTempletName_, const char* pszPath_, float fTime_,
+static void MeshPlayerLogCrash( const std::wstring& wstrTempletName_, const char* pszPath_, float fTime_,
 	float fNotCheckLandTime_, float fPosY_, float fLandPosition_ )
 {
 	std::string strTempletName;
@@ -1044,7 +1044,7 @@ bool CKTDGXMeshPlayer::ProcessTempletBlock(	XMeshTemplet &templet,
 						// consumed only by the DG manager's post-effect pass (FUN_31cd7810 mode 1). March has no such
 						// pass. FALSE is the default and changes nothing, so only TRUE is reported.
 						if( true == bValue )
-							JuneMeshPlayerLogUnsupported( templet.templetName, "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
+							MeshPlayerLogUnsupported( templet.templetName, "POSTEFFECT", "post-effect render pass absent (June FUN_31cd7810 mode 1)" );
 					}
 					else if ( savedtoken.IsAlphaBlend() )			{ templet.bAlphaBlend			= bValue; }
 					else if ( savedtoken.IsSlashTraceNotCull() )	{ templet.bSlashTraceNotCull	= bValue; }
@@ -1746,7 +1746,7 @@ void CKTDGXMeshPlayer::CXMeshInstance::SetEffectAlphaCondition( BYTE byEffectAlp
 /// June2017 31c83520: with a skin anim ( +0x3c0 ): the scale OnFrameMove would apply ( size * manual size * scale * scale-by-unit,
 /// in June's multiplication order ) goes to the anim's own matrix, only when that matrix has no manager object ( June skips the
 /// Scale otherwise ), then the bones are refreshed ( 31d29950 ) either way. Caller: CEffect main-effect scale ( 31f6fca0 ).
-void CKTDGXMeshPlayer::CXMeshInstance::JuneRefreshScale()
+void CKTDGXMeshPlayer::CXMeshInstance::RefreshScale()
 {
 	if( NULL == m_pXSkinAnim )
 		return;
@@ -1764,7 +1764,7 @@ void CKTDGXMeshPlayer::CXMeshInstance::JuneRefreshScale()
 	if( NULL == m_pXSkinAnim->GetManagerObject() )
 		m_pXSkinAnim->GetMatrix().Scale( D3DXVECTOR3( fScaleX, fScaleY, fScaleZ ) );
 
-	m_pXSkinAnim->JuneRefreshBones();
+	m_pXSkinAnim->RefreshBones();
 }
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElapsedTime )
@@ -2326,7 +2326,7 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 						m_vPos.y <= m_fLandPosition )
 					{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-						JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+						MeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						m_NowPlayCount = m_MaxPlayCount;
 #ifdef RAVEN_WEAPON_TAKER
@@ -2356,7 +2356,7 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 						m_vPos.y <= m_fLandPosition )
 					{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-						JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_SKIN_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+						MeshPlayerLogCrash( m_TempletData.templetName, "LT_PLAY_COUNT/X_SKIN_MESH", m_fAniTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						m_NowPlayCount = m_MaxPlayCount;
 #ifdef RAVEN_WEAPON_TAKER
@@ -2386,7 +2386,7 @@ void CKTDGXMeshPlayer::CXMeshInstance::PlayProcess()
 					m_vPos.y <= m_fLandPosition )
 				{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					JuneMeshPlayerLogCrash( m_TempletData.templetName, "LT_TIME", m_NowLifeTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
+					MeshPlayerLogCrash( m_TempletData.templetName, "LT_TIME", m_NowLifeTime, m_TempletData.fNotCheckLandTime, m_vPos.y, m_fLandPosition );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 					m_NowLifeTime = m_MaxLifeTime;
 #ifdef RAVEN_WEAPON_TAKER

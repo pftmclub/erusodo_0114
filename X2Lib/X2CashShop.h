@@ -809,8 +809,8 @@ class CX2CashShop : public CX2ItemSlotManager
 		void	SetMenuTypeCallingCashShop( int	iMenuType ) { m_iMenuTypeCallingCashShop = iMenuType; } // 캐쉬샵을 부른 UI 메뉴의 타입
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 		/// June 321cd390: push an item id into the open-at-item list ( June +0x338 ); the callers push before ToggleCashShop
-		void	JunePushOpenAtItemID( int iItemID ) { m_vecJuneOpenAtItemID.push_back( iItemID ); }
-		void	JuneOpenAtItemList();	/// June 3224a5d0, called from SetOpen( true )
+		void	PushOpenAtItemID( int iItemID ) { m_vecJuneOpenAtItemID.push_back( iItemID ); }
+		void	OpenAtItemList();	/// June 3224a5d0, called from SetOpen( true )
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 #endif	PRIVATE_BANK
 		//}} kimhc // 2009-08-10 // UI에서 캐시샵의 특정탭으로 바로 가기 위해 추가
@@ -849,7 +849,7 @@ class CX2CashShop : public CX2ItemSlotManager
 		// 해당 유닛에 해당하는 전직 아이템 ID를 받아옴.
 		const int GetUnitClassChangeItemID( const CX2Unit::UNIT_CLASS eUnitClass_ );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
-		const int JuneGetUnitClassChangeItemID2( const int iUnitClass_ );	/// June 32226c60
+		const int GetUnitClassChangeItemID2( const int iUnitClass_ );	/// June 32226c60
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 		

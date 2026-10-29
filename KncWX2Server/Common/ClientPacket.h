@@ -5493,7 +5493,7 @@ DECL_PACKET( EGS_UNSEAL_SKILL_NOT )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 // June skill system S7: June's server-pushed skill grant ( reader 323be430 -> 320de720: UID @0, vector<KSkillData> @8, then a
 // vector of 3-int records @0x18 ( 32114cc0 ) that no June handler reads; it is not carried here ).
-DECL_PACKET( EGS_JUNE_ACQUIRE_SKILL_NOT )
+DECL_PACKET( EGS_ACQUIRE_SKILL_NOT )
 {
 	UidType							m_iUnitUID;
 	std::vector< KSkillData >		m_vecSkillData;
@@ -5502,48 +5502,48 @@ DECL_PACKET( EGS_JUNE_ACQUIRE_SKILL_NOT )
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 // June skill system S7c: the skill memos ( traits ). REQ 0x554 ( sender 32453060 ): the base skill ( 32207210 ), the memo.
-DECL_PACKET( EGS_JUNE_ACTIVE_SKILL_MEMO_REQ )
+DECL_PACKET( EGS_ACTIVE_SKILL_MEMO_REQ )
 {
 	int								m_iSkillID;
 	int								m_iMemoID;
 
-	KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ) {}
+	KEGS_ACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ) {}
 };
 
 // ACK 0x555 ( reader 320aaae0 ): OK @0, skill @4, memo @8, a byte @0xc that June's handler ( 31f1bdb0 ) does not read.
-DECL_PACKET( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK )
+DECL_PACKET( EGS_ACTIVE_SKILL_MEMO_ACK )
 {
 	int								m_iOK;
 	int								m_iSkillID;
 	int								m_iMemoID;
 	bool							m_bJuneUnread0C;
 
-	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread0C( false ) {}
+	KEGS_ACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread0C( false ) {}
 };
 
 // REQ 0x556 ( sender 324530d0 ): the base skill, the memo, the UID of the removal item ( 3235be30, the first owned of
 // AddRemovableMemoItemID's list ).
-DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ )
+DECL_PACKET( EGS_DEACTIVE_SKILL_MEMO_REQ )
 {
 	int								m_iSkillID;
 	int								m_iMemoID;
 	UidType							m_iItemUID;
 
-	KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ), m_iItemUID( 0 ) {}
+	KEGS_DEACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ), m_iItemUID( 0 ) {}
 };
 
 // A record of 0x557's second vector ( element reader 32113b60: int64, then a byte that defaults to 1 ); no June handler reads it.
-DECL_DATA( KJuneUIDFlag )
+DECL_DATA( KUIDFlag )
 {
 	UidType							m_iUID;
 	bool							m_bFlag;
 
-	KJuneUIDFlag() : m_iUID( 0 ), m_bFlag( true ) {}
+	KUIDFlag() : m_iUID( 0 ), m_bFlag( true ) {}
 };
 
 // ACK 0x557 ( reader 320e7eb0 ): OK @0, an int @4 June's handler ( 31f1c1d0 ) does not read, skill @8, memo @0xc, a byte @0x10
 // ( unread ), the changed inventory slots @0x11 ( 3213c870 -> KInventoryItemInfo ), vector< KJuneUIDFlag > @0x21 ( unread ).
-DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK )
+DECL_PACKET( EGS_DEACTIVE_SKILL_MEMO_ACK )
 {
 	int								m_iOK;
 	int								m_iJuneUnread04;
@@ -5551,16 +5551,16 @@ DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK )
 	int								m_iMemoID;
 	bool							m_bJuneUnread10;
 	std::vector< KInventoryItemInfo >	m_vecInventorySlotInfo;
-	std::vector< KJuneUIDFlag >		m_vecJuneUIDFlag;
+	std::vector< KUIDFlag >		m_vecJuneUIDFlag;
 
-	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread10( false ) {}
+	KEGS_DEACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread10( false ) {}
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 // June quest system RM1: the random dungeon mission. The push 0x492 ( reader 31f312d0 / 320db120 / 320d6b20 ): an inner 0x38-byte
 // record { id, type, goal, seconds, the description's string id, a float, two sets of int } and two ints after it ( the reward words ).
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_NOT )
+DECL_PACKET( EGS_RANDOM_MISSION_NOT )
 {
 	int								m_iMissionID;			// +0
 	int								m_iEventType;			// +4, 1-12
@@ -5573,60 +5573,60 @@ DECL_PACKET( EGS_JUNE_RANDOM_MISSION_NOT )
 	int								m_iRewardExpRate;		// +0x38 -> mission +0x20 ( read from the UI text: the EXP rate )
 	int								m_iRewardBuffID;		// +0x3c -> mission +0x1c ( read from the UI text: the buff )
 
-	KEGS_JUNE_RANDOM_MISSION_NOT() : m_iMissionID( -1 ), m_iEventType( 0 ), m_iGoal( -1 ), m_iSeconds( 0 ), m_iDescStrID( -1 ), m_fJuneUnread14( 0.f ), m_iRewardExpRate( 0 ), m_iRewardBuffID( 0 ) {}
+	KEGS_RANDOM_MISSION_NOT() : m_iMissionID( -1 ), m_iEventType( 0 ), m_iGoal( -1 ), m_iSeconds( 0 ), m_iDescStrID( -1 ), m_fJuneUnread14( 0.f ), m_iRewardExpRate( 0 ), m_iRewardBuffID( 0 ) {}
 };
 
 // REQ 0x493 ( 32676870 ): the mission id.
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ )
+DECL_PACKET( EGS_RANDOM_MISSION_COMPLETE_REQ )
 {
 	int								m_iMissionID;
 
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ() : m_iMissionID( -1 ) {}
+	KEGS_RANDOM_MISSION_COMPLETE_REQ() : m_iMissionID( -1 ) {}
 };
 
 // ACK 0x494 ( handler 324c94d0, reader 324dd9a0 / 3209b600 ): OK @0 and an int @4 the handler does not read.
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK )
+DECL_PACKET( EGS_RANDOM_MISSION_COMPLETE_ACK )
 {
 	int								m_iOK;
 	int								m_iJuneUnread04;
 
-	KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ) {}
+	KEGS_RANDOM_MISSION_COMPLETE_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ) {}
 };
 
 // The cheat REQs of g_pX2Game:SendRandomMissionCheat / ...RewardEXPCheat / ...RewardBuffCheat ( 322f0db0 / 322f0e00 / 322f0e30 ).
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_CHEAT_REQ )
+DECL_PACKET( EGS_RANDOM_MISSION_CHEAT_REQ )
 {
 	int								m_iA;
 	int								m_iB;
 	int								m_iC;
 
-	KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ() : m_iA( 0 ), m_iB( 0 ), m_iC( 0 ) {}
+	KEGS_RANDOM_MISSION_CHEAT_REQ() : m_iA( 0 ), m_iB( 0 ), m_iC( 0 ) {}
 };
 
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ )
+DECL_PACKET( EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ )
 {
 	int								m_iValue;
 
-	KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ() : m_iValue( 0 ) {}
+	KEGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ() : m_iValue( 0 ) {}
 };
 
-DECL_PACKET( EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ )
+DECL_PACKET( EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ )
 {
 	int								m_iValue;
 
-	KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ() : m_iValue( 0 ) {}
+	KEGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ() : m_iValue( 0 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 // Retry REQ 0x648 and 0x1f2 are SendID, no body; ACK 0x649 reader 320ace20 ( via 324ddac0 ): int, int64, wstring; 324c95b0 reads only the int.
-DECL_PACKET( EGS_JUNE_DUNGEON_RETRY_ACK )
+DECL_PACKET( EGS_DUNGEON_RETRY_ACK )
 {
 	int								m_iOK;
 	__int64							m_iJuneUnread64;
 	std::wstring					m_wstrJuneUnread;
 
-	KEGS_JUNE_DUNGEON_RETRY_ACK() : m_iOK( 0 ), m_iJuneUnread64( 0 ) {}
+	KEGS_DUNGEON_RETRY_ACK() : m_iOK( 0 ), m_iJuneUnread64( 0 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 
@@ -11123,7 +11123,7 @@ DECL_PACKET( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK )
 	KUserSkillPageData		m_kUserSkillPageData;
 	//std::map< int, int>		m_mapSkillListLearned;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-	KJuneSkillExtraData		m_kJuneSkillExtraData;	/// June 320e0620 @+0x6a ( 32124f30 -> 320dc980 ): the page's A / B bars and active memos
+	KSkillExtraData		m_kJuneSkillExtraData;	/// June 320e0620 @+0x6a ( 32124f30 -> 320dc980 ): the page's A / B bars and active memos
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK()

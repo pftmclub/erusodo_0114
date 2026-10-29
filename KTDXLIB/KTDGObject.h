@@ -380,12 +380,12 @@ class CKTDGObject
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 		// June +0x14c: alpha-group tie-break key ( comparator 31cebc00 ); June writes it only for particle sequences ( their handle )
-		void			SetJuneSortKey( int iKey_ ) { m_iJuneSortKey = iKey_; }
-		int				GetJuneSortKey() const { return m_iJuneSortKey; }
+		void			SetSortKey( int iKey_ ) { m_iJuneSortKey = iKey_; }
+		int				GetSortKey() const { return m_iJuneSortKey; }
 #endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		// June +0x18c: the frustum plane the last test culled on, -1 when visible ( written by IsInFrustum; no reader mapped )
-		int				GetJuneCulledPlane() const { return m_iJuneCulledPlane; }
+		int				GetCulledPlane() const { return m_iJuneCulledPlane; }
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         bool            IsCulled() const { return ( m_pManagerObject != NULL ) ? m_pManagerObject->IsCulled() : m_bCulled; }
         //{{ seojt: 2008.10.23

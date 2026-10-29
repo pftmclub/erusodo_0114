@@ -3409,7 +3409,7 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 			// for every later play by any unit until another MI_HUGE play rewrites it (JUNE_BUGS). June reads v0 from the vector's begin with
 			// no size test; an entry with no value is skipped here (June's data gives every MI_HUGE row its values).
 			{
-				const CX2GUUser::JuneSkillMemoEntry* pJuneMemo = pUser->GetSkillMemoEntry( pEffectSetData->m_iAppliedSkillID );
+				const CX2GUUser::SkillMemoEntry* pJuneMemo = pUser->GetSkillMemoEntry( pEffectSetData->m_iAppliedSkillID );
 				if( NULL != pJuneMemo && 2 == pJuneMemo->m_iType && false == pJuneMemo->m_vecValue.empty() )
 				{
 					const float fJuneMemoScale = pJuneMemo->m_vecValue[0];
@@ -5278,7 +5278,7 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 			else if( NULL != m_pFieldNpcHolder )
 			{
 				if( false == pEffectData->m_PositionBoneName.empty() )
-					vPos = m_pFieldNpcHolder->JuneGetBonePos( pEffectData->m_PositionBoneName.c_str() );
+					vPos = m_pFieldNpcHolder->GetBonePos( pEffectData->m_PositionBoneName.c_str() );
 				else
 					vPos = m_pFieldNpcHolder->m_vPos;
 				return vPos;
@@ -7036,7 +7036,7 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 			// Straight to the return (@321ddd58): no SetEffectSetOffset.
 			else if( NULL != m_pFieldNpcHolder )
 			{
-				bBoneFound_ = m_pFieldNpcHolder->JuneGetBonePos( pwszBoneName, vPos );
+				bBoneFound_ = m_pFieldNpcHolder->GetBonePos( pwszBoneName, vPos );
 				return vPos;
 			}
 #endif SERV_IRUHADEV_ELYSION_VILLAGE

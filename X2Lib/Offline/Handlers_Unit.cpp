@@ -275,7 +275,7 @@ void CX2OfflineServer::BuildCreateUnitAck( KOfflineSession& kSes, const std::wst
 	// slot assignments rather than an empty bar.
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	// June skill system S3: June has no default skills; the Q1 stand-in grants the class's free rows for the new level.
-	CX2OfflineSkill::Instance()->SeedJuneAutoLearn( kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel );
+	CX2OfflineSkill::Instance()->SeedAutoLearn( kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel );
 #else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	CX2OfflineSkill::Instance()->SeedDefaultSkills( kRow.m_nUnitUID, kRow.m_iUnitClass );
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
@@ -652,7 +652,7 @@ bool CX2OfflineServer::Handler_EGS_SELECT_UNIT_REQ( KOfflineSession& kSes, const
 		// June skill system S7: catch the save up with the level grant (stand-in) before the select
 		// notifications carry the skill list - no NOT needed here.
 		std::vector< KSkillData > vecJuneGranted;
-		CX2OfflineSkill::Instance()->GrantJuneSkillsByLevel( kRow.m_iUnitClass, kRow.m_iLevel, vecJuneGranted );
+		CX2OfflineSkill::Instance()->GrantSkillsByLevel( kRow.m_iUnitClass, kRow.m_iLevel, vecJuneGranted );
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
@@ -846,7 +846,7 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 		// skill map per open page from this vector ( X2UserSkillTree.cpp:486 ), and March indexes the map of the page in use unchecked.
 		{
 			int iPageCount = 1, iActivePage = 1;
-			pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+			pSkill->GetSkillPageInfo( iPageCount, iActivePage );
 			for( int iPage = 1; iPage < iPageCount; ++iPage )
 				kNot.m_vecUserSkillPageData.push_back( kSkillPage );
 			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE select unit %I64d: %d page(s), page %d in use", (__int64)kRow.m_nUnitUID, iPageCount, iActivePage );

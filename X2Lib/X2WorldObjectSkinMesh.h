@@ -81,17 +81,19 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 #endif
 
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-		CKTDGXSkinAnim*	GetJuneXSkinAnim() { return m_pXSkinAnim; }	/// Atlas E5: June reads +0x218 in 32801ab0 ( GetXSkinAnim is tool-only here )
+		CKTDGXSkinAnim*	GetXSkinAnim() { return m_pXSkinAnim; }	/// Atlas E5: June reads +0x218 in 32801ab0 ( March's is tool-only )
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #if defined(WORLD_TOOL) || defined(X2TOOL)
+#ifndef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		CKTDGXSkinAnim *GetXSkinAnim() { return m_pXSkinAnim; }
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		void SetPlayType(int iPlayType) { m_PlayType = (WORLD_OBJECT_SKIN_MESH_PLAY_TYPE)iPlayType; }
 #endif
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		// June2017 327f69d0: Lua "SetTransition" writes the skin anim's loop-restart transition ( anim +0x854 ), not this object's
 		// m_bTransition ( +0x21c, which its own ChangeAnim calls keep passing ); no anim yet: nothing
-		void SetTransition_LUA( bool btransition ){ if( m_pXSkinAnim != NULL ) m_pXSkinAnim->JuneSetLoopTransition( btransition ); }
+		void SetTransition_LUA( bool btransition ){ if( m_pXSkinAnim != NULL ) m_pXSkinAnim->SetLoopTransition( btransition ); }
 #else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		void SetTransition_LUA( bool btransition ){ m_bTransition = btransition; }
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK

@@ -519,7 +519,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
 				if ( NULL == ptrBuffFactor )	/// June dereferences it unchecked (JUNE_BUGS.md)
 				{
-					CX2JuneBuffCapture::Line( "world buff (room): stored factor %d is not loaded, its buff is not erased (June 326c9030 dereferences it unchecked)", kRecord.first );
+					CX2BuffCapture::Line( "world buff (room): stored factor %d is not loaded, its buff is not erased (June 326c9030 dereferences it unchecked)", kRecord.first );
 					continue;
 				}
 
@@ -563,13 +563,13 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
 				if ( NULL == ptrBuffFactor )
 				{
-					CX2JuneBuffCapture::Line( "world buff (room): factor %d (BTI %d) is not loaded, not applied (June 326c9030)",
+					CX2BuffCapture::Line( "world buff (room): factor %d (BTI %d) is not loaded, not applied (June 326c9030)",
 						iFactorID, kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
 					continue;
 				}
 
 				if ( static_cast<int>( ptrBuffFactor->GetBuffTempletID() ) != kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID )
-					CX2JuneBuffCapture::Line( "world buff (room): factor %d is BTI %d here but the server sent BTI %d (applied as loaded, as June does)",
+					CX2BuffCapture::Line( "world buff (room): factor %d is BTI %d here but the server sent BTI %d (applied as loaded, as June does)",
 						iFactorID, static_cast<int>( ptrBuffFactor->GetBuffTempletID() ), kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
 
 				CX2BuffFactorPtr ptrBuffFactorClone = ptrBuffFactor->GetClonePtr();
@@ -602,7 +602,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 					bPcRoomBuffChanged = !bPcRoomBuffChanged;
 			}
 
-			CX2JuneBuffCapture::Line( "world buff (room): unit %I64d, %u sent, %u kept (June 326c9030)",
+			CX2BuffCapture::Line( "world buff (room): unit %I64d, %u sent, %u kept (June 326c9030)",
 				kEvent.m_iUnitUID, static_cast<UINT>( kEvent.m_vecActivateBuffList.size() ), static_cast<UINT>( vecRecord.size() ) );
 
 			if ( true == bPcRoomBuffChanged )	/// June: the PC-room buff came or went, so its socket options did too
@@ -728,7 +728,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( kRecord.first ) );
 			if ( NULL == ptrBuffFactor )	/// June dereferences it unchecked (JUNE_BUGS.md)
 			{
-				CX2JuneBuffCapture::Line( "world buff (village): stored factor %d is not loaded, its icon is not erased (June 326c9530 dereferences it unchecked)", kRecord.first );
+				CX2BuffCapture::Line( "world buff (village): stored factor %d is not loaded, its icon is not erased (June 326c9530 dereferences it unchecked)", kRecord.first );
 				continue;
 			}
 
@@ -769,7 +769,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
 			if ( NULL == ptrBuffFactor )
 			{
-				CX2JuneBuffCapture::Line( "world buff (village): factor %d (BTI %d) is not loaded, no icon (June 326c9530)",
+				CX2BuffCapture::Line( "world buff (village): factor %d (BTI %d) is not loaded, no icon (June 326c9530)",
 					iFactorID, kBuffInfo.m_kFactorInfo.m_BuffIdentity.m_eBuffTempletID );
 				continue;
 			}
@@ -805,7 +805,7 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 #endif SERV_IRUHADEV_JUNE_BUFF_NO_WORLD_BUFF_ID
 		}
 
-		CX2JuneBuffCapture::Line( "world buff (village): %u sent, %u kept (June 326c9530)",
+		CX2BuffCapture::Line( "world buff (village): %u sent, %u kept (June 326c9530)",
 			static_cast<UINT>( kEvent.m_vecActivateBuffList.size() ), static_cast<UINT>( vecRecord.size() ) );
 
 		pCX2Unit->ResetIncreaseSkillLevelByBuff();		/// June 323646a0
@@ -1242,13 +1242,13 @@ void CX2PremiumBuffManager::OpenScriptFile( const wchar_t* wszScriptFileName_ )
 	{
 		ErrorLogMsg( XEM_ERROR2, wszScriptFileName_ );
 		if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
-			CX2JuneBuffCapture::Line( "%S not found: its premium buffs are absent this run. Pack march2014/update/data036/%S into data036.kom (June 3258c470)",
+			CX2BuffCapture::Line( "%S not found: its premium buffs are absent this run. Pack march2014/update/data036/%S into data036.kom (June 3258c470)",
 				wszScriptFileName_, wszScriptFileName_ );
 		else
-			CX2JuneBuffCapture::Line( "%S did not run (hr 0x%08x) (June 3258c470)", wszScriptFileName_, static_cast<UINT>( hr ) );
+			CX2BuffCapture::Line( "%S did not run (hr 0x%08x) (June 3258c470)", wszScriptFileName_, static_cast<UINT>( hr ) );
 	}
 
-	CX2JuneBuffCapture::Line( "%S: %u premium buff(s) added, %u in total (June 326c6e20)", wszScriptFileName_,
+	CX2BuffCapture::Line( "%S: %u premium buff(s) added, %u in total (June 326c6e20)", wszScriptFileName_,
 		static_cast<UINT>( m_mapPremiumBuffTempletMap.size() ) - uiBefore, static_cast<UINT>( m_mapPremiumBuffTempletMap.size() ) );
 #else // SERV_IRUHADEV_JUNE_BUFF_PREMIUM
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "BuffManager", this );

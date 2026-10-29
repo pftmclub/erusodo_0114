@@ -105,7 +105,7 @@ HRESULT CKTDXDeviceRenderTargetTexture::OnResetDevice()
 		}
 		m_pRenderTargetSurface->GetDesc( &m_kSurfaceDesc );
 
-		CKTDGDeviceSurfaceManager* pSurfaceManager = ( NULL != g_pKTDXApp ) ? g_pKTDXApp->GetJuneSurfaceManager() : NULL;
+		CKTDGDeviceSurfaceManager* pSurfaceManager = ( NULL != g_pKTDXApp ) ? g_pKTDXApp->GetSurfaceManager() : NULL;
 		/// June @31cdbe83: only with a multisample type, an app and its surface manager
 		if( D3DMULTISAMPLE_NONE != m_eMultiSampleType && NULL != pSurfaceManager )
 		{

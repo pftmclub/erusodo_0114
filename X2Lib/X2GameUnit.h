@@ -3258,11 +3258,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		/// June effect completion C4 (renamed from CheckDamageDataKeyName): the DIVISION window gate and its tick / re-arm, see X2GameUnit.cpp.
-		struct JuneDivisionKey
+		struct DivisionKey
 		{
 			UidType		m_uidAttacker;
 			int			m_iDivisionNum;
-			bool operator<( const JuneDivisionKey& rhs_ ) const
+			bool operator<( const DivisionKey& rhs_ ) const
 			{
 				if ( m_uidAttacker != rhs_.m_uidAttacker )
 					return m_uidAttacker < rhs_.m_uidAttacker;
@@ -4439,7 +4439,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		/// June effect completion C4: June CX2GameUnit +0x75e4 (std::map, head +0x75e8). (attacker UID, DIVISION_NUM) -> seconds left
 		/// before that attacker's hit with that DIVISION_NUM may apply buff factors to this unit again.
-		std::map<JuneDivisionKey, float>				m_mapJuneDivisionWindow;
+		std::map<DivisionKey, float>				m_mapJuneDivisionWindow;
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 		/// C3e-5: June CX2GameUnit +0x68d0. Set to 0.5 by a super-armor short hit-stop, ticked down in OnFrameMove ( 3229ecc0 @3229f4ff ),
@@ -5297,7 +5297,7 @@ protected:
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7
-		struct JuneImmuneBuffList											/// 94: June's list element (0x20 bytes, vt 33487988, built by 3227b6b0)
+		struct ImmuneBuffList											/// 94: June's list element (0x20 bytes, vt 33487988, built by 3227b6b0)
 		{
 			KBuffIdentity	m_BuffIdentity;
 			vector<int>		m_vecBuffTempletID;								/// the templet's BTI list, count first (quirk 1)
@@ -5305,7 +5305,7 @@ protected:
 		vector<CX2BuffIdentityPtr>		m_vecIgnoreStateGuardPtr;			/// 73: one identity per buff (June +0x67cc)
 		std::set<int>					m_setImmuneAllBuff;					/// 94 ALL_BUFF: the BTIs of the buffs that set it (June +0x65d4)
 		std::set<int>					m_setImmuneAllDebuff;				/// 94 ALL_DEBUFF (June +0x65e4)
-		vector<JuneImmuneBuffList>		m_vecImmuneBuffList;				/// 94 IMMUNE_BUFF_TEMPLATE_ID (June +0x65c4)
+		vector<ImmuneBuffList>		m_vecImmuneBuffList;				/// 94 IMMUNE_BUFF_TEMPLATE_ID (June +0x65c4)
 		vector<CX2BuffIdentityPtr>		m_vecImmuneNonControlDebuffPtr;		/// 95: one identity per buff (June +0x75ac)
 		vector<CX2BuffIdentityPtr>		m_vecJumpImpossiblePtr;				/// 104: identity type (June +0x42c0, CreateAndInsertBuffIdentity 3227ad60)
 		/// June buff port Phase 7b

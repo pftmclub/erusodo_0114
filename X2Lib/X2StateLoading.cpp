@@ -878,7 +878,7 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			g_pData->ResetGFXEventScene();		/// June 3258c470 @325904b9 ( 31edc620 ), then the scene XMLs @3259085e / @32590869
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-			g_pData->LoadJuneRankReferData();	/// June 3258c470 @3259092e / @32591022, after the event-scene scripts
+			g_pData->LoadRankReferData();	/// June 3258c470 @3259092e / @32591022, after the event-scene scripts
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 			if ( NULL != g_pData->GetQuestManager() )

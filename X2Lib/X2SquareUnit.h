@@ -296,7 +296,7 @@ class CX2SquareUnit : public CKTDGObject
 		void SetRidingOn( IN bool bVal_ ) { m_SyncData.m_bRidingOn = bVal_; }
 		void ProcessRidingOn( IN bool bVal_, IN const KRidingPetInfo& _Info = KRidingPetInfo() );
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
-		int JuneRidingPetStateChangeSounds( KLuaManager& luaManager_ );	/// June riding StateChange village block @32d35124 ( C9h-4e ): stop, clear, refill from SOUND_PLAY_ALL_OPTION<n>
+		int RidingPetStateChangeSounds( KLuaManager& luaManager_ );	/// June riding StateChange village block @32d35124 ( C9h-4e ): stop, clear, refill from SOUND_PLAY_ALL_OPTION<n>
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 		bool GetCheckWaitHabitElapsedTime() { return m_ElapsedTimeRidingWaitHabit.CheckElapsedTime(); }
 		void ResetWaitHabitElapsedTime() { m_ElapsedTimeRidingWaitHabit.ResetSumOfElapsedTime(); }
@@ -458,11 +458,11 @@ class CX2SquareUnit : public CKTDGObject
 		bool PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionType);
 		CX2Unit::EMOTION_TYPE GetNowEmotionId() { return m_ePlayedEmotion; }
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-		void StopJuneEmotionEffectSet();	// June 323f4640 (stop +0x7ac, then -1); called from CX2TFieldGame::RemoveUnit
+		void StopEmotionEffectSet();	// June 323f4640 (stop +0x7ac, then -1); called from CX2TFieldGame::RemoveUnit
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-		void StopJuneEquipEffectSets();		// June 323f56d0 (stop the group-81 equips' sets); called from CX2TFieldGame::RemoveUnit
-		bool CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord );	// June 323f5920
+		void StopEquipEffectSets();		// June 323f56d0 (stop the group-81 equips' sets); called from CX2TFieldGame::RemoveUnit
+		bool CheckEquipEffectSetCondition( const CX2ItemManager::ConditionEquipPlayEffectSet& kRecord );	// June 323f5920
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #endif
 
@@ -658,8 +658,8 @@ class CX2SquareUnit : public CKTDGObject
 		/// June CX2SquareUnit +0x5ec ( C9h-4b ): the handles of the DCS_STATE_END sounds the square player started. Stopped by JuneStopSoundOnStateEnd ( 323f1730 ) at riding-off;
 		/// June's dtor ( 323f7760 @323f7e24 ) only frees the list.
 		std::vector<CKTDXDeviceSound*>			m_vecSoundToDeleteOnStateEnd;
-		void									JunePlaySquareSoundRecords();
-		void									JuneStopSoundOnStateEnd();
+		void									PlaySquareSoundRecords();
+		void									StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 
 		UidType							m_iPartyUID;		/// 파티 Unique 아이디

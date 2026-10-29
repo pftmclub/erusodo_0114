@@ -78,17 +78,17 @@ class CKTDXApp
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
 		/// June engine remainder R4b: the frame ( 31be3800 ) draws into a scene render target when ANTIALIASING_LEVEL > 0 ( multisampled )
 		/// or when the scene / effect switch is on ( never in June: the option setter 3241cd20 has no caller, JUNE_BUGS.md )
-		void	JuneSetAntiAliasLevel( int iLevel_ );								/// June 31be4cf0 ( +0x260 )
-		void	JuneSetSceneEffectRenderTarget( bool bScene_, bool bEffect_ );		/// June 31be4d10 ( +0x26c / +0x26d )
-		int		JuneGetAntiAliasLevel() const { return m_iJuneAntiAliasLevel; }
-		HRESULT	JuneOpenPerturbationMap();											/// June 31be4510 ( +0x268 )
-		void	JuneDrawFullScreenQuad( float fU0_, float fV0_, float fU1_, float fV1_ );	/// June 31be34c0
-		void	JuneCreateRenderTargets();											/// June 31be4230
-		void	JuneReleaseRenderTargets();											/// June 31be2ef0
-		void	JuneStageChainRender();												/// June 31be2cd0: vslot 0x8
-		void	JuneStageChainRenderAlpha( int iRenderPass_ );						/// June 31be2d30: vslot 0xc
-		void	JuneStageChainRenderFrontUI( int iRenderPass_ );					/// June 31be2d90: vslot 0x10
-		void	JuneStageChainRenderAfter();										/// June 31be2e90: vslot 0x18
+		void	SetAntiAliasLevel( int iLevel_ );								/// June 31be4cf0 ( +0x260 )
+		void	SetSceneEffectRenderTarget( bool bScene_, bool bEffect_ );		/// June 31be4d10 ( +0x26c / +0x26d )
+		int		GetAntiAliasLevel() const { return m_iJuneAntiAliasLevel; }
+		HRESULT	OpenPerturbationMap();											/// June 31be4510 ( +0x268 )
+		void	DrawFullScreenQuad( float fU0_, float fV0_, float fU1_, float fV1_ );	/// June 31be34c0
+		void	CreateRenderTargets();											/// June 31be4230
+		void	ReleaseRenderTargets();											/// June 31be2ef0
+		void	StageChainRender();												/// June 31be2cd0: vslot 0x8
+		void	StageChainRenderAlpha( int iRenderPass_ );						/// June 31be2d30: vslot 0xc
+		void	StageChainRenderFrontUI( int iRenderPass_ );					/// June 31be2d90: vslot 0x10
+		void	StageChainRenderAfter();										/// June 31be2e90: vslot 0x18
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 		void SlowFrame( float fSlowFactor, float fSlowTime, float fSlowReserveTime = 0.0f ){ m_fSlowFactor = fSlowFactor; m_fSlowTime = fSlowTime; m_fSlowReserveTime = fSlowReserveTime; }
@@ -176,11 +176,11 @@ class CKTDXApp
 		CKTDGManager*		GetDGManager(){ return m_pDGManager; }
 		CKTDSManager*		GetDSManager(){ return m_pDSManager; }
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-		CKTDGGFXManager*	GetJuneGFXManager(){ return m_pJuneGFXManager; }	/// June +0x1c8
-		void				JuneGfxSetMessageStage( CKTDXStage* pStage );		/// June 31be2fd0
-		void				JuneGfxClearMessageStage();							/// June 31be3000
-		void				JuneGfxMainLoopFilter( const MSG& kMsg );			/// June main loop 31be1aa0 @31be1e0a -> 31c43ab0
-		void				JuneGfxEnableMouseInput();							/// June 32576ff0 @32577e9c: mgr +0x11c = 1
+		CKTDGGFXManager*	GetGFXManager(){ return m_pJuneGFXManager; }	/// June +0x1c8
+		void				GfxSetMessageStage( CKTDXStage* pStage );		/// June 31be2fd0
+		void				GfxClearMessageStage();							/// June 31be3000
+		void				GfxMainLoopFilter( const MSG& kMsg );			/// June main loop 31be1aa0 @31be1e0a -> 31c43ab0
+		void				GfxEnableMouseInput();							/// June 32576ff0 @32577e9c: mgr +0x11c = 1
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
@@ -192,7 +192,7 @@ class CKTDXApp
                             GetDVBManager() { ASSERT( m_pDVBManager != NULL ); return m_pDVBManager; }
 //#endif
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-		CKTDGDeviceSurfaceManager*	GetJuneSurfaceManager() { return m_pJuneSurfaceManager; }
+		CKTDGDeviceSurfaceManager*	GetSurfaceManager() { return m_pJuneSurfaceManager; }
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 		
 		bool				GetAppDestroy(){ return m_bAppDestroy; }

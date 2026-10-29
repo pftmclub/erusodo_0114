@@ -9,7 +9,7 @@
 /// The defaults are the templet's (June 323bf7e0): no render option, SrcBlend 5, DestBlend 6, no MultiTex, speed 0, colour 1.
 /// June's relation row has no constructor for this block (32347110 builds only the MultiTex string), so a row with no
 /// RenderOption table carries stack garbage into the templet; here the row gets these defaults (JUNE_BUGS).
-struct SJuneVillageNpcRenderOption
+struct SVillageNpcRenderOption
 {
 	bool			m_bUseRenderOption;		/// +0x0  UseRenderOption
 	bool			m_bUseAlphaBlend;		/// +0x1  UseAlphaBlend
@@ -19,7 +19,7 @@ struct SJuneVillageNpcRenderOption
 	D3DXVECTOR3		m_vMultiTexSpeed;		/// +0x28 MultiTexSpeed { 1, 2, 3 }
 	D3DXCOLOR		m_Color;				/// +0x34 Color (a D3DXCOLOR userdata)
 
-	SJuneVillageNpcRenderOption()
+	SVillageNpcRenderOption()
 		: m_bUseRenderOption( false ), m_bUseAlphaBlend( false ), m_iSrcBlend( 5 ), m_iDestBlend( 6 ),
 		m_vMultiTexSpeed( 0.f, 0.f, 0.f ), m_Color( 1.f, 1.f, 1.f, 1.f )
 	{}
@@ -820,10 +820,10 @@ class CX2QuestManager
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 		/// Q5b. June 3232df20: a quest scene's own BGM ( the templet's m_fSelectBGM, a wstring ). In a village / field world the world's BGM name is saved
 		/// ( manager +0x12c ), the quest's takes its place and plays ( CX2World::PlayBGM 327fc950 ), and +0x148 says so. One override at a time.
-		void	JunePlayQuestSelectBGM( const std::wstring& wstrBGM );
+		void	PlayQuestSelectBGM( const std::wstring& wstrBGM );
 		/// Q5b. June 3232e000, called by CX2GFXEventScene::End ( @3226b734 ) when +0x148 is set: the saved name goes back and plays.
-		void	JuneRestoreQuestSelectBGM();
-		bool	IsJuneQuestSelectBGMActive() const { return m_bJuneSelectBGMActive; }
+		void	RestoreQuestSelectBGM();
+		bool	IsQuestSelectBGMActive() const { return m_bJuneSelectBGMActive; }
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef LUA_TRANS_DEVIDE
 		bool	AddQuestTempletTrans_LUA();
@@ -883,7 +883,7 @@ class CX2QuestManager
 			D3DXVECTOR3		m_vNPCMeshRot;					/// +0x30c Change_NPCMeshRot (0 = keep)
 			D3DXVECTOR3		m_vNPCMeshScale;				/// +0x318 Change_NPCMeshScale (0 = keep)
 			bool			m_bApplyForce;					/// +0x324 APPLY_FORCE (ByQuest only)
-			SJuneVillageNpcRenderOption	m_RenderOption;		/// +0x328 RenderOption
+			SVillageNpcRenderOption	m_RenderOption;		/// +0x328 RenderOption
 			std::wstring	m_wstrEffectSetName;			/// +0x36c EFFECT_SET_NAME
 
 			VillageNpcRelationData()
@@ -954,7 +954,7 @@ class CX2QuestManager
 		const QuestTemplet*		GetQuestTemplet( int questID );
 		const SubQuestTemplet*	GetSubQuestTemplet( int subQuestID );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
-		void	JuneRebuildStoryBookQuest( bool bNewStory_ );		// 32335f50: g_pData +0x570 from the completed quests that have a story, +0xabd = bNewStory_
+		void	RebuildStoryBookQuest( bool bNewStory_ );		// 32335f50: g_pData +0x570 from the completed quests that have a story, +0xabd = bNewStory_
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		/// Q3. June's chain rule ( ChainQuestInfo AllowFewDays / TestMinute ), the week / month repeat expiry and two small predicates. June addresses on each line.
@@ -968,12 +968,12 @@ class CX2QuestManager
 		static bool	IsAnyDungeonCondition( const ClearCondition& kCond_ );	// 32322290: the dungeon set is exactly { DI_NONE }
 		int		GetClassUpQuestNoticeState( int iClassUpStep_ );			// 32336310: 0 / 1 / 2 for the class-up notice buttons ( the step comes from the UI )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-		static int	JuneGetClassUpStep();									// 31edf870: 0 transcended or too low, 1 / 2 / 3 the level band of the class step
-		void	JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ );	// 32344ab0: the level-up guide's accept button
+		static int	GetClassUpStep();									// 31edf870: 0 transcended or too low, 1 / 2 / 3 the level band of the class step
+		void	GuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ );	// 32344ab0: the level-up guide's accept button
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		const map<int,bool>&	GetChainStartableMap() const { return m_mapChainStartable; }
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
-		void	JuneQuestSelfCheck();										// Q3 debug: [JUNE_QUEST] RUN chk lines, once per run
+		void	QuestSelfCheck();										// Q3 debug: [JUNE_QUEST] RUN chk lines, once per run
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		QuestInst*				GetUnitQuest( int iQuestID );			//진행중인 퀘스트

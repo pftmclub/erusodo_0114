@@ -1102,7 +1102,7 @@ private:
 	/// stand-in) and push what it raised as EGS_JUNE_ACQUIRE_SKILL_NOT. bAll_ sends every acquired
 	/// skill instead (after a whole-tree reset the client's map is empty: June's INIT ACK 3220ea50 runs
 	/// Reset + SetDefaultSkill, and June has no default skills).
-	void PushJuneSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel, bool bAll_, const wchar_t* pwszWhy_ );
+	void PushSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel, bool bAll_, const wchar_t* pwszWhy_ );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 	/// Put one dead monster's loot on the floor: the ED it is worth, split into
@@ -1213,8 +1213,8 @@ private:
 	bool Handler_EGS_CHANGE_SKILL_SLOT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// June skill system S7c: the skill memos ( REQ 0x554 / 0x556 ), a labelled stand-in ( no June server )
-	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
-	bool Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 	/// June skill system S7d: the three page packets, a labelled stand-in ( no June server )
@@ -1244,17 +1244,17 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	/// June quest system RM1 ( Handlers_Quest.cpp ): the random mission. DORMANT - nothing here sends a mission on its own; only the
 	/// dev-console cheat ( 0x495 ) does, and 0x496 / 0x497 are June's two reward cheats.
-	bool Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
-	bool Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
-	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
-	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	/// June transcendence T2 ( Handlers_Quest.cpp ): the /tc REQ 0x594 and the shared check / grant / 0x596 notify.
 	bool Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOfflineSession& kSes, const KEvent& kEvent );
-	int  JuneTranscendCheck( const KOfflineUnitRow& kRow ) const;
-	void JuneSendTranscendNot( KOfflineSession& kSes, int iUnitClassTran );
+	int  TranscendCheck( const KOfflineUnitRow& kRow ) const;
+	void SendTranscendNot( KOfflineSession& kSes, int iUnitClassTran );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 #ifdef SERV_IRUHADEV_ADMIN_CHEATS
 	/// Handlers_Quest.cpp: the dev console's /qdone and /additem.
@@ -1264,7 +1264,7 @@ private:
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	/// June dungeon result R2 ( Handlers_Room.cpp ): the retry REQ 0x648, a bodyless SendID.
-	bool Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 
 	/// Make sure the quest and title state belongs to the character this

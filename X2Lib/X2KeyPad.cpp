@@ -397,7 +397,7 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 	/// June buff port Phase 14c. June's DefaultSlotData is split: 31f5da70 fills the map without the dialog. This is
 	/// March's DefaultSlotData map block (above), dialog-free; June's own table is keyed by June's longer GAMEACTION
 	/// enum, so March's defaults are used here.
-	void CX2KeyPad::JuneSetDefaultKeyPadMap()
+	void CX2KeyPad::SetDefaultKeyPadMap()
 	{
 		m_KeyPadMap[GAMEACTION_QUICKSLOT1]	= KBI_1;
 		m_KeyPadMap[GAMEACTION_QUICKSLOT2]	= KBI_2;
@@ -473,7 +473,7 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 	/// June 31f5e290 / 31f5d4a0's loop (SaveSlotData's loop without the server write): each action gets its slot's DIK
 	/// key, or 0 for a slot past the use-key range. With bSkipUnset_ (the restore) an action without a slot is left as it
 	/// is. find() instead of at(): a missing entry is skipped rather than thrown.
-	int CX2KeyPad::JuneApplyKeyPadMapToKeyboard( bool bSkipUnset_ )
+	int CX2KeyPad::ApplyKeyPadMapToKeyboard( bool bSkipUnset_ )
 	{
 		if ( NULL == g_pKTDXApp || NULL == g_pKTDXApp->GetDIManager() ||
 			NULL == g_pKTDXApp->GetDIManager()->Getkeyboard() )
@@ -506,29 +506,29 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 
 	/// June 31f5e290 (from SetIsPlayingTutorial, once per tutorial): keep the map in use (+0x28 = +0x8), fill the defaults
 	/// and apply them to the keyboard. Nothing is written to the server, so the saved mapping is untouched.
-	void CX2KeyPad::JuneApplyTutorialDefaultKeys()
+	void CX2KeyPad::ApplyTutorialDefaultKeys()
 	{
 		m_JuneKeyPadMapBeforeTutorial = m_KeyPadMap;
-		JuneSetDefaultKeyPadMap();
-		const int iApplied = JuneApplyKeyPadMapToKeyboard( false );
-		CX2JuneBuffCapture::Line( "tutorial keys: default key map applied to %d action(s), %d kept for the restore (June 31f5e290)",
+		SetDefaultKeyPadMap();
+		const int iApplied = ApplyKeyPadMapToKeyboard( false );
+		CX2BuffCapture::Line( "tutorial keys: default key map applied to %d action(s), %d kept for the restore (June 31f5e290)",
 			iApplied, (int)m_JuneKeyPadMapBeforeTutorial.size() );
 	}
 
 	/// June 31f5d4a0 (from 327d2160 on the tutorial exit): put the kept map back and apply it. An empty backup is not
 	/// restored: an empty m_KeyPadMap would throw in the at() calls elsewhere in this class (JUNE_BUGS.md).
-	void CX2KeyPad::JuneRestoreKeysAfterTutorial()
+	void CX2KeyPad::RestoreKeysAfterTutorial()
 	{
 		if ( true == m_JuneKeyPadMapBeforeTutorial.empty() )
 		{
-			CX2JuneBuffCapture::Line( "tutorial keys: restore skipped, no key map was kept (June 31f5d4a0)" );
+			CX2BuffCapture::Line( "tutorial keys: restore skipped, no key map was kept (June 31f5d4a0)" );
 			return;
 		}
 
 		m_KeyPadMap = m_JuneKeyPadMapBeforeTutorial;
 		m_JuneKeyPadMapBeforeTutorial.clear();
-		const int iApplied = JuneApplyKeyPadMapToKeyboard( true );
-		CX2JuneBuffCapture::Line( "tutorial keys: key map from before the tutorial restored to %d action(s) (June 31f5d4a0)", iApplied );
+		const int iApplied = ApplyKeyPadMapToKeyboard( true );
+		CX2BuffCapture::Line( "tutorial keys: key map from before the tutorial restored to %d action(s) (June 31f5d4a0)", iApplied );
 	}
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	#pragma region SaveSlotData

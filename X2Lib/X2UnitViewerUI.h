@@ -144,7 +144,7 @@
 		void PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_TYPE motionType );
 #endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-		void GetJuneDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut );	// June 31fa2f20
+		void GetDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut );	// June 31fa2f20
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 		static bool GetUnitClicked() { return m_sbUnitClicked; }
@@ -423,7 +423,7 @@
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 		// June 31fa3010 request queue (+0x11a0): one 0x30-byte entry per pending set, drained by the frame move 31fa8ce0
-		struct JuneViewerFxRequest
+		struct ViewerFxRequest
 		{
 			std::wstring	m_wstrSetName;
 			int				m_iUnitType;
@@ -431,9 +431,9 @@
 			float			m_fStartTime;
 			bool			m_bLoop;
 
-			JuneViewerFxRequest() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ) {}
+			ViewerFxRequest() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ) {}
 		};
-		std::vector<JuneViewerFxRequest>					m_vecJuneViewerFxRequest;
+		std::vector<ViewerFxRequest>					m_vecJuneViewerFxRequest;
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 };

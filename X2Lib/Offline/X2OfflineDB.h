@@ -813,9 +813,9 @@ public:
 	/// Every stored bar of the unit ( a whole-tree reset ).
 	bool	DeleteSkillPageBars( UidType nUnitUID );
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
-	bool	LoadJuneSkillMemos( UidType nUnitUID, OUT std::map< int, int >& mapOut );
-	bool	SaveJuneSkillMemo( UidType nUnitUID, int iSkillID, int iMemoID );
-	bool	DeleteJuneSkillMemo( UidType nUnitUID, int iSkillID );
+	bool	LoadSkillMemos( UidType nUnitUID, OUT std::map< int, int >& mapOut );
+	bool	SaveSkillMemo( UidType nUnitUID, int iSkillID, int iMemoID );
+	bool	DeleteSkillMemo( UidType nUnitUID, int iSkillID );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	//////////////////////////////////////////////////////////////////////////
@@ -956,13 +956,13 @@ private:
 #ifdef SERV_IRUHADEV_LEVEL_CAP_99
 	/// The v16 rung: every unit's EXP moved from March's ExpTable onto June's, keeping
 	/// its level and its fraction of progress through it. One-way. See the .cpp.
-	bool	MigrateExpToJuneTable();
+	bool	MigrateExpToTable();
 #endif SERV_IRUHADEV_LEVEL_CAP_99
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
 	/// The v17 rung (June skill system S3): every unit's skills, unseals and skill-note memos
 	/// go, SP becomes June's GetCalcInitSkillPoint for its level, and (AUTOLEARN) the class's
 	/// free rows come back. One-way. See the .cpp.
-	bool	MigrateSkillsToJuneTree();
+	bool	MigrateSkillsToTree();
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	/// The v18 rung (June skill system S5): the equipped B bar moves from slots 4-7 to 5-8, because slot 4 became
@@ -970,15 +970,15 @@ private:
 	bool	MigrateSkillSlotsToTen();
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	bool	MigrateSkillNoteToJuneMemo();
+	bool	MigrateSkillNoteToMemo();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-	bool	MigrateJuneSkillPages();		///< v20 ( S7d )
+	bool	MigrateSkillPages();		///< v20 ( S7d )
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
 	/// The v21 rung (June quest system Q2): quest rows onto June's quest data, as the user chose 2026-10-19.
 	/// One [JUNE_QUEST] MIG line per unit and category.
-	bool	MigrateQuestsToJune();
+	bool	MigrateQuestsTo();
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );

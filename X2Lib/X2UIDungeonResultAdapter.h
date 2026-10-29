@@ -8,7 +8,7 @@
 
 #include "KTDGGFXManager.h"
 
-class CX2UIDungeonResultAdapter : public IJuneGfxResultHost
+class CX2UIDungeonResultAdapter : public IGfxResultHost
 {
 public:
 	explicit CX2UIDungeonResultAdapter( CKTDGGFXManager* pManager );		// 32eea7e0 ( June passes the movie: the manager's +0x98, or 0 without a manager )
@@ -16,7 +16,7 @@ public:
 
 	bool	IsBound() const;													// June's adapter +4 != 0
 
-	void	UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo );			// 32eeae30
+	void	UpdateDungeonInfo( const KGfxResultInfo& kInfo );			// 32eeae30
 	void	SetItem( int iIndex, int iItemID, int iNum, int iUIDLow, int iUIDHigh );	// 32eea6a0 ( the name "GameResult.getItem<N>" is the index here )
 	void	ShowRetryButton( bool bShow );									// 32eea1c0
 	void	EnableRetryButton( bool bEnable );								// 32eea1f0
@@ -36,11 +36,11 @@ private:
 };
 
 // Log tag [JUNE_RESULT] WIDGET ( ErrorLog.txt )
-void JuneResultWidgetLog( const char* szFormat, ... );
+void ResultWidgetLog( const char* szFormat, ... );
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 // Dev console ( C++ Lua bindings, X2Main::RegisterLuabind ): no .lua is involved.
-void JuneResultOpen_LUA();		// recreates the adapter, openUI( 8 ), and fills from g_pData's result info once the movie says notifyInitialize
-void JuneResultClose_LUA();		// closeUI( 8 ) and deletes the adapter
+void ResultOpen_LUA();		// recreates the adapter, openUI( 8 ), and fills from g_pData's result info once the movie says notifyInitialize
+void ResultClose_LUA();		// closeUI( 8 ) and deletes the adapter
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET

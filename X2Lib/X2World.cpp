@@ -508,7 +508,7 @@ void CX2World::SetEnvBoxMap( const char* pFileName )
 /// June 327fb5f0 @327fb61e-327fb689: the world render gives the env box map the camera unit's position when the renderer's env box switch ( +0x80, option
 /// USE_ENV_BOX ) is on and a unit exists. The two calls of 31cda140 around it only reach the map's empty draw slot, so they are not ported.
 /// The first call logs, once, that the hook is alive and that the Lua binding is in place ( the bind runs during the kom mount, whose ErrorLog lines are lost ).
-void CX2World::JuneRenderEnvBox( const D3DXVECTOR3* pvPos )
+void CX2World::RenderEnvBox( const D3DXVECTOR3* pvPos )
 {
 	static bool s_bLoggedHook = false;
 	if( false == s_bLoggedHook )
@@ -1921,7 +1921,7 @@ void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 				// June 32800e82-32800edb: 31cdd4e0( device channel ) when the channel is not NULL.
 				if( pDevice->GetChannel() != NULL )
-					g_pKTDXApp->GetDeviceManager()->JuneRegisterAutoRelease( pDevice->GetChannel() );
+					g_pKTDXApp->GetDeviceManager()->RegisterAutoRelease( pDevice->GetChannel() );
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 			}
 		}
@@ -2286,8 +2286,8 @@ void CX2World::FrameMoveMovableLineSkinMesh( CX2WorldObjectSkinMesh* pSkinMesh_ 
 			if ( NULL != pData )
 			{
 				pData->m_vLastMove = vMove;
-				if ( NULL != pSkinMesh_->GetJuneXSkinAnim() )	/// June reads +0x218 -> +0x214 with no NULL test
-					pData->m_fNowTime = pSkinMesh_->GetJuneXSkinAnim()->GetNowAnimationTime();
+				if ( NULL != pSkinMesh_->GetXSkinAnim() )	/// June reads +0x218 -> +0x214 with no NULL test
+					pData->m_fNowTime = pSkinMesh_->GetXSkinAnim()->GetNowAnimationTime();
 			}
 		}
 	}

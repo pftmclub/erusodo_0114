@@ -129,7 +129,7 @@ protected:
 
 #ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	virtual bool			UpdateUnitPointer();	/// June 32d530a0
-	void					JuneUpdateUnitPointerNPCWalk();
+	void					UpdateUnitPointerNPCWalk();
 #else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	virtual void			UpdateUnitPointer();	
 #endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT

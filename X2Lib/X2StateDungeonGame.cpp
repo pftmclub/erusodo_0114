@@ -153,14 +153,14 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	m_bJuneResultUIOpened		= false;
 	m_bJuneResultSpeedChecked	= false;
 	m_bJuneResultAckDone		= false;
-	JuneSetResultUIMode( 0, 0.f );		// June 324d9f80
+	SetResultUIMode( 0, 0.f );		// June 324d9f80
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
-	JuneResultCloseAndDelete();		// June 324d9f80 @324dadca: unloadWidget( 8 ), 0xbc, mode 0, limit 23.0
-	JuneSetResultUIMode( 0, 0.f );
+	ResultCloseAndDelete();		// June 324d9f80 @324dadca: unloadWidget( 8 ), 0xbc, mode 0, limit 23.0
+	SetResultUIMode( 0, 0.f );
 	m_fJuneResultModeLimit = 23.f;		// 3349d46c
 	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef REFORM_ENTRY_POINT
@@ -375,7 +375,7 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	// June dungeon game ctor 324d9f80 @324dadb9-324dadc2: after the defence-dungeon quick-slot block, g_pMain +0x80a ( clear movie playing ) = 0
 	if( NULL != g_pMain )
-		g_pMain->JuneClearClearMoviePlaying();
+		g_pMain->ClearClearMoviePlaying();
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	DialogLog( "\nCX2StateDungeonGame::CX2StateDungeonGame End\n" );
 
@@ -490,22 +490,22 @@ CX2StateDungeonGame::~CX2StateDungeonGame(void)
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
-	JuneResultCloseAndDelete();		// June 324d5670 @324d5e41: unloadWidget( 8 ) with or without an adapter
+	ResultCloseAndDelete();		// June 324d5670 @324d5e41: unloadWidget( 8 ) with or without an adapter
 #else SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	if ( m_pJuneResultAdapter != NULL )
-		JuneResultCloseAndDelete();
+		ResultCloseAndDelete();
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	JuneSetResultUIMode( 0, 0.f );		// June 324d5670
+	SetResultUIMode( 0, 0.f );		// June 324d5670
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
-	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetJuneGFXManager() != NULL )
-		g_pKTDXApp->GetJuneGFXManager()->SetShow( true );		// June 324d5670 @324d5e5a: +0x108 = 1 ( DELETE in the result hid it )
+	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetGFXManager() != NULL )
+		g_pKTDXApp->GetGFXManager()->SetShow( true );		// June 324d5670 @324d5e5a: +0x108 = 1 ( DELETE in the result hid it )
 	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
 	{
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneResetHideMode();		// 31d05060
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->ResetHideMode();		// 31d05060
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );
 	}
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	m_pDungeonGame->Release();
@@ -989,7 +989,7 @@ bool CX2StateDungeonGame::QuitGame()
 	{
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		/// June 324d1580 @324d18c0: in the tutorial no exit dialog opens while an event scene plays ( June's other gates there are the tutorial plan's )
-		if( NULL == g_pData || false == g_pData->JuneIsEventScenePlaying() )
+		if( NULL == g_pData || false == g_pData->IsEventScenePlaying() )
 			OpenExitDLG( GET_STRING( STR_ID_562 ) );
 #else SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		OpenExitDLG( GET_STRING( STR_ID_562 ) );
@@ -1004,7 +1004,7 @@ bool CX2StateDungeonGame::QuitGame()
 #if defined( SERV_IRUHADEV_JUNE_RESULT_DEBUG ) && defined( SERV_IRUHADEV_JUNE_RESULT_FLOW )
 			{
 				char szJuneBuf[ 96 ] = { 0, };
-				_snprintf_s( szJuneBuf, sizeof( szJuneBuf ), _TRUNCATE, "[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )", GetJuneResultUIMode() );
+				_snprintf_s( szJuneBuf, sizeof( szJuneBuf ), _TRUNCATE, "[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )", GetResultUIMode() );
 				KLOG( "ErrorLog.txt" ) << szJuneBuf << fileout;
 			}
 #endif
@@ -1306,7 +1306,7 @@ HRESULT CX2StateDungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 		if ( m_fJuneResultRetryCool <= 0.f )
 		{
 			m_fJuneResultRetryCool = -1.f;
-			JuneResultEnableRetry( true, -1.f );
+			ResultEnableRetry( true, -1.f );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -1803,7 +1803,7 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
 				kUserData.iMyUID = g_pData->GetMyUser()->GetSelectUnit()->GetUID();
 				g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, kUserData );
-				JuneResultSendRetryReq();
+				ResultSendRetryReq();
 			} break;
 
 		case DGUCM_JUNE_RESULT_RETRY_CANCEL:
@@ -1812,7 +1812,7 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
 				kUserData.iMyUID = g_pData->GetMyUser()->GetSelectUnit()->GetUID();
 				g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, kUserData );
-				JuneResultEnableRetry( true, -1.f );
+				ResultEnableRetry( true, -1.f );
 			} break;
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	}
@@ -1896,8 +1896,8 @@ bool CX2StateDungeonGame::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 		break;
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-	case EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK:
-		return Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( hWnd, uMsg, wParam, lParam );
+	case EGS_RANDOM_MISSION_COMPLETE_ACK:
+		return Handler_EGS_RANDOM_MISSION_COMPLETE_ACK( hWnd, uMsg, wParam, lParam );
 		break;
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
@@ -1962,8 +1962,8 @@ bool CX2StateDungeonGame::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 	case EGS_RESULT_ALL_UNIT_SUCCESS_NOT:
 		return Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT( hWnd, uMsg, wParam, lParam );
 
-	case EGS_JUNE_DUNGEON_RETRY_ACK:
-		return Handler_EGS_JUNE_DUNGEON_RETRY_ACK( hWnd, uMsg, wParam, lParam );
+	case EGS_DUNGEON_RETRY_ACK:
+		return Handler_EGS_DUNGEON_RETRY_ACK( hWnd, uMsg, wParam, lParam );
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	case EGS_END_GAME_DUNGEON_RESULT_DATA_NOT:
 		return Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT( hWnd, uMsg, wParam, lParam );
@@ -3254,7 +3254,7 @@ bool CX2StateDungeonGame::Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT( HWND hWn
 	KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT kPacket;
 	DeSerialize( pBuff, &kPacket );
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	return JuneResultEndHandler( kPacket );		// June 324db6b0
+	return ResultEndHandler( kPacket );		// June 324db6b0
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 	//CX2PacketLog::PrintLog( &kPacket );
 
@@ -5056,14 +5056,14 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		}
 		else
-			JuneResultTabKey();
+			ResultTabKey();
 	}
 
 	// June @324d3e56: F8 in result mode 3 is the retry button ( 324d1120, then g_pMain +0x90 vslot 0xe0 )
 	if ( false == bHideDialog && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_F8) == TRUE && m_iJuneResultMode == 3 )
 	{
-		if ( JuneResultRetryAllowed() == true && g_pMain->GetNowState() != NULL )
-			static_cast< CX2State* >( g_pMain->GetNowState() )->JuneResultRetry();
+		if ( ResultRetryAllowed() == true && g_pMain->GetNowState() != NULL )
+			static_cast< CX2State* >( g_pMain->GetNowState() )->ResultRetry();
 	}
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 

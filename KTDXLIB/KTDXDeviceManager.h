@@ -137,10 +137,10 @@ class CKTDXDeviceManager :
 		// bJuneAutoRelease_ = June's 4th parameter ( 31ce0e10 ). June has no recoverable default;
 		// true is OUR choice ( the majority of June's 242 sites pass 1 ).
 		CKTDXDeviceSound* PlaySound( const WCHAR* pFileName, bool bLoop = false, bool b3DSound = true, bool bJuneAutoRelease_ = true );
-		void	JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ );			// June 31cdcbb0
-		void	JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ );				// June 31cdd8d0
+		void	QueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ );			// June 31cdcbb0
+		void	CloseDeviceByPointer( CKTDXDevice* pDevice_ );				// June 31cdd8d0
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-		int		JuneRegisterAutoRelease( FMOD_CHANNEL* pChannel_ );				// June 31cdd4e0 ( W1 ): returns the FMOD result
+		int		RegisterAutoRelease( FMOD_CHANNEL* pChannel_ );				// June 31cdd4e0 ( W1 ): returns the FMOD result
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 		vector< CKTDXDevice* >	m_vecJuneAutoRelease;							// June +0x240
 #else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -247,7 +247,7 @@ class CKTDXDeviceManager :
 		}
 //#endif NEW_VILLAGE_UNIT_BACKGROUND_LOADING_TEST
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
-		int				JuneGetDeviceCount()	// SKREF ( R12 gate ): the live device count
+		int				GetDeviceCount()	// SKREF ( R12 gate ): the live device count
 		{
 			CSLock locker( m_DeviceLock );
 			return (int)m_DeviceMap.size();

@@ -78,7 +78,7 @@ void CKTDGDeviceSurfaceManager::GetRenderTargetSurface( LPDIRECT3DSURFACE9* ppOu
 	if( D3DMULTISAMPLE_NONE != eMultiSample_ )
 	{
 		DWORD dwQualityLevels = 0;
-		if( FAILED( CKTDGStateManager::JuneCheckDeviceMultiSampleType( eFormat_, eMultiSample_, &dwQualityLevels ) )
+		if( FAILED( CKTDGStateManager::CheckDeviceMultiSampleType( eFormat_, eMultiSample_, &dwQualityLevels ) )
 			|| dwQualityLevels <= dwQuality_ )
 			return;
 	}
@@ -131,7 +131,7 @@ void CKTDGDeviceSurfaceManager::GetDepthStencilSurface( LPDIRECT3DSURFACE9* ppOu
 	if( D3DMULTISAMPLE_NONE != pRenderTargetDesc_->MultiSampleType )
 	{
 		DWORD dwQualityLevels = 0;
-		if( FAILED( CKTDGStateManager::JuneCheckDeviceMultiSampleType( eDepthFormat, pRenderTargetDesc_->MultiSampleType, &dwQualityLevels ) )
+		if( FAILED( CKTDGStateManager::CheckDeviceMultiSampleType( eDepthFormat, pRenderTargetDesc_->MultiSampleType, &dwQualityLevels ) )
 			|| dwQualityLevels <= pRenderTargetDesc_->MultiSampleQuality )
 			return;
 	}

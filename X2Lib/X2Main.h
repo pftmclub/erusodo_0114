@@ -1467,7 +1467,7 @@ class CX2Main : public CKTDXStage
 		const bool		GetIsPlayingTutorial() { return m_bIsPlayingTutorial; }
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		void			SetIsPlayingTutorial( bool bPlaying );		/// June buff port Phase 14c: June 31d716c0 (X2Main.cpp)
-		void			JuneOnExitTutorialRestoreKeys();			/// June 327d2160's key half (called by CX2DungeonGame::Release)
+		void			OnExitTutorialRestoreKeys();			/// June 327d2160's key half (called by CX2DungeonGame::Release)
 #else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		void			SetIsPlayingTutorial( bool bPlaying ) { m_bIsPlayingTutorial = bPlaying; }
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
@@ -1719,8 +1719,8 @@ class CX2Main : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 		/// June GFx runtime G4 ( X2GFXEventScene.cpp ): 31d70c60 makes the player once ( StartUp state script load 3259bb20, and lazily below ); 31d76b40 plays
 		/// the cut-in widgets of a user skill cut-in: UI 0xc adds Common_CutIn_Frame.gfx + CUT_IN_TALK_<R_|L_><1-3>.gfx first. strName_ is "<cut-in>.gfx".
-		void				JuneMakeSimpleWidgetPlayer();
-		void				JunePlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ );
+		void				MakeSimpleWidgetPlayer();
+		void				PlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ );
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 		void			IntentionalCrash();	// 고의로 crash 내는 함수
@@ -2771,7 +2771,7 @@ public:
 public:
 	/// June 2017 dungeon / quest clear movies ( quest-system Q8 ). June keeps the table and the play state on CX2Main:
 	/// table g_pMain +0x7f8 ( 0xc4-byte records, parser 31d8cb90 ), state +0x808..+0x848, seen list +0x84c.
-	struct JuneClearMovieTemplet
+	struct ClearMovieTemplet
 	{
 		wstring			m_wstrMovieFileName;		/// m_wstrMovieFileName ( record +0x00 ), default L""
 		vector<int>		m_vecDungeonID;				/// m_eDungeonID ( +0x1c ), every positional value pushed as is
@@ -2784,27 +2784,27 @@ public:
 		wstring			m_wstrDungeonName;			/// m_dungeonName: a string id ( default -1 ) stored as GET_STRING's text
 		int				m_iQuestID;					/// m_iQuestID ( +0xc0 ), default 0
 
-		JuneClearMovieTemplet() : m_eMovieCategory( 0 ), m_bIntroMovie( false ), m_iQuestID( 0 ) {}
+		ClearMovieTemplet() : m_eMovieCategory( 0 ), m_bIntroMovie( false ), m_iQuestID( 0 ) {}
 	};
 
 	bool			AddDungeonClearMovieTemplet_LUA();									/// June 31d8cb90 ( bound by 31d95080 )
-	void			JuneResetClearMovieState();											/// June 31d79960 ( ecx = +0x808 )
-	void			JunePlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ );	/// June 31d7a240
-	bool			JuneGetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const;	/// June 31d75950
-	void			JuneAddSeenClearMovie( int iMovieID_, bool bValue_ );				/// June 31d78bf0
-	bool			JuneStartClearMovie();												/// June 31d880b0
-	void			JuneStopClearMovie();												/// June 31d883a0
-	void			JuneSendReservedQuestComplete();									/// June 31d822b0
-	void			JuneSetClearMovieUIMode( bool bPlaying_ );							/// June 31d87560
-	void			JuneCheckClearMovieEnd();											/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419
-	bool			JuneIsClearMoviePlaying() const { return m_bJuneClearMoviePlaying; }	/// June g_pMain +0x80a
-	void			JuneClearClearMoviePlaying() { m_bJuneClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
+	void			ResetClearMovieState();											/// June 31d79960 ( ecx = +0x808 )
+	void			PlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ );	/// June 31d7a240
+	bool			GetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const;	/// June 31d75950
+	void			AddSeenClearMovie( int iMovieID_, bool bValue_ );				/// June 31d78bf0
+	bool			StartClearMovie();												/// June 31d880b0
+	void			StopClearMovie();												/// June 31d883a0
+	void			SendReservedQuestComplete();									/// June 31d822b0
+	void			SetClearMovieUIMode( bool bPlaying_ );							/// June 31d87560
+	void			CheckClearMovieEnd();											/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419
+	bool			IsClearMoviePlaying() const { return m_bJuneClearMoviePlaying; }	/// June g_pMain +0x80a
+	void			ClearClearMoviePlaying() { m_bJuneClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-	bool			JuneCanShowClassGuide( const int iGuide_ );							/// June 31d71810
+	bool			CanShowClassGuide( const int iGuide_ );							/// June 31d71810
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 private:
-	vector<JuneClearMovieTemplet>	m_vecJuneClearMovieTemplet;		/// +0x7f8
+	vector<ClearMovieTemplet>	m_vecJuneClearMovieTemplet;		/// +0x7f8
 	bool							m_bJuneClearMovieOrgSound;		/// +0x808: option +0x41 ( m_bSound ) kept while the movie plays
 	bool							m_bJuneClearMovieOrgMusic;		/// +0x809: option +0x40 ( m_bMusic )
 	bool							m_bJuneClearMoviePlaying;		/// +0x80a
@@ -2816,16 +2816,16 @@ private:
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 public:
-	const JuneClearMovieTemplet*	JuneGetClearMovieTemplet( int iMovieID_ ) const;	/// June 31d75b50 ( also 31d759e0 / 31d75a70 / 31d76230 )
-	int								JuneGetClearMovieCount() const { return (int)m_vecJuneClearMovieTemplet.size(); }	/// June 323d1638: rows ( 0xc4 each )
-	bool							JuneIsSeenClearMovie( int iMovieID_ ) const;		/// June 31d759a0
-	bool							JuneIsNewClearMovie( int iMovieID_ ) const;			/// June 31d75b80
-	void							JuneSetNewClearMovie( int iMovieID_, bool bNew_ );	/// June 31d75bb0
-	int								JuneGetClearMovieFileState( int iMovieID_ ) const;	/// June 31d75b00: -1 no row, 0 no file, 1 file
-	bool							JuneGetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const;	/// June 31d758c0
-	void							JuneAddSeenClearMovieByQuest();						/// June 31d79ac0
-	void							JuneClearSeenClearMovie();							/// June 324625b0 @32462657
-	void							JunePlayClearMovieByID( int iMovieID_ );			/// June 31d884f0
+	const ClearMovieTemplet*	GetClearMovieTemplet( int iMovieID_ ) const;	/// June 31d75b50 ( also 31d759e0 / 31d75a70 / 31d76230 )
+	int								GetClearMovieCount() const { return (int)m_vecJuneClearMovieTemplet.size(); }	/// June 323d1638: rows ( 0xc4 each )
+	bool							IsSeenClearMovie( int iMovieID_ ) const;		/// June 31d759a0
+	bool							IsNewClearMovie( int iMovieID_ ) const;			/// June 31d75b80
+	void							SetNewClearMovie( int iMovieID_, bool bNew_ );	/// June 31d75bb0
+	int								GetClearMovieFileState( int iMovieID_ ) const;	/// June 31d75b00: -1 no row, 0 no file, 1 file
+	bool							GetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const;	/// June 31d758c0
+	void							AddSeenClearMovieByQuest();						/// June 31d79ac0
+	void							ClearSeenClearMovie();							/// June 324625b0 @32462657
+	void							PlayClearMovieByID( int iMovieID_ );			/// June 31d884f0
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 }; // CX2Main
 

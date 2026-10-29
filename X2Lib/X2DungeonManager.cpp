@@ -96,7 +96,7 @@ void CX2DungeonManager::Add_HeroDungeon_ExtraStatForException_LUA()
 }
 
 /// June 32931be0: Hero dungeon IDs 100000..100532, 110001..110310, 120000 and 120010. None exists in March.
-/*static*/ bool CX2DungeonManager::JuneIsHeroDungeon( int iDungeonID )
+/*static*/ bool CX2DungeonManager::IsHeroDungeon( int iDungeonID )
 {
 	return ( 100000 <= iDungeonID && iDungeonID < 100533 ) ||
 		( 110001 <= iDungeonID && iDungeonID < 110311 ) ||

@@ -285,7 +285,7 @@ CX2UnitViewerUI::~CX2UnitViewerUI(void)
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	// June 31fab920 @31fabc53: the viewer's dtor stops the effect groups 0..4 (the base dtor then stops group 1 and every sound)
 	for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
-		JuneViewerFxStop( iJuneFxGroup );
+		ViewerFxStop( iJuneFxGroup );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 }
 
@@ -489,7 +489,7 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( m_pXSkinAnim->GetNowAnimName(), m_pUnit->GetClass(), 0,
 				wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) && true == bJuneFxLoop )
 		{
-			JuneViewerFxRequest kJuneFxRequest;
+			ViewerFxRequest kJuneFxRequest;
 			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
 			if( NULL != m_pUnit->GetUnitTemplet() )
 				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
@@ -503,11 +503,11 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	// drain: a request plays once the anim time reaches its start time (0 = at once), then is erased
 	for( size_t iJuneFxRequest = 0; iJuneFxRequest < m_vecJuneViewerFxRequest.size(); )
 	{
-		const JuneViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
+		const ViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
 		if( fabs( kJuneFxRequest.m_fStartTime ) <= 0.0009f || kJuneFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
 		{
 			const std::wstring wstrJuneFxSet = kJuneFxRequest.m_wstrSetName;
-			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
+			ViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
 			m_vecJuneViewerFxRequest.erase( m_vecJuneViewerFxRequest.begin() + iJuneFxRequest );
 		}
 		else
@@ -1028,40 +1028,40 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	if( UVS_FIELD != m_eUnitViewerState && NULL != g_pData && NULL != g_pData->GetItemManager() )
 	{
 		std::vector<CX2EqipPtr> vecJuneEquip;
-		GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+		GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
 
 		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
 		{
 			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-			if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+			if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
 				continue;
 
 			// a miss, the set already playing, or the condition not met (<= 0; 1-2 while the motion type is above the three waits,
 			// an unsigned JA @31fa9c42; > 3) -> +0x15f4 = 0
-			CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+			CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
 			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
-				true == JuneViewerFxIsPlaying( kJuneRecord.m_wstrEffectSetName ) ||
+				true == ViewerFxIsPlaying( kJuneRecord.m_wstrEffectSetName ) ||
 				kJuneRecord.m_eCondition <= 0 ||
 				( kJuneRecord.m_eCondition <= 2 && static_cast<unsigned int>( m_eOldMotionType ) > 2 ) ||
 				kJuneRecord.m_eCondition > 3 )
 			{
-				pJuneEquip->ResetJuneEquipEffectSetStartTime();
+				pJuneEquip->ResetEquipEffectSetStartTime();
 				continue;
 			}
 
 			int iJuneSel = 2;
-			if( false == pJuneEquip->StepJuneEquipEffectSetTimer( &iJuneSel ) )
+			if( false == pJuneEquip->StepEquipEffectSetTimer( &iJuneSel ) )
 				continue;
 
 			// 32959640( GetXSkinAnim 31fac3c0, name, group 1 ); switch timer +0x1604 zeroed after the switch play
 			if( 3 == iJuneSel )
 			{
-				JuneViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrSwitchEffectSetName, 1 );
-				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 2 );
+				ViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrSwitchEffectSetName, 1 );
+				pJuneEquip->ResetEquipEffectSetSwitchTime( 2 );
 			}
 			else
 			{
-				JuneViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrEffectSetName, 1 );
+				ViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrEffectSetName, 1 );
 			}
 		}
 	}
@@ -1100,7 +1100,7 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 // June2017 31fa2f20: walk the viewer's equip map (+0x1fc = m_ViewEquipMap, so UID order), skip a NULL equip, and with
 // g_pData +0x34 set push the equip when its m_ItemID (+0x1a0) is in the given DITT type's set (32807db0).
-void CX2UnitViewerUI::GetJuneDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut )
+void CX2UnitViewerUI::GetDivisionEquips( int iDivisionType, std::vector<CX2EqipPtr>& vecOut )
 {
 	for( ViewEquipMap::iterator it = m_ViewEquipMap.begin(); it != m_ViewEquipMap.end(); ++it )
 	{
@@ -2007,7 +2007,7 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 	// June 31fa3010: after the anim the request queue is cleared, the group-0 viewer effects are stopped, and the motion is
 	// looked up (duo 0 = March's only model): a hit queues { set, UNIT_TYPE, UNIT_CLASS, start time, loop }
 	m_vecJuneViewerFxRequest.clear();
-	JuneViewerFxStop( 0 );
+	ViewerFxStop( 0 );
 	if( NULL != pName && NULL != m_pUnit && NULL != g_pData && NULL != g_pData->GetUnitManager() )
 	{
 		std::wstring wstrJuneFxSet;
@@ -2015,7 +2015,7 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 		bool bJuneFxLoop = false;
 		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( pName, m_pUnit->GetClass(), 0, wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) )
 		{
-			JuneViewerFxRequest kJuneFxRequest;
+			ViewerFxRequest kJuneFxRequest;
 			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
 			if( NULL != m_pUnit->GetUnitTemplet() )
 				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
@@ -4076,14 +4076,14 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 		// cash shop: groups 0..2 (329594c0), else 0..4 (31fac190)
 		if( UVS_CASHSHOP == m_eUnitViewerState )
 		{
-			JuneViewerFxStop( 0 );
-			JuneViewerFxStop( 1 );
-			JuneViewerFxStop( 2 );
+			ViewerFxStop( 0 );
+			ViewerFxStop( 1 );
+			ViewerFxStop( 2 );
 		}
 		else
 		{
 			for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
-				JuneViewerFxStop( iJuneFxGroup );
+				ViewerFxStop( iJuneFxGroup );
 		}
 #endif
 	}
@@ -6648,7 +6648,7 @@ bool CX2UnitViewerUI::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wst
 	{
 		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
 		if( false == wstrJuneEmotionSetName.empty() )
-			JuneViewerFxPlay( m_pXSkinAnim, wstrJuneEmotionSetName, 1 );
+			ViewerFxPlay( m_pXSkinAnim, wstrJuneEmotionSetName, 1 );
 	}
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET

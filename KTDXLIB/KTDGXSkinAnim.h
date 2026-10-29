@@ -43,7 +43,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 		};
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-		struct JuneTyped_SkinMesh	// June 0xcc entry of the SMRT list +0x830
+		struct Typed_SkinMesh	// June 0xcc entry of the SMRT list +0x830
 		{
 			CKTDXDeviceXSkinMesh*			m_pSkinMesh;
 			int								m_indexMode;
@@ -114,10 +114,10 @@ class CKTDGXSkinAnim : public CKTDGObject
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		// June2017 CX2WorldObjectSkinMesh::SetTransition 327f69d0: writes anim +0x854, the transition of the XAP_LOOP restart in OnFrameMove
-		void JuneSetLoopTransition( bool bTransition ){ m_bJuneLoopTransition = bTransition; }
+		void SetLoopTransition( bool bTransition ){ m_bJuneLoopTransition = bTransition; }
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
-		bool JuneRefreshBones();	// June2017 31d29950: refresh the bone matrices without advancing the animation
+		bool RefreshBones();	// June2017 31d29950: refresh the bone matrices without advancing the animation
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 		CKTDXDeviceXSkinMesh* GetAnimXSkinMesh(){ return m_pAnimXSkinMesh; }
 
@@ -145,7 +145,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 		void AddAnimXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );	// 툴잡없을 위한 애니메이션 메쉬 삽입함수
 		void RemoveModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
-		void JuneAddCollisionData( CKTDXDeviceXSkinMesh* pModelXSkinMesh );	// June2017 31d2f250: the mesh's collision / attack data only, no list push
+		void AddCollisionData( CKTDXDeviceXSkinMesh* pModelXSkinMesh );	// June2017 31d2f250: the mesh's collision / attack data only, no list push
 #endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 		bool IsInModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );
 		__forceinline void CopyCloneFrameStructure( CKTDXDeviceXSkinMesh::MultiAnimFrame* pSrcCloneFrame )
@@ -210,7 +210,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 		// June2017 31d39100 (the by-name GetAnimSet, behind 31d34110): finds first and answers NULL on a miss. March's
 		// GetAnimSet( name ) above uses operator[], which inserts a NULL entry for every name it is asked about, so the
 		// has-animation test CX2NPCUnitViewerUI::IsAnimExist (32e4fe30) uses this one.
-		bool JuneIsAnimSetExist( const WCHAR* name )
+		bool IsAnimSetExist( const WCHAR* name )
 		{
 			std::map<std::wstring, LPD3DXANIMATIONSET>::const_iterator it = m_mAnimSetList.find( name );
 			return it != m_mAnimSetList.end() && NULL != it->second;
@@ -410,9 +410,8 @@ class CKTDGXSkinAnim : public CKTDGObject
 	void SetProcessFrameMove(bool val) { m_bIsProcessFrameMove = val; }
 #endif // FIX_MESH_RENDER_BEFORE_INITINALIZE
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-	void SetJuneForceNormalDraw( bool bVal_ ) { m_bJuneForceNormalDraw = bVal_; }
-	void June_CopyModelFrameStructure();
-	void June_RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ );
+	void SetForceNormalDraw( bool bVal_ ) { m_bJuneForceNormalDraw = bVal_; }
+	void RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 
@@ -424,8 +423,8 @@ class CKTDGXSkinAnim : public CKTDGObject
 	private:
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		void CleanAnimStructure( CKTDXDeviceXSkinMesh* pNewAnimXSkinMesh, CKTDXDeviceXET* pNewAnimAniXET );	// June2017 31d2f9a0: also swaps the anim mesh / XET
-		void JuneRefDevice( CKTDXDevice* pDevice );		// June2017 31d4d2f0: InterlockedIncrement( device +0x48 ) = March's RefDevice
-		void JuneCloseDevice( CKTDXDevice* pDevice );	// June2017 31cdd8d0 ( JuneCloseDeviceByPointer ) behind June's device-manager NULL test
+		void RefDevice( CKTDXDevice* pDevice );		// June2017 31d4d2f0: InterlockedIncrement( device +0x48 ) = March's RefDevice
+		void CloseDevice( CKTDXDevice* pDevice );	// June2017 31cdd8d0 ( JuneCloseDeviceByPointer ) behind June's device-manager NULL test
 #else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		void CleanAnimStructure();
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
@@ -680,6 +679,9 @@ class CKTDGXSkinAnim : public CKTDGObject
 		}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
+		void CopyModelFrameStructure();		// June inlines this at the head of 31d30380; defined in KTDGXSkinAnim.cpp
+#else SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 		__forceinline void CopyModelFrameStructure()
 		{
 			KTDXPROFILE();
@@ -712,6 +714,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 			}
 		}
 
+#endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 		__forceinline void CopyFrame( CKTDXDeviceXSkinMesh::MultiAnimFrame* pDestFrame, CKTDXDeviceXSkinMesh::MultiAnimFrame* pSrcFrame )
 		{
 			KTDXPROFILE();
@@ -874,7 +877,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 		float						m_fSMUVAccV;			// June anim +0x860
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-		std::vector<JuneTyped_SkinMesh>	m_vecJuneTypedSkinMesh;	// June anim +0x830
+		std::vector<Typed_SkinMesh>	m_vecJuneTypedSkinMesh;	// June anim +0x830
 		bool							m_bJuneForceNormalDraw;	// June anim +0x853
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef ARA_CHARACTER_BASE

@@ -12,7 +12,7 @@
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
-struct KEGS_JUNE_RANDOM_MISSION_NOT;
+struct KEGS_RANDOM_MISSION_NOT;
 class CX2GUNPC;
 class CX2GUUser;
 
@@ -45,7 +45,7 @@ public:
 		MR_FAILED	= 2,
 	};
 
-	CX2RandomMission( const KEGS_JUNE_RANDOM_MISSION_NOT& kNot_ );
+	CX2RandomMission( const KEGS_RANDOM_MISSION_NOT& kNot_ );
 	~CX2RandomMission();		/// 32679c50: deletes both dialogs
 
 	int		AddEvent( int iValue_ );			/// 32679820
@@ -127,7 +127,7 @@ public:
 	void	AddEvent( int iValue_ );					/// 32679970
 	void	OnDungeonEnd();								/// 32679a20
 	void	OnFrameMove( float fElapsedTime_ );			/// 32679a50
-	void	SetMission( const KEGS_JUNE_RANDOM_MISSION_NOT& kNot_ );	/// 326798b0
+	void	SetMission( const KEGS_RANDOM_MISSION_NOT& kNot_ );	/// 326798b0
 	void	OnSkillUse( int iSkillID_ );				/// 31fcd3d0
 	void	OnStageStart( int iNowStageIndex_ );		/// 327d1820 @327d1b8a
 	void	OnBossDamage( CX2GUNPC* pNpc_, CX2GUUser* pMyUnit_, float fFinalDamage_ );	/// 327b1f30 @327b4f87 / @327b5063: event 2

@@ -103,7 +103,7 @@ void CKTDGCamera::Point( float XEye, float YEye, float ZEye,
 	m_Camera.m_fRoll	= fRoll;	// June 31d0134f, before the track times
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 	if( IsSamef( fRoll, 0.f ) == false )
-		JuneCamTrackLog( "Point", false, fRoll, 0.f );
+		CamTrackLog( "Point", false, fRoll, 0.f );
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
@@ -136,18 +136,18 @@ void CKTDGCamera::PointAndUpdateViewTransform( float XEye, float YEye, float ZEy
 	m_fTrackAtTime = 0.0f;
 
 	D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );	// @31d016c5
-	JuneApplyViewRoll();
+	ApplyViewRoll();
 	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 	if( IsSamef( fRoll, 0.f ) == false )
-		JuneCamTrackLog( "PointAndUpdateViewTransform", false, fRoll, 0.f );
+		CamTrackLog( "PointAndUpdateViewTransform", false, fRoll, 0.f );
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 }
 
 // June: after D3DXMatrixLookAtLH, when | roll - 0.0 | > FLT_EPSILON ( 0x334350e8 / 0x334490f8 ), view = view * RotationZ( roll )
 // ( thunks 33086abc = D3DXMatrixRotationZ, 33086a26 = D3DXMatrixMultiply, resolved through the bound d3dx9_43 imports ).
 // Inlined in June at 31d016ca ( 31d01640 ), 31d01ac1 ( 31d01a30 ) and 31d030fe ( 31d02e50 ); the only RotationZ users in the exe.
-void CKTDGCamera::JuneApplyViewRoll()
+void CKTDGCamera::ApplyViewRoll()
 {
 	if( IsSamef( m_Camera.m_fRoll, 0.f ) == false )
 	{
@@ -159,7 +159,7 @@ void CKTDGCamera::JuneApplyViewRoll()
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 // One ErrorLog line per non-zero roll or linear-tracking request: the first 20, then at most one a second.
-void CKTDGCamera::JuneCamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime )
+void CKTDGCamera::CamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime )
 {
 	static int		s_iCount	= 0;
 	static DWORD	s_dwLast	= 0;
@@ -385,7 +385,7 @@ void CKTDGCamera::UpdateCamera( float fElapsedTime )
 
     D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
-	JuneApplyViewRoll();	// June 31d02e50 @31d030fe
+	ApplyViewRoll();	// June 31d02e50 @31d030fe
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
 }
@@ -409,11 +409,11 @@ void CKTDGCamera::UpdateViewTransform(const D3DXVECTOR3& vEye_, const D3DXVECTOR
     m_Camera.m_LookAt   = vLookAt_;
 
     D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );
-	JuneApplyViewRoll();
+	ApplyViewRoll();
 	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 	if( IsSamef( fRoll_, 0.f ) == false )
-		JuneCamTrackLog( "UpdateViewTransform", false, fRoll_, 0.f );
+		CamTrackLog( "UpdateViewTransform", false, fRoll_, 0.f );
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 }//CKTDGCamera::UpdateViewTransform()
 #else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
@@ -481,7 +481,7 @@ void CKTDGCamera::SetTracking( float XTo, float YTo, float ZTo, float XAt, float
 	m_fTrackAtTime = atTime;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 	if( bLinear == true || IsSamef( fRollTo, 0.f ) == false || IsSamef( m_Camera.m_fRoll, 0.f ) == false || g_pKTDXApp->GetLookAtDependOnEye() == true )
-		JuneCamTrackLog( "SetTracking", bLinear, fRollTo, Time );
+		CamTrackLog( "SetTracking", bLinear, fRollTo, Time );
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 }
 #else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK

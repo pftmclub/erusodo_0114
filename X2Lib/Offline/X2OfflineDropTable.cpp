@@ -32,7 +32,7 @@ namespace
 	/// Counted at the three places a case is built, logged once by EnsureLoaded.
 	int s_iJuneKimUnresolvedCases = 0;
 
-	void JuneKimCountUnresolved( int iItemID )
+	void KimCountUnresolved( int iItemID )
 	{
 		if( NULL != g_pData && NULL != g_pData->GetItemManager() &&
 			NULL == g_pData->GetItemManager()->GetItemTemplet( iItemID ) )
@@ -345,7 +345,7 @@ void CX2OfflineDropTable::ReadDropBlock( const char* szKeyField, bool bBattleFie
 				kCase.m_bGroup	= false;
 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-				JuneKimCountUnresolved( iItemID );
+				KimCountUnresolved( iItemID );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 				kReward.m_vecItemCase.push_back( kCase );
 				++m_iItemCaseRows;
@@ -489,7 +489,7 @@ void CX2OfflineDropTable::ReadStaticBlock( const char* szKeyField, bool bBattleF
 				kCase.m_bGroup	= false;		///< a static row never names a group
 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-				JuneKimCountUnresolved( iItemID );
+				KimCountUnresolved( iItemID );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 				vecCase.push_back( kCase );
 				++m_iStaticCaseRows;
@@ -540,7 +540,7 @@ void CX2OfflineDropTable::AddToGroup_LUA( int iGroupID, int iItemID, float fProb
 	kCase.m_bGroup	= false;			///< a group never contains another group
 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-	JuneKimCountUnresolved( iItemID );
+	KimCountUnresolved( iItemID );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	m_mapDropGroup[ iGroupID ].push_back( kCase );
 }

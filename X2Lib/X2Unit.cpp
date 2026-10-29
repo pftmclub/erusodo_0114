@@ -255,8 +255,8 @@ void CX2Unit::Reset( const KUnitInfo& unitInfo, bool bForceUpdate /* = false */ 
 		for( mitMovie = m_mapDungeonClear.begin(); mitMovie != m_mapDungeonClear.end(); ++mitMovie )
 		{
 			int iMovieID = 0;
-			if( true == g_pMain->JuneGetClearMovieIDByDungeon( mitMovie->first, iMovieID ) )
-				g_pMain->JuneAddSeenClearMovie( iMovieID, false );
+			if( true == g_pMain->GetClearMovieIDByDungeon( mitMovie->first, iMovieID ) )
+				g_pMain->AddSeenClearMovie( iMovieID, false );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
@@ -992,7 +992,7 @@ float CX2Unit::ResetMaxMp( const float fMaxMp_, const int iJuneEquipGroup_ )
 		fResultMaxMp += GetMaxMpSkillValue( s_aJuneMaxMpSkillBeforeEquip[i] );
 
 	/// 31d717d0 ( June PVE state ) is never true in March
-	fResultMaxMp += GetInventory().JuneGetAddMaxMPValue( iJuneEquipGroup_ );
+	fResultMaxMp += GetInventory().GetAddMaxMPValue( iJuneEquipGroup_ );
 
 	for ( int i = 0; i < static_cast<int>( ARRAY_SIZE( s_aJuneMaxMpSkillAfterEquip ) ); ++i )
 		fResultMaxMp += GetMaxMpSkillValue( s_aJuneMaxMpSkillAfterEquip[i] );
@@ -1182,7 +1182,7 @@ float CX2Unit::ResetMaxMp( const float fMaxMp_ )
 /// 32091080, vtable 33478a98; unit type 10, Lu/Ciel, gets 0x488 32091730: no March class ), made by CX2Unit::Init 32363ca0 and filled
 /// from this unit's data by vtable 3348ffe4 slot 1 ( 32365d30 = JuneInitSocketData ) through the unit-side SumSocketOption 32364790.
 /// +0xe20 ( summon list ) and +0xe30 ( the title's options ) are two more CX2Unit vectors only that fill writes; they live here too.
-struct CX2Unit::JuneSocketAggregate
+struct CX2Unit::SocketAggregate
 {
 	struct SummonNpc					/// the 12-byte entry 32364790 @32364c3d..32364c6c pushes ( 3210aae0 )
 	{
@@ -1202,7 +1202,7 @@ CX2Unit::SocketAggregateHolder::SocketAggregateHolder()
 }
 
 CX2Unit::SocketAggregateHolder::SocketAggregateHolder( const SocketAggregateHolder& rhs_ )
-	: m_p( NULL == rhs_.m_p ? NULL : new JuneSocketAggregate( *rhs_.m_p ) )
+	: m_p( NULL == rhs_.m_p ? NULL : new SocketAggregate( *rhs_.m_p ) )
 {
 }
 
@@ -1212,7 +1212,7 @@ CX2Unit::SocketAggregateHolder& CX2Unit::SocketAggregateHolder::operator=( const
 	{
 		SAFE_DELETE( m_p );
 		if ( NULL != rhs_.m_p )
-			m_p = new JuneSocketAggregate( *rhs_.m_p );
+			m_p = new SocketAggregate( *rhs_.m_p );
 	}
 	return *this;
 }
@@ -1227,7 +1227,7 @@ CX2Unit::SocketAggregateHolder::~SocketAggregateHolder()
 void CX2Unit::SocketAggregateHolder::Recreate()
 {
 	if ( NULL == m_p )
-		m_p = new JuneSocketAggregate;
+		m_p = new SocketAggregate;
 	else
 		m_p->m_kSocketData = CX2SocketItem::SocketData();
 }
@@ -1247,7 +1247,7 @@ void CX2Unit::SumSocketOption( const std::vector<int>& vecSocketOption_, const f
 	if ( NULL == m_kJuneSocketAggregate.m_p || NULL == g_pData || NULL == g_pData->GetSocketItem() )
 		return;
 
-	JuneSocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
+	SocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
 	CX2SocketItem::SocketData& kAggregate = kJuneAggregate.m_kSocketData;
 
 	for ( UINT i = 0; i < vecSocketOption_.size(); ++i )
@@ -1267,16 +1267,16 @@ void CX2Unit::SumSocketOption( const std::vector<int>& vecSocketOption_, const f
 			float fRankRate = 0.f;
 			if ( true == kSocketData.m_bIsRankLinkedStat )
 			{
-				fRankRate = g_pData->GetJunePvpReferData( static_cast<int>( static_cast<char>( m_UnitData.m_cRank ) ) );
+				fRankRate = g_pData->GetPvpReferData( static_cast<int>( static_cast<char>( m_UnitData.m_cRank ) ) );
 			}
 			else
 			{
 				const bool bForMP = ( 0.f < kSocketData.m_fMPIncByAttack && kSocketData.m_fMPIncByAttack == kSocketData.m_fMPIncByAttacked );
-				fRankRate = g_pData->GetJunePveReferData( 0, bForMP );
+				fRankRate = g_pData->GetPveReferData( 0, bForMP );
 			}
 
 			CX2SocketItem::SocketData kScaledSocketData;
-			kScaledSocketData.SetJuneRankLinkedScaled( kSocketData, fRankRate );
+			kScaledSocketData.SetRankLinkedScaled( kSocketData, fRankRate );
 #ifdef SERV_9TH_NEW_CHARACTER
 			kAggregate.ConvertAndAdd( kScaledSocketData, iSocketLevel_, eJuneUnitType );
 #else SERV_9TH_NEW_CHARACTER
@@ -1357,7 +1357,7 @@ void CX2Unit::SumSocketOption( const std::vector<int>& vecSocketOption_, const f
 		/// @32364c24: a summoning socket ( id > 0, rate > 0 ) goes to this unit's list +0xe20 ( no 4119 / 4120 gate here )
 		if ( 0 < kSocketData.m_iSummonNpcId && 0.f < kSocketData.m_fSummonNpcRate )
 		{
-			JuneSocketAggregate::SummonNpc kSummonNpc;
+			SocketAggregate::SummonNpc kSummonNpc;
 			kSummonNpc.m_iNpcId				= kSocketData.m_iSummonNpcId;
 			kSummonNpc.m_fSummonRate		= kSocketData.m_fSummonNpcRate;
 			kSummonNpc.m_fSummonNpcCoolTime	= kSocketData.m_fSummonNpcCoolTime;
@@ -1442,7 +1442,7 @@ void CX2Unit::InitSocketData( const int iJuneMode_ )
 	if ( NULL == m_kJuneSocketAggregate.m_p || NULL == g_pData )
 		return;
 
-	JuneSocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
+	SocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
 
 	kJuneAggregate.m_kSocketData = CX2SocketItem::SocketData();	/// aggregate vslot 2 = ReInit 320922a0
 	ClearSocketCoolTimeCut();								/// 31d06e90 on +0xe78 @32365d95
@@ -1994,7 +1994,7 @@ CX2Stat::Stat CX2Unit::GetEqipStat( const bool bJuneWithPvpEquip_, const int iJu
 		if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
 			continue;
 
-		const int iJuneGroup = GetInventory().JuneGetEquipGroup( pItem->GetUID() );
+		const int iJuneGroup = GetInventory().GetEquipGroup( pItem->GetUID() );
 		if ( 2 != iJuneEquipGroup_ && 2 != iJuneGroup && iJuneGroup != iJuneEquipGroup_ )
 			continue;
 
@@ -2018,7 +2018,7 @@ CX2Stat::Stat CX2Unit::GetEqipStat( const bool bJuneWithPvpEquip_, const int iJu
 			continue;
 #endif REAL_TIME_ELSWORD
 
-		const int iJuneGroup = GetInventory().JuneGetEquipGroup( pItem->GetUID() );
+		const int iJuneGroup = GetInventory().GetEquipGroup( pItem->GetUID() );
 		if ( 2 != iJuneEquipGroup_ && 2 != iJuneGroup && iJuneGroup != iJuneEquipGroup_ )
 			continue;
 
@@ -5687,7 +5687,7 @@ void CX2Unit::ApplySkillCoolTimeRateByBuff( const CX2SkillTree::SKILL_ID eSkillI
 	if ( !s_bSeenHost )
 	{
 		s_bSeenHost = true;
-		CX2JuneBuffCapture::Line( "first host BBT 100 cool time: skill %d cool time left %g -> %g",
+		CX2BuffCapture::Line( "first host BBT 100 cool time: skill %d cool time left %g -> %g",
 			static_cast<int>( eSkillID_ ), static_cast<float>( pSkillSlot->m_fCoolTimeLeft ), fCoolTime );
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -5730,7 +5730,7 @@ float CX2Unit::GetSocketCoolTimeFactor( const CX2SkillTree::SKILL_ID eSkillID_ )
 		if ( !s_bSeenFactor )
 		{
 			s_bSeenFactor = true;
-			CX2JuneBuffCapture::Line( "first socket cool-time factor: skill %d slot %d cut %g -> factor %g", static_cast<int>( eSkillID_ ), mit->first, mit->second, ( fFactor < 0.0f ) ? 0.0f : fFactor );
+			CX2BuffCapture::Line( "first socket cool-time factor: skill %d slot %d cut %g -> factor %g", static_cast<int>( eSkillID_ ), mit->first, mit->second, ( fFactor < 0.0f ) ? 0.0f : fFactor );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG

@@ -8,7 +8,7 @@ bool CKTDGXSkinAnim::m_sbTestUpdateAnimation = true;
 // build keeps ErrorLogMsg in memory; this build writes ErrorLog.txt ( and stdout / stderr ) on every call, and every skin part
 // added to a unit, its after-images included, can log one, so only the first 20 reach the file ( the SKREF line carries the total ).
 static LONG s_lJuneSkinKem433 = 0;
-static void JuneSkinAnimKem433( int iAnimFrame_, int iMeshFrame_, const WCHAR* pwszMesh_, const WCHAR* pwszFile_, int iLine_ )
+static void SkinAnimKem433( int iAnimFrame_, int iMeshFrame_, const WCHAR* pwszMesh_, const WCHAR* pwszFile_, int iLine_ )
 {
 	const LONG lCount = InterlockedIncrement( &s_lJuneSkinKem433 );
 	if( lCount > 20 )
@@ -32,7 +32,7 @@ static LONG		s_lJuneSkinRefCloses = 0;
 static LONG		s_lJuneSkinRefUnbalanced = 0;
 static DWORD	s_dwJuneSkinRefLastLog = 0;
 static int		s_iJuneSkinRefUnbalancedLines = 0;
-static void JuneSkinRefLogDead( const std::wstring& wstrAnim_, int iAdds_, int iOwned_, int iCloses_ )
+static void SkinRefLogDead( const std::wstring& wstrAnim_, int iAdds_, int iOwned_, int iCloses_ )
 {
 	InterlockedIncrement( &s_lJuneSkinRefAnims );
 	InterlockedExchangeAdd( &s_lJuneSkinRefAdds, iAdds_ + iOwned_ );
@@ -55,7 +55,7 @@ static void JuneSkinRefLogDead( const std::wstring& wstrAnim_, int iAdds_, int i
 		s_dwJuneSkinRefLastLog = dwNow;
 		int iDevices = -1;
 		if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDeviceManager() )
-			iDevices = g_pKTDXApp->GetDeviceManager()->JuneGetDeviceCount();
+			iDevices = g_pKTDXApp->GetDeviceManager()->GetDeviceCount();
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKREF dead anims " << (int)s_lJuneSkinRefAnims << " refs " << (int)s_lJuneSkinRefAdds
 			<< " closes " << (int)s_lJuneSkinRefCloses << " unbalanced " << (int)s_lJuneSkinRefUnbalanced << " kem433 " << (int)s_lJuneSkinKem433
 			<< " devices " << iDevices << fileout;
@@ -209,7 +209,7 @@ CKTDGXSkinAnim::~CKTDGXSkinAnim(void)
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 	CleanAnimStructure( NULL, NULL );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
-	JuneSkinRefLogDead( wstrJuneAnim, m_iJuneRefAdds, m_iJuneRefOwned, m_iJuneRefCloses );
+	SkinRefLogDead( wstrJuneAnim, m_iJuneRefAdds, m_iJuneRefOwned, m_iJuneRefCloses );
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 #else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 	CleanAnimStructure();
@@ -234,7 +234,7 @@ void CKTDGXSkinAnim::PreLoad()
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 // June2017 31d4d2f0: the device AddRef ( InterlockedIncrement on +0x48 ); March's m_RefCount is a plain int behind RefDevice's lock
-void CKTDGXSkinAnim::JuneRefDevice( CKTDXDevice* pDevice )
+void CKTDGXSkinAnim::RefDevice( CKTDXDevice* pDevice )
 {
 	if( NULL == pDevice )
 		return;
@@ -246,12 +246,12 @@ void CKTDGXSkinAnim::JuneRefDevice( CKTDXDevice* pDevice )
 }
 
 // June2017 SAFE_CLOSE( ptr ): CloseDevice( CKTDXDevice* ) 31cdd8d0 ( March JuneCloseDeviceByPointer ) when the device manager exists
-void CKTDGXSkinAnim::JuneCloseDevice( CKTDXDevice* pDevice )
+void CKTDGXSkinAnim::CloseDevice( CKTDXDevice* pDevice )
 {
 	if( NULL == pDevice || NULL == g_pKTDXApp->GetDeviceManager() )
 		return;
 
-	g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( pDevice );
+	g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( pDevice );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 	++m_iJuneRefCloses;
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
@@ -332,13 +332,13 @@ void CKTDGXSkinAnim::CleanAnimStructure()
 	// June2017 31d2f9a0: one close per stored model mesh, ani XET, multi-tex XET and tex-change XET ( the ani data list holds
 	// no reference ), then the five lists are emptied
 	for( UINT uJune = 0; uJune < m_pModelXSkinMeshList.size(); ++uJune )
-		JuneCloseDevice( m_pModelXSkinMeshList[uJune] );
+		CloseDevice( m_pModelXSkinMeshList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelAniXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelAniXETList[uJune] );
+		CloseDevice( m_pModelAniXETList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelMultiTexXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelMultiTexXETList[uJune] );
+		CloseDevice( m_pModelMultiTexXETList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelTexChangeXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelTexChangeXETList[uJune] );
+		CloseDevice( m_pModelTexChangeXETList[uJune] );
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 	m_pModelXSkinMeshList.resize(0);
 	m_pModelAniXETList.resize(0);
@@ -373,10 +373,10 @@ void CKTDGXSkinAnim::CleanAnimStructure()
 	if( m_pAnimXSkinMesh != pNewAnimXSkinMesh )
 	{
 		if( NULL != pNewAnimXSkinMesh )
-			JuneRefDevice( pNewAnimXSkinMesh );
+			RefDevice( pNewAnimXSkinMesh );
 		if( NULL != m_pAnimXSkinMesh )
 		{
-			JuneCloseDevice( m_pAnimXSkinMesh );
+			CloseDevice( m_pAnimXSkinMesh );
 			m_pAnimXSkinMesh = NULL;
 		}
 		m_pAnimXSkinMesh = pNewAnimXSkinMesh;
@@ -384,10 +384,10 @@ void CKTDGXSkinAnim::CleanAnimStructure()
 	if( m_pAnimAniXET != pNewAnimAniXET )
 	{
 		if( NULL != pNewAnimAniXET )
-			JuneRefDevice( pNewAnimAniXET );
+			RefDevice( pNewAnimAniXET );
 		if( NULL != m_pAnimAniXET )
 		{
-			JuneCloseDevice( m_pAnimAniXET );
+			CloseDevice( m_pAnimAniXET );
 			m_pAnimAniXET = NULL;
 		}
 		m_pAnimAniXET = pNewAnimAniXET;
@@ -524,10 +524,10 @@ void CKTDGXSkinAnim::SetAnimXET( CKTDXDeviceXET* pAnimAniXET )
 		return;
 
 	if( NULL != pAnimAniXET )
-		JuneRefDevice( pAnimAniXET );
+		RefDevice( pAnimAniXET );
 	if( NULL != m_pAnimAniXET )
 	{
-		JuneCloseDevice( m_pAnimAniXET );
+		CloseDevice( m_pAnimAniXET );
 		m_pAnimAniXET = NULL;
 	}
 	m_pAnimAniXET = pAnimAniXET;
@@ -739,9 +739,9 @@ void CKTDGXSkinAnim::ReplaceAniXET( CKTDXDeviceXET* pModelAniXETFrom, CKTDXDevic
 		if ( pModelAniXET == pModelAniXETFrom && pModelAniXET != pModelAniXETTo )
 		{
 			if( NULL != pModelAniXETTo )
-				JuneRefDevice( pModelAniXETTo );
+				RefDevice( pModelAniXETTo );
 			if( NULL != pModelAniXET )
-				JuneCloseDevice( pModelAniXET );
+				CloseDevice( pModelAniXET );
 			m_pModelAniXETList[iA] = pModelAniXETTo;
 			if( iA < m_pModelAniDataList.size() )
 				m_pModelAniDataList[iA] = NULL;
@@ -756,7 +756,7 @@ void CKTDGXSkinAnim::ReplaceMultiTexXET( int iIndex, CKTDXDeviceXET* pModelMulti
 	if( m_pModelMultiTexXETList.empty() )
 	{
 		if( NULL != pModelMultiTexXETTo )
-			JuneRefDevice( pModelMultiTexXETTo );
+			RefDevice( pModelMultiTexXETTo );
 		m_pModelMultiTexXETList.push_back( pModelMultiTexXETTo );
 		return;
 	}
@@ -765,9 +765,9 @@ void CKTDGXSkinAnim::ReplaceMultiTexXET( int iIndex, CKTDXDeviceXET* pModelMulti
 	if( pOldXet != pModelMultiTexXETTo )
 	{
 		if( NULL != pModelMultiTexXETTo )
-			JuneRefDevice( pModelMultiTexXETTo );
+			RefDevice( pModelMultiTexXETTo );
 		if( NULL != pOldXet )
-			JuneCloseDevice( pOldXet );
+			CloseDevice( pOldXet );
 		m_pModelMultiTexXETList[0] = pModelMultiTexXETTo;
 	}
 }
@@ -781,9 +781,9 @@ void CKTDGXSkinAnim::ReplaceMultiTexXET( CKTDXDeviceXET* pModelMultiTexXETFrom, 
 		if ( pModelAniXET == pModelMultiTexXETFrom && pModelAniXET != pModelMultiTexXETTo )
 		{
 			if( NULL != pModelMultiTexXETTo )
-				JuneRefDevice( pModelMultiTexXETTo );
+				RefDevice( pModelMultiTexXETTo );
 			if( NULL != pModelAniXET )
-				JuneCloseDevice( pModelAniXET );
+				CloseDevice( pModelAniXET );
 			m_pModelMultiTexXETList[iA] = pModelMultiTexXETTo;
 		}
 	}
@@ -798,9 +798,9 @@ void CKTDGXSkinAnim::ReplaceChangeXET( CKTDXDeviceXET* pModelTexChangeXETFrom, C
 		if ( pModelAniXET == pModelTexChangeXETFrom && pModelAniXET != pModelTexChangeXETTo )
 		{
 			if( NULL != pModelTexChangeXETTo )
-				JuneRefDevice( pModelTexChangeXETTo );
+				RefDevice( pModelTexChangeXETTo );
 			if( NULL != pModelAniXET )
-				JuneCloseDevice( pModelAniXET );
+				CloseDevice( pModelAniXET );
 			m_pModelTexChangeXETList[iA] = pModelTexChangeXETTo;
 		}
 	}
@@ -817,9 +817,9 @@ void CKTDGXSkinAnim::ReplaceChangeXET( int iIndex, CKTDXDeviceXET* pModelTexChan
 		return;
 
 	if( NULL != pModelTexChangeXETTo )
-		JuneRefDevice( pModelTexChangeXETTo );
+		RefDevice( pModelTexChangeXETTo );
 	if( NULL != pOldXet )
-		JuneCloseDevice( pOldXet );
+		CloseDevice( pOldXet );
 	m_pModelTexChangeXETList[iIndex] = pModelTexChangeXETTo;
 }
 #else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
@@ -909,11 +909,11 @@ void CKTDGXSkinAnim::AddModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh, C
 	// stored device: the mesh unless bCloseDeviceAtDestructor ( the list then owns the caller's reference ), and every non-NULL XET.
 	// No m_vecAddedSkinMesh: CleanAnimStructure / RemoveModelXSkinMesh / ClearModelXSkinMeshList close what is stored.
 	if( (int)pModelXSkinMesh->GetFrameNum() != m_FrameNum )
-		JuneSkinAnimKem433( m_FrameNum, (int)pModelXSkinMesh->GetFrameNum(), pModelXSkinMesh->GetDeviceID().c_str(), pwszFile, iLine );
+		SkinAnimKem433( m_FrameNum, (int)pModelXSkinMesh->GetFrameNum(), pModelXSkinMesh->GetDeviceID().c_str(), pwszFile, iLine );
 
 	if( false == bCloseDeviceAtDestructor )
 	{
-		JuneRefDevice( pModelXSkinMesh );
+		RefDevice( pModelXSkinMesh );
 	}
 	else
 	{
@@ -922,11 +922,11 @@ void CKTDGXSkinAnim::AddModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh, C
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 	}
 	if( NULL != pModelAniXET )
-		JuneRefDevice( pModelAniXET );
+		RefDevice( pModelAniXET );
 	if( NULL != pModelMultiTexXET )
-		JuneRefDevice( pModelMultiTexXET );
+		RefDevice( pModelMultiTexXET );
 	if( NULL != pModelTexChangeXET )
-		JuneRefDevice( pModelTexChangeXET );
+		RefDevice( pModelTexChangeXET );
 #else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 	if( true == bCloseDeviceAtDestructor )
 	{
@@ -1018,7 +1018,7 @@ void CKTDGXSkinAnim::AddAnimXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh )
 	// June2017 31d2f720 ( no June caller ): NULL test, then a reference on the mesh
 	if( NULL == pModelXSkinMesh )
 		return;
-	JuneRefDevice( pModelXSkinMesh );
+	RefDevice( pModelXSkinMesh );
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 	m_pModelXSkinMeshList.push_back( pModelXSkinMesh );
 	m_pModelAniXETList.push_back( NULL );
@@ -1067,7 +1067,7 @@ void CKTDGXSkinAnim::AddAnimXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 // June2017 31d2f250: AddAnimXSkinMesh's collision half ( a copy of each collision / attack data, linked to this anim's clone
 // frames, KEM 432 on a failed link ), with no list push and no reference. CX2GUUser's motion init calls it on m_pXSkinAnim.
-void CKTDGXSkinAnim::JuneAddCollisionData( CKTDXDeviceXSkinMesh* pModelXSkinMesh )
+void CKTDGXSkinAnim::AddCollisionData( CKTDXDeviceXSkinMesh* pModelXSkinMesh )
 {
 	if( NULL == pModelXSkinMesh )
 		return;
@@ -1186,12 +1186,12 @@ void CKTDGXSkinAnim::RemoveModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh
 			// ani / multi-tex / tex-change XET ( slot nulled ) before its erase; the ani data slot holds no reference
 			if( i < (int)m_pModelXSkinMeshList.size() )
 				m_pModelXSkinMeshList.erase( m_pModelXSkinMeshList.begin() + i );
-			JuneCloseDevice( pModelXSkinMesh );
+			CloseDevice( pModelXSkinMesh );
 			if( i < (int)m_pModelAniXETList.size() )
 			{
 				if( NULL != m_pModelAniXETList[i] )
 				{
-					JuneCloseDevice( m_pModelAniXETList[i] );
+					CloseDevice( m_pModelAniXETList[i] );
 					m_pModelAniXETList[i] = NULL;
 				}
 				m_pModelAniXETList.erase( m_pModelAniXETList.begin() + i );
@@ -1202,7 +1202,7 @@ void CKTDGXSkinAnim::RemoveModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh
 			{
 				if( NULL != m_pModelMultiTexXETList[i] )
 				{
-					JuneCloseDevice( m_pModelMultiTexXETList[i] );
+					CloseDevice( m_pModelMultiTexXETList[i] );
 					m_pModelMultiTexXETList[i] = NULL;
 				}
 				m_pModelMultiTexXETList.erase( m_pModelMultiTexXETList.begin() + i );
@@ -1211,7 +1211,7 @@ void CKTDGXSkinAnim::RemoveModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh
 			{
 				if( NULL != m_pModelTexChangeXETList[i] )
 				{
-					JuneCloseDevice( m_pModelTexChangeXETList[i] );
+					CloseDevice( m_pModelTexChangeXETList[i] );
 					m_pModelTexChangeXETList[i] = NULL;
 				}
 				m_pModelTexChangeXETList.erase( m_pModelTexChangeXETList.begin() + i );
@@ -1408,13 +1408,13 @@ namespace _CONST_SKINANIM_JUNE_R6_
 {
 	const float JUNE_DG_OUTLINE_WIDE_CAP = -1.f;	// June DGManager +0x3c0: only its ctor 31cead50 writes it
 
-	void JuneCapOutLineWide( float& fOutLineWide_ )
+	void CapOutLineWide( float& fOutLineWide_ )
 	{
 		if( JUNE_DG_OUTLINE_WIDE_CAP > -1.f && JUNE_DG_OUTLINE_WIDE_CAP <= fOutLineWide_ )
 			fOutLineWide_ = JUNE_DG_OUTLINE_WIDE_CAP;
 	}
 
-	DWORD JuneRoundToDword( float fValue_ )
+	DWORD RoundToDword( float fValue_ )
 	{
 		__int64 iValue = 0;
 		__asm
@@ -1425,7 +1425,7 @@ namespace _CONST_SKINANIM_JUNE_R6_
 		return (DWORD)iValue;
 	}
 
-	void JuneMakeRenderParam( CKTDGXRenderer::RenderParam& renderParam_, const CKTDXDeviceXSkinMesh::JuneRenderParamData& data_ )
+	void MakeRenderParam( CKTDGXRenderer::RenderParam& renderParam_, const CKTDXDeviceXSkinMesh::RenderParamData& data_ )
 	{
 		renderParam_.Init();
 		renderParam_.renderType			= (CKTDGXRenderer::RENDER_TYPE) data_.iRenderType;
@@ -1454,7 +1454,7 @@ namespace _CONST_SKINANIM_JUNE_R6_
 		renderParam_.fogNearX			= data_.fogNearX;
 		renderParam_.bFog				= ( 0.f != data_.fFog );
 		renderParam_.bFogShow			= ( 0.f != data_.fFogShow );
-		const DWORD dwFogColor = JuneRoundToDword( data_.fFogColor );
+		const DWORD dwFogColor = RoundToDword( data_.fFogColor );
 		const float fByteToUnit = (float)( 1.0 / 255.0 );
 		renderParam_.fogColor.r			= (float)( ( dwFogColor >> 16 ) & 0xff ) * fByteToUnit;
 		renderParam_.fogColor.g			= (float)( ( dwFogColor >> 8 ) & 0xff ) * fByteToUnit;
@@ -1463,17 +1463,17 @@ namespace _CONST_SKINANIM_JUNE_R6_
 		renderParam_.fogNearX			= data_.fFogNearX;
 	}
 
-	bool JuneTypedDrawOrderLess( const CKTDGXSkinAnim::JuneTyped_SkinMesh& lhs_, const CKTDGXSkinAnim::JuneTyped_SkinMesh& rhs_ )
+	bool TypedDrawOrderLess( const CKTDGXSkinAnim::Typed_SkinMesh& lhs_, const CKTDGXSkinAnim::Typed_SkinMesh& rhs_ )
 	{
 		return lhs_.m_iDrawOrder < rhs_.m_iDrawOrder;
 	}
 
-	bool JuneIsSameMeshName( CKTDXDeviceXSkinMesh* pListed_, CKTDXDeviceXSkinMesh* pXSkinMesh_ )
+	bool IsSameMeshName( CKTDXDeviceXSkinMesh* pListed_, CKTDXDeviceXSkinMesh* pXSkinMesh_ )
 	{
 		return NULL != pListed_ && 0 == StrCmpW( pListed_->GetDeviceID().c_str(), pXSkinMesh_->GetDeviceID().c_str() );
 	}
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
-	void JuneSmrtLogOnce( const char* szPath_, CKTDXDeviceXSkinMesh* pXSkinMesh_, int iValue_ )
+	void SmrtLogOnce( const char* szPath_, CKTDXDeviceXSkinMesh* pXSkinMesh_, int iValue_ )
 	{
 		static std::set<std::string> s_setSeen;
 		std::string strName;
@@ -1487,7 +1487,7 @@ namespace _CONST_SKINANIM_JUNE_R6_
 using namespace _CONST_SKINANIM_JUNE_R6_;
 
 // June inlines this at the head of 31d30380
-void CKTDGXSkinAnim::June_CopyModelFrameStructure()
+void CKTDGXSkinAnim::CopyModelFrameStructure()
 {
 	for( int i = 0; i < (int)m_pModelXSkinMeshList.size(); i++ )
 	{
@@ -1506,7 +1506,7 @@ void CKTDGXSkinAnim::June_CopyModelFrameStructure()
 				continue;
 			}
 
-			CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pModel->JuneGetFrameQuiet( j );
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pModel->GetFrameQuiet( j );
 			if( NULL != pFrame )
 				pFrame->combineMatrix = *m_FrameMatrixList[j];
 		}
@@ -1514,7 +1514,7 @@ void CKTDGXSkinAnim::June_CopyModelFrameStructure()
 }
 
 // June 31d2f000: takes the list by value
-void CKTDGXSkinAnim::June_RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ )
+void CKTDGXSkinAnim::RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ )
 {
 	for( int iRenderParamIndex = 0; iRenderParamIndex < (int)vecRenderParamSkinMesh_.size(); ++iRenderParamIndex )
 	{
@@ -1524,7 +1524,7 @@ void CKTDGXSkinAnim::June_RenderParamPass( std::vector<Alpha_SkinMesh> vecRender
 			continue;
 
 		CKTDGXRenderer::RenderParam renderParam;
-		JuneMakeRenderParam( renderParam, pXSkinMesh->GetJuneRenderParam() );
+		MakeRenderParam( renderParam, pXSkinMesh->GetRenderParam() );
 
 		for( HRESULT hr = m_pRenderer->BeginRender( renderParam ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
 		{
@@ -1551,7 +1551,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 	if( false == GetProcessFrameMove() )
 		return;
 
-	June_CopyModelFrameStructure();
+	CopyModelFrameStructure();
 
 	int modelIndex = 0;
 	m_vecAlphaSkinMesh.resize( 0 );
@@ -1560,7 +1560,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 
 	CKTDGXRenderer::RenderParam renderParam = m_RenderParam;
 	renderParam.texOffsetStage2.y += GetNowAnimationTime();
-	JuneCapOutLineWide( renderParam.fOutLineWide );
+	CapOutLineWide( renderParam.fOutLineWide );
 
 	for( HRESULT hr = m_pRenderer->BeginRender( renderParam ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
 	{
@@ -1572,12 +1572,12 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 			if( true == m_bHideNoRenderable && true == pXSkinMesh->GetNoRenderable() )
 				continue;
 
-			if( true == pXSkinMesh->GetJuneUseRenderParam() )
+			if( true == pXSkinMesh->GetUseRenderParam() )
 			{
 				Alpha_SkinMesh stRenderParamObj = { pXSkinMesh, i };
 				vecRenderParamSkinMesh.push_back( stRenderParamObj );
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
-				JuneSmrtLogOnce( "renderparam", pXSkinMesh, (int)pXSkinMesh->GetJuneRenderParam().iRenderType );
+				SmrtLogOnce( "renderparam", pXSkinMesh, (int)pXSkinMesh->GetRenderParam().iRenderType );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
 			}
 
@@ -1595,7 +1595,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 				{
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
 					if( true == renderParam.bAlphaBlend && 0.f == renderParam.color.a )
-						JuneSmrtLogOnce( "plain-alpha0", pXSkinMesh, (int)renderParam.srcBlend * 100 + (int)renderParam.destBlend );
+						SmrtLogOnce( "plain-alpha0", pXSkinMesh, (int)renderParam.srcBlend * 100 + (int)renderParam.destBlend );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
 					DrawFrame( pXSkinMesh->GetDrawFrame( j ), i );
 				}
@@ -1604,7 +1604,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 					bool bListed = false;
 					for( int a = 0; a < (int)m_vecAlphaSkinMesh.size(); ++a )
 					{
-						if( true == JuneIsSameMeshName( m_vecAlphaSkinMesh[a].m_pAlphaSkinMesh, pXSkinMesh ) )
+						if( true == IsSameMeshName( m_vecAlphaSkinMesh[a].m_pAlphaSkinMesh, pXSkinMesh ) )
 						{
 							bListed = true;
 							break;
@@ -1615,7 +1615,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 						Alpha_SkinMesh stAlphaObj = { pXSkinMesh, i };
 						m_vecAlphaSkinMesh.push_back( stAlphaObj );
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
-						JuneSmrtLogOnce( "alpha", pXSkinMesh, ( true == bAlphaRender ) ? 1 : iSkinMeshRenderType * 10 );
+						SmrtLogOnce( "alpha", pXSkinMesh, ( true == bAlphaRender ) ? 1 : iSkinMeshRenderType * 10 );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
 					}
 				}
@@ -1624,7 +1624,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 					bool bListed = false;
 					for( int t = 0; t < (int)m_vecJuneTypedSkinMesh.size(); ++t )
 					{
-						if( true == JuneIsSameMeshName( m_vecJuneTypedSkinMesh[t].m_pSkinMesh, pXSkinMesh ) )
+						if( true == IsSameMeshName( m_vecJuneTypedSkinMesh[t].m_pSkinMesh, pXSkinMesh ) )
 						{
 							bListed = true;
 							break;
@@ -1632,13 +1632,13 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 					}
 					if( false == bListed )
 					{
-						JuneTyped_SkinMesh stTypedObj;
+						Typed_SkinMesh stTypedObj;
 						stTypedObj.m_pSkinMesh		= pXSkinMesh;
 						stTypedObj.m_indexMode		= i;
-						stTypedObj.m_iDrawOrder		= pXSkinMesh->GetJuneDrawOrder();
+						stTypedObj.m_iDrawOrder		= pXSkinMesh->GetDrawOrder();
 						stTypedObj.m_iRenderType	= iSkinMeshRenderType;
 						stTypedObj.m_bSkip			= false;
-						JuneMakeRenderParam( stTypedObj.m_RenderParam, pXSkinMesh->GetJuneTypedParam() );
+						MakeRenderParam( stTypedObj.m_RenderParam, pXSkinMesh->GetTypedParam() );
 						stTypedObj.m_fSMValue		= pXSkinMesh->GetSMValue();
 						stTypedObj.m_vSMUVSpeed		= pXSkinMesh->GetSMUVSpeed();
 						stTypedObj.m_bSMUVAlpha		= pXSkinMesh->GetSMUVAlpha();
@@ -1649,7 +1649,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 		}
 	}
 
-	June_RenderParamPass( vecRenderParamSkinMesh );
+	RenderParamPass( vecRenderParamSkinMesh );
 
 	if( true == m_bLightFlow && NULL != m_pLightFlow )
 	{
@@ -1674,7 +1674,7 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 		CKTDGXRenderer::RenderParam renderParamAlpha = m_RenderParam;
 		renderParamAlpha.texOffsetStage2.y += GetNowAnimationTime();
 		renderParamAlpha.bAlphaBlend = true;
-		JuneCapOutLineWide( renderParamAlpha.fOutLineWide );
+		CapOutLineWide( renderParamAlpha.fOutLineWide );
 
 		for( HRESULT hr = m_pRenderer->BeginRender( renderParamAlpha ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
 		{
@@ -1692,11 +1692,11 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 	if( false == m_vecJuneTypedSkinMesh.empty() )
 	{
 		CKTDGXRenderer::RenderParam renderParamTyped = m_RenderParam;
-		std::sort( m_vecJuneTypedSkinMesh.begin(), m_vecJuneTypedSkinMesh.end(), JuneTypedDrawOrderLess );
+		std::sort( m_vecJuneTypedSkinMesh.begin(), m_vecJuneTypedSkinMesh.end(), TypedDrawOrderLess );
 
 		for( int typedIndex = 0; typedIndex < (int)m_vecJuneTypedSkinMesh.size(); ++typedIndex )
 		{
-			JuneTyped_SkinMesh& stTypedObj = m_vecJuneTypedSkinMesh[typedIndex];
+			Typed_SkinMesh& stTypedObj = m_vecJuneTypedSkinMesh[typedIndex];
 			if( true == stTypedObj.m_bSkip )
 				continue;
 
@@ -1785,9 +1785,9 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 					renderParamTyped.renderType = CKTDGXRenderer::RT_ADD_CARTOON;
 			}
 			renderParamTyped.texOffsetStage2.y += GetNowAnimationTime();
-			JuneCapOutLineWide( renderParamTyped.fOutLineWide );
+			CapOutLineWide( renderParamTyped.fOutLineWide );
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
-			JuneSmrtLogOnce( "typed", stTypedObj.m_pSkinMesh, stTypedObj.m_iRenderType * 100 + (int)renderParamTyped.renderType );
+			SmrtLogOnce( "typed", stTypedObj.m_pSkinMesh, stTypedObj.m_iRenderType * 100 + (int)renderParamTyped.renderType );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE_DEBUG
 
 			for( HRESULT hr = m_pRenderer->BeginRender( renderParamTyped ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
@@ -2374,7 +2374,7 @@ void CKTDGXSkinAnim::ResetAnimSet()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 // June2017 31d29950: the UpdateAnimationFrameStructure frame walk without the AdvanceTime / track read. False without the anim
 // mesh ( +0x190 ) or the clone root ( +0x324 ). Only caller: CXMeshInstance 31c83520, after a main-effect scale change.
-bool CKTDGXSkinAnim::JuneRefreshBones()
+bool CKTDGXSkinAnim::RefreshBones()
 {
 	if( NULL == m_pAnimXSkinMesh )
 		return false;
@@ -2591,13 +2591,13 @@ bool CKTDGXSkinAnim::GetAnimNameList( std::vector<std::wstring>& vecAnimNameList
 void CKTDGXSkinAnim::ClearModelXSkinMeshList()
 {
 	for( UINT uJune = 0; uJune < m_pModelXSkinMeshList.size(); ++uJune )
-		JuneCloseDevice( m_pModelXSkinMeshList[uJune] );
+		CloseDevice( m_pModelXSkinMeshList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelAniXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelAniXETList[uJune] );
+		CloseDevice( m_pModelAniXETList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelMultiTexXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelMultiTexXETList[uJune] );
+		CloseDevice( m_pModelMultiTexXETList[uJune] );
 	for( UINT uJune = 0; uJune < m_pModelTexChangeXETList.size(); ++uJune )
-		JuneCloseDevice( m_pModelTexChangeXETList[uJune] );
+		CloseDevice( m_pModelTexChangeXETList[uJune] );
 
 	m_pModelXSkinMeshList.clear();
 	m_pModelAniXETList.clear();

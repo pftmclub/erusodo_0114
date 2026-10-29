@@ -194,7 +194,6 @@ CKTDXDeviceXSkinMesh::CKTDXDeviceXSkinMesh( LPDIRECT3DDEVICE9 pd3dDevice,
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 	m_iJuneDrawOrder = 0;
-	m_bJuneUseRenderParam = false;
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	m_bNoRenderable = false;

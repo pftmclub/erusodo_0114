@@ -2699,7 +2699,7 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 //{{ Iruha : 2026-10-18 // June skill slot dialog ( DLG_GAME_SKILL_SLOT_NEW_10slot ), phase S6
 /// June 328dfab0: one lock overlay ( the buy-guide button and the lock picture ) shown or hidden
-static void JuneSetSlotLockControls( CKTDGUIDialogType pDLG_, const WCHAR* wszButton_, const WCHAR* wszLock_, const bool bLocked_ )
+static void SetSlotLockControls( CKTDGUIDialogType pDLG_, const WCHAR* wszButton_, const WCHAR* wszLock_, const bool bLocked_ )
 {
 	CKTDGUIButton* pButton = (CKTDGUIButton*) pDLG_->GetControl( wszButton_ );
 	if( NULL != pButton )
@@ -2711,7 +2711,7 @@ static void JuneSetSlotLockControls( CKTDGUIDialogType pDLG_, const WCHAR* wszBu
 }
 
 /// June 328dfab0: the B bar key labels ( SkillHotKeyEx ) go to alpha 1 or to the locked 0.5 ( _DAT_3343777c )
-static void JuneSetSlotHotKeyAlpha( CKTDGUIDialogType pDLG_, const float fAlpha_ )
+static void SetSlotHotKeyAlpha( CKTDGUIDialogType pDLG_, const float fAlpha_ )
 {
 	CKTDGUIStatic* pStaticSkillHotKey = (CKTDGUIStatic*) pDLG_->GetControl( L"SkillHotKeyEx" );
 	if( NULL != pStaticSkillHotKey )
@@ -2719,7 +2719,7 @@ static void JuneSetSlotHotKeyAlpha( CKTDGUIDialogType pDLG_, const float fAlpha_
 }
 
 /// June 328dfab0: a locked slot shows no cool time: clear the text and hide the fade picture of slots [ iFrom_, iTo_ )
-static void JuneClearSlotCoolTime( CKTDGUIDialogType pDLG_, const bool bSlotB_, const int iFrom_, const int iTo_ )
+static void ClearSlotCoolTime( CKTDGUIDialogType pDLG_, const bool bSlotB_, const int iFrom_, const int iTo_ )
 {
 	CKTDGUIStatic* pStaticCoolTime = (CKTDGUIStatic*) pDLG_->GetControl( ( true == bSlotB_ ) ? L"Static_Skill_Cool_Time_B" : L"Static_Skill_Cool_Time" );
 	CKTDGUIStatic* pStaticFade = (CKTDGUIStatic*) pDLG_->GetControl( ( true == bSlotB_ ) ? L"Static_Skill_Cool_Time_Fade_B" : L"Static_Skill_Cool_Time_Fade" );
@@ -2737,7 +2737,7 @@ static void JuneClearSlotCoolTime( CKTDGUIDialogType pDLG_, const bool bSlotB_, 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 /// June 328db990: the castables among vecSkillID_ ( types 5, 6, 7, 14-16, acquired, in neither bar ) go into the free A slots, then into the
 /// free B slots when slot-state key 0 is usable; the transcendence slots stay out. Each one plays Skill_Equip.ogg and queues a slot change.
-bool CX2UISkillTreeNew::JuneAutoEquipNewSkills( const std::vector< int >& vecSkillID_ )
+bool CX2UISkillTreeNew::AutoEquipNewSkills( const std::vector< int >& vecSkillID_ )
 {
 	/// +0xf4 = the unit's user skill tree ( set in InitSkillTreeUI 328ed890 )
 	if( NULL == m_pUserSkillTree || true == vecSkillID_.empty() )
@@ -2817,7 +2817,7 @@ bool CX2UISkillTreeNew::JuneAutoEquipNewSkills( const std::vector< int >& vecSki
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 /// June 328dfab0 ( the lock half of UpdateSkillEquipedSlotUI ): A-TC, B-TC and B lock overlays; a skill sitting in a slot that is locked is unequipped
-void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
+void CX2UISkillTreeNew::UpdateSkillSlotLockUI()
 {
 	if( NULL == m_pDLGGameSkillSlot || NULL == m_pUserSkillTree )
 		return;
@@ -2826,28 +2826,28 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 	const bool bTranscendent = false;
 	if( false == bTranscendent )
 	{
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", true );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
-		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, false, 4, 5 );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", true );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		ClearSlotCoolTime( m_pDLGGameSkillSlot, false, 4, 5 );
 	}
 	else
 	{
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", false );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", false );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
 	}
 
 	/// B-TC ( slot 9 ): slot-state key 1 ( 32890ea0( 1 ) ) in { 1, 2 } unlocks it
 	const bool bBTCLocked = ( false == m_pUserSkillTree->IsSlotUsable( 1 ) );
 	if( false == bBTCLocked )
 	{
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", false );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", false );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
 	}
 	else
 	{
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", true );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
-		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, true, 4, 5 );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", true );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		ClearSlotCoolTime( m_pDLGGameSkillSlot, true, 4, 5 );
 
 		CX2EquippedSkillSlotData* pSlotData = GetEquippedSlotData( 4, true );
 		if( NULL != pSlotData && CX2SkillTree::SI_NONE != pSlotData->m_eSkillID && -1 != static_cast<int>( pSlotData->m_eSkillID ) )
@@ -2859,15 +2859,15 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 	if( false == bBLocked )
 	{
 		m_bIsExpandSkillSlot = true;
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", false );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", false );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
 	}
 	else
 	{
 		m_bIsExpandSkillSlot = false;
-		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", true );
-		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
-		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, true, 0, 4 );
+		SetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", true );
+		SetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		ClearSlotCoolTime( m_pDLGGameSkillSlot, true, 0, 4 );
 
 		for( int i = 0; i < 4; ++i )
 		{
@@ -2904,7 +2904,7 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 }
 
 /// June 328daed0 ( UI type B ) / 328db100 ( UI type A ): where the TC lock pictures and buy-guide buttons sit for the current swap state
-void CX2UISkillTreeNew::SetOffsetPosJuneTCSlotUI( const bool bTypeA_ )
+void CX2UISkillTreeNew::SetOffsetPosTCSlotUI( const bool bTypeA_ )
 {
 	if( NULL == m_pDLGGameSkillSlot )
 		return;
@@ -2986,7 +2986,7 @@ void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 		if(m_pDLGGameSkillSlot != NULL)
 		{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
-			UpdateJuneSkillSlotLockUI();
+			UpdateSkillSlotLockUI();
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			switch(m_pUserSkillTree->GetSkillSlotBExpirationState())
 			{
@@ -5409,7 +5409,7 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 		SetOffsetPosSkillSLotStatic(D3DXVECTOR2(0,0));
 	}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
-	SetOffsetPosJuneTCSlotUI( true );
+	SetOffsetPosTCSlotUI( true );
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 
@@ -5478,7 +5478,7 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 	}
 	SetOffsetPosSkillSLotStatic(vOffsetPos, vOffsetAddPos);
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
-	SetOffsetPosJuneTCSlotUI( false );
+	SetOffsetPosTCSlotUI( false );
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 #endif //SKILL_SLOT_UI_TYPE_B

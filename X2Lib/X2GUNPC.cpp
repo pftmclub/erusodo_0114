@@ -1974,7 +1974,7 @@ bool CX2GUNPC::IsSocketBossGrade() const
 	if ( !s_bSeenBossGrade )
 	{
 		s_bSeenBossGrade = true;
-		CX2JuneBuffCapture::Line( "first socket boss grade: NPC %d grade 1, ExtraNPCStat row %s -> boss %s",
+		CX2BuffCapture::Line( "first socket boss grade: NPC %d grade 1, ExtraNPCStat row %s -> boss %s",
 			static_cast<int>( GetNPCTemplet().m_nNPCUnitID ), bBoss ? "yes" : "no", bBoss ? "yes" : "no" );
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -10484,7 +10484,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			if ( false == s_bAuraReactLogged )
 			{
 				s_bAuraReactLogged = true;
-				CX2JuneBuffCapture::Line( "aura hit on NPC %I64d: hitted-by-buff effect sets skipped (first seen)", GetUnitUID() );
+				CX2BuffCapture::Line( "aura hit on NPC %I64d: hitted-by-buff effect sets skipped (first seen)", GetUnitUID() );
 			}
 		}
 #else SERV_IRUHADEV_JUNE_BUFF_AURA_REACT
@@ -11045,7 +11045,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					if ( !s_bSeenRead78Npc )
 					{
 						s_bSeenRead78Npc = true;
-						CX2JuneBuffCapture::Line( "first read BBT 78 (npc hit): additional attack %g x %g", fAdditionalAttackValue / fTypeAdditionalAttackMultiplier, fTypeAdditionalAttackMultiplier );
+						CX2BuffCapture::Line( "first read BBT 78 (npc hit): additional attack %g x %g", fAdditionalAttackValue / fTypeAdditionalAttackMultiplier, fTypeAdditionalAttackMultiplier );
 					}
 				}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -27451,7 +27451,7 @@ void CX2GUNPC::PhysicProcess()
 			}
 
 			if ( m_iJuneAutoDisableLine > -1 && m_iJuneAutoDisableLine != lastTouchLineIndex )
-				pLineMap->JuneAutoDisableRelease( m_iJuneAutoDisableLine, GetUnitUID(), false );	/// return value ignored, +0x3e48 kept
+				pLineMap->AutoDisableRelease( m_iJuneAutoDisableLine, GetUnitUID(), false );	/// return value ignored, +0x3e48 kept
 		}
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	}
@@ -32722,7 +32722,7 @@ void CX2GUNPC::GetBuffInfo( OUT vector<KNpcUnitBuffInfo>& vecNpcUnitBuffInfo_ ) 
 		{
 			static std::set< std::pair<int, int> > s_setLogged;
 			if ( s_setLogged.insert( std::make_pair( m_iMonsterBuffGroupID, static_cast<int>( eBuffTempletID_ ) ) ).second )
-				CX2JuneBuffCapture::Line( "buff group %d refused BTI %d on NPC %d (June 326c31c0)",
+				CX2BuffCapture::Line( "buff group %d refused BTI %d on NPC %d (June 326c31c0)",
 					m_iMonsterBuffGroupID, static_cast<int>( eBuffTempletID_ ), static_cast<int>( GetNPCTemplet().m_nNPCUnitID ) );
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG

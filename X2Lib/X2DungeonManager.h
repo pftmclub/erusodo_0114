@@ -25,7 +25,7 @@ class CX2DungeonManager
 		};
 		void Add_HeroDungeon_ExtraStatForException_LUA();	/// June 327db2c0 (Lua: Add_HeroDungeon_ExtraStatForException)
 		const std::vector<HeroDungeonExtraStatForException>& GetHeroDungeonExtraStatForException() const { return m_vecHeroDungeonExtraStatForException; }
-		static bool JuneIsHeroDungeon( int iDungeonID );	/// June 32931be0 (also X2PartyUI.cpp's)
+		static bool IsHeroDungeon( int iDungeonID );	/// June 32931be0 (also X2PartyUI.cpp's)
 		//}}
 #endif SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED
 

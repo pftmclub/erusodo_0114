@@ -963,7 +963,7 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 		void				SetEnvBoxMap( const char* pFileName );				/// June 327fd080, Lua g_pWorld:SetEnvBoxMap( "File.lua" )
-		void				JuneRenderEnvBox( const D3DXVECTOR3* pvPos );		/// June 327fb5f0 @327fb675-327fb689 ( the env box part of the world render )
+		void				RenderEnvBox( const D3DXVECTOR3* pvPos );		/// June 327fb5f0 @327fb675-327fb689 ( the env box part of the world render )
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 
 		void				FadeOriginWorldColor( D3DXCOLOR color, float fTime )
@@ -1005,7 +1005,7 @@ public:
 		
 		void				SetShowObject( bool bShow );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		bool				GetJuneShowWorld() const { return m_bJuneShowWorld; }
+		bool				GetShowWorld() const { return m_bJuneShowWorld; }
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef X2TOOL
 		void				SetShowObjectByTool( bool bShow );

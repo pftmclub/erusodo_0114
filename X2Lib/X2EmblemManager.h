@@ -256,13 +256,13 @@ public:
 
 	void SetTexture2ndName( EMBLEM_ID eEmblemID_, const wstring& wstrTextureName );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
-	void JunePushNewSkillOrMemo( const D3DXVECTOR3& vRow_ );	/// June 324486b0: +0x64 push ( skill id, type, 1 = not shown yet )
+	void PushNewSkillOrMemo( const D3DXVECTOR3& vRow_ );	/// June 324486b0: +0x64 push ( skill id, type, 1 = not shown yet )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
-	void JuneAddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpandTexture& sExpandTexture_ );	/// June 32448fd0
+	void AddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpandTexture& sExpandTexture_ );	/// June 32448fd0
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	void JunePushTitleNotice( const CX2TitleManager::TitleInfo* pTitleInfo_, int iKey_ );	/// June 3244adb0: map +0x78[ key ].push_back ( 1 earned, 0 mission opened )
+	void PushTitleNotice( const CX2TitleManager::TitleInfo* pTitleInfo_, int iKey_ );	/// June 3244adb0: map +0x78[ key ].push_back ( 1 earned, 0 mission opened )
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 #ifdef EVENT_NEW_HENIR
@@ -284,27 +284,27 @@ private:
 	void PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTemplet_ );
 	void CheckNextPlayingEmblem();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
-	bool JuneIsEmblemPlaying() const;									/// June 32447870
-	void JuneCloseEmblemDialog();										/// June 32447760
-	void JuneFadeEmblemDialog( float fElapsedTime_ );					/// June 3244c8c0 @3244cb66-3244cce2
-	D3DXVECTOR3 JuneGetNewSkillOrMemo( int iIndex_ ) const;				/// June's inlined +0x64 read ( 0, 0, 0 out of range )
-	bool JuneHasNewSkillOrMemoToShow() const;							/// June 32447a20
-	void JuneShowNewSkillOrMemo();										/// June 32448b20
-	void JuneShowNewSkillOrMemoRows( bool bShow_ );						/// June 32447aa0
-	void JuneSetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ );		/// June 32447c00
-	void JuneSetNewSkillOrMemoText( int iIndex_, int iSkillID_, int iType_ );	/// June 324486c0
+	bool IsEmblemPlaying() const;									/// June 32447870
+	void CloseEmblemDialog();										/// June 32447760
+	void FadeEmblemDialog( float fElapsedTime_ );					/// June 3244c8c0 @3244cb66-3244cce2
+	D3DXVECTOR3 GetNewSkillOrMemo( int iIndex_ ) const;				/// June's inlined +0x64 read ( 0, 0, 0 out of range )
+	bool HasNewSkillOrMemoToShow() const;							/// June 32447a20
+	void ShowNewSkillOrMemo();										/// June 32448b20
+	void ShowNewSkillOrMemoRows( bool bShow_ );						/// June 32447aa0
+	void SetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ );		/// June 32447c00
+	void SetNewSkillOrMemoText( int iIndex_, int iSkillID_, int iType_ );	/// June 324486c0
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
-	void JunePlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_ );	/// June 32448ce0
-	void JunePickEmblemSound( const EmblemTemplet& sEmblemTemplet_ );		/// June 32448ce0 @32448e4d
-	void JuneFollowExpandTexture();											/// June 3244c8c0 @3244c937
-	bool JuneIsExpandTextureLive() const;									/// June 3244c8c0 ( the +0x44 alive test before the pick )
-	void JuneDestroyExpandTexture();										/// June 324485d0 / 3244c8c0 ( the +0x44 destroy loop )
+	void PlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_ );	/// June 32448ce0
+	void PickEmblemSound( const EmblemTemplet& sEmblemTemplet_ );		/// June 32448ce0 @32448e4d
+	void FollowExpandTexture();											/// June 3244c8c0 @3244c937
+	bool IsExpandTextureLive() const;									/// June 3244c8c0 ( the +0x44 alive test before the pick )
+	void DestroyExpandTexture();										/// June 324485d0 / 3244c8c0 ( the +0x44 destroy loop )
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	void JuneShowNewTitle();																	/// June 3244c2b0
-	void JuneSetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_ );				/// June 32448420
-	void JuneSetNewTitleText( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_, int iKey_ );	/// June 3244bfb0
+	void ShowNewTitle();																	/// June 3244c2b0
+	void SetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_ );				/// June 32448420
+	void SetNewTitleText( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_, int iKey_ );	/// June 3244bfb0
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 private:

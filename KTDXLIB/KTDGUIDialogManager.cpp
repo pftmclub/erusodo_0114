@@ -44,7 +44,7 @@ CKTDGUIDialogManager::CKTDGUIDialogManager(void)
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 	m_iJuneHideMode = 0;			// 31d08180: the empty preset
 	m_iJuneHidePrevMode = 0;
-	_BuildJuneHidePresets();
+	_BuildHidePresets();
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
@@ -898,7 +898,7 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 					LastErrorLog( dialogName.c_str() );
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 					// June @31d06484: in the flagged-only mode only the flagged dialogs move
-					if ( m_bJuneFlaggedDialogsOnly == false || pDialog->GetJuneDrawInFlaggedMode() == true )
+					if ( m_bJuneFlaggedDialogsOnly == false || pDialog->GetDrawInFlaggedMode() == true )
 						pDialog->OnFrameMove( fTime, fElapsedTime );
 #else SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 
@@ -931,9 +931,9 @@ HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 	// June 31d053f0 ( vslot 0x30 ): no layer band
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
-	return _OnFrameRenderJune( bFront, false, 0, 0, iRenderPass_ );
+	return _OnFrameRender( bFront, false, 0, 0, iRenderPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
-	return _OnFrameRenderJune( bFront, false, 0, 0 );
+	return _OnFrameRender( bFront, false, 0, 0 );
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #else SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
@@ -1047,11 +1047,11 @@ HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_, int iRenderPass_ )
 {
-	return _OnFrameRenderJune( bFront, true, iMinLayer_, iMaxLayer_, iRenderPass_ );
+	return _OnFrameRender( bFront, true, iMinLayer_, iMaxLayer_, iRenderPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_ )
 {
-	return _OnFrameRenderJune( bFront, true, iMinLayer_, iMaxLayer_ );
+	return _OnFrameRender( bFront, true, iMinLayer_, iMaxLayer_ );
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 }
 
@@ -1062,9 +1062,9 @@ HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iM
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 // R4a: every dialog render gets ( false, pass ) ( June @31d054dc, @31d055bb ), the guide-control block is the DG +0x70 block in pass 1
 // ( @31d055ee ), the drag slot gets the pass ( @31d056d1 )
-HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_, int iRenderPass_ )
+HRESULT CKTDGUIDialogManager::_OnFrameRender( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_, int iRenderPass_ )
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
-HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ )
+HRESULT CKTDGUIDialogManager::_OnFrameRender( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ )
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 {
 	KTDXPROFILE();
@@ -1159,7 +1159,7 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 		if ( m_bJuneFlaggedDialogsOnly == true )
 		{
 			// June @31d0587b: flagged dialogs only, and no band
-			if ( pDialog->GetJuneDrawInFlaggedMode() == true && pDialog->GetShow() )
+			if ( pDialog->GetDrawInFlaggedMode() == true && pDialog->GetShow() )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 				pDialog->OnFrameRender( false, iRenderPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
@@ -1483,7 +1483,7 @@ bool CKTDGUIDialogManager::GetFocusInEditBox()
 // ---------------------------------------------------------------------------------------------------------------------------------------
 namespace
 {
-	struct KJuneHidePresetRow
+	struct KHidePresetRow
 	{
 		int				m_iMode;
 		const WCHAR*	m_wszName;
@@ -1491,7 +1491,7 @@ namespace
 
 	// Rows in the order of the loader's code: mode 1 @3259b25e, mode 4 @3259b351, mode 3 @3259b629 ( id from ebx = 3 ), mode 2 @3259b7ec, mode 5 @3259baa2
 	// ( id from esi = 5 ). The names are the loader's wide literals ( 334a9fe0 ... ); June stores them narrow, in a sorted set.
-	const KJuneHidePresetRow s_aJuneHidePresetRows[] =
+	const KHidePresetRow s_aJuneHidePresetRows[] =
 	{
 		{ 1, L"DLG_ChatBox_EditBox" }, { 1, L"DLG_MsgBox" }, { 1, L"DLG_OKMsgBox" }, { 1, L"OkAndCancelMsgBox" }, { 1, L"DLG_Exit_Party_MsgBox" },
 
@@ -1517,7 +1517,7 @@ namespace
 	};
 }
 
-void CKTDGUIDialogManager::_BuildJuneHidePresets()
+void CKTDGUIDialogManager::_BuildHidePresets()
 {
 	m_mapJuneHidePreset.clear();
 	const int iRows = static_cast<int>( sizeof( s_aJuneHidePresetRows ) / sizeof( s_aJuneHidePresetRows[0] ) );
@@ -1527,7 +1527,7 @@ void CKTDGUIDialogManager::_BuildJuneHidePresets()
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 // 31d05060 -> 31d07950: the current hide struct back to empty ( id and previous id 0, names cleared ), the shown byte +0x34 is left alone
-void CKTDGUIDialogManager::JuneResetHideMode()
+void CKTDGUIDialogManager::ResetHideMode()
 {
 	m_iJuneHideMode = 0;
 	m_iJuneHidePrevMode = 0;
@@ -1536,7 +1536,7 @@ void CKTDGUIDialogManager::JuneResetHideMode()
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 // 31d05af0: +0x34 = bShow; mode = bShow ? 0 : ( mode ? mode : 1 ); the current struct becomes the mode's preset ( previous id = the old current id ),
 // the empty one ( id 0 ) when no preset has that id.
-void CKTDGUIDialogManager::JuneSetShow( bool bShow, int iHideMode )
+void CKTDGUIDialogManager::SetShow( bool bShow, int iHideMode )
 {
 	m_bShow = bShow;
 
@@ -1572,29 +1572,29 @@ void CKTDGUIDialogManager::JuneSetShow( bool bShow, int iHideMode )
 // 31f02f50, called by the DELETE-key handlers ( 31f036a0 = CX2State::ProcessGameScoreAndPostEffect, 32523dc0 = the PVP game state; 3249c9d0 is the June-only
 // PVE state ). The mode now / before decide: now 2-4 -> SetShow( false, 0 ) ( hide all ), GFx shown = 0; else before 2-4 -> SetShow( false, before ), GFx
 // shown = 1; else a plain toggle SetShow( !shown, 0 ), GFx shown = 1. GFx shown is the manager's +0x108 ( G0 map ), set only when the manager exists.
-void CKTDGUIDialogManager::JuneToggleHide()
+void CKTDGUIDialogManager::ToggleHide()
 {
 	const bool bOldShow = m_bShow;
 	const int iNow = m_iJuneHideMode;
 	const int iPrev = m_iJuneHidePrevMode;
 
 	bool bGfxShow = true;
-	if( true == IsJuneRestoreMode( iNow ) )
+	if( true == IsRestoreMode( iNow ) )
 	{
-		JuneSetShow( false, 0 );
+		SetShow( false, 0 );
 		bGfxShow = false;
 	}
-	else if( true == IsJuneRestoreMode( iPrev ) )
+	else if( true == IsRestoreMode( iPrev ) )
 	{
-		JuneSetShow( false, iPrev );
+		SetShow( false, iPrev );
 	}
 	else
 	{
-		JuneSetShow( !bOldShow, 0 );
+		SetShow( !bOldShow, 0 );
 	}
 
-	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetJuneGFXManager() )
-		g_pKTDXApp->GetJuneGFXManager()->SetShow( bGfxShow );
+	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetGFXManager() )
+		g_pKTDXApp->GetGFXManager()->SetShow( bGfxShow );
 }
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 

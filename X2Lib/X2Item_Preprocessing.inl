@@ -586,7 +586,7 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     int     GetItemIDForMinorUnit() const                   { return m_iItemIDForMinorUnit; }
     int     GetItemEquipmentGroup() const                   { return m_iItemEquipmentGroup; }
     int     GetDescriptionInShopType() const                { return (int) m_byDescriptionInShopType; }
-    BYTE    GetJuneRawEqipPosition() const                  { return m_byEqipPosition; }     /// the stored value, before the D2 remap and the EP_END guard (load census)
+    BYTE    GetRawEqipPosition() const                  { return m_byEqipPosition; }     /// the stored value, before the D2 remap and the EP_END guard (load census)
     const wchar_t*  GetExpiredDate() const;
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
@@ -701,7 +701,7 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
     const D3DXVECTOR3&  GetRenderRotate( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
     const wchar_t*  GetCommonItemModelName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
 	const wchar_t*  GetCommonItemXETName( CX2Unit::UNIT_TYPE eUnitType, bool bIsMinorUnit_ = false ) const;
-    static DWORD    _GetJuneExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ );
+    static DWORD    _GetExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ );
 #else
     const D3DXVECTOR3&  GetFrameOffset( CX2Unit::UNIT_TYPE eUnitType ) const;
     const D3DXVECTOR3&  GetRenderScale( CX2Unit::UNIT_TYPE eUnitType ) const;
@@ -719,8 +719,8 @@ struct    KItemFormatTemplet : public CX2ItemTemplet_Base
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
     /// June item.kim K2: "[JUNE_KIM]" lines in ErrorLog.txt, flushed per line. JuneKimGuard writes the first hit of a kind and
     /// then the running count at 10, 100, 1000, ... so a guard that fires per frame stays readable.
-    static void     JuneKimLine( const char* szFormat_, ... );
-    static void     JuneKimGuard( const char* szKind_, const char* szFormat_, ... );
+    static void     KimLine( const char* szFormat_, ... );
+    static void     KimGuard( const char* szKind_, const char* szFormat_, ... );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
     class LessID 

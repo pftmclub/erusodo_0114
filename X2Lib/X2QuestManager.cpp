@@ -155,7 +155,7 @@ void CX2QuestManager::LoadVillageNpcRelationChangeData( KLuaManager& luaManager,
 	/// June @32343e91: the block is read into a local and copied into the row (32345bb0) only inside the table branch
 	if ( true == luaManager.BeginTable( "RenderOption" ) )
 	{
-		SJuneVillageNpcRenderOption kRenderOption;
+		SVillageNpcRenderOption kRenderOption;
 		LUA_GET_VALUE( luaManager, "UseRenderOption",	kRenderOption.m_bUseRenderOption,	false );
 		LUA_GET_VALUE( luaManager, "UseAlphaBlend",		kRenderOption.m_bUseAlphaBlend,		false );
 		LUA_GET_VALUE( luaManager, "MultiTex",			kRenderOption.m_wstrMultiTex,		L"" );
@@ -1196,7 +1196,7 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 	// June 32336e80 @3233728c..32337290: then the story-book rebuild, with the Story_New mark off ( quest-system Q10 )
-	JuneRebuildStoryBookQuest( false );
+	RebuildStoryBookQuest( false );
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef REFORM_NOVICE_GUIDE
 	if( NULL != g_pData && NULL != g_pData->GetPlayGuide() &&
@@ -1223,7 +1223,7 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 #endif //REFORM_QUEST
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	// June 32336e80 @323372f9-323372ff: the last call, the movie tab's seen list from the completed quests ( 31d79ac0, quest-system Q8b )
-	g_pMain->JuneAddSeenClearMovieByQuest();
+	g_pMain->AddSeenClearMovieByQuest();
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -1232,7 +1232,7 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 		static_cast<int>( vecCompleteQuest.size() ), static_cast<int>( m_mapChainComplete.size() ) );
 #endif SERV_IRUHADEV_OFFLINE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
-	JuneQuestSelfCheck();
+	QuestSelfCheck();
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 }
@@ -3702,7 +3702,7 @@ bool CX2QuestManager::LoadChainQuestInfo()
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 /// Q5b. June 3232df20 ( ECX = the quest manager ): the quest's own BGM name. Needs the field game's world ( g_pTFieldGame +0xa8 ), a non-empty name and no
 /// override running ( +0x148 ). The world's current BGM name is saved ( +0x12c = world +0x44 ), the quest's is set and played.
-void CX2QuestManager::JunePlayQuestSelectBGM( const std::wstring& wstrBGM )
+void CX2QuestManager::PlayQuestSelectBGM( const std::wstring& wstrBGM )
 {
 	// @3232df50..3232df75
 	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == wstrBGM.empty() || true == m_bJuneSelectBGMActive )
@@ -3720,7 +3720,7 @@ void CX2QuestManager::JunePlayQuestSelectBGM( const std::wstring& wstrBGM )
 
 /// Q5b. June 3232e000: the scene that set the BGM has ended ( CX2GFXEventScene::End @3226b734 only ). Needs the world, a saved name ( +0x13c = the saved wstring's
 /// size ) and the flag. When the saved name was empty ( a world with no BGM ) the flag stays set and nothing is restored: kept as June has it ( JUNE_BUGS ).
-void CX2QuestManager::JuneRestoreQuestSelectBGM()
+void CX2QuestManager::RestoreQuestSelectBGM()
 {
 	// @3232e000..3232e01f
 	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == m_wstrJuneSavedBGM.empty() || false == m_bJuneSelectBGMActive )
@@ -3752,7 +3752,7 @@ void CX2QuestManager::LogLoadCensus( int iGuildCoopRows_ ) const
 /// g_pData +0x570 = { m_iEpisodeGroupID ( templet +0x1b4 ): { quest id } } is rebuilt from every completed quest ( +0x38 ) whose templet is in
 /// the manager's own map ( +0x08, not GetQuestTemplet ), passes the server-group test ( -1 or the instance's group ) and has a story
 /// ( 326ab090 ). Then g_pInstanceData +0xabd = bNewStory_. The book shows a group's thumbnails from this map ( Q10c ).
-void CX2QuestManager::JuneRebuildStoryBookQuest( bool bNewStory_ )
+void CX2QuestManager::RebuildStoryBookQuest( bool bNewStory_ )
 {
 	std::map< int, std::set<int> > mapStoryBook;
 	const CX2SlideShotScriptedManager* pSlideShotManager = CX2SlideShotScriptedManager::GetInstance();
@@ -3770,8 +3770,8 @@ void CX2QuestManager::JuneRebuildStoryBookQuest( bool bNewStory_ )
 		mapStoryBook[ pQuestTemplet->m_iEpisodeGroupID ].insert( pQuestTemplet->m_iID );
 		++iQuest;
 	}
-	g_pData->SetJuneStoryBookQuestMap( mapStoryBook );		// @323361ff
-	g_pInstanceData->SetJuneStoryBookNew( bNewStory_ );		// @32336268
+	g_pData->SetStoryBookQuestMap( mapStoryBook );		// @323361ff
+	g_pInstanceData->SetStoryBookNew( bNewStory_ );		// @32336268
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_QUEST] STORY rebuild: completed quests %d, with a story %d, episode groups %d, Story_New mark %d",
 		static_cast<int>( m_mapCompleteQuest.size() ), iQuest, static_cast<int>( mapStoryBook.size() ), bNewStory_ ? 1 : 0 );
@@ -4007,7 +4007,7 @@ int CX2QuestManager::GetClassUpQuestNoticeState( int iClassUpStep_ )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 /// June 31edf870: the class step of my unit as a level band. A transcended unit is 0; a base class (below 10, or 200 and over) needs level 15, a first job level 35,
 /// a second job level 70 for 1 / 2 / 3.
-int CX2QuestManager::JuneGetClassUpStep()
+int CX2QuestManager::GetClassUpStep()
 {
 	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return 0;
@@ -4032,7 +4032,7 @@ int CX2QuestManager::JuneGetClassUpStep()
 
 /// June 32344ab0 ( the level-up guide's accept buttons 1541-1544 / 1549 ): every quest of the wanted type that NPC 10004 ( Echo ) offers my class is asked for
 /// at once, and a notice box follows each. For QT_CHANGE_JOB below step 2 the quest must also be one of the job slot iJobTypeIndex_ of my class.
-void CX2QuestManager::JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ )
+void CX2QuestManager::GuideAcceptClassUpQuest( int iQuestType_, int iJobTypeIndex_ )
 {
 	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 		return;
@@ -4055,7 +4055,7 @@ void CX2QuestManager::JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobType
 		if( pQuestTemplet->m_Condition.m_setUnitClass.end() == pQuestTemplet->m_Condition.m_setUnitClass.find( pUnit->GetClass() ) )
 			continue;
 
-		if( QT_CHANGE_JOB == iQuestType_ && JuneGetClassUpStep() < 2 )
+		if( QT_CHANGE_JOB == iQuestType_ && GetClassUpStep() < 2 )
 		{
 			const ChangeJobQuest& kChangeJobQuest = GetChangeJobQuest( pUnit->GetClass() );
 			const std::set<int>& setJobQuest = kChangeJobQuest.m_setQuestID[ static_cast<CHANGE_JOB_TYPE>( iJobTypeIndex_ ) ];
@@ -4075,7 +4075,7 @@ void CX2QuestManager::JuneGuideAcceptClassUpQuest( int iQuestType_, int iJobType
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
 /// Q3 debug: once per run, after the first SetUnitQuest, one sub-quest of each type the phase touches goes through MakeSubQuestString ( without and with a
 /// quest instance ) and SubQuestInst::IsComplete ( flag off / on ); the output is the done gate's evidence. Newlines print as '|'.
-void CX2QuestManager::JuneQuestSelfCheck()
+void CX2QuestManager::QuestSelfCheck()
 {
 #ifdef SERV_IRUHADEV_OFFLINE
 	static bool s_bDone = false;

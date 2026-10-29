@@ -11,11 +11,11 @@
 		ErrorLog.txt instead of modal MessageBoxes. A capture nested inside another on the same
 		thread is a no-op; the outermost one owns the entry and reports it.
 */
-class CX2JuneBuffCapture : public KIruhaDisplayErrorSink
+class CX2BuffCapture : public KIruhaDisplayErrorSink
 {
 public:
-	CX2JuneBuffCapture();
-	virtual ~CX2JuneBuffCapture();
+	CX2BuffCapture();
+	virtual ~CX2BuffCapture();
 	virtual void OnDisplayError( const char* szError_ );
 
 	bool IsOwner() const { return m_bOwner; }
@@ -50,11 +50,11 @@ private:
 		CX2JuneBuffCapture::RuntimeError writes and for its once-per-buff-and-text dedupe. Scopes nest: the
 		innermost names the buff and the previous name comes back when it ends. 0 = no buff named.
 */
-class CX2JuneBuffRuntimeScope
+class CX2BuffRuntimeScope
 {
 public:
-	explicit CX2JuneBuffRuntimeScope( const int iBuffTempletID_ );
-	~CX2JuneBuffRuntimeScope();
+	explicit CX2BuffRuntimeScope( const int iBuffTempletID_ );
+	~CX2BuffRuntimeScope();
 	static int GetBuffTempletID();
 
 private:

@@ -386,7 +386,7 @@ public:
 	PetTemplet *GetPetTemplet(PET_UNIT_ID pid);
 #ifdef SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 	// June2017 326cc990 (thiscall on g_pData +0x328, March's m_pPetManager): the XET suffix a pet variant hard-codes
-	std::wstring JuneGetVariantXetSuffix( const int& iPetId_, const char& cVariant_ );
+	std::wstring GetVariantXetSuffix( const int& iPetId_, const char& cVariant_ );
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
 	int	GetPetInventorySlotSize( PET_UNIT_ID pid, char cEvolutionStep );

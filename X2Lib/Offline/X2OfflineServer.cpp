@@ -655,7 +655,7 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_STATE_CHANGE_RESULT_REQ:		return Handler_EGS_STATE_CHANGE_RESULT_REQ( kSes, kEvent );
 	case EGS_RESULT_SUCCESS_REQ:			return Handler_EGS_RESULT_SUCCESS_REQ( kSes, kEvent );
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
-	case EGS_JUNE_DUNGEON_RETRY_REQ:		return Handler_EGS_JUNE_DUNGEON_RETRY_REQ( kSes, kEvent );
+	case EGS_DUNGEON_RETRY_REQ:		return Handler_EGS_DUNGEON_RETRY_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	case EGS_LEAVE_GAME_REQ:				return Handler_EGS_LEAVE_GAME_REQ( kSes, kEvent );
 
@@ -703,10 +703,10 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_GATHER_GIVE_UP_QUEST_REQ:		return Handler_EGS_GATHER_GIVE_UP_QUEST_REQ( kSes, kEvent );
 	case EGS_EQUIP_TITLE_REQ:				return Handler_EGS_EQUIP_TITLE_REQ( kSes, kEvent );
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-	case EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ:			return Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( kSes, kEvent );
-	case EGS_JUNE_RANDOM_MISSION_CHEAT_REQ:				return Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( kSes, kEvent );
-	case EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( kSes, kEvent );
-	case EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( kSes, kEvent );
+	case EGS_RANDOM_MISSION_COMPLETE_REQ:			return Handler_EGS_RANDOM_MISSION_COMPLETE_REQ( kSes, kEvent );
+	case EGS_RANDOM_MISSION_CHEAT_REQ:				return Handler_EGS_RANDOM_MISSION_CHEAT_REQ( kSes, kEvent );
+	case EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ:	return Handler_EGS_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( kSes, kEvent );
+	case EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ:	return Handler_EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	case EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ:		return Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( kSes, kEvent );
@@ -726,8 +726,8 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 #endif SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
 	case EGS_CHANGE_SKILL_SLOT_REQ:			return Handler_EGS_CHANGE_SKILL_SLOT_REQ( kSes, kEvent );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	case EGS_JUNE_ACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
-	case EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
+	case EGS_ACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_ACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
+	case EGS_DEACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_DEACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 	case EGS_GET_NEXT_SKILL_PAGE_ED_REQ:			return Handler_EGS_GET_NEXT_SKILL_PAGE_ED_REQ( kSes, kEvent );
@@ -1095,25 +1095,25 @@ bool CX2OfflineServer::FillAckED( KOfflineSession& kSes, OUT int& iED )
 //}}
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
-void CX2OfflineServer::PushJuneSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel,
+void CX2OfflineServer::PushSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel,
 										   bool bAll_, const wchar_t* pwszWhy_ )
 {
 	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 	if( false == pSkill->Load( nUnitUID ) )
 		return;
 
-	KEGS_JUNE_ACQUIRE_SKILL_NOT kNot;
+	KEGS_ACQUIRE_SKILL_NOT kNot;
 	kNot.m_iUnitUID = nUnitUID;
-	pSkill->GrantJuneSkillsByLevel( iUnitClass, iUnitLevel, kNot.m_vecSkillData );
+	pSkill->GrantSkillsByLevel( iUnitClass, iUnitLevel, kNot.m_vecSkillData );
 
 	if( true == bAll_ )
-		pSkill->GetJuneAcquiredSkillData( kNot.m_vecSkillData );
+		pSkill->GetAcquiredSkillData( kNot.m_vecSkillData );
 
 	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ push (%s) unitUID=%I64d: %d skill(s)%s", pwszWhy_, (__int64)nUnitUID,
 		(int)kNot.m_vecSkillData.size(), true == kNot.m_vecSkillData.empty() ? L", NOT not sent" : L"" );
 
 	if( false == kNot.m_vecSkillData.empty() )
-		Reply( kSes, EGS_JUNE_ACQUIRE_SKILL_NOT, kNot );
+		Reply( kSes, EGS_ACQUIRE_SKILL_NOT, kNot );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
@@ -1162,7 +1162,7 @@ void CX2OfflineServer::PushLevelUp( KOfflineSession& kSes, UidType nUnitUID )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	// June skill system S7: the skills the new level unlocks go out first - June's level-up handlers
 	// auto-equip only what is already acquired (328db990 reads GetSkillLevel).
-	PushJuneSkillGrant( kSes, nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, false, L"level-up" );
+	PushSkillGrant( kSes, nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, false, L"level-up" );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 	if( S_ROOM != kSes.m_eState )

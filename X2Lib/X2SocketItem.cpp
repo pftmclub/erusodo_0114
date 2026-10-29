@@ -24,7 +24,7 @@ namespace
 {
 	/// June buff port Phase 16-data. June's OptionItemData.lua names socket types March has no handler for. The loader
 	/// logs each one once, at the first socket of that type; the names are June's Enum.lua's.
-	const char* JuneOnlySocketTypeName( const char cKind_, const int iValue_ )
+	const char* OnlySocketTypeName( const char cKind_, const int iValue_ )
 	{
 		switch ( cKind_ )
 		{
@@ -73,9 +73,9 @@ namespace
 		return NULL;
 	}
 
-	void ReportJuneOnlySocketType( const char cKind_, const int iValue_, const int iSocketID_ )
+	void ReportOnlySocketType( const char cKind_, const int iValue_, const int iSocketID_ )
 	{
-		const char* szName = JuneOnlySocketTypeName( cKind_, iValue_ );
+		const char* szName = OnlySocketTypeName( cKind_, iValue_ );
 		if ( NULL == szName )
 			return;
 
@@ -86,21 +86,21 @@ namespace
 		switch ( cKind_ )
 		{
 		case 'E':
-			CX2JuneBuffCapture::Line( "socket %d (first of its type): EXTRA_DAMAGE_TYPE %d %s is June-only and March has no handler for it, so the socket keeps no extra damage (not ported)",
+			CX2BuffCapture::Line( "socket %d (first of its type): EXTRA_DAMAGE_TYPE %d %s is June-only and March has no handler for it, so the socket keeps no extra damage (not ported)",
 				iSocketID_, iValue_, szName );
 			break;
 		case 'S':
 			/// 16-step3b4: ProcessSocketEffectEx has June's cases 12-20 now; the line stays as a load census of the June-only types
-			CX2JuneBuffCapture::Line( "socket %d (first of its type): SIEE %d %s is filed like June (31fe4730) and handled by June's ProcessSocketEffectEx case (32028ba0)%s",
+			CX2BuffCapture::Line( "socket %d (first of its type): SIEE %d %s is filed like June (31fe4730) and handled by June's ProcessSocketEffectEx case (32028ba0)%s",
 				iSocketID_, iValue_, szName, CX2SocketItem::SIEE_ALWAYS_PLAY_EFFECT_SET == iValue_ ? "; its aura buff needs June's effect-set buff list (not ported)" : "" );
 			break;
 		case 'H':
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			/// 16-step3c2: HMET_FEVER (the only June-only type) is handled by ApplyBuffByUseHyperMode now; the line stays as a load census
-			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and handled like June (3206d480 @3206d6ab: party fever, needs a party)",
+			CX2BuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and handled like June (3206d480 @3206d6ab: party fever, needs a party)",
 				iSocketID_, iValue_, szName );
 #else SERV_IRUHADEV_JUNE_SOCKET_FEVER
-			CX2JuneBuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and March has no awakening handler for it, so it does nothing (not ported)",
+			CX2BuffCapture::Line( "socket %d (first of its type): HYPER_MODE_EFFECTIVE_TYPE %d %s is June-only and March has no awakening handler for it, so it does nothing (not ported)",
 				iSocketID_, iValue_, szName );
 #endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 			break;
@@ -168,7 +168,7 @@ void	CX2SocketItem::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pFormul
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05 // 오현빈
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// loaded first, above (June 32716860)
-	JuneLogSkillGroupPowerCensus();
+	LogSkillGroupPowerCensus();
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	g_pKTDXApp->LoadLuaTinker( L"SkillLevelUpSocketGroup.lua" );	
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -195,7 +195,7 @@ namespace
 {
 	/// June 327150b0: an m_SkillType entry 1..6 -> June's SKILL_TYPE 6 ST_ACTIVE, 8 ST_PASSIVE, 14/15/16
 	/// ST_SPECIAL_ACTIVE_GRADE_1/2/3, 13 ST_HYPER_ACTIVE_SKILL; anything else 0. March's SKILL_TYPE has no 14-16.
-	int JuneAdditionalPowerSkillType( const int iValue_ )
+	int AdditionalPowerSkillType( const int iValue_ )
 	{
 		switch ( iValue_ )
 		{
@@ -211,7 +211,7 @@ namespace
 
 	/// June 32715110: an m_PowerRate entry 1..6 -> SKILL_POWER_RATE_TYPE 0..5 (5 = June's SPRT_HYPER_CLASS, not in March);
 	/// anything else -1
-	int JuneAdditionalPowerRateType( const int iValue_ )
+	int AdditionalPowerRateType( const int iValue_ )
 	{
 		return ( 1 <= iValue_ && iValue_ <= 6 ) ? iValue_ - 1 : -1;
 	}
@@ -221,7 +221,7 @@ namespace
 }
 
 /// June buff port 16-step3b5: one load-time line on what the skill-group power sockets loaded (no June counterpart)
-void CX2SocketItem::JuneLogSkillGroupPowerCensus() const
+void CX2SocketItem::LogSkillGroupPowerCensus() const
 {
 	int iWithMap = 0, iMapEntries = 0, iWithTables = 0, iWithRate = 0;
 	for ( SocketDataMap::const_iterator it = m_mapSocketOptionPool.begin(); it != m_mapSocketOptionPool.end(); ++it )
@@ -243,7 +243,7 @@ void CX2SocketItem::JuneLogSkillGroupPowerCensus() const
 		if ( 0.f != kSocketData.m_fJuneSkillAdditionalPowerRate )
 			++iWithRate;
 	}
-	CX2JuneBuffCapture::Line( "skill-group power sockets: %d with a skill map (%d entries), %d with m_SkillType/m_PowerRate, %d with a rate; tokens: %d groups, %d skill IDs (%d groups in SkillLevelUpSocketGroup.lua)",
+	CX2BuffCapture::Line( "skill-group power sockets: %d with a skill map (%d entries), %d with m_SkillType/m_PowerRate, %d with a rate; tokens: %d groups, %d skill IDs (%d groups in SkillLevelUpSocketGroup.lua)",
 		iWithMap, iMapEntries, iWithTables, iWithRate, s_iJuneGroupTokenHits, s_iJuneSkillTokenHits, static_cast<int>( m_mapSkillUpSocketGroup.size() ) );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -514,7 +514,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 				else
 					pSocketData->m_MultipleSocketExtraDamage.push_back( socketExtraDamage );
 #else SERV_IRUHADEV_JUNE_SOCKET_EDT
-				ReportJuneOnlySocketType( 'E', static_cast<int>( socketExtraDamage.m_ExtraDamageType ), pSocketData->m_ID );
+				ReportOnlySocketType( 'E', static_cast<int>( socketExtraDamage.m_ExtraDamageType ), pSocketData->m_ID );
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			} break;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -818,7 +818,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 					if ( 0 != wstrToken.compare( L"0" ) )
 					{
 						const int iToken = _wtoi( wstrToken.c_str() );
-						if ( GetJuneGroupSkillIDs( iToken, vecGroupSkillID ) )
+						if ( GetGroupSkillIDs( iToken, vecGroupSkillID ) )
 						{
 							++s_iJuneGroupTokenHits;
 							for ( UINT uiMember = 0; uiMember < vecGroupSkillID.size(); ++uiMember )
@@ -848,14 +848,14 @@ bool CX2SocketItem::AddSocketData_LUA()
 			if ( luaManager.BeginTable( "m_SkillType" ) == true )
 			{
 				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
-					pSocketData->m_vecJuneAdditionalPowerSkillType.push_back( JuneAdditionalPowerSkillType( iValue ) );
+					pSocketData->m_vecJuneAdditionalPowerSkillType.push_back( AdditionalPowerSkillType( iValue ) );
 				luaManager.EndTable();
 			}
 
 			if ( luaManager.BeginTable( "m_PowerRate" ) == true )
 			{
 				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
-					pSocketData->m_vecJuneAdditionalPowerRateType.push_back( JuneAdditionalPowerRateType( iValue ) );
+					pSocketData->m_vecJuneAdditionalPowerRateType.push_back( AdditionalPowerRateType( iValue ) );
 				luaManager.EndTable();
 			}
 		}
@@ -1006,14 +1006,14 @@ bool CX2SocketItem::AddSocketData_LUA()
 		LUA_GET_VALUE(	luaManager, "m_fIncreaseDmgEnemyHPFew_HpRate",	iEnemyHPFewHpRate,		0 );
 
 		if ( 0 == uiBuffFactorId && 0 < iConditionalBuffLevel )
-			CX2JuneBuffCapture::Line( "socket %d: m_sBuffLevel %d without a BUFF_FACTOR_ID (June 32735b44)", pSocketData->m_ID, iConditionalBuffLevel );
+			CX2BuffCapture::Line( "socket %d: m_sBuffLevel %d without a BUFF_FACTOR_ID (June 32735b44)", pSocketData->m_ID, iConditionalBuffLevel );
 
 		const bool bAlwaysPlayEffectSet = ( 15 == static_cast<int>( pSocketData->m_eTypeSocketItemEffectEx ) );
 		if ( true == bKillAbsoluteMonster || 1 <= iEnemyHPFewHpRate || true == bAlwaysPlayEffectSet )
 		{
 			if ( 0 != uiBuffFactorId && 0 != iConditionalBuffLevel )
 			{
-				SocketData::JuneConditionalBuff kConditionalBuff;
+				SocketData::ConditionalBuff kConditionalBuff;
 				kConditionalBuff.m_uiBuffFactorID			= uiBuffFactorId;
 				kConditionalBuff.m_iBuffLevel				= iConditionalBuffLevel;
 				kConditionalBuff.m_bKillAbsoluteMonster		= bKillAbsoluteMonster;
@@ -1025,7 +1025,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 #endif HAMEL_SECRET_DUNGEON
 			}
 			else
-				CX2JuneBuffCapture::Line( "socket %d: m_bKillAbsoluteMonster, m_fIncreaseDmgEnemyHPFew_HpRate or SIEE 15 without both BUFF_FACTOR_ID and m_sBuffLevel (June 32735be8)", pSocketData->m_ID );
+				CX2BuffCapture::Line( "socket %d: m_bKillAbsoluteMonster, m_fIncreaseDmgEnemyHPFew_HpRate or SIEE 15 without both BUFF_FACTOR_ID and m_sBuffLevel (June 32735be8)", pSocketData->m_ID );
 		}
 	}
 	LUA_GET_VALUE(		luaManager, "m_fAtkPhysicPiercingRate",				pSocketData->m_fAtkPhysicPiercingRate,			0.0f );
@@ -1060,7 +1060,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 	LUA_GET_VALUE(		luaManager, "m_bIsRankLinkedStat",						pSocketData->m_bIsRankLinkedStat,				false );	/// @32736cf4
 	LUA_GET_VALUE(		luaManager, "m_bIsPVERankLinkedStat",					pSocketData->m_bIsPVERankLinkedStat,			false );	/// @32736ed4
 	if ( pSocketData->m_bIsRankLinkedStat && pSocketData->m_bIsPVERankLinkedStat )	/// June's message @32736ee9 (334b71b8)
-		CX2JuneBuffCapture::Line( "socket %d: m_bIsRankLinkedStat and m_bIsPVERankLinkedStat must not both be set (June 32736ee9)", pSocketData->m_ID );
+		CX2BuffCapture::Line( "socket %d: m_bIsRankLinkedStat and m_bIsPVERankLinkedStat must not both be set (June 32736ee9)", pSocketData->m_ID );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 //}} kimhc // 2010.4.1 // 비밀던전 작업(셋트아이템효과)
 
@@ -1071,8 +1071,8 @@ bool CX2SocketItem::AddSocketData_LUA()
 	/// 각성시 사용할 효과 설정
 	LUA_GET_VALUE_ENUM( luaManager, "HYPER_MODE_EFFECTIVE_TYPE",				pSocketData->m_eHyperModeEffectiveType, HYPER_MODE_EFFECTIVE_TYPE,	HMET_NONE );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	ReportJuneOnlySocketType( 'S', static_cast<int>( pSocketData->m_eTypeSocketItemEffectEx ), pSocketData->m_ID );
-	ReportJuneOnlySocketType( 'H', static_cast<int>( pSocketData->m_eHyperModeEffectiveType ), pSocketData->m_ID );
+	ReportOnlySocketType( 'S', static_cast<int>( pSocketData->m_eTypeSocketItemEffectEx ), pSocketData->m_ID );
+	ReportOnlySocketType( 'H', static_cast<int>( pSocketData->m_eHyperModeEffectiveType ), pSocketData->m_ID );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	/// 버프 아이디를 파싱했으며, 아직 버프 정보를 설정한 곳이 없을 때
@@ -1168,16 +1168,16 @@ bool CX2SocketItem::AddSocketData_LUA()
 }
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-/*static*/ bool CX2SocketItem::IsJuneSocketOptionFormLoaded()
+/*static*/ bool CX2SocketItem::IsSocketOptionFormLoaded()
 {
 	static int s_iLoaded = -1;
 	if ( -1 == s_iLoaded )
 	{
 		s_iLoaded = IsLuaCurveLoaded( "CalculateFinalMpIncPercentByAttack" ) ? 1 : 0;
 		if ( 0 == s_iLoaded )
-			CX2JuneBuffCapture::Line( "SocketOptionForm.lua has no June curves (CalculateFinalMpIncPercentByAttack is missing): socket MP gain, class specializations and BBT 92 stay 0. Pack June's SocketOptionForm.lua (march2014/data036) into data036.kom" );
+			CX2BuffCapture::Line( "SocketOptionForm.lua has no June curves (CalculateFinalMpIncPercentByAttack is missing): socket MP gain, class specializations and BBT 92 stay 0. Pack June's SocketOptionForm.lua (march2014/data036) into data036.kom" );
 		else
-			CX2JuneBuffCapture::Line( "June SocketOptionForm.lua curves loaded" );
+			CX2BuffCapture::Line( "June SocketOptionForm.lua curves loaded" );
 	}
 	return 1 == s_iLoaded;
 }
@@ -2859,7 +2859,7 @@ void CX2SocketItem::GetSocketPostfix( IN int iSocketID_, OUT wstring& wstrItemDe
 /// June 32715680 (buff port 16-step3b5): group iGroupID_'s members from SkillLevelUpSocketGroup.lua (the same map,
 /// June CX2SocketItem +0x40), each member's skill ID whatever its unit class. Clears the vector first; false when the
 /// group does not exist.
-bool CX2SocketItem::GetJuneGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const
+bool CX2SocketItem::GetGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const
 {
 	vecSkillID_.clear();
 

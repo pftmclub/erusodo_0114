@@ -61,13 +61,13 @@ public:
 	/// June 324886b0( bShow, 1 ): the transcendence guide mode ( a separate name: March's SetShow( bool, int ) takes HPT_SHARE_BANK = 1 )
 	void SetShowTranscendGuide( bool bShow );
 	/// June 324886b0's switch on the unit type ( 1 .. 12 ); NULL outside it
-	static const WCHAR* JuneGetTranscendGuideName( int iUnitType_ );
+	static const WCHAR* GetTranscendGuideName( int iUnitType_ );
 	/// June 32711490: the dialog file is one of the twelve guides
-	static bool JuneIsTranscendGuideName( const WCHAR* pwszFileName_ );
+	static bool IsTranscendGuideName( const WCHAR* pwszFileName_ );
 	/// June 32486790 ( bClassPopup_ ) / 32710710 ( level-up guide ): shows the class's picture and the popup statics of a guide dialog
-	static void JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ );
+	static void InitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ );
 	/// June 324869d0 / 327108b0: the guide image's alpha over 1.5 s
-	static void JuneFadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ );
+	static void FadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 private:

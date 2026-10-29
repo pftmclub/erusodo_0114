@@ -15,7 +15,7 @@ class CX2SlideShot
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		/// Atlas E7: June 325c4a50: true once after a scene end ( +0x88, set by 325c7140 @325c7162 ), clearing it; else false
 		bool		IsSceneEnded() { if ( true == m_bJuneSceneEnded ) { m_bJuneSceneEnded = false; return true; } return false; }
-		void		ResetJuneSceneEnded() { m_bJuneSceneEnded = false; }	/// June 325c4a70 ( tutorial-exit release 327d2160 )
+		void		ResetSceneEnded() { m_bJuneSceneEnded = false; }	/// June 325c4a70 ( tutorial-exit release 327d2160 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		void		GoNextScen();

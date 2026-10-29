@@ -22,7 +22,7 @@ void RunViewerMeshTriggers( CKTDGXMeshPlayer::CXMeshInstance* pMesh_, CX2EffectS
 								int iCode1_, int iCode2_ );
 
 // June 0x40-byte entry (Play 32959640 @detail). Mesh and particle entries share +0x3c in June; two handle fields here.
-struct JuneViewerFxEntry
+struct ViewerFxEntry
 {
 	CX2EffectSet::EffectData*							m_pEffectData;		// +0x00
 	CKTDGXSkinAnimPtr									m_pXSkinAnim;		// +0x04, ref-counted
@@ -33,7 +33,7 @@ struct JuneViewerFxEntry
 	CKTDGXMeshPlayer::CXMeshInstanceHandle				m_hMesh;			// +0x3c (mesh entries)
 	CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeq;				// +0x3c (particle entries)
 
-	JuneViewerFxEntry()
+	ViewerFxEntry()
 	: m_pEffectData( NULL )
 	, m_iGroup( 0 )
 	, m_hTraceTargetMesh( INVALID_MESH_INSTANCE_HANDLE )
@@ -44,31 +44,31 @@ struct JuneViewerFxEntry
 };
 
 // June 0x30 pending sound (ctor 32959970): the templet's SoundData, played 0, group
-struct JuneViewerFxSound
+struct ViewerFxSound
 {
 	CX2DamageEffect::SoundData	m_SoundData;
 	bool						m_bPlayed;
 	int							m_iGroup;
 
-	JuneViewerFxSound() : m_bPlayed( false ), m_iGroup( 0 ) {}
+	ViewerFxSound() : m_bPlayed( false ), m_iGroup( 0 ) {}
 };
 
 // June 8-byte playing sound { CKTDXDeviceSound*, group } (+0x1c4)
-struct JuneViewerFxPlayingSound
+struct ViewerFxPlayingSound
 {
 	CKTDXDeviceSound*	m_pSound;
 	int					m_iGroup;
 
-	JuneViewerFxPlayingSound() : m_pSound( NULL ), m_iGroup( 0 ) {}
+	ViewerFxPlayingSound() : m_pSound( NULL ), m_iGroup( 0 ) {}
 };
 
-static bool JuneViewerFxIsSamef( float fA_, float fB_ )
+static bool ViewerFxIsSamef( float fA_, float fB_ )
 {
 	return fabs( fA_ - fB_ ) <= 0.0009f;
 }
 
 // frame position of a bone on the viewer's skin, 0 when the frame is missing (32957980: combineMatrix _41/_42/_43)
-static D3DXVECTOR3 JuneViewerFxFramePos( CKTDGXSkinAnim* pXSkinAnim_, const WCHAR* pwszBone_ )
+static D3DXVECTOR3 ViewerFxFramePos( CKTDGXSkinAnim* pXSkinAnim_, const WCHAR* pwszBone_ )
 {
 	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
 	if( NULL == pXSkinAnim_ || NULL == pwszBone_ || L'\0' == pwszBone_[0] )
@@ -83,7 +83,7 @@ static D3DXVECTOR3 JuneViewerFxFramePos( CKTDGXSkinAnim* pXSkinAnim_, const WCHA
 }
 
 // 31cb2510: BONE_NAME, the riding pet's bone when BONE_NAME is empty
-static const WCHAR* JuneViewerFxBoneName( CX2EffectSet::EffectData* pEffectData_ )
+static const WCHAR* ViewerFxBoneName( CX2EffectSet::EffectData* pEffectData_ )
 {
 #ifdef RIDING_SYSTEM
 	if( true == pEffectData_->m_PositionBoneName.empty() )
@@ -94,7 +94,7 @@ static const WCHAR* JuneViewerFxBoneName( CX2EffectSet::EffectData* pEffectData_
 
 // 31d2b080( skin, 2 ): the lowest combineMatrix _42 over every frame of the skin (March has no frame list accessor; the
 // frame tree holds the same frames)
-static void JuneViewerFxLowestFrameY( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame_, float& fMinY_, bool& bFound_ )
+static void ViewerFxLowestFrameY( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame_, float& fMinY_, bool& bFound_ )
 {
 	while( NULL != pFrame_ )
 	{
@@ -103,20 +103,20 @@ static void JuneViewerFxLowestFrameY( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFra
 			fMinY_ = pFrame_->combineMatrix._42;
 			bFound_ = true;
 		}
-		JuneViewerFxLowestFrameY( static_cast<CKTDXDeviceXSkinMesh::MultiAnimFrame*>( pFrame_->pFrameFirstChild ), fMinY_, bFound_ );
+		ViewerFxLowestFrameY( static_cast<CKTDXDeviceXSkinMesh::MultiAnimFrame*>( pFrame_->pFrameFirstChild ), fMinY_, bFound_ );
 		pFrame_ = static_cast<CKTDXDeviceXSkinMesh::MultiAnimFrame*>( pFrame_->pFrameSibling );
 	}
 }
 
 // 32957170( out vec3, bUseLand, skin ): the viewer's position; with bUseLand and a skin, y = the skin's lowest bone
-D3DXVECTOR3 CX2BaseUnitViewerUI::JuneViewerFxLandPosition( bool bUseLand_, CKTDGXSkinAnim* pXSkinAnim_ )
+D3DXVECTOR3 CX2BaseUnitViewerUI::ViewerFxLandPosition( bool bUseLand_, CKTDGXSkinAnim* pXSkinAnim_ )
 {
 	D3DXVECTOR3 vPos = GetMatrix().GetPos();
 	if( true == bUseLand_ && NULL != pXSkinAnim_ )
 	{
 		float fMinY = 0.f;
 		bool bFound = false;
-		JuneViewerFxLowestFrameY( pXSkinAnim_->GetCloneFrameRoot(), fMinY, bFound );
+		ViewerFxLowestFrameY( pXSkinAnim_->GetCloneFrameRoot(), fMinY, bFound );
 		if( true == bFound )
 			vPos.y = fMinY;
 	}
@@ -136,8 +136,8 @@ CX2BaseUnitViewerUI::CX2BaseUnitViewerUI(void)
 // have no handle to release in June (the derived dtor 31fab920 stopped groups 0..4 first), so they are only freed.
 CX2BaseUnitViewerUI::~CX2BaseUnitViewerUI(void)
 {
-	JuneViewerFxStop( 1 );
-	JuneViewerFxStopSounds( 5 );
+	ViewerFxStop( 1 );
+	ViewerFxStopSounds( 5 );
 
 	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 		delete m_vecJuneFxMesh[i];
@@ -151,13 +151,13 @@ CX2BaseUnitViewerUI::~CX2BaseUnitViewerUI(void)
 // BONE_TRACE_TARGET_MESH, every mesh entry's trace target becomes its own handle (-1 while it is not created yet) and every
 // particle entry whose own EffectData is a BONE_TRACE_TARGET_MESH takes the first such mesh entry's handle. It walks the
 // entries of every earlier Play too, so live entries are re-linked (C9c-2b review: the port had skipped it as a no-op).
-void CX2BaseUnitViewerUI::JuneViewerFxLinkTraceTargets()
+void CX2BaseUnitViewerUI::ViewerFxLinkTraceTargets()
 {
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE
-	JuneViewerFxEntry* pTargetEntry = NULL;
+	ViewerFxEntry* pTargetEntry = NULL;
 	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 	{
-		JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+		ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 		if( NULL != pEntry && NULL != pEntry->m_pEffectData && true == pEntry->m_pEffectData->m_bBoneTraceTargetMesh )
 		{
 			pTargetEntry = pEntry;
@@ -174,7 +174,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxLinkTraceTargets()
 	}
 	for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 	{
-		JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+		ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 		if( NULL != pEntry && NULL != pEntry->m_pEffectData && true == pEntry->m_pEffectData->m_bBoneTraceTargetMesh )
 			pEntry->m_hTraceTargetMesh = pTargetEntry->m_hMesh;
 	}
@@ -182,12 +182,12 @@ void CX2BaseUnitViewerUI::JuneViewerFxLinkTraceTargets()
 }
 
 // 32959640( skin, set name, group ): the templet is the UI effect set's; nothing is created here (32957980 creates)
-void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ )
+void CX2BaseUnitViewerUI::ViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const std::wstring& wstrSetName_, int iGroup_ )
 {
 	// @32959680 / @32959694 / @329596a4: no skin anim, no UI effect set or no templet jumps to the tail (3295987e), which still runs (C9c-2b review)
 	if( NULL == pXSkinAnim_ )
 	{
-		JuneViewerFxLinkTraceTargets();
+		ViewerFxLinkTraceTargets();
 		return;
 	}
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
@@ -198,7 +198,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	if( NULL == g_pData || NULL == g_pData->GetUIEffectSet() )
 	{
-		JuneViewerFxLinkTraceTargets();
+		ViewerFxLinkTraceTargets();
 		return;
 	}
 
@@ -206,7 +206,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 	if( NULL == pSetData )
 	{
 		// June tests the templet (321da420 result, @329596a4: JZ to the tail) and skips the push silently; the port also logs it once
-		JuneViewerFxLinkTraceTargets();
+		ViewerFxLinkTraceTargets();
 		static std::set<std::wstring> s_setLogged;
 		if( true == s_setLogged.insert( wstrSetName_ ).second )
 		{
@@ -228,7 +228,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 		// only the UI-major mesh player and particle system are taken, every other EFFECT_TYPE is skipped
 		if( CX2EffectSet::ET_MESH_PLAYER_UI_MAJOR == pEffectData->m_eEffectType )
 		{
-			JuneViewerFxEntry* pEntry = new JuneViewerFxEntry;
+			ViewerFxEntry* pEntry = new ViewerFxEntry;
 			pEntry->m_pEffectData = pEffectData;
 			pEntry->m_pXSkinAnim = pXSkinAnim_;
 			pEntry->m_iGroup = iGroup_;
@@ -240,7 +240,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 		}
 		else if( CX2EffectSet::ET_PARTICLE_UI_MAJOR == pEffectData->m_eEffectType )
 		{
-			JuneViewerFxEntry* pEntry = new JuneViewerFxEntry;
+			ViewerFxEntry* pEntry = new ViewerFxEntry;
 			pEntry->m_pEffectData = pEffectData;
 			pEntry->m_pXSkinAnim = pXSkinAnim_;
 			pEntry->m_iGroup = iGroup_;
@@ -254,14 +254,14 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 	// the templet's SOUND%d list (+0x70): each copied into a pending sound (32959970 / 32959e40)
 	for( UINT iSound = 0; iSound < pSetData->m_vecSoundData.size(); ++iSound )
 	{
-		JuneViewerFxSound* pSound = new JuneViewerFxSound;
+		ViewerFxSound* pSound = new ViewerFxSound;
 		pSound->m_SoundData = pSetData->m_vecSoundData[iSound];
 		pSound->m_iGroup = iGroup_;
 		m_vecJuneFxPendingSound.push_back( pSound );
 	}
 
 	// @3295987e: the tail (the create pass makes the links of entries created later)
-	JuneViewerFxLinkTraceTargets();
+	ViewerFxLinkTraceTargets();
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	WCHAR wszPlay[512] = {0};
@@ -272,13 +272,13 @@ void CX2BaseUnitViewerUI::JuneViewerFxPlay( CKTDGXSkinAnimPtr pXSkinAnim_, const
 }
 
 // 329594c0( group ): destroys one group's meshes and particles, then its sounds. There is no "all" value here.
-void CX2BaseUnitViewerUI::JuneViewerFxStop( int iGroup_ )
+void CX2BaseUnitViewerUI::ViewerFxStop( int iGroup_ )
 {
 	if( NULL != g_pData && NULL != g_pData->GetUIMajorXMeshPlayer() )
 	{
 		for( size_t i = 0; i < m_vecJuneFxMesh.size(); )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 			if( NULL != pEntry && iGroup_ == pEntry->m_iGroup )
 			{
 				if( INVALID_MESH_INSTANCE_HANDLE != pEntry->m_hMesh )
@@ -295,7 +295,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxStop( int iGroup_ )
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 			if( NULL != pEntry && iGroup_ == pEntry->m_iGroup )
 			{
 				if( INVALID_PARTICLE_SEQUENCE_HANDLE != pEntry->m_hSeq )
@@ -308,15 +308,15 @@ void CX2BaseUnitViewerUI::JuneViewerFxStop( int iGroup_ )
 		}
 	}
 
-	JuneViewerFxStopSounds( iGroup_ );
+	ViewerFxStopSounds( iGroup_ );
 }
 
 // 32959250( group ): group 5 = every sound; any other group stops and drops that group's sounds only
-void CX2BaseUnitViewerUI::JuneViewerFxStopSounds( int iGroup_ )
+void CX2BaseUnitViewerUI::ViewerFxStopSounds( int iGroup_ )
 {
 	for( size_t i = 0; i < m_vecJuneFxPlayingSound.size(); )
 	{
-		JuneViewerFxPlayingSound* pPlaying = m_vecJuneFxPlayingSound[i];
+		ViewerFxPlayingSound* pPlaying = m_vecJuneFxPlayingSound[i];
 		if( NULL == pPlaying || 5 == iGroup_ || iGroup_ == pPlaying->m_iGroup )
 		{
 			if( NULL != pPlaying )
@@ -336,7 +336,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxStopSounds( int iGroup_ )
 
 	for( size_t i = 0; i < m_vecJuneFxPendingSound.size(); )
 	{
-		JuneViewerFxSound* pPending = m_vecJuneFxPendingSound[i];
+		ViewerFxSound* pPending = m_vecJuneFxPendingSound[i];
 		if( NULL == pPending || 5 == iGroup_ || iGroup_ == pPending->m_iGroup )
 		{
 			delete pPending;
@@ -350,11 +350,11 @@ void CX2BaseUnitViewerUI::JuneViewerFxStopSounds( int iGroup_ )
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 // 329581c0 (effect completion C9f-2): true when a mesh entry (+0x194), then a particle entry (+0x1a4), has this set name (entry +0x10)
 // and a live own handle (+0x3c != -1 and 31c83970 / 31cefdd0 find it). Only the viewer's per-equip CEPE play asks (31fa8ce0 @31fa9bed).
-bool CX2BaseUnitViewerUI::JuneViewerFxIsPlaying( const std::wstring& wstrSetName_ )
+bool CX2BaseUnitViewerUI::ViewerFxIsPlaying( const std::wstring& wstrSetName_ )
 {
 	for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 	{
-		const JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+		const ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 		if( NULL != pEntry && wstrSetName_ == pEntry->m_wstrSetName && INVALID_MESH_INSTANCE_HANDLE != pEntry->m_hMesh
 			&& NULL != g_pData && NULL != g_pData->GetUIMajorXMeshPlayer()
 			&& NULL != g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEntry->m_hMesh ) )
@@ -363,7 +363,7 @@ bool CX2BaseUnitViewerUI::JuneViewerFxIsPlaying( const std::wstring& wstrSetName
 
 	for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 	{
-		const JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+		const ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 		if( NULL != pEntry && wstrSetName_ == pEntry->m_wstrSetName && INVALID_PARTICLE_SEQUENCE_HANDLE != pEntry->m_hSeq
 			&& NULL != g_pData && NULL != g_pData->GetUIMajorParticle()
 			&& NULL != g_pData->GetUIMajorParticle()->GetInstanceSequence( pEntry->m_hSeq ) )
@@ -376,7 +376,7 @@ bool CX2BaseUnitViewerUI::JuneViewerFxIsPlaying( const std::wstring& wstrSetName
 
 // 32957980: the create pass, the end of 329585f0. An entry with an effect, a skin and no handle is created once its
 // START_TIME is reached, at the bone plus POSITION_OFFSET, with the viewer as owner.
-void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
+void CX2BaseUnitViewerUI::ViewerFxCreatePass()
 {
 	if( NULL == g_pData )
 		return;
@@ -385,17 +385,17 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 	{
 		for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 			if( NULL == pEntry || NULL == pEntry->m_pEffectData || NULL == pEntry->m_pXSkinAnim.get()
 				|| INVALID_MESH_INSTANCE_HANDLE != pEntry->m_hMesh )
 				continue;
 
 			CX2EffectSet::EffectData* pEffectData = pEntry->m_pEffectData;
 			CKTDGXSkinAnim* pXSkinAnim = pEntry->m_pXSkinAnim.get();
-			if( false == JuneViewerFxIsSamef( pEffectData->m_fStartAnimTime, 0.f ) && pEffectData->m_fStartAnimTime > pXSkinAnim->GetNowAnimationTime() )
+			if( false == ViewerFxIsSamef( pEffectData->m_fStartAnimTime, 0.f ) && pEffectData->m_fStartAnimTime > pXSkinAnim->GetNowAnimationTime() )
 				continue;
 
-			const D3DXVECTOR3 vPos = JuneViewerFxFramePos( pXSkinAnim, pEffectData->m_PositionBoneName.c_str() ) + pEffectData->m_vPositionOffset;
+			const D3DXVECTOR3 vPos = ViewerFxFramePos( pXSkinAnim, pEffectData->m_PositionBoneName.c_str() ) + pEffectData->m_vPositionOffset;
 			CKTDGXMeshPlayer::CXMeshInstance* pMesh = g_pData->GetUIMajorXMeshPlayer()->CreateInstance( this, pEffectData->m_EffectName.c_str(),
 				vPos, GetMatrix().GetRotate(), GetMatrix().GetRotate() );
 			if( false == g_pData->GetUIMajorXMeshPlayer()->IsLiveInstance( pMesh ) )
@@ -424,7 +424,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 			{
 				for( size_t iMesh = 0; iMesh < m_vecJuneFxMesh.size(); ++iMesh )
 				{
-					JuneViewerFxEntry* pMeshEntry = m_vecJuneFxMesh[iMesh];
+					ViewerFxEntry* pMeshEntry = m_vecJuneFxMesh[iMesh];
 					if( NULL != pMeshEntry && pMeshEntry != pEntry && NULL != pMeshEntry->m_pEffectData && true == pMeshEntry->m_pEffectData->m_bBoneTraceTargetMesh
 						&& pMeshEntry->m_wstrSetName == pEntry->m_wstrSetName && INVALID_MESH_INSTANCE_HANDLE != pMeshEntry->m_hMesh
 						&& NULL != g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pMeshEntry->m_hMesh ) )
@@ -439,7 +439,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 			{
 				for( size_t iParticle = 0; iParticle < m_vecJuneFxParticle.size(); ++iParticle )
 				{
-					JuneViewerFxEntry* pParticleEntry = m_vecJuneFxParticle[iParticle];
+					ViewerFxEntry* pParticleEntry = m_vecJuneFxParticle[iParticle];
 					if( NULL != pParticleEntry && pParticleEntry->m_wstrSetName == pEntry->m_wstrSetName )
 						pParticleEntry->m_hTraceTargetMesh = pEntry->m_hMesh;
 				}
@@ -459,17 +459,17 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 			if( NULL == pEntry || NULL == pEntry->m_pEffectData || NULL == pEntry->m_pXSkinAnim.get()
 				|| INVALID_PARTICLE_SEQUENCE_HANDLE != pEntry->m_hSeq )
 				continue;
 
 			CX2EffectSet::EffectData* pEffectData = pEntry->m_pEffectData;
 			CKTDGXSkinAnim* pXSkinAnim = pEntry->m_pXSkinAnim.get();
-			if( false == JuneViewerFxIsSamef( pEffectData->m_fStartAnimTime, 0.f ) && pEffectData->m_fStartAnimTime > pXSkinAnim->GetNowAnimationTime() )
+			if( false == ViewerFxIsSamef( pEffectData->m_fStartAnimTime, 0.f ) && pEffectData->m_fStartAnimTime > pXSkinAnim->GetNowAnimationTime() )
 				continue;
 
-			const D3DXVECTOR3 vPos = JuneViewerFxFramePos( pXSkinAnim, pEffectData->m_PositionBoneName.c_str() ) + pEffectData->m_vPositionOffset;
+			const D3DXVECTOR3 vPos = ViewerFxFramePos( pXSkinAnim, pEffectData->m_PositionBoneName.c_str() ) + pEffectData->m_vPositionOffset;
 			CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = g_pData->GetUIMajorParticle()->CreateSequenceHandle( this,
 				pEffectData->m_EffectName.c_str(), vPos, -1.f, -1.f, -1, -1, -1.f, true );
 			CKTDGParticleSystem::CParticleEventSequence* pSeq = ( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq )
@@ -498,7 +498,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			if( false == IsManagedByDGManager() && NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() )
 			{
-				pSeq->SetJuneOutOfDGManager( true );	// June 3295809c; CreateNewParticle reads it for trace children
+				pSeq->SetOutOfDGManager( true );	// June 3295809c; CreateNewParticle reads it for trace children
 				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );
 			}
 #else SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
@@ -506,7 +506,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			if( true == pSeq->GetUseLand() )
-				pSeq->SetLandPosition( JuneViewerFxLandPosition( true, pXSkinAnim ).y );
+				pSeq->SetLandPosition( ViewerFxLandPosition( true, pXSkinAnim ).y );
 
 			// the particle's trace target: the first live mesh of the same set that is a BONE_TRACE_TARGET_MESH
 #ifdef MODIFY_EFFECT_SET_TRACE_BONE
@@ -514,7 +514,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 			{
 				for( size_t iMesh = 0; iMesh < m_vecJuneFxMesh.size(); ++iMesh )
 				{
-					JuneViewerFxEntry* pMeshEntry = m_vecJuneFxMesh[iMesh];
+					ViewerFxEntry* pMeshEntry = m_vecJuneFxMesh[iMesh];
 					if( NULL != pMeshEntry && NULL != pMeshEntry->m_pEffectData && true == pMeshEntry->m_pEffectData->m_bBoneTraceTargetMesh
 						&& pMeshEntry->m_wstrSetName == pEntry->m_wstrSetName && INVALID_MESH_INSTANCE_HANDLE != pMeshEntry->m_hMesh
 						&& NULL != g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pMeshEntry->m_hMesh ) )
@@ -537,7 +537,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 }
 
 // 329582b0: the sound pass, the end of 329585f0, only while a pending sound exists
-void CX2BaseUnitViewerUI::JuneViewerFxSoundPass()
+void CX2BaseUnitViewerUI::ViewerFxSoundPass()
 {
 	if( true == m_vecJuneFxPendingSound.empty() )
 		return;
@@ -560,7 +560,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxSoundPass()
 
 	for( int iSound = 0; iSound < static_cast<int>( m_vecJuneFxPendingSound.size() ); ++iSound )
 	{
-		JuneViewerFxSound* pPending = m_vecJuneFxPendingSound[iSound];
+		ViewerFxSound* pPending = m_vecJuneFxPendingSound[iSound];
 		if( NULL == pPending )
 			continue;
 		const CX2DamageEffect::SoundData& soundData = pPending->m_SoundData;
@@ -573,7 +573,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxSoundPass()
 			{
 				pSound->Play( false, true );
 				pPending->m_bPlayed = true;
-				JuneViewerFxPlayingSound* pPlaying = new JuneViewerFxPlayingSound;
+				ViewerFxPlayingSound* pPlaying = new ViewerFxPlayingSound;
 				pPlaying->m_pSound = pSound;
 				pPlaying->m_iGroup = pPending->m_iGroup;
 				m_vecJuneFxPlayingSound.push_back( pPlaying );
@@ -597,7 +597,7 @@ void CX2BaseUnitViewerUI::JuneViewerFxSoundPass()
 	// a sound that has stopped is stopped and closed
 	for( size_t i = 0; i < m_vecJuneFxPlayingSound.size(); )
 	{
-		JuneViewerFxPlayingSound* pPlaying = m_vecJuneFxPlayingSound[i];
+		ViewerFxPlayingSound* pPlaying = m_vecJuneFxPlayingSound[i];
 		if( NULL != pPlaying && NULL != pPlaying->m_pSound && false == pPlaying->m_pSound->IsPlaying() )
 		{
 			pPlaying->m_pSound->Stop();
@@ -625,7 +625,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	{
 		for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 			if( NULL == pEntry || NULL == pEntry->m_pEffectData || NULL == pEntry->m_pXSkinAnim.get() || INVALID_MESH_INSTANCE_HANDLE == pEntry->m_hMesh )
 				continue;
 			CKTDGXMeshPlayer::CXMeshInstance* pMesh = pMeshPlayer->GetMeshInstance( pEntry->m_hMesh );
@@ -640,7 +640,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			if( true == pEffectData->m_bTraceMatrix && ( true == bNoTarget || true == bOwnTarget ) )
 			{
 				// (a) the viewer skin's frame matrix; POSITION_OFFSET is added to the mesh's own position every frame
-				CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pXSkinAnim->GetCloneFrame( JuneViewerFxBoneName( pEffectData ) );
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pXSkinAnim->GetCloneFrame( ViewerFxBoneName( pEffectData ) );
 				if( NULL != pFrame )
 				{
 					pMesh->SetUseDXMatrix( pFrame->combineMatrix );
@@ -650,8 +650,8 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			else if( true == bNoTarget )
 			{
 				// (b) the bone's position plus POSITION_OFFSET; USE_LAND_POSITION moves it to Bip01_Footsteps
-				const WCHAR* pwszBone = ( true == pEffectData->m_bLandPosition ) ? L"Bip01_Footsteps" : JuneViewerFxBoneName( pEffectData );
-				pMesh->SetPos( JuneViewerFxFramePos( pXSkinAnim, pwszBone ) + pEffectData->m_vPositionOffset );
+				const WCHAR* pwszBone = ( true == pEffectData->m_bLandPosition ) ? L"Bip01_Footsteps" : ViewerFxBoneName( pEffectData );
+				pMesh->SetPos( ViewerFxFramePos( pXSkinAnim, pwszBone ) + pEffectData->m_vPositionOffset );
 			}
 			else
 			{
@@ -660,7 +660,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 				CKTDGXMeshPlayer::CXMeshInstance* pTarget = pMeshPlayer->GetMeshInstance( pEntry->m_hTraceTargetMesh );
 				if( NULL != pTarget && NULL != pTarget->GetXSkinAnim() )
 				{
-					const WCHAR* pwszBone = JuneViewerFxBoneName( pEffectData );
+					const WCHAR* pwszBone = ViewerFxBoneName( pEffectData );
 					CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
 					if( NULL != pFrame )
 					{
@@ -696,7 +696,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 			if( NULL == pEntry || NULL == pEntry->m_pEffectData || NULL == pEntry->m_pXSkinAnim.get() || INVALID_PARTICLE_SEQUENCE_HANDLE == pEntry->m_hSeq )
 				continue;
 			CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticleSystem->GetInstanceSequence( pEntry->m_hSeq );
@@ -714,7 +714,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			if( true == pEffectData->m_bTraceMatrix && ( true == bNoTarget || true == bTraceUserTargetForce ) )
 			{
 				// (a) the viewer skin's frame matrix; POSITION_OFFSET is added to the sequence's own position every frame
-				CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pXSkinAnim->GetCloneFrame( JuneViewerFxBoneName( pEffectData ) );
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pXSkinAnim->GetCloneFrame( ViewerFxBoneName( pEffectData ) );
 				if( NULL != pFrame )
 				{
 					pSeq->SetUseDXMatrix( pFrame->combineMatrix );
@@ -725,8 +725,8 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			{
 				// (b) the bone's position plus POSITION_OFFSET; USE_LAND_POSITION moves it to Bip01_Footsteps.
 				// June's EffectSet_SpaceMoonRabbit_motionFX special case is June-only and dead in March.
-				const WCHAR* pwszBone = ( true == pEffectData->m_bLandPosition ) ? L"Bip01_Footsteps" : JuneViewerFxBoneName( pEffectData );
-				pSeq->SetPosition( JuneViewerFxFramePos( pXSkinAnim, pwszBone ) + pEffectData->m_vPositionOffset, false, false );
+				const WCHAR* pwszBone = ( true == pEffectData->m_bLandPosition ) ? L"Bip01_Footsteps" : ViewerFxBoneName( pEffectData );
+				pSeq->SetPosition( ViewerFxFramePos( pXSkinAnim, pwszBone ) + pEffectData->m_vPositionOffset, false, false );
 			}
 			else if( NULL != pMeshPlayer )
 			{
@@ -734,7 +734,7 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 				CKTDGXMeshPlayer::CXMeshInstance* pTarget = pMeshPlayer->GetMeshInstance( pEntry->m_hTraceTargetMesh );
 				if( NULL != pTarget && NULL != pTarget->GetXSkinAnim() )
 				{
-					const WCHAR* pwszBone = JuneViewerFxBoneName( pEffectData );
+					const WCHAR* pwszBone = ViewerFxBoneName( pEffectData );
 					CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pTarget->GetXSkinAnim()->GetCloneFrame( pwszBone );
 					if( NULL != pFrame )
 					{
@@ -760,8 +760,8 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 			// the land height, refreshed while the viewer's land-dirty byte (+0x1d4) is set
 			if( true == bJuneFxLandDirty && true == pSeq->GetUseLand() )
 			{
-				const float fLandY = JuneViewerFxLandPosition( true, pXSkinAnim ).y;
-				if( false == JuneViewerFxIsSamef( pSeq->GetLandPosition(), fLandY ) )
+				const float fLandY = ViewerFxLandPosition( true, pXSkinAnim ).y;
+				if( false == ViewerFxIsSamef( pSeq->GetLandPosition(), fLandY ) )
 				{
 					pSeq->SetLandPosition( fLandY );
 					m_bJuneFxLandDirty = false;
@@ -770,8 +770,8 @@ HRESULT CX2BaseUnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		}
 	}
 
-	JuneViewerFxCreatePass();
-	JuneViewerFxSoundPass();
+	ViewerFxCreatePass();
+	ViewerFxSoundPass();
 	return S_OK;
 }
 
@@ -785,7 +785,7 @@ RENDER_HINT CX2BaseUnitViewerUI::OnFrameRender_Prepare()
 		{
 			for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 			{
-				JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+				ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 				if( NULL == pEntry || INVALID_MESH_INSTANCE_HANDLE == pEntry->m_hMesh )
 					continue;
 				if( CKTDGXMeshPlayer::CXMeshInstance* pMesh = g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEntry->m_hMesh ) )
@@ -796,7 +796,7 @@ RENDER_HINT CX2BaseUnitViewerUI::OnFrameRender_Prepare()
 		{
 			for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 			{
-				JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+				ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 				if( NULL == pEntry || INVALID_PARTICLE_SEQUENCE_HANDLE == pEntry->m_hSeq )
 					continue;
 				if( CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( pEntry->m_hSeq ) )
@@ -824,7 +824,7 @@ void CX2BaseUnitViewerUI::OnFrameRender_Draw()
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 			if( NULL == pEntry || INVALID_PARTICLE_SEQUENCE_HANDLE == pEntry->m_hSeq )
 				continue;
 			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( pEntry->m_hSeq );
@@ -849,7 +849,7 @@ void CX2BaseUnitViewerUI::NotifyShowObjectChanged()
 	{
 		for( size_t i = 0; i < m_vecJuneFxMesh.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxMesh[i];
 			if( NULL == pEntry || INVALID_MESH_INSTANCE_HANDLE == pEntry->m_hMesh )
 				continue;
 			if( CKTDGXMeshPlayer::CXMeshInstance* pMesh = g_pData->GetUIMajorXMeshPlayer()->GetMeshInstance( pEntry->m_hMesh ) )
@@ -860,7 +860,7 @@ void CX2BaseUnitViewerUI::NotifyShowObjectChanged()
 	{
 		for( size_t i = 0; i < m_vecJuneFxParticle.size(); ++i )
 		{
-			JuneViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
+			ViewerFxEntry* pEntry = m_vecJuneFxParticle[i];
 			if( NULL == pEntry || INVALID_PARTICLE_SEQUENCE_HANDLE == pEntry->m_hSeq )
 				continue;
 			if( CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( pEntry->m_hSeq ) )

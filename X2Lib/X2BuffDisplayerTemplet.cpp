@@ -12,7 +12,7 @@
 /// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
 /// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_DISPLAYER_TEMPLET( class_, type_ ) \
@@ -94,7 +94,7 @@ case type_: \
 #endif // EXCEPTION_BUFF_FACTOR
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BDT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BDT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Displayer Templet Type" );	/// false ¸®ÅÏ
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -145,7 +145,7 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 /// CX2GameUnit::ApplyRenderParam (June 32275140) overrides only those. A missing key keeps the
 /// Initializer() value, so the value members read as before. FLICKER_COLOR_GAP is a plain value,
 /// read only by BDT_RENDER_PARAM, 0 when missing, as in March.
-/*static*/ void CX2BuffRenderParamDisplayerTemplet::JuneParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ )
+/*static*/ void CX2BuffRenderParamDisplayerTemplet::ParsingBuffRenderParam( KLuaManager& luaManager_, BuffRenderParam& stBuffRenderParam_, const bool bReadFlickerColorGap_ )
 {
 	int iRenderType = 0;
 	if ( luaManager_.GetValue( "RENDER_TYPE", iRenderType ) )
@@ -209,7 +209,7 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// June 32eb7d50: only the keys the script has are stored (see JuneParsingBuffRenderParam).
-	JuneParsingBuffRenderParam( luaManager_, m_stBuffRenderParam, true );
+	ParsingBuffRenderParam( luaManager_, m_stBuffRenderParam, true );
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	LUA_GET_VALUE_ENUM( luaManager_, "RENDER_TYPE", m_stBuffRenderParam.m_eRenderType, CKTDGXRenderer::RENDER_TYPE, CKTDGXRenderer::RT_REAL_COLOR );
 	LUA_GET_VALUE_ENUM( luaManager_, "CARTOON_TEX_TYPE", m_stBuffRenderParam.m_eCartoonTexType, CKTDGXRenderer::CARTOON_TEX_TYPE, CKTDGXRenderer::CTT_NORMAL );
@@ -295,7 +295,7 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			/// June 32ebad40: the same six keys, each stored only when present; no FLICKER_COLOR_GAP
 			/// (neither June nor March reads it here).
-			CX2BuffRenderParamDisplayerTemplet::JuneParsingBuffRenderParam( luaManager_, *ptrStBuffRenderParam, false );
+			CX2BuffRenderParamDisplayerTemplet::ParsingBuffRenderParam( luaManager_, *ptrStBuffRenderParam, false );
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 			LUA_GET_VALUE_ENUM( luaManager_, "RENDER_TYPE", ptrStBuffRenderParam->m_eRenderType, CKTDGXRenderer::RENDER_TYPE, CKTDGXRenderer::RT_REAL_COLOR );
 			LUA_GET_VALUE_ENUM( luaManager_, "CARTOON_TEX_TYPE", ptrStBuffRenderParam->m_eCartoonTexType, CKTDGXRenderer::CARTOON_TEX_TYPE, CKTDGXRenderer::CTT_NORMAL );

@@ -298,7 +298,7 @@ CX2BattleFieldGame::CX2BattleFieldGame()
 	m_pWorld = g_pData->GetWorldManager()->CreateWorld( static_cast<CX2World::WORLD_ID>( uiWorldId ), NULL, true );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	// Atlas E7: June 32d52fa0 @32d52ff7: 32803f60( +0x39c, +0x3a0, world, 0, 0, 1 ) (no clear first)
-	g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );
+	g_pData->GetWorldManager()->CreateAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	CreatePotalParticle();
@@ -513,7 +513,7 @@ void CX2BattleFieldGame::SwapWorld()
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		CX2World* pNewWorld = g_pData->GetWorldManager()->CreateWorld( static_cast<CX2World::WORLD_ID>( uiWorldId ), NULL, true );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );	// June @32d54b30
+		g_pData->GetWorldManager()->CreateAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );	// June @32d54b30
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		std::swap( m_pWorld, pNewWorld );
@@ -1154,12 +1154,12 @@ bool CX2BattleFieldGame::Handler_EGS_JOIN_BATTLE_FIELD_NOT( KEGS_JOIN_ROOM_NOT& 
 	if( true == CX2Game::UpdateUnitPointer() )
 		return true;
 
-	JuneUpdateUnitPointerNPCWalk();
+	UpdateUnitPointerNPCWalk();
 	return true;
 }
 
 /// March's NPC focus walk, unchanged; the guard and the base call it started with are made by UpdateUnitPointer() above.
-void CX2BattleFieldGame::JuneUpdateUnitPointerNPCWalk()
+void CX2BattleFieldGame::UpdateUnitPointerNPCWalk()
 #else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2BattleFieldGame::UpdateUnitPointer()
 #endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT

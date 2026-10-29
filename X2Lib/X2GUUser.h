@@ -3071,10 +3071,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June 31fdbbb0's result is a CX2SkillNoteManager memo row (S3b): +0 the type (MEMO_ID), +0xc / +0x10 the value vector.
-		typedef SSkillMemoTemplet JuneSkillMemoEntry;
+		typedef SSkillMemoTemplet SkillMemoEntry;
 		/// June 31fdbbb0 (user, thiscall, one arg: APPLIED_SKILL_ID): the first of the class's memo rows for the skill that this unit's
 		/// tree has active, or null.
-		const JuneSkillMemoEntry*	GetSkillMemoEntry( const int iAppliedSkillID_ ) const;
+		const SkillMemoEntry*	GetSkillMemoEntry( const int iAppliedSkillID_ ) const;
 		/// June 31fdbcc0 (user, thiscall, one arg: a skill id): the skill an active MI_TRANSCENDENCE_1 / _2 memo turns it into (value 1 when
 		/// the equipped version is upgraded, else value 0, truncated), or 0. CommonStateStart (32058444) and class code call it.
 		int							GetTranscendenceMemoSkillID( const int iSkillID_ ) const;
@@ -3085,14 +3085,14 @@ public:
 #else SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June effect completion C8b: one skill-memo entry, June 31fdbbb0's result: +0 the type, +0xc / +0x10 a float vector (the
 		/// entry's values v0, v1, v2; a value past the end of the vector reads 0 in 3202ac40 @3202ac6c-3202aca9).
-		struct JuneSkillMemoEntry
+		struct SkillMemoEntry
 		{
 			int					m_iType;
 			std::vector<float>	m_vecValue;
 		};
 		/// June 31fdbbb0 (user, thiscall, one arg: APPLIED_SKILL_ID): the user's skill-memo entry for that skill, or null. March has no
 		/// skill-memo system, so this is a plan-rule-5 stub: it returns null and logs "JUNE_FX unsupported skill memo" once.
-		const JuneSkillMemoEntry*	GetSkillMemoEntry( const int iAppliedSkillID_ ) const;
+		const SkillMemoEntry*	GetSkillMemoEntry( const int iAppliedSkillID_ ) const;
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June CX2GUUser vslot 0x758 (3202ac40): the skill-memo DamageData switch. Called on the attacker by the user layer of
 		/// SetDamageExceptionProcess, and by the NPC override on the NPC's owner.
@@ -3545,12 +3545,12 @@ public:
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		/// C3e-4: one per-attacker hit-stop entry ( June: 16 bytes, float + 4-byte pad + __int64 )
-		struct JuneHitStopEntry
+		struct HitStopEntry
 		{
 			float		fTime;
 			UidType		attackerUID;	/// the attacker's unit UID when it is a GUT_USER, else -1
 		};
-		void TickHitStopList( std::vector< JuneHitStopEntry >& vecList, float& fStopTime, float fElapsedTime );	/// June 3206eaf0 @3206fa63-3206fd3c, once per list
+		void TickHitStopList( std::vector< HitStopEntry >& vecList, float& fStopTime, float fElapsedTime );	/// June 3206eaf0 @3206fa63-3206fd3c, once per list
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		
 		void						ProcessAcceleraterBuff( CX2SkillTree::SKILL_ID eSkillID, bool bHyperMode );	/// ¿¢¼¿·¹ÀÌÅÍ·ù ¹öÇÁ ½ÃÀü
@@ -3735,7 +3735,7 @@ public:
 		virtual	bool				IsSuperArmor() const;
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		/// June Enum.lua SUPER_ARMOR_CONDITION: the values a state's SUPER_ARMOR_CONDITION list may hold
-		enum JUNE_SUPER_ARMOR_CONDITION
+		enum SUPER_ARMOR_CONDITION
 		{
 			SAC_FRONT = 0,			/// armour only against a hit from the front
 			SAC_NORMAL_ATTACK,		/// armour not against AT_SPECIAL
@@ -4550,7 +4550,7 @@ public:
 #endif
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		D3DXVECTOR3										m_vJuneLastFramePos;	// June CX2GUUser +0x94d4: GetPos() at the end of the last CommonFrameMove (ctor 0)
-		bool											CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord );	// 31fd8140
+		bool											CheckEquipEffectSetCondition( const CX2ItemManager::ConditionEquipPlayEffectSet& kRecord );	// 31fd8140
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 		bool											m_bSocketSuperArmor;
@@ -4613,8 +4613,8 @@ public:
 		bool							m_bJuneCommonRandomByChat;		/// C3e-2: June +0x8abc, cleared by the roll, set by the setter's chat caller
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
-		std::vector< JuneHitStopEntry >	m_vecJuneHitStop;			/// C3e-4: June +0x85a4, SetStopTime's list ( ticked into Future fStopTime )
-		std::vector< JuneHitStopEntry >	m_vecJuneHitStop2;			/// C3e-4: June +0x85b4, SetStop2Time's list ( ticked into Future fStop2Time )
+		std::vector< HitStopEntry >	m_vecJuneHitStop;			/// C3e-4: June +0x85a4, SetStopTime's list ( ticked into Future fStopTime )
+		std::vector< HitStopEntry >	m_vecJuneHitStop2;			/// C3e-4: June +0x85b4, SetStop2Time's list ( ticked into Future fStop2Time )
 		KProtectedType<bool>			m_bJuneTimeStopImmuneState;	/// C3e-4: June +0x7dc4, the state key TIME_STOP_IMMUNE_STATE ( CommonStateStart 32057b80 @32060990-32060b96 )
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 

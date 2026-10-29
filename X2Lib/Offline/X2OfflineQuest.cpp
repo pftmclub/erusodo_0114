@@ -1076,7 +1076,7 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 }
 
 /// Local midnight of tDay's date plus iAddDays days, or of the 1st of the next month when bNextMonth.
-static __time64_t JuneQuestLocalMidnight( __time64_t tDay, int iAddDays, bool bNextMonth )
+static __time64_t QuestLocalMidnight( __time64_t tDay, int iAddDays, bool bNextMonth )
 {
 	struct tm kTm;
 	if( 0 != ::_localtime64_s( &kTm, &tDay ) )
@@ -1100,7 +1100,7 @@ static __time64_t JuneQuestLocalMidnight( __time64_t tDay, int iAddDays, bool bN
 	return ::_mktime64( &kTm );
 }
 
-int CX2OfflineQuest::CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const
+int CX2OfflineQuest::CheckRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const
 {
 	if( NULL == pTemplet )
 		return NetError::NET_OK;
@@ -1131,12 +1131,12 @@ int CX2OfflineQuest::CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemp
 				const int iDow	= kDone.tm_wday + 1;
 				const int iDays	= ( iDow > 3 ) ? ( 11 - iDow ) : ( 4 - iDow );
 
-				tExpiry = JuneQuestLocalMidnight( tDone, iDays, false );
+				tExpiry = QuestLocalMidnight( tDone, iDays, false );
 			}
 			else
 			{
 				// June 32321d10: the 1st of the next month, 00:00 ( its "the 1st, hour < 0" branch is dead the same way ).
-				tExpiry = JuneQuestLocalMidnight( tDone, 0, true );
+				tExpiry = QuestLocalMidnight( tDone, 0, true );
 			}
 
 			if( tExpiry > tNow )
@@ -1178,7 +1178,7 @@ int CX2OfflineQuest::CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemp
 
 			if( 0 < tLast )
 			{
-				const __time64_t tAvail = JuneQuestLocalMidnight( (__time64_t)tLast, mitChain->second.m_iAllowFewDays, false );
+				const __time64_t tAvail = QuestLocalMidnight( (__time64_t)tLast, mitChain->second.m_iAllowFewDays, false );
 
 				if( tAvail > tNow )
 				{
@@ -1429,7 +1429,7 @@ int CX2OfflineQuest::Accept( int iQuestID, int iTalkNPCID, const KOfflineUnitRow
 	// Quest Q4: June's weekly / monthly expiry and the chain-day rule. The March server has neither; June's client applies
 	// them in SetUnitQuest / IsChainQuestAvailable, so the emulator refuses the accept the client would not offer.
 	{
-		const int iJune = CheckJuneRepeat( pTemplet, bQuiet );
+		const int iJune = CheckRepeat( pTemplet, bQuiet );
 		if( NetError::NET_OK != iJune )
 			return iJune;
 	}

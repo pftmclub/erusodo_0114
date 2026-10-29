@@ -18,7 +18,7 @@ namespace
 
 	/// the June Lua getters ( FUN_32fea370 / FUN_32fe9fd0 / FUN_32fe9e40 / FUN_32feae90 / FUN_31c7e850 ) read a key of the table argument and
 	/// leave the default untouched when the key is missing
-	bool JuneGetFloat( lua_State* L, int iTable, const char* pKey, float& fOut )
+	bool GetTableFloat( lua_State* L, int iTable, const char* pKey, float& fOut )
 	{
 		lua_getfield( L, iTable, pKey );
 		const bool bOk = ( 0 != lua_isnumber( L, -1 ) );
@@ -28,7 +28,7 @@ namespace
 		return bOk;
 	}
 
-	bool JuneGetInt( lua_State* L, int iTable, const char* pKey, int& iOut )
+	bool GetTableInt( lua_State* L, int iTable, const char* pKey, int& iOut )
 	{
 		lua_getfield( L, iTable, pKey );
 		const bool bOk = ( 0 != lua_isnumber( L, -1 ) );
@@ -41,7 +41,7 @@ namespace
 	/// June 32fe9e40 ( KLuaManager::GetValue( bool ) ): numbers only ( lua_isnumber 32fe4d70 ), value = ftol ( 32fe25f0, truncation ) != 0.
 	/// A Lua boolean true / false is not a number, so the key counts as missing and the default stays ( scripts use the numeric TRUE / FALSE ).
 	/// R3 review: the port first also took booleans and compared the double with 0.0; corrected to June.
-	bool JuneGetBool( lua_State* L, int iTable, const char* pKey, bool& bOut )
+	bool GetTableBool( lua_State* L, int iTable, const char* pKey, bool& bOut )
 	{
 		lua_getfield( L, iTable, pKey );
 		const bool bOk = ( 0 != lua_isnumber( L, -1 ) );
@@ -51,7 +51,7 @@ namespace
 		return bOk;
 	}
 
-	bool JuneGetString( lua_State* L, int iTable, const char* pKey, wstring& wstrOut )
+	bool GetTableString( lua_State* L, int iTable, const char* pKey, wstring& wstrOut )
 	{
 		lua_getfield( L, iTable, pKey );
 		const bool bOk = ( 0 != lua_isstring( L, -1 ) );
@@ -61,7 +61,7 @@ namespace
 		return bOk;
 	}
 
-	bool JuneGetVec3( lua_State* L, int iTable, const char* pKey, D3DXVECTOR3& vOut )
+	bool GetTableVec3( lua_State* L, int iTable, const char* pKey, D3DXVECTOR3& vOut )
 	{
 		lua_getfield( L, iTable, pKey );
 		const bool bOk = ( 0 != lua_isuserdata( L, -1 ) );
@@ -71,7 +71,7 @@ namespace
 		return bOk;
 	}
 
-	std::string JuneWideToAnsi( const wstring& wstr )
+	std::string WideToAnsi( const wstring& wstr )
 	{
 		std::string str;
 		if( wstr.empty() )
@@ -86,7 +86,7 @@ namespace
 	}
 
 	/// June 31d08f90: the std::sort predicate of LoadScript's box list
-	bool JuneBoxLess( const CKTDGEnvBoxMap::EnvBox* pLeft, const CKTDGEnvBoxMap::EnvBox* pRight )
+	bool BoxLess( const CKTDGEnvBoxMap::EnvBox* pLeft, const CKTDGEnvBoxMap::EnvBox* pRight )
 	{
 		if( pLeft->m_fPriority < pRight->m_fPriority )
 			return true;
@@ -174,7 +174,7 @@ CKTDGEnvBoxMap::~CKTDGEnvBoxMap( void )
 		{
 			if( NULL != m_apBlendedLut[i] )
 			{
-				g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_apBlendedLut[i] );
+				g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_apBlendedLut[i] );
 				m_apBlendedLut[i] = NULL;
 			}
 		}
@@ -182,7 +182,7 @@ CKTDGEnvBoxMap::~CKTDGEnvBoxMap( void )
 
 	ClearRendererLut();
 	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetXRenderer() )
-		g_pKTDXApp->GetDGManager()->GetXRenderer()->JuneSetEnvBoxRim( false, D3DXVECTOR3( 0.f, 0.f, 0.f ), 0.f, 0.f, 0.f, true );	/// +0x64 only, the colour members keep their values
+		g_pKTDXApp->GetDGManager()->GetXRenderer()->SetEnvBoxRim( false, D3DXVECTOR3( 0.f, 0.f, 0.f ), 0.f, 0.f, 0.f, true );	/// +0x64 only, the colour members keep their values
 
 	SAFE_RELEASE( m_pVB );
 }
@@ -190,7 +190,7 @@ CKTDGEnvBoxMap::~CKTDGEnvBoxMap( void )
 void CKTDGEnvBoxMap::ClearRendererLut()
 {
 	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetXRenderer() )
-		g_pKTDXApp->GetDGManager()->GetXRenderer()->JuneSetEnvBoxLut( false, NULL, NULL );		/// +0x5c = +0x60 = 0, +0x59 = 0
+		g_pKTDXApp->GetDGManager()->GetXRenderer()->SetEnvBoxLut( false, NULL, NULL );		/// +0x5c = +0x60 = 0, +0x59 = 0
 }
 
 void CKTDGEnvBoxMap::CloseLutTextures()
@@ -202,7 +202,7 @@ void CKTDGEnvBoxMap::CloseLutTextures()
 	{
 		if( NULL != m_vecLut[i] && NULL != m_vecLut[i]->m_pTexture )
 		{
-			g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_vecLut[i]->m_pTexture );
+			g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_vecLut[i]->m_pTexture );
 			m_vecLut[i]->m_pTexture = NULL;
 		}
 	}
@@ -330,9 +330,9 @@ bool CKTDGEnvBoxMap::LoadScript( const wstring& wstrFileName )
 	}
 
 	OnResetDevice();
-	std::sort( m_vecBox.begin(), m_vecBox.end(), JuneBoxLess );		/// June 31d0cecd
+	std::sort( m_vecBox.begin(), m_vecBox.end(), BoxLess );		/// June 31d0cecd
 
-	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] ENVBOX map loaded: script '" << JuneWideToAnsi( wstrFileName ).c_str() << "', " << (int) m_vecBox.size() << " box(es), "
+	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] ENVBOX map loaded: script '" << WideToAnsi( wstrFileName ).c_str() << "', " << (int) m_vecBox.size() << " box(es), "
 		<< (int) m_vecLut.size() << " LUT(s)" << fileout;
 	return true;
 }
@@ -366,35 +366,35 @@ bool CKTDGEnvBoxMap::AddEnvBox_LUA()
 
 	EnvBox* pBox = new EnvBox();
 
-	if( false == JuneGetString( L, iTable, "BOX_NAME", pBox->m_wstrName ) )
+	if( false == GetTableString( L, iTable, "BOX_NAME", pBox->m_wstrName ) )
 		pBox->m_wstrName = L"EnvBox";
-	if( false == JuneGetVec3( L, iTable, "BOX_POSITION", pBox->m_vPos ) )
+	if( false == GetTableVec3( L, iTable, "BOX_POSITION", pBox->m_vPos ) )
 		pBox->m_vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
-	if( false == JuneGetVec3( L, iTable, "BOX_ROTATION", pBox->m_vRot ) )
+	if( false == GetTableVec3( L, iTable, "BOX_ROTATION", pBox->m_vRot ) )
 		pBox->m_vRot = D3DXVECTOR3( 0.f, 0.f, 0.f );
-	if( false == JuneGetVec3( L, iTable, "BOX_SCALE", pBox->m_vScale ) )
+	if( false == GetTableVec3( L, iTable, "BOX_SCALE", pBox->m_vScale ) )
 		pBox->m_vScale = D3DXVECTOR3( 0.f, 0.f, 0.f );		/// June 31d0baee: a missing key zeroes the scale ( the ctor default is not kept )
 
 	int iLutNum = -1;
-	if( false == JuneGetInt( L, iTable, "LUT_NUM", iLutNum ) )
+	if( false == GetTableInt( L, iTable, "LUT_NUM", iLutNum ) )
 		iLutNum = -1;
-	if( false == JuneGetFloat( L, iTable, "BLEND_LENGTH", pBox->m_fBlendLength ) )
+	if( false == GetTableFloat( L, iTable, "BLEND_LENGTH", pBox->m_fBlendLength ) )
 		pBox->m_fBlendLength = JUNE_ENVBOX_DEFAULT_LENGTH;
-	if( false == JuneGetFloat( L, iTable, "BLEND_WEIGHT", pBox->m_fBlendWeight ) )
+	if( false == GetTableFloat( L, iTable, "BLEND_WEIGHT", pBox->m_fBlendWeight ) )
 		pBox->m_fBlendWeight = 1.0f;
-	if( false == JuneGetFloat( L, iTable, "PRIORITY", pBox->m_fPriority ) )
+	if( false == GetTableFloat( L, iTable, "PRIORITY", pBox->m_fPriority ) )
 		pBox->m_fPriority = 0.f;
-	if( false == JuneGetBool( L, iTable, "BOX_ENABLED", pBox->m_bEnabled ) )
+	if( false == GetTableBool( L, iTable, "BOX_ENABLED", pBox->m_bEnabled ) )
 		pBox->m_bEnabled = true;
-	if( false == JuneGetBool( L, iTable, "RIM_LIGHT_ENABLED", pBox->m_bRimEnabled ) )
+	if( false == GetTableBool( L, iTable, "RIM_LIGHT_ENABLED", pBox->m_bRimEnabled ) )
 		pBox->m_bRimEnabled = false;
-	if( false == JuneGetVec3( L, iTable, "RIM_LIGHT_COLOR", pBox->m_vRimColor ) )
+	if( false == GetTableVec3( L, iTable, "RIM_LIGHT_COLOR", pBox->m_vRimColor ) )
 		pBox->m_vRimColor = D3DXVECTOR3( 1.f, 1.f, 1.f );
-	if( false == JuneGetFloat( L, iTable, "RIM_LIGHT_WIDE", pBox->m_fRimWide ) )
+	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_WIDE", pBox->m_fRimWide ) )
 		pBox->m_fRimWide = JUNE_ENVBOX_DEFAULT_WIDE;
-	if( false == JuneGetFloat( L, iTable, "RIM_LIGHT_POWER", pBox->m_fRimPower ) )
+	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_POWER", pBox->m_fRimPower ) )
 		pBox->m_fRimPower = 1.0f;
-	if( false == JuneGetFloat( L, iTable, "RIM_LIGHT_FORCED", pBox->m_fRimForced ) )
+	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_FORCED", pBox->m_fRimForced ) )
 		pBox->m_fRimForced = 1.0f;
 
 	if( iLutNum >= 0 && iLutNum < (int) m_vecLut.size() )
@@ -569,7 +569,7 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 	const int iNumLut = (int) vecLutIndex.size();
 	if( NULL == m_apBlendedLut[0] || NULL == m_apBlendedLut[1] || iNumLut < 1 )
 	{
-		pRenderer->JuneSetEnvBoxLut( false, NULL, NULL );
+		pRenderer->SetEnvBoxLut( false, NULL, NULL );
 	}
 	else
 	{
@@ -623,11 +623,11 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 				iDone += iChunk;
 			}
 
-			pRenderer->JuneSetEnvBoxLut( true, NULL, m_apBlendedLut[iTarget] );
+			pRenderer->SetEnvBoxLut( true, NULL, m_apBlendedLut[iTarget] );
 		}
 		else
 		{
-			pRenderer->JuneSetEnvBoxLut( true, m_vecBox[ vecLutIndex[0] ]->m_pLut->m_pTexture, NULL );
+			pRenderer->SetEnvBoxLut( true, m_vecBox[ vecLutIndex[0] ]->m_pLut->m_pTexture, NULL );
 		}
 	}
 
@@ -648,7 +648,7 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 	const int iNumRim = (int) vecRimIndex.size();
 	if( iNumRim < 1 )
 	{
-		pRenderer->JuneSetEnvBoxRim( false, D3DXVECTOR3( 0.f, 0.f, 0.f ), 0.f, 0.f, 0.f, true );
+		pRenderer->SetEnvBoxRim( false, D3DXVECTOR3( 0.f, 0.f, 0.f ), 0.f, 0.f, 0.f, true );
 	}
 	else
 	{
@@ -676,7 +676,7 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 			m_fRimPower = pFirst->m_fRimPower;
 		}
 
-		pRenderer->JuneSetEnvBoxRim( true, m_vRimColor, m_fRimPower, m_fRimWide, m_fRimForced, false );
+		pRenderer->SetEnvBoxRim( true, m_vRimColor, m_fRimPower, m_fRimWide, m_fRimForced, false );
 	}
 }
 

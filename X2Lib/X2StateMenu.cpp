@@ -154,7 +154,7 @@ m_TotalLevel(0)
 			pRestButton->SetShowEnable( false, false );
 	}
 #ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-	JuneUpdateMenuString();
+	UpdateMenuString();
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_GAUGES
 }
@@ -1939,7 +1939,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 			/// June CX2StateMenu::UICustomEventProc 32476050 case 0xa5: +0x31c = 1, then pushes 0x42f9d ( 274333, Extended Quick Slot ) into the
 			/// cash shop's open-at-item list ( +0x338, push_back inlined @32478410 ) before ToggleCashShop @3247841f; unconditional in June
-			g_pData->GetCashShop()->JunePushOpenAtItemID( 274333 );
+			g_pData->GetCashShop()->PushOpenAtItemID( 274333 );
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 			ToggleCashShop();
 			return true;
@@ -1985,7 +1985,7 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				return true;
 			}
 			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( 0x32 );
-			g_pData->GetCashShop()->JunePushOpenAtItemID( true == bJuneSlotA ? 288319 : 288318 );
+			g_pData->GetCashShop()->PushOpenAtItemID( true == bJuneSlotA ? 288319 : 288318 );
 			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT click on a locked %s TC slot: shop opens on item %d", true == bJuneSlotA ? L"A" : L"B", true == bJuneSlotA ? 288319 : 288318 );
 			ToggleCashShop();
 			return true;
@@ -3308,7 +3308,7 @@ bool CX2StateMenu::InitUI()
 {
 	m_pDLGMenu = g_pMain->GetMemoryHolder()->GetMenuDLG( this );
 #ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-	JunePlaceMenuBadges();
+	PlaceMenuBadges();
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	m_vecpButtonMainMenu.clear();
 	UpdateMenuPosistion();
@@ -5361,7 +5361,7 @@ bool CX2StateMenu::CameraZoomInAndOutKeyProcess()
 
 #ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 // June 3245bb70 vector order, slot 0 is the leftmost button
-enum JUNE_MENU_SLOT
+enum MENU_SLOT
 {
 	JMS_WARP = 0,
 	JMS_GUIDE,
@@ -5387,26 +5387,26 @@ static const WCHAR* const s_awszJuneMenuSlot[JMS_COUNT] =
 	L"Quest", L"Guild", L"Comm", L"System", L"Cash", L"FriendRecommed", L"Event",
 };
 
-static void JuneSetMenuOffset( CKTDGUIControl* pControl_, const D3DXVECTOR2& vOffset_ )
+static void SetMenuOffset( CKTDGUIControl* pControl_, const D3DXVECTOR2& vOffset_ )
 {
 	if( NULL != pControl_ )
 		pControl_->SetOffsetPos( vOffset_ );
 }
 
-static void JuneSetMenuShowEnable( CKTDGUIButton* pButton_, bool bShowEnable_ )
+static void SetMenuShowEnable( CKTDGUIButton* pButton_, bool bShowEnable_ )
 {
 	if( NULL != pButton_ )
 		pButton_->SetShowEnable( bShowEnable_, bShowEnable_ );
 }
 
-static void JuneRemoveMenuSlot( float* pfSlotOffset_, int iSlot_ )
+static void RemoveMenuSlot( float* pfSlotOffset_, int iSlot_ )
 {
 	// June 3245a980: 32, while the dialog spaces the slots 30 apart
 	for( int i = 0; i <= iSlot_; ++i )
 		pfSlotOffset_[i] += 32.0f;
 }
 
-static bool JuneGetMenuButtonPos( CKTDGUIDialogType pDialog_, const WCHAR* wszButton_, D3DXVECTOR2& vPos_ )
+static bool GetMenuButtonPos( CKTDGUIDialogType pDialog_, const WCHAR* wszButton_, D3DXVECTOR2& vPos_ )
 {
 	CKTDGUIButton* pButton = static_cast<CKTDGUIButton*>( pDialog_->GetControl( wszButton_ ) );
 	if( NULL == pButton || NULL == pButton->GetNormalPoint() )
@@ -5416,14 +5416,14 @@ static bool JuneGetMenuButtonPos( CKTDGUIDialogType pDialog_, const WCHAR* wszBu
 	return true;
 }
 
-static void JunePlaceMenuPicture( CKTDGUIDialogType pDialog_, const WCHAR* wszStatic_, const D3DXVECTOR2& vPos_ )
+static void PlaceMenuPicture( CKTDGUIDialogType pDialog_, const WCHAR* wszStatic_, const D3DXVECTOR2& vPos_ )
 {
 	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( wszStatic_ ) );
 	if( NULL != pStatic && NULL != pStatic->GetPicture( 0 ) )
 		pStatic->GetPicture( 0 )->SetPos( vPos_ );
 }
 
-void CX2StateMenu::JunePlaceMenuBadges()
+void CX2StateMenu::PlaceMenuBadges()
 {
 	if( NULL == m_pDLGMenu )
 		return;
@@ -5433,41 +5433,41 @@ void CX2StateMenu::JunePlaceMenuBadges()
 	const D3DXVECTOR2 vInformer( 7.0f, -10.0f );
 	D3DXVECTOR2 vPos;
 
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Pet", vPos ) )
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Pet", vPos ) )
 	{
-		JunePlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_Evolution", vPos + vNewBadge );
-		JunePlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_New", vPos + vNewBadge );
+		PlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_Evolution", vPos + vNewBadge );
+		PlaceMenuPicture( m_pDLGMenu, L"Pat_Inventory_New", vPos + vNewBadge );
 	}
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Inven", vPos ) )
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Inven", vPos ) )
 	{
-		JunePlaceMenuPicture( m_pDLGMenu, L"Inventory_New", vPos + vNewBadge );
+		PlaceMenuPicture( m_pDLGMenu, L"Inventory_New", vPos + vNewBadge );
 		if( NULL != pInformerManager )
 			pInformerManager->GetInvenInformer()->SetTalkBoxPos( vPos + vInformer );
 	}
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Skill", vPos ) )
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Skill", vPos ) )
 	{
-		JunePlaceMenuPicture( m_pDLGMenu, L"Skill_New", vPos + vNewBadge );
+		PlaceMenuPicture( m_pDLGMenu, L"Skill_New", vPos + vNewBadge );
 		if( NULL != pInformerManager )
 			pInformerManager->GetSkillInformer()->SetTalkBoxPos( vPos + vInformer );
 	}
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Quest", vPos ) )
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Quest", vPos ) )
 	{
-		JunePlaceMenuPicture( m_pDLGMenu, L"Quest_New", vPos + vNewBadge );
+		PlaceMenuPicture( m_pDLGMenu, L"Quest_New", vPos + vNewBadge );
 		if( NULL != pInformerManager )
 			pInformerManager->GetQuestInformer()->SetTalkBoxPos( vPos + vInformer );
 	}
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Guild", vPos ) )
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Guild", vPos ) )
 	{
 		if( NULL != pInformerManager )
 			pInformerManager->GetGuildInformer()->SetTalkBoxPos( vPos + vInformer );
 	}
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"Warp", vPos ) )
-		JunePlaceMenuPicture( m_pDLGMenu, L"Warp_VIP", vPos + D3DXVECTOR2( 0.0f, -12.0f ) );
-	if( true == JuneGetMenuButtonPos( m_pDLGMenu, L"StoryBook", vPos ) )
-		JunePlaceMenuPicture( m_pDLGMenu, L"Story_New", vPos + vNewBadge );
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"Warp", vPos ) )
+		PlaceMenuPicture( m_pDLGMenu, L"Warp_VIP", vPos + D3DXVECTOR2( 0.0f, -12.0f ) );
+	if( true == GetMenuButtonPos( m_pDLGMenu, L"StoryBook", vPos ) )
+		PlaceMenuPicture( m_pDLGMenu, L"Story_New", vPos + vNewBadge );
 }
 
-void CX2StateMenu::JuneUpdateMenuPosition()
+void CX2StateMenu::UpdateMenuPosition()
 {
 	if( NULL == m_pDLGMenu )
 		return;
@@ -5483,17 +5483,17 @@ void CX2StateMenu::JuneUpdateMenuPosition()
 
 	float afSlotOffset[JMS_COUNT] = { 0.0f };
 
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], true );
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], true );
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], true );
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_WARP], true );
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], true );
-	JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_STORYBOOK], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_WARP], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_STORYBOOK], true );
 
 	if( NULL != g_pData->GetGuildManager() && false == g_pData->GetGuildManager()->DidJoinGuild() )
 	{
-		JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], false );
-		JuneRemoveMenuSlot( afSlotOffset, JMS_GUILD );
+		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], false );
+		RemoveMenuSlot( afSlotOffset, JMS_GUILD );
 	}
 
 	if( ( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIPetList() && 0 == g_pData->GetUIManager()->GetUIPetList()->GetPetListSize() )
@@ -5503,8 +5503,8 @@ void CX2StateMenu::JuneUpdateMenuPosition()
 #endif //RIDING_SYSTEM
 		)
 	{
-		JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], false );
-		JuneRemoveMenuSlot( afSlotOffset, JMS_PET );
+		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], false );
+		RemoveMenuSlot( afSlotOffset, JMS_PET );
 	}
 
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
@@ -5515,14 +5515,14 @@ void CX2StateMenu::JuneUpdateMenuPosition()
 		const int iNewSP = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSPoint + g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iCSPoint;
 		if( iNewSP == 0 && iTotalUsedSP == 2 )
 		{
-			JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], false );
-			JuneRemoveMenuSlot( afSlotOffset, JMS_SKILL );
+			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], false );
+			RemoveMenuSlot( afSlotOffset, JMS_SKILL );
 		}
 
 		if( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level < 40 )
 		{
-			JuneSetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], false );
-			JuneRemoveMenuSlot( afSlotOffset, JMS_PROFESSION );
+			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], false );
+			RemoveMenuSlot( afSlotOffset, JMS_PROFESSION );
 		}
 	}
 
@@ -5550,26 +5550,26 @@ void CX2StateMenu::JuneUpdateMenuPosition()
 		switch( i )
 		{
 		case JMS_WARP:
-			JuneSetMenuOffset( pWarpVIP, vOffset );
+			SetMenuOffset( pWarpVIP, vOffset );
 			break;
 		case JMS_INVEN:
-			JuneSetMenuOffset( pInvenNew, vOffset );
+			SetMenuOffset( pInvenNew, vOffset );
 			pInformerManager->GetInvenInformer()->SetTalkBoxOffsetPos( vOffset );
 			break;
 		case JMS_PET:
-			JuneSetMenuOffset( pPetEvolNew, vOffset );
-			JuneSetMenuOffset( pPetNew, vOffset );
-			JuneSetMenuOffset( pPetTag, vOffset );
+			SetMenuOffset( pPetEvolNew, vOffset );
+			SetMenuOffset( pPetNew, vOffset );
+			SetMenuOffset( pPetTag, vOffset );
 			break;
 		case JMS_SKILL:
-			JuneSetMenuOffset( pSkillNew, vOffset );
+			SetMenuOffset( pSkillNew, vOffset );
 			pInformerManager->GetSkillInformer()->SetTalkBoxOffsetPos( vOffset );
 			break;
 		case JMS_STORYBOOK:
-			JuneSetMenuOffset( pStoryNew, vOffset );
+			SetMenuOffset( pStoryNew, vOffset );
 			break;
 		case JMS_QUEST:
-			JuneSetMenuOffset( pQuestNew, vOffset );
+			SetMenuOffset( pQuestNew, vOffset );
 			pInformerManager->GetQuestInformer()->SetTalkBoxOffsetPos( vOffset );
 			break;
 		case JMS_GUILD:
@@ -5579,8 +5579,19 @@ void CX2StateMenu::JuneUpdateMenuPosition()
 	}
 }
 
-void CX2StateMenu::JuneUpdateMenuString()
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+void CX2StateMenu::ShowMainMenuButton()
 {
+	//마우스 동작 있을 때만 메인메뉴 보여주도록 수정
+	if( false == m_bShowMainMenuButton )
+	{
+		m_bShowMainMenuButton = true;
+		m_fMenuMaxRemainTime = 6.0f;
+	}
+}
+void CX2StateMenu::UpdateMenuString()
+{
+#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	if( NULL == m_pDLGMenu )
 		return;
 
@@ -5635,23 +5646,7 @@ void CX2StateMenu::JuneUpdateMenuString()
 
 	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_24618, "L", pKeyPad->GetKeyString( GAMEACTION_WARP ) ) );
 	SetGuideString( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( L"Warp" ) ), strButtonDesc.c_str() );
-}
-#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-void CX2StateMenu::ShowMainMenuButton()
-{
-	//마우스 동작 있을 때만 메인메뉴 보여주도록 수정
-	if( false == m_bShowMainMenuButton )
-	{
-		m_bShowMainMenuButton = true;
-		m_fMenuMaxRemainTime = 6.0f;
-	}
-}
-void CX2StateMenu::UpdateMenuString()
-{
-#ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-	JuneUpdateMenuString();
-	return;
-#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+#else
 	if( NULL == m_pDLGMenu )
 		return;
 
@@ -5704,11 +5699,12 @@ void CX2StateMenu::UpdateMenuString()
 	strButtonDesc = GET_REPLACED_STRING( ( STR_ID_24618, "L", g_pMain->GetKeyPad()->GetKeyString( GAMEACTION_WARP ) ) );
 	SetGuideString( static_cast<CKTDGUIButton*>(m_pDLGMenu->GetControl(L"Warp")), strButtonDesc.c_str() );
 #endif // SERV_ADD_WARP_BUTTON
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 }
 void CX2StateMenu::UpdateMenuPosistion()
 {
 #ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-	JuneUpdateMenuPosition();
+	UpdateMenuPosition();
 	return;
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	if( NULL == m_pDLGMenu )
@@ -5999,7 +5995,7 @@ void CX2StateMenu::UpdateMenuPosistion()
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			// June 324625b0 @32462657: the movie tab's seen list is emptied on the way to the character select ( quest-system Q8b )
 			if( NULL != g_pMain )
-				g_pMain->JuneClearSeenClearMovie();
+				g_pMain->ClearSeenClearMovie();
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 			g_pData->ResetGlobalMissionManager();

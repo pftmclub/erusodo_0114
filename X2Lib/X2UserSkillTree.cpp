@@ -2222,6 +2222,10 @@ void CX2UserSkillTree::AddSkillUnsealed( CX2SkillTree::SKILL_ID eSkillID )
 
 bool CX2UserSkillTree::DoIHaveThisSkill( CX2SkillTree::SKILL_ID eSkillID ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+	// June 32890a30: the held level only ( the 4th argument is the upgrade swap 328905b0 ), no learn-now fallback
+	return 0 < GetSkillLevel( eSkillID, false, 0, true );
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 
 	/// 현재 스킬 포인트가 투자된 스킬인지 검사
@@ -2252,6 +2256,7 @@ bool CX2UserSkillTree::DoIHaveThisSkill( CX2SkillTree::SKILL_ID eSkillID ) const
 	return true;
 
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 }
 
 

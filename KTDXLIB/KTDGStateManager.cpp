@@ -684,7 +684,7 @@ HRESULT CKTDGStateManager::CheckDepthStencilMatch( D3DFORMAT BackBufferFormat, D
 }//CKTDGStateManager::CheckDepthStencilMatch()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
 /// June 31c5a0d0: the out value is zeroed first; windowed = DXUTIsWindowed() ( 31bd44e0 )
-HRESULT CKTDGStateManager::JuneCheckDeviceMultiSampleType( D3DFORMAT SurfaceFormat, D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
+HRESULT CKTDGStateManager::CheckDeviceMultiSampleType( D3DFORMAT SurfaceFormat, D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
 {
     *pQualityLevels = 0;
     return g_pD3D->CheckDeviceMultiSampleType( ms_uiAdapter, ms_d3dDeviceType, SurfaceFormat, DXUTIsWindowed(), MultiSampleType, pQualityLevels );
@@ -692,7 +692,7 @@ HRESULT CKTDGStateManager::JuneCheckDeviceMultiSampleType( D3DFORMAT SurfaceForm
 
 /// June 31c5a120: the cached table. June tests "> 0x11", so type 17 passes and reads one entry past the 17 it fills
 /// ( JUNE_BUGS.md "multisample quality table" ); March's array has an 18th, zero entry for it.
-HRESULT CKTDGStateManager::JuneGetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
+HRESULT CKTDGStateManager::GetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
 {
     *pQualityLevels = 0;
     if( (UINT) MultiSampleType > 0x11 )

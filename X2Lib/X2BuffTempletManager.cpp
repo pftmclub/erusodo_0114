@@ -12,7 +12,7 @@
 /// ("uiBuffFactorId Invalid"), which item and skill templet loading call outside any capture; the other sites run
 /// inside the Phase 3 captures, where RuntimeError hands the text to the capture exactly as DisplayErrorMessage did.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 CX2BuffTempletManager* CX2BuffTempletManager::pInstance = NULL;
@@ -24,17 +24,17 @@ namespace
 	const UINT JUNE_BUFF_FACTOR_ID_INT_BASE = 10000;
 
 	/// [JUNE_BUFF] lines also come from loader threads (GetBuffFactorPtr), and KDbgStm is one global stream
-	struct KJuneBuffLogLock
+	struct KBuffLogLock
 	{
 		CRITICAL_SECTION m_cs;
-		KJuneBuffLogLock() { InitializeCriticalSection( &m_cs ); }
-		~KJuneBuffLogLock() { DeleteCriticalSection( &m_cs ); }
+		KBuffLogLock() { InitializeCriticalSection( &m_cs ); }
+		~KBuffLogLock() { DeleteCriticalSection( &m_cs ); }
 	};
-	KJuneBuffLogLock	g_kJuneBuffLogLock;
+	KBuffLogLock	g_kJuneBuffLogLock;
 	std::set<UINT>		g_setJuneBuffReportedID;
 
 	/// GetBuffFactorPtr runs during play; report each bad id once, not on every lookup
-	bool JuneBuffFirstReport( const UINT uiBuffFactorID_ )
+	bool BuffFirstReport( const UINT uiBuffFactorID_ )
 	{
 		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
 		const bool bFirst = g_setJuneBuffReportedID.insert( uiBuffFactorID_ ).second;
@@ -51,7 +51,7 @@ namespace
 	/// RuntimeError reports each (BTI, text) once, so a failure that repeats every frame cannot flood ErrorLog.txt
 	std::set< std::pair<int, string> >		g_setJuneBuffRuntimeReported;
 
-	bool JuneBuffFirstRuntimeReport( const int iBuffTempletID_, const char* szError_ )
+	bool BuffFirstRuntimeReport( const int iBuffTempletID_, const char* szError_ )
 	{
 		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
 		const bool bFirst = g_setJuneBuffRuntimeReported.insert( std::make_pair( iBuffTempletID_, string( szError_ ) ) ).second;
@@ -60,41 +60,41 @@ namespace
 	}
 }
 
-CX2JuneBuffRuntimeScope::CX2JuneBuffRuntimeScope( const int iBuffTempletID_ )
+CX2BuffRuntimeScope::CX2BuffRuntimeScope( const int iBuffTempletID_ )
 	: m_iPrevBuffTempletID( g_iJuneBuffRuntimeBTI )
 {
 	g_iJuneBuffRuntimeBTI = iBuffTempletID_;
 }
 
-CX2JuneBuffRuntimeScope::~CX2JuneBuffRuntimeScope()
+CX2BuffRuntimeScope::~CX2BuffRuntimeScope()
 {
 	g_iJuneBuffRuntimeBTI = m_iPrevBuffTempletID;
 }
 
-/*static*/ int CX2JuneBuffRuntimeScope::GetBuffTempletID()
+/*static*/ int CX2BuffRuntimeScope::GetBuffTempletID()
 {
 	return g_iJuneBuffRuntimeBTI;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-CX2JuneBuffCapture::CX2JuneBuffCapture()
+CX2BuffCapture::CX2BuffCapture()
 	: m_bOwner( NULL == g_pIruhaDisplayErrorSink )
 {
 	if ( m_bOwner )
 		g_pIruhaDisplayErrorSink = this;
 }
 
-/*virtual*/ CX2JuneBuffCapture::~CX2JuneBuffCapture()
+/*virtual*/ CX2BuffCapture::~CX2BuffCapture()
 {
 	if ( m_bOwner )
 		g_pIruhaDisplayErrorSink = NULL;
 }
 
-/*virtual*/ void CX2JuneBuffCapture::OnDisplayError( const char* szError_ )
+/*virtual*/ void CX2BuffCapture::OnDisplayError( const char* szError_ )
 {
 	m_vecError.push_back( NULL != szError_ ? szError_ : "" );
 }
 
-void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, const char* szOutcome_ ) const
+void CX2BuffCapture::Report( const bool bParsed_, const char* szEntry_, const char* szOutcome_ ) const
 {
 	if ( false == m_bOwner || ( bParsed_ && m_vecError.empty() ) )
 		return;
@@ -118,7 +118,7 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 		Line( "unsupported %s in %s -> %s: %s", strReason.c_str(), szEntry_, szOutcome_, strAll.empty() ? "(no error text)" : strAll.c_str() );
 }
 
-/*static*/ void CX2JuneBuffCapture::Line( const char* szFormat_, ... )
+/*static*/ void CX2BuffCapture::Line( const char* szFormat_, ... )
 {
 	char szLine[1024] = { 0, };
 	va_list vaList;
@@ -131,7 +131,7 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 	LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
 }
 
-/*static*/ bool CX2JuneBuffCapture::UnsupportedType( const WCHAR* wszKind_, const UINT uiType_ )
+/*static*/ bool CX2BuffCapture::UnsupportedType( const WCHAR* wszKind_, const UINT uiType_ )
 {
 	WCHAR wszError[64] = { 0, };
 	swprintf_s( wszError, _countof( wszError ), L"unsupported %s %u", wszKind_, uiType_ );
@@ -139,15 +139,15 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 }
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
-/*static*/ bool CX2JuneBuffCapture::RuntimeError( const WCHAR* wszError_ )
+/*static*/ bool CX2BuffCapture::RuntimeError( const WCHAR* wszError_ )
 {
 	if ( NULL != g_pIruhaDisplayErrorSink )
 		return DisplayErrorMessage( wszError_ );	/// inside a capture: collected and reported by its owner, as before
 
 	char szError[512] = { 0, };
 	WideCharToMultiByte( CP_ACP, 0, NULL != wszError_ ? wszError_ : L"", -1, szError, sizeof( szError ) - 1, NULL, NULL );
-	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
-	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, szError ) )
+	const int iBuffTempletID = CX2BuffRuntimeScope::GetBuffTempletID();
+	if ( BuffFirstRuntimeReport( iBuffTempletID, szError ) )
 	{
 		StateLog( wszError_ );						/// what DisplayErrorMessage writes, but once: no popup throttles a per-frame error now
 		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, szError );
@@ -155,13 +155,13 @@ void CX2JuneBuffCapture::Report( const bool bParsed_, const char* szEntry_, cons
 	return false;
 }
 
-/*static*/ bool CX2JuneBuffCapture::RuntimeError( const char* szError_ )
+/*static*/ bool CX2BuffCapture::RuntimeError( const char* szError_ )
 {
 	if ( NULL != g_pIruhaDisplayErrorSink )
 		return DisplayErrorMessage( szError_ );	/// inside a capture: collected and reported by its owner, as before
 
-	const int iBuffTempletID = CX2JuneBuffRuntimeScope::GetBuffTempletID();
-	if ( JuneBuffFirstRuntimeReport( iBuffTempletID, NULL != szError_ ? szError_ : "" ) )
+	const int iBuffTempletID = CX2BuffRuntimeScope::GetBuffTempletID();
+	if ( BuffFirstRuntimeReport( iBuffTempletID, NULL != szError_ ? szError_ : "" ) )
 	{
 		StateLog( szError_ );						/// once, as the wide overload
 		Line( "runtime error, BTI %d: %s (June raises no popup here; written once per buff and text)", iBuffTempletID, NULL != szError_ ? szError_ : "" );
@@ -230,12 +230,12 @@ void CX2BuffTempletManager::OpenScriptFileForBuffGroup()
 	{
 		ErrorLogMsg( XEM_ERROR2, wszScriptFileName );
 		if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
-			CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua not found: no buff groups and an empty officially-debuff list this run. Pack march2014/update/data036/UnitApplyBuffGroup.lua into data036.kom (June 326c26f0)" );
+			CX2BuffCapture::Line( "UnitApplyBuffGroup.lua not found: no buff groups and an empty officially-debuff list this run. Pack march2014/update/data036/UnitApplyBuffGroup.lua into data036.kom (June 326c26f0)" );
 		else
-			CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua did not run (hr 0x%08x): no buff groups and an empty officially-debuff list this run (June 326c26f0)", static_cast<UINT>( hr ) );
+			CX2BuffCapture::Line( "UnitApplyBuffGroup.lua did not run (hr 0x%08x): no buff groups and an empty officially-debuff list this run (June 326c26f0)", static_cast<UINT>( hr ) );
 	}
 
-	CX2JuneBuffCapture::Line( "UnitApplyBuffGroup.lua: %u buff group(s), %u officially debuff(s) (June 326c26f0)",
+	CX2BuffCapture::Line( "UnitApplyBuffGroup.lua: %u buff group(s), %u officially debuff(s) (June 326c26f0)",
 		static_cast<UINT>( m_vecBuffGroup.size() ), static_cast<UINT>( m_setOfficiallyDebuff.size() ) );
 }
 
@@ -326,7 +326,7 @@ bool CX2BuffTempletManager::IsApplyBuffByGroup( const BUFF_TEMPLET_ID eBuffTempl
 	{
 		static std::set<int> s_setReported;
 		if ( s_setReported.insert( static_cast<int>( eBuffTempletID_ ) ).second )
-			CX2JuneBuffCapture::Line( "buff group %d: BTI %d has no templet, refused (June 326c31c0 would read a null templet)",
+			CX2BuffCapture::Line( "buff group %d: BTI %d has no templet, refused (June 326c31c0 would read a null templet)",
 				iBuffGroupID_, static_cast<int>( eBuffTempletID_ ) );
 		return false;
 	}
@@ -370,12 +370,12 @@ void CX2BuffTempletManager::AddBuffTemplet_LUA()
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
 	/// June 326c3990: create, ParsingScript, insert keyed by the templet id; the same shape as March.
 	/// What changes is the reporting: the entry's parse errors become one [JUNE_BUFF] line.
-	CX2JuneBuffCapture kCapture;
+	CX2BuffCapture kCapture;
 	CX2BuffTempletPtr	ptrBuffTemplet = CX2BuffTemplet::CreateBuffTempletPtr();
 	if ( NULL == ptrBuffTemplet )
 	{
 		++m_uiTempletFailed;
-		CX2JuneBuffCapture::Line( "new BuffTemplet didn't work" );	/// silent in June
+		CX2BuffCapture::Line( "new BuffTemplet didn't work" );	/// silent in June
 		return;
 	}
 
@@ -387,7 +387,7 @@ void CX2BuffTempletManager::AddBuffTemplet_LUA()
 		if ( false == m_mapBuffTempletPtr.insert( make_pair( ptrBuffTemplet->GetBuffTempletID(), ptrBuffTemplet ) ).second )
 		{
 			++m_uiTempletDuplicate;
-			CX2JuneBuffCapture::Line( "duplicate %s: the first definition is kept (map insert)", szEntry );
+			CX2BuffCapture::Line( "duplicate %s: the first definition is kept (map insert)", szEntry );
 		}
 	}
 	else
@@ -430,7 +430,7 @@ void CX2BuffTempletManager::AddBuffFactor_LUA()
 	else
 	{
 		++m_uiFactorOrdinalReject;
-		CX2JuneBuffCapture::Line( "ordinal reject BFI %u: %u factor slot(s) filled, so the next id must be %u; dropped, as in June 326c4050 and March",
+		CX2BuffCapture::Line( "ordinal reject BFI %u: %u factor slot(s) filled, so the next id must be %u; dropped, as in June 326c4050 and March",
 			uiNum, static_cast<UINT>( m_vecBuffFactorPtr.size() ), static_cast<UINT>( m_vecBuffFactorPtr.size() + 1 ) );
 	}
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -530,13 +530,13 @@ CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFacto
 		if ( uiBuffFactorNumber_ <= m_vecBuffFactorPtr.size() )
 		{
 			const CX2BuffFactorPtr& ptrBuffFactor = m_vecBuffFactorPtr[uiBuffFactorNumber_ - 1];
-			if ( NULL == ptrBuffFactor && JuneBuffFirstReport( uiBuffFactorNumber_ ) )
-				CX2JuneBuffCapture::Line( "BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
+			if ( NULL == ptrBuffFactor && BuffFirstReport( uiBuffFactorNumber_ ) )
+				CX2BuffCapture::Line( "BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
 			return ptrBuffFactor;
 		}
 
-		if ( JuneBuffFirstReport( uiBuffFactorNumber_ ) )
-			CX2JuneBuffCapture::Line( "BFI %u requested but not loaded (%u factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtr.size() ) );
+		if ( BuffFirstReport( uiBuffFactorNumber_ ) )
+			CX2BuffCapture::Line( "BFI %u requested but not loaded (%u factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtr.size() ) );
 		return CX2BuffFactorPtr();
 	}
 
@@ -544,13 +544,13 @@ CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFacto
 	if ( uiIndexINT <= m_vecBuffFactorPtrINT.size() )
 	{
 		const CX2BuffFactorPtr& ptrBuffFactor = m_vecBuffFactorPtrINT[uiIndexINT - 1];
-		if ( NULL == ptrBuffFactor && JuneBuffFirstReport( uiBuffFactorNumber_ ) )
-			CX2JuneBuffCapture::Line( "_INT BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
+		if ( NULL == ptrBuffFactor && BuffFirstReport( uiBuffFactorNumber_ ) )
+			CX2BuffCapture::Line( "_INT BFI %u requested: it is a placeholder (it failed to parse at load), so nothing is applied", uiBuffFactorNumber_ );
 		return ptrBuffFactor;
 	}
 
-	if ( JuneBuffFirstReport( uiBuffFactorNumber_ ) )
-		CX2JuneBuffCapture::Line( "_INT BFI %u requested but not loaded (%u _INT factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) );
+	if ( BuffFirstReport( uiBuffFactorNumber_ ) )
+		CX2BuffCapture::Line( "_INT BFI %u requested but not loaded (%u _INT factor slot(s)), so nothing is applied", uiBuffFactorNumber_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) );
 	return CX2BuffFactorPtr();
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 	if ( uiBuffFactorNumber_ != 0 && uiBuffFactorNumber_ <= m_vecBuffFactorPtr.size() )	/// 작다로 비교 하지 않은 이유는 인덱스 0번이 uiBuffFactorNumber 1로 시작하기 때문
@@ -611,7 +611,7 @@ bool CX2BuffTempletManager::AddBuffFactorINT( KLuaManager& luaManager_, const UI
 	else
 	{
 		++m_uiFactorOrdinalRejectINT;
-		CX2JuneBuffCapture::Line( "ordinal reject _INT BFI %u: %u _INT factor slot(s) filled, so the next _INT id must be %u; dropped, as in June 326c3f30",
+		CX2BuffCapture::Line( "ordinal reject _INT BFI %u: %u _INT factor slot(s) filled, so the next _INT id must be %u; dropped, as in June 326c3f30",
 			uiBuffFactorID_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ), static_cast<UINT>( m_vecBuffFactorPtrINT.size() + JUNE_BUFF_FACTOR_ID_INT_BASE + 1 ) );
 	}
 
@@ -627,7 +627,7 @@ bool CX2BuffTempletManager::AddBuffFactorINT( KLuaManager& luaManager_, const UI
 */
 void CX2BuffTempletManager::PushBuffFactor( KLuaManager& luaManager_, const UINT uiBuffFactorID_, IN OUT vector<CX2BuffFactorPtr>& vecBuffFactorPtr_, IN OUT UINT& uiPlaceholder_ )
 {
-	CX2JuneBuffCapture kCapture;
+	CX2BuffCapture kCapture;
 	CX2BuffFactorPtr ptrBuffFactor;
 	bool bParsed = false;
 	if ( luaManager_.BeginTable( "BUFF_FACTOR" ) )
@@ -673,10 +673,10 @@ void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_
 	string strScriptFileName;
 	ConvertWCHARToChar( strScriptFileName, wszScriptFileName_ );
 	if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
-		CX2JuneBuffCapture::Line( "%s not found, so no _INT buffs this run (expected until Phase 13 packs June's _INT files; June %s loads it after the main file)",
+		CX2BuffCapture::Line( "%s not found, so no _INT buffs this run (expected until Phase 13 packs June's _INT files; June %s loads it after the main file)",
 			strScriptFileName.c_str(), szJuneLoader_ );
 	else
-		CX2JuneBuffCapture::Line( "%s did not run (hr 0x%08x), so its _INT buffs are missing this run", strScriptFileName.c_str(), static_cast<UINT>( hr ) );
+		CX2BuffCapture::Line( "%s did not run (hr 0x%08x), so its _INT buffs are missing this run", strScriptFileName.c_str(), static_cast<UINT>( hr ) );
 }
 
 /** @function : LogLoadSummary
@@ -684,7 +684,7 @@ void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_
 */
 void CX2BuffTempletManager::LogLoadSummary() const
 {
-	CX2JuneBuffCapture::Line( "load summary: templets %u loaded, %u failed, %u duplicate; factors %u loaded + %u placeholder(s); _INT factors %u loaded + %u placeholder(s); ordinal rejects %u (+ %u _INT)",
+	CX2BuffCapture::Line( "load summary: templets %u loaded, %u failed, %u duplicate; factors %u loaded + %u placeholder(s); _INT factors %u loaded + %u placeholder(s); ordinal rejects %u (+ %u _INT)",
 		static_cast<UINT>( m_mapBuffTempletPtr.size() ), m_uiTempletFailed, m_uiTempletDuplicate,
 		static_cast<UINT>( m_vecBuffFactorPtr.size() ) - m_uiFactorPlaceholder, m_uiFactorPlaceholder,
 		static_cast<UINT>( m_vecBuffFactorPtrINT.size() ) - m_uiFactorPlaceholderINT, m_uiFactorPlaceholderINT,
@@ -705,20 +705,20 @@ void CX2BuffTempletManager::LogLoadSummary() const
 	}
 #ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	/// Phase 11b ported IS_STORE_BUFF's consumer (June's keep-store clear 3229fb10) and Phase 13 turned it on
-	CX2JuneBuffCapture::Line( "IS_STORE_BUFF on %u templet(s): kept over a game change (June keep-store clear 3229fb10; world buffs among them return through the world-buff records)", uiStoreBuff );
+	CX2BuffCapture::Line( "IS_STORE_BUFF on %u templet(s): kept over a game change (June keep-store clear 3229fb10; world buffs among them return through the world-buff records)", uiStoreBuff );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	/// Phase 14b ported IS_INSTANCE_KILL_DEBUFF's consumer (June user DamageReact 320462a0 via slot 200 31fe4150)
-	CX2JuneBuffCapture::Line( "IS_INSTANCE_KILL_DEBUFF on %u templet(s): ported (a user carrying one dies at the next damaging hit, June 320462a0 @32049b70; user only)", uiInstanceKillDebuff );
+	CX2BuffCapture::Line( "IS_INSTANCE_KILL_DEBUFF on %u templet(s): ported (a user carrying one dies at the next damaging hit, June 320462a0 @32049b70; user only)", uiInstanceKillDebuff );
 	if ( 0 < uiNotSaveGageManager )
-		CX2JuneBuffCapture::Line( "unsupported (stored, no June reader found): NOT_SAVE_GAGEMANAGER on %u", uiNotSaveGageManager );
+		CX2BuffCapture::Line( "unsupported (stored, no June reader found): NOT_SAVE_GAGEMANAGER on %u", uiNotSaveGageManager );
 #else // SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	if ( 0 < uiInstanceKillDebuff + uiNotSaveGageManager )
-		CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
+		CX2BuffCapture::Line( "unsupported (stored, consumer not ported): IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
 			uiInstanceKillDebuff, uiNotSaveGageManager );
 #endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 #else // SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 	if ( 0 < uiStoreBuff + uiInstanceKillDebuff + uiNotSaveGageManager )
-		CX2JuneBuffCapture::Line( "unsupported (stored, consumer not ported): IS_STORE_BUFF on %u templet(s) (June keep-store clear 3229fb10), IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
+		CX2BuffCapture::Line( "unsupported (stored, consumer not ported): IS_STORE_BUFF on %u templet(s) (June keep-store clear 3229fb10), IS_INSTANCE_KILL_DEBUFF on %u (June DamageReact via 31fe4150), NOT_SAVE_GAGEMANAGER on %u (no June reader found)",
 			uiStoreBuff, uiInstanceKillDebuff, uiNotSaveGageManager );
 #endif SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY

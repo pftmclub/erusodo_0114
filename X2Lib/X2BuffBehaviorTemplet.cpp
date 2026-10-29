@@ -12,7 +12,7 @@
 /// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
 /// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_BEHAVIOR_TEMPLET( class_, type_ ) \
@@ -205,7 +205,7 @@ case type_: \
 
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BBT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Behavior Templet Type" );	/// false ¸®ÅÏ
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -4347,7 +4347,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 			if ( !s_bSeenTick )
 			{
 				s_bSeenTick = true;
-				CX2JuneBuffCapture::Line( "first read BBT 79: force down gage %g + %g (interval %g)", pGageData->GetNowForceDown(), m_fResultValue, m_CheckElapsedTimeForInterval.GetTargetTime() );
+				CX2BuffCapture::Line( "first read BBT 79: force down gage %g + %g (interval %g)", pGageData->GetNowForceDown(), m_fResultValue, m_CheckElapsedTimeForInterval.GetTargetTime() );
 			}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			pGageData->UpNowForceDown( m_fResultValue );
@@ -4392,7 +4392,7 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 		if ( !s_bSeenApply )
 		{
 			s_bSeenApply = true;
-			CX2JuneBuffCapture::Line( "first apply BBT 79 (force down per second): interval %g, value %g", m_CheckElapsedTimeForInterval.GetTargetTime(), m_fResultValue );
+			CX2BuffCapture::Line( "first apply BBT 79 (force down per second): interval %g, value %g", m_CheckElapsedTimeForInterval.GetTargetTime(), m_fResultValue );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -4516,7 +4516,7 @@ float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehavio
 	{
 		static std::set<int> s_setSeen;
 		if ( s_setSeen.insert( static_cast<int>( GetType() ) ).second )
-			CX2JuneBuffCapture::Line( "first SetFactor BBT %d (by condition): change type %d, calculate type %d, v[3..5] = %g %g %g, value %g",
+			CX2BuffCapture::Line( "first SetFactor BBT %d (by condition): change type %d, calculate type %d, v[3..5] = %g %g %g, value %g",
 				static_cast<int>( GetType() ), static_cast<int>( m_eChangeType ), static_cast<int>( m_eValueCalculateType ),
 				(*pBehaviorFactor)[FO_VALUE_0], (*pBehaviorFactor)[FO_VALUE_1], (*pBehaviorFactor)[FO_USER_NUM], m_fResultValue );
 	}
@@ -4618,7 +4618,7 @@ float CX2BuffChangeStateByConditionBehaviorTemplet::GetValue( const KBuffBehavio
 		if ( !s_bSeenApply )
 		{
 			s_bSeenApply = true;
-			CX2JuneBuffCapture::Line( "first apply BBT 88 (ignore defence): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<float>( m_fIgnoreDefenceRate ) );
+			CX2BuffCapture::Line( "first apply BBT 88 (ignore defence): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<float>( m_fIgnoreDefenceRate ) );
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	}
@@ -4755,7 +4755,7 @@ static void BuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::Skill
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( 75 ) )
-		CX2JuneBuffCapture::Line( "first apply BBT 75 (double attack buff): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), m_fRate );
+		CX2BuffCapture::Line( "first apply BBT 75 (double attack buff): BTI %d, rate %g", static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), m_fRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return true;
 }
@@ -4826,7 +4826,7 @@ static void BuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::Skill
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		if ( BuffNewSkillFirstApply( 89 ) )
-			CX2JuneBuffCapture::Line( "first apply BBT 89 (skill damage by skill type): BTI %d, %d pair(s), first type %d rate %g",
+			CX2BuffCapture::Line( "first apply BBT 89 (skill damage by skill type): BTI %d, %d pair(s), first type %d rate %g",
 				static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecSkillTypeRate.size() ),
 				m_vecSkillTypeRate.empty() ? 0 : m_vecSkillTypeRate.front().first, m_vecSkillTypeRate.empty() ? 0.0f : m_vecSkillTypeRate.front().second );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -4971,7 +4971,7 @@ static void BuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::Skill
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( 90 ) )
-		CX2JuneBuffCapture::Line( "first apply BBT 90 (skill damage by skill id): BTI %d, %d block(s), first rate %g",
+		CX2BuffCapture::Line( "first apply BBT 90 (skill damage by skill id): BTI %d, %d block(s), first rate %g",
 			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecBlock.size() ), m_vecBlock.empty() ? 0.0f : m_vecBlock.front().m_fRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return true;
@@ -5029,7 +5029,7 @@ static void BuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::Skill
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( 91 ) )
-		CX2JuneBuffCapture::Line( "first apply BBT 91 (charge MP hit by skill id): BTI %d, %d block(s), first rate %g",
+		CX2BuffCapture::Line( "first apply BBT 91 (charge MP hit by skill id): BTI %d, %d block(s), first rate %g",
 			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecBlock.size() ), m_vecBlock.empty() ? 0.0f : m_vecBlock.front().m_fRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return true;
@@ -5093,7 +5093,7 @@ static void BuffWriteSkillIDRateBlocks( const vector<CX2SkillIDRateByBuff::Skill
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( 98 ) )
-		CX2JuneBuffCapture::Line( "first apply BBT 98 (skill damage by slot type): BTI %d, slot type %d, rate %g",
+		CX2BuffCapture::Line( "first apply BBT 98 (skill damage by slot type): BTI %d, slot type %d, rate %g",
 			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), m_iSlotType, m_fRate );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return true;
@@ -5214,7 +5214,7 @@ void CX2BuffSkillTypeChangeBehaviorTemplet::ApplySkillTypeChanges( const KBuffBe
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( static_cast<int>( GetType() ) ) )
-		CX2JuneBuffCapture::Line( "first apply BBT %d (%s by skill type): BTI %d, %d change(s)", static_cast<int>( GetType() ),
+		CX2BuffCapture::Line( "first apply BBT %d (%s by skill type): BTI %d, %d change(s)", static_cast<int>( GetType() ),
 			BBT_CHANGE_CONSUME_MP_RATE_BY_SKILLTYPE == GetType() ? "consume MP rate" : "cool time rate",
 			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecChange.size() ) );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -5249,7 +5249,7 @@ void CX2BuffSkillTypeChangeBehaviorTemplet::ApplySkillTypeChanges( const KBuffBe
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	if ( BuffNewSkillFirstApply( 103 ) )
-		CX2JuneBuffCapture::Line( "first apply BBT 103 (skill cool time speed): BTI %d, %d change(s), first type %d change type %d value %g",
+		CX2BuffCapture::Line( "first apply BBT 103 (skill cool time speed): BTI %d, %d change(s), first type %d change type %d value %g",
 			static_cast<int>( pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID ), static_cast<int>( m_vecChange.size() ),
 			m_vecChange.empty() ? 0 : m_vecChange.front().m_iSkillType, m_vecChange.empty() ? 0 : m_vecChange.front().m_iChangeType,
 			m_vecChange.empty() ? 0.0f : m_vecChange.front().m_fValue );
@@ -5285,7 +5285,7 @@ static void BuffNewFlagFirstApply( const int iType_, const char* szName_, const 
 		return;
 
 	s_bSeen[iSlot] = true;
-	CX2JuneBuffCapture::Line( "first apply BBT %d (%s): BTI %d", iType_, szName_, BuffIdentity_.m_eBuffTempletID );
+	CX2BuffCapture::Line( "first apply BBT %d (%s): BTI %d", iType_, szName_, BuffIdentity_.m_eBuffTempletID );
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
@@ -5521,7 +5521,7 @@ void CX2BuffImmuneBuffDebuffBehaviorTemplet::InsertToGameUnit( const KBuffBehavi
 		if ( !s_bSeenApply )
 		{
 			s_bSeenApply = true;
-			CX2JuneBuffCapture::Line( "first apply BBT 97 (change max character add resource): BTI %d", pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID );
+			CX2BuffCapture::Line( "first apply BBT 97 (change max character add resource): BTI %d", pBuffTemplet_->GetBuffIdentity().m_eBuffTempletID );
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	}

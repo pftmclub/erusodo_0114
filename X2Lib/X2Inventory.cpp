@@ -282,7 +282,7 @@ void CX2Inventory::UpdateInventorySlotList( const std::vector<KInventoryItemInfo
 					CX2Item::ItemData kJuneObtained = kItemData;
 					if ( kJuneObtained.m_PeriodType == CX2Item::PT_QUANTITY )
 						kJuneObtained.m_Quantity = kItemData.m_Quantity - iJuneOldQuantity;
-					pJuneDungeonGame->JuneAddObtainedItem( kJuneObtained );
+					pJuneDungeonGame->AddObtainedItem( kJuneObtained );
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
@@ -1160,7 +1160,7 @@ float CX2Inventory::GetAddMaxMPValue() const
 /// any other slot counts only when ( group != 0 ) equals ( slot id in 0x14..0x22, 0x24, 0x26, 0x28, 0x2a ) ( June's second character's
 /// slots ). The value is the templet's added max MP ( item +0xc0, templet +0x28 ). March's equipped slots are 0..19, so with group 0
 /// every equipped item counts, as in GetAddMaxMPValue.
-float CX2Inventory::JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const
+float CX2Inventory::GetAddMaxMPValue( const int iJuneEquipGroup_ ) const
 {
 	float fAddMaxMPValue = 0.0f;
 
@@ -1209,7 +1209,7 @@ float CX2Inventory::JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const
 /// June 3286a4b0 ( skill Phase S7k ): the equipment group of an equipped item, by its slot id ( an equipped-UID map, node +0x18, short +4;
 /// 0xffff when the UID is not equipped ): 1 / 3 / 5 / 7 / 9 -> 2 ( both groups ), 0x14..0x22 / 0x24 / 0x26 / 0x28 / 0x2a -> 1 ( June's
 /// second character's slots ), anything else -> 0. March's equipped slots are 0..19, so March items are group 2 or 0.
-int CX2Inventory::JuneGetEquipGroup( const UidType itemUID_ ) const
+int CX2Inventory::GetEquipGroup( const UidType itemUID_ ) const
 {
 	int iSlotID = 0xffff;
 	map< int, InvenSlotData* >::const_iterator mItr;

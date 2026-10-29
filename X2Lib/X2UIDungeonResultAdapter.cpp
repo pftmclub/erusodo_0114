@@ -7,7 +7,7 @@
 #include <algorithm>
 
 // Log tag [JUNE_RESULT] WIDGET ( ErrorLog.txt )
-void JuneResultWidgetLog( const char* szFormat, ... )
+void ResultWidgetLog( const char* szFormat, ... )
 {
 	char szBuf[ 1024 ] = { 0, };
 	va_list args;
@@ -18,7 +18,7 @@ void JuneResultWidgetLog( const char* szFormat, ... )
 }
 
 // 32eea2c0 and the others read the current state as g_pMain +0x90 and dynamic_cast it to the dungeon state
-static CX2StateDungeonGame* JuneResultNowState()
+static CX2StateDungeonGame* ResultNowState()
 {
 	if ( g_pMain == NULL )
 		return NULL;
@@ -27,45 +27,45 @@ static CX2StateDungeonGame* JuneResultNowState()
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 // 32eea2c0 / 32eea2e0 / 32eea300 take g_pMain +0x90 at call time and use it as a CX2State, no dungeon cast and no owner; 32eea320 / 32eea370 cast
-static void JuneResultDispatch( int iID )
+static void ResultDispatch( int iID )
 {
 	CX2State* pState = ( g_pMain != NULL ) ? static_cast< CX2State* >( g_pMain->GetNowState() ) : NULL;
 	switch ( iID )
 	{
 	case 0:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "notifyCloseResultUI" );
+		ResultWidgetLog( "notifyCloseResultUI" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		if ( pState != NULL )
-			pState->JuneOpenExitBox( true );		// 31f1dd70
+			pState->OpenExitBox( true );		// 31f1dd70
 		break;
 	case 1:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "notfyRetryButton" );
+		ResultWidgetLog( "notfyRetryButton" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		if ( pState != NULL )
-			pState->JuneResultRetry();				// vslot 0xe0
+			pState->ResultRetry();				// vslot 0xe0
 		break;
 	case 2:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "notifyInitialize" );
+		ResultWidgetLog( "notifyInitialize" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		if ( pState != NULL )
-			pState->JuneSetResultUIMode( 2, 0.f );	// 31ef7be0
+			pState->SetResultUIMode( 2, 0.f );	// 31ef7be0
 		break;
 	case 3:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "notfyitemSlotArrowLeft" );
+		ResultWidgetLog( "notfyitemSlotArrowLeft" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		if ( CX2StateDungeonGame* pDungeon = JuneResultNowState() )
-			pDungeon->JuneResultItemPagePrev();		// 324d1270
+		if ( CX2StateDungeonGame* pDungeon = ResultNowState() )
+			pDungeon->ResultItemPagePrev();		// 324d1270
 		break;
 	case 4:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "notfyitemSlotArrowRight" );
+		ResultWidgetLog( "notfyitemSlotArrowRight" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		if ( CX2StateDungeonGame* pDungeon = JuneResultNowState() )
-			pDungeon->JuneResultItemPageNext();		// 324d1210
+		if ( CX2StateDungeonGame* pDungeon = ResultNowState() )
+			pDungeon->ResultItemPageNext();		// 324d1210
 		break;
 	}
 }
@@ -78,7 +78,7 @@ CX2UIDungeonResultAdapter::CX2UIDungeonResultAdapter( CKTDGGFXManager* pManager 
 	: m_pBridge( NULL )
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
-	CKTDGGFXResultBridge::SetFunctionDispatcher( &JuneResultDispatch );
+	CKTDGGFXResultBridge::SetFunctionDispatcher( &ResultDispatch );
 #endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 	if ( pManager != NULL )
 		m_pBridge = new CKTDGGFXResultBridge( pManager, this );
@@ -94,7 +94,7 @@ bool CX2UIDungeonResultAdapter::IsBound() const
 	return m_pBridge != NULL && m_pBridge->IsBound() == true;
 }
 
-void CX2UIDungeonResultAdapter::UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )
+void CX2UIDungeonResultAdapter::UpdateDungeonInfo( const KGfxResultInfo& kInfo )
 {
 	if ( m_pBridge != NULL )
 		m_pBridge->UpdateDungeonInfo( kInfo );
@@ -105,7 +105,7 @@ void CX2UIDungeonResultAdapter::SetItem( int iIndex, int iItemID, int iNum, int 
 	if ( m_pBridge == NULL )
 		return;
 
-	KJuneGfxResultItem kItem;
+	KGfxResultItem kItem;
 	kItem.m_iItemID		= iItemID;
 	kItem.m_iNum		= iNum;
 	kItem.m_iUIDLow		= iUIDLow;
@@ -142,51 +142,51 @@ void CX2UIDungeonResultAdapter::NotifyTabKey()
 void CX2UIDungeonResultAdapter::OnResultAsClose()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "notifyCloseResultUI" );
+	ResultWidgetLog( "notifyCloseResultUI" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState != NULL )
-		pState->JuneResultOnClose();
+		pState->ResultOnClose();
 }
 
 void CX2UIDungeonResultAdapter::OnResultAsRetry()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "notfyRetryButton" );
+	ResultWidgetLog( "notfyRetryButton" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState != NULL )
-		pState->JuneResultOnRetry();
+		pState->ResultOnRetry();
 }
 
 void CX2UIDungeonResultAdapter::OnResultAsInitialize()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "notifyInitialize" );
+	ResultWidgetLog( "notifyInitialize" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState != NULL )
-		pState->JuneResultOnInitialize();
+		pState->ResultOnInitialize();
 }
 
 void CX2UIDungeonResultAdapter::OnResultAsArrowLeft()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "notfyitemSlotArrowLeft" );
+	ResultWidgetLog( "notfyitemSlotArrowLeft" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState != NULL )
-		pState->JuneResultItemPagePrev();		// 324d1270
+		pState->ResultItemPagePrev();		// 324d1270
 }
 
 void CX2UIDungeonResultAdapter::OnResultAsArrowRight()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "notfyitemSlotArrowRight" );
+	ResultWidgetLog( "notfyitemSlotArrowRight" );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState != NULL )
-		pState->JuneResultItemPageNext();		// 324d1210
+		pState->ResultItemPageNext();		// 324d1210
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -198,9 +198,9 @@ namespace
 	const int JUNE_RESULT_ITEM_SLOTS	= 12;
 
 	// 324ddca0: the order of one category's map ( a unique-key std::map: an entry neither side of which is less is dropped )
-	struct KJuneResultEntryLess
+	struct KResultEntryLess
 	{
-		bool operator()( const KJuneGfxResultEntry& kA, const KJuneGfxResultEntry& kB ) const
+		bool operator()( const KGfxResultEntry& kA, const KGfxResultEntry& kB ) const
 		{
 			if ( kB.m_iCategory == 4 )
 			{
@@ -226,7 +226,7 @@ namespace
 		}
 	};
 
-	float JuneResultClamp01( float fValue )		// 324d6ccb..: the two rates before 32eeae30 clamps them again
+	float ResultClamp01( float fValue )		// 324d6ccb..: the two rates before 32eeae30 clamps them again
 	{
 		if ( fValue <= 1.0f )
 		{
@@ -240,16 +240,16 @@ namespace
 }
 
 // 324c8b80 ( vslot 0xb8 ): June does not free a previous adapter here; the callers go through JuneResultRecreateAdapter
-void CX2StateDungeonGame::JuneResultCreateAdapter()
+void CX2StateDungeonGame::ResultCreateAdapter()
 {
-	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
+	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetGFXManager() : NULL;
 	if ( pManager != NULL && pManager->IsMovieLoaded() == false )
 		pManager = NULL;
 	m_pJuneResultAdapter = new CX2UIDungeonResultAdapter( pManager );
 }
 
 // 324c8320 ( vslot 0xbc )
-void CX2StateDungeonGame::JuneResultDeleteAdapter()
+void CX2StateDungeonGame::ResultDeleteAdapter()
 {
 	if ( m_pJuneResultAdapter != NULL )
 	{
@@ -259,28 +259,28 @@ void CX2StateDungeonGame::JuneResultDeleteAdapter()
 }
 
 // 324c8c20 ( vslot 0xc4 )
-void CX2StateDungeonGame::JuneResultCloseUI()
+void CX2StateDungeonGame::ResultCloseUI()
 {
-	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetJuneGFXManager() != NULL )
-		g_pKTDXApp->GetJuneGFXManager()->unloadWidget( JUNE_RESULT_UI_ID );		// 31c445d0
+	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetGFXManager() != NULL )
+		g_pKTDXApp->GetGFXManager()->unloadWidget( JUNE_RESULT_UI_ID );		// 31c445d0
 }
 
 // 324c8350 ( vslot 0xc8 )
-void CX2StateDungeonGame::JuneResultRecreateAdapter()
+void CX2StateDungeonGame::ResultRecreateAdapter()
 {
-	JuneResultDeleteAdapter();
-	JuneResultCreateAdapter();
+	ResultDeleteAdapter();
+	ResultCreateAdapter();
 }
 
 // 324c8370 ( vslot 0xcc )
-void CX2StateDungeonGame::JuneResultCloseAndDelete()
+void CX2StateDungeonGame::ResultCloseAndDelete()
 {
-	JuneResultCloseUI();
-	JuneResultDeleteAdapter();
+	ResultCloseUI();
+	ResultDeleteAdapter();
 }
 
 // 324c83f0 ( vslot 0xe4 ): t > 0 is a cool-down ( stored, the tick 324c83a0 is not ported ), else the button state
-void CX2StateDungeonGame::JuneResultEnableRetry( bool bEnable, float fCoolTime )
+void CX2StateDungeonGame::ResultEnableRetry( bool bEnable, float fCoolTime )
 {
 	if ( fCoolTime > 0.0f )
 	{
@@ -293,11 +293,11 @@ void CX2StateDungeonGame::JuneResultEnableRetry( bool bEnable, float fCoolTime )
 }
 
 // 324d1120: June's 31edf8f0( dungeon data, 0xe ) has no March home ( read false, as 3202d3c0 ); +0x7a9 is Stage 22's post-clear NPC flag ( never set offline )
-bool CX2StateDungeonGame::JuneResultRetryAllowed()
+bool CX2StateDungeonGame::ResultRetryAllowed()
 {
 	if ( g_pX2Game != NULL && g_pX2Game->GetGameType() != CX2Game::GT_DUNGEON )
 		return false;
-	if ( JuneResultNpcEventActive() == true )
+	if ( ResultNpcEventActive() == true )
 		return false;
 
 	// 31edf7d0( my unit UID ): the party manager, and when I have a party, only its leader
@@ -316,13 +316,13 @@ bool CX2StateDungeonGame::JuneResultRetryAllowed()
 }
 
 // 324cf8b0: the 12 item slots of the current page ( game vslot 0x220 ), the rest ( 0, 0, -1, -1 )
-void CX2StateDungeonGame::JuneResultFillItems()
+void CX2StateDungeonGame::ResultFillItems()
 {
 	if ( m_pJuneResultAdapter == NULL )
 		return;
 
 	std::vector< CX2Item::ItemData > vecItem;
-	if ( m_pDungeonGame == NULL || m_pDungeonGame->JuneGetObtainedItems( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS, JUNE_RESULT_ITEM_SLOTS, vecItem ) == false )
+	if ( m_pDungeonGame == NULL || m_pDungeonGame->GetObtainedItems( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS, JUNE_RESULT_ITEM_SLOTS, vecItem ) == false )
 		vecItem.clear();
 
 	int iSlot = 0;
@@ -336,43 +336,43 @@ void CX2StateDungeonGame::JuneResultFillItems()
 }
 
 // 324d1210 ( right ): one page on when game vslot 0x224( page * 12 + 13 ) says there is one
-void CX2StateDungeonGame::JuneResultItemPageNext()
+void CX2StateDungeonGame::ResultItemPageNext()
 {
-	if ( m_pDungeonGame != NULL && m_pDungeonGame->JuneHasObtainedItemPage( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS + 13 ) == true )
+	if ( m_pDungeonGame != NULL && m_pDungeonGame->HasObtainedItemPage( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS + 13 ) == true )
 	{
 		++m_iJuneResultItemPage;
-		JuneResultFillItems();
+		ResultFillItems();
 	}
 }
 
 // 324d1270 ( left )
-void CX2StateDungeonGame::JuneResultItemPagePrev()
+void CX2StateDungeonGame::ResultItemPagePrev()
 {
 	if ( m_iJuneResultItemPage != 0 )
 	{
 		--m_iJuneResultItemPage;
-		JuneResultFillItems();
+		ResultFillItems();
 	}
 }
 
 // 324d60e0 ( vslot 0xc0 ): the result info -> updateDungeonInfo, then the game's item sort ( vslot 0x228 ) and the item fill.
 // Not ported: the dialog-manager block at its start ( 31d05fe0 / 31d05ec0, two flag-walks over the dialog stack at g_pKTDXApp +0x1fc +0x38c ) -> Stage 9.
-void CX2StateDungeonGame::JuneResultFill()
+void CX2StateDungeonGame::ResultFill()
 {
 	CX2DungeonGame::DungeonResultInfo* pResultInfo = ( g_pData != NULL ) ? g_pData->GetDungeonResultInfo() : NULL;
 	if ( pResultInfo == NULL || g_pX2Game == NULL || m_pJuneResultAdapter == NULL )		// June: vslot 0xf0( 0 ) ( the result confirm, R3 )
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "fill: %s", pResultInfo == NULL ? "no result info" : ( g_pX2Game == NULL ? "no game" : "no adapter" ) );
+		ResultWidgetLog( "fill: %s", pResultInfo == NULL ? "no result info" : ( g_pX2Game == NULL ? "no game" : "no adapter" ) );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-		JuneResultSendConfirm( false );
+		ResultSendConfirm( false );
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 		return;
 	}
 
 	// the six category lists ( 324b3930 x 6 ), filled per unit below and pushed in order ( 324b54b0 x 6 )
-	std::set< KJuneGfxResultEntry, KJuneResultEntryLess >	setCategory[ 6 ];
+	std::set< KGfxResultEntry, KResultEntryLess >	setCategory[ 6 ];
 	const CX2DungeonGame::DungeonResultUnitInfo*			pMyResult	= NULL;
 	int														iPlayerCount = 0;
 
@@ -416,7 +416,7 @@ void CX2StateDungeonGame::JuneResultFill()
 		};
 		for ( int iCategory = 0; iCategory < 6; ++iCategory )
 		{
-			KJuneGfxResultEntry kEntry;
+			KGfxResultEntry kEntry;
 			kEntry.m_bIsMyUnit		= bIsMyUnit;
 			kEntry.m_wstrName		= wstrName;
 			kEntry.m_iCategory		= iCategory;
@@ -430,7 +430,7 @@ void CX2StateDungeonGame::JuneResultFill()
 	if ( pMyResult == NULL || g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetSelectUnit() == NULL )		// 324d6ccb: the update needs my own row
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		JuneResultWidgetLog( "fill: no row for my unit ( %d units )", iPlayerCount );
+		ResultWidgetLog( "fill: no row for my unit ( %d units )", iPlayerCount );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		return;
 	}
@@ -442,14 +442,14 @@ void CX2StateDungeonGame::JuneResultFill()
 	const int iLevel = kUnitData.m_Level;
 	const float fBase = (float)(int)kUnitData.m_NowBaseLevelEXP;
 	const float fRange = ( g_pData->GetEXPTable() != NULL ) ? (float)g_pData->GetEXPTable()->GetEXPData( iLevel + 1 ).m_nNeedExp : 0.0f;
-	float fExpRate = JuneResultClamp01( ( (float)(int)kUnitData.m_EXP - fBase ) / fRange );
+	float fExpRate = ResultClamp01( ( (float)(int)kUnitData.m_EXP - fBase ) / fRange );
 	const float fOldExp = (float)pMyResult->m_nOldEXP;
-	float fOldExpRate = JuneResultClamp01( ( fOldExp - fBase ) / fRange );
+	float fOldExpRate = ResultClamp01( ( fOldExp - fBase ) / fRange );
 
 	// June caps the gain at the level ED limit ( 328b1880, GameSysVal ) less the start ED; March has no limit table, so June's no-table path
 	const long long llED = pMyResult->m_nED;
 
-	KJuneGfxResultInfo kInfo;
+	KGfxResultInfo kInfo;
 	kInfo.m_iTotalRank		= (int)pMyResult->m_cTotalRank;
 	kInfo.m_iSec			= pResultInfo->m_Sec;
 	kInfo.m_iBestSec		= 0;										// resultInfo +0x2c: June-only, no writer
@@ -463,29 +463,29 @@ void CX2StateDungeonGame::JuneResultFill()
 	kInfo.m_fOldExpRate		= fOldExpRate;
 	kInfo.m_bLevelUp		= ( fOldExp < fBase );
 	kInfo.m_iLevel			= iLevel;
-	kInfo.m_bShowExitButton	= ( JuneResultNpcEventActive() == false );
+	kInfo.m_bShowExitButton	= ( ResultNpcEventActive() == false );
 	kInfo.m_iResonanceLevel	= 0;										// 3247b460: June-only system
 	kInfo.m_iUnitType		= (int)pMyUnit->GetType();
 	kInfo.m_iPlayerCount	= iPlayerCount;
 	kInfo.m_iRewardType		= 0;										// unit [0x29]: June-only
-	kInfo.m_bReTryButtonShow = JuneResultRetryAllowed();
+	kInfo.m_bReTryButtonShow = ResultRetryAllowed();
 	kInfo.m_vecCategory.resize( 6 );
 	for ( int iCategory = 0; iCategory < 6; ++iCategory )
 		kInfo.m_vecCategory[ iCategory ].assign( setCategory[ iCategory ].begin(), setCategory[ iCategory ].end() );
 
 	m_pJuneResultAdapter->UpdateDungeonInfo( kInfo );
 	if ( m_pDungeonGame != NULL )
-		m_pDungeonGame->JuneSortObtainedItems();		// game vslot 0x228
-	JuneResultFillItems();
+		m_pDungeonGame->SortObtainedItems();		// game vslot 0x228
+	ResultFillItems();
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultWidgetLog( "fill: %d players, my rank %d, ED %d, EXP %d ( rate %.3f, old %.3f ), level %d%s, retry %d, obtained items %d",
+	ResultWidgetLog( "fill: %d players, my rank %d, ED %d, EXP %d ( rate %.3f, old %.3f ), level %d%s, retry %d, obtained items %d",
 		iPlayerCount, kInfo.m_iTotalRank, kInfo.m_iED, kInfo.m_iTotalEXP, kInfo.m_fExpRate, kInfo.m_fOldExpRate, kInfo.m_iLevel, kInfo.m_bLevelUp ? " ( level up )" : "",
-		kInfo.m_bReTryButtonShow ? 1 : 0, m_pDungeonGame != NULL ? m_pDungeonGame->JuneGetObtainedItemCount() : 0 );
+		kInfo.m_bReTryButtonShow ? 1 : 0, m_pDungeonGame != NULL ? m_pDungeonGame->GetObtainedItemCount() : 0 );
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 }
 
-bool CX2StateDungeonGame::JuneResultIsBound() const
+bool CX2StateDungeonGame::ResultIsBound() const
 {
 	return m_pJuneResultAdapter != NULL && m_pJuneResultAdapter->IsBound() == true;
 }
@@ -495,7 +495,7 @@ bool CX2StateDungeonGame::JuneResultIsBound() const
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // 327cedf0 ( vslot 0x21c ): a negative quantity is dropped; a quantity item ( period type 2 ) adds to the record with its id, any other item
 // is dropped when its UID is already listed; else it is appended
-void CX2DungeonGame::JuneAddObtainedItem( const CX2Item::ItemData& kItemData )
+void CX2DungeonGame::AddObtainedItem( const CX2Item::ItemData& kItemData )
 {
 	if ( kItemData.m_Quantity < 0 )
 		return;
@@ -520,7 +520,7 @@ void CX2DungeonGame::JuneAddObtainedItem( const CX2Item::ItemData& kItemData )
 }
 
 // 327cee60 ( vslot 0x220 ): [ start, start + count ) of the list into vecOut ( cleared first ); false for an empty list or a start past the end
-bool CX2DungeonGame::JuneGetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const
+bool CX2DungeonGame::GetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const
 {
 	if ( m_vecJuneObtainedItem.empty() == true )
 		return false;
@@ -537,7 +537,7 @@ bool CX2DungeonGame::JuneGetObtainedItems( unsigned uStart, unsigned uCount, std
 }
 
 // 327ca2f0 ( vslot 0x224 )
-bool CX2DungeonGame::JuneHasObtainedItemPage( unsigned uCount ) const
+bool CX2DungeonGame::HasObtainedItemPage( unsigned uCount ) const
 {
 	return m_vecJuneObtainedItem.size() >= uCount;
 }
@@ -545,7 +545,7 @@ bool CX2DungeonGame::JuneHasObtainedItemPage( unsigned uCount ) const
 // 327cef20 ( vslot 0x228 ): June's std::sort ( 327d7e30 ) by item grade; unstable above 32 items, a templet-less item never sorts first ( JUNE_BUGS 405 )
 namespace
 {
-	struct KJuneObtainedItemLess
+	struct KObtainedItemLess
 	{
 		bool operator()( const CX2Item::ItemData& kA, const CX2Item::ItemData& kB ) const
 		{
@@ -558,41 +558,41 @@ namespace
 	};
 }
 
-void CX2DungeonGame::JuneSortObtainedItems()
+void CX2DungeonGame::SortObtainedItems()
 {
 	if ( m_vecJuneObtainedItem.empty() == true || g_pData == NULL || g_pData->GetItemManager() == NULL )
 		return;
-	std::sort( m_vecJuneObtainedItem.begin(), m_vecJuneObtainedItem.end(), KJuneObtainedItemLess() );
+	std::sort( m_vecJuneObtainedItem.begin(), m_vecJuneObtainedItem.end(), KObtainedItemLess() );
 }
 
 // notifyCloseResultUI 32eea2c0: June opens the exit box ( 31f1dd70( 1 ) ), R3. In the dev console the widget just closes.
-void CX2StateDungeonGame::JuneResultOnClose()
+void CX2StateDungeonGame::ResultOnClose()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	JuneOpenExitBox( true );
+	OpenExitBox( true );
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultCloseUI();
+	ResultCloseUI();
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 }
 
 // notfyRetryButton 32eea2e0: June calls state vslot 0xe0 ( the retry request ), R2 / R3
-void CX2StateDungeonGame::JuneResultOnRetry()
+void CX2StateDungeonGame::ResultOnRetry()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	JuneResultRetry();
+	ResultRetry();
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 }
 
 // notifyInitialize 32eea300: June sets the result-UI mode 2 ( 31ef7be0( 2, 0.0 ) ), whose tick runs the fill ( R3 ). In the dev console the fill runs here.
-void CX2StateDungeonGame::JuneResultOnInitialize()
+void CX2StateDungeonGame::ResultOnInitialize()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	JuneSetResultUIMode( 2, 0.f );
+	SetResultUIMode( 2, 0.f );
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-	JuneResultFill();
+	ResultFill();
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 }
@@ -603,7 +603,7 @@ void CX2StateDungeonGame::JuneResultOnInitialize()
 // ---------------------------------------------------------------------------------------------------------------------------------------
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 // Log tag [JUNE_RESULT] FLOW ( ErrorLog.txt )
-static void JuneResultFlowLog( const char* szFormat, ... )
+static void ResultFlowLog( const char* szFormat, ... )
 {
 	char szBuf[ 1024 ] = { 0, };
 	va_list args;
@@ -612,18 +612,18 @@ static void JuneResultFlowLog( const char* szFormat, ... )
 	va_end( args );
 	KLOG( "ErrorLog.txt" ) << "[JUNE_RESULT] FLOW " << szBuf << fileout;
 }
-#define JUNE_RESULT_FLOW_LOG( args ) JuneResultFlowLog args
+#define JUNE_RESULT_FLOW_LOG( args ) ResultFlowLog args
 #else SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #define JUNE_RESULT_FLOW_LOG( args )
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 
-static bool JuneResultDlgAlive( CKTDGUIDialogType pDialog )
+static bool ResultDlgAlive( CKTDGUIDialogType pDialog )
 {
 	return pDialog != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( pDialog ) == true;
 }
 
 // 31edf7d0: true without a party manager in a party, or as its leader; false without a party manager
-static bool JuneResultIsSoloOrLeader()
+static bool ResultIsSoloOrLeader()
 {
 	if ( g_pData == NULL || g_pData->GetPartyManager() == NULL )
 		return false;
@@ -636,7 +636,7 @@ static bool JuneResultIsSoloOrLeader()
 }
 
 // 31ee3a40: two June-only id ranges are named as dungeon 120000
-static std::wstring JuneResultDungeonName( int iDungeonID, int iDifficulty, int iMode )
+static std::wstring ResultDungeonName( int iDungeonID, int iDifficulty, int iMode )
 {
 	if ( g_pData->GetDungeonManager() == NULL )
 		return L"";
@@ -653,7 +653,7 @@ static std::wstring JuneResultDungeonName( int iDungeonID, int iDifficulty, int 
 	return g_pData->GetDungeonManager()->MakeDungeonNameString( (SEnum::DUNGEON_ID)iDungeonID, (CX2Dungeon::DIFFICULTY_LEVEL)iDifficulty, (CX2Dungeon::DUNGEON_MODE)iMode );
 }
 
-static CX2Main::TimedMessagePopUp::TimedPopupUserData JuneResultMyPopupData()
+static CX2Main::TimedMessagePopUp::TimedPopupUserData ResultMyPopupData()
 {
 	CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
 	if ( g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL )
@@ -662,7 +662,7 @@ static CX2Main::TimedMessagePopUp::TimedPopupUserData JuneResultMyPopupData()
 }
 
 // 31f2d850: the minimap dialog's "mini" control
-void CX2MiniMapUI::JuneSetShowMiniControl( bool bShow )
+void CX2MiniMapUI::SetShowMiniControl( bool bShow )
 {
 	if ( m_pDLGFrameWindow == NULL )
 		return;
@@ -672,7 +672,7 @@ void CX2MiniMapUI::JuneSetShowMiniControl( bool bShow )
 }
 
 // 31f2d8b0
-bool CX2MiniMapUI::JuneGetShowMiniControl()
+bool CX2MiniMapUI::GetShowMiniControl()
 {
 	if ( m_pDLGFrameWindow == NULL )
 		return false;
@@ -681,17 +681,17 @@ bool CX2MiniMapUI::JuneGetShowMiniControl()
 }
 
 // 31ef7be0: +0x214 is not reset; mode 3 hides the minimap, mode 0 shows it back
-void CX2State::JuneSetResultUIMode( int iMode, float fTime )
+void CX2State::SetResultUIMode( int iMode, float fTime )
 {
 	m_iJuneResultMode = iMode;
 	CX2MiniMapUI* pMiniMap = ( g_pInstanceData != NULL ) ? g_pInstanceData->GetMiniMapUI() : NULL;
 	if ( iMode == 3 )
 	{
 		if ( pMiniMap != NULL )
-			pMiniMap->JuneSetShowMiniControl( false );
+			pMiniMap->SetShowMiniControl( false );
 	}
-	else if ( iMode == 0 && pMiniMap != NULL && pMiniMap->JuneGetShowMiniControl() == false )
-		pMiniMap->JuneSetShowMiniControl( true );
+	else if ( iMode == 0 && pMiniMap != NULL && pMiniMap->GetShowMiniControl() == false )
+		pMiniMap->SetShowMiniControl( true );
 
 	if ( 0.f < fTime )
 		m_fJuneResultModeLimit = fTime;
@@ -699,14 +699,14 @@ void CX2State::JuneSetResultUIMode( int iMode, float fTime )
 }
 
 // 31ef7390 ( vslot 0xd4 base )
-void CX2State::JuneResultModeFrameMove( float fElapsedTime )
+void CX2State::ResultModeFrameMove( float fElapsedTime )
 {
 	m_fJuneResultModeTime += fElapsedTime;
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 	// R3b: what the hide path sees while the exit box is up, once a second
 	static float s_fJuneExitBoxLogTime = 0.f;
 	s_fJuneExitBoxLogTime += fElapsedTime;
-	if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == true && 1.f <= s_fJuneExitBoxLogTime )
+	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true && 1.f <= s_fJuneExitBoxLogTime )
 	{
 		s_fJuneExitBoxLogTime = 0.f;
 		CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
@@ -714,21 +714,21 @@ void CX2State::JuneResultModeFrameMove( float fElapsedTime )
 		char szName[ 128 ] = { 0, };
 		WideCharToMultiByte( CP_ACP, 0, m_pDLGJuneExitBox->GetName(), -1, szName, sizeof( szName ) - 1, NULL, NULL );
 		JUNE_RESULT_FLOW_LOG(( "exit box check: name %s, shown %d, found by name %d, hide mode %d, manager shown %d, hidden %d, flagged-only %d, layer %d, front %d",
-			szName, m_pDLGJuneExitBox->GetShow() ? 1 : 0, ( pByName == m_pDLGJuneExitBox ) ? 1 : 0, pDialogManager->GetJuneHideMode(),
-			pDialogManager->GetShow() ? 1 : 0, pDialogManager->GetHideDialog() ? 1 : 0, pDialogManager->GetJuneFlaggedDialogsOnly() ? 1 : 0,
+			szName, m_pDLGJuneExitBox->GetShow() ? 1 : 0, ( pByName == m_pDLGJuneExitBox ) ? 1 : 0, pDialogManager->GetHideMode(),
+			pDialogManager->GetShow() ? 1 : 0, pDialogManager->GetHideDialog() ? 1 : 0, pDialogManager->GetFlaggedDialogsOnly() ? 1 : 0,
 			m_pDLGJuneExitBox->GetLayer(), m_pDLGJuneExitBox->GetFront() ? 1 : 0 ));
 	}
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 }
 
 // 31ef7c60
-bool CX2State::JuneIsExitBoxShown()
+bool CX2State::IsExitBoxShown()
 {
-	return JuneResultDlgAlive( m_pDLGJuneExitBox ) == true && m_pDLGJuneExitBox->GetShow() == true;
+	return ResultDlgAlive( m_pDLGJuneExitBox ) == true && m_pDLGJuneExitBox->GetShow() == true;
 }
 
 // 31f1dd70: a party gets DLG_UI_ExitPartyMsgBox.lua, a solo player an OK / Cancel box; false sends the box's close event
-void CX2State::JuneOpenExitBox( bool bShow )
+void CX2State::OpenExitBox( bool bShow )
 {
 	if ( g_pMain == NULL || g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) == true )
 		return;
@@ -736,25 +736,25 @@ void CX2State::JuneOpenExitBox( bool bShow )
 	CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
 	if ( bShow == false )
 	{
-		if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == true )
+		if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
 			g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_pDLGJuneExitBox->GetCloseCustomUIEventID(), NULL, true );
 		return;
 	}
 
-	if ( pDialogManager->IsJuneHideModeKeepingHidden() == false )		// 31d03a10
+	if ( pDialogManager->IsHideModeKeepingHidden() == false )		// 31d03a10
 		return;
 	CX2State* pNowState = static_cast< CX2State* >( g_pMain->GetNowState() );
-	if ( pNowState == NULL || pNowState->JuneResultNpcEventActive() == true )
+	if ( pNowState == NULL || pNowState->ResultNpcEventActive() == true )
 		return;
 
 	const bool bParty = ( g_pData->GetPartyManager() == NULL ) ? true : g_pData->GetPartyManager()->DoIHaveParty();
-	if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == false )
+	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == false )
 	{
 		if ( bParty == false )
 		{
 			m_pDLGJuneExitBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( 39778 ), SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX,
 				pNowState, SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX );
-			if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == true )
+			if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
 				m_pDLGJuneExitBox->SetCloseCustomUIEventID( SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX );
 		}
 		else
@@ -762,23 +762,23 @@ void CX2State::JuneOpenExitBox( bool bShow )
 			m_pDLGJuneExitBox = new CKTDGUIDialog( pNowState, L"DLG_UI_ExitPartyMsgBox.lua", 0.07f );
 			pDialogManager->AddDlg( m_pDLGJuneExitBox );		// 31d04390; the message box is already in the manager
 		}
-		pDialogManager->SetJuneFlaggedDialogsOnly( true );		// @31f1e108
+		pDialogManager->SetFlaggedDialogsOnly( true );		// @31f1e108
 	}
 
-	if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == true )
+	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
 	{
 		m_pDLGJuneExitBox->SetShow( bShow );
 		m_pDLGJuneExitBox->SetEnable( bShow );
-		JuneSetExitBoxText( bParty );
-		JuneResultEnableRetry( false, -1.f );
+		SetExitBoxText( bParty );
+		ResultEnableRetry( false, -1.f );
 	}
-	JUNE_RESULT_FLOW_LOG(( "exit box: %s, %s", bParty ? "party" : "solo", JuneResultDlgAlive( m_pDLGJuneExitBox ) ? "shown" : "not created" ));
+	JUNE_RESULT_FLOW_LOG(( "exit box: %s, %s", bParty ? "party" : "solo", ResultDlgAlive( m_pDLGJuneExitBox ) ? "shown" : "not created" ));
 }
 
 // 31f17e60: the text by state; June's PvE-state row ( 0x17 ) belongs to Stage 9
-void CX2State::JuneSetExitBoxText( bool bParty )
+void CX2State::SetExitBoxText( bool bParty )
 {
-	if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == false )
+	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == false )
 		return;
 	CKTDGUIStatic* pStatic = static_cast< CKTDGUIStatic* >( m_pDLGJuneExitBox->GetControl( L"StaticMsgBoxBG" ) );
 	if ( pStatic == NULL )
@@ -799,9 +799,9 @@ void CX2State::JuneSetExitBoxText( bool bParty )
 }
 
 // 31f17c20 ( vslot 0xd8 ): June dereferences the dialog without a check
-void CX2State::JuneUpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec )
+void CX2State::UpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec )
 {
-	if ( JuneResultDlgAlive( m_pDLGJunePartyResult ) == false || piSec == NULL )
+	if ( ResultDlgAlive( m_pDLGJunePartyResult ) == false || piSec == NULL )
 		return;
 
 	CKTDGUIControl* pState = m_pDLGJunePartyResult->GetControl( L"Party_Member_Result_State" );
@@ -820,74 +820,74 @@ void CX2State::JuneUpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec 
 }
 
 // 31f08590 ( vslot 0xdc ): June does not free an earlier dialog here
-void CX2State::JuneCreatePartyResultDLG()
+void CX2State::CreatePartyResultDLG()
 {
 	m_pDLGJunePartyResult = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_Party_Member_Result_State.lua", 0.07f );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGJunePartyResult );
 	int iSec = 0;
-	JuneUpdatePartyResultDLG( false, false, &iSec );
+	UpdatePartyResultDLG( false, false, &iSec );
 }
 
 // 324c8390 ( vslot 0xd0 ): no caller found in June
-void CX2StateDungeonGame::JuneResultSetModeFour()
+void CX2StateDungeonGame::ResultSetModeFour()
 {
-	JuneSetResultUIMode( 4, 0.f );
+	SetResultUIMode( 4, 0.f );
 }
 
 // 324cf3d0 ( vslot 0xd4 ), shared with the training state
-void CX2StateDungeonGame::JuneResultModeFrameMove( float fElapsedTime )
+void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 {
-	CX2State::JuneResultModeFrameMove( fElapsedTime );
+	CX2State::ResultModeFrameMove( fElapsedTime );
 
 	switch ( m_iJuneResultMode )
 	{
 	case 1:
 		{
-			if ( (double)m_fJuneResultModeTime < 0.1 && JuneResultNpcEventActive() == false )
+			if ( (double)m_fJuneResultModeTime < 0.1 && ResultNpcEventActive() == false )
 				return;
 
 			if ( g_pMain->GetIsPlayingTutorial() == true )
 			{
 				if ( m_pDungeonGame != NULL && m_pDungeonGame->GetCanUseEscFlag() == false )
 					m_pDungeonGame->SetCanUseEscFlag( true );
-				JuneSetResultUIMode( 0, 0.f );
-				JuneResultSendConfirm( false );
+				SetResultUIMode( 0, 0.f );
+				ResultSendConfirm( false );
 				return;
 			}
 
-			CKTDGGFXManager* pManager = g_pKTDXApp->GetJuneGFXManager();
+			CKTDGGFXManager* pManager = g_pKTDXApp->GetGFXManager();
 			if ( pManager == NULL || pManager->IsMovieLoaded() == false )
 			{
 				// degrade: no GFx widget, June's no-result-info path ( vslot 0xf0 )
 				KLOG( "ErrorLog.txt" ) << "[JUNE_RESULT] FLOW no GFx manager or main.gfx: result confirmed without the widget" << fileout;
-				JuneResultSendConfirm( false );
+				ResultSendConfirm( false );
 				return;
 			}
 			if ( pManager->isOpenUI( JUNE_RESULT_UI_ID ) == true )
 				return;
 			if ( g_pData->GetDungeonResultInfo() == NULL )
 			{
-				JuneResultSendConfirm( false );
+				ResultSendConfirm( false );
 				return;
 			}
 			if ( m_bJuneResultUIOpened == false )
 			{
-				JuneResultRecreateAdapter();
+				ResultRecreateAdapter();
 				pManager->openUI( JUNE_RESULT_UI_ID );
 				m_bJuneResultUIOpened = true;
 				JUNE_RESULT_FLOW_LOG(( "mode 1: UI 8 opened" ));
 			}
 			if ( g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
-				g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( false, 2 );		// @324cf508
+				g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324cf508
 			if ( g_pData->GetUIManager() != NULL && g_pData->GetUIManager()->GetUIQuickSlot() != NULL )
 				g_pData->GetUIManager()->GetUIQuickSlot()->SetShow( true );						// quick slot vslot 0x20( 1 )
 		} break;
 
 	case 2:
 		{
-			JuneResultFill();
-			JuneCreatePartyResultDLG();
-			JuneSetResultUIMode( 3, 0.f );
+			ResultFill();
+			CreatePartyResultDLG();
+			SetResultUIMode( 3, 0.f );
 		} break;
 
 	case 3:
@@ -898,11 +898,11 @@ void CX2StateDungeonGame::JuneResultModeFrameMove( float fElapsedTime )
 			int iSec = (int)( m_fJuneResultModeLimit - m_fJuneResultModeTime );
 			if ( iSec < 0 )
 				iSec = 0;
-			JuneUpdatePartyResultDLG( false, true, &iSec );
+			UpdatePartyResultDLG( false, true, &iSec );
 
 			if ( m_fJuneResultModeLimit <= m_fJuneResultModeTime )
 			{
-				JuneSetResultUIMode( 4, 0.f );
+				SetResultUIMode( 4, 0.f );
 				return;
 			}
 			if ( m_fJuneResultModeTime < 0.f || m_bJuneResultSpeedChecked == true )
@@ -951,11 +951,11 @@ void CX2StateDungeonGame::JuneResultModeFrameMove( float fElapsedTime )
 			int iSec = (int)( m_fJuneResultModeLimit - m_fJuneResultModeTime );
 			if ( iSec < 0 )
 				iSec = 0;
-			JuneUpdatePartyResultDLG( true, true, &iSec );
-			CKTDGGFXManager* pManager = g_pKTDXApp->GetJuneGFXManager();
+			UpdatePartyResultDLG( true, true, &iSec );
+			CKTDGGFXManager* pManager = g_pKTDXApp->GetGFXManager();
 			if ( pManager != NULL && pManager->isOpenUI( JUNE_RESULT_UI_ID ) == true )
-				JuneResultCloseAndDelete();
-			JuneResultSendConfirm( false );
+				ResultCloseAndDelete();
+			ResultSendConfirm( false );
 		} break;
 
 	default:
@@ -964,22 +964,22 @@ void CX2StateDungeonGame::JuneResultModeFrameMove( float fElapsedTime )
 }
 
 // 324d8600 ( vslot 0xe0 ): a party asks the server at once, a solo player gets the ready box first
-void CX2StateDungeonGame::JuneResultRetry()
+void CX2StateDungeonGame::ResultRetry()
 {
 	if ( m_bJuneResultRetryEnabled == false )
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
 	// User decision 2026-10-22: solo and auto-party send the REQ at once, no ready box
-	JuneResultSendRetryReq();
+	ResultSendRetryReq();
 #else SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
 	if ( g_pData->GetPartyManager() != NULL && g_pData->GetPartyManager()->DoIHaveParty() == true )
 	{
-		JuneResultSendRetryReq();
+		ResultSendRetryReq();
 		return;
 	}
 
-	CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData = JuneResultMyPopupData();
+	CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData = ResultMyPopupData();
 	int iDungeonID = 0, iDifficulty = 0, iMode = 0;
 	if ( g_pData->GetPartyManager() != NULL )
 	{
@@ -990,19 +990,19 @@ void CX2StateDungeonGame::JuneResultRetry()
 		iMode		= pPartyData->m_iDungeonMode;
 #endif HENIR_TEST
 	}
-	const std::wstring wstrDungeonName = JuneResultDungeonName( iDungeonID, iDifficulty, iMode );
+	const std::wstring wstrDungeonName = ResultDungeonName( iDungeonID, iDifficulty, iMode );
 	// June's extra ( 230, 200 ) argument to 31d94a20 has no March parameter
 	g_pMain->AddTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, CX2Main::TimedMessagePopUp::MBT_OK_CANCEL,
 		kUserData, 10.f, GET_REPLACED_STRING( ( STR_ID_21304, "Li", wstrDungeonName, 1 ) ), (CKTDXStage*)g_pMain->GetNowState(),
 		DGUCM_JUNE_RESULT_RETRY_OK, DGUCM_JUNE_RESULT_RETRY_CANCEL, DGUCM_JUNE_RESULT_RETRY_CANCEL );
-	g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( false, 2 );		// @324d880f
-	JuneResultEnableRetry( false, -1.f );
+	g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324d880f
+	ResultEnableRetry( false, -1.f );
 	JUNE_RESULT_FLOW_LOG(( "retry: solo ready box ( dungeon %d, difficulty %d, mode %d )", iDungeonID, iDifficulty, iMode ));
 #endif SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
 }
 
 // 324c8c40 ( vslot 0x294 ): Tab while the dialogs are hidden, only in mode 3
-void CX2StateDungeonGame::JuneResultTabKey()
+void CX2StateDungeonGame::ResultTabKey()
 {
 	if ( m_iJuneResultMode == 3 && m_pJuneResultAdapter != NULL )
 	{
@@ -1012,21 +1012,21 @@ void CX2StateDungeonGame::JuneResultTabKey()
 }
 
 // 324d11e0 ( vslot 0xe8 ): its only June caller is the party manager ( Stage 28 )
-void CX2StateDungeonGame::JuneResultRefreshRetryButton()
+void CX2StateDungeonGame::ResultRefreshRetryButton()
 {
 	if ( m_iJuneResultMode == 3 && m_pJuneResultAdapter != NULL )
-		m_pJuneResultAdapter->ShowRetryButton( JuneResultRetryAllowed() );
+		m_pJuneResultAdapter->ShowRetryButton( ResultRetryAllowed() );
 }
 
 // 324c9990 ( vslot 0xec ): ESC with the ready box up is its Cancel
-void CX2StateDungeonGame::JuneResultEscWithRetryPopup()
+void CX2StateDungeonGame::ResultEscWithRetryPopup()
 {
 	if ( g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) == true )
 		g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, DGUCM_JUNE_RESULT_RETRY_CANCEL, NULL, true );
 }
 
 // 324d84c0 ( vslot 0xf0 ): once; a pending ready box is declined first ( 32434250( 0 ) )
-bool CX2StateDungeonGame::JuneResultSendConfirm( bool bQuit )
+bool CX2StateDungeonGame::ResultSendConfirm( bool bQuit )
 {
 	if ( m_bJuneResultConfirmSent == true )
 		return false;
@@ -1035,7 +1035,7 @@ bool CX2StateDungeonGame::JuneResultSendConfirm( bool bQuit )
 
 	if ( g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) == true )
 	{
-		g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, JuneResultMyPopupData() );
+		g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, ResultMyPopupData() );
 		g_pData->GetPartyManager()->Send_EGS_PARTY_GAME_START_OPINION_CHECK_REPLY_NOT( false );
 	}
 	g_pData->GetServerProtocol()->SendID( EGS_RESULT_SUCCESS_REQ );
@@ -1045,21 +1045,21 @@ bool CX2StateDungeonGame::JuneResultSendConfirm( bool bQuit )
 }
 
 // 324c9530
-bool CX2StateDungeonGame::JuneResultSendRetryReq()
+bool CX2StateDungeonGame::ResultSendRetryReq()
 {
-	if ( JuneResultIsSoloOrLeader() == false )
+	if ( ResultIsSoloOrLeader() == false )
 		return false;
-	if ( g_pMain->IsWaitingServerPacket( EGS_JUNE_DUNGEON_RETRY_ACK ) == true )		// 31d70e00
+	if ( g_pMain->IsWaitingServerPacket( EGS_DUNGEON_RETRY_ACK ) == true )		// 31d70e00
 		return false;
-	g_pData->GetServerProtocol()->SendID( EGS_JUNE_DUNGEON_RETRY_REQ );
-	g_pMain->AddServerPacket( EGS_JUNE_DUNGEON_RETRY_ACK, 0.f );
-	JuneResultEnableRetry( false, -1.f );
+	g_pData->GetServerProtocol()->SendID( EGS_DUNGEON_RETRY_REQ );
+	g_pMain->AddServerPacket( EGS_DUNGEON_RETRY_ACK, 0.f );
+	ResultEnableRetry( false, -1.f );
 	JUNE_RESULT_FLOW_LOG(( "retry REQ sent" ));
 	return true;
 }
 
 // 324db6b0: replaces March's handler; the first-clear movie ( 31d7a150 / 31d758c0 / 31d78bf0 ) is Stage 26's
-bool CX2StateDungeonGame::JuneResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT& kPacket )
+bool CX2StateDungeonGame::ResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT& kPacket )
 {
 	if ( g_pData->GetUIManager() != NULL && g_pData->GetUIManager()->GetUIQuickSlot() != NULL )
 		g_pData->GetUIManager()->GetUIQuickSlot()->SetEnable( false );			// 3294c460( 0, 0 )
@@ -1092,7 +1092,7 @@ bool CX2StateDungeonGame::JuneResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DAT
 			static_cast< CX2State* >( g_pMain->GetNowState() )->ReturnToPlaceWhereBeforeDungeonStart();
 	}
 	else
-		JuneSetResultUIMode( 1, 30.f );		// @324db8d7
+		SetResultUIMode( 1, 30.f );		// @324db8d7
 	// DI_EVENT_HIGHSCHOOL ( 41450 ) score effects read a June-only packet map: routed to the event-dungeon owner
 	JUNE_RESULT_FLOW_LOG(( "end: win %d, my unit dead %d, dungeon %d, units %d", kPacket.m_bIsWin ? 1 : 0, bDieMyUnit ? 1 : 0, kPacket.m_iDungeonID, (int)kPacket.m_vecDungeonUnitInfo.size() ));
 	return true;
@@ -1153,17 +1153,17 @@ bool CX2StateDungeonGame::Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT( HWND hWnd, UI
 }
 
 // 324c95b0: success does nothing here, the server starts the dungeon again
-bool CX2StateDungeonGame::Handler_EGS_JUNE_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+bool CX2StateDungeonGame::Handler_EGS_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
-	KEGS_JUNE_DUNGEON_RETRY_ACK kEvent;
+	KEGS_DUNGEON_RETRY_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 
-	if ( g_pMain->DeleteServerPacket( EGS_JUNE_DUNGEON_RETRY_ACK ) == true )
+	if ( g_pMain->DeleteServerPacket( EGS_DUNGEON_RETRY_ACK ) == true )
 	{
 		if ( g_pMain->IsValidPacket( kEvent.m_iOK ) == false )
-			JuneResultEnableRetry( true, -1.f );
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( false, 2 );		// @324c966e
+			ResultEnableRetry( true, -1.f );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324c966e
 	}
 	JUNE_RESULT_FLOW_LOG(( "retry ACK: %d", kEvent.m_iOK ));
 	return true;
@@ -1171,37 +1171,37 @@ bool CX2StateDungeonGame::Handler_EGS_JUNE_DUNGEON_RETRY_ACK( HWND hWnd, UINT uM
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
-void JuneResultOpen_LUA()
+void ResultOpen_LUA()
 {
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState == NULL )
 	{
-		JuneResultWidgetLog( "open: the current state is not a dungeon state" );
+		ResultWidgetLog( "open: the current state is not a dungeon state" );
 		return;
 	}
-	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
+	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetGFXManager() : NULL;
 	if ( pManager == NULL || pManager->IsMovieLoaded() == false )
 	{
-		JuneResultWidgetLog( "open: no GFx manager or main.gfx did not load" );
+		ResultWidgetLog( "open: no GFx manager or main.gfx did not load" );
 		return;
 	}
 
-	pState->JuneResultRecreateAdapter();
+	pState->ResultRecreateAdapter();
 	const bool bWasOpen = pManager->isOpenUI( JUNE_RESULT_UI_ID );
 	if ( bWasOpen == false )
 		pManager->openUI( JUNE_RESULT_UI_ID );
-	JuneResultWidgetLog( "open: adapter %s, UI 8 %s", pState->JuneResultIsBound() ? "bound" : "not bound", bWasOpen ? "was open ( the fill runs now )" : "opened ( the fill runs at notifyInitialize )" );
+	ResultWidgetLog( "open: adapter %s, UI 8 %s", pState->ResultIsBound() ? "bound" : "not bound", bWasOpen ? "was open ( the fill runs now )" : "opened ( the fill runs at notifyInitialize )" );
 	if ( bWasOpen == true )
-		pState->JuneResultFill();
+		pState->ResultFill();
 }
 
-void JuneResultClose_LUA()
+void ResultClose_LUA()
 {
-	CX2StateDungeonGame* pState = JuneResultNowState();
+	CX2StateDungeonGame* pState = ResultNowState();
 	if ( pState == NULL )
 		return;
-	pState->JuneResultCloseAndDelete();
-	JuneResultWidgetLog( "close: UI 8 closed, adapter deleted" );
+	pState->ResultCloseAndDelete();
+	ResultWidgetLog( "close: UI 8 closed, adapter deleted" );
 }
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET

@@ -3365,7 +3365,7 @@ class CX2UnitManager
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 		// June2017 UnitViewerEffectSetTable.lua: one row per motion name (3237a1f0 inserts, 323760f0 looks up).
-		struct JuneUnitViewerEffectSet
+		struct UnitViewerEffectSet
 		{
 			std::wstring	m_wstrEffectSetName;	// June node +0x28
 			int				m_iUnitType;			// +0x44, 0 = any
@@ -3373,22 +3373,22 @@ class CX2UnitManager
 			float			m_fStartTime;			// +0x4c
 			bool			m_bLoop;				// +0x50
 			int				m_iDuoType;				// +0x54, DUO_TYPE
-			JuneUnitViewerEffectSet() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ), m_iDuoType( 0 ) {}
+			UnitViewerEffectSet() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ), m_iDuoType( 0 ) {}
 		};
 
-		bool OpenJuneUnitViewerEffectSetTable( const WCHAR* pFileName );
+		bool OpenUnitViewerEffectSetTable( const WCHAR* pFileName );
 		bool AddUnitViewerEffectSet_LUA();
 		bool GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
 			std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop );
 	private:
-		std::map<std::wstring, JuneUnitViewerEffectSet>	m_mapJuneUnitViewerEffectSet;
+		std::map<std::wstring, UnitViewerEffectSet>	m_mapJuneUnitViewerEffectSet;
 		int												m_iJuneUnitViewerEffectSetSkippedDuplicate;
 		int												m_iJuneUnitViewerEffectSetSkippedBadArgs;
 	public:
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 		// June2017 AnimationNameTable.lua: one row per (UNIT_CLASS, motion type) (3237a060 inserts, 32375ee0 looks up).
-		bool OpenJuneAnimationNameTable( const WCHAR* pFileName );
+		bool OpenAnimationNameTable( const WCHAR* pFileName );
 		bool AddAnimationName_LUA();
 		std::wstring GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, int iMotionType ) const;
 	private:

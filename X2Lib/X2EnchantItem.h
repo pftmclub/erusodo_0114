@@ -234,7 +234,7 @@ class CX2EnchantItem
 		bool ProcessEnchant( CX2GameUnit* pDefender, CX2DamageManager::DamageData* pDamageData, float fRandValue1, float fRandValue2 );
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		/// June 32708c50: false only in a PvP game on a free channel; there the enchant damage skips ENCHANT_STAT_SCALE
-		static bool JuneIsEnchantStatScaleOn();
+		static bool IsEnchantStatScaleOn();
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 
 		//{{ JHKang // 강정훈 // 2010. 10. 6 // 자동 줄나누기 두 번 실행 방지

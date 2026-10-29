@@ -1115,15 +1115,15 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 				const CX2RidingPetManager* pJuneManager = CX2RidingPetManager::GetInstance();
 
 				if ( iJuneNowState == m_WalkState )
-					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 0 );
+					fAnimSpeed *= pJuneManager->GetAnimSpeedRate( 0 );
 				if ( iJuneNowState == m_DashState )
-					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 1 );
+					fAnimSpeed *= pJuneManager->GetAnimSpeedRate( 1 );
 				if ( iJuneNowState == m_JumpUpState || iJuneNowState == m_JumpDownState )	/// June: 32d277f0 returns the jump down state
-					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 2 );
+					fAnimSpeed *= pJuneManager->GetAnimSpeedRate( 2 );
 				if ( iJuneNowState == m_DashJumpUpState )
-					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 3 );
+					fAnimSpeed *= pJuneManager->GetAnimSpeedRate( 3 );
 				if ( iJuneNowState == m_SpecialMoveState )
-					fAnimSpeed *= pJuneManager->GetJuneAnimSpeedRate( 4 );
+					fAnimSpeed *= pJuneManager->GetAnimSpeedRate( 4 );
 			}
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 			if( m_pXSkinAnim != NULL )
@@ -1411,7 +1411,7 @@ void CX2RidingPet::StateChange( IN const char* stateName_ )
 					/// DELETE_EFFECT_SET_OFF_RIDING / _ON_SKILL_STATE_END, CAN_PUSH/PASS_UNIT_TIME%d, and the village square-unit sound block;
 					/// CUSTOM_RENDER_STATE (31fce500) is backlog Stage 2.
 					if ( NULL != CX2RidingPetManager::GetInstance() && m_StateData.m_StateID == m_SpecialMoveState )
-						kPhysicParam.passiveSpeed.x *= CX2RidingPetManager::GetInstance()->GetJunePassiveSpeedRate();
+						kPhysicParam.passiveSpeed.x *= CX2RidingPetManager::GetInstance()->GetPassiveSpeedRate();
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 				}
@@ -1514,7 +1514,7 @@ void CX2RidingPet::VillageStateChangeSounds()
 	if ( NULL != m_pXSkinAnim )
 		m_pXSkinAnim->ResetOneshotPerformed();
 
-	const int iJuneRecords = pSquareUnit->JuneRidingPetStateChangeSounds( m_LuaManager );
+	const int iJuneRecords = pSquareUnit->RidingPetStateChangeSounds( m_LuaManager );
 
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG
 	{
@@ -1565,7 +1565,7 @@ void CX2RidingPet::LoadInitEffect()
 					 false == m_LuaManager.GetValue( iBase + 3, iDeleteCond ) )
 					break;
 
-				JuneReservedUiSet kSet;
+				ReservedUiSet kSet;
 				kSet.m_iDeleteCond	= iDeleteCond;
 				kSet.m_iPlayCond	= iPlayCond;
 				kSet.m_wstrName		= wstrName;
@@ -1593,7 +1593,7 @@ void CX2RidingPet::LoadInitEffect()
 /// June 32d29240: the reserved set's name by index, L"" when the index is not in the map
 std::wstring CX2RidingPet::GetReservedSetName( IN int iIndex_ ) const
 {
-	JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iIndex_ );
+	ReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iIndex_ );
 	if ( it == m_mapJuneReservedUiSet.end() )
 		return std::wstring( L"" );
 
@@ -1672,7 +1672,7 @@ void CX2RidingPet::DeleteReservedUiSets( OUT std::vector< CX2EffectSet::Handle >
 	if ( NULL == g_pData )
 		return;
 
-	for ( JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.begin(); it != m_mapJuneReservedUiSet.end(); ++it )
+	for ( ReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.begin(); it != m_mapJuneReservedUiSet.end(); ++it )
 	{
 		const CX2EffectSet::Handle hHandle = FindReservedSet( it->first );
 		if ( INVALID_EFFECTSET_HANDLE != hHandle && JUNE_RESDC_STATE_CHANGE == it->second.m_iDeleteCond )
@@ -1776,7 +1776,7 @@ void CX2RidingPet::PlayReservedUiSets( IN std::vector< CX2EffectSet::Handle >& v
 					break;
 
 				int iPlayCond = JUNE_RESPC_NONE;
-				JuneReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iSetIndex );
+				ReservedUiSetMap::const_iterator it = m_mapJuneReservedUiSet.find( iSetIndex );
 				if ( it != m_mapJuneReservedUiSet.end() )
 					iPlayCond = it->second.m_iPlayCond;
 

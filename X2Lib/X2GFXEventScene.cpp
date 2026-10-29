@@ -6,7 +6,7 @@
 #include <libxml/tree.h>
 
 // Log tag [JUNE_GFX] SCENE ( ErrorLog.txt )
-static void JuneGfxSceneLog( const char* szFormat, ... )
+static void GfxSceneLog( const char* szFormat, ... )
 {
 	char szBuf[ 1024 ] = { 0, };
 	va_list args;
@@ -16,7 +16,7 @@ static void JuneGfxSceneLog( const char* szFormat, ... )
 	KLOG( "ErrorLog.txt" ) << "[JUNE_GFX] SCENE " << szBuf << fileout;
 }
 
-static std::string JuneGfxSceneToUTF8( const std::wstring& wstr )
+static std::string GfxSceneToUTF8( const std::wstring& wstr )
 {
 	if ( wstr.empty() == true )
 		return std::string();
@@ -27,7 +27,7 @@ static std::string JuneGfxSceneToUTF8( const std::wstring& wstr )
 	return str;
 }
 
-static std::wstring JuneGfxSceneFromUTF8( const std::string& str )
+static std::wstring GfxSceneFromUTF8( const std::string& str )
 {
 	if ( str.empty() == true )
 		return std::wstring();
@@ -39,7 +39,7 @@ static std::wstring JuneGfxSceneFromUTF8( const std::string& str )
 }
 
 // 31ee3350 ( string attribute, empty when missing ) and 31edf910 ( int attribute through atoi, left at its default when missing )
-static std::string JuneGfxSceneGetProp( xmlNode* pNode, const char* szName )
+static std::string GfxSceneGetProp( xmlNode* pNode, const char* szName )
 {
 	std::string str;
 	xmlChar* pValue = xmlGetProp( pNode, (const xmlChar*)szName );
@@ -51,7 +51,7 @@ static std::string JuneGfxSceneGetProp( xmlNode* pNode, const char* szName )
 	return str;
 }
 
-static bool JuneGfxSceneGetIntProp( xmlNode* pNode, const char* szName, int& iValue )
+static bool GfxSceneGetIntProp( xmlNode* pNode, const char* szName, int& iValue )
 {
 	xmlChar* pValue = xmlGetProp( pNode, (const xmlChar*)szName );
 	if ( pValue == NULL )
@@ -61,7 +61,7 @@ static bool JuneGfxSceneGetIntProp( xmlNode* pNode, const char* szName, int& iVa
 	return true;
 }
 
-static bool JuneGfxSceneIsElement( xmlNode* pNode, const char* szName )
+static bool GfxSceneIsElement( xmlNode* pNode, const char* szName )
 {
 	return pNode != NULL && pNode->type == XML_ELEMENT_NODE && strcmp( (const char*)pNode->name, szName ) == 0;
 }
@@ -78,7 +78,7 @@ CX2GFXEventScene::CX2GFXEventScene()
 	, m_hBlackLayOut( INVALID_PARTICLE_SEQUENCE_HANDLE )
 {
 	if ( g_pKTDXApp != NULL )
-		m_pBridge = new CKTDGGFXEventSceneBridge( g_pKTDXApp->GetJuneGFXManager(), this );
+		m_pBridge = new CKTDGGFXEventSceneBridge( g_pKTDXApp->GetGFXManager(), this );
 }
 
 CX2GFXEventScene::~CX2GFXEventScene()
@@ -86,7 +86,7 @@ CX2GFXEventScene::~CX2GFXEventScene()
 	SAFE_DELETE( m_pBridge );
 	if ( m_pSound != NULL && g_pKTDXApp != NULL && g_pKTDXApp->GetDeviceManager() != NULL )
 	{
-		g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_pSound );
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_pSound );
 		m_pSound = NULL;
 	}
 	m_pSound = NULL;
@@ -108,12 +108,12 @@ bool CX2GFXEventScene::LoadVillageNames( std::vector< std::string >& vecNames )
 	if ( pDoc == NULL )
 		return false;
 	xmlNode* pRoot = xmlDocGetRootElement( pDoc );
-	if ( JuneGfxSceneIsElement( pRoot, "Village" ) == true )
+	if ( GfxSceneIsElement( pRoot, "Village" ) == true )
 	{
 		for ( xmlNode* pNode = pRoot->children; pNode != NULL; pNode = pNode->next )
 		{
-			if ( JuneGfxSceneIsElement( pNode, "VillageList" ) == true )
-				vecNames.push_back( JuneGfxSceneGetProp( pNode, "Name" ) );
+			if ( GfxSceneIsElement( pNode, "VillageList" ) == true )
+				vecNames.push_back( GfxSceneGetProp( pNode, "Name" ) );
 		}
 	}
 	xmlFreeDoc( pDoc );
@@ -133,52 +133,52 @@ int CX2GFXEventScene::LoadSceneXml( const WCHAR* wszFile, bool bRegion )
 
 	int iAdded = 0;
 	xmlNode* pRoot = xmlDocGetRootElement( pDoc );
-	if ( JuneGfxSceneIsElement( pRoot, "EventScene" ) == true )
+	if ( GfxSceneIsElement( pRoot, "EventScene" ) == true )
 	{
 		for ( xmlNode* pData = pRoot->children; pData != NULL; pData = pData->next )
 		{
-			if ( JuneGfxSceneIsElement( pData, "EventSceneData" ) == false )
+			if ( GfxSceneIsElement( pData, "EventSceneData" ) == false )
 				continue;
 
 			SceneInfo kInfo;
-			const std::string strQuestID = JuneGfxSceneGetProp( pData, "questID" );
-			kInfo.m_strSwfFileName = JuneGfxSceneGetProp( pData, "swfFileName" );
+			const std::string strQuestID = GfxSceneGetProp( pData, "questID" );
+			kInfo.m_strSwfFileName = GfxSceneGetProp( pData, "swfFileName" );
 
 			for ( xmlNode* pList = pData->children; pList != NULL; pList = pList->next )
 			{
-				if ( JuneGfxSceneIsElement( pList, "EventSceneDataList" ) == false )
+				if ( GfxSceneIsElement( pList, "EventSceneDataList" ) == false )
 					continue;
 
-				KJuneGfxSceneFrame kFrame;
-				JuneGfxSceneGetIntProp( pList, "frame", kFrame.m_iFrame );
-				kFrame.m_strSoundKey			= JuneGfxSceneGetProp( pList, "soundKey" );
-				kFrame.m_strCharacterNameKey	= JuneGfxSceneGetProp( pList, "characterNameKey" );
-				kFrame.m_strTextKey				= JuneGfxSceneGetProp( pList, "textKey" );
-				kFrame.m_strWordBalloonName		= JuneGfxSceneGetProp( pList, "wordBalloonName" );
+				KGfxSceneFrame kFrame;
+				GfxSceneGetIntProp( pList, "frame", kFrame.m_iFrame );
+				kFrame.m_strSoundKey			= GfxSceneGetProp( pList, "soundKey" );
+				kFrame.m_strCharacterNameKey	= GfxSceneGetProp( pList, "characterNameKey" );
+				kFrame.m_strTextKey				= GfxSceneGetProp( pList, "textKey" );
+				kFrame.m_strWordBalloonName		= GfxSceneGetProp( pList, "wordBalloonName" );
 				if ( bRegion == true )
 				{
-					JuneGfxSceneGetIntProp( pList, "wordBalloonPosX", kFrame.m_iWordBalloonPosX );
-					JuneGfxSceneGetIntProp( pList, "wordBalloonPosY", kFrame.m_iWordBalloonPosY );
+					GfxSceneGetIntProp( pList, "wordBalloonPosX", kFrame.m_iWordBalloonPosX );
+					GfxSceneGetIntProp( pList, "wordBalloonPosY", kFrame.m_iWordBalloonPosY );
 				}
 
 				for ( xmlNode* pSymbol = pList->children; pSymbol != NULL; pSymbol = pSymbol->next )
 				{
-					if ( JuneGfxSceneIsElement( pSymbol, "SymbolData" ) == false )
+					if ( GfxSceneIsElement( pSymbol, "SymbolData" ) == false )
 						continue;
-					KJuneGfxSceneSymbol kSymbol;
-					kSymbol.m_strSymbolName = JuneGfxSceneGetProp( pSymbol, "symbolName" );
-					JuneGfxSceneGetIntProp( pSymbol, "delayTime", kSymbol.m_iDelayTime );
+					KGfxSceneSymbol kSymbol;
+					kSymbol.m_strSymbolName = GfxSceneGetProp( pSymbol, "symbolName" );
+					GfxSceneGetIntProp( pSymbol, "delayTime", kSymbol.m_iDelayTime );
 					if ( bRegion == true )
 					{
-						JuneGfxSceneGetIntProp( pSymbol, "xPos", kSymbol.m_iPosX );
-						JuneGfxSceneGetIntProp( pSymbol, "yPos", kSymbol.m_iPosY );
+						GfxSceneGetIntProp( pSymbol, "xPos", kSymbol.m_iPosX );
+						GfxSceneGetIntProp( pSymbol, "yPos", kSymbol.m_iPosY );
 					}
 					kFrame.m_vecSymbol.push_back( kSymbol );
 				}
 				kInfo.m_vecFrame.push_back( kFrame );
 			}
 
-			if ( m_mapSceneInfo.insert( std::make_pair( JuneGfxSceneFromUTF8( strQuestID ), kInfo ) ).second == true )
+			if ( m_mapSceneInfo.insert( std::make_pair( GfxSceneFromUTF8( strQuestID ), kInfo ) ).second == true )
 				++iAdded;
 		}
 	}
@@ -197,7 +197,7 @@ void CX2GFXEventScene::LoadSceneInfo()
 	int iRegionFiles = 0;
 	for ( size_t i = 0; i < vecVillage.size(); ++i )
 	{
-		const std::wstring wstrFile = JuneGfxSceneFromUTF8( vecVillage[ i ] ) + L".xml";
+		const std::wstring wstrFile = GfxSceneFromUTF8( vecVillage[ i ] ) + L".xml";
 		const int iAdded = LoadSceneXml( wstrFile.c_str(), true );
 		if ( iAdded >= 0 )
 		{
@@ -205,14 +205,14 @@ void CX2GFXEventScene::LoadSceneInfo()
 			++iRegionFiles;
 		}
 		else
-			JuneGfxSceneLog( "region file %s not loaded ( kom data036 )", JuneGfxSceneToUTF8( wstrFile ).c_str() );
+			GfxSceneLog( "region file %s not loaded ( kom data036 )", GfxSceneToUTF8( wstrFile ).c_str() );
 	}
 	const int iGfxRows = LoadSceneXml( L"GFXEventSceneInfo.xml", false );
 
-	JuneGfxSceneLog( "LOAD VillageName.xml %s, %d region files %d rows, GFXEventSceneInfo.xml %d rows, %d scenes in all",
+	GfxSceneLog( "LOAD VillageName.xml %s, %d region files %d rows, GFXEventSceneInfo.xml %d rows, %d scenes in all",
 		bVillageList ? "ok" : "MISSING", iRegionFiles, iRegionRows, iGfxRows, (int)m_mapSceneInfo.size() );
 	if ( bVillageList == false || iGfxRows < 0 )
-		JuneGfxSceneLog( "LOAD data is missing: stage June's data036 XMLs ( GFXEventSceneInfo.xml, the region files, VillageName.xml ) and pack data036" );
+		GfxSceneLog( "LOAD data is missing: stage June's data036 XMLs ( GFXEventSceneInfo.xml, the region files, VillageName.xml ) and pack data036" );
 }
 
 // 31ee3160: found when the map has the key ( the lower-bound node compares equal )
@@ -266,13 +266,13 @@ void CX2GFXEventScene::CreateBlackLayOut()
 	CKTDGParticleSystem* pParticle = GetBlackLayOutParticleSystem();
 	if ( pParticle == NULL )
 	{
-		JuneGfxSceneLog( "Play: no game major particle system here, no black layout" );
+		GfxSceneLog( "Play: no game major particle system here, no black layout" );
 		return;
 	}
 	// Play @3226b5c5..3226b611 -> 31f33bb0 -> 31f318d0 -> CreateSequence 31cf90f0: ( no object, name, (0,0,0), -1, -1, -1, -1, -1.0f, true, 0.0f, false )
 	m_hBlackLayOut = pParticle->CreateSequenceHandle( NULL, L"EventScene_BlackLayOut", D3DXVECTOR3( 0.f, 0.f, 0.f ), -1.f, -1.f, -1, -1, -1.f, true, 0.f, false );
 	if ( m_hBlackLayOut == INVALID_PARTICLE_SEQUENCE_HANDLE )
-		JuneGfxSceneLog( "Play: particle EventScene_BlackLayOut not found ( June's GameMajorParticle_INT.txt is not the one mounted ): no black layout" );
+		GfxSceneLog( "Play: particle EventScene_BlackLayOut not found ( June's GameMajorParticle_INT.txt is not the one mounted ): no black layout" );
 }
 
 void CX2GFXEventScene::DestroyBlackLayOut()
@@ -325,7 +325,7 @@ void CX2GFXEventScene::PlaySound( const std::wstring& wstrKey )
 		return;
 	if ( m_pSound != NULL )
 	{
-		g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_pSound );
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_pSound );
 		m_pSound = NULL;
 	}
 	m_pSound = g_pKTDXApp->GetDeviceManager()->OpenSound( wstrKey, 10, true, -1.f );
@@ -359,7 +359,7 @@ void CX2GFXEventScene::Play( const std::wstring& wstrName, int iFrame /*= -1*/, 
 	WCHAR wszPath[ 260 ] = { 0, };
 	std::string strSwf;
 	if ( GetSwfFileName( wstrName, strSwf ) == true )		// 31ee3160 then 31ee3250
-		StringCchPrintf( wszPath, 260, L"%s.swf", JuneGfxSceneFromUTF8( strSwf ).c_str() );
+		StringCchPrintf( wszPath, 260, L"%s.swf", GfxSceneFromUTF8( strSwf ).c_str() );
 	else
 		StringCchPrintf( wszPath, 260, L"%s.swf", wstrName.c_str() );
 
@@ -367,16 +367,16 @@ void CX2GFXEventScene::Play( const std::wstring& wstrName, int iFrame /*= -1*/, 
 	if ( g_pKTDXApp == NULL || g_pKTDXApp->GetDeviceManager() == NULL
 		|| g_pKTDXApp->GetDeviceManager()->GetPullPath( wszPath ) == NULL || GetFileAttributesW( wszPath ) == INVALID_FILE_ATTRIBUTES )
 	{
-		JuneGfxSceneLog( "Play %s: scene file %s.swf not found in any data folder ( eventscene\\ )", JuneGfxSceneToUTF8( wstrName ).c_str(),
-			( GetSwfFileName( wstrName, strSwf ) == true ) ? strSwf.c_str() : JuneGfxSceneToUTF8( wstrName ).c_str() );
+		GfxSceneLog( "Play %s: scene file %s.swf not found in any data folder ( eventscene\\ )", GfxSceneToUTF8( wstrName ).c_str(),
+			( GetSwfFileName( wstrName, strSwf ) == true ) ? strSwf.c_str() : GfxSceneToUTF8( wstrName ).c_str() );
 		return;
 	}
 
-	CKTDGGFXManager* pManager = g_pKTDXApp->GetJuneGFXManager();
+	CKTDGGFXManager* pManager = g_pKTDXApp->GetGFXManager();
 	if ( pManager == NULL || pManager->IsMovieLoaded() == false )
 	{
 		// June has no such test ( its movie always loads ); without one the scene would hide the UI and wait for a movie that is not there
-		JuneGfxSceneLog( "Play %s: no root movie ( main.gfx did not load ): not played", JuneGfxSceneToUTF8( wstrName ).c_str() );
+		GfxSceneLog( "Play %s: no root movie ( main.gfx did not load ): not played", GfxSceneToUTF8( wstrName ).c_str() );
 		return;
 	}
 
@@ -400,7 +400,7 @@ void CX2GFXEventScene::Play( const std::wstring& wstrName, int iFrame /*= -1*/, 
 #ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 		// June's scene cursor ( CKTDXCursor, @3226b56b ) is drawn after GFx ( 31be3800 @31be3c7c ): the CX2Cursor stands in from the 0x18 pass
 		if ( pCursor != NULL )
-			pCursor->SetJuneDrawAfterGFx( true );
+			pCursor->SetDrawAfterGFx( true );
 #endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	}
 
@@ -411,7 +411,7 @@ void CX2GFXEventScene::Play( const std::wstring& wstrName, int iFrame /*= -1*/, 
 	CreateBlackLayOut();
 	pManager->unloadWidget( 3 );
 
-	JuneGfxSceneLog( "Play %s ( %s ): frame %d", JuneGfxSceneToUTF8( wstrName ).c_str(), JuneGfxSceneToUTF8( std::wstring( wszPath ) ).c_str(), iFrame );
+	GfxSceneLog( "Play %s ( %s ): frame %d", GfxSceneToUTF8( wstrName ).c_str(), GfxSceneToUTF8( std::wstring( wszPath ) ).c_str(), iFrame );
 }
 
 // 3226b6c0
@@ -427,18 +427,18 @@ void CX2GFXEventScene::End( bool bForce )
 #ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 		// @3226b748: June hides its scene cursor ( 31ce50d0 ); the CX2Cursor draws in its own pass again
 		if ( pCursor != NULL )
-			pCursor->SetJuneDrawAfterGFx( false );
+			pCursor->SetDrawAfterGFx( false );
 #endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	}
 	// not ported here: the quest manager's pending-scene reset ( 3232e000, quest manager +0x148 ) is the quest-system plan's; the software cursor
 	// reset ( 31ce50d0 ) is R4f's
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 	// quest-system Q5b @3226b722..3226b734: a quest scene's BGM override ends with the scene ( 3232e000, only while manager +0x148 == 1 )
-	if ( g_pData != NULL && g_pData->GetQuestManager() != NULL && g_pData->GetQuestManager()->IsJuneQuestSelectBGMActive() == true )
-		g_pData->GetQuestManager()->JuneRestoreQuestSelectBGM();
+	if ( g_pData != NULL && g_pData->GetQuestManager() != NULL && g_pData->GetQuestManager()->IsQuestSelectBGMActive() == true )
+		g_pData->GetQuestManager()->RestoreQuestSelectBGM();
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
-	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
+	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetGFXManager() : NULL;
 	if ( pManager != NULL )
 	{
 		pManager->SetEventScenePlaying( false );
@@ -487,10 +487,10 @@ void CX2GFXEventScene::End( bool bForce )
 		m_pSound->Stop();				// 31d416c0
 	if ( m_pSound != NULL && g_pKTDXApp != NULL && g_pKTDXApp->GetDeviceManager() != NULL )
 	{
-		g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_pSound );
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_pSound );
 		m_pSound = NULL;
 	}
-	JuneGfxSceneLog( "End ( %s )", bForce ? "forced" : "by the scene" );
+	GfxSceneLog( "End ( %s )", bForce ? "forced" : "by the scene" );
 }
 
 // 3226c120
@@ -590,23 +590,23 @@ void CX2GFXEventScene::RegisterMent( const std::wstring& wstrName, const std::ve
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 // 32e5aa50 ( the name at +0x78 ) + 32e5b030 ( the map row, a copy )
-bool CX2GFXEventScene::OnSceneAsGetFrames( std::vector< KJuneGfxSceneFrame >& vecFrames )
+bool CX2GFXEventScene::OnSceneAsGetFrames( std::vector< KGfxSceneFrame >& vecFrames )
 {
 	std::map< std::wstring, SceneInfo >::const_iterator it = m_mapSceneInfo.find( m_wstrName );
 	if ( it == m_mapSceneInfo.end() )
 	{
-		JuneGfxSceneLog( "getEventSceneData: no row for %s", JuneGfxSceneToUTF8( m_wstrName ).c_str() );
+		GfxSceneLog( "getEventSceneData: no row for %s", GfxSceneToUTF8( m_wstrName ).c_str() );
 		return false;
 	}
 	vecFrames = it->second.m_vecFrame;
-	JuneGfxSceneLog( "getEventSceneData %s: %d frames", JuneGfxSceneToUTF8( m_wstrName ).c_str(), (int)vecFrames.size() );
+	GfxSceneLog( "getEventSceneData %s: %d frames", GfxSceneToUTF8( m_wstrName ).c_str(), (int)vecFrames.size() );
 	return true;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // Lua bindings
 // ---------------------------------------------------------------------------------------------------------------------------------------
-void JuneGfxPlayEventScene_LUA( const char* szName )		// 327ccad0
+void GfxPlayEventScene_LUA( const char* szName )		// 327ccad0
 {
 	if ( g_pData == NULL || g_pData->GetGFXEventScene() == NULL || szName == NULL )
 		return;
@@ -615,7 +615,7 @@ void JuneGfxPlayEventScene_LUA( const char* szName )		// 327ccad0
 	g_pData->GetGFXEventScene()->Play( wstrName, -1, 0 );
 }
 
-bool JuneGfxIsRecentlyPlayedEventScene_LUA( const char* szName )		// 327ccb20
+bool GfxIsRecentlyPlayedEventScene_LUA( const char* szName )		// 327ccb20
 {
 	if ( g_pData == NULL || g_pData->GetGFXEventScene() == NULL || szName == NULL )
 		return false;
@@ -629,7 +629,7 @@ bool JuneGfxIsRecentlyPlayedEventScene_LUA( const char* szName )		// 327ccb20
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // Phase G4: CX2Main's CX2SimpleWidgetPlayer ( g_pMain +0xd7c ) and the user skill cut-in widgets. Log tag [JUNE_GFX] CUTIN ( ErrorLog.txt ).
 // ---------------------------------------------------------------------------------------------------------------------------------------
-static void JuneGfxCutInLog( const char* szFormat, ... )
+static void GfxCutInLog( const char* szFormat, ... )
 {
 	char szBuf[ 1024 ] = { 0, };
 	va_list args;
@@ -641,18 +641,18 @@ static void JuneGfxCutInLog( const char* szFormat, ... )
 
 // 31d70c60: made once; June passes the root movie's adapter ( g_pKTDXApp +0x1c8 -> +0x98 vslot 1 ) or 0 when there is no movie, and then
 // 31fc75e0 returns 0 for good ( this +4 == 0 ), as CKTDGGFXSimpleWidgetPlayer does without an adapter
-void CX2Main::JuneMakeSimpleWidgetPlayer()
+void CX2Main::MakeSimpleWidgetPlayer()
 {
 	if ( NULL != m_pJuneSimpleWidgetPlayer || NULL == g_pKTDXApp )
 		return;
-	m_pJuneSimpleWidgetPlayer = new CKTDGGFXSimpleWidgetPlayer( g_pKTDXApp->GetJuneGFXManager() );
+	m_pJuneSimpleWidgetPlayer = new CKTDGGFXSimpleWidgetPlayer( g_pKTDXApp->GetGFXManager() );
 }
 
 // 31d76b40( uiId, name, side, b ): make the player, then, when it exists: UI 0xc first plays the frame ( side, 1 ) and a random talk balloon
 // CUT_IN_TALK_<R_|L_><rand() % 3 + 1> ( 0, 0x3c ) ( "L_" for a non-zero side ), then the cut-in itself ( side, b )
-void CX2Main::JunePlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ )
+void CX2Main::PlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ )
 {
-	JuneMakeSimpleWidgetPlayer();
+	MakeSimpleWidgetPlayer();
 	if ( NULL == m_pJuneSimpleWidgetPlayer )
 		return;
 
@@ -668,7 +668,7 @@ void CX2Main::JunePlayCutInWidget( int iUIID_, const std::string& strName_, bool
 	}
 	bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( iUIID_, strName_.c_str(), iSide, iParam_ ) && bPlayed;
 
-	JuneGfxCutInLog( "play ui=0x%x %s side=%s%s", iUIID_, strName_.c_str(), ( true == bLeft_ ) ? "L" : "R",
+	GfxCutInLog( "play ui=0x%x %s side=%s%s", iUIID_, strName_.c_str(), ( true == bLeft_ ) ? "L" : "R",
 		( true == bPlayed ) ? "" : " ( no widget binding: the root movie is not up )" );
 }
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN

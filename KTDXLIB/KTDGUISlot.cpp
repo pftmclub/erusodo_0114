@@ -789,7 +789,7 @@ bool CKTDGUISlot::ContainsPoint( POINT pt )
 
 #ifdef SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX
 // June 31c962c0: refill texture data in place; a key the texture lacks keeps the old UV ( JUNE_BUGS 389 )
-static void JuneResetTexureData_( const WCHAR* pFileName, const WCHAR* pKeyName, CKTDGUIControl::UITextureData* pTexData )
+static void ResetTexureData_( const WCHAR* pFileName, const WCHAR* pKeyName, CKTDGUIControl::UITextureData* pTexData )
 {
 	if( NULL == pTexData )
 		return;
@@ -802,7 +802,7 @@ static void JuneResetTexureData_( const WCHAR* pFileName, const WCHAR* pKeyName,
 	if( NULL != pTexData->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
 	{
 	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
-		g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( pTexData->pTexture );
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( pTexData->pTexture );
 	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 		g_pKTDXApp->GetDeviceManager()->CloseDevice( pTexData->pTexture->GetDeviceID() );
 	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -843,7 +843,7 @@ void CKTDGUISlot::SetItemTex( const WCHAR* pFileName )
 		if( NULL != m_pItemTex->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
 		{
 	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
-			g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_pItemTex->pTexture );
+			g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( m_pItemTex->pTexture );
 	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 			g_pKTDXApp->GetDeviceManager()->CloseDevice( m_pItemTex->pTexture->GetDeviceID() );
 	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -883,7 +883,7 @@ void CKTDGUISlot::SetItemTex( const WCHAR* pFileName, const WCHAR* key )
 	if( NULL == m_pItemTex )
 		m_pItemTex = SetTexureData_( pFileName, key );
 	else
-		JuneResetTexureData_( pFileName, key, m_pItemTex );
+		ResetTexureData_( pFileName, key, m_pItemTex );
 
 	if( NULL == m_pItemTex )
 	{

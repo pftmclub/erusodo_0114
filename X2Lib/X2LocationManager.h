@@ -440,7 +440,7 @@ class CX2LocationManager
 			vector< TalkChangeCondition >	m_vecTalkChangeCondition;	// +0x590 Talk_Change_Condition
 			bool			m_bAlwaysShow;						// +0x5a0 AlwaysShow
 			bool			m_bOnlyClickable;					// +0x5a1 bOnlyClickable
-			SJuneVillageNpcRenderOption	m_RenderOption;			// +0x5a4 RenderOption (the ctor defaults land without the table)
+			SVillageNpcRenderOption	m_RenderOption;			// +0x5a4 RenderOption (the ctor defaults land without the table)
 			wstring			m_wstrEffectSetName;				// +0x5e8 EFFECT_SET_NAME
 			bool			m_bMovingNPC;						// +0x604 bMovingNPC
 			vector< CustomMotion >	m_vecCustomMotionName;		// +0x608 CUSTOM_MOTION_NAME

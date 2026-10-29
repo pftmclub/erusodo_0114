@@ -4,7 +4,7 @@
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 /// The own gauge draws my unit, so the portrait row's transcended column is picked by my unit's flag ( June 31ee0de0 fifth argument )
-static bool JuneIsMyGageTranscended()
+static bool IsMyGageTranscended()
 {
 	return NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
 		0 != g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran;
@@ -1573,7 +1573,7 @@ void CX2MyGageUI::SetCharacterImage( const CX2Unit::UNIT_CLASS eGameUnitClass_ )
 		wstring fileName;
 		wstring pieceName;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() ) )
+		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, IsMyGageTranscended() ) )
 #else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage ) )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -2122,7 +2122,7 @@ void CX2ChungMyGageUI::UpdateCharacterImage()
 		else
 		{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() );
+			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, IsMyGageTranscended() );
 #else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -3653,7 +3653,7 @@ void CX2AraMyGageUI::UpdateCharacterImage()
 		else
 		{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() );
+			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, IsMyGageTranscended() );
 #else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -4637,7 +4637,7 @@ CX2EveMyGageUI::CX2EveMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLA
 /*virtual*/ void CX2EveMyGageUI::OnFrameMove( float fElapsedTime_ )
 {
 	CX2MyGageUI::OnFrameMove( fElapsedTime_ );
-	June_UpdateHyperBall();
+	UpdateHyperBall();
 }
 
 /*virtual*/ void CX2EveMyGageUI::SetShow( const bool bShow_ )
@@ -4653,7 +4653,7 @@ CX2EveMyGageUI::CX2EveMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLA
 }
 
 /// June 32e6a210: the third-awakening ball, drawn by CX2GUEve::OnFrameMove_ManeuverCore in March
-void CX2EveMyGageUI::June_UpdateHyperBall()
+void CX2EveMyGageUI::UpdateHyperBall()
 {
 	if( NULL == g_pX2Game || NULL == g_pData->GetGameMajorParticle() || NULL == m_pGageData )
 		return;

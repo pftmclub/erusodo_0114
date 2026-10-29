@@ -1432,7 +1432,7 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				// June 324fe434: the block is built with its defaults first and copied on both paths, so a house without the
 				// table gets UseRenderOption off, Src 5 / Dest 6, colour 1
 				{
-					SJuneVillageNpcRenderOption kRenderOption;
+					SVillageNpcRenderOption kRenderOption;
 					if( kLuamanager.BeginTable( "RenderOption" ) == true )
 					{
 						LUA_GET_VALUE( kLuamanager, "UseRenderOption",	kRenderOption.m_bUseRenderOption,	false );

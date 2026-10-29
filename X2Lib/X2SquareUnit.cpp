@@ -416,7 +416,7 @@ void    CX2SquareUnit::AppendToDeviceList( CKTDXDeviceDataList& listInOut_, CX2U
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 // June 323f4640: if g_pData +0x9c, StopEffectSet( &+0x7ac ), then +0x7ac = -1. The 323f34a0( 0 ) sit-item call in it is the
 // missing emotion system. Only caller: CX2TFieldGame::RemoveUnit @323af9e6.
-void CX2SquareUnit::StopJuneEmotionEffectSet()
+void CX2SquareUnit::StopEmotionEffectSet()
 {
 	if( NULL != g_pData )
 		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
@@ -427,24 +427,24 @@ void CX2SquareUnit::StopJuneEmotionEffectSet()
 // June2017 323f56d0, only caller CX2TFieldGame::RemoveUnit 323af8f0 @323af9f6: if g_pData +0x34, take m_pUnitViewer's group-81
 // equips (31fa2f20( 0x51 ), only when the viewer is set); for each with m_pItemTemplet and a 3280b640 hit, 3295ca60( true ) = stop
 // the per-equip set and forget its handle.
-void CX2SquareUnit::StopJuneEquipEffectSets()
+void CX2SquareUnit::StopEquipEffectSets()
 {
 	if( NULL == g_pData || NULL == g_pData->GetItemManager() )
 		return;
 
 	std::vector<CX2EqipPtr> vecJuneEquip;
 	if( NULL != m_pUnitViewer )
-		m_pUnitViewer->GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+		m_pUnitViewer->GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
 
 	for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
 	{
 		CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-		if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+		if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
 			continue;
 
-		CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+		CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
 		if( true == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) )
-			pJuneEquip->ReleaseJuneEquipEffectSet( true );
+			pJuneEquip->ReleaseEquipEffectSet( true );
 	}
 }
 
@@ -452,7 +452,7 @@ void CX2SquareUnit::StopJuneEquipEffectSets()
 // 1 CEPE_WAIT: m_SyncData.m_StateID (+0x3c4) == GetStateID( "WAIT" ) (323f5870, string 3347e734).
 // 2 CEPE_NOT_MOVE: |m_SyncData.m_Pos (+0x3c8) - +0x7c0| <= 1.0 (NaN -> true: TEST AH,0x41 @323f59c1); no skill test here.
 // 3 CEPE_ALWYAS: true. Other: false.
-bool CX2SquareUnit::CheckJuneEquipEffectSetCondition( const CX2ItemManager::JuneConditionEquipPlayEffectSet& kRecord )
+bool CX2SquareUnit::CheckEquipEffectSetCondition( const CX2ItemManager::ConditionEquipPlayEffectSet& kRecord )
 {
 	switch( kRecord.m_eCondition )
 	{
@@ -1117,7 +1117,7 @@ void CX2SquareUnit::ProcessRidingOn( IN bool bVal_, IN const KRidingPetInfo& _In
 			CX2RidingPetManager::GetInstance()->RemoveRidingPet( GetUID() );
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
 			/// June 323f70a0 @323f7219 ( C9h-4b ): 323f1730 right after RemoveRidingPet ( 321f6190 ): stop and clear the DCS_STATE_END sounds
-			JuneStopSoundOnStateEnd();
+			StopSoundOnStateEnd();
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND
 		}
 				
@@ -1142,7 +1142,7 @@ void    CX2SquareUnit::NotifyDGManagerChanged( CKTDGManager& refInManager_ )
 
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
-static void JuneSquareSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
+static void SquareSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, int iCount_, int iUnitUID_ )
 {
 	static int s_iLogged = 0;
 	if( s_iLogged > 200 )
@@ -1160,7 +1160,7 @@ static void JuneSquareSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail
 /// March's. The device PlaySound is June's 31ce0e10( name, loop, 3D, 1 ): the record's LOOP and ENABLE_3D_SOUND replace March's hard-coded ( false, false ), and its
 /// fourth argument ( 1, acts only on a freshly opened device ) is not ported ( KTDXLIB's signature is unchanged ). A handle goes through 323f1770 ( keeps DCS_STATE_END
 /// only ). Records are not erased.
-void CX2SquareUnit::JunePlaySquareSoundRecords()
+void CX2SquareUnit::PlaySquareSoundRecords()
 {
 	BOOST_TEST_FOREACH( const CX2GameUnit::SoundPlayData&, soundData, m_vecSoundPlayData )
 	{
@@ -1198,7 +1198,7 @@ void CX2SquareUnit::JunePlaySquareSoundRecords()
 						}
 					}
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
-					JuneSquareSoundLog( L"play", soundData.m_SoundPlayName.c_str(), iAttached, static_cast<int>( GetUID() ) );
+					SquareSoundLog( L"play", soundData.m_SoundPlayName.c_str(), iAttached, static_cast<int>( GetUID() ) );
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
 				}
 			}
@@ -1208,7 +1208,7 @@ void CX2SquareUnit::JunePlaySquareSoundRecords()
 
 /// June 323f1730: Stop on every non-null handle of the DCS_STATE_END list ( 31d416c0 ), then clear it ( 31f8b7e0( 0 ) ). June calls it from the riding-off path
 /// 323f70a0 @323f7219, after RemoveRidingPet; the riding pet's StateChange village block ( C9h-4e ) is its other caller.
-void CX2SquareUnit::JuneStopSoundOnStateEnd()
+void CX2SquareUnit::StopSoundOnStateEnd()
 {
 	int iStopped = 0;
 	for( size_t i = 0; i < m_vecSoundToDeleteOnStateEnd.size(); ++i )
@@ -1221,7 +1221,7 @@ void CX2SquareUnit::JuneStopSoundOnStateEnd()
 		}
 	}
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
-	JuneSquareSoundLog( L"stop", L"state_end", iStopped, static_cast<int>( GetUID() ) );
+	SquareSoundLog( L"stop", L"state_end", iStopped, static_cast<int>( GetUID() ) );
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
 	m_vecSoundToDeleteOnStateEnd.resize( 0 );
 }
@@ -1229,9 +1229,9 @@ void CX2SquareUnit::JuneStopSoundOnStateEnd()
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS
 /// June 32d2f560 @32d35124-@32d359f4 ( C9h-4e ): 323f1730 ( the DCS_STATE_END stop ), the list at +0x5dc cleared ( 32083e40 ), then the riding pet's
 /// SOUND_PLAY_ALL_OPTION<n> records appended. luaManager_ is the riding pet's, with the state's table open. Returns the number of records read.
-int CX2SquareUnit::JuneRidingPetStateChangeSounds( KLuaManager& luaManager_ )
+int CX2SquareUnit::RidingPetStateChangeSounds( KLuaManager& luaManager_ )
 {
-	JuneStopSoundOnStateEnd();
+	StopSoundOnStateEnd();
 	m_vecSoundPlayData.resize( 0 );
 	return CX2GameUnit::LoadSoundPlayAllOption( luaManager_, m_vecSoundPlayData );
 }
@@ -1737,7 +1737,7 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_SQUARE_SOUND
 	/// June OnFrameMove 32400620 @32401f75 ( C9h-4b ): 323f17b0 replaces March's sound loop below ( same slot: after the HANABI block, before the m_fCanNotInputTime decrement )
-	JunePlaySquareSoundRecords();
+	PlaySquareSoundRecords();
 #else
 	BOOST_TEST_FOREACH( const CX2GameUnit::SoundPlayData&, soundData, m_vecSoundPlayData )
 	{
@@ -1770,27 +1770,27 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 	{
 		std::vector<CX2EqipPtr> vecJuneEquip;
 		if( NULL != m_pUnitViewer )
-			m_pUnitViewer->GetJuneDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+			m_pUnitViewer->GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
 
 		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
 		{
 			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-			if( NULL == pJuneEquip || NULL == pJuneEquip->GetJuneItemTemplet() )
+			if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
 				continue;
 
-			CX2ItemManager::JuneConditionEquipPlayEffectSet kJuneRecord;
+			CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
 			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
-				false == CheckJuneEquipEffectSetCondition( kJuneRecord ) )
+				false == CheckEquipEffectSetCondition( kJuneRecord ) )
 			{
 				// a miss or a condition not met: released WITHOUT a stop (3295ca60( false ); JUNE_BUGS.md), +0x15f4 = 0, +0x1600 = 0
-				pJuneEquip->ReleaseJuneEquipEffectSet( false );
-				pJuneEquip->ResetJuneEquipEffectSetStartTime();
-				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 1 );
+				pJuneEquip->ReleaseEquipEffectSet( false );
+				pJuneEquip->ResetEquipEffectSetStartTime();
+				pJuneEquip->ResetEquipEffectSetSwitchTime( 1 );
 				continue;
 			}
 
 			int iJuneSel = 1;
-			if( false == pJuneEquip->StepJuneEquipEffectSetTimer( &iJuneSel ) )
+			if( false == pJuneEquip->StepEquipEffectSetTimer( &iJuneSel ) )
 				continue;
 
 			// the square-unit overload 321e2120( name, CX2SquareUnitPtr this ) on the UI effect set
@@ -1798,14 +1798,14 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 			if( 3 == iJuneSel )
 			{
 				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrSwitchEffectSetName, CX2SquareUnitPtr( this ) );
-				pJuneEquip->ResetJuneEquipEffectSetSwitchTime( 1 );
+				pJuneEquip->ResetEquipEffectSetSwitchTime( 1 );
 			}
 			else
 			{
 				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrEffectSetName, CX2SquareUnitPtr( this ) );
 			}
 			if( INVALID_EFFECTSET_HANDLE != hJuneEquipSet )
-				pJuneEquip->SetJuneEquipEffectSetHandle( hJuneEquipSet );
+				pJuneEquip->SetEquipEffectSetHandle( hJuneEquipSet );
 		}
 	}
 

@@ -153,7 +153,7 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetExpiredDate() const
     return  GetWideString( m_dwOffset_ExpiredDate );
 }
 
-/*static*/ void CX2Item::KItemFormatTemplet::JuneKimLine( const char* szFormat_, ... )
+/*static*/ void CX2Item::KItemFormatTemplet::KimLine( const char* szFormat_, ... )
 {
     char szLine[1024] = { 0, };
     va_list vaList;
@@ -164,7 +164,7 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetExpiredDate() const
     KLOG( "ErrorLog.txt" ) << "[JUNE_KIM] " << szLine << fileout;     /// flushed per line, like CX2JuneBuffCapture::Line
 }
 
-/*static*/ void CX2Item::KItemFormatTemplet::JuneKimGuard( const char* szKind_, const char* szFormat_, ... )
+/*static*/ void CX2Item::KItemFormatTemplet::KimGuard( const char* szKind_, const char* szFormat_, ... )
 {
     static std::map< std::string, int > s_mapJuneKimGuardCount;
     const int iCount = ++s_mapJuneKimGuardCount[ std::string( NULL != szKind_ ? szKind_ : "" ) ];
@@ -181,7 +181,7 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetExpiredDate() const
     _vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
     va_end( vaList );
 
-    JuneKimLine( "guard %s hit %d: %s", NULL != szKind_ ? szKind_ : "", iCount, szLine );
+    KimLine( "guard %s hit %d: %s", NULL != szKind_ ? szKind_ : "", iCount, szLine );
 }
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
@@ -403,7 +403,7 @@ void        CX2Item::KItemFormatTemplet::GetAttachedMeshData( unsigned i, const 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
 /// June item.kim K2: the key June's five Extra readers search for (32867660 and its four siblings, the same switch):
 /// UNIT_TYPE 1-9 -> the same, 10 -> 10 (Lu) or 11 (Ciel, the bool), 11 -> 12 (Rose), 12 -> 13 (Ain), anything else -> 0.
-/*static*/ DWORD CX2Item::KItemFormatTemplet::_GetJuneExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ )
+/*static*/ DWORD CX2Item::KItemFormatTemplet::_GetExtraKey( CX2Unit::UNIT_TYPE eUnitType_, bool bIsMinorUnit_ )
 {
     const DWORD dwUnitType = (DWORD) (BYTE) eUnitType_;     /// June passes the unit type as a byte
     if ( dwUnitType >= 1 && dwUnitType <= 9 )
@@ -427,7 +427,7 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetFrameOffset( CX2Unit::UNIT_T
         for( unsigned u = 0; u != uNumFrameOffset; ++u )
         {
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+            if ( pData[u].m_dwType == _GetExtraKey( eUnitType, bIsMinorUnit_ ) )
 #else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
@@ -451,7 +451,7 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderScale( CX2Unit::UNIT_T
         for( unsigned u = 0; u != uNumScales; ++u )
         {
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+            if ( pData[u].m_dwType == _GetExtraKey( eUnitType, bIsMinorUnit_ ) )
 #else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
@@ -476,7 +476,7 @@ const D3DXVECTOR3&  CX2Item::KItemFormatTemplet::GetRenderRotate( CX2Unit::UNIT_
         for( unsigned u = 0; u != uNumRotates; ++u )
         {
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+            if ( pData[u].m_dwType == _GetExtraKey( eUnitType, bIsMinorUnit_ ) )
 #else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
@@ -502,7 +502,7 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemModelName( CX2Unit::UN
         for( unsigned u = 0; u != uNumModelNames; ++u )
         {
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+            if ( pData[u].m_dwType == _GetExtraKey( eUnitType, bIsMinorUnit_ ) )
 #else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
@@ -528,7 +528,7 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetCommonItemXETName( CX2Unit::UNIT
         for( unsigned u = 0; u != uNumXETNames; ++u )
         {
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-            if ( pData[u].m_dwType == _GetJuneExtraKey( eUnitType, bIsMinorUnit_ ) )
+            if ( pData[u].m_dwType == _GetExtraKey( eUnitType, bIsMinorUnit_ ) )
 #else
             if ( (CX2Unit::UNIT_TYPE) pData[u].m_dwType == eUnitType )
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM

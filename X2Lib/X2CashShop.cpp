@@ -1405,8 +1405,8 @@ bool CX2CashShop::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			// because June's ResetPetViewer ignores the -1 type. It adds the UI-set and group-1 stops.
 			if( NULL != m_pNPCViewerUI )
 			{
-				m_pNPCViewerUI->JuneStopUIEffectSets();
-				m_pNPCViewerUI->JuneViewerFxStop( 1 );
+				m_pNPCViewerUI->StopUIEffectSets();
+				m_pNPCViewerUI->ViewerFxStop( 1 );
 				m_pNPCViewerUI->SetShowObject( false );
 				m_iPrePetItemID = -1;
 			}
@@ -2605,7 +2605,7 @@ void CX2CashShop::MouseMove( D3DXVECTOR2 mousePos )
 	is cleared either way. March's buy pop-up is the DLG BuyItemPopup, so the three calls map onto March's own direct-link sequence
 	( JobChangeDirectLink: Reset, SetOpen( true ), SetChoicedItemBuy( false ) ). 3223c970's pre-query and the GFx calls are not ported:
 	March's pop-up runs its own per-product coupon inquiry. */
-void CX2CashShop::JuneOpenAtItemList()
+void CX2CashShop::OpenAtItemList()
 {
 	if ( NULL != m_pBuyItemPopUp && false == m_vecJuneOpenAtItemID.empty() && NULL != g_pData && NULL != g_pData->GetItemManager() )
 	{
@@ -2797,7 +2797,7 @@ void CX2CashShop::SetOpen( bool bOpen )
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 		/// June's open 3224a680 runs 3224a3c0 and then 3224a5d0 @3224ac87 after the menu-type tabs, before +0x31c = 0
-		JuneOpenAtItemList();
+		OpenAtItemList();
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 		m_iMenuTypeCallingCashShop	= 0;	// 다시 초기화
 #else	PRIVATE_BANK
@@ -3075,8 +3075,8 @@ if(g_pTFieldGame != NULL && g_pTFieldGame->GetJoinNpc() == false ) // npc와 조우
 		// June SetOpen 3223d680 @3223e56d: the inline hide (UI-set and group-1 stops, hide, no previewed item).
 		if( NULL != m_pNPCViewerUI )
 		{
-			m_pNPCViewerUI->JuneStopUIEffectSets();
-			m_pNPCViewerUI->JuneViewerFxStop( 1 );
+			m_pNPCViewerUI->StopUIEffectSets();
+			m_pNPCViewerUI->ViewerFxStop( 1 );
 			m_pNPCViewerUI->SetShowObject( false );
 			m_iPrePetItemID = -1;
 		}
@@ -12578,8 +12578,8 @@ void CX2CashShop::UpdateDLGPetViewerUI()
 	// June UpdateDLGPetViewerUI 3223c5d0 @3223c763: the inline hide (UI-set and group-1 stops, hide, no previewed item).
 	if( NULL != m_pNPCViewerUI )
 	{
-		m_pNPCViewerUI->JuneStopUIEffectSets();
-		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+		m_pNPCViewerUI->StopUIEffectSets();
+		m_pNPCViewerUI->ViewerFxStop( 1 );
 		m_pNPCViewerUI->SetShowObject( false );
 		m_iPrePetItemID = -1;
 	}
@@ -12646,8 +12646,8 @@ void CX2CashShop::PetPreview( int iItemID_ )
 		NULL != m_pNPCViewerUI )
 	{
 		m_pNPCViewerUI->SetShowObject( false );
-		m_pNPCViewerUI->JuneStopUIEffectSets();
-		m_pNPCViewerUI->JuneViewerFxStop( 1 );
+		m_pNPCViewerUI->StopUIEffectSets();
+		m_pNPCViewerUI->ViewerFxStop( 1 );
 
 		WCHAR wszJuneFx[256] = {0};
 		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW hide item=%d (not in the pre-equip list)", m_iPrePetItemID );
@@ -12693,8 +12693,8 @@ void CX2CashShop::ResetPetViewer(int iPetID_/* = -1*/, int iItemID /*= -1*/, CX2
 		return;
 
 	// The stops come first, before the item test.
-	m_pNPCViewerUI->JuneStopUIEffectSets();
-	m_pNPCViewerUI->JuneViewerFxStop( 1 );
+	m_pNPCViewerUI->StopUIEffectSets();
+	m_pNPCViewerUI->ViewerFxStop( 1 );
 
 	if( 0 <= iPetID_ && m_iPrePetItemID != iItemID )
 	{
@@ -13738,7 +13738,7 @@ void CX2CashShop::RemoveUnitClassChangeItemInChoice( const CX2Unit::UNIT_CLASS e
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 	/// June 3223c7f0: the class's change item ( 32227080 ), then its second item ( 32226c60 ); each listed one leaves the wish list
 	/// ( 3223c4d0 = RemoveChoicedItem )
-	const int aiJuneItemID[2] = { GetUnitClassChangeItemID( eUnitClass_ ), JuneGetUnitClassChangeItemID2( static_cast<int>( eUnitClass_ ) ) };
+	const int aiJuneItemID[2] = { GetUnitClassChangeItemID( eUnitClass_ ), GetUnitClassChangeItemID2( static_cast<int>( eUnitClass_ ) ) };
 	for( int i = 0; i < 2; ++i )
 	{
 		if( 0 < aiJuneItemID[i] &&
@@ -14146,7 +14146,7 @@ const int CX2CashShop::GetUnitClassChangeItemID( const CX2Unit::UNIT_CLASS eUnit
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 /// June 32226c60: the class's second change item ( none in March; 135549 - 135551 are not in item.kim ), else -1
-const int CX2CashShop::JuneGetUnitClassChangeItemID2( const int iUnitClass_ )
+const int CX2CashShop::GetUnitClassChangeItemID2( const int iUnitClass_ )
 {
 	switch( iUnitClass_ )
 	{

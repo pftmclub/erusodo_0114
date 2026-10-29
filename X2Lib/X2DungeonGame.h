@@ -124,11 +124,11 @@ class CX2DungeonGame : public CX2Game
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		// June dungeon result R1: the items obtained during the game ( June +0xdf4, 0xc0 B records ), vslots 0x21c / 0x220 / 0x224 / 0x228 ( 327cedf0 / 327cee60 / 327ca2f0 / 327cef20 ). Bodies: X2UIDungeonResultAdapter.cpp
-		void					JuneAddObtainedItem( const CX2Item::ItemData& kItemData );
-		bool					JuneGetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const;
-		bool					JuneHasObtainedItemPage( unsigned uCount ) const;
-		void					JuneSortObtainedItems();
-		int						JuneGetObtainedItemCount() const { return (int)m_vecJuneObtainedItem.size(); }
+		void					AddObtainedItem( const CX2Item::ItemData& kItemData );
+		bool					GetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const;
+		bool					HasObtainedItemPage( unsigned uCount ) const;
+		void					SortObtainedItems();
+		int						GetObtainedItemCount() const { return (int)m_vecJuneObtainedItem.size(); }
 	private:
 		std::vector< CX2Item::ItemData >	m_vecJuneObtainedItem;
 	public:
@@ -285,7 +285,7 @@ class CX2DungeonGame : public CX2Game
 		void					ShowClearEffect();
 #ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual bool			UpdateUnitPointer();	/// June 327cea70
-		void					JuneUpdateUnitPointerNPCWalk();
+		void					UpdateUnitPointerNPCWalk();
 #else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void			UpdateUnitPointer();
 #endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
@@ -409,7 +409,7 @@ class CX2DungeonGame : public CX2Game
 #ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 	public:
 		bool				GetGoNextPacketSended() const { return m_bGoNextPacketSended; }	// June byte +0xc4c
-		bool				JuneSendGoNextReq( bool bCloseBeforeSubStage_ );					// June 327c9fa0
+		bool				SendGoNextReq( bool bCloseBeforeSubStage_ );					// June 327c9fa0
 #endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 #ifdef SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
 	public:

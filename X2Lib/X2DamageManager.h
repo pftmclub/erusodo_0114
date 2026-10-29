@@ -1058,7 +1058,7 @@ class CX2DamageManager
 		/// @3263d5fc-3263db40): ATTACK_TRIGGER_TYPE and BUFF_TEMPLET_ID (default 0), POWER_RATE (default 1.0),
 		/// POWER_RATE_ACCUMULATION_MULTIPLIER (default 0.0). The types are June Enum.lua ints (March's C++
 		/// DAMAGE_TRIGGER_TYPE stops at DTT_END = 6), so they are stored as int. Effect completion C5.
-		struct JuneDamageTriggerData
+		struct DamageTriggerData
 		{
 			int		m_iAttackTriggerType;
 			int		m_iBuffTempletID;
@@ -1308,7 +1308,7 @@ class CX2DamageManager
 			/// cleared the same way (@3263d40f). +0x5ac: DAMAGE_TRIGGER_CONDITION, parsed int, default -1; June has no
 			/// reader of it (funcmap row 3263e8d7), so it is parsed and logged only.
 			std::vector<int>					m_vecAdditionalAttackTriggerType;	/// ADDITIONAL_ATTACK_TRIGGER_TYPE
-			std::vector<JuneDamageTriggerData>	m_vecDamageTriggerData;				/// DAMAGE_TRIGGER_DATA
+			std::vector<DamageTriggerData>	m_vecDamageTriggerData;				/// DAMAGE_TRIGGER_DATA
 			int									m_iDamageTriggerCondition;			/// DAMAGE_TRIGGER_CONDITION
 
 			/// June 32610fb0 (ADDITIONAL_ATTACK_TRIGGER_TYPE consumer): true when ATTACK_TRIGGER_TYPE == iTrigger_ or iTrigger_
@@ -1326,9 +1326,9 @@ class CX2DamageManager
 			}
 
 			/// June 32610e60: the first DAMAGE_TRIGGER_DATA entry whose type is iTrigger_, else NULL.
-			const JuneDamageTriggerData* FindDamageTriggerData( const int iTrigger_ ) const
+			const DamageTriggerData* FindDamageTriggerData( const int iTrigger_ ) const
 			{
-				for ( std::vector<JuneDamageTriggerData>::const_iterator it = m_vecDamageTriggerData.begin(); it != m_vecDamageTriggerData.end(); ++it )
+				for ( std::vector<DamageTriggerData>::const_iterator it = m_vecDamageTriggerData.begin(); it != m_vecDamageTriggerData.end(); ++it )
 				{
 					if ( it->m_iAttackTriggerType == iTrigger_ )
 						return &( *it );

@@ -3569,7 +3569,7 @@ void CX2ItemSlotManager::WriteStringForRestrictionPurchaseToDesc( const CX2PVPEm
 	/// items, none reachable); GetPVPEmblemData returns NULL for them and the line below would dereference it. Skip the line and log.
 	if ( NULL == g_pMain->GetPVPEmblem()->GetPVPEmblemData( ePvpRankConditionForPurchase_ ) )
 	{
-		CX2Item::KItemFormatTemplet::JuneKimGuard( "pvp_emblem", "buy-PvP rank %d has no emblem in March: the tooltip's purchase-restriction line is skipped", (int) ePvpRankConditionForPurchase_ );
+		CX2Item::KItemFormatTemplet::KimGuard( "pvp_emblem", "buy-PvP rank %d has no emblem in March: the tooltip's purchase-restriction line is skipped", (int) ePvpRankConditionForPurchase_ );
 		return;
 	}
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM

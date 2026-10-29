@@ -537,7 +537,7 @@ void CKTDGManager::BuildRenderStateID()
 /// June 31ce63f0: the clear-screen countdown ( +0xa8 count, +0xac colour, +0xbc tick of the last clear ): a countdown frame clears
 /// target + depth with the clear-screen colour and skips the frame once 0.2 s have passed since the last such clear. June keeps the
 /// time as a tick count ( / 1000.0 ); March's timer is kept.
-bool CKTDGManager::JuneBeginRenderCountdown()
+bool CKTDGManager::BeginRenderCountdown()
 {
 	KTDXPROFILE();
 
@@ -559,7 +559,7 @@ bool CKTDGManager::JuneBeginRenderCountdown()
 /// June 31ce6600 = the countdown, then the default Clear with the clear colour ( +0xc0 ): March's BeginRender split in two
 bool CKTDGManager::BeginRender()
 {
-	if( false == JuneBeginRenderCountdown() )
+	if( false == BeginRenderCountdown() )
 		return false;
 
 	g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, m_ClearColor, 1.0f, 0);
@@ -1130,7 +1130,7 @@ void CKTDGManager::FrontUIRender()
 	if ( 1 == iRenderPass_ )
 	{
 	    KD3DBEGIN()
-			if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+			if ( m_pDialogManager->GetFlaggedDialogsOnly() == false )
 				m_pDialogManager->OnFrameRender( true, 1 );
 	    KD3DEND()
 		_RenderObjectRenderHintVectorPass1( m_OverUIAlphaChain );
@@ -1139,12 +1139,12 @@ void CKTDGManager::FrontUIRender()
 	}
 
     KD3DBEGIN()
-		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+		if ( m_pDialogManager->GetFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 0, 3, iRenderPass_ );		// June vslot 0x38 ( 1, pass, 0, 3 )
     KD3DEND()
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
     KD3DBEGIN()
-		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+		if ( m_pDialogManager->GetFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 0, 3 );
     KD3DEND()
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
@@ -1168,12 +1168,12 @@ void CKTDGManager::FrontUIRender()
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
     KD3DBEGIN()
-		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+		if ( m_pDialogManager->GetFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 4, 500, iRenderPass_ );		// June vslot 0x38 ( 1, pass, 4, 500 )
     KD3DEND()
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1
     KD3DBEGIN()
-		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+		if ( m_pDialogManager->GetFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 4, 500 );
     KD3DEND()
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
@@ -1536,7 +1536,7 @@ struct CKTDGObjectAlphaSort : public std::binary_function< CKTDGManager::KObject
               && _Left.m_pObject->GetDistanceToCamera() > _Right.m_pObject->GetDistanceToCamera()
            || _Left.m_pObject->GetLayer() == _Right.m_pObject->GetLayer()
               && _Left.m_pObject->GetDistanceToCamera() == _Right.m_pObject->GetDistanceToCamera()
-              && _Left.m_pObject->GetJuneSortKey() < _Right.m_pObject->GetJuneSortKey();
+              && _Left.m_pObject->GetSortKey() < _Right.m_pObject->GetSortKey();
 #else SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
        return   _Left.m_pObject->GetLayer() < _Right.m_pObject->GetLayer()
            || _Left.m_pObject->GetLayer() == _Right.m_pObject->GetLayer()

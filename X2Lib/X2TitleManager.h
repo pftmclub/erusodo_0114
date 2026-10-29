@@ -360,9 +360,9 @@ public:
     void UpdateSubMission(int iMissionId, std::vector< KSubMissionInstance > vecSubMission);
     void UpdateClearCondition(KSubMissionInstance kSubMission);
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	void JunePushTitleNotice( int iTitleID_, int iKind_ );	/// June 326f88a0: 0 = mission opened ( +0xc0 ), 1 = title earned ( +0xb0 )
-	void JuneEquipTitleTen();								/// June 327009b0: the "apply title now?" OK ( SUCM 3085 )
-	void JuneCancelTitleTen() { m_iJuneTitleTenPrompt = 0; }	/// June 31f26c7c: its Cancel ( SUCM 3086 )
+	void PushTitleNotice( int iTitleID_, int iKind_ );	/// June 326f88a0: 0 = mission opened ( +0xc0 ), 1 = title earned ( +0xb0 )
+	void EquipTitleTen();								/// June 327009b0: the "apply title now?" OK ( SUCM 3085 )
+	void CancelTitleTen() { m_iJuneTitleTenPrompt = 0; }	/// June 31f26c7c: its Cancel ( SUCM 3086 )
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
     bool GetTakeTitle(int titleid);

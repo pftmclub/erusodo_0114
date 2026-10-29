@@ -108,7 +108,7 @@ void CX2TitleManager::CheckNewTitle()
 				m_bShowNewTitle = false;
 				m_bNewOpenMission = false;
 				for( UINT i = 0; i < m_vecJuneNewTitle.size(); ++i )
-					CX2EmblemManager::GetInstance()->JunePushTitleNotice( m_vecJuneNewTitle[i], 1 );
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewTitle[i], 1 );
 				m_vecJuneNewTitle.clear();
 				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_NEW_TITLE_INFO_NOTICE, true );
 			} break;
@@ -119,7 +119,7 @@ void CX2TitleManager::CheckNewTitle()
 				m_bShowNewTitle = false;
 				m_bNewOpenMission = false;
 				for( UINT i = 0; i < m_vecJuneNewTitle.size(); ++i )
-					CX2EmblemManager::GetInstance()->JunePushTitleNotice( m_vecJuneNewTitle[i], 1 );
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewTitle[i], 1 );
 				m_vecJuneNewTitle.clear();
 				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_NEW_TITLE_INFO_NOTICE, true );
 
@@ -159,7 +159,7 @@ void CX2TitleManager::CheckNewTitle()
 				/// @32701f84 / @32701fd1 ( the same body ): every other state
 				m_bNewOpenMission = false;
 				for( UINT i = 0; i < m_vecJuneNewMission.size(); ++i )
-					CX2EmblemManager::GetInstance()->JunePushTitleNotice( m_vecJuneNewMission[i], 0 );
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewMission[i], 0 );
 			} break;
 		}
 		m_vecJuneNewMission.clear();
@@ -1750,7 +1750,7 @@ bool CX2TitleManager::UpdateMission(std::vector< KMissionInstance > vecMisstionI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
             /// June 32700d20 @32700dc5: a mission opened after the first list is queued for emblem 18
             if( false == bFirst_ && true == tempRet )
-                JunePushTitleNotice( iTitleId, 0 );
+                PushTitleNotice( iTitleId, 0 );
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
             if(ret == false && tempRet == true)
                 ret = true;
@@ -2094,7 +2094,7 @@ void CX2TitleManager::PrintTitleInfo_ToExcel()
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 /// June 326f88a0 ( called by UpdateMission 32700d20 with 0 and REWARD_TITLE_NOT 32700700 with 1 ): queue a title for emblem 18 once.
 /// June's map holds the TitleInfo by value, so it queues the node's TitleInfo ( id +0, type +8, name +0xc ); March queues the pointer.
-void CX2TitleManager::JunePushTitleNotice( int iTitleID_, int iKind_ )
+void CX2TitleManager::PushTitleNotice( int iTitleID_, int iKind_ )
 {
 	std::map< int, TitleInfo* >::iterator mit = m_mapTitleInfo.find( iTitleID_ );
 	if( m_mapTitleInfo.end() == mit )
@@ -2130,7 +2130,7 @@ void CX2TitleManager::JunePushTitleNotice( int iTitleID_, int iKind_ )
 
 /// June 327009b0 ( SUCM 3085, the OK of 32701960's 43200 box ): no title equipped -> equip the prompted one ( = 327006b0, March's REQ ).
 /// June reads the select unit without a null test ( JUNE_BUGS ).
-void CX2TitleManager::JuneEquipTitleTen()
+void CX2TitleManager::EquipTitleTen()
 {
 	const int iTitleID = m_iJuneTitleTenPrompt;
 	if( 0 == iTitleID )
@@ -2249,7 +2249,7 @@ bool CX2TitleManager::Handler_EGS_REWARD_TITLE_NOT( HWND hWnd, UINT uMsg, WPARAM
     {
         m_bNewTitle = true;
         const int iTitleID = kEvent.m_kTitle.m_iTitleID;
-        JunePushTitleNotice( iTitleID, 1 );
+        PushTitleNotice( iTitleID, 1 );
 
         /// @327007e4-@327008c8: events 0x834 ( title 100300 ) and 0x835 ( a June-only packet byte ) equip the title through June's
         /// event map ( g_pInstanceData +0xa18 ); March has no event map, so both read as inactive ( not ported )

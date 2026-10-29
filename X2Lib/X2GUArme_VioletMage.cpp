@@ -19207,7 +19207,7 @@ void CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
 				iCount++;
 				pUnit->SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_DEBUFF_BIND ), 1, this, 0, false );
 
-				const CX2GUUser::JuneSkillMemoEntry* pMemo = ( NULL != pSkillTemplet ) ? GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) ) : NULL;
+				const CX2GUUser::SkillMemoEntry* pMemo = ( NULL != pSkillTemplet ) ? GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) ) : NULL;
 				if( NULL != pMemo && 18 == pMemo->m_iType )
 					pUnit->AddForceDownGage( pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0] );
 			}
@@ -28382,7 +28382,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 				m_DamageData.m_fDrainMpByReact		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel );
 				m_DamageData.m_fDrainMpRate			= fDrainRate;
 
-				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) );
+				const CX2GUUser::SkillMemoEntry* pMemo = GetSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) );
 				if( NULL != pMemo && 18 == pMemo->m_iType )
 					m_DamageData.fForceDownValue += pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
 
@@ -33716,7 +33716,7 @@ int CX2GUArme_VioletMage::SelectSkillSlotKind( const CX2UserSkillTree& userSkill
 // June 31fdbe70 ( vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
 void CX2GUArme_VioletMage::SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
 {
-	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
+	const CX2GUUser::SkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
 	if( NULL == pMemo )
 		return;
 
@@ -34366,7 +34366,7 @@ bool CX2GUArme_VioletMage::UpdateEquipViewListInfo( CX2Item* pItemToAddInViewLis
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 	if( true == IsTransformed() )
 	{
-		JuneEquipViewChange kChange;
+		EquipViewChange kChange;
 		kChange.m_iItemUIDToAdd = ( NULL != pItemToAddInViewList_ ) ? pItemToAddInViewList_->GetItemData().m_ItemUID : 0;
 		kChange.m_iItemUIDToRemove = ( NULL != pItemToRemoveInViewList_ ) ? pItemToRemoveInViewList_->GetItemData().m_ItemUID : 0;
 		m_vecJune9848.push_back( kChange );
@@ -36354,7 +36354,7 @@ void CX2GUArme_VioletMage::CreateLightningShowerAttack()
 		if( true != pLineMap->CanDown( vTopPosition, LINE_RADIUS, NULL, NULL, NULL, true, false, true, false ) )
 			return;
 
-		vEffectPosition = pLineMap->June_GetVerticalCrossLinePos( vTopPosition, false ) + D3DXVECTOR3( 0.f, 10.f, 0.f );
+		vEffectPosition = pLineMap->GetVerticalCrossLinePos( vTopPosition, false ) + D3DXVECTOR3( 0.f, 10.f, 0.f );
 	}
 
 	g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Lightning_Shower_LineCrash", GetPowerRate(), vEffectPosition,
@@ -36415,7 +36415,7 @@ void CX2GUArme_VioletMage::PushBuffFactorWithMemoRate( CX2DamageManager::DamageD
 {
 	damageData_.PushBuffFactor( ptrBuffFactor_->GetClonePtr( iLevel_ ) );
 
-	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
+	const SkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
 	if( NULL == pMemo || ( 0xf != pMemo->m_iType && 0x10 != pMemo->m_iType ) || true == damageData_.m_vecBuffFactorPtr.empty() || NULL == damageData_.m_vecBuffFactorPtr.back() )
 		return;
 
@@ -36467,9 +36467,9 @@ void CX2GUArme_VioletMage::SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2St
 
 	float fRemainTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSummonSkillID );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_SA_ADW_DISTORTION );
+	const SkillMemoEntry* pMemo = GetSkillMemoEntry( CX2SkillTree::RNSI_SA_ADW_DISTORTION );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const JuneSkillMemoEntry* pMemo = GetSkillMemoEntry( JUNE_CH3B_SA_ADW_DISTORTION );
+	const SkillMemoEntry* pMemo = GetSkillMemoEntry( JUNE_CH3B_SA_ADW_DISTORTION );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( NULL != pMemo && 0xf == pMemo->m_iType )
 		fRemainTime *= pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];

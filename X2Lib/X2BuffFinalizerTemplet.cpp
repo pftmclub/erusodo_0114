@@ -12,7 +12,7 @@
 /// log). Every DISPLAY_ERROR in this file is collected by an active capture, else written once per buff and
 /// text as a [JUNE_BUFF] line in ErrorLog.txt (CX2JuneBuffCapture::RuntimeError). Same trailing ';' as the original.
 #undef DISPLAY_ERROR
-#define DISPLAY_ERROR( wszError_ ) CX2JuneBuffCapture::RuntimeError( wszError_ );
+#define DISPLAY_ERROR( wszError_ ) CX2BuffCapture::RuntimeError( wszError_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 #define CASE_FINALIZER_TEMPLET( class_, type_ ) \
@@ -88,7 +88,7 @@ case type_: \
 
 			default:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
-				return CX2JuneBuffCapture::UnsupportedType( L"BFT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
+				return CX2BuffCapture::UnsupportedType( L"BFT", *vItr );	/// June buff port Phase 3: the [JUNE_BUFF] line names the type
 #else SERV_IRUHADEV_JUNE_BUFF_LOADER
 				return DISPLAY_ERROR( L"Unknown Finalizer Type" );	/// false ∏Æ≈œ
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
@@ -292,13 +292,13 @@ bool CX2BuffFinalizerTemplet::SetFactorFromPacketTemplateMothod( const KBuffFact
 			/// counterpart (Rose's HEAVYFIREARMS_MASTERY is the only data), and a freeze without that unfreeze would never
 			/// end, so the timer runs unfrozen and says so once per buff
 			if ( m_bFrozenTime )
-				CX2JuneBuffCapture::RuntimeError( L"unsupported (June-only system): FROZEN_TIME, so this buff's timer runs unfrozen (June 31fe2a80 / 3200bde0 not mapped)" );
+				CX2BuffCapture::RuntimeError( L"unsupported (June-only system): FROZEN_TIME, so this buff's timer runs unfrozen (June 31fe2a80 / 3200bde0 not mapped)" );
 			/// SHAKE_DECREASE_*: the data side is here (DecreaseDurationByShake); its input trigger is Phase 8's
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			/// Phase 8 ported the trigger (CX2Game::KeyProcess, CX2GameUnit::OnFrameMoveBuff), so nothing is reported here
 #else SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			if ( 0.0f < m_fShakeDecreaseMaxTime )
-				CX2JuneBuffCapture::RuntimeError( L"unsupported (Phase 8): SHAKE_DECREASE_* is stored, but stick shakes do not shorten this buff yet (June CX2Game +0xbae / 3236c990 trigger)" );
+				CX2BuffCapture::RuntimeError( L"unsupported (Phase 8): SHAKE_DECREASE_* is stored, but stick shakes do not shorten this buff yet (June CX2Game +0xbae / 3236c990 trigger)" );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
@@ -1932,7 +1932,7 @@ bool CX2BuffFinishRidingPetOnOrNotFinalizerTemplet::ParsingFinalizerTemplateMeth
 	if ( pGameUnit_->IsMyUnit() )
 		pGameUnit_->IncreaseBuffSyncCount();	/// June @32ec58f4: ++(+0x6dd0)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	CX2JuneBuffCapture::Line( "aura (BFT 14) ended, BTI %d, creator %I64d, my unit %d", static_cast<int>( m_eBuffTempletID ), m_uidCreator, pGameUnit_->IsMyUnit() ? 1 : 0 );
+	CX2BuffCapture::Line( "aura (BFT 14) ended, BTI %d, creator %I64d, my unit %d", static_cast<int>( m_eBuffTempletID ), m_uidCreator, pGameUnit_->IsMyUnit() ? 1 : 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 
 	return true;

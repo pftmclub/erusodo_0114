@@ -109,7 +109,7 @@ static void ApplyNumericalSkillData( CX2DamageManager::DamageData* pDamageData_,
 	}
 
 	/// @3263ff2c-3263ff5e: INDEX > 0 ? 320717e0( INDEX, level ) : 32078060( NAME, level )
-	CX2SkillTree::SkillTemplet::JuneNumericalRow row;
+	CX2SkillTree::SkillTemplet::NumericalRow row;
 	if( 0 < pDamageData_->m_iNumericalDataIndex )
 		pSkillTemplet->GetNumericalRowByIndex( pDamageData_->m_iNumericalDataIndex, iLevel, row );
 	else
@@ -444,12 +444,12 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			if ( true == pDamageData->m_bIsAuraBuff && false == s_bAuraLogged )
 			{
 				s_bAuraLogged = true;
-				CX2JuneBuffCapture::Line( "IS_AURA_BUFF parsed (first seen in %s): stored, read by the party-only aura gate", NULL != pTableName ? pTableName : "?" );
+				CX2BuffCapture::Line( "IS_AURA_BUFF parsed (first seen in %s): stored, read by the party-only aura gate", NULL != pTableName ? pTableName : "?" );
 			}
 			if ( -1 != pDamageData->m_iLimitApplyBuffCountEachUnit && false == s_bLimitLogged )
 			{
 				s_bLimitLogged = true;
-				CX2JuneBuffCapture::Line( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT %d parsed (first seen in %s): stored, never enforced (as in June)",
+				CX2BuffCapture::Line( "LIMIT_APPLY_BUFF_COUNT_EACH_UNIT %d parsed (first seen in %s): stored, never enforced (as in June)",
 					pDamageData->m_iLimitApplyBuffCountEachUnit, NULL != pTableName ? pTableName : "?" );
 			}
 		}
@@ -846,7 +846,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			int iEntryIndex = 1;
 			while( luaManager.BeginTable( iEntryIndex ) == true )
 			{
-				JuneDamageTriggerData kEntry;
+				DamageTriggerData kEntry;
 				LUA_GET_VALUE( luaManager, "ATTACK_TRIGGER_TYPE",					kEntry.m_iAttackTriggerType,				0 );
 				LUA_GET_VALUE( luaManager, "BUFF_TEMPLET_ID",						kEntry.m_iBuffTempletID,					0 );
 				LUA_GET_VALUE( luaManager, "POWER_RATE",							kEntry.m_fPowerRate,						1.f );
@@ -1139,7 +1139,7 @@ static bool AuraBuffSkipsTarget( const CX2DamageManager::DamageData* pDamageData
 	if ( s_iLogged < 10 )
 	{
 		++s_iLogged;
-		CX2JuneBuffCapture::Line( "aura buff skipped my unit %I64d in %s: attacker %I64d is not in my party",
+		CX2BuffCapture::Line( "aura buff skipped my unit %I64d in %s: attacker %I64d is not in my party",
 			pTarget_->GetUnitUID(), szSite_, NULL != pAttacker_ ? pAttacker_->GetUnitUID() : (UidType)-1 );
 	}
 	return true;
@@ -1167,7 +1167,7 @@ static void GuildSkillChanceToReverse( const CX2DamageManager::DamageData* pDama
 		if ( false == s_bSkipLogged )
 		{
 			s_bSkipLogged = true;
-			CX2JuneBuffCapture::Line( "guild Chance to Reverse not checked for this damage (first seen): ATTACK_OUR_TEAM %d, IS_AURA_BUFF %d, damage type %d",
+			CX2BuffCapture::Line( "guild Chance to Reverse not checked for this damage (first seen): ATTACK_OUR_TEAM %d, IS_AURA_BUFF %d, damage type %d",
 				(int)pDamageData_->m_bAttackOurTeam, (int)pDamageData_->m_bIsAuraBuff, (int)pDamageData_->damageType );
 		}
 		return;
@@ -1181,7 +1181,7 @@ static void GuildSkillChanceToReverse( const CX2DamageManager::DamageData* pDama
 		if ( false == s_bHitLogged )
 		{
 			s_bHitLogged = true;
-			CX2JuneBuffCapture::Line( "guild Chance to Reverse checked on a hit too (first seen): attacker %I64d, target %I64d",
+			CX2BuffCapture::Line( "guild Chance to Reverse checked on a hit too (first seen): attacker %I64d, target %I64d",
 				NULL != pAttacker_ ? pAttacker_->GetUnitUID() : (UidType)-1, NULL != pDefender_ ? pDefender_->GetUnitUID() : (UidType)-1 );
 		}
 	}

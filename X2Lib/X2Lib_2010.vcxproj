@@ -3068,7 +3068,6 @@
     <ClCompile Include="X2UIPrivateBank.cpp" />
     <ClCompile Include="X2UIQuest.cpp" />
     <ClCompile Include="X2UIQuestNew.cpp" />
-    <ClCompile Include="X2UIQuestNewJune.cpp" />
     <ClCompile Include="X2UIQuestReceive.cpp" />
     <ClCompile Include="X2UIQuickSlot.cpp" />
     <ClCompile Include="X2UIRankingInfo.cpp" />

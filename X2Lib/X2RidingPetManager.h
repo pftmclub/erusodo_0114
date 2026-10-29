@@ -279,8 +279,8 @@ public:
 	/// calls), so these stay 1.0. CX2RidingPet::StateChange multiplies ANIM_SPEED by the SECOND float of a pair (@32d30a6e..@32d30b6d; the first
 	/// is loaded into a dead stack slot) and PASSIVE_SPEED_X by the FIRST float of pair 4 (@32d35055). Pairs: 0 walk, 1 dash, 2 jump up / jump down,
 	/// 3 dash jump up, 4 special move.
-	float GetJuneAnimSpeedRate( int iPair_ ) const { return m_afJuneStateRate[iPair_][1]; }
-	float GetJunePassiveSpeedRate() const { return m_afJuneStateRate[4][0]; }
+	float GetAnimSpeedRate( int iPair_ ) const { return m_afJuneStateRate[iPair_][1]; }
+	float GetPassiveSpeedRate() const { return m_afJuneStateRate[4][0]; }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 
 	HRESULT	OnFrameMove( IN double fTime_, IN float fElapsedTime_ );

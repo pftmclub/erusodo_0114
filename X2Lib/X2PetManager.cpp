@@ -1623,7 +1623,7 @@ CX2PetManager::PetTemplet *CX2PetManager::GetPetTemplet(PET_UNIT_ID pid)
 			 (PUI_SHERIFF_NORM, 0x86) with variant 1 or 2 ( (byte)( v - 1 ) < 2 ); else L"". Only caller here: CX2NPCUnitViewerUI::ResetPet
 			 (June's other caller, the in-game pet 326e5cf0, goes with the variant byte, backlog Stage 17).
 */
-std::wstring CX2PetManager::JuneGetVariantXetSuffix( const int& iPetId_, const char& cVariant_ )
+std::wstring CX2PetManager::GetVariantXetSuffix( const int& iPetId_, const char& cVariant_ )
 {
 	std::wstring wstrSuffix = L"";
 	if( PUI_GRIM_REAPER_REBIRTH == iPetId_ )

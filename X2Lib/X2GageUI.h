@@ -877,7 +877,7 @@ public:
 	virtual ~CX2EveMyGageUI();										/// June 32e725e0
 	virtual void			OnFrameMove( float fElapsedTime_ );		/// June 32e71990
 	virtual void			SetShow( const bool bShow_ );			/// June 32e5eca0
-	void					June_UpdateHyperBall();					/// June 32e6a210
+	void					UpdateHyperBall();					/// June 32e6a210
 
 private:
 	CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqHyperBall;		/// June +0x5c

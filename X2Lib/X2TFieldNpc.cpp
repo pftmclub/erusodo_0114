@@ -3249,7 +3249,7 @@ void CX2TFieldNpc::OnFrameRender_Draw()
 				pRenderParam->cullMode		= D3DCULL_NONE;
 				pRenderParam->fOutLineWide	= m_pHouseTemplet->m_fOutlineWidthMesh;
 			}
-			const SJuneVillageNpcRenderOption& kOption = m_pHouseTemplet->m_RenderOption;	// @325d118b
+			const SVillageNpcRenderOption& kOption = m_pHouseTemplet->m_RenderOption;	// @325d118b
 			if( true == kOption.m_bUseRenderOption )
 			{
 				pRenderParam->bAlphaBlend	= kOption.m_bUseAlphaBlend;
@@ -3961,7 +3961,7 @@ void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)
 //////////////////////////////////////////////////////////////////////////
 
 // June 321f2c10: a bone of the main skin (+0x1b8), (0,0,0) without the skin or the frame.
-D3DXVECTOR3 CX2TFieldNpc::JuneGetBonePos( const WCHAR* wszBoneName )
+D3DXVECTOR3 CX2TFieldNpc::GetBonePos( const WCHAR* wszBoneName )
 {
 	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
 	if( NULL == m_pXSkinAnim )
@@ -3973,7 +3973,7 @@ D3DXVECTOR3 CX2TFieldNpc::JuneGetBonePos( const WCHAR* wszBoneName )
 }
 
 // June 321f2c70: the same, false on a miss.
-bool CX2TFieldNpc::JuneGetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos )
+bool CX2TFieldNpc::GetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos )
 {
 	vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
 	if( NULL == m_pXSkinAnim )
@@ -4663,7 +4663,7 @@ HRESULT CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 			if( NULL == apSkin[i] )
 				continue;
 			apSkin[i]->SetPlaySpeed( m_fWaitAnimSpeed );
-			if( true == apSkin[i]->JuneIsAnimSetExist( m_mapMotionName[ JNMK_TALKWAIT ].c_str() ) && true == m_bJoinNpc )	// 31d34110
+			if( true == apSkin[i]->IsAnimSetExist( m_mapMotionName[ JNMK_TALKWAIT ].c_str() ) && true == m_bJoinNpc )	// 31d34110
 			{
 				apSkin[i]->ChangeAnim( m_mapMotionName[ JNMK_TALKWAIT ].c_str(), true, 0.f );
 				apSkin[i]->Play( CKTDGXSkinAnim::XAP_LOOP );
@@ -4742,7 +4742,7 @@ HRESULT CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 
 		if( false == m_vecCustomMotion.empty() )
 			m_iMotionId = 11;
-		if( false == m_pXSkinAnim->JuneIsAnimSetExist( m_mapMotionName[ m_iMotionId ].c_str() ) && true == m_vecCustomMotion.empty() )
+		if( false == m_pXSkinAnim->IsAnimSetExist( m_mapMotionName[ m_iMotionId ].c_str() ) && true == m_vecCustomMotion.empty() )
 			m_iMotionId = 1;
 	}
 

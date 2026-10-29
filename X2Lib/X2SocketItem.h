@@ -859,7 +859,7 @@ class CX2SocketItem
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June buff port Phase 16: the SocketDataCommon fields June's loader 32726850 fills and March lacks.
 			/// The comments give June's offset (the same in the templet and in the per-unit aggregate).
-			struct JuneConditionalBuff				/// June +0x29c entry (0x10 bytes), pushed @32735bc5 (3207b5d0)
+			struct ConditionalBuff				/// June +0x29c entry (0x10 bytes), pushed @32735bc5 (3207b5d0)
 			{
 				UINT	m_uiBuffFactorID;				/// +0 BUFF_FACTOR_ID
 				int		m_iBuffLevel;					/// +4 the second m_sBuffLevel
@@ -881,7 +881,7 @@ class CX2SocketItem
 			float	m_fCharacterSpecializationB;		/// +0x138
 			float	m_fDamageMaximizeRate;				/// +0x13c (BBT 92's option seed)
 			float	m_fBonusTitleMissionCountingRate;	/// +0x298 (loaded; no client reader found, not summed by 3207cd70)
-			vector<JuneConditionalBuff>	m_vecConditionalBuff;	/// +0x29c
+			vector<ConditionalBuff>	m_vecConditionalBuff;	/// +0x29c
 			float	m_fAtkPhysicPiercingRate;			/// +0x2ac
 			float	m_fAtkMagicPiercingRate;			/// +0x2b0
 			float	m_fHPRecoveryRate;					/// +0x2b4
@@ -910,7 +910,7 @@ class CX2SocketItem
 			vector<int>		m_vecJuneAdditionalPowerRateType;		/// +0xa8 m_PowerRate (32715110: 1..6 -> power-rate type 0..5)
 			float			m_fJuneSkillAdditionalPowerRate;		/// +0xb8 m_fSkillAdditionalPowerRate (0 unless the group string parsed)
 
-			void InitJuneSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
+			void InitSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
 			{
 				m_iDungeonOnlyType = 0;
 				m_fCriticalAfflicted = m_fAdditionalDamageAfflicted = m_fAdditionalDamage = 0.f;
@@ -936,7 +936,7 @@ class CX2SocketItem
 			/// each times fRate_, and copies the +0x29c entries unscaled; every other field keeps its default (June's
 			/// copy drops e.g. m_fPercentDamageReduce while scaling m_fDamageReduce, JUNE_BUGS #50). The stat block is
 			/// March's 11 floats of June's 13 (June's range P/M at indices 9/10 are not in March's Stat).
-			void SetJuneRankLinkedScaled( const SocketData& rhs_, const float fRate_ )
+			void SetRankLinkedScaled( const SocketData& rhs_, const float fRate_ )
 			{
 				m_Stat.m_fBaseHP	= rhs_.m_Stat.m_fBaseHP * fRate_;
 				m_Stat.m_fAtkPhysic	= rhs_.m_Stat.m_fAtkPhysic * fRate_;
@@ -1111,7 +1111,7 @@ class CX2SocketItem
 				m_fEffectiveValue			= 0.f;
 #endif // HAMEL_SECRET_DUNGEON
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-				InitJuneSocketParity();
+				InitSocketParity();
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 
@@ -1235,7 +1235,7 @@ class CX2SocketItem
 				m_vecInfoByUseHyperMode.clear();	/// 각성시 사용하는 효과 설정 저장 컨테이너
 #endif // HAMEL_SECRET_DUNGEON
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-				InitJuneSocketParity();
+				InitSocketParity();
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			}
 #endif REAL_TIME_ELSWORD
@@ -1425,7 +1425,7 @@ class CX2SocketItem
 
 			/// June 32073860 (A) / 320739e0 (B): the unit type picks CalculateLinear<Class>Specialization{A,B}Value.
 			/// June's types 10-12 (Luciel, Rose, Ain) have no March UNIT_TYPE; any other type returns 0, as in June.
-			static const char* GetJuneSpecializationCurveName( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ )
+			static const char* GetSpecializationCurveName( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ )
 			{
 				switch ( eUnitType_ )
 				{
@@ -1444,7 +1444,7 @@ class CX2SocketItem
 
 			int GetLinearCharacterSpecializationAValue( const int iSocketLevel_, const CX2Unit::UNIT_TYPE eUnitType_ ) const
 			{
-				const char* pszCurve = GetJuneSpecializationCurveName( eUnitType_, true );
+				const char* pszCurve = GetSpecializationCurveName( eUnitType_, true );
 				if ( NULL == pszCurve )
 					return 0;
 				return static_cast<int>( m_fCharacterSpecializationA * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve, iSocketLevel_ ) + 0.5f );
@@ -1452,7 +1452,7 @@ class CX2SocketItem
 
 			int GetLinearCharacterSpecializationBValue( const int iSocketLevel_, const CX2Unit::UNIT_TYPE eUnitType_ ) const
 			{
-				const char* pszCurve = GetJuneSpecializationCurveName( eUnitType_, false );
+				const char* pszCurve = GetSpecializationCurveName( eUnitType_, false );
 				if ( NULL == pszCurve )
 					return 0;
 				return static_cast<int>( m_fCharacterSpecializationB * lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve, iSocketLevel_ ) + 0.5f );
@@ -1589,7 +1589,7 @@ class CX2SocketItem
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// June 3207cd70: the MP pair and 92's maximize are linear, the class specializations go through
 				/// 32073860 / 320739e0, the rest are plain adds; the +0x29c list is appended
-				if ( CX2SocketItem::IsJuneSocketOptionFormLoaded() )
+				if ( CX2SocketItem::IsSocketOptionFormLoaded() )
 				{
 				m_fMPIncByAttack				+= rhs_.GetLinearMpIncValueByAttack( iSocketLevel_ );
 				m_fMPIncByAttacked				+= rhs_.GetLinearMpIncValueByAttacked( iSocketLevel_ );
@@ -1733,16 +1733,16 @@ class CX2SocketItem
 		/// True when June's SocketOptionForm.lua is loaded (CalculateFinalMpIncPercentByAttack stands for June's curve set).
 		/// Checked once; when false, one [JUNE_BUFF] line names the file, and the June-only curve calls are skipped (the
 		/// socket MP gain, class specializations and 92's maximize then stay 0) rather than failing one by one in Lua.
-		static bool IsJuneSocketOptionFormLoaded();
+		static bool IsSocketOptionFormLoaded();
 
 		/// June 322a9a10 (A) / 322a9c20 (B): the unit type (types 1..12) picks CalculateFinal<Class>Specialization{A,B}Percent;
 		/// any other type (an NPC passes 0) returns 0 (@322a9be0). Luciel, Rose and Ain have no March UNIT_TYPE.
-		struct JuneSpecializationFinal
+		struct SpecializationFinal
 		{
 			CX2Unit::UNIT_TYPE	m_eUnitType;
 			bool				m_bA;
 
-			JuneSpecializationFinal( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ ) : m_eUnitType( eUnitType_ ), m_bA( bA_ ) {}
+			SpecializationFinal( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_ ) : m_eUnitType( eUnitType_ ), m_bA( bA_ ) {}
 
 			float operator()( const float fSumValue_, const int iUserLevel_ ) const
 			{
@@ -1811,8 +1811,8 @@ class CX2SocketItem
 #endif //UPGRADE_SKILL_SYSTEM_2013
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June 32715680 (buff port 16-step3b5): every member's skill ID of group iGroupID_, any unit class. Clears the vector first.
-		bool GetJuneGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const;
-		void JuneLogSkillGroupPowerCensus() const;	/// one load-time line after OptionItemData.lua (16-step3b5)
+		bool GetGroupSkillIDs( IN const int iGroupID_, OUT vector<int>& vecSkillID_ ) const;
+		void LogSkillGroupPowerCensus() const;	/// one load-time line after OptionItemData.lua (16-step3b5)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const CX2SocketItem::KItemStatRelLVData& GetStatRelLVDataBySocktID( int iSocketID_ ) const;
 

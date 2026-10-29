@@ -313,7 +313,7 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 			if ( true == s_setJuneAllStatItemSeen.insert( pItemTemplet_->GetItemID() ).second )
 			{
 				const CX2Item::KItemFormatStatData& kJuneTempletStat = pItemTemplet_->GetStatData();
-				CX2JuneBuffCapture::Line( "item %d all-stat level %g (other five sum %g, 0 = March showed the templet stats): HP %g -> %g, phys atk %g -> %g, mag atk %g -> %g, phys def %g -> %g, mag def %g -> %g",
+				CX2BuffCapture::Line( "item %d all-stat level %g (other five sum %g, 0 = March showed the templet stats): HP %g -> %g, phys atk %g -> %g, mag atk %g -> %g, phys def %g -> %g, mag def %g -> %g",
 					pItemTemplet_->GetItemID(), kStatRelationAddLV.m_fAllStatRelLV,
 					kStatRelationAddLV.m_fBaseHPRelLV + kStatRelationAddLV.m_fAtkPhysicRelLV + kStatRelationAddLV.m_fAtkMagicRelLV + kStatRelationAddLV.m_fDefPhysicRelLV + kStatRelationAddLV.m_fDefMagicRelLV,
 					kJuneTempletStat.m_fBaseHP, sRealStatData_.m_fBaseHP, kJuneTempletStat.m_fAtkPhysic, sRealStatData_.m_fAtkPhysic,
@@ -426,7 +426,7 @@ void CX2ItemStatCalculator::CalculateRealStatData( OUT CX2Item::KItemFormatStatD
 			sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP, sEqipStat_.m_fBaseHP, iItemLevel_, sStatRelLVData_.m_fBaseHPRelLV );
 		const float fNoAllAtkPhysic = lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculatePhysicalAndMagicalStat",
 			sClassStatTable_.m_fAtkPhysic, sCharStatTable_.m_fAtkPhysic, sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV );
-		CX2JuneBuffCapture::Line( "all-stat level term (m_fAllStatRelLV) %g at item level %d: HP %g -> %g, phys atk %g -> %g, mag atk %g, phys def %g, mag def %g",
+		CX2BuffCapture::Line( "all-stat level term (m_fAllStatRelLV) %g at item level %d: HP %g -> %g, phys atk %g -> %g, mag atk %g, phys def %g, mag def %g",
 			fJuneAllStatRelLV, iItemLevel_, fNoAllHP, sRealStatData_.m_fBaseHP, fNoAllAtkPhysic, sRealStatData_.m_fAtkPhysic,
 			sRealStatData_.m_fAtkMagic, sRealStatData_.m_fDefPhysic, sRealStatData_.m_fDefMagic );
 	}

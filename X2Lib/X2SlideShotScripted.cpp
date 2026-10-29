@@ -16,7 +16,7 @@
 
 namespace
 {
-	void JuneStoryLog( const WCHAR* wszFormat_, ... )
+	void StoryLog( const WCHAR* wszFormat_, ... )
 	{
 #ifdef SERV_IRUHADEV_OFFLINE
 		WCHAR wszBuf[512] = L"";
@@ -29,26 +29,26 @@ namespace
 	}
 
 	/// June 328c5530: sprintf_s( "%I64d" ) of the sign-extended index
-	std::string JuneIndexString( int iIndex_ )
+	std::string IndexString( int iIndex_ )
 	{
 		char szBuf[64] = "";
 		sprintf_s( szBuf, 64, "%I64d", static_cast<__int64>( iIndex_ ) );
 		return std::string( szBuf );
 	}
 
-	bool JuneIsStoryState( int iState_ )
+	bool IsStoryState( int iState_ )
 	{
 		return CX2Main::XS_VILLAGE_MAP == iState_ || CX2Main::XS_BATTLE_FIELD == iState_;
 	}
 
-	CX2Cursor* JuneNowStateCursor()
+	CX2Cursor* NowStateCursor()
 	{
 		if( NULL == g_pMain || NULL == g_pMain->GetNowState() )
 			return NULL;
 		return static_cast< CX2State* >( g_pMain->GetNowState() )->GetCursor();
 	}
 
-	bool JuneMP3Ready()
+	bool MP3Ready()
 	{
 		return NULL != g_pKTDXApp->GetDSManager() && true == g_pKTDXApp->GetDSManager()->GetInit() && NULL != g_pKTDXApp->GetDSManager()->GetMP3Play();
 	}
@@ -115,7 +115,7 @@ CX2SlideShotScripted::~CX2SlideShotScripted()
 bool CX2SlideShotScripted::Start( int iQuestID_ )
 {
 	const int iState = g_pMain->GetNowStateID();
-	if( false == JuneIsStoryState( iState ) )
+	if( false == IsStoryState( iState ) )
 		return false;
 
 	if( true == m_bRunning )
@@ -176,15 +176,15 @@ bool CX2SlideShotScripted::Start( int iQuestID_ )
 	}
 
 	// @328c39c0..328c3a0e: the BGM playing now is kept for End, then stopped
-	if( true == JuneMP3Ready() )
+	if( true == MP3Ready() )
 	{
 		m_wstrSavedBGM = g_pKTDXApp->GetDSManager()->GetMP3Play()->GetPlayingFileName();
 		g_pKTDXApp->GetDSManager()->GetMP3Play()->Stop();
 	}
 
 	// @328c3a18: every dialog hides except the hide-mode-5 list; @328c3a2c: the event-scene cursor ( June 0xf, as the old slide show 325c6791 )
-	g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( false, 5 );
-	CX2Cursor* pCursor = JuneNowStateCursor();
+	g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 5 );
+	CX2Cursor* pCursor = NowStateCursor();
 	if( NULL != pCursor )
 		pCursor->ChangeCursorState( CX2Cursor::XCS_EVENT_SCENE );
 	m_bCursorChanged = true;
@@ -195,7 +195,7 @@ bool CX2SlideShotScripted::Start( int iQuestID_ )
 		m_pDLGTalkBox->SetEnable( m_bShowDialog );
 	}
 
-	JuneStoryLog( L"[JUNE_QUEST] STORY PLAY start: quest %d, %d cut scene(s), state %d, saved BGM '%s'", iQuestID_, static_cast<int>( m_pStory->size() ),
+	StoryLog( L"[JUNE_QUEST] STORY PLAY start: quest %d, %d cut scene(s), state %d, saved BGM '%s'", iQuestID_, static_cast<int>( m_pStory->size() ),
 		iState, m_wstrSavedBGM.c_str() );
 	return true;
 }
@@ -273,7 +273,7 @@ void CX2SlideShotScripted::OnFrameMove( float fElapsedTime_ )
 		TRUE == g_pKTDXApp->GetDIManager()->GetMouse()->GetButtonState( MOUSE_RBUTTON ) )
 	{
 		if( m_uiCutIndex < m_pStory->size() )
-			JuneStoryLog( L"[JUNE_QUEST] STORY PLAY skip: quest %d at cut %d", m_iQuestID, static_cast<int>( m_uiCutIndex ) );
+			StoryLog( L"[JUNE_QUEST] STORY PLAY skip: quest %d at cut %d", m_iQuestID, static_cast<int>( m_uiCutIndex ) );
 		m_bEnding = true;
 		return;
 	}
@@ -318,7 +318,7 @@ void CX2SlideShotScripted::OnFrameMove( float fElapsedTime_ )
 	// Background_List: key "<cut>_<row>BG", layer 100
 	if( m_uiBackgroundIndex < kCut.m_vecBackground.size() && kCut.m_vecBackground[ m_uiBackgroundIndex ].m_fTime <= fTime )
 	{
-		const std::string strKey = JuneIndexString( static_cast<int>( m_uiCutIndex ) ) + "_" + JuneIndexString( static_cast<int>( m_uiBackgroundIndex ) ) + "BG";
+		const std::string strKey = IndexString( static_cast<int>( m_uiCutIndex ) ) + "_" + IndexString( static_cast<int>( m_uiBackgroundIndex ) ) + "BG";
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->CreateSequence( NULL,
 			kCut.m_vecBackground[ m_uiBackgroundIndex ].m_wstrName.c_str(), 0.f, 0.f, 0.f, -1.f, -1.f, -1, -1, 1.0f, false, 0.f, false );
 		if( NULL != pSeq )
@@ -347,7 +347,7 @@ void CX2SlideShotScripted::OnFrameMove( float fElapsedTime_ )
 	// Scene_List: key "<cut>_<row>", next-frame start, the templet's layer
 	if( m_uiSceneIndex < kCut.m_vecScene.size() && kCut.m_vecScene[ m_uiSceneIndex ].m_fTime <= fTime )
 	{
-		const std::string strKey = JuneIndexString( static_cast<int>( m_uiCutIndex ) ) + "_" + JuneIndexString( static_cast<int>( m_uiSceneIndex ) );
+		const std::string strKey = IndexString( static_cast<int>( m_uiCutIndex ) ) + "_" + IndexString( static_cast<int>( m_uiSceneIndex ) );
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->CreateSequence( NULL,
 			kCut.m_vecScene[ m_uiSceneIndex ].m_wstrName.c_str(), 0.f, 0.f, 0.f, -1.f, -1.f, -1, -1, 1.0f, false, 0.f, true );
 		if( NULL != pSeq )
@@ -436,7 +436,7 @@ void CX2SlideShotScripted::NextCutScene()
 	}
 	StopSounds();
 
-	JuneStoryLog( L"[JUNE_QUEST] STORY PLAY cut %d / %d ( quest %d )", static_cast<int>( m_uiCutIndex ), NULL != m_pStory ? static_cast<int>( m_pStory->size() ) : 0, m_iQuestID );
+	StoryLog( L"[JUNE_QUEST] STORY PLAY cut %d / %d ( quest %d )", static_cast<int>( m_uiCutIndex ), NULL != m_pStory ? static_cast<int>( m_pStory->size() ) : 0, m_iQuestID );
 }
 
 /// June 328c3ae0
@@ -460,7 +460,7 @@ void CX2SlideShotScripted::End()
 	kCamera.LookAt( m_vSavedLookAt.x, m_vSavedLookAt.y, m_vSavedLookAt.z );
 	g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), true, 1.f );
 
-	g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
+	g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true, 0 );
 	DestroyAllParticles();
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hBlackBack )
 	{
@@ -492,7 +492,7 @@ void CX2SlideShotScripted::End()
 	StopSounds();
 	if( true == m_bCursorChanged )
 	{
-		CX2Cursor* pCursor = JuneNowStateCursor();
+		CX2Cursor* pCursor = NowStateCursor();
 		if( NULL != pCursor )
 			pCursor->ChangeCursorState( CX2Cursor::XCS_NORMAL );
 		m_bCursorChanged = false;
@@ -506,14 +506,14 @@ void CX2SlideShotScripted::End()
 	m_pStory = NULL;
 
 	// @328c3dce..328c3df9: the BGM kept by Start ( an empty name when none played: March's Play finds no file and returns )
-	if( true == JuneMP3Ready() )
+	if( true == MP3Ready() )
 		g_pKTDXApp->GetDSManager()->GetMP3Play()->Play( m_wstrSavedBGM.c_str(), true );
 
-	JuneStoryLog( L"[JUNE_QUEST] STORY PLAY end: quest %d, end message %d", m_iQuestID, true == g_pInstanceData->GetJuneStoryEndMessage() ? 1 : 0 );
+	StoryLog( L"[JUNE_QUEST] STORY PLAY end: quest %d, end message %d", m_iQuestID, true == g_pInstanceData->GetStoryEndMessage() ? 1 : 0 );
 
 	// @328c3dfe..328c41b5: after a completion ( g_pInstanceData +0xabc ): "<the story's MediaFile Title> Story has been added to Media Gallery."
 	// ( STR 40048 "@2 Story has been added to @1." with "SL" = STR 40147, the title ), OK box at ( 250, 300 ) ( 334577b8 / 3344f348 ); then cleared
-	if( true == g_pInstanceData->GetJuneStoryEndMessage() )
+	if( true == g_pInstanceData->GetStoryEndMessage() )
 	{
 		CX2SlideShotScriptedManager* pManager = CX2SlideShotScriptedManager::GetInstance();
 		if( NULL != pManager )
@@ -532,9 +532,9 @@ void CX2SlideShotScripted::End()
 			const std::wstring wstrGallery = GET_STRING( 40147 );
 			const std::wstring wstrMessage = GET_REPLACED_STRING( ( 40048, "SL", wstrGallery.c_str(), wstrTitle ) );
 			g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), wstrMessage.c_str(), g_pMain->GetNowState() );
-			JuneStoryLog( L"[JUNE_QUEST] STORY PLAY message: %s", wstrMessage.c_str() );
+			StoryLog( L"[JUNE_QUEST] STORY PLAY message: %s", wstrMessage.c_str() );
 		}
-		g_pInstanceData->SetJuneStoryEndMessage( false );
+		g_pInstanceData->SetStoryEndMessage( false );
 	}
 }
 
@@ -627,11 +627,11 @@ void CX2SlideShotScripted::FinishTextSpread()
 /// June 328c2700: stop, then play looped
 void CX2SlideShotScripted::PlayBGM( const WCHAR* wszName_ )
 {
-	if( false == JuneMP3Ready() )
+	if( false == MP3Ready() )
 		return;
 	g_pKTDXApp->GetDSManager()->GetMP3Play()->Stop();
 	g_pKTDXApp->GetDSManager()->GetMP3Play()->Play( wszName_, true );
-	JuneStoryLog( L"[JUNE_QUEST] STORY PLAY BGM '%s'", wszName_ );
+	StoryLog( L"[JUNE_QUEST] STORY PLAY BGM '%s'", wszName_ );
 }
 
 /// June 328c3400: 2D, not looped ( June's 4th argument 1 = auto-release ); kept for NextCutScene's stop when it played

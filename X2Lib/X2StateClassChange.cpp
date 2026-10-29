@@ -179,7 +179,7 @@ HRESULT CX2ClassChangePopup::OnFrameMove( double fTime, float fElapsedTime )
 		m_pUnitViewerUI->OnFrameMove( fTime, fElapsedTime );
 	}
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	JuneFadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32486aa0
+	FadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32486aa0
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
@@ -301,7 +301,7 @@ bool CX2ClassChangePopup::SetShow( bool bShow, int iType )
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 /// June 32486e60 ( called by 324886b0 ): the class-change dialog by unit class; class - 10 above 0x7e, or below 10, takes the Knight dialog
-static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
+static const WCHAR* GetClassChangeDialogName( const int iUnitClass_ )
 {
 	switch( iUnitClass_ )
 	{
@@ -386,7 +386,7 @@ static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
 
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-void CX2ClassChangePopup::JuneFadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ )
+void CX2ClassChangePopup::FadeTranscendImage( CKTDGUIStatic* pImage_, float& fImageTime_, float fElapsedTime_ )
 {
 	if( fImageTime_ <= 0.1 )
 		return;
@@ -414,7 +414,7 @@ void CX2ClassChangePopup::JuneFadeTranscendImage( CKTDGUIStatic* pImage_, float&
 	if( NULL != pImage_->GetPicture( 0 )->pPoint )
 		pImage_->GetPicture( 0 )->pPoint->color.a = fAlpha;
 }
-const WCHAR* CX2ClassChangePopup::JuneGetTranscendGuideName( int iUnitType_ )
+const WCHAR* CX2ClassChangePopup::GetTranscendGuideName( int iUnitType_ )
 {
 	switch( iUnitType_ )
 	{
@@ -435,20 +435,20 @@ const WCHAR* CX2ClassChangePopup::JuneGetTranscendGuideName( int iUnitType_ )
 	return NULL;
 }
 
-bool CX2ClassChangePopup::JuneIsTranscendGuideName( const WCHAR* pwszFileName_ )
+bool CX2ClassChangePopup::IsTranscendGuideName( const WCHAR* pwszFileName_ )
 {
 	if( NULL == pwszFileName_ )
 		return false;
 
 	for( int iUnitType = 1; iUnitType <= 12; ++iUnitType )
 	{
-		if( 0 == _wcsicmp( pwszFileName_, JuneGetTranscendGuideName( iUnitType ) ) )		// June 32714b90 ignores case
+		if( 0 == _wcsicmp( pwszFileName_, GetTranscendGuideName( iUnitType ) ) )		// June 32714b90 ignores case
 			return true;
 	}
 	return false;
 }
 
-void CX2ClassChangePopup::JuneInitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ )
+void CX2ClassChangePopup::InitTranscendGuide( CKTDGUIDialogType pDialog_, int iUnitClass_, bool bClassPopup_, CKTDGUIStatic*& pImage_, float& fImageTime_ )
 {
 	if( NULL == pDialog_ )
 		return;
@@ -530,7 +530,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 		return;
 
 	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
-	const WCHAR* pwszName = JuneGetTranscendGuideName( static_cast<int>( pUnit->GetType() ) );
+	const WCHAR* pwszName = GetTranscendGuideName( static_cast<int>( pUnit->GetType() ) );
 	if( NULL == pwszName )
 	{
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -543,7 +543,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 	if( m_pDLGClassChange != NULL )
 	{
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGClassChange );
-		JuneInitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
+		InitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide popup %s for class %d", pwszName, static_cast<int>( pUnit->GetClass() ) );
 #endif SERV_IRUHADEV_OFFLINE
@@ -586,7 +586,7 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		/// June 324886b0 mode 0 -> 32486e60: June names March's file for every March class, adds UC_ADD_PSYCHIC_TRACER ( 32 ) and the June-only classes
 		m_pDLGClassChange = new CKTDGUIDialog( g_pMain->GetNowState(),
-			JuneGetClassChangeDialogName( static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) );
+			GetClassChangeDialogName( static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) );
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		switch(g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass)
 		{

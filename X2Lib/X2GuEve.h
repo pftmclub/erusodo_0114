@@ -1422,7 +1422,7 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
-	enum JUNE_SUMMON_HELPER_FLAG { JSHF_NO_ATK_RATE = 0x20, JSHF_SKILL_ABILITY_REL = 0x40, JSHF_NUMBER_STORE = 0x200 };	/// June 322ece70 flag bits
+	enum SUMMON_HELPER_FLAG { JSHF_NO_ATK_RATE = 0x20, JSHF_SKILL_ABILITY_REL = 0x40, JSHF_NUMBER_STORE = 0x200 };	/// June 322ece70 flag bits
 	void SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 protected:
@@ -2734,7 +2734,7 @@ protected:
 	void ENSI_THROW_ITEM_EventProcess();			/// June 329cc170
 
 	/// Phase CH1b: reactions ( damage, down / stand-up, die ) and the helpers only they reach
-	struct JuneEveBlock9c50					/// June +0x9c50: a pointer to this 0x14-byte block ( made in 3297a7b0, owner CH3a ); fields named by use
+	struct PsykerKinesisData					/// June +0x9c50: a pointer to this 0x14-byte block ( made in 3297a7b0, owner CH3a ); fields named by use
 	{
 		bool					m_bFlag0;			/// +0x0
 		CX2EffectSet::Handle	m_hEffectSet0;		/// +0x4
@@ -2744,7 +2744,7 @@ protected:
 		void					Reset( bool bResetFields_ );	/// June 3299bcd0
 		void					StopEffectSets();				/// June 329cf170: stops both effect sets, keeps the fields
 	};
-	JuneEveBlock9c50*	m_pJuneBlock9c50;					/// June +0x9c50
+	PsykerKinesisData*	m_pJuneBlock9c50;					/// June +0x9c50
 	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
 
 	void EGQueensThroneReset();					/// June 3298cfe0

@@ -11,15 +11,10 @@ class CX2LVUpEventMgr
 			LUEI_CHANGE_CLASS_GUIDE_FIRST,		// 1차 전직
 			LUEI_LEVEL_10,
 			LUEI_CHANGE_CLASS_GUIDE_SECOND,		// 2차 전직
-		};
-
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-		// June LEVEL_UP_EVENT_ID 6 ( LUEI_SECRET_DUNGEON_OPEN_GUIDE 5 is not ours )
-		enum LEVEL_UP_EVENT_ID_JUNE
-		{
-			LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL = 6,
-		};
+			LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL = 6,		// June LEVEL_UP_EVENT_ID 6 ( LUEI_SECRET_DUNGEON_OPEN_GUIDE 5 is not ours )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		};
 		enum LV_UP_EVENT_MGR_CUSTOM_UI_MSG
 		{
 			LUEMCUM_PVP_PR = 1500,
@@ -115,7 +110,7 @@ class CX2LVUpEventMgr
 
 		CX2LVUpEventMgr::LVUpEvent* GetLVUpEvent( LEVEL_UP_EVENT_ID eventID );
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-		void JuneCloseChangeClassGuides();		// June 32710b60: the dialogs of events 2, 4 and 6
+		void CloseChangeClassGuides();		// June 32710b60: the dialogs of events 2, 4 and 6
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 		CKTDXStage*							 m_pNowStage;
