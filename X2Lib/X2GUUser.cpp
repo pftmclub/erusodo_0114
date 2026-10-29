@@ -34414,6 +34414,28 @@ void CX2GUUser::EmotionFrameMove()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+bool CX2GUUser::CanShowWeaponEffect()
+{
+	// June 31fcf160: shown, not riding, no avatar emotion playing
+	if( false == GetShowObject() )
+		return false;
+
+#ifdef RIDING_SYSTEM
+	if( true == CX2RidingPetManager::GetInstance()->GetRidingOn() )
+		return false;
+#endif RIDING_SYSTEM
+
+#ifdef UNIT_EMOTION
+	if( true == CX2Unit::IsAvatarEmotion( m_ePlayedEmotion ) )
+		return false;
+#endif UNIT_EMOTION
+
+	// stand-in: June's custom-sit emotion test 323630f0 and its byte pair +0x8f6e / +0x8f6f are not in March
+	return true;
+}
+
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmotionType)
 {
 	if( CX2Unit::IsAvatarEmotion( eEmotionId ) )

@@ -10768,3 +10768,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue( int ) )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3b: the +11 weapon glow runs June's family: ten sequences with a +13 spark tier, and a user that may not show weapon effects ( hidden, riding, avatar emotion; CX2GUUser::CanShowWeaponEffect ) stops it ( June 32299730 / 32291e00 / 32292610 / 32293870 / 32293620 / 31fcf160 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3b: SetSkillCoolTimeLeft runs the event cool-time rate step always and GetSkillCoolTimeDecreaseRate cuts only in a dungeon game ( June 3234cc10 ); compiles March's SERV_BALANCE_FINALITY_SKILL_EVENT rate block without defining that flag. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
+//////////////////////////////////////////////////////////////////////////

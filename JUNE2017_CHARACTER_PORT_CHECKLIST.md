@@ -980,3 +980,11 @@ count, written by `SetHyperModeCount` = user vslot 0xa8 `3208eef0`) is 3; `Hyper
 June's `GetX2UnitClassCompatibility` (`31ed6500`, March `X2Unit.cpp:1465`) has 86 switch cases; the 55 March classes accept the same item
 classes as March's. The other 31 (unit classes 33-46, 123-136, 200-202) belong to classes March does not have: the port that adds such a class
 adds its cases from June's switch, under that port's flag (`tools/data/june_march_divergent.tsv` row `GetX2UnitClassCompatibility`, verdict `out`).
+
+### 7as. Upgrade-weapon glow for Lu/Ciel, Rose and Ain (from june-march-divergence D1-3b)
+
+June's +11 / +13 weapon glow has cases for unit types 10-12, which March lacks: `InitUpgradeWeaponParticle` (`32299730`: 10 takes the four
+Lightning names, 11 / 12 the `02` / `04` pair) and `ProcessUpgradeWeaponParticle` (`32292610`: 10 places sequences 1-2 / 5 / 6 / 9 and 3-4 / 7 / 8 / 10
+on `Effect_LWeapon` / `Effect_RWeapon` of the skin anim when unit `+0xe40` is 1, else `MAJOR_Bone_RFinger2` / `LFinger2`; 11 on `Dummy4_RWeapon01` /
+`Dummy4_LWeapon01`; 12 both groups on `Dummy1_Rhand`). The port that adds the class adds its case inside `SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE`
+(funcmap rows `(Diverge D1-3b)`).

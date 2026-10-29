@@ -2623,6 +2623,9 @@ public:
 		bool PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmotionType);
 		CX2Unit::EMOTION_TYPE GetNowEmotionId() { return m_ePlayedEmotion; }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+		bool CanShowWeaponEffect();	// June 31fcf160
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 
 #ifdef EQUIP_STRIP_TEST
 		bool IsEquipStripped( CX2Unit::EQIP_POSITION eEquipPosition );

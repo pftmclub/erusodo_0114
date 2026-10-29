@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`.
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`.
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -976,6 +976,43 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** Elsword with a triple-attribute weapon shows its enchant glow; quest items in the shared bank count toward a
   collect quest; riding a pet in a village and a dungeon, the rider sits on the saddle (not at the map origin); Aisha's cool times after
   a skill use; another player's (or a party bot's) passives apply in a dungeon.
+
+### D1-3b Done (2026-10-29, Opus 5.5; two `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 252 | `CX2GameUnit::Weapon::Init` / `Create` / `Process` / `DeleteUpgradeWeaponParticle`, new `SetUpgradeWeaponParticleEmitRate`, the call in `CommonFrameMoveForUser`, new `CX2GUUser::CanShowWeaponEffect` | `32299730` / `32291e00` / `32292610` / `32293620` / `32293870`, `32297d50` @`3229843a`, `31fcf160` | `UPGRADE_WEAPON_PARTICLE` | ten sequences (`m_hSeqUpgradeWeapon5..10`); a +13 weapon adds `13Gang_Weapon_Effect_Spark01` / `_Spark_Particle` / `_Spark_Particle_1` (seqs 5 / 6 / 9 on the main weapon, 7 / 8 / 10 on Eve's and Add's second); the hide test left `Process`: a user that is hidden, riding or playing an avatar emotion gets emit rate 0 on all ten |
+| (callee) | `CX2Unit::GetSkillCoolTimeDecreaseRate`; `SetSkillCoolTimeLeft`'s rate step | `3234cc10` | `SKILL_COOL_TIME_RATE` | the step runs always (it sat under the undefined `SERV_BALANCE_FINALITY_SKILL_EVENT`); the hyper-active item (60008065) cuts only in a dungeon game, as the 163-id list's item (60008059) already did |
+
+- **Method:** `32292610` read from its disassembly (stack slots -> handles; the decompile swaps locals); constants 0.5 (`3342ebc8`) and 10.0
+  (`3344a51c`) as March's. Frame offsets checked in June's weapon init `3228d660`: `+0x348` / `+0x34c` = `ATTACK_LINE_END0` / `_START0_FRONT`.
+  `3234cc10` emulated (unicorn, ids 0-11,999, types 0 and 13): the same 163 ids as March's switch, rate 0.7 (`3344c858`).
+- **Inert in this build (found at the deploy check):** `ADD_UPGRADE_WEAPON_PARTICLE` is defined at `Always.h:2013` and `#undef`'d by
+  `OnlyGlobal/Always_Global.h:30` (included at `Always.h:3393`), so March's +11 glow and this port are compiled out of US_SERVICE
+  (`exestr`: `11Gang_Weapon_Effect_Lightning03` and the six June names absent). D1-3 Done's "March runs the weapon loop" is wrong for this
+  build. The 252 body is a transcription not yet compiled; **D1-3c task 1** compares the 77 `ADD_UPGRADE_WEAPON_PARTICLE` sites (8 files)
+  with June, re-defines it after the global `#undef` under this flag, and proves it builds. `CanShowWeaponEffect` compiles (outside the block).
+- **Assets:** the six June sequence names are in March's `GameMajorParticle44.txt` already (no staging).
+- **Stand-ins (one-line comments):** June's usable test `328825c0` / level `32882540` -> March's endurance / infinity test and
+  `m_EnchantLevel` (as funcmap S7k); in `CanShowWeaponEffect` June's custom-sit emotion test `323630f0` (CX2CustomizeManager, Stage 12) and
+  the byte pair `+0x8f6e` / `+0x8f6f` (unidentified) are skipped, and June's data-driven `IsAvatarEmotion` is March's static one.
+- **Not reached here:** June's cases 10-12 (Lu/Ciel, Rose, Ain) in Init and Process: checklist **7as**.
+- **June bugs kept:** `JUNE_BUGS.md` 472 (handle 4 built from name 3, March too). 471 (bar B's rate step writes bar A's gauge) is now reached.
+- **Guard widening:** `X2Define.h:380`, `X2Unit.h:1247`, `X2Unit.cpp:5787` read `#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) ||
+  defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE )` (flag off = March's line). This also compiles `IsInfinityElEssence` and the
+  earlier-ported `GetSkillMpDecreaseRate`, whose call sites stay under the event flag (D1-3c task 5).
+- **Leads -> D1-3c:** June's eight enchant frame moves (`3228bf60`..`3228c7d0`) and `31ff8510` call `31fcf160` where March calls
+  `CanNotShowEnchantedWeaponEffectToRiding`; June calls the MP rate `3234d840` from six class sites.
+- **Split:** 250 / 205 / 263 -> D1-3c, 251 -> D1-3d (kickoffs written; tsv rows annotated).
+- **Bookkeeping:** tsv 252 annotated; funcmap rows `(Diverge D1-3b)` x8; `MODS.md` D1-3b entry; checklist 7as; JUNE_BUGS 471 / 472.
+- **Hygiene:** `flagcheck --worktree --files`: `UPGRADE_WEAPON_PARTICLE` RESULT PASS (4 files, 0 deleted, 0 non-ASCII, 0 EOL mismatch);
+  `SKILL_COOL_TIME_LEFT` (`X2UserSkillTree.cpp`) PASS, its 5 deleted lines are D1-3's event-flag lines inside its June block;
+  `SKILL_COOL_TIME_RATE` 3 ERROR rows = the three widened `#if defined( A ) || defined( B )` lines (its 3 deleted lines), flag off = March's.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,811,968 B, dated 2026-10-29 18:22:57, md5 b0f4a9e260bff1bb17af0a6f4f029b6b, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 18:22:50); built at main 9bd17f2e + 9 uncommitted code file(s).` (all 9 are this phase's.)
+  `EXESTR FAILED: 2 of 2 not found` (`13Gang_Weapon_Effect_Spark_Particle_1`, `_Spark01`, wide): the block is compiled out, see above.
+- **Smoke (plan end):** (after D1-3c) Elsword with a +11 sword shows the lightning glow, a +13 one adds the sparks, none while riding or
+  in an avatar emotion; a hyper-active skill's cool time with item 60008065 is cut only in a dungeon.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

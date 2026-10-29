@@ -5412,3 +5412,10 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT`: `SetSkillCoolTimeLeft` gives every skill type the passed time, matches the upgrade-swapped id (new third argument, default true) and runs bar B when slot-state key 0 or 1 is usable (June `32893880`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: upgrade-weapon glow, event cool-time rate (june-march-divergence D1-3b, 2026-10-29)
+
+Two flags in `KTDXLIB/Always.h`; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3b Done".
+- `SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE`: the +11 weapon glow (`CX2GameUnit::Weapon` Init / Create / Process / Delete) runs June's ten-sequence family with the +13 spark tier (`13Gang_Weapon_Effect_Spark*`, already in `GameMajorParticle44.txt`); the hide step moved to the weapon frame move through the new `CX2GUUser::CanShowWeaponEffect` (hidden, riding, avatar emotion) and the new `SetUpgradeWeaponParticleEmitRate` (June `32299730` / `32291e00` / `32292610` / `32293870` / `32293620` / `31fcf160`; JUNE_BUGS 472). **Inert until D1-3c:** the block sits under `ADD_UPGRADE_WEAPON_PARTICLE`, which `OnlyGlobal/Always_Global.h` undefines in this build.
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE`: `SetSkillCoolTimeLeft` (D1-3) runs the event cool-time rate step always; `GetSkillCoolTimeDecreaseRate` cuts the hyper-active time only in a dungeon game (June `3234cc10`). The rate block of `X2Define.h` / `X2Unit.h` / `X2Unit.cpp` now compiles under `#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( <flag> )`; the event flag stays undefined.
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

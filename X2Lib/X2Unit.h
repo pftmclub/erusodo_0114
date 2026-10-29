@@ -1244,7 +1244,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		void		SetCheckPowerTime( __int64 iTime ) { m_UnitData.m_iCheckPowerTime = iTime; }
 #endif SERV_EVENT_CHECK_POWER
 
-#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE )
 		bool		IsInfinityElEssence() const;
 		float		GetSkillCoolTimeDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillTree::SKILL_TYPE eSkillType) const;
 		float		GetSkillMpDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2SkillTree::SKILL_TYPE eSkillType) const;

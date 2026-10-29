@@ -2784,8 +2784,8 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 		skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
 		pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeft );
 
-#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
-		// June runs this rate step always ( 3234cc10 = GetSkillCoolTimeDecreaseRate ); this build lacks its event flag
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
+		// June runs this rate step always ( 3234cc10 = GetSkillCoolTimeDecreaseRate )
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( 0 < skillSlot.m_eID ) ? GetUserSkillTemplet( skillSlot.m_eID, true ) : NULL;
 		float fDecreaseRate = 1.0f;
 		if( NULL != pSkillTemplet && NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
@@ -2797,7 +2797,7 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 			skillSlot.m_fCoolTimeLeft = fCoolTimeLeftOld * fDecreaseRate;
 			pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeftOld * fDecreaseRate );
 		}
-#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 	}
 
 	if( false == IsSlotUsable( 0 ) && false == IsSlotUsable( 1 ) )
@@ -2812,7 +2812,7 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 		skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
 		pGageManager->SetMySkillCoolTimeList( i + EQUIPPED_SKILL_SLOT_COUNT, fCoolTimeLeft );
 
-#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( 0 < skillSlot.m_eID ) ? GetUserSkillTemplet( skillSlot.m_eID, true ) : NULL;
 		float fDecreaseRate = 1.0f;
 		if( NULL != pSkillTemplet && NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
@@ -2824,7 +2824,7 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 			skillSlot.m_fCoolTimeLeft = fCoolTimeLeftOld * fDecreaseRate;
 			pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeftOld * fDecreaseRate );	// June @32893dd8 passes the bar-A index here too ( JUNE_BUGS )
 		}
-#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 	}
 #else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();

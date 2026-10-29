@@ -5784,7 +5784,7 @@ wstring CX2Unit::GetLocalMapPlayTimesDesc( int iDungeonID )
 }
 #endif SERV_LIMITED_DUNGEON_PLAY_TIMES
 
-#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE )
 bool CX2Unit::IsInfinityElEssence() const
 {
 	if( NULL != GetInventory().GetItemByTID( INFINITY_EL_ESSENCE_ITEM_EVENT, false, false ) )
@@ -5820,8 +5820,12 @@ float CX2Unit::GetSkillCoolTimeDecreaseRate(CX2SkillTree::SKILL_ID eSkillID, CX2
 					&& false == CX2Dungeon::IsSecretDungeon( static_cast<SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ))
 					fDecreaseRate = 0.7f;
 			}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
+			// June 3234cc10: no cut outside a dungeon game, as the skill-id list
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 			else
 				fDecreaseRate = 0.7f;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 		}
 
 		return fDecreaseRate;

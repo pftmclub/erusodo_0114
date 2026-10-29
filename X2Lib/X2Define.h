@@ -377,7 +377,7 @@ static const int RID_FAMILY_MART_PET_FRUIT_CUBE				= 60001832;		// ¿¤ÀÇ ³ª¹« ¿­¸
 static const int ONE_THIRD_MINI_ATTRACTION_ITEM				= 140000110;	// 1/3 È®·üÀÇ ¹Ì´Ï °¡¿­±â Á¶°¢»ó
 #endif //SERV_ONE_THIRD_MINI_ATTRACTION_ITEM
 
-#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE )
 static const int INFINITY_EL_ESSENCE_ITEM_EVENT				= 60008064;		// ¿¤ÀÇ Á¤¼ö °ø±Þ±â
 static const int FINALITY_SKILL_COOL_TIME_LEFT_ITEM_EVENT	= 60008065;		// ±Ã±Ø ½ºÅ³ ÄðÅ¸ÀÓ °¡¼Ó±â
 static const int FINALITY_SKILL_COOL_ACTIVATE_ITEM_EVENT	= 60008066;		// ±Ã±Ø ½ºÅ³ È°·Â±â
