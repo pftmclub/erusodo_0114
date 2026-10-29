@@ -475,11 +475,15 @@ HRESULT CX2Eqip::SetRenderParam( double fTime, float fElapsedTime, CKTDGXRendere
 					int iEnchantType = GetEnchantType();
 					if( iEnchantType != 0 )
 					{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+						m_fTexOffset							+= fElapsedTime * 1.0f;	// March US's speed: June's eqip UV step sits in its SetRenderParam rewrite ( june-engine R6b )
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE		/// 11강 이상부터는 UV애니메이션 속도를 다르게 설정
 						m_fTexOffset							+= fElapsedTime * GetUpgradeWeaponUVAnimatonSpeed();
 #else  ADD_UPGRADE_WEAPON_PARTICLE
 						m_fTexOffset							+= fElapsedTime * 1.0f;
 #endif  ADD_UPGRADE_WEAPON_PARTICLE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 						pEqipRenderParam->texOffsetStage2.y		= m_fTexOffset;
 						float fImpact							= m_EnchantRenderParam.fLightFlowImpact;						
 						m_EnchantRenderParam					= *pEqipRenderParam;

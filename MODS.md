@@ -5413,6 +5413,13 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: the +11 glow turned on, unit-viewer glow, weapon-effect show test (june-march-divergence D1-3c, 2026-10-29)
+
+Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3c Done"; March's body is the `#else` at every site.
+- `SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE` (D1-3b's flag) now also re-defines `ADD_UPGRADE_WEAPON_PARTICLE` at the end of `Always.h` (the global build `#undef`s it in `OnlyGlobal/Always_Global.h`), so March's +11 glow sites and D1-3b's weapon port compile. The unit viewer (character window, inventory, field square) runs June's ten-sequence family with the +13 sparks, the new `CX2UnitViewerUI::CanShowWeaponEffect` hide test, and June's `CanNotShowEnchantedWeaponEffectToRiding` (the viewed unit's own riding pet by UID, not the local player's) (June `31f92910` / `31f914c0` / `31f9a900` / `31f90d30` / `31f91230` / `31f90e20`; JUNE_BUGS 473). `CX2Eqip::SetRenderParam` keeps March US's UV speed (June's is in its R6b rewrite).
+- `SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW`: the five weapon enchant frame moves (Eve, bow, sword, Ara, Add) hide with the owner's `CX2GUUser::CanShowWeaponEffect` (June `3228bf60` / `3228c050` / `3228c140` / `3228c360` / `3228c450`).
+- **Revert.** Comment out a flag's `#define` (`WEAPON_EFFECT_SHOW` first: it `#error`s without the other), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
 ### One function per name: upgrade-weapon glow, event cool-time rate (june-march-divergence D1-3b, 2026-10-29)
 
 Two flags in `KTDXLIB/Always.h`; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3b Done".

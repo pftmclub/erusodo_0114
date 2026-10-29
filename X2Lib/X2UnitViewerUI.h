@@ -197,7 +197,12 @@
 
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE	/// 강화 무기에 대한 이펙트 출력 처리
 		void InitUpgradeWeaponParticle();	/// 강화 무기 이펙트 초기화
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+		void CreateUpgradeWeaponParticle( const WCHAR* pName1, const WCHAR* pName2 = NULL, const WCHAR* pName3 = NULL, const WCHAR* pName4 = NULL,
+			const WCHAR* pName5 = NULL, const WCHAR* pName6 = NULL, const WCHAR* pName7 = NULL, const WCHAR* pName8 = NULL, const WCHAR* pName9 = NULL, const WCHAR* pName10 = NULL );	// June 31f914c0
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 		void CreateUpgradeWeaponParticle( const WCHAR* pName1, const WCHAR* pName2 = NULL, const WCHAR* pName3 = NULL, const WCHAR* pName4 = NULL );	/// 강화 무기 이펙트 생성
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 		void ProcessUpgradeWeaponParticle();/// 강화 무기 이펙트 갱신
 		void DeleteUpgradeWeaponParticle();	/// 강화 무기 이펙트 제거
 #endif ADD_UPGRADE_WEAPON_PARTICLE
@@ -271,6 +276,9 @@
 #ifdef RIDING_SYSTEM
 		bool CanNotShowEnchantedWeaponEffectToRiding();
 #endif //RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+		bool CanShowWeaponEffect();	// June 31f91230
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 
 		CX2Unit*				m_pUnit;
 		CKTDXDeviceXSkinMesh*	m_pMotion;
@@ -398,6 +406,14 @@
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon2;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon3;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon4;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon5;	// June +0xee4..+0xef8: the +13 spark tier
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon6;
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon7;
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon8;
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon9;
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqUpgradeWeapon10;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 #endif ADD_UPGRADE_WEAPON_PARTICLE
 		
 #ifdef TAKE_OFF_ALL_ITEM

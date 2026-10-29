@@ -988,3 +988,7 @@ Lightning names, 11 / 12 the `02` / `04` pair) and `ProcessUpgradeWeaponParticle
 on `Effect_LWeapon` / `Effect_RWeapon` of the skin anim when unit `+0xe40` is 1, else `MAJOR_Bone_RFinger2` / `LFinger2`; 11 on `Dummy4_RWeapon01` /
 `Dummy4_LWeapon01`; 12 both groups on `Dummy1_Rhand`). The port that adds the class adds its case inside `SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE`
 (funcmap rows `(Diverge D1-3b)`).
+The unit viewer has the same cases (D1-3c): `CX2UnitViewerUI::InitUpgradeWeaponParticle` (`31f92910`, as the weapon's) and `ProcessUpgradeWeaponParticle`
+(`31f9a900`: 10 by viewer state 10 / 1 and `+0xd80` on `Bone_RFinger2` / `LFinger2` or `Dummy3_RWeapon` / `Dummy4_LWeapon`, or with unit `+0xe40` the trace
+centres of `+0xecc` / `+0xed0` and `+0xefc` / `+0xf00`, which `InitWeaponTrace` `31f9a2a0` fills from `ATTACK_LINE_END0` / `_START0_LWeapon` / `_START0_RWeapon`;
+11 `Dummy4_RWeapon01` / `Dummy4_LWeapon01`; 12 `Weapon_Bone_Nub` both groups), funcmap rows `(Diverge D1-3c)`.

@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`.
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites.
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -1013,6 +1013,46 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   `EXESTR FAILED: 2 of 2 not found` (`13Gang_Weapon_Effect_Spark_Particle_1`, `_Spark01`, wide): the block is compiled out, see above.
 - **Smoke (plan end):** (after D1-3c) Elsword with a +11 sword shows the lightning glow, a +13 one adds the sparks, none while riding or
   in an avatar emotion; a hyper-active skill's cool time with item 60008065 is cut only in a dungeon.
+
+### D1-3c Done (2026-10-29, Opus 5.5; two `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| Item | March | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| task 0 | `ADD_UPGRADE_WEAPON_PARTICLE` (77 sites, `#undef`'d by `OnlyGlobal/Always_Global.h:30`) | has the glow | `UPGRADE_WEAPON_PARTICLE` | re-defined at the end of `Always.h` under the flag: March's +11 sites and D1-3b's weapon port compile |
+| task 0 | `CX2UnitViewerUI` Init / Create / Process / Delete, ctor, `OnFrameRender_Draw`, `SetShowAttribEnchant` | `31f92910` / `31f914c0` / `31f9a900` / `31f90d30`, `31fab020`, `31fa00b0`, `31f91f90` | `UPGRADE_WEAPON_PARTICLE` | the viewer runs ten sequences with the +13 sparks, as the weapon does; new `CanShowWeaponEffect` (`31f91230`) hides them |
+| task 0 | `CX2UnitViewerUI::CanNotShowEnchantedWeaponEffectToRiding` | `31f90e20` | `UPGRADE_WEAPON_PARTICLE` | the viewed unit's own riding pet (by UID) instead of the local player's; its six viewer enchant callers follow June |
+| task 4 | `Weapon::EnchantParticleFrameMoveFor` Eve / Bow / Sword / Ara / Add | `3228bf60` / `3228c050` / `3228c140` / `3228c360` / `3228c450` | `WEAPON_EFFECT_SHOW` | hide test = the owner's `CX2GUUser::CanShowWeaponEffect` (adds the owner's show flag and avatar emotion); bodies otherwise equal |
+
+- **Sites compared and equal (no edit):** `CX2GUUser` `ReInit`, `InitEffect` (`32012760`), `UpdateWeaponEnchantEffectAndExtraDamageType` (`3201bce0`), the
+  preload `AppendUpgradeWeaponParticleToDeviceList` (`31fcdb50`, no 13Gang preload in June either) with `CalcWeaponEnchantLevel` (inline in `31fef4d0`),
+  the weapon dtor and Ara frame lookup (`3228d660`), `X2TFieldGame` equip notice (`323bc8d0`), viewer `SetUnit` / `UpdateEqip` / dtor / Ara frames in
+  `InitWeaponTrace` (`31f9a2a0`). The four `11Gang_Protect.tga` sites in `X2Eqip` sit in `JUNE_EQIP_SKIN`'s `#else` (June's chain is already live).
+- **Kept March US:** `CX2Eqip::SetRenderParam`'s UV speed (0.75 at +11 with the studio flag) stays 1.0 under the flag: June rewrote the function
+  (`32963c80`, owned by june-engine R6b), and its helper `3295b970` has no per-level speed.
+- **Method:** `31f9a900` read from its disassembly (handles 1-10 = EDI, EBX, `[esp+1c]`, `[esp+10]`, EBP, `[14]`, `[18]`, `[28]`, `[24]`, `[20]`);
+  `+0xde8` / `+0xdc8` = `TRACE_END[0]` / `TRACE_START[0]`, `+0xecc` / `+0xed0` = `ATTACK_LINE_END0` / `_START0_FRONT`; constants 2.0 (`33437820`),
+  0.5 (`3342ebc8`), 10.0 (`3344a51c`) read from the PE. Viewer states 1 / 3 / 6 / 7 = March's members; 9 and 10 are June-only.
+- **Stand-ins (one-line comments):** in the viewer's `CanShowWeaponEffect`, June's custom-motion habit test `31f91110` (Stage 12) and the per-emotion
+  bytes `+0x1174..+0x1176`; June's usable test `328825c0` is March's endurance / infinity test (as D1-3b). June quirk kept: the Ara spark group also
+  needs sequences 7 / 8.
+- **Not reached here:** viewer cases 10-12 and the Lu/Ciel trace frames: checklist **7as** (extended). `31f9f8d0` (June-only equip-list rebuild that
+  re-inits the glow, UI callers `32195e40` / `321a29a0`) and `31f97960` (vslot 0x10 draw of sequences 1-4, R4a routed) are not in March.
+- **June bugs kept:** `JUNE_BUGS.md` 473 (viewer handle 4 from name 3, March too).
+- **Split:** `31ff8510` `ProcessEnchantedWeaponEffectAtHand`, the nine viewer enchant frame moves that call `31f91230`, and 263 -> **D1-3e**;
+  250 / 205 / the MP rate sites (tasks 1, 2, 5) -> **D1-3f** (kickoffs written; tsv rows annotated).
+- **Bookkeeping:** funcmap rows `(Diverge D1-3c)` x15; tsv 205 / 250 / 252 / 263 annotated; `MODS.md` D1-3c entry; checklist 7as; JUNE_BUGS 473;
+  `D1-4-review.md` covers D1-3e / D1-3f and lists three review points.
+- **Order proof:** `cl /EP` with the US_SERVICE defines on a probe including `KTDX.h`, then one including `X2Lib/StdAfx.h`: `ADD_UPGRADE_WEAPON_PARTICLE`,
+  both flags DEFINED (no later `#undef`).
+- **Hygiene:** `flagcheck --worktree --files`: `WEAPON_EFFECT_SHOW` RESULT PASS (`X2GameUnit.cpp` +20, 0 deleted, 0 non-ASCII, 0 EOL mismatch);
+  `UPGRADE_WEAPON_PARTICLE` 3 PASS (`X2Eqip.cpp` +4, `X2UnitViewerUI.cpp` +321, `X2UnitViewerUI.h` +16, 0 deleted) and 1 ERROR = `Always.h:10793`,
+  the `#error` dependency guard `#if defined( ..._WEAPON_EFFECT_SHOW ) && !defined( ..._UPGRADE_WEAPON_PARTICLE )` (not this flag's code).
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,826,304 B, dated 2026-10-29 19:13:26, md5 5b1ecaaca973d79954752f539edf98be, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 19:13:19); built at main 107270e7 + 5 uncommitted code file(s).` (all five are this phase's.)
+  `EXESTR OK: 3 of 3 found in X2_offline.exe, 25826304 B, dated 2026-10-29 19:13:26, md5 5b1ecaaca973d79954752f539edf98be`
+  (`13Gang_Weapon_Effect_Spark_Particle_1`, `_Spark01`, `11Gang_Weapon_Effect_Lightning03`, wide).
+- **Smoke (plan end):** Elsword with a +11 sword shows the lightning glow in a dungeon and in the character window (U), a +13 one adds the
+  sparks, none while riding or during an avatar emotion; Eve's / Add's glow sits on both weapons.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

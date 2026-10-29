@@ -10014,7 +10014,11 @@ void CX2GameUnit::Weapon::EnchantParticleFrameMoveForEve()
 	{
 #ifdef RIDING_SYSTEM
 		/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+		if ( true == GetShowObject() && true == static_cast<CX2GUUser&>( GetOwnerUnit() ).CanShowWeaponEffect() )	// June 3228bf60: the owner's weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 		if ( true == GetShowObject() && true == GetOwnerUnit().CanNotShowEnchantedWeaponEffectToRiding() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #else RIDING_SYSTEM
 		if( true == GetShowObject() )
 #endif RIDING_SYSTEM
@@ -10049,7 +10053,11 @@ void CX2GameUnit::Weapon::EnchantParticleFrameMoveForBow()
 	{
 #ifdef RIDING_SYSTEM
 		/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+		if ( true == GetShowObject() && true == static_cast<CX2GUUser&>( GetOwnerUnit() ).CanShowWeaponEffect() )	// June 3228c050: the owner's weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 		if ( true == GetShowObject() && true == GetOwnerUnit().CanNotShowEnchantedWeaponEffectToRiding() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #else RIDING_SYSTEM
 		if( true == GetShowObject() )
 #endif RIDING_SYSTEM
@@ -10086,7 +10094,11 @@ void CX2GameUnit::Weapon::EnchantParticleFrameMoveForSword()
 	{
 #ifdef RIDING_SYSTEM
 		/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+		if ( true == GetShowObject() && true == static_cast<CX2GUUser&>( GetOwnerUnit() ).CanShowWeaponEffect() )	// June 3228c140: the owner's weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 		if ( true == GetShowObject() && true == GetOwnerUnit().CanNotShowEnchantedWeaponEffectToRiding() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #else RIDING_SYSTEM
 		if( true == GetShowObject() )
 #endif RIDING_SYSTEM
@@ -10138,7 +10150,11 @@ void CX2GameUnit::Weapon::EnchantParticleFrameMoveForAra()
 	{
 #ifdef RIDING_SYSTEM
 		/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+		if ( true == GetShowObject() && true == static_cast<CX2GUUser&>( GetOwnerUnit() ).CanShowWeaponEffect() )	// June 3228c360: the owner's weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 		if ( true == GetShowObject() && true == GetOwnerUnit().CanNotShowEnchantedWeaponEffectToRiding() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #else RIDING_SYSTEM
 		if( true == GetShowObject() )
 #endif RIDING_SYSTEM
@@ -10174,7 +10190,11 @@ void CX2GameUnit::Weapon::EnchantParticleFrameMoveForAdd()
 	{
 #ifdef RIDING_SYSTEM
 		/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+		if ( true == GetShowObject() && true == static_cast<CX2GUUser&>( GetOwnerUnit() ).CanShowWeaponEffect() )	// June 3228c450: the owner's weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 		if ( true == GetShowObject() && true == GetOwnerUnit().CanNotShowEnchantedWeaponEffectToRiding() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #else RIDING_SYSTEM
 		if( true == GetShowObject() )
 #endif RIDING_SYSTEM

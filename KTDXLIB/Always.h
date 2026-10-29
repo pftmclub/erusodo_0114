@@ -10779,6 +10779,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-29
+// Description: june-march-divergence D1-3c: June has the +11 weapon glow, so ADD_UPGRADE_WEAPON_PARTICLE ( #undef'd by OnlyGlobal/Always_Global.h, included above ) comes back with SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE; the unit viewer runs June's ten-sequence family ( 31f92910 / 31f914c0 / 31f9a900 / 31f90d30, show test 31f91230, riding test 31f90e20 ). Revert: undefine SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+#define ADD_UPGRADE_WEAPON_PARTICLE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3c: the weapon enchant frame moves ( Eve, bow, sword, Ara, Add ) hide the effect with the owner's CanShowWeaponEffect ( shown, not riding, no avatar emotion ) where March asked only CanNotShowEnchantedWeaponEffectToRiding ( June 3228bf60 / 3228c050 / 3228c140 / 3228c360 / 3228c450 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE )
+#error SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW needs SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE ( CX2GUUser::CanShowWeaponEffect )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
 // Description: june-march-divergence D1-3b: SetSkillCoolTimeLeft runs the event cool-time rate step always and GetSkillCoolTimeDecreaseRate cuts only in a dungeon game ( June 3234cc10 ); compiles March's SERV_BALANCE_FINALITY_SKILL_EVENT rate block without defining that flag. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 //////////////////////////////////////////////////////////////////////////

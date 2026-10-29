@@ -160,6 +160,14 @@ CX2UnitViewerUI::CX2UnitViewerUI(void)
 	m_hSeqUpgradeWeapon2		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqUpgradeWeapon3		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqUpgradeWeapon4		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+	m_hSeqUpgradeWeapon5		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqUpgradeWeapon6		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqUpgradeWeapon7		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqUpgradeWeapon8		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqUpgradeWeapon9		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqUpgradeWeapon10		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 
 	m_pFrame_ATTACK_LINE_START0_FRONT	= NULL;
 	m_pFrame_ATTACK_LINE_END0			= NULL;
@@ -1657,6 +1665,22 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 			CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
 			pSeq->OnFrameRender_Draw();
 		}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+		{
+			// June 31fa00b0: the spark tier draws like the first four
+			CKTDGParticleSystem::CParticleEventSequenceHandle ahSeqSpark[] = { m_hSeqUpgradeWeapon5, m_hSeqUpgradeWeapon6, m_hSeqUpgradeWeapon7,
+				m_hSeqUpgradeWeapon8, m_hSeqUpgradeWeapon9, m_hSeqUpgradeWeapon10 };
+			for( int i = 0; i < ARRAY_SIZE( ahSeqSpark ); ++i )
+			{
+				pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( ahSeqSpark[i] );
+				if( pSeq != NULL )
+				{
+					CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
+					pSeq->OnFrameRender_Draw();
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 #endif ADD_UPGRADE_WEAPON_PARTICLE
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
@@ -6453,6 +6477,29 @@ void CX2UnitViewerUI::SetShowAttribEnchant( bool bShow )
 			}
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+	{
+		// June 31f91f90: the spark tier shows and hides like the first four
+		CKTDGParticleSystem::CParticleEventSequenceHandle ahSeqSpark[] = { m_hSeqUpgradeWeapon5, m_hSeqUpgradeWeapon6, m_hSeqUpgradeWeapon7,
+			m_hSeqUpgradeWeapon8, m_hSeqUpgradeWeapon9, m_hSeqUpgradeWeapon10 };
+		for( int i = 0; i < ARRAY_SIZE( ahSeqSpark ); ++i )
+		{
+			if ( ahSeqSpark[i] == INVALID_PARTICLE_SEQUENCE_HANDLE )
+				continue;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( ahSeqSpark[i] );
+			if( NULL != pSeq )
+			{
+				pSeq->SetShowObject( bShow );
+				if ( bShow == false  )
+				{
+					pSeq->ClearAllParticle();
+					pSeq->SetEmitRate( 0,0 );
+				}
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 #endif ADD_UPGRADE_WEAPON_PARTICLE
 
 }
@@ -7705,6 +7752,267 @@ void CX2UnitViewerUI::SetShowObjectMeshPlayer(CKTDGXMeshPlayer::CXMeshInstanceHa
 
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE	/// 강화 무기에 대한 이펙트 출력 처리
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+namespace _CONST_UNITVIEWER_D13C_
+{
+	// June 31f9a900's repeated step: one position for a group of sequences, then emit rate 10
+	void ShowUpgradeWeaponSequences( const D3DXVECTOR3& vPos_, CKTDGParticleSystem::CParticleEventSequence* pSeq1_, CKTDGParticleSystem::CParticleEventSequence* pSeq2_,
+		CKTDGParticleSystem::CParticleEventSequence* pSeq3_ = NULL, CKTDGParticleSystem::CParticleEventSequence* pSeq4_ = NULL )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* apSeq[] = { pSeq1_, pSeq2_, pSeq3_, pSeq4_ };
+		for( int i = 0; i < ARRAY_SIZE( apSeq ); ++i )
+		{
+			if( NULL != apSeq[i] )
+				apSeq[i]->SetPosition( vPos_ );
+		}
+		for( int i = 0; i < ARRAY_SIZE( apSeq ); ++i )
+		{
+			if( NULL != apSeq[i] )
+				apSeq[i]->SetEmitRate( 10.f, 10.f );
+		}
+	}
+}
+using namespace _CONST_UNITVIEWER_D13C_;
+
+void CX2UnitViewerUI::InitUpgradeWeaponParticle()
+{
+	// June 31f92910: +13 adds the spark tier; Lu/Ciel, Rose and Ain ( June cases 10-12 ) wait for their ports
+	if ( m_pUnit == NULL || NULL == m_pUnit->GetUnitTemplet() )
+		return;
+
+	CX2Item* pItem = m_pUnit->GetInventory().GetEquippingItemByEquipPos( CX2Unit::EP_WEAPON_HAND, false );
+	if( NULL == pItem )
+		return;
+
+	// stand-in: June's usable test 328825c0 is March's endurance / infinity test here
+	if( false == ( ( pItem->GetItemData().m_PeriodType == CX2Item::PT_ENDURANCE && pItem->GetItemData().m_Endurance > 0 ) ||
+		pItem->GetItemData().m_PeriodType == CX2Item::PT_INFINITY ) )
+		return;
+
+	const int iUpgradeLevel = pItem->GetItemData().m_EnchantLevel;
+	if( iUpgradeLevel < ENCHANT_WEAPON_EFFECT_LEVEL_2 )
+		return;
+
+	const bool bSparkTier = ( 13 <= iUpgradeLevel );	// June's +13 tier, no named constant
+
+	switch( m_pUnit->GetUnitTemplet()->m_UnitType )
+	{
+	case CX2Unit::UT_ELSWORD:
+	case CX2Unit::UT_ARME:
+	case CX2Unit::UT_LIRE:
+	case CX2Unit::UT_RAVEN:
+	case CX2Unit::UT_CHUNG:
+	case CX2Unit::UT_ARA:
+	case CX2Unit::UT_ELESIS:
+		{
+			if( false == bSparkTier )
+				CreateUpgradeWeaponParticle( L"11Gang_Weapon_Effect_Lightning", L"11Gang_Weapon_Effect_Lightning02",
+											 L"11Gang_Weapon_Effect_Lightning03", L"11Gang_Weapon_Effect_Lightning04" );
+			else
+				CreateUpgradeWeaponParticle( L"11Gang_Weapon_Effect_Lightning", L"11Gang_Weapon_Effect_Lightning02",
+											 L"11Gang_Weapon_Effect_Lightning03", L"11Gang_Weapon_Effect_Lightning04",
+											 L"13Gang_Weapon_Effect_Spark01", L"13Gang_Weapon_Effect_Spark_Particle",
+											 L"13Gang_Weapon_Effect_Spark01", L"13Gang_Weapon_Effect_Spark_Particle",
+											 L"13Gang_Weapon_Effect_Spark_Particle_1", L"13Gang_Weapon_Effect_Spark_Particle_1" );
+		} break;
+
+	case CX2Unit::UT_EVE:
+	case CX2Unit::UT_ADD:
+		{
+			if( false == bSparkTier )
+				CreateUpgradeWeaponParticle( L"11Gang_Weapon_Effect_Lightning02", L"11Gang_Weapon_Effect_Lightning04",
+											 L"11Gang_Weapon_Effect_Lightning02", L"11Gang_Weapon_Effect_Lightning04" );
+			else
+				CreateUpgradeWeaponParticle( L"11Gang_Weapon_Effect_Lightning02", L"11Gang_Weapon_Effect_Lightning04",
+											 L"11Gang_Weapon_Effect_Lightning02", L"11Gang_Weapon_Effect_Lightning04",
+											 L"13Gang_Weapon_Effect_Spark01", L"13Gang_Weapon_Effect_Spark_Particle",
+											 L"13Gang_Weapon_Effect_Spark01", L"13Gang_Weapon_Effect_Spark_Particle",
+											 L"13Gang_Weapon_Effect_Spark_Particle_1", L"13Gang_Weapon_Effect_Spark_Particle_1" );
+		} break;
+	}
+}
+
+void CX2UnitViewerUI::CreateUpgradeWeaponParticle( const WCHAR* pName1, const WCHAR* pName2 /*= NULL*/, const WCHAR* pName3 /*= NULL*/, const WCHAR* pName4 /*= NULL*/,
+	const WCHAR* pName5 /*= NULL*/, const WCHAR* pName6 /*= NULL*/, const WCHAR* pName7 /*= NULL*/, const WCHAR* pName8 /*= NULL*/, const WCHAR* pName9 /*= NULL*/, const WCHAR* pName10 /*= NULL*/ )
+{
+	// June 31f914c0: the fourth handle is made from the third name, as in March ( JUNE_BUGS )
+	if( NULL == g_pData || NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	const WCHAR* apName[] = { pName1, pName2, pName3, pName3, pName5, pName6, pName7, pName8, pName9, pName10 };
+	CKTDGParticleSystem::CParticleEventSequenceHandle* aphSeq[] = { &m_hSeqUpgradeWeapon, &m_hSeqUpgradeWeapon2, &m_hSeqUpgradeWeapon3, &m_hSeqUpgradeWeapon4,
+		&m_hSeqUpgradeWeapon5, &m_hSeqUpgradeWeapon6, &m_hSeqUpgradeWeapon7, &m_hSeqUpgradeWeapon8, &m_hSeqUpgradeWeapon9, &m_hSeqUpgradeWeapon10 };
+
+	for( int i = 0; i < ARRAY_SIZE( aphSeq ); ++i )
+	{
+		if( NULL == apName[i] || INVALID_PARTICLE_SEQUENCE_HANDLE != *aphSeq[i] )
+			continue;
+
+		*aphSeq[i] = g_pData->GetUIMajorParticle()->CreateSequenceHandle( NULL, apName[i], 0.f, 0.f ,0.f );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( *aphSeq[i] );
+		if( NULL != pSeq )
+			pSeq->SetEmitRate( 0, 0 );
+	}
+}
+
+void CX2UnitViewerUI::ProcessUpgradeWeaponParticle()
+{
+	// June 31f9a900: ten sequences; the hide test is CanShowWeaponEffect ( June 31f91230 )
+	if( NULL == g_pData || NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	CKTDGParticleSystem* pUIMajorParticle = g_pData->GetUIMajorParticle();
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon   = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon2  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon2 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon3  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon3 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon4  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon4 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon5  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon5 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon6  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon6 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon7  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon7 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon8  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon8 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon9  = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon9 );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqUpgradeWeapon10 = pUIMajorParticle->GetInstanceSequence( m_hSeqUpgradeWeapon10 );
+
+	if( false == CanShowWeaponEffect() )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* apSeq[] = { pSeqUpgradeWeapon, pSeqUpgradeWeapon2, pSeqUpgradeWeapon3, pSeqUpgradeWeapon4,
+			pSeqUpgradeWeapon5, pSeqUpgradeWeapon6, pSeqUpgradeWeapon7, pSeqUpgradeWeapon8, pSeqUpgradeWeapon9, pSeqUpgradeWeapon10 };
+		for( int i = 0; i < ARRAY_SIZE( apSeq ); ++i )
+		{
+			if( NULL != apSeq[i] )
+				apSeq[i]->SetEmitRate( 0, 0 );
+		}
+		return;
+	}
+
+	if( NULL == m_pUnit || NULL == m_pUnit->GetUnitTemplet() )
+		return;
+
+	const CX2Unit::UNIT_TYPE eUnitType = m_pUnit->GetUnitTemplet()->m_UnitType;
+	switch( eUnitType )
+	{
+	case CX2Unit::UT_ELSWORD:
+	case CX2Unit::UT_ARME:
+	case CX2Unit::UT_RAVEN:
+	case CX2Unit::UT_CHUNG:
+	case CX2Unit::UT_ELESIS:
+	case CX2Unit::UT_ARA:
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrameWeapon = ( CX2Unit::UT_ARA == eUnitType ) ? m_pFrame_ATTACK_LINE_END0 : m_pFrame_TRACE_END[0];
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrameTraceEnd = ( CX2Unit::UT_ARA == eUnitType ) ? m_pFrame_ATTACK_LINE_START0_FRONT : m_pFrame_TRACE_START[0];
+			if( NULL == pFrameWeapon || NULL == pFrameTraceEnd )
+			{
+				// the weapon mesh may still be loading in the background: look the frames up again every 2 seconds
+				if( m_TimerResetWeaponTraceFrame.elapsed() > 2.f )
+					InitWeaponTrace();
+				return;
+			}
+
+			if( NULL == pSeqUpgradeWeapon || NULL == pSeqUpgradeWeapon2 || NULL == pSeqUpgradeWeapon3 || NULL == pSeqUpgradeWeapon4 )
+				return;
+
+			D3DXVECTOR3 weaponPos( 0.f, 0.f, 0.f );
+			GetFramePos( &weaponPos, pFrameWeapon );
+
+			D3DXVECTOR3 traceEndPos( 0.f, 0.f, 0.f );
+			GetFramePos( &traceEndPos, pFrameTraceEnd );
+
+			const D3DXVECTOR3 vPos = ( traceEndPos - weaponPos ) * 0.5f + weaponPos;
+			ShowUpgradeWeaponSequences( vPos, pSeqUpgradeWeapon, pSeqUpgradeWeapon2, pSeqUpgradeWeapon3, pSeqUpgradeWeapon4 );
+
+			// June's Ara case also needs the second weapon's spark pair ( 7 / 8 ) before it shows 5 / 6 / 9
+			const bool bSecondPairNeeded = ( CX2Unit::UT_ARA == eUnitType );
+			if( NULL != pSeqUpgradeWeapon5 && NULL != pSeqUpgradeWeapon6 && NULL != pSeqUpgradeWeapon9 &&
+				( false == bSecondPairNeeded || ( NULL != pSeqUpgradeWeapon7 && NULL != pSeqUpgradeWeapon8 ) ) )
+				ShowUpgradeWeaponSequences( vPos, pSeqUpgradeWeapon5, pSeqUpgradeWeapon6, pSeqUpgradeWeapon9 );
+		} break;
+
+	case CX2Unit::UT_LIRE:
+		{
+			if( NULL == pSeqUpgradeWeapon || NULL == pSeqUpgradeWeapon2 || NULL == pSeqUpgradeWeapon3 || NULL == pSeqUpgradeWeapon4 )
+				return;
+
+			const D3DXVECTOR3 vBonePos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			ShowUpgradeWeaponSequences( vBonePos, pSeqUpgradeWeapon, pSeqUpgradeWeapon2, pSeqUpgradeWeapon3, pSeqUpgradeWeapon4 );
+			if( NULL != pSeqUpgradeWeapon5 && NULL != pSeqUpgradeWeapon6 && NULL != pSeqUpgradeWeapon9 )
+				ShowUpgradeWeaponSequences( vBonePos, pSeqUpgradeWeapon5, pSeqUpgradeWeapon6, pSeqUpgradeWeapon9 );
+		} break;
+
+	case CX2Unit::UT_EVE:
+	case CX2Unit::UT_ADD:
+		{
+			if( NULL != pSeqUpgradeWeapon && NULL != pSeqUpgradeWeapon2 )
+			{
+				const D3DXVECTOR3 vBonePos1 = m_pXSkinAnim->GetCloneFramePosition( ( CX2Unit::UT_ADD == eUnitType ) ? L"Weapon02" : L"Dummy1_Rhand" );
+				ShowUpgradeWeaponSequences( vBonePos1, pSeqUpgradeWeapon, pSeqUpgradeWeapon2 );
+				if( NULL != pSeqUpgradeWeapon5 && NULL != pSeqUpgradeWeapon6 && NULL != pSeqUpgradeWeapon9 )
+					ShowUpgradeWeaponSequences( vBonePos1, pSeqUpgradeWeapon5, pSeqUpgradeWeapon6, pSeqUpgradeWeapon9 );
+			}
+
+			if( NULL != pSeqUpgradeWeapon3 && NULL != pSeqUpgradeWeapon4 )
+			{
+				const D3DXVECTOR3 vBonePos2 = m_pXSkinAnim->GetCloneFramePosition( ( CX2Unit::UT_ADD == eUnitType ) ? L"Weapon05" : L"Dummy2_Lhand" );
+				ShowUpgradeWeaponSequences( vBonePos2, pSeqUpgradeWeapon3, pSeqUpgradeWeapon4 );
+				if( NULL != pSeqUpgradeWeapon7 && NULL != pSeqUpgradeWeapon8 && NULL != pSeqUpgradeWeapon10 )
+					ShowUpgradeWeaponSequences( vBonePos2, pSeqUpgradeWeapon7, pSeqUpgradeWeapon8, pSeqUpgradeWeapon10 );
+			}
+		} break;
+	}
+}
+
+void CX2UnitViewerUI::DeleteUpgradeWeaponParticle()
+{
+	// June 31f90d30: all ten handles
+	if( NULL != g_pData && NULL != g_pData->GetUIMajorParticle() )
+	{
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon2 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon3 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon4 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon5 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon6 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon7 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon8 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon9 );
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon10 );
+	}
+}
+
+bool CX2UnitViewerUI::CanShowWeaponEffect()
+{
+	// June 31f91230; stand-in: its custom-motion habit test 31f91110 and the per-emotion flags +0x1174..+0x1176 are not in March
+	if( UVS_CHARINFO == m_eUnitViewerState )
+		return true;
+
+	if( false == GetShowObject() )
+		return false;
+
+#ifdef RIDING_SYSTEM
+	if( false == CanNotShowEnchantedWeaponEffectToRiding() )
+		return false;
+#endif RIDING_SYSTEM
+
+#ifdef UNIT_EMOTION
+	// June 31f91160: a field viewer reads its square unit's emotion
+	CX2Unit::EMOTION_TYPE eEmotion = m_ePlayedEmotion;
+	if( UVS_FIELD == m_eUnitViewerState )
+	{
+		eEmotion = CX2Unit::ET_NONE;
+		if( NULL != m_pUnit && NULL != g_pTFieldGame )
+		{
+			CX2SquareUnit* pSquareUnit = g_pTFieldGame->GetSquareUnitByUID( m_pUnit->GetUID() );
+			if( NULL != pSquareUnit )
+				eEmotion = pSquareUnit->GetNowEmotionId();
+		}
+	}
+
+	if( true == CX2Unit::IsAvatarEmotion( eEmotion ) )
+		return false;
+#endif UNIT_EMOTION
+
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 /// 강화 무기 이펙트 초기화
 void CX2UnitViewerUI::InitUpgradeWeaponParticle()
 {
@@ -8016,16 +8324,29 @@ void CX2UnitViewerUI::DeleteUpgradeWeaponParticle()
 		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqUpgradeWeapon4 );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 
 #endif ADD_UPGRADE_WEAPON_PARTICLE
 
 #ifdef RIDING_SYSTEM
 bool CX2UnitViewerUI::CanNotShowEnchantedWeaponEffectToRiding()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
+	// June 31f90e20: the viewed unit's own riding pet ( by UID ), not the local player's
+	if( 9 == static_cast<int>( m_eUnitViewerState ) )	// June's viewer state 9: no March member
+		return false;
+
+	if( NULL == m_pUnit )
+		return true;
+
+	CX2RidingPetPtr pRidingPet = CX2RidingPetManager::GetInstance()->GetRidingPetPtr( m_pUnit->GetUID() );
+	return NULL == pRidingPet.get();
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 	if ( NULL != CX2RidingPetManager::GetInstance() && true != CX2RidingPetManager::GetInstance()->GetRidingOn() )
 		return true; // 탈 것 미탑승 상태
 	else
 		return false; // 탈 것 탑승 상태
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE
 }
 #endif //RIDING_SYSTEM
 
