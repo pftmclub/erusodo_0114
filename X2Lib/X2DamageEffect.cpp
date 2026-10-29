@@ -9307,6 +9307,13 @@ UidType CX2DamageEffect::CEffect::PickLockOnTargetBySeed( int iSeed_, OUT bool& 
 // empties it. June discards that second search's result and returns -1 (the studio's code; kept).
 UidType CX2DamageEffect::CEffect::GetLockOnNearstTargetInRange( int iTeam_, const D3DXVECTOR3& vPos_, const D3DXVECTOR2& vRange_, bool bUseTargetList_, OUT bool& bUserUnit_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
+	/// June has one 322d7670, on the game; the effect passes its lock-on data only when it keeps a target list
+	if( NULL == g_pX2Game )
+		return -1;
+
+	return g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( iTeam_ ), vPos_, vRange_, bUserUnit_, ( true == bUseTargetList_ ? &m_LockOnData : NULL ) );
+#else
 	if( NULL == g_pX2Game )
 		return -1;
 
@@ -9391,6 +9398,7 @@ UidType CX2DamageEffect::CEffect::GetLockOnNearstTargetInRange( int iTeam_, cons
 	FxLockOn( GetName(), L"TARGET_LIST_MISS_RULE", L"list=%d -> set=%u", iListType, static_cast<UINT>( setList.size() ) );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return -1;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
 }
 
 // June2017 FUN_322daa10 (LOT_UID_VECTOR_AFTER_ATTACK_IN_RANGE only): a RANDOM pick among the

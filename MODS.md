@@ -5342,3 +5342,17 @@ No `SERV_IRUHADEV_JUNE_CHAR_EVE_*_DEBUG` flag is defined (all retired in their r
 **Data (one deploy unit):** the Eve motion/mesh/texture/cut-in koms staged byte-exact by CH0b; data036 `Eve_Nasod.lua` = June's bytecode; data036 `UnitTemplet.lua`, `NPCTemplet.lua`, `Enum.lua`, `DamageEffect.lua` (core-list source) carry June's Eve rows / lines only; data063 skill icon sheets (`Passive_08 / _10 / _13`, `Hyper_Active_02`); data215 `DLG_UI_Common_Texture99(_GRAY)` for the transcended portraits and `POPUP_TR_C_NEMESIS / C_EMPRESS / B_SERAPH` (.tga + .TET, the becoming-transcended guide popup; staged after Z, 2026-10-28, `PACK OK data215`).
 
 **Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE` (the other Eve flags then compile March's code; `_NCORE` goes with it), (2) restore data036 `Eve_Nasod.lua`, `UnitTemplet.lua`, `NPCTemplet.lua`, `Enum.lua` from the kom backups and `kom.py copy data036`, (3) restore the motion koms and data063 / data215 from the `kom_backup_stage_june` backups, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together. Save: unchanged.
+
+### One function per name: divergent March functions replaced by June's, first batch (june-march-divergence D1-1, 2026-10-29)
+
+Nine flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-1 Done"; rows of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_MEMO`: `CX2GUUser::GetEqippedSkillMemo` returns false (June `31fca9e0`; memos are gone). Every memo test in every class is off, ported or not, including the in-house frame-scale "all memos" cheat.
+- `SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY`: `CX2GageData` gets June's four members (MP gained / spent tallies, HP / MP before the last change) and June's `SetNowMp` / `UpNowMp` / `FlushMp` with a track flag; `CX2GameUnit::UpNowMp` tracks, `FlushMp` tracks for my unit. The random mission's MP-spent event now counts any unit's tracked spend (June `322b33d0`), not only my unit's.
+- `SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE`: `CX2Game::GetLockOnNearstTargetInRange` is June's `322d7670` (the damage effect's lock-on data replaces March's game-wide pick list); `CX2DamageEffect::CEffect::GetLockOnNearstTargetInRange` calls it.
+- `SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER`: an awakening buff's effect set (BTI 157, 320, 660, 661, 822, 823, 966-968) is never alpha-dimmed (June `32eb9c70`); `BTI_ARA_FIRST_HYPER_MODE` / `_SECOND_` registered under `JUNE_ENUM_NAMES`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_UNREF_DEVICE`: `CKTDXDevice::UnrefDevice` is true only at exactly zero, no clamp below zero (June `31d4d300`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE`: `CX2GUUser::GetSkillLevelValue` is June's `31fceab0` (a hyper-class skill reads 0 before transcendence).
+- `SERV_IRUHADEV_JUNE_DIVERGE_CURE_EXTRA_DAMAGE`: `CureExtraDamage` sorts the whole extra-damage list (June `3229dd90`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_FORCE_HYPER_MODE`: `ForceChangeHyperModeWithoutMotion` skips in the class's own hyper-mode state (Ara's berserk) or riding hyper mode (June `31ff7300`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE`: the change-hyper-mode buff asks `IsBerserkByChance` (unit vslot `0xa4`, now a `CX2GameUnit` virtual, false but for Chung's unported override), not `IsFullHyperMode`.
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

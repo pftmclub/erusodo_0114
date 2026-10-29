@@ -92,6 +92,19 @@ void CX2GageData::Gage::Increase( const float fIncrement, const float fMinimum /
 		Veryfy();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+/// June 32a31910: the spend goes through UpNowMp with the caller's track flag
+bool CX2GageData::FlushMp( const float fFlushMp_, const bool bTrackMp_ /*= false*/ )
+{
+	if( NULL == m_pMpGage || fFlushMp_ > m_pMpGage->fNow )
+		return false;
+	else
+	{
+		UpNowMp( -fFlushMp_, bTrackMp_ );
+		return true;
+	}
+}
+#else
 bool CX2GageData::FlushMp( const float fFlushMp_ )
 {
 	if( NULL == m_pMpGage || fFlushMp_ > m_pMpGage->fNow )
@@ -102,6 +115,7 @@ bool CX2GageData::FlushMp( const float fFlushMp_ )
 		return true;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 /*virtual*/ bool CX2GageData::DamageFlushMp()
 {

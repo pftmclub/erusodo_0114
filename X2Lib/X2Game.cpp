@@ -15877,6 +15877,111 @@ UidType CX2Game::GetLockOnNearstTarget( CX2Room::TEAM_NUM eTeamNum_, IN const D3
 //}} kimhc // 2010.12.17 //  2010-12-23 New Character CHUNG
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
+/// June 322d7670: March's filters, then the damage effect's own target list instead of the game-wide one
+UidType CX2Game::GetLockOnNearstTargetInRange( CX2Room::TEAM_NUM eTeamNum_, IN const D3DXVECTOR3& vMyPos_, IN const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_, CX2DamageEffect::LockOnData* pLockOnData_ /*= NULL*/ )
+{
+	const CX2GameUnit* pNearstUnit = NULL;
+	float fNearstDistance = vRange_.y;
+
+	for( UINT uIndex = 0; uIndex < m_UnitList.size(); ++uIndex )
+	{
+		const CX2GameUnit* pCX2GameUnit = m_UnitList[uIndex];
+
+		if( pCX2GameUnit == NULL )
+			continue;
+
+		if( pCX2GameUnit->GetTeam() == eTeamNum_ )
+			continue;
+
+		if( true == pCX2GameUnit->GetInvincible() )
+			continue;
+
+		if( 0.f >= pCX2GameUnit->GetNowHp() )
+			continue;
+
+		if( CX2GameUnit::GUT_NPC == pCX2GameUnit->GetGameUnitType() )
+		{
+#ifdef FIELD_BOSS_RAID
+			if( true == pCX2GameUnit->GetIsBosRaidNPC() )
+				continue;
+#endif // FIELD_BOSS_RAID
+
+			const CX2GUNPC* pNPC = static_cast<const CX2GUNPC*>( pCX2GameUnit );
+			switch( pNPC->GetNPCTemplet().m_ClassType )
+			{
+			case CX2UnitManager::NCT_THING_TRAP:
+			case CX2UnitManager::NCT_THING_CHECKER:
+				{
+					continue;
+				} break;
+			} // switch
+			/// stand-in: June also skips an NPC whose byte +0x8fb6 is 1 (member not identified)
+		} // if
+
+		if( NULL != pLockOnData_ )
+		{
+			const UidType uidUnit = pCX2GameUnit->GetUnitUID();
+			if( CX2DamageEffect::NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT == pLockOnData_->m_iNotTargetPreLockOnTarget && uidUnit == pLockOnData_->m_SaveHitUnitUID )
+				continue;
+
+			if( CX2DamageEffect::NTPLOTT_NONE != pLockOnData_->m_iNotTargetPreLockOnTarget &&
+				false == pLockOnData_->m_setPreLockOnTarget.empty() &&
+				pLockOnData_->m_setPreLockOnTarget.end() != pLockOnData_->m_setPreLockOnTarget.find( uidUnit ) )
+				continue;
+		}
+
+		float fDistance = GetDistance( vMyPos_, pCX2GameUnit->GetPos() );
+
+		if ( fDistance < fNearstDistance && fDistance > vRange_.x )
+		{
+			pNearstUnit		= pCX2GameUnit;
+			fNearstDistance = fDistance;
+		} // if
+	} // for
+
+	if( NULL != pNearstUnit )
+	{
+		bUserUnit_ = ( CX2GameUnit::GUT_USER == pNearstUnit->GetGameUnitType() );
+		if( NULL != pLockOnData_ && CX2DamageEffect::NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT == pLockOnData_->m_iNotTargetPreLockOnTarget )
+			pLockOnData_->m_SaveHitUnitUID = pNearstUnit->GetUnitUID();
+
+		return pNearstUnit->GetUnitUID();
+	}
+
+	if( NULL == pLockOnData_ )
+		return -1;
+
+	std::set<UidType>& setPreLockOnTarget = pLockOnData_->m_setPreLockOnTarget;
+	switch( pLockOnData_->m_iNotTargetPreLockOnTarget )
+	{
+	case CX2DamageEffect::NTPLOTT_TARGET_LIST_CLEAR:
+		setPreLockOnTarget.clear();
+		break;
+
+	case CX2DamageEffect::NTPLOTT_TARGET_LIST_SAVE_ONE:
+		if( setPreLockOnTarget.size() > 1 )
+			setPreLockOnTarget.clear();
+		break;
+
+	case CX2DamageEffect::NTPLOTT_TARGET_LIST_SAVE_HIT_UNIT:
+		if( setPreLockOnTarget.end() != setPreLockOnTarget.find( pLockOnData_->m_SaveHitUnitUID ) )
+		{
+			/// June @322d78b5: searches again without the saved unit and drops the result (kept)
+			pLockOnData_->m_SaveHitUnitUID = -1;
+			GetLockOnNearstTargetInRange( eTeamNum_, vMyPos_, vRange_, bUserUnit_, pLockOnData_ );
+		}
+		else
+			setPreLockOnTarget.clear();
+		break;
+
+	default:
+		break;
+	}
+
+	return -1;
+}
+#else
 UidType CX2Game::GetLockOnNearstTargetInRange( CX2Room::TEAM_NUM eTeamNum_, IN const D3DXVECTOR3& vMyPos_, IN D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ 
 	#ifdef BALANCE_DEADLY_CHASER_20130214
 												, bool bIsNotTargetPreLockOnTarget/* = false*/
@@ -15975,6 +16080,7 @@ UidType CX2Game::GetLockOnNearstTargetInRange( CX2Room::TEAM_NUM eTeamNum_, IN c
 		} // else
 	} // else	
 }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
 #endif
 
 

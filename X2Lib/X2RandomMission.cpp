@@ -710,7 +710,12 @@ void CX2RandomMissionManager::OnMpSpent( float fSpent_ )
 
 void CX2GageData::RandomMissionMpSpent( float fChangeOfNowMp_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+	/// June 322b33d0 @322b3487: any gage's tracked spend counts, not only my unit's
+	if( fChangeOfNowMp_ < 0.f )
+#else
 	if( fChangeOfNowMp_ < 0.f && NULL != CX2GageManager::GetInstance() && this == CX2GageManager::GetInstance()->GetMyGageData() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 		CX2RandomMissionManager::GetInstance()->OnMpSpent( -fChangeOfNowMp_ );
 }
 

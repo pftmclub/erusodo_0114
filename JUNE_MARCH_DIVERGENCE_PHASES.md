@@ -766,6 +766,51 @@ would crash, `JUNE_BUGS.md` row if June's answer is a bug. First: `GetEqippedSki
 27702 without touching it). Hand-off: per visible change, one ported and one unported class.
 **Review:** `D1 review` (Opus): each body against its listing, `#else` intact, flagcheck per flag, one unported call site per row.
 
+### D1 split (2026-10-29, D1-1 session)
+
+The 88 `replace` rows (87 functions) each need June's whole body read in Ghidra, so D1 runs as five sub-phases by area (tsv line numbers),
+each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair them like C2's: `D1-2 review` (D1-1 + D1-2), `D1-4 review`
+(D1-3 + D1-4), `D1 review` (D1-5, closes D1). No per-phase play-test: the smoke runs once at the plan end (user, 2026-10-29).
+- **D1-1** unit core: 143, 210, 17 / 50 / 192 / 193 / 260, 54, 122, 203, 234 / 258, 245, 246, 256 (done below).
+- **D1-2** user / NPC states and combat: 237, 238, 239, 240, 241, 242, 243, 244, 247, 249, 371, call sites 330, 364.
+- **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
+  missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue`.
+- **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343.
+- **D1-5** KTDXLIB engine and buff popups: 346-363.
+
+### D1-1 Done (2026-10-29, Opus 5.5; nine `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 143 | `CX2GUUser::GetEqippedSkillMemo` | `31fca9e0` | `SKILL_MEMO` | always false; VioletMage 27702's super armour and every March memo test go |
+| 210 | `MemoCondition` decide | `31fd4450` | (143) | June's decide is false for every class, which `m_bApplyMemo = GetEqippedSkillMemo()` now gives: no code |
+| 17, 50, 192, 193, 260 | gage `FlushMp` / `SetNowHp` / `SetNowMp` / `UpNowMp` | `32a31910`, `32081260`, `322b3010`, `322b33d0`; unit `3208dc70` / `3208dd00` / `3208dd20` | `GAGE_TALLY` | members +0x100..+0x10c (ctor `322b3a70` zeroes, copy `322b24f0` copies); unit `UpNowMp` tracks, `FlushMp` tracks `IsMyUnit()`; random-mission event 9 for any tracked spend (JUNE_BUGS 467) |
+| 54 | `CX2Game::GetLockOnNearstTargetInRange` | `322d7670` | `LOCK_ON_IN_RANGE` | June's `LockOnData*` signature; the effect's twin (`X2DamageEffect.cpp`) now calls it; retry result dropped (asm @322d78a6, JUNE_BUGS 468) |
+| 122 | `CX2BuffEffectSetDisplayerTemplet::StartDisplayer` | `32eb9c70` | `START_DISPLAYER` | awakening BTIs set June's skip flag: their sets take `AEACBO_NOT_APPLY`; BTI 660 / 661 registered |
+| 203 | `CKTDXDevice::UnrefDevice` | `31d4d300` | `UNREF_DEVICE` | true only at 0, no clamp; the CS stands in for the interlock (as `CloseDeviceByPointer`) |
+| 246 | `CX2GUUser::GetSkillLevelValue` | `31fceab0` | `SKILL_LEVEL_VALUE` | returns the ported `GetSkillLevel` (one body; hyper-class 0 before transcendence) |
+| 256 | `CX2GameUnit::CureExtraDamage` | `3229dd90` | `CURE_EXTRA_DAMAGE` | sorts the whole list |
+| 245 | `ForceChangeHyperModeWithoutMotion` | `31ff7300` | `FORCE_HYPER_MODE` | skip test `GetHypetMpdeStateID()` / `USI_RIDING_HYPER_MODE` (June 0x2c: June's USI runs one above March's here, funcmap 4085) |
+| 234, 258 | buff `SetFactor` / `SetFactorFromPacket` sites | @32e7de0a | `BERSERK_BY_CHANCE` | `IsBerserkByChance` (vslot 0xa4) is now a public `CX2GameUnit` virtual (base `31e4c550` false); Chung's March berserk no longer forces full hyper |
+
+- **Stand-ins (one-line comments):** `322d7670`'s NPC byte +0x8fb6 skip (member unidentified); `32eb9c70`'s equipped-item effect set
+  (user +0x867c) - the awakening effect-set family already waits on Stage 6 (backlog Stage 5 close note).
+- **Signatures not taken:** June's unused second `FlushMp` argument (`3208dc70` ret 8) and the gage's unused third; June's
+  `SetNowMp( float, bool )` callers' bools are not known per site, so March callers pass false (tallies only; no reader found).
+- **Routed:** the device-refcount IAT conflict (`31d4d2f0` R12 "AddRef" calls the decrement slot) -> backlog Stage 2 bullet.
+- **Deferred to D1-3:** row 205 (riding-pet branch + unidentified equip +0x15d4 / unit +0x8e91 test).
+- **Hygiene:** `flagcheck --worktree --files` per flag: `RESULT: PASS` for all nine (0 FAIL, 0 ERROR, 0 deleted lines, 0 non-ASCII,
+  0 EOL mismatches); the multi-flag files pass with `--with` (`X2GUUser.cpp` SKILL_MEMO + SKILL_LEVEL_VALUE + FORCE_HYPER_MODE, `X2GameUnit.h`
+  GAGE_TALLY + BERSERK_BY_CHANCE; `X2BuffFactor.h` under `JUNE_ENUM_NAMES` PASS~). `git diff --stat`: 14 code files, 368 insertions, 0 deletions.
+  `tok!` rows are the plain `#else` lines (house style). `enumscan --check`: the 2 class-A rows are old lines (`X2DamageEffect.cpp:1705`,
+  `X2BuffBehaviorTemplet.cpp:5261`), none in this phase's edits. `cl /P` of `X2GuEve.cpp` passed every new `#error` guard before the build.
+- **Build:** first run failed in this phase's own edit (C2248, protected `IsBerserkByChance` through `CX2GameUnit*`), fixed by the base virtual.
+  `DEPLOY OK: X2_offline.exe is 25,808,896 B, dated 2026-10-29 13:25:32, md5 b9a34c9fd7625c49f95058295780e64b, equal to X2/US_SERVICE/x2.exe
+  (2026-10-29 13:25:25); built at main 997feb24 + 14 uncommitted code file(s).`
+- **Smoke (plan end):** Aisha (ported) dash combo Z->Z->Z with memo 5 gives no super armour; Chung (unported) skill with memo 13 acts
+  memo-less; Ara (unported) awakening and Add formation sets render undimmed with other-effect alpha lowered; a hyper buff on Chung
+  in berserk with 2 orbs no longer forces full hyper.
+
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 
 **Depends on:** D1 review. `tools/junediverge.py`:

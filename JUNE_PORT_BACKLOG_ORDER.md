@@ -211,6 +211,7 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   -> june-dungeons (Stage 22).
 - Left in the plan: R4c2 -> R4d, R4g, R4h (pass arguments), R4i, R4j, R5, R6, R7, R9, W2, Z.
 - **Equip collision base `31fd8c00`** (pilot CH1l review, 2026-10-21): June picks each attach-anim equip's normal (`+0x544`) or hyper (`+0x584`) anim by templet `+0xd2` in {9, 11}; March always takes normal. Every class; unported (funcmap R12b). Its riding-pet branch is Stage 17's.
+- **Device refcount import, R12 re-check** (june-march-divergence D1-1, 2026-10-29): `31d4d2f0` (funcmap 3031, ported by R12 as the skin anim's AddRef, `CKTDGXSkinAnim::RefDevice` under `JUNE_RENDER_SKIN_ANIM_REFS`) calls the same IAT slot `0x344c087c` as `UnrefDevice` `31d4d300` (`== 0` test) and the Release `31c49660` (deletes at 0), so the slot reads as `InterlockedDecrement`. Either the R12 sites are releases or the slot reading is wrong: settle the import (PE import table, not Ghidra's label) and re-check the R12 sites. Owner: Stage 2.
 - **Accelerator auras** (pilot CH1 review, 2026-10-21): June's `CX2GUUser::ApplyAuraAcceleratorBuffToGameUnit` is `32028790` (user vslot `0x7b0`, same in the
   Arme and base vtables), March's base function's counterpart (C10b-2 called its host absent). It takes a 4th argument, the buff-factor index (`RET 0x10`; `3202c360` passes 0 or `322cc1a0`'s bool), and calls
   vslot `0x770` (`AdjustBuffFactorByIndex`, S3d) before the unit loop; its caller `3202c360` (`ProcessAcceleraterBuff`) has June's own skill switch (`0x7a45` / `0x7a59` ->

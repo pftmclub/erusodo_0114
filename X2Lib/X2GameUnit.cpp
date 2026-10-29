@@ -9706,8 +9706,13 @@ void CX2GameUnit::CureExtraDamage( int iNumOfExtraDamageToBeCure_ /*= 1*/ )
 	{
 		const float REMAIN_EXTRA_DAMAGE_TIME_TO_SET = 0.01f;
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_CURE_EXTRA_DAMAGE
+		/// June 3229dd90 @3229ddd9: the whole list is sorted ( March stops one short )
+		std::sort( &m_pExtraDamageDataList[0], &m_pExtraDamageDataList[0] + NUM_OF_EXTRA_DAMAGE_PACK_MEMBER, GreaterExtraDamageTime );
+#else
 		std::sort( &m_pExtraDamageDataList[0], 
 			&m_pExtraDamageDataList[NUM_OF_EXTRA_DAMAGE_PACK_MEMBER -1 ], GreaterExtraDamageTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_CURE_EXTRA_DAMAGE
 
 		for ( int i = 0; i < iNumOfExtraDamageToBeCure_; ++i )
 		{

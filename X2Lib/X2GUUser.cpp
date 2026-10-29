@@ -6765,6 +6765,10 @@ bool CX2GUUser::IsUpgradedSkillLearned( CX2SkillTree::SKILL_ID eSkillID ) const
 #ifdef SERV_SKILL_NOTE
 bool CX2GUUser::GetEqippedSkillMemo(CX2SkillTree::SKILL_MEMO_ID eMemoId) const
 {	
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_MEMO
+	/// June 31fca9e0: memos are gone, no memo is ever equipped
+	return false;
+#else
 #if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ ) || defined( _OPEN_TEST_2_ )
 	if( g_pInstanceData != NULL )
 	{
@@ -6778,6 +6782,7 @@ bool CX2GUUser::GetEqippedSkillMemo(CX2SkillTree::SKILL_MEMO_ID eMemoId) const
 	const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
 	
 	return pUnitData->m_UserSkillTree.GetEqipSkillMemo( eMemoId );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_MEMO
 }
 #endif
 
@@ -28932,6 +28937,11 @@ void CX2GUUser::ForceChangeHyperModeWithoutMotion( float fAddTime_ )
 	if( NULL == g_pX2Game )
 		return; 
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_FORCE_HYPER_MODE
+	/// June 31ff7300 @31ff7386: the unit's own hyper-mode state ( vslot 0x6b8, Ara's berserk one ) or riding hyper mode ( June 0x2c )
+	if( GetHypetMpdeStateID() == GetNowStateID() || USI_RIDING_HYPER_MODE == GetNowStateID() )
+		return;
+#else
 #ifdef SUPERPOSITION_HYPER_MODE_BUG
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	IF_HYPER_MODE_STATE( m_itNowStateData->first )
@@ -28940,6 +28950,7 @@ void CX2GUUser::ForceChangeHyperModeWithoutMotion( float fAddTime_ )
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		return;
 #endif // SUPERPOSITION_HYPER_MODE_BUG
+#endif SERV_IRUHADEV_JUNE_DIVERGE_FORCE_HYPER_MODE
 
 	ASSERT( NULL != g_pX2Game->GetWorld() );
 	if( NULL == g_pX2Game->GetWorld() )
@@ -47590,6 +47601,10 @@ void CX2GUUser::SetNowDamageRelateSkillData( Byte byteRelateData_ )
 */
 const int CX2GUUser::GetSkillLevelValue( IN const CX2SkillTree::SKILL_ID eSkillID_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+	/// June 31fceab0, ported whole as GetSkillLevel: a hyper-class skill is 0 before transcendence
+	return GetSkillLevel( eSkillID_ );
+#else
 	if ( NULL == GetUnit() )
 		return 1;
 
@@ -47597,6 +47612,7 @@ const int CX2GUUser::GetSkillLevelValue( IN const CX2SkillTree::SKILL_ID eSkillI
 	const int				iSkillLevel		= userSkillTree.GetSkillLevel( eSkillID_ );
 
 	return iSkillLevel;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 }
 
 /** @function	: SetEffectSoundParticle

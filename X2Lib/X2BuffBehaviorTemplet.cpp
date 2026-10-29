@@ -2009,7 +2009,12 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 
 	/// June checks the orbs on every SetFactor, not only the first (the count != 0 branch jumps to the
 	/// CMP [ESI+0x10],2 at 32e7dc30); slot 41 is asked only when the count is 2 or less
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
+	/// June @32e7de0a: unit vslot 0xa4 ( berserk by chance, false but for Chung ), not IsFullHyperMode
+	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsBerserkByChance() )
+#else
 	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
 		pGameUnit_->SetFullHyperMode( true );
 
 	/// June then calls 32b4dd50( count, or 1 ) (@32e7dc69 / @32e7de36), before slot 49: the buff-driven hyper count
@@ -2075,7 +2080,12 @@ bool CX2BuffChangeStatBehaviorTemplet::MustUseOptionData() const
 {
 	/// June 32e7ddb0: wire layout unchanged, [count, remaining time]
 	m_uiHyperModeCount = static_cast<UINT>( kFactor_[0] );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
+	/// June @32e7de0a: unit vslot 0xa4 ( berserk by chance, false but for Chung ), not IsFullHyperMode
+	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsBerserkByChance() )
+#else
 	if ( static_cast<UINT>(CX2GageUI::PGUWO_ORB3) < m_uiHyperModeCount || pGameUnit_->IsFullHyperMode() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
 		pGameUnit_->SetFullHyperMode( true );
 
 	/// June then calls 32b4dd50( count, or 1 ) (@32e7dc69 / @32e7de36), before slot 49: the buff-driven hyper count

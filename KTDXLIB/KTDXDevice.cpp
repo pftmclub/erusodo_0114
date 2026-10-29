@@ -179,6 +179,11 @@ void    CKTDXDevice::RefDevice()
 
 bool CKTDXDevice::UnrefDevice()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNREF_DEVICE
+    /// June 31d4d300: InterlockedDecrement, true only at zero; no clamp below zero (the lock stands in for the interlock)
+    CSLock  lock( m_csDeviceState );
+    return ( 0 == --m_RefCount );
+#else
 
     {
         CSLock  lock( m_csDeviceState );
@@ -208,6 +213,7 @@ bool CKTDXDevice::UnrefDevice()
     }
 
     return false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNREF_DEVICE
 }
 
 

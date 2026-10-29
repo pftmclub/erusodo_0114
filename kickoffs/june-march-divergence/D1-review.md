@@ -1,28 +1,28 @@
-# One function per name - Phase D1 review
+# One function per name - Phase D1 review (covers D1-5; it closes D1)
 
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-march-divergence D1 review` |
 | Plan doc | `JUNE_MARCH_DIVERGENCE_PHASES.md` (branch `main`) |
-| Depends on | D1 done |
-| Flag | `SERV_IRUHADEV_JUNE_DIVERGE_*` |
+| Depends on | D1-5 done |
+| Flag | the `SERV_IRUHADEV_JUNE_DIVERGE_*` flags of D1-5; it closes D1 |
 | Log tag | none |
 
 ## Read first
 
 ```sh
-python tools/docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md "Context" "Rules" "Starting context" "Phase D1 - Replace divergent March functions at the definition (Opus 5.5, high)"
+python tools/docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md "Rules" "D1 split (2026-10-29, D1-1 session)"
 ```
 
-and D1's Done note, `june_march_divergent.tsv`.
+and the Done notes of D1-5; it closes D1 (`docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md --list` names them), `june_march_divergent.tsv`.
 
 ## Task
 
-Review D1: each replaced body against its June listing, `#else` byte-intact, the live March branch (`cl /P`), one unported call site
-per row, guards, `MODS.md` / `JUNE_BUGS.md` rows, the play-test logs.
+Review D1-5; it closes D1: each replaced body against its June listing (Ghidra / `funcdis.py`), `#else` byte-intact, the live March branch (`cl /P`),
+one unported call site per row, guards, `MODS.md` / `JUNE_BUGS.md` rows, stand-ins named and routed.
 
 Hygiene is one command per flag, not a fresh script:
-`python tools/flagcheck.py <FLAG> --range <first commit>^..<last commit>` (a `..HEAD` range can time out), plus the flag-off
-equivalence the C0 tool reports. Paste the `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every
-deleted line; a FAIL or ERROR is a finding. Fix clear errors under the same flag (then `tools/build.py --deploy`); hand design
-decisions to the user. Write the review section into the plan doc, update STATUS, check the next kickoff, commit.
+`python tools/flagcheck.py <FLAG> --range <first commit>^..<last commit>` (a `..HEAD` range can time out). Paste the `files:` /
+`in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding. Fix clear errors
+under the same flag (then `tools/build.py --deploy`); hand design decisions to the user. No play-test (the smoke runs at the plan end).
+Write the review section into the plan doc, update STATUS, check `D2.md`, commit.

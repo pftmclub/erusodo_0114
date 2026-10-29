@@ -10381,3 +10381,78 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR needs SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF ( the guide particle )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTGLOW_CLEAR
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CX2GUUser::GetEqippedSkillMemo returns false as June's 31fca9e0 does ( memos removed ); every caller, ported or not, follows. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_MEMO
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CX2GageData keeps June's MP gained / spent tallies and before-change HP / MP ( 32081260, 322b3010, 322b33d0, 32a31910 ); CX2GameUnit::UpNowMp tracks, FlushMp tracks for my unit; any unit's tracked MP spend counts for the random mission. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CX2Game::GetLockOnNearstTargetInRange is June's 322d7670 ( the damage effect's own target list ); the effect's copy calls it. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE ) && ( !defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE ) || !defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE and _RUNTIME ( the lock-on data, and March's bool callers dead )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: an awakening buff's effect set ( BTI 157, 320, 660, 661, 822, 823, 966-968 ) is never alpha-dimmed, as June's StartDisplayer 32eb9c70 does. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER ) && ( !defined( SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER needs SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION and SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CKTDXDevice::UnrefDevice is one decrement that answers true only at zero, with no clamp below zero ( June 31d4d300 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_UNREF_DEVICE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CX2GUUser::GetSkillLevelValue is June's 31fceab0 ( a hyper-class skill is 0 before transcendence ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) && !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE needs SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ( GetSkillLevel )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: CX2GameUnit::CureExtraDamage sorts the whole extra-damage list ( June 3229dd90; March stops one short ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_CURE_EXTRA_DAMAGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: ForceChangeHyperModeWithoutMotion skips in the unit's own hyper-mode state ( GetHypetMpdeStateID ) or riding hyper mode ( June 31ff7300 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_FORCE_HYPER_MODE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-1: the change-hyper-mode buff asks unit vslot 0xa4 ( IsBerserkByChance ), not IsFullHyperMode ( June 32e7dbb0 / 32e7ddb0 @32e7de0a ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE ) && !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME )
+#error SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsBerserkByChance )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
+//////////////////////////////////////////////////////////////////////////

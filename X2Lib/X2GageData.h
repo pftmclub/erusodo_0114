@@ -114,6 +114,9 @@ public:
 		m_fChangeRateByItem( 0.0f ), m_fChangeRateTimeByItem( 0.0f ), m_fHyperModeRemainTime( 0.0f ),
 		m_byHyperModeCount( 0 ), m_bEnable( false ), m_bCanChargeMpForDetonation( false ),
 		m_bHpRelativeChangeRate( false ), m_ChargeMpGageForDetonation(), m_ForceDownGage(), m_bUpdateMpPoint(true)
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		, m_fGainedMp( 0.f ), m_fSpentMp( 0.f ), m_fBeforeNowHp( 0.f ), m_fBeforeNowMp( 0.f )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 #ifdef FIX_LIMITED_MANA_MANAGEMENT
 		,m_fAddMaxMP( 0.f )
 #endif //FIX_LIMITED_MANA_MANAGEMENT
@@ -138,6 +141,9 @@ public:
 		m_bEnable( rhs_.m_bEnable ), m_bCanChargeMpForDetonation( rhs_.m_bCanChargeMpForDetonation ),
 		m_bHpRelativeChangeRate( rhs_.m_bHpRelativeChangeRate ), m_ChargeMpGageForDetonation( rhs_.m_ChargeMpGageForDetonation ),
 		m_ForceDownGage( rhs_.m_ForceDownGage ), m_bUpdateMpPoint( rhs_.m_bUpdateMpPoint )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		, m_fGainedMp( rhs_.m_fGainedMp ), m_fSpentMp( rhs_.m_fSpentMp ), m_fBeforeNowHp( rhs_.m_fBeforeNowHp ), m_fBeforeNowMp( rhs_.m_fBeforeNowMp )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 #ifdef FIX_LIMITED_MANA_MANAGEMENT
 		,m_fAddMaxMP( rhs_.m_fAddMaxMP )
 #endif //FIX_LIMITED_MANA_MANAGEMENT
@@ -202,6 +208,10 @@ public:
 	{
 		if ( NULL != m_pHpGage )
 		{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+			/// June 32081260: the HP before the change is kept
+			m_fBeforeNowHp = m_pHpGage->fNow;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 			if ( 0 > fNowHp_ )
 				m_pHpGage->fNow = fNowHp_;
 			else if ( fNowHp_ > GetMaxHp() )
@@ -254,6 +264,31 @@ public:
 	////////////////// Mp °ü·Ã Get/Set ///////////////////////////////////////////
 	////// NowMp
 	float			GetNowMp() const { return ( NULL != m_pMpGage ? m_pMpGage->fNow : 0.0f );	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+	/// June 322b3010 ( vslot 8 ): bTrackMp_ adds the change to the MP gained / spent tallies
+	void			SetNowMp( const float fNowMp_, const bool bTrackMp_ = false, const bool bSkip_ = false )
+	{
+		if ( true == bSkip_ || NULL == m_pMpGage )
+			return;
+
+		m_fBeforeNowMp = m_pMpGage->fNow;
+		if ( 0 > fNowMp_ )
+			m_pMpGage->fNow = fNowMp_;
+		else if ( fNowMp_ > GetMaxMp() )
+			m_pMpGage->fNow = GetMaxMp();
+		else
+			m_pMpGage->fNow = fNowMp_;
+
+		if ( true == bTrackMp_ )
+		{
+			const float fChangeOfNowMp = m_pMpGage->fNow - m_fBeforeNowMp;
+			if ( 0.f < fChangeOfNowMp )
+				m_fGainedMp += fChangeOfNowMp;
+			else if ( 0.f > fChangeOfNowMp )
+				m_fSpentMp -= fChangeOfNowMp;
+		}
+	}
+#else
 	void			SetNowMp( const float fNowMp_ )
 	{
 		if ( NULL != m_pMpGage )
@@ -266,10 +301,33 @@ public:
 				m_pMpGage->fNow = fNowMp_;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	void			RandomMissionMpSpent( float fChangeOfNowMp_ );	/// X2RandomMission.cpp ( June 322b33d0 @322b3492 )
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+	/// June 322b33d0 ( vslot 0xc ): bTrackMp_ tallies the change and reports a spend to the random mission
+	void			UpNowMp( const float fChangeOfNowMp_, const bool bTrackMp_ = false, const bool bSkip_ = false )
+	{
+		if ( true == bSkip_ || NULL == m_pMpGage )
+			return;
+
+		m_fBeforeNowMp = m_pMpGage->fNow;
+		m_pMpGage->Increase( fChangeOfNowMp_ );
+		if ( true != bTrackMp_ )
+			return;
+
+		const float fChangeOfNowMp = m_pMpGage->fNow - m_fBeforeNowMp;
+		if ( 0.f < fChangeOfNowMp )
+			m_fGainedMp += fChangeOfNowMp;
+		else if ( 0.f > fChangeOfNowMp )
+			m_fSpentMp -= fChangeOfNowMp;
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		RandomMissionMpSpent( fChangeOfNowMp_ );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	}
+#else
 	void			UpNowMp( const float fChangeOfNowMp_ )
 	{
 		if ( NULL != m_pMpGage )
@@ -280,6 +338,7 @@ public:
 			RandomMissionMpSpent( fChangeOfNowMp_ );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 	////// MaxMp
 	float			GetMaxMp() const { return ( NULL != m_pMpGage ? m_pMpGage->fMax : 0.0f ); }
@@ -421,7 +480,11 @@ public:
 	void			AddMPFactor( const float fFactor_, const float fTime_ ) { m_pMpGage->AddFactor( fFactor_, fTime_ ); }
 	void			ClearMPFactor() { m_pMpGage->ClearFactor(); }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+	bool			FlushMp( const float fFlushMp_, const bool bTrackMp_ = false );	/// June 32a31910 ( vslot 0x2c )
+#else
 	bool			FlushMp( const float fFlushMp_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 	// ¿ÀÇöºó // ¿¤¸®½Ã½º ¼¶¸ê ±âÆø ±¸ÇöÀ» À§ÇØ °¡»óÇÔ¼ö·Î º¯°æ
 	virtual bool	DamageFlushMp();
@@ -528,6 +591,12 @@ private:
 	bool					m_bHpRelativeChangeRate;	/// NPC Áß¿¡ ??
 #endif HP_RELATIVE_CHANGE_RATE
 	bool					m_bUpdateMpPoint;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+	float					m_fGainedMp;		/// June +0x100: MP gained through tracked changes
+	float					m_fSpentMp;			/// June +0x104: MP spent through tracked changes
+	float					m_fBeforeNowHp;		/// June +0x108
+	float					m_fBeforeNowMp;		/// June +0x10c
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 #ifdef FIX_LIMITED_MANA_MANAGEMENT
 	//¿ÀÇöºó//2013-01-23 //

@@ -1132,11 +1132,15 @@ class CX2Game : public CKTDXStage
 		//{{ JHKang / 강정훈 / 2011.7.103 / 지정된 범위(min - max) 추가 락온
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 #ifdef	NEW_CHARACTER_CHUNG
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
+		UidType						GetLockOnNearstTargetInRange( CX2Room::TEAM_NUM eTeamNum_, IN const D3DXVECTOR3& vMyPos_, IN const D3DXVECTOR2& vRange_, OUT bool& bUserUnit_, CX2DamageEffect::LockOnData* pLockOnData_ = NULL );	/// June 322d7670
+#else
 		UidType						GetLockOnNearstTargetInRange( CX2Room::TEAM_NUM eTeamNum_, IN const D3DXVECTOR3& vMyPos_, IN D3DXVECTOR2& vRange_, OUT bool& bUserUnit_ 
 	#ifdef BALANCE_DEADLY_CHASER_20130214
 																, bool bIsNotTargetPreLockOnTarget = false
 	#endif //BALANCE_DEADLY_CHASER_20130214
 																);
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LOCK_ON_IN_RANGE
 #endif	NEW_CHARACTER_CHUNG
 #endif
 		//}}

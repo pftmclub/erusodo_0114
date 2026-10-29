@@ -541,6 +541,13 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_OPHELIA                      = 413,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-29 // june-march-divergence Phase D1-1 (JUNE_MARCH_DIVERGENCE_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI names the effect-set displayer's awakening test spells
+	BTI_ARA_FIRST_HYPER_MODE              = 660,
+	BTI_ARA_SECOND_HYPER_MODE             = 661,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID

@@ -2307,6 +2307,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void						SetShadow( const WCHAR* pTexName, float fSize );
 
 		virtual bool				IsFullHyperMode() const { return false; }		/// 3각성인가?
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
+		virtual bool				IsBerserkByChance() { return false; }	/// June unit vslot 0xa4, base 31e4c550 ( NPCs too )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
 		virtual void				SetFullHyperMode( const bool bFullHyperMode_ ) {}
 
 		virtual void				SetHyperModeCount( int i )	= NULL;
@@ -2400,7 +2403,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		bool						GetEnableHPRelativeChangeRate() const { return GetGageData()->GetEnableHPRelativeChangeRate(); }
 		void						SetEnableHPRelativeChangeRate( const bool bHpRelativeChangeRate_ ) { GetGageData()->SetEnableHPRelativeChangeRate( bHpRelativeChangeRate_ ); }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		bool						FlushMp( const float fFlushMp_ )	{ return GetGageData()->FlushMp( fFlushMp_, IsMyUnit() ); }	/// June 3208dc70
+#else
 		bool						FlushMp( const float fFlushMp_ )	{ return GetGageData()->FlushMp( fFlushMp_ ); }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 		bool						DamageFlushMp() { return GetGageData()->DamageFlushMp(); }
 		bool						FlushForceDown() { return GetGageData()->FlushForceDown(); }
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION_ANALYSIS
@@ -2437,7 +2444,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #else
 		void UpNowHp( const float hpIncrement, const float hpMinimum = 0.f ) { GetGageData()->UpNowHp( hpIncrement, hpMinimum ); }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		void UpNowMp( const float mpIncrement ) { GetGageData()->UpNowMp( mpIncrement, true ); }	/// June 3208dd00
+#else
 		void UpNowMp( const float mpIncrement ) { GetGageData()->UpNowMp( mpIncrement ); }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 		void UpNowSoul( const float soulIncrement ) { GetGageData()->UpNowSoul( soulIncrement ); }
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
@@ -2446,7 +2457,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #else
 		void SetNowHp( float fHPNow );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		void SetNowMp( float fMPNow, bool bTrackMp = false )	{ GetGageData()->SetNowMp( fMPNow, bTrackMp ); }	/// June 3208dd20
+#else
 		void SetNowMp( float fMPNow )			{ GetGageData()->SetNowMp( fMPNow ); }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 		float GetMaxSoul() const { return GetGageData()->GetMaxSoul(); }
 		void SetMaxSoul( const float maxSoul ) { GetGageData()->SetMaxSoul( maxSoul ); }

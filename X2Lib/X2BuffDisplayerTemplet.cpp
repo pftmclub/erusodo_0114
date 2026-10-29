@@ -420,6 +420,9 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 			return;
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
+	bool bAwakeningEffectSet = false;	/// June 32eb9c70 [esp+0x17]
+#endif SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
 	if ( NULL != g_pX2Game )
 	{
 		const UINT uiAccumulationLimit = pBuffTemplet_->GetAccumulationLimit();
@@ -457,6 +460,26 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 						g_pX2Game->GetEffectSet()->StopEffectSet( m_vecHandleEffectSet[0] );
 				}
 #endif // BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
+				switch( pBuffTemplet_->GetBuffTempletID() )
+				{
+				case BTI_ARA_FULL_HYPER_MODE:
+				case BTI_FORMATION_MODE:
+				case BTI_ARA_FIRST_HYPER_MODE:
+				case BTI_ARA_SECOND_HYPER_MODE:
+				case BTI_TRANSCENDENTAL_HYPER_MODE:
+				case BTI_TRANSCENDENTAL_FORMATION_MODE:
+				case BTI_BUFF_HYPER_MODE_AIN_1ST:
+				case BTI_BUFF_HYPER_MODE_AIN_2ND:
+				case BTI_BUFF_HYPER_MODE_AIN_3RD:
+					/// stand-in: June then plays an equipped item's own set when it has one (user +0x867c), not ported
+					bAwakeningEffectSet = true;
+					break;
+
+				default:
+					break;
+				}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
 				m_vecHandleEffectSet[0] =
 					g_pX2Game->GetEffectSet()->PlayEffectSet( m_vecWstrEffectSetName[0], pGameUnit_,
 					NULL, ( 0 < pGameUnit_->GetRemainHyperModeTime() ), pGameUnit_->GetPowerRate() );
@@ -475,7 +498,12 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 			pCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetCreatorUID() ) );
 		else
 			pCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetCreatorUID() );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
+		/// June @32eba1f8: an awakening set skips the creator test and is never dimmed
+		const BYTE byCreatorCondition = ( true == bAwakeningEffectSet ) ? static_cast<BYTE>( CKTDXApp::AEACBO_NOT_APPLY ) : g_pX2Game->GetEffectAlphaCondition( pCreatorGameUnit );
+#else
 		const BYTE byCreatorCondition = g_pX2Game->GetEffectAlphaCondition( pCreatorGameUnit );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_START_DISPLAYER
 
 		BOOST_FOREACH( CX2EffectSet::Handle& hHandleTag, m_vecHandleEffectSet )
 		{
