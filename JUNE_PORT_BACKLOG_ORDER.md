@@ -551,6 +551,10 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   that `CKTDGGFXManager` already carries (`openUI`, `ShowUI`, `HideUI`, `loadUserWidget`, `unloadWidget`, `showOkPopup`, `changeCharacter`, `clearFocus`, ...): June uses 13 adapter / callback pairs and about 39 `DW_*` wrappers,
   none ported (`june2017_re/g0_gfx_map.tsv`, funcmap `GFx G0` / `GFx G2`). The runtime pieces a screen needs are there: loader, kom-first opener, font config "US", data bindings (G3's wrapper), listener / adapter table, `SimpleWidgetPlayer`.
   The IME text field stand-in (id 0) and the resize path (DXUT reset) are G2's placeholders for the first screen that needs them.
+  **Bingo-quest board (june-march-divergence D1-4 review, 2026-10-30):** the custom-event manager `32696fa0` holds the board's quest set `+0x510`
+  (filled by the ACKs 0x792 / 0x794; REQ 0x791 once per field entry, REQ 0x793 while code event 2249 is on and the level is above 9), the 25 cells
+  `+0x520`, a count `+0x530` and ten line bools `+0x534`, drawn by `3267f280` (`BingoBoard_Target` / `BingoBoard_Win`), button `DLG_UI_Bingo_Quest_Btn.lua`.
+  Board quests leave the quest list and quick-quest window and get the in-game progress line (`IsBingoQuest` returns false; funcmap `3267b440`). Needs the emulator's two ACKs.
   **Correction and move (2026-10-21):** the result screens are their own widget files in `data194`, not part of `main.gfx`:
   `dungeon_result.gfx`, `PVE_result.gfx` and `BATTLE_PVP_result.gfx`, each with 13 `.dds`, all staged by june-gfx GA. The **dungeon**
   result (`CX2UIDungeonResultAdapter` `32eea7e0`, UI 8) moved to Stage 29. The PvE result (`UIPvEResult`, `XS_PVE_RESULT` `324ab1c0`)

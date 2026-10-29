@@ -10689,7 +10689,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-29
-// Description: june-march-divergence D1-3: the sword enchant particles also cover June's 30 combined enchant types ( triple, double-double, quadra master with the Property04 set; June 3228cb30 / 3226ecc0 ). Revert: undefine the flag.
+// Description: june-march-divergence D1-3 (bow: D1-4 review): the sword and bow enchant particles also cover June's 30 combined enchant types ( triple, double-double, quadra master with the Property04 set; June sword 3228cb30 / 3226ecc0, bow 3228cfc0 / 3226f1c0 ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 //////////////////////////////////////////////////////////////////////////
 

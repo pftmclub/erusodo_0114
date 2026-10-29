@@ -1285,6 +1285,56 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** quick-quest window in a village with 2+ ongoing quests: titles, sub-quest lines and the Complete button as before;
   a story quest's title is red; quest list colours grey from +8 levels in the text form too.
 
+### D1-4 review Done (2026-10-30, Opus 5.5; reviews `9bd17f2e`, `107270e7`, `bdac0eb3`, `fd05f930`, `aa6d0727`, `ba30bb8a`, `a2119e5c`, `d831b6c3`, `2c4f7e85`)
+
+**Verdict: D1-3, D1-3b-h, D1-4 and D1-4b pass; one unported twin fixed under `ENCHANT_PARTICLE`, one helper renamed, one missed row added to D1-5.**
+- **Finding, fixed (`ENCHANT_PARTICLE`):** the Bow pair diverges as the Sword pair did. June `3228cfc0` / `3226f1c0` emulated (unicorn, values 0-6999;
+  the harness reproduces D1-3's Sword result): 66 values each, the two agree, and the value -> group map is the Sword map (D1-3's port equals June on
+  all 66) with one `Weapon_Lire_*` name per group; quadra masters -> `Weapon_Lire_Property04_M_Fire` / `_Ice` / `_Poison` (in March's
+  `GameMajorParticle44.txt`). Both Bow functions now carry the Sword port's case blocks (insert-only, 106 lines). Funcmap 4811's "same names as
+  March" covered March's 36 values only.
+- **Finding, renamed:** `+0x510` of `32696fa0` is June's bingo-quest board, not a friendship list. Fillers `32681130` / `32681280` are the ACK handlers of
+  events 0x792 / 0x794 (dispatcher `32694ba0`; REQ 0x791 once per field entry from `3267b120`, REQ 0x793 from `3267d8b0` while code event 2249 is on and
+  the level is above 9); 0x794 also fills the 25 cells `+0x520`, `+0x530` and ten line bools, drawn by `3267f280` (`BingoBoard_Target` / `BingoBoard_Win`).
+  `IsFriendshipQuest` -> `IsBingoQuest` (and its counter) in `X2UIQuestNew.cpp`; behaviour unchanged (empty offline). Event -> backlog Stage 9 bullet.
+- **Lead, routed to D1-5 (tsv 373):** June's `ScaleHead` is user vslot `0x66c` `31fdc070( head, face )`: `Bip01_Head`, or `Bip01_Spine1` for an SD one-piece
+  avatar (`m_bSDOnePieceAvatar`, live since D1-3d), then `31fd64a0( bone, head, face, body )`; `SetSpecificValueByBuffTempletID` calls it at `@3204c5eb` /
+  `@3204c676` / `@3204ca2e`. A divergent twin the census missed, so a D1 row, not Stage 2; D1-5 kickoff extended. Funcmap 6123 / 6139 corrected by a new row.
+- **Review points confirmed:** weapon `Process` `32292610` gives Ara the three-handle 5 / 6 / 9 test like every class (the 7 / 8 test is viewer-only, kept
+  by D1-3c); `31ee1f40` scales `Dummy2_Lhand` with the `Dummy1_Lhand` lookup's output (`local_94`) and the pelvis vector is the constant ( 1, 1, 1 );
+  `+0x584` is Lu/Ciel's (filled from the owner templet's `m_MinorUnit*` item ids, which only Lu/Ciel's `UnitTemplet.lua` rows carry); `RestoreHead`:
+  `SetFrameScale` writes `m_vScaleRel` outright, so the reform's full pass returns the head to its reform scale as March's restore + reform did;
+  `CX2GUUser::CanShowWeaponEffect`'s riding test = `321f8a40`. `CX2OfflineInventory`'s count keeps March's server-side exclusions: it models the
+  server, whose June body is not available; the client count is June's (`ITEM_COUNT_BY_TID`). Stays.
+- **Spot check vs June:** `GetQuestColor` `323223b0` (types 1 / 2 / 4 green = `QT_EVENT` / `QT_CHANGE_JOB` / `QT_PCBANG`; grey 0.7058 above gap 7; yellow 0.8
+  from -2; constants read from the PE).
+- **Correction to D1-3 / D1-3b:** `SERV_BALANCE_FINALITY_SKILL_EVENT` is defined (`KncWX2Server/Common/OnlyGlobal/ServerDefine/ServerDefine_Global.h:1238`,
+  `cl /EP` ON), so March's rate step and the MP-rate sites were already live; D1-3b's widened `#if A || B` guards are no-ops here. No code change.
+- **Live branches:** `cl /EP` probe after `stdafx.h` (US_SERVICE X2Lib defines), 84 macros / 82 conditions over the 182 hunks these commits left: every
+  `JUNE_DIVERGE_*` and enclosing flag ON (`ADD_UPGRADE_WEAPON_PARTICLE` via `Always.h:10784`). Compiled out: only `GetHenirDungeonIcnoDesc`'s challenge
+  count under `SERV_HENIR_RENEWAL_2013` (the D1-4 stand-in, `#else` = 0) and `AddBoneInfo`'s `TableBind` under `#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING`
+  (March's pattern). 12 `VioletMage` lines in `JUNE_ENUM_NAMES`'s dead `#else` are the March numbers.
+- **Bookkeeping:** `MODS.md` entries for every phase, every flag named, revert lines; `JUNE_BUGS.md` 470-479 present, no gap; `guards.tsv` 9 rows, each with
+  its `stand-in:` comment at the cited site; tsv rows 261 / 262 / 268-270 / 274 / 275 now annotated. This review: MODS D1-3 / D1-4 lines, funcmap x3
+  `(Diverge D1-4 review)`, tsv 373, Stage 9 bullet, D1-5 kickoff. No JUNE_BUGS row, no guard.
+- **Hygiene (phase commits):** `flagcheck <FLAG> --range <c>^..<c>` for all 33 flags: PASS for every single-file flag; shared-file flags PASS `--with`
+  their siblings (SKILL_COOL_TIME_LEFT + SKILL_TREE_NOT_MY_UNIT 2 PASS; UPDATE_EQUIP_COLLISION_DATA + RESTORE_HEAD 2 PASS, 1 DEFINE; HENIR_ICON_DESC +
+  LOCALMAP_QUEST_DESC + NEED_CLEAR_DUNGEON on `X2LocalMapUI.cpp` 1 PASS; COMEBACK_QUEST + QUEST_NAVI + QUEST_REWARD_SLOT and NEED_CLEAR_DUNGEON +
+  QUEST_COLOR PASS). Non-PASS rows, all explained: ERROR = the compound `#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( ..._SKILL_COOL_TIME_RATE )`
+  at `X2Define.h:380`, `X2Unit.cpp:5787`, `X2Unit.h:1247` (D1-3b; carried into later `X2Unit.h` ranges) and the `#error` guard `Always.h:10820`
+  (NOT_RENDERING_EQUIP needs DIVISION_ITEM_GROUP), so UPGRADE_WEAPON_PARTICLE / SKILL_COOL_TIME_RATE / DIVISION_ITEM_GROUP / NOT_RENDERING_EQUIP / UNIT_REFORM
+  print RESULT FAIL on those rows only. Deleted lines: the three `#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT` lines those guards replaced. One EOL mismatch
+  (`X2UnitViewerUI.cpp`, D1-3f's closing `#endif`, as its Done note says). OTHER rows are sibling flags. `git log -S`: extra hits are docs-only commits.
+  The bare `#define ADD_UPGRADE_WEAPON_PARTICLE` (`Always.h:10784`) sits inside `#ifdef ..._UPGRADE_WEAPON_PARTICLE`.
+- **Hygiene (this review):** `ENCHANT_PARTICLE --worktree --files X2Lib/X2GameUnit.cpp KTDXLIB/Always.h`: 1 PASS, 1 DEFINE, 0 FAIL, 1 deleted (the flag's
+  own description line, reworded), RESULT PASS. `JUNE_QUEST_UI --with ..._QUEST_NAVI ..._QUICK_QUEST --worktree --files X2Lib/X2UIQuestNew.cpp`: 1 PASS,
+  7 deleted (the renamed lines, all inside those blocks), 0 encoding change, RESULT PASS (its 15 token-less `#else`/`#endif` are older lines). `enumscan
+  --check` on both `.cpp`: 0 A/B rows.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,845,248 B, dated 2026-10-30 05:03:15, md5 b173beb3977a0ea14229a7b24f57f00e, equal to X2/US_SERVICE/x2.exe
+  (2026-10-30 05:03:08); built at main 62cd6f23 + 3 uncommitted code file(s).` `EXESTR OK: 3 of 3 found in X2_offline.exe, 25845248 B, dated 2026-10-30
+  05:03:15, md5 b173beb3977a0ea14229a7b24f57f00e` (`Weapon_Lire_Property04_M_Fire` / `_Ice` / `_Poison`, wide).
+- **Smoke (plan end):** add to D1-3's line: Lire with a triple-attribute or quadra-master bow shows the enchant glow on the bow.
+
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 
 **Depends on:** D1 review. `tools/junediverge.py`:

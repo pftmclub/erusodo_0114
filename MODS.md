@@ -5394,7 +5394,7 @@ Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#els
 - `SERV_IRUHADEV_JUNE_DIVERGE_COMEBACK_QUEST`: quests 208020-208060 are requested only by a comeback user (June `323d2b40`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON`: the local map's quest-dungeon marks follow the Hero mode switch (June `3232db00`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR`: a quest title greys from 8 levels above its fair level, not 6 (June `323223b0`).
-- `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI`: the quest list scrollbar leaves NPC-friendship quests out (none until Stage 18; June `323c8da0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI`: the quest list scrollbar leaves bingo-board quests out (`IsBingoQuest`, renamed from `IsFriendshipQuest` by the D1-4 review; none until the bingo event, Stage 9; June `323c8da0`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT`: a guild quest's window leaves the fixed-reward slots alone (June `323d5160`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST` (D1-4b): the quick-quest window fills its slots as June does: completed / chain-waiting story quests take no slot, a quest whose one sub-quest group has a together-clear row shows only those rows, story quest titles are red, custom-event quests are skipped (none here), each Complete button's alpha is reset (June `323dd640` / `323da7a0`). `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR` also covers `GetQuestColorString` (June `32323000`, grey from 8 levels above).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
@@ -5402,7 +5402,7 @@ Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#els
 ### One function per name: equipment, riding pet, items, skill tree (june-march-divergence D1-3, 2026-10-29)
 
 Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3 Done"; rows of `tools/data/june_march_divergent.tsv`.
-- `SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE`: the sword enchant particles (`InitEnchantParticleForSword`, `AppendEnchantParticleForSwordToDeviceList`) also cover June's 30 combined enchant types; the quadra masters use the `Property04` set (June `3228cb30` / `3226ecc0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE`: the sword enchant particles (`InitEnchantParticleForSword`, `AppendEnchantParticleForSwordToDeviceList`) also cover June's 30 combined enchant types; the quadra masters use the `Property04` set (June `3228cb30` / `3226ecc0`). The D1-4 review gave the bow pair (`InitEnchantParticleForBow`, `AppendEnchantParticleForBowToDeviceList`) the same cases with `Weapon_Lire_*` names (June `3228cfc0` / `3226f1c0`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID`: `CX2Inventory::GetNumItemByTID` counts shared-bank items, leaves June's `ST_COMMON_BANK` (registered, 16) out with the bank types, and takes June's two extra arguments (June `32869b80`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD`: an NPC's `FORCE_CINEMATIC_STATE` is matched by keyword in the dungeon input lock and the boss intro (June `3275aaf0` = `GetStateIDByKeyword`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS`: the riding pet stores the saddle relative to the rider; the user's and the square unit's draw add the rider position (June `32d2d7e0` and its four readers).

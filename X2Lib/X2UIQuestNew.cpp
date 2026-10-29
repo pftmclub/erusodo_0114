@@ -41,8 +41,8 @@ namespace _CONST_UIQUESTNEW_HELPERS_
 // small helpers
 // ---------------------------------------------------------------------------------------------------------------------
 
-/// June 32696fa0 + 3267b440: "is this quest id in the NPC friendship manager's map". The manager is Stage 18; an empty manager says no.
-static bool IsFriendshipQuest( int /*iQuestID*/ )
+/// June 32696fa0 + 3267b440: is this quest on the bingo-quest board ( set +0x510 from ACKs 0x792 / 0x794, code event 2249; Stage 9 ); offline has no board.
+static bool IsBingoQuest( int /*iQuestID*/ )
 {
 	return false;
 }
@@ -3351,13 +3351,13 @@ void CX2UIQuestNew::UpdateNavi()
 		pNavi->SetShow(true);
 
 		D3DXVECTOR2 vPos( 0.0f, (float)m_iTopQuestSlotIndex / ( m_iSizeQuestInfoList - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage ) * 0.68f );
-		int iFriendshipQuestCount = 0;
+		int iBingoQuestCount = 0;
 		int iTopShownIndex = -1;
 		bool bTopFound = false;
 		for( UINT i = 0; i < m_vecQuestInfoList.size(); ++i )
 		{
-			if( true == IsFriendshipQuest( m_vecQuestInfoList[i].m_iID ) )
-				++iFriendshipQuestCount;
+			if( true == IsBingoQuest( m_vecQuestInfoList[i].m_iID ) )
+				++iBingoQuestCount;
 			else if( false == bTopFound )
 				++iTopShownIndex;
 
@@ -3365,7 +3365,7 @@ void CX2UIQuestNew::UpdateNavi()
 				bTopFound = true;
 		}
 
-		const UINT uiShownCount = (UINT)( m_iSizeQuestInfoList - iFriendshipQuestCount );
+		const UINT uiShownCount = (UINT)( m_iSizeQuestInfoList - iBingoQuestCount );
 		if( true == bTopFound && uiShownCount != _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
 			vPos.y = (float)iTopShownIndex / (float)( uiShownCount - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage ) * 0.68f;
 
@@ -8754,7 +8754,7 @@ void CX2UIQuestNew::UpdateQuickQuestDLG(bool bResetExpand /*= false*/, bool bUpd
 		int iSlotIndex = 0;
 		for( UINT i = 0; i < m_vecQuickQuest.size(); ++i )
 		{
-			if( true == IsFriendshipQuest( m_vecQuickQuest[i].m_iID ) || true == IsChallengeMissionQuest( m_vecQuickQuest[i].m_iID ) )
+			if( true == IsBingoQuest( m_vecQuickQuest[i].m_iID ) || true == IsChallengeMissionQuest( m_vecQuickQuest[i].m_iID ) )
 				continue;
 
 			// stand-in: DI_EVENT_2017_FOOLSDAY / _TREASURE games ( g_pX2Game +0xbb8 / +0xbbc ) cap at 2 slots via 323db830 / 323dc470; neither manager exists here

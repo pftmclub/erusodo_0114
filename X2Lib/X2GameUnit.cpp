@@ -10542,6 +10542,11 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_Fire" );
 		} break;
@@ -10551,6 +10556,14 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_M_Fire" );
 		} break;
@@ -10562,6 +10575,11 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_Ice" );
 		} break;
@@ -10571,6 +10589,14 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_M_Ice" );
 		} break;
@@ -10582,6 +10608,11 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_Poison" );
 		} break;
@@ -10591,9 +10622,31 @@ void CX2GameUnit::Weapon::AppendEnchantParticleForBowToDeviceList( CKTDXDeviceDa
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property01_M_Poison" );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property04_M_Fire" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property04_M_Ice" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Lire_Property04_M_Poison" );
+		} break;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 	}
 }
 
@@ -10619,6 +10672,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_Fire", 
 				NULL, NULL );
@@ -10629,6 +10687,14 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_M_Fire", 
 				NULL, NULL );
@@ -10641,6 +10707,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_Ice", 
 				NULL, NULL );
@@ -10651,6 +10722,14 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_M_Ice", 
 				NULL, NULL );
@@ -10663,6 +10742,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_Poison", 
 				NULL, NULL );
@@ -10673,10 +10757,32 @@ void CX2GameUnit::Weapon::InitEnchantParticleForBow()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Lire_Property01_M_Poison", 
 				NULL, NULL );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Lire_Property04_M_Fire", NULL, NULL );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Lire_Property04_M_Ice", NULL, NULL );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Lire_Property04_M_Poison", NULL, NULL );
+		} break;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 	}
 }
 
