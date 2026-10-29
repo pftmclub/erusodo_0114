@@ -574,10 +574,16 @@ public:
 		void StartFormationEffect();
 
 #ifdef SERV_EVE_BATTLE_SERAPH
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+		void AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector, float _fVelocity,
+							float _fLaserPropagateTime = 0.3f, float _fLaserWidthScale = 1.f, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
+							wstring InductionDamageEffectName = L"", bool _bApplyLaserRangePassive = true, float _fRadiusScale = 1.f, wstring InductionLaserName = L"", wstring InductionLaserSpecialName = L"" );	/// June 32980000
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		void AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3&_vDirVector,
 							   float _fVelocity, float _fLaserPropagateTime = 0.3f, float _fLaserWidthScale = 1.f, 
 							   wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"", wstring InductionDamageEffectName = L"",
 							   bool _bApplyLaserRangePassive = true,  float _fRadiusScale = 1.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 		void AddEffectToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring AmplifyDamageEffectName = L"",
 								wstring SpectrumDamageEffectName = L"", wstring InductionDamageEffectName = L"", wstring FusionDamageEffectName = L"" );
@@ -628,9 +634,6 @@ public:
 		void DestroyGigaPlaneAndCrystalEffect();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		/// June character port Phase CH1d: inert June_* copies of the system methods the Z / X combos call
-		void June_AddLaserToSystem( CX2DamageEffect::CEffect* _pDamageEffect, wstring _TraceBone, D3DXVECTOR3& _vLaserStartPos, D3DXVECTOR3& _vDirVector, float _fVelocity,
-								float _fLaserPropagateTime = 0.3f, float _fLaserWidthScale = 1.f, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
-								wstring InductionDamageEffectName = L"", bool _bApplyLaserRangePassive = true, float _fRadiusScale = 1.f, wstring InductionLaserName = L"", wstring InductionLaserSpecialName = L"" );	/// June 32980000
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		void AddEffectSetToSystem( CX2EffectSet::Handle hEffectSet_, wstring AmplifyDamageEffectName = L"", wstring SpectrumDamageEffectName = L"",
@@ -1269,11 +1272,7 @@ public:
 
 	void		ChangePlaneForamtionSystem( const PlaneFormationType ePlaneFormatinoSystem_ );
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
-	virtual int GetComboZStateID() const { return June_GetComboZStateID(); }	/// June 329cf210
-#else SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	virtual int GetComboZStateID() const { return ENSI_COMBO_Z; }
-#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 	virtual int GetComboXStateID() const { return ENSI_COMBO_X; }
 
 #ifdef ADD_EVE_SYSTEM_2014		// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
@@ -1467,7 +1466,11 @@ protected:
 
 	void				CancelComboWhenChangedDirection( int iFlagCount );
 	float				CalcInvisibilityAlphaValue();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+	void				SetSelfDestructSummonedNPC( const int iNPCID_ = CX2UnitManager::NUI_NONE );
+#else SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	void				SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID = CX2UnitManager::NUI_NONE );
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
 	//{{ kimhc // 2010.2.10 //	이브 스피어 버스트가 시전 됬는지 식별 값
 #ifdef	EVE_SECOND_CLASS_CHANGE
@@ -2748,7 +2751,6 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
 	friend class CX2GUUser;								/// JuneResetOnSummonEnd calls the member below
 #endif SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
-	void June_SetSelfDestructSummonedNPC( const int iNPCID_ );	/// June 3299d140
 	void ClearGuardAndSummon();					/// June 329ae670
 
 	void ENSI_DAMAGE_GROGGY_EventProcess();		/// June 329cc160 ( thunk, vslot 0x5e8 )
@@ -2800,8 +2802,8 @@ protected:
 	void ENSI_ECN_COMBO_ZZX_END_EventProcess();		/// June 32975eb0
 	/// June character port Phase CH1h: inert June_* members of Eve's Architecture states; nothing calls them until CH1 wires them in.
 	void ENSI_DASH_COMBO_ZX_Start();					/// June 329662c0
-	void June_ENSI_DASH_COMBO_ZX_FrameMove();				/// June 32986d30
-	void June_ENSI_DASH_COMBO_ZX_EventProcess();			/// June 3296df00
+	void ENSI_DASH_COMBO_ZX_FrameMove();				/// June 32986d30
+	void ENSI_DASH_COMBO_ZX_EventProcess();			/// June 3296df00
 	void ENSI_DASH_COMBO_ZX_End();						/// June 329662d0
 	/// June character port Phase CH1i: inert June_* members of Eve's Code: Empress states; nothing calls them until CH1 wires them in.
 	void ENSI_ECE_COMBO_ZZX_Init();					/// June 32968720
@@ -2844,12 +2846,9 @@ protected:
 	bool		m_bJune89fc;							/// June CX2GUUser +0x89fc ( a protected bool; set by the Aura Add-ATK Accel upgrade, 329ce7b0 )
 	float		m_fJuneSpecializationA;					/// June CX2GUUser +0x6c50 ( skill specialization A; the maneuver gauge gain takes ( 1 + it ); 0 = absent, as the Nasod Core block reads it )
 
-	bool		June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June 3229a470 ( CX2GUUser vslot 0x240 )
-	bool		June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
 	CX2GUNPC*	FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
 	float		GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	float		June_GetAdditionalAccelBuffTime() const;										/// June 32978370 ( vslot 0x7ac )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 public:
@@ -2860,7 +2859,6 @@ public:
 	void		SummonOpenMindAttackResult( CX2GUNPC* pSummon_ );		/// June 3275a120, the owner half
 protected:
 	int			GetLiveAllySummonCount() const;		/// June 3299b2e0
-	CX2BuffFactorPtr	June_GetSkillBuffFactorPtr( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ ) const;	/// June 32028af0 ( CX2GUUser vslot 0x238 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 	void		ENSI_EVE_RECOVERY_StateStart();		/// June 329b57a0
@@ -2868,10 +2866,8 @@ protected:
 	void		RecoverSummonedNPC( const int iNPCID_ );	/// June 329b4860
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
-	void June_ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June 32973d30 ( vslot 0x3ac )
 	bool June_CanAllyRallyToMe( CX2GameUnit* pUnit_ );		/// June 329770d0 ( vslot 0x584, JuneCanAllyRallyToMe )
 	void June_SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ );	/// June 3297b4b0 ( vslot 0x56c, JuneSkillIconOverride )
-	int  June_GetComboZStateID() const;						/// June 329cf210 ( vslot 0x4b0 )
 	void ENSI_RIDING_HYPER_MODE_FrameMove();			/// June 329ac330
 	void UpdateEveRecoveryTooltip();					/// June 329c3da0
 	void Destructor();									/// June 329aece0 ( body of the scalar deleting destructor 329cf670 )
@@ -2882,9 +2878,7 @@ protected:
 	void		SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
 	float		June_ShownSkillCoolTime( const float fValue_, const int iSkillID_ );	/// June 32977090 ( vslot 0x6a8, JuneShownSkillCoolTime )
 	float		June_SummonCriticalBonus( CX2GameUnit* pUnit_ );	/// June 32979a70 ( vslot 0x65c, JuneSummonCriticalBonus )
-	void		June_CallSummonedNPC( const int iNpcID_ );		/// June 3298c580 ( vslot 0x6ac = March's CallSummonedNPC )
 	void		GetOwnNasodSummonList( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
-	void		June_ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_, const UINT uiIndex_ );	/// June 329b7390 ( vslot 0x7b0 )
 
 	/// June character port Phase CH1l2: inert June_* members of Eve's Common* overrides 0x7c0-0x7ec except CommonFrameMove; nothing calls them until CH1
 	bool		IsBlock9c50ValueCPositive() const;	/// June 32976fb0
@@ -2900,7 +2894,6 @@ protected:
 	bool		m_abJune90d0[3];						/// June CX2GUUser +0x90d0 ( false )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
-	bool		June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32969300 ( vslot 0x7f4, step 509 )
 	bool		SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
 	void		SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 329693e0 ( vslot 0x7fc, step 511 )
 	void		SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32981130 ( vslot 0x800, step 512 )
@@ -2926,7 +2919,6 @@ protected:
 	int			m_iJune9c2c;							/// June +0x9c2c ( 0; the level of the queen's control buff stack )
 	clock_t		m_iJuneClock9c44;						/// June +0x9c44 ( clock() at the last parry, DoParrying 329b4060 writes it in CH1q; CommonFrameMove reads it for the Open Mind gauge floor )
 
-	void		June_EndElCrystalSystem( bool bEnergeticHeartEnd_ );	/// June 32994a10
 	int			FindOberonGuardNpcUid();			/// June 3299ad60
 	void		StartOberonGuardEffect( const int iNpcUid_ );	/// June 329ae6e0
 	void		OberonGuardFrameMove();			/// June 329ae9a0
@@ -2961,10 +2953,8 @@ protected:
 	void		SummonSurfaceCuting( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299b810 ( CH3b's 329ae4f0 calls it too )
 	/// June character port Phase CH2c: Electra's skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( const bool bUpgrade_ );
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_FrameMove() { ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( false ); }					/// June 329a5ee0
 	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_FrameMove() { ENSI_SA_EPR_PARTICLE_RAY_FrameMoveBody( true ); }			/// June 329a67b0
 	void		ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( const bool bUpgrade_ );
-	void		June_ENSI_SA_EPR_PARTICLE_RAY_EventProcess() { ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( false ); }			/// June 3297d3f0
 	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_EventProcess() { ENSI_SA_EPR_PARTICLE_RAY_EventProcessBody( true ); }	/// June 3297d730
 	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_StartFuture();	/// June 32967560
 	void		ENSI_SA_EPR_PARTICLE_RAY_UPGRADE_Start();		/// June 32973670
@@ -2972,8 +2962,6 @@ protected:
 	/// June character port Phase CH2c2: Sweep Rolling and Giga Stream ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	/// June character port Phase CH2a2: Eve's Exotic Gear skill states and the cut-in helper they call
 	void		ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( const bool bHyper_ );
-	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_FrameMove() { ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( false ); }			/// June 3298f220
-	void		June_ENSI_SA_ENS_ATOMIC_BLASTER_Hyper_FrameMove() { ENSI_SA_ENS_ATOMIC_BLASTER_FrameMoveBody( true ); }	/// June 3298f8f0
 	/// June character port Phase CH3a: Code: Nemesis skill states ( the rest are March's bodies, registered in June_SetEquippedSkillFuncHead )
 	void		ENSI_A_ECN_TESLA_SHOCK_Init();					/// June 32968810
 	void		ENSI_SA_ECN_PSYKER_KINESIS_Init();				/// June 32968ab0
@@ -2991,8 +2979,6 @@ protected:
 	void		ENSI_SA_EPP_ASSUALT_SPEAR_EventProcess();				/// June 32972540 / 32972670
 	void		SummonElectronicField( const int iKeyCode_, const D3DXVECTOR3& vPos_ );	/// June 3299ba70
 	void		ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( const bool bHyper_ );
-	void		June_ENSI_A_EEP_SPIT_FIRE_FrameMove() { ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( false ); }			/// June 3299ed30
-	void		June_ENSI_A_EEP_SPIT_FIRE_Hyper_FrameMove() { ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( true ); }	/// June 3299f060
 	void		ENSI_A_ECE_TESLA_SHOCK_Start();						/// June 3299a140
 	void		ENSI_SA_EEP_TESLA_FLARE_FrameMove();					/// June 3299a400
 	void		ENSI_A_EEP_SUMMON_TO_MIND_FrameMove();					/// June 329ae470
@@ -3021,7 +3007,7 @@ protected:
 	virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
 	/// June character port Phase CH1o2: the June slots that CH1o2 gave a base and a March call site
 #ifdef SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
-	virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ ) { June_ModifyFinalDamageByGameUnitType( pDamageData_, fAttackerPhysicDamage_, fAttackerMagicDamage_ ); }	/// June vslot 0x3ac
+	virtual void JuneModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );	/// June vslot 0x3ac
 #endif SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 	virtual void JuneSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ ) { June_SkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ ); }	/// June vslot 0x56c
