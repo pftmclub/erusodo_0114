@@ -4427,7 +4427,7 @@ void CX2Main::RegisterLuabind()
 		&CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID );
 
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
-	lua_tinker::class_def<CX2GameUnit>( L, "JuneBuffTestNewStat_LUA",	&CX2GameUnit::BuffTestNewStat_LUA );	/// June buff port Phase 5 console hook, DEBUG only
+	lua_tinker::class_def<CX2GameUnit>( L, "BuffTestNewStat_LUA",	&CX2GameUnit::BuffTestNewStat_LUA );	/// June buff port Phase 5 console hook, DEBUG only
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 
 #ifdef ADD_LIVE_CREATOR_FINALIZER
@@ -4970,7 +4970,7 @@ void CX2Main::RegisterLuabind()
 #endif SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
 //}}
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
-	lua_tinker::class_def<CX2GUUser>( L, "JuneBuffTestNewSkill_LUA",	&CX2GUUser::BuffTestNewSkill_LUA );	/// June buff port Phase 6 console hook, DEBUG only
+	lua_tinker::class_def<CX2GUUser>( L, "BuffTestNewSkill_LUA",	&CX2GUUser::BuffTestNewSkill_LUA );	/// June buff port Phase 6 console hook, DEBUG only
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 	lua_tinker::class_def<CX2GUUser>( L, "GetNowSpecialAttack",			&CX2GUUser::GetNowSpecialAttack );
 	lua_tinker::class_def<CX2GUUser>( L, "GetHoldSpecialAttack",		&CX2GUUser::GetHoldSpecialAttack );
@@ -5633,7 +5633,7 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::def( L, "IsRecentlyPlayedEventScene",	&GfxIsRecentlyPlayedEventScene_LUA );
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
-	lua_tinker::def( L, "GfxCutIn",					&GfxCutIn_LUA );	/// G4 debug: JuneGfxCutIn( "HQ_CutIn_Elsword_01" )
+	lua_tinker::def( L, "GfxCutIn",					&GfxCutIn_LUA );	/// G4 debug: GfxCutIn( "HQ_CutIn_Elsword_01" )
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 	lua_tinker::def( L, "ResultOpen",				&ResultOpen_LUA );	/// R1 debug: in a dungeon, opens the GFx result widget ( UI 8 ) and fills it from the result info

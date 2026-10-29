@@ -2140,7 +2140,7 @@ JunePlaceMenuPicture	PlaceMenuPicture	rename	X2Lib/X2StateMenu.cpp		SERV_IRUHADE
 JuneRemoveMenuSlot	RemoveMenuSlot	rename	X2Lib/X2StateMenu.cpp		SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT	3245a980			C4	free function
 JuneSetMenuOffset	SetMenuOffset	rename	X2Lib/X2StateMenu.cpp		SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT				C4	free function
 JuneSetMenuShowEnable	SetMenuShowEnable	rename	X2Lib/X2StateMenu.cpp		SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT				C4	free function
-JuneUpdateMenuPosition	UpdateMenuPosition	rename	X2Lib/X2StateMenu.cpp	CX2StateMenu	SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT	3245bb70			C4	member function
+JuneUpdateMenuPosition	UpdateMenuPosistion	merge	X2Lib/X2StateMenu.cpp	CX2StateMenu	SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT	3245bb70		C4 review: March's twin by funcmap 3245bb70 (March's own spelling); merged by hand	C4	member function
 JuneGetBonePos	GetBonePos	rename	X2Lib/X2TFieldNpc.cpp	CX2TFieldNpc	SERV_IRUHADEV_ELYSION_VILLAGE	321f2c10			C4	member function
 JUNE_NPC_MOTION_KEY	NPC_MOTION_KEY	class	X2Lib/X2TFieldNpc.h	CX2TFieldNpc	SERV_IRUHADEV_ELYSION_VILLAGE	325ca980			C4	class
 JuneEquipTitleTen	EquipTitleTen	rename	X2Lib/X2TitleManager.cpp	CX2TitleManager	SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE	327009b0			C4	member function

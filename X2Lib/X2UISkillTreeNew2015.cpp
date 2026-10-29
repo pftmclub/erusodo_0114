@@ -251,7 +251,7 @@ public:
 		{
 			m_bLoaded = true;
 			lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
-			lua_tinker::class_add<CX2SkillTypeColorTable>( L, "CX2JuneSkillTypeColorTable" );
+			lua_tinker::class_add<CX2SkillTypeColorTable>( L, "CX2SkillTypeColorTable" );
 			lua_tinker::class_def<CX2SkillTypeColorTable>( L, "AddSkillTypeColor", &CX2SkillTypeColorTable::AddSkillTypeColor_LUA );
 			lua_tinker::decl( L, "g_pSkillToolTipManager", this );
 			if ( false == g_pKTDXApp->LoadLuaTinker( L"SkillTypeColor.lua" ) )

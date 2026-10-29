@@ -5467,118 +5467,6 @@ void CX2StateMenu::PlaceMenuBadges()
 		PlaceMenuPicture( m_pDLGMenu, L"Story_New", vPos + vNewBadge );
 }
 
-void CX2StateMenu::UpdateMenuPosition()
-{
-	if( NULL == m_pDLGMenu )
-		return;
-
-	if( true == m_vecpButtonMainMenu.empty() )
-	{
-		for( int i = 0; i < JMS_COUNT; ++i )
-			m_vecpButtonMainMenu.push_back( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( s_awszJuneMenuSlot[i] ) ) );
-	}
-
-	if( NULL == g_pData || JMS_COUNT != (int) m_vecpButtonMainMenu.size() )
-		return;
-
-	float afSlotOffset[JMS_COUNT] = { 0.0f };
-
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], true );
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], true );
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], true );
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_WARP], true );
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], true );
-	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_STORYBOOK], true );
-
-	if( NULL != g_pData->GetGuildManager() && false == g_pData->GetGuildManager()->DidJoinGuild() )
-	{
-		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], false );
-		RemoveMenuSlot( afSlotOffset, JMS_GUILD );
-	}
-
-	if( ( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIPetList() && 0 == g_pData->GetUIManager()->GetUIPetList()->GetPetListSize() )
-		&& ( NULL != g_pData->GetPetManager() && NULL == g_pData->GetPetManager()->GetMyPet() )
-#ifdef RIDING_SYSTEM
-		&& ( NULL != CX2RidingPetManager::GetInstance() && false == CX2RidingPetManager::GetInstance()->GetHasRidingPet() )
-#endif //RIDING_SYSTEM
-		)
-	{
-		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], false );
-		RemoveMenuSlot( afSlotOffset, JMS_PET );
-	}
-
-	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-	{
-		int iUsedCP, iUsedSP;
-		g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.CalcUsedSPointAndCSPoint( iUsedSP, iUsedCP );
-		const int iTotalUsedSP = iUsedCP + iUsedSP;
-		const int iNewSP = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSPoint + g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iCSPoint;
-		if( iNewSP == 0 && iTotalUsedSP == 2 )
-		{
-			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], false );
-			RemoveMenuSlot( afSlotOffset, JMS_SKILL );
-		}
-
-		if( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level < 40 )
-		{
-			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], false );
-			RemoveMenuSlot( afSlotOffset, JMS_PROFESSION );
-		}
-	}
-
-	CKTDGUIControl* pWarpVIP = m_pDLGMenu->GetControl( L"Warp_VIP" );
-	CKTDGUIControl* pInvenNew = m_pDLGMenu->GetControl( L"Inventory_New" );
-	CKTDGUIControl* pPetEvolNew = m_pDLGMenu->GetControl( L"Pat_Inventory_Evolution" );
-	CKTDGUIControl* pPetNew = m_pDLGMenu->GetControl( L"Pat_Inventory_New" );
-	CKTDGUIControl* pPetTag = m_pDLGMenu->GetControl( L"AccompanyPetTag" );
-	CKTDGUIControl* pSkillNew = m_pDLGMenu->GetControl( L"Skill_New" );
-	CKTDGUIControl* pStoryNew = m_pDLGMenu->GetControl( L"Story_New" );
-	CKTDGUIControl* pQuestNew = m_pDLGMenu->GetControl( L"Quest_New" );
-	CX2InformerManager* pInformerManager = g_pMain->GetInformerManager();
-
-	for( int i = 0; i < JMS_COUNT; ++i )
-	{
-		const D3DXVECTOR2 vOffset( afSlotOffset[i], 0.0f );
-
-		CKTDGUIButton* pButton = m_vecpButtonMainMenu[i];
-		if( NULL != pButton )
-		{
-			pButton->SetOffsetPos( vOffset );
-			pButton->SetGuideDescOffsetPos( vOffset );
-		}
-
-		switch( i )
-		{
-		case JMS_WARP:
-			SetMenuOffset( pWarpVIP, vOffset );
-			break;
-		case JMS_INVEN:
-			SetMenuOffset( pInvenNew, vOffset );
-			pInformerManager->GetInvenInformer()->SetTalkBoxOffsetPos( vOffset );
-			break;
-		case JMS_PET:
-			SetMenuOffset( pPetEvolNew, vOffset );
-			SetMenuOffset( pPetNew, vOffset );
-			SetMenuOffset( pPetTag, vOffset );
-			break;
-		case JMS_SKILL:
-			SetMenuOffset( pSkillNew, vOffset );
-			pInformerManager->GetSkillInformer()->SetTalkBoxOffsetPos( vOffset );
-			break;
-		case JMS_STORYBOOK:
-			SetMenuOffset( pStoryNew, vOffset );
-			break;
-		case JMS_QUEST:
-			SetMenuOffset( pQuestNew, vOffset );
-			pInformerManager->GetQuestInformer()->SetTalkBoxOffsetPos( vOffset );
-			break;
-		case JMS_GUILD:
-			pInformerManager->GetGuildInformer()->SetTalkBoxOffsetPos( vOffset );
-			break;
-		}
-	}
-}
-
 #endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 void CX2StateMenu::ShowMainMenuButton()
 {
@@ -5704,9 +5592,115 @@ void CX2StateMenu::UpdateMenuString()
 void CX2StateMenu::UpdateMenuPosistion()
 {
 #ifdef SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
-	UpdateMenuPosition();
-	return;
-#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
+	if( NULL == m_pDLGMenu )
+		return;
+
+	if( true == m_vecpButtonMainMenu.empty() )
+	{
+		for( int i = 0; i < JMS_COUNT; ++i )
+			m_vecpButtonMainMenu.push_back( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( s_awszJuneMenuSlot[i] ) ) );
+	}
+
+	if( NULL == g_pData || JMS_COUNT != (int) m_vecpButtonMainMenu.size() )
+		return;
+
+	float afSlotOffset[JMS_COUNT] = { 0.0f };
+
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_WARP], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], true );
+	SetMenuShowEnable( m_vecpButtonMainMenu[JMS_STORYBOOK], true );
+
+	if( NULL != g_pData->GetGuildManager() && false == g_pData->GetGuildManager()->DidJoinGuild() )
+	{
+		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_GUILD], false );
+		RemoveMenuSlot( afSlotOffset, JMS_GUILD );
+	}
+
+	if( ( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIPetList() && 0 == g_pData->GetUIManager()->GetUIPetList()->GetPetListSize() )
+		&& ( NULL != g_pData->GetPetManager() && NULL == g_pData->GetPetManager()->GetMyPet() )
+#ifdef RIDING_SYSTEM
+		&& ( NULL != CX2RidingPetManager::GetInstance() && false == CX2RidingPetManager::GetInstance()->GetHasRidingPet() )
+#endif //RIDING_SYSTEM
+		)
+	{
+		SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PET], false );
+		RemoveMenuSlot( afSlotOffset, JMS_PET );
+	}
+
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		int iUsedCP, iUsedSP;
+		g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.CalcUsedSPointAndCSPoint( iUsedSP, iUsedCP );
+		const int iTotalUsedSP = iUsedCP + iUsedSP;
+		const int iNewSP = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iSPoint + g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iCSPoint;
+		if( iNewSP == 0 && iTotalUsedSP == 2 )
+		{
+			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_SKILL], false );
+			RemoveMenuSlot( afSlotOffset, JMS_SKILL );
+		}
+
+		if( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level < 40 )
+		{
+			SetMenuShowEnable( m_vecpButtonMainMenu[JMS_PROFESSION], false );
+			RemoveMenuSlot( afSlotOffset, JMS_PROFESSION );
+		}
+	}
+
+	CKTDGUIControl* pWarpVIP = m_pDLGMenu->GetControl( L"Warp_VIP" );
+	CKTDGUIControl* pInvenNew = m_pDLGMenu->GetControl( L"Inventory_New" );
+	CKTDGUIControl* pPetEvolNew = m_pDLGMenu->GetControl( L"Pat_Inventory_Evolution" );
+	CKTDGUIControl* pPetNew = m_pDLGMenu->GetControl( L"Pat_Inventory_New" );
+	CKTDGUIControl* pPetTag = m_pDLGMenu->GetControl( L"AccompanyPetTag" );
+	CKTDGUIControl* pSkillNew = m_pDLGMenu->GetControl( L"Skill_New" );
+	CKTDGUIControl* pStoryNew = m_pDLGMenu->GetControl( L"Story_New" );
+	CKTDGUIControl* pQuestNew = m_pDLGMenu->GetControl( L"Quest_New" );
+	CX2InformerManager* pInformerManager = g_pMain->GetInformerManager();
+
+	for( int i = 0; i < JMS_COUNT; ++i )
+	{
+		const D3DXVECTOR2 vOffset( afSlotOffset[i], 0.0f );
+
+		CKTDGUIButton* pButton = m_vecpButtonMainMenu[i];
+		if( NULL != pButton )
+		{
+			pButton->SetOffsetPos( vOffset );
+			pButton->SetGuideDescOffsetPos( vOffset );
+		}
+
+		switch( i )
+		{
+		case JMS_WARP:
+			SetMenuOffset( pWarpVIP, vOffset );
+			break;
+		case JMS_INVEN:
+			SetMenuOffset( pInvenNew, vOffset );
+			pInformerManager->GetInvenInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_PET:
+			SetMenuOffset( pPetEvolNew, vOffset );
+			SetMenuOffset( pPetNew, vOffset );
+			SetMenuOffset( pPetTag, vOffset );
+			break;
+		case JMS_SKILL:
+			SetMenuOffset( pSkillNew, vOffset );
+			pInformerManager->GetSkillInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_STORYBOOK:
+			SetMenuOffset( pStoryNew, vOffset );
+			break;
+		case JMS_QUEST:
+			SetMenuOffset( pQuestNew, vOffset );
+			pInformerManager->GetQuestInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		case JMS_GUILD:
+			pInformerManager->GetGuildInformer()->SetTalkBoxOffsetPos( vOffset );
+			break;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 	if( NULL == m_pDLGMenu )
 		return;
 	//마우스 동작 없을 때 메인메뉴 사라지도록 하기 위해 객체 저장	
@@ -5952,6 +5946,7 @@ void CX2StateMenu::UpdateMenuPosistion()
 		}
 	}
 
+#endif SERV_IRUHADEV_JUNE_BOTTOMBAR_LAYOUT
 }
 
 /*virtual*/ bool CX2StateMenu::ProcessStateChangeUnitSelectWithOptionWindow()

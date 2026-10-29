@@ -88,7 +88,7 @@ bool CX2EmblemManager::OpenScriptFile( IN const WCHAR* pFileName_ )
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, false );
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pEmblemManager", this );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
-	lua_tinker::def( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "Emblem", &Emblem_LUA );	/// S7l debug: JuneEmblem( 7 )
+	lua_tinker::def( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "Emblem", &Emblem_LUA );	/// S7l debug: Emblem( 7 )
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
 
 

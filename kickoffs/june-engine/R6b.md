@@ -40,3 +40,10 @@ No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name 
 register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum
 entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself
 (a `.tsv` of ids), not code.
+
+## From june-march-divergence C4 review (2026-10-29)
+
+C4 merged June's mesh `+0xa2c` into March's `m_bUseRenderParam` (`GetUseRenderParam()`): it is the same field. Until this phase lands, March's
+Ara cases in `CX2Eqip` (`X2Eqip.cpp`, items 41510 / 41640 / 41700 / 41736 / 41743, normal and hyper model) set that flag with no `+0x980` param, so
+R6's RenderParam pass draws those weapons a second time with the default `RenderParamData` (RT 0, `RT_REAL_COLOR`, no blend): flat over the
+cartoon pass. June's switch `32964ae0` has no Ara cases and `3295b970` writes the param and the flag together; port both in one go.

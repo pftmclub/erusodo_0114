@@ -631,6 +631,46 @@ EXESTR OK: `ResultOpen` / `ResultClose` present; the old `JuneGfxShow` / `JuneGf
 **Smoke:** none here (user, 2026-10-29: one smoke at the end of the plan). It must open the quest window (all tabs, a quest detail, Remind / Skip Epic), the skill tree (a learned skill's
 description, a skill with a memo), the dungeon result, the character info, the bottom bar, and wear a glowing (Ara) weapon in a village.
 
+## Phase C4 - Review (Opus 5.5, high)
+
+### Done (2026-10-29, Opus 5.5; reviews `913a6aba`; fixes keep each body's flag)
+
+**Verdict: C4 passes with one missed merge and three missed Lua strings, fixed here.** The rest of the merges, the overloads, the vcxproj edit and the reach points read right.
+- **Fixed: a missed twin.** `JuneUpdateMenuPosition` (June `3245bb70`) was renamed to `UpdateMenuPosition` beside March's `UpdateMenuPosistion` (March's spelling), whose
+  body forwarded to it under `JUNE_BOTTOMBAR_LAYOUT`; funcmap 4684 maps `3245bb70` to `CX2StateMenu::UpdateMenuPosistion`. Merged by hand (`bytepatch.py`): June's body inside
+  March's function under the flag, March's in `#else`; the separate definition, its declaration and the forwarder are gone. `collapse_map.tsv` row now `merge`.
+  A scan of every C4 rename against funcmap (June address named as a differently spelled March function of the same class) found no other twin: the rest are pieces
+  carved out of a larger June function (`UpdateUnitPointerNPCWalk`, emblem / quest / skill-tree event helpers) or a forwarder after the packet decode (`ResultEndHandler`).
+- **Fixed: Lua strings the tool skipped** (their C++ names were renamed in C3, so the `lua` rows found no identifier): `"JuneBuffTestNewStat_LUA"` / `"JuneBuffTestNewSkill_LUA"`
+  (`X2Main.cpp`, dev bindings under `JUNE_BUFF_DEBUG`, off) and the class name `"CX2JuneSkillTypeColorTable"` (`X2UISkillTreeNew2015.cpp`, a metatable name; `SkillTypeColor.lua`
+  calls only `g_pSkillToolTipManager:AddSkillTypeColor`). Two usage comments (`Emblem( 7 )`, `GfxCutIn( ... )`) and the copy-ready console lines in `kickoffs/june-result/Z.md`,
+  `kickoffs/june-gfx/G3.md` and `MODS.md` (3) now name the new bindings; older plan docs are history and keep the old names.
+- **Merges read against June:** `DoIHaveThisSkill` = June `32890a30` (`GetSkillLevel( id, false, 0, true ) > 0`), the moved helper body word for word; `GetSkillEffectiveDescValue`
+  (`328ee280`) = the old free function with the templet as `this` (the NULL test goes with it); `GetNPCFaceTextureKey` / `ResetQuestUI`: June's had no defaults and every June caller
+  already went through March's name; `SetShow( bool )` forwards mode 0 and the Lua binding casts to it; `UpdateMenuString` is the studio pattern. Overloads: no rename shadows a
+  base or class member (24 same-name rows, all intended merges); the one file-local clash, `IsHeroDungeon` in `X2PartyUI.cpp`, forwards to the qualified static.
+- **Reach point corrected: `GetUseRenderParam`.** The field merge is right (June's draw `31d30380` tests mesh `+0xa2c`, the field June's equip glow `3295b970` sets), but June
+  sets it only together with the `+0x980` param. March's Ara cases in `CX2Eqip` (41510 / 41640 / 41700 / 41736 / 41743) set the flag alone, so those weapons now get a second
+  pass with the default param (`RT_REAL_COLOR`, opaque) over the cartoon one; before C4 they had no glow pass at all. Cosmetic, Ara only; routed to june-engine R6b (ready),
+  which ports both June writers (kickoff note added). The end smoke's Ara weapon check expects this until R6b.
+- **vcxproj:** one line deleted (`X2UIQuestNewJune.cpp`), BOM and CRLF kept, no entry names a missing file; the two renamed headers are reached by `#include` only (as before).
+  Built from a clean PCH below.
+- **Lua names:** 11 C4 `lua` rows = 8 strings the tool renamed + the 2 `BuffTestNew*` + the colour-table class. No `.lua` in `kom_contents` or `june_src_fixed` calls an old or new
+  name (`Emblem` appears only as `SetName( "Emblem" )`); no new string is bound twice. Only `ResultOpen` / `ResultClose` are live (`JUNE_RESULT_DEBUG`).
+- **Routed to C5** (kickoff): rows 2529-2532 point at the old header paths; `GetNPCFaceTextureKey`'s 55 June NPC ids (moved in C4) all have `NUI_*` names; `s_kJuneSkillTypeColorTable`
+  and the two `X2Offline*` namespaces are already C5 rows. No anonymous namespace was added (59 before and after); the C4 helpers sit in `_CONST_UIQUESTNEW_HELPERS_`.
+- **Hygiene, C4** (`flagcheck <FLAG> --range 913a6aba^..913a6aba`): QUEST_UI `0 PASS, 204 OTHER, 1 FAIL, 0 ERROR`, SKILL_TREE_UI `3 PASS, 200 OTHER, 1 FAIL, 1 ERROR`,
+  SKIN_MESH_RENDER_TYPE `3 PASS, 201 OTHER, 1 FAIL`, MOVABLE_LINE `0 PASS, 204 OTHER, 1 FAIL`, BOTTOMBAR_LAYOUT `1 PASS, 203 OTHER, 1 FAIL`. All-flags (`--base 913a6aba^ --at 913a6aba
+  --with` the other 455): `2 PASS, 201 OTHER, 1 FAIL, 1 ERROR`. Every FAIL is the deleted `X2UIQuestNewJune.cpp` (its only flag-off content was `#include "StdAfx.h"`); every ERROR is
+  `KTDXLIB/Always.h`, whose 16 changed lines are `#error` texts and comments inside compound `#if`s the tool cannot evaluate. No code file is non-PASS.
+- **Hygiene, this review** (`--worktree --files`): BOTTOMBAR_LAYOUT (`X2StateMenu.cpp` / `.h`) `2 PASS`, RESULT PASS (116 deleted lines: the separate definition and the forwarder);
+  SKILL_TREE_UI (`X2UISkillTreeNew2015.cpp`) `1 PASS`, RESULT PASS; `X2Main.cpp` / `X2EmblemManager.cpp` sit in `JUNE_BUFF_DEBUG`, `JUNE_GFX_TALK_CUTIN_DEBUG` and
+  `JUNE_SKILL_EMBLEM_DEBUG`, which `Always.h` keeps commented out: RESULT FAIL only for "not #defined", the files PASS / OTHER. Encoding unchanged. `enumscan --check` (4 files): 0 A/B rows.
+- **Smoke logs:** none (user, 2026-10-29: one smoke at the end of the plan).
+- DEPLOY OK (`build.py --deploy --pch force`, every project's PCH rebuilt): X2_offline.exe is 25,809,920 B, dated 2026-10-29 10:30:35, md5 63f32d873a14855c7e00c834d38acfe8, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 10:30:29); built at main 913a6aba + 5 uncommitted code file(s).
+  EXESTR OK: `CX2SkillTypeColorTable` / `ResultOpen` / `ResultClose` found; `CX2JuneSkillTypeColorTable` / `JuneBuffTestNew{Stat,Skill}_LUA` absent (the new `BuffTestNew*` strings are compiled out).
+
 ## Phase C5 - Members, locals, constants, namespaces (Sonnet 5.5, high)
 
 **Depends on:** C4 review. `m_*June*` members (merge into a March twin of the same type and meaning, else rename), `bJuneMemo`-style

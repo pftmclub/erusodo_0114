@@ -4308,7 +4308,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_
 ### The rest of June's emblem manager (skill-system-core S7l, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` guards: `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`,
-`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`, off since the S7l review, 2026-10-19). Plan
+`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `Emblem( id )`, off since the S7l review, 2026-10-19). Plan
 `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7l"; log tag `[JUNE_SKILL] EMBLEM`.
 - **Client.** `X2EmblemManager.*`: `EXPAND_TEXTURE_FILE_NAME` rows become UI particles that follow the camera and hold the next emblem, June's `OnFrameMove` / `InitEmbelmPlayInfo`
   whole (hide-dialog gate in the pick), cases 5 / 7; `X2BossRaidManager.cpp`: the gate-open emblem gets two one-shot rows instead of the 2nd texture, Ranox open textures;
@@ -4529,7 +4529,7 @@ Flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (+ `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_
 - **What changes in game:** every user skill cut-in is a GFx widget set (frame, talk balloon, cut-in art) instead of the particle cut-in. March's class tables still name `.dds` textures
   (`june2017_re/g4_cutin_names.tsv`: none of the 52 names has a June `.gfx`), so until the character ports rename them the art part of a class cut-in does not show; hyper cut-ins and the
   debug command use June names.
-- **Debug (G4 review turns it off):** dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` runs my unit's `ActiveSkillShow` with a June name.
+- **Debug (G4 review turns it off):** dev console `GfxCutIn( "HQ_CutIn_Elsword_01" )` runs my unit's `ActiveSkillShow` with a June name.
 - **Revert:** comment out `JUNE_GFX_TALK_CUTIN` (and `_DEBUG`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
 ### June's upgraded-skill flag at state start; March's memo path retired (skill-system-core S3f, 2026-10-19)
@@ -4993,7 +4993,7 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - `CX2StateDungeonGame` (`X2StateDungeonGame.{h,cpp}`) owns the adapter: `JuneResult*` methods are June's vslots 0xb8-0xe4, fill `324d60e0`, item fill `324cf8b0`, page arrows. Constructor / destructor lines are flagged.
 - `CX2DungeonGame` gets June's obtained-item list (`JuneAddObtainedItem` ...); its one caller is the flagged block in `CX2Inventory::UpdateInventorySlotList` (`X2Inventory.cpp`).
 - Data: June's `data063` `DLG_UI_Dungeon_Result_01/_02` `.tga` + `.TET` staged byte-exact (`kom.py stage-june`, packed; the copy is the user's yes). Revert: delete the four files from `kom_contents/data063_kom/`, their manifest keys, and repack.
-- Dev console (auth level 3): `JuneResultOpen()` / `JuneResultClose()` (debug flag). March's result flow is untouched.
+- Dev console (auth level 3): `ResultOpen()` / `ResultClose()` (debug flag). March's result flow is untouched.
 - **Turn off:** comment out both defines in `Always.h` and rebuild; the new `.cpp` becomes empty. Log `[JUNE_RESULT] WIDGET`.
 
 ### June transcendence T1 + T4: the unit flag and the TC slots (flags `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT`, `SERV_IRUHADEV_JUNE_TRANSCEND_SLOT`, 2026-10-23)
