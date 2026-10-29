@@ -1155,6 +1155,9 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   line (the viewer's closing `#endif` takes its CRLF anchor's EOL inside an LF-mostly function); RESULT PASS. `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES
   --worktree --files X2Lib/X2Unit.h`: RESULT PASS. `cl /EP` probe: `MOVE_BONE`, `ELSWORD_SECOND_CLASS_CHANGE`, `JUNE_ENUM_NAMES`,
   `X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING` ON (the `#error` guard's inputs).
+  After the commit, `--range ba30bb8a^..ba30bb8a`: 6 PASS, 1 DEFINE, 1 ERROR = `X2Unit.h:1252`, D1-3b's widened `#if defined(
+  SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( ..._SKILL_COOL_TIME_RATE )` (not this phase's; listed because the commit touches `X2Unit.h`);
+  `SERV_IRUHADEV_JUNE_ENUM_NAMES --range ... --files X2Lib/X2Unit.h`: RESULT PASS.
 - **Build:** `DEPLOY OK: X2_offline.exe is 25,843,200 B, dated 2026-10-30 00:14:39, md5 c3cf407f4c8fa398bdd532c8439d8d6a, equal to X2/US_SERVICE/x2.exe
   (2026-10-30 00:14:33); built at main 3db9b108 + 8 uncommitted code file(s).` `EXESTR OK` for `UNIT_REFORM DefaultBoneInfo.lua NOT LOADED` (wide) and
   `g_pViewerSkinMesh` / `AddBoneInfo` (narrow), md5 c3cf407f.
