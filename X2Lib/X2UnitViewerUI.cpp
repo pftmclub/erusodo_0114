@@ -6798,6 +6798,17 @@ bool CX2UnitViewerUI::GetPlayerEmotion()
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 void CX2UnitViewerUI::SetUnitReForm()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+	// June 31f99b20
+	if( m_pXSkinAnim == NULL || g_pData == NULL || m_pUnit == NULL )
+		return;
+
+	const CX2Unit::UNIT_TYPE eUnitType = ( NULL != m_pUnit->GetUnitTemplet() ? m_pUnit->GetUnitTemplet()->m_UnitType : CX2Unit::UT_NONE );
+	if( CX2Unit::UT_LUCIEL == eUnitType )
+		return;	// stand-in: Lu/Ciel not ported (June passes the viewer's second body +0xd7c with flag 1)
+
+	g_pData->SetUnitReForm( m_pXSkinAnim, eUnitType, false, L"" );
+#else SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 	if( m_pXSkinAnim == NULL )
 		return;
 
@@ -7635,6 +7646,7 @@ if( m_pUnit != NULL )
 	#endif
 
 #endif //UNIT_SCALE_COMBINE_ONE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 
 }
 #endif

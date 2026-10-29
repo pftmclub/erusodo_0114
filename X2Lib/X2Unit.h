@@ -33,6 +33,8 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 
 			UT_END,
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			UT_LUCIEL	= 10,	// June class; shares UT_END's value
+			UT_ROSE		= 11,	// June class
 			UT_AIN		= 12,	// June class, after UT_END so it keeps its value
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		};

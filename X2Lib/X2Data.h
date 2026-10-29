@@ -22,6 +22,48 @@ class CX2SlideShotScripted;		// quest-system Q10b: X2SlideShotScripted.h
 
 
 // 게임 동작중 변하지 않는 데이터를 담아두는 구조체, 게임 동작중 변하는 데이터는 CX2InstanceData에 담아주세요~
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+// June 3214d170 ( g_pData +0x474 ): DefaultBoneInfo.lua's per-character bone rows, bound to Lua as g_pViewerSkinMesh
+class CX2DefaultBoneInfo
+{
+	public:
+		enum CHARACTER_ID
+		{
+			CI_NONE				= -1,
+			CI_ELSWORD			= 0,
+			CI_AISHA			= 1,
+			CI_DIMENSION_WITCH	= 2,
+			CI_LENA				= 3,
+			CI_RAVEN			= 4,
+			CI_EVE				= 5,
+			CI_CHUNG			= 6,
+			CI_ARA				= 7,
+			CI_ELISIS			= 8,
+			CI_ADD				= 9,
+			CI_LU				= 10,
+			CI_CIEL				= 11,
+			CI_ROSE				= 12,
+			CI_AIN				= 13,
+		};
+
+		enum MODIFY_BONE_STYLE
+		{
+			MBS_NONE	= 0,
+			MBS_MOVE	= 1,
+			MBS_SCALE	= 2,
+		};
+
+		typedef std::pair< std::wstring, int >			BoneModifyKey;	// bone name, MODIFY_BONE_STYLE
+		typedef std::map< BoneModifyKey, D3DXVECTOR3 >	BoneModifyMap;
+
+		bool OpenScriptFile( const WCHAR* pFileName );
+		bool AddBoneInfo();
+		void GetBoneModifyValue( int iCharacterID, const std::wstring& wstrBoneName, MODIFY_BONE_STYLE eModifyBoneStyle, D3DXVECTOR3& vValue ) const;
+
+	private:
+		std::map< int, BoneModifyMap >	m_mapBoneModify;
+};
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 class CX2Data : public CKTDXStage
 {
 	public:
@@ -150,6 +192,10 @@ class CX2Data : public CKTDXStage
 
 		CX2EXPTable*	GetEXPTable(){ return &m_EXPTable; }
 		CX2PVPResultTable* GetPVPResultTable() { return &m_PVPResultTable; }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+		CX2DefaultBoneInfo* GetDefaultBoneInfo() { return &m_DefaultBoneInfo; }
+		void SetUnitReForm( CKTDGXSkinAnimPtr pXSkinAnim, CX2Unit::UNIT_TYPE eUnitType, bool bSecondForm, const std::wstring& wstrBoneName );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 
 		//{{ 임홍락 [2012.05.16] 클라이언트 단일화 // CLIENT_USE_NATION_FLAG 필수 포함임
 #ifdef UNITED_CLIENT_EU
@@ -761,4 +807,7 @@ class CX2Data : public CKTDXStage
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 		CX2GlobalMissionManager*		m_pGlobalMissionManager;
 #endif SERV_GLOBAL_MISSION_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+		CX2DefaultBoneInfo				m_DefaultBoneInfo;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 };

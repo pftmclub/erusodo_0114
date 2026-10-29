@@ -36884,6 +36884,26 @@ void CX2GUUser::RestoreHand()
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 void CX2GUUser::SetUnitReForm()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+	// June 31fda0d0
+	if( m_pXSkinAnim == NULL || g_pData == NULL || m_pUnit == NULL )
+		return;
+
+	const CX2Unit::UNIT_TYPE eUnitType = ( NULL != m_pUnit->GetUnitTemplet() ? m_pUnit->GetUnitTemplet()->m_UnitType : CX2Unit::UT_NONE );
+	switch( eUnitType )
+	{
+	case CX2Unit::UT_ARME:
+		g_pData->SetUnitReForm( m_pXSkinAnim, CX2Unit::UT_ARME, IsTransformed(), L"" );
+		break;
+
+	case CX2Unit::UT_LUCIEL:
+		break;	// stand-in: Lu/Ciel not ported (June passes the second body +0x8e88 with flag 1)
+
+	default:
+		g_pData->SetUnitReForm( m_pXSkinAnim, eUnitType, false, L"" );
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 	if( m_pXSkinAnim == NULL )
 		return;
 	
@@ -38118,6 +38138,7 @@ void CX2GUUser::SetUnitReForm()
 	#endif	//SERV_ADD_ARME_BATTLE_MAGICIAN
 
 #endif //UNIT_SCALE_COMBINE_ONE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 }
 
 

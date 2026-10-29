@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). D1-3f ported 250 (June's `DefaultBoneInfo.lua` table) and split again: **D1-3h** 205 and the reform bone-restore lead `31fde420`. **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -1119,6 +1119,47 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (2026-10-29 22:47:22); built at main bdac0eb3 + 1 uncommitted code file(s).` (`X2Lib/US_SERVICE/X2GUUser.obj` newer than the edit; no new string,
   so no `exestr` line.)
 - **Smoke (plan end):** an Elsword with a wind / light / curse weapon shows the hand sparks in a dungeon, and none while riding or during an avatar emotion.
+
+### D1-3f Done (2026-10-30, Opus 5.5; `SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM`; 205 -> D1-3h)
+
+| Item | March | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 250 | `CX2GUUser::SetUnitReForm` (`X2GUUser.cpp:36885`), `CX2UnitViewerUI::SetUnitReForm` (`X2UnitViewerUI.cpp:6799`) | `31fda0d0`, `31f99b20` -> `31ee1f40` | `UNIT_REFORM` | the per-class bone moves / scales come from June's `DefaultBoneInfo.lua`, not March's hard-coded switch |
+
+- **The table is data in June.** `31ee1f40` (on `g_pData`) reads 14 values from the object at `g_pData +0x474` (`3214d170`), a map filled by
+  `g_pViewerSkinMesh:AddBoneInfo{ UNIT_ID, BONE_MODIFY1.. }` (`3214cc60`) from `DefaultBoneInfo.lua` (`3214c5f0`, loaded at start-up `3259afd3`, just
+  before `ResetEnchantItem`). It is the X2Viewer tool's `CX2ViewerSkinMesh` loader (March `X2Viewer/X2ViewerSkinMesh.cpp:1341-1415`) moved into the
+  client with a map. Ported as `CX2DefaultBoneInfo` (`X2Data.h` / `.cpp`; not `CX2ViewerSkinMesh`, which X2Viewer defines and which includes X2Lib),
+  member `CX2Data::m_DefaultBoneInfo`, registered in `CX2Main::RegisterLuabind`, loaded in `X2StateStartUp.cpp`; its `CHARACTER_ID` /
+  `MODIFY_BONE_STYLE` enums live in the class (X2Viewer's `dxstdafx.h` has March-era global ones).
+- **`CX2Data::SetUnitReForm( skin anim, unit type, bSecondForm, bone name )` = `31ee1f40`, read from the disassembly:** type -> CHARACTER_ID
+  (Aisha 1 / DW 2 by flag, Lire `CI_LENA`, Elesis `CI_ELISIS`, Lu/Ciel 10 / 11 by flag, Rose 12, Ain 13); defaults move 0 / scale 1; a bone-name
+  filter chain whose every branch falls into the full pass (JUNE_BUGS 477, `Bip01_Pelvis` scales the right foot: 476); full pass = `Bip01` and
+  `Bip01_Footsteps` `SetFrameMoveBoneY( y )`, 13 `SetFrameScale( bApplyChild true )`; `Dummy2_Lhand` takes the `Dummy1_Lhand` row, `Bip01_Pelvis`
+  gets `( 1, 1, 1 )` (never looked up). `31edfa60` = `_CONST_X2DATA_D13F_::SetFrameScaleByBoneName`. AddBoneInfo quirk: JUNE_BUGS 478.
+- **Callers:** user `31fda0d0`: Aisha passes `IsTransformed()` (`+0x8c0c`), others false; the viewer `31f99b20` never passes the transform flag.
+  Lu/Ciel passes the second body (`+0x8e88`, viewer `+0xd7c`): **stand-in**, returns early at both sites (2 `guards.tsv` rows). `UT_LUCIEL` (10)
+  and `UT_ROSE` (11) registered under `JUNE_ENUM_NAMES` (June's `UNIT_TYPE`; 10 shares March's `UT_END` value).
+- **Behaviour change (June removed it):** March's body raised `m_fBasicBoneScale` (transformed Aisha 1.1, Chung 1.08). June reads `+0x3e38` only in
+  `CX2GUUser::OnFrameMove` and writes it only in the `CX2GameUnit` ctor (dispsweep), so it stays 1.0. Chung's and the transformed DW's whole-body
+  size now follow June. March's `reform.txt` dev read (`#ifndef _SERVICE_`) is gone with March's body.
+- **Data:** `luasrc.py adopt-june data036 DefaultBoneInfo.lua` (June bytecode, 8,189 B, new); core-list `Enum.lua` + June's `CHARACTER_ID` and
+  `MODIFY_BONE_STYLE` tables (337 B appended, `luasrc.py refresh`; `ledger --check` / `core --check` PASS). `luabind.py check DefaultBoneInfo`:
+  RESULT PASS (`AddBoneInfo` bound). `kom.py pack data036`: PACK OK (269 entries, + `DefaultBoneInfo.lua`, ~ `Enum.lua`); **copy owed** (asks the user).
+  Missing file: start-up logs `UNIT_REFORM DefaultBoneInfo.lua NOT LOADED` (ErrorLog, XEM_ERROR142) and every unit gets identity bones.
+- **Not ported (leads):** the dev reload `31d8e660` @`31d8f6e5` (auth >= 1, DIK_APOSTROPHE); `31fde420` / `31fdc9d0` (restore a bone, then re-apply
+  `Bip01_Head` / `Bip01_Spine1` reform on four bodies; caller `3202ed60`) -> **D1-3h** with 205.
+- **Split:** 250 filled the session; **205 -> D1-3h** (kickoff `D1-3h.md`, STATUS row; `D1-4-review.md` covers it, plus three D1-3f review points).
+- **Bookkeeping:** funcmap `(Diverge D1-3f)` x10; tsv 250 / 205 annotated; JUNE_BUGS 476-478; guards.tsv x2; `MODS.md` D1-3f entry.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM --worktree` (7 files): 6 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 1 EOL-mismatched
+  line (the viewer's closing `#endif` takes its CRLF anchor's EOL inside an LF-mostly function); RESULT PASS. `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES
+  --worktree --files X2Lib/X2Unit.h`: RESULT PASS. `cl /EP` probe: `MOVE_BONE`, `ELSWORD_SECOND_CLASS_CHANGE`, `JUNE_ENUM_NAMES`,
+  `X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING` ON (the `#error` guard's inputs).
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,843,200 B, dated 2026-10-30 00:14:39, md5 c3cf407f4c8fa398bdd532c8439d8d6a, equal to X2/US_SERVICE/x2.exe
+  (2026-10-30 00:14:33); built at main 3db9b108 + 8 uncommitted code file(s).` `EXESTR OK` for `UNIT_REFORM DefaultBoneInfo.lua NOT LOADED` (wide) and
+  `g_pViewerSkinMesh` / `AddBoneInfo` (narrow), md5 c3cf407f.
+- **Smoke (plan end, after the data036 copy):** every class's head / legs look as in June in the village and the U-key viewer (Elsword's head is
+  smaller than March's 0.93: June 0.87); Aisha DW transformed keeps her adult proportions without the 1.1 body scale; Chung is no longer 8 % larger.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

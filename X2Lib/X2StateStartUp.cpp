@@ -253,6 +253,10 @@ void CX2StateStartUp::LoadData()
 	g_pData->ResetSocketItem( L"OptionItemData.lua", L"SocketOptionForm.lua" );
 	//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 	
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+	if( false == g_pData->GetDefaultBoneInfo()->OpenScriptFile( L"DefaultBoneInfo.lua" ) )	// June 3259afd3
+		ErrorLogMsg( XEM_ERROR142, L"UNIT_REFORM DefaultBoneInfo.lua NOT LOADED: every unit keeps unscaled bones; adopt it into data036.kom." );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 	g_pData->ResetEnchantItem();
 	
 	// 파티 매니저 로드

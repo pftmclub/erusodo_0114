@@ -3805,6 +3805,196 @@ void CX2Data::DataCallNotPorted( const char* szName_ )
 		CX2BuffCapture::Line( "June-only, not ported: g_pData:%s (PVPData.lua / PVEData.lua)", szName_ );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+namespace _CONST_X2DATA_D13F_
+{
+	// June 31edfa60
+	void SetFrameScaleByBoneName( CKTDGXSkinAnimPtr pXSkinAnim, D3DXVECTOR3 vScale, const WCHAR* pBoneName, bool bScaleChild )
+	{
+		if( pXSkinAnim != NULL )
+			SetFrameScale( &vScale, bScaleChild, pXSkinAnim->GetCloneFrame( pBoneName ) );
+	}
+}
+using namespace _CONST_X2DATA_D13F_;
+
+// June 3214c5f0
+bool CX2DefaultBoneInfo::OpenScriptFile( const WCHAR* pFileName )
+{
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pViewerSkinMesh", this );
+
+	if( g_pKTDXApp->LoadLuaTinker( pFileName ) == false )
+	{
+		ErrorLogMsg( XEM_ERROR142, pFileName );
+		return false;
+	}
+	return true;
+}
+
+// June 3214cc60: a later row of the same UNIT_ID replaces the earlier one
+bool CX2DefaultBoneInfo::AddBoneInfo()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	int iCharacterID = CI_NONE;
+	if( false == luaManager.GetValue( "UNIT_ID", iCharacterID ) )
+		return false;
+
+	BoneModifyMap mapBoneModify;
+	D3DXVECTOR3 vValue( 0.f, 0.f, 0.f );	// kept across rows: a row of neither style reuses the previous row's value (June quirk)
+	int iIndex = 1;
+	while( true == luaManager.BeginTable( "BONE_MODIFY", iIndex ) )
+	{
+		std::wstring wstrBoneName;
+		LUA_GET_VALUE( luaManager, 1, wstrBoneName, L"" );
+		int iModifyBoneStyle = MBS_NONE;
+		LUA_GET_VALUE( luaManager, 2, iModifyBoneStyle, MBS_NONE );
+
+		if( MBS_MOVE == iModifyBoneStyle )
+		{
+			LUA_GET_VALUE( luaManager, 3, vValue.x, 0.f );
+			LUA_GET_VALUE( luaManager, 4, vValue.y, 0.f );
+			LUA_GET_VALUE( luaManager, 5, vValue.z, 0.f );
+		}
+		else if( MBS_SCALE == iModifyBoneStyle )
+		{
+			LUA_GET_VALUE( luaManager, 3, vValue.x, 1.f );
+			LUA_GET_VALUE( luaManager, 4, vValue.y, 1.f );
+			LUA_GET_VALUE( luaManager, 5, vValue.z, 1.f );
+		}
+
+		mapBoneModify[ BoneModifyKey( wstrBoneName, iModifyBoneStyle ) ] = vValue;
+
+		++iIndex;
+		luaManager.EndTable();
+	}
+
+	m_mapBoneModify[ iCharacterID ] = mapBoneModify;
+	return true;
+}
+
+// June 3214c470: vValue is left as it is when the row or the bone is missing
+void CX2DefaultBoneInfo::GetBoneModifyValue( int iCharacterID, const std::wstring& wstrBoneName, MODIFY_BONE_STYLE eModifyBoneStyle, D3DXVECTOR3& vValue ) const
+{
+	std::map< int, BoneModifyMap >::const_iterator mitRow = m_mapBoneModify.find( iCharacterID );
+	if( mitRow == m_mapBoneModify.end() )
+		return;
+
+	BoneModifyMap::const_iterator mitBone = mitRow->second.find( BoneModifyKey( wstrBoneName, eModifyBoneStyle ) );
+	if( mitBone == mitRow->second.end() )
+		return;
+
+	vValue = mitBone->second;
+}
+
+// June 31ee1f40: the named bone first, then every bone again from the unit's row
+void CX2Data::SetUnitReForm( CKTDGXSkinAnimPtr pXSkinAnim, CX2Unit::UNIT_TYPE eUnitType, bool bSecondForm, const std::wstring& wstrBoneName )
+{
+	int iCharacterID = CX2DefaultBoneInfo::CI_NONE;
+	switch( eUnitType )
+	{
+	case CX2Unit::UT_ELSWORD:	iCharacterID = CX2DefaultBoneInfo::CI_ELSWORD;	break;
+	case CX2Unit::UT_ARME:		iCharacterID = ( true == bSecondForm ? CX2DefaultBoneInfo::CI_DIMENSION_WITCH : CX2DefaultBoneInfo::CI_AISHA );	break;
+	case CX2Unit::UT_LIRE:		iCharacterID = CX2DefaultBoneInfo::CI_LENA;		break;
+	case CX2Unit::UT_RAVEN:		iCharacterID = CX2DefaultBoneInfo::CI_RAVEN;	break;
+	case CX2Unit::UT_EVE:		iCharacterID = CX2DefaultBoneInfo::CI_EVE;		break;
+	case CX2Unit::UT_CHUNG:		iCharacterID = CX2DefaultBoneInfo::CI_CHUNG;	break;
+	case CX2Unit::UT_ARA:		iCharacterID = CX2DefaultBoneInfo::CI_ARA;		break;
+	case CX2Unit::UT_ELESIS:	iCharacterID = CX2DefaultBoneInfo::CI_ELISIS;	break;
+	case CX2Unit::UT_ADD:		iCharacterID = CX2DefaultBoneInfo::CI_ADD;		break;
+	case CX2Unit::UT_LUCIEL:	iCharacterID = ( true == bSecondForm ? CX2DefaultBoneInfo::CI_CIEL : CX2DefaultBoneInfo::CI_LU );	break;
+	case CX2Unit::UT_ROSE:		iCharacterID = CX2DefaultBoneInfo::CI_ROSE;		break;
+	case CX2Unit::UT_AIN:		iCharacterID = CX2DefaultBoneInfo::CI_AIN;		break;
+	default:
+		break;
+	}
+
+	D3DXVECTOR3 vBip01( 0.f, 0.f, 0.f );
+	D3DXVECTOR3 vFootsteps( 0.f, 0.f, 0.f );
+	D3DXVECTOR3 vHead( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vRightThigh( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftThigh( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vRightCalf( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftCalf( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vRightFoot( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftFoot( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vRightHand( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftHand( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vRightDummyHand( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftDummyHand( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vSpine( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vPelvis( 1.f, 1.f, 1.f );	// never read from the table
+
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01", CX2DefaultBoneInfo::MBS_MOVE, vBip01 );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_Footsteps", CX2DefaultBoneInfo::MBS_MOVE, vFootsteps );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_Head", CX2DefaultBoneInfo::MBS_SCALE, vHead );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_R_Thigh", CX2DefaultBoneInfo::MBS_SCALE, vRightThigh );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_L_Thigh", CX2DefaultBoneInfo::MBS_SCALE, vLeftThigh );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_R_Calf", CX2DefaultBoneInfo::MBS_SCALE, vRightCalf );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_L_Calf", CX2DefaultBoneInfo::MBS_SCALE, vLeftCalf );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_R_Foot", CX2DefaultBoneInfo::MBS_SCALE, vRightFoot );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_L_Foot", CX2DefaultBoneInfo::MBS_SCALE, vLeftFoot );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_R_Hand", CX2DefaultBoneInfo::MBS_SCALE, vRightHand );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_L_Hand", CX2DefaultBoneInfo::MBS_SCALE, vLeftHand );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Dummy1_Rhand", CX2DefaultBoneInfo::MBS_SCALE, vRightDummyHand );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Dummy1_Lhand", CX2DefaultBoneInfo::MBS_SCALE, vLeftDummyHand );
+	m_DefaultBoneInfo.GetBoneModifyValue( iCharacterID, L"Bip01_Spine", CX2DefaultBoneInfo::MBS_SCALE, vSpine );
+
+	if( pXSkinAnim == NULL )
+		return;
+
+	if( wstrBoneName == L"Bip01" )
+		SetFrameMoveBoneY( pXSkinAnim->GetCloneFrame( L"Bip01" ), vBip01.y );
+	else if( wstrBoneName == L"Bip01_Footsteps" )
+		SetFrameMoveBoneY( pXSkinAnim->GetCloneFrame( L"Bip01_Footsteps" ), vFootsteps.y );
+	else if( wstrBoneName == L"Bip01_Head" )
+		SetFrameScaleByBoneName( pXSkinAnim, vHead, L"Bip01_Head", true );
+	else if( wstrBoneName == L"Bip01_R_Thigh" )
+		SetFrameScaleByBoneName( pXSkinAnim, vRightThigh, L"Bip01_R_Thigh", true );
+	else if( wstrBoneName == L"Bip01_L_Thigh" )
+		SetFrameScaleByBoneName( pXSkinAnim, vLeftThigh, L"Bip01_L_Thigh", true );
+	else if( wstrBoneName == L"Bip01_R_Calf" )
+		SetFrameScaleByBoneName( pXSkinAnim, vRightCalf, L"Bip01_R_Calf", true );
+	else if( wstrBoneName == L"Bip01_L_Calf" )
+		SetFrameScaleByBoneName( pXSkinAnim, vLeftCalf, L"Bip01_L_Calf", true );
+	else if( wstrBoneName == L"Bip01_R_Hand" )
+		SetFrameScaleByBoneName( pXSkinAnim, vRightHand, L"Bip01_R_Hand", true );
+	else if( wstrBoneName == L"Bip01_L_Hand" )
+		SetFrameScaleByBoneName( pXSkinAnim, vLeftHand, L"Bip01_L_Hand", true );
+	else if( wstrBoneName == L"Dummy1_Rhand" )
+		SetFrameScaleByBoneName( pXSkinAnim, vRightDummyHand, L"Dummy1_Rhand", true );
+	else if( wstrBoneName == L"Dummy2_Lhand" )
+		SetFrameScaleByBoneName( pXSkinAnim, vLeftDummyHand, L"Dummy2_Lhand", true );
+	else if( wstrBoneName == L"Bip01_R_Foot" )
+		SetFrameScaleByBoneName( pXSkinAnim, vRightFoot, L"Bip01_R_Foot", true );
+	else if( wstrBoneName == L"Bip01_L_Foot" )
+		SetFrameScaleByBoneName( pXSkinAnim, vLeftFoot, L"Bip01_L_Foot", true );
+	else if( wstrBoneName == L"Bip01_Spine" )
+		SetFrameScaleByBoneName( pXSkinAnim, vSpine, L"Bip01_Spine", true );
+	else if( wstrBoneName == L"Bip01_Spine1" )
+		SetFrameScaleByBoneName( pXSkinAnim, vSpine, L"Bip01_Spine1", true );
+	else if( wstrBoneName == L"Bip01_Pelvis" )
+		SetFrameScaleByBoneName( pXSkinAnim, vPelvis, L"Bip01_R_Foot", true );	// June scales the right foot here (JUNE_BUGS)
+
+	SetFrameMoveBoneY( pXSkinAnim->GetCloneFrame( L"Bip01" ), vBip01.y );
+	SetFrameMoveBoneY( pXSkinAnim->GetCloneFrame( L"Bip01_Footsteps" ), vFootsteps.y );
+	SetFrameScaleByBoneName( pXSkinAnim, vHead, L"Bip01_Head", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vRightThigh, L"Bip01_R_Thigh", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vLeftThigh, L"Bip01_L_Thigh", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vRightCalf, L"Bip01_R_Calf", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vLeftCalf, L"Bip01_L_Calf", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vRightHand, L"Bip01_R_Hand", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vLeftHand, L"Bip01_L_Hand", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vRightDummyHand, L"Dummy1_Rhand", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vLeftDummyHand, L"Dummy2_Lhand", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vRightFoot, L"Bip01_R_Foot", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vLeftFoot, L"Bip01_L_Foot", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vSpine, L"Bip01_Spine", true );
+	SetFrameScaleByBoneName( pXSkinAnim, vPelvis, L"Bip01_Pelvis", true );
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 CX2GlobalMissionManager* CX2Data::ResetGlobalMissionManager()
 {

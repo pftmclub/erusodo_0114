@@ -5413,6 +5413,14 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: the bone reform table is June's DefaultBoneInfo.lua (june-march-divergence D1-3f, 2026-10-30)
+
+Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3f Done"; March's body is the `#else` at both sites.
+- `SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM`: `CX2GUUser::SetUnitReForm` and `CX2UnitViewerUI::SetUnitReForm` are June's (`31fda0d0` / `31f99b20`): the per-character head / leg / hand / spine scales and the `Bip01` lift come from June's `DefaultBoneInfo.lua` (new `CX2DefaultBoneInfo` on `g_pData`, Lua global `g_pViewerSkinMesh`, loaded in `X2StateStartUp.cpp` before `ResetEnchantItem`), applied by the new `CX2Data::SetUnitReForm` (`31ee1f40`) instead of March's hard-coded switch. `m_fBasicBoneScale` is no longer raised for transformed Aisha (1.1) or Chung (1.08): June never sets it. Lu/Ciel (no second body here) returns early (`guards.tsv`). JUNE_BUGS 476-478.
+- Enum names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: `CX2Unit::UT_LUCIEL` (10), `UT_ROSE` (11).
+- Data: `DefaultBoneInfo.lua` added to `kom_contents/data036_kom` (June's bytecode, `luasrc.py adopt-june`); core-list `Enum.lua` gained June's `CHARACTER_ID` and `MODIFY_BONE_STYLE` tables (`luasrc.py refresh`).
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. With the flag off the Lua file is not loaded, so it and the two Enum tables can stay in data036. No save change.
+
 ### One function per name: equip hiding by division group (june-march-divergence D1-3d, 2026-10-29)
 
 Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3d Done"; March's body is the `#else`.

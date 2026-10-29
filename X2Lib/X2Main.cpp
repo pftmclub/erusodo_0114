@@ -3646,6 +3646,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2ItemManager>( L, "AddCoboDivisionItemTemplet_LUA",	&CX2ItemManager::AddCoboDivisionItemTemplet_LUA );	// June 31d95080 @31db3089
 #endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+	lua_tinker::class_add<CX2DefaultBoneInfo>( L, "CX2DefaultBoneInfo" );
+	lua_tinker::class_def<CX2DefaultBoneInfo>( L, "AddBoneInfo",	&CX2DefaultBoneInfo::AddBoneInfo );	// June 31d95080 @31da31b4
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	// June2017 31db3c8f / 31db3f10: TranscendentalClassItem.lua
 	lua_tinker::class_def<CX2ItemManager>( L, "AddTranscendentalUnitType",	&CX2ItemManager::AddTranscendentalUnitType_LUA );

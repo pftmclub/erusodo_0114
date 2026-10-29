@@ -10821,3 +10821,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP needs SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP ( the groups it tests )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-3f: CX2GUUser / CX2UnitViewerUI::SetUnitReForm are June's ( 31fda0d0 / 31f99b20 ): the per-class bone move and scale table is June's DefaultBoneInfo.lua ( g_pViewerSkinMesh:AddBoneInfo = 3214cc60, loaded at start-up = 3259afd3 ) applied by CX2Data::SetUnitReForm ( 31ee1f40 ) instead of March's hard-coded switch; m_fBasicBoneScale is no longer set there ( June never writes it after the ctor ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM ) && ( !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( MOVE_BONE ) || !defined( ELSWORD_SECOND_CLASS_CHANGE ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UT_LUCIEL / UT_ROSE / UT_AIN ), MOVE_BONE ( SetFrameMoveBoneY ) and ELSWORD_SECOND_CLASS_CHANGE ( SetUnitReForm )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
+//////////////////////////////////////////////////////////////////////////
