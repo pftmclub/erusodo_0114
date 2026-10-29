@@ -1625,6 +1625,58 @@ bool CX2RidingPetManager::GetRidingOn()
 
 bool CX2RidingPetManager::GetRidingOnState()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
+	// June 321fa590: a dungeon flagged DCC_NOT_SUMMON_RIDING_PET refuses; June's guild agit ( 15 ) and photo zone ( 26 ) states are not in March
+	bool Is_Riding_State = false;
+
+	switch( g_pMain->GetNowStateID() )
+	{
+	case CX2Main::XS_VILLAGE_MAP:
+		{
+			CX2SquareUnit* pMyUnit = NULL;
+			if( NULL != g_pTFieldGame )
+				pMyUnit = g_pTFieldGame->GetMyUnit();
+
+			if( NULL != pMyUnit && NULL != pMyUnit->GetUnit() )
+			{
+				if ( pMyUnit->GetNowState() == pMyUnit->GetStateID( "WAIT") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "WALK") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "DASH") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "RIDING_WAIT") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "RIDING_WAIT_HABIT") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "RIDING_WALK") ||
+					 pMyUnit->GetNowState() == pMyUnit->GetStateID( "RIDING_DASH") )
+					Is_Riding_State = true;
+			}
+		}
+		break;
+
+	case CX2Main::XS_BATTLE_FIELD:
+		// stand-in: June's boss-raid field test 32481fa0 refuses here first; its fields ( 40033 / 40034 / 40039-40044 ) are not in this build
+	case CX2Main::XS_DUNGEON_GAME:
+	case CX2Main::XS_TRAINING_GAME:
+		{
+			if( NULL != g_pX2Game && CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() && NULL != g_pData->GetPartyManager() )
+			{
+				CX2DungeonGame* pDungeonGame = static_cast<CX2DungeonGame*>( g_pX2Game );
+				if( NULL != pDungeonGame->GetDungeon() && NULL != pDungeonGame->GetDungeon()->GetDungeonData() &&
+					NULL != g_pData->GetDungeonManager() &&
+					true == g_pData->GetDungeonManager()->IsDungeonCheckCondition( pDungeonGame->GetDungeon()->GetDungeonData()->m_DungeonID, CX2DungeonManager::DCC_NOT_SUMMON_RIDING_PET ) )
+					return false;
+			}
+
+			// stand-in: June's 32932230 refuses next, for dungeon ids 100000-100532 / 110001-110310 / 120000 / 120010, none in this build
+			CX2GUUser* pMyGUUser = NULL;
+			if( NULL != g_pX2Game )
+				pMyGUUser = static_cast<CX2GUUser*>( g_pX2Game->GetMyUnit() );
+			if( NULL != pMyGUUser && NULL != pMyGUUser->GetUnit() && true == pMyGUUser->CanRidingState() )
+				Is_Riding_State = true;
+		}
+		break;
+	}
+
+	return Is_Riding_State;
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
 	bool Is_Riding_State = false;
 
 	switch( g_pMain->GetNowStateID() )
@@ -1666,6 +1718,7 @@ bool CX2RidingPetManager::GetRidingOnState()
 	}
 
 	return Is_Riding_State;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
 }
 
 void CX2RidingPetManager::DeleteRidingPetOnList( UidType deleteUid_ )

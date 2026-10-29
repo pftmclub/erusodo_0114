@@ -5398,3 +5398,17 @@ Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#els
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT`: a guild quest's window leaves the fixed-reward slots alone (June `323d5160`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST` (D1-4b): the quick-quest window fills its slots as June does: completed / chain-waiting story quests take no slot, a quest whose one sub-quest group has a together-clear row shows only those rows, story quest titles are red, custom-event quests are skipped (none here), each Complete button's alpha is reset (June `323dd640` / `323da7a0`). `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR` also covers `GetQuestColorString` (June `32323000`, grey from 8 levels above).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: equipment, riding pet, items, skill tree (june-march-divergence D1-3, 2026-10-29)
+
+Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3 Done"; rows of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE`: the sword enchant particles (`InitEnchantParticleForSword`, `AppendEnchantParticleForSwordToDeviceList`) also cover June's 30 combined enchant types; the quadra masters use the `Property04` set (June `3228cb30` / `3226ecc0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID`: `CX2Inventory::GetNumItemByTID` counts shared-bank items, leaves June's `ST_COMMON_BANK` (registered, 16) out with the bank types, and takes June's two extra arguments (June `32869b80`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD`: an NPC's `FORCE_CINEMATIC_STATE` is matched by keyword in the dungeon input lock and the boss intro (June `3275aaf0` = `GetStateIDByKeyword`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS`: the riding pet stores the saddle relative to the rider; the user's and the square unit's draw add the rider position (June `32d2d7e0` and its four readers).
+- `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_SOCKET_TEMPLET`: the unit's riding-pet socket lookup uses the pet's UID as June does (JUNE_BUGS 470).
+- `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE`: `GetRidingOnState` refuses in a dungeon flagged `DCC_NOT_SUMMON_RIDING_PET` (registered, 8; June `321fa590`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT`: another unit's skill tree is rebuilt through `AddAcquiredSkills`, with its equipped slots and the out-of-tree skills a learned skill links (June `328926f0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT`: `SetSkillCoolTimeLeft` gives every skill type the passed time, matches the upgrade-swapped id (new third argument, default true) and runs bar B when slot-state key 0 or 1 is usable (June `32893880`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

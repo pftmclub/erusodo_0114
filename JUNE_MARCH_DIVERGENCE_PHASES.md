@@ -775,7 +775,8 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **D1-2** user / NPC states and combat: 237, 238, 239, 240, 241, 242, 243, 244, 247, 249, 371, call sites 330, 364.
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
-  missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue`.
+  missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`.
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -925,6 +926,56 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Build:** `DEPLOY OK: X2_offline.exe is 25,809,920 B, dated 2026-10-29 15:31:22, md5 00ce3d231498557f7caf99d45c476bbb, equal to
   X2/US_SERVICE/x2.exe (2026-10-29 15:31:15); built at main 2c4f7e85 + 2 uncommitted code file(s).` (PCH rebuilt for the `Always.h` edit.)
 - **Smoke (plan end):** as D1-1 / D1-2 / D1-2b; the camera fix has no offline effect.
+
+### D1-3 Done (2026-10-29, Opus 5.5; eight `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 261, 262 | `Weapon::AppendEnchantParticleForSwordToDeviceList` / `InitEnchantParticleForSword` | `3226ecc0` / `3228cb30` | `ENCHANT_PARTICLE` | 30 more enchant types (triple, double-double: the Property01 sets; quadra masters 4004 / 4044 / 4404: `Property04_M_*`, present in `GameMajorParticle44.txt`) |
+| 266 | `CX2Inventory::GetNumItemByTID` | `32869b80` | `ITEM_COUNT_BY_TID` | shared-bank items count; the bank flag also skips June's `ST_COMMON_BANK` (registered = 16); args 4-5 ( damage-range items, time-locked items ), defaults 1 / 0 as 99 of June's 114 call sites |
+| 267 | `GetStateID` (call sites) | `3275aaf0` | `STATE_ID_BY_KEYWORD` | the dungeon input lock (C3s) and the boss intro (C3w) match `FORCE_CINEMATIC_STATE` by keyword |
+| 268 | `CX2RidingPet::GetUserInfo` + 4 readers | `32d2d7e0`; `32062903`, `3206532c`, `323f2847`, `323f29e3` | `SADDLE_POS` | saddle = bone - rider position; `CommonFrameMoveFuture` / `CommonFrameMove` / the square unit and its viewer add the position back |
+| 269 | riding socket sum (call site) | `32365d30` @`323664e6` | `RIDING_SOCKET_TEMPLET` | templet looked up by the pet UID's low dword (JUNE_BUGS 470) |
+| 270 | `CX2RidingPetManager::GetRidingOnState` | `321fa590` | `RIDING_ON_STATE` | a `DCC_NOT_SUMMON_RIDING_PET` dungeon (registered = 8, `IsDungeonCheckCondition`) refuses |
+| 274 | `CX2UserSkillTree::ConstructSkillTreeNotMyUnit` | `328926f0` | `SKILL_TREE_NOT_MY_UNIT` | no `Reset`: `AddAcquiredSkills` of the in-tree skills, the out-of-tree ones a learned skill links (`SA_ADD_LEARN_SKILL_LIST_1-3`, new `AppendLinkedLearnSkill` = `32892590`), equipped A / B |
+| 275 | `CX2UserSkillTree::SetSkillCoolTimeLeft` | `32893880` | `SKILL_COOL_TIME_LEFT` | no relationship / hyper-active override; matches the upgrade-swapped id (3rd arg, default true as 45 of 53 June sites); bar B when key 0 or 1 is usable |
+| (twin) | `CX2GUUser::GetSkillLevel` -> `GetSkillLevelValue` | `31fceab0` | D1-1's `SKILL_LEVEL_VALUE` | one function: `int GetSkillLevelValue( const int ) const` holds June's body; 54 calls renamed (VioletMage 26, Eve 24, user 4) |
+
+- **Corrections to the tsv** (rows annotated): 266's `0x10` is June's `ST_COMMON_BANK` (June `Enum.lua` `SORT_TYPE`), not the shared bank, and
+  `32882230` is true while item `+0x50` (a 64-bit time from `KItemInfo +0x97`) is still ahead, not "expired"; 267's `3275aaf0` is June's
+  `GetStateIDByKeyword` (June's monster-state cheat `32748270` calls it where `X2GameEdit.cpp:495` does), so March's exact `GetStateID` stays
+  and only the two call sites change; 250's call goes to `g_pData` (`0x33775860`), not `g_pX2Game`; 252's function equals March's (the
+  weapon loop is March's `ADD_UPGRADE_WEAPON_PARTICLE`), the divergence is the +11 / +13 particle family it calls.
+- **Method:** 261 / 262 were emulated (unicorn, every value 0-6999): both functions give 66 values, the same names per value. Call-site
+  defaults come from the pushes before every June call (`xrefs_to`).
+- **Stand-ins (one-line comments):** item `+0x50` time (March's `ItemData` lacks it: `bIncludeTimeLockedItem` skips nothing; Stage 16 bullet);
+  square-unit byte `+0x794` cleared on load (`@32d2d8bc`, unidentified); June's guild-agit (15) / photo-zone (26) states in
+  `GetRidingOnState` (not in March, as D1-4's play guide); its boss-raid field `32481fa0` and dungeon-id list `32932230` (ids not in this build);
+  March's page vector for June's single acquired map in 274. The rate step in 275 stays under `SERV_BALANCE_FINALITY_SKILL_EVENT` as in
+  March's body (undefined here; June runs `3234cc10` always -> D1-3b).
+- **June bugs kept:** `JUNE_BUGS.md` 470 (riding socket by UID), 471 (bar B's rate step writes the bar-A gauge slot, `@32893dd8`; March has it too).
+- **Split to D1-3b** (`kickoffs/june-march-divergence/D1-3b.md`): 252 (the upgrade-weapon particle family, 10 handles), 250 (`31ee1f40`,
+  about 970 decompiled lines of per-class bone data), 251 (about 2,200 lines), 205, 263, and `3234cc10`.
+- **Leads for the D1-4 review (kickoff):** the Bow enchant pair was not compared; `CX2OfflineInventory`'s server-side count keeps March's
+  exclusions (the emulator models the server).
+- **No guard:** no unported class can crash on these bodies (the riding and skill-tree paths read only common state).
+- **Bookkeeping:** tsv rows 250 / 252 / 266 / 267 annotated; funcmap rows `(Diverge D1-3)` x7; `MODS.md` D1-3 entry; Stage 16 bullet.
+- **Hygiene:** `flagcheck --worktree --files` per flag: `RESULT: PASS` for all eight new flags (0 FAIL, 0 ERROR, 0 deleted lines, 0 non-ASCII,
+  0 EOL mismatches, 0 `#else`/`#endif` without the token; `Always.h` OTHER = the sibling defines). `SADDLE_POS` and `SKILL_LEVEL_VALUE`
+  pass with `--with` each other and `JUNE_USER_SKILL_LEVEL_HELPERS` once `Always.h` is left out of `--files`; with it, one ERROR row is the new
+  compound HELPERS guard flagcheck cannot evaluate (as D1-2 review's `LUA_CAMERA`). The fold's deleted lines (old twin definition 13, its
+  declaration 1, and the 54 renamed calls) all sit inside June blocks (`CHAR_ARME_*`, `CHAR_EVE_*`, `EFFECT_SET_LIST_VARIANTS`, HELPERS).
+  `cl /c /Zs` (no PCH) of the 12 changed `.cpp`: exit 0, no warning in the new lines; it caught one guard of mine that could never pass
+  (`ENCHANT_PARTICLE` on `X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD`, defined in `KTDX.h:258` after `Always.h`), removed before the build.
+  The first build then stopped in KTDXLIB on the HELPERS guard's `SERV_ADD_LUNATIC_PSYKER` half (not visible to KTDXLIB): narrowed to
+  `SKILL_LEVEL_VALUE` (both defined earlier in `Always.h`), rebuilt.
+  `enumscan --check` on the 17 files: 29 A/B rows, all old lines in `X2Unit.cpp` / `X2GUUser.h`, none in this phase's hunks.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,811,968 B, dated 2026-10-29 17:34:24, md5 3229774dc762c74205a1954f4059f099, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 17:34:17); built at main 0d2f5c99 + 17 uncommitted code file(s).` (all 17 are this phase's.)
+  `EXESTR OK: 2 of 2 found in X2_offline.exe` (`Weapon_Elsword_Property04_M_Fire`, `_M_Poison2`, wide).
+- **Smoke (plan end):** Elsword with a triple-attribute weapon shows its enchant glow; quest items in the shared bank count toward a
+  collect quest; riding a pet in a village and a dungeon, the rider sits on the saddle (not at the map origin); Aisha's cool times after
+  a skill use; another player's (or a party bot's) passives apply in a dungeon.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

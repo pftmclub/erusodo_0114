@@ -2666,7 +2666,11 @@ void CX2SquareUnit::StateFrameMove()
 #ifdef RIDING_SYSTEM
 	if ( true == m_SyncData.m_bRidingOn )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+		GetMatrix().Move( m_SyncData.m_Pos + m_SyncData.m_vSaddlePos );	// June 323f2847: the saddle is relative to the rider
+#else SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 		GetMatrix().Move( m_SyncData.m_vSaddlePos );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 		GetMatrix().Rotate( D3DXToRadian(m_SyncData.m_vDirDegree.x), D3DXToRadian(m_SyncData.m_vDirDegree.y), D3DXToRadian(m_SyncData.m_vDirDegree.z) );
 	}
 	else
@@ -2685,7 +2689,11 @@ void CX2SquareUnit::StateFrameMove()
 	#ifdef RIDING_SYSTEM
 		if ( true == m_SyncData.m_bRidingOn )
 		{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+			m_pUnitViewer->GetMatrix().Move( m_SyncData.m_Pos + m_SyncData.m_vSaddlePos );	// June 323f29e3: the saddle is relative to the rider
+#else SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 			m_pUnitViewer->GetMatrix().Move( m_SyncData.m_vSaddlePos );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 			m_pUnitViewer->GetMatrix().Rotate( D3DXToRadian(m_SyncData.m_vDirDegree.x), D3DXToRadian(m_SyncData.m_vDirDegree.y), D3DXToRadian(m_SyncData.m_vDirDegree.z) );
 		}
 		else

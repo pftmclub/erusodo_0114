@@ -851,6 +851,9 @@ Routed elsewhere:
 - *(from june-march-divergence D0c-3, 2026-10-29)* three item-side March functions differ from June's: `CX2ItemManager::OpenScriptFile` (June
   binds nine item globals, `3280d3c0`), `Handler_EGS_USE_ITEM_IN_INVENTORY_REQ` (June: temp code only when > 0, an extra wstring, no per-item
   switch, `32172190`), `Handler_EGS_USE_FINALITY_SKILL_REQ` (a second item UID, `322eef30`). Rows in `tools/data/june_march_divergent.tsv` (owner Stage 16).
+- *(from june-march-divergence D1-3, 2026-10-29)* June's item time field: `ItemData +0x50` (64-bit, from `KItemInfo +0x97`, ctor `31ed7e90`
+  @`31ed7f41`), tested by `32882230` (true while the time is not reached; 20+ callers, e.g. `3216a2b0` shows string 1813). March's `KItemInfo`
+  and `ItemData` lack it; D1-3's `GetNumItemByTID` keeps June's argument with a stand-in. Port with the packet field and the emulator.
 
 **Depends on:** Stage 13 (K2).
 

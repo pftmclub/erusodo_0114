@@ -37,6 +37,9 @@ class CX2Inventory
 			//}}
 			
 			ST_END,
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
+			ST_COMMON_BANK = 16,	// June SORT_TYPE: no March slot of this type
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
 		};
 
 		enum	MEMBERSHIP_PRIVATE_BANK
@@ -115,7 +118,12 @@ private:
 		bool		AddItem( SORT_TYPE sortType, int slotID, CX2Item* pItem );
 		bool		AddItem( SORT_TYPE sortType, int slotID, CX2ItemData_Base& kItemData );
 	
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
+		int			GetNumItemByTID( int itemTID, bool bExcludeEquipped = false, bool bIncludeBankType = false, bool bIncludeDamageRangeItem = true, bool bIncludeTimeLockedItem = false ) const;	// June 32869b80; its callers pass ( .., 1, 0 ) at 99 of 114 sites
+		bool		IsDamageRangeCountedItem( int itemTID ) const;
+#else SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
 		int			GetNumItemByTID( int itemTID, bool bExcludeEquipped = false, bool bIncludeBankType = false ) const;				// TID에 해당하는 아이템의 개수를 return
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
 
 		//{{ mauntain : 김태환 [2012.07.16] 인벤토리 및 슬롯을 고려한 아이템 구입 갯수 연산
 #ifdef SERV_AUTOMATICALLY_REGISTER_FOR_CONSUMABLE_ITEM

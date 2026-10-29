@@ -10685,3 +10685,86 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST needs SERV_IRUHADEV_JUNE_QUEST_UI ( IsFriendshipQuest, QTS_STORY ) and SERV_IRUHADEV_JUNE_QUEST_LOAD ( SQT_TOGETHER_SUBQUEST_CLEAR )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: the sword enchant particles also cover June's 30 combined enchant types ( triple, double-double, quadra master with the Property04 set; June 3228cb30 / 3226ecc0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: CX2Inventory::GetNumItemByTID counts as June does: shared-bank items count, the bank flag also covers June's ST_COMMON_BANK, two more arguments ( damage-range items, time-locked items; June 32869b80 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID ) && !defined( SERV_IRUHADEV_JUNE_ITEM_KIM )
+#error SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID needs SERV_IRUHADEV_JUNE_ITEM_KIM ( GetDamageRange )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: an NPC's FORCE_CINEMATIC_STATE is matched by keyword ( first state name containing it ), as June's dungeon game and boss intro do ( June 3275aaf0 = GetStateIDByKeyword ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD ) && !defined( MONSTER_STATE_CHANGE_CHEAT )
+#error SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD needs MONSTER_STATE_CHANGE_CHEAT ( CX2GUNPC::GetStateIDByKeyword )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: the riding pet stores the saddle relative to its rider and the rider's draw ( user and square unit ) adds its position back ( June 32d2d7e0, 32062903, 3206532c, 323f2847, 323f29e3 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS ) && !defined( RIDING_SYSTEM )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS needs RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: the unit's riding-pet socket options look the templet up by the riding pet's UID, as June does ( June @323664e6, JUNE_BUGS ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_RIDING_SOCKET_TEMPLET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: CX2RidingPetManager::GetRidingOnState refuses in a dungeon flagged DCC_NOT_SUMMON_RIDING_PET ( June 321fa590 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE ) && !defined( SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION )
+#error SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE needs SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION ( IsDungeonCheckCondition )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: another unit's skill tree is rebuilt as June does: no Reset, AddAcquiredSkills with the equipped slots and the out-of-tree skills a learned skill links ( June 328926f0 / 32892590 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT ) && ( !defined( SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddAcquiredSkills ) and SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillAbilityValue )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: SetSkillCoolTimeLeft gives every skill type the passed time, matches the upgrade-swapped id and runs bar B when slot-state key 0 or 1 is usable ( June 32893880 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT ) && ( !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetUpgradeSwappedSkillID ) and SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( IsSlotUsable )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3: CX2GUUser::GetSkillLevel ( June 31fceab0 ) is folded into SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE's GetSkillLevelValue; the helper flag's callers now call it. No new flag.
+#if defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE )
+#error SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue( int ) )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+//////////////////////////////////////////////////////////////////////////

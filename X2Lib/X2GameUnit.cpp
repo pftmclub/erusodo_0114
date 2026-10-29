@@ -10245,6 +10245,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_Fire", 
 				L"Weapon_Elsword_Property01_Fire2",
@@ -10256,6 +10261,14 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_M_Fire", 
 				L"Weapon_Elsword_Property01_M_Fire2",
@@ -10269,6 +10282,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_Ice", 
 				L"Weapon_Elsword_Property01_Ice2",
@@ -10280,6 +10298,14 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_M_Ice", 
 				L"Weapon_Elsword_Property01_M_Ice2",
@@ -10293,6 +10319,11 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_Poison", 
 				L"Weapon_Elsword_Property01_Poison2",
@@ -10304,11 +10335,33 @@ void CX2GameUnit::Weapon::InitEnchantParticleForSword()
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			CreateEnchantParticle( L"Weapon_Elsword_Property01_M_Poison", 
 				L"Weapon_Elsword_Property01_M_Poison2",
 				L"Weapon_Elsword_Property01_M_Poison2" );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Elsword_Property04_M_Fire", L"Weapon_Elsword_Property04_M_Fire2", L"Weapon_Elsword_Property04_M_Fire2" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Elsword_Property04_M_Ice", L"Weapon_Elsword_Property04_M_Ice2", L"Weapon_Elsword_Property04_M_Ice2" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			CreateEnchantParticle( L"Weapon_Elsword_Property04_M_Poison", L"Weapon_Elsword_Property04_M_Poison2", L"Weapon_Elsword_Property04_M_Poison2" );
+		} break;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 	}
 }
 
@@ -10328,6 +10381,11 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Fire" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Fire2" );
@@ -10338,6 +10396,14 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Fire" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Fire2" );
@@ -10350,6 +10416,11 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Ice" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Ice2" );
@@ -10360,6 +10431,14 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Ice" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Ice2" );
@@ -10372,6 +10451,11 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Poison" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_Poison2" );
@@ -10382,10 +10466,35 @@ void	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( CKTDXDevice
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 		{
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Poison" );
 			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property01_M_Poison2" );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Fire" );
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Fire2" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Ice" );
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Ice2" );
+		} break;
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Poison" );
+			g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"Weapon_Elsword_Property04_M_Poison2" );
+		} break;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ENCHANT_PARTICLE
 	}
 }
 

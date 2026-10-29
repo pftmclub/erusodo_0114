@@ -2554,7 +2554,11 @@ void CX2DungeonGame::UpdateUnitPointerNPCWalk()
 			// +0x8454 ), whether or not m_bStopAtStartState ( +0x8e38 ) is set. Without the key June runs March's test.
 			const bool bForceCinematic = pCX2GUNPC->HasForceCinematicState();
 			const bool bInForceCinematic = true == bForceCinematic
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
+				&& pCX2GUNPC->GetStateIDByKeyword( pCX2GUNPC->GetForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());	// June 3275aaf0: the first state name that contains the key
+#else SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
 				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());
+#endif SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
 			if( true == pCX2GUNPC->GetStopAtStartState() && false == bForceCinematic )
 			{
 				CanNotInputAndDisalbeNPCAI( pCX2GUNPC->GetStartState() == static_cast<int>(pCX2GUNPC->GetGameUnitState()) );

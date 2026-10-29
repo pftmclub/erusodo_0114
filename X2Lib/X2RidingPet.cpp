@@ -1881,6 +1881,53 @@ void CX2RidingPet::ClearState()
 #pragma region GetUserInfo
 void CX2RidingPet::GetUserInfo( IN D3DXVECTOR3 &vPos, IN bool &bIsRight_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+	// June 32d2d7e0: the saddle is kept relative to the rider ( bone - rider position ); the rider's draw adds its position back
+	vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	bIsRight_ = true;
+
+	if ( -1 >= m_UserUid )
+		return;
+
+	if ( NULL != g_pX2Game )
+	{
+		CX2GUUser* pUser = static_cast<CX2GUUser*>( g_pX2Game->GetUserUnitByUID( m_UserUid ) );
+
+		if ( NULL != pUser && NULL != m_pXSkinAnim )
+		{
+			D3DXVECTOR3 vRot;
+			pUser->SetSaddlePos( GetBonePos( L"Saddle_Dummy01" ) - pUser->GetPos() );
+			GetFrameRotateDegree( &vRot, m_pXSkinAnim->GetCloneFrame( L"Saddle_Dummy01" ) );
+			pUser->SetSaddleDegree( vRot );
+			pUser->SetRidingMotionName( m_wstrRidingMotion );
+
+			vPos = pUser->GetPos();
+			bIsRight_ = pUser->GetIsRight();
+			if ( true == m_bLoaded )
+				pUser->SetRidingOn( true );
+
+			m_pXSkinAnim->GetMatrix().Scale( pUser->GetScaleByUnit() );
+		}
+	}
+	else if ( NULL != g_pTFieldGame )
+	{
+		CX2SquareUnit* pUser = static_cast<CX2SquareUnit*>( g_pTFieldGame->GetSquareUnitByUID( m_UserUid ) );
+
+		if ( NULL != pUser && NULL != m_pXSkinAnim )
+		{
+			D3DXVECTOR3 vRot;
+			pUser->SetSaddlePos( GetBonePos( L"Saddle_Dummy01" ) - pUser->GetPos() );
+			GetFrameRotateDegree( &vRot, m_pXSkinAnim->GetCloneFrame( L"Saddle_Dummy01" ) );
+			pUser->SetSaddleDegree( vRot );
+			pUser->SetRidingMotionName( m_wstrRidingMotion );
+
+			vPos = pUser->GetPos();
+			bIsRight_ = pUser->GetIsRight();
+			if ( true == m_bLoaded )
+				pUser->SetRidingOn( true );	// stand-in: June also clears square-unit byte +0x794 here ( @32d2d8bc ), member not identified
+		}
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 	vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
 	bIsRight_ = true;
 
@@ -1925,6 +1972,7 @@ void CX2RidingPet::GetUserInfo( IN D3DXVECTOR3 &vPos, IN bool &bIsRight_ )
 				pUser->SetRidingOn( true );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 }
 #pragma endregion 안장 위치 전달, 현재 위치 구하기
 

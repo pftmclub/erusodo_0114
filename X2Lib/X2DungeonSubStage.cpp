@@ -1310,7 +1310,11 @@ void CX2DungeonSubStage::ShowBossNameAtStart( float fElapsedTimeSubStage )
 
 			/// @327ef31b-327ef355: a forced state gates the intro, also when m_bShowBossName and the delay already allow it.
 			if( true == bForceCinematic
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
+				&& pCX2GUNPC->GetStateIDByKeyword( pCX2GUNPC->GetForceCinematicState() ) != static_cast<int>(pCX2GUNPC->GetGameUnitState()) )	// June 3275aaf0: the first state name that contains the key
+#else SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
 				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetForceCinematicState() ) != static_cast<int>(pCX2GUNPC->GetGameUnitState()) )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_STATE_ID_BY_KEYWORD
 				continue;
 
 			CKTDGParticleSystem::CParticleEventSequence* pSeq =

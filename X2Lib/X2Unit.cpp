@@ -1525,6 +1525,13 @@ void CX2Unit::InitSocketData( const int iMode_ )
 	/// at rate 1.0 and this unit's level. March keeps that list on the riding pet's templet, where CX2GUUser::InitSocketData reads it.
 	if ( NULL != CX2RidingPetManager::GetInstance() && true == CX2RidingPetManager::GetInstance()->GetRidingOn() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_SOCKET_TEMPLET
+		// June @323664e6: the riding pet's UID ( manager +0x40 ) passed as the templet id, low dword ( JUNE_BUGS )
+		CX2RidingPetManager::RidingPetTemplet* pRidingPetTemplet =
+			CX2RidingPetManager::GetInstance()->GetRidingPetTemplet( static_cast<CX2RidingPetManager::RIDING_PET_UNIT_ID>( CX2RidingPetManager::GetInstance()->GetRidingPetId() ) );
+		if ( NULL != pRidingPetTemplet )
+			SumSocketOption( pRidingPetTemplet->m_vecSocketOption, 1.f, static_cast<int>( m_UnitData.m_Level ) );
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_SOCKET_TEMPLET
 		CX2RidingPet* pRidingPet = CX2RidingPetManager::GetInstance()->GetMyRidingPet();
 		if ( NULL != pRidingPet )
 		{
@@ -1533,6 +1540,7 @@ void CX2Unit::InitSocketData( const int iMode_ )
 			if ( NULL != pRidingPetTemplet )
 				SumSocketOption( pRidingPetTemplet->m_vecSocketOption, 1.f, static_cast<int>( m_UnitData.m_Level ) );
 		}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_SOCKET_TEMPLET
 	}
 #endif RIDING_SYSTEM
 

@@ -225,6 +225,9 @@ public:		/// public function
 	void SetEquippedSkillLevelPlus( const int aEquippedSkillLevelPlus[], const int aEquippedSkillLevelPlusSlotB[] );
 
 	void ConstructSkillTreeNotMyUnit( const std::vector<KSkillData>& vecSkillData, const KSkillData aEquippedSkill[], const KSkillData aEquippedSkillSlotB[] );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
+	void AppendLinkedLearnSkill( CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_, int iSkillLevel_, std::vector<KSkillData>& vecSkillData_ ) const;	/// June 32892590
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
 
 #ifdef SKILL_PAGE_SYSTEM //JHKang
 	void AddSkillPage();
@@ -333,7 +336,11 @@ public:		/// public function
 	// 09.05.30 태완
 	int GetSkillEquippedSlotIndex( CX2SkillTree::SKILL_ID eSkillID, bool bSlotB ) const;		// 없으면 -1. 빈칸을 찾고 싶으면 스킬ID를 SI_NONE로 입력하면 된다.
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
+	void SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, float fCoolTimeLeft, bool bUpgradeSwap_ = true );	/// June 32893880; its callers pass true at 45 of 53 sites
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 	void SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, float fCoolTimeLeft );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 
 //{{ kimhc // 2010.11.2 // 엠프레스 - 충전 추진기
 #ifdef	NEW_SKILL_2010_11

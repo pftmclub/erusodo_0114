@@ -427,6 +427,61 @@ bool CX2Inventory::AddItem( CX2Inventory::SORT_TYPE sortType, int slotID, CX2Ite
 
 
 // @bExcludeEquipped : 장착장비는 제외하고
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
+// June 32869b80: ST_SHARE_BANK counts; the bank flag also covers June's ST_COMMON_BANK
+int CX2Inventory::GetNumItemByTID( int itemTID, bool bExcludeEquipped /*= false*/, bool bIncludeBankType /*= false*/, bool bIncludeDamageRangeItem /*= true*/, bool bIncludeTimeLockedItem /*= false*/ ) const
+{
+	int nCount = 0;
+	map<UidType,InvenSlotData*>::const_iterator iter;
+	for ( iter = m_ItemMapTotal.begin(); iter != m_ItemMapTotal.end(); ++iter )
+	{
+		const InvenSlotData* pInvenSlotData = iter->second;
+		if ( pInvenSlotData->m_pItem == NULL ||
+			pInvenSlotData->m_pItem->GetItemTemplet() == NULL ||
+			pInvenSlotData->m_pItem->GetItemTemplet()->GetItemID() != itemTID )
+			continue;
+
+		if ( true == bExcludeEquipped &&
+			( ST_E_EQUIP == pInvenSlotData->m_SortType || ST_E_QUICK_SLOT == pInvenSlotData->m_SortType ) )
+			continue;
+
+		if ( false == bIncludeBankType &&
+			( ST_BANK == pInvenSlotData->m_SortType || ST_COMMON_BANK == pInvenSlotData->m_SortType || ST_PET == pInvenSlotData->m_SortType ) )
+			continue;
+
+		// stand-in: ItemData lacks June's 64-bit time +0x50 ( KItemInfo +0x97, tested by 32882230 ), so bIncludeTimeLockedItem skips nothing
+		if ( false == bIncludeDamageRangeItem &&
+			pInvenSlotData->m_pItem->GetItemTemplet()->GetDamageRange() > 0.f &&
+			false == IsDamageRangeCountedItem( itemTID ) )
+			continue;
+
+		nCount += pInvenSlotData->m_pItem->GetItemData().m_Quantity;
+	}
+
+	return nCount;
+}
+
+// June 328697b0: the items GetNumItemByTID still counts when it leaves out damage-range items
+bool CX2Inventory::IsDamageRangeCountedItem( int itemTID ) const
+{
+	switch ( itemTID )
+	{
+	case 184407:
+	case 184411:
+	case 184425:
+	case 184429:
+	case 184433:
+	case 184437:
+	case 185072:
+	case 185073:
+	case 185074:
+	case 185075:
+		return true;
+	}
+
+	return false;
+}
+#else SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
 int CX2Inventory::GetNumItemByTID( int itemTID, bool bExcludeEquipped /*= false*/, bool bIncludeBankType /* = false */) const
 {
 	int nCount = 0;
@@ -483,6 +538,7 @@ int CX2Inventory::GetNumItemByTID( int itemTID, bool bExcludeEquipped /*= false*
 
 	return nCount;
 }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ITEM_COUNT_BY_TID
 
 //{{ mauntain : 김태환 [2012.07.16] 인벤토리 및 슬롯을 고려한 아이템 구입 갯수 연산
 #ifdef SERV_AUTOMATICALLY_REGISTER_FOR_CONSUMABLE_ITEM

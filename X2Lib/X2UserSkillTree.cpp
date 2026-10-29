@@ -342,8 +342,97 @@ void CX2UserSkillTree::Reset( bool bResetSkillTree, bool bResetGuildSkillTree, b
 	@param[out]	aEquippedSkill[] : A Slot
 	@param[out]	aEquippedSkillSlotB[] : B Slot
 */
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
+// June 32892590: the skill an ability names ( its value at the level ) is listed with that level when it has a templet
+void CX2UserSkillTree::AppendLinkedLearnSkill( CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SkillTemplet* pSkillTemplet_, int iSkillLevel_, std::vector<KSkillData>& vecSkillData_ ) const
+{
+	if( NULL == pSkillTemplet_ )
+		return;
+
+	const int iLinkedSkillID = static_cast<int>( pSkillTemplet_->GetSkillAbilityValue( eType_, iSkillLevel_, false ) );
+	if( 0 < iLinkedSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iLinkedSkillID ) ) )
+	{
+		KSkillData kLinked;
+		kLinked.Init();
+		kLinked.m_iSkillID = static_cast<short>( iLinkedSkillID );
+		kLinked.m_cSkillLevel = static_cast<UCHAR>( iSkillLevel_ );
+		vecSkillData_.push_back( kLinked );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
 void CX2UserSkillTree::ConstructSkillTreeNotMyUnit( const std::vector<KSkillData>& vecSkillData, const KSkillData aEquippedSkill[], const KSkillData aEquippedSkillSlotB[] )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
+	// June 328926f0: no Reset; the acquired map is refilled through AddAcquiredSkills, keeping out-of-tree skills a learned skill links
+	if( true == m_vecSkillDataMap.empty() )
+		m_vecSkillDataMap.push_back( SkillDataMap() );	// stand-in: March's page vector holds June's single acquired map ( +0x4a8 )
+	if( m_usUsingPage < m_vecSkillDataMap.size() )
+		m_vecSkillDataMap[ m_usUsingPage ].clear();
+
+	std::vector<KSkillData> vecAcquired;
+	if( NULL != g_pData->GetSkillTree() )
+	{
+		std::vector<KSkillData> vecLinked;
+		std::vector<KSkillData> vecOutOfTree;
+		BOOST_TEST_FOREACH( const KSkillData&, kSkillData, vecSkillData )
+		{
+			const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( kSkillData.m_iSkillID );
+			if( NULL == g_pData->GetSkillTree()->GetSkillTreeTemplet( GetUnitClass(), eSkillID ) )
+			{
+				vecOutOfTree.push_back( kSkillData );
+				continue;
+			}
+
+			vecAcquired.push_back( kSkillData );
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+			AppendLinkedLearnSkill( CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_1, pSkillTemplet, static_cast<int>( kSkillData.m_cSkillLevel ), vecLinked );
+			AppendLinkedLearnSkill( CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_2, pSkillTemplet, static_cast<int>( kSkillData.m_cSkillLevel ), vecLinked );
+			AppendLinkedLearnSkill( CX2SkillTree::SA_ADD_LEARN_SKILL_LIST_3, pSkillTemplet, static_cast<int>( kSkillData.m_cSkillLevel ), vecLinked );
+		}
+
+		for( UINT i = 0; i < vecLinked.size(); ++i )
+		{
+			for( UINT j = 0; j < vecOutOfTree.size(); ++j )
+			{
+				if( vecLinked[i].m_iSkillID != vecOutOfTree[j].m_iSkillID )
+					continue;
+
+				bool bAcquired = false;
+				for( UINT k = 0; k < vecAcquired.size(); ++k )
+				{
+					if( vecAcquired[k].m_iSkillID == vecOutOfTree[j].m_iSkillID )
+					{
+						bAcquired = true;
+						break;
+					}
+				}
+				if( false == bAcquired )
+					vecAcquired.push_back( vecOutOfTree[j] );
+			}
+		}
+	}
+
+	for( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+	{
+		KSkillData kEquipped;
+		if( 0 < aEquippedSkill[i].m_iSkillID )
+		{
+			kEquipped.Init();
+			kEquipped.m_iSkillID = aEquippedSkill[i].m_iSkillID;
+			kEquipped.m_cSkillLevel = aEquippedSkill[i].m_cSkillLevel;
+			vecAcquired.push_back( kEquipped );
+		}
+		if( 0 < aEquippedSkillSlotB[i].m_iSkillID )
+		{
+			kEquipped.Init();
+			kEquipped.m_iSkillID = aEquippedSkillSlotB[i].m_iSkillID;
+			kEquipped.m_cSkillLevel = aEquippedSkillSlotB[i].m_cSkillLevel;
+			vecAcquired.push_back( kEquipped );
+		}
+	}
+
+	AddAcquiredSkills( vecAcquired );
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
 	// 오현빈 // 
 	// 추가 된 m_iIncreaseSkillLevelBySocket값을 초기화 시키지 않기 위해 false로 변경
 #ifdef SKILL_PAGE_SYSTEM //JHKang
@@ -373,6 +462,7 @@ void CX2UserSkillTree::ConstructSkillTreeNotMyUnit( const std::vector<KSkillData
 	{
 		SetSkillLevelAndCSP( (CX2SkillTree::SKILL_ID) kSkillData.m_iSkillID, (int) kSkillData.m_cSkillLevel, 0 );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_TREE_NOT_MY_UNIT
 }
 
 #ifdef GUILD_SKILL
@@ -2674,8 +2764,69 @@ bool CX2UserSkillTree::GetEnabledSkillSlotB() const
 
 
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
+void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, float fCoolTimeLeft, bool bUpgradeSwap_ /*= true*/ )
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, float fCoolTimeLeft )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
+	// June 32893880: every skill type takes the passed time; bar B also runs when slot-state key 1 is usable
+	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
+	const CX2SkillTree::SKILL_ID eSlotSkillID = ( true == bUpgradeSwap_ ) ? GetUpgradeSwappedSkillID( eSkillID ) : eSkillID;
+
+	for( int i = 0; i < (int)ARRAY_SIZE( m_aEquippedSkill ); ++i )
+	{
+		SkillSlotData& skillSlot = m_aEquippedSkill[ i ];
+		if( eSlotSkillID != skillSlot.m_eID )
+			continue;
+
+		skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
+		pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeft );
+
+#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+		// June runs this rate step always ( 3234cc10 = GetSkillCoolTimeDecreaseRate ); this build lacks its event flag
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( 0 < skillSlot.m_eID ) ? GetUserSkillTemplet( skillSlot.m_eID, true ) : NULL;
+		float fDecreaseRate = 1.0f;
+		if( NULL != pSkillTemplet && NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+			fDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillCoolTimeDecreaseRate( eSlotSkillID, pSkillTemplet->m_eType );
+
+		if( 1.0f != fDecreaseRate )
+		{
+			const float fCoolTimeLeftOld = skillSlot.m_fCoolTimeLeft;
+			skillSlot.m_fCoolTimeLeft = fCoolTimeLeftOld * fDecreaseRate;
+			pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeftOld * fDecreaseRate );
+		}
+#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+	}
+
+	if( false == IsSlotUsable( 0 ) && false == IsSlotUsable( 1 ) )
+		return;
+
+	for( int i = 0; i < (int)ARRAY_SIZE( m_aEquippedSkillSlotB ); ++i )
+	{
+		SkillSlotData& skillSlot = m_aEquippedSkillSlotB[ i ];
+		if( eSlotSkillID != skillSlot.m_eID )
+			continue;
+
+		skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
+		pGageManager->SetMySkillCoolTimeList( i + EQUIPPED_SKILL_SLOT_COUNT, fCoolTimeLeft );
+
+#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( 0 < skillSlot.m_eID ) ? GetUserSkillTemplet( skillSlot.m_eID, true ) : NULL;
+		float fDecreaseRate = 1.0f;
+		if( NULL != pSkillTemplet && NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+			fDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillCoolTimeDecreaseRate( eSlotSkillID, pSkillTemplet->m_eType );
+
+		if( 1.0f != fDecreaseRate )
+		{
+			const float fCoolTimeLeftOld = skillSlot.m_fCoolTimeLeft;
+			skillSlot.m_fCoolTimeLeft = fCoolTimeLeftOld * fDecreaseRate;
+			pGageManager->SetMySkillCoolTimeList( i, fCoolTimeLeftOld * fDecreaseRate );	// June @32893dd8 passes the bar-A index here too ( JUNE_BUGS )
+		}
+#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
 
 	for( int i=0; i<ARRAY_SIZE( m_aEquippedSkill ); ++i )
@@ -2778,6 +2929,7 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_LEFT
 }
 
 //{{ kimhc // 2010.11.2 // 엠프레스 - 충전 추진기

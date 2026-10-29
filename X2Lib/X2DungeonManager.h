@@ -59,6 +59,12 @@ class CX2DungeonManager
 		int GetDefaultDifficulty( int iDungeonID, bool bHeroMode );
 #endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 #ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
+		enum DUNGEON_CHECK_CONDITION
+		{
+			DCC_NOT_SUMMON_RIDING_PET = 8,	// June DUNGEON_CHECK_CONDITION
+		};
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ON_STATE
 		bool IsDungeonCheckCondition( int iDungeonID, int iCheckCondition );
 #endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 		//{{ 허상형 : [2011/3/18/] //	월드 미션

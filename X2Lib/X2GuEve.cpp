@@ -6830,7 +6830,7 @@ void CX2GUEve::CommonFrameMove()
 	CX2GUUser::CommonFrameMove();
 
 #ifdef ADD_EVE_SYSTEM_2014
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) && GetRemainHyperModeTime() > 0.f )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) && GetRemainHyperModeTime() > 0.f )
 	{
 		const double dElapsedFromParrying = static_cast<double>( ::clock() - m_iLastParryClock ) / 1000.0;
 
@@ -23373,7 +23373,7 @@ void CX2GUEve::ENSI_SI1_DIMENSION_LINK_FrameMove()
 		}
 
 		/// the memo summon is now Rule Break's proc: the passive's effective rate against the user's random roll
-		if( GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0
 			&& GetRandomFloat( 0 ) < GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) )
 		{
 			if( true == IsMyUnit() )
@@ -27953,7 +27953,7 @@ void CX2GUEve::ENSI_A_EN_CONVERSION_Start()
 	float fHpConsume = GetMaxHp() * m_fConversionHpConsumeRate;	/// the HP rate was read at the slot's registration
 
 	bool bCheatCode = false;
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 )
 	{
 		const float fRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC );
 		if( GetRandomFloat( 0 ) < fRate )
@@ -28185,7 +28185,7 @@ void CX2GUEve::ENSI_A_EN_MEGA_ELECTRONBALL_FrameMove()
 
 		if( true == FlushMp( fMpConsume ) || true == m_sMegaElectronBallData.m_b15 )
 		{
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 			{
 				const int iFormationFactor = m_EveElectraSystem.GetFormationFactor();
 				const float fAbility = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_OPEN_MIND );
@@ -38922,7 +38922,7 @@ void CX2GUEve::EntireAttackThousandStar()
 			float fFloor = 5.f;
 			float fRemainCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel ) - m_fElapsedTimeThousandStartCreated;	// June passes a third argument 0
 
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && 5 != SkillCategory( *pSkillTemplet ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && 5 != SkillCategory( *pSkillTemplet ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
 				fFloor = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * 5.0;
 
 			if( fRemainCoolTime <= fFloor )
@@ -44326,7 +44326,7 @@ void CX2GUEve::ENSI_A_EBS_TASER_PILUM_FrameMove()
 
 		if( FlushMp( fMPConsumption ) == true )
 		{
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 			{
 				int iOpenMindRate = 0;
 				if( true == m_EveElectraSystem.GetEnableSystem() )
@@ -46321,7 +46321,7 @@ void CX2GUEve::ENSI_EBS_DASH_JUMP_COMBO_ZFrontX_EventProcess()
 // June 32979fe0: the cap comes from June_CanContinueBoostAttack; Open Mind ( 25419 ) raises it, Electronic Move reads its own key and uncaps nothing
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		iAddBoostAttack = static_cast<int>( GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
 #else
@@ -46506,7 +46506,7 @@ void CX2GUEve::ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EventProcess()
 // June 3297a110: the same body as the front boost attack
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		iAddBoostAttack = static_cast<int>( GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
 #else
@@ -46690,7 +46690,7 @@ void CX2GUEve::ENSI_EBS_DASH_JUMP_COMBO_ZDownX_EventProcess()
 // June 3297a240: the same body as the front boost attack
 	bool bOneX = m_InputData.oneX;
 	int iAddBoostAttack = m_iAddBoostAttack;
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		iAddBoostAttack = static_cast<int>( GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) + iAddBoostAttack );
 #else
@@ -46802,12 +46802,12 @@ void CX2GUEve::StateChangeBoostAttackIfPossible()
 	const int iFutureStateSkillID = static_cast<int>( GetFutureStateSkillID() );
 	if( CX2SkillTree::RNSI_A_EBS_ELECTRONIC_MOVE == iFutureStateSkillID )
 	{
-		fFlushMp = GetActualMPConsume( static_cast<CX2SkillTree::SKILL_ID>( iFutureStateSkillID ), GetSkillLevel( iFutureStateSkillID ) );
+		fFlushMp = GetActualMPConsume( static_cast<CX2SkillTree::SKILL_ID>( iFutureStateSkillID ), GetSkillLevelValue( iFutureStateSkillID ) );
 	}
 	else
 	{
 		int iBoostAttackMax = m_iAddBoostAttack;
-		if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 			iBoostAttackMax = static_cast<int>( GetLearnedSkillAbilityValue( static_cast<CX2SkillTree::SKILL_ABILITY_TYPE>( CX2SkillTree::SA_AIR_MOVE_COUNT ), CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) + iBoostAttackMax );
 #else
@@ -49438,7 +49438,7 @@ void CX2GUEve::CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSou
 
 		ApplyHyperModeBuff();
 
-		if( GetSkillLevel( CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) > 0 )
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_ENS_OPEN_MIND ) > 0 )
 		{
 			SetSkillBuffFactors( CX2SkillTree::RNSI_P_ENS_OPEN_MIND, 0, true );
 			m_fCodeRecoveryCoolLeft = 0.f;
@@ -51305,7 +51305,7 @@ int CX2GUEve::GetMaxDashJumpCount()
 	if( true == HaveThisBuff( BTI_BUFF_CODE_RECOVERY_ECN ) )
 		iCount += m_iAddAirDashCount;
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 		iCount = static_cast<int>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_AIR_MOVE_COUNT, CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) + static_cast<float>( iCount ) );
 
 	return iCount;
@@ -53010,7 +53010,7 @@ void CX2GUEve::SpecialAttackCooldown( const int iSkillID_, const float fMpConsum
 		{
 			UpNowMp( -fMpConsume_ );
 
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 			{
 				const int iFormationFactor = m_EveElectraSystem.GetFormationFactor();
 				const float fAbility = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_P_EBS_OPEN_MIND );	// June ability 66
@@ -53172,7 +53172,7 @@ bool CX2GUEve::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 	if( CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_EVE_SPECTRO_EL_CRYSTAL_UPGRADE == pSkillTemplet->m_eID )
 		eSkillUseCondition = static_cast<CX2SkillTree::ACTIVE_SKILL_USE_CONDITION>( m_EveElectraSystem.m_iSkillUseCondition );
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == IsPhotonBlinkSkill( pSkillTemplet->m_eID ) )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == IsPhotonBlinkSkill( pSkillTemplet->m_eID ) )
 		eSkillUseCondition = CX2SkillTree::ASUT_AIR;
 
 	if( false == CheckSkillUseCondition( eActiveSkillUseCondition, eSkillUseCondition ) )
@@ -55264,7 +55264,7 @@ void CX2GUEve::SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& 
 		return;
 
 	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( CX2SkillTree::RNSI_SA_ECN_ATOMIC_SHIELD ) );
-	const int iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
+	const int iSkillLevel = max( 1, GetSkillLevelValue( iSummonSkillID ) );
 
 	float fStatScale = fStatScale_;
 	float fHpRel = 1.f;
@@ -55315,7 +55315,7 @@ void CX2GUEve::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcSta
 		return;
 
 	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
-	const int iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
+	const int iSkillLevel = max( 1, GetSkillLevelValue( iSummonSkillID ) );
 
 	float fStatScale = fStatScale_;
 	float fHpRel = 1.f;
@@ -55636,7 +55636,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_FrameMoveBody( const bool bHyper_ )
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
 				if( NULL != pSkillTemplet )
 				{
-					const int iSkillLevel = GetSkillLevel( GetNowStateSkillID() );
+					const int iSkillLevel = GetSkillLevelValue( GetNowStateSkillID() );
 
 					/// June keeps one float for both reads: the size row, then the Y row
 					float fValue = 1.f;
@@ -56109,7 +56109,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove()
 	if( NULL == pDamageData_ )
 		return;
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) > 0 )
 	{
 		const int iFormationFactor = m_EveElectraSystem.GetFormationFactor();
 		const double dAbility = static_cast<double>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_ATK_MAGIC_REL, CX2SkillTree::RNSI_P_EBS_OPEN_MIND ) );
@@ -56117,7 +56117,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove()
 		pDamageData_->damage.fMagic = pDamageData_->damage.fMagic * fMagicRate;
 	}
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ECB_KUGELBLITZ_SELF_DAMAGE ) )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ECB_KUGELBLITZ_SELF_DAMAGE ) )
 	{
 		CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC, 1, true );
 		pDamageData_->PushBuffFactor( ptrBuffFactor, true );	// June 329cf6d0 = March's PushBuffFactor
@@ -56180,7 +56180,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove()
 		break;
 	}
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && SKILL_CATEGORY_HYPER != SkillCategory( *pSkillTemplet_ ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && SKILL_CATEGORY_HYPER != SkillCategory( *pSkillTemplet_ ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
 		fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * fCoolTime;
 
 	if( fCoolTime < 0.f )
@@ -56245,7 +56245,7 @@ void CX2GUNPC::EveSummonAttackResult( const CX2DamageManager::DamageData& damage
 // June 3275a120, the owner half: Open Mind 25417 gives MP back when the summon's roll is under SA_EFFECTIVE_RATE
 void CX2GUEve::SummonOpenMindAttackResult( CX2GUNPC* pSummon_ )
 {
-	if( NULL == pSummon_ || GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) <= 0 )
+	if( NULL == pSummon_ || GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) <= 0 )
 		return;
 
 	const float fRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_EEP_OPEN_MIND );
@@ -56267,7 +56267,7 @@ void CX2GUEve::ENSI_EVE_RECOVERY_StateStart()
 	CommonStateStart();
 
 	float fConsumeMp = m_fCodeRecoveryConsumeMp;
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
 		fConsumeMp = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) * fConsumeMp;
 
 	if( false == ( fConsumeMp <= GetNowMp() ) )
@@ -56297,7 +56297,7 @@ void CX2GUEve::ENSI_EVE_RECOVERY_StateStart()
 			GatherSummonedNPC( CX2UnitManager::NUI_SI_SA_EEP_ELECTRONIC_FIELD, vPos, bIsRight );
 			GatherSummonedNPC( CX2UnitManager::NUI_SI_HA_FERDINAND, vPos, bIsRight );
 
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_CHEAT_CODE_RULE_BREAK ) > 0 )
 			{
 				RecoverSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE );
 				RecoverSummonedNPC( CX2UnitManager::NUI_NASOD_WATCH_EVE_MEMO );

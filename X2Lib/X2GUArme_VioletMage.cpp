@@ -5188,9 +5188,9 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		m_pMpRefund->m_fSpecialActiveSkillRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_STRONG_MIND_SPECIAL_ACTIVE_REL, iStrongMindLevel, false );
 		m_pMpRefund->m_fMPRestoreRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iStrongMindLevel, false );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
+		if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
+		if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
@@ -5299,9 +5299,9 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iOpenMindLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iOpenMindLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iOpenMindLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iOpenMindLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( 0 < iOpenMindLevel )
 		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUArme_VioletMage, OpenMindAttackResult ) );
@@ -5337,11 +5337,11 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ARME passives ( unit %I64d: transcended %d, hyper table %S, open mind EM %d cool %.3f, magical body %d count %.3f mp %.3f, open mind VP %d scope %.3f mp %.3f cool %.3f, dark deal %d, open mind DW %d, time limit %d cool %.3f )",
 			GetUnitUID(), 0 != GetUnit()->GetUnitData().m_iUnitClassTran ? 1 : 0, GetHyperModeTableName( false ).c_str(),
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ), fCoolEM, GetSkillLevel( CX2SkillTree::RNSI_P_AEM_MAGICAL_BODY ), fCount, fMp,
-			GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), fScope, fMpRate, fCoolVP, GetSkillLevel( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ), GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND ), GetSkillLevel( CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ), fCoolDW );
+			GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ), fCoolEM, GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_MAGICAL_BODY ), fCount, fMp,
+			GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ), fScope, fMpRate, fCoolVP, GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_DARK_DEAL ), GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_OPEN_MIND ), GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_TIME_LIMIT ), fCoolDW );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			GetSkillLevel( 22412 ), fCoolEM, GetSkillLevel( 22413 ), fCount, fMp,
-			GetSkillLevel( 22414 ), fScope, fMpRate, fCoolVP, GetSkillLevel( 22415 ), GetSkillLevel( 22416 ), GetSkillLevel( 22417 ), fCoolDW );
+			GetSkillLevelValue( 22412 ), fCoolEM, GetSkillLevelValue( 22413 ), fCount, fMp,
+			GetSkillLevelValue( 22414 ), fScope, fMpRate, fCoolVP, GetSkillLevelValue( 22415 ), GetSkillLevelValue( 22416 ), GetSkillLevelValue( 22417 ), fCoolDW );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
@@ -9103,9 +9103,9 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	{
 		const std::set<UidType> setExceptUID;
@@ -29963,9 +29963,9 @@ void CX2GUArme_VioletMage::SetDamageExceptionProcess( CX2DamageManager::DamageDa
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( iSkillLevel <= 0 )
 		return;
@@ -33368,9 +33368,9 @@ void CX2GUArme_VioletMage::ManaflowOverdriveFrameMove()
 		{
 			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
+			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
+			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		}
 	}
@@ -33686,9 +33686,9 @@ void CX2GUArme_VioletMage::SpecialAttackCooldown( const int iSkillID_, const flo
 		if( 0.0f < fCoolTime )
 		{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iSkillSlotKind )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iSkillSlotKind )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-			if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iSkillSlotKind )
+			if( GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 && 2 == m_iSkillSlotKind )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 			{
 				const int iGameType = static_cast<int>( g_pX2Game->GetGameType() );	// June 322cc1a0: PVP or PVE
@@ -33932,10 +33932,10 @@ bool CX2GUArme_VioletMage::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_C
 	else if( 2 == iKind )
 	{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
 			m_fChosenSkillMp = m_fChosenSkillMp * GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, CX2SkillTree::RNSI_P_AEM_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-		if( GetSkillLevel( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_AEM_OPEN_MIND ) > 0 )
 			m_fChosenSkillMp = m_fChosenSkillMp * GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, CX2SkillTree::RNSI_P_AEM_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	}
@@ -36329,7 +36329,7 @@ void CX2GUArme_VioletMage::SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2St
 	float fStatScale = fStatScale_;
 	if( NULL != pSkillTemplet )
 	{
-		iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
+		iSkillLevel = max( 1, GetSkillLevelValue( iSummonSkillID ) );
 		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
 	}
 	SetSummonStatAndPowerRate( pNPC_, npcStat_, fStatScale, fStatAtkRate_, iSummonSkillID );
@@ -36372,7 +36372,7 @@ void CX2GUArme_VioletMage::SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat
 	float fStatScale = fStatScale_;
 	if( NULL != pSkillTemplet )
 	{
-		iSkillLevel = max( 1, GetSkillLevel( iSummonSkillID ) );
+		iSkillLevel = max( 1, GetSkillLevelValue( iSummonSkillID ) );
 		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
 	}
 	SetSummonStatAndPowerRate( pNPC_, npcStat_, fStatScale, fStatAtkRate_, iSummonSkillID );
@@ -36404,9 +36404,9 @@ void CX2GUArme_VioletMage::SetStoneWallSummonInfo( CX2GUNPC* pNPC_ )
 void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_OPEN_MIND );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( 0 >= iSkillLevel )
 		return;
@@ -36475,9 +36475,9 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 	fCoolTime = m_fElementalResearchRate * fCoolTime;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AVP_OPEN_MIND ) )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	{
 		const std::set<UidType> setExceptUID;
@@ -36554,9 +36554,9 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 		return 1.f;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #else SERV_IRUHADEV_JUNE_ENUM_NAMES
-	const int iSkillLevel = GetSkillLevel( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
+	const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_ADW_MAGICAL_STAFF );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	if( iSkillLevel <= 0 )
 		return 1.f;

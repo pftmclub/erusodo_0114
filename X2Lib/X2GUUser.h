@@ -3462,7 +3462,11 @@ public:
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 		virtual void		SetMutationCount( IN const int iMutationCount_ ) {}						/// 애드일 때, 변이 포인트 설정
 		virtual void		SetReverseReactorTransitionDamage( IN const float fFinalDamage_ ) {}	/// 최종 데미지 값 반환 및 설정 함수
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+		int					GetSkillLevelValue( const int iSkillID_ ) const;	/// June 31fceab0
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 		const int			GetSkillLevelValue( IN const CX2SkillTree::SKILL_ID eSkillID_ );		/// 스킬 아이디에 해당하는 스킬 레벨을 받아오는 함수
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 		void				SetEffectSoundParticle( IN const D3DXVECTOR3& vPos_, IN const wstring& wstrEffectName_ );		/// 효과음 이펙트 출력 함수
 #endif //SERV_ADD_LUNATIC_PSYKER
 
@@ -4846,7 +4850,6 @@ public:
 	float m_fDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-	int GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0
 	float GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS

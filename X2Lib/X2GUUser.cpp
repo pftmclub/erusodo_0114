@@ -18054,7 +18054,11 @@ void CX2GUUser::CommonFrameMoveFuture()
 
 #ifdef RIDING_SYSTEM
 	if ( true == GetRidingOn() && GetNowStateID() != USI_RIDING_DIE )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+		m_pXSkinAnimFuture->GetMatrix().Move( GetPos( true ) + GetSaddlePos() );	// June 32062903: the saddle is relative to the rider
+#else SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 		m_pXSkinAnimFuture->GetMatrix().Move( GetSaddlePos() );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 	else
 		m_pXSkinAnimFuture->GetMatrix().Move( m_FrameDataFuture.syncData.position );
 #else //RIDING_SYSTEM
@@ -18869,7 +18873,11 @@ void CX2GUUser::CommonFrameMove()
 
 #ifdef RIDING_SYSTEM
 	if ( true == GetRidingOn() && GetNowStateID() != USI_RIDING_DIE )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
+		m_pXSkinAnim->GetMatrix().Move( GetPos( false ) + GetSaddlePos() );	// June 3206532c: the saddle is relative to the rider
+#else SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 		m_pXSkinAnim->GetMatrix().Move( GetSaddlePos() );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SADDLE_POS
 	else
 		m_pXSkinAnim->GetMatrix().Move( m_FrameDataNow.syncData.position );
 #else //RIDING_SYSTEM
@@ -26463,13 +26471,13 @@ void CX2GUUser::ApplySummonedNPCBuff( const int iNPCID_ )
 
 	SetBuffFactorToGameUnitByBuffFactorID( iBuffFactorID, 1, NULL, 0, false );
 
-	if( 0 < GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) )
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) )
 	{
 		CX2BuffFactorPtr ptrSummonBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
 		const BUFF_TEMPLET_ID eSummonBuffTempletID = ( NULL != ptrSummonBuffFactor ) ? ptrSummonBuffFactor->GetBuffTempletID() : BTI_NONE;	// June reads it unchecked
 		if( BTI_BUFF_SENTRY == eSummonBuffTempletID || BTI_BUFF_OBERON == eSummonBuffTempletID || BTI_BUFF_OPHELIA == eSummonBuffTempletID )
 		{
-			const UINT uiOpenMindLevel = static_cast<UINT>( GetSkillLevel( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) );
+			const UINT uiOpenMindLevel = static_cast<UINT>( GetSkillLevelValue( CX2SkillTree::RNSI_P_EEP_OPEN_MIND ) );
 			const bool bOpenMindOn = HaveSkillBuff( CX2SkillTree::RNSI_P_EEP_OPEN_MIND, 0, true );
 			if( true == bOpenMindOn )
 			{
@@ -26487,7 +26495,7 @@ void CX2GUUser::ApplySummonedNPCBuff( const int iNPCID_ )
 		}
 	}
 
-	if( BFI_BUFF_G_EX_MAGNETICFORCE == iBuffFactorID && 0 < GetSkillLevel( CX2SkillTree::RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE ) )
+	if( BFI_BUFF_G_EX_MAGNETICFORCE == iBuffFactorID && 0 < GetSkillLevelValue( CX2SkillTree::RNSI_A_ROM_G_EX_MAGNETICFORCE_UPGRADE ) )
 	{
 		CX2BuffFactorPtr ptrMagneticForceFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( iBuffFactorID );
 		if( NULL != ptrMagneticForceFactor )	// June reads it unchecked
@@ -41997,19 +42005,6 @@ bool CX2GUUser::IsNotCommonMoveState()
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-// June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
-int CX2GUUser::GetSkillLevel( const int iSkillID_ ) const
-{
-	if( NULL == GetUnit() )
-		return 1;
-
-	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
-	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
-		return 0;
-
-	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
-}
-
 // June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
 float CX2GUUser::GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
 {
@@ -47524,7 +47519,7 @@ void CX2GUUser::LoadEffectSetTables( IN KLuaManager& luaManager_, IN const bool 
 bool CX2GUUser::LoadEffectSetAppliedSkillTables( IN KLuaManager& luaManager_ )
 {
 	int iAppliedSkillID = 0;
-	if( false == luaManager_.GetValue( "APPLIED_SKILL_ID", iAppliedSkillID ) || 0 == iAppliedSkillID || 0 >= GetSkillLevel( iAppliedSkillID ) )
+	if( false == luaManager_.GetValue( "APPLIED_SKILL_ID", iAppliedSkillID ) || 0 == iAppliedSkillID || 0 >= GetSkillLevelValue( iAppliedSkillID ) )
 		return false;
 
 	LoadEffectSetTables( luaManager_, false );
@@ -48061,11 +48056,22 @@ void CX2GUUser::SetNowDamageRelateSkillData( Byte byteRelateData_ )
 	@param		: 스킬 아이디
 	@return		: 스킬 레벨
 */
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+int CX2GUUser::GetSkillLevelValue( const int iSkillID_ ) const
+#else SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 const int CX2GUUser::GetSkillLevelValue( IN const CX2SkillTree::SKILL_ID eSkillID_ )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 {
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
-	/// June 31fceab0, ported whole as GetSkillLevel: a hyper-class skill is 0 before transcendence
-	return GetSkillLevel( eSkillID_ );
+	// June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
+	if( NULL == GetUnit() )
+		return 1;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
+		return 0;
+
+	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
 #else
 	if ( NULL == GetUnit() )
 		return 1;
