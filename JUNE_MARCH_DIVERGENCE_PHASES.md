@@ -1081,8 +1081,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Reach points:** every user's equip hiding (Elsword ... Add; Ara's override still calls this base). Groups now live for R14's `_UpdateSkin`
   (6 / 0x31 / 0x36 / 7, every model attaches) and R14b's jiggle (30); these were June ports waiting on Stage 11.
 - **Data:** `CoboRenderDivisionItemTemplet.lua` adopted from June data036 (`luasrc.py adopt-june`, bytecode, new); `luabind.py check`: 1 method, 0 unbound,
-  PASS; `PACK OK data036` (vs live: +1 added). **Not copied yet** (needs the user's yes); until then the load logs `DIVISION_GROUP ... NOT LOADED` and
-  the Cobo clones stay out of the groups.
+  PASS; `PACK OK data036` (vs live: +1 added). `COPY OK data036` (user, 2026-10-29): 268 entries, md5 040d4e30772f84d40f8f577e87a1a7a7.
 - **June bugs kept:** `JUNE_BUGS.md` 474 (the SET2 pass reuses the SET1 iterator), 475 (UID low dword only).
 - **Bookkeeping:** tsv 251 annotated; funcmap `3201c3a0` updated + 5 rows `(Diverge D1-3d)`; `MODS.md` D1-3d entry; backlog Stage 11 bullet; STATUS R12c.
 - **Hygiene:** `flagcheck --worktree --files`: `NOT_RENDERING_EQUIP` RESULT PASS (`X2GUUser.cpp` +978, `X2GUUser.h` +3; 0 deleted, 0 non-ASCII, 0 EOL mismatch); `JUNE_ENUM_NAMES` (`X2Unit.h` +3, `X2ItemManager.h` +44 OTHER) PASS; `DIVISION_ITEM_GROUP` `X2Data.cpp` +4 / `X2ItemManager.cpp` +60 / `X2Main.cpp` +3 PASS,
