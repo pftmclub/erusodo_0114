@@ -820,8 +820,8 @@ SERIALIZE_DEFINE_PUT( KEGS_UPDATE_CODE_EVENT_NOT, obj, ks )
 {
 	return PUT( m_mapEnableCodeEnum )
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
-		&& PUT( m_setJuneCodeEventA )
-		&& PUT( m_setJuneCodeEventB )
+		&& PUT( m_setCodeEventA )
+		&& PUT( m_setCodeEventB )
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		;
 }
@@ -829,8 +829,8 @@ SERIALIZE_DEFINE_GET( KEGS_UPDATE_CODE_EVENT_NOT, obj, ks )
 {
 	return GET( m_mapEnableCodeEnum )
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
-		&& GET( m_setJuneCodeEventA )
-		&& GET( m_setJuneCodeEventB )
+		&& GET( m_setCodeEventA )
+		&& GET( m_setCodeEventB )
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 		;
 }

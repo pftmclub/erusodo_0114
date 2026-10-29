@@ -643,9 +643,9 @@ static void GfxCutInLog( const char* szFormat, ... )
 // 31fc75e0 returns 0 for good ( this +4 == 0 ), as CKTDGGFXSimpleWidgetPlayer does without an adapter
 void CX2Main::MakeSimpleWidgetPlayer()
 {
-	if ( NULL != m_pJuneSimpleWidgetPlayer || NULL == g_pKTDXApp )
+	if ( NULL != m_pSimpleWidgetPlayer || NULL == g_pKTDXApp )
 		return;
-	m_pJuneSimpleWidgetPlayer = new CKTDGGFXSimpleWidgetPlayer( g_pKTDXApp->GetGFXManager() );
+	m_pSimpleWidgetPlayer = new CKTDGGFXSimpleWidgetPlayer( g_pKTDXApp->GetGFXManager() );
 }
 
 // 31d76b40( uiId, name, side, b ): make the player, then, when it exists: UI 0xc first plays the frame ( side, 1 ) and a random talk balloon
@@ -653,20 +653,20 @@ void CX2Main::MakeSimpleWidgetPlayer()
 void CX2Main::PlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ )
 {
 	MakeSimpleWidgetPlayer();
-	if ( NULL == m_pJuneSimpleWidgetPlayer )
+	if ( NULL == m_pSimpleWidgetPlayer )
 		return;
 
 	const int iSide = ( true == bLeft_ ) ? 1 : 0;
 	bool bPlayed = true;
 	if ( 0xc == iUIID_ )
 	{
-		bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( 0xc, "Common_CutIn_Frame.gfx", iSide, 1 ) && bPlayed;
+		bPlayed = m_pSimpleWidgetPlayer->PlaySimpleWidget( 0xc, "Common_CutIn_Frame.gfx", iSide, 1 ) && bPlayed;
 
 		char szTalk[ 64 ] = { 0, };
 		sprintf_s( szTalk, sizeof( szTalk ), "CUT_IN_TALK_%s%d.gfx", ( true == bLeft_ ) ? "L_" : "R_", rand() % 3 + 1 );
-		bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( 0xc, szTalk, 0, 0x3c ) && bPlayed;
+		bPlayed = m_pSimpleWidgetPlayer->PlaySimpleWidget( 0xc, szTalk, 0, 0x3c ) && bPlayed;
 	}
-	bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( iUIID_, strName_.c_str(), iSide, iParam_ ) && bPlayed;
+	bPlayed = m_pSimpleWidgetPlayer->PlaySimpleWidget( iUIID_, strName_.c_str(), iSide, iParam_ ) && bPlayed;
 
 	GfxCutInLog( "play ui=0x%x %s side=%s%s", iUIID_, strName_.c_str(), ( true == bLeft_ ) ? "L" : "R",
 		( true == bPlayed ) ? "" : " ( no widget binding: the root movie is not up )" );

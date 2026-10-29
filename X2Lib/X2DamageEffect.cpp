@@ -1603,7 +1603,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	m_bReflected			= false;
 #endif NEW_SKILL_TREE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-	m_vJuneScaleBase		= D3DXVECTOR3( 1.f, 1.f, 1.f );		/// June 31f7aab0 @31f7b33c-31f7b368 (fld1)
+	m_vScaleBase		= D3DXVECTOR3( 1.f, 1.f, 1.f );		/// June 31f7aab0 @31f7b33c-31f7b368 (fld1)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 #ifdef SKILL_CASH_10_TEST
@@ -1680,19 +1680,19 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// Phase S2, June FUN_31f7aab0 @31f7b3f3-31f7b81f: the owner is the user itself ( unit type 0 ) or an NPC's master user ( 32759f00 );
 	// the id is APPLIED_SKILL_ID, else APPLIED_SKILL_ID_NOT_AFFECT_MEMO; the gate is 31fcf3e0( id ) on that user.
 	{
-		CX2GameUnit* pJuneOwnerUnit = GetOwnerUnit();
-		CX2GUUser* pJuneUltimateUser = NULL;
-		if( NULL != pJuneOwnerUnit )
+		CX2GameUnit* pOwnerUnit = GetOwnerUnit();
+		CX2GUUser* pUltimateUser = NULL;
+		if( NULL != pOwnerUnit )
 		{
-			if( CX2GameUnit::GUT_USER == pJuneOwnerUnit->GetGameUnitType() )
-				pJuneUltimateUser = static_cast<CX2GUUser*>( pJuneOwnerUnit );
-			else if( CX2GameUnit::GUT_NPC == pJuneOwnerUnit->GetGameUnitType() )
-				pJuneUltimateUser = static_cast<CX2GUNPC*>( pJuneOwnerUnit )->GetOwnerGameUnit();
+			if( CX2GameUnit::GUT_USER == pOwnerUnit->GetGameUnitType() )
+				pUltimateUser = static_cast<CX2GUUser*>( pOwnerUnit );
+			else if( CX2GameUnit::GUT_NPC == pOwnerUnit->GetGameUnitType() )
+				pUltimateUser = static_cast<CX2GUNPC*>( pOwnerUnit )->GetOwnerGameUnit();
 		}
 
-		const int iJuneAppliedSkillID = 0 != m_iAppliedSkillID ? m_iAppliedSkillID : m_iAppliedSkillIDNotAffectMemo;
-		if( NULL != pJuneUltimateUser && 0 != iJuneAppliedSkillID )
-			m_bUseUltimateDamageData = pJuneUltimateUser->IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( iJuneAppliedSkillID ) );
+		const int iAppliedSkillID = 0 != m_iAppliedSkillID ? m_iAppliedSkillID : m_iAppliedSkillIDNotAffectMemo;
+		if( NULL != pUltimateUser && 0 != iAppliedSkillID )
+			m_bUseUltimateDamageData = pUltimateUser->IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( iAppliedSkillID ) );
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -1822,7 +1822,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// Phase 8c: every SetDamageDataFromLUA call below (DAMAGE_DATA[_ULTIMATE], DAMAGE_DATA_NEXT and its
 	// numbered chain) prints this templet's name in its rule-5 JUNE_FX unsupported lines. Restored when
 	// the ctor returns.
-	CX2DamageManager::DamageDataTempletScope kJuneDamageDataTempletScope( g_pData->GetDamageManager(), GetName() );
+	CX2DamageManager::DamageDataTempletScope kDamageDataTempletScope( g_pData->GetDamageManager(), GetName() );
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
@@ -1872,27 +1872,27 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// here is 1.0 (JUNE_BUGS).
 	if( false == m_bIgnoreMIHuge )
 	{
-		const float fJuneMemoHuge = m_DamageData.m_fJuneMemoHugeScale;
-		SetScale( fJuneMemoHuge, fJuneMemoHuge, fJuneMemoHuge );
-		m_vJuneScaleBase = D3DXVECTOR3( fJuneMemoHuge, fJuneMemoHuge, fJuneMemoHuge );
+		const float fMemoHuge = m_DamageData.m_fMemoHugeScale;
+		SetScale( fMemoHuge, fMemoHuge, fMemoHuge );
+		m_vScaleBase = D3DXVECTOR3( fMemoHuge, fMemoHuge, fMemoHuge );
 	}
 	{
-		CKTDGXMeshPlayer::CXMeshInstance* pJuneMainEffect = GetMainEffect();
-		if( NULL != pJuneMainEffect )
+		CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = GetMainEffect();
+		if( NULL != pMainEffect )
 		{
-			pJuneMainEffect->SetMaxLifeTime( m_DamageData.m_fJuneMemoLongshotRate * pJuneMainEffect->GetMaxLifeTime() );
-			if( NULL != pJuneMainEffect->GetXSkinMesh() && NULL != pJuneMainEffect->GetXSkinAnim() )
+			pMainEffect->SetMaxLifeTime( m_DamageData.m_fMemoLongshotRate * pMainEffect->GetMaxLifeTime() );
+			if( NULL != pMainEffect->GetXSkinMesh() && NULL != pMainEffect->GetXSkinAnim() )
 			{
-				CKTDXCollision::CollisionDataList& refJuneAttackList = pJuneMainEffect->GetXSkinAnim()->GetAttackDataListNonConst();
-				for( CKTDXCollision::CollisionDataList::iterator itJune = refJuneAttackList.begin(); itJune != refJuneAttackList.end(); ++itJune )
+				CKTDXCollision::CollisionDataList& refAttackList = pMainEffect->GetXSkinAnim()->GetAttackDataListNonConst();
+				for( CKTDXCollision::CollisionDataList::iterator it = refAttackList.begin(); it != refAttackList.end(); ++it )
 				{
-					CKTDXCollision::CollisionData* pJuneData = *itJune;
-					if( NULL == pJuneData || CKTDXCollision::CT_LINE != pJuneData->m_CollisionType )
+					CKTDXCollision::CollisionData* pData = *it;
+					if( NULL == pData || CKTDXCollision::CT_LINE != pData->m_CollisionType )
 						continue;
 #ifdef EVE_ELECTRA
-					pJuneData->m_bUseRadiusScaleY = true;
+					pData->m_bUseRadiusScaleY = true;
 #endif EVE_ELECTRA
-					pJuneData->m_fRadiusScale = m_DamageData.m_fJuneMemoHugeScale * pJuneData->m_fRadiusScale;
+					pData->m_fRadiusScale = m_DamageData.m_fMemoHugeScale * pData->m_fRadiusScale;
 				}
 			}
 		}
@@ -2147,7 +2147,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// (DamageData +0x638) to -1 after the parent copy and before SetDamageDataFromLUA. June resets +0x5e8 (the attack serial)
 	// to -1 at @31f79ce3 too, which Phase 9b did not port (open june-buff item, left alone). The numbered NEXT2.. entries below
 	// reset only +0x5e8 (@31f79e07), so they keep the parent copy's +0x638.
-	m_DamageEffectDataInLua.m_pDamageDataNext->m_iJuneDamageEffectIndex = -1;
+	m_DamageEffectDataInLua.m_pDamageDataNext->m_iDamageEffectIndex = -1;
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 	// June2017 FUN_31f7aab0 @31f7e86e/31f7e875 -> FUN_31f79c20: "DAMAGE_DATA_NEXT_ULTIMATE" is
 	// tried first only when m_bUseUltimateDamageData (forced false above); "DAMAGE_DATA_NEXT" is
@@ -2255,7 +2255,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// June2017 FUN_31f7aab0 (CEffect ctor) @31f7f612-31f7f62b (effect completion C7): right after LINK_EFFECT_RATE, the
 	// create-damage-effect rate (June +0xb18) starts at -1.0 (0x334380f0), then the owner given to the ctor, when there is one,
 	// is told about the new effect (vslot 0x328). The base does nothing; class overrides (checklist 7a) seed the rate.
-	m_fJuneCreateDamageEffectRate = -1.f;
+	m_fCreateDamageEffectRate = -1.f;
 	if( NULL != pGameUnit )
 		pGameUnit->OnDamageEffectCreated( this );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
@@ -2273,72 +2273,72 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// JUNE_FX CE_TEMPLET <name> <key>=<v> ..., only when this CEffect uses a non-default
 	// Phase-5 key. Mirrors X2EffectSet's ES_TEMPLET line (Phase 2).
 	{
-		WCHAR wszJuneFx[1024] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX CE_TEMPLET %s", pName );
-		const size_t uiCeNameOnly = wcslen( wszJuneFx );
+		WCHAR wszFx[1024] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX CE_TEMPLET %s", pName );
+		const size_t uiCeNameOnly = wcslen( wszFx );
 		WCHAR wszCeKey[192] = {0};
 		if( true == m_bUseAdvanceCollisionCheck )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_ADVANCE_COLLISIOIN_CHECK=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" USE_ADVANCE_COLLISIOIN_CHECK=1" );
 		if( true == m_bUseOwnerAttackSpeed )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_OWNER_ATTACK_SPEED=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" USE_OWNER_ATTACK_SPEED=1" );
 		if( true == m_bIgnoreMIHuge )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" IGNORE_MI_HUGE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" IGNORE_MI_HUGE=1" );
 		if( true == m_bInheritCriticalRate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" INHERIT_CRITICAL_RATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" INHERIT_CRITICAL_RATE=1" );
 		if( true == m_bInheritCriticalDamageRate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" INHERIT_CRITICAL_DAMAGE_RATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" INHERIT_CRITICAL_DAMAGE_RATE=1" );
 		if( -1.f != m_fResetMainEffectLifeTimeRateByHit )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" RESET_MAIN_EFFECT_LIFE_TIME_RATE_BY_HIT=%.3f", m_fResetMainEffectLifeTimeRateByHit );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( true == m_bFollowLineWithCustomRotate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_WITH_CUSTOM_ROTATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_LINE_WITH_CUSTOM_ROTATE=1" );
 		if( true == m_bFollowLineGravity )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_GRAVITY=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_LINE_GRAVITY=1" );
 		if( false == m_strTraceOwnerBone.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" TRACE_OWNER_BONE=%s", m_strTraceOwnerBone.c_str() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( false == m_strTraceOwnerBoneOnlyRotate.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" TRACE_OWNER_BONE_ONLY_ROTATE=%s", m_strTraceOwnerBoneOnlyRotate.c_str() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( true == m_bUsedDamageDataUltimate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" DAMAGE_DATA_ULTIMATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" DAMAGE_DATA_ULTIMATE=1" );
 		if( false == m_strMainEffectNameUltimate.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" MAIN_EFFECT_NAME_ULTIMATE=%s", m_strMainEffectNameUltimate.c_str() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( true == m_bFollowLineUltimate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_ULTIMATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_LINE_ULTIMATE=1" );
 		if( true == m_bFollowLineNewUltimate )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_LINE_NEW_ULTIMATE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_LINE_NEW_ULTIMATE=1" );
 		if( false == m_vecDamageDataChangeTime.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_CHANGE_TIME[]=%d", (int)m_vecDamageDataChangeTime.size() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( false == m_vecDamageDataChangeTimeGlobalTime.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_CHANGE_TIME_GLOBAL_TIME[]=%d", (int)m_vecDamageDataChangeTimeGlobalTime.size() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( false == m_DamageEffectDataInLua.m_vecDamageDataNextChain.empty() )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" DAMAGE_DATA_NEXT_CHAIN[]=%d", (int)m_DamageEffectDataInLua.m_vecDamageDataNextChain.size() );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
 		if( 0 != m_iApplyEffectAlphaConditionByOption )
 		{
 			StringCchPrintfW( wszCeKey, ARRAY_SIZE(wszCeKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", m_iApplyEffectAlphaConditionByOption );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszCeKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszCeKey );
 		}
-		if( wcslen( wszJuneFx ) != uiCeNameOnly )
-			CX2OfflineLog::Server( L"%s", wszJuneFx );
+		if( wcslen( wszFx ) != uiCeNameOnly )
+			CX2OfflineLog::Server( L"%s", wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
@@ -2378,25 +2378,25 @@ CX2DamageEffect::CEffect::~CEffect()
 	// CloseSound @31f7864c: per kept { channel, sound } with a channel, FMOD_Channel_GetCurrentSound
 	// ( 3322b17e ); a failed call stops anyway ( @31f7860f ), a matching sound stops ( @31f78605 ), another
 	// sound is skipped. Stop results are ignored. Then the list is emptied ( @31f78646 ).
-	for( UINT uiJune = 0; uiJune < m_vecJuneDeleteWhenEffectEndSound.size(); ++uiJune )
+	for( UINT ui = 0; ui < m_vecDeleteWhenEffectEndSound.size(); ++ui )
 	{
-		FMOD_CHANNEL* pJuneChannel = m_vecJuneDeleteWhenEffectEndSound[uiJune].first;
-		if( NULL == pJuneChannel )
+		FMOD_CHANNEL* pChannel = m_vecDeleteWhenEffectEndSound[ui].first;
+		if( NULL == pChannel )
 			continue;
 
-		FMOD_SOUND* pJuneCurrentSound = NULL;
-		const FMOD_RESULT eJuneResult = FMOD_Channel_GetCurrentSound( pJuneChannel, &pJuneCurrentSound );
-		const bool bJuneStop = ( FMOD_OK != eJuneResult || pJuneCurrentSound == m_vecJuneDeleteWhenEffectEndSound[uiJune].second );
-		if( true == bJuneStop )
-			FMOD_Channel_Stop( pJuneChannel );
+		FMOD_SOUND* pCurrentSound = NULL;
+		const FMOD_RESULT eResult = FMOD_Channel_GetCurrentSound( pChannel, &pCurrentSound );
+		const bool bStop = ( FMOD_OK != eResult || pCurrentSound == m_vecDeleteWhenEffectEndSound[ui].second );
+		if( true == bStop )
+			FMOD_Channel_Stop( pChannel );
 #if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
-		WCHAR wszJuneDetail[96] = {0};
-		StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"entry=%u fmod=%d match=%d",
-			uiJune, (int) eJuneResult, ( FMOD_OK == eJuneResult && pJuneCurrentSound == m_vecJuneDeleteWhenEffectEndSound[uiJune].second ) ? 1 : 0 );
-		DeSoundLog( m_Name.c_str(), ( true == bJuneStop ? ( FMOD_OK != eJuneResult ? L"stop-err" : L"stop" ) : L"skip" ), wszJuneDetail );
+		WCHAR wszDetail[96] = {0};
+		StringCchPrintfW( wszDetail, ARRAY_SIZE(wszDetail), L"entry=%u fmod=%d match=%d",
+			ui, (int) eResult, ( FMOD_OK == eResult && pCurrentSound == m_vecDeleteWhenEffectEndSound[ui].second ) ? 1 : 0 );
+		DeSoundLog( m_Name.c_str(), ( true == bStop ? ( FMOD_OK != eResult ? L"stop-err" : L"stop" ) : L"skip" ), wszDetail );
 #endif
 	}
-	m_vecJuneDeleteWhenEffectEndSound.clear();
+	m_vecDeleteWhenEffectEndSound.clear();
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 
 
@@ -3249,29 +3249,29 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		// moves the start earlier to start * ( 2 - f ), clamped at 0. A speed below 1 moves the end
 		// later to end * ( 2 - f ), keeping the original end if that came out negative. This was
 		// checked by emulating the x87 code on concrete inputs, not only by hand.
-		float fJuneAttackTimeStart	= m_AttackTime.x;
-		float fJuneAttackTimeEnd	= m_AttackTime.y;
+		float fAttackTimeStart	= m_AttackTime.x;
+		float fAttackTimeEnd	= m_AttackTime.y;
 		if( true == m_bUseOwnerAttackSpeed && null != m_optrOwnerUnit
 			&& CX2GameUnit::GUT_USER == m_optrOwnerUnit->GetGameUnitType() )
 		{
 			if( m_fOwnerAttackSpeedAttackTimeStart < 0.f || m_fOwnerAttackSpeedAttackTimeEnd < 0.f )
 			{
 				const float fOwnerAttackSpeed = m_optrOwnerUnit->GetAnimSpeedValue();
-				m_fOwnerAttackSpeedAttackTimeStart = ( fOwnerAttackSpeed > 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fJuneAttackTimeStart : fJuneAttackTimeStart;
+				m_fOwnerAttackSpeedAttackTimeStart = ( fOwnerAttackSpeed > 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fAttackTimeStart : fAttackTimeStart;
 				if( m_fOwnerAttackSpeedAttackTimeStart < 0.f )
 					m_fOwnerAttackSpeedAttackTimeStart = 0.f;
-				m_fOwnerAttackSpeedAttackTimeEnd = ( fOwnerAttackSpeed < 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fJuneAttackTimeEnd : fJuneAttackTimeEnd;
+				m_fOwnerAttackSpeedAttackTimeEnd = ( fOwnerAttackSpeed < 1.f ) ? ( 1.f - ( fOwnerAttackSpeed - 1.f ) ) * fAttackTimeEnd : fAttackTimeEnd;
 				if( m_fOwnerAttackSpeedAttackTimeEnd < 0.f )
-					m_fOwnerAttackSpeedAttackTimeEnd = fJuneAttackTimeEnd;
+					m_fOwnerAttackSpeedAttackTimeEnd = fAttackTimeEnd;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-				WCHAR wszJuneFxSpeed[160] = L"";
-				StringCchPrintfW( wszJuneFxSpeed, ARRAY_SIZE(wszJuneFxSpeed), L"speed=%.3f window=(%.3f,%.3f)->(%.3f,%.3f)", fOwnerAttackSpeed,
-					fJuneAttackTimeStart, fJuneAttackTimeEnd, m_fOwnerAttackSpeedAttackTimeStart, m_fOwnerAttackSpeedAttackTimeEnd );
-				FxCeFrame( GetName(), L"USE_OWNER_ATTACK_SPEED", wszJuneFxSpeed );
+				WCHAR wszFxSpeed[160] = L"";
+				StringCchPrintfW( wszFxSpeed, ARRAY_SIZE(wszFxSpeed), L"speed=%.3f window=(%.3f,%.3f)->(%.3f,%.3f)", fOwnerAttackSpeed,
+					fAttackTimeStart, fAttackTimeEnd, m_fOwnerAttackSpeedAttackTimeStart, m_fOwnerAttackSpeedAttackTimeEnd );
+				FxCeFrame( GetName(), L"USE_OWNER_ATTACK_SPEED", wszFxSpeed );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 			}
-			fJuneAttackTimeStart	= m_fOwnerAttackSpeedAttackTimeStart;
-			fJuneAttackTimeEnd		= m_fOwnerAttackSpeedAttackTimeEnd;
+			fAttackTimeStart	= m_fOwnerAttackSpeedAttackTimeStart;
+			fAttackTimeEnd		= m_fOwnerAttackSpeedAttackTimeEnd;
 		}
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
@@ -3292,22 +3292,22 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 			// arguments (0, -1, -1) than March's; that belongs to Phase 9.
 			if ( m_bGlobalTime == true )
 			{
-				if( fJuneAttackTimeStart <= pMeshInst->GetGlobalTime()
-					&& fJuneAttackTimeEnd > pMeshInst->GetGlobalTime() )
+				if( fAttackTimeStart <= pMeshInst->GetGlobalTime()
+					&& fAttackTimeEnd > pMeshInst->GetGlobalTime() )
 				{
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					WCHAR wszJuneFxWindow[128] = L"";
-					StringCchPrintfW( wszJuneFxWindow, ARRAY_SIZE(wszJuneFxWindow), L"global window=(%.3f,%.3f) t=%.3f",
-						fJuneAttackTimeStart, fJuneAttackTimeEnd, pMeshInst->GetGlobalTime() );
-					FxCeFrame( GetName(), L"USE_GLOBAL_TIME", wszJuneFxWindow );
+					WCHAR wszFxWindow[128] = L"";
+					StringCchPrintfW( wszFxWindow, ARRAY_SIZE(wszFxWindow), L"global window=(%.3f,%.3f) t=%.3f",
+						fAttackTimeStart, fAttackTimeEnd, pMeshInst->GetGlobalTime() );
+					FxCeFrame( GetName(), L"USE_GLOBAL_TIME", wszFxWindow );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
 				}
 			}
 			else
 			{
-				if( fJuneAttackTimeStart <= pMeshInst->GetXSkinAnim()->GetNowAnimationTime()
-					&& fJuneAttackTimeEnd > pMeshInst->GetXSkinAnim()->GetNowAnimationTime() )
+				if( fAttackTimeStart <= pMeshInst->GetXSkinAnim()->GetNowAnimationTime()
+					&& fAttackTimeEnd > pMeshInst->GetXSkinAnim()->GetNowAnimationTime() )
 				{
 					g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
 				}
@@ -3400,26 +3400,26 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 		// June has no scalar form. March's scalar blocks above stay for the scalar-shaped data this
 		// tree ships, and the arrays are empty on that data, so this stays dormant until June's own
 		// data is adopted (Phase 11).
-		for( int iJuneChangeTimeKind = 0; iJuneChangeTimeKind < 2; iJuneChangeTimeKind++ )
+		for( int iChangeTimeKind = 0; iChangeTimeKind < 2; iChangeTimeKind++ )
 		{
-			const vector<float>& vecJuneChangeTime = ( 0 == iJuneChangeTimeKind ) ? m_vecDamageDataChangeTime : m_vecDamageDataChangeTimeGlobalTime;
-			if( true == vecJuneChangeTime.empty()
-				|| m_iDamageDataChangeTimeIndex >= (int)vecJuneChangeTime.size()
+			const vector<float>& vecChangeTime = ( 0 == iChangeTimeKind ) ? m_vecDamageDataChangeTime : m_vecDamageDataChangeTimeGlobalTime;
+			if( true == vecChangeTime.empty()
+				|| m_iDamageDataChangeTimeIndex >= (int)vecChangeTime.size()
 				|| m_iDamageDataChangeTimeIndex >= GetDamageDataNextChainSize() )
 				continue;
 
-			const float fJuneChangeTime = vecJuneChangeTime[ m_iDamageDataChangeTimeIndex ];
-			const bool bJuneChangeTimeHit = ( 0 == iJuneChangeTimeKind )
-				? pMeshInst->GetXSkinAnim()->EventTimer( fJuneChangeTime )
-				: pMeshInst->EventTimerGlobal( fJuneChangeTime );
-			if( false == bJuneChangeTimeHit )
+			const float fChangeTime = vecChangeTime[ m_iDamageDataChangeTimeIndex ];
+			const bool bChangeTimeHit = ( 0 == iChangeTimeKind )
+				? pMeshInst->GetXSkinAnim()->EventTimer( fChangeTime )
+				: pMeshInst->EventTimerGlobal( fChangeTime );
+			if( false == bChangeTimeHit )
 				continue;
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-			WCHAR wszJuneFxChange[96] = L"";
-			StringCchPrintfW( wszJuneFxChange, ARRAY_SIZE(wszJuneFxChange), L"%s index=%d time=%.3f",
-				( 0 == iJuneChangeTimeKind ? L"anim" : L"global" ), m_iDamageDataChangeTimeIndex, fJuneChangeTime );
-			FxCeFrame( GetName(), L"DAMAGE_DATA_CHANGE_TIME", wszJuneFxChange );
+			WCHAR wszFxChange[96] = L"";
+			StringCchPrintfW( wszFxChange, ARRAY_SIZE(wszFxChange), L"%s index=%d time=%.3f",
+				( 0 == iChangeTimeKind ? L"anim" : L"global" ), m_iDamageDataChangeTimeIndex, fChangeTime );
+			FxCeFrame( GetName(), L"DAMAGE_DATA_CHANGE_TIME", wszFxChange );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 			SetDamageDataNextByChainIndex( &m_DamageData, m_iDamageDataChangeTimeIndex );
 			m_iDamageDataChangeTimeIndex++;
@@ -3591,11 +3591,11 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 				CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( pSoundData->fileName.c_str(), pSoundData->bLoop, pSoundData->bThreeDimensionalSound, true );
 #if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
 				{
-					WCHAR wszJuneDetail[160] = {0};
-					StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s loop=%d 3d=%d del=%d dev=%d channel=%d",
+					WCHAR wszDetail[160] = {0};
+					StringCchPrintfW( wszDetail, ARRAY_SIZE(wszDetail), L"%s loop=%d 3d=%d del=%d dev=%d channel=%d",
 						pSoundData->fileName.c_str(), pSoundData->bLoop ? 1 : 0, (int) *( const unsigned char* ) &pSoundData->bThreeDimensionalSound,
 						pSoundData->bDeleteWhenEffectEnd ? 1 : 0, ( NULL != pSound ) ? 1 : 0, ( NULL != pSound && NULL != pSound->GetChannel() ) ? 1 : 0 );
-					DeSoundLog( m_Name.c_str(), L"play", wszJuneDetail );
+					DeSoundLog( m_Name.c_str(), L"play", wszDetail );
 				}
 #endif
 				if( NULL != pSound )
@@ -3603,12 +3603,12 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 					// @31f6eddd: DELETE_WHEN_EFFECT_END ( +0x26 ) pushes { m_pChannel +0x60, m_pSound +0x5c } into +0xb34
 					if( true == pSoundData->bDeleteWhenEffectEnd )
 					{
-						m_vecJuneDeleteWhenEffectEndSound.push_back( std::make_pair( pSound->GetChannel(), pSound->GetSound() ) );
+						m_vecDeleteWhenEffectEndSound.push_back( std::make_pair( pSound->GetChannel(), pSound->GetSound() ) );
 #if defined(SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
-						WCHAR wszJuneDetail[96] = {0};
-						StringCchPrintfW( wszJuneDetail, ARRAY_SIZE(wszJuneDetail), L"%s entries=%u",
-							pSoundData->fileName.c_str(), (UINT) m_vecJuneDeleteWhenEffectEndSound.size() );
-						DeSoundLog( m_Name.c_str(), L"push", wszJuneDetail );
+						WCHAR wszDetail[96] = {0};
+						StringCchPrintfW( wszDetail, ARRAY_SIZE(wszDetail), L"%s entries=%u",
+							pSoundData->fileName.c_str(), (UINT) m_vecDeleteWhenEffectEndSound.size() );
+						DeSoundLog( m_Name.c_str(), L"push", wszDetail );
 #endif
 					}
 					// @31f6ee0e: June's set-and-apply 31d41710( mesh instance +0x3f0 ) after the play ( March: store-only
@@ -3665,10 +3665,10 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 static void LogBlackHoleEffect( CX2GameUnit* pUnit_, int iReason_, const WCHAR* pwszWhy_ )
 {
 #ifdef SERV_IRUHADEV_OFFLINE
-	static int s_aiJuneC3iBlackHoleLines[3] = { 0, 0, 0 };
-	if ( iReason_ < 0 || iReason_ >= 3 || s_aiJuneC3iBlackHoleLines[iReason_] >= 16 )
+	static int s_aiBlackHoleLogLines[3] = { 0, 0, 0 };
+	if ( iReason_ < 0 || iReason_ >= 3 || s_aiBlackHoleLogLines[iReason_] >= 16 )
 		return;
-	++s_aiJuneC3iBlackHoleLines[iReason_];
+	++s_aiBlackHoleLogLines[iReason_];
 	CX2OfflineLog::Server( L"JUNE_FX C3i blackhole unit %I64d type %d: %s", pUnit_->GetUnitUID(), (int) pUnit_->GetGameUnitType(), pwszWhy_ );
 #endif SERV_IRUHADEV_OFFLINE
 }
@@ -3753,10 +3753,10 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 					if( true == pNPC->GetNoFallDownAtState() )
 					{
 #ifdef SERV_IRUHADEV_OFFLINE
-						static int s_iJuneC3iNoFallDownLines = 0;	// JUNE_FX C3i proof line, at most 16 per session ( per-frame loop )
-						if ( s_iJuneC3iNoFallDownLines < 16 )
+						static int s_iNoFallDownLogLines = 0;	// JUNE_FX C3i proof line, at most 16 per session ( per-frame loop )
+						if ( s_iNoFallDownLogLines < 16 )
 						{
-							++s_iJuneC3iNoFallDownLines;
+							++s_iNoFallDownLogLines;
 							CX2OfflineLog::Server( L"JUNE_FX C3i blackhole npc %I64d ( %s ) state %d: NO_FALL_DOWN_AT_STATE, not pulled in this state",
 								pNPC->GetUnitUID(), pNPC->GetNPCTemplet().m_LuaFileName.c_str(), pNPC->GetNowStateID() );
 						}
@@ -5023,10 +5023,10 @@ void CX2DamageEffect::CEffect::AttackResult()
 			static_cast<CX2GUUser*>( pOwnerGameUnit )->SetAttackSuccess( true, true );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 		{
-			static bool s_bJuneC3AttackSuccessLogged = false;
-			if( false == s_bJuneC3AttackSuccessLogged && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() && false == m_DamageData.m_bIgnoreAttackSuccess )
+			static bool s_bC3AttackSuccessLogged = false;
+			if( false == s_bC3AttackSuccessLogged && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() && false == m_DamageData.m_bIgnoreAttackSuccess )
 			{
-				s_bJuneC3AttackSuccessLogged = true;
+				s_bC3AttackSuccessLogged = true;
 				CX2OfflineLog::Server( L"JUNE_FX C3 ATTACK_SUCCESS first user-owned effect hit %s: owner bHit (future frame) set", m_Name.c_str() );
 			}
 		}
@@ -5203,30 +5203,30 @@ void CX2DamageEffect::CEffect::AttackResult()
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						// June2017 FUN_31f85910 @31f86140: RT_CREATE_DAMAGE_EFFECT runs 31f8fdb0 on the new child (the other four callees are
 						// not called here). March threw the pointer away on this branch, so the ADD_RENA_SYSTEM branch above is not the live one.
-						CX2DamageEffect::CEffect* pJuneCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
+						CX2DamageEffect::CEffect* pCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 						// June2017 CEffect::AttackResult 31f85910 @31f86117-31f86138 (effect completion C3): every non-null RT_CREATE_DAMAGE_EFFECT child gets
 						// SetScale( m_DamageData +0x498 = CREATE_DAMAGE_EFFECT_NAME_SCALE_X/Y/Z, default 1,1,1 ) via 31f6ff60 -> 31f6fdc0, before 31f8fdb0 @31f86140.
 						// June multiplies the main-effect part by a per-instance base (+0xb24, (1,1,1) from the ctor unless DamageData +0x5d0 differs); March's
 						// SetScale is absolute, which equals June's for that default base, and the hit / die spawners already call it with (1,1,1) defaults.
-						if( NULL != pJuneCreatedEffect )
-							pJuneCreatedEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+						if( NULL != pCreatedEffect )
+							pCreatedEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 						{
-							static bool s_bJuneC3NameScaleLogged = false;
-							if( false == s_bJuneC3NameScaleLogged && NULL != pJuneCreatedEffect )
+							static bool s_bC3NameScaleLogged = false;
+							if( false == s_bC3NameScaleLogged && NULL != pCreatedEffect )
 							{
-								s_bJuneC3NameScaleLogged = true;
+								s_bC3NameScaleLogged = true;
 								CX2OfflineLog::Server( L"JUNE_FX C3 NAME_SCALE first RT_CREATE_DAMAGE_EFFECT child of %s: SetScale( %.3f, %.3f, %.3f )", m_Name.c_str(),
 									m_DamageData.m_vCreateDamageEffectNameScale.x, m_DamageData.m_vCreateDamageEffectNameScale.y, m_DamageData.m_vCreateDamageEffectNameScale.z );
 							}
 						}
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
-						InheritFromParent( pJuneCreatedEffect );
+						InheritFromParent( pCreatedEffect );
 						// @31f86148 (effect completion C7): then 31f6ea20, whether or not the child was created (it null-tests inside).
-						ApplyCreateDamageEffectRate( pJuneCreatedEffect );
+						ApplyCreateDamageEffectRate( pCreatedEffect );
 #else SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 						m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
@@ -5272,9 +5272,9 @@ void CX2DamageEffect::CEffect::AttackResult()
 						{
 							// @31f861e2-31f86521: the field-boss collision-box retarget. The gate holds only in a June raid field (unreachable in March), and
 							// then the set traces the nearest NUI_FIELD_BOSS_COLLISION_BOX_1 instead; otherwise March's call. LIFTTIME applies on this path only.
-							CX2GameUnit* pJuneBoxUnit = FindFieldBossCollisionBox( pTraceUnit );
+							CX2GameUnit* pBoxUnit = FindFieldBossCollisionBox( pTraceUnit );
 							hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( m_DamageData.m_wstrCreateEffectSetName.c_str(), pOwnerGameUnit,
-								( NULL != pJuneBoxUnit ? pJuneBoxUnit : pTraceUnit ), false, m_fPowerRate, fMainEffectLifeTime );
+								( NULL != pBoxUnit ? pBoxUnit : pTraceUnit ), false, m_fPowerRate, fMainEffectLifeTime );
 						}
 						else if( NULL != pMeshInst )
 						{
@@ -5395,11 +5395,11 @@ void CX2DamageEffect::CEffect::AttackResult()
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 							// June2017 CEffect::AttackResult 31f85910 @31f86a45-31f86a76 (effect completion C3): the random-spawn child gets SetScale( DamageData
 							// +0x498 ) when the owner is a user (+0x264 == 0). June runs 31fcd640( owner ) first (the class callback at +0x8dc0, none in March).
-							CX2DamageEffect::CEffect* pJuneRandomEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
+							CX2DamageEffect::CEffect* pRandomEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
 								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),
 								m_DamageData.impactPoint, angle, angle, m_fLandPos );
-							if( NULL != pJuneRandomEffect && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() )
-								pJuneRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+							if( NULL != pRandomEffect && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() )
+								pRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 							m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
 								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),
@@ -6179,9 +6179,9 @@ void CX2DamageEffect::CEffect::SetScale(float fX, float fY, float fZ)
 	// or 31f8aef0 set it); the main effect (31f6fca0), passive, hit and die scales then take the products. June also stores the products at
 	// +0xa74 / +0xa80 (the time / start particle scales, read by 31f76880 / 31f76620), which March's CEffect does not have
 	// (APPLY_START_PARTICLE_SCALE is parse-only since effect Phase 6b).
-	fX = m_vJuneScaleBase.x * fX;
-	fY = m_vJuneScaleBase.y * fY;
-	fZ = m_vJuneScaleBase.z * fZ;
+	fX = m_vScaleBase.x * fX;
+	fY = m_vScaleBase.y * fY;
+	fZ = m_vScaleBase.z * fZ;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 	SetMainEffectScale(fX,fY,fZ);
 	SetPassiveParticleScale(fX,fY,fZ);
@@ -8251,52 +8251,52 @@ void CX2DamageEffect::CEffect::FollowLine()
 			// their IAT slots hold dump-time DLL addresses, so the names cannot be read off.
 			if( true == m_bFollowOnLine && true == m_bFollowLineGravity )
 			{
-				CKTDGLineMap* pJuneLineMap = g_pX2Game->GetWorld()->GetLineMap();
-				const D3DXVECTOR3 vJuneMeshPos = pMeshInst->GetPos();
-				float fJuneNearestDistance = 9999999.f;
-				int iJuneNearestLine = -1;
-				D3DXVECTOR3 vJuneNearestPos( 0.f, 0.f, 0.f );
-				for( int iJuneLine = 0; iJuneLine < pJuneLineMap->GetNumLineData(); iJuneLine++ )
+				CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+				const D3DXVECTOR3 vMeshPos = pMeshInst->GetPos();
+				float fNearestDistance = 9999999.f;
+				int iNearestLine = -1;
+				D3DXVECTOR3 vNearestPos( 0.f, 0.f, 0.f );
+				for( int iLine = 0; iLine < pLineMap->GetNumLineData(); iLine++ )
 				{
-					const CKTDGLineMap::LineData* pJuneLineData = pJuneLineMap->GetLineData( iJuneLine );
-					if( NULL == pJuneLineData || false == pJuneLineData->bEnable
-						|| CKTDGLineMap::LT_MONSTER_ROAD == pJuneLineData->lineType
-						|| CKTDGLineMap::LT_WALL == pJuneLineData->lineType )
+					const CKTDGLineMap::LineData* pCandidateLineData = pLineMap->GetLineData( iLine );
+					if( NULL == pCandidateLineData || false == pCandidateLineData->bEnable
+						|| CKTDGLineMap::LT_MONSTER_ROAD == pCandidateLineData->lineType
+						|| CKTDGLineMap::LT_WALL == pCandidateLineData->lineType )
 						continue;
 
-					D3DXVECTOR3 vJuneSegment = pJuneLineData->endPos - pJuneLineData->startPos;
-					D3DXVECTOR3 vJuneSegmentDir;
-					D3DXVec3Normalize( &vJuneSegmentDir, &vJuneSegment );
-					const D3DXVECTOR3 vJuneToMesh = vJuneMeshPos - pJuneLineData->startPos;
-					const float fJuneProjection = D3DXVec3Dot( &vJuneToMesh, &vJuneSegmentDir );
-					D3DXVECTOR3 vJuneCandidate;
-					if( fJuneProjection <= 0.f )
-						vJuneCandidate = pJuneLineData->startPos;
-					else if( D3DXVec3Length( &vJuneSegment ) <= fJuneProjection )
-						vJuneCandidate = pJuneLineData->endPos;
+					D3DXVECTOR3 vSegment = pCandidateLineData->endPos - pCandidateLineData->startPos;
+					D3DXVECTOR3 vSegmentDir;
+					D3DXVec3Normalize( &vSegmentDir, &vSegment );
+					const D3DXVECTOR3 vToMesh = vMeshPos - pCandidateLineData->startPos;
+					const float fProjection = D3DXVec3Dot( &vToMesh, &vSegmentDir );
+					D3DXVECTOR3 vCandidate;
+					if( fProjection <= 0.f )
+						vCandidate = pCandidateLineData->startPos;
+					else if( D3DXVec3Length( &vSegment ) <= fProjection )
+						vCandidate = pCandidateLineData->endPos;
 					else
-						vJuneCandidate = pJuneLineData->startPos + vJuneSegmentDir * fJuneProjection;
+						vCandidate = pCandidateLineData->startPos + vSegmentDir * fProjection;
 
-					const D3DXVECTOR3 vJuneToCandidate = vJuneCandidate - vJuneMeshPos;
-					const float fJuneDistance = D3DXVec3Length( &vJuneToCandidate );
-					if( fJuneDistance <= fJuneNearestDistance )
+					const D3DXVECTOR3 vToCandidate = vCandidate - vMeshPos;
+					const float fDistance = D3DXVec3Length( &vToCandidate );
+					if( fDistance <= fNearestDistance )
 					{
-						fJuneNearestDistance	= fJuneDistance;
-						iJuneNearestLine		= iJuneLine;
-						vJuneNearestPos			= vJuneCandidate;
+						fNearestDistance	= fDistance;
+						iNearestLine		= iLine;
+						vNearestPos			= vCandidate;
 					}
 				}
 
 				// Code review fix: iJuneNearestLine is only ever assigned from iJuneLine, already
 				// bounds-checked and non-NULL by the loop above, so re-checking both here was dead.
-				if( iJuneNearestLine >= 0 )
+				if( iNearestLine >= 0 )
 				{
-					vJuneNearestPos.y += 100.f;
-					pMeshInst->SetPos( vJuneNearestPos );
+					vNearestPos.y += 100.f;
+					pMeshInst->SetPos( vNearestPos );
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					WCHAR wszJuneFxGravity[96] = L"";
-					StringCchPrintfW( wszJuneFxGravity, ARRAY_SIZE(wszJuneFxGravity), L"nearest line=%d distance=%.1f", iJuneNearestLine, fJuneNearestDistance );
-					FxCeFrame( GetName(), L"FOLLOW_LINE_GRAVITY", wszJuneFxGravity );
+					WCHAR wszFxGravity[96] = L"";
+					StringCchPrintfW( wszFxGravity, ARRAY_SIZE(wszFxGravity), L"nearest line=%d distance=%.1f", iNearestLine, fNearestDistance );
+					FxCeFrame( GetName(), L"FOLLOW_LINE_GRAVITY", wszFxGravity );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 				}
 				else
@@ -8512,39 +8512,39 @@ void CX2DamageEffect::CEffect::LoadLockOnDataBlock()
 	// JUNE_FX LOD_TEMPLET <name> <key>=<v> ..., only when this LOCK_ON_DATA uses a non-default
 	// Phase-6b key. Ctor-time only, so no throttling map is needed.
 	{
-		WCHAR wszJuneFxLod[768] = {0};
-		StringCchPrintfW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L"JUNE_FX LOD_TEMPLET %s", GetName() );
-		const size_t uiLodNameOnly = wcslen( wszJuneFxLod );
+		WCHAR wszFxLod[768] = {0};
+		StringCchPrintfW( wszFxLod, ARRAY_SIZE(wszFxLod), L"JUNE_FX LOD_TEMPLET %s", GetName() );
+		const size_t uiLodNameOnly = wcslen( wszFxLod );
 		WCHAR wszLodKey[192] = {0};
 		if( -1 != m_LockOnData.m_iRandomSeedFromLua )
 		{
 			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" RANDOM_SEED=%d", m_LockOnData.m_iRandomSeedFromLua );
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), wszLodKey );
 		}
 		if( -1 != m_LockOnData.m_iUnlockStartAfterAttack )
 		{
 			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" UNLOCK_START_AFTER_ATTACK=%d", m_LockOnData.m_iUnlockStartAfterAttack );
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), wszLodKey );
 		}
 		if( true == m_LockOnData.m_bYDirInit )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" Y_DIR_INIT=1" );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" Y_DIR_INIT=1" );
 		if( true == m_LockOnData.m_bInitTarget )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" INIT_TARGET=1" );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" INIT_TARGET=1" );
 		if( true == m_LockOnData.m_bNotLockonInvincibleTarget )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" NOT_LOCKON_INVINCIBLE_TARGET=1" );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" NOT_LOCKON_INVINCIBLE_TARGET=1" );
 		if( false == m_LockOnData.m_strLockOnTargetBoneName.empty() )
 		{
 			StringCchPrintfW( wszLodKey, ARRAY_SIZE(wszLodKey), L" LOCK_ON_TARGET_BONE_NAME=%s", m_LockOnData.m_strLockOnTargetBoneName.c_str() );
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), wszLodKey );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), wszLodKey );
 		}
 		if( true == m_LockOnData.m_bHasLockOnRangeFromOwner )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" LOCK_ON_RANGE_FROM_OWNER=1" );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" LOCK_ON_RANGE_FROM_OWNER=1" );
 		if( true == m_LockOnData.m_bHasDungeonTargetRangeMinMax )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" DUNGEON_TARGET_RANGE_MIN_MAX=1" );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" DUNGEON_TARGET_RANGE_MIN_MAX=1" );
 		if( true == m_LockOnData.m_bHasPvpTargetRangeMinMax )
-			StringCchCatW( wszJuneFxLod, ARRAY_SIZE(wszJuneFxLod), L" PVP_TARGET_RANGE_MIN_MAX=1" );
-		if( wcslen( wszJuneFxLod ) != uiLodNameOnly )
-			CX2OfflineLog::Server( L"%s", wszJuneFxLod );
+			StringCchCatW( wszFxLod, ARRAY_SIZE(wszFxLod), L" PVP_TARGET_RANGE_MIN_MAX=1" );
+		if( wcslen( wszFxLod ) != uiLodNameOnly )
+			CX2OfflineLog::Server( L"%s", wszFxLod );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
@@ -9636,20 +9636,20 @@ void CX2DamageEffect::CEffect::LoadDieDamageEffect()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 		// JUNE_FX DDE_TEMPLET <effect> DIE_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
 		{
-			WCHAR wszJuneFxDde[512] = {0};
-			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s DIE_DAMAGE_EFFECT%d", GetName(), index );
-			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszFxDde[512] = {0};
+			StringCchPrintfW( wszFxDde, ARRAY_SIZE(wszFxDde), L"JUNE_FX DDE_TEMPLET %s DIE_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszFxDde );
 			WCHAR wszDdeKey[128] = {0};
 			if( true == pData->bInheritLockOnData )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERITLOCKONDATA=1" );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" INHERITLOCKONDATA=1" );
 			if( 1.0f != pData->vScale.x || 1.0f != pData->vScale.y || 1.0f != pData->vScale.z )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" SCALE=(%.3f,%.3f,%.3f)", pData->vScale.x, pData->vScale.y, pData->vScale.z );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( true == pData->bInheritLifeTime )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
-			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" INHERIT_LIFE_TIME=1" );
+			if( wcslen( wszFxDde ) != uiDdeNameOnly )
 			{
 				static map<wstring, DWORD> s_mapLastLoggedTime_dieTemplet;
 				DWORD dwNow_dieTemplet = timeGetTime();
@@ -9657,7 +9657,7 @@ void CX2DamageEffect::CEffect::LoadDieDamageEffect()
 				if( itThrottle_dieTemplet == s_mapLastLoggedTime_dieTemplet.end() || dwNow_dieTemplet - itThrottle_dieTemplet->second >= 1000 )
 				{
 					s_mapLastLoggedTime_dieTemplet[ GetName() ] = dwNow_dieTemplet;
-					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+					CX2OfflineLog::Server( L"%s", wszFxDde );
 				}
 			}
 		}
@@ -9886,37 +9886,37 @@ void CX2DamageEffect::CEffect::LoadDamageEffect()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 		// JUNE_FX DDE_TEMPLET <effect> CREATE_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
 		{
-			WCHAR wszJuneFxDde[512] = {0};
-			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s CREATE_DAMAGE_EFFECT%d", GetName(), index );
-			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszFxDde[512] = {0};
+			StringCchPrintfW( wszFxDde, ARRAY_SIZE(wszFxDde), L"JUNE_FX DDE_TEMPLET %s CREATE_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszFxDde );
 			WCHAR wszDdeKey[128] = {0};
 			if( 0.0f != pData->fLoopInterval )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_INTERVAL=%.3f", pData->fLoopInterval );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( 1 != pData->uiLoopEndCount )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_END_COUNT=%d", pData->uiLoopEndCount );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( 99999.0f != pData->fLoopEndTime )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_END_TIME=%.3f", pData->fLoopEndTime );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( 0.0f != pData->vLoopAddPos.x || 0.0f != pData->vLoopAddPos.y || 0.0f != pData->vLoopAddPos.z )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" LOOP_ADD_POS=(%.3f,%.3f,%.3f)", pData->vLoopAddPos.x, pData->vLoopAddPos.y, pData->vLoopAddPos.z );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( true == pData->bSetDieWhenMasterEffectDie )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" SET_DIE_WHEN_MASTER_EFFECT_DIE=1" );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" SET_DIE_WHEN_MASTER_EFFECT_DIE=1" );
 			if( true == pData->bInheritLifeTime )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" INHERIT_LIFE_TIME=1" );
 			if( true == pData->bInheritDamage )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_DAMAGE=1" );
-			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" INHERIT_DAMAGE=1" );
+			if( wcslen( wszFxDde ) != uiDdeNameOnly )
 			{
 				static map<wstring, DWORD> s_mapLastLoggedTime_createTemplet;
 				DWORD dwNow_createTemplet = timeGetTime();
@@ -9924,7 +9924,7 @@ void CX2DamageEffect::CEffect::LoadDamageEffect()
 				if( itThrottle_createTemplet == s_mapLastLoggedTime_createTemplet.end() || dwNow_createTemplet - itThrottle_createTemplet->second >= 1000 )
 				{
 					s_mapLastLoggedTime_createTemplet[ GetName() ] = dwNow_createTemplet;
-					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+					CX2OfflineLog::Server( L"%s", wszFxDde );
 				}
 			}
 		}
@@ -10068,18 +10068,18 @@ void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 		// JUNE_FX DDE_TEMPLET <effect> HIT_DAMAGE_EFFECT<n> <key>=<v> ..., only for a non-default Phase-6a key
 		{
-			WCHAR wszJuneFxDde[512] = {0};
-			StringCchPrintfW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L"JUNE_FX DDE_TEMPLET %s HIT_DAMAGE_EFFECT%d", GetName(), index );
-			const size_t uiDdeNameOnly = wcslen( wszJuneFxDde );
+			WCHAR wszFxDde[512] = {0};
+			StringCchPrintfW( wszFxDde, ARRAY_SIZE(wszFxDde), L"JUNE_FX DDE_TEMPLET %s HIT_DAMAGE_EFFECT%d", GetName(), index );
+			const size_t uiDdeNameOnly = wcslen( wszFxDde );
 			WCHAR wszDdeKey[128] = {0};
 			if( 1.0f != pData->vScale.x || 1.0f != pData->vScale.y || 1.0f != pData->vScale.z )
 			{
 				StringCchPrintfW( wszDdeKey, ARRAY_SIZE(wszDdeKey), L" SCALE=(%.3f,%.3f,%.3f)", pData->vScale.x, pData->vScale.y, pData->vScale.z );
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), wszDdeKey );
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), wszDdeKey );
 			}
 			if( true == pData->bInheritLifeTime )
-				StringCchCatW( wszJuneFxDde, ARRAY_SIZE(wszJuneFxDde), L" INHERIT_LIFE_TIME=1" );
-			if( wcslen( wszJuneFxDde ) != uiDdeNameOnly )
+				StringCchCatW( wszFxDde, ARRAY_SIZE(wszFxDde), L" INHERIT_LIFE_TIME=1" );
+			if( wcslen( wszFxDde ) != uiDdeNameOnly )
 			{
 				static map<wstring, DWORD> s_mapLastLoggedTime_hitTemplet;
 				DWORD dwNow_hitTemplet = timeGetTime();
@@ -10087,7 +10087,7 @@ void CX2DamageEffect::CEffect::LoadHitDamageEffect()
 				if( itThrottle_hitTemplet == s_mapLastLoggedTime_hitTemplet.end() || dwNow_hitTemplet - itThrottle_hitTemplet->second >= 1000 )
 				{
 					s_mapLastLoggedTime_hitTemplet[ GetName() ] = dwNow_hitTemplet;
-					CX2OfflineLog::Server( L"%s", wszJuneFxDde );
+					CX2OfflineLog::Server( L"%s", wszFxDde );
 				}
 			}
 		}
@@ -10279,7 +10279,7 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 		// June2017 FUN_31f799c0 @31f79b87/8d (effect completion C6b): the effect-set index stamp (DamageData +0x638) is carried across a NEXT
 		// change. June copies neither +0x5e0 nor +0x5e8 there, which matches Phase 9b.
-		pDamageDataNext->m_iJuneDamageEffectIndex = pDamageData->m_iJuneDamageEffectIndex;
+		pDamageDataNext->m_iDamageEffectIndex = pDamageData->m_iDamageEffectIndex;
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 		*pDamageData = *pDamageDataNext;
 	}
@@ -10368,14 +10368,14 @@ void CX2DamageEffect::CEffect::InheritFromParent( CEffect* pChild_ )
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 #ifdef SERV_RENA_NIGHT_WATCHER
-	const int iJuneChildIndex = pChild_->m_iIndex;	// the child's m_iIndex after the copy (June +0xb00): Rena's CheckDamageEffectType looks effects up by it
+	const int iChildIndex = pChild_->m_iIndex;	// the child's m_iIndex after the copy (June +0xb00): Rena's CheckDamageEffectType looks effects up by it
 #else SERV_RENA_NIGHT_WATCHER
-	const int iJuneChildIndex = -1;
+	const int iChildIndex = -1;
 #endif SERV_RENA_NIGHT_WATCHER
 	FxHit( GetName(), L"SPAWN_INHERIT", L"child=%s gates ignoreState=%d ownerSkillHit=%d buffFactor=%d ignoreDefence=%d lifeRate=%d(%.3f) trigger=%d hyper=%d childInheritDamage=%d index=%d",
 		pChild_->GetName(), (int)m_bInheritIgnoreStateDefence, (int)m_bInheritCountAsOwnerSkillHit, (int)m_bInheritBuffFactorToChild,
 		(int)m_bInheritIgnoreDefence, (int)m_bInheritMainEffectLifeTimeRate, m_fMainEffectLifeTimeRate, (int)m_bInheritAttackTriggerType,
-		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster, iJuneChildIndex );
+		(int)m_bHyper, (int)pChild_->m_bInheritDamageFromMaster, iChildIndex );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
 
@@ -10505,31 +10505,31 @@ void CX2DamageEffect::CEffect::SpawnTail( CEffect* pChild_, const DamageEffectDa
 // NaN rate goes on (x87-emulated in the C7 review); "<= 0.f" keeps that under /fp:precise, "!( > 0.f )" would not.
 void CX2DamageEffect::CEffect::ApplyCreateDamageEffectRate( CEffect* pChild_ )
 {
-	if( NULL == pChild_ || m_fJuneCreateDamageEffectRate <= 0.f )
+	if( NULL == pChild_ || m_fCreateDamageEffectRate <= 0.f )
 		return;
 
 	CX2DamageManager::DamageData& kChildData = pChild_->GetDamageData();
 	switch( kChildData.damageType )		// DamageData +0x0: DT_PHYSIC scales PHYSIC, DT_MAGIC scales MAGIC, any other type neither
 	{
 	case CX2DamageManager::DT_PHYSIC:
-		kChildData.damage.fPhysic *= m_fJuneCreateDamageEffectRate;
+		kChildData.damage.fPhysic *= m_fCreateDamageEffectRate;
 		break;
 
 	case CX2DamageManager::DT_MAGIC:
-		kChildData.damage.fMagic *= m_fJuneCreateDamageEffectRate;
+		kChildData.damage.fMagic *= m_fCreateDamageEffectRate;
 		break;
 
 	default:
 		break;
 	}
 	// HIT_ADD_MP (DamageData +0x3f8; a protected float in June, whose re-store and registration 323101d0 March has no counterpart for)
-	kChildData.fHitAddMP *= m_fJuneCreateDamageEffectRate;
+	kChildData.fHitAddMP *= m_fCreateDamageEffectRate;
 	// TECH_POINT (DamageData +0x34, int) times the rate truncated to an int (ftol 32fe25f0), so a rate below 1 zeroes it: June as is (JUNE_BUGS)
-	kChildData.techPoint *= static_cast<int>( m_fJuneCreateDamageEffectRate );
+	kChildData.techPoint *= static_cast<int>( m_fCreateDamageEffectRate );
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	FxHit( GetName(), L"CREATE_DAMAGE_EFFECT_RATE", L"child=%s rate=%.3f type=%d physic=%.3f magic=%.3f hitAddMP=%.3f techPoint=%d",
-		pChild_->GetName(), m_fJuneCreateDamageEffectRate, (int)kChildData.damageType, kChildData.damage.fPhysic, kChildData.damage.fMagic,
+		pChild_->GetName(), m_fCreateDamageEffectRate, (int)kChildData.damageType, kChildData.damage.fPhysic, kChildData.damage.fMagic,
 		kChildData.fHitAddMP, kChildData.techPoint );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
@@ -10744,16 +10744,16 @@ CX2GameUnit* CX2DamageEffect::CEffect::FindFieldBossCollisionBox( CX2GameUnit* p
 	}
 
 	// part 2: June's raid object (g_pMain +0x115c) does not exist here, so there is no boss unit to compare with the trace unit's UID
-	CX2GameUnit* pJuneRaidBossUnit = NULL;
+	CX2GameUnit* pRaidBossUnit = NULL;
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	static bool s_bJuneRaidObjectLogged = false;
-	if( false == s_bJuneRaidObjectLogged )
+	static bool s_bRaidObjectLogged = false;
+	if( false == s_bRaidObjectLogged )
 	{
-		s_bJuneRaidObjectLogged = true;
+		s_bRaidObjectLogged = true;
 		FxHit( GetName(), L"CREATE_EFFECT_SET", L"raid object (g_pMain +0x115c) absent in March: boss unit stubbed to NULL, field=%u", g_pData->GetBattleFieldManager().GetBattleFieldIdWhereIam() );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
-	if( NULL == pJuneRaidBossUnit || pJuneRaidBossUnit->GetUnitUID() != pTraceUnit_->GetUnitUID() )
+	if( NULL == pRaidBossUnit || pRaidBossUnit->GetUnitUID() != pTraceUnit_->GetUnitUID() )
 		return NULL;
 
 	CX2GameUnit* pNearestBox = NULL;

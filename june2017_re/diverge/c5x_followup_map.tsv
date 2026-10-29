@@ -1,0 +1,152 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+bJunePostEffectPass_	bPostEffectPass_	rename	KTDXLIB/KTDGFontManager.cpp		SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS				C5	local
+szJuneBuf	szBuf	rename	KTDXLIB/KTDGGFXManager.cpp	CKTDGGFXManager	SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG			debug log buffer, 10-line block, no clash	C5	local
+iJuneMissing	iMissing	rename	KTDXLIB/KTDGXRenderer.cpp	CKTDGXRenderer	SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT	31d3f7a2			C5	local
+kJuneCamera	kCamera	rename	KTDXLIB/KTDGXRenderer.cpp	CKTDGXRenderer	SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT				C5	local
+pJuneDesc	pDesc	rename	KTDXLIB/KTDGXRenderer.cpp	CKTDGXRenderer	SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT				C5	local
+pJuneLut	pLut	rename	KTDXLIB/KTDGXRenderer.cpp	CKTDGXRenderer	SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT				C5	local
+vJuneEye	vEye	rename	KTDXLIB/KTDGXRenderer.cpp	CKTDGXRenderer	SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT	31d3d203			C5	local
+uJune	u	rename	KTDXLIB/KTDGXSkinAnim.cpp	CKTDGXSkinAnim	SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS	31d2f9a0		default is clear in context	C5	local
+iJuneTechnique	iTechnique	rename	KTDXLIB/KTDXApp.cpp	CKTDXApp	SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER				C5	local
+iJuneResult	iResult	rename	KTDXLIB/KTDXDeviceManager.cpp	CKTDXDeviceManager	SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE			FMOD callback register result in a block; iJuneRegistered stays separate	C5	local
+bJunePostEffectPass_	bPostEffectPass_	rename	KTDXLIB/KTDXDeviceRenderTargetTexture.cpp		SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS	31cdadc0			C5	local
+wszJuneText	wszText	rename	KTDXLIB/KTDXDeviceSound.cpp	CKTDXDeviceSound	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND	31d419af			C5	local
+bJunePostEffectPass_	bPostEffectPass_	rename	KTDXLIB/KTDXDeviceTexture.cpp		SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS	31d48f90			C5	local
+m_fJuneCreatorPowerRate	m_fCreatorPowerRate	rename	KncWX2Server/Common/CommonPacket.h		SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE	320e3950			C5	local
+m_kJuneSkillExtraData	m_kSkillExtraData	rename	KncWX2Server/Common/CommonPacket.h		SERV_IRUHADEV_JUNE_SKILL_SLOT_10	320dc980			C5	local
+vecJuneGranted	vecGranted	rename	X2Lib/Offline/Handlers_Unit.cpp	CX2OfflineServer	SERV_IRUHADEV_JUNE_SKILL_ACQUIRE				C5	local
+pJuneBehaviorFactor	pBehaviorFactor	rename	X2Lib/X2BuffBehaviorTemplet.cpp	CX2BuffChangeConsumeMpRate	SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY	32e7cef0		default only collides with the #else (March) branch text	C5	local
+pJuneCreatorGameUnit	pCreatorGameUnit	rename	X2Lib/X2BuffDisplayerTemplet.cpp	CX2BuffEffectSetDisplayerTemplet	SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION				C5	local
+bJuneStop	bStop	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND				C5	local
+fJuneChangeTime	fChangeTime	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+fJuneDistance	fDistance	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+fJuneNearestDistance	fNearestDistance	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+fJuneProjection	fProjection	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+iJuneAppliedSkillID	iAppliedSkillID	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_TEMPLET				C5	local
+iJuneLine	iLine	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+itJune	it	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_FX			attack-data list iterator; `it` hits in the ctor are comments	C5	local
+pJuneData	pData	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_FX			default is clear in context	C5	local
+pJuneLineData	pLineData	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME			line data of the loop; pLineData at :8142 is in a sibling block	C5	local
+pJuneMainEffect	pMainEffect	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_FX				C5	local
+pJuneOwnerUnit	pOwnerUnit	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_TEMPLET	31fcf3e0			C5	local
+pJuneUltimateUser	pUltimateUser	rename	X2Lib/X2DamageEffect.cpp		SERV_IRUHADEV_JUNE_SKILL_TEMPLET				C5	local
+vJuneMeshPos	vMeshPos	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+vJuneNearestPos	vNearestPos	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+vJuneSegment	vSegment	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME				C5	local
+wszJuneDetail	wszDetail	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect	SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG				C5	local
+pJuneSkillTemplet	pSkillTemplet	rename	X2Lib/X2DamageManager.cpp	CX2DamageManager	SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE	31fceab0		skill templet of the relative skill id; no other use in function	C5	local
+wszJuneValue	wszValue	rename	X2Lib/X2DamageManager.cpp	CX2DamageManager	SERV_IRUHADEV_JUNE_DAMAGEDATA			value text for unsupported-key log; sibling blocks only	C5	local
+bJuneForceCinematic	bForceCinematic	rename	X2Lib/X2DungeonGame.cpp	CX2DungeonGame	SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE	3275aaf0			C5	local
+bJuneBoneFound	bBoneFound	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet	SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME				C5	local
+byJuneEffectAlphaCondition	byEffectAlphaCondition	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet	SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION	321f20ff			C5	local
+fJuneY	fY	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet::EffectSetInstance	SERV_IRUHADEV_JUNE_PET_VIEWER_FX			default is clear in context	C5	local
+hJuneTargetMesh	hTargetMesh	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet	SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME	321e1547		only parameter names in X2EffectSet.h; none inside this function	C5	local
+pJuneEffectInstance	pEffectInstance	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet::EffectSetInstance	SERV_IRUHADEV_ELYSION_SCRIPT_B	321e3a80		pEffectInstance at :4834 is the next foreach (own scope)	C5	local
+pJuneFrame	pFrame	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet::EffectSetInstance	SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX				C5	local
+pwszJuneSite_	pwszSite_	rename	X2Lib/X2EffectSet.cpp		SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME				C5	local
+iJune	i	rename	X2Lib/X2EnchantItem.cpp	CX2EnchantItem	SERV_IRUHADEV_JUNE_ENCHANT_PARITY			for-loop index over Lua values; no other i in function; scoped: this old name maps to 3 new names by class	C5	local
+pJuneLuaState	pLuaState	rename	X2Lib/X2EnchantItem.cpp	CX2EnchantItem	SERV_IRUHADEV_JUNE_ENCHANT_PARITY				C5	local
+iJune	i	rename	X2Lib/X2EnchantItem.h	CX2EnchantItem::EnchantData	SERV_IRUHADEV_JUNE_ENCHANT_PARITY			default is clear in context; scoped: this old name maps to 3 new names by class	C5	local
+bJuneJiggle	bJiggle	rename	X2Lib/X2Eqip.cpp	CX2Eqip	SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM				C5	local
+wszJuneMultiTexName	wszMultiTexName	rename	X2Lib/X2Eqip.cpp	CX2Eqip	SERV_IRUHADEV_JUNE_EQIP_SKIN			no other use in InitSkin	C5	local
+fJuneRoll	fRoll	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT				C5	local
+iJune	i	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE	31f8b860		default is clear in context; scoped: this old name maps to 3 new names by class	C5	local
+iJuneIndex	iIndex	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_ELYSION_SCRIPT_B	3278f63c		default is clear in context	C5	local
+iJuneNpcID	iNpcID	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL	32757560			C5	local
+iJuneType	iType	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_BOUNDING_STATE	3279f937			C5	local
+pJuneOwner	pOwner	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_SUMMON_CRITICAL_OWNER_BONUS	3275a820			C5	local
+pszJuneName	pszName	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_BOUNDING_STATE			bounding state name literal	C5	local
+strJuneKey	strKey	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_BOUNDING_STATE				C5	local
+szJuneEffectSetKey	szEffectSetKey	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST				C5	local
+vecJuneEvent	vecEvent	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC	SERV_IRUHADEV_JUNE_BOUNDING_STATE				C5	local
+wszJuneFx	wszFx	rename	X2Lib/X2GUNPC.cpp		SERV_IRUHADEV_JUNE_NPC_SOUND_DEBUG				C5	local
+iJuneAttackType	iAttackType	rename	X2Lib/X2GUNPC.h	CX2GUNPC	SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE				C5	local
+JuneGetUsefulValueFuture	GetUsefulValueFuture	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE				C5	local
+bJuneApplied	bApplied	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOCKET_PARITY				C5	local
+bJuneLearned	bLearned	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS	3200b59d			C5	local
+bJuneLoop	bLoop	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE				C5	local
+bJuneUltimate	bUltimate	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF				C5	local
+eJuneUnitType	eUnitType	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOCKET_PARITY	3204f290		eUnitType at :3488 is in the #else branch	C5	local
+fJuneStartTime	fStartTime	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE				C5	local
+fJuneTime	fTime	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE			7-line function	C5	local
+fJuneValue	fValue	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE			18-line function	C5	local
+fJuneValue	fValue	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE			default is clear in context	C5	local
+fJuneValue0	fValue0	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF				C5	local
+hJuneEffectSet	hEffectSet	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE				C5	local
+iJuneAltSkillID	iAltSkillID	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_MEMO_MP				C5	local
+iJuneBar	iBar	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOCKET_PARITY				C5	local
+iJuneC3f1Left	iFutureStateID	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH			named from its body (the old name carried an effect-phase tag); a debug log helper or throttle	C5	local
+iJuneIndex	iIndex	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_SPEED_TIME			default is clear in context	C5	local
+iJuneLen	iLen	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN				C5	local
+iJuneMemoSkillID	iMemoSkillID	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE				C5	local
+iJuneSlot	iSlot	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOCKET_PARITY				C5	local
+iJuneSoundIndex	iSoundIndex	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOUND_SET_PICK			iSoundIndex at :16969 is in a separate earlier block	C5	local
+iJuneStateSoundIndex	iStateSoundIndex	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOUND_SET_PICK			iStateSoundIndex at :17057 is in a separate earlier block	C5	local
+kJuneEntry	kEntry	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_HIT_STOP_LISTS			default is clear in context	C5	local
+kJuneRecord	kRecord	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET			default is clear in context	C5	local
+pJuneAltTemplet	pAltTemplet	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_MEMO_MP				C5	local
+pJuneAttackerUser	pAttackerUser	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS				C5	local
+pJuneLineMap	pLineMap	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE				C5	local
+pJuneMemo	pMemo	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF			default is clear in context	C5	local
+pJuneMyUnit	pMyUnit	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_SKILL_MEMO_MP				C5	local
+pJuneSkillTemplet	pSkillTemplet	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION			no other use in function	C5	local
+pJuneSlot	pSlot	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SOCKET_PARITY				C5	local
+uiJuneBuffFactorID	uiBuffFactorID	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF			no clash in function	C5	local
+wstrJuneEffectSetName	wstrEffectSetName	rename	X2Lib/X2GUUser.cpp	CX2GUUser	SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE				C5	local
+wszJuneFx	wszFx	rename	X2Lib/X2GUUser.cpp		SERV_IRUHADEV_JUNE_FX_DEBUG				C5	local
+fJuneDistance	fDistance	rename	X2Lib/X2Game.cpp	CX2Game	SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT	322d6022			C5	local
+iJuneWorld	iWorld	rename	X2Lib/X2Game.cpp	CX2Game	SERV_IRUHADEV_ELYSION_SCRIPT_B	32308c20			C5	local
+pJuneNPC	pNPC	rename	X2Lib/X2Game.cpp	CX2Game	SERV_IRUHADEV_JUNE_SKIP_START_DEBUG			debug-log NPC; 12-line function	C5	local
+pJuneWorld	pWorld	rename	X2Lib/X2Game.cpp	CX2Game	SERV_IRUHADEV_ELYSION_SCRIPT_B				C5	local
+JuneSocketPiercingKeep	SocketPiercingKeep	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_SOCKET_PARITY	32285850			C5	local
+eJuneUnitType	eUnitType	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_SOCKET_PARITY	32290950			C5	local
+fJuneBase	fBase	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY				C5	local
+fJuneBefore	fBefore	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_FX_DEBUG				C5	local
+fJuneKeep	fKeep	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY	322855ff			C5	local
+fJuneNowMpBefore	fNowMpBefore	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY				C5	local
+fJuneSkillDamage	fSkillDamage	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_SOCKET_PARITY			fSkillDamage at :19449 is the #else March branch	C5	local
+kJuneSocketData	kSocketData	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_SOCKET_PARITY				C5	local
+pJuneAttackerUser	pAttackerUser	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_SOCKET_PARITY			pAttackerUser at :19447 is the #else March branch	C5	local
+pJuneDefender	pDefender	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY				C5	local
+pJuneEnchantData	pEnchantData	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY				C5	local
+pJuneUnit	pUnit	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE			default is clear in context	C5	local
+vecJuneFinalizerPtr	vecFinalizerPtr	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit	SERV_IRUHADEV_JUNE_DAMAGEDATA				C5	local
+wszJuneFx	wszFx	rename	X2Lib/X2GameUnit.cpp		SERV_IRUHADEV_JUNE_UNIT_SOUND_DEBUG				C5	local
+fJuneMpUp	fMpUp	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_NCORE	329ac4a0			C5	local
+pJuneDungeonGame	pDungeonGame	rename	X2Lib/X2Inventory.cpp	CX2Inventory	SERV_IRUHADEV_JUNE_RESULT_WIDGET				C5	local
+itJuneEqip	itEqip	rename	X2Lib/X2ItemStatCalculator.cpp	CX2ItemStatCalculator	SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE	328d6c90		no clash in function	C5	local
+vecJuneUiSetName	vecUiSetName	rename	X2Lib/X2NPCUnitViewerUI.cpp	CX2NPCUnitViewerUI	SERV_IRUHADEV_JUNE_PET_VIEWER_FX	321e28d0			C5	local
+wstrJuneMotion	wstrMotion	rename	X2Lib/X2NPCUnitViewerUI.cpp	CX2NPCUnitViewerUI	SERV_IRUHADEV_JUNE_PET_VIEWER_FX				C5	local
+pJuneMaster	pMaster	rename	X2Lib/X2PetAI.cpp	CX2PETAI	SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT				C5	local
+vJuneLandPos	vLandPos	rename	X2Lib/X2PetAI.cpp	CX2PETAI	SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT				C5	local
+vJuneOutPos	vOutPos	rename	X2Lib/X2PetAI.cpp	CX2PETAI	SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT				C5	local
+bJuneIsRight	bIsRight	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_STATE			same init as bIsRight at :152 but in a sibling block, no overlap	C5	local
+bJunePlanRender	bPlanRender	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX				C5	local
+iJuneNowState	iNowState	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_STATE				C5	local
+junePushPass	canPushUnitTime	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS			CAN_PUSH_UNIT_TIME record; GUUser.cpp names its TIME_PUSHPASS this; scoped: this old name maps to 2 new names by class	C5	local
+junePushPass	canPassUnitTime	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS			CAN_PASS_UNIT_TIME record; GUUser.cpp names its TIME_PUSHPASS this; scoped: this old name maps to 2 new names by class	C5	local
+pJuneManager	pManager	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_STATE				C5	local
+vJunePos	vPos	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet	SERV_IRUHADEV_JUNE_RIDINGPET_STATE			same init as vPos at :151 but in a sibling block, no overlap; scoped: this old name maps to 2 new names by class	C5	local
+vJuneDownPos	vDownPos	rename	X2Lib/X2SimplePathFinder.cpp	CX2SimplePathFinder	SERV_IRUHADEV_JUNE_PATHFINDER_FLY	32f27b10		vDownPos at :990 is in a sibling block	C5	local
+bJuneSlotB	bSlotB	rename	X2Lib/X2SkillTree.cpp	CX2SkillTree	SERV_IRUHADEV_JUNE_SKILL_ACQUIRE				C5	local
+pJuneUnit	pUnit	rename	X2Lib/X2SkillTree.cpp	CX2SkillTree	SERV_IRUHADEV_JUNE_SKILL_PAGE			no clash in function	C5	local
+pJuneUnitData	pUnitData	rename	X2Lib/X2SkillTree.cpp	CX2SkillTree	SERV_IRUHADEV_JUNE_SKILL_PAGE			same AccessUnitData() expr as pUnitData at :4432 but in a sibling block	C5	local
+kJuneRecord	kRecord	rename	X2Lib/X2SquareUnit.cpp	CX2SquareUnit	SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET			condition-equip effect set record	C5	local
+pJuneWorld	pWorld	rename	X2Lib/X2SquareUnit.cpp	CX2SquareUnit	SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON	323ed743			C5	local
+wszJuneFx	wszFx	rename	X2Lib/X2SquareUnit.cpp		SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG				C5	local
+fJuneScale	fScale	rename	X2Lib/X2StateClassChange.cpp	CX2ClassChangePopup	SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP	32488b01			C5	local
+iJuneType	iType	rename	X2Lib/X2StateClassChange.cpp	CX2ClassChangePopup	SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP				C5	local
+wstrJuneSoundName	wstrSoundName	rename	X2Lib/X2StateClassChange.cpp	CX2ClassChangePopup	SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP			wstrSoundName at :946 is the #else March branch	C5	local
+pJuneUser	pUser	rename	X2Lib/X2StateDungeonGame.cpp	CX2StateDungeonGame	SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE			pUser at :2961 is a later sibling loop	C5	local
+kJuneUnitData	kUnitData	rename	X2Lib/X2StateMenu.cpp	CX2StateMenu	SERV_IRUHADEV_JUNE_TRANSCEND_SLOT			default is clear in context	C5	local
+iJuneMovieID	iMovieID	rename	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_MOVIE				C5	local
+pJuneSub	pSub	rename	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI				C5	local
+vecJuneGroup	vecGroup	rename	X2Lib/X2UIQuestNew.cpp	CX2UIQuestNew	SERV_IRUHADEV_JUNE_QUEST_UI				C5	local
+pJuneMyUnit	pMyUnit	rename	X2Lib/X2UISkillTreeNew2015.cpp		SERV_IRUHADEV_JUNE_SKILL_TREE_UI				C5	local
+iJuneEquipGroup_	iEquipGroup_	rename	X2Lib/X2Unit.cpp		SERV_IRUHADEV_JUNE_SKILL_MAX_MP				C5	local
+iJuneGroup	iGroup	rename	X2Lib/X2Unit.cpp	CX2Unit	SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS				C5	local
+pJuneEquip	pEquip	rename	X2Lib/X2UnitViewerUI.cpp	CX2UnitViewerUI	SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER			no clash in function	C5	local
+mapJuneAcquired	mapAcquired	rename	X2Lib/X2UserSkillTree.cpp	CX2UserSkillTree	SERV_IRUHADEV_JUNE_SKILL_REFORM			acquired skill map of the page in use	C5	local
+mitJune	mit	rename	X2Lib/X2UserSkillTree.cpp	CX2UserSkillTree	SERV_IRUHADEV_JUNE_SKILL_REFORM			mit at :660/:695/:704 is the #else March branch	C5	local
+pJuneTemplet	pSkillTemplet	rename	X2Lib/X2UserSkillTree.cpp	CX2UserSkillTree	SERV_IRUHADEV_JUNE_SKILL_REFORM	32890620		skill templet of eSkillID_; no clash	C5	local
+tJuneNow	tNow	rename	X2Lib/X2WorldManager.cpp	CX2WorldManager	SERV_IRUHADEV_JUNE_WORLD_FESTIVAL	32805b98			C5	local

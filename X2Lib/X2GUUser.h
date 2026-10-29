@@ -859,7 +859,7 @@ public:
 			bool					bDirectChange;
 			char					stateChangeNum;
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
-			bool					bJuneStateSkipped;	/// C3e-4: June's A ( syncData +0x06; Future +0x7e3a / Now +0x80da ), sync bit 0x400000: the direct-change replay skipped a state
+			bool					bStateSkipped;	/// C3e-4: June's A ( syncData +0x06; Future +0x7e3a / Now +0x80da ), sync bit 0x400000: the direct-change replay skipped a state
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 			D3DXVECTOR3				position;
@@ -908,7 +908,7 @@ public:
 			DWORD				dwBuffSyncCount;	/// June buff port Phase 8: the buff-change counter (June +0x7e68 Future / +0x8108 Now, syncData +0x34)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-			KProtectedType<int>		iJuneClassSyncInt;	/// June Future +0x7ec0 / Now +0x8160, a class's synced skill id; off-wire
+			KProtectedType<int>		iClassSyncInt;	/// June Future +0x7ec0 / Now +0x8160, a class's synced skill id; off-wire
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -926,7 +926,7 @@ public:
 				bDirectChange			= false;
 				stateChangeNum			= 0;
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
-				bJuneStateSkipped		= false;
+				bStateSkipped		= false;
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 				INIT_VECTOR3( position,	0,0,0 );
@@ -971,7 +971,7 @@ public:
 				dwBuffSyncCount			= 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-				iJuneClassSyncInt		= 0;
+				iClassSyncInt		= 0;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -1505,7 +1505,7 @@ public:
 #ifdef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	#ifdef ADD_MEMO_1ST_CLASS
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
-		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_ = false, IN const bool bJuneUltimate_ = false );	/// S3f: June 32024ff0
+		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_ = false, IN const bool bUltimate_ = false );	/// S3f: June 32024ff0
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_ = false );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
@@ -1566,8 +1566,8 @@ public:
 		int							GetDamageCount(){ return m_nDamageCount; }
 		void						SetDamageCount( int nCount ) { m_nDamageCount = nCount; }
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-		float						GetMissionBossDamage() const { return m_fJuneMissionBossDamage; }	/// June user +0x8850
-		void						SetMissionBossDamage( float fDamage_ ) { m_fJuneMissionBossDamage = fDamage_; }
+		float						GetMissionBossDamage() const { return m_fMissionBossDamage; }	/// June user +0x8850
+		void						SetMissionBossDamage( float fDamage_ ) { m_fMissionBossDamage = fDamage_; }
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		virtual void				AttackResult();
 		virtual void				AttackResultStateChange( int damageRevenge );
@@ -2011,7 +2011,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		/// C3e-2: June's setter 31ecd040( state, index, byChat ): the picked index of one of USI_START / USI_WIN / USI_LOSE and the by-chat flag ( +0x8abc ).
 		/// Its only June caller is the chat box's WIN / LOSE command, which June allows in XS_PHOTOZONE_GAME only ( 31ec2700 @31ec63be / @31ec65db, g_pMain +0x8c == 0x1a ); March has no such state, so nothing calls it.
-		void						SetCommonRandomStateIndex( int iState, UCHAR ucIndex, bool bByChat )	{ m_mapJuneCommonRandomIndex[ iState ] = ucIndex; m_bJuneCommonRandomByChat = bByChat; }
+		void						SetCommonRandomStateIndex( int iState, UCHAR ucIndex, bool bByChat )	{ m_mapCommonRandomIndex[ iState ] = ucIndex; m_bCommonRandomByChat = bByChat; }
 
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		virtual const D3DXVECTOR3&		GetLandPos( bool bFuture = false ) const
@@ -2314,7 +2314,7 @@ public:
 		virtual void BoundingUpEventProcess();		/// June 31fd0340
 		/// June InitState of every class ( pszPrefix_ = the class's table prefix, e.g. "ESSI_" ): registers the three states, or none ( logged ) when a table is missing
 		void InitBoundingStates( const char* pszPrefix_ );
-		bool IsBoundingStatesReady() const { return m_bJuneBoundingStatesReady; }
+		bool IsBoundingStatesReady() const { return m_bBoundingStatesReady; }
 		/// C3j: June CX2GameUnit vslots 0x2f0 / 0x2f4, user 31fd7ec0 / 31fd7f00 ( the Now state data's index == June 0x7a USI_BOUNDING_UP; Now or Future
 		/// == 0x79 USI_BOUNDING_LANDCRASH ). The only caller is Lu/Ciel class code ( 32b34680, checklist 7l ).
 		virtual bool IsBoundingUp() const { return GetNowStateID() == USI_BOUNDING_UP; }
@@ -2495,8 +2495,8 @@ public:
 		/// C9h-4e: the riding pet's StateChange / StateChangeFuture writes ( June 32d2f560 / 32d2c8b0 ): the gravity window ( +0x84f8 / +0x84fc ), the two
 		/// effect-set bytes C9h-4d added ( +0x8628 / +0x862b ) and the Future push / pass vectors ( +0x8b14 / +0x8b24 )
 		void SetDisableGravityInScriptTime( IN float fStart_, IN float fEnd_ ) { m_vDisableGravityInScriptTime.x = fStart_; m_vDisableGravityInScriptTime.y = fEnd_; }
-		void SetDeleteEffectSetOffRiding( IN bool bVal_ ) { m_bJuneDeleteEffectSetOffRiding = bVal_; }
-		void SetDeleteEffectSetOnSkillStateEnd( IN bool bVal_ ) { m_bJuneDeleteEffectSetOnSkillStateEnd = bVal_; }
+		void SetDeleteEffectSetOffRiding( IN bool bVal_ ) { m_bDeleteEffectSetOffRiding = bVal_; }
+		void SetDeleteEffectSetOnSkillStateEnd( IN bool bVal_ ) { m_bDeleteEffectSetOnSkillStateEnd = bVal_; }
 #ifdef RAVEN_SECOND_CLASS_CHANGE
 		std::vector<TIME_PUSHPASS>& AccessCanPushUnitFuture() { return m_vecCanPushUnit; }
 		std::vector<TIME_PUSHPASS>& AccessCanPassUnitFuture() { return m_vecCanPassUnit; }
@@ -2509,8 +2509,8 @@ public:
 		/// C9h-4f: June's USEFUL_VALUE<n> rows ( 5 rows x 3 floats ). Future = +0x8ef4 ( CommonStateStartFuture ), Now = +0x8eb8 ( CommonStateStart ).
 		/// An out-of-range row or column reads 0, like a missing value.
 		void ParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, bool bFuture_ );
-		float GetUsefulValueFuture( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueFuture[iRow_][iColumn_] : 0.f; }
-		float GetUsefulValueNow( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueNow[iRow_][iColumn_] : 0.f; }
+		float GetUsefulValueFuture( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afUsefulValueFuture[iRow_][iColumn_] : 0.f; }
+		float GetUsefulValueNow( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afUsefulValueNow[iRow_][iColumn_] : 0.f; }
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
 		/// C9h-4g: June's USEFUL_STRING<n> rows ( one wide string each, value [1]; no row cap ). Future = +0x8f40 ( CommonStateStartFuture ), Now = +0x8f30 ( CommonStateStart ).
@@ -2523,8 +2523,8 @@ public:
 		/// 32015b30 @3201a077 ( dual body, Lu/Ciel: backlog Stage 8 ), scales the vector of user vslot 0x16c by value 1, takes value 2 as its y, and adds the two
 		/// bodies' position difference when the bool is set.
 		void ParseNotSelectUnitOffset( IN int iStateId_, IN bool bFuture_ );
-		float GetNotSelectUnitOffset( IN int iIndex_ ) const { return ( 0 <= iIndex_ && iIndex_ < 2 ) ? m_afJuneNotSelectUnitOffset[iIndex_] : 0.f; }
-		bool GetUseNotSelectMotionDifference() const { return m_bJuneUseNotSelectMotionDifference; }
+		float GetNotSelectUnitOffset( IN int iIndex_ ) const { return ( 0 <= iIndex_ && iIndex_ < 2 ) ? m_afNotSelectUnitOffset[iIndex_] : 0.f; }
+		bool GetUseNotSelectMotionDifference() const { return m_bUseNotSelectMotionDifference; }
 #endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 #ifdef SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
 		/// C9h-4g: June's USI_WAIT_STATE_CHANGE. Every June class InitState registers it with only an OnEventProcess ( 31fc8620 through thunk 329cb720 ); a character port
@@ -2547,14 +2547,14 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
 		/// C9h-4h: June's "Heavenly Combat Support Kit" event states ( USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ), registered for every class ( June 3202b110 ).
 		/// The two event NPCs ( June Enum NUI_NEIL_THE_SNIPER_EVENT / NUI_PROTON_BOMB_EVENT; March has no NPC_UNIT_ID for them ).
-		static const int JUNE_NUI_NEIL_THE_SNIPER_EVENT	= 4342;
-		static const int JUNE_NUI_PROTON_BOMB_EVENT		= 4343;
+		static const int NUI_NEIL_THE_SNIPER_EVENT	= 4342;
+		static const int NUI_PROTON_BOMB_EVENT		= 4343;
 		void InitEventStates();
 		/// June 31fc9900 / 31fc9910 and the bomb's +0x948c: written by CX2Game::SetUserSummonedNPCInfo ( June 3230c1a0 ) when the event NPC is created
-		void SetEventNpcUID( IN int iNpcUID_ ) { m_iJuneEventNpcUID = iNpcUID_; }
-		int GetEventNpcUID() const { return m_iJuneEventNpcUID; }
-		void SetEventBombNpcUID( IN int iNpcUID_ ) { m_iJuneEventBombNpcUID = iNpcUID_; }
-		int GetEventBombNpcUID() const { return m_iJuneEventBombNpcUID; }
+		void SetEventNpcUID( IN int iNpcUID_ ) { m_iEventNpcUID = iNpcUID_; }
+		int GetEventNpcUID() const { return m_iEventNpcUID; }
+		void SetEventBombNpcUID( IN int iNpcUID_ ) { m_iEventBombNpcUID = iNpcUID_; }
+		int GetEventBombNpcUID() const { return m_iEventBombNpcUID; }
 		void EventCreateNpc( IN int iNpcID_, IN const D3DXVECTOR3& vPos_, IN bool bIsRight_ );
 		void EventSetAimByKeys( IN CX2GUNPC* pNpc_ );
 		void EventNpcFollowAim( IN CX2GUNPC* pNpc_, IN const char* const* apszStateName_ );
@@ -3253,8 +3253,8 @@ public:
 		/// June buff port 16-step3b2 item 2: June user +0x8dfc beside the magic rate (+0x8df8); getter 32070e00 = min( it, 1 ).
 		/// The critical damage multiplier adds it for physic and (half) mix damage. June's writer is class code (32b45e0c,
 		/// CX2GUEL region): checklist section 7. March has none, so it stays 0.
-		float GetAddPhysicAttackCriticalDamageRate() const { return min( m_fJuneAddPhysicAttackCriticalDamageRate, 1.f ); }
-		void SetAddPhysicAttackCriticalDamageRate( float val ) { m_fJuneAddPhysicAttackCriticalDamageRate = val; }
+		float GetAddPhysicAttackCriticalDamageRate() const { return min( m_fAddPhysicAttackCriticalDamageRate, 1.f ); }
+		void SetAddPhysicAttackCriticalDamageRate( float val ) { m_fAddPhysicAttackCriticalDamageRate = val; }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const vector< int >& GetSetItemOptions(){ return m_vecSetItemOptions; }
 		int GetMyUnitSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_ );
@@ -3351,15 +3351,15 @@ public:
 		/// effect completion C10e: socket option 2000145. +0x7ca8 is set by SumSocketOption ( 3204f190 @3204fff5 ) and
 		/// cleared in UpdateSocketDataAndEnchantData ( @3204b5a0 ), +0x7cac is the 0.5 s cool-down between procs
 		/// ( ctor @3203e928, OnFrameMove @3207001b ), both read by CX2GUNPC::DamageReact ( 327b1f30 @327b4484 ).
-		bool	m_bJuneSocketCoolTimeOnHit;
-		float	m_fJuneSocketCoolTimeOnHitCool;
+		bool	m_bSocketCoolTimeOnHit;
+		float	m_fSocketCoolTimeOnHitCool;
 #endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
-		float	m_fJuneTranscendSlotBuffTime;		/// June +0x9328
-		bool	m_bJuneTranscendSlotBuffRolled;		/// June +0x932c
-		bool	m_bJuneHyperModeBuffPending;		/// June +0x952c
-		bool	IsHyperModeBuffPending() const { return m_bJuneHyperModeBuffPending; }
-		void	ClearHyperModeBuffPending() { m_bJuneHyperModeBuffPending = false; }
+		float	m_fTranscendSlotBuffTime;		/// June +0x9328
+		bool	m_bTranscendSlotBuffRolled;		/// June +0x932c
+		bool	m_bHyperModeBuffPending;		/// June +0x952c
+		bool	IsHyperModeBuffPending() const { return m_bHyperModeBuffPending; }
+		void	ClearHyperModeBuffPending() { m_bHyperModeBuffPending = false; }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)
@@ -3375,7 +3375,7 @@ public:
 		/// the skill's MP there (+0x8ea8) and spends it when the state starts; March spends it at use, so only the skill is kept
 		void ReserveSkillUseCount( const CX2SkillTree::SKILL_ID eSkillID_ ) { m_eSkillUseReservedSkillID = eSkillID_; m_fSkillUseReserveTime = 1.0f; }
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; m_fJune8ea8 = 0.f; }	/// June slot 514 ( 31fc9410 ): +0x8eac and +0x8ea8 together
+		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; m_fReservedSkillMp = 0.f; }	/// June slot 514 ( 31fc9410 ): +0x8eac and +0x8ea8 together
 #else SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }	/// June slot 514 ( 31fc9410 ): Arme's override also clears the reserved MP
@@ -3673,7 +3673,7 @@ public:
 		bool IsDevUnlimitedSkillUse() const;	/// local dev convenience: March's in-house skip of the cool-time / MP checks
 #endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-		std::vector<float> m_vecJuneSpecialOptionValue;		/// June +0x93a8: the state's SPECIAL_OPTION_VALUE ( CommonStateStart @320608c8 )
+		std::vector<float> m_vecSpecialOptionValue;		/// June +0x93a8: the state's SPECIAL_OPTION_VALUE ( CommonStateStart @320608c8 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		bool IsEquippedSkillKeyPressed( const InputData& kInputData_, CX2SkillTree::SKILL_ID eSkillID_ ) const;	/// June 31fce710
@@ -3687,7 +3687,7 @@ public:
 			void FollowSlotSwap();											/// June 31fce670
 			bool IsKeyReleased( const InputData& kInputData_ ) const;		/// June 31fc89a0
 		};
-		SkillSlotKey m_kJuneSkillSlotKey;	/// June +0x8b58
+		SkillSlotKey m_kSkillSlotKey;	/// June +0x8b58
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		void CollectEnemyUnitsInCone( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const float fConeDegree_, IN const bool bSkipInvincible_ );	/// June 32009180
@@ -3935,13 +3935,13 @@ public:
 		/// June's per-socket cool time (user +0x8b98, map of socket ID to seconds): get 31fd8b70 (0 when absent), set 31fe0b90,
 		/// tick 31fd7bd0 (OnFrameMove: minus the elapsed time, erased at 0 or below)
 		float	GetSocketCoolTime( const int iSocketID_ ) const;
-		void	SetSocketCoolTime( const int iSocketID_, const float fCoolTime_ ) { m_mapJuneSocketCoolTime[iSocketID_] = fCoolTime_; }
+		void	SetSocketCoolTime( const int iSocketID_, const float fCoolTime_ ) { m_mapSocketCoolTime[iSocketID_] = fCoolTime_; }
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 	public:		/// CX2GameUnit::JuneProcessSocketExtraDamage calls these on the attacker; the section here is protected
 		/// June 32070e40 (EDT 156 only): sets the command-hit count +0x9474 and its time +0x9478 together
-		void	SetCommandHit( const int iCount_, const float fTime_ ) { m_iJuneCommandHitCount = iCount_; m_fJuneCommandHitTime = fTime_; }
-		int		GetCommandHitCount() const { return m_iJuneCommandHitCount; }
-		float	GetCommandHitTime() const { return m_fJuneCommandHitTime; }
+		void	SetCommandHit( const int iCount_, const float fTime_ ) { m_iCommandHitCount = iCount_; m_fCommandHitTime = fTime_; }
+		int		GetCommandHitCount() const { return m_iCommandHitCount; }
+		float	GetCommandHitTime() const { return m_fCommandHitTime; }
 	protected:
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 		void	CheckSocketCoolTime( const float fElapsedTime_ );
@@ -4132,7 +4132,7 @@ public:
 			/// only Rose overrides it ( 32ad9a40, checklist )
 			virtual void OnStateInsertBuffFactorApplied( const UINT uiBuffFactorID_, const UINT uiLevel_ ) {}
 	public:
-			int GetStateBuffSkillID() const { return m_iJuneStateBuffSkillID; }	/// read by CX2GameUnit ( 322a6960 / 322a7660 )
+			int GetStateBuffSkillID() const { return m_iStateBuffSkillID; }	/// read by CX2GameUnit ( 322a6960 / 322a7660 )
 	protected:
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
@@ -4154,8 +4154,8 @@ public:
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	public:	// Atlas E7: this part of the class is protected; the setter is bound to Lua and read by CX2SmallGageUI
-		void SetShowHpSmallGage( bool bShow_ ) { m_bJuneShowHpSmallGage = bShow_; }	/// Atlas E7: June 31e4d150 ( +0x9528 )
-		bool GetShowHpSmallGage() const { return m_bJuneShowHpSmallGage; }
+		void SetShowHpSmallGage( bool bShow_ ) { m_bShowHpSmallGage = bShow_; }	/// Atlas E7: June 31e4d150 ( +0x9528 )
+		bool GetShowHpSmallGage() const { return m_bShowHpSmallGage; }
 	protected:
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		//}} Protected Function End
@@ -4197,11 +4197,11 @@ public:
 		/// never the entry ( e.g. 32bf2e37, 32c42cee )
 		float											m_fNowStatePowerRate;
 		/// June +0x9544..+0x9568 ( set by 31fd2af0 only ): preferred over the state's own delegate while set, cleared at the next state change
-		GUStateCBFunc									m_JuneSnapOnFrameMoveFuture;	/// +0x9544 <- Future +0x2c ( 320347d0 )
-		GUStateCBFunc									m_JuneSnapOnEventProcess;		/// +0x954c <- Future +0x44 ( 320347d0 )
-		GUStateCBFunc									m_JuneSnapStateEndFuture;		/// +0x9554 <- Future +0x4c ( 31fe6a40 )
-		GUStateCBFunc									m_JuneSnapOnFrameMove;			/// +0x955c <- Now +0x34 ( 31fd6b80 )
-		GUStateCBFunc									m_JuneSnapStateEnd;				/// +0x9564 <- Now +0x54 ( 3203c3a0 )
+		GUStateCBFunc									mSnapOnFrameMoveFuture;	/// +0x9544 <- Future +0x2c ( 320347d0 )
+		GUStateCBFunc									mSnapOnEventProcess;		/// +0x954c <- Future +0x44 ( 320347d0 )
+		GUStateCBFunc									mSnapStateEndFuture;		/// +0x9554 <- Future +0x4c ( 31fe6a40 )
+		GUStateCBFunc									mSnapOnFrameMove;			/// +0x955c <- Now +0x34 ( 31fd6b80 )
+		GUStateCBFunc									mSnapStateEnd;				/// +0x9564 <- Now +0x54 ( 3203c3a0 )
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		UserUnitStateData								m_FutureStateData;	/// Future의 StateData
 		UserUnitStateData								m_NowStateData;	/// Now의 StateData
@@ -4301,9 +4301,9 @@ public:
 		bool m_bDeleteEffectSetOnCustomState;	/// m_vecEffectSetToPlay에 있는 것 들을 m_vecEffectSetToPlay에 넣어야 하는지 여부
 #endif DELETE_EFFECTSET_ON_CUSTOM_STATE
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-		bool m_bJuneDeleteEffectSetOnStageEnd;		/// June +0x8624 DELETE_EFFECT_SET_ON_STAGE_END
-		bool m_bJuneDeleteEffectSetOffRiding;		/// June +0x8628 DELETE_EFFECT_SET_OFF_RIDING
-		bool m_bJuneDeleteEffectSetOnSkillStateEnd;	/// June +0x862b DELETE_EFFECT_SET_ON_SKILL_STATE_END
+		bool m_bDeleteEffectSetOnStageEnd;		/// June +0x8624 DELETE_EFFECT_SET_ON_STAGE_END
+		bool m_bDeleteEffectSetOffRiding;		/// June +0x8628 DELETE_EFFECT_SET_OFF_RIDING
+		bool m_bDeleteEffectSetOnSkillStateEnd;	/// June +0x862b DELETE_EFFECT_SET_ON_SKILL_STATE_END
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 		bool m_bHyperEffectSet;	/// 이펙트 셋에 HYPER_NAME을 지정하고, 이것을 설정 하면 HYPER_NAME으로 지정된 이펙트를 실행
 		float m_fEffectSetLifeTime;	/// 이펙트 셋의 플레이 시간...
@@ -4425,8 +4425,8 @@ public:
 		int												m_nDamageCount;		/// 피격획수
 
 #ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
-		int												m_iJuneMissionHitCount;		/// June user +0x884c: hits taken while the random mission's event 3 runs
-		float											m_fJuneMissionBossDamage;	/// June user +0x8850: this unit's total damage to the boss, event 2
+		int												m_iMissionHitCount;		/// June user +0x884c: hits taken while the random mission's event 3 runs
+		float											m_fMissionBossDamage;	/// June user +0x8850: this unit's total damage to the boss, event 2
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		bool											m_StopAdvanceTimeFuture;
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -4541,15 +4541,15 @@ public:
 		CX2Unit::EMOTION_TYPE							m_ePlayedEmotion;		
 		bool											m_bReserveSitReadyEmotion;
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
-		CX2EffectSet::Handle							m_hJuneEmotionEffectSet;	// June CX2GUUser +0x943c: the UnitViewerEffectSetTable hit played by PlayEmotion
-		CX2Unit::EMOTION_TYPE							m_eJuneEmotionEffectSetEmotion;	// June +0x9438: the emotion that played it (ctor 0; stopped once m_ePlayedEmotion differs)
+		CX2EffectSet::Handle							m_hEmotionEffectSet;	// June CX2GUUser +0x943c: the UnitViewerEffectSetTable hit played by PlayEmotion
+		CX2Unit::EMOTION_TYPE							m_eEmotionEffectSetEmotion;	// June +0x9438: the emotion that played it (ctor 0; stopped once m_ePlayedEmotion differs)
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-		CX2EffectSet::Handle							m_hJuneEmotionSetEffectSet;	// June CX2GUUser +0x9434: the per-emotion effect set of 32355a50 (ctor -1)
+		CX2EffectSet::Handle							m_hEmotionSetEffectSet;	// June CX2GUUser +0x9434: the per-emotion effect set of 32355a50 (ctor -1)
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #endif
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-		D3DXVECTOR3										m_vJuneLastFramePos;	// June CX2GUUser +0x94d4: GetPos() at the end of the last CommonFrameMove (ctor 0)
+		D3DXVECTOR3										m_vLastFramePos;	// June CX2GUUser +0x94d4: GetPos() at the end of the last CommonFrameMove (ctor 0)
 		bool											CheckEquipEffectSetCondition( const CX2ItemManager::ConditionEquipPlayEffectSet& kRecord );	// 31fd8140
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
@@ -4609,13 +4609,13 @@ public:
 		std::vector< CommonRandomState > m_vecRandomWinState;
 		std::vector< CommonRandomState > m_vecRandomLoseState;
 #ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
-		std::map< int, UCHAR >			m_mapJuneCommonRandomIndex;		/// C3e-2: June +0x8aac, key USI_START / USI_WIN / USI_LOSE, the index the roll picked in the matching list
-		bool							m_bJuneCommonRandomByChat;		/// C3e-2: June +0x8abc, cleared by the roll, set by the setter's chat caller
+		std::map< int, UCHAR >			m_mapCommonRandomIndex;		/// C3e-2: June +0x8aac, key USI_START / USI_WIN / USI_LOSE, the index the roll picked in the matching list
+		bool							m_bCommonRandomByChat;		/// C3e-2: June +0x8abc, cleared by the roll, set by the setter's chat caller
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
-		std::vector< HitStopEntry >	m_vecJuneHitStop;			/// C3e-4: June +0x85a4, SetStopTime's list ( ticked into Future fStopTime )
-		std::vector< HitStopEntry >	m_vecJuneHitStop2;			/// C3e-4: June +0x85b4, SetStop2Time's list ( ticked into Future fStop2Time )
-		KProtectedType<bool>			m_bJuneTimeStopImmuneState;	/// C3e-4: June +0x7dc4, the state key TIME_STOP_IMMUNE_STATE ( CommonStateStart 32057b80 @32060990-32060b96 )
+		std::vector< HitStopEntry >	m_vecHitStop;			/// C3e-4: June +0x85a4, SetStopTime's list ( ticked into Future fStopTime )
+		std::vector< HitStopEntry >	m_vecHitStop2;			/// C3e-4: June +0x85b4, SetStop2Time's list ( ticked into Future fStop2Time )
+		KProtectedType<bool>			m_bTimeStopImmuneState;	/// C3e-4: June +0x7dc4, the state key TIME_STOP_IMMUNE_STATE ( CommonStateStart 32057b80 @32060990-32060b96 )
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 
@@ -4748,31 +4748,31 @@ public:
 		float					m_fUpDownCancelAfter;		/// June +0x8ca4: UPDOWN_CANCEL_AFTER (C9h-4c)
 #endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
-		bool					m_bJuneUseCommonCancelAfter;	/// June +0x8ca0: USE_COMMON_CANCEL_AFTER (C9h-4c)
+		bool					m_bUseCommonCancelAfter;	/// June +0x8ca0: USE_COMMON_CANCEL_AFTER (C9h-4c)
 #endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
-		float					m_afJuneUsefulValueFuture[5][3];	/// June +0x8ef4: USEFUL_VALUE0..4 of the Future state (C9h-4f)
-		float					m_afJuneUsefulValueNow[5][3];		/// June +0x8eb8: USEFUL_VALUE0..4 of the Now state (C9h-4f)
+		float					m_afUsefulValueFuture[5][3];	/// June +0x8ef4: USEFUL_VALUE0..4 of the Future state (C9h-4f)
+		float					m_afUsefulValueNow[5][3];		/// June +0x8eb8: USEFUL_VALUE0..4 of the Now state (C9h-4f)
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
-		std::vector<std::wstring>	m_vecJuneUsefulStringFuture;	/// June +0x8f40: USEFUL_STRING0.. of the Future state (C9h-4g)
-		std::vector<std::wstring>	m_vecJuneUsefulStringNow;		/// June +0x8f30: USEFUL_STRING0.. of the Now state (C9h-4g)
+		std::vector<std::wstring>	m_vecUsefulStringFuture;	/// June +0x8f40: USEFUL_STRING0.. of the Future state (C9h-4g)
+		std::vector<std::wstring>	m_vecUsefulStringNow;		/// June +0x8f30: USEFUL_STRING0.. of the Now state (C9h-4g)
 #endif SERV_IRUHADEV_JUNE_USEFUL_STRING
 #ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
-		float					m_afJuneNotSelectUnitOffset[2];			/// June +0x8f54 / +0x8f58: CUSTOM_OFFSET_NOT_SELECT_UNIT values 1 / 2 (C9h-4g)
-		bool					m_bJuneUseNotSelectMotionDifference;	/// June +0x8f5c: USE_NOT_SELECT_MOTION_DIFFERENCE, a miss reads true (C9h-4g)
+		float					m_afNotSelectUnitOffset[2];			/// June +0x8f54 / +0x8f58: CUSTOM_OFFSET_NOT_SELECT_UNIT values 1 / 2 (C9h-4g)
+		bool					m_bUseNotSelectMotionDifference;	/// June +0x8f5c: USE_NOT_SELECT_MOTION_DIFFERENCE, a miss reads true (C9h-4g)
 #endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( the class script carries the tables; none does yet ); the RT_BOUNDING case needs it
+		bool																					m_bBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( the class script carries the tables; none does yet ); the RT_BOUNDING case needs it
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
-		int						m_iJuneEventNpcUID;			/// June +0x947c: the event Neil the Sniper's NPC UID ( -1 none )
-		char					m_cJuneEventShotCount;		/// June +0x9480 ( signed byte ): sniper shots left ( SNIPER_INIT start 10, GUN_DANCE start 1 )
-		float					m_fJuneEventTimer;			/// June +0x9484: the control time, += elapsed in CONTROL_IDLE / CONTROL_FIRE
-		bool					m_bJuneEventGunDance;		/// June +0x9488: CONTROL_FIRE plays the Gun Dance effect set ( GUN_DANCE_INIT )
-		int						m_iJuneEventBombNpcUID;		/// June +0x948c: the event Proton Bomb's NPC UID ( -1 none )
-		bool					m_bJuneEventKitLatch;		/// June +0x9490: a kit is running; the pick-up starts no other ( set 3230bf78, opened by the end states )
+		int						m_iEventNpcUID;			/// June +0x947c: the event Neil the Sniper's NPC UID ( -1 none )
+		char					m_cEventShotCount;		/// June +0x9480 ( signed byte ): sniper shots left ( SNIPER_INIT start 10, GUN_DANCE start 1 )
+		float					m_fEventTimer;			/// June +0x9484: the control time, += elapsed in CONTROL_IDLE / CONTROL_FIRE
+		bool					m_bEventGunDance;		/// June +0x9488: CONTROL_FIRE plays the Gun Dance effect set ( GUN_DANCE_INIT )
+		int						m_iEventBombNpcUID;		/// June +0x948c: the event Proton Bomb's NPC UID ( -1 none )
+		bool					m_bEventKitLatch;		/// June +0x9490: a kit is running; the pick-up starts no other ( set 3230bf78, opened by the end states )
 #endif SERV_IRUHADEV_JUNE_EVENT_STATES
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;
@@ -4829,17 +4829,17 @@ public:
 	float m_fAddMagicAttackCriticalDamageRate;  /// 집중력 향상 패시브, 마법 공격 크리티컬 데미지 증가 증가 배율 값( 기본값 : 0 / 최대값 1 )
 #endif //NEW_CHARACTER_EL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	float m_fJuneAddPhysicAttackCriticalDamageRate;	/// June +0x8dfc, 16-step3b2 (ctor 0, June @32040df6)
-	map<int, float> m_mapJuneSocketCoolTime;		/// June +0x8b98, 16-step3b4 (per-socket cool time; never cleared but by the dtor)
-	bool m_bJuneSocketReturnFromDeathDown;			/// June +0x8e78, 16-step3b4 (ctor 0 @32040e48; CommonEventProcess knocks the unit down once)
+	float m_fAddPhysicAttackCriticalDamageRate;	/// June +0x8dfc, 16-step3b2 (ctor 0, June @32040df6)
+	map<int, float> m_mapSocketCoolTime;		/// June +0x8b98, 16-step3b4 (per-socket cool time; never cleared but by the dtor)
+	bool m_bSocketReturnFromDeathDown;			/// June +0x8e78, 16-step3b4 (ctor 0 @32040e48; CommonEventProcess knocks the unit down once)
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
-	int m_iJuneCommandHitCount;		/// June +0x9474, 16-step3c2 (ctor 0 @32041e20; ReInit leaves it)
-	float m_fJuneCommandHitTime;	/// June +0x9478, 16-step3c2 (ctor 0 @32041e26; a float copy of g_pKTDXApp->GetTime())
+	int m_iCommandHitCount;		/// June +0x9474, 16-step3c2 (ctor 0 @32041e20; ReInit leaves it)
+	float m_fCommandHitTime;	/// June +0x9478, 16-step3c2 (ctor 0 @32041e26; a float copy of g_pKTDXApp->GetTime())
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-	float m_fJuneDashJumpDownAccelRate;	/// June +0x8fb8 ( 1.2; Aisha's constructor sets 1.1 )
-	float m_fJuneDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
+	float m_fDashJumpDownAccelRate;	/// June +0x8fb8 ( 1.2; Aisha's constructor sets 1.1 )
+	float m_fDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	int GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0
@@ -4853,17 +4853,17 @@ public:
 	void SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( vslot 0x764 )
 	bool CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d140
 	bool CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0
-	int		m_iJune8ea0;		/// June +0x8ea0 ( 0; the skill the lookup chose )
-	int		m_iJune8ea4;		/// June +0x8ea4 ( 0; its slot index )
-	float	m_fJune8ea8;		/// June +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
-	float	m_fJune8eb0;		/// June +0x8eb0 ( 0; the MP the chosen skill costs )
-	bool	m_abJune90d3[10];	/// June +0x90d3 ( false; slot used marks, 31fc86e0 )
-	bool	m_abJune90d0[3];	/// June +0x90d0 ( false )
+	int		m_iChosenSkillID;		/// June +0x8ea0 ( 0; the skill the lookup chose )
+	int		m_iChosenSkillSlotIndex;		/// June +0x8ea4 ( 0; its slot index )
+	float	m_fReservedSkillMp;		/// June +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
+	float	m_fChosenSkillMp;		/// June +0x8eb0 ( 0; the MP the chosen skill costs )
+	bool	m_abSkillSlotUsed[10];	/// June +0x90d3 ( false; slot used marks, 31fc86e0 )
+	bool	m_abHyperSkillSlotUsed[3];	/// June +0x90d0 ( false )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	/// June buff port Phase 14b: June +0x6ba4 (a protected bool; ctor 322a2700, setter 32082710), written by DamageReact
 	/// from HaveInstanceKillDebuff and consumed (cleared, HP to 0) after UpNowHp in the same function
-	KProtectedType<bool> m_bJuneInstanceKill;
+	KProtectedType<bool> m_bInstanceKill;
 	bool HaveInstanceKillDebuff() const;	/// June CX2GUUser slot 200 (31fe4150); base and NPC return false
 #endif SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 
@@ -5061,8 +5061,8 @@ private:
 		// 지정한 시간에 자기 자신에게 적용하는 버프를 위해 사용
 		UINT m_uiNowStateSkillLevel;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
-		std::vector< std::pair< UINT, float > >	m_vecJuneStateInsertBuffFactor;	/// June +0x865c: ( BFI, anim time ) in script order; replaces m_mapStateInsertBuffFactor
-		int										m_iJuneStateBuffSkillID;		/// June +0x9274: the reserved buffs' skill id, slot 476's fallback
+		std::vector< std::pair< UINT, float > >	m_vecStateInsertBuffFactor;	/// June +0x865c: ( BFI, anim time ) in script order; replaces m_mapStateInsertBuffFactor
+		int										m_iStateBuffSkillID;		/// June +0x9274: the reserved buffs' skill id, slot 476's fallback
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 
@@ -5072,13 +5072,13 @@ private:
 	bool m_bChangeWorldColor;
 #ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 	float m_fShowHyperCutInTime;		/// June +0x9280 ( C3t ): SHOW_HYPER_CUT_IN_TIME, -1 = none
-	bool m_bJuneBerserkHyperCutIn;		/// June +0x951c ( C3t ): this state shows m_BerserkCutIn instead of m_HyperCutIn
+	bool m_bBerserkHyperCutIn;		/// June +0x951c ( C3t ): this state shows m_BerserkCutIn instead of m_HyperCutIn
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	bool m_bJuneShowHpSmallGage;		/// Atlas E7: June +0x9528 ( 0 = the small HP gage is not drawn, 32e5d580 @32e5d67f )
+	bool m_bShowHpSmallGage;		/// Atlas E7: June +0x9528 ( 0 = the small HP gage is not drawn, 32e5d580 @32e5d67f )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
-	int m_iJuneSoundSetRandomValue;		/// June CX2GameUnit +0x6dcc ( C3t-2 ): the sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE
+	int m_iSoundSetRandomValue;		/// June CX2GameUnit +0x6dcc ( C3t-2 ): the sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE
 #endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 
 #ifdef CHEAT_SELF_DAMAGE // 김태환

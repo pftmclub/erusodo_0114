@@ -135,12 +135,12 @@ HRESULT CKTDXDeviceManager::OnFrameMove( double fTime, float fElapsedTime )
 	// June 31cde8d0: the drain runs every frame, after ProcessForegroundQueue ( only that is gated
 	// by the first-frame test, jne @31cde8ea -> 31cde8fb ). No lock: the queue is filled on the main thread.
 	{
-		const size_t uCount = m_vecJuneAutoRelease.size();
+		const size_t uCount = m_vecAutoRelease.size();
 		for ( size_t i = 0; i < uCount; ++i )
 		{
-			CloseDeviceByPointer( m_vecJuneAutoRelease[i] );
+			CloseDeviceByPointer( m_vecAutoRelease[i] );
 		}
-		m_vecJuneAutoRelease.clear();
+		m_vecAutoRelease.clear();
 	}
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 	return S_OK;
@@ -1166,7 +1166,7 @@ void CKTDXDeviceManager::QueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ )
 		CKTDXDeviceSound* pSound = static_cast<CKTDXDeviceSound*>( pDevice );
 		if ( pSound->GetChannel() == pEndedChannel_ )
 		{
-			m_vecJuneAutoRelease.push_back( pSound );
+			m_vecAutoRelease.push_back( pSound );
 			SoundReleaseLog( "queue", pSound->GetDeviceID(), -1, 0 );
 			return;
 		}
@@ -1226,7 +1226,7 @@ int CKTDXDeviceManager::RegisterAutoRelease( FMOD_CHANNEL* pChannel_ )
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
-CKTDXDeviceSound* CKTDXDeviceManager::PlaySound( const WCHAR* pFileName, bool bLoop /* = false */, bool b3DSound /*= true*/, bool bJuneAutoRelease_ /*= true*/ )
+CKTDXDeviceSound* CKTDXDeviceManager::PlaySound( const WCHAR* pFileName, bool bLoop /* = false */, bool b3DSound /*= true*/, bool bAutoRelease_ /*= true*/ )
 #else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 CKTDXDeviceSound* CKTDXDeviceManager::PlaySound( const WCHAR* pFileName, bool bLoop /* = false */, bool b3DSound /*= true*/  )
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -1269,22 +1269,22 @@ out:
 			// June 31ce0e10 open branch: 31cdd4e0( m_pChannel ) only when the 4th argument is 1 and the channel is not NULL
 			// ( Play returns early when muted / not loaded ). The found branch above takes no reference and no callback.
 			{
-				int iJuneRegistered = 0;
-				int iJuneResult = -1;
-				if ( bJuneAutoRelease_ == true && pSound->GetChannel() != NULL )
+				int iRegistered = 0;
+				int iResult = -1;
+				if ( bAutoRelease_ == true && pSound->GetChannel() != NULL )
 				{
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-					iJuneResult = RegisterAutoRelease( pSound->GetChannel() );
+					iResult = RegisterAutoRelease( pSound->GetChannel() );
 #else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-					iJuneResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), SoundAutoReleaseCallback );
+					iResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), SoundAutoReleaseCallback );
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
-					iJuneRegistered = 1;
+					iRegistered = 1;
 				}
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 				// ref = arg 4 ( auto-release ), deleted = callback registered, then the FMOD result in the name
-				WCHAR wszJuneOpen[64] = {0};
-				StringCchPrintfW( wszJuneOpen, ARRAY_SIZE(wszJuneOpen), L" fmod=%d channel=%d", iJuneResult, ( pSound->GetChannel() != NULL ) ? 1 : 0 );
-				SoundReleaseLog( "open", wstring( deviceIDUpper ) + wszJuneOpen, ( bJuneAutoRelease_ == true ) ? 1 : 0, iJuneRegistered );
+				WCHAR wszOpen[64] = {0};
+				StringCchPrintfW( wszOpen, ARRAY_SIZE(wszOpen), L" fmod=%d channel=%d", iResult, ( pSound->GetChannel() != NULL ) ? 1 : 0 );
+				SoundReleaseLog( "open", wstring( deviceIDUpper ) + wszOpen, ( bAutoRelease_ == true ) ? 1 : 0, iRegistered );
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG
 			}
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE

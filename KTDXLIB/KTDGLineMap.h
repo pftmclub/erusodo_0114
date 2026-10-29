@@ -251,7 +251,7 @@ class CKTDGLineMap : public CKTDGObject
 			vector<D3DXVECTOR4>	m_vecDirectMoveData;	/// June +0x28: TAT_LINE_CHANGE_MOVABLE_DATA's DIRECT_MOVE_DATA ( its STOP goes into m_bEnable, June's +0xc byte )
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-			bool			m_bJuneAutoDisableLine;	/// June +0x25: AUTO_DISABLE_LINE, read for every line row ( 31c77e20 @31c790a3 ); DoTriggerLine's tail marks the line
+			bool			m_bAutoDisableLine;	/// June +0x25: AUTO_DISABLE_LINE, read for every line row ( 31c77e20 @31c790a3 ); DoTriggerLine's tail marks the line
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 			TRIGGER_DATA_LINE()
@@ -268,7 +268,7 @@ class CKTDGLineMap : public CKTDGObject
 				m_iChangeLineType		= LT_NORMAL;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-				m_bJuneAutoDisableLine	= false;
+				m_bAutoDisableLine	= false;
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 			}
 		};
@@ -507,16 +507,16 @@ class CKTDGLineMap : public CKTDGObject
 			LINE_TYPE		m_eLineTypeAfterAllActiveNPCKilled;	/// June LineData +0x150, CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED ( 31c705c0 @31c73ab9 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-			bool			m_bJuneMovable;				/// June LineData +0x155: set by AddMovableLineData_LUA on the line and its followers; UpdateLineVB( true ) redraws it, the NPC hit stop reads it
-			int				m_iJuneCameraLandHeight;	/// June LineData +0x158, CAMERA_LAND_HEIGHT ( 31c705c0 @31c74080, -1 when absent ); CX2Game 322cfe20 gives it to the camera
+			bool			m_bMovable;				/// June LineData +0x155: set by AddMovableLineData_LUA on the line and its followers; UpdateLineVB( true ) redraws it, the NPC hit stop reads it
+			int				m_iCameraLandHeight;	/// June LineData +0x158, CAMERA_LAND_HEIGHT ( 31c705c0 @31c74080, -1 when absent ); CX2Game 322cfe20 gives it to the camera
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-			bool			m_bJuneAutoDisable;				/// June LineData +0x128: set by a line trigger row with AUTO_DISABLE_LINE ( DoTriggerLine 328004a0 @328005d7 )
-			vector<__int64>	m_vecJuneAutoDisableUserUID;	/// June +0x12c: users standing on the line when it was marked; only they may land on it
-			vector<int>		m_vecJuneAutoDisableNPCUID;		/// June +0x13c: the same for NPCs ( 4-byte UIDs )
+			bool			m_bAutoDisable;				/// June LineData +0x128: set by a line trigger row with AUTO_DISABLE_LINE ( DoTriggerLine 328004a0 @328005d7 )
+			vector<__int64>	m_vecAutoDisableUserUID;	/// June +0x12c: users standing on the line when it was marked; only they may land on it
+			vector<int>		m_vecAutoDisableNPCUID;		/// June +0x13c: the same for NPCs ( 4-byte UIDs )
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
-			bool			m_bJuneDroppableMonsterRoad;	/// June LineData +0xa4: DROPPABLE_MONSTER_ROAD ( 31c705c0 @31c716be, false when absent ); CanDown lets a non-monster land on this monster road when its bDroppable is set
+			bool			m_bDroppableMonsterRoad;	/// June LineData +0xa4: DROPPABLE_MONSTER_ROAD ( 31c705c0 @31c716be, false when absent ); CanDown lets a non-monster land on this monster road when its bDroppable is set
 #endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 
 
@@ -647,18 +647,18 @@ class CKTDGLineMap : public CKTDGObject
 				m_eLineTypeAfterAllActiveNPCKilled = LT_INVALID;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-				m_bJuneMovable = false;
-				m_iJuneCameraLandHeight = -1;
+				m_bMovable = false;
+				m_iCameraLandHeight = -1;
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 				/// June LineData init 31c7da50 @31c7dc57-31c7dcc8: flag 0, both lists emptied ( copy and destroy are the vectors' own, as June's 31c7e4b0 / 31c7d800 )
-				m_bJuneAutoDisable = false;
-				m_vecJuneAutoDisableUserUID.clear();
-				m_vecJuneAutoDisableNPCUID.clear();
+				m_bAutoDisable = false;
+				m_vecAutoDisableUserUID.clear();
+				m_vecAutoDisableNPCUID.clear();
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 				/// June's init 31c7da50 leaves +0xa4 alone; its loader always writes it ( 31c716ec-31c716f0 ), so false here changes no loaded line
-				m_bJuneDroppableMonsterRoad = false;
+				m_bDroppableMonsterRoad = false;
 #endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 
 
@@ -2290,7 +2290,7 @@ class CKTDGLineMap : public CKTDGObject
 		bool SyncMovableLine( int iLineIndex_, UINT uiNowIndex_, float fNowTime_, const D3DXVECTOR3& vPos_, OUT wstring& wstrMeshName_ );
 		void MoveLineCenterTo( int iLineIndex_, const D3DXVECTOR3& vPos_, OUT D3DXVECTOR3& vMove_ );
 		int GetCameraLandHeight( int iLineIndex_ );
-		const MovableLineDataMap& GetMovableLineDataMap() const { return m_mapJuneMovableLineData; }
+		const MovableLineDataMap& GetMovableLineDataMap() const { return m_mapMovableLineData; }
 		void BuildMovableLineSpinAxis( int iLineIndex_, MovableLineData& kData_ );
 		void MoveLine( int iLineIndex_, const D3DXVECTOR3& vMove_ );
 		void FrameMoveMovableLine( float fElapsedTime_ );
@@ -2472,9 +2472,9 @@ class CKTDGLineMap : public CKTDGObject
 
 		LPD3DXLINE		m_pLine;
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-		MovableLineDataMap	m_mapJuneMovableLineData;	/// June +0x2d4
-		bool				m_bJuneMovableLineMoved;	/// June +0x2e4: a line moved this frame, OnFrameMove redraws the moving lines
-		wstring				m_wstrJuneLineMapFileName;	/// June +0x2b8, the file name AddMovableLineData_LUA's errors print
+		MovableLineDataMap	m_mapMovableLineData;	/// June +0x2d4
+		bool				m_bMovableLineMoved;	/// June +0x2e4: a line moved this frame, OnFrameMove redraws the moving lines
+		wstring				m_wstrLineMapFileName;	/// June +0x2b8, the file name AddMovableLineData_LUA's errors print
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 #ifdef SHOW_LINEMAP_FILE_NAME

@@ -1095,10 +1095,10 @@ class CX2GUNPC : public CX2GameUnit
             D3DXVECTOR3                 m_vDefenceTime;
             float                       m_fSetGuardDefenceValue;
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
-            float                       m_fJuneLimitMaxGSpeed;     /// C3g: June StateData +0x430, key SET_LIMIT_MAX_G_SPEED ( default 1.0 )
+            float                       m_fLimitMaxGSpeed;     /// C3g: June StateData +0x430, key SET_LIMIT_MAX_G_SPEED ( default 1.0 )
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
-            bool                        m_bJuneNoFallDownAtState;  /// C3i: June StateData +0x401, key NO_FALL_DOWN_AT_STATE ( default false )
+            bool                        m_bNoFallDownAtState;  /// C3i: June StateData +0x401, key NO_FALL_DOWN_AT_STATE ( default false )
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
             D3DXVECTOR2                 m_v2SetRevengeTimeValue;
             D3DXVECTOR2                 m_v2SetReflectMagicValue;
@@ -1145,9 +1145,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
             /// Atlas E7: state keys June parses and never reads ( no reader in the exe, Atlas E7 sweep ): SHOW_GAGE ( bitset 0x51 given / 0x52 value,
             /// 32784c00 @3278a5e3-3278a5fc ) and INVINCIBLE_ATTACK_TYPE ( vector<int> +0x434, -1 entries skipped, @3278f62c-3278f689 )
-            bool                        m_bJuneShowGageGiven;
-            bool                        m_bJuneShowGage;
-            std::vector<int>            m_vecJuneInvincibleAttackType;
+            bool                        m_bShowGageGiven;
+            bool                        m_bShowGage;
+            std::vector<int>            m_vecInvincibleAttackType;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
             std::vector<std::wstring>   m_vecwstrDisableCollisionBox;
             std::vector<EffectSetToPlay> m_vecEffectSetToPlay;
@@ -1242,10 +1242,10 @@ class CX2GUNPC : public CX2GameUnit
                   m_vDefenceTime(-1.f,-1.f,0.f),
                   m_fSetGuardDefenceValue( 0.f ),
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
-                  m_fJuneLimitMaxGSpeed( 1.f ),
+                  m_fLimitMaxGSpeed( 1.f ),
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
-                  m_bJuneNoFallDownAtState( false ),
+                  m_bNoFallDownAtState( false ),
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
                   m_v2SetRevengeTimeValue( -1.f, -1.f ),
                   m_v2SetReflectMagicValue( 0.f, 0.f ),
@@ -2022,8 +2022,8 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		/// C3j: June CX2GameUnit vslots 0x2f0 / 0x2f4, NPC 3275a010 / 3275a030. The only caller is Lu/Ciel class code ( 32b34680, checklist 7l ). LANDCRASH
 		/// also matches the queued nextState ( June's word +0x8404 ). No 0 != guard: June has none and nothing in March calls these yet.
-		virtual bool IsBoundingUp() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingUp; }
-		virtual bool IsBoundingLandCrash() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingLandCrash || m_NPCFrameData.unitCondition.nextState == m_JuneBoundingLandCrash; }
+		virtual bool IsBoundingUp() const { return m_NPCFrameData.syncData.nowState == mBoundingUp; }
+		virtual bool IsBoundingLandCrash() const { return m_NPCFrameData.syncData.nowState == mBoundingLandCrash || m_NPCFrameData.unitCondition.nextState == mBoundingLandCrash; }
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7b: CX2GUNPC slot 96 (June 32758760) is true while a BBT_INVINCIBLE buff is on
@@ -2038,17 +2038,17 @@ class CX2GUNPC : public CX2GameUnit
 		{
 			if ( NULL != pDamageData_ )
 			{
-				int iJuneAttackType = static_cast<int>( pDamageData_->attackType );
+				int iAttackType = static_cast<int>( pDamageData_->attackType );
 #ifdef SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
 				/// STAND-IN (not June): a user's untagged hit is June's AT_COMMAND (March class scripts lack June's tags)
-				CX2DamageManager::DamageData* pJuneDD = const_cast<CX2DamageManager::DamageData*>( pDamageData_ );
-				if ( CX2DamageManager::AT_NORMAL == pJuneDD->attackType && null != pJuneDD->optrAttackerGameUnit &&
-					CX2GameUnit::GUT_USER == pJuneDD->optrAttackerGameUnit->GetGameUnitType() )
-					iJuneAttackType = static_cast<int>( CX2DamageManager::AT_COMMAND );
+				CX2DamageManager::DamageData* pDD = const_cast<CX2DamageManager::DamageData*>( pDamageData_ );
+				if ( CX2DamageManager::AT_NORMAL == pDD->attackType && null != pDD->optrAttackerGameUnit &&
+					CX2GameUnit::GUT_USER == pDD->optrAttackerGameUnit->GetGameUnitType() )
+					iAttackType = static_cast<int>( CX2DamageManager::AT_COMMAND );
 #endif SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
-				for ( UINT i = 0; i < m_vecJuneInvincibleAttackTypeNow.size(); i++ )
+				for ( UINT i = 0; i < m_vecInvincibleAttackTypeNow.size(); i++ )
 				{
-					if ( m_vecJuneInvincibleAttackTypeNow[i] == iJuneAttackType )
+					if ( m_vecInvincibleAttackTypeNow[i] == iAttackType )
 						return true;
 				}
 			}
@@ -2058,9 +2058,9 @@ class CX2GUNPC : public CX2GameUnit
 		/// June CX2GUNPC slot 94 3275bc30 ( the user's slot 94 is plain GetInvincible )
 		bool						GetInvincibleByAttackTypeId( const int iAttackType_ ) const
 		{
-			for ( UINT i = 0; i < m_vecJuneInvincibleAttackTypeNow.size(); i++ )
+			for ( UINT i = 0; i < m_vecInvincibleAttackTypeNow.size(); i++ )
 			{
-				if ( m_vecJuneInvincibleAttackTypeNow[i] == iAttackType_ )
+				if ( m_vecInvincibleAttackTypeNow[i] == iAttackType_ )
 					return true;
 			}
 			return GetInvincible();
@@ -2190,8 +2190,8 @@ class CX2GUNPC : public CX2GameUnit
 
 		CX2NPCAI*					GetNPCAI() { return m_pAI; }
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		int							GetAbsoluteMonsterState() const { return m_iJuneAbsoluteMonsterState; }
-		const vector<int>&			GetAbsoluteDeathBuffFactorIDList() const { return m_vecJuneAbsoluteDeathBuffFactorID; }
+		int							GetAbsoluteMonsterState() const { return m_iAbsoluteMonsterState; }
+		const vector<int>&			GetAbsoluteDeathBuffFactorIDList() const { return m_vecAbsoluteDeathBuffFactorID; }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 		void						PushAIMessage( STATE_CHANGE_TYPE message, bool bIsRight );
@@ -2540,18 +2540,18 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef RIDING_MONSTER
 		int							GetUpDamage() const { return m_UpDamage; }
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-		int																																								m_JuneBoundingDown;								/// June +0x8704: the DAMAGE_BOUNDING_DOWN state ( 0 when the NPC script names none )
-		int																																								m_JuneBoundingLandCrash;			/// June +0x8708: DAMAGE_BOUNDING_LANDCRASH
-		int																																								m_JuneBoundingUp;										/// June +0x870c: DAMAGE_BOUNDING_UP
-		bool							m_bJuneNotBounding;		/// June +0x8ac6: the NPC's INIT key NOT_BOUNDING ( 327a0fa0 @327a683d, = InitComponent ); a bounding hit is ignored while it is set ( C3d-3 review )
-		bool							m_bJuneNotUpState;		/// June +0x8ac4: the NPC's INIT key NOT_UP_STATE ( 327a0fa0 @327a5d52 ); the RT_BOUNDING case refuses on it ( C3d-3 review; its other reaction cases: C3i )
+		int																																								mBoundingDown;								/// June +0x8704: the DAMAGE_BOUNDING_DOWN state ( 0 when the NPC script names none )
+		int																																								mBoundingLandCrash;			/// June +0x8708: DAMAGE_BOUNDING_LANDCRASH
+		int																																								mBoundingUp;										/// June +0x870c: DAMAGE_BOUNDING_UP
+		bool							m_bNotBounding;		/// June +0x8ac6: the NPC's INIT key NOT_BOUNDING ( 327a0fa0 @327a683d, = InitComponent ); a bounding hit is ignored while it is set ( C3d-3 review )
+		bool							m_bNotUpState;		/// June +0x8ac4: the NPC's INIT key NOT_UP_STATE ( 327a0fa0 @327a5d52 ); the RT_BOUNDING case refuses on it ( C3d-3 review; its other reaction cases: C3i )
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
-		bool							m_bJuneNotAffectBlackHole;	/// June +0x8ac5: the NPC's INIT key NOT_AFFECT_BLACKHOLE ( 327a0fa0 @327a5f0b ); a black hole never pulls this NPC ( 31f6eea0 @31f6f0bf, C3i )
-		bool							GetNotAffectBlackHole() const { return m_bJuneNotAffectBlackHole; }
+		bool							m_bNotAffectBlackHole;	/// June +0x8ac5: the NPC's INIT key NOT_AFFECT_BLACKHOLE ( 327a0fa0 @327a5f0b ); a black hole never pulls this NPC ( 31f6eea0 @31f6f0bf, C3i )
+		bool							GetNotAffectBlackHole() const { return m_bNotAffectBlackHole; }
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
-		bool							GetNoFallDownAtState() const { return GetNowStateData().m_bJuneNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
+		bool							GetNoFallDownAtState() const { return GetNowStateData().m_bNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 		int							GetAirFallState() const { return m_AirFallState; }
 		int							GetRideStateID() const { return m_RideState; }
@@ -2653,9 +2653,9 @@ class CX2GUNPC : public CX2GameUnit
 
 #ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		/// June effect completion C3s: INIT_COMPONENT FORCE_CINEMATIC_STATE ( June +0x8f8c, a narrow string, "" when absent ).
-		const std::string& GetForceCinematicState() const { return m_strJuneForceCinematicState; }
+		const std::string& GetForceCinematicState() const { return m_strForceCinematicState; }
 		/// June 327d65d0: true when the script names a forced cinematic state.
-		bool HasForceCinematicState() const { return false == m_strJuneForceCinematicState.empty(); }
+		bool HasForceCinematicState() const { return false == m_strForceCinematicState.empty(); }
 #endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		bool GetShowSubBossName() const { return m_bShowSubBossName; }
 		void SetShowSubBossName(bool val) { m_bShowSubBossName = val; }
@@ -3280,9 +3280,9 @@ class CX2GUNPC : public CX2GameUnit
 		void VectorUidType_Clear_LUA( int iSlot_ );						/// June 3275bd10
 		bool VectorUidType_Find_LUA( int iSlot_, UidType iValue_ );		/// June 3275bdf0
 		UidType VectorUidType_PopValue_LUA( int iSlot_, UidType iValue_ );	/// June 3275bef0
-		void SetShowHpSmallGage( bool bShow_ ) { m_bJuneShowHpSmallGage = bShow_; }	/// June 31e4d870 ( +0x8fb9 )
-		bool GetShowHpSmallGage() const { return m_bJuneShowHpSmallGage; }
-		int GetSyncDummyValue() { return m_iJuneSyncDummyValue; }		/// June 31e4d880 ( +0x9064 )
+		void SetShowHpSmallGage( bool bShow_ ) { m_bShowHpSmallGage = bShow_; }	/// June 31e4d870 ( +0x8fb9 )
+		bool GetShowHpSmallGage() const { return m_bShowHpSmallGage; }
+		int GetSyncDummyValue() { return m_iSyncDummyValue; }		/// June 31e4d880 ( +0x9064 )
 		void SetSyncDummyValue_Host( int iValue_ );						/// June 32778ea0
 		void StartAlphaFade( float fTime_, bool bFadeIn_, bool bHideAtEnd_ );	/// June 3275a240
 		void FrameMoveAlphaFade();									/// June 3275a320
@@ -3615,8 +3615,8 @@ class CX2GUNPC : public CX2GameUnit
 		/// June buff port Phase 16-step3b: June's "absolute monster" members, read by CX2Game::ApplyBuffFactorOnNpcKill
 		/// (June 322d6f20). Their only writer is June's 3277cf10 (+0x9058 = 1, then 2 with BFI 694 in its own list),
 		/// fed from server-sent stage data March's packet lacks; not ported, so both stay at the ctor's 0 / empty.
-		int												m_iJuneAbsoluteMonsterState;		/// June +0x9058
-		vector<int>										m_vecJuneAbsoluteDeathBuffFactorID;	/// June +0x9048 (each pair's second)
+		int												m_iAbsoluteMonsterState;		/// June +0x9058
+		vector<int>										m_vecAbsoluteDeathBuffFactorID;	/// June +0x9048 (each pair's second)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -3670,7 +3670,7 @@ class CX2GUNPC : public CX2GameUnit
         int                                             m_iLua_CommonFrameMoveRefID;
         int                                             m_iLua_AttackedFuncRefID;
 #ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
-		std::vector<int>								m_vecJuneInvincibleAttackTypeNow;	/// Atlas E10: June +0x83f0, appended at every state start, never cleared
+		std::vector<int>								m_vecInvincibleAttackTypeNow;	/// Atlas E10: June +0x83f0, appended at every state start, never cleared
 #endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 
 #else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -4451,7 +4451,7 @@ class CX2GUNPC : public CX2GameUnit
 
 		float m_fDefaultPowerRate;
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
-		float m_fJuneMultiplyPowerRate;	/// June +0x8ce4 ( KProtectedType, ported plain ), 1.0 at the ctor 327b0263
+		float m_fMultiplyPowerRate;	/// June +0x8ce4 ( KProtectedType, ported plain ), 1.0 at the ctor 327b0263
 #endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 #ifdef MONSTER_NOT_CULL
@@ -4629,7 +4629,7 @@ class CX2GUNPC : public CX2GameUnit
 		bool						m_bIsApplyCinematicUI;		 //카메라 포커싱 적용 됐을 때 시네메택 UI도 적용 시킬지 여부.
 #endif //MODIFY_DUNGEON_STAGING
 #ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
-		std::string					m_strJuneForceCinematicState;	/// June +0x8f8c ( ctor 32762670 @327633b2, read 327a0fa0 @327ab5fe )
+		std::string					m_strForceCinematicState;	/// June +0x8f8c ( ctor 32762670 @327633b2, read 327a0fa0 @327ab5fe )
 #endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		wstring						m_wstrHyperBoostRightParticleName;
 		wstring						m_wstrHyperBoostLeftParticleName;
@@ -4658,7 +4658,7 @@ class CX2GUNPC : public CX2GameUnit
 		bool						m_bImmunityTimeStop;		//타임 스톱 면역 기능 추가
 #endif //IMMUNITY_TIME_STOP
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
-		bool						m_bJuneImmunityDamageDataStopTime;	/// C3e-4: June +0x8e82, the NPC key IMMUNITY_DAMAGE_DATA_STOP_TIME ( next to m_bImmunityTimeStop +0x8e81 )
+		bool						m_bImmunityDamageDataStopTime;	/// C3e-4: June +0x8e82, the NPC key IMMUNITY_DAMAGE_DATA_STOP_TIME ( next to m_bImmunityTimeStop +0x8e81 )
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 		bool						m_bNotCheckIndicator;		/// June +0x8fa8, INIT_COMPONENT NOT_CHECK_INDICATOR ( 327a0fa0 @327ab66b )
@@ -4698,24 +4698,24 @@ class CX2GUNPC : public CX2GameUnit
 //}}
 //{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		CX2GameUnitoPtr				m_optrJuneStoredNPC;	/// Atlas E7: June +0x8d6c ( observer, beside the stored user +0x8d64 )
-		std::vector<UidType>		m_avecJuneUidType[10];	/// Atlas E7: June +0x88a0, ten vector<UidType> ( 0x10 each; ctors 3279fb60 / 327af620 / 327b0a20 )
-		bool						m_bJuneShowHpSmallGage;		/// Atlas E7: June +0x8fb9 ( CommonConstructor @327633f9 = 1 )
-		int							m_iJuneSyncDummyValue;		/// Atlas E7: June +0x9064 ( ctors @327b09fa / @327b1cef = 0 )
-		bool						m_bJuneAlphaFade;			/// Atlas E7: June +0x9068 ( fading )
-		bool						m_bJuneAlphaFadeOldBlend;	/// Atlas E7: June +0x9069 ( m_RenderParam.bAlphaBlend before the fade )
-		bool						m_bJuneAlphaFadeHideAtEnd;	/// Atlas E7: June +0x906a
-		float						m_fJuneAlphaFadeTime;		/// Atlas E7: June +0x906c
-		float						m_fJuneAlphaFadeRate;		/// Atlas E7: June +0x9070
-		bool						m_bJuneCanPassUnitAtFirstFrame;	/// Atlas E7: June +0x8fd8, NPC key CAN_PASS_UNIT_AT_FIRST_FRAME ( 327a0fa0 @327ac14c )
+		CX2GameUnitoPtr				m_optrStoredNPC;	/// Atlas E7: June +0x8d6c ( observer, beside the stored user +0x8d64 )
+		std::vector<UidType>		m_avecUidType[10];	/// Atlas E7: June +0x88a0, ten vector<UidType> ( 0x10 each; ctors 3279fb60 / 327af620 / 327b0a20 )
+		bool						m_bShowHpSmallGage;		/// Atlas E7: June +0x8fb9 ( CommonConstructor @327633f9 = 1 )
+		int							m_iSyncDummyValue;		/// Atlas E7: June +0x9064 ( ctors @327b09fa / @327b1cef = 0 )
+		bool						m_bAlphaFade;			/// Atlas E7: June +0x9068 ( fading )
+		bool						m_bAlphaFadeOldBlend;	/// Atlas E7: June +0x9069 ( m_RenderParam.bAlphaBlend before the fade )
+		bool						m_bAlphaFadeHideAtEnd;	/// Atlas E7: June +0x906a
+		float						m_fAlphaFadeTime;		/// Atlas E7: June +0x906c
+		float						m_fAlphaFadeRate;		/// Atlas E7: June +0x9070
+		bool						m_bCanPassUnitAtFirstFrame;	/// Atlas E7: June +0x8fd8, NPC key CAN_PASS_UNIT_AT_FIRST_FRAME ( 327a0fa0 @327ac14c )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
-		CX2GameUnitoPtr				m_optrJuneStoredGUUser;	/// June +0x8d64 ( observer ): ctors 327b04a3 / 327b18a5 and CommonConstructor @32763470 clear it, dtor 327a0a83
+		CX2GameUnitoPtr				m_optrStoredGUUser;	/// June +0x8d64 ( observer ): ctors 327b04a3 / 327b18a5 and CommonConstructor @32763470 clear it, dtor 327a0a83
 #endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
 //}}
 //{{ Iruha : 2026-10-14 // June effect completion C3t-3 (JUNE2017_EFFECT_COMPLETION_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
-		int						m_iJuneSoundSetRandomValue;	/// June CX2GameUnit +0x6dcc: the NPC's sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( the user's twin: CX2GUUser, C3t-2 )
+		int						m_iSoundSetRandomValue;	/// June CX2GameUnit +0x6dcc: the NPC's sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( the user's twin: CX2GUUser, C3t-2 )
 #endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 //}}
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
@@ -4768,7 +4768,7 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 		/// June CX2GUNPC +0x8f74 ( C9h-4b ): every sound the TimedEvent player starts, pushed even when PlaySound returned NULL. Stopped and cleared at ReInit and in
 		/// the dtor; at CommonStateEnd it is cleared every time and stopped only when the ending state has STOP_SOUND_AT_STATE_END. June 3275cf80 ( stop + clear ) has no caller.
-		std::vector<CKTDXDeviceSound*>					m_vecJunePlayedSound;
+		std::vector<CKTDXDeviceSound*>					m_vecPlayedSound;
 		void											StopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 

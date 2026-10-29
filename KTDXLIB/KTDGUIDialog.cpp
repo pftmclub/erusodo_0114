@@ -21,7 +21,7 @@ CKTDGUIDialog::CKTDGUIDialog( CKTDXStage* pStage, const WCHAR* wstrScriptFileNam
 
 	m_iLayer		= iLayer;
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
-	m_bJuneDrawInFlaggedMode = false;	// June dialog +0x1e0 ( ctor 31cd9230 @31cd972f )
+	m_bDrawInFlaggedMode = false;	// June dialog +0x1e0 ( ctor 31cd9230 @31cd972f )
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 	m_pStage		= pStage;
@@ -107,7 +107,7 @@ CKTDGUIDialog::CKTDGUIDialog( CKTDXStage* pStage, const WCHAR* wstrScriptFileNam
 
 	m_bDisableUnderWindow = false;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
-	m_pJuneSecondUnitViewer = NULL;		// June ctor @31cd9616
+	m_pSecondUnitViewer = NULL;		// June ctor @31cd9616
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 	m_bIsOverControl = false;
 
@@ -531,13 +531,13 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */, int iRender
 					m_pUnitViewer->OnFrameRender();					// June @31cd8047 ( 31cda140 )
 
 				// June @31cd804c-31cd81e4
-				if( m_pJuneSecondUnitViewer != NULL )
+				if( m_pSecondUnitViewer != NULL )
 				{
-					CKTDGStateManager::PushStates( m_pJuneSecondUnitViewer->GetRenderStateID() );
+					CKTDGStateManager::PushStates( m_pSecondUnitViewer->GetRenderStateID() );
 					if( 1 == iRenderPass_ )
-						m_pJuneSecondUnitViewer->OnFrameRenderPostEffect();
+						m_pSecondUnitViewer->OnFrameRenderPostEffect();
 					else
-						m_pJuneSecondUnitViewer->OnFrameRender();
+						m_pSecondUnitViewer->OnFrameRender();
 				}
 
 				g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), bOriginalProjcetionMode );

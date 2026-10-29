@@ -492,15 +492,15 @@ HRESULT CX2StateMenu::OnFrameMove( double fTime, float fElapsedTime )
 				CKTDGUIButton* pButtonCashMsg = (CKTDGUIButton*) m_pDLGMenu->GetControl( L"Cash" );
 				if( NULL != pButtonCashMsg )
 				{
-					const bool bJuneCashShopOpen = true;
-					if( true == bJuneCashShopOpen )
+					const bool bCashShopOpen = true;
+					if( true == bCashShopOpen )
 					{
 						if( SMUCM_CASH_SHOP != pButtonCashMsg->GetCustomMsgMouseUp() )
 							pButtonCashMsg->SetCustomMsgMouseUp( SMUCM_CASH_SHOP );
 					}
-					else if( SMUCM_JUNE_CASH_MAINTENANCE != pButtonCashMsg->GetCustomMsgMouseUp() )
+					else if( SMUCM_CASH_MAINTENANCE != pButtonCashMsg->GetCustomMsgMouseUp() )
 					{
-						pButtonCashMsg->SetCustomMsgMouseUp( SMUCM_JUNE_CASH_MAINTENANCE );
+						pButtonCashMsg->SetCustomMsgMouseUp( SMUCM_CASH_MAINTENANCE );
 						if( NULL != g_pData && NULL != g_pData->GetCashShop() && true == g_pData->GetCashShop()->GetOpen() )
 							ToggleCashShop();
 					}
@@ -1975,9 +1975,9 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			/// June 32476050 case 182 ( A-TC, my unit not transcended ) / 183 ( B-TC, slot-state key 1 at 0 ): the text in a game outside the battle field, else the shop on the item
 			if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 				return true;
-			const CX2Unit::UnitData& kJuneUnitData = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
-			const bool bJuneSlotA = ( SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP == wParam );
-			if ( ( true == bJuneSlotA ) ? ( 0 != kJuneUnitData.m_iUnitClassTran ) : ( 0 != kJuneUnitData.m_UserSkillTree.GetSlotState( 1 ) ) )
+			const CX2Unit::UnitData& kUnitData = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
+			const bool bSlotA = ( SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP == wParam );
+			if ( ( true == bSlotA ) ? ( 0 != kUnitData.m_iUnitClassTran ) : ( 0 != kUnitData.m_UserSkillTree.GetSlotState( 1 ) ) )
 				return true;
 			if ( g_pX2Game != NULL && g_pMain->GetNowStateID() != CX2Main::XS_BATTLE_FIELD )
 			{
@@ -1985,8 +1985,8 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				return true;
 			}
 			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( 0x32 );
-			g_pData->GetCashShop()->PushOpenAtItemID( true == bJuneSlotA ? 288319 : 288318 );
-			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT click on a locked %s TC slot: shop opens on item %d", true == bJuneSlotA ? L"A" : L"B", true == bJuneSlotA ? 288319 : 288318 );
+			g_pData->GetCashShop()->PushOpenAtItemID( true == bSlotA ? 288319 : 288318 );
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOT click on a locked %s TC slot: shop opens on item %d", true == bSlotA ? L"A" : L"B", true == bSlotA ? 288319 : 288318 );
 			ToggleCashShop();
 			return true;
 #else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
@@ -2129,15 +2129,15 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				OpenAdvertisementDialog( L"http://en.elswordonline.com/ingameinfo/" );
 #ifdef RELEASE_ALL_BUTTONS_AND_KEYS_WHEN_FOCUS_LOSING
 				// June 31be34b0: release the held keys and buttons
-				CKTDIManager* pJuneDI = g_pKTDXApp->GetDIManager();
-				if( NULL != pJuneDI )
+				CKTDIManager* pDI = g_pKTDXApp->GetDIManager();
+				if( NULL != pDI )
 				{
-					if( NULL != pJuneDI->Getkeyboard() )
-						pJuneDI->Getkeyboard()->ReleaseAllButtonsAndKeys();
-					if( NULL != pJuneDI->GetMouse() )
-						pJuneDI->GetMouse()->ReleaseAllButtonsAndKeys();
-					if( NULL != pJuneDI->GetJoystic() )
-						pJuneDI->GetJoystic()->ReleaseAllButtonsAndKeys();
+					if( NULL != pDI->Getkeyboard() )
+						pDI->Getkeyboard()->ReleaseAllButtonsAndKeys();
+					if( NULL != pDI->GetMouse() )
+						pDI->GetMouse()->ReleaseAllButtonsAndKeys();
+					if( NULL != pDI->GetJoystic() )
+						pDI->GetJoystic()->ReleaseAllButtonsAndKeys();
 				}
 #endif RELEASE_ALL_BUTTONS_AND_KEYS_WHEN_FOCUS_LOSING
 			}
@@ -5381,7 +5381,7 @@ enum MENU_SLOT
 	JMS_COUNT,
 };
 
-static const WCHAR* const s_awszJuneMenuSlot[JMS_COUNT] =
+static const WCHAR* const s_awszMenuSlot[JMS_COUNT] =
 {
 	L"Warp", L"Guide", L"Charac", L"Inven", L"Profession", L"Pet", L"Skill", L"StoryBook",
 	L"Quest", L"Guild", L"Comm", L"System", L"Cash", L"FriendRecommed", L"Event",
@@ -5598,7 +5598,7 @@ void CX2StateMenu::UpdateMenuPosistion()
 	if( true == m_vecpButtonMainMenu.empty() )
 	{
 		for( int i = 0; i < JMS_COUNT; ++i )
-			m_vecpButtonMainMenu.push_back( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( s_awszJuneMenuSlot[i] ) ) );
+			m_vecpButtonMainMenu.push_back( static_cast<CKTDGUIButton*>( m_pDLGMenu->GetControl( s_awszMenuSlot[i] ) ) );
 	}
 
 	if( NULL == g_pData || JMS_COUNT != (int) m_vecpButtonMainMenu.size() )

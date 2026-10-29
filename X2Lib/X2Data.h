@@ -340,13 +340,13 @@ class CX2Data : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 		/// quest-system Q10: June g_pData +0x570, { m_iEpisodeGroupID: { completed quest id that has a story } }, rebuilt by
 		/// CX2QuestManager::JuneRebuildStoryBookQuest ( 32335f50 ) and read by the story book ( CX2UIStoryBook, Q10c )
-		const std::map< int, std::set<int> >& GetStoryBookQuestMap() const { return m_mapJuneStoryBookQuest; }
-		void SetStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapJuneStoryBookQuest = mapStoryBook_; }
+		const std::map< int, std::set<int> >& GetStoryBookQuestMap() const { return m_mapStoryBookQuest; }
+		void SetStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapStoryBookQuest = mapStoryBook_; }
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		/// quest-system Q10b: June g_pData +0x288, the story slide-show player ( CX2SlideShotScripted ). Reset 31edee40 by the quest loader.
 		CX2SlideShotScripted* ResetSlideShotScripted();
-		CX2SlideShotScripted* GetSlideShotScripted() { return m_pJuneSlideShotScripted; }
+		CX2SlideShotScripted* GetSlideShotScripted() { return m_pSlideShotScripted; }
 		/// June's callers: "+0x288 != 0 -> Start( id )" ( 323e5a50, 323e294c, 32d74141 ); false when there is no player
 		bool StartStorySlideShot( int iQuestID_ );
 		/// June's readers: "+0x288 != 0 && +0x51 == 1" ( 32276284, 322f8326, 32309d80, 32e90649, the party forced Ends )
@@ -627,9 +627,9 @@ class CX2Data : public CKTDXStage
 		CKTDGPicChar*			m_pPicCharYellowSmall;
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		std::map<int, float>	m_mapJunePvpReferData;			/// June CX2Data +0x3b4 (rank -> rate)
-		std::map<int, float>	m_mapJunePveReferData;			/// June CX2Data +0x3f4
-		std::map<int, float>	m_mapJunePveReferDataForMP;		/// June CX2Data +0x404
+		std::map<int, float>	m_mapPvpReferData;			/// June CX2Data +0x3b4 (rank -> rate)
+		std::map<int, float>	m_mapPveReferData;			/// June CX2Data +0x3f4
+		std::map<int, float>	m_mapPveReferDataForMP;		/// June CX2Data +0x404
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		CKTDGPicChar*			m_pPicCharGameScore;
 		CKTDGPicChar*			m_pPicCharTechPoint;
@@ -653,10 +653,10 @@ class CX2Data : public CKTDXStage
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		CX2SlideShot*			m_pSlideShot;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
-		std::map< int, std::set<int> >	m_mapJuneStoryBookQuest;		/// June +0x570
+		std::map< int, std::set<int> >	m_mapStoryBookQuest;		/// June +0x570
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
-		CX2SlideShotScripted*	m_pJuneSlideShotScripted;		/// June +0x288
+		CX2SlideShotScripted*	m_pSlideShotScripted;		/// June +0x288
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		CX2SocketItem*			m_pCX2SocketItem;
 		CX2EnchantItem*			m_pCX2EnchantItem;

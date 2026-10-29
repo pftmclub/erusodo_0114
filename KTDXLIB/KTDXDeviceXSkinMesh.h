@@ -157,7 +157,7 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 			float			m_fMoveBoneY;
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-			bool			m_bJuneVisible;	// June frame +0xf8, only the frame ctor 31d360d0 writes it
+			bool			m_bVisible;	// June frame +0xf8, only the frame ctor 31d360d0 writes it
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 			MultiAnimFrame()
@@ -188,7 +188,7 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 				m_fMoveBoneY		= 0.f;
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-				m_bJuneVisible		= true;
+				m_bVisible		= true;
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 			}
 
@@ -467,9 +467,9 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 		bool GetUseRenderParam() { return m_bUseRenderParam; }
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-		int GetDrawOrder() const { return m_iJuneDrawOrder; }
-		const RenderParamData& GetTypedParam() const { return m_JuneTypedParam; }
-		const RenderParamData& GetRenderParam() const { return m_JuneRenderParam; }		// June +0xa2c is GetUseRenderParam's m_bUseRenderParam
+		int GetDrawOrder() const { return m_iDrawOrder; }
+		const RenderParamData& GetTypedParam() const { return mTypedParam; }
+		const RenderParamData& GetRenderParam() const { return mRenderParam; }		// June +0xa2c is GetUseRenderParam's m_bUseRenderParam
 		MultiAnimFrame* GetFrameQuiet( DWORD dwInIndex_ ) const { return ( dwInIndex_ < m_dwFrameNum ) ? m_apFrameList[ dwInIndex_ ] : NULL; }
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
@@ -531,9 +531,9 @@ private:
 		bool								m_bUseRenderParam;
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-		int									m_iJuneDrawOrder;		// June +0x86c, the SMRT pass sort key
-		RenderParamData					m_JuneTypedParam;		// June +0x8d4, the SMRT_CUSTOM param
-		RenderParamData					m_JuneRenderParam;		// June +0x980, the RenderParam pass param
+		int									m_iDrawOrder;		// June +0x86c, the SMRT pass sort key
+		RenderParamData					mTypedParam;		// June +0x8d4, the SMRT_CUSTOM param
+		RenderParamData					mRenderParam;		// June +0x980, the RenderParam pass param
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
 		D3DXVECTOR3							m_vCenter;

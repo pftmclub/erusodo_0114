@@ -549,7 +549,7 @@ class CX2Game : public CKTDXStage
 		// June 322def10 / 322cc520 / 31e4de40: the script-made dialog at +0xba8 ( X2SimpleDLG_WithLuaFunc.h )
 		CX2SimpleDLG_WithLuaFunc*	CreateSimpleDLG( const char* pFileName_ );
 		void						DeleteSimpleDLG();
-		CX2SimpleDLG_WithLuaFunc*	GetSimpleDLG() { return m_pJuneSimpleDLG; }
+		CX2SimpleDLG_WithLuaFunc*	GetSimpleDLG() { return m_pSimpleDLG; }
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		/// June 2017 dramatic messages ( Atlas E6 ): an NPC state's DRAMATIC_MESSAGE0.. rows, queued per TYPE and shown by a second talk
@@ -672,7 +672,7 @@ class CX2Game : public CKTDXStage
 		bool 						IsAllUserHPPercentMoreThan( float fHPPercent );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		void 						PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ );	/// June 322d4f80
-		bool						IsPartyFeverInProgress() const { return m_bJunePartyFeverInProgress; }
+		bool						IsPartyFeverInProgress() const { return m_bPartyFeverInProgress; }
 #else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		void 						PartyFeverAllUser( float fAddHyperModeTime );
 #endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
@@ -1208,7 +1208,7 @@ class CX2Game : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		/// S3e, June2017 32079be0 ( string, float ): the float is the string's display time ( +0xb3c, set first ), counted down by OnFrameMove
 		/// ( 32308c20 @3230a7d1 ), which clears the string when it runs out. 0 ( every March call, June's CommonStateStart / StateEnd ) = no timer
-		void						SetStateString( const wstring pStr, const float fShowTime_ = 0.0f ){ m_fJuneStateStringTime = fShowTime_; m_StateString = pStr; }
+		void						SetStateString( const wstring pStr, const float fShowTime_ = 0.0f ){ m_fStateStringTime = fShowTime_; m_StateString = pStr; }
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		void						SetStateString( const wstring pStr ){ m_StateString = pStr; }
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
@@ -1413,7 +1413,7 @@ class CX2Game : public CKTDXStage
 		void						CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ );	/// June 322f4480
 		bool						IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ );	/// June 322cf810
 		void						ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
-		void						SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
+		void						SetMemoRiseTimer( const float& fTime_ ) { m_fMemoRiseTimer = fTime_; }	/// June 322cc030
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 		void						UpdateEveRecoveryUI( const bool* pbShow_, const bool bShowCoolTime_, const float fCoolTimeLeft_ );	/// June 322e65c0
@@ -1909,7 +1909,7 @@ protected:
 				m_fDistance = -1.f;
 			}
 		};
-		TimerFocusUnit			m_kJuneTimerFocusUnit;
+		TimerFocusUnit			m_kTimerFocusUnit;
 #endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 		vector<CX2GameUnit*>		m_UnitList;			/// 유저, 몬스터 모두의 포인터를 다 가지고 있는 벡터 // 근데.. 굳이 이것을 가지고 있어야 할 이유는 없는듯...
@@ -1936,7 +1936,7 @@ protected:
 		bool						m_bBGMOn;	/// 사용 안함 (모두 true 임)
 		bool						m_bLastKillCheck;	/// 지금 죽인 애를 끝으로 게임이 끝이라면..(던전과 PVP에는 끝이라는게 존재하지만 마을과 필드에는 존재하지 않음..)
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
-		bool						m_bJunePartyFeverInProgress;	/// June +0xbd4: set for a PartyFeverAllUser( ..., true ) pass (init 0 @3230778b)
+		bool						m_bPartyFeverInProgress;	/// June +0xbd4: set for a PartyFeverAllUser( ..., true ) pass (init 0 @3230778b)
 #endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 		float						m_fLastKillWaitTime;	/// 이 값이 0이 된 이후부터 lastKillCheck를 true로 할지 false로 할 지를 판단 함
 		float						m_fLastKillWaitTimeAfterRebirth; /// 부활 한 사람이 부활 직후에는 HP가 0이 되어 버려서 m_bLastKillCheck가 true가 되는데 그 경우를 방지하기 위한 타이머
@@ -2048,11 +2048,11 @@ protected:
 
 		wstring						m_StateString;				/// 유저 현재 스테이트에 스테이트명이 있는 경우 출력 해준다.
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
-		float						m_fJuneStateStringTime;		/// June +0xb3c: the state string's display time ( 0 = none )
+		float						m_fStateStringTime;		/// June +0xb3c: the state string's display time ( 0 = none )
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-		std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >	m_mapJuneMemoRiseParticle;	/// June +0xb28
-		float						m_fJuneMemoRiseTimer;		/// June +0xb38
+		std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >	m_mapMemoRiseParticle;	/// June +0xb28
+		float						m_fMemoRiseTimer;		/// June +0xb38
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		InfoTextManager				m_InfoTextManager;			/// 마나가 부족 하다는 등 화면 가운데에 나오는 메시지
 		bool						m_bSkipKeyPressed;			/// 튜토리얼에서 사용
@@ -2150,23 +2150,23 @@ protected:
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 //#endif	BATTLE_FIELD_TEST
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
-		int							m_aiJuneLuaInt[10];		/// June +0x7e0..+0x804: zeroed in the ctor 32306600 ( @32307f44-7a ), Lua only
+		int							m_aiLuaInt[10];		/// June +0x7e0..+0x804: zeroed in the ctor 32306600 ( @32307f44-7a ), Lua only
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
 #ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
-		CX2SimpleDLG_WithLuaFunc*	m_pJuneSimpleDLG;		/// June +0xba8: NULL in the ctor ( @32307743 ), deleted in the dtor ( @32308b85 )
+		CX2SimpleDLG_WithLuaFunc*	m_pSimpleDLG;		/// June +0xba8: NULL in the ctor ( @32307743 ), deleted in the dtor ( @32308b85 )
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		CX2TalkBoxManager*				m_pDramaticTalkBoxMgr;							/// June +0x48c ( TBMT_DRAMATIC_MESSAGE, ctor @32307a51 )
 		std::vector<DramaticMessage>	m_vecDramaticMessage[DMT_END];					/// June +0x8d8, one vector per TYPE
 #endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		std::vector<CX2World*>		m_vecJuneAdditionalWorld;	/// June +0x3a0: the stage world's dataFileName_Additional worlds ( 32803f60 ), freed by 322d7f90
-		std::vector<CX2GUUser*>		m_vecJuneFindedRandomSelectUserUnits;	/// June +0xbc0: FindRandomSelectUserUnitsFromRange_LUA's result
+		std::vector<CX2World*>		m_vecAdditionalWorld;	/// June +0x3a0: the stage world's dataFileName_Additional worlds ( 32803f60 ), freed by 322d7f90
+		std::vector<CX2GUUser*>		m_vecFindedRandomSelectUserUnits;	/// June +0xbc0: FindRandomSelectUserUnitsFromRange_LUA's result
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
-		bool						m_bJuneSkipStartArmed;		/// June +0xb40
-		bool						m_bJuneSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )
-		std::vector<int>			m_vecJuneSkipStartNPCUID;	/// June +0xb44: the UIDs ( NPC +0x270 ) of the NPCs in a DIRECTION_STATE state
+		bool						m_bSkipStartArmed;		/// June +0xb40
+		bool						m_bSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )
+		std::vector<int>			m_vecSkipStartNPCUID;	/// June +0xb44: the UIDs ( NPC +0x270 ) of the NPCs in a DIRECTION_STATE state
 #endif SERV_IRUHADEV_JUNE_SKIP_START
 		
 #ifdef ADD_GAME_STAGE_DELETE_DAMAGEEFFECT

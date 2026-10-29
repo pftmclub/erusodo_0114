@@ -330,10 +330,10 @@ public:
 	/// June RESERVED_EFFECT_SET_PLAY_COND / RESERVED_UI_EFFECT_SET_DELETE_COND (data036 Enum.lua, C9h-3a)
 	enum RESERVED_UI_EFFECT_SET_COND
 	{
-		JUNE_RESPC_NONE			= 0,
-		JUNE_RESPC_NOT_PLAY		= 1,	/// do not play when a set of that name is already in the kept vector
-		JUNE_RESDC_NONE			= 0,
-		JUNE_RESDC_STATE_CHANGE	= 1,	/// stopped by the next StateChange
+		RESPC_NONE			= 0,
+		RESPC_NOT_PLAY		= 1,	/// do not play when a set of that name is already in the kept vector
+		RESDC_NONE			= 0,
+		RESDC_STATE_CHANGE	= 1,	/// stopped by the next StateChange
 	};
 
 	/// June reserved UI effect set map node (+0x4d0, std::map<int, node>: key +0xc, deleteCond +0x10, playCond +0x14, name +0x18; INIT_EFFECT.RIDINGPET_RESERVED_UI_EFFECT_SET_LIST)
@@ -459,13 +459,13 @@ public:
 	/// true = the user's event process is skipped this frame (the change fired, or it is still waiting out OVERLAP_TIME).
 	bool OnGroundChangeStateCheck();
 	/// June +0x620: set by the check, cleared at the top of CX2GUUser::StateChange (June 320348c0). Its consumer 32031e60 is C9h-4's.
-	bool GetOnGroundChangedState() const { return m_bJuneOnGroundChanged; }
-	void ResetOnGroundChangedState() { m_bJuneOnGroundChanged = false; }
+	bool GetOnGroundChangedState() const { return m_bOnGroundChanged; }
+	void ResetOnGroundChangedState() { m_bOnGroundChanged = false; }
 	/// June +0x450..+0x45c: stored only; the reader is the user's target search 31fe2420 (C9h-4)
-	float GetTargetRange() const { return m_fJuneTargetRange; }
-	float GetLimitZDepth() const { return m_fJuneLimitZDepth; }
-	float GetDegreeRange() const { return m_fJuneDegreeRange; }
-	float GetValuePos() const { return m_fJuneValuePos; }
+	float GetTargetRange() const { return m_fTargetRange; }
+	float GetLimitZDepth() const { return m_fLimitZDepth; }
+	float GetDegreeRange() const { return m_fDegreeRange; }
+	float GetValuePos() const { return m_fValuePos; }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	/// June pet +0x33c / +0x324 (m_ConditionData.m_vLandPosition / m_vDirDegree), read by the UI effect set holder (CX2EffectSet, C9h-3a)
@@ -563,27 +563,27 @@ private:
 	vector<SoundPlayData>	m_vecSoundPlayData;		/// 사운드 데이터
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	/// June CX2RidingPet members written by StateChange / StateChangeFuture (June offsets in the comments; the layouts differ).
-	bool		m_bJuneFirstStateChanged;		/// +0x48c: set by every StateChange( const char* ), even on a name miss; never cleared. OnFrameMove reads it
-	wstring		m_wstrJuneAnimNameAtPlayEnd;	/// +0x490: ANIM_NAME_AT_PLAY_END
-	float		m_fJuneTargetRange;				/// +0x450: TARGET_RANGE (1500)
-	float		m_fJuneLimitZDepth;				/// +0x454: LIMIT_Z_DEPTH (500)
-	float		m_fJuneDegreeRange;				/// +0x458: DEGREE_RANGE (45)
-	float		m_fJuneValuePos;				/// +0x45c: VALUE_POS (0)
-	bool		m_bJuneApplyAnimMove;			/// +0x5a1: APPLY_RIDINGPET_ANIM_MOVE (user readers are Stage 17)
-	float		m_fJuneOriginalScaleTime;		/// +0x5a4: ORIGINAL_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
-	float		m_fJuneTransformScaleTime;		/// +0x5a8: TRANSFORM_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
-	int			m_iJuneCheckSpaciarBuff;		/// +0x5ac: CHECK_RIDINGPET_SPACIAR_BUFF (-1; consumer 32d2f3d0 is Stage 17)
-	float		m_fJuneOnGroundOverlapTime;		/// +0x5b8: ONGROUND_CHANGE_STATE.OVERLAP_TIME (0)
-	int			m_iJuneOnGroundState;			/// +0x5bc: ONGROUND_CHANGE_STATE.STATE_NAME as a state id (0 = none)
-	bool		m_bJuneOnGroundChanged;			/// +0x620
+	bool		m_bFirstStateChanged;		/// +0x48c: set by every StateChange( const char* ), even on a name miss; never cleared. OnFrameMove reads it
+	wstring		m_wstrAnimNameAtPlayEnd;	/// +0x490: ANIM_NAME_AT_PLAY_END
+	float		m_fTargetRange;				/// +0x450: TARGET_RANGE (1500)
+	float		m_fLimitZDepth;				/// +0x454: LIMIT_Z_DEPTH (500)
+	float		m_fDegreeRange;				/// +0x458: DEGREE_RANGE (45)
+	float		m_fValuePos;				/// +0x45c: VALUE_POS (0)
+	bool		m_bApplyAnimMove;			/// +0x5a1: APPLY_RIDINGPET_ANIM_MOVE (user readers are Stage 17)
+	float		m_fOriginalScaleTime;		/// +0x5a4: ORIGINAL_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
+	float		m_fTransformScaleTime;		/// +0x5a8: TRANSFORM_SCALE_TIME (-1.0; consumer 32d284d0 is Stage 17)
+	int			m_iCheckSpaciarBuff;		/// +0x5ac: CHECK_RIDINGPET_SPACIAR_BUFF (-1; consumer 32d2f3d0 is Stage 17)
+	float		m_fOnGroundOverlapTime;		/// +0x5b8: ONGROUND_CHANGE_STATE.OVERLAP_TIME (0)
+	int			m_iOnGroundState;			/// +0x5bc: ONGROUND_CHANGE_STATE.STATE_NAME as a state id (0 = none)
+	bool		m_bOnGroundChanged;			/// +0x620
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	/// June CX2RidingPet UI effect set members (C9h-3a; June offsets in the comments, the layouts differ). All of them are freed by June's dtor
 	/// without stopping the handles (32d2bdd0, JUNE_BUGS 109): neither does March's.
-	bool							m_bJuneUiSetHidden;				/// +0x4ac: hide mirror (players use SetShowObject( !m_bJuneUiSetHidden )); 32d291a0 zeroes it whatever it was asked
-	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetKept;			/// +0x4b0: INIT BY_UIEFFECTSET, reserved and non-delete-on-end state sets
-	std::vector< CX2EffectSet::Handle >	m_vecJuneUiSetState;		/// +0x4c0: DELETE_EFFECT_SET_ON_STATE_END sets; stopped through copies on every state, never cleared (JUNE_BUGS 107)
-	ReservedUiSetMap			m_mapJuneReservedUiSet;			/// +0x4d0
+	bool							m_bUiSetHidden;				/// +0x4ac: hide mirror (players use SetShowObject( !m_bJuneUiSetHidden )); 32d291a0 zeroes it whatever it was asked
+	std::vector< CX2EffectSet::Handle >	m_vecUiSetKept;			/// +0x4b0: INIT BY_UIEFFECTSET, reserved and non-delete-on-end state sets
+	std::vector< CX2EffectSet::Handle >	m_vecUiSetState;		/// +0x4c0: DELETE_EFFECT_SET_ON_STATE_END sets; stopped through copies on every state, never cleared (JUNE_BUGS 107)
+	ReservedUiSetMap			m_mapReservedUiSet;			/// +0x4d0
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 #pragma endregion variable
 

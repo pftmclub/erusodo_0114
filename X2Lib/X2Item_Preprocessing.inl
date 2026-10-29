@@ -245,7 +245,7 @@ struct KItemFormatStatData
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
 	/// June item.kim K2: June's stat pool is 7 floats {HP, AtkP, AtkM, [3], [4], DefP, DefM}: the writer 325bcdc0 writes 0x1c bytes,
 	/// 328d68c0 reads Def at [5]/[6]. [3] and [4] are 0 in all 75,556 June stat blocks and no June reader was found, so no June name.
-	float m_afJuneStatSlot3_4[2];
+	float m_afStatSlot3_4[2];
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 	//방어
@@ -258,8 +258,8 @@ struct KItemFormatStatData
 		m_fAtkPhysic		= 0;
 		m_fAtkMagic			= 0;
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-		m_afJuneStatSlot3_4[0]	= 0;
-		m_afJuneStatSlot3_4[1]	= 0;
+		m_afStatSlot3_4[0]	= 0;
+		m_afStatSlot3_4[1]	= 0;
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 		m_fDefPhysic		= 0;
@@ -995,7 +995,7 @@ private:
     BYTE        m_byNumSlashTraces;
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
     BYTE        m_byDescriptionInShopType;  /// June +224 m_eDescriptionInShopType: DIST_DEFAULT 0 / MERGE_SOCKET_KR 1 / MERGE_SOCKET_INT 2 (Stage 16)
-    BYTE        m_abyJunePadding[3];        /// June +225..+227, 0 in every record
+    BYTE        m_abyPadding[3];        /// June +225..+227, 0 in every record
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
     // 항상 4byte align 되도록 BYTE padding 한다.

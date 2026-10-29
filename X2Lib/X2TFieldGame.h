@@ -664,8 +664,8 @@ class CX2TFieldGame
 		//{{ seojt // 2009-1-14, 22:35
 		std::vector<CX2TFieldNpcPtr>    m_vecFieldNpc;		/// npcµé °´Ã¼
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
-		std::vector<CX2LocationManager::HouseTemplet*>	m_vecJuneRelationHouseTemplet;	// June TFG +0x444: the templet copies ReplaceVillageNpc builds; freed by the dtor
-		float							m_fJuneNpcQuestInfoTime;		// June TFG +0x458: the NPC loop refreshes quest info once it passes 1 s
+		std::vector<CX2LocationManager::HouseTemplet*>	m_vecRelationHouseTemplet;	// June TFG +0x444: the templet copies ReplaceVillageNpc builds; freed by the dtor
+		float							m_fNpcQuestInfoTime;		// June TFG +0x458: the NPC loop refreshes quest info once it passes 1 s
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 		//}} seojt // 2009-1-14, 22:35
 

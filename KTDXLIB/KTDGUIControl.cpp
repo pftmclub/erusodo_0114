@@ -99,9 +99,9 @@ static void LogNationNameOnce()
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI NATION name=" << g_pKTDXApp->GetNationName().c_str() << " (first key read)" << fileout;
 	}
 }
-#define JUNE_UI_NATION_HIT( bHit, strKey )		LogNationNameOnce(); if ( bHit == true ) LogNationKeyHit( strKey )
+#define UI_NATION_HIT( bHit, strKey )		LogNationNameOnce(); if ( bHit == true ) LogNationKeyHit( strKey )
 #else
-#define JUNE_UI_NATION_HIT( bHit, strKey )
+#define UI_NATION_HIT( bHit, strKey )
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 
 // June 31c9e2d0: KEY_GLOBAL, then KEY_<nation>, read into the value the plain read left; a miss keeps it.
@@ -110,13 +110,13 @@ void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char*
 	std::string strKey = pszKey;
 	strKey += "_GLOBAL";
 	bool bHit = luaManager.GetValue( strKey.c_str(), iValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 
 	strKey = pszKey;
 	strKey += "_";
 	strKey += g_pKTDXApp->GetNationName();
 	bHit = luaManager.GetValue( strKey.c_str(), iValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 }
 
 // June 31c9e1f0 (float version of 31c9e2d0)
@@ -125,13 +125,13 @@ void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char*
 	std::string strKey = pszKey;
 	strKey += "_GLOBAL";
 	bool bHit = luaManager.GetValue( strKey.c_str(), fValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 
 	strKey = pszKey;
 	strKey += "_";
 	strKey += g_pKTDXApp->GetNationName();
 	bHit = luaManager.GetValue( strKey.c_str(), fValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 }
 
 // June 31c9ec20 (D3DXVECTOR2 version of 31c9e2d0)
@@ -140,13 +140,13 @@ void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char*
 	std::string strKey = pszKey;
 	strKey += "_GLOBAL";
 	bool bHit = luaManager.GetUserDefinedTypeValue( strKey.c_str(), vValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 
 	strKey = pszKey;
 	strKey += "_";
 	strKey += g_pKTDXApp->GetNationName();
 	bHit = luaManager.GetUserDefinedTypeValue( strKey.c_str(), vValue );
-	JUNE_UI_NATION_HIT( bHit, strKey );
+	UI_NATION_HIT( bHit, strKey );
 }
 
 // June 31c95b40 / 31cbc6b0: the table's GLOBAL key, then the key named like the nation; -1 when neither is set

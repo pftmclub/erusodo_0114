@@ -2607,24 +2607,24 @@ void CX2CashShop::MouseMove( D3DXVECTOR2 mousePos )
 	March's pop-up runs its own per-product coupon inquiry. */
 void CX2CashShop::OpenAtItemList()
 {
-	if ( NULL != m_pBuyItemPopUp && false == m_vecJuneOpenAtItemID.empty() && NULL != g_pData && NULL != g_pData->GetItemManager() )
+	if ( NULL != m_pBuyItemPopUp && false == m_vecOpenAtItemID.empty() && NULL != g_pData && NULL != g_pData->GetItemManager() )
 	{
 		/// 32229e00 keeps only items with a product ( 32807970 record, product vector of 0x4d-byte entries non-empty ); 322470a0 shows
 		/// nothing for an empty list ( @322470a0 its +0x388 != +0x38c test )
 		vector<int> vecItemID;
-		for ( UINT i = 0; i < m_vecJuneOpenAtItemID.size(); ++i )
+		for ( UINT i = 0; i < m_vecOpenAtItemID.size(); ++i )
 		{
-			const CX2ItemManager::CashItem* pCashItem = g_pData->GetItemManager()->GetCashItem( m_vecJuneOpenAtItemID[i] );
+			const CX2ItemManager::CashItem* pCashItem = g_pData->GetItemManager()->GetCashItem( m_vecOpenAtItemID[i] );
 #ifdef SERV_GLOBAL_BILLING
 			if ( NULL != pCashItem && false == pCashItem->m_vecKBillProductInfo.empty() )
 #else // SERV_GLOBAL_BILLING
 			if ( NULL != pCashItem && false == pCashItem->m_vecKNXBTProductInfo.empty() )
 #endif // SERV_GLOBAL_BILLING
-				vecItemID.push_back( m_vecJuneOpenAtItemID[i] );
+				vecItemID.push_back( m_vecOpenAtItemID[i] );
 		}
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_SKILL] HUD shop open-at-item: %d pushed, %d with a product, first %d",
-			static_cast<int>( m_vecJuneOpenAtItemID.size() ), static_cast<int>( vecItemID.size() ), m_vecJuneOpenAtItemID[0] );
+			static_cast<int>( m_vecOpenAtItemID.size() ), static_cast<int>( vecItemID.size() ), m_vecOpenAtItemID[0] );
 #endif SERV_IRUHADEV_OFFLINE
 		if ( false == vecItemID.empty() )
 		{
@@ -2633,7 +2633,7 @@ void CX2CashShop::OpenAtItemList()
 			m_pBuyItemPopUp->SetChoicedItemBuy( false );
 		}
 	}
-	m_vecJuneOpenAtItemID.clear();
+	m_vecOpenAtItemID.clear();
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 void CX2CashShop::SetOpen( bool bOpen )
@@ -12631,10 +12631,10 @@ void CX2CashShop::PetPreview( int iItemID_ )
 	ResetPetViewer( iPreviewID, iItemID_, ePreviewPetType_ );
 
 	{
-		WCHAR wszJuneFx[256] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW item=%d pet=%d riding=%d pick=%s",
+		WCHAR wszFx[256] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_PREVIEW item=%d pet=%d riding=%d pick=%s",
 			iItemID_, iPetID, iRidingPetID, pwszPick );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 
 	// June @32234b81: the previewed item is no longer in the pre-equip list -> hide. June's test 32234380 is March's
@@ -12649,9 +12649,9 @@ void CX2CashShop::PetPreview( int iItemID_ )
 		m_pNPCViewerUI->StopUIEffectSets();
 		m_pNPCViewerUI->ViewerFxStop( 1 );
 
-		WCHAR wszJuneFx[256] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW hide item=%d (not in the pre-equip list)", m_iPrePetItemID );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[256] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_PREVIEW hide item=%d (not in the pre-equip list)", m_iPrePetItemID );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 
 		m_iPrePetItemID = -1;
 	}
@@ -13738,13 +13738,13 @@ void CX2CashShop::RemoveUnitClassChangeItemInChoice( const CX2Unit::UNIT_CLASS e
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 	/// June 3223c7f0: the class's change item ( 32227080 ), then its second item ( 32226c60 ); each listed one leaves the wish list
 	/// ( 3223c4d0 = RemoveChoicedItem )
-	const int aiJuneItemID[2] = { GetUnitClassChangeItemID( eUnitClass_ ), GetUnitClassChangeItemID2( static_cast<int>( eUnitClass_ ) ) };
+	const int aiItemID[2] = { GetUnitClassChangeItemID( eUnitClass_ ), GetUnitClassChangeItemID2( static_cast<int>( eUnitClass_ ) ) };
 	for( int i = 0; i < 2; ++i )
 	{
-		if( 0 < aiJuneItemID[i] &&
-			std::find( m_vecChoicedItemID.begin(), m_vecChoicedItemID.end(), aiJuneItemID[i] ) != m_vecChoicedItemID.end() )
+		if( 0 < aiItemID[i] &&
+			std::find( m_vecChoicedItemID.begin(), m_vecChoicedItemID.end(), aiItemID[i] ) != m_vecChoicedItemID.end() )
 		{
-			RemoveChoicedItem( aiJuneItemID[i] );
+			RemoveChoicedItem( aiItemID[i] );
 		}
 	}
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE

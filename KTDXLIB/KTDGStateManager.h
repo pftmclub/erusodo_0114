@@ -261,7 +261,7 @@ private:
     static D3DFORMAT                    ms_d3dColorKeyTextureFormat;
     static D3DFORMAT                    ms_d3dAlphaTextureFormat;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-    static WORD                         ms_awJuneMultiSampleQuality[18];   /// June 3376d928: quality levels per D3DMULTISAMPLE_TYPE 0..16 ( [17] see JuneGetMultiSampleQualityLevels )
+    static WORD                         ms_awMultiSampleQuality[18];   /// June 3376d928: quality levels per D3DMULTISAMPLE_TYPE 0..16 ( [17] see JuneGetMultiSampleQualityLevels )
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 

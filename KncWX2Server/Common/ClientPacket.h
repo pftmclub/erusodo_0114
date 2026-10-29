@@ -5516,9 +5516,9 @@ DECL_PACKET( EGS_ACTIVE_SKILL_MEMO_ACK )
 	int								m_iOK;
 	int								m_iSkillID;
 	int								m_iMemoID;
-	bool							m_bJuneUnread0C;
+	bool							m_bUnread0C;
 
-	KEGS_ACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread0C( false ) {}
+	KEGS_ACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bUnread0C( false ) {}
 };
 
 // REQ 0x556 ( sender 324530d0 ): the base skill, the memo, the UID of the removal item ( 3235be30, the first owned of
@@ -5546,14 +5546,14 @@ DECL_DATA( KUIDFlag )
 DECL_PACKET( EGS_DEACTIVE_SKILL_MEMO_ACK )
 {
 	int								m_iOK;
-	int								m_iJuneUnread04;
+	int								m_iUnread04;
 	int								m_iSkillID;
 	int								m_iMemoID;
-	bool							m_bJuneUnread10;
+	bool							m_bUnread10;
 	std::vector< KInventoryItemInfo >	m_vecInventorySlotInfo;
-	std::vector< KUIDFlag >		m_vecJuneUIDFlag;
+	std::vector< KUIDFlag >		m_vecUIDFlag;
 
-	KEGS_DEACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread10( false ) {}
+	KEGS_DEACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iUnread04( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bUnread10( false ) {}
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
@@ -5567,13 +5567,13 @@ DECL_PACKET( EGS_RANDOM_MISSION_NOT )
 	int								m_iGoal;				// +8
 	int								m_iSeconds;				// +0xc, the time limit
 	int								m_iDescStrID;			// +0x10, the description's General.ess id
-	float							m_fJuneUnread14;		// read, not kept by 326798b0
-	std::set< int >					m_setJuneUnread18;		// read, not kept
-	std::set< int >					m_setJuneUnread28;		// read, not kept
+	float							m_fUnread14;		// read, not kept by 326798b0
+	std::set< int >					m_setUnread18;		// read, not kept
+	std::set< int >					m_setUnread28;		// read, not kept
 	int								m_iRewardExpRate;		// +0x38 -> mission +0x20 ( read from the UI text: the EXP rate )
 	int								m_iRewardBuffID;		// +0x3c -> mission +0x1c ( read from the UI text: the buff )
 
-	KEGS_RANDOM_MISSION_NOT() : m_iMissionID( -1 ), m_iEventType( 0 ), m_iGoal( -1 ), m_iSeconds( 0 ), m_iDescStrID( -1 ), m_fJuneUnread14( 0.f ), m_iRewardExpRate( 0 ), m_iRewardBuffID( 0 ) {}
+	KEGS_RANDOM_MISSION_NOT() : m_iMissionID( -1 ), m_iEventType( 0 ), m_iGoal( -1 ), m_iSeconds( 0 ), m_iDescStrID( -1 ), m_fUnread14( 0.f ), m_iRewardExpRate( 0 ), m_iRewardBuffID( 0 ) {}
 };
 
 // REQ 0x493 ( 32676870 ): the mission id.
@@ -5588,9 +5588,9 @@ DECL_PACKET( EGS_RANDOM_MISSION_COMPLETE_REQ )
 DECL_PACKET( EGS_RANDOM_MISSION_COMPLETE_ACK )
 {
 	int								m_iOK;
-	int								m_iJuneUnread04;
+	int								m_iUnread04;
 
-	KEGS_RANDOM_MISSION_COMPLETE_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ) {}
+	KEGS_RANDOM_MISSION_COMPLETE_ACK() : m_iOK( 0 ), m_iUnread04( 0 ) {}
 };
 
 // The cheat REQs of g_pX2Game:SendRandomMissionCheat / ...RewardEXPCheat / ...RewardBuffCheat ( 322f0db0 / 322f0e00 / 322f0e30 ).
@@ -5623,10 +5623,10 @@ DECL_PACKET( EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ )
 DECL_PACKET( EGS_DUNGEON_RETRY_ACK )
 {
 	int								m_iOK;
-	__int64							m_iJuneUnread64;
-	std::wstring					m_wstrJuneUnread;
+	__int64							m_iUnread64;
+	std::wstring					m_wstrUnread;
 
-	KEGS_DUNGEON_RETRY_ACK() : m_iOK( 0 ), m_iJuneUnread64( 0 ) {}
+	KEGS_DUNGEON_RETRY_ACK() : m_iOK( 0 ), m_iUnread64( 0 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 
@@ -5648,10 +5648,10 @@ DECL_PACKET( EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK )
 
 DECL_PACKET( EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT )
 {
-	int								m_iJuneUnread;
+	int								m_iUnread;
 	int								m_iUnitClassTran;
 
-	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT() : m_iJuneUnread( 0 ), m_iUnitClassTran( 0 ) {}
+	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT() : m_iUnread( 0 ), m_iUnitClassTran( 0 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
@@ -7898,7 +7898,7 @@ DECL_PACKET( EGS_BUY_UNIT_CLASS_CHANGE_NOT )
 	std::vector< KCompleteQuestInfo >		m_vecChangeCompleteQuest;
 	std::vector< KQuestInstance >			m_vecChangeInProgressQuest;
 	KUnitInfo								m_kUnitInfo;
-	std::vector< KSkillData >				m_vecJuneAcquiredSkill;
+	std::vector< KSkillData >				m_vecAcquiredSkill;
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	UidType									m_iUnitUID;
 	int										m_iNewUnitClass;
@@ -11123,7 +11123,7 @@ DECL_PACKET( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK )
 	KUserSkillPageData		m_kUserSkillPageData;
 	//std::map< int, int>		m_mapSkillListLearned;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-	KSkillExtraData		m_kJuneSkillExtraData;	/// June 320e0620 @+0x6a ( 32124f30 -> 320dc980 ): the page's A / B bars and active memos
+	KSkillExtraData		m_kSkillExtraData;	/// June 320e0620 @+0x6a ( 32124f30 -> 320dc980 ): the page's A / B bars and active memos
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK()

@@ -143,22 +143,22 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 
 	m_pCX2GameLoadingTip	= new CX2GameLoadingTip();
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
-	m_pJuneResultAdapter		= NULL;
-	m_iJuneResultItemPage		= 0;
-	m_bJuneResultRetryEnabled	= true;
-	m_fJuneResultRetryCool		= 0.f;
-	m_bJuneResultNpcEvent		= false;
-	m_llJuneResultStartED		= 0;
+	m_pResultAdapter		= NULL;
+	m_iResultItemPage		= 0;
+	m_bResultRetryEnabled	= true;
+	m_fResultRetryCool		= 0.f;
+	m_bResultNpcEvent		= false;
+	m_llResultStartED		= 0;
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	m_bJuneResultUIOpened		= false;
-	m_bJuneResultSpeedChecked	= false;
-	m_bJuneResultAckDone		= false;
+	m_bResultUIOpened		= false;
+	m_bResultSpeedChecked	= false;
+	m_bResultAckDone		= false;
 	SetResultUIMode( 0, 0.f );		// June 324d9f80
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	ResultCloseAndDelete();		// June 324d9f80 @324dadca: unloadWidget( 8 ), 0xbc, mode 0, limit 23.0
 	SetResultUIMode( 0, 0.f );
-	m_fJuneResultModeLimit = 23.f;		// 3349d46c
+	m_fResultModeLimit = 23.f;		// 3349d46c
 	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
@@ -492,7 +492,7 @@ CX2StateDungeonGame::~CX2StateDungeonGame(void)
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	ResultCloseAndDelete();		// June 324d5670 @324d5e41: unloadWidget( 8 ) with or without an adapter
 #else SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
-	if ( m_pJuneResultAdapter != NULL )
+	if ( m_pResultAdapter != NULL )
 		ResultCloseAndDelete();
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
@@ -1003,9 +1003,9 @@ bool CX2StateDungeonGame::QuitGame()
 		{
 #if defined( SERV_IRUHADEV_JUNE_RESULT_DEBUG ) && defined( SERV_IRUHADEV_JUNE_RESULT_FLOW )
 			{
-				char szJuneBuf[ 96 ] = { 0, };
-				_snprintf_s( szJuneBuf, sizeof( szJuneBuf ), _TRUNCATE, "[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )", GetResultUIMode() );
-				KLOG( "ErrorLog.txt" ) << szJuneBuf << fileout;
+				char szBuf[ 96 ] = { 0, };
+				_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )", GetResultUIMode() );
+				KLOG( "ErrorLog.txt" ) << szBuf << fileout;
 			}
 #endif
 			OpenExitDLG( GET_STRING( STR_ID_2631 ) );
@@ -1300,12 +1300,12 @@ HRESULT CX2StateDungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	// June 324d8890 @324d8ee0-324d8f2d: the retry cool-down ( 324c83a0 inlined )
-	if ( 0.f < m_fJuneResultRetryCool )
+	if ( 0.f < m_fResultRetryCool )
 	{
-		m_fJuneResultRetryCool -= m_fElapsedTime;
-		if ( m_fJuneResultRetryCool <= 0.f )
+		m_fResultRetryCool -= m_fElapsedTime;
+		if ( m_fResultRetryCool <= 0.f )
 		{
-			m_fJuneResultRetryCool = -1.f;
+			m_fResultRetryCool = -1.f;
 			ResultEnableRetry( true, -1.f );
 		}
 	}
@@ -1797,7 +1797,7 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 #endif // SERV_NEW_DEFENCE_DUNGEON_ENTER_LOGIC
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-		case DGUCM_JUNE_RESULT_RETRY_OK:
+		case DGUCM_RESULT_RETRY_OK:
 			{
 				// June @324d92d7
 				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
@@ -1806,7 +1806,7 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 				ResultSendRetryReq();
 			} break;
 
-		case DGUCM_JUNE_RESULT_RETRY_CANCEL:
+		case DGUCM_RESULT_RETRY_CANCEL:
 			{
 				// June @324d9330
 				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
@@ -2932,9 +2932,9 @@ bool CX2StateDungeonGame::DungeonStageLoadNot( HWND hWnd, UINT uMsg, WPARAM wPar
 	{
 		for( int i = 0; i < m_pDungeonGame->GetUserUnitListSize(); ++i )
 		{
-			CX2GUUser* pJuneUser = m_pDungeonGame->GetUserUnit( i );
-			if( pJuneUser != NULL )
-				pJuneUser->DeleteEffectSetOnStageEnd();
+			CX2GUUser* pStageUser = m_pDungeonGame->GetUserUnit( i );
+			if( pStageUser != NULL )
+				pStageUser->DeleteEffectSetOnStageEnd();
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
@@ -5060,7 +5060,7 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 	}
 
 	// June @324d3e56: F8 in result mode 3 is the retry button ( 324d1120, then g_pMain +0x90 vslot 0xe0 )
-	if ( false == bHideDialog && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_F8) == TRUE && m_iJuneResultMode == 3 )
+	if ( false == bHideDialog && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_F8) == TRUE && m_iResultMode == 3 )
 	{
 		if ( ResultRetryAllowed() == true && g_pMain->GetNowState() != NULL )
 			static_cast< CX2State* >( g_pMain->GetNowState() )->ResultRetry();

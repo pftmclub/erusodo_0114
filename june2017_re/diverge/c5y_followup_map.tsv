@@ -1,0 +1,16 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+pJuneLineData	pCandidateLineData	rename	X2Lib/X2DamageEffect.cpp	CX2DamageEffect::CEffect				C5 hand names	C5	local
+pJuneEffectInstance	pEffectInstanceToSilence	rename	X2Lib/X2EffectSet.cpp	CX2EffectSet::EffectSetInstance				C5 hand names	C5	local
+eJuneUnitType	eSocketUnitType	rename	X2Lib/X2GUUser.cpp	CX2GUUser				C5 hand names	C5	local
+iJuneSoundIndex	iSoundPlayIndex	rename	X2Lib/X2GUUser.cpp	CX2GUUser				C5 hand names	C5	local
+iJuneStateSoundIndex	iStateSoundPlayIndex	rename	X2Lib/X2GUUser.cpp	CX2GUUser				C5 hand names	C5	local
+pJuneEnchantData	pPiercingEnchantData	rename	X2Lib/X2GameUnit.cpp	CX2GameUnit				C5 hand names	C5	local
+vJunePos	vUserPos	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet				C5 hand names	C5	local
+bJuneIsRight	bUserIsRight	rename	X2Lib/X2RidingPet.cpp	CX2RidingPet				C5 hand names	C5	local
+vJuneDownPos	vFlyDownPos	rename	X2Lib/X2SimplePathFinder.cpp	CX2SimplePathFinder				C5 hand names	C5	local
+iJuneCurrLineDataIndex	iCanDownLineDataIndex	rename	X2Lib/X2SimplePathFinder.cpp	CX2SimplePathFinder				C5 hand names	C5	local
+pJuneUser	pStageUser	rename	X2Lib/X2StateDungeonGame.cpp	CX2StateDungeonGame				C5 hand names	C5	local
+pJuneHealer	pHealer	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC				C5 hand names	C5	local
+pJuneAttackerUnit	pAttackerUnit	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC				C5 hand names	C5	local
+iJuneDifficulty	iDifficulty	rename	X2Lib/X2QuestManager.cpp	CX2QuestManager				C5 hand names	C5	local
+m_fJuneCoolTime	m_fIntervalTime	rename	X2Lib/X2SocketItem.h	CX2SocketItem::InfoByUseHyperMode				C5 hand names	C5	data member

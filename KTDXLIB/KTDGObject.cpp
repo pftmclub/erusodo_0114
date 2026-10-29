@@ -48,10 +48,10 @@ CKTDGObject::CKTDGObject( CKTDGObject* pManagerObject_ )
     m_bForceNotCull     = false;
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
-    m_iJuneSortKey      = 0;
+    m_iSortKey      = 0;
 #endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
-    m_iJuneCulledPlane  = -1;
+    m_iCulledPlane  = -1;
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
     //{{ seojt: 2008.10.23
     //m_dwLastAccessTime  = 0.0;

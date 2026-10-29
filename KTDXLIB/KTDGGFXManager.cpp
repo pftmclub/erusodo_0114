@@ -53,32 +53,32 @@ namespace SFR	= Scaleform::Render;
 // ---------------------------------------------------------------------------------------------------------------------------------------
 namespace
 {
-	CRITICAL_SECTION			s_csJuneGfxLog;
-	bool						s_bJuneGfxLogInit		= false;
-	bool						s_bJuneGfxLogFlushed	= false;
-	std::vector< std::string >	s_vecJuneGfxLogPending;
+	CRITICAL_SECTION			s_csGfxLog;
+	bool						s_bGfxLogInit		= false;
+	bool						s_bGfxLogFlushed	= false;
+	std::vector< std::string >	s_vecGfxLogPending;
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
-	int							s_iJuneGfxSdkLogLines	= 0;		// GFx's own log mirrored to ErrorLog.txt ( DEBUG only ), capped
-	const int					JUNE_GFX_SDK_LOG_CAP	= 300;
+	int							s_iGfxSdkLogLines	= 0;		// GFx's own log mirrored to ErrorLog.txt ( DEBUG only ), capped
+	const int					GFX_SDK_LOG_CAP	= 300;
 #endif SERV_IRUHADEV_JUNE_GFX_DEBUG
 
 	void GfxLogLine( const std::string& strLine )
 	{
-		if ( s_bJuneGfxLogInit == false )
+		if ( s_bGfxLogInit == false )
 		{
-			InitializeCriticalSection( &s_csJuneGfxLog );
-			s_bJuneGfxLogInit = true;
+			InitializeCriticalSection( &s_csGfxLog );
+			s_bGfxLogInit = true;
 		}
-		EnterCriticalSection( &s_csJuneGfxLog );
-		if ( s_bJuneGfxLogFlushed == false )
+		EnterCriticalSection( &s_csGfxLog );
+		if ( s_bGfxLogFlushed == false )
 		{
-			s_vecJuneGfxLogPending.push_back( strLine );
+			s_vecGfxLogPending.push_back( strLine );
 		}
 		else
 		{
 			KLOG( "ErrorLog.txt" ) << strLine.c_str() << fileout;
 		}
-		LeaveCriticalSection( &s_csJuneGfxLog );
+		LeaveCriticalSection( &s_csGfxLog );
 	}
 
 	void GfxLog( const char* szFormat, ... )
@@ -143,9 +143,9 @@ public:
 		SF::Log::FormatLog( szBuf, sizeof( szBuf ), messageId, pfmt, argList );
 		OutputDebugStringA( szBuf );
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
-		if ( s_iJuneGfxSdkLogLines < JUNE_GFX_SDK_LOG_CAP )
+		if ( s_iGfxSdkLogLines < GFX_SDK_LOG_CAP )
 		{
-			++s_iJuneGfxSdkLogLines;
+			++s_iGfxSdkLogLines;
 			std::string strLine( szBuf );
 			while ( strLine.empty() == false && ( strLine[ strLine.size() - 1 ] == '\n' || strLine[ strLine.size() - 1 ] == '\r' ) )
 				strLine.erase( strLine.size() - 1 );
@@ -2137,7 +2137,7 @@ namespace
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 // June 3353a074 / Call 32eee800 for the five result callbacks: their targets ignore the owner, so the id goes to the dispatcher the adapter registered
-static void ( *s_pfnJuneResultDispatch )( int iID ) = NULL;
+static void ( *s_pfnResultDispatch )( int iID ) = NULL;
 
 class CGfxResultFunctionHandler : public SFG::FunctionHandler
 {
@@ -2147,11 +2147,11 @@ public:
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		char szBuf[ 128 ] = { 0, };
-		_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] WIDGET call %d%s", m_iID, s_pfnJuneResultDispatch == NULL ? " dropped" : "" );
+		_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] WIDGET call %d%s", m_iID, s_pfnResultDispatch == NULL ? " dropped" : "" );
 		KLOG( "ErrorLog.txt" ) << szBuf << fileout;
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
-		if ( s_pfnJuneResultDispatch != NULL )
-			s_pfnJuneResultDispatch( m_iID );
+		if ( s_pfnResultDispatch != NULL )
+			s_pfnResultDispatch( m_iID );
 	}
 private:
 	int		m_iID;
@@ -2331,7 +2331,7 @@ void CKTDGGFXResultBridge::EnableRetryButton( bool bEnable )										{ m_pImpl-
 void CKTDGGFXResultBridge::NotifyTabKey()																{ m_pImpl->NotifyTabKey(); }
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
-void CKTDGGFXResultBridge::SetFunctionDispatcher( void ( *pfnDispatch )( int iID ) )					{ s_pfnJuneResultDispatch = pfnDispatch; }
+void CKTDGGFXResultBridge::SetFunctionDispatcher( void ( *pfnDispatch )( int iID ) )					{ s_pfnResultDispatch = pfnDispatch; }
 #endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
@@ -2382,11 +2382,11 @@ bool CKTDGGFXManager::closeToTopZorder()
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 	// G5 play-test 1: ESC never got a true with UI 0xb open. What the call really returned ( the type is the GFx Value type: 2 = Boolean )
 	{
-		char szJuneBuf[200] = { 0, };
-		_snprintf( szJuneBuf, sizeof( szJuneBuf ) - 1, "[JUNE_GFX] GATE closeToTopZorder raw: type %d isBool %d bool %d, isOpenUI( 0xb ) %d, isVisibleI( 0xb ) %d",
+		char szBuf[200] = { 0, };
+		_snprintf( szBuf, sizeof( szBuf ) - 1, "[JUNE_GFX] GATE closeToTopZorder raw: type %d isBool %d bool %d, isOpenUI( 0xb ) %d, isVisibleI( 0xb ) %d",
 			static_cast< int >( kResult.GetType() ), kResult.IsBool() ? 1 : 0, ( kResult.IsBool() && kResult.GetBool() ) ? 1 : 0,
 			isOpenUI( 0xb ) ? 1 : 0, isVisibleI( 0xb ) ? 1 : 0 );
-		GfxLogLine( szJuneBuf );
+		GfxLogLine( szBuf );
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 	return kResult.IsBool() ? kResult.GetBool() : false;
@@ -2429,21 +2429,21 @@ int  CKTDGGFXManager::GetIMETextFieldID() const					{ return m_pImpl->m_iIMEText
 
 void CKTDGGFXManager::FirstFrameLog()
 {
-	if ( s_bJuneGfxLogFlushed == true )
+	if ( s_bGfxLogFlushed == true )
 		return;
-	if ( s_bJuneGfxLogInit == false )
+	if ( s_bGfxLogInit == false )
 	{
-		InitializeCriticalSection( &s_csJuneGfxLog );
-		s_bJuneGfxLogInit = true;
+		InitializeCriticalSection( &s_csGfxLog );
+		s_bGfxLogInit = true;
 	}
-	EnterCriticalSection( &s_csJuneGfxLog );
-	for ( size_t i = 0; i < s_vecJuneGfxLogPending.size(); ++i )
+	EnterCriticalSection( &s_csGfxLog );
+	for ( size_t i = 0; i < s_vecGfxLogPending.size(); ++i )
 	{
-		KLOG( "ErrorLog.txt" ) << s_vecJuneGfxLogPending[i].c_str() << fileout;
+		KLOG( "ErrorLog.txt" ) << s_vecGfxLogPending[i].c_str() << fileout;
 	}
-	s_vecJuneGfxLogPending.clear();
-	s_bJuneGfxLogFlushed = true;
-	LeaveCriticalSection( &s_csJuneGfxLog );
+	s_vecGfxLogPending.clear();
+	s_bGfxLogFlushed = true;
+	LeaveCriticalSection( &s_csGfxLog );
 }
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG

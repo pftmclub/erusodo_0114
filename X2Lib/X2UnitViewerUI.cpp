@@ -284,8 +284,8 @@ CX2UnitViewerUI::~CX2UnitViewerUI(void)
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	// June 31fab920 @31fabc53: the viewer's dtor stops the effect groups 0..4 (the base dtor then stops group 1 and every sound)
-	for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
-		ViewerFxStop( iJuneFxGroup );
+	for( int iFxGroup = 0; iFxGroup < 5; ++iFxGroup )
+		ViewerFxStop( iFxGroup );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 }
 
@@ -298,12 +298,12 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	// June 31fa8ce0 @31fa8d32-31fa8d4c, the frame move's first statements (before any unit or skin test): +0x1d8 = +0xe5c
 	// (m_ePlayedEmotion, confirmed by the C9c-2b review from PlayEmotion 31fa52b0's sit/stand gates), +0x1dc = motion type
 	// 7/8 (never in March), then the base viewer's update
-	m_iJuneFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
+	m_iFxTriggerCode1 = static_cast<int>( m_ePlayedEmotion );
 #ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	// June 31fa8ce0 @31fa8d32-31fa8d46 writes only +0x1d8 here: +0x1dc is stored by PlayByMotionType (31fa7ef0), so no
 	// per-frame reset (the reset above was a C9c-2b simplification: motion types 7/8 did not exist in March)
 #else SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
-	m_iJuneFxTriggerCode2 = 0;
+	m_iFxTriggerCode2 = 0;
 #endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 	CX2BaseUnitViewerUI::OnFrameMove( fTime, fElapsedTime );
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
@@ -483,35 +483,35 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	// queued once more (June's ctor 31fac890 forces the request's loop to 1)
 	if( 0.f == m_pXSkinAnim->GetNowAnimationTime() && NULL != g_pData && NULL != g_pData->GetUnitManager() )
 	{
-		std::wstring wstrJuneFxSet;
-		float fJuneFxStart = 0.f;
-		bool bJuneFxLoop = false;
+		std::wstring wstrFxSet;
+		float fFxStart = 0.f;
+		bool bFxLoop = false;
 		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( m_pXSkinAnim->GetNowAnimName(), m_pUnit->GetClass(), 0,
-				wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) && true == bJuneFxLoop )
+				wstrFxSet, fFxStart, bFxLoop ) && true == bFxLoop )
 		{
-			ViewerFxRequest kJuneFxRequest;
-			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
+			ViewerFxRequest kFxRequest;
+			kFxRequest.m_wstrSetName = wstrFxSet;
 			if( NULL != m_pUnit->GetUnitTemplet() )
-				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
-			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
-			kJuneFxRequest.m_fStartTime = fJuneFxStart;
-			kJuneFxRequest.m_bLoop = true;
-			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
+				kFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
+			kFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
+			kFxRequest.m_fStartTime = fFxStart;
+			kFxRequest.m_bLoop = true;
+			m_vecViewerFxRequest.push_back( kFxRequest );
 		}
 	}
 
 	// drain: a request plays once the anim time reaches its start time (0 = at once), then is erased
-	for( size_t iJuneFxRequest = 0; iJuneFxRequest < m_vecJuneViewerFxRequest.size(); )
+	for( size_t iFxRequest = 0; iFxRequest < m_vecViewerFxRequest.size(); )
 	{
-		const ViewerFxRequest& kJuneFxRequest = m_vecJuneViewerFxRequest[iJuneFxRequest];
-		if( fabs( kJuneFxRequest.m_fStartTime ) <= 0.0009f || kJuneFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
+		const ViewerFxRequest& kFxRequest = m_vecViewerFxRequest[iFxRequest];
+		if( fabs( kFxRequest.m_fStartTime ) <= 0.0009f || kFxRequest.m_fStartTime <= m_pXSkinAnim->GetNowAnimationTime() )
 		{
-			const std::wstring wstrJuneFxSet = kJuneFxRequest.m_wstrSetName;
-			ViewerFxPlay( m_pXSkinAnim, wstrJuneFxSet, 0 );
-			m_vecJuneViewerFxRequest.erase( m_vecJuneViewerFxRequest.begin() + iJuneFxRequest );
+			const std::wstring wstrFxSet = kFxRequest.m_wstrSetName;
+			ViewerFxPlay( m_pXSkinAnim, wstrFxSet, 0 );
+			m_vecViewerFxRequest.erase( m_vecViewerFxRequest.begin() + iFxRequest );
 		}
 		else
-			++iJuneFxRequest;
+			++iFxRequest;
 	}
 
 	// the base viewer's second update (June runs it twice per frame)
@@ -1027,41 +1027,41 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 	// step always sees "not live" and IsPlaying (329581c0) is the only replay guard.
 	if( UVS_FIELD != m_eUnitViewerState && NULL != g_pData && NULL != g_pData->GetItemManager() )
 	{
-		std::vector<CX2EqipPtr> vecJuneEquip;
-		GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+		std::vector<CX2EqipPtr> vecEquip;
+		GetDivisionEquips( CX2ItemManager::DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecEquip );
 
-		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+		for( size_t iEquip = 0; iEquip < vecEquip.size(); ++iEquip )
 		{
-			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-			if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
+			CX2EqipPtr pEquip = vecEquip[iEquip];
+			if( NULL == pEquip || NULL == pEquip->GetItemTemplet() )
 				continue;
 
 			// a miss, the set already playing, or the condition not met (<= 0; 1-2 while the motion type is above the three waits,
 			// an unsigned JA @31fa9c42; > 3) -> +0x15f4 = 0
-			CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
-			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
-				true == ViewerFxIsPlaying( kJuneRecord.m_wstrEffectSetName ) ||
-				kJuneRecord.m_eCondition <= 0 ||
-				( kJuneRecord.m_eCondition <= 2 && static_cast<unsigned int>( m_eOldMotionType ) > 2 ) ||
-				kJuneRecord.m_eCondition > 3 )
+			CX2ItemManager::ConditionEquipPlayEffectSet kRecord;
+			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pEquip->GetItemID(), kRecord ) ||
+				true == ViewerFxIsPlaying( kRecord.m_wstrEffectSetName ) ||
+				kRecord.m_eCondition <= 0 ||
+				( kRecord.m_eCondition <= 2 && static_cast<unsigned int>( m_eOldMotionType ) > 2 ) ||
+				kRecord.m_eCondition > 3 )
 			{
-				pJuneEquip->ResetEquipEffectSetStartTime();
+				pEquip->ResetEquipEffectSetStartTime();
 				continue;
 			}
 
-			int iJuneSel = 2;
-			if( false == pJuneEquip->StepEquipEffectSetTimer( &iJuneSel ) )
+			int iSel = 2;
+			if( false == pEquip->StepEquipEffectSetTimer( &iSel ) )
 				continue;
 
 			// 32959640( GetXSkinAnim 31fac3c0, name, group 1 ); switch timer +0x1604 zeroed after the switch play
-			if( 3 == iJuneSel )
+			if( 3 == iSel )
 			{
-				ViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrSwitchEffectSetName, 1 );
-				pJuneEquip->ResetEquipEffectSetSwitchTime( 2 );
+				ViewerFxPlay( m_pXSkinAnim, kRecord.m_wstrSwitchEffectSetName, 1 );
+				pEquip->ResetEquipEffectSetSwitchTime( 2 );
 			}
 			else
 			{
-				ViewerFxPlay( m_pXSkinAnim, kJuneRecord.m_wstrEffectSetName, 1 );
+				ViewerFxPlay( m_pXSkinAnim, kRecord.m_wstrEffectSetName, 1 );
 			}
 		}
 	}
@@ -2006,23 +2006,23 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	// June 31fa3010: after the anim the request queue is cleared, the group-0 viewer effects are stopped, and the motion is
 	// looked up (duo 0 = March's only model): a hit queues { set, UNIT_TYPE, UNIT_CLASS, start time, loop }
-	m_vecJuneViewerFxRequest.clear();
+	m_vecViewerFxRequest.clear();
 	ViewerFxStop( 0 );
 	if( NULL != pName && NULL != m_pUnit && NULL != g_pData && NULL != g_pData->GetUnitManager() )
 	{
-		std::wstring wstrJuneFxSet;
-		float fJuneFxStart = 0.f;
-		bool bJuneFxLoop = false;
-		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( pName, m_pUnit->GetClass(), 0, wstrJuneFxSet, fJuneFxStart, bJuneFxLoop ) )
+		std::wstring wstrFxSet;
+		float fFxStart = 0.f;
+		bool bFxLoop = false;
+		if( true == g_pData->GetUnitManager()->GetUnitViewerEffectSet( pName, m_pUnit->GetClass(), 0, wstrFxSet, fFxStart, bFxLoop ) )
 		{
-			ViewerFxRequest kJuneFxRequest;
-			kJuneFxRequest.m_wstrSetName = wstrJuneFxSet;
+			ViewerFxRequest kFxRequest;
+			kFxRequest.m_wstrSetName = wstrFxSet;
 			if( NULL != m_pUnit->GetUnitTemplet() )
-				kJuneFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
-			kJuneFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
-			kJuneFxRequest.m_fStartTime = fJuneFxStart;
-			kJuneFxRequest.m_bLoop = bJuneFxLoop;
-			m_vecJuneViewerFxRequest.push_back( kJuneFxRequest );
+				kFxRequest.m_iUnitType = static_cast<int>( m_pUnit->GetUnitTemplet()->m_UnitType );
+			kFxRequest.m_iUnitClass = static_cast<int>( m_pUnit->GetClass() );
+			kFxRequest.m_fStartTime = fFxStart;
+			kFxRequest.m_bLoop = bFxLoop;
+			m_vecViewerFxRequest.push_back( kFxRequest );
 		}
 	}
 
@@ -4058,7 +4058,7 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	// +0x1dc: SIT_READY -> 2, SIT_WAIT -> 1, else 0 (the viewer effect trigger code)
-	m_iJuneFxTriggerCode2 = ( UVUMT_SIT_READY == motionType ) ? 2 : ( ( UVUMT_SIT_WAIT == motionType ) ? 1 : 0 );
+	m_iFxTriggerCode2 = ( UVUMT_SIT_READY == motionType ) ? 2 : ( ( UVUMT_SIT_WAIT == motionType ) ? 1 : 0 );
 #endif
 
 	// 31fa5c90 head, the data-independent part. +0xe5c = m_ePlayedEmotion is reset unless the viewer state is 10 (a June-only
@@ -4082,8 +4082,8 @@ void CX2UnitViewerUI::PlayByMotionType( CX2UnitViewerUI::UNIT_VIEWER_UI_MOTION_T
 		}
 		else
 		{
-			for( int iJuneFxGroup = 0; iJuneFxGroup < 5; ++iJuneFxGroup )
-				ViewerFxStop( iJuneFxGroup );
+			for( int iFxGroup = 0; iFxGroup < 5; ++iFxGroup )
+				ViewerFxStop( iFxGroup );
 		}
 #endif
 	}
@@ -6484,7 +6484,7 @@ void CX2UnitViewerUI::SetPositionOnScr(float x, float y, float z, float scale)	/
 		m_pXSkinAnim->GetMatrix().Move( GetMatrix().GetPos() );
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	// June 31f99f70 @31f9a153: the viewer's move sets the base viewer's land-dirty byte (+0x1d4)
-	m_bJuneFxLandDirty = true;
+	m_bFxLandDirty = true;
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 	
 }
@@ -6646,9 +6646,9 @@ bool CX2UnitViewerUI::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wst
 	// returns at once on a NULL one (@32959680). Group 1 is stopped by the viewer dtor and by June's sit-item block (the
 	// missing emotion system). INERT in March: the name is empty for every id March has.
 	{
-		const std::wstring wstrJuneEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
-		if( false == wstrJuneEmotionSetName.empty() )
-			ViewerFxPlay( m_pXSkinAnim, wstrJuneEmotionSetName, 1 );
+		const std::wstring wstrEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+		if( false == wstrEmotionSetName.empty() )
+			ViewerFxPlay( m_pXSkinAnim, wstrEmotionSetName, 1 );
 	}
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET

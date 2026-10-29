@@ -161,13 +161,13 @@ namespace
 	{
 		if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
 			return 0;
-		CX2Unit* pJuneMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+		CX2Unit* pMyUnit = g_pData->GetMyUser()->GetSelectUnit();
 
 		const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
 		std::vector<const SSkillMemoTemplet*> vecMemo;
-		CX2SkillNoteManager::GetInstance()->GetMemoList( iBaseSkillID, 0, static_cast<int>( pJuneMyUnit->GetClass() ), 0, vecMemo );
+		CX2SkillNoteManager::GetInstance()->GetMemoList( iBaseSkillID, 0, static_cast<int>( pMyUnit->GetClass() ), 0, vecMemo );
 
-		const CX2UserSkillTree& refUserSkillTree = pJuneMyUnit->GetUnitData().m_UserSkillTree;
+		const CX2UserSkillTree& refUserSkillTree = pMyUnit->GetUnitData().m_UserSkillTree;
 		for ( std::vector<const SSkillMemoTemplet*>::const_iterator it = vecMemo.begin(); it != vecMemo.end(); ++it )
 		{
 			const SSkillMemoTemplet* pMemo = *it;
@@ -197,7 +197,7 @@ const wstring CX2SkillTree::SkillTemplet::GetSkillEffectiveDescValue( int iLevel
 
 	std::string strParamTypes;
 	vector<NumericalRow> vecRow;
-	for ( vector<NumericalData>::const_iterator it = m_vecJuneNumericalData.begin(); it != m_vecJuneNumericalData.end(); ++it )
+	for ( vector<NumericalData>::const_iterator it = m_vecNumericalData.begin(); it != m_vecNumericalData.end(); ++it )
 	{
 		NumericalRow kRow = { 0.f, 0.f, 0.f, 0.f };
 		if ( false == it->m_vecRow.empty() )
@@ -269,7 +269,7 @@ private:
 	std::map<int, wstring>	m_mapColor;
 };
 
-static CX2SkillTypeColorTable s_kJuneSkillTypeColorTable;
+static CX2SkillTypeColorTable s_kSkillTypeColorTable;
 
 /////////////////////////////////////////////////////////////////////////
 // CX2SkillTreeSlotData : slot data type 1 ( vt 334c2e94 )
@@ -572,7 +572,7 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 }
 
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
-namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_
+namespace _CONST_EQUIPPEDSKILLSLOT_CH1o2_
 {
 	/// June 328e0aa0: its tree +0x130..+0x139 class blocks are CH4c's ( 0x1a / 0x6d ) and checklist 7aj's; the tail asks my unit's slot 0x56c
 	void ApplyEquippedSkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ )
@@ -620,7 +620,7 @@ namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_
 		g_pX2Game->GetMyUnit()->SkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ );
 	}
 }
-using namespace _CONST_EQUIPPEDSKILLSLOT_JUNE_CH1o2_;
+using namespace _CONST_EQUIPPEDSKILLSLOT_CH1o2_;
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 
 /// June 328e18d0
@@ -859,7 +859,7 @@ void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, 
 
 CX2MemorizeSkillSlotData::CX2MemorizeSkillSlotData( int index, bool bSlotb )
 {
-	m_eSlotDataType	= SDT_JUNE_MEMORIZE;
+	m_eSlotDataType	= SDT_MEMORIZE;
 	m_bDataUpdated	= true;
 	m_eSkillID		= CX2SkillTree::SI_NONE;
 	m_iIndex		= index;
@@ -904,12 +904,12 @@ CX2MemorizeSkillSlotData::CX2MemorizeSkillSlotData( int index, bool bSlotb )
 /// June 328e76a0
 CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 : m_iSelectedTab( 0 )
-, m_iJuneCommandGroup( 0 )
+, m_iCommandGroup( 0 )
 , m_pDLGCommandDesc( NULL )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-, m_iJuneCommandRow( 0 )
-, m_bJuneCommandToolTip( false )
-, m_bJuneCommandMovieToolTip( false )
+, m_iCommandRow( 0 )
+, m_bCommandToolTip( false )
+, m_bCommandMovieToolTip( false )
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 , m_bShow( false )
 , m_bSkillRemoveMode( false )
@@ -936,8 +936,8 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 , m_pHoveredMemoButton( NULL )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-, m_pDLGJuneMemoMsgBox( NULL )
-, m_iJuneMemoRemoveItemUID( 0 )
+, m_pDLGMemoMsgBox( NULL )
+, m_iMemoRemoveItemUID( 0 )
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 , m_iNewSkillCount( 0 )
 {
@@ -962,7 +962,7 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 	SAFE_DELETE_DIALOG( m_pDLGUISkillTree );
 	m_mapSkillSlotUISet.clear();
 	m_vecSkillTabControl.clear();
-	m_vecJuneCommandGroupControl.clear();
+	m_vecCommandGroupControl.clear();
 	m_mapSkillPosition.clear();
 	SAFE_DELETE_DIALOG( m_pDLGSkillToolTip );
 	SAFE_DELETE_DIALOG( m_pDLGSkillUnsealInform );
@@ -1158,7 +1158,7 @@ void CX2UISkillTreeNew::InitSkillTreeUI()
 	m_bSkillSlotSwap = false;
 	m_mapSkillSlotUISet.clear();
 	m_vecSkillTabControl.clear();
-	m_vecJuneCommandGroupControl.clear();		/// @328ed964: +0x18 cleared with +0x08
+	m_vecCommandGroupControl.clear();		/// @328ed964: +0x18 cleared with +0x08
 
 	m_pDLGUISkillTree = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_UI_Skill_Tree_New2015.lua" );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGUISkillTree );
@@ -1174,7 +1174,7 @@ void CX2UISkillTreeNew::InitSkillTreeUI()
 	{
 		/// @328edaca: +0x8c = ( unit +0xe40 == 1 ), Luciel's form flag ( the minor command group ). March's CX2Unit has no such flag and no
 		/// Luciel: group 0. The flag is character material ( checklist )
-		m_iJuneCommandGroup = 0;
+		m_iCommandGroup = 0;
 		CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
 		m_pUserSkillTree = &pUnit->GetUnitData().m_UserSkillTree;
 		CreateSkillTree( pUnit->GetUnitTemplet()->m_UnitClass, IsMyUnitTranscended() );
@@ -1197,8 +1197,8 @@ void CX2UISkillTreeNew::CreateSkillTree( CX2Unit::UNIT_CLASS eUnitClass, bool bT
 	CreateSkillTreePortrait( eUnitClass, bTranscended_ );
 	CreateSkillTreeLevelRows();
 	/// @328eaaaf..328eaaeb: the +0x90 map is cleared ( 32223c30 ), then the +0x3c block ( 328ee430 )
-	m_mapJuneCommandToolTip.clear();
-	m_kJuneSkillCommandDesc.Reset();
+	m_mapCommandToolTip.clear();
+	m_kSkillCommandDesc.Reset();
 #else SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// S7e: 328e7ba0 ( the command lists from ComboTree.lua )
 	CreateSkillTreePortrait( eUnitClass, bTranscended_ );
@@ -1223,7 +1223,7 @@ void CX2UISkillTreeNew::CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass )
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
 		if ( NULL == pSkillTemplet )
 			continue;
-		if ( false == IsMyUnitTranscended() && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType )
+		if ( false == IsMyUnitTranscended() && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType )
 			continue;
 
 		const SkillPositionKey kKey( mapit->second.m_iTier, mapit->second.m_iIndexInTier );
@@ -1499,9 +1499,9 @@ void CX2UISkillTreeNew::CreateSkillTreePortrait( CX2Unit::UNIT_CLASS eUnitClass,
 	/// are what keeps each tab's statics off the other tab ( play-test 2026-10-18: the command background showed on the skill tab )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// @328e9104..328e912e ( June passes its 2nd argument, my unit +0x3c, to 3220bdb0 and 328e8820 as their "minor" flag )
-	m_kJuneSkillCommandDesc.Reset();
+	m_kSkillCommandDesc.Reset();
 	if ( NULL != g_pData->GetSkillTree() )
-		g_pData->GetSkillTree()->LoadSkillCommandDescription( static_cast<int>( eUnitClass ), bTranscended_, &m_kJuneSkillCommandDesc );
+		g_pData->GetSkillTree()->LoadSkillCommandDescription( static_cast<int>( eUnitClass ), bTranscended_, &m_kSkillCommandDesc );
 	CreateMajorSkillPanel( eUnitClass );
 	CreateMajorCommandPanel( eUnitClass, bTranscended_ );
 #else SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
@@ -1544,14 +1544,14 @@ void CX2UISkillTreeNew::RegisterMajorCommandPanelControls()
 void CX2UISkillTreeNew::AddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ )
 {
 	if ( NULL != pControl_ )
-		m_vecJuneCommandGroupControl.push_back( std::make_pair( iGroup_, pControl_ ) );
+		m_vecCommandGroupControl.push_back( std::make_pair( iGroup_, pControl_ ) );
 }
 
 /// June 328da3c0( bShow, group ): hidden -> every control off; shown -> group 2 on, the asked group on, every other group off
 /// ( SetShowEnable, vslot 0x78 )
 void CX2UISkillTreeNew::ShowCommandGroup( const bool bShow_, const int iGroup_ )
 {
-	for ( vector< std::pair<int, CKTDGUIControl*> >::iterator it = m_vecJuneCommandGroupControl.begin(); it != m_vecJuneCommandGroupControl.end(); ++it )
+	for ( vector< std::pair<int, CKTDGUIControl*> >::iterator it = m_vecCommandGroupControl.begin(); it != m_vecCommandGroupControl.end(); ++it )
 	{
 		if ( NULL == it->second )
 			continue;
@@ -1618,15 +1618,15 @@ void CX2UISkillTreeNew::CreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ )
 	if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() && NULL != g_pInstanceData )
 	{
 		if ( false == g_pInstanceData->IsEnableCode( 0x910 ) && false == g_pInstanceData->IsEnableCode( 0x911 ) &&
-			 true == IsMyUnitTranscended() && false == m_kJuneSkillCommandDesc.m_kTranscendental.m_vecSkill.empty() )
-			m_kJuneSkillCommandDesc.m_kSkill = m_kJuneSkillCommandDesc.m_kTranscendental;	/// 32714e10
+			 true == IsMyUnitTranscended() && false == m_kSkillCommandDesc.m_kTranscendental.m_vecSkill.empty() )
+			m_kSkillCommandDesc.m_kSkill = m_kSkillCommandDesc.m_kTranscendental;	/// 32714e10
 	}
 
 	/// @328e43e6..328e453b ( March's GET_STRING carries June's "[S%1%]%2%" debug branch, 31c31060 +0x40 )
 	CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( m_pDLGUISkillTree->GetControl( L"Skill_Description" ) );
 	if ( NULL != pDescription )
 	{
-		const int iDescStringID = m_kJuneSkillCommandDesc.m_kSkill.m_iDescStringID;
+		const int iDescStringID = m_kSkillCommandDesc.m_kSkill.m_iDescStringID;
 		pDescription->SetString( 0, GET_STRING( iDescStringID ) );
 		pDescription->AddDummyInt( iDescStringID );			/// +0x1b0; 29062 reads it back
 		FitDescriptionText( pDescription );
@@ -1641,7 +1641,7 @@ void CX2UISkillTreeNew::CreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ )
 		m_vecSkillTabControl.push_back( pControl );
 
 	WCHAR buf[255] = { 0, };
-	const std::vector< std::pair<int, int> >& vecSkill = m_kJuneSkillCommandDesc.m_kSkill.m_vecSkill;
+	const std::vector< std::pair<int, int> >& vecSkill = m_kSkillCommandDesc.m_kSkill.m_vecSkill;
 	for ( UINT i = 0; i < vecSkill.size(); ++i )
 	{
 		/// 32206450( id, 1 ): its level gate needs instance code 0x910 / 0x911 ( none offline ), so it is March's GetSkillTemplet( id )
@@ -1682,7 +1682,7 @@ void CX2UISkillTreeNew::CreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ )
 	}
 
 	CX2OfflineLog::Server( L"[JUNE_SKILL] UI major skills class %d: description %d, %d skill button(s)",
-		static_cast<int>( eUnitClass_ ), m_kJuneSkillCommandDesc.m_kSkill.m_iDescStringID, static_cast<int>( vecSkill.size() ) );
+		static_cast<int>( eUnitClass_ ), m_kSkillCommandDesc.m_kSkill.m_iDescStringID, static_cast<int>( vecSkill.size() ) );
 }
 
 /// June 328e8820 ( 328e8e90 @328e912e ): Command_Back_Black and SkillTree_MajorCommand join group 2, then the COMMAND_DATA panel
@@ -1698,7 +1698,7 @@ void CX2UISkillTreeNew::CreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_
 	std::string strClassName = CX2SkillTree::GetUnitClassName( static_cast<int>( eUnitClass_ ) );
 	SetCommandDescription( false );
 	std::vector<CX2SkillTree::ComboRow> vecMajor;
-	g_pData->GetSkillTree()->LoadMajorComboRows( &m_kJuneSkillCommandDesc, strClassName, false, vecMajor );
+	g_pData->GetSkillTree()->LoadMajorComboRows( &m_kSkillCommandDesc, strClassName, false, vecMajor );
 	CreateMajorCommandRows( vecMajor, 0 );
 
 	if ( true == bMinor_ )
@@ -1706,12 +1706,12 @@ void CX2UISkillTreeNew::CreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_
 		strClassName += "_MINOR";
 		SetCommandDescription( true );
 		std::vector<CX2SkillTree::ComboRow> vecMinor;
-		g_pData->GetSkillTree()->LoadMajorComboRows( &m_kJuneSkillCommandDesc, strClassName, true, vecMinor );
+		g_pData->GetSkillTree()->LoadMajorComboRows( &m_kSkillCommandDesc, strClassName, true, vecMinor );
 		CreateMajorCommandRows( vecMinor, 1 );
 	}
 
 	CX2OfflineLog::Server( L"[JUNE_SKILL] UI major commands class %d: description %d, %d row(s)",
-		static_cast<int>( eUnitClass_ ), m_kJuneSkillCommandDesc.m_iCommandDescStringID, static_cast<int>( vecMajor.size() ) );
+		static_cast<int>( eUnitClass_ ), m_kSkillCommandDesc.m_iCommandDescStringID, static_cast<int>( vecMajor.size() ) );
 }
 
 /// June 328e73f0( bMinor ): Command_Description carries both description ids as dummy ints 0 / 1 ( pushed again on each call ),
@@ -1722,8 +1722,8 @@ void CX2UISkillTreeNew::SetCommandDescription( const bool bMinor_ )
 	if ( NULL == pDescription )
 		return;
 
-	const int iMajorStringID = m_kJuneSkillCommandDesc.m_iCommandDescStringID;
-	const int iMinorStringID = m_kJuneSkillCommandDesc.m_iMinorDescStringID;
+	const int iMajorStringID = m_kSkillCommandDesc.m_iCommandDescStringID;
+	const int iMinorStringID = m_kSkillCommandDesc.m_iMinorDescStringID;
 	pDescription->AddDummyInt( iMajorStringID );
 	pDescription->AddDummyInt( iMinorStringID );
 	const int iShownStringID = ( false == bMinor_ ) ? iMajorStringID : iMinorStringID;	/// GET_STRING does not parenthesize its argument
@@ -1736,7 +1736,7 @@ void CX2UISkillTreeNew::SetCommandDescription( const bool bMinor_ )
 /// tab is refreshed ( 328e89f0 )
 void CX2UISkillTreeNew::SetCommandGroup( const int iGroup_ )
 {
-	m_iJuneCommandGroup = iGroup_;
+	m_iCommandGroup = iGroup_;
 	if ( 1 != m_iSelectedTab || NULL == m_pDLGUISkillTree )
 		return;
 
@@ -1899,7 +1899,7 @@ void CX2UISkillTreeNew::CreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ )
 		return;
 	}
 
-	m_iJuneCommandRow = 0;
+	m_iCommandRow = 0;
 	std::string strClassName = CX2SkillTree::GetUnitClassName( static_cast<int>( eUnitClass_ ) );
 	/// 323750f0: the class's unit templet +0x10 ( unit type ) == 10. March has no Luciel ( no unit type 10 ), so this is false here
 	const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetUnitManager()->GetUnitTemplet( eUnitClass_ );
@@ -1918,11 +1918,11 @@ void CX2UISkillTreeNew::CreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ )
 	CreateCommandRows( pControlList, vecDash, 0 );
 	CreateCommandRows( pControlList, vecJump, 0 );
 	CreateCommandRows( pControlList, vecDashJump, 0 );
-	const int iRowCount = m_iJuneCommandRow;
+	const int iRowCount = m_iCommandRow;
 
 	if ( true == bLuciel )
 	{
-		m_iJuneCommandRow = 0;
+		m_iCommandRow = 0;
 		vecNormal.clear();
 		vecDash.clear();
 		vecJump.clear();
@@ -2003,7 +2003,7 @@ void CX2UISkillTreeNew::CreateCommandRows( CKTDGUIContolList* pControlList_, con
 	pPoint->addSize.x = 18.f;						/// +0x3c
 	pPicture->SetPoint( pPoint );
 
-	pControlList_->InsertItem( pHeader, m_iJuneCommandRow, 0 );
+	pControlList_->InsertItem( pHeader, m_iCommandRow, 0 );
 	AddCommandGroupControl( pHeader, iGroup_ );
 
 	for ( UINT i = 0; i < vecRow_.size(); ++i )
@@ -2022,13 +2022,13 @@ void CX2UISkillTreeNew::CreateCommandRows( CKTDGUIContolList* pControlList_, con
 			CKTDGUIButton* pToolTip = CreateCommandToolTipButton( vecIcon[j], pStatic );
 			if ( NULL != pToolTip )
 			{
-				pControlList_->InsertItem( pToolTip, m_iJuneCommandRow, 0 );
+				pControlList_->InsertItem( pToolTip, m_iCommandRow, 0 );
 				AddCommandGroupControl( pToolTip, iGroup_ );
 			}
 		}
 
-		pControlList_->InsertItem( pStatic, m_iJuneCommandRow, 0 );
-		++m_iJuneCommandRow;
+		pControlList_->InsertItem( pStatic, m_iCommandRow, 0 );
+		++m_iCommandRow;
 		AddCommandGroupControl( pStatic, iGroup_ );
 	}
 }
@@ -2081,8 +2081,8 @@ CKTDGUIButton* CX2UISkillTreeNew::CreateCommandToolTipButton( const int iIcon_, 
 /// June 328da200( icon ): the +0x90 entry's first m_ToolTipString row whose unit type is my unit's ( 31edf010 ) or 0; -1 when none
 int CX2UISkillTreeNew::GetCommandToolTipStringID( const int iIcon_ ) const
 {
-	std::map< int, CX2SkillTree::CommandIconData >::const_iterator mit = m_mapJuneCommandToolTip.find( iIcon_ );
-	if ( mit == m_mapJuneCommandToolTip.end() )
+	std::map< int, CX2SkillTree::CommandIconData >::const_iterator mit = m_mapCommandToolTip.find( iIcon_ );
+	if ( mit == m_mapCommandToolTip.end() )
 		return -1;
 
 	int iUnitType = 0;
@@ -2101,8 +2101,8 @@ int CX2UISkillTreeNew::GetCommandToolTipStringID( const int iIcon_ ) const
 /// June 328da290( icon, out ): the +0x90 entry's outline colour ( node +0x80 )
 bool CX2UISkillTreeNew::GetCommandToolTipColor( const int iIcon_, D3DXVECTOR3& vColor_ ) const
 {
-	std::map< int, CX2SkillTree::CommandIconData >::const_iterator mit = m_mapJuneCommandToolTip.find( iIcon_ );
-	if ( mit == m_mapJuneCommandToolTip.end() )
+	std::map< int, CX2SkillTree::CommandIconData >::const_iterator mit = m_mapCommandToolTip.find( iIcon_ );
+	if ( mit == m_mapCommandToolTip.end() )
 		return false;
 
 	vColor_ = mit->second.m_vToolTipOutLineColor;
@@ -2226,14 +2226,14 @@ bool CX2UISkillTreeNew::PanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wPara
 				return false;
 			CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( m_pDLGUISkillTree->GetControl( L"Command_Description" ) );
 			if ( NULL != pDescription )
-				pDescription->SetString( 0, GET_STRING( pDescription->GetDummyInt( ( 0 != m_iJuneCommandGroup ) ? 1 : 0 ) ) );
+				pDescription->SetString( 0, GET_STRING( pDescription->GetDummyInt( ( 0 != m_iCommandGroup ) ? 1 : 0 ) ) );
 		} return false;
 
 	case STUCM_TOOLTIP_COMMAND_MOUSE_OVER:		/// 328ecd9f: the popup at the button's y with its string and colour ( dummy pos 0, else white )
 		{
 			if ( NULL == pControl )
 				return false;
-			m_bJuneCommandToolTip = true;
+			m_bCommandToolTip = true;
 			const int iStringID = pControl->GetDummyInt( 0 );
 			const float fPosY = pControl->GetPos().y;
 			const D3DXVECTOR3 vColor = ( 0 < pControl->GetDummyPosNum() ) ? pControl->GetDummyPos( 0 ) : D3DXVECTOR3( 1.f, 1.f, 1.f );
@@ -2241,8 +2241,8 @@ bool CX2UISkillTreeNew::PanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wPara
 		} return false;
 
 	case STUCM_TOOLTIP_COMMAND_MOUSE_OUT:		/// 328ece68: kept open and emptied while a movie control is hovered, else closed
-		m_bJuneCommandToolTip = false;
-		if ( true == m_bJuneCommandMovieToolTip )
+		m_bCommandToolTip = false;
+		if ( true == m_bCommandMovieToolTip )
 			ShowCommandDescPopup( true, 0.f, -2, L"Unknown", D3DXVECTOR3( 1.f, 1.f, 1.f ) );
 		else
 			ShowCommandDescPopup( false, 0.f, -1, L"Unknown", D3DXVECTOR3( 1.f, 1.f, 1.f ) );
@@ -2252,15 +2252,15 @@ bool CX2UISkillTreeNew::PanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wPara
 		{
 			if ( NULL == pControl )
 				return false;
-			m_bJuneCommandMovieToolTip = true;
+			m_bCommandMovieToolTip = true;
 			const wstring wstrMovie = pControl->GetDummyString( 0 );
 			ShowCommandDescPopup( true, pControl->GetPos().y, -1, wstrMovie, D3DXVECTOR3( 1.f, 1.f, 1.f ) );
 		} return false;
 
 	case STUCM_TOOLTIP_COMMAND_MOVIE_MOUSE_OUT:	/// 328ecfbf
-		if ( false == m_bJuneCommandToolTip )
+		if ( false == m_bCommandToolTip )
 			ShowCommandDescPopup( false, 0.f, -1, L"Unknown", D3DXVECTOR3( 1.f, 1.f, 1.f ) );
-		m_bJuneCommandMovieToolTip = false;
+		m_bCommandMovieToolTip = false;
 		return false;
 
 	default:
@@ -2371,7 +2371,7 @@ void CX2UISkillTreeNew::MarkEquipSlotUpdated( const CX2SkillTree::SKILL_ID eSkil
 		// June reads the id at slot data +0x0c with no type test: equip and memorize slot data both keep it there
 		CX2SkillTree::SKILL_ID eSlotSkillID = static_cast<CX2EquippedSkillSlotData*>( pSlotData )->m_eSkillID;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-		if ( CKTDGUISlotData::SDT_JUNE_MEMORIZE == pSlotData->m_eSlotDataType )
+		if ( CKTDGUISlotData::SDT_MEMORIZE == pSlotData->m_eSlotDataType )
 			eSlotSkillID = static_cast<CX2MemorizeSkillSlotData*>( pSlotData )->m_eSkillID;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		if ( eSkillID_ == eSlotSkillID )
@@ -2440,7 +2440,7 @@ void CX2UISkillTreeNew::UpdateTabUI()
 		pControlList->SetEnable( false == bSkillTab );
 		pControlList->SetShowEnable( false == bSkillTab, false == bSkillTab );
 		/// @328e8aea: 328da3c0( command tab, skill tab ? 2 : +0x8c )
-		ShowCommandGroup( false == bSkillTab, ( true == bSkillTab ) ? 2 : m_iJuneCommandGroup );
+		ShowCommandGroup( false == bSkillTab, ( true == bSkillTab ) ? 2 : m_iCommandGroup );
 	}
 }
 
@@ -3952,7 +3952,7 @@ void CX2UISkillTreeNew::GetSkillSubDesc( OUT wstring& wstrDesc, IN const CX2Skil
 
 	/// June @328e3801..328e3846: 322055c0() = the skill tree's +0xb4 map<SKILL_TYPE, colour> ( SkillTypeColor.lua ); 3265c7f0 finds m_eType
 	/// ( templet +4 ) and a hit appends the colour code in front of the label
-	const wstring* pTypeColor = s_kJuneSkillTypeColorTable.Find( static_cast<int>( pSkillTemplet->m_eType ) );
+	const wstring* pTypeColor = s_kSkillTypeColorTable.Find( static_cast<int>( pSkillTemplet->m_eType ) );
 	if ( NULL != pTypeColor )
 		wstrDesc.append( *pTypeColor );
 
@@ -5001,15 +5001,15 @@ void CX2UISkillTreeNew::OpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRi
 		return;
 
 	/// @328e9d01: the previous box goes ( 31be4210( XGM_DELETE_DIALOG, +0xa0 ) )
-	g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneMemoMsgBox, NULL, false );
-	m_pDLGJuneMemoMsgBox = NULL;
-	m_iJuneMemoRemoveItemUID = 0;
+	g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGMemoMsgBox, NULL, false );
+	m_pDLGMemoMsgBox = NULL;
+	m_iMemoRemoveItemUID = 0;
 
 	const int iState = ( true == bRight_ ) ? UISet_.m_iReserved20 : UISet_.m_iReserved14;
 	switch ( iState )
 	{
 	case 0:		/// locked: "You haven't met the requirements to open the trait option." ( 0x8b20 )
-		m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999.f, -999.f ), GET_STRING( 35616 ), g_pMain->GetNowState(), -1, -1.f );
+		m_pDLGMemoMsgBox = g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999.f, -999.f ), GET_STRING( 35616 ), g_pMain->GetNowState(), -1, -1.f );
 		break;
 
 	case 1:		/// open: the checks ( 3235b070 ), then "Would you like to apply the @1 trait?" ( 0x8b21 ) with OK = 29067
@@ -5019,12 +5019,12 @@ void CX2UISkillTreeNew::OpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRi
 			const wstring wstrMemoName = CX2SkillNoteManager::GetMemoName( pMemo->m_iType );
 			if ( true == wstrMemoName.empty() )		/// 31cda210
 				break;
-			m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
+			m_pDLGMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
 				GET_REPLACED_STRING( ( 35617, "L", wstrMemoName ) ), STUCM_SELECT_SKILL_ACTIVE_MEMO, g_pMain->GetNowState(), -1 );
-			if ( NULL != m_pDLGJuneMemoMsgBox )
+			if ( NULL != m_pDLGMemoMsgBox )
 			{
-				m_pDLGJuneMemoMsgBox->AddDummyInt( iBaseSkillID );		/// 31f8b860
-				m_pDLGJuneMemoMsgBox->AddDummyInt( pMemo->m_iType );
+				m_pDLGMemoMsgBox->AddDummyInt( iBaseSkillID );		/// 31f8b860
+				m_pDLGMemoMsgBox->AddDummyInt( pMemo->m_iType );
 			}
 		} break;
 
@@ -5044,13 +5044,13 @@ void CX2UISkillTreeNew::OpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRi
 				if ( true == wstrMemoName.empty() )
 					break;
 				/// "Would you like to deactivate the @1 trait? Consumes [Tome of Amnesia]." ( 0x8b22 ) with OK = 29068
-				m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
+				m_pDLGMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
 					GET_REPLACED_STRING( ( 35618, "L", wstrMemoName ) ), STUCM_SELECT_SKILL_DEACTIVE_MEMO, g_pMain->GetNowState(), -1 );
-				if ( NULL != m_pDLGJuneMemoMsgBox )
+				if ( NULL != m_pDLGMemoMsgBox )
 				{
-					m_pDLGJuneMemoMsgBox->AddDummyInt( iBaseSkillID );
-					m_pDLGJuneMemoMsgBox->AddDummyInt( pMemo->m_iType );
-					m_iJuneMemoRemoveItemUID = iItemUID;				/// 31ed7710 ( the box's int64 dummy )
+					m_pDLGMemoMsgBox->AddDummyInt( iBaseSkillID );
+					m_pDLGMemoMsgBox->AddDummyInt( pMemo->m_iType );
+					m_iMemoRemoveItemUID = iItemUID;				/// 31ed7710 ( the box's int64 dummy )
 				}
 				break;
 			}
@@ -5098,19 +5098,19 @@ bool CX2UISkillTreeNew::MemoCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 		{
 			int iBaseSkillID = 0;
 			int iMemoID = 0;
-			if ( NULL != m_pDLGJuneMemoMsgBox && true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneMemoMsgBox ) )
+			if ( NULL != m_pDLGMemoMsgBox && true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGMemoMsgBox ) )
 			{
-				iBaseSkillID	= m_pDLGJuneMemoMsgBox->GetDummyInt( 0 );
-				iMemoID			= m_pDLGJuneMemoMsgBox->GetDummyInt( 1 );
+				iBaseSkillID	= m_pDLGMemoMsgBox->GetDummyInt( 0 );
+				iMemoID			= m_pDLGMemoMsgBox->GetDummyInt( 1 );
 			}
 			if ( STUCM_SELECT_SKILL_ACTIVE_MEMO == wParam )
 				CX2SkillNoteManager::GetInstance()->SendActiveMemoReq( iBaseSkillID, iMemoID );
 			else
-				CX2SkillNoteManager::GetInstance()->SendDeactiveMemoReq( iBaseSkillID, iMemoID, m_iJuneMemoRemoveItemUID );
+				CX2SkillNoteManager::GetInstance()->SendDeactiveMemoReq( iBaseSkillID, iMemoID, m_iMemoRemoveItemUID );
 
-			g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneMemoMsgBox, NULL, false );
-			m_pDLGJuneMemoMsgBox = NULL;
-			m_iJuneMemoRemoveItemUID = 0;
+			g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGMemoMsgBox, NULL, false );
+			m_pDLGMemoMsgBox = NULL;
+			m_iMemoRemoveItemUID = 0;
 		} return false;
 
 	case STUCM_BUTTON_MEMO_SELECT_MOUSE_OVER:	/// 328ed5ca: the skill in the button's second dummy int, at the button, mode 2
@@ -5779,8 +5779,8 @@ void CX2SkillTree::LoadMajorComboRows( const SkillCommandDesc* pDesc_, const std
 /// June 32207110( icon, out texture, out key ): the icon's m_IconTextureName / m_IconTetName ( only when the key is not empty )
 bool CX2SkillTree::GetCommandIconTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const
 {
-	std::map< int, CommandIconData >::const_iterator mit = m_mapJuneCommandIcon.find( iIcon_ );
-	if ( mit == m_mapJuneCommandIcon.end() || true == mit->second.m_wstrIconTetName.empty() )
+	std::map< int, CommandIconData >::const_iterator mit = m_mapCommandIcon.find( iIcon_ );
+	if ( mit == m_mapCommandIcon.end() || true == mit->second.m_wstrIconTetName.empty() )
 		return false;
 
 	wstrTexture_ = mit->second.m_wstrIconTextureName;
@@ -5791,8 +5791,8 @@ bool CX2SkillTree::GetCommandIconTexture( int iIcon_, std::wstring& wstrTexture_
 /// June 32207190( icon, out texture, out key ): the icon's m_OutLineTextureName / m_OutLineTetName ( only when the key is not empty )
 bool CX2SkillTree::GetCommandOutLineTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const
 {
-	std::map< int, CommandIconData >::const_iterator mit = m_mapJuneCommandIcon.find( iIcon_ );
-	if ( mit == m_mapJuneCommandIcon.end() || true == mit->second.m_wstrOutLineTetName.empty() )
+	std::map< int, CommandIconData >::const_iterator mit = m_mapCommandIcon.find( iIcon_ );
+	if ( mit == m_mapCommandIcon.end() || true == mit->second.m_wstrOutLineTetName.empty() )
 		return false;
 
 	wstrTexture_ = mit->second.m_wstrOutLineTextureName;
@@ -5812,8 +5812,8 @@ void CX2SkillTree::AddCommandIconPicture( int iIcon_, float fX_, float fY_, CKTD
 	if ( false == GetCommandIconTexture( iIcon_, wstrTexture, wstrKey ) )
 		return;
 
-	std::map< int, CommandIconData >::const_iterator mit = m_mapJuneCommandIcon.find( iIcon_ );
-	const float fOffsetY = ( mit != m_mapJuneCommandIcon.end() ) ? mit->second.m_fOffsetY : 0.f;
+	std::map< int, CommandIconData >::const_iterator mit = m_mapCommandIcon.find( iIcon_ );
+	const float fOffsetY = ( mit != m_mapCommandIcon.end() ) ? mit->second.m_fOffsetY : 0.f;
 
 	CKTDGUIControl::CPictureData* pIcon = new CKTDGUIControl::CPictureData();
 	pIcon->SetTex( wstrTexture.c_str(), wstrKey.c_str() );
@@ -5880,7 +5880,7 @@ void CX2SkillTree::AddCommandIconData_LUA()
 		luaManager.EndTable();
 	}
 
-	m_mapJuneCommandIcon.insert( std::make_pair( iIcon, kData ) );
+	m_mapCommandIcon.insert( std::make_pair( iIcon, kData ) );
 }
 
 /// June 32207dd0( L"CommandIconData.lua" ) ( OpenScriptFile 322083e0 @322092f2, after the templets and CalcLevelUpIncreaseSkillPoint,
@@ -5890,7 +5890,7 @@ void CX2SkillTree::OpenCommandIconData()
 	if ( false == g_pKTDXApp->LoadLuaTinker( L"CommandIconData.lua" ) )
 		CX2OfflineLog::Server( L"[JUNE_SKILL] UI CommandIconData.lua did not load: the command tab has no icons; check data036 carries June's file" );
 	else
-		CX2OfflineLog::Server( L"[JUNE_SKILL] UI CommandIconData.lua loaded %d icon row(s)", static_cast<int>( m_mapJuneCommandIcon.size() ) );
+		CX2OfflineLog::Server( L"[JUNE_SKILL] UI CommandIconData.lua loaded %d icon row(s)", static_cast<int>( m_mapCommandIcon.size() ) );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 

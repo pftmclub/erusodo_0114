@@ -274,10 +274,10 @@ CX2SquareUnit::CX2SquareUnit( bool bMyUnit, CX2Unit* pUnit, const WCHAR* pScript
 		m_bMixedEmotion[i] = false;
 	m_pAvatarEmotionSound = NULL;
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 323f8080 @323f871b: +0x7ac = -1
+	m_hEmotionEffectSet = INVALID_EFFECTSET_HANDLE;	// June ctor 323f8080 @323f871b: +0x7ac = -1
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-	m_vJuneLastPos = D3DXVECTOR3( 0.f, 0.f, 0.f );	// June ctor 323f8080 @323f90cb-323f90dc: +0x7c0 = 0 (fldz @323f9095)
+	m_vLastPos = D3DXVECTOR3( 0.f, 0.f, 0.f );	// June ctor 323f8080 @323f90cb-323f90dc: +0x7c0 = 0 (fldz @323f9095)
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 #ifdef SERV_ED_MONITORING_IN_GAME
@@ -419,8 +419,8 @@ void    CX2SquareUnit::AppendToDeviceList( CKTDXDeviceDataList& listInOut_, CX2U
 void CX2SquareUnit::StopEmotionEffectSet()
 {
 	if( NULL != g_pData )
-		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
-	m_hJuneEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hEmotionEffectSet );
+	m_hEmotionEffectSet = INVALID_EFFECTSET_HANDLE;
 }
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
@@ -432,19 +432,19 @@ void CX2SquareUnit::StopEquipEffectSets()
 	if( NULL == g_pData || NULL == g_pData->GetItemManager() )
 		return;
 
-	std::vector<CX2EqipPtr> vecJuneEquip;
+	std::vector<CX2EqipPtr> vecEquip;
 	if( NULL != m_pUnitViewer )
-		m_pUnitViewer->GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+		m_pUnitViewer->GetDivisionEquips( CX2ItemManager::DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecEquip );
 
-	for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+	for( size_t iEquip = 0; iEquip < vecEquip.size(); ++iEquip )
 	{
-		CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-		if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
+		CX2EqipPtr pEquip = vecEquip[iEquip];
+		if( NULL == pEquip || NULL == pEquip->GetItemTemplet() )
 			continue;
 
-		CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
-		if( true == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) )
-			pJuneEquip->ReleaseEquipEffectSet( true );
+		CX2ItemManager::ConditionEquipPlayEffectSet kRecord;
+		if( true == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pEquip->GetItemID(), kRecord ) )
+			pEquip->ReleaseEquipEffectSet( true );
 	}
 }
 
@@ -456,16 +456,16 @@ bool CX2SquareUnit::CheckEquipEffectSetCondition( const CX2ItemManager::Conditio
 {
 	switch( kRecord.m_eCondition )
 	{
-	case CX2ItemManager::JUNE_CEPE_WAIT:
+	case CX2ItemManager::CEPE_WAIT:
 		return ( m_SyncData.m_StateID == GetStateID( "WAIT" ) );
 
-	case CX2ItemManager::JUNE_CEPE_NOT_MOVE:
+	case CX2ItemManager::CEPE_NOT_MOVE:
 		{
-			const D3DXVECTOR3 vJuneMove = m_SyncData.m_Pos - m_vJuneLastPos;
-			return !( D3DXVec3Length( &vJuneMove ) > 1.f );
+			const D3DXVECTOR3 vMove = m_SyncData.m_Pos - m_vLastPos;
+			return !( D3DXVec3Length( &vMove ) > 1.f );
 		}
 
-	case CX2ItemManager::JUNE_CEPE_ALWYAS:
+	case CX2ItemManager::CEPE_ALWYAS:
 		return true;
 
 	default:
@@ -543,7 +543,7 @@ CX2SquareUnit::~CX2SquareUnit(void)
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	// June ~CX2SquareUnit 323f7760 @323f7b36: StopEffectSet( &+0x7ac ) on the UI effect-set manager
 	if( NULL != g_pData )
-		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hEmotionEffectSet );
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 	SAFE_CLOSE( m_pAvatarEmotionSound );
 
@@ -1149,9 +1149,9 @@ static void SquareSoundLog( const WCHAR* pwszEvent_, const WCHAR* pwszDetail_, i
 		return;
 	++s_iLogged;
 
-	WCHAR wszJuneFx[256] = {0};
-	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX SQUARE_SOUND %s %s n=%d unit=%d", pwszEvent_, pwszDetail_, iCount_, iUnitUID_ );
-	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	WCHAR wszFx[256] = {0};
+	StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX SQUARE_SOUND %s %s n=%d unit=%d", pwszEvent_, pwszDetail_, iCount_, iUnitUID_ );
+	ErrorLogMsg( XEM_ERROR142, wszFx );
 }
 #endif SERV_IRUHADEV_JUNE_SQUARE_SOUND_DEBUG
 
@@ -1768,49 +1768,49 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 	// Unlike GUUser, the templet is tested BEFORE the lookup and there is no GetShowObject test. Owner kind 1 = switch timer +0x1600.
 	if( NULL != g_pData && NULL != g_pData->GetItemManager() )
 	{
-		std::vector<CX2EqipPtr> vecJuneEquip;
+		std::vector<CX2EqipPtr> vecEquip;
 		if( NULL != m_pUnitViewer )
-			m_pUnitViewer->GetDivisionEquips( CX2ItemManager::JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecJuneEquip );
+			m_pUnitViewer->GetDivisionEquips( CX2ItemManager::DITT_CONDITION_EQUIP_PLAY_EFFECT_SET, vecEquip );
 
-		for( size_t iJuneEquip = 0; iJuneEquip < vecJuneEquip.size(); ++iJuneEquip )
+		for( size_t iEquip = 0; iEquip < vecEquip.size(); ++iEquip )
 		{
-			CX2EqipPtr pJuneEquip = vecJuneEquip[iJuneEquip];
-			if( NULL == pJuneEquip || NULL == pJuneEquip->GetItemTemplet() )
+			CX2EqipPtr pEquip = vecEquip[iEquip];
+			if( NULL == pEquip || NULL == pEquip->GetItemTemplet() )
 				continue;
 
-			CX2ItemManager::ConditionEquipPlayEffectSet kJuneRecord;
-			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pJuneEquip->GetItemID(), kJuneRecord ) ||
-				false == CheckEquipEffectSetCondition( kJuneRecord ) )
+			CX2ItemManager::ConditionEquipPlayEffectSet kRecord;
+			if( false == g_pData->GetItemManager()->GetConditionEquipPlayEffectSet( pEquip->GetItemID(), kRecord ) ||
+				false == CheckEquipEffectSetCondition( kRecord ) )
 			{
 				// a miss or a condition not met: released WITHOUT a stop (3295ca60( false ); JUNE_BUGS.md), +0x15f4 = 0, +0x1600 = 0
-				pJuneEquip->ReleaseEquipEffectSet( false );
-				pJuneEquip->ResetEquipEffectSetStartTime();
-				pJuneEquip->ResetEquipEffectSetSwitchTime( 1 );
+				pEquip->ReleaseEquipEffectSet( false );
+				pEquip->ResetEquipEffectSetStartTime();
+				pEquip->ResetEquipEffectSetSwitchTime( 1 );
 				continue;
 			}
 
-			int iJuneSel = 1;
-			if( false == pJuneEquip->StepEquipEffectSetTimer( &iJuneSel ) )
+			int iSel = 1;
+			if( false == pEquip->StepEquipEffectSetTimer( &iSel ) )
 				continue;
 
 			// the square-unit overload 321e2120( name, CX2SquareUnitPtr this ) on the UI effect set
-			CX2EffectSet::Handle hJuneEquipSet = INVALID_EFFECTSET_HANDLE;
-			if( 3 == iJuneSel )
+			CX2EffectSet::Handle hEquipSet = INVALID_EFFECTSET_HANDLE;
+			if( 3 == iSel )
 			{
-				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrSwitchEffectSetName, CX2SquareUnitPtr( this ) );
-				pJuneEquip->ResetEquipEffectSetSwitchTime( 1 );
+				hEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kRecord.m_wstrSwitchEffectSetName, CX2SquareUnitPtr( this ) );
+				pEquip->ResetEquipEffectSetSwitchTime( 1 );
 			}
 			else
 			{
-				hJuneEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kJuneRecord.m_wstrEffectSetName, CX2SquareUnitPtr( this ) );
+				hEquipSet = g_pData->GetUIEffectSet()->PlayEffectSet( kRecord.m_wstrEffectSetName, CX2SquareUnitPtr( this ) );
 			}
-			if( INVALID_EFFECTSET_HANDLE != hJuneEquipSet )
-				pJuneEquip->SetEquipEffectSetHandle( hJuneEquipSet );
+			if( INVALID_EFFECTSET_HANDLE != hEquipSet )
+				pEquip->SetEquipEffectSetHandle( hEquipSet );
 		}
 	}
 
 	// @32402292-324022b0: +0x7c0 = m_SyncData.m_Pos (+0x3c8), read by CEPE_NOT_MOVE
-	m_vJuneLastPos = m_SyncData.m_Pos;
+	m_vLastPos = m_SyncData.m_Pos;
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 	return S_OK;
@@ -1887,24 +1887,24 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 			{
 				/// June 323ed743 (R0 map, rpfill row; CX2SquareUnit / CX2GuildAgitUnit): the same three worlds the light position comes from
-				CX2World* pJuneWorld = NULL;
+				CX2World* pWorld = NULL;
 				if( m_bTFieldUnit == false )
 				{
 					if( NULL != g_pSquareGame && NULL != g_pSquareGame->GetWorld() )
-						pJuneWorld = g_pSquareGame->GetWorld();
+						pWorld = g_pSquareGame->GetWorld();
 #ifdef ADDED_RELATIONSHIP_SYSTEM
 					else if( NULL != g_pWeddingGame && NULL != g_pWeddingGame->GetWorld() )
-						pJuneWorld = g_pWeddingGame->GetWorld();
+						pWorld = g_pWeddingGame->GetWorld();
 #endif //ADDED_RELATIONSHIP_SYSTEM
 				}
 				else if( NULL != g_pTFieldGame )
 				{
-					pJuneWorld = g_pTFieldGame->GetWorld();
+					pWorld = g_pTFieldGame->GetWorld();
 				}
-				if( NULL != pJuneWorld )
+				if( NULL != pWorld )
 				{
-					pRenderParam->iWorldCartoonTexIndex		= pJuneWorld->GetCartoonTextureIndex();
-					pRenderParam->iWorldRimLightTexIndex	= pJuneWorld->GetRimLightTextureIndex();
+					pRenderParam->iWorldCartoonTexIndex		= pWorld->GetCartoonTextureIndex();
+					pRenderParam->iWorldRimLightTexIndex	= pWorld->GetRimLightTextureIndex();
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
@@ -2497,7 +2497,7 @@ void CX2SquareUnit::StateStart()
 		// block on the skin anim and first calls 323f34a0( 0 ) for a non-sit state (the missing sit-item system, not ported).
 		// C9e review: June's gate @323fbca2-323fbcb7 is m_pUnitViewer (+0x2ec) and its skin anim (31fac3c0), ported verbatim.
 		if( NULL != g_pData && NULL != m_pUnitViewer && NULL != m_pUnitViewer->GetXSkinAnim() )
-			g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEmotionEffectSet );
+			g_pData->GetUIEffectSet()->StopEffectSet( m_hEmotionEffectSet );
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 
 #ifdef UNIT_EMOTION
@@ -4045,9 +4045,9 @@ bool CX2SquareUnit::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId)
 			// June: StateChange above already ran StateStart, which stopped +0x7ac. June widened the enclosing condition to its own
 			// avatar-emotion list (the missing emotion system); March's list still ends at AVATAR7, so this is INERT here.
 			{
-				const std::wstring wstrJuneEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
-				if( false == wstrJuneEmotionSetName.empty() && NULL != g_pData )
-					m_hJuneEmotionEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrJuneEmotionSetName, CX2SquareUnitPtr( this ) );
+				const std::wstring wstrEmotionSetName = CX2Unit::GetEmotionEffectSetName( static_cast<int>( eEmotionId ) );
+				if( false == wstrEmotionSetName.empty() && NULL != g_pData )
+					m_hEmotionEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( wstrEmotionSetName, CX2SquareUnitPtr( this ) );
 			}
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 			if( m_pAvatarEmotionSound != NULL )

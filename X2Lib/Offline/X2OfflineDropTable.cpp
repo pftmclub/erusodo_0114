@@ -30,14 +30,14 @@ namespace
 	/// many cases name an item the client cannot resolve (a floor drop with no
 	/// templet has nothing to draw, and pickup logs "ITEM WARNING no templet").
 	/// Counted at the three places a case is built, logged once by EnsureLoaded.
-	int s_iJuneKimUnresolvedCases = 0;
+	int s_iKimUnresolvedCases = 0;
 
 	void KimCountUnresolved( int iItemID )
 	{
 		if( NULL != g_pData && NULL != g_pData->GetItemManager() &&
 			NULL == g_pData->GetItemManager()->GetItemTemplet( iItemID ) )
 		{
-			++s_iJuneKimUnresolvedCases;
+			++s_iKimUnresolvedCases;
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
@@ -242,7 +242,7 @@ void CX2OfflineDropTable::EnsureLoaded()
 		L" case(s) loaded (no templet gate, so unchanged by item.kim); %d case(s) name an item"
 		L" with no templet (floor drop would have nothing to draw)",
 		m_iNpcExpRows, m_iMonsterRows, m_iItemCaseRows, m_iStaticCaseRows,
-		s_iJuneKimUnresolvedCases );
+		s_iKimUnresolvedCases );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 
 	if( 0 == m_iNpcExpRows )

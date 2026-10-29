@@ -75,8 +75,8 @@ private:
 	CX2UnitViewerUI*	m_pUnitViewerUI;
 	CKTDGUIDialogType	m_pDLGClassChange;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	float				m_fJuneTranscendImageTime;	// June popup +4
-	CKTDGUIStatic*		m_pJuneTranscendImage;		// June popup +8
+	float				m_fTranscendImageTime;	// June popup +4
+	CKTDGUIStatic*		m_pTranscendImage;		// June popup +8
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 #ifdef ADD_PLAY_SOUND //±Ë√¢«—

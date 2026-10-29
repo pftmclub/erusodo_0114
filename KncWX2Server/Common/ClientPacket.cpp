@@ -8147,7 +8147,7 @@ SERIALIZE_DEFINE_PUT( KEGS_ACTIVE_SKILL_MEMO_ACK, obj, ks )
 	return PUT( m_iOK )
 		&& PUT( m_iSkillID )
 		&& PUT( m_iMemoID )
-		&& PUT( m_bJuneUnread0C )
+		&& PUT( m_bUnread0C )
 		;
 }
 
@@ -8156,7 +8156,7 @@ SERIALIZE_DEFINE_GET( KEGS_ACTIVE_SKILL_MEMO_ACK, obj, ks )
 	return GET( m_iOK )
 		&& GET( m_iSkillID )
 		&& GET( m_iMemoID )
-		&& GET( m_bJuneUnread0C )
+		&& GET( m_bUnread0C )
 		;
 }
 
@@ -8193,24 +8193,24 @@ SERIALIZE_DEFINE_GET( KUIDFlag, obj, ks )
 SERIALIZE_DEFINE_PUT( KEGS_DEACTIVE_SKILL_MEMO_ACK, obj, ks )
 {
 	return PUT( m_iOK )
-		&& PUT( m_iJuneUnread04 )
+		&& PUT( m_iUnread04 )
 		&& PUT( m_iSkillID )
 		&& PUT( m_iMemoID )
-		&& PUT( m_bJuneUnread10 )
+		&& PUT( m_bUnread10 )
 		&& PUT( m_vecInventorySlotInfo )
-		&& PUT( m_vecJuneUIDFlag )
+		&& PUT( m_vecUIDFlag )
 		;
 }
 
 SERIALIZE_DEFINE_GET( KEGS_DEACTIVE_SKILL_MEMO_ACK, obj, ks )
 {
 	return GET( m_iOK )
-		&& GET( m_iJuneUnread04 )
+		&& GET( m_iUnread04 )
 		&& GET( m_iSkillID )
 		&& GET( m_iMemoID )
-		&& GET( m_bJuneUnread10 )
+		&& GET( m_bUnread10 )
 		&& GET( m_vecInventorySlotInfo )
-		&& GET( m_vecJuneUIDFlag )
+		&& GET( m_vecUIDFlag )
 		;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
@@ -8223,9 +8223,9 @@ SERIALIZE_DEFINE_PUT( KEGS_RANDOM_MISSION_NOT, obj, ks )
 		&& PUT( m_iGoal )
 		&& PUT( m_iSeconds )
 		&& PUT( m_iDescStrID )
-		&& PUT( m_fJuneUnread14 )
-		&& PUT( m_setJuneUnread18 )
-		&& PUT( m_setJuneUnread28 )
+		&& PUT( m_fUnread14 )
+		&& PUT( m_setUnread18 )
+		&& PUT( m_setUnread28 )
 		&& PUT( m_iRewardExpRate )
 		&& PUT( m_iRewardBuffID )
 		;
@@ -8238,9 +8238,9 @@ SERIALIZE_DEFINE_GET( KEGS_RANDOM_MISSION_NOT, obj, ks )
 		&& GET( m_iGoal )
 		&& GET( m_iSeconds )
 		&& GET( m_iDescStrID )
-		&& GET( m_fJuneUnread14 )
-		&& GET( m_setJuneUnread18 )
-		&& GET( m_setJuneUnread28 )
+		&& GET( m_fUnread14 )
+		&& GET( m_setUnread18 )
+		&& GET( m_setUnread28 )
 		&& GET( m_iRewardExpRate )
 		&& GET( m_iRewardBuffID )
 		;
@@ -8261,14 +8261,14 @@ SERIALIZE_DEFINE_GET( KEGS_RANDOM_MISSION_COMPLETE_REQ, obj, ks )
 SERIALIZE_DEFINE_PUT( KEGS_RANDOM_MISSION_COMPLETE_ACK, obj, ks )
 {
 	return PUT( m_iOK )
-		&& PUT( m_iJuneUnread04 )
+		&& PUT( m_iUnread04 )
 		;
 }
 
 SERIALIZE_DEFINE_GET( KEGS_RANDOM_MISSION_COMPLETE_ACK, obj, ks )
 {
 	return GET( m_iOK )
-		&& GET( m_iJuneUnread04 )
+		&& GET( m_iUnread04 )
 		;
 }
 
@@ -8317,16 +8317,16 @@ SERIALIZE_DEFINE_GET( KEGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, obj, ks )
 SERIALIZE_DEFINE_PUT( KEGS_DUNGEON_RETRY_ACK, obj, ks )
 {
 	return PUT( m_iOK )
-		&& PUT( m_iJuneUnread64 )
-		&& PUT( m_wstrJuneUnread )
+		&& PUT( m_iUnread64 )
+		&& PUT( m_wstrUnread )
 		;
 }
 
 SERIALIZE_DEFINE_GET( KEGS_DUNGEON_RETRY_ACK, obj, ks )
 {
 	return GET( m_iOK )
-		&& GET( m_iJuneUnread64 )
-		&& GET( m_wstrJuneUnread )
+		&& GET( m_iUnread64 )
+		&& GET( m_wstrUnread )
 		;
 }
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
@@ -8358,14 +8358,14 @@ SERIALIZE_DEFINE_GET( KEGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK, obj, ks )
 
 SERIALIZE_DEFINE_PUT( KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, obj, ks )
 {
-	return PUT( m_iJuneUnread )
+	return PUT( m_iUnread )
 		&& PUT( m_iUnitClassTran )
 		;
 }
 
 SERIALIZE_DEFINE_GET( KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, obj, ks )
 {
-	return GET( m_iJuneUnread )
+	return GET( m_iUnread )
 		&& GET( m_iUnitClassTran )
 		;
 }
@@ -11589,7 +11589,7 @@ SERIALIZE_DEFINE_PUT( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 		&& PUT( m_vecChangeCompleteQuest )
 		&& PUT( m_vecChangeInProgressQuest )
 		&& PUT( m_kUnitInfo )
-		&& PUT( m_vecJuneAcquiredSkill )
+		&& PUT( m_vecAcquiredSkill )
 		;
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	return PUT( m_iUnitUID )
@@ -11618,7 +11618,7 @@ SERIALIZE_DEFINE_GET( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 		&& GET( m_vecChangeCompleteQuest )
 		&& GET( m_vecChangeInProgressQuest )
 		&& GET( m_kUnitInfo )
-		&& GET( m_vecJuneAcquiredSkill )
+		&& GET( m_vecAcquiredSkill )
 		;
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	return GET( m_iUnitUID )
@@ -15278,7 +15278,7 @@ SERIALIZE_DEFINE_PUT( KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, obj, ks )
 		&& PUT( m_iCSPointAvailable )
 		&& PUT( m_kUserSkillPageData )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-		&& PUT( m_kJuneSkillExtraData )
+		&& PUT( m_kSkillExtraData )
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 		;
 }
@@ -15291,7 +15291,7 @@ SERIALIZE_DEFINE_GET( KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, obj, ks )
 		&& GET( m_iCSPointAvailable )
 		&& GET( m_kUserSkillPageData )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
-		&& GET( m_kJuneSkillExtraData )
+		&& GET( m_kSkillExtraData )
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 		;
 	

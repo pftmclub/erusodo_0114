@@ -2932,6 +2932,16 @@ class CX2UnitManager
 			NUI_ATT_STARDUST_SHOWER_MEMO_TARGETING  = 5187,
 			NUI_ATT_VOID_IMPACT_MEMO                = 5188,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//{{ Iruha : 2026-10-29 // June divergence Phase C5 -- June Enum.lua NPC_UNIT_ID names for the quest NPC face switch
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			NUI_EVENT_GUILD_EDAN_ROOM               = 4254,
+			NUI_EVENT_DOLL                          = 4309,
+			NUI_EVENT_BLESS_OF_SOLACE               = 4346,
+			NUI_STORY_QUEST                         = 10142,
+			NUI_TRANSCEND_QUEST                     = 10153,
+			NUI_PANE                                = 10218,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //}}
 //}} robobeg : 2013-02-27
 		};
@@ -3381,9 +3391,9 @@ class CX2UnitManager
 		bool GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
 			std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop );
 	private:
-		std::map<std::wstring, UnitViewerEffectSet>	m_mapJuneUnitViewerEffectSet;
-		int												m_iJuneUnitViewerEffectSetSkippedDuplicate;
-		int												m_iJuneUnitViewerEffectSetSkippedBadArgs;
+		std::map<std::wstring, UnitViewerEffectSet>	m_mapUnitViewerEffectSet;
+		int												m_iUnitViewerEffectSetSkippedDuplicate;
+		int												m_iUnitViewerEffectSetSkippedBadArgs;
 	public:
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE
 #ifdef SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
@@ -3392,11 +3402,11 @@ class CX2UnitManager
 		bool AddAnimationName_LUA();
 		std::wstring GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, int iMotionType ) const;
 	private:
-		std::map< std::pair<int,int>, std::wstring >	m_mapJuneAnimationName;		// key = ( class, type ), compared in that order
-		int												m_iJuneAnimationNameRows;
-		int												m_iJuneAnimationNameInserted;
-		int												m_iJuneAnimationNameSkippedDuplicate;
-		int												m_iJuneAnimationNameClassNone;
+		std::map< std::pair<int,int>, std::wstring >	m_mapAnimationName;		// key = ( class, type ), compared in that order
+		int												m_iAnimationNameRows;
+		int												m_iAnimationNameInserted;
+		int												m_iAnimationNameSkippedDuplicate;
+		int												m_iAnimationNameClassNone;
 	public:
 #endif SERV_IRUHADEV_JUNE_ANIMATION_NAME_TABLE
 #ifdef REFORM_SKILL_NOTE_UI

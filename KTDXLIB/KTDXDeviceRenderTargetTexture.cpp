@@ -386,11 +386,11 @@ void CKTDXDeviceRenderTargetTexture::Clear( D3DCOLOR color )
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 // June 31cdadc0: the pass picks the state block, the rest is March's
-void CKTDXDeviceRenderTargetTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDXDeviceRenderTargetTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, bool bPostEffectPass_ /*= false*/ )
 {
 	KTDXPROFILE();
 
-    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+    KD3DPUSH( true == bPostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceRenderTargetTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */)
 {

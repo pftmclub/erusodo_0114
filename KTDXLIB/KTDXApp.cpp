@@ -214,7 +214,7 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 	KTDGFXRuntime_Init();	// June ctor 31c17ed0 @31c19677 builds the GFx manager here; G1 stops at Scaleform::GFx::System
 #endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-	m_pJuneGFXManager = new CKTDGGFXManager( hWnd );	// June 31c17ed0 @31c19677: new 0x120 + 31c45cc0( app +4 = hWnd ) -> +0x1c8
+	m_pGFXManager = new CKTDGGFXManager( hWnd );	// June 31c17ed0 @31c19677: new 0x120 + 31c45cc0( app +4 = hWnd ) -> +0x1c8
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 #if !defined(X2VIEWER)
@@ -441,16 +441,16 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 //#endif
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
 	/// June 31c17ed0 @31c196e7-31c19727: the device surface manager ( 0x40, 31d01070 ) at +0x208, made after the DVB manager ( +0x204 )
-	m_pJuneSurfaceManager	= new CKTDGDeviceSurfaceManager();
+	m_pSurfaceManager	= new CKTDGDeviceSurfaceManager();
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
 	/// June @31c18d81-31c18d99: no targets, level 0, and both switches ON ( word 0x101 ) until the first option Apply( true )
-	m_pJuneSceneRenderTarget	= NULL;
-	m_iJuneAntiAliasLevel		= 0;
-	m_pJuneEffectRenderTarget	= NULL;
-	m_pJunePerturbationMap		= NULL;
-	m_bJuneSceneRenderTarget	= true;
-	m_bJuneEffectRenderTarget	= true;
+	m_pSceneRenderTarget	= NULL;
+	m_iAntiAliasLevel		= 0;
+	m_pEffectRenderTarget	= NULL;
+	m_pPerturbationMap		= NULL;
+	m_bSceneRenderTarget	= true;
+	m_bEffectRenderTarget	= true;
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 #ifdef CHECKSUM_THREAD_TEST
@@ -498,7 +498,7 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
 	/// June @31c197ff: inserted after the DVB manager, before the device manager
-	InsertStage( m_pJuneSurfaceManager );
+	InsertStage( m_pSurfaceManager );
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 	InsertStage( m_pDeviceManager );
 	InsertStage( m_pDGManager );
@@ -622,8 +622,8 @@ CKTDXApp::~CKTDXApp(void)
 		else if ( m_vecStageChain[i] == m_pDIManager )
 			m_pDIManager = NULL;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-		else if ( m_vecStageChain[i] == m_pJuneSurfaceManager )		/// June @31c17ab3
-			m_pJuneSurfaceManager = NULL;
+		else if ( m_vecStageChain[i] == m_pSurfaceManager )		/// June @31c17ab3
+			m_pSurfaceManager = NULL;
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 //#endif
 		m_vecStageChain[i] = NULL;
@@ -634,7 +634,7 @@ CKTDXApp::~CKTDXApp(void)
 
 	SAFE_DELETE( ms_pLuaBinder );
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-	SAFE_DELETE( m_pJuneGFXManager );	// before the Scaleform System goes down
+	SAFE_DELETE( m_pGFXManager );	// before the Scaleform System goes down
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
 	KTDGFXRuntime_Shutdown();	// the System goes down last; G2 deletes the GFx manager before this
@@ -995,10 +995,10 @@ HRESULT CKTDXApp::OnFrameMove( double dTime, float fElapsedTime )
 	}//if
 #endif	X2OPTIMIZE_INFORM_FIRST_FRAME_OF_SIMULATION_LOOP
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-	if ( m_pJuneGFXManager != NULL )
+	if ( m_pGFXManager != NULL )
 	{
-		m_pJuneGFXManager->FirstFrameLog();		// Init's lines ( OnCreateDevice ) are written now
-		m_pJuneGFXManager->OnFrameMove();		// June OnFrameMove 31be5c40 @31be64b0: 31c430e0 ( dt )
+		m_pGFXManager->FirstFrameLog();		// Init's lines ( OnCreateDevice ) are written now
+		m_pGFXManager->OnFrameMove();		// June OnFrameMove 31be5c40 @31be64b0: 31c430e0 ( dt )
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
@@ -1267,13 +1267,13 @@ HRESULT CKTDXApp::OnFrameRender()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
 	/// June 31be3800 from @31be38a0 ( the prologue, render count and the three transforms above are March's = June's ).
 	/// MAXANISOTROPY on sampler 0 is the renderer's ( +0x84 ) only around the 0x8 pass, then 1 again.
-	CKTDGXRenderer* pJuneXRenderer = m_pDGManager->GetXRenderer();
-	if( NULL == m_pJuneSceneRenderTarget )
+	CKTDGXRenderer* pXRenderer = m_pDGManager->GetXRenderer();
+	if( NULL == m_pSceneRenderTarget )
 	{
 		if( false == m_pDGManager->BeginRender() )		/// 31ce6600 ( = March's BeginRender )
 			return S_OK;
 
-		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, pJuneXRenderer->GetAnisotropy() );
+		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, pXRenderer->GetAnisotropy() );
 		StageChainRender();
 		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, 1 );
 		StageChainRenderAlpha( 0 );
@@ -1286,38 +1286,38 @@ HRESULT CKTDXApp::OnFrameRender()
 		if( false == m_pDGManager->BeginRenderCountdown() )		/// 31ce63f0: the clear-screen countdown without the clear
 			return S_OK;
 		/// the scene target clears target + depth with the DG manager's clear colour ( +0xc0 .. +0xcc )
-		m_pJuneSceneRenderTarget->BeginRender( true, true, false, (D3DCOLOR) m_pDGManager->GetClearColor() );
+		m_pSceneRenderTarget->BeginRender( true, true, false, (D3DCOLOR) m_pDGManager->GetClearColor() );
 
-		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, pJuneXRenderer->GetAnisotropy() );
+		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, pXRenderer->GetAnisotropy() );
 		StageChainRender();
 		CKTDGStateManager::SetSamplerState( 0, D3DSAMP_MAXANISOTROPY, 1 );
 		StageChainRenderAlpha( 0 );
 		StageChainRenderFrontUI( 0 );
 
-		if( NULL == m_pJuneEffectRenderTarget )
+		if( NULL == m_pEffectRenderTarget )
 		{
-			m_pJuneSceneRenderTarget->EndRenderToBackBuffer();		/// 31cdb5c0
+			m_pSceneRenderTarget->EndRenderToBackBuffer();		/// 31cdb5c0
 		}
 		else
 		{
 			/// pass 1 into the effect target, then the heat shimmer draws the scene target through it ( dead in June: JUNE_BUGS.md )
-			m_pJuneSceneRenderTarget->EndRender();
-			m_pJuneEffectRenderTarget->BeginRender( true, true, true, 0xff000000 );
+			m_pSceneRenderTarget->EndRender();
+			m_pEffectRenderTarget->BeginRender( true, true, true, 0xff000000 );
 			StageChainRenderAlpha( 1 );
 			StageChainRenderFrontUI( 1 );
-			m_pJuneEffectRenderTarget->EndRender();
+			m_pEffectRenderTarget->EndRender();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-			CKTDGHeatShimmer* pJuneHeatShimmer = m_pDGManager->GetHeatShimmer();
-			if( NULL != pJuneHeatShimmer )		/// DG +0x384
+			CKTDGHeatShimmer* pHeatShimmer = m_pDGManager->GetHeatShimmer();
+			if( NULL != pHeatShimmer )		/// DG +0x384
 			{
-				const int iJuneTechnique = 0;
-				D3DXMATRIX matJuneIdentity;
-				D3DXMatrixIdentity( &matJuneIdentity );
-				if( SUCCEEDED( pJuneHeatShimmer->BeginEffect( iJuneTechnique, &matJuneIdentity ) ) )		/// 31ce5710
+				const int iTechnique = 0;
+				D3DXMATRIX matIdentity;
+				D3DXMatrixIdentity( &matIdentity );
+				if( SUCCEEDED( pHeatShimmer->BeginEffect( iTechnique, &matIdentity ) ) )		/// 31ce5710
 				{
-					m_pJuneSceneRenderTarget->SetDeviceTexture( 0 );		/// vslot 0x14
+					m_pSceneRenderTarget->SetDeviceTexture( 0 );		/// vslot 0x14
 					DrawFullScreenQuad( 0.f, 0.f, 1.f, 1.f );			/// 31be34c0
-					pJuneHeatShimmer->EndEffect();							/// 31ce5d00
+					pHeatShimmer->EndEffect();							/// 31ce5d00
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
@@ -1326,8 +1326,8 @@ HRESULT CKTDXApp::OnFrameRender()
 	/// June @31be3c4b: GFx ( +0x1c8, 31c43b20 ) is june-gfx's. Then the 0x18 pass. June ends with its software cursor ( CKTDXCursor at
 	/// +0x290, 31ce5400( 0 ) ), a June-only class routed to its own phase ( R4b Done note ).
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-	if ( m_pJuneGFXManager != NULL && m_pJuneGFXManager->GetShow() == true )	// @31be3c56: +0x108 == 1
-		m_pJuneGFXManager->OnFrameRender();										// @31be3c68: 31c43b20
+	if ( m_pGFXManager != NULL && m_pGFXManager->GetShow() == true )	// @31be3c56: +0x108 == 1
+		m_pGFXManager->OnFrameRender();										// @31be3c68: 31c43b20
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 	StageChainRenderAfter();
 #else SERV_IRUHADEV_JUNE_RENDER_FRAME
@@ -1406,124 +1406,124 @@ void CKTDXApp::CreateRenderTargets()
 	if( D3DFMT_UNKNOWN == kDesc.Format )
 		return;
 
-	const int iAskedLevel = m_iJuneAntiAliasLevel;
+	const int iAskedLevel = m_iAntiAliasLevel;
 	DWORD dwQualityLevels = 0;
 	if( FAILED( CKTDGStateManager::GetMultiSampleQualityLevels( D3DMULTISAMPLE_NONMASKABLE, &dwQualityLevels ) ) || 0 == dwQualityLevels )
-		m_iJuneAntiAliasLevel = 0;
+		m_iAntiAliasLevel = 0;
 
 	D3DMULTISAMPLE_TYPE eMultiSample = D3DMULTISAMPLE_NONE;
 	int iQuality = 0;
-	if( 0 != dwQualityLevels && 0 < m_iJuneAntiAliasLevel )
+	if( 0 != dwQualityLevels && 0 < m_iAntiAliasLevel )
 	{
-		iQuality = m_iJuneAntiAliasLevel - 1;
+		iQuality = m_iAntiAliasLevel - 1;
 		eMultiSample = D3DMULTISAMPLE_NONMASKABLE;
 		if( (int) dwQualityLevels - 1 <= iQuality )
 			iQuality = (int) dwQualityLevels - 1;
 	}
 
-	if( true == m_bJuneSceneRenderTarget )
+	if( true == m_bSceneRenderTarget )
 	{
-		if( NULL != m_pJuneSceneRenderTarget
-			&& ( m_pJuneSceneRenderTarget->GetWidth() != (int) kDesc.Width
-				|| m_pJuneSceneRenderTarget->GetHeight() != (int) kDesc.Height
-				|| m_pJuneSceneRenderTarget->GetFormat() != kDesc.Format
-				|| m_pJuneSceneRenderTarget->GetMultiSampleType() != eMultiSample
-				|| (int) m_pJuneSceneRenderTarget->GetMultiSampleQuality() != iQuality )
+		if( NULL != m_pSceneRenderTarget
+			&& ( m_pSceneRenderTarget->GetWidth() != (int) kDesc.Width
+				|| m_pSceneRenderTarget->GetHeight() != (int) kDesc.Height
+				|| m_pSceneRenderTarget->GetFormat() != kDesc.Format
+				|| m_pSceneRenderTarget->GetMultiSampleType() != eMultiSample
+				|| (int) m_pSceneRenderTarget->GetMultiSampleQuality() != iQuality )
 			&& NULL != m_pDeviceManager )
 		{
-			m_pDeviceManager->CloseDeviceByPointer( m_pJuneSceneRenderTarget );
-			m_pJuneSceneRenderTarget = NULL;
+			m_pDeviceManager->CloseDeviceByPointer( m_pSceneRenderTarget );
+			m_pSceneRenderTarget = NULL;
 		}
-		if( NULL != m_pJuneEffectRenderTarget
-			&& ( m_pJuneEffectRenderTarget->GetWidth() != (int) kDesc.Width
-				|| m_pJuneEffectRenderTarget->GetHeight() != (int) kDesc.Height
-				|| m_pJuneEffectRenderTarget->GetFormat() != kDesc.Format
-				|| ( ( false != m_bJuneEffectRenderTarget || D3DMULTISAMPLE_NONE != m_pJuneEffectRenderTarget->GetMultiSampleType() )
-					&& ( true != m_bJuneEffectRenderTarget || m_pJuneEffectRenderTarget->GetMultiSampleType() != eMultiSample
-						|| (int) m_pJuneEffectRenderTarget->GetMultiSampleQuality() != iQuality ) ) )
+		if( NULL != m_pEffectRenderTarget
+			&& ( m_pEffectRenderTarget->GetWidth() != (int) kDesc.Width
+				|| m_pEffectRenderTarget->GetHeight() != (int) kDesc.Height
+				|| m_pEffectRenderTarget->GetFormat() != kDesc.Format
+				|| ( ( false != m_bEffectRenderTarget || D3DMULTISAMPLE_NONE != m_pEffectRenderTarget->GetMultiSampleType() )
+					&& ( true != m_bEffectRenderTarget || m_pEffectRenderTarget->GetMultiSampleType() != eMultiSample
+						|| (int) m_pEffectRenderTarget->GetMultiSampleQuality() != iQuality ) ) )
 			&& NULL != m_pDeviceManager )
 		{
-			m_pDeviceManager->CloseDeviceByPointer( m_pJuneEffectRenderTarget );
-			m_pJuneEffectRenderTarget = NULL;
+			m_pDeviceManager->CloseDeviceByPointer( m_pEffectRenderTarget );
+			m_pEffectRenderTarget = NULL;
 		}
-		if( NULL != m_pJuneSurfaceManager )
-			m_pJuneSurfaceManager->Purge();		/// 31d00ff0
+		if( NULL != m_pSurfaceManager )
+			m_pSurfaceManager->Purge();		/// 31d00ff0
 
-		if( NULL == m_pJuneSceneRenderTarget )
-			m_pJuneSceneRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@SceneRenderTarget@", kDesc.Width, kDesc.Height,
+		if( NULL == m_pSceneRenderTarget )
+			m_pSceneRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@SceneRenderTarget@", kDesc.Width, kDesc.Height,
 				kDesc.Format, true, eMultiSample, (DWORD) iQuality );
-		if( NULL == m_pJuneEffectRenderTarget )
+		if( NULL == m_pEffectRenderTarget )
 		{
-			if( false == m_bJuneEffectRenderTarget )
-				m_pJuneEffectRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@EffectRenderTarget@", kDesc.Width, kDesc.Height,
+			if( false == m_bEffectRenderTarget )
+				m_pEffectRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@EffectRenderTarget@", kDesc.Width, kDesc.Height,
 					kDesc.Format, true, D3DMULTISAMPLE_NONE, 0 );
 			else
-				m_pJuneEffectRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@EffectRenderTarget@", kDesc.Width, kDesc.Height,
+				m_pEffectRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@EffectRenderTarget@", kDesc.Width, kDesc.Height,
 					kDesc.Format, true, eMultiSample, (DWORD) iQuality );
 		}
 	}
 	else
 	{
-		if( NULL != m_pJuneSceneRenderTarget
+		if( NULL != m_pSceneRenderTarget
 			&& ( D3DMULTISAMPLE_NONE == eMultiSample
-				|| m_pJuneSceneRenderTarget->GetWidth() != (int) kDesc.Width
-				|| m_pJuneSceneRenderTarget->GetHeight() != (int) kDesc.Height
-				|| m_pJuneSceneRenderTarget->GetFormat() != kDesc.Format
-				|| m_pJuneSceneRenderTarget->GetMultiSampleType() != eMultiSample
-				|| (int) m_pJuneSceneRenderTarget->GetMultiSampleQuality() != iQuality )
+				|| m_pSceneRenderTarget->GetWidth() != (int) kDesc.Width
+				|| m_pSceneRenderTarget->GetHeight() != (int) kDesc.Height
+				|| m_pSceneRenderTarget->GetFormat() != kDesc.Format
+				|| m_pSceneRenderTarget->GetMultiSampleType() != eMultiSample
+				|| (int) m_pSceneRenderTarget->GetMultiSampleQuality() != iQuality )
 			&& NULL != m_pDeviceManager )
 		{
-			m_pDeviceManager->CloseDeviceByPointer( m_pJuneSceneRenderTarget );
-			m_pJuneSceneRenderTarget = NULL;
+			m_pDeviceManager->CloseDeviceByPointer( m_pSceneRenderTarget );
+			m_pSceneRenderTarget = NULL;
 		}
-		if( NULL != m_pJuneEffectRenderTarget && NULL != m_pDeviceManager )
+		if( NULL != m_pEffectRenderTarget && NULL != m_pDeviceManager )
 		{
-			m_pDeviceManager->CloseDeviceByPointer( m_pJuneEffectRenderTarget );
-			m_pJuneEffectRenderTarget = NULL;
+			m_pDeviceManager->CloseDeviceByPointer( m_pEffectRenderTarget );
+			m_pEffectRenderTarget = NULL;
 		}
-		if( NULL != m_pJuneSurfaceManager )
-			m_pJuneSurfaceManager->Purge();
+		if( NULL != m_pSurfaceManager )
+			m_pSurfaceManager->Purge();
 
-		if( NULL == m_pJuneSceneRenderTarget && D3DMULTISAMPLE_NONE != eMultiSample )
-			m_pJuneSceneRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@SceneRenderTarget@", kDesc.Width, kDesc.Height,
+		if( NULL == m_pSceneRenderTarget && D3DMULTISAMPLE_NONE != eMultiSample )
+			m_pSceneRenderTarget = m_pDeviceManager->OpenRenderTargetTexture( L"@CKTDXAPP@SceneRenderTarget@", kDesc.Width, kDesc.Height,
 				kDesc.Format, true, eMultiSample, (DWORD) iQuality );
 	}
 
 	/// not June: one line per call ( device reset, the option apply, the setters ), never per frame
-	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] FRAME ANTIALIASING_LEVEL " << iAskedLevel << " -> " << m_iJuneAntiAliasLevel
+	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] FRAME ANTIALIASING_LEVEL " << iAskedLevel << " -> " << m_iAntiAliasLevel
 		<< " ( NONMASKABLE quality levels " << (int) dwQualityLevels << ", multisample " << (int) eMultiSample << " quality " << iQuality
-		<< " ), switches scene " << (int) m_bJuneSceneRenderTarget << " effect " << (int) m_bJuneEffectRenderTarget
-		<< ", " << kDesc.Width << "x" << kDesc.Height << ": scene target " << ( NULL != m_pJuneSceneRenderTarget ? "made" : "none" )
-		<< ", effect target " << ( NULL != m_pJuneEffectRenderTarget ? "made" : "none" ) << fileout;
+		<< " ), switches scene " << (int) m_bSceneRenderTarget << " effect " << (int) m_bEffectRenderTarget
+		<< ", " << kDesc.Width << "x" << kDesc.Height << ": scene target " << ( NULL != m_pSceneRenderTarget ? "made" : "none" )
+		<< ", effect target " << ( NULL != m_pEffectRenderTarget ? "made" : "none" ) << fileout;
 }
 
 /// June 31be2ef0 ( first call of OnLostDevice 31be66b0 )
 void CKTDXApp::ReleaseRenderTargets()
 {
-	if( NULL != m_pJuneSceneRenderTarget && NULL != m_pDeviceManager )
+	if( NULL != m_pSceneRenderTarget && NULL != m_pDeviceManager )
 	{
-		m_pDeviceManager->CloseDeviceByPointer( m_pJuneSceneRenderTarget );
-		m_pJuneSceneRenderTarget = NULL;
+		m_pDeviceManager->CloseDeviceByPointer( m_pSceneRenderTarget );
+		m_pSceneRenderTarget = NULL;
 	}
-	if( NULL != m_pJuneEffectRenderTarget && NULL != m_pDeviceManager )
+	if( NULL != m_pEffectRenderTarget && NULL != m_pDeviceManager )
 	{
-		m_pDeviceManager->CloseDeviceByPointer( m_pJuneEffectRenderTarget );
-		m_pJuneEffectRenderTarget = NULL;
+		m_pDeviceManager->CloseDeviceByPointer( m_pEffectRenderTarget );
+		m_pEffectRenderTarget = NULL;
 	}
 }
 
 /// June 31be4cf0
 void CKTDXApp::SetAntiAliasLevel( int iLevel_ )
 {
-	m_iJuneAntiAliasLevel = iLevel_;
+	m_iAntiAliasLevel = iLevel_;
 	CreateRenderTargets();
 }
 
 /// June 31be4d10
 void CKTDXApp::SetSceneEffectRenderTarget( bool bScene_, bool bEffect_ )
 {
-	m_bJuneSceneRenderTarget = bScene_;
-	m_bJuneEffectRenderTarget = bEffect_;
+	m_bSceneRenderTarget = bScene_;
+	m_bEffectRenderTarget = bEffect_;
 	CreateRenderTargets();
 }
 
@@ -1532,9 +1532,9 @@ void CKTDXApp::SetSceneEffectRenderTarget( bool bScene_, bool bEffect_ )
 /// vslot 0x2c with the movie wrapper ( CKTDXStage::JuneGfxSetMovieUI; CX2State's override walks a Stage 9 handler list )
 void CKTDXApp::GfxSetMessageStage( CKTDXStage* pStage )
 {
-	if ( m_pJuneGFXManager == NULL )
+	if ( m_pGFXManager == NULL )
 		return;
-	m_pJuneGFXManager->SetMessageStage( pStage );
+	m_pGFXManager->SetMessageStage( pStage );
 	if ( pStage != NULL )
 		pStage->GfxSetMovieUI( NULL );		/// the wrapper is the manager's private class until Stage 9 needs it
 }
@@ -1542,30 +1542,30 @@ void CKTDXApp::GfxSetMessageStage( CKTDXStage* pStage )
 /// June 31be3000 ( from StateChange 31d88bf0 @31d88c9e )
 void CKTDXApp::GfxClearMessageStage()
 {
-	if ( m_pJuneGFXManager != NULL )
-		m_pJuneGFXManager->SetMessageStage( NULL );
+	if ( m_pGFXManager != NULL )
+		m_pGFXManager->SetMessageStage( NULL );
 }
 
 void CKTDXApp::GfxMainLoopFilter( const MSG& kMsg )
 {
-	if ( m_pJuneGFXManager != NULL )
-		m_pJuneGFXManager->MainLoopFilter( kMsg.hwnd, kMsg.message, kMsg.wParam, kMsg.lParam );
+	if ( m_pGFXManager != NULL )
+		m_pGFXManager->MainLoopFilter( kMsg.hwnd, kMsg.message, kMsg.wParam, kMsg.lParam );
 }
 
 void CKTDXApp::GfxEnableMouseInput()
 {
-	if ( m_pJuneGFXManager != NULL )
-		m_pJuneGFXManager->SetMouseInputEnabled( true );
+	if ( m_pGFXManager != NULL )
+		m_pGFXManager->SetMouseInputEnabled( true );
 }
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 /// June 31be4510 ( app init 31aa1fc0 @31aa20d8 ): PerturbationMap.png ( data045, june-asset-port ) into +0x268. Then GFx ( +0x1c8,
 /// 31c456e0 ), june-gfx's. Nothing in June's C++ reads +0x268 back that R4 found.
 HRESULT CKTDXApp::OpenPerturbationMap()
 {
-	m_pJunePerturbationMap = m_pDeviceManager->OpenTexture( L"PerturbationMap.png" );
+	m_pPerturbationMap = m_pDeviceManager->OpenTexture( L"PerturbationMap.png" );
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-	if ( m_pJuneGFXManager != NULL )
-		m_pJuneGFXManager->Init( m_pd3dDevice );		// 31be4562: 31c456e0( device )
+	if ( m_pGFXManager != NULL )
+		m_pGFXManager->Init( m_pd3dDevice );		// 31be4562: 31c456e0( device )
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 	return S_OK;
 }
@@ -1631,13 +1631,13 @@ bool CKTDXApp::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	else
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
-		const bool bJuneGfxDialogModal = ( m_pDGManager != NULL && m_pDGManager->GetDialogManager() != NULL
+		const bool bGfxDialogModal = ( m_pDGManager != NULL && m_pDGManager->GetDialogManager() != NULL
 			&& m_pDGManager->GetDialogManager()->GetFlaggedDialogsOnly() == true );		/// June @31be3fe6
 #else SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
-		const bool bJuneGfxDialogModal = false;		/// stand-in for June's dialog manager +0x110
+		const bool bGfxDialogModal = false;		/// stand-in for June's dialog manager +0x110
 #endif SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
-		if( m_pJuneGFXManager != NULL && m_pJuneGFXManager->MsgProcMouse( hWnd, uMsg, wParam, lParam ) == true
-			&& m_pJuneGFXManager->GetShow() == true && bJuneGfxDialogModal == false )
+		if( m_pGFXManager != NULL && m_pGFXManager->MsgProcMouse( hWnd, uMsg, wParam, lParam ) == true
+			&& m_pGFXManager->GetShow() == true && bGfxDialogModal == false )
 		{
 			retval = true;
 		}
@@ -1657,7 +1657,7 @@ bool CKTDXApp::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 					}
 				}
 			}
-			if( m_pJuneGFXManager != NULL && m_pJuneGFXManager->MsgProcKey( hWnd, uMsg, wParam, lParam ) == true )
+			if( m_pGFXManager != NULL && m_pGFXManager->MsgProcKey( hWnd, uMsg, wParam, lParam ) == true )
 				retval = true;
 		}
 	}
@@ -1891,10 +1891,10 @@ HRESULT CKTDXApp::OnResetDevice( const D3DSURFACE_DESC* pBackBufferSurfaceDesc )
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
 	/// June OnResetDevice 31be6510 @31be6625: 31c43e60( device ) after the stage loop, inside the full sync. June's resize hook 31be2a00
 	/// ( 31c430c0, the present params ) has no March point: DXUT's present params are fed here, a labelled stand-in.
-	if ( m_pJuneGFXManager != NULL )
+	if ( m_pGFXManager != NULL )
 	{
-		m_pJuneGFXManager->OnResize( DXUTGetDeviceSettings().pp );
-		m_pJuneGFXManager->OnResetDevice( m_pd3dDevice );
+		m_pGFXManager->OnResize( DXUTGetDeviceSettings().pp );
+		m_pGFXManager->OnResetDevice( m_pd3dDevice );
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
@@ -1925,8 +1925,8 @@ HRESULT CKTDXApp::OnLostDevice()
 		m_pDeviceManager->EndFullSync();
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
 	/// June OnLostDevice 31be66b0 @31be6723: 31c43440 after the full sync, before the state manager ( 31c59fd0 )
-	if ( m_pJuneGFXManager != NULL )
-		m_pJuneGFXManager->OnLostDevice();
+	if ( m_pGFXManager != NULL )
+		m_pGFXManager->OnLostDevice();
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET

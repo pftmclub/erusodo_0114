@@ -2151,14 +2151,14 @@ HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElap
 		// mesh's category. Not 1.0 (IsSamef, FLT_EPSILON): the blend becomes SRCALPHA / INVSRCALPHA (a dest blend of INVSRCCOLOR or
 		// DESTALPHA is kept) and the outline and the colour alpha are multiplied. bAlphaBlend is not touched here.
 		{
-			const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
-			if( false == IsSamef( fJuneEffectAlpha, 1.0f ) )
+			const float fEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+			if( false == IsSamef( fEffectAlpha, 1.0f ) )
 			{
 				pParam->srcBlend = D3DBLEND_SRCALPHA;
 				if( D3DBLEND_INVSRCCOLOR != pParam->destBlend && D3DBLEND_DESTALPHA != pParam->destBlend )
 					pParam->destBlend = D3DBLEND_INVSRCALPHA;
-				pParam->outLineColor.a *= fJuneEffectAlpha;
-				pParam->color.a *= fJuneEffectAlpha;
+				pParam->outLineColor.a *= fEffectAlpha;
+				pParam->color.a *= fEffectAlpha;
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
@@ -2514,7 +2514,7 @@ void    CKTDGXMeshPlayer::CXMeshInstance::OnFrameRender_Draw()
 	// June2017 OnFrameRender_Draw FUN_31c839c0 @31c839ed-31c83a16: WIREFRAME draws both mesh paths in
 	// D3DFILL_WIREFRAME, and the fill mode cached before it is restored after them (@31c83d4b-31c83d71) --
 	// the previous value, not SOLID. Set after the early return above, as June orders it.
-	const DWORD dwJuneFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
+	const DWORD dwFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
 	if( true == m_TempletData.bWireFrame )
 		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
 #endif SERV_IRUHADEV_JUNE_MESHPLAYER
@@ -2586,7 +2586,7 @@ void    CKTDGXMeshPlayer::CXMeshInstance::OnFrameRender_Draw()
 	}
 #ifdef SERV_IRUHADEV_JUNE_MESHPLAYER
 	if( true == m_TempletData.bWireFrame )
-		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwJuneFillModeBefore );
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwFillModeBefore );
 #endif SERV_IRUHADEV_JUNE_MESHPLAYER
 
 #ifdef SHOW_ATTACK_BOX_DUMMY

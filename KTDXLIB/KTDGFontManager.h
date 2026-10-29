@@ -165,7 +165,7 @@ class CKTDGFontManager
 				// June 31c3aba0 / 31c3acb0 / 31c3ae80: the last argument is the render pass, handed to the FreeType font
 				void OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff,
 					CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, 
-					RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, bool bJunePostEffectPass_ = false );
+					RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, bool bPostEffectPass_ = false );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 				void OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff,
 					CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, 
@@ -179,7 +179,7 @@ class CKTDGFontManager
 				void OutProjectionText( const D3DXVECTOR3& pos, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, 
 									CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-									RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, bool bJunePostEffectPass_ = false );
+									RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, bool bPostEffectPass_ = false );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 									RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -194,7 +194,7 @@ class CKTDGFontManager
 				///         so "Hello\nWorld" and "Hello\\nWorld" will be rendered same format.
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-				void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float  fScaleX = 1.f, float fScaleY = 1.f, bool bJunePostEffectPass_ = false );
+				void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float  fScaleX = 1.f, float fScaleY = 1.f, bool bPostEffectPass_ = false );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 				void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, CKTDGFontManager::FONT_STYLE fontStyle = FS_NONE, D3DCOLOR colorOutLine = 0x00000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float  fScaleX = 1.f, float fScaleY = 1.f );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -225,7 +225,7 @@ class CKTDGFontManager
 				int				Push2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag = DT_LEFT, FONT_STYLE fontStyle = FS_NONE, bool bInstance = false, bool bSpread = false, float fSpreadTimeGap = 0.f );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 				// June 31c3c680: the last argument is the render pass
-				void			Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag = DT_LEFT, FONT_STYLE fontStyle = FS_NONE, int nCount = -1, bool bJunePostEffectPass_ = false );
+				void			Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag = DT_LEFT, FONT_STYLE fontStyle = FS_NONE, int nCount = -1, bool bPostEffectPass_ = false );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 				void			Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag = DT_LEFT, FONT_STYLE fontStyle = FS_NONE, int nCount = -1 );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS

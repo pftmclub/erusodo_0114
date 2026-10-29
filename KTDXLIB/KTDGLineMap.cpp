@@ -44,7 +44,7 @@ CKTDGLineMap::CKTDGLineMap()
 	m_pLineMapVB	= NULL;
 	m_pKLuabinder	= NULL;
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-	m_bJuneMovableLineMoved = false;	/// June ctor 31c77a00
+	m_bMovableLineMoved = false;	/// June ctor 31c77a00
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 	m_LineList.reserve( 64 );
@@ -143,7 +143,7 @@ CKTDGLineMap::~CKTDGLineMap(void)
 bool CKTDGLineMap::LoadLineMap( wstring pFileName )
 {
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-	m_wstrJuneLineMapFileName = pFileName;
+	m_wstrLineMapFileName = pFileName;
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SHOW_LINEMAP_FILE_NAME
 	WCHAR wszFullPath[MAX_PATH] = L"";
@@ -283,7 +283,7 @@ bool CKTDGLineMap::AddLine_LUA()
 
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 	/// June 31c705c0 @31c716be: LineData +0xa4, false when the key is absent ( only June's 2017_Valentine_Stage1-5 line maps set it )
-	LUA_GET_VALUE( luaManager,		"DROPPABLE_MONSTER_ROAD",	pLineData->m_bJuneDroppableMonsterRoad,	false	);
+	LUA_GET_VALUE( luaManager,		"DROPPABLE_MONSTER_ROAD",	pLineData->m_bDroppableMonsterRoad,	false	);
 #endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 #ifdef OTHER_ROAD
 	LUA_GET_VALUE( luaManager,		"OTHER_ROAD_UP",			pLineData->m_bOtherRoadUp,			false	);	
@@ -354,8 +354,8 @@ bool CKTDGLineMap::AddLine_LUA()
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	/// June 31c705c0 @31c74080: int into +0x158, -1 when absent
-	if ( false == luaManager.GetValue( "CAMERA_LAND_HEIGHT", pLineData->m_iJuneCameraLandHeight ) )
-		pLineData->m_iJuneCameraLandHeight = -1;
+	if ( false == luaManager.GetValue( "CAMERA_LAND_HEIGHT", pLineData->m_iCameraLandHeight ) )
+		pLineData->m_iCameraLandHeight = -1;
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 #ifdef FIELD_BOSS_RAID
@@ -687,10 +687,10 @@ CKTDGLineMap::LineAnimData* CKTDGLineMap::GetLineAnimData( int iLineAnimDataInde
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	/// June 31c70580: the movers ( 31c6fbb0 ), then the moving lines' vertices once a line moved ( 31c5bf70( true ), +0x2e4 )
 	FrameMoveMovableLine( fElapsedTime );
-	if ( true == m_bJuneMovableLineMoved )
+	if ( true == m_bMovableLineMoved )
 	{
 		UpdateLineVB( true );
-		m_bJuneMovableLineMoved = false;
+		m_bMovableLineMoved = false;
 	}
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
@@ -883,7 +883,7 @@ bool CKTDGLineMap::UpdateLineVB( bool bOnlyAnimLine /*= false*/ )
 			/// June 31c5bf70 @31c5c069: a movable line ( +0x155 ) is redrawn with the animated ones
 			if( true == bOnlyAnimLine &&
 				NULL == pLineData->m_pLineAnimData &&
-				false == pLineData->m_bJuneMovable )
+				false == pLineData->m_bMovable )
 				continue;
 #else SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			if( true == bOnlyAnimLine &&
@@ -1029,7 +1029,7 @@ bool CKTDGLineMap::UpdateLineVB( bool bOnlyAnimLine /*= false*/ )
 			/// June 31c5bf70 @31c5c153: the wall loop has the same test
 			if( true == bOnlyAnimLine &&
 				NULL == pLineData->m_pLineAnimData &&
-				false == pLineData->m_bJuneMovable )
+				false == pLineData->m_bMovable )
 				continue;
 #else SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			if( true == bOnlyAnimLine &&
@@ -1195,16 +1195,16 @@ D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, float fRadius, int* 
 bool CKTDGLineMap::AutoDisableRelease( int iLine, __int64 uid, bool bUser )
 {
 	LineData* pLineData = AccessLineData( iLine );
-	if ( NULL == pLineData || true != pLineData->m_bJuneAutoDisable )
+	if ( NULL == pLineData || true != pLineData->m_bAutoDisable )
 		return true;
 
 	if ( true == bUser )
 	{
-		for ( vector<__int64>::iterator it = pLineData->m_vecJuneAutoDisableUserUID.begin(); it != pLineData->m_vecJuneAutoDisableUserUID.end(); ++it )
+		for ( vector<__int64>::iterator it = pLineData->m_vecAutoDisableUserUID.begin(); it != pLineData->m_vecAutoDisableUserUID.end(); ++it )
 		{
 			if ( *it == uid )
 			{
-				pLineData->m_vecJuneAutoDisableUserUID.erase( it );	/// June 31c7d1e0
+				pLineData->m_vecAutoDisableUserUID.erase( it );	/// June 31c7d1e0
 				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable release: line " << iLine << " user " << uid << fileout;
 				return true;
 			}
@@ -1213,11 +1213,11 @@ bool CKTDGLineMap::AutoDisableRelease( int iLine, __int64 uid, bool bUser )
 	else
 	{
 		const int iUID = (int)uid;	/// June compares the low dword only
-		for ( vector<int>::iterator it = pLineData->m_vecJuneAutoDisableNPCUID.begin(); it != pLineData->m_vecJuneAutoDisableNPCUID.end(); ++it )
+		for ( vector<int>::iterator it = pLineData->m_vecAutoDisableNPCUID.begin(); it != pLineData->m_vecAutoDisableNPCUID.end(); ++it )
 		{
 			if ( *it == iUID )
 			{
-				pLineData->m_vecJuneAutoDisableNPCUID.erase( it );	/// June 325f3d20
+				pLineData->m_vecAutoDisableNPCUID.erase( it );	/// June 325f3d20
 				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable release: line " << iLine << " npc " << iUID << fileout;
 				return true;
 			}
@@ -1300,7 +1300,7 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 				/// June @31c6c491-31c6c4ae: a monster always tests the line; anyone else only when the line is droppable and bDroppable is set
 				if( false == bIsMonster
-					&& ( false == pLine->m_bJuneDroppableMonsterRoad || false == bDroppable ) )
+					&& ( false == pLine->m_bDroppableMonsterRoad || false == bDroppable ) )
 					continue;
 #else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 				if( false == bIsMonster )
@@ -2884,7 +2884,7 @@ bool CKTDGLineMap::AddTrigger_LUA()
 			LUA_GET_VALUE(		luaManager,	"DELAY_TIME",		triggerDataLine.m_fTriggerTime,			0 );
 			LUA_GET_VALUE(		luaManager,	"LINE_ID",			triggerDataLine.m_iTriggerLineIndex,	-1 );
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-			LUA_GET_VALUE(		luaManager,	"AUTO_DISABLE_LINE",	triggerDataLine.m_bJuneAutoDisableLine,	false );	/// June 31c77e20 @31c790a3: every line row, before the action switch
+			LUA_GET_VALUE(		luaManager,	"AUTO_DISABLE_LINE",	triggerDataLine.m_bAutoDisableLine,	false );	/// June 31c77e20 @31c790a3: every line row, before the action switch
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 			
 			switch( triggerDataLine.m_iLineTriggerAction )
@@ -3084,7 +3084,7 @@ void CKTDGLineMap::MoveLine( int iLineIndex_, const D3DXVECTOR3& vMove_ )
 	pLineData->startPos += vMove_;
 	pLineData->endPos += vMove_;
 	MakeLine( pLineData );
-	m_bJuneMovableLineMoved = true;
+	m_bMovableLineMoved = true;
 }
 
 /** June 31c6b0b0: moves the line so that its centre is vPos_; vMove_ gets the move ( left as it was for a missing line ) */
@@ -3098,7 +3098,7 @@ void CKTDGLineMap::MoveLineCenterTo( int iLineIndex_, const D3DXVECTOR3& vPos_, 
 	pLineData->startPos += vMove;
 	pLineData->endPos += vMove;
 	MakeLine( pLineData );
-	m_bJuneMovableLineMoved = true;
+	m_bMovableLineMoved = true;
 	vMove_ = vMove;
 }
 
@@ -3109,7 +3109,7 @@ int CKTDGLineMap::GetCameraLandHeight( int iLineIndex_ )
 	if ( NULL == pLineData )
 		return -1;
 
-	return pLineData->m_iJuneCameraLandHeight;
+	return pLineData->m_iCameraLandHeight;
 }
 
 /** June 31c751b0: LMT_SPIN only. Per DIRECT_MOVE_DATA row: the yaw of ( line centre - pivot ) ( 31c19930, the y of GetDirVecToDegree ),
@@ -3154,7 +3154,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 	int iLineIndex = -1;
 	if ( false == luaManager.GetValue( "LINE_ID", iLineIndex ) || static_cast<UINT>( iLineIndex ) >= uiNumLine )
 	{
-		MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"" );	/// June 33449500
+		MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrLineMapFileName, L"" );	/// June 33449500
 		return false;
 	}
 
@@ -3165,7 +3165,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 		{
 			if ( static_cast<UINT>( iFollowerLineIndex ) >= uiNumLine )
 			{
-				MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"(FOLLOWER_LINE_ID)" );	/// June: the same 33449500
+				MovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrLineMapFileName, L"(FOLLOWER_LINE_ID)" );	/// June: the same 33449500
 				return false;
 			}
 			kData.m_vecFollowerLineID.push_back( iFollowerLineIndex );
@@ -3191,7 +3191,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 				return false;
 			if ( kData.m_wstrTargetMeshName.empty() != kData.m_wstrTargetBoneName.empty() )
 			{
-				MovableLineError( "LineMap info wrong!! only one of TARGET_MESH_NAME, TARGET_BONE_NAME is set.", m_wstrJuneLineMapFileName,
+				MovableLineError( "LineMap info wrong!! only one of TARGET_MESH_NAME, TARGET_BONE_NAME is set.", m_wstrLineMapFileName,
 					L"TARGET_MESH_NAME : " + kData.m_wstrTargetMeshName + L" / TARGET_BONE_NAME : " + kData.m_wstrTargetBoneName );	/// June 33449310
 				return false;
 			}
@@ -3210,7 +3210,7 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 			if ( false == luaManager.BeginTable( "DIRECT_MOVE_DATA" ) )
 			{
 				MovableLineError( ( LMT_SPIN == kData.m_iMoveType ) ? "LMT_SPIN DIRECT_MOVE_DATA is 0!!!" : "LMT_PATROL DIRECT_MOVE_DATA is 0!!!",
-					m_wstrJuneLineMapFileName, L"" );	/// June 33449470 / 33449400
+					m_wstrLineMapFileName, L"" );	/// June 33449470 / 33449400
 				return false;
 			}
 			ReadDirectMoveData( luaManager, kData.m_vecDirectMoveData );
@@ -3223,14 +3223,14 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 
 	LineData* pLineData = m_LineList[ iLineIndex ];
 	BuildMovableLineSpinAxis( iLineIndex, kData );
-	pLineData->m_bJuneMovable = true;
+	pLineData->m_bMovable = true;
 	kData.m_vStartLineCenter = GetLineCenter( pLineData );
-	m_mapJuneMovableLineData.insert( std::make_pair( iLineIndex, kData ) );	/// June 31c807e0 = map insert: a second record for a line is dropped
+	m_mapMovableLineData.insert( std::make_pair( iLineIndex, kData ) );	/// June 31c807e0 = map insert: a second record for a line is dropped
 
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
 	{
 		std::string strFile, strMesh;
-		ConvertWCHARToChar( strFile, m_wstrJuneLineMapFileName );
+		ConvertWCHARToChar( strFile, m_wstrLineMapFileName );
 		ConvertWCHARToChar( strMesh, kData.m_wstrTargetMeshName );
 		KLOG( "ErrorLog.txt" ) << "[ELYDBG] movable line " << iLineIndex << " type " << kData.m_iMoveType << " rows " << (int)kData.m_vecDirectMoveData.size()
 			<< " followers " << (int)kData.m_vecFollowerLineID.size() << " loop " << (int)kData.m_bLoop << " stop " << (int)kData.m_bStop
@@ -3244,8 +3244,8 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 	for ( UINT i = 0; i < kData.m_vecFollowerLineID.size(); ++i )
 	{
 		const int iFollowerLineIndex = kData.m_vecFollowerLineID[i];
-		m_mapJuneMovableLineData.insert( std::make_pair( iFollowerLineIndex, kData ) );
-		m_LineList[ iFollowerLineIndex ]->m_bJuneMovable = true;
+		m_mapMovableLineData.insert( std::make_pair( iFollowerLineIndex, kData ) );
+		m_LineList[ iFollowerLineIndex ]->m_bMovable = true;
 	}
 
 	return true;
@@ -3254,8 +3254,8 @@ bool CKTDGLineMap::AddMovableLineData_LUA()
 /** June 31c6fb50: STOP on a line's record; a key line ( bFollower_ false ) passes it to its followers */
 void CKTDGLineMap::SetMovableLineStop( int iLineIndex_, bool bStop_, bool bFollower_ )
 {
-	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
-	if ( it == m_mapJuneMovableLineData.end() )
+	MovableLineDataMap::iterator it = m_mapMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapMovableLineData.end() )
 		return;
 
 	it->second.m_bStop = bStop_;
@@ -3270,8 +3270,8 @@ void CKTDGLineMap::SetMovableLineStop( int iLineIndex_, bool bStop_, bool bFollo
 /** June 31c75410: a trigger's new DIRECT_MOVE_DATA ( the key line's record only ): Reset ( 31c7f170 ), copy, rebuild the spin axes */
 void CKTDGLineMap::SetMovableLineDirectMoveData( int iLineIndex_, const vector<D3DXVECTOR4>& vecDirectMoveData_ )
 {
-	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
-	if ( it == m_mapJuneMovableLineData.end() )
+	MovableLineDataMap::iterator it = m_mapMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapMovableLineData.end() )
 		return;
 
 	it->second.Reset();
@@ -3282,8 +3282,8 @@ void CKTDGLineMap::SetMovableLineDirectMoveData( int iLineIndex_, const vector<D
 /** June 31c7dd00 */
 CKTDGLineMap::MovableLineData* CKTDGLineMap::GetMovableLineData( int iLineIndex_ )
 {
-	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
-	if ( it == m_mapJuneMovableLineData.end() )
+	MovableLineDataMap::iterator it = m_mapMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapMovableLineData.end() )
 		return NULL;
 
 	return &it->second;
@@ -3294,7 +3294,7 @@ CKTDGLineMap::MovableLineData* CKTDGLineMap::GetMovableLineData( int iLineIndex_
 bool CKTDGLineMap::GetMovableLineDataByMeshName( const wstring& wstrMeshName_, OUT MovableLineData& kData_, OUT int& iLineIndex_ )
 {
 	bool bFound = false;
-	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	for ( MovableLineDataMap::iterator it = m_mapMovableLineData.begin(); it != m_mapMovableLineData.end(); ++it )
 	{
 		if ( it->second.m_iMoveType <= LMT_TARGET_MESH )
 			continue;
@@ -3304,7 +3304,7 @@ bool CKTDGLineMap::GetMovableLineDataByMeshName( const wstring& wstrMeshName_, O
 		if ( true == bFound )
 		{
 			MovableLineError( "DIRECT MOVE TYPE line map Target Mesh name is set twice!! A mesh may follow one line only, fix it.",
-				m_wstrJuneLineMapFileName, L"Mesh Name : " + wstrMeshName_ );	/// June 334491e0 in 33449198
+				m_wstrLineMapFileName, L"Mesh Name : " + wstrMeshName_ );	/// June 334491e0 in 33449198
 			continue;
 		}
 		iLineIndex_ = it->first;
@@ -3318,7 +3318,7 @@ bool CKTDGLineMap::GetMovableLineDataByMeshName( const wstring& wstrMeshName_, O
 bool CKTDGLineMap::GetTargetMeshMovableLineData( const wstring& wstrMeshName_, OUT MovableLineDataMap& mapData_ )
 {
 	bool bFound = false;
-	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	for ( MovableLineDataMap::iterator it = m_mapMovableLineData.begin(); it != m_mapMovableLineData.end(); ++it )
 	{
 		if ( LMT_TARGET_MESH != it->second.m_iMoveType )
 			continue;
@@ -3337,8 +3337,8 @@ bool CKTDGLineMap::GetTargetMeshMovableLineData( const wstring& wstrMeshName_, O
 	past the end ( 255, a finished patrol ) never ends the walk ( JUNE_BUGS; no guests offline ). */
 bool CKTDGLineMap::SyncMovableLine( int iLineIndex_, UINT uiNowIndex_, float fNowTime_, const D3DXVECTOR3& vPos_, OUT wstring& wstrMeshName_ )
 {
-	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
-	if ( it == m_mapJuneMovableLineData.end() )
+	MovableLineDataMap::iterator it = m_mapMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapMovableLineData.end() )
 		return true;
 
 	MovableLineData& kData = it->second;
@@ -3388,7 +3388,7 @@ bool CKTDGLineMap::SyncMovableLine( int iLineIndex_, UINT uiNowIndex_, float fNo
 	finished or frozen record keeps its last m_vLastMove ( June: the mesh and CanDown go on using it, JUNE_BUGS ). */
 void CKTDGLineMap::FrameMoveMovableLine( float fElapsedTime_ )
 {
-	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	for ( MovableLineDataMap::iterator it = m_mapMovableLineData.begin(); it != m_mapMovableLineData.end(); ++it )
 	{
 		const int iLineIndex = it->first;
 		MovableLineData& kData = it->second;

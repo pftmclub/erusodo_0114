@@ -35,7 +35,7 @@ CX2TitleManager::CX2TitleManager(void)
     m_bNewOpenMission = false;
 	m_nString_Index = 0;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	m_iJuneTitleTenPrompt = 0;
+	m_iTitleTenPrompt = 0;
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 #ifdef SHOW_NEW_TITLE_NAME
@@ -84,8 +84,8 @@ void CX2TitleManager::CheckNewTitle()
 		/// @327019b5: below level 5 both lists are dropped unseen
 		m_bShowNewTitle = false;
 		m_bNewOpenMission = false;
-		m_vecJuneNewTitle.clear();
-		m_vecJuneNewMission.clear();
+		m_vecNewTitle.clear();
+		m_vecNewMission.clear();
 		return;
 	}
 
@@ -107,9 +107,9 @@ void CX2TitleManager::CheckNewTitle()
 				/// June 0xb / 0x17 @32701a78: queue and play, no text ( June builds the "#CFF3F4D" color string and never uses it )
 				m_bShowNewTitle = false;
 				m_bNewOpenMission = false;
-				for( UINT i = 0; i < m_vecJuneNewTitle.size(); ++i )
-					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewTitle[i], 1 );
-				m_vecJuneNewTitle.clear();
+				for( UINT i = 0; i < m_vecNewTitle.size(); ++i )
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecNewTitle[i], 1 );
+				m_vecNewTitle.clear();
 				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_NEW_TITLE_INFO_NOTICE, true );
 			} break;
 
@@ -118,16 +118,16 @@ void CX2TitleManager::CheckNewTitle()
 				/// @32701b49: queue and play; title 10 ( +0xac ) then asks 43200 "apply title now?" ( OK 3085 / Cancel 3086 to the state )
 				m_bShowNewTitle = false;
 				m_bNewOpenMission = false;
-				for( UINT i = 0; i < m_vecJuneNewTitle.size(); ++i )
-					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewTitle[i], 1 );
-				m_vecJuneNewTitle.clear();
+				for( UINT i = 0; i < m_vecNewTitle.size(); ++i )
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecNewTitle[i], 1 );
+				m_vecNewTitle.clear();
 				CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_NEW_TITLE_INFO_NOTICE, true );
 
-				if( 10 == m_iJuneTitleTenPrompt )
+				if( 10 == m_iTitleTenPrompt )
 				{
 					const int iStringID = 43200;
 					g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( iStringID ),
-						CX2State::SUCM_JUNE_TITLE_TEN_OK, g_pMain->GetNowState(), CX2State::SUCM_JUNE_TITLE_TEN_CANCEL );
+						CX2State::SUCM_TITLE_TEN_OK, g_pMain->GetNowState(), CX2State::SUCM_TITLE_TEN_CANCEL );
 				}
 			} break;
 		}
@@ -158,11 +158,11 @@ void CX2TitleManager::CheckNewTitle()
 			{
 				/// @32701f84 / @32701fd1 ( the same body ): every other state
 				m_bNewOpenMission = false;
-				for( UINT i = 0; i < m_vecJuneNewMission.size(); ++i )
-					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecJuneNewMission[i], 0 );
+				for( UINT i = 0; i < m_vecNewMission.size(); ++i )
+					CX2EmblemManager::GetInstance()->PushTitleNotice( m_vecNewMission[i], 0 );
 			} break;
 		}
-		m_vecJuneNewMission.clear();
+		m_vecNewMission.clear();
 		CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_NEW_TITLE_INFO_NOTICE, true );
 	}
 #else SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
@@ -1631,8 +1631,8 @@ void CX2TitleManager::TakeTitle(std::vector<KTitleInfo> vecTitleInfo)
             //UpdateTitle(iTitleId, 0, nodeTitle.m_bInfinity);
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
             /// June 326ff600 @326ff7c4-@326ff8ac: an owned title is never announced ( mission set +0xd0, title set +0xe0 )
-            m_setJuneNoticedMission.insert( iTitleId );
-            m_setJuneNoticedTitle.insert( iTitleId );
+            m_setNoticedMission.insert( iTitleId );
+            m_setNoticedTitle.insert( iTitleId );
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
         }        
     }
@@ -1764,8 +1764,8 @@ bool CX2TitleManager::UpdateMission(std::vector< KMissionInstance > vecMisstionI
             for( int j = 0; j < (int)vecMisstionInfo.size(); ++j )
             {
                 const int iMissionID = vecMisstionInfo[j].m_iID;
-                if( m_setJuneNoticedMission.end() != m_setJuneNoticedMission.find( iMissionID ) )
-                    m_setJuneNoticedMission.insert( iMissionID );
+                if( m_setNoticedMission.end() != m_setNoticedMission.find( iMissionID ) )
+                    m_setNoticedMission.insert( iMissionID );
             }
         }
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
@@ -2110,20 +2110,20 @@ void CX2TitleManager::PushTitleNotice( int iTitleID_, int iKind_ )
 			m_bNewOpenMission = false;
 			return;
 		}
-		if( m_setJuneNoticedMission.end() != m_setJuneNoticedMission.find( iTitleID_ ) )
+		if( m_setNoticedMission.end() != m_setNoticedMission.find( iTitleID_ ) )
 			return;
-		m_setJuneNoticedMission.insert( iTitleID_ );
+		m_setNoticedMission.insert( iTitleID_ );
 
 		/// @326f89b7: June searches +0xc0 for the id and drops the result; the push below is unconditional ( JUNE_BUGS )
-		m_vecJuneNewMission.push_back( pTitleInfo );
+		m_vecNewMission.push_back( pTitleInfo );
 		m_bNewOpenMission = true;
 	}
 	else if( 1 == iKind_ )
 	{
-		if( m_setJuneNoticedTitle.end() != m_setJuneNoticedTitle.find( iTitleID_ ) )
+		if( m_setNoticedTitle.end() != m_setNoticedTitle.find( iTitleID_ ) )
 			return;
-		m_vecJuneNewTitle.push_back( pTitleInfo );
-		m_setJuneNoticedTitle.insert( iTitleID_ );
+		m_vecNewTitle.push_back( pTitleInfo );
+		m_setNoticedTitle.insert( iTitleID_ );
 		m_bShowNewTitle = true;
 	}
 }
@@ -2132,7 +2132,7 @@ void CX2TitleManager::PushTitleNotice( int iTitleID_, int iKind_ )
 /// June reads the select unit without a null test ( JUNE_BUGS ).
 void CX2TitleManager::EquipTitleTen()
 {
-	const int iTitleID = m_iJuneTitleTenPrompt;
+	const int iTitleID = m_iTitleTenPrompt;
 	if( 0 == iTitleID )
 		return;
 
@@ -2195,10 +2195,10 @@ bool CX2TitleManager::Handler_EGS_EQUIP_TITLE_ACK( HWND hWnd, UINT uMsg, WPARAM 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 			/// June 327032c0 @32703350: title 10's box was answered OK -> open the character window ( June UI 0x13 = UI_MENU_CHARINFO;
 			/// June also passes arg 1, which the CHARINFO case does not read ) and clear the prompt
-			if( 0 != m_iJuneTitleTenPrompt )
+			if( 0 != m_iTitleTenPrompt )
 			{
 				g_pData->GetUIManager()->ToggleUI( CX2UIManager::UI_MENU_CHARINFO, true );
-				m_iJuneTitleTenPrompt = 0;
+				m_iTitleTenPrompt = 0;
 			}
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
@@ -2262,7 +2262,7 @@ bool CX2TitleManager::Handler_EGS_REWARD_TITLE_NOT( HWND hWnd, UINT uMsg, WPARAM
         }
         /// @32700907: title 10 -> +0xac = 10 ( CheckNewTitle asks 43200 "apply title now?" )
         if( 10 == iTitleID && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
-            m_iJuneTitleTenPrompt = 10;
+            m_iTitleTenPrompt = 10;
     }
 #else SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
     if(ret == true)

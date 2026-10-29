@@ -194,8 +194,8 @@ void CX2UIDungeonResultAdapter::OnResultAsArrowRight()
 // ---------------------------------------------------------------------------------------------------------------------------------------
 namespace
 {
-	const int JUNE_RESULT_UI_ID			= 8;		// GFx UI 8 = dungeon_result.gfx ( openUI 31c44530 )
-	const int JUNE_RESULT_ITEM_SLOTS	= 12;
+	const int RESULT_UI_ID			= 8;		// GFx UI 8 = dungeon_result.gfx ( openUI 31c44530 )
+	const int RESULT_ITEM_SLOTS	= 12;
 
 	// 324ddca0: the order of one category's map ( a unique-key std::map: an entry neither side of which is less is dropped )
 	struct KResultEntryLess
@@ -245,16 +245,16 @@ void CX2StateDungeonGame::ResultCreateAdapter()
 	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetGFXManager() : NULL;
 	if ( pManager != NULL && pManager->IsMovieLoaded() == false )
 		pManager = NULL;
-	m_pJuneResultAdapter = new CX2UIDungeonResultAdapter( pManager );
+	m_pResultAdapter = new CX2UIDungeonResultAdapter( pManager );
 }
 
 // 324c8320 ( vslot 0xbc )
 void CX2StateDungeonGame::ResultDeleteAdapter()
 {
-	if ( m_pJuneResultAdapter != NULL )
+	if ( m_pResultAdapter != NULL )
 	{
-		delete m_pJuneResultAdapter;
-		m_pJuneResultAdapter = NULL;
+		delete m_pResultAdapter;
+		m_pResultAdapter = NULL;
 	}
 }
 
@@ -262,7 +262,7 @@ void CX2StateDungeonGame::ResultDeleteAdapter()
 void CX2StateDungeonGame::ResultCloseUI()
 {
 	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetGFXManager() != NULL )
-		g_pKTDXApp->GetGFXManager()->unloadWidget( JUNE_RESULT_UI_ID );		// 31c445d0
+		g_pKTDXApp->GetGFXManager()->unloadWidget( RESULT_UI_ID );		// 31c445d0
 }
 
 // 324c8350 ( vslot 0xc8 )
@@ -284,12 +284,12 @@ void CX2StateDungeonGame::ResultEnableRetry( bool bEnable, float fCoolTime )
 {
 	if ( fCoolTime > 0.0f )
 	{
-		m_fJuneResultRetryCool = fCoolTime;
+		m_fResultRetryCool = fCoolTime;
 		return;
 	}
-	m_bJuneResultRetryEnabled = bEnable;
-	if ( m_pJuneResultAdapter != NULL )
-		m_pJuneResultAdapter->EnableRetryButton( bEnable );
+	m_bResultRetryEnabled = bEnable;
+	if ( m_pResultAdapter != NULL )
+		m_pResultAdapter->EnableRetryButton( bEnable );
 }
 
 // 324d1120: June's 31edf8f0( dungeon data, 0xe ) has no March home ( read false, as 3202d3c0 ); +0x7a9 is Stage 22's post-clear NPC flag ( never set offline )
@@ -318,29 +318,29 @@ bool CX2StateDungeonGame::ResultRetryAllowed()
 // 324cf8b0: the 12 item slots of the current page ( game vslot 0x220 ), the rest ( 0, 0, -1, -1 )
 void CX2StateDungeonGame::ResultFillItems()
 {
-	if ( m_pJuneResultAdapter == NULL )
+	if ( m_pResultAdapter == NULL )
 		return;
 
 	std::vector< CX2Item::ItemData > vecItem;
-	if ( m_pDungeonGame == NULL || m_pDungeonGame->GetObtainedItems( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS, JUNE_RESULT_ITEM_SLOTS, vecItem ) == false )
+	if ( m_pDungeonGame == NULL || m_pDungeonGame->GetObtainedItems( m_iResultItemPage * RESULT_ITEM_SLOTS, RESULT_ITEM_SLOTS, vecItem ) == false )
 		vecItem.clear();
 
 	int iSlot = 0;
-	for ( ; iSlot < (int)vecItem.size() && iSlot < JUNE_RESULT_ITEM_SLOTS; ++iSlot )
+	for ( ; iSlot < (int)vecItem.size() && iSlot < RESULT_ITEM_SLOTS; ++iSlot )
 	{
 		const CX2Item::ItemData& kItem = vecItem[ iSlot ];
-		m_pJuneResultAdapter->SetItem( iSlot, kItem.m_ItemID, kItem.m_Quantity, (int)( kItem.m_ItemUID & 0xffffffff ), (int)( kItem.m_ItemUID >> 32 ) );
+		m_pResultAdapter->SetItem( iSlot, kItem.m_ItemID, kItem.m_Quantity, (int)( kItem.m_ItemUID & 0xffffffff ), (int)( kItem.m_ItemUID >> 32 ) );
 	}
-	for ( ; iSlot < JUNE_RESULT_ITEM_SLOTS; ++iSlot )
-		m_pJuneResultAdapter->SetItem( iSlot, 0, 0, -1, -1 );
+	for ( ; iSlot < RESULT_ITEM_SLOTS; ++iSlot )
+		m_pResultAdapter->SetItem( iSlot, 0, 0, -1, -1 );
 }
 
 // 324d1210 ( right ): one page on when game vslot 0x224( page * 12 + 13 ) says there is one
 void CX2StateDungeonGame::ResultItemPageNext()
 {
-	if ( m_pDungeonGame != NULL && m_pDungeonGame->HasObtainedItemPage( m_iJuneResultItemPage * JUNE_RESULT_ITEM_SLOTS + 13 ) == true )
+	if ( m_pDungeonGame != NULL && m_pDungeonGame->HasObtainedItemPage( m_iResultItemPage * RESULT_ITEM_SLOTS + 13 ) == true )
 	{
-		++m_iJuneResultItemPage;
+		++m_iResultItemPage;
 		ResultFillItems();
 	}
 }
@@ -348,9 +348,9 @@ void CX2StateDungeonGame::ResultItemPageNext()
 // 324d1270 ( left )
 void CX2StateDungeonGame::ResultItemPagePrev()
 {
-	if ( m_iJuneResultItemPage != 0 )
+	if ( m_iResultItemPage != 0 )
 	{
-		--m_iJuneResultItemPage;
+		--m_iResultItemPage;
 		ResultFillItems();
 	}
 }
@@ -360,7 +360,7 @@ void CX2StateDungeonGame::ResultItemPagePrev()
 void CX2StateDungeonGame::ResultFill()
 {
 	CX2DungeonGame::DungeonResultInfo* pResultInfo = ( g_pData != NULL ) ? g_pData->GetDungeonResultInfo() : NULL;
-	if ( pResultInfo == NULL || g_pX2Game == NULL || m_pJuneResultAdapter == NULL )		// June: vslot 0xf0( 0 ) ( the result confirm, R3 )
+	if ( pResultInfo == NULL || g_pX2Game == NULL || m_pResultAdapter == NULL )		// June: vslot 0xf0( 0 ) ( the result confirm, R3 )
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 		ResultWidgetLog( "fill: %s", pResultInfo == NULL ? "no result info" : ( g_pX2Game == NULL ? "no game" : "no adapter" ) );
@@ -473,7 +473,7 @@ void CX2StateDungeonGame::ResultFill()
 	for ( int iCategory = 0; iCategory < 6; ++iCategory )
 		kInfo.m_vecCategory[ iCategory ].assign( setCategory[ iCategory ].begin(), setCategory[ iCategory ].end() );
 
-	m_pJuneResultAdapter->UpdateDungeonInfo( kInfo );
+	m_pResultAdapter->UpdateDungeonInfo( kInfo );
 	if ( m_pDungeonGame != NULL )
 		m_pDungeonGame->SortObtainedItems();		// game vslot 0x228
 	ResultFillItems();
@@ -487,7 +487,7 @@ void CX2StateDungeonGame::ResultFill()
 
 bool CX2StateDungeonGame::ResultIsBound() const
 {
-	return m_pJuneResultAdapter != NULL && m_pJuneResultAdapter->IsBound() == true;
+	return m_pResultAdapter != NULL && m_pResultAdapter->IsBound() == true;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -501,9 +501,9 @@ void CX2DungeonGame::AddObtainedItem( const CX2Item::ItemData& kItemData )
 		return;
 
 	bool bFound = false;
-	for ( size_t i = 0; i < m_vecJuneObtainedItem.size(); ++i )
+	for ( size_t i = 0; i < m_vecObtainedItem.size(); ++i )
 	{
-		CX2Item::ItemData& kListed = m_vecJuneObtainedItem[ i ];
+		CX2Item::ItemData& kListed = m_vecObtainedItem[ i ];
 		if ( kItemData.m_PeriodType == CX2Item::PT_QUANTITY )
 		{
 			if ( kListed.m_ItemID == kItemData.m_ItemID )
@@ -516,30 +516,30 @@ void CX2DungeonGame::AddObtainedItem( const CX2Item::ItemData& kItemData )
 			bFound = true;
 	}
 	if ( bFound == false )
-		m_vecJuneObtainedItem.push_back( kItemData );
+		m_vecObtainedItem.push_back( kItemData );
 }
 
 // 327cee60 ( vslot 0x220 ): [ start, start + count ) of the list into vecOut ( cleared first ); false for an empty list or a start past the end
 bool CX2DungeonGame::GetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const
 {
-	if ( m_vecJuneObtainedItem.empty() == true )
+	if ( m_vecObtainedItem.empty() == true )
 		return false;
-	if ( uStart >= m_vecJuneObtainedItem.size() )
+	if ( uStart >= m_vecObtainedItem.size() )
 		return false;
 
 	vecOut.clear();
-	unsigned uEnd = (unsigned)m_vecJuneObtainedItem.size();
+	unsigned uEnd = (unsigned)m_vecObtainedItem.size();
 	if ( uCount + uStart < uEnd )
 		uEnd = uCount + uStart;
 	for ( unsigned i = uStart; i < uEnd; ++i )
-		vecOut.push_back( m_vecJuneObtainedItem[ i ] );
+		vecOut.push_back( m_vecObtainedItem[ i ] );
 	return true;
 }
 
 // 327ca2f0 ( vslot 0x224 )
 bool CX2DungeonGame::HasObtainedItemPage( unsigned uCount ) const
 {
-	return m_vecJuneObtainedItem.size() >= uCount;
+	return m_vecObtainedItem.size() >= uCount;
 }
 
 // 327cef20 ( vslot 0x228 ): June's std::sort ( 327d7e30 ) by item grade; unstable above 32 items, a templet-less item never sorts first ( JUNE_BUGS 405 )
@@ -560,9 +560,9 @@ namespace
 
 void CX2DungeonGame::SortObtainedItems()
 {
-	if ( m_vecJuneObtainedItem.empty() == true || g_pData == NULL || g_pData->GetItemManager() == NULL )
+	if ( m_vecObtainedItem.empty() == true || g_pData == NULL || g_pData->GetItemManager() == NULL )
 		return;
-	std::sort( m_vecJuneObtainedItem.begin(), m_vecJuneObtainedItem.end(), KObtainedItemLess() );
+	std::sort( m_vecObtainedItem.begin(), m_vecObtainedItem.end(), KObtainedItemLess() );
 }
 
 // notifyCloseResultUI 32eea2c0: June opens the exit box ( 31f1dd70( 1 ) ), R3. In the dev console the widget just closes.
@@ -612,9 +612,9 @@ static void ResultFlowLog( const char* szFormat, ... )
 	va_end( args );
 	KLOG( "ErrorLog.txt" ) << "[JUNE_RESULT] FLOW " << szBuf << fileout;
 }
-#define JUNE_RESULT_FLOW_LOG( args ) ResultFlowLog args
+#define RESULT_FLOW_LOG( args ) ResultFlowLog args
 #else SERV_IRUHADEV_JUNE_RESULT_DEBUG
-#define JUNE_RESULT_FLOW_LOG( args )
+#define RESULT_FLOW_LOG( args )
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 
 static bool ResultDlgAlive( CKTDGUIDialogType pDialog )
@@ -683,7 +683,7 @@ bool CX2MiniMapUI::GetShowMiniControl()
 // 31ef7be0: +0x214 is not reset; mode 3 hides the minimap, mode 0 shows it back
 void CX2State::SetResultUIMode( int iMode, float fTime )
 {
-	m_iJuneResultMode = iMode;
+	m_iResultMode = iMode;
 	CX2MiniMapUI* pMiniMap = ( g_pInstanceData != NULL ) ? g_pInstanceData->GetMiniMapUI() : NULL;
 	if ( iMode == 3 )
 	{
@@ -694,29 +694,29 @@ void CX2State::SetResultUIMode( int iMode, float fTime )
 		pMiniMap->SetShowMiniControl( true );
 
 	if ( 0.f < fTime )
-		m_fJuneResultModeLimit = fTime;
-	JUNE_RESULT_FLOW_LOG(( "mode %d ( time %.2f, limit %.1f )", iMode, m_fJuneResultModeTime, m_fJuneResultModeLimit ));
+		m_fResultModeLimit = fTime;
+	RESULT_FLOW_LOG(( "mode %d ( time %.2f, limit %.1f )", iMode, m_fResultModeTime, m_fResultModeLimit ));
 }
 
 // 31ef7390 ( vslot 0xd4 base )
 void CX2State::ResultModeFrameMove( float fElapsedTime )
 {
-	m_fJuneResultModeTime += fElapsedTime;
+	m_fResultModeTime += fElapsedTime;
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
 	// R3b: what the hide path sees while the exit box is up, once a second
-	static float s_fJuneExitBoxLogTime = 0.f;
-	s_fJuneExitBoxLogTime += fElapsedTime;
-	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true && 1.f <= s_fJuneExitBoxLogTime )
+	static float s_fExitBoxLogTime = 0.f;
+	s_fExitBoxLogTime += fElapsedTime;
+	if ( ResultDlgAlive( m_pDLGExitBox ) == true && 1.f <= s_fExitBoxLogTime )
 	{
-		s_fJuneExitBoxLogTime = 0.f;
+		s_fExitBoxLogTime = 0.f;
 		CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
-		CKTDGUIDialogType pByName = pDialogManager->GetDialog( m_pDLGJuneExitBox->GetName() );
+		CKTDGUIDialogType pByName = pDialogManager->GetDialog( m_pDLGExitBox->GetName() );
 		char szName[ 128 ] = { 0, };
-		WideCharToMultiByte( CP_ACP, 0, m_pDLGJuneExitBox->GetName(), -1, szName, sizeof( szName ) - 1, NULL, NULL );
-		JUNE_RESULT_FLOW_LOG(( "exit box check: name %s, shown %d, found by name %d, hide mode %d, manager shown %d, hidden %d, flagged-only %d, layer %d, front %d",
-			szName, m_pDLGJuneExitBox->GetShow() ? 1 : 0, ( pByName == m_pDLGJuneExitBox ) ? 1 : 0, pDialogManager->GetHideMode(),
+		WideCharToMultiByte( CP_ACP, 0, m_pDLGExitBox->GetName(), -1, szName, sizeof( szName ) - 1, NULL, NULL );
+		RESULT_FLOW_LOG(( "exit box check: name %s, shown %d, found by name %d, hide mode %d, manager shown %d, hidden %d, flagged-only %d, layer %d, front %d",
+			szName, m_pDLGExitBox->GetShow() ? 1 : 0, ( pByName == m_pDLGExitBox ) ? 1 : 0, pDialogManager->GetHideMode(),
 			pDialogManager->GetShow() ? 1 : 0, pDialogManager->GetHideDialog() ? 1 : 0, pDialogManager->GetFlaggedDialogsOnly() ? 1 : 0,
-			m_pDLGJuneExitBox->GetLayer(), m_pDLGJuneExitBox->GetFront() ? 1 : 0 ));
+			m_pDLGExitBox->GetLayer(), m_pDLGExitBox->GetFront() ? 1 : 0 ));
 	}
 #endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 }
@@ -724,7 +724,7 @@ void CX2State::ResultModeFrameMove( float fElapsedTime )
 // 31ef7c60
 bool CX2State::IsExitBoxShown()
 {
-	return ResultDlgAlive( m_pDLGJuneExitBox ) == true && m_pDLGJuneExitBox->GetShow() == true;
+	return ResultDlgAlive( m_pDLGExitBox ) == true && m_pDLGExitBox->GetShow() == true;
 }
 
 // 31f1dd70: a party gets DLG_UI_ExitPartyMsgBox.lua, a solo player an OK / Cancel box; false sends the box's close event
@@ -736,8 +736,8 @@ void CX2State::OpenExitBox( bool bShow )
 	CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
 	if ( bShow == false )
 	{
-		if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
-			g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_pDLGJuneExitBox->GetCloseCustomUIEventID(), NULL, true );
+		if ( ResultDlgAlive( m_pDLGExitBox ) == true )
+			g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_pDLGExitBox->GetCloseCustomUIEventID(), NULL, true );
 		return;
 	}
 
@@ -748,39 +748,39 @@ void CX2State::OpenExitBox( bool bShow )
 		return;
 
 	const bool bParty = ( g_pData->GetPartyManager() == NULL ) ? true : g_pData->GetPartyManager()->DoIHaveParty();
-	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == false )
+	if ( ResultDlgAlive( m_pDLGExitBox ) == false )
 	{
 		if ( bParty == false )
 		{
-			m_pDLGJuneExitBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( 39778 ), SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX,
+			m_pDLGExitBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( 39778 ), SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX,
 				pNowState, SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX );
-			if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
-				m_pDLGJuneExitBox->SetCloseCustomUIEventID( SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX );
+			if ( ResultDlgAlive( m_pDLGExitBox ) == true )
+				m_pDLGExitBox->SetCloseCustomUIEventID( SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX );
 		}
 		else
 		{
-			m_pDLGJuneExitBox = new CKTDGUIDialog( pNowState, L"DLG_UI_ExitPartyMsgBox.lua", 0.07f );
-			pDialogManager->AddDlg( m_pDLGJuneExitBox );		// 31d04390; the message box is already in the manager
+			m_pDLGExitBox = new CKTDGUIDialog( pNowState, L"DLG_UI_ExitPartyMsgBox.lua", 0.07f );
+			pDialogManager->AddDlg( m_pDLGExitBox );		// 31d04390; the message box is already in the manager
 		}
 		pDialogManager->SetFlaggedDialogsOnly( true );		// @31f1e108
 	}
 
-	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == true )
+	if ( ResultDlgAlive( m_pDLGExitBox ) == true )
 	{
-		m_pDLGJuneExitBox->SetShow( bShow );
-		m_pDLGJuneExitBox->SetEnable( bShow );
+		m_pDLGExitBox->SetShow( bShow );
+		m_pDLGExitBox->SetEnable( bShow );
 		SetExitBoxText( bParty );
 		ResultEnableRetry( false, -1.f );
 	}
-	JUNE_RESULT_FLOW_LOG(( "exit box: %s, %s", bParty ? "party" : "solo", ResultDlgAlive( m_pDLGJuneExitBox ) ? "shown" : "not created" ));
+	RESULT_FLOW_LOG(( "exit box: %s, %s", bParty ? "party" : "solo", ResultDlgAlive( m_pDLGExitBox ) ? "shown" : "not created" ));
 }
 
 // 31f17e60: the text by state; June's PvE-state row ( 0x17 ) belongs to Stage 9
 void CX2State::SetExitBoxText( bool bParty )
 {
-	if ( ResultDlgAlive( m_pDLGJuneExitBox ) == false )
+	if ( ResultDlgAlive( m_pDLGExitBox ) == false )
 		return;
-	CKTDGUIStatic* pStatic = static_cast< CKTDGUIStatic* >( m_pDLGJuneExitBox->GetControl( L"StaticMsgBoxBG" ) );
+	CKTDGUIStatic* pStatic = static_cast< CKTDGUIStatic* >( m_pDLGExitBox->GetControl( L"StaticMsgBoxBG" ) );
 	if ( pStatic == NULL )
 		return;
 
@@ -801,14 +801,14 @@ void CX2State::SetExitBoxText( bool bParty )
 // 31f17c20 ( vslot 0xd8 ): June dereferences the dialog without a check
 void CX2State::UpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec )
 {
-	if ( ResultDlgAlive( m_pDLGJunePartyResult ) == false || piSec == NULL )
+	if ( ResultDlgAlive( m_pDLGPartyResult ) == false || piSec == NULL )
 		return;
 
-	CKTDGUIControl* pState = m_pDLGJunePartyResult->GetControl( L"Party_Member_Result_State" );
+	CKTDGUIControl* pState = m_pDLGPartyResult->GetControl( L"Party_Member_Result_State" );
 	if ( pState != NULL )
-		pState->SetShow( bDone == true && m_bJuneResultConfirmSent == true && m_bJuneResultQuit == false );
+		pState->SetShow( bDone == true && m_bResultConfirmSent == true && m_bResultQuit == false );
 
-	CKTDGUIStatic* pTime = static_cast< CKTDGUIStatic* >( m_pDLGJunePartyResult->GetControl( L"Party_Member_Waiting_Time" ) );
+	CKTDGUIStatic* pTime = static_cast< CKTDGUIStatic* >( m_pDLGPartyResult->GetControl( L"Party_Member_Waiting_Time" ) );
 	if ( pTime != NULL )
 	{
 		WCHAR wszText[ 256 ] = L"";
@@ -822,8 +822,8 @@ void CX2State::UpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec )
 // 31f08590 ( vslot 0xdc ): June does not free an earlier dialog here
 void CX2State::CreatePartyResultDLG()
 {
-	m_pDLGJunePartyResult = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_Party_Member_Result_State.lua", 0.07f );
-	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGJunePartyResult );
+	m_pDLGPartyResult = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_Party_Member_Result_State.lua", 0.07f );
+	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGPartyResult );
 	int iSec = 0;
 	UpdatePartyResultDLG( false, false, &iSec );
 }
@@ -839,11 +839,11 @@ void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 {
 	CX2State::ResultModeFrameMove( fElapsedTime );
 
-	switch ( m_iJuneResultMode )
+	switch ( m_iResultMode )
 	{
 	case 1:
 		{
-			if ( (double)m_fJuneResultModeTime < 0.1 && ResultNpcEventActive() == false )
+			if ( (double)m_fResultModeTime < 0.1 && ResultNpcEventActive() == false )
 				return;
 
 			if ( g_pMain->GetIsPlayingTutorial() == true )
@@ -863,19 +863,19 @@ void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 				ResultSendConfirm( false );
 				return;
 			}
-			if ( pManager->isOpenUI( JUNE_RESULT_UI_ID ) == true )
+			if ( pManager->isOpenUI( RESULT_UI_ID ) == true )
 				return;
 			if ( g_pData->GetDungeonResultInfo() == NULL )
 			{
 				ResultSendConfirm( false );
 				return;
 			}
-			if ( m_bJuneResultUIOpened == false )
+			if ( m_bResultUIOpened == false )
 			{
 				ResultRecreateAdapter();
-				pManager->openUI( JUNE_RESULT_UI_ID );
-				m_bJuneResultUIOpened = true;
-				JUNE_RESULT_FLOW_LOG(( "mode 1: UI 8 opened" ));
+				pManager->openUI( RESULT_UI_ID );
+				m_bResultUIOpened = true;
+				RESULT_FLOW_LOG(( "mode 1: UI 8 opened" ));
 			}
 			if ( g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
 				g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324cf508
@@ -895,17 +895,17 @@ void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 			if ( m_pDungeonGame != NULL && m_pDungeonGame->GetCanUseEscFlag() == false )
 				m_pDungeonGame->SetCanUseEscFlag( true );
 
-			int iSec = (int)( m_fJuneResultModeLimit - m_fJuneResultModeTime );
+			int iSec = (int)( m_fResultModeLimit - m_fResultModeTime );
 			if ( iSec < 0 )
 				iSec = 0;
 			UpdatePartyResultDLG( false, true, &iSec );
 
-			if ( m_fJuneResultModeLimit <= m_fJuneResultModeTime )
+			if ( m_fResultModeLimit <= m_fResultModeTime )
 			{
 				SetResultUIMode( 4, 0.f );
 				return;
 			}
-			if ( m_fJuneResultModeTime < 0.f || m_bJuneResultSpeedChecked == true )
+			if ( m_fResultModeTime < 0.f || m_bResultSpeedChecked == true )
 				return;
 
 			// June's speed-clear hack report ( @324cf63d-324cf762 )
@@ -940,20 +940,20 @@ void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 						g_pData->GetMyUser()->AccessUserData().hackingUserType = CX2User::HUT_AGREE_HACK_USER;
 					}
 					// g_pMain 31d75660( 0x79, L"", 0, 1 ) is a no-op for 0x79
-					JUNE_RESULT_FLOW_LOG(( "speed-clear report: %d s, level %d, limit %d, dungeon %d", pResultInfo->m_Sec, iMyLevel, iLevelLimit, iDungeonID ));
+					RESULT_FLOW_LOG(( "speed-clear report: %d s, level %d, limit %d, dungeon %d", pResultInfo->m_Sec, iMyLevel, iLevelLimit, iDungeonID ));
 				}
 			}
-			m_bJuneResultSpeedChecked = true;
+			m_bResultSpeedChecked = true;
 		} break;
 
 	case 4:
 		{
-			int iSec = (int)( m_fJuneResultModeLimit - m_fJuneResultModeTime );
+			int iSec = (int)( m_fResultModeLimit - m_fResultModeTime );
 			if ( iSec < 0 )
 				iSec = 0;
 			UpdatePartyResultDLG( true, true, &iSec );
 			CKTDGGFXManager* pManager = g_pKTDXApp->GetGFXManager();
-			if ( pManager != NULL && pManager->isOpenUI( JUNE_RESULT_UI_ID ) == true )
+			if ( pManager != NULL && pManager->isOpenUI( RESULT_UI_ID ) == true )
 				ResultCloseAndDelete();
 			ResultSendConfirm( false );
 		} break;
@@ -966,7 +966,7 @@ void CX2StateDungeonGame::ResultModeFrameMove( float fElapsedTime )
 // 324d8600 ( vslot 0xe0 ): a party asks the server at once, a solo player gets the ready box first
 void CX2StateDungeonGame::ResultRetry()
 {
-	if ( m_bJuneResultRetryEnabled == false )
+	if ( m_bResultRetryEnabled == false )
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
@@ -994,44 +994,44 @@ void CX2StateDungeonGame::ResultRetry()
 	// June's extra ( 230, 200 ) argument to 31d94a20 has no March parameter
 	g_pMain->AddTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, CX2Main::TimedMessagePopUp::MBT_OK_CANCEL,
 		kUserData, 10.f, GET_REPLACED_STRING( ( STR_ID_21304, "Li", wstrDungeonName, 1 ) ), (CKTDXStage*)g_pMain->GetNowState(),
-		DGUCM_JUNE_RESULT_RETRY_OK, DGUCM_JUNE_RESULT_RETRY_CANCEL, DGUCM_JUNE_RESULT_RETRY_CANCEL );
+		DGUCM_RESULT_RETRY_OK, DGUCM_RESULT_RETRY_CANCEL, DGUCM_RESULT_RETRY_CANCEL );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324d880f
 	ResultEnableRetry( false, -1.f );
-	JUNE_RESULT_FLOW_LOG(( "retry: solo ready box ( dungeon %d, difficulty %d, mode %d )", iDungeonID, iDifficulty, iMode ));
+	RESULT_FLOW_LOG(( "retry: solo ready box ( dungeon %d, difficulty %d, mode %d )", iDungeonID, iDifficulty, iMode ));
 #endif SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
 }
 
 // 324c8c40 ( vslot 0x294 ): Tab while the dialogs are hidden, only in mode 3
 void CX2StateDungeonGame::ResultTabKey()
 {
-	if ( m_iJuneResultMode == 3 && m_pJuneResultAdapter != NULL )
+	if ( m_iResultMode == 3 && m_pResultAdapter != NULL )
 	{
-		m_pJuneResultAdapter->NotifyTabKey();
-		JUNE_RESULT_FLOW_LOG(( "Tab: onTabKeyProcess notified" ));
+		m_pResultAdapter->NotifyTabKey();
+		RESULT_FLOW_LOG(( "Tab: onTabKeyProcess notified" ));
 	}
 }
 
 // 324d11e0 ( vslot 0xe8 ): its only June caller is the party manager ( Stage 28 )
 void CX2StateDungeonGame::ResultRefreshRetryButton()
 {
-	if ( m_iJuneResultMode == 3 && m_pJuneResultAdapter != NULL )
-		m_pJuneResultAdapter->ShowRetryButton( ResultRetryAllowed() );
+	if ( m_iResultMode == 3 && m_pResultAdapter != NULL )
+		m_pResultAdapter->ShowRetryButton( ResultRetryAllowed() );
 }
 
 // 324c9990 ( vslot 0xec ): ESC with the ready box up is its Cancel
 void CX2StateDungeonGame::ResultEscWithRetryPopup()
 {
 	if ( g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) == true )
-		g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, DGUCM_JUNE_RESULT_RETRY_CANCEL, NULL, true );
+		g_pKTDXApp->SendGameMessage( CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, DGUCM_RESULT_RETRY_CANCEL, NULL, true );
 }
 
 // 324d84c0 ( vslot 0xf0 ): once; a pending ready box is declined first ( 32434250( 0 ) )
 bool CX2StateDungeonGame::ResultSendConfirm( bool bQuit )
 {
-	if ( m_bJuneResultConfirmSent == true )
+	if ( m_bResultConfirmSent == true )
 		return false;
-	m_bJuneResultConfirmSent	= true;
-	m_bJuneResultQuit			= bQuit;
+	m_bResultConfirmSent	= true;
+	m_bResultQuit			= bQuit;
 
 	if ( g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) == true )
 	{
@@ -1040,7 +1040,7 @@ bool CX2StateDungeonGame::ResultSendConfirm( bool bQuit )
 	}
 	g_pData->GetServerProtocol()->SendID( EGS_RESULT_SUCCESS_REQ );
 	g_pMain->AddServerPacket( EGS_RESULT_SUCCESS_ACK, 0.f );
-	JUNE_RESULT_FLOW_LOG(( "confirm sent ( quit %d )", bQuit ? 1 : 0 ));
+	RESULT_FLOW_LOG(( "confirm sent ( quit %d )", bQuit ? 1 : 0 ));
 	return true;
 }
 
@@ -1054,7 +1054,7 @@ bool CX2StateDungeonGame::ResultSendRetryReq()
 	g_pData->GetServerProtocol()->SendID( EGS_DUNGEON_RETRY_REQ );
 	g_pMain->AddServerPacket( EGS_DUNGEON_RETRY_ACK, 0.f );
 	ResultEnableRetry( false, -1.f );
-	JUNE_RESULT_FLOW_LOG(( "retry REQ sent" ));
+	RESULT_FLOW_LOG(( "retry REQ sent" ));
 	return true;
 }
 
@@ -1094,7 +1094,7 @@ bool CX2StateDungeonGame::ResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NO
 	else
 		SetResultUIMode( 1, 30.f );		// @324db8d7
 	// DI_EVENT_HIGHSCHOOL ( 41450 ) score effects read a June-only packet map: routed to the event-dungeon owner
-	JUNE_RESULT_FLOW_LOG(( "end: win %d, my unit dead %d, dungeon %d, units %d", kPacket.m_bIsWin ? 1 : 0, bDieMyUnit ? 1 : 0, kPacket.m_iDungeonID, (int)kPacket.m_vecDungeonUnitInfo.size() ));
+	RESULT_FLOW_LOG(( "end: win %d, my unit dead %d, dungeon %d, units %d", kPacket.m_bIsWin ? 1 : 0, bDieMyUnit ? 1 : 0, kPacket.m_iDungeonID, (int)kPacket.m_vecDungeonUnitInfo.size() ));
 	return true;
 }
 
@@ -1109,23 +1109,23 @@ bool CX2StateDungeonGame::Handler_EGS_RESULT_SUCCESS_ACK( HWND hWnd, UINT uMsg, 
 	{
 		if ( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 		{
-			if ( m_bJuneResultAckDone == false )
+			if ( m_bResultAckDone == false )
 			{
-				if ( m_bJuneResultQuit == true )
+				if ( m_bResultQuit == true )
 				{
 					if ( m_pDungeonGame != NULL )
 						m_pDungeonGame->Handler_EGS_LEAVE_ROOM_REQ( NetError::NOT_LEAVE_ROOM_REASON_00 );		// game vslot 0x12c( 0x72 )
-					if ( g_pData->GetPartyManager() != NULL && g_pData->GetPartyManager()->DoIHaveParty() == true && m_bJuneResultLeaveOnAck == false )
+					if ( g_pData->GetPartyManager() != NULL && g_pData->GetPartyManager()->DoIHaveParty() == true && m_bResultLeaveOnAck == false )
 						g_pData->GetPartyManager()->Handler_EGS_LEAVE_PARTY_REQ( NetError::NOT_LEAVE_ROOM_REASON_00 );	// 324334d0( 0x72 )
-					m_bJuneResultAckDone = true;
+					m_bResultAckDone = true;
 				}
-				else if ( m_bJuneResultLeaveOnAck == true && g_pMain->GetNowState() != NULL )
+				else if ( m_bResultLeaveOnAck == true && g_pMain->GetNowState() != NULL )
 				{
 					static_cast< CX2State* >( g_pMain->GetNowState() )->ReturnToPlaceWhereBeforeDungeonStart();
-					m_bJuneResultAckDone = true;
+					m_bResultAckDone = true;
 				}
 			}
-			JUNE_RESULT_FLOW_LOG(( "confirm ACK: quit %d, leave on ACK %d, done %d", m_bJuneResultQuit ? 1 : 0, m_bJuneResultLeaveOnAck ? 1 : 0, m_bJuneResultAckDone ? 1 : 0 ));
+			RESULT_FLOW_LOG(( "confirm ACK: quit %d, leave on ACK %d, done %d", m_bResultQuit ? 1 : 0, m_bResultLeaveOnAck ? 1 : 0, m_bResultAckDone ? 1 : 0 ));
 			return true;
 		}
 		if ( kEvent.m_iOK == NetError::NOT_LEAVE_ROOM_REASON_14 && g_pData->GetDungeonRoom() != NULL )
@@ -1146,8 +1146,8 @@ bool CX2StateDungeonGame::Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT( HWND hWnd, UI
 		g_pMain->SetIsPlayingTutorial( false );		// 31d716c0( 0 )
 		g_pMain->SetIsExitingTutorial( true );		// +0x16c
 	}
-	JUNE_RESULT_FLOW_LOG(( "all-unit NOT: %s", m_bJuneResultAckDone ? "already left" : "leaving" ));
-	if ( m_bJuneResultAckDone == false && g_pMain->GetNowState() != NULL )
+	RESULT_FLOW_LOG(( "all-unit NOT: %s", m_bResultAckDone ? "already left" : "leaving" ));
+	if ( m_bResultAckDone == false && g_pMain->GetNowState() != NULL )
 		static_cast< CX2State* >( g_pMain->GetNowState() )->ReturnToPlaceWhereBeforeDungeonStart();
 	return true;
 }
@@ -1165,7 +1165,7 @@ bool CX2StateDungeonGame::Handler_EGS_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, W
 			ResultEnableRetry( true, -1.f );
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( false, 2 );		// @324c966e
 	}
-	JUNE_RESULT_FLOW_LOG(( "retry ACK: %d", kEvent.m_iOK ));
+	RESULT_FLOW_LOG(( "retry ACK: %d", kEvent.m_iOK ));
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -1187,9 +1187,9 @@ void ResultOpen_LUA()
 	}
 
 	pState->ResultRecreateAdapter();
-	const bool bWasOpen = pManager->isOpenUI( JUNE_RESULT_UI_ID );
+	const bool bWasOpen = pManager->isOpenUI( RESULT_UI_ID );
 	if ( bWasOpen == false )
-		pManager->openUI( JUNE_RESULT_UI_ID );
+		pManager->openUI( RESULT_UI_ID );
 	ResultWidgetLog( "open: adapter %s, UI 8 %s", pState->ResultIsBound() ? "bound" : "not bound", bWasOpen ? "was open ( the fill runs now )" : "opened ( the fill runs at notifyInitialize )" );
 	if ( bWasOpen == true )
 		pState->ResultFill();

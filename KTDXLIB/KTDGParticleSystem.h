@@ -1342,7 +1342,7 @@ class CKTDGParticleSystem
 				DWORD ApplyEffectAlphaToColor( DWORD dwColor ) const;	/// June2017 31cf4ed0 @31cf580e: vertex colour with this category's alpha
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
-				void SetOutOfDGManager( bool bVal ){ m_bJuneOutOfDGManager = bVal; }	/// June2017 sequence +0x45a
+				void SetOutOfDGManager( bool bVal ){ m_bOutOfDGManager = bVal; }	/// June2017 sequence +0x45a
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 
 				void SetLightPos( D3DXVECTOR3 lightPos ){ m_LightPos = lightPos; }
@@ -1671,7 +1671,7 @@ class CKTDGParticleSystem
 				BYTE							m_byEffectAlphaCondition;	/// June2017 CParticleEventSequence +0x1b0 (ctor default 0 @31cf795b): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
-				bool							m_bJuneOutOfDGManager;	/// June2017 +0x45a ( ctor 0 @31cf7b27 ): the unit viewer took it out of the DG manager
+				bool							m_bOutOfDGManager;	/// June2017 +0x45a ( ctor 0 @31cf7b27 ): the unit viewer took it out of the DG manager
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 				D3DXVECTOR3						m_LightPos;
 				CKTDGXRenderer::RENDER_TYPE		m_MeshRenderType;

@@ -24,10 +24,10 @@ CX2WorldObjectMesh::CX2WorldObjectMesh( bool bBackgroundLoad_ )
 	m_bAnyCamera		= false;
 	m_fNowAlpha			= 1.0f;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
-	m_iJuneSavedLayer	= -1;	// June ctor 327fa190
+	m_iSavedLayer	= -1;	// June ctor 327fa190
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-	m_bJuneWMeshLoggedHide = false;
-	m_bJuneWMeshLoggedShow = false;
+	m_bWMeshLoggedHide = false;
+	m_bWMeshLoggedShow = false;
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 	
@@ -148,10 +148,10 @@ RENDER_HINT   CX2WorldObjectMesh::OnFrameRender_Prepare()
 	// 0xff with its own layer kept in m_iJuneSavedLayer ( +0x324 ) until it is no longer hidden, and it raises the camera's
 	// mesh-hidden flag ( camera +0x19d, cleared by UpdateCamera ). The fade constants are June's 0.3f ( 3345993c ) and 4.0 ( 33437838 ).
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-	static bool s_bJuneWMeshLoggedOn = false;
-	if( s_bJuneWMeshLoggedOn == false )
+	static bool s_bWMeshLoggedOn = false;
+	if( s_bWMeshLoggedOn == false )
 	{
-		s_bJuneWMeshLoggedOn = true;
+		s_bWMeshLoggedOn = true;
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH June world-mesh render on: base frustum test, no subset culling, any-camera hide only" << fileout;
 	}
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
@@ -179,16 +179,16 @@ RENDER_HINT   CX2WorldObjectMesh::OnFrameRender_Prepare()
 		{
 			bHide = true;
 
-			if( m_iJuneSavedLayer == -1 )
+			if( m_iSavedLayer == -1 )
 			{
-				m_iJuneSavedLayer = GetLayer();
+				m_iSavedLayer = GetLayer();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-				if( m_bJuneWMeshLoggedHide == false )
+				if( m_bWMeshLoggedHide == false )
 				{
-					m_bJuneWMeshLoggedHide = true;
+					m_bWMeshLoggedHide = true;
 					std::string strName;
 					ConvertWCHARToChar( strName, m_XMeshName.c_str() );
-					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH hide: " << strName.c_str() << " layer " << m_iJuneSavedLayer << " -> 255, alpha "
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH hide: " << strName.c_str() << " layer " << m_iSavedLayer << " -> 255, alpha "
 						<< m_fNowAlpha << ", not-render-when-hidden " << ( m_bNotRenderWhenHidden ? 1 : 0 ) << fileout;
 				}
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
@@ -213,19 +213,19 @@ RENDER_HINT   CX2WorldObjectMesh::OnFrameRender_Prepare()
 		if( m_fNowAlpha > m_RenderParam.color.a * m_coColor.a )
 			m_fNowAlpha = m_RenderParam.color.a * m_coColor.a;
 
-		if( m_iJuneSavedLayer != -1 )
+		if( m_iSavedLayer != -1 )
 		{
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-			if( m_bJuneWMeshLoggedShow == false )
+			if( m_bWMeshLoggedShow == false )
 			{
-				m_bJuneWMeshLoggedShow = true;
+				m_bWMeshLoggedShow = true;
 				std::string strName;
 				ConvertWCHARToChar( strName, m_XMeshName.c_str() );
-				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH show: " << strName.c_str() << " layer restored to " << m_iJuneSavedLayer << fileout;
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH show: " << strName.c_str() << " layer restored to " << m_iSavedLayer << fileout;
 			}
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-			SetLayer( m_iJuneSavedLayer );
-			m_iJuneSavedLayer = -1;
+			SetLayer( m_iSavedLayer );
+			m_iSavedLayer = -1;
 		}
 	}
 

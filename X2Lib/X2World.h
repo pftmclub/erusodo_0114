@@ -1005,7 +1005,7 @@ public:
 		
 		void				SetShowObject( bool bShow );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		bool				GetShowWorld() const { return m_bJuneShowWorld; }
+		bool				GetShowWorld() const { return m_bShowWorld; }
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef X2TOOL
 		void				SetShowObjectByTool( bool bShow );
@@ -1359,7 +1359,7 @@ public:
         bool                        m_bDistanceColor;
         vector<CX2WorldObject*>     m_vecSyncObject;
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-		float						m_fJuneMovableLineSyncTime;	/// June CX2World +0x1b0: the host's 1 s P2P 0x1c timer ( 328018c0 )
+		float						m_fMovableLineSyncTime;	/// June CX2World +0x1b0: the host's 1 s P2P 0x1c timer ( 328018c0 )
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 		KLuabinder*					m_pKLuabinder;
@@ -1395,7 +1395,7 @@ public:
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		/// Atlas E7: June CX2World +0x1ac. 1 from the ctor ( 327fddf0 @327fdec8 ), written by SetShowObject ( 327fba60 ); CX2Game moves,
 		/// draws and resets an additional world only while it is 1 ( 32309b8d, 322d72c0, 322d7320, 322d73b0 ).
-		bool m_bJuneShowWorld;
+		bool m_bShowWorld;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #if defined(WORLD_TOOL) || defined(X2TOOL)
 		wstring m_wstrWorldName;

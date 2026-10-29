@@ -2377,7 +2377,7 @@ class CX2Main : public CKTDXStage
 		bool				m_bIsPlayingTutorial;
 		bool				m_bIsExitingTutorial;
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
-		bool				m_bJuneTutorialKeyLatch;	/// June CX2Main +0x16b: default keys applied once per tutorial (31d716c0, reset 327d2160)
+		bool				m_bTutorialKeyLatch;	/// June CX2Main +0x16b: default keys applied once per tutorial (31d716c0, reset 327d2160)
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		X2_STATE			m_StateIDBeforeTutorial;
 		int					m_iRandLoadingBG;
@@ -2456,7 +2456,7 @@ class CX2Main : public CKTDXStage
 		CX2InformerManager*			m_pInformerManager;
 		CX2MemoryHolder*			m_pMemoryHolder;
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
-		CKTDGGFXSimpleWidgetPlayer*	m_pJuneSimpleWidgetPlayer;	/// June CX2Main +0xd7c
+		CKTDGGFXSimpleWidgetPlayer*	m_pSimpleWidgetPlayer;	/// June CX2Main +0xd7c
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 		HINTERNET					m_hInternet;
@@ -2797,27 +2797,27 @@ public:
 	void			SendReservedQuestComplete();									/// June 31d822b0
 	void			SetClearMovieUIMode( bool bPlaying_ );							/// June 31d87560
 	void			CheckClearMovieEnd();											/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419
-	bool			IsClearMoviePlaying() const { return m_bJuneClearMoviePlaying; }	/// June g_pMain +0x80a
-	void			ClearClearMoviePlaying() { m_bJuneClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
+	bool			IsClearMoviePlaying() const { return m_bClearMoviePlaying; }	/// June g_pMain +0x80a
+	void			ClearClearMoviePlaying() { m_bClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	bool			CanShowClassGuide( const int iGuide_ );							/// June 31d71810
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 private:
-	vector<ClearMovieTemplet>	m_vecJuneClearMovieTemplet;		/// +0x7f8
-	bool							m_bJuneClearMovieOrgSound;		/// +0x808: option +0x41 ( m_bSound ) kept while the movie plays
-	bool							m_bJuneClearMovieOrgMusic;		/// +0x809: option +0x40 ( m_bMusic )
-	bool							m_bJuneClearMoviePlaying;		/// +0x80a
-	wstring							m_wstrJuneClearMovieFileName;	/// +0x80c: the movie the next start opens
-	KEGS_QUEST_COMPLETE_REQ			m_kJuneReservedQuestComplete;	/// +0x828: the complete request sent when the movie ends ( quest id 0 = none )
-	bool							m_bJuneReservedAdminComplete;	/// +0x842: send it as the admin request
-	CKTDGUIDialogType				m_pDLGJuneClearMovie;			/// +0x844: DLG_Dungeon_Clear_Movie.lua
-	vector< std::pair<int, bool> >	m_vecJuneSeenClearMovie;		/// +0x84c: { movie id, true } per movie played ( reader: the scenario-movie tab, Q8c )
+	vector<ClearMovieTemplet>	m_vecClearMovieTemplet;		/// +0x7f8
+	bool							m_bClearMovieOrgSound;		/// +0x808: option +0x41 ( m_bSound ) kept while the movie plays
+	bool							m_bClearMovieOrgMusic;		/// +0x809: option +0x40 ( m_bMusic )
+	bool							m_bClearMoviePlaying;		/// +0x80a
+	wstring							m_wstrClearMovieFileName;	/// +0x80c: the movie the next start opens
+	KEGS_QUEST_COMPLETE_REQ			m_kReservedQuestComplete;	/// +0x828: the complete request sent when the movie ends ( quest id 0 = none )
+	bool							m_bReservedAdminComplete;	/// +0x842: send it as the admin request
+	CKTDGUIDialogType				m_pDLGClearMovie;			/// +0x844: DLG_Dungeon_Clear_Movie.lua
+	vector< std::pair<int, bool> >	m_vecSeenClearMovie;		/// +0x84c: { movie id, true } per movie played ( reader: the scenario-movie tab, Q8c )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 public:
 	const ClearMovieTemplet*	GetClearMovieTemplet( int iMovieID_ ) const;	/// June 31d75b50 ( also 31d759e0 / 31d75a70 / 31d76230 )
-	int								GetClearMovieCount() const { return (int)m_vecJuneClearMovieTemplet.size(); }	/// June 323d1638: rows ( 0xc4 each )
+	int								GetClearMovieCount() const { return (int)m_vecClearMovieTemplet.size(); }	/// June 323d1638: rows ( 0xc4 each )
 	bool							IsSeenClearMovie( int iMovieID_ ) const;		/// June 31d759a0
 	bool							IsNewClearMovie( int iMovieID_ ) const;			/// June 31d75b80
 	void							SetNewClearMovie( int iMovieID_, bool bNew_ );	/// June 31d75bb0

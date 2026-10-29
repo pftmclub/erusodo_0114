@@ -1039,13 +1039,13 @@ DECL_DATA( KSkillData )
 {
 	short m_iSkillID;
 	UCHAR m_cSkillLevel;
-	int m_iJuneSkillDataExtra;	// June KSkillData +3 (320ef0e0): meaning unmapped, no client reader. The emulator writes 0.
+	int m_iSkillDataExtra;	// June KSkillData +3 (320ef0e0): meaning unmapped, no client reader. The emulator writes 0.
 
 	void Init()
 	{
 		m_iSkillID = 0;
 		m_cSkillLevel = 0;
-		m_iJuneSkillDataExtra = 0;
+		m_iSkillDataExtra = 0;
 	}
 };
 
@@ -1101,7 +1101,7 @@ DECL_DATA( KUnitSkillData )
 	KSkillData 		m_aEquippedSkill[ EQUIPPED_SKILL_SLOT_COUNT ];
 	KSkillData 		m_aEquippedSkillSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-	std::vector< KSkillSlotState >	m_vecJuneSkillSlotState;	// June: replaces m_wstrSkillSlotBEndDate / m_cSkillSlotBExpirationState
+	std::vector< KSkillSlotState >	m_vecSkillSlotState;	// June: replaces m_wstrSkillSlotBEndDate / m_cSkillSlotBExpirationState
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	std::wstring	m_wstrSkillSlotBEndDate;														
 	char			m_cSkillSlotBExpirationState;										// KUserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE		
@@ -1124,7 +1124,7 @@ DECL_DATA( KUnitSkillData )
 	unsigned char	m_nTheNumberOfSkillPagesAvailable;
 #endif // SERV_SKILL_PAGE_SYSTEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-	KSkillExtraData	m_kJuneSkillExtraData;	// June 320dc980, last field of 320e3670
+	KSkillExtraData	m_kSkillExtraData;	// June 320dc980, last field of 320e3670
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	
 	KUnitSkillData()
@@ -1146,8 +1146,8 @@ DECL_DATA( KUnitSkillData )
 #endif SERV_SKILL_NOTE
 		//}}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-		m_vecJuneSkillSlotState.clear();
-		m_kJuneSkillExtraData = KSkillExtraData();
+		m_vecSkillSlotState.clear();
+		m_kSkillExtraData = KSkillExtraData();
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		m_wstrSkillSlotBEndDate = L"";
 		m_cSkillSlotBExpirationState = 0;
@@ -1377,10 +1377,10 @@ DECL_DATA( KBuffFactor )
 #ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	/// This flag is defined in ServerDefine.h (included above) as well as Always.h: X2Main.h:4 reaches this header
 	/// through X2ServerProtocolLib.h before KTDX.h includes Always.h, so an Always.h-only flag is never seen here.
-	float									m_fJuneCreatorPowerRate;			/// June +0x57: the creator's power rate (templet +0xbc), the last field June's Put/Get carry (320e3950)
+	float									m_fCreatorPowerRate;			/// June +0x57: the creator's power rate (templet +0xbc), the last field June's Put/Get carry (320e3950)
 
 	KBuffFactor() : m_BuffIdentity(), m_uidMesGameUnit( 0 ), m_fAccumulationMultiplier( 0.0f ), m_ucAccumulationCountNow( 0 ), m_bIsMesGameUnitNpc( false ), m_iFactorID( 0 ),
-		m_fJuneCreatorPowerRate( 1.0f )		/// June ctor 3211ea50 @3211ea94 (FLD1)
+		m_fCreatorPowerRate( 1.0f )		/// June ctor 3211ea50 @3211ea94 (FLD1)
 #else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	KBuffFactor() : m_BuffIdentity(), m_uidMesGameUnit( 0 ), m_fAccumulationMultiplier( 0.0f ), m_ucAccumulationCountNow( 0 ), m_bIsMesGameUnitNpc( false ), m_iFactorID( 0 )
 #endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
@@ -1397,7 +1397,7 @@ DECL_DATA( KBuffFactor )
 	/// never sees (see the member above), so the March #else was what compiled until Phase 9c. Offline only.
 	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ), m_uidMesGameUnit( rhs_.m_uidMesGameUnit ),
 		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ),
-		m_bIsMesGameUnitNpc( rhs_.m_bIsMesGameUnitNpc ), m_iFactorID( rhs_.m_iFactorID ), m_fJuneCreatorPowerRate( rhs_.m_fJuneCreatorPowerRate )
+		m_bIsMesGameUnitNpc( rhs_.m_bIsMesGameUnitNpc ), m_iFactorID( rhs_.m_iFactorID ), m_fCreatorPowerRate( rhs_.m_fCreatorPowerRate )
 #else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	KBuffFactor( const KBuffFactor& rhs_ ) : m_BuffIdentity( rhs_.m_BuffIdentity ),
 		m_fAccumulationMultiplier( rhs_.m_fAccumulationMultiplier ), m_ucAccumulationCountNow( rhs_.m_ucAccumulationCountNow ), m_iFactorID( rhs_.m_iFactorID )

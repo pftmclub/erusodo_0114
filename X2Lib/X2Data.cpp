@@ -970,7 +970,7 @@ CX2Data::CX2Data(void)
 	m_pMessenger			= NULL;
 	m_pSlideShot			= NULL;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
-	m_pJuneSlideShotScripted	= NULL;
+	m_pSlideShotScripted	= NULL;
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef EVENT_SCENE
@@ -1143,7 +1143,7 @@ CX2Data::~CX2Data(void)
 	SAFE_DELETE( m_pMessenger );
 	SAFE_DELETE( m_pSlideShot );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
-	SAFE_DELETE( m_pJuneSlideShotScripted );		/// June ~CX2Data @31eeecdc; before the UI particle system its particles live in
+	SAFE_DELETE( m_pSlideShotScripted );		/// June ~CX2Data @31eeecdc; before the UI particle system its particles live in
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef EVENT_SCENE
@@ -1270,8 +1270,8 @@ HRESULT CX2Data::OnFrameMove( double fTime, float fElapsedTime )
 		m_pSlideShot->OnFrameMove( fElapsedTime );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	/// June 31ee9f50 @31eea110..31eea122: right after the old slide show
-	if( NULL != m_pJuneSlideShotScripted )
-		m_pJuneSlideShotScripted->OnFrameMove( fElapsedTime );
+	if( NULL != m_pSlideShotScripted )
+		m_pSlideShotScripted->OnFrameMove( fElapsedTime );
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
@@ -1826,17 +1826,17 @@ CX2ItemManager* CX2Data::ResetItemManager()
 #endif //ICE_HEATER_PRE_VIEW
 #ifdef PET_PREVIEW
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
-	m_pItemManager->m_iJunePetPreviewLoaded = 0;
-	m_pItemManager->m_iJunePetPreviewSkipped = 0;
+	m_pItemManager->m_iPetPreviewLoaded = 0;
+	m_pItemManager->m_iPetPreviewSkipped = 0;
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 	m_pItemManager->OpenScriptFile( L"PetPreView.lua" );
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 	{
 		// one line per load tells a clean load from a file that Lua aborted half way (June's file: 241 loaded + 152 skipped)
-		WCHAR wszJuneFx[128] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW_LOOKUP loaded=%d skipped=%d",
-			m_pItemManager->m_iJunePetPreviewLoaded, m_pItemManager->m_iJunePetPreviewSkipped );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[128] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_PREVIEW_LOOKUP loaded=%d skipped=%d",
+			m_pItemManager->m_iPetPreviewLoaded, m_pItemManager->m_iPetPreviewSkipped );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif // PET_PREVIEW
@@ -1872,11 +1872,11 @@ CX2ItemManager* CX2Data::ResetItemManager()
 	// June 31edda90 loads it after EventSealItemData; March has no such load, so it follows the June loads above
 	{
 		const bool bTranscendItemLoaded = m_pItemManager->OpenScriptFile( L"TranscendentalClassItem.lua" );
-		WCHAR wszJuneItem[160] = {0};
-		StringCchPrintfW( wszJuneItem, ARRAY_SIZE(wszJuneItem), L"JUNE_TRANSCEND ITEM load=%d 288319=%d 288323=%d 288318=%d",
+		WCHAR wszItemLog[160] = {0};
+		StringCchPrintfW( wszItemLog, ARRAY_SIZE(wszItemLog), L"JUNE_TRANSCEND ITEM load=%d 288319=%d 288323=%d 288318=%d",
 			bTranscendItemLoaded ? 1 : 0, m_pItemManager->GetTranscendentalClassItemType( 288319 ), m_pItemManager->GetTranscendentalClassItemType( 288323 ),
 			m_pItemManager->GetTranscendentalClassItemType( 288318 ) );
-		ErrorLogMsg( XEM_ERROR142, wszJuneItem );
+		ErrorLogMsg( XEM_ERROR142, wszItemLog );
 	}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
@@ -2527,27 +2527,27 @@ CX2SlideShot* CX2Data::ResetSlideShot()
 /// June 31edee40: delete the old player ( dtor 328c3290 ), make a new one ( 0xc8 B, ctor 328c34b0 )
 CX2SlideShotScripted* CX2Data::ResetSlideShotScripted()
 {
-	SAFE_DELETE( m_pJuneSlideShotScripted );
-	m_pJuneSlideShotScripted = new CX2SlideShotScripted();
-	return m_pJuneSlideShotScripted;
+	SAFE_DELETE( m_pSlideShotScripted );
+	m_pSlideShotScripted = new CX2SlideShotScripted();
+	return m_pSlideShotScripted;
 }
 
 bool CX2Data::StartStorySlideShot( int iQuestID_ )
 {
-	if( NULL == m_pJuneSlideShotScripted )
+	if( NULL == m_pSlideShotScripted )
 		return false;
-	return m_pJuneSlideShotScripted->Start( iQuestID_ );
+	return m_pSlideShotScripted->Start( iQuestID_ );
 }
 
 bool CX2Data::IsStorySlideShotRunning()
 {
-	return NULL != m_pJuneSlideShotScripted && true == m_pJuneSlideShotScripted->IsRunning();
+	return NULL != m_pSlideShotScripted && true == m_pSlideShotScripted->IsRunning();
 }
 
 void CX2Data::EndStorySlideShot()
 {
-	if( NULL != m_pJuneSlideShotScripted )
-		m_pJuneSlideShotScripted->End();
+	if( NULL != m_pSlideShotScripted )
+		m_pSlideShotScripted->End();
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
@@ -3758,30 +3758,30 @@ void CX2Data::LoadRankReferData()
 	if ( false == g_pKTDXApp->LoadLuaTinker( L"PVEData.lua" ) )
 		CX2BuffCapture::Line( "PVEData.lua did not load: PVE-rank-linked sockets get rate 0 (no stats). Pack June's PVEData.lua (and the Enum with PVE_RANK) into data036.kom." );
 	CX2BuffCapture::Line( "June rank tables: PVP %d, PVE %d, PVE for MP %d row(s)",
-		static_cast<int>( m_mapJunePvpReferData.size() ), static_cast<int>( m_mapJunePveReferData.size() ), static_cast<int>( m_mapJunePveReferDataForMP.size() ) );
+		static_cast<int>( m_mapPvpReferData.size() ), static_cast<int>( m_mapPveReferData.size() ), static_cast<int>( m_mapPveReferDataForMP.size() ) );
 }
 
 /// June 31ee36c0 / 31ee37c0 / 31ee3800: map insert (32821f20), so a repeated rank keeps its first rate
 void CX2Data::AddPvpReferData_LUA( int iRank_, float fRate_ )
 {
-	m_mapJunePvpReferData.insert( std::make_pair( iRank_, fRate_ ) );
+	m_mapPvpReferData.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
 void CX2Data::AddPveReferData_LUA( int iRank_, float fRate_ )
 {
-	m_mapJunePveReferData.insert( std::make_pair( iRank_, fRate_ ) );
+	m_mapPveReferData.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
 void CX2Data::AddPveReferDataForMP_LUA( int iRank_, float fRate_ )
 {
-	m_mapJunePveReferDataForMP.insert( std::make_pair( iRank_, fRate_ ) );
+	m_mapPveReferDataForMP.insert( std::make_pair( iRank_, fRate_ ) );
 }
 
 /// June 31edfe70: the PVP table's rate for the rank, 0 when absent
 float CX2Data::GetPvpReferData( const int iRank_ ) const
 {
-	std::map<int, float>::const_iterator mit = m_mapJunePvpReferData.find( iRank_ );
-	return ( m_mapJunePvpReferData.end() != mit ? mit->second : 0.f );
+	std::map<int, float>::const_iterator mit = m_mapPvpReferData.find( iRank_ );
+	return ( m_mapPvpReferData.end() != mit ? mit->second : 0.f );
 }
 
 /// June 31edfeb0: bForMP_ picks the MP table (+0x404) over the PVE table (+0x3f4). June tests the found node against
@@ -3789,7 +3789,7 @@ float CX2Data::GetPvpReferData( const int iRank_ ) const
 /// undefined value (JUNE_BUGS #49). Not June: such a miss reads 0 here. June's PVEData.lua fills every rank in both.
 float CX2Data::GetPveReferData( const int iRank_, const bool bForMP_ ) const
 {
-	const std::map<int, float>& mapRate = ( true == bForMP_ ? m_mapJunePveReferDataForMP : m_mapJunePveReferData );
+	const std::map<int, float>& mapRate = ( true == bForMP_ ? m_mapPveReferDataForMP : m_mapPveReferData );
 	std::map<int, float>::const_iterator mit = mapRate.find( iRank_ );
 	return ( mapRate.end() != mit ? mit->second : 0.f );
 }

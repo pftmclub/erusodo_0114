@@ -831,10 +831,10 @@ private:
 	void	HideMovieTab();
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	// quest-system Q8b: the Video tab ( RadioButton_Movie )
-	int		m_iJuneMovieStartID;		// +0x770: the movie id shown in Button_Movie_1 ( 1, 4, 7, ... )
-	bool	m_bJuneMovieTab;			// +0x774: the Video tab is open ( ResetQuestUI then does nothing )
-	int		m_iJuneMovieCount;			// +0x778: movie table rows ( ctor 323d1664 )
-	int		m_iJuneMovieNaviStep;		// +0x77c: rows of three, rounded up ( ctor 323d1684 )
+	int		m_iMovieStartID;		// +0x770: the movie id shown in Button_Movie_1 ( 1, 4, 7, ... )
+	bool	m_bMovieTab;			// +0x774: the Video tab is open ( ResetQuestUI then does nothing )
+	int		m_iMovieCount;			// +0x778: movie table rows ( ctor 323d1664 )
+	int		m_iMovieNaviStep;		// +0x77c: rows of three, rounded up ( ctor 323d1684 )
 	bool	OpenMovieTab();
 	void	UpdateMovieList( bool bUpdateNavi );
 	wstring	GetMovieLockDesc( int iMovieID );

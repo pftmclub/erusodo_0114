@@ -611,6 +611,8 @@ class Collapse(object):
         self._srcs = {}
         self.hier = None
         self.allow_existing = False     # --allow-existing: finish a rename that earlier rows left half done (the new name is already in use)
+        self.scope_locals = False       # --scope-locals: a local's new name only has to be free in its own function (column-0 braces), not in the whole tree
+        self._claims = collections.defaultdict(list)
 
     # -- scope of a name: which files a row's old name may be renamed in
     def shared(self, r):
@@ -672,6 +674,11 @@ class Collapse(object):
                 continue
             if '::' in r.new:
                 continue
+            if self.scope_locals and r.kind == 'local':
+                why = self.local_conflict(r)
+                if why:
+                    r.hand('refused: ' + why)
+                continue
             key = (r.cls, r.new, r.kind in ('local',))
             if key in seen and seen[key] is not r.old:
                 r.hand('two rows of this batch rename to %s::%s (%s and %s)' % (r.cls, r.new, seen[key], r.old))
@@ -687,6 +694,41 @@ class Collapse(object):
                 if where:
                     r.hand('refused: %s already used in %s' % (r.new, where))
 
+    @staticmethod
+    def exclusive(src, l1, l2):
+        """True when lines l1 and l2 sit on different branches of one #ifdef / #else (they never compile together)."""
+        s2 = src.stack_at(l2)
+        for f in src.stack_at(l1):
+            if f in s2 and f.else_line is not None and (l1 < f.else_line) != (l2 < f.else_line):
+                return True
+        return False
+
+    def local_conflict(self, r):
+        """--scope-locals: why a local cannot take its new name (used in the same function on a branch the old name can meet), else None."""
+        ob, nb = r.old.encode(), r.new.encode()
+        nrx = re.compile(rb'(?<![\w.>:])' + re.escape(nb) + rb'(?![\w])')
+        claims = []
+        for rel in self.cand:
+            if not self.in_scope(r, rel):
+                continue
+            src = self.src_of(rel)
+            m = src.mask
+            for pos in src.index().get(ob, ()):
+                a = m.rfind(b'\n}', 0, pos)
+                a = 0 if a < 0 else a + 2
+                b = m.find(b'\n}', pos)
+                b = len(m) if b < 0 else b
+                pl = src.line_of(pos)
+                for q in nrx.finditer(m, a, b):
+                    if not self.exclusive(src, pl, src.line_of(q.start())):
+                        return '%s used in %s:%d (same function)' % (r.new, rel, src.line_of(q.start()) + 1)
+                for o2, l2 in self._claims.get((rel, a, r.new), ()):
+                    if o2 != r.old and not self.exclusive(src, pl, l2):
+                        return '%s taken by %s in the same function (%s)' % (r.new, o2, rel)
+                claims.append(((rel, a, r.new), (r.old, pl)))
+        for k, v in claims:
+            self._claims[k].append(v)
+        return None
     def name_exists(self, r):
         nb = r.new.encode()
         rx = re.compile(rb'(?<![\w.>:])' + re.escape(nb) + rb'(?![\w])')
@@ -1254,6 +1296,7 @@ def cmd_apply(args):
     rows = load_map(args.map)
     c = Collapse(fs, rows, args.batch, files=args.files, only=set(args.only) if args.only else None)
     c.allow_existing = args.allow_existing
+    c.scope_locals = args.scope_locals
     if not c.rows:
         print('no rows for batch %s' % args.batch)
         return 2
@@ -1391,6 +1434,7 @@ def main():
     ap.add_argument('batch', nargs='?')
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--allow-existing', action='store_true', help='do not refuse a class / lua / free rename whose new name is already in use (finishing a half-done rename)')
+    ap.add_argument('--scope-locals', action='store_true', help='a local rename is refused only when its new name is used in the same function (column-0 braces) on a branch the old name can meet')
     ap.add_argument('--files', nargs='+')
     ap.add_argument('--only', nargs='+')
     ap.add_argument('--map', default=MAP_PATH)

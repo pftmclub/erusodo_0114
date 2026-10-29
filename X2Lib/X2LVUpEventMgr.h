@@ -75,8 +75,8 @@ class CX2LVUpEventMgr
 			bool							m_bCheckShow;
 			vector< CKTDGUIDialogType >		m_vecDialog;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-			float							m_fJuneTranscendImageTime;	// June LVUpEvent +0x2c
-			CKTDGUIStatic*					m_pJuneTranscendImage;		// June LVUpEvent +0x30
+			float							m_fTranscendImageTime;	// June LVUpEvent +0x2c
+			CKTDGUIStatic*					m_pTranscendImage;		// June LVUpEvent +0x30
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 			LVUpEvent();

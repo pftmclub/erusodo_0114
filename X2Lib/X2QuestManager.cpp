@@ -26,7 +26,7 @@ m_bUpdateQuest(false)
 	m_iChainQuestDaysApplied	= 0;
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
-	m_bJuneSelectBGMActive		= false;
+	m_bSelectBGMActive		= false;
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 }
 
@@ -3528,9 +3528,9 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 		case SQT_FIND_NPC:
 		case SQT_PVE_WIN:
 			{
-				int iJuneDifficulty = -1;
-				LUA_GET_VALUE( luaManager, "m_cDifficulty", iJuneDifficulty, -1 );
-				pSubQuestTemplet->m_ClearCondition.m_cDifficulty = static_cast<char>( iJuneDifficulty );
+				int iClearDifficulty = -1;
+				LUA_GET_VALUE( luaManager, "m_cDifficulty", iClearDifficulty, -1 );
+				pSubQuestTemplet->m_ClearCondition.m_cDifficulty = static_cast<char>( iClearDifficulty );
 			}
 			break;
 		default:
@@ -3705,16 +3705,16 @@ bool CX2QuestManager::LoadChainQuestInfo()
 void CX2QuestManager::PlayQuestSelectBGM( const std::wstring& wstrBGM )
 {
 	// @3232df50..3232df75
-	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == wstrBGM.empty() || true == m_bJuneSelectBGMActive )
+	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == wstrBGM.empty() || true == m_bSelectBGMActive )
 		return;
 
 	CX2World* pWorld = g_pTFieldGame->GetWorld();
-	m_wstrJuneSavedBGM = pWorld->GetBGMName();		// @3232df82..3232df96
+	m_wstrSavedBGM = pWorld->GetBGMName();		// @3232df82..3232df96
 	pWorld->SetBGMName( wstrBGM );					// @3232dfc0
 	pWorld->PlayBGM();								// @3232dfd1: 327fc950
-	m_bJuneSelectBGMActive = true;					// @3232dfd6
+	m_bSelectBGMActive = true;					// @3232dfd6
 #ifdef SERV_IRUHADEV_OFFLINE
-	CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest BGM %s plays ( the world's %s is saved )", wstrBGM.c_str(), m_wstrJuneSavedBGM.c_str() );
+	CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest BGM %s plays ( the world's %s is saved )", wstrBGM.c_str(), m_wstrSavedBGM.c_str() );
 #endif SERV_IRUHADEV_OFFLINE
 }
 
@@ -3723,14 +3723,14 @@ void CX2QuestManager::PlayQuestSelectBGM( const std::wstring& wstrBGM )
 void CX2QuestManager::RestoreQuestSelectBGM()
 {
 	// @3232e000..3232e01f
-	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == m_wstrJuneSavedBGM.empty() || false == m_bJuneSelectBGMActive )
+	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == m_wstrSavedBGM.empty() || false == m_bSelectBGMActive )
 		return;
 
 	CX2World* pWorld = g_pTFieldGame->GetWorld();
-	pWorld->SetBGMName( m_wstrJuneSavedBGM );		// @3232e037
+	pWorld->SetBGMName( m_wstrSavedBGM );		// @3232e037
 	pWorld->PlayBGM();								// @3232e047
-	m_bJuneSelectBGMActive = false;					// @3232e04c
-	m_wstrJuneSavedBGM.clear();						// @3232e053..3232e064
+	m_bSelectBGMActive = false;					// @3232e04c
+	m_wstrSavedBGM.clear();						// @3232e053..3232e064
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest BGM restored ( the world's BGM plays again )" );
 #endif SERV_IRUHADEV_OFFLINE

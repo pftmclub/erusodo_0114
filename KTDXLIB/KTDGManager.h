@@ -270,7 +270,7 @@ class CKTDGManager : public CKTDXStage
 		CKTDGFontManager*			GetFontManager(){ return m_pFontManager; }
 		CKTDGUIDialogManager*		GetDialogManager(){ return m_pDialogManager; }
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-		CKTDGHeatShimmer*			GetHeatShimmer(){ return m_pJuneHeatShimmer; }
+		CKTDGHeatShimmer*			GetHeatShimmer(){ return m_pHeatShimmer; }
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 		//CKTDGGrayScale*				GetGrayScale(){ return m_pGrayScale; }
 
@@ -379,8 +379,8 @@ class CKTDGManager : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 		// June +0x15c holds alpha over-UI objects of layer < 500 (m_OverUIAlphaChain above), +0x16c those of layer >= 500
 		KObjectRenderHintVector		m_OverUIAlphaChainOver500;
-		UINT						m_auJuneChainSizeLogged[4];	// inner, over, alpha < 500, alpha >= 500 ( "[JUNE_ENGINE] DG" log )
-		double						m_fJuneChainLogTime;
+		UINT						m_auChainSizeLogged[4];	// inner, over, alpha < 500, alpha >= 500 ( "[JUNE_ENGINE] DG" log )
+		double						m_fChainLogTime;
 #endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 #endif OVER_UI_ALPHA_RENDER_FIX
 
@@ -394,7 +394,7 @@ class CKTDGManager : public CKTDXStage
 		CKTDGFontManager*			m_pFontManager;
 		CKTDGUIDialogManager*		m_pDialogManager;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-		CKTDGHeatShimmer*			m_pJuneHeatShimmer;		// June +0x384
+		CKTDGHeatShimmer*			m_pHeatShimmer;		// June +0x384
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 		//CKTDGGrayScale*				m_pGrayScale;
 
@@ -405,7 +405,7 @@ class CKTDGManager : public CKTDXStage
 		float						m_fFadeAlpha;
 		CKTDXDeviceTexture*			m_pTextureFadeInOut;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		D3DXCOLOR					m_colorJuneFade;		// June +0x3a4: the fade colour; its alpha is overwritten by m_fFadeAlpha when drawn ( 31ce94a0 @31ce9583 )
+		D3DXCOLOR					m_colorFade;		// June +0x3a4: the fade colour; its alpha is overwritten by m_fFadeAlpha when drawn ( 31ce94a0 @31ce9583 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		float						m_fMaxTimeFadeIn;		// fadein 되는 시간

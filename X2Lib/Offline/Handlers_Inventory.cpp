@@ -531,7 +531,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	// 288493 Book of Transcendence ( type 0 ): June's server is not readable. Stand-in: the quest's checks ( JuneTranscendCheck ), refused with the book kept.
-	bool bJuneTranscendBook = false;
+	bool bTranscendBook = false;
 	if( 288493 == kRow.m_iItemID || 288319 == kRow.m_iItemID )
 	{
 		KOfflineUnitRow kTranscendUnit;
@@ -550,7 +550,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 			return Reply( kSes, EGS_USE_ITEM_IN_INVENTORY_ACK, kAck );
 		}
 
-		bJuneTranscendBook = true;
+		bTranscendBook = true;
 	}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 
@@ -1042,7 +1042,7 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	// the book consumed: transcend the unit, then June's 0x596 after the ACK ( same order as the quest )
-	if( true == bJuneTranscendBook )
+	if( true == bTranscendBook )
 	{
 		CX2OfflineDB::Instance()->SaveUnitTranscendence( kSes.m_nSelectedUnitUID, 1 );
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ITEM book %d used: unit %I64d transcendence 0 -> 1 (the medal it mails in June is not given: key 1 is permanent)",

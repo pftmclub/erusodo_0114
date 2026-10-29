@@ -46,12 +46,12 @@ CX2World::CX2World( WorldData* pWorldData, const bool bBackgroundLoad_ /*= false
 {
 	m_pWorldData	= pWorldData;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneShowWorld = true;	// June ctor 327fddf0 @327fdec8
+	m_bShowWorld = true;	// June ctor 327fddf0 @327fdec8
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	m_bRenderLineMap = false;
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-	m_fJuneMovableLineSyncTime = 0.f;
+	m_fMovableLineSyncTime = 0.f;
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	m_LodPercent = 100;
 
@@ -959,7 +959,7 @@ void CX2World::SetShowObject( bool bShow )
 	}
 #endif
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneShowWorld = bShow;	// June 327fba60: the four loops above = March, then +0x1ac = bShow
+	m_bShowWorld = bShow;	// June 327fba60: the four loops above = March, then +0x1ac = bShow
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
@@ -1864,9 +1864,9 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 	/// June DoTriggerLine tail 328005b9-328007c0, after every action: AUTO_DISABLE_LINE marks the line ( +0x128 = 1 ) and lists every user / NPC whose
 	/// land line is this line ( 31c7bb00 from GetPos( false ), radius 30, seeded with GetLastTouchLineIndex( false ); compared with LineData +0, lineIndex ).
 	/// June's 31c7bb00 takes one more bool ( false for users, true for NPCs: LT_MONSTER_ROAD lines count only for NPCs ); March's GetLandPosition has none.
-	if ( true == triggerLine.m_bJuneAutoDisableLine && NULL != GetLineMap() && NULL != g_pX2Game )
+	if ( true == triggerLine.m_bAutoDisableLine && NULL != GetLineMap() && NULL != g_pX2Game )
 	{
-		pLineData->m_bJuneAutoDisable = true;
+		pLineData->m_bAutoDisable = true;
 
 		for ( int i = 0; i < g_pX2Game->GetUserUnitListSize(); ++i )
 		{
@@ -1881,7 +1881,7 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 			GetLineMap()->GetLandPosition( pUser->GetPos( false ), LINE_RADIUS, &iLandLine );
 #endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 			if ( pLineData->lineIndex == iLandLine )
-				pLineData->m_vecJuneAutoDisableUserUID.push_back( pUser->GetUnitUID() );
+				pLineData->m_vecAutoDisableUserUID.push_back( pUser->GetUnitUID() );
 		}
 
 		for ( int i = 0; i < g_pX2Game->GetNPCUnitListSize(); ++i )
@@ -1893,11 +1893,11 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 			int iLandLine = pNPC->GetLastTouchLineIndex( false );
 			GetLineMap()->GetLandPosition( pNPC->GetPos( false ), LINE_RADIUS, &iLandLine );
 			if ( pLineData->lineIndex == iLandLine )
-				pLineData->m_vecJuneAutoDisableNPCUID.push_back( (int)pNPC->GetUnitUID() );
+				pLineData->m_vecAutoDisableNPCUID.push_back( (int)pNPC->GetUnitUID() );
 		}
 
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable: line " << triggerLine.m_iTriggerLineIndex << " marked, users listed "
-			<< (int)pLineData->m_vecJuneAutoDisableUserUID.size() << ", npcs listed " << (int)pLineData->m_vecJuneAutoDisableNPCUID.size() << fileout;
+			<< (int)pLineData->m_vecAutoDisableUserUID.size() << ", npcs listed " << (int)pLineData->m_vecAutoDisableNPCUID.size() << fileout;
 	}
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 }
@@ -2353,10 +2353,10 @@ void CX2World::SendMovableLineSync( float fElapsedTime_ )
 	if ( NULL == g_pX2Game || false == g_pX2Game->IsHost() )
 		return;
 
-	m_fJuneMovableLineSyncTime += fElapsedTime_;
-	if ( m_fJuneMovableLineSyncTime < 1.f )
+	m_fMovableLineSyncTime += fElapsedTime_;
+	if ( m_fMovableLineSyncTime < 1.f )
 		return;
-	m_fJuneMovableLineSyncTime = 0.f;
+	m_fMovableLineSyncTime = 0.f;
 
 	if ( NULL == m_pLineMap || NULL == g_pData->GetGameUDP() )
 		return;

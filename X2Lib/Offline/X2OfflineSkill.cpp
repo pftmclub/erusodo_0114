@@ -150,7 +150,7 @@ bool CX2OfflineSkill::Load( UidType nUnitUID )
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	// June skill system S7c: unit_skill_note holds June's active memos since v19 ( skill -> memo ); March's pages stay empty.
-	CX2OfflineDB::Instance()->LoadSkillMemos( nUnitUID, m_mapJuneActiveMemo );
+	CX2OfflineDB::Instance()->LoadSkillMemos( nUnitUID, m_mapActiveMemo );
 #else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	CX2OfflineDB::Instance()->LoadSkillNotes( nUnitUID, m_mapSkillNote );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
@@ -180,7 +180,7 @@ void CX2OfflineSkill::Clear()
 	m_mapSkillNote.clear();
 	m_cSkillNoteMaxPage = 0;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	m_mapJuneActiveMemo.clear();
+	m_mapActiveMemo.clear();
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	for( int i = 0; i < MAX_SKILL_SLOT; ++i )
@@ -216,15 +216,15 @@ int CX2OfflineSkill::GetSkillLevel( int iSkillID ) const
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 int CX2OfflineSkill::GetActiveMemo( int iSkillID ) const
 {
-	std::map< int, int >::const_iterator mit = m_mapJuneActiveMemo.find( iSkillID );
-	return ( mit == m_mapJuneActiveMemo.end() ) ? 0 : mit->second;
+	std::map< int, int >::const_iterator mit = m_mapActiveMemo.find( iSkillID );
+	return ( mit == m_mapActiveMemo.end() ) ? 0 : mit->second;
 }
 
 bool CX2OfflineSkill::SetActiveMemo( int iSkillID, int iMemoID )
 {
 	if( false == CX2OfflineDB::Instance()->SaveSkillMemo( m_nUnitUID, iSkillID, iMemoID ) )
 		return false;
-	m_mapJuneActiveMemo[ iSkillID ] = iMemoID;
+	m_mapActiveMemo[ iSkillID ] = iMemoID;
 	return true;
 }
 
@@ -232,7 +232,7 @@ bool CX2OfflineSkill::ClearActiveMemo( int iSkillID )
 {
 	if( false == CX2OfflineDB::Instance()->DeleteSkillMemo( m_nUnitUID, iSkillID ) )
 		return false;
-	m_mapJuneActiveMemo.erase( iSkillID );
+	m_mapActiveMemo.erase( iSkillID );
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
@@ -344,27 +344,27 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 		kStateB.m_iKey		= 0;
 		kStateB.m_iState	= (int)CX2UserSkillTree::SSBES_PERMANENT;
 		kStateB.m_wstrDate	= SLOT_B_END_DATE;
-		kOut.m_vecJuneSkillSlotState.push_back( kStateB );
+		kOut.m_vecSkillSlotState.push_back( kStateB );
 
 		KSkillSlotState kStateTC;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		// Not June: key 1 is permanent for a transcended unit ( user decision 2, 2026-10-22 ); June opens it with the medal or the cube only
-		const bool bJuneTcSlotOpen = IsUnitTranscended();
+		const bool bTcSlotOpen = IsUnitTranscended();
 		kStateTC.m_iKey		= 1;
-		kStateTC.m_iState	= (int)( bJuneTcSlotOpen ? CX2UserSkillTree::SSBES_PERMANENT : CX2UserSkillTree::SSBES_EXPIRED );
-		kStateTC.m_wstrDate	= bJuneTcSlotOpen ? SLOT_B_END_DATE : L"2000-01-01 00:00:00";
-		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
+		kStateTC.m_iState	= (int)( bTcSlotOpen ? CX2UserSkillTree::SSBES_PERMANENT : CX2UserSkillTree::SSBES_EXPIRED );
+		kStateTC.m_wstrDate	= bTcSlotOpen ? SLOT_B_END_DATE : L"2000-01-01 00:00:00";
+		kOut.m_vecSkillSlotState.push_back( kStateTC );
 #else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		kStateTC.m_iKey		= 1;
 		kStateTC.m_iState	= (int)CX2UserSkillTree::SSBES_EXPIRED;
 		kStateTC.m_wstrDate	= L"2000-01-01 00:00:00";
-		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
+		kOut.m_vecSkillSlotState.push_back( kStateTC );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 	}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	// June skill system S7c: the active memos ride in KJuneSkillExtraData's map ( KUnitSkillData +0x88 +0x20, skill -> memo ), which
 	// both unit-info appliers merge ( 3235eb20 @3235f9e0, 32360090 @323608a4 ). The room packets carry this same struct for my own unit.
-	kOut.m_kJuneSkillExtraData.m_mapIntInt = m_mapJuneActiveMemo;
+	kOut.m_kSkillExtraData.m_mapIntInt = m_mapActiveMemo;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 	// June skill system S7d: the page count and the page in use ( v20 ). The client seeds SetUsingPage / SetOpenedPage /
@@ -381,7 +381,7 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 		(__int64)m_nUnitUID,
 		(int)kOut.m_aEquippedSkill[0].m_iSkillID, (int)kOut.m_aEquippedSkill[1].m_iSkillID, (int)kOut.m_aEquippedSkill[2].m_iSkillID, (int)kOut.m_aEquippedSkill[3].m_iSkillID, (int)kOut.m_aEquippedSkill[4].m_iSkillID,
 		(int)kOut.m_aEquippedSkillSlotB[0].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[1].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[2].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[3].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[4].m_iSkillID,
-		(unsigned int)kOut.m_vecJuneSkillSlotState.size(), kOut.m_vecJuneSkillSlotState[0].m_iState, kOut.m_vecJuneSkillSlotState[1].m_iState );
+		(unsigned int)kOut.m_vecSkillSlotState.size(), kOut.m_vecSkillSlotState[0].m_iState, kOut.m_vecSkillSlotState[1].m_iState );
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	kOut.m_wstrSkillSlotBEndDate	= SLOT_B_END_DATE;
@@ -814,7 +814,7 @@ bool CX2OfflineSkill::SeedDefaultSkills( UidType nUnitUID, int iUnitClass )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 bool CX2OfflineSkill::SeedAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel )
 {
-	using namespace X2OfflineJuneSkillAutoLearn;
+	using namespace X2OfflineSkillAutoLearn;
 
 	if( false == Load( nUnitUID ) || m_nUnitUID != nUnitUID )
 		return false;
@@ -912,9 +912,9 @@ int CX2OfflineSkill::GrantSkillsByLevel( int iUnitClass, int iUnitLevel, OUT std
 		}
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == bTranscended )
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType && false == bTranscended )
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		{
 			++iHyper;
@@ -1004,17 +1004,17 @@ int CX2OfflineSkill::ExpandSkillPage( int iAdd, OUT int& iPageCount )
 	int iActivePage = 1;
 	GetSkillPageInfo( iPageCount, iActivePage );
 
-	if( iAdd < 1 || iPageCount >= JUNE_MAX_SKILL_PAGE )
+	if( iAdd < 1 || iPageCount >= MAX_SKILL_PAGE )
 	{
 		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand refused unitUID=%I64d: %d page(s) open, %d asked, the cap is %d",
-			(__int64)m_nUnitUID, iPageCount, iAdd, (int)JUNE_MAX_SKILL_PAGE );
+			(__int64)m_nUnitUID, iPageCount, iAdd, (int)MAX_SKILL_PAGE );
 		return NetError::ERR_SKILL_PAGE_02;
 	}
 
 	const int iBefore = iPageCount;
 	iPageCount += iAdd;
-	if( iPageCount > JUNE_MAX_SKILL_PAGE )
-		iPageCount = JUNE_MAX_SKILL_PAGE;
+	if( iPageCount > MAX_SKILL_PAGE )
+		iPageCount = MAX_SKILL_PAGE;
 
 	// a new page's bar is empty: no unit_skill_page row ( June has no default skills, KUserSkillTree::ExpandSkillPage would add them )
 	CX2OfflineDB::Instance()->SaveSkillPageInfo( m_nUnitUID, iPageCount, iActivePage );

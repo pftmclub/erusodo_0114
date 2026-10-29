@@ -118,16 +118,16 @@ public:
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 		// June-only buttons (June ids 0x18..0x25 in the comments; June's 3..0x15 equal March's). March's dialog has no control for
 		// them: the 4-argument SetShopType logs and drops them (user 2026-10-17, atlas E1b), so a June house keeps March's buttons.
-		NSBT_JUNE_HENIR_EQUIP_UPGRADE,		// June 0x18
-		NSBT_JUNE_GUILD_AGIT_SERVICE,		// June 0x19
-		NSBT_JUNE_TRADE,					// June 0x1a
-		NSBT_JUNE_PHOTOZONE,				// June 0x1b
-		NSBT_JUNE_FRAGMENT_EXCHANGE,		// June 0x20
-		NSBT_JUNE_ROCKSCISSORSPAPER,		// June 0x21
-		NSBT_JUNE_OLD_ENCHANT,				// June 0x22
-		NSBT_JUNE_OLD_ADVANCED_ENCHANT,		// June 0x23
-		NSBT_JUNE_GUILD_ENTER,				// June 0x24
-		NSBT_JUNE_EXTRACTION,				// June 0x25
+		NSBT_HENIR_EQUIP_UPGRADE,		// June 0x18
+		NSBT_GUILD_AGIT_SERVICE,		// June 0x19
+		NSBT_TRADE,					// June 0x1a
+		NSBT_PHOTOZONE,				// June 0x1b
+		NSBT_FRAGMENT_EXCHANGE,		// June 0x20
+		NSBT_ROCKSCISSORSPAPER,		// June 0x21
+		NSBT_OLD_ENCHANT,				// June 0x22
+		NSBT_OLD_ADVANCED_ENCHANT,		// June 0x23
+		NSBT_GUILD_ENTER,				// June 0x24
+		NSBT_EXTRACTION,				// June 0x25
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 	};

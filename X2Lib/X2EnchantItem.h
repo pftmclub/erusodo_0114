@@ -184,11 +184,11 @@ class CX2EnchantItem
 				m_fPiercingDamageFactor		= 0.0f;
 				m_iShockDebuffTime			= 0;
 				m_fShockDebuffDamageFactor	= 0.0f;
-				for ( int iJune = 0; iJune < 3; iJune++ )
+				for ( int i = 0; i < 3; i++ )
 				{
-					m_arrMovementSpeedDecrease[iJune]	= 0.0f;
-					m_arrJumpSpeedDecrease[iJune]		= 0.0f;
-					m_arrAttackSpeedDecrease[iJune]		= 0.0f;
+					m_arrMovementSpeedDecrease[i]	= 0.0f;
+					m_arrJumpSpeedDecrease[i]		= 0.0f;
+					m_arrAttackSpeedDecrease[i]		= 0.0f;
 				}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			}

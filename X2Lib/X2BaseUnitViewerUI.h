@@ -32,14 +32,14 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 protected:
-	std::vector<ViewerFxEntry*>			m_vecJuneFxMesh;			// +0x194 mesh entries (0x40 bytes)
-	std::vector<ViewerFxEntry*>			m_vecJuneFxParticle;		// +0x1a4 particle entries
-	std::vector<ViewerFxSound*>			m_vecJuneFxPendingSound;	// +0x1b4 pending sounds (0x30 bytes)
-	std::vector<ViewerFxPlayingSound*>	m_vecJuneFxPlayingSound;	// +0x1c4 playing sounds (8 bytes)
-	bool									m_bJuneFxShow;				// +0x190, set by Play, never cleared
-	bool									m_bJuneFxLandDirty;			// +0x1d4, set by SetPositionOnScr (June 31f99f70); read once per frame
-	int										m_iJuneFxTriggerCode1;		// +0x1d8, written by the viewer's frame move (m_ePlayedEmotion)
-	int										m_iJuneFxTriggerCode2;		// +0x1dc, motion type 7 -> 2, 8 -> 1, else 0 (always 0 in March)
+	std::vector<ViewerFxEntry*>			m_vecFxMesh;			// +0x194 mesh entries (0x40 bytes)
+	std::vector<ViewerFxEntry*>			m_vecFxParticle;		// +0x1a4 particle entries
+	std::vector<ViewerFxSound*>			m_vecFxPendingSound;	// +0x1b4 pending sounds (0x30 bytes)
+	std::vector<ViewerFxPlayingSound*>	m_vecFxPlayingSound;	// +0x1c4 playing sounds (8 bytes)
+	bool									m_bFxShow;				// +0x190, set by Play, never cleared
+	bool									m_bFxLandDirty;			// +0x1d4, set by SetPositionOnScr (June 31f99f70); read once per frame
+	int										m_iFxTriggerCode1;		// +0x1d8, written by the viewer's frame move (m_ePlayedEmotion)
+	int										m_iFxTriggerCode2;		// +0x1dc, motion type 7 -> 2, 8 -> 1, else 0 (always 0 in March)
 
 private:
 	void			ViewerFxCreatePass();																	// 32957980

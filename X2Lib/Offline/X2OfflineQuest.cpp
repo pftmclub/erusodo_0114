@@ -1429,9 +1429,9 @@ int CX2OfflineQuest::Accept( int iQuestID, int iTalkNPCID, const KOfflineUnitRow
 	// Quest Q4: June's weekly / monthly expiry and the chain-day rule. The March server has neither; June's client applies
 	// them in SetUnitQuest / IsChainQuestAvailable, so the emulator refuses the accept the client would not offer.
 	{
-		const int iJune = CheckRepeat( pTemplet, bQuiet );
-		if( NetError::NET_OK != iJune )
-			return iJune;
+		const int iNetError = CheckRepeat( pTemplet, bQuiet );
+		if( NetError::NET_OK != iNetError )
+			return iNetError;
 	}
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 

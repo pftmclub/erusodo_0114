@@ -184,10 +184,10 @@ public:
 
 		bool		m_bIsAlreadyShow;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
-		wstring		m_wstrJuneLuaFileName;	/// June +0x84 LUA_FILE_NAME: the emblem's dialog ( L"" = none )
+		wstring		m_wstrLuaFileName;	/// June +0x84 LUA_FILE_NAME: the emblem's dialog ( L"" = none )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
-		vector<EmblemExpandTexture>	m_vecJuneExpandTexture;	/// June +0x74 EXPAND_TEXTURE_FILE_NAME rows ( + the boss-raid gate rows )
+		vector<EmblemExpandTexture>	m_vecExpandTexture;	/// June +0x74 EXPAND_TEXTURE_FILE_NAME rows ( + the boss-raid gate rows )
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP 	// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
@@ -319,16 +319,16 @@ private:
 	CKTDGParticleSystem::CParticleEventSequenceHandle m_hCurrentEmblem;
 	CKTDGParticleSystem::CParticleEventSequenceHandle m_hCurrentEmblem2nd;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
-	CKTDGUIDialogType			m_hJuneEmblemDialog;		/// June +0x54 / +0x58: the LUA_FILE_NAME dialog
-	float						m_fJuneEmblemDialogTime;	/// June +0x5c
-	EMBLEM_ID					m_eJuneNowEmblemID;			/// June +0x60: the emblem PlayEmblemEffect showed last ( EI_NONE when idle )
-	std::vector<D3DXVECTOR3>	m_vecJuneNewSkillOrMemo;	/// June +0x64: ( skill id, type, 1 = not shown yet / 0 = shown )
+	CKTDGUIDialogType			m_hEmblemDialog;		/// June +0x54 / +0x58: the LUA_FILE_NAME dialog
+	float						m_fEmblemDialogTime;	/// June +0x5c
+	EMBLEM_ID					m_eNowEmblemID;			/// June +0x60: the emblem PlayEmblemEffect showed last ( EI_NONE when idle )
+	std::vector<D3DXVECTOR3>	m_vecNewSkillOrMemo;	/// June +0x64: ( skill id, type, 1 = not shown yet / 0 = shown )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
-	std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecJuneExpandHandle;	/// June +0x44: the shown expand textures
+	std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecExpandHandle;	/// June +0x44: the shown expand textures
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >	m_mapJuneTitleNotice;	/// June +0x74 / +0x78 ( ctor 3244bd00 ): key 1 earned titles, key 0 opened missions
+	std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >	m_mapTitleNotice;	/// June +0x74 / +0x78 ( ctor 3244bd00 ): key 1 earned titles, key 0 opened missions
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
 	float m_fSoundPlayingCheckTime;

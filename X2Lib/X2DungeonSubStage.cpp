@@ -32,7 +32,7 @@ CX2DungeonSubStage::CX2DungeonSubStage( int subStageIndex, SubStageData* pSubSta
 	m_bCheckedClearSubStage	= false;
 	m_bCheckedClearSubStage_NotHost = false;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
-	m_iJuneClearType = 5;	/// June ctor 327f06d0 (param_1[0x12] = 5): no clear in progress
+	m_iClearType = 5;	/// June ctor 327f06d0 (param_1[0x12] = 5): no clear in progress
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 
 	m_fDelayTimeClearSubstage = 0.f;
@@ -475,9 +475,9 @@ void CX2DungeonSubStage::PrepareClearSubStage( int iClearConditionIndex )
 void CX2DungeonSubStage::SetClearType( const int iClearType_, const char* szSite_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	CX2BuffCapture::Line( "sub-stage %d clear type %d -> %d (%s)", m_SubStageIndex, m_iJuneClearType, iClearType_, szSite_ );
+	CX2BuffCapture::Line( "sub-stage %d clear type %d -> %d (%s)", m_SubStageIndex, m_iClearType, iClearType_, szSite_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	m_iJuneClearType = iClearType_;
+	m_iClearType = iClearType_;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 void CX2DungeonSubStage::ClearSubStage( int clearType, int nextStageNum, int nextSubStageNum )
@@ -1765,7 +1765,7 @@ void CX2DungeonSubStage::SubStageData::FetchNPCData( KLuaManager& luaManager, CX
 #endif SERV_ALLY_NPC
 #ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 	// June 327eb8e0 @327ec9a9-327eca04: TEAM -> NPCData +0x5c, 2 ( TN_MONSTER ) when the key is absent
-	LUA_GET_VALUE( luaManager, "TEAM",					pNPCData->m_iJuneTeam,		(int) CX2Room::TN_MONSTER );
+	LUA_GET_VALUE( luaManager, "TEAM",					pNPCData->m_iTeam,		(int) CX2Room::TN_MONSTER );
 #endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 
 #ifdef MODIFY_DUNGEON_STAGING
@@ -2342,7 +2342,7 @@ void CX2DungeonSubStage::SubStageData::AddNPCData( KNPCUnitReq& kNPCUnitReq )
 	pNPCData->m_bAllyNpc = kNPCUnitReq.m_bAllyNpc;
 #endif SERV_ALLY_NPC
 #ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
-	pNPCData->m_iJuneTeam = (int) kNPCUnitReq.m_cTeamNum;
+	pNPCData->m_iTeam = (int) kNPCUnitReq.m_cTeamNum;
 #endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 
 #ifdef MODIFY_DUNGEON_STAGING
@@ -2571,13 +2571,13 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 	// June 327ef570 @327ef72d-327ef74b: team = NPCData +0x5c ( the script's TEAM ), AI = ALLY_NPC ( +0x52 ) ? 4 : 0. The ctor's
 	// case 4 ( 327af620 @327b0943-327b095f ) builds it as NAT_ALLY ( CX2AllyNPCAI, no owner here ) and stores 4 as the AI's type,
 	// after IsAllyNPCID has turned an ally-id NPC ( Santilus NUI_MOTOR, NUI_DEFENCE_CRYSTAL, ... ) into a plain NAT_ALLY ( C3z-4 review ).
-	const bool bJuneStageAlly = ( true == pNpcData_->m_bAllyNpc );
-	CX2GUNPC* pCX2GUNPC = CX2GUNPC::CreateGUNPC( 0, (CX2Room::TEAM_NUM) pNpcData_->m_iJuneTeam, pNpcData_->m_UID,
-		pInfo, ( bJuneStageAlly ? 4 : (int)CX2NPCAI::NAT_NORMAL ), NULL, pNpcData_->m_fUnitScale );
+	const bool bStageAlly = ( true == pNpcData_->m_bAllyNpc );
+	CX2GUNPC* pCX2GUNPC = CX2GUNPC::CreateGUNPC( 0, (CX2Room::TEAM_NUM) pNpcData_->m_iTeam, pNpcData_->m_UID,
+		pInfo, ( bStageAlly ? 4 : (int)CX2NPCAI::NAT_NORMAL ), NULL, pNpcData_->m_fUnitScale );
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	if ( (int)CX2Room::TN_MONSTER != pNpcData_->m_iJuneTeam || true == bJuneStageAlly )
-		CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage CreateGUNPC npc %d team %d ally %d ai %d", (int)eNPCID, pNpcData_->m_iJuneTeam,
-			bJuneStageAlly ? 1 : 0, ( NULL != pCX2GUNPC && NULL != pCX2GUNPC->GetNPCAI() ) ? (int)pCX2GUNPC->GetNPCAI()->GetAIType() : -1 );
+	if ( (int)CX2Room::TN_MONSTER != pNpcData_->m_iTeam || true == bStageAlly )
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage CreateGUNPC npc %d team %d ally %d ai %d", (int)eNPCID, pNpcData_->m_iTeam,
+			bStageAlly ? 1 : 0, ( NULL != pCX2GUNPC && NULL != pCX2GUNPC->GetNPCAI() ) ? (int)pCX2GUNPC->GetNPCAI()->GetAIType() : -1 );
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
 #else // SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 	CX2GUNPC* pCX2GUNPC = CX2GUNPC::CreateGUNPC( 0, CX2Room::TN_MONSTER, pNpcData_->m_UID, 
@@ -2631,10 +2631,10 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 		const std::vector<CX2DungeonManager::HeroDungeonExtraStatForException>& vecHeroStat = g_pData->GetDungeonManager()->GetHeroDungeonExtraStatForException();
 
 		// Not June (June logs nothing): say once per run what the table holds, so a regression run shows the dormant path ran
-		static bool s_bJuneHeroAnimLogged = false;
-		if( false == s_bJuneHeroAnimLogged )
+		static bool s_bHeroAnimLogged = false;
+		if( false == s_bHeroAnimLogged )
 		{
-			s_bJuneHeroAnimLogged = true;
+			s_bHeroAnimLogged = true;
 			WCHAR wszLog[512] = {0};
 			StringCchPrintfW( wszLog, ARRAY_SIZE(wszLog), L"JUNE_FX HERO_ANIM Add_HeroDungeon_ExtraStatForException rows=%d (0 = HeroDungeonData_Client.lua not loaded; March has no hero dungeons), dungeon=%d hero=%d",
 				(int)vecHeroStat.size(), iDungeonID, ( true == CX2DungeonManager::IsHeroDungeon( iDungeonID ) ? 1 : 0 ) );

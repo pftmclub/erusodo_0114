@@ -66,7 +66,7 @@ D3DDISPLAYMODE              CKTDGStateManager::ms_d3dDisplayMode;
 D3DFORMAT                   CKTDGStateManager::ms_d3dColorKeyTextureFormat = D3DFMT_UNKNOWN;
 D3DFORMAT                   CKTDGStateManager::ms_d3dAlphaTextureFormat = D3DFMT_UNKNOWN;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-WORD                        CKTDGStateManager::ms_awJuneMultiSampleQuality[18] = { 0, };
+WORD                        CKTDGStateManager::ms_awMultiSampleQuality[18] = { 0, };
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 
@@ -650,15 +650,15 @@ void    CKTDGStateManager::RestoreDeviceObjects(
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
     /// June 31c5a3d0 @31c5ae60-31c5aed0: after the two texture-format probes, the quality levels of every multisample type for the
     /// back buffer's format ( type 0 stays 0 ), read by the app's render-target setup ( 31be4230 through 31c5a120 )
-    for( UINT uJuneType = 0; uJuneType < 17; ++uJuneType )
+    for( UINT uType = 0; uType < 17; ++uType )
     {
-        ms_awJuneMultiSampleQuality[ uJuneType ] = 0;
-        if( 0 != uJuneType )
+        ms_awMultiSampleQuality[ uType ] = 0;
+        if( 0 != uType )
         {
-            DWORD dwJuneQuality = 0;
+            DWORD dwQuality = 0;
             if( SUCCEEDED( g_pD3D->CheckDeviceMultiSampleType( ms_uiAdapter, ms_d3dDeviceType, ms_d3dBackBufferDesc.Format,
-                DXUTIsWindowed(), (D3DMULTISAMPLE_TYPE) uJuneType, &dwJuneQuality ) ) )
-                ms_awJuneMultiSampleQuality[ uJuneType ] = (WORD) dwJuneQuality;
+                DXUTIsWindowed(), (D3DMULTISAMPLE_TYPE) uType, &dwQuality ) ) )
+                ms_awMultiSampleQuality[ uType ] = (WORD) dwQuality;
         }
     }
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
@@ -697,7 +697,7 @@ HRESULT CKTDGStateManager::GetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE Mult
     *pQualityLevels = 0;
     if( (UINT) MultiSampleType > 0x11 )
         return D3DERR_NOTAVAILABLE;
-    *pQualityLevels = ms_awJuneMultiSampleQuality[ (UINT) MultiSampleType ];
+    *pQualityLevels = ms_awMultiSampleQuality[ (UINT) MultiSampleType ];
     return S_OK;
 }//CKTDGStateManager::JuneGetMultiSampleQualityLevels()
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET

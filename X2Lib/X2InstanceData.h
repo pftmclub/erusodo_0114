@@ -439,9 +439,9 @@ public:
 	// June 31f00970 fills the map above plus these two sets from the wider EGS_UPDATE_CODE_EVENT_NOT (Get 320de0f0).
 	// +0xa94 is the pet preview's (test 32822650), +0xaa4 the ice heater preview's (test 32822680, backlog Stage 16).
 	// Nothing sends the packet offline, so both stay empty.
-	void SetCodeEventSets( const std::set< int >& setCodeEventA_, const std::set< int >& setCodeEventB_ ) { m_setJuneCodeEventA = setCodeEventA_; m_setJuneCodeEventB = setCodeEventB_; }
-	bool IsCodeEventOn( int iCode_ ) const { return m_setJuneCodeEventA.end() != m_setJuneCodeEventA.find( iCode_ ); }
-	bool IsCodeEventBOn( int iCode_ ) const { return m_setJuneCodeEventB.end() != m_setJuneCodeEventB.find( iCode_ ); }
+	void SetCodeEventSets( const std::set< int >& setCodeEventA_, const std::set< int >& setCodeEventB_ ) { m_setCodeEventA = setCodeEventA_; m_setCodeEventB = setCodeEventB_; }
+	bool IsCodeEventOn( int iCode_ ) const { return m_setCodeEventA.end() != m_setCodeEventA.find( iCode_ ); }
+	bool IsCodeEventBOn( int iCode_ ) const { return m_setCodeEventB.end() != m_setCodeEventB.find( iCode_ ); }
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif SERV_CODE_EVENT
 
@@ -838,8 +838,8 @@ public:
 #ifdef SERV_CODE_EVENT
 	std::map< int, bool >		m_mapEnableCodeEnum;
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
-	std::set< int >				m_setJuneCodeEventA;	// June +0xa94
-	std::set< int >				m_setJuneCodeEventB;	// June +0xaa4
+	std::set< int >				m_setCodeEventA;	// June +0xa94
+	std::set< int >				m_setCodeEventB;	// June +0xaa4
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 #endif SERV_CODE_EVENT
 
@@ -928,26 +928,26 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 		/// Q5b. June g_pInstanceData +0xaf8 / +0xafc: a quest scene deferred by NEW_QUEST_NOT in state 5 ( quest id, mode ), played by StateChange when the
 		/// next village / battle field has been built ( June 31d88bf0 @31d896bd ) and cleared by CX2UIQuestNew::JunePlayQuestScene ( 323cb2e0 ).
-		void	SetDeferredQuestScene( int iQuestID_, int iMode_ ) { m_iJuneDeferredSceneQuestID = iQuestID_; m_iJuneDeferredSceneMode = iMode_; }
-		int		GetDeferredSceneQuestID() const { return m_iJuneDeferredSceneQuestID; }
-		int		GetDeferredSceneMode() const { return m_iJuneDeferredSceneMode; }
-		int		m_iJuneDeferredSceneQuestID;
-		int		m_iJuneDeferredSceneMode;
+		void	SetDeferredQuestScene( int iQuestID_, int iMode_ ) { m_iDeferredSceneQuestID = iQuestID_; m_iDeferredSceneMode = iMode_; }
+		int		GetDeferredSceneQuestID() const { return m_iDeferredSceneQuestID; }
+		int		GetDeferredSceneMode() const { return m_iDeferredSceneMode; }
+		int		m_iDeferredSceneQuestID;
+		int		m_iDeferredSceneMode;
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 		/// Q10. June g_pInstanceData +0xabd: the menu bar's Story_New mark. Set by the story-book rebuild ( 32335f50 @32336268: true after a story
 		/// quest's complete ACK, false at SetUnitQuest ); the menu bar shows it ( 324708c0 @32471129 ) and its StoryBook button clears it
 		/// ( 32478ecc ): both are Stage 9's ( June's menu bar ).
-		void	SetStoryBookNew( bool bNew_ ) { m_bJuneStoryBookNew = bNew_; }
-		bool	GetStoryBookNew() const { return m_bJuneStoryBookNew; }
-		bool	m_bJuneStoryBookNew;
+		void	SetStoryBookNew( bool bNew_ ) { m_bStoryBookNew = bNew_; }
+		bool	GetStoryBookNew() const { return m_bStoryBookNew; }
+		bool	m_bStoryBookNew;
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		/// Q10b. June g_pInstanceData +0xabc: the story's end message is due. Set by the complete ACK when the player started ( 323e5a6d ), read
 		/// and cleared by the player's End ( 328c3e03 / 328c41b5 ); no other June reader.
-		void	SetStoryEndMessage( bool bShow_ ) { m_bJuneStoryEndMessage = bShow_; }
-		bool	GetStoryEndMessage() const { return m_bJuneStoryEndMessage; }
-		bool	m_bJuneStoryEndMessage;
+		void	SetStoryEndMessage( bool bShow_ ) { m_bStoryEndMessage = bShow_; }
+		bool	GetStoryEndMessage() const { return m_bStoryEndMessage; }
+		bool	m_bStoryEndMessage;
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 		K4ThAnnivEventInfo					m_k4ThAnnivEventInfo;

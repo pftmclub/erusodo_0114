@@ -1251,7 +1251,7 @@ int CKTDGFontManager::CUKFont::GetPaddedHeight( const WCHAR* wszText, int iAddHe
 
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGFontManager::CUKFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */, int nCount /*= -1 */, float fScaleX, float fScaleY, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDGFontManager::CUKFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */, int nCount /*= -1 */, float fScaleX, float fScaleY, bool bPostEffectPass_ /*= false*/ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGFontManager::CUKFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */, int nCount /*= -1 */, float fScaleX, float fScaleY )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1281,7 +1281,7 @@ void CKTDGFontManager::CUKFont::OutTextXY( const int& iLeft, const int& iTop, co
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	m_pUKFont->OutTextXY( (int)( iLeft * g_pKTDXApp->GetResolutionScaleX() )
 		, (int)( iTop * g_pKTDXApp->GetResolutionScaleY() ), wszText, color, colorOutLine, pRt, dwFlag, nCount
-		, fScaleX, fScaleY, bJunePostEffectPass_ );		// June @31c3ac92
+		, fScaleX, fScaleY, bPostEffectPass_ );		// June @31c3ac92
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	m_pUKFont->OutTextXY( (int)( iLeft * g_pKTDXApp->GetResolutionScaleX() )
 		, (int)( iTop * g_pKTDXApp->GetResolutionScaleY() ), wszText, color, colorOutLine, pRt, dwFlag, nCount
@@ -1295,7 +1295,7 @@ void CKTDGFontManager::CUKFont::OutTextXY( const int& iLeft, const int& iTop, co
 void CKTDGFontManager::CUKFont::OutProjectionText( const D3DXVECTOR3& pos, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, 
 												  CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-												  RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */, bool bJunePostEffectPass_ /*= false*/ )
+												  RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */, bool bPostEffectPass_ /*= false*/ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 												  RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP  */ )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1330,7 +1330,7 @@ void CKTDGFontManager::CUKFont::OutProjectionText( const D3DXVECTOR3& pos, const
 
 	KTDXPROFILE_BEGIN( "m_pUKFont->OutTextXY" );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	m_pUKFont->OutTextXY( (int)screenPos.x, (int)screenPos.y, wszText, color, colorOutLine, pRt, dwFlag, -1, 1.f, 1.f, bJunePostEffectPass_ );	// June @31c3ae4c
+	m_pUKFont->OutTextXY( (int)screenPos.x, (int)screenPos.y, wszText, color, colorOutLine, pRt, dwFlag, -1, 1.f, 1.f, bPostEffectPass_ );	// June @31c3ae4c
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	m_pUKFont->OutTextXY( (int)screenPos.x, (int)screenPos.y, wszText, color, colorOutLine, pRt, dwFlag );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1339,7 +1339,7 @@ void CKTDGFontManager::CUKFont::OutProjectionText( const D3DXVECTOR3& pos, const
 
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGFontManager::CUKFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, float fLineSpace /* = 1.0f */, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP */, int nCount /* = -1 */, float fScaleX, float fScaleY, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDGFontManager::CUKFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, float fLineSpace /* = 1.0f */, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP */, int nCount /* = -1 */, float fScaleX, float fScaleY, bool bPostEffectPass_ /*= false*/ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGFontManager::CUKFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color /*= 0xffffffff*/, CKTDGFontManager::FONT_STYLE fontStyle /* = FS_NONE */, D3DCOLOR colorOutLine /*= 0xff000000*/, float fLineSpace /* = 1.0f */, RECT* pRt /* = NULL */, DWORD dwFlag /* = DT_LEFT|DT_TOP */, int nCount /* = -1 */, float fScaleX, float fScaleY )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1369,7 +1369,7 @@ void CKTDGFontManager::CUKFont::OutTextMultiline( const int& iLeft, const int& i
 	m_pUKFont->OutTextMultiline( (int)( iLeft * g_pKTDXApp->GetResolutionScaleX() ), 
 								(int)( iTop * g_pKTDXApp->GetResolutionScaleY() ), 
 								wszText, color, colorOutLine, fLineSpace, pRt, dwFlag, nCount, 
-								fScaleX, fScaleY, bJunePostEffectPass_ );		// June @31c3af97
+								fScaleX, fScaleY, bPostEffectPass_ );		// June @31c3af97
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	m_pUKFont->OutTextMultiline( (int)( iLeft * g_pKTDXApp->GetResolutionScaleX() ), 
 								(int)( iTop * g_pKTDXApp->GetResolutionScaleY() ), 
@@ -1792,7 +1792,7 @@ int CKTDGFontManager::CUKFont::Push2DText( const WCHAR* strMsg, int xPos, int yP
 }
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGFontManager::CUKFont::Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag, FONT_STYLE fontStyle, int nCount, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDGFontManager::CUKFont::Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag, FONT_STYLE fontStyle, int nCount, bool bPostEffectPass_ /*= false*/ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGFontManager::CUKFont::Draw2DText( const WCHAR* strMsg, int xPos, int yPos, D3DXCOLOR color, D3DXCOLOR outlineColor, DWORD sortFlag, FONT_STYLE fontStyle, int nCount )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1814,9 +1814,9 @@ void CKTDGFontManager::CUKFont::Draw2DText( const WCHAR* strMsg, int xPos, int y
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	// June 31c3c680 @31c3c7c5 / @31c3c9ed ( REMOVE_TEXT_SCALING is on, so the scales are 1, as June's )
 	if ( sortFlag & DT_SINGLELINE )
-		OutTextXY( rect.left, rect.top, strMsg, color, fontStyle, outlineColor, &rect, sortFlag, nCount, 1.f, 1.f, bJunePostEffectPass_ );
+		OutTextXY( rect.left, rect.top, strMsg, color, fontStyle, outlineColor, &rect, sortFlag, nCount, 1.f, 1.f, bPostEffectPass_ );
 	else
-		OutTextMultiline( rect.left, rect.top, strMsg, color, fontStyle, outlineColor, 1.0f, &rect, sortFlag, nCount, 1.f, 1.f, bJunePostEffectPass_ );
+		OutTextMultiline( rect.left, rect.top, strMsg, color, fontStyle, outlineColor, 1.0f, &rect, sortFlag, nCount, 1.f, 1.f, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	if ( sortFlag & DT_SINGLELINE )
 		OutTextXY( rect.left, rect.top, strMsg, color, fontStyle

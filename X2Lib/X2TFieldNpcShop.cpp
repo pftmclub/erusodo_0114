@@ -1476,7 +1476,7 @@ void CX2TFieldNpcShop::SetShopType(NPC_SHOP_BUTTON_TYPE eType, bool bShow)
 //   switch does exactly March's 2-argument body, so that is what runs here.
 void CX2TFieldNpcShop::SetShopType( NPC_SHOP_BUTTON_TYPE eType, bool bShow, bool bDisable, bool bEnable )
 {
-	if( eType >= NSBT_JUNE_HENIR_EQUIP_UPGRADE && eType <= NSBT_JUNE_EXTRACTION )
+	if( eType >= NSBT_HENIR_EQUIP_UPGRADE && eType <= NSBT_EXTRACTION )
 	{
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
 		WCHAR buff[256] = {0};

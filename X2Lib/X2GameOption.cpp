@@ -963,21 +963,21 @@ bool CX2GameOption::OpenScriptFile()
 		// g_pKTDXApp exists, a float defaulting to 1.0, then CKTDXApp::SetEffectAlpha( 2 / 3 / 4, value ) (which clamps to [0.1, 1.0]).
 		if( NULL != g_pKTDXApp )
 		{
-			float fJuneEffectAlphaMy = 1.0f;
-			LUA_GET_VALUE( luaManager, "MY_EFFECT_ALPHA",			fJuneEffectAlphaMy,			1.0f );
-			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_EFFECT, fJuneEffectAlphaMy );
+			float fEffectAlphaMy = 1.0f;
+			LUA_GET_VALUE( luaManager, "MY_EFFECT_ALPHA",			fEffectAlphaMy,			1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_EFFECT, fEffectAlphaMy );
 		}
 		if( NULL != g_pKTDXApp )
 		{
-			float fJuneEffectAlphaMyTeam = 1.0f;
-			LUA_GET_VALUE( luaManager, "MY_TEAM_EFFECT_ALPHA",		fJuneEffectAlphaMyTeam,		1.0f );
-			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_TEAM_EFFECT, fJuneEffectAlphaMyTeam );
+			float fEffectAlphaMyTeam = 1.0f;
+			LUA_GET_VALUE( luaManager, "MY_TEAM_EFFECT_ALPHA",		fEffectAlphaMyTeam,		1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_TEAM_EFFECT, fEffectAlphaMyTeam );
 		}
 		if( NULL != g_pKTDXApp )
 		{
-			float fJuneEffectAlphaOther = 1.0f;
-			LUA_GET_VALUE( luaManager, "ANOTHER_TEAM_EFFECT_ALPHA",	fJuneEffectAlphaOther,		1.0f );
-			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_ANOTHER_TEAM_EFFECT, fJuneEffectAlphaOther );
+			float fEffectAlphaOther = 1.0f;
+			LUA_GET_VALUE( luaManager, "ANOTHER_TEAM_EFFECT_ALPHA",	fEffectAlphaOther,		1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_ANOTHER_TEAM_EFFECT, fEffectAlphaOther );
 		}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		luaManager.EndTable();
@@ -1026,8 +1026,8 @@ bool CX2GameOption::OpenScriptFile()
 	if( totalTextureMem <= 60 || totalPhysicMem < 300 )
 	{
 		m_OptionList.m_iAntiAliasingLevel		= 0;
-		m_OptionList.m_bJuneSceneRenderTarget	= false;
-		m_OptionList.m_bJuneEffectRenderTarget	= false;
+		m_OptionList.m_bSceneRenderTarget	= false;
+		m_OptionList.m_bEffectRenderTarget	= false;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 		m_OptionList.m_bRimLight				= false;	/// +0x100
 		m_OptionList.m_iAnisotropicFilterSample	= 0;		/// +0x104
@@ -1477,10 +1477,10 @@ void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 		/// +0x80 = USE_ENV_BOX && the renderer's shader-3 cap. RIM_LIGHT is not applied here: CX2Main::OnFrameMove copies it into the renderer every frame.
 		if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetXRenderer() )
 		{
-			CKTDGXRenderer* pJuneXRenderer = g_pKTDXApp->GetDGManager()->GetXRenderer();
-			pJuneXRenderer->SetViewIndependentEdge( m_OptionList.m_bUseViewIndependentEdge );
-			pJuneXRenderer->SetAnisotropy( m_OptionList.m_iAnisotropicFilterSample );
-			pJuneXRenderer->SetEnvBoxEnable( m_OptionList.m_bUseEnvBox );
+			CKTDGXRenderer* pXRenderer = g_pKTDXApp->GetDGManager()->GetXRenderer();
+			pXRenderer->SetViewIndependentEdge( m_OptionList.m_bUseViewIndependentEdge );
+			pXRenderer->SetAnisotropy( m_OptionList.m_iAnisotropicFilterSample );
+			pXRenderer->SetEnvBoxEnable( m_OptionList.m_bUseEnvBox );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
@@ -1512,7 +1512,7 @@ void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 			g_pKTDXApp->SetAntiAliasLevel( m_OptionList.m_iAntiAliasingLevel );
 	}
 	if( true == bForce && NULL != g_pKTDXApp )
-		g_pKTDXApp->SetSceneEffectRenderTarget( m_OptionList.m_bJuneSceneRenderTarget, m_OptionList.m_bJuneEffectRenderTarget );
+		g_pKTDXApp->SetSceneEffectRenderTarget( m_OptionList.m_bSceneRenderTarget, m_OptionList.m_bEffectRenderTarget );
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 	// SOUND
@@ -1554,10 +1554,10 @@ void CX2GameOption::SetAntiAliasingLevel( int iLevel_, bool bForce_ /*= false*/ 
 /// June 3241cd20 ( ret 0xc ). No call, jump or pointer reaches it in June ( JUNE_BUGS.md ), so the switches stay at the data block's 0.
 void CX2GameOption::SetSceneEffectRenderTarget( bool bScene_, bool bEffect_, bool bForce_ /*= false*/ )
 {
-	if( true == bForce_ || m_OptionList.m_bJuneSceneRenderTarget != bScene_ || m_OptionList.m_bJuneEffectRenderTarget != bEffect_ )
+	if( true == bForce_ || m_OptionList.m_bSceneRenderTarget != bScene_ || m_OptionList.m_bEffectRenderTarget != bEffect_ )
 	{
-		m_OptionList.m_bJuneSceneRenderTarget = bScene_;
-		m_OptionList.m_bJuneEffectRenderTarget = bEffect_;
+		m_OptionList.m_bSceneRenderTarget = bScene_;
+		m_OptionList.m_bEffectRenderTarget = bEffect_;
 		if( NULL != g_pKTDXApp )
 			g_pKTDXApp->SetSceneEffectRenderTarget( bScene_, bEffect_ );
 	}

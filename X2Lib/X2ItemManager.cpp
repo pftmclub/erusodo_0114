@@ -14,8 +14,8 @@ CX2ItemManager::CX2ItemManager(void)
 	m_mapHideSetDescItem.clear();
 #endif //IN_ITEM_KIM_USE_HIDE_SET_DESC
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-	m_iJuneEquipFxLists = 0;
-	m_iJuneEquipFxSkippedDuplicate = 0;
+	m_iEquipFxLists = 0;
+	m_iEquipFxSkippedDuplicate = 0;
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 }
 
@@ -233,7 +233,7 @@ void CX2ItemManager::ParseConditionEquipPlayEffectSet( KLuaManager& luaManager )
 		else if( kRecord.m_fSwitchEffectPercent < 0.f )
 			kRecord.m_fSwitchEffectPercent = 0.f;
 
-		++m_iJuneEquipFxLists;
+		++m_iEquipFxLists;
 
 		if( true == luaManager.BeginTable( "m_eItemID" ) )
 		{
@@ -241,8 +241,8 @@ void CX2ItemManager::ParseConditionEquipPlayEffectSet( KLuaManager& luaManager )
 			int iIndex = 1;
 			while( true == luaManager.GetValue( iIndex, iItemID ) )
 			{
-				if( false == m_mapJuneConditionEquipPlayEffectSet.insert( std::make_pair( iItemID, kRecord ) ).second )
-					++m_iJuneEquipFxSkippedDuplicate;
+				if( false == m_mapConditionEquipPlayEffectSet.insert( std::make_pair( iItemID, kRecord ) ).second )
+					++m_iEquipFxSkippedDuplicate;
 				setItemID.insert( iItemID );
 				++iIndex;
 			}
@@ -255,14 +255,14 @@ void CX2ItemManager::ParseConditionEquipPlayEffectSet( KLuaManager& luaManager )
 	}
 
 	if( false == setItemID.empty() )
-		m_mapJuneDivisionItemGroup.insert( std::make_pair( static_cast<int>( JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET ), setItemID ) );
+		m_mapDivisionItemGroup.insert( std::make_pair( static_cast<int>( DITT_CONDITION_EQUIP_PLAY_EFFECT_SET ), setItemID ) );
 }
 
 // June2017 3280b640: a hit on the item-id map (+0x380, end +0x384) copies the record out and returns true.
 bool CX2ItemManager::GetConditionEquipPlayEffectSet( int iItemID, ConditionEquipPlayEffectSet& kRecord ) const
 {
-	std::map< int, ConditionEquipPlayEffectSet >::const_iterator it = m_mapJuneConditionEquipPlayEffectSet.find( iItemID );
-	if( m_mapJuneConditionEquipPlayEffectSet.end() == it )
+	std::map< int, ConditionEquipPlayEffectSet >::const_iterator it = m_mapConditionEquipPlayEffectSet.find( iItemID );
+	if( m_mapConditionEquipPlayEffectSet.end() == it )
 		return false;
 
 	kRecord = it->second;
@@ -272,8 +272,8 @@ bool CX2ItemManager::GetConditionEquipPlayEffectSet( int iItemID, ConditionEquip
 // June2017 32807db0: true when the id is in the given DITT type's set (+0x230 map, end +0x234).
 bool CX2ItemManager::IsDivisionItem( int iDivisionType, int iItemID ) const
 {
-	std::map< int, std::set<int> >::const_iterator it = m_mapJuneDivisionItemGroup.find( iDivisionType );
-	if( m_mapJuneDivisionItemGroup.end() == it )
+	std::map< int, std::set<int> >::const_iterator it = m_mapDivisionItemGroup.find( iDivisionType );
+	if( m_mapDivisionItemGroup.end() == it )
 		return false;
 
 	return ( it->second.end() != it->second.find( iItemID ) );
@@ -285,29 +285,29 @@ bool CX2ItemManager::IsDivisionItem( int iDivisionType, int iItemID ) const
 // set, skipped_duplicate = item ids whose record was dropped because an earlier record already held the id (first wins).
 bool CX2ItemManager::OpenDivisionItemTempletFile( const WCHAR* pFileName )
 {
-	m_iJuneEquipFxLists = 0;
-	m_iJuneEquipFxSkippedDuplicate = 0;
+	m_iEquipFxLists = 0;
+	m_iEquipFxSkippedDuplicate = 0;
 
 	const bool bLoaded = OpenScriptFile( pFileName );
 
 	int iGroup81 = 0;
-	std::map< int, std::set<int> >::const_iterator itGroup = m_mapJuneDivisionItemGroup.find( JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET );
-	if( m_mapJuneDivisionItemGroup.end() != itGroup )
+	std::map< int, std::set<int> >::const_iterator itGroup = m_mapDivisionItemGroup.find( DITT_CONDITION_EQUIP_PLAY_EFFECT_SET );
+	if( m_mapDivisionItemGroup.end() != itGroup )
 		iGroup81 = static_cast<int>( itGroup->second.size() );
 
-	WCHAR wszJuneFx[512] = {0};
+	WCHAR wszFx[512] = {0};
 	if( false == bLoaded )
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=0 lists=%d items=%d group81=%d skipped_duplicate=%d NOT LOADED: file missing or failed to run; per-equip effect sets stay off. Pack it into data036.kom.",
-			pFileName, m_iJuneEquipFxLists, static_cast<int>( m_mapJuneConditionEquipPlayEffectSet.size() ), iGroup81, m_iJuneEquipFxSkippedDuplicate );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=0 lists=%d items=%d group81=%d skipped_duplicate=%d NOT LOADED: file missing or failed to run; per-equip effect sets stay off. Pack it into data036.kom.",
+			pFileName, m_iEquipFxLists, static_cast<int>( m_mapConditionEquipPlayEffectSet.size() ), iGroup81, m_iEquipFxSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	else
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=1 lists=%d items=%d group81=%d skipped_duplicate=%d",
-			pFileName, m_iJuneEquipFxLists, static_cast<int>( m_mapJuneConditionEquipPlayEffectSet.size() ), iGroup81, m_iJuneEquipFxSkippedDuplicate );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX EQUIP_FX_LOAD file=%s loaded=1 lists=%d items=%d group81=%d skipped_duplicate=%d",
+			pFileName, m_iEquipFxLists, static_cast<int>( m_mapConditionEquipPlayEffectSet.size() ), iGroup81, m_iEquipFxSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return bLoaded;
@@ -316,26 +316,26 @@ bool CX2ItemManager::OpenDivisionItemTempletFile( const WCHAR* pFileName )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 void CX2ItemManager::AddTranscendentalUnitType_LUA( int iUnitType, int iUnitClass )
 {
-	std::map< int, std::set<int> >::iterator mit = m_mapJuneTranscendentalUnitType.insert( std::make_pair( iUnitType, std::set<int>() ) ).first;
+	std::map< int, std::set<int> >::iterator mit = m_mapTranscendentalUnitType.insert( std::make_pair( iUnitType, std::set<int>() ) ).first;
 	if( 0 != iUnitClass )
 		mit->second.insert( iUnitClass );
 }
 
 void CX2ItemManager::AddTranscendentalClassItem_LUA( int iItemID, int iType )
 {
-	m_mapJuneTranscendentalClassItem.insert( std::make_pair( iItemID, iType ) );
+	m_mapTranscendentalClassItem.insert( std::make_pair( iItemID, iType ) );
 }
 
 int CX2ItemManager::GetTranscendentalClassItemType( int iItemID ) const
 {
-	std::map< int, int >::const_iterator mit = m_mapJuneTranscendentalClassItem.find( iItemID );
-	return ( mit == m_mapJuneTranscendentalClassItem.end() ) ? -1 : mit->second;
+	std::map< int, int >::const_iterator mit = m_mapTranscendentalClassItem.find( iItemID );
+	return ( mit == m_mapTranscendentalClassItem.end() ) ? -1 : mit->second;
 }
 
 bool CX2ItemManager::IsTranscendentalUnitType( int iUnitType, int iUnitClass ) const
 {
-	std::map< int, std::set<int> >::const_iterator mit = m_mapJuneTranscendentalUnitType.find( iUnitType );
-	if( mit == m_mapJuneTranscendentalUnitType.end() )
+	std::map< int, std::set<int> >::const_iterator mit = m_mapTranscendentalUnitType.find( iUnitType );
+	if( mit == m_mapTranscendentalUnitType.end() )
 		return false;
 
 	if( 0 == iUnitClass || true == mit->second.empty() )
@@ -4297,11 +4297,11 @@ bool CX2ItemManager::AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID
 {
 	if( iCashShopItemID_ <= 0 || iPetUnitID_ <= 0 )
 	{
-		++m_iJunePetPreviewSkipped;
+		++m_iPetPreviewSkipped;
 
-		WCHAR wszJuneFx[128] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_PREVIEW_LOOKUP skip item=%d pet=%d", iCashShopItemID_, iPetUnitID_ );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[128] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_PREVIEW_LOOKUP skip item=%d pet=%d", iCashShopItemID_, iPetUnitID_ );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 		return false;
 	}
 
@@ -4320,7 +4320,7 @@ bool CX2ItemManager::AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID
 	}
 
 	m_vecPetPreViewData.push_back( PREVIEW_PET_DATA( iCashShopItemID_, iPetUnitID_, ePetType_, iSecondPetUnitID_, wstrStartDate, wstrEndDate, iCodeEvent ) );
-	++m_iJunePetPreviewLoaded;
+	++m_iPetPreviewLoaded;
 	return true;
 }
 #else
@@ -4641,7 +4641,7 @@ void CX2ItemManager::CreateShopImageNameList()
 			return;
 		}
 	}
-	const DWORD dwJuneKimListStart = GetTickCount();
+	const DWORD dwKimListStart = GetTickCount();
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	std::ofstream ofs;
 	ofs.open( "ShopImageName.txt" );
@@ -4674,7 +4674,7 @@ void CX2ItemManager::CreateShopImageNameList()
 	ofs << strmResourceList.str();
 
 #ifdef SERV_IRUHADEV_JUNE_ITEM_KIM
-	CX2Item::KItemFormatTemplet::KimLine( "ShopImageName.txt written: %u items in %u ms", uiNumItems, (unsigned) ( GetTickCount() - dwJuneKimListStart ) );
+	CX2Item::KItemFormatTemplet::KimLine( "ShopImageName.txt written: %u items in %u ms", uiNumItems, (unsigned) ( GetTickCount() - dwKimListStart ) );
 #endif SERV_IRUHADEV_JUNE_ITEM_KIM
 	ofs.flush();
 	ofs.close();

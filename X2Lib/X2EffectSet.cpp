@@ -662,7 +662,7 @@ static void SetParticleSequenceOverUI( CX2EffectSet::EffectSetInstance* pInstanc
 // a diagnostic, so it is not behind SERV_IRUHADEV_JUNE_FX_DEBUG. The parse-time lines (ErrorLog.txt,
 // SERV_IRUHADEV_JUNE_EFFECTSET_PARSE) use the same system wording.
 static void FxUnsupported( const CX2EffectSet::EffectSetData* pEffectSetData_, const WCHAR* pwszKey_, const WCHAR* pwszScope_,
-							  const WCHAR* pwszSystem_, int iValue_, const WCHAR* pwszJuneSite_ )
+							  const WCHAR* pwszSystem_, int iValue_, const WCHAR* pwszSite_ )
 {
 	if( NULL == pEffectSetData_ )
 		return;
@@ -678,7 +678,7 @@ static void FxUnsupported( const CX2EffectSet::EffectSetData* pEffectSetData_, c
 		return;
 
 	CX2OfflineLog::Server( L"JUNE_FX unsupported %s in %s%s: %s absent (value %d, June %s)", pwszKey_,
-		pEffectSetData_->m_wstrEffectSetName.c_str(), pwszScope_, pwszSystem_, iValue_, pwszJuneSite_ );
+		pEffectSetData_->m_wstrEffectSetName.c_str(), pwszScope_, pwszSystem_, iValue_, pwszSite_ );
 }
 
 /** @function : JuneGroupChildPosition
@@ -751,9 +751,9 @@ static bool GroupChildPosition( CX2EffectSet::EffectSetInstance* pInstance_, CX2
 	}
 
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	std::wstring wstrJuneFx = L"child=";
-	wstrJuneFx += wstrBoneName_;
-	FxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", wstrJuneFx.c_str() );
+	std::wstring wstrFx = L"child=";
+	wstrFx += wstrBoneName_;
+	FxEsCreate( pInstance_, pEffectData_, L"GROUP_NAME", wstrFx.c_str() );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return true;
 }
@@ -995,7 +995,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			// S3d, June2017 FUN_321ee600 @321eede4-321eee0e: the instance's memo scale is copied into the effect (+0x108..+0x110) first;
 			// GetEffectScale (the only reader, @321eee21) multiplies by it
-			pEffectData->m_vJuneMemoScale = pEffectSetInstance->m_vJuneMemoScale;
+			pEffectData->m_vMemoScale = pEffectSetInstance->m_vMemoScale;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			// June2017 FUN_321ee600 @ 321eee07-321eee21: rotation and scale are taken once per effect, before the
 			// position, and every GROUP_NAME child below shares them
@@ -1003,9 +1003,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 			const D3DXVECTOR3 vEffectScale = pEffectSetInstance->GetEffectScale( pEffectData );
 
 			// @ 321ee76b-321ee7c9: the creation target mesh, index max( BONE_TRACE_TARGET_MESH_INDEX, 0 )
-			const int iJuneCreationTargetMeshIndex = ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData->m_iBoneTraceTargetMeshIndex;
-			CKTDGXMeshPlayer::CXMeshInstanceHandle hJuneCreationTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
-			const bool bJuneCreationTargetMesh = GetCreationTargetMesh( pEffectSetInstance, pEffectData, hJuneCreationTargetMesh );
+			const int iCreationTargetMeshIndex = ( pEffectData->m_iBoneTraceTargetMeshIndex < 0 ) ? 0 : pEffectData->m_iBoneTraceTargetMeshIndex;
+			CKTDGXMeshPlayer::CXMeshInstanceHandle hCreationTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+			const bool bCreationTargetMesh = GetCreationTargetMesh( pEffectSetInstance, pEffectData, hCreationTargetMesh );
 
 			// @ 321eee45-321eeeb7: GROUP_NAME, particle types only. The base is GROUP_NAME up to its first L"_GROUP"
 			// (3347e55c; all of it when there is none). Each pass of the loop below creates one particle at the
@@ -1029,13 +1029,13 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 			D3DXVECTOR3 vEffectPos( 0.f, 0.f, 0.f );
 			if( true == bGroupName )
 			{
-				if( false == GroupChildPosition( pEffectSetInstance, pEffectData, wstrGroupBase, iGroupChild, iJuneCreationTargetMeshIndex,
-													 bJuneCreationTargetMesh, wstrGroupChildBoneName, vEffectPos, vGroupChildOffset ) )
+				if( false == GroupChildPosition( pEffectSetInstance, pEffectData, wstrGroupBase, iGroupChild, iCreationTargetMeshIndex,
+													 bCreationTargetMesh, wstrGroupChildBoneName, vEffectPos, vGroupChildOffset ) )
 				{
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-					WCHAR wszJuneFx[64] = {0};
-					StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"children=%d(321f2581)", iGroupChild - 1 );
-					FxEsCreate( pEffectSetInstance, pEffectData, L"GROUP_NAME", wszJuneFx );
+					WCHAR wszFx[64] = {0};
+					StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"children=%d(321f2581)", iGroupChild - 1 );
+					FxEsCreate( pEffectSetInstance, pEffectData, L"GROUP_NAME", wszFx );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 					break;
 				}
@@ -1046,7 +1046,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 				vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
 			}
 			// @ 321f0d10-321f0d3b (likewise @ 321f1207, 321f1765, 321f1c2b): TRACE_MATRIX_IN_FIELD takes the child's bone
-			const WCHAR* pwszJuneParticleBoneName = ( true == bGroupName ) ? wstrGroupChildBoneName.c_str() : pEffectData->m_PositionBoneName.c_str();
+			const WCHAR* pwszParticleBoneName = ( true == bGroupName ) ? wstrGroupChildBoneName.c_str() : pEffectData->m_PositionBoneName.c_str();
 #else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			const D3DXVECTOR3 vEffectPos = pEffectSetInstance->GetEffectPosition( pEffectData );
 			const D3DXVECTOR3 vEffectRotation = pEffectSetInstance->GetEffectRotation( pEffectData );
@@ -1116,7 +1116,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							fPowerRatePet = ( pEffectSetInstance->m_pPet->GetNowIntimacy() - 0.6f + 1.f );
 						pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-								fPowerRate * fPowerRatePet, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+								fPowerRate * fPowerRatePet, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fForceDownValueRate );
 #else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate * fPowerRatePet, vEffectPos, vEffectRotation, vEffectRotation );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
@@ -1128,7 +1128,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							{
 								pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectNameHyper.c_str(), 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fForceDownValueRate );
 #else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
@@ -1137,7 +1137,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							{
 								pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fForceDownValueRate );
 #else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 									fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
@@ -1149,7 +1149,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						{
 							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectNameHyper.c_str(), 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fForceDownValueRate );
 #else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
@@ -1158,7 +1158,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						{
 							pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( pUnit, pEffectData->m_EffectName.c_str(), 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fJuneForceDownValueRate );
+								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation, 0.f, false, -1.f, pEffectSetInstance->m_fForceDownValueRate );
 #else SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 								fPowerRate, vEffectPos, vEffectRotation, vEffectRotation );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
@@ -1217,8 +1217,8 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 						// June 321ef6b3: the set's modifier list ( class code fills it ) is applied to each damage effect the set creates
-						if( false == pEffectSetInstance->m_vecJuneModifier.empty() )
-							ApplyDamageEffectModifiers( pEffect, pEffectSetInstance->m_vecJuneModifier );
+						if( false == pEffectSetInstance->m_vecModifier.empty() )
+							ApplyDamageEffectModifiers( pEffect, pEffectSetInstance->m_vecModifier );
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 						// @ 321ef6b5-321ef6d5: USE_IS_RIGHT_WHEN_CREATE gives the damage effect's follow-line
 						// facing (June CEffect +0x135 = m_bFollowLineRight) the facing the set was created with
@@ -1238,17 +1238,17 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 	#ifdef SERV_RENA_NIGHT_WATCHER
 						pEffect->SetIndex( pEffectSetInstance->m_iDamageEffectIndex );
 	#endif SERV_RENA_NIGHT_WATCHER
-						pEffect->GetDamageData().m_iJuneDamageEffectIndex = pEffectSetInstance->m_iDamageEffectIndex;
+						pEffect->GetDamageData().m_iDamageEffectIndex = pEffectSetInstance->m_iDamageEffectIndex;
 	#ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
-						pEffect->GetDamageData().m_iJuneAttackerStateID = pEffectSetInstance->m_iOwnerStateIDOnPlay;
+						pEffect->GetDamageData().m_iAttackerStateID = pEffectSetInstance->m_iOwnerStateIDOnPlay;
 	#endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 						pEffect->SetHyper( pEffectSetInstance->m_bHyper );
 	#if defined(SERV_IRUHADEV_JUNE_FX_DEBUG) && defined(SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME)
 						{
-							WCHAR wszJuneFxStamp[96] = L"";
-							StringCchPrintfW( wszJuneFxStamp, ARRAY_SIZE(wszJuneFxStamp), L"index=%d ownerState=%d hyper=%d",
+							WCHAR wszFxStamp[96] = L"";
+							StringCchPrintfW( wszFxStamp, ARRAY_SIZE(wszFxStamp), L"index=%d ownerState=%d hyper=%d",
 								pEffectSetInstance->m_iDamageEffectIndex, pEffectSetInstance->m_iOwnerStateIDOnPlay, (int)pEffectSetInstance->m_bHyper );
-							FxEsCreate( pEffectSetInstance, pEffectData, L"SPAWN_INHERIT_STAMP", wszJuneFxStamp );
+							FxEsCreate( pEffectSetInstance, pEffectData, L"SPAWN_INHERIT_STAMP", wszFxStamp );
 						}
 	#endif
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
@@ -1543,7 +1543,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f0ce3 (UI major): TRACE_MATRIX_IN_FIELD
-						TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
+						TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1625,7 +1625,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f11da (UI minor): TRACE_MATRIX_IN_FIELD
-						TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
+						TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1699,7 +1699,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							// June2017 FUN_321ee600 @ 321f1738 (game major): TRACE_MATRIX_IN_FIELD
-							TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
+							TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1764,7 +1764,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 							// June2017 FUN_321ee600 @ 321f1c12 (game minor): TRACE_MATRIX_IN_FIELD
-							TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszJuneParticleBoneName );
+							TraceMatrixInFieldParticle( pEffectSetInstance, pEffectData, pParticleSequence, pwszParticleBoneName );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef FIX_ICE_HEATER_EVENT
@@ -1798,15 +1798,15 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			// Effect completion C10b-2: June 321ee600 @321f1ec8-321f1ee4: v = this EFFECT's value, which counts only as 1 (AEACBO_NOT_APPLY); anything else
 			// takes the instance's. Handed on in the switch below: damage effect (@321f20ff), mesh (@321f2426), particle (@321f254a).
-			BYTE byJuneEffectAlphaCondition = (BYTE) pEffectData->m_iApplyEffectAlphaConditionByOption;
-			if( 1 != byJuneEffectAlphaCondition )
-				byJuneEffectAlphaCondition = pEffectSetInstance->m_byEffectAlphaCondition;
+			BYTE byEffectAlphaCondition = (BYTE) pEffectData->m_iApplyEffectAlphaConditionByOption;
+			if( 1 != byEffectAlphaCondition )
+				byEffectAlphaCondition = pEffectSetInstance->m_byEffectAlphaCondition;
 #else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption )
 			{
-				WCHAR wszJuneScope[32] = {0};
-				StringCchPrintfW( wszJuneScope, ARRAY_SIZE(wszJuneScope), L" EFFECT%d", (int) i );
-				FxUnsupported( pEffectSetInstance->m_pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", wszJuneScope,
+				WCHAR wszScope[32] = {0};
+				StringCchPrintfW( wszScope, ARRAY_SIZE(wszScope), L" EFFECT%d", (int) i );
+				FxUnsupported( pEffectSetInstance->m_pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", wszScope,
 					L"effect-alpha option", pEffectData->m_iApplyEffectAlphaConditionByOption, L"321f1ec8" );
 			}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
@@ -1829,7 +1829,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hParticleSequence	= INVALID_PARTICLE_SEQUENCE_HANDLE;
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-						pEffect->SetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f20ff
+						pEffect->SetEffectAlphaCondition( byEffectAlphaCondition );		// June2017 321ee600 @321f20ff
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
@@ -1874,9 +1874,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 								}
 							}
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-							WCHAR wszJuneFx[64] = {0};
-							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"registered_index=%d(damage)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
-							FxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszJuneFx );
+							WCHAR wszFx[64] = {0};
+							StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"registered_index=%d(damage)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
+							FxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszFx );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						}
 #else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -1934,7 +1934,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hParticleSequence	= INVALID_PARTICLE_SEQUENCE_HANDLE;
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-						pMeshInstance->SetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f2426
+						pMeshInstance->SetEffectAlphaCondition( byEffectAlphaCondition );		// June2017 321ee600 @321f2426
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
@@ -1950,9 +1950,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							pEffectInstance->m_vecMeshTriggerData = pEffectData->m_vecMeshTriggerData;
 							pMeshInstance->SetRestoreAnimAfterTrigger( false );
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-							WCHAR wszJuneFx[64] = {0};
-							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"copied=%d restore_after_trigger=0(321f2166)", (int) pEffectInstance->m_vecMeshTriggerData.size() );
-							FxEsCreate( pEffectSetInstance, pEffectData, L"MESH_TRIGGER_DATA_LIST", wszJuneFx );
+							WCHAR wszFx[64] = {0};
+							StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"copied=%d restore_after_trigger=0(321f2166)", (int) pEffectInstance->m_vecMeshTriggerData.size() );
+							FxEsCreate( pEffectSetInstance, pEffectData, L"MESH_TRIGGER_DATA_LIST", wszFx );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						}
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -2018,9 +2018,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							}
 							pEffectSetInstance->m_vBoneTraceTargetMeshScale = targetMeshData.m_vScale;
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-							WCHAR wszJuneFx[64] = {0};
-							StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"registered_index=%d(mesh)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
-							FxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszJuneFx );
+							WCHAR wszFx[64] = {0};
+							StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"registered_index=%d(mesh)", (int) pEffectSetInstance->m_vecTargetMeshData.size() - 1 );
+							FxEsCreate( pEffectSetInstance, pEffectData, L"BONE_TRACE_TARGET_MESH", wszFx );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 						}
 #else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -2080,7 +2080,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hParticleSequence	= pParticleSequence->GetHandle();
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-						pParticleSequence->SetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f254a
+						pParticleSequence->SetEffectAlphaCondition( byEffectAlphaCondition );		// June2017 321ee600 @321f254a
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -2514,8 +2514,8 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 			// June2017 FUN_321e0080 @ 321e0170-321e01e9: the target-mesh entry this effect uses, under 4a's
 			// index rule (max( BONE_TRACE_TARGET_MESH_INDEX, 0 ); none for a BONE_TRACE_TARGET_MESH with a
 			// negative index). REVERSE_Y reads it too (@ 321e1547).
-			CKTDGXMeshPlayer::CXMeshInstanceHandle hJuneTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
-			const bool bJuneTargetMeshLive = GetCreationTargetMesh( pEffectSetInstance, pEffectData, hJuneTargetMesh );
+			CKTDGXMeshPlayer::CXMeshInstanceHandle hTargetMesh = INVALID_MESH_INSTANCE_HANDLE;
+			const bool bTargetMeshLive = GetCreationTargetMesh( pEffectSetInstance, pEffectData, hTargetMesh );
 
 			// June2017 FUN_321e0080 @ 321e01e9-321e021c, before the trace test and whether or not the effect
 			// is alive: in a set that traces target meshes, an effect whose entry is gone is hidden
@@ -2524,7 +2524,7 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 			// set's loop after moving the first such traced effect (the #else after the position below).
 			if( true == pEffectSetInstance->m_bIsTargetMesh &&
 				false == pEffectData->m_bTraceUserTargetForce &&
-				false == bJuneTargetMeshLive &&
+				false == bTargetMeshLive &&
 				( false == pEffectData->m_bBoneTraceTargetMesh || pEffectData->m_iBoneTraceTargetMeshIndex >= 0 ) )
 			{
 				SetEffectInstanceShow( pEffectInstance, false );
@@ -2595,7 +2595,7 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 			// (@ 321e0855-321e0914); without it, GetEffectPositionByBoneName( child bone ) (FUN_321dd590
 			// @ 321e0933). Every other effect: GetEffectPosition (@ 321e0964), as March.
 			D3DXVECTOR3 vEffectPos( 0.f, 0.f, 0.f );
-			bool bJuneMoveEffect = true;
+			bool bMoveEffect = true;
 			if( true == pEffectInstance->m_bGroupChild )
 			{
 				if( false == pEffectData->m_PositionBoneName.empty() )
@@ -2615,7 +2615,7 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 					{
 						// @ 321e0845: with no matrix June jumps past the computation and still moves the
 						// particle, to whatever its stack slot held. Not reproduced: the particle stays put.
-						bJuneMoveEffect = false;
+						bMoveEffect = false;
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 						FxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"GROUP_NAME", L"not_moved=no_matrix(321e0845)" );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -2623,8 +2623,8 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 				}
 				else
 				{
-					bool bJuneBoneFound = false;
-					vEffectPos = pEffectSetInstance->GetEffectPositionByBoneName( pEffectData, pEffectInstance->m_wstrGroupChildBoneName, bJuneBoneFound );
+					bool bBoneFound = false;
+					vEffectPos = pEffectSetInstance->GetEffectPositionByBoneName( pEffectData, pEffectInstance->m_wstrGroupChildBoneName, bBoneFound );
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 					FxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"GROUP_NAME", L"moved=child_bone(321e0933)" );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -2660,7 +2660,7 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
-			if( true == bJuneMoveEffect )	// June2017 FUN_321e0080 @ 321e0845: a group child with no matrix is not moved
+			if( true == bMoveEffect )	// June2017 FUN_321e0080 @ 321e0845: a group child with no matrix is not moved
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 			switch( pEffectData->m_eEffectType )
 			{
@@ -2744,7 +2744,7 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 							if( true == pSeq->GetUseLand() && null != pEffectSetInstance->m_optrGameUnit )
 								pSeq->SetLandPosition( pEffectSetInstance->m_optrGameUnit->GetLandPos().y );
 							// June2017 FUN_321e0080 @ 321e0d1a-321e0f89: case 6 alone refreshes TRACE_MATRIX_IN_FIELD
-							TraceMatrixInFieldParticleUpdate( pEffectSetInstance, pEffectInstance, pEffectData, pSeq, bJuneTargetMeshLive, hJuneTargetMesh, vEffectPos );
+							TraceMatrixInFieldParticleUpdate( pEffectSetInstance, pEffectInstance, pEffectData, pSeq, bTargetMeshLive, hTargetMesh, vEffectPos );
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						}
 					}
@@ -2969,9 +2969,9 @@ void CX2EffectSet::OnFrameMove_UpdateEffect()
 									// index rule gives this effect a live entry and it is not TRACE_USER_TARGET_FORCE
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 									FxEsRuntime( L"ES_UPDATE", pEffectSetInstance, pEffectData, L"REVERSE_Y",
-										( true == bJuneTargetMeshLive && false == pEffectData->m_bTraceUserTargetForce ) ? L"facing=target_mesh(321e155b)" : L"facing=unit(321e1583)" );
+										( true == bTargetMeshLive && false == pEffectData->m_bTraceUserTargetForce ) ? L"facing=target_mesh(321e155b)" : L"facing=unit(321e1583)" );
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
-									if ( true == bJuneTargetMeshLive &&
+									if ( true == bTargetMeshLive &&
 										 false == pEffectData->m_bTraceUserTargetForce )
 #else SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 					#ifdef FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE // ±Ë≈¬»Ø
@@ -3333,8 +3333,8 @@ CX2EffectSet::EffectSetInstance*   CX2EffectSet::_CreateEffectSetInstance(
 	// one line per effect-set templet per session: the owner, the category the instance took and the alpha that category gives
 	if( NULL != g_pX2Game && NULL != g_pKTDXApp )
 	{
-		static std::set<std::wstring> s_setJuneAlphaLogged;
-		if( true == s_setJuneAlphaLogged.insert( pEffectSetData->m_wstrEffectSetName ).second )
+		static std::set<std::wstring> s_setAlphaLogged;
+		if( true == s_setAlphaLogged.insert( pEffectSetData->m_wstrEffectSetName ).second )
 		{
 			CX2OfflineLog::Server( L"JUNE_FX alpha set=%s owner=%I64d cat=%d alpha=%.2f", pEffectSetData->m_wstrEffectSetName.c_str(),
 				( NULL != pGameUnit ? (__int64) pGameUnit->GetUnitUID() : (__int64) -1 ),
@@ -3409,11 +3409,11 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 			// for every later play by any unit until another MI_HUGE play rewrites it (JUNE_BUGS). June reads v0 from the vector's begin with
 			// no size test; an entry with no value is skipped here (June's data gives every MI_HUGE row its values).
 			{
-				const CX2GUUser::SkillMemoEntry* pJuneMemo = pUser->GetSkillMemoEntry( pEffectSetData->m_iAppliedSkillID );
-				if( NULL != pJuneMemo && 2 == pJuneMemo->m_iType && false == pJuneMemo->m_vecValue.empty() )
+				const CX2GUUser::SkillMemoEntry* pMemo = pUser->GetSkillMemoEntry( pEffectSetData->m_iAppliedSkillID );
+				if( NULL != pMemo && 2 == pMemo->m_iType && false == pMemo->m_vecValue.empty() )
 				{
-					const float fJuneMemoScale = pJuneMemo->m_vecValue[0];
-					pEffectSetData->m_vJuneMemoScale = D3DXVECTOR3( fJuneMemoScale, fJuneMemoScale, fJuneMemoScale );
+					const float fMemoScale = pMemo->m_vecValue[0];
+					pEffectSetData->m_vMemoScale = D3DXVECTOR3( fMemoScale, fMemoScale, fMemoScale );
 				}
 			}
 #else SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
@@ -3469,7 +3469,7 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 	pEffectSetInstance->m_fPowerRate = fPowerRate;
 	pEffectSetInstance->m_fLifeTime = fLifeTime;
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-	pEffectSetInstance->m_fJuneForceDownValueRate = fForceDownValueRate;	// June 321e1e60 @321e2017
+	pEffectSetInstance->m_fForceDownValueRate = fForceDownValueRate;	// June 321e1e60 @321e2017
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 	pEffectSetInstance->m_vScale = vScale;
 
@@ -3829,10 +3829,10 @@ void CX2EffectSet::AttachBuffFactorToEffectSet( CX2EffectSet::Handle hHandle_, U
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	{
-		WCHAR wszJuneFxAttach[96] = L"";
-		StringCchPrintfW( wszJuneFxAttach, ARRAY_SIZE(wszJuneFxAttach), L"bfi=%u level=%d list_size=%d(321e3650)",
+		WCHAR wszFxAttach[96] = L"";
+		StringCchPrintfW( wszFxAttach, ARRAY_SIZE(wszFxAttach), L"bfi=%u level=%d list_size=%d(321e3650)",
 			uiBuffFactorID_, iLevel_, static_cast<int>( pInstance->m_vecBuffFactorList.size() ) );
-		FxEsCreate( pInstance, NULL, L"BUFF_LIST_ATTACH", wszJuneFxAttach );
+		FxEsCreate( pInstance, NULL, L"BUFF_LIST_ATTACH", wszFxAttach );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 }
@@ -3859,10 +3859,10 @@ void CX2EffectSet::ApplyBuffFactorListToDamageEffect( CX2DamageEffect::CEffect* 
 			static std::set<UINT> s_setReportedBFI;
 			if ( true == s_setReportedBFI.insert( kEntry.m_uiBuffFactorID ).second )
 			{
-				WCHAR wszJuneFx[160] = L"";
-				StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX BUFF_LIST skipped BFI %u: not in the buff templet manager (June 321ee480 would crash, JUNE_BUGS 60)",
+				WCHAR wszFx[160] = L"";
+				StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX BUFF_LIST skipped BFI %u: not in the buff templet manager (June 321ee480 would crash, JUNE_BUGS 60)",
 					kEntry.m_uiBuffFactorID );
-				ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+				ErrorLogMsg( XEM_ERROR142, wszFx );
 			}
 			continue;
 		}
@@ -3965,13 +3965,13 @@ void CX2EffectSet::RegisterLuaBind()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 // Per-OpenScriptFile counters for the JUNE_FX ES_LOAD summary line: how many
 // templets reached the June templet-key block, and how many set a June key.
-static int s_iJuneFxTempletCount = 0;
-static int s_iJuneFxTempletWithJuneKeyCount = 0;
+static int s_iFxTempletCount = 0;
+static int s_iFxTempletWithKeyCount = 0;
 // Phase 3: how many EFFECT%d entries reached the June per-effect block, how many of
 // them set a June key, and how many SOUND%d entries were read.
-static int s_iJuneFxEffectCount = 0;
-static int s_iJuneFxEffectWithJuneKeyCount = 0;
-static int s_iJuneFxSoundCount = 0;
+static int s_iFxEffectCount = 0;
+static int s_iFxEffectWithKeyCount = 0;
+static int s_iFxSoundCount = 0;
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
 bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
@@ -3982,22 +3982,22 @@ bool CX2EffectSet::OpenScriptFile( const wstring& wstrFileName )
 		return false;
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
-	s_iJuneFxTempletCount = 0;
-	s_iJuneFxTempletWithJuneKeyCount = 0;
-	s_iJuneFxEffectCount = 0;
-	s_iJuneFxEffectWithJuneKeyCount = 0;
-	s_iJuneFxSoundCount = 0;
-	const bool bJuneFxLoaded = g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
+	s_iFxTempletCount = 0;
+	s_iFxTempletWithKeyCount = 0;
+	s_iFxEffectCount = 0;
+	s_iFxEffectWithKeyCount = 0;
+	s_iFxSoundCount = 0;
+	const bool bFxLoaded = g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
 	{
 		// load-time: offline_server.log is not open yet (the offline server starts on
 		// first connect), so this goes to ErrorLog.txt
-		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_LOAD %s loaded=%d templets=%d with_june_templet_key=%d effects=%d with_june_effect_key=%d sounds=%d",
-			wstrFileName.c_str(), bJuneFxLoaded ? 1 : 0, s_iJuneFxTempletCount, s_iJuneFxTempletWithJuneKeyCount,
-			s_iJuneFxEffectCount, s_iJuneFxEffectWithJuneKeyCount, s_iJuneFxSoundCount );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[512] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ES_LOAD %s loaded=%d templets=%d with_june_templet_key=%d effects=%d with_june_effect_key=%d sounds=%d",
+			wstrFileName.c_str(), bFxLoaded ? 1 : 0, s_iFxTempletCount, s_iFxTempletWithKeyCount,
+			s_iFxEffectCount, s_iFxEffectWithKeyCount, s_iFxSoundCount );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
-	return bJuneFxLoaded;
+	return bFxLoaded;
 #else
 	return g_pKTDXApp->LoadLuaTinker( wstrFileName.c_str() );
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -4064,53 +4064,53 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 	// offline_server.log (it is not open yet).
 	if( 0 != pEffectSetData->m_iAppliedSkillID )
 	{
-		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLIED_SKILL_ID in %s: applied-skill-ID system absent (value %d)",
+		WCHAR wszFx[512] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX unsupported APPLIED_SKILL_ID in %s: applied-skill-ID system absent (value %d)",
 			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iAppliedSkillID );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	// Effect completion C10b-2: the effect-alpha option exists now: no 'unsupported' line for APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION.
 #else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
 	{
-		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s: effect-alpha option absent (value %d)",
+		WCHAR wszFx[512] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s: effect-alpha option absent (value %d)",
 			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iApplyEffectAlphaConditionByOption );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	// JUNE_FX ES_TEMPLET <name> <key>=<v> ..., only for templets that set a June key
 	{
-		++s_iJuneFxTempletCount;
-		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_TEMPLET %s", pEffectSetData->m_wstrEffectSetName.c_str() );
-		const size_t uiNameOnly = wcslen( wszJuneFx );
+		++s_iFxTempletCount;
+		WCHAR wszFx[512] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ES_TEMPLET %s", pEffectSetData->m_wstrEffectSetName.c_str() );
+		const size_t uiNameOnly = wcslen( wszFx );
 		WCHAR wszKey[128] = {0};
 		if( true == pEffectSetData->m_bStopCreateNewEffectWhenStateChange )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE=1" );
 		if( true == pEffectSetData->m_bDeleteEffectSetAtTraceUnitDie )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" DELETE_EFFECTSET_AT_TRACE_UNIT_DIE=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" DELETE_EFFECTSET_AT_TRACE_UNIT_DIE=1" );
 		if( true == pEffectSetData->m_bOverlap )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" OVERLAP=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" OVERLAP=1" );
 		if( 0 != pEffectSetData->m_iAppliedSkillID )
 		{
 			StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLIED_SKILL_ID=%d", pEffectSetData->m_iAppliedSkillID );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 		}
 		if( true == pEffectSetData->m_bSyncShowByCreateUnit )
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" SYNC_SHOW_BY_CREATE_UNIT=1" );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" SYNC_SHOW_BY_CREATE_UNIT=1" );
 		if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
 		{
 			StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", pEffectSetData->m_iApplyEffectAlphaConditionByOption );
-			StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+			StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 		}
-		if( wcslen( wszJuneFx ) != uiNameOnly )
+		if( wcslen( wszFx ) != uiNameOnly )
 		{
-			++s_iJuneFxTempletWithJuneKeyCount;
-			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+			++s_iFxTempletWithKeyCount;
+			ErrorLogMsg( XEM_ERROR142, wszFx );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -4122,7 +4122,7 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 	// Plan rule 5 logs an unsupported key once per templet, so the per-EFFECT%d
 	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION below reports only the first effect using it.
-	bool bJuneFxEffectAlphaLogged = false;
+	bool bFxEffectAlphaLogged = false;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
 	int iEffectTableIndex = 0;
 	while( true == luaManager.BeginTable( "EFFECT", iEffectTableIndex ) )
@@ -4298,13 +4298,13 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		// Effect completion C10b-2: the effect-alpha option exists now: no 'unsupported' line for the effect-level key either.
 #else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
-		if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption && false == bJuneFxEffectAlphaLogged )
+		if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption && false == bFxEffectAlphaLogged )
 		{
-			bJuneFxEffectAlphaLogged = true;
-			WCHAR wszJuneFx[512] = {0};
-			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s EFFECT%d: effect-alpha option absent (value %d)",
+			bFxEffectAlphaLogged = true;
+			WCHAR wszFx[512] = {0};
+			StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in %s EFFECT%d: effect-alpha option absent (value %d)",
 				pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex, pEffectData->m_iApplyEffectAlphaConditionByOption );
-			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+			ErrorLogMsg( XEM_ERROR142, wszFx );
 		}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
@@ -4441,50 +4441,50 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 		// JUNE_FX ES_EFFECT <set> EFFECT<n> <key>=<v> ..., only for effects that set a June key
 		{
-			++s_iJuneFxEffectCount;
-			WCHAR wszJuneFx[1024] = {0};
-			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_EFFECT %s EFFECT%d", pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex );
-			const size_t uiNameOnly = wcslen( wszJuneFx );
+			++s_iFxEffectCount;
+			WCHAR wszFx[1024] = {0};
+			StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ES_EFFECT %s EFFECT%d", pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex );
+			const size_t uiNameOnly = wcslen( wszFx );
 			WCHAR wszKey[256] = {0};
 			if( false == pEffectData->m_wstrGroupName.empty() )
 			{
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" GROUP_NAME=%s", pEffectData->m_wstrGroupName.c_str() );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
 			if( true == pEffectData->m_bZOffsetUseUnitIsRight )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" ZOFFSET_USE_UNIT_IS_RIGHT=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" ZOFFSET_USE_UNIT_IS_RIGHT=1" );
 			if( true == pEffectData->m_bTraceMatrixExcludeScale )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" TRACE_MATRIX_EXCLUDE_SCALE=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" TRACE_MATRIX_EXCLUDE_SCALE=1" );
 			if( true == pEffectData->m_bTraceMatrixInField )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" TRACE_MATRIX_IN_FIELD=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" TRACE_MATRIX_IN_FIELD=1" );
 			if( true == pEffectData->m_bUseIsRightWhenCreate )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_IS_RIGHT_WHEN_CREATE=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" USE_IS_RIGHT_WHEN_CREATE=1" );
 			if( true == pEffectData->m_bFollowUnitRotation )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_ROTATION=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_UNIT_ROTATION=1" );
 			if( true == pEffectData->m_bFollowUnitRotationCParticle )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_ROTATION_CPARTICLE=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_UNIT_ROTATION_CPARTICLE=1" );
 			if( true == pEffectData->m_bFollowUnitViewerScale )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" FOLLOW_UNIT_VIEWER_SCALE=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" FOLLOW_UNIT_VIEWER_SCALE=1" );
 			if( true == pEffectData->m_bUseEffectScaleInUnitViewer )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" USE_EFFECT_SCALE_IN_UNIT_VIEWER=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" USE_EFFECT_SCALE_IN_UNIT_VIEWER=1" );
 			if( -1 != pEffectData->m_iBoneTraceTargetMeshIndex )
 			{
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" BONE_TRACE_TARGET_MESH_INDEX=%d", pEffectData->m_iBoneTraceTargetMeshIndex );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
 			if( true == pEffectData->m_bNotAllowMemo )
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L" NOT_ALLOW_MEMO=1" );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), L" NOT_ALLOW_MEMO=1" );
 			if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption )
 			{
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=%d", pEffectData->m_iApplyEffectAlphaConditionByOption );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
 			if( true == pEffectData->m_bApplyDamageEffectVelocity )
 			{
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" APPLY_DAMAGE_EFFECT_VELOCITY=(%g,%g,%g,4th_is_zero=%d)",
 					pEffectData->m_vApplyDamageEffectVelocity.x, pEffectData->m_vApplyDamageEffectVelocity.y, pEffectData->m_vApplyDamageEffectVelocity.z,
 					pEffectData->m_bApplyDamageEffectVelocity4thIsZero ? 1 : 0 );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
 			if( false == pEffectData->m_vecMeshTriggerData.empty() )
 			{
@@ -4492,18 +4492,18 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" MESH_TRIGGER_DATA_LIST=%d first=(%s@%g bound=%d effectsets=%d)",
 					static_cast<int>( pEffectData->m_vecMeshTriggerData.size() ), kFirst.m_wstrMotionName.c_str(), kFirst.m_fTriggerTime,
 					static_cast<int>( kFirst.m_vecBoundMotionType.size() ), static_cast<int>( kFirst.m_vecTriggerEffectSetName.size() ) );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
 			if( false == pEffectData->m_MeshTriggerData.m_wstrMotionName.empty() || -1.f != pEffectData->m_MeshTriggerData.m_fTriggerTime )
 			{
 				StringCchPrintfW( wszKey, ARRAY_SIZE(wszKey), L" MESH_TRIGGER_DATA=(%s@%g play=%d)", pEffectData->m_MeshTriggerData.m_wstrMotionName.c_str(),
 					pEffectData->m_MeshTriggerData.m_fTriggerTime, pEffectData->m_MeshTriggerData.m_iPlayType );
-				StringCchCatW( wszJuneFx, ARRAY_SIZE(wszJuneFx), wszKey );
+				StringCchCatW( wszFx, ARRAY_SIZE(wszFx), wszKey );
 			}
-			if( wcslen( wszJuneFx ) != uiNameOnly )
+			if( wcslen( wszFx ) != uiNameOnly )
 			{
-				++s_iJuneFxEffectWithJuneKeyCount;
-				ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+				++s_iFxEffectWithKeyCount;
+				ErrorLogMsg( XEM_ERROR142, wszFx );
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
@@ -4638,12 +4638,12 @@ camera_shake_error_proc:
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	if( false == pEffectSetData->m_vecSoundData.empty() )
 	{
-		s_iJuneFxSoundCount += static_cast<int>( pEffectSetData->m_vecSoundData.size() );
-		WCHAR wszJuneFx[512] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ES_SOUND %s count=%d first=%s@%g rate=%d",
+		s_iFxSoundCount += static_cast<int>( pEffectSetData->m_vecSoundData.size() );
+		WCHAR wszFx[512] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ES_SOUND %s count=%d first=%s@%g rate=%d",
 			pEffectSetData->m_wstrEffectSetName.c_str(), static_cast<int>( pEffectSetData->m_vecSoundData.size() ),
 			pEffectSetData->m_vecSoundData[0].fileName.c_str(), pEffectSetData->m_vecSoundData[0].fEventTime, pEffectSetData->m_vecSoundData[0].iRate );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
@@ -4687,7 +4687,7 @@ CX2EffectSet::EffectInstance::~EffectInstance()
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
                 // Atlas E7: June 321e2a30 @321e2af2-321e2b00 passes the instance's +0x1c as bSilently ( no die damage effect )
                 if ( m_hDamageEffect != INVALID_DAMAGE_EFFECT_HANDLE )
-                    g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect, m_bJuneDestroySilently );
+                    g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect, m_bDestroySilently );
 #else SERV_IRUHADEV_ELYSION_SCRIPT_B
                 if ( m_hDamageEffect != INVALID_DAMAGE_EFFECT_HANDLE )
                     g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect );
@@ -4825,10 +4825,10 @@ CX2EffectSet::EffectSetInstance::~EffectSetInstance()
 
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	// Atlas E7: June 321e3a80 @321e3acf-321e3ad7: each instance gets the set's +0x1b0 at +0x1c right before it is deleted
-	BOOST_TEST_FOREACH( EffectInstance*, pJuneEffectInstance, m_vecpEffectInstance )
+	BOOST_TEST_FOREACH( EffectInstance*, pEffectInstanceToSilence, m_vecpEffectInstance )
 	{
-		if ( NULL != pJuneEffectInstance )
-			pJuneEffectInstance->m_bJuneDestroySilently = m_bJuneStopSilently;
+		if ( NULL != pEffectInstanceToSilence )
+			pEffectInstanceToSilence->m_bDestroySilently = m_bStopSilently;
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	BOOST_TEST_FOREACH( EffectInstance*, pEffectInstance, m_vecpEffectInstance )
@@ -4874,10 +4874,10 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 , m_fLifeTime( 0.f )
 , m_vScale( 1, 1, 1 )
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-, m_fJuneForceDownValueRate( 1.f )
+, m_fForceDownValueRate( 1.f )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
-, m_vJunePositionOffset( 0, 0, 0 )
+, m_vInstancePositionOffset( 0, 0, 0 )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 , m_bDamageEffectScale( false )
 , m_pEffectSetData( pEffectSetData ) 
@@ -4917,7 +4917,7 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 {
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneStopSilently = false;
+	m_bStopSilently = false;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //	if( NULL == pEffectSetData )
 //		return;
@@ -4978,9 +4978,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 	// S3d, June2017 FUN_321df230 @321df495-321df4a3: the memo scale starts at 0,0,0; @321df57c-321df599: with a templet it takes the
 	// templet's (EffectSetData +0x60, 1,1,1 unless an MI_HUGE play set it)
-	m_vJuneMemoScale = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	m_vMemoScale = D3DXVECTOR3( 0.f, 0.f, 0.f );
 	if( NULL != pEffectSetData )
-		m_vJuneMemoScale = pEffectSetData->m_vJuneMemoScale;
+		m_vMemoScale = pEffectSetData->m_vMemoScale;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 	m_pFieldNpcHolder = NULL;			// +0xe0 (Atlas E1c)
@@ -5056,9 +5056,9 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 	#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 			if( 0 < pEffectData->m_iBoneTraceTargetMeshIndex )
 			{
-				WCHAR wszJuneFx[64] = {0};
-				StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"position_from_index=%d", iTargetMeshIndex );
-				FxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszJuneFx );
+				WCHAR wszFx[64] = {0};
+				StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"position_from_index=%d", iTargetMeshIndex );
+				FxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszFx );
 			}
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 			SetEffectSetOffset( vPos, pEffectData->m_vPositionOffset, pEffectData );
@@ -5265,8 +5265,8 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 					m_pXSkinAnim->GetCloneFramePosition( pwstrBoneName->c_str(), vPos );
 
 				vPos.x = static_cast<float>( vPos.x + 512.0 );
-				const float fJuneY = static_cast<float>( vPos.y - 384.0 );
-				vPos.y = static_cast<float>( fJuneY * -1.0 );
+				const float fY = static_cast<float>( vPos.y - 384.0 );
+				vPos.y = static_cast<float>( fY * -1.0 );
 				vPos.z = 0.f;
 				return vPos;
 			}
@@ -5378,9 +5378,9 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectScale( EffectData* pEffect
 	// (+0x108..+0x110, the instance's copy)
 	if( false == pEffectData->m_bNotAllowMemo )
 	{
-		vScale.x = pEffectData->m_vJuneMemoScale.x * vScale.x;
-		vScale.y = pEffectData->m_vJuneMemoScale.y * vScale.y;
-		vScale.z = pEffectData->m_vJuneMemoScale.z * vScale.z;
+		vScale.x = pEffectData->m_vMemoScale.x * vScale.x;
+		vScale.y = pEffectData->m_vMemoScale.y * vScale.y;
+		vScale.z = pEffectData->m_vMemoScale.z * vScale.z;
 	}
 #else SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 	if( true == pEffectData->m_bNotAllowMemo )
@@ -5448,9 +5448,9 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectRotation( EffectData* pEff
 	if( true == bTargetMesh && 0 < pEffectData->m_iBoneTraceTargetMeshIndex &&
 		( true == pEffectData->m_bApplyUnitRotation || true == pEffectData->m_bApplyUnitRotationMirror ) )
 	{
-		WCHAR wszJuneFx[64] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"rotation_from_index=%d", iTargetMeshIndex );
-		FxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszJuneFx );
+		WCHAR wszFx[64] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"rotation_from_index=%d", iTargetMeshIndex );
+		FxEsCreate( this, pEffectData, L"BONE_TRACE_TARGET_MESH_INDEX", wszFx );
 	}
 	#endif SERV_IRUHADEV_JUNE_FX_DEBUG
 
@@ -5713,8 +5713,8 @@ const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const Effec
 	{
 		if( NULL == m_pRidingPetHolder->GetXSkinAnimPtr() )
 			return NULL;
-		CKTDXDeviceXSkinMesh::MultiAnimFrame* pJuneFrame = m_pRidingPetHolder->GetXSkinAnimPtr()->GetCloneFrame( pEffectData->m_PosRidingPetBoneName.c_str() );
-		return ( NULL != pJuneFrame ) ? &pJuneFrame->combineMatrix : NULL;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pRidingPetHolder->GetXSkinAnimPtr()->GetCloneFrame( pEffectData->m_PosRidingPetBoneName.c_str() );
+		return ( NULL != pFrame ) ? &pFrame->combineMatrix : NULL;
 	}
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
@@ -5887,7 +5887,7 @@ void CX2EffectSet::StopEffectSetSilent_LUA( CX2EffectSet::Handle hHandle )
 		return;
 	EffectSetInstance* pEffectSetInstance = GetEffectSetInstance( hHandle );
 	if ( NULL != pEffectSetInstance )
-		pEffectSetInstance->m_bJuneStopSilently = true;
+		pEffectSetInstance->m_bStopSilently = true;
 	StopEffectSet( hHandle );
 }
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -5906,7 +5906,7 @@ void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int i
 	modifier.m_bAdd = bAdd_;
 	modifier.m_iTag = iTag_;
 	modifier.m_vValue = D3DXVECTOR3( fValue_, 0.f, 0.f );
-	pEffectSetInstance->m_vecJuneModifier.push_back( modifier );
+	pEffectSetInstance->m_vecModifier.push_back( modifier );
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 }
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
@@ -5922,7 +5922,7 @@ void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int i
 	modifier.m_bAdd = bAdd_;
 	modifier.m_iTag = iTag_;
 	modifier.m_vValue = vValue_;
-	pEffectSetInstance->m_vecJuneModifier.push_back( modifier );
+	pEffectSetInstance->m_vecModifier.push_back( modifier );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
@@ -6247,7 +6247,7 @@ void CX2EffectSet::EffectSetInstance::SetEffectPoistion_EffectTool( IN const Eff
 
 #ifdef FIX_BONE_TRACE_TARGET_MESH_UNIT_TRACE // ±Ë≈¬»Ø
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
-void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vJuneBaseOffsetPos_, IN const EffectData* pEffectData_ )
+void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vBaseOffsetPos_, IN const EffectData* pEffectData_ )
 #else SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vOffsetPos_, IN const EffectData* pEffectData_ )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
@@ -6260,7 +6260,7 @@ void CX2EffectSet::EffectSetInstance::SetEffectSetOffset( OUT D3DXVECTOR3& vPos_
 		return;
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 	// June 321dcda4 / 321dd611: the instance's offset ( +0x1a4 ) and the effect's POSITION_OFFSET make the one offset every SetEffectSetOffset call of GetEffectPosition and GetEffectPositionByBoneName passes
-	const D3DXVECTOR3 vOffsetPos_ = vJuneBaseOffsetPos_ + m_vJunePositionOffset;
+	const D3DXVECTOR3 vOffsetPos_ = vBaseOffsetPos_ + m_vInstancePositionOffset;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 
 	// June2017 FUN_321d9820 @ 321d9847-321d9889: the unit whose facing orients the offset is the
@@ -7024,8 +7024,8 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 			{
 				bBoneFound_ = m_pXSkinAnim->GetCloneFramePosition( pwszBoneName, vPos );
 				vPos.x = static_cast<float>( vPos.x + 512.0 );
-				const float fJuneY = static_cast<float>( vPos.y - 384.0 );
-				vPos.y = static_cast<float>( fJuneY * -1.0 );
+				const float fY = static_cast<float>( vPos.y - 384.0 );
+				vPos.y = static_cast<float>( fY * -1.0 );
 				vPos.z = 0.f;
 				return vPos;
 			}

@@ -222,9 +222,9 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			EffSetID_Elemental_Friendship,
 			EffSetID_Wing,
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
-			EffSetID_June2,						/// June's effect-set handle array has five slots ( constructor 32cc99d0 ); roles unknown
-			EffSetID_June3,
-			EffSetID_June4,
+			EffSetID2,						/// June's effect-set handle array has five slots ( constructor 32cc99d0 ); roles unknown
+			EffSetID3,
+			EffSetID4,
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 			EffSetID_END,
 		};
@@ -828,8 +828,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool IsMemoRiseChargeActive();
 
 		/// June-only members the functions above read ( the June constructor 32cc99d0 sets +0x9778 to -1 )
-		std::deque<int>				m_deqJuneMemoRise;			/// June +0x9760: the memorized skill ids ( a VS2010 std::deque<int>; its size is at +0x9770 )
-		CX2EffectSet::Handle		m_hJuneMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
+		std::deque<int>				m_deqMemoRise;			/// June +0x9760: the memorized skill ids ( a VS2010 std::deque<int>; its size is at +0x9770 )
+		CX2EffectSet::Handle		m_hMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
 
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1b ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -860,8 +860,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			float	m_fRate;
 			MpRefundData() : m_fSpecialActiveSkillRate( 0.f ), m_fActiveSkillRate( 0.f ), m_fChance( 0.f ), m_fMPRestoreRate( 0.f ), m_fRate( 0.f ) { m_fTimeLeft = 0.f; }
 		};
-		MpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
-		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
+		MpRefundData*			m_pMpRefund;			/// June +0x96ac ( NULL = no passive )
+		int							m_iBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		void OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
 		virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32ce1cc0 ( vslot 0x6a4 )
@@ -902,8 +902,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void AVSI_AEM_ZZXX_END_FrameMove();							/// June 32ce28f0
 		void AVSI_AEM_ZZXX_END_EventProcess();							/// June 32cc3b90
 		float GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads CX2GUUser::m_vecJuneSpecialOptionValue )
-		float						m_fJuneZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
-		CX2EffectSet::Handle		m_hJuneDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
+		float						m_fZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
+		CX2EffectSet::Handle		m_hDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1e
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1f ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June Dark Magician / Void Princess line states ( class map phase CH1f ); definitions at the end of X2GUArme_VioletMage.cpp.
@@ -943,29 +943,24 @@ class CX2GUArme_VioletMage : public CX2GUUser
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 
 		/// June-only members the constructor 32cc99d0 sets, named by their June offset ( roles unknown ); CH1 gives them a source or drops them.
-		CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hJune96dc;		/// -1; destroyed through the major mesh player like m_hMagicalStaff
-		float						m_fJune96e0;			/// 0; Hell Stone recast window, 5.0 at the first cast ( 32cc6d70 )
-		int							m_iJune96e4;			/// 0; Hell Stone casts in the window, the third ends it ( 32cc2ab0 )
-		int							m_iJune96e8;			/// 0; a mode tested for 1 / 2 / 3, 1 enables the Hell Stone recast
-		float						m_fJune9734;			/// 0 ( a protected float in June )
-		float						m_fJune9740;			/// 0 ( a protected float in June )
-		int							m_iJune9754;			/// 0
-		float						m_fJune9758;			/// 0
-		int							m_iJune975c;			/// 0
-		CX2EffectSet::Handle		m_hJune977c;			/// -1 ( next to m_hJuneMemoRiseLoop )
-		float						m_fJune9780;			/// 0
-		bool						m_bJune978c;			/// 0
-		bool						m_bJune978d;			/// 0; the Mana Flow Overdrive passive is on ( 32cc5b20 )
-		float						m_fJune9790;			/// 1.0
-		float						m_fJune9794;			/// 1.0
-		float						m_fJune9798;			/// 0
-		float						m_fJune979c;			/// 1.0
-		float						m_fJune97a0;			/// 1.0
-		float						m_afJune97a4[5];		/// 0
+		CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hAngorHammerMesh;		/// -1; destroyed through the major mesh player like m_hMagicalStaff
+		float						m_fHellStoneRecastTime;			/// 0; Hell Stone recast window, 5.0 at the first cast ( 32cc6d70 )
+		int							m_iHellStoneRecastCount;			/// 0; Hell Stone casts in the window, the third ends it ( 32cc2ab0 )
+		int							m_iSkillSlotKind;			/// 0; a mode tested for 1 / 2 / 3, 1 enables the Hell Stone recast
+		int							m_iMemoRiseSkillID;			/// 0
+		float						m_fMemoRiseInputDelay;			/// 0
+		int							m_iMemoRiseCastFlag;			/// 0
+		CX2EffectSet::Handle		m_hBlazeStepEffectSet;			/// -1 ( next to m_hJuneMemoRiseLoop )
+		float						m_fEffectSetFadeOutTime;			/// 0
+		bool						m_bManaflowOverdrive;			/// 0; the Mana Flow Overdrive passive is on ( 32cc5b20 )
+		float						m_fManaflowMaxMoveIncrease;			/// 1.0
+		float						m_fManaflowMinMoveIncrease;			/// 1.0
+		float						m_fAdvancedTeleportMpConsumeRate;			/// 1.0
+		float						m_afRuinLoopData[5];		/// 0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-		std::vector<EquipViewChange>	m_vecJune9848;	/// June +0x9848: equip view changes queued while transformed
+		std::vector<EquipViewChange>	m_vecEquipViewChange;	/// June +0x9848: equip view changes queued while transformed
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
+		std::vector<int>			m_vecEquipViewChange;			/// empty ( element type unknown, freed by the destructor )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -1011,14 +1006,14 @@ class CX2GUArme_VioletMage : public CX2GUUser
 
 		/// June-only members the functions above use, named by their June offset ( CX2GUUser members in June unless noted )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		int							m_iJune8ea0;			/// 0; the skill the lookup chose ( 32cebe80 )
-		int							m_iJune8ea4;			/// 0; its slot index
-		float						m_fJune8ea8;			/// 0; the MP a reserved skill keeps until its state starts
-		float						m_fJune8eb0;			/// 0; the MP the chosen skill costs
-		bool						m_abJune90d3[10];		/// false; slot used marks ( 31fc86e0 )
-		bool						m_abJune90d0[3];		/// false
+		int							m_iChosenSkillID;			/// 0; the skill the lookup chose ( 32cebe80 )
+		int							m_iChosenSkillSlotIndex;			/// 0; its slot index
+		float						m_fReservedSkillMp;			/// 0; the MP a reserved skill keeps until its state starts
+		float						m_fChosenSkillMp;			/// 0; the MP the chosen skill costs
+		bool						m_abSkillSlotUsed[10];		/// false; slot used marks ( 31fc86e0 )
+		bool						m_abHyperSkillSlotUsed[3];		/// false
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
+		bool						m_bAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j ( JUNE_CHARACTER_AISHA_PHASES.md )
 		void LoadAngorHammerMesh();								/// June 32ce1ba0

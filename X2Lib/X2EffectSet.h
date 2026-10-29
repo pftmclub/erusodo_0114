@@ -341,7 +341,7 @@ public:
 		int				m_iBoneTraceTargetMeshIndex;			// BONE_TRACE_TARGET_MESH_INDEX, default -1
 		bool			m_bNotAllowMemo;						// NOT_ALLOW_MEMO
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		D3DXVECTOR3		m_vJuneMemoScale;						// June2017 EffectData +0x108..+0x110 (ctor 321f4a20 @321f4ba5: 0,0,0): the instance's memo scale, copied in before GetEffectScale (321ee600 @321eede8)
+		D3DXVECTOR3		m_vMemoScale;						// June2017 EffectData +0x108..+0x110 (ctor 321f4a20 @321f4ba5: 0,0,0): the instance's memo scale, copied in before GetEffectScale (321ee600 @321eede8)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
 
@@ -487,7 +487,7 @@ public:
 		, m_iBoneTraceTargetMeshIndex( -1 )
 		, m_bNotAllowMemo( false )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		, m_vJuneMemoScale( 0.f, 0.f, 0.f )
+		, m_vMemoScale( 0.f, 0.f, 0.f )
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		, m_iApplyEffectAlphaConditionByOption( 0 )
 		, m_bApplyDamageEffectVelocity( false )
@@ -516,7 +516,7 @@ public:
 		bool			m_bOverlap;								// OVERLAP; consumed in Phase 4a
 		int				m_iAppliedSkillID;						// APPLIED_SKILL_ID; unsupported, applied-skill-ID system absent
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		D3DXVECTOR3		m_vJuneMemoScale;						// June2017 EffectSetData +0x60..+0x68 (ctor 321f3f70 @321f3f90: 1,1,1): an MI_HUGE memo's v0, written when a user with that memo plays the set (321e1e60 @321e1f8c) and never reset (JUNE_BUGS)
+		D3DXVECTOR3		m_vMemoScale;						// June2017 EffectSetData +0x60..+0x68 (ctor 321f3f70 @321f3f90: 1,1,1): an MI_HUGE memo's v0, written when a user with that memo plays the set (321e1e60 @321e1f8c) and never reset (JUNE_BUGS)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		bool			m_bSyncShowByCreateUnit;				// SYNC_SHOW_BY_CREATE_UNIT; consumed in Phase 4a
 		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
@@ -588,7 +588,7 @@ public:
 			m_bOverlap = rhs.m_bOverlap;
 			m_iAppliedSkillID = rhs.m_iAppliedSkillID;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-			m_vJuneMemoScale = rhs.m_vJuneMemoScale;
+			m_vMemoScale = rhs.m_vMemoScale;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			m_bSyncShowByCreateUnit = rhs.m_bSyncShowByCreateUnit;
 			m_iApplyEffectAlphaConditionByOption = rhs.m_iApplyEffectAlphaConditionByOption;
@@ -628,7 +628,7 @@ public:
 		, m_bOverlap( false )
 		, m_iAppliedSkillID( 0 )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		, m_vJuneMemoScale( 1.f, 1.f, 1.f )
+		, m_vMemoScale( 1.f, 1.f, 1.f )
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		, m_bSyncShowByCreateUnit( false )
 		, m_iApplyEffectAlphaConditionByOption( 0 )
@@ -681,7 +681,7 @@ public:
 		D3DXVECTOR3											m_vGroupChildOffset;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		bool												m_bJuneDestroySilently;	/// Atlas E7: June EffectInstance +0x1c, copied from the set's +0x1b0 in its dtor ( 321e3a80 @321e3ad7 )
+		bool												m_bDestroySilently;	/// Atlas E7: June EffectInstance +0x1c, copied from the set's +0x1b0 in its dtor ( 321e3a80 @321e3ad7 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		EffectInstance() :
@@ -700,7 +700,7 @@ public:
 		, m_vGroupChildOffset( 0.f, 0.f, 0.f )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		, m_bJuneDestroySilently( false )
+		, m_bDestroySilently( false )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		{
 		}
@@ -774,7 +774,7 @@ public:
 		BYTE							m_byEffectAlphaCondition;		// June2017 EffectSetInstance +0x1bc (ctor default 0 @321df516): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-		D3DXVECTOR3						m_vJuneMemoScale;				// June2017 EffectSetInstance +0x150..+0x158: 0,0,0 in the ctor (321df230 @321df495), then the templet's (@321df584)
+		D3DXVECTOR3						m_vMemoScale;				// June2017 EffectSetInstance +0x150..+0x158: 0,0,0 in the ctor (321df230 @321df495), then the templet's (@321df584)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 
@@ -925,7 +925,7 @@ public:
 		std::vector<CKTDXDeviceSound*>	m_vecpPlayingSound;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		bool							m_bJuneStopSilently;	/// Atlas E7: June EffectSetInstance +0x1b0 ( set by StopEffectSet( h, true ) 321e3ee0 @321e3f61 )
+		bool							m_bStopSilently;	/// Atlas E7: June EffectSetInstance +0x1b0 ( set by StopEffectSet( h, true ) 321e3ee0 @321e3f61 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 		struct DamageEffectModifier
@@ -935,13 +935,13 @@ public:
 			D3DXVECTOR3		m_vValue;
 			DamageEffectModifier() : m_bAdd( false ), m_iTag( 0 ), m_vValue( 0.f, 0.f, 0.f ) {}
 		};
-		std::vector<DamageEffectModifier>	m_vecJuneModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
+		std::vector<DamageEffectModifier>	m_vecModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
-		float							m_fJuneForceDownValueRate;	/// June EffectSetInstance +0x14c ( ctor 1.0 ), PlayEffectSet's trailing float
+		float							m_fForceDownValueRate;	/// June EffectSetInstance +0x14c ( ctor 1.0 ), PlayEffectSet's trailing float
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_FORCE_DOWN_RATE
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
-		D3DXVECTOR3						m_vJunePositionOffset;	/// June EffectSetInstance +0x1a4 ( ctor 0, 0, 0 ): class code writes it ( 329cc290 ); SetEffectSetOffset adds it to the effect's own offset
+		D3DXVECTOR3						m_vInstancePositionOffset;	/// June EffectSetInstance +0x1a4 ( ctor 0, 0, 0 ): class code writes it ( 329cc290 ); SetEffectSetOffset adds it to the effect's own offset
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_POSITION_OFFSET
 
 	private:

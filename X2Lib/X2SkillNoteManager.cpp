@@ -252,16 +252,16 @@ CX2SkillNoteManager* CX2SkillNoteManager::m_pManager = NULL;
 }
 
 CX2SkillNoteManager::CX2SkillNoteManager() :
-m_iJuneOldTempletCalls( 0 ),
-m_iJuneNewTempletCalls( 0 ),
-m_iJuneMatchCalls( 0 ),
-m_iJuneRemovableCalls( 0 ),
-m_iJuneOwnRows( 0 ),
-m_iJuneInheritedRows( 0 ),
-m_iJuneZeroMemoRows( 0 ),
-m_iJuneZeroSkillRows( 0 ),
-m_iJuneMissingParents( 0 ),
-m_iJuneDuplicateClasses( 0 )
+m_iOldTempletCalls( 0 ),
+m_iNewTempletCalls( 0 ),
+m_iMatchCalls( 0 ),
+m_iRemovableCalls( 0 ),
+m_iOwnRows( 0 ),
+m_iInheritedRows( 0 ),
+m_iZeroMemoRows( 0 ),
+m_iZeroSkillRows( 0 ),
+m_iMissingParents( 0 ),
+m_iDuplicateClasses( 0 )
 {
 }
 
@@ -285,14 +285,14 @@ bool CX2SkillNoteManager::OpenScriptFile()
 
 #ifdef SERV_IRUHADEV_OFFLINE
 	int iClassRows = 0;
-	for( std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.begin(); it != m_mapJuneMemoTemplet.end(); ++it )
+	for( std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.begin(); it != m_mapMemoTemplet.end(); ++it )
 		iClassRows += static_cast<int>( it->second.size() );
 	CX2OfflineLog::Server( L"[JUNE_SKILL] NOTE AddNewSkillNoteTemplet=%d AddMemoIDMatchItemID=%d AddRemovableMemoItemID=%d AddSkillNoteTemplet=%d",
-		m_iJuneNewTempletCalls, m_iJuneMatchCalls, m_iJuneRemovableCalls, m_iJuneOldTempletCalls );
+		m_iNewTempletCalls, m_iMatchCalls, m_iRemovableCalls, m_iOldTempletCalls );
 	CX2OfflineLog::Server( L"[JUNE_SKILL] NOTE classes=%d rows=%d ( own=%d inherited=%d ) match_pairs=%d removable_items=%d | memo0_dropped=%d skill0=%d parent_missing=%d class_dup=%d",
-		static_cast<int>( m_mapJuneMemoTemplet.size() ), iClassRows, m_iJuneOwnRows, m_iJuneInheritedRows,
-		static_cast<int>( m_mmapJuneMemoMatchItemID.size() ), static_cast<int>( m_setJuneRemovableMemoItemID.size() ),
-		m_iJuneZeroMemoRows, m_iJuneZeroSkillRows, m_iJuneMissingParents, m_iJuneDuplicateClasses );
+		static_cast<int>( m_mapMemoTemplet.size() ), iClassRows, m_iOwnRows, m_iInheritedRows,
+		static_cast<int>( m_mmapMemoMatchItemID.size() ), static_cast<int>( m_setRemovableMemoItemID.size() ),
+		m_iZeroMemoRows, m_iZeroSkillRows, m_iMissingParents, m_iDuplicateClasses );
 #endif SERV_IRUHADEV_OFFLINE
 	return true;
 }
@@ -306,7 +306,7 @@ void CX2SkillNoteManager::AddSkillNoteTemplet_LUA()
 	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
-	++m_iJuneOldTempletCalls;
+	++m_iOldTempletCalls;
 
 	int iUnitClass = 0;
 	if( false == luaManager.GetValue( "UNIT_CLASS", iUnitClass ) || 0 == iUnitClass )
@@ -395,7 +395,7 @@ namespace
 	/// @3234afb5-3234b389; read out of its stores). Tier 0 base, 1 first job, 2 second job; entries the initializer never writes are 0.
 	int ClassAt( int iUnitType_, int iTier_, int iLine_ )
 	{
-		static const int s_aiJuneClassTable[13][4][5] =
+		static const int s_aiClassTable[13][4][5] =
 		{
 			{ { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0 } },
 			{ { 0, 1,   1,   1,   0   }, { 0, 10,  11,  22,  0   }, { 0, 100, 101, 112, 0   }, { 0 } },
@@ -413,7 +413,7 @@ namespace
 		};
 		if( iUnitType_ < 0 || 13 <= iUnitType_ || iTier_ < 0 || 4 <= iTier_ || iLine_ < 0 || 5 <= iLine_ )
 			return 0;
-		return s_aiJuneClassTable[ iUnitType_ ][ iTier_ ][ iLine_ ];
+		return s_aiClassTable[ iUnitType_ ][ iTier_ ][ iLine_ ];
 	}
 
 	/// June2017 32207210 (g_pData skill tree present): an [Enhanced] id reads as the base it replaces
@@ -436,7 +436,7 @@ void CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA()
 	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
-	++m_iJuneNewTempletCalls;
+	++m_iNewTempletCalls;
 
 	int iUnitClass = 0;
 	if( false == luaManager.GetValue( "UNIT_CLASS", iUnitClass ) || 0 == iUnitClass )
@@ -449,25 +449,25 @@ void CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA()
 	{
 		/// @324549b9-324549f9: the first job on the same line
 		const int iFirstJob = ClassAt( iUnitType, 1, LineOfClass( iUnitClass ) );
-		std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iFirstJob );
+		std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iFirstJob );
 		/// June inserts from the found node without testing for end(); an absent parent would read the map head. Guarded here
 		/// (June's own data always defines a parent first: none is missing), counted in the load line.
-		if( m_mapJuneMemoTemplet.end() != it )
+		if( m_mapMemoTemplet.end() != it )
 			vecMemo.insert( vecMemo.begin(), it->second.begin(), it->second.end() );
 		else
-			++m_iJuneMissingParents;
+			++m_iMissingParents;
 	}
 	if( 1 <= iTier )
 	{
 		/// @32454a0b-32454a40: the base class of the type
 		const int iBaseClass = BaseClassOfType( iUnitType );
-		std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iBaseClass );
-		if( m_mapJuneMemoTemplet.end() != it )
+		std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iBaseClass );
+		if( m_mapMemoTemplet.end() != it )
 			vecMemo.insert( vecMemo.begin(), it->second.begin(), it->second.end() );
 		else
-			++m_iJuneMissingParents;
+			++m_iMissingParents;
 	}
-	m_iJuneInheritedRows += static_cast<int>( vecMemo.size() );
+	m_iInheritedRows += static_cast<int>( vecMemo.size() );
 
 	if( true == luaManager.BeginTable( "MEMO_LIST" ) )
 	{
@@ -492,13 +492,13 @@ void CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA()
 			if( 0 != kMemo.m_iType )
 			{
 				if( 0 == kMemo.m_iSkillID )
-					++m_iJuneZeroSkillRows;
+					++m_iZeroSkillRows;
 				vecMemo.push_back( kMemo );
-				++m_iJuneOwnRows;
+				++m_iOwnRows;
 			}
 			else
 			{
-				++m_iJuneZeroMemoRows;
+				++m_iZeroMemoRows;
 			}
 			luaManager.EndTable();
 		}
@@ -507,37 +507,37 @@ void CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA()
 
 	if( false == vecMemo.empty() )
 	{
-		if( false == m_mapJuneMemoTemplet.insert( std::make_pair( iUnitClass, vecMemo ) ).second )
-			++m_iJuneDuplicateClasses;
+		if( false == m_mapMemoTemplet.insert( std::make_pair( iUnitClass, vecMemo ) ).second )
+			++m_iDuplicateClasses;
 	}
 }
 
 /// June2017 32452120: multimap insert ( MEMO_ID, item id ) at +0x14
 void CX2SkillNoteManager::AddMemoIDMatchItemID_LUA( int iMemoID_, int iItemID_ )
 {
-	++m_iJuneMatchCalls;
-	m_mmapJuneMemoMatchItemID.insert( std::make_pair( iMemoID_, iItemID_ ) );
+	++m_iMatchCalls;
+	m_mmapMemoMatchItemID.insert( std::make_pair( iMemoID_, iItemID_ ) );
 }
 
 /// June2017 32450f20: set insert at +0x24
 void CX2SkillNoteManager::AddRemovableMemoItemID_LUA( int iItemID_ )
 {
-	++m_iJuneRemovableCalls;
-	m_setJuneRemovableMemoItemID.insert( iItemID_ );
+	++m_iRemovableCalls;
+	m_setRemovableMemoItemID.insert( iItemID_ );
 }
 
 /// June2017 324511a0: the class has memo rows
 bool CX2SkillNoteManager::HasMemoClass( int iUnitClass_ ) const
 {
-	return m_mapJuneMemoTemplet.end() != m_mapJuneMemoTemplet.find( iUnitClass_ );
+	return m_mapMemoTemplet.end() != m_mapMemoTemplet.find( iUnitClass_ );
 }
 
 /// June2017 324510e0: the class's first row with the base skill (32207210) and the memo
 const SSkillMemoTemplet* CX2SkillNoteManager::GetMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
 {
 	const int iBaseSkillID = MemoBaseSkillID( iSkillID_ );
-	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
-	if( m_mapJuneMemoTemplet.end() == it )
+	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iUnitClass_ );
+	if( m_mapMemoTemplet.end() == it )
 		return NULL;
 	for( std::vector<SSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
 	{
@@ -551,8 +551,8 @@ const SSkillMemoTemplet* CX2SkillNoteManager::GetMemo( int iSkillID_, int iMemoI
 const SSkillMemoTemplet* CX2SkillNoteManager::GetMemoByIndex( int iSkillID_, int iIndex_, int iUnitClass_ ) const
 {
 	const int iBaseSkillID = MemoBaseSkillID( iSkillID_ );
-	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
-	if( m_mapJuneMemoTemplet.end() == it )
+	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iUnitClass_ );
+	if( m_mapMemoTemplet.end() == it )
 		return NULL;
 	int iFound = 0;
 	for( std::vector<SSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
@@ -573,8 +573,8 @@ void CX2SkillNoteManager::GetMemoList( int iSkillID_, int iRequireLevel_, int iU
 	OUT std::vector<const SSkillMemoTemplet*>& vecMemo_ ) const
 {
 	const int iBaseSkillID = MemoBaseSkillID( iSkillID_ );
-	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
-	if( m_mapJuneMemoTemplet.end() == it )
+	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iUnitClass_ );
+	if( m_mapMemoTemplet.end() == it )
 		return;
 	for( std::vector<SSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
 	{
@@ -607,8 +607,8 @@ std::vector<float> CX2SkillNoteManager::GetMemoValue( int iSkillID_, int iMemoID
 /// (32fe25f0), is iValue_ (a value past the end reads 0); 0 when none. No base mapping.
 int CX2SkillNoteManager::GetSkillIDByTranscendenceValue( int iValue_, int iUnitClass_ ) const
 {
-	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
-	if( m_mapJuneMemoTemplet.end() == it )
+	std::map< int, std::vector<SSkillMemoTemplet> >::const_iterator it = m_mapMemoTemplet.find( iUnitClass_ );
+	if( m_mapMemoTemplet.end() == it )
 		return 0;
 	for( std::vector<SSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
 	{
@@ -627,7 +627,7 @@ int CX2SkillNoteManager::GetSkillIDByTranscendenceValue( int iValue_, int iUnitC
 void CX2SkillNoteManager::GetMemoMatchItemIDList( int iMemoID_, OUT std::vector<int>& vecItemID_ ) const
 {
 	typedef std::multimap<int, int>::const_iterator MatchIt;
-	std::pair<MatchIt, MatchIt> range = m_mmapJuneMemoMatchItemID.equal_range( iMemoID_ );
+	std::pair<MatchIt, MatchIt> range = m_mmapMemoMatchItemID.equal_range( iMemoID_ );
 	for( MatchIt it = range.first; it != range.second; ++it )
 		vecItemID_.push_back( it->second );
 }
@@ -635,7 +635,7 @@ void CX2SkillNoteManager::GetMemoMatchItemIDList( int iMemoID_, OUT std::vector<
 /// June2017 32451210: every removable-memo item id, appended in set order
 void CX2SkillNoteManager::GetRemovableMemoItemIDList( OUT std::vector<int>& vecItemID_ ) const
 {
-	for( std::set<int>::const_iterator it = m_setJuneRemovableMemoItemID.begin(); it != m_setJuneRemovableMemoItemID.end(); ++it )
+	for( std::set<int>::const_iterator it = m_setRemovableMemoItemID.begin(); it != m_setRemovableMemoItemID.end(); ++it )
 		vecItemID_.push_back( *it );
 }
 

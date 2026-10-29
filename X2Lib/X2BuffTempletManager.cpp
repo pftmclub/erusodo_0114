@@ -21,7 +21,7 @@ CX2BuffTempletManager* CX2BuffTempletManager::pInstance = NULL;
 namespace
 {
 	/// June 326c3f30 / 326c32a0: ids from 10000 up belong to the _INT branch; _INT id N sits at [N-10001]
-	const UINT JUNE_BUFF_FACTOR_ID_INT_BASE = 10000;
+	const UINT BUFF_FACTOR_ID_INT_BASE = 10000;
 
 	/// [JUNE_BUFF] lines also come from loader threads (GetBuffFactorPtr), and KDbgStm is one global stream
 	struct KBuffLogLock
@@ -30,15 +30,15 @@ namespace
 		KBuffLogLock() { InitializeCriticalSection( &m_cs ); }
 		~KBuffLogLock() { DeleteCriticalSection( &m_cs ); }
 	};
-	KBuffLogLock	g_kJuneBuffLogLock;
-	std::set<UINT>		g_setJuneBuffReportedID;
+	KBuffLogLock	g_kBuffLogLock;
+	std::set<UINT>		g_setBuffReportedID;
 
 	/// GetBuffFactorPtr runs during play; report each bad id once, not on every lookup
 	bool BuffFirstReport( const UINT uiBuffFactorID_ )
 	{
-		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
-		const bool bFirst = g_setJuneBuffReportedID.insert( uiBuffFactorID_ ).second;
-		LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		EnterCriticalSection( &g_kBuffLogLock.m_cs );
+		const bool bFirst = g_setBuffReportedID.insert( uiBuffFactorID_ ).second;
+		LeaveCriticalSection( &g_kBuffLogLock.m_cs );
 		return bFirst;
 	}
 }
@@ -47,33 +47,33 @@ namespace
 namespace
 {
 	/// CX2JuneBuffRuntimeScope: the buff whose runtime code runs on this thread (0 = none named)
-	__declspec(thread) int					g_iJuneBuffRuntimeBTI = 0;
+	__declspec(thread) int					g_iBuffRuntimeBTI = 0;
 	/// RuntimeError reports each (BTI, text) once, so a failure that repeats every frame cannot flood ErrorLog.txt
-	std::set< std::pair<int, string> >		g_setJuneBuffRuntimeReported;
+	std::set< std::pair<int, string> >		g_setBuffRuntimeReported;
 
 	bool BuffFirstRuntimeReport( const int iBuffTempletID_, const char* szError_ )
 	{
-		EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
-		const bool bFirst = g_setJuneBuffRuntimeReported.insert( std::make_pair( iBuffTempletID_, string( szError_ ) ) ).second;
-		LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+		EnterCriticalSection( &g_kBuffLogLock.m_cs );
+		const bool bFirst = g_setBuffRuntimeReported.insert( std::make_pair( iBuffTempletID_, string( szError_ ) ) ).second;
+		LeaveCriticalSection( &g_kBuffLogLock.m_cs );
 		return bFirst;
 	}
 }
 
 CX2BuffRuntimeScope::CX2BuffRuntimeScope( const int iBuffTempletID_ )
-	: m_iPrevBuffTempletID( g_iJuneBuffRuntimeBTI )
+	: m_iPrevBuffTempletID( g_iBuffRuntimeBTI )
 {
-	g_iJuneBuffRuntimeBTI = iBuffTempletID_;
+	g_iBuffRuntimeBTI = iBuffTempletID_;
 }
 
 CX2BuffRuntimeScope::~CX2BuffRuntimeScope()
 {
-	g_iJuneBuffRuntimeBTI = m_iPrevBuffTempletID;
+	g_iBuffRuntimeBTI = m_iPrevBuffTempletID;
 }
 
 /*static*/ int CX2BuffRuntimeScope::GetBuffTempletID()
 {
-	return g_iJuneBuffRuntimeBTI;
+	return g_iBuffRuntimeBTI;
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 CX2BuffCapture::CX2BuffCapture()
@@ -126,9 +126,9 @@ void CX2BuffCapture::Report( const bool bParsed_, const char* szEntry_, const ch
 	_vsnprintf_s( szLine, _countof( szLine ), _TRUNCATE, szFormat_, vaList );
 	va_end( vaList );
 
-	EnterCriticalSection( &g_kJuneBuffLogLock.m_cs );
+	EnterCriticalSection( &g_kBuffLogLock.m_cs );
 	KLOG( "ErrorLog.txt" ) << "[JUNE_BUFF] " << szLine << fileout;
-	LeaveCriticalSection( &g_kJuneBuffLogLock.m_cs );
+	LeaveCriticalSection( &g_kBuffLogLock.m_cs );
 }
 
 /*static*/ bool CX2BuffCapture::UnsupportedType( const WCHAR* wszKind_, const UINT uiType_ )
@@ -522,7 +522,7 @@ CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFacto
 #ifdef SERV_IRUHADEV_JUNE_BUFF_LOADER
 	/// June 326c32a0: ids up to 10000 index the main vector, 10001 and up the _INT one. Id 0 means "none"
 	/// and is silent. June formats a bad id's message and discards it (no popup); here it is logged once.
-	if ( uiBuffFactorNumber_ <= JUNE_BUFF_FACTOR_ID_INT_BASE )
+	if ( uiBuffFactorNumber_ <= BUFF_FACTOR_ID_INT_BASE )
 	{
 		if ( 0 == uiBuffFactorNumber_ )
 			return CX2BuffFactorPtr();
@@ -540,7 +540,7 @@ CX2BuffFactorPtr CX2BuffTempletManager::GetBuffFactorPtr( const UINT uiBuffFacto
 		return CX2BuffFactorPtr();
 	}
 
-	const UINT uiIndexINT = uiBuffFactorNumber_ - JUNE_BUFF_FACTOR_ID_INT_BASE;	/// 1-based, never 0 here
+	const UINT uiIndexINT = uiBuffFactorNumber_ - BUFF_FACTOR_ID_INT_BASE;	/// 1-based, never 0 here
 	if ( uiIndexINT <= m_vecBuffFactorPtrINT.size() )
 	{
 		const CX2BuffFactorPtr& ptrBuffFactor = m_vecBuffFactorPtrINT[uiIndexINT - 1];
@@ -603,16 +603,16 @@ void CX2BuffTempletManager::GetBuffFactorPtrFromBuffFactorList( IN KLuaManager& 
 */
 bool CX2BuffTempletManager::AddBuffFactorINT( KLuaManager& luaManager_, const UINT uiBuffFactorID_ )
 {
-	if ( uiBuffFactorID_ < JUNE_BUFF_FACTOR_ID_INT_BASE )
+	if ( uiBuffFactorID_ < BUFF_FACTOR_ID_INT_BASE )
 		return false;
 
-	if ( m_vecBuffFactorPtrINT.size() == uiBuffFactorID_ - ( JUNE_BUFF_FACTOR_ID_INT_BASE + 1 ) )
+	if ( m_vecBuffFactorPtrINT.size() == uiBuffFactorID_ - ( BUFF_FACTOR_ID_INT_BASE + 1 ) )
 		PushBuffFactor( luaManager_, uiBuffFactorID_, m_vecBuffFactorPtrINT, m_uiFactorPlaceholderINT );
 	else
 	{
 		++m_uiFactorOrdinalRejectINT;
 		CX2BuffCapture::Line( "ordinal reject _INT BFI %u: %u _INT factor slot(s) filled, so the next _INT id must be %u; dropped, as in June 326c3f30",
-			uiBuffFactorID_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ), static_cast<UINT>( m_vecBuffFactorPtrINT.size() + JUNE_BUFF_FACTOR_ID_INT_BASE + 1 ) );
+			uiBuffFactorID_, static_cast<UINT>( m_vecBuffFactorPtrINT.size() ), static_cast<UINT>( m_vecBuffFactorPtrINT.size() + BUFF_FACTOR_ID_INT_BASE + 1 ) );
 	}
 
 	return true;
@@ -664,7 +664,7 @@ void CX2BuffTempletManager::PushBuffFactor( KLuaManager& luaManager_, const UINT
 	@brief : June loads BattleFieldBuff{Templet,Factor}_INT.lua right after the main file, whether or
 		not the main load worked (326c0020 / 326c13a0). March's data036 has no _INT files until Phase 13.
 */
-void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_, const char* szJuneLoader_ )
+void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_, const char* szLoader_ )
 {
 	const HRESULT hr = g_pKTDXApp->LoadAndDoMemory_ErrorCode( g_pKTDXApp->GetLuaBinder(), wszScriptFileName_ );
 	if ( SUCCEEDED( hr ) )
@@ -674,7 +674,7 @@ void CX2BuffTempletManager::LoadINTScriptFile( const wchar_t* wszScriptFileName_
 	ConvertWCHARToChar( strScriptFileName, wszScriptFileName_ );
 	if ( HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND ) == hr )
 		CX2BuffCapture::Line( "%s not found, so no _INT buffs this run (expected until Phase 13 packs June's _INT files; June %s loads it after the main file)",
-			strScriptFileName.c_str(), szJuneLoader_ );
+			strScriptFileName.c_str(), szLoader_ );
 	else
 		CX2BuffCapture::Line( "%s did not run (hr 0x%08x), so its _INT buffs are missing this run", strScriptFileName.c_str(), static_cast<UINT>( hr ) );
 }

@@ -311,10 +311,10 @@ class CKTDGCamera
 	public:
 		// June camera +0x19d: a can-hide world mesh is hidden this frame. Cleared at the top of UpdateCamera ( 31d02e50 @31d02e75 ),
 		// set by the world-mesh Prepares ( 327f921b, skin 327f7098 ), read by the user-unit render ( 31ff03d0 @31ff0e49, Phase R5 ).
-		void	SetWorldMeshHidden( bool bHidden ) { m_bJuneWorldMeshHidden = bHidden; }
-		bool	GetWorldMeshHidden() const { return m_bJuneWorldMeshHidden; }
+		void	SetWorldMeshHidden( bool bHidden ) { m_bWorldMeshHidden = bHidden; }
+		bool	GetWorldMeshHidden() const { return m_bWorldMeshHidden; }
 	private:
-		bool	m_bJuneWorldMeshHidden;
+		bool	m_bWorldMeshHidden;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
@@ -338,10 +338,10 @@ class CKTDGCamera
 	public:
 		// June camera +0x19c ( byte; ctor 31d03383 word +0x19c = 0 ): while set, the eight shake setters return at once.
 		// June writers: CX2CashShop::SetOpen 3223d680 @3223e0a5 / @3223e144 ( = 1 ), the game-camera creation 322dfed2 @322dfedb ( = 0 ): Phase R13d.
-		void	SetShakeLock( bool bLock ) { m_bJuneShakeLock = bLock; }
-		bool	GetShakeLock() const { return m_bJuneShakeLock; }
+		void	SetShakeLock( bool bLock ) { m_bShakeLock = bLock; }
+		bool	GetShakeLock() const { return m_bShakeLock; }
 	private:
-		bool	m_bJuneShakeLock;
+		bool	m_bShakeLock;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 
 #ifdef TOGETHER_FESTIVAL_2012_AUTUMN

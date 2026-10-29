@@ -183,43 +183,43 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 		// from every March caller, so this cannot fire until backlog Stage 17.
 		if( 3 == iLv && 0 != cVariant && 4 == static_cast<char>( pTemplet->m_Evolution_Step_ScriptName.size() ) )
 		{
-			const std::wstring wstrJuneMotionBefore = motionFileName;
-			const std::wstring wstrJuneXetBefore = wstrChangeTex;
+			const std::wstring wstrMotionBefore = motionFileName;
+			const std::wstring wstrXetBefore = wstrChangeTex;
 
 			if( motionFileName.length() > 3 )
 			{
-				std::wstring wstrJuneMotion = motionFileName.substr( 0, motionFileName.length() - 3 );
+				std::wstring wstrMotion = motionFileName.substr( 0, motionFileName.length() - 3 );
 				if( 1 == cVariant )
-					wstrJuneMotion += L"1.x";
+					wstrMotion += L"1.x";
 				else if( 2 == cVariant )
-					wstrJuneMotion += L"2.x";
+					wstrMotion += L"2.x";
 				else
-					wstrJuneMotion += L"3.x";
-				motionFileName = wstrJuneMotion;
+					wstrMotion += L"3.x";
+				motionFileName = wstrMotion;
 			}
 
 			if( wstrChangeTex.length() > 5 )
 			{
-				std::wstring wstrJuneXet = wstrChangeTex.substr( 0, wstrChangeTex.length() - 5 );
-				std::wstring wstrJuneSuffix = L"";
+				std::wstring wstrXet = wstrChangeTex.substr( 0, wstrChangeTex.length() - 5 );
+				std::wstring wstrSuffix = L"";
 				if( NULL != g_pData && NULL != g_pData->GetPetManager() )
-					wstrJuneSuffix = g_pData->GetPetManager()->GetVariantXetSuffix( petId, cVariant );
-				if( true == wstrJuneSuffix.empty() )
+					wstrSuffix = g_pData->GetPetManager()->GetVariantXetSuffix( petId, cVariant );
+				if( true == wstrSuffix.empty() )
 				{
 					if( 1 == cVariant )
-						wstrJuneSuffix = L"1.xet";
+						wstrSuffix = L"1.xet";
 					else if( 2 == cVariant )
-						wstrJuneSuffix = L"2.xet";
+						wstrSuffix = L"2.xet";
 					else
-						wstrJuneSuffix = L"3.xet";
+						wstrSuffix = L"3.xet";
 				}
-				wstrChangeTex = wstrJuneXet + wstrJuneSuffix;
+				wstrChangeTex = wstrXet + wstrSuffix;
 			}
 
-			WCHAR wszJuneFx[512] = {0};
-			StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER variant pet=%d variant=%d motion=%s->%s xet=%s->%s",
-				petId, static_cast<int>( cVariant ), wstrJuneMotionBefore.c_str(), motionFileName.c_str(), wstrJuneXetBefore.c_str(), wstrChangeTex.c_str() );
-			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+			WCHAR wszFx[512] = {0};
+			StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_VIEWER variant pet=%d variant=%d motion=%s->%s xet=%s->%s",
+				petId, static_cast<int>( cVariant ), wstrMotionBefore.c_str(), motionFileName.c_str(), wstrXetBefore.c_str(), wstrChangeTex.c_str() );
+			ErrorLogMsg( XEM_ERROR142, wszFx );
 		}
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 		luaManager.EndTable(); // INIT_MOTION
@@ -249,28 +249,28 @@ bool CX2NPCUnitViewerUI::ResetPet( int petId, char iLv )
 	// June 32e50de0 @32e51cf2-32e51e73, after ResetRenderParam (32e4f770): stop group 1 (329594c0), then INIT_EFFECT.
 	// UNIT_VIEWER_EFFECT_SET_LIST[1..99] plays into group 1 (32959640( skin, name, 1 )). A missing table plays nothing.
 	ViewerFxStop( 1 );
-	int iJuneGroup1 = 0;
+	int iGroup1 = 0;
 	if( true == luaManager.BeginTable( "INIT_EFFECT" ) )
 	{
 		if( true == luaManager.BeginTable( "UNIT_VIEWER_EFFECT_SET_LIST" ) )
 		{
-			std::wstring wstrJuneSetName = L"";
+			std::wstring wstrSetName = L"";
 			for( int iIndex = 1; iIndex < 100; ++iIndex )
 			{
-				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+				if( false == luaManager.GetValue( iIndex, wstrSetName ) )
 					break;
-				ViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
-				++iJuneGroup1;
+				ViewerFxPlay( m_pXSkinAnim, wstrSetName, 1 );
+				++iGroup1;
 			}
 			luaManager.EndTable(); // UNIT_VIEWER_EFFECT_SET_LIST
 		}
 		luaManager.EndTable(); // INIT_EFFECT
 	}
-	if( 0 < iJuneGroup1 )
+	if( 0 < iGroup1 )
 	{
-		WCHAR wszJuneFx[256] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER reset=pet id=%d group1=%d uiset=0", petId, iJuneGroup1 );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[256] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_VIEWER reset=pet id=%d group1=%d uiset=0", petId, iGroup1 );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 
@@ -459,13 +459,13 @@ void CX2NPCUnitViewerUI::SetScale( const D3DXVECTOR3& vScale )
 	// m_vScale, m_bDamageEffectScale; March probe 0x5c / 0x64 / 0x70). A stale handle answers NULL and is skipped.
 	if( NULL != g_pData )
 	{
-		for( size_t i = 0; i < m_vecJuneUIEffectSetHandle.size(); ++i )
+		for( size_t i = 0; i < m_vecUIEffectSetHandle.size(); ++i )
 		{
-			CX2EffectSet::EffectSetInstance* pJuneInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecJuneUIEffectSetHandle[i] );
-			if( NULL != pJuneInstance )
+			CX2EffectSet::EffectSetInstance* pInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_vecUIEffectSetHandle[i] );
+			if( NULL != pInstance )
 			{
-				pJuneInstance->m_vScale = vScale;
-				pJuneInstance->m_bDamageEffectScale = false;
+				pInstance->m_vScale = vScale;
+				pInstance->m_bDamageEffectScale = false;
 			}
 		}
 	}
@@ -491,10 +491,10 @@ void CX2NPCUnitViewerUI::StopUIEffectSets()
 	if( NULL == g_pData )
 		return;
 
-	for( size_t i = 0; i < m_vecJuneUIEffectSetHandle.size(); ++i )
+	for( size_t i = 0; i < m_vecUIEffectSetHandle.size(); ++i )
 	{
-		CX2EffectSet::Handle hJuneCopy = m_vecJuneUIEffectSetHandle[i];
-		g_pData->GetUIEffectSet()->StopEffectSet( hJuneCopy );
+		CX2EffectSet::Handle hCopy = m_vecUIEffectSetHandle[i];
+		g_pData->GetUIEffectSet()->StopEffectSet( hCopy );
 	}
 }
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
@@ -583,18 +583,18 @@ bool CX2NPCUnitViewerUI::ResetRidingPet( int RidingPetId )
 	// shop stops group 1 before calling, the pet-info caller 328f74e0 does not). INIT_EFFECT.RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET[1..99]
 	// is collected first, then RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST[1..99] plays into group 1, and once the tables are closed each
 	// collected name plays on the UI effect set through the skin overload (321e28d0), its handle going into m_vecJuneUIEffectSetHandle.
-	std::vector<std::wstring> vecJuneUiSetName;
-	int iJuneGroup1 = 0;
+	std::vector<std::wstring> vecUiSetName;
+	int iGroup1 = 0;
 	if( true == luaManager.BeginTable( "INIT_EFFECT" ) )
 	{
-		std::wstring wstrJuneSetName = L"";
+		std::wstring wstrSetName = L"";
 		if( true == luaManager.BeginTable( "RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET" ) )
 		{
 			for( int iIndex = 1; iIndex < 100; ++iIndex )
 			{
-				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+				if( false == luaManager.GetValue( iIndex, wstrSetName ) )
 					break;
-				vecJuneUiSetName.push_back( wstrJuneSetName );
+				vecUiSetName.push_back( wstrSetName );
 			}
 			luaManager.EndTable(); // RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET
 		}
@@ -602,33 +602,33 @@ bool CX2NPCUnitViewerUI::ResetRidingPet( int RidingPetId )
 		{
 			for( int iIndex = 1; iIndex < 100; ++iIndex )
 			{
-				if( false == luaManager.GetValue( iIndex, wstrJuneSetName ) )
+				if( false == luaManager.GetValue( iIndex, wstrSetName ) )
 					break;
-				ViewerFxPlay( m_pXSkinAnim, wstrJuneSetName, 1 );
-				++iJuneGroup1;
+				ViewerFxPlay( m_pXSkinAnim, wstrSetName, 1 );
+				++iGroup1;
 			}
 			luaManager.EndTable(); // RIDINGPET_UNIT_VIEWER_EFFECT_SET_LIST
 		}
 		luaManager.EndTable(); // INIT_EFFECT
 	}
-	int iJuneUiSet = 0;
+	int iUiSet = 0;
 	if( NULL != g_pData )
 	{
-		for( size_t i = 0; i < vecJuneUiSetName.size(); ++i )
+		for( size_t i = 0; i < vecUiSetName.size(); ++i )
 		{
-			CX2EffectSet::Handle hJuneUiSet = g_pData->GetUIEffectSet()->PlayEffectSet( vecJuneUiSetName[i].c_str(), m_pXSkinAnim );
-			if( INVALID_EFFECTSET_HANDLE != hJuneUiSet )
+			CX2EffectSet::Handle hUiSet = g_pData->GetUIEffectSet()->PlayEffectSet( vecUiSetName[i].c_str(), m_pXSkinAnim );
+			if( INVALID_EFFECTSET_HANDLE != hUiSet )
 			{
-				m_vecJuneUIEffectSetHandle.push_back( hJuneUiSet );
-				++iJuneUiSet;
+				m_vecUIEffectSetHandle.push_back( hUiSet );
+				++iUiSet;
 			}
 		}
 	}
-	if( 0 < iJuneGroup1 || 0 < iJuneUiSet )
+	if( 0 < iGroup1 || 0 < iUiSet )
 	{
-		WCHAR wszJuneFx[256] = {0};
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX PET_VIEWER reset=riding id=%d group1=%d uiset=%d", RidingPetId, iJuneGroup1, iJuneUiSet );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		WCHAR wszFx[256] = {0};
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX PET_VIEWER reset=riding id=%d group1=%d uiset=%d", RidingPetId, iGroup1, iUiSet );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 

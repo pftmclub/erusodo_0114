@@ -2574,7 +2574,7 @@ void CX2BuffResetSkillCoolTimeBehaviorTemplet::DrawText( CX2GameUnit* pGameUnit_
 		kCreatorInfo.m_bNotUser				= kBuffFactor_.m_bIsMesGameUnitNpc;
 		kCreatorInfo.m_uidCreator			= kBuffFactor_.m_uidMesGameUnit;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
-		kCreatorInfo.m_fCreatorPowerRate	= kBuffFactor_.m_fJuneCreatorPowerRate;
+		kCreatorInfo.m_fCreatorPowerRate	= kBuffFactor_.m_fCreatorPowerRate;
 #endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 		pGameUnit_->CreateAndInsertCustomFunctionByBuff( kBuffFactor_.m_BuffIdentity, kFactor_, kCreatorInfo );
 	}
@@ -4199,11 +4199,11 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// June 32e7cef0: the value is a rate, 1 + v (restack: += v), for users only. June looks the skill level up and
 	/// ignores it; it has no MP lookup and no change-type test. The reader is CX2GUUser::GetSkillRateByBuffBehavior.
-	const KBuffBehaviorFactor* pJuneBehaviorFactor = NULL;
-	if ( false == BuffFactor_.GetBehaviorFactor( GetType(), &pJuneBehaviorFactor ) )
+	const KBuffBehaviorFactor* pBehaviorFactor = NULL;
+	if ( false == BuffFactor_.GetBehaviorFactor( GetType(), &pBehaviorFactor ) )
 		return DISPLAY_ERROR( L"CX2BuffChangeConsumeMpRate::SetFactor: GetBehaviorFactor didn't work" )	/// 4b-ii: June returns false here silently; logged once
 
-	m_uiSkillId = static_cast<UINT>( (*pJuneBehaviorFactor)[FO_SKILL_ID] );
+	m_uiSkillId = static_cast<UINT>( (*pBehaviorFactor)[FO_SKILL_ID] );
 
 	if ( pGameUnit_->GetGameUnitType() == CX2GameUnit::GUT_USER )
 	{
@@ -4213,9 +4213,9 @@ void CX2BuffFreezeBehaviorTemplet::OnFrameMove( CX2GameUnit* pGameUnit_, CX2Buff
 			return DISPLAY_ERROR( L"CX2BuffChangeConsumeMpRate::SetFactor: the user has no CX2Unit" )	/// 4b-ii: June returns false here silently; logged once
 
 		if ( DidStart() )
-			m_fResultValue += (*pJuneBehaviorFactor)[FO_VALUE];
+			m_fResultValue += (*pBehaviorFactor)[FO_VALUE];
 		else
-			m_fResultValue = (*pJuneBehaviorFactor)[FO_VALUE] + 1.f;
+			m_fResultValue = (*pBehaviorFactor)[FO_VALUE] + 1.f;
 	}
 
 	return true;

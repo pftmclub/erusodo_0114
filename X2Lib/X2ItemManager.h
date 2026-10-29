@@ -539,8 +539,8 @@ class CX2ItemManager
 		// missing one as 0 / NULL, which is what June's loader sees.
 		bool	AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_, int iSecondPetUnitID_, const char* pszStartDate_, const char* pszEndDate_ );
 		// per-load counters for the "JUNE_FX PET_PREVIEW_LOOKUP loaded= skipped=" summary (X2Data.cpp ResetItemManager)
-		int		m_iJunePetPreviewLoaded;
-		int		m_iJunePetPreviewSkipped;
+		int		m_iPetPreviewLoaded;
+		int		m_iPetPreviewSkipped;
 #else
 		bool	AddPetPreViewData_LUA( int iCashShopItemID_, int iPetUnitID_, PREVIEW_PET_TYPE ePetType_ = PPT_PET );
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
@@ -576,16 +576,16 @@ class CX2ItemManager
 		// generic (type -> item ids, item id -> record), so Stage 11 only adds parsers.
 		enum DIVISION_ITEM_TEMPLET_TYPE
 		{
-			JUNE_DITT_LOOP_ANIM_ITEM_ID					= 72,	// 0x48: the GUUser CommonFrameMove block before CEPE (3295c960, Stage 11)
-			JUNE_DITT_CONDITION_EQUIP_PLAY_EFFECT_SET	= 81,	// 0x51: the group key hard-coded in 32814da0
+			DITT_LOOP_ANIM_ITEM_ID					= 72,	// 0x48: the GUUser CommonFrameMove block before CEPE (3295c960, Stage 11)
+			DITT_CONDITION_EQUIP_PLAY_EFFECT_SET	= 81,	// 0x51: the group key hard-coded in 32814da0
 		};
 		// June Enum.lua CONDITION_EQUIP_PLAY_EFFECT_SET (June's own spelling ALWYAS kept)
 		enum CONDITION_EQUIP_PLAY_EFFECT_SET
 		{
-			JUNE_CEPE_NONE		= 0,
-			JUNE_CEPE_WAIT		= 1,
-			JUNE_CEPE_NOT_MOVE	= 2,
-			JUNE_CEPE_ALWYAS	= 3,
+			CEPE_NONE		= 0,
+			CEPE_WAIT		= 1,
+			CEPE_NOT_MOVE	= 2,
+			CEPE_ALWYAS	= 3,
 		};
 		// one m_EffectSetList%d record (June +0x380 map node +0x10; the offsets below are the record's)
 		struct ConditionEquipPlayEffectSet
@@ -606,10 +606,10 @@ class CX2ItemManager
 		bool	IsDivisionItem( int iDivisionType, int iItemID ) const;										// 32807db0
 	private:
 		void	ParseConditionEquipPlayEffectSet( KLuaManager& luaManager );								// 32814da0
-		std::map< int, std::set<int> >						m_mapJuneDivisionItemGroup;				// June +0x230: DITT type -> item ids
-		std::map< int, ConditionEquipPlayEffectSet >	m_mapJuneConditionEquipPlayEffectSet;	// June +0x380: item id -> record
-		int		m_iJuneEquipFxLists;				// load-line counters (this port's, not June's)
-		int		m_iJuneEquipFxSkippedDuplicate;
+		std::map< int, std::set<int> >						m_mapDivisionItemGroup;				// June +0x230: DITT type -> item ids
+		std::map< int, ConditionEquipPlayEffectSet >	m_mapConditionEquipPlayEffectSet;	// June +0x380: item id -> record
+		int		m_iEquipFxLists;				// load-line counters (this port's, not June's)
+		int		m_iEquipFxSkippedDuplicate;
 	public:
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
@@ -618,8 +618,8 @@ class CX2ItemManager
 		int		GetTranscendentalClassItemType( int iItemID ) const;											// 32807fe0: -1 none, 0 before transcendence only, 1 after only
 		bool	IsTranscendentalUnitType( int iUnitType, int iUnitClass ) const;								// 3280a090
 	private:
-		std::map< int, std::set<int> >	m_mapJuneTranscendentalUnitType;		// June +0x3b0: unit type -> class set ( empty in TranscendentalClassItem.lua )
-		std::map< int, int >			m_mapJuneTranscendentalClassItem;		// June +0x3c0: item id -> type
+		std::map< int, std::set<int> >	m_mapTranscendentalUnitType;		// June +0x3b0: unit type -> class set ( empty in TranscendentalClassItem.lua )
+		std::map< int, int >			m_mapTranscendentalClassItem;		// June +0x3c0: item id -> type
 	public:
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 	protected:

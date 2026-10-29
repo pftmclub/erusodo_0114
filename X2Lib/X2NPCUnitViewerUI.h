@@ -70,7 +70,7 @@ private:
 	// June +0x2a8, a vector<CX2EffectSet::Handle>: the UI effect sets ResetRidingPet plays by RIDINGPET_EFFECT_SET_LIST_BY_UIEFFECTSET.
 	// The destructor frees it without stopping them (JUNE_BUGS 105); the stop (JuneStopUIEffectSets) works on a copy of each handle
 	// and never erases (JUNE_BUGS 104).
-	std::vector<CX2EffectSet_EffectSetInstanceHandle>	m_vecJuneUIEffectSetHandle;
+	std::vector<CX2EffectSet_EffectSetInstanceHandle>	m_vecUIEffectSetHandle;
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
 };
 

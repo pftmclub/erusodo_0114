@@ -10,7 +10,6 @@
 // June2017 Enum.lua EXTRA_DAMAGE_TYPE.EDT_MANA_DAMAGE_WITH_NO_DISPLAY
 // (june2017_re/june_lua/Enum.src.lua:7336). March's EXTRA_DAMAGE_TYPE has no enumerator
 // with this value under US_SERVICE: 112 members up to 144, and 67 is a gap.
-static const int JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY = 67;
 
 #ifdef SERV_IRUHADEV_OFFLINE
 // Phase 8c: the rule-5 lines below are not diagnostics, so this is not behind SERV_IRUHADEV_JUNE_FX_DEBUG.
@@ -162,7 +161,7 @@ CX2DamageManager::CX2DamageManager(void)
 {
 	m_pCollision = g_pKTDXApp->GetCollision();
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-	m_pwszJuneDamageDataTemplet = NULL;
+	m_pwszDamageDataTemplet = NULL;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 
 
@@ -303,14 +302,14 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// Phase 8c, plan rule 5: the DAMAGE_DATA keys whose system this build lacks (JUNE2017_EFFECT_KEY_MATRIX.md,
 		// "Absent systems"), in June's read order. Each is parsed with June's getter and default and stored.
 		// Nothing acts on them; a value other than June's default is logged once per key per templet.
-		const WCHAR* pwszJuneTemplet = GetDamageDataTemplet();
+		const WCHAR* pwszTemplet = GetDamageDataTemplet();
 
 		// June2017 FUN_32632390 @32632405-32632588: int getter 32fe9fd0 @32632561, default 0 (EBX), to +0x5c4.
 		// June reads it in ParsingBuffFactorID's _ULTIMATE gate (FUN_31fcf3e0, the unidentified skill-memo
 		// callee, Phase 8b) and in the numerical-data override below. This build has neither.
 		LUA_GET_VALUE( luaManager, "APPLIED_SKILL_ID",			pDamageData->m_iAppliedSkillID,			0 );
 		if( 0 != pDamageData->m_iAppliedSkillID )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"APPLIED_SKILL_ID", L"applied-skill-ID system", pDamageData->m_iAppliedSkillID );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"APPLIED_SKILL_ID", L"applied-skill-ID system", pDamageData->m_iAppliedSkillID );
 
 #ifndef ADD_RENA_SYSTEM
 		// June2017 FUN_32632390 @3263534f-326354f2: int getter @326354d2, default EDI = -1 (NFT_NONE; set
@@ -319,27 +318,27 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// on, that read owns the key and this one compiles out.
 		LUA_GET_VALUE( luaManager, "NATURAL_FORCE_TYPE",			pDamageData->m_iNaturalForceType,		-1 );
 		if( -1 != pDamageData->m_iNaturalForceType )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"NATURAL_FORCE_TYPE", L"natural-force system (ADD_RENA_SYSTEM off)", pDamageData->m_iNaturalForceType );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"NATURAL_FORCE_TYPE", L"natural-force system (ADD_RENA_SYSTEM off)", pDamageData->m_iNaturalForceType );
 #endif ADD_RENA_SYSTEM
 
 		// June2017 FUN_32632390 @3263df79-3263e18f: int getter @3263e17b, default 0, to +0x594.
 		LUA_GET_VALUE( luaManager, "HIT_ADD_COMBINATION_POINT",	pDamageData->m_iHitAddCombinationPoint,	0 );
 		if( 0 != pDamageData->m_iHitAddCombinationPoint )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"HIT_ADD_COMBINATION_POINT", L"combination-point system", pDamageData->m_iHitAddCombinationPoint );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"HIT_ADD_COMBINATION_POINT", L"combination-point system", pDamageData->m_iHitAddCombinationPoint );
 
 		// June2017 FUN_32632390 @3263f256-3263f415: int getter @3263f3f7 in the enum shape (-(ok) & temp),
 		// so default 0 (HRDT_NONE), to +0x5f4. March's Enum.lua has no HP_RATE_DAMAGE_TYPE table (Phase 11).
 		LUA_GET_VALUE( luaManager, "HP_RATE_DAMAGE_TYPE",		pDamageData->m_iHpRateDamageType,		0 );
 		if( 0 != pDamageData->m_iHpRateDamageType )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"HP_RATE_DAMAGE_TYPE", L"HP-rate damage system", pDamageData->m_iHpRateDamageType );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"HP_RATE_DAMAGE_TYPE", L"HP-rate damage system", pDamageData->m_iHpRateDamageType );
 
 		// June2017 FUN_32632390 @3263f415-3263f5ca: float getter 32fea370 @3263f5b8, default 0.0 (fldz), to +0x5f8.
 		LUA_GET_VALUE( luaManager, "HP_RATE_DAMAGE_VALUE",		pDamageData->m_fHpRateDamageValue,		0.f );
 		if( 0.f != pDamageData->m_fHpRateDamageValue )
 		{
-			WCHAR wszJuneValue[32] = L"";
-			StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f", pDamageData->m_fHpRateDamageValue );
-			DamageDataUnsupported( pwszJuneTemplet, pTableName, L"HP_RATE_DAMAGE_VALUE", L"HP-rate damage system", wszJuneValue );
+			WCHAR wszValue[32] = L"";
+			StringCchPrintfW( wszValue, ARRAY_SIZE(wszValue), L"%.3f", pDamageData->m_fHpRateDamageValue );
+			DamageDataUnsupported( pwszTemplet, pTableName, L"HP_RATE_DAMAGE_VALUE", L"HP-rate damage system", wszValue );
 		}
 
 		// June2017 FUN_32632390 @3263fadb-3263fc8f and @3263fc8f-3263fe41: int getter @3263fc7d, default 0, and
@@ -355,16 +354,16 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "DAMAGE_SKILL_ID", pDamageData->m_iDamageSkillID, 0 );
 #else SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		if( 0 < pDamageData->m_iNumericalDataIndex )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_INDEX", L"numerical skill data", pDamageData->m_iNumericalDataIndex );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"NUMERICAL_DATA_INDEX", L"numerical skill data", pDamageData->m_iNumericalDataIndex );
 		if( false == pDamageData->m_wstrNumericalDataName.empty() )
-			DamageDataUnsupported( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_NAME", L"numerical skill data", pDamageData->m_wstrNumericalDataName.c_str() );
+			DamageDataUnsupported( pwszTemplet, pTableName, L"NUMERICAL_DATA_NAME", L"numerical skill data", pDamageData->m_wstrNumericalDataName.c_str() );
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 
 		// June2017 FUN_32632390 @32640064-3264026d: int getter @32640246, default -1 (RWAT_NONE), to +0x600.
 		// March's Enum.lua has no ROSE_WEAPON_ATTACK_TYPE table (Phase 11).
 		LUA_GET_VALUE( luaManager, "ROSE_WEAPON_ATTACK_TYPE",		pDamageData->m_iRoseWeaponAttackType,	-1 );
 		if( -1 != pDamageData->m_iRoseWeaponAttackType )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"ROSE_WEAPON_ATTACK_TYPE", L"Rose weapon system", pDamageData->m_iRoseWeaponAttackType );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"ROSE_WEAPON_ATTACK_TYPE", L"Rose weapon system", pDamageData->m_iRoseWeaponAttackType );
 
 		// ---- June effect completion C3: the straightforward DamageData keys (JUNE2017_EFFECT_COMPLETION_PHASES.md C3). Each is read with
 		// June's getter and default into a DamageData member; the consumers are cited at their March sites. ----
@@ -374,7 +373,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "APPLIED_MEMO_ID",					pDamageData->m_iAppliedMemoID,					0 );
 #ifndef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		if( 0 != pDamageData->m_iAppliedMemoID )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"APPLIED_MEMO_ID", L"skill-memo system (reader 3202ac40, C8b)", pDamageData->m_iAppliedMemoID );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"APPLIED_MEMO_ID", L"skill-memo system (reader 3202ac40, C8b)", pDamageData->m_iAppliedMemoID );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 
 		// June2017 FUN_32632390 @32633724-32633ef5: CREATE_DAMAGE_EFFECT_NAME_SCALE_X (@32633724), _Y (@326339df), _Z (@32633c8d), float
@@ -395,12 +394,12 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 #else SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		if( 0.f != pDamageData->m_fBoundingBackSpeedX || 0.f != pDamageData->m_fBoundingBackSpeedY )
 		{
-			WCHAR wszJuneValue[48] = L"";
-			StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f, %.3f", pDamageData->m_fBoundingBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+			WCHAR wszValue[48] = L"";
+			StringCchPrintfW( wszValue, ARRAY_SIZE(wszValue), L"%.3f, %.3f", pDamageData->m_fBoundingBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
-			DamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding user states (C3d-3)", wszJuneValue );
+			DamageDataUnsupported( pwszTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding user states (C3d-3)", wszValue );
 #else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
-			DamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding back-speed state change (31feabd0 / 31fd86b0 not identified)", wszJuneValue );
+			DamageDataUnsupported( pwszTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding back-speed state change (31feabd0 / 31fd86b0 not identified)", wszValue );
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		}
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
@@ -493,9 +492,9 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// is read: it releases the shared pointer at ED +8 and falls into ExtraDamageData::Init (31f8d4d0). March's ED keeps its
 		// shared pointer in m_ptrBuffFactor (HAMEL_SECRET_DUNGEON) and Init() does not reset it, so it is released here as June does.
 		{
-			bool bJuneInitExtraDamageBeforeLoad = false;
-			LUA_GET_VALUE( luaManager, "INIT_EXTRA_DAMAGE_BEFORE_LOAD",	bJuneInitExtraDamageBeforeLoad,	false );
-			if( true == bJuneInitExtraDamageBeforeLoad )
+			bool bInitExtraDamageBeforeLoad = false;
+			LUA_GET_VALUE( luaManager, "INIT_EXTRA_DAMAGE_BEFORE_LOAD",	bInitExtraDamageBeforeLoad,	false );
+			if( true == bInitExtraDamageBeforeLoad )
 			{
 #ifdef HAMEL_SECRET_DUNGEON
 				pDamageData->m_ExtraDamage.m_ptrBuffFactor = CX2BuffFactorPtr();
@@ -512,7 +511,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			// EDT_MANA_DAMAGE_WITH_NO_DISPLAY (67) is stored as EDT_MANA_DAMAGE (16, EDI loaded
 			// @32635df5) and the extra damage is flagged no-display (byte DamageData +0x151 = 1).
 			// No other key in this function is post-processed differently from March.
-			if( JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY == static_cast<int>( pDamageData->m_ExtraDamage.m_ExtraDamageType ) )
+			if( EDT_MANA_DAMAGE_WITH_NO_DISPLAY == static_cast<int>( pDamageData->m_ExtraDamage.m_ExtraDamageType ) )
 			{
 				pDamageData->m_ExtraDamage.m_ExtraDamageType			= EDT_MANA_DAMAGE;
 				pDamageData->m_ExtraDamage.m_bManaDamageWithNoDisplay	= true;
@@ -592,9 +591,9 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 				DamageDataUnsupportedInt( GetDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT", L"ExtraDamage member-count reader (not identified)", pDamageData->m_ExtraDamage.m_iAddMemberCount );
 			if( -1.f != pDamageData->m_ExtraDamage.m_fAddMemberCountDistance )
 			{
-				WCHAR wszJuneValue[32] = L"";
-				StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f", pDamageData->m_ExtraDamage.m_fAddMemberCountDistance );
-				DamageDataUnsupported( GetDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT_DISTANCE", L"ExtraDamage member-count reader (not identified)", wszJuneValue );
+				WCHAR wszValue[32] = L"";
+				StringCchPrintfW( wszValue, ARRAY_SIZE(wszValue), L"%.3f", pDamageData->m_ExtraDamage.m_fAddMemberCountDistance );
+				DamageDataUnsupported( GetDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT_DISTANCE", L"ExtraDamage member-count reader (not identified)", wszValue );
 			}
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -863,11 +862,11 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// parsed, stored, logged once per templet when set, no behaviour.
 		LUA_GET_VALUE( luaManager, "DAMAGE_TRIGGER_CONDITION",	pDamageData->m_iDamageTriggerCondition,	-1 );
 		if( -1 != pDamageData->m_iDamageTriggerCondition )
-			DamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"DAMAGE_TRIGGER_CONDITION", L"damage-trigger condition reader (none in June)", pDamageData->m_iDamageTriggerCondition );
+			DamageDataUnsupportedInt( pwszTemplet, pTableName, L"DAMAGE_TRIGGER_CONDITION", L"damage-trigger condition reader (none in June)", pDamageData->m_iDamageTriggerCondition );
 
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 		if( false == pDamageData->m_vecAdditionalAttackTriggerType.empty() || false == pDamageData->m_vecDamageTriggerData.empty() )
-			DamageDataTriggerParsed( pwszJuneTemplet, pTableName,
+			DamageDataTriggerParsed( pwszTemplet, pTableName,
 				static_cast<int>( pDamageData->m_vecAdditionalAttackTriggerType.size() ), static_cast<int>( pDamageData->m_vecDamageTriggerData.size() ) );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -912,7 +911,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		// Phase S4: June FUN_32632390 @3263fe41-32640054, after every key above (so after the DAMAGE_DATA_KEY_NAME record that may set
 		// APPLIED_SKILL_ID) and before EndTable and SetDamageExceptionProcess, which scales PHYSIC / MAGIC by the power rate.
-		ApplyNumericalSkillData( pDamageData, pwszJuneTemplet, pTableName );
+		ApplyNumericalSkillData( pDamageData, pwszTemplet, pTableName );
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		luaManager.EndTable();
 
@@ -1846,14 +1845,14 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 	// June2017 AreaHit 32624610 @32624a82-32624b2e (effect completion C3): when the loop stops on its DAMAGE_UNIT_NUM limit
 	// (+0x4d4 <= count, tested at the top of every iteration), the result count is count + ADD_CHECK_DAMAGE_UNIT_NUM (+0x4d8);
 	// every other exit leaves it equal to count. The MP drain below and the return value use the result.
-	bool bJuneAreaHitLimitBreak = false;
+	bool bAreaHitLimitBreak = false;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	for(UINT i=0; i<vecAreaHitUnitIndex.size(); ++i)
 	{
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 		if((int)nCount >= pDamageData->m_iDamageUnitNum)
 		{
-			bJuneAreaHitLimitBreak = true;
+			bAreaHitLimitBreak = true;
 			break;
 		}
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
@@ -1899,7 +1898,7 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 	// June2017 AreaHit 32624610 @32624b2e-32624b8c: piVar12 = nCount, or nCount + ADD_CHECK_DAMAGE_UNIT_NUM after the limit break;
 	// it feeds the MP drain ( * ED m_Damage ) and the return value (count >= 1).
-	if( true == bJuneAreaHitLimitBreak )
+	if( true == bAreaHitLimitBreak )
 		nCount += pDamageData->m_iAddCheckDamageUnitNum;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 	if( pAttacker != NULL && pDamageData->m_bDrainMana == true )
@@ -1939,7 +1938,7 @@ static bool CollisionDataCheckUnitToUnit( CKTDXCollision* pCollision_, CX2GameUn
 	const CKTDXCollision::CollisionDataListSet& setDefender_, CKTDXCollision::CollisionType& collType_, D3DXVECTOR3& vImpactPoint_ );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 static void FxTraceUnitToUnit( CKTDXCollision* pCollision_, CX2GameUnit* pAttacker_, CX2GameUnit* pDefender_,
-	const CKTDXCollision::CollisionDataListSet& setDefender_, const bool bJuneCollided_,
+	const CKTDXCollision::CollisionDataListSet& setDefender_, const bool bCollided_,
 	const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_COLLISION
@@ -2143,11 +2142,11 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 #ifdef SERV_IRUHADEV_JUNE_COLLISION
 		// June2017 32611970 (CX2DamageManager::CollisionDataCheckFromUnitToUnit, inlined at its caller): the same three instances as March
 		// (attack set, sub attack set, pair sub sets) on June's pair math. Details at JuneCollisionDataCheckUnitToUnit.
-		const bool bJuneUnitToUnit = CollisionDataCheckUnitToUnit( m_pCollision, pAttacker, setDefenderCollisionDataList, collType, impactPos );
+		const bool bUnitToUnit = CollisionDataCheckUnitToUnit( m_pCollision, pAttacker, setDefenderCollisionDataList, collType, impactPos );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		FxTraceUnitToUnit( m_pCollision, pAttacker, pDefender, setDefenderCollisionDataList, bJuneUnitToUnit, collType, impactPos );
+		FxTraceUnitToUnit( m_pCollision, pAttacker, pDefender, setDefenderCollisionDataList, bUnitToUnit, collType, impactPos );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
-		if( true == bJuneUnitToUnit )
+		if( true == bUnitToUnit )
 #else SERV_IRUHADEV_JUNE_COLLISION
 		if( CollisionDataCheckFromUnitToUnit( pAttacker, setDefenderCollisionDataList, collType, &impactPos ) )
 #endif SERV_IRUHADEV_JUNE_COLLISION
@@ -2596,7 +2595,7 @@ static bool FxIsCollisionTraced( const WCHAR* pwszEffect_ )
 // is linked, its centre next to the main mesh's position (a sphere left at the spawn point or the origin
 // shows here), its scaled radius, and the nearest defender datum's centre distance against rA + rB.
 static void FxTraceEffectToUnit( CKTDXCollision* pCollision_, CX2DamageEffect::CEffect* pAttacker_,
-	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect_, CX2GameUnit* pDefender_, const bool bJuneCollided_,
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect_, CX2GameUnit* pDefender_, const bool bCollided_,
 	const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
 {
 	const CKTDXCollision::CollisionDataList&	listAttack	= pMainEffect_->GetXSkinAnim()->GetAttackDataList();
@@ -2606,12 +2605,12 @@ static void FxTraceEffectToUnit( CKTDXCollision* pCollision_, CX2DamageEffect::C
 	const bool bMarchCollided = pCollision_->CollisionDataCheck( listAttack, setDefender, collTypeMarch, &vImpactMarch );
 	const WCHAR* pwszName = pAttacker_->GetName();
 
-	if( true == bJuneCollided_ )
+	if( true == bCollided_ )
 		FxCollision( pwszName, L"COLLIDE", L"path=EFFECT_TO_UNIT defender=%d uid=%I64d collType=%d impact=(%.0f,%.0f,%.0f) march=%d",
 			(int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(), (int)collType_, vImpact_.x, vImpact_.y, vImpact_.z, (int)bMarchCollided );
-	if( bJuneCollided_ != bMarchCollided )
+	if( bCollided_ != bMarchCollided )
 		FxCollision( pwszName, L"DIFF", L"path=EFFECT_TO_UNIT june=%d march=%d defender=%d uid=%I64d june_impact=(%.0f,%.0f,%.0f) march_impact=(%.0f,%.0f,%.0f)",
-			(int)bJuneCollided_, (int)bMarchCollided, (int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(),
+			(int)bCollided_, (int)bMarchCollided, (int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(),
 			vImpact_.x, vImpact_.y, vImpact_.z, vImpactMarch.x, vImpactMarch.y, vImpactMarch.z );
 
 	if( false == FxIsCollisionTraced( pwszName ) )
@@ -2665,12 +2664,12 @@ static void FxTraceEffectToUnit( CKTDXCollision* pCollision_, CX2DamageEffect::C
 	FxCollision( pwszName, L"TEST", L"path=EFFECT_TO_UNIT owner=%I64d age=%.2f/%.2f attacks=%d a0{type=%d linked=%d c=(%.0f,%.0f,%.0f) r=%.1f} mesh=(%.0f,%.0f,%.0f) defender=%d uid=%I64d data=%d near{d=%.1f rsum=%.1f} june=%d march=%d",
 		uidOwner, fAge, fMaxAge, iAttackCount, (int)pFirstA->m_CollisionType, (int)( NULL != pFirstA->m_pCombineMatrix ), vCenterA.x, vCenterA.y, vCenterA.z, fRadiusA,
 		vMeshPos.x, vMeshPos.y, vMeshPos.z, (int)pDefender_->GetGameUnitType(), pDefender_->GetUnitUID(), iDefenderCount,
-		fNearest, fNearestSum, (int)bJuneCollided_, (int)bMarchCollided );
+		fNearest, fNearestSum, (int)bCollided_, (int)bMarchCollided );
 }
 // C8b: the COLLIDE / DIFF lines of the other four paths. The "effect" field of the line is the path name, so each path has its own
 // one-line-a-second throttle: JUNE_FX HIT UNIT_TO_UNIT | UNIT_TO_EFFECT | MESH_TO_UNIT | COLLISION_DATA_TO_UNIT COLLIDE | DIFF.
 static void FxTracePath( const WCHAR* pwszPath_, CX2GameUnit* pAttacker_, CX2GameUnit* pDefender_, const WCHAR* pwszEffect_,
-	const bool bJuneCollided_, const bool bMarchCollided_, const CKTDXCollision::CollisionType collType_,
+	const bool bCollided_, const bool bMarchCollided_, const CKTDXCollision::CollisionType collType_,
 	const D3DXVECTOR3& vImpact_, const D3DXVECTOR3& vImpactMarch_ )
 {
 	const int		iAttackerType	= ( NULL != pAttacker_ ) ? (int)pAttacker_->GetGameUnitType() : -1;
@@ -2679,12 +2678,12 @@ static void FxTracePath( const WCHAR* pwszPath_, CX2GameUnit* pAttacker_, CX2Gam
 	const UidType	uidDefender		= ( NULL != pDefender_ ) ? pDefender_->GetUnitUID() : (UidType)-1;
 	const WCHAR*	pwszEffect		= ( NULL != pwszEffect_ ) ? pwszEffect_ : L"-";
 
-	if( true == bJuneCollided_ )
+	if( true == bCollided_ )
 		FxCollision( pwszPath_, L"COLLIDE", L"path=%s attacker=%d uid=%I64d defender=%d uid=%I64d effect=%s collType=%d impact=(%.0f,%.0f,%.0f) march=%d",
 			pwszPath_, iAttackerType, uidAttacker, iDefenderType, uidDefender, pwszEffect, (int)collType_, vImpact_.x, vImpact_.y, vImpact_.z, (int)bMarchCollided_ );
-	if( bJuneCollided_ != bMarchCollided_ )
+	if( bCollided_ != bMarchCollided_ )
 		FxCollision( pwszPath_, L"DIFF", L"path=%s june=%d march=%d attacker=%d uid=%I64d defender=%d uid=%I64d effect=%s june_impact=(%.0f,%.0f,%.0f) march_impact=(%.0f,%.0f,%.0f)",
-			pwszPath_, (int)bJuneCollided_, (int)bMarchCollided_, iAttackerType, uidAttacker, iDefenderType, uidDefender, pwszEffect,
+			pwszPath_, (int)bCollided_, (int)bMarchCollided_, iAttackerType, uidAttacker, iDefenderType, uidDefender, pwszEffect,
 			vImpact_.x, vImpact_.y, vImpact_.z, vImpactMarch_.x, vImpactMarch_.y, vImpactMarch_.z );
 }
 
@@ -2710,45 +2709,45 @@ static bool FxMarchAttackerInstances( CKTDXCollision* pCollision_, CX2GameUnit* 
 }
 
 static void FxTraceUnitToUnit( CKTDXCollision* pCollision_, CX2GameUnit* pAttacker_, CX2GameUnit* pDefender_,
-	const CKTDXCollision::CollisionDataListSet& setDefender_, const bool bJuneCollided_,
+	const CKTDXCollision::CollisionDataListSet& setDefender_, const bool bCollided_,
 	const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
 {
 	CKTDXCollision::CollisionType	collTypeMarch = CKTDXCollision::CT_SPHERE;
 	D3DXVECTOR3						vImpactMarch( 0.f, 0.f, 0.f );
 	const bool bMarchCollided = FxMarchAttackerInstances( pCollision_, pAttacker_, setDefender_, collTypeMarch, &vImpactMarch );
-	FxTracePath( L"UNIT_TO_UNIT", pAttacker_, pDefender_, NULL, bJuneCollided_, bMarchCollided, collType_, vImpact_, vImpactMarch );
+	FxTracePath( L"UNIT_TO_UNIT", pAttacker_, pDefender_, NULL, bCollided_, bMarchCollided, collType_, vImpact_, vImpactMarch );
 }
 
 static void FxTraceUnitToEffect( CKTDXCollision* pCollision_, CX2GameUnit* pAttacker_, CX2DamageEffect::CEffect* pDefenderEffect_,
-	const CKTDXCollision::CollisionDataList& listDefender_, const bool bJuneCollided_,
+	const CKTDXCollision::CollisionDataList& listDefender_, const bool bCollided_,
 	const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
 {
 	CKTDXCollision::CollisionType	collTypeMarch = CKTDXCollision::CT_SPHERE;
 	D3DXVECTOR3						vImpactMarch( 0.f, 0.f, 0.f );
 	const bool bMarchCollided = FxMarchAttackerInstances( pCollision_, pAttacker_, listDefender_, collTypeMarch, &vImpactMarch );
-	FxTracePath( L"UNIT_TO_EFFECT", pAttacker_, pDefenderEffect_->GetOwnerUnit(), pDefenderEffect_->GetName(), bJuneCollided_, bMarchCollided,
+	FxTracePath( L"UNIT_TO_EFFECT", pAttacker_, pDefenderEffect_->GetOwnerUnit(), pDefenderEffect_->GetName(), bCollided_, bMarchCollided,
 		collType_, vImpact_, vImpactMarch );
 }
 
 static void FxTraceMeshToUnit( CKTDXCollision* pCollision_, CX2DamageManager::DamageData* pDamageData_, CX2GameUnit* pDefender_,
-	const bool bJuneCollided_, const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
+	const bool bCollided_, const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
 {
 	CKTDXCollision::CollisionType	collTypeMarch = CKTDXCollision::CT_SPHERE;
 	D3DXVECTOR3						vImpactMarch( 0.f, 0.f, 0.f );
 	const bool bMarchCollided = pCollision_->CollisionDataCheck( pDamageData_->pAttackerAnim->GetAttackDataList(), pDefender_->GetCollisionListSet(),
 		collTypeMarch, &vImpactMarch );
-	FxTracePath( L"MESH_TO_UNIT", pDamageData_->optrAttackerGameUnit.GetObservable(), pDefender_, NULL, bJuneCollided_, bMarchCollided,
+	FxTracePath( L"MESH_TO_UNIT", pDamageData_->optrAttackerGameUnit.GetObservable(), pDefender_, NULL, bCollided_, bMarchCollided,
 		collType_, vImpact_, vImpactMarch );
 }
 
 static void FxTraceCollisionDataToUnit( CKTDXCollision* pCollision_, CX2DamageManager::DamageData* pDamageData_, CX2GameUnit* pDefender_,
-	const bool bJuneCollided_, const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
+	const bool bCollided_, const CKTDXCollision::CollisionType collType_, const D3DXVECTOR3& vImpact_ )
 {
 	CKTDXCollision::CollisionType	collTypeMarch = CKTDXCollision::CT_SPHERE;
 	D3DXVECTOR3						vImpactMarch( 0.f, 0.f, 0.f );
 	const bool bMarchCollided = ( NULL != pDamageData_->pCollisionData )
 		&& pCollision_->CollisionDataCheck( pDefender_->GetCollisionListSet(), pDamageData_->pCollisionData, collTypeMarch, &vImpactMarch );
-	FxTracePath( L"COLLISION_DATA_TO_UNIT", pDamageData_->optrAttackerGameUnit.GetObservable(), pDefender_, NULL, bJuneCollided_, bMarchCollided,
+	FxTracePath( L"COLLISION_DATA_TO_UNIT", pDamageData_->optrAttackerGameUnit.GetObservable(), pDefender_, NULL, bCollided_, bMarchCollided,
 		collType_, vImpact_, vImpactMarch );
 }
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -2772,13 +2771,13 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 	// Phase 9 trace: proves DamageCheck reached EffectToUnit for the named effect, before any per-unit filter.
 	if( true == FxIsCollisionTraced( pAttacker->GetName() ) )
 	{
-		CX2GameUnit* pJuneFxOwner = pAttacker->GetOwnerUnit();
-		CKTDGXMeshPlayer::CXMeshInstance* pJuneFxMain = pAttacker->GetMainEffect();
-		const bool bJuneFxAnim = ( NULL != pJuneFxMain && NULL != pJuneFxMain->GetXSkinAnim() );
+		CX2GameUnit* pFxOwner = pAttacker->GetOwnerUnit();
+		CKTDGXMeshPlayer::CXMeshInstance* pFxMain = pAttacker->GetMainEffect();
+		const bool bFxAnim = ( NULL != pFxMain && NULL != pFxMain->GetXSkinAnim() );
 		FxCollision( pAttacker->GetName(), L"ENTER", L"units=%d owner=%d team=%d live=%d main=%d anim=%d attacks=%d hitlist=%d",
-			g_pX2Game->GetUnitNum(), (int)( NULL != pJuneFxOwner ), ( NULL != pJuneFxOwner ) ? pJuneFxOwner->GetTeam() : -1,
-			(int)pAttacker->GetLive(), (int)( NULL != pJuneFxMain ), (int)bJuneFxAnim,
-			( true == bJuneFxAnim ) ? (int)pJuneFxMain->GetXSkinAnim()->GetAttackDataList().size() : -1,
+			g_pX2Game->GetUnitNum(), (int)( NULL != pFxOwner ), ( NULL != pFxOwner ) ? pFxOwner->GetTeam() : -1,
+			(int)pAttacker->GetLive(), (int)( NULL != pFxMain ), (int)bFxAnim,
+			( true == bFxAnim ) ? (int)pFxMain->GetXSkinAnim()->GetAttackDataList().size() : -1,
 			(int)pDamageData->hitUnitList.size() );
 	}
 #endif // SERV_IRUHADEV_JUNE_COLLISION && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -2957,12 +2956,12 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_COLLISION
 		// June2017 FUN_3262b6e0 @3262bc1a-3262eebd: June's inlined hit test, JuneEffectCollisionDataCheck above.
 		collType = CKTDXCollision::CT_SPHERE;
-		const bool bJuneCollided = EffectCollisionDataCheck( m_pCollision, pAttackerMainEffect->GetXSkinAnim()->GetAttackDataList(),
+		const bool bCollided = EffectCollisionDataCheck( m_pCollision, pAttackerMainEffect->GetXSkinAnim()->GetAttackDataList(),
 			pDefender->GetCollisionListSet(), pAttacker->GetUseAdvanceCollisionCheck(), collType, impactPos );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		FxTraceEffectToUnit( m_pCollision, pAttacker, pAttackerMainEffect, pDefender, bJuneCollided, collType, impactPos );
+		FxTraceEffectToUnit( m_pCollision, pAttacker, pAttackerMainEffect, pDefender, bCollided, collType, impactPos );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
-		if( true == bJuneCollided )
+		if( true == bCollided )
 #else SERV_IRUHADEV_JUNE_COLLISION
 		if( m_pCollision->CollisionDataCheck( pAttackerMainEffect->GetXSkinAnim()->GetAttackDataList(), 
 												pDefender->GetCollisionListSet(), collType, &impactPos ) == true )
@@ -3265,11 +3264,11 @@ bool CX2DamageManager::UnitToEffect( DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_COLLISION
         // June2017 326413c0 (CX2DamageManager::UnitToEffect body): the attacker's three instances against the defender effect's list on
         // June's pair math (JuneCollisionDataCheckUnitToEffect).
-        const bool bJuneUnitToEffect = CollisionDataCheckUnitToEffect( pCollision, pAttacker, listDefenderCollisionData, collType, impactPos );
+        const bool bUnitToEffect = CollisionDataCheckUnitToEffect( pCollision, pAttacker, listDefenderCollisionData, collType, impactPos );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-        FxTraceUnitToEffect( pCollision, pAttacker, pDefender, listDefenderCollisionData, bJuneUnitToEffect, collType, impactPos );
+        FxTraceUnitToEffect( pCollision, pAttacker, pDefender, listDefenderCollisionData, bUnitToEffect, collType, impactPos );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
-        bool bCollisionDataCheckFromUnitToEffect = bJuneUnitToEffect;
+        bool bCollisionDataCheckFromUnitToEffect = bUnitToEffect;
 #else SERV_IRUHADEV_JUNE_COLLISION
         bool bCollisionDataCheckFromUnitToEffect = false;
 	    if( pCollision->CollisionDataCheck( pAttacker->GetAttackListSet(), listDefenderCollisionData, collType, &impactPos ) )
@@ -3427,16 +3426,16 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_COLLISION
 		// June2017 32625670 (CX2DamageManager::MeshToUnit collision): the attacker animation's attack list against the defender's set, on
 		// June's pair math with the advance branch off.
-		bool bJuneMeshToUnit = false;
+		bool bMeshToUnit = false;
 		if( pDamageData->pAttackerAnim != NULL )
 		{
-			bJuneMeshToUnit = EffectCollisionDataCheck( m_pCollision, pDamageData->pAttackerAnim->GetAttackDataList(),
+			bMeshToUnit = EffectCollisionDataCheck( m_pCollision, pDamageData->pAttackerAnim->GetAttackDataList(),
 				pDefender->GetCollisionListSet(), false, collType, impactPos );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-			FxTraceMeshToUnit( m_pCollision, pDamageData, pDefender, bJuneMeshToUnit, collType, impactPos );
+			FxTraceMeshToUnit( m_pCollision, pDamageData, pDefender, bMeshToUnit, collType, impactPos );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 		}
-		if( true == bJuneMeshToUnit )
+		if( true == bMeshToUnit )
 #else SERV_IRUHADEV_JUNE_COLLISION
 		if( pDamageData->pAttackerAnim != NULL
             && m_pCollision->CollisionDataCheck( pDamageData->pAttackerAnim->GetAttackDataList(), pDefender->GetCollisionListSet(), collType, &impactPos ) == true )
@@ -3690,11 +3689,11 @@ bool CX2DamageManager::CollisionDataToUnit( DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_COLLISION
 		// June2017 32628890 (CX2DamageManager::CollisionDataToUnit collision): the defender's set (A) against the manual datum (B), no guard
 		// call, the reported type is B's. See JuneCollisionDataCheckDatum.
-		const bool bJuneCollisionDataToUnit = CollisionDataCheckDatum( m_pCollision, pDefender->GetCollisionListSet(), pDamageData->pCollisionData, collType, impactPos );
+		const bool bCollisionDataToUnit = CollisionDataCheckDatum( m_pCollision, pDefender->GetCollisionListSet(), pDamageData->pCollisionData, collType, impactPos );
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		FxTraceCollisionDataToUnit( m_pCollision, pDamageData, pDefender, bJuneCollisionDataToUnit, collType, impactPos );
+		FxTraceCollisionDataToUnit( m_pCollision, pDamageData, pDefender, bCollisionDataToUnit, collType, impactPos );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
-		if( true == bJuneCollisionDataToUnit )
+		if( true == bCollisionDataToUnit )
 #else SERV_IRUHADEV_JUNE_COLLISION
 		if( m_pCollision->CollisionDataCheck( pDefender->GetCollisionListSet(), pDamageData->pCollisionData, collType, &impactPos ) == true )
 #endif SERV_IRUHADEV_JUNE_COLLISION
@@ -3842,12 +3841,12 @@ bool CX2DamageManager::InsertDamageData_LUA()
 	LUA_GET_VALUE( luaManager, "DAMAGE_KEY_NAME", wstrKeyName, L"" );
 	if( true == wstrKeyName.empty() )
 	{
-		++m_iJuneDamageDataSkippedEmptyName;
+		++m_iDamageDataSkippedEmptyName;
 		return false;
 	}
-	if( m_mapJuneDamageDataRecord.end() != m_mapJuneDamageDataRecord.find( wstrKeyName ) )
+	if( m_mapDamageDataRecord.end() != m_mapDamageDataRecord.find( wstrKeyName ) )
 	{
-		++m_iJuneDamageDataSkippedDuplicate;
+		++m_iDamageDataSkippedDuplicate;
 		return false;
 	}
 
@@ -3880,7 +3879,7 @@ bool CX2DamageManager::InsertDamageData_LUA()
 		kRecord.m_fPhysic = fPhysic;
 	}
 
-	m_mapJuneDamageDataRecord.insert( std::make_pair( wstrKeyName, kRecord ) );
+	m_mapDamageDataRecord.insert( std::make_pair( wstrKeyName, kRecord ) );
 	return true;
 }
 
@@ -3890,9 +3889,9 @@ bool CX2DamageManager::InsertDamageData_LUA()
 // behaviour for a name it does not know; it is logged here so the missing file is visible.
 bool CX2DamageManager::OpenDamageDataScript( const WCHAR* wszFileName )
 {
-	m_mapJuneDamageDataRecord.clear();
-	m_iJuneDamageDataSkippedEmptyName = 0;
-	m_iJuneDamageDataSkippedDuplicate = 0;
+	m_mapDamageDataRecord.clear();
+	m_iDamageDataSkippedEmptyName = 0;
+	m_iDamageDataSkippedDuplicate = 0;
 
 	if( NULL == wszFileName || NULL == wszFileName[0] )
 		return false;
@@ -3905,18 +3904,18 @@ bool CX2DamageManager::OpenDamageDataScript( const WCHAR* wszFileName )
 	const bool bLoaded = g_pKTDXApp->LoadLuaTinker( wszFileName );
 
 	// load-time: offline_server.log is not open yet, so this goes to ErrorLog.txt (as ES_LOAD does)
-	WCHAR wszJuneFx[512] = {0};
+	WCHAR wszFx[512] = {0};
 	if( false == bLoaded )
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX DAMAGE_DATA_LOAD %s NOT LOADED: file missing or failed to run; DAMAGE_DATA_KEY_NAME will apply nothing. Pack it into data036.kom.", wszFileName );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX DAMAGE_DATA_LOAD %s NOT LOADED: file missing or failed to run; DAMAGE_DATA_KEY_NAME will apply nothing. Pack it into data036.kom.", wszFileName );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	else
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX DAMAGE_DATA_LOAD %s loaded=1 rows=%d skipped_empty_name=%d skipped_duplicate=%d",
-			wszFileName, static_cast<int>( m_mapJuneDamageDataRecord.size() ), m_iJuneDamageDataSkippedEmptyName, m_iJuneDamageDataSkippedDuplicate );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX DAMAGE_DATA_LOAD %s loaded=1 rows=%d skipped_empty_name=%d skipped_duplicate=%d",
+			wszFileName, static_cast<int>( m_mapDamageDataRecord.size() ), m_iDamageDataSkippedEmptyName, m_iDamageDataSkippedDuplicate );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return bLoaded;
@@ -3931,14 +3930,14 @@ bool CX2DamageManager::ApplyDamageDataRecord( const std::wstring& wstrKeyName_, 
 	if( NULL == pDamageData_ )
 		return false;
 
-	std::map<std::wstring, DamageDataRecord>::const_iterator it = m_mapJuneDamageDataRecord.find( wstrKeyName_ );
-	if( m_mapJuneDamageDataRecord.end() == it )
+	std::map<std::wstring, DamageDataRecord>::const_iterator it = m_mapDamageDataRecord.find( wstrKeyName_ );
+	if( m_mapDamageDataRecord.end() == it )
 	{
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 		static std::set<std::wstring> s_setMissLogged;
 		if( true == s_setMissLogged.insert( wstrKeyName_ ).second )
 			CX2OfflineLog::Server( L"JUNE_FX DAMAGE_DATA_KEY miss name=%s: not in Elsword_DamageData.lua (rows=%d), nothing applied",
-				wstrKeyName_.c_str(), static_cast<int>( m_mapJuneDamageDataRecord.size() ) );
+				wstrKeyName_.c_str(), static_cast<int>( m_mapDamageDataRecord.size() ) );
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 		return false;
 	}
@@ -5125,8 +5124,8 @@ void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData
 			if ( NULL != pGUUser->GetUnit() )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 			{
-				const CX2SkillTree::SkillTemplet* pJuneSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
-				if ( NULL != pJuneSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pJuneSkillTemplet->m_eJunePowerRateType
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
+				if ( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType
 					&& 1 != pGUUser->GetUnit()->GetUnitData().m_iUnitClassTran )		// June 31fceab0 tests == 1
 					iLearnedLevel = 0;
 				else

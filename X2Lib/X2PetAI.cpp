@@ -438,25 +438,25 @@ void CX2PETAI::Moving( float fElapsedTime )
 	/// the master's, and a master line index out of range is dereferenced as NULL ( JUNE_BUGS 278 )
 	if( g_pTFieldGame != NULL || g_pSquareGame != NULL )
 	{
-		CX2SquareUnit* pJuneMaster = NULL;
+		CX2SquareUnit* pMaster = NULL;
 		if( g_pTFieldGame != NULL )
-			pJuneMaster = g_pTFieldGame->GetSquareUnitByUID( m_MasterUid );
+			pMaster = g_pTFieldGame->GetSquareUnitByUID( m_MasterUid );
 		else
-			pJuneMaster = g_pSquareGame->GetSquareUnitByUID( m_MasterUid );
+			pMaster = g_pSquareGame->GetSquareUnitByUID( m_MasterUid );
 
-		if( NULL != pJuneMaster )
+		if( NULL != pMaster )
 		{
-			const CKTDGLineMap::LineData* pJunePetLine		= pLineMap->GetLineData( m_iLastTouchLineIndex );
-			const CKTDGLineMap::LineData* pJuneMasterLine	= pLineMap->GetLineData( pJuneMaster->GetLastTouchLineIndex() );
+			const CKTDGLineMap::LineData* pPetLine		= pLineMap->GetLineData( m_iLastTouchLineIndex );
+			const CKTDGLineMap::LineData* pMasterLine	= pLineMap->GetLineData( pMaster->GetLastTouchLineIndex() );
 			/// June's 4-arg GetLandPosition with bMonster true; March's 3-arg form forwards true
-			const D3DXVECTOR3 vJuneLandPos = pLineMap->GetLandPosition( m_pPet->GetPos(), LINE_RADIUS, (int*) NULL );
-			D3DXVECTOR3 vJuneOutPos( 0.f, 0.f, 0.f );
-			int iJuneOutLineIndex = -1;
+			const D3DXVECTOR3 vLandPos = pLineMap->GetLandPosition( m_pPet->GetPos(), LINE_RADIUS, (int*) NULL );
+			D3DXVECTOR3 vOutPos( 0.f, 0.f, 0.f );
+			int iOutLineIndex = -1;
 			/// GetNearOtherLine returns false for a pet line that is out of range or NULL, so pJunePetLine is set here
-			if( true == pLineMap->GetNearOtherLine( vJuneLandPos, vJuneOutPos, m_iLastTouchLineIndex, iJuneOutLineIndex, 200.f )
-				&& pJunePetLine->lineType != pJuneMasterLine->lineType )
+			if( true == pLineMap->GetNearOtherLine( vLandPos, vOutPos, m_iLastTouchLineIndex, iOutLineIndex, 200.f )
+				&& pPetLine->lineType != pMasterLine->lineType )
 			{
-				m_pPet->SetPosition( vJuneOutPos, m_bIsRight );
+				m_pPet->SetPosition( vOutPos, m_bIsRight );
 			}
 		}
 	}

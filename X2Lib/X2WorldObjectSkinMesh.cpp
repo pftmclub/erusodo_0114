@@ -71,7 +71,7 @@ CX2WorldObjectSkinMesh::CX2WorldObjectSkinMesh( bool bBackgroundLoad_ )
 	m_PlayType	= WOSMPY_ONE_WAIT;
 	m_bAnyCamera = false;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
-	m_bJuneWSkinLoggedHide = false;
+	m_bWSkinLoggedHide = false;
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
 
 }//CX2WorldObjectSkinMesh::CX2WorldObjectSkinMesh()
@@ -438,10 +438,10 @@ RENDER_HINT   CX2WorldObjectSkinMesh::OnFrameRender_Prepare()
 	// SetCanHide( true, false ) skin mesh never hides. RayHit is vslot 0x40 with the eye / lookAt by value and no hit distance.
 	// The fade is March's ( 0.3f 3345993c; June's 4.0 double 33437838 gives the same float, a product by 4 is exact ).
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
-	static bool s_bJuneWSkinLoggedOn = false;
-	if( s_bJuneWSkinLoggedOn == false )
+	static bool s_bWSkinLoggedOn = false;
+	if( s_bWSkinLoggedOn == false )
 	{
-		s_bJuneWSkinLoggedOn = true;
+		s_bWSkinLoggedOn = true;
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WSKIN June world skin-mesh render on: any-camera hide only, camera mesh-hidden flag, June RayHit" << fileout;
 	}
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
@@ -452,9 +452,9 @@ RENDER_HINT   CX2WorldObjectSkinMesh::OnFrameRender_Prepare()
 		{
 			bHide = true;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
-			if( m_bJuneWSkinLoggedHide == false )
+			if( m_bWSkinLoggedHide == false )
 			{
-				m_bJuneWSkinLoggedHide = true;
+				m_bWSkinLoggedHide = true;
 				std::string strName;
 				ConvertWCHARToChar( strName, m_XSkinMeshName.c_str() );
 				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WSKIN hide: " << strName.c_str() << " alpha " << m_fNowAlpha << fileout;

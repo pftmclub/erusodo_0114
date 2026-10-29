@@ -83,7 +83,7 @@ void CX2ItemStatCalculator::OpenScriptFile()
 				LUA_GET_VALUE( luaManager,		TDT_DEF_MAGIC,		sStatData.m_fDefMagic,		0.f );
 				LUA_GET_VALUE( luaManager,		TDT_HP,				sStatData.m_fBaseHP,		0.f );
 
-				m_mapJuneTranscendEqipStatDataTable.insert( std::make_pair( eEqipPosition, sStatData ) );
+				m_mapTranscendEqipStatDataTable.insert( std::make_pair( eEqipPosition, sStatData ) );
 
 				++iTableIndex;
 				luaManager.EndTable();
@@ -91,10 +91,10 @@ void CX2ItemStatCalculator::OpenScriptFile()
 
 			luaManager.EndTable();
 		}
-		if( true == m_mapJuneTranscendEqipStatDataTable.empty() )
+		if( true == m_mapTranscendEqipStatDataTable.empty() )
 			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE CharacterStatTable.lua has no TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE: transcended units use the normal rows until June's file is packed into data036" );
 		else
-			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE loaded %d row(s)", static_cast<int>( m_mapJuneTranscendEqipStatDataTable.size() ) );
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE loaded %d row(s)", static_cast<int>( m_mapTranscendEqipStatDataTable.size() ) );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 		// 캐릭터별 능력치
@@ -173,7 +173,7 @@ void CX2ItemStatCalculator::ResetItemStatCalculator()
 	m_mapCharStatDataTable.clear();
 	m_mapClassStatDataTable.clear();
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
-	m_mapJuneTranscendEqipStatDataTable.clear();
+	m_mapTranscendEqipStatDataTable.clear();
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 	OpenScriptFile();
@@ -292,9 +292,9 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 		if( 0 != m_iUnitClassTran && 70 <= pItemTemplet_->GetUseLevel() )		// June 328d6c90 @328d6d2d
 		{
-			map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >::const_iterator itJuneEqip = m_mapJuneTranscendEqipStatDataTable.find( pItemTemplet_->GetEqipPosition() );
-			if( m_mapJuneTranscendEqipStatDataTable.end() != itJuneEqip )
-				sEqipStatTable = itJuneEqip->second;
+			map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >::const_iterator itEqip = m_mapTranscendEqipStatDataTable.find( pItemTemplet_->GetEqipPosition() );
+			if( m_mapTranscendEqipStatDataTable.end() != itEqip )
+				sEqipStatTable = itEqip->second;
 		}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
@@ -309,16 +309,16 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 		/// five 0 -> IsValideCheck false -> the templet's own stats) next to June's result
 		if ( 0.f != kStatRelationAddLV.m_fAllStatRelLV )
 		{
-			static std::set<int> s_setJuneAllStatItemSeen;
-			if ( true == s_setJuneAllStatItemSeen.insert( pItemTemplet_->GetItemID() ).second )
+			static std::set<int> s_setAllStatItemSeen;
+			if ( true == s_setAllStatItemSeen.insert( pItemTemplet_->GetItemID() ).second )
 			{
-				const CX2Item::KItemFormatStatData& kJuneTempletStat = pItemTemplet_->GetStatData();
+				const CX2Item::KItemFormatStatData& kTempletStat = pItemTemplet_->GetStatData();
 				CX2BuffCapture::Line( "item %d all-stat level %g (other five sum %g, 0 = March showed the templet stats): HP %g -> %g, phys atk %g -> %g, mag atk %g -> %g, phys def %g -> %g, mag def %g -> %g",
 					pItemTemplet_->GetItemID(), kStatRelationAddLV.m_fAllStatRelLV,
 					kStatRelationAddLV.m_fBaseHPRelLV + kStatRelationAddLV.m_fAtkPhysicRelLV + kStatRelationAddLV.m_fAtkMagicRelLV + kStatRelationAddLV.m_fDefPhysicRelLV + kStatRelationAddLV.m_fDefMagicRelLV,
-					kJuneTempletStat.m_fBaseHP, sRealStatData_.m_fBaseHP, kJuneTempletStat.m_fAtkPhysic, sRealStatData_.m_fAtkPhysic,
-					kJuneTempletStat.m_fAtkMagic, sRealStatData_.m_fAtkMagic, kJuneTempletStat.m_fDefPhysic, sRealStatData_.m_fDefPhysic,
-					kJuneTempletStat.m_fDefMagic, sRealStatData_.m_fDefMagic );
+					kTempletStat.m_fBaseHP, sRealStatData_.m_fBaseHP, kTempletStat.m_fAtkPhysic, sRealStatData_.m_fAtkPhysic,
+					kTempletStat.m_fAtkMagic, sRealStatData_.m_fAtkMagic, kTempletStat.m_fDefPhysic, sRealStatData_.m_fDefPhysic,
+					kTempletStat.m_fDefMagic, sRealStatData_.m_fDefMagic );
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -392,42 +392,42 @@ void CX2ItemStatCalculator::CalculateRealStatData( OUT CX2Item::KItemFormatStatD
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// June buff port 16-step3b7 item 6: June 328d68c0 makes the same five calls in the same order, each with its stat's level term
 	/// + m_fAllStatRelLV (+0x14; for HP the sum is All + BaseHP, the same value)
-	const float fJuneAllStatRelLV = sStatRelLVData_.m_fAllStatRelLV;
+	const float fAllStatRelLV = sStatRelLVData_.m_fAllStatRelLV;
 	sRealStatData_.m_fAtkPhysic =
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
 		sClassStatTable_.m_fAtkPhysic, sCharStatTable_.m_fAtkPhysic,
-		sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV + fJuneAllStatRelLV );
+		sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV + fAllStatRelLV );
 
 	sRealStatData_.m_fDefPhysic =
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
 		sClassStatTable_.m_fDefPhysic, sCharStatTable_.m_fDefPhysic,
-		sEqipStat_.m_fDefPhysic, iItemLevel_, sStatRelLVData_.m_fDefPhysicRelLV + fJuneAllStatRelLV );
+		sEqipStat_.m_fDefPhysic, iItemLevel_, sStatRelLVData_.m_fDefPhysicRelLV + fAllStatRelLV );
 
 	sRealStatData_.m_fAtkMagic =
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
 		sClassStatTable_.m_fAtkMagic, sCharStatTable_.m_fAtkMagic,
-		sEqipStat_.m_fAtkMagic, iItemLevel_, sStatRelLVData_.m_fAtkMagicRelLV + fJuneAllStatRelLV );
+		sEqipStat_.m_fAtkMagic, iItemLevel_, sStatRelLVData_.m_fAtkMagicRelLV + fAllStatRelLV );
 
 	sRealStatData_.m_fDefMagic =
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculatePhysicalAndMagicalStat",
 		sClassStatTable_.m_fDefMagic, sCharStatTable_.m_fDefMagic,
-		sEqipStat_.m_fDefMagic, iItemLevel_, sStatRelLVData_.m_fDefMagicRelLV + fJuneAllStatRelLV );
+		sEqipStat_.m_fDefMagic, iItemLevel_, sStatRelLVData_.m_fDefMagicRelLV + fAllStatRelLV );
 
 	sRealStatData_.m_fBaseHP =
 		lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(),	"CalculateHPStat",
 		sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP,
-		sEqipStat_.m_fBaseHP, iItemLevel_, fJuneAllStatRelLV + sStatRelLVData_.m_fBaseHPRelLV );
+		sEqipStat_.m_fBaseHP, iItemLevel_, fAllStatRelLV + sStatRelLVData_.m_fBaseHPRelLV );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	static int s_iJuneAllStatLines = 0;
-	if ( 0.f != fJuneAllStatRelLV && s_iJuneAllStatLines < 3 )
+	static int s_iAllStatLines = 0;
+	if ( 0.f != fAllStatRelLV && s_iAllStatLines < 3 )
 	{
-		++s_iJuneAllStatLines;
+		++s_iAllStatLines;
 		const float fNoAllHP = lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculateHPStat",
 			sClassStatTable_.m_fBaseHP, sCharStatTable_.m_fBaseHP, sEqipStat_.m_fBaseHP, iItemLevel_, sStatRelLVData_.m_fBaseHPRelLV );
 		const float fNoAllAtkPhysic = lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "CalculatePhysicalAndMagicalStat",
 			sClassStatTable_.m_fAtkPhysic, sCharStatTable_.m_fAtkPhysic, sEqipStat_.m_fAtkPhysic, iItemLevel_, sStatRelLVData_.m_fAtkPhysicRelLV );
 		CX2BuffCapture::Line( "all-stat level term (m_fAllStatRelLV) %g at item level %d: HP %g -> %g, phys atk %g -> %g, mag atk %g, phys def %g, mag def %g",
-			fJuneAllStatRelLV, iItemLevel_, fNoAllHP, sRealStatData_.m_fBaseHP, fNoAllAtkPhysic, sRealStatData_.m_fAtkPhysic,
+			fAllStatRelLV, iItemLevel_, fNoAllHP, sRealStatData_.m_fBaseHP, fNoAllAtkPhysic, sRealStatData_.m_fAtkPhysic,
 			sRealStatData_.m_fAtkMagic, sRealStatData_.m_fDefPhysic, sRealStatData_.m_fDefMagic );
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG

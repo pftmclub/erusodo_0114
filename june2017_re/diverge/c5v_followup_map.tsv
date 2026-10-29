@@ -1,0 +1,3 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+ARME_INPUT_8726	ARME_INPUT_SIT	rename	X2Lib/X2GUArme_VioletMage.cpp					C5 review item: name from use	C5	constant
+STUCM_UNNAMED_29075	STUCM_UNUSED_PLACEHOLDER	rename	X2Lib/X2UISkillTreeNew2015.h					C5 review item: name from use	C5	constant

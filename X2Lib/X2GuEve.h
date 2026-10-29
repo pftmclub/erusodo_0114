@@ -167,7 +167,7 @@ public:
 		ENSI_A_EBS_ELECTRONIC_MOVE_FRONT,	/// June script id 239 ( Electronic Move front; CH3c owns the state )
 		ENSI_A_EBS_ELECTRONIC_MOVE_UP,		/// June script id 240 ( Electronic Move up; CH3c owns the state )
 		ENSI_A_EBS_ELECTRONIC_MOVE_DOWN,	/// June script id 241 ( Electronic Move down; CH3c owns the state )
-		ENSI_JUNE_DASH_COMBO_ZX,			/// June script id 180 ( Architecture / Empress dash Z X; March's ENSI_DASH_COMBO_ZX exists only under EVE_COMBO_TEST_TEST; CH1h owns the state )
+		ENSI_DASH_COMBO_ZX,			/// June script id 180 ( Architecture / Empress dash Z X; March's ENSI_DASH_COMBO_ZX exists only under EVE_COMBO_TEST_TEST; CH1h owns the state )
 		ENSI_SA_ECE_REASON_PRIDE_ACTION,	/// June script id 242 ( Reason of Pride action; CH3b owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 
@@ -412,8 +412,8 @@ public:
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hParticleGigaLaserCross[4];	/// 기가 스트림일 경우
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		wstring						m_wstrJuneInductionLaserName;			/// June +0xc8: induction laser name, empty = EVE_EBS_INDUCTION_LASER ( reader 329bc6e0 )
-		wstring						m_wstrJuneInductionLaserSpecialName;	/// June +0xe4: the AT_SPECIAL one, empty = EVE_EBS_INDUCTION_LASER_SPECIAL
+		wstring						m_wstrInductionLaserName;			/// June +0xc8: induction laser name, empty = EVE_EBS_INDUCTION_LASER ( reader 329bc6e0 )
+		wstring						m_wstrInductionLaserSpecialName;	/// June +0xe4: the AT_SPECIAL one, empty = EVE_EBS_INDUCTION_LASER_SPECIAL
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraLaserData( EveElectraSystem* _pEveElectraSystem );
 		void OnFrameMove( float fElapsedTime );
@@ -441,8 +441,8 @@ public:
 		EveElectraSystem*			m_pEveElectraSystem;			/// 일렉트라 시스템 포인트
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		CX2EffectSet::Handle				m_hJuneEffectSet;				/// June +0x8c ( -1 ): the Electra effect, when it is an effect set
-		std::vector<CX2EffectSet::Handle>	m_vecJuneEffectSetHandle;		/// June +0x90: the filtered effect sets played at the plane, until their damage effects took the modifiers
+		CX2EffectSet::Handle				m_hEffectSet;				/// June +0x8c ( -1 ): the Electra effect, when it is an effect set
+		std::vector<CX2EffectSet::Handle>	m_vecEffectSetHandle;		/// June +0x90: the filtered effect sets played at the plane, until their damage effects took the modifiers
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraEffectData( EveElectraSystem* _pEveElectraSystem );
 		void OnFrameMove( float fElapsedTime );
@@ -558,7 +558,7 @@ public:
 		DelegateProcess				m_delegateChangePlaneFormation;		/// 일렉트라, 배틀 세라트의 ChangePlaneFormation 의 Delegate
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		int							m_iJune1c0;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
+		int							m_iSkillUseCondition;					/// June +0x1c0 ( 1; set by the constructor 32990da0 and ReInit )
 		int								GetFormationFactor() const;	/// June 329cc390
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		EveElectraSystem( CX2GUEve* _pGUEve );
@@ -782,7 +782,7 @@ public:
 
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		bool			m_bJune15;			/// June +0x15 ( false; cleared by June_Reset and the charge fail action )
+		bool			m_b15;			/// June +0x15 ( false; cleared by June_Reset and the charge fail action )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_ahMajorParticleInstance[4];
 
@@ -795,7 +795,7 @@ public:
 		m_bIsSucCharge(false),
 		m_bSkillSlotSwap( false )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-		, m_bJune15( false )
+		, m_b15( false )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		{
 			for( int i = 0; i < ARRAY_SIZE(m_ahMajorParticleInstance); ++i )
@@ -830,14 +830,14 @@ public:
 		CHARGE_RANK		m_ChargeRank;		
 		int				m_iAddDamageTime;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-		double			m_dJuneElapsedTime;	/// June +0x9a98 ( the charge seconds the Taser Pilum Start state took; June's tiny data keeps no timer )
+		double			m_dElapsedTime;	/// June +0x9a98 ( the charge seconds the Taser Pilum Start state took; June's tiny data keeps no timer )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
 		TASER_PILUM_TinyData():
 		m_ChargeRank(CR_RANK_1),
 		m_iAddDamageTime(0)
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-		, m_dJuneElapsedTime( 0.0 )
+		, m_dElapsedTime( 0.0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 		{}
 
@@ -846,7 +846,7 @@ public:
 			m_ChargeRank = CR_RANK_1;
 			m_iAddDamageTime = 0;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-			m_dJuneElapsedTime = 0.0;
+			m_dElapsedTime = 0.0;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 			m_timerElapsedTime.ResetStartTime();
 		}
@@ -883,7 +883,7 @@ public:
 			m_bIsSucCharge(false),
 			m_bSkillSlotSwap(false)
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
-			, m_fJune34( 1.0f )
+			, m_f34( 1.0f )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 		{
 			m_iSkillSlotID[ST_A] = -1;
@@ -921,7 +921,7 @@ public:
 		bool			m_bSelectedSlot;	// A : true | B : false
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	public:
-		float			m_fJune34;			/// June +0x34 ( 1.0; ability 0xa9 of the skill, set when the charge starts )
+		float			m_f34;			/// June +0x34 ( 1.0; ability 0xa9 of the skill, set when the charge starts )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	};
 
@@ -2714,12 +2714,12 @@ protected:
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 	/// June character port Phase CH1a: inert June_* members of Eve's class core ( movement and slot-head states ); nothing calls them until CH1
-	int			m_iJuneAddAirDashCount;					/// June +0x9c60 ( ADD_AIR_DASH_COUNT )
-	float		m_fJuneCodeRecoveryCoolLeft;			/// June +0x9c64 ( Code Recovery cool time left )
-	float		m_fJuneCodeRecoveryConsumeMp;			/// June +0x9c6c ( CODE_RECOVERY_CONSUME_MP )
-	float		m_fJuneElectronBallBigRate;				/// June +0x97bc ( chance of the BIG fire ball against GetRandomFloat( 0 ); skill 25407 ability 0x49 in InitPassiveSkillState 3297f290 @3297fd5a )
-	CX2DamageEffect::CEffect*	m_pJuneDashXFireBall;					/// June +0x9c20 ( the last dash X fire ball of a class that is not EG / Nemesis; CH1i reads it )
-	CX2GameUnit*				m_pJuneDashXTargetUnit;					/// June +0x9c24 ( the unit the Empress dash X follows; CH1l4's 3297b370 writes it, the dash X start clears it )
+	int			m_iAddAirDashCount;					/// June +0x9c60 ( ADD_AIR_DASH_COUNT )
+	float		m_fCodeRecoveryCoolLeft;			/// June +0x9c64 ( Code Recovery cool time left )
+	float		m_fCodeRecoveryConsumeMp;			/// June +0x9c6c ( CODE_RECOVERY_CONSUME_MP )
+	float		m_fElectronBallBigRate;				/// June +0x97bc ( chance of the BIG fire ball against GetRandomFloat( 0 ); skill 25407 ability 0x49 in InitPassiveSkillState 3297f290 @3297fd5a )
+	CX2DamageEffect::CEffect*	m_pDashXFireBall;					/// June +0x9c20 ( the last dash X fire ball of a class that is not EG / Nemesis; CH1i reads it )
+	CX2GameUnit*				m_pDashXTargetUnit;					/// June +0x9c24 ( the unit the Empress dash X follows; CH1l4's 3297b370 writes it, the dash X start clears it )
 
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	int			GetSkillLevel( const int iSkillID_ ) const;	/// June 31fceab0 ( CX2GUUser )
@@ -2736,16 +2736,16 @@ protected:
 	/// Phase CH1b: reactions ( damage, down / stand-up, die ) and the helpers only they reach
 	struct PsykerKinesisData					/// June +0x9c50: a pointer to this 0x14-byte block ( made in 3297a7b0, owner CH3a ); fields named by use
 	{
-		bool					m_bFlag0;			/// +0x0
-		CX2EffectSet::Handle	m_hEffectSet0;		/// +0x4
-		CX2EffectSet::Handle	m_hEffectSet1;		/// +0x8
-		float					m_fValueC;			/// +0xc ( -1 when reset )
-		float					m_fValue10;			/// +0x10 ( 1.0 when reset )
+		bool					m_bReleased;			/// +0x0
+		CX2EffectSet::Handle	m_hStartEffectSet;		/// +0x4
+		CX2EffectSet::Handle	m_hAttackBallEffectSet;		/// +0x8
+		float					m_fRemainTime;			/// +0xc ( -1 when reset )
+		float					m_fPowerRate;			/// +0x10 ( 1.0 when reset )
 		void					Reset( bool bResetFields_ );	/// June 3299bcd0
 		void					StopEffectSets();				/// June 329cf170: stops both effect sets, keeps the fields
 	};
-	PsykerKinesisData*	m_pJuneBlock9c50;					/// June +0x9c50
-	UidType				m_iJuneSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
+	PsykerKinesisData*	m_pPsykerKinesisData;					/// June +0x9c50
+	UidType				m_iSummonNpcUid;				/// June +0x9c08 ( 64 bit; -1 = none ), cleared by 329ae670
 
 	void EGQueensThroneReset();					/// June 3298cfe0
 #ifdef SERV_IRUHADEV_JUNE_SUMMON_UNIQUE
@@ -2827,24 +2827,24 @@ protected:
 
 	/// June character port Phase CH1k: inert June_* members of Eve's lifecycle, render and reaction overrides, the constructor / destructor / ReInit bodies and their helpers; nothing calls them until CH1
 	/// June-only fields, named by their June offset where the role is unknown ( ch1k_ctor_offsets.tsv )
-	float		m_fJuneVengeanceMpRate;					/// June +0x9bf8 ( Queen of Vengeance MP return; set from skill 0x633b in InitPassiveSkillState 3297f290, CH4a )
-	float		m_fJune9bfc;							/// June +0x9bfc ( set from skill 0x633c in 3297f290; read by AttackManeuverCore )
-	float		m_fJune9c00;							/// June +0x9c00 ( as +0x9bfc )
-	int			m_aiJune9c30[5];						/// June +0x9c30 .. +0x9c40 ( -1 )
-	int			m_iJune9c48;							/// June +0x9c48 ( -1 )
-	float		m_fJune9c4c;							/// June +0x9c4c ( 1.0 )
-	bool		m_bJune9c54;							/// June +0x9c54 ( set by the first trigger-44 hit, AttackResultByType )
-	float		m_fJune9c58;							/// June +0x9c58 ( 0 )
-	float		m_fJune9c5c;							/// June +0x9c5c ( 0 )
+	float		m_fVengeanceMpRate;					/// June +0x9bf8 ( Queen of Vengeance MP return; set from skill 0x633b in InitPassiveSkillState 3297f290, CH4a )
+	float		m_fQueenOfDestroyRecoverMp;							/// June +0x9bfc ( set from skill 0x633c in 3297f290; read by AttackManeuverCore )
+	float		m_fQueenOfDestroyCoolTimeCut;							/// June +0x9c00 ( as +0x9bfc )
+	int			m_aiQueensControlEffectSetHandle[5];						/// June +0x9c30 .. +0x9c40 ( -1 )
+	int			m_iUpgradeLaserEffectHandle;							/// June +0x9c48 ( -1 )
+	float		m_fOpenMindSummonTimeRate;							/// June +0x9c4c ( 1.0 )
+	bool		m_bAllyNpcMovedToTarget;							/// June +0x9c54 ( set by the first trigger-44 hit, AttackResultByType )
+	float		m_fConversionHpConsumeRate;							/// June +0x9c58 ( 0 )
+	float		m_fConversionMpGain;							/// June +0x9c5c ( 0 )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-	float		m_fJune4070;							/// June CX2GameUnit +0x4070 ( 0; Grace of Queen's SA_EFFECTIVE_TIME, written by InitPassiveSkillState 3297f290 @3297f73a, CH4a; Dimension Link adds it to the sentry time )
+	float		m_fGraceOfQueenEffectiveTime;							/// June CX2GameUnit +0x4070 ( 0; Grace of Queen's SA_EFFECTIVE_TIME, written by InitPassiveSkillState 3297f290 @3297f73a, CH4a; Dimension Link adds it to the sentry time )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
-	float		m_fJuneCodeRecoveryCoolTime;			/// June +0x9c68 ( CODE_RECOVERY_COOL_TIME; constructor 99.0, INIT_COMPONENT default 30.0 )
-	float		m_fJuneCodeRecoveryUpHpRate;			/// June +0x9c70 ( CODE_RECOVERY_UP_HP_RATE; constructor 0, default 0.05 )
-	float		m_fJuneCodeRecoveryNoneSummonMpCostRate;	/// June +0x9c74 ( CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE; 1.0 )
-	bool		m_bJune8fc2;							/// June CX2GUUser +0x8fc2 ( set after DamageReact; read and cleared by the Lua-bound 31e4d140 )
-	bool		m_bJune89fc;							/// June CX2GUUser +0x89fc ( a protected bool; set by the Aura Add-ATK Accel upgrade, 329ce7b0 )
-	float		m_fJuneSpecializationA;					/// June CX2GUUser +0x6c50 ( skill specialization A; the maneuver gauge gain takes ( 1 + it ); 0 = absent, as the Nasod Core block reads it )
+	float		m_fCodeRecoveryCoolTime;			/// June +0x9c68 ( CODE_RECOVERY_COOL_TIME; constructor 99.0, INIT_COMPONENT default 30.0 )
+	float		m_fCodeRecoveryUpHpRate;			/// June +0x9c70 ( CODE_RECOVERY_UP_HP_RATE; constructor 0, default 0.05 )
+	float		m_fCodeRecoveryNoneSummonMpCostRate;	/// June +0x9c74 ( CODE_RECOVERY_NONE_SUMMON_TO_MP_COST_ECE; 1.0 )
+	bool		m_bEmergencyResponse;							/// June CX2GUUser +0x8fc2 ( set after DamageReact; read and cleared by the Lua-bound 31e4d140 )
+	bool		m_bAuraAddAtkAccelUpgrade;							/// June CX2GUUser +0x89fc ( a protected bool; set by the Aura Add-ATK Accel upgrade, 329ce7b0 )
+	float		m_fSpecializationA;					/// June CX2GUUser +0x6c50 ( skill specialization A; the maneuver gauge gain takes ( 1 + it ); 0 = absent, as the Nasod Core block reads it )
 
 	CX2GUNPC*	FindAllyNPC( const int iNpcID_, const UidType uid_ );			/// June 320017d0
 	float		GetFirstTimeFinalizerValue( const CX2BuffFactor& kBuffFactor_ ) const;	/// June 32d417e0
@@ -2882,12 +2882,12 @@ protected:
 	/// June character port Phase CH1l3: inert June_* members of Eve's skill-use overrides from vslot 0x7f4 and the helpers they reach; nothing calls them until CH1
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	/// June CX2GUUser state the skill use keeps ( Eve-local, as the pilot's )
-	int			m_iJune8ea0;							/// June CX2GUUser +0x8ea0 ( 0; the skill the lookup chose )
-	int			m_iJune8ea4;							/// June CX2GUUser +0x8ea4 ( 0; its slot index )
-	float		m_fJune8ea8;							/// June CX2GUUser +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
-	float		m_fJune8eb0;							/// June CX2GUUser +0x8eb0 ( 0; the MP the chosen skill costs )
-	bool		m_abJune90d3[10];						/// June CX2GUUser +0x90d3 ( false; slot used marks, 31fc86e0 )
-	bool		m_abJune90d0[3];						/// June CX2GUUser +0x90d0 ( false )
+	int			m_iChosenSkillID;							/// June CX2GUUser +0x8ea0 ( 0; the skill the lookup chose )
+	int			m_iChosenSkillSlotIndex;							/// June CX2GUUser +0x8ea4 ( 0; its slot index )
+	float		m_fReservedSkillMp;							/// June CX2GUUser +0x8ea8 ( 0; the MP a reserved skill keeps until its state starts )
+	float		m_fChosenSkillMp;							/// June CX2GUUser +0x8eb0 ( 0; the MP the chosen skill costs )
+	bool		m_abSkillSlotUsed[10];						/// June CX2GUUser +0x90d3 ( false; slot used marks, 31fc86e0 )
+	bool		m_abHyperSkillSlotUsed[3];						/// June CX2GUUser +0x90d0 ( false )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	bool		SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 329b5af0 ( vslot 0x7f8, step 510 )
@@ -2908,11 +2908,11 @@ protected:
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 
 	/// June character port Phase CH1l4: inert June_* members of CommonFrameMove 0x7cc and the helpers only it reaches; nothing calls them until CH1
-	std::map<int, CX2EffectSet::Handle>	m_mapJuneNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; Tesla Shock 3299a140 / Tesla Flare 3299a400 fill it, 3299b000 reads it )
-	float		m_fJune9770;							/// June +0x9770 ( 1.0; the power rate of the Oberon Guard effect set )
-	int			m_iJune9c28;							/// June +0x9c28 ( 0; 2 makes the delayed Thousand Star attack fire twice )
-	int			m_iJune9c2c;							/// June +0x9c2c ( 0; the level of the queen's control buff stack )
-	clock_t		m_iJuneClock9c44;						/// June +0x9c44 ( clock() at the last parry, DoParrying 329b4060 writes it in CH1q; CommonFrameMove reads it for the Open Mind gauge floor )
+	std::map<int, CX2EffectSet::Handle>	m_mapNpcEffectSet;	/// June +0x9c10 ( NPC uid -> effect set handle; Tesla Shock 3299a140 / Tesla Flare 3299a400 fill it, 3299b000 reads it )
+	float		m_fOberonGuardPowerRate;							/// June +0x9770 ( 1.0; the power rate of the Oberon Guard effect set )
+	int			m_iThousandStarTransMemoKind;							/// June +0x9c28 ( 0; 2 makes the delayed Thousand Star attack fire twice )
+	int			m_iQueensControlLevel;							/// June +0x9c2c ( 0; the level of the queen's control buff stack )
+	clock_t		m_iLastParryClock;						/// June +0x9c44 ( clock() at the last parry, DoParrying 329b4060 writes it in CH1q; CommonFrameMove reads it for the Open Mind gauge floor )
 
 	int			FindOberonGuardNpcUid();			/// June 3299ad60
 	void		StartOberonGuardEffect( const int iNpcUid_ );	/// June 329ae6e0

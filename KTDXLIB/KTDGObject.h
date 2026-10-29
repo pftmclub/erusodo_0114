@@ -380,12 +380,12 @@ class CKTDGObject
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 		// June +0x14c: alpha-group tie-break key ( comparator 31cebc00 ); June writes it only for particle sequences ( their handle )
-		void			SetSortKey( int iKey_ ) { m_iJuneSortKey = iKey_; }
-		int				GetSortKey() const { return m_iJuneSortKey; }
+		void			SetSortKey( int iKey_ ) { m_iSortKey = iKey_; }
+		int				GetSortKey() const { return m_iSortKey; }
 #endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		// June +0x18c: the frustum plane the last test culled on, -1 when visible ( written by IsInFrustum; no reader mapped )
-		int				GetCulledPlane() const { return m_iJuneCulledPlane; }
+		int				GetCulledPlane() const { return m_iCulledPlane; }
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         bool            IsCulled() const { return ( m_pManagerObject != NULL ) ? m_pManagerObject->IsCulled() : m_bCulled; }
         //{{ seojt: 2008.10.23
@@ -481,10 +481,10 @@ class CKTDGObject
         bool            m_bForceNotCull;			// Ranox port -- forces IsInFrustum() to always report visible
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
-        int             m_iJuneSortKey;				// June +0x14c ( ctor 31d28a20: 0 )
+        int             m_iSortKey;				// June +0x14c ( ctor 31d28a20: 0 )
 #endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
-        int             m_iJuneCulledPlane;			// June +0x18c ( ctor 31d28a20: -1 )
+        int             m_iCulledPlane;			// June +0x18c ( ctor 31d28a20: -1 )
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         //{{ seojt: 2008.10.23
         //double          m_dwLastAccessTime;
@@ -525,8 +525,8 @@ class CKTDGObject
 			if ( fAddRadius_ != 0.f )
 				fRadius += fAddRadius_;
 
-			m_iJuneCulledPlane = kFrustum.CheckSphereCulledPlane( center, fRadius );
-			if ( m_iJuneCulledPlane != -1 )
+			m_iCulledPlane = kFrustum.CheckSphereCulledPlane( center, fRadius );
+			if ( m_iCulledPlane != -1 )
 			{
 				SetIsCulled( true );
 				return false;

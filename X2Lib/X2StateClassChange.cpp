@@ -161,8 +161,8 @@ CX2ClassChangePopup::CX2ClassChangePopup( void )
 , m_pDLGClassChange( NULL )
 {
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	m_fJuneTranscendImageTime = 0.0f;
-	m_pJuneTranscendImage = NULL;
+	m_fTranscendImageTime = 0.0f;
+	m_pTranscendImage = NULL;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
@@ -179,7 +179,7 @@ HRESULT CX2ClassChangePopup::OnFrameMove( double fTime, float fElapsedTime )
 		m_pUnitViewerUI->OnFrameMove( fTime, fElapsedTime );
 	}
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	FadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32486aa0
+	FadeTranscendImage( m_pTranscendImage, m_fTranscendImageTime, fElapsedTime );		// June 32486aa0
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
@@ -200,7 +200,7 @@ bool CX2ClassChangePopup::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 				m_pDLGClassChange->SetHasUnit( NULL );
 				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGClassChange, NULL, false );
 				m_pDLGClassChange = NULL;
-				m_fJuneTranscendImageTime = 0.0f;
+				m_fTranscendImageTime = 0.0f;
 			}
 		} break;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -509,7 +509,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 {
 	m_bShow = bShow;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	m_fJuneTranscendImageTime = 0.0f;
+	m_fTranscendImageTime = 0.0f;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 	if( m_pDLGClassChange != NULL )
@@ -543,7 +543,7 @@ void CX2ClassChangePopup::SetShowTranscendGuide( bool bShow )
 	if( m_pDLGClassChange != NULL )
 	{
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGClassChange );
-		InitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
+		InitTranscendGuide( m_pDLGClassChange, static_cast<int>( pUnit->GetClass() ), true, m_pTranscendImage, m_fTranscendImageTime );
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE guide popup %s for class %d", pwszName, static_cast<int>( pUnit->GetClass() ) );
 #endif SERV_IRUHADEV_OFFLINE
@@ -554,7 +554,7 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 {
 	m_bShow = bShow;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	m_fJuneTranscendImageTime = 0.0f;
+	m_fTranscendImageTime = 0.0f;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
 
@@ -881,8 +881,8 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 		{
 			/// June @32488b01: 1.4 when my unit is UC_CHUNG_TACTICAL_TROOPER ( 117 ), else 1.5, through the viewer's scale ( 31f969a0, which also
 			/// scales June's duo skin anim ); June then writes 1.5 to viewer +0xd84, a June-only viewer member March's viewer does not have
-			const float fJuneScale = ( 117 == static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) ? 1.4f : 1.5f;
-			m_pUnitViewerUI->GetMatrix().Scale( D3DXVECTOR3( fJuneScale, fJuneScale, fJuneScale ) );
+			const float fScale = ( 117 == static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) ? 1.4f : 1.5f;
+			m_pUnitViewerUI->GetMatrix().Scale( D3DXVECTOR3( fScale, fScale, fScale ) );
 		}
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		m_pUnitViewerUI->GetMatrix().Scale( D3DXVECTOR3( 1.5f, 1.5f, 1.5f ) );
@@ -916,26 +916,26 @@ void CX2ClassChangePopup::PlaySoundChangeClass( CX2Unit::UNIT_TYPE eUnitType )
 	if( NULL == g_pKTDXApp->GetDeviceManager() )
 		return;
 
-	const int iJuneType = static_cast<int>( eUnitType );
-	if( static_cast<unsigned int>( iJuneType - 1 ) >= 12 )
+	const int iType = static_cast<int>( eUnitType );
+	if( static_cast<unsigned int>( iType - 1 ) >= 12 )
 		return;
 
-	static const WCHAR* s_apwszJunePrefix[12] = { L"Elsword", L"Aisha", L"Rena", L"Raven", L"Eve", L"Chung", L"Ara", L"Elesis", L"Add", L"Luciel", L"Rose", L"Ain" };
-	int iJuneNumber = 1;
-	switch( iJuneType )
+	static const WCHAR* s_apwszPrefix[12] = { L"Elsword", L"Aisha", L"Rena", L"Raven", L"Eve", L"Chung", L"Ara", L"Elesis", L"Add", L"Luciel", L"Rose", L"Ain" };
+	int iNumber = 1;
+	switch( iType )
 	{
 	case 1: case 6: case 7: case 8: case 9: case 10: case 12:
-		iJuneNumber = ( ( rand() % 100 ) & 1 ) + 1;
+		iNumber = ( ( rand() % 100 ) & 1 ) + 1;
 		break;
 	default:
 		break;
 	}
 
-	WCHAR wszJuneNumber[6];
-	StringCchPrintfW( wszJuneNumber, ARRAY_SIZE( wszJuneNumber ), L"%d.ogg", iJuneNumber );
-	const std::wstring wstrJuneSoundName = std::wstring( s_apwszJunePrefix[ iJuneType - 1 ] ) + L"Voice_ClassUpFinish0" + wszJuneNumber;
-	if( false == wstrJuneSoundName.empty() )
-		g_pKTDXApp->GetDeviceManager()->PlaySound( wstrJuneSoundName.c_str(), false, false, true );
+	WCHAR wszNumber[6];
+	StringCchPrintfW( wszNumber, ARRAY_SIZE( wszNumber ), L"%d.ogg", iNumber );
+	const std::wstring wstrSoundName = std::wstring( s_apwszPrefix[ iType - 1 ] ) + L"Voice_ClassUpFinish0" + wszNumber;
+	if( false == wstrSoundName.empty() )
+		g_pKTDXApp->GetDeviceManager()->PlaySound( wstrSoundName.c_str(), false, false, true );
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 	if( g_pKTDXApp->GetDeviceManager() == NULL )
 		return;

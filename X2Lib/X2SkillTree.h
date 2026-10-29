@@ -2530,7 +2530,7 @@ public:
 		SKILL_POWER_RATE_TYPE		m_eSkillPowerRateType;
 #endif // SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		SKILL_POWER_RATE_TYPE		m_eJunePowerRateType;	/// June templet +0x174 m_ePowerRate (32216320 @32217cbb). March reads the
+		SKILL_POWER_RATE_TYPE		m_ePowerRateType;	/// June templet +0x174 m_ePowerRate (32216320 @32217cbb). March reads the
 															/// key but keeps it only under SKILL_LEVEL_UP_BY_POWER_RATE_TYPE (off here)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -2549,7 +2549,7 @@ public:
 			vector<NumericalRow>    m_vecRow;
 		};
 		int                                 m_iDeleteSkillIDByUpgrade;  /// June +0x178 m_DeleteSkillIDByUpgrade: the base skill this one replaces once learned
-		vector<NumericalData>           m_vecJuneNumericalData;     /// June +0x17c
+		vector<NumericalData>           m_vecNumericalData;     /// June +0x17c
 		vector< std::pair<wstring, wstring> >   m_vecExtraIconInfo;     /// June +0x88: ( m_wstrTextureName, m_wstrTexturePieceName ) of m_ExtraIconInfo<n>
 
 		static void GetNumericalRow( const NumericalData& data_, int iLevel_, NumericalRow& rowOut_ );     /// 320716c0
@@ -2780,7 +2780,7 @@ public:
 		,m_eSkillPowerRateType(SPRT_NONE)
 	#endif // SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 	#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		,m_eJunePowerRateType(SPRT_NONE)
+		,m_ePowerRateType(SPRT_NONE)
 	#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		,m_iDeleteSkillIDByUpgrade( 0 )
@@ -3282,7 +3282,7 @@ private:
 	bool m_bSkillSlotChanging;			// 스킬슬롯체인지 중인가? (SkillSlotChangeReq를 전송한 후 Ack를 아직 받지 못한 상태인가?)
 #endif	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
-	std::deque< std::pair< int, int > >	m_deqJuneSkillSlotChange;	/// June tree +0xd4: queued ( slot, skill ) changes
+	std::deque< std::pair< int, int > >	m_deqSkillSlotChange;	/// June tree +0xd4: queued ( slot, skill ) changes
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	//}} kimhc // 2010.7.29 // 난입시 무한 스킬 버그 수정
 
@@ -3309,10 +3309,10 @@ private:
 	};
 
 	std::map<int, int>  m_mapUpgradeSkill;      /// June CX2SkillTree +0x20: base skill id -> "[Enhanced]" skill id ( filled by m_DeleteSkillIDByUpgrade )
-	LoadStats       m_JuneLoadStats;
-	bool                m_bJuneScratch;         /// a throw-away debug tree: no buff factor parse
+	LoadStats       mLoadStats;
+	bool                m_bScratch;         /// a throw-away debug tree: no buff factor parse
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-	std::map< int, CommandIconData >	m_mapJuneCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON
+	std::map< int, CommandIconData >	m_mapCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 }; // class CX2SkillTree

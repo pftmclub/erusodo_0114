@@ -169,7 +169,7 @@ class CX2DungeonSubStage
 			bool							m_bAllyNpc;
 #endif SERV_ALLY_NPC
 #ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
-			int								m_iJuneTeam;	/// June NPCData +0x5c: the script's TEAM ( CX2Room::TEAM_NUM ), TN_MONSTER when absent
+			int								m_iTeam;	/// June NPCData +0x5c: the script's TEAM ( CX2Room::TEAM_NUM ), TN_MONSTER when absent
 #endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 #ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			// KNPCUnitReq::m_cMonsterGrade (June 327edb60 stores it at NPCData +0x44); 0 = normal, 1 = boss, 2 = middle boss.
@@ -453,7 +453,7 @@ class CX2DungeonSubStage
 		bool				GetDoneClearSubStage() const { return m_bDoneClearSubStage; }
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		/// June sub-stage +0x48: the clear type of the clear in progress, 5 when none (see SetJuneClearType)
-		int					GetClearType() const { return m_iJuneClearType; }
+		int					GetClearType() const { return m_iClearType; }
 		void				SetClearType( const int iClearType_, const char* szSite_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 
@@ -514,7 +514,7 @@ class CX2DungeonSubStage
 		bool				m_bDoneClearSubStage;		// ClearSubStage() 함수를 호출했는지
 		
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
-		int					m_iJuneClearType;			/// June +0x48 (ctor 327f06d0: 5)
+		int					m_iClearType;			/// June +0x48 (ctor 327f06d0: 5)
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
 		bool				m_bIsBossStage;
 		bool				m_bBossStageHaveManyNextStage;	// 2개 이상의 next stage data가 존재한다

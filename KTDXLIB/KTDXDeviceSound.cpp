@@ -927,11 +927,11 @@ bool CKTDXDeviceSound::Update3DPosition()
 		// June Update3DPosition 31d411c0 @31d411ee-31d41236: the error line carries the result and the file
 		// ( format string 3344fdf8 ), 512-byte buffer. June's +0x70 is its own copy of the ctor's fileName
 		// ( ctor @31d419af ), the same string March keeps as m_DeviceID ( CKTDXDevice( fileName, DT_SOUND ) ).
-		WCHAR wszJuneText[256] = {0};
+		WCHAR wszText[256] = {0};
 		// June passes the +0x70 wstring OBJECT itself ( 7 dwords by rep movsd @31d4120d-31d41213, add esp 0x28 @31d41224 ),
 		// so %s takes its first dword: the buffer pointer when capacity >= 8, else the first two characters ( JUNE_BUGS 139 ).
-		StringCchPrintfW( wszJuneText, ARRAY_SIZE(wszJuneText), L"result : %d, File : %s", (int) result, m_DeviceID );
-		ErrorLogMsg( KEM_ERROR381, wszJuneText );
+		StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"result : %d, File : %s", (int) result, m_DeviceID );
+		ErrorLogMsg( KEM_ERROR381, wszText );
 #else SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 		ErrorLog( KEM_ERROR381 );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND

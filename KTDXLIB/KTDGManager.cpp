@@ -113,6 +113,20 @@ static const CKTDGStateManager::KState akRSICKTDGPlanShadow[] =
 
 static const CKTDGStateManager::KState akRSICKTDGUIDialog[] =
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+// June 337284e0 ( DG +0x68 ): March's dialog sampler pushes ( KTDGUIDialog.cpp / KTDGUISlot.cpp ) followed by March's rows, in that order, as one block.
+	KSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+
+	KSamplerState( 0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+
 	KRenderState( D3DRS_ALPHABLENDENABLE, TRUE ),
 	KRenderState( D3DRS_ALPHATESTENABLE, FALSE ),
 	KRenderState( D3DRS_ZENABLE, FALSE ),
@@ -125,6 +139,20 @@ static const CKTDGStateManager::KState akRSICKTDGUIDialog[] =
 	KTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE ),
 	KTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE ),
 	KTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE ),
+#else SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+	KRenderState( D3DRS_ALPHABLENDENABLE, TRUE ),
+	KRenderState( D3DRS_ALPHATESTENABLE, FALSE ),
+	KRenderState( D3DRS_ZENABLE, FALSE ),
+	KRenderState( D3DRS_ZWRITEENABLE, FALSE ),
+
+	KTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE ),
+	KTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ),
+
+	KTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE ),
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 };
 
 
@@ -150,35 +178,6 @@ static const CKTDGStateManager::KState akRSICKTDXDeviceTextureAdd[] =
 	KTextureStageState( 0, D3DTSS_ALPHAARG2,	D3DTA_TEXTURE ),
 };
 
-// June 337284e0 ( DG +0x68 ): March's dialog sampler pushes ( KTDGUIDialog.cpp / KTDGUISlot.cpp ) followed by March's
-// akRSICKTDGUIDialog, in that order, as one block.
-static const CKTDGStateManager::KState akRSICKTDGUIDialogJune[] =
-{
-	KSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
-	KSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
-	KSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
-	KSamplerState( 1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
-	KSamplerState( 1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
-	KSamplerState( 1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
-
-	KSamplerState( 0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
-	KSamplerState( 0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
-	KSamplerState( 1, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
-	KSamplerState( 1, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
-
-	KRenderState( D3DRS_ALPHABLENDENABLE, TRUE ),
-	KRenderState( D3DRS_ALPHATESTENABLE, FALSE ),
-	KRenderState( D3DRS_ZENABLE, FALSE ),
-	KRenderState( D3DRS_ZWRITEENABLE, FALSE ),
-
-	KTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE ),
-	KTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE ),
-	KTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ),
-
-	KTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE ),
-	KTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE ),
-	KTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE ),
-};
 
 // June 33728620 ( DG +0x70 ): the dialog block for render pass 1 ( R4 ); SRCBLEND / DESTBLEND 1 / 1 = D3DBLEND_ZERO as above.
 static const CKTDGStateManager::KState akRSICKTDGUIDialogAdd[] =
@@ -397,7 +396,7 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 	//m_pMotionBlur			= new CKTDGMotionBlur( g_pKTDXApp->GetDevice() );
 	m_pXRenderer			= new CKTDGXRenderer( g_pKTDXApp->GetDevice() );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-	m_pJuneHeatShimmer		= new CKTDGHeatShimmer( g_pKTDXApp->GetDevice() );	// June 31cead50 @31ceb0c2-31ceb108: after the renderer ( +0x380 ), before the fonts ( +0x388 )
+	m_pHeatShimmer		= new CKTDGHeatShimmer( g_pKTDXApp->GetDevice() );	// June 31cead50 @31ceb0c2-31ceb108: after the renderer ( +0x380 ), before the fonts ( +0x388 )
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	m_pFontManager			= new CKTDGFontManager( g_pKTDXApp->GetDevice() );
 	//m_pGrayScale			= new CKTDGGrayScale();
@@ -416,8 +415,8 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 	m_OverUIAlphaChainOver500.reserve( 512 );
 	for ( int iChain = 0; iChain < 4; ++iChain )
-		m_auJuneChainSizeLogged[iChain] = 0;
-	m_fJuneChainLogTime = -1.0;
+		m_auChainSizeLogged[iChain] = 0;
+	m_fChainLogTime = -1.0;
 #endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 
 	m_bFading						= false;
@@ -427,7 +426,7 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 	m_fFadeAlpha					= 0.0f;
 	m_pTextureFadeInOut				= NULL;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_colorJuneFade					= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );
+	m_colorFade					= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 
@@ -471,7 +470,7 @@ CKTDGManager::~CKTDGManager(void)
 	//SAFE_DELETE( m_pMotionBlur );
 	SAFE_DELETE( m_pXRenderer );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-	SAFE_DELETE( m_pJuneHeatShimmer );		// June 31ce5660 + delete @31ceb37c: after the renderer, before the fonts
+	SAFE_DELETE( m_pHeatShimmer );		// June 31ce5660 + delete @31ceb37c: after the renderer, before the fonts
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	SAFE_DELETE( m_pFontManager );
 	SAFE_CLOSE( m_pTextureFadeInOut );
@@ -507,7 +506,7 @@ void CKTDGManager::BuildRenderStateID()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 	// June 31ce6310: 14 blocks ( +0x38 .. +0xa0 ); the dialog block carries the sampler states, two additive blocks are new
 	m_RSICKTDXDeviceTextureAdd = akRSICKTDXDeviceTextureAdd;
-	m_RSICKTDGUIDialog = akRSICKTDGUIDialogJune;
+	m_RSICKTDGUIDialog = akRSICKTDGUIDialog;
 	m_RSICKTDGUIDialogAdd = akRSICKTDGUIDialogAdd;
 #else SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 	m_RSICKTDGUIDialog = akRSICKTDGUIDialog;
@@ -1152,9 +1151,9 @@ void CKTDGManager::FrontUIRender()
 	if( m_fFadeAlpha > 0.0f )
 	{
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		m_colorJuneFade.a = m_fFadeAlpha;
+		m_colorFade.a = m_fFadeAlpha;
 		if( m_pTextureFadeInOut != NULL )
-			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorJuneFade );
+			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorFade );
 #else SERV_IRUHADEV_ELYSION_SCRIPT_B
 		D3DXCOLOR color = 0xffffffff;
 		color.a = m_fFadeAlpha;
@@ -1192,9 +1191,9 @@ void CKTDGManager::FrontUIRender()
 	{
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		// Atlas E7: June 31ce94a0 @31ce956a-31ce9727: the stored colour with its alpha set to the fade alpha, drawn on HQ_WhiteBack.dds
-		m_colorJuneFade.a = m_fFadeAlpha;
+		m_colorFade.a = m_fFadeAlpha;
 		if( m_pTextureFadeInOut != NULL )
-			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorJuneFade );
+			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorFade );
 #else SERV_IRUHADEV_ELYSION_SCRIPT_B
 		D3DXCOLOR color = 0xffffffff;
 		color.a = m_fFadeAlpha;
@@ -1260,8 +1259,8 @@ HRESULT CKTDGManager::OnResetDevice()
 	if ( m_pXRenderer )
 		m_pXRenderer->OnResetDevice();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-	if ( m_pJuneHeatShimmer != NULL )
-		m_pJuneHeatShimmer->OnResetDevice();		// June 31ce98c0 @31ce99d8: after the renderer, before the fonts; the result is not checked
+	if ( m_pHeatShimmer != NULL )
+		m_pHeatShimmer->OnResetDevice();		// June 31ce98c0 @31ce99d8: after the renderer, before the fonts; the result is not checked
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 
 	if ( m_pFontManager != NULL )
@@ -1316,8 +1315,8 @@ HRESULT CKTDGManager::OnLostDevice()
 	if ( m_pXRenderer != NULL )
 		m_pXRenderer->OnLostDevice();
 #ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
-	if ( m_pJuneHeatShimmer != NULL )
-		m_pJuneHeatShimmer->OnLostDevice();		// June 31ce97e0 @31ce9832: after the renderer, before the fonts
+	if ( m_pHeatShimmer != NULL )
+		m_pHeatShimmer->OnLostDevice();		// June 31ce97e0 @31ce9832: after the renderer, before the fonts
 #endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	if ( m_pFontManager != NULL )
 		m_pFontManager->OnLostDevice();
@@ -1693,16 +1692,16 @@ void CKTDGManager::ObjectChainSort()
 		bool bChanged = false;
 		for ( int iChain = 0; iChain < 4; ++iChain )
 		{
-			if ( auSize[iChain] != m_auJuneChainSizeLogged[iChain] )
+			if ( auSize[iChain] != m_auChainSizeLogged[iChain] )
 				bChanged = true;
 		}
-		if ( bChanged == true && ( m_fJuneChainLogTime < 0.0 || g_NowTime - m_fJuneChainLogTime >= 1.0 ) )
+		if ( bChanged == true && ( m_fChainLogTime < 0.0 || g_NowTime - m_fChainLogTime >= 1.0 ) )
 		{
 			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] DG chains inner " << auSize[0] << " over " << auSize[1]
 				<< " alpha<500 " << auSize[2] << " alpha>=500 " << auSize[3] << " culled " << m_nCull << fileout;
 			for ( int iChain = 0; iChain < 4; ++iChain )
-				m_auJuneChainSizeLogged[iChain] = auSize[iChain];
-			m_fJuneChainLogTime = g_NowTime;
+				m_auChainSizeLogged[iChain] = auSize[iChain];
+			m_fChainLogTime = g_NowTime;
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
@@ -1721,7 +1720,7 @@ void CKTDGManager::StartFadeIn( float fTime )
 	m_fTimeFade			= fTime;
 	m_fFadeAlpha		= 1.0f;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_colorJuneFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 ) ( 322cff70 )
+	m_colorFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 ) ( 322cff70 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
@@ -1731,7 +1730,7 @@ void CKTDGManager::StartFadeOut( float fTime )
 	m_bFadeOut			= true;
 	m_fTimeFadeMax		= fTime;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_colorJuneFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 )
+	m_colorFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	m_fTimeFade			= 0.0f;
 	m_fFadeAlpha		= 0.0f;
@@ -1746,7 +1745,7 @@ void CKTDGManager::StartFadeInCustomColor( float fTime, D3DXCOLOR colorFade_ )
 	m_fTimeFadeMax		= fTime;
 	m_fTimeFade			= fTime;
 	m_fFadeAlpha		= 1.0f;
-	m_colorJuneFade		= colorFade_;
+	m_colorFade		= colorFade_;
 }
 
 // Atlas E7: June CKTDGManager 31ce62c0: time into +0x394, +0x398 = 0, +0x39c = 0, colour, word +0x390 = 0x0101 ( fading, fade-out ).
@@ -1757,7 +1756,7 @@ void CKTDGManager::StartFadeOutCustomColor( float fTime, D3DXCOLOR colorFade_ )
 	m_fTimeFadeMax		= fTime;
 	m_fTimeFade			= 0.0f;
 	m_fFadeAlpha		= 0.0f;
-	m_colorJuneFade		= colorFade_;
+	m_colorFade		= colorFade_;
 }
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 

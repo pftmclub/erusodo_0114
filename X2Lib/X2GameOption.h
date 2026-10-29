@@ -133,8 +133,8 @@ class CX2GameOption
 			/// June data block ( 3242fbd0 ): +0x30 ANTIALIASING_LEVEL, +0x34 / +0x35 the scene / effect render-target switches ( never loaded,
 			/// never saved, set only by SetSceneEffectRenderTarget, which nothing calls )
 			int				m_iAntiAliasingLevel;			/// key ANTIALIASING_LEVEL, June default 0
-			bool			m_bJuneSceneRenderTarget;		/// June default false
-			bool			m_bJuneEffectRenderTarget;		/// June default false
+			bool			m_bSceneRenderTarget;		/// June default false
+			bool			m_bEffectRenderTarget;		/// June default false
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 #ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 			/// June CX2GameOption data block (R0 map, option row): RIM_LIGHT +0x100, USE_VIEW_INDEPENDENT_EDGE +0x101, ANISOTROPIC_FILTER_SAMPLE +0x104, USE_ENV_BOX +0x108.
@@ -284,8 +284,8 @@ class CX2GameOption
 #endif
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
 				m_iAntiAliasingLevel			= 0;		/// June @3242fcb4 ( +0x30 ), word store @3242fcb4 ( +0x34 / +0x35 )
-				m_bJuneSceneRenderTarget		= false;
-				m_bJuneEffectRenderTarget		= false;
+				m_bSceneRenderTarget		= false;
+				m_bEffectRenderTarget		= false;
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 #ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 				m_bRimLight						= false;

@@ -147,9 +147,9 @@ class CX2Eqip : public CKTDGObject
 		const CX2Item::ItemTemplet*	GetItemTemplet() const	{ return m_pItemTemplet; }
 		void	ReleaseEquipEffectSet( bool bStop );			// 3295ca60
 		bool	StepEquipEffectSetTimer( int* pSel );			// 32961060
-		void	SetEquipEffectSetHandle( const CX2EffectSet_EffectSetInstanceHandle& hHandle ) { m_hJuneEquipEffectSet = hHandle; }
-		void	ResetEquipEffectSetStartTime() { m_fJuneEquipEffectSetStartTime = 0.f; }						// +0x15f4 = 0
-		void	ResetEquipEffectSetSwitchTime( int iSel ) { m_afJuneEquipEffectSetSwitchTime[iSel] = 0.f; }	// +0x15fc + 4 * sel = 0
+		void	SetEquipEffectSetHandle( const CX2EffectSet_EffectSetInstanceHandle& hHandle ) { m_hEquipEffectSet = hHandle; }
+		void	ResetEquipEffectSetStartTime() { m_fEquipEffectSetStartTime = 0.f; }						// +0x15f4 = 0
+		void	ResetEquipEffectSetSwitchTime( int iSel ) { m_afEquipEffectSetSwitchTime[iSel] = 0.f; }	// +0x15fc + 4 * sel = 0
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 		UidType					GetItemUID() const			{ return m_ItemUID; }
 		CX2Unit::EQIP_POSITION	GetEqipPos() const			{ return m_EqipPos; }
@@ -392,9 +392,9 @@ private:
 		AttachedParticleGroup		m_AttachedParticleGroup;
 #endif EQUIP_ATTACHED_PARTICLE_TEST
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-		float									m_fJuneEquipEffectSetStartTime;			// June +0x15f4: start accumulator (ctor 0)
-		CX2EffectSet_EffectSetInstanceHandle	m_hJuneEquipEffectSet;					// June +0x15f8: handle on the UI effect set (ctor -1)
-		float									m_afJuneEquipEffectSetSwitchTime[3];	// June +0x15fc / +0x1600 / +0x1604: switch timers, 0 GUUser / 1 square / 2 viewer (ctor 0)
+		float									m_fEquipEffectSetStartTime;			// June +0x15f4: start accumulator (ctor 0)
+		CX2EffectSet_EffectSetInstanceHandle	m_hEquipEffectSet;					// June +0x15f8: handle on the UI effect set (ctor -1)
+		float									m_afEquipEffectSetSwitchTime[3];	// June +0x15fc / +0x1600 / +0x1604: switch timers, 0 GUUser / 1 square / 2 viewer (ctor 0)
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 

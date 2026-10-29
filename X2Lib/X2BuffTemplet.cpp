@@ -211,7 +211,7 @@ bool CX2BuffTemplet::ParsingScript( KLuaManager& luaManager_ )
 bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 //{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
@@ -232,8 +232,8 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 	}
 	/// Phase 9c: June then stores the factor's creator UID (+0xb0/+0xb4) and !isUser (+0xb8), creator found or not
 	/// (@3236d43b-3236d457). GetFactor sends them on with the power rate.
-	m_uidJuneCreator		= buffFactor_.GetUidGameUnit();
-	m_bJuneCreatorNotUser	= !buffFactor_.GetIsUserUID();
+	m_uidCreator		= buffFactor_.GetUidGameUnit();
+	m_bCreatorNotUser	= !buffFactor_.GetIsUserUID();
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 	/// 행동조건 셋팅
@@ -287,7 +287,7 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 bool CX2BuffTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	SetUniqueNum( kBuffFactor_.m_BuffIdentity.m_uiUniqueNum );
 
@@ -332,10 +332,10 @@ bool CX2BuffTemplet::SetFactorFromPacket( const KBuffFactor& kBuffFactor_, CX2Ga
 	/// June buff port Phase 9c, June 3236c440 @3236c4f0: after the displayers June restores the creator from the
 	/// factor (UID +0x28/+0x2c -> +0xb0/+0xb4, NPC flag +0x3d -> +0xb8, power rate +0x57 -> +0xbc), so a restored
 	/// buff's next GetFactor sends the same creator on.
-	m_uidJuneCreator		= kBuffFactor_.m_uidMesGameUnit;
-	m_bJuneCreatorNotUser	= kBuffFactor_.m_bIsMesGameUnitNpc;
+	m_uidCreator		= kBuffFactor_.m_uidMesGameUnit;
+	m_bCreatorNotUser	= kBuffFactor_.m_bIsMesGameUnitNpc;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
-	m_fCreatorPowerRate		= kBuffFactor_.m_fJuneCreatorPowerRate;
+	m_fCreatorPowerRate		= kBuffFactor_.m_fCreatorPowerRate;
 #endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
@@ -416,7 +416,7 @@ void CX2BuffTemplet::OnFrameMoveBehavior( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -442,7 +442,7 @@ void CX2BuffTemplet::OnFrameMoveFinalizerAndCheckFinish( CX2GameUnit* pGameUnit_
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
 	{
@@ -495,7 +495,7 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	if ( !m_vecDisplayerPtr.empty() )
 	{
@@ -517,7 +517,7 @@ void CX2BuffTemplet::OnFrameMoveDisplayer( CX2GameUnit* pGameUnit_ )
 void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -532,7 +532,7 @@ void CX2BuffTemplet::DoFinishBehavior( CX2GameUnit* pGameUnit_ )
 void CX2BuffTemplet::DoFinishDisplayer( CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
 	{
@@ -570,10 +570,10 @@ void CX2BuffTemplet::GetFactor( OUT KBuffFactor& kBuffFactor_, const CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		/// June buff port Phase 9c, June 32369f50 @3236a009: last, whatever the accumulation limit, the creator that
 		/// SetFactor stored: UID +0xb0/+0xb4 -> +0x28/+0x2c, NPC flag +0xb8 -> +0x3d, power rate +0xbc -> +0x57.
-		kBuffFactor_.m_uidMesGameUnit			= m_uidJuneCreator;
-		kBuffFactor_.m_bIsMesGameUnitNpc		= m_bJuneCreatorNotUser;
+		kBuffFactor_.m_uidMesGameUnit			= m_uidCreator;
+		kBuffFactor_.m_bIsMesGameUnitNpc		= m_bCreatorNotUser;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
-		kBuffFactor_.m_fJuneCreatorPowerRate	= m_fCreatorPowerRate;
+		kBuffFactor_.m_fCreatorPowerRate	= m_fCreatorPowerRate;
 #endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	}
@@ -587,7 +587,7 @@ void CX2BuffTemplet::GetFactor( OUT KBuffFactor& kBuffFactor_, const CX2GameUnit
 bool CX2BuffTemplet::SetFactorToOnlyFinalizer( const CX2BuffFactor& buffFactor_, CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// 종료조건 셋팅
 	BOOST_FOREACH( CX2BuffFinalizerTempletPtr ptrFinalizer, m_vecFinalizerPtr )
@@ -712,7 +712,7 @@ void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGame
 void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pGameUnit_, const CX2BuffFactor& BuffFactor_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-	CX2BuffRuntimeScope kJuneBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
+	CX2BuffRuntimeScope kBuffScope( static_cast<int>( GetBuffTempletID() ) );	/// 4b-ii: names this buff in a runtime [JUNE_BUFF] line
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	BOOST_FOREACH( CX2BuffBehaviorTempletPtr ptrBehavior, m_vecBehaviorPtr )
 	{
@@ -1842,11 +1842,11 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// buff port 16-step3b7 item 1: June @3236e002 3201ad10( 0x6666 ) on the attacker user (esi), + 1.0 (334355b0) below;
 			/// June's 26214 is March's SI_A_CHG_MARK_OF_COMMANDER, the key 16-step3b5's slot pass files the rate under
-			const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
+			const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
-			const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
+			const float fSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
-			fShellPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * ( fSkillDamageRateByBuff * fShellPowerRate );
+			fShellPowerRate = ( fSkillDamageAddRate + 1.0f ) * ( fSkillDamageRateByBuff * fShellPowerRate );
 		}
 
 		for ( UINT uiIndex = 0; uiIndex < m_uiDamageEffectCount; ++uiIndex )
@@ -2086,7 +2086,6 @@ static bool GetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* p
 */
 /*virtual*/ void CX2CustomFunctionByBuffPandemoniumFear::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
-	const int JUNE_DTT_PANDEMONIUM_FEAR = 6;
 
 	if ( 0.f < damageData_.m_fHpPercentUp
 		|| CX2DamageManager::RT_CREATE_DAMAGE_EFFECT == damageData_.reActType
@@ -2095,9 +2094,9 @@ static bool GetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* p
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| true == damageData_.IsAttackTrigger( JUNE_DTT_PANDEMONIUM_FEAR )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
+		|| true == damageData_.IsAttackTrigger( CX2DamageManager::DTT_END )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| JUNE_DTT_PANDEMONIUM_FEAR == static_cast<int>( damageData_.m_eDamageTrigger )
+		|| CX2DamageManager::DTT_END == static_cast<int>( damageData_.m_eDamageTrigger )
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| true == damageData_.m_bNoDamage
 		|| null == damageData_.optrAttackerGameUnit
@@ -2141,10 +2140,9 @@ static bool GetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* p
 //{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 /// June Enum.lua UNIT_TYPE: March's CX2Unit::UNIT_TYPE ends at UT_ADD (9), so the Rose and Ain checks use the numbers
-static const int JUNE_UT_ROSE = 11;
-static const int JUNE_UT_AIN = 12;
+static const int UT_ROSE = 11;
+static const int UT_AIN = 12;
 /// June Enum.lua RNSI_SA_LDN_SINISTER_MIND (no March SKILL_ID)
-static const int JUNE_RNSI_SA_LDN_SINISTER_MIND = 30048;
 
 /// June 31e4d0e0: the user's GetUnit()->GetUnitTemplet()->m_UnitType ([[user +0x867c] +0xaf0] -> [0]), 0 without one
 static int GetUserUnitType( const CX2GUUser* pUser_ )
@@ -2192,8 +2190,8 @@ static bool CustomFunctionDamageReactGuards( const CX2DamageManager::DamageData&
 */
 /*virtual*/ void CX2CustomFunctionByBuffMoonlightRhapsody::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
-	const int JUNE_DTT_MOONLIGHT_RHAPSODY = 7;
-	if ( false == CustomFunctionDamageReactGuards( damageData_, JUNE_DTT_MOONLIGHT_RHAPSODY ) )
+	const int DTT_MOONLIGHT_RHAPSODY = 7;
+	if ( false == CustomFunctionDamageReactGuards( damageData_, DTT_MOONLIGHT_RHAPSODY ) )
 		return;
 
 	CX2GameUnit* pAttackerGameUnit = damageData_.optrAttackerGameUnit.GetObservable();
@@ -2219,11 +2217,11 @@ static bool CustomFunctionDamageReactGuards( const CX2DamageManager::DamageData&
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// buff port 16-step3b7 item 1: June @323705a2 3201ad10( 0x7160 = 29024 ) on the attacker user (edi), + 1.0 below. 29024 is a
 		/// June-only skill (no March SKILL_ID), so no equipped slot files a rate under it: 0 until that skill is ported
-		const float fJuneSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( 29024 );
+		const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( 29024 );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
+		const float fSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		fPowerRate = ( fJuneSkillDamageAddRate + 1.0f ) * fPowerRate;
+		fPowerRate = ( fSkillDamageAddRate + 1.0f ) * fPowerRate;
 	}
 
 	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
@@ -2258,7 +2256,7 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 	{
 		m_pUser = pGameUnit_;
 		CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
-		if ( JUNE_UT_ROSE == GetUserUnitType( pUser ) )
+		if ( UT_ROSE == GetUserUnitType( pUser ) )
 			pUser->RoseServoNitro( true );
 	}
 }
@@ -2274,7 +2272,7 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 
 	m_pUser->EraseBuffTempletFromGameUnit( BTI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR );
 	CX2GUUser* pUser = static_cast<CX2GUUser*>( m_pUser );
-	if ( JUNE_UT_ROSE == GetUserUnitType( pUser ) )
+	if ( UT_ROSE == GetUserUnitType( pUser ) )
 		pUser->RoseServoNitro( false );
 }
 
@@ -2318,7 +2316,7 @@ static float SinisterMindPowerRate( CX2GUUser* pCreator_ )
 		return 1.0f;
 
 	float fRate = ( 0.0f == pCreator_->GetHyperModeTime() ? 1.0f : 1.2f );
-	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_RNSI_SA_LDN_SINISTER_MIND );
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( CX2SkillTree::RNSI_SA_LDN_SINISTER_MIND );
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = pCreator_->GetEquippedActiveSkillTemplet( eSkillID );
 	if ( NULL != pSkillTemplet )
 	{
@@ -2328,14 +2326,14 @@ static float SinisterMindPowerRate( CX2GUUser* pCreator_ )
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// buff port 16-step3b7 item 1: June @32369c98 3201ad10( 0x7560 ) on the creator (esi), + 1.0 below; June-only skill, 0 as above
-		const float fJuneSkillDamageAddRate = pCreator_->GetSkillAdditionalPowerRate( JUNE_RNSI_SA_LDN_SINISTER_MIND );
+		const float fSkillDamageAddRate = pCreator_->GetSkillAdditionalPowerRate( CX2SkillTree::RNSI_SA_LDN_SINISTER_MIND );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
-		const float fJuneSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7560 ), see Phase 9a
+		const float fSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7560 ), see Phase 9a
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		fRate = pSkillTemplet->GetSkillPowerRateValue( iLevel ) * fRate;
 		fRate = pCreator_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL ) * fRate;
-		fRate = pCreator_->GetSkillDamageRateByBuff( JUNE_RNSI_SA_LDN_SINISTER_MIND ) * fRate;
-		fRate = ( fJuneSkillDamageAddRate + 1.0f ) * fRate;
+		fRate = pCreator_->GetSkillDamageRateByBuff( CX2SkillTree::RNSI_SA_LDN_SINISTER_MIND ) * fRate;
+		fRate = ( fSkillDamageAddRate + 1.0f ) * fRate;
 	}
 	return fRate;
 }
@@ -2425,7 +2423,7 @@ void CX2CustomFunctionByBuffSinisterMind::CreateSeedDamage( CX2GUUser* pCreator_
 */
 /*virtual*/ void CX2CustomFunctionByBuffSinisterMind::FunctionInAttackResultByType( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
-	if ( m_iStateID != damageData_.m_iJuneAttackerStateID )
+	if ( m_iStateID != damageData_.m_iAttackerStateID )
 		return;
 
 	if ( m_iCount < m_iMaxCount )
@@ -2481,7 +2479,7 @@ CX2CustomFunctionBySummonNpcTarget::CX2CustomFunctionBySummonNpcTarget( const KB
 CX2GUUser* CX2CustomFunctionByChainViper::GetRoseCreator() const
 {
 	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
-	return ( JUNE_UT_ROSE == GetUserUnitType( pCreator ) ? pCreator : NULL );
+	return ( UT_ROSE == GetUserUnitType( pCreator ) ? pCreator : NULL );
 }
 
 /** @function : CX2CustomFunctionByChainViper
@@ -2553,7 +2551,7 @@ CX2CustomFunctionByChainViper::CX2CustomFunctionByChainViper( const KBuffIdentit
 /*virtual*/ void CX2CustomFunctionByAtomicBlaster::FunctionInDamageReact( CX2GameUnit* pGameUnit_, IN CX2DamageManager::DamageData& damageData_ )
 {
 	if ( CX2DamageManager::AT_COMMAND == damageData_.attackType )
-		damageData_.m_fJuneAddCriticalRate += 1.0f;
+		damageData_.m_fAddCriticalRate += 1.0f;
 }
 
 /** @function : CX2CustomFunctionByAttackMe
@@ -2636,7 +2634,7 @@ CX2CustomFunctionByGeistHerrschaft::CX2CustomFunctionByGeistHerrschaft( const KB
 CX2GUUser* CX2CustomFunctionByModer::GetAinCreator() const
 {
 	CX2GUUser* pCreator = GetCreatorUser( m_uidCreator );
-	return ( JUNE_UT_AIN == GetUserUnitType( pCreator ) ? pCreator : NULL );
+	return ( UT_AIN == GetUserUnitType( pCreator ) ? pCreator : NULL );
 }
 
 /** @function : CX2CustomFunctionByModer

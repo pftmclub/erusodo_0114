@@ -533,8 +533,8 @@ DECL_PACKET( EGS_UPDATE_CODE_EVENT_NOT )
 	std::map< int, bool >				m_mapEnableCodeEnum;
 #ifdef SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 	// June Get 320de0f0: after the map, std::set<int> -> g_pInstanceData+0xa94, std::set<int> -> +0xaa4
-	std::set< int >						m_setJuneCodeEventA;
-	std::set< int >						m_setJuneCodeEventB;
+	std::set< int >						m_setCodeEventA;
+	std::set< int >						m_setCodeEventB;
 #endif SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 };
 #endif SERV_CODE_EVENT

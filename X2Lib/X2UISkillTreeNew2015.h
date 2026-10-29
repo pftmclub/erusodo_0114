@@ -94,7 +94,7 @@ public:
 		STUCM_TOOLTIP_COMMAND_MOUSE_OUT,
 		STUCM_TOOLTIP_COMMAND_MOVIE_MOUSE_OVER,
 		STUCM_TOOLTIP_COMMAND_MOVIE_MOUSE_OUT,
-		STUCM_JUNE_UNNAMED_29075,				/// absent from June's Enum.lua; UICustomEventProc's default
+		STUCM_UNUSED_PLACEHOLDER,				/// absent from June's Enum.lua; UICustomEventProc's default
 		STUCM_BUTTON_MEMO_SELECT_MOUSE_OVER,
 		STUCM_BUTTON_MEMO_SELECT_MOUSE_OUT,
 		STUCM_TRANSFORM_SKILL_SLOT_MOUSEIN,
@@ -295,16 +295,16 @@ private:
 private:
 	int									m_iSelectedTab;				/// +0x04 0 skill tab, 1 command tab
 	vector<CKTDGUIControl*>				m_vecSkillTabControl;		/// +0x08 shown with the skill tab ( 328e89f0 )
-	vector< std::pair<int, CKTDGUIControl*> >	m_vecJuneCommandGroupControl;	/// +0x18 { group, control } shown with the command tab: group 2 always,
+	vector< std::pair<int, CKTDGUIControl*> >	m_vecCommandGroupControl;	/// +0x18 { group, control } shown with the command tab: group 2 always,
 																			/// 0 / 1 when it equals +0x8c ( 328da3c0 )
-	int									m_iJuneCommandGroup;		/// +0x8c the command group shown ( June: unit +0xe40 == 1, Luciel's form; 328e8cd0 sets it )
+	int									m_iCommandGroup;		/// +0x8c the command group shown ( June: unit +0xe40 == 1, Luciel's form; 328e8cd0 sets it )
 	CKTDGUIDialogType					m_pDLGCommandDesc;			/// +0x30 DLG_UI_Command_Desc_Video.lua ( S7e opens it; SelectJuneTab tests it )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
-	int									m_iJuneCommandRow;			/// +0x28 the next CommandControlList row ( 328e7ba0 resets it, 328e4bd0 counts )
-	bool								m_bJuneCommandToolTip;		/// +0x38 a command tooltip button is under the mouse ( 29071 / 29072 )
-	bool								m_bJuneCommandMovieToolTip;	/// +0x39 a command movie control is under the mouse ( 29073 / 29074 )
-	CX2SkillTree::SkillCommandDesc	m_kJuneSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
-	std::map< int, CX2SkillTree::CommandIconData >	m_mapJuneCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
+	int									m_iCommandRow;			/// +0x28 the next CommandControlList row ( 328e7ba0 resets it, 328e4bd0 counts )
+	bool								m_bCommandToolTip;		/// +0x38 a command tooltip button is under the mouse ( 29071 / 29072 )
+	bool								m_bCommandMovieToolTip;	/// +0x39 a command movie control is under the mouse ( 29073 / 29074 )
+	CX2SkillTree::SkillCommandDesc	m_kSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
+	std::map< int, CX2SkillTree::CommandIconData >	m_mapCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
 																	/// JUNE_BUGS: nothing in June fills it, so no tooltip button is built
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 
@@ -339,8 +339,8 @@ private:
 	map<CX2SkillTree::SKILL_ID, SkillSlotUI>	m_mapSkillSlotUISet;	/// +0x13c
 	CKTDGUIButton*						m_pHoveredMemoButton;		/// +0x14c the memo button under the mouse ( S7c sets it: 29076 / 29077 )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	CKTDGUIDialogType					m_pDLGJuneMemoMsgBox;		/// +0xa0 the memo popup's message box ( 328e9b30; 29067 / 29068 read its dummy ints )
-	UidType								m_iJuneMemoRemoveItemUID;	/// June keeps it in that box's int64 dummy list ( dialog +0xf0, 31ed7710 ); March's
+	CKTDGUIDialogType					m_pDLGMemoMsgBox;		/// +0xa0 the memo popup's message box ( 328e9b30; 29067 / 29068 read its dummy ints )
+	UidType								m_iMemoRemoveItemUID;	/// June keeps it in that box's int64 dummy list ( dialog +0xf0, 31ed7710 ); March's
 																	/// dialog has none, so the tree holds it ( 29068 reads it back )
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int									m_iNewSkillCount;			/// +0x150

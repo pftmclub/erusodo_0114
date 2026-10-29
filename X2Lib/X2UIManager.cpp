@@ -256,13 +256,13 @@ void CX2UIManager::InitGuideParticleType()
 	kType.m_fRespawnTime = 9999.f;
 	for( int i = 0; i < ARRAY_SIZE( apwszName ); ++i )
 		kType.m_vecName.push_back( apwszName[i] );
-	m_mapJuneGuideParticleType.insert( std::make_pair( 4, kType ) );
+	m_mapGuideParticleType.insert( std::make_pair( 4, kType ) );
 }
 
 // June 32151190
 CX2UIManager::GuideParticle* CX2UIManager::FindGuideParticle( const int iType_, const int iSlot_ )
 {
-	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapGuideParticle.equal_range( iType_ );
 	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; ++it )
 	{
 		if( iSlot_ == it->second.m_iSlot )
@@ -274,7 +274,7 @@ CX2UIManager::GuideParticle* CX2UIManager::FindGuideParticle( const int iType_, 
 // June 321536e0: the particles come on the next UI frame, when the type's timer reaches 0
 void CX2UIManager::AddGuideParticle( const int iType_, const int iSlot_, const float fX_, const float fY_ )
 {
-	if( NULL == g_pData->GetUIMajorParticle() || m_mapJuneGuideParticleType.end() == m_mapJuneGuideParticleType.find( iType_ ) )
+	if( NULL == g_pData->GetUIMajorParticle() || m_mapGuideParticleType.end() == m_mapGuideParticleType.find( iType_ ) )
 		return;
 	if( NULL != FindGuideParticle( iType_, iSlot_ ) )
 		RemoveGuideParticle( iType_, iSlot_ );
@@ -283,8 +283,8 @@ void CX2UIManager::AddGuideParticle( const int iType_, const int iSlot_, const f
 	kParticle.m_iSlot = iSlot_;
 	kParticle.m_fX = fX_;
 	kParticle.m_fY = fY_;
-	m_mmapJuneGuideParticle.insert( std::make_pair( iType_, kParticle ) );
-	m_mapJuneGuideParticleTimer[iType_] = 0.f;
+	m_mmapGuideParticle.insert( std::make_pair( iType_, kParticle ) );
+	m_mapGuideParticleTimer[iType_] = 0.f;
 }
 
 // June 32151fa0
@@ -293,7 +293,7 @@ void CX2UIManager::RemoveGuideParticle( const int iType_, const int iSlot_ )
 	if( NULL == g_pData->GetUIMajorParticle() )
 		return;
 
-	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapGuideParticle.equal_range( iType_ );
 	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; )
 	{
 		if( iSlot_ != it->second.m_iSlot )
@@ -307,20 +307,20 @@ void CX2UIManager::RemoveGuideParticle( const int iType_, const int iSlot_ )
 			if( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq )
 				g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hSeq );
 		}
-		m_mmapJuneGuideParticle.erase( it++ );
+		m_mmapGuideParticle.erase( it++ );
 	}
 
-	if( m_mmapJuneGuideParticle.end() == m_mmapJuneGuideParticle.find( iType_ ) )
-		m_mapJuneGuideParticleTimer.erase( iType_ );
+	if( m_mmapGuideParticle.end() == m_mmapGuideParticle.find( iType_ ) )
+		m_mapGuideParticleTimer.erase( iType_ );
 }
 
 // June 32155eb0 @3215631c: a type's timer at 0 re-spawns all its entries and restarts at the type's period
 void CX2UIManager::GuideParticleFrameMove( const float fElapsedTime_ )
 {
-	for( std::map<int, float>::iterator mit = m_mapJuneGuideParticleTimer.begin(); mit != m_mapJuneGuideParticleTimer.end(); ++mit )
+	for( std::map<int, float>::iterator mit = m_mapGuideParticleTimer.begin(); mit != m_mapGuideParticleTimer.end(); ++mit )
 	{
-		std::map<int, GuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( mit->first );
-		if( m_mapJuneGuideParticleType.end() == tit )
+		std::map<int, GuideParticleType>::iterator tit = m_mapGuideParticleType.find( mit->first );
+		if( m_mapGuideParticleType.end() == tit )
 			continue;
 		mit->second -= fElapsedTime_;
 		if( mit->second <= 0.f )
@@ -334,11 +334,11 @@ void CX2UIManager::GuideParticleFrameMove( const float fElapsedTime_ )
 // June 32155e20
 void CX2UIManager::RespawnGuideParticle( const int iType_ )
 {
-	std::map<int, GuideParticleType>::iterator tit = m_mapJuneGuideParticleType.find( iType_ );
-	if( m_mapJuneGuideParticleType.end() == tit )
+	std::map<int, GuideParticleType>::iterator tit = m_mapGuideParticleType.find( iType_ );
+	if( m_mapGuideParticleType.end() == tit )
 		return;
 
-	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapJuneGuideParticle.equal_range( iType_ );
+	std::pair< std::multimap<int, GuideParticle>::iterator, std::multimap<int, GuideParticle>::iterator > range = m_mmapGuideParticle.equal_range( iType_ );
 	for( std::multimap<int, GuideParticle>::iterator it = range.first; it != range.second; ++it )
 		CreateGuideParticle( it->second, tit->second );
 }

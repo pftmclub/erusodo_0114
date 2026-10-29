@@ -493,14 +493,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			int iFlag;				/// 1이면 m_PhysicParam.nowSpeed 의 x, y에 += 연산을\n
 									///	2이면 = 연산을 수행하게하는 플래그
 #ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
-			bool bJuneRotateByDirZ;	/// June 31fe2740 5th column ( +0x10, miss false ): turn x / y by the Future dirDegree.z ( C3l )
+			bool bRotateByDirZ;	/// June 31fe2740 5th column ( +0x10, miss false ): turn x / y by the Future dirDegree.z ( C3l )
 #endif SERV_IRUHADEV_JUNE_SPEED_TIME
 
 			TIME_SPEED() :
 			vSpeed( D3DXVECTOR3(0.f, 0.f, 0.f) ),
 			iFlag( 0 )
 #ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
-			, bJuneRotateByDirZ( false )
+			, bRotateByDirZ( false )
 #endif SERV_IRUHADEV_JUNE_SPEED_TIME
 			{
 			}
@@ -1095,7 +1095,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 			/// June APPLY_MOVEMENT_SPEED ( C3h ): June's PhysicParam +0x00 ( unit +0x300; June's struct is 0x34 bytes ). Kept in the
 			/// struct so every whole-struct copy carries it, as in June; placed last ( nothing in March depends on the offset ).
-			bool			bJuneApplyMovementSpeed;
+			bool			bApplyMovementSpeed;
 #endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 
 //			float			fSpeedFactor;	/// 걷기, 달리기, 점프, 대시 점프 속도에 곱해진다. fix!! 근데 현재 구현은 이동속도에만 적용되도록 되어있다??
@@ -1130,7 +1130,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				fJumpSpeed		= 0.0f;
 				fDashJumpSpeed	= 0.0f;
 #ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
-				bJuneApplyMovementSpeed	= false;	/// June CX2GameUnit ctor 322a2700 @322a3184 ( bl = 0 )
+				bApplyMovementSpeed	= false;	/// June CX2GameUnit ctor 322a2700 @322a3184 ( bl = 0 )
 #endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 				
 //				fSpeedFactor	= 1.f;
@@ -1875,8 +1875,8 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			int m_iNoDownDamageAtStandUpAttackPercent;
 			float m_fStatAtkRateOfSummoned;						// 소환된 몬스터의 공격력 비율
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
-			float m_fJune4068;	/// June +0x4068 ( ctor 1.0 ): Grace of Queen 25408 SA_SUMMON_ATK_REL, written by Eve's InitPassiveSkillState 3297f290 ( CH4a )
-			float m_fJune406c;	/// June +0x406c ( ctor 0.0 ): Grace of Queen 25408 SA_ATK_CRITICAL_RATE_ABS, written by 3297f290 @3297f722 ( CH4a )
+			float m_fSummonedAtkRateByPassive;	/// June +0x4068 ( ctor 1.0 ): Grace of Queen 25408 SA_SUMMON_ATK_REL, written by Eve's InitPassiveSkillState 3297f290 ( CH4a )
+			float m_fSummonedCriticalRateByPassive;	/// June +0x406c ( ctor 0.0 ): Grace of Queen 25408 SA_ATK_CRITICAL_RATE_ABS, written by 3297f290 @3297f722 ( CH4a )
 #endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 
 		public: 
@@ -1894,8 +1894,8 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				m_iNoDownDamageAtStandUpAttackPercent = 0;
 				m_fStatAtkRateOfSummoned = 1.f;
 #ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
-				m_fJune4068 = 1.f;	// June ctor 322a434b
-				m_fJune406c = 0.f;	// June ctor 322a4357
+				m_fSummonedAtkRateByPassive = 1.f;	// June ctor 322a434b
+				m_fSummonedCriticalRateByPassive = 0.f;	// June ctor 322a4357
 #endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
 			}
 
@@ -2039,11 +2039,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 			vector<DELETE_CONDITION_EFFECT_SET> m_vecDeleteCondition;
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
-			float		m_fJuneConsumeMP;	/// June entry +0x30 ( entry 0x3c bytes ): CONSUME_MP of EFFECT_SET_LIST_FINAL; -1 ( 334380f0 ) in every ctor ( 32079750 / 320797f0 / 32079890 )
+			float		m_fConsumeMP;	/// June entry +0x30 ( entry 0x3c bytes ): CONSUME_MP of EFFECT_SET_LIST_FINAL; -1 ( 334380f0 ) in every ctor ( 32079750 / 320797f0 / 32079890 )
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
-			bool		m_bJunePossibleNasodBarrier;	/// June entry +0x34: the state's POSSIBLE_NASOD_BARRIER on an EFFECT_SET_LIST_EX row ( 32079890's 4th argument )
-			int			m_iJuneRelateSkillID;			/// June entry +0x38: RELATE_SKILL_ID of a FINAL row ( 3200b030 )
+			bool		m_bPossibleNasodBarrier;	/// June entry +0x34: the state's POSSIBLE_NASOD_BARRIER on an EFFECT_SET_LIST_EX row ( 32079890's 4th argument )
+			int			m_iRelateSkillID;			/// June entry +0x38: RELATE_SKILL_ID of a FINAL row ( 3200b030 )
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 #else // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 			DELETE_CONDITION_EFFECT_SET m_eDeleteCondition;
@@ -2054,11 +2054,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				: m_wstrEffectSetName( L"" )
 				, m_fStartAnimationTime( 0.f )
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
-				, m_fJuneConsumeMP( -1.f )
+				, m_fConsumeMP( -1.f )
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
-				, m_bJunePossibleNasodBarrier( false )
-				, m_iJuneRelateSkillID( 0 )
+				, m_bPossibleNasodBarrier( false )
+				, m_iRelateSkillID( 0 )
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 			{
 				m_vecDeleteCondition.push_back( DCES_NONE );
@@ -2069,11 +2069,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				m_wstrEffectSetName = name;
 				m_fStartAnimationTime = fTime;
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
-				m_fJuneConsumeMP = -1.f;
+				m_fConsumeMP = -1.f;
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
-				m_bJunePossibleNasodBarrier = false;
-				m_iJuneRelateSkillID = 0;
+				m_bPossibleNasodBarrier = false;
+				m_iRelateSkillID = 0;
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 				m_vecDeleteCondition.push_back( DCES_NONE );
 			}
@@ -2083,11 +2083,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				m_wstrEffectSetName = name;
 				m_fStartAnimationTime = fTime;
 #ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
-				m_fJuneConsumeMP = -1.f;
+				m_fConsumeMP = -1.f;
 #endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
-				m_bJunePossibleNasodBarrier = false;
-				m_iJuneRelateSkillID = 0;
+				m_bPossibleNasodBarrier = false;
+				m_iRelateSkillID = 0;
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
 				m_vecDeleteCondition.clear();
 				m_vecDeleteCondition.resize( vecDeleteCondition.size() );
@@ -2522,7 +2522,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		void AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectSetHandle_, int iDeleteCondition_ );	/// Atlas E7: June 3227a670
 		/// Atlas E7 ( region_engine.tsv B35, B36 )
-		void SetThornsInfo( bool bThorns_, float fThornsRate_ ) { m_bJuneThorns = bThorns_; m_fJuneThornsRate = fThornsRate_; }	/// June 3226e350
+		void SetThornsInfo( bool bThorns_, float fThornsRate_ ) { m_bThorns = bThorns_; m_fThornsRate = fThornsRate_; }	/// June 3226e350
 		void ProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ );	/// June 32278150 ( both DamageReacts )
 		void UpNowHpWithText( float fDelta_ );		/// June 322780b0
 		void FrameMoveHpChangeText();				/// June 3229ecc0 @3229f11f-3229f4e6
@@ -2531,7 +2531,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		bool FrameMoveMpChangeText();				/// June 3229ecc0 @3229ed1f-3229f127
 #endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 		void StartSimpleTimerCount( float fTime_, float fOffsetX_, float fOffsetY_, float fOffsetZ_, const char* pszSoundName_ );	/// June 32299890
-		int GetSimpleTimerCount() { return m_iJuneSimpleTimerCount; }	/// June 3226e3c0
+		int GetSimpleTimerCount() { return m_iSimpleTimerCount; }	/// June 3226e3c0
 		void StopAndDeleteSimpleTimerCount();			/// June 322963a0
 		void FrameMoveSimpleTimer();				/// June 32299af0
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -2925,8 +2925,8 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void								DoDelegateProcessWithDamageDataInDamageReact ( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecDelegateProcessWithDamageDataInDamageReact, damageData_ ); }
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		/// June +0x66ec, run by AreaHit 32624610 @32624f7b; June registers nothing on it
-		void								InsertDelegateProcessToAreaHit( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecJuneDelegateProcessInAreaHit.push_back( delegateProcess_ ); }
-		void								DoDelegateProcessInAreaHit( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecJuneDelegateProcessInAreaHit, damageData_ ); }
+		void								InsertDelegateProcessToAreaHit( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecDelegateProcessInAreaHit.push_back( delegateProcess_ ); }
+		void								DoDelegateProcessInAreaHit( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecDelegateProcessInAreaHit, damageData_ ); }
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		
 		/// CommonFrameMove에서 수행될 Delegate프로세스
@@ -2940,7 +2940,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			m_vecDelegateProcessInCommonFrameMove.clear();
 			m_vecDelegateProcessWithDamageDataInDamageReact.clear();
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
-			m_vecJuneDelegateProcessInAreaHit.clear();	/// June 3207bfe0 @3207c0a2
+			m_vecDelegateProcessInAreaHit.clear();	/// June 3207bfe0 @3207c0a2
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		}
 
@@ -3351,7 +3351,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			m_eDamageType = CX2DamageManager::DT_PHYSIC;
 			m_fDamageRel = 1.f;
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-			m_iJuneChangeDamageAttackType = -1;		/// June 32c438a5 (Raven ResetDamageType, inlined): +0x4108 = -1
+			m_iChangeDamageAttackType = -1;		/// June 32c438a5 (Raven ResetDamageType, inlined): +0x4108 = -1
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		}
 		bool GetChangeDamageType(CX2DamageManager::DAMAGE_TYPE &eDamageType, float &fDamageRel)
@@ -3365,7 +3365,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		int  GetDamageTimes() { return m_iDamageTimes; }
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		/// June +0x4108: the attack type the damage-type change applies to; -1 = every attack type (see CX2GUUser::SetDamageExceptionProcess)
-		int  GetChangeDamageAttackType() const { return m_iJuneChangeDamageAttackType; }
+		int  GetChangeDamageAttackType() const { return m_iChangeDamageAttackType; }
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif
 		
@@ -3494,21 +3494,21 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void DoCustomFunctionByBuffInNpcFinalDamage( IN const float* pfFinalDamage_, IN CX2DamageManager::DamageData* pDamageData_ );	/// June 322757b0: slot 6
 		void DoCustomFunctionByBuffInSetBuffFactor( IN const CX2BuffFactor& buffFactor_ );	/// June 32275860: slot 7
 		/// June buff port Phase 9b: June's per-unit fields the custom-function classes read
-		int GetLastHitAttackSerial() const { return m_iJuneLastHitAttackSerial; }	/// June +0x40dc (Chain Viper's count seed)
-		void SetLastHitAttackSerial( const int iSerial_ ) { m_iJuneLastHitAttackSerial = iSerial_; }
-		bool GetReservedDeath() const { return m_bJuneReservedDeath; }		/// June +0x258 (a protected bool)
-		void SetReservedDeath( const bool bReserved_ ) { m_bJuneReservedDeath = bReserved_; }	/// June 32082790 (Death Sign's erase hook sets it)
+		int GetLastHitAttackSerial() const { return m_iLastHitAttackSerial; }	/// June +0x40dc (Chain Viper's count seed)
+		void SetLastHitAttackSerial( const int iSerial_ ) { m_iLastHitAttackSerial = iSerial_; }
+		bool GetReservedDeath() const { return m_bReservedDeath; }		/// June +0x258 (a protected bool)
+		void SetReservedDeath( const bool bReserved_ ) { m_bReservedDeath = bReserved_; }	/// June 32082790 (Death Sign's erase hook sets it)
 #else SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		void CreateAndInsertCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_, const KBuffBehaviorFactor& kBehaviorFactor_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		/// C3d-3: June +0x40f0 / +0x40f4 ( the back speed the bounding states launch with ) and +0x40e0 / +0x40e8 ( the last attacker's UID and
 		/// game-unit type, written by both DamageReacts ). The Lu/Ciel hook that reads the last attacker is class code ( checklist 7l ).
-		const D3DXVECTOR2& GetBoundingBackSpeed() const { return m_vJuneBoundingBackSpeed; }
-		void SetBoundingBackSpeed( const float fX_, const float fY_ ) { m_vJuneBoundingBackSpeed.x = fX_; m_vJuneBoundingBackSpeed.y = fY_; }
-		GAME_UNIT_TYPE GetLastAttackerUnitType() const { return m_eJuneLastAttackerUnitType; }
-		UidType GetLastAttackerUID() const { return m_uidJuneLastAttacker; }
-		void SetLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
+		const D3DXVECTOR2& GetBoundingBackSpeed() const { return m_vBoundingBackSpeed; }
+		void SetBoundingBackSpeed( const float fX_, const float fY_ ) { m_vBoundingBackSpeed.x = fX_; m_vBoundingBackSpeed.y = fY_; }
+		GAME_UNIT_TYPE GetLastAttackerUnitType() const { return m_eLastAttackerUnitType; }
+		UidType GetLastAttackerUID() const { return m_uidLastAttacker; }
+		void SetLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eLastAttackerUnitType = eUnitType_; m_uidLastAttacker = uidAttacker_; }
 		/// C3j: June vslots 0x2f0 / 0x2f4. June's base ( 31aa1d30 ) is a trap stub ( a log, then a write to address 0 ), so both are pure here; the user
 		/// and the NPC override them. The only June caller is Lu/Ciel class code ( 32b34680 ). ( The C3d-3 review's 0x2f4 / 0x2f8 was one slot off. )
 		virtual bool IsBoundingUp() const = 0;
@@ -3518,9 +3518,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// C3g: June +0x40f8 ( a protected float, ctor 1.0 ), the state's SET_LIMIT_MAX_G_SPEED. PhysicProcess ( user 32015b30 @32016f5e,
 		/// NPC 3277fbf0 @32780466 ) does fldz / fcomp / test ah,0x41 / jne: only a value strictly below 0 replaces the cap; 0, positive and
 		/// NaN keep fMaxGSpeed * buoyancy ( x87 run, C3g ). The negative limit is used as it is: no buoyancy, no unit scale.
-		float GetLimitMaxGSpeed() const { return m_fJuneLimitMaxGSpeed; }
-		void SetLimitMaxGSpeed( const float fLimit_ ) { m_fJuneLimitMaxGSpeed = fLimit_; }
-		float GetMaxGSpeedCap( const float fBuoyancy_ ) const { return ( m_fJuneLimitMaxGSpeed < 0.f ) ? m_fJuneLimitMaxGSpeed : m_PhysicParam.fMaxGSpeed * fBuoyancy_; }
+		float GetLimitMaxGSpeed() const { return m_fLimitMaxGSpeed; }
+		void SetLimitMaxGSpeed( const float fLimit_ ) { m_fLimitMaxGSpeed = fLimit_; }
+		float GetMaxGSpeedCap( const float fBuoyancy_ ) const { return ( m_fLimitMaxGSpeed < 0.f ) ? m_fLimitMaxGSpeed : m_PhysicParam.fMaxGSpeed * fBuoyancy_; }
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		void EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ );
 		void DoCustomFunctionByBuffInCommonStateStart();
@@ -4100,13 +4100,13 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float EnchantAccumulationRateModifier( CX2DamageManager::DamageData* pDamageData_, CX2DamageManager::EXTRA_DAMAGE_TYPE basicExtraDamageType, CX2DamageManager::EXTRA_DAMAGE_TYPE miscExtraDamageType, float fRate );
 		/// June 32272780 ( element 1 blaze / 2 frozen / 3 poison ): did that accumulation rise on its last proc (bytes +0x7c7c..+0x7c7e,
 		/// cleared at the start of each body, zeroed in the ctor @322a5eb8). Read by the slow ticks.
-		bool IsEnchantAccumulationRose( const int iElement_ ) const { return m_kJuneEnchantAccumulationRose.m_abRose[iElement_ - 1]; }
+		bool IsEnchantAccumulationRose( const int iElement_ ) const { return m_kEnchantAccumulationRose.m_abRose[iElement_ - 1]; }
 		struct EnchantAccumulationRose
 		{
 			bool m_abRose[3];
 			EnchantAccumulationRose() { m_abRose[0] = m_abRose[1] = m_abRose[2] = false; }
 		};
-		EnchantAccumulationRose m_kJuneEnchantAccumulationRose;
+		EnchantAccumulationRose m_kEnchantAccumulationRose;
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #endif ENCHANT_ACCUMULATION_RATE_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
@@ -4140,7 +4140,7 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			bool m_bUse;	/// June +0x7c7f: INIT_COMPONENT USE_OWNERS_ENCHANT (June 32289090 @32289d44), read by NPC slots 111/112
 			UseOwnersEnchant() : m_bUse( false ) {}
 		};
-		UseOwnersEnchant m_kJuneUseOwnersEnchant;
+		UseOwnersEnchant m_kUseOwnersEnchant;
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 		
 
@@ -4439,32 +4439,32 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		/// June effect completion C4: June CX2GameUnit +0x75e4 (std::map, head +0x75e8). (attacker UID, DIVISION_NUM) -> seconds left
 		/// before that attacker's hit with that DIVISION_NUM may apply buff factors to this unit again.
-		std::map<DivisionKey, float>				m_mapJuneDivisionWindow;
+		std::map<DivisionKey, float>				m_mapDivisionWindow;
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 		/// C3e-5: June CX2GameUnit +0x68d0. Set to 0.5 by a super-armor short hit-stop, ticked down in OnFrameMove ( 3229ecc0 @3229f4ff ),
 		/// zero from the ctor ( 322a2700 @322a5169 ). No other June reader or writer ( displacement sweep ).
-		float												m_fJuneSuperArmorHitStopCoolTime;
+		float												m_fSuperArmorHitStopCoolTime;
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		/// Atlas E7: June +0x75d8 / +0x75dc / +0x75e0 ( SetThornsInfo 3226e350 writes the first two; the third, "test my HP first", is set only by
 		/// class code 3226e370 <- 32a67a20, checklist ); zero in the ctor ( 322a2700 @322a5622-322a5636 )
-		bool											m_bJuneThorns;
-		float											m_fJuneThornsRate;
-		bool											m_bJuneThornsCheckHp;
+		bool											m_bThorns;
+		float											m_fThornsRate;
+		bool											m_bThornsCheckHp;
 		/// Atlas E7: June +0x68bc / +0x68c0, the queued HP changes 322780b0 adds ( shown as HP +n / HP -n every 0.2 s )
-		float											m_fJuneHpChangeTextTime;
-		std::vector<float>								m_vecJuneHpChangeText;
+		float											m_fHpChangeTextTime;
+		std::vector<float>								m_vecHpChangeText;
 #ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
-		float											m_fJuneMpChangeTextTime;	/// June +0x68a8
-		std::vector<float>								m_vecJuneMpChangeText;		/// June +0x68ac
+		float											m_fMpChangeTextTime;	/// June +0x68a8
+		std::vector<float>								m_vecMpChangeText;		/// June +0x68ac
 #endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 		/// Atlas E7: June +0x75f4 handle, +0x75f8 time, +0x75fc count ( -1 off ), +0x7600 sound, +0x761c offset ( ctor @322a5e57-322a5e74: -1, 0, -1, L"" )
-		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hJuneSimpleTimer;
-		float											m_fJuneSimpleTimerTime;
-		int												m_iJuneSimpleTimerCount;
-		std::wstring									m_wstrJuneSimpleTimerSound;
-		D3DXVECTOR3										m_vJuneSimpleTimerOffset;
+		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSimpleTimer;
+		float											m_fSimpleTimerTime;
+		int												m_iSimpleTimerCount;
+		std::wstring									m_wstrSimpleTimerSound;
+		D3DXVECTOR3										m_vSimpleTimerOffset;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		KProtectedType<int>								m_TeamNum;			/// Team 분류 넘버로, 던전에서는 보통 CX2Room::TN_RED 이다.
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -4485,12 +4485,12 @@ protected:
 		PhysicParam										m_OrgPhysicParam;	/// Original이 변경될 것이라면 왜 Original 인가..?
 		PhysicParam										m_PhysicParam;		/// 현재의 PhysicParam... 잘 정리해 보자.../
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
-		PhysicParam										m_JuneWorldRateBackupPhysicParam;	/// June unit +0x334 ( C3n ): m_PhysicParam at the first ApplyJuneWorldGravityRate. Never refreshed, never copied back; a plain member, not a PhysicParam field, so the whole-struct copies ( C3h ) leave it alone
-		bool											m_bJuneWorldRateBackupTaken;		/// June unit +0x368: set by the first ApplyJuneWorldGravityRate, cleared only by the ctor ( June @322a5e44 )
+		PhysicParam										mWorldRateBackupPhysicParam;	/// June unit +0x334 ( C3n ): m_PhysicParam at the first ApplyJuneWorldGravityRate. Never refreshed, never copied back; a plain member, not a PhysicParam field, so the whole-struct copies ( C3h ) leave it alone
+		bool											m_bWorldRateBackupTaken;		/// June unit +0x368: set by the first ApplyJuneWorldGravityRate, cleared only by the ctor ( June @322a5e44 )
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 #ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
-		float											m_fJuneWorldColorStartTime;	/// June unit +0x244 ( C3o ): the now state's CHANGE_WORLD_COLOR_DATA START_TIME; -1 = no window ( ctor @322a2928 )
-		float											m_fJuneWorldColorEndTime;	/// June unit +0x248: its END_TIME ( -1 in the ctor )
+		float											m_fWorldColorStartTime;	/// June unit +0x244 ( C3o ): the now state's CHANGE_WORLD_COLOR_DATA START_TIME; -1 = no window ( ctor @322a2928 )
+		float											m_fWorldColorEndTime;	/// June unit +0x248: its END_TIME ( -1 in the ctor )
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 		CX2DamageManager::DamageData					m_DamageData;		/// User 또는 NPC 스크립트에 있는 DamageData
@@ -4871,10 +4871,10 @@ protected:
 #endif
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
-		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetPlayed;				/// June +0x3e90: one entry per delete condition of every played handle, drained at CommonStateEnd
-		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetToDeleteOnStageEnd;	/// June +0x3ea0
-		std::vector< CX2EffectSet::Handle > m_vecJuneEffectSetToDeleteOffRiding;	/// June +0x3ee0
-		std::vector< std::pair< CX2EffectSet::Handle, int > > m_vecJuneEffectSetToDeleteOnSkillStateEnd;	/// June +0x3f00: { handle, skill id }
+		std::vector< CX2EffectSet::Handle > m_vecEffectSetPlayed;				/// June +0x3e90: one entry per delete condition of every played handle, drained at CommonStateEnd
+		std::vector< CX2EffectSet::Handle > m_vecEffectSetToDeleteOnStageEnd;	/// June +0x3ea0
+		std::vector< CX2EffectSet::Handle > m_vecEffectSetToDeleteOffRiding;	/// June +0x3ee0
+		std::vector< std::pair< CX2EffectSet::Handle, int > > m_vecEffectSetToDeleteOnSkillStateEnd;	/// June +0x3f00: { handle, skill id }
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 #ifdef SERV_IRUHADEV_JUNE_DIECREATENPC_DTOR_GUARD
 		bool m_bInGameUnitDestructor;	/// set true at the very top of ~CX2GameUnit(); lets JuneDieCreateNpc() (X2DamageEffect.cpp) avoid calling GetIsRight()/IsMyUnit() -- both pure virtual here -- on an owner unit that is itself mid-destruction
@@ -5024,7 +5024,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		/// June CX2GameUnit +0x4108 (ctor 322a2700 @322a5bf7 = 2, ResetDamageType -1; the 2 is written again by Raven's Burning Nasod Hand, which is the
 		/// Raven port's, checklist 7b). The user layer applies the damage-type change only when this is -1 or equals the hit's attack type.
-		int								m_iJuneChangeDamageAttackType;
+		int								m_iChangeDamageAttackType;
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef DAMAGE_HISTORY
 		bool	m_bDamageHistory;	/// 핵방지용.. NPC만 사용
@@ -5346,7 +5346,7 @@ protected:
 		vector<DelegateProcess>							m_vecDelegateProcessInCommonFrameMove;	/// CommonFrameMove 에서 실행되는 델리게이트 모음
 		vector<DelegateProcessWithDamageData>			m_vecDelegateProcessWithDamageDataInDamageReact;		/// DamageReact 시에만 실행되는 델리게이트 모음(DamageData 인자 사용)
 #ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
-		vector<DelegateProcessWithDamageData>			m_vecJuneDelegateProcessInAreaHit;		/// June +0x66ec ( AreaHit )
+		vector<DelegateProcessWithDamageData>			m_vecDelegateProcessInAreaHit;		/// June +0x66ec ( AreaHit )
 #endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 
 		vector<CX2EffectSetImpactPointByBuffPtr>	m_vecEffectSetImpactPointByBuffPtr;	/// 타격시 타격포인트에 출력되야하는 이펙트셋리스트
@@ -5359,18 +5359,18 @@ protected:
 		vector<CX2AfterImageByBuffPtr>				m_vecAfterImageByBuff;				/// Element는 AfterImage의 색깔로, Element가 있다면 AfterImage가 Enable 되야함
 //{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
-		int											m_iJuneAttackSerial;			/// June +0x40d8: ++ per SetDamageExceptionProcess, copied to DamageData +0x5e8
-		int											m_iJuneLastHitAttackSerial;		/// June +0x40dc: the serial of the last hit this unit took (both DamageReacts)
-		bool										m_bJuneReservedDeath;			/// June +0x258: CX2GUUser::OnFrameMove kills the user once it is set
+		int											m_iAttackSerial;			/// June +0x40d8: ++ per SetDamageExceptionProcess, copied to DamageData +0x5e8
+		int											m_iLastHitAttackSerial;		/// June +0x40dc: the serial of the last hit this unit took (both DamageReacts)
+		bool										m_bReservedDeath;			/// June +0x258: CX2GUUser::OnFrameMove kills the user once it is set
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-		D3DXVECTOR2																														m_vJuneBoundingBackSpeed;		/// June +0x40f0 / +0x40f4: set by the RT_BOUNDING case, read by USI_BOUNDING_UP's start
-		UidType																																		m_uidJuneLastAttacker;			/// June +0x40e0: the last attacker's UID ( DamageReact )
-		GAME_UNIT_TYPE																											m_eJuneLastAttackerUnitType;		/// June +0x40e8: the last attacker's game-unit type ( 0 = user )
+		D3DXVECTOR2																														m_vBoundingBackSpeed;		/// June +0x40f0 / +0x40f4: set by the RT_BOUNDING case, read by USI_BOUNDING_UP's start
+		UidType																																		m_uidLastAttacker;			/// June +0x40e0: the last attacker's UID ( DamageReact )
+		GAME_UNIT_TYPE																											m_eLastAttackerUnitType;		/// June +0x40e8: the last attacker's game-unit type ( 0 = user )
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
-		float																		m_fJuneLimitMaxGSpeed;			/// June +0x40f8 ( protected ): the state's SET_LIMIT_MAX_G_SPEED, 1.0 = no limit
+		float																		m_fLimitMaxGSpeed;			/// June +0x40f8 ( protected ): the state's SET_LIMIT_MAX_G_SPEED, 1.0 = no limit
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		CKTDGXSkinAfterImage*						m_pAfterImage;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -5426,7 +5426,7 @@ protected:
 		UidType										m_iFinisherUID;
 #endif SERV_DROP_FOR_FINISHER_ONLY
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-		int											m_iJuneAutoDisableLine;	/// June game unit +0x3e48: the auto-disabled line I was let onto, -1 = none
+		int											m_iAutoDisableLine;	/// June game unit +0x3e48: the auto-disabled line I was let onto, -1 = none
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 };
 

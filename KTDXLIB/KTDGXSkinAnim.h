@@ -25,7 +25,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 			XAP_ONE,
 			XAP_ONE_WAIT,
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
-			XAP_JUNE_LOOP_LAST_TRANSITION,	// June2017 31d2bd80 play type 3 (no Lua name): loop restart with the last ChangeAnim's transition (+0x855)
+			XAP_LOOP_LAST_TRANSITION,	// June2017 31d2bd80 play type 3 (no Lua name): loop restart with the last ChangeAnim's transition (+0x855)
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		};
 
@@ -114,7 +114,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		// June2017 CX2WorldObjectSkinMesh::SetTransition 327f69d0: writes anim +0x854, the transition of the XAP_LOOP restart in OnFrameMove
-		void SetLoopTransition( bool bTransition ){ m_bJuneLoopTransition = bTransition; }
+		void SetLoopTransition( bool bTransition ){ m_bLoopTransition = bTransition; }
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 		bool RefreshBones();	// June2017 31d29950: refresh the bone matrices without advancing the animation
@@ -410,7 +410,7 @@ class CKTDGXSkinAnim : public CKTDGObject
 	void SetProcessFrameMove(bool val) { m_bIsProcessFrameMove = val; }
 #endif // FIX_MESH_RENDER_BEFORE_INITINALIZE
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-	void SetForceNormalDraw( bool bVal_ ) { m_bJuneForceNormalDraw = bVal_; }
+	void SetForceNormalDraw( bool bVal_ ) { m_bForceNormalDraw = bVal_; }
 	void RenderParamPass( std::vector<Alpha_SkinMesh> vecRenderParamSkinMesh_ );
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
@@ -877,8 +877,8 @@ class CKTDGXSkinAnim : public CKTDGObject
 		float						m_fSMUVAccV;			// June anim +0x860
 #endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-		std::vector<Typed_SkinMesh>	m_vecJuneTypedSkinMesh;	// June anim +0x830
-		bool							m_bJuneForceNormalDraw;	// June anim +0x853
+		std::vector<Typed_SkinMesh>	m_vecTypedSkinMesh;	// June anim +0x830
+		bool							m_bForceNormalDraw;	// June anim +0x853
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 #ifdef ARA_CHARACTER_BASE
 		std::vector<RenderParam_SkinMesh> m_vecRenderParamSkinMesh;
@@ -891,9 +891,9 @@ class CKTDGXSkinAnim : public CKTDGObject
 		std::vector<CKTDXDeviceXSkinMesh*>		m_vecAddedSkinMesh;
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
-		int		m_iJuneRefAdds;		// SKREF: RefDevice calls this skin anim made
-		int		m_iJuneRefOwned;	// SKREF: bCloseDeviceAtDestructor meshes stored without a reference ( the list owns the caller's )
-		int		m_iJuneRefCloses;	// SKREF: closes this skin anim made
+		int		m_iRefAdds;		// SKREF: RefDevice calls this skin anim made
+		int		m_iRefOwned;	// SKREF: bCloseDeviceAtDestructor meshes stored without a reference ( the list owns the caller's )
+		int		m_iRefCloses;	// SKREF: closes this skin anim made
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 
 #ifdef JIGGLEBONE_TEST
@@ -905,12 +905,12 @@ class CKTDGXSkinAnim : public CKTDGObject
 
 		bool	m_bApplyMoveBone;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
-		bool	m_bJuneLoopTransition;	// June anim +0x854 ( default 1 ): XAP_LOOP restart transition, written by SetTransition 327f69d0
-		bool	m_bJuneLastTransition;	// June anim +0x855 ( default 1 ): the last ChangeAnim's transition, read by play type 3
+		bool	m_bLoopTransition;	// June anim +0x854 ( default 1 ): XAP_LOOP restart transition, written by SetTransition 327f69d0
+		bool	m_bLastTransition;	// June anim +0x855 ( default 1 ): the last ChangeAnim's transition, read by play type 3
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
-		std::map<int, LPD3DXANIMATIONSET>	m_mapJuneAnimSetBackup;	// June anim +0x294: m_vAnimSetList by index ( ResetAnimSet ), no AddRef
-		std::vector<std::wstring>			m_vecJuneMixedMotion;	// June anim +0x864: names of the motion meshes MixAnim has mixed, never cleared
+		std::map<int, LPD3DXANIMATIONSET>	m_mapAnimSetBackup;	// June anim +0x294: m_vAnimSetList by index ( ResetAnimSet ), no AddRef
+		std::vector<std::wstring>			m_vecMixedMotion;	// June anim +0x864: names of the motion meshes MixAnim has mixed, never cleared
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 		bool			m_bHideNoRenderable;

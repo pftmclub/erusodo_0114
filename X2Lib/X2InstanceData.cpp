@@ -115,14 +115,14 @@ m_bFirstJoinVillage(false)
 ,m_iPreEventElesisUID(0)
 #endif // SERV_ELISIS_PREVIOUS_SIS_EVENT
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
-,m_iJuneDeferredSceneQuestID(0)
-,m_iJuneDeferredSceneMode(0)
+,m_iDeferredSceneQuestID(0)
+,m_iDeferredSceneMode(0)
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
-,m_bJuneStoryBookNew(false)
+,m_bStoryBookNew(false)
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
-,m_bJuneStoryEndMessage(false)
+,m_bStoryEndMessage(false)
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 {
 

@@ -432,9 +432,9 @@ private:
 	void GuideParticleFrameMove( const float fElapsedTime_ );	/// June 32155eb0 @3215631c
 	void RespawnGuideParticle( const int iType_ );				/// June 32155e20
 	void CreateGuideParticle( GuideParticle& kParticle_, const GuideParticleType& kType_ );	/// June 32153880
-	std::map<int, GuideParticleType>	m_mapJuneGuideParticleType;		/// June +0xd4
-	std::multimap<int, GuideParticle>	m_mmapJuneGuideParticle;		/// June +0xe4
-	std::map<int, float>					m_mapJuneGuideParticleTimer;	/// June +0xf4
+	std::map<int, GuideParticleType>	m_mapGuideParticleType;		/// June +0xd4
+	std::multimap<int, GuideParticle>	m_mmapGuideParticle;		/// June +0xe4
+	std::map<int, float>					m_mapGuideParticleTimer;	/// June +0xf4
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 
 	void SetShowMinimapUI(bool bVal);

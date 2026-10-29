@@ -25,16 +25,16 @@
 //              7 June quests carry m_vecAcceptRewardItem; no EPIC_NEXT target is one of them.
 //////////////////////////////////////////////////////////////////////////
 
-namespace X2OfflineJuneQuestMig
+namespace X2OfflineQuestMig
 {
 	enum
 	{
-		JUNE_QUEST_COUNT	= 1638,
+		QUEST_COUNT	= 1638,
 		RESET_QUEST_COUNT	= 758,
 		EPIC_NEXT_COUNT		= 52,
 	};
 
-	static const int JUNE_QUEST_IDS[] =
+	static const int QUEST_IDS[] =
 	{
 		13, 160, 190, 230, 240, 250, 270, 271, 310, 320, 321, 322,
 		330, 340, 350, 351, 360, 370, 371, 380, 400, 402, 410, 450,

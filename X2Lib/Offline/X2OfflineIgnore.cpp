@@ -111,7 +111,7 @@ namespace
 		{ L"EGS_TITLE_EXPIRATION_NOT",		L"nothing offline issues a rented title" },
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 		// June result R2: 324cf734 sends it bodyless from the result mode machine and waits for no reply.
-		{ L"EGS_JUNE_FAST_SOLO_CLEAR_NOT",	L"June's fast-solo-clear report ( 0x1f2 ), no body and no reply expected; nothing offline reads it" },
+		{ L"EGS_FAST_SOLO_CLEAR_NOT",	L"June's fast-solo-clear report ( 0x1f2 ), no body and no reply expected; nothing offline reads it" },
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 		// June result R3: June's 0x1f2 is this event ( its drop manager sends 0x1f2 where March sends it )

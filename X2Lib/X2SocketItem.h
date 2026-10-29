@@ -545,8 +545,8 @@ class CX2SocketItem
 				m_eHyperModeEffectiveType	= HMET_NONE;
 				m_fEffectiveValue			= 0.f;
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-				m_fJuneCoolTime				= 0.f;
-				m_iJuneSocketID				= 0;
+				m_fIntervalTime				= 0.f;
+				m_iSocketID				= 0;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef ADJUST_SECRET_ITEM_OPTION //김창한
 				m_fCoolTime					= 0.f;
@@ -564,8 +564,8 @@ class CX2SocketItem
 			/// June buff port 16-step3b6: June's entry is 24 bytes (SumSocketOption 3204f190 @3204fc22..fca6): place, type,
 			/// buff, value, then the socket's m_fIntervalTime (+0x10, unconditional in June; US has no ADJUST_SECRET_ITEM_OPTION)
 			/// and its socket ID (+0x14), the key of the per-socket cool-time store (+0x8b98) ApplyBuffByUseHyperMode uses.
-			float							m_fJuneCoolTime;
-			int								m_iJuneSocketID;
+			float							m_fIntervalTime;
+			int								m_iSocketID;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		};
 		typedef std::pair<POSSIBLE_USE_PLACE, CX2BuffFactorPtr> BuffInfoByUseHyperMode;
@@ -708,7 +708,7 @@ class CX2SocketItem
 			CX2BuffFactorPtr							m_ptrBuffFactor;
 			//vector<CX2BuffFactorPtr>					m_vecBuffFactorPtr;
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
-			vector<CX2DamageManager::ExtraDamageData>	m_vecJuneSecondSocketExtraDamage;	/// June +0x384 (aggregate +0x458): EDT 150/159
+			vector<CX2DamageManager::ExtraDamageData>	m_vecSecondSocketExtraDamage;	/// June +0x384 (aggregate +0x458): EDT 150/159
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			CX2DamageManager::ExtraDamageData			m_SocketExtraDamage;				// 중복안되는 extra damage
 			vector<CX2DamageManager::ExtraDamageData>	m_MultipleSocketExtraDamage;		// 중복 되는, 즉, 여러개 동시에 적용될 수 있는 extra damage
@@ -904,11 +904,11 @@ class CX2SocketItem
 			/// 16-step3b5: June's skill-group power sockets. The loader (32726850 @3272e4b5..3272eb3e) fills the
 			/// first three on the socket templet; the per-unit aggregate gets only the map, from the equipped-slot
 			/// pass in SumSocketOption (31fe14f0). ConvertAndAdd (32080670 / 3207cd70) carries none of them.
-			std::map<int, float>	m_mapJuneSkillAdditionalPowerRate;	/// +0x48 { skill, rate }: templet = the "Group N" members
+			std::map<int, float>	m_mapSkillAdditionalPowerRate;	/// +0x48 { skill, rate }: templet = the "Group N" members
 																		/// (or skill IDs), first insert wins; aggregate = by equipped skill
-			vector<int>		m_vecJuneAdditionalPowerSkillType;		/// +0x98 m_SkillType (327150b0: 1..6 -> June skill type 6, 8, 14, 15, 16, 13)
-			vector<int>		m_vecJuneAdditionalPowerRateType;		/// +0xa8 m_PowerRate (32715110: 1..6 -> power-rate type 0..5)
-			float			m_fJuneSkillAdditionalPowerRate;		/// +0xb8 m_fSkillAdditionalPowerRate (0 unless the group string parsed)
+			vector<int>		m_vecAdditionalPowerSkillType;		/// +0x98 m_SkillType (327150b0: 1..6 -> June skill type 6, 8, 14, 15, 16, 13)
+			vector<int>		m_vecAdditionalPowerRateType;		/// +0xa8 m_PowerRate (32715110: 1..6 -> power-rate type 0..5)
+			float			m_fSkillAdditionalPowerRate;		/// +0xb8 m_fSkillAdditionalPowerRate (0 unless the group string parsed)
 
 			void InitSocketParity()					/// the ctor's and ReInit's (320922a0) zeroing of the fields above
 			{
@@ -925,10 +925,10 @@ class CX2SocketItem
 				m_fIncreaseDmgEnemyHPFew_DmgRate = m_fIncreaseDefMyHPFew_DefRate = m_fDecreaseDebuffTimeRate = 0.f;
 				m_fDecrease_MPCostRate = m_fIncreaseDmgRate_MyHpFew = m_fAllSkillCooltimeDecreaseRate = m_fAllSkillDamageIncreaseRate = 0.f;
 				m_bIsRankLinkedStat = m_bIsPVERankLinkedStat = false;
-				m_mapJuneSkillAdditionalPowerRate.clear();
-				m_vecJuneAdditionalPowerSkillType.clear();
-				m_vecJuneAdditionalPowerRateType.clear();
-				m_fJuneSkillAdditionalPowerRate = 0.f;
+				m_mapSkillAdditionalPowerRate.clear();
+				m_vecAdditionalPowerSkillType.clear();
+				m_vecAdditionalPowerRateType.clear();
+				m_fSkillAdditionalPowerRate = 0.f;
 			}
 
 			/// June 320925f0 (buff port Phase 16-step3b, item 8): the scaled copy SumSocketOption makes of a rank-linked
@@ -1174,7 +1174,7 @@ class CX2SocketItem
 				m_SocketExtraDamage.Init();
 				m_MultipleSocketExtraDamage.resize( 0 );
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
-				m_vecJuneSecondSocketExtraDamage.resize( 0 );
+				m_vecSecondSocketExtraDamage.resize( 0 );
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 				for( int i=0; i< (int)CX2EnchantItem::ET_END ; i++ )

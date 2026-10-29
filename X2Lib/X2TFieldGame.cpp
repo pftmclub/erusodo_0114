@@ -21,8 +21,8 @@ CX2TFieldGame::CX2TFieldGame( CX2World::WORLD_ID worldID, SquareData* pSquareDat
 , m_pTalkBoxManager( NULL )
 , m_vecFieldNpc()
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
-, m_vecJuneRelationHouseTemplet()
-, m_fJuneNpcQuestInfoTime( 0.f )
+, m_vecRelationHouseTemplet()
+, m_fNpcQuestInfoTime( 0.f )
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 , m_pSubAniXSkinAnim( NULL )
 , m_pSubAniMesh( NULL )	
@@ -602,9 +602,9 @@ g_pData->GetUIManager()->DestoryUITempInventory();
 	m_vecFieldNpc.clear();
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 	// June dtor 323b8ba0 @323b92a1-323b9311: the relation templet copies (+0x444) go after the NPC list (@323b8e3e) is released.
-	for( UINT i = 0; i < m_vecJuneRelationHouseTemplet.size(); ++i )
-		SAFE_DELETE( m_vecJuneRelationHouseTemplet[i] );
-	m_vecJuneRelationHouseTemplet.clear();
+	for( UINT i = 0; i < m_vecRelationHouseTemplet.size(); ++i )
+		SAFE_DELETE( m_vecRelationHouseTemplet[i] );
+	m_vecRelationHouseTemplet.clear();
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 	SAFE_DELETE( m_pWorld );
@@ -1938,7 +1938,7 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 		//   @323b72b3) and the guild-mark / spa-sign UI flags (TFG +0x354 / +0x460, @323b7324-323b735d) have no March system: the
 		//   pointer is null and both flags stay false here, so those branches never run.
 		bool bFindJoinNpc = false;
-		m_fJuneNpcQuestInfoTime += fElapsedTime;
+		m_fNpcQuestInfoTime += fElapsedTime;
 		for(unsigned int i=0; i<m_vecFieldNpc.size(); ++i)
 		{
 			CX2TFieldNpcPtr pNpcNode = m_vecFieldNpc[i];
@@ -1966,7 +1966,7 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 				}
 				pNpcNode->SetShowObject(true);
 
-				if( 1.f < m_fJuneNpcQuestInfoTime )
+				if( 1.f < m_fNpcQuestInfoTime )
 				{
 					pNpcNode->GetQuestInfo();
 					pNpcNode->SetCheckCompletableQuest( true );
@@ -2010,8 +2010,8 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 
 			pNpcNode->OnFrameMove( fTime, fElapsedTime );
 		}
-		if( 1.f < m_fJuneNpcQuestInfoTime )
-			m_fJuneNpcQuestInfoTime = 0.f;
+		if( 1.f < m_fNpcQuestInfoTime )
+			m_fNpcQuestInfoTime = 0.f;
 #else SERV_IRUHADEV_ELYSION_VILLAGE
 		bool bFindJoinNpc = false;
 		for(unsigned int i=0; i<m_vecFieldNpc.size(); ++i)
@@ -3507,7 +3507,7 @@ void CX2TFieldGame::ReplaceVillageNpc( const CX2QuestManager::VillageNpcRelation
 	if( false == kData.m_wstrEffectSetName.empty() )	pHouseTemplet->m_wstrEffectSetName		= kData.m_wstrEffectSetName;
 
 	AddFieldNpc( pHouseTemplet, kData.m_wstrName );
-	m_vecJuneRelationHouseTemplet.push_back( pHouseTemplet );
+	m_vecRelationHouseTemplet.push_back( pHouseTemplet );
 
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
 	WCHAR buff[512] = {0};

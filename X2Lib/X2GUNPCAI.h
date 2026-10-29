@@ -102,8 +102,8 @@ public:
 		float	fFlyMoveInterval;	/// FLY_MOVE_INTERVAL 로 이동 AI의 변경 Inverval 타임 (interval에 만족하지 못하면 이전의 이동을 사용)
 		bool	bUnderWaterMode;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		int		iJuneHeightCheckRange;	/// Atlas E7: June AI data +0xe0, FLY_CHASE_MOVE HEIGHT_CHECK_RANGE ( 32efdb50 @32f01e98 / @32f0631a, default 0 )
-		FlyMoveData() : iJuneHeightCheckRange( 0 ) {}	/// June init 32f0e3d0 @32f0e4b3
+		int		iHeightCheckRange;	/// Atlas E7: June AI data +0xe0, FLY_CHASE_MOVE HEIGHT_CHECK_RANGE ( 32efdb50 @32f01e98 / @32f0631a, default 0 )
+		FlyMoveData() : iHeightCheckRange( 0 ) {}	/// June init 32f0e3d0 @32f0e4b3
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	};
 #endif

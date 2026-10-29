@@ -523,8 +523,8 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
         {
             /// June 31d3d203-31d3d283: the no-fog path sets g_fEye too (camera eye, w = 1), where March's skipped it.
-            const D3DXVECTOR3& vJuneEye = g_pKTDXApp->GetDGManager()->GetCamera().GetEye();
-            SetVector( EP_g_fEye, D3DXVECTOR4( vJuneEye.x, vJuneEye.y, vJuneEye.z, 1.0f ) );
+            const D3DXVECTOR3& vEye = g_pKTDXApp->GetDGManager()->GetCamera().GetEye();
+            SetVector( EP_g_fEye, D3DXVECTOR4( vEye.x, vEye.y, vEye.z, 1.0f ) );
         }
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
     }//if.. else..
@@ -534,7 +534,7 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 	/// June BeginRender 31d3cf80 @31d3d29c-31d3d2d0: the rim ramp of this draw is reset to 13 and both texture-op parameters to 1 before the case runs;
 	/// bJuneRimRamp is June's [esp+0x2f] (a rim ramp was bound by a black / color edge case).
-	bool bJuneRimRamp = false;
+	bool bRimRamp = false;
 	m_iRimRampIndex = CTT_RIM_LIGHT_WHITE;
 	SetInt( EP_g_iTextureOp_1, 1 );
 	SetInt( EP_g_iTextureOp_2, 1 );
@@ -579,7 +579,7 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
-				BindCartoonRamps( InRenderParam_, true, true, bJuneRimRamp );	/// June 31d3d4ab-31d3d50b (black edge: guarded by the unit's own ramp)
+				BindCartoonRamps( InRenderParam_, true, true, bRimRamp );	/// June 31d3d4ab-31d3d50b (black edge: guarded by the unit's own ramp)
 #else SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 				{
@@ -628,7 +628,7 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
-				BindCartoonRamps( InRenderParam_, false, true, bJuneRimRamp );	/// June 31d3d6e9-31d3d733 (color edge)
+				BindCartoonRamps( InRenderParam_, false, true, bRimRamp );	/// June 31d3d6e9-31d3d733 (color edge)
 #else SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 				{
@@ -673,8 +673,8 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 				{
-					bool bJuneNoRimRamp = false;
-					BindCartoonRamps( InRenderParam_, false, false, bJuneNoRimRamp );	/// June 31d3d816-31d3d855 (cartoon: no rim, +0x190 untouched)
+					bool bNoRimRamp = false;
+					BindCartoonRamps( InRenderParam_, false, false, bNoRimRamp );	/// June 31d3d816-31d3d855 (cartoon: no rim, +0x190 untouched)
 				}
 #else SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
@@ -799,15 +799,15 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
     {
         /// June BeginRender 31d3d384-31d3da1f: after the case. The cartoon / real-color cases (RT 0-6, the two fades) bind a grading LUT in stage 3
         /// when an env box made one (never without R3's env box), then decide this draw's rim and grading flags.
-        const bool bJuneCartoonCase = ( eRenderType <= RT_ADD_CARTOON || eRenderType >= RT_CARTOON_FADE );
-        if( true == bJuneCartoonCase )
+        const bool bCartoonCase = ( eRenderType <= RT_ADD_CARTOON || eRenderType >= RT_CARTOON_FADE );
+        if( true == bCartoonCase )
         {
-            CKTDXDeviceBaseTexture* pJuneLut = ( NULL != m_apGradingLut[0] ) ? m_apGradingLut[0] : m_apGradingLut[1];
-            if( NULL != pJuneLut )
-                pJuneLut->SetDeviceTexture( 3 );
+            CKTDXDeviceBaseTexture* pLut = ( NULL != m_apGradingLut[0] ) ? m_apGradingLut[0] : m_apGradingLut[1];
+            if( NULL != pLut )
+                pLut->SetDeviceTexture( 3 );
         }
-        m_bRimLightThisDraw = ( bJuneCartoonCase && bJuneRimRamp && m_bRimLight && m_bRimShader );
-        m_bGradingThisDraw = ( bJuneCartoonCase && m_bEnvBox && m_bGradingLutPresent );
+        m_bRimLightThisDraw = ( bCartoonCase && bRimRamp && m_bRimLight && m_bRimShader );
+        m_bGradingThisDraw = ( bCartoonCase && m_bEnvBox && m_bGradingLutPresent );
 
         if( true == m_bRimLightThisDraw )
         {
@@ -842,15 +842,15 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
         /// June BeginRender 31d3daa6-31d3db51: g_mView = the app's view matrix, g_vEyeDir = normalize( camera look-at - eye ) with w = 0.
         if( NULL != EPHANDLE( g_mView ) )
         {
-            D3DXMATRIX mJuneView = g_pKTDXApp->GetViewTransform();
-            m_pEffect->SetMatrix( EPHANDLE( g_mView ), &mJuneView );
+            D3DXMATRIX mView = g_pKTDXApp->GetViewTransform();
+            m_pEffect->SetMatrix( EPHANDLE( g_mView ), &mView );
         }
-        const CKTDGCamera& kJuneCamera = g_pKTDXApp->GetDGManager()->GetCamera();
-        const D3DXVECTOR3& vJuneEye = kJuneCamera.GetEye();
-        const D3DXVECTOR3& vJuneAt = kJuneCamera.GetLookAt();
-        D3DXVECTOR3 vJuneEyeDir( vJuneAt.x - vJuneEye.x, vJuneAt.y - vJuneEye.y, vJuneAt.z - vJuneEye.z );
-        D3DXVec3Normalize( &vJuneEyeDir, &vJuneEyeDir );
-        SetVector( EP_g_vEyeDir, D3DXVECTOR4( vJuneEyeDir.x, vJuneEyeDir.y, vJuneEyeDir.z, 0.0f ) );
+        const CKTDGCamera& kCamera = g_pKTDXApp->GetDGManager()->GetCamera();
+        const D3DXVECTOR3& vEye = kCamera.GetEye();
+        const D3DXVECTOR3& vAt = kCamera.GetLookAt();
+        D3DXVECTOR3 vEyeDir( vAt.x - vEye.x, vAt.y - vEye.y, vAt.z - vEye.z );
+        D3DXVec3Normalize( &vEyeDir, &vEyeDir );
+        SetVector( EP_g_vEyeDir, D3DXVECTOR4( vEyeDir.x, vEyeDir.y, vEyeDir.z, 0.0f ) );
     }
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
     if ( !m_bInRenderGroup )
@@ -1067,7 +1067,7 @@ void CKTDGXRenderer::DrawFrame( CKTDXDeviceXSkinMesh& kInXSkinMesh_, CKTDXDevice
 {
     ASSERT( m_bInBeginPass );
 #ifdef SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
-	if( false == kInFrame_.m_bJuneVisible )	// June 31d3e7d0 @31d3e872
+	if( false == kInFrame_.m_bVisible )	// June 31d3e7d0 @31d3e872
 		return;
 #endif SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE
 
@@ -1417,11 +1417,11 @@ void CKTDGXRenderer::SetVector( EFFECT_PARAMETER eInParam_, const D3DXVECTOR4& v
 /// June 31d3d41e-31d3d4a2: screen size (the back buffer's width / height) and the view-independent edge switch, set by the black / color edge cases.
 void CKTDGXRenderer::SetEdgeParams()
 {
-	const D3DSURFACE_DESC* pJuneDesc = DXUTGetBackBufferSurfaceDesc();
-	if( NULL != pJuneDesc )
+	const D3DSURFACE_DESC* pDesc = DXUTGetBackBufferSurfaceDesc();
+	if( NULL != pDesc )
 	{
-		SetFloat( EP_g_fScreenSizeX, (float) pJuneDesc->Width );
-		SetFloat( EP_g_fScreenSizeY, (float) pJuneDesc->Height );
+		SetFloat( EP_g_fScreenSizeX, (float) pDesc->Width );
+		SetFloat( EP_g_fScreenSizeY, (float) pDesc->Height );
 	}
 	SetBool( EP_g_bIsUseViewIndependentEdge, m_bViewIndependentEdge );
 }
@@ -1528,9 +1528,9 @@ void CKTDGXRenderer::SetUpperStages( CKTDXDeviceBaseTexture* pInTex1_, CKTDXDevi
 	SetBool( EP_g_bIsUseColorGrading, m_bGradingThisDraw );
 	if( true == m_bGradingThisDraw )
 	{
-		CKTDXDeviceBaseTexture* pJuneLut = ( NULL != m_apGradingLut[0] ) ? m_apGradingLut[0] : m_apGradingLut[1];
-		if( NULL != pJuneLut )
-			pJuneLut->SetDeviceTexture( 3 );
+		CKTDXDeviceBaseTexture* pLut = ( NULL != m_apGradingLut[0] ) ? m_apGradingLut[0] : m_apGradingLut[1];
+		if( NULL != pLut )
+			pLut->SetDeviceTexture( 3 );
 	}
 }
 
@@ -1573,33 +1573,33 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 		/// June OnResetDevice 31d3f480 @31d3f60e-31d3f6c1: D3DXCreateEffect gets four macros (DISABLE_SHADER30 only on a device without shader 3), so June's
 		/// XRenderer.fx can drop the shader 3 code paths; March's file never reads them.
-		D3DXMACRO kJuneMacros[5];
+		D3DXMACRO kMacros[5];
 		{
-			int iJuneMacro = 0;
+			int iMacro = 0;
 			if( false == m_bShader30 )
 			{
-				kJuneMacros[iJuneMacro].Name = "X2APP_RENDERING_ENHANCE_DISABLE_SHADER30";
-				kJuneMacros[iJuneMacro].Definition = "";
-				++iJuneMacro;
+				kMacros[iMacro].Name = "X2APP_RENDERING_ENHANCE_DISABLE_SHADER30";
+				kMacros[iMacro].Definition = "";
+				++iMacro;
 			}
-			kJuneMacros[iJuneMacro].Name = "X2APP_RENDERING_ENHANCE_ENVIRONMENT_BOX";
-			kJuneMacros[iJuneMacro].Definition = "";
-			++iJuneMacro;
-			kJuneMacros[iJuneMacro].Name = "X2APP_RENDERING_ENHANCE_VIEW_INDEPENDENT_EDGE";
-			kJuneMacros[iJuneMacro].Definition = "2.0";
-			++iJuneMacro;
-			kJuneMacros[iJuneMacro].Name = "X2APP_RENDERING_ENHANCE_MIPMAP";
-			kJuneMacros[iJuneMacro].Definition = "";
-			++iJuneMacro;
-			kJuneMacros[iJuneMacro].Name = NULL;
-			kJuneMacros[iJuneMacro].Definition = NULL;
+			kMacros[iMacro].Name = "X2APP_RENDERING_ENHANCE_ENVIRONMENT_BOX";
+			kMacros[iMacro].Definition = "";
+			++iMacro;
+			kMacros[iMacro].Name = "X2APP_RENDERING_ENHANCE_VIEW_INDEPENDENT_EDGE";
+			kMacros[iMacro].Definition = "2.0";
+			++iMacro;
+			kMacros[iMacro].Name = "X2APP_RENDERING_ENHANCE_MIPMAP";
+			kMacros[iMacro].Definition = "";
+			++iMacro;
+			kMacros[iMacro].Name = NULL;
+			kMacros[iMacro].Definition = NULL;
 		}
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #ifdef _IN_HOUSE_
 		LPD3DXBUFFER pErr = NULL;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 		if(FAILED(hr = D3DXCreateEffect( g_pKTDXApp->GetDevice(), Info->pRealData, Info->size,
-			kJuneMacros, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, &pErr )))
+			kMacros, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, &pErr )))
 #else SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 		if(FAILED(hr = D3DXCreateEffect( g_pKTDXApp->GetDevice(), Info->pRealData, Info->size,
 			NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, &pErr )))
@@ -1617,7 +1617,7 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 #else
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 		if(FAILED(hr = D3DXCreateEffect( g_pKTDXApp->GetDevice(), Info->pRealData, Info->size,
-			kJuneMacros, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, NULL )))
+			kMacros, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, NULL )))
 #else SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 		if(FAILED(hr = D3DXCreateEffect( g_pKTDXApp->GetDevice(), Info->pRealData, Info->size,
 			NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_pEffect, NULL )))
@@ -1654,21 +1654,21 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
         {
             /// June 31d3f7a2: 33 parameter handles. The new ones are NULL in March's XRenderer.fx (their setters skip); the line below is the proof of which file loaded.
-            int iJuneMissing = 0;
-            std::string strJuneMissing;
+            int iMissing = 0;
+            std::string strMissing;
             for( int i = 0; i < EP_END; i++ )
             {
                 if( NULL == m_ahEffectParameters[ i ] )
                 {
-                    ++iJuneMissing;
-                    strJuneMissing += " ";
-                    strJuneMissing += GetEffectParameterName( EFFECT_PARAMETER( i ) );
+                    ++iMissing;
+                    strMissing += " ";
+                    strMissing += GetEffectParameterName( EFFECT_PARAMETER( i ) );
                 }
             }
             m_bRimShader = ( NULL != EPHANDLE( g_bIsUseRimLight ) );
             KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] FX loaded: shader3 " << (int) m_bShader30 << ", mipmap cap " << (int) m_bMipmapCap << ", aniso max " << m_iMaxAnisotropy
-                << ", handles " << ( (int) EP_END - iJuneMissing ) << "/" << (int) EP_END << ", rim shader " << (int) m_bRimShader
-                << ", missing:" << strJuneMissing.c_str() << fileout;
+                << ", handles " << ( (int) EP_END - iMissing ) << "/" << (int) EP_END << ", rim shader " << (int) m_bRimShader
+                << ", missing:" << strMissing.c_str() << fileout;
         }
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
         hr = m_pEffect->SetTechnique( m_ahTechniques[ 0 ] );

@@ -144,20 +144,20 @@ bool CX2EnchantItem::AddEnchantData_LUA()
 	LUA_GET_VALUE(		luaManager, "m_fShockDebuffDamageFactor",	pEnchantData->m_fShockDebuffDamageFactor,	0.0f );
 	if ( luaManager.BeginTable( "m_arrMovementSpeedDecrease" ) == true )
 	{
-		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
-			pEnchantData->m_arrMovementSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		for ( int i = 1, iValue = 0; i <= 3 && luaManager.GetValue( i, iValue ) == true; i++ )
+			pEnchantData->m_arrMovementSpeedDecrease[i - 1] = static_cast<float>( iValue );
 		luaManager.EndTable();
 	}
 	if ( luaManager.BeginTable( "m_arrJumpSpeedDecrease" ) == true )
 	{
-		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
-			pEnchantData->m_arrJumpSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		for ( int i = 1, iValue = 0; i <= 3 && luaManager.GetValue( i, iValue ) == true; i++ )
+			pEnchantData->m_arrJumpSpeedDecrease[i - 1] = static_cast<float>( iValue );
 		luaManager.EndTable();
 	}
 	if ( luaManager.BeginTable( "m_arrAttackSpeedDecrease" ) == true )
 	{
-		for ( int iJune = 1, iValue = 0; iJune <= 3 && luaManager.GetValue( iJune, iValue ) == true; iJune++ )
-			pEnchantData->m_arrAttackSpeedDecrease[iJune - 1] = static_cast<float>( iValue );
+		for ( int i = 1, iValue = 0; i <= 3 && luaManager.GetValue( i, iValue ) == true; i++ )
+			pEnchantData->m_arrAttackSpeedDecrease[i - 1] = static_cast<float>( iValue );
 		luaManager.EndTable();
 	}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
@@ -255,19 +255,19 @@ bool CX2EnchantItem::GetAttribEnchantRequireED( bool bWeapon, int iCurrEnchanted
 	/// June 327089e0: AttribEnchantRequireED.lua's GetAttribEnchantRequiredED( count, bWeapon, level, grade ),
 	/// truncated to int, always true. Without the script, March's formula below runs and says so once.
 	{
-		lua_State* pJuneLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
-		lua_getglobal( pJuneLuaState, "GetAttribEnchantRequiredED" );
-		const bool bJuneHasFunction = ( lua_isfunction( pJuneLuaState, -1 ) != 0 );
-		lua_pop( pJuneLuaState, 1 );
-		if ( true == bJuneHasFunction )
+		lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+		lua_getglobal( pLuaState, "GetAttribEnchantRequiredED" );
+		const bool bHasFunction = ( lua_isfunction( pLuaState, -1 ) != 0 );
+		lua_pop( pLuaState, 1 );
+		if ( true == bHasFunction )
 		{
-			iRequireED = static_cast<int>( lua_tinker::call<double>( pJuneLuaState, "GetAttribEnchantRequiredED", iCurrEnchantedCount, bWeapon, iEqipLevel, iItemGrade ) );
+			iRequireED = static_cast<int>( lua_tinker::call<double>( pLuaState, "GetAttribEnchantRequiredED", iCurrEnchantedCount, bWeapon, iEqipLevel, iItemGrade ) );
 			return true;
 		}
-		static bool s_bJuneMissingLogged = false;
-		if ( false == s_bJuneMissingLogged )
+		static bool s_bMissingLogged = false;
+		if ( false == s_bMissingLogged )
 		{
-			s_bJuneMissingLogged = true;
+			s_bMissingLogged = true;
 			CX2BuffCapture::Line( "enchant: GetAttribEnchantRequiredED is not loaded (AttribEnchantRequireED.lua missing from data036); March's ED formula is used" );
 		}
 	}
@@ -419,20 +419,20 @@ CX2DamageManager::EXTRA_DAMAGE_TYPE CX2EnchantItem::GetExtraDamageType( const CX
 	// June 32707ce0: the combined type is the sum of each slot's element value. June loops over 4 slots,
 	// March items have 3. A sum that names no EDT (for example blaze + piercing + shock) is returned as is,
 	// as in June; March mapped that one to EDT_ENCHANT_BLAZE_PIERCING.
-	int iJuneComposedEDT = 0;
-	for ( int iJuneSlot = 0; iJuneSlot < ARRAY_SIZE( enchantedAttribute.m_aEnchantedType ); iJuneSlot++ )
+	int iComposedEDT = 0;
+	for ( int iSlot = 0; iSlot < ARRAY_SIZE( enchantedAttribute.m_aEnchantedType ); iSlot++ )
 	{
-		switch( enchantedAttribute.m_aEnchantedType[iJuneSlot] )
+		switch( enchantedAttribute.m_aEnchantedType[iSlot] )
 		{
-		case CX2EnchantItem::ET_BLAZE:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_BLAZE;	break;
-		case CX2EnchantItem::ET_WATER:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_FROZEN;	break;
-		case CX2EnchantItem::ET_NATURE:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_POISON;	break;
-		case CX2EnchantItem::ET_WIND:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_PIERCING;	break;
-		case CX2EnchantItem::ET_LIGHT:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_SHOCK;	break;
-		case CX2EnchantItem::ET_DARK:	iJuneComposedEDT += CX2DamageManager::EDT_ENCHANT_SNATCH;	break;
+		case CX2EnchantItem::ET_BLAZE:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_BLAZE;	break;
+		case CX2EnchantItem::ET_WATER:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_FROZEN;	break;
+		case CX2EnchantItem::ET_NATURE:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_POISON;	break;
+		case CX2EnchantItem::ET_WIND:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_PIERCING;	break;
+		case CX2EnchantItem::ET_LIGHT:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_SHOCK;	break;
+		case CX2EnchantItem::ET_DARK:	iComposedEDT += CX2DamageManager::EDT_ENCHANT_SNATCH;	break;
 		}
 	}
-	return (CX2DamageManager::EXTRA_DAMAGE_TYPE) iJuneComposedEDT;
+	return (CX2DamageManager::EXTRA_DAMAGE_TYPE) iComposedEDT;
 #else SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	int attribEnchantCount[CX2EnchantItem::ET_END] = { 0, };
 	for ( int i = 0; i < ARRAY_SIZE( enchantedAttribute.m_aEnchantedType) ; i++ )

@@ -470,18 +470,18 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 	/// takes it.
 	if( NULL != g_pX2Game )
 	{
-		CX2GameUnit* pJuneCreatorGameUnit = NULL;
+		CX2GameUnit* pCreatorGameUnit = NULL;
 		if( true == pBuffTemplet_->IsCreatorNotUser() )
-			pJuneCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetCreatorUID() ) );
+			pCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetCreatorUID() ) );
 		else
-			pJuneCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetCreatorUID() );
-		const BYTE byJuneCreatorCondition = g_pX2Game->GetEffectAlphaCondition( pJuneCreatorGameUnit );
+			pCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetCreatorUID() );
+		const BYTE byCreatorCondition = g_pX2Game->GetEffectAlphaCondition( pCreatorGameUnit );
 
 		BOOST_FOREACH( CX2EffectSet::Handle& hHandleTag, m_vecHandleEffectSet )
 		{
-			CX2EffectSet::EffectSetInstance* pJuneInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandleTag );
-			if( NULL != pJuneInstance && 1 != pJuneInstance->m_byEffectAlphaCondition )
-				pJuneInstance->m_byEffectAlphaCondition = byJuneCreatorCondition;
+			CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandleTag );
+			if( NULL != pInstance && 1 != pInstance->m_byEffectAlphaCondition )
+				pInstance->m_byEffectAlphaCondition = byCreatorCondition;
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
@@ -1213,18 +1213,18 @@ void CX2BuffWeaponParticleDisplayerTemplet::OnFrameMoveSwordEnchant( CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	/// June 32eb8c30: twelve class keys in UNIT_TYPE order (index = type - 1), each "" when absent, and the parse
 	/// holds only when all twelve are stored. March read nine, and its ninth key was "NEW_CHARACTER", not "ADD"
-	static const char* const s_aszJuneClassKey[] =
+	static const char* const s_aszClassKey[] =
 	{ "ELSWORD", "AISHA", "RENA", "RAVEN", "EVE", "CHUNG", "ARA", "ELESIS", "ADD", "LUCIEL", "ROSE", "AIN" };
-	const int iJuneClassKeyNum = sizeof( s_aszJuneClassKey ) / sizeof( s_aszJuneClassKey[0] );
+	const int iClassKeyNum = sizeof( s_aszClassKey ) / sizeof( s_aszClassKey[0] );
 
-	for ( int i = 0; i < iJuneClassKeyNum; ++i )
+	for ( int i = 0; i < iClassKeyNum; ++i )
 	{
 		wstring wstrEffectSetName = L"";
-		LUA_GET_VALUE( luaManager_, s_aszJuneClassKey[i], wstrEffectSetName, L"" );
+		LUA_GET_VALUE( luaManager_, s_aszClassKey[i], wstrEffectSetName, L"" );
 		m_vecEffectSetName.push_back( wstrEffectSetName );
 	}
 
-	return ( iJuneClassKeyNum == static_cast<int>( m_vecEffectSetName.size() ) );
+	return ( iClassKeyNum == static_cast<int>( m_vecEffectSetName.size() ) );
 #else SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 	const int iMaxUnitNum = static_cast<int>( CX2Unit::UT_END ) - 1;		/// ÃÖ´ë À¯´Ö ¼ö
 

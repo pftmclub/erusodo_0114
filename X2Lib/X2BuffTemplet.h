@@ -39,7 +39,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 		, m_fCreatorPowerRate( rhs_.m_fCreatorPowerRate )	/// June 322ada11 copies +0xbc
-		, m_uidJuneCreator( rhs_.m_uidJuneCreator ), m_bJuneCreatorNotUser( rhs_.m_bJuneCreatorNotUser )	/// Phase 9c: June 322ad9cd-322ad9ec copy +0xb0/+0xb4/+0xb8
+		, m_uidCreator( rhs_.m_uidCreator ), m_bCreatorNotUser( rhs_.m_bCreatorNotUser )	/// Phase 9c: June 322ad9cd-322ad9ec copy +0xb0/+0xb4/+0xb8
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef BUFF_ICON_UI
 		, m_wstIconFileName ( rhs_.m_wstIconFileName ), m_wstIconKeyName ( rhs_.m_wstIconKeyName )
@@ -156,8 +156,8 @@ public:
 	float GetCreatorPowerRate() const { return m_fCreatorPowerRate; }
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	/// C10b-2: the creator's UID (June templet +0xb0) and whether it is not a user (+0xb8), for the effect-set displayer's creator lookup
-	UidType GetCreatorUID() const { return m_uidJuneCreator; }
-	bool IsCreatorNotUser() const { return m_bJuneCreatorNotUser; }
+	UidType GetCreatorUID() const { return m_uidCreator; }
+	bool IsCreatorNotUser() const { return m_bCreatorNotUser; }
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
@@ -209,7 +209,7 @@ protected:
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 						,m_fCreatorPowerRate( 1.0f )	/// June ctor 326c48a0 @326c4974
-						,m_uidJuneCreator( -1 ), m_bJuneCreatorNotUser( false )	/// Phase 9c: June ctor @326c499b (-1), @326c49a7 (0)
+						,m_uidCreator( -1 ), m_bCreatorNotUser( false )	/// Phase 9c: June ctor @326c499b (-1), @326c49a7 (0)
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #ifdef BUFF_ICON_UI
 						,m_iBuffName( -1 ), m_iBuffDesc( -1 ), m_bUseBuffIcon ( false )
@@ -268,8 +268,8 @@ private:
 //{{ Iruha : 2026-10-05 // June buff port Phase 9a (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	float									m_fCreatorPowerRate;					/// June +0xbc (see GetCreatorPowerRate)
-	UidType									m_uidJuneCreator;						/// Phase 9c: June +0xb0/+0xb4, the factor's creator UID (SetFactor 3236d400)
-	bool									m_bJuneCreatorNotUser;					/// Phase 9c: June +0xb8, !factor isUser; GetFactor sends both on (32369f50)
+	UidType									m_uidCreator;						/// Phase 9c: June +0xb0/+0xb4, the factor's creator UID (SetFactor 3236d400)
+	bool									m_bCreatorNotUser;					/// Phase 9c: June +0xb8, !factor isUser; GetFactor sends both on (32369f50)
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 

@@ -678,6 +678,46 @@ locals, `JUNE_*` constants (an enum alias -> the member), `June32481fa0`, the 29
 Build + deploy; smoke = C1-C4's lines. **Gate:** `junecensus.py --summary` shows 0 June-named identifiers outside flags.
 **Review:** `C5 review` (Opus).
 
+### Done (2026-10-29, Sonnet 5.5; no new flag, each name keeps its flag)
+
+**Gate: `junecensus.py --gate` = `0 June-named identifiers remain`** (was 183 after the batch run; locals 0, constants 0, data members 0, namespaces 0 June / 32 rule-form).
+- **Batch run** `junecollapse.py apply C5` (1,584 rows, 183 files, checks PASS): 1,379 auto (rename 1,131, enum 211, namespace 32, drop 5), 205 hand. Prerequisite: `DI_EVENT_2017_TREASURE = 41470`
+  registered in `DungeonEnum.h` under `JUNE_ENUM_NAMES`; map rows 2529-2532 pointed at the renamed `X2OfflineQuestMig.h` / `X2OfflineSkillAutoLearn.h`.
+- **Tool change** (`tools/junecollapse.py`, `--selftest` PASS, README row): `--scope-locals`. The old collision check refused a local whose new name appeared anywhere in the tree
+  (115 of the 205 hand rows: `pUnit`, `fValue`, ...). The new check refuses only when the name is used in the same function (column-0 braces) on a branch the old name can meet
+  (`#ifdef` / `#else` branches are exclusive), and two renames to one name in one function. Follow-up maps (`june2017_re/diverge/c5{x,y,z,w,v}_followup_map.tsv`, run with
+  `--base $(git stash create)`): x 151 rows (123 auto, 28 hand), y 15 (13), z 3, w 2, v 2. Every file's flag-off equivalence check PASS.
+- **Hand work (`bytepatch.py`):** `m_iJuneAttackSerial` uses in `X2GUNPC.cpp` / `X2GUUser.cpp` (shared name, two classes) -> `m_iAttackSerial`; `akRSICKTDGUIDialogJune` merged into
+  `akRSICKTDGUIDialog` (`KTDGManager.cpp`: June's rows under `JUNE_RENDER_DG_STATES`, March's in `#else`, assignment site collapsed); `s_akStatesJunePostEffect` ->
+  `s_akStatesPostEffect` (file-local, `KTDGDeviceFont.cpp`); the duplicate Aisha macro `JUNE_ARME_CH2A_ANY_KEY_ZXC` (same body as `ARME_ANY_KEY_ZXC`) deleted, its one use renamed;
+  `JUNE_AT_COMMAND` local -> `CX2DamageManager::AT_COMMAND` (`X2Game.cpp`); `ENSI_JUNE_DASH_COMBO_ZX` -> `ENSI_DASH_COMBO_ZX` (March's twin exists only under the undefined
+  `EVE_COMBO_TEST_TEST`); 12 locals given their own names where the function already used the plain one (`pCandidateLineData`, `pEffectInstanceToSilence`, `eSocketUnitType`,
+  `iSoundPlayIndex`, `iStateSoundPlayIndex`, `pPiercingEnchantData`, `vUserPos` / `bUserIsRight`, `vFlyDownPos`, `iCanDownLineDataIndex`, `pStageUser`, `pDamageAttackerUnit`,
+  `iClearDifficulty`); `m_fJuneCoolTime` -> `m_fIntervalTime` (March's `m_fCoolTime` is another field); `m_fJuneCreatorPowerRate` -> `m_fCreatorPowerRate` (`KBuffFactor`).
+- **Found and fixed: the map's `enum` rows matched by value across enum families (D0b's `cl /P` value lookup).** Two groups were wrong and had been applied:
+  (1) the ten `JUNE_CH1I_UAI_*` / `JUNE_CH1L3_UAI_*` user-action ids (`nowAction` is `USER_ACTION_ID`) were replaced by `BFI_DEBUFF_MOVE_JUMP_SLOWDOWN_LEG_SHOT`, `BTI_DEBUFF_FIRE`,
+  `BTI_DEBUFF_CURSE`, ... (same number, other enum). June's `Enum.lua` names none of them, so they are constants named from use in the Arme / Eve / `X2GUUser` namespaces:
+  `UAI_ERASE_SPECTER_WALK` (0x25), `UAI_CREST_OF_TIME_REVIVAL` (0x29), `UAI_MAGNIFYING_THIEF_USE_ITEM` (0x36), `UAI_AMUSEMENT_ITEM_PRESS` / `_MISSILE` / `_WATER_BALLOON` (0x37-0x39);
+  the case labels in `UserNoStateChangeActionFrameMove` (Arme, Eve) are back on them. (2) `JUNE_EDT_MANA_DAMAGE_WITH_NO_DISPLAY` became `BFI_DEBUFF_SIDE_EFFECT_MEDICINE` in
+  `X2DamageManager.cpp`; June names it `EDT_MANA_DAMAGE_WITH_NO_DISPLAY = 67` (EXTRA_DAMAGE_TYPE), now registered in `X2DamageManager.h` under `JUNE_ENUM_NAMES` and used.
+  All other 200 enum rows have a family-matching name. Kept by the rule "March's name when names share a value": `DTT_END` for June's `DTT_PANDEMONIUM_FEAR` (6),
+  `BTI_HYPER_MODE` for the hyper skill category (March's own idiom).
+- **Names from use** (C2 review list): `ARME_INPUT_8726` -> `ARME_INPUT_SIT`, `STUCM_UNNAMED_29075` -> `STUCM_UNUSED_PLACEHOLDER`; the `UAI_*` set above. `REASON_PRIDE_ACTION_SCRIPT_STATE_ID` (242) is in
+  the dead `#else` of `JUNE_CHAR_EVE_SKILL`; the live branch passes `ENSI_SA_ECE_REASON_PRIDE_ACTION` (196), so the name is only March-side text.
+- **Quest NPC faces:** `GetNPCFaceTextureKey` cases and `SetNpcFacePicture` use `CX2UnitManager::NUI_*` (58 names, values checked with `june2017_re/enumprobe.py`). C++ lacked six:
+  `NUI_EVENT_GUILD_EDAN_ROOM` 4254, `NUI_EVENT_DOLL` 4309, `NUI_EVENT_BLESS_OF_SOLACE` 4346, `NUI_STORY_QUEST` 10142, `NUI_TRANSCEND_QUEST` 10153, `NUI_PANE` 10218 are registered under
+  `JUNE_ENUM_NAMES` in `X2UnitManager.h`. 10067 is March's `NUI_EVENT_ADAMS_UI_SHOP` (June's `NUI_EDEL`, but March's `NUI_EDEL` is 10072): March's name, comment names June's.
+- **String literal found by EXESTR:** `X2OfflineIgnore.cpp` listed `L"EGS_JUNE_FAST_SOLO_CLEAR_NOT"` by name, so the renamed id would have logged UNHANDLED; now `EGS_FAST_SOLO_CLEAR_NOT`.
+  A scan of every C1-C5 old name inside string literals of X2Lib / KTDXLIB / Common found no other. Old names in comments are left (rule).
+- **Reach points:** none new; renames and the one `akRSICKTDGUIDialog` merge (June's rows only under `JUNE_RENDER_DG_STATES`, as the old forwarding already did).
+- **Hygiene:** all-flags `flagcheck JUNE_QUEST_UI --worktree --with` the other 417 `JUNE_*` flags over 188 files: `2 PASS, 185 OTHER, 0 FAIL, 1 ERROR` (the ERROR is `Always.h` line 10007, the
+  compound `#if` around renamed `#error` texts, as in C4). `enumscan --check` (9 hand-edited files): only the new registrations and `Class A` rows on the enum definitions themselves.
+  `bytepatch info`: encodings unchanged; `KTDGManager.cpp` lost its 9 CRs to a `sed -i` and got them back (memory note written).
+- DEPLOY OK: X2_offline.exe is 25,809,408 B, dated 2026-10-29 11:42:36, md5 1207168dea16aed958a259217dd54e54, equal to X2/US_SERVICE/x2.exe (built at main cd29f6ac + 189 uncommitted code files).
+  EXESTR OK: `EGS_RANDOM_MISSION_NOT` / `EGS_FAST_SOLO_CLEAR_NOT` present (wide); `JuneBuff` / `EGS_JUNE_FAST_SOLO` absent.
+- **Smoke:** none here (one smoke at the end of the plan). Add to it: Eve and Aisha amusement-item pickups (press / missile / water balloon: the `UserNoStateChangeActionFrameMove` cases),
+  a mana-drain hit that shows no number, and the quest window NPC faces (story and transcend quest NPC, Edel).
+
 ## Phase D1 - Replace divergent March functions at the definition (Opus 5.5, high)
 
 **Depends on:** C5 review and every D0c. Per `replace` row of `june_march_divergent.tsv`: March's definition becomes June's whole body

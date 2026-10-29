@@ -91,7 +91,7 @@ CX2SkillTree::CX2SkillTree(void)
 	m_vecNowLearnSkill.clear();
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	m_bJuneScratch = false;
+	m_bScratch = false;
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 }
 
@@ -361,7 +361,7 @@ namespace _CONST_SKILLTREE_S2_
 		int         m_iType;
 	};
 
-	const SkillAbilityKey s_aJuneSkillAbilityKey[] =
+	const SkillAbilityKey s_aSkillAbilityKey[] =
 	{
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		{ "SA_EFFECTIVE_TIME",	CX2SkillTree::SA_EFFECTIVE_TIME },
@@ -774,7 +774,7 @@ namespace _CONST_SKILLTREE_S2_
 
 	/// June g_SkillAbilityName[ 203 ] (3379e6b0, filled in the CX2SkillTree ctor 3221afb0), indexed by SKILL_ABILITY_TYPE. It decides which
 	/// NUMERICAL_DATA block belongs to an ability. Slot 12 is the name March's enum gives it; 13 is where the quirk above stores it.
-	const WCHAR* const s_apwszJuneSkillAbilityName[ 203 ] =
+	const WCHAR* const s_apwszSkillAbilityName[ 203 ] =
 	{
 		L"SA_INVALID", L"SA_EFFECTIVE_TIME", L"SA_EFFECTIVE_COUNT", L"SA_SKILL_ID",
 		L"SA_COMBO_ID", L"SA_EFFECTIVE_RATE", L"SA_ATK_REL", L"SA_ATK_PHYSIC_REL",
@@ -847,7 +847,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 	LUA_GET_VALUE( luaManager,      "IN_HOUSE_TEST_ONLY",           bInHouseTestOnly,   false );
 	if( true == bInHouseTestOnly )
 	{
-		++m_JuneLoadStats.m_iInHouseDropped;
+		++mLoadStats.m_iInHouseDropped;
 		return false;
 	}
 
@@ -870,7 +870,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 	/// a duplicate id: the insert fails, the templet is not added, the function returns true
 	if( false == m_mapSkillTemplet.insert( std::make_pair( pSkillTemplet->m_eID, pSkillTemplet ) ).second )
 	{
-		++m_JuneLoadStats.m_iDuplicate;
+		++mLoadStats.m_iDuplicate;
 		SAFE_DELETE( pSkillTemplet );
 		return true;
 	}
@@ -888,17 +888,17 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 		const size_t nReq = pSkillTemplet->m_vecRequireCharacterLevel.size();
 		if( nCool >= 1 && nCool < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
 		{
-			++m_JuneLoadStats.m_iShortCoolTime;
+			++mLoadStats.m_iShortCoolTime;
 			LogShortArray( iId, 0, static_cast<int>( nCool ) );
 		}
 		if( nMp >= 1 && nMp < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
 		{
-			++m_JuneLoadStats.m_iShortMP;
+			++mLoadStats.m_iShortMP;
 			LogShortArray( iId, 1, static_cast<int>( nMp ) );
 		}
 		if( nReq >= 1 && nReq < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL ) )
 		{
-			++m_JuneLoadStats.m_iShortReqLevel;
+			++mLoadStats.m_iShortReqLevel;
 			LogShortArray( iId, 2, static_cast<int>( nReq ) );
 		}
 	}
@@ -936,7 +936,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 		luaManager.EndTable();
 
 		pSkillTemplet->m_vecExtraIconInfo.push_back( pairExtraIcon );
-		++m_JuneLoadStats.m_iExtraIcon;
+		++mLoadStats.m_iExtraIcon;
 	}
 
 	LUA_GET_VALUE( luaManager,          "m_wstrImageTextureName",       pSkillTemplet->m_wstrImageName,                 L""     );
@@ -949,7 +949,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 	pSkillTemplet->m_eSkillPowerRateType = ePowerRate;
 #endif SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	pSkillTemplet->m_eJunePowerRateType = ePowerRate;
+	pSkillTemplet->m_ePowerRateType = ePowerRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	LUA_GET_VALUE_ENUM( luaManager,     "m_eActiveSkillUseCondtion",    pSkillTemplet->m_eActiveSkillUseCondtion,       ACTIVE_SKILL_USE_CONDITION,     ASUT_NONE   );
@@ -997,19 +997,19 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 			numericalData.m_vecRow.push_back( row );
 		}
 
-		pSkillTemplet->m_vecJuneNumericalData.push_back( numericalData );
-		++m_JuneLoadStats.m_iNumericalBlock;
+		pSkillTemplet->m_vecNumericalData.push_back( numericalData );
+		++mLoadStats.m_iNumericalBlock;
 	}
 
 	SetSkillStat( luaManager, pSkillTemplet->m_vecStat );
 
-	for( int iKey = 0; iKey < static_cast<int>( ARRAY_SIZE( s_aJuneSkillAbilityKey ) ); ++iKey )
+	for( int iKey = 0; iKey < static_cast<int>( ARRAY_SIZE( s_aSkillAbilityKey ) ); ++iKey )
 	{
-		if( true == luaManager.BeginTable( s_aJuneSkillAbilityKey[ iKey ].m_pszKey ) )
-			SetSkillAbilityMap( &luaManager, static_cast<SKILL_ABILITY_TYPE>( s_aJuneSkillAbilityKey[ iKey ].m_iType ), pSkillTemplet, s_aJuneSkillAbilityKey[ iKey ].m_pszKey );
+		if( true == luaManager.BeginTable( s_aSkillAbilityKey[ iKey ].m_pszKey ) )
+			SetSkillAbilityMap( &luaManager, static_cast<SKILL_ABILITY_TYPE>( s_aSkillAbilityKey[ iKey ].m_iType ), pSkillTemplet, s_aSkillAbilityKey[ iKey ].m_pszKey );
 	}
 
-	if( false == m_bJuneScratch )
+	if( false == m_bScratch )
 		CX2BuffTempletManager::GetInstance()->GetBuffFactorPtrFromBuffFactorList( luaManager, pSkillTemplet->m_vecBuffFactorPtr, pSkillTemplet->m_vecBuffFactorID );
 
 	return true;
@@ -1090,7 +1090,7 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 #endif //SKILL_LEVEL_UP_BY_POWER_RATE_TYPE
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// buff port 16-step3b5: the skill-group power sockets match this (June 31fe14f0 reads templet +0x174)
-	pSkillTemplet->m_eJunePowerRateType = ePowerRate;
+	pSkillTemplet->m_ePowerRateType = ePowerRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 	LUA_GET_VALUE_ENUM( luaManager,		"m_eActiveSkillUseCondtion",	pSkillTemplet->m_eActiveSkillUseCondtion,		ACTIVE_SKILL_USE_CONDITION,		ASUT_NONE	);
@@ -2428,18 +2428,18 @@ bool CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ( int iSlotID, CX2SkillTree:
 		return false;
 
 	/// B slots 5-8 need slot-state key 0, the B-TC slot 9 key 1; an unequip ( skill 0 ) always passes
-	const CX2UserSkillTree& kJuneUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
-	const bool bJuneSlotB = ( 5 <= iSlotID && iSlotID <= 8 );
-	if( ( false == kJuneUserSkillTree.IsSlotUsable( 0 ) && true == bJuneSlotB && 0 != static_cast<int>( eSkillID ) ) ||
-		( false == kJuneUserSkillTree.IsSlotUsable( 1 ) && 9 == iSlotID && 0 != static_cast<int>( eSkillID ) ) )
+	const CX2UserSkillTree& kUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+	const bool bSlotB = ( 5 <= iSlotID && iSlotID <= 8 );
+	if( ( false == kUserSkillTree.IsSlotUsable( 0 ) && true == bSlotB && 0 != static_cast<int>( eSkillID ) ) ||
+		( false == kUserSkillTree.IsSlotUsable( 1 ) && 9 == iSlotID && 0 != static_cast<int>( eSkillID ) ) )
 		return false;
 
 	/// the same ( slot, skill ) already queued: accepted, not queued twice
-	const std::pair< int, int > pairJuneChange( iSlotID, static_cast<int>( eSkillID ) );
-	if( m_deqJuneSkillSlotChange.end() != std::find( m_deqJuneSkillSlotChange.begin(), m_deqJuneSkillSlotChange.end(), pairJuneChange ) )
+	const std::pair< int, int > pairChange( iSlotID, static_cast<int>( eSkillID ) );
+	if( m_deqSkillSlotChange.end() != std::find( m_deqSkillSlotChange.begin(), m_deqSkillSlotChange.end(), pairChange ) )
 		return true;
 
-	m_deqJuneSkillSlotChange.push_back( pairJuneChange );	/// 3221d830
+	m_deqSkillSlotChange.push_back( pairChange );	/// 3221d830
 	return true;
 #else SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
@@ -3929,14 +3929,14 @@ bool CX2SkillTree::SendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID e
 /// June 322105c0: one queued change per frame; it leaves the queue only once it was sent
 void CX2SkillTree::FrameMoveSkillSlotQueue()
 {
-	if( true == m_deqJuneSkillSlotChange.empty() )
+	if( true == m_deqSkillSlotChange.empty() )
 		return;
 
-	const std::pair< int, int > pairFront = m_deqJuneSkillSlotChange.front();
+	const std::pair< int, int > pairFront = m_deqSkillSlotChange.front();
 	if( true == SendChangeSkillSlotReq( pairFront.first, static_cast<CX2SkillTree::SKILL_ID>( pairFront.second ) ) &&
-		false == m_deqJuneSkillSlotChange.empty() )
+		false == m_deqSkillSlotChange.empty() )
 	{
-		m_deqJuneSkillSlotChange.pop_front();
+		m_deqSkillSlotChange.pop_front();
 	}
 }
 
@@ -3971,10 +3971,10 @@ void CX2SkillTree::GetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std:
 
 		/// +0x174 == 5 ( SPRT_HYPER_CLASS ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ), which March has no field for ( Stage 6 )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == TreeIsMyUnitTranscended() )
+		if( SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType && false == TreeIsMyUnitTranscended() )
 			continue;
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+		if( SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType )
 			continue;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
@@ -4031,10 +4031,10 @@ void CX2SkillTree::GetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT N
 			continue;
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == TreeIsMyUnitTranscended() )
+		if( SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType && false == TreeIsMyUnitTranscended() )
 			continue;
 #else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
-		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+		if( SPRT_HYPER_CLASS == pTemplet->m_ePowerRateType )
 			continue;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
@@ -5062,13 +5062,13 @@ bool CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_ACK( HWND hWnd, UINT uMsg, WPAR
 	}
 
 	{
-		CX2Unit::UnitData* pJuneUnitData = &g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
-		pJuneUnitData->m_UserSkillTree.SetOpenedPage( static_cast<USHORT>( kEvent.m_iTheNumberOfSkillPagesAvailable ) );
-		pJuneUnitData->m_UserSkillTree.GrowSkillPages();	/// local: the new page's skill map ( X2UserSkillTree.h )
+		CX2Unit::UnitData* pUnitData = &g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
+		pUnitData->m_UserSkillTree.SetOpenedPage( static_cast<USHORT>( kEvent.m_iTheNumberOfSkillPagesAvailable ) );
+		pUnitData->m_UserSkillTree.GrowSkillPages();	/// local: the new page's skill map ( X2UserSkillTree.h )
 
 		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, true );
 		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( STR_ID_29386 ), g_pMain->GetNowState() );
-		pJuneUnitData->m_ED = kEvent.m_iED;
+		pUnitData->m_ED = kEvent.m_iED;
 
 		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand ACK: %d page(s) open, ED %d", kEvent.m_iTheNumberOfSkillPagesAvailable, kEvent.m_iED );
 	}
@@ -5183,27 +5183,27 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 	}
 
 	{
-		CX2Unit* pJuneUnit = g_pData->GetMyUser()->GetSelectUnit();
-		CX2UserSkillTree& kJuneTree = pJuneUnit->AccessUnitData().m_UserSkillTree;
-		const KSkillExtraData& kJunePage = kEvent.m_kJuneSkillExtraData;
+		CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+		CX2UserSkillTree& kTree = pUnit->AccessUnitData().m_UserSkillTree;
+		const KSkillExtraData& kPage = kEvent.m_kSkillExtraData;
 
-		kJuneTree.SetUsingPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
-		kJuneTree.SetSelectPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
+		kTree.SetUsingPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
+		kTree.SetSelectPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
 
 		/// 32896130: only the first 5 entries of each vector are read; a missing entry leaves an empty slot
-		KSkillData aJuneSlotA[ EQUIPPED_SKILL_SLOT_COUNT ];
-		KSkillData aJuneSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
+		KSkillData aSlotA[ EQUIPPED_SKILL_SLOT_COUNT ];
+		KSkillData aSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
 		for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
 		{
-			if ( i < static_cast<int>( kJunePage.m_vecSkillDataA.size() ) )
-				aJuneSlotA[i] = kJunePage.m_vecSkillDataA[i];
-			if ( i < static_cast<int>( kJunePage.m_vecSkillDataB.size() ) )
-				aJuneSlotB[i] = kJunePage.m_vecSkillDataB[i];
+			if ( i < static_cast<int>( kPage.m_vecSkillDataA.size() ) )
+				aSlotA[i] = kPage.m_vecSkillDataA[i];
+			if ( i < static_cast<int>( kPage.m_vecSkillDataB.size() ) )
+				aSlotB[i] = kPage.m_vecSkillDataB[i];
 		}
-		kJuneTree.SetEquippedSkill( aJuneSlotA, aJuneSlotB );
+		kTree.SetEquippedSkill( aSlotA, aSlotB );
 
-		kJuneTree.ClearActiveMemo();																					/// 32892050
-		kJuneTree.MergeActiveMemo( std::multimap< int, int >( kJunePage.m_mapIntInt.begin(), kJunePage.m_mapIntInt.end() ) );	/// 32892410
+		kTree.ClearActiveMemo();																					/// 32892050
+		kTree.MergeActiveMemo( std::multimap< int, int >( kPage.m_mapIntInt.begin(), kPage.m_mapIntInt.end() ) );	/// 32892410
 
 		/// in a game ( g_pX2Game, my unit vslot 0x98 ): input is held for 0.5 s ( +0xde8 = _DAT_3343777c ) and the equipped skill states rebuilt
 		/// ( vslot 0x684( 0 ) ); unit type 2 ( 32ce1770 ) and 9 ( the tree's 328e0290 ) add class pieces: checklist 7ak
@@ -5222,24 +5222,24 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 
 		/// 3264ad40 ( CX2User::ChangeEquippedSkillState ) for every bar-A entry, then, when slot-state key 0 is above 0 ( 32890ea0 ), every
 		/// bar-B entry; June passes the entry's index for both bars, so a B skill is refreshed under the A slot id ( JUNE_BUGS )
-		for ( UINT i = 0; i < kJunePage.m_vecSkillDataA.size(); ++i )
-			g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataA[i].m_iSkillID );
-		if ( 0 < kJuneTree.GetSlotState( 0 ) )
+		for ( UINT i = 0; i < kPage.m_vecSkillDataA.size(); ++i )
+			g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kPage.m_vecSkillDataA[i].m_iSkillID );
+		if ( 0 < kTree.GetSlotState( 0 ) )
 		{
-			for ( UINT i = 0; i < kJunePage.m_vecSkillDataB.size(); ++i )
-				g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataB[i].m_iSkillID );
+			for ( UINT i = 0; i < kPage.m_vecSkillDataB.size(); ++i )
+				g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kPage.m_vecSkillDataB[i].m_iSkillID );
 		}
 
 		/// the tree UI, when shown ( +0xa8 ): 328e7b70( 1, 1, 1 )
 		if ( true == g_pData->GetUIManager()->GetUISkillTree()->GetShow() )
 			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, true );
 
-		pJuneUnit->ResetIncreaseSkillLevelByBuff();		/// 323646a0
-		pJuneUnit->ResetIncreaseSkillLevelBySocket();	/// 3235a080( 0 )
+		pUnit->ResetIncreaseSkillLevelByBuff();		/// 323646a0
+		pUnit->ResetIncreaseSkillLevelBySocket();	/// 3235a080( 0 )
 
 		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE decide ACK: page %d in use, bar A %d / B %d entries, %d memo(s)",
-			kEvent.m_iSkillPagesNumberDecidedToUse, static_cast<int>( kJunePage.m_vecSkillDataA.size() ),
-			static_cast<int>( kJunePage.m_vecSkillDataB.size() ), static_cast<int>( kJunePage.m_mapIntInt.size() ) );
+			kEvent.m_iSkillPagesNumberDecidedToUse, static_cast<int>( kPage.m_vecSkillDataA.size() ),
+			static_cast<int>( kPage.m_vecSkillDataB.size() ), static_cast<int>( kPage.m_mapIntInt.size() ) );
 	}
 	return true;
 #else SERV_IRUHADEV_JUNE_SKILL_PAGE
@@ -5934,7 +5934,7 @@ bool CX2SkillTree::SkillTemplet::GetSkillEffectiveDescExpand ( OUT wstring & wst
 //              fields (m_DeleteSkillIDByUpgrade, NUMERICAL_DATA<n>, m_ExtraIconInfo<n>, SA 143-202), the upgrade map (32205c00) and the
 //              numerical-first ability lookup (32206e50 / 32206fb0). Data stays March's; see MODS.md "June skill templet".
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
-C_ASSERT( sizeof( s_apwszJuneSkillAbilityName ) / sizeof( s_apwszJuneSkillAbilityName[ 0 ] ) == CX2SkillTree::SA_END );
+C_ASSERT( sizeof( s_apwszSkillAbilityName ) / sizeof( s_apwszSkillAbilityName[ 0 ] ) == CX2SkillTree::SA_END );
 #else
 C_ASSERT( CX2SkillTree::SA_DP_USE_REL == 142 );
 C_ASSERT( CX2SkillTree::SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE == 173 );
@@ -5945,10 +5945,10 @@ C_ASSERT( CX2SkillTree::SPRT_HYPER_CLASS == 5 );
 
 /*static*/ const WCHAR* CX2SkillTree::GetSkillAbilityName( int iType_ )
 {
-	if( iType_ <= 0 || iType_ >= static_cast<int>( ARRAY_SIZE( s_apwszJuneSkillAbilityName ) ) )
+	if( iType_ <= 0 || iType_ >= static_cast<int>( ARRAY_SIZE( s_apwszSkillAbilityName ) ) )
 		return NULL;
 
-	return s_apwszJuneSkillAbilityName[ iType_ ];
+	return s_apwszSkillAbilityName[ iType_ ];
 }
 
 /// June 320716c0: the row for a level is min( level - 1, count - 1 ), compared as unsigned, so level 0 takes the last row.
@@ -5977,10 +5977,10 @@ const CX2SkillTree::SkillTemplet::NumericalData* CX2SkillTree::SkillTemplet::Fin
 	if( NULL == pwszName_ )
 		return NULL;
 
-	for( size_t i = 0; i < m_vecJuneNumericalData.size(); ++i )
+	for( size_t i = 0; i < m_vecNumericalData.size(); ++i )
 	{
-		if( 0 == m_vecJuneNumericalData[i].m_wstrName.compare( pwszName_ ) )
-			return &m_vecJuneNumericalData[i];
+		if( 0 == m_vecNumericalData[i].m_wstrName.compare( pwszName_ ) )
+			return &m_vecNumericalData[i];
 	}
 	return NULL;
 }
@@ -5990,7 +5990,7 @@ const CX2SkillTree::SkillTemplet::NumericalData* CX2SkillTree::SkillTemplet::Fin
 /// ( @32071802: count < index unsigned, or index <= 0 ). The element's row is picked by the clamp 320716c0.
 void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel_, NumericalRow& rowOut_ ) const
 {
-	if( iIndex_ <= 0 || static_cast<unsigned int>( m_vecJuneNumericalData.size() ) < static_cast<unsigned int>( iIndex_ ) )
+	if( iIndex_ <= 0 || static_cast<unsigned int>( m_vecNumericalData.size() ) < static_cast<unsigned int>( iIndex_ ) )
 	{
 		rowOut_.m_fValue = 0.f;
 		rowOut_.m_fPvpRate = 0.f;
@@ -5999,7 +5999,7 @@ void CX2SkillTree::SkillTemplet::GetNumericalRowByIndex( int iIndex_, int iLevel
 		return;
 	}
 
-	GetNumericalRow( m_vecJuneNumericalData[ iIndex_ - 1 ], iLevel_, rowOut_ );
+	GetNumericalRow( m_vecNumericalData[ iIndex_ - 1 ], iLevel_, rowOut_ );
 }
 
 /// June 32078060 ( this templet, row out, name, level ): the first element whose name matches ( wstring::compare ), none gives four zeros.
@@ -6022,7 +6022,7 @@ void CX2SkillTree::SkillTemplet::GetNumericalRowByName( const WCHAR* pwszName_, 
 /// no x0.01.
 bool CX2SkillTree::SkillTemplet::GetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
 {
-	if( true == m_vecJuneNumericalData.empty() )
+	if( true == m_vecNumericalData.empty() )
 		return false;
 
 	const NumericalData* pData = FindNumericalData( CX2SkillTree::GetSkillAbilityName( static_cast<int>( eType_ ) ) );
@@ -6109,11 +6109,11 @@ void CX2SkillTree::SetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_
 
 	pLuaManager_->EndTable();
 
-	m_JuneLoadStats.m_setKeysSeen.insert( pszKey_ );
+	mLoadStats.m_setKeysSeen.insert( pszKey_ );
 
 	if( true == vecSkillValue.empty() )
 	{
-		++m_JuneLoadStats.m_iEmptySASkipped;
+		++mLoadStats.m_iEmptySASkipped;
 		return;
 	}
 
@@ -6131,7 +6131,7 @@ void CX2SkillTree::LogShortArray( int iSkillID_, int iKind_, int iSize_ )
 
 void CX2SkillTree::LogLoadSummary()
 {
-	if( true == m_bJuneScratch )
+	if( true == m_bScratch )
 		return;
 
 	int iTreeRows = 0;
@@ -6149,11 +6149,11 @@ void CX2SkillTree::LogLoadSummary()
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD templets=%d tree_rows=%d ( classes=%d ) guild_rows=%d seal_items=%d upgrade_map=%d numerical_blocks=%d extra_icons=%d sa_keys_seen=%d",
 		static_cast<int>( m_mapSkillTemplet.size() ), iTreeRows, iClasses, iGuildRows, static_cast<int>( m_mapSealSkillItemTemplet.size() ),
-		static_cast<int>( m_mapUpgradeSkill.size() ), m_JuneLoadStats.m_iNumericalBlock, m_JuneLoadStats.m_iExtraIcon,
-		static_cast<int>( m_JuneLoadStats.m_setKeysSeen.size() ) );
+		static_cast<int>( m_mapUpgradeSkill.size() ), mLoadStats.m_iNumericalBlock, mLoadStats.m_iExtraIcon,
+		static_cast<int>( mLoadStats.m_setKeysSeen.size() ) );
 	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD rules: empty_sa_skipped=%d duplicate_ids=%d inhouse_dropped=%d short_arrays cool_time/mp/req_level=%d/%d/%d",
-		m_JuneLoadStats.m_iEmptySASkipped, m_JuneLoadStats.m_iDuplicate, m_JuneLoadStats.m_iInHouseDropped,
-		m_JuneLoadStats.m_iShortCoolTime, m_JuneLoadStats.m_iShortMP, m_JuneLoadStats.m_iShortReqLevel );
+		mLoadStats.m_iEmptySASkipped, mLoadStats.m_iDuplicate, mLoadStats.m_iInHouseDropped,
+		mLoadStats.m_iShortCoolTime, mLoadStats.m_iShortMP, mLoadStats.m_iShortReqLevel );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
 	/// S3c census: templets per SKILL_TYPE 0-18 ( June Enum.lua ); anything outside counts as out
 	{

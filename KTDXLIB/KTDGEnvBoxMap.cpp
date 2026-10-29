@@ -10,11 +10,11 @@ extern CKTDGEffectStateManager* g_pEffectStateManager;
 
 namespace
 {
-	const float JUNE_ENVBOX_DEFAULT_LENGTH	= 100.0f;	/// June 334355b8: BLEND_LENGTH default, and the BOX_SCALE default of the entry ctor
-	const float JUNE_ENVBOX_DEFAULT_WIDE	= 3.0f;		/// June 33436700: RIM_LIGHT_WIDE default
-	const float JUNE_ENVBOX_MIN_LENGTH		= 0.001f;	/// June 33431564: BLEND_LENGTH is raised to this
-	const float JUNE_ENVBOX_REMAIN_EPSILON	= 0.01f;	/// June 33437810: the weight-stacking loops stop once the remaining weight is not above it
-	const float JUNE_ENVBOX_DEG_TO_RAD		= 0.017453f;/// June 3344da70 (a float constant stored as a double)
+	const float ENVBOX_DEFAULT_LENGTH	= 100.0f;	/// June 334355b8: BLEND_LENGTH default, and the BOX_SCALE default of the entry ctor
+	const float ENVBOX_DEFAULT_WIDE	= 3.0f;		/// June 33436700: RIM_LIGHT_WIDE default
+	const float ENVBOX_MIN_LENGTH		= 0.001f;	/// June 33431564: BLEND_LENGTH is raised to this
+	const float ENVBOX_REMAIN_EPSILON	= 0.01f;	/// June 33437810: the weight-stacking loops stop once the remaining weight is not above it
+	const float ENVBOX_DEG_TO_RAD		= 0.017453f;/// June 3344da70 (a float constant stored as a double)
 
 	/// the June Lua getters ( FUN_32fea370 / FUN_32fe9fd0 / FUN_32fe9e40 / FUN_32feae90 / FUN_31c7e850 ) read a key of the table argument and
 	/// leave the default untouched when the key is missing
@@ -103,15 +103,15 @@ CKTDGEnvBoxMap::EnvBox::EnvBox()
 , m_wstrName( L"EnvBox" )
 , m_vPos( 0.f, 0.f, 0.f )
 , m_vRot( 0.f, 0.f, 0.f )
-, m_vScale( JUNE_ENVBOX_DEFAULT_LENGTH, JUNE_ENVBOX_DEFAULT_LENGTH, JUNE_ENVBOX_DEFAULT_LENGTH )
+, m_vScale( ENVBOX_DEFAULT_LENGTH, ENVBOX_DEFAULT_LENGTH, ENVBOX_DEFAULT_LENGTH )
 , m_pLut( NULL )
-, m_fBlendLength( JUNE_ENVBOX_DEFAULT_LENGTH )
+, m_fBlendLength( ENVBOX_DEFAULT_LENGTH )
 , m_fBlendWeight( 1.0f )
 , m_fPriority( 0.f )
 , m_bEnabled( true )
 , m_bRimEnabled( false )
 , m_vRimColor( 1.f, 1.f, 1.f )
-, m_fRimWide( JUNE_ENVBOX_DEFAULT_WIDE )
+, m_fRimWide( ENVBOX_DEFAULT_WIDE )
 , m_fRimPower( 1.0f )
 , m_fRimForced( 1.0f )
 {
@@ -123,7 +123,7 @@ void CKTDGEnvBoxMap::EnvBox::RebuildMatrix()
 {
 	D3DXMATRIX matRot;
 	D3DXMATRIX matTrans;
-	D3DXMatrixRotationYawPitchRoll( &matRot, m_vRot.y * JUNE_ENVBOX_DEG_TO_RAD, m_vRot.x * JUNE_ENVBOX_DEG_TO_RAD, m_vRot.z * JUNE_ENVBOX_DEG_TO_RAD );
+	D3DXMatrixRotationYawPitchRoll( &matRot, m_vRot.y * ENVBOX_DEG_TO_RAD, m_vRot.x * ENVBOX_DEG_TO_RAD, m_vRot.z * ENVBOX_DEG_TO_RAD );
 	D3DXMatrixTranslation( &matTrans, m_vPos.x, m_vPos.y, m_vPos.z );
 	D3DXMatrixMultiply( &m_mat, &matRot, &matTrans );
 }
@@ -379,7 +379,7 @@ bool CKTDGEnvBoxMap::AddEnvBox_LUA()
 	if( false == GetTableInt( L, iTable, "LUT_NUM", iLutNum ) )
 		iLutNum = -1;
 	if( false == GetTableFloat( L, iTable, "BLEND_LENGTH", pBox->m_fBlendLength ) )
-		pBox->m_fBlendLength = JUNE_ENVBOX_DEFAULT_LENGTH;
+		pBox->m_fBlendLength = ENVBOX_DEFAULT_LENGTH;
 	if( false == GetTableFloat( L, iTable, "BLEND_WEIGHT", pBox->m_fBlendWeight ) )
 		pBox->m_fBlendWeight = 1.0f;
 	if( false == GetTableFloat( L, iTable, "PRIORITY", pBox->m_fPriority ) )
@@ -391,7 +391,7 @@ bool CKTDGEnvBoxMap::AddEnvBox_LUA()
 	if( false == GetTableVec3( L, iTable, "RIM_LIGHT_COLOR", pBox->m_vRimColor ) )
 		pBox->m_vRimColor = D3DXVECTOR3( 1.f, 1.f, 1.f );
 	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_WIDE", pBox->m_fRimWide ) )
-		pBox->m_fRimWide = JUNE_ENVBOX_DEFAULT_WIDE;
+		pBox->m_fRimWide = ENVBOX_DEFAULT_WIDE;
 	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_POWER", pBox->m_fRimPower ) )
 		pBox->m_fRimPower = 1.0f;
 	if( false == GetTableFloat( L, iTable, "RIM_LIGHT_FORCED", pBox->m_fRimForced ) )
@@ -414,8 +414,8 @@ bool CKTDGEnvBoxMap::AddEnvBox_LUA()
 			fWeight = pBox->m_fBlendWeight;
 	}
 	pBox->m_fBlendWeight = fWeight;
-	if( pBox->m_fBlendLength < JUNE_ENVBOX_MIN_LENGTH )
-		pBox->m_fBlendLength = JUNE_ENVBOX_MIN_LENGTH;
+	if( pBox->m_fBlendLength < ENVBOX_MIN_LENGTH )
+		pBox->m_fBlendLength = ENVBOX_MIN_LENGTH;
 	return true;
 }
 
@@ -556,7 +556,7 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 	std::vector<int>	vecLutIndex;
 	std::vector<float>	vecLutWeight;
 	float fRemain = 1.0f;
-	for( int k = (int) vecInRangeIndex.size() - 1; k >= 0 && JUNE_ENVBOX_REMAIN_EPSILON < fRemain; --k )
+	for( int k = (int) vecInRangeIndex.size() - 1; k >= 0 && ENVBOX_REMAIN_EPSILON < fRemain; --k )
 	{
 		if( NULL != m_vecBox[ vecInRangeIndex[k] ]->m_pLut )
 		{
@@ -635,7 +635,7 @@ void CKTDGEnvBoxMap::Render( const D3DXVECTOR3& vPos )
 	std::vector<int>	vecRimIndex;
 	std::vector<float>	vecRimWeight;
 	fRemain = 1.0f;
-	for( int k = (int) vecInRangeIndex.size() - 1; k >= 0 && JUNE_ENVBOX_REMAIN_EPSILON < fRemain; --k )
+	for( int k = (int) vecInRangeIndex.size() - 1; k >= 0 && ENVBOX_REMAIN_EPSILON < fRemain; --k )
 	{
 		if( true == m_vecBox[ vecInRangeIndex[k] ]->m_bRimEnabled )
 		{

@@ -85,8 +85,8 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 
 #ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 	/// June ctor 327cef70 @327cf0d6-327cf100: every boss-name slot starts invalid ( -1 ).
-	for( int i = 0; i < JUNE_BOSS_NAME_SLOT_NUM; ++i )
-		m_ahJuneBossName[i] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	for( int i = 0; i < BOSS_NAME_SLOT_NUM; ++i )
+		m_ahBossName[i] = INVALID_PARTICLE_SEQUENCE_HANDLE;
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 	// variable assign
@@ -132,7 +132,7 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 #endif
 #ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 	// June ctor 327cef80 @327cf464: dword [+0xdd0] = 0
-	m_abJuneVotingLuto[0] = m_abJuneVotingLuto[1] = m_abJuneVotingLuto[2] = false;
+	m_abVotingLuto[0] = m_abVotingLuto[1] = m_abVotingLuto[2] = false;
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 
 }
@@ -141,7 +141,7 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 /*virtual*/ bool CX2DungeonGame::IsVotingLuto()
 {
 	// June 327c94a0: +0xdd1 || +0xdd2 || +0xdd3
-	const bool bVoting = m_abJuneVotingLuto[0] || m_abJuneVotingLuto[1] || m_abJuneVotingLuto[2];
+	const bool bVoting = m_abVotingLuto[0] || m_abVotingLuto[1] || m_abVotingLuto[2];
 #if defined(SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
 	static DWORD s_dwLastLog = 0;
 	const DWORD dwNow = ::GetTickCount();
@@ -296,10 +296,10 @@ CX2DungeonGame::~CX2DungeonGame(void)
 
 #ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 	/// June CX2DungeonGame::Release 327d2240 @327d2656-327d267b: each of the 8 boss-name slots that holds a handle.
-	for( int i = 0; i < JUNE_BOSS_NAME_SLOT_NUM; ++i )
+	for( int i = 0; i < BOSS_NAME_SLOT_NUM; ++i )
 	{
-		if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_ahJuneBossName[i] )
-			GetMinorParticle()->DestroyInstanceHandle( m_ahJuneBossName[i] );
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_ahBossName[i] )
+			GetMinorParticle()->DestroyInstanceHandle( m_ahBossName[i] );
 	}
 #else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hBossName )
@@ -896,7 +896,7 @@ void CX2DungeonGame::StageLoading( int stageNum )
 		// Atlas E7: June 327cd1b0 @327cd470 calls 32803f60( this +0x39c, this +0x3a0, ... ): the main world, then the stage
 		// world's dataFileName_Additional worlds into CX2Game +0x3a0. June never empties that list on a stage change (only
 		// Release 323080c0 and the battle field swap 32d54ae0 do): JUNE_BUGS.
-		g_pData->GetWorldManager()->CreateAdditionalWorlds( pStageData->m_WorldID, m_vecJuneAdditionalWorld );
+		g_pData->GetWorldManager()->CreateAdditionalWorlds( pStageData->m_WorldID, m_vecAdditionalWorld );
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef DEEP_WATER_DUNGEON_TEST
@@ -2552,16 +2552,16 @@ void CX2DungeonGame::UpdateUnitPointerNPCWalk()
 			// June effect completion C3s: June CX2DungeonGame::UpdateUnitPointer 327cea70 @327ceaaf-327ceb43. A FORCE_CINEMATIC_STATE
 			// ( +0x8f8c ) replaces the start-state test: input stops while the NPC is in that state ( GetStateID 3275aaf0 vs nowState
 			// +0x8454 ), whether or not m_bStopAtStartState ( +0x8e38 ) is set. Without the key June runs March's test.
-			const bool bJuneForceCinematic = pCX2GUNPC->HasForceCinematicState();
-			const bool bJuneInForceCinematic = true == bJuneForceCinematic
+			const bool bForceCinematic = pCX2GUNPC->HasForceCinematicState();
+			const bool bInForceCinematic = true == bForceCinematic
 				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());
-			if( true == pCX2GUNPC->GetStopAtStartState() && false == bJuneForceCinematic )
+			if( true == pCX2GUNPC->GetStopAtStartState() && false == bForceCinematic )
 			{
 				CanNotInputAndDisalbeNPCAI( pCX2GUNPC->GetStartState() == static_cast<int>(pCX2GUNPC->GetGameUnitState()) );
 			}
-			else if( true == bJuneForceCinematic )
+			else if( true == bForceCinematic )
 			{
-				CanNotInputAndDisalbeNPCAI( bJuneInForceCinematic );
+				CanNotInputAndDisalbeNPCAI( bInForceCinematic );
 			}
 #else SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			if( true == pCX2GUNPC->GetStopAtStartState() )
@@ -2586,7 +2586,7 @@ void CX2DungeonGame::UpdateUnitPointerNPCWalk()
 #ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			// June @327ceb67-327cebee: with a FORCE_CINEMATIC_STATE the camera goes to the NPC exactly while it is in that state, and
 			// m_bFocusCamera / FOCUS_CAMERA_AT_CURRENT_STATE are not read; otherwise March's two conditions.
-			if( true == bJuneForceCinematic ? true == bJuneInForceCinematic :
+			if( true == bForceCinematic ? true == bInForceCinematic :
 				( ( true == pCX2GUNPC->GetFocusCamera() && pCX2GUNPC->GetStartState() == (int)pCX2GUNPC->GetGameUnitState() )
 				|| true == pCX2GUNPC->GetFocusCameraAtCurrentState() ) )
 #else SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
@@ -3227,7 +3227,7 @@ void CX2DungeonGame::ShowBossName( const WCHAR* wszFileName, const int& iIndex_ 
 	if( pSeq != NULL )
 	{
 		pSeq->ChangeTexForce( wszFileName );
-		m_ahJuneBossName[iIndex_] = pSeq->GetHandle();
+		m_ahBossName[iIndex_] = pSeq->GetHandle();
 	}
 #ifdef SERV_IRUHADEV_OFFLINE
 	else

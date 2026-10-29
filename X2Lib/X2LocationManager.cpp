@@ -441,7 +441,7 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 				kLuamanager.EndTable();	// SPA_INFO
 			}
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
-			int iJuneInternalPlaceRows = 0;
+			int iInternalPlaceRows = 0;
 #endif SERV_IRUHADEV_ELYSION_DEBUG
 			//}}
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
@@ -487,7 +487,7 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 					LUA_GET_VALUE( kLuamanager, "InternalPlaceStartPosID",	pStartPosInfo->m_usInternalPlaceStartPosID, 0 );
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
 					if( 0 != pStartPosInfo->m_usInternalPlaceStartPosID )
-						++iJuneInternalPlaceRows;
+						++iInternalPlaceRows;
 #endif SERV_IRUHADEV_ELYSION_DEBUG
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 					
@@ -603,11 +603,11 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 			pVillageTemplet->m_fCameraModifyDistanceByPortal	= fCameraModifyDistanceByPortal;	// June templet +0x58
 			pVillageTemplet->m_vecSpaInfo						= vecSpaInfo;						// June templet +0x70 (@325019a6)
 #ifdef SERV_IRUHADEV_ELYSION_DEBUG
-			if( 0 < iJuneInternalPlaceRows || false == vecSpaInfo.empty() || 3000.f != fCameraModifyDistanceByPortal )
+			if( 0 < iInternalPlaceRows || false == vecSpaInfo.empty() || 3000.f != fCameraModifyDistanceByPortal )
 			{
 				WCHAR buff[256] = {0};
 				StringCchPrintf( buff, 256, L"[ELYDBG] VillageParsing June keys: village %d internalPlaceRows %d spaInfo %d cameraByPortal %.0f",
-					villageID, iJuneInternalPlaceRows, (int)vecSpaInfo.size(), fCameraModifyDistanceByPortal );
+					villageID, iInternalPlaceRows, (int)vecSpaInfo.size(), fCameraModifyDistanceByPortal );
 				ErrorLogMsg( XEM_ERROR142, buff );
 			}
 #endif SERV_IRUHADEV_ELYSION_DEBUG

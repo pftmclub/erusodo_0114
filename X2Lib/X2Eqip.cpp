@@ -261,11 +261,11 @@ CX2Eqip::CX2Eqip( CX2Item* pItem, CKTDGXSkinAnimPtr pUnitXSkinAnim, int enchantL
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 	// June ctor 32961280: +0x15f8 = -1 early (before the templet stores), then at its tail +0x15f4 = 0 and +0x15fc / +0x1600 /
 	// +0x1604 = 0. Nothing reads them in between and March's ctor has no early return, so all five are set here.
-	m_fJuneEquipEffectSetStartTime = 0.f;
-	m_hJuneEquipEffectSet = INVALID_EFFECTSET_HANDLE;
-	m_afJuneEquipEffectSetSwitchTime[0] = 0.f;
-	m_afJuneEquipEffectSetSwitchTime[1] = 0.f;
-	m_afJuneEquipEffectSetSwitchTime[2] = 0.f;
+	m_fEquipEffectSetStartTime = 0.f;
+	m_hEquipEffectSet = INVALID_EFFECTSET_HANDLE;
+	m_afEquipEffectSetSwitchTime[0] = 0.f;
+	m_afEquipEffectSetSwitchTime[1] = 0.f;
+	m_afEquipEffectSetSwitchTime[2] = 0.f;
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 
 }//CX2Eqip::CX2Eqip()
@@ -276,9 +276,9 @@ CX2Eqip::CX2Eqip( CX2Item* pItem, CKTDGXSkinAnimPtr pUnitXSkinAnim, int enchantL
 // only the square's RemoveUnit stop (323f56d0) passes true. June has no CX2Eqip dtor stop (3 callers only). Both: JUNE_BUGS.md.
 void CX2Eqip::ReleaseEquipEffectSet( bool bStop )
 {
-	if( true == bStop && NULL != g_pData && INVALID_EFFECTSET_HANDLE != m_hJuneEquipEffectSet )
-		g_pData->GetUIEffectSet()->StopEffectSet( m_hJuneEquipEffectSet );
-	m_hJuneEquipEffectSet = INVALID_EFFECTSET_HANDLE;
+	if( true == bStop && NULL != g_pData && INVALID_EFFECTSET_HANDLE != m_hEquipEffectSet )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hEquipEffectSet );
+	m_hEquipEffectSet = INVALID_EFFECTSET_HANDLE;
 }
 
 // June2017 32961060: the per-equip effect-set timer step; true = play now. *pSel is the owner kind (0 GUUser, 1 square, 2 viewer);
@@ -297,33 +297,33 @@ bool CX2Eqip::StepEquipEffectSetTimer( int* pSel )
 	// switch roll: only for a positive percent (NaN: no) and an owner kind 0..2
 	if( 0.f < kRecord.m_fSwitchEffectPercent && 0 <= *pSel && *pSel < 3 )
 	{
-		if( m_afJuneEquipEffectSetSwitchTime[*pSel] >= kRecord.m_fSwitchLimitTime )	// NaN on either side -> accumulate
+		if( m_afEquipEffectSetSwitchTime[*pSel] >= kRecord.m_fSwitchLimitTime )	// NaN on either side -> accumulate
 		{
 			if( static_cast<float>( rand() % 100 ) < kRecord.m_fSwitchEffectPercent )		// strict
 				*pSel = 3;
 		}
 		else
 		{
-			m_afJuneEquipEffectSetSwitchTime[*pSel] += g_pKTDXApp->GetElapsedTime();
+			m_afEquipEffectSetSwitchTime[*pSel] += g_pKTDXApp->GetElapsedTime();
 		}
 	}
 
 	// GetEffectSetInstance 321d97c0 on g_pData +0x9c: a live set keeps the accumulator at START_TIME
-	if( NULL != g_pData->GetUIEffectSet()->GetEffectSetInstance( m_hJuneEquipEffectSet ) )
+	if( NULL != g_pData->GetUIEffectSet()->GetEffectSetInstance( m_hEquipEffectSet ) )
 	{
-		m_fJuneEquipEffectSetStartTime = kRecord.m_fStartTime;
+		m_fEquipEffectSetStartTime = kRecord.m_fStartTime;
 		return false;
 	}
 
 	// @32961233-32961244: fld acc, fld START_TIME, fcompp, TEST AH,1 (C0), JNE play. C0 is also set when unordered, so START_TIME
 	// < acc strictly OR a NaN on either side plays (C9f-2 review; equal accumulates).
-	if( !( kRecord.m_fStartTime >= m_fJuneEquipEffectSetStartTime ) )
+	if( !( kRecord.m_fStartTime >= m_fEquipEffectSetStartTime ) )
 	{
-		m_fJuneEquipEffectSetStartTime = 0.f;
+		m_fEquipEffectSetStartTime = 0.f;
 		return true;
 	}
 
-	m_fJuneEquipEffectSetStartTime += g_pKTDXApp->GetElapsedTime();
+	m_fEquipEffectSetStartTime += g_pKTDXApp->GetElapsedTime();
 	return false;
 }
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
@@ -1859,13 +1859,13 @@ static void SetEnchantStage2( CKTDXDeviceXET* pXET, int iEnchantLevel, const cha
 		return;
 	pXET->SetMultiTexStage2( "*.*", pTexture, D3DTOP_ADD );
 
-	static int s_iJuneEqSkinLines = 0;
-	++s_iJuneEqSkinLines;
-	if( s_iJuneEqSkinLines <= 60 || 0 == s_iJuneEqSkinLines % 100 )
+	static int s_iEqSkinLines = 0;
+	++s_iEqSkinLines;
+	if( s_iEqSkinLines <= 60 || 0 == s_iEqSkinLines % 100 )
 	{
 		const CKTDXDeviceXET::MultiTexureData* pStage2 = pXET->GetMultiTex( 2 );
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] EQSKIN stage2 " << pSite << " item " << iItemID << " level " << iEnchantLevel << " tex " << pTexture
-			<< ( ( NULL != pStage2 && NULL != pStage2->pTexture ) ? " loaded" : " MISSING" ) << " line " << s_iJuneEqSkinLines << fileout;
+			<< ( ( NULL != pStage2 && NULL != pStage2->pTexture ) ? " loaded" : " MISSING" ) << " line " << s_iEqSkinLines << fileout;
 	}
 }
 #endif SERV_IRUHADEV_JUNE_EQIP_SKIN
@@ -2039,13 +2039,13 @@ void CX2Eqip::_UpdateSkin()
 	//   - the eqip's custom-render vector (+0x92c, 0xac each, filled by the item manager 32810450 = DITT_CUSTOM_RENDER) holds 2+ entries: Stage 11;
 	//   - owner unit type 10 (UT_LU_CIEL), the ctor flag +0x15d4 clear and m_pNormalXSkinModel[1] set: character port (checklist).
 	// All three adds pass the NORMAL multi-tex XET (+0x808), the hyper add too (JUNE_BUGS.md), and bAddCollisionData 0 (MOTION_COLLISION).
-	bool bJuneAllModels = false;
+	bool bAllModels = false;
 	if( NULL != m_pItemTemplet
 		&& ( true == g_pData->GetItemManager()->IsDivisionItem( 6, m_pItemTemplet->GetItemID() )
 		|| true == g_pData->GetItemManager()->IsDivisionItem( 0x31, m_pItemTemplet->GetItemID() )
 		|| true == g_pData->GetItemManager()->IsDivisionItem( 0x36, m_pItemTemplet->GetItemID() )
 		|| true == g_pData->GetItemManager()->IsDivisionItem( 7, m_pItemTemplet->GetItemID() ) ) )
-		bJuneAllModels = true;
+		bAllModels = true;
 
 	for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
 	{
@@ -2057,7 +2057,7 @@ void CX2Eqip::_UpdateSkin()
 				{
 					if( m_pUnitXSkinAnim != NULL )
 					{
-						if( true == bJuneAllModels )
+						if( true == bAllModels )
 						{
 							for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
 								m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[j] );
@@ -2084,7 +2084,7 @@ void CX2Eqip::_UpdateSkin()
 
 				if( m_pUnitXSkinAnim != NULL )
 				{
-					if( true == bJuneAllModels )
+					if( true == bAllModels )
 					{
 						// line 0xe6d @3295b051: from model i up to the first empty slot
 						for( int j = i; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
@@ -2110,7 +2110,7 @@ void CX2Eqip::_UpdateSkin()
 			{
 				if( m_pUnitXSkinAnim != NULL )
 				{
-					if( true == bJuneAllModels )
+					if( true == bAllModels )
 					{
 						for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
 							m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[j] );
@@ -2294,9 +2294,9 @@ void CX2Eqip::InitSkin()
 		// Then, with no item templet or for a weapon (templet +0xd5 = EP_WEAPON_HAND 2 / EP_AC_WEAPON 0x19), the enchant multi-tex XETs.
 		if( NULL == m_pItemTemplet || CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() )
 		{
-			WCHAR wszJuneMultiTexName[256] = L"";
-			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
-			m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
+			WCHAR wszMultiTexName[256] = L"";
+			StringCchPrintfW( wszMultiTexName, ARRAY_SIZE(wszMultiTexName), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
+			m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszMultiTexName, true );
 			if( NULL == EnchantStage2Texture( m_EnchantLevel ) )
 			{
 				if( NULL != m_pNormalMultiTexXET )
@@ -2307,8 +2307,8 @@ void CX2Eqip::InitSkin()
 
 			// The hyper name takes m_ModelNameHyper[0] (+0x724), and June stores the XET in m_pHyperTexChangeXET (+0x814 @32960287), over the
 			// tex-change XET opened above (its reference is never closed), not in m_pHyperMultiTexXET (+0x818): JUNE_BUGS.md.
-			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_HYPER_%s_%dl", m_ModelNameHyper[0].c_str(), m_ItemUID );
-			m_pHyperTexChangeXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
+			StringCchPrintfW( wszMultiTexName, ARRAY_SIZE(wszMultiTexName), L"MULTI_TEX_HYPER_%s_%dl", m_ModelNameHyper[0].c_str(), m_ItemUID );
+			m_pHyperTexChangeXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszMultiTexName, true );
 			if( NULL == EnchantStage2Texture( m_EnchantLevel ) )
 			{
 				if( NULL != m_pHyperTexChangeXET )
@@ -2541,11 +2541,11 @@ void CX2Eqip::InitAttatchAnim()
 #endif //SERV_9TH_NEW_CHARACTER
 #ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 		// June2017 3295dfa0: what this eqip did differently from March, for the one "[JUNE_ENGINE] EQATTACH" line at the end.
-		int		iJuneAddSlotsSkipped	= 0;		// Add owner: weapon slots with no "Weapon0<n>" frame (no model)
-		bool	bJuneHyperRemap			= false;	// hyper half: Add weapon slots 1.. opened model 0
-		bool	bJuneTraceLandPos		= false;	// an attach frame "TraceLandPos" took the clone frame root
-		bool	bJuneJiggle				= false;	// DITT 30 jiggle applied
-		bool	bJuneJiggleLost			= false;	// March's ITEM_ID_JIGGLE_TYPE1 list would jiggle, DITT 30 does not (Stage 11)
+		int		iAddSlotsSkipped	= 0;		// Add owner: weapon slots with no "Weapon0<n>" frame (no model)
+		bool	bHyperRemap			= false;	// hyper half: Add weapon slots 1.. opened model 0
+		bool	bTraceLandPos		= false;	// an attach frame "TraceLandPos" took the clone frame root
+		bool	bJiggle				= false;	// DITT 30 jiggle applied
+		bool	bJiggleLost			= false;	// March's ITEM_ID_JIGGLE_TYPE1 list would jiggle, DITT 30 does not (Stage 11)
 #endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 
 		for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
@@ -2563,11 +2563,11 @@ void CX2Eqip::InitAttatchAnim()
 				&& CX2Unit::UT_ADD == m_pOwnerUnit->GetUnitTemplet()->m_UnitType
 				&& ( CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() ) )
 			{
-				WCHAR wszJuneFrame[256] = L"";
-				StringCchPrintfW( wszJuneFrame, 255, L"Weapon0%d", i + 1 );
-				if( m_pUnitXSkinAnim == NULL || NULL == m_pUnitXSkinAnim->GetCloneFrame( wszJuneFrame ) )
+				WCHAR wszFrame[256] = L"";
+				StringCchPrintfW( wszFrame, 255, L"Weapon0%d", i + 1 );
+				if( m_pUnitXSkinAnim == NULL || NULL == m_pUnitXSkinAnim->GetCloneFrame( wszFrame ) )
 				{
-					++iJuneAddSlotsSkipped;
+					++iAddSlotsSkipped;
 					continue;
 				}
 			}
@@ -2611,10 +2611,10 @@ void CX2Eqip::InitAttatchAnim()
 			{
 				m_pNormalXSkinAnim[i]->SetUnitXSkinAnim( m_pUnitXSkinAnim );
 				m_pNormalXSkinAnim[i]->SetJiggleMesh( true, 1.5f, 0 );
-				bJuneJiggle = true;
+				bJiggle = true;
 			}
 			else if( GetJiggleBone() >= 0.f )	// log only: June has no list
-				bJuneJiggleLost = true;
+				bJiggleLost = true;
 #else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			float fTension = GetJiggleBone();
 			if( fTension >= 0.f)
@@ -2663,15 +2663,15 @@ void CX2Eqip::InitAttatchAnim()
 #ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			    // June2017 3295dfa0 @3295e7e0-3295e801: the hyper half remaps as the normal half does (templet unit type Add on
 			    // EP_WEAPON_HAND / EP_AC_WEAPON -> hyper model 0, +0x724); March's hyper loop opened slot i.
-			    int iJuneHyperIndex = i;
+			    int iHyperIndex = i;
 			    if( CX2Unit::UT_ADD == m_pItemTemplet->GetUnitType()
 				    && ( CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() ) )
 			    {
-				    iJuneHyperIndex = 0;
+				    iHyperIndex = 0;
 				    if( 0 != i )
-					    bJuneHyperRemap = true;
+					    bHyperRemap = true;
 			    }
-			    m_pHyperXSkinModel[i]		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[iJuneHyperIndex] );
+			    m_pHyperXSkinModel[i]		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[iHyperIndex] );
 #else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			    m_pHyperXSkinModel[i]		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[i] );
 #endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
@@ -2698,10 +2698,10 @@ void CX2Eqip::InitAttatchAnim()
 				{
 					m_pHyperXSkinAnim[i]->SetUnitXSkinAnim( m_pUnitXSkinAnim );
 					m_pHyperXSkinAnim[i]->SetJiggleMesh( true, 1.5f, 4 );
-					bJuneJiggle = true;
+					bJiggle = true;
 				}
 				else if( GetJiggleBone() >= 0.f )	// log only: June has no list
-					bJuneJiggleLost = true;
+					bJiggleLost = true;
 #else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 				float fTension = GetJiggleBone();
 				if( fTension >= 0.f)
@@ -2763,7 +2763,7 @@ void CX2Eqip::InitAttatchAnim()
 						if( 0 == wcscmp( m_pItemTemplet->GetAttachFrameName(i), L"TraceLandPos" ) )
 						{
 							pFrame = ( m_pUnitXSkinAnim != NULL ) ? m_pUnitXSkinAnim->GetCloneFrameRoot() : NULL;
-							bJuneTraceLandPos = true;
+							bTraceLandPos = true;
 						}
 #endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			        	if( NULL != pFrame )
@@ -2780,17 +2780,17 @@ void CX2Eqip::InitAttatchAnim()
 		// Group 72 is empty until Stage 11, so the branch is dead here.
 
 		// One "[JUNE_ENGINE] EQATTACH" line per eqip whose June path differed: the first 60 per run, then every 100th.
-		if( 0 < iJuneAddSlotsSkipped || bJuneHyperRemap || bJuneTraceLandPos || bJuneJiggle || bJuneJiggleLost )
+		if( 0 < iAddSlotsSkipped || bHyperRemap || bTraceLandPos || bJiggle || bJiggleLost )
 		{
-			static int s_iJuneEqAttachLines = 0;
-			++s_iJuneEqAttachLines;
-			if( s_iJuneEqAttachLines <= 60 || 0 == s_iJuneEqAttachLines % 100 )
+			static int s_iEqAttachLines = 0;
+			++s_iEqAttachLines;
+			if( s_iEqAttachLines <= 60 || 0 == s_iEqAttachLines % 100 )
 			{
 				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] EQATTACH item " << m_ItemID << " unittype " << (int)m_pItemTemplet->GetUnitType()
-					<< " pos " << (int)m_pItemTemplet->GetEqipPosition() << " addslots_skipped " << iJuneAddSlotsSkipped
-					<< " hyper_remap " << ( bJuneHyperRemap ? 1 : 0 ) << " hyper " << ( m_bCanHyperMode ? 1 : 0 )
-					<< " tracelandpos " << ( bJuneTraceLandPos ? 1 : 0 ) << " jiggle " << ( bJuneJiggle ? 1 : 0 )
-					<< " jiggle_lost " << ( bJuneJiggleLost ? 1 : 0 ) << " line " << s_iJuneEqAttachLines << fileout;
+					<< " pos " << (int)m_pItemTemplet->GetEqipPosition() << " addslots_skipped " << iAddSlotsSkipped
+					<< " hyper_remap " << ( bHyperRemap ? 1 : 0 ) << " hyper " << ( m_bCanHyperMode ? 1 : 0 )
+					<< " tracelandpos " << ( bTraceLandPos ? 1 : 0 ) << " jiggle " << ( bJiggle ? 1 : 0 )
+					<< " jiggle_lost " << ( bJiggleLost ? 1 : 0 ) << " line " << s_iEqAttachLines << fileout;
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM

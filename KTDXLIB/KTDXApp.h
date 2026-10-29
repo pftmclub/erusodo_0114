@@ -80,7 +80,7 @@ class CKTDXApp
 		/// or when the scene / effect switch is on ( never in June: the option setter 3241cd20 has no caller, JUNE_BUGS.md )
 		void	SetAntiAliasLevel( int iLevel_ );								/// June 31be4cf0 ( +0x260 )
 		void	SetSceneEffectRenderTarget( bool bScene_, bool bEffect_ );		/// June 31be4d10 ( +0x26c / +0x26d )
-		int		GetAntiAliasLevel() const { return m_iJuneAntiAliasLevel; }
+		int		GetAntiAliasLevel() const { return m_iAntiAliasLevel; }
 		HRESULT	OpenPerturbationMap();											/// June 31be4510 ( +0x268 )
 		void	DrawFullScreenQuad( float fU0_, float fV0_, float fU1_, float fV1_ );	/// June 31be34c0
 		void	CreateRenderTargets();											/// June 31be4230
@@ -176,7 +176,7 @@ class CKTDXApp
 		CKTDGManager*		GetDGManager(){ return m_pDGManager; }
 		CKTDSManager*		GetDSManager(){ return m_pDSManager; }
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-		CKTDGGFXManager*	GetGFXManager(){ return m_pJuneGFXManager; }	/// June +0x1c8
+		CKTDGGFXManager*	GetGFXManager(){ return m_pGFXManager; }	/// June +0x1c8
 		void				GfxSetMessageStage( CKTDXStage* pStage );		/// June 31be2fd0
 		void				GfxClearMessageStage();							/// June 31be3000
 		void				GfxMainLoopFilter( const MSG& kMsg );			/// June main loop 31be1aa0 @31be1e0a -> 31c43ab0
@@ -192,7 +192,7 @@ class CKTDXApp
                             GetDVBManager() { ASSERT( m_pDVBManager != NULL ); return m_pDVBManager; }
 //#endif
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-		CKTDGDeviceSurfaceManager*	GetSurfaceManager() { return m_pJuneSurfaceManager; }
+		CKTDGDeviceSurfaceManager*	GetSurfaceManager() { return m_pSurfaceManager; }
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 		
 		bool				GetAppDestroy(){ return m_bAppDestroy; }
@@ -553,7 +553,7 @@ class CKTDXApp
 		CKTDGManager*			m_pDGManager;
 		CKTDSManager*			m_pDSManager;
 #ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
-		CKTDGGFXManager*		m_pJuneGFXManager;			/// June +0x1c8 ( ctor 31c45cc0, built in the app ctor 31c17ed0 @31c196be )
+		CKTDGGFXManager*		m_pGFXManager;			/// June +0x1c8 ( ctor 31c45cc0, built in the app ctor 31c17ed0 @31c196be )
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
@@ -563,15 +563,15 @@ class CKTDXApp
 		CKTDGDynamicVBManager*  m_pDVBManager;
 //#endif
 #ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
-		CKTDGDeviceSurfaceManager*	m_pJuneSurfaceManager;		/// June +0x208: a stage, inserted before the device manager
+		CKTDGDeviceSurfaceManager*	m_pSurfaceManager;		/// June +0x208: a stage, inserted before the device manager
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
-		CKTDXDeviceRenderTargetTexture*	m_pJuneSceneRenderTarget;	/// June +0x25c @CKTDXAPP@SceneRenderTarget@
-		int								m_iJuneAntiAliasLevel;		/// June +0x260 ANTIALIASING_LEVEL, clamped by the device
-		CKTDXDeviceRenderTargetTexture*	m_pJuneEffectRenderTarget;	/// June +0x264 @CKTDXAPP@EffectRenderTarget@
-		CKTDXDeviceTexture*				m_pJunePerturbationMap;		/// June +0x268 PerturbationMap.png ( data045 )
-		bool							m_bJuneSceneRenderTarget;	/// June +0x26c, ctor true
-		bool							m_bJuneEffectRenderTarget;	/// June +0x26d, ctor true ( multisampled effect target )
+		CKTDXDeviceRenderTargetTexture*	m_pSceneRenderTarget;	/// June +0x25c @CKTDXAPP@SceneRenderTarget@
+		int								m_iAntiAliasLevel;		/// June +0x260 ANTIALIASING_LEVEL, clamped by the device
+		CKTDXDeviceRenderTargetTexture*	m_pEffectRenderTarget;	/// June +0x264 @CKTDXAPP@EffectRenderTarget@
+		CKTDXDeviceTexture*				m_pPerturbationMap;		/// June +0x268 PerturbationMap.png ( data045 )
+		bool							m_bSceneRenderTarget;	/// June +0x26c, ctor true
+		bool							m_bEffectRenderTarget;	/// June +0x26d, ctor true ( multisampled effect target )
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 #ifdef CHECKSUM_THREAD_TEST

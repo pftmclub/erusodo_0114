@@ -37,7 +37,7 @@ class CKTDXDeviceRenderTargetTexture
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		// June 31cdadc0: the last argument is the render pass ( 1 = DG +0x40, the additive block )
-		void Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color = 0xffffffff, bool bJunePostEffectPass_ = false );
+		void Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color = 0xffffffff, bool bPostEffectPass_ = false );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		void Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color = 0xffffffff );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS

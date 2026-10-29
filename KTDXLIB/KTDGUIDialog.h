@@ -248,8 +248,8 @@ class CKTDGUIDialog
 		int				GetLayer() { return m_iLayer; }
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		// June dialog +0x1e0: drawn while the dialog manager's flagged-only mode is on; set by June-only game code ( not ported )
-		bool			GetDrawInFlaggedMode() const { return m_bJuneDrawInFlaggedMode; }
-		void			SetDrawInFlaggedMode( bool bDraw_ ) { m_bJuneDrawInFlaggedMode = bDraw_; }
+		bool			GetDrawInFlaggedMode() const { return m_bDrawInFlaggedMode; }
+		void			SetDrawInFlaggedMode( bool bDraw_ ) { m_bDrawInFlaggedMode = bDraw_; }
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		void			SetLayer( int iLayer );
 
@@ -337,7 +337,7 @@ class CKTDGUIDialog
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 		// June 31cd20c0: a second unit viewer ( +0x164 ), drawn right after the first ( 31cd7810 @31cd804c ). Only June-only UI sets it
 		// ( callers 328f74e0, 328f3550 ), so it stays NULL until those are ported
-		void SetSecondUnitViewer( CKTDGObject* pUnit_ ) { m_pJuneSecondUnitViewer = pUnit_; }
+		void SetSecondUnitViewer( CKTDGObject* pUnit_ ) { m_pSecondUnitViewer = pUnit_; }
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 		void ScaleControls( float fx, float fy );
@@ -526,7 +526,7 @@ class CKTDGUIDialog
 		bool						m_bHasUnit;
 		int							m_CustomMsgRMouseUp;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
-		CKTDGObject*				m_pJuneSecondUnitViewer;	// June +0x164 ( not owned, like m_pUnitViewer )
+		CKTDGObject*				m_pSecondUnitViewer;	// June +0x164 ( not owned, like m_pUnitViewer )
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 #ifdef PARTICLE_RENDER_BY_DIALOG
@@ -544,7 +544,7 @@ private:
 		bool						m_bFront;
 		int							m_iLayer;
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
-		bool						m_bJuneDrawInFlaggedMode;
+		bool						m_bDrawInFlaggedMode;
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 

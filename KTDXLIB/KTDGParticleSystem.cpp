@@ -2730,7 +2730,7 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 	m_byEffectAlphaCondition	= 0;		/// June2017 31cf795b
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
-	m_bJuneOutOfDGManager		= false;	/// June2017 31cf7b27
+	m_bOutOfDGManager		= false;	/// June2017 31cf7b27
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 	m_bZWriteEnable		= true;	
 
@@ -3414,7 +3414,7 @@ void    CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_Draw()
 	// June2017 sequence OnFrameRender_Draw FUN_31cf7500 @31cf757c-31cf75ac: after the early-outs above,
 	// WIREFRAME draws every particle type in D3DFILL_WIREFRAME; the fill mode cached before it is
 	// restored after the switch (@31cf77dc-31cf77ff) -- the previous value, not SOLID.
-	const DWORD dwJuneFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
+	const DWORD dwFillModeBefore = CKTDGStateManager::GetRenderState( D3DRS_FILLMODE );
 	if( true == m_bWireFrame )
 		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, D3DFILL_WIREFRAME );
 #endif SERV_IRUHADEV_JUNE_PARTICLE
@@ -3512,7 +3512,7 @@ void    CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_Draw()
 	}
 #ifdef SERV_IRUHADEV_JUNE_PARTICLE
 	if( true == m_bWireFrame )
-		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwJuneFillModeBefore );
+		CKTDGStateManager::SetRenderState( D3DRS_FILLMODE, dwFillModeBefore );
 #endif SERV_IRUHADEV_JUNE_PARTICLE
 
 //	return S_OK;
@@ -4897,14 +4897,14 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRenderMesh_Draw()
 		// June2017 CParticleEventSequence::OnFrameRenderMesh_Draw 31cf16b0 @31cf1888-31cf18d1, after the render-param fill: the option's alpha for this
 		// sequence's category (31ceefb0: SRCALPHA / INVSRCALPHA unless the dest blend is INVSRCCOLOR or DESTALPHA, outline and colour alpha multiplied).
 		{
-			const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
-			if( fabs( fJuneEffectAlpha - 1.0f ) > FLT_EPSILON )
+			const float fEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+			if( fabs( fEffectAlpha - 1.0f ) > FLT_EPSILON )
 			{
 				renderParam.srcBlend = D3DBLEND_SRCALPHA;
 				if( D3DBLEND_INVSRCCOLOR != renderParam.destBlend && D3DBLEND_DESTALPHA != renderParam.destBlend )
 					renderParam.destBlend = D3DBLEND_INVSRCALPHA;
-				renderParam.outLineColor.a *= fJuneEffectAlpha;
-				renderParam.color.a *= fJuneEffectAlpha;
+				renderParam.outLineColor.a *= fEffectAlpha;
+				renderParam.color.a *= fEffectAlpha;
 			}
 		}
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
@@ -5358,7 +5358,7 @@ CKTDGParticleSystem::CParticle* CKTDGParticleSystem::CParticleEventSequence::Cre
 			pSeq->m_AddRotateRel			= m_AddRotateRel;
 			pSeq->m_AxisAngleDegree			= m_AddRotate;	// June 31cfa1da: the child's axis angle is the parent's add rotate
 			pSeq->SetShowObject( GetShowObject() );			// June 31cfa221-31cfa290, inlined
-			if( true == m_bJuneOutOfDGManager && NULL != g_pKTDXApp->GetDGManager() )
+			if( true == m_bOutOfDGManager && NULL != g_pKTDXApp->GetDGManager() )
 				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );	// June 31cfa2b2
 #endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			

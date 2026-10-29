@@ -889,16 +889,16 @@ void CX2SimplePathFinder::FollowTargetPathFly( /*float fElapsedTime,*/ const D3D
 				// bDownRadius true, bIsMonster true, bOnLine false, bDroppable false ); otherwise the unit keeps its height.
 				// The rest of 32f27b10 is March's function ( W1g map, funcmap row (W1g) ).
 				{
-					D3DXVECTOR3 vJuneDownPos = vCurrPos;
-					const int iJuneCurrLineDataIndex = iCurrLineDataIndex;
-					if( false == pLineMap->CanDown( vCurrPos, LINE_RADIUS, &vJuneDownPos, &iJuneCurrLineDataIndex, NULL, true, true, false, false ) )
+					D3DXVECTOR3 vFlyDownPos = vCurrPos;
+					const int iCanDownLineDataIndex = iCurrLineDataIndex;
+					if( false == pLineMap->CanDown( vCurrPos, LINE_RADIUS, &vFlyDownPos, &iCanDownLineDataIndex, NULL, true, true, false, false ) )
 					{
 						bFlyDown = false;
 #ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
-						static int s_iJuneFlyDownRefuseLogCount = 0;
-						if( s_iJuneFlyDownRefuseLogCount < 20 )
+						static int s_iFlyDownRefuseLogCount = 0;
+						if( s_iFlyDownRefuseLogCount < 20 )
 						{
-							++s_iJuneFlyDownRefuseLogCount;
+							++s_iFlyDownRefuseLogCount;
 							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD fly-down refused: line " << iCurrLineDataIndex
 								<< " at " << vCurrPos.x << "," << vCurrPos.y << "," << vCurrPos.z
 								<< " dest y " << vFinalDestPos.y << " + height " << fDestArriveHeight << fileout;
@@ -908,13 +908,13 @@ void CX2SimplePathFinder::FollowTargetPathFly( /*float fElapsedTime,*/ const D3D
 #ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
 					else
 					{
-						static int s_iJuneFlyDownAllowLogCount = 0;
-						if( s_iJuneFlyDownAllowLogCount < 5 )
+						static int s_iFlyDownAllowLogCount = 0;
+						if( s_iFlyDownAllowLogCount < 5 )
 						{
-							++s_iJuneFlyDownAllowLogCount;
+							++s_iFlyDownAllowLogCount;
 							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD fly-down allowed: line " << iCurrLineDataIndex
 								<< " at " << vCurrPos.x << "," << vCurrPos.y << "," << vCurrPos.z
-								<< " land y " << vJuneDownPos.y << " dest y " << vFinalDestPos.y << fileout;
+								<< " land y " << vFlyDownPos.y << " dest y " << vFinalDestPos.y << fileout;
 						}
 					}
 #endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG

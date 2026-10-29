@@ -82,8 +82,8 @@ class CX2State : public CKTDXStage
 			SUCM_BLOCK_ACCOUNT_CONNECT = 3031,
 //#endif //SERV_ACCOUNT_BLOCK_MESSAGE_RENEWAL // ACCOUNT_BLOCK_MESSAGE_RENEWAL_KR
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-			SUCM_JUNE_TITLE_TEN_OK		= 3085,		/// June CX2State::UICustomEventProc ( switch @31f242cb ) 3085: title 10's "apply title now?" OK
-			SUCM_JUNE_TITLE_TEN_CANCEL	= 3086,		/// 3086: its Cancel
+			SUCM_TITLE_TEN_OK		= 3085,		/// June CX2State::UICustomEventProc ( switch @31f242cb ) 3085: title 10's "apply title now?" OK
+			SUCM_TITLE_TEN_CANCEL	= 3086,		/// 3086: its Cancel
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
 			SUCM_CLOSE_DUNGEON_CLEAR_MOVIE			= 3032,	/// June Enum.lua :918: DLG_Dungeon_Clear_Movie's skip button and close event ( 31f23e70 case 0xbd8 )
@@ -214,8 +214,8 @@ class CX2State : public CKTDXStage
 #endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 		/// June 31ef7370: the NPC scripts' subtitle ( CX2GUNPC::SetMovieDescriptionData ), drawn by RenderMovieDescription ( 31f179b0 )
-		void SetMovieDescriptionData( int iStringID_, float fTime_ ) { m_iJuneMovieDescStringID = iStringID_; m_fJuneMovieDescTime = fTime_; }
-		void RenderMovieDescription( bool bJuneRenderArg_ );
+		void SetMovieDescriptionData( int iStringID_, float fTime_ ) { m_iMovieDescStringID = iStringID_; m_fMovieDescTime = fTime_; }
+		void RenderMovieDescription( bool bRenderArg_ );
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 #ifdef BANDICAM_HIDE_RECORDING_PARTICLE
@@ -953,7 +953,7 @@ class CX2State : public CKTDXStage
 #endif // SERV_DIRECT_CHARGE_ELSWORD_CASH
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 		void			SetResultUIMode( int iMode, float fTime );						/// 31ef7be0
-		int				GetResultUIMode() const { return m_iJuneResultMode; }
+		int				GetResultUIMode() const { return m_iResultMode; }
 		bool			IsExitBoxShown();												/// 31ef7c60
 		void			OpenExitBox( bool bShow );										/// 31f1dd70
 		void			SetExitBoxText( bool bParty );									/// 31f17e60
@@ -973,8 +973,8 @@ class CX2State : public CKTDXStage
 		float			m_fTime;
 		float			m_fElapsedTime;
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
-		int				m_iJuneMovieDescStringID;	/// June +0x1ec
-		float			m_fJuneMovieDescTime;		/// June +0x1f0, seconds left
+		int				m_iMovieDescStringID;	/// June +0x1ec
+		float			m_fMovieDescTime;		/// June +0x1f0, seconds left
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 		CX2Cursor*		m_pCursor;
@@ -995,17 +995,17 @@ class CX2State : public CKTDXStage
 
 		CKTDGUIDialogType	m_pDLGMsgBox;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
-		CKTDGUIDialogType	m_pDLGJuneClearMovieSkip;	/// June CX2State +0x1e4: the "stop the video?" box
+		CKTDGUIDialogType	m_pDLGClearMovieSkip;	/// June CX2State +0x1e4: the "stop the video?" box
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-		int					m_iJuneResultMode;				/// +0x210
-		float				m_fJuneResultModeTime;			/// +0x214
-		float				m_fJuneResultModeLimit;			/// +0x218
-		CKTDGUIDialogType	m_pDLGJunePartyResult;			/// +0x21c
-		CKTDGUIDialogType	m_pDLGJuneExitBox;				/// +0x224
-		bool				m_bJuneResultConfirmSent;		/// +0x22c
-		bool				m_bJuneResultQuit;				/// +0x22d
-		bool				m_bJuneResultLeaveOnAck;		/// +0x22e
+		int					m_iResultMode;				/// +0x210
+		float				m_fResultModeTime;			/// +0x214
+		float				m_fResultModeLimit;			/// +0x218
+		CKTDGUIDialogType	m_pDLGPartyResult;			/// +0x21c
+		CKTDGUIDialogType	m_pDLGExitBox;				/// +0x224
+		bool				m_bResultConfirmSent;		/// +0x22c
+		bool				m_bResultQuit;				/// +0x22d
+		bool				m_bResultLeaveOnAck;		/// +0x22e
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 

@@ -823,7 +823,7 @@ class CX2QuestManager
 		void	PlayQuestSelectBGM( const std::wstring& wstrBGM );
 		/// Q5b. June 3232e000, called by CX2GFXEventScene::End ( @3226b734 ) when +0x148 is set: the saved name goes back and plays.
 		void	RestoreQuestSelectBGM();
-		bool	IsQuestSelectBGMActive() const { return m_bJuneSelectBGMActive; }
+		bool	IsQuestSelectBGMActive() const { return m_bSelectBGMActive; }
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef LUA_TRANS_DEVIDE
 		bool	AddQuestTempletTrans_LUA();
@@ -1081,8 +1081,8 @@ class CX2QuestManager
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
-		std::wstring						m_wstrJuneSavedBGM;				/// June manager +0x12c: the world's BGM name before the quest's replaced it
-		bool								m_bJuneSelectBGMActive;			/// June manager +0x148
+		std::wstring						m_wstrSavedBGM;				/// June manager +0x12c: the world's BGM name before the quest's replaced it
+		bool								m_bSelectBGMActive;			/// June manager +0x148
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 		map<int,QuestInst*>					m_mapUnitQuest;
 		map<int,int>						m_mapCompleteQuest;

@@ -158,25 +158,25 @@ private:
 	static CX2SkillNoteManager*								m_pManager;
 
 	/// June +0x4: UNIT_CLASS -> memo rows (the class's own rows after its parents', 32454840)
-	std::map< int, std::vector<SSkillMemoTemplet> >	m_mapJuneMemoTemplet;
+	std::map< int, std::vector<SSkillMemoTemplet> >	m_mapMemoTemplet;
 	/// June +0x14: MEMO_ID -> item id, a multimap (31ef1410, the insert CX2UserSkillTree +0x458 also uses)
-	std::multimap<int, int>								m_mmapJuneMemoMatchItemID;
+	std::multimap<int, int>								m_mmapMemoMatchItemID;
 	/// June +0x24: the item ids that remove a memo
-	std::set<int>										m_setJuneRemovableMemoItemID;
+	std::set<int>										m_setRemovableMemoItemID;
 	/// June +0x34: UNIT_CLASS -> ( memo item id, skill id ), AddSkillNoteTemplet's table (March's m_mapSkillNoteTemplet)
 	std::map< int, std::vector< std::pair<int, int> > >	m_mapSkillNoteTemplet;
 
 	/// "[JUNE_SKILL] NOTE" load counts
-	int		m_iJuneOldTempletCalls;
-	int		m_iJuneNewTempletCalls;
-	int		m_iJuneMatchCalls;
-	int		m_iJuneRemovableCalls;
-	int		m_iJuneOwnRows;
-	int		m_iJuneInheritedRows;
-	int		m_iJuneZeroMemoRows;
-	int		m_iJuneZeroSkillRows;
-	int		m_iJuneMissingParents;
-	int		m_iJuneDuplicateClasses;
+	int		m_iOldTempletCalls;
+	int		m_iNewTempletCalls;
+	int		m_iMatchCalls;
+	int		m_iRemovableCalls;
+	int		m_iOwnRows;
+	int		m_iInheritedRows;
+	int		m_iZeroMemoRows;
+	int		m_iZeroSkillRows;
+	int		m_iMissingParents;
+	int		m_iDuplicateClasses;
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 

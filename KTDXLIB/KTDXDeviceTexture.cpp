@@ -528,9 +528,9 @@ void CKTDXDeviceTexture::DrawLayer( float nX, float nY, float nWidth, float nHei
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 // June 31d48f90: the pass picks the state block, the rest is March's
-void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, float fRotateDegree /*= 0.f*/, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, float fRotateDegree /*= 0.f*/, bool bPostEffectPass_ /*= false*/ )
 {
-    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+    KD3DPUSH( true == bPostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, float fRotateDegree /*= 0.f*/ )
 {
@@ -633,9 +633,9 @@ void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 // June 31d49430: the pass picks the state block, the rest is March's
-void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color /* = 0xffffffff  */, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color /* = 0xffffffff  */, bool bPostEffectPass_ /*= false*/ )
 {
-    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+    KD3DPUSH( true == bPostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color /* = 0xffffffff  */)
 {
@@ -709,9 +709,9 @@ void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TE
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 // June 31d49760: the pass picks the state block, the rest is March's
-void CKTDXDeviceTexture::Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color /* = 0xffffffff  */, bool bJunePostEffectPass_ /*= false*/ )
+void CKTDXDeviceTexture::Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color /* = 0xffffffff  */, bool bPostEffectPass_ /*= false*/ )
 {
-    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+    KD3DPUSH( true == bPostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color /* = 0xffffffff  */ )
 {

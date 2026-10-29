@@ -14,8 +14,8 @@ class CX2SlideShot
 		void		ScenEnd();
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		/// Atlas E7: June 325c4a50: true once after a scene end ( +0x88, set by 325c7140 @325c7162 ), clearing it; else false
-		bool		IsSceneEnded() { if ( true == m_bJuneSceneEnded ) { m_bJuneSceneEnded = false; return true; } return false; }
-		void		ResetSceneEnded() { m_bJuneSceneEnded = false; }	/// June 325c4a70 ( tutorial-exit release 327d2160 )
+		bool		IsSceneEnded() { if ( true == m_bSceneEnded ) { m_bSceneEnded = false; return true; } return false; }
+		void		ResetSceneEnded() { m_bSceneEnded = false; }	/// June 325c4a70 ( tutorial-exit release 327d2160 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		void		GoNextScen();
@@ -77,7 +77,7 @@ class CX2SlideShot
 		
 		bool		m_bNowPresent;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		bool		m_bJuneSceneEnded;	/// Atlas E7: June +0x88
+		bool		m_bSceneEnded;	/// Atlas E7: June +0x88
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		bool		m_TextBoxShow;
 		int			m_NowScenNum;

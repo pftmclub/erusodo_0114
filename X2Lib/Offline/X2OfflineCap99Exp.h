@@ -27,7 +27,7 @@ namespace X2OfflineCap99Exp
 	enum
 	{
 		MARCH_MAX_LEVEL	= 80,
-		JUNE_MAX_LEVEL	= 100,
+		EXP_TABLE_MAX_LEVEL	= 100,
 	};
 
 	const int MARCH_TOTAL_EXP[ MARCH_MAX_LEVEL + 1 ] =
@@ -51,7 +51,7 @@ namespace X2OfflineCap99Exp
 	866438000,
 	};
 
-	const int JUNE_TOTAL_EXP[ JUNE_MAX_LEVEL + 1 ] =
+	const int TOTAL_EXP[ EXP_TABLE_MAX_LEVEL + 1 ] =
 	{
 	0, 0, 600, 1800, 3700,
 	6200, 9500, 13600, 18500, 24300,

@@ -145,7 +145,7 @@ static bool SetNpcFacePicture( CKTDGUIControl::CPictureData* pPicture, int iNpcI
 	if( NULL == pPicture )
 		return false;
 
-	if( 4309 == iNpcID || 4346 == iNpcID || 4254 == iNpcID )
+	if( CX2UnitManager::NUI_EVENT_DOLL == iNpcID || CX2UnitManager::NUI_EVENT_BLESS_OF_SOLACE == iNpcID || CX2UnitManager::NUI_EVENT_GUILD_EDAN_ROOM == iNpcID )
 		pPicture->SetTex( L"DLG_INT_Button02.TGA", L"NPC_FACE_EVENT" );
 	else
 		pPicture->SetTex( L"DLG_UI_Npc_Face01.TGA", wstrKey.c_str() );
@@ -303,11 +303,11 @@ m_byNumOfItemThatICanGet( 0 )	// kimhc // 2009-12-18 // 가질수 있는 선택 보상 아
 	m_pCheckListQuickQuest = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestList->GetControl( L"CheckBox_QuickQuest" ) );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	// June 323d0ca0 @323d1638-323d1684, just before the tab hide: the movie rows and the navi steps ( rows of three, rounded up )
-	m_iJuneMovieCount = g_pMain->GetClearMovieCount();
-	if( 0 == m_iJuneMovieCount % 3 )
-		m_iJuneMovieNaviStep = ( m_iJuneMovieCount - 1 ) / 3 + 1;
+	m_iMovieCount = g_pMain->GetClearMovieCount();
+	if( 0 == m_iMovieCount % 3 )
+		m_iMovieNaviStep = ( m_iMovieCount - 1 ) / 3 + 1;
 	else
-		m_iJuneMovieNaviStep = m_iJuneMovieCount / 3 + 1;
+		m_iMovieNaviStep = m_iMovieCount / 3 + 1;
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 	HideMovieTab();		// June 323d0ca0 @323d0cd4 ( window creation ): hide the scenario-movie tab's controls
@@ -809,9 +809,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			{
 				if( NULL != m_pDLGUIQuestDetail )
 				{
-					CKTDGUICheckBox* pJuneCheck = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestDetail->GetControl( L"CheckBox_QuickQuest" ) );
-					if( NULL != pJuneCheck )
-						pJuneCheck->SetChecked( true, false );
+					CKTDGUICheckBox* pCheck = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestDetail->GetControl( L"CheckBox_QuickQuest" ) );
+					if( NULL != pCheck )
+						pCheck->SetChecked( true, false );
 				}
 				return true;
 			}
@@ -847,7 +847,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			SetNowQuestUIMode(QUM_QUEST);
 			m_iTopQuestSlotIndex = 0;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-			m_bJuneMovieTab = false;		// June @323e1dd0: every quest tab closes the Video tab before the reset ( Q8b )
+			m_bMovieTab = false;		// June @323e1dd0: every quest tab closes the Video tab before the reset ( Q8b )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
@@ -857,7 +857,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			SetNowQuestUIMode(QUM_EPIC_QUEST);
 			m_iTopQuestSlotIndex = 0;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-			m_bJuneMovieTab = false;		// June @323e1dd0 ( Q8b )
+			m_bMovieTab = false;		// June @323e1dd0 ( Q8b )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
@@ -961,7 +961,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			ReturnToQuestListUI();
 			m_iTopQuestSlotIndex = 0;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-			m_bJuneMovieTab = false;		// June 323e2201 -> tail @323e1dd0: Back closes the Video tab before the reset, as the tabs do ( Q8b review )
+			m_bMovieTab = false;		// June 323e2201 -> tail @323e1dd0: Back closes the Video tab before the reset, as the tabs do ( Q8b review )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
@@ -991,7 +991,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			CKTDGUIButton* pButton = (CKTDGUIButton*) lParam;
 			m_iSelectedQuestSlotIndex = pButton->GetDummyInt(0);
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
-			const int iJuneKeepTop = m_iTopQuestSlotIndex;
+			const int iKeepTop = m_iTopQuestSlotIndex;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #ifdef MODIFY_ACCEPT_QUEST
 			bool bIsChangeReceiveTab = false;
@@ -1069,7 +1069,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 			// the request tab keeps its first row when a category opens or closes ( June 323e1bf0 case 0xa03e, mode 1 )
 			if( QUM_QUEST_RECEIVE == m_eNowQuestUIMode )
-				m_iTopQuestSlotIndex = iJuneKeepTop;
+				m_iTopQuestSlotIndex = iKeepTop;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 			ResetQuestUI();
 
@@ -1158,13 +1158,13 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			// ( @323e293d: Q10 ). March's Lua scenes stay in the #else.
 			if( m_iSelectedQuestID != -1 )
 			{
-				const CX2QuestManager::QuestTemplet* pJuneSceneTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
-				if( NULL != pJuneSceneTemplet )
-					PlayQuestScene( pJuneSceneTemplet->m_iID, 2 );
+				const CX2QuestManager::QuestTemplet* pSceneTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
+				if( NULL != pSceneTemplet )
+					PlayQuestScene( pSceneTemplet->m_iID, 2 );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 				// June @323e293d..323e295e: a story quest then replays its slide show ( g_pData +0x288 328c3750; its result is not used )
-				if( NULL != pJuneSceneTemplet && CX2QuestManager::QT_STORY == pJuneSceneTemplet->m_eQuestType )
-					g_pData->StartStorySlideShot( pJuneSceneTemplet->m_iID );
+				if( NULL != pSceneTemplet && CX2QuestManager::QT_STORY == pSceneTemplet->m_eQuestType )
+					g_pData->StartStorySlideShot( pSceneTemplet->m_iID );
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 			}
 #else SERV_IRUHADEV_JUNE_QUEST_SCENE
@@ -1384,13 +1384,13 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			// June 323e1bf0 case 0xa02f @323e3364: on the Video tab, three movies up ( not below 1 ) while there are more than 13 rows
-			if( true == m_bJuneMovieTab )
+			if( true == m_bMovieTab )
 			{
-				if( m_iJuneMovieCount > 13 )
+				if( m_iMovieCount > 13 )
 				{
-					m_iJuneMovieStartID -= 3;
-					if( m_iJuneMovieStartID <= 1 )
-						m_iJuneMovieStartID = 1;
+					m_iMovieStartID -= 3;
+					if( m_iMovieStartID <= 1 )
+						m_iMovieStartID = 1;
 					UpdateMovieList( true );
 				}
 				return true;
@@ -1405,13 +1405,13 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			// June 323e1bf0 case 0xa030 @323e34a7: on the Video tab, three movies down ( at most the row count ) while there are more than 13 rows
-			if( true == m_bJuneMovieTab )
+			if( true == m_bMovieTab )
 			{
-				if( m_iJuneMovieCount > 13 )
+				if( m_iMovieCount > 13 )
 				{
-					m_iJuneMovieStartID += 3;
-					if( m_iJuneMovieStartID >= m_iJuneMovieCount )
-						m_iJuneMovieStartID = m_iJuneMovieCount;
+					m_iMovieStartID += 3;
+					if( m_iMovieStartID >= m_iMovieCount )
+						m_iMovieStartID = m_iMovieCount;
 					UpdateMovieList( true );
 				}
 				return true;
@@ -1536,14 +1536,14 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			// June 323e1bf0 cases 0xa035 / 0xa036 @323e39c0: on the Video tab, while there are more than 12 rows the first movie follows the
 			// navi, 1 - 3 * (int)( navi steps * y / -0.68 ), with no clamp; the list is rebuilt without a navi update
-			if( true == m_bJuneMovieTab )
+			if( true == m_bMovieTab )
 			{
-				if( m_iJuneMovieCount > 12 )
+				if( m_iMovieCount > 12 )
 				{
-					int iMovieStartID = 1 - 3 * (int)( (double)m_iJuneMovieNaviStep * (double)vRelativePos.y / -0.68 );
-					if( iMovieStartID != m_iJuneMovieStartID )
+					int iMovieStartID = 1 - 3 * (int)( (double)m_iMovieNaviStep * (double)vRelativePos.y / -0.68 );
+					if( iMovieStartID != m_iMovieStartID )
 					{
-						m_iJuneMovieStartID = iMovieStartID;
+						m_iMovieStartID = iMovieStartID;
 						UpdateMovieList( false );
 					}
 				}
@@ -1563,7 +1563,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			SetNowQuestUIMode(QUM_EVENT_QUEST);
 			m_iTopQuestSlotIndex = 0;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-			m_bJuneMovieTab = false;		// June @323e1dd0 ( Q8b )
+			m_bMovieTab = false;		// June @323e1dd0 ( Q8b )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
@@ -1726,13 +1726,13 @@ bool CX2UIQuestNew::OnMouseWheel( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			{
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 				// June 323e45c0 @323e465f: on the Video tab, three movies up ( not below 1 ) while there are more than 12 rows
-				if( true == m_bJuneMovieTab )
+				if( true == m_bMovieTab )
 				{
-					if( m_iJuneMovieCount > 12 )
+					if( m_iMovieCount > 12 )
 					{
-						m_iJuneMovieStartID -= 3;
-						if( m_iJuneMovieStartID < 2 )
-							m_iJuneMovieStartID = 1;
+						m_iMovieStartID -= 3;
+						if( m_iMovieStartID < 2 )
+							m_iMovieStartID = 1;
 						UpdateMovieList( true );
 					}
 					m_SumDelta -= WHEEL_DELTA;
@@ -1747,13 +1747,13 @@ bool CX2UIQuestNew::OnMouseWheel( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			{
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 				// June 323e45c0 @323e47b0: on the Video tab, three movies down ( at most the row count ) while there are more than 12 rows
-				if( true == m_bJuneMovieTab )
+				if( true == m_bMovieTab )
 				{
-					if( m_iJuneMovieCount > 12 )
+					if( m_iMovieCount > 12 )
 					{
-						m_iJuneMovieStartID += 3;
-						if( m_iJuneMovieStartID >= m_iJuneMovieCount )
-							m_iJuneMovieStartID = m_iJuneMovieCount;
+						m_iMovieStartID += 3;
+						if( m_iMovieStartID >= m_iMovieCount )
+							m_iMovieStartID = m_iMovieCount;
 						UpdateMovieList( true );
 					}
 					m_SumDelta += WHEEL_DELTA;
@@ -1860,9 +1860,9 @@ bool CX2UIQuestNew::Handler_EGS_ADMIN_QUEST_COMPLETE_REQ( CX2UnitManager::NPC_UN
 	if( NULL != g_pMain )
 	{
 		g_pMain->PlayQuestClearMovie( kPacket, true );
-		int iJuneMovieID = 0;
-		if( true == g_pMain->GetClearMovieIDByQuest( questID, iJuneMovieID ) )
-			g_pMain->AddSeenClearMovie( iJuneMovieID, true );
+		int iMovieID = 0;
+		if( true == g_pMain->GetClearMovieIDByQuest( questID, iMovieID ) )
+			g_pMain->AddSeenClearMovie( iMovieID, true );
 		if( true == g_pMain->IsClearMoviePlaying() && false == g_pMain->StartClearMovie() )
 			g_pMain->StopClearMovie();
 		if( true == g_pMain->IsClearMoviePlaying() )
@@ -1894,9 +1894,9 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_REQ( CX2UnitManager::NPC_UNIT_ID 
 	if( NULL != g_pMain )
 	{
 		g_pMain->PlayQuestClearMovie( kPacket, false );
-		int iJuneMovieID = 0;
-		if( true == g_pMain->GetClearMovieIDByQuest( questID, iJuneMovieID ) )
-			g_pMain->AddSeenClearMovie( iJuneMovieID, true );
+		int iMovieID = 0;
+		if( true == g_pMain->GetClearMovieIDByQuest( questID, iMovieID ) )
+			g_pMain->AddSeenClearMovie( iMovieID, true );
 		if( true == g_pMain->IsClearMoviePlaying() && false == g_pMain->StartClearMovie() )
 			g_pMain->StopClearMovie();
 		if( true == g_pMain->IsClearMoviePlaying() )
@@ -1946,11 +1946,11 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			// 반복 퀘스트이면서 목록에 있는 퀘스트라면 선택된 퀘스트 ID를 리셋하지 않는다 : 엔터 연타로 되게.
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
-			const CX2QuestManager::QuestTemplet* pJuneQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
-			if( NULL == pJuneQuestTemplet )
+			const CX2QuestManager::QuestTemplet* pCompletedQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
+			if( NULL == pCompletedQuestTemplet )
 				QuestNoTempletLog( kEvent.m_kCompleteQuestInfo.m_iQuestID, L"Handler_EGS_QUEST_COMPLETE_ACK" );
 
-			if( NULL != pJuneQuestTemplet && CX2QuestManager::QRT_REPEAT == pJuneQuestTemplet->m_eRepeatType &&
+			if( NULL != pCompletedQuestTemplet && CX2QuestManager::QRT_REPEAT == pCompletedQuestTemplet->m_eRepeatType &&
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
 			if( CX2QuestManager::QRT_REPEAT == g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_kCompleteQuestInfo.m_iQuestID)->m_eRepeatType &&
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -1982,7 +1982,7 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			PlayQuestScene( kEvent.m_kCompleteQuestInfo.m_iQuestID, 1 );
 #else SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
-			wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
+			wstring wstrEndSceneID = ( NULL != pCompletedQuestTemplet ) ? pCompletedQuestTemplet->m_wstrEndScene : wstring();
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
 			wstring wstrEndSceneID = g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_kCompleteQuestInfo.m_iQuestID)->m_wstrEndScene;
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -1997,14 +1997,14 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			// Story_New mark on ( 32335f50( 1 ) ). June then starts the story's slide show ( g_pData +0x288 328c3750 ) and, when it started,
 			// sets g_pInstanceData +0xabc ( the end message ): Phase Q10b ports the player.
 			{
-				const CX2QuestManager::QuestTemplet* pJuneStoryTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
-				if( NULL != pJuneStoryTemplet && CX2QuestManager::QT_STORY == pJuneStoryTemplet->m_eQuestType &&
-					true == CX2SlideShotScriptedManager::GetInstance()->HasStory( pJuneStoryTemplet->m_iID ) )
+				const CX2QuestManager::QuestTemplet* pStoryTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
+				if( NULL != pStoryTemplet && CX2QuestManager::QT_STORY == pStoryTemplet->m_eQuestType &&
+					true == CX2SlideShotScriptedManager::GetInstance()->HasStory( pStoryTemplet->m_iID ) )
 				{
 					g_pData->GetQuestManager()->RebuildStoryBookQuest( true );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 					// June @323e5a4a..323e5a6d: the story's slide show; when Start returns true ( started, or one already running ) the end message is due
-					if( true == g_pData->StartStorySlideShot( pJuneStoryTemplet->m_iID ) )
+					if( true == g_pData->StartStorySlideShot( pStoryTemplet->m_iID ) )
 						g_pInstanceData->SetStoryEndMessage( true );
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 				}
@@ -2572,11 +2572,11 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				// 반복 퀘스트이면서 목록에 있는 퀘스트라면 선택된 퀘스트 ID를 리셋하지 않는다 : 엔터 연타로 되게.
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
-				const CX2QuestManager::QuestTemplet* pJuneQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );
-				if( NULL == pJuneQuestTemplet )
+				const CX2QuestManager::QuestTemplet* pCompletedQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );
+				if( NULL == pCompletedQuestTemplet )
 					QuestNoTempletLog( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, L"Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK" );
 
-				if( NULL != pJuneQuestTemplet && CX2QuestManager::QRT_REPEAT == pJuneQuestTemplet->m_eRepeatType &&
+				if( NULL != pCompletedQuestTemplet && CX2QuestManager::QRT_REPEAT == pCompletedQuestTemplet->m_eRepeatType &&
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
 				if( CX2QuestManager::QRT_REPEAT == g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID)->m_eRepeatType &&
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -2597,7 +2597,7 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				PlayQuestScene( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, 1 );
 #else SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
-				wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
+				wstring wstrEndSceneID = ( NULL != pCompletedQuestTemplet ) ? pCompletedQuestTemplet->m_wstrEndScene : wstring();
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
 				wstring wstrEndSceneID = g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID)->m_wstrEndScene;
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -3302,15 +3302,15 @@ void CX2UIQuestNew::UpdateNavi()
 	{
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 		// June 323c8da0 @323c8dd0 / @323c8e09: on the Video tab the navi shows from 13 rows, at ( start / 3 ) * 0.68 / ( navi steps - 1 )
-		if( true == m_bJuneMovieTab )
+		if( true == m_bMovieTab )
 		{
-			if( m_iJuneMovieCount < 13 )
+			if( m_iMovieCount < 13 )
 			{
 				pNavi->SetShow( false );
 				return;
 			}
 			pNavi->SetShow( true );
-			D3DXVECTOR2 vMoviePos( 0.0f, (float)( m_iJuneMovieStartID / 3 ) * 0.68f / (float)( m_iJuneMovieNaviStep - 1 ) );
+			D3DXVECTOR2 vMoviePos( 0.0f, (float)( m_iMovieStartID / 3 ) * 0.68f / (float)( m_iMovieNaviStep - 1 ) );
 			pNavi->SetRelativeWindowPos( vMoviePos );
 			return;
 		}
@@ -4388,16 +4388,16 @@ wstring CX2UIQuestNew::CreateStringQuestClearCondition()
 		bool bThereWasNPCTalkSubQuest = false;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 		// June 323cdfe0: one group holding a "play together" sub-quest lists only the play-together ones
-		bool bJuneTogetherOnly = false;
+		bool bTogetherOnly = false;
 		if( 1 == pQuestTemplet->m_mapSubQuestGroup.size() )
 		{
-			const std::vector<int>& vecJuneGroup = pQuestTemplet->m_mapSubQuestGroup.begin()->second;
-			for( UINT k = 0; k < vecJuneGroup.size(); ++k )
+			const std::vector<int>& vecGroup = pQuestTemplet->m_mapSubQuestGroup.begin()->second;
+			for( UINT k = 0; k < vecGroup.size(); ++k )
 			{
-				const CX2QuestManager::SubQuestTemplet* pJuneSub = g_pData->GetQuestManager()->GetSubQuestTemplet( vecJuneGroup[k] );
-				if( NULL != pJuneSub && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pJuneSub->m_eClearType )
+				const CX2QuestManager::SubQuestTemplet* pSub = g_pData->GetQuestManager()->GetSubQuestTemplet( vecGroup[k] );
+				if( NULL != pSub && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pSub->m_eClearType )
 				{
-					bJuneTogetherOnly = true;
+					bTogetherOnly = true;
 					break;
 				}
 			}
@@ -4418,7 +4418,7 @@ wstring CX2UIQuestNew::CreateStringQuestClearCondition()
 
 				const CX2QuestManager::ClearCondition& clearCond = pSubQuestTemplet->m_ClearCondition;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
-				if( true == bJuneTogetherOnly && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR != pSubQuestTemplet->m_eClearType )
+				if( true == bTogetherOnly && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR != pSubQuestTemplet->m_eClearType )
 					continue;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 				if( CX2QuestManager::SQT_NPC_TALK == pSubQuestTemplet->m_eClearType )
@@ -4763,61 +4763,61 @@ wstring CX2UIQuestNew::GetNPCFaceTextureKey(CX2UnitManager::NPC_UNIT_ID NpcID)
 /// quest NPC and 10153 the transcendence one. June dropped the event NPCs March had ( crayonpop, apink, benders ): they fall to Default.
 	switch( static_cast<int>( NpcID ) )
 	{
-	case 10000:	return L"ANN";
-	case 10001:	return L"HAGUS";
-	case 10002:	return L"ROU";
-	case 10003:	return L"ADAMS";
-	case 10004:	return L"ECO";
-	case 10005:	return L"HOFMAN";
-	case 10006:	return L"RUICHEL";
-	case 10007:	return L"RENPAT";
-	case 10008:	return L"STELRA";
-	case 10009:	return L"CHACHABUK";
-	case 10010:	return L"RICHIANG";
-	case 10011:	return L"TOMA";
-	case 10012:	return L"ADEL";
-	case 10013:	return L"AGATA";
-	case 10014:	return L"AIDA";
-	case 10015:	return L"AMOSE";
-	case 10016:	return L"";				// NUI_MOON: empty, as March
-	case 10017:	return L"KAMILRA";
-	case 10018:	return L"ARIEL";
-	case 10019:	return L"HELREN";
-	case 10020:	return L"ALREGRO";
-	case 10021:	return L"RENTO";
-	case 10026:	return L"GLAVE";
-	case 10027:	return L"LURIEL";
-	case 10028:	return L"GRAIL";
-	case 10029:	return L"NOEL";
-	case 10030:	return L"VANESSA";
-	case 10031:	return L"PRAUS";
-	case 10032:	return L"HANNA";
-	case 10037:	return L"HORATIO";
-	case 10038:	return L"LUCY";
-	case 10039:	return L"DAISY";
-	case 10040:	return L"PENENSIO";
-	case 10041:	return L"DENKA";
-	case 10042:	return L"LORDROS";
-	case 10043:	return L"Default";
-	case 10045:	return L"MU";
-	case 10048:	return L"RUTO";
-	case 10055:	return L"ROSEANG";
-	case 10056:	return L"EMIRATE";
-	case 10057:	return L"VAPOR";
-	case 10058:	return L"DAPPAR";
-	case 10067:	return L"EDEL";
-	case 10068:	return L"STEEL";
-	case 10069:	return L"FACEOFF";
-	case 10070:	return L"SYOTA";
-	case 10071:	return L"IGNIA";
-	case 10078:	return L"YUNO";
-	case 10142:	return L"Story";
-	case 10143:	return L"VERENADE";
-	case 10144:	return L"DYURENDA";
-	case 10145:	return L"TEODOR";
-	case 10146:	return L"HUGO";
-	case 10153:	return L"Trans";
-	case 10218:	return L"PANE";
+	case CX2UnitManager::NUI_ANNE:	return L"ANN";
+	case CX2UnitManager::NUI_HAGERS:	return L"HAGUS";
+	case CX2UnitManager::NUI_LOW:	return L"ROU";
+	case CX2UnitManager::NUI_ADAMS:	return L"ADAMS";
+	case CX2UnitManager::NUI_ECHO:	return L"ECO";
+	case CX2UnitManager::NUI_HOFMANN:	return L"HOFMAN";
+	case CX2UnitManager::NUI_LUICHEL:	return L"RUICHEL";
+	case CX2UnitManager::NUI_LENPAD:	return L"RENPAT";
+	case CX2UnitManager::NUI_STELLA:	return L"STELRA";
+	case CX2UnitManager::NUI_CHACHABUK:	return L"CHACHABUK";
+	case CX2UnitManager::NUI_RICHANG:	return L"RICHIANG";
+	case CX2UnitManager::NUI_TOMA:	return L"TOMA";
+	case CX2UnitManager::NUI_ADEL:	return L"ADEL";
+	case CX2UnitManager::NUI_AGATHA:	return L"AGATA";
+	case CX2UnitManager::NUI_AIDA:	return L"AIDA";
+	case CX2UnitManager::NUI_AMOS:	return L"AMOSE";
+	case CX2UnitManager::NUI_MOON:	return L"";				// NUI_MOON: empty, as March
+	case CX2UnitManager::NUI_CAMILLA:	return L"KAMILRA";
+	case CX2UnitManager::NUI_ARIEL:	return L"ARIEL";
+	case CX2UnitManager::NUI_HELLEN:	return L"HELREN";
+	case CX2UnitManager::NUI_ALLEGRO:	return L"ALREGRO";
+	case CX2UnitManager::NUI_LENTO:	return L"RENTO";
+	case CX2UnitManager::NUI_GLAVE:	return L"GLAVE";
+	case CX2UnitManager::NUI_LURIEL:	return L"LURIEL";
+	case CX2UnitManager::NUI_GRAIL:	return L"GRAIL";
+	case CX2UnitManager::NUI_NOEL:	return L"NOEL";
+	case CX2UnitManager::NUI_VANESSA:	return L"VANESSA";
+	case CX2UnitManager::NUI_PRAUS:	return L"PRAUS";
+	case CX2UnitManager::NUI_HANNA:	return L"HANNA";
+	case CX2UnitManager::NUI_HORATIO:	return L"HORATIO";
+	case CX2UnitManager::NUI_LUCY:	return L"LUCY";
+	case CX2UnitManager::NUI_DAISY:	return L"DAISY";
+	case CX2UnitManager::NUI_PENENSIO:	return L"PENENSIO";
+	case CX2UnitManager::NUI_DENKA:	return L"DENKA";
+	case CX2UnitManager::NUI_LORDROS:	return L"LORDROS";
+	case CX2UnitManager::NUI_HELLPUTT:	return L"Default";
+	case CX2UnitManager::NUI_MU:	return L"MU";
+	case CX2UnitManager::NUI_LUTO_VILLAGE:	return L"RUTO";
+	case CX2UnitManager::NUI_ROSEANG:	return L"ROSEANG";
+	case CX2UnitManager::NUI_EMIRATE:	return L"EMIRATE";
+	case CX2UnitManager::NUI_VAPOR:	return L"VAPOR";
+	case CX2UnitManager::NUI_DAPPAR:	return L"DAPPAR";
+	case CX2UnitManager::NUI_EVENT_ADAMS_UI_SHOP:	return L"EDEL";	// June NUI_EDEL = 10067 ( March's NUI_EDEL is 10072 )
+	case CX2UnitManager::NUI_STEEL:	return L"STEEL";
+	case CX2UnitManager::NUI_FACEOFF:	return L"FACEOFF";
+	case CX2UnitManager::NUI_SYOTA:	return L"SYOTA";
+	case CX2UnitManager::NUI_IGNIA:	return L"IGNIA";
+	case CX2UnitManager::NUI_YUNO:	return L"YUNO";
+	case CX2UnitManager::NUI_STORY_QUEST:	return L"Story";
+	case CX2UnitManager::NUI_BERNARD:	return L"VERENADE";
+	case CX2UnitManager::NUI_DURANDA:	return L"DYURENDA";
+	case CX2UnitManager::NUI_THEODOR:	return L"TEODOR";
+	case CX2UnitManager::NUI_HUGO:	return L"HUGO";
+	case CX2UnitManager::NUI_TRANSCEND_QUEST:	return L"Trans";
+	case CX2UnitManager::NUI_PANE:	return L"PANE";
 	}
 	return L"Default";
 #else SERV_IRUHADEV_JUNE_QUEST_UI
@@ -7594,7 +7594,7 @@ void CX2UIQuestNew::ResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool bIgn
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 /// June 323dfa80. The scenario-movie tab ( +0x774 ) skips all of it; Q8 owns that tab.
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-	if( true == m_bJuneMovieTab )		// June 323dfab2: an open Video tab skips the whole reset ( quest-system Q8b )
+	if( true == m_bMovieTab )		// June 323dfab2: an open Video tab skips the whole reset ( quest-system Q8b )
 		return;
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	UpdateOngoingQuestInfo();
@@ -8814,10 +8814,10 @@ void CX2UIQuestNew::InitMembers()
 	m_iCompleteStoryCategory	= -1;		// +0x760
 	m_iOngoingStoryCategory		= -1;		// +0x764
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-	m_iJuneMovieStartID			= 0;		// June ctor 323d121d-323d122f: +0x770 / +0x774 / +0x778 / +0x77c = 0
-	m_bJuneMovieTab				= false;
-	m_iJuneMovieCount			= 0;
-	m_iJuneMovieNaviStep		= 0;
+	m_iMovieStartID			= 0;		// June ctor 323d121d-323d122f: +0x770 / +0x774 / +0x778 / +0x77c = 0
+	m_bMovieTab				= false;
+	m_iMovieCount			= 0;
+	m_iMovieNaviStep		= 0;
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 }
 
@@ -9007,7 +9007,7 @@ void CX2UIQuestNew::HideMovieTab()
 	if( NULL == m_pDLGUIQuestList )
 		return;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-	m_bJuneMovieTab = false;			// June 323ca716: +0x774 = 0 ( quest-system Q8b )
+	m_bMovieTab = false;			// June 323ca716: +0x774 = 0 ( quest-system Q8b )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 
 	int iMovieCount = m_pDLGUIQuestList->GetDummyInt( 4 );		// Lua AddDummyInt( 12 ), June reads dummy int #4
@@ -9045,7 +9045,7 @@ void CX2UIQuestNew::SelectTab( QUEST_UI_MODE eMode )
 {
 	QuestUILog( L"[JUNE_QUEST] UI tab %d", (int)eMode );
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
-	m_bJuneMovieTab = false;			// June @323e1dd0: the Guild / Story tabs close the Video tab before the reset ( Q8b )
+	m_bMovieTab = false;			// June @323e1dd0: the Guild / Story tabs close the Video tab before the reset ( Q8b )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	SetNowQuestUIMode( eMode );
 	m_iTopQuestSlotIndex = 0;
@@ -9292,9 +9292,9 @@ bool CX2UIQuestNew::OpenMovieTab()
 
 	InitUIQuestSlotInfo();		// June 323c8820
 	InitRewardItemSlot();		// June 323c9200
-	m_iJuneMovieStartID	= 1;
-	m_bJuneMovieTab		= true;
-	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab open: %d movie row(s), %d navi step(s)", m_iJuneMovieCount, m_iJuneMovieNaviStep );
+	m_iMovieStartID	= 1;
+	m_bMovieTab		= true;
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab open: %d movie row(s), %d navi step(s)", m_iMovieCount, m_iMovieNaviStep );
 	UpdateMovieList( true );
 	return true;
 }
@@ -9314,7 +9314,7 @@ void CX2UIQuestNew::UpdateMovieList( bool bUpdateNavi )
 		UpdateNavi();		// June 323c8da0
 
 	const WCHAR* wszDefaultTex = L"DLG_UI_Common_Texture_ScenarioMovie_01.tga";
-	int iMovieID = m_iJuneMovieStartID;
+	int iMovieID = m_iMovieStartID;
 	int iSkipped = 0;
 	int iSeen = 0, iLocked = 0, iHidden = 0;
 	WCHAR wszName[256] = {0,};
@@ -9410,7 +9410,7 @@ void CX2UIQuestNew::UpdateMovieList( bool bUpdateNavi )
 		++iMovieID;
 	}
 
-	const int iRows = m_iJuneMovieCount - iSkipped - m_iJuneMovieStartID + 1;
+	const int iRows = m_iMovieCount - iSkipped - m_iMovieStartID + 1;
 
 	CKTDGUIStatic* pHorizonLine = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( L"g_pStatic_HorizonLine" );
 	if( NULL != pHorizonLine )
@@ -9472,7 +9472,7 @@ void CX2UIQuestNew::UpdateMovieList( bool bUpdateNavi )
 		pArea->SetShowEnable( true, true );
 
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE list from %d: %d seen, %d locked, %d without a row, %d skipped ( code event ), %d area row(s)",
-		m_iJuneMovieStartID, iSeen, iLocked, iHidden, iSkipped, iRows );
+		m_iMovieStartID, iSeen, iLocked, iHidden, iSkipped, iRows );
 }
 
 /// June 323ddb00 ( id ): the lock description of a movie not seen yet. With g_pMain, g_pData and the dungeon manager ( g_pData +0x44 ) and
@@ -9551,8 +9551,8 @@ void CX2UIQuestNew::MarkMovieButton( CKTDGUIControl* pButton, bool bFront )
 		return;
 
 	int iSlot = pButton->GetDummyInt( 0 );
-	if( 1 != m_iJuneMovieStartID )
-		iSlot += 1 - m_iJuneMovieStartID;
+	if( 1 != m_iMovieStartID )
+		iSlot += 1 - m_iMovieStartID;
 
 	WCHAR wszName[256] = {0,};
 	wsprintf( wszName, L"NewTexture_%d", iSlot );

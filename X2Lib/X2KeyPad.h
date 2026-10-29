@@ -196,7 +196,7 @@ public:
 private:
 	void SetDefaultKeyPadMap();
 	int  ApplyKeyPadMapToKeyboard( bool bSkipUnset_ );
-	KeyMap				m_JuneKeyPadMapBeforeTutorial;	/// June CX2KeyPad +0x28: the map in use when the tutorial started
+	KeyMap				mKeyPadMapBeforeTutorial;	/// June CX2KeyPad +0x28: the map in use when the tutorial started
 public:
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 #pragma endregion ÇÔ¼ö

@@ -106,15 +106,15 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 		// @328040eb-328041ad ) opens dataFileName_CodeEvent instead of dataFileName when g_pInstanceData is set, code event 46
 		// is on ( map +0xa18 node byte == 1, i.e. IsEnableCode; March's ScriptID_Code.h names 46 CEI_TEAR_OF_ELWOMAN ) and the
 		// name is not empty. Offline nothing sends EGS_UPDATE_CODE_EVENT_NOT, so the plain name stays.
-		const WCHAR* pJuneWorldScript = pWorldData->dataFileName.c_str();
+		const WCHAR* pWorldScript = pWorldData->dataFileName.c_str();
 #ifdef SERV_CODE_EVENT
 		if ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 46 ) && false == pWorldData->dataFileName_CodeEvent.empty() )
-			pJuneWorldScript = pWorldData->dataFileName_CodeEvent.c_str();
+			pWorldScript = pWorldData->dataFileName_CodeEvent.c_str();
 #endif SERV_CODE_EVENT
 #ifdef SERV_IRUHADEV_OFFLINE
-		if ( pJuneWorldScript != pWorldData->dataFileName.c_str() || pWorldData->dataFileName != pWorldData->dataFileName_Original )
+		if ( pWorldScript != pWorldData->dataFileName.c_str() || pWorldData->dataFileName != pWorldData->dataFileName_Original )
 			CX2OfflineLog::Server( L"JUNE_FX C3x-1 world %d %s: variant script %s ( plain %s )",
-				(int) worldID, pWorldData->worldName.c_str(), pJuneWorldScript, pWorldData->dataFileName_Original.c_str() );
+				(int) worldID, pWorldData->worldName.c_str(), pWorldScript, pWorldData->dataFileName_Original.c_str() );
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 
@@ -124,12 +124,12 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 		// June effect C3x: name the world whose script failed, or that never set a line map
 		// ( m_pLineMap stays NULL, which StageLoading dereferences ).
 #ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
-		const bool bJuneC3xScriptOk = pCX2World->OpenScriptFile( pJuneWorldScript, pKLuabinder );
+		const bool bWorldScriptOpened = pCX2World->OpenScriptFile( pWorldScript, pKLuabinder );
 #else
-		const bool bJuneC3xScriptOk = pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
+		const bool bWorldScriptOpened = pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
 #endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 #ifdef SERV_IRUHADEV_OFFLINE
-		if ( false == bJuneC3xScriptOk )
+		if ( false == bWorldScriptOpened )
 			CX2OfflineLog::Server( L"JUNE_FX C3x world %d %s: script %s failed to load ( XEM_ERROR71 / lua error in ErrorLog.txt )",
 				(int) worldID, pWorldData->worldName.c_str(), pWorldData->dataFileName.c_str() );
 		else if ( NULL == pCX2World->GetLineMap() )
@@ -138,7 +138,7 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 #endif SERV_IRUHADEV_OFFLINE
 #else
 #ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
-		pCX2World->OpenScriptFile( pJuneWorldScript, pKLuabinder );
+		pCX2World->OpenScriptFile( pWorldScript, pKLuabinder );
 #else
 		pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
 #endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
@@ -285,15 +285,15 @@ bool CX2WorldManager::AddWorldData_LUA()
 	// June also reads a "dataFileName_Additional" table here ( +0x58 vector, @32805f81-32805fee ): routed to ELYSION_PORT_PHASES.md.
 	pWorldData->dataFileName_Original = pWorldData->dataFileName;
 	{
-		struct tm tmJuneFestivalCutoff = { 0, 0, 4, 16, 2, 116, 0, 0, -1 };	// sec, min, hour, mday, mon ( March ), year - 1900, -, -, isdst -1 ( @32805b98-32805bc2 )
-		const __time64_t tJuneNow = _time64( NULL );
-		const __time64_t tJuneFestivalCutoff = _mktime64( &tmJuneFestivalCutoff );
-		if ( tJuneNow < tJuneFestivalCutoff )
+		struct tm tmFestivalCutoff = { 0, 0, 4, 16, 2, 116, 0, 0, -1 };	// sec, min, hour, mday, mon ( March ), year - 1900, -, -, isdst -1 ( @32805b98-32805bc2 )
+		const __time64_t tNow = _time64( NULL );
+		const __time64_t tFestivalCutoff = _mktime64( &tmFestivalCutoff );
+		if ( tNow < tFestivalCutoff )
 		{
-			wstring wstrJuneFestival;
-			LUA_GET_VALUE( luaManager, "dataFileName_Festival", wstrJuneFestival, L"" );
-			if ( false == wstrJuneFestival.empty() )
-				pWorldData->dataFileName = wstrJuneFestival;
+			wstring wstrFestival;
+			LUA_GET_VALUE( luaManager, "dataFileName_Festival", wstrFestival, L"" );
+			if ( false == wstrFestival.empty() )
+				pWorldData->dataFileName = wstrFestival;
 		}
 	}
 	LUA_GET_VALUE( luaManager, "dataFileName_CodeEvent", pWorldData->dataFileName_CodeEvent, L"" );

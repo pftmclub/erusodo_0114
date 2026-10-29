@@ -421,8 +421,8 @@ CX2LVUpEventMgr::LVUpEvent::LVUpEvent()
 	m_EventID = LUEI_NONE;
 	m_bCheckShow = false;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	m_fJuneTranscendImageTime = 0.0f;
-	m_pJuneTranscendImage = NULL;
+	m_fTranscendImageTime = 0.0f;
+	m_pTranscendImage = NULL;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 CX2LVUpEventMgr::LVUpEvent::~LVUpEvent()
@@ -460,7 +460,7 @@ void CX2LVUpEventMgr::LVUpEvent::OnFrameMove( double fTime, float fElapsedTime )
 	//이제 여기서 검사해서 다이얼로그 자동으로 띄워져부럴까~~~?
 	CheckLevel();
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	CX2ClassChangePopup::FadeTranscendImage( m_pJuneTranscendImage, m_fJuneTranscendImageTime, fElapsedTime );		// June 32714ad0 -> 327108b0
+	CX2ClassChangePopup::FadeTranscendImage( m_pTranscendImage, m_fTranscendImageTime, fElapsedTime );		// June 32714ad0 -> 327108b0
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
@@ -473,7 +473,7 @@ void CX2LVUpEventMgr::LVUpEvent::DeleteDialog()
 	}
 	m_vecDialog.clear();
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
-	m_pJuneTranscendImage = NULL;		// June 32710ad0 clears +0x30, not the timer
+	m_pTranscendImage = NULL;		// June 32710ad0 clears +0x30, not the timer
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
@@ -552,7 +552,7 @@ void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 						// June 327141e0: a transcendence guide file shows my class's picture ( 32711490 name test, 32710710 init )
 						if( CX2ClassChangePopup::IsTranscendGuideName( dialogFileName.c_str() ) )
-							CX2ClassChangePopup::InitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false, m_pJuneTranscendImage, m_fJuneTranscendImageTime );
+							CX2ClassChangePopup::InitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false, m_pTranscendImage, m_fTranscendImageTime );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 					}
 

@@ -1291,11 +1291,11 @@ bool CX2OfflineDB::MigrateExpToTable()
 
 		const int iLevel = ( kRow.m_iLevel < 1 ) ? 1 : kRow.m_iLevel;
 
-		__int64 iNew = (__int64)JUNE_TOTAL_EXP[ iLevel ];
+		__int64 iNew = (__int64)TOTAL_EXP[ iLevel ];
 		if( iLevel < (int)MARCH_MAX_LEVEL )
 		{
 			const __int64 iMarchNeed	= (__int64)MARCH_TOTAL_EXP[ iLevel + 1 ] - MARCH_TOTAL_EXP[ iLevel ];
-			const __int64 iJuneNeed		= (__int64)JUNE_TOTAL_EXP[ iLevel + 1 ] - JUNE_TOTAL_EXP[ iLevel ];
+			const __int64 iNeed		= (__int64)TOTAL_EXP[ iLevel + 1 ] - TOTAL_EXP[ iLevel ];
 
 			__int64 iProgress = (__int64)kRow.m_iEXP - MARCH_TOTAL_EXP[ iLevel ];
 			if( iProgress < 0 )
@@ -1303,7 +1303,7 @@ bool CX2OfflineDB::MigrateExpToTable()
 			if( iProgress > iMarchNeed - 1 )
 				iProgress = iMarchNeed - 1;
 
-			iNew += iProgress * iJuneNeed / iMarchNeed;
+			iNew += iProgress * iNeed / iMarchNeed;
 		}
 
 		sqlite3_reset( pUpd );
@@ -1365,7 +1365,7 @@ bool CX2OfflineDB::MigrateExpToTable()
 
 bool CX2OfflineDB::MigrateSkillsToTree()
 {
-	using namespace X2OfflineJuneSkillAutoLearn;
+	using namespace X2OfflineSkillAutoLearn;
 
 	struct KMigUnit
 	{
@@ -1735,7 +1735,7 @@ namespace
 
 bool CX2OfflineDB::MigrateQuestsTo()
 {
-	using namespace X2OfflineJuneQuestMig;
+	using namespace X2OfflineQuestMig;
 
 	struct KMigQuestUnit
 	{
@@ -1800,7 +1800,7 @@ bool CX2OfflineDB::MigrateQuestsTo()
 		{
 			const int iQuestID = *sit;
 
-			if( true == QuestMigHas( JUNE_QUEST_IDS, JUNE_QUEST_COUNT, iQuestID ) )
+			if( true == QuestMigHas( QUEST_IDS, QUEST_COUNT, iQuestID ) )
 			{
 				if( true == QuestMigHas( RESET_QUEST_IDS, RESET_QUEST_COUNT, iQuestID ) &&
 					kUnit.m_setHasSub.end() != kUnit.m_setHasSub.find( iQuestID ) )
@@ -1840,7 +1840,7 @@ bool CX2OfflineDB::MigrateQuestsTo()
 
 		for( sit = kUnit.m_setComplete.begin(); true == bOK && sit != kUnit.m_setComplete.end(); ++sit )
 		{
-			if( true == QuestMigHas( JUNE_QUEST_IDS, JUNE_QUEST_COUNT, *sit ) )
+			if( true == QuestMigHas( QUEST_IDS, QUEST_COUNT, *sit ) )
 				continue;
 
 			bOK = QuestMigStep( pDelComplete, iUnitUID, *sit );
@@ -1901,7 +1901,7 @@ bool CX2OfflineDB::MigrateQuestsTo()
 	CX2OfflineLog::Server( L"[JUNE_QUEST] MIG v21 done: %u unit(s); in-progress dropped %d, epic next accepted %d, progress reset %d,"
 		L" completed dropped %d (tables: %d June quests, %d reset ids, %d epic links)",
 		(unsigned int)mapUnit.size(), iDropped, iGranted, iReset, iDroppedComplete,
-		(int)JUNE_QUEST_COUNT, (int)RESET_QUEST_COUNT, (int)EPIC_NEXT_COUNT );
+		(int)QUEST_COUNT, (int)RESET_QUEST_COUNT, (int)EPIC_NEXT_COUNT );
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA

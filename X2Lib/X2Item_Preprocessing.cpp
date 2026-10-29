@@ -166,8 +166,8 @@ const wchar_t*  CX2Item::KItemFormatTemplet::GetExpiredDate() const
 
 /*static*/ void CX2Item::KItemFormatTemplet::KimGuard( const char* szKind_, const char* szFormat_, ... )
 {
-    static std::map< std::string, int > s_mapJuneKimGuardCount;
-    const int iCount = ++s_mapJuneKimGuardCount[ std::string( NULL != szKind_ ? szKind_ : "" ) ];
+    static std::map< std::string, int > s_mapKimGuardCount;
+    const int iCount = ++s_mapKimGuardCount[ std::string( NULL != szKind_ ? szKind_ : "" ) ];
 
     int iPower = 1;                     /// write hit 1, 10, 100, 1000, ...
     while ( iPower < iCount && iPower < 100000000 )

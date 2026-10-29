@@ -34,7 +34,7 @@ static const CKTDGStateManager::KState s_akStates[] =
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 // June 337295d8 ( 15 states, right after March's 13 at 33729508 ), pushed by Flush 31d1bae0 in render pass 1: text drawn in
 // the post-effect pass writes zero ( SRCBLEND = DESTBLEND = ZERO ) wherever the glyph's alpha is not 0
-static const CKTDGStateManager::KState s_akStatesJunePostEffect[] = 
+static const CKTDGStateManager::KState s_akStatesPostEffect[] = 
 {
 	KRenderState( D3DRS_ALPHABLENDENABLE,	TRUE ),
 	KRenderState( D3DRS_ZWRITEENABLE,		FALSE ),
@@ -115,7 +115,7 @@ CKTDGDeviceFont::CKTDGDeviceFont(std::string strFontName, int iFontSize, int iOu
 //{{ robobeg : 2008-10-13
     m_RenderStateID = s_akStates;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-    m_RenderStateIDJunePostEffect = s_akStatesJunePostEffect;		// June ctor @31d1c72f
+    m_RenderStateIDPostEffect = s_akStatesPostEffect;		// June ctor @31d1c72f
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 //}} robobeg : 2008-10-13
 
@@ -945,7 +945,7 @@ SGCFontCache* CKTDGDeviceFont::GetFontCache(WCHAR _Char)
 
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGDeviceFont::Flush(bool bOutLine, int iPage, bool bJunePostEffectPass_ )
+void CKTDGDeviceFont::Flush(bool bOutLine, int iPage, bool bPostEffectPass_ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGDeviceFont::Flush(bool bOutLine, int iPage )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -959,7 +959,7 @@ void CKTDGDeviceFont::Flush(bool bOutLine, int iPage )
 	int iEndPage = ( iPage < 0 ) ? ( FONT_CACHE_PAGE - 1 ) : iPage;
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	KD3DPUSH( true == bJunePostEffectPass_ ? m_RenderStateIDJunePostEffect : m_RenderStateID )	// June @31d1bb2d
+	KD3DPUSH( true == bPostEffectPass_ ? m_RenderStateIDPostEffect : m_RenderStateID )	// June @31d1bb2d
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	KD3DPUSH( m_RenderStateID )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1066,7 +1066,7 @@ void CKTDGDeviceFont::Flush(bool bOutLine, int iPage )
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 #ifdef HIDE_FONT_OUT_OF_EDITBOX_SIZE
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	void CKTDGDeviceFont::Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount, float fScaleX, float fScaleY, const int& iRight, bool bJunePostEffectPass_ )
+	void CKTDGDeviceFont::Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount, float fScaleX, float fScaleY, const int& iRight, bool bPostEffectPass_ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	void CKTDGDeviceFont::Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount, float fScaleX, float fScaleY, const int& iRight )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1155,7 +1155,7 @@ void CKTDGDeviceFont::Flush(bool bOutLine, int iPage )
 		if ( m_iCandidate[cache->iPage] >= m_iNumCandidatesInAPage )
         {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-            Flush( bOutLine, cache->iPage, bJunePostEffectPass_ );	// June @31d1bdae
+            Flush( bOutLine, cache->iPage, bPostEffectPass_ );	// June @31d1bdae
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
             Flush( bOutLine, cache->iPage );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1355,7 +1355,7 @@ int CKTDGDeviceFont::GetWidth( const WCHAR* wszText, int nCount )
 #endif SUPPORT_THAI_FONT
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY, bool bJunePostEffectPass_ )
+void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY, bool bPostEffectPass_ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1390,7 +1390,7 @@ void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR*
 		curcol = colorOutLine;
 #ifdef USE_DT_VCENTER
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-		Buffering( true, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, colorOutLine, true, nCount, fScaleX, fScaleY, -1, bJunePostEffectPass_ );
+		Buffering( true, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, colorOutLine, true, nCount, fScaleX, fScaleY, -1, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		Buffering( true, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, colorOutLine, true, nCount, fScaleX, fScaleY );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1403,7 +1403,7 @@ void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR*
 #endif //HIDE_FONT_OUT_OF_EDITBOX_SIZE
 #endif // USE_DT_VCENTER
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-		Flush( true, -1, bJunePostEffectPass_ );
+		Flush( true, -1, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		Flush( true );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1412,7 +1412,7 @@ void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR*
 	curcol = color;
 #ifdef USE_DT_VCENTER
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	Buffering( false, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, color, (dwFlag & DT_NO_COLOR) != 0, nCount, fScaleX, fScaleY, -1, bJunePostEffectPass_ );
+	Buffering( false, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, color, (dwFlag & DT_NO_COLOR) != 0, nCount, fScaleX, fScaleY, -1, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	Buffering( false, iFinalLeft, iFinalTop, (WCHAR*)wszText, curcol, color, (dwFlag & DT_NO_COLOR) != 0, nCount, fScaleX, fScaleY );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1425,7 +1425,7 @@ void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR*
 #endif //HIDE_FONT_OUT_OF_EDITBOX_SIZE	
 #endif // USE_DT_VCENTER
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	Flush( false, -1, bJunePostEffectPass_ );
+	Flush( false, -1, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	Flush(false);	
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1433,7 +1433,7 @@ void CKTDGDeviceFont::OutTextXY( const int& iLeft, const int& iTop, const WCHAR*
 
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, float fLineSpace, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY, bool bJunePostEffectPass_ )
+void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, float fLineSpace, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY, bool bPostEffectPass_ )
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color, D3DCOLOR colorOutLine, float fLineSpace, RECT* pRt, DWORD dwFlag, int nCount, float fScaleX, float fScaleY )
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1507,7 +1507,7 @@ void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const
 #ifdef HIDE_FONT_OUT_OF_EDITBOX_SIZE
 				int iLineRight = GetRightPos( iLeft, pToken, pRt, dwFlag, -1, fScaleX );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-				Buffering( true, iLineLeft, iTopLocal, pToken, curcol, color, true, -1, fScaleX, fScaleY, iLineRight, bJunePostEffectPass_ );
+				Buffering( true, iLineLeft, iTopLocal, pToken, curcol, color, true, -1, fScaleX, fScaleY, iLineRight, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 				Buffering( true, iLineLeft, iTopLocal, pToken, curcol, color, true, -1, fScaleX, fScaleY, iLineRight );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1528,7 +1528,7 @@ void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const
 		}
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-		Flush( true, -1, bJunePostEffectPass_ );	// June @31d1dc59
+		Flush( true, -1, bPostEffectPass_ );	// June @31d1dc59
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		Flush(true);
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1565,7 +1565,7 @@ void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const
 #ifdef HIDE_FONT_OUT_OF_EDITBOX_SIZE
 			int iLineRight = GetRightPos( iLeft, pToken, pRt, dwFlag, -1, fScaleX );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-			Buffering( false, iLineLeft, iTopLocal, pToken, curcol, color, (dwFlag & DT_NO_COLOR) != 0, -1, fScaleX, fScaleY, iLineRight, bJunePostEffectPass_ );
+			Buffering( false, iLineLeft, iTopLocal, pToken, curcol, color, (dwFlag & DT_NO_COLOR) != 0, -1, fScaleX, fScaleY, iLineRight, bPostEffectPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 			Buffering( false, iLineLeft, iTopLocal, pToken, curcol, color, (dwFlag & DT_NO_COLOR) != 0, -1, fScaleX, fScaleY, iLineRight );
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
@@ -1586,7 +1586,7 @@ void CKTDGDeviceFont::OutTextMultiline( const int& iLeft, const int& iTop, const
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
-	Flush( false, -1, bJunePostEffectPass_ );	// June @31d1e6c4
+	Flush( false, -1, bPostEffectPass_ );	// June @31d1e6c4
 #else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	Flush(false);
 #endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS

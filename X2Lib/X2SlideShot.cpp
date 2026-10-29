@@ -19,7 +19,7 @@ m_bSetCursor(false)
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGSlideShot );
 	m_pDLGSlideShot->SetShowEnable( m_TextBoxShow, m_TextBoxShow );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneSceneEnded = false;	// Atlas E7: June ctor path 325c63d0 @325c64a1
+	m_bSceneEnded = false;	// Atlas E7: June ctor path 325c63d0 @325c64a1
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
@@ -165,7 +165,7 @@ void CX2SlideShot::ScenStart_LUA( char* pScenName, int scenNum )
 		g_pX2Game->GetWorld()->StopAllEffectBGM();
 	}
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneSceneEnded = false;	// Atlas E7: June ScenStart_LUA 325c6590 @325c683c
+	m_bSceneEnded = false;	// Atlas E7: June ScenStart_LUA 325c6590 @325c683c
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
@@ -185,7 +185,7 @@ void CX2SlideShot::ScenEnd()
 
 	ClearText();
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	m_bJuneSceneEnded	= true;	// Atlas E7: June scene end 325c7140 @325c7162 ( ScenEnd_LUA 325c74a0, Esc skip 325c74b0 )
+	m_bSceneEnded	= true;	// Atlas E7: June scene end 325c7140 @325c7162 ( ScenEnd_LUA 325c74a0, Esc skip 325c74b0 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	BlackLayOutMove( true, 1 );
 	m_pDLGSlideShot->SetShowEnable( m_TextBoxShow, m_TextBoxShow );

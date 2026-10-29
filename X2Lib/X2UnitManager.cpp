@@ -226,15 +226,15 @@ bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
 		LUA_TSTRING != lua_type( L, 5 ) || LUA_TNUMBER != lua_type( L, 6 ) || LUA_TBOOLEAN != lua_type( L, 7 ) ||
 		LUA_TNUMBER != lua_type( L, 8 ) )
 	{
-		++m_iJuneUnitViewerEffectSetSkippedBadArgs;
+		++m_iUnitViewerEffectSetSkippedBadArgs;
 		return false;
 	}
 
 	std::wstring wstrMotion;
 	ConvertUtf8ToWCHAR( wstrMotion, lua_tostring( L, 2 ) );
-	if( m_mapJuneUnitViewerEffectSet.end() != m_mapJuneUnitViewerEffectSet.find( wstrMotion ) )
+	if( m_mapUnitViewerEffectSet.end() != m_mapUnitViewerEffectSet.find( wstrMotion ) )
 	{
-		++m_iJuneUnitViewerEffectSetSkippedDuplicate;
+		++m_iUnitViewerEffectSetSkippedDuplicate;
 		return false;
 	}
 
@@ -246,7 +246,7 @@ bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
 	kRow.m_bLoop		= ( 0 != lua_toboolean( L, 7 ) );
 	kRow.m_iDuoType		= static_cast<int>( lua_tointeger( L, 8 ) );
 
-	m_mapJuneUnitViewerEffectSet.insert( std::make_pair( wstrMotion, kRow ) );
+	m_mapUnitViewerEffectSet.insert( std::make_pair( wstrMotion, kRow ) );
 	return true;
 }
 
@@ -257,8 +257,8 @@ bool CX2UnitManager::AddUnitViewerEffectSet_LUA()
 bool CX2UnitManager::GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2Unit::UNIT_CLASS eUnitClass, int iDuoType,
 	std::wstring& wstrEffectSetName, float& fStartTime, bool& bLoop )
 {
-	std::map<std::wstring, UnitViewerEffectSet>::const_iterator it = m_mapJuneUnitViewerEffectSet.find( wstrMotion );
-	if( m_mapJuneUnitViewerEffectSet.end() == it )
+	std::map<std::wstring, UnitViewerEffectSet>::const_iterator it = m_mapUnitViewerEffectSet.find( wstrMotion );
+	if( m_mapUnitViewerEffectSet.end() == it )
 		return false;
 
 	const UnitViewerEffectSet& kRow = it->second;
@@ -285,24 +285,24 @@ bool CX2UnitManager::GetUnitViewerEffectSet( const std::wstring& wstrMotion, CX2
 // load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as DAMAGE_DATA_LOAD does).
 bool CX2UnitManager::OpenUnitViewerEffectSetTable( const WCHAR* pFileName )
 {
-	m_mapJuneUnitViewerEffectSet.clear();
-	m_iJuneUnitViewerEffectSetSkippedDuplicate = 0;
-	m_iJuneUnitViewerEffectSetSkippedBadArgs = 0;
+	m_mapUnitViewerEffectSet.clear();
+	m_iUnitViewerEffectSetSkippedDuplicate = 0;
+	m_iUnitViewerEffectSetSkippedBadArgs = 0;
 
 	const bool bLoaded = OpenDataScriptFile( pFileName );
 
-	WCHAR wszJuneFx[512] = {0};
+	WCHAR wszFx[512] = {0};
 	if( false == bLoaded )
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=0 NOT LOADED: file missing or failed to run; the unit-viewer effect table stays empty. Pack it into data036.kom.", pFileName );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=0 NOT LOADED: file missing or failed to run; the unit-viewer effect table stays empty. Pack it into data036.kom.", pFileName );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	else
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=1 rows=%d skipped_duplicate=%d skipped_bad_args=%d",
-			pFileName, static_cast<int>( m_mapJuneUnitViewerEffectSet.size() ), m_iJuneUnitViewerEffectSetSkippedDuplicate, m_iJuneUnitViewerEffectSetSkippedBadArgs );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX UNIT_VIEWER_FX_LOAD %s loaded=1 rows=%d skipped_duplicate=%d skipped_bad_args=%d",
+			pFileName, static_cast<int>( m_mapUnitViewerEffectSet.size() ), m_iUnitViewerEffectSetSkippedDuplicate, m_iUnitViewerEffectSetSkippedBadArgs );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return bLoaded;
@@ -318,25 +318,25 @@ bool CX2UnitManager::AddAnimationName_LUA()
 {
 	lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
 
-	++m_iJuneAnimationNameRows;
+	++m_iAnimationNameRows;
 
 	const int iClass = static_cast<int>( lua_tointeger( L, 2 ) );
 	const int iType = static_cast<int>( lua_tointeger( L, 3 ) );
 	if( 0 == iClass )
-		++m_iJuneAnimationNameClassNone;
+		++m_iAnimationNameClassNone;
 
 	std::wstring wstrName;
 	const char* pszName = lua_tostring( L, 4 );
 	if( NULL != pszName )
 		ConvertUtf8ToWCHAR( wstrName, pszName );
 
-	if( true == m_mapJuneAnimationName.insert( std::make_pair( std::make_pair( iClass, iType ), wstrName ) ).second )
+	if( true == m_mapAnimationName.insert( std::make_pair( std::make_pair( iClass, iType ), wstrName ) ).second )
 	{
-		++m_iJuneAnimationNameInserted;
+		++m_iAnimationNameInserted;
 		return true;
 	}
 
-	++m_iJuneAnimationNameSkippedDuplicate;
+	++m_iAnimationNameSkippedDuplicate;
 	return false;
 }
 
@@ -345,8 +345,8 @@ bool CX2UnitManager::AddAnimationName_LUA()
 std::wstring CX2UnitManager::GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, int iMotionType ) const
 {
 	std::map< std::pair<int,int>, std::wstring >::const_iterator it =
-		m_mapJuneAnimationName.find( std::make_pair( static_cast<int>( eUnitClass ), iMotionType ) );
-	if( m_mapJuneAnimationName.end() != it )
+		m_mapAnimationName.find( std::make_pair( static_cast<int>( eUnitClass ), iMotionType ) );
+	if( m_mapAnimationName.end() != it )
 		return it->second;
 
 	switch( iMotionType )
@@ -371,26 +371,26 @@ std::wstring CX2UnitManager::GetAnimationName( CX2Unit::UNIT_CLASS eUnitClass, i
 // and before UnitViewerEffectSetTable.lua). Load time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt.
 bool CX2UnitManager::OpenAnimationNameTable( const WCHAR* pFileName )
 {
-	m_mapJuneAnimationName.clear();
-	m_iJuneAnimationNameRows = 0;
-	m_iJuneAnimationNameInserted = 0;
-	m_iJuneAnimationNameSkippedDuplicate = 0;
-	m_iJuneAnimationNameClassNone = 0;
+	m_mapAnimationName.clear();
+	m_iAnimationNameRows = 0;
+	m_iAnimationNameInserted = 0;
+	m_iAnimationNameSkippedDuplicate = 0;
+	m_iAnimationNameClassNone = 0;
 
 	const bool bLoaded = OpenDataScriptFile( pFileName );
 
-	WCHAR wszJuneFx[512] = {0};
+	WCHAR wszFx[512] = {0};
 	if( false == bLoaded )
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=0 NOT LOADED: file missing or failed to run; the lobby motions use March's defaults. Pack it into data036.kom.", pFileName );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=0 NOT LOADED: file missing or failed to run; the lobby motions use March's defaults. Pack it into data036.kom.", pFileName );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	else
 	{
-		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=1 rows=%d inserted=%d skipped_duplicate=%d class_none=%d",
-			pFileName, m_iJuneAnimationNameRows, m_iJuneAnimationNameInserted, m_iJuneAnimationNameSkippedDuplicate, m_iJuneAnimationNameClassNone );
-		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+		StringCchPrintfW( wszFx, ARRAY_SIZE(wszFx), L"JUNE_FX ANIM_NAME_LOAD file=%s loaded=1 rows=%d inserted=%d skipped_duplicate=%d class_none=%d",
+			pFileName, m_iAnimationNameRows, m_iAnimationNameInserted, m_iAnimationNameSkippedDuplicate, m_iAnimationNameClassNone );
+		ErrorLogMsg( XEM_ERROR142, wszFx );
 	}
 #endif SERV_IRUHADEV_JUNE_FX_DEBUG
 	return bLoaded;

@@ -362,7 +362,7 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 	void PushTitleNotice( int iTitleID_, int iKind_ );	/// June 326f88a0: 0 = mission opened ( +0xc0 ), 1 = title earned ( +0xb0 )
 	void EquipTitleTen();								/// June 327009b0: the "apply title now?" OK ( SUCM 3085 )
-	void CancelTitleTen() { m_iJuneTitleTenPrompt = 0; }	/// June 31f26c7c: its Cancel ( SUCM 3086 )
+	void CancelTitleTen() { m_iTitleTenPrompt = 0; }	/// June 31f26c7c: its Cancel ( SUCM 3086 )
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
     bool GetTakeTitle(int titleid);
@@ -394,11 +394,11 @@ private:
 	wstring m_strNewTitle;
 #endif //SHOW_NEW_TITLE_NAME
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	int								m_iJuneTitleTenPrompt;		/// June +0xac: 10 once title 10 is earned ( the 43200 box ), 0 after the equip ACK or Cancel
-	std::vector<const TitleInfo*>	m_vecJuneNewTitle;			/// June +0xb0: earned titles not shown yet ( emblem 18, key 1 )
-	std::vector<const TitleInfo*>	m_vecJuneNewMission;		/// June +0xc0: opened title missions not shown yet ( emblem 18, key 0 )
-	std::set<int>					m_setJuneNoticedMission;	/// June +0xd0: mission ids queued or owned
-	std::set<int>					m_setJuneNoticedTitle;		/// June +0xe0: title ids queued or owned
+	int								m_iTitleTenPrompt;		/// June +0xac: 10 once title 10 is earned ( the 43200 box ), 0 after the equip ACK or Cancel
+	std::vector<const TitleInfo*>	m_vecNewTitle;			/// June +0xb0: earned titles not shown yet ( emblem 18, key 1 )
+	std::vector<const TitleInfo*>	m_vecNewMission;		/// June +0xc0: opened title missions not shown yet ( emblem 18, key 0 )
+	std::set<int>					m_setNoticedMission;	/// June +0xd0: mission ids queued or owned
+	std::set<int>					m_setNoticedTitle;		/// June +0xe0: title ids queued or owned
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 //#if 0 // ÄªÈ£ ÇÁ¸®ºä

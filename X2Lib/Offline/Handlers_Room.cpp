@@ -2411,10 +2411,10 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 #endif SERV_ALLY_NPC
 #ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 			// The script's TEAM ( June's parser keeps it, NPCData +0x5c ); KNPCUnitReq::Init leaves TN_MONSTER otherwise.
-			kReq.m_cTeamNum			= (char)pNpc->m_iJuneTeam;
+			kReq.m_cTeamNum			= (char)pNpc->m_iTeam;
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG )
-			if( (int)CX2Room::TN_MONSTER != pNpc->m_iJuneTeam )
-				CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage npc %d team %d ally %d", (int)pNpc->m_UnitID, pNpc->m_iJuneTeam,
+			if( (int)CX2Room::TN_MONSTER != pNpc->m_iTeam )
+				CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage npc %d team %d ally %d", (int)pNpc->m_UnitID, pNpc->m_iTeam,
 					pNpc->m_bAllyNpc ? 1 : 0 );
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 #endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM

@@ -672,10 +672,10 @@ class CX2SquareUnit : public CKTDGObject
 		CKTDXDeviceSound*				m_pAvatarEmotionSound;	/// 특정 아바타 착용시 이모션 사용하면 나오는 사운드
 
 #ifdef SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
-		CX2EffectSet::Handle			m_hJuneEmotionEffectSet;	// June CX2SquareUnit +0x7ac: the per-emotion effect set of 32355a50 (ctor -1)
+		CX2EffectSet::Handle			m_hEmotionEffectSet;	// June CX2SquareUnit +0x7ac: the per-emotion effect set of 32355a50 (ctor -1)
 #endif SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
-		D3DXVECTOR3						m_vJuneLastPos;				// June CX2SquareUnit +0x7c0: m_SyncData.m_Pos at the end of the last OnFrameMove (ctor 0)
+		D3DXVECTOR3						m_vLastPos;				// June CX2SquareUnit +0x7c0: m_SyncData.m_Pos at the end of the last OnFrameMove (ctor 0)
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #ifdef HEAD_ATTACHED_CAMERA_TEST
 		bool m_bOnRollerCoaster; 		

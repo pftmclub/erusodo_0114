@@ -68,10 +68,10 @@ CKTDGCamera::CKTDGCamera( LPDIRECT3DDEVICE9 pd3dDevice )
 	m_fLinearTrackTime	= 0.f;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	m_bJuneShakeLock	= false;	// June ctor 31d03383 ( word +0x19c = 0 )
+	m_bShakeLock	= false;	// June ctor 31d03383 ( word +0x19c = 0 )
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
-	m_bJuneWorldMeshHidden = false;	// June ctor 31d03383 ( word +0x19c = 0 )
+	m_bWorldMeshHidden = false;	// June ctor 31d03383 ( word +0x19c = 0 )
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 }
 
@@ -272,7 +272,7 @@ void CKTDGCamera::UpVecRel( float XAdd, float YAdd, float ZAdd )
 void CKTDGCamera::UpdateCamera( float fElapsedTime )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
-	m_bJuneWorldMeshHidden = false;	// June 31d02e75: cleared every update, before the tracking
+	m_bWorldMeshHidden = false;	// June 31d02e75: cleared every update, before the tracking
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 	// June 31d02e50: the tracking steps by fTrackElapsed. With +0x90 set it is +0x94, which is then consumed ( @31d02e6d-31d02e88 ).
@@ -548,7 +548,7 @@ float CKTDGCamera::GetCameraDistance()
 void CKTDGCamera::DownCrashCamera( float speed, float accel )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d01490
+	if( m_bShakeLock == true )	// June 31d01490
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fDownCrashGap			= 0.0f;
@@ -559,7 +559,7 @@ void CKTDGCamera::DownCrashCamera( float speed, float accel )
 void CKTDGCamera::UpCrashCamera( float speed, float accel )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d014c0
+	if( m_bShakeLock == true )	// June 31d014c0
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpCrashGap		= 0.0f;
@@ -575,7 +575,7 @@ void CKTDGCamera::UpDownCrashCamera( float fGap, float fTime )
 void CKTDGCamera::ShakeUpDown( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, float fTimeGap /*= 0.05f */ )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d014f0; UpDownCrashCamera 31d01cd0 inlines this with the same test
+	if( m_bShakeLock == true )	// June 31d014f0; UpDownCrashCamera 31d01cd0 inlines this with the same test
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpDownCrashGap		= fGap;
@@ -593,7 +593,7 @@ void CKTDGCamera::ShakeUpDown( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, fl
 void CKTDGCamera::UpDownCrashCameraNoReset( float fGap, float fTime )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d01520
+	if( m_bShakeLock == true )	// June 31d01520
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpDownCrashGap		= fGap;
@@ -606,7 +606,7 @@ void CKTDGCamera::UpDownCrashCameraNoReset( float fGap, float fTime )
 void CKTDGCamera::LeftCrashCamera( float speed, float accel )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d01540
+	if( m_bShakeLock == true )	// June 31d01540
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftCrashGap			= 0.0f;
@@ -617,7 +617,7 @@ void CKTDGCamera::LeftCrashCamera( float speed, float accel )
 void CKTDGCamera::RightCrashCamera( float speed, float accel )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d01570
+	if( m_bShakeLock == true )	// June 31d01570
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fRightCrashGap		= 0.0f;
@@ -634,7 +634,7 @@ void CKTDGCamera::LeftRightCrashCamera( float fGap, float fTime )
 void CKTDGCamera::ShakeLeftRight( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, float fTimeGap /*= 0.05f */ )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d015a0; LeftRightCrashCamera 31d01d10 inlines this with the same test
+	if( m_bShakeLock == true )	// June 31d015a0; LeftRightCrashCamera 31d01d10 inlines this with the same test
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftRightCrashGap		= fGap;
@@ -648,7 +648,7 @@ void CKTDGCamera::ShakeLeftRight( float fGap /*= 10.f*/, float fTime /*= 0.2f*/,
 void CKTDGCamera::LeftRightCrashCameraNoReset( float fGap, float fTime )
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
-	if( m_bJuneShakeLock == true )	// June 31d015d0
+	if( m_bShakeLock == true )	// June 31d015d0
 		return;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftRightCrashGap		= fGap;

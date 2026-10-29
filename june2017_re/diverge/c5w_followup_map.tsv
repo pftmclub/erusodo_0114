@@ -1,0 +1,3 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+ENSI_JUNE_DASH_COMBO_ZX	ENSI_DASH_COMBO_ZX	rename	X2Lib/X2GuEve.h	CX2GUEve				C5 hand: static / dead test enum twin kept apart	C5	constant
+s_akStatesJunePostEffect	s_akStatesPostEffect	rename	KTDXLIB/KTDGDeviceFont.cpp					C5 hand: static / dead test enum twin kept apart	C5	constant

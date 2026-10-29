@@ -427,14 +427,14 @@ public:
 	};
 	void SetSlotState( const int iKey_, const int iState_, const std::wstring& wstrDate_ )	/// June 32892a00
 	{
-		SlotState& kState = m_mapJuneSlotState[iKey_];
+		SlotState& kState = m_mapSlotState[iKey_];
 		kState.m_iState = iState_;
 		kState.m_wstrDate = wstrDate_;
 	}
 	int GetSlotState( const int iKey_ ) const												/// June 32890ea0: the state, 0 when the key is absent
 	{
-		std::map<int, SlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
-		return ( m_mapJuneSlotState.end() == it ) ? 0 : it->second.m_iState;
+		std::map<int, SlotState>::const_iterator it = m_mapSlotState.find( iKey_ );
+		return ( m_mapSlotState.end() == it ) ? 0 : it->second.m_iState;
 	}
 	bool IsSlotUsable( const int iKey_ ) const											/// June 32890ee0: state 1 or 2
 	{
@@ -444,8 +444,8 @@ public:
 	const std::wstring& GetSlotDate( const int iKey_ ) const
 	{
 		static const std::wstring s_wstrEmpty;
-		std::map<int, SlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
-		return ( m_mapJuneSlotState.end() == it ) ? s_wstrEmpty : it->second.m_wstrDate;
+		std::map<int, SlotState>::const_iterator it = m_mapSlotState.find( iKey_ );
+		return ( m_mapSlotState.end() == it ) ? s_wstrEmpty : it->second.m_wstrDate;
 	}
 	/// The select-unit feed: June 3235eb20 passes the first two elements of KUnitSkillData's slot-state vector to 32892a00
 	void SetSlotStateFromVector( const std::vector<KSkillSlotState>& vecState_ )
@@ -539,9 +539,9 @@ public:
 	void GetActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const;	/// June 32891e10: the base id (32207210), memos > 0
 	void AddActiveMemo( int iSkillID_, int iMemoID_ );						/// June 328923e0
 	void RemoveActiveMemo( int iSkillID_, int iMemoID_ );					/// June 32891050: memo 0 removes every memo of the skill
-	void ClearActiveMemo() { m_mmapJuneActiveMemo.clear(); }					/// June 32892050
+	void ClearActiveMemo() { m_mmapActiveMemo.clear(); }					/// June 32892050
 	void MergeActiveMemo( const std::multimap<int, int>& mmapMemo_ );		/// June 32892410: adds the pairs not active yet
-	const std::multimap<int, int>& GetActiveMemoMap() const { return m_mmapJuneActiveMemo; }
+	const std::multimap<int, int>& GetActiveMemoMap() const { return m_mmapActiveMemo; }
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 	bool IsChangedSkillSlot( const int iSlotIndex_, const bool bSlotB_, const KSkillData& kSkillData_ ) const
@@ -672,14 +672,14 @@ private:
 	vector<int>							m_vecResetCoolTimeForceSkillID;		/// June +0x478: BBT_RESET_SKILL_COOL_TIME FORCE_SKILL_ID
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
-	int									m_iJuneResetCoolTimeSkillTypeMode;	/// June +0x488 ( -1; 0 skips the listed types, 1 keeps only them )
-	vector<int>							m_vecJuneResetCoolTimeSkillType;	/// June +0x48c
+	int									m_iResetCoolTimeSkillTypeMode;	/// June +0x488 ( -1; 0 skips the listed types, 1 keeps only them )
+	vector<int>							m_vecResetCoolTimeSkillType;	/// June +0x48c
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 
 	SKILL_SLOT_B_EXPIRATION_STATE		m_eSkillSlotBExpirationState;
 	std::wstring						m_wstrSkillSlotBEndDate;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-	std::map<int, SlotState>			m_mapJuneSlotState;		/// June +0x434: slot-state key -> { state, date }
+	std::map<int, SlotState>			m_mapSlotState;		/// June +0x434: slot-state key -> { state, date }
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	int									m_iUnitClass;
@@ -692,7 +692,7 @@ private:
 	std::vector<int> m_vecSkillNote; // CX2SkillTree::SKILL_MEMO_ID
 #endif
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
-	std::multimap<int, int>	m_mmapJuneActiveMemo;	/// June +0x458: skill id -> MEMO_ID
+	std::multimap<int, int>	m_mmapActiveMemo;	/// June +0x458: skill id -> MEMO_ID
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 /// private variable End ----------

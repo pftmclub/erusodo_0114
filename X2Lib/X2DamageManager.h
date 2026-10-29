@@ -438,6 +438,11 @@ class CX2DamageManager
 //#ifdef EDT_EVENT_SMASH_THIRD
 			EDT_EVENT_SMASH_3,
 //#endif EDT_EVENT_SMASH_THIRD
+//{{ Iruha : 2026-10-29 // June divergence Phase C5 -- June Enum.lua EXTRA_DAMAGE_TYPE name for 67
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			EDT_MANA_DAMAGE_WITH_NO_DISPLAY               = 67,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 			// June buff port Phase 15: June's EDT_ENCHANT_* values (Enum.lua). A combined type is the sum of its
 			// slots' element values (blaze 1001, frozen 1011, poison 1101, piercing 1543, shock 1654, snatch 1765;
@@ -1105,7 +1110,7 @@ class CX2DamageManager
 
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
-			vector<ExtraDamageData>	m_vecJuneSecondExtraDamage;		/// June +0x3b4: the second socket list (150/159), rolled at the end of DamageReact_ExtraDamage
+			vector<ExtraDamageData>	m_vecSecondExtraDamage;		/// June +0x3b4: the second socket list (150/159), rolled at the end of DamageReact_ExtraDamage
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			AttackerGet				attackerGet;
 			D3DXVECTOR2				backSpeed;
@@ -1389,25 +1394,25 @@ class CX2DamageManager
 //{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 			/// June-only runtime fields (no Lua key). The +0x offsets are June's DamageData layout, cited only.
-			float				m_fJuneAddCriticalRate;				/// +0x5d4: added to GetCriticalPercent's result in both DamageReacts
+			float				m_fAddCriticalRate;				/// +0x5d4: added to GetCriticalPercent's result in both DamageReacts
 																	///   (@32048a49, @327b36ef); the Atomic Blaster debuff adds 1.0 on a command hit
-			int					m_iJuneAttackerStateID;				/// +0x5e0: the attacker's GetNowStateID() (SetDamageExceptionProcess @322996ec)
-			int					m_iJuneAttackSerial;				/// +0x5e8: the attacker's attack serial (SetDamageExceptionProcess @322996f8)
+			int					m_iAttackerStateID;				/// +0x5e0: the attacker's GetNowStateID() (SetDamageExceptionProcess @322996ec)
+			int					m_iAttackSerial;				/// +0x5e8: the attacker's attack serial (SetDamageExceptionProcess @322996f8)
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			/// S3d: June-only runtime fields (no Lua key; SetDamageDataFromLUA never writes them). The +0x offsets are June's layout, cited only.
-			float				m_fJuneMemoHugeScale;				/// +0x5d0: memo case 2 (MI_HUGE) v0 (3202ac40 @3202ad07); read by the CEffect ctor (31f7aab0 @31f7c79f)
-			float				m_fJuneMemoLongshotRate;			/// +0x5dc: memo case 0x16 (MI_LONGSHOT) v0 (@3202b0a6); the CEffect ctor's main-effect life rate (@31f7c854)
+			float				m_fMemoHugeScale;				/// +0x5d0: memo case 2 (MI_HUGE) v0 (3202ac40 @3202ad07); read by the CEffect ctor (31f7aab0 @31f7c79f)
+			float				m_fMemoLongshotRate;			/// +0x5dc: memo case 0x16 (MI_LONGSHOT) v0 (@3202b0a6); the CEffect ctor's main-effect life rate (@31f7c854)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
-			float				m_fJuneMemoLvDamagePowerRate;		/// +0x5e4: x= the memo tail's scale (3202ac40 @3202acf3); GetFinalDamage's level-damage power rate x it (32284aa0 @32285eef)
+			float				m_fMemoLvDamagePowerRate;		/// +0x5e4: x= the memo tail's scale (3202ac40 @3202acf3); GetFinalDamage's level-damage power rate x it (32284aa0 @32285eef)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			/// June effect completion C6b: DamageData members the spawner tail and the effect set stamps use. The +0x offsets are June's layout, cited only.
 			bool				m_bCountAsOwnerSkillHit;			/// +0x5fd, no Lua key; set by class code, copied to a child by 31f8fdb0 (b45 branch). SimpleInit @31f8f3ef = 0
-			int					m_iJuneDamageEffectIndex;			/// +0x638: the creating effect set's index stamp (321ee600 @321ef639, SetDamageExceptionProcess @32299712). SimpleInit @31f8f47b = -1
+			int					m_iDamageEffectIndex;			/// +0x638: the creating effect set's index stamp (321ee600 @321ef639, SetDamageExceptionProcess @32299712). SimpleInit @31f8f47b = -1
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
 			/// June effect completion C4. The +0x offsets are June's DamageData layout, cited only.
@@ -1663,21 +1668,21 @@ class CX2DamageManager
 //}}
 //{{ Iruha : 2026-10-05 // June buff port Phase 9b (JUNE_BUFF_PORT_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
-				m_fJuneAddCriticalRate					= 0.f;	/// June SimpleInit 31f8ee50: +0x5d4 = 0
-				m_iJuneAttackerStateID					= -1;	/// +0x5e0 = -1
-				m_iJuneAttackSerial						= 0;	/// +0x5e8 = 0
+				m_fAddCriticalRate					= 0.f;	/// June SimpleInit 31f8ee50: +0x5d4 = 0
+				m_iAttackerStateID					= -1;	/// +0x5e0 = -1
+				m_iAttackSerial						= 0;	/// +0x5e8 = 0
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-				m_fJuneMemoHugeScale					= 1.f;	/// June SimpleInit 31f8ee50 @31f8f35f: +0x5d0 = 1.0
-				m_fJuneMemoLongshotRate					= 1.f;	/// @31f8f37b: +0x5dc = 1.0
+				m_fMemoHugeScale					= 1.f;	/// June SimpleInit 31f8ee50 @31f8f35f: +0x5d0 = 1.0
+				m_fMemoLongshotRate					= 1.f;	/// @31f8f37b: +0x5dc = 1.0
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
-				m_fJuneMemoLvDamagePowerRate			= 1.f;	/// @31f8f3b1: +0x5e4 = 1.0
+				m_fMemoLvDamagePowerRate			= 1.f;	/// @31f8f3b1: +0x5e4 = 1.0
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				m_bCountAsOwnerSkillHit					= false;	/// June SimpleInit 31f8ee50 @31f8f3ef: +0x5fd = 0
-				m_iJuneDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1
+				m_iDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_MATH
 				/// C4 review: June's SimpleInit (31f8ee50) and Init (31f8f550) reset neither +0x570 (CAN_ACTIVATE_NASOD_ARMOR_COMBO)
@@ -1704,7 +1709,7 @@ class CX2DamageManager
 				m_SocketExtraDamage.Init();
 				m_MultipleExtraDamage.resize(0);
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
-				m_vecJuneSecondExtraDamage.resize(0);
+				m_vecSecondExtraDamage.resize(0);
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 			}
 
@@ -1890,8 +1895,8 @@ class CX2DamageManager
 		/// Phase 8c: the templet name SetDamageDataFromLUA prints in its rule-5 JUNE_FX lines. A caller
 		/// that has one (CEffect's ctor) sets it with a JuneDamageDataTempletScope local for the
 		/// duration of its reads; the scope restores the previous name, so nested templets unwind.
-		void			SetDamageDataTemplet( const WCHAR* pwszTemplet_ ) { m_pwszJuneDamageDataTemplet = pwszTemplet_; }
-		const WCHAR*	GetDamageDataTemplet() const { return m_pwszJuneDamageDataTemplet; }
+		void			SetDamageDataTemplet( const WCHAR* pwszTemplet_ ) { m_pwszDamageDataTemplet = pwszTemplet_; }
+		const WCHAR*	GetDamageDataTemplet() const { return m_pwszDamageDataTemplet; }
 
 		class DamageDataTempletScope
 		{
@@ -1945,12 +1950,12 @@ class CX2DamageManager
 #endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 	private:
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		const WCHAR*	m_pwszJuneDamageDataTemplet;	/// Phase 8c, see SetJuneDamageDataTemplet
+		const WCHAR*	m_pwszDamageDataTemplet;	/// Phase 8c, see SetJuneDamageDataTemplet
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
-		std::map<std::wstring, DamageDataRecord>	m_mapJuneDamageDataRecord;	/// June CX2DamageManager +0x4bfc map (C9)
-		int		m_iJuneDamageDataSkippedEmptyName;		/// InsertDamageData_LUA calls skipped: empty DAMAGE_KEY_NAME
-		int		m_iJuneDamageDataSkippedDuplicate;		/// InsertDamageData_LUA calls skipped: name already present (first wins)
+		std::map<std::wstring, DamageDataRecord>	m_mapDamageDataRecord;	/// June CX2DamageManager +0x4bfc map (C9)
+		int		m_iDamageDataSkippedEmptyName;		/// InsertDamageData_LUA calls skipped: empty DAMAGE_KEY_NAME
+		int		m_iDamageDataSkippedDuplicate;		/// InsertDamageData_LUA calls skipped: name already present (first wins)
 #endif SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE
 		bool CollisionDataCheckFromUnitToUnit( CX2GameUnit* pAttackerGameUnit_, 
 			const CKTDXCollision::CollisionDataListSet& setDefenderCollisionDataList_,

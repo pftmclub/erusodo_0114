@@ -156,7 +156,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// June's skill memos ( S7c ): skill -> MEMO_ID, one per skill, persisted in unit_skill_note ( v19 )
 
-	const std::map< int, int >&	GetActiveMemos() const	{ return m_mapJuneActiveMemo; }
+	const std::map< int, int >&	GetActiveMemos() const	{ return m_mapActiveMemo; }
 	int		GetActiveMemo( int iSkillID ) const;		///< 0 when the skill has none
 	bool	SetActiveMemo( int iSkillID, int iMemoID );
 	bool	ClearActiveMemo( int iSkillID );
@@ -166,7 +166,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// June's skill pages ( S7d, LABELLED STAND-IN: no June server ). A page is a bar; the skill list and the memos are shared.
 
-	enum { JUNE_MAX_SKILL_PAGE = 3 };	///< KUserSkillTree::MAX_COUNT_OF_PAGES_AVAILABLE ( UserSkillTree.h:345 ); June's USHORT[3] at tree +0x8 / +0xe
+	enum { MAX_SKILL_PAGE = 3 };	///< KUserSkillTree::MAX_COUNT_OF_PAGES_AVAILABLE ( UserSkillTree.h:345 ); June's USHORT[3] at tree +0x8 / +0xe
 
 	/// Page count and page in use of the loaded unit ( 1 / 1 without a row ).
 	void	GetSkillPageInfo( OUT int& iPageCount, OUT int& iActivePage ) const;
@@ -284,7 +284,7 @@ private:
 	std::map< char, int >			m_mapSkillNote;
 	char							m_cSkillNoteMaxPage;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
-	std::map< int, int >			m_mapJuneActiveMemo;
+	std::map< int, int >			m_mapActiveMemo;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int									m_aiSkillSlot[ CX2UserSkillTree::MAX_SKILL_SLOT ];
 };

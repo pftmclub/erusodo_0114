@@ -1,0 +1,4 @@
+# old	new	action	file	class	flag	june_va	guard	note	batch	kind
+pJuneAttackerUnit	pDamageAttackerUnit	rename	X2Lib/X2GUNPC.cpp	CX2GUNPC				C5 hand names	C5	local
+iJuneDifficulty	iClearDifficulty	rename	X2Lib/X2QuestManager.cpp	CX2QuestManager				C5 hand names	C5	local
+m_fJuneCreatorPowerRate	m_fCreatorPowerRate	rename	KncWX2Server/Common/CommonPacket.h	KBuffFactor				C5 hand names	C5	data member

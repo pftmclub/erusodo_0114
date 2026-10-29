@@ -19,7 +19,7 @@ public:
 		SDT_USE_KEY,
 		SDT_DISUSE_KEY,
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-		SDT_JUNE_MEMORIZE,	// June slot data type 5 ( 328d9ac0 )
+		SDT_MEMORIZE,	// June slot data type 5 ( 328d9ac0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		SDT_END,
 	};

@@ -121,7 +121,7 @@ public:
 private:
 	bool AddBuffFactorINT( KLuaManager& luaManager_, const UINT uiBuffFactorID_ );	/// June 326c3f30
 	void PushBuffFactor( KLuaManager& luaManager_, const UINT uiBuffFactorID_, IN OUT vector<CX2BuffFactorPtr>& vecBuffFactorPtr_, IN OUT UINT& uiPlaceholder_ );
-	void LoadINTScriptFile( const wchar_t* wszScriptFileName_, const char* szJuneLoader_ );
+	void LoadINTScriptFile( const wchar_t* wszScriptFileName_, const char* szLoader_ );
 	void LogLoadSummary() const;
 #endif SERV_IRUHADEV_JUNE_BUFF_LOADER
 

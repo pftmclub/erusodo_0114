@@ -42,13 +42,13 @@ CKTDGUIDialogManager::CKTDGUIDialogManager(void)
 #ifdef DIALOG_SHOW_TOGGLE
 	m_bCanHide = false;
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
-	m_iJuneHideMode = 0;			// 31d08180: the empty preset
-	m_iJuneHidePrevMode = 0;
+	m_iHideMode = 0;			// 31d08180: the empty preset
+	m_iHidePrevMode = 0;
 	_BuildHidePresets();
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
-	m_bJuneFlaggedDialogsOnly = false;	// June +0x110 ( ctor 31d067e0 @31d06a5b )
+	m_bFlaggedDialogsOnly = false;	// June +0x110 ( ctor 31d067e0 @31d06a5b )
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 }
 
@@ -837,10 +837,10 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 	// ( 31d05070 ), the dialog's OnFrameMove ( 31cd6ed0 ) when it exists, nothing else. Walks a copy: a dialog's frame move may change the mode.
 	if( GetHideDialog() == true )
 	{
-		const std::vector< std::wstring > vecJuneHideNames( m_setJuneHideNames.begin(), m_setJuneHideNames.end() );
-		for( size_t iJuneName = 0; iJuneName < vecJuneHideNames.size(); ++iJuneName )
+		const std::vector< std::wstring > vecHideNames( m_setHideNames.begin(), m_setHideNames.end() );
+		for( size_t iName = 0; iName < vecHideNames.size(); ++iName )
 		{
-			CKTDGUIDialogType pDialog = GetDialog( vecJuneHideNames[iJuneName].c_str() );
+			CKTDGUIDialogType pDialog = GetDialog( vecHideNames[iName].c_str() );
 			if( pDialog != NULL )
 				pDialog->OnFrameMove( fTime, fElapsedTime );
 		}
@@ -898,7 +898,7 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 					LastErrorLog( dialogName.c_str() );
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 					// June @31d06484: in the flagged-only mode only the flagged dialogs move
-					if ( m_bJuneFlaggedDialogsOnly == false || pDialog->GetDrawInFlaggedMode() == true )
+					if ( m_bFlaggedDialogsOnly == false || pDialog->GetDrawInFlaggedMode() == true )
 						pDialog->OnFrameMove( fTime, fElapsedTime );
 #else SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 
@@ -1077,10 +1077,10 @@ HRESULT CKTDGUIDialogManager::_OnFrameRender( bool bFront, bool bLayerBand_, int
 	// G5: the current hide mode's name list ( 31d053f0 / 31d05700 hide path ) instead of mode 1's six literals ( the R8 review's list is preset 1 )
 	if( GetHideDialog() == true )
 	{
-		const std::vector< std::wstring > vecJuneHideNames( m_setJuneHideNames.begin(), m_setJuneHideNames.end() );
-		for( size_t iJuneName = 0; iJuneName < vecJuneHideNames.size(); ++iJuneName )
+		const std::vector< std::wstring > vecHideNames( m_setHideNames.begin(), m_setHideNames.end() );
+		for( size_t iName = 0; iName < vecHideNames.size(); ++iName )
 		{
-			CKTDGUIDialogType pDialog = GetDialog( vecJuneHideNames[iJuneName].c_str() );
+			CKTDGUIDialogType pDialog = GetDialog( vecHideNames[iName].c_str() );
 			if( pDialog != NULL && pDialog->GetShow() )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 				pDialog->OnFrameRender( false, iRenderPass_ );
@@ -1156,7 +1156,7 @@ HRESULT CKTDGUIDialogManager::_OnFrameRender( bool bFront, bool bLayerBand_, int
         if ( pDialog->GetFront() != bFront )
             continue;
 
-		if ( m_bJuneFlaggedDialogsOnly == true )
+		if ( m_bFlaggedDialogsOnly == true )
 		{
 			// June @31d0587b: flagged dialogs only, and no band
 			if ( pDialog->GetDrawInFlaggedMode() == true && pDialog->GetShow() )
@@ -1491,7 +1491,7 @@ namespace
 
 	// Rows in the order of the loader's code: mode 1 @3259b25e, mode 4 @3259b351, mode 3 @3259b629 ( id from ebx = 3 ), mode 2 @3259b7ec, mode 5 @3259baa2
 	// ( id from esi = 5 ). The names are the loader's wide literals ( 334a9fe0 ... ); June stores them narrow, in a sorted set.
-	const KHidePresetRow s_aJuneHidePresetRows[] =
+	const KHidePresetRow s_aHidePresetRows[] =
 	{
 		{ 1, L"DLG_ChatBox_EditBox" }, { 1, L"DLG_MsgBox" }, { 1, L"DLG_OKMsgBox" }, { 1, L"OkAndCancelMsgBox" }, { 1, L"DLG_Exit_Party_MsgBox" },
 
@@ -1519,19 +1519,19 @@ namespace
 
 void CKTDGUIDialogManager::_BuildHidePresets()
 {
-	m_mapJuneHidePreset.clear();
-	const int iRows = static_cast<int>( sizeof( s_aJuneHidePresetRows ) / sizeof( s_aJuneHidePresetRows[0] ) );
+	m_mapHidePreset.clear();
+	const int iRows = static_cast<int>( sizeof( s_aHidePresetRows ) / sizeof( s_aHidePresetRows[0] ) );
 	for( int iRow = 0; iRow < iRows; ++iRow )
-		m_mapJuneHidePreset[ s_aJuneHidePresetRows[iRow].m_iMode ].insert( std::wstring( s_aJuneHidePresetRows[iRow].m_wszName ) );
+		m_mapHidePreset[ s_aHidePresetRows[iRow].m_iMode ].insert( std::wstring( s_aHidePresetRows[iRow].m_wszName ) );
 }
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 // 31d05060 -> 31d07950: the current hide struct back to empty ( id and previous id 0, names cleared ), the shown byte +0x34 is left alone
 void CKTDGUIDialogManager::ResetHideMode()
 {
-	m_iJuneHideMode = 0;
-	m_iJuneHidePrevMode = 0;
-	m_setJuneHideNames.clear();
+	m_iHideMode = 0;
+	m_iHidePrevMode = 0;
+	m_setHideNames.clear();
 }
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 // 31d05af0: +0x34 = bShow; mode = bShow ? 0 : ( mode ? mode : 1 ); the current struct becomes the mode's preset ( previous id = the old current id ),
@@ -1546,24 +1546,24 @@ void CKTDGUIDialogManager::SetShow( bool bShow, int iHideMode )
 	else if( 0 == iMode )
 		iMode = 1;
 
-	m_iJuneHidePrevMode = m_iJuneHideMode;
-	std::map< int, std::set< std::wstring > >::const_iterator itPreset = m_mapJuneHidePreset.find( iMode );
-	if( itPreset != m_mapJuneHidePreset.end() )
+	m_iHidePrevMode = m_iHideMode;
+	std::map< int, std::set< std::wstring > >::const_iterator itPreset = m_mapHidePreset.find( iMode );
+	if( itPreset != m_mapHidePreset.end() )
 	{
-		m_iJuneHideMode = iMode;
-		m_setJuneHideNames = itPreset->second;
+		m_iHideMode = iMode;
+		m_setHideNames = itPreset->second;
 	}
 	else
 	{
-		m_iJuneHideMode = 0;
-		m_setJuneHideNames.clear();
+		m_iHideMode = 0;
+		m_setHideNames.clear();
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 	{
 		char szBuf[256] = { 0, };
 		_snprintf( szBuf, sizeof( szBuf ) - 1, "[JUNE_GFX] GATE hide: SetShow( %d, %d ) -> mode %d ( was %d ), %d names", bShow ? 1 : 0, iHideMode,
-			m_iJuneHideMode, m_iJuneHidePrevMode, static_cast<int>( m_setJuneHideNames.size() ) );
+			m_iHideMode, m_iHidePrevMode, static_cast<int>( m_setHideNames.size() ) );
 		KLOG( "ErrorLog.txt" ) << szBuf << fileout;
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
@@ -1575,8 +1575,8 @@ void CKTDGUIDialogManager::SetShow( bool bShow, int iHideMode )
 void CKTDGUIDialogManager::ToggleHide()
 {
 	const bool bOldShow = m_bShow;
-	const int iNow = m_iJuneHideMode;
-	const int iPrev = m_iJuneHidePrevMode;
+	const int iNow = m_iHideMode;
+	const int iPrev = m_iHidePrevMode;
 
 	bool bGfxShow = true;
 	if( true == IsRestoreMode( iNow ) )

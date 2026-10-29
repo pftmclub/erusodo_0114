@@ -1299,7 +1299,7 @@ namespace
 
 	/// STAND-IN ( user, 2026-10-19 ): every cheat mission carries +10% clear EXP in its reward word so the reward text and
 	/// the tooltip can be seen. The buff word stays 0 ( no June buff is known for a mission ).
-	const int JUNE_RANDOM_MISSION_STANDIN_EXP_RATE = 10;
+	const int RANDOM_MISSION_STANDIN_EXP_RATE = 10;
 }
 
 /// 0x493 ( 32676870 ): the client reports a finished mission. June's server paid the reward here; this one does not.
@@ -1342,7 +1342,7 @@ bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kS
 	kNot.m_iGoal			= kReq.m_iB;
 	kNot.m_iSeconds			= ( kReq.m_iC > 0 ) ? kReq.m_iC : 0;
 	kNot.m_iDescStrID		= iDescStrID;
-	kNot.m_iRewardExpRate	= JUNE_RANDOM_MISSION_STANDIN_EXP_RATE;
+	kNot.m_iRewardExpRate	= RANDOM_MISSION_STANDIN_EXP_RATE;
 	kNot.m_iRewardBuffID	= 0;
 
 	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu cheat ( stand-in reading ): mission %d type %d goal %d seconds %d desc STR %d reward +%d%% EXP",
@@ -1402,27 +1402,27 @@ bool CX2OfflineServer::Handler_EGS_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflin
 // June transcendence T2
 
 /// June NetError ids ( 3264a950 English table ): 1687 second job over level 70 only, 1688 already transcendent, 1726 you cannot Transcend.
-static const int s_iJuneErrTranscendLevel		= 1687;
-static const int s_iJuneErrTranscendAlready		= 1688;
-static const int s_iJuneErrTranscendCannot		= 1726;
+static const int s_iErrTranscendLevel		= 1687;
+static const int s_iErrTranscendAlready		= 1688;
+static const int s_iErrTranscendCannot		= 1726;
 
 /// June's server decides who may transcend; here the conditions are T0's ( a second job class 100-199 at level 70 or more, not yet transcended ) and then
 /// a labelled stand-in allow-list ( user, 2026-10-22 ): Aisha's EM ( 104 ), VP ( 105 ) and DW ( 113 ); each class port adds its class.
 int CX2OfflineServer::TranscendCheck( const KOfflineUnitRow& kRow ) const
 {
 	if( 0 != kRow.m_iTranscendence )
-		return s_iJuneErrTranscendAlready;
+		return s_iErrTranscendAlready;
 
 	if( kRow.m_iUnitClass < 100 || kRow.m_iUnitClass > 199 || kRow.m_iLevel < 70 )
-		return s_iJuneErrTranscendLevel;
+		return s_iErrTranscendLevel;
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	if( CX2Unit::UC_ARME_ELEMENTAL_MASTER != kRow.m_iUnitClass && CX2Unit::UC_ARME_VOID_PRINCESS != kRow.m_iUnitClass && CX2Unit::UC_ARME_DIMENSION_WITCH != kRow.m_iUnitClass
 		&& CX2Unit::UC_EVE_CODE_NEMESIS != kRow.m_iUnitClass && CX2Unit::UC_EVE_CODE_EMPRESS != kRow.m_iUnitClass && CX2Unit::UC_EVE_BATTLE_SERAPH != kRow.m_iUnitClass )
-		return s_iJuneErrTranscendCannot;
+		return s_iErrTranscendCannot;
 #else SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	if( 104 != kRow.m_iUnitClass && 105 != kRow.m_iUnitClass && 113 != kRow.m_iUnitClass )
-		return s_iJuneErrTranscendCannot;
+		return s_iErrTranscendCannot;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 
 	return NetError::NET_OK;
@@ -1432,7 +1432,7 @@ int CX2OfflineServer::TranscendCheck( const KOfflineUnitRow& kRow ) const
 void CX2OfflineServer::SendTranscendNot( KOfflineSession& kSes, int iUnitClassTran )
 {
 	KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT kNot;
-	kNot.m_iJuneUnread		= 0;
+	kNot.m_iUnread		= 0;
 	kNot.m_iUnitClassTran	= iUnitClassTran;
 	Reply( kSes, EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, kNot );
 

@@ -13,7 +13,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-namespace X2OfflineJuneSkillAutoLearn
+namespace X2OfflineSkillAutoLearn
 {
 	/// June GetCalcInitSkillPoint 32205790 for levels 0..99: sum over 2..L of CalcLevelUpIncreaseSkillPoint( l ) (l / 10 + 4).
 	static const int MAX_LEVEL = 99;

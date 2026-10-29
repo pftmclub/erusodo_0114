@@ -79,8 +79,8 @@ class CX2GameEdit
 		/// first statement it hits that March did not bind, so the whole file failed ). Stores the name in the vector at CX2GameEdit +0x7c
 		/// ( push_back 31d6f3e0 ). June's reader of the list ( commands open to users under the dev level ) is not ported: offline the
 		/// auth level is 3 and CX2GameEdit::ExecCommand already admits it.
-		void AddPublicCommand( const char* szName_ ) { if( NULL != szName_ ) m_vecJunePublicCommand.push_back( szName_ ); }
-		std::vector< std::string >		m_vecJunePublicCommand;
+		void AddPublicCommand( const char* szName_ ) { if( NULL != szName_ ) m_vecPublicCommand.push_back( szName_ ); }
+		std::vector< std::string >		m_vecPublicCommand;
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #else
 		void SetCommandListHelperText( const char* pHelperText, CX2User::X2_USER_AUTH_LEVEL userLevel );

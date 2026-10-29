@@ -508,25 +508,25 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 	/// and apply them to the keyboard. Nothing is written to the server, so the saved mapping is untouched.
 	void CX2KeyPad::ApplyTutorialDefaultKeys()
 	{
-		m_JuneKeyPadMapBeforeTutorial = m_KeyPadMap;
+		mKeyPadMapBeforeTutorial = m_KeyPadMap;
 		SetDefaultKeyPadMap();
 		const int iApplied = ApplyKeyPadMapToKeyboard( false );
 		CX2BuffCapture::Line( "tutorial keys: default key map applied to %d action(s), %d kept for the restore (June 31f5e290)",
-			iApplied, (int)m_JuneKeyPadMapBeforeTutorial.size() );
+			iApplied, (int)mKeyPadMapBeforeTutorial.size() );
 	}
 
 	/// June 31f5d4a0 (from 327d2160 on the tutorial exit): put the kept map back and apply it. An empty backup is not
 	/// restored: an empty m_KeyPadMap would throw in the at() calls elsewhere in this class (JUNE_BUGS.md).
 	void CX2KeyPad::RestoreKeysAfterTutorial()
 	{
-		if ( true == m_JuneKeyPadMapBeforeTutorial.empty() )
+		if ( true == mKeyPadMapBeforeTutorial.empty() )
 		{
 			CX2BuffCapture::Line( "tutorial keys: restore skipped, no key map was kept (June 31f5d4a0)" );
 			return;
 		}
 
-		m_KeyPadMap = m_JuneKeyPadMapBeforeTutorial;
-		m_JuneKeyPadMapBeforeTutorial.clear();
+		m_KeyPadMap = mKeyPadMapBeforeTutorial;
+		mKeyPadMapBeforeTutorial.clear();
 		const int iApplied = ApplyKeyPadMapToKeyboard( true );
 		CX2BuffCapture::Line( "tutorial keys: key map from before the tutorial restored to %d action(s) (June 31f5d4a0)", iApplied );
 	}

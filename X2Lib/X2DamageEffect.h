@@ -1045,8 +1045,8 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 				/// S3d: June 31f8af20 / 31f8aef0, the per-instance scale base (+0xb24) that June's SetScale multiplies by. June's one caller of both is
 				/// the effect-set modifier list 321db1b0 (its scale tag is character-checklist material, 7a)
-				D3DXVECTOR3 GetScaleBase() const { return m_vJuneScaleBase; }
-				void SetScaleBase( const D3DXVECTOR3& vBase_ ) { m_vJuneScaleBase = vBase_; }
+				D3DXVECTOR3 GetScaleBase() const { return m_vScaleBase; }
+				void SetScaleBase( const D3DXVECTOR3& vBase_ ) { m_vScaleBase = vBase_; }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 				void SetPassiveparticleTriggerTimeRate( float fPassiveParticleTriggerTimeRate ){ m_fPassiveParticleTriggerTimeRate = fPassiveParticleTriggerTimeRate; }
@@ -1290,7 +1290,7 @@ class CX2DamageEffect
 				float						m_fMainEffectLifeTimeRate;				/// +0xb60
 				bool						m_bHyper;								/// +0xb64, stamped by the effect set (OnFrameMove_CreateEffect @321ef6d5)
 				bool						m_bInheritAttackTriggerType;			/// +0xb65
-				float						m_fJuneCreateDamageEffectRate;			/// +0xb18, ctor -1.f (31f7aab0 @31f7f612-31f7f618); set by class code only (checklist 7a)
+				float						m_fCreateDamageEffectRate;			/// +0xb18, ctor -1.f (31f7aab0 @31f7f612-31f7f618); set by class code only (checklist 7a)
 
 				void GetNextTables( std::vector<CX2DamageManager::DamageData*>& vecTables_ );	/// m_pDamageDataNext (when set) + the NEXT2.. chain: June's +0xd8 vector
 				void CollectSpawnEntries( std::vector<DamageEffectData*>& vecEntries_ );		/// June's die + CREATE + hit + touch-land entry lists
@@ -1414,7 +1414,7 @@ class CX2DamageEffect
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 				/// June CEffect +0xb34 ( 8-byte entries, pushed by 3207b770 @31f6edfd ): { FMOD channel +0x60, FMOD sound +0x5c }
 				/// of each DELETE_WHEN_EFFECT_END sound; stopped in the dtor 31f78550 @31f785d1. Raw FMOD pointers ( JUNE_BUGS ).
-				vector< std::pair< FMOD_CHANNEL*, FMOD_SOUND* > >	m_vecJuneDeleteWhenEffectEndSound;
+				vector< std::pair< FMOD_CHANNEL*, FMOD_SOUND* > >	m_vecDeleteWhenEffectEndSound;
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND
 
 				//std::vector< CKTDXDeviceSound* >	m_vecPlayingLoopSound;			// play중인 loop sound를 이펙트가 사라질 때 꺼주기 위해서
@@ -1455,7 +1455,7 @@ class CX2DamageEffect
 				bool								m_bReflected;
 #endif NEW_SKILL_TREE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
-				D3DXVECTOR3							m_vJuneScaleBase;	/// June CEffect +0xb24..+0xb2c: 1,1,1 in the ctor (31f7aab0 @31f7b33c), MI_HUGE's s after the ctor's SetScale (@31f7c80a)
+				D3DXVECTOR3							m_vScaleBase;	/// June CEffect +0xb24..+0xb2c: 1,1,1 in the ctor (31f7aab0 @31f7b33c), MI_HUGE's s after the ctor's SetScale (@31f7c80a)
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 

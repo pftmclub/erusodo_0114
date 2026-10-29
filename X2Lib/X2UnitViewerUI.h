@@ -433,7 +433,7 @@
 
 			ViewerFxRequest() : m_iUnitType( 0 ), m_iUnitClass( 0 ), m_fStartTime( 0.f ), m_bLoop( false ) {}
 		};
-		std::vector<ViewerFxRequest>					m_vecJuneViewerFxRequest;
+		std::vector<ViewerFxRequest>					m_vecViewerFxRequest;
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 };

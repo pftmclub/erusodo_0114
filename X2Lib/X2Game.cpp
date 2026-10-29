@@ -263,10 +263,10 @@ m_bGameEnd( false ),
 m_bShowAllUnitGageBar( true ),
 m_StateString( L"" ),
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
-m_fJuneStateStringTime( 0.0f ),		/// June ctor 32306600 @323076e6
+m_fStateStringTime( 0.0f ),		/// June ctor 32306600 @323076e6
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
-m_fJuneMemoRiseTimer( 0.0f ),		/// June ctor @323076da
+m_fMemoRiseTimer( 0.0f ),		/// June ctor @323076da
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 m_bSkipKeyPressed( false ),
 m_pNPCFunc( NULL ),
@@ -332,10 +332,10 @@ m_bSkillSlotJustChanged(true)
     CX2GUNPC::ResetReactionSimulationCounter();
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
-	ZeroMemory( m_aiJuneLuaInt, sizeof( m_aiJuneLuaInt ) );	/// June CX2Game ctor 32306600 @32307f44-7a
+	ZeroMemory( m_aiLuaInt, sizeof( m_aiLuaInt ) );	/// June CX2Game ctor 32306600 @32307f44-7a
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
 #ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
-	m_pJuneSimpleDLG = NULL;	/// June CX2Game ctor 32306600 @32307743
+	m_pSimpleDLG = NULL;	/// June CX2Game ctor 32306600 @32307743
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 	SkipStartReset();	/// June CX2Game ctor 32306600 @323076e0-323076fe: the skip-the-start list ( +0xb40 ) is built and reset ( 322d8010 )
@@ -352,7 +352,7 @@ m_bSkillSlotJustChanged(true)
 	m_bStickShakeBothKeys = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_FEVER
-	m_bJunePartyFeverInProgress = false;
+	m_bPartyFeverInProgress = false;
 #endif SERV_IRUHADEV_JUNE_SOCKET_FEVER
 
 #ifdef	ELOG_STATISTICS_NEW_DATA
@@ -740,7 +740,7 @@ CX2Game::~CX2Game()
 	//}
 
 #ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
-	SAFE_DELETE( m_pJuneSimpleDLG );	/// June CX2Game dtor 323080c0 @32308b85: vslot 0 ( delete ), then +0xba8 = 0
+	SAFE_DELETE( m_pSimpleDLG );	/// June CX2Game dtor 323080c0 @32308b85: vslot 0 ( delete ), then +0xba8 = 0
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 	SAFE_DELETE_DIALOG( m_pDLGResurrect );
 	SAFE_DELETE_DIALOG( m_pDLGCheckResurrectByUseCash );
@@ -2503,17 +2503,17 @@ void    CX2Game::UpdateHostGameUnit()
 	// March's m_fFocusTime block ( which pulled the focus back to my unit on the next frame ) and runs the timed focus SetTimerFocusUnit
 	// ( 322d63f0 ) stored: the camera stays on that unit until the time runs out. Every path ends in ResetFocusUnit ( vslot 0x84 ).
 	// The unit's +0x240 byte ( 1 while held, 0 on cancel / expiry ) is not ported: no June reader ( disp32 sweep; 31e4df40 is CX2SquareUnit's ).
-	CX2GameUnit* pJuneTimerUnit = m_kJuneTimerFocusUnit.m_optrUnit.GetObservable();
-	if( NULL == pJuneTimerUnit )			// @322d5f7b-322d5f9d
+	CX2GameUnit* pTimerUnit = m_kTimerFocusUnit.m_optrUnit.GetObservable();
+	if( NULL == pTimerUnit )			// @322d5f7b-322d5f9d
 	{
 		ResetFocusUnit();
 		return false;
 	}
 
-	if( pJuneTimerUnit != m_optrFocusUnit.GetObservable() )		// @322d5fb2-322d5fcd -> @322d6207: the focus moved on, drop it
+	if( pTimerUnit != m_optrFocusUnit.GetObservable() )		// @322d5fb2-322d5fcd -> @322d6207: the focus moved on, drop it
 	{
 		CanNotInputAndDisalbeNPCAI( false );	// 322cef70( 0 ), whatever m_bCanNotInput was
-		m_kJuneTimerFocusUnit.Reset();			// @322d622f-322d626b ( = 32311720, inlined )
+		m_kTimerFocusUnit.Reset();			// @322d622f-322d626b ( = 32311720, inlined )
 #ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
 		CX2OfflineLog::Server( L"JUNE_FX C3v cancel: the focus moved to another unit ( type %d ) before the time ran out",
 			( NULL != m_optrFocusUnit.GetObservable() ? (int)m_optrFocusUnit->GetGameUnitType() : -1 ) );
@@ -2522,17 +2522,17 @@ void    CX2Game::UpdateHostGameUnit()
 		return false;
 	}
 
-	if( !( 0.f < m_kJuneTimerFocusUnit.m_fTime ) )	// @322d5fd3-322d5fe0: no time, return 0 and reset nothing ( June )
+	if( !( 0.f < m_kTimerFocusUnit.m_fTime ) )	// @322d5fd3-322d5fe0: no time, return 0 and reset nothing ( June )
 	{
 		ResetFocusUnit();
 		return false;
 	}
 
-	m_kJuneTimerFocusUnit.m_fTime -= m_fElapsedTime;	// @322d5fe6-322d5ffa
-	if( m_kJuneTimerFocusUnit.m_fTime <= 0.f )			// @322d6000-322d6007 -> @322d6194: the time ran out
+	m_kTimerFocusUnit.m_fTime -= m_fElapsedTime;	// @322d5fe6-322d5ffa
+	if( m_kTimerFocusUnit.m_fTime <= 0.f )			// @322d6000-322d6007 -> @322d6194: the time ran out
 	{
 		CanNotInputAndDisalbeNPCAI( false );
-		m_kJuneTimerFocusUnit.Reset();					// 32311720
+		m_kTimerFocusUnit.Reset();					// 32311720
 		if( NULL != GetMyUnit() )
 			m_optrFocusUnit = GetMyUnit();				// 31e56b80
 #ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
@@ -2542,19 +2542,19 @@ void    CX2Game::UpdateHostGameUnit()
 		return true;
 	}
 
-	if( true == m_kJuneTimerFocusUnit.m_bCanNotInput )	// @322d600d-322d601b
+	if( true == m_kTimerFocusUnit.m_bCanNotInput )	// @322d600d-322d601b
 		CanNotInputAndDisalbeNPCAI( true );
 
 	// @322d6022-322d613d: distance -1 ( 0x33436c90 ) = the option's distance ( 32420bc0 on g_pMain +0x180 ); height 200 ( 0x33457460 ).
-	const float fJuneDistance = ( -1.f == m_kJuneTimerFocusUnit.m_fDistance ? g_pMain->GetGameOption().GetCameraDistance() : m_kJuneTimerFocusUnit.m_fDistance );
-	if( true == m_kJuneTimerFocusUnit.m_bTrackingCamera )
+	const float fDistance = ( -1.f == m_kTimerFocusUnit.m_fDistance ? g_pMain->GetGameOption().GetCameraDistance() : m_kTimerFocusUnit.m_fDistance );
+	if( true == m_kTimerFocusUnit.m_bTrackingCamera )
 		// 31fb3640 ( ret 0x28 ): June adds ( 0, 0.f ), forwarded to its 10-arg CKTDGCamera::SetTracking 31d01b70: a byte ( camera +0x90, 0 = the
 		// default tracking path ) and a view-roll target ( camera +0x68 ). 0 / 0.f is June's neutral value and March's camera has neither ( C3v review ).
-		m_pCamera->NomalTrackingCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f, 0.3f, 0.f );
+		m_pCamera->NomalTrackingCamera( pTimerUnit, fDistance, 200.f, 0.f, 0.f, 0.f, 0.3f, 0.f );
 	else
 		// 31fb3c50 ( ret 0x1c ): its 7th arg ( 0.f here ) is June's view roll, passed as the 10th arg of CKTDGCamera::Point 31d01310 ( camera +0x68,
 		// skipped when 0 ). March's camera has no roll, so the 6-arg call is the same picture ( C3v review ).
-		m_pCamera->NomalDirectCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f );
+		m_pCamera->NomalDirectCamera( pTimerUnit, fDistance, 200.f, 0.f, 0.f, 0.f );
 
 	ResetFocusUnit();
 	return true;
@@ -3460,11 +3460,11 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		// Atlas E7: June OnFrameMove 32308c20 @32309b77-32309bb0: each additional world whose +0x1ac is 1 moves too. June runs this
 		// later in the same function (after g_pData +0x328's frame move); the worlds are independent of what lies in between.
-		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+		for ( UINT iWorld = 0; iWorld < m_vecAdditionalWorld.size(); iWorld++ )
 		{
-			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-			if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
-				pJuneWorld->OnFrameMove( fTime, fElapsedTime );
+			CX2World* pWorld = m_vecAdditionalWorld[iWorld];
+			if ( NULL != pWorld && true == pWorld->GetShowWorld() )
+				pWorld->OnFrameMove( fTime, fElapsedTime );
 		}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
@@ -3903,10 +3903,10 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 	/// S3e, June2017 CX2Game::OnFrameMove 32308c20 @3230a7d1-3230a87b ( every frame past the early return, no GS_PLAY gate ): a state string
 	/// with a display time loses it by the frame time; when it reaches 0 the string is cleared ( "" with time 0; June writes it through
 	/// g_pX2Game, which is this game )
-	if ( 0.0f < m_fJuneStateStringTime )
+	if ( 0.0f < m_fStateStringTime )
 	{
-		m_fJuneStateStringTime -= m_fElapsedTime;
-		if ( m_fJuneStateStringTime <= 0.0f )
+		m_fStateStringTime -= m_fElapsedTime;
+		if ( m_fStateStringTime <= 0.0f )
 		{
 			SetStateString( L"", 0.0f );
 		}
@@ -3959,18 +3959,18 @@ HRESULT	CX2Game::OnFrameRender()
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		// Atlas E7: June 322d7260 @322d72a4-322d72e5: after the main world, each additional world whose +0x1ac is 1, then the chain sort
-		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+		for ( UINT iWorld = 0; iWorld < m_vecAdditionalWorld.size(); iWorld++ )
 		{
-			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-			if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
-				pJuneWorld->OnFrameRender();
+			CX2World* pWorld = m_vecAdditionalWorld[iWorld];
+			if ( NULL != pWorld && true == pWorld->GetShowWorld() )
+				pWorld->OnFrameRender();
 		}
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
-		for ( UINT iJuneEnvWorld = 0; iJuneEnvWorld < m_vecJuneAdditionalWorld.size(); iJuneEnvWorld++ )
+		for ( UINT iEnvWorld = 0; iEnvWorld < m_vecAdditionalWorld.size(); iEnvWorld++ )
 		{
-			CX2World* pJuneEnvWorld = m_vecJuneAdditionalWorld[iJuneEnvWorld];
-			if ( NULL != pJuneEnvWorld && true == pJuneEnvWorld->GetShowWorld() )
-				pJuneEnvWorld->RenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June 322d72c9-322d72e0, the same call for each additional world
+			CX2World* pEnvWorld = m_vecAdditionalWorld[iEnvWorld];
+			if ( NULL != pEnvWorld && true == pEnvWorld->GetShowWorld() )
+				pEnvWorld->RenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June 322d72c9-322d72e0, the same call for each additional world
 		}
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
@@ -4443,11 +4443,11 @@ HRESULT	CX2Game::OnResetDevice()
 		m_pWorld->OnResetDevice();
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	// Atlas E7: June 322d7320: the additional worlds whose +0x1ac is 1 only (a hidden one is skipped, as in June)
-	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+	for ( UINT iWorld = 0; iWorld < m_vecAdditionalWorld.size(); iWorld++ )
 	{
-		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-		if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
-			pJuneWorld->OnResetDevice();
+		CX2World* pWorld = m_vecAdditionalWorld[iWorld];
+		if ( NULL != pWorld && true == pWorld->GetShowWorld() )
+			pWorld->OnResetDevice();
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
@@ -4478,11 +4478,11 @@ HRESULT	CX2Game::OnLostDevice()
 		m_pWorld->OnLostDevice();
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	// Atlas E7: June 322d73b0: the additional worlds whose +0x1ac is 1 only
-	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+	for ( UINT iWorld = 0; iWorld < m_vecAdditionalWorld.size(); iWorld++ )
 	{
-		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
-		if ( NULL != pJuneWorld && true == pJuneWorld->GetShowWorld() )
-			pJuneWorld->OnLostDevice();
+		CX2World* pWorld = m_vecAdditionalWorld[iWorld];
+		if ( NULL != pWorld && true == pWorld->GetShowWorld() )
+			pWorld->OnLostDevice();
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
@@ -4810,11 +4810,11 @@ void CX2Game::SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime /*= 0
 		return;
 
 	m_optrFocusUnit = pFocusUnit;
-	m_kJuneTimerFocusUnit.m_optrUnit = m_optrFocusUnit;
-	m_kJuneTimerFocusUnit.m_fTime = fFocusTime;
-	m_kJuneTimerFocusUnit.m_fDistance = fDistance;
-	m_kJuneTimerFocusUnit.m_bCanNotInput = bCanNotInput;
-	m_kJuneTimerFocusUnit.m_bTrackingCamera = bTrackingCamera;
+	m_kTimerFocusUnit.m_optrUnit = m_optrFocusUnit;
+	m_kTimerFocusUnit.m_fTime = fFocusTime;
+	m_kTimerFocusUnit.m_fDistance = fDistance;
+	m_kTimerFocusUnit.m_bCanNotInput = bCanNotInput;
+	m_kTimerFocusUnit.m_bTrackingCamera = bTrackingCamera;
 #ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
 	CX2OfflineLog::Server( L"JUNE_FX C3v arm: unit type %d, time %.2f, distance %.0f, can-not-input %d, tracking %d",
 		(int)pFocusUnit->GetGameUnitType(), fFocusTime, fDistance, ( bCanNotInput ? 1 : 0 ), ( bTrackingCamera ? 1 : 0 ) );
@@ -6185,12 +6185,12 @@ void CX2Game::SetInt_LUA( int iIndex_, int iValue_ )
 		CX2OfflineLog::Server( L"JUNE_FX C3z-4 game SetInt_LUA [%d] = %d", iIndex_, iValue_ );
 	}
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
-	m_aiJuneLuaInt[iIndex_] = iValue_;
+	m_aiLuaInt[iIndex_] = iValue_;
 }
 
 int CX2Game::GetInt_LUA( int iIndex_ )
 {
-	return m_aiJuneLuaInt[iIndex_];
+	return m_aiLuaInt[iIndex_];
 }
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
 
@@ -6201,27 +6201,27 @@ int CX2Game::GetInt_LUA( int iIndex_ )
 */
 CX2SimpleDLG_WithLuaFunc* CX2Game::CreateSimpleDLG( const char* pFileName_ )
 {
-	if ( NULL == m_pJuneSimpleDLG )
+	if ( NULL == m_pSimpleDLG )
 	{
 		wstring wstrFileName;
 		ConvertCharToWCHAR( wstrFileName, pFileName_, -1 );
-		m_pJuneSimpleDLG = new CX2SimpleDLG_WithLuaFunc( wstrFileName.c_str() );
+		m_pSimpleDLG = new CX2SimpleDLG_WithLuaFunc( wstrFileName.c_str() );
 	}
-	return m_pJuneSimpleDLG;
+	return m_pSimpleDLG;
 }
 
 /** June 322cc520: +0xba8 != NULL -> vslot 0 ( delete ), +0xba8 = 0 */
 void CX2Game::DeleteSimpleDLG()
 {
-	SAFE_DELETE( m_pJuneSimpleDLG );
+	SAFE_DELETE( m_pSimpleDLG );
 }
 
 // ---- CX2SimpleDLG_WithLuaFunc ( June effect C3z-4s; class in X2SimpleDLG_WithLuaFunc.h ) ----
 
 #if defined( SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-#define JUNE_SIMPLE_DLG_LOG( iCap_, ... )	{ static int s_iLogged = 0; if ( s_iLogged < (iCap_) ) { ++s_iLogged; CX2OfflineLog::Server( __VA_ARGS__ ); } }
+#define SIMPLE_DLG_LOG( iCap_, ... )	{ static int s_iLogged = 0; if ( s_iLogged < (iCap_) ) { ++s_iLogged; CX2OfflineLog::Server( __VA_ARGS__ ); } }
 #else // SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG && SERV_IRUHADEV_OFFLINE
-#define JUNE_SIMPLE_DLG_LOG( iCap_, ... )
+#define SIMPLE_DLG_LOG( iCap_, ... )
 #endif // SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG && SERV_IRUHADEV_OFFLINE
 
 namespace
@@ -6257,7 +6257,7 @@ CX2SimpleDLG_WithLuaFunc::CX2SimpleDLG_WithLuaFunc( const WCHAR* wszFileName_ )
 */
 CX2SimpleDLG_WithLuaFunc::~CX2SimpleDLG_WithLuaFunc()
 {
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG dtor ( dialog %s )", ( m_pDLG != NULL ) ? L"deleted" : L"none" );
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG dtor ( dialog %s )", ( m_pDLG != NULL ) ? L"deleted" : L"none" );
 	SAFE_DELETE_DIALOG( m_pDLG );
 }
 
@@ -6279,7 +6279,7 @@ void CX2SimpleDLG_WithLuaFunc::CreateDLG( const WCHAR* wszFileName_ )
 #endif SERV_IRUHADEV_OFFLINE
 	}
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLG );
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG created %s", wszFileName_ );
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG created %s", wszFileName_ );
 
 	UpdateExternalCondition();
 }
@@ -6308,14 +6308,14 @@ void CX2SimpleDLG_WithLuaFunc::UpdateExternalCondition()
 		vPos.y = static_cast<float>( vPos.y - 44.0 );
 
 	m_pDLG->SetPos( vPos );
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG external condition: skill UI type %s, dialog y -> %.1f",
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG external condition: skill UI type %s, dialog y -> %.1f",
 		bSkillUITypeA ? L"A" : L"B", vPos.y );
 }
 
 /** June 326b1380 */
 void CX2SimpleDLG_WithLuaFunc::SetShow_LUA( bool bShow_ )
 {
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShow_LUA %d ( dialog %s )", bShow_ ? 1 : 0, ( m_pDLG != NULL ) ? L"ok" : L"none" );
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShow_LUA %d ( dialog %s )", bShow_ ? 1 : 0, ( m_pDLG != NULL ) ? L"ok" : L"none" );
 	if ( m_pDLG != NULL )
 		m_pDLG->SetShow( bShow_ );
 }
@@ -6340,7 +6340,7 @@ CKTDGUIStatic* CX2SimpleDLG_WithLuaFunc::GetStatic( const char* pStaticName_ )
 void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_LUA( const char* pStaticName_, int iNumber_, bool bShowTensZero_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_LUA %d tens0 %d ( static %s, %d pictures )",
+	SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_LUA %d tens0 %d ( static %s, %d pictures )",
 		iNumber_, bShowTensZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none", ( NULL != pStatic ) ? pStatic->GetPictureNum() : -1 );
 	if ( NULL == pStatic )
 		return;
@@ -6376,7 +6376,7 @@ void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_LUA( const char* pStaticN
 void CX2SimpleDLG_WithLuaFunc::SetNumberInGageStatic_LUA( const char* pStaticName_, int iNumber_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInGageStatic_LUA %d ( static %s )", iNumber_, ( NULL != pStatic ) ? L"ok" : L"none" );
+	SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInGageStatic_LUA %d ( static %s )", iNumber_, ( NULL != pStatic ) ? L"ok" : L"none" );
 	if ( NULL != pStatic )
 		SetNumberInGageStatic( pStatic, iNumber_ );
 }
@@ -6412,7 +6412,7 @@ void CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA( float fRed_, float
 {
 	if ( m_pDLG == NULL || true == m_pDLG->GetIsMoving() )
 	{
-		JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange skipped ( %s )", ( m_pDLG == NULL ) ? L"no dialog" : L"dialog moving" );
+		SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange skipped ( %s )", ( m_pDLG == NULL ) ? L"no dialog" : L"dialog moving" );
 		return;
 	}
 
@@ -6441,7 +6441,7 @@ void CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA( float fRed_, float
 	m_pDLG->Move( vShakePos, colorFlash, fTime_, false, false, false, 1, true );
 	m_pDLG->Move( vHomePos, colorWhite, fTime_, false, false, false, 1, true );
 
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange colour ( %.2f %.2f %.2f %.2f ) time %.2f, home ( %.1f, %.1f )",
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange colour ( %.2f %.2f %.2f %.2f ) time %.2f, home ( %.1f, %.1f )",
 		fRed_, fGreen_, fBlue_, fAlpha_, fTime_, vHomePos.x, vHomePos.y );
 }
 
@@ -6452,7 +6452,7 @@ void CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA( float fRed_, float
 void CX2SimpleDLG_WithLuaFunc::SetPercentValueInGageStatic_LUA( const char* pStaticName_, int iPictureIndex_, const char* pTexKey_, float fPercent_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetPercentValueInGageStatic_LUA picture %d %.3f ( static %s )",
+	SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetPercentValueInGageStatic_LUA picture %d %.3f ( static %s )",
 		iPictureIndex_, fPercent_, ( NULL != pStatic ) ? L"ok" : L"none" );
 	if ( NULL == pStatic )
 		return;
@@ -6508,7 +6508,7 @@ void CX2SimpleDLG_WithLuaFunc::SetPercentValueInGageStatic_LUA( const char* pSta
 void CX2SimpleDLG_WithLuaFunc::SetShowStatic_LUA( const char* pStaticName_, bool bShow_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShowStatic_LUA %d ( static %s )", bShow_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none" );
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShowStatic_LUA %d ( static %s )", bShow_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none" );
 	if ( NULL != pStatic )
 		pStatic->SetShow( bShow_ );
 }
@@ -6517,7 +6517,7 @@ void CX2SimpleDLG_WithLuaFunc::SetShowStatic_LUA( const char* pStaticName_, bool
 void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreParam_LUA( const char* pStaticName_, int iNumber_, bool bShowTensZero_, bool bShowWhenZero_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreParam_LUA %d tens0 %d show0 %d ( static %s )",
+	SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreParam_LUA %d tens0 %d show0 %d ( static %s )",
 		iNumber_, bShowTensZero_ ? 1 : 0, bShowWhenZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none" );
 	if ( NULL != pStatic )
 		SetNumberInNumberStatic_MoreParam( pStatic, iNumber_, bShowTensZero_, bShowWhenZero_ );
@@ -6562,7 +6562,7 @@ void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreParam_LUA( const char
 /** June 326b1a90: sets +0x10 to 1 whatever the argument ( JUNE_BUGS ), then places the dialog ( 326b18c0 ). */
 void CX2SimpleDLG_WithLuaFunc::SetUseExternalCondition_LUA( bool bUse_ )
 {
-	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetUseExternalCondition_LUA %d ( June stores 1 )", bUse_ ? 1 : 0 );
+	SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetUseExternalCondition_LUA %d ( June stores 1 )", bUse_ ? 1 : 0 );
 	m_bUseExternalCondition = true;
 	UpdateExternalCondition();
 }
@@ -6576,7 +6576,7 @@ void CX2SimpleDLG_WithLuaFunc::SetUseExternalCondition_LUA( bool bUse_ )
 void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreDigit_LUA( const char* pStaticName_, int iNumber_, int iDigit_, bool bShowZero_ )
 {
 	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
-	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreDigit_LUA %d digits %d zero %d ( static %s, %d pictures )",
+	SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreDigit_LUA %d digits %d zero %d ( static %s, %d pictures )",
 		iNumber_, iDigit_, bShowZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none", ( NULL != pStatic ) ? pStatic->GetPictureNum() : -1 );
 	if ( NULL == pStatic )
 		return;
@@ -6677,22 +6677,22 @@ int CX2Game::GetNowStateID_LUA()
 		return 0;
 
 	const int iMarchState = (int) g_pMain->GetNowStateID();
-	int iJuneState = -1;
+	int iLuaStateID = -1;
 	if ( iMarchState <= (int) CX2Main::XS_VILLAGE_MAP )
-		iJuneState = iMarchState;	/// XS_INVALID .. XS_VILLAGE_MAP are 0 .. 14 in both
+		iLuaStateID = iMarchState;	/// XS_INVALID .. XS_VILLAGE_MAP are 0 .. 14 in both
 	else
 	{
 		switch ( iMarchState )
 		{
-		case CX2Main::XS_SQUARE_GAME:		iJuneState = 16;	break;
-		case CX2Main::XS_TRAINING_SCHOOL:	iJuneState = 17;	break;
-		case CX2Main::XS_TRAINING_GAME:		iJuneState = 18;	break;
-		case CX2Main::XS_TRAINING_RESULT:	iJuneState = 19;	break;
-		case CX2Main::XS_CLASS_CHANGE:		iJuneState = 20;	break;
-		case CX2Main::XS_BATTLE_FIELD:		iJuneState = 21;	break;
-		case CX2Main::XS_WEDDING_GAME:		iJuneState = 22;	break;
-		case CX2Main::XS_END:				iJuneState = 27;	break;
-		default:							iJuneState = -1;	break;
+		case CX2Main::XS_SQUARE_GAME:		iLuaStateID = 16;	break;
+		case CX2Main::XS_TRAINING_SCHOOL:	iLuaStateID = 17;	break;
+		case CX2Main::XS_TRAINING_GAME:		iLuaStateID = 18;	break;
+		case CX2Main::XS_TRAINING_RESULT:	iLuaStateID = 19;	break;
+		case CX2Main::XS_CLASS_CHANGE:		iLuaStateID = 20;	break;
+		case CX2Main::XS_BATTLE_FIELD:		iLuaStateID = 21;	break;
+		case CX2Main::XS_WEDDING_GAME:		iLuaStateID = 22;	break;
+		case CX2Main::XS_END:				iLuaStateID = 27;	break;
+		default:							iLuaStateID = -1;	break;
 		}
 	}
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
@@ -6700,10 +6700,10 @@ int CX2Game::GetNowStateID_LUA()
 	if ( s_iLogged < 10 )
 	{
 		++s_iLogged;
-		CX2OfflineLog::Server( L"JUNE_FX C3z-4 GetNowStateID_LUA march %d -> june %d", iMarchState, iJuneState );
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 GetNowStateID_LUA march %d -> june %d", iMarchState, iLuaStateID );
 	}
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
-	return iJuneState;
+	return iLuaStateID;
 }
 #endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 
@@ -6877,21 +6877,21 @@ void CX2Game::PlayWorldAllSound( bool bPlay_ )
 void CX2Game::SetShowAdditionalWorld( UINT uiIndex_, bool bShow_ )
 {
 #if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	CX2OfflineLog::Server( L"[ELYDBG] SetShowAdditionalWorld %u %d ( %d world(s) )", uiIndex_, bShow_ ? 1 : 0, (int) m_vecJuneAdditionalWorld.size() );
+	CX2OfflineLog::Server( L"[ELYDBG] SetShowAdditionalWorld %u %d ( %d world(s) )", uiIndex_, bShow_ ? 1 : 0, (int) m_vecAdditionalWorld.size() );
 #endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
-	if ( uiIndex_ < m_vecJuneAdditionalWorld.size() && NULL != m_vecJuneAdditionalWorld[uiIndex_] )
-		m_vecJuneAdditionalWorld[uiIndex_]->SetShowObject( bShow_ );
+	if ( uiIndex_ < m_vecAdditionalWorld.size() && NULL != m_vecAdditionalWorld[uiIndex_] )
+		m_vecAdditionalWorld[uiIndex_]->SetShowObject( bShow_ );
 }
 
 /** June 322cf930: PlayWorldAllSound's body on the +0x3a0 vector's world at the index */
 void CX2Game::PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ )
 {
 #if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	CX2OfflineLog::Server( L"[ELYDBG] PlayAdditionalWorldAllSound %u %d ( %d world(s) )", uiIndex_, bPlay_ ? 1 : 0, (int) m_vecJuneAdditionalWorld.size() );
+	CX2OfflineLog::Server( L"[ELYDBG] PlayAdditionalWorldAllSound %u %d ( %d world(s) )", uiIndex_, bPlay_ ? 1 : 0, (int) m_vecAdditionalWorld.size() );
 #endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
-	if ( uiIndex_ >= m_vecJuneAdditionalWorld.size() )
+	if ( uiIndex_ >= m_vecAdditionalWorld.size() )
 		return;
-	CX2World* pWorld = m_vecJuneAdditionalWorld[uiIndex_];
+	CX2World* pWorld = m_vecAdditionalWorld[uiIndex_];
 	if ( NULL == pWorld )
 		return;
 	if ( true == bPlay_ )
@@ -6905,39 +6905,39 @@ void CX2Game::PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ )
 /** June 322d7f90: delete each world of the +0x3a0 vector ( vslot 0 with 1 ), then empty it */
 void CX2Game::ClearAdditionalWorld()
 {
-	for ( UINT i = 0; i < m_vecJuneAdditionalWorld.size(); i++ )
+	for ( UINT i = 0; i < m_vecAdditionalWorld.size(); i++ )
 	{
-		SAFE_DELETE( m_vecJuneAdditionalWorld[i] );
+		SAFE_DELETE( m_vecAdditionalWorld[i] );
 	}
-	m_vecJuneAdditionalWorld.clear();
+	m_vecAdditionalWorld.clear();
 }
 
 /** June 322dd990: empties +0xbc0, adds each user with HP above 0 ( no gage data counts as alive ) whose GetPos( false ) lies
 	within fRange_ of vPos_ ( <= ), then while more than uiCount_ remain erases a rand() % size entry; returns the size. */
 int CX2Game::FindRandomSelectUserUnitsFromRange_LUA( float fRange_, D3DXVECTOR3 vPos_, UINT uiCount_ )
 {
-	m_vecJuneFindedRandomSelectUserUnits.clear();
+	m_vecFindedRandomSelectUserUnits.clear();
 	for ( UINT i = 0; i < m_UserUnitList.size(); i++ )
 	{
 		CX2GUUser* pUser = m_UserUnitList[i];
 		if ( NULL == pUser || false == ( pUser->GetNowHp() > 0.f ) )
 			continue;
 		if ( GetDistance( pUser->GetPos( false ), vPos_ ) <= fRange_ )
-			m_vecJuneFindedRandomSelectUserUnits.push_back( pUser );
+			m_vecFindedRandomSelectUserUnits.push_back( pUser );
 	}
-	while ( uiCount_ < m_vecJuneFindedRandomSelectUserUnits.size() )
+	while ( uiCount_ < m_vecFindedRandomSelectUserUnits.size() )
 	{
-		const UINT uiErase = (UINT) rand() % (UINT) m_vecJuneFindedRandomSelectUserUnits.size();
-		m_vecJuneFindedRandomSelectUserUnits.erase( m_vecJuneFindedRandomSelectUserUnits.begin() + uiErase );
+		const UINT uiErase = (UINT) rand() % (UINT) m_vecFindedRandomSelectUserUnits.size();
+		m_vecFindedRandomSelectUserUnits.erase( m_vecFindedRandomSelectUserUnits.begin() + uiErase );
 	}
-	return (int) m_vecJuneFindedRandomSelectUserUnits.size();
+	return (int) m_vecFindedRandomSelectUserUnits.size();
 }
 
 /** June 322d0030: +0xbc0[ uiIndex_ ], NULL past the end */
 CX2GUUser* CX2Game::GetFindedRandomSelectUserUnits_LUA( UINT uiIndex_ )
 {
-	if ( uiIndex_ < m_vecJuneFindedRandomSelectUserUnits.size() )
-		return m_vecJuneFindedRandomSelectUserUnits[uiIndex_];
+	if ( uiIndex_ < m_vecFindedRandomSelectUserUnits.size() )
+		return m_vecFindedRandomSelectUserUnits[uiIndex_];
 	return NULL;
 }
 
@@ -7408,7 +7408,7 @@ bool CX2Game::IsAllUserDead()
 void CX2Game::PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ )
 {
 	if ( true == bTitle_ )
-		m_bJunePartyFeverInProgress = true;
+		m_bPartyFeverInProgress = true;
 
 	{
 #ifndef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -7445,10 +7445,10 @@ void CX2Game::PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ )
 		GetMajorParticle()->CreateSequence( NULL, ( true == bTitle_ ? L"Fever_Mode_Title" : L"Fever_Mode" ), 0,0,0 );
 	if ( true == bTitle_ && NULL == pSeqFever )
 	{
-		static bool s_bJuneFeverTitleLogged = false;
-		if ( false == s_bJuneFeverTitleLogged )
+		static bool s_bFeverTitleLogged = false;
+		if ( false == s_bFeverTitleLogged )
 		{
-			s_bJuneFeverTitleLogged = true;
+			s_bFeverTitleLogged = true;
 			CX2BuffCapture::Line( "unsupported (data not packed): eventsequence \"Fever_Mode_Title\" is missing from GameMajorParticle3.txt (June's has it), so the Fever socket's title particle draws nothing (June 322d4f80)" );
 		}
 	}
@@ -7456,8 +7456,8 @@ void CX2Game::PartyFeverAllUser( float fAddHyperModeTime, bool bTitle_ )
 	GetMajorParticle()->CreateSequence( NULL,  L"Fever_Mode02", 0,0,0 );
 	GetMajorParticle()->CreateSequence( NULL,  L"Flare_Fever_Mode03", 512,384,0 );
 
-	if ( true == m_bJunePartyFeverInProgress )
-		m_bJunePartyFeverInProgress = false;
+	if ( true == m_bPartyFeverInProgress )
+		m_bPartyFeverInProgress = false;
 }
 #else SERV_IRUHADEV_JUNE_SOCKET_FEVER
 void CX2Game::PartyFeverAllUser( float fAddHyperModeTime )
@@ -11403,18 +11403,18 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 	/// set only when the user has a CX2Unit, else 0. HP up (@322fbdf3), MP up (@322fc258) and HP % up (@322fd47a) multiply the
 	/// value by [64] + [60] (+ Chung's metabolism term, which stays as March has it); MP % up (@322fd965) multiplies by
 	/// ( [64] + 1 ). Team HP up (@322fdd83) and every other case read neither rate.
-	float fJuneSocketHPRecoveryRate = 0.f;
+	float fSocketHPRecoveryRate = 0.f;
 	if ( NULL != pCX2GUUser && NULL != pCX2GUUser->GetUnit() )
-		fJuneSocketHPRecoveryRate = pCX2GUUser->GetHPRecoveryRate() - 1.f;
+		fSocketHPRecoveryRate = pCX2GUUser->GetHPRecoveryRate() - 1.f;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	if ( 0.f != fJuneSocketHPRecoveryRate )
+	if ( 0.f != fSocketHPRecoveryRate )
 	{
 		static bool s_bSeenItemRecovery = false;
 		if ( !s_bSeenItemRecovery )
 		{
 			s_bSeenItemRecovery = true;
 			CX2BuffCapture::Line( "first socket item recovery: item %d, HP recovery %g (HP up, MP up, HP %% up rate + %g; MP %% up x %g)",
-				static_cast<int>( pItemTemplet->GetItemID() ), fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate, fJuneSocketHPRecoveryRate + 1.f );
+				static_cast<int>( pItemTemplet->GetItemID() ), fSocketHPRecoveryRate, fSocketHPRecoveryRate, fSocketHPRecoveryRate + 1.f );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -11477,7 +11477,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 					//{{ kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 2: HP up, value x ( [64] + [60] + metabolism ) (@322fbdf3-322fbe8d)
-					fIncreateRateHpUp += fJuneSocketHPRecoveryRate;
+					fIncreateRateHpUp += fSocketHPRecoveryRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef	GUILD_SKILL
 					fValue *= fIncreateRateHpUp;
@@ -11540,7 +11540,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// June buff port 16-step3b3 item 2: MP up, value x ( [64] + [60] ) (@322fc258-322fc271): June scales MP items by the
 				/// socket HP recovery rate too (JUNE_BUGS #54)
-				fIncreaseRateMpUp += fJuneSocketHPRecoveryRate;
+				fIncreaseRateMpUp += fSocketHPRecoveryRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef	GUILD_SKILL
 				fValue *= fIncreaseRateMpUp;
@@ -11829,7 +11829,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 					//}} kimhc // 2009-11-17 //길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					/// June buff port 16-step3b3 item 2: HP % up, value / 100 x ( [64] + [60] + metabolism ) (@322fd47a-322fd510)
-					fIncreateRateHpPercentUp += fJuneSocketHPRecoveryRate;
+					fIncreateRateHpPercentUp += fSocketHPRecoveryRate;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 					fValue *= fIncreateRateHpPercentUp;
 
@@ -11878,7 +11878,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// June buff port 16-step3b3 item 2: MP % up, value / 100 x ( skill ? [60] : 1 ) x ( [64] + 1 ) (@322fd965-322fd99d)
-				fValue *= fJuneSocketHPRecoveryRate + 1.f;
+				fValue *= fSocketHPRecoveryRate + 1.f;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				if( pCX2GUUser->IsMyUnit() == true )
 					pCX2GUUser->UpNowMp( pCX2GUUser->GetMaxMp() * fValue );
@@ -12315,12 +12315,11 @@ bool CX2Game::CanUseQuickSlotItemBeforeStart( bool bHenirPractice_ )
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
 /// effect completion C10e: June CX2Game 322cfca0( DamageData*, float* ). DD and g_pData set, GetGameType() ( vslot 0x10c ) == GT_PVP,
 /// the PvP room ( g_pData +0x6c ) set with PVP_GAME_TYPE ( +0xd8 ) == 8 and DD attackType ( +8 ) != 2: *damage *= 0.5 ( 3342ebc8 ).
-/// March's enums stop at PGT_TAG 3 and (without SERV_IRUHADEV_JUNE_BUFF_ENUM) AT_SPECIAL 1, so both values are named here.
+/// March's enums stop at PGT_TAG 3 so that value is named here.
 /// Inert on March data: there is no PvP room of type 8 and no offline PvP.
 void CX2Game::PvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ )
 {
-	const int JUNE_PGT_AMUSEMENT_ITEM	= 8;	/// June Enum.lua:736 PVP_GAME_TYPE
-	const int JUNE_AT_COMMAND			= 2;	/// June Enum.lua ATTACK_TYPE
+	const int PGT_AMUSEMENT_ITEM	= 8;	/// June Enum.lua:736 PVP_GAME_TYPE
 
 	if ( NULL == pDamageData_ || NULL == g_pData )
 		return;
@@ -12329,10 +12328,10 @@ void CX2Game::PvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDama
 		return;
 
 	CX2PVPRoom* pPVPRoom = g_pData->GetPVPRoom();
-	if ( NULL == pPVPRoom || JUNE_PGT_AMUSEMENT_ITEM != static_cast<int>( pPVPRoom->GetPVPGameType() ) )
+	if ( NULL == pPVPRoom || PGT_AMUSEMENT_ITEM != static_cast<int>( pPVPRoom->GetPVPGameType() ) )
 		return;
 
-	if ( JUNE_AT_COMMAND == static_cast<int>( pDamageData_->attackType ) )
+	if ( CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
 		return;
 
 	*pfDamage_ *= 0.5f;
@@ -12516,9 +12515,9 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 /// DIRECTION_STATE state ( 3277f9b7 ).
 void CX2Game::SkipStartReset()
 {
-	m_bJuneSkipStartArmed	= false;
-	m_bJuneSkipStartSent	= false;
-	m_vecJuneSkipStartNPCUID.clear();
+	m_bSkipStartArmed	= false;
+	m_bSkipStartSent	= false;
+	m_vecSkipStartNPCUID.clear();
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 	if ( NULL != g_pMain && NULL != g_pMain->GetNowState() )
 		static_cast<CX2State*>( g_pMain->GetNowState() )->SetMovieDescriptionData( 27, -1.f );
@@ -12529,16 +12528,16 @@ void CX2Game::SkipStartReset()
 /// and the NPC's UID ( +0x270 ) is pushed ( 31f8b860 ). An NPC that enters a second DIRECTION_STATE state is pushed again, as in June.
 void CX2Game::SkipStartArm( int iNPCUID_ )
 {
-	if ( true == m_vecJuneSkipStartNPCUID.empty() )
+	if ( true == m_vecSkipStartNPCUID.empty() )
 		SkipStartReset();
 
-	m_bJuneSkipStartArmed = true;
-	m_vecJuneSkipStartNPCUID.push_back( iNPCUID_ );
+	m_bSkipStartArmed = true;
+	m_vecSkipStartNPCUID.push_back( iNPCUID_ );
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	CX2GUNPC* pJuneNPC = GetNPCUnitByUID( iNPCUID_ );
+	CX2GUNPC* pNPC = GetNPCUnitByUID( iNPCUID_ );
 	CX2OfflineLog::Server( L"JUNE_FX C3p arm: npc %d ( %s ) state %d, list size %d",
-		iNPCUID_, NULL != pJuneNPC ? pJuneNPC->GetNPCTemplet().m_LuaFileName.c_str() : L"?", NULL != pJuneNPC ? pJuneNPC->GetNowStateID() : -1,
-		(int)m_vecJuneSkipStartNPCUID.size() );
+		iNPCUID_, NULL != pNPC ? pNPC->GetNPCTemplet().m_LuaFileName.c_str() : L"?", NULL != pNPC ? pNPC->GetNowStateID() : -1,
+		(int)m_vecSkipStartNPCUID.size() );
 #endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
 }
 
@@ -12548,7 +12547,7 @@ void CX2Game::SkipStartArm( int iNPCUID_ )
 /// ( JUNE_BUGS ).
 void CX2Game::SkipStartEndDirection( int iNPCUID_ )
 {
-	m_bJuneSkipStartArmed = false;
+	m_bSkipStartArmed = false;
 
 	for ( int i = 0; i < (int)m_NPCUnitList.size(); ++i )
 	{
@@ -12574,18 +12573,18 @@ void CX2Game::SkipStartEndDirection( int iNPCUID_ )
 bool CX2Game::SkipStartRequest()
 {
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static int s_iJuneC3pEsc = 0;
-	if ( s_iJuneC3pEsc < 16 )
+	static int s_iSkipStartLogLines = 0;
+	if ( s_iSkipStartLogLines < 16 )
 	{
-		++s_iJuneC3pEsc;
-		CX2OfflineLog::Server( L"JUNE_FX C3p esc: armed %d sent %d list size %d", m_bJuneSkipStartArmed ? 1 : 0, m_bJuneSkipStartSent ? 1 : 0,
-			(int)m_vecJuneSkipStartNPCUID.size() );
+		++s_iSkipStartLogLines;
+		CX2OfflineLog::Server( L"JUNE_FX C3p esc: armed %d sent %d list size %d", m_bSkipStartArmed ? 1 : 0, m_bSkipStartSent ? 1 : 0,
+			(int)m_vecSkipStartNPCUID.size() );
 	}
 #endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
-	if ( false == m_bJuneSkipStartArmed || true == m_bJuneSkipStartSent )
+	if ( false == m_bSkipStartArmed || true == m_bSkipStartSent )
 		return false;
 
-	m_bJuneSkipStartSent = true;
+	m_bSkipStartSent = true;
 
 	CX2PartyManager::PartyData* pParty = NULL;
 	if ( NULL != g_pData && NULL != g_pData->GetPartyManager() )
@@ -12610,7 +12609,7 @@ bool CX2Game::SkipStartRequest()
 /// only survives that because it holds the vector's begin / end in registers ( @322f12c7-322f12cb ).
 void CX2Game::SkipStart()
 {
-	int iJuneUsers = 0;
+	int iUsers = 0;
 	for ( int i = 0; i < GetUserUnitListSize(); ++i )
 	{
 		CX2GUUser* pUser = GetUserUnit( i );
@@ -12619,35 +12618,35 @@ void CX2Game::SkipStart()
 		if ( fabs( pUser->GetStartMotionDelayTime() + 1.f ) > FLT_EPSILON )
 		{
 			pUser->SetStartMotionDelayTime( 0.f );
-			++iJuneUsers;
+			++iUsers;
 		}
 	}
 
-	if ( false == m_bJuneSkipStartArmed )
+	if ( false == m_bSkipStartArmed )
 		return;
 
-	const std::vector<int> vecJuneNPCUID = m_vecJuneSkipStartNPCUID;
-	for ( UINT i = 0; i < vecJuneNPCUID.size(); ++i )
+	const std::vector<int> vecNPCUID = m_vecSkipStartNPCUID;
+	for ( UINT i = 0; i < vecNPCUID.size(); ++i )
 	{
-		CX2GUNPC* pNPC = GetNPCUnitByUID( vecJuneNPCUID[i] );
+		CX2GUNPC* pNPC = GetNPCUnitByUID( vecNPCUID[i] );
 		if ( NULL == pNPC )
 			continue;
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		CX2OfflineLog::Server( L"JUNE_FX C3p skip: npc %d ( %s ) state %d -> WAIT_STATE %d", vecJuneNPCUID[i],
+		CX2OfflineLog::Server( L"JUNE_FX C3p skip: npc %d ( %s ) state %d -> WAIT_STATE %d", vecNPCUID[i],
 			pNPC->GetNPCTemplet().m_LuaFileName.c_str(), pNPC->GetNowStateID(), pNPC->GetWaitStateID() );
 #endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
 		pNPC->StateChange( pNPC->GetWaitStateID(), false );
 	}
 
-	m_bJuneSkipStartArmed	= false;
-	m_bJuneSkipStartSent	= false;
-	m_vecJuneSkipStartNPCUID.clear();
+	m_bSkipStartArmed	= false;
+	m_bSkipStartSent	= false;
+	m_vecSkipStartNPCUID.clear();
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 	if ( NULL != g_pMain && NULL != g_pMain->GetNowState() )
 		static_cast<CX2State*>( g_pMain->GetNowState() )->SetMovieDescriptionData( 27, -1.f );
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 #if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	CX2OfflineLog::Server( L"JUNE_FX C3p skip: %d user start-motion delay(s) zeroed, %d NPC(s) sent to WAIT_STATE", iJuneUsers, (int)vecJuneNPCUID.size() );
+	CX2OfflineLog::Server( L"JUNE_FX C3p skip: %d user start-motion delay(s) zeroed, %d NPC(s) sent to WAIT_STATE", iUsers, (int)vecNPCUID.size() );
 #endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
 }
 
@@ -12657,15 +12656,15 @@ void CX2Game::SkipStart()
 /// debug prefix ( 31c31060 +0x40 ) and its extra OutTextXY argument ( passed through from the render's caller ) have no March counterpart.
 void CX2Game::RenderSkipStartHint()
 {
-	if ( false == m_bJuneSkipStartArmed )
+	if ( false == m_bSkipStartArmed )
 		return;
 
 	CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_DODUM_15_BOLD );
 	if ( NULL == pFont )
 		return;
 
-	const int iJuneHintStringID = ( true == m_bJuneSkipStartSent ) ? 31003 : 31002;	/// GET_STRING does not parenthesise its argument
-	pFont->OutTextXY( 970, 740, GET_STRING( iJuneHintStringID ), D3DXCOLOR( 1, 1, 1, 1 ),
+	const int iHintStringID = ( true == m_bSkipStartSent ) ? 31003 : 31002;	/// GET_STRING does not parenthesise its argument
+	pFont->OutTextXY( 970, 740, GET_STRING( iHintStringID ), D3DXCOLOR( 1, 1, 1, 1 ),
 		CKTDGFontManager::FS_SHELL, D3DXCOLOR( 0, 0, 0, 1 ), NULL, DT_RIGHT );
 }
 #endif SERV_IRUHADEV_JUNE_SKIP_START
@@ -13753,7 +13752,7 @@ void CX2Game::MemoRiseSlotFrameMove()
 	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
 	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
 
-	m_fJuneMemoRiseTimer += m_fElapsedTime;
+	m_fMemoRiseTimer += m_fElapsedTime;
 	const bool bTypeA = g_pData->GetUIManager()->GetUISkillTree()->GetIsSkillUiTypeA();
 	const bool bSwap = g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap();
 	bool bSlotB = false;
@@ -13809,8 +13808,8 @@ void CX2Game::MemoRiseSlotFrameMove()
 			if( true == bSwap )
 				fY = ( true == bSlotB ) ? fCenterY + 47.f : fCenterY - 47.f;
 
-			std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapJuneMemoRiseParticle.find( i );
-			if( mit != m_mapJuneMemoRiseParticle.end() )
+			std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapMemoRiseParticle.find( i );
+			if( mit != m_mapMemoRiseParticle.end() )
 			{
 				for( UINT k = 0; k < mit->second.size(); ++k )
 				{
@@ -13827,7 +13826,7 @@ void CX2Game::MemoRiseSlotFrameMove()
 				}
 			}
 
-			if( 2.8f <= m_fJuneMemoRiseTimer )
+			if( 2.8f <= m_fMemoRiseTimer )
 			{
 				ClearMemoRiseSlotParticle( i, true );
 				CreateMemoRiseSlotParticle( i, fX, fY );
@@ -13838,8 +13837,8 @@ void CX2Game::MemoRiseSlotFrameMove()
 		ClearMemoRiseSlotParticle( i, true );
 	}
 
-	if( 2.8f <= m_fJuneMemoRiseTimer )
-		m_fJuneMemoRiseTimer = 0.f;
+	if( 2.8f <= m_fMemoRiseTimer )
+		m_fMemoRiseTimer = 0.f;
 }
 
 // June 322eca50: drop slot i's memorize sign and sparkle
@@ -13859,8 +13858,8 @@ void CX2Game::ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ )
 		}
 	}
 
-	std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapJuneMemoRiseParticle.find( iSlot_ );
-	if( mit == m_mapJuneMemoRiseParticle.end() )
+	std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapMemoRiseParticle.find( iSlot_ );
+	if( mit == m_mapMemoRiseParticle.end() )
 		return;
 
 	for( UINT k = 0; k < mit->second.size(); ++k )
@@ -13871,7 +13870,7 @@ void CX2Game::ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ )
 	}
 	mit->second.clear();
 	if( true == bErase_ )
-		m_mapJuneMemoRiseParticle.erase( mit );
+		m_mapMemoRiseParticle.erase( mit );
 }
 
 // June 322ecb60: 322eca50 for all ten slots
@@ -13905,9 +13904,9 @@ void CX2Game::CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, con
 		vecHandle.push_back( hSeq );
 	}
 
-	if( m_mapJuneMemoRiseParticle.end() != m_mapJuneMemoRiseParticle.find( iSlot_ ) )
+	if( m_mapMemoRiseParticle.end() != m_mapMemoRiseParticle.find( iSlot_ ) )
 		ClearMemoRiseSlotParticle( iSlot_, true );
-	m_mapJuneMemoRiseParticle.insert( std::make_pair( iSlot_, vecHandle ) );
+	m_mapMemoRiseParticle.insert( std::make_pair( iSlot_, vecHandle ) );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO sparkle slot %d at ( %.0f, %.0f ), %u sequence(s)", iSlot_, fX_, fY_, static_cast<UINT>( vecHandle.size() ) );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
@@ -16998,12 +16997,12 @@ static void ApplySummonPowerRate( CX2GUNPC* pNPC_, CX2GUUser* pUser_, const int 
 	if ( NULL == pNPC_ || NULL == pUser_ )
 		return;
 
-	float fJuneRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
+	float fSummonPowerRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-	fJuneRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
+	fSummonPowerRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-	fJuneRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
-	pNPC_->SetDefaultPowerRate( pNPC_->GetDefaultPowerRate() * fJuneRate );
+	fSummonPowerRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	pNPC_->SetDefaultPowerRate( pNPC_->GetDefaultPowerRate() * fSummonPowerRate );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #if defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE )
@@ -17013,12 +17012,12 @@ static void ApplySummonPowerRateToFactor( CX2GUNPC* pNPC_, CX2GUUser* pUser_, co
 	if ( NULL == pNPC_ || NULL == pUser_ )
 		return;
 
-	float fJuneRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
+	float fSummonPowerRate = pUser_->GetSummonPowerRateBySocket( iSkillID_ );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-	fJuneRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
+	fSummonPowerRate *= pUser_->GetSummonPowerRateByBuff( iSkillID_ );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
-	fJuneRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
-	pNPC_->SetMultiplyPowerRate_LUA( fJuneRate );
+	fSummonPowerRate *= pUser_->GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	pNPC_->SetMultiplyPowerRate_LUA( fSummonPowerRate );
 }
 #endif defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) && defined( SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE )
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
@@ -17037,8 +17036,8 @@ static void StoreSummonGroupPowerRateNumber( CX2GUNPC* pNPC_, CX2GUUser* pUser_,
 	const double dNumber = static_cast<double>( pUser_->GetSkillAdditionalPowerRate( iSkillID_ ) ) + 1.0;	/// fadd qword 334355b0
 	pNPC_->SetNumber_LUA( 0, dNumber );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
-	static std::set<int> s_setJuneSummonNumberSeen;
-	if ( true == s_setJuneSummonNumberSeen.insert( pNPC_->GetNPCTemplet().m_nNPCUnitID ).second )
+	static std::set<int> s_setSummonNumberSeen;
+	if ( true == s_setSummonNumberSeen.insert( pNPC_->GetNPCTemplet().m_nNPCUnitID ).second )
 		CX2BuffCapture::Line( "first summon group-power number: NPC %d, skill %d, m_NumberList[0] = %g (June's SetMultiplyPowerRate_LUA reader is not in March)",
 			static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ), iSkillID_, dNumber );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -17136,12 +17135,12 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			/// NPC's UID ( 31fc9900 ), power rate 1.0 ( +0x8ce0 ). Proton Bomb ( 0x10f7 @3230cdb0 ): when the owner's previous bomb still exists, June clears the camera
 			/// bytes and sets HP 0 ( vslot 0xf4 ) on the NEW bomb, not the old one ( JUNE_BUGS ); the owner keeps the new UID, power rate 1.0, and a bomb of another
 			/// team than my unit's is hidden ( @3230ce01: 31cfe4a0 = SetShowObject( false, true ) ).
-			if( CX2GUUser::JUNE_NUI_NEIL_THE_SNIPER_EVENT == static_cast<int>( unitID ) )
+			if( CX2GUUser::NUI_NEIL_THE_SNIPER_EVENT == static_cast<int>( unitID ) )
 			{
 				pUser->SetEventNpcUID( pNPC->GetUID() );
 				pNPC->SetDefaultPowerRate( 1.f );
 			}
-			else if( CX2GUUser::JUNE_NUI_PROTON_BOMB_EVENT == static_cast<int>( unitID ) )
+			else if( CX2GUUser::NUI_PROTON_BOMB_EVENT == static_cast<int>( unitID ) )
 			{
 				if( -1 != pUser->GetEventBombNpcUID() && NULL != GetNPCUnitByUID( pUser->GetEventBombNpcUID() ) )
 				{

@@ -774,7 +774,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		bool			IsClearDungeon( vector<int> &vecDungeonId );
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
-		float			ResetMaxMp( const float fMaxMp_, const int iJuneEquipGroup_ = 0 );    /// June 3234b9d0
+		float			ResetMaxMp( const float fMaxMp_, const int iEquipGroup_ = 0 );    /// June 3234b9d0
 		float			GetMaxMpSkillValue( const int iSkillID_ ) const;                /// one skill block of 3234b9d0
 #else SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 		float			ResetMaxMp( const float fMaxMp_ );
@@ -881,7 +881,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		CX2Stat::Stat	GetUnitStat() const;
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 		/// June 3234e210( out, bWithPvpEquip, group ): the HUD passes ( false, 0 ), June's character window ( its PvP toggle, 2 )
-		CX2Stat::Stat	GetEqipStat( const bool bJuneWithPvpEquip_ = false, const int iJuneEquipGroup_ = 2 ) const;
+		CX2Stat::Stat	GetEqipStat( const bool bWithPvpEquip_ = false, const int iEquipGroup_ = 2 ) const;
 #else SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 		CX2Stat::Stat	GetEqipStat() const;
 #endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
@@ -1258,10 +1258,10 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		/// Clear 3234fcc0 (InitSocketData @3206d909), add 32355d70 (SumSocketOption @32050023..320500eb), factor 3234fbd0
 		/// (read by the cool-time helper 3235a710 = ApplySkillCoolTimeRateByBuff). Slots: 1 active, 2 1st SA, 3 2nd SA,
 		/// 4 3rd SA, 5 hyper, 6 buff (June 32070510's categories, JuneSkillCategory).
-		void		ClearSocketCoolTimeCut() { m_mapJuneSocketCoolTimeCut.clear(); }
+		void		ClearSocketCoolTimeCut() { m_mapSocketCoolTimeCut.clear(); }
 		void		AddSocketCoolTimeCut( const int iSlot_, const float fCut_ );
 		float		GetSocketCoolTimeFactor( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
-		std::map<int, float>	m_mapJuneSocketCoolTimeCut;
+		std::map<int, float>	m_mapSocketCoolTimeCut;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
 		/// June skill Phase S7k: the unit's own socket aggregate ( June +0xe1c ) with the unit vectors +0xe20 / +0xe30 its fill writes.
@@ -1277,10 +1277,10 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 			void	Recreate();				/// June CX2Unit::Init 32363ca0 @32363cb9..32363d53
 			SocketAggregate*	m_p;
 		};
-		SocketAggregateHolder	m_kJuneSocketAggregate;
+		SocketAggregateHolder	m_kSocketAggregate;
 
-		void		InitSocketData( const int iJuneMode_ );			/// June vtable 3348ffe4 slot 1 32365d30
-		void		SumSetItemSocketOption( const int iJuneMode_ );	/// slot 2 323652b0
+		void		InitSocketData( const int iMode_ );			/// June vtable 3348ffe4 slot 1 32365d30
+		void		SumSetItemSocketOption( const int iMode_ );	/// slot 2 323652b0
 		void		SumSocketOption( const std::vector<int>& vecSocketOption_, const float fAtkMagic_, const int iSocketLevel_ );	/// 32364790
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 		/// June skill Phase S7m: one socket source of a room member ( June's 0x18-byte entry: the id list, the float, the level )
@@ -1293,7 +1293,7 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		};
 		static void	GetPartySocketOptionSources( const UidType iUnitUID_, std::vector<SocketOptionSource>& vecMine_,
 			std::vector<SocketOptionSource>& vecOthers_ );													/// June 31ed40c0
-		static bool	IsPartyShareSocketID( const int iSocketID_, bool& bJuneSkipDedup_ );						/// June 31d70d30
+		static bool	IsPartyShareSocketID( const int iSocketID_, bool& bSkipDedup_ );						/// June 31d70d30
 		static void	GetPartyShareSocketOptions( const UidType iUnitUID_, std::vector<SocketOptionSource>& vecShared_ );	/// 32365d30 @323667bd, 3206d770 @3206df16
 #endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 #endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET

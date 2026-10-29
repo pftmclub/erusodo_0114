@@ -381,8 +381,8 @@ public:
 		DGUCM_NOT_AGREE_ENTER_GATE_OF_DARKNESS,	/// 어둠의 문 입장 거부
 #endif // SERV_NEW_DEFENCE_DUNGEON_ENTER_LOGIC
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-		DGUCM_JUNE_RESULT_RETRY_OK		= 14,	/// June 324d8f70 case 14: the solo retry box's OK
-		DGUCM_JUNE_RESULT_RETRY_CANCEL	= 15,	/// case 15: its Cancel, time-out and ESC ( 324c9990 )
+		DGUCM_RESULT_RETRY_OK		= 14,	/// June 324d8f70 case 14: the solo retry box's OK
+		DGUCM_RESULT_RETRY_CANCEL	= 15,	/// case 15: its Cancel, time-out and ESC ( 324c9990 )
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 	};
@@ -643,7 +643,7 @@ public:
 	void	ResultOnRetry();											/// notfyRetryButton 32eea2e0
 	void	ResultOnInitialize();										/// notifyInitialize 32eea300
 	bool	ResultIsBound() const;										/// the adapter exists and has a root movie
-	bool	ResultNpcEventActive() const { return m_bJuneResultNpcEvent; }	/// +0x7a9 ( vslot 0xf8 ): Stage 22's post-clear NPC flag, never set offline
+	bool	ResultNpcEventActive() const { return m_bResultNpcEvent; }	/// +0x7a9 ( vslot 0xf8 ): Stage 22's post-clear NPC flag, never set offline
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	virtual void	ResultSetModeFour();									/// 324c8390 ( vslot 0xd0 )
 	virtual void	ResultModeFrameMove( float fElapsedTime );				/// 324cf3d0 ( vslot 0xd4 )
@@ -659,16 +659,16 @@ public:
 	bool			Handler_EGS_DUNGEON_RETRY_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// 324c95b0
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 private:
-	CX2UIDungeonResultAdapter*	m_pJuneResultAdapter;			/// +0x7c4
-	int							m_iJuneResultItemPage;			/// +0x7c8
-	bool						m_bJuneResultRetryEnabled;		/// +0x7f0
-	float						m_fJuneResultRetryCool;			/// +0x7f4
-	bool						m_bJuneResultNpcEvent;			/// +0x7a9
-	long long					m_llJuneResultStartED;			/// +0x7e8: the ED saved at dungeon start ( June-only member, no writer here )
+	CX2UIDungeonResultAdapter*	m_pResultAdapter;			/// +0x7c4
+	int							m_iResultItemPage;			/// +0x7c8
+	bool						m_bResultRetryEnabled;		/// +0x7f0
+	float						m_fResultRetryCool;			/// +0x7f4
+	bool						m_bResultNpcEvent;			/// +0x7a9
+	long long					m_llResultStartED;			/// +0x7e8: the ED saved at dungeon start ( June-only member, no writer here )
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	bool						m_bJuneResultUIOpened;			/// +0x7cc
-	bool						m_bJuneResultSpeedChecked;		/// +0x7cd
-	bool						m_bJuneResultAckDone;			/// +0x5db
+	bool						m_bResultUIOpened;			/// +0x7cc
+	bool						m_bResultSpeedChecked;		/// +0x7cd
+	bool						m_bResultAckDone;			/// +0x5db
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 public:
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET

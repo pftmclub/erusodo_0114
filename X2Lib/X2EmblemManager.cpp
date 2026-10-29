@@ -52,9 +52,9 @@ m_hCurrentEmblem(INVALID_PARTICLE_SEQUENCE_HANDLE),
 m_hCurrentEmblem2nd(INVALID_PARTICLE_SEQUENCE_HANDLE),
 m_fWaitTime(0.f)
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
-, m_hJuneEmblemDialog( NULL )
-, m_fJuneEmblemDialogTime( 0.f )
-, m_eJuneNowEmblemID( EI_NONE )
+, m_hEmblemDialog( NULL )
+, m_fEmblemDialogTime( 0.f )
+, m_eNowEmblemID( EI_NONE )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
 , m_fSoundPlayingCheckTime ( 0.f )
@@ -161,7 +161,7 @@ void CX2EmblemManager::ParsingEmblemTemplet( KLuaManager& luaManager )
 			LUA_GET_VALUE( luaManager, "TEXTUR_FILE_NAME",		pEmblemTemplet->m_wstrTextureFileName, L"" );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 			/// June 32449000 @32449c10: LUA_FILE_NAME ( +0x84 ), the emblem's dialog; a miss reads L""
-			LUA_GET_VALUE( luaManager, "LUA_FILE_NAME",			pEmblemTemplet->m_wstrJuneLuaFileName, L"" );
+			LUA_GET_VALUE( luaManager, "LUA_FILE_NAME",			pEmblemTemplet->m_wstrLuaFileName, L"" );
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 			LUA_GET_VALUE( luaManager, "DURATION_TIME",			pEmblemTemplet->m_vecTime.x, 0.f );
@@ -239,7 +239,7 @@ void CX2EmblemManager::ParsingEmblemTemplet( KLuaManager& luaManager )
 					luaManager.GetValue( 2, sExpandTexture.m_vPos.x, 0.f );
 					luaManager.GetValue( 3, sExpandTexture.m_vPos.y, 0.f );
 					sExpandTexture.m_bOneShot = false;
-					pEmblemTemplet->m_vecJuneExpandTexture.push_back( sExpandTexture );
+					pEmblemTemplet->m_vecExpandTexture.push_back( sExpandTexture );
 					luaManager.EndTable();
 				}
 			}
@@ -407,15 +407,15 @@ void CX2EmblemManager::PlayEmblemEffect( const EmblemTemplet& sEmblemTemplet_ )
 	}
 
 	/// @3244b91a
-	if( false == sEmblemTemplet_.m_wstrJuneLuaFileName.empty() )
+	if( false == sEmblemTemplet_.m_wstrLuaFileName.empty() )
 	{
 		CloseEmblemDialog();
-		m_hJuneEmblemDialog = new CKTDGUIDialog( g_pMain->GetNowState(), sEmblemTemplet_.m_wstrJuneLuaFileName.c_str() );
-		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_hJuneEmblemDialog );
-		m_fJuneEmblemDialogTime = 0.f;
+		m_hEmblemDialog = new CKTDGUIDialog( g_pMain->GetNowState(), sEmblemTemplet_.m_wstrLuaFileName.c_str() );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_hEmblemDialog );
+		m_fEmblemDialogTime = 0.f;
 #ifdef SERV_IRUHADEV_OFFLINE
 		CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM dialog: emblem %d opens %s", static_cast<int>( sEmblemTemplet_.m_eEmblemID ),
-			sEmblemTemplet_.m_wstrJuneLuaFileName.c_str() );
+			sEmblemTemplet_.m_wstrLuaFileName.c_str() );
 #endif SERV_IRUHADEV_OFFLINE
 	}
 
@@ -464,7 +464,7 @@ void CX2EmblemManager::PlayEmblemEffect( const EmblemTemplet& sEmblemTemplet_ )
 	}
 #endif ADD_PLAY_MUSIC_WHEN_EMBLEM_POP
 
-	m_eJuneNowEmblemID = sEmblemTemplet_.m_eEmblemID;	/// @3244bb05
+	m_eNowEmblemID = sEmblemTemplet_.m_eEmblemID;	/// @3244bb05
 #else SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef _IN_HOUSE_
 	if( true == sEmblemTemplet_.m_wstrTextureFileName.empty() )
@@ -644,8 +644,8 @@ void CX2EmblemManager::OnFrameMove( float fElpaseTime )
 	m_hCurrentEmblem = INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hCurrentEmblem2nd = INVALID_PARTICLE_SEQUENCE_HANDLE;
 	CloseEmblemDialog();
-	m_eJuneNowEmblemID = EI_NONE;
-	m_vecJuneExpandHandle.clear();
+	m_eNowEmblemID = EI_NONE;
+	m_vecExpandHandle.clear();
 	BOOST_FOREACH( EmblemTemplet* pEmblem, m_vecEmblemTemplet )
 	{
 		switch( g_pMain->GetNowStateID() )
@@ -783,7 +783,7 @@ void CX2EmblemManager::OnFrameMove( float fElpaseTime )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	/// June @3244cd72: a dialog no longer shown is closed and the shown id cleared before the next emblem is picked
 	CloseEmblemDialog();
-	m_eJuneNowEmblemID = EI_NONE;
+	m_eNowEmblemID = EI_NONE;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	BOOST_FOREACH( EmblemTemplet* pEmblem, m_vecEmblemTemplet)
 	{
@@ -973,18 +973,18 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 		{
 			/// June 3244c4b0 case 0x11: with the dialog open, fill up to two rows; rows left -> this emblem shows again
 			/// ( @3244c860: +99 = 0, +6 = 1, = PlayEmblem( id, true ) ), else the list is cleared ( 324483e0 )
-			if( NULL != m_hJuneEmblemDialog )
+			if( NULL != m_hEmblemDialog )
 			{
 				ShowNewSkillOrMemo();
 				const bool bMore = HasNewSkillOrMemoToShow();
 #ifdef SERV_IRUHADEV_OFFLINE
 				CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM show: %d row(s) in the list, more to show = %d",
-					static_cast<int>( m_vecJuneNewSkillOrMemo.size() ), bMore ? 1 : 0 );
+					static_cast<int>( m_vecNewSkillOrMemo.size() ), bMore ? 1 : 0 );
 #endif SERV_IRUHADEV_OFFLINE
 				if( true == bMore )
 					PlayEmblem( EI_GET_NEW_SKILL_OR_MEMO, true );
 				else
-					m_vecJuneNewSkillOrMemo.clear();
+					m_vecNewSkillOrMemo.clear();
 			}
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
@@ -993,13 +993,13 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 		{
 			/// June 3244c4b0 case 0x12: with the dialog open, show up to two rows ( 3244c2b0 ); then key 1 missing -> +6 = 0 ( = EndEmblem ),
 			/// key 1 non-empty -> shows again ( +6 = 1, +0x63 = 0 = PlayEmblem( id, true ) ); key 0 non-empty -> shows again
-			if( NULL != m_hJuneEmblemDialog )
+			if( NULL != m_hEmblemDialog )
 				ShowNewTitle();
 
 			int iLeft1 = -1;
 			int iLeft0 = -1;
-			std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::const_iterator mit = m_mapJuneTitleNotice.find( 1 );
-			if( m_mapJuneTitleNotice.end() == mit )
+			std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::const_iterator mit = m_mapTitleNotice.find( 1 );
+			if( m_mapTitleNotice.end() == mit )
 			{
 				EndEmblem( EI_NEW_TITLE_INFO_NOTICE );
 			}
@@ -1010,8 +1010,8 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 					PlayEmblem( EI_NEW_TITLE_INFO_NOTICE, true );
 			}
 
-			mit = m_mapJuneTitleNotice.find( 0 );
-			if( m_mapJuneTitleNotice.end() != mit )
+			mit = m_mapTitleNotice.find( 0 );
+			if( m_mapTitleNotice.end() != mit )
 			{
 				iLeft0 = static_cast<int>( mit->second.size() );
 				if( false == mit->second.empty() )
@@ -1019,7 +1019,7 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 			}
 #ifdef SERV_IRUHADEV_OFFLINE
 			CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM title notice: dialog %d, left key 1 = %d, key 0 = %d ( -1 = no key )",
-				NULL != m_hJuneEmblemDialog ? 1 : 0, iLeft1, iLeft0 );
+				NULL != m_hEmblemDialog ? 1 : 0, iLeft1, iLeft0 );
 #endif SERV_IRUHADEV_OFFLINE
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
@@ -1034,7 +1034,7 @@ void CX2EmblemManager::PushTitleNotice( const CX2TitleManager::TitleInfo* pTitle
 {
 	if( NULL == pTitleInfo_ )
 		return;
-	m_mapJuneTitleNotice[ iKey_ ].push_back( pTitleInfo_ );
+	m_mapTitleNotice[ iKey_ ].push_back( pTitleInfo_ );
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM title queued: key %d, title %d", iKey_, pTitleInfo_->m_iTitleID );
 #endif SERV_IRUHADEV_OFFLINE
@@ -1049,8 +1049,8 @@ void CX2EmblemManager::ShowNewTitle()
 	int iRow = 0;
 	for( int iKey = 1; iKey >= 0; --iKey )
 	{
-		std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::iterator mit = m_mapJuneTitleNotice.find( iKey );
-		if( m_mapJuneTitleNotice.end() == mit || true == mit->second.empty() )
+		std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::iterator mit = m_mapTitleNotice.find( iKey );
+		if( m_mapTitleNotice.end() == mit || true == mit->second.empty() )
 			continue;
 
 		std::deque< const CX2TitleManager::TitleInfo* >& deqTitle = mit->second;
@@ -1076,12 +1076,12 @@ void CX2EmblemManager::ShowNewTitle()
 /// June 32448420: the row's picture 1 takes GetTitleModel( id ) + ".tga" ( 326f8400 on g_pData +0x28c ), and the row is shown
 void CX2EmblemManager::SetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_ )
 {
-	if( NULL == m_hJuneEmblemDialog )
+	if( NULL == m_hEmblemDialog )
 		return;
 
 	WCHAR wszName[64] = L"";
 	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
-	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hEmblemDialog->GetControl( wszName ) );
 	if( NULL == pStatic )
 		return;
 
@@ -1099,12 +1099,12 @@ void CX2EmblemManager::SetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitle
 /// string 0 takes the text and the row is shown only when the static has a string 0 ( no line break, unlike 324486c0 )
 void CX2EmblemManager::SetNewTitleText( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_, int iKey_ )
 {
-	if( NULL == m_hJuneEmblemDialog )
+	if( NULL == m_hEmblemDialog )
 		return;
 
 	WCHAR wszName[64] = L"";
 	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
-	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hEmblemDialog->GetControl( wszName ) );
 	if( NULL == pStatic )
 		return;
 
@@ -1213,7 +1213,7 @@ bool CX2EmblemManager::IsBurningEventTime() const
 /// June 324486b0: push one ( skill id, type, 1 ) row onto +0x64
 void CX2EmblemManager::PushNewSkillOrMemo( const D3DXVECTOR3& vRow_ )
 {
-	m_vecJuneNewSkillOrMemo.push_back( vRow_ );
+	m_vecNewSkillOrMemo.push_back( vRow_ );
 }
 
 /// June 32447870: an emblem is playing while its 1st texture lives or its dialog is shown ( dialog +0x6e )
@@ -1223,7 +1223,7 @@ bool CX2EmblemManager::IsEmblemPlaying() const
 		true == g_pData->GetUIMajorParticle()->IsLiveInstanceHandle( m_hCurrentEmblem ) )
 		return true;
 
-	if( NULL != m_hJuneEmblemDialog && true == m_hJuneEmblemDialog->GetShow() )
+	if( NULL != m_hEmblemDialog && true == m_hEmblemDialog->GetShow() )
 		return true;
 
 	return false;
@@ -1232,44 +1232,44 @@ bool CX2EmblemManager::IsEmblemPlaying() const
 /// June 32447760: delete the dialog if it still exists ( the handle test is June's 31d41d10 ), reset its timer
 void CX2EmblemManager::CloseEmblemDialog()
 {
-	SAFE_DELETE_DIALOG( m_hJuneEmblemDialog );
-	m_fJuneEmblemDialogTime = 0.f;
+	SAFE_DELETE_DIALOG( m_hEmblemDialog );
+	m_fEmblemDialogTime = 0.f;
 }
 
 /// June 3244c8c0 @3244cb66-3244cce2: with the dialog open its timer runs; for the shown emblem the dialog's alpha rises over
 /// FADE_IN_TIME, falls over the last FADE_OUT_TIME, and at DURATION_TIME the dialog is closed
 void CX2EmblemManager::FadeEmblemDialog( float fElapsedTime_ )
 {
-	if( NULL == m_hJuneEmblemDialog )
+	if( NULL == m_hEmblemDialog )
 		return;
 
-	m_fJuneEmblemDialogTime += fElapsedTime_;
-	if( EI_NONE == m_eJuneNowEmblemID )
+	m_fEmblemDialogTime += fElapsedTime_;
+	if( EI_NONE == m_eNowEmblemID )
 		return;
 
 	BOOST_FOREACH( const EmblemTemplet* pEmblem, m_vecEmblemTemplet )
 	{
-		if( NULL == pEmblem || m_eJuneNowEmblemID != pEmblem->m_eEmblemID )
+		if( NULL == pEmblem || m_eNowEmblemID != pEmblem->m_eEmblemID )
 			continue;
 
 		const float fDuration = pEmblem->m_vecTime.x;
 		const float fFadeIn = pEmblem->m_vecTime.y;
 		const float fFadeOutStart = fDuration - pEmblem->m_vecTime.z;
-		if( false == ( fDuration > m_fJuneEmblemDialogTime ) )
+		if( false == ( fDuration > m_fEmblemDialogTime ) )
 		{
 			CloseEmblemDialog();	/// @3244cbe1
 		}
-		else if( false == ( m_fJuneEmblemDialogTime < 0.f ) && false == ( fFadeIn <= m_fJuneEmblemDialogTime ) )
+		else if( false == ( m_fEmblemDialogTime < 0.f ) && false == ( fFadeIn <= m_fEmblemDialogTime ) )
 		{
-			D3DXCOLOR color = m_hJuneEmblemDialog->GetColor();	/// dialog +0x38
-			color.a = m_fJuneEmblemDialogTime / fFadeIn;
-			m_hJuneEmblemDialog->SetColor( color );
+			D3DXCOLOR color = m_hEmblemDialog->GetColor();	/// dialog +0x38
+			color.a = m_fEmblemDialogTime / fFadeIn;
+			m_hEmblemDialog->SetColor( color );
 		}
-		else if( false == ( m_fJuneEmblemDialogTime < fFadeOutStart ) && false == ( fDuration <= m_fJuneEmblemDialogTime ) )
+		else if( false == ( m_fEmblemDialogTime < fFadeOutStart ) && false == ( fDuration <= m_fEmblemDialogTime ) )
 		{
-			D3DXCOLOR color = m_hJuneEmblemDialog->GetColor();
-			color.a = 1.f - ( m_fJuneEmblemDialogTime - fFadeOutStart ) / ( fDuration - fFadeOutStart );
-			m_hJuneEmblemDialog->SetColor( color );
+			D3DXCOLOR color = m_hEmblemDialog->GetColor();
+			color.a = 1.f - ( m_fEmblemDialogTime - fFadeOutStart ) / ( fDuration - fFadeOutStart );
+			m_hEmblemDialog->SetColor( color );
 		}
 		break;
 	}
@@ -1278,8 +1278,8 @@ void CX2EmblemManager::FadeEmblemDialog( float fElapsedTime_ )
 /// June's inlined read of +0x64[ i ] ( 32447a20, 32448b20 ): ( 0, 0, 0 ) when i is out of range
 D3DXVECTOR3 CX2EmblemManager::GetNewSkillOrMemo( int iIndex_ ) const
 {
-	if( 0 <= iIndex_ && iIndex_ < static_cast<int>( m_vecJuneNewSkillOrMemo.size() ) )
-		return m_vecJuneNewSkillOrMemo[iIndex_];
+	if( 0 <= iIndex_ && iIndex_ < static_cast<int>( m_vecNewSkillOrMemo.size() ) )
+		return m_vecNewSkillOrMemo[iIndex_];
 
 	return D3DXVECTOR3( 0.f, 0.f, 0.f );
 }
@@ -1310,8 +1310,8 @@ void CX2EmblemManager::ShowNewSkillOrMemo()
 			SetNewSkillOrMemoIcon( iCount, iSkillID );
 			SetNewSkillOrMemoText( iCount, iSkillID, iType );
 			++iCount;
-			if( i < static_cast<int>( m_vecJuneNewSkillOrMemo.size() ) )
-				m_vecJuneNewSkillOrMemo[i] = D3DXVECTOR3( static_cast<float>( iSkillID ), static_cast<float>( iType ), 0.f );
+			if( i < static_cast<int>( m_vecNewSkillOrMemo.size() ) )
+				m_vecNewSkillOrMemo[i] = D3DXVECTOR3( static_cast<float>( iSkillID ), static_cast<float>( iType ), 0.f );
 		}
 		if( 2 <= iCount )
 			break;
@@ -1321,14 +1321,14 @@ void CX2EmblemManager::ShowNewSkillOrMemo()
 /// June 32447aa0: show / hide g_pStaticIcon1 and g_pStaticIcon2 ( control vtable +0x68 = SetShow )
 void CX2EmblemManager::ShowNewSkillOrMemoRows( bool bShow_ )
 {
-	if( NULL == m_hJuneEmblemDialog )
+	if( NULL == m_hEmblemDialog )
 		return;
 
 	for( int i = 1; i <= 2; ++i )
 	{
 		WCHAR wszName[64] = L"";
 		StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", i );
-		CKTDGUIControl* pControl = m_hJuneEmblemDialog->GetControl( wszName );
+		CKTDGUIControl* pControl = m_hEmblemDialog->GetControl( wszName );
 		if( NULL != pControl )
 			pControl->SetShow( bShow_ );
 	}
@@ -1337,12 +1337,12 @@ void CX2EmblemManager::ShowNewSkillOrMemoRows( bool bShow_ )
 /// June 32447c00: the row's icon picture ( picture 1 ) takes the skill's icon ( templet +0x50 / +0x6c ), and the row is shown
 void CX2EmblemManager::SetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ )
 {
-	if( NULL == m_hJuneEmblemDialog || NULL == g_pData->GetSkillTree() )
+	if( NULL == m_hEmblemDialog || NULL == g_pData->GetSkillTree() )
 		return;
 
 	WCHAR wszName[64] = L"";
 	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
-	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hEmblemDialog->GetControl( wszName ) );
 	if( NULL == pStatic || 0 == iSkillID_ )
 		return;
 
@@ -1360,12 +1360,12 @@ void CX2EmblemManager::SetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ )
 /// string raised 8 px; then string 0 takes the text and the row is shown
 void CX2EmblemManager::SetNewSkillOrMemoText( int iIndex_, int iSkillID_, int iType_ )
 {
-	if( NULL == m_hJuneEmblemDialog || NULL == g_pData->GetSkillTree() )
+	if( NULL == m_hEmblemDialog || NULL == g_pData->GetSkillTree() )
 		return;
 
 	WCHAR wszName[64] = L"";
 	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
-	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hEmblemDialog->GetControl( wszName ) );
 	if( NULL == pStatic || 0 == iSkillID_ )
 		return;
 
@@ -1437,7 +1437,7 @@ void CX2EmblemManager::AddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpan
 	BOOST_FOREACH( EmblemTemplet* pEmblem, m_vecEmblemTemplet )
 	{
 		if( eEmblemID_ == pEmblem->m_eEmblemID )
-			pEmblem->m_vecJuneExpandTexture.push_back( sExpandTexture_ );
+			pEmblem->m_vecExpandTexture.push_back( sExpandTexture_ );
 	}
 }
 
@@ -1453,22 +1453,22 @@ void CX2EmblemManager::PlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_
 
 	int iShown = 0;
 	int iErased = 0;
-	vector<EmblemExpandTexture>::iterator vIt = sEmblemTemplet_.m_vecJuneExpandTexture.begin();
-	while( vIt != sEmblemTemplet_.m_vecJuneExpandTexture.end() )
+	vector<EmblemExpandTexture>::iterator vIt = sEmblemTemplet_.m_vecExpandTexture.begin();
+	while( vIt != sEmblemTemplet_.m_vecExpandTexture.end() )
 	{
 		CKTDGParticleSystem::CParticleEventSequence* pSequence =
 			CreateEventSequence( vIt->m_wstrTextureFileName.c_str(), sEmblemTemplet_.m_vecTime );
 		if( NULL != pSequence )
 		{
 			pSequence->SetOverUI( true );
-			m_vecJuneExpandHandle.push_back( g_pData->GetUIMajorParticle()->CreateInstanceNonTemplet( pSequence,
+			m_vecExpandHandle.push_back( g_pData->GetUIMajorParticle()->CreateInstanceNonTemplet( pSequence,
 				D3DXVECTOR3( vIt->m_vPos.x, vIt->m_vPos.y, 0.f ), D3DXVECTOR2( -1, -1 ), D3DXVECTOR2( -1, -1 ) ) );
 			++iShown;
 		}
 
 		if( true == vIt->m_bOneShot )
 		{
-			vIt = sEmblemTemplet_.m_vecJuneExpandTexture.erase( vIt );
+			vIt = sEmblemTemplet_.m_vecExpandTexture.erase( vIt );
 			++iErased;
 		}
 		else
@@ -1477,7 +1477,7 @@ void CX2EmblemManager::PlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_
 #ifdef SERV_IRUHADEV_OFFLINE
 	if( 0 < iShown || 0 < iErased )
 		CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM expand: emblem %d shows %d expand texture(s), %d one-shot row(s) erased, %d live handle(s)",
-			static_cast<int>( sEmblemTemplet_.m_eEmblemID ), iShown, iErased, static_cast<int>( m_vecJuneExpandHandle.size() ) );
+			static_cast<int>( sEmblemTemplet_.m_eEmblemID ), iShown, iErased, static_cast<int>( m_vecExpandHandle.size() ) );
 #endif SERV_IRUHADEV_OFFLINE
 
 	PickEmblemSound( sEmblemTemplet_ );
@@ -1532,12 +1532,12 @@ void CX2EmblemManager::PickEmblemSound( const EmblemTemplet& sEmblemTemplet_ )
 /// on the eye's side of 0; then SetPosition( pos, false, false ) ( 31cf1a40 )
 void CX2EmblemManager::FollowExpandTexture()
 {
-	if( true == m_vecJuneExpandHandle.empty() || NULL == g_pData->GetUIMajorParticle() )
+	if( true == m_vecExpandHandle.empty() || NULL == g_pData->GetUIMajorParticle() )
 		return;
 
 	const D3DXVECTOR3 vEye = g_pKTDXApp->GetDGManager()->GetCamera().GetEye();
 	int iIndex = 0;
-	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecExpandHandle )
 	{
 		if( INVALID_PARTICLE_SEQUENCE_HANDLE == hHandle ||
 			false == g_pData->GetUIMajorParticle()->IsLiveInstanceHandle( hHandle ) )
@@ -1569,7 +1569,7 @@ void CX2EmblemManager::FollowExpandTexture()
 /// June 3244c8c0: an expand texture still alive keeps the next emblem waiting ( after the 32447870 test )
 bool CX2EmblemManager::IsExpandTextureLive() const
 {
-	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecExpandHandle )
 	{
 		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hHandle &&
 			true == g_pData->GetUIMajorParticle()->IsLiveInstanceHandle( hHandle ) )
@@ -1581,12 +1581,12 @@ bool CX2EmblemManager::IsExpandTextureLive() const
 /// June 324485d0 / 3244c8c0 ( both with the UI particle system present ): destroy every expand texture, then clear the list
 void CX2EmblemManager::DestroyExpandTexture()
 {
-	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecExpandHandle )
 	{
 		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hHandle )
 			g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hHandle );
 	}
-	m_vecJuneExpandHandle.clear();
+	m_vecExpandHandle.clear();
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #endif // NEW_EMBLEM_MANAGER

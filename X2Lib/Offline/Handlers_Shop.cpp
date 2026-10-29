@@ -870,13 +870,13 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 			CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
 			std::vector< KSkillData > vecGranted;
 			const int iRaised = pSkill->GrantSkillsByLevel( iNewClass, kAfter.m_iLevel, vecGranted );
-			pSkill->GetAcquiredSkillData( kNot.m_vecJuneAcquiredSkill );
+			pSkill->GetAcquiredSkillData( kNot.m_vecAcquiredSkill );
 			pSkill->GetUnsealedSkills( kNot.m_vecSkillUnsealed );
 
 			CX2OfflineLog::Server( L"[JUNE_SKILL] CLASS NOT build unitUID=%I64d class %d L%d: %d acquired skill(s)"
 				L" sent (%d row(s) raised by the grant), %d unsealed",
 				(__int64)kAfter.m_nUnitUID, iNewClass, kAfter.m_iLevel,
-				(int)kNot.m_vecJuneAcquiredSkill.size(), iRaised, (int)kNot.m_vecSkillUnsealed.size() );
+				(int)kNot.m_vecAcquiredSkill.size(), iRaised, (int)kNot.m_vecSkillUnsealed.size() );
 		}
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 
@@ -970,7 +970,7 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 
 		int iPageCount = 1, iActivePage = 1;
 		pSkill->GetSkillPageInfo( iPageCount, iActivePage );
-		if( iPageCount >= CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
+		if( iPageCount >= CX2OfflineSkill::MAX_SKILL_PAGE )
 		{
 			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE cash expand refused: %d page(s) already ( the deposit line is left in place )", iPageCount );
 			kAck.m_iOK = NetError::ERR_SKILL_PAGE_02;

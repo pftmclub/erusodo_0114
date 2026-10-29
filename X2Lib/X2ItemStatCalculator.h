@@ -112,7 +112,7 @@ private:
 	int								m_iUnitClassTran;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
-	map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >		m_mapJuneTranscendEqipStatDataTable;	// June +0x2c / +0x30
+	map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >		m_mapTranscendEqipStatDataTable;	// June +0x2c / +0x30
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 };
 

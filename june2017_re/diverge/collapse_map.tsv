@@ -2526,10 +2526,10 @@ JUNE_MAX_LEVEL	EXP_TABLE_MAX_LEVEL	rename	X2Lib/Offline/X2OfflineCap99Exp.h		SER
 JUNE_TOTAL_EXP	TOTAL_EXP	rename	X2Lib/Offline/X2OfflineCap99Exp.h	X2OfflineCap99Exp	SERV_IRUHADEV_LEVEL_CAP_99				C5	constant
 iJuneNeed	iNeed	rename	X2Lib/Offline/X2OfflineDB.cpp	CX2OfflineDB	SERV_IRUHADEV_LEVEL_CAP_99				C5	local
 s_iJuneKimUnresolvedCases	s_iKimUnresolvedCases	rename	X2Lib/Offline/X2OfflineDropTable.cpp		SERV_IRUHADEV_JUNE_ITEM_KIM				C5	global variable
-X2OfflineJuneQuestMig	X2OfflineQuestMig	namespace	X2Lib/Offline/X2OfflineJuneQuestMig.h		SERV_IRUHADEV_JUNE_QUEST_DATA			file X2OfflineJuneQuestMig.h -> X2OfflineQuestMig.h with it	C5	namespace
-JUNE_QUEST_COUNT	QUEST_COUNT	rename	X2Lib/Offline/X2OfflineJuneQuestMig.h		SERV_IRUHADEV_JUNE_QUEST_DATA				C5	constant
-JUNE_QUEST_IDS	QUEST_IDS	rename	X2Lib/Offline/X2OfflineJuneQuestMig.h	X2OfflineJuneQuestMig	SERV_IRUHADEV_JUNE_QUEST_DATA				C5	constant
-X2OfflineJuneSkillAutoLearn	X2OfflineSkillAutoLearn	namespace	X2Lib/Offline/X2OfflineJuneSkillAutoLearn.h		SERV_IRUHADEV_JUNE_SKILL_REFORM	32205790		file X2OfflineJuneSkillAutoLearn.h -> X2OfflineSkillAutoLearn.h with it	C5	namespace
+X2OfflineJuneQuestMig	X2OfflineQuestMig	namespace	X2Lib/Offline/X2OfflineQuestMig.h		SERV_IRUHADEV_JUNE_QUEST_DATA			file X2OfflineJuneQuestMig.h -> X2OfflineQuestMig.h with it	C5	namespace
+JUNE_QUEST_COUNT	QUEST_COUNT	rename	X2Lib/Offline/X2OfflineQuestMig.h		SERV_IRUHADEV_JUNE_QUEST_DATA				C5	constant
+JUNE_QUEST_IDS	QUEST_IDS	rename	X2Lib/Offline/X2OfflineQuestMig.h	X2OfflineJuneQuestMig	SERV_IRUHADEV_JUNE_QUEST_DATA				C5	constant
+X2OfflineJuneSkillAutoLearn	X2OfflineSkillAutoLearn	namespace	X2Lib/Offline/X2OfflineSkillAutoLearn.h		SERV_IRUHADEV_JUNE_SKILL_REFORM	32205790		file X2OfflineJuneSkillAutoLearn.h -> X2OfflineSkillAutoLearn.h with it	C5	namespace
 iJune	iNetError	rename	X2Lib/Offline/X2OfflineQuest.cpp	CX2OfflineQuest	SERV_IRUHADEV_JUNE_QUEST_OFFLINE			CheckJuneRepeat result compared to NET_OK; later `i` is a sibling for-loop; scoped: this old name maps to 3 new names by class	C5	local
 JUNE_MAX_SKILL_PAGE	MAX_SKILL_PAGE	rename	X2Lib/Offline/X2OfflineSkill.cpp	CX2OfflineSkill	SERV_IRUHADEV_JUNE_SKILL_PAGE				C5	local
 bJuneTcSlotOpen	bTcSlotOpen	rename	X2Lib/Offline/X2OfflineSkill.cpp	CX2OfflineSkill	SERV_IRUHADEV_JUNE_TRANSCEND_SLOT				C5	local

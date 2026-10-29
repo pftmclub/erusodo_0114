@@ -258,11 +258,11 @@ void CX2Inventory::UpdateInventorySlotList( const std::vector<KInventoryItemInfo
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		// June 3286d590 @3286d612: RemoveItem hands back the old item ( 3286bbd0 ), its quantity is the baseline below
-		int iJuneOldQuantity = 0;
+		int iOldQuantity = 0;
 		{
-			const CX2Item* pJuneOldItem = GetItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID );
-			if ( pJuneOldItem != NULL )
-				iJuneOldQuantity = pJuneOldItem->GetItemData().m_Quantity;
+			const CX2Item* pOldItem = GetItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID );
+			if ( pOldItem != NULL )
+				iOldQuantity = pOldItem->GetItemData().m_Quantity;
 		}
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		RemoveItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID );
@@ -276,13 +276,13 @@ void CX2Inventory::UpdateInventorySlotList( const std::vector<KInventoryItemInfo
 			// June's second argument ( [esp+0x1c0], skips this ) is false for every March caller.
 			if ( itemInfo.m_cSlotCategory != CX2Inventory::ST_E_DEFENCE_QUICK_SLOT && g_pX2Game != NULL )
 			{
-				CX2DungeonGame* pJuneDungeonGame = dynamic_cast< CX2DungeonGame* >( g_pX2Game );
-				if ( pJuneDungeonGame != NULL )
+				CX2DungeonGame* pDungeonGame = dynamic_cast< CX2DungeonGame* >( g_pX2Game );
+				if ( pDungeonGame != NULL )
 				{
-					CX2Item::ItemData kJuneObtained = kItemData;
-					if ( kJuneObtained.m_PeriodType == CX2Item::PT_QUANTITY )
-						kJuneObtained.m_Quantity = kItemData.m_Quantity - iJuneOldQuantity;
-					pJuneDungeonGame->AddObtainedItem( kJuneObtained );
+					CX2Item::ItemData kObtained = kItemData;
+					if ( kObtained.m_PeriodType == CX2Item::PT_QUANTITY )
+						kObtained.m_Quantity = kItemData.m_Quantity - iOldQuantity;
+					pDungeonGame->AddObtainedItem( kObtained );
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
@@ -1160,7 +1160,7 @@ float CX2Inventory::GetAddMaxMPValue() const
 /// any other slot counts only when ( group != 0 ) equals ( slot id in 0x14..0x22, 0x24, 0x26, 0x28, 0x2a ) ( June's second character's
 /// slots ). The value is the templet's added max MP ( item +0xc0, templet +0x28 ). March's equipped slots are 0..19, so with group 0
 /// every equipped item counts, as in GetAddMaxMPValue.
-float CX2Inventory::GetAddMaxMPValue( const int iJuneEquipGroup_ ) const
+float CX2Inventory::GetAddMaxMPValue( const int iEquipGroup_ ) const
 {
 	float fAddMaxMPValue = 0.0f;
 
@@ -1192,7 +1192,7 @@ float CX2Inventory::GetAddMaxMPValue( const int iJuneEquipGroup_ ) const
 					break;
 				}
 
-				if ( ( 0 != iJuneEquipGroup_ ) != bSecondGroup )
+				if ( ( 0 != iEquipGroup_ ) != bSecondGroup )
 					continue;
 			}
 			break;

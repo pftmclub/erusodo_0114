@@ -128,9 +128,9 @@ class CX2DungeonGame : public CX2Game
 		bool					GetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const;
 		bool					HasObtainedItemPage( unsigned uCount ) const;
 		void					SortObtainedItems();
-		int						GetObtainedItemCount() const { return (int)m_vecJuneObtainedItem.size(); }
+		int						GetObtainedItemCount() const { return (int)m_vecObtainedItem.size(); }
 	private:
-		std::vector< CX2Item::ItemData >	m_vecJuneObtainedItem;
+		std::vector< CX2Item::ItemData >	m_vecObtainedItem;
 	public:
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		int						GetWinTeam() { return m_WinTeam; }
@@ -376,9 +376,9 @@ class CX2DungeonGame : public CX2Game
 #endif
 	
 #ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
-		enum { JUNE_BOSS_NAME_SLOT_NUM = 8 };
+		enum { BOSS_NAME_SLOT_NUM = 8 };
 		/// June +0xcf8..+0xd14: one handle per boss-name slot ( ctor 327cef70 @327cf0d6 = -1 each; Release 327d2240 @327d2658 destroys each ).
-		CKTDGParticleSystem::CParticleEventSequenceHandle m_ahJuneBossName[JUNE_BOSS_NAME_SLOT_NUM];
+		CKTDGParticleSystem::CParticleEventSequenceHandle m_ahBossName[BOSS_NAME_SLOT_NUM];
 #else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 		CKTDGParticleSystem::CParticleEventSequenceHandle m_hBossName;
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
@@ -423,6 +423,6 @@ class CX2DungeonGame : public CX2Game
 	private:
 		// June +0xdd1 / +0xdd2 / +0xdd3, zeroed by the ctor 327cef80 ( @327cf464 ). Only June's Ruto vote system writes
 		// them ( 327caa70, 327cc19d, 327d28c7 / 327d28dc, 327d4149 ); March has none, so they stay false.
-		bool				m_abJuneVotingLuto[3];
+		bool				m_abVotingLuto[3];
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 };

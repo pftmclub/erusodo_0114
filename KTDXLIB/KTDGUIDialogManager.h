@@ -81,8 +81,8 @@ class CKTDGUIDialogManager : public CKTDXStage
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		// June +0x110: only dialogs flagged +0x1e0 are drawn ( 31d0556a / 31d0587b ); FrontUIRender then draws no band. Written only by
 		// June-only game code ( 31f1e108, 3223dfea, 3243d15f, ... ), not ported: false here
-		bool	GetFlaggedDialogsOnly() const { return m_bJuneFlaggedDialogsOnly; }
-		void	SetFlaggedDialogsOnly( bool bOnly_ ) { m_bJuneFlaggedDialogsOnly = bOnly_; }
+		bool	GetFlaggedDialogsOnly() const { return m_bFlaggedDialogsOnly; }
+		void	SetFlaggedDialogsOnly( bool bOnly_ ) { m_bFlaggedDialogsOnly = bOnly_; }
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 		virtual HRESULT OnFrameRenderTopModal();
@@ -142,13 +142,13 @@ class CKTDGUIDialogManager : public CKTDXStage
 		void	ResetHideMode();													// 31d05060 / 31d07950: the dungeon state dtor
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #ifdef SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
-		bool	IsHideName( const WCHAR* wszName ) const { return wszName != NULL && m_setJuneHideNames.find( wszName ) != m_setJuneHideNames.end(); }	// 31cda4d0 set find
+		bool	IsHideName( const WCHAR* wszName ) const { return wszName != NULL && m_setHideNames.find( wszName ) != m_setHideNames.end(); }	// 31cda4d0 set find
 #endif SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
 		void	ToggleHide();																// 31f02f50: the DELETE-key toggle
-		int		GetHideMode() const { return m_iJuneHideMode; }							// +0xc8
-		int		GetHidePrevMode() const { return m_iJuneHidePrevMode; }					// +0xcc
+		int		GetHideMode() const { return m_iHideMode; }							// +0xc8
+		int		GetHidePrevMode() const { return m_iHidePrevMode; }					// +0xcc
 		static bool	IsRestoreMode( int iMode ) { return 2 == iMode || 3 == iMode || 4 == iMode; }	// 31d03940
-		bool	IsHideModeKeepingHidden() const { return IsRestoreMode( m_iJuneHideMode ); }	// 31d03a10: ESC does not unhide in modes 2-4
+		bool	IsHideModeKeepingHidden() const { return IsRestoreMode( m_iHideMode ); }	// 31d03a10: ESC does not unhide in modes 2-4
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 
@@ -198,15 +198,15 @@ private:
 #ifdef DIALOG_SHOW_TOGGLE
 		bool m_bCanHide;
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
-		int										m_iJuneHideMode;			// +0xc8: the current hide mode ( ctor: 0 )
-		int										m_iJuneHidePrevMode;		// +0xcc: the mode before the last SetShow
-		std::set< std::wstring >				m_setJuneHideNames;			// +0xd0 ( head +0xd4 ): the current mode's name list ( June: a std::set of narrow names )
-		std::map< int, std::set< std::wstring > >	m_mapJuneHidePreset;	// +0x100: mode -> name list, built by _BuildJuneHidePresets ( June: set of 0x40 B presets )
+		int										m_iHideMode;			// +0xc8: the current hide mode ( ctor: 0 )
+		int										m_iHidePrevMode;		// +0xcc: the mode before the last SetShow
+		std::set< std::wstring >				m_setHideNames;			// +0xd0 ( head +0xd4 ): the current mode's name list ( June: a std::set of narrow names )
+		std::map< int, std::set< std::wstring > >	m_mapHidePreset;	// +0x100: mode -> name list, built by _BuildJuneHidePresets ( June: set of 0x40 B presets )
 		void	_BuildHidePresets();										// June's StartUp loader 32597410 @3259b25e-3259bafb
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
-		bool m_bJuneFlaggedDialogsOnly;
+		bool m_bFlaggedDialogsOnly;
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
 		HRESULT _OnFrameRender( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_, int iRenderPass_ );
 #else SERV_IRUHADEV_JUNE_RENDER_PASS1

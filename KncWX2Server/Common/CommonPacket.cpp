@@ -745,7 +745,7 @@ SERIALIZE_DEFINE_PUT( KSkillData, obj, ks )
 {
 	return PUT( m_iSkillID )
 		&& PUT( m_cSkillLevel )
-		&& PUT( m_iJuneSkillDataExtra )
+		&& PUT( m_iSkillDataExtra )
 		;
 
 }
@@ -754,7 +754,7 @@ SERIALIZE_DEFINE_GET( KSkillData, obj, ks )
 {
 	return GET( m_iSkillID )
 		&& GET( m_cSkillLevel )
-		&& GET( m_iJuneSkillDataExtra )
+		&& GET( m_iSkillDataExtra )
 		;
 }
 
@@ -838,7 +838,7 @@ SERIALIZE_DEFINE_PUT( KUnitSkillData, obj, ks )
 		&& PUT( m_aEquippedSkillSlotB[2] )
 		&& PUT( m_aEquippedSkillSlotB[3] )
 		&& PUT( m_aEquippedSkillSlotB[4] )
-		&& PUT( m_vecJuneSkillSlotState )
+		&& PUT( m_vecSkillSlotState )
 		&& PUT( m_vecPassiveSkill )
 #ifdef GUILD_SKILL_TEST
 		&& PUT( m_vecGuildPassiveSkill )
@@ -850,7 +850,7 @@ SERIALIZE_DEFINE_PUT( KUnitSkillData, obj, ks )
 		&& PUT( m_nActiveSkillPagesNumber)
 		&& PUT( m_nTheNumberOfSkillPagesAvailable )
 #endif // SERV_SKILL_PAGE_SYSTEM
-		&& PUT( m_kJuneSkillExtraData )
+		&& PUT( m_kSkillExtraData )
 		;
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	return PUT( m_aEquippedSkill[0] )
@@ -896,7 +896,7 @@ SERIALIZE_DEFINE_GET( KUnitSkillData, obj, ks )
 		&& GET( m_aEquippedSkillSlotB[2] )
 		&& GET( m_aEquippedSkillSlotB[3] )
 		&& GET( m_aEquippedSkillSlotB[4] )
-		&& GET( m_vecJuneSkillSlotState )
+		&& GET( m_vecSkillSlotState )
 		&& GET( m_vecPassiveSkill )
 #ifdef GUILD_SKILL_TEST
 		&& GET( m_vecGuildPassiveSkill )
@@ -908,7 +908,7 @@ SERIALIZE_DEFINE_GET( KUnitSkillData, obj, ks )
 		&& GET( m_nActiveSkillPagesNumber)
 		&& GET( m_nTheNumberOfSkillPagesAvailable )
 #endif // SERV_SKILL_PAGE_SYSTEM
-		&& GET( m_kJuneSkillExtraData )
+		&& GET( m_kSkillExtraData )
 		;
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	return GET( m_aEquippedSkill[0] )
@@ -9264,7 +9264,7 @@ SERIALIZE_DEFINE_PUT( KBuffFactor, obj, ks )
 		&& PUT( m_ucAccumulationCountNow )
 		&& PUT( m_bIsMesGameUnitNpc )
 		&& PUT( m_iFactorID )
-		&& PUT( m_fJuneCreatorPowerRate )
+		&& PUT( m_fCreatorPowerRate )
 		;
 #else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	return PUT( m_vecBuffBehaviorFactors )
@@ -9291,7 +9291,7 @@ SERIALIZE_DEFINE_GET( KBuffFactor, obj, ks )
 		&& GET( m_ucAccumulationCountNow )
 		&& GET( m_bIsMesGameUnitNpc )
 		&& GET( m_iFactorID )
-		&& GET( m_fJuneCreatorPowerRate )
+		&& GET( m_fCreatorPowerRate )
 		;
 #else SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE
 	return GET( m_vecBuffBehaviorFactors )

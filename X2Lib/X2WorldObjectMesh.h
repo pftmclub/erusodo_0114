@@ -208,10 +208,10 @@ class CX2WorldObjectMesh : public CX2WorldObject
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 	private:
-		int		m_iJuneSavedLayer;		// June +0x324 ( ctor 327fa190 = -1 ): own layer kept while a hidden mesh is drawn at layer 0xff
+		int		m_iSavedLayer;		// June +0x324 ( ctor 327fa190 = -1 ): own layer kept while a hidden mesh is drawn at layer 0xff
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
-		bool	m_bJuneWMeshLoggedHide;	// one [JUNE_ENGINE] WMESH line per mesh for its first hide and its first layer restore
-		bool	m_bJuneWMeshLoggedShow;
+		bool	m_bWMeshLoggedHide;	// one [JUNE_ENGINE] WMESH line per mesh for its first hide and its first layer restore
+		bool	m_bWMeshLoggedShow;
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 

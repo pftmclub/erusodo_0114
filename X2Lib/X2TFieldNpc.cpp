@@ -3623,12 +3623,12 @@ void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTem
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 		if( m_bExchangeNewItem )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE_NEW_ITEM, true, false, false );
 #endif // SERV_NEW_ITEM_SYSTEM_2013_05
-		if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, true, false, false );
-		if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_PHOTOZONE, true, false, false );
-		if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_FRAGMENT_EXCHANGE, true, false, false );
-		if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_ROCKSCISSORSPAPER, true, false, false );
-		if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ENCHANT, true, false, false );
-		if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ADVANCED_ENCHANT, true, false, false );
+		if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_HENIR_EQUIP_UPGRADE, true, false, false );
+		if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PHOTOZONE, true, false, false );
+		if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_FRAGMENT_EXCHANGE, true, false, false );
+		if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ROCKSCISSORSPAPER, true, false, false );
+		if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_OLD_ENCHANT, true, false, false );
+		if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_OLD_ADVANCED_ENCHANT, true, false, false );
 
 		// @325cc17c: code event 2204 off -> for eight NPCs, if 2204 is on, hide the Henir equip upgrade button. As decoded the inner
 		// call needs the value the outer test skipped on, so it never runs (JUNE_BUGS); ported as June has it.
@@ -3645,15 +3645,15 @@ void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTem
 			case 10057:	// NUI_VAPOR
 			case 10069:	// NUI_FACEOFF
 				if( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2204 ) )
-					m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, false, true, false );
+					m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_HENIR_EQUIP_UPGRADE, false, true, false );
 				break;
 			}
 		}
 
-		if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_AGIT_SERVICE, true, false, false );
-		if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_ENTER, true, false, false );
-		if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_EXTRACTION, true, false, false );
-		if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_TRADE, true, false, false );
+		if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD_AGIT_SERVICE, true, false, false );
+		if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD_ENTER, true, false, false );
+		if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXTRACTION, true, false, false );
+		if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_TRADE, true, false, false );
 
 		// 17c: talk strings
 		m_strWaitTalk		= pHouseTemplate->m_strWaitTalk;
@@ -3909,7 +3909,7 @@ void CX2TFieldNpc::ResetNpcType()
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 	if( m_bExchangeNewItem )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE_NEW_ITEM, true, false, false );
 #endif // SERV_NEW_ITEM_SYSTEM_2013_05
-	if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, true, false, false );
+	if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_HENIR_EQUIP_UPGRADE, true, false, false );
 
 	if( false == ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2204 ) ) )	// @325c9a4e
 	{
@@ -3923,20 +3923,20 @@ void CX2TFieldNpc::ResetNpcType()
 		case 10041:	// NUI_DENKA
 		case 10057:	// NUI_VAPOR
 		case 10069:	// NUI_FACEOFF
-			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, false, true, false );	// @325c9ab2
+			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_HENIR_EQUIP_UPGRADE, false, true, false );	// @325c9ab2
 			break;
 		}
 	}
 
-	if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_AGIT_SERVICE, true, false, false );
-	if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_ENTER, true, false, false );
-	if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_EXTRACTION, true, false, false );
-	if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_TRADE, true, false, false );
-	if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_PHOTOZONE, true, false, false );
-	if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_FRAGMENT_EXCHANGE, true, false, false );
-	if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_ROCKSCISSORSPAPER, true, false, false );
-	if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ENCHANT, true, false, false );
-	if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ADVANCED_ENCHANT, true, false, false );
+	if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD_AGIT_SERVICE, true, false, false );
+	if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD_ENTER, true, false, false );
+	if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXTRACTION, true, false, false );
+	if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_TRADE, true, false, false );
+	if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PHOTOZONE, true, false, false );
+	if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_FRAGMENT_EXCHANGE, true, false, false );
+	if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ROCKSCISSORSPAPER, true, false, false );
+	if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_OLD_ENCHANT, true, false, false );
+	if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_OLD_ADVANCED_ENCHANT, true, false, false );
 }
 #ifdef NPC_SOUND
 // June NpcPlaySound 325c9c00: no 3D branch (as March under ONLY_NORMAL_SOUND_BY_NPC); the device's id is kept.

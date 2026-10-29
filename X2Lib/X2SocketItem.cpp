@@ -216,8 +216,8 @@ namespace
 		return ( 1 <= iValue_ && iValue_ <= 6 ) ? iValue_ - 1 : -1;
 	}
 
-	int s_iJuneGroupTokenHits = 0;		/// tokens found as a group (32715680)
-	int s_iJuneSkillTokenHits = 0;		/// tokens taken as a skill ID (no such group)
+	int s_iGroupTokenHits = 0;		/// tokens found as a group (32715680)
+	int s_iSkillTokenHits = 0;		/// tokens taken as a skill ID (no such group)
 }
 
 /// June buff port 16-step3b5: one load-time line on what the skill-group power sockets loaded (no June counterpart)
@@ -233,18 +233,18 @@ void CX2SocketItem::LogSkillGroupPowerCensus() const
 			continue;
 		const SocketData& kSocketData = *it->second;
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_PTR
-		if ( false == kSocketData.m_mapJuneSkillAdditionalPowerRate.empty() )
+		if ( false == kSocketData.m_mapSkillAdditionalPowerRate.empty() )
 		{
 			++iWithMap;
-			iMapEntries += static_cast<int>( kSocketData.m_mapJuneSkillAdditionalPowerRate.size() );
+			iMapEntries += static_cast<int>( kSocketData.m_mapSkillAdditionalPowerRate.size() );
 		}
-		if ( false == kSocketData.m_vecJuneAdditionalPowerSkillType.empty() || false == kSocketData.m_vecJuneAdditionalPowerRateType.empty() )
+		if ( false == kSocketData.m_vecAdditionalPowerSkillType.empty() || false == kSocketData.m_vecAdditionalPowerRateType.empty() )
 			++iWithTables;
-		if ( 0.f != kSocketData.m_fJuneSkillAdditionalPowerRate )
+		if ( 0.f != kSocketData.m_fSkillAdditionalPowerRate )
 			++iWithRate;
 	}
 	CX2BuffCapture::Line( "skill-group power sockets: %d with a skill map (%d entries), %d with m_SkillType/m_PowerRate, %d with a rate; tokens: %d groups, %d skill IDs (%d groups in SkillLevelUpSocketGroup.lua)",
-		iWithMap, iMapEntries, iWithTables, iWithRate, s_iJuneGroupTokenHits, s_iJuneSkillTokenHits, static_cast<int>( m_mapSkillUpSocketGroup.size() ) );
+		iWithMap, iMapEntries, iWithTables, iWithRate, s_iGroupTokenHits, s_iSkillTokenHits, static_cast<int>( m_mapSkillUpSocketGroup.size() ) );
 }
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 bool CX2SocketItem::AddSocketData_LUA()
@@ -510,7 +510,7 @@ bool CX2SocketItem::AddSocketData_LUA()
 				/// (+0x374) like March's smash types. 156 and 157 have no handler here yet (Process_ExtraDamage logs them)
 				if ( CX2DamageManager::EDT_DECREASE_ENEMY_RESIST == socketExtraDamage.m_ExtraDamageType ||
 					CX2DamageManager::EDT_DECENT_TO_SHADOW == socketExtraDamage.m_ExtraDamageType )
-					pSocketData->m_vecJuneSecondSocketExtraDamage.push_back( socketExtraDamage );
+					pSocketData->m_vecSecondSocketExtraDamage.push_back( socketExtraDamage );
 				else
 					pSocketData->m_MultipleSocketExtraDamage.push_back( socketExtraDamage );
 #else SERV_IRUHADEV_JUNE_SOCKET_EDT
@@ -798,40 +798,40 @@ bool CX2SocketItem::AddSocketData_LUA()
 	/// - Then the float again into the member (@3272ea19) and the two tables, each converted and pushed as is
 	///   (m_SkillType 327150b0 -> +0x98, m_PowerRate 32715110 -> +0xa8; EndTable 32fe9a10 after each).
 	{
-		float fJuneRate = 0.f;
-		LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",		fJuneRate,		0.f );
-		wstring wstrJuneGroup = L"";
-		LUA_GET_VALUE(	luaManager, "m_eSkillIDForAdditionalPowerRate",	wstrJuneGroup,	L"Group 0" );
+		float fAdditionalPowerRate = 0.f;
+		LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",		fAdditionalPowerRate,		0.f );
+		wstring wstrGroup = L"";
+		LUA_GET_VALUE(	luaManager, "m_eSkillIDForAdditionalPowerRate",	wstrGroup,	L"Group 0" );
 
-		bool bJuneReadTables = false;
-		if ( 0 != wstrJuneGroup.compare( L"Group 0" ) )
+		bool bReadTables = false;
+		if ( 0 != wstrGroup.compare( L"Group 0" ) )
 		{
-			wstring::size_type uiPos = wstrJuneGroup.find( L" " );
+			wstring::size_type uiPos = wstrGroup.find( L" " );
 			if ( wstring::npos != uiPos )
 			{
 				vector<int> vecGroupSkillID;
 				for ( ;; )
 				{
-					const wstring::size_type uiNext = wstrJuneGroup.find( L" ", uiPos + 1 );
+					const wstring::size_type uiNext = wstrGroup.find( L" ", uiPos + 1 );
 					const bool bLast = ( wstring::npos == uiNext );
-					const wstring wstrToken = bLast ? wstrJuneGroup.substr( uiPos + 1 ) : wstrJuneGroup.substr( uiPos + 1, uiNext - uiPos - 1 );
+					const wstring wstrToken = bLast ? wstrGroup.substr( uiPos + 1 ) : wstrGroup.substr( uiPos + 1, uiNext - uiPos - 1 );
 					if ( 0 != wstrToken.compare( L"0" ) )
 					{
 						const int iToken = _wtoi( wstrToken.c_str() );
 						if ( GetGroupSkillIDs( iToken, vecGroupSkillID ) )
 						{
-							++s_iJuneGroupTokenHits;
+							++s_iGroupTokenHits;
 							for ( UINT uiMember = 0; uiMember < vecGroupSkillID.size(); ++uiMember )
-								pSocketData->m_mapJuneSkillAdditionalPowerRate.insert( std::make_pair( vecGroupSkillID[uiMember], fJuneRate ) );
+								pSocketData->m_mapSkillAdditionalPowerRate.insert( std::make_pair( vecGroupSkillID[uiMember], fAdditionalPowerRate ) );
 						}
 						else
 						{
-							++s_iJuneSkillTokenHits;
-							pSocketData->m_mapJuneSkillAdditionalPowerRate.insert( std::make_pair( iToken, fJuneRate ) );
+							++s_iSkillTokenHits;
+							pSocketData->m_mapSkillAdditionalPowerRate.insert( std::make_pair( iToken, fAdditionalPowerRate ) );
 						}
 
 						if ( bLast )
-							bJuneReadTables = true;
+							bReadTables = true;
 					}
 
 					if ( bLast )
@@ -841,21 +841,21 @@ bool CX2SocketItem::AddSocketData_LUA()
 			}
 		}
 
-		if ( bJuneReadTables )
+		if ( bReadTables )
 		{
-			LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",	pSocketData->m_fJuneSkillAdditionalPowerRate,	0.f );
+			LUA_GET_VALUE(	luaManager, "m_fSkillAdditionalPowerRate",	pSocketData->m_fSkillAdditionalPowerRate,	0.f );
 
 			if ( luaManager.BeginTable( "m_SkillType" ) == true )
 			{
 				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
-					pSocketData->m_vecJuneAdditionalPowerSkillType.push_back( AdditionalPowerSkillType( iValue ) );
+					pSocketData->m_vecAdditionalPowerSkillType.push_back( AdditionalPowerSkillType( iValue ) );
 				luaManager.EndTable();
 			}
 
 			if ( luaManager.BeginTable( "m_PowerRate" ) == true )
 			{
 				for ( int iIndex = 1, iValue = 0; luaManager.GetValue( iIndex, iValue ) == true; iIndex++ )
-					pSocketData->m_vecJuneAdditionalPowerRateType.push_back( AdditionalPowerRateType( iValue ) );
+					pSocketData->m_vecAdditionalPowerRateType.push_back( AdditionalPowerRateType( iValue ) );
 				luaManager.EndTable();
 			}
 		}
@@ -2011,7 +2011,7 @@ void CX2SocketItem::PrintOptionInfo_ToExcel( KProtectedType<int> iLevel )
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 	/// June 327247bf @32725365 (16-step3c review): with the multiple list empty, a non-empty second list (150/159) is walked
 	/// and prints nothing, and the rest of this chain (June 3271f310, from m_fDamageReduce on) is skipped for that socket
-	else if( false == m_vecJuneSecondSocketExtraDamage.empty() )
+	else if( false == m_vecSecondSocketExtraDamage.empty() )
 	{
 	}
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT

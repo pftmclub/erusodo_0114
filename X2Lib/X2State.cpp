@@ -23,8 +23,8 @@ CX2State::CX2State(void) :
 m_fTime( 0.f ),
 m_fElapsedTime( 0.f ),
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
-m_iJuneMovieDescStringID( 0 ),
-m_fJuneMovieDescTime( 0.f ),
+m_iMovieDescStringID( 0 ),
+m_fMovieDescTime( 0.f ),
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 m_pCursor( NULL ),
 m_bFailToConnectServer( false ),
@@ -39,17 +39,17 @@ m_bOpenMsgBoxQuitGame( false ),
 m_bEnableQuitGame( true ),
 m_pDLGMsgBox( NULL ),
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
-m_pDLGJuneClearMovieSkip( NULL ),
+m_pDLGClearMovieSkip( NULL ),
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-m_iJuneResultMode( 0 ),
-m_fJuneResultModeTime( 0.f ),
-m_fJuneResultModeLimit( 0.f ),
-m_pDLGJunePartyResult( NULL ),
-m_pDLGJuneExitBox( NULL ),
-m_bJuneResultConfirmSent( false ),
-m_bJuneResultQuit( false ),
-m_bJuneResultLeaveOnAck( false ),
+m_iResultMode( 0 ),
+m_fResultModeTime( 0.f ),
+m_fResultModeLimit( 0.f ),
+m_pDLGPartyResult( NULL ),
+m_pDLGExitBox( NULL ),
+m_bResultConfirmSent( false ),
+m_bResultQuit( false ),
+m_bResultLeaveOnAck( false ),
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 m_bOneTimeProcAfterContructor( false ),
 m_bIgnoreAllUIEvent( true ),
@@ -411,12 +411,12 @@ CX2State::~CX2State(void)
 	SAFE_DELETE_DIALOG( m_pDLGMsgBox );
 	SAFE_DELETE(m_pCursor);
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
-	SAFE_DELETE_DIALOG( m_pDLGJuneClearMovieSkip );
+	SAFE_DELETE_DIALOG( m_pDLGClearMovieSkip );
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	SetResultUIMode( 0, 0.f );		// June 31f00c00 @31f014f7
-	SAFE_DELETE_DIALOG( m_pDLGJuneExitBox );
-	SAFE_DELETE_DIALOG( m_pDLGJunePartyResult );
+	SAFE_DELETE_DIALOG( m_pDLGExitBox );
+	SAFE_DELETE_DIALOG( m_pDLGPartyResult );
 	if ( NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetDialogManager() )
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );		// @31f017a9
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
@@ -1141,7 +1141,7 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 #endif SERV_ELESIS_UPDATE_EVENT
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-	if ( 0 != m_iJuneResultMode )
+	if ( 0 != m_iResultMode )
 		ResultModeFrameMove( fElapsedTime );		// June 31f0d390 @31f0e191
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_GLOBAL_MISSION_MANAGER
@@ -1164,9 +1164,9 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 			 is clamped to 0 at or below 0. June's dev path ( string manager flag +0x40: the ID printed with the text ) is
 			 not taken.
 */
-void CX2State::RenderMovieDescription( bool bJuneRenderArg_ )
+void CX2State::RenderMovieDescription( bool bRenderArg_ )
 {
-	if ( !( m_fJuneMovieDescTime > 0.f ) )
+	if ( !( m_fMovieDescTime > 0.f ) )
 		return;
 
 	CKTDGFontManager::CUKFont* pFont = NULL;
@@ -1174,15 +1174,15 @@ void CX2State::RenderMovieDescription( bool bJuneRenderArg_ )
 		pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_HEADLINE_30_NORMAL );
 	if ( NULL != pFont )
 	{
-		pFont->OutTextMultiline( 512, 620, GET_STRING( m_iJuneMovieDescStringID ), D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ),
+		pFont->OutTextMultiline( 512, 620, GET_STRING( m_iMovieDescStringID ), D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ),
 			CKTDGFontManager::FS_SHELL, D3DXCOLOR( 0.f, 0.f, 0.f, 1.f ), 1.f, NULL, DT_CENTER );
 	}
 
-	if ( false == bJuneRenderArg_ )
+	if ( false == bRenderArg_ )
 	{
-		m_fJuneMovieDescTime -= m_fElapsedTime;
-		if ( m_fJuneMovieDescTime <= 0.f )
-			m_fJuneMovieDescTime = 0.f;
+		m_fMovieDescTime -= m_fElapsedTime;
+		if ( m_fMovieDescTime <= 0.f )
+			m_fMovieDescTime = 0.f;
 	}
 }
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
@@ -2100,15 +2100,15 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case SUCM_KEEP_BUTTON_IN_RESULT_STATE_MSG_BOX:
 		{
 			// June @31f25038: mode 4 without the setter, leave on the confirm ACK
-			m_iJuneResultMode = 4;
-			m_bJuneResultLeaveOnAck = true;
+			m_iResultMode = 4;
+			m_bResultLeaveOnAck = true;
 		} break;
 	case SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX:
 		{
 			// June @31f2504e; its PvP-state branches are Stage 9's
 			if ( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() )
 			{
-				if ( true == m_bJuneResultConfirmSent )
+				if ( true == m_bResultConfirmSent )
 					ReturnToPlaceWhereBeforeDungeonStart();
 				else
 					ResultSendConfirm( true );
@@ -2119,15 +2119,15 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			// June @31f25103
 			if ( NULL != g_pKTDXApp->GetGFXManager() )
 				g_pKTDXApp->GetGFXManager()->SetShow( true );
-			if ( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneExitBox ) )
-				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneExitBox, NULL, false );
-			m_pDLGJuneExitBox = NULL;
+			if ( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGExitBox ) )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGExitBox, NULL, false );
+			m_pDLGExitBox = NULL;
 			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetFlaggedDialogsOnly( false );
 			ResultEnableRetry( true, -1.f );
 		} break;
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	case SUCM_JUNE_TITLE_TEN_OK:
+	case SUCM_TITLE_TEN_OK:
 		{
 			/// June 31f26bfb: close the box ( 31be4210( 0x472 = XGM_DELETE_DIALOG ) on the control's dialog ), then 327009b0
 			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
@@ -2136,7 +2136,7 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			if( NULL != g_pData->GetTitleManager() )
 				g_pData->GetTitleManager()->EquipTitleTen();
 		} break;
-	case SUCM_JUNE_TITLE_TEN_CANCEL:
+	case SUCM_TITLE_TEN_CANCEL:
 		{
 			/// June 31f26c45: close the box, then title manager +0xac = 0 ( June does not test the manager for null )
 			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
@@ -2151,10 +2151,10 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			/// June 31f23e70 case 0xbd8: with g_pMain and no box open ( +0x1e4, 31d41d50 ), an OK / Cancel box at ( 250, 300 ) with string
 			/// 30615 ( 0x7797; March's GET_STRING carries June's "[S%1%]%2%" debug branch ), OK = 3033, Cancel = -1 ( the box just closes ).
 			if( NULL != g_pMain &&
-				false == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovieSkip ) )
+				false == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGClearMovieSkip ) )
 			{
-				const int iJuneSkipStrID = 30615;
-				m_pDLGJuneClearMovieSkip = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( iJuneSkipStrID ),
+				const int iSkipStrID = 30615;
+				m_pDLGClearMovieSkip = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( iSkipStrID ),
 					SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG, this, -1 );
 			}
 		} break;
@@ -2162,9 +2162,9 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			/// June 31f23e70 case 0xbd9: the box is deleted ( 31be4210( 0x472 = XGM_DELETE_DIALOG ) ), +0x1e4 cleared, then the movie stops
 			/// ( 31d883a0, which sends the reserved quest-complete request )
-			if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovieSkip ) )
-				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneClearMovieSkip, NULL, false );
-			m_pDLGJuneClearMovieSkip = NULL;
+			if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGClearMovieSkip ) )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGClearMovieSkip, NULL, false );
+			m_pDLGClearMovieSkip = NULL;
 			if( NULL != g_pMain )
 				g_pMain->StopClearMovie();
 		} break;
@@ -4383,9 +4383,9 @@ bool CX2State::HandleMsgByESC()
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 		// June @31f1e214-31f1e261: the result UI takes ESC
-		if ( 0 != m_iJuneResultMode )
+		if ( 0 != m_iResultMode )
 		{
-			if ( 1 != m_iJuneResultMode && 2 != m_iJuneResultMode )
+			if ( 1 != m_iResultMode && 2 != m_iResultMode )
 			{
 				if ( true == g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) )
 					ResultEscWithRetryPopup();
@@ -4402,11 +4402,11 @@ bool CX2State::HandleMsgByESC()
 		/// March has no profession screen ( Stage 9 note ), so the true case is just the return. A false carries on to the hide-toggle block.
 		if( NULL != g_pKTDXApp->GetGFXManager() )
 		{
-			const bool bJuneClosed = g_pKTDXApp->GetGFXManager()->closeToTopZorder();
+			const bool bClosed = g_pKTDXApp->GetGFXManager()->closeToTopZorder();
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
-			KLOG( "ErrorLog.txt" ) << ( bJuneClosed ? "[JUNE_GFX] GATE ESC closeToTopZorder -> 1 ( ESC taken )" : "[JUNE_GFX] GATE ESC closeToTopZorder -> 0" ) << fileout;
+			KLOG( "ErrorLog.txt" ) << ( bClosed ? "[JUNE_GFX] GATE ESC closeToTopZorder -> 1 ( ESC taken )" : "[JUNE_GFX] GATE ESC closeToTopZorder -> 0" ) << fileout;
 #endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
-			if( true == bJuneClosed )
+			if( true == bClosed )
 				return false;
 		}
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
@@ -9249,7 +9249,7 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 		g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUnitInfo, false );		/// 32362730
 
 	/// June tests the open cash shop twice ( @31f2778e, @31f277b7; vslot 0xac ); the second test finds it closed ( JUNE_BUGS )
-	for( int iJuneTwice = 0; iJuneTwice < 2; ++iJuneTwice )
+	for( int iTwice = 0; iTwice < 2; ++iTwice )
 	{
 		if( NULL != g_pData->GetCashShop() && true == g_pData->GetCashShop()->GetOpen() )
 		{
@@ -9274,16 +9274,16 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 
 	/// the skill tree ( unit data +0x46c, unit +0x494 ); June reads the unit without a test, as March
 	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
-	CX2UserSkillTree& refJuneTree = pUnit->AccessUnitData().m_UserSkillTree;
+	CX2UserSkillTree& refTree = pUnit->AccessUnitData().m_UserSkillTree;
 	{
 		/// @31f2791a: the unit info's active memos ( KUnitInfo +0x1ce ) merge again ( Reset's SetKUnitInfo has merged them once )
-		const std::map< int, int >& mapJuneMemo = kEvent.m_kUnitInfo.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
-		refJuneTree.MergeActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );	/// 32892410
+		const std::map< int, int >& mapActiveMemo = kEvent.m_kUnitInfo.m_UnitSkillData.m_kSkillExtraData.m_mapIntInt;
+		refTree.MergeActiveMemo( std::multimap< int, int >( mapActiveMemo.begin(), mapActiveMemo.end() ) );	/// 32892410
 	}
-	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560
-	refJuneTree.Reset( false, false, true, false, false );						/// 32895c40( 0, 1, 0, 0 ): both bars' slots only
-	refJuneTree.ResetAcquiredSkills( kEvent.m_vecJuneAcquiredSkill );		/// 328929e0
-	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560, a second time
+	refTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560
+	refTree.Reset( false, false, true, false, false );						/// 32895c40( 0, 1, 0, 0 ): both bars' slots only
+	refTree.ResetAcquiredSkills( kEvent.m_vecAcquiredSkill );		/// 328929e0
+	refTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560, a second time
 
 	if( NULL != g_pData->GetSkillTree() )
 		g_pData->GetSkillTree()->UnequipRelationSkill();						/// 3220f740
@@ -9292,11 +9292,11 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 	{
 		/// 32892370( { 900, relation state, 0 } ): the couple skill takes the relation state ( RT_SOLO 0 / RT_COUPLE 1 / RT_MARRIED 2 ) as
 		/// its level, one entry of 328924c0's rule ( found -> level; else its base erased, then inserted )
-		std::vector< KSkillData > vecJuneLove( 1 );
-		vecJuneLove[0].Init();
-		vecJuneLove[0].m_iSkillID		= static_cast<short>( 900 );	/// SI_ETC_WS_COMMON_LOVE
-		vecJuneLove[0].m_cSkillLevel	= static_cast<UCHAR>( g_pData->GetRelationshipManager()->GetMyRelationshipInfo()->m_eRelationStateType );
-		refJuneTree.AddAcquiredSkills( vecJuneLove );
+		std::vector< KSkillData > vecLove( 1 );
+		vecLove[0].Init();
+		vecLove[0].m_iSkillID		= static_cast<short>( 900 );	/// SI_ETC_WS_COMMON_LOVE
+		vecLove[0].m_cSkillLevel	= static_cast<UCHAR>( g_pData->GetRelationshipManager()->GetMyRelationshipInfo()->m_eRelationStateType );
+		refTree.AddAcquiredSkills( vecLove );
 	}
 
 	if( NULL != g_pData->GetUIManager() )
@@ -9356,8 +9356,8 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 	/// notice buttons, given 31edf870 > 0; JUNE_PORT_BACKLOG_ORDER Stage 9 ).
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_SKILL] CLASS NOT unitUID=%I64d class %d: %d acquired skill(s) into page %d, %d unsealed, both bars emptied",
-		(__int64)kEvent.m_iUnitUID, static_cast<int>( kEvent.m_sNewUnitClass ), static_cast<int>( kEvent.m_vecJuneAcquiredSkill.size() ),
-		static_cast<int>( refJuneTree.GetUsingPage() ) + 1, static_cast<int>( kEvent.m_vecSkillUnsealed.size() ) );
+		(__int64)kEvent.m_iUnitUID, static_cast<int>( kEvent.m_sNewUnitClass ), static_cast<int>( kEvent.m_vecAcquiredSkill.size() ),
+		static_cast<int>( refTree.GetUsingPage() ) + 1, static_cast<int>( kEvent.m_vecSkillUnsealed.size() ) );
 #endif SERV_IRUHADEV_OFFLINE
 	return true;
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
@@ -13403,7 +13403,7 @@ bool CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT( HWND hWnd, UINT uMsg, WPARAM w
 		// June 31f00970: the map, then the two sets ( +0xa94 / +0xaa4 ). June has none of the two event blocks below; it
 		// ends with 32344880() and a state virtual at +0x100, which are routed (STATUS C9h-2e), not ported here.
 		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
-		g_pInstanceData->SetCodeEventSets( kEvent.m_setJuneCodeEventA, kEvent.m_setJuneCodeEventB );
+		g_pInstanceData->SetCodeEventSets( kEvent.m_setCodeEventA, kEvent.m_setCodeEventB );
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 		// June 31f00970 @31f00a61 (Atlas E1c): the village NPC relation refresh after the code events changed.
 		if( NULL != g_pData && NULL != g_pData->GetQuestManager() )
