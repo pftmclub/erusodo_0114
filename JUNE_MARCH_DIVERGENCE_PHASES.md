@@ -1194,6 +1194,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   0 ERROR`; `in this flag's files: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT PASS.
   Each flag alone: RESULT PASS (the OTHER rows are the sibling flag). `enumscan --check`: 0 A/B rows. The `#error` guards' inputs (`JUNE_ENUM_NAMES`,
   `UNIT_REFORM`) are Always.h flags defined above them; the build compiled through both.
+  After the commit, `--range a2119e5c^..a2119e5c` (both flags): 2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR, 0 deleted; RESULT PASS.
 - **Build:** `DEPLOY OK: X2_offline.exe is 25,845,248 B, dated 2026-10-30 00:41:31, md5 812a9c232e729eef1111f9fdf022bba0, equal to X2/US_SERVICE/x2.exe
   (2026-10-30 00:41:25); built at main 728c4d5d + 3 uncommitted code file(s).` (PCH rebuilt for Always.h; no new strings to prove.)
 - **Smoke (plan end):** Aisha DW: Magical Makeup (transformed) -> she is hit and her hammer hits, foot kicks do not; Add: dynamo hits still register.
