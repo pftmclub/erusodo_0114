@@ -531,7 +531,9 @@ that clears the flag, so Add is skipped (Ara / Chung / Raven call the base; Elsw
 **Found, not ported (D1):** June's riding-hyper end 32006c00 (vslot 0x608) is HyperModeEnd's body; March's `RidingHyperModeEnd` stays March's: row added to
 `tools/data/june_march_divergent.tsv` (`replace`, guard: Add as above).
 **Hygiene:** all-flags flag-off check (`flagcheck ARME_CORE --base HEAD --with` all 456 `SERV_IRUHADEV_*`, 65 files): RESULT PASS, 0 FAIL, 0 ERROR; `Always.h` changes
-are `#error` texts only. `enumscan --check` (5 hand-edited files): 0 A/B rows. Per-flag ranges after the commit: below.
+are `#error` texts only. `enumscan --check` (5 hand-edited files): 0 A/B rows. Per-flag `--range fb062a6b^..fb062a6b`: ARME_CORE `1 PASS, 65 OTHER, 0 FAIL,
+1 ERROR` (36 deleted lines), EVE_CORE `1 PASS, 65 OTHER, 0 FAIL, 1 ERROR` (35 deleted); the ERROR is `Always.h`'s compound `#if` around the renamed `#error` texts;
+the deletions are the removed `June_X` declarations / definitions and renamed lines. ARME_LIVE / EVE_LIVE / ENCHANT_PARITY / SOCKET_PARITY / SKILL_TEMPLET left to the review.
 DEPLOY OK: X2_offline.exe is 25,816,576 B, dated 2026-10-29 08:27:03, md5 d0fbc7c838bc92c312431ee3c941e377, equal to X2/US_SERVICE/x2.exe (built at main 6c7726f4 + this phase's 67 code files).
 **Smoke:** none here (user, 2026-10-29: one smoke at the end of the plan); the end smoke must take Elsword and Eve or Aisha through a dungeon, B-slot skills on both.
 
