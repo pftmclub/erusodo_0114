@@ -1180,9 +1180,16 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - Wiring: x2-phase Start step 5 (`--list` before transcribing) and Finish step 1 (`--check <files>` must PASS, beside luabind / skillicons),
   the Stage 7 template, `tools/README.md`.
 
+## Phase S - The plan-end smoke play-test (Opus 5.5, high)
+
+**Depends on:** D2. Added 2026-10-29 (user): every C and D1 phase deferred its play-test to the plan end, so the plan needs a phase that runs it.
+Kickoff `kickoffs/june-march-divergence/Smoke.md`: it merges every Done note's "Smoke (plan end)" line into one copy-ready hand-off (Elsword,
+Aisha, Eve, the unported classes, dungeon / camera, UI / quests), the user plays it, `logs.py` reads `ErrorLog.txt` and the offline logs, a failure
+traced to a plan flag is fixed under that flag, anything else is routed by the backlog scope rule. It writes "Phase S Done". D2 review depends on it.
+
 ## Phase D2 - Review and close (Opus 5.5, high)
 
-`/x2-phase june-march-divergence D2 review`: selftest, `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason,
+`/x2-phase june-march-divergence D2 review` (after Phase S): the smoke's Done note, selftest, `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason,
 the wiring. Close: `MODS.md` section (flags, guards, renames by batch, revert), backlog Stage 35 closing note, STATUS. **The plan closes.**
 
 **Standing rule (user, 2026-10-28: "after this plan complete, make it as a rule so this won't happen again").** The naming half is in

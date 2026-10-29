@@ -206,7 +206,8 @@ Done: D0a, D0b, C0.
 | D1-4b (quick-quest window, tsv 342) | done 2026-10-29, smoke at plan end (`QUICK_QUEST` flag; twin `SetUIQuickQuestSlotInfo` + `GetQuestColorString` ported; event-dungeon setters -> Stage 19) | Opus 5.5 / high | D1-4; beside D1-2 / D1-3 (UI files only) | `X2UIQuestNew` | `D1-4b.md` |
 | D1-4 review (D1-3 + D1-3b-f + D1-4 + D1-4b) | waiting | Opus 5.5 / high | D1-3d, D1-3e, D1-3f, D1-4b | as D1-3 / D1-4 | `D1-4-review.md` |
 | D1-5 (KTDXLIB engine, buff popups) + D1 review (closes D1) | waiting | Opus 5.5 / high | D1-4 review | `KTDXDeviceManager`, `KTDGUI*`, `KTDXInput`, `KTDGLineMap`, `X2BuffFactor`, buff templets | `D1-5.md`, `D1-review.md` |
-| D2 (gate + wiring) + review / close | waiting | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
+| D2 (gate + wiring), then Phase S below, then D2 review / close (plan closes) | waiting | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
+| S (plan-end smoke play-test: one hand-off from every Done note's smoke line, user plays, logs, fixes) | waiting | Opus 5.5 / high | D2 | none (fixes under the broken phase's flag) | `Smoke.md` |
 
 ## Other plans (no STATUS rows)
 

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-march-divergence D2 review` |
 | Plan doc | `JUNE_MARCH_DIVERGENCE_PHASES.md` (branch `main`) |
-| Depends on | D2 done |
+| Depends on | D2 and Phase S (the smoke, `Smoke.md`) done |
 | Flag | the flags the sweep touched |
 | Log tag | none |
 
@@ -18,7 +18,7 @@ and D2's Done note, `tools/data/june_diverge_allow.tsv`.
 
 ## Task
 
-Review D2: `junediverge.py --selftest` and `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason, the wiring.
+Review D2 and read Phase S's Done note (every smoke failure fixed or routed): `junediverge.py --selftest` and `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason, the wiring.
 Then close the plan ("Phase D2 - Review and close"): `MODS.md`, backlog Stage 35 closing note, STATUS, and the standing-rule additions
 the section names (CLAUDE.md gate + table rule, backlog "Standing rules", `kickoffs/TEMPLATE.md`, memory).
 
