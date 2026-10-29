@@ -21,7 +21,7 @@ new top-level directory is tracked by default. Not tracked:
 | `.mcp.json`, `elstools/elstools_config.json` | Hold absolute paths of one machine | Recreate locally |
 
 The game data directory (the `.kom` archives, `els_db.sql` save file) lives
-outside this tree. See CLAUDE.md, "Deploying the offline client".
+outside this tree. See CLAUDE_REFERENCE.md, "Deploying the offline client".
 
 ## Libraries needed (not in the repo)
 
@@ -66,4 +66,4 @@ python tools/build.py --deploy      # builds luajitLib, luaLib, X2ServerProtocol
 ```
 
 Toolchain: Visual Studio 2010 (`v100`) for the client. Details and the manual
-msbuild recipe are in CLAUDE.md, "Toolchains".
+msbuild recipe are in CLAUDE_REFERENCE.md, "Toolchains".

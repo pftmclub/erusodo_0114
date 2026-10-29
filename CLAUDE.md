@@ -1,103 +1,128 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Rules for working in this repo. Background, the toolchain and architecture reference, and the history behind the rules are in
+**`CLAUDE_REFERENCE.md`**: read one section with `python tools/docsection.py CLAUDE_REFERENCE.md "<heading>"`, never the whole file.
 
 ## What this is
 
-Full source for **Elsword (internal codename "ProjectX2")** by KOG Studios — the DirectX 9 Windows game client, its five backend servers, and the in-house content tooling. This is the `EU_CN_US` trunk, roughly 2014-era. It was originally a Subversion/VSS working copy (`.vssscc` bindings remain, `.svn` metadata does not) and has since been imported into git as the working repo for local changes — see `MODS.md` for what's been changed since the import. **The client source was replaced with a March 2014 snapshot on 2026-09-09 (`dd63297`), which overwrote every local edit inside a studio-owned file. Re-applying them is done: that plan, `MARCH_2014_MIGRATION.md`, closed 2026-10-16 and is history plus a technique reference.** `VS2003_to_VS2010_Port_Guide.md` documents a VS2010 server port that the March sources have since undone; it is history, not instructions.
+Full source for **Elsword ("ProjectX2")** by KOG: the DirectX 9 client (`KTDXLIB/` engine, `X2Lib/` gameplay, `X2/` exe shell,
+`X2ServerProtocol/` networking), five servers (`KncWX2Server/`) and content tools. `EU_CN_US` trunk, 2014-era, imported into git.
+The client is a **March 2014 snapshot** (`dd63297`, 2026-09-09) being ported to **June 2017** parity, and it runs **offline only**
+(`SERV_IRUHADEV_OFFLINE`: an in-process server emulator plus a SQLite save). `MODS.md` lists every local change and how to revert it.
+History docs, not instructions: `MARCH_2014_MIGRATION.md` (closed 2026-10-16; technique reference), `VS2003_to_VS2010_Port_Guide.md`.
 
-**This file documents the US live build only.** The tree carries ~50 configurations for other regions and environments (EU, CN, TW/HK, JP, KR, ID, TH, BR, PH × internal/test/open-test/service). Ignore them unless explicitly asked; they change which publisher, billing, auth, and anti-cheat stack compiles in, and cross-referencing them is how you end up debugging the wrong code path.
+**US live build only.** The ~50 other region/environment configurations change publisher, billing, auth and anti-cheat; ignore them
+unless asked.
 
 ## Rule: one branch, `main` (user, 2026-10-16)
 
-All work happens on `main` in this Trunk, for every plan, phase and review. Do not create a branch or a worktree, do not `git switch` or `git checkout` another branch, and merge nothing. Other sessions share this tree and this branch, so commit with explicit pathspecs. The old `mods/*` and `feat/*` branches are history. Never build or deploy from them: they lack june-item-kim K2 and silently misread the live `item.kim`. Older plan text that names a `mods/*` branch for future work means `main`.
+All work happens on `main` in this Trunk, for every plan, phase and review. Do not create a branch or a worktree, do not `git switch` or
+`git checkout` another branch, and merge nothing. Other sessions share this tree and this branch, so commit with explicit pathspecs. The old
+`mods/*` and `feat/*` branches are history. Never build or deploy from them: they lack june-item-kim K2 and silently misread the live
+`item.kim`. Older plan text that names a `mods/*` branch means `main`.
 
 ## Rule: shared builds - one request each, and a tree that compiles (user, 2026-10-18)
 
-Every session builds the same tree through one lock, and a full build takes about 11 minutes. One broken header or one extra run costs every session waiting in the queue.
+Every session builds the same tree through one lock; a full build takes about 11 minutes.
 
-1. **Build once, after your last edit.** Run `python tools/build.py --deploy` in the background. Do not start a second run while one of yours is waiting, do not retry in a loop, and do not pass `--no-coalesce` without a reason. `COALESCED` followed by `DEPLOY OK` is a pass: a peer's build that started after your request already compiled your edits. A run promises only what was on disk when it started, so an edit saved after that needs a new run.
-2. **Never stop another session's build or delete `build.lock`.** Only the user orders builds stopped. When they do, kill by PID (never by image name), waiting runs first, and the next build uses `--pch force`. Stale locks clear themselves.
-3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` really is defined at that line: resolve it with `cl /EP` (see *Toolchains*), not by reading `#ifdef`s. If your own edit breaks the build, fixing or backing it out comes before anything else.
-4. **A build that fails in someone else's edit is not yours to fix.** Do not edit that file and do not keep re-running. Report the error line and its owner (the flag's `Always.h` comment names the phase), then wait. Re-run once the owner has fixed it.
+1. **Build once, after your last edit.** `python tools/build.py --deploy` in the background. No second run while one of yours waits, no
+   retry loop, no `--no-coalesce` without a reason. `COALESCED` then `DEPLOY OK` is a pass. A run covers only what was on disk when it
+   started.
+2. **Never stop another session's build or delete `build.lock`.** Only the user orders builds stopped; then kill by PID (never by image
+   name), waiting runs first, and the next build uses `--pch force`. Stale locks clear themselves.
+3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` is defined at
+   that line with `cl /EP`, not by reading `#ifdef`s. If your edit breaks the build, fixing or backing it out comes first.
+4. **A build that fails in someone else's edit is not yours to fix.** Don't edit that file or keep re-running. Report the error line and its
+   owner (the flag's `Always.h` comment names the phase), wait, and re-run once it's fixed.
 
 ## Rule: exe string checks use `tools/exestr.py`, never a throwaway script (user, 2026-10-28)
 
-To show a string is compiled into the built or deployed exe (a phase's "strings are in the deployed exe" gate), or that a flag-off debug tag is not, run `python tools/exestr.py "<string>" ...` (skill `x2-exe-strings`; `--form wide` for `L"..."` literals, `--absent` for the negative). Do not write a python one-liner or a scratch script that opens the exe. Paste its `EXESTR OK` line beside `DEPLOY OK` in the Done note. If the tool lacks something, extend `exestr.py`, then use it.
+To show a string is (or, with `--absent`, is not) in the built or deployed exe, run `python tools/exestr.py "<string>" ...` (skill
+`x2-exe-strings`; `--form wide` for `L"..."`). Paste its `EXESTR OK` line beside `DEPLOY OK` in the Done note. Missing a feature: extend
+`exestr.py`.
 
 ## Rule: play-test items come from `/additem`, not the shop (user, 2026-10-23)
 
-When a play-test needs the user to hold an item, the hand-off gives the dev-console line `/additem <itemID> [qty]` (auth level 3, flag `SERV_IRUHADEV_ADMIN_CHEATS`). Do not insert the item into a shop list and do not point at `/b`: offline `/b` still charges ED and refuses unpriced items. `/qdone <questID>` is the matching command to finish a quest. Both are answered by `Handlers_Quest.cpp`; the log line is `[ADMIN_CHEAT]`.
+A play-test hand-off gives the dev-console line `/additem <itemID> [qty]` (auth level 3, flag `SERV_IRUHADEV_ADMIN_CHEATS`); `/qdone
+<questID>` finishes a quest. Never insert into a shop list or point at `/b` (offline `/b` charges ED and refuses unpriced items). Answered
+by `Handlers_Quest.cpp`, log line `[ADMIN_CHEAT]`.
 
 ## Rule: no anonymous namespace; use the studio's named `_CONST_<NAME>_` namespaces (user, 2026-10-26)
 
-File-local constants and helpers in client source go in a **named namespace** `_CONST_<CLASS>_<phase>_` (like the studio's `_CONST_EVE_`, `_CONST_GUUSER_`, `_CONST_RAVEN_`), followed by `using namespace <name>;` so the use sites stay unqualified. Never write `namespace { ... }`. One block per phase; the name carries the class and the phase tag, so it is unique across files (helpers get external linkage). The existing blocks in `X2GuEve.cpp` and `X2GUArme_VioletMage.cpp` were converted on 2026-10-26 (`d3f7b7db`); other files' older anonymous namespaces are not to be rewritten unless you touch them. **Amended 2026-10-28 (user): no `JUNE` in the name.** New blocks are `_CONST_<CLASS>_<phase>_` (e.g. `_CONST_EVE_CH4C_`); the 29 existing `_CONST_*_JUNE_*_` blocks are renamed by plan `june-march-divergence` (C5).
+File-local constants and helpers in client source go in a named namespace `_CONST_<CLASS>_<phase>_` (like `_CONST_EVE_`,
+`_CONST_GUUSER_`) followed by `using namespace <name>;`. Never `namespace { ... }`. One block per phase. No `JUNE` in the name (amended
+2026-10-28; e.g. `_CONST_EVE_CH4C_`). Older anonymous namespaces elsewhere are not rewritten unless you touch them.
 
 ## Rule: no `June` prefix; June's body goes into March's own function (user, 2026-10-28)
 
-The codebase is being updated to June, not duplicated beside March. This is the studio's own update pattern: KOG changed a function in place under a per-update flag and callers kept the name (March's `GetEqippedSkillMemo` sits whole inside `#ifdef SERV_SKILL_NOTE`).
-- **March has the function:** June's whole body goes inside March's function under the phase's flag (`#ifdef SERV_IRUHADEV_JUNE_<X>` June's body `#else` March's body `#endif SERV_IRUHADEV_JUNE_<X>`). Never a `June_X` / `JuneX` copy beside `X`.
-- **March lacks a function June needs:** create it, named by the pattern of the class or file it joins, never with `June` in it: state functions as the class names them (`<PREFIX>_<STATE>_StateStart` / `_FrameMove` / `_EventProcess`), `Get` / `Set` / `Is` / `Can` accessors, `CX2*` classes, Hungarian members (`m_i`, `m_f`, `m_b`, `m_vec`, `m_map`). Look at the neighbouring code first. The same goes for members, locals, constants, classes, files, namespaces and Lua-bound names. Flags keep `SERV_IRUHADEV_JUNE_*`.
-- **A name says what the thing is, in its context** (user, 2026-10-28): `bOberonGuardMemoEquipped`, `fElectronBallRangeRate`, `iLaserCount`. Never a Ghidra address (`June32481fa0`), a phase tag (`JUNE_CH1I_SA_...`) or `June` (`bJuneMemo`) in an identifier. The June address goes in the one-line comment.
-- **June code calls a March function by name only if June's namesake does the same thing.** If June's is a stub or differs, replace March's definition as above; its unported callers then follow June, including what June removed. If that would crash a class that is not ported yet, guard the missing state inside the June body with a one-line `stand-in: <class> not ported` comment.
-- **Inert transcription (a character's `_CORE` before `_LIVE`):** a June-only function is compiled under `_CORE` under its plain name; a body that goes into an existing March function goes under `_LIVE`, and each such phase proves it compiles with a one-file probe build that defines `_LIVE`.
-- The ~1,500 June-prefixed names written before 2026-10-28 stay callable until plan `june-march-divergence` (`JUNE_MARCH_DIVERGENCE_PHASES.md`, after the Eve port) merges or renames them. New code adds none.
+The codebase is updated to June in place, the studio's own pattern (March's `GetEqippedSkillMemo` sits whole inside `#ifdef SERV_SKILL_NOTE`).
+- **March has the function:** June's whole body goes inside it: `#ifdef SERV_IRUHADEV_JUNE_<X>` June's body `#else` March's body
+  `#endif SERV_IRUHADEV_JUNE_<X>`. Never a `June_X` / `JuneX` copy beside `X`.
+- **March lacks it:** create it named by the class's pattern, never with `June` in it: `<PREFIX>_<STATE>_StateStart` / `_FrameMove` /
+  `_EventProcess`, `Get` / `Set` / `Is` / `Can`, `CX2*` classes, Hungarian members (`m_i`, `m_f`, `m_b`, `m_vec`, `m_map`). Same for
+  members, locals, constants, classes, files, namespaces and Lua-bound names. Flags keep `SERV_IRUHADEV_JUNE_*`.
+- **A name says what the thing is** (`bOberonGuardMemoEquipped`, `fElectronBallRangeRate`): never a Ghidra address, a phase tag or `June`.
+  The June address goes in the one-line comment.
+- **June code calls a March function by name only if June's namesake does the same thing.** Otherwise replace March's definition as above;
+  its unported callers follow June. If that would crash an unported class, guard it inside the June body with a one-line
+  `stand-in: <class> not ported` comment.
+- **Inert transcription (`_CORE` before `_LIVE`):** a June-only function compiles under `_CORE` under its plain name; a body inside an
+  existing March function goes under `_LIVE`, and the phase proves it compiles with a one-file probe build that defines `_LIVE`.
+- The ~1,500 June-prefixed names from before 2026-10-28 stay until plan `june-march-divergence` merges or renames them. New code adds none.
 
 ## Rule: no hardcoded enum literals (user, 2026-10-26)
 
-An id that has a name in an Enum (June's `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself (a `.tsv` of ids), not code.
-
-- Authority for "has a name": `june_src_fixed/data036_kom/Enum.src.lua`, then the live `kom_contents/data036_kom/Enum.lua`; never a spreadsheet, never a name invented to fit. The same name can carry a different value on the two sides, so check the value, not only the name.
-- Registration shape: explicit `= value` with June's name, appended inside the existing enum body under the flag (`SERV_IRUHADEV_JUNE_ENUM_NAMES` in `X2SkillTree.h`, `X2Unit.h`, `X2BuffFactor.h`, `X2UnitManager.h`, `X2DamageManager.h` is the model). Never renumber or rename an existing member; when March's name and June's share a value, use March's.
-- Item, string and net-error ids have no Enum here and stay numbers. A dungeon id is named whenever June's `DungeonEnum.lua` or `SEnum::DUNGEON_ID` has it (register a missing one in `DungeonEnum.h` under `JUNE_ENUM_NAMES`; user, 2026-10-28); `enumscan.py` skips dungeon ids, so check them by hand. `python tools/enumscan.py --check <files>` finds the rest (`june2017_re/enum_literals.tsv`; `JUNE_ENUM_NAMES_PHASES.md`).
+An id that has a name in an Enum (June's `Enum.lua` or a C++ enum) is never written as a number in new or touched code. If C++ lacks the
+member, register June's name and value under a `SERV_IRUHADEV_` flag. A value with no Enum entry stays a number with a one-line comment.
+Exception: a data table whose rows are ids (a `.tsv`).
+- Authority: `june_src_fixed/data036_kom/Enum.src.lua`, then the live `kom_contents/data036_kom/Enum.lua`; never a spreadsheet or an invented
+  name. Check the value, not only the name.
+- Shape: explicit `= value` with June's name appended inside the existing enum under the flag (`SERV_IRUHADEV_JUNE_ENUM_NAMES` in
+  `X2SkillTree.h`, `X2Unit.h`, `X2BuffFactor.h`, `X2UnitManager.h`, `X2DamageManager.h`). Never renumber or rename a member; when March's
+  and June's names share a value, use March's.
+- Item, string and net-error ids stay numbers. Dungeon ids are named whenever June's `DungeonEnum.lua` or `SEnum::DUNGEON_ID` has them
+  (register in `DungeonEnum.h` under `JUNE_ENUM_NAMES`); `enumscan.py` skips them, so check by hand. `python tools/enumscan.py --check
+  <files>` finds the rest.
 
 ## Rule: a code comment is one short line (user, 2026-10-20)
 
-A comment in source says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or why June differs from March. No comment blocks, no offset / vslot / state-id / key-byte tables, no retelling of the code. The detail belongs in the Done note, `funcmap.tsv` or `JUNE_BUGS.md`, never in the source. This applies to every file and every plan; it does not ask you to rewrite old comments.
+A source comment says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or
+why June differs from March. No comment blocks or tables, no retelling of the code. Detail goes in the Done note, `funcmap.tsv` or
+`JUNE_BUGS.md`. Old comments are not rewritten.
 
 ## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
 
-Added 2026-10-04. Every repeated step of the phase loop is a script. A session that types msbuild, writes a throwaway byte-patch or unifdef script, or reads a plan doc "in full" is doing by hand what these already do and have been validated to do. See `tools/README.md`.
+Every repeated step of the phase loop is a validated script (`tools/README.md`). Never hand-type msbuild, write a throwaway byte-patch or
+unifdef script, or read a plan doc "in full".
 
 | Step | Command | Skill |
 |---|---|---|
-| What's running / next / parallel | `STATUS.md` | `/x2-phase status` |
+| What's running / next / parallel | `STATUS.md` (open work only; closed plans in `STATUS_ARCHIVE.md`, grep it) | `/x2-phase status` |
 | Start a phase or review | `kickoffs/<plan>/<phase>.md` | `/x2-phase <plan> <phase> [review]` |
-| Read part of a plan doc | `python tools/docsection.py <doc> "<heading>" ...` | x2-phase |
+| Read part of a doc | `python tools/docsection.py <doc> "<heading>" ...` | x2-phase |
 | Edit a CP949 source | `python tools/bytepatch.py show / find / apply <spec>` | x2-byte-edit |
 | Flag hygiene (insert-only, `#else` intact, flag-off = base) | `python tools/flagcheck.py <FLAG> [--range A..B / --worktree / --base REV]` | x2-byte-edit |
-| Build and deploy | `python tools/build.py --deploy` (run in background) | x2-build-deploy |
-| Prove strings are in the built / deployed exe (or absent) | `python tools/exestr.py "<string>" ... [--form wide] [--absent]` | x2-exe-strings |
+| Build and deploy | `python tools/build.py --deploy` (background) | x2-build-deploy |
+| Strings in the exe (or absent) | `python tools/exestr.py "<string>" ... [--form wide] [--absent]` | x2-exe-strings |
 | Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
-| Pack a March kom (`kom_contents/dataNNN_kom` -> `dataNNN_packed.kom`) | `python tools/kom.py pack dataNNN` | `/elstools pack dataNNN` |
-| Deploy a packed kom (-> game dir `dataNNN.kom`) | `python tools/kom.py copy dataNNN` | `/x2-kom-packed copy dataNNN` |
-| Convert / edit / prove a March `.lua` as BOM source (`find`, `convert`, `restore`, `refresh`, `ledger`; `kom.py compile` folds `X.src.lua`; L2: `decompile`, `check` (T1), `t2`, `selftest`, `calibrate`) | `python tools/luasrc.py convert dataNNN X.lua` | `/x2-lua` |
-| Adopt June `.lua` (default: June's `ljconv` bytecode; `--source` for core-list files: decompile + T1 -> BOM source) / the core list (`core --check / --add / --set`, `iter-audit`) | `python tools/luasrc.py adopt-june [<june kom>] X.lua [...]` ; `python tools/luasrc.py core --check` | `/x2-adopt-june` |
+| Save DB / items / characters | `tools/elsdb.py`, `tools/kim.py`, `tools/createchar.py` | x2-db, x2-kim, x2-create-char |
+| Pack a March kom | `python tools/kom.py pack dataNNN` | `/elstools pack dataNNN` |
+| Deploy a packed kom | `python tools/kom.py copy dataNNN` | `/x2-kom-packed copy dataNNN` |
+| Convert / edit / prove a March `.lua` as BOM source | `python tools/luasrc.py convert dataNNN X.lua` (and `restore`, `refresh`, `ledger`, `check`, `t2`) | `/x2-lua` |
+| Adopt June `.lua` / the core list | `python tools/luasrc.py adopt-june ...` ; `luasrc.py core --check` | `/x2-adopt-june` |
 
-- **Packing koms is not the user's step any more (2026-10-06).** When a change needs a `.kom` packed, run `/elstools pack` yourself, then **ask the user before every `/x2-kom-packed copy`** (user, 2026-10-06; it overwrites a live archive; copy also refuses while the game runs, then ask them to close it) and report the `PACK OK` / `COPY OK` lines in the hand-off; the user's only job is the play-test. **Exception (user, 2026-10-06): server-only Lua** (the rule below) stays fully manual - the user encrypts and packs it themselves, a rare case; do not run `kom.py` for it, just name the file as that rule says. For everything else the tools pack what is in `kom_contents/dataNNN_kom/` and encrypt nothing (`compile` folds `X.src.lua` into BOM-source `X.lua`; `pack` runs the Lua gate in *Rule: core client `.lua` is BOM source* below).
-- **Every phase and review finishes the same way** (x2-phase "Finish"):
-  - `flagcheck --worktree` passes;
-  - `build.py --deploy`, with its `DEPLOY OK` line pasted into the Done note;
-  - a Done note of at most ~60 lines;
-  - the phase's `STATUS.md` row updated in the same commit;
-  - the next kickoff file written if it is missing;
-  - a commit with explicit pathspecs (other sessions share this tree);
-  - a copy-ready play-test hand-off.
-- **New plans** follow x2-phase's `new-plan` shape: kickoff files that name sections, never "read in full", plus `STATUS.md` rows.
-- **Encoding guard:** `.claude/hooks/encoding_guard.py` blocks Edit/Write on non-UTF-8 files once it is registered in `.claude/settings.json` (the user's step). The rule holds either way: CP949 files are edited with `bytepatch.py` only.
+- **You pack koms** (`/elstools pack`), and **ask the user before every `/x2-kom-packed copy`** (it overwrites a live archive; it refuses
+  while the game runs). Report `PACK OK` / `COPY OK` in the hand-off. Exception: server-only Lua stays the user's to pack (rule below).
+- **Every phase and review finishes the same way** (x2-phase "Finish"): `flagcheck --worktree` passes; `build.py --deploy` with `DEPLOY OK`
+  in the Done note; a Done note of at most ~60 lines; the `STATUS.md` row updated in the same commit (one line, evidence in the note); the
+  next kickoff written if missing; a commit with explicit pathspecs; a copy-ready play-test hand-off. Never launch the game yourself.
+- **New plans** follow x2-phase's `new-plan` shape: kickoffs that name sections, plus `STATUS.md` rows.
+- **Encoding guard:** `.claude/hooks/encoding_guard.py` blocks Edit/Write on non-UTF-8 files. CP949 files are edited with `bytepatch.py` only.
 
 ## Rule: every client change goes behind a `SERV_IRUHADEV_` flag
 
-**All edits to client code — `X2/`, `X2Lib/`, `KTDXLIB/` — must be wrapped in a custom `#define` named with the `SERV_IRUHADEV_` prefix.** No exceptions, including one-line fixes. This follows the studio's own practice (see *Feature flags* below) and keeps every local change revertible by undefining a single macro.
-
-Define the flag in **`KTDXLIB/Always.h`**. That is the flag file that reaches all three client projects unconditionally in any US client build (`US_SERVICE`, `US_INTERNAL`, ...): `KTDX.h` defines `_ALWAYS_` unconditionally ([KTDX.h:37](KTDXLIB/KTDX.h#L37)) and includes `Always.h` at [KTDX.h:190](KTDXLIB/KTDX.h#L190); `X2Lib` reaches it through `stdafx.h` → `X2Main.h` → `KTDX.h`, and `X2.exe` through `X2.cpp` → `X2/Common/dxstdafx.h` → `X2Main.h`.
-
-Do **not** define client flags in:
-
-- `KncWX2Server/Common/ServerDefine.h` — that is the shared/server file (one exception: a flag guarding `CommonPacket.h` also goes there; see *Offline-only override* below). It *is* visible inside `X2Lib` (via `X2ServerPacket.h` → `CommonPacket.h:16`), but it is **not** visible inside `KTDXLIB`, and defining a client flag there drags it into the server build too.
-- `KTDXLIB/InHouse1.h`–`InHouse6.h`, `InHouseEtc.h` — as of the March 2014 snapshot these **are** compiled in under `US_INTERNAL` and (for now — see *Toolchains*) `US_SERVICE` too, both of which define `_IN_HOUSE_` — so a flag put there would take effect, but they are the studio's per-developer files, they carry ~84 apparent defines whose real state needs the preprocessor to settle, and a flag of ours buried among them is unfindable. Keep ours in `Always.h`.
-
-Pattern to follow — append to the end of `Always.h`, using the house comment block:
+**Every edit to `X2/`, `X2Lib/`, `KTDXLIB/` is wrapped in a `#define` with the `SERV_IRUHADEV_` prefix**, one-line fixes included. Define
+it at the end of **`KTDXLIB/Always.h`** (reaches all three client projects through `KTDX.h`), with the house block:
 
 ```c
 //////////////////////////////////////////////////////////////////////////
@@ -108,473 +133,151 @@ Pattern to follow — append to the end of `Always.h`, using the house comment b
 //////////////////////////////////////////////////////////////////////////
 ```
 
-(The surrounding entries in `Always.h` use Korean labels in CP949; write new ones in ASCII as above rather than pasting back mojibake.)
+At each site keep the original reachable when behaviour is replaced:
+`#ifdef SERV_IRUHADEV_<X>` new `#else` original `#endif SERV_IRUHADEV_<X>` (trailing-token `#endif` is house style). One flag per
+logical change, not per file. New `Always.h` entries are ASCII (the old ones are CP949 Korean).
 
-And at each call site, keeping the original code reachable in the `#else` branch whenever behavior is being replaced rather than added:
+Not in `KncWX2Server/Common/ServerDefine.h` (server/shared file, invisible to `KTDXLIB`), and not in `KTDXLIB/InHouse*.h` (the studio's
+per-developer files; they compile in under `_IN_HOUSE_` but a flag there is unfindable).
 
-```c
-#ifdef SERV_IRUHADEV_<SHORT_NAME>
-    // new behavior
-#else
-    // original behavior, left intact
-#endif SERV_IRUHADEV_<SHORT_NAME>
-```
-
-One flag per logical change, not one per file. Use the house `#endif SERV_IRUHADEV_FOO` trailing-token style.
-
-If an edit touches `KncWX2Server/Common/` (packet structs, event IDs, shared enums), it is **not** a client-only change — the servers must be rebuilt (via `X2Project_2003.sln`, which needs a machine with VS2003 — it is **not** installed here) and the flag must be defined for both sides, or the wire format desyncs silently. See *The client/server contract* below.
-
-**Offline-only override (user, 2026-10-05): this project is dedicated to offline play, so server sync is not a concern.**
-- Shared-header and packet changes (`KncWX2Server/Common/` structs, Put/Get, enums) are made client-side, behind the `SERV_IRUHADEV_` flag in `Always.h`.
-- There is no server rebuild and no server-side flag, and **never ask the user about server desync**.
-- The in-process emulator shares the exe, so a Put/Get change reaches both ends at once. Keep the emulator's handlers and `X2OfflineDB` schema consistent; that is the only "other side" there is.
-- **Exception for `CommonPacket.h` (user, 2026-10-05):** `X2Main.h:4` reaches `CommonPacket.h` through `X2ServerProtocolLib.h` → `SystemPacket.h` *before* `KTDX.h` includes `Always.h`, so an `Always.h`-only flag is silently never seen there (the `#else` compiles). A flag that guards code in `CommonPacket.h` is therefore also `#define`d at the end of `KncWX2Server/Common/ServerDefine.h` (which `CommonPacket.h:16` includes), and both defines are toggled together. The first such flag is `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE`. Add each new one to `SECOND_HOMES` in `tools/flagcheck.py`. Headers included after `KTDX.h` (`Enum.h`, `DungeonEnum.h`, …) are unaffected.
+**Offline-only (user, 2026-10-05): server sync is not a concern.** Shared-header and packet changes (`KncWX2Server/Common/` structs,
+Put/Get, enums) are made client-side behind the `Always.h` flag; no server rebuild, no server flag, and **never ask the user about server
+desync**. The emulator shares the exe, so keep its handlers and the `X2OfflineDB` schema consistent with any Put/Get change.
+**`CommonPacket.h` exception:** it is reached before `KTDX.h` includes `Always.h`, so a flag guarding code there is also `#define`d at the
+end of `ServerDefine.h`, both toggled together, and added to `SECOND_HOMES` in `tools/flagcheck.py` (first one:
+`SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE`). Headers included after `KTDX.h` (`Enum.h`, `DungeonEnum.h`) are unaffected.
 
 ## Rule: server-side Lua the client needs is the user's to pack — never band-aid around it
 
-Some data only ever existed on the server: per-level stat tables, drop tables,
-field tuning. When client-side code needs one of those files, it has to be
-XOR-encrypted and packed into `data036.kom` alongside every other client script,
-and **the user does that step.** Do not stop and wait for confirmation before
-building the feature that needs it — implement it now, on the assumption that
-the file will be (or already is) packed, and name the file when you report the
-work as done rather than before you start it. The user has said explicitly not
-to block work on this: packing is fast on their end, and the degrade path below
-means the feature just stays off with a clear log line until it's in — nothing
-is lost by finishing the implementation first.
+Some data existed only on the server (stat tables, drop tables, field tuning). When client code needs such a file, it must be XOR-encrypted
+and packed into `data036.kom`, and **the user does that step**. Don't wait for it.
+1. **Implement the whole feature in one pass:** loader, consumer and degrade path, even if a plan frames "refuse and log" as a stopping point.
+2. **Load it the shipped way:** `GetMassFileManager()->LoadDataFile( name )`, then `GetLuaBinder()->DoMemory( ... )`, with a logged
+   `DoMemoryNotEncript( ... )` fallback. Copy `X2Lib/Offline/X2OfflineStatTable.cpp` / `X2OfflineDropTable.cpp` / `X2OfflineBattleField.cpp`.
+3. **Degrade visibly:** file missing -> feature off, log which file and what to do.
+4. **Name the file when reporting done** (`KncWX2Server/ServerResource/US/<name>.lua`, needs XOR + packing into `data036.kom`), and confirm
+   from the loader's "loaded N row(s)" log line if it is already packed.
 
-Do:
-
-1. **Implement the whole feature in one pass**: the loader, the logic that
-   consumes the table, and the degrade-if-missing path (step 3 below) all
-   together. Do this even when some other document (a phase plan, an issue
-   writeup, your own earlier diagnosis) frames "refuse and log why" as an
-   acceptable stopping point for the *current* task — a feature that only
-   "can't be done" for lack of a packed file is not the same as a feature that
-   doesn't exist, and finishing it costs nothing thanks to the degrade path.
-2. **Load it the shipped way.**
-   `g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->LoadDataFile( name )` for
-   the `.kom` container, then `GetLuaBinder()->DoMemory( ... )` for the XOR, with a
-   `DoMemoryNotEncript( ... )` fallback that logs a note when it fires. Copy the
-   shape from `X2Lib/Offline/X2OfflineStatTable.cpp`,
-   `X2OfflineDropTable.cpp` or `X2OfflineBattleField.cpp`.
-3. **Degrade visibly.** If the file is not there, turn the feature off and log
-   which file is missing and what to do about it. A feature that is off and says
-   so is debuggable; one that silently guesses is not. This is also what makes
-   rule 1 safe: build against the assumption the file is packed, and an
-   unpacked file fails into this path instead of into a guess.
-4. **Name the file when you report the work as done, not before.** Give the
-   exact path (`KncWX2Server/ServerResource/US/<name>.lua`) and say it needs
-   XOR-encrypting and packing into `data036.kom` if it isn't already. If the
-   file turns out to already be packed, confirm that from the log (the loader's
-   own "loaded N row(s)" line) rather than assuming — don't report success on
-   the strength of the code compiling alone.
-
-Do not:
-
-- **Do not write a loose copy into the game directory.** Under `US_INTERNAL`
-  this *works*, and works harder than it used to — and then masks a failed
-  repack, leaving nobody able to tell whether the archive is actually right.
-  Delete loose copies once the file is packed.
-  The precedence inverted with the March snapshot, so old notes on this are
-  wrong in both directions. `KGCMassFileManager::LoadDataFile`
-  ([KGCMassFileManager.cpp:878-941](KTDXLIB/KGCMassFileManager.cpp#L878), `#else`
-  at `:915`) branches on `MASS_FILE_FIRST`, which `US_INTERNAL` does **not**
-  define: `:916` calls `LoadRealFile` **unconditionally first**, so a loose file
-  beats the archive every time. With the macro (the old January build) the
-  `.kom` came first and the loose fallback was reached only if the file was
-  absent *and* `_SERVICE_` was undefined (`:890`) — which the old `US_SERVICE`
-  build did define, so back then a loose copy did nothing at all. A miss logs
-  `KEM_ERROR136` now, `KEM_ERROR135` then.
-- **Do not hardcode the table, invent a curve, or approximate a function** to
-  paper over a file that has not been packed yet. That is the band-aid: it looks
-  like progress, it drifts from the real data, and it hides the missing file.
-- **Do not edit the studio's `.lua` to make code simpler.** Editing that data to
-  *tune gameplay* is fine and is the right place for it (see
-  `BattleFieldServerData.lua`'s solo-play comment) — but keep the original value
-  and the restore instruction in comments, and preserve the file's UTF-8 BOM and
-  CRLF byte-for-byte.
-
-The one permitted fallback is a constant that can be **read out of the repo and
-cited**: `BattleFieldServerData.lua`'s respawn window and reward factors are
-carried in code as fallbacks with a comment naming their source, so an unpacked
-install behaves like the live server rather than like nothing. A fallback is
-honest only when it is the real number, is labelled with where it came from, and
-is announced in the log. Anything that cannot be sourced that way — a Lua
-*function*, for instance — gets no fallback at all.
+Never write a loose copy into the game directory (a loose file beats the kom under this build, since `MASS_FILE_FIRST` is undefined, and it
+masks a failed repack). Never hardcode a table, invent a curve or approximate a function for an unpacked file. Never edit studio `.lua` to
+simplify code; tuning gameplay in data is fine, keeping the original value and restore note in comments and the file's BOM/CRLF exact. The
+one allowed fallback is a constant read out of the repo, cited and logged (`BattleFieldServerData.lua`'s respawn window). Full text and
+history: `CLAUDE_REFERENCE.md`, "Background: the server-Lua rule".
 
 ## Rule: never invent a new `.lua` file (user, 2026-10-09)
 
-Do not create new `.lua` files: no side files, helper tables or "temporary stand-ins". A new Lua file is allowed only when it is a **server Lua** the client needs packed into a client kom (the user packs it; see the server-Lua rule above).
-
-If a change needs data that lives in an existing Lua (a class script, `DamageEffect`, a monster script) and you cannot reach it safely, do not route around it with a new file. Say what blocks the work, and if it feels beyond the current model (a risky recompile, an equivalence proof, unclear RE), say **"this needs a higher model"** and stop. Editing an existing Lua that has a `.src.lua` is a separate question: ask first, do not assume it from an earlier phase's precedent. Exception (user, 2026-10-09): a port that must edit a June `.lua` adds it to the core list and edits it without asking (see the core-Lua rule below).
+No new `.lua` files: no side files, helper tables or stand-ins. The only exception is a server Lua the client needs packed (rule above). If
+data you need sits in an existing Lua you can't reach safely, say what blocks it; if it feels beyond the current model, say **"this needs a
+higher model"** and stop. Editing an existing Lua that has a `.src.lua`: ask first. Exception: a port that must edit a June `.lua` adds it
+to the core list and edits it without asking.
 
 ## Rule: core client `.lua` is BOM source, the rest is June's bytecode (user, 2026-10-09; `LUA_SOURCE_PHASES.md`, skill `x2-lua`)
 
-The client engine loads XOR-encrypted **BOM + UTF-8 text** as readily as bytecode (L0 proved it in game), so a March `.lua` that
-has to change is stored as source and every later change is a text edit. Use `python tools/luasrc.py` and `kom.py`; never decompile
-or compile by hand.
-
-1. **Proof tiers.** Only T0 and T1 convert automatically. **T0:** the source compiles byte-identical to the reference bytecode.
-   **T1:** the recompile is identical per prototype (opcodes, registers, child-proto tree, upvalues, numparams, framesize, flags;
-   constants compared by value, slot order ignored; a table constant's pairs compared as a set, so their storage order is
-   ignored, user 2026-10-09). **T2:** behaviour-equal only, needs an Opus reader audit and the user's yes.
-   **T3:** unproven, the bytecode ships. The reference is the shipped March bytecode (June files: `ljconv(June bytecode)`).
-2. **Source only for the core list; the rest is June's `ljconv` bytecode (rescope, user 2026-10-09).** June `.lua` arrives through
-   `luasrc.py adopt-june` (skill `x2-adopt-june`). By default that is junekom extract + `ljconv` (header `0x82` -> `0x81`, opcodes
-   renumbered, nothing else), staged with `kom.py stage-june`'s placement rules: no decompile, no edit; it refuses a core-list name.
-   A file becomes BOM source only if it is on the **core list** (`tools/data/lua_core_list.tsv`, `luasrc.py core --check`): kept merged
-   because March's C++ and June's file disagree (`Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet`, the `DLG_Map_*` dialogs, the
-   registries `NPCTemplet` / `DungeonData`, `DLG_Destination_byButton`; data036 and data034, plus single files in data035 / data037 / datai014), or a port must edit it. Those take
-   `adopt-june --source` (decompile, T1 against the `ljconv` output, BOM source + ledger row; it prints the pairs/next/foreach tables
-   whose walk order text loading can change); on a T1 fail nothing is staged and the row becomes `blocked: <reason>`. A port that must
-   edit a June file adds the core-list row itself (`luasrc.py core --add <kom> X.lua --origin june --why "edit: <phase> <what>"`) and
-   carries on, no question (user, 2026-10-09). `convert` refuses the ljconv'd June files and adds a core row for any March file it converts.
-   `june_src_fixed/` is reading material.
-3. **Editing a March `.lua` starts with `luasrc.py convert`.** Sources are tried in order: sibling `X.src.lua` (T0), a studio original
-   in `ClientScript\` / `_ClientScript\` (T0), a T1 decompile (after L2). Afterwards `X.lua` **is** BOM + UTF-8 source on disk.
-   `kom.py compile` folds a sidecar `X.src.lua` into it (when T0, or newer than `X.lua` as an intended edit, tier EDIT).
-4. **Conversion changes format only.** Content changes are the port's own diff, made after conversion.
-5. **The pack gate enforces it.** Every `.lua` must be BOM text that parses under the vendored luajit, or `1B 4B 4C 81` bytecode, or a
-   bytecode exception in the ledger (tier `EXC`; seeded: `data014 UI_NPC_KELAINO.lua`, `data036 PvPDropTable.lua`). `pack` refuses
-   BOM-less text, June `0x82` bytecode, other headers and parse errors, naming file and message. Manifest-`"0"` `.lua`
-   (server-only Lua the user packs by hand, rule above) only warns, never refuses.
-6. **Bookkeeping.** Original bytecode is snapshotted to `24965799\kom_contents_bytecode\dataNNN_kom\`. The ledger
-   `tools/data/lua_source_ledger.tsv` has one row per converted or adopted file (kom, name, origin, reference, reference sha1, source,
-   tier, source sha1, phase, date, reason, state); `luasrc.py ledger --check` must stay PASS, and `luasrc.py refresh` re-records a file
-   after a deliberate text edit.
+The engine loads XOR-encrypted **BOM + UTF-8 text** as readily as bytecode, so a March `.lua` that must change is stored as source. Use
+`tools/luasrc.py` and `kom.py`; never decompile or compile by hand.
+1. **Proof tiers.** Only T0 (byte-identical recompile) and T1 (identical per prototype; constants by value, table pairs as a set) convert
+   automatically. T2 (behaviour-equal) needs an Opus audit and the user's yes. T3 ships the bytecode. Reference: the shipped March bytecode
+   (June files: `ljconv(June bytecode)`).
+2. **Source only for the core list** (`tools/data/lua_core_list.tsv`, `luasrc.py core --check`): files kept merged because March's C++
+   and June's data disagree (`Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet`, `DLG_Map_*`, `NPCTemplet`, `DungeonData`, ...), or that a
+   port must edit. Everything else from June arrives by `luasrc.py adopt-june` as June's `ljconv` bytecode (no decompile, no edit; refuses
+   core-list names). Core files take `adopt-june --source` (decompile, T1, ledger row; on a T1 fail nothing is staged, row
+   `blocked: <reason>`). A port that must edit a June file runs `luasrc.py core --add <kom> X.lua --origin june --why "edit: <phase> <what>"`.
+3. **Editing a March `.lua` starts with `luasrc.py convert`** (sources tried: sibling `X.src.lua`, studio original in `ClientScript\`, a T1
+   decompile). After it, `X.lua` is BOM source; `kom.py compile` folds a sidecar `X.src.lua` in.
+4. **Conversion changes format only;** content changes are the port's own diff, after conversion.
+5. **The pack gate enforces it:** every `.lua` is BOM text that parses, or `1B 4B 4C 81` bytecode, or a ledger `EXC`. `pack` refuses
+   BOM-less text, June `0x82` bytecode and parse errors. Manifest-`"0"` `.lua` (server Lua) only warns.
+6. **Bookkeeping:** originals snapshotted to `24965799\kom_contents_bytecode\`; ledger `tools/data/lua_source_ledger.tsv` must pass
+   `luasrc.py ledger --check`; `luasrc.py refresh` after a deliberate text edit. `june_src_fixed/` is reading material.
 
 ## Rule: a plan keeps to its subject; drift gets its own plan (user, 2026-10-19)
 
-The skill plan grew from 12 phases to 33 by chasing June's call graph into the HUD, emblems, titles and sockets. To stop that:
-- A June branch a phase finds becomes a phase in the **current** plan only if it is that plan's subject, or the game is not
-  playable without it (crash, softlock, blocked progression, wrong combat numbers on a path the player hits).
-- **Anything else has drifted. Identify it** (June addresses, the March counterpart, offline reach, related branches) and give it
-  **its own plan in the same session**: a bullet and brief in the stage that owns it, or a new backlog stage with a planning brief.
-  Deferred, never dropped.
-- Priority: Stage 4 quests, then character revamp (5), transcendence (6), the remaining characters (7), new characters (8), and
-  the UI sweep (9). Scattered systems come after that, unless one blocks play.
-- The details are in `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules", *Scope*. "No partial updates" still means a ported function's
-  whole body, not its callees.
+A June branch a phase finds becomes a phase in the current plan only if it is the plan's subject or the game is unplayable without it
+(crash, softlock, blocked progression, wrong combat numbers on a reachable path). Anything else is identified (June addresses, March
+counterpart, offline reach, related branches) and gets its own plan in the same session: a bullet and brief in the owning stage, or a new
+backlog stage. Deferred, never dropped. Priority: Stage 4 quests, then character revamp (5), transcendence (6), remaining characters (7),
+new characters (8), UI sweep (9), then scattered systems unless one blocks play. Details: `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules",
+*Scope*. "No partial updates" means a ported function's whole body, not its callees.
 
 ## Rule: a March asset with the same name as a June asset is replaced by June's (user, 2026-10-19)
 
-When June has a file with the same name as a March file (texture, `.tet`, mesh, sound, dialog or data `.lua`, anything in a kom or loose in
-`data\`), **replace March's file with June's**, byte-exact, through the tools (`kom.py stage-june`, `luasrc.py adopt-june`). Do not keep
-March's copy, do not merge the two, and do not ask first.
-
-- **No merge, no hand edit.** June's file goes in as June shipped it (memory `june-assets-byte-exact-no-edits`). If a March reader then
-  breaks (a key March reads is missing or moved, a format March cannot parse), the fix is code: port June's reader, or route the
-  follow-up to its owner (a plan phase, the character checklist). S7e is the pattern: June's `ComboTree.lua` replaced March's, and
-  March's own reader, which June never calls, moved to the `#else`.
-- **The one exception is the core-list `.lua`** (the rule above): files on `tools/data/lua_core_list.tsv` stay merged BOM source because
-  March's C++ still needs March's values; a phase adds June's missing members to them (as S7e did for `COMBO_TREE_ICON`).
-- **Shared Lua in a character port (user, 2026-10-20):** a `.lua` holding rows for several characters (`UnitTemplet.lua`, ...) is not
-  replaced whole; only the ported character's rows become June's, the rest stay March's until their own port (the file becomes core-list
-  BOM source). See `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules".
-- Record each replace where the phase records its data (Done note, `MODS.md` revert line). The tools back up the replaced file.
-- **Assume March does not have the asset (user, 2026-10-27).** When ported code uses an asset (dialog `.lua`, texture / `.tet` key, particle,
-  mesh, sound), never assume March's copy is June's or is enough. Check it by name first, before debugging code: if March lacks it, stage June's;
-  if March has it, replace it with June's anyway. CH1s: Eve's third orb was missing because March's `DLG_PVP_Game_My_State_NEW.lua` had no Eve pictures.
+Same file name in June and March (texture, `.tet`, mesh, sound, dialog or data `.lua`, in a kom or loose in `data\`): **June's replaces
+March's, byte-exact, through the tools** (`kom.py stage-june`, `luasrc.py adopt-june`). No merge, no hand edit, no asking. If a March reader
+then breaks, the fix is code (port June's reader) or a routed follow-up.
+- **Exception: core-list `.lua`** stays merged BOM source; a phase adds June's missing members to it.
+- **Shared Lua in a character port (user, 2026-10-20):** a multi-character `.lua` (`UnitTemplet.lua`, ...) gets only the ported character's
+  rows from June and becomes core-list source.
+- Record each replace in the Done note and `MODS.md`; the tools back up the replaced file.
+- **Assume March does not have the asset (user, 2026-10-27).** Before debugging code that uses an asset, check it by name: March lacks it ->
+  stage June's; March has it -> replace with June's anyway.
 
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record
 
-The user has access to the **original SQL Server databases** (`Account`,
-`Game01`) this client was served by. Everything under `DataBase/` and
-`ScriptData/` in this tree is a *checkout from some point in the game's life*,
-and it has been proven to disagree with what actually shipped. So:
-
-**When behaviour depends on a stored procedure or a server-side data table, ask
-the user to pull it from the live DB before building on the copy in this tree.**
-Name the procedure or table, give the query, and wait — the same shape as the
-Lua-packing rule above.
+The user has the original SQL Server databases (`Account`, `Game01`). `DataBase/` and `ScriptData/` are an old checkout and have been proven
+wrong (`gup_create_unit` here inserts no items, the live one inserts ten; `ItemTemplet.xlsx` lacks every live beginner-gear id). **When
+behaviour depends on a stored procedure or server data table, ask the user to pull it from the live DB first**, naming it and giving the
+query:
 
 ```sql
--- procedure bodies
 SELECT OBJECT_NAME(object_id) AS proc_name, definition
 FROM   sys.sql_modules WHERE OBJECT_NAME(object_id) IN ( 'gup_...', … );
-
--- when the live names may have drifted from this snapshot's
 SELECT name FROM sys.procedures WHERE name LIKE 'gup_%' ORDER BY name;
 ```
 
-The two failures that produced this rule, both from character creation:
-
-- **`DataBase/`'s `dbo.gup_create_unit` predates a refactor.** The copy here
-  inserts no items; the live one copies ten positioned rows out of
-  `dbo.GBase_Item` per class and aborts with `-28` if there are not exactly ten.
-  Reading the local copy line by line produced the confident, wrong conclusion
-  that a new character starts with nothing.
-- **`ScriptData/ItemTemplet.xlsx` disagrees with the live item table.** Every
-  beginner-gear ID in `GBase_Item` (`131641..`, `111094..`, `112700..`) is
-  absent from that spreadsheet, which carries a later reform block instead.
-  Deriving IDs from the spreadsheet produced a plausible, checkable, wrong
-  answer — and *it agreed with the item names the user read off their own
-  client*, so it survived a sanity check that should have caught it.
-
-Notes that matter in practice:
-
-- **A procedure missing from `DataBase/` is not evidence it does nothing.**
-  `dbo.gup_create_unit_set_promotion` has no body anywhere in this tree; it is
-  called on every character creation.
-- **A local copy that reads consistently is still not corroboration.** Both
-  failures above came from sources that were internally coherent. Two sources
-  agreeing only counts when they are genuinely independent — the client's own
-  arrays and a stored procedure are; a spreadsheet and a pattern derived from it
-  are not.
-- **Commented-out code in a live procedure is history, and history is still
-  useful.** The dead per-class blocks in `gup_create_unit` were worthless as a
-  source of IDs and were the thing that revealed the slot *layout*
-  (`InventoryCategory 9`, odd slots real / even slots fashion). Read it for
-  structure, never for values.
-- **Transcribe, don't tidy.** The live table gives classes 7, 8 and 9 the same
-  set, which looks like an unfinished row. It goes in verbatim with a log line
-  saying so — "correcting" studio data on the way in makes the code disagree
-  with the server for a reason nobody can later reconstruct.
-- **Treat the dump as confidential.** Ask for it as plain text in the
-  conversation, not as a file written into the game tree, and keep server names,
-  linked servers and logins out of anything committed or logged — the same
-  handling the `.dsn` files get (see *Cautions*).
-
-## Toolchains — the client is VS2010/`US_SERVICE`; the servers are VS2003 and unbuildable here
-
-**This changed on 2026-09-09, when the client source was replaced with a March 2014 snapshot (`dd63297`).** Two things moved at once: the client's only US configuration became `US_INTERNAL` (`US_SERVICE` was gone from every `.vcxproj` and `.sln`), and the servers reverted to VS2003 — the VS2010 server port's source fixes were overwritten by the March sources, so `X2Project_Servers_2010.sln` can no longer build and `VS2003_to_VS2010_Port_Guide.md` is now history rather than instructions.
-
-**A new `US_SERVICE` client configuration was added back on 2026-09-16** (`X2/X2_2010.vcxproj`, `X2Lib/X2Lib_2010.vcxproj`, `KTDXLIB/KTDXLIB_2010.vcxproj` — not the `.sln`, see below), cloned from `US_INTERNAL` with the `ClCompile` optimization settings changed to match the current `EU_SERVICE`/`BR_SERVICE` profile (`Optimization=Full`, `IntrinsicFunctions=true`, `EnableFiberSafeOptimizations=true`, `FavorSizeOrSpeed=Speed`, `OmitFramePointers=true`, `FunctionLevelLinking=false`) — `US_INTERNAL` compiled essentially unoptimized (`Optimization=Disabled`, or no `Optimization` tag at all in `X2Lib`'s case), which was the cause of a reported inventory-hover/tab-switch stutter. **Build the client as `US_SERVICE` by default from now on; only use `US_INTERNAL` if explicitly asked for it** (e.g. to reach for the in-house cheat/dev-UI surface, or to compare against the pre-optimization baseline). As of this writing `US_SERVICE` still defines `_IN_HOUSE_` identically to `US_INTERNAL` — stripping it is a separate, not-yet-done step (tracked as "stage 2" against this same config; see the *What `US_INTERNAL`/`US_SERVICE` actually define* table below for what that would change) — so the two configs currently differ **only** in the optimization flags, nothing else.
-
-| Target | Solution | Config | Toolchain |
-|---|---|---|---|
-| Client, engine, tools (default) | `X2/X2_2010.vcxproj`, `X2Lib/X2Lib_2010.vcxproj`, `KTDXLIB/KTDXLIB_2010.vcxproj` | **`US_SERVICE`** | VS2010 (`v100`), Win32, Unicode |
-| Client, engine, tools (only if asked) | (same three `.vcxproj`s) | `US_INTERNAL` | VS2010 (`v100`), Win32, Unicode |
-| `luaLib`, `luajitLib` | (same solution) | **`Release`** | VS2010 (`v100`), Win32 |
-| `X2ServerProtocol` | (same solution) | **`X2TOOL`** | VS2010 (`v100`), Win32 |
-| The five servers | `X2Project_2003.sln` | `Release_US` | VS2003 (`v70`), Win32 — **not installed here** |
-
-`US_SERVICE` was added directly to the three `.vcxproj` files, not to `X2Project_2010.sln`'s configuration list — that's cosmetic (only affects opening the solution in Visual Studio) since the build recipe below never goes through the `.sln`. If you need to select `US_SERVICE` inside Visual Studio itself, the solution-level config list needs the same addition first.
-
-**The VS2010 C++ compiler is on `D:`, not `C:`** — `D:\Program Files\VS\Microsoft Visual Studio 10.0\` (registry `HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7` → `10.0`). The `C:\Program Files (x86)\Microsoft Visual Studio 10.0\` tree holds only shell pieces and has no `VC` directory. **VS2003 is not installed at all** (no `SxS\VS7` entry for `7.1`), so the servers cannot be built in this environment — plan around that rather than discovering it mid-task.
-
-**`python tools/build.py` encodes everything in the rest of this section** (path, flags, order, configs, `SolutionDir`, PCH). The details below are reference for when a build fails in a new way, not a recipe to retype.
-
-**`msbuild` is not on `PATH`** in a Git Bash shell here — use the full path,
-`/c/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe`
-(`C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe`). Pass
-`-m -p:MultiProcessorCompilation=true` on every invocation — the machine has
-16 logical cores and none of the `.vcxproj`s set `MultiProcessorCompilation`
-themselves, so without the property override `cl.exe` compiles one
-translation unit at a time. `-m` alone does nothing extra here since each
-command below builds a single project, not a solution graph — the property
-override is what actually turns on `/MP`. Verified: a full `X2Lib` rebuild
-(forced via `touch X2Lib/stdafx.cpp` to invalidate the PCH) completed in
-~4 minutes at 16-way with zero errors, same output size as without the flag.
-
-```sh
-MSBUILD="/c/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe"
-TRUNK="F:/elsword stuff/.../source/EU_CN_US/Trunk"   # must end in a slash when passed
-MP="-m -p:MultiProcessorCompilation=true"
-
-# Dependencies first, in this order. luajitLib and luaLib are Release; X2ServerProtocol is X2TOOL.
-# Client config is US_SERVICE by default - substitute US_INTERNAL only if explicitly asked.
-"$MSBUILD" luajitLib/luajitLib.vcxproj                    -p:Configuration=Release    -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" luaLib/luaLib_2010.vcxproj                     -p:Configuration=Release    -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" X2ServerProtocol/X2ServerProtocol_2010.vcxproj -p:Configuration=X2TOOL     -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" KTDXLIB/KTDXLIB_2010.vcxproj                   -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" X2Lib/X2Lib_2010.vcxproj                       -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-"$MSBUILD" X2/X2_2010.vcxproj                             -p:Configuration=US_SERVICE -p:Platform=Win32 "-p:SolutionDir=$TRUNK/" $MP
-```
-
-`SolutionDir` **must** be passed, with a trailing slash: every `IncludePath` entry for Boost, DXSDK, KNCSDK and freetype is written as `$(SolutionDir)Libs...`, so without it the build dies on `fatal error C1083: Cannot open include file: 'boost/shared_ptr.hpp'` or `'d3dx9.h'`. Use **forward slashes**, and put the trailing slash inside the value (`SolutionDir=F:/.../Trunk/`). A backslash path is an active trap: a trailing `\` before a closing quote escapes the quote, msbuild gets a mangled `SolutionDir`, and the build fails with `C1083: Cannot open include file: 'ImportKncSerializer.h'` — which reads like a missing KNCSDK include path in the project and is not.
-
-Three things about that command list are load-bearing:
-
-- **Never build the client from `X2Project_2010.sln`.** Its `US_INTERNAL` build sweeps in ~15 dead tool/server projects and never runs `X2_2010.vcxproj`, so it does not produce an exe. (`US_SERVICE` was never added to the `.sln` at all — see above — so this applies to it too, doubly.)
-- **`X2ServerProtocol` is not a `ProjectReference` of `X2Lib`** (only `KTDXLIB` is), so it is never rebuilt implicitly — build it explicitly or you link a stale `X2Lib/X2ServerProtocol.lib`. It has **no `US_*` configuration at all**; the solution maps `US_INTERNAL` → `X2TOOL|Win32` (there is no `US_SERVICE` mapping since it's not in the `.sln` — irrelevant anyway, since the recipe above always builds `X2ServerProtocol` with an explicit `-p:Configuration=X2TOOL`, never through a solution-config mapping), whose `OutDir` is already `..\X2Lib\`.
-- **`luajitLib` is required, not optional.** `_USE_LUAJIT_` is defined unconditionally (`KTDX.h:392-397`, via `X2OPTIMIZE_APPLY_UNPACK_HACK_PREVENTION`) and `KTDXApp.cpp:38` auto-links `luajitLib.lib` with a `#pragma comment`. Because `X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE` is *not* defined under `US_INTERNAL` or `US_SERVICE`, it must be the **full interpreter** build — `Release`, never `Release_NoInterpreter`. Its `Release` config outputs `..\KTDXLIB\luajitLib.lib`. `luaLib` still exists and still builds alongside it.
-
-Build artifacts (default, `US_SERVICE`; substitute `US_INTERNAL` for the other config):
-
-- `X2/US_SERVICE/x2.exe` — the client. Note the **lowercase** name: `TargetName` is `x2`.
-- `X2/X2Lib.lib`, `X2/KTDXLIB.lib` — static libs; `OutDir` is `..\X2\`, only the `.obj` intermediates land in `X2Lib/US_SERVICE/` and `KTDXLIB/US_SERVICE/`. These are config-specific — a `US_INTERNAL` build and a `US_SERVICE` build each leave their own `.lib`, and the later build wins if you don't check which one you last ran.
-- `KTDXLIB/luajitLib.lib`, `KTDXLIB/luaLib.lib`, `X2Lib/X2ServerProtocol.lib`.
-
-**The post-build event no longer fails.** `X2/X2_2010.vcxproj:642` sets `PostBuildEventUseInBuild` to `false` for `US_INTERNAL` and (cloned identically) `US_SERVICE`, so the old copy-to-`E:\Elsword_InHouse` step never runs for either. The exit code is now meaningful — but still confirm `X2/US_SERVICE/x2.exe` was produced and is newly dated.
-
-There is **no runnable test suite**. The one CppUnit fixture (`X2Lib/X2GameUnitTestCase.h`) is gated behind `CPPUNIT_BY_TOOL_TEAM`, commented out in `KTDXLIB/AlwaysButConditionally.h`. `Libs/InternalLib/KNCSDK/UnitTest/` is the vendored SDK's own test project, not wired into either solution.
-
-### What `US_INTERNAL`/`US_SERVICE` actually define (client)
-
-**As of this writing `US_SERVICE`'s `PreprocessorDefinitions` are identical to `US_INTERNAL`'s** (below) — the 2026-09-16 addition of `US_SERVICE` only changed the `ClCompile` optimization tags (see *Toolchains*), nothing in this table. `_IN_HOUSE_` is still defined under `US_SERVICE` too, so everything this section says about the in-house cheat/dev-UI surface currently applies to both configs equally. Stripping `_IN_HOUSE_` from `US_SERVICE` (and adding `AUTO_LOGIN_IN_HOUSE` directly, since it would otherwise stop arriving through `InHouse2.h`) is a deliberately separate, not-yet-done step — if and when that lands, update this section to describe the two configs' definitions separately.
-
-| Project | Preprocessor definitions |
-|---|---|
-| `X2` | `WIN32;NDEBUG;_WINDOWS;SERV_COUNTRY_US;CLIENT_COUNTRY_US;_IN_HOUSE_;_USE_32BIT_TIME_T;_HAS_ITERATOR_DEBUGGING=0;_CONVERT_VS_2010` |
-| `X2Lib` | `WIN32;NDEBUG;_LIB;_USE_32BIT_TIME_T;_IN_HOUSE_;SERV_COUNTRY_US;CLIENT_COUNTRY_US;_HAS_ITERATOR_DEBUGGING=0;_CONVERT_VS_2010` |
-| `KTDXLIB` | `WIN32;NDEBUG;_LIB;SERV_COUNTRY_US;CLIENT_COUNTRY_US;_IN_HOUSE_;_HAS_ITERATOR_DEBUGGING=0;_USE_32BIT_TIME_T;_CONVERT_VS_2010` |
-| `X2ServerProtocol` (`X2TOOL`) | `X2TOOL;WIN32;NDEBUG;_LIB;_USE_32BIT_TIME_T;_HAS_ITERATOR_DEBUGGING=0` |
-| `luaLib`, `luajitLib`, `libxml` (`Release`) | region-neutral; `luajitLib` adds `_USE_LUAJIT_` |
-
-All three client projects are `Unicode`, so `UNICODE`/`_UNICODE` come from `CharacterSet` rather than the definitions list — a hand-rolled `cl` invocation must pass them or `DXUT.h:11` raises an `#error`.
-
-**`_IN_HOUSE_` is defined (under both `US_INTERNAL` and, for now, `US_SERVICE`), and that is the single biggest behavioural change from the old (pre-March-2014-snapshot) `US_SERVICE` build**, which did not define it. `KTDX.h:493` therefore includes all seven per-developer flag files (`InHouseEtc.h`, `InHouse1.h`–`InHouse6.h`), which had been dead code for this build's entire prior history. **Do not reason about these flags by reading the nested `#ifdef`s** — a naive grep for active `#define`s in those files reports 84, of which at least `MASS_FILE_FIRST` and `WORLD_TOOL` are false positives sitting inside dead conditionals. Resolve them with `cl /EP` on a probe that includes `KTDX.h`; the exact recipe and the full verdict table are in `MARCH_2014_MIGRATION.md`.
-
-The results that matter:
-
-- **`MASS_FILE_FIRST` is NOT defined**, and `WORLD_TOOL` is not either (so `KTDX.h:503-575`'s big `#undef` block does not fire). See the Lua rule above for what the missing `MASS_FILE_FIRST` does to loose-file precedence.
-- **`_SERVICE_` and `_OPEN_TEST_` are NOT defined.** `X2Lib/define.h` still resolves the US patch source to `http://gamepatch.elswordonline.com/` with `PatchPath.dat`. `CX2Data::ResetServerProtocol` passes `bIsSERVICE = false`.
-- **`AUTO_LOGIN_IN_HOUSE` is now live in `X2Lib`.** It used to be set on the `X2` project only, while every use site sits in `X2Lib` — so it was inert. It now arrives through `InHouse2.h:5` → `KTDX.h:493` → *every* client project, and `CX2StateLogin::ReadIDAndPassword` (`X2Lib/X2StateLogin.cpp:817`) really does read `LoginKey.lua` and auto-log-in.
-- **`NOT_USE_UDP_CHECK_INHOUSE` is defined**, making `CX2Game::AbuserUserCheck` (`X2Lib/X2Game.cpp:16136`) return immediately.
-- **`NO_GAMEGUARD` is defined**; `HACK_SHIELD` and `BUG_TRAP` are not.
-- **The in-house cheat and dev-UI surface is compiled in** (`CHEAT_CLASS_CHANGE`, `ITEM_VIEW_CHEAT`, `MONSTER_TEST_DUNGEON`, `ADD_CREATE_CHARACTER_BUTTON`, `SHOW_ONLY_MY_DAMAGE`, `HIDE_SYSTEM_MESSAGE`, and ~15 more). Two that are *not* hazards despite their names: `RATE_MODIFIER_INHOUSE_TEST` has zero use sites in client code, and `DAMAGE_ZERO` is only `SetZeroDamage( NOWSTATE_FLAG( SET_ZERO_DAMAGE ) )` in `X2GUNPC.cpp`, i.e. driven by the NPC state table.
-
-Server-side, `Release_US` defines only `WIN32;NDEBUG;_WINDOWS;SERV_COUNTRY_US` for all five executables. Note there is no `_SERVICE_` on the servers — live vs. test is a **runtime** choice, not a compile-time one (see below).
-
-## Architecture
-
-### Layers
-
-| Directory | Role |
-|---|---|
-| `KTDXLIB/` | The engine. `CKTDXApp` owns the D3D9 device, main loop, input, sound (FMOD), UI widget set (`KTDGUI*`), mesh/skin/particle renderers, and the Lua state. Classes are `K`-prefixed. |
-| `X2Lib/` | All client gameplay — ~575 `CX2*` classes. The bulk of the codebase. |
-| `X2/` | Thin client `.exe` shell: `WinMain`, anti-cheat bootstrap, crash reporting. Almost no logic. |
-| `X2ServerProtocol/` | Client-side networking runtime (`KUserProxy`, `KTRUser`, `KPerformer`, ODBC, thread manager). Linked into the client; mirrors the server's actor model. |
-| `KncWX2Server/` | Five server executables plus the shared `Common/` layer. |
-| `KNCSDK/` | KOG's in-house SDK: serializer, Lua bindings (`lua_tinker`/`luabind`), crypto, object pools, threading. Source of the `SERIALIZE_*` / `DECL_PACKET` macros. Both client and servers use the prebuilt `.lib`s here (`Include`/`lib` for VS2003, `Include_2010`/`lib_2010` for VS2010) — not the near-duplicate at `Libs/InternalLib/KNCSDK/`, which nothing in either solution actually references. |
-| `Libs/ExternalLib/` | Vendored Boost, DXSDK, Intel TBB, Lua, log4cxx, freetype, jsoncpp, cppunit. |
-
-### Client control flow
-
-`CX2Main` (`X2Lib/X2Main.h`, ~2000 lines) is the client god-object and top-level state machine. Its `X2_STATE` enum (`XS_LOGIN`, `XS_DUNGEON_ROOM`, `XS_DUNGEON_GAME`, `XS_PVP_GAME`, `XS_VILLAGE_MAP`, …) maps 1:1 onto the `X2State*.h` classes. `CX2Main::StateChange()` is the transition point.
-
-Both `CX2Main` and each state derive from `CKTDXStage` — the engine's `OnFrameMove` / `OnFrameRender` / `MsgProc` / `OnResetDevice` / `OnLostDevice` interface. Actual matches derive from `CX2Game` (`X2Lib/X2Game.h`), itself a stage; `CX2DungeonGame`, `CX2PVPGame`, `CX2SquareGame` specialize it.
-
-**In-match networking is peer-to-peer UDP, not client-server.** One player is host (`CX2Game::IsHost()`); unit, NPC, and pet state sync through `Handler_P2P_*` over `CKTDNUDP`. The servers own lobby, rooms, inventory, and persistence — not per-frame combat. Anything authoritative-looking inside a match is client-trusted.
-
-Lua is pervasive on the client: game data and much content logic live in Lua, bound via `g_pKTDXApp->GetLuaBinder()` + `lua_tinker::decl(...)` in each manager's constructor, and loaded out of `.kom` mass-file archives at runtime. Shipped scripts are compiled with `LuaCompileTool/` (wraps `luac.exe`).
-
-### Servers
-
-Five executables under `KncWX2Server/`, all built on the shared `Common/` actor framework (`KActor` / `KPerformer` with per-object event queues drained by `Tick()`, FSMs declared in `*FSM*_def.h`, ODBC plus stored procedures for persistence):
-
-- **LoginServer** — accounts, auth, guilds, friends
-- **ChannelServer** — channel routing, CCU
-- **GameServer** — the main simulation/lobby server (billing, quests, items, fields)
-- **CenterServer** — cross-server rooms, battlefields, dungeon events
-- **GlobalServer** — auto-party matchmaking and other cross-shard services
-
-`GameClient/` is not a server — it's the robot/load-test client plus client-side proxy code.
-
-**Runtime config selects the environment.** `KBaseServer::…` (`Common/BaseServer.cpp`) requires at least two command-line arguments: a *version tag* and a *server group ID*. It loads `<base>.ini` and then `<base>_<versionTag>.lua`, where `<base>` is fixed per executable (`config_gs`, `config_lg`, `config_ch`, `config_cn`, `config_gb`). So the US live GameServer runs as:
-
-```
-GameServer.exe US_SERVICE 1        # -> config_gs.ini + config_gs_US_SERVICE.lua
-```
-
-Missing those arguments is a hard startup failure. The US configs live in `<Server>/Config/US/`; `config_gs_US_SERVICE.lua` sets `Server:SetUseVersion( VE_SERVICE )` and registers the ODBC DSNs (`Account_US_SERVICE.dsn`, `Game01_US_SERVICE.dsn`, `log_US_SERVICE.dsn`, `Billing_US_SERVICE.dsn`). These Lua files are UTF-8 with BOM and say so in their header line — the BOM is load-bearing. SQL Server schema and stored procedures are in `DataBase/`.
-
-### The client/server contract
-
-The client compiles the server's headers directly — `X2Lib`'s include path contains `../KncWX2Server/Common/`. There is no generated IDL and no mirrored copy:
-
-- **`KncWX2Server/Common/EventID_{System,Client,Server}.h`** — one packet/event ID per `_ENUM( … )` line. The X-macro is defined by the includer: `Event.h` expands it to enum values (three contiguous ranges chained via `E_*_EVENT_ID_END`), `Event.cpp` expands the same files to a `const wchar_t*` name table. Adding an ID anywhere but the end of a block renumbers the wire protocol.
-- **`KncWX2Server/Common/{Client,System,Common}Packet.h/.cpp`** — payload structs via `DECL_PACKET( EGS_FOO_REQ )` (declares `struct KEGS_FOO_REQ`), with hand-written `SERIALIZE_DEFINE_PUT` / `SERIALIZE_DEFINE_GET` bodies in the `.cpp` listing fields in order. **Put and Get must stay in the same order, and every new field must be added to both.**
-- **`KncWX2Server/Common/Enum/Enum.h`** — shared `SEnum::` gameplay enums.
-
-Because the two sides are compiled separately (even now that both can use VS2010, they're still two different solutions with different macro sets), **a shared-header change means rebuilding the client *and* the servers**, with the relevant flags enabled in both. Skip one and packets desynchronize silently at runtime rather than failing to compile.
-
-### Feature flags
-
-Nearly every change since ~2009 sits behind a named `#define`, and there is no build-time consistency check.
-
-- **Server plus shared:** `KncWX2Server/Common/ServerDefine.h` (~4300 lines, ~490 `SERV_*` flags). Its tail keys off `SERV_COUNTRY_US` to pull in `Common/OnlyGlobal/ServerDefine/ServerDefine_US.h`, alongside the always-on `ServerDefine_Global.h`.
-- **Client:** `KTDXLIB/KTDX.h` is the hub. `Always.h` and `AlwaysButConditionally.h` are always reachable, and under `US_INTERNAL` and (for now) `US_SERVICE` the seven `InHouse*.h` files are reachable too (see *Toolchains*). `X2Lib/X2Define.h` holds client tuning constants and the `XEM_ERROR*` code list. Several blocks in `KTDX.h` are explicitly `#ifndef _SERVICE_`, i.e. deliberately absent from this build.
-
-When adding a flag, follow the local pattern: new `#define` at the end of the owning file, commented with author / date / description, and make sure it is defined for *every* project that compiles code guarded by it. For our own client changes the owning file is always `KTDXLIB/Always.h` and the name always starts with `SERV_IRUHADEV_` — see the rule at the top of this file.
-
-### June 2017 effect engine
-
-The March client's effect engine (`CX2EffectSet`, `CX2DamageEffect::CEffect`, `SetDamageData` and the hit path) was rebuilt to June 2017's, and the live
-data is June's own effect files. The plan is **complete** (2026-10-16): `JUNE2017_EFFECT_COMPLETION_PHASES.md` (its *Definition of complete* and "C12 - Done" are the
-record), history in `JUNE2017_EFFECT_REBUILD_PLAN.md`. The June client is readable: `unpacked_x2.exe` in Ghidra, with `june2017_re/` holding the function map
-(`funcmap.tsv`), the key census (`census.py --final` is the gate) and the XOR-string table. `MODS.md` "June flag index" lists every `SERV_IRUHADEV_JUNE_*` flag with its
-revert steps. `JUNE_BUGS.md` lists June quirks kept verbatim.
-
-### Offline mode
-
-`SERV_IRUHADEV_OFFLINE` makes the client playable with **no servers running**: an in-process emulator answers the packets the five servers used to, and all player state persists to a local SQLite file, `els_db.sql`, in the game directory. It is client-only — it touches nothing under `KncWX2Server/Common/`, so the servers never need rebuilding for it.
-
-**The mode was re-applied onto the March 2014 snapshot (`dd63297`) and builds and runs; the migration plan `MARCH_2014_MIGRATION.md` closed 2026-10-16.** That file keeps the per-file inventory and the re-application technique. Design, phase history, and every correction the phases produced are in `OFFLINE_MODE_PLAN.md`; what has been changed and how to revert is in `MODS.md`. **Phase 3B (the `REFORM_ENTRY_POINT`/`SERV_ENTRY_POINT` character-select handshake) is done** — the emulator answers all three of its request packets, and character creation and character select work. A separate bug in the tutorial auto-connect that follows character creation was found and fixed 2026-09-15 (built and deployed, play-test pending); see `MARCH_2014_MIGRATION.md`'s Phase 3B section, "Auto-connect after character creation".
-
-**The flag is defined in two places and both must be toggled together**: `KTDXLIB/Always.h` (the usual place) *and* `X2ServerProtocol/X2ServerProtocol_2010.vcxproj`'s **`X2TOOL|Win32`** `PreprocessorDefinitions` — that project has no `US_*` configuration, and the solution maps `US_INTERNAL` onto `X2TOOL`. `X2ServerProtocol` does not include `KTDX.h`, so `Always.h` alone does not reach the socket seam, and setting only one side fails silently rather than at compile time.
-
-The code is all under `X2Lib/Offline/` — `X2OfflineServer.{h,cpp}` (the emulator and its dispatch table, ~200 packets), `Handlers_*.cpp` (the handlers, one file per subsystem), `X2OfflineDB.{h,cpp}` (SQLite; a versioned schema with a migration ladder), and one module per subsystem it had to reimplement (`X2OfflineInventory`, `X2OfflineQuest`, `X2OfflineTitle`, `X2OfflineSkill`, `X2OfflineCashShop`, `X2OfflineStatTable`, `X2OfflineDropTable`, `X2OfflineBattleField`, `X2OfflineRandomItem`, `X2OfflinePetData`).
-
-Three seams, and there are only three:
-
-1. **`X2ServerProtocol/Socket/Session.cpp`** — the one that matters. `KSession` hands every outbound `KEvent` to `g_pX2OfflineHook->OnClientSend()` instead of serializing it to a socket, and the hook answers by calling `KSession::QueueingEvent()` on the same session — the exact point the real receive path queues into. Everything above the socket layer therefore runs completely unmodified. The hook interface is `X2ServerProtocol/OfflineHook.h`, declared there so the socket layer does not depend on `X2Lib`.
-2. **`X2Lib/X2Data.cpp:2136`** — `ResetServerProtocol()` stands the emulator up and registers it before any proxy can connect. It outlives every `CX2ServerProtocol` on purpose: the client drops and rebuilds its proxies several times per session.
-3. **A handful of client-side revivals** — code the shipping client contains but never calls, because the *server* used to do that job. `X2DungeonSubStage.cpp` (the static-NPC parser), `X2QuestManager.cpp` (`m_iAfterQuestID`, which is a table the client never read), `X2StateServerSelect.cpp` (the UDP port check has no server to echo off). These are revivals, not rewrites.
-
-**Launching it**: `X2_offline.exe` plus `start_offline.bat` in the game directory. `SERV_IRUHADEV_NO_PATCHER_TOKEN` (a separate flag, independent of offline mode) means the exe no longer needs the `PATCHER_RUN_ONLY` token in `argv[1]` and can be started directly — without it a bare launch returns 0 out of `WinMain` with no window and no log. The `.bat` is still preferred because it does `cd /d "%~dp0"`: the working directory must be the game data directory, since `X2Main` mounts the `.kom` archives through a `"./"` prefix and the offline server writes `els_db.sql` and both logs there.
-
-**Debugging it is done by reading two log files**, both written into the game directory and both flushed after every line: `offline_server.log` (lifecycle, errors, and one line per interesting decision) and `offline_packets.log` (one line per packet, both directions, tagged `HANDLED` / `--- IGNORED ---` / `*** UNHANDLED ***` / `*** EXCEPTION - ROLLED BACK ***`). The core loop for any new work is: play until something breaks, `grep UNHANDLED offline_packets.log`, implement, repeat. Packets that are deliberately not implemented are labelled `IGNORED` with a reason from `X2OfflineIgnore.cpp`, so the `UNHANDLED` bucket stays empty and any line in it is new information. On a clean exit the same file's census is written to `offline_server.log`, naming every event ID the dispatch declined and how often.
-
-Two invariants worth knowing before changing anything in here:
-
-- **One packet is one transaction.** `OnClientSend` opens a SQLite savepoint before dispatch and commits it only if the handler returned without faulting, and it runs the whole dispatch under `m_csDispatch` because there is one `KSession::Run` thread per proxy. Anything inside `X2OfflineDB` that runs during play must use `Begin()`/`Commit()`/`Rollback()`, never a literal `BEGIN` — the literals left in `Migrate()` are safe only because it runs from `Open()`, before the first packet.
-- **`sizeof(KSession)` differs between `X2Lib` and `X2ServerProtocol`**, because `ADD_COLLECT_CLIENT_INFO_PROTOCOL` is defined in `X2ServerProtocol/X2ServerProtocol.h:8` and `X2ServerProtocolLib.h:9`, which `X2ServerProtocol` sees before the header while `X2Lib` reaches it earlier, without the macro. Never read a `KActorProxy`/`KUserProxy` member from `X2Lib`; every member reads 4 bytes low. `CX2OfflineServer::KindFromEventID` exists specifically to avoid needing to.
-
-### Deploying the offline client
-
-**This repo's `main` branch exists to build and run the offline client.** A change is not finished when it compiles; it is finished when the exe in the game directory has it and the logs show it working. The whole loop is two commands (see *Workflow automation* at the top):
-
-```sh
-python tools/build.py --deploy             # build all four projects in order, deploy, verify (run in background)
-# ...the user launches the game and plays - never launch it yourself, ask...
-python tools/logs.py --tag <PHASE_TAG>     # read this run's lines, after checking the run used the new exe
-```
-
-The game directory is `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`. `build.py` refuses to deploy while the game runs, copies `X2/US_SERVICE/x2.exe` to `X2_offline.exe`, and verifies the name programmatically along with size, md5, and survival after 3 s (Defender). It also handles PCH invalidation and serialises builds across sessions and worktrees.
-
-Five things that go wrong at deploy time, all of them silently. The tools now catch the first three; the reasons are kept here because they explain what the tools' messages mean:
-
-- **Deploy onto the exact name already in the game directory, and confirm it rather than assuming it.** It is `X2_offline.exe`, which is also the name `start_offline.bat` looks for. The source artifact is `x2.exe` **lowercase** out of `X2/US_SERVICE/` (or `X2/US_INTERNAL/` if that config was built instead - the two do not share an output directory, so check which one you actually built), and the old game directory holds half a dozen other `X2_*.exe` builds from earlier mods, so a near-miss name silently leaves the old exe in place and the next play-test measures stale code. `ls` in a terminal is not proof — read the name programmatically (`python -c "import os; print(os.listdir(DATA))"`) before claiming anything about it, and check the size and mtime of what you copied. A build that did not land is indistinguishable from a change that did not work.
-- **A stale PCH silently discards header edits.** `Always.h` and `X2Define.h` sit inside every project's precompiled header, and msbuild does not always notice. The flag is then simply absent at the call site with no error — the `#else` branch compiles and the change looks like it did nothing. After editing any header, `touch X2Lib/stdafx.cpp` before building, and if a change appears to have no effect, **prove the code compiled in** rather than re-reading the `#ifdef`s: put a `#pragma message` inside the guard, rebuild that one project, and read the compiler output.
-- **Windows Defender quarantines fresh builds.** A newly linked `x2.exe` trips a Bearfoos ML false positive. If the copy or the launch fails with no obvious reason, check Protection History; the fix is folder exclusions for the build output and the game directory, which needs an admin.
-- **The working directory must be the game directory.** `X2Main` mounts the `.kom` archives through a `"./"` prefix, and the offline server writes `els_db.sql` and both logs relative to the cwd. Launching from anywhere else finds no content, or quietly starts a second empty save somewhere surprising. `start_offline.bat` does `cd /d "%~dp0"` for exactly this; a shortcut with a different *Start in* field does not.
-- **The save file is real player data.** `els_db.sql` (plus `-wal`/`-shm`, and the `els_db.sql.bak` written on a clean exit) lives in the game directory and is the only copy of the character. Never delete it to "start clean" without asking, and never assume a schema change is reversible — `X2OfflineDB` migrates forward only. The pre-March save in the **old** directory, `...\237311\22191271\data\els_db.sql`, has already been carried into this one (its units 12/18/19 live on); the old file is only a historical copy.
-
-**Reading the result** is the actual verification; there is no test suite. The logs are in the game directory, rewritten per launch and flushed per line. `python tools/logs.py` prints the deploy/run match and the UNHANDLED/EXCEPTION and CENSUS summary; `--tag`/`--grep` add the phase's lines. For the save itself: `sqlite3 els_db.sql "select unit_uid, nickname, level from unit;"`.
-
-**When a gameplay change cannot be verified by reading code**, add a temporary diagnostic rather than reasoning further: `CX2OfflineLog::Server( L"..." )` writes a printf-style wide line into `offline_server.log`, is flushed immediately, and is available anywhere in `X2Lib`. Gate it behind its own short-lived `SERV_IRUHADEV_*_DEBUG` flag so it is one `#define` to remove, tag the lines with a grep-able prefix, and throttle per-frame logging to about once a second. This is how a rate that "should" have applied gets settled in one play-test instead of three.
+A procedure missing from `DataBase/` is not evidence it does nothing. Internally consistent local copies are not corroboration; only
+genuinely independent sources count. Commented-out live code is read for structure, never values. Transcribe live data verbatim, don't
+tidy it. Ask for dumps as plain text in the conversation, and keep server names, linked servers and logins out of anything committed or
+logged. The two failures behind this rule: `CLAUDE_REFERENCE.md`, "Background: the live-DB rule".
+
+## Build facts that matter every session
+
+- **Client = `US_SERVICE`** (VS2010 `v100`, Win32, Unicode; optimized clone of `US_INTERNAL`, same defines). `US_INTERNAL` only if asked.
+  `python tools/build.py` encodes the order, paths, `SolutionDir` and PCH handling; the manual recipe is in `CLAUDE_REFERENCE.md`, "Toolchains".
+- **The servers cannot be built here** (VS2003 not installed; the VS2010 server port was overwritten by the March sources).
+- **Never build the client from `X2Project_2010.sln`** (it never runs `X2_2010.vcxproj`).
+- **`_IN_HOUSE_` is defined**, so the seven `InHouse*.h` files compile in. Resolve any flag's real state with `cl /EP` on a probe that includes
+  `KTDX.h`, never by reading nested `#ifdef`s. Notably: `MASS_FILE_FIRST`, `WORLD_TOOL`, `_SERVICE_` are **not** defined;
+  `AUTO_LOGIN_IN_HOUSE`, `NO_GAMEGUARD`, `NOT_USE_UDP_CHECK_INHOUSE` and the in-house cheat/dev-UI surface **are**.
+- **A stale PCH silently drops header edits** (`Always.h`, `X2Define.h`): if a change seems to do nothing, prove it compiled with a
+  `#pragma message` inside the guard. `build.py --pch force` rebuilds it.
+- No test suite. Verification is the play-test plus the logs.
+
+## Offline mode: what not to break
+
+`SERV_IRUHADEV_OFFLINE`: the client plays with no servers; an emulator answers their packets and state persists to `els_db.sql` in the game
+directory. Code: `X2Lib/Offline/` (`X2OfflineServer` dispatch, `Handlers_*.cpp`, `X2OfflineDB` with a forward-only migration ladder, one
+module per reimplemented subsystem). Design history: `OFFLINE_MODE_PLAN.md`; reference: `CLAUDE_REFERENCE.md`, "Offline mode".
+- **The flag lives in two places, toggled together:** `KTDXLIB/Always.h` and `X2ServerProtocol_2010.vcxproj`'s `X2TOOL|Win32` defines.
+- **Seams:** `X2ServerProtocol/Socket/Session.cpp` (outbound `KEvent` -> `g_pX2OfflineHook->OnClientSend()`, answered via
+  `KSession::QueueingEvent()`), `X2Data.cpp` `ResetServerProtocol()`, and a few revived client paths.
+- **One packet is one transaction:** handlers run under `m_csDispatch` inside a SQLite savepoint; code in play uses
+  `Begin()`/`Commit()`/`Rollback()`, never a literal `BEGIN`.
+- **`sizeof(KSession)` differs between `X2Lib` and `X2ServerProtocol`:** never read a `KActorProxy`/`KUserProxy` member from `X2Lib`.
+- **Logs** (game dir, flushed per line): `offline_server.log`, `offline_packets.log` (`HANDLED` / `IGNORED` / `UNHANDLED` / `EXCEPTION`),
+  `ErrorLog.txt`. Read them with `tools/logs.py`. A temporary diagnostic is `CX2OfflineLog::Server( L"..." )` behind its own
+  `SERV_IRUHADEV_*_DEBUG` flag, grep-able tag, throttled to about once a second.
+
+## Deploy and the game directory
+
+Game dir: `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`. `build.py --deploy` copies `X2/US_SERVICE/x2.exe` to
+`X2_offline.exe` there and verifies it; it refuses while the game runs. The user launches through `start_offline.bat` (sets the working
+directory). **Never launch the game yourself; ask.** **`els_db.sql` (+ `-wal`/`-shm`) is the only copy of the user's characters:** never
+delete it, back up before editing (`tools/elsdb.py`), and treat schema changes as irreversible. Defender may quarantine a fresh build
+(Bearfoos false positive; folder exclusions are set).
 
 ## Conventions
 
-- Comments and identifiers are frequently **Korean in CP949/ANSI encoding**, not UTF-8 — most editors and `grep` render them as mojibake. Do not "fix" the encoding of a file you are editing; write new comments in ASCII and leave existing bytes alone. **Edit these files with `tools/bytepatch.py`** (x2-byte-edit skill). It keeps every byte outside the edit and takes each inserted line's ending from its anchor line. Verify with `tools/flagcheck.py`, which reports any encoding-class change.
-  - **This is not just an editorial preference — Claude Code's Edit tool can silently violate it.** On at least one CP949 file, a normal Read-then-Edit round-trip (touching only a handful of lines) re-encoded the *entire file* to UTF-8 and normalized its line endings, corrupting every Korean byte sequence in it while `git diff` looked deceptively plausible at a glance. **After editing any file that carries non-ASCII bytes, verify before trusting the result or committing:** run `file <path>` and confirm the encoding line hasn't changed (e.g. `ISO-8859 text` / `Non-ISO extended-ASCII text`, not `Unicode text, UTF-8 text`), and check `git diff --stat` — a change of a few lines should not produce a diff of hundreds or thousands. If it did, `git checkout -- <path>` to restore the pristine bytes (confirm with the user first — it's a destructive command) and redo the edit at the byte level instead (e.g. a small Python script opening the file in `"rb"`/`"wb"` mode, matching your target region by exact byte content, and leaving everything else untouched — reuse existing non-ASCII byte spans verbatim via slicing rather than retyping them).
-- Change blocks are marked `//{{ author : date // description` … `//}}` and are expected on non-trivial edits.
-- `#endif SERV_FOO` — a trailing token after `#endif` (invalid standard C++, tolerated by MSVC) is the house style for matching a long `#ifdef`. Keep it.
-- Every client edit is gated behind a `SERV_IRUHADEV_*` flag defined in `KTDXLIB/Always.h` — see the rule at the top of this file.
-- Write server code (`KncWX2Server/`) as VS2003/C++98-clean anyway, even though it now also builds under VS2010: no `auto`, no range-for, no `nullptr`, no rvalue references. This isn't a hard toolchain requirement any more (see *Toolchains* above), but `X2Project_2003.sln` is kept around specifically as a cross-check, and anything in `KncWX2Server/Common/` still compiles under **both** toolchains — a VC10-only construct there would quietly break that. Genuine VS2003→VS2010 compiler-conformance fixes (bare member-function pointers needing `&`, for-scope leaks, etc.) are expected and fine; see the port guide for the recurring patterns.
-- Prefix by layer: `CKTDX*` / `KTDG*` engine, `CX2*` client gameplay, `K*` server and KNCSDK.
-- Wide strings (`std::wstring`, `WCHAR`) throughout; `#pragma pack(push,1)` around every packet struct.
-
-## `march2014/update/` manifests
-
-Each `data###/` directory under `march2014/update/` holds a `_manifest.json` listing every file in that directory: key is the filename, value is `"2"` for `.lua` files and `"0"` for anything else. Several `data###/` directories are missing this file entirely (found by diffing directory listings against sibling `_manifest.json`s — not tracked anywhere else). When adding one, match the existing format byte-for-byte: `{\r\n  "filename": "value",\r\n  ...\r\n}` — CRLF line endings, 2-space indent, no trailing newline after the closing `}`. Regenerating with a naive JSON dump (compact single-line, or LF, or trailing newline) produces a file that reads correctly but diffs as a full rewrite against the house convention.
-
-## Uncompiled June client Lua: `june_src_fixed/`
-
-**When you need to read a June 2017 client `.lua` in source form, look in `june_src_fixed/`, not `june2017_re/` or a fresh decompile.** It's laid out as `june_src_fixed/data###_kom/<Name>.src.lua`, one subdirectory per `.kom` archive. These were decompiled with `june2017_re/ljd_jun2017.py`, a fixed decompiler that corrects known bugs in the stock `elstools`/`ljd` June decompiler: the mis-mapped `0x2f`–`0x37` opcode table that breaks big June files, and dropped top-level assignments that turn into stray globals. A plain `elstools`/`ljd` run on June `.kom` contents does **not** have these fixes and should be treated as unreliable for anything beyond a quick name lookup — prefer `june_src_fixed/` whenever the file you need exists there.
-
-## Tooling
-
-Content tools are separate executables, mostly with their own solutions. C++ world/content editors: `X2WorldTool`, `X2DungeonTool`, `X2EffectTool`, `X2ItemTool`, `X2LineMapTool`, `X2ScenarioTool`, `X2EventSceneTool`, `X2Viewer`, `X2MassFileTool` (`.kom` archive packing). C# WinForms data managers over Access/Excel and SQL Server: `ScriptDBManager`, `StringDBManager`, `TextureStringManager`, `Localization/DBManager`, `TransDBManagerForWeb`, `ContentSelector`, `ReleaseTool`, `BillingTool`, `NetErrorDBManager`. Balance and table data ships as `.xls` / `.xlsm` / `.mdb` in `ScriptData/`. Client patching: `X2Patcher`.
-
-`HShield/`, `XTRAP/`, `NexonModule/`, `Steamworks/`, `IGA/` are third-party anti-cheat, publisher, and ad SDKs, each activated by its own macro. They are the usual reason a fresh configuration fails to link.
+- **Many sources are CP949 (Korean comments), not UTF-8.** Never re-encode them. Edit with `tools/bytepatch.py`, verify with `flagcheck.py`;
+  the Edit tool can silently re-encode a whole file. After touching a non-ASCII file, check `file <path>` and `git diff --stat`.
+- Non-trivial edits use the change-block markers `//{{ author : date // description` ... `//}}`.
+- Prefixes: `CKTDX*` / `KTDG*` engine, `CX2*` gameplay, `K*` server and KNCSDK. Wide strings throughout; `#pragma pack(push,1)` around packets.
+- Server code (`KncWX2Server/`) stays C++98-clean (no `auto`, range-for, `nullptr`, rvalue refs).
+- June client `.lua` in source form: read `june_src_fixed/data###_kom/<Name>.src.lua` (fixed decompiler), not a fresh `elstools`/`ljd` run.
+- `march2014/update/*/_manifest.json`: CRLF, 2-space indent, no trailing newline (`CLAUDE_REFERENCE.md`, "`march2014/update/` manifests").
 
 ## Cautions
 
-- `X2Project_2010.sdf` (270 MB), `X2Project_Servers_2010.sdf`, and `X2Project_2003.ncb` (22 MB) are IntelliSense databases, and `ipch/` is precompiled-header cache. Never edit them; deleting them is safe and VS regenerates them.
-- `Libs/` holds ~22,000 vendored files. Scope searches to `X2Lib`, `KTDXLIB`, `KncWX2Server`, or `X2ServerProtocol` — a repo-wide recursive grep takes minutes.
-- Server config `.dsn` files contain real database hostnames and plaintext credentials from the original deployment. Don't propagate them into new files, logs, or anything published.
+- Scope searches to `X2Lib`, `KTDXLIB`, `KncWX2Server`, `X2ServerProtocol`; `Libs/` has ~22,000 vendored files.
+- `.dsn` files hold real hostnames and plaintext credentials: never copy them into new files, logs or anything published.
+- `*.sdf`, `*.ncb`, `ipch/` are IntelliSense caches: never edit.
