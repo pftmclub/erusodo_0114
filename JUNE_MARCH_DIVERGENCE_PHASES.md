@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list).
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -913,8 +913,8 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   off: `CHRISTMAS_EVENT_2013`, `SERV_GATE_OF_DARKNESS_SUPPORT_EVENT`, `HEAD_ATTACHED_CAMERA_TEST` (March-only lines June drops anyway).
 - **Bookkeeping:** `MODS.md` sections for all three; `JUNE_BUGS.md` 467-469; `guards.tsv` Add row for `RIDING_HYPER_MODE_END`; stand-ins named.
 - **Branches placed:** black-out screen + the `+0x3b84` list (a timed per-unit mark list: timer `+4` counted down by `32297740`, effect set
-  `+0x41ec` via `322919d0`, fed through `Process_ExtraDamage`) -> new phase **D1-2c** (`kickoffs/june-march-divergence/D1-2c.md`), reviewed
-  in `D1-4 review`. Camera chain -> fixed above; March's `ManualTrackingCamera` / `CalcNormalCameraPosition` carry the same 2-type chain,
+  `+0x41ec` via `322919d0`, fed through `Process_ExtraDamage`) -> was phase D1-2c; moved out of this plan (user, 2026-10-29, drift) to backlog **Stage 36**
+  (`kickoffs/june-backlog/stage36-extra-damage.md`). Camera chain -> fixed above; March's `ManualTrackingCamera` / `CalcNormalCameraPosition` carry the same 2-type chain,
   June counterparts not in the tsv -> lead in `D1-review.md`. Backlog Stage 35 bullet updated.
 - **Hygiene:** `flagcheck <FLAG> --range <c>^..<c>` per flag: all 21 `RESULT: PASS`, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches, 0 encoding
   changes. Shared-file flags rerun `--with` their same-commit siblings: SKILL_MEMO / SKILL_LEVEL_VALUE / FORCE_HYPER_MODE 1 PASS, 13 OTHER each;
@@ -1039,9 +1039,9 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   re-inits the glow, UI callers `32195e40` / `321a29a0`) and `31f97960` (vslot 0x10 draw of sequences 1-4, R4a routed) are not in March.
 - **June bugs kept:** `JUNE_BUGS.md` 473 (viewer handle 4 from name 3, March too).
 - **Split:** `31ff8510` `ProcessEnchantedWeaponEffectAtHand`, the nine viewer enchant frame moves that call `31f91230`, and 263 -> **D1-3e**;
-  250 / 205 / the MP rate sites (tasks 1, 2, 5) -> **D1-3f** (kickoffs written; tsv rows annotated).
+  250 / 205 / the MP rate sites (tasks 1, 2, 5) -> **D1-3f** (kickoffs written; tsv rows annotated). The MP rate sites left D1-3f for Stage 33 (user, 2026-10-29, drift).
 - **Bookkeeping:** funcmap rows `(Diverge D1-3c)` x15; tsv 205 / 250 / 252 / 263 annotated; `MODS.md` D1-3c entry; checklist 7as; JUNE_BUGS 473;
-  `D1-4-review.md` covers D1-3e / D1-3f and lists three review points.
+  `D1-4-review.md` covers D1-3e / D1-3f and lists three review points (D1-3f no longer has the MP rate sites).
 - **Order proof:** `cl /EP` with the US_SERVICE defines on a probe including `KTDX.h`, then one including `X2Lib/StdAfx.h`: `ADD_UPGRADE_WEAPON_PARTICLE`,
   both flags DEFINED (no later `#undef`).
 - **Hygiene:** `flagcheck --worktree --files`: `WEAPON_EFFECT_SHOW` RESULT PASS (`X2GameUnit.cpp` +20, 0 deleted, 0 non-ASCII, 0 EOL mismatch);
@@ -1068,13 +1068,13 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   list `+0xda0`. All nine frame moves read the list (D1-3c's "Add's `+0xd90` list" was the whole viewer's), so their bodies cannot be ported without
   the container, and the container changes about eighteen functions: variadic creators `31f9d1f0` / `31f9d3b0`, the three EDT switches `31f9ea20` /
   `31f9eeb0` / `31f9d570`, delete `31f9da10`, the at-hand `31f961a0` (per-type rate vector; Chung on `Bip01_R_Hand`), ctor / dtor, frame move, render,
-  `SetShowAttribEnchant`. Every one has a March twin, so it stays in this plan (kickoff `D1-3g.md`, the March / June table there; 16 funcmap rows
-  `(Diverge D1-3e)`). June-only frame moves `31f93050` / `31f93200` / `31f940b0`: checklist 7as.
+  `SetShowAttribEnchant`. Every one has a March twin, but none is a `replace` row, so it left this plan (user, 2026-10-29): june-charinfo C4 add-on, kickoff
+  `kickoffs/june-charinfo/C4-enchant.md` (the March / June table there; 16 funcmap rows `(Diverge D1-3e)`). June-only frame moves `31f93050` / `31f93200` / `31f940b0`: checklist 7as.
 - **Task 3, routed to june-engine R6c:** 263 is not a `Weapon` function in June. `3295cd30` = `ADD ECX,0x8f0; JMP 3295bf90` on an equip-side list of
   entries (show byte `+0x34`, handle `+0x2c`, system byte `+0x1c`), with writers `3295d960` / `3295ddf0` / `32961c80` in the `CX2Eqip` range R6b owns.
   A June-only container on another class: routed, not half-ported (kickoff `kickoffs/june-engine/R6c.md`, STATUS row; tsv 263 annotated).
 - **Bookkeeping:** funcmap `31ff8510` row rewritten + 15 new `(Diverge D1-3e)` rows; tsv 263; checklist 7as; `MODS.md` D1-3e entry. No JUNE_BUGS row
-  (no June quirk at this site). `D1-4-review.md` now also covers D1-3g.
+  (no June quirk at this site). `D1-4-review.md` no longer lists D1-3g (moved to june-charinfo C4).
 - **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW --worktree --files X2Lib/X2GUUser.cpp`: RESULT PASS (`X2GUUser.cpp` +4, 0 deleted,
   0 non-ASCII, 0 EOL mismatch).
 - **Build:** `DEPLOY OK: X2_offline.exe is 25,826,304 B, dated 2026-10-29 22:47:29, md5 b28778a6fa5a8c8c4982417014148748, equal to X2/US_SERVICE/x2.exe

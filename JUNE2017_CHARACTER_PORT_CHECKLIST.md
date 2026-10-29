@@ -995,5 +995,5 @@ centres of `+0xecc` / `+0xed0` and `+0xefc` / `+0xf00`, which `InitWeaponTrace` 
 The attribute-enchant hand sparks have them too (D1-3e): `CX2GUUser::ProcessEnchantedWeaponEffectAtHand` (`31ff8510`: 10 on `Dummy1_Rhand` of the second skin
 `+0x8e88` when byte `+0x8e90` is 1, else `Bone_RFinger2`, rates 15 / 30 / 60 / 25; 11 `Dummy4_LWeapon01` 10 / 10 / 10 / 25; 12 `Dummy1_Rhand` 15 / 30 / 60 / 25),
 the viewer's `ProcessEnchantedWeaponEffectAtHand` (`31f961a0`, cases 10-12) and its three June-only frame moves `31f93050` (Lu/Ciel: `+0xd80` set -> trace
-centre, else `Bone_RFinger2`), `31f93200` (Rose, `Dummy4_RWeapon01`), `31f940b0` (Ain, `Weapon_Bone_Nub`). The viewer ones need D1-3g's handle lists first;
+centre, else `Bone_RFinger2`), `31f93200` (Rose, `Dummy4_RWeapon01`), `31f940b0` (Ain, `Weapon_Bone_Nub`). The viewer ones need june-charinfo C4's attribute-enchant handle lists first (add-on, was D1-3g);
 funcmap rows `(Diverge D1-3e)`.

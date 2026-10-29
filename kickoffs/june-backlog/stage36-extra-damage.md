@@ -1,13 +1,15 @@
-# One function per name - Phase D1-2c - Process_ExtraDamage's missing June cases: black-out screens and the timed mark list
+# Stage 36 - Process_ExtraDamage's missing June cases: black-out screens and the timed mark list
+
+Moved out of june-march-divergence (was D1-2c; user, 2026-10-29, drift: `Process_ExtraDamage` is tsv `out`, so no `replace` row). New backlog Stage 36, unplanned: turn it into a plan with `/x2-phase new-plan` when it is picked up.
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-march-divergence D1-2c` |
-| Plan doc | `JUNE_MARCH_DIVERGENCE_PHASES.md` (branch `main`) |
-| Depends on | D1-2 review; not beside D1-3 (both edit `X2GUUser.cpp`) |
-| Flag | `SERV_IRUHADEV_JUNE_DIVERGE_<NAME>`, one per logical change (black-out screen; mark list) |
+| Start | new conversation on **Opus 5.5, high** effort; plan it first (`/x2-phase new-plan june-extra-damage`) |
+| Plan doc | `JUNE_PORT_BACKLOG_ORDER.md`, "Stage 36" (branch `main`) |
+| Depends on | nothing; the divergence D1-2 work it follows is committed (both edit `X2GUUser.cpp`) |
+| Flag | `SERV_IRUHADEV_JUNE_EXTRA_DAMAGE_<NAME>`, one per logical change (black-out screen; mark list) |
 | Log tag | none (add one only if a check needs a log line) |
-| Review | `D1-4-review.md` |
+| Review | the new plan's own review |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -35,8 +37,7 @@ stand-in comments. Port them whole, then replace those stand-in comments with Ju
    container and its game-unit readers, guard the writer's class (`guards.tsv`), and say so.
 
 Per change: June's whole body under its flag, March's in `#else`; one `MODS.md` entry for the sub-phase, a `JUNE_BUGS.md` row per June bug.
-Delegate bytepatch specs you write, builds and flagcheck runs to Sonnet subagents. Write the Done note under "D1 split" as "D1-2c Done",
-update the STATUS row, commit with explicit pathspecs.
+Delegate bytepatch specs you write, builds and flagcheck runs to Sonnet subagents. Write the Done note in the new plan, update its STATUS row, commit with explicit pathspecs.
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): `EDT_*` ids by name; register June's name and value under a `SERV_IRUHADEV_`
 flag if C++ lacks it. No `June` prefix (user, 2026-10-28): members and functions in the class's own pattern.
@@ -46,4 +47,4 @@ flag if C++ lacks it. No `June` prefix (user, 2026-10-28): members and functions
 - Uncarved functions: `python june2017_re/funcdis.py --func <va>`; Ghidra's decompile of the XOR-keyed Lua reads is unreadable, use the asm.
 - The Write tool strips trailing whitespace: an anchor line that ends in a space or tab needs `@@ anchor_hex`.
 - An `#error` guard is proven by `cl /P` of a real `.cpp` before the build (CLAUDE.md build rule 3).
-- No play-test hand-off: the plan's smoke runs once at the end (user, 2026-10-29). Finish = flagcheck, build, DEPLOY OK, Done note, commit.
+- Finish like any phase (x2-phase "Finish"): flagcheck, build, DEPLOY OK, Done note, commit, and a play-test hand-off (an NPC's blind darkens the screen).

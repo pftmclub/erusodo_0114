@@ -185,6 +185,9 @@ is the reading list for it). Add the rows to Stage 33's map (`june2017_re/statca
 MsgProc `3291d390`, UnitHandling `32912d90`, viewer `329148d0` (and `32914d70` if C0 places it), light `329142a0` + UI manager `32150e30`, switching view
 `32912c50`, and the slot paths: `32917080`, `32918410`, `32917fd0`, `329128e0`, `32913b90`, `32916810`, `3291d830`, `3291d9f0`.
 **Gate:** rotate / zoom the model, light on / off, drag-equip, right-click unequip, tooltips; log clean.
+**Add-on (moved from june-march-divergence D1-3g, user 2026-10-29, scope rule):** the viewer's attribute-enchant family, June's two handle lists
+(fire `+0xd90`, hand `+0xda0`) and the ~18 functions that read them. Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT`, brief `kickoffs/june-charinfo/C4-enchant.md`.
+Gate adds: the model in the U window shows the weapon's attribute sparks, none while riding or in an avatar emotion.
 
 ## Phase C5 - Actions that send packets (Sonnet 5.5, high)
 

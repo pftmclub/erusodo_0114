@@ -72,6 +72,7 @@ The user's remaining backlog, in the order they listed it:
 | 32 | June bottom bar *(added 2026-10-24, user: split out of Stage 9)* | - (user request) | The village / field bottom bar as June draws it: June's `DLG_Menu_Button_NEW.lua` and its textures, the button row layout, the EXP bar and the stamina bar, and June's body for each working button. Buttons whose feature the project lacks are drawn and log a `STUB` click; their features stay Stage 9. Planned in full as `JUNE_BOTTOMBAR_PHASES.md` (B0-B4, Z); runs now, outside the Stage 9 order. |
 | 33 | June damage and character stat calculation *(added 2026-10-27, user)* | - (the Aisha instant-MP bug) | Not a backlog item but a correctness gap: June's stat and damage formulas were ported piecemeal, by the buff, socket, effect and skill plans. Where a June seed or refresh now sits beside a March helper, the result is neither game's number: one ranged hit gave +6722 MP. This stage maps every stat and damage formula as June / March / mixed and replaces each mixed one with June's whole calculation. Its code runs after the character ports (Stages 7 and 8), so every character's damage can be tested on June's formulas (user, 2026-10-27). A mixed formula that breaks play before then is still fixed at once (*Scope*). Brief `kickoffs/june-backlog/stage33-plan.md`. |
 | 34 | June character info window *(added 2026-10-28, user: split out of Stage 9)* | - (user request) | The U-key window as June draws it: June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's `CX2UICharInfo` bodies (header, equipment, the stat panels with the socket total, the viewer, light, switching, unequip-all). Buttons for missing systems are drawn and log a `STUB` click. Planned in full as `JUNE_CHARINFO_PHASES.md` (C0-C5, review, Z); runs now, outside the Stage 9 order. |
+| 36 | June extra-damage cases *(added 2026-10-29, user: moved out of june-march-divergence D1-2c)* | - (found by june-march-divergence D1-2b) | `Process_ExtraDamage` cases March lacks: the black-out screens (`EDT_BLIND`, `EDT_AMUSEMENT_ITEM_DARK_CLOUD`) and the timed per-unit mark list `CX2GameUnit +0x3b84`. Cosmetic / minor; `EDT_BLIND` is reachable offline. Unplanned. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -1265,7 +1266,8 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
   - known mixed sites (char-eve CH2b review, 2026-10-27): June `322cc1a0` (PvP **or** PvE) is still read as `GT_PVP` only at `X2DamageManager.cpp` `ParsingBuffFactorID` (`_BUFF_FACTOR_ID`) and Aisha's `June_AVSI_TELEPORT_START_UPGRADE_Start` / `June_GetPassiveSkillAbilityValue`. `GT_PVE` (4) is registered and `CX2Game::GetIsNowPVPCorrectionGame` exists; Eve's five sites were fixed in that review.
 - **Resource gain:**
   - MP on hit and on hit taken, the awakening-gauge gain, HP / MP regen;
-  - MP cost (`GetActualMPConsume`).
+  - MP cost (`GetActualMPConsume`);
+  - **MP rate sites (moved from june-march-divergence D1-3f, 2026-10-29, drift):** `GetSkillMpDecreaseRate` (June `3234d840`, ported under `SERV_IRUHADEV_JUNE_SKILL_MP_DECREASE_RATE`) compiles, but March's call sites still sit under the undefined `SERV_BALANCE_FINALITY_SKILL_EVENT` (`X2GuEve.cpp` ~42923 and the classes' MP blocks). June calls it from six sites (`329a7bcf`, `32b7edc3`, `32b967f0`, `32bedb1f`, `32c382ac`, `32c85892`): name each site's March counterpart and run the step there as June does. Do not define the event flag.
 
 **Method.**
 - A map phase first: one row per formula function and per stat member. Each row gives its June address, its March counterpart, its port state (**June / March / mixed**) and the flag that last touched it.
@@ -1289,6 +1291,8 @@ The user asked for the U-key window as June has it. Plan `JUNE_CHARINFO_PHASES.m
   `3291df90`, SetTitle, equipment, UICustomEventProc `3291db60`, UIServerEventProc `32915080`, the stat panels (`3291cfb0`, `32915ab0`, `32919430`, `32916160`,
   `32915620`, the Lua coefficient callers), the socket total (`3291ba40` family; was this file's S7p bullet in Stage 9), the viewer / light / slot paths,
   switching (unit `+0xe40`) and unequip-all `32918c70` with their emulator answers.
+- **Add-on to C4 (2026-10-29, moved from june-march-divergence D1-3g):** the unit viewer's attribute-enchant family, June's two handle lists (fire
+  `+0xd90`, hand `+0xda0`) and the ~18 `CX2UnitViewerUI` functions that read them (`kickoffs/june-charinfo/C4-enchant.md`).
 - **Drawn, click logs `STUB` (user, 2026-10-28):** Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Rose's weapon change / lock -> Stage 8,
   Damage Meter -> owner set by C0.
 - **Stays Stage 9:** `CX2UIWatch` (user, 2026-10-28), the transcend-UI leftovers. **Stage 33** keeps the `CX2Stat` sums under the printed numbers; C3 records
@@ -1326,12 +1330,20 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
     emptied by `32274880` at the end of `DyingStart` (stand-in comment): identify it.
   - `CX2Camera::NomalDirectCamera` `31fb3c50`: its game-type height-compensation chain (game vslot `0x10c` against 2 / 3 / 4) was never
     compared with March's (`X2Camera.cpp`, GT_DUNGEON / GT_BATTLE_FIELD); D1-2b only added the roll.
-  - **Placed by the D1-2 review (2026-10-29):** the black-out screen and the `+0x3b84` list (a timed mark list fed through
-    `Process_ExtraDamage`) are phase **D1-2c** (`kickoffs/june-march-divergence/D1-2c.md`). The camera chain (game types 2-5 in June's
+  - **Placed by the D1-2 review (2026-10-29), moved out of this plan the same day (user, drift):** the black-out screen and the `+0x3b84` list (a timed mark list
+    fed through `Process_ExtraDamage`) are **Stage 36** (`kickoffs/june-backlog/stage36-extra-damage.md`). The camera chain (game types 2-5 in June's
     `31fb3c50` and `31fb3640`) was fixed in the review under `LUA_CAMERA`. March's `ManualTrackingCamera` and `CalcNormalCameraPosition`
     carry the same 2-type chain; their June counterparts are not in the tsv: the D1 review (`D1-review.md`) compares them.
 - **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0a`. D2's close adds the gate
   and table rule as standing rules (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
+
+### Stage 36: June extra-damage cases (user, 2026-10-29; moved out of june-march-divergence D1-2c)
+
+D1-2b found two June systems that `Process_ExtraDamage` (`32034e50`, tsv `out`, ported in Buff 16) feeds and March lacks. The scope rule keeps them
+out of the divergence plan (no `replace` row, nothing blocks play), so they are a stage of their own.
+- **Black-out screens:** `EDT_BLIND` (`@32035ff7`) and `EDT_AMUSEMENT_ITEM_DARK_CLOUD` (`@320392cd`), their user state, and `DyingStart`'s cleanup (a stand-in comment today).
+- **The timed mark list** `CX2GameUnit +0x3b84`, its unit effect set `+0x41ec` and the NPC side `327995c0`.
+- **Brief:** `kickoffs/june-backlog/stage36-extra-damage.md` (`/x2-phase new-plan june-extra-damage`). **Depends on:** nothing. Priority: scattered systems.
 
 ## Open decisions that gate stages
 

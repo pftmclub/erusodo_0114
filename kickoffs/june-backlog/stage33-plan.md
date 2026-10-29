@@ -41,7 +41,7 @@ Do the RE read-only in Ghidra and `june2017_re/disasm_range.py`; delegate greps 
     `SetGameStat` `322814a0`, `ResetMaxHP` / `ResetMaxMP` `31fd2810`, and the character-info UI numbers;
   - damage: `GetFinalDamage` `32284aa0` and its helpers, `SetDamageExceptionProcess` `322990e0` + the per-class overrides, user /
     NPC `DamageReact`, defence / resist / enchant, PvE / PvP / boss rates;
-  - resource gain: MP on hit / hit taken, awakening gauge, regen, MP cost.
+  - resource gain: MP on hit / hit taken, awakening gauge, regen, MP cost (incl. the six `GetSkillMpDecreaseRate` `3234d840` call sites, moved from june-march-divergence D1-3f 2026-10-29; see backlog Stage 33).
 - **Inherited, not redone** (verify each row's June claim by a spot-check, do not re-port): the june-buff members, socket parity, effect
   C3 damage data, ExtraNPCStat, Stage 3 skill values, transcendence.
 - **The phases.** One phase per area of mixed rows. Each one:

@@ -1,13 +1,16 @@
-# One function per name - Phase D1-3g - The unit viewer's attribute-enchant family (June's handle lists)
+# June character info window - Phase C4 add-on - The unit viewer's attribute-enchant family (June's handle lists)
+
+Moved here from june-march-divergence D1-3g (user, 2026-10-29: drift, the viewer is C4's subject; nothing in it is a `replace` row of
+`june_march_divergent.tsv`, and the game plays without it). It runs inside or right after C4, in the same session when C4 has room.
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-march-divergence D1-3g` |
-| Plan doc | `JUNE_MARCH_DIVERGENCE_PHASES.md` (branch `main`) |
-| Depends on | D1-3e; beside D1-2c / D1-3d (this phase edits only `X2UnitViewerUI.{h,cpp}` and `Always.h`), not beside D1-3f (also edits `X2UnitViewerUI`) |
-| Flag | new `SERV_IRUHADEV_JUNE_DIVERGE_VIEWER_ATTRIB_ENCHANT` (`#error` without `_WEAPON_EFFECT_SHOW`, whose viewer `CanShowWeaponEffect` it calls) |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-charinfo C4` and read this file with `C4.md` |
+| Plan doc | `JUNE_CHARINFO_PHASES.md` (branch `main`); the Done notes below are in `JUNE_MARCH_DIVERGENCE_PHASES.md` |
+| Depends on | C3 and C4's viewer work (same `X2UnitViewerUI` files; D1-3f's reform and equip-collision edits there must be committed first); june-march-divergence D1-3c / D1-3e are done |
+| Flag | new `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT` (`#error` without `SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW`, whose viewer `CanShowWeaponEffect` it calls) |
 | Log tag | none (add one only if a check needs a log line) |
-| Review | `D1-4-review.md` |
+| Review | `kickoffs/june-charinfo/C5-review.md` |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -36,8 +39,10 @@ handle vectors: the fire list (`+0xd90`) and the hand list (`+0xda0`). Every fun
 
 - The June-only frame moves `31f93050` (Lu/Ciel), `31f93200` (Rose), `31f940b0` (Ain) and cases 10-12 go to checklist 7as (already listed by D1-3e).
 - Read stack slots from the disassembly where the decompile mixes locals (the D1-3b lesson); constants with `june2017_re/charport_consts.py --fn <va>`.
-- `MODS.md` entry, a `JUNE_BUGS.md` row per June bug kept, funcmap rows `(Diverge D1-3g)`. Delegate bytepatch specs you write, builds and flagcheck
-  runs to Sonnet subagents. Done note "D1-3g Done" under "D1 split", STATUS row, commit with explicit pathspecs. Split again if it fills the session.
+- `MODS.md` entry, a `JUNE_BUGS.md` row per June bug kept, funcmap rows `(CharInfo S34)` (the 16 existing `(Diverge D1-3e)` rows map every June function above). Delegate bytepatch specs you write, builds and flagcheck
+  runs to Sonnet subagents. Record it in C4's Done note, update the STATUS row, commit with explicit pathspecs. Split again if it fills the session.
+- **Gate (added to C4's):** the character window (U) shows a wind / light / fire / curse weapon's attribute sparks on the model, and none while riding or during an
+  avatar emotion; the hand sparks follow June's per-type bone.
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md). No `June` prefix (user, 2026-10-28).
 
@@ -45,4 +50,4 @@ No hardcoded enum literals (user, 2026-10-26; CLAUDE.md). No `June` prefix (user
 
 - D1-3c's guess that `+0xd90` was Add's own list was wrong: it is the viewer's fire list, read by every frame move. Check a member offset against
   every function that reads it (`grep "+ 0xd90\]"` over the viewer range's disassembly) before calling it June-only.
-- No play-test hand-off: the plan's smoke runs once at the end. Finish = flagcheck, build, DEPLOY OK, Done note, commit.
+- Finish like any charinfo phase (x2-phase "Finish"): flagcheck, build, DEPLOY OK, Done note, play-test hand-off with the gate above.
