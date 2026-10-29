@@ -18,7 +18,8 @@ kickoff in a plan doc: change the file in `kickoffs/` instead, and say why in th
 
 ## status / next (read-only)
 
-Read `STATUS.md` only. Answer in plain words, short:
+Read `STATUS.md` only (it holds open plans and open rows; never read `STATUS_ARCHIVE.md` whole, grep it by
+phase id when a Depends or old commit needs checking). Answer in plain words, short:
 - what is running or waiting on the user (play-test, a decision, a pack);
 - what can start now, with model/effort and the exact command to type;
 - which of those can run **at the same time** (STATUS "Touches" columns do not overlap and
@@ -141,7 +142,10 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    needs it. Anything that drifts is identified in the note, together with its related branches, and gets its own plan
    in this session: a bullet and brief in the stage that owns it, or a new backlog stage with
    `kickoffs/june-backlog/stageN-plan.md`. Never chase the call graph phase after phase, and never drop a branch.
-4. **STATUS.md**: update this phase's row (state, commit, what the user owes) in the same commit.
+4. **STATUS.md**: update this phase's row (state, commit, what the user owes) in the same commit. A row is one
+   line of about 200 characters: evidence (md5s, counts, log lines, flagcheck tallies) goes in the Done note,
+   never in the row. A phase that is done and owes nothing moves its id to the block's `Done:` line. When a
+   plan closes (Z done), append its block to `STATUS_ARCHIVE.md` and replace it with one *Closed plans* row.
 5. **Review kickoff**: if the phase needs a review and `kickoffs/<plan>/<phase>-review.md` does
    not exist, write it from `kickoffs/TEMPLATE-review.md`. After a review, write or check the
    next phase's kickoff the same way. The user should never have to ask "what's the kickoff".
