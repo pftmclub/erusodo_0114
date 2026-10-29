@@ -33,25 +33,24 @@ the log" means this phase's own lines only; never launch the game.
    (`git log -1 --format=%cd -- X2Lib KTDXLIB X2`) and run `python tools/exestr.py` for one string per big flag family (see each Done note's
    `EXESTR` line). If stale, build once (`python tools/build.py --deploy`, background).
 2. **Build the hand-off.** Re-grep the "Smoke" lines; merge them into one run of about 30 minutes, grouped so the user changes character as
-   few times as possible. Seed (2026-10-29, check each against its Done note, and drop what D1-3g / D1-2c / D1-3f's old MP sites took with them):
-   - **Elsword (unported), a dungeon:** a skill with memo 13 acts memo-less; B-slot skills; end a hyper mode early; finish the dungeon (result
-     invincibility); die: body fades, no Sacrifice of Hero heal; a +11 sword shows the lightning glow, a +13 adds the sparks, none while riding or
-     during an avatar emotion; a wind / light / curse weapon shows the hand sparks; a triple-attribute weapon glows; the glow also shows in the
-     character window (U); a hyper-active skill's cool time with item 60008065 is cut only in a dungeon.
-   - **Aisha (ported):** dash combo Z-Z-Z with memo 5 gives no super armour; cool times after a skill use; B-slot skills; die: no Sacrifice of Hero
-     heal; amusement-item pickups (press / missile / water balloon).
-   - **Eve (ported):** B-slot skills; glow on both weapons (and Add's); Pandemonium Fear holder takes a hit; non-hyper skill cool time with Cheat
-     Code: Electronic learned; amusement-item pickups; a mana-drain hit shows no number.
-   - **Unported classes:** Chung skill with memo 13 acts memo-less, berserk with 2 orbs and a hyper buff no longer forces full hyper; Ara
-     awakening and Add formation sets render undimmed; Add's riding dash and summon skill on the last kill of the last sub-stage is refused
-     (string 45041); riding pet in a village and a dungeon, rider on the saddle, every riding state plays `Ride_N`.
-   - **Dungeon / camera:** a skill with `SUB_CAMERA_TIMING` plays its sub-cameras; a boss last-kill focus is not pulled back; a death with a party
-     / NPC killer logs `GAME     unitUID=... died`; an NPC holding a freeze takes no state change; another player's / a bot's passives apply.
-   - **UI / quests:** dialogs hidden (the hide key): no HP+ / MP+ text; local map at map detail LOW keeps forced layers; Henir icon tooltip;
+   few times as possible. Seed (2026-10-29, check each against its Done note, and drop what D1-3g / D1-2c / D1-3f's old MP sites took with them; ported characters only):
+   - **Ported characters only (user, 2026-10-29): Aisha and Eve.** No Elsword, Chung, Ara, Add or any other unported class. Every check that the
+     Done notes wrote for an unported class is dropped from the hand-off and listed in the Done note as "not covered" (the `stand-in: <class> not
+     ported` guards stay untested until that class is ported). Keep an item only if Aisha or Eve can show it; re-derive its steps for them.
+   - **Aisha, a dungeon:** dash combo Z-Z-Z with memo 5 gives no super armour; cool times after a skill use; B-slot skills; end a hyper mode early;
+     finish the dungeon (result invincibility); die: body fades and hides, no Sacrifice of Hero heal; a +11 staff shows the lightning glow, a +13
+     adds the sparks, none while riding or during an avatar emotion; a wind / light / curse weapon shows the hand sparks; a triple-attribute weapon
+     glows; a hyper-active skill's cool time with item 60008065 is cut only in a dungeon; amusement-item pickups (press / missile / water balloon).
+   - **Eve, a dungeon:** B-slot skills; glow on both weapons; hand sparks; a Pandemonium Fear holder takes a hit; non-hyper skill cool time with
+     Cheat Code: Electronic learned; amusement-item pickups; a mana-drain hit shows no number; die as for Aisha.
+   - **Either, riding pet:** in a village and a dungeon the rider sits on the saddle (not at the map origin) and every riding state plays `Ride_N`.
+   - **Dungeon / camera (either):** a skill with `SUB_CAMERA_TIMING` plays its sub-cameras; a boss last-kill focus is not pulled back; a death with
+     a party / NPC killer logs `GAME     unitUID=... died`; an NPC holding a freeze takes no state change; a party bot's passives apply.
+   - **UI / quests (either):** dialogs hidden (the hide key): no HP+ / MP+ text; local map at map detail LOW keeps forced layers; Henir icon tooltip;
      key-binding slot for an unnamed key shows string 39162; quest list greys from +8 levels (list and text form); quick-quest window with 2+
      ongoing quests (titles, sub-quest lines, Complete button; a story quest's title is red); quest window all tabs, a quest detail, Remind /
-     Skip Epic; skill tree; dungeon result; character info; an unported class's reward window still fills its slots; quest NPC faces (story
-     and transcend quest NPC, Edel); quest items in the shared bank count toward a collect quest.
+     Skip Epic; skill tree; dungeon result; character info; the glow in the character window (U); quest NPC faces (story and transcend quest NPC,
+     Edel); quest items in the shared bank count toward a collect quest.
    Save setup: use `/x2-db`, `/x2-create-char` and the `/additem` lines in the hand-off; back up `els_db.sql` first (`tools/elsdb.py`).
 3. **User plays; then check.** `python tools/logs.py` for `EXCEPTION`, `UNHANDLED` and `IGNORED` rows in `offline_packets.log`, `ErrorLog.txt` lines
    from this session, and the `died` log line. Anything that appears is classified: a divergence flag broke it / pre-existing / not this plan.
