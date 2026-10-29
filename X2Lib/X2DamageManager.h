@@ -72,6 +72,11 @@ class CX2DamageManager
 			DTT_ECB_KUGELBLITZ_SELF_DAMAGE        = 25,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-29 // june-march-divergence C5 review: March's DTT_END is the count, not June's trigger 6
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_PANDEMONIUM_FEAR                  = 6,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

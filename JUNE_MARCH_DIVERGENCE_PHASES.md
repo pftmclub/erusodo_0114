@@ -718,6 +718,46 @@ Build + deploy; smoke = C1-C4's lines. **Gate:** `junecensus.py --summary` shows
 - **Smoke:** none here (one smoke at the end of the plan). Add to it: Eve and Aisha amusement-item pickups (press / missile / water balloon: the `UserNoStateChangeActionFrameMove` cases),
   a mana-drain hit that shows no number, and the quest window NPC faces (story and transcend quest NPC, Edel).
 
+## Phase C5 - Review (Opus 5.5, high)
+
+### Done (2026-10-29, Opus 5.5; reviews `09107672`; fixes keep each site's flag)
+
+**Verdict: C5 passes. Two enum aliases from another family and one bare skill id on a touched line were fixed here.** Census gate, member merges, names and `--scope-locals` read right.
+- **Ruling on "March's name when names share a value":** the rule covers two names for one member of one enum. It does not cover March's count sentinel (`*_END`)
+  or a member of another enum, so both C5 "kept" cases were wrong:
+  - `DTT_END` stood for June's `DTT_PANDEMONIUM_FEAR` (6) in `CX2CustomFunctionByBuffPandemoniumFear::FunctionInDamageReact` (`X2BuffTemplet.cpp`, both `JUNE_DAMAGEDATA` branches).
+    March's `DTT_END` is the trigger count and moves with `EVE_ELECTRA` / `ADD_EVE_SYSTEM_2014` / ... (5 when `ADD_EVE_SYSTEM_2014` is off). `DTT_PANDEMONIUM_FEAR = 6` (June `Enum.lua` 7306) is now
+    registered after `DTT_END` in `X2DamageManager.h` under `JUNE_ENUM_NAMES`, and both sites use it.
+  - `BTI_HYPER_MODE` (a buff templet id) was compared with `SkillCategory()` (June `32070510`'s 0-6 categories, no Enum entry) in Eve's cool-time reader (`X2GuEve.cpp`). C5 had dropped the constant
+    `JUNE_CH4B_SKILL_CATEGORY_HYPER`; it is back as `SKILL_CATEGORY_HYPER = 5` in `_CONST_EVE_CH4b_` (`JUNE_CHAR_EVE_PASSIVE`). Eve's other reader keeps its bare `5` (not touched by C5).
+  - Rows checked: all 211 C5 `enum` rows by family (old name's prefix and use site against the new member's enum); `_END` / `_NONE` / `_MAX` targets in every collapse map: only `DTT_END`.
+    The 167 prefix mismatches are skill ids whose June constant had no family prefix (`JUNE_CH2A_SA_*` -> `RNSI_SA_*`), plus the UAI / EDT rows C5 fixed. `JUNE_CH1K_P_ECN_NASOD_WEAPON_MEMO` ->
+    `RNSI_P_ENS_CHEAT_CODE_DESTROY` (25416) is June's own name for that skill id, so the porter's old name was wrong, not the map.
+- **Fixed: `29024` on a C5-touched line** (`X2BuffTemplet.cpp` 2220, `JUNE_SOCKET_PARITY`): `RNSI_SA_ADE_MOONLIGHT_RHAPSODY = 29024` (June `Enum.lua` 16380) registered in `X2SkillTree.h`'s
+  `JUNE_ENUM_NAMES` block and used; `enumscan --check` (2 files) 0 A/B rows.
+- **UAI constants:** the six `UAI_*` names match their case bodies (specter-walk erase, crest-of-time revival, magnifying-thief effect, the three `BFI_AMUSEMENT_ITEM_*` factors); none collides
+  with March's `CX2GUUser::USER_ACTION_ID`, which would win unqualified lookup.
+- **Members** (Sonnet audit of 516 `data member` / `global variable` rows, spot-checked): 11 new names already existed at the parent, all in unrelated classes (e.g. `m_iAttackSerial` in
+  `CX2GameUnit` and `DamageData`, both int, a deliberate copy). No same-class or base / derived clash. The one in-class clash (`m_fCoolTime` in `InfoByUseHyperMode`) was already avoided
+  by c5y's `m_fIntervalTime`. `PsykerKinesisData` `m_fRemainTime` / `m_fPowerRate` match their reads. No new duplicate declaration on two live branches.
+- **Names:** no address, phase tag or `June` left in a C5 identifier (namespaces keep the rule-form `_CONST_<CLASS>_<phase>_`). Kept: `s_lSkinKem433` / `SkinAnimKem433`, named after
+  March's own `KEM_ERROR433`, which they log; `s_bSocket215434Logged`, after a socket option id; `STUCM_UNUSED_PLACEHOLDER` (the June gap at 29075); `NUI_EVENT_ADAMS_UI_SHOP` for 10067 in
+  `GetNPCFaceTextureKey`, by the rule (same family, same value; no C++ reader uses March's `NUI_EDEL` 10072).
+- **`--scope-locals`** (`local_conflict` / `exclusive`): sound and conservative. A function ends at a column-0 `}`, and `#ifdef` branches count as exclusive only across one `#else`. Blind spot: a column-0 `}`
+  inside a function body narrows the scope. The flag-off equivalence check and the build cover it.
+- **Hygiene, C5** (all-flags: `flagcheck JUNE_QUEST_UI --range 09107672^..09107672 --with` the other 417 `JUNE_*` flags):
+  `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 186 OTHER (other flags), 0 FAIL, 1 ERROR`; `in this flag's files: 150 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched
+  inserted line(s), 15 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` from that ERROR only. The ERROR is `Always.h` 10007, the `ADMIN_CHEATS` compound
+  `#if`, byte-identical before and after. The commit changed 4 `#error` texts there. The 150 deleted lines are 146 renamed lines in `X2UIQuestNew.{cpp,h}` (142/142, 4/4) plus those 4 texts.
+  The 186 OTHER rows are `+0` with the change owned by another flag.
+- **Hygiene, this review** (`flagcheck JUNE_ENUM_NAMES --worktree --files X2GuEve.cpp X2BuffTemplet.cpp X2DamageManager.h --with JUNE_CHAR_EVE_PASSIVE JUNE_DAMAGEDATA JUNE_BUFF_CUSTOM_FUNCTION
+  JUNE_CHAR_EVE_CORE`): `1 PASS, 1 PASS~, 1 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`. The 1 deleted line is the C5 `BTI_HYPER_MODE` line, replaced. `X2SkillTree.h` gets one line
+  inside an existing `JUNE_ENUM_NAMES` block. `bytepatch` before / after: encodings and EOLs unchanged.
+- **Smoke logs:** none (one smoke at the end of the plan). Add to it: a Pandemonium Fear holder taking a hit (the buff's damage react), and the cool time of a non-hyper skill with Eve's
+  Cheat Code: Electronic learned.
+- DEPLOY OK: X2_offline.exe is 25,809,408 B, dated 2026-10-29 12:10:52, md5 4cde57bff57b9f54d0ac94d741929b2e, equal to X2/US_SERVICE/x2.exe (2026-10-29 12:10:45); built at main
+  09107672 + 4 uncommitted code file(s) (PCH rebuilt for the two headers). No string to check: the fixes are enum names and a constant.
+
 ## Phase D1 - Replace divergent March functions at the definition (Opus 5.5, high)
 
 **Depends on:** C5 review and every D0c. Per `replace` row of `june_march_divergent.tsv`: March's definition becomes June's whole body

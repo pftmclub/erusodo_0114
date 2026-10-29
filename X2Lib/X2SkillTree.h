@@ -1719,6 +1719,7 @@ public:
 		RNSI_SA_SCA_BLOOD_CUTTER_UPGRADE                      = 28057,
 		RNSI_SA_AN_PARTICLE_PRISM                             = 29003,
 		RNSI_SA_AN_PARTICLE_PRISM_UPGRADE                     = 29029,
+		RNSI_SA_ADE_MOONLIGHT_RHAPSODY                        = 29024,
 		RNSI_HA_AMM_APOCALYPSE                                = 29601,
 		RNSI_SA_LLD_SUMMON_DARKNESS                           = 30013,
 		RNSI_SA_LCN_SHADOW_BOLT                               = 30016,

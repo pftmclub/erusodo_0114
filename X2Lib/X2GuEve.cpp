@@ -586,6 +586,7 @@ using namespace _CONST_EVE_CH4a_;
 //{{ Iruha : 2026-10-28 // June character Eve Phase CH4b
 namespace _CONST_EVE_CH4b_
 {
+	const int	SKILL_CATEGORY_HYPER		= 5;		/// June 32070510's hyper category ( @329794b7 ); no Enum entry
 	const float	NO_COOL_TIME				= -1.f;		/// June 334380f0: the callers set no cool time for a negative value
 
 	/// June 32890620( id, 1, 0, 1 ) then the templet's SA_MP_CONSUME_REL ( 32206e50 ), when the skill is learned
@@ -56179,7 +56180,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove()
 		break;
 	}
 
-	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && BTI_HYPER_MODE != SkillCategory( *pSkillTemplet_ ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
+	if( GetSkillLevel( CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) > 0 && SKILL_CATEGORY_HYPER != SkillCategory( *pSkillTemplet_ ) && 0.f < m_EnergyNiddleData.m_fMaxTime )
 		fCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_EBS_CHEAT_CODE_ELECTRONIC ) * fCoolTime;
 
 	if( fCoolTime < 0.f )

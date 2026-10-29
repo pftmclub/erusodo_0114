@@ -2094,9 +2094,9 @@ static bool GetTargetHitPos( const CX2GameUnit* pAttacker_, const CX2GameUnit* p
 		|| CX2DamageManager::RT_SENSOR == damageData_.reActResult
 		|| CX2DamageManager::HT_GROUND_HIT == damageData_.hitType
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| true == damageData_.IsAttackTrigger( CX2DamageManager::DTT_END )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
+		|| true == damageData_.IsAttackTrigger( CX2DamageManager::DTT_PANDEMONIUM_FEAR )	/// June 32610fb0( 6 ) @3236e306 (16-step3c)
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
-		|| CX2DamageManager::DTT_END == static_cast<int>( damageData_.m_eDamageTrigger )
+		|| CX2DamageManager::DTT_PANDEMONIUM_FEAR == static_cast<int>( damageData_.m_eDamageTrigger )
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		|| true == damageData_.m_bNoDamage
 		|| null == damageData_.optrAttackerGameUnit
@@ -2217,7 +2217,7 @@ static bool CustomFunctionDamageReactGuards( const CX2DamageManager::DamageData&
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// buff port 16-step3b7 item 1: June @323705a2 3201ad10( 0x7160 = 29024 ) on the attacker user (edi), + 1.0 below. 29024 is a
 		/// June-only skill (no March SKILL_ID), so no equipped slot files a rate under it: 0 until that skill is ported
-		const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( 29024 );
+		const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::RNSI_SA_ADE_MOONLIGHT_RHAPSODY );
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		const float fSkillDamageAddRate = 0.0f;	/// 3201ad10( 0x7160 ), see Phase 9a
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
