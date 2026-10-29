@@ -393,6 +393,30 @@ namespace 32/32, drop 5/5; 180 files; about 40 rows are locals whose new name ex
 step (renames, merges, hand shapes). Build + deploy. Smoke play-test: Eve, every job, a dungeon with each skill slot and the Nasod Core.
 **Gate:** no June-named identifier left in Eve's files (`junecensus.py --file`); flag-off equivalence PASS; DEPLOY OK; smoke lines clean.
 
+### Done (2026-10-29, Sonnet 5.5; flags: each body keeps its `SERV_IRUHADEV_JUNE_CHAR_EVE_*`)
+
+Commits: `e79168a8` renames (182 rows), `df2b994d` merges (390 auto), `affc89cd` hand shapes + hoists. `e79168a8` also carries the C2 session's uncommitted
+`X2Game.cpp` hunks (Aisha memo renames): `commit -- <pathspec>` takes the whole file; C2 need not re-commit that file.
+- **Hand shapes (all 24 map rows done; none left but one):** `June_HaveSkillBuff` / `SetSkillBuffFactors` / `GetSkillBuffFactorPtr` deleted (callers call `CX2GUUser`'s);
+  `CallSummonedNPC`, `ApplyAuraAcceleratorBuffToGameUnit`, `GetAdditionalAccelBuffTime`, `SpecialAttackEventProcess` merged under the port's own wrapper flag (March signature kept,
+  a one-line prelude makes June's parameter); `SetSelfDestructSummonedNPC` (int signature under CORE, header + definition), `EndElCrystalSystem`, `AddLaserToSystem` (June signature
+  beside March's under CORE, header + definition) merged unwrapped; the six header-inline state forwarders became the `...Body( bool )` call inside March's state function
+  under SKILL; the three `TryGetAcquiredSkillAbilityValue` copies are one helper (callers pass false / true); `GetComboZStateID` is one line (June's body is March's);
+  `ENSI_DASH_COMBO_ZX_*` take March's names (March's are under undefined `EVE_COMBO_TEST_TEST`); `June_ModifyFinalDamageByGameUnitType` is now Eve's override definition
+  of the base virtual `JuneModifyFinalDamageByGameUnitType` (the base name goes in C3). Open: `June_Vslot828` (C3, renamed with its base).
+- **Tool gap the C2-C5 sessions must know:** the merge moves June bodies up to March's position, above the file-local helpers they call. `junecollapse.py` does not reorder, so the
+  file stopped compiling. Fixed by hand: 16 `_CONST_EVE_JUNE_*` namespace blocks and 8 `JUNE_EVE_*` macros now sit above the constructor, each under its own flag
+  (`CH1p` stays: it is under `EVE_ELECTRA` and used after its definition). Check `X2Lib` compiles after every apply; a C0 follow-up is to hoist automatically.
+- **Reach points** (March's body was still reached and now runs June's): 363 functions, `june2017_re/diverge/c1_reach_points.tsv` (old name, new name, flag). Notable: the six
+  state functions above also serve March's registrations (hyper EPR / atomic blaster states now run June's body); `TryGetAcquiredSkillAbilityValue` now reads the real PVP flag
+  where the CH1l copy hard-coded false (offline PvE: same value).
+- **Hygiene:** every June flag undefined, X2GuEve.cpp / .h against `7a13a1aa` byte-equal (blank lines from the hoist aside), encoding class unchanged; `enumscan.py --check` 0 A/B rows.
+  `junecollapse` own checks PASS for each apply. Not run: `flagcheck.py --range` (its per-flag mode cannot judge a file with other June flags).
+- **Gate not met yet, by design:** June-named identifiers still in Eve's files are other batches: the 21 `CX2GUUser`-based rows (C3), `JUNE_*` constants and `JUNE_EVE_*` macros
+  and `_CONST_EVE_JUNE_*_` namespaces (C4 / C5), `JuneReservedSkillStart` and the other `June*` base overrides (C3).
+- Deploy: DEPLOY OK: X2_offline.exe is 25,822,720 B, dated 2026-10-29 07:10:51, md5 0b868d9a80368d71879d54eaf782ef51, equal to X2/US_SERVICE/x2.exe, built at main affc89cd.
+  (the first full compile ran inside a peer-shared build; X2Lib compiled with no error in X2GuEve.cpp.)
+
 ## Phase C2 - Collapse Aisha (Sonnet 5.5, high)
 
 **Depends on:** C0; may run beside C1 (different files; the build lock queues them). `X2GUArme_VioletMage.{h,cpp}`. As C1, for Aisha
