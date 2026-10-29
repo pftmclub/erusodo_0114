@@ -902,7 +902,7 @@ CX2MemorizeSkillSlotData::CX2MemorizeSkillSlotData( int index, bool bSlotb )
 		 CX2Unit::UT_ARME == g_pX2Game->GetMyUnit()->GetUnit()->GetType() )
 	{
 		const bool bRefresh = true;
-		static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->June_SweepMemoRise( &bRefresh );
+		static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->SweepMemoRise( &bRefresh );
 	}
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE

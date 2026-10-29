@@ -824,48 +824,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		/// Inert June transcriptions of Aisha's movement / slot-head states ( class map phase CH1a ). Nothing registers or calls them
 		/// until CH1 wires them in; March's own members above stay untouched. Each definition ( end of X2GUArme_VioletMage.cpp )
 		/// carries the June address it was read from.
-		void June_WaitStartFuture();									/// June 32cb6f70
-		void June_WaitStart();											/// June 32cb9a40
-		void June_WaitFrameMoveFuture();								/// June 32cb6fa0
-		void June_WaitEventProcess();									/// June 32cd0200
-		void June_WalkEventProcess();									/// June 32cd0490
-		void June_JumpReadyEventProcess();								/// June 32cc5e40
-		void June_JumpUpEventProcess();									/// June 32cb6fd0
-		void June_JumpDownEventProcess();								/// June 32cb9a70
-		void June_JumpLevitationStartFuture();							/// June 32cb7090
-		void June_JumpLevitationFrameMoveFuture();						/// June 32cc5f40
-		void June_JumpLevitationFrameMove();							/// June 32cd0670
-		void June_JumpLevitationEventProcess();							/// June 32cb9ba0
-		void June_JumpLevitationEnd();									/// June 32cd0730
-		void June_JumpLandingEventProcess();							/// June 32cd07e0
-		void June_DashEventProcess();									/// June 32cd0a40
-		void June_DashEndStart();										/// June 32cb70b0
-		void June_DashEndFrameMoveFuture();								/// June 32cc6040
-		void June_DashEndFrameMove();									/// June 32cb9c60
-		void June_DashEndEventProcess();								/// June 32cd0c40
-		void June_DashJumpEventProcess();								/// June 32cc60a0
-		void June_DashJumpLevitationStartFuture();						/// June 32cb70c0
-		void June_DashJumpLevitationFrameMoveFuture();					/// June 32cc63c0
-		void June_DashJumpLevitationFrameMove();						/// June 32cd0ef0
-		void June_DashJumpLevitationEventProcess();						/// June 32cb9ce0
-		void June_DashJumpLevitationEnd();								/// June 32cd0fb0
-		void June_DashJumpLandingEventProcess();						/// June 32cd1060
-		void June_DashJumpPowerLandingStart();							/// June 32cb70f0
-		void June_DashJumpPowerLandingEventProcess();					/// June 32cd1280
-		void June_ChargeMPInit();										/// June 32cc8410
-		void June_ChargeMPStartFuture();								/// June 32ccbe10
-		void June_ChargeMPStart();										/// June 32cd1540
-		void June_ChargeMPFrameMove();									/// June 32cd1830
-		void June_ChargeMPEventProcess();								/// June 32cd21d0
-		void June_ChargeMPEndFuture();									/// June 32ccc070
-		void June_ChargeMPEnd();										/// June 32cd2420
-		void June_EvasionStandupAttackInit();							/// June 32cc8800 ( shared Init of 59 states, AVSI_DAMAGE_BOUNDING_DOWN .. AVSI_TELEPORT_STANDUP_ATTACK )
-		void June_AVSI_SI_AV_POWER_ATTACK_FrameMove();					/// June 32cb7570 ( a bare jump to CommonFrameMove )
-		void June_AVSI_SI_AV_POWER_ATTACK_EventProcess();				/// June 32cbe620
-		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove();			/// June 32cb7580 ( a bare jump to CommonFrameMove )
-		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess();			/// June 32cbe660
 		/// June 32cc7b30 ( vslot 0x718 ): the MemoRise charge test; the body is in the CH1i block
-		bool June_IsMemoRiseChargeActive();
+		bool IsMemoRiseChargeActive();
 
 		/// June-only members the functions above read ( the June constructor 32cc99d0 sets +0x9778 to -1 )
 		std::deque<int>				m_deqJuneMemoRise;			/// June +0x9760: the memorized skill ids ( a VS2010 std::deque<int>; its size is at +0x9770 )
@@ -875,294 +835,112 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1b ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June transcriptions of Aisha's reaction / riding / event states ( class map phase CH1b ), definitions at the end of
 		/// X2GUArme_VioletMage.cpp with the June address of each.
-		void June_DieFrontFrameMove();									/// June 32cb6ed0
-		void June_DieFrontEventProcess();								/// June 32cb6ef0
-		void June_DieBackFrameMove();									/// June 32cb6f20
-		void June_DieBackEventProcess();								/// June 32cb6f40
-		void June_DieFrontStartFuture();								/// June 32cb98a0
-		void June_DieFrontStart();										/// June 32cb9900
-		void June_DieBackStartFuture();									/// June 32cb9970
-		void June_DieBackStart();										/// June 32cb99d0
-		void June_DamageAirDownLandingInit();							/// June 32cb7170
-		void June_DamageDownFrontFrameMove();							/// June 32cb9d90
-		void June_DamageDownBackFrameMove();							/// June 32cb9de0
-		bool June_IsTeleportUpgradeAcquired();							/// June 32cc5ae0 ( helper )
-		void June_DamageDownFrontEventProcess();						/// June 32cc6520
-		void June_DamageDownBackEventProcess();							/// June 32cc66a0
-		void June_DamageAirDownLandingEventProcess();					/// June 32cc6820
-		void June_AVSI_TELEPORT_STAND_UP_START_Start();					/// June 32cc9160
-		void June_AdaptAdvancedTeleportationBuff();						/// June 32cc1cd0 ( helper )
-		void June_AVSI_TELEPORT_STAND_UP_START_FrameMoveFuture();		/// June 32ccc5a0
-		void June_AVSI_TELEPORT_STAND_UP_START_EventProcess();			/// June 32cb7210
-		void June_EvasionEndFrameMove();								/// June 32cd2740
-		void June_EvasionEndEventProcess();								/// June 32cb9e30
-		void June_EvasionStandupAttackStart();							/// June 32cb7240
-		void June_EvasionStandupAttackEnd();							/// June 32cb7270
-		void June_EvasionStandupAttackFrameMove();						/// June 32cd2870
-		void June_EvasionStandupAttackEventProcess();					/// June 32cb9e90
-		void June_DashJumpAttackZStartFuture();							/// June 32cb7530
-		void June_DashJumpAttackZFrameMoveFuture();						/// June 32cc6ca0
-		void June_DashJumpAttackZFrameMove();							/// June 32cd5360
-		void June_ComboX4ChargeStateStart();							/// June 32cbb8d0
-		void June_ComboX4ChargeStateEnd();								/// June 32cbba10
-		void June_RidingHyperModeInit();								/// June 32cb8a50
-		void June_RidingHyperModeFrameMove();							/// June 32ce6f20
-		void June_RidingHyperModeCameraMove();							/// June 32ce1590
-		void June_HyperModeCameraMove();								/// June 32cd1470 ( USI_HYPER_MODE CameraMove; 32ce1590 calls it )
-		void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ );	/// June 32ce12c0 ( helper )
-		void June_ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
-		void June_Vslot60c();											/// June 32cb8b60 ( vslot 0x60c )
+		bool IsTeleportUpgradeAcquired();							/// June 32cc5ae0 ( helper )
+		void AVSI_TELEPORT_STAND_UP_START_Start();					/// June 32cc9160
+		void AVSI_TELEPORT_STAND_UP_START_FrameMoveFuture();		/// June 32ccc5a0
+		void AVSI_TELEPORT_STAND_UP_START_EventProcess();			/// June 32cb7210
+		void DashJumpAttackZStartFuture();							/// June 32cb7530
+		void ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
 		void June_Vslot608();											/// June 32ccda40 ( vslot 0x608 )
-		void June_RidingOffStart();										/// June 32cf0f90
+		void RidingOffStart();										/// June 32cf0f90
 		void June_RidingHyperModeEnd();									/// June 32cf0fa0
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
 
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1c ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June ground combos ( class map phase CH1c ); definitions at the end of X2GUArme_VioletMage.cpp.
-		void June_ComboZ1FrameMove();									/// June 32cb72b0
-		void June_ComboZ1EventProcess();								/// June 32cb9ee0
-		void June_ComboZ2EventProcess();								/// June 32cba3e0
-		void June_ComboZ3EventProcess();								/// June 32cba970
-		void June_ComboZ3upEventProcess();								/// June 32cbaa50
-		void June_ComboZ4upStart();										/// June 32cb72c0
-		void June_ComboZ4upFrameMoveFuture();							/// June 32cb7310
-		void June_ComboZ4upFrameMove();									/// June 32cd2b10
-		void June_ComboZ4upEventProcess();								/// June 32cbabf0
-		void June_ComboX1FrameMove();									/// June 32ce5780
-		void June_ComboX1EventProcess();								/// June 32cbacd0
-		void June_ComboX2FrameMove();									/// June 32ce5970
-		void June_ComboX2EventProcess();								/// June 32cbafb0
-		void June_ComboX3FrameMove();									/// June 32ce5ac0
-		void June_ComboX3EventProcess();								/// June 32cbb520
-		void June_ComboX3StateEnd();									/// June 32cb7320
-		void June_ComboX4ChargeFrameMove();								/// June 32cb7340
-		void June_ComboX4ChargeEventProcess();							/// June 32cbb8f0
-		void June_ComboX4ChargeFireFrameMove();							/// June 32ce5c10
-		void June_ComboX4ChargeFireEventProcess();						/// June 32cbba30
-		void June_ComboX4FrameMove();									/// June 32ce5dc0
-		void June_ComboX4EventProcess();								/// June 32cbbc40
-		void June_ComboX3frontStart();									/// June 32cb73a0
-		void June_ComboX3frontFrameMoveFuture();						/// June 32cb73f0
-		void June_ComboX3frontFrameMove();								/// June 32cd3370
-		void June_ComboX3frontEventProcess();							/// June 32cbbe50
-		void June_ComboX3downFrameMove();								/// June 32cbbf40
-		void June_ComboX3downEventProcess();							/// June 32cbc3e0
-		bool June_FlushMpWithRefund( const float fMp_ );				/// June 32cc2b90 ( helper )
-		CX2DamageEffect::CEffect* June_CreateComboFireBall( const int iType_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_ );	/// June 32ce4180 ( helper )
+		bool FlushMpWithRefund( const float fMp_ );				/// June 32cc2b90 ( helper )
+		CX2DamageEffect::CEffect* CreateComboFireBall( const int iType_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_ );	/// June 32ce4180 ( helper )
 
 		/// June +0x96ac: the passive object CH4 builds ( June's Strong Mind data ); the values 32cc2b90 ( chance, rate ) and 32cce4b0 / 32ccf4e0 read
-		struct JuneMpRefundData : public TimeLimited
+		struct MpRefundData : public TimeLimited
 		{
 			float	m_fSpecialActiveSkillRate;
 			float	m_fActiveSkillRate;
 			float	m_fChance;
 			float	m_fMPRestoreRate;
 			float	m_fRate;
-			JuneMpRefundData() : m_fSpecialActiveSkillRate( 0.f ), m_fActiveSkillRate( 0.f ), m_fChance( 0.f ), m_fMPRestoreRate( 0.f ), m_fRate( 0.f ) { m_fTimeLeft = 0.f; }
+			MpRefundData() : m_fSpecialActiveSkillRate( 0.f ), m_fActiveSkillRate( 0.f ), m_fChance( 0.f ), m_fMPRestoreRate( 0.f ), m_fRate( 0.f ) { m_fTimeLeft = 0.f; }
 		};
-		JuneMpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
+		MpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
 		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
-		void June_InitPassiveSkillState();								/// June 32cecd70 ( vslot 0x690 )
-		void June_OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
-		void June_SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate );	/// June 32cccc70 ( vslot 0x2b8 )
-		float June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	/// June 32ccfe30 ( vslot 0x6a0 )
+		void OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
 		virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32ce1cc0 ( vslot 0x6a4 )
 		virtual float JuneGetDefenceRateBySkill( const int iAttackType_ );	/// June 32cc28b0 ( vslot 0x428 )
 		virtual float JuneGetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32cc5c30 ( vslot 0x73c )
-		void June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 32cddec0 ( vslot 0x24c )
-		void June_TransformStart( const WCHAR* pWstrMeshName_, const bool bChangeWeapon_ );	/// June 32cc91b0
-		void June_TransformEnd( const bool bChangeWeapon_ );	/// June 32cdbd00
-		CX2GameUnit* June_GetNearestEnemyInRange( float fRange_, const std::set<UidType>& setExceptUID_ ) const;	/// June CX2Game 322d7920
-		bool June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June user vslot 0x240 ( 3229a470 )
+		CX2GameUnit* GetNearestEnemyInRange( float fRange_, const std::set<UidType>& setExceptUID_ ) const;	/// June CX2Game 322d7920
 		struct JuneEquipViewChange { UidType m_iItemUIDToAdd; UidType m_iItemUIDToRemove; };	/// June +0x9848 element ( 16 bytes )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1d ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June dash combos, dash attacks and jump attacks ( class map phase CH1d ); definitions at the end of X2GUArme_VioletMage.cpp.
-		void June_DashComboZ1StartFuture();								/// June 32cbd760
-		void June_DashComboZ1FrameMove();								/// June 32cb7490
-		void June_DashComboZ1EventProcess();							/// June 32cbd7b0
-		void June_DashComboZ2StartFuture();								/// June 32cc6980
-		void June_DashComboZ2EventProcess();							/// June 32cbdc40
-		void June_DashComboZ2aStartFuture();							/// June 32cd4830
-		void June_DashComboZ2aFrameMove();								/// June 32cd4df0
-		void June_DashComboZ2aEventProcess();							/// June 32cbdd20
-		void June_DashAttackXStartFuture();								/// June 32cc6a50
-		void June_DashAttackXFrameMove();								/// June 32ce61f0
-		void June_DashAttackXEventProcess();							/// June 32cbe090
-		void June_AVP_DashAttackXEventProcess();						/// June 32cc4180
-		void June_DashAttackXEndFuture();								/// June 32cb74a0
-		void June_JumpAttackZFrameMoveFuture();							/// June 32cc6b70
-		void June_JumpAttackZFrameMove();								/// June 32cb7520
-		void June_JumpAttackZEventProcess();							/// June 32cbe2f0
-		void June_JumpAttackXFrameMoveFuture();							/// June 32cc6c00
-		void June_JumpAttackXFrameMove();								/// June 32ce6660
-		void June_JumpAttackXEventProcess();							/// June 32cbe330
-		void June_DashJumpAttackZEventProcess();						/// June 32cbe360
-		void June_DashJumpAttackXFrameMoveFuture();						/// June 32cb7550
-		void June_DashJumpAttackXFrameMove();							/// June 32ce6830
-		void June_DashJumpAttackXEventProcess();						/// June 32cbe480
-		void June_DashJumpAttackX2FrameMoveFuture();					/// June 32cb7560
-		void June_DashJumpAttackX2FrameMove();							/// June 32ce69b0
-		void June_DashJumpAttackX2EventProcess();						/// June 32cbe510
+		void AVP_DashAttackXEventProcess();						/// June 32cc4180
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1d
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1e ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June High Magician / Elemental Master line states ( class map phase CH1e ); definitions at the end of X2GUArme_VioletMage.cpp.
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X2_FrameMove();							/// June 32ce5f10
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_FrameMove();							/// June 32ce6060
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EventProcess();							/// June 32cbd040
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EndFuture();							/// June 32cb7450
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X3down_FrameMove();							/// June 32cdd4f0
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X3down_EventProcess();							/// June 32cc11f0
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X4down_FrameMove();							/// June 32cdd700
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X4down_EventProcess();							/// June 32cc1460
-		void June_AVSI_EM_DASH_COMBO_Z2a_FrameMove();							/// June 32cd4f20
-		void June_AVSI_EM_DASH_COMBO_Z2a_EventProcess();							/// June 32cbdd70
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_StartFuture();							/// June 32cc6ae0
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_FrameMove();							/// June 32ce6380
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EventProcess();							/// June 32cbe0e0
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EndFuture();							/// June 32cb74e0
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_FrameMove();							/// June 32ce6510
-		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_EventProcess();							/// June 32cbe200
-		void June_AVSI_AEM_ZZupZZ_FrameMove();							/// June 32cda260
-		void June_AVSI_AEM_ZZupZZ_EventProcess();							/// June 32cbf350
-		void June_AVSI_AEM_XXfrontX_Init();							/// June 32cb7d00
-		void June_AVSI_AEM_XXfrontX_FrameMove();							/// June 32cda550
-		void June_AVSI_AEM_XXfrontX_EventProcess();							/// June 32cbf410
-		void June_AVSI_AEM_XZ_Init();							/// June 32cb7d30
-		void June_AVSI_AEM_XZ_FrameMove();							/// June 32cda840
-		void June_AVSI_AEM_XZ_EventProcess();							/// June 32cbf4e0
-		void June_AVSI_AEM_XZZ_FrameMove();							/// June 32cdab20
-		void June_AVSI_AEM_XZZ_EventProcess();							/// June 32cbf620
-		void June_AVSI_AEM_XZZ_END_EventProcess();							/// June 32cbf7e0
-		void June_AVSI_AHM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8b90
-		void June_AVSI_AHM_DASH_JUMP_ZX_FrameMove();							/// June 32ce1f50
-		void June_AVSI_AHM_DASH_JUMP_ZX_EventProcess();							/// June 32cc2c20
-		void June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMoveFuture();							/// June 32cb8ba0
-		void June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMove();							/// June 32cb8bb0
-		void June_AVSI_AHM_DASH_JUMP_ZXX_START_EventProcess();							/// June 32cc2d20
-		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_Start();							/// June 32ce2160
-		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_FrameMove();							/// June 32ce21e0
-		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_EventProcess();							/// June 32cc2d50
-		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_End();							/// June 32ce23f0
-		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMoveFuture();							/// June 32cb8bc0
-		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_EventProcess();							/// June 32cc3080
-		void June_AVSI_AEM_DASH_JUMP_X3_FrameMoveFuture();							/// June 32cb8bd0
-		void June_AVSI_AEM_DASH_JUMP_X3_EventProcess();							/// June 32cc3ea0
-		void June_AVSI_AEM_ZZX_FrameMove();							/// June 32ce2470
-		void June_AVSI_AEM_ZZX_EventProcess();							/// June 32cc30b0
-		void June_AVSI_AEM_ZZXX_START_EventProcess();							/// June 32cc34c0
-		void June_AVSI_AEM_ZZXX_LOOP_Start();							/// June 32cc37e0
-		void June_AVSI_AEM_ZZXX_LOOP_FrameMove();							/// June 32ce26b0
-		void June_AVSI_AEM_ZZXX_LOOP_EventProcess();							/// June 32cc3800
-		void June_AVSI_AEM_ZZXX_LOOP_End();							/// June 32cc3b70
-		void June_AVSI_AEM_ZZXX_END_FrameMove();							/// June 32ce28f0
-		void June_AVSI_AEM_ZZXX_END_EventProcess();							/// June 32cc3b90
-		float June_GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads CX2GUUser::m_vecJuneSpecialOptionValue )
+		void AVSI_AHM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8b90
+		void AVSI_AHM_DASH_JUMP_ZX_FrameMove();							/// June 32ce1f50
+		void AVSI_AHM_DASH_JUMP_ZX_EventProcess();							/// June 32cc2c20
+		void AVSI_AHM_DASH_JUMP_ZXX_START_FrameMoveFuture();							/// June 32cb8ba0
+		void AVSI_AHM_DASH_JUMP_ZXX_START_FrameMove();							/// June 32cb8bb0
+		void AVSI_AHM_DASH_JUMP_ZXX_START_EventProcess();							/// June 32cc2d20
+		void AVSI_AHM_DASH_JUMP_ZXX_CHARGE_Start();							/// June 32ce2160
+		void AVSI_AHM_DASH_JUMP_ZXX_CHARGE_FrameMove();							/// June 32ce21e0
+		void AVSI_AHM_DASH_JUMP_ZXX_CHARGE_EventProcess();							/// June 32cc2d50
+		void AVSI_AHM_DASH_JUMP_ZXX_CHARGE_End();							/// June 32ce23f0
+		void AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMoveFuture();							/// June 32cb8bc0
+		void AVSI_AHM_DASH_JUMP_ZXX_FINISH_EventProcess();							/// June 32cc3080
+		void AVSI_AEM_DASH_JUMP_X3_FrameMoveFuture();							/// June 32cb8bd0
+		void AVSI_AEM_DASH_JUMP_X3_EventProcess();							/// June 32cc3ea0
+		void AVSI_AEM_ZZX_FrameMove();							/// June 32ce2470
+		void AVSI_AEM_ZZX_EventProcess();							/// June 32cc30b0
+		void AVSI_AEM_ZZXX_START_EventProcess();							/// June 32cc34c0
+		void AVSI_AEM_ZZXX_LOOP_Start();							/// June 32cc37e0
+		void AVSI_AEM_ZZXX_LOOP_FrameMove();							/// June 32ce26b0
+		void AVSI_AEM_ZZXX_LOOP_EventProcess();							/// June 32cc3800
+		void AVSI_AEM_ZZXX_LOOP_End();							/// June 32cc3b70
+		void AVSI_AEM_ZZXX_END_FrameMove();							/// June 32ce28f0
+		void AVSI_AEM_ZZXX_END_EventProcess();							/// June 32cc3b90
+		float GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads CX2GUUser::m_vecJuneSpecialOptionValue )
 		float						m_fJuneZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
 		CX2EffectSet::Handle		m_hJuneDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1e
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1f ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June Dark Magician / Void Princess line states ( class map phase CH1f ); definitions at the end of X2GUArme_VioletMage.cpp.
-		void June_AVSI_DARK_MAGICIAN_COMBO_X2_FrameMove();							/// June 32cd4450
-		void June_AVSI_DARK_MAGICIAN_COMBO_X2_EventProcess();							/// June 32cbd120
-		void June_AVSI_DARK_MAGICIAN_COMBO_X3down_FrameMove();							/// June 32cbc520
-		void June_AVSI_DARK_MAGICIAN_COMBO_X3down_EventProcess();							/// June 32cbc880
-		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_Start();							/// June 32cb7400
-		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_FrameMove();							/// June 32cd3be0
-		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_EventProcess();							/// June 32cbc930
-		void June_AVSI_DARK_MAGICIAN_COMBO_X3back_FrameMove();							/// June 32cd4650
-		void June_AVSI_DARK_MAGICIAN_COMBO_X3back_EventProcess();							/// June 32cbd670
-		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_Start();							/// June 32cc6a30
-		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_FrameMove();							/// June 32cd5050
-		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_EventProcess();							/// June 32cbde90
-		void June_AVSI_ADM_DASH_COMBO_ZXX_FrameMove();							/// June 32cd5180
-		void June_AVSI_ADM_DASH_COMBO_ZXX_EventProcess();							/// June 32cbdfb0
-		void June_AVSI_ADM_ZZupZZ_FrameMoveFuture();							/// June 32cc2950
-		void June_AVSI_ADM_ZZupZZ_FrameMove();							/// June 32ce1950
-		void June_AVSI_ADM_ZZupZZ_EventProcess();							/// June 32cc29a0
-		void June_AVSI_ADM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8be0
-		void June_AVSI_ADM_DASH_JUMP_ZX_FrameMove();							/// June 32ce2b20
-		void June_AVSI_ADM_DASH_JUMP_ZX_EventProcess();							/// June 32cc3ed0
-		void June_AVSI_AVP_ZZfrontZ_EventProcess();							/// June 32cbf810
-		void June_AVSI_AVP_ZZfrontZZ_Init();							/// June 32cb7d60
-		void June_AVSI_AVP_ZZfrontZZ_StateStartFuture();							/// June 32cb7db0
-		void June_AVSI_AVP_ZZfrontZZ_EventProcess();							/// June 32cbf9a0
-		void June_AVSI_AVP_ZZfrontZZ_FALL_EventProcess();							/// June 32cbfa70
-		void June_AVSI_AVP_DASH_JUMP_X_Init();							/// June 32cb7de0
-		void June_AVSI_AVP_DASH_JUMP_X_FrameMove();							/// June 32ce6b30
-		void June_AVSI_AVP_DASH_JUMP_X_EventProcess();							/// June 32cbfaa0
-		void June_AVSI_A_AVP_Summon_Bat_Heavy_Init();							/// June 32cb8450
-		void June_AVSI_A_AVP_Summon_Bat_Heavy_FrameMove();							/// June 32cdfb70
-		void June_AVSI_HA_AVP_Abyss_Angor_Init();							/// June 32cb8840
+		void AVSI_ADM_DASH_COMBO_ZXX_FrameMove();							/// June 32cd5180
+		void AVSI_ADM_DASH_COMBO_ZXX_EventProcess();							/// June 32cbdfb0
+		void AVSI_ADM_ZZupZZ_FrameMoveFuture();							/// June 32cc2950
+		void AVSI_ADM_ZZupZZ_FrameMove();							/// June 32ce1950
+		void AVSI_ADM_ZZupZZ_EventProcess();							/// June 32cc29a0
+		void AVSI_ADM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8be0
+		void AVSI_ADM_DASH_JUMP_ZX_FrameMove();							/// June 32ce2b20
+		void AVSI_ADM_DASH_JUMP_ZX_EventProcess();							/// June 32cc3ed0
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1f
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1g ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June Battle Magician / Dimension Witch line states ( class map phase CH1g ); definitions at the end of X2GUArme_VioletMage.cpp.
-		void June_ABM_ComboZ1EventProcess();							/// June 32cbfe50
-		void June_ABM_ComboZ2EventProcess();							/// June 32cc0000
-		void June_ABM_ComboZ3EventProcess();							/// June 32cc00f0
-		void June_ABM_ComboZ4EventProcess();							/// June 32cc0390
-		void June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove();							/// June 32cdc0f0
-		void June_AVSI_ABM_DASH_COMBO_Z2a_EventProcess();							/// June 32cc0500
-		void June_AVSI_ABM_DASH_COMBO_ZXX_EventProcess();							/// June 32cc05a0
-		void June_AVSI_ABM_DASH_COMBO_ZXXX_FrameMove();							/// June 32cc06e0
-		void June_AVSI_ABM_DASH_COMBO_ZXXX_EventProcess();							/// June 32cc0b80
-		void June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X_EventProcess();							/// June 32cc1620
-		void June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X2_EventProcess();							/// June 32cc16f0
-		void June_AVSI_ADW_COMBO_ADD_X_EventProcess();							/// June 32cc1900
-		void June_AVSI_ABM_DASH_JUMP_ZX_EventProcess();							/// June 32cc45c0
-		void June_AVSI_ABM_DASH_JUMP_ZXX_EventProcess();							/// June 32cc4980
-		void June_AVSI_ABM_DASH_JUMP_ATTACK_X_EventProcess();							/// June 32cc4b90
-		void June_AVSI_ADW_DASH_JUMP_X2_EventProcess();							/// June 32cc4c90
-		void June_AVSI_ADW_DASH_JUMP_X3_EventProcess();							/// June 32cc5050
-		void June_AVSI_ADW_ZZZBackZ_StartFuture();							/// June 32cc73e0
-		void June_AVSI_ADW_ZZZBackZ_FrameMove();							/// June 32ce72f0
-		void June_AVSI_ADW_ZZZBackZ_EventProcess();							/// June 32cc5260
-		void June_AVSI_ADW_ZZZBackZ_EndFuture();							/// June 32cb8d10
-		void June_AVSI_SI_SA_ADW_Screwdriver_Driller_Init();							/// June 32cb8570
-		void June_AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove();							/// June 32cb8640
-		void JuneLandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ );	/// June 32021390 ( a CX2GUUser method in June )
-		void June_AVSI_ABM_DASH_JUMP_ZX_StartFuture();							/// June 32cb8bf0
-		void June_AVSI_ADW_DASH_JUMP_X2_StartFuture();							/// June 32cb8c80
+		void AVSI_ABM_DASH_JUMP_ZX_EventProcess();							/// June 32cc45c0
+		void AVSI_ABM_DASH_JUMP_ZXX_EventProcess();							/// June 32cc4980
+		void AVSI_ABM_DASH_JUMP_ATTACK_X_EventProcess();							/// June 32cc4b90
+		void AVSI_ADW_DASH_JUMP_X2_EventProcess();							/// June 32cc4c90
+		void AVSI_ADW_DASH_JUMP_X3_EventProcess();							/// June 32cc5050
+		void AVSI_ADW_ZZZBackZ_StartFuture();							/// June 32cc73e0
+		void AVSI_ADW_ZZZBackZ_FrameMove();							/// June 32ce72f0
+		void AVSI_ADW_ZZZBackZ_EventProcess();							/// June 32cc5260
+		void AVSI_ADW_ZZZBackZ_EndFuture();							/// June 32cb8d10
+		void LandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ );	/// June 32021390 ( a CX2GUUser method in June )
+		void AVSI_ABM_DASH_JUMP_ZX_StartFuture();							/// June 32cb8bf0
+		void AVSI_ADW_DASH_JUMP_X2_StartFuture();							/// June 32cb8c80
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1g
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1h ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June lifecycle, render and reaction overrides and their helpers ( class map phase CH1h ); definitions at the end of
 		/// X2GUArme_VioletMage.cpp with the June address of each.
-		void June_ConstructorInit();										/// June 32cc99d0
-		void June_Destructor();												/// June 32ce4600 ( body of the scalar deleting destructor 32cf2d50 )
-		void June_DamageReact( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb6e00 ( vslot 0x60 )
-		void June_InitEffect();												/// June 32cb6e50 ( vslot 0x48 )
-		HRESULT June_OnFrameMove( double fTime, float fElapsedTime );		/// June 32cb7eb0 ( vslot 0x4 )
-		void June_NotifyDGManagerChanged( CKTDGManager& refInManager_ );	/// June 32cb7ef0 ( vslot 0x30 )
-		void June_Win();													/// June 32cb8fd0 ( vslot 0x90 )
-		void June_Lose();													/// June 32cc5ca0 ( vslot 0x94 )
-		void June_Draw();													/// June 32cb9010 ( vslot 0x98 )
-		void June_InitEnchantWeaponEffectUnitSpecific();					/// June 32cb9110 ( vslot 0x54c )
-		void June_InitEtc();												/// June 32cb96b0 ( vslot 0x33c )
-		void June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32cc1c50 ( vslot 0x314 )
-		void June_COMMON_BUFF_FrameMove();									/// June 32cc6e50 ( vslot 0x5f0 )
-		void June_InitDevice();												/// June 32cc7fa0 ( vslot 0x38 )
-		void June_InitComponent();											/// June 32ccdb70 ( vslot 0x3c )
-		void June_DeleteMinorParticle();									/// June 32cdd4e0 ( vslot 0x4c )
-		void June_DeleteArmeMinorParticle();								/// June 32cce090
-		void June_HyperModeBuffEffectStart();								/// June 32cddcc0 ( vslot 0xc4 )
-		void June_ReInit( bool bRandom, int startPosIndex );				/// June 32ce4db0 ( vslot 0x44 )
-		void June_CreateMajorParticleArray();								/// June 32ce4e80 ( vslot 0x540 )
-		void June_CreateMinorParticleArray();								/// June 32ce55e0 ( vslot 0x548 )
-		void June_ClearMemoRise( const bool* pbRefresh_ );					/// June 32ce1900
-		bool June_IsMemoRiseEmpty() const;									/// June 32cc2880
-		void June_AddStoneWall( UidType uid, float fTimeLeft );				/// June 32cc98e0
-		void June_InitializeArmeMajorParticleArray();						/// June 32cb9160
-		CKTDGParticleSystem::CParticleEventSequence* June_SetAishaMajorParticleByEnum( AISHA_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ );	/// June 32cce230
-		CKTDGParticleSystem::CParticleEventSequence* June_SetAishaMinorParticleByEnum( AISHA_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ );	/// June 32cce370
+		void ConstructorInit();										/// June 32cc99d0
+		void Destructor();												/// June 32ce4600 ( body of the scalar deleting destructor 32cf2d50 )
+		void ClearMemoRise( const bool* pbRefresh_ );					/// June 32ce1900
+		bool IsMemoRiseEmpty() const;									/// June 32cc2880
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
-		static void June_AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ );		/// June 32cb9050
-		static void June_AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ );	/// June 32cb9220
-		static void June_AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ );	/// June 32cb95c0
-		static void June_AppendMeshToDeviceList( CKTDXDeviceDataList& listInOut_ );				/// June 32cb96c0
-		static void June_AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2DamageManager::EXTRA_DAMAGE_TYPE eDamageType_ );	/// June 32cc5d30
+		static void AppendMeshToDeviceList( CKTDXDeviceDataList& listInOut_ );				/// June 32cb96c0
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 
 		/// June-only members the constructor 32cc99d0 sets, named by their June offset ( roles unknown ); CH1 gives them a source or drops them.
@@ -1194,41 +972,20 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); definitions at the end of
 		/// X2GUArme_VioletMage.cpp with the June address of each.
-		void June_CommonStateEndFuture();								/// June 32cb6ea0 ( vslot 0x7d8 )
-		RENDER_HINT June_CommonRender_Prepare();						/// June 32cb6eb0 ( vslot 0x7e8 )
-		bool June_IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ );	/// June 32cb8ab0 ( vslot 0x818 )
-		void June_InitEquippedActiveSkillState( bool bOnlySkillLevel );	/// June 32cb9650 ( vslot 0x684 )
-		void June_CommonStateStartFuture();								/// June 32cb9720 ( vslot 0x7c0 )
-		void June_CommonFrameMoveFuture();								/// June 32cb9750 ( vslot 0x7c8 )
-		void June_CommonStateStart();									/// June 32ce7480 ( vslot 0x7c4 )
-		void June_CommonFrameMove();									/// June 32cce4b0 ( vslot 0x7cc )
-		void June_CommonStateEnd();										/// June 32ce5700 ( vslot 0x7dc )
-		void June_HyperModeFrameMove();									/// June 32ce5760 ( vslot 0x600 )
 		void June_Vslot604();											/// June 32ccda90 ( vslot 0x604 ); 32ccda40 ( 0x608 ) is the same body
-		void June_SetShowViewList( bool bShow_ );						/// June 32cc5b00 ( vslot 0x63c )
-		CX2EqipPtr June_GetTransformWeapon() const;						/// June 32cf25a0 ( vslot 0x680 )
-		bool June_CanRidingState();										/// June 32cc7a40 ( vslot 0x628 )
-		bool June_Vslot828();											/// June 32cc7b90 ( vslot 0x828 ): base test 31fd7640 is a stand-in
+		CX2EqipPtr GetTransformWeapon() const;						/// June 32cf25a0 ( vslot 0x680 )
+		bool IsNotCommonMoveState();											/// June 32cc7b90 ( vslot 0x828 ): base test 31fd7640 is a stand-in
 		void June_Vslot850();											/// June 32cc7c30 ( vslot 0x850 )
 		void June_Vslot860( CX2GUNPC* pNPC );							/// June 32ccdae0 ( vslot 0x860 )
-		void June_ChangeWeapon( CX2EqipPtr ptrWeapon );					/// June 32cc8980 ( = March ChangeWeapon )
-		void June_RidingOffEnd();										/// June 32cc8ae0 ( vslot 0x610 )
+		void RidingOffEnd();										/// June 32cc8ae0 ( vslot 0x610 )
 		void June_Vslot654();											/// June 32cc8cf0 ( vslot 0x654 )
-		void June_UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ );	/// June 32cc8d30 ( vslot 0x638 ), partial
-		bool June_UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList_, CX2Item* const pItemToRemoveInViewList_ );	/// June 32cc9950 ( vslot 0x644 ), partial
-		void June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ );	/// June 32cc9680, partial
-		void June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 32cc98b0 ( vslot 0x834 )
-		void June_AngorHammerMesh();									/// June 32ce6f40
-		void June_EndHellStoneWindow();									/// June 32cc2ab0
-		void June_ManaflowOverdriveFrameMove();							/// June 32cc5b20
-		void June_ProcessShiningBodySkill();							/// June 32cc26f0
-		void June_ProcessShadowBodySkill();								/// June 32cc2740
-		void June_ProcessEnergeticBodySkill();							/// June 32cc2790
-		bool June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
+		void AngorHammerMesh();									/// June 32ce6f40
+		void EndHellStoneWindow();									/// June 32cc2ab0
+		void ManaflowOverdriveFrameMove();							/// June 32cc5b20
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		int June_GetSkillLevel( const int iSkillID_ ) const;			/// June 31fceab0 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
-		const CX2SkillTree::SkillTemplet* June_GetLearnedSkillTemplet( const int iSkillID_ ) const;	/// June 31fcad70 ( CX2GUUser )
+		const CX2SkillTree::SkillTemplet* GetLearnedSkillTemplet( const int iSkillID_ ) const;	/// June 31fcad70 ( CX2GUUser )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 		float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
@@ -1237,28 +994,24 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
 		void June_UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		void June_NoStateChangeActionFrameMove();						/// June 32ccf9f0 ( vslot 0x80c )
-		bool June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	/// June 32ccbca0 ( vslot 0x810 )
-		void June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
-		void June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
-		void June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	/// June 32ccb830 ( vslot 0x7b8 )
-		bool June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cb97a0 ( vslot 0x7f4, step 509 )
-		bool June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cebe80 ( vslot 0x7f8, step 510 )
-		void June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ced640 ( vslot 0x7fc, step 511 )
-		void June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32ccf4e0 ( vslot 0x800, step 512 )
+		void SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
+		void SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
+		bool SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cebe80 ( vslot 0x7f8, step 510 )
+		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ced640 ( vslot 0x7fc, step 511 )
+		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32ccf4e0 ( vslot 0x800, step 512 )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 		void June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
 		void June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
 		void June_StateChangeBySkillSlot( const int iSlotIndex_ );		/// June 31fd32e0 ( CX2GUUser )
 		void June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
-		int June_SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ );	/// June 32cc7e60 ( class map CH1 )
-		int June_GetMemoRiseEntry( const int* piIndex_ ) const;			/// June 32cc7df0 ( class map CH1 )
-		bool June_MemoRiseContains( const int* piSkillID_ ) const;		/// June 32cc7f10 ( vslot 0x880 )
-		bool June_IsMemorizableSkill( const int* piSkillID_ ) const;	/// June 31fcec40 ( CX2GUUser )
-		bool June_AddMemoRise( const int* piSkillID_, const bool* pbRefresh_ );		/// June 32ceca70 ( class map CH4 )
-		bool June_EraseMemoRise( const int* piIndex_, const bool* pbRefresh_ );		/// June 32ce15a0
-		void June_SweepMemoRise( const bool* pbRefresh_ );				/// June 32ce1770
+		int SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ );	/// June 32cc7e60 ( class map CH1 )
+		int GetMemoRiseEntry( const int* piIndex_ ) const;			/// June 32cc7df0 ( class map CH1 )
+		bool MemoRiseContains( const int* piSkillID_ ) const;		/// June 32cc7f10 ( vslot 0x880 )
+		bool IsMemorizableSkill( const int* piSkillID_ ) const;	/// June 31fcec40 ( CX2GUUser )
+		bool AddMemoRise( const int* piSkillID_, const bool* pbRefresh_ );		/// June 32ceca70 ( class map CH4 )
+		bool EraseMemoRise( const int* piIndex_, const bool* pbRefresh_ );		/// June 32ce15a0
+		void SweepMemoRise( const bool* pbRefresh_ );				/// June 32ce1770
 
 		/// June-only members the functions above use, named by their June offset ( CX2GUUser members in June unless noted )
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
@@ -1272,45 +1025,24 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_InitState();											/// June 32cea0c0 ( vslot 0x7a4 ); InitState calls it under SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-		void June_InitStateCommon();									/// June 32ce77b0
-		void June_LoadAngorHammerMesh();								/// June 32ce1ba0
+		void LoadAngorHammerMesh();								/// June 32ce1ba0
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j2 ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess();						/// June 32cbca20
-		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove();						/// June 32cc3040
-		void June_AVSI_AEM_DASH_JUMP_X3_FrameMove();								/// June 32ce7170
-		void June_AVSI_AVP_DASH_ATTACK_X2_FrameMove();								/// June 32ce2cc0
-		void June_AVSI_AVP_DASH_ATTACK_X2_EventProcess();							/// June 32cc42a0
+		void AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove();						/// June 32cc3040
+		void AVSI_AEM_DASH_JUMP_X3_FrameMove();								/// June 32ce7170
+		void AVSI_AVP_DASH_ATTACK_X2_FrameMove();								/// June 32ce2cc0
+		void AVSI_AVP_DASH_ATTACK_X2_EventProcess();							/// June 32cc42a0
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j2
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1k ( JUNE_CHARACTER_AISHA_PHASES.md )
-		bool June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 32cede00 up to its skill switch
-		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess();			/// June 32cc6fb0
-		void June_AVSI_SA_AHM_METEOSHOWER_END_EventProcess();			/// June 32cbfb70
-		void June_AVSI_SA_AHM_Lightning_Shower_Loop_EventProcess();		/// June 32cc7200
-		void June_AVSI_SA_AHM_Lightning_Shower_End_EventProcess();		/// June 32cc2110
-		void June_AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess();	/// June 32cc10f0
-		void June_AVSI_SI_A_AV_CIRCLE_FLAME_StartFuture();				/// June 32cbeee0
-		void June_AVSI_SI_A_AV_CIRCLE_FLAME_EventProcess();				/// June 32cbef40
-		void June_AVSI_SA_AVP_RUIN_LOOP_EventProcess();					/// June 32cc5990
-		void June_AVSI_HELL_DROP_CONTROL_FIRE_EventProcess();			/// June 32cb7ce0
-		void June_AVSI_HELL_DROP_CONTROL_IDLE_StateStart();				/// June 32cc74a0
-		void June_AVSI_HELL_DROP_CONTROL_LEFT_StateStart();				/// June 32cc7530
-		void June_AVSI_HELL_DROP_CONTROL_RIGHT_StateStart();			/// June 32cc75c0
-		void June_AVSI_HELL_DROP_CONTROL_UP_StateStart();				/// June 32cc7650
-		void June_AVSI_HELL_DROP_CONTROL_DOWN_StateStart();				/// June 32cc76e0
-		void June_AVSI_HELL_DROP_CONTROL_UP_LEFT_StateStart();			/// June 32cc7770
-		void June_AVSI_HELL_DROP_CONTROL_UP_RIGHT_StateStart();			/// June 32cc7800
-		void June_AVSI_HELL_DROP_CONTROL_DOWN_LEFT_StateStart();		/// June 32cc7890
-		void June_AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart();		/// June 32cc7920
-		void June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart();				/// June 32cc79b0
+		bool SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 32cede00 up to its skill switch
+		void AVSI_SA_AVP_RUIN_LOOP_EventProcess();					/// June 32cc5990
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1k
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1l ( JUNE_CHARACTER_AISHA_PHASES.md )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-		virtual void SetShowViewList( bool bShow_ ) { June_SetShowViewList( bShow_ ); }	/// June vslot 0x63c
-		virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList ) { return June_UpdateEquipViewListInfo( pItemToAddInViewList, pItemToRemoveInViewList ); }	/// June vslot 0x644
+		virtual void SetShowViewList( bool bShow_ );	/// June vslot 0x63c
+		virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );	/// June vslot 0x644
 		using CX2GUUser::UpdateEquipCollisionData;
-		virtual void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ ) { June_UpdateEquipCollisionData( vecEquipList_ ); }	/// June vslot 0x638
+		virtual void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ );	/// June vslot 0x638
 		virtual void JuneAfterEquipSlotChange() { June_Vslot654(); }	/// June vslot 0x654
 		virtual void JuneAfterImageFrameMove() { June_Vslot850(); }	/// June vslot 0x850
 		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
@@ -1319,107 +1051,62 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1l
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2a ( JUNE_CHARACTER_AISHA_PHASES.md )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
-		void June_AVSI_SKILL_EventProcess();								/// June 32cbe6a0 and its clones
-		void June_AVSI_SI1_AV_BINDING_CIRCLE_FrameMove();					/// June 32cd57c0
-		void June_PlayChainFireBall( const bool bHyper_ );
-		void June_AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove();					/// June 32cd6600
-		void June_AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove();			/// June 32cd6800
-		void June_CreateGuideFireBall( const WCHAR* pwszEffectName_ );
-		void June_AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove();					/// June 32cd6a00
-		void June_AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove();			/// June 32cd6b70
-		void June_AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove();					/// June 32cd78b0
-		void June_AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove();				/// June 32cd7a50
-		void June_AVSI_TELEPORT_START_UPGRADE_StartFuture();				/// June 32cb71a0
-		void June_AVSI_TELEPORT_START_UPGRADE_Start();						/// June 32cd26b0
-		void June_AVSI_SA_AEM_Chain_Lightning_Start();						/// June 32cc23c0
-		void June_AVSI_SA_AEM_Chain_Lightning_FrameMove();					/// June 32cdf7f0
-		void June_AVSI_SA_AEM_Chain_Lightning_EventProcess();				/// June 32cc2440
-		void June_RNSI_SA_AVM_METEO_CALL_NEW_FrameMove();					/// June 32ce2e90
-		void June_RNSI_SA_AVM_METEO_CALL_NEW_EventProcess();				/// June 32cc5580
-		bool June_GetPassiveSkillAbilityValue( const int iSkillID_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, float& fOut_ ) const;	/// June 31ff1e80
-		void June_SetMeteoShowerValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00 @32cee4cf
-		void June_AVSI_SA_AHM_METEOSHOWER_StateStart();						/// June 32ccc990
-		void June_CreateMeteoShowerAttack();
-		void June_AVSI_SA_AHM_METEOSHOWER_FrameMove();						/// June 32cdae90
-		void June_AVSI_SA_AHM_METEOSHOWER_EventProcess();					/// June 32cbfad0
-		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart();				/// June 32cccb40
-		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove();					/// June 32cdb5e0
-		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd();					/// June 32cdbb70
-		void June_AVSI_A_AV_FIRE_ROAD_Init();								/// June 32cb7f00
-		bool June_PlayFireRoad();
-		void June_AVSI_A_AV_FIRE_ROAD_FrameMove();							/// June 32cdc270
-		void June_AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove();					/// June 32cdc4a0
-		void June_AVSI_A_AV_FIRE_ROAD_EventProcess();						/// June 32cc0c50
+		void AVSI_SKILL_EventProcess();								/// June 32cbe6a0 and its clones
+		void PlayChainFireBall( const bool bHyper_ );
+		void CreateGuideFireBall( const WCHAR* pwszEffectName_ );
+		void AVSI_TELEPORT_START_UPGRADE_StartFuture();				/// June 32cb71a0
+		void AVSI_TELEPORT_START_UPGRADE_Start();						/// June 32cd26b0
+		void AVSI_SA_AEM_Chain_Lightning_Start();						/// June 32cc23c0
+		void RNSI_SA_AVM_METEO_CALL_NEW_FrameMove();					/// June 32ce2e90
+		void RNSI_SA_AVM_METEO_CALL_NEW_EventProcess();				/// June 32cc5580
+		bool GetPassiveSkillAbilityValue( const int iSkillID_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, float& fOut_ ) const;	/// June 31ff1e80
+		void SetMeteoShowerValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00 @32cee4cf
+		void CreateMeteoShowerAttack();
+		void AVSI_A_AV_FIRE_ROAD_Init();								/// June 32cb7f00
+		bool PlayFireRoad();
+		void AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove();					/// June 32cdc4a0
 #ifndef SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 		void June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
 #endif SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS
 		virtual void ClearSkillUseReserve();								/// June slot 514 ( 31fc9410 ): +0x8eac = 0 and +0x8ea8 ( the reserved MP ) = 0
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_AVSI_SA_ADM_DEATHFIELD_FrameMove();						/// June 32cd7bf0
-		void June_HellStoneRecast();										/// June 32cc6d70 / 32cc6de0 tail
-		void June_AVSI_SI1_AV_HELL_STONE_StateStartFuture();				/// June 32cc6de0
-		void June_AVSI_SI1_AV_HELL_STONE_StateStart();						/// June 32cc6d70
-		void June_PlayManaIntake( const WCHAR* pwszEffectSetName_ );
-		void June_AVSI_A_ADM_MANA_INTAKE_FrameMove();						/// June 32cd81b0
-		void June_AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove();					/// June 32cd83c0
-		void June_AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove();					/// June 32cccc20
-		void June_AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove();					/// June 32cdcef0
-		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart();				/// June 32cc7d80
-		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove();				/// June 32cc95b0
-		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd();					/// June 32cc11a0
-		void June_RNSI_A_ROAD_Init();										/// June 32cb8d60 / 32cb8e00
-		CX2EffectSet::Handle June_PlayRoadEffectSet( const WCHAR* pwszEffectSetName_, const int iSkillID_, bool& bNoUnit_ );
-		void June_RNSI_A_ADM_DARK_ROAD_FrameMove();							/// June 32ce33b0
-		void June_RNSI_A_ABM_ENERGETIC_ROAD_FrameMove();					/// June 32ce35e0
-		void June_RNSI_A_ROAD_EventProcess();								/// June 32cc5780 / 32cc5840
+		void HellStoneRecast();										/// June 32cc6d70 / 32cc6de0 tail
+		void AVSI_SI1_AV_HELL_STONE_StateStartFuture();				/// June 32cc6de0
+		void AVSI_SI1_AV_HELL_STONE_StateStart();						/// June 32cc6d70
+		void PlayManaIntake( const WCHAR* pwszEffectSetName_ );
+		void AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart();				/// June 32cc7d80
+		void AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd();					/// June 32cc11a0
+		void RNSI_A_ROAD_Init();										/// June 32cb8d60 / 32cb8e00
+		CX2EffectSet::Handle PlayRoadEffectSet( const WCHAR* pwszEffectSetName_, const int iSkillID_, bool& bNoUnit_ );
+		void RNSI_A_ADM_DARK_ROAD_FrameMove();							/// June 32ce33b0
+		void RNSI_A_ABM_ENERGETIC_ROAD_FrameMove();					/// June 32ce35e0
+		void RNSI_A_ROAD_EventProcess();								/// June 32cc5780 / 32cc5840
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2c ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove();				/// June 32cdc6f0
-		void June_AVSI_A_ABM_ENERGY_DRAIN_READY_EventProcess();			/// June 32cb7fa0
-		void June_AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove();				/// June 32cdcac0
-		void June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess();					/// June 32cc0d10
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2c
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_PlayBlazeStep();
-		void June_AVSI_SA_AHM_BLAZE_STEP_FrameMove();						/// June 32cd85d0
-		void June_AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove();					/// June 32cd8850
-		void June_AVSI_SA_AEM_CYCLONE_FrameMove();							/// June 32cd9340
-		void June_AVSI_SI3_AV_CATASTROPHE_EventProcess();					/// June 32cbe9f0
-		void June_AVSI_SA_AVP_HELL_DROP_FrameMove();						/// June 32cd95d0
-		void June_AVSI_SA_AVP_HELL_DROP_EventProcess();						/// June 32cbf2d0
-		void June_AVSI_HELL_DROP_CONTROL_FrameMove();						/// June 32cd9af0
-		void June_AVSI_HELL_DROP_CONTROL_EventProcess();					/// June 32cd9d00
-		void June_AVSI_SA_AVP_RUIN_EventProcess();							/// June 32cc5940
-		void June_SetRuinValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00, the Ruin case tail
-		void June_AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove();				/// June 32cd7470
-		void June_AVSI_SI_A_AV_CIRCLE_FLAME_StateStart();					/// June 32cd75f0
-		void June_AVSI_A_AVP_SUMMON_BAT_FrameMove();						/// June 32cd8ea0
+		void PlayBlazeStep();
+		void AVSI_SA_AVP_RUIN_EventProcess();							/// June 32cc5940
+		void SetRuinValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00, the Ruin case tail
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH3a
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a2 ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_AVSI_SA_AHM_Lightning_Shower_StateStart();				/// June 32ccd170
-		void June_AVSI_SA_AHM_Lightning_Shower_FrameMove();				/// June 32cdebd0
-		void June_AVSI_SA_AHM_Lightning_Shower_Loop_FrameMove();			/// June 32cdf240
-		void June_CreateLightningShowerAttack();
-		void June_PlayRingOnAimedTarget( const WCHAR* pwszEffectSetName_ );
-		void June_AVSI_A_AEM_FIRE_RING_FrameMove();						/// June 32ce3880
-		void June_AVSI_A_AVP_DARK_RING_FrameMove();						/// June 32ce3b80
+		void CreateLightningShowerAttack();
+		void PlayRingOnAimedTarget( const WCHAR* pwszEffectSetName_ );
+		void AVSI_A_AEM_FIRE_RING_FrameMove();						/// June 32ce3880
+		void AVSI_A_AVP_DARK_RING_FrameMove();						/// June 32ce3b80
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH3a2
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH3b ( JUNE_CHARACTER_AISHA_PHASES.md )
-		void June_AVSI_SI_A_ADW_DISTORTION_Init();							/// June 32cb7fd0
-		void June_AVSI_SI_A_ADW_DISTORTION_FrameMove();						/// June 32cdda50
-		void June_AVSI_A_ADW_Worm_Hole_FrameMove();							/// June 32ce0f50
-		void June_AVSI_SI_SA_ADW_MORNING_STAR_StartFuture();				/// June 32cc70b0
-		void June_AVSI_SI_SA_ADW_MORNING_STAR_FrameMove();					/// June 32ced8b0
-		void June_PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ );	/// June 322b5320 with the Rate of 31fdbfc0
-		void June_AVSI_SA_ADW_AIR_STUNNER_EventProcess();					/// June 32cc5aa0
-		void June_AVSI_SA_ADW_AIR_STUNNER_EndFuture();						/// June 32cb8eb0
-		void June_AVSI_A_ADW_ENERGY_RING_FrameMove();						/// June 32ce3e80
+		void AVSI_SI_SA_ADW_MORNING_STAR_StartFuture();				/// June 32cc70b0
+		void PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ );	/// June 322b5320 with the Rate of 31fdbfc0
+		void AVSI_SA_ADW_AIR_STUNNER_EventProcess();					/// June 32cc5aa0
+		void AVSI_SA_ADW_AIR_STUNNER_EndFuture();						/// June 32cb8eb0
+		void AVSI_A_ADW_ENERGY_RING_FrameMove();						/// June 32ce3e80
 	public:
-		void June_SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x443
+		void SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x443
 		//{{ Iruha : 2026-10-22 // June character pilot Phase CH3c
-		void June_SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 cases 0x1ef / 0x627
-		void June_SetSummonStatAndPowerRate( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSummonSkillID_ );	/// June 322ece70 flags 0
-		void June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x1f5
+		void SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 cases 0x1ef / 0x627
+		void SetSummonStatAndPowerRate( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSummonSkillID_ );	/// June 322ece70 flags 0
+		void SetStoneWallSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x1f5
 		//}} Iruha : 2026-10-22 // June character pilot Phase CH3c
 	protected:
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH3b

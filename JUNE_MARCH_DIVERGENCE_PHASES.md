@@ -398,6 +398,32 @@ step (renames, merges, hand shapes). Build + deploy. Smoke play-test: Eve, every
 **Depends on:** C0; may run beside C1 (different files; the build lock queues them). `X2GUArme_VioletMage.{h,cpp}`. As C1, for Aisha
 (transcendence included). The `27702` memo call becomes a call to the replaced function in D1; here it is only renamed with its function.
 
+### Done (2026-10-29, no new flag; each body keeps its `SERV_IRUHADEV_JUNE_CHAR_ARME_*` flag)
+
+`python tools/junecollapse.py apply C2` on `X2GUArme_VioletMage.{h,cpp}` (+ callers in `X2Game.cpp`, `X2SkillTree.cpp`, `X2UISkillTreeNew2015.cpp`):
+460 map rows, 444 automatic, 16 by hand; flag-off equivalence PASS in all 5 files (every `SERV_IRUHADEV_JUNE_*` off = HEAD with the same renames, byte for byte),
+encoding class unchanged (CRLF/LF mix kept; the lines I inserted were set to CRLF). Merged 314 (`X(..) { #ifdef F June body #else March body #endif F }`), renamed 146.
+**Hand shapes (16):**
+- 7 default-argument mismatches (`ReInit`, `InitEquippedActiveSkillState`, `CommonHyperModeFrameMove`, `ShowActiveSkillCutInAndLight`, `SpecialAttackEventProcess`, `TransformStart`, `TransformEnd`):
+  June's declaration got March's defaults, then the tool merged them.
+- `June_SetSkillBuffFactors` / `June_HaveSkillBuff`: copies of `CX2GUUser::SetSkillBuffFactors` / `HaveSkillBuff` (same June addresses 31fcac90 / 3229a470); definitions and
+  declarations deleted, 8 callers call the base. **Behaviour change:** the base (Eve phase, June-faithful) reads the skill level with `bBasicLevel = true` and tests
+  `m_iUnitClassTran`, the copy used `false` and `UnitFlag3c`; the 6 Magical Body / Dark Deal / Time Limit passive calls and the Time Limit tests now follow the base.
+- `June_Vslot60c` + `June_RidingOffStart` (a bare jump) -> `RidingOffStart` (new, no March twin; the state registration calls it); `June_RidingOffEnd` -> `RidingOffEnd`
+  (hides non-virtual `CX2GUUser::RidingOffEnd`, calls it first); `June_Vslot828` -> `IsNotCommonMoveState` (no callers; base `JuneIsNotCommonMoveState` is renamed in C3).
+- The `ARME_LIVE` inline forwarders for `SetShowViewList`, `UpdateEquipViewListInfo`, `UpdateEquipCollisionData` are gone: the three June bodies are the real overrides of the
+  `CX2GUUser` virtuals, declared in the LIVE block and defined under `#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` (CORE alone stays inert).
+**Reach points:** 265 of the 300 automatic merges sit under a non-wrapper flag, so March callers of those functions now run June's body whenever the flag is on
+(CORE 219, SKILL 45, PASSIVE 1); the per-row list is `--report` output (`apply C2 --dry-run --report`). 24 "mixed call site" notes (a June branch calling the merged name
+beside a different March branch under `#else`) are all renames only. No `guards.tsv` row: Aisha is ported. No JUNE_BUGS row (no June quirk touched).
+**Order fix the tool does not do (C0 gap, for C1 / C3 / C4):** a merged June body now sits at March's position, earlier in the file than the phase helpers it uses, so the first build failed (101 errors in
+`X2GUArme_VioletMage.cpp`). Fixed by hand: the 19 `JUNE_ARME_*` key macros (identical in every redefinition) are defined once at the top and all 53 `#undef`s and repeat `#define`s are gone; the
+namespaces `_CONST_ARME_JUNE_CH1a_/CH1b_/CH1h_/CH1i_/CH1k_/CH4a_/CH4c_` moved, with their `using`, into one `#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` block after `_CONST_AISHA_`
+(CH4a/CH4c also under PASSIVE). C5 renames these anyway. Flag-off equivalence re-run after the move: PASS.
+**Build:** `DEPLOY OK: X2_offline.exe is 25,822,720 B, dated 2026-10-29 07:10:51, md5 0b868d9a80368d71879d54eaf782ef51` (built at df2b994d + 6 uncommitted files; it includes the C1 session's uncommitted Eve edits).
+**Left for later batches:** 22 Aisha rows whose base is in `CX2GUUser` (`June_Vslot604/608/654/850/860`, `June_RidingHyperModeEnd`, `June_GetSkillLevel`, ...) are C3;
+members, locals, `JUNE_CH*` constants and `_CONST_ARME_JUNE_*_` namespaces are C5. `enumscan` not run (code moved, none added).
+
 ## Phase C2 - Review (covers C1 and C2) (Opus 5.5, high)
 
 Every merge against its June address (spot-check 10 per class in Ghidra), the hand shapes, the reach list (where March's body was still

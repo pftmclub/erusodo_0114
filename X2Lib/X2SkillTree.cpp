@@ -4556,7 +4556,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 			if ( NULL != g_pX2Game->GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == g_pX2Game->GetMyUnit()->GetUnit()->GetType() )
 			{
 				const bool bRefresh = true;
-				static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->June_SweepMemoRise( &bRefresh );	// June @3220f4dc
+				static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->SweepMemoRise( &bRefresh );	// June @3220f4dc
 			}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		}
