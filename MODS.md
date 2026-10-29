@@ -5413,6 +5413,13 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: equip collision lists and the big-head restore (june-march-divergence D1-3h, 2026-10-30)
+
+Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3h Done"; March's bodies are the `#else`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA`: `CX2GUUser::UpdateEquipCollisionData` and Aisha's override are June's (`31fd8c00` / `32cc8d30`). An attach-anim equip's collision / attack lists count only when the item's unit type is Add or Rose (June reads Lu/Ciel's minor-unit anims for every other item; March has none), so other classes' attach-anim equips no longer add hit or attack boxes. Transformed Aisha takes only the transform weapon's anims and her own body, Rfoot / Lfoot attack boxes off; no equips. Riding pet collision stays March's (Stage 17).
+- `SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD`: `CX2GUUser::RestoreHead` (big-head buff end) is June's (`31fde420`): the face sphere is restored, then the reform table re-applies (`CX2Data::SetUnitReForm` for `Bip01_Head` / `Bip01_Spine1`); the head bone is not restored first.
+- **Revert.** Comment out either `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
 ### One function per name: the bone reform table is June's DefaultBoneInfo.lua (june-march-divergence D1-3f, 2026-10-30)
 
 Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3f Done"; March's body is the `#else` at both sites.

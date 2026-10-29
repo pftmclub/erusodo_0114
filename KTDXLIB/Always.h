@@ -10831,3 +10831,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UT_LUCIEL / UT_ROSE / UT_AIN ), MOVE_BONE ( SetFrameMoveBoneY ) and ELSWORD_SECOND_CLASS_CHANGE ( SetUnitReForm )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-3h: CX2GUUser / CX2GUArme_VioletMage::UpdateEquipCollisionData are June's ( 31fd8c00 / 32cc8d30 ): an attach-anim equip adds its normal anims' collision and attack lists only when its templet unit type is Add or Rose ( other items read June's Lu/Ciel minor-unit anims, which March lacks ); Aisha transformed takes only the transform weapon's anims and her own, with the Rfoot / Lfoot attack boxes off. Riding pet branch: Stage 17. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UT_ROSE )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-3h: CX2GUUser::RestoreHead is June's ( 31fde420, big-head buff end ): COLLISION_SPHERE1_Face is restored, then CX2Data::SetUnitReForm ( 31ee1f40 ) re-applies the reform for Bip01_Head and Bip01_Spine1 with the unit's transform flag; Bip01_Head is no longer restored first. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM )
+#error SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD needs SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM ( CX2Data::SetUnitReForm )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
+//////////////////////////////////////////////////////////////////////////

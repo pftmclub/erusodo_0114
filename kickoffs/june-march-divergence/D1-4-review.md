@@ -41,3 +41,9 @@ D1-3f (2026-10-30) points for the review: `CX2Data::SetUnitReForm` (June `31ee1f
 `[ESP+x]` slot to the lookup that filled it (funcmap `31ee1f40` row); recheck the Dummy2_Lhand <- `Dummy1_Lhand` row and the pelvis `( 1, 1, 1 )`.
 `CX2DefaultBoneInfo::AddBoneInfo` returns false on a missing `UNIT_ID` (June's return value is not visible in the decompile). The Lua dev
 reload `31d8e660` (auth >= 1, DIK_APOSTROPHE) was not ported; March's viewer keeps its own DIK_R refresh.
+D1-3h (2026-10-30) points for the review: `UpdateEquipCollisionData` (`31fd8c00`, Aisha `32cc8d30`) takes an equip's normal anims only for
+Add / Rose items (templet `+0xd2`); check that `+0x584` is only Lu/Ciel's minor-unit array (funcmap R14b `3295dfa0`), since that reading drops
+every other class's attach-anim equip boxes. `RestoreHead` (`31fde420`) no longer restores `Bip01_Head` before the reform: confirm the
+reform's full pass (JUNE_BUGS 477) leaves the head as March's restore did. Lead: June's `ScaleHead` (`31fd64a0`) takes ( bone, head scale,
+face scale, body ) with 9 callers, while March's `ScaleHead()` is fixed at 2.0 / 1.8 and has no tsv row; decide whether it is a D1 row or
+belongs to the buff owner (Stage 2, `SetSpecificValueByBuffTempletID` `3204b5e0`).

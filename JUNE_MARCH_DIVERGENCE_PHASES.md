@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). D1-3f ported 250 (June's `DefaultBoneInfo.lua` table) and split again: **D1-3h** 205 and the reform bone-restore lead `31fde420`. **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). D1-3f ported 250 (June's `DefaultBoneInfo.lua` table) and split again: **D1-3h** 205 and the reform bone-restore lead `31fde420`. D1-3h ported 205 (base and Aisha) and the lead (`RestoreHead`); the riding-pet branch went to Stage 17. **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -1163,6 +1163,41 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   `g_pViewerSkinMesh` / `AddBoneInfo` (narrow), md5 c3cf407f.
 - **Smoke (plan end, after the data036 copy):** every class's head / legs look as in June in the village and the U-key viewer (Elsword's head is
   smaller than March's 0.93: June 0.87); Aisha DW transformed keeps her adult proportions without the 1.1 body scale; Chung is no longer 8 % larger.
+
+### D1-3h Done (2026-10-30, Opus 5.5; `SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA`, `..._RESTORE_HEAD`; March's body in every `#else`)
+
+| Item | March | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 205 | `CX2GUUser::UpdateEquipCollisionData( vector& )` (`X2GUUser.cpp:5773`), Aisha's override (`X2GUArme_VioletMage.cpp:34206`) | `31fd8c00`, `32cc8d30` | `UPDATE_EQUIP_COLLISION_DATA` | attach-anim equips add collision / attack lists only for Add / Rose items; transformed Aisha = transform weapon + own body |
+| lead | `CX2GUUser::RestoreHead` (`X2GUUser.cpp:36791`, big-head buff end) | `31fde420` | `RESTORE_HEAD` | face sphere restored, then `CX2Data::SetUnitReForm` for `Bip01_Head` / `Bip01_Spine1` |
+
+- **Both bodies read from the disassembly** (set targets `+0x200` / `+0x210` checked per call; `322a9500` is RET 4, so the pushed 0 is `326bd250`'s third
+  argument). Offsets: vslot `0x200` `GetRidingOn`, `+0x683c` `m_ptrRidingPet`, `+0x8e91` / vslot `0x260` (`+0x8e90`) Lu/Ciel body state, equip `+0x15d4`
+  a June-only ctor byte (which body), `+0x198` templet, `+0xd2` its unit type (9 `UT_ADD`, 11 `UT_ROSE`), `+0x544` normal anims, `+0x584` Lu/Ciel's
+  minor-unit anims (R14b `3295dfa0`, checklist 7aa). Not hyper (`+0x564`), as funcmap R12b had it.
+- **Behaviour change (June's, not a guess):** an equip whose templet unit type is not Add / Rose reads `+0x584`, which only Lu/Ciel fills, so every other
+  class's attach-anim equips stop adding hit / attack boxes. March has no `+0x584`, so those items add nothing (one-line comment at both sites).
+- **Aisha `32cc8d30`** has no Lu/Ciel filter. Transformed with `m_pXSkinAnim`: `GetTransformWeapon()` (vslot `0x680`) anims + own lists, then Rfoot / Lfoot
+  attack boxes off, no equips. A NULL weapon leaves both sets empty (JUNE_BUGS 479). Own lists are inserted once after the loop, not 8 times as June does (a set: same
+  result). Supersedes CH1i's PARTIAL body (funcmap 4149). Its old line-34204 comment still describes the CH1i body (not touched).
+- **Stand-ins (comments, 4 `guards.tsv` rows):** the riding-pet branch at both sites (pet collision, sphere filter `32d2eb50`, own lists skipped when pet
+  `+0x478` != 1) went to Stage 17's "riding pet's collision boxes" bullet, which already holds `ENABLE_USER_COLLISION_BOX` / `ENABLE_RIDING_PET_COLLISION_BOX`
+  (likely `+0x478` / `+0x47c`). Also the Lu/Ciel body filter and minor anims, and RestoreHead's three Lu/Ciel bodies.
+- **RestoreHead = `31fde420`** (string `33473070` = `COLLISION_SPHERE1_Face`, read from the exe). Callers `3202ed60` x2 = `UnSetSpecificValueByBuffTempletID`,
+  the same buff cases as March's. June passes the transform byte for every class (`CX2Data::SetUnitReForm` uses it only for Aisha / Lu/Ciel). It drops
+  March's `Bip01_Head` restore: the reform's full pass (JUNE_BUGS 477) sets the head again. `+0x8e88` / `+0x8f84` / `+0x8f9c` are Lu/Ciel skin anims (a
+  displacement scan finds them only in `~CX2GUUser`, `CX2GULuciel` and RestoreHead). `31fdc9d0` is not ported because its only callers are those bodies.
+- **Lead, not ported:** June's `ScaleHead` `31fd64a0` takes ( bone, head scale, face scale, body ) and has 9 callers; March's `ScaleHead()` is fixed at
+  2.0 / 1.8. No tsv row covers it -> `D1-4-review.md`.
+- **Bookkeeping:** funcmap `(Diverge D1-3h)` x6; tsv 205 annotated; JUNE_BUGS 479; guards.tsv x4; `MODS.md` D1-3h entry; Stage 17 bullet extended.
+- **Hygiene:** `flagcheck ..._UPDATE_EQUIP_COLLISION_DATA --with ..._RESTORE_HEAD --worktree` (3 files): `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL,
+  0 ERROR`; `in this flag's files: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT PASS.
+  Each flag alone: RESULT PASS (the OTHER rows are the sibling flag). `enumscan --check`: 0 A/B rows. The `#error` guards' inputs (`JUNE_ENUM_NAMES`,
+  `UNIT_REFORM`) are Always.h flags defined above them; the build compiled through both.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,845,248 B, dated 2026-10-30 00:41:31, md5 812a9c232e729eef1111f9fdf022bba0, equal to X2/US_SERVICE/x2.exe
+  (2026-10-30 00:41:25); built at main 728c4d5d + 3 uncommitted code file(s).` (PCH rebuilt for Always.h; no new strings to prove.)
+- **Smoke (plan end):** Aisha DW: Magical Makeup (transformed) -> she is hit and her hammer hits, foot kicks do not; Add: dynamo hits still register.
+  Any class: drink the big-head potion / soup, let it expire -> the head returns to its reform size with no pop.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

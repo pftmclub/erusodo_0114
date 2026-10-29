@@ -5772,6 +5772,44 @@ void CX2GUUser::InitEqip()
 #ifdef	NEW_CHARACTER_CHUNG
 void CX2GUUser::UpdateEquipCollisionData( IN vector<CX2EqipPtr>& m_vecEquipList )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
+	// June 31fd8c00
+	KTDXPROFILE();
+	m_CollisionListSet.clear();
+	m_AttackListSet.clear();
+
+	// stand-in: riding pet branch not ported, Stage 17 ( pet anim collision, 32d2eb50, own lists skipped when pet +0x478 != 1 )
+	for( int i = 0; i < (int)m_vecEquipList.size(); i++ )
+	{
+		CX2EqipPtr pEqip = m_vecEquipList[i];
+		if( pEqip == NULL )
+			continue;
+
+		// stand-in: Lu/Ciel not ported ( June skips an equip whose body +0x15d4 is not the selected body vslot 0x260, unless +0x8e91 )
+		if( pEqip->GetEqipType() != CX2Item::UT_ATTACH_ANIM )
+			continue;
+
+		for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
+		{
+			CKTDGXSkinAnim* pAnim = NULL;
+			if( CX2Unit::UT_ROSE == pEqip->GetItemTemplet()->GetUnitType() || CX2Unit::UT_ADD == pEqip->GetItemTemplet()->GetUnitType() )
+				pAnim = pEqip->GetNormalAnim( j );
+			// else June reads the Lu/Ciel minor-unit anim +0x584 ( checklist 7aa ), which March lacks
+
+			if( pAnim != NULL )
+			{
+				if( false == pAnim->GetCollisionDataList().empty() )
+					m_CollisionListSet.insert( &pAnim->GetCollisionDataList() );
+
+				if( false == pAnim->GetAttackDataList().empty() )
+					m_AttackListSet.insert( &pAnim->GetAttackDataList() );
+			}
+		}
+	}
+
+	m_CollisionListSet.insert( &GetXSkinAnimPtr()->GetCollisionDataList() );
+	m_AttackListSet.insert( &GetXSkinAnimPtr()->GetAttackDataList() );
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
 	KTDXPROFILE();
 	m_CollisionListSet.clear();
 	m_AttackListSet.clear();
@@ -5803,6 +5841,7 @@ void CX2GUUser::UpdateEquipCollisionData( IN vector<CX2EqipPtr>& m_vecEquipList 
 
 	m_CollisionListSet.insert( &m_pXSkinAnim->GetCollisionDataList() );
 	m_AttackListSet.insert( &m_pXSkinAnim->GetAttackDataList() );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
 }
 #endif	NEW_CHARACTER_CHUNG
 //}} kimhc // 2010.12.10 //  2010-12-23 New Character CHUNG
@@ -36790,6 +36829,15 @@ void CX2GUUser::ScaleHead()
 
 void CX2GUUser::RestoreHead()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
+	// June 31fde420
+	SetFrameScaleRestore( m_pXSkinAnim->GetCloneFrame( L"COLLISION_SPHERE1_Face" ) );
+
+	const CX2Unit::UNIT_TYPE eUnitType = ( NULL != m_pUnit && NULL != m_pUnit->GetUnitTemplet() ? m_pUnit->GetUnitTemplet()->m_UnitType : CX2Unit::UT_NONE );
+	g_pData->SetUnitReForm( m_pXSkinAnim, eUnitType, IsTransformed(), L"Bip01_Head" );
+	g_pData->SetUnitReForm( m_pXSkinAnim, eUnitType, IsTransformed(), L"Bip01_Spine1" );
+	// stand-in: Lu/Ciel not ported ( June repeats both on the second body +0x8e88 and, through 31fdc9d0, on +0x8f84 / +0x8f9c )
+#else SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
 	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame(L"COLLISION_SPHERE1_Face");
 	if(pFrame != NULL)
 	{
@@ -36805,6 +36853,7 @@ void CX2GUUser::RestoreHead()
 	}
 
 	SetUnitReForm();	
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
 }
 
 #endif

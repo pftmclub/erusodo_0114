@@ -34205,6 +34205,66 @@ void CX2GUArme_VioletMage::AfterEquipSlotChange()
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 void CX2GUArme_VioletMage::UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
+	// June 32cc8d30
+	m_CollisionListSet.clear();
+	m_AttackListSet.clear();
+
+	// stand-in: riding pet branch not ported, Stage 17 ( as CX2GUUser::UpdateEquipCollisionData )
+	if( m_pXSkinAnim != NULL && true == IsTransformed() )
+	{
+		CX2EqipPtr ptrTransformWeapon = GetTransformWeapon();
+		if( ptrTransformWeapon != NULL )
+		{
+			for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
+			{
+				CKTDGXSkinAnim* pAnim = ptrTransformWeapon->GetNormalAnim( j );
+				if( pAnim != NULL )
+				{
+					if( false == pAnim->GetCollisionDataList().empty() )
+						m_CollisionListSet.insert( &pAnim->GetCollisionDataList() );
+
+					if( false == pAnim->GetAttackDataList().empty() )
+						m_AttackListSet.insert( &pAnim->GetAttackDataList() );
+				}
+			}
+
+			m_CollisionListSet.insert( &m_pXSkinAnim->GetCollisionDataList() );
+			m_AttackListSet.insert( &m_pXSkinAnim->GetAttackDataList() );
+
+			SetEnableAttackBox( L"Rfoot", false );
+			SetEnableAttackBox( L"Lfoot", false );
+		}
+		return;
+	}
+
+	for( int i = 0; i < (int)vecEquipList_.size(); i++ )
+	{
+		CX2EqipPtr pEqip = vecEquipList_[i];
+		if( pEqip == NULL || pEqip->GetEqipType() != CX2Item::UT_ATTACH_ANIM )
+			continue;
+
+		for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
+		{
+			CKTDGXSkinAnim* pAnim = NULL;
+			if( CX2Unit::UT_ROSE == pEqip->GetItemTemplet()->GetUnitType() || CX2Unit::UT_ADD == pEqip->GetItemTemplet()->GetUnitType() )
+				pAnim = pEqip->GetNormalAnim( j );
+			// else June reads the Lu/Ciel minor-unit anim +0x584 ( checklist 7aa ), which March lacks
+
+			if( pAnim != NULL )
+			{
+				if( false == pAnim->GetCollisionDataList().empty() )
+					m_CollisionListSet.insert( &pAnim->GetCollisionDataList() );
+
+				if( false == pAnim->GetAttackDataList().empty() )
+					m_AttackListSet.insert( &pAnim->GetAttackDataList() );
+			}
+		}
+	}
+
+	m_CollisionListSet.insert( &GetXSkinAnimPtr()->GetCollisionDataList() );
+	m_AttackListSet.insert( &GetXSkinAnimPtr()->GetAttackDataList() );
+#else SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
 	CX2GUUser::UpdateEquipCollisionData( vecEquipList_ );
 
 	if( true == IsTransformed() && m_ptrTransformWeapon != NULL )
@@ -34225,6 +34285,7 @@ void CX2GUArme_VioletMage::UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecE
 		SetEnableAttackBox( L"Rfoot", false );
 		SetEnableAttackBox( L"Lfoot", false );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_UPDATE_EQUIP_COLLISION_DATA
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 

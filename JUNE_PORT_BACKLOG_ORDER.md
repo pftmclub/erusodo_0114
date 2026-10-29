@@ -922,6 +922,11 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   `ENABLE_RIDING_PET_COLLISION_BOX` (a bone-name list) in 5 of March's riding-pet scripts (GodBeast_Fire, the three Oberon 650s, Scorpion Type R; the other June pets were not counted).
   March has no reader (inert), and June's version of all 14 adopted pets dropped `CAN_PUSH_UNIT` / `CAN_PASS_UNIT` (Scorpion's `PASS_DASH` no longer passes through
   monsters). Identify the reader (Ghidra: the `INIT_SYSTEM` loader of `CX2RidingPet`) and port it with the pets.
+  *Consumer found (june-march-divergence D1-3h, 2026-10-30):* the riding branch of `UpdateEquipCollisionData` (`31fd8c00`, Aisha `32cc8d30`;
+  both bodies ported without it, a comment marks the spot). While riding (pet `+0x1bc` loaded, anim `+0x238`) it adds the pet anim's collision list,
+  calls `32d2eb50` (each pet collision sphere enabled only if its name is in the pet's wstring list `+0x47c`, likely `ENABLE_RIDING_PET_COLLISION_BOX`),
+  and when pet byte `+0x478` != 1 (likely `ENABLE_USER_COLLISION_BOX`) skips the user's equips and own collision list (own attack list kept).
+  Confirm both keys at the loader, then add the branch under its own flag (`guards.tsv` rows D1-3h).
 
 - **June-only riding user states** (pilot-char-revamp CH1j, 2026-10-21). Every June class InitStateCommon registers `<prefix>RIDING_SPECIFIC`,
   `_ATTACK_X_READY`, `_ATTACK_X_READY_2` and `_ATTACK_X_END` (June ids 93-96). Their callbacks are CX2GUUser functions March lacks
