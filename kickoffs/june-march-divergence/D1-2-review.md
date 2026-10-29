@@ -1,11 +1,11 @@
-# One function per name - Phase D1-2 review (covers D1-1 and D1-2)
+# One function per name - Phase D1-2 review (covers D1-1, D1-2 and D1-2b)
 
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-march-divergence D1-2 review` |
 | Plan doc | `JUNE_MARCH_DIVERGENCE_PHASES.md` (branch `main`) |
-| Depends on | D1-2 done |
-| Flag | the `SERV_IRUHADEV_JUNE_DIVERGE_*` flags of D1-1 and D1-2 |
+| Depends on | D1-2b done |
+| Flag | the `SERV_IRUHADEV_JUNE_DIVERGE_*` flags of D1-1, D1-2 and D1-2b |
 | Log tag | none |
 
 ## Read first
@@ -14,11 +14,11 @@
 python tools/docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md "Rules" "D1 split (2026-10-29, D1-1 session)"
 ```
 
-and the Done notes of D1-1 and D1-2 (`docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md --list` names them), `june_march_divergent.tsv`.
+and the Done notes of D1-1, D1-2 and D1-2b (`docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md --list` names them), `june_march_divergent.tsv`.
 
 ## Task
 
-Review D1-1 and D1-2: each replaced body against its June listing (Ghidra / `funcdis.py`), `#else` byte-intact, the live March branch (`cl /P`),
+Review D1-1, D1-2 and D1-2b: each replaced body against its June listing (Ghidra / `funcdis.py`), `#else` byte-intact, the live March branch (`cl /P`),
 one unported call site per row, guards, `MODS.md` / `JUNE_BUGS.md` rows, stand-ins named and routed.
 
 Hygiene is one command per flag, not a fresh script:

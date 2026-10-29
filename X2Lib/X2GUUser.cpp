@@ -7016,6 +7016,24 @@ bool CX2GUUser::CheckSkillUseCondition( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION
 
 bool CX2GUUser::CheckSkillUsePVPOfficial( CX2SkillTree::SKILL_ID eSkill_ID_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
+	// June 3202cba0: the couple skill is refused outside the E3 / E5 channels, with a message per channel ( PvP only, unreachable offline )
+	if( NULL != g_pX2Game && CX2Game::GT_PVP != g_pX2Game->GetGameType() )
+		return true;
+
+	const int iChannelID = g_pMain->GetConnectedChannelID();
+	if( KPVPChannelInfo::PCC_E3 == iChannelID || KPVPChannelInfo::PCC_E5 == iChannelID || CX2SkillTree::SI_ETC_WS_COMMON_LOVE != eSkill_ID_ )
+		return true;
+
+	int iStringID = STR_ID_28982;
+	if( KPVPChannelInfo::PCC_OFFICIAL == iChannelID || KPVPChannelInfo::PCC_GUILD == iChannelID || KPVPChannelInfo::PCC_EVENT_MODE == iChannelID )
+		iStringID = STR_ID_24675;
+	else if( KPVPChannelInfo::PCC_1VS1_PVP_CHALLENGE == iChannelID )
+		iStringID = 39561;	// June 0x9a89 ( string id )
+
+	g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	return false;
+#else SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
 	bool bCheck = true;
 
 	if( NULL != g_pX2Game && CX2Game::GT_PVP != g_pX2Game->GetGameType() )
@@ -7057,6 +7075,7 @@ bool CX2GUUser::CheckSkillUsePVPOfficial( CX2SkillTree::SKILL_ID eSkill_ID_ )
 	}
 
 	return bCheck;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
 }
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
@@ -15316,6 +15335,22 @@ D3DXVECTOR3 CX2GUUser::GetHeadBonePos() const
 */
 /*virtual*/ const D3DXMATRIX*	CX2GUUser::GetCombineMatrixFromBoneName( const wstring& wstrBoneName ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_BONE_NAME_PREFIX
+	// June 31fd9200: "MAJOR_" names a bone of the main body; stand-in: the second body ( +0x8e88, Lu/Ciel "MINOR_" ) is not ported
+	if ( true == wstrBoneName.empty() )
+		return NULL;
+
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = NULL;
+	if ( 0 == wstrBoneName.compare( 0, 6, L"MAJOR_" ) )
+		pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( wstrBoneName.substr( 6 ).c_str() );
+	else
+		pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( wstrBoneName.c_str() );
+
+	if ( NULL == pMultiAnimFrame )
+		return NULL;
+
+	return &(pMultiAnimFrame->combineMatrix);
+#else SERV_IRUHADEV_JUNE_DIVERGE_BONE_NAME_PREFIX
 	if ( true == wstrBoneName.empty() )
 	{
 		return NULL;
@@ -15339,6 +15374,7 @@ D3DXVECTOR3 CX2GUUser::GetHeadBonePos() const
 	} // if
 
 	return &(pMultiAnimFrame->combineMatrix);	
+#endif SERV_IRUHADEV_JUNE_DIVERGE_BONE_NAME_PREFIX
 }
 //}} kimhc // 2011.1.17 // 지정한 Bone의 메트릭스 값을 Trace 함 (chung 코드 참고)
 
@@ -15774,11 +15810,15 @@ void CX2GUUser::CommonStateStartFuture()
 	LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+	// June 32050230 @32051266: the custom anim name is applied after RIDING_ANIM_NAME ( below )
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_itFutureStateData->second, animName );
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_FutureStateData, animName );		/// 특정 상태일 때, 애니메이션을 바꾸는 함수
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #endif //SERV_9TH_NEW_CHARACTER
 
 #ifdef RIDING_SYSTEM
@@ -15788,6 +15828,13 @@ void CX2GUUser::CommonStateStartFuture()
 	if ( true == GetRidingOn() && false == ridingAnimName.empty() )
 		animName = ridingAnimName;
 #endif //RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_itFutureStateData->second, animName );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_FutureStateData, animName );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if( true == animName.empty() )
 	{
@@ -16531,11 +16578,15 @@ void CX2GUUser::CommonStateStart()
 	LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+	// June 32057b80: the custom anim name is applied after RIDING_ANIM_NAME ( below )
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_itNowStateData->second, animName );
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_NowStateData, animName );		/// 특정 상태일 때, 애니메이션을 바꾸는 함수
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #endif //SERV_9TH_NEW_CHARACTER
 
 #ifdef RIDING_SYSTEM
@@ -16545,6 +16596,13 @@ void CX2GUUser::CommonStateStart()
 	if ( true == GetRidingOn() && false == ridingAnimName.empty() )
 		animName = ridingAnimName;
 #endif //RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_itNowStateData->second, animName );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_NowStateData, animName );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if( true == animName.empty() )
 	{
@@ -22969,7 +23027,11 @@ void CX2GUUser::WaitStateChangeEventProcess()
 /// Else: the game has not ended ( June's end phase +0x748 != 2; 2 is set by Handler_EGS_END_GAME_NOT 322cd0f0 = March m_bGameEnd; June's phase 1,
 /// "end requested" 327ca110, has no March counterpart and counts as running ) and, with the argument false, no last-kill check ( +0x3b9 = SetLastKillCheck ).
 /// The argument-true branch ( 322f43e0 / 322f42a0 / 322f4340 ) has other callers only ( 3202daf0 and class code ) and is not ported.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+static bool IsEventGamePlayable( bool bSummonSkill = false )
+#else SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 static bool IsEventGamePlayable()
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 {
 	if( NULL == g_pX2Game )
 		return false;
@@ -22985,7 +23047,32 @@ static bool IsEventGamePlayable()
 
 	const bool bPlayable = ( false == g_pX2Game->GetGameEnd() );
 	if( true == g_pX2Game->GetLastKillCheck() )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+	{
+		if( false == bSummonSkill )
+			return false;
+
+		// June 322f43e0 / 322f42a0 / 322f4340: a dungeon stage's GO arrow lets a summon through, else not on the stage's last sub-stage
+		int iNowSubStageIndex = 0;
+		int iLastSubStageIndex = 0;
+		if( CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() )
+		{
+			CX2Dungeon* pDungeon = static_cast<CX2DungeonGame*>( g_pX2Game )->GetDungeon();
+			CX2DungeonStage* pStage = ( NULL != pDungeon ? pDungeon->GetNowStage() : NULL );
+			if( NULL != pStage && true == pStage->IsGoEffectOn() )
+				return bPlayable;
+
+			iNowSubStageIndex = ( NULL != pStage && NULL != pStage->GetNowSubStage() ? pStage->GetNowSubStageIndex() : -1 );
+			if( NULL != pStage && NULL != pStage->GetStageData() && false == pStage->GetStageData()->m_SubStageDataList.empty() )
+				iLastSubStageIndex = static_cast<int>( pStage->GetStageData()->m_SubStageDataList.size() ) - 1;
+		}
+
+		if( iNowSubStageIndex == iLastSubStageIndex )
+			return false;
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 		return false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 	return bPlayable;
 }
 
@@ -31788,6 +31875,64 @@ void CX2GUUser::StartIntrudeEventProcess()
 */
 void CX2GUUser::DieFrameMove( float fTimeCreateStepDust_, float fTimeSacrificeOfHero_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE
+	// June 31ffcba0: one one-shot ( step dust ); Sacrifice of Hero is not called here, so fTimeSacrificeOfHero_ is unused
+	if( m_pXSkinAnim->IsAnimationEnd() == true )
+	{
+		SetRemainHyperModeTime( 0.0f );
+
+		// June 31fe8220 ( its protected alpha copy is synced to color.a by 32299af0 ); the alpha object flag stays set once hidden
+		SetAlphaObject( true );
+		m_RenderParam.bAlphaBlend	= true;
+
+		if( m_RenderParam.color.a > 0.0f )
+		{
+			m_RenderParam.color.a	-= 1.5f * m_fElapsedTime;
+		}
+		else if ( GetShowObject() == true )
+		{
+			SetShowObject( false );
+			m_RenderParam.bAlphaBlend	= false;
+#ifdef	GUILD_SKILL_PART_2
+			m_bHaveSacrificeOfHero = false;
+#endif	GUILD_SKILL_PART_2
+			m_RenderParam.renderType = CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( fTimeCreateStepDust_ ) == true )
+		CreateStepDust();
+
+#ifdef SUMMON_MONSTER_CARD_SYSTEM
+	int SummonMonsterUID = GetSummonMonsterCardData().GetSummonMonsterUID();
+	if( -1 != SummonMonsterUID )
+	{
+		CX2GUNPC* pNPCUnit = g_pX2Game->GetNPCUnitByUID( SummonMonsterUID );
+		if( NULL != pNPCUnit )
+		{
+			pNPCUnit->SetNowHp( 0.f );
+
+			if ( false == pNPCUnit->IsUnitID( CX2UnitManager::NUI_SHASHA_STAGE0 ) &&
+				 false == pNPCUnit->IsUnitID( CX2UnitManager::NUI_SHASHA_STAGE1 ) &&
+				 false == pNPCUnit->IsUnitID( CX2UnitManager::NUI_SHASHA_STAGE2 ) &&
+				 false == pNPCUnit->IsUnitID( CX2UnitManager::NUI_CSM_CIEL_DEMONIO ) &&
+				 false == pNPCUnit->IsUnitID( CX2UnitManager::NUI_CSM_LU_DIABLA ) )
+				AccessSummonMonsterCardData().init();
+		}
+	}
+#endif SUMMON_MONSTER_CARD_SYSTEM
+	// stand-in: June's card-monster list ( +0x91cc, filled by CreateNPC @3230dae4, killed here under event code 2143 ) is not in March
+
+#ifdef RIDING_SYSTEM
+	if ( true == GetRidingOn() && NULL != CX2RidingPetManager::GetInstance() &&
+		 NULL != m_ptrRidingPet && NULL != m_ptrRidingPet->GetXSkinAnimPtr() && true == m_ptrRidingPet->GetXSkinAnimPtr()->IsAnimationEnd() )
+	{
+		CX2RidingPetManager::GetInstance()->Handler_EGS_UNSUMMON_RIDING_PET_REQ();
+	}
+#endif //RIDING_SYSTEM
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE
 	if( m_pXSkinAnim->IsAnimationEnd() == true )
 	{
 		// 죽었으니깐, 각성 상태인 경우 각성을 풀어줌
@@ -31895,6 +32040,7 @@ void CX2GUUser::DieFrameMove( float fTimeCreateStepDust_, float fTimeSacrificeOf
 #endif SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 
 	CommonFrameMove();	// 각 캐릭터가 override 한 CommonFrameMove 수행
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE
 }
 
 /** @function : PlayAnimationWaitStart
@@ -31932,6 +32078,38 @@ void CX2GUUser::PlayAnimationWaitStart( CKTDGXSkinAnim* pXSkinAnim_, const Frame
 
 	pXSkinAnim_->Play( playType );
 }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+// June 31fdaf30 ( vslot 0x6ec ): the riding states play the pet's rider pose; June's 3 riding X-attack states ( 0x5e-0x60 ) have no March state
+/*virtual*/ void CX2GUUser::SetCustomAnimName( IN const UserUnitStateData& UserStateData, IN OUT wstring& wstrAnimName )
+{
+	switch( UserStateData.stateID )
+	{
+	case USI_RIDING_HYPER_MODE:
+	case USI_RIDING_START:
+	case USI_RIDING_ON:
+	case USI_RIDING_OFF:
+	case USI_RIDING_WAIT_HABIT:
+	case USI_RIDING_WAIT:
+	case USI_RIDING_WALK:
+	case USI_RIDING_JUMP_UP:
+	case USI_RIDING_JUMP_DOWN:
+	case USI_RIDING_JUMP_LANDING:
+	case USI_RIDING_DASH:
+	case USI_RIDING_DASH_END:
+	case USI_RIDING_DASH_JUMP:
+	case USI_RIDING_DASH_JUMP_LANDING:
+	case USI_RIDING_DAMAGE_FRONT:
+	case USI_RIDING_DAMAGE_BACK:
+	case USI_RIDING_ATTACK_Z:
+	case USI_RIDING_JUMP_ATTACK_Z:
+	case USI_RIDING_ATTACK_X:
+	case USI_RIDING_SPECIAL_ATTACK:
+	case USI_RIDING_SPECIAL_MOVE:
+		wstrAnimName = m_wstrRidingMotionName;
+		break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 bool CX2GUUser::PlaySitReadyWaitStart( CKTDGXSkinAnim* pXSkinAnim_ )
 {
 	if( false == m_bReserveSitReadyEmotion )
@@ -35203,6 +35381,35 @@ bool CX2GUUser::IsSummonSpecialAttack( CX2SkillTree::SKILL_ID iSkillID )
 */
 bool CX2GUUser::CheckSummonSpecialAttack( CX2SkillTree::SKILL_ID iSkillID_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+	// June 3202daf0: Add's summon skills always count; any other must be in June's summon list ( 31fc8200 ), else it is free
+	bool bSummonSkill = false;
+	switch( iSkillID_ )
+	{
+	case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION:
+	case CX2SkillTree::RNSI_HA_ECE_LINK_OVERCHARGE_ILLUSION_UPGRADE:
+	case CX2SkillTree::RNSI_HA_AMM_APOCALYPSE:
+	case CX2SkillTree::RNSI_HA_AMM_APOCALYPSE_UPGRADE:
+	case CX2SkillTree::RNSI_HA_ROM_MECAVOLT_MX:
+	case CX2SkillTree::RNSI_HA_ROM_MECAVOLT_MX_UPGRADE:
+		bSummonSkill = true;
+		break;
+
+	default:
+		if( false == IsSummonSkillBy( iSkillID_ ) )
+			return true;
+		break;
+	}
+
+	const bool bCheck = IsEventGamePlayable( bSummonSkill );
+	if( false == bCheck )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD,
+			GET_STRING( 45041 ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );	// June 0xaff1 ( string id )
+	}
+
+	return bCheck;
+#else SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 	//소환류 스킬이 아니라면 사용 가능
 	if( false == IsSummonSpecialAttack( iSkillID_ ) )
 		return true;
@@ -35244,6 +35451,7 @@ bool CX2GUUser::CheckSummonSpecialAttack( CX2SkillTree::SKILL_ID iSkillID_ )
 	}
 
 	return bCheck;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 }
 
 
@@ -45914,8 +46122,22 @@ void CX2GUUser::RidingHyperModeEventProcess()
 #ifdef HYPER_MODE_FIX
 	void CX2GUUser::RidingHyperModeEnd()
 	{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END
+		// June 32006c00 ( vslot 0x608 ) = HyperModeEnd's 3201b8e0: a pending hyper buff is applied at the state end
+		CommonStateEnd();
+
+		// stand-in: Add not ported: his ApplyHyperModeBuff skips the base that clears the pending flag, so it would apply twice
+		if( true == IsHyperModeBuffPending() && ( NULL == GetUnit() || CX2Unit::UT_ADD != GetUnit()->GetType() ) )
+		{
+			ShowMinorParticleHyperModeTrace();
+			ApplyHyperModeBuff();
+		}
+
+		m_iLastStateHyperModeCount = 0;
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END
 		CommonStateEnd();
 		m_iLastStateHyperModeCount = 0;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END
 	}
 
 	void CX2GUUser::RidingHyperModeStartFuture()

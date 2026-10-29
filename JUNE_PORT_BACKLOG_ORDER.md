@@ -655,6 +655,11 @@ which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, a
   `329cc1d0` / `329cc040` (EventProcess). March reserves no state id for them. Aisha's `June_InitStateCommon` leaves them out with a note. This
   stage gives them ids and their CX2GUUser callbacks, then adds the registration to each ported class. First find what enters them (emotion or item).
 
+- **Emotion resume after a wait start** (june-march-divergence D1-2, 2026-10-29). June's `PlayEmotion` (`32043380` @`320443ce`-`320443f5`)
+  saves the playing emotion (`+0x89d8`) into `+0x89e0` when its flag argument is set and `31fd7b60( -1 )` passes; `PlayAnimationWaitStart`
+  (`31fe1dd0`) then re-applies it through June's emotion setter `31fe0bb0` (emotion effect set, equipment show for unit types 5 / 9) instead
+  of playing Wait; StageLoad clears it (`327cda99`). March has none of it, so D1-2 left `PlayAnimationWaitStart` March's (row 247).
+
 ### Stage 11: division item templets (june-effect C9f, 2026-10-07)
 
 Found by june-effect C9f (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9f - Done"; funcmap rows `Effect C9f`). June's

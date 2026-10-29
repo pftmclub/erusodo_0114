@@ -9432,6 +9432,35 @@ int CX2GUNPC::StateChange_CheckOnly( int state, bool bDirectChange )
 
 bool CX2GUNPC::StateChange( int state, bool bDirectChange )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
+	// June 32758fe0: a live NPC that holds a freeze effect ( m_vecFreezePtr ) also refuses
+	KTDXPROFILE();
+	if( IsLocalUnit() == false )
+		return false;
+
+	if( state <= 0 )
+		return false;
+
+	if ( GetNowStateID() == GUSI_DIE )
+		return false;
+
+	if( GetNowHp() > 0.f )
+	{
+		if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.f ||
+			m_ExtraDamagePack.m_Frozen.m_fTime > 0.f )
+		{
+			return false;
+		}
+
+		if( false == m_vecFreezePtr.empty() )
+			return false;
+
+		if( HaveThisBuff(BTI_DEBUFF_FROZEN) )
+			return false;
+	}
+
+	return StateChangeForce( state, bDirectChange );
+#else SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 	KTDXPROFILE();
 	if( IsLocalUnit() == false )
 		return false;
@@ -9465,6 +9494,7 @@ bool CX2GUNPC::StateChange( int state, bool bDirectChange )
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
     return  bStateChanged;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 }
 
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -9485,6 +9515,43 @@ void CX2GUNPC::UnDoStateChange_Reaction()
 
 bool CX2GUNPC::StateChange_Reaction_FIRST( int state, int iAttackerUnitIndex, const D3DXVECTOR3& vImpact, bool bRelaxReactionCheck )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
+	// June 327590c0: the same freeze-effect refusal
+	KTDXPROFILE();
+
+	if( state <= 0 )
+		return false;
+
+	if ( GetNowStateID() == GUSI_DIE )
+		return false;
+
+	if( GetNowHp() > 0.f )
+	{
+		if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.f ||
+			m_ExtraDamagePack.m_Frozen.m_fTime > 0.f )
+		{
+			return false;
+		}
+
+		if( false == m_vecFreezePtr.empty() )
+			return false;
+
+		if( HaveThisBuff(BTI_DEBUFF_FROZEN) )
+			return false;
+	}
+
+	if ( StateChangeForce( state, true ) == true )
+	{
+		float fY = m_NPCFrameData.syncData.position.y;
+		float fHeight = GetUnitHeight( false );
+		D3DXVECTOR2 vReactionYMinMax;
+		vReactionYMinMax.x = __min( fY, vImpact.y );
+		vReactionYMinMax.y = __max( fY + fHeight, vImpact.y );
+		m_kNonHostReaction.SetNextStateReaction_FIRST( bRelaxReactionCheck, iAttackerUnitIndex, vReactionYMinMax );
+		return true;
+	}
+	return false;
+#else SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 	KTDXPROFILE();
 
 	if( state <= 0 )
@@ -9530,10 +9597,43 @@ bool CX2GUNPC::StateChange_Reaction_FIRST( int state, int iAttackerUnitIndex, co
         return true;
     }
     return false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 }
 
 bool CX2GUNPC::StateChange_Reaction_Continue( int state, bool bWait ) 
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
+	// June 32759250: the same freeze-effect refusal
+	KTDXPROFILE();
+
+	if( state <= 0 )
+		return false;
+
+	if ( GetNowStateID() == GUSI_DIE )
+		return false;
+
+	if( GetNowHp() > 0.f )
+	{
+		if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.f ||
+			m_ExtraDamagePack.m_Frozen.m_fTime > 0.f )
+		{
+			return false;
+		}
+
+		if( false == m_vecFreezePtr.empty() )
+			return false;
+
+		if( HaveThisBuff(BTI_DEBUFF_FROZEN) )
+			return false;
+	}
+
+	if ( StateChangeForce( state, true ) == true )
+	{
+		m_kNonHostReaction.SetNextStateReaction_CONTINUE( bWait );
+		return true;
+	}
+	return false;
+#else SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 	KTDXPROFILE();
 
 
@@ -9574,6 +9674,7 @@ bool CX2GUNPC::StateChange_Reaction_Continue( int state, bool bWait )
     }
 
     return false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 }
 
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION

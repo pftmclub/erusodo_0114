@@ -3438,7 +3438,11 @@ public:
 		virtual void		SetUpDPByDamageThisFrame( IN const bool bval_ ) {}				/// 타격시 한 프레임에 DP 획득된 여부 Flag 설정
 
 		/// 특정 상태일 때, 애니메이션을 바꾸는 함수
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+		virtual void		SetCustomAnimName( IN const UserUnitStateData& UserStateData, IN OUT wstring& wstrAnimName );	/// June 31fdaf30 ( vslot 0x6ec )
+#else SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 		virtual void		SetCustomAnimName( IN const UserUnitStateData& UserStateData, IN OUT wstring& wstrAnimName ) {}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 
 		/// 스킬 아이디에 해당하는 SA값을 받아오는 함수
 		const float			GetSpecialAbilityValue( IN const CX2SkillTree::SKILL_ABILITY_TYPE eSAValue, IN const CX2SkillTree::SKILL_ID eSkillID ) const;

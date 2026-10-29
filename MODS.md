@@ -5356,3 +5356,17 @@ Nine flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` a
 - `SERV_IRUHADEV_JUNE_DIVERGE_FORCE_HYPER_MODE`: `ForceChangeHyperModeWithoutMotion` skips in the class's own hyper-mode state (Ara's berserk) or riding hyper mode (June `31ff7300`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE`: the change-hyper-mode buff asks `IsBerserkByChance` (unit vslot `0xa4`, now a `CX2GameUnit` virtual, false but for Chung's unported override), not `IsFullHyperMode`.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: divergent March functions replaced by June's, user / NPC states and combat (june-march-divergence D1-2, 2026-10-29)
+
+Nine flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-2 Done"; rows of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL`: an NPC's `StateChange` / `StateChange_Reaction_FIRST` / `_Continue` also refuse while it holds a freeze effect (June `32758fe0` / `327590c0` / `32759250`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_BONE_NAME_PREFIX`: a user's `GetCombineMatrixFromBoneName` strips a `MAJOR_` prefix (June `31fd9200`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL`: `CheckSkillUsePVPOfficial` is June's (a message per PvP channel); `PCC_GUILD` / `PCC_EVENT_MODE` / `PCC_1VS1_PVP_CHALLENGE` registered in `ClientPacket.h`. Also defined in `KncWX2Server/Common/ServerDefine.h` (second home): comment out both.
+- `SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK`: `CheckSummonSpecialAttack` is June's `3202daf0` (Add's summon skills, June's summon list, the dungeon last-sub-stage gate, string 45041); three Add skill names registered under `JUNE_ENUM_NAMES`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE`: `CX2GUUser::DieFrameMove` is June's `31ffcba0` (no Sacrifice of Hero heal, no Gate of Darkness ally, two more card-monster exceptions registered under `JUNE_ENUM_NAMES`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME`: riding states play the pet's rider pose (`SetCustomAnimName` base, June `31fdaf30`), applied after `RIDING_ANIM_NAME`; Add's override calls the base first.
+- `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END`: `RidingHyperModeEnd` applies a pending hyper buff, as `HyperModeEnd` (June `32006c00`; Add guarded, `guards.tsv`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID`: VioletMage's Mana Flow Overdrive reads its buff id only once the skill is learned (June `32cc5b20`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET`: VioletMage's `ChangeWeapon` takes the old templet from the equip (June `32cc8980`).
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

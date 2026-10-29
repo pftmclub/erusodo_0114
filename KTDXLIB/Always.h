@@ -10456,3 +10456,79 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsBerserkByChance )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_BERSERK_BY_CHANCE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CX2GUNPC::StateChange / StateChange_Reaction_FIRST / _Continue also refuse a live NPC holding a freeze effect ( June 32758fe0 / 327590c0 / 32759250 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CX2GUUser::GetCombineMatrixFromBoneName strips a "MAJOR_" bone-name prefix ( June 31fd9200 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_BONE_NAME_PREFIX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CheckSkillUsePVPOfficial is June's 3202cba0 ( message per PvP channel; PCC_GUILD / PCC_EVENT_MODE / PCC_1VS1_PVP_CHALLENGE registered ).
+//              Also defined in KncWX2Server/Common/ServerDefine.h ( ClientPacket.h precedes Always.h ); comment out both together.
+#define SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CheckSummonSpecialAttack is June's 3202daf0 ( Add's summon skills, June's summon list, the last-sub-stage gate, string 45041 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK ) && !( defined( SERV_IRUHADEV_JUNE_EVENT_STATES ) && defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK needs SERV_IRUHADEV_JUNE_EVENT_STATES ( IsEventGamePlayable ) and SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CX2GUUser::DieFrameMove is June's 31ffcba0 ( no Sacrifice of Hero call, two more card-monster exceptions, no Gate of Darkness ally ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( NUI_CSM_LU_DIABLA / NUI_CSM_CIEL_DEMONIO )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIE_FRAME_MOVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CX2GUUser::SetCustomAnimName base is June's 31fdaf30 ( riding states play the pet's rider pose ), called after RIDING_ANIM_NAME; Add calls the base first. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: CX2GUUser::RidingHyperModeEnd applies a pending hyper buff ( June 32006c00 = HyperModeEnd's 3201b8e0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE )
+#error SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( IsHyperModeBuffPending )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: VioletMage Mana Flow Overdrive reads its buff id through the unit getter ( June 32cc5b20 -> 3229a3d0: learned only ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
+#error SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( GetSkillBuffTempletID )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: VioletMage ChangeWeapon takes the old weapon's templet from the equip, not the inventory item ( June 32cc8980 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET
+//////////////////////////////////////////////////////////////////////////

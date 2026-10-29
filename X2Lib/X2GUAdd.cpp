@@ -8895,6 +8895,9 @@ const float	CX2GUAdd::GetCustomSkillCoolTime( IN const float fCoolTime_, IN cons
 /*virtual*/ void CX2GUAdd::SetCustomAnimName( IN const UserUnitStateData& UserStateData, IN OUT wstring& wstrAnimName )
 
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
+	CX2GUUser::SetCustomAnimName( UserStateData, wstrAnimName );	// June 329e73a0 calls the base first
+#endif SERV_IRUHADEV_JUNE_DIVERGE_RIDING_ANIM_NAME
 	switch( UserStateData.stateID )
 	{
 	case USI_DASH:

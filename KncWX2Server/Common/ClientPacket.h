@@ -1332,6 +1332,11 @@ DECL_DATA( KPVPChannelInfo )
 		//}}
 
 		PCC_END,
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
+		PCC_GUILD				= 13,	// June Enum.lua names past March's PCC_END
+		PCC_EVENT_MODE			= 14,
+		PCC_1VS1_PVP_CHALLENGE	= 15,
+#endif SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
 	};
 
 	//{{ 2011. 07. 11	최육사	대전 개편

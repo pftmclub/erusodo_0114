@@ -27214,6 +27214,27 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
  	{	
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 // June 32cc8980 = March's ChangeWeapon: the old weapon goes, the new one takes its enchant level and is shown
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET
+	// June 32cc8980: the old weapon's templet is the equip's own ( +0x198 ); only the equip is tested
+	CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
+
+	if ( NULL != pOldWeapon &&
+		pOldWeapon->m_pUserWeaponEquip != NULL )
+	{
+		int iEnchantLevel = pOldWeapon->m_pUserWeaponEquip->GetEnchantLevel();
+		const CX2Item::ItemTemplet* pOldItemTemplet = pOldWeapon->m_pUserWeaponEquip->GetItemTemplet();
+
+		pOldWeapon->m_pUserWeaponEquip.reset();
+		SAFE_DELETE_KTDGOBJECT( pOldWeapon );
+		m_vecpWeapon.resize(0);
+
+		ptrWeaon->ChangeEnchantLevel( iEnchantLevel );
+		CreateWeapon( pOldItemTemplet, ptrWeaon );
+		ptrWeaon->SetShowObject(true);
+
+		m_bNeedToUpdateWeaponEffect = true;
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET
 	CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
 
 	if ( NULL != pOldWeapon &&
@@ -27233,6 +27254,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 
 		m_bNeedToUpdateWeaponEffect = true;
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET
 #else
  		CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
 
@@ -33329,6 +33351,9 @@ void CX2GUArme_VioletMage::ManaflowOverdriveFrameMove()
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE ) );
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID
+		BUFF_TEMPLET_ID eBuffTempletID = GetSkillBuffTempletID( CX2SkillTree::RNSI_P_ADW_MANAFLOW_OVERDRIVE, 0, true );	// June 32cc5b20 calls 3229a3d0: learned only, at the unit's skill level
+#else SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID
 		BUFF_TEMPLET_ID eBuffTempletID = BTI_NONE;	// June 3229a3d0: the first buff factor's templet id
 		if( NULL != pSkillTemplet )
 		{
@@ -33336,6 +33361,7 @@ void CX2GUArme_VioletMage::ManaflowOverdriveFrameMove()
 			if( NULL != ptrBuffFactor )
 				eBuffTempletID = ptrBuffFactor->GetBuffTempletID();
 		}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID
 
 		if( static_cast<char>( GetBuffAccumulationCountNowInFactor( eBuffTempletID ) ) != cMissingTenths &&
 			NULL != pSkillTemplet && false == pSkillTemplet->m_vecBuffFactorID.empty() )

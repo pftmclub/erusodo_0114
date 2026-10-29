@@ -1912,6 +1912,14 @@ public:
 		RNSI_P_EEP_OPEN_MIND                                  = 25417,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-29 // june-march-divergence D1-2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
+		RNSI_HA_AMM_APOCALYPSE_UPGRADE                        = 29604,
+		RNSI_HA_ROM_MECAVOLT_MX                               = 31607,
+		RNSI_HA_ROM_MECAVOLT_MX_UPGRADE                       = 31608,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 #pragma endregion ½ºÅ³
 	}; 
 

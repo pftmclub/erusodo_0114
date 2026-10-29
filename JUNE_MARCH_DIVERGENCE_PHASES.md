@@ -773,6 +773,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 (D1-3 + D1-4), `D1 review` (D1-5, closes D1). No per-phase play-test: the smoke runs once at the plan end (user, 2026-10-29).
 - **D1-1** unit core: 143, 210, 17 / 50 / 192 / 193 / 260, 54, 122, 203, 234 / 258, 245, 246, 256 (done below).
 - **D1-2** user / NPC states and combat: 237, 238, 239, 240, 241, 242, 243, 244, 247, 249, 371, call sites 330, 364.
+  (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue`.
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343.
@@ -810,6 +811,45 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** Aisha (ported) dash combo Z->Z->Z with memo 5 gives no super armour; Chung (unported) skill with memo 13 acts
   memo-less; Ara (unported) awakening and Add formation sets render undimmed with other-effect alpha lowered; a hyper buff on Chung
   in berserk with 2 orbs no longer forces full hyper.
+
+### D1-2 Done (2026-10-29, Opus 5.5; nine `SERV_IRUHADEV_JUNE_DIVERGE_*` flags; rows 242 / 244 split to D1-2b)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 237, 238 | `CX2GUNPC::StateChange` / `StateChange_Reaction_FIRST` (+ `_Continue`) | `32758fe0` / `327590c0` / `32759250` | `NPC_FREEZE_REFUSAL` | a live NPC holding a freeze effect (`m_vecFreezePtr`) refuses; June's `_Continue` has the same test, so it moved with them |
+| 239 | `CX2GUUser::GetCombineMatrixFromBoneName` | `31fd9200` | `BONE_NAME_PREFIX` | `MAJOR_` is stripped and read on the main body; `MINOR_` (second body +0x8e88, Lu/Ciel) is a stand-in |
+| 240 | `CheckSkillUsePVPOfficial` | `3202cba0` | `PVP_OFFICIAL_SKILL` | skill 900 refused outside E3 / E5: OFFICIAL / GUILD / EVENT_MODE string 24675, 1VS1 39561, else 28982; `PCC_GUILD` / `_EVENT_MODE` / `_1VS1_PVP_CHALLENGE` registered past `PCC_END` (ClientPacket.h; second home ServerDefine.h, `SECOND_HOMES`); PvP only, unreachable offline |
+| 241 | `CheckSummonSpecialAttack` + `IsEventGamePlayable` | `3202daf0`, `3201bd60` (bool branch `322f43e0` / `322f42a0` / `322f4340`) | `SUMMON_SPECIAL_ATTACK` | Add's 6 summon skills always gate, others only if in June's list (`IsSummonSkillBy` = `31fc8200`), else free; refusal string 45041; on a last kill a summon still passes while the stage's GO arrow shows (`IsGoEffectOn`) or off the stage's last sub-stage; 3 Add skill names registered |
+| 243 | `CX2GUUser::DieFrameMove` | `31ffcba0` (fade `31fe8220`) | `DIE_FRAME_MOVE` | no Sacrifice of Hero call (2nd float unused), card-monster exceptions + `NUI_CSM_LU_DIABLA` / `_CIEL_DEMONIO` (registered), no Christmas-soccer exception, no Gate-of-Darkness ally block, render type reset always, alpha-object flag left set |
+| 249 | `CX2GUUser::SetCustomAnimName` (base) | `31fdaf30` (vslot 0x6ec) | `RIDING_ANIM_NAME` | riding states but DIE take `m_wstrRidingMotionName` (the pet's `RIDING_MOTION`, `Ride_1/2/3`), now applied after `RIDING_ANIM_NAME` (`32051266`, `32057b80`); Add's override calls the base first (`329e73a0`) |
+| 371 | `CX2GUUser::RidingHyperModeEnd` | `32006c00` | `RIDING_HYPER_MODE_END` | a pending hyper buff is applied, as `HyperModeEnd`; Add guard (`guards.tsv`) |
+| 330 | VioletMage Mana Flow Overdrive (call site) | `32cc5b20` -> `3229a3d0` | `MANAFLOW_BUFF_ID` | `GetSkillBuffTempletID( id, 0, true )`: learned only, at the unit's level |
+| 364 | VioletMage `ChangeWeapon` (call site) | `32cc8980` | `CHANGE_WEAPON_TEMPLET` | old templet from the equip (`GetItemTemplet`); only the equip is tested |
+| 247 | `PlayAnimationWaitStart` | `31fe1dd0` | none | June's extra branch resumes an emotion that only June's `PlayEmotion` saves (+0x89e0 @`320443f5`); March's has no save, so June's body equals March's (as row 210) |
+
+- **Identified:** user +0x9200 = `m_wstrRidingMotionName` (ctor `32041b5b`, emotion `3249dcc4`, sit wait `31fde33b`); +0x89d8 =
+  `m_ePlayedEmotion`, +0x89e0 = June's resume slot, `31fe0bb0` = June's emotion setter; June's riding ids from Add's registration `329b8030`
+  (0x48 START .. 0x5c SPECIAL_MOVE, 0x57 DIE, 0x5d SPECIFIC, 0x5e-0x60 ATTACK_X_READY / _READY_2 / _END, none in March); unit +0xdb0 is a
+  protected copy of `color.a` (synced by `32299af0`), so June's fade is March's.
+- **Stand-ins (one-line comments):** the `MINOR_` bone; June's card-monster list (+0x91cc, filled by CreateNPC @`3230dae4`, killed in
+  `DieFrameMove` under event code 2143), not in March.
+- **Signatures not taken:** June's `SetCustomAnimName( int stateID, wstring& )` (March's state data carries `stateID`); `DieFrameMove`'s
+  second float stays (unused). The old `IsEventGamePlayable` comment ("argument-true branch not ported") is not rewritten.
+- **Routed:** the emotion resume (June `PlayEmotion` save, `31fe0bb0`, `31fd7b60`, StageLoad clear `327cda99`, `PlayAnimationWaitStart`
+  branch) -> backlog Stage 10 bullet. No `JUNE_BUGS.md` row: no June answer here shows as a bug.
+- **Split to D1-2b:** 242 `CommonCameraMove` needs June's `CX2Camera::PlayLuaCamera` time argument (`31fb5920`, wrappers `31fb6ab0` /
+  `31fb6af0`, setter `31fae7b0`); 244 `DyingStart` needs June's die packet (3 more fields, emulator Put/Get + handler), the XMAS-2016 hook
+  `322e60d0` and the black-out handles. Identification digest in `kickoffs/june-march-divergence/D1-2b.md`.
+- **Hygiene:** `flagcheck --worktree --files <the 10 files> --with <the other 8>` per flag: `RESULT: PASS` for all nine (0 FAIL, 0 ERROR,
+  0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 `#else`/`#endif` without the token); OTHER rows are the sibling flags and the D1-4
+  session's `Always.h` block. `JUNE_ENUM_NAMES` on `X2SkillTree.h` / `X2UnitManager.h`: PASS (1 PASS, 1 PASS~). Never list `JUNE_ENUM_NAMES` in
+  `--with`: it makes old `Always.h` guards unevaluable (ERROR). `enumscan --check` on the four `.cpp`: 0 A/B rows.
+- **Build:** `cl /P` of `X2GUUser.cpp` exit 0 (every new `#error` guard, all nine flags live). `DEPLOY OK: X2_offline.exe is 25,808,896 B, dated 2026-10-29 14:11:25, md5 75eb52b09a14913fc9391810d6b222c6, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 14:11:18); built at main 5e4508ee + 21 uncommitted code file(s).` (the build also carried the
+  D1-4 session's uncommitted files.) `EXESTR OK: 1 of 1 found in X2_offline.exe` (`MAJOR_`, wide).
+- **Smoke (plan end):** an NPC holding a freeze effect takes no state change; on a riding pet every riding state plays the
+  pet's rider pose (`Ride_N`); Add's riding dash too; Aisha (ported) and Elsword (unported) die: body fades and hides, no Sacrifice of Hero
+  heal; in a dungeon, Add's summon skill on the last kill of the stage's last sub-stage is refused with string 45041.
 
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 

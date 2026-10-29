@@ -4771,3 +4771,10 @@
 // Description: dev console /qdone and /additem, offline only. Also defined in KTDXLIB/Always.h; this second home exists because EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
 #define SERV_IRUHADEV_ADMIN_CHEATS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2: PCC_GUILD / PCC_EVENT_MODE / PCC_1VS1_PVP_CHALLENGE. Also defined in KTDXLIB/Always.h; this second home exists because ClientPacket.h is compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
+//////////////////////////////////////////////////////////////////////////

@@ -2941,6 +2941,11 @@ class CX2UnitManager
 			NUI_TRANSCEND_QUEST                     = 10153,
 			NUI_PANE                                = 10218,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// June NPC_UNIT_ID names DieFrameMove's card-monster exceptions spell (values from June's Enum.lua)
+			NUI_CSM_LU_DIABLA                       = 2282,
+			NUI_CSM_CIEL_DEMONIO                    = 2283,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //}}
 //}} robobeg : 2013-02-27

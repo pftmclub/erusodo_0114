@@ -59,6 +59,7 @@ SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_TRANSCEND_UNIT": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
     "SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
     "SERV_IRUHADEV_ADMIN_CHEATS": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
+    "SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
 }
 
 
