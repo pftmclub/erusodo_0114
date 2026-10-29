@@ -1145,7 +1145,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   size now follow June. March's `reform.txt` dev read (`#ifndef _SERVICE_`) is gone with March's body.
 - **Data:** `luasrc.py adopt-june data036 DefaultBoneInfo.lua` (June bytecode, 8,189 B, new); core-list `Enum.lua` + June's `CHARACTER_ID` and
   `MODIFY_BONE_STYLE` tables (337 B appended, `luasrc.py refresh`; `ledger --check` / `core --check` PASS). `luabind.py check DefaultBoneInfo`:
-  RESULT PASS (`AddBoneInfo` bound). `kom.py pack data036`: PACK OK (269 entries, + `DefaultBoneInfo.lua`, ~ `Enum.lua`); **copy owed** (asks the user).
+  RESULT PASS (`AddBoneInfo` bound). `kom.py pack data036`: PACK OK (269 entries, + `DefaultBoneInfo.lua`, ~ `Enum.lua`); `kom.py copy data036`: COPY OK (14,015,398 B, 269 entries, md5 d994becdfaa918b922de2eac46b691b9; user, 2026-10-30).
   Missing file: start-up logs `UNIT_REFORM DefaultBoneInfo.lua NOT LOADED` (ErrorLog, XEM_ERROR142) and every unit gets identity bones.
 - **Not ported (leads):** the dev reload `31d8e660` @`31d8f6e5` (auth >= 1, DIK_APOSTROPHE); `31fde420` / `31fdc9d0` (restore a bone, then re-apply
   `Bip01_Head` / `Bip01_Spine1` reform on four bodies; caller `3202ed60`) -> **D1-3h** with 205.
