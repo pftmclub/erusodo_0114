@@ -852,6 +852,44 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   pet's rider pose (`Ride_N`); Add's riding dash too; Aisha (ported) and Elsword (unported) die: body fades and hides, no Sacrifice of Hero
   heal; in a dungeon, Add's summon skill on the last kill of the stage's last sub-stage is refused with string 45041.
 
+### D1-2b Done (2026-10-29, Opus 5.5; three `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 242 (callee) | `CX2Camera::PlayLuaCamera` (3 overloads) + the 6 camera functions it calls | `31fb5920`, `31fb6ab0`, `31fb6af0`; `31fb3640`, `31faee30`, `31fae6d0`, `31fb3c50`, `31faf120`, `31fae740` | `LUA_CAMERA` | anim-time argument (default 0); `TILTANGLE` -> roll `-( deg * 0.017453292 )`; `LINEARMOVING` in both tracking modes: tracking time minus the played time (clamp 0) and linear tracking; parts-look modes need my unit; no bone-attached case (March's was compiled out); linear / roll passed to `SetTracking` / `Point` (engine side = R13c) |
+| 242 | `CX2GUUser::CommonCameraMove` | `31ff5df0` | `COMMON_CAMERA_MOVE` | no `SUB_CAMERA_TIMING`: table 1 gets the whole anim time; else `SUB_CAMERA<i>` gets now minus its start; then `SetLinearTrackingTime( clamp0( now - before ) )` (anim `+0x214` / `+0x21c` = `GetNowAnimationTime` / `GetBeforeAnimationTime`); no world / line map -> return; default tracking skipped while the unit's `m_bHeldByTimerFocus` (June `+0x240`) is set |
+| 244 | `CX2GUUser::DyingStart` + `KEGS_USER_UNIT_DIE_REQ` | `32014810` | `DYING_START` | attacked-by-user but killed by a non-user: outside `GT_PVE` the max-damage user is the killer, in `GT_PVE` an NPC attacker's UID; `PCC_GUILD` max-damage fallback to the killer; packet + `m_fPveSyncValue1/2`, `m_iPortalValue` (0, 0, -1; Put / Get; emulator reads it through the shared Get, no handler change) |
+
+- **Identified:** `+0x240` = 1 while `CX2Game`'s timed focus holds the unit: writers `322d5f70 @322d6158` (held, after the camera), `@322d61be`
+  (expiry), `@322d6229` (cancel), ctor `@322a2922`; reader `31ff5df0 @31ff64b7` (the C3v disp32 sweep missed it). Ported as
+  `CX2GameUnit::m_bHeldByTimerFocus` with its three writes in `UpdateUnitPointer`. `32082810` on user `+0x8ad8` = March's
+  `m_InfiniteStrength.Init()` (the kickoff digest's "+0x258" was the callee's own offset). `32291750` = March's `ClearStartOfDelayedFiringData`.
+  June constants checked from the exe: 200.0 / 0.3 (doubles `0x3346ef50` / `0x3343bd78`), 0.4 (`0x33446fa0`), 50 / 10 / -1 near clip = March.
+- **Corrections to the tsv / checklist text:** the index form gets the whole anim time, not `clamp0( now - +0x21c )` (that value goes to
+  `SetLinearTrackingTime`); checklist 7af's "unit pointer's low byte" for the `31fae6d0` / `31faee30` byte: the low byte is overwritten by the
+  `LINEARMOVING` read (`@31fb6496`, 0 on a miss), so the byte is the key's value.
+- **Stand-ins (one-line comments, routed):** game byte `+0xba5` early return in `PlayLuaCamera` (written only by PvP-side `32ee2e00` /
+  `324a0470`); in `DyingStart` the XMAS-2016 fail hook `322e60d0` (game `+0xbd8`) and the PvE die fields -> Stage 19 bullet; the `PCC_GUILD`
+  killer lookup by user `+0xd74` (PvP only, parked: no PvP offline); black-out handles `+0x9188` / `+0x9194` / `+0x918c` / `+0x9198` and the
+  unit list `+0x3b84` (`32274880`) -> Stage 35 "Found by D1-2b", for the D1-2 review to place (with `NomalDirectCamera`'s uncompared
+  height-compensation chain). Checklist 7af: class `SUB_CAMERA` callers pass June's time when their class is ported.
+- **June bug kept:** `JUNE_BUGS.md` 469 (`31fae6d0` passes roll 0, not its 6th argument; latent, `TILTANGLE` in no file).
+- **Signatures:** every new parameter has March's value as its default, so March's other callers (VioletMage / Elsword `SUB_CAMERA` plays,
+  `UpdateUnitPointer`, the `_LUA` wrappers) compile unchanged and behave as before.
+- **Reach offline:** `LINEARMOVING` exists only in Ain's files (unported), `TILTANGLE` in none, so the visible changes today are the timed-focus
+  skip and `DyingStart`'s killer fields; `GT_PVE` / `PCC_GUILD` are never set offline.
+- **Hygiene:** `flagcheck --worktree --files <the 10 files> --with <the other two>` per flag: `LUA_CAMERA` 2 PASS, 1 DEFINE, 7 OTHER; `COMMON_CAMERA_MOVE`
+  4 PASS, 6 OTHER; `DYING_START` 3 PASS, 1 DEFINE (`ServerDefine.h` second home), 6 OTHER; each `RESULT: PASS`, 0 FAIL, 0 ERROR, 0 deleted lines,
+  0 non-ASCII, 0 EOL mismatches, 0 `#else`/`#endif` without the token. OTHER rows are the sibling flags; `X2Game.cpp`'s three writes sit inside
+  `JUNE_TIMER_FOCUS_UNIT`'s June body. `tools/flagcheck.py` `SECOND_HOMES` gained `JUNE_DIVERGE_DYING_START`.
+  `enumscan --check` on the four `.cpp`: 0 A/B rows. `cl /c /Zs` (no PCH) of `X2Camera.cpp`, `X2Game.cpp`, `X2GameUnit.cpp`, `X2GUUser.cpp`,
+  `Offline/Handlers_Room.cpp`, `X2ServerPacket.cpp` (includes `ClientPacket.cpp`): exit 0, no warning in the new blocks.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,809,920 B, dated 2026-10-29 15:01:50, md5 8eb6307629ddb0d4806c729382e916bc, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 15:01:44); built at main d831b6c3 + 12 uncommitted code file(s).` (the two extra are a peer's quest files.)
+  `EXESTR OK: 2 of 2 found in X2_offline.exe` (`TILTANGLE`, `LINEARMOVING`).
+- **Smoke (plan end):** a skill with `SUB_CAMERA_TIMING` plays its sub-cameras as before; a dungeon death with the party / NPC killer sends
+  the request (log `GAME     unitUID=... died`); a timed focus (boss last kill) is not pulled back by the dying unit's default camera.
+
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 
 | tsv | March function | June | Flag `..._DIVERGE_` | What changes |

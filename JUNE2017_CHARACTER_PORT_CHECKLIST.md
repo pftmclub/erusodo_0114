@@ -783,6 +783,9 @@ What only class code reaches:
   (data036). June's Lua camera table `31fb5920` reads it (`@31fb6123` / `@31fb63e8`) and passes it as `SetTracking`'s 9th argument through June's
   12-arg `PartsLookTrackingCamera` (`31faee30`, `a11` / `a12`) and 10-arg `NomalTrackingCamera` (`31fb3640` / `31fae910`). Ain's port extends those
   `CX2Camera` signatures (and `PlayLuaCamera`'s key reads) and passes them on.
+  **Done by june-march-divergence D1-2b (2026-10-29, `SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA` / `_COMMON_CAMERA_MOVE`):** `PlayLuaCamera` reads
+  `LINEARMOVING` / `TILTANGLE` and takes the anim time, the camera functions pass linear / roll on, and `CommonCameraMove` (`31ff5df0`) is June's.
+  Left for the class port: class code that plays `SUB_CAMERA` tables by name passes June's time argument where June's class code does.
 - **The SUB_CAMERA time sequencer** `31ff5df0` (`@31ff61e9-31ff62a1`, user side; CH3a2: first written as `31ff5440`, which is `DoAimingTarget`, the function before it): picks `SUB_CAMERA%d` by elapsed time, plays it (`31fb6af0`), then sets
   the camera's step time to the overshoot (`31fae7b0` = `GetCamera().SetLinearTrackingTime( t )`). March plays SUB_CAMERA tables from class code by name
   (`X2GUArme_VioletMage.cpp:6865` etc.).

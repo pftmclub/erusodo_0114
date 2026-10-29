@@ -10642,3 +10642,33 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-march-divergence D1-2: VioletMage ChangeWeapon takes the old weapon's templet from the equip, not the inventory item ( June 32cc8980 ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2b: CX2Camera::PlayLuaCamera is June's ( 31fb5920 / 31fb6ab0 / 31fb6af0 ): anim-time argument, TILTANGLE roll, LINEARMOVING; the camera functions it calls pass linear / roll to the engine camera. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA ) && !defined( SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK )
+#error SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK ( SetTracking / Point with linear and roll )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2b: CX2GUUser::CommonCameraMove is June's ( 31ff5df0 ): sub-camera play time, linear tracking step, no default camera while the timed focus holds the unit ( CX2GameUnit +0x240 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE ) && ( !defined( SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA ) || !defined( SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE needs SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA and SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2b: CX2GUUser::DyingStart is June's ( 32014810 ) and KEGS_USER_UNIT_DIE_REQ has June's three extra fields. Second home: KncWX2Server/Common/ServerDefine.h ( ClientPacket.h precedes Always.h ); comment out both together.
+#define SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_DYING_START ) && ( !defined( SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_DYING_START needs SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL ( PCC_GUILD ) and SERV_IRUHADEV_JUNE_ENUM_NAMES ( GT_PVE )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+//////////////////////////////////////////////////////////////////////////

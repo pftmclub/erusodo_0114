@@ -978,6 +978,13 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   my score (`327c9480` = my UID) with the other side's and plays `GameWinNew` / `GameLoseNew` / `GameDrawNew` (`322ceaa0` + `31cf90f0`, as
   the clear effect `327c96e0`). March's packet has no such map and March has no 41450 DungeonData row; R3 ported the rest of the handler.
 
+- **Two June-only pieces of `CX2GUUser::DyingStart` (june-march-divergence D1-2b, 2026-10-29; stand-in comments in the June body).**
+  - `322e60d0( this )` on the game object `CX2Game +0xbd8` (enable byte `+0x24`): a dying unit holding `BTI_BUFF_CHRISTMAS_MASTER` (10069)
+    sets `+0x25`, calls `31f5ac30( 0 )` and shows `g_pStatic_Fail` (index `+0x20 - 1`): the `DI_2016_XMAS` (41430) fail. Name the object and its
+    writers, then port it with the dungeon.
+  - In a `GT_PVE` game (June's PvE game class, ctor `328c0560`, base `327cef70`; e.g. `DI_PVE_BATTLE_WORLD_ISLAND_OF_ERDA_NEW` 41130) the die
+    request carries the game's two host-synced floats (`+0xe78` / `+0xe58`, sent by `328bcfb0`) and user `+0x91b8` (set by `3201a2b0`). D1-2b
+    added the fields to `KEGS_USER_UNIT_DIE_REQ` (`m_fPveSyncValue1/2`, `m_iPortalValue`, sent 0, 0, -1); name them when the PvE game is ported.
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 
 ### Stage 20: damage-number customization (june-effect C3e, 2026-10-09)
@@ -1303,6 +1310,15 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
   The draft tool named above never existed.
 - **Supersedes "Not in scope" above:** collapsing the `June_*` prefix is now this stage's C phases. The naming rule is in `CLAUDE.md`
   from 2026-10-28 for all new code ("no `June` prefix; June's body goes into March's own function").
+- **Found by D1-2b (2026-10-29), for the D1 review to place (a D1 row or its own stage):**
+  - June's black-out screen: `Process_ExtraDamage` (`32034e50`, tsv `out`, ported in Buff 16) has June cases for `EDT_BLIND` (31, `@32035ff7`,
+    `BlackOutExtraDamageStart_Blind`) and `EDT_AMUSEMENT_ITEM_DARK_CLOUD` (158, `@320392cd`, `BlackOutExtraDamageStart`) that March's `EDT_BLIND`
+    case lacks; frame move `31ff4ec0`, user handles `+0x9188` / `+0x9194`, effect sets `+0x918c` / `+0x9198`, byte `+0x9190` (ctor `3203e850`,
+    `3204b5e0`). `EDT_BLIND` is reachable offline (NPC blind). `DyingStart`'s cleanup of them is a stand-in comment.
+  - A June-only unit list `CX2GameUnit +0x3b84` (unit UIDs, effect set `+0x41ec`; `322919d0`, `32297740`, `3229d9a0`, NPC `327995c0`)
+    emptied by `32274880` at the end of `DyingStart` (stand-in comment): identify it.
+  - `CX2Camera::NomalDirectCamera` `31fb3c50`: its game-type height-compensation chain (game vslot `0x10c` against 2 / 3 / 4) was never
+    compared with March's (`X2Camera.cpp`, GT_DUNGEON / GT_BATTLE_FIELD); D1-2b only added the roll.
 - **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0a`. D2's close adds the gate
   and table rule as standing rules (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
 

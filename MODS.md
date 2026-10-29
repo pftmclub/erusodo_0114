@@ -5371,6 +5371,14 @@ Nine flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` a
 - `SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET`: VioletMage's `ChangeWeapon` takes the old templet from the equip (June `32cc8980`).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: camera move and dying start (june-march-divergence D1-2b, 2026-10-29)
+
+Three flags in `KTDXLIB/Always.h`; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-2b Done"; tsv rows 242 / 244.
+- `SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA`: `CX2Camera::PlayLuaCamera` (three overloads) is June's `31fb5920` / `31fb6ab0` / `31fb6af0`: an anim-time argument (default 0), keys `TILTANGLE` (view roll) and `LINEARMOVING` (tracking time minus the played time, linear tracking), no camera without my unit in the parts-look modes, no bone-attached case. `NomalTrackingCamera`, `PartsLookTrackingCamera(FromPartsEye)`, `NomalDirectCamera`, `PartsLookDirectCamera(FromPartsEye)` take June's linear / roll arguments (defaults = March) and pass them to the engine camera. Needs `JUNE_RENDER_CAMERA_TRACK`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE`: `CX2GUUser::CommonCameraMove` is June's `31ff5df0`: each sub-camera gets its played time, the engine camera's linear step is set after it, a world without a line map returns, the default tracking camera is skipped while `CX2Game`'s timed focus holds the unit (new `CX2GameUnit::m_bHeldByTimerFocus`, June `+0x240`, written in `UpdateUnitPointer`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_DYING_START`: `CX2GUUser::DyingStart` is June's `32014810` (killed by a non-user while flagged attacked-by-user -> max-damage user is the killer outside PvE; guild-channel max-damage fallback); `KEGS_USER_UNIT_DIE_REQ` gains June's three fields (Put / Get; 0, 0, -1 offline). Also defined in `KncWX2Server/Common/ServerDefine.h` (second home): comment out both.
+- **Revert.** Comment out the flag's `#define` (`DYING_START`: both homes), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
 ### One function per name: divergent March functions replaced by June's, UI / quest / local map batch (june-march-divergence D1-4, 2026-10-29)
 
 Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-4 Done"; rows of `tools/data/june_march_divergent.tsv`.
@@ -5388,4 +5396,5 @@ Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#els
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR`: a quest title greys from 8 levels above its fair level, not 6 (June `323223b0`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI`: the quest list scrollbar leaves NPC-friendship quests out (none until Stage 18; June `323c8da0`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT`: a guild quest's window leaves the fixed-reward slots alone (June `323d5160`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST` (D1-4b): the quick-quest window fills its slots as June does: completed / chain-waiting story quests take no slot, a quest whose one sub-quest group has a together-clear row shows only those rows, story quest titles are red, custom-event quests are skipped (none here), each Complete button's alpha is reset (June `323dd640` / `323da7a0`). `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR` also covers `GetQuestColorString` (June `32323000`, grey from 8 levels above).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

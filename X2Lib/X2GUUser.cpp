@@ -15581,6 +15581,117 @@ void CX2GUUser::ClearRecieveSyncData()
 
 void CX2GUUser::DyingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+	// June 32014810
+	if( m_bDyingStart  == true )
+		return;
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet && NULL != m_ptrRidingPet->GetXSkinAnimPtr() )
+	{
+		m_ptrRidingPet->StateChange( m_ptrRidingPet->m_DyingState );
+		m_ptrRidingPet->GetXSkinAnimPtr()->SetPlaySpeed( 0.5f );
+		m_bPassDash = false;
+	}
+
+	// stand-in: June's XMAS-2016 event game fail hook ( game +0xbd8, 322e60d0 ) runs here; March has no such game object
+	CX2GameUnit::DyingStart();
+
+	g_pX2Game->SetEnableAllKeyProcess( true );
+
+	if( CX2Main::XS_TRAINING_GAME != g_pMain->GetNowStateID() )
+	{
+		if( IsMyUnit() == true )
+		{
+			KEGS_USER_UNIT_DIE_REQ kPacket;
+			kPacket.m_KillerNPCUID = -1;
+			kPacket.m_KillerUserUnitUID = -1;
+			kPacket.m_MaxDamageKillerUserUnitUID = 0;
+			kPacket.m_ucDieReason = m_ucDieReason;
+			kPacket.m_fPveSyncValue1 = 0.f;
+			kPacket.m_fPveSyncValue2 = 0.f;
+			kPacket.m_iPortalValue = -1;
+
+			if( GetAttackedByUserUnit() == true )
+			{
+				CX2GameUnit* pAttackerGameUnit = GetGameUnitWhoAttackedMe();
+				if( NULL != pAttackerGameUnit && CX2GameUnit::GUT_USER == pAttackerGameUnit->GetGameUnitType() )
+				{
+					kPacket.m_KillerUserUnitUID = pAttackerGameUnit->GetUnitUID();
+					pAttackerGameUnit->DoProcessWhenKillEnemy( this );
+				}
+				else
+				{
+					if( CX2Game::GT_PVE != g_pX2Game->GetGameType() )	// June 322cc1c0 IsPve
+						kPacket.m_KillerUserUnitUID = GetGameUnitUIDMaxDamage();
+					else if( NULL != pAttackerGameUnit && CX2GameUnit::GUT_NPC == pAttackerGameUnit->GetGameUnitType() )
+						kPacket.m_KillerNPCUID = static_cast<int>( pAttackerGameUnit->GetUnitUID() );
+
+					// stand-in: in PCC_GUILD with no killer June matches its stored attacker UID ( user +0xd74 ) against the game's users; no March member
+				}
+			}
+			else
+			{
+				if( NULL != g_pX2Game )
+				{
+					CX2GameUnit* pAttacker = GetGameUnitWhoAttackedMe();
+					if( NULL != pAttacker && CX2GameUnit::GUT_NPC == pAttacker->GetGameUnitType() )
+					{
+						CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pAttacker );
+						if( g_pX2Room->IsNpcSlot( pNPC->GetUnitUID() ) == true )
+						{
+							kPacket.m_KillerNPCUID = -1;
+							kPacket.m_KillerUserUnitUID = pNPC->GetUnitUID();
+						}
+						else if( NULL != pNPC->GetNPCAI() )
+						{
+							if( CX2NPCAI::NAT_ALLY == pNPC->GetNPCAI()->GetAIType() )
+								kPacket.m_KillerUserUnitUID = static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() )->GetAllyUnitUID();
+							kPacket.m_KillerNPCUID = static_cast<int>( pNPC->GetUnitUID() );
+						}
+						else
+						{
+							kPacket.m_KillerNPCUID = -1;
+						}
+					}
+					else
+					{
+						kPacket.m_KillerNPCUID = -1;
+					}
+				}
+			}
+
+			kPacket.m_MaxDamageKillerUserUnitUID = GetGameUnitUIDMaxDamage();
+			if( KPVPChannelInfo::PCC_GUILD == g_pMain->GetConnectedChannelID() && -1 == kPacket.m_MaxDamageKillerUserUnitUID )
+				kPacket.m_MaxDamageKillerUserUnitUID = kPacket.m_KillerUserUnitUID;
+
+			// stand-in: in a GT_PVE game June fills the two synced values ( PvE game +0xe78 / +0xe58 ) and user +0x91b8; March has no PvE game
+			g_pData->GetServerProtocol()->SendPacket( EGS_USER_UNIT_DIE_REQ, kPacket );
+			g_pMain->AddServerPacket( EGS_USER_UNIT_DIE_ACK );
+
+			if( IsMyUnit() == true )
+			{
+				if ( m_hSeqWhiteOut != INVALID_PARTICLE_SEQUENCE_HANDLE )
+				{
+					g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqWhiteOut );
+					g_pX2Game->GetMajorParticle()->CreateSequenceHandle( NULL,  L"WhiteOutExtraDamageEnd", D3DXVECTOR3(0,0,0) );
+				}
+				// stand-in: June ends its black-out screens here too ( +0x9188 BlackOutExtraDamageEnd, +0x9194 _Blind ); not in March
+			}
+			m_bWhiteOut = false;
+		}
+
+		// stand-in: June stops the black-out effect sets ( +0x918c, +0x9198 ) here
+		if ( m_GuildSkillData.m_InfiniteStrength.m_hSeqEffect != INVALID_PARTICLE_SEQUENCE_HANDLE )
+			g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_GuildSkillData.m_InfiniteStrength.m_hSeqEffect );
+		m_GuildSkillData.m_InfiniteStrength.Init();
+
+		SetShowEnchantWeaponParticle( false );
+		++m_iDieCount;
+	}
+
+	ClearStartOfDelayedFiringData();
+	// stand-in: June also empties its marked-unit list ( unit +0x3b84, 32274880 ); no March member
+#else SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 	if( m_bDyingStart  == true )
 		return;
 
@@ -15734,6 +15845,7 @@ void CX2GUUser::DyingStart()
 #ifdef SERV_RENA_NIGHT_WATCHER
 	ClearStartOfDelayedFiringData();		/// 사망시 지연의 신호탄 적용 정보 삭제
 #endif SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 }
 
 #ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
@@ -22498,6 +22610,133 @@ void CX2GUUser::RotateBone( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame, const 
 void CX2GUUser::CommonCameraMove()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+	// June 31ff5df0
+	int iCameraIndex = m_FrameDataNow.stateParam.normalCamera;
+	if( true == m_FrameDataNow.unitCondition.bHit )
+		iCameraIndex = m_FrameDataNow.stateParam.hitCamera;
+
+	g_pX2Game->GetX2Camera()->GetLineScriptedCameraData().m_vFinalRelativeEyePosition = D3DXVECTOR3( 0, 0, 0 );
+
+	if( m_LuaManager.BeginTable( "CAMERA", iCameraIndex ) == true )
+	{
+		if( 0.f > fPreWorldNear )
+		{
+			fPreWorldNear = g_pKTDXApp->GetDGManager()->GetNear();
+			if( fPreWorldNear >= 50.f )
+			{
+				g_pKTDXApp->GetDGManager()->SetNear(10);
+
+				g_pKTDXApp->GetDGManager()->SetProjection(
+					g_pKTDXApp->GetDGManager()->GetNear(),
+					g_pKTDXApp->GetDGManager()->GetFar(), true );
+			}
+			else
+			{
+				fPreWorldNear = -1.f;
+			}
+		}
+
+		const float fNowAnimTime = m_pXSkinAnim->GetNowAnimationTime();
+		float fLinearTrackingTime = fNowAnimTime - m_pXSkinAnim->GetBeforeAnimationTime();	// June @31ff5fff: anim +0x214 - +0x21c
+		if( fLinearTrackingTime < 0.f )
+			fLinearTrackingTime = 0.f;
+
+		std::vector< float > vecSubCameraTiming;
+		if( m_LuaManager.BeginTable( "SUB_CAMERA_TIMING" ) == true )
+		{
+			float fSubCameraTiming = 0.f;
+			for( int i=1; ; i++ )
+			{
+				if( true == m_LuaManager.GetValue( i, fSubCameraTiming ) )
+					vecSubCameraTiming.push_back( fSubCameraTiming );
+				else
+					break;
+			}
+			m_LuaManager.EndTable(); // SUB_CAMERA_TIMING
+		}
+
+		if( true == vecSubCameraTiming.empty() )
+		{
+			g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, 1, fNowAnimTime );	// June @31ff614c: the whole anim time
+		}
+		else
+		{
+			bool bDone = false;
+			for( int i=0; i<(int)vecSubCameraTiming.size(); i++ )
+			{
+				if( m_pXSkinAnim->GetNowAnimationTime() < vecSubCameraTiming[i] )
+				{
+					const float fSubCameraStartTime = ( 0 < i ? vecSubCameraTiming[i - 1] : 0.f );
+					char tableName[64] = "";
+					StringCchPrintfA( tableName, ARRAY_SIZE(tableName), "SUB_CAMERA%d", i );
+					g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, tableName, fNowAnimTime - fSubCameraStartTime );
+					bDone = true;
+					break;
+				}
+			}
+
+			if( false == bDone )
+			{
+				char tableName[64] = "";
+				StringCchPrintfA( tableName, ARRAY_SIZE(tableName), "SUB_CAMERA%d", (int)vecSubCameraTiming.size() );
+				g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, tableName, fNowAnimTime - vecSubCameraTiming.back() );
+			}
+		}
+
+		g_pX2Game->GetX2Camera()->GetCamera().SetLinearTrackingTime( fLinearTrackingTime );	// June @31ff629c ( 31fae7b0 )
+
+		m_LuaManager.EndTable(); // CAMERA
+	}
+	else
+	{
+		if( 0.f < fPreWorldNear )
+		{
+			g_pKTDXApp->GetDGManager()->SetNear(fPreWorldNear);
+			fPreWorldNear = -1.f;
+
+			g_pKTDXApp->GetDGManager()->SetProjection(
+				g_pKTDXApp->GetDGManager()->GetNear(),
+				g_pKTDXApp->GetDGManager()->GetFar(), true );
+		}
+
+		if( NULL == g_pX2Game->GetWorld() || NULL == g_pX2Game->GetWorld()->GetLineMap() )
+			return;
+
+		const float eyeDistance = 0.f;
+		const CKTDGLineMap::CameraData* pCameraData = g_pX2Game->GetWorld()->GetLineMap()->GetCameraData( m_FrameDataFuture.syncData.lastTouchLineIndex );
+		if( NULL != pCameraData )
+		{
+			switch( pCameraData->m_eType )
+			{
+			case CKTDGLineMap::LCT_ABSOULTE_POSITION:
+				g_pX2Game->GetX2Camera()->GameLineCamera( this, pCameraData->m_vEye, pCameraData->m_vLookAt, pCameraData->m_bFocusUnit, 0.4f );
+				return;
+
+			case CKTDGLineMap::LCT_RELATIE_POSITION:
+				g_pX2Game->GetX2Camera()->GetLineScriptedCameraData().m_vFinalRelativeEyePosition = pCameraData->m_vRelativeEye;
+				g_pX2Game->GetX2Camera()->GetLineScriptedCameraData().m_fSpeed = pCameraData->m_fCameraRepositionSpeed;
+				break;
+			}
+		}
+		else if( m_GameCameraOffset.bEnable == true )
+		{
+			g_pX2Game->GetX2Camera()->NomalTrackingCamera( this, g_pMain->GetGameOption().GetCameraDistance() + m_GameCameraOffset.fCameraDistance,
+				200.f + m_GameCameraOffset.fHeight,
+				m_fAngleDegree + m_GameCameraOffset.fAngleDegree,
+				eyeDistance + m_GameCameraOffset.fEyeDistance,
+				0.f + m_GameCameraOffset.fLookatDistance,
+				0.3f + m_GameCameraOffset.fTrackingTime,
+				0.0f + m_GameCameraOffset.fTrackingAtTime );
+			return;
+		}
+
+		if( true == GetHeldByTimerFocus() )	// June @31ff64b7: the game's timed focus drives the camera
+			return;
+
+		g_pX2Game->GetX2Camera()->NomalTrackingCamera( this, g_pMain->GetGameOption().GetCameraDistance(), 200, m_fAngleDegree, eyeDistance, 0.f, 0.3f );
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 
 	// dynamic camera 옵션이 켜져있을 때만 이 함수가 호출된다. 
 
@@ -22674,6 +22913,7 @@ void CX2GUUser::CommonCameraMove()
 #endif SERV_CHUNG_TACTICAL_TROOPER
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 }
 
 

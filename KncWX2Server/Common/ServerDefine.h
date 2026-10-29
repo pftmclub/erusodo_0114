@@ -4778,3 +4778,10 @@
 // Description: june-march-divergence D1-2: PCC_GUILD / PCC_EVENT_MODE / PCC_1VS1_PVP_CHALLENGE. Also defined in KTDXLIB/Always.h; this second home exists because ClientPacket.h is compiled before Always.h is reachable. Comment out both together.
 #define SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-2b: KEGS_USER_UNIT_DIE_REQ carries June's three extra fields. Also defined in KTDXLIB/Always.h; this second home exists because ClientPacket.h is compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+//////////////////////////////////////////////////////////////////////////

@@ -256,21 +256,45 @@ class CX2Camera : public CKTDXStage
 
 		const float GetLandHeight() { return m_fLand; }
 		void SetLandHeight( float fLand ){ m_fLand = fLand; }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, int index, float fAnimTime = 0.f );	// June 31fb6ab0
+		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, const char* pszTableNameUTF8, float fAnimTime = 0.f );	// June 31fb6af0
+		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, float fAnimTime = 0.f );	// June 31fb5920
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, int index );
 		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, const char* pszTableNameUTF8 );
 		void PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		void NomalTrackingCamera( CX2GameUnit* pFocusUnit, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float trackingTime = 0.3f, float trackingAtTime = 0.0f, bool bLinear = false, float fRoll = 0.0f );	// June 31fb3640
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		void NomalTrackingCamera( CX2GameUnit* pFocusUnit, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float trackingTime = 0.3f, float trackingAtTime = 0.0f );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 #ifdef MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
 		void NomalTrackingCamera( CX2SquareUnit* pFocusUnit, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float trackingTime = 0.3f, float trackingAtTime = 0.0f );
 #endif //MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		void PartsLookTrackingCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float trackingTime = 0.3f, bool bLinear = false, float fRoll = 0.0f );	// June 31faee30
+		void PartsLookTrackingCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fTrackingTime_ = 0.3f, bool bLinear_ = false, float fRoll_ = 0.0f );	// June 31fae6d0
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		void PartsLookTrackingCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float trackingTime = 0.3f );
 		void PartsLookTrackingCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fTrackingTime_ = 0.3f );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		void NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float fRoll = 0.0f );	// June 31fb3c50
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		void NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		void PartsLookDirectCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f, float fRoll = 0.0f );	// June 31faf120
+		void PartsLookDirectCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fRoll_ = 0.0f );	// June 31fae740
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		void PartsLookDirectCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance = 1500.0f, float height = 200.0f, float angleDegree = 0.0f, float eyeDistance = 0.0f, float lookatDistance = 0.0f );
 		void PartsLookDirectCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 
 
 		bool ParsingLookTypeAndPos( KLuaManager& luaManger_, const CX2GameUnit* pFocusUnit_, OUT D3DXVECTOR3& vLookPos_ );

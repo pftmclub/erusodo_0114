@@ -2658,6 +2658,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		bool						GetAttackedByUserUnit() { return m_bAttackedByUserUnit; }
 		void						SetAttackedByUserUnit( bool bAttackedByUserUnit ) { m_bAttackedByUserUnit = bAttackedByUserUnit; }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+		bool						GetHeldByTimerFocus() const { return m_bHeldByTimerFocus; }
+		void						SetHeldByTimerFocus( bool bHeldByTimerFocus ) { m_bHeldByTimerFocus = bHeldByTimerFocus; }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 		//UidType						GetAttackerUnitUID() { return m_AttackerUnitUID; }
 		//void						SetAttackerUnitUID( UidType AttackerUnitUID ) { m_AttackerUnitUID = AttackerUnitUID; }
 
@@ -4584,6 +4588,9 @@ protected:
 
 		float											m_DamageLightTime;	/// 타격을 하거나 피격을 당했을 경우 해당 시간 동안 World의 Light 위치를 변경 시킨다
 		bool											m_bAttackedByUserUnit;	/// 자신을 타격한 유닛이 유저인지.. (죽었을 때의 죽인 주체가 누구인지 판단할 때 사용) 사용 안하는 방법은 없나..?
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+		bool											m_bHeldByTimerFocus;	// June +0x240: 1 while CX2Game's timed focus holds this unit ( 322d5f70 )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 		//UidType											m_AttackerUnitUID;		/// 자신을 타격한 유닛의 UID
 
 #ifdef SERV_PET_SYSTEM

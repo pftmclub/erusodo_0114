@@ -2513,6 +2513,9 @@ void    CX2Game::UpdateHostGameUnit()
 	if( pTimerUnit != m_optrFocusUnit.GetObservable() )		// @322d5fb2-322d5fcd -> @322d6207: the focus moved on, drop it
 	{
 		CanNotInputAndDisalbeNPCAI( false );	// 322cef70( 0 ), whatever m_bCanNotInput was
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+		pTimerUnit->SetHeldByTimerFocus( false );	// @322d6229
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 		m_kTimerFocusUnit.Reset();			// @322d622f-322d626b ( = 32311720, inlined )
 #ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
 		CX2OfflineLog::Server( L"JUNE_FX C3v cancel: the focus moved to another unit ( type %d ) before the time ran out",
@@ -2532,6 +2535,9 @@ void    CX2Game::UpdateHostGameUnit()
 	if( m_kTimerFocusUnit.m_fTime <= 0.f )			// @322d6000-322d6007 -> @322d6194: the time ran out
 	{
 		CanNotInputAndDisalbeNPCAI( false );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+		pTimerUnit->SetHeldByTimerFocus( false );	// @322d61be
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 		m_kTimerFocusUnit.Reset();					// 32311720
 		if( NULL != GetMyUnit() )
 			m_optrFocusUnit = GetMyUnit();				// 31e56b80
@@ -2555,6 +2561,9 @@ void    CX2Game::UpdateHostGameUnit()
 		// 31fb3c50 ( ret 0x1c ): its 7th arg ( 0.f here ) is June's view roll, passed as the 10th arg of CKTDGCamera::Point 31d01310 ( camera +0x68,
 		// skipped when 0 ). March's camera has no roll, so the 6-arg call is the same picture ( C3v review ).
 		m_pCamera->NomalDirectCamera( pTimerUnit, fDistance, 200.f, 0.f, 0.f, 0.f );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+	pTimerUnit->SetHeldByTimerFocus( true );	// @322d6158
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 
 	ResetFocusUnit();
 	return true;

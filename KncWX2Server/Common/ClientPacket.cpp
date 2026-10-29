@@ -1956,6 +1956,11 @@ SERIALIZE_DEFINE_PUT( KEGS_USER_UNIT_DIE_REQ, obj, ks )
 #ifdef SERV_ADD_TITLE_CONDITION
 		&& PUT( m_ucDieReason )
 #endif SERV_ADD_TITLE_CONDITION
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+		&& PUT( m_fPveSyncValue1 )
+		&& PUT( m_fPveSyncValue2 )
+		&& PUT( m_iPortalValue )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 	//}}
 		;
 }
@@ -1969,6 +1974,11 @@ SERIALIZE_DEFINE_GET( KEGS_USER_UNIT_DIE_REQ, obj, ks )
 #ifdef SERV_ADD_TITLE_CONDITION
 		&& GET( m_ucDieReason )
 #endif SERV_ADD_TITLE_CONDITION
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+		&& GET( m_fPveSyncValue1 )
+		&& GET( m_fPveSyncValue2 )
+		&& GET( m_iPortalValue )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 	//}}
 		;
 }

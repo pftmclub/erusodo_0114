@@ -166,6 +166,150 @@ HRESULT CX2Camera::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, int index, float fAnimTime /*= 0.f*/ )
+{
+	if( luaManger.BeginTable( index ) == true )
+	{
+		PlayLuaCamera( pFocusUnit, luaManger, fAnimTime );
+		luaManger.EndTable();
+	}
+}
+void CX2Camera::PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, const char* pszTableNameUTF8, float fAnimTime /*= 0.f*/ )
+{
+	if( luaManger.BeginTable( pszTableNameUTF8 ) == true )
+	{
+		bool bDirection = false;
+		LUA_GET_VALUE(		luaManger, "Direction",		bDirection,		false );
+
+		if( bDirection == true )
+		{
+		    const char* pszDirectionCamera = "";
+			if( pFocusUnit->GetIsRight() == true )
+				pszDirectionCamera = "RightDirCamear";
+			else
+				pszDirectionCamera = "LeftDirCamear";
+
+			if( luaManger.BeginTable( pszDirectionCamera ) == true )
+			{
+				PlayLuaCamera( pFocusUnit, luaManger, fAnimTime );
+				luaManger.EndTable();
+			}
+		}
+		else
+		{
+			PlayLuaCamera( pFocusUnit, luaManger, fAnimTime );
+		}
+
+		luaManger.EndTable();
+	}
+}
+
+void CX2Camera::PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, float fAnimTime /*= 0.f*/ )
+{
+	if( m_bNpcTrackingCamera == true )
+		return;
+	// stand-in: June also returns while game byte +0xba5 is set ( written only by the PvP-side 32ee2e00 / 324a0470 ); no March member
+
+	CAMERA_TYPE		cameraType;
+	LUA_GET_VALUE_ENUM( luaManger, "CAMERA_TYPE",		cameraType, CAMERA_TYPE, CT_NORMAL_TRACKING );
+
+	float			distance;
+	LUA_GET_VALUE(		luaManger, "DISTANCE",			distance,		g_pMain->GetGameOption().GetCameraDistance() );
+
+	float			height;
+	LUA_GET_VALUE(		luaManger, "HEIGHT",			height,			200.0f );
+
+	float			angleDegree;
+	LUA_GET_VALUE(		luaManger, "ANGLEDEGREE",		angleDegree,	0.0f );
+
+	float			eyeDistance;
+	LUA_GET_VALUE(		luaManger, "EYEDISTANCE",		eyeDistance,	0.0f );
+
+	float			lookDistance;
+	LUA_GET_VALUE(		luaManger, "LOOKATDISTANCE",	lookDistance,	0.0f );
+
+	float			fTiltAngle;
+	LUA_GET_VALUE(		luaManger, "TILTANGLE",			fTiltAngle,		0.0f );
+	const float fRoll = static_cast<float>( -( fTiltAngle * 0.017453292 ) );	// June @31fb5fcf: degrees to radians ( double 0x33441c58 ), negated
+
+	switch( cameraType )
+	{
+	case CT_NORMAL_TRACKING:
+		{
+			float			trackingTime;
+			LUA_GET_VALUE( luaManger, "TRACKINGTIME", trackingTime,	0.3f );
+
+			bool			bLinearMoving;
+			LUA_GET_VALUE( luaManger, "LINEARMOVING", bLinearMoving, false );
+			if( true == bLinearMoving )
+			{
+				trackingTime -= fAnimTime;	// June @31fb61e7: the time the sub-camera has already played
+				if( trackingTime < 0.f )
+					trackingTime = 0.f;
+			}
+			NomalTrackingCamera( pFocusUnit, distance, height, angleDegree, eyeDistance, lookDistance, trackingTime, 0.f, bLinearMoving, fRoll );
+		}
+		break;
+
+	case CT_PARTS_LOOK_TRACKING:
+		{
+			D3DXVECTOR3 vLookPos( 0.0f, 0.0f, 0.0f );
+			if ( ParsingLookTypeAndPos( luaManger, pFocusUnit, vLookPos ) && NULL != g_pX2Game->GetMyUnit() )
+			{
+				float			fTrackingTime;
+				LUA_GET_VALUE(		luaManger, "TRACKINGTIME",		fTrackingTime,	0.3f );
+
+				bool			bLinearMoving;
+				LUA_GET_VALUE(		luaManger, "LINEARMOVING",		bLinearMoving,	false );
+				if( true == bLinearMoving )
+				{
+					fTrackingTime -= fAnimTime;	// June @31fb64ac
+					if( fTrackingTime < 0.f )
+						fTrackingTime = 0.f;
+				}
+
+				EYE_POS_RELATIVE_UNIT eEysPosRelativeUnit;
+				LUA_GET_VALUE_ENUM( luaManger, "EYE_POS_RELATIVE_UNIT",		eEysPosRelativeUnit, EYE_POS_RELATIVE_UNIT, EPRU_FOUCS_UNIT );
+
+				D3DXVECTOR3 vEyePos( 0.0f, 0.0f, 0.0f );
+				if( EPRU_MY_UNIT == eEysPosRelativeUnit && ParsingEyeTypeAndPos( luaManger, g_pX2Game->GetMyUnit(), vEyePos ) )
+					PartsLookTrackingCameraFromPartsEye( pFocusUnit, vLookPos, vEyePos, fTrackingTime, bLinearMoving, fRoll );
+				else if ( ParsingEyeTypeAndPos( luaManger, pFocusUnit, vEyePos ) )
+					PartsLookTrackingCameraFromPartsEye( pFocusUnit, vLookPos, vEyePos, fTrackingTime, bLinearMoving, fRoll );
+				else
+					PartsLookTrackingCamera( pFocusUnit, vLookPos, distance, height, angleDegree, eyeDistance, lookDistance, fTrackingTime, bLinearMoving, fRoll );
+			}
+		}
+		break;
+
+	case CT_NORMAL_DIRECT:
+		{
+			NomalDirectCamera( pFocusUnit, distance, height, angleDegree, eyeDistance, lookDistance, fRoll );
+		}
+		break;
+
+	case CT_PARTS_LOOK_DIRECT:
+		{
+			D3DXVECTOR3 vLookPos( 0.0f, 0.0f, 0.0f );
+			if ( ParsingLookTypeAndPos( luaManger, pFocusUnit, vLookPos ) && NULL != g_pX2Game->GetMyUnit() )
+			{
+				EYE_POS_RELATIVE_UNIT eEysPosRelativeUnit;
+				LUA_GET_VALUE_ENUM( luaManger, "EYE_POS_RELATIVE_UNIT",		eEysPosRelativeUnit, EYE_POS_RELATIVE_UNIT, EPRU_FOUCS_UNIT );
+
+				D3DXVECTOR3 vEyePos( 0.0f, 0.0f, 0.0f );
+				if( EPRU_MY_UNIT == eEysPosRelativeUnit && ParsingEyeTypeAndPos( luaManger, g_pX2Game->GetMyUnit(), vEyePos ) )
+					PartsLookDirectCameraFromPartsEye( pFocusUnit, vLookPos, vEyePos, fRoll );
+				else if ( ParsingEyeTypeAndPos( luaManger, pFocusUnit, vEyePos ) )
+					PartsLookDirectCameraFromPartsEye( pFocusUnit, vLookPos, vEyePos, fRoll );
+				else
+					PartsLookDirectCamera( pFocusUnit, vLookPos, distance, height, angleDegree, eyeDistance, lookDistance, fRoll );
+			}
+		}
+		break;
+	}
+}
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger, int index )
 {
 	if( luaManger.BeginTable( index ) == true )
@@ -316,6 +460,7 @@ void CX2Camera::PlayLuaCamera( CX2GameUnit* pFocusUnit, KLuaManager& luaManger )
 		} break;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 
 
 #ifdef IN_GAME_MANUAL_CAMERA_POSITION_TEST
@@ -395,7 +540,11 @@ void CX2Camera::ManualTrackingCamera( CX2GameUnit* pFocusUnit, float distance, c
 
 
 void CX2Camera::NomalTrackingCamera( CX2GameUnit* pFocusUnit, float distance, float height, float angleDegree, float eyeDistance, 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+	float lookatDistance, float trackingTime, float trackingAtTime, bool bLinear, float fRoll )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	float lookatDistance, float trackingTime, float trackingAtTime )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 #ifdef NPC_TRACKINGCAMERA
 	if( m_bNpcTrackingCamera == true )
@@ -551,7 +700,11 @@ void CX2Camera::NomalTrackingCamera( CX2GameUnit* pFocusUnit, float distance, fl
 		eye.y = m_fLand + fCameraHeightCompensation;
 	if( lookAt.y < m_fLand + fCameraHeightCompensation )
 		lookAt.y = m_fLand + fCameraHeightCompensation;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+	m_kCamera.SetTracking( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, trackingTime, trackingAtTime, bLinear, fRoll );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	m_kCamera.SetTracking( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, trackingTime, trackingAtTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 }
 #ifdef MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
 void CX2Camera::NomalTrackingCamera( CX2SquareUnit* pFocusUnit, float distance, float height, float angleDegree, float eyeDistance, 
@@ -613,7 +766,11 @@ void CX2Camera::NomalTrackingCamera( CX2SquareUnit* pFocusUnit, float distance, 
 	m_kCamera.SetTracking( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, trackingTime, trackingAtTime );
 }
 #endif //MODIFY_LINEMAP_JUMPUP_IN_VILLAGE
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::PartsLookTrackingCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance, float trackingTime, bool bLinear, float fRoll )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::PartsLookTrackingCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance, float trackingTime )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 	m_CameraState	= CS_EVENT;
 
@@ -641,10 +798,18 @@ void CX2Camera::PartsLookTrackingCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 lo
 		eye.z	=	look.z + cosf( D3DXToRadian(pFocusUnit->GetYRotateDegree() + 180.0f - angleDegree) ) * -distance;
 		eye		+=	(pFocusUnit->GetDirVector() * -eyeDistance);
 	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+	m_kCamera.SetTracking( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, trackingTime, 0.f, bLinear, fRoll );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	m_kCamera.SetTracking( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, trackingTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance, float fRoll )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 #ifdef NPC_TRACKINGCAMERA
 	if( m_bNpcTrackingCamera == true )
@@ -702,14 +867,22 @@ void CX2Camera::NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance, floa
 		eye.y = m_fLand + fCameraHeightCompensation;
 	if( lookAt.y < m_fLand + fCameraHeightCompensation )
 		lookAt.y = m_fLand + fCameraHeightCompensation;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+	m_kCamera.Point( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, 0.0f, 1.0f, 0.0f, fRoll );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	m_kCamera.Point( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 }
 
 
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::PartsLookDirectCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance, float fRoll )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::PartsLookDirectCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look, float distance, float height, float angleDegree, float eyeDistance, float lookatDistance )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 #ifdef NPC_TRACKINGCAMERA
 	if( m_bNpcTrackingCamera == true )
@@ -742,7 +915,11 @@ void CX2Camera::PartsLookDirectCamera( CX2GameUnit* pFocusUnit, D3DXVECTOR3 look
 		eye.z = look.z + cosf( D3DXToRadian(pFocusUnit->GetYRotateDegree() + 180.0f - angleDegree) ) * -distance;
 		eye += (pFocusUnit->GetDirVector() * -eyeDistance);
 	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+	m_kCamera.Point( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z, 0.0f, 1.0f, 0.0f, fRoll );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	m_kCamera.Point( eye.x, eye.y, eye.z, lookAt.x, lookAt.y, lookAt.z );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 }
 
 void CX2Camera::FieldCamera( CX2SquareUnit* pFocusUnit, float distance, float lookatheight, float eyeHeight, float angleDegree, float trackingTime )
@@ -2924,16 +3101,28 @@ bool CX2Camera::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 #endif KEYFRAME_CAMERA
 
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::PartsLookTrackingCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fTrackingTime_ /*= 0.3f */, bool bLinear_ /*= false*/, float /*fRoll_*/ )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::PartsLookTrackingCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fTrackingTime_ /*= 0.3f */ )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 	if ( NULL != pFocusUnit )
 	{
 		m_CameraState	= CS_EVENT;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		m_kCamera.SetTracking( vEyePos_.x, vEyePos_.y, vEyePos_.z, vLookPos_.x, vLookPos_.y, vLookPos_.z, fTrackingTime_, 0.f, bLinear_, 0.f );	// June 31fae6d0 passes roll 0, not its 6th argument ( kept )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		m_kCamera.SetTracking( vEyePos_.x, vEyePos_.y, vEyePos_.z, vLookPos_.x, vLookPos_.y, vLookPos_.z, fTrackingTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+void CX2Camera::PartsLookDirectCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_, float fRoll_ )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 void CX2Camera::PartsLookDirectCameraFromPartsEye( CX2GameUnit* pFocusUnit, const D3DXVECTOR3& vLookPos_, const D3DXVECTOR3& vEyePos_ )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 {
 #ifdef NPC_TRACKINGCAMERA
 	if( m_bNpcTrackingCamera == true )
@@ -2943,7 +3132,11 @@ void CX2Camera::PartsLookDirectCameraFromPartsEye( CX2GameUnit* pFocusUnit, cons
 	if ( NULL != pFocusUnit )
 	{
 		m_CameraState	= CS_EVENT;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		m_kCamera.Point( vEyePos_.x, vEyePos_.y, vEyePos_.z, vLookPos_.x, vLookPos_.y, vLookPos_.z, 0.0f, 1.0f, 0.0f, fRoll_ );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		m_kCamera.Point( vEyePos_.x, vEyePos_.y, vEyePos_.z, vLookPos_.x, vLookPos_.y, vLookPos_.z );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	}
 }
 

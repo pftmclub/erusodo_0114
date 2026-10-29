@@ -281,6 +281,9 @@ m_fNoSkillTime( 0 )
 	m_DamageLightTime			= 0.0f;
 	m_bAttackedByUserUnit		= true;
 	//m_AttackerUnitUID			= -1;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
+	m_bHeldByTimerFocus		= false;	// June ctor @322a2922
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMMON_CAMERA_MOVE
 
 // #ifdef SERV_PET_SYSTEM
 // 	m_LastAttackUnitUID			= -1;

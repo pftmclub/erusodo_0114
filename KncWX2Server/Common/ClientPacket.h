@@ -1406,6 +1406,11 @@ DECL_PACKET( EGS_USER_UNIT_DIE_REQ )
 	};
 #endif SERV_ADD_TITLE_CONDITION
 	//}}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
+	float		m_fPveSyncValue1;	// June 32014810: PvE game +0xe78 ( host-synced by 328bcfb0 ), 0 outside GT_PVE
+	float		m_fPveSyncValue2;	// PvE game +0xe58, 0 outside GT_PVE
+	int			m_iPortalValue;		// user +0x91b8 ( set by 3201a2b0 ), -1 outside GT_PVE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 };
 
 DECL_PACKET( EGS_USER_UNIT_DIE_ACK )

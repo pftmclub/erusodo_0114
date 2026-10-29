@@ -20,6 +20,8 @@ and the Done notes of D1-1, D1-2 and D1-2b (`docsection.py JUNE_MARCH_DIVERGENCE
 
 Review D1-1, D1-2 and D1-2b: each replaced body against its June listing (Ghidra / `funcdis.py`), `#else` byte-intact, the live March branch (`cl /P`),
 one unported call site per row, guards, `MODS.md` / `JUNE_BUGS.md` rows, stand-ins named and routed.
+Also place the three branches D1-2b found (`JUNE_PORT_BACKLOG_ORDER.md` Stage 35, "Found by D1-2b"): the black-out `EDT_BLIND` / `DARK_CLOUD`
+cases, the unit list `+0x3b84`, `NomalDirectCamera`'s height-compensation chain: a D1 row each, or their own stage.
 
 Hygiene is one command per flag, not a fresh script:
 `python tools/flagcheck.py <FLAG> --range <first commit>^..<last commit>` (a `..HEAD` range can time out). Paste the `files:` /
