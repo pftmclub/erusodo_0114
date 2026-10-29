@@ -453,6 +453,44 @@ members, locals, `JUNE_CH*` constants and `_CONST_ARME_JUNE_*_` namespaces are C
 Every merge against its June address (spot-check 10 per class in Ghidra), the hand shapes, the reach list (where March's body was still
 reached and now runs June's), flag-off equivalence per flag, the smoke logs.
 
+### Done (2026-10-29, Opus 5.5; reviews `e79168a8`, `df2b994d`, `affc89cd`, `56880121`; fixes keep each body's flag)
+
+**Verdict: C1 and C2 pass.** One naming fix landed here (six offset names, below); nothing else needed a code change.
+- **Twins (10 per class, against Ghidra / the raw listing / the funcmap vslot):** Eve: `ENSI_JUMP_LANDING_EventProcess` 32981ba0, `Draw` 32968ee0 (vslot 0x98),
+  `ENSI_EBS_DASH_JUMP_COMBO_ZUpX_EndFuture` 329678f0, `ENSI_A_EN_CONVERSION_Start` 329780b0, `CommonEventProcess` 3297c390, `ENSI_JUMP_COMBO_Z_End` 329872a0,
+  `AttackResultPlayEffect` 3299cdc0 (vslot 0x4dc), `ENSI_SA_EPR_GIGA_STREAM_FrameMove` 329a7250, `ENSI_A_EBS_TASER_PILUM_Start` 32973f10, `ENSI_SA_EEP_ELECTRONIC_FIELD_FrameMove` 3299ecb0.
+  Aisha: `AVSI_A_AVP_Summon_Bat_Heavy_Init` 32cb8450, `ComboZ4upFrameMoveFuture` 32cb7310, `WaitStart` 32cb9a40, `UpdateEquipViewListInfo` 32cc9950 (vslot 0x644),
+  `ChargeMPStart` 32cd1540, `DashEventProcess` 32cd0a40, `AVSI_DIMENSION_WITCH_DASH_ATTACK_X2_EventProcess` 32cc16f0, `AVSI_DARK_MAGICIAN_COMBO_X3back_FrameMove` 32cd4650,
+  `Lose` 32cc5ca0 (vslot 0x94), `InitState` 32cea0c0 (0x7a4). All 20 are the June counterpart of March's function, and each June branch reads as that address's body (not diffed against the old `June_X` text).
+  Six addresses are not carved in Ghidra (no function there); 32cd4650 / 32cc16f0 have no Ghidra xref but a rel32 jump from the state thunks 32cf2670 / 32cf1140.
+- **Hand shapes:** C2's `SetSkillBuffFactors` change is a fix: June 31fcac90 @31fcacc4 pushes `GetSkillLevel( id, 1, 0, 1 )` (basic level true), as the base does;
+  Aisha's deleted copy passed false. `UnitFlag3c` was the base's `m_iUnitClassTran` test, so that part is unchanged. The 7 default-argument merges change nothing
+  (June's declarations had no defaults, so every June caller passes all arguments). `RidingOffEnd` hides the non-virtual base but is reached only through
+  Aisha's own `SET_CB_FUNC( CX2GUArme_VioletMage, RidingOffEnd )` (`USI_RIDING_OFF`). Eve's signature merges (`CallSummonedNPC` prelude, `SetSelfDestructSummonedNPC`) read right.
+  The four Eve `..._FrameMoveBody` / `_EventProcessBody( bool )` helpers have no March precedent but name what they are; kept.
+- **Renames (audit of all 1,045 C1 / C2 rows):** every `old` gone and `new` present except `June_Vslot828` in Eve (left for C3 on purpose). No new name collides
+  with or hides a base member. **Fixed here** (six D0b names were object offsets, not meanings; `junecollapse.py apply` with a scratch map, flag-off PASS):
+  `EveUnitFlag3c` -> `EveIsTranscendedUnit`, `UnitFlag3c` -> `IsTranscendedUnit`, `IsBlock9c50ValueCPositive` -> `IsPsykerKinesisHeld`, `UpdateBlock9c50Timer` -> `UpdatePsykerKinesisTimer`,
+  `SetGameFloatB38` -> `SetGameMemoRiseTimer`, `GameByteC20` -> `IsMPChargeBlockedByGame` (June never writes CX2Game +0xc20; both readers only block or end the MP charge).
+  The map now carries them, and its C4 / C5 rows for the same block say what it is: `JuneEveBlock9c50` -> `PsykerKinesisData`, `m_pJuneBlock9c50` -> `m_pPsykerKinesisData`,
+  `m_iJuneClock9c44` -> `m_iLastParryClock`, plus five new C5 field rows (`m_bFlag0` -> `m_bReleased`, `m_hEffectSet0` / `1` -> `m_hStartEffectSet` / `m_hAttackBallEffectSet`,
+  `m_fValueC` -> `m_fRemainTime`, `m_fValue10` -> `m_fPowerRate`). Offset-style names still in C5 rows are listed in the C5 kickoff.
+- **Reach (every SET_CB_FUNC of the 718 merged functions):** 569 have a live registration, all in the state the June slot names. 37 serve several states
+  (DIE_FRONT + RIDING_DIE, the dash-attack and teleport pairs, hell-drop directions); each matches June's sharing. `DashComboZ2aStartFuture` also serves
+  `AVSI_EM_DASH_COMBO_Z2a`, as `June_InitState` already registered it before C2 (the map note omits it). Eve's `DashStartFuture` is registered only in dead
+  `#else` branches and is reached by its virtual. 143 merged functions are not state callbacks; none is unreferenced. Table: scratch only (`reach_registrations.tsv`, not kept).
+- **For C3 (in its kickoff):** vslot 0x828 has no caller; both overrides call the base `JuneIsNotCommonMoveState()` unqualified, so the C3 rename must make the
+  base `virtual bool IsNotCommonMoveState()` and qualify those two calls `CX2GUUser::` (Aisha `X2GUArme_VioletMage.cpp:34241`, Eve `X2GuEve.cpp:52865`), or Aisha's override recurses.
+- **Hygiene** (`flagcheck.py <FLAG> --range e79168a8^..56880121`, all 14 Eve / Aisha flags): RESULT PASS for every flag, 0 FAIL, 0 ERROR. EVE_CORE `files: 1 PASS, 9 OTHER`
+  (deleted 1: the X2GUUser.cpp rename line); EVE_PASSIVE `2 PASS, 8 OTHER` (X2GUNPC rename lines); ARME_CORE `1 PASS, 13 OTHER`, 448 deleted lines = the `June_X`
+  declarations removed from `X2GUArme_VioletMage.h`; ARME_MEMORIZE `2 PASS, 7 OTHER` (the two caller renames); EVE_TRANSCEND touched no file. Every OTHER row is a
+  merge hunk spanning many June flags, which the per-flag mode cannot judge, so the all-flags check carries it: `flagcheck --with` all 374 `SERV_IRUHADEV_JUNE_*`
+  flags, `--base e79168a8^ --at 56880121`, PASS in 9 files and PASS~ in `X2GuEve.cpp` (17 blank / marker lines from the hoist). Encoding unchanged everywhere.
+  `eol!` 2008 (Eve) / 15 (Aisha) inserted lines take the moved June body's own line ending (the files were already mixed). `junecollapse.py --selftest` PASS.
+  This review's renames: EVE_CORE / ARME_CORE `--worktree` RESULT PASS (OTHER = lines under EVE_LIVE / PASSIVE, ARME_LIVE); `enumscan --check` 0 A/B rows.
+- **Smoke logs:** none, by the user's 2026-10-29 rule (one smoke at the end of the plan).
+- DEPLOY OK: X2_offline.exe is 25,822,720 B, dated 2026-10-29 07:42:56, md5 2a98d4ac1df2d4abc6457f90c660c8d8, equal to X2/US_SERVICE/x2.exe (built at main 6548aebf + this review's 3 code files).
+
 ## Phase C3 - Collapse the shared unit code (Opus 5.5, high)
 
 **Depends on:** C2 review. `X2GUUser`, `X2GameUnit`, `X2GUNPC`, `X2Unit`, `X2RidingPet`, `X2DamageEffect`, `X2SkillTree`, `X2Game` (D0b's

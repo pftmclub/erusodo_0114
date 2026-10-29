@@ -2881,7 +2881,7 @@ protected:
 	void		GetOwnNasodSummonList( const int iUnitClass_, std::vector<CX2GUNPC*>& vecNPC_ );	/// June 3299aee0 ( vslot 0x77c, name unsettled )
 
 	/// June character port Phase CH1l2: inert June_* members of Eve's Common* overrides 0x7c0-0x7ec except CommonFrameMove; nothing calls them until CH1
-	bool		IsBlock9c50ValueCPositive() const;	/// June 32976fb0
+	bool		IsPsykerKinesisHeld() const;	/// June 32976fb0
 
 	/// June character port Phase CH1l3: inert June_* members of Eve's skill-use overrides from vslot 0x7f4 and the helpers they reach; nothing calls them until CH1
 #ifndef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
@@ -2932,7 +2932,7 @@ protected:
 	void		ApplyProjectileModifiers( CX2DamageEffect::CEffect* pChild_ );	/// June 3297bad0
 	void		ApplyInheritCriticalRate( CX2DamageEffect::CEffect* pEffect_ );	/// June 3297b720
 	void		UpdateDashXTargetUnit();			/// June 3297b370
-	void		UpdateBlock9c50Timer();			/// June 329b4a60
+	void		UpdatePsykerKinesisTimer();			/// June 329b4a60
 	void		SetThousandStarLockOn( CX2DamageEffect::CEffect* pEffect_ );
 	void		AddHyperOpticalResearchCriticalRate( CX2DamageEffect::CEffect* pEffect_ );
 	static void	AddTinyDamageTime( CX2GUEve* pGUEve_, CX2DamageEffect::CEffect* pEffect_ );	/// the first lines of June's 329c12a0 cases

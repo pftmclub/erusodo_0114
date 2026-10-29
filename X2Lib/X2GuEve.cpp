@@ -233,7 +233,7 @@ namespace _CONST_EVE_JUNE_CH1k_
 	const int JUNE_CH1K_STR_RECOVERY_ECB					= 0x8fe4;
 
 	/// June CX2Unit +0x3c ( the transcended test ): the pilot's stand-in
-	bool EveUnitFlag3c( const CX2Unit* pUnit_ )
+	bool EveIsTranscendedUnit( const CX2Unit* pUnit_ )
 	{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
@@ -7576,7 +7576,7 @@ void CX2GUEve::CommonFrameMove()
 	FrameMoveNpcEffectSets();
 	UpdateDashXTargetUnit();
 	UpdateQueensControlStack();
-	UpdateBlock9c50Timer();
+	UpdatePsykerKinesisTimer();
 #else
 	KTDXPROFILE();
 
@@ -9686,7 +9686,7 @@ RENDER_HINT CX2GUEve::CommonRender_Prepare()
 
 	case CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS:
 		{
-			if( true == IsBlock9c50ValueCPositive() )
+			if( true == IsPsykerKinesisHeld() )
 			{
 				if( JUNE_CH1L3_UAI_PSYKER_KINESIS != m_FrameDataFuture.syncData.nowAction )
 					m_FrameDataFuture.syncData.nowAction = JUNE_CH1L3_UAI_PSYKER_KINESIS;
@@ -42645,7 +42645,7 @@ void CX2GUEve::DeleteMinorParticle()
 // June 32994750 ( vslot 0xc4 ): the hyper boost handles are skipped for a transcended unit or an awakening effect set
 	CX2GUUser::HyperModeBuffEffectStart();
 
-	if( !( NULL != GetUnit() && true == EveUnitFlag3c( GetUnit() ) ) && false == EveAwakeningEffectSetPresent() )
+	if( !( NULL != GetUnit() && true == EveIsTranscendedUnit( GetUnit() ) ) && false == EveAwakeningEffectSetPresent() )
 	{
 		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
 			m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightEve",		0, 0, 0, 0, 0);
@@ -42985,7 +42985,7 @@ CX2BuffFactorPtr CX2GUEve::GetEnergyOfConcentrationBuffFactorClonePtr() const
 		break;
 
 	case CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS:
-		if( true == IsBlock9c50ValueCPositive() )
+		if( true == IsPsykerKinesisHeld() )
 			fMpConsumption = 0.f;
 		break;
 
@@ -52829,7 +52829,7 @@ void CX2GUEve::GetOwnNasodSummonList( const int iUnitClass_, std::vector<CX2GUNP
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l2 ( JUNE_CHARACTER_EVE_PHASES.md )
 // Inert June class core: Common* overrides 0x7c0-0x7ec except CommonFrameMove ( class map CH1l2 ); nothing calls them until CH1.
 
-bool CX2GUEve::IsBlock9c50ValueCPositive() const
+bool CX2GUEve::IsPsykerKinesisHeld() const
 {
 	return NULL != m_pJuneBlock9c50 && 0.0f < m_pJuneBlock9c50->m_fValueC;
 }
@@ -53710,7 +53710,7 @@ void CX2GUEve::UpdateDashXTargetUnit()
 	}
 }
 
-void CX2GUEve::UpdateBlock9c50Timer()
+void CX2GUEve::UpdatePsykerKinesisTimer()
 {
 	if( NULL != m_pJuneBlock9c50 && 0.f < m_pJuneBlock9c50->m_fValueC && true != m_pJuneBlock9c50->m_bFlag0 )
 	{
@@ -56244,7 +56244,7 @@ void CX2GUEve::ENSI_A_EEP_SPIT_FIRE_GRENADE_FrameMove()
 		break;
 
 	case CX2SkillTree::RNSI_SA_ECN_PSYKER_KINESIS:
-		if( true == IsBlock9c50ValueCPositive() )
+		if( true == IsPsykerKinesisHeld() )
 			return JUNE_CH4B_NO_COOL_TIME;
 		break;
 

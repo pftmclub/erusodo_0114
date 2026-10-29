@@ -271,14 +271,14 @@ namespace _CONST_ARME_JUNE_CH1a_
 {
 	/// June CX2Game +0xc20 ( one byte ) has no March member. Its constructor 32306600 @323077a6 clears it and nothing else in June writes it
 	/// ( CH1a review: byte, setcc, word and dword writes at +0xc20 scanned over all of .text ), so false is June's value. Read by 32cd0200, 32cd21d0.
-	bool GameByteC20()
+	bool IsMPChargeBlockedByGame()
 	{
 		return false;
 	}
 
 	/// June 322cc030: CX2Game +0xb38 = a float ( reader 322f4740 @322f47d2 ). The setter is an unmapped engine callee, so it does nothing
 	/// here ( CH1 / Opus ). Called by 32cd1830 with 2.8.
-	void SetGameFloatB38( const float& fValue_ )
+	void SetGameMemoRiseTimer( const float& fValue_ )
 	{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		if( NULL != g_pX2Game )
@@ -393,7 +393,7 @@ using namespace _CONST_ARME_JUNE_CH1b_;
 namespace _CONST_ARME_JUNE_CH1h_
 {
 	/// June CX2Unit +0x3c ( read by 31fceab0 as the transcended test ): Transcendence has no source yet ( Stage 6 ), so June's empty value.
-	bool UnitFlag3c( const CX2Unit* pUnit_ )
+	bool IsTranscendedUnit( const CX2Unit* pUnit_ )
 	{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
@@ -9694,9 +9694,9 @@ void CX2GUArme_VioletMage::WaitEventProcess()
 		if( true == bChargeTest )
 		{
 #ifdef UNIT_EMOTION
-			if( m_ePlayedEmotion == CX2Unit::ET_NONE && NULL != g_pX2Game && false == GameByteC20() )
+			if( m_ePlayedEmotion == CX2Unit::ET_NONE && NULL != g_pX2Game && false == IsMPChargeBlockedByGame() )
 #else
-			if( NULL != g_pX2Game && false == GameByteC20() )
+			if( NULL != g_pX2Game && false == IsMPChargeBlockedByGame() )
 #endif
 				StateChange( AVSI_CHARGE_MP );
 		}
@@ -12137,7 +12137,7 @@ void CX2GUArme_VioletMage::ChargeMPFrameMove()
 		{
 			if( true == IsMyUnit() )
 			{
-				SetGameFloatB38( 2.8f );
+				SetGameMemoRiseTimer( 2.8f );
 			}
 		}
 
@@ -12353,7 +12353,7 @@ void CX2GUArme_VioletMage::ChargeMPEventProcess()
 				{
 					StateChange( USI_RIDING_ON );
 				}
-				else if( true == GameByteC20() )
+				else if( true == IsMPChargeBlockedByGame() )
 				{
 					bLeave = true;
 				}
@@ -29529,7 +29529,7 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 // June 32cddcc0: March's four hyper boost handles, skipped for a transcended unit or when the awakening effect set exists
 	CX2GUUser::HyperModeBuffEffectStart();
 
-	if( NULL != GetUnit() && true == UnitFlag3c( GetUnit() ) )
+	if( NULL != GetUnit() && true == IsTranscendedUnit( GetUnit() ) )
 		return;
 
 	if( true == AwakeningEffectSetPresent() )
@@ -33530,7 +33530,7 @@ int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
 	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && 1 != GetUnit()->GetUnitData().m_iUnitClassTran )
 		return 0;
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
-	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == UnitFlag3c( GetUnit() ) )
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == IsTranscendedUnit( GetUnit() ) )
 		return 0;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 
@@ -34133,7 +34133,7 @@ const CX2SkillTree::SkillTemplet* CX2GUArme_VioletMage::GetLearnedSkillTemplet( 
 	if( NULL == pSkillTemplet )
 		return NULL;
 
-	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == UnitFlag3c( GetUnit() ) )
+	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == IsTranscendedUnit( GetUnit() ) )
 		return NULL;
 
 	return pSkillTemplet;
@@ -35951,7 +35951,7 @@ bool CX2GUArme_VioletMage::GetPassiveSkillAbilityValue( const int iSkillID_, con
 	if( NULL == pSkillTemplet )
 		return false;
 
-	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == UnitFlag3c( GetUnit() ) )
+	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == IsTranscendedUnit( GetUnit() ) )
 		return false;
 
 	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )

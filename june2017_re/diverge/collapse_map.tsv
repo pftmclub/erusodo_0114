@@ -428,7 +428,7 @@ JuneEveSetLockOnNearstTarget	EveSetLockOnNearstTarget	rename	X2Lib/X2GuEve.cpp	_
 JuneEveSkillIDByUpgrade	EveSkillIDByUpgrade	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH1k_	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32207210		helper; funcmap: none in March: skill ID -> skill templet +0x178 (else the ID itself) | CX2SkillT	C1	free function
 JuneEveSlotPureKey	EveSlotPureKey	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH1l_	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329792cc			C1	free function
 JuneEveTryGetAcquiredSkillAbilityValueSwap	EveTryGetAcquiredSkillAbilityValue	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH2a3_	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	32007c40		June 32007c40 with its upgrade-swap argument: the one helper; the two copies below merge into it	C1	free function
-JuneEveUnitFlag3c	EveUnitFlag3c	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH1k_	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE				C1	free function
+JuneEveUnitFlag3c	EveIsTranscendedUnit	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH1k_	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE			C2 review: was the offset name EveUnitFlag3c	C1	free function
 June_AddEffectSetToSystem	AddEffectSetToSystem	rename	X2Lib/X2GuEve.cpp	CX2GUEve::EveElectraSystem	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	329809c0			C1	member function
 June_AddHyperOpticalResearchCriticalRate	AddHyperOpticalResearchCriticalRate	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329c12a0			C1	member function
 June_AddTinyDamageTime	AddTinyDamageTime	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329c12a0			C1	member function
@@ -554,7 +554,7 @@ June_GetMaxDashJumpCount	GetMaxDashJumpCount	rename	X2Lib/X2GuEve.cpp	CX2GUEve	S
 June_GetMaxDashJumpUpCount	GetMaxDashJumpUpCount	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32976f00			C1	member function
 June_GetQueensControlCount	GetQueensControlCount	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3299b440			C1	member function
 June_GetSkillNumericalByName	GetSkillNumericalByName	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	32007910			C1	member function
-June_IsBlock9c50ValueCPositive	IsBlock9c50ValueCPositive	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32976fb0			C1	member function
+June_IsBlock9c50ValueCPositive	IsPsykerKinesisHeld	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32976fb0		C2 review: was the offset name IsBlock9c50ValueCPositive	C1	member function
 June_IsPhotonBlinkSkill	IsPhotonBlinkSkill	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32968db0			C1	member function
 June_LogEveSkill	LogEveSkill	rename	X2Lib/X2GuEve.cpp	_CONST_EVE_JUNE_CH2A_	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL				C1	free function
 June_OberonGuardFrameMove	OberonGuardFrameMove	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329ae9a0			C1	member function
@@ -577,7 +577,7 @@ June_SummonElectronicField	SummonElectronicField	rename	X2Lib/X2GuEve.cpp	CX2GUE
 June_SummonOpenMindAttackResult	SummonOpenMindAttackResult	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE	3275a120			C1	member function
 June_SummonSurfaceCuting	SummonSurfaceCuting	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	3299b810			C1	member function
 June_TryGetEquippedSkillAbilityValue	TryGetEquippedSkillAbilityValue	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	32007ce0			C1	member function
-June_UpdateBlock9c50Timer	UpdateBlock9c50Timer	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329b4a60			C1	member function
+June_UpdateBlock9c50Timer	UpdatePsykerKinesisTimer	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329b4a60		C2 review: was the offset name UpdateBlock9c50Timer	C1	member function
 June_UpdateDashXTargetUnit	UpdateDashXTargetUnit	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297b370			C1	member function
 June_UpdateEveRecoveryTooltip	UpdateEveRecoveryTooltip	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329c3da0			C1	member function
 June_UpdateQueensControlStack	UpdateQueensControlStack	rename	X2Lib/X2GuEve.cpp	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3299b790			C1	member function
@@ -994,7 +994,7 @@ June_Destructor	Destructor	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_Violet
 June_EndHellStoneWindow	EndHellStoneWindow	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cc2ab0			C2	member function
 June_EraseMemoRise	EraseMemoRise	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32ce15a0			C2	member function
 June_FlushMpWithRefund	FlushMpWithRefund	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cc2b90			C2	member function
-June_GameByteC20	GameByteC20	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1a_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cd0200			C2	free function
+June_GameByteC20	IsMPChargeBlockedByGame	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1a_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cd0200		C2 review: was the offset name GameByteC20	C2	free function
 June_GameRefreshMemoRise	GameRefreshMemoRise	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1h_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	322deb80			C2	free function
 June_GetLearnedSkillTemplet	GetLearnedSkillTemplet	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	31fcad70			C2	member function
 June_GetMemoRiseEntry	GetMemoRiseEntry	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cc7df0			C2	member function
@@ -1035,7 +1035,7 @@ June_RidingOffStart	RidingOffStart	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArm
 June_SelectSkillSlotKind	SelectSkillSlotKind	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cc7e60			C2	member function
 June_SetDistortionSummonInfo	SetDistortionSummonInfo	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL	3230c1a0			C2	member function
 June_SetEquippedSkillFuncHead	SetEquippedSkillFuncHead	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cede00			C2	member function
-June_SetGameFloatB38	SetGameFloatB38	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1a_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cd1830			C2	free function
+June_SetGameFloatB38	SetGameMemoRiseTimer	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1a_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cd1830		C2 review: was the offset name SetGameFloatB38	C2	free function
 June_SetHellDropSummonInfo	SetHellDropSummonInfo	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL	3230c1a0			C2	member function
 June_SetMeteoShowerValues	SetMeteoShowerValues	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL	32cede00			C2	member function
 June_SetRuinValues	SetRuinValues	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL	32cede00			C2	member function
@@ -1048,7 +1048,7 @@ June_SpecialAttackLookup	SpecialAttackLookup	rename	X2Lib/X2GUArme_VioletMage.cp
 June_SpecialAttackUse	SpecialAttackUse	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32ced640			C2	member function
 June_SweepMemoRise	SweepMemoRise	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32ce1770			C2	member function
 June_TryGetAcquiredSkillAbilityValue	TryGetAcquiredSkillAbilityValue	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1c_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32007c40			C2	free function
-June_UnitFlag3c	UnitFlag3c	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1h_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	31fceab0			C2	free function
+June_UnitFlag3c	IsTranscendedUnit	rename	X2Lib/X2GUArme_VioletMage.cpp	_CONST_ARME_JUNE_CH1h_	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	31fceab0		C2 review: was the offset name UnitFlag3c	C2	free function
 June_Vslot828	IsNotCommonMoveState	rename	X2Lib/X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	32cc7b90		the class override of user vslot 0x828 (base JuneIsNotCommonMoveState 31fd7640, renamed with it in C3); no caller yet (low confidence)	C2	member function
 JuneMpRefundData	MpRefundData	rename	X2Lib/X2GUArme_VioletMage.h	CX2GUArme_VioletMage::JuneMpRefundData	SERV_IRUHADEV_JUNE_CHAR_ARME_CORE				C2	member function
 JuneBuffNewFlagFirstApply	BuffNewFlagFirstApply	rename	X2Lib/X2BuffBehaviorTemplet.cpp		SERV_IRUHADEV_JUNE_BUFF_DEBUG				C3	free function
@@ -1969,7 +1969,7 @@ JuneEnchantAccumulationRose	EnchantAccumulationRose	class	X2Lib/X2GameUnit.h	CX2
 JuneImmuneBuffList	ImmuneBuffList	class	X2Lib/X2GameUnit.h	CX2GameUnit	SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG	33487988			C4	class
 JuneUseOwnersEnchant	UseOwnersEnchant	class	X2Lib/X2GameUnit.h	CX2GameUnit	SERV_IRUHADEV_JUNE_ENCHANT_PARITY	32289090			C4	class
 JUNE_SUMMON_HELPER_FLAG	SUMMON_HELPER_FLAG	class	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	322ece70			C4	class
-JuneEveBlock9c50	EveBlock9c50	class	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0			C4	class
+JuneEveBlock9c50	PsykerKinesisData	class	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: was the offset name EveBlock9c50	C4	class
 GetJuneDeferredSceneMode	GetDeferredSceneMode	rename	X2Lib/X2InstanceData.h	CX2InstanceData	SERV_IRUHADEV_JUNE_QUEST_SCENE				C4	member function
 GetJuneDeferredSceneQuestID	GetDeferredSceneQuestID	rename	X2Lib/X2InstanceData.h	CX2InstanceData	SERV_IRUHADEV_JUNE_QUEST_SCENE	31d88bf0			C4	member function
 GetJuneStoryBookNew	GetStoryBookNew	rename	X2Lib/X2InstanceData.h	CX2InstanceData	SERV_IRUHADEV_JUNE_QUEST_STORY	32478ecc			C4	member function
@@ -3574,10 +3574,15 @@ m_iJune9c28	m_iThousandStarTransMemoKind	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IR
 m_iJune9c2c	m_iQueensControlLevel	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329b4060		P_ECE_QUEENS_CONTROL skill level for the buff stack (GuEve.cpp:47159,56596)	C5	data member
 m_iJune9c48	m_iUpgradeLaserEffectHandle	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE			damage effect handle of the upgraded laser (GuEve.cpp:54172,54178)	C5	data member
 m_iJuneAddAirDashCount	m_iAddAirDashCount	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE				C5	data member
-m_iJuneClock9c44	m_iClock9c44	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329b4060			C5	data member
+m_iJuneClock9c44	m_iLastParryClock	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329b4060		C2 review: was the offset name m_iClock9c44	C5	data member
 m_iJuneSummonNpcUid	m_iSummonNpcUid	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329ae670			C5	data member
 m_mapJuneNpcEffectSet	m_mapNpcEffectSet	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3299a140			C5	data member
-m_pJuneBlock9c50	m_pBlock9c50	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329ae670			C5	data member
+m_pJuneBlock9c50	m_pPsykerKinesisData	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	329ae670		C2 review: was the offset name m_pBlock9c50	C5	data member
+m_bFlag0	m_bReleased	rename	X2Lib/X2GuEve.h	PsykerKinesisData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: offset field name of the Psyker Kinesis hold block (June +0x9c50)	C5	data member
+m_hEffectSet0	m_hStartEffectSet	rename	X2Lib/X2GuEve.h	PsykerKinesisData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: offset field name of the Psyker Kinesis hold block (June +0x9c50)	C5	data member
+m_hEffectSet1	m_hAttackBallEffectSet	rename	X2Lib/X2GuEve.h	PsykerKinesisData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: offset field name of the Psyker Kinesis hold block (June +0x9c50)	C5	data member
+m_fValueC	m_fRemainTime	rename	X2Lib/X2GuEve.h	PsykerKinesisData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: offset field name of the Psyker Kinesis hold block (June +0x9c50)	C5	data member
+m_fValue10	m_fPowerRate	rename	X2Lib/X2GuEve.h	PsykerKinesisData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297a7b0		C2 review: offset field name of the Psyker Kinesis hold block (June +0x9c50)	C5	data member
 m_pJuneDashXFireBall	m_pDashXFireBall	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297f290			C5	data member
 m_pJuneDashXTargetUnit	m_pDashXTargetUnit	rename	X2Lib/X2GuEve.h	CX2GUEve	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE	3297b370			C5	data member
 m_vecJuneEffectSetHandle	m_vecEffectSetHandle	rename	X2Lib/X2GuEve.h	CX2GUEve::EveElectraEffectData	SERV_IRUHADEV_JUNE_CHAR_EVE_CORE				C5	data member
