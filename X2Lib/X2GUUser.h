@@ -4968,6 +4968,9 @@ private:
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 		bool			m_bHideNoRenderable;
 #endif FACE_OFF_MONSTER_HEAD_TEST
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+		bool			m_bSDOnePieceAvatar;	// June +0x8fc0: the one-piece is a DITT_SD_ONE_PEACE_AVATAR item (reader 31fdc070: backlog Stage 11)
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 
 #ifdef SERV_ADD_TITLE_CONDITION
 		unsigned char m_ucDieReason;

@@ -32,6 +32,9 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 
 
 			UT_END,
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			UT_AIN		= 12,	// June class, after UT_END so it keeps its value
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		};
 
 		enum UNIT_CLASS

@@ -10801,3 +10801,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-march-divergence D1-3b: SetSkillCoolTimeLeft runs the event cool-time rate step always and GetSkillCoolTimeDecreaseRate cuts only in a dungeon game ( June 3234cc10 ); compiles March's SERV_BALANCE_FINALITY_SKILL_EVENT rate block without defining that flag. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3d: the division item group parser ( June 32814170 ) fills CX2ItemManager::IsDivisionItem's groups from every division templet block outside types 55 / 85 / 89-93 ( m_eItemID and m_eItemID_INT, plus each listed id's Cobo clone from CoboRenderDivisionItemTemplet.lua through AddCoboDivisionItemTemplet_LUA = June 3280b550 ). Revert: undefine the flag and SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP.
+#define SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP ) && ( !defined( SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP needs SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET ( the division templet shell ) and SERV_IRUHADEV_JUNE_ENUM_NAMES ( the DITT names )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-3d: CX2GUUser::UpdateNotRenderingOtherEquipList is June's ( 3201c3a0 ): the one-piece avatar, face accessories and arm accessory hide equips by division group ( IsDivisionItem ) instead of March's IsOnePieceAvatar* / IsNoRender* id lists, and it records the SD one-piece flag ( June +0x8fc0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP )
+#error SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP needs SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP ( the groups it tests )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+//////////////////////////////////////////////////////////////////////////

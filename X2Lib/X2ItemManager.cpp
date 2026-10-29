@@ -209,6 +209,22 @@ void CX2ItemManager::AddDivisionItemTemplet_LUA()
 	// - every other type (81 included) -> 328186c4: 32814170( table, m_eType ) (Stage 11), then 328186d1.
 	// 328186d1 is the rest of the chain, each parser on the same table: 32810700, 328144f0, 32814da0, 32817470, 32815af0. Only
 	// 32814da0 (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET) is ported; the others are JUNE_PORT_BACKLOG_ORDER.md Stage 11.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+	switch( iType )
+	{
+	case DITT_CUSTOM_RENDER:
+	case DITT_TEST_RENDER_DIVISION_SETTING:
+	case DITT_NEW_ENCHANT_ITEM_EL_HAMER_ITEM_ID:
+	case DITT_NEW_ENCHANT_ITEM_ENCHANT_STONE_ITEM_ID:
+	case DITT_NEW_ENCHANT_ITEM_FLU_STONE_ITEM_ID:
+	case DITT_NEW_ENCHANT_ITEM_FLU2_STONE_ITEM_ID:
+	case DITT_NEW_ENCHANT_ITEM_RECOVERY_STONE_ITEM_ID:
+		break;	// their own first parsers 32816d60 / 328161d0 (Stage 11)
+	default:
+		ParseDivisionItemGroup( luaManager, iType );	// 328186c4
+		break;
+	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 	ParseConditionEquipPlayEffectSet( luaManager );
 }
 
@@ -291,6 +307,50 @@ bool CX2ItemManager::IsDivisionItem( int iDivisionType, int iItemID ) const
 
 	return ( it->second.end() != it->second.find( iItemID ) );
 }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+
+// June2017 3280b550 (bound by 31d95080 @31db3089): one CoboRenderDivisionItemTemplet.lua pair; the first pair per item id wins.
+bool CX2ItemManager::AddCoboDivisionItemTemplet_LUA( int iItemID, int iCoboItemID )
+{
+	if( iItemID <= 0 || iCoboItemID <= 0 )
+		return false;
+
+	m_mapCoboDivisionItem.insert( std::make_pair( iItemID, iCoboItemID ) );
+	return true;
+}
+
+// June2017 32814170: m_eItemID and m_eItemID_INT plus their Cobo clones become the type's group; the first block per type wins.
+void CX2ItemManager::ParseDivisionItemGroup( KLuaManager& luaManager, int iDivisionType )
+{
+	std::set<int> setItemID;
+	const char* apszListName[] = { "m_eItemID", "m_eItemID_INT" };
+	for( int iList = 0; iList < static_cast<int>( ARRAY_SIZE( apszListName ) ); ++iList )
+	{
+		if( false == luaManager.BeginTable( apszListName[iList] ) )
+			continue;
+
+		int iItemID = -1;
+		int iIndex = 1;
+		while( true == luaManager.GetValue( iIndex, iItemID ) )
+		{
+			setItemID.insert( iItemID );
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+
+	if( true == setItemID.empty() )
+		return;
+
+	for( std::map< int, int >::const_iterator it = m_mapCoboDivisionItem.begin(); m_mapCoboDivisionItem.end() != it; ++it )
+	{
+		if( setItemID.end() != setItemID.find( it->first ) )
+			setItemID.insert( it->second );
+	}
+
+	m_mapDivisionItemGroup.insert( std::make_pair( iDivisionType, setItemID ) );
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 
 // The load half. June's ResetItemManager (31edda90) runs RenderDivisionItemTemplet.lua with g_pItemManager = this; only that file
 // carries the CEPE block. load-time: offline_server.log is not open yet, so the count line goes to ErrorLog.txt (as

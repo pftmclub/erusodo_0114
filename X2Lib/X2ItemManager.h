@@ -578,6 +578,43 @@ class CX2ItemManager
 		{
 			DITT_LOOP_ANIM_ITEM_ID					= 72,	// 0x48: the GUUser CommonFrameMove block before CEPE (3295c960, Stage 11)
 			DITT_CONDITION_EQUIP_PLAY_EFFECT_SET	= 81,	// 0x51: the group key hard-coded in 32814da0
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2_FACE3								= 31,
+			DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2									= 32,
+			DITT_ITEM_ID_NOT_RENDERING_HAIR											= 33,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR											= 34,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1						= 35,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1_FACE2					= 36,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE_FACE2_FACE3			= 37,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_HAIR_AND_ALL_ACCESSORY		= 38,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_AND_FACE1					= 39,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE_FACE2_FACE3	= 40,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_WEAPON						= 41,
+			DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE2_FACE3						= 42,
+			DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE1_FACE3						= 43,
+			DITT_ITEM_ID_NOT_RENDERING_HAND											= 44,
+			DITT_ITEM_ID_NOT_RENDERING_NASOD_HAND									= 47,
+			DITT_CUSTOM_RENDER														= 55,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ALL_FACE_ACCESSARY			= 64,
+			DITT_ITEM_ID_NOT_RENDERING_HAIR_AND_ALL_FACE_ACCESSARY					= 65,
+			DITT_ITEM_ID_INVISIBLE_ONE_PIECE_AVATAR									= 73,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE				= 74,
+			DITT_SD_ONE_PEACE_AVATAR												= 79,
+			DITT_TEST_RENDER_DIVISION_SETTING										= 85,
+			DITT_NEW_ENCHANT_ITEM_EL_HAMER_ITEM_ID									= 89,
+			DITT_NEW_ENCHANT_ITEM_ENCHANT_STONE_ITEM_ID								= 90,
+			DITT_NEW_ENCHANT_ITEM_FLU_STONE_ITEM_ID									= 91,
+			DITT_NEW_ENCHANT_ITEM_FLU2_STONE_ITEM_ID								= 92,
+			DITT_NEW_ENCHANT_ITEM_RECOVERY_STONE_ITEM_ID							= 93,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ARM							= 94,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_AC_BODY						= 95,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_NOT_FACE1					= 98,
+			DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1				= 99,
+			DITT_ITEM_ID_NO_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET2				= 100,
+			DITT_ITEM_ID_ONE_PICE_AVATAR_NOT_RENDERING_FACE_AND_ALL_FACE_ACCESSARY	= 106,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_BODY							= 1001,
+			DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR							= 1002,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 		};
 		// June Enum.lua CONDITION_EQUIP_PLAY_EFFECT_SET (June's own spelling ALWYAS kept)
 		enum CONDITION_EQUIP_PLAY_EFFECT_SET
@@ -604,8 +641,15 @@ class CX2ItemManager
 		bool	OpenDivisionItemTempletFile( const WCHAR* pFileName );										// the load in ResetItemManager 31edda90
 		bool	GetConditionEquipPlayEffectSet( int iItemID, ConditionEquipPlayEffectSet& kRecord ) const;	// 3280b640
 		bool	IsDivisionItem( int iDivisionType, int iItemID ) const;										// 32807db0
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+		bool	AddCoboDivisionItemTemplet_LUA( int iItemID, int iCoboItemID );								// 3280b550
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 	private:
 		void	ParseConditionEquipPlayEffectSet( KLuaManager& luaManager );								// 32814da0
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+		void	ParseDivisionItemGroup( KLuaManager& luaManager, int iDivisionType );						// 32814170
+		std::map< int, int >								m_mapCoboDivisionItem;				// June +0x220: item id -> its Cobo clone's id
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 		std::map< int, std::set<int> >						m_mapDivisionItemGroup;				// June +0x230: DITT type -> item ids
 		std::map< int, ConditionEquipPlayEffectSet >	m_mapConditionEquipPlayEffectSet;	// June +0x380: item id -> record
 		int		m_iEquipFxLists;				// load-line counters (this port's, not June's)

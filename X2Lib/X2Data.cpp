@@ -1865,6 +1865,10 @@ CX2ItemManager* CX2Data::ResetItemManager()
 	// June2017 ResetItemManager 31edda90 loads ... ItemConvertTable.lua, ItemManager.lua, CoordiItem.lua (encrypted),
 	// CoboRenderDivisionItemTemplet.lua, DivisionItemTemplet.lua, RenderDivisionItemTemplet.lua, GuildAgitShopItem.lua ... March loads
 	// none of the five after ItemConvertTable.lua; only RenderDivisionItemTemplet.lua carries the CEPE block (the other two: Stage 11).
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
+	if( false == m_pItemManager->OpenScriptFile( L"CoboRenderDivisionItemTemplet.lua" ) )
+		ErrorLogMsg( XEM_ERROR142, L"DIVISION_GROUP CoboRenderDivisionItemTemplet.lua NOT LOADED: Cobo clones stay out of the division groups; adopt it into data036.kom." );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP
 	m_pItemManager->OpenDivisionItemTempletFile( L"RenderDivisionItemTemplet.lua" );
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 

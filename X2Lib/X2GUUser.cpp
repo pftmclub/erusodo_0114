@@ -1227,6 +1227,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	m_bHideNoRenderable = false;
 #endif FACE_OFF_MONSTER_HEAD_TEST
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+	m_bSDOnePieceAvatar = false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 
 #ifdef SERV_ADD_TITLE_CONDITION
 	m_ucDieReason = KEGS_USER_UNIT_DIE_REQ::UUDR_UNKNOWN;
@@ -39970,6 +39973,980 @@ void CX2GUUser::CreateWeapon(
 */
 void CX2GUUser::UpdateNotRenderingOtherEquipList()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+#if !defined( MODIFY_AFTER_IMAGE ) || !defined( FACE_OFF_MONSTER_HEAD_TEST ) || !defined( SERV_NEW_ONE_PIECE_AVATAR_SLOT )
+#error SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP needs MODIFY_AFTER_IMAGE, FACE_OFF_MONSTER_HEAD_TEST and SERV_NEW_ONE_PIECE_AVATAR_SLOT
+#endif
+	// June 3201c3a0
+	SetHideNoRenderable( false );
+	m_pHairXSkinMesh = NULL;
+	m_bSDOnePieceAvatar = false;
+
+	CX2ItemManager* pItemManager = g_pData->GetItemManager();
+	bool bOnePieceAvatarCheck = false;
+	bool bRenderHairAndFace1 = false;
+	bool bRenderHair = false;
+	bool bNotRenderingHairItem = false;
+	bool bDrawFaceAccessorySet = false;
+	const bool bArmeOrAin = ( CX2Unit::UT_AIN == GetUnitType() || CX2Unit::UT_ARME == GetUnitType() );
+	CX2EqipPtr pOnePieceEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_ONEPIECE_FASHION );
+
+	// June keeps one iterator: the SET2 pass starts after the first SET1 item; both test the UID's low dword only (JUNE_BUGS)
+	bool bDrawFaceAccessoryWithoutOnePiece = false;
+	vector<CX2EqipPtr>::iterator itViewEquip = m_ViewEqipList.begin();
+	for( ; itViewEquip != m_ViewEqipList.end() && false == bDrawFaceAccessoryWithoutOnePiece; ++itViewEquip )
+	{
+		if( 0 < static_cast<int>( (*itViewEquip)->GetItemUID() )
+			&& true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, (*itViewEquip)->GetItemID() ) )
+			bDrawFaceAccessoryWithoutOnePiece = true;
+	}
+	if( true == bDrawFaceAccessoryWithoutOnePiece )
+	{
+		for( ; itViewEquip != m_ViewEqipList.end(); ++itViewEquip )
+		{
+			if( 0 < static_cast<int>( (*itViewEquip)->GetItemUID() )
+				&& true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NO_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET2, (*itViewEquip)->GetItemID() ) )
+				(*itViewEquip)->SetShowObject( false );
+		}
+	}
+
+	if( NULL != pOnePieceEquip )
+	{
+		const int iOnePieceItemID = pOnePieceEquip->GetItemID();
+
+		// June has no NULL test on the game; March can build users before g_pX2Game is set
+		bool bNearPortal = false;
+		if( NULL != g_pX2Game && CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() )
+			bNearPortal = static_cast<CX2DungeonGame*>( g_pX2Game )->IsNearPortalLineMap();
+		else if( NULL != g_pX2Game && CX2Main::XS_BATTLE_FIELD == g_pMain->GetNowStateID() )
+			bNearPortal = static_cast<CX2BattleFieldGame*>( g_pX2Game )->IsNearPortalLineMap();
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, pViewEquip->GetItemID() ) )
+				{
+					bNotRenderingHairItem = true;
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+				else
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			bRenderHair = true;
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_AC_BODY, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, pViewEquip->GetItemID() ) )
+					bDrawFaceAccessorySet = true;
+
+				if( true == pViewEquip->GetShowObject() || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_BODY:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ARM, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_ARM:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1_FACE2, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE_FACE2_FACE3, iOnePieceItemID ) )
+		{
+			SetHideNoRenderable( true );
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_FACE:
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_HAIR_AND_ALL_ACCESSORY, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						bOnePieceAvatarCheck = true;
+						pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_BODY:
+					case CX2Unit::EP_AC_LEG:
+					case CX2Unit::EP_AC_ARM:
+					case CX2Unit::EP_AC_NECKLESS:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_AND_FACE1, iOnePieceItemID ) )
+		{
+			bRenderHairAndFace1 = true;
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, pViewEquip->GetItemID() ) )
+					bDrawFaceAccessorySet = true;
+
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_NOT_FACE1, iOnePieceItemID ) )
+		{
+			bRenderHair = true;
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, pViewEquip->GetItemID() ) )
+					bDrawFaceAccessorySet = true;
+
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE, iOnePieceItemID ) )
+		{
+			bRenderHair = true;
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( NULL != pViewEquip && ( true == pViewEquip->GetShowObject() || true == bNearPortal ) )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_BODY:
+					case CX2Unit::EP_AC_LEG:
+					case CX2Unit::EP_AC_ARM:
+					case CX2Unit::EP_AC_NECKLESS:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_BODY, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				switch( pViewEquip->GetEqipPos() )
+				{
+				case CX2Unit::EP_DEFENCE_HAIR:
+					bOnePieceAvatarCheck = true;
+					pViewEquip->SetShowObject( false );
+					if( NULL == m_pHairXSkinMesh )
+						m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+					break;
+				case CX2Unit::EP_DEFENCE_HAND:
+				case CX2Unit::EP_AC_FACE1:
+				case CX2Unit::EP_AC_FACE2:
+				case CX2Unit::EP_AC_NECKLESS:
+				case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+					bOnePieceAvatarCheck = true;
+					pViewEquip->SetShowObject( false );
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE_FACE2_FACE3, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_BODY:
+					case CX2Unit::EP_AC_LEG:
+					case CX2Unit::EP_AC_ARM:
+					case CX2Unit::EP_AC_NECKLESS:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_WEAPON, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_FACE:
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_BODY:
+					case CX2Unit::EP_AC_LEG:
+					case CX2Unit::EP_AC_ARM:
+					case CX2Unit::EP_AC_RING:
+					case CX2Unit::EP_AC_NECKLESS:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+					case CX2Unit::EP_AC_TEMP4:	// June EP_AC_RING2
+					case CX2Unit::EP_RAVEN_LEFT_ARM:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ALL_FACE_ACCESSARY, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PICE_AVATAR_NOT_RENDERING_FACE_AND_ALL_FACE_ACCESSARY, iOnePieceItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin || true == bNearPortal )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_DEFENCE_FACE:
+					case CX2Unit::EP_DEFENCE_BODY:
+					case CX2Unit::EP_DEFENCE_LEG:
+					case CX2Unit::EP_DEFENCE_HAND:
+					case CX2Unit::EP_DEFENCE_FOOT:
+					case CX2Unit::EP_AC_FACE1:
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						bOnePieceAvatarCheck = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_SD_ONE_PEACE_AVATAR, iOnePieceItemID ) )
+			m_bSDOnePieceAvatar = true;
+	}
+
+	bool bRavenLeftArmHidden = false;
+	if( NULL == pOnePieceEquip
+		|| true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_INVISIBLE_ONE_PIECE_AVATAR, pOnePieceEquip->GetItemID() ) )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+		{
+			if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+				&& true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_NASOD_HAND, pViewEquip->GetItemID() ) )
+			{
+				for( vector<CX2EqipPtr>::iterator itArmEquip = m_ViewEqipList.begin(); itArmEquip != m_ViewEqipList.end(); ++itArmEquip )
+				{
+					if( CX2Unit::EP_RAVEN_LEFT_ARM == (*itArmEquip)->GetEqipPos() )
+					{
+						(*itArmEquip)->SetShowObject( false );
+						bRavenLeftArmHidden = true;
+					}
+				}
+			}
+		}
+	}
+
+	CX2EqipPtr pACArmEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_ARM );
+	if( false == bRavenLeftArmHidden && NULL != pACArmEquip
+		&& true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAND, pACArmEquip->GetItemID() ) )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+		{
+			if( CX2Unit::EP_DEFENCE_HAND == pViewEquip->GetEqipPos() )
+				pViewEquip->SetShowObject( false );
+		}
+	}
+
+	// June packs these two into one mask byte and skips the face2 hide below when both are set
+	bool bFace1HidesHairFace2Face3 = false;
+	bool bFace3HiddenByFace1 = false;
+	CX2EqipPtr pNoRenderFactorEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_FACE1 );
+	if( NULL != pNoRenderFactorEquip )
+	{
+		const int iFace1ItemID = pNoRenderFactorEquip->GetItemID();
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2_FACE3, iFace1ItemID ) )
+		{
+			bFace1HidesHairFace2Face3 = true;
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_AC_FACE1:
+						if( true == bOnePieceAvatarCheck )
+							pViewEquip->SetShowObject( false );
+						break;
+					case CX2Unit::EP_AC_FACE2:
+						pViewEquip->SetShowObject( false );
+						break;
+					case CX2Unit::EP_AC_FACE3:
+						if( false == bOnePieceAvatarCheck )
+						{
+							pViewEquip->SetShowObject( false );
+							bFace3HiddenByFace1 = true;
+						}
+						break;
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						if( true == bOnePieceAvatarCheck )
+							pViewEquip->SetShowObject( false );
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+		else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2, iFace1ItemID ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+				{
+					switch( pViewEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_DEFENCE_HAIR:
+						pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+						break;
+					case CX2Unit::EP_AC_FACE2:
+					case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+						pViewEquip->SetShowObject( false );
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+		else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, iFace1ItemID ) )
+		{
+			if( false == bOnePieceAvatarCheck || true == bNotRenderingHairItem )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin ) && CX2Unit::EP_DEFENCE_HAIR == pViewEquip->GetEqipPos() )
+					{
+						if( false == bOnePieceAvatarCheck && false == bNotRenderingHairItem )
+							pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+					}
+				}
+			}
+			else
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+					{
+						switch( pViewEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							if( true == bDrawFaceAccessorySet )
+								pViewEquip->SetShowObject( false );
+							break;
+						case CX2Unit::EP_AC_FACE1:
+							if( false == bDrawFaceAccessorySet )
+								pViewEquip->SetShowObject( false );
+							break;
+						case CX2Unit::EP_AC_FACE2:
+						case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+							pViewEquip->SetShowObject( false );
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+		else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE2_FACE3, iFace1ItemID ) )
+		{
+			if( true == bOnePieceAvatarCheck )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+						&& ( CX2Unit::EP_AC_FACE1 == pViewEquip->GetEqipPos() || CX2Unit::EP_AC_TEMP3 == pViewEquip->GetEqipPos() ) )
+						pViewEquip->SetShowObject( false );
+				}
+			}
+			else
+			{
+				SetHideNoRenderable( true );
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+					{
+						switch( pViewEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							pViewEquip->SetShowObject( false );
+							if( NULL == m_pHairXSkinMesh )
+								m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+							break;
+						case CX2Unit::EP_DEFENCE_FACE:
+						case CX2Unit::EP_AC_FACE2:
+						case CX2Unit::EP_AC_FACE3:
+						case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+							pViewEquip->SetShowObject( false );
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+		else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_AND_ALL_FACE_ACCESSARY, iFace1ItemID ) )
+		{
+			if( true == bOnePieceAvatarCheck )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+						&& ( CX2Unit::EP_AC_FACE1 == pViewEquip->GetEqipPos() || CX2Unit::EP_AC_TEMP3 == pViewEquip->GetEqipPos() ) )
+						pViewEquip->SetShowObject( false );
+				}
+			}
+			else
+			{
+				SetHideNoRenderable( true );
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+					{
+						switch( pViewEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							pViewEquip->SetShowObject( false );
+							if( NULL == m_pHairXSkinMesh )
+								m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+							break;
+						case CX2Unit::EP_AC_FACE2:
+						case CX2Unit::EP_AC_FACE3:
+						case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+							pViewEquip->SetShowObject( false );
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	pNoRenderFactorEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_FACE2 );
+	if( NULL != pNoRenderFactorEquip )
+	{
+		const int iFace2ItemID = pNoRenderFactorEquip->GetItemID();
+		if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE1_FACE3, iFace2ItemID ) )
+		{
+			if( true == bOnePieceAvatarCheck )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+						&& ( CX2Unit::EP_AC_FACE2 == pViewEquip->GetEqipPos() || CX2Unit::EP_AC_TEMP3 == pViewEquip->GetEqipPos() ) )
+						pViewEquip->SetShowObject( false );
+				}
+			}
+			else if( false == bFace1HidesHairFace2Face3 || false == bFace3HiddenByFace1 )
+			{
+				SetHideNoRenderable( true );
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+					{
+						switch( pViewEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							pViewEquip->SetShowObject( false );
+							if( NULL == m_pHairXSkinMesh )
+								m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+							break;
+						case CX2Unit::EP_DEFENCE_FACE:
+						case CX2Unit::EP_AC_FACE1:
+						case CX2Unit::EP_AC_FACE3:
+						case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+							pViewEquip->SetShowObject( false );
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+		else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, iFace2ItemID ) )
+		{
+			if( false == bOnePieceAvatarCheck || true == bNotRenderingHairItem )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( ( true == pViewEquip->GetShowObject() || true == bArmeOrAin ) && CX2Unit::EP_DEFENCE_HAIR == pViewEquip->GetEqipPos() )
+					{
+						if( false == bOnePieceAvatarCheck && false == bNotRenderingHairItem )
+							pViewEquip->SetShowObject( false );
+						if( NULL == m_pHairXSkinMesh )
+							m_pHairXSkinMesh = pViewEquip->GetNormalModel(0);
+					}
+				}
+			}
+			else
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+				{
+					if( true == pViewEquip->GetShowObject() || true == bArmeOrAin )
+					{
+						switch( pViewEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							if( true == bDrawFaceAccessorySet )
+								pViewEquip->SetShowObject( false );
+							break;
+						case CX2Unit::EP_AC_FACE1:
+							if( false == bDrawFaceAccessorySet )
+								pViewEquip->SetShowObject( false );
+							break;
+						case CX2Unit::EP_AC_FACE2:
+						case CX2Unit::EP_AC_TEMP3:	// June EP_AC_EARRING
+							pViewEquip->SetShowObject( false );
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// stand-in: June's SetpHairSkinMesh (3322a5d0) also refs the mesh; March's only stores it (june-engine)
+	if( NULL != m_pAfterImage )
+		m_pAfterImage->SetpHairSkinMesh( m_pHairXSkinMesh );
+
+	bool bFace1HidesHair = false;
+	bool bFace1HidesFace = false;
+	bool bFace2HidesHair = false;
+	BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+	{
+		if( CX2Unit::EP_AC_FACE1 == pViewEquip->GetEqipPos() )
+		{
+			if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, pViewEquip->GetItemID() )
+				|| true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2_FACE3, pViewEquip->GetItemID() )
+				|| true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, pViewEquip->GetItemID() ) )
+			{
+				bFace1HidesHair = true;
+			}
+			else if( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE2_FACE3, pViewEquip->GetItemID() ) )
+			{
+				bFace1HidesFace = true;
+				bFace1HidesHair = true;
+			}
+		}
+		else if( CX2Unit::EP_AC_FACE2 == pViewEquip->GetEqipPos()
+			&& true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE1_FACE3, pViewEquip->GetItemID() ) )
+		{
+			bFace2HidesHair = true;
+		}
+	}
+
+	if( false == bOnePieceAvatarCheck || true == bRenderHairAndFace1 )
+	{
+		if( true == bFace1HidesHair )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				switch( pViewEquip->GetEqipPos() )
+				{
+				case CX2Unit::EP_DEFENCE_HAIR:
+				case CX2Unit::EP_AC_FACE2:
+					pViewEquip->SetShowObject( false );
+					break;
+				case CX2Unit::EP_DEFENCE_FACE:
+					if( true == bFace1HidesFace )
+						pViewEquip->SetShowObject( false );
+					else
+						pViewEquip->SetShowObject( true );
+					break;
+				case CX2Unit::EP_AC_FACE1:
+					pViewEquip->SetShowObject( true );
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		else if( true == bFace2HidesHair )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				switch( pViewEquip->GetEqipPos() )
+				{
+				case CX2Unit::EP_DEFENCE_HAIR:
+				case CX2Unit::EP_DEFENCE_FACE:
+				case CX2Unit::EP_AC_FACE1:
+					pViewEquip->SetShowObject( false );
+					break;
+				case CX2Unit::EP_AC_FACE2:
+					pViewEquip->SetShowObject( true );
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		else
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+			{
+				if( CX2Unit::EP_DEFENCE_HAIR == pViewEquip->GetEqipPos() )
+					pViewEquip->SetShowObject( true );
+			}
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+		{
+			const CX2Unit::EQIP_POSITION eEqipPos = pViewEquip->GetEqipPos();
+			if( CX2Unit::EP_DEFENCE_HAIR == eEqipPos
+				|| ( CX2Unit::EP_AC_FACE1 == eEqipPos && true == bFace1HidesHair )
+				|| ( CX2Unit::EP_AC_FACE2 == eEqipPos && true == bFace2HidesHair ) )
+				pViewEquip->SetShowObject( false );
+		}
+	}
+
+	if( true == bRenderHair )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquip, m_ViewEqipList )
+		{
+			if( CX2Unit::EP_DEFENCE_HAIR == pViewEquip->GetEqipPos() )
+				pViewEquip->SetShowObject( true );
+		}
+	}
+
+	for( vector<CX2EqipPtr>::iterator itRingEquip = m_ViewEqipList.begin(); itRingEquip != m_ViewEqipList.end(); ++itRingEquip )
+	{
+		if( CX2Unit::EP_AC_TEMP4 == (*itRingEquip)->GetEqipPos() )	// June EP_AC_RING2
+			(*itRingEquip)->SetShowObject( false );
+	}
+}
+#else SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	SetHideNoRenderable(false);
 #endif FACE_OFF_MONSTER_HEAD_TEST
@@ -40608,6 +41585,7 @@ void CX2GUUser::UpdateNotRenderingOtherEquipList()
 #ifdef HIDE_HAIR_BY_EP_AC_FACE2
 }
 #endif HIDE_HAIR_BY_EP_AC_FACE2
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 #endif	NOT_RENDERING_OTHER_EQUIP_POS
 
 //{{ kimhc // 2010.12.10 // 신캐 작업하면서 추가함

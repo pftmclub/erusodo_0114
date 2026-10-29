@@ -5413,6 +5413,15 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: equip hiding by division group (june-march-divergence D1-3d, 2026-10-29)
+
+Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3d Done"; March's body is the `#else`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP`: `CX2GUUser::UpdateNotRenderingOtherEquipList` is June's (`3201c3a0`): one-piece avatars, face accessories and the arm accessory hide equips by the item's division group (`CX2ItemManager::IsDivisionItem`) instead of March's hard-coded id lists; new member `m_bSDOnePieceAvatar`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_DIVISION_ITEM_GROUP`: the division templet loader fills those groups (June `32814170`, Cobo pairs `3280b550` bound as `AddCoboDivisionItemTemplet_LUA`); `X2Data.cpp` loads `CoboRenderDivisionItemTemplet.lua` before `RenderDivisionItemTemplet.lua`. Side effect: R14's `_UpdateSkin` and R14b's jiggle groups now fill too.
+- Enum names under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: 35 `DITT_*` members, `CX2Unit::UT_AIN`.
+- Data: `CoboRenderDivisionItemTemplet.lua` added to `kom_contents/data036_kom` (June's bytecode, `luasrc.py adopt-june`).
+- **Revert.** Comment out `NOT_RENDERING_EQUIP`'s `#define` (alone: March's hiding back), or both flags (the loader too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. With the loader flag off the Lua file is no longer loaded, so it can stay in data036. No save change.
+
 ### One function per name: the at-hand enchant sparks' show test (june-march-divergence D1-3e, 2026-10-29)
 
 Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3e Done"; March's test is the `#else`.

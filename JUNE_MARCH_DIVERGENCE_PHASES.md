@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -1053,6 +1053,45 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (`13Gang_Weapon_Effect_Spark_Particle_1`, `_Spark01`, `11Gang_Weapon_Effect_Lightning03`, wide).
 - **Smoke (plan end):** Elsword with a +11 sword shows the lightning glow in a dungeon and in the character window (U), a +13 one adds the
   sparks, none while riding or during an avatar emotion; Eve's / Add's glow sits on both weapons.
+
+### D1-3d Done (2026-10-29, Opus 5.5; two `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in the `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 251 | `CX2GUUser::UpdateNotRenderingOtherEquipList` (`X2GUUser.cpp:39971`) | `3201c3a0` | `NOT_RENDERING_EQUIP` | June's whole body: the one-piece (`EP_ONEPIECE_FASHION`), face-1 / face-2 and arm accessories hide equips by division group instead of March's `IsOnePieceAvatar*` / `IsNoRender*` id lists; a re-show pass at the end; new member `m_bSDOnePieceAvatar` (June `+0x8fc0`) |
+| (loader) | `CX2ItemManager::AddDivisionItemTemplet_LUA`, new `ParseDivisionItemGroup`, `AddCoboDivisionItemTemplet_LUA`; `X2Data.cpp` load; `X2Main.cpp` binding | `32814170`, `3280b550` | `DIVISION_ITEM_GROUP` | every division block outside types 55 / 85 / 89-93 fills its group (`m_eItemID` + `m_eItemID_INT`, plus each listed id's Cobo clone); first block per type wins |
+
+- **Why the loader:** the groups the body tests were empty in March (only CEPE 81 was parsed, C9f-2). June's dispatcher (`32818480`, byte table `32818748`,
+  checked) sends every type but 55 / 85 / 89-93 through `32814170`; the Cobo map (`+0x220`) is filled only by `3280b550`, bound by `31d95080 @31db3089`
+  (name from `CoboRenderDivisionItemTemplet.lua`: 750 two-int calls; the binder's name bytes are XOR'd). All 28 types the body tests sit once each in
+  `RenderDivisionItemTemplet.lua`, which March already loads. `DivisionItemTemplet.lua` and the other parsers stay backlog Stage 11 (bullet added).
+- **Body, from the decompile plus disassembly:** 26 group tests, case lists copied per block (the blocks differ: some skip the shown test, some set no
+  `bOnePieceAvatarCheck` on the hair case, `..._ONLY_RENDERING_HAIR_AND_FACE` null-checks the equip). Helpers: `31fd5ab0` = `GetEquipPtrFromEquipViewListByEquipPosition`,
+  the inline `+0x172` / vslot `0x28` idiom = `SetShowObject( false )`, `31cfe4a0` = `SetShowObject( bShow )`, `+0x9170` = `m_bHideNoRenderable`,
+  `+0x9340` = `m_pHairXSkinMesh`, `+0x5a4` / `320708b0` = `GetNormalModel(0)`, `+0x6754` = `m_pAfterImage`. Unit types 12 / 2 = `UT_AIN` / `UT_ARME`
+  (Aisha and Ain hide equips that are already hidden); the state hook = `IsNearPortalLineMap` of the dungeon (`XS_DUNGEON_GAME` 0xb, `327ca710`) or
+  field (`XS_BATTLE_FIELD` 0x15, `32d53810`) game. June's one mask byte `[esp+0x24]` (5 / |2 / |8, tested `& 0xd`) is two bools here; bit 2 is never read.
+  The `NOT_RENDERING_HAIR` (33) test in the `ONE_PIECE_AVATAR` loop discards its result and is left out.
+- **Enum names (`JUNE_ENUM_NAMES`):** 35 DITT members in `CX2ItemManager::DIVISION_ITEM_TEMPLET_TYPE`, `CX2Unit::UT_AIN = 12` after `UT_END`. June EP 27 / 28
+  (`EP_AC_EARRING` / `EP_AC_RING2`) share March's values, so March's names `EP_AC_TEMP3` / `EP_AC_TEMP4` with a comment; the kim remap still puts
+  earrings on 18 (`JUNE_KIM_MINIME_REMAP`, Stage 16), so June's earring cases do not fire yet.
+- **Deviation (one):** June calls the game's `IsNearPortalLineMap` without a NULL test; the port tests `g_pX2Game` (March may build users first).
+- **Stand-in:** `SetpHairSkinMesh` is March's plain setter; June's `3322a5d0` refs the mesh -> june-engine **R12c** (kickoff, STATUS row).
+- **Routed:** the `+0x8fc0` reader `31fdc070` (head bone `Bip01_Spine1` for SD avatars; Ain `32a51670`) -> backlog Stage 11 bullet.
+- **Reach points:** every user's equip hiding (Elsword ... Add; Ara's override still calls this base). Groups now live for R14's `_UpdateSkin`
+  (6 / 0x31 / 0x36 / 7, every model attaches) and R14b's jiggle (30); these were June ports waiting on Stage 11.
+- **Data:** `CoboRenderDivisionItemTemplet.lua` adopted from June data036 (`luasrc.py adopt-june`, bytecode, new); `luabind.py check`: 1 method, 0 unbound,
+  PASS; `PACK OK data036` (vs live: +1 added). **Not copied yet** (needs the user's yes); until then the load logs `DIVISION_GROUP ... NOT LOADED` and
+  the Cobo clones stay out of the groups.
+- **June bugs kept:** `JUNE_BUGS.md` 474 (the SET2 pass reuses the SET1 iterator), 475 (UID low dword only).
+- **Bookkeeping:** tsv 251 annotated; funcmap `3201c3a0` updated + 5 rows `(Diverge D1-3d)`; `MODS.md` D1-3d entry; backlog Stage 11 bullet; STATUS R12c.
+- **Hygiene:** `flagcheck --worktree --files`: `NOT_RENDERING_EQUIP` RESULT PASS (`X2GUUser.cpp` +978, `X2GUUser.h` +3; 0 deleted, 0 non-ASCII, 0 EOL mismatch); `JUNE_ENUM_NAMES` (`X2Unit.h` +3, `X2ItemManager.h` +44 OTHER) PASS; `DIVISION_ITEM_GROUP` `X2Data.cpp` +4 / `X2ItemManager.cpp` +60 / `X2Main.cpp` +3 PASS,
+  1 ERROR = the `#if defined( ..._NOT_RENDERING_EQUIP ) && !defined( ..._DIVISION_ITEM_GROUP )` dependency line in `Always.h` (as D1-3b's), so the tool prints RESULT FAIL; 0 deleted lines.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,833,984 B, dated 2026-10-29 23:38:28, md5 e4082e3046b58249a4603358ea98667c, equal to X2/US_SERVICE/x2.exe
+  (2026-10-29 23:38:21); built at main b4683fee + 8 uncommitted code file(s).` (all 8 this phase's.) `EXESTR OK: 2 of 2 found` (`AddCoboDivisionItemTemplet_LUA`,
+  `m_eItemID_INT`); `EXESTR OK: 1 of 1 found` (`CoboRenderDivisionItemTemplet.lua`, wide).
+- **Smoke (plan end):** Aisha with `/additem 180060` (Luto's Illusion, one-piece) equipped: hair, top, bottom, gloves and shoes are hidden and the one-piece
+  shows; Eve with `/additem 180063` the same; unequipping brings them back. Optional: a face accessory in group 33 (`NOT_RENDERING_HAIR`) hides the hair.
 
 ### D1-3e Done (2026-10-29, Opus 5.5; one site under D1-3c's `WEAPON_EFFECT_SHOW`; viewer family -> D1-3g, 263 -> june-engine R6c)
 
