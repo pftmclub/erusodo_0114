@@ -141,6 +141,18 @@ void CX2ItemManager::ClearManufactureResultGroupData()
 
 /*static*/ CX2EqipPtr CX2ItemManager::CreateDummyEquip( int iItemID_, CX2Unit* pUnit_, CKTDGXSkinAnimPtr pXSkinAnim_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_DUMMY_EQUIP
+	// June 3280a170: the unit's type goes with every item
+	ASSERT( NULL != pUnit_ );
+	CX2Item::ItemData kItemData;
+	kItemData.m_ItemID		= iItemID_;
+	kItemData.m_PeriodType	= CX2Item::PT_INFINITY;
+	kItemData.m_Endurance	= 0;
+	// stand-in: June's item lives on its stack, March's CX2Eqip keeps it ( m_pDummyItem ), so it stays new'd
+	CX2Item* pDummyItem = new CX2Item( kItemData, pUnit_ );
+	const CX2Unit::UNIT_TYPE eUnitType = ( NULL != pUnit_->GetUnitTemplet() ) ? pUnit_->GetType() : CX2Unit::UT_NONE;
+	return CX2Eqip::CreateEquip( pDummyItem, pXSkinAnim_, pDummyItem->GetItemData().m_EnchantLevel, true, true, eUnitType );
+#else SERV_IRUHADEV_JUNE_DIVERGE_DUMMY_EQUIP
     CX2Item* pX2Item = NULL;
 	ASSERT( NULL != pUnit_ );
 
@@ -163,6 +175,7 @@ void CX2ItemManager::ClearManufactureResultGroupData()
 	{
 		return CX2Eqip::CreateEquip( pX2Item, pXSkinAnim_, iEnchantLevel, true, true );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_DUMMY_EQUIP
 }
 
 #endif	NEW_CHARACTER_CHUNG

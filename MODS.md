@@ -5370,3 +5370,22 @@ Nine flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` a
 - `SERV_IRUHADEV_JUNE_DIVERGE_MANAFLOW_BUFF_ID`: VioletMage's Mana Flow Overdrive reads its buff id only once the skill is learned (June `32cc5b20`).
 - `SERV_IRUHADEV_JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET`: VioletMage's `ChangeWeapon` takes the old templet from the equip (June `32cc8980`).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: divergent March functions replaced by June's, UI / quest / local map batch (june-march-divergence D1-4, 2026-10-29)
+
+Fourteen flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-4 Done"; rows of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO`: the HP+ / MP+ recovery text is not drawn while dialogs are hidden; HP+ is green (June `322d37d0` / `322d38f0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_MAP_DETAIL`: at map detail LOW a world layer that is shown at start and forced stays shown (June `327fbeb0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_INFORMER`: the five informer getters return the informer they create (March returned an uninitialised pointer).
+- `SERV_IRUHADEV_JUNE_DIVERGE_DUMMY_EQUIP`: `CreateDummyEquip` passes the unit's type for every item (June `3280a170`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_KEY_STRING`: a bound key with no key name shows string 39162 instead of nothing (June `31f5ee50`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_HENIR_ICON_DESC`: the Henir icon tooltip: one count line (string 27305), no closing line (June `32938ea0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_LOCALMAP_QUEST_DESC`: the local map's quest mark honours `bShow` (June `32935d20`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_ED_STRING`: ED amounts put no comma before a minus sign (June `31d76440`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE`: the novice guide's click arrows are gone (`SetMouseClickIndex` empty, June `3289d200`); the Go effect and its sound need the UI particle system (June `3289d090`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_COMEBACK_QUEST`: quests 208020-208060 are requested only by a comeback user (June `323d2b40`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON`: the local map's quest-dungeon marks follow the Hero mode switch (June `3232db00`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR`: a quest title greys from 8 levels above its fair level, not 6 (June `323223b0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI`: the quest list scrollbar leaves NPC-friendship quests out (none until Stage 18; June `323c8da0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT`: a guild quest's window leaves the fixed-reward slots alone (June `323d5160`).
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

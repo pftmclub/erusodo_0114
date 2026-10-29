@@ -10460,6 +10460,116 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-29
+// Description: june-march-divergence D1-4: DisplayAddHPInformation / DisplayAddMPInformation draw nothing while dialogs are hidden; HP+ is green ( June 322d37d0 / 322d38f0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2World::SetMapDetail at LOW keeps a layer shown when it is shown at start and forced ( June 327fbeb0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_MAP_DETAIL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: the five CX2InformerManager getters return the informer they create ( June 328545c0 / 328546a0 / 32854780 / 32854860 / 32854940; March returned an uninitialised pointer ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2ItemManager::CreateDummyEquip passes the unit's type for every item ( June 3280a170 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_DUMMY_EQUIP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2KeyPad::GetKeyString( GAME_ACTION ) gives string 39162 for a bound key with no key name ( June 31f5ee50 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_KEY_STRING
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: the Henir icon tooltip has one count line ( string 27305 ) and no closing line ( June 32938ea0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_HENIR_ICON_DESC
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2LocalMapUI::UdateLocalMapQuestDesc honours bShow and no longer fills m_mapLocalMapQuestDesc ( June 32935d20 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_LOCALMAP_QUEST_DESC
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2Main::GetEDString puts no comma before a minus sign ( June 31d76440 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_ED_STRING
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2PlayGuide::SetMouseClickIndex is empty ( June 3289d200 ); StartGoEffect needs the UI particle system for the effect and the sound ( June 3289d090 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_TUTORIAL_MODE )
+#error SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE needs SERV_IRUHADEV_JUNE_TUTORIAL_MODE ( GetIsPlayingTutorial )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: quests 208020-208060 are not requested unless the user is a comeback user ( June 323d2b40 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_COMEBACK_QUEST
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2QuestManager::GetNeedToClearDungeonList takes June's Hero filter ( June 3232db00; the local map passes !m_bHeroMode ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON ) && !defined( SERV_IRUHADEV_JUNE_LOCAL_MAP_UI )
+#error SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON needs SERV_IRUHADEV_JUNE_LOCAL_MAP_UI ( m_bHeroMode, the callers )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON ) && !defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED )
+#error SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON needs SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ( CX2DungeonManager::IsHeroDungeon )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2QuestManager::GetQuestColor greys a quest from 8 levels above, not 6 ( June 323223b0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: the quest list navi leaves NPC-friendship quests out of its count and position ( June 323c8da0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI ) && !defined( SERV_IRUHADEV_JUNE_QUEST_UI )
+#error SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI needs SERV_IRUHADEV_JUNE_QUEST_UI ( IsFriendshipQuest )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4: CX2UIQuestNew::UpdateRewardItemSlot leaves the fixed-reward slots alone for a guild quest ( June 323d5160 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
 // Description: june-march-divergence D1-2: CX2GUNPC::StateChange / StateChange_Reaction_FIRST / _Continue also refuse a live NPC holding a freeze effect ( June 32758fe0 / 327590c0 / 32759250 ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_DIVERGE_NPC_FREEZE_REFUSAL
 //////////////////////////////////////////////////////////////////////////

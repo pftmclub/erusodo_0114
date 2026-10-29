@@ -8486,7 +8486,11 @@ wstring CX2Main::GetEDString( const WCHAR* pEDToChange )
 	int commaCount = 0;
 	for( int i = edToChange.size()-1; i >=0; i-- )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ED_STRING
+		if( commaCount == 3 && L'-' != edToChange.at(i) )	// June 31d76440: no comma before a minus sign
+#else SERV_IRUHADEV_JUNE_DIVERGE_ED_STRING
 		if( commaCount == 3 )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ED_STRING
 		{
 			edString << L",";
 			commaCount = 0;

@@ -22776,6 +22776,20 @@ void CX2Game::SetOfficiallyDebuffList()
 */
 void CX2Game::DisplayAddHPInformation( IN const float fAddHPValue_, IN const D3DXVECTOR3 vPos_, IN const D3DXVECTOR3 vDirVector_, IN bool bDisplayPercent/*= true*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
+	// June 322d37d0: nothing while dialogs are hidden; HP+ in green
+	D3DXVECTOR3 vPos = vPos_;
+	vPos.y += 50.f;
+
+	WCHAR wszText[64] = L"";
+	if ( true == bDisplayPercent )
+		StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"HP+ %d PERCENT", static_cast<int>( fAddHPValue_ ) );
+	else
+		StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"HP+ %d", static_cast<int>( fAddHPValue_ ) );
+
+	if( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() && NULL != g_pData && NULL != g_pData->GetPicCharGreen() )
+		g_pData->GetPicCharGreen()->DrawText( wszText, vPos, vDirVector_, CKTDGPicChar::AT_CENTER );
+#else SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
 	/// HP 회복 표기는 좀 더 위로 표시한다.
 	D3DXVECTOR3 vPos = vPos_;
 	vPos.y += 50.f;
@@ -22790,6 +22804,7 @@ void CX2Game::DisplayAddHPInformation( IN const float fAddHPValue_, IN const D3D
 
 	if( NULL != g_pData && NULL != g_pData->GetPicCharBlue() )
 		g_pData->GetPicCharBlue()->DrawText( wszText, vPos, vDirVector_, CKTDGPicChar::AT_CENTER );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
 } 
 
 /** @function	: DisplayAddHPInformation
@@ -22798,12 +22813,21 @@ void CX2Game::DisplayAddHPInformation( IN const float fAddHPValue_, IN const D3D
 */
 void CX2Game::DisplayAddMPInformation( IN const float fAddMPValue_, IN const D3DXVECTOR3 vPos_, IN const D3DXVECTOR3 vDirVector_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
+	// June 322d38f0: nothing while dialogs are hidden
+	WCHAR wszText[64] = L"";
+	StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MP+ %d", static_cast<int>( fAddMPValue_ ) );
+
+	if( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() && NULL != g_pData && NULL != g_pData->GetPicCharBlue() )
+		g_pData->GetPicCharBlue()->DrawText( wszText, vPos_, vDirVector_, CKTDGPicChar::AT_CENTER );
+#else SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
 	/// 회복량 표시
 	WCHAR wszText[64] = L"";
 	StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MP+ %d", static_cast<int>( fAddMPValue_ ) );
 
 	if( NULL != g_pData && NULL != g_pData->GetPicCharBlue() )
 		g_pData->GetPicCharBlue()->DrawText( wszText, vPos_, vDirVector_, CKTDGPicChar::AT_CENTER );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ADD_HPMP_INFO
 }
 #endif // HAMEL_SECRET_DUNGEON
 

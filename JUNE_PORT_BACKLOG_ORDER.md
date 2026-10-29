@@ -429,6 +429,17 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 
 - **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below.
 
+- **Three June-only UI pieces found by june-march-divergence D1-4 (2026-10-29).** Each sits in a function D1-4 left as March's because the
+  piece is absent here (June's test reads it as absent):
+  - The game option `MUTE_ON_DEFOCUS` (`CX2GameOption` +0x66): `SetMusic` (`3241dba0`) pauses the music only while the app is active
+    (`g_pKTDXApp` +0x1f8 -> +0x352, `31c48d70`) when it is set; saved by `SaveScriptFile` `3241ef40`, loaded by `OpenScriptFile` `324214a0`
+    @32423a3c (false when absent), shown by the GFx options as `muteOnDefocus` (`32f23fd0`).
+  - `CX2UIManager::SetNowDragItemReturn` (`32153240`): after an equip return June refreshes UIManager +0x34 (`328eea70`: shown +8, dialog +0xbc);
+    and a dragged slot of June type 3 / 0x1a (June's slot-type numbers, not March's) goes back while the UIManager +0x58 skill-slot UI is shown
+    (+0xfc, mode +0x118 == 8 picks the type), through the slot's vslot 8 and the UI's vslot 4.
+  - `CX2UIManager::UIOpened` (`3215a0d0`): opening any menu but June's 47 hides the UIManager +0x64 panel when shown (+0x28; `32d754f0( 0 )`,
+    which opens itself as menu 47 after a `g_pMain` +0x90 +0xc4 test).
+
 - **Two result-flow leftovers (june-result R3, 2026-10-22).**
   - June's `AddTimedMessagePopup` (`31d94a20`) takes one more argument than March's, an ( x, y ) pair after the time-out message (the result
     retry box passes ( 230, 200 ), constants `33478a84` / `33457460`); R3 calls March's form. Read what June does with it before porting.

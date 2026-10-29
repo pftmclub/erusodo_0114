@@ -578,6 +578,9 @@ void CX2PlayGuide::ResetNoviceGuide()
 
 void CX2PlayGuide::SetMouseClickIndex(int val)
 { 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
+	// June 3289d200: an empty function ( ret 4 )
+#else SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
 	if( false == GetActiveNoviceGuide() )
 		return;
 
@@ -645,6 +648,7 @@ void CX2PlayGuide::SetMouseClickIndex(int val)
 			return;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
 }
 #ifdef GUIDE_FIRST_EPIC_QUEST
 void CX2PlayGuide::OnFrameMove_FirstEpicGuide(float fElapsedTime)
@@ -1072,6 +1076,17 @@ bool CX2PlayGuide::GuideOrderManager::GetGuideListEmpty() const
 
 void CX2PlayGuide::StartGoEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
+	// June 3289d090: no effect and no sound without the UI particle system; June's second state 0xf is XS_GUILD_AGIT_GAME, which March lacks
+	if ( false == g_pMain->GetIsPlayingTutorial() &&
+		INVALID_PARTICLE_SEQUENCE_HANDLE == m_hParticleGo &&
+		CX2Main::XS_VILLAGE_MAP == g_pMain->GetNowStateID() &&
+		NULL != g_pData->GetUIMinorParticle() )
+	{
+		m_hParticleGo = g_pData->GetUIMinorParticle()->CreateSequenceHandle( NULL,  L"SubStageGoRight_UI", 850.0f, 300.0f, 0.0f, 1, 1 );
+		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Go.ogg", true, false );
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	/// June buff port Phase 14c, CX2PlayGuide::StartGoEffect 3289d090 @3289d091-3289d09d: no Go effect in the tutorial
 	if ( false == g_pMain->GetIsPlayingTutorial() &&
@@ -1088,6 +1103,7 @@ void CX2PlayGuide::StartGoEffect()
 		}
 		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Go.ogg", true, false );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_PLAY_GUIDE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME

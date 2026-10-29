@@ -196,7 +196,9 @@ Done: D0a, D0b, C0.
 | D1-2 (user / NPC states, combat) | done 2026-10-29, smoke at plan end (11 tsv rows, 9 `JUNE_DIVERGE_*` flags; 242 / 244 split to D1-2b; 247 no code, routed to Stage 10) | Opus 5.5 / high | D1-1 | `X2GUUser.cpp`, `X2GUNPC.cpp`, `X2GUArme_VioletMage.cpp` | `D1-2.md` |
 | D1-2b (camera move, dying start) + D1-2 review (D1-1 + D1-2 + D1-2b) | waiting | Opus 5.5 / high | D1-2 | `X2GUUser.cpp`, `X2Camera`, `ClientPacket.{h,cpp}`, `Offline/Handlers_Room.cpp` | `D1-2b.md`, `D1-2-review.md` |
 | D1-3 (equipment, enchant, riding pet, items, skill tree) | waiting | Opus 5.5 / high | D1-2 review | `X2GUUser`, `X2Eqip`, `X2RidingPet*`, `X2Inventory`, `X2UserSkillTree` | `D1-3.md` |
-| D1-4 (UI, quest, local map, play guide) + D1-4 review (D1-3 + D1-4) | waiting | Opus 5.5 / high | D1-1; beside D1-2 / D1-3 (UI files only) | `X2LocalMapUI`, `X2UIQuestNew`, `X2PlayGuide`, informers, `X2SkillTreeUI` | `D1-4.md`, `D1-4-review.md` |
+| D1-4 (UI, quest, local map, play guide) | done 2026-10-29, smoke at plan end (20 rows under 14 `JUNE_DIVERGE_*` flags; 7 rows need no code, 2 tsv verdicts wrong; 342 split to D1-4b) | Opus 5.5 / high | D1-1 | `X2LocalMapUI`, `X2UIQuestNew`, `X2QuestManager`, `X2PlayGuide`, informers, `X2Game`, `X2World`, `X2KeyPad`, `X2Main` | `D1-4.md` |
+| D1-4b (quick-quest window, tsv 342) | waiting | Opus 5.5 / high | D1-4; beside D1-2 / D1-3 (UI files only) | `X2UIQuestNew` | `D1-4b.md` |
+| D1-4 review (D1-3 + D1-4 + D1-4b) | waiting | Opus 5.5 / high | D1-3, D1-4b | as D1-3 / D1-4 | `D1-4-review.md` |
 | D1-5 (KTDXLIB engine, buff popups) + D1 review (closes D1) | waiting | Opus 5.5 / high | D1-4 review | `KTDXDeviceManager`, `KTDGUI*`, `KTDXInput`, `KTDGLineMap`, `X2BuffFactor`, buff templets | `D1-5.md`, `D1-review.md` |
 | D2 (gate + wiring) + review / close | waiting | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
 

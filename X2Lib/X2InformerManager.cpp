@@ -34,6 +34,15 @@ CX2InformerManager::~CX2InformerManager(void)
 #ifdef	GUILD_MANAGEMENT
 CX2InformerGuildExp* CX2InformerManager::GetGuildInformer()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+	// June 328545c0: the created informer is returned
+	if ( IsCreatedInformerType( CX2Informer::XIT_GUILD_EXP ) == true )
+		return static_cast< CX2InformerGuildExp* >( GetInformerByType( CX2Informer::XIT_GUILD_EXP ) );
+
+	CX2InformerGuildExp* pNewInformer = new CX2InformerGuildExp();
+	m_vecInformer.push_back( pNewInformer );
+	return pNewInformer;
+#else SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	CX2InformerGuildExp* pInformer;
 	if ( IsCreatedInformerType( CX2Informer::XIT_GUILD_EXP ) == true )
 	{
@@ -47,12 +56,22 @@ CX2InformerGuildExp* CX2InformerManager::GetGuildInformer()
 	}
 
 	return pInformer;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 }
 #endif	GUILD_MANAGEMENT
 //}} kimhc // 2009-11-02 // 길드 추가
 
 CX2InformerSkill* CX2InformerManager::GetSkillInformer()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+	// June 328546a0: the created informer is returned
+	if ( IsCreatedInformerType( CX2Informer::XIT_SKILL ) == true )
+		return (CX2InformerSkill*)GetInformerByType( CX2Informer::XIT_SKILL );
+
+	CX2InformerSkill* pNewInformer = new CX2InformerSkill();
+	m_vecInformer.push_back( pNewInformer );
+	return pNewInformer;
+#else SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	CX2InformerSkill* pInformer;
 	if ( IsCreatedInformerType( CX2Informer::XIT_SKILL ) == true )
 	{
@@ -66,11 +85,21 @@ CX2InformerSkill* CX2InformerManager::GetSkillInformer()
 	}
 
 	return pInformer;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	
 }
 
 CX2InformerQuest* CX2InformerManager::GetQuestInformer()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+	// June 32854780: the created informer is returned
+	if ( IsCreatedInformerType( CX2Informer::XIT_QUEST ) == true )
+		return (CX2InformerQuest*)GetInformerByType( CX2Informer::XIT_QUEST );
+
+	CX2InformerQuest* pNewInformer = new CX2InformerQuest();
+	m_vecInformer.push_back( pNewInformer );
+	return pNewInformer;
+#else SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	CX2InformerQuest* pInformer;
 	if ( IsCreatedInformerType( CX2Informer::XIT_QUEST ) == true )
 	{
@@ -84,10 +113,20 @@ CX2InformerQuest* CX2InformerManager::GetQuestInformer()
 	}
 
 	return pInformer;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 }
 
 CX2InformerInven* CX2InformerManager::GetInvenInformer()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+	// June 32854860: the created informer is returned
+	if ( IsCreatedInformerType( CX2Informer::XIT_INVEN ) == true )
+		return (CX2InformerInven*)GetInformerByType( CX2Informer::XIT_INVEN );
+
+	CX2InformerInven* pNewInformer = new CX2InformerInven();
+	m_vecInformer.push_back( pNewInformer );
+	return pNewInformer;
+#else SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	CX2InformerInven* pInformer;
 	if ( IsCreatedInformerType( CX2Informer::XIT_INVEN ) == true )
 	{
@@ -101,10 +140,20 @@ CX2InformerInven* CX2InformerManager::GetInvenInformer()
 	}
 
 	return pInformer;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 }
 
 CX2InformerCashShop* CX2InformerManager::GetCashShopInformer()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
+	// June 32854940: the created informer is returned
+	if ( IsCreatedInformerType( CX2Informer::XIT_CASH_SHOP ) == true )
+		return (CX2InformerCashShop*)GetInformerByType( CX2Informer::XIT_CASH_SHOP );
+
+	CX2InformerCashShop* pNewInformer = new CX2InformerCashShop();
+	m_vecInformer.push_back( pNewInformer );
+	return pNewInformer;
+#else SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 	CX2InformerCashShop* pInformer;
 	if ( IsCreatedInformerType( CX2Informer::XIT_CASH_SHOP ) == true )
 	{
@@ -118,6 +167,7 @@ CX2InformerCashShop* CX2InformerManager::GetCashShopInformer()
 	}
 
 	return pInformer;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INFORMER
 }
 
 void CX2InformerManager::Reset()

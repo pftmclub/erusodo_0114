@@ -972,7 +972,11 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 					{
 						// June passes !m_bHeroMode as a second argument; March's takes none.
 						map<SEnum::DUNGEON_ID, bool> SetNeedToClearDungeonList;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+						if( true == pQuestManager->GetNeedToClearDungeonList( !m_bHeroMode, SetNeedToClearDungeonList ) )
+#else SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 						if( true == pQuestManager->GetNeedToClearDungeonList(SetNeedToClearDungeonList) )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 						{
 							for( UINT j=0; j< pLocalMapTemplet->m_DungeonList.size(); ++j )
 							{
@@ -1050,7 +1054,11 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 				{
 					// June passes !m_bHeroMode as a second argument; March's takes none.
 					map<SEnum::DUNGEON_ID, bool> SetNeedToClearDungeonList;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+					if( true == pQuestManager->GetNeedToClearDungeonList( !m_bHeroMode, SetNeedToClearDungeonList ) )
+#else SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 					if( true == pQuestManager->GetNeedToClearDungeonList(SetNeedToClearDungeonList) )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 					{
 						for( UINT j=0; j< pLocalMapTemplet->m_DungeonList.size(); ++j )
 						{
@@ -2430,6 +2438,45 @@ void CX2LocalMapUI::DrawLocalMapQuestDesc(D3DXVECTOR2 DrawPos, int iDungeonID)
 
 void CX2LocalMapUI::UdateLocalMapQuestDesc( CX2LocationManager::LOCAL_MAP_ID eLocalMapID, int dungeonID, bool bShow )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LOCALMAP_QUEST_DESC
+	// June 32935d20: bShow false hides the mark; nothing goes into m_mapLocalMapQuestDesc
+	if( NULL != g_pData->GetDungeonManager() &&
+		true == g_pData->GetDungeonManager()->IsDefenceDungeon( dungeonID ) )
+		return;
+
+	const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) dungeonID );
+	if( NULL == pDungeonData )
+		return;
+
+	if( false == g_pData->GetDungeonManager()->IsDungeonEnable( dungeonID ) )
+		return;
+
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( eLocalMapID );
+	if( NULL == pDialog )
+		return;
+
+	wstring LocalQuestName = pDungeonData->m_DungeonName;
+	LocalQuestName += L"_LocalQuest";
+	CKTDGUIStatic* pStaticLocalQuest = (CKTDGUIStatic*) pDialog->GetControl( LocalQuestName.c_str() );
+	if( NULL == pStaticLocalQuest )
+		return;
+
+	if( false == bShow )
+	{
+		pStaticLocalQuest->SetShow( false );
+		return;
+	}
+
+	wstring wstrItemDesc;
+	bool bShowQuest = false;
+	if( true == g_pData->GetUIManager()->GetUIQuestNew()->GetLocalMapQuestDesc( dungeonID, wstrItemDesc ) )
+	{
+		// stand-in: June reads the game edit's operator byte ( +0xf8 ), March's auth level, as UpdatePartyDLG's port
+		bShowQuest = ( true == g_pData->GetDungeonManager()->IsActiveDungeon( dungeonID, 0 ) ||
+			( NULL != g_pData->GetMyUser() && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR ) );
+	}
+	pStaticLocalQuest->SetShow( bShowQuest );
+#else SERV_IRUHADEV_JUNE_DIVERGE_LOCALMAP_QUEST_DESC
 #ifdef SERV_NEW_DEFENCE_DUNGEON 
 	if( NULL != g_pData->GetDungeonManager() &&
 		true == g_pData->GetDungeonManager()->IsDefenceDungeon( dungeonID ) )
@@ -2482,6 +2529,7 @@ void CX2LocalMapUI::UdateLocalMapQuestDesc( CX2LocationManager::LOCAL_MAP_ID eLo
 	}
 
 	return;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LOCALMAP_QUEST_DESC
 }
 
 
@@ -2587,6 +2635,46 @@ bool CX2LocalMapUI::UpdateDefenceDungeonIcon( CKTDGUIControl* pControlDefenceDun
 #ifdef NEW_HENIR_TEST
 void CX2LocalMapUI::GetHenirDungeonIcnoDesc( OUT wstringstream& wstrStreamDungeonIconDesc_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_HENIR_ICON_DESC
+	// June 32938ea0: one count line ( 27305 ), no challenge line and no closing line
+	const KEGS_HENIR_REWARD_COUNT_NOT kHenirRewardCountInfo = g_pData->GetMyUser()->GetSelectUnit()->GetHenirRewardCountInfo();
+
+	int iHenirRewardCount = kHenirRewardCountInfo.m_iNormal;
+	if( kHenirRewardCountInfo.m_iPremiumMAX > 0 )
+		iHenirRewardCount += kHenirRewardCountInfo.m_iPremium;
+	if( kHenirRewardCountInfo.m_iEventMAX > 0 )
+		iHenirRewardCount += kHenirRewardCountInfo.m_iEvent;
+
+#ifdef SERV_HENIR_RENEWAL_2013
+	int iChallengeHenirRewardCount = kHenirRewardCountInfo.m_iChallengeNormal;
+	if( kHenirRewardCountInfo.m_iPremiumMAX > 0 )
+		iChallengeHenirRewardCount += kHenirRewardCountInfo.m_iChallengePremium;
+	if( kHenirRewardCountInfo.m_iEventMAX > 0 )
+		iChallengeHenirRewardCount += kHenirRewardCountInfo.m_iChallengeEvent;
+#else SERV_HENIR_RENEWAL_2013
+	const int iChallengeHenirRewardCount = 0;	// stand-in: the packet has no challenge counts here
+#endif SERV_HENIR_RENEWAL_2013
+
+	wstrStreamDungeonIconDesc_ << GET_STRING( STR_ID_13759 ) << '\n' << '\n';
+
+	if( true == kHenirRewardCountInfo.m_bUnLimited )
+	{
+		wstrStreamDungeonIconDesc_ << GET_STRING( STR_ID_13766 ) << '\n';
+	}
+	else if( 0 == iHenirRewardCount && 0 == iChallengeHenirRewardCount )
+	{
+		wstrStreamDungeonIconDesc_ << GET_STRING( STR_ID_13760 ) << '\n';
+	}
+	else
+	{
+		wstrStreamDungeonIconDesc_ << GET_STRING( STR_ID_13761 ) << '\n';
+		wstrStreamDungeonIconDesc_ << GET_REPLACED_STRING( ( STR_ID_27305, "i", iHenirRewardCount ) );
+		if( kHenirRewardCountInfo.m_iPremiumMAX > 0 )
+			wstrStreamDungeonIconDesc_ << GET_REPLACED_STRING( ( STR_ID_13764, "i", kHenirRewardCountInfo.m_iPremiumMAX ) );
+		if( kHenirRewardCountInfo.m_iEventMAX > 0 )
+			wstrStreamDungeonIconDesc_ << GET_REPLACED_STRING( ( STR_ID_13765, "i", kHenirRewardCountInfo.m_iEventMAX ) );
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_HENIR_ICON_DESC
 	KEGS_HENIR_REWARD_COUNT_NOT m_HenirRewardCountInfo = g_pData->GetMyUser()->GetSelectUnit()->GetHenirRewardCountInfo();
 	
 	int iHenirRewardCount = m_HenirRewardCountInfo.m_iNormal;
@@ -2661,6 +2749,7 @@ void CX2LocalMapUI::GetHenirDungeonIcnoDesc( OUT wstringstream& wstrStreamDungeo
 
 		wstrStreamDungeonIconDesc_ << '\n' << GET_STRING( STR_ID_13762 ) << '\n';// 남았습니다.\n (던전 입장에는 제한이 없습니다.)
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_HENIR_ICON_DESC
 }
 
 #endif NEW_HENIR_TEST

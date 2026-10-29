@@ -2299,6 +2299,20 @@ bool CX2UIQuestNew::Handler_EGS_GIVE_UP_QUEST_ACK( HWND hWnd, UINT uMsg, WPARAM 
 
 bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_REQ( int iQuestID )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_COMEBACK_QUEST
+	// June 323d2b40: these five quests ( no Enum names ) are requested only by a comeback user
+	switch( iQuestID )
+	{
+	case 208020:
+	case 208030:
+	case 208040:
+	case 208050:
+	case 208060:
+		if( NULL != g_pData && NULL != g_pData->GetPremiumBuffManager() && false == g_pData->GetPremiumBuffManager()->IsComeBackUser() )
+			return true;
+		break;
+	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_COMEBACK_QUEST
 	KEGS_NEW_QUEST_REQ kPacket;
 	kPacket.m_iTalkNPCID	= (int) m_eNPCID;
 #ifdef MODIFY_ACCEPT_QUEST // 기본 수락 NPC를 게시판으로 설정
@@ -3315,6 +3329,40 @@ void CX2UIQuestNew::UpdateNavi()
 			return;
 		}
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI
+		// June 323c8da0: NPC-friendship quests are left out of the count and the position
+		if( m_iSizeQuestInfoList <= _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
+		{
+			pNavi->SetShow(false);
+			return;
+		}
+
+		pNavi->SetShow(true);
+
+		D3DXVECTOR2 vPos( 0.0f, (float)m_iTopQuestSlotIndex / ( m_iSizeQuestInfoList - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage ) * 0.68f );
+		int iFriendshipQuestCount = 0;
+		int iTopShownIndex = -1;
+		bool bTopFound = false;
+		for( UINT i = 0; i < m_vecQuestInfoList.size(); ++i )
+		{
+			if( true == IsFriendshipQuest( m_vecQuestInfoList[i].m_iID ) )
+				++iFriendshipQuestCount;
+			else if( false == bTopFound )
+				++iTopShownIndex;
+
+			if( (UINT)m_iTopQuestSlotIndex == i )
+				bTopFound = true;
+		}
+
+		const UINT uiShownCount = (UINT)( m_iSizeQuestInfoList - iFriendshipQuestCount );
+		if( true == bTopFound && uiShownCount != _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
+			vPos.y = (float)iTopShownIndex / (float)( uiShownCount - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage ) * 0.68f;
+
+		if( uiShownCount < _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
+			pNavi->SetShow(false);
+
+		pNavi->SetRelativeWindowPos( vPos );
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI
 		if( m_iSizeQuestInfoList <= _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
 		{
 			pNavi->SetShow(false);
@@ -3330,6 +3378,7 @@ void CX2UIQuestNew::UpdateNavi()
 		vPos.y = (float)m_iTopQuestSlotIndex / (m_iSizeQuestInfoList - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage ) * 0.68f;
 
 		pNavi->SetRelativeWindowPos( vPos );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUEST_NAVI
 	}
 }
 
@@ -3767,6 +3816,111 @@ void CX2UIQuestNew::InitRewardItemSlot()
 
 void CX2UIQuestNew::UpdateRewardItemSlot()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT
+	// June 323d5160: a guild quest leaves the fixed-reward slots as they are
+	m_mapItemIDAndSocketID.clear();
+
+	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
+	if( NULL == pQuestTemplet )
+	{
+		for( UINT i = 0; i < m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pSlotItem = (CX2SlotItem*) m_SlotList[i];
+			pSlotItem->DestroyItemUI();
+			pSlotItem->SetShow(false);
+		}
+		return;
+	}
+
+	if( false == pQuestTemplet->m_bIsGuild )
+	{
+		for( int i = 0; i < _CONST_UIQUESTNEW_INFO_::g_iRewardSlotNum; i++ )
+		{
+			CX2SlotItem* pSlotItem = (CX2SlotItem*) m_SlotList[i];
+			if( i >= (int)pQuestTemplet->m_Reward.m_vecItem.size() )
+			{
+				if( NULL != pSlotItem )
+				{
+					pSlotItem->DestroyItemUI();
+					pSlotItem->SetShow(false);
+				}
+				continue;
+			}
+
+			const CX2QuestManager::ITEM_DATA& itemData = pQuestTemplet->m_Reward.m_vecItem[i];
+			const CX2Item::ItemTemplet* pItemTemplet = g_pData->GetItemManager()->GetItemTemplet( itemData.m_iItemID );
+			if( 0 != itemData.m_iSocketOption1 )
+				m_mapItemIDAndSocketID.insert( std::make_pair( itemData.m_iItemID, itemData.m_iSocketOption1 ) );
+			if( NULL == pItemTemplet )
+				continue;
+
+			CX2Item::ItemData kItemData;
+			kItemData.m_PeriodType = pItemTemplet->GetPeriodType();
+			kItemData.m_SocketOption.push_back( itemData.m_iSocketOption1 );
+			kItemData.m_ItemID = itemData.m_iItemID;
+			kItemData.m_Period = itemData.m_iPeriod;
+			kItemData.m_Endurance = pItemTemplet->GetEndurance();
+			CX2Item* pItem = new CX2Item( kItemData, NULL );
+			if( NULL != pItem && NULL != pSlotItem )
+			{
+				// stand-in: June 323d4eb0 multiplies the quantity for an NPC-friendship code event ( Stage 18 ), none here
+				pSlotItem->CreateItemUI( pItem, itemData.m_iQuantity );
+				pSlotItem->SetShow(true);
+				pSlotItem->SetEnable(true);
+			}
+			SAFE_DELETE( pItem );
+		}
+	}
+
+	int iSlotIndex = 0;
+	for( int i = 0; iSlotIndex < _CONST_UIQUESTNEW_INFO_::g_iRewardSlotNum; i++ )
+	{
+		CX2SlotItem* pSlotItem = (CX2SlotItem*) m_SlotList[iSlotIndex + _CONST_UIQUESTNEW_INFO_::g_iRewardSlotNum];
+		if( i >= (int)pQuestTemplet->m_SelectReward.m_vecSelectItem.size() )
+		{
+			if( NULL != pSlotItem )
+			{
+				pSlotItem->DestroyItemUI();
+				pSlotItem->SetShow(false);
+			}
+			iSlotIndex++;
+			continue;
+		}
+
+		const CX2QuestManager::ITEM_DATA& itemData = pQuestTemplet->m_SelectReward.m_vecSelectItem[i];
+		const CX2Item::ItemTemplet* pItemTemplet = g_pData->GetItemManager()->GetItemTemplet( itemData.m_iItemID );
+		if( NULL == pItemTemplet )
+			continue;
+
+		if( CX2Unit::UT_NONE != pItemTemplet->GetUnitType() &&
+			pItemTemplet->GetUnitType() != g_pData->GetMyUser()->GetSelectUnit()->GetType() )
+			continue;
+#ifdef QUEST_REWARD_ITEM_CLASS_TYPE_CHECK
+		if( CX2Unit::UC_NONE != pItemTemplet->GetUnitClass() &&
+			false == GetX2UnitClassCompatibility( g_pData->GetMyUser()->GetSelectUnit()->GetClass(), pItemTemplet->GetUnitClass() ) )
+			continue;
+#endif QUEST_REWARD_ITEM_CLASS_TYPE_CHECK
+
+		if( 0 != itemData.m_iSocketOption1 )
+			m_mapItemIDAndSocketID.insert( std::make_pair( itemData.m_iItemID, itemData.m_iSocketOption1 ) );
+
+		CX2Item::ItemData kItemData;
+		kItemData.m_PeriodType = pItemTemplet->GetPeriodType();
+		kItemData.m_SocketOption.push_back( itemData.m_iSocketOption1 );
+		kItemData.m_ItemID = itemData.m_iItemID;
+		kItemData.m_Period = itemData.m_iPeriod;
+		kItemData.m_Endurance = pItemTemplet->GetEndurance();
+		CX2Item* pItem = new CX2Item( kItemData, NULL );
+		if( NULL != pItem && NULL != pSlotItem )
+		{
+			pSlotItem->CreateItemUI( pItem, itemData.m_iQuantity );
+			pSlotItem->SetShow(true);
+			pSlotItem->SetEnable(true);
+		}
+		SAFE_DELETE( pItem );
+		iSlotIndex++;
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT
 	m_mapItemIDAndSocketID.clear();
 
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
@@ -3902,6 +4056,7 @@ void CX2UIQuestNew::UpdateRewardItemSlot()
 			pSlotItem->SetShow(false);
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUEST_REWARD_SLOT
 }
 
 

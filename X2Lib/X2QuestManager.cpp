@@ -2366,6 +2366,27 @@ bool CX2QuestManager::GetOnGoingQuest( const CX2UnitManager::NPC_UNIT_ID eQuestN
 
 D3DXCOLOR CX2QuestManager::GetQuestColor( int questID, int checkLevel )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
+	// June 323223b0: grey only from 8 levels above
+	const CX2QuestManager::QuestTemplet* pQuestTemplet = GetQuestTemplet( questID );
+	if( NULL == pQuestTemplet )
+		return D3DXCOLOR( 1, 1, 1, 1 );
+
+	if( CX2QuestManager::QT_EVENT == pQuestTemplet->m_eQuestType ||
+		CX2QuestManager::QT_CHANGE_JOB == pQuestTemplet->m_eQuestType ||
+		CX2QuestManager::QT_PCBANG == pQuestTemplet->m_eQuestType )
+		return D3DXCOLOR( 0, 1, 0, 1 );
+
+	const int iLevelGap = checkLevel - pQuestTemplet->m_iFairLevel;
+	if( iLevelGap > 7 )
+		return D3DXCOLOR( 0.7058f, 0.7058f, 0.7058f, 1 );
+	else if( iLevelGap >= 0 )
+		return D3DXCOLOR( 0, 1, 0, 1 );
+	else if( iLevelGap >= -2 )
+		return D3DXCOLOR( 0.8f, 0.8f, 0, 1 );
+	else
+		return D3DXCOLOR( 1, 0, 0, 1 );
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = GetQuestTemplet( questID );
 	if( NULL == pQuestTemplet )
 	{
@@ -2405,6 +2426,7 @@ D3DXCOLOR CX2QuestManager::GetQuestColor( int questID, int checkLevel )
 	{
 		return D3DXCOLOR( 1, 0, 0, 1 );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
 }
 
 
@@ -6682,6 +6704,49 @@ void CX2QuestManager::GetCompleteTalkQuest( const CX2UnitManager::NPC_UNIT_ID eQ
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+// June 3232db00: true leaves Hero dungeons out, false keeps only them
+bool CX2QuestManager::GetNeedToClearDungeonList( IN bool bExceptHeroDungeon_, OUT map<SEnum::DUNGEON_ID, bool>& mapGuideTarget_ )
+{
+	map<int,QuestInst*>::iterator mit = m_mapUnitQuest.begin();
+	for( ; mit != m_mapUnitQuest.end(); ++mit )
+	{
+		const CX2QuestManager::QuestInst* pQuestInst = mit->second;
+		if( NULL == pQuestInst )
+			continue;
+
+		const vector<SubQuestInst>& vecSubQuestInst = pQuestInst->m_vecSubQuestInst;
+		for( UINT i = 0; i < vecSubQuestInst.size(); ++i )
+		{
+			if( true == vecSubQuestInst[i].IsComplete() )
+				continue;
+
+			const SubQuestTemplet* pSubQuestTemplet = GetSubQuestTemplet( vecSubQuestInst[i].m_iID );
+			if( NULL == pSubQuestTemplet )
+				continue;
+
+			bool bIsEpic = false;
+			const QuestTemplet* pQuestTemplet = GetQuestTemplet( pQuestInst->m_iID );
+			if( NULL != pQuestTemplet && QT_EPIC == pQuestTemplet->m_eQuestType )
+				bIsEpic = true;
+
+			for( std::set<SEnum::DUNGEON_ID>::const_iterator sit = pSubQuestTemplet->m_ClearCondition.m_setDungeonID.begin();
+				sit != pSubQuestTemplet->m_ClearCondition.m_setDungeonID.end(); ++sit )
+			{
+				if( NULL == g_pData || NULL == g_pData->GetDungeonManager() || NULL == g_pData->GetDungeonManager()->GetDungeonData( *sit ) )
+					continue;
+
+				const int iDungeonIDWithoutDifficulty = *sit - g_pData->GetDungeonManager()->GetDungeonData( *sit )->m_eDifficulty;
+				if( bExceptHeroDungeon_ == CX2DungeonManager::IsHeroDungeon( iDungeonIDWithoutDifficulty ) )
+					continue;
+
+				mapGuideTarget_.insert( std::make_pair( static_cast<SEnum::DUNGEON_ID>( iDungeonIDWithoutDifficulty ), bIsEpic ) );
+			}
+		}
+	}
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 bool CX2QuestManager::GetNeedToClearDungeonList( OUT map<SEnum::DUNGEON_ID, bool>& mapGuideTarget_)
 {
 	//유닛이 가지고 있는 퀘스트 목록 순회
@@ -6727,6 +6792,7 @@ bool CX2QuestManager::GetNeedToClearDungeonList( OUT map<SEnum::DUNGEON_ID, bool
 	return true;
 }
 
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 void CX2QuestManager::SetHasDungeonQuest()
 {
 	m_bHasDungeonQuest = false;

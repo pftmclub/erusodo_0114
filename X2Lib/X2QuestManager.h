@@ -1038,7 +1038,11 @@ class CX2QuestManager
 		bool GetNeedToTalkNPCList( OUT map<CX2UnitManager::NPC_UNIT_ID, bool>& mapGuideTarget_ );// 퀘스트 완료를 위해 방문이 필요한 Village ID
 		bool GetNeedToVisitVillageList( OUT map<int, bool>& mapGuideTarget_ );					// 퀘스트 완료를 위해 방문이 필요한 Village ID
 		bool GetNeedToVisitFieldList( OUT map<int, bool>& mapGuideTarget_ );					// 퀘스트 완료를 위해 방문이 필요한 FIELD ID
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
+		bool GetNeedToClearDungeonList( IN bool bExceptHeroDungeon_, OUT map<SEnum::DUNGEON_ID, bool>& mapGuideTarget_ );	// June 3232db00
+#else SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 		bool GetNeedToClearDungeonList( OUT map<SEnum::DUNGEON_ID, bool>& mapGuideTarget_ );	// 퀘스트 완료를 위해 클리어 해야 하는 Dungeon ID
+#endif SERV_IRUHADEV_JUNE_DIVERGE_NEED_CLEAR_DUNGEON
 		void GetCompleteTalkQuest( const CX2UnitManager::NPC_UNIT_ID eQuestNPCID, int &nNormal );// 대화 퀘스트 완료
 		void SetHasDungeonQuest();
 		bool GetHasDungeonQuest(){return m_bHasDungeonQuest;}

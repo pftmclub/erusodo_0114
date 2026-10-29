@@ -776,7 +776,8 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue`.
-- **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343.
+- **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
+  (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
 
 ### D1-1 Done (2026-10-29, Opus 5.5; nine `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
@@ -850,6 +851,57 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** an NPC holding a freeze effect takes no state change; on a riding pet every riding state plays the
   pet's rider pose (`Ride_N`); Add's riding dash too; Aisha (ported) and Elsword (unported) die: body fades and hides, no Sacrifice of Hero
   heal; in a dungeon, Add's summon skill on the last kill of the stage's last sub-stage is refused with string 45041.
+
+### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 287, 288 | `CX2Game::DisplayAddHPInformation` / `MP` | `322d37d0` / `322d38f0` | `ADD_HPMP_INFO` | nothing drawn while dialogs are hidden; HP+ in green |
+| 290 | `CX2World::SetMapDetail` | `327fbeb0` | `MAP_DETAIL` | at LOW a layer with InitShow (+0x294) and ForceShow (+0x1f4) stays shown (offsets confirmed: June's non-LOW branch reads the same +0x294 as March's `GetInitShow`, the object loop the same +0x1f4 as `GetForceShow`) |
+| 293-296 | `CX2InformerManager::Get*Informer` | `328545c0` `328546a0` `32854780` `32854860` | `INFORMER` | the created informer is returned (March returned an uninitialised pointer); the fifth twin `GetCashShopInformer` (`32854940`, same bug) too |
+| 297 | `CX2ItemManager::CreateDummyEquip` | `3280a170` | `DUMMY_EQUIP` | the unit's type for every item (0 when the unit has no templet) |
+| 299 | `CX2KeyPad::GetKeyString( GAME_ACTION )` | `31f5ee50` | `KEY_STRING` | a bound key with no key name gives `GET_STRING( 39162 )` (no `STR_ID` name), so `IsSetKey` at X2KeyPad.cpp `GA_RIDING` reads it as set |
+| 301 | `CX2LocalMapUI::GetHenirDungeonIcnoDesc` | `32938ea0` | `HENIR_ICON_DESC` | count line is 27305 (March's live `#else` used 13763), no closing 13762 |
+| 302 | `CX2LocalMapUI::UdateLocalMapQuestDesc` | `32935d20` | `LOCALMAP_QUEST_DESC` | `bShow` false hides the mark; no `m_mapLocalMapQuestDesc` insert (write-only map) |
+| 306 | `CX2Main::GetEDString` | `31d76440` | `ED_STRING` | no comma before a minus sign |
+| 314, 326 | `CX2PlayGuide::SetMouseClickIndex` / `StartGoEffect` | `3289d200` / `3289d090` | `PLAY_GUIDE` | the guide arrows are gone (empty, ret 4); the Go effect and its sound need the UI particle system |
+| 318 | `CX2UIQuestNew::Handler_EGS_NEW_QUEST_REQ` | `323d2b40` | `COMEBACK_QUEST` | quests 208020-208060 are not requested unless `IsComeBackUser` (premium buff manager +0x5d, funcmap 1173) |
+| 327 | `CX2QuestManager::GetNeedToClearDungeonList` | `3232db00` | `NEED_CLEAR_DUNGEON` | June's `( bool bExceptHeroDungeon_, map& )`; the two June local-map callers pass `!m_bHeroMode` (`3293c6f0` @3293cac4 / @3293cc53) |
+| 328 | `CX2QuestManager::GetQuestColor` | `323223b0` | `QUEST_COLOR` | grey from 8 levels above (March 6) |
+| 341 | `CX2UIQuestNew::UpdateNavi` | `323c8da0` | `QUEST_NAVI` | non-movie half: NPC-friendship quests left out of count and position (`IsFriendshipQuest`, empty until Stage 18) |
+| 343 | `CX2UIQuestNew::UpdateRewardItemSlot` | `323d5160` | `QUEST_REWARD_SLOT` | a guild quest (`m_bIsGuild`) leaves the fixed-reward slots alone |
+
+- **No code, the tsv was wrong:** 285 (June still has the defence-dungeon branches: `327d97b0` = `IsDefenceDungeon` 38300-38302, called in
+  `3293d280` with `DefenceDungeonDisable`, `3293b5e0` and `322c2e50`); 307 (June's `31e552c0` = the lazily-creating `GetPartyUI`, then
+  `UpdatePartyDLG` `322c2e50`, as March; only the play-guide call goes, and `SetMouseClickIndex` is now empty).
+- **No code, March already reads as June:** 280 / 300 (`SERV_EVENT_VALENTINE_DUNGEON_INT` is off here, so the Valentine call is compiled out);
+  329 (June's `SetHasDungeonQuest` inlines June's `SubQuestInst::IsComplete` `323225e0`, which March's runs under `JUNE_QUEST_RUNTIME`;
+  `SERV_POINT_COUNT_SYSTEM` is off); 289 (June's +0x66 gate is the option `MUTE_ON_DEFOCUS`, which `OpenScriptFile` loads as false when absent
+  (@32423a7a), so June's body is March's here); 337 / 339 (June's extra branches test UIManager +0x34 / +0x58 / +0x64, June-only UIs: absent here, June's body acts as March's).
+- **Corrections to the tsv text:** 326's second state 0xf is June's `XS_GUILD_AGIT_GAME` (June `Enum.lua`), not `XS_SQUARE_GAME`; March has no
+  guild agit, so the port keeps village only. 327 / 328's "class filter" is the quest server-group test (+0 == -1 or `g_pInstanceData` +0x120,
+  funcmap 4628), which `GetQuestTemplet` already does. 343's NULL-templet destroy is in March too.
+- **Stand-ins (one-line comments):** `CreateDummyEquip` keeps the new'd item (June's lives on its stack and June's `CX2Eqip` ctor `32961280`
+  takes two more arguments, 0 and 1; March's ctor keeps the item as `m_pDummyItem`); `UdateLocalMapQuestDesc`'s game-edit operator byte
+  (+0xf8) read as `XUAL_OPERATOR`, as `UpdatePartyDLG`'s port; Henir challenge count 0 (`SERV_HENIR_RENEWAL_2013` off: no packet fields);
+  reward quantity unscaled (June `323d4eb0` multiplies it for an NPC-friendship code event, Stage 18).
+- **Split out:** 342 `UpdateQuickQuestDLG` (June `323dd640`: 6 slots and three per-state slot setters `323da7a0` / `323db830` / `323dc470`,
+  about 1,800 decompiled lines) -> sub-phase **D1-4b** (`kickoffs/june-march-divergence/D1-4b.md`).
+- **Routed:** to D1-3 (kickoff note): `GetNumItemByTID`'s June arguments 4-5 at the quest callers (June passes 1, 0, 1, 0); `CX2Eqip`'s ctor
+  arguments from `CreateDummyEquip`. To backlog Stage 9: the `MUTE_ON_DEFOCUS` option (+0x66, save `3241ef40`, GFx `muteOnDefocus`, app
+  +0x1f8 +0x352 active test); UIManager +0x34 (refresh `328eea70`) / +0x58 skill-slot UI (June slot types 3 / 0x1a) in `SetNowDragItemReturn`;
+  the +0x64 panel (UI menu 47, show `32d754f0`) in `UIOpened`.
+- **No `JUNE_BUGS.md` row, no guard:** none of the ported bodies is a June bug that shows offline; no unported class can crash on them.
+- **Hygiene:** `flagcheck --worktree --files` per flag: `RESULT: PASS` for all fourteen (0 FAIL, 0 ERROR, 0 deleted lines, 0 non-ASCII,
+  0 EOL mismatches); multi-flag files with `--with` (`X2LocalMapUI.cpp`, `X2QuestManager.cpp` + `.h`, `X2UIQuestNew.cpp`); `Always.h` is
+  OTHER (other flags, a peer's D1-2 lines uncommitted beside). `git diff --stat`: 11 code files + `Always.h`, 0 deletions. `enumscan --check`:
+  the 4 class-A rows are old lines (`X2ItemManager.cpp:367/372`, `X2QuestManager.cpp:6318/6319`). A `/Zs` compile of the 10 `.cpp` passed
+  every new `#error` guard before the build.
+- **Build:** first run passed. `DEPLOY OK: X2_offline.exe is 25,808,384 B, dated 2026-10-29 14:22:14, md5 2b21db02c39734460c4fb41147c32d6c,
+  equal to X2/US_SERVICE/x2.exe (2026-10-29 14:22:03); built at main 0c054a37 + 12 uncommitted code file(s).`
+- **Smoke (plan end):** dungeon with dialogs hidden (the hide key): no HP+ / MP+ text; local map at map detail LOW keeps forced layers;
+  the Henir icon tooltip ends after the count line; a key-binding slot for an unnamed key shows string 39162; the quest list's colours grey at
+  +8 levels; an unported class's quest reward window still fills its slots.
 
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 

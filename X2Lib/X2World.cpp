@@ -577,7 +577,12 @@ void CX2World::SetMapDetail( CX2GameOption::OptionLevel optionLevel )
         CX2WorldLayer* pLayer = m_LayerList[i];
         if( optionLevel == CX2GameOption::OL_LOW )
         {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_MAP_DETAIL
+			// June 327fbeb0: a layer shown at start and forced stays shown at LOW
+			pLayer->SetShowObject( true == pLayer->GetInitShow() && true == pLayer->GetForceShow() );
+#else SERV_IRUHADEV_JUNE_DIVERGE_MAP_DETAIL
             pLayer->SetShowObject( false );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_MAP_DETAIL
         }
         else
         {

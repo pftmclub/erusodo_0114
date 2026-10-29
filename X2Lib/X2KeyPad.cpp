@@ -935,7 +935,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 			KeyStringMap::const_iterator cIter = m_KeyStringMap.find( ucKey );
 
 			if ( cIter == m_KeyStringMap.end() )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_KEY_STRING
+				return GET_STRING( 39162 );	// June 31f5ee50: a bound key with no key name ( no STR_ID name )
+#else SERV_IRUHADEV_JUNE_DIVERGE_KEY_STRING
 				return L"";
+#endif SERV_IRUHADEV_JUNE_DIVERGE_KEY_STRING
 			else
 				return cIter->second;
 		}
