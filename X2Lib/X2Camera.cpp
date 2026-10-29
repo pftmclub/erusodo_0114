@@ -568,11 +568,16 @@ void CX2Camera::NomalTrackingCamera( CX2GameUnit* pFocusUnit, float distance, fl
 	float fCameraHeightCompensation = 400.f;
 
 	if( g_pX2Game != NULL 		
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		// June 31fb3640 @31fb3788: game types 2 to 5 ( 5 has no Enum name )
+		&& ( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD || g_pX2Game->GetGameType() == CX2Game::GT_PVE || 5 == g_pX2Game->GetGameType() ) )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 #ifdef PVP_ZOOM_CAMERA_1
 		&& (g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_PVP ) )
 #else
 		&& ( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD ) )
 #endif PVP_ZOOM_CAMERA
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	{
 		if( distance <= 800.f )
 		{
@@ -824,7 +829,12 @@ void CX2Camera::NomalDirectCamera( CX2GameUnit* pFocusUnit, float distance, floa
 	float fCameraHeightCompensation = 400.f;
 
 	if( g_pX2Game != NULL 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+		// June 31fb3c50 @31fb3cf6: game types 2 to 5 ( 5 has no Enum name )
+		&& ( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD || g_pX2Game->GetGameType() == CX2Game::GT_PVE || 5 == g_pX2Game->GetGameType() ) )
+#else SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 		&& ( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD ) )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 	{
 		if( distance <= 800.f )
 		{

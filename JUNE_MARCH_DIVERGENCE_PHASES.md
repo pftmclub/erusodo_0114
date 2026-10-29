@@ -890,6 +890,42 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** a skill with `SUB_CAMERA_TIMING` plays its sub-cameras as before; a dungeon death with the party / NPC killer sends
   the request (log `GAME     unitUID=... died`); a timed focus (boss last kill) is not pulled back by the dying unit's default camera.
 
+### D1-2 review Done (2026-10-29, Opus 5.5; reviews `5e4508ee`, `0c054a37`, `25d16ac1`)
+
+**Verdict: D1-1, D1-2 and D1-2b pass; one partial port fixed under `LUA_CAMERA`.**
+- **Bodies vs June** (Ghidra decompile + `funcdis.py` asm, all 21 flags): gage `SetNowMp` / `UpNowMp` / `FlushMp` and the unit wrappers
+  (skip / track arguments, before-value, tally signs, random mission fed the argument, `ret 0xc`); `322d7670` filters and list modes
+  (`NTPLOTT` 1 / 3 / 4, `NCT` 102 / 106); `32eb9c70` awakening BTIs (157, 320, 660, 661, 822, 823, 966-968; `AEACBO_NOT_APPLY` = 1, single-set
+  branch only); `31fceab0`, `3229dd90` (March's array is its whole list, 35 vs June's 36), `31ff7300` placement; NPC `32758fe0` / `327590c0` /
+  `32759250` (freeze vector `+0x6564`); `3202cba0` (channels 12-14 -> 24675, 15 -> 39561); `3202daf0` + `3201bd60` / `322f43e0` / `322f42a0` /
+  `322f4340` / `327f3b60` (sub-stage -1 / 0 cases match); `31ffcba0` + fade `31fe8220`; `31fdaf30` (21 cases, 0x57 / 0x5d left out);
+  `32006c00`; `32cc5b20`; `32cc8980` (enchant `+0x194`, templet `+0x198`); `31fd9200`; `32014810` (every killer branch, PCC 13 fallback,
+  white-out, die count, delayed-firing clear); `31ff5df0` (stack slots: index form = anim time `[E+0x20]`, sub forms = now - start,
+  `SetLinearTrackingTime` = clamp0( now - before )); `31fb5920` tracking path; `31fae6d0` is `ret 0x18` with roll 0 (JUNE_BUGS 469 holds).
+- **Finding, fixed:** D1-2b gave `NomalTrackingCamera` (unit) and `NomalDirectCamera` only June's roll. June's `31fb3640 @31fb3788` and
+  `31fb3c50 @31fb3cf6` apply the height compensation for game types 2-5 (constants 400 / 800->100 / 900->200 / 1200->300 read from the exe,
+  as March). Both conditions now take June's `GT_DUNGEON || GT_BATTLE_FIELD || GT_PVE || 5` (5 has no Enum name) under `LUA_CAMERA`, March's
+  (with its `PVP_ZOOM_CAMERA_1` ladder) in `#else`; new `#error` guard `LUA_CAMERA` needs `JUNE_ENUM_NAMES` (defined at `Always.h:10170`).
+  No change offline (types 4 / 5 never set). The rest of `31fb3c50` (lookAt +100, eye math, clamps, `m_bRight`) equals March's.
+- **Live branches:** `cl /EP` probe (X2Lib US_SERVICE), 57 markers: all 21 flags and every enclosing flag ON (`X2OPTIMIZE_NPC_NONHOST_SIMULATION`
+  holds the NPC `_Reaction_*` pair, `HYPER_MODE_FIX`, `SERV_SKILL_NOTE`, `SUMMON_MONSTER_CARD_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, ...);
+  off: `CHRISTMAS_EVENT_2013`, `SERV_GATE_OF_DARKNESS_SUPPORT_EVENT`, `HEAD_ATTACHED_CAMERA_TEST` (March-only lines June drops anyway).
+- **Bookkeeping:** `MODS.md` sections for all three; `JUNE_BUGS.md` 467-469; `guards.tsv` Add row for `RIDING_HYPER_MODE_END`; stand-ins named.
+- **Branches placed:** black-out screen + the `+0x3b84` list (a timed per-unit mark list: timer `+4` counted down by `32297740`, effect set
+  `+0x41ec` via `322919d0`, fed through `Process_ExtraDamage`) -> new phase **D1-2c** (`kickoffs/june-march-divergence/D1-2c.md`), reviewed
+  in `D1-4 review`. Camera chain -> fixed above; March's `ManualTrackingCamera` / `CalcNormalCameraPosition` carry the same 2-type chain,
+  June counterparts not in the tsv -> lead in `D1-review.md`. Backlog Stage 35 bullet updated.
+- **Hygiene:** `flagcheck <FLAG> --range <c>^..<c>` per flag: all 21 `RESULT: PASS`, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches, 0 encoding
+  changes. Shared-file flags rerun `--with` their same-commit siblings: SKILL_MEMO / SKILL_LEVEL_VALUE / FORCE_HYPER_MODE 1 PASS, 13 OTHER each;
+  BONE_NAME_PREFIX / DIE_FRAME_MOVE / SUMMON_SPECIAL_ATTACK / RIDING_HYPER_MODE_END 1 PASS, 9 OTHER; PVP_OFFICIAL_SKILL 2 PASS, 1 DEFINE (two homes);
+  LUA_CAMERA's one ERROR (the `COMMON_CAMERA_MOVE` guard naming it) clears `--with` (2 PASS, 8 OTHER). OTHER rows are the sibling flags; the `tok`
+  counts (D1-1: GAGE_TALLY 5, LOCK_ON 3, ...) are the plain house-style `#else` lines. `git log -S` after each commit: only `25d16ac1` for
+  PVP_OFFICIAL_SKILL (shared `ClientPacket.h` / `ServerDefine.h`). This review's edit: `LUA_CAMERA --worktree --with COMMON_CAMERA_MOVE DYING_START`
+  2 PASS, 0 FAIL, 0 ERROR, 0 deleted; `enumscan --check X2Camera.cpp` 0 A/B rows.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,809,920 B, dated 2026-10-29 15:31:22, md5 00ce3d231498557f7caf99d45c476bbb, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 15:31:15); built at main 2c4f7e85 + 2 uncommitted code file(s).` (PCH rebuilt for the `Always.h` edit.)
+- **Smoke (plan end):** as D1-1 / D1-2 / D1-2b; the camera fix has no offline effect.
+
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 
 | tsv | March function | June | Flag `..._DIVERGE_` | What changes |

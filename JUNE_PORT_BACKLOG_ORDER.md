@@ -1323,6 +1323,10 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
     emptied by `32274880` at the end of `DyingStart` (stand-in comment): identify it.
   - `CX2Camera::NomalDirectCamera` `31fb3c50`: its game-type height-compensation chain (game vslot `0x10c` against 2 / 3 / 4) was never
     compared with March's (`X2Camera.cpp`, GT_DUNGEON / GT_BATTLE_FIELD); D1-2b only added the roll.
+  - **Placed by the D1-2 review (2026-10-29):** the black-out screen and the `+0x3b84` list (a timed mark list fed through
+    `Process_ExtraDamage`) are phase **D1-2c** (`kickoffs/june-march-divergence/D1-2c.md`). The camera chain (game types 2-5 in June's
+    `31fb3c50` and `31fb3640`) was fixed in the review under `LUA_CAMERA`. March's `ManualTrackingCamera` and `CalcNormalCameraPosition`
+    carry the same 2-type chain; their June counterparts are not in the tsv: the D1 review (`D1-review.md`) compares them.
 - **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0a`. D2's close adds the gate
   and table rule as standing rules (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
 

@@ -26,3 +26,7 @@ Hygiene is one command per flag, not a fresh script:
 `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding. Fix clear errors
 under the same flag (then `tools/build.py --deploy`); hand design decisions to the user. No play-test (the smoke runs at the plan end).
 Write the review section into the plan doc, update STATUS, check `D2.md`, commit.
+
+Lead from the D1-2 review: March's `CX2Camera::ManualTrackingCamera` and `CalcNormalCameraPosition` apply the camera height
+compensation for `GT_DUNGEON` / `GT_BATTLE_FIELD` only, as `NomalTrackingCamera` / `NomalDirectCamera` did; June's `31fb3640` / `31fb3c50`
+apply it for game types 2-5 (fixed under `LUA_CAMERA`). Find their June counterparts (funcmap, callers of the two) and compare them whole.

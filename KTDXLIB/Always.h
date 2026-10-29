@@ -10651,6 +10651,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA ) && !defined( SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK )
 #error SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK ( SetTracking / Point with linear and roll )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( GT_PVE in the camera height compensation )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_LUA_CAMERA
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
