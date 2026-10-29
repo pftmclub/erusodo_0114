@@ -181,6 +181,17 @@ static int GetQuestStatePictureNumber( int eState )
 }
 using namespace _CONST_UIQUESTNEW_HELPERS_;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
+namespace _CONST_UIQUESTNEW_QUICK_QUEST_
+{
+/// June 32696fa0 + 3267b0b0: is the quest in the custom-event manager's MISSION_QUEST_ID list ( CustomEventScript.lua ); March has no such manager.
+static bool IsChallengeMissionQuest( int /*iQuestID*/ )
+{
+	return false;
+}
+}
+using namespace _CONST_UIQUESTNEW_QUICK_QUEST_;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 CX2UIQuestNew::CX2UIQuestNew( CKTDXStage* pNowStage, const WCHAR* pFileName )
 : CX2ItemSlotManager( pNowStage, pFileName ),
 m_iQuestPerPage(0),
@@ -8244,6 +8255,180 @@ bool CX2UIQuestNew::IsStateSubQuestCanClear( int iSubQuestID, int iNowDungeonID 
 
 bool CX2UIQuestNew::SetUIQuickQuestSlotInfo(int iQuestSlotInfoIndex, QuestInfo& QuestInfo )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
+	// June 323da7a0: story quests take no slot, a lone together-clear group shows only those sub-quests, story titles are red
+	if( false == GetIsValidDayTheWeekQuest( QuestInfo.m_iID ) )
+		return false;
+
+	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( QuestInfo.m_iID );
+	const CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( QuestInfo.m_iID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+	if( NULL == pQuestTemplet )
+	{
+		QuestNoTempletLog( QuestInfo.m_iID, L"SetUIQuickQuestSlotInfo" );
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
+
+	if( iQuestSlotInfoIndex > _CONST_UIQUESTNEW_INFO_::g_iMaxNumOngoingQuest - 1 )
+		return false;
+
+	if( QSS_COMPLETE_EPIC == QuestInfo.m_eQuestState || QSS_WAIT_EPIC == QuestInfo.m_eQuestState ||
+		QSS_COMPLETE_STORY == QuestInfo.m_eQuestState || QSS_CHAIN_WAIT == QuestInfo.m_eQuestState )
+		return false;
+
+	UIQuickQuestInfo& kSlot = m_vecUIQuickQuest[iQuestSlotInfoIndex];
+	kSlot.m_QuestID = QuestInfo.m_iID;
+	// stand-in: June restores the dialog and title moved by its event-dungeon setters ( slot +0x45 / +0x48 / +0x50 ); neither setter exists here
+
+	if( IsStateQuickQueskFilter() )
+	{
+		bool bSetQuickQuestSlot = false;
+		int iCurrentDungeonID = 0;
+		if( NULL != g_pData->GetDungeonRoom() )
+			iCurrentDungeonID = g_pData->GetDungeonRoom()->GetDungeonID();
+
+		for( UINT i = 0; i < pQuestTemplet->m_vecSubQuest.size(); i++ )
+		{
+			if( IsStateSubQuestCanClear( pQuestTemplet->m_vecSubQuest[i], iCurrentDungeonID ) )
+				bSetQuickQuestSlot = true;
+		}
+
+		if( false == bSetQuickQuestSlot )
+			return false;
+	}
+
+	bool bOnlyTogetherClear = false;
+	if( 1 == pQuestTemplet->m_mapSubQuestGroup.size() )
+	{
+		std::map< int, std::vector<int> >::const_iterator mitGroup = pQuestTemplet->m_mapSubQuestGroup.begin();
+		for( UINT i = 0; i < mitGroup->second.size(); i++ )
+		{
+			const CX2QuestManager::SubQuestTemplet* pSubQuestTemplet = g_pData->GetQuestManager()->GetSubQuestTemplet( mitGroup->second[i] );
+			if( NULL != pSubQuestTemplet && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pSubQuestTemplet->m_eClearType )
+			{
+				bOnlyTogetherClear = true;
+				break;
+			}
+		}
+	}
+
+	wstring wstr;
+	bool bQuestComplete = true;
+	std::map< int, std::vector<int> >::const_iterator mit = pQuestTemplet->m_mapSubQuestGroup.begin();
+	for( ; mit != pQuestTemplet->m_mapSubQuestGroup.end(); ++mit )
+	{
+		wstr.clear();
+
+		bool bIsSubquestGroupCompelete = true;
+		for( UINT i = 0; i < mit->second.size(); i++ )
+		{
+			const CX2QuestManager::SubQuestTemplet* pSubQuestTemplet = g_pData->GetQuestManager()->GetSubQuestTemplet( mit->second[i] );
+			if( NULL == pSubQuestTemplet )
+				continue;
+			if( true == bOnlyTogetherClear && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR != pSubQuestTemplet->m_eClearType )
+				continue;
+
+			wstring wstrSubQuestDesc = g_pData->GetQuestManager()->MakeSubQuestString( pSubQuestTemplet->m_bAutomaticDescription, pSubQuestTemplet, pQuestInst, true );
+
+			if( NULL != pQuestInst && NULL == pQuestInst->GetSubQuest( mit->second[i] ) )
+			{
+				wstringstream wstrstm;
+				wstrstm << L"SubQuestID: " << mit->second[i];
+				ErrorLogMsg( XEM_ERROR125, wstrstm.str().c_str() );
+			}
+
+			if( 0 != wstrSubQuestDesc.length() )
+			{
+				if( NULL != pQuestInst &&
+					NULL != pQuestInst->GetSubQuest( mit->second[i] ) &&
+					true == pQuestInst->GetSubQuest( mit->second[i] )->IsComplete() )
+				{
+					wstr += L"#CFBAF5D";
+					wstr += wstrSubQuestDesc;
+					wstr += L" (";
+					wstr += GET_STRING( STR_ID_759 );
+					wstr += L")#CX";
+				}
+				else
+				{
+					wstr += wstrSubQuestDesc;
+					bQuestComplete = false;
+					bIsSubquestGroupCompelete = false;
+				}
+				wstr += L"\n";
+			}
+		}
+
+		if( false == bIsSubquestGroupCompelete )
+			break;
+	}
+
+	if( bQuestComplete )
+	{
+		kSlot.m_pStaticQuestTitle->GetString(1)->color = D3DXCOLOR( 0.9f, 0.9f, 0.17f, 1.0f );
+		kSlot.m_pStaticQuestTitle->GetString(2)->msg = GET_STRING( STR_ID_759 );
+	}
+	else
+	{
+		kSlot.m_pStaticQuestTitle->GetString(2)->msg = L"";
+	}
+	kSlot.m_pButtonComplete->SetEnable( CX2Main::XS_DUNGEON_GAME != g_pMain->GetNowStateID() );
+	kSlot.m_pButtonComplete->SetShow( bQuestComplete );
+
+	wstring wstrTitle = L"";
+	if( QTS_EPIC == QuestInfo.m_eQuestType )
+	{
+		wstrTitle = L"\x25B6";
+		wstrTitle += pQuestTemplet->m_wstrTitle;
+		kSlot.m_pStaticQuestTitle->GetString(1)->color = D3DXCOLOR( 0.12f, 0.91f, 1.f, 1.0f );
+	}
+	else if( QTS_STORY == QuestInfo.m_eQuestType )
+	{
+		wstrTitle = L"\x25B6" + pQuestTemplet->m_wstrTitle;
+		kSlot.m_pStaticQuestTitle->GetString(1)->color = D3DXCOLOR( 1.f, 0.f, 0.f, 1.0f );
+	}
+	else
+	{
+		wstring wstrRandom = GET_STRING( STR_ID_17273 );
+		wstring::size_type szRandom = pQuestTemplet->m_wstrTitle.find( wstrRandom );
+		if( wstring::npos != szRandom )
+		{
+			wstring wstrTemp = pQuestTemplet->m_wstrTitle;
+			wstrTemp.erase( szRandom, wstrRandom.length() );
+			wstrTitle = L"\x25B6" + wstrTemp;
+		}
+		else
+		{
+			wstrTitle = L"\x25B6" + pQuestTemplet->m_wstrTitle;
+		}
+		kSlot.m_pStaticQuestTitle->GetString(1)->color = D3DXCOLOR( 0.68f, 0.95f, 0.17f, 1.0f );
+	}
+
+	int iTitleWidth = 155;
+	if( false == bQuestComplete )
+		iTitleWidth += 25;
+	CWordLineHandler::LineBreakInX2Main( wstrTitle, m_pFontQuickQuestClearCondition, (int)((float)iTitleWidth*g_pKTDXApp->GetResolutionScaleX()), L"", true );
+	wstring::size_type szLineEnd = wstrTitle.find( L"\n" );
+	if( wstring::npos != szLineEnd )
+	{
+		wstrTitle.erase( szLineEnd );
+		wstrTitle = wstrTitle + L"...";
+	}
+	kSlot.m_pStaticQuestTitle->SetString( 1, wstrTitle.c_str() );
+
+	const int MAGIC_TEXT_WIDTH = 200;
+	CWordLineHandler::LineBreakInX2Main( wstr, m_pFontQuickQuestClearCondition, (int)((float)MAGIC_TEXT_WIDTH*g_pKTDXApp->GetResolutionScaleX()), L"", true );
+
+	float DescHeight = ( m_pFontQuickQuestClearCondition->GetPaddedHeight( wstr.c_str(), 2 ) / g_pKTDXApp->GetResolutionScaleY() );
+	DescHeight -= 4.f;
+
+	kSlot.m_fExpandSizeY = DescHeight;
+	kSlot.m_pStaticQuestInfo->SetString( 0, wstr.c_str() );
+	kSlot.m_pDLGUIQuickQuest->SetShowEnable( true, true );
+
+	return true;
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 
 #ifdef DAY_OF_THE_WEEK_QUEST
 	if( false == GetIsValidDayTheWeekQuest( QuestInfo.m_iID ) )
@@ -8494,6 +8679,7 @@ bool CX2UIQuestNew::SetUIQuickQuestSlotInfo(int iQuestSlotInfoIndex, QuestInfo& 
 	m_vecUIQuickQuest[iQuestSlotInfoIndex].m_pDLGUIQuickQuest->SetShowEnable(true, true);
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 }
 void CX2UIQuestNew::MinimizeAllUIQuickQuest()
 {
@@ -8545,6 +8731,53 @@ void CX2UIQuestNew::ExpandAllUIQuickQuestWithExpandInfo()
 
 void CX2UIQuestNew::UpdateQuickQuestDLG(bool bResetExpand /*= false*/, bool bUpdateOngoingQuest /*= true*/)
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
+	// June 323dd640: custom-event quests take no slot, and every Complete button's alpha goes back to 1
+	if( true == GetShowQuickQuestDLG() )
+	{
+		MinimizeAllUIQuickQuest();
+
+		if( true == bUpdateOngoingQuest )
+		{
+			UpdateOngoingQuestInfo();
+		}
+		for( UINT i = 0; i < _CONST_UIQUESTNEW_INFO_::g_iMaxNumOngoingQuest; i++ )
+		{
+			m_vecUIQuickQuest[i].m_pDLGUIQuickQuest->SetShowEnable( false, false );
+			if( NULL != m_vecUIQuickQuest[i].m_pButtonComplete )
+			{
+				const D3DXCOLOR colorComplete = m_vecUIQuickQuest[i].m_pButtonComplete->GetColor();
+				m_vecUIQuickQuest[i].m_pButtonComplete->SetColor( D3DXCOLOR( colorComplete.r, colorComplete.g, colorComplete.b, 1.f ) );
+			}
+		}
+
+		int iSlotIndex = 0;
+		for( UINT i = 0; i < m_vecQuickQuest.size(); ++i )
+		{
+			if( true == IsFriendshipQuest( m_vecQuickQuest[i].m_iID ) || true == IsChallengeMissionQuest( m_vecQuickQuest[i].m_iID ) )
+				continue;
+
+			// stand-in: DI_EVENT_2017_FOOLSDAY / _TREASURE games ( g_pX2Game +0xbb8 / +0xbbc ) cap at 2 slots via 323db830 / 323dc470; neither manager exists here
+			if( true == SetUIQuickQuestSlotInfo( iSlotIndex, m_vecQuickQuest[i] ) )
+				iSlotIndex++;
+
+			if( iSlotIndex >= _CONST_UIQUESTNEW_INFO_::g_iMaxNumOngoingQuest )
+				break;
+		}
+		m_iShowQuickQuest = iSlotIndex;
+
+		ExpandAllUIQuickQuest();
+	}
+
+	if( false == m_bShowQuickQuestDLG || false == m_bUserShowQuickQuestDLG )
+	{
+		for( UINT i = 0; i < _CONST_UIQUESTNEW_INFO_::g_iMaxNumOngoingQuest; i++ )
+		{
+			m_vecUIQuickQuest[i].m_pDLGUIQuickQuest->SetShowEnable( false, false );
+		}
+	}
+	g_pMain->GetInformerManager()->GetQuestInformer()->SetNeedCheckInfo( true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 	if( true == GetShowQuickQuestDLG() )
 	{
 #ifdef REFORM_QUEST //EXPAND
@@ -8610,6 +8843,7 @@ void CX2UIQuestNew::UpdateQuickQuestDLG(bool bResetExpand /*= false*/, bool bUpd
 	g_pMain->GetInformerManager()->GetQuestInformer()->SetNeedCheckInfo( true );
 
 	return;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
 }
 
 void CX2UIQuestNew::SetShowQuickQuestDLG( bool forOpen )

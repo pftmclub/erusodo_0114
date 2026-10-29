@@ -10672,3 +10672,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_DYING_START needs SERV_IRUHADEV_JUNE_DIVERGE_PVP_OFFICIAL_SKILL ( PCC_GUILD ) and SERV_IRUHADEV_JUNE_ENUM_NAMES ( GT_PVE )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_DYING_START
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-29
+// Description: june-march-divergence D1-4b: the quick-quest window fills its slots as June does: story quests ( complete / chain wait ) take no slot, a lone together-clear group shows only those sub-quests, story titles are red, custom-event quests are skipped, each Complete button's alpha is reset ( June 323dd640 / 323da7a0 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST ) && ( !defined( SERV_IRUHADEV_JUNE_QUEST_UI ) || !defined( SERV_IRUHADEV_JUNE_QUEST_LOAD ) )
+#error SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST needs SERV_IRUHADEV_JUNE_QUEST_UI ( IsFriendshipQuest, QTS_STORY ) and SERV_IRUHADEV_JUNE_QUEST_LOAD ( SQT_TOGETHER_SUBQUEST_CLEAR )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST
+//////////////////////////////////////////////////////////////////////////

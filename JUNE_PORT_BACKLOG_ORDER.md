@@ -946,6 +946,10 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   - `CX2GUKiddayNPC` removes itself from the list in its dtor (`327555a0`). `327554e0` adds score.
   - User `DamageReact @3204968f-32049719`: a hit from a listed unit sets the damage to 10% of the user's max HP and gives 2 s of force/show invincibility.
   - The 41470 start hook `31d87420` (buff 7d review) is part of the same dungeon.
+- **Quick-quest window in two event games (june-march-divergence D1-4b, 2026-10-29).** `UpdateQuickQuestDLG` `323dd640` caps the window at
+  2 slots and fills them with `323db830` while `CX2Game +0xbb8` exists (`DI_EVENT_2017_FOOLSDAY` 41460, created `@327c9663`, ctor `32e8b110`)
+  and with `323dc470` while `+0xbbc` exists (41470 above). Both move the slot dialog and save its position at slot `+0x45..+0x50`, which
+  `SetUIQuickQuestSlotInfo` `323da7a0` restores. Port them with the managers (stand-in comments in `X2UIQuestNew.cpp`).
 - **`DI_EVENT_ALCHEMY_LAB` (41350).** NPC `DamageReact @327b452f-327b47a4`.
   - The gate: dungeon `+0xc44 +8 == 4`, and the hitting effect is not `EVENT_SPECIAL_ITEM_EFFECT_WIND[_EDT]`.
   - At or below 20% HP the damage becomes 3e9 (and `327be3e0` fires).

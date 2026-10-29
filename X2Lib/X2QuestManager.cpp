@@ -2432,6 +2432,30 @@ D3DXCOLOR CX2QuestManager::GetQuestColor( int questID, int checkLevel )
 
 wstring CX2QuestManager::GetQuestColorString( int questID, int checkLevel )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
+	// June 32323000: grey only from 8 levels above, as GetQuestColor
+	const CX2QuestManager::QuestTemplet* pQuestTemplet = GetQuestTemplet( questID );
+	if( NULL == pQuestTemplet )
+		return L"#CFFFFFF";
+
+	if( CX2QuestManager::QT_EVENT == pQuestTemplet->m_eQuestType ||
+		CX2QuestManager::QT_PCBANG == pQuestTemplet->m_eQuestType )
+		return L"#C00FF00";
+
+	if( CX2QuestManager::QT_CHANGE_JOB != pQuestTemplet->m_eQuestType )
+	{
+		const int iLevelGap = checkLevel - pQuestTemplet->m_iFairLevel;
+		if( iLevelGap > 7 )
+			return L"#CB3B3B3";
+		if( iLevelGap < 0 )
+		{
+			if( iLevelGap >= -2 )
+				return L"#CCCCC00";
+			return L"#CFF0000";
+		}
+	}
+	return L"#C00FF00";
+#else SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = GetQuestTemplet( questID );
 	if( NULL == pQuestTemplet )
 	{
@@ -2471,6 +2495,7 @@ wstring CX2QuestManager::GetQuestColorString( int questID, int checkLevel )
 	{
 		return L"#CFF0000";		// D3DXCOLOR( 1, 0, 0, 1 );
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_QUEST_COLOR
 }
 
 

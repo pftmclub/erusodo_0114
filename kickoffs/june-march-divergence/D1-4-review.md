@@ -26,3 +26,7 @@ Hygiene is one command per flag, not a fresh script:
 `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding. Fix clear errors
 under the same flag (then `tools/build.py --deploy`); hand design decisions to the user. No play-test (the smoke runs at the plan end).
 Write the review section into the plan doc, update STATUS, check `D1-5.md`, commit.
+
+Lead from D1-4b: `32696fa0` is the custom-event manager (funcmap rows 1132, 4330; its `+0x36c` set is `CustomEventScript.lua`'s
+`MISSION_QUEST_ID`), so D1-4's helper name `IsFriendshipQuest` for its `+0x510` map (`3267b440`) is unconfirmed. Find the `+0x510`
+filler (`32681130` / `32681280`, called from `32694ba0`, a vtable slot at `334b21bc`) and rename the helper if it is not the friendship list.

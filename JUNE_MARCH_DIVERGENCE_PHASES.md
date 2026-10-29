@@ -941,6 +941,40 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   the Henir icon tooltip ends after the count line; a key-binding slot for an unnamed key shows string 39162; the quest list's colours grey at
   +8 levels; an unported class's quest reward window still fills its slots.
 
+### D1-4b Done (2026-10-29, Opus 5.5; `SERV_IRUHADEV_JUNE_DIVERGE_QUICK_QUEST`, plus `GetQuestColorString` under D1-4's `QUEST_COLOR`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 342 | `CX2UIQuestNew::UpdateQuickQuestDLG` | `323dd640` | `QUICK_QUEST` | quests in the custom-event lists (`IsFriendshipQuest`, new `IsChallengeMissionQuest`, both empty here) take no slot; each Complete button's alpha goes back to 1 (base `SetColor`, June vslot 0x84 = `31c932c0`, `m_Color` +0x74) |
+| 342 (twin) | `CX2UIQuestNew::SetUIQuickQuestSlotInfo` | `323da7a0` | `QUICK_QUEST` | also skips `QSS_COMPLETE_STORY` / `QSS_CHAIN_WAIT`; a quest with one sub-quest group holding a `SQT_TOGETHER_SUBQUEST_CLEAR` row lists only those rows; `QTS_STORY` titles red (1,0,0,1); every constant else (colours, 155/180, 200, -4.0, `#CFBAF5D`, `...`) read from June and equal to March's live branch |
+| 372 (new) | `CX2QuestManager::GetQuestColorString` | `32323000` | `QUEST_COLOR` (D1-4's flag, same change) | grey from 8 levels above (March 6), as `GetQuestColor`; types `QT_EVENT` / `QT_PCBANG` / `QT_CHANGE_JOB` green; found as the only xref of `L"#CB3B3B3"` |
+
+- **Corrections to row 342:** June keeps Minimize/ExpandAll: `323c96c0` / `323c98c0` are March's `MinimizeAllUIQuickQuest` /
+  `ExpandAllUIQuickQuest` with the per-slot Minimize / Expand inlined (same 18.0 / 200.0 / +4.0), so the port calls them by name.
+  `323db830` / `323dc470` are not the dungeon / field setters. `g_pX2Game +0xbb8` / `+0xbbc` are event managers that `327c9560` creates only
+  in `DI_EVENT_2017_FOOLSDAY` (41460, `@327c9663`) / `DI_EVENT_2017_TREASURE` (41470, funcmap `Effect C10d`). `3267b0b0` is not a
+  friendship list: it is `32696fa0` (the custom-event manager) `+0x36c` = `MISSION_QUEST_ID` from `CustomEventScript.lua`
+  `AddChallengeELMissionEvent` (loader `3267c270`, table string `334b0b94`).
+- **Stand-ins (one-line comments):** the two event setters with their 2-slot cap (managers absent: routed to backlog Stage 19, new bullet);
+  the slot-dialog restore in `SetUIQuickQuestSlotInfo` (slot +0x45, set only by those setters, byte-scan of `[reg+0x55d]` writes);
+  `IsChallengeMissionQuest` returns false (no custom-event manager in March). June's `GET_STRING` string-id debug form (`31c31060` +0x40)
+  is the macro, not ported. The `SERV_IRUHADEV_JUNE_QUEST_DATA` NULL-templet guard stays inside June's body (June would crash).
+- **Lead for the D1-4 review (kickoff note):** D1-4's `IsFriendshipQuest` names the same manager's `+0x510` map; its filler is not traced.
+  June's `IsStateQuickQueskFilter` `323cd490` adds `XS_PVE_GAME` / `XS_PHOTOZONE_GAME` (states March lacks), so the call by name is equal here.
+- **No `JUNE_BUGS.md` row, no guard:** no June bug shows offline; every slot field read exists for every class.
+- **Bookkeeping:** tsv row 342 source extended, row 372 added; funcmap rows `(Diverge D1-4b)` x5; `MODS.md` line under the D1-4 entry
+  (it went into the D1-2b commit `25d16ac1`, which staged `MODS.md` whole); Stage 19 bullet in `JUNE_PORT_BACKLOG_ORDER.md`.
+- **Hygiene:** `flagcheck JUNE_DIVERGE_QUICK_QUEST --worktree --files X2Lib/X2UIQuestNew.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~,
+  0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted
+  line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (`Always.h` OTHER: the D1-2b peer's lines, since
+  committed). `flagcheck JUNE_DIVERGE_QUEST_COLOR --worktree --files X2Lib/X2QuestManager.cpp`: 1 PASS, same zero counts, `RESULT: PASS`.
+  `enumscan --check`: `X2UIQuestNew.cpp` 0 rows; `X2QuestManager.cpp` only D1-4's old lines (now 6343/6344). A `/Zs` compile of both `.cpp`
+  passed with the new `#error` guard.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,809,920 B, dated 2026-10-29 15:03:15, md5 ba10cad3e070b278444da5faa342ed94, equal to
+  X2/US_SERVICE/x2.exe (2026-10-29 15:03:08); built at main d831b6c3 + 12 uncommitted code file(s).`
+- **Smoke (plan end):** quick-quest window in a village with 2+ ongoing quests: titles, sub-quest lines and the Complete button as before;
+  a story quest's title is red; quest list colours grey from +8 levels in the text form too.
+
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 
 **Depends on:** D1 review. `tools/junediverge.py`:
