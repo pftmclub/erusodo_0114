@@ -776,7 +776,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (done below, but 242 / 244). **D1-2b** (split in the D1-2 session): 242 `CommonCameraMove`, 244 `DyingStart`; reviewed in `D1-2 review`.
 - **D1-3** equipment, enchant, riding pet, items, skill tree: 205, 250, 251, 252, 261, 262, 263, 266, 267, 268, 269, 270, 274, 275, and the
   missed twin `CX2GUUser::GetSkillLevel` (June `31fceab0`, 55 callers) folded into `GetSkillLevelValue` (done below, but 205 / 250 / 251 /
-  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites.
+  252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list).
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363.
@@ -1053,6 +1053,34 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (`13Gang_Weapon_Effect_Spark_Particle_1`, `_Spark01`, `11Gang_Weapon_Effect_Lightning03`, wide).
 - **Smoke (plan end):** Elsword with a +11 sword shows the lightning glow in a dungeon and in the character window (U), a +13 one adds the
   sparks, none while riding or during an avatar emotion; Eve's / Add's glow sits on both weapons.
+
+### D1-3e Done (2026-10-29, Opus 5.5; one site under D1-3c's `WEAPON_EFFECT_SHOW`; viewer family -> D1-3g, 263 -> june-engine R6c)
+
+| Item | March | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| task 1 | `CX2GUUser::ProcessEnchantedWeaponEffectAtHand` (`X2GUUser.cpp:30409`) | `31ff8510` | `WEAPON_EFFECT_SHOW` | the hand sparks hide with `CX2GUUser::CanShowWeaponEffect` (hidden, riding, avatar emotion) instead of the riding manager alone |
+
+- **Task 1, compared whole:** types 1-9 are March's (bones `Dummy1_Rhand` 1 / 2 / 4 / 6, `Dummy2_Lhand` 3 / 5, `Dummy3_Weapon` 7 / 8, `Weapon02` 9; rates
+  10 or 15 / 30 / 60 / 25, Eve 10 / 10 / 10 / 25, read with `charport_consts.py`); the hidden path is March's (`ClearAllParticle`, emit 0). Only the test
+  differs, so the site swaps the test as D1-3c's frame moves did. Stack slots from the disassembly: sequence 1 = `[esp+0x2c]`, rates `[1c]..[28]`
+  (the decompile's `local_18` / `iStack_14` overlap). Types 10-12 (Lu/Ciel by byte `+0x8e90` on the second skin `+0x8e88`, Rose, Ain): checklist **7as**.
+- **Task 2, not ported, split to D1-3g:** June's viewer moved its seven attribute-enchant handles into two vectors, the fire list `+0xd90` and the hand
+  list `+0xda0`. All nine frame moves read the list (D1-3c's "Add's `+0xd90` list" was the whole viewer's), so their bodies cannot be ported without
+  the container, and the container changes about eighteen functions: variadic creators `31f9d1f0` / `31f9d3b0`, the three EDT switches `31f9ea20` /
+  `31f9eeb0` / `31f9d570`, delete `31f9da10`, the at-hand `31f961a0` (per-type rate vector; Chung on `Bip01_R_Hand`), ctor / dtor, frame move, render,
+  `SetShowAttribEnchant`. Every one has a March twin, so it stays in this plan (kickoff `D1-3g.md`, the March / June table there; 16 funcmap rows
+  `(Diverge D1-3e)`). June-only frame moves `31f93050` / `31f93200` / `31f940b0`: checklist 7as.
+- **Task 3, routed to june-engine R6c:** 263 is not a `Weapon` function in June. `3295cd30` = `ADD ECX,0x8f0; JMP 3295bf90` on an equip-side list of
+  entries (show byte `+0x34`, handle `+0x2c`, system byte `+0x1c`), with writers `3295d960` / `3295ddf0` / `32961c80` in the `CX2Eqip` range R6b owns.
+  A June-only container on another class: routed, not half-ported (kickoff `kickoffs/june-engine/R6c.md`, STATUS row; tsv 263 annotated).
+- **Bookkeeping:** funcmap `31ff8510` row rewritten + 15 new `(Diverge D1-3e)` rows; tsv 263; checklist 7as; `MODS.md` D1-3e entry. No JUNE_BUGS row
+  (no June quirk at this site). `D1-4-review.md` now also covers D1-3g.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW --worktree --files X2Lib/X2GUUser.cpp`: RESULT PASS (`X2GUUser.cpp` +4, 0 deleted,
+  0 non-ASCII, 0 EOL mismatch).
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,826,304 B, dated 2026-10-29 22:47:29, md5 b28778a6fa5a8c8c4982417014148748, equal to X2/US_SERVICE/x2.exe
+  (2026-10-29 22:47:22); built at main bdac0eb3 + 1 uncommitted code file(s).` (`X2Lib/US_SERVICE/X2GUUser.obj` newer than the edit; no new string,
+  so no `exestr` line.)
+- **Smoke (plan end):** an Elsword with a wind / light / curse weapon shows the hand sparks in a dungeon, and none while riding or during an avatar emotion.
 
 ### D1-4 Done (2026-10-29, Opus 5.5; fourteen `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 

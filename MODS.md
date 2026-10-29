@@ -5413,6 +5413,12 @@ Eight flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` 
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE` (D1-1's flag): `CX2GUUser::GetSkillLevel` (June `31fceab0`) is folded into `GetSkillLevelValue( int ) const`; its callers call it.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
 
+### One function per name: the at-hand enchant sparks' show test (june-march-divergence D1-3e, 2026-10-29)
+
+Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3e Done"; March's test is the `#else`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW` (D1-3c's flag) now also covers `CX2GUUser::ProcessEnchantedWeaponEffectAtHand`: the hand sparks of a wind / light / curse weapon hide with `CX2GUUser::CanShowWeaponEffect` (hidden, riding, avatar emotion) instead of the riding manager alone (June `31ff8510`). Bones and rates were already June's.
+- **Revert.** Comment out the flag's `#define` (it also turns off D1-3c's five frame moves), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
 ### One function per name: the +11 glow turned on, unit-viewer glow, weapon-effect show test (june-march-divergence D1-3c, 2026-10-29)
 
 Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-3c Done"; March's body is the `#else` at every site.

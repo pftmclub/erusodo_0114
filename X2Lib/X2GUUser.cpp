@@ -30485,7 +30485,11 @@ void CX2GUUser::ProcessEnchantedWeaponEffectAtHand( CX2Unit::UNIT_TYPE unitType 
 
 #ifdef RIDING_SYSTEM
 	/// 탈것을 타고 있으면, 무기 인첸트 효과 모두 꺼주자.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
+	if ( true == CanShowWeaponEffect() )	// June 31ff8510: the weapon-effect show test
+#else SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 	if ( NULL != CX2RidingPetManager::GetInstance() && true != CX2RidingPetManager::GetInstance()->GetRidingOn() )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_WEAPON_EFFECT_SHOW
 #endif RIDING_SYSTEM
 	{
 		if ( pSeqWeaponFire1 != NULL )

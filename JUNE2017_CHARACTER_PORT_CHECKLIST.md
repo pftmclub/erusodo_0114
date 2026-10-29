@@ -992,3 +992,8 @@ The unit viewer has the same cases (D1-3c): `CX2UnitViewerUI::InitUpgradeWeaponP
 (`31f9a900`: 10 by viewer state 10 / 1 and `+0xd80` on `Bone_RFinger2` / `LFinger2` or `Dummy3_RWeapon` / `Dummy4_LWeapon`, or with unit `+0xe40` the trace
 centres of `+0xecc` / `+0xed0` and `+0xefc` / `+0xf00`, which `InitWeaponTrace` `31f9a2a0` fills from `ATTACK_LINE_END0` / `_START0_LWeapon` / `_START0_RWeapon`;
 11 `Dummy4_RWeapon01` / `Dummy4_LWeapon01`; 12 `Weapon_Bone_Nub` both groups), funcmap rows `(Diverge D1-3c)`.
+The attribute-enchant hand sparks have them too (D1-3e): `CX2GUUser::ProcessEnchantedWeaponEffectAtHand` (`31ff8510`: 10 on `Dummy1_Rhand` of the second skin
+`+0x8e88` when byte `+0x8e90` is 1, else `Bone_RFinger2`, rates 15 / 30 / 60 / 25; 11 `Dummy4_LWeapon01` 10 / 10 / 10 / 25; 12 `Dummy1_Rhand` 15 / 30 / 60 / 25),
+the viewer's `ProcessEnchantedWeaponEffectAtHand` (`31f961a0`, cases 10-12) and its three June-only frame moves `31f93050` (Lu/Ciel: `+0xd80` set -> trace
+centre, else `Bone_RFinger2`), `31f93200` (Rose, `Dummy4_RWeapon01`), `31f940b0` (Ain, `Weapon_Bone_Nub`). The viewer ones need D1-3g's handle lists first;
+funcmap rows `(Diverge D1-3e)`.
