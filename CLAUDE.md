@@ -113,7 +113,8 @@ unifdef script, or read a plan doc "in full".
 
 - **You pack koms** (`/elstools pack`), and **ask the user before every `/x2-kom-packed copy`** (it overwrites a live archive; it refuses
   while the game runs). Report `PACK OK` / `COPY OK` in the hand-off. Exception: server-only Lua stays the user's to pack (rule below).
-- **Every phase and review finishes the same way** (x2-phase "Finish"): `flagcheck --worktree` passes; `build.py --deploy` with `DEPLOY OK`
+- **Every phase and review finishes the same way** (x2-phase "Finish"): `flagcheck --worktree` passes; `python tools/junediverge.py --check
+  <changed files>` prints `RESULT: PASS`; `build.py --deploy` with `DEPLOY OK`
   in the Done note; a Done note of at most ~60 lines; the `STATUS.md` row updated in the same commit (one line, evidence in the note); the
   next kickoff written if missing; a commit with explicit pathspecs; a copy-ready play-test hand-off. Never launch the game yourself.
 - **New plans** follow x2-phase's `new-plan` shape: kickoffs that name sections, plus `STATUS.md` rows.

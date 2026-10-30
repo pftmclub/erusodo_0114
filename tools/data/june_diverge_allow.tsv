@@ -1,0 +1,12 @@
+# file	function	name	reason
+# tools/junediverge.py --check allow-list. file: basename or path suffix; function: Name or Class::Name; * = any. The reason is required.
+# Rule b (GT_PVP): June's own test is type 1 only (322cc180, "== 1", or a direct vslot 0x10c compare), so March's GT_PVP test is right.
+X2GUArme_VioletMage.cpp	CX2GUArme_VioletMage::ReInit	GT_PVP	June 32ce4db0 @32ce4e09: cmp type, 1 (type 1 only)
+X2GUUser.cpp	CX2GUUser::CheckSkillUsePVPOfficial	GT_PVP	June 3202cba0: iVar != 1 (type 1 only)
+X2GUUser.cpp	CX2GUUser::GetSocketReducedDamagePercent	GT_PVP	June 32000320: the PVP-only socket branch tests 322cc180 (type 1 only)
+X2Game.cpp	CX2Game::PvpAmusementHalveDamage	GT_PVP	June 322cfca0: GetGameType() == GT_PVP (type 1 only)
+X2PremiumBuffManager.cpp	CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT	GT_PVP	June 326c9030: factor 195 ( BFI_BUFF_2013_DEFENSE_BUFF ) is skipped when type == 1 (type 1 only)
+X2UISkillTreeNew2015.cpp	CX2UISkillTreeNew::UICustomEventProc	GT_PVP	June 328ebf92: STUCM_EQUIPSLOT_DROPPED tests 322cc180 (type 1 only)
+X2GameUnit.cpp	CX2GameUnit::GetFinalDamage	GT_PVP	June 32284aa0 @322856a2: the ignore-defence flag is type == 1; the rate half uses GetIsNowPVPCorrectionGame()
+# Rule c (replace row not done): disposition from the D1 Done notes.
+X2GuEve.cpp	*	SetEnchantParticleShow	tsv 263: June's equip enchant-particle list (+0x8f0) is a June-only container, routed to june-engine R6c (D1-3e Done note)

@@ -28068,7 +28068,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 
 			const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
 			float fDistance = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
-			if( CX2Game::GT_PVP == g_pX2Game->GetGameType() )	/// June 322cc1a0: PVP or PVE
+			if( true == g_pX2Game->GetIsNowPVPCorrectionGame() )	/// June 322cc1a0: PVP or PVE
 				fDistance = 500.f;
 
 			const float fMaxDegree = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS_Y, iSkillLevel );
@@ -35775,7 +35775,7 @@ void CX2GUArme_VioletMage::AVSI_TELEPORT_START_UPGRADE_Start()
 	if( 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true ) )
 	{
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID, true );
-		if( CX2Game::GT_PVP == g_pX2Game->GetGameType() )	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+		if( true == g_pX2Game->GetIsNowPVPCorrectionGame() )	/// June 322cc1a0: PVP or PVE
 			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 	}
 }
@@ -35894,7 +35894,7 @@ bool CX2GUArme_VioletMage::GetPassiveSkillAbilityValue( const int iSkillID_, con
 	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && false == IsTranscendedUnit( GetUnit() ) )
 		return false;
 
-	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+	const bool bPvpGame = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
 	fOut_ = pSkillTemplet->GetSkillAbilityValue( eType_, iLevel, bPvpGame );
 	return true;
 }

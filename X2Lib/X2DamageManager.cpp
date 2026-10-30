@@ -5082,7 +5082,7 @@ void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData
 {
 	vector<UINT> vecUiBuffFactor;
 	CX2GameUnit* pAttacker = ( null != pDamageData_->optrAttackerGameUnit ) ? pDamageData_->optrAttackerGameUnit.GetObservable() : NULL;
-	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// 322cc1a0 IsPvpOrPve: March has no GT_PVE
+	const bool bPvpGame = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PvP or PvE
 
 	/// 1. the _ULTIMATE gate (31fcf3e0): the skill-memo map is absent here, see the brief
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET

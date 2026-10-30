@@ -65,7 +65,10 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    Every name, locals and constants included, says what the thing is in context; never a Ghidra address or a phase tag
    (`June32481fa0`, `JUNE_CH1I_...`, `bJuneMemo`): the address goes in the one-line comment.
    Call a March function from June code only if June's namesake does the same; if June's is a stub or differs, replace
-   March's definition instead (`tools/data/june_march_divergent.tsv` once plan `june-march-divergence` writes it).
+   March's definition instead (`tools/data/june_march_divergent.tsv`).
+   **Before transcribing June code, run `python tools/junediverge.py --list`** (user, 2026-10-30; plan `june-march-divergence` D2): the
+   names to avoid and what to write instead, the idiom rows (a PvP-only game-type test where June calls `322cc1a0` is
+   `GetIsNowPVPCorrectionGame()`), and the `replace` rows not yet replaced.
 
 ## Tools (use these, not hand-rolled equivalents)
 
@@ -131,6 +134,11 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    rows, CH6) runs `python tools/skillicons.py check <the class's skill-id range>`. It must PASS, or the phase stages the files
    it lists (`kom.py stage-june`, then pack). Shared sheets such as `DLG_SKILL_Passive_12` / `_13` (every class's transcendence
    passives) are never caught by name-based staging; Aisha's and Eve's transcendence icons both shipped missing that way.
+   **June / March divergence gate (user, 2026-10-30):** every phase that touches client source runs `python tools/junediverge.py
+   --check <the changed files>`; it must print `RESULT: PASS` (paste the line into the Done note, beside `flagcheck`). It fails on a
+   June-named, address-named or phase-tag identifier, a PvP-only game-type test inside June code, and a call to a `replace`-row
+   function that is not replaced. A hit is fixed, or allow-listed in `tools/data/june_diverge_allow.tsv` with the June address that
+   justifies it (never to silence it). A review runs `--check-all`.
 2. `build.py --deploy`: paste its `DEPLOY OK` line into the Done note. Check the phase's
    strings are in the deployed exe if the phase's gate asks for it.
 3. **Done note** in the plan doc, under the phase: what landed (commit, flag), hygiene lines

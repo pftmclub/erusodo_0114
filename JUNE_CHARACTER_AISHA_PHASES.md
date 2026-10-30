@@ -2523,6 +2523,7 @@ Rewritten by Z on 2026-10-22 from what the pilot took. Stage 7 repeats this doc 
 - A temporary `..._DEBUG` flag per sub-phase for the play-test lines, retired in its review.
 - Dev free-skill gate (`JuneIsDevUnlimitedSkillUse()`) in every class's skill-use check (standing rule, 2026-10-22).
 - Anything a phase finds that is not the character's subject is routed by the scope rule the same day (CH6 left nothing unrouted).
+- **Gate (user, 2026-10-30): `python tools/junediverge.py --list` before transcribing a class, `--check <the class's files>` = PASS at every phase's finish.** It fails on a June-named identifier, a PvP-only game-type test in June code and a call to an unreplaced `replace` row.
 - **No `June` prefix (user, 2026-10-28; CLAUDE.md), replacing the pilot's inert `June_*` members.** A June function March's class lacks is
   transcribed under `_CORE` with a plain name in the class's pattern (`<PREFIX>_<STATE>_FrameMove`, `Get...`). A June body for an existing
   March function goes inside that function under `_LIVE`, with March's in `#else`; every CH1 sub-phase that writes one proves it with a one-file

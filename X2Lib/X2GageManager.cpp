@@ -3540,10 +3540,10 @@ void CX2GageManager::SetDurationTime( UidType uiUnitUID, BUFF_TEMPLET_ID eBuffID
 void CX2GageManager::GetBuffFactorFromGameUnit( const CX2GameUnit* pGameUnit_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF
-	/// June 32494560. Its gate also skips June's GT_PVE (322cc1c0, type 4), which March has no type for.
+	/// June 32494560. Its gate skips PvP (322cc180) and PvE (322cc1c0): GetIsNowPVPCorrectionGame().
 	/// Its second argument picks 3229ff80 (skip templets with a given behavior type) over GetBuffFactor
 	/// (3229fd80); the only caller passes 0 (@3229fb5e), so that branch is never taken.
-	if ( NULL != g_pX2Game && CX2Game::GT_PVP != g_pX2Game->GetGameType() && g_pMain->GetNowStateID() != CX2Main::XS_TRAINING_GAME )
+	if ( NULL != g_pX2Game && false == g_pX2Game->GetIsNowPVPCorrectionGame() && g_pMain->GetNowStateID() != CX2Main::XS_TRAINING_GAME )
 	{
 		pGameUnit_->GetBuffFactor( m_vecTempBuffFactor );
 

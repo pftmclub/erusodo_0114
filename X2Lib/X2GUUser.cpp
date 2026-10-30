@@ -29993,7 +29993,7 @@ float CX2GUUser::GetBasicReducedDamagePercent()
 			}
 			else if ( pSocketData->m_bPVPOnly == true )
 			{
-				if ( g_pX2Game != NULL && g_pX2Game->GetGameType() == CX2Game::GT_PVP )	/// June 322cc1a0: PvP or PvE
+				if ( g_pX2Game != NULL && true == g_pX2Game->GetIsNowPVPCorrectionGame() )	/// June 322cc1a0: PvP or PvE
 					return pSocketData->m_fDamageReduce + fSetSum;
 			}
 			else
@@ -38934,10 +38934,10 @@ CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2
 				SetSocketCoolTime( pSocketData->m_ID, pSocketData->m_fIntervalTime );
 				eReturnVal = eEx_;
 
-				/// @3202a60f: in PvP (June: PvP or PvE, 322cc1a0; March has no PvE) slot 160 = ResetLeftSkillCoolTimeByBuff
+				/// @3202a60f: in PvP or PvE (June 322cc1a0) slot 160 = ResetLeftSkillCoolTimeByBuff
 				/// with June's pushes (type 0, 1.0, false, change type 3, rate 1.0, relative-all true, slot type 0)
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
-				if ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+				if ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() )
 					ResetLeftSkillCoolTimeByBuff( static_cast<CX2SkillTree::SKILL_TYPE>( 0 ), 1.f, false, static_cast<BUFF_CHANGE_TYPE>( 3 ), 1.f, true, 0 );
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 				break;

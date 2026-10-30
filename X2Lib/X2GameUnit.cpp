@@ -3106,7 +3106,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	/// - The flag that zeroes the factor is IGNORE_DEFENCE_ON_PVP in a GT_PVP game (CX2Game vslot 67 == 1) and IGNORE_DEFENCE otherwise.
 	/// - Otherwise the factor is 1 - the defender's ignore-defence rate (BBT 88, 32274970 on this unit) - the DamageData rate, clamped at 0.
 	///   The rate is IGNORE_DEFENCE_RATE_ON_PVP when CX2Game::IsPvpOrPve (322cc1a0: game type 1 or 4), else IGNORE_DEFENCE_RATE.
-	///   March's GAME_TYPE has no GT_PVE (4), so IsPvpOrPve can only match GT_PVP in this build; the GT_PVE half comes with GT_PVE.
+	///   The ignore flag is game type 1 only (32284aa0 @322856a2); the rate follows IsPvpOrPve.
 	/// June's frozen-debuff resist scaling just above (32285611-3228568a) is not a buff change and is not ported here.
 	{
 		const bool bPvpGame = ( CX2Game::GT_PVP == g_pX2Game->GetGameType() );
@@ -3117,7 +3117,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		}
 		else
 		{
-			const float fDamageDataIgnoreRate = ( bPvpGame ? pAttDamageData->m_fIgnoreDefenceRateOnPvp : pAttDamageData->m_fIgnoreDefenceRate );
+			const float fDamageDataIgnoreRate = ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? pAttDamageData->m_fIgnoreDefenceRateOnPvp : pAttDamageData->m_fIgnoreDefenceRate );
 			const float fBuffIgnoreRate = GetIgnoreDefenceRate();
 			fPiercingDefenceFactor = max( 1.f - fBuffIgnoreRate - fDamageDataIgnoreRate, 0.f );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG

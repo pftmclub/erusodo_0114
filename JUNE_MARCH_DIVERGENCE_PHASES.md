@@ -1453,6 +1453,37 @@ Row 351, `CKTDXDeviceManager::OpenSound` = June `31cdf4a0`, read from the disass
 - Wiring: x2-phase Start step 5 (`--list` before transcribing) and Finish step 1 (`--check <files>` must PASS, beside luabind / skillicons),
   the Stage 7 template, `tools/README.md`.
 
+### D2 Done (2026-10-30, Sonnet 5.5; no new flag, the sweep edits sit inside their owning flags)
+
+**What landed.** `tools/junediverge.py` (`--check`, `--check-all`, `--list`, `--open-rows`, `--selftest`) on the census scanner (`junecensus.scan_file`, same
+identifier rules as `junecensus.py --gate`); allow-list `tools/data/june_diverge_allow.tsv`; the idiom sweep; the wiring. June code = the ON branch of a defined
+`SERV_IRUHADEV_JUNE_*` (an `#ifndef` flag is on in its `#else`), never March's `#else`.
+- **a** June-named / address-named / phase-tag identifier defined (functions, members, locals, constants, classes, Lua-bound names; the `_CONST_<CLASS>_CH<n><x>_` namespace form is exempt). Tree: 0 hits.
+- **b** GT_PVP-only game-type test in June code (a statement that also names `GT_PVE` / `GetIsNowPVPCorrectionGame` is fine). Idiom rows 322d0350 / 32d4ce60 / 32630d20 /
+  322ece70 have no textual shape: they stay a read of the June body.
+- **c** June-code call to a `replace` row not done. Done = the row's source names its `SERV_IRUHADEV_JUNE_DIVERGE_*` flag, or says "no code", or the tree's definition holds such a block.
+  90 `replace` rows: 87 done by the first two forms or the tree; **3 open** at the start: `GetCloneBuffFactorPtr` (call site fixed under `JUNE_DIVERGE_MANAFLOW_BUFF_ID`) and `GetItem`
+  (call site fixed under `JUNE_DIVERGE_CHANGE_WEAPON_TEMPLET`) were ported but unmarked, so their tsv `source` now says so; `SetEnchantParticleShow` (tsv 263) is routed to june-engine R6c and allow-listed with that reason.
+- `--selftest`: PASS (`d4e8edc6:X2GUArme_VioletMage.cpp` hits 535 x rule a and 4 x rule b; fixture: June branch hits, March `#else` does not, `#ifndef` `#else` hits, allow row removes exactly one hit).
+
+**Idiom sweep (June `322cc1a0` = type 1 or 4, Ghidra-checked per site).** 15 hits at the first run: 8 swapped to `GetIsNowPVPCorrectionGame()`, 7 allow-listed.
+- Swapped: `X2DamageManager.cpp` ParsingBuffFactorID (32630d20 @364/@426); VioletMage `ENERGY_DRAIN_READY_FrameMove` (32cdc6f0), `TELEPORT_START_UPGRADE_Start` (32cd26b0), `GetPassiveSkillAbilityValue` (31ff1e80);
+  `X2GUUser.cpp` GetBasicReducedDamagePercent PvP-only branch (3201aff0), ProcessSocketEffectEx slot 160 (32028ba0 @3202a616); `X2GageManager.cpp` GetBuffFactorFromGameUnit (June gate = not 322cc180 and not 322cc1c0);
+  `X2GameUnit.cpp` GetFinalDamage ignore-defence **rate** (322856dc); its flag stays type 1 (@322856a2 `== 1`).
+- Allow-listed (June tests type 1 only): VioletMage `ReInit` (@32ce4e09), CheckSkillUsePVPOfficial (3202cba0), GetSocketReducedDamagePercent (32000320 -> 322cc180), PvpAmusementHalveDamage (322cfca0),
+  premium-buff handler id 195 (326c9030), `STUCM_EQUIPSLOT_DROPPED` (328ebf92 -> 322cc180), GetFinalDamage flag.
+- The kickoff's `X2GUUser.cpp:29462` (`GetAdditionalAttack...`, GT_PVP 0.15 factor) is March's `#else` of `FIXED_APPLYING_ADDITINAL_DAMAGE_FOR_SUMMON_MONSTER`: not June code, no hit.
+- Behaviour: none offline (no game of type 4 is ever created); flag-on June equals June, flag-off is untouched.
+
+**Wiring.** x2-phase Start step 5 (`--list` before transcribing) and Finish step 1 (`--check <files>` = PASS, beside luabind / skillicons); the Stage 7 template ("Rules the pilot settled",
+`JUNE_CHARACTER_AISHA_PHASES.md`); `tools/README.md`; one clause in `CLAUDE.md`'s Finish bullet. The `CLAUDE.md` table rule and the backlog "Standing rules" stay D2 review's.
+
+**Hygiene.** `flagcheck --worktree --files` (5 files) per owning flag, all RESULT: PASS: BUFF_FACTOR_ID, CHAR_ARME_SKILL, CHAR_ARME_CORE, SOCKET_PARITY, BUFF_BEHAVIOR_PARITY, BUFF_STORE_BUFF, BUFF_NEW_STAT
+(the other flags' files read OTHER; deleted lines are the replaced test lines inside the flags). `junediverge.py --check-all`: allow-listed 8, RESULT: PASS. `junecensus.py --gate`: 0 remain.
+Deploy: `DEPLOY OK: X2_offline.exe 25,848,320 B, md5 db2acadb28e23049c2234290ad71170e`.
+
+**Smoke line (for Phase S).** Dungeon play with a socket set that has a PVP-only socket (GetBasicReducedDamagePercent) and a slot-160 socket: unchanged offline; no PvP to test.
+
 ## Phase S - The plan-end smoke play-test (Opus 5.5, high)
 
 **Depends on:** D2. Added 2026-10-29 (user): every C and D1 phase deferred its play-test to the plan end, so the plan needs a phase that runs it.
