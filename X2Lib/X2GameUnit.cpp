@@ -14105,13 +14105,8 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 #ifdef BUFF_ICON_UI		
 			if( true == ptrCloneBuffTemplet->GetUseBuffIcon() )
 			{
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-				CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(),
-					ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc(), ptrCloneBuffTemplet->GetRemainDurationTime() ), ptrCloneBuffTemplet->IsDeBuff() );
-#else
 				CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
 					ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff() );
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 			}
 #endif //BUFF_ICON_UI
 		}
@@ -14740,7 +14735,7 @@ float CX2GameUnit::GetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTemp
 	{
 		const CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<const CX2BuffTimeFinalizerTemplet*>( ptrFinalizer.get() );
 		if( NULL != pTimeFinalizer )
-			return pTimeFinalizer->GetRemainTime();
+			return pTimeFinalizer->GetDurationTime();
 	}
 	return 0.f;
 }
@@ -16744,13 +16739,8 @@ void CX2GameUnit::SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vec
 #ifdef BUFF_ICON_UI
 					if( true == ptrCloneBuffTemplet->GetUseBuffIcon() )
 					{
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-						CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(),
-						ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc(), ptrCloneBuffTemplet->GetRemainDurationTime() ), ptrCloneBuffTemplet->IsDeBuff());
-#else
 						CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
 						ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff());
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 					}
 #endif //BUFF_ICON_UI
 				}

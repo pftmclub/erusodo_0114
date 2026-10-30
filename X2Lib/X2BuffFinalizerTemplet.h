@@ -52,10 +52,6 @@ public:
 
 	bool SetFactorFromPacketTemplateMothod( const KBuffFactor& kBuffFactor_, CX2GameUnit* pGameUnit_ );
 	BUFF_FINALIZER_TYPE GetType() const { return m_eType; }
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-	/// Remaining duration in seconds; -1.f sentinel means this finalizer has no timer (hit-count, state-change, etc.)
-	virtual float GetRemainTime() const { return -1.f; }
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 #ifdef FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
 	virtual void SetBuffTempletID( BUFF_TEMPLET_ID eBuffTempletID_ ){}
 #endif // FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
@@ -139,9 +135,6 @@ public:
 	virtual bool DecreaseDurationByShake();		/// June 32ec3610
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-	virtual float GetRemainTime() const { return m_fDurationTime; }
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 
 #ifdef FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
 	virtual void SetBuffTempletID( BUFF_TEMPLET_ID eBuffTempletID_ ){ m_eBuffTempleteID = eBuffTempletID_;}
@@ -151,6 +144,9 @@ public:
 	/// (+0x28) and the 5 s notify flag are left alone. Its only caller is the ApplyBuffFactor cheat (3274c880).
 	void SetDurationTime( const float fDurationTime_ ) { if ( fDurationTime_ != m_fDurationTime ) m_fDurationTime = fDurationTime_; }
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+	float GetDurationTime() const { return m_fDurationTime; }	/// remaining duration, read by GetBuffTimeFinalizerDuration (June 3227bfa0)
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 //}}
 #endif // FIX_BUFF_FINALIZE_DURATION_TIME_CONTROL_BUG
 protected:

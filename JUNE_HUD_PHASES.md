@@ -207,6 +207,15 @@ Tools only: `python tools/build.py --deploy` (background), `flagcheck.py`, `byte
 **Gate:** grep count 0; `DISPLAY_BUFF_DURATION_TIME` and `JUNE_BUFF_DURATION_TIME` sites byte-identical. The build may ride H2's. Afterwards party icons show
 no time, which is June's behaviour (H0); their counter comes with H3.
 
+**Done note (H1, 2026-10-31, Sonnet 5.5):**
+- `SERV_IRUHADEV_BUFF_DURATION_TEXT` deleted at all 15 sites in 7 files plus its `Always.h` house block and define: flag-off code kept, nothing else changed (121 deletions, 0 insertions).
+- `flagcheck.py BUFF_DURATION_TEXT --base HEAD`: `files: 6 PASS, 1 PASS~ (X2GageUI.h, one blank line), 1 DEFINE, 0 FAIL, 0 ERROR` (its last line says FAIL only because the define is gone, as intended).
+- Source grep of `BUFF_DURATION_TEXT`, `GetRemainDurationTime`, `UpdateBuffDurationText` over `X2Lib`, `KTDXLIB`, `X2`: 0 (hits left are build artifacts: `.map`, `.pdb`, `.pch`).
+- `junediverge.py --check`: `RESULT: PASS`. Encoding and EOL of all 8 files unchanged (`bytepatch.py info`).
+- `MODS.md`: table row and "Rebuild requirements" mention removed, one deletion line added, `QUICK_SLOT_FULL_FREE` rows corrected (`Always.h:3463`, `X2UIQuickSlot.cpp:1819-1844`).
+- One missed dependency: `GetBuffTimeFinalizerDuration` (June 3227bfa0, Eve passive) called the deleted `GetRemainTime()`; first build failed at `X2GameUnit.cpp(14738)`. It now calls a new `CX2BuffTimeFinalizerTemplet::GetDurationTime()` (same `m_fDurationTime`) under `SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE`.
+- `DEPLOY OK: X2_offline.exe ... md5 c4686fcbe0db0e3c56b6bb2a4d6ccdbe` (built at 553ec094 + uncommitted files, peers' `X2UIQuickSlot` included). Party icons show no time now (June's behaviour); the counter comes with H3.
+
 ## Phase H2 - Buff row layout and two strings (Opus 5.5, high)
 
 **Run with:** `/x2-phase june-hud H2`. Depends on H1. Flag `SERV_IRUHADEV_JUNE_HUD_BUFF_ROW`. Verdicts: `june2017_re/hud_functions.tsv`.

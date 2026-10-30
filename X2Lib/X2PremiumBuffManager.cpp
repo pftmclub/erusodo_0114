@@ -782,13 +782,8 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( ptrBuffFactor->GetBuffTempletID() );
 			if ( NULL != ptrBuffTemplet && true == ptrBuffTemplet->GetUseBuffIcon() )
 			{
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
-					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc(), ptrBuffTemplet->GetRemainDurationTime() ), ptrBuffTemplet->IsDeBuff() );
-#else
 				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
 					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc() ), ptrBuffTemplet->IsDeBuff() );
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 			}
 #endif // BUFF_ICON_UI
 
@@ -904,13 +899,8 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 						{
 							if( true == ptrBuffTemplet->GetUseBuffIcon() )
 							{
-#ifdef SERV_IRUHADEV_BUFF_DURATION_TEXT
-								CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
-									ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc(), ptrBuffTemplet->GetRemainDurationTime() ), ptrBuffTemplet->IsDeBuff() );	/// 버프 아이콘 적용
-#else
 								CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(), 
 									ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc() ), ptrBuffTemplet->IsDeBuff() );	/// 버프 아이콘 적용
-#endif //SERV_IRUHADEV_BUFF_DURATION_TEXT
 							}
 						}
 #endif // BUFF_ICON_UI

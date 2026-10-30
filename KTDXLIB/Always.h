@@ -3455,12 +3455,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_SKILL_SLOT_B_FREE
 //////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-08-25
-// Description: Show a small remaining-seconds countdown drawn over each buff/debuff icon on the status HUD
-#define SERV_IRUHADEV_BUFF_DURATION_TEXT
-//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -11002,4 +10996,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT ) && !defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY )
 #error SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY ( June EDT_ENCHANT_* values )
 #endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H4: June's quick slot - DLG_UI_Quick_Slot.lua at June's y (no INT_WIDE_BAR -20), ctor 3294dd50 (description checkbox, highlight dialog), SetSlotItemIcon 3294d320 and SetSummonMonsterItemIcon 32950060 (item dialogs named DLG_UI_Quick_Slot_Item_%d, hidden pStaticSlotDisable), SetEnable 3294c460 and SetShow 32951900 whole (PvP item-bar mode member, Amusement controls). SERV_IRUHADEV_QUICK_SLOT_FULL_FREE stays. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H4 diagnostics: [JUNE_HUD] SLOT lines from the quick slot ctor, icon fills, SetEnable and SetShow. Retired by the plan review.
+#define SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
 //////////////////////////////////////////////////////////////////////////

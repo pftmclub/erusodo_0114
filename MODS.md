@@ -18,9 +18,8 @@ column.
 |---|---|---|---|---|
 | `SERV_IRUHADEV_SKILLTREE_NO_LOCK` | import-2014 | `KTDXLIB/Always.h:2414`, `KncWX2Server/Common/ServerDefine.h:4210` | `X2Lib/X2UISkillTreeNew.cpp:364` (added 2026-08-27), `X2Lib/X2UISkillTreeNew.cpp:5788` | `KncWX2Server/GameServer/UserSkillTree.cpp:1489` |
 | `SERV_IRUHADEV_SKILL_SLOT_B_FREE` | import-2014 | `KTDXLIB/Always.h:2421`, `KncWX2Server/Common/ServerDefine.h:4217` | `X2Lib/X2UISkillTree.h:228`, `X2Lib/X2UISkillTreeNew.h:269`, `X2Lib/X2UserSkillTree.h:307`, `X2Lib/X2UserSkillTree.cpp:2078` | `KncWX2Server/GameServer/UserSkillTree.cpp` (lines 10, 766, 978) |
-| `SERV_IRUHADEV_BUFF_DURATION_TEXT` | import-2014 | `KTDXLIB/Always.h:2428` | `X2Lib/X2GageUI.{h,cpp}`, `X2Lib/X2BuffTemplet.{h,cpp}`, `X2Lib/X2BuffFinalizerTemplet.h`, `X2Lib/X2GameUnit.cpp`, `X2Lib/X2PremiumBuffManager.cpp` | -- |
 | `STATIC_AUTO_LOGIN` | import-2014, **retired 2026-09-09** | -- | -- | -- |
-| `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` | 2026-08-27 | `KTDXLIB/Always.h:2435`, `KncWX2Server/Common/ServerDefine.h:4224` | `X2Lib/X2Unit.h:982-988`, `X2Lib/X2Unit.cpp:104-111`, `X2Lib/X2UIQuickSlot.cpp:1797-1822`, `X2Lib/X2CashShop.cpp:8306-8326` | `KncWX2Server/GameServer/Inventory.cpp:500-534`, `KncWX2Server/GameServer/Inventory.cpp:146-152` |
+| `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` | 2026-08-27 | `KTDXLIB/Always.h:3463`, `KncWX2Server/Common/ServerDefine.h:4224` | `X2Lib/X2Unit.h:982-988`, `X2Lib/X2Unit.cpp:104-111`, `X2Lib/X2UIQuickSlot.cpp:1819-1844`, `X2Lib/X2CashShop.cpp:8306-8326` | `KncWX2Server/GameServer/Inventory.cpp:500-534`, `KncWX2Server/GameServer/Inventory.cpp:146-152` |
 | `SERV_IRUHADEV_OFFLINE` | 2026-08-31 | `KTDXLIB/Always.h:2446` **and** `X2ServerProtocol/X2ServerProtocol_2010.vcxproj:1444` (`US_SERVICE` `PreprocessorDefinitions`); AI party tuning constants in `X2Lib/X2Define.h:1822` | `X2Lib/Offline/` (the whole directory: 55 sources plus `start_offline.bat`), plus seams in `X2ServerProtocol/Socket/Session.cpp` (5 blocks), `X2ServerProtocol/OfflineHook.h`, `X2Lib/X2Data.cpp:2135`, `X2Lib/X2StateServerSelect.cpp:6982`, `X2Lib/X2DungeonSubStage.cpp:1452`, `X2Lib/X2QuestManager.{h,cpp}`, `X2Lib/X2TitleManager.{h,cpp}`, `X2Lib/X2StateBeginning.cpp:1607`; and, for the AI party, `X2Lib/X2Game.h:611`, `X2Lib/X2Game.cpp:195`, `:6541`, `:6986`, `:8886`, `:8958`, `:13802`, `X2Lib/X2DungeonGame.cpp:182`, `:1304`, `:2104`, `X2Lib/X2Room.h:304`, `:332`, `X2Lib/X2Room.cpp:1087`, `X2Lib/X2GageManager.cpp:3623`, `X2Lib/X2GageUI.h:633`, `X2Lib/X2Data.cpp:2930` | -- |
 | `SERV_IRUHADEV_NO_PATCHER_TOKEN` | 2026-09-04 | `KTDXLIB/Always.h:2525` | `X2/X2.cpp:805` | -- |
 | `SERV_IRUHADEV_JOBCHANGE_PORTRAIT` | 2026-09-04 | `KTDXLIB/Always.h:2513` | `X2Lib/X2UIQuestNew.cpp:8`, `X2Lib/X2UIQuestNew.cpp:1516`, `X2Lib/X2UIQuestNew.cpp:2043` | -- |
@@ -107,8 +106,7 @@ What each one does:
 - **`SERV_IRUHADEV_SKILL_SLOT_B_FREE`** -- Skill Slot B is open by default and
   permanent. No medal purchase, and the server keeps the permanent-sentinel end
   date rather than expiring it.
-- **`SERV_IRUHADEV_BUFF_DURATION_TEXT`** -- draws a remaining-seconds countdown
-  over each buff/debuff icon on the status HUD.
+- **`SERV_IRUHADEV_BUFF_DURATION_TEXT`** (2026-08-25) deleted 2026-10-31 by june-hud H1; June's buff row replaces it.
 - **`STATIC_AUTO_LOGIN`** -- retired during the March 2014 migration (Phase 1,
   2026-09-09). It used to skip the login screen and sign in with a fixed
   account. The studio's own `AUTO_LOGIN_IN_HOUSE` went live under
@@ -3805,8 +3803,7 @@ Toggling any of them requires rebuilding the VS2010 client *and* the five
 servers, with the flag set consistently in both. Rebuild only one side and the
 wire format desynchronizes silently at runtime instead of failing to compile.
 
-The remaining five -- `SERV_IRUHADEV_BUFF_DURATION_TEXT`,
-`SERV_IRUHADEV_OFFLINE`, `SERV_IRUHADEV_NO_PATCHER_TOKEN`,
+The remaining four -- `SERV_IRUHADEV_OFFLINE`, `SERV_IRUHADEV_NO_PATCHER_TOKEN`,
 `SERV_IRUHADEV_JOBCHANGE_PORTRAIT` and `SERV_IRUHADEV_MP_REGEN_BOOST` -- are
 client-only. None of them touches anything under `KncWX2Server/Common/`, so
 the servers never need rebuilding for any of them. Two caveats:
@@ -5533,3 +5530,8 @@ Flag `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS` (`Always.h`): new `CX2UICharInfo::Rel
 **Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 
 **Whole plan (Z, 2026-10-31).** 17 staged files (5 Lua in data034, 12 textures in data057 / 056 / 063 / datai021 / datai022 / data002), all byte-identical to June; backups under `kom_backup_stage_june\`. Reverting the window entirely: comment out the seven live flags above, rebuild; the staged Lua stays (June's NEW_2 works with March's code).
+
+### June quick slot (june-hud H4, 2026-10-31)
+
+Flags `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT` and `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG` (`Always.h`; the `[JUNE_HUD] SLOT` log lines): `CX2UIQuickSlot` ctor (description checkbox from a stand-in option byte, highlight dialog `SetDisableUnderWindow( false )`), `SetSlotItemIcon` / `SetSummonMonsterItemIcon` (June's y 711 / 686 without `INT_WIDE_BAR`'s -20, item dialogs named `DLG_UI_Quick_Slot_Item_%d`, the hidden `pStaticSlotDisable`), `SetEnable`, `SetShow` and `ResetQuickSlotUI` (nothing refilled while hidden) take June's whole bodies, March's in `#else`; new members `m_bIsAmusementItemSlot` (never set offline) and `ms_bAmusementDescriptionChecked`. Staged byte-exact from June: `DLG_UI_Quick_Slot.lua`, `DLG_UI_QuickSlot_HighLight.lua` (data034, backups under `kom_backup_stage_june61031_054307`). `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` is untouched. Stand-ins: the Amusement item-bar labels and icon fill (`329506d0`), June's option-byte default. `tools/junediverge.py` accepts "ported under SERV_IRUHADEV_JUNE_<X>" as a done row; five `replace` rows closed (four routed to H4, plus `ResetQuickSlotUI`).
+**Revert.** Comment out both `#define`s, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; for March's Lua restore the two files from the backup folder and `/elstools pack data034` (June's Lua with March's code draws the frames 20 px below the icons).
