@@ -208,7 +208,7 @@ def diverge_functions():
 
 
 def row_done(row, fns):
-    src = row['source'] + ' ' + row['write_instead']
+    src = row['source']  # write_instead names the planned flag before any code lands
     if DIVERGE_FLAG in src or re.search(r'(?i)\bno code\b', src):
         return True
     return any(n in fns for n in callable_names(row))

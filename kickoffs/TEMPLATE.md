@@ -32,3 +32,4 @@ No `June` prefix (user, 2026-10-28; CLAUDE.md): June's body goes inside March's 
 March's in `#else`. A function March lacks gets a name in the class's own pattern, never with `June` in it.
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
+Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.

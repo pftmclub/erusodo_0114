@@ -6,13 +6,13 @@ _CONST_ARME_CH1h_	namespace	X2Lib/X2GUArme_VioletMage.cpp	360			SERV_IRUHADEV_JU
 _CONST_ARME_CH1k_	namespace	X2Lib/X2GUArme_VioletMage.cpp	384			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
 _CONST_ARME_CH4a_	namespace	X2Lib/X2GUArme_VioletMage.cpp	449			SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE					1	1	rule-form
 _CONST_ARME_CH4c_	namespace	X2Lib/X2GUArme_VioletMage.cpp	457			SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE					1	1	rule-form
-_CONST_ARME_CH1c_	namespace	X2Lib/X2GUArme_VioletMage.cpp	31971			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
-_CONST_ARME_CH1f_	namespace	X2Lib/X2GUArme_VioletMage.cpp	32577			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
-_CONST_GUUSER_CH2B0_	namespace	X2Lib/X2GUUser.cpp	25928			SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL					1	1	rule-form
-_CONST_GUUSER_CH4b2_	namespace	X2Lib/X2GUUser.cpp	26119			SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE	334396b0				1	1	rule-form
-_CONST_GUUSER_CH1k_	namespace	X2Lib/X2GUUser.cpp	31498			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	3201b390			CX2GUUser::JuneStartEventProcess	1	1	rule-form
-_CONST_GUUSER_CH1j_	namespace	X2Lib/X2GUUser.cpp	32375			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
-_CONST_GUUSER_CH1l5_	namespace	X2Lib/X2GUUser.cpp	41572			SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS					1	1	rule-form
+_CONST_ARME_CH1c_	namespace	X2Lib/X2GUArme_VioletMage.cpp	32007			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
+_CONST_ARME_CH1f_	namespace	X2Lib/X2GUArme_VioletMage.cpp	32613			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
+_CONST_GUUSER_CH2B0_	namespace	X2Lib/X2GUUser.cpp	26320			SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL					1	1	rule-form
+_CONST_GUUSER_CH4b2_	namespace	X2Lib/X2GUUser.cpp	26511			SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE	334396b0				1	1	rule-form
+_CONST_GUUSER_CH1k_	namespace	X2Lib/X2GUUser.cpp	31900			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE	3201b390			CX2GUUser::JuneStartEventProcess	1	1	rule-form
+_CONST_GUUSER_CH1j_	namespace	X2Lib/X2GUUser.cpp	32868			SERV_IRUHADEV_JUNE_CHAR_ARME_CORE					1	1	rule-form
+_CONST_GUUSER_CH1l5_	namespace	X2Lib/X2GUUser.cpp	43135			SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS					1	1	rule-form
 _CONST_EVE_CH1a_	namespace	X2Lib/X2GuEve.cpp	125			SERV_IRUHADEV_JUNE_CHAR_EVE_CORE					1	1	rule-form
 _CONST_EVE_CH1e_	namespace	X2Lib/X2GuEve.cpp	141			SERV_IRUHADEV_JUNE_CHAR_EVE_CORE					1	1	rule-form
 _CONST_EVE_CH1k_	namespace	X2Lib/X2GuEve.cpp	154			SERV_IRUHADEV_JUNE_CHAR_EVE_CORE					1	1	rule-form
@@ -28,6 +28,6 @@ _CONST_EVE_CH3c_	namespace	X2Lib/X2GuEve.cpp	529			SERV_IRUHADEV_JUNE_CHAR_EVE_S
 _CONST_EVE_CH3d_	namespace	X2Lib/X2GuEve.cpp	545			SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL	32997966				1	1	rule-form
 _CONST_EVE_CH1o_	namespace	X2Lib/X2GuEve.cpp	560			SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE	329c8a00			CX2GUEve::SetEquippedSkillFuncBySkillSlotIndex (vslot 0x7b4) | CX2GUEve::SetEquippedSkillFuncBySkillSlotIndex: shape	1	1	rule-form
 _CONST_EVE_CH4a_	namespace	X2Lib/X2GuEve.cpp	579			SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE					1	1	rule-form
-_CONST_EVE_CH4b_	namespace	X2Lib/X2GuEve.cpp	587			SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE	334380f0				1	1	rule-form
-_CONST_EVE_CH1p_	namespace	X2Lib/X2GuEve.cpp	41954			SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE	32981130			CX2GUEve::SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512) | CX2GUEve::June_SpecialAttackCooldown	1	1	rule-form
+_CONST_EVE_CH4b_	namespace	X2Lib/X2GuEve.cpp	587			SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE	32070510			none in March: SkillTemplet type -> category	1	1	rule-form
+_CONST_EVE_CH1p_	namespace	X2Lib/X2GuEve.cpp	41955			SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE	32981130			CX2GUEve::SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512) | CX2GUEve::June_SpecialAttackCooldown	1	1	rule-form
 _CONST_EQUIPPEDSKILLSLOT_CH1o2_	namespace	X2Lib/X2UISkillTreeNew2015.cpp	575			SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE	328e0aa0			CX2EquippedSkillSlotData in-game icon override | CX2EquippedSkillSlotData icon override: Eve's tree +0x130 blocks	1	1	rule-form

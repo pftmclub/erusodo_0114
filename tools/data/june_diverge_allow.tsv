@@ -10,3 +10,4 @@ X2UISkillTreeNew2015.cpp	CX2UISkillTreeNew::UICustomEventProc	GT_PVP	June 328ebf
 X2GameUnit.cpp	CX2GameUnit::GetFinalDamage	GT_PVP	June 32284aa0 @322856a2: the ignore-defence flag is type == 1; the rate half uses GetIsNowPVPCorrectionGame()
 # Rule c (replace row not done): disposition from the D1 Done notes.
 X2GuEve.cpp	*	SetEnchantParticleShow	tsv 263: June's equip enchant-particle list (+0x8f0) is a June-only container, routed to june-engine R6c (D1-3e Done note)
+*	*	PlaySound	tsv PlaySound (32276220): the close-list add for looped sounds is routed to june-engine R15 (D2 review); the June callers themselves are fine

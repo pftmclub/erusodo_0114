@@ -1531,3 +1531,42 @@ the wiring. Close: `MODS.md` section (flags, guards, renames by batch, revert), 
 `CLAUDE.md` already ("no `June` prefix", 2026-10-28). The close adds the enforcement: `CLAUDE.md` gets the gate (`junediverge.py --check`
 must PASS) and the table rule (a review that finds a new divergent March function adds the `june_march_divergent.tsv` row and the
 replacement in the same commit); `JUNE_PORT_BACKLOG_ORDER.md` "Standing rules" and `kickoffs/TEMPLATE.md` get a line each; memory is updated.
+
+### D2 review Done (2026-10-30, Opus 5.5)
+
+**Verdict: D2 and Phase S pass; the plan is CLOSED.** One gate fix, one new divergence routed, no client code changed, no build.
+- **Gate run by the review:** `junediverge.py --selftest`: `SELFTEST: PASS` (pinned `d4e8edc6` VioletMage: rule a 535, rule b 4). `--check-all` over
+  X2Lib / KTDXLIB: `allow-listed: 74`, `RESULT: PASS` (8 before the review + 66 June-code calls to `PlaySound`, below). `--open-rows`: 89 done, 2 open
+  (`SetEnchantParticleShow` -> R6c, `PlaySound` -> R15), both allow-listed with their routing.
+- **Gate fix (tools only).** `row_done` read `source + write_instead`, so a row whose `write_instead` names its planned `JUNE_DIVERGE_*` flag counted
+  as done before any code landed (the docstring and the D2 note say `source`). Now `source` only. Of the 26 rows done that way, 24 are also done by
+  the tree's definition; `MemoCondition` (tsv 210) gets its D1 disposition in `source` ("no code", plan row 210); the new `PlaySound` row stays open.
+- **Sweep, Ghidra-checked:** `322cc1a0` = vslot `0x10c` is 1 or 4, `322cc180` = 1, `322cc1c0` = 4. Each of the 8 swapped sites calls `322cc1a0`
+  (`32630d20` @364/@426, `32cdc6f0`, `32cd26b0`, `31ff1e80`, `3201aff0` l.98, `32028ba0` l.1206, `32284aa0` @322856dc); `32494560` = not 180 and not
+  1c0. The 7 allow-list reasons hold: `32ce4db0` cmp 1, `3202cba0` `!= 1`, `32000320` -> 180, `322cfca0` `== 1`, `326c9030` factor 0xc3 skipped on
+  `== 1`, `328ebf92` -> 180, `32284aa0` @322856a2 `== 1`. `GetIsNowPVPCorrectionGame()` (`X2Game.h:884`) is GT_PVP or GT_PVE.
+- **Hygiene** (`flagcheck <FLAG> --range <c>^..<c>`, D2 `b7f0cf6c`, fix 1 `e457e7b1`, fix 2 `56cdcbfe`): all 9 `RESULT: PASS`, 0 FAIL, 0 ERROR.
+  BUFF_FACTOR_ID 1 PASS / 4 OTHER, 1 deleted; CHAR_ARME_SKILL 1 / 4, 3 deleted; SOCKET_PARITY 1 / 4, 3 deleted; BUFF_STORE_BUFF 1 / 4, 2 deleted;
+  BUFF_NEW_STAT 1 / 4, 2 deleted; CHAR_ARME_CORE 0 / 5 and BUFF_BEHAVIOR_PARITY 0 / 5 (their lines sit inside SOCKET_PARITY / ARME_SKILL blocks,
+  attributed there); OPEN_SOUND 1 PASS, 0 deleted; UPDATE_EQUIP_COLLISION_DATA 2 PASS, 8 deleted. OTHER = the commit's other flags' files; every
+  deleted line is a replaced test line inside its own flag; ARME_SKILL's 45 token-less `#else` / `#endif` are the studio's, outside the diff. No C0
+  equivalence run: D2 / S apply no collapse batch, and flagcheck's flag-off check covers their edits.
+- **Wiring:** x2-phase Start 5 / Finish 1, `CLAUDE.md` Finish bullet, `tools/README.md`, `JUNE_CHARACTER_AISHA_PHASES.md` Stage 7 template: present.
+- **Fix 1 (`OpenSoundInBackground`) = June `31ce0580`:** empty name / priority >= `PRIORITY_NUM` -> NULL and BLOCKING -> `OpenSound` (March's preamble,
+  kept); else `31cdd720` (out 1 = `_INT` id, out 2 = sound id, `_INT` when that file exists), lookup by the sound id, not found: valid-file test, DS init,
+  Korean off -> `_INT` file if valid else the name, on -> the sound id; state 3 (= `DEVICE_STATE_FAILED`) -> NULL. Matches.
+- **Fix 2 (collision stand-in):** `329657d0` switches equip position 2 / 6-11 / 0x24 to UnitTemplet `+0xe4..+0x100` (the basic item ids), so `+0x584`
+  is every class's basic-item anim; the stand-in is labelled and routed (R14c). The flag's `#error ... ENUM_NAMES ( UT_ROSE )` guard now has no
+  `UT_ROSE` use under it (harmless, ENUM_NAMES is on; R14c restores the Rose / Add split).
+- **The `PlaySound` lead, triaged: real divergence.** June `32276220` (disassembly `322762ec`-`3227637c`) calls `AddSound` (`32953fa0`, unit
+  `+0x3f94`) after every Play, looped or not; March adds only when `bLoop == false`. Not ported here: Chung's dtor `SAFE_CLOSE`s its looped
+  `m_pChaosCannonSound`, so June's add would close it twice (the fix-1 failure class) unless June's Chung dtor differs; NPC `m_vecLoopSound` only
+  `Stop()`s (March leaks the ref). Needs a caller audit -> tsv row `PlaySound` (replace), allow row with the routing, **june-engine R15** (row + kickoff).
+  No offline symptom today (the smoke passed).
+- **Leads noted, no owner change:** `GT_PVE` is registered since 2026-10-26 (`ENUM_NAMES`), but older sites still write `4` (`X2DungeonSubStage.cpp`
+  ~1270, `X2PremiumBuffManager.cpp` ~547) and some comments say "March has no game type 4" (`X2BuffFactor.cpp` ~2011, `X2GUUser.cpp` ~29937). No
+  type-4 game exists offline; they go with the PvE game's port (backlog, the `GT_PVE` bullet beside `DyingStart`). `GetFinalDamage`'s other June
+  `322cc1a0` test (l.835) sits in March code: Stage 33 owns the whole function.
+- **Close:** `MODS.md` "One function per name: the whole plan" (+ fix 1 / fix 2 bullets in the D1-5b / D1-3h entries); backlog Stage 35 closing
+  note, standing rule "One function per name, gated", Stage 33's stale "known mixed sites" bullet marked fixed; `CLAUDE.md` gate + table rule;
+  `kickoffs/TEMPLATE.md` line; STATUS block archived, Closed-plans row; memory `june-march-divergence-plan` updated.

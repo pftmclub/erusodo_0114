@@ -1278,7 +1278,7 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
   - `SetDamageExceptionProcess` `322990e0` and the per-class overrides;
   - user / NPC `DamageReact` (`320462a0` / `327b1f30`);
   - defence, resist and enchant (buff Phase 15), PvE / PvP / boss rates.
-  - known mixed sites (char-eve CH2b review, 2026-10-27): June `322cc1a0` (PvP **or** PvE) is still read as `GT_PVP` only at `X2DamageManager.cpp` `ParsingBuffFactorID` (`_BUFF_FACTOR_ID`) and Aisha's `June_AVSI_TELEPORT_START_UPGRADE_Start` / `June_GetPassiveSkillAbilityValue`. `GT_PVE` (4) is registered and `CX2Game::GetIsNowPVPCorrectionGame` exists; Eve's five sites were fixed in that review.
+  - known mixed sites (char-eve CH2b review, 2026-10-27): June `322cc1a0` (PvP **or** PvE) is still read as `GT_PVP` only at `X2DamageManager.cpp` `ParsingBuffFactorID` (`_BUFF_FACTOR_ID`) and Aisha's `June_AVSI_TELEPORT_START_UPGRADE_Start` / `June_GetPassiveSkillAbilityValue`. `GT_PVE` (4) is registered and `CX2Game::GetIsNowPVPCorrectionGame` exists; Eve's five sites were fixed in that review. **Fixed 2026-10-30 (june-march-divergence D2):** those three and five more now call `GetIsNowPVPCorrectionGame()`; `GetFinalDamage` takes it for the ignore-defence rate (its flag stays type 1).
 - **Resource gain:**
   - MP on hit and on hit taken, the awakening-gauge gain, HP / MP regen;
   - MP cost (`GetActualMPConsume`);
@@ -1351,6 +1351,12 @@ Earlier reviews fixed the same kind of slip by hand: Aisha CH2a (the PvP-or-PvE 
     carry the same 2-type chain; their June counterparts are not in the tsv: the D1 review (`D1-review.md`) compares them.
 - **Depends on:** the Eve port being complete (user, 2026-10-28). Start: `/x2-phase june-march-divergence D0a`. D2's close adds the gate
   and table rule as standing rules (CLAUDE.md, this file's "Standing rules", the kickoff template, memory).
+- **CLOSED 2026-10-30 (D2 review, Opus).** C1-C5 merged or renamed the June-prefixed names (`junecensus.py --gate`: 0 remain); D1-1..D1-5b replaced
+  the divergent March functions under `SERV_IRUHADEV_JUNE_DIVERGE_*`; D2 built the gate `tools/junediverge.py` (allow-list `tools/data/june_diverge_allow.tsv`);
+  Phase S smoke-tested Aisha and Eve (two fixes). Routed out, deferred not dropped: june-engine R6c (equip enchant-particle list, tsv 263), R12c
+  (after-image hair mesh), R14c (basic-item collision anim), R15 (a unit's close list takes looped sounds, `PlaySound` 32276220, found by the review);
+  june-charinfo C4 add-on (viewer attribute enchant); Stage 36 (black-out screen, timed mark list); Stage 9 (Korean-sound option). `MODS.md`
+  "One function per name: the whole plan"; standing rule "One function per name, gated" above.
 
 ### Stage 36: June extra-damage cases (user, 2026-10-29; moved out of june-march-divergence D1-2c)
 
@@ -1424,6 +1430,11 @@ ORDER  BY UnitClass;
   registered under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it; a value with no Enum entry stays a number with a one-line comment;
   a `.tsv` of ids is data, not code. Gate: `python tools/enumscan.py --check <files>`. Rule in `CLAUDE.md`; set by plan `june-enum-names`
   (`JUNE_ENUM_NAMES_PHASES.md`, N0-N5c + NZ, **CLOSED 2026-10-26**, flag `SERV_IRUHADEV_JUNE_ENUM_NAMES`).
+- **One function per name, gated (user, 2026-10-28 / 2026-10-30; every stage).** June's body goes into March's own function under the flag, never a `June` name;
+  June code calls a March function only if June's namesake does the same. Gate: `python tools/junediverge.py --list` before transcribing, `--check <files>`
+  = PASS at every finish (`--check-all` in a review). A newly found divergent March function gets its `tools/data/june_march_divergent.tsv` row and the
+  replacement in the same commit, or, when it needs its own phase, a routed row + allow-list reason. Set by plan `june-march-divergence`
+  (`JUNE_MARCH_DIVERGENCE_PHASES.md`, **CLOSED 2026-10-30**).
 - **Dev free-skill gate in every ported class (user, 2026-10-22; Stages 5, 7, 8).** March skips the skill cool-time / MP checks for a dev account in internal builds; June's service binary has no such check. Every class port that brings in June's skill-use check wraps that check (cool time, MP, hyper stone) with `false == JuneIsDevUnlimitedSkillUse()` under `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL`. The helper uses March's own macros (`TOGGLE_UNLIMITED_SKILL_USE` / `_SERVICE_`, auth `XUAL_DEV`), so defining `_SERVICE_` turns March's and ours off together. It is a dev convenience, not June behaviour, and needs no JUNE_BUGS row. Pattern: Aisha's `June_SpecialAttackLookup` (pilot CH4a). Checklist row in section 7.
 - **Packing.** The user packs `.lua` and assets. Build the degrade path, and name the files when the work is done ([[server-lua-packing-is-users-job]]).
 - **Game events are switched on from the save DB (user, 2026-10-21; Stages 18, 19 and every event feature).** A game event (a seasonal or limited-time event, event dungeon, event NPC, event reward) that June only activates inside a date window or on another original condition does not rely on that condition. Today some only run with the PC clock set back (e.g. to 2016); that is what this replaces.

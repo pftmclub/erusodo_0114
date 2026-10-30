@@ -68,7 +68,12 @@ The codebase is updated to June in place, the studio's own pattern (March's `Get
   `stand-in: <class> not ported` comment.
 - **Inert transcription (`_CORE` before `_LIVE`):** a June-only function compiles under `_CORE` under its plain name; a body inside an
   existing March function goes under `_LIVE`, and the phase proves it compiles with a one-file probe build that defines `_LIVE`.
-- The ~1,500 June-prefixed names from before 2026-10-28 stay until plan `june-march-divergence` merges or renames them. New code adds none.
+- **The gate and the table (user, 2026-10-30; plan `june-march-divergence`, closed 2026-10-30).** `python tools/junediverge.py --list`
+  before transcribing; `--check <changed files>` must print `RESULT: PASS` (a review runs `--check-all`). A phase or review that finds a
+  March function whose June namesake differs adds its `tools/data/june_march_divergent.tsv` row **and** the replacement in the same commit.
+  If the replacement needs its own phase, the row's `source` names where it went and `tools/data/june_diverge_allow.tsv` carries the same
+  reason, until the port lands. Never allow-list a hit just to pass.
+- The ~1,500 June-prefixed names from before 2026-10-28 were merged or renamed by that plan. New code adds none.
 
 ## Rule: no hardcoded enum literals (user, 2026-10-26)
 
