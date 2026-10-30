@@ -1004,3 +1004,9 @@ C4 add-on (`SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT`, `m_vecSeqWeaponFir
 at-hand case (`31f961a0`: 10 on `Dummy1_Rhand` when viewer `+0xd80` is 1, else `Bone_RFinger2`, rates 15 / 30 / 60 / 25 / 15; 11 `Dummy4_LWeapon01` 10 / 10 / 10 / 25 / 10;
 12 `Dummy3_Weapon` 10 / 10 / 10 / 25 / 10), its frame-move case in `OnFrameMove` (`31fa8ce0`) as a new `ProcessEnchantWeaponEffectFor<Class>`, and Rose's
 `InitEnchantWeaponEffectForBow` case in `SetUnit` (`31faa6f0`).
+
+### 7at. Ara's add-N-stacks buff path (from june-hud H0)
+
+June `3229da40` (CX2GameUnit: add N to a buff's stack count by BTI; erase when it reaches 0) calls `3236a2f0` (count += N, displayers restart, buff icon
+pushed with the new count through `CX2GageManager::PushBuff`). Its only callers are Ara class code, `32bbb050` / `32bbb720` (the `SA_ALD_WOLF_Break` and
+`P_AYR_GOOD_ENERGY_BALL` effects). March has neither function. The Ara port brings both, and passes the count once june-hud H3 has given `PushBuff` one.

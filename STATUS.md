@@ -181,14 +181,14 @@ Done: C0, C1, C2, C3.
 
 ## june-hud - June HUD: buff icon row (top right, counter) and quick slot (bottom left)
 Plan `JUNE_HUD_PHASES.md` · branch `main` · log tag `[JUNE_HUD]` (sub-tags `BUFF`, `SLOT`) · flags `SERV_IRUHADEV_JUNE_HUD_*` (`_BUFF_ROW`, `_BUFF_COUNT`, `_QUICKSLOT`, + `_DEBUG`) · kickoffs `kickoffs/june-hud/` · evidence `june2017_re/hud_functions.tsv` · backlog Stage 37, split out of Stage 9 (user, 2026-10-31) · planned on Opus 2026-10-31. H1 deletes the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (user: delete the code).
+Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| H0 | ready (read-only, Ghidra) | Opus 5.5 / high | - | `june2017_re/hud_functions.tsv`, funcmap, plan doc | `H0.md` |
-| H1 | waiting | Sonnet 5.5 / medium | H0 | `X2GageUI.{h,cpp}`, `X2BuffFinalizerTemplet.h`, `X2BuffTemplet.{h,cpp}`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h`, `MODS.md` | `H1.md` |
-| H2 | waiting | Sonnet 5.5 / high (Opus if H0 marks party / PvP as differing) | H1 | `X2GageUI.{h,cpp}`, `Always.h` | `H2.md` |
+| H1 | ready | Sonnet 5.5 / medium | H0 | `X2GageUI.{h,cpp}`, `X2BuffFinalizerTemplet.h`, `X2BuffTemplet.{h,cpp}`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h`, `MODS.md` | `H1.md` |
+| H2 | waiting | Opus 5.5 / high (party / PvP differ; tooltip callees to read) | H1 | `X2GageUI.{h,cpp}`, `X2BuffFactor.h`, village enum, Hero oggs kom, `Always.h` | `H2.md` |
 | H3 | waiting | Sonnet 5.5 / high | H2 | `X2GageUI.{h,cpp}`, `X2GageManager.{h,cpp}`, `X2BuffTemplet.cpp`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h` | `H3.md` |
-| H4 | waiting (runs beside H2 / H3) | Sonnet 5.5 / high | H0 | `X2UIQuickSlot.{h,cpp}`, `X2UIManager.cpp`, data034 (+ texture koms), `Always.h` | `H4.md` |
+| H4 | ready (runs beside H1-H3) | Sonnet 5.5 / high | H0 | `X2UIQuickSlot.{h,cpp}`, data034 (no texture koms: H0), `Always.h` | `H4.md` |
 | H4 review | waiting (covers H1-H4) | Opus 5.5 / high | H1-H4 | - | `H4-review.md` |
 | Z | waiting | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory | `Z.md` |
 

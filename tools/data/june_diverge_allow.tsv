@@ -12,3 +12,13 @@ X2GameUnit.cpp	CX2GameUnit::GetFinalDamage	GT_PVP	June 32284aa0 @322856a2: the i
 X2GuEve.cpp	*	SetEnchantParticleShow	tsv 263: June's equip enchant-particle list (+0x8f0) is a June-only container, routed to june-engine R6c (D1-3e Done note)
 *	*	PlaySound	tsv PlaySound (32276220): the close-list add for looped sounds is routed to june-engine R15 (D2 review); the June callers themselves are fine
 X2UICharInfo.cpp	CX2UICharInfo::SumSocketOption	GT_PVP	June 3291b4b0 @3291b71a: game vslot 0x10c != 1 (type 1 only)
+*	*	PushBuff	tsv PushBuff (32489810 / 32e64530): routed to june-hud H3, which replaces both March PushBuffs under SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT (H0 2026-10-31)
+*	*	SetBuffIconStatic	tsv SetBuffIconStatic (32e661d0): routed to june-hud H2 (SERV_IRUHADEV_JUNE_HUD_BUFF_ROW; H0 2026-10-31)
+*	*	UpdateBuffIcon	tsv UpdateBuffIcon (32e67050 / 32e68660 / 32e68de0): routed to june-hud H2 (SERV_IRUHADEV_JUNE_HUD_BUFF_ROW; H0 2026-10-31)
+*	*	SetBuffIconGuideDesc	tsv SetBuffIconGuideDesc (32e70960): routed to june-hud H2 (SERV_IRUHADEV_JUNE_HUD_BUFF_ROW; H0 2026-10-31)
+*	*	RestartDisplayerForAccumulationDecrease	tsv RestartDisplayerForAccumulationDecrease (3236a190): routed to june-hud H3 (SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT; H0 2026-10-31)
+*	*	SetAccumulationCountNow	tsv SetAccumulationCountNow (3236a430): routed to june-hud H3 (SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT; H0 2026-10-31)
+*	*	SetSlotItemIcon	tsv SetSlotItemIcon (3294d320): routed to june-hud H4 (SERV_IRUHADEV_JUNE_HUD_QUICKSLOT; H0 2026-10-31)
+*	*	SetSummonMonsterItemIcon	tsv SetSummonMonsterItemIcon (32950060): routed to june-hud H4 (SERV_IRUHADEV_JUNE_HUD_QUICKSLOT; H0 2026-10-31)
+*	*	SetEnable	tsv CX2UIQuickSlot::SetEnable (3294c460): routed to june-hud H4; the name is generic, so this row only parks that one function (H0 2026-10-31)
+*	*	SetShow	tsv CX2UIQuickSlot::SetShow (32951900) -> june-hud H4 and CX2GageManager::SetShow (32489e30) -> Stage 9; the name is generic, so this row only parks those two (H0 2026-10-31)
