@@ -1279,6 +1279,13 @@ int CX2Inventory::GetEquipGroup( const UidType itemUID_ ) const
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP
+#ifdef SERV_NEW_ONE_PIECE_AVATAR_SLOT
+	// March's NESI_ONEPIECE_FASHION ( 20 ) is June's slot 35 ( group 0 ); June's 20 is a minor-unit slot
+	if ( CX2Unit::NESI_ONEPIECE_FASHION == iSlotID )
+		return 0;
+#endif SERV_NEW_ONE_PIECE_AVATAR_SLOT
+#endif SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP
 	switch ( iSlotID )
 	{
 	case 1:

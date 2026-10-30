@@ -12,7 +12,7 @@ june_va	vslot	june_role	march_counterpart	verdict	phase	evidence
 329146d0	-	ResetNowEquipUI	:2656	differs (equip position via 3234fe90, slot +0x44 minor-unit flag vs 3286a350(uid); no minimap endurance call)	C2	decompile
 32914440	-	UpdateItemLevel	:3173	same (STR_ID_19227 = 0x4b1b)	C2 (keep March)	decompile
 3291cfb0	-	ResetStat(bool)	:1423	differs (socket total by unit +0xe40 group; GetEqipStat 32913df0; 32912a90; opacity 32915620; 32092170 at the end)	C3	sig
-3291d2e0	-	EquipChanged (public refresh)	:2777 EquipChanged	differs (viewer 31fa9e60 + 31f94190; no ResetIncreaseSkillLevelBySocket here)	C3	sig
+3291d2e0	-	EquipChanged (public refresh)	:2777 EquipChanged	same at C3 (ResetStat( 0 ) default, ResetIncreaseSkillLevelBySocket 3235a080 present: C3 corrected); viewer 31fa9e60 + 31f94190 are C4's	C3	sig
 3291d360	-	viewer reset + motion + ResetStat	none (3 lines in March SetShow)	June-only helper	C4	viewer 31faa150, PlayByMotionType 31fa7ef0, ResetStat
 32913460	-	UpdateBasicStatFromSpecialSkill	:2172	differs (skill set via 32890620 / 32206e50 / 328989f0)	C3	sig
 32912a90	-	UpdateOptionStatFromSpecialSkill	:1951	differs [I] (one skill read)	C3	sig

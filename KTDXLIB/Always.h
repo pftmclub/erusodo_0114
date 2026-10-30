@@ -10955,3 +10955,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-charinfo C2: CX2UICharInfo::SetShow, SetTitle, ResetNowEquipUI and the custom events run June's bodies ( 3291df90 / 32915100 / 329146d0 / 3291db60 ): PvE record, EquipRelease, resonance and switching buttons, the minor-unit slot view ( CX2SlotItem IS_FOR_MINOR_UNIT ), the inventory refresh; no local-ranking profile or PvP score rows. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C3: the U-key window's stat panels run June's bodies: ResetStat 3291cfb0 ( equipment stat by the radio and form 32913df0, socket total by form 3291cee0 ), the socket total GetMyEquippedSocketData / SumSocketOption 3291ba40 / 3291b4b0 ( equip group, riding pet, party shared sockets, rank-linked sockets, June game types ), the basic panel 32915ab0 ( attack range and maximize guides, June's damage decrement 3291eb50 ), the 13 option rows 32919430 ( Maximize, MP gain, specializations, efficiency stage ), the skill bonuses 32913460 / 32912a90 and the record guides 32915620. Lu/Ciel form stand-in 0. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_STATS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C3 debug: one "[JUNE_CHARINFO] STATS" line per stat refresh with the inputs and every printed value ( ResetStat, basic, option, resistance, record ). Retired by the june-charinfo review. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C3: CX2Inventory::GetEquipGroup ( June 3286a4b0 ) reads March's NESI_ONEPIECE_FASHION ( 20 ) as June's onepiece slot ( 35, group 0 ) instead of June's minor-unit slot 20 ( group 1 ), so a onepiece costume keeps its stats and sockets in the form-0 sums ( character window, HUD max HP ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP
+//////////////////////////////////////////////////////////////////////////

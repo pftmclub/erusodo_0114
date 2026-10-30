@@ -79,7 +79,11 @@ public:
 	D3DXVECTOR2 GetDLGSize(){ return m_DLGSize; }
 	void SetLayer(X2_DIALOG_LAYER layer);
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+	void ResetStat( const bool bUseViewerForm_ = false );	// June 3291cfb0
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 	void ResetStat();
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 	void ResetNowEquipUI();
 	void ResetEDnCashnVP();
 	void UpdateLevel();
@@ -110,7 +114,14 @@ public:
 	void SumSocketOption( const vector<int>& vecOptions_, OUT CX2SocketItem::SocketData& sumSocketData_, const int iSocketLevel_ );	
 	//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+	CX2SocketItem::SocketData GetMyEquippedSocketData( const int iEquipGroup_ = 2 );	// June 3291ba40
+	CX2SocketItem::SocketData GetMyFormSocketData( const bool bMinorUnitForm_ );		// June 3291cee0
+	CX2Stat::Stat GetShownEquipStat( CX2Unit* pUnit_, const bool bMinorUnitForm_ ) const;	// June 32913df0
+	void UpdateRecordGuideUI();		// June 32915620
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 	CX2SocketItem::SocketData GetMyEquippedSocketData();
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 	
 	virtual bool OnRClickedItem( D3DXVECTOR2 mousePos );
 	virtual bool OnDropAnyItem( D3DXVECTOR2 mousePos );

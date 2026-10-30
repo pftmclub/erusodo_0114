@@ -404,6 +404,8 @@ Everything from Stages 5 and 6, plus:
   `0x4d9`/`0x4da` (village) and `0x4fd`/`0x4fe` (guild agit; Rose sends her weapon index through the same pair); Rose's weapon UI `32913f40` / lock `0x5e3`.
   June's NESI renumber (`NESI_ONEPIECE_FASHION` 20 -> 35, `NESI_END` 21 -> 43, save migration), `NESI_MINORUNIT_DEFENCE_HAIR_FASHION` in `Enum.lua`, and
   the slot hide by June's ids (`32e22ce0`) replacing CharInfo C2's `IS_FOR_MINOR_UNIT` stand-in. June has no event-name table: invent the names.
+  The renumber also retires `SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP` (CharInfo C3: GetEquipGroup maps March's slot 20 to June's onepiece group 0), and the
+  Lu/Ciel form stand-ins in CharInfo C3 (ResetStat's form, the second-form set pass `@3291bf2d`) read unit `+0xe40` / viewer `+0xd80`.
 - the user-sync members only these classes drive (june-effect C3e, `june2017_re/c3e_user_sync_fields.tsv` rows B, E, F, H, I, G):
   - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
     with it PhysicProcess's not-selected-body branch (`32015b30 @32019f9b-3201a1c7`, funcmap `(C9h-4g)`), the only reader of
@@ -1301,6 +1303,12 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
 - Verification:
   - a stat-sheet and per-hit breakdown log under a `_DEBUG` flag (`SERV_IRUHADEV_MP_JUMP_DEBUG` is the model);
   - pure formula functions run under Unicorn on June's binary against the port's outputs for the same inputs (precedent: buff Phase 16 review, `320839e0` on 360 input sets).
+
+**Map rows, display: June (CharInfo C3, 2026-10-30; no `june2017_re/statcalc/` yet):** the character window's printed numbers run June's bodies under
+`SERV_IRUHADEV_JUNE_CHARINFO_STATS`: ResetStat `3291cfb0` (sums: GetUnitStat full, GetEqipStat( PvP radio, form ) with group-2 HP `32913df0`, GetSkillStat,
+GetGuildSkillStat, title stat, socket base), UpdateBasicStatFromSpecialSkill `32913460`, UpdateOptionStatFromSpecialSkill `32912a90`, GetDamageDecrement
+`3291eb50` / `322a8b60`, the socket total `3291ba40` / `3291b4b0` / `3291cee0`, the basic / option UI. Open for this stage: June `Stat` [9] / [10] (an attack
+spread; the window prints min = max until it exists), `32358970` (per-unit ability map, 0), `GetEnchantStat` `32358df0`'s group argument (form 0 = March's).
 
 **Depends on:** nothing for planning (read-only).
 **Lead (june-charinfo C0, 2026-10-30):** the live `SocketOptionForm.lua` (data036) is June's, with all 145 `Calculate*` curves, but

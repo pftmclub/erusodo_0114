@@ -1912,6 +1912,20 @@ public:
 		RNSI_P_EEP_OPEN_MIND                                  = 25417,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-30 // june-charinfo C3
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the character window's basic-stat skill bonuses read ( values from June's Enum.lua )
+		RNSI_P_COMMON_HYPER_AURA                              = 106,
+		RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET                      = 21405,
+		RNSI_P_ERS_RUNE_MASTERY                               = 21408,
+		RNSI_P_ERS_MAGIC_RESISTANCE                           = 21409,
+		RNSI_P_ABM_FITNESS                                    = 22408,
+		RNSI_P_RF_PHYSIC_MAGIC_ATTACK                         = 24400,
+		RNSI_P_RRF_SPIRITUALIZED_FURY                         = 24405,
+		RNSI_P_CIP_IRON_WILL                                  = 26402,
+		RNSI_P_RSR_OPEN_MIND                                  = 31417,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

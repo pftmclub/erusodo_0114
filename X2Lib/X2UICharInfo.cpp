@@ -2,6 +2,9 @@
 #include ".\x2uicharinfo.h"
 #ifdef SERV_IRUHADEV_JUNE_CHARINFO_DLG
 #include "Offline/X2OfflineLog.h"
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+#include <boost/math/special_functions/erf.hpp>
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 #endif SERV_IRUHADEV_JUNE_CHARINFO_DLG
 
 
@@ -1707,6 +1710,221 @@ void CX2UICharInfo::SetTitle()
 //#endif
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+namespace _CONST_CHARINFO_C3_
+{
+	// June 322a8b60: the basic defence of a level ( its only caller is GetDamageDecrement )
+	float GetBasicDefenceByLevel( const int iLevel_ )
+	{
+		return static_cast<float>( static_cast<double>( iLevel_ ) * static_cast<double>( 39.35f ) + static_cast<double>( 258.65f ) );
+	}
+
+	// June 3291f0c0..3291f270: a CalculateFinal*Coefficient curve of SocketOptionForm.lua ( sum, level )
+	float GetFinalCoefficient( const char* pszCurve_, const float fSumValue_, const int iUserLevel_ )
+	{
+		return lua_tinker::call<float>( g_pKTDXApp->GetLuaBinder()->GetLuaState(), pszCurve_, fSumValue_, iUserLevel_ );
+	}
+
+	// June 3291f2a0 / 3291f4b0: the unit type picks CalculateFinal<Class>Specialization{A,B}Coefficient, any other type gives 0
+	float GetFinalSpecializationCoefficient( const CX2Unit::UNIT_TYPE eUnitType_, const bool bA_, const float fSumValue_, const int iUserLevel_ )
+	{
+		const char* pszCurve = NULL;
+		switch ( eUnitType_ )
+		{
+		case CX2Unit::UT_ELSWORD:	pszCurve = bA_ ? "CalculateFinalElswordSpecializationACoefficient" : "CalculateFinalElswordSpecializationBCoefficient";	break;
+		case CX2Unit::UT_ARME:		pszCurve = bA_ ? "CalculateFinalArmeSpecializationACoefficient" : "CalculateFinalArmeSpecializationBCoefficient";			break;
+		case CX2Unit::UT_LIRE:		pszCurve = bA_ ? "CalculateFinalLireSpecializationACoefficient" : "CalculateFinalLireSpecializationBCoefficient";			break;
+		case CX2Unit::UT_RAVEN:		pszCurve = bA_ ? "CalculateFinalRavenSpecializationACoefficient" : "CalculateFinalRavenSpecializationBCoefficient";		break;
+		case CX2Unit::UT_EVE:		pszCurve = bA_ ? "CalculateFinalEveSpecializationACoefficient" : "CalculateFinalEveSpecializationBCoefficient";			break;
+		case CX2Unit::UT_CHUNG:		pszCurve = bA_ ? "CalculateFinalChungSpecializationACoefficient" : "CalculateFinalChungSpecializationBCoefficient";		break;
+		case CX2Unit::UT_ARA:		pszCurve = bA_ ? "CalculateFinalAraSpecializationACoefficient" : "CalculateFinalAraSpecializationBCoefficient";			break;
+		case CX2Unit::UT_ELESIS:	pszCurve = bA_ ? "CalculateFinalElesisSpecializationACoefficient" : "CalculateFinalElesisSpecializationBCoefficient";		break;
+		case CX2Unit::UT_ADD:		pszCurve = bA_ ? "CalculateFinalAddSpecializationACoefficient" : "CalculateFinalAddSpecializationBCoefficient";			break;
+		case CX2Unit::UT_LUCIEL:	pszCurve = bA_ ? "CalculateFinalLucielSpecializationACoefficient" : "CalculateFinalLucielSpecializationBCoefficient";		break;
+		case CX2Unit::UT_ROSE:		pszCurve = bA_ ? "CalculateFinalRoseSpecializationACoefficient" : "CalculateFinalRoseSpecializationBCoefficient";			break;
+		case CX2Unit::UT_AIN:		pszCurve = bA_ ? "CalculateFinalAinSpecializationACoefficient" : "CalculateFinalAinSpecializationBCoefficient";			break;
+		default:					return 0.f;
+		}
+		return GetFinalCoefficient( pszCurve, fSumValue_, iUserLevel_ );
+	}
+
+	// June 32919430: every option guide ends with its curve's efficiency stage ( string 39999 )
+	wstring GetCoefficientGuide( const float fCoefficient_ )
+	{
+		return SiCKTDXStringTable()->GetReplacedString( 39999, "i", static_cast<int>( fCoefficient_ * 100.0 + 0.1f ) );
+	}
+
+	// June 32919430: picture 0 ( awakening ) or, for Add, picture 1 ( DP ) of a charge / time static; returns the guide string id
+	int ShowHyperModePicture( CKTDGUIStatic* pStatic_, const bool bAdd_, const int iStringID_, const int iAddStringID_ )
+	{
+		CKTDGUIControl::CPictureData* pPictureHyperMode = pStatic_->GetPicture( 0 );
+		CKTDGUIControl::CPictureData* pPictureDP = pStatic_->GetPicture( 1 );
+		if ( NULL == pPictureHyperMode || NULL == pPictureDP )
+			return iStringID_;
+
+		pPictureHyperMode->SetShow( false == bAdd_ );
+		pPictureDP->SetShow( bAdd_ );
+		return bAdd_ ? iAddStringID_ : iStringID_;
+	}
+
+	// June 32913460: a passive's relative rate as June adds it ( rate - 1.0 ( 334355b0 ) + 5e-8 ( 3346ed68 ) )
+	float GetPassiveIncreaseRate( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillLevel_ )
+	{
+		return static_cast<float>( static_cast<double>( pSkillTemplet_->GetSkillAbilityValue( eType_, iSkillLevel_, false ) ) - 1.0 + 5e-08 );
+	}
+}
+using namespace _CONST_CHARINFO_C3_;
+
+void CX2UICharInfo::ResetStat( const bool bUseViewerForm_ /*= false*/ )
+{
+	// June 3291cfb0
+	UNREFERENCED_PARAMETER( bUseViewerForm_ );
+	CX2Unit* pMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const bool bMinorUnitForm = false;		// stand-in: Lu/Ciel not ported ( my unit +0xe40, or the viewer's +0xd80 when bUseViewerForm_ )
+
+	CX2SocketItem::SocketData socketData = GetMyFormSocketData( bMinorUnitForm );
+
+	m_Stat.InitStat();
+	m_Stat.AddStat( pMyUnit->GetUnitStat(), true );
+	m_Stat.AddStat( GetShownEquipStat( pMyUnit, bMinorUnitForm ) );
+	m_Stat.AddStat( pMyUnit->GetSkillStat() );
+	m_Stat.AddStat( pMyUnit->GetGuildSkillStat() );
+	m_Stat.AddStat( g_pData->GetTitleManager()->GetSocketStat() );
+	m_Stat.AddStat( socketData.m_Stat );
+
+	UpdateBasicStatFromSpecialSkill();
+	UpdateBasicStatUI( socketData );
+	UpdateOptionStatFromSpecialSkill( socketData );
+	UpdateOptionStatUI( socketData );
+	UpdateResistanceStatUI( socketData );
+	UpdateRecordGuideUI();
+
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+	const CX2Stat::EnchantStat& kEnchantStat = pMyUnit->GetEnchantStat( false );
+	CX2OfflineLog::Server( L"[JUNE_CHARINFO] STATS ResetStat level %d type %d form %d viewer %d pvp %d dungeon %d resist %d %d %d %d %d %d",
+		GetMyLevel(), static_cast<int>( pMyUnit->GetType() ), bMinorUnitForm ? 1 : 0, bUseViewerForm_ ? 1 : 0, m_bShowPVPOption ? 1 : 0, m_bShowDungeonOption ? 1 : 0,
+		static_cast<int>( kEnchantStat.m_fDefBlaze ), static_cast<int>( kEnchantStat.m_fDefWater ), static_cast<int>( kEnchantStat.m_fDefNature ),
+		static_cast<int>( kEnchantStat.m_fDefWind ), static_cast<int>( kEnchantStat.m_fDefLight ), static_cast<int>( kEnchantStat.m_fDefDark ) );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+}
+
+CX2SocketItem::SocketData CX2UICharInfo::GetMyFormSocketData( const bool bMinorUnitForm_ )
+{
+	// June 3291cee0: the form's equip group, with the HP increase of the shared group ( 2 )
+	const CX2SocketItem::SocketData kSharedSocketData = GetMyEquippedSocketData( 2 );
+	CX2SocketItem::SocketData kSocketData = GetMyEquippedSocketData( bMinorUnitForm_ ? 1 : 0 );
+	kSocketData.m_Stat.m_ExtraStat.m_fIncreaseHPRate = kSharedSocketData.m_Stat.m_ExtraStat.m_fIncreaseHPRate;
+	return kSocketData;
+}
+
+CX2Stat::Stat CX2UICharInfo::GetShownEquipStat( CX2Unit* pUnit_, const bool bMinorUnitForm_ ) const
+{
+	// June 32913df0: the form's equipment stat for the PvP / dungeon radio, with the HP of both forms ( group 2 )
+	CX2Stat::Stat kEquipStat;
+	if ( NULL != pUnit_ )
+	{
+		const CX2Stat::Stat kSharedEquipStat = pUnit_->GetEqipStat( m_bShowPVPOption, 2 );
+		kEquipStat = pUnit_->GetEqipStat( m_bShowPVPOption, bMinorUnitForm_ ? 1 : 0 );
+		kEquipStat.m_fBaseHP = static_cast<float>( kSharedEquipStat.m_fBaseHP );
+	}
+	return kEquipStat;
+}
+
+/*inline*/
+int CX2UICharInfo::GetMyLevel() const
+{
+	return g_pData->GetSelectUnitLevel();
+}
+
+/*inline*/
+float CX2UICharInfo::GetDamageDecrement( const float fTotalDefValue_ ) const
+{
+	// June 3291eb50
+	float fDamageDecrement = fTotalDefValue_ / ( fTotalDefValue_ + GetBasicDefenceByLevel( g_pData->GetSelectUnitLevel() ) );
+
+	if( 0.0f > fDamageDecrement )
+		fDamageDecrement = 0.f;
+	else if ( 99.99f < fDamageDecrement )
+		fDamageDecrement = 99.99f;
+
+	return fDamageDecrement;
+}
+
+void CX2UICharInfo::UpdateBasicStatUI( const CX2SocketItem::SocketData& socketData_ )
+{
+	// June 32915ab0
+	WCHAR wszBuffer[MAX_PATH] = {0, };
+	const CX2Stat::Stat& kStat = m_Stat.GetStat();
+	const CX2Stat::Stat::ExtraStat& kExtraStat = socketData_.m_Stat.m_ExtraStat;
+	const int iMyLevel = GetMyLevel();
+
+	const float fBaseHP = kStat.m_fBaseHP;
+	const float fMaxHpIncrement = static_cast<float>( fBaseHP * 0.5 );
+	const int iHP = ( kExtraStat.m_fIncreaseHPRate <= fMaxHpIncrement ) ? static_cast<int>( kExtraStat.m_fIncreaseHPRate + fBaseHP ) : static_cast<int>( fMaxHpIncrement + fBaseHP );
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5d", iHP );
+	SetStatInfoStatic( L"g_pStaticinfo_hp", wszBuffer );
+
+	const float fAtkPhysic = kStat.m_fAtkPhysic;
+	const int iAtkPhysic = static_cast<int>( fAtkPhysic * kExtraStat.m_fIncreaseAtkPhysicRate + fAtkPhysic );
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5d", iAtkPhysic );
+	SetStatInfoStatic( L"g_pStaticinfo_p_attack", wszBuffer );
+
+	const float fAtkMagic = kStat.m_fAtkMagic;
+	const int iAtkMagic = static_cast<int>( fAtkMagic * kExtraStat.m_fIncreaseAtkMagicRate + fAtkMagic );
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5d", iAtkMagic );
+	SetStatInfoStatic( L"g_pStaticinfo_m_attack", wszBuffer );
+
+	const float fAtkPhysicSpread = 0.f;		// stand-in: June Stat [9] ( +0x108 ) has no March member ( Stage 33 )
+	const int iMinAtkPhysic = static_cast<int>( ( fAtkPhysic - fAtkPhysicSpread ) * ( kExtraStat.m_fIncreaseAtkPhysicRate + 1.0 ) );
+	const int iMaxAtkPhysic = static_cast<int>( ( fAtkPhysicSpread + fAtkPhysic ) * ( kExtraStat.m_fIncreaseAtkPhysicRate + 1.0 ) );
+	const float fPhysicMaximizeRate = CX2SocketItem::GetFinalDamageMaximizeRate( socketData_.m_fDamageMaximizeRate, iMyLevel );
+	const int iMaximizedAtkPhysic = iMinAtkPhysic + static_cast<int>( fPhysicMaximizeRate * ( iMaxAtkPhysic - iMinAtkPhysic ) );
+	SetStatInfoGuideDesc( L"Button_PhysicAttack", GET_REPLACED_STRING( ( 39431, "iiii", iMinAtkPhysic, iMaxAtkPhysic, iMaximizedAtkPhysic, iMaxAtkPhysic ) ) );
+
+	const float fAtkMagicSpread = 0.f;		// stand-in: June Stat [10] ( +0x10c ) has no March member ( Stage 33 )
+	const int iMinAtkMagic = static_cast<int>( ( fAtkMagic - fAtkMagicSpread ) * ( kExtraStat.m_fIncreaseAtkMagicRate + 1.0 ) );
+	const int iMaxAtkMagic = static_cast<int>( ( fAtkMagicSpread + fAtkMagic ) * ( kExtraStat.m_fIncreaseAtkMagicRate + 1.0 ) );
+	const float fMagicMaximizeRate = CX2SocketItem::GetFinalDamageMaximizeRate( socketData_.m_fDamageMaximizeRate, iMyLevel );
+	const int iMaximizedAtkMagic = iMinAtkMagic + static_cast<int>( fMagicMaximizeRate * ( iMaxAtkMagic - iMinAtkMagic ) );
+	SetStatInfoGuideDesc( L"Button_MagicAttack", GET_REPLACED_STRING( ( 39432, "iiii", iMinAtkMagic, iMaxAtkMagic, iMaximizedAtkMagic, iMaxAtkMagic ) ) );
+
+	const float fDefPhysic = kStat.m_fDefPhysic;
+	const float fTotalDefPhysic = kExtraStat.m_fIncreaseDefPhysicRate * fDefPhysic + fDefPhysic;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5d", static_cast<int>( fTotalDefPhysic ) );
+	SetStatInfoStatic( L"g_pStaticinfo_p_defence", wszBuffer );
+	SetStatInfoGuideDesc( L"Button_PhysicDefence", GET_REPLACED_STRING( ( STR_ID_13570, "f", GetDamageDecrement( fTotalDefPhysic ) * 100.0 ) ) );
+
+	const float fDefMagic = kStat.m_fDefMagic;
+	const float fTotalDefMagic = kExtraStat.m_fIncreaseDefMagicRate * fDefMagic + fDefMagic;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5d", static_cast<int>( fTotalDefMagic ) );
+	SetStatInfoStatic( L"g_pStaticinfo_m_defence", wszBuffer );
+	SetStatInfoGuideDesc( L"Button_MagicDefence", GET_REPLACED_STRING( ( STR_ID_13571, "f", GetDamageDecrement( fTotalDefMagic ) * 100.0 ) ) );
+
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHARINFO] STATS basic hp %d (base %.1f inc %.3f) patk %d matk %d prange %d-%d max %d mrange %d-%d max %d pdef %d mdef %d",
+		iHP, fBaseHP, kExtraStat.m_fIncreaseHPRate, iAtkPhysic, iAtkMagic, iMinAtkPhysic, iMaxAtkPhysic, iMaximizedAtkPhysic,
+		iMinAtkMagic, iMaxAtkMagic, iMaximizedAtkMagic, static_cast<int>( fTotalDefPhysic ), static_cast<int>( fTotalDefMagic ) );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+}
+
+void CX2UICharInfo::UpdateRecordGuideUI()
+{
+	// June 32915620
+	if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	const CX2Unit::UnitData& kUnitData = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
+	const int iTotalPvpWin = kUnitData.m_Win + kUnitData.m_iPastSeasonWin;	// June unit +0x12c + +0x120
+	SetStatInfoGuideDesc( L"ButtonPvpOpacity", GET_REPLACED_STRING( ( 42074, "i", iTotalPvpWin ) ) );
+
+	const int iTotalPveWin = 0;		// stand-in: UnitData lacks June's PvE record ( unit +0xa0d )
+	SetStatInfoGuideDesc( L"ButtonPveOpacity", GET_REPLACED_STRING( ( 32067, "i", iTotalPveWin ) ) );
+
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHARINFO] STATS record pvp %d pve %d", iTotalPvpWin, iTotalPveWin );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::ResetStat()
 {
 	//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
@@ -1822,11 +2040,212 @@ void CX2UICharInfo::UpdateBasicStatUI( const CX2SocketItem::SocketData& socketDa
 	SetStatInfoGuideDesc( L"Button_MagicDefence", GET_REPLACED_STRING( ( STR_ID_13571, "f", GetDamageDecrement( fTotalDefMagic ) * 100 ) ) );
 }
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 /** @function : UpdateOptionStatUI
 	@brief : 크리티컬, 추가데미지, 명중, 각성충전속도, 각성지속시간, 회피, 데미지감소, 동작속도, 이동력, 점프력
 	@param : 갱신된 정보가 저장된 SocketData
 */
 #ifndef MODIFY_CHARACTER_STAT_INFO
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+void CX2UICharInfo::UpdateOptionStatUI( const CX2SocketItem::SocketData& socketData_ )
+{
+	// June 32919430
+	const int iMyLevel = GetMyLevel();
+	WCHAR wszBuffer[MAX_PATH] = {0, };
+
+	if ( NULL == m_pDLGCharInfo || NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() ||
+		NULL == m_pDLGCharInfo->GetControl( L"g_pStaticInfo2" ) )
+		return;
+
+	CX2Unit* pMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const CX2Unit::UNIT_TYPE eUnitType = ( NULL != pMyUnit->GetUnitTemplet() ) ? pMyUnit->GetType() : CX2Unit::UT_NONE;
+	wstring wstrGuide;
+
+	// Critical
+	const float fPercentCritical = socketData_.m_fPercentCritical;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", ( 0.f > fPercentCritical ) ? 0.f : fPercentCritical );
+	SetStatInfoStatic( L"Static_Critical", wszBuffer );
+	float fFinalCritical = static_cast<float>( CX2SocketItem::GetFinalCriticalPercent( fPercentCritical, iMyLevel ) * 100.0 );
+	if ( 0.f > fFinalCritical )
+		fFinalCritical = 0.f;
+	wstrGuide = GET_REPLACED_STRING( ( STR_ID_12785, "f", fFinalCritical ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalCriticalCoefficient", fPercentCritical, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Critical", wstrGuide.c_str() );
+
+	// Add: the extra damage range for physical, then magical attack
+	const float fAdditionalAttack = socketData_.m_fAdditionalAttackValue;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fAdditionalAttack );
+	SetStatInfoStatic( L"Static_Add", wszBuffer );
+	{
+		const float fFinalAdditionalAttack = CX2SocketItem::GetFinalAdditionalAttackValue( fAdditionalAttack, iMyLevel );
+		const double dMinLevelRate = pow( 1.0, 0.65 );
+		const double dMaxLevelRate = pow( 50.0, 0.65 );
+		const double dAtkPhysic = static_cast<float>( m_Stat.GetStat().m_fAtkPhysic ) * 1.5;
+		const double dAtkMagic = static_cast<float>( m_Stat.GetStat().m_fAtkMagic ) * 1.5;
+		wstrGuide = GET_STRING( STR_ID_30051 );
+		wstrGuide += GET_REPLACED_STRING( ( STR_ID_13555, "ii", static_cast<int>( dAtkPhysic * dMinLevelRate * fFinalAdditionalAttack ),
+			static_cast<int>( dMaxLevelRate * dAtkPhysic * fFinalAdditionalAttack ) ) );
+		wstrGuide += L"\n";
+		wstrGuide += GET_STRING( STR_ID_30052 );
+		wstrGuide += GET_REPLACED_STRING( ( STR_ID_13555, "ii", static_cast<int>( dAtkMagic * dMinLevelRate * fFinalAdditionalAttack ),
+			static_cast<int>( dMaxLevelRate * dAtkMagic * fFinalAdditionalAttack ) ) );
+		wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalAdditionalAttackCoefficient", fAdditionalAttack, iMyLevel ) );
+		SetStatInfoGuideDesc( L"Button_Add", wstrGuide.c_str() );
+	}
+
+	// Charge ( Add: DP charge )
+	const float fHyperModeChargeRate = socketData_.m_fHyperModeChargeRate;
+	CKTDGUIStatic* pStaticCharge = static_cast<CKTDGUIStatic*>( m_pDLGCharInfo->GetControl( L"Static_Charge" ) );
+	if ( NULL == pStaticCharge )
+		return;
+	const int iChargeStringID = ShowHyperModePicture( pStaticCharge, CX2Unit::UT_ADD == eUnitType, STR_ID_13556, STR_ID_29871 );
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fHyperModeChargeRate );
+	SetStatInfoStatic( L"Static_Charge", wszBuffer );
+	const float fFinalCharge = static_cast<float>( CX2SocketItem::GetFinalHyperGageChargeSpeedPercent( fHyperModeChargeRate, iMyLevel ) * 100.0 );
+	wstrGuide = GET_REPLACED_STRING( ( iChargeStringID, "f", fFinalCharge ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalHyperGageChargeSpeedCoefficient", fHyperModeChargeRate, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Charge", wstrGuide.c_str() );
+
+	// Time ( Add: DP use )
+	const float fHyperModeTime = socketData_.m_fHyperModeTime;
+	CKTDGUIStatic* pStaticTime = static_cast<CKTDGUIStatic*>( m_pDLGCharInfo->GetControl( L"Static_Time" ) );
+	if ( NULL == pStaticTime )
+		return;
+	const int iTimeStringID = ShowHyperModePicture( pStaticTime, CX2Unit::UT_ADD == eUnitType, STR_ID_13557, STR_ID_29872 );
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%3.0f%%", fHyperModeTime );
+	SetStatInfoStatic( L"Static_Time", wszBuffer );
+	SetStatInfoGuideDesc( L"Button_Time", GET_REPLACED_STRING( ( iTimeStringID, "f", fHyperModeTime ) ) );
+
+	// Decline
+	const float fAdditionalDefence = socketData_.m_fAdditionalDefenceValue;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fAdditionalDefence );
+	SetStatInfoStatic( L"Static_Decline", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( STR_ID_12788, "f", CX2SocketItem::GetFinalAdditionalDefencePercent( fAdditionalDefence, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalAdditionalDefenceCoefficient", fAdditionalDefence, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Decline", wstrGuide.c_str() );
+
+	// Moving ( animation speed )
+	const float fAnimationSpeedRate = socketData_.m_fAnimationSpeedRate;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fAnimationSpeedRate );
+	SetStatInfoStatic( L"Static_Moving", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( STR_ID_12787, "f", CX2SocketItem::GetFinalAnimationSpeedPercent( fAnimationSpeedRate, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalAnimationSpeedCoefficient", fAnimationSpeedRate, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Moving", wstrGuide.c_str() );
+
+	// Speed ( move speed )
+	const float fMoveSpeed = socketData_.m_fMoveSpeed;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fMoveSpeed );
+	SetStatInfoStatic( L"Static_Speed", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( STR_ID_12790, "f", CX2SocketItem::GetFinalMoveSpeedPercent( fMoveSpeed, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalMoveSpeedCoefficient", fMoveSpeed, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Speed", wstrGuide.c_str() );
+
+	// Jump
+	const float fJumpSpeed = socketData_.m_fJumpSpeed;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fJumpSpeed );
+	SetStatInfoStatic( L"Static_Jump", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( STR_ID_12791, "f", CX2SocketItem::GetFinalJumpSpeedPercent( fJumpSpeed, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalJumpSpeedCoefficient", fJumpSpeed, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Jump", wstrGuide.c_str() );
+
+	// Maximize: the rate, then the chance to roll the maximum ( 1 - erfc( 2 ( rate - 1 ) / sqrt( 2 ) ) / 2 )
+	const float fDamageMaximizeRate = socketData_.m_fDamageMaximizeRate;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fDamageMaximizeRate );
+	SetStatInfoStatic( L"Static_Maximize", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( 36703, "f", CX2SocketItem::GetFinalDamageMaximizeRate( fDamageMaximizeRate, iMyLevel ) * 100.0 ) );
+	{
+		// June also calls the final rate and CalculateIntermediateDamageMaximizeRate here and drops both results
+		const float fFinalMaximizeRate = CX2SocketItem::GetFinalDamageMaximizeRate( fDamageMaximizeRate, g_pData->GetSelectUnitLevel() );
+		const float fNormalized = ( ( fFinalMaximizeRate - 1.f ) + ( fFinalMaximizeRate - 1.f ) ) / static_cast<float>( sqrt( 2.0 ) );
+		const float fMaximizeChance = static_cast<float>( 1.0 - boost::math::erfc( fNormalized ) * 0.5 );
+		wstrGuide += L"\n";
+		wstrGuide += GET_REPLACED_STRING( ( 39433, "f", fMaximizeChance * 100.0 ) );
+	}
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalDamageMaximizeCoefficient", fDamageMaximizeRate, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_Maximize", wstrGuide.c_str() );
+
+	// MP gain by attack
+	const float fMPIncByAttack = socketData_.m_fMPIncByAttack;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fMPIncByAttack );
+	SetStatInfoStatic( L"Static_MpIncByAttack", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( 36701, "f", CX2SocketItem::GetFinalMpIncPercentByAttack( fMPIncByAttack, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalMpIncCoefficientByAttack", fMPIncByAttack, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_MpIncByAttack", wstrGuide.c_str() );
+
+	// MP gain when attacked
+	const float fMPIncByAttacked = socketData_.m_fMPIncByAttacked;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fMPIncByAttacked );
+	SetStatInfoStatic( L"Static_MpIncByAttacked", wszBuffer );
+	wstrGuide = GET_REPLACED_STRING( ( 36702, "f", CX2SocketItem::GetFinalMpIncPercentByAttacked( fMPIncByAttacked, iMyLevel ) * 100.0 ) );
+	wstrGuide += GetCoefficientGuide( GetFinalCoefficient( "CalculateFinalMpIncCoefficientByAttacked", fMPIncByAttacked, iMyLevel ) );
+	SetStatInfoGuideDesc( L"Button_MpIncByAttacked", wstrGuide.c_str() );
+
+	// Specialization A
+	const float fSpecializationA = socketData_.m_fCharacterSpecializationA;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fSpecializationA );
+	SetStatInfoStatic( L"Static_SpecializationA", wszBuffer );
+	{
+		const float fFinalRate = CX2SocketItem::SpecializationFinal( eUnitType, true )( fSpecializationA, iMyLevel );
+		const double dPercent = fFinalRate * 100.0;
+		switch ( eUnitType )
+		{
+		case CX2Unit::UT_ELSWORD:	wstrGuide = GET_REPLACED_STRING( ( 36704, "f", dPercent ) );	break;
+		case CX2Unit::UT_ARME:		wstrGuide = GET_REPLACED_STRING( ( 36706, "f", dPercent ) );	break;
+		case CX2Unit::UT_LIRE:		wstrGuide = GET_REPLACED_STRING( ( 36708, "f", dPercent ) );	break;
+		case CX2Unit::UT_RAVEN:		wstrGuide = GET_REPLACED_STRING( ( 36710, "f", dPercent ) );	break;
+		case CX2Unit::UT_EVE:		wstrGuide = GET_REPLACED_STRING( ( 36712, "f", dPercent ) );	break;
+		case CX2Unit::UT_CHUNG:		wstrGuide = GET_REPLACED_STRING( ( 36714, "f", dPercent ) );	break;
+		case CX2Unit::UT_ARA:
+			wstrGuide = GET_REPLACED_STRING( ( 36716, "fffff", dPercent * 0.5, dPercent * static_cast<double>( 0.71f ), dPercent,
+				dPercent * static_cast<double>( 1.41f ), dPercent + dPercent ) );
+			break;
+		case CX2Unit::UT_ELESIS:	wstrGuide = GET_REPLACED_STRING( ( 36718, "f", dPercent ) );	break;
+		case CX2Unit::UT_ADD:		wstrGuide = GET_REPLACED_STRING( ( 36720, "f", dPercent ) );	break;
+		case CX2Unit::UT_LUCIEL:	wstrGuide = GET_REPLACED_STRING( ( 36722, "f", fFinalRate * 10.0 ) );	break;
+		case CX2Unit::UT_ROSE:		wstrGuide = GET_REPLACED_STRING( ( 38430, "f", dPercent * static_cast<double>( 0.6f ) ) );	break;
+		case CX2Unit::UT_AIN:		wstrGuide = GET_REPLACED_STRING( ( 43546, "f", dPercent ) );	break;
+		default:					wstrGuide = L"";	break;
+		}
+		wstrGuide += GetCoefficientGuide( GetFinalSpecializationCoefficient( eUnitType, true, fSpecializationA, iMyLevel ) );
+		SetStatInfoGuideDesc( L"Button_SpecializationA", wstrGuide.c_str() );
+	}
+
+	// Specialization B
+	const float fSpecializationB = socketData_.m_fCharacterSpecializationB;
+	StringCchPrintfW( wszBuffer, MAX_PATH, L"%5.0f", fSpecializationB );
+	SetStatInfoStatic( L"Static_SpecializationB", wszBuffer );
+	{
+		const float fFinalRate = CX2SocketItem::SpecializationFinal( eUnitType, false )( fSpecializationB, iMyLevel );
+		const double dPercent = fFinalRate * 100.0;
+		switch ( eUnitType )
+		{
+		case CX2Unit::UT_ELSWORD:	wstrGuide = GET_REPLACED_STRING( ( 36705, "f", dPercent ) );	break;
+		case CX2Unit::UT_ARME:		wstrGuide = GET_REPLACED_STRING( ( 36707, "f", dPercent ) );	break;
+		case CX2Unit::UT_LIRE:
+			wstrGuide = GET_REPLACED_STRING( ( 36709, "fff", dPercent / 3.0, dPercent / 3.0 + dPercent / 3.0, dPercent ) );
+			break;
+		case CX2Unit::UT_RAVEN:		wstrGuide = GET_REPLACED_STRING( ( 36711, "f", dPercent ) );	break;
+		case CX2Unit::UT_EVE:		wstrGuide = GET_REPLACED_STRING( ( 36713, "f", dPercent ) );	break;
+		case CX2Unit::UT_CHUNG:		wstrGuide = GET_REPLACED_STRING( ( 36715, "f", dPercent ) );	break;
+		case CX2Unit::UT_ARA:		wstrGuide = GET_REPLACED_STRING( ( 36717, "f", fFinalRate * 20.0 ) );	break;
+		case CX2Unit::UT_ELESIS:	wstrGuide = GET_REPLACED_STRING( ( 36719, "f", dPercent ) );	break;
+		case CX2Unit::UT_ADD:		wstrGuide = GET_REPLACED_STRING( ( 36721, "f", fFinalRate * 50.0 ) );	break;
+		case CX2Unit::UT_LUCIEL:	wstrGuide = GET_REPLACED_STRING( ( 36723, "f", dPercent ) );	break;
+		case CX2Unit::UT_ROSE:		wstrGuide = GET_REPLACED_STRING( ( 38431, "f", dPercent ) );	break;
+		case CX2Unit::UT_AIN:		wstrGuide = GET_REPLACED_STRING( ( 43547, "f", dPercent ) );	break;
+		default:					wstrGuide = L"";	break;
+		}
+		wstrGuide += GetCoefficientGuide( GetFinalSpecializationCoefficient( eUnitType, false, fSpecializationB, iMyLevel ) );
+		SetStatInfoGuideDesc( L"Button_SpecializationB", wstrGuide.c_str() );
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHARINFO] STATS option crit %.0f add %.0f charge %.0f time %.0f decline %.0f moving %.0f speed %.0f jump %.0f maximize %.0f mpatk %.0f mpatked %.0f specA %.0f specB %.0f",
+		fPercentCritical, fAdditionalAttack, fHyperModeChargeRate, fHyperModeTime, fAdditionalDefence, fAnimationSpeedRate, fMoveSpeed, fJumpSpeed,
+		fDamageMaximizeRate, fMPIncByAttack, fMPIncByAttacked, fSpecializationA, fSpecializationB );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::UpdateOptionStatUI( const CX2SocketItem::SocketData& socketData_ )
 {
 	const int iMyLevel = GetMyLevel();
@@ -2088,6 +2507,7 @@ void CX2UICharInfo::UpdateOptionStatUI( const CX2SocketItem::SocketData& socketD
 	else
 		SetStatInfoGuideDesc( L"Button_Jump", GET_REPLACED_STRING( ( STR_ID_12791, "f", CX2SocketItem::GetFinalJumpSpeedPercent( socketData_.m_fJumpSpeed, iMyLevel ) * 100 ) ) );
 }
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 #else
 void CX2UICharInfo::UpdateOptionStatUI( const CX2SocketItem::SocketData& socketData_ )
 {
@@ -2235,6 +2655,24 @@ void CX2UICharInfo::UpdateOptionStatUI( const CX2SocketItem::SocketData& socketD
 			(크리티컬, 추가데미지, 명중, 각성충전속도, 각성지속시간, 회피, 데미지감소, 동작속도, 이동력, 점프력)
 	@param : 변경하기 전 정보가 저장된 SocketData
 */
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+void CX2UICharInfo::UpdateOptionStatFromSpecialSkill( CX2SocketItem::SocketData& socketData_ )
+{
+	// June 32912a90
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+	const int iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ECN_ENERGY_OF_CONCENTRATION );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fMixAtk = static_cast<float>( m_Stat.GetStat().m_fAtkMagic ) + static_cast<float>( m_Stat.GetStat().m_fAtkPhysic );
+			socketData_.m_fPercentCritical = static_cast<float>( fMixAtk * 0.5 *
+				pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ATK_BASE, iSkillLevel, false ) + socketData_.m_fPercentCritical );
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::UpdateOptionStatFromSpecialSkill( CX2SocketItem::SocketData& socketData_ )
 {
 
@@ -2304,6 +2742,7 @@ void CX2UICharInfo::UpdateOptionStatFromSpecialSkill( CX2SocketItem::SocketData&
 #endif //UPGRADE_SKILL_SYSTEM_2013
 #endif //FIX_SKILL_BALANCE_AISHA_LENA
 }
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 
 #else
 void CX2UICharInfo::UpdateOptionStatFromSpecialSkill( CX2SocketItem::SocketData& socketData_ )
@@ -2456,6 +2895,89 @@ void CX2UICharInfo::UpdateResistanceStatUI()
 /** @function : UpdateBasicStatFromSpecialSkill
 	@brief : 스킬에서 올려주는 능력치를 갱신
 */
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+void CX2UICharInfo::UpdateBasicStatFromSpecialSkill()
+{
+	// June 32913460; its 32358970( 1 ) / ( 2 ) attack and defence terms read June's per-unit ability map: 0 in March
+	CX2Stat::Stat& kStat = m_Stat.AccessStat();
+	float fBaseAtkPhysic = kStat.m_fAtkPhysic;
+	float fBaseAtkMagic = kStat.m_fAtkMagic;
+	const float fBaseDefPhysic = kStat.m_fDefPhysic;
+	const float fBaseDefMagic = kStat.m_fDefMagic;
+
+	CX2SkillTree* pSkillTree = g_pData->GetSkillTree();
+	if ( NULL == pSkillTree )
+		return;
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	int iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CIP_IRON_WILL, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CIP_IRON_WILL ) ) )
+		kStat.m_fAtkPhysic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_PHYSIC_REL, iSkillLevel ) * fBaseAtkPhysic + kStat.m_fAtkPhysic;
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_AVP_MAGIC_AMPLIFICATION, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::SI_P_AVP_MAGIC_AMPLIFICATION ) ) )
+		kStat.m_fAtkMagic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_MAGIC_REL, iSkillLevel ) * fBaseAtkMagic + kStat.m_fAtkMagic;
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET ) ) )
+	{
+		const CX2Stat::Stat kSkillStat = pSkillTemplet->GetSkillStatValue( iSkillLevel );
+		kStat.m_fAtkPhysic = static_cast<float>( kSkillStat.m_fAtkPhysic ) + kStat.m_fAtkPhysic;
+		kStat.m_fAtkMagic = static_cast<float>( kSkillStat.m_fAtkMagic ) + kStat.m_fAtkMagic;
+		fBaseAtkPhysic += kSkillStat.m_fAtkPhysic;
+		fBaseAtkMagic += kSkillStat.m_fAtkMagic;
+	}
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_RUNE_MASTERY, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_RUNE_MASTERY ) ) )
+		kStat.m_fAtkMagic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_MAGIC_REL, iSkillLevel ) * fBaseAtkMagic + kStat.m_fAtkMagic;
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_MAGIC_RESISTANCE, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_MAGIC_RESISTANCE ) ) )
+		kStat.m_fDefMagic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_DEF_MAGIC_REL, iSkillLevel ) * fBaseDefMagic + kStat.m_fDefMagic;
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_COMMON_HYPER_AURA, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_COMMON_HYPER_AURA ) ) )
+	{
+		kStat.m_fAtkPhysic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_PHYSIC_REL, iSkillLevel ) * fBaseAtkPhysic + kStat.m_fAtkPhysic;
+		kStat.m_fAtkMagic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_MAGIC_REL, iSkillLevel ) * fBaseAtkMagic + kStat.m_fAtkMagic;
+		kStat.m_fDefPhysic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_DEF_PHYSIC_REL, iSkillLevel ) * fBaseDefPhysic + kStat.m_fDefPhysic;
+		kStat.m_fDefMagic = GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_DEF_MAGIC_REL, iSkillLevel ) * fBaseDefMagic + kStat.m_fDefMagic;
+	}
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RF_PHYSIC_MAGIC_ATTACK, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RF_PHYSIC_MAGIC_ATTACK ) ) )
+	{
+		const CX2Stat::Stat kSkillStat = pSkillTemplet->GetSkillStatValue( iSkillLevel );
+		kStat.m_fAtkPhysic = static_cast<float>( kSkillStat.m_fAtkPhysic ) + kStat.m_fAtkPhysic;
+		kStat.m_fAtkMagic = static_cast<float>( kSkillStat.m_fAtkMagic ) + kStat.m_fAtkMagic;
+		fBaseAtkMagic += kSkillStat.m_fAtkMagic;		// June updates only the magic base here
+	}
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY ) ) )
+		kStat.m_fAtkMagic = fBaseAtkMagic * GetPassiveIncreaseRate( pSkillTemplet, CX2SkillTree::SA_ATK_MAGIC_REL, iSkillLevel ) + kStat.m_fAtkMagic;
+
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ABM_FITNESS, true, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ABM_FITNESS ) ) )
+	{
+		const CX2Stat::Stat kSkillStat = pSkillTemplet->GetSkillStatValue( iSkillLevel );
+		kStat.m_fAtkPhysic = static_cast<float>( kSkillStat.m_fAtkPhysic ) + kStat.m_fAtkPhysic;
+		kStat.m_fAtkMagic = static_cast<float>( kSkillStat.m_fAtkMagic ) + kStat.m_fAtkMagic;
+	}
+
+	// June reads this one with the base-level flag off and scales the running totals by ( rate - 1.0 ), no 5e-8
+	iSkillLevel = refUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RSR_OPEN_MIND, false, 0, true );
+	if ( 0 < iSkillLevel && NULL != ( pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RSR_OPEN_MIND ) ) )
+	{
+		const float fAtkPhysic = kStat.m_fAtkPhysic;
+		kStat.m_fAtkPhysic = static_cast<float>( fAtkPhysic * ( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_PHYSIC_REL, iSkillLevel, false ) ) - 1.0 ) + fAtkPhysic );
+		const float fAtkMagic = kStat.m_fAtkMagic;
+		kStat.m_fAtkMagic = static_cast<float>( fAtkMagic * ( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_MAGIC_REL, iSkillLevel, false ) ) - 1.0 ) + fAtkMagic );
+	}
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::UpdateBasicStatFromSpecialSkill()
 {
 #ifdef	NEW_SKILL_TREE
@@ -2658,6 +3180,7 @@ void CX2UICharInfo::UpdateBasicStatFromSpecialSkill()
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::SetStatInfoStatic( const WCHAR* wszStaticName_, const WCHAR* wszMsg_ )
 {
 	CKTDGUIStatic* pStatic = (CKTDGUIStatic*) m_pDLGCharInfo->GetControl( wszStaticName_ );
@@ -2684,6 +3207,185 @@ void CX2UICharInfo::SetStatInfoGuideDesc( const WCHAR* wszButtonName_, const WCH
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_STATS
+void CX2UICharInfo::SumSocketOption( const vector<int>& vecOptions_, OUT CX2SocketItem::SocketData& sumSocketData_, const int iSocketLevel_ )
+{
+	// June 3291b4b0
+	const CX2SocketItem* pSocketItem = g_pData->GetSocketItem();
+	if ( NULL == pSocketItem )
+		return;
+
+	for ( UINT i = 0; i < vecOptions_.size(); ++i )
+	{
+		const CX2SocketItem::SocketData* pSocketData = pSocketItem->GetSocketData( vecOptions_[i] );
+		if ( NULL == pSocketData || 0 != pSocketData->m_iDungeonOnlyType )
+			continue;
+
+		// off the Dungeon radio a dungeon-only socket counts only in a dungeon, battle field, PvE or type 5 game ( no June GAME_TYPE name )
+		if ( false == m_bShowDungeonOption && true == pSocketData->m_bDungeonOnly )
+		{
+			if ( NULL == g_pX2Game )
+				continue;
+			const int iGameType = g_pX2Game->GetGameType();
+			if ( CX2Game::GT_DUNGEON != iGameType && CX2Game::GT_BATTLE_FIELD != iGameType && CX2Game::GT_PVE != iGameType && 5 != iGameType )
+				continue;
+		}
+
+		// off the PvP radio a PvP-only socket counts only in a PvP game ( June compares the game type with 1 here, not 322cc1a0 )
+		if ( false == m_bShowPVPOption && true == pSocketData->m_bPVPOnly )
+		{
+			if ( NULL == g_pX2Game || CX2Game::GT_PVP != g_pX2Game->GetGameType() )
+				continue;
+		}
+
+		if ( true == m_bShowPVPOption && true == pSocketData->m_bPVPOnly && true == pSocketData->m_bIsLevelLinkedStat )
+		{
+			sumSocketData_.LevelLinkedStatAdd( *pSocketData, iSocketLevel_ + pSocketData->m_iAddLevel );
+			continue;
+		}
+
+		if ( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+			continue;
+
+		CX2Unit* pMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+		const CX2Unit::UNIT_TYPE eUnitType = ( NULL != pMyUnit->GetUnitTemplet() ) ? pMyUnit->GetType() : CX2Unit::UT_NONE;
+
+		if ( true == pSocketData->m_bIsRankLinkedStat )
+		{
+			CX2SocketItem::SocketData kScaledSocketData;
+			kScaledSocketData.SetRankLinkedScaled( *pSocketData, g_pData->GetPvpReferData( static_cast<int>( static_cast<char>( pMyUnit->GetUnitData().m_cRank ) ) ) );
+			sumSocketData_.ConvertAndAdd( kScaledSocketData, iSocketLevel_, eUnitType );
+		}
+		else if ( true == pSocketData->m_bIsPVERankLinkedStat )
+		{
+			const bool bForMP = ( 0.f < pSocketData->m_fMPIncByAttack && pSocketData->m_fMPIncByAttacked == pSocketData->m_fMPIncByAttack );
+			const int iPveGrade = 0;		// stand-in: UnitData lacks June's PvE record ( unit +0xa00 >= 5 ? +0xa0c : 0 )
+			CX2SocketItem::SocketData kScaledSocketData;
+			kScaledSocketData.SetRankLinkedScaled( *pSocketData, g_pData->GetPveReferData( iPveGrade, bForMP ) );
+			sumSocketData_.ConvertAndAdd( kScaledSocketData, iSocketLevel_, eUnitType );
+		}
+		else
+		{
+			sumSocketData_.ConvertAndAdd( *pSocketData, iSocketLevel_, eUnitType );
+		}
+	}
+}
+
+CX2SocketItem::SocketData CX2UICharInfo::GetMyEquippedSocketData( const int iEquipGroup_ /*= 2*/ )
+{
+	// June 3291ba40
+	CX2SocketItem::SocketData SocketDataRetVal;
+
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	if ( NULL == pUnit )
+		return SocketDataRetVal;
+	const int iUnitLevel = static_cast<int>( pUnit->GetUnitData().m_Level );
+
+	for ( UINT i = 0; i < pUnit->GetUnitData().m_NowEqipItemUIDList.size(); ++i )
+	{
+		CX2Item* pItem = pUnit->GetInventory().GetItem( pUnit->GetUnitData().m_NowEqipItemUIDList[i] );
+		if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
+			continue;
+
+		// a fashion item or an accessory counts only in its own equip group ( 3286a4b0; 2 = both forms )
+		if ( ( true == pItem->GetItemTemplet()->GetFashion() || CX2Item::IT_ACCESSORY == pItem->GetItemTemplet()->GetItemType() ) && 2 != iEquipGroup_ )
+		{
+			const int iGroup = pUnit->GetInventory().GetEquipGroup( pItem->GetUID() );
+			if ( 2 != iGroup && iEquipGroup_ != iGroup )
+				continue;
+		}
+
+		// 328825c0 ( usable ): March has its endurance part; 328823d0 ( appearance templet ) has no March field ( Stage 16 )
+#ifdef REAL_TIME_ELSWORD
+		if ( pItem->GetItemData().m_PeriodType == CX2Item::PT_ENDURANCE && pItem->GetItemData().m_Endurance <= 0 )
+			continue;
+#endif REAL_TIME_ELSWORD
+
+		if ( CX2Unit::UC_NONE != pItem->GetItemTemplet()->GetUnitClass() &&
+			false == GetX2UnitClassCompatibility( pUnit->GetUnitData().m_UnitClass, pItem->GetItemTemplet()->GetUnitClass() ) )
+			continue;
+
+		const int iItemSocketLevel = ( 0 < pItem->GetItemTemplet()->GetUseLevel() ) ? pItem->GetItemTemplet()->GetUseLevel() : iUnitLevel;
+
+		std::vector<int> vecSocketOption( pItem->GetItemData().m_vecRandomSocket.begin(), pItem->GetItemData().m_vecRandomSocket.end() );
+		std::vector<int> vecNormalSocketOption;
+		pItem->GetItemTemplet()->GetSocketOptions( vecNormalSocketOption );
+		vecSocketOption.insert( vecSocketOption.end(), vecNormalSocketOption.begin(), vecNormalSocketOption.end() );
+
+		SumSocketOption( vecSocketOption, SocketDataRetVal, iItemSocketLevel );
+		SumSocketOption( pItem->GetItemData().m_SocketOption, SocketDataRetVal, iItemSocketLevel );
+		// June also sums item +0x8c / +0x9c: June-only socket lists March's ItemData lacks ( Stage 16 )
+	}
+
+	// 32350b80: the sets, each at its max level or the unit's
+	if ( NULL != g_pData->GetItemManager() )
+	{
+		map<int,int> mapSetIDNParts;
+		pUnit->GetSetIDNPartsNum( mapSetIDNParts );
+		for ( map<int,int>::const_iterator mItr = mapSetIDNParts.begin(); mItr != mapSetIDNParts.end(); ++mItr )
+		{
+			vector<int> vecOptions;
+			const int iMaxLevel = g_pData->GetItemManager()->GetSetItemOptions( mItr->first, mItr->second, vecOptions );
+			if ( false == vecOptions.empty() )
+				SumSocketOption( vecOptions, SocketDataRetVal, ( 0 < iMaxLevel ) ? iMaxLevel : iUnitLevel );
+		}
+	}
+	// June @3291bf2d: group 2 of a unit type 10 also sums the other form's sets: stand-in: Lu/Ciel not ported
+
+#ifdef RIDING_SYSTEM
+	if ( NULL != CX2RidingPetManager::GetInstance() )
+	{
+		CX2RidingPetPtr pRidingPet = CX2RidingPetManager::GetInstance()->GetRidingPetPtr( pUnit->GetUID() );
+		if ( NULL != pRidingPet )
+		{
+			CX2RidingPetManager::RidingPetTemplet* pRidingPetTemplet =
+				CX2RidingPetManager::GetInstance()->GetRidingPetTemplet( static_cast<CX2RidingPetManager::RIDING_PET_UNIT_ID>( pRidingPet->GetInfo().m_Id ) );
+			if ( NULL != pRidingPetTemplet )
+				SumSocketOption( pRidingPetTemplet->m_vecSocketOption, SocketDataRetVal, iUnitLevel );
+		}
+	}
+#endif RIDING_SYSTEM
+
+	if ( NULL != g_pData->GetTitleManager() && NULL != g_pData->GetTitleManager()->GetTitleInfo( pUnit->GetTitleId() ) )
+		SumSocketOption( g_pData->GetTitleManager()->GetTitleInfo( pUnit->GetTitleId() )->m_vecSocketOption, SocketDataRetVal, iUnitLevel );
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+	if ( NULL != g_pX2Room && NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+	{
+		std::vector<CX2Unit::SocketOptionSource> vecShared;
+		CX2Unit::GetPartyShareSocketOptions( g_pX2Game->GetMyUnit()->GetUnitUID(), vecShared );
+		for ( UINT i = 0; i < vecShared.size(); ++i )
+			SumSocketOption( vecShared[i].m_vecSocketOption, SocketDataRetVal, vecShared[i].m_iSocketLevel );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+
+#ifdef PET_AURA_SKILL
+	if( g_pData->GetPetManager() != NULL && g_pData->GetPetManager()->GetMyPet() != NULL )
+	{
+		CX2PET *pMyPet = g_pData->GetPetManager()->GetMyPet();
+		if( pMyPet->GetPetInfo().m_Satiety / 4800.f >= 0.4f )
+		{
+			CX2PetManager::PetTemplet *pTemplet = g_pData->GetPetManager()->GetPetTemplet( (CX2PetManager::PET_UNIT_ID)pMyPet->GetPetInfo().m_PetId );
+			const int iStep = pTemplet->m_vecPetStatus[ pMyPet->GetPetInfo().m_Evolution_Step ];
+			for( int j = 0; j < iStep; ++j )
+				SumSocketOption( pTemplet->m_vecAuraSkillOption[j], SocketDataRetVal, iUnitLevel );
+		}
+	}
+#endif PET_AURA_SKILL
+
+#ifdef BUFF_TEMPLET_SYSTEM
+	vector<int> vecBuffSocketOptions;
+	g_pData->GetPremiumBuffManager()->GetSocketOptions( vecBuffSocketOptions );
+	if ( false == vecBuffSocketOptions.empty() )
+		SumSocketOption( vecBuffSocketOptions, SocketDataRetVal, iUnitLevel );
+#endif BUFF_TEMPLET_SYSTEM
+
+	// June @3291c88f: the applied customize ( unit +0xa48 ) is summed too: March has no such system ( Stage 12 )
+
+	SocketDataRetVal.LimitMaximum( true );		// June inlines the hyper-time / super-armor caps ( 40 / 0.5 / 10 )
+	return SocketDataRetVal;
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_STATS
 /** @function : SumSocketOption
 	@brief : vector로 전달된 optionID에 대한 소켓 옵션을 얻어와서 sumSocketData_에 Sum을 수행함
 	@param : const vector<int>& vecOptions_(소켓옵션ID들), OUT CX2SocketItem::SocketData& sumSocketData_(Sum을 수행할 socketData), const int iSocketLevel_(소켓효과적용레벨)
@@ -2940,6 +3642,7 @@ CX2SocketItem::SocketData CX2UICharInfo::GetMyEquippedSocketData()
 	return SocketDataRetVal;
 }
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_STATS
 void CX2UICharInfo::ResetNowEquipUI()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW

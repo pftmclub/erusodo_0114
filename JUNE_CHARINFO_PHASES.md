@@ -266,6 +266,46 @@ the Lu/Ciel form (stand-in 0): C3 decides whether March's 3-argument `GetEnchant
 **Gate:** the 13 option rows and resistances show; PvE / PvP switch changes numbers; a `_DEBUG` line per refresh prints the inputs and each printed value
 (retired by the review); log clean.
 
+### C3 Done (2026-10-30, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_STATS`, + `_DEBUG`, `_EQUIP_GROUP`)
+
+**Landed (`X2UICharInfo.{h,cpp}`, March in `#else`):** June's bodies in ResetStat `3291cfb0` (new `bool` argument, default false), GetDamageDecrement
+`3291eb50` (def / ( def + 39.35 x level + 258.65 ), `322a8b60` inlined in `_CONST_CHARINFO_C3_`), UpdateBasicStatUI `32915ab0`, UpdateOptionStatUI
+`32919430`, UpdateOptionStatFromSpecialSkill `32912a90`, UpdateBasicStatFromSpecialSkill `32913460`, SumSocketOption `3291b4b0`, GetMyEquippedSocketData
+`3291ba40` (new equip-group argument, default 2). New: GetMyFormSocketData `3291cee0`, GetShownEquipStat `32913df0`, UpdateRecordGuideUI `32915620`.
+Funcmap rows `(CharInfo C3)`. Nine June SKILL_ID names in `X2SkillTree.h` (`JUNE_ENUM_NAMES`). `boost::math::erfc` (boost 1.44, probe-compiled) for Maximize.
+- **Readings.** June's `Stat` has 13 floats: extra [0..5], base [6..12] = HP, AtkP, AtkM, **[9] / [10] (a physical / magical attack spread March lacks)**,
+  DefP, DefM. Socket data: +0xc move, +0x10 jump, +0x14 animation, +0x18 charge, +0x1c hyper time, +0xbc critical, +0xd8 / +0xdc add def / atk, +0x124 /
+  +0x12c MP by attack / attacked, +0x134 / +0x138 specialization A / B, +0x13c maximize, +0x2f0 stat. Radio: +0x258 = `m_bShowPVPOption`, +0x259 =
+  `m_bShowDungeonOption` (March's member order). Option rows: static `%5.0f` (critical clamped at 0, time `%3.0f%%`), guide = Final*Percent x 100 in the
+  row's string + "\n(@1% Efficiency Stage)" (39999, Final*Coefficient x 100 + 0.1f); Add = two `13555` ranges ( atk x 1.5 x F x 1^0.65 / 50^0.65 );
+  Charge / Time switch picture 0 / 1 and string 13556 / 29871, 13557 / 29872 for Add; Maximize adds 39433 = 1 - erfc( 2 ( r - 1 ) / sqrt 2 ) / 2;
+  specializations: per-class strings 36704-36723 / 38430-1 / 43546-7 (Ara A "fffff", Lire B "fff", Ara B x20, Add B x50, Luciel A x10, Rose A x0.6).
+  Basic: attacks / defences `%5d`, guides 39431 / 39432 = min, max, min + maximize x ( max - min ), max. Record guides: 42074 total PvP wins (unit +0x12c
+  m_Win + +0x120, read as m_iPastSeasonWin [I]), 32067 PvE (0).
+- **S7p answers.** Equipment uses the group argument (only fashion items and accessories are filtered; 2 = both forms); sets use 32350b80's own group
+  (my unit's +0xe40). Sources in June order: equipment, sets, (Lu/Ciel sets), riding pet by UID (no riding-on test), title, party shared sockets
+  (S7m's GetPartyShareSocketOptions), pet aura, premium buffs, (customize, Stage 12), LimitMaximum's caps. Item +0x8c / +0x9c: Stage 16.
+- **GetEnchantStat 4th argument:** June `32358df0`'s 4th argument filters equipment by group ( 2 or == arg ). At form 0 every June-reachable slot is
+  group 0 or 2, so March's 3-argument form is June's namesake there: no divergent row; UpdateResistanceStatUI stays March's (same strings, `  %d`, 500).
+- **EquipChanged `3291d2e0`:** same as March at C3 (ResetStat( false ) is the default; it does call ResetIncreaseSkillLevelBySocket: tsv row corrected);
+  its viewer calls `31fa9e60` / `31f94190` and `3291d360` are C4's.
+- **`_EQUIP_GROUP` (found here, playability):** S7k's GetEquipGroup reads June slot ids, so March's NESI_ONEPIECE_FASHION (20) read as June's minor-unit
+  group 1 and dropped a onepiece costume from every form-0 sum (this window, HUD max HP). It now returns group 0 for slot 20 (June's onepiece is 35).
+  Stage 8 removes it with the NESI renumber.
+- **Stand-ins (labelled):** Lu/Ciel form 0 (unit +0xe40, viewer +0xd80); Stat [9] / [10] spread 0 (attack range min = max); 32358970 ability terms 0;
+  PvE grade 0 for PvE-rank-linked sockets; PvE record 0.
+- **Not ported (dead in June):** the discarded Final / Intermediate calls in Maximize, MP and specialization rows.
+- **Stage 33:** display rows added to its section ("display: June (CharInfo C3)"). JUNE_BUGS 483.
+
+**Gates:** flagcheck `--worktree` STATS / DEBUG / EQUIP_GROUP: RESULT PASS each (0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL-mismatched).
+`junediverge --check` RESULT: PASS (1 allow row: SumSocketOption GT_PVP, June `@3291b71a` tests type 1 only). `enumscan --check` 0 A/B rows.
+`DEPLOY OK: X2_offline.exe is 25,861,632 B, dated 2026-10-30 17:30:13, md5 adb2bd5e66c2791e6c9dc44a3c2b97e7`.
+`EXESTR OK: 3 of 3` (wide: STATS ResetStat / option, ButtonPvpOpacity) + `2 of 2` (narrow: CalculateFinalCriticalCoefficient, CalculateFinalAinSpecializationBCoefficient).
+
+**See it in game:** U window: every option row shows a number and a hover guide ending in "(N% Efficiency Stage)"; Maximize / MP / specialization rows
+filled; attack hover shows the range lines; Dungeon / PvP radio changes the numbers of PvP- / dungeon-only sockets; one `[JUNE_CHARINFO] STATS` group
+(ResetStat, basic, option, record) per refresh. **Open questions:** none.
+
 ## Phase C4 - Unit viewer, light, slots (Sonnet 5.5, high)
 
 **Depends on:** C3 (same file). **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_VIEW`.
