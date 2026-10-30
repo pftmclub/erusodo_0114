@@ -13,7 +13,7 @@ june_va	vslot	june_role	march_counterpart	verdict	phase	evidence
 32914440	-	UpdateItemLevel	:3173	same (STR_ID_19227 = 0x4b1b)	C2 (keep March)	decompile
 3291cfb0	-	ResetStat(bool)	:1423	differs (socket total by unit +0xe40 group; GetEqipStat 32913df0; 32912a90; opacity 32915620; 32092170 at the end)	C3	sig
 3291d2e0	-	EquipChanged (public refresh)	:2777 EquipChanged	same at C3 (ResetStat( 0 ) default, ResetIncreaseSkillLevelBySocket 3235a080 present: C3 corrected); viewer 31fa9e60 + 31f94190 are C4's	C3	sig
-3291d360	-	viewer reset + motion + ResetStat	none (3 lines in March SetShow)	June-only helper	C4	viewer 31faa150, PlayByMotionType 31fa7ef0, ResetStat
+3291d360	-	viewer reset + motion + ResetStat	none (3 lines in March SetShow)	June-only helper	C4	viewer 31faa150, PlayByMotionType 31fa7ef0, ResetStat | C4: not ported, its only callers are the Lu/Ciel stubs ( switching-only-this-dialog, unit click ): 31faa150 re-filters minor-unit items, 31fa7ef0( 0, 1 ) = PlayByMotionType( UVUMT_WAIT ) -> Stage 8
 32913460	-	UpdateBasicStatFromSpecialSkill	:2172	differs (skill set via 32890620 / 32206e50 / 328989f0)	C3	sig
 32912a90	-	UpdateOptionStatFromSpecialSkill	:1951	differs [I] (one skill read)	C3	sig
 32913df0	-	equip stat for the radio (GetEqipStat( +0x258, 2 ) then mode)	inside :1423	differs (June GetEqipStat form, S7g)	C3	decompile
@@ -23,22 +23,22 @@ june_va	vslot	june_role	march_counterpart	verdict	phase	evidence
 32915620	-	PvE / PvP opacity buttons	none	June-only	C3	ButtonPvpOpacity / ButtonPveOpacity via 32915440
 3291ba40 / 3291cee0 / 3291b4b0	-	GetMyEquippedSocketData( group ) / group sum / SumSocketOption	:2478 / :2404	differs (S7m)	C3	funcmap S7m
 3291eb50 / 3291f0c0..3291fb64 / 32920210	-	Lua curve callers (Final*Coefficient, Intermediate*, 12-class Specialization A / B, CalculateHpIncrementValue)	X2UICharInfo.h:125-168 (Final*Percent, Intermediate*Value only)	differs / June-only (Coefficient and Specialization families)	C3	SocketOptionForm.lua (data036) is already June's: all 145 functions present
-32914380	25	OnFrameMove	:113	differs (mouse-out returns without InvalidSelectedItem / InvalidSlotDesc)	C4	funcdis
-3291d390	4	MsgProc	:310	differs (click-on-unit switching: states 0xe / 0xf, unit +0xe40, senders 32916e10 / 32916e40; +0x25a view; +0x25b latch)	C4 (packet part C5)	sig
-32912d90	-	UnitHandling	:161	differs (+0x1e4 show test, +0x25b latch reset)	C4	sig
-329148d0	-	ResetUnitViewerUI	:2803	differs (viewer 31faa6f0 / 31fa9e60 / 31f933c0 / 31fac3c0 / 31f94190)	C4	sig
+32914380	25	OnFrameMove	:113	differs (mouse-out returns without InvalidSelectedItem / InvalidSlotDesc)	C4	funcdis | C4 ported (SERV_IRUHADEV_JUNE_CHARINFO_VIEW): mouse-out returns without InvalidSelectedItem / InvalidSlotDesc
+3291d390	4	MsgProc	:310	differs (click-on-unit switching: states 0xe / 0xf, unit +0xe40, senders 32916e10 / 32916e40; +0x25a view; +0x25b latch)	C4 (packet part C5)	sig | C4 ported (VIEW): mouse-up bookkeeping before the mouse-over test, latch; Lu/Ciel click switching logged as a stub ( senders 32916e10 / 32916e40, 32912c50 ) -> Stage 8
+32912d90	-	UnitHandling	:161	differs (+0x1e4 show test, +0x25b latch reset)	C4	sig | C4 ported (VIEW): +0x25b latch set when the drag moved the mouse; rotation maths same as March
+329148d0	-	ResetUnitViewerUI	:2803	differs (viewer 31faa6f0 / 31fa9e60 / 31f933c0 / 31fac3c0 / 31f94190)	C4	sig | C4: same as March at form 0 ( SetUnit state 7 = UVS_CHARINFO, GetDummyPos 2 / 3 bounds-safe, UpdateEqip when the UID matches ); 31f94190 and viewer +0xd81 are Lu/Ciel -> Stage 8
 32914d70	-	viewer render ("characterView" render state)	none	dead in June: only caller 32915760, which nothing references (no rel32 call, no pointer in the image)	none (not ported)	whole-image scan 2026-10-30
-329142a0	-	light: CharWindowCharLightSet, Light_On / Light_Off	none	June-only	C4	sig
-32150e30	-	CX2UIManager light toggle	none	June-only: g_pMain +0x2ac = flag; CharInfo branch here; Custom (+0x68, Stage 12), MagicalCloset (+0xcc), Watch (+0x10, Stage 9) branches are drift	C4 (CharInfo branch only)	decompile
-32912c50	-	switching view: +0x25a, viewer +0xd80 + 31f93a10, per-slot 32e22ce0	none	June-only	C4	decompile
-32916810	17	GetSlotItemDesc	:2990	same	C4 (keep March)	decompile
-32913b90	27	DrawSlotMouseOverImage	:2900	differs (equip-position byte +0xd5 and minor-unit flag match, as ResetNowEquipUI)	C4	decompile
-3291d830	20	MouseDown	:430	same call order (RemoveEqip, viewer RemoveEqip, ResetStat, ToggleUI inventory, ChangeInventoryTabByUid, drop sound); ResetStat takes June's bool	C4	sig
-32917080	21	MouseUp (cursor switch, 33 cursor states)	:485	differs [I] (June cursor set; C4 reads it)	C4	sig, jump table 32917f58 / 32917f94
-3291d9f0	16	SetNowDragItemReturn	:754	differs (adds skill-tree refresh 328eea70 after re-equip)	C4	sig
-329128e0	54	MouseRButtonUp: GetSlotInMousePos (vfunc 0x60) then OnRClickedItem (vfunc 0xe4)	:647	same	C4 (keep March)	asm
-32917fd0	57	OnRClickedItem	:657	differs [I] (state checks incl. 0xf, ToggleUI, ChangeInventoryTabByUid, empty-slot move 32916d90, DestroyItemUI)	C4	sig
-32918410	58	OnDropAnyItem	:784	differs [I] (0x5f5ea39 item test, 0x1000 class test, 3234f4d0; drop sound)	C4	sig
+329142a0	-	light: CharWindowCharLightSet, Light_On / Light_Off	none	June-only	C4	sig | C4 ported (VIEW): CX2UICharInfo::SetLight; flag lives in CX2UIManager ( June g_pMain +0x2ac ); SetShow applies it
+32150e30	-	CX2UIManager light toggle	none	June-only: g_pMain +0x2ac = flag; CharInfo branch here; Custom (+0x68, Stage 12), MagicalCloset (+0xcc), Watch (+0x10, Stage 9) branches are drift	C4 (CharInfo branch only)	decompile | C4 ported (VIEW): CX2UIManager::SetCharWindowDarkBackground, CharInfo branch only; Custom / Closet / Watch branches stay with their windows
+32912c50	-	switching view: +0x25a, viewer +0xd80 + 31f93a10, per-slot 32e22ce0	none	June-only	C4	decompile | C4: unchanged from C2; viewer +0xd80 and 31f93a10 ( two-body view ) are Lu/Ciel -> Stage 8
+32916810	17	GetSlotItemDesc	:2990	same	C4 (keep March)	decompile | C4: same as March, kept
+32913b90	27	DrawSlotMouseOverImage	:2900	differs (equip-position byte +0xd5 and minor-unit flag match, as ResetNowEquipUI)	C4	decompile | C4 ported (VIEW): a drag highlight skips minor-unit slots ( slot +0x44 == 3286a350( uid ), stand-in 0 )
+3291d830	20	MouseDown	:430	same call order (RemoveEqip, viewer RemoveEqip, ResetStat, ToggleUI inventory, ChangeInventoryTabByUid, drop sound); ResetStat takes June's bool	C4	sig | C4: same as March ( viewer RemoveEqip 3rd arg 0 = March default ), kept
+32917080	21	MouseUp (cursor switch, 33 cursor states)	:485	differs [I] (June cursor set; C4 reads it)	C4	sig, jump table 32917f58 / 32917f94 | C4 ported (VIEW): IsTransformed test dropped; the cursor-mode switch is June's own 33-state cursor set with UIInventory handlers ( 321846a0, 3219f690, 3219f740, 32185870, 32184db0, 32184ae0, 32189a50, 3218aba0 ) -> Stage 9 ( March keeps its XCS_* messages )
+3291d9f0	16	SetNowDragItemReturn	:754	differs (adds skill-tree refresh 328eea70 after re-equip)	C4	sig | C4: same as March; the added skill-tree viewer refresh 328eea70 has no March counterpart ( CX2UISkillTree has no unit viewer ) -> Stage 9
+329128e0	54	MouseRButtonUp: GetSlotInMousePos (vfunc 0x60) then OnRClickedItem (vfunc 0xe4)	:647	same	C4 (keep March)	asm | C4: same as March, kept
+32917fd0	57	OnRClickedItem	:657	differs [I] (state checks incl. 0xf, ToggleUI, ChangeInventoryTabByUid, empty-slot move 32916d90, DestroyItemUI)	C4	sig | C4 ported (VIEW): IsTransformed test dropped; rest same as March ( CheckIsReady, send-start flag, state 0xb / 0x15 / 0x17 / 0x1a = DUNGEON_GAME / BATTLE_FIELD / PVE_GAME / PHOTOZONE_GAME, empty-slot move )
+32918410	58	OnDropAnyItem	:784	differs [I] (0x5f5ea39 item test, 0x1000 class test, 3234f4d0; drop sound)	C4	sig | C4 ported (VIEW): slot search skips minor-unit slots ( templet minor flag ); 3234f4d0 ( Lu/Ciel equip conflict, STR 39493 ) and 321693b0 ( Lu/Ciel equip-position remap ) -> Stage 8
 32918c70	-	unequip all ([S%1%]%2%)	none	June-only	C5	only caller 3291dc91 (CIM_ALL_EQUIPPED_ITEM_RELEASE)
 32916e10 / 32916e70	-	send 0x4d9 (1 byte)	none	June-only	C5	decompile
 32916e40 / 32916ea0	-	send 0x4fd (1 byte)	none	June-only	C5	decompile

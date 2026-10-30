@@ -5511,3 +5511,8 @@ Staged from June (byte-exact, backups under `kom_backup_stage_june\20261030_1543
 
 Flag `SERV_IRUHADEV_JUNE_CHARINFO_SHOW` (`Always.h`): `CX2UICharInfo::SetShow`, `SetTitle`, `ResetNowEquipUI`, `UICustomEventProc` take June's bodies (March's in `#else`); new `SetSwitchingView`; `CX2SlotItem` reads `IS_FOR_MINOR_UNIT`. PvE record, resonance flag and Lu/Ciel form are labelled stand-ins (0 / off). No Lua, kom or save change.
 **Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June character info window: viewer, light, slots (june-charinfo C4, 2026-10-30)
+
+Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW` (`Always.h`): `CX2UICharInfo::OnFrameMove` (no invalidate when the mouse is off the dialog), `UnitHandling` (drag latch), `MsgProc` (mouse-up bookkeeping before the mouse-over test; Lu/Ciel click switching is a logged stub), `DrawSlotMouseOverImage` and `OnDropAnyItem` (minor-unit slots are never the highlighted / drop slot), `OnRClickedItem` and `MouseUp` (no `IsTransformed` test); new `CX2UICharInfo::SetLight` and `CX2UIManager::SetCharWindowDarkBackground` (CIM_LIGHT_ON / OFF, applied again by SetShow). March's code stays in `#else`. No asset changed.
+**Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

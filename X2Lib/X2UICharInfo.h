@@ -72,6 +72,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 	void SetSwitchingView( bool bSwitchingView_ );
 #endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	void SetLight( const bool bDarkBackground_ );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 	virtual void SetNowDragItemReturn();
 

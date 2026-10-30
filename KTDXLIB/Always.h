@@ -10976,3 +10976,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-charinfo C3: CX2Inventory::GetEquipGroup ( June 3286a4b0 ) reads March's NESI_ONEPIECE_FASHION ( 20 ) as June's onepiece slot ( 35, group 0 ) instead of June's minor-unit slot 20 ( group 1 ), so a onepiece costume keeps its stats and sockets in the form-0 sums ( character window, HUD max HP ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C4: the U-key window's viewer and slot paths run June's bodies: OnFrameMove 32914380 ( no invalidate when the mouse is off the dialog ), UnitHandling 32912d90 ( drag latch ), MsgProc 3291d390 ( mouse-up bookkeeping before the mouse-over test, Lu/Ciel click switching as a logged stub ), the dark / lit background light 329142a0 + CX2UIManager 32150e30 ( CIM_LIGHT_ON / OFF ), DrawSlotMouseOverImage 32913b90 and OnDropAnyItem 32918410 ( minor-unit slots are not drag targets ), OnRClickedItem 32917fd0 and MouseUp 32917080 ( no IsTransformed test ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+//////////////////////////////////////////////////////////////////////////

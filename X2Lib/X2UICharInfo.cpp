@@ -120,6 +120,20 @@ CX2UICharInfo::~CX2UICharInfo(void)
 #endif //SERV_LOCAL_RANKING_SYSTEM
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+namespace _CONST_CHARINFO_C4_
+{
+	/// June 32918410 ( local_1c5 before 3234f4d0 ): a fashion or accessory templet goes to the side its minor-unit flag names; stand-in: the viewer-form accessory case reads form 0 ( Lu/Ciel not ported )
+	bool IsMinorUnitItem( const CX2Item::ItemTemplet* pItemTemplet_ )
+	{
+		if ( pItemTemplet_->GetItemType() == CX2Item::IT_ACCESSORY || pItemTemplet_->GetFashion() == true )
+			return pItemTemplet_->GetIsForMinorUnit();
+
+		return false;
+	}
+}
+using namespace _CONST_CHARINFO_C4_;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 HRESULT CX2UICharInfo::OnFrameMove( double fTime, float fElapsedTime )
 {
 
@@ -157,11 +171,18 @@ HRESULT CX2UICharInfo::OnFrameMove( double fTime, float fElapsedTime )
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+		/// June 32914380 returns here without invalidating the selected item and the slot description
+	}
+
+	return S_OK;
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 		CX2ItemSlotManager::InvalidSelectedItem();
 		CX2ItemSlotManager::InvalidSlotDesc();
 	}
 
 	return S_OK;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 }
 
@@ -177,6 +198,11 @@ void CX2UICharInfo::UnitHandling( double fTime, float fElapsedTime )
 
 		if ( m_bUnitClicked == true )
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+			/// June 32912d90: a drag that moved the mouse is not a click on the unit
+			if ( g_pKTDXApp->GetDIManager()->GetMouse()->GetXDelta() != 0 )
+				m_bUnitClickedForSwitching = true;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 			D3DXVECTOR3 RotateY = D3DXVECTOR3(0, -((float)g_pKTDXApp->GetDIManager()->GetMouse()->GetXDelta() * m_fMouseSensitivity), 0);
 			m_pUnitViewerUI->GetMatrix().RotateRel(RotateY);
 			m_bRotateReturn = false;
@@ -328,8 +354,12 @@ bool CX2UICharInfo::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 	{
 		// 마우스 메시지들에 대해
 	case WM_MOUSEMOVE:
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	case WM_MBUTTONUP:
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	case WM_RBUTTONUP:
 	case WM_XBUTTONDOWN:
 	case WM_XBUTTONUP:
@@ -345,6 +375,35 @@ bool CX2UICharInfo::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 			bFlag = true;
 		}
 		break;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	/// June 3291d390: the mouse-up bookkeeping runs before the mouse-over test
+	case WM_LBUTTONUP:
+		{
+			if ( m_pUnitViewerUI != NULL && m_bUnitClicked == true )
+			{
+				D3DXVECTOR3 rot = m_pUnitViewerUI->GetMatrix().GetRotate();
+				int degree = (int)D3DXToDegree( rot.y );
+				m_fRemainRotY = D3DXToRadian( degree % 360 );
+			}
+
+			if ( m_bUnitClicked == true && m_bUnitClickedForSwitching == false )
+			{
+				/// stand-in: June switches the Lu/Ciel form here ( 32916e10 / 32916e40 / 32912c50 ), Stage 8
+				if ( m_pUnitViewerUI != NULL && m_pUnitViewerUI->GetUnit() != NULL && m_pUnitViewerUI->GetUnit()->GetType() == CX2Unit::UT_LUCIEL )
+					CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB unit click switching -> Stage 8" );
+			}
+
+			m_bUnitClickedForSwitching = false;
+			m_bUnitClicked = false;
+
+			if ( false == m_pDLGCharInfo->GetIsMouseOver())
+			{
+				return false;
+			}
+			bFlag = true;
+		}
+		break;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
@@ -365,6 +424,9 @@ bool CX2UICharInfo::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 	{
 	case WM_LBUTTONUP:
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+			/// the first switch already ran the rotation bookkeeping ( June 3291d390 )
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 			if ( m_pUnitViewerUI != NULL && m_bUnitClicked == true )
 			{
 				D3DXVECTOR3 rot = m_pUnitViewerUI->GetMatrix().GetRotate();
@@ -373,6 +435,7 @@ bool CX2UICharInfo::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 			}
 
 			m_bUnitClicked = false;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 
 			POINT mousePoint = { short(LOWORD(lParam)), short(HIWORD(lParam)) };
@@ -608,10 +671,14 @@ bool CX2UICharInfo::MouseUp( D3DXVECTOR2 mousePos )
 				if ( g_pX2Game == NULL || g_pX2Game->GetMyUnit() == NULL )
 					return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+				/// June 32917080 has no IsTransformed test
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 				if ( g_pX2Game->GetMyUnit()->IsTransformed() )
 					return false;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 				if ( g_pX2Game->GetMyUnit()->GetNowHp() <= 0 )
 				{
@@ -706,10 +773,14 @@ bool CX2UICharInfo::OnRClickedItem( D3DXVECTOR2 mousePos )
 			if ( g_pX2Game == NULL || g_pX2Game->GetMyUnit() == NULL )
 				return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+			/// June 32917fd0 has no IsTransformed test
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 			if( g_pX2Game->GetMyUnit()->IsTransformed() )
 				return false;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 			if ( g_pX2Game->GetMyUnit()->GetNowHp() <= 0 )
 			{
@@ -859,13 +930,21 @@ bool CX2UICharInfo::OnDropAnyItem( D3DXVECTOR2 mousePos )
 			itemType == CX2Item::IT_SKILL )
 		{
 			CX2Unit::EQIP_POSITION equipPosition = kInventory.GetItem( *m_DraggingItemUID )->GetItemTemplet()->GetEqipPosition();
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+			const bool bMinorUnitItem = IsMinorUnitItem( kInventory.GetItem( *m_DraggingItemUID )->GetItemTemplet() );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 			for ( int i = 0; i < (int)m_SlotList.size(); i++ )
 			{
 				CX2SlotItem* pTempItemSlot = (CX2SlotItem*)GetSlot(i);
 				//{{ 태완 : 패션 악세사리 장착 예외처리
 				if ( pTempItemSlot->GetSlotType() == CX2Slot::ST_EQUIPPED && pTempItemSlot->GetEquipPos() == equipPosition && 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+					( pItem->GetItemTemplet()->GetItemType() == CX2Item::IT_ACCESSORY || pTempItemSlot->GetFashion() == kInventory.GetItem( *m_DraggingItemUID )->GetItemTemplet()->GetFashion() ) &&
+					pTempItemSlot->GetIsForMinorUnit() == bMinorUnitItem )
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 					( pItem->GetItemTemplet()->GetItemType() == CX2Item::IT_ACCESSORY || pTempItemSlot->GetFashion() == kInventory.GetItem( *m_DraggingItemUID )->GetItemTemplet()->GetFashion() ) )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 				{
 					pItemSlot = pTempItemSlot;
 					break;
@@ -1119,6 +1198,17 @@ bool CX2UICharInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_LOCK_WEAPON_CHANGE_HANDCANNON -> Stage 8" );
 		return true;
 #endif SERV_IRUHADEV_JUNE_CHARINFO_DLG
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	/// June 3291db60 answers false for both; Light_On is the button shown while the background is dark, so LIGHT_ON clears the dark flag
+	case CIM_LIGHT_ON:
+		if ( g_pData->GetUIManager() != NULL )
+			g_pData->GetUIManager()->SetCharWindowDarkBackground( false );
+		return false;
+	case CIM_LIGHT_OFF:
+		if ( g_pData->GetUIManager() != NULL )
+			g_pData->GetUIManager()->SetCharWindowDarkBackground( true );
+		return false;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	}
 	return false;
 }
@@ -1226,7 +1316,7 @@ void CX2UICharInfo::SetShow(bool val)
 		UpdateLevel();
 		ResetResurrectionStoneUI();
 
-		/// viewer lines stay March's until the viewer phase ( June 329148d0 / 31faa150 / 31fa7ef0 )
+		/// June 329148d0 is March's ResetUnitViewerUI at form 0; 31faa150 ( Lu/Ciel minor-unit items ) is Stage 8
 		ResetUnitViewerUI();
 		m_pUnitViewerUI->PlayByMotionType( CX2UnitViewerUI::UVVMT_DOWN_LANDING );
 		m_pUnitViewerUI->SetShowObject(true);
@@ -1281,7 +1371,11 @@ void CX2UICharInfo::SetShow(bool val)
 
 		m_bUnitClickedForSwitching = false;
 
-		/// the light ( 329142a0 ) belongs to the viewer phase, Rose's weapon change / lock UIs ( 32913f40 / 329141b0 ) to Stage 8
+		/// Rose's weapon change / lock UIs ( 32913f40 / 329141b0 ) belong to Stage 8
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+		/// June ends SetShow with the light ( 329142a0 ) of the flag CX2UIManager keeps
+		SetLight( g_pData->GetUIManager()->GetCharWindowDarkBackground() );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	}
 	else
 	{
@@ -1591,7 +1685,7 @@ using namespace _CONST_CHARINFO_C2_;
 
 void CX2UICharInfo::SetSwitchingView( bool bSwitchingView_ )
 {
-	/// June 32912c50; its viewer flag ( viewer +0xd80 ) rides with the viewer phase
+	/// June 32912c50; its viewer flag ( viewer +0xd80, 31f93a10 ) is the Lu/Ciel two-body view, Stage 8
 	m_bSwitchingView = bSwitchingView_;
 
 	for ( int i = 0; i < (int)m_SlotList.size(); i++ )
@@ -1606,6 +1700,35 @@ void CX2UICharInfo::SetSwitchingView( bool bSwitchingView_ )
 	}
 }
 #endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+void CX2UICharInfo::SetLight( const bool bDarkBackground_ )
+{
+	/// June 329142a0: pictures 0-2 of the light set follow the flag, 3-5 its opposite, 6 is left alone
+	if ( m_pDLGCharInfo == NULL )
+		return;
+
+	CKTDGUIStatic* pStaticLightSet = static_cast<CKTDGUIStatic*>( m_pDLGCharInfo->GetControl( L"CharWindowCharLightSet" ) );
+	if ( pStaticLightSet != NULL && pStaticLightSet->GetPictureNum() == 7 )
+	{
+		for ( int i = 0; i < 7; i++ )
+		{
+			CKTDGUIControl::CPictureData* pPicture = pStaticLightSet->GetPicture( i );
+			if ( pPicture != NULL && i != 6 )
+				pPicture->SetShow( i < 3 ? bDarkBackground_ : bDarkBackground_ == false );
+		}
+	}
+
+	CKTDGUIControl* pButtonLightOn = m_pDLGCharInfo->GetControl( L"Light_On" );
+	CKTDGUIControl* pButtonLightOff = m_pDLGCharInfo->GetControl( L"Light_Off" );
+	if ( pButtonLightOn != NULL && pButtonLightOff != NULL )
+	{
+		pButtonLightOn->SetShowEnable( bDarkBackground_, bDarkBackground_ );
+		pButtonLightOff->SetShowEnable( bDarkBackground_ == false, bDarkBackground_ == false );
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_CHARINFO] VIEW light dark %d statics %d buttons %d", bDarkBackground_ ? 1 : 0, pStaticLightSet != NULL ? 1 : 0, ( pButtonLightOn != NULL && pButtonLightOff != NULL ) ? 1 : 0 );
+}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 void CX2UICharInfo::SetTitle()
 {	
 //#ifdef TITLE_SYSTEM
@@ -3963,12 +4086,20 @@ void CX2UICharInfo::DrawSlotMouseOverImage()
 			if (  itemType == CX2Item::IT_WEAPON || itemType == CX2Item::IT_DEFENCE || itemType == CX2Item::IT_ACCESSORY )
 			{
 				CX2Unit::EQIP_POSITION equipPosition = pItemTemplet->GetEqipPosition();
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+				const bool bMinorUnitItem = false;		// stand-in: June 3286a350 tests whether the dragged item sits in a minor-unit equip slot ( Lu/Ciel not ported )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 				for ( int i = 0; i < (int)m_SlotList.size(); i++ )
 				{
 					CX2SlotItem* pItemSlot = (CX2SlotItem*)GetSlot(i);
 					if ( pItemSlot->GetSlotType() == CX2Slot::ST_EQUIPPED && pItemSlot->GetEquipPos() == equipPosition && 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+						( itemType == CX2Item::IT_ACCESSORY || pItemSlot->GetFashion() == pItemTemplet->GetFashion() ) &&
+						pItemSlot->GetIsForMinorUnit() == bMinorUnitItem )
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 						( itemType == CX2Item::IT_ACCESSORY || pItemSlot->GetFashion() == pItemTemplet->GetFashion() ) )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 					{
 						m_pDLGSelectedItem->SetPos( pItemSlot->GetPos() );
 						m_pDLGSelectedItem->GetStatic_LUA( "SelectedItem" )->GetPicture(0)->SetSize( pItemSlot->GetSize() );

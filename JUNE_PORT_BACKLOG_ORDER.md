@@ -406,6 +406,10 @@ Everything from Stages 5 and 6, plus:
   the slot hide by June's ids (`32e22ce0`) replacing CharInfo C2's `IS_FOR_MINOR_UNIT` stand-in. June has no event-name table: invent the names.
   The renumber also retires `SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP` (CharInfo C3: GetEquipGroup maps March's slot 20 to June's onepiece group 0), and the
   Lu/Ciel form stand-ins in CharInfo C3 (ResetStat's form, the second-form set pass `@3291bf2d`) read unit `+0xe40` / viewer `+0xd80`.
+  From CharInfo C4 (2026-10-30): the viewer's form byte `+0xd80` / `+0xd81` with `31f93a10` (two-body view, called by `32912c50`), `31faa150` and `31f94190`
+  (minor-unit item filter; also after UpdateEqip in EquipChanged and ResetUnitViewerUI), `3291d360` (filter + `PlayByMotionType( UVUMT_WAIT )` + ResetStat, caller of
+  the switching-only-this-dialog case), the MsgProc click switch (logged stub `unit click switching`), and OnDropAnyItem's `3234f4d0` (equip conflict, STR 39493) and
+  `321693b0` (equip position 0x17 -> 0x1c remap).
 - the user-sync members only these classes drive (june-effect C3e, `june2017_re/c3e_user_sync_fields.tsv` rows B, E, F, H, I, G):
   - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
     with it PhysicProcess's not-selected-body branch (`32015b30 @32019f9b-3201a1c7`, funcmap `(C9h-4g)`), the only reader of
@@ -438,6 +442,12 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 - **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below. From june-charinfo C0
   (2026-10-30): June's UI-manager light toggle `32150e30` (flag `g_pMain +0x2ac`) also lights Watch (`WatchCharLightSet`, `328883b0`) and the magical closet
   (`MagicalClosetCharLightSet`, `32d9c150`, no owning stage yet); those branches come with their windows.
+- **From june-charinfo C4 (2026-10-30), cursor mode on the character window**: June's `CX2UICharInfo::MouseUp` (`32917080`) switches on its own cursor state set
+  (`g_pMain->state +0x64 cursor +0xb4`, 33 values; March's `CX2Cursor` has 20 and a different order: June 0xc / 0xd = March's DELETE_ITEM / SEAL_ITEM messages 4426 / 4425)
+  and its states 4, 5, 6, 8, 0xb, 0x16, 0x20, 0x21 call the inventory UI with the clicked equipped slot (`321846a0`, `3219f690`,
+  `3219f740`, `32185870`, `32184db0`, `32184ae0`, `32189a50`, `3218aba0`; names not yet identified) where March shows "not for equipped items" boxes; the message states
+  (1, 2, 3 / 0x17, 0xc, 0xd) prefix the item name (format `3342f1d0`). It comes with the inventory / shop / enchant UI sweep and a June `CX2Cursor` enum. Also June's skill-tree window owns a unit viewer (`+0xbc`)
+  that `SetNowDragItemReturn` refreshes (`328eea70`); March's `CX2UISkillTree` has none.
 
 - **Three June-only UI pieces found by june-march-divergence D1-4 (2026-10-29).** Each sits in a function D1-4 left as March's because the
   piece is absent here (June's test reads it as absent):

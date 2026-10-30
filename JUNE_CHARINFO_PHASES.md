@@ -322,6 +322,34 @@ MouseUp `32917080`, OnDropAnyItem `32918410`, OnRClickedItem `32917fd0`, DrawSlo
 (fire `+0xd90`, hand `+0xda0`) and the ~18 functions that read them. Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT`, brief `kickoffs/june-charinfo/C4-enchant.md`.
 Gate adds: the model in the U window shows the weapon's attribute sparks, none while riding or in an avatar emotion.
 
+### C4 Done (2026-10-30, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW`; the viewer attribute-enchant add-on is NOT done, it is the Opus half)
+
+**Landed (`X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `Always.h`; March in `#else`):** OnFrameMove `32914380` (no Invalidate* when the mouse is off the
+dialog), UnitHandling `32912d90` (a drag with mouse X delta != 0 sets the `+0x25b` latch = `m_bUnitClickedForSwitching`), MsgProc `3291d390` (WM_LBUTTONUP now
+runs rotation bookkeeping, the Lu/Ciel click-switch stub `[JUNE_CHARINFO] STUB unit click switching -> Stage 8`, latch + click reset, and only then the
+mouse-over test), light: new `CX2UICharInfo::SetLight` `329142a0` + `CX2UIManager::SetCharWindowDarkBackground` `32150e30` (CharInfo branch; the flag June keeps in
+g_pMain `+0x2ac` lives in CX2UIManager) + CIM_LIGHT_ON / OFF cases (return false as June) + SetShow applies it, DrawSlotMouseOverImage `32913b90` and
+OnDropAnyItem `32918410` (the slot search skips minor-unit slots: NEW_4's `IS_FOR_MINOR_UNIT` slots sit after the normal ones with the same equip position, so
+the drag frame used to land on a hidden one), OnRClickedItem `32917fd0` and MouseUp `32917080` (June has no `IsTransformed` test). Funcmap rows `(CharInfo C4)`,
+`charinfo_functions.tsv` verdicts, JUNE_BUGS 484.
+- **Same as March, kept (no code):** MouseDown `3291d830` (viewer RemoveEqip's 3rd arg 0 = March's default), SetNowDragItemReturn `3291d9f0` (June also calls the
+  skill-tree window's viewer refresh `328eea70`; March's skill tree has no viewer), MouseRButtonUp, GetSlotItemDesc, EquipChanged `3291d2e0` (June's `31fa9e60` =
+  UpdateEqip( true ); `31f94190` is Lu/Ciel), ResetUnitViewerUI `329148d0` at form 0 (`SetUnit( unit, 7 )` = UVS_CHARINFO, dummy 2 / 3 positions, SetFixed, ApplyMotionOffset
+  false are all March's; GetDummyPos is bounds-safe), SetShow's viewer lines (`31faa150` Lu/Ciel; `31f927b0` SetHideSelectUnitWeapon is not in the C4 table).
+- **Routed (not ported, no partial copy):** MouseUp's cursor-mode switch is June's own 33-state cursor set with UIInventory handlers (March's CX2Cursor has 20 in
+  another order; June's 0xc / 0xd = March's DELETE_ITEM / SEAL_ITEM messages 4426 / 4425) -> backlog Stage 9 (bullet added). Lu/Ciel form byte `+0xd80` / `+0xd81`,
+  `31f93a10`, `31faa150`, `31f94190`, `3291d360` (only Lu/Ciel callers, not created), OnDropAnyItem's `3234f4d0` (STR 39493) and `321693b0` -> Stage 8 (bullet added).
+- **Stand-ins (labelled):** Lu/Ciel click switching (stub log), DrawSlotMouseOverImage's `3286a350( uid )` = false, OnDropAnyItem's viewer-form accessory case = form 0.
+
+**Gates:** `flagcheck JUNE_CHARINFO_VIEW --worktree`: RESULT PASS (3 PASS, 1 PASS~, 1 DEFINE, 0 FAIL; 3 deleted lines = three comments I rewrote inside C2's
+`_SHOW` region; 3 EOL-mismatched inserts in MouseUp / OnRClickedItem where the file mixes LF and CRLF). `junediverge --check` RESULT: PASS. `enumscan --check` 0 A/B rows.
+`DEPLOY OK: X2_offline.exe is 25,862,656 B, dated 2026-10-30 18:24:23, md5 e51c3dd2a32bd3e4c46d2730da0a5967`. `EXESTR OK: 2 of 2` (wide: VIEW light dark, STUB unit
+click switching) + `3 of 3` (narrow: CharWindowCharLightSet, Light_On, Light_Off). No Lua staged, no kom change.
+
+**See it in game (hand-off in the session):** U window: Light button toggles the dark / lit model background and survives close / reopen; the model rotates by
+drag and eases back; dragging an inventory weapon / armor over the window frames the real slot; drag-equip, right-click unequip and the tooltips work; log lines
+`[JUNE_CHARINFO] VIEW light dark N` at each open and click. **Open questions:** none. Watch for one June quirk (JUNE_BUGS 484): a tooltip can stay when the mouse leaves.
+
 ## Phase C5 - Actions that send packets (Sonnet 5.5, high)
 
 **Depends on:** C4. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS`.

@@ -8,6 +8,9 @@
 //class CX2SlotManager::CX2Slot;
 CX2UIManager::CX2UIManager(void) :
 m_bFlag(true),
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+m_bCharWindowDarkBackground(false),
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 m_pCharInfo(NULL),
 m_pInventory(NULL),
 m_pWatch(NULL),
@@ -3604,6 +3607,17 @@ CX2UICharInfo* CX2UIManager::GetUICharInfo()
 { 	
 	return m_pCharInfo;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+void CX2UIManager::SetCharWindowDarkBackground( const bool bDarkBackground_ )
+{
+	/// June 32150e30: the flag is g_pMain +0x2ac there; the Custom / MagicalCloset / Watch lights ( 32d76da0 / 32d9c150 / 328883b0 ) go with those windows
+	m_bCharWindowDarkBackground = bDarkBackground_;
+
+	if ( m_pCharInfo != NULL )
+		m_pCharInfo->SetLight( bDarkBackground_ );
+}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 void CX2UIManager::CreateUIInventory()
 {

@@ -200,6 +200,10 @@ public:
 
 	void CreateUICharInfo();
 	CX2UICharInfo* GetUICharInfo();
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	void SetCharWindowDarkBackground( const bool bDarkBackground_ );
+	bool GetCharWindowDarkBackground() const { return m_bCharWindowDarkBackground; }
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 	
 	void CreateUIInventory();
 	CX2UIInventory* GetUIInventory();
@@ -467,6 +471,9 @@ private:
 #endif 
 	void SetShowMonsterIndicator(bool bVal);
 	bool					m_bFlag;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+	bool					m_bCharWindowDarkBackground;	/// June g_pMain +0x2ac
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 
 	CX2UICharInfo*			m_pCharInfo;
 	CX2UIInventory*			m_pInventory;
