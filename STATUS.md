@@ -173,8 +173,8 @@ Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| C1 | **ready** (start: `/x2-phase june-charinfo C1`; C0 lists, NESI decision in the C0 note) | Sonnet 5.5 / high | C0 | data034/056/057/063 + datai021/022 koms, `Enum.lua` (core list), `X2UICharInfo.h`, `X2UIManager.cpp`, `Always.h` | `C1.md` |
-| C2 | waiting on C1 | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}`, `X2SlotItem.{h,cpp}` | `C2.md` |
+| C1 | **built + koms copied, play-test owed** (hand-off in the C1 session; then say "check logs") | Sonnet 5.5 / high | C0 | data034/056/057/063 + datai021/022 koms, `Enum.lua` (core list), `X2UICharInfo.h`, `X2UIManager.cpp`, `Always.h` | `C1.md` |
+| C2 | ready (C1 code done; may start before the C1 play-test) | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}`, `X2SlotItem.{h,cpp}` | `C2.md` |
 | C3 | waiting on C2 | Opus 5.5 / high | C2 | `X2UICharInfo.{h,cpp}` | `C3.md` |
 | C4 | waiting on C3 (+ add-on from june-march-divergence D1-3g, 2026-10-29: the viewer's attribute-enchant family, ~18 `X2UnitViewerUI` functions) | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.cpp`, `X2UnitViewerUI.{h,cpp}` | `C4.md`, `C4-enchant.md` |
 | C5 | waiting on C4 (unequip-all only; switching -> Stage 8 per C0) | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp` | `C5.md` |

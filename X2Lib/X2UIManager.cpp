@@ -3586,7 +3586,11 @@ void CX2UIManager::CreateUICharInfo()
 	//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 #if defined(SERV_PVP_NEW_SYSTEM)
 	#ifdef PVP_SEASON2
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DLG
+	m_pCharInfo = new CX2UICharInfo( g_pMain->GetNowState(),  L"DLG_UI_CHARACTER_NEW_4.lua");	// June 3214fd30
+#else SERV_IRUHADEV_JUNE_CHARINFO_DLG
 	m_pCharInfo = new CX2UICharInfo( g_pMain->GetNowState(),  L"DLG_UI_CHARACTER_NEW_2.lua");
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DLG
 	#else
 	m_pCharInfo = new CX2UICharInfo(g_pMain->GetNowState(), L"DLG_UI_CHARACTER_NEW.lua");
 	#endif

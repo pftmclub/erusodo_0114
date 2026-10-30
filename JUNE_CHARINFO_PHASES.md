@@ -214,6 +214,19 @@ MagicalCloset light `32d9c150` with the closet window (Stage 9, no owner yet); S
 **Gate:** U in the village shows June's dialog art; every stub click logs; no `KEM_ERROR` for the dialog; `ledger --check` and `luabind` PASS; no new
 `UNHANDLED` / `EXCEPTION`. (Numbers and new rows are still March's code until C2 / C3: say so in the hand-off.)
 
+### C1 Done (2026-10-30, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_DLG`)
+
+**Landed:** the window builds June's `DLG_UI_CHARACTER_NEW_4.lua`; ids and stubs in place. Numbers and the new stat rows are still March's code until C2 / C3.
+- **Lua (data034, `adopt-june`, June's ljconv bytecode):** NEW_4 and NEW_3 new; NEW_2, NEW, `DLG_UI_CHARACTER.lua` replaced (backups in `kom_backup_stage_june\20261030_154313`). `luabind.py check` 5 files, 0 unbound, PASS.
+- **Textures (`stage-june`, 1 new, 9 replaced):** data057 new `DLG_UI_Common_Texture_PVE_01.TET`, replaced `Texture66_NEW.tga`; data056 `Button21_NEW.TET/.tga`; data063 `Title04.TET/.tga`; datai021 `Common_Texture_INT_ALL01.TET/.tga`; datai022 `Title01_A.TET/.tga` (backups `...\20261030_154328`).
+- **`Enum.lua` (data036, core-list source, `luasrc.py refresh`):** CIM 10007-10024; `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG` (whole table); `EP_AC_MINIME` / `EARRING` / `RING2` 26-28; `NESI_AC_MINIME` 37 / `EARRING` 39 / `RING2` 41 and 18 `NESI_MINORUNIT_*` (21-34, 36, 38, 40, 42). Held back per C0: `NESI_MINORUNIT_DEFENCE_HAIR_FASHION` (20) and June's `NESI_ONEPIECE_FASHION` 35 / `NESI_END` 43; March's 20 / 21 stand. Re-scan of NEW_4 against the live `Enum.lua`: only those two remain.
+- **Client:** `X2UICharInfo.h` CIM 10007-10024 + a small `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG { UASCM_ACHIEVEMENT_OPEN = 83010 }`; `X2UIManager.cpp` `CreateUICharInfo` builds NEW_4 (NEW_2 in `#else`); `UICustomEventProc` 13 STUB cases logging `[JUNE_CHARINFO] STUB <name> -> <owner>`: CUSTOMIZE -> Stage 12, RESONANCE -> Stage 30, UASCM_ACHIEVEMENT_OPEN -> Stage 31, SWITCHING / SWITCHING_ONLY_THIS_DIALOG and the 8 Rose weapon change / lock -> Stage 8. No damage-meter case (C0).
+- **Not stubbed (their phase owns them):** `CIM_LIGHT_ON` / `_OFF` (C4), `CIM_ALL_EQUIPPED_ITEM_RELEASE` (C5): clicking them does nothing until then. NEW_4's minor-unit slots overlap the main ones until C2 hides them.
+- **Gates:** `flagcheck JUNE_CHARINFO_DLG --worktree` RESULT: PASS (3 PASS, 1 DEFINE, 0 FAIL); `junediverge --check` RESULT: PASS; `enumscan --check` 0 A/B rows; `ledger --check` PASS, `core --check` PASS. `PACK OK` data034 / 036 / 056 / 057 / 063 / datai021 / datai022; `COPY OK` (user said "copy") md5 data056 `3ebecf46`, data057 `be599ed5`, data063 `3339d269`, datai021 `74f98a13`, datai022 `e6df65ff`; data034 / data036 copied in the same run.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,850,368 B, dated 2026-10-30 16:00:14, md5 a3cbf643d3fd4cb5ff365ce845454182`. `EXESTR OK: 5 of 5 found in X2_offline.exe` (the four stub tags checked + `DLG_UI_CHARACTER_NEW_4.lua`, wide).
+- **Slip, fixed:** the first build failed (`CX2OfflineLog` undeclared): a bytepatch spec with two `@@ file` sections for `X2UICharInfo.cpp` dropped the `#include`. Re-applied alone; no code change otherwise.
+**Open questions:** none.
+
 ## Phase C2 - SetShow, header, equipment, events (Sonnet 5.5, high)
 
 **Depends on:** C1. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_SHOW`.

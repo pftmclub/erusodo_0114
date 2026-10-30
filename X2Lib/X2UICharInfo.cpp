@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2uicharinfo.h"
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DLG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DLG
 
 
 
@@ -1063,6 +1066,48 @@ bool CX2UICharInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		}
 		break;
 #endif VIEW_SPECIAL_OPTIONDATA
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DLG
+	/// the feature behind each button is not ported: June's window is drawn, the click only logs
+	case CIM_CUSTOMIZE:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_CUSTOMIZE -> Stage 12" );
+		return true;
+	case CIM_RESONANCE:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_RESONANCE -> Stage 30" );
+		return true;
+	case UASCM_ACHIEVEMENT_OPEN:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB UASCM_ACHIEVEMENT_OPEN -> Stage 31" );
+		return true;
+	case CIM_SWITCHING:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_SWITCHING -> Stage 8" );
+		return true;
+	case CIM_SWITCHING_ONLY_THIS_DIALOG:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_SWITCHING_ONLY_THIS_DIALOG -> Stage 8" );
+		return true;
+	case CIM_WEAPON_CHANGE_REVOLVER:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_WEAPON_CHANGE_REVOLVER -> Stage 8" );
+		return true;
+	case CIM_WEAPON_CHANGE_AUTOGUN:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_WEAPON_CHANGE_AUTOGUN -> Stage 8" );
+		return true;
+	case CIM_WEAPON_CHANGE_MUSKET:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_WEAPON_CHANGE_MUSKET -> Stage 8" );
+		return true;
+	case CIM_WEAPON_CHANGE_HANDCANNON:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_WEAPON_CHANGE_HANDCANNON -> Stage 8" );
+		return true;
+	case CIM_LOCK_WEAPON_CHANGE_REVOLVER:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_LOCK_WEAPON_CHANGE_REVOLVER -> Stage 8" );
+		return true;
+	case CIM_LOCK_WEAPON_CHANGE_AUTOGUN:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_LOCK_WEAPON_CHANGE_AUTOGUN -> Stage 8" );
+		return true;
+	case CIM_LOCK_WEAPON_CHANGE_MUSKET:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_LOCK_WEAPON_CHANGE_MUSKET -> Stage 8" );
+		return true;
+	case CIM_LOCK_WEAPON_CHANGE_HANDCANNON:
+		CX2OfflineLog::Server( L"[JUNE_CHARINFO] STUB CIM_LOCK_WEAPON_CHANGE_HANDCANNON -> Stage 8" );
+		return true;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DLG
 	}
 	return false;
 }
