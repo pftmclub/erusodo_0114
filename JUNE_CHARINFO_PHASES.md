@@ -359,7 +359,9 @@ become June's two lists `m_vecSeqWeaponFire` (`+0xd90`) and `m_vecSeqWeaponWind`
   creators). Weapon names are March's; June adds the `TRIPPLE_*` types to the element groups, `DOUBLE_<elem>_DOUBLE_*` / `TRIPPLE_<elem>_*` to the master groups and
   `QUADRA_<elem>_MASTER` -> `Property04_M_*`. The hand switch is new: `Attribute_Piercing / Light / Dark` `_Ring_1` + `_Particle` (single), `Ring_2` / `4` + `Particle`
   (master or double), `Ring_1` / `2` / `4` + `Particle` (double master, triple), `Ring_1`-`4` + `Particle` (`QUADRA_*_MASTER`). All 21 names are already in data036's
-  `UIMajorParticle.txt`: nothing staged.
+  `UIMajorParticle.txt`. **Play-test fix (2026-10-30):** the hand rings drew as flat solid rings because the ring mesh `Attribute_Light_1.x` (June's bytes) asks for
+  `Attribute_Hand_White.tga` -> `.dds`, which March lacked; staged June's `Attribute_Hand_White.dds` and `black_02.dds` (a `Property04` quadra sequence) into
+  data002 (`kom.py stage-june`, `PACK OK data002`: +2 added, 0 removed, 0 changed; copy owed). The census of the 21 sequences' meshes and textures is clean after it.
 - **Delete** `31f9da10` (destroy both lists, clear). **Hand sparks** `31f961a0`: five rates per class from the disassembly (floats 10 / 15 / 30 / 60 / 25): Elsword,
   Aisha, Raven, Elesis `Dummy1_Rhand` 10/30/60/25/10; Rena `Dummy2_Lhand` 15/30/60/25/15; Eve `Dummy2_Lhand` 10/10/10/25/10; Chung `Bip01_R_Hand` 10/30/60/25/10
   (March: `Dummy1_Rhand`); Ara `Dummy3_Weapon`, Add `Weapon02` 15/30/60/25/15. Rate i goes to handle i.
