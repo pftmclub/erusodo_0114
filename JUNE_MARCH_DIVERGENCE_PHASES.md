@@ -779,7 +779,8 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   252 / 263). **D1-3b** (split in the D1-3 session): 252, 250, 251, 205, 263 and June's cool-time rate `3234cc10`; reviewed in `D1-4 review`. D1-3b ported 252 and `3234cc10` and split again: **D1-3c** 250, 205, 263 and two D1-3b leads (the weapon-effect show test in the enchant frame moves, the MP rate sites); **D1-3d** 251 alone. Both reviewed in `D1-4 review`. D1-3c turned the glow on, ported the viewer's glow and the five weapon enchant frame moves, and split again: **D1-3e** the at-hand effect `31ff8510`, the viewer's enchant frame moves and 263; **D1-3f** 250, 205 and the MP rate sites. D1-3d ported 251 and, to fill its groups, June's division group parser `32814170` with the Cobo pairs. D1-3e ported the at-hand effect and split again: **D1-3g** the viewer's whole attribute-enchant family (June's two handle lists); 263 routed to **june-engine R6c** (June-only equip list). D1-3f ported 250 (June's `DefaultBoneInfo.lua` table) and split again: **D1-3h** 205 and the reform bone-restore lead `31fde420`. D1-3h ported 205 (base and Aisha) and the lead (`RestoreHead`); the riding-pet branch went to Stage 17. **D1-3g moved out of this plan (user, 2026-10-29, drift: no `replace` row, cosmetic, a callee family of row 252): it is an add-on to june-charinfo C4 (the unit viewer), brief `kickoffs/june-charinfo/C4-enchant.md`.**
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
-- **D1-5** KTDXLIB engine and buff popups: 346-363.
+- **D1-5** KTDXLIB engine and buff popups: 346-363, and 373 `ScaleHead` (added by the D1-4 review) (done below, but 351). **D1-5b** (split in the D1-5
+  session): 351 `OpenSound` (name variants and a DS-manager mode); reviewed with D1-5 in `D1 review`.
 
 ### D1-1 Done (2026-10-29, Opus 5.5; nine `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 
@@ -1334,6 +1335,40 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
   (2026-10-30 05:03:08); built at main 62cd6f23 + 3 uncommitted code file(s).` `EXESTR OK: 3 of 3 found in X2_offline.exe, 25845248 B, dated 2026-10-30
   05:03:15, md5 b173beb3977a0ea14229a7b24f57f00e` (`Weapon_Lire_Property04_M_Fire` / `_Ice` / `_Poison`, wide).
 - **Smoke (plan end):** add to D1-3's line: Lire with a triple-attribute or quadra-master bow shows the enchant glow on the bow.
+
+### D1-5 Done (2026-10-30, Opus 5.5; eleven `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
+
+| tsv | March function | June | Flag `..._DIVERGE_` | What changes |
+|---|---|---|---|---|
+| 346 | `CPictureData::SetTex( file )` / `( file, key )` | `31c96540` / `31c97320` | `SET_TEX` | data built once, then refilled: new members `ResetTex` (`31c96910`: kept when the upper-cased name is the open device's or the stored name; else reopened, old closed) and `ResetTexKey` (`31c96ad0`); JUNE_BUGS 480 |
+| 347 | `CKTDGUISlot::SetMouseOverTex` | `31ccda90` | `SET_MOUSE_OVER_TEX` | first call `SetTexureData_`, later `ResetTexureData_` (`31c962c0`, `JUNE_UI_SLOT_ITEM_TEX`, `#error` guard) |
+| 348-350 | `OpenTexture` / `OpenXSkinMesh` / `OpenXET` | `31cded10` / `31cdef40` / `31cdf880` | `OPEN_DEVICE` | a `DEVICE_STATE_FAILED` device becomes NULL before March's once-per-id `ADD_RESOURCE_ERROR_LOG` line; the XET line is re-emitted because `DELETE_ERROR_LOG` silences March's; JUNE_BUGS 481 (ref kept) |
+| 351 | `OpenSound` | `31cdf4a0` | -> **D1-5b** | `.OGG` / `_INT` name variants (`31cdd720`, `31cc0c00`) and DS-manager byte `+0x4c` March may lack: a subsystem, kickoff `D1-5b.md` |
+| 352 | `CKTDIDevice::GetButtonState` | `31d24260` | `GET_BUTTON_STATE` | `SM_SWAPBUTTON` swaps mouse buttons 0 / 1 for the state and the lock |
+| 353 | `CKTDIDevice::GetKeyState` | `31d24fb0` | `GET_KEY_STATE` | allow-list members `m_bUseAllowedKeyList` (+0x1178) / `m_vecAllowedKeyList` (+0x117c); inert (setter `31d25490` stays with the tutorial guide) |
+| 354, 355 | `GetFixedDistancePosition` / `...InAllLine` | `31c5f090` / `31c68ec0` | `FIXED_DISTANCE_POSITION` | negative distance: flip `bIsRight`, walk `-fDist`. 355's inline filter (enabled, type < 4 or > 5 and != 8, != WALL) is `VerifyLine( i, true )` with `UNIT_ROAD` on (`cl /P`), and the three branches match March's by shape |
+| 356 | `ApplyFunctionToParticles` | `31cf1df0` (inlined) | `APPLY_FUNCTION_TO_PARTICLES` | NULL particle system: return |
+| 357 | `CXMeshInstance::EventTimerGlobal` | `31c82d60` | `EVENT_TIMER_GLOBAL` | `m_fGlobalTimeBefore` (+0x3dc) < `m_fElapsedTime` (+0x3d8) -> 0 first; the tests are March's `ELSWORD_SHEATH_KNIGHT` pair (on) |
+| 358 | `CKTDGObject::SetManagerObject` | `31d28a00` | `SET_MANAGER_OBJECT` | stores the pointer only. June's ctor `31d28a20` builds the matrix in place (+0x10), so the ctor now always allocates `m_pMatrix` (June's layout as a pointer) |
+| 359 | `CX2BuffFactor::ApplyExternalFactorToFinalizer` | `32d41910` | `APPLY_EXTERNAL_FACTOR` | `( type, value, bAdd )`: every BFT_TIME finalizer with > 1 value gets `FO_NORMAL_TIME` set or added; `eType_` unread. The earlier copy `SetTimeFinalizerValue` (same June address, `JUNE_ENCHANT_PARITY`) is folded in: its definition is in the `#else`, its callers (`X2GameUnit.cpp` = `32089ff0`, `X2GUUser.cpp` memo rescale = `32028250`) pass false; Eve's two pass true. Every March adding caller (2 GUUser, 3 VioletMage, 12 Eve, six of them brace-less `if` bodies) passes true |
+| 360-363 | buff popups | `32e7c380`, `32d417b0`, `32d41a80`, `326c3dd0` | none | no code: those files' `DISPLAY_ERROR` is already `CX2BuffCapture::RuntimeError` (a `[JUNE_BUFF]` log line) under `JUNE_BUFF_BEHAVIOR_PARITY` (buff 4b-ii, on): "no popup, keep a log line" holds; the planned `BUFF_POPUPS` flag is not needed |
+| 373 | `CX2GUUser::ScaleHead` | `31fdc070` -> `31fd64a0` | `SCALE_HEAD` | `virtual ScaleHead( fHeadScale, fFaceScale )`; `m_bSDOnePieceAvatar` -> `Bip01_Spine1` (`#error` guard on `NOT_RENDERING_EQUIP`); March's caller (BTI 75 / 179 / 307) passes 2.0 / 1.8 |
+
+- **ScaleHead callers in `3204b5e0`** (floats read from `unpacked_x2.exe`; cases from its jump tables): 2.0 / 1.8 for BTI 75, 179, 307, 452
+  (`BTI_DEBUFF_ERDA_BIGHEAD`), 1043 (`BTI_DEBUFF_TR_BIG_HEAD`); 3.0 / 2.8 for 740 (`..._GRAND_BIG_HEAD_POTION`); 0.5 / 0.4 for 741 (`..._GRAND_SMALL_HEAD_POTION`).
+  The four June-only cases ride with the whole `SetSpecificValueByBuffTempletID` port (backlog Stage 2 bullet "Base buff-specific values", noted there).
+  NPC twin `32759e20` = March's `CX2GUNPC::ScaleHead` (bone `+0xcd4`, unscaled test, 1.5): no change.
+- **Guard:** `guards.tsv` row `CX2GUUser::ScaleHead` (body 1 = Lu/Ciel's second body +0x8e88; base passes body 0; overrides Ain `32a51670`, `32bf0480`, `32b17225` -> class ports).
+- **Hygiene:** `flagcheck <FLAG> --worktree --files` over the 18 code files, per flag: `RESULT: PASS` for all eleven (0 FAIL, 0 ERROR, 0 deleted
+  lines, 0 non-ASCII inserts, 0 EOL mismatches, 0 encoding changes; OTHER rows are the files of the other ten flags). Two-flag files with `--with`:
+  `KTDIDevice.cpp` GET_BUTTON_STATE + GET_KEY_STATE PASS; `X2GUUser.{h,cpp}` SCALE_HEAD + APPLY_EXTERNAL_FACTOR `files: 2 PASS`, RESULT PASS.
+  `cl /P` probe: all eleven flags on and both `#error` guards quiet; `ADD_RESOURCE_ERROR_LOG`, `DELETE_ERROR_LOG`, `UNIT_ROAD`, `RAVEN_WEAPON_TAKER`,
+  `ELSWORD_SHEATH_KNIGHT`, `DUNGEON_ITEM`, `JUNE_BUFF_BEHAVIOR_PARITY` on. `enumscan --check`: 0 A/B rows.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,846,784 B, dated 2026-10-30 08:29:44, md5 11be405795b47a6a3f2ccc0ca48b6c0a, equal to X2/US_SERVICE/x2.exe
+  (2026-10-30 08:29:37); built at main 0c19c3ae + 18 uncommitted code file(s).` First run, no fix needed.
+- **Smoke (plan end):** with Windows' "switch primary and secondary buttons" on, left click still selects; a big-head buff (side-effect medicine, BTI 75)
+  on Elsword (unported) and on an SD one-piece avatar (Spine1 scales); Eve's accel / spectrum buff durations unchanged; dialog pictures that swap
+  texture (skill / title icons) still change.
 
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 

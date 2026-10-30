@@ -5456,3 +5456,19 @@ Two flags in `KTDXLIB/Always.h`; March's body is the `#else` at every site. Plan
 - `SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE`: the +11 weapon glow (`CX2GameUnit::Weapon` Init / Create / Process / Delete) runs June's ten-sequence family with the +13 spark tier (`13Gang_Weapon_Effect_Spark*`, already in `GameMajorParticle44.txt`); the hide step moved to the weapon frame move through the new `CX2GUUser::CanShowWeaponEffect` (hidden, riding, avatar emotion) and the new `SetUpgradeWeaponParticleEmitRate` (June `32299730` / `32291e00` / `32292610` / `32293870` / `32293620` / `31fcf160`; JUNE_BUGS 472). **Inert until D1-3c:** the block sits under `ADD_UPGRADE_WEAPON_PARTICLE`, which `OnlyGlobal/Always_Global.h` undefines in this build.
 - `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE`: `SetSkillCoolTimeLeft` (D1-3) runs the event cool-time rate step always; `GetSkillCoolTimeDecreaseRate` cuts the hyper-active time only in a dungeon game (June `3234cc10`). The rate block of `X2Define.h` / `X2Unit.h` / `X2Unit.cpp` now compiles under `#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( <flag> )`; the event flag stays undefined.
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: divergent March functions replaced by June's, KTDXLIB engine and buff batch (june-march-divergence D1-5, 2026-10-30)
+
+Eleven flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else` at every site. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-5 Done"; rows 346-363 and 373 of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX`: a UI picture's `SetTex` keeps its texture data and refills it (June `31c96540` / `31c97320`; JUNE_BUGS 480).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX`: a slot's mouse-over texture is refilled in place (June `31ccda90`; needs `JUNE_UI_SLOT_ITEM_TEX`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE`: textures, skin meshes and XETs in the FAILED state are not handed out; the miss is logged once per id (June `31cded10` / `31cdef40` / `31cdf880`; JUNE_BUGS 481).
+- `SERV_IRUHADEV_JUNE_DIVERGE_GET_BUTTON_STATE`: Windows' swapped mouse buttons swap the game's left / right buttons (June `31d24260`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE`: the key allow-list test (June `31d24fb0`); inert until the tutorial guide's setter is ported.
+- `SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION`: a negative distance walks the other way along the line map (June `31c5f090` / `31c68ec0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_APPLY_FUNCTION_TO_PARTICLES`: a particle sequence without a system is skipped (June `31cf1df0`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_EVENT_TIMER_GLOBAL`: a mesh instance's global before-time below its elapsed time resets to 0 (June `31c82d60`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT`: every render object owns its matrix; `SetManagerObject` stores the manager only (June `31d28a20` / `31d28a00`).
+- `SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR`: `ApplyExternalFactorToFinalizer( type, value, bAdd )` (June `32d41910`); `SetTimeFinalizerValue` folded into it.
+- `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD`: `ScaleHead( fHead, fFace )`, SD one-piece avatars scale `Bip01_Spine1` (June `31fdc070` / `31fd64a0`).
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

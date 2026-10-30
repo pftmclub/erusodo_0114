@@ -10851,3 +10851,86 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD needs SERV_IRUHADEV_JUNE_DIVERGE_UNIT_REFORM ( CX2Data::SetUnitReForm )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_RESTORE_HEAD
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDGUIControl::CPictureData::SetTex( file ) / ( file, key ) are June's ( 31c96540 / 31c97320 ): the texture data is built once and refilled in place ( ResetTex 31c96910, ResetTexKey 31c96ad0 ); a failed open leaves it without a texture. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDGUISlot::SetMouseOverTex is June's ( 31ccda90 ): new texture data only for the first call, then refilled in place through ResetTexureData_ ( 31c962c0, JUNE_UI_SLOT_ITEM_TEX ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX ) && !defined( SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX needs SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX ( ResetTexureData_ )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDXDeviceManager::OpenTexture / OpenXSkinMesh / OpenXET are June's ( 31cded10 / 31cdef40 / 31cdf880 ): a device in DEVICE_STATE_FAILED is not handed out; the miss keeps March's once-per-id ErrorLog line ( the XET line again, DELETE_ERROR_LOG silences March's ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDIDevice::GetButtonState is June's ( 31d24260 ): with Windows' swapped mouse buttons ( SM_SWAPBUTTON ) buttons 0 and 1 swap, for the state and the lock. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_GET_BUTTON_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDIDevice::GetKeyState is June's ( 31d24fb0 ): while the key allow-list is on, a key not in it reads as up. Inert: the setter ( 31d25490 ) belongs to the tutorial-guide port. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDGLineMap::GetFixedDistancePosition / GetFixedDistancePositionInAllLine are June's ( 31c5f090 / 31c68ec0 ): a negative distance flips the direction and walks the positive distance. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CParticleEventSequence::ApplyFunctionToParticles is June's ( 31cf1df0, inlined ): a sequence without a particle system does nothing. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_APPLY_FUNCTION_TO_PARTICLES
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CXMeshInstance::EventTimerGlobal is June's ( 31c82d60 ): a global before-time below the elapsed time is reset to 0 before the tests. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_EVENT_TIMER_GLOBAL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CKTDGObject::SetManagerObject is June's ( 31d28a00 ): it stores the manager only; as in June ( matrix built in place by the ctor 31d28a20 ) every object owns its matrix. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CX2BuffFactor::ApplyExternalFactorToFinalizer is June's ( 32d41910 ): a third argument bAdd sets ( false ) or adds ( true ) value[1] of every BFT_TIME finalizer; adding callers pass true, the memo rescale passes false; SetTimeFinalizerValue ( the same June function ) is folded into it. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5: CX2GUUser::ScaleHead is June's ( vslot 0x66c 31fdc070 -> 31fd64a0 ): head and face scales are arguments, an SD one-piece avatar scales Bip01_Spine1; March's big-head buffs pass 2.0 / 1.8. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+#if defined( SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP )
+#error SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD needs SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP ( m_bSDOnePieceAvatar )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+//////////////////////////////////////////////////////////////////////////

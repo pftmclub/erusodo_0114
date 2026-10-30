@@ -2320,6 +2320,11 @@ void        CKTDGParticleSystem::ApplyFunctionToLiveInstanceSequences( FUNCTION 
 template< typename FUNCTION >
 void        CKTDGParticleSystem::CParticleEventSequence::ApplyFunctionToParticles( FUNCTION fn )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_FUNCTION_TO_PARTICLES
+    // June 31cf1df0 ( SetRotateToParticles, inlined ): a sequence without a particle system does nothing
+    if ( NULL == m_pParticleSystem )
+        return;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_FUNCTION_TO_PARTICLES
     KParticleHandleList& coParticleList = m_pParticleSystem->_AccessParticleList();
     int iParticleList = m_iParticleList;
     if ( iParticleList >= 0 && iParticleList < (int) coParticleList.storage_size() )

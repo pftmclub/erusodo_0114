@@ -1005,9 +1005,17 @@ void CKTDGUISlot::SetItemTex_LUA2( const char* pFileName )
 
 void CKTDGUISlot::SetMouseOverTex( const WCHAR* pFileName, const WCHAR* key )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX
+	// June 31ccda90: a new texture data only for the first call, then refilled in place
+	if( NULL == m_pMouseOverTex )
+		m_pMouseOverTex = SetTexureData_( pFileName, key );
+	else
+		ResetTexureData_( pFileName, key, m_pMouseOverTex );
+#else SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX
 	SAFE_DELETE( m_pMouseOverTex );
 
 	m_pMouseOverTex = SetTexureData_( pFileName, key );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_MOUSE_OVER_TEX
 	if( m_pMouseOverPoint != NULL )
 		m_pMouseOverPoint->pUITextureData = m_pMouseOverTex;
 

@@ -29,6 +29,9 @@ CKTDIDevice::CKTDIDevice( HWND hWnd, IDirectInput8* pDI )
 
 	for ( int i = 0; i < 256; ++i )
 		m_Locks[i] = false;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
+	m_bUseAllowedKeyList = false;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
 
 	// Clear the device variables
 	Clear();
@@ -480,6 +483,12 @@ DWORD CKTDIDevice::GetPOV()
 // Keyboard specific functions
 BOOL  CKTDIDevice::GetKeyState( unsigned char Num )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
+	// June 31d24fb0: while the allow-list is on, a key not in it reads as up
+	if( true == m_bUseAllowedKeyList &&
+		m_vecAllowedKeyList.end() == std::find( m_vecAllowedKeyList.begin(), m_vecAllowedKeyList.end(), Num ) )
+		return FALSE;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
 	// Check if key/button is pressed
 	if( m_State[Num] & 0x80 && m_Locks[Num] == FALSE )
 	{
@@ -679,6 +688,34 @@ long  CKTDIDevice::GetNumPureKeyPresses()
 // Mouse/Joystick specific functions
 BOOL  CKTDIDevice::GetButtonState( unsigned char Num )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GET_BUTTON_STATE
+	// June 31d24260: with SM_SWAPBUTTON set, mouse buttons 0 and 1 swap, for the state and the lock
+	char State = 0;
+	unsigned char ucButton = Num;
+
+	if( m_Type == MOUSE )
+	{
+		if( 0 != GetSystemMetrics( SM_SWAPBUTTON ) )
+		{
+			if( 0 == Num )
+				ucButton = 1;
+			else if( 1 == Num )
+				ucButton = 0;
+		}
+		State = m_MouseState->rgbButtons[ucButton];
+	}
+
+	if( m_Type == JOYSTICK )
+		State = m_JoystickState->rgbButtons[ucButton];
+
+	if( State & 0x80 && m_Locks[ucButton] == FALSE )
+	{
+		m_Locks[ucButton] = TRUE;
+		return TRUE;
+	}
+
+	return FALSE;
+#else SERV_IRUHADEV_JUNE_DIVERGE_GET_BUTTON_STATE
 	char State = 0;
 
 	if(m_Type == MOUSE)
@@ -695,6 +732,7 @@ BOOL  CKTDIDevice::GetButtonState( unsigned char Num )
 	}
 
 	return FALSE;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GET_BUTTON_STATE
 }
 BOOL  CKTDIDevice::SetButtonState( unsigned char Num, BOOL State )
 {

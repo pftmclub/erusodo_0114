@@ -847,8 +847,30 @@ bool CX2BuffFactor::ParsingFinalizer( KLuaManager& luaManager_ )
 	@brief : 특정 FinalizerFactor에 외부요소를 적용하는 함수(적용 방법은 각 종료 마다 다름)
 	@param : 외부변경요소를 적용할 종료타입(eType_), 외부적용요소(fValue_)
 */
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+void CX2BuffFactor::ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eType_, const float fValue_, const bool bAdd_ )
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 void CX2BuffFactor::ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eType_, const float fValue_ )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	// June 32d41910: every BFT_TIME finalizer holding more than one value gets it set ( bAdd_ false ) or added; eType_ is unread
+	if ( NULL == m_pDataBuffFactor )
+		return;
+
+	BOOST_FOREACH( KBuffFinalizerFactor& kFactor, m_pDataBuffFactor->m_vecBuffFinalizerFactors )
+	{
+		if ( static_cast<UINT>( BFT_TIME ) != kFactor.m_uiType ||
+			static_cast<UINT>( CX2BuffTimeFinalizerTemplet::FO_NORMAL_TIME ) >= kFactor.m_vecValues.size() )
+			continue;
+
+		float& fNormalTime = kFactor.m_vecValues[CX2BuffTimeFinalizerTemplet::FO_NORMAL_TIME];
+		if ( bAdd_ )
+			fNormalTime += fValue_;
+		else
+			fNormalTime = fValue_;
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	if ( NULL != m_pDataBuffFactor )
 	{
 		BOOST_FOREACH( KBuffFinalizerFactor& kFactor, m_pDataBuffFactor->m_vecBuffFinalizerFactors )
@@ -864,6 +886,7 @@ void CX2BuffFactor::ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eT
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 }
 
 /** @function : SetGameUnitBuffFactor

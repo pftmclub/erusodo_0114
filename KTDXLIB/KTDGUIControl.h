@@ -421,6 +421,10 @@ class CKTDGUIControl : private boost::noncopyable
 				void SetTex_LUA( const char* pFileName, const char* key );
 				bool SetTex( const WCHAR* pFileName, const WCHAR* key );
 				void SetTex( CKTDGUIControl::UITextureData* pNewTexture );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
+				bool ResetTex( const WCHAR* pFileName );	// June 31c96910
+				bool ResetTexKey( const WCHAR* key );		// June 31c96ad0
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 				
 				void SetPoint_LUA();
 				void SetPoint( CKTDGUIControl::UIPointData* pNewPoint );

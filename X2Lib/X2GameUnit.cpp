@@ -6689,7 +6689,11 @@ void CX2GameUnit::ApplyEnchantShockDebuff()
 	const float fTime = static_cast<float>( pEnchantData->m_iShockDebuffTime ) * fKeep;
 	ptrClone->SetBehaviorValue( BBT_CHANGE_PHYSIC_ATTACK, fValue, 2 );
 	ptrClone->SetBehaviorValue( BBT_CHANGE_MAGIC_ATTACK, fValue, 2 );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	ptrClone->ApplyExternalFactorToFinalizer( BFT_TIME, fTime, false );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	ptrClone->SetTimeFinalizerValue( fTime, false );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	ptrClone->SetGameUnitBuffFactor( this, -1, true );
 	SetBuffFactorToGameUnit( *ptrClone );
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG

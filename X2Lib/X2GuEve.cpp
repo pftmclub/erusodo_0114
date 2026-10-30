@@ -42687,7 +42687,11 @@ void CX2GUEve::DeleteMinorParticle()
 
 	AdjustBuffFactorByIndex( ptrBuffFactorClone, CX2SkillTree::RNSI_A_COMMON_AURA_ADDATK_ACCEL );
 	ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	ptrBuffFactorClone->SetTimeFinalizerValue( fAddtionalAccelBuffTime_, true );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 	ptrEnergyOfConcentrationFactor->SetGameUnitBuffFactor( this );
 
@@ -42695,7 +42699,11 @@ void CX2GUEve::DeleteMinorParticle()
 	if( iSkillLevel < 1 )
 		iSkillLevel = 1;
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	ptrEnergyOfConcentrationFactor->ApplyExternalFactorToFinalizer( BFT_TIME, pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel, false ) + fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	ptrEnergyOfConcentrationFactor->SetTimeFinalizerValue( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel, false ) + fAddtionalAccelBuffTime_, true );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 	const WCHAR* pwsCoreParticleName = EveAccelCoreParticleName( static_cast<int>( pSkillTemplet_->m_eID ) );
 
@@ -42748,7 +42756,11 @@ void CX2GUEve::DeleteMinorParticle()
 			if ( NULL != ptrBuffFactorClone )
 			{
 				ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 				ptrEnergyOfConcentrationFactor->SetGameUnitBuffFactor( this );	/// 집중의 기운 버프팩터 셋팅
 
@@ -42761,13 +42773,25 @@ void CX2GUEve::DeleteMinorParticle()
 
 				const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet_->m_eID ) );	/// 스킬 레벨
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrEnergyOfConcentrationFactor->ApplyExternalFactorToFinalizer( BFT_TIME,
+					pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel )
+					+ fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrEnergyOfConcentrationFactor->ApplyExternalFactorToFinalizer( BFT_TIME, /// 액셀러레이터시간 + fAddtionalAccelBuffTime 만큼 지속
 					pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel ) 
 					+ fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	#else // UPGRADE_SKILL_UI
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrEnergyOfConcentrationFactor->ApplyExternalFactorToFinalizer( BFT_TIME,
+					pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME )
+					+ fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrEnergyOfConcentrationFactor->ApplyExternalFactorToFinalizer( BFT_TIME, /// 액셀러레이터시간 + fAddtionalAccelBuffTime 만큼 지속
 					pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME ) 
 					+ fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	#endif // UPGRADE_SKILL_UI
 
 				const WCHAR* pwsCoreParticleName = CX2SkillTree::GetAccelCoreParticleName( pSkillTemplet_->m_eID );	
@@ -43711,17 +43735,29 @@ void CX2GUEve::StartElCrystalSystem()
 				if( true == bMemoSpectro )
 				{
 					const float fAdditionalTime = 3.0f;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+					ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 					ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 					if( m_fAddSpectrumTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 					m_EveElectraSystem.m_fSystemOperationTime = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false ) + 3.0 ) + m_fAddSpectrumTime;
 				}
 				else
 				{
 					if( m_fAddSpectrumTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 					m_EveElectraSystem.m_fSystemOperationTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false ) + m_fAddSpectrumTime;
 				}
@@ -43851,10 +43887,18 @@ void CX2GUEve::StartElCrystalSystem()
 					if ( GetEqippedSkillMemo( CX2SkillTree::SMI_EVE_MEMO13) )
 					{
 						const float fAdditionalTime = 3.0f;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 						
 						if ( m_fAddSpectrumTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+							ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 							ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 						/// 분광결정 버프가 끝난 후 CoolTime 셋팅을 위해 지속시간 저장
 						m_EveElectraSystem.SetSystemOperationTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel ) + fAdditionalTime + m_fAddSpectrumTime );
@@ -43862,7 +43906,11 @@ void CX2GUEve::StartElCrystalSystem()
 					else
 					{
 						if ( m_fAddSpectrumTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+							ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 							ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddSpectrumTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 						/// 분광결정 버프가 끝난 후 CoolTime 셋팅을 위해 지속시간 저장
 						m_EveElectraSystem.SetSystemOperationTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel ) + m_fAddSpectrumTime );
@@ -43872,7 +43920,11 @@ void CX2GUEve::StartElCrystalSystem()
 					if ( GetEqippedSkillMemo( CX2SkillTree::SMI_EVE_MEMO13) )
 					{
 						const float fAdditionalTime = 3.0f;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 						ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAdditionalTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 						/// 분광결정 버프가 끝난 후 CoolTime 셋팅을 위해 지속시간 저장
 						m_EveElectraSystem.SetSystemOperationTime( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME ) + fAdditionalTime );
@@ -47165,7 +47217,11 @@ void CX2GUEve::ENSI_EBS_ENERGETIC_HEART_Start()
 		ptrBuffFactorClone->SetGameUnitBuffFactor( this );
 
 		if( m_fAddEnergeticHeartTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddEnergeticHeartTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddEnergeticHeartTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 		AdjustBuffFactorByIndex( ptrBuffFactorClone, CX2SkillTree::RNSI_SA_ECB_ENERGETIC_HEART );
 		SetBuffFactorToGameUnit( *ptrBuffFactorClone );
@@ -47201,7 +47257,11 @@ void CX2GUEve::ENSI_EBS_ENERGETIC_HEART_Start()
 			ptrBuffFactorClone->SetGameUnitBuffFactor( this );
 			
 			if ( m_fAddEnergeticHeartTime > 0.f )
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddEnergeticHeartTime, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, m_fAddEnergeticHeartTime );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 			SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 		}

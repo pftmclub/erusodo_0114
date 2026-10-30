@@ -6060,7 +6060,11 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 		if ( NULL != ptrBuffFactorClone )
 		{
 			ptrBuffFactorClone->SetGameUnitBuffFactor( this );	/// 엑셀러레이터 버프팩터 셋팅
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 			if ( SetBuffFactorToGameUnit( *ptrBuffFactorClone ) )
 			{
 				const WCHAR* pwsCoreParticleName = CX2SkillTree::GetAccelCoreParticleName( pSkillTemplet_->m_eID );	
@@ -6097,7 +6101,11 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 		if ( NULL != ptrBuffFactorClone )
 		{
 			ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 			ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 			const WCHAR* pwsCoreParticleName = CX2SkillTree::GetAccelCoreParticleName( pSkillTemplet_->m_eID );	
 			ASSERT( NULL != pwsCoreParticleName );
@@ -6157,7 +6165,11 @@ static void MemoRescaleTimeFinalizer( CX2BuffFactor& refFactor_, const float fRa
 	if ( NULL == pFirstTime || pFirstTime->m_vecValues.size() <= 1 )
 		return;
 	const float fTime = pFirstTime->m_vecValues[1] * fRate_;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	refFactor_.ApplyExternalFactorToFinalizer( BFT_TIME, fTime, false );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	refFactor_.SetTimeFinalizerValue( fTime, false );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 }
 
 /// S3d. The behavior half (32028250 type 0x10 with v0, 32089ff0 with the Rate's fValue). Over a copy of the behavior list (32d42000), each
@@ -36807,8 +36819,32 @@ bool CX2GUUser::DoScaleHeadBone()
 }
 
 #ifdef DUNGEON_ITEM
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+void CX2GUUser::ScaleHead( float fHeadScale, float fFaceScale )
+#else SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 void CX2GUUser::ScaleHead()
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+	// June 31fdc070 -> 31fd64a0 ( body 0 ): an SD one-piece avatar scales Bip01_Spine1 in place of Bip01_Head
+	// stand-in: Lu/Ciel not ported ( 31fd64a0's body 1 scales the second body +0x8e88, reached only from class overrides )
+	if( NULL == m_pXSkinAnim )
+		return;
+
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame( true == m_bSDOnePieceAvatar ? L"Bip01_Spine1" : L"Bip01_Head" );
+	if( NULL != pFrame )
+	{
+		D3DXVECTOR3 vScale = D3DXVECTOR3( fHeadScale, fHeadScale, fHeadScale );
+		SetFrameScale( &vScale, false, pFrame );
+	}
+
+	pFrame = m_pXSkinAnim->GetCloneFrame( L"COLLISION_SPHERE1_Face" );
+	if( NULL != pFrame )
+	{
+		D3DXVECTOR3 vScale = D3DXVECTOR3( fFaceScale, fFaceScale, fFaceScale );
+		SetFrameScale( &vScale, false, pFrame );
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 	if( m_pXSkinAnim != NULL )
 	{
 		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame(L"Bip01_Head");
@@ -36825,6 +36861,7 @@ void CX2GUUser::ScaleHead()
 			SetFrameScale(&vScale, false, pFrame);
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 }
 
 void CX2GUUser::RestoreHead()
@@ -43458,7 +43495,11 @@ void CX2GUUser::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTemp
 	case BTI_BUFF_BIG_HEAD_SOUP:
 #endif INT_HALLOWEEN_EVENT_BUF
 		{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+			ScaleHead( 2.f, 1.8f );	// June @3204ca26 ( BTI 75 / 179 / 307 / 452 / 1043 )
+#else SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 			ScaleHead();
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 		} break;
 
 #ifdef ADD_HENIR_BUFF		/// 헤니르 버프 발동시 채팅창에 안내 문구 표시

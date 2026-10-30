@@ -29538,7 +29538,11 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 			if ( NULL != ptrBuffFactorClone )
 			{
 				ptrBuffFactorClone->SetGameUnitBuffFactor( this );	/// 엑셀러레이터 버프팩터 셋팅
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, fAddtionalAccelBuffTime_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 
 				ptrEnergyOfThePlentyFactor->SetGameUnitBuffFactor( this );	/// 풍요의 기운 버프팩터 셋팅
 
@@ -29550,11 +29554,21 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 	
 				const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet_->m_eID ) );	/// 스킬 레벨
 	
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrEnergyOfThePlentyFactor->ApplyExternalFactorToFinalizer( BFT_TIME,
+					( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel ) + fAddtionalAccelBuffTime_ ) / 3, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrEnergyOfThePlentyFactor->ApplyExternalFactorToFinalizer( BFT_TIME, 	/// 풍요의 기운은 외부요인에 의한 추가 시간 1/3 적용
 					( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel ) + fAddtionalAccelBuffTime_ ) / 3 );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	#else // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+				ptrEnergyOfThePlentyFactor->ApplyExternalFactorToFinalizer( BFT_TIME,
+					( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME ) + fAddtionalAccelBuffTime_ ) / 3, true );
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 				ptrEnergyOfThePlentyFactor->ApplyExternalFactorToFinalizer( BFT_TIME, 	/// 풍요의 기운은 외부요인에 의한 추가 시간 1/3 적용
 					( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME ) + fAddtionalAccelBuffTime_ ) / 3 );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 				
 				const WCHAR* pwsCoreParticleName = CX2SkillTree::GetAccelCoreParticleName( pSkillTemplet_->m_eID );	

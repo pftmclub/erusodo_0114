@@ -147,6 +147,10 @@ class CKTDIDevice
 		DIJOYSTATE           *m_JoystickState;
 
 		BOOL                  m_Locks[256];
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
+		bool                  m_bUseAllowedKeyList;	// June +0x1178 ( setter 31d25490, tutorial guide: not ported )
+		std::vector<unsigned char> m_vecAllowedKeyList;	// June +0x117c
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GET_KEY_STATE
 
 #ifdef KEY_MAPPING
 		unsigned char		  m_ActionMap[GAMEACTION_END];

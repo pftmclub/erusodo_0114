@@ -2952,6 +2952,11 @@ bool CKTDGXMeshPlayer::CXMeshInstance::EventTimerGlobal( float fTime )
     ASSERT( m_bPerFrameSimulation == true );
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_EVENT_TIMER_GLOBAL
+	// June 31c82d60: a before-time below the elapsed time is reset to 0 first
+	if( m_fGlobalTimeBefore < m_fElapsedTime )
+		m_fGlobalTimeBefore = 0.f;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_EVENT_TIMER_GLOBAL
 #ifdef ELSWORD_SHEATH_KNIGHT
 	if( m_fGlobalTimeBefore <= fTime && m_fGlobalTime > fTime )
 		return true;

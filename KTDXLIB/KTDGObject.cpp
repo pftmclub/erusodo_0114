@@ -13,6 +13,11 @@ CKTDGObject::CKTDGObject( CKTDGObject* pManagerObject_ )
 {
 
     m_pManagerObject        = pManagerObject_;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
+    // June 31d28a20: the object always owns its matrix ( built in place at +0x10 )
+    m_pMatrix           = new CKTDGMatrix( g_pKTDXApp->GetDevice() );
+    ASSERT( m_pMatrix != NULL );
+#else SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
     if ( pManagerObject_ == NULL )
     {
         m_pMatrix           = new CKTDGMatrix( g_pKTDXApp->GetDevice() );
@@ -22,6 +27,7 @@ CKTDGObject::CKTDGObject( CKTDGObject* pManagerObject_ )
     {
         m_pMatrix = NULL;
     }//if
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
 
 
     m_bAlphaObject      = false;
@@ -79,6 +85,9 @@ void CKTDGObject::SetManagerObject( CKTDGObject* pManagerObject_ )
     //ASSERT( IsManagedByDGManager() == false );
 
     m_pManagerObject = pManagerObject_;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
+    // June 31d28a00: the pointer only; the object keeps its own matrix
+#else SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
     if ( pManagerObject_ == NULL )
     {
         if ( m_pMatrix == NULL )
@@ -91,6 +100,7 @@ void CKTDGObject::SetManagerObject( CKTDGObject* pManagerObject_ )
     {
         SAFE_DELETE( m_pMatrix );
     }//if.. else..
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_MANAGER_OBJECT
 }//CKTDGObject::SetRefMatrix()
 //}} robobeg : 2008-10-17
 

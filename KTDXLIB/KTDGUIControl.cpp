@@ -1705,6 +1705,25 @@ void CKTDGUIControl::CPictureData::SetTex_LUA( const char* pFileName, const char
 bool CKTDGUIControl::CPictureData::SetTex( const WCHAR* pFileName, const WCHAR* key )
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
+	// June 31c97320: the first call builds the texture data, later calls refill it in place
+	if( NULL == pFileName )
+		return false;
+
+	if( NULL == pTexture )
+	{
+		CKTDGUIControl::UITextureData* pNewTextureData = CKTDGUIControl::SetTexureData_( pFileName, key );
+		if( NULL == pNewTextureData )
+			return false;
+
+		pTexture = pNewTextureData;
+		if( pPoint != NULL )
+			pPoint->pUITextureData = pTexture;
+		return true;
+	}
+
+	return ResetTex( pFileName ) && ResetTexKey( key );
+#else SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 
 	if( NULL == pFileName )
 		return false;
@@ -1733,6 +1752,7 @@ bool CKTDGUIControl::CPictureData::SetTex( const WCHAR* pFileName, const WCHAR* 
 		return false;
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 }
 
 void CKTDGUIControl::CPictureData::SetSizeAsTextureSize()
@@ -1749,6 +1769,44 @@ void CKTDGUIControl::CPictureData::SetSizeAsTextureSize()
 bool CKTDGUIControl::CPictureData::SetTex( const WCHAR* pFileName )
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
+	// June 31c96540: the texture data is kept and refilled; a failed open leaves it without a texture
+	if( NULL == pFileName )
+		return false;
+
+	if( NULL == pTexture )
+		pTexture = new UITextureData();
+
+	pTexture->texName = pFileName;
+	CKTDXDeviceTexture* pDeviceTexture = g_pKTDXApp->GetDeviceManager()->OpenTexture( pTexture->texName );
+	if( NULL != pTexture->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
+	{
+	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( pTexture->pTexture );
+	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->CloseDevice( pTexture->pTexture->GetDeviceID() );
+	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		pTexture->pTexture = NULL;
+	}
+	pTexture->pTexture = pDeviceTexture;
+	if( NULL == pDeviceTexture )
+		return false;
+
+	const float fWidth	= (float)pDeviceTexture->GetWidth();
+	const float fHeight	= (float)pDeviceTexture->GetHeight();
+
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= D3DXVECTOR2( 0, 0 );
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]	= D3DXVECTOR2( fWidth, 0 );
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= D3DXVECTOR2( 0, fHeight );
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= D3DXVECTOR2( fWidth, fHeight );
+	pTexture->texSize = D3DXVECTOR2( fWidth, fHeight );
+	pTexture->SetTextureUV();
+
+	if( pPoint != NULL )
+		pPoint->pUITextureData = pTexture;
+
+	return true;
+#else SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 
 
 	if( NULL == pFileName )
@@ -1796,6 +1854,7 @@ bool CKTDGUIControl::CPictureData::SetTex( const WCHAR* pFileName )
 		pPoint->pUITextureData = pTexture;
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 }
 
 void CKTDGUIControl::CPictureData::SetTex( CKTDGUIControl::UITextureData* pNewTexture )
@@ -1807,6 +1866,59 @@ void CKTDGUIControl::CPictureData::SetTex( CKTDGUIControl::UITextureData* pNewTe
 	if ( pPoint != NULL )
 		pPoint->pUITextureData = pTexture;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
+// June 31c96910: a texture already open under that name is kept; otherwise the file is reopened in place
+bool CKTDGUIControl::CPictureData::ResetTex( const WCHAR* pFileName )
+{
+	if( NULL == pTexture || NULL == pTexture->pTexture )
+		return false;
+
+	wstring wstrDeviceID = pFileName;
+	MakeUpperCase( wstrDeviceID );
+	if( 0 == pTexture->pTexture->GetDeviceID().compare( wstrDeviceID ) )
+		return true;
+
+	if( 0 == pTexture->texName.compare( pFileName ) )
+		return true;
+
+	pTexture->texName = pFileName;
+	CKTDXDeviceTexture* pDeviceTexture = g_pKTDXApp->GetDeviceManager()->OpenTexture( pTexture->texName );
+	if( NULL != pTexture->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
+	{
+	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->CloseDeviceByPointer( pTexture->pTexture );
+	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->CloseDevice( pTexture->pTexture->GetDeviceID() );
+	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		pTexture->pTexture = NULL;
+	}
+	pTexture->pTexture = pDeviceTexture;
+	return NULL != pTexture->pTexture;
+}
+
+// June 31c96ad0: a key the texture lacks keeps the old UV ( JUNE_BUGS 389 kind )
+bool CKTDGUIControl::CPictureData::ResetTexKey( const WCHAR* key )
+{
+	if( NULL == pTexture || NULL == pTexture->pTexture )
+		return false;
+
+	wstring wstrKey = key;
+	pTexture->keyName = key;
+	MakeUpperCase( wstrKey );
+	const CKTDXDeviceTexture::TEXTURE_UV* pTexUV = pTexture->pTexture->GetTexUV( wstrKey );
+	if( NULL == pTexUV )
+		return false;
+
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= pTexUV->leftTop;
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]	= pTexUV->rightTop;
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= pTexUV->leftBottom;
+	pTexture->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= pTexUV->rightBottom;
+	pTexture->texSize = pTexUV->rectSize;
+	pTexture->SetTextureUV();
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SET_TEX
 
 void CKTDGUIControl::CPictureData::SetPoint_LUA()
 {

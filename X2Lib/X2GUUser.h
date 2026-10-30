@@ -2761,7 +2761,11 @@ public:
 			m_fSuperArmorByItem = fVal;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+		virtual void ScaleHead( float fHeadScale, float fFaceScale );	// June vslot 0x66c ( 31fdc070 )
+#else SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 		void ScaleHead();
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 		void RestoreHead();
 #endif
 

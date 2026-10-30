@@ -2154,6 +2154,14 @@ void CKTDGLineMap::ReBuildLineGroup()
 //{{oasis:±ËªÛ¿±////2009-10-7////
 D3DXVECTOR3 CKTDGLineMap::GetFixedDistancePosition( D3DXVECTOR3* pvPos, float fDist, bool bIsRight )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION
+	// June 31c5f090: a negative distance walks the other way
+	if( fDist < 0.f )
+	{
+		bIsRight = !bIsRight;
+		fDist = -fDist;
+	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION
 	int iLineIndex = -1;
 
 	const float MAGIC_LINE_RADIUS = 30.f;
@@ -3820,6 +3828,14 @@ void CKTDGLineMap::LineAnimCircle::CalcLinePosition( float fCurrentRotationRadia
 #ifdef RAVEN_WEAPON_TAKER
 bool CKTDGLineMap::GetFixedDistancePositionInAllLine( const D3DXVECTOR3& vDirVector, const D3DXVECTOR3& vPos, float fDist, bool bIsRight, OUT D3DXVECTOR3& vTargetPos, OUT int& iTargetLineIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION
+	// June 31c68ec0: a negative distance walks the other way ( its inline line filter is VerifyLine( i, true ) )
+	if( fDist < 0.f )
+	{
+		bIsRight = !bIsRight;
+		fDist = -fDist;
+	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_FIXED_DISTANCE_POSITION
 	D3DXVECTOR3 vTempTargetPos( 0.f, -1.f, 0.f );
 	int iTempTargetLineIndex = -1;
 	float fMinDistance = 999999.f;

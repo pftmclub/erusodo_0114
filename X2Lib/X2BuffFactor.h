@@ -1061,7 +1061,11 @@ public:
 	/// ApplyExternalFactor
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	//void ApplyExternalFactorToBehavior( const BUFF_BEHAVIOR_TYPE eType_, const float fValue_ );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+	void ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eType_, const float fValue_, const bool bAdd_ );	// June 32d41910
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	void ApplyExternalFactorToFinalizer( const BUFF_FINALIZER_TYPE eType_, const float fValue_ );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 #ifdef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 	/// June buff port Phase 15 step 2b: June 32d418a0 ( bbt, value, op ), used by the enchant slow / shock debuffs. The first
 	/// behavior of type eType_ holding more than one value gets value[1] += / *= / = fValue_ (op 0 / 1 / 2); others untouched.
@@ -1081,6 +1085,8 @@ public:
 			return;
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
+#else SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 	/// June 32d41910 ( type, value, bAdd ): every BFT_TIME finalizer holding more than one value gets value[1] (FO_NORMAL_TIME)
 	/// = fValue_, or += when bAdd_. June ignores its type argument and tests the finalizer type against 1 (BFT_TIME) itself.
 	void SetTimeFinalizerValue( const float fValue_, const bool bAdd_ )
@@ -1096,6 +1102,7 @@ public:
 				kFactor.m_vecValues[1] = fValue_;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE

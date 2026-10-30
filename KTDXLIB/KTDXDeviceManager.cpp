@@ -679,6 +679,11 @@ CKTDXDeviceTexture*	CKTDXDeviceManager::OpenTexture( wstring deviceID, D3DFORMAT
 
 	
 	ASSERT( NULL == pTexture || CKTDXDevice::DT_TEXTURE == pTexture->GetDeviceType() );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
+	// June 31cded10: a device in DEVICE_STATE_FAILED is not handed out ( the miss is logged below )
+	if( NULL != pTexture && CKTDXDevice::DEVICE_STATE_FAILED == pTexture->GetDeviceState() )
+		pTexture = NULL;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
 
 #ifdef ADD_RESOURCE_ERROR_LOG
 	if( true == bLog && NULL == pTexture )
@@ -715,6 +720,11 @@ CKTDXDeviceXSkinMesh* CKTDXDeviceManager::OpenXSkinMesh( wstring deviceID, wstri
 	}
 
 	ASSERT( NULL == pXSkinMesh || CKTDXDevice::DT_XSKIN_MESH == pXSkinMesh->GetDeviceType() );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
+	// June 31cdef40: a device in DEVICE_STATE_FAILED is not handed out ( the miss is logged below )
+	if( NULL != pXSkinMesh && CKTDXDevice::DEVICE_STATE_FAILED == pXSkinMesh->GetDeviceState() )
+		pXSkinMesh = NULL;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
 
 #ifdef ADD_RESOURCE_ERROR_LOG
 	if( NULL == pXSkinMesh )
@@ -901,6 +911,11 @@ CKTDXDeviceXET*	CKTDXDeviceManager::OpenXET( wstring deviceID, bool bWithoutFile
             pXET = static_cast<CKTDXDeviceXET*>( CreateAndOpenDevice( pXET ) );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
+	// June 31cdf880: a device in DEVICE_STATE_FAILED is not handed out ( the miss is logged below )
+	if( NULL != pXET && CKTDXDevice::DEVICE_STATE_FAILED == pXET->GetDeviceState() )
+		pXET = NULL;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
 #ifdef ADD_RESOURCE_ERROR_LOG
 	if( NULL == pXET )
 	{
@@ -918,6 +933,11 @@ CKTDXDeviceXET*	CKTDXDeviceManager::OpenXET( wstring deviceID, bool bWithoutFile
 // 			의미 있는 에러로그가 될 수 없어서 제거.
 			ErrorLogMsg( KEM_ERROR431, errorMsg.c_str() );
 #endif // DELETE_ERROR_LOG
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
+#ifdef DELETE_ERROR_LOG
+			ErrorLogMsg( KEM_ERROR431, errorMsg.c_str() );	// no popups, always log: DELETE_ERROR_LOG silences March's line
+#endif DELETE_ERROR_LOG
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_DEVICE
 
 		}
 	}
