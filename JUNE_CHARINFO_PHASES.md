@@ -374,6 +374,7 @@ Debug line under C3's `_DEBUG`: `[JUNE_CHARINFO] RELEASE item <tid> equip slot <
 `enumscan --check` 0 A/B rows. `DEPLOY OK: X2_offline.exe 25,864,192 B, 2026-10-30 19:08:33, md5 b3e4ef33762de4cf2b31074a2b55cefa`. `EXESTR OK: 1 of 1 found` (wide `[JUNE_CHARINFO] RELEASE item`).
 
 **Save prepared (backup `db_backup/els_db_20261030_190902_pre_manual.sql`):** unit 32 MagicKnightT got a worn Bronze Sword and 24 Intermediate Bronze Top Piece (equip bag full) for the full-bag check.
+**Play-test (2026-10-30, passed):** unit 25 three runs, 7 slot-change REQs `HANDLED` + ACK, 0 EXCEPTION; weapon -> equip slot 15, accessories advance per-tab cursor, Chronicle -> avatar slot 0; unit 32 full bag: nothing moved. Check 3 (button hidden below auth 2) not tested.
 **Open questions:** none.
 
 ## Review (Opus 5.5, high)
