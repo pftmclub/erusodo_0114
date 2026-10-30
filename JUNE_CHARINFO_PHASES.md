@@ -305,6 +305,10 @@ Funcmap rows `(CharInfo C3)`. Nine June SKILL_ID names in `X2SkillTree.h` (`JUNE
 **See it in game:** U window: every option row shows a number and a hover guide ending in "(N% Efficiency Stage)"; Maximize / MP / specialization rows
 filled; attack hover shows the range lines; Dungeon / PvP radio changes the numbers of PvP- / dungeon-only sockets; one `[JUNE_CHARINFO] STATS` group
 (ResetStat, basic, option, record) per refresh. **Open questions:** none.
+**Play-test (2026-10-30, md5 adb2bd5e, run after deploy):** 75 `[JUNE_CHARINFO] STATS` lines, 0 EXCEPTION, no Lua curve error. Two level-99 Aisha saves:
+every refresh logs basic / option / record / ResetStat; the radio flips pvp 0/1 dungeon 1/0 (numbers equal: no PvP- or dungeon-only sockets on that gear);
+unequip / re-equip drops and restores hp / attacks / crit / decline / moving / MP (e.g. hp 292183 -> 247939 -> 292183); the second save fills charge 1430 /
+time 11. Maximize and specializations read 0 (no such sockets); PvP record 0 (offline). C3 done.
 
 ## Phase C4 - Unit viewer, light, slots (Sonnet 5.5, high)
 
