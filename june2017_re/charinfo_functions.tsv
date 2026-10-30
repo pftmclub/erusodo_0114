@@ -1,0 +1,50 @@
+june_va	vslot	june_role	march_counterpart	verdict	phase	evidence
+3214fd30	-	CX2UIManager::CreateUICharInfo	X2UIManager.cpp:3589 (NEW_2)	differs (builds DLG_UI_CHARACTER_NEW_4.lua, 0x270 B)	C1	string 334795e8
+32916920	-	ctor	X2UICharInfo.cpp:11	differs (+0x258 word 0x100, +0x25c, vector +0x260..+0x268; dialog +0x1dc = listener sub-object +0xd8)	C2	ctor body; dummy pos 0/1 guarded by count
+32914520	0 (via 3291ff50)	dtor body	:91	differs (frees the +0x260 vector)	C2	dtor body
+3291df90	8	SetShow(bool)	:1075	differs (PvE record, EquipRelease, resonance buttons, CharacterSwitching* in states 0xe/0xf, switching view, light / weapon / lock UIs; radio forced Dungeon in states 0xb / 0x17)	C2	PvE fields are June UnitData members March lacks: offline 0 wins, grade hidden (June: count < 5 or grade 0)
+3291db60	55	UICustomEventProc	:929	differs (title-manager pre-forward; jump table 3291df1c, byte map 3291df50: 10002 / 10004-10006 / 10019 default; 10023+ out of range)	C2 (+ C5 cases)	byte map read 2026-10-30
+32915080	56	UIServerEventProc	:1070 (empty)	STUB (Stage 12): 0x62c / 0x62d customize ACKs -> 32914fe0, then customize window 3214f3a0; never reached while CIM_CUSTOMIZE is a stub	- (March's empty body stays)	asm
+32915100	-	SetTitle	:1327	differs (no title picture g_pStaticInfo / GetTitleImgName; name, TitleButton, #C00FFFF ability guide kept)	C2	sig
+32914ca0	-	UpdateLevel	:2732	same	C2 (keep March)	g_pStaticInfo_Lv %d, protected level
+32915490	-	ResetEDnCashnVP	:2713	same [I] (ED of user +0x8c = GetGlobalTotalCash, C2 confirms)	C2	g_pStaticInfo_cash
+32915550	-	ResetResurrectionStoneUI	:2753	same	C2 (keep March)	unit +0xd14
+329146d0	-	ResetNowEquipUI	:2656	differs (equip position via 3234fe90, slot +0x44 minor-unit flag vs 3286a350(uid); no minimap endurance call)	C2	decompile
+32914440	-	UpdateItemLevel	:3173	same (STR_ID_19227 = 0x4b1b)	C2 (keep March)	decompile
+3291cfb0	-	ResetStat(bool)	:1423	differs (socket total by unit +0xe40 group; GetEqipStat 32913df0; 32912a90; opacity 32915620; 32092170 at the end)	C3	sig
+3291d2e0	-	EquipChanged (public refresh)	:2777 EquipChanged	differs (viewer 31fa9e60 + 31f94190; no ResetIncreaseSkillLevelBySocket here)	C3	sig
+3291d360	-	viewer reset + motion + ResetStat	none (3 lines in March SetShow)	June-only helper	C4	viewer 31faa150, PlayByMotionType 31fa7ef0, ResetStat
+32913460	-	UpdateBasicStatFromSpecialSkill	:2172	differs (skill set via 32890620 / 32206e50 / 328989f0)	C3	sig
+32912a90	-	UpdateOptionStatFromSpecialSkill	:1951	differs [I] (one skill read)	C3	sig
+32913df0	-	equip stat for the radio (GetEqipStat( +0x258, 2 ) then mode)	inside :1423	differs (June GetEqipStat form, S7g)	C3	decompile
+32915ab0	-	UpdateBasicStatUI	:1496	differs (guide buttons, CalculateFinalDamageMaximizeRate, 0x9a07 / 0x9a08)	C3	plan S34
+32919430	-	UpdateOptionStatUI	:1543	differs (13 rows; no Accuracy / Evade: NEW_4 has no such controls)	C3	plan S34; step 4 B
+32916160	-	UpdateResistanceStatUI	:2086	differs (GetEnchantStat June 4-arg form 32358df0, 4th = viewer +0xd80 or 31d717e0())	C3	decompile
+32915620	-	PvE / PvP opacity buttons	none	June-only	C3	ButtonPvpOpacity / ButtonPveOpacity via 32915440
+3291ba40 / 3291cee0 / 3291b4b0	-	GetMyEquippedSocketData( group ) / group sum / SumSocketOption	:2478 / :2404	differs (S7m)	C3	funcmap S7m
+3291eb50 / 3291f0c0..3291fb64 / 32920210	-	Lua curve callers (Final*Coefficient, Intermediate*, 12-class Specialization A / B, CalculateHpIncrementValue)	X2UICharInfo.h:125-168 (Final*Percent, Intermediate*Value only)	differs / June-only (Coefficient and Specialization families)	C3	SocketOptionForm.lua (data036) is already June's: all 145 functions present
+32914380	25	OnFrameMove	:113	differs (mouse-out returns without InvalidSelectedItem / InvalidSlotDesc)	C4	funcdis
+3291d390	4	MsgProc	:310	differs (click-on-unit switching: states 0xe / 0xf, unit +0xe40, senders 32916e10 / 32916e40; +0x25a view; +0x25b latch)	C4 (packet part C5)	sig
+32912d90	-	UnitHandling	:161	differs (+0x1e4 show test, +0x25b latch reset)	C4	sig
+329148d0	-	ResetUnitViewerUI	:2803	differs (viewer 31faa6f0 / 31fa9e60 / 31f933c0 / 31fac3c0 / 31f94190)	C4	sig
+32914d70	-	viewer render ("characterView" render state)	none	dead in June: only caller 32915760, which nothing references (no rel32 call, no pointer in the image)	none (not ported)	whole-image scan 2026-10-30
+329142a0	-	light: CharWindowCharLightSet, Light_On / Light_Off	none	June-only	C4	sig
+32150e30	-	CX2UIManager light toggle	none	June-only: g_pMain +0x2ac = flag; CharInfo branch here; Custom (+0x68, Stage 12), MagicalCloset (+0xcc), Watch (+0x10, Stage 9) branches are drift	C4 (CharInfo branch only)	decompile
+32912c50	-	switching view: +0x25a, viewer +0xd80 + 31f93a10, per-slot 32e22ce0	none	June-only	C4	decompile
+32916810	17	GetSlotItemDesc	:2990	same	C4 (keep March)	decompile
+32913b90	27	DrawSlotMouseOverImage	:2900	differs (equip-position byte +0xd5 and minor-unit flag match, as ResetNowEquipUI)	C4	decompile
+3291d830	20	MouseDown	:430	same call order (RemoveEqip, viewer RemoveEqip, ResetStat, ToggleUI inventory, ChangeInventoryTabByUid, drop sound); ResetStat takes June's bool	C4	sig
+32917080	21	MouseUp (cursor switch, 33 cursor states)	:485	differs [I] (June cursor set; C4 reads it)	C4	sig, jump table 32917f58 / 32917f94
+3291d9f0	16	SetNowDragItemReturn	:754	differs (adds skill-tree refresh 328eea70 after re-equip)	C4	sig
+329128e0	54	MouseRButtonUp: GetSlotInMousePos (vfunc 0x60) then OnRClickedItem (vfunc 0xe4)	:647	same	C4 (keep March)	asm
+32917fd0	57	OnRClickedItem	:657	differs [I] (state checks incl. 0xf, ToggleUI, ChangeInventoryTabByUid, empty-slot move 32916d90, DestroyItemUI)	C4	sig
+32918410	58	OnDropAnyItem	:784	differs [I] (0x5f5ea39 item test, 0x1000 class test, 3234f4d0; drop sound)	C4	sig
+32918c70	-	unequip all ([S%1%]%2%)	none	June-only	C5	only caller 3291dc91 (CIM_ALL_EQUIPPED_ITEM_RELEASE)
+32916e10 / 32916e70	-	send 0x4d9 (1 byte)	none	June-only	C5	decompile
+32916e40 / 32916ea0	-	send 0x4fd (1 byte)	none	June-only	C5	decompile
+32913f40 / 32912d10 / 329141b0	-	Rose weapon-change UI / button reset / lock UI (unit +0xe50)	none	STUB (Stage 8)	C1 stub	sig
+32916ed0 / 329191c0	-	lock REQ 0x5e3 / lock check (unit +0xe50, [S%1%]%2%)	none	STUB (Stage 8)	C1 stub	sig
+32914690 / 32914fe0 / 3291ece0	-	customize REQ 0x62b (packet-wait 0x62c) / ACK / parse	none	STUB (Stage 12)	C1 stub	decompile
+-	-	CIM_DAMAGE_METER 10019 (Button_DamageLog)	none	dead in June: button hidden (SetShowEnable false), no C++ names it, byte map sends 10019 to default	none (draw hidden, no stub)	byte map 3291df50; no 0x2723 compare in CharInfo
+-	-	CIM_RESONANCE 10020	none	STUB (Stage 30)	C1 stub	g_pData +0x5a4 -> 3260bd00
+-	-	UASCM_ACHIEVEMENT_OPEN 83010	none	STUB (Stage 31)	C1 stub	outside CharInfo's jump range

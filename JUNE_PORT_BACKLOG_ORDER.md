@@ -399,6 +399,11 @@ Everything from Stages 5 and 6, plus:
 - `Dungeon_Tutorial_{Luciel,Rose,Ain}`;
 - Lu/Ciel's duo mechanics (`DUO_TYPE`, `HIT_ADD_COMBINATION_POINT`) and Rose's `ROSE_WEAPON_TYPE`;
 - activating the dormant Rose/Ain/Lu/Ciel code from the buff port.
+- **The character window's Lu/Ciel and Rose branches** (june-charinfo C0, 2026-10-30; `june2017_re/charinfo_functions.tsv`): unit `+0xe40` (form byte, setter
+  `3234b8c0`, NOT-apply `323acfb0`) behind `CIM_SWITCHING` / `_ONLY_THIS_DIALOG`, the click-on-unit switch in MsgProc `3291d390`, and the form packets
+  `0x4d9`/`0x4da` (village) and `0x4fd`/`0x4fe` (guild agit; Rose sends her weapon index through the same pair); Rose's weapon UI `32913f40` / lock `0x5e3`.
+  June's NESI renumber (`NESI_ONEPIECE_FASHION` 20 -> 35, `NESI_END` 21 -> 43, save migration), `NESI_MINORUNIT_DEFENCE_HAIR_FASHION` in `Enum.lua`, and
+  the slot hide by June's ids (`32e22ce0`) replacing CharInfo C2's `IS_FOR_MINOR_UNIT` stand-in. June has no event-name table: invent the names.
 - the user-sync members only these classes drive (june-effect C3e, `june2017_re/c3e_user_sync_fields.tsv` rows B, E, F, H, I, G):
   - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
     with it PhysicProcess's not-selected-body branch (`32015b30 @32019f9b-3201a1c7`, funcmap `(C9h-4g)`), the only reader of
@@ -428,7 +433,9 @@ Everything from Stages 5 and 6, plus:
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
-- **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below.
+- **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below. From june-charinfo C0
+  (2026-10-30): June's UI-manager light toggle `32150e30` (flag `g_pMain +0x2ac`) also lights Watch (`WatchCharLightSet`, `328883b0`) and the magical closet
+  (`MagicalClosetCharLightSet`, `32d9c150`, no owning stage yet); those branches come with their windows.
 
 - **Three June-only UI pieces found by june-march-divergence D1-4 (2026-10-29).** Each sits in a function D1-4 left as March's because the
   piece is absent here (June's test reads it as absent):
@@ -712,6 +719,9 @@ Found by june-effect C9g (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9g - Done"; 
 `CX2CustomizeManager` (embedded in `CX2Main` at `+0x9e4`, Lua `g_pCustomizeManager`) applies cash "custom" items to a character:
 lobby motions, sit motions, face and texture, skill cut-ins and viewer effect sets. March has none of it. Planned under the standing
 rule that an unowned June system gets its own stage. What it covers:
+- **From june-charinfo C0 (2026-10-30):** the character window's Customize button (a STUB there): REQ `0x62b` `32914690`, ACK / NOT `0x62c` / `0x62d`
+  parsed by `32914fe0` / `3291ece0` into CharInfo `+0x25c`, then the customize window `3214f3a0`; and the customize window's light branch `32d76da0`
+  (`CustomCharLightSet`) of the UI-manager light toggle `32150e30`.
 - **The data:**
   - `CharCustomData.lua` + `CharCustomData_INT.lua`, parsed by `326525d0`: `AddCustomPeriodItem`, `AddFreeMotion`,
     `AddReplaceCustomID`, `AddFreeSkillCutIn`, and the motion / sit / face / texture / skill-cut-in blocks. There are 1,270 `ITEM_ID`s;
@@ -1293,6 +1303,8 @@ The three per-hit refreshes in `CX2GameUnit::SetDamageExceptionProcess` and `CX2
   - pure formula functions run under Unicorn on June's binary against the port's outputs for the same inputs (precedent: buff Phase 16 review, `320839e0` on 360 input sets).
 
 **Depends on:** nothing for planning (read-only).
+**Lead (june-charinfo C0, 2026-10-30):** the live `SocketOptionForm.lua` (data036) is June's, with all 145 `Calculate*` curves, but
+`X2GameUnit.cpp:15916` / `:15992` / `:2473` and `X2SocketItem.cpp:1178` still say March lacks them; check that `IsSocketOptionFormLoaded()` paths now run.
 **Code priority (user, 2026-10-27):** after the character ports (Stages 7 and 8), so the damage of every character is tested on June's formulas at once. A mixed formula that breaks play before then (as the MP bug did) is fixed at once under *Scope*, in its own flag, and the map marks it June.
 **Brief:** `kickoffs/june-backlog/stage33-plan.md` (`/x2-phase new-plan june-stat-calc`).
 
@@ -1305,11 +1317,11 @@ The user asked for the U-key window as June has it. Plan `JUNE_CHARINFO_PHASES.m
 - **In the plan:** June's dialog and textures (byte-exact), CIM 10007-10024 and `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG`, June's whole bodies for SetShow
   `3291df90`, SetTitle, equipment, UICustomEventProc `3291db60`, UIServerEventProc `32915080`, the stat panels (`3291cfb0`, `32915ab0`, `32919430`, `32916160`,
   `32915620`, the Lua coefficient callers), the socket total (`3291ba40` family; was this file's S7p bullet in Stage 9), the viewer / light / slot paths,
-  switching (unit `+0xe40`) and unequip-all `32918c70` with their emulator answers.
+  and unequip-all `32918c70` (March's slot-change REQ). C0 (2026-10-30) moved switching (unit `+0xe40`, Lu/Ciel only) to Stage 8 as a stub.
 - **Add-on to C4 (2026-10-29, moved from june-march-divergence D1-3g):** the unit viewer's attribute-enchant family, June's two handle lists (fire
   `+0xd90`, hand `+0xda0`) and the ~18 `CX2UnitViewerUI` functions that read them (`kickoffs/june-charinfo/C4-enchant.md`).
 - **Drawn, click logs `STUB` (user, 2026-10-28):** Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Rose's weapon change / lock -> Stage 8,
-  Damage Meter -> owner set by C0.
+  Lu/Ciel switching -> Stage 8 (C0). Damage Meter: dead in June, drawn hidden, no stub (C0).
 - **Stays Stage 9:** `CX2UIWatch` (user, 2026-10-28), the transcend-UI leftovers. **Stage 33** keeps the `CX2Stat` sums under the printed numbers; C3 records
   its display rows in that map.
 - **Depends on:** nothing. Start: `/x2-phase june-charinfo C0` (Opus 5.5 high).

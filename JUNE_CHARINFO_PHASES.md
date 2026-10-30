@@ -57,7 +57,7 @@ manager (`g_pData +0x28c`) shows (`326f7d20`), the event goes to it (`32703a70`)
 | ALL_EQUIPPED_ITEM_RELEASE | `32918c70` | none |
 | WEAPON_CHANGE_* | viewer HABIT motion `31fa5050( idx, 1 )`; class 0xb (Rose) sends `0x4fd` / `0x4d9` | none (Stage 8) |
 | LOCK_WEAPON_CHANGE_* | `329191c0( idx )` check (unit `+0xe50`, string 0x9ea0), `32916ed0( idx )` REQ `0x5e3` | none (Stage 8) |
-| DAMAGE_METER | not here (owner: C0) | none |
+| DAMAGE_METER | not handled anywhere: byte map sends 10019 to default, `Button_DamageLog` stays hidden (C0) | none |
 | RESONANCE | `g_pData +0x5a4` -> `3260bd00` | none (Stage 30) |
 | LIGHT_ON / _OFF | UI manager `32150e30( 0 / 1 )` -> `329142a0` | none |
 | ACHIEVEMENT_OPEN / _CLOSE | outside the jump range: not handled | none (Stage 31) |
@@ -82,7 +82,7 @@ manager (`g_pData +0x28c`) shows (`326f7d20`), the event goes to it (`32703a70`)
 | `32915100` | SetTitle (`#C00FFFF`) | `:1327` |
 | `3291d390` (slot 4) | MsgProc: drag-rotate, click-on-unit switching toggle | `:310` |
 | `32912d90` | UnitHandling (rotate, zoom `+0x1c8 / +0x1cc`) | `:161` |
-| `329148d0` / `32914d70` [I] | viewer create (`31fab020`) / viewer render (`"characterView"` render-state cache) | `:2803` / none |
+| `329148d0` / `32914d70` | viewer create (`31fab020`) / viewer render (dead in June, C0) | `:2803` / none |
 | `329142a0` | light (`CharWindowCharLightSet`, `Light_On` / `_Off`) | none |
 | `32912c50` | switching view: `+0x25a`, viewer `+0xd80`, per-slot refresh `32e22ce0` | none |
 | `32918c70` | unequip all (`[S%1%]%2%`) | none |
@@ -90,8 +90,15 @@ manager (`g_pData +0x28c`) shows (`326f7d20`), the event goes to it (`32703a70`)
 | `32914690` / `32914fe0` / `3291ece0` | customize REQ `0x62b` / ACK parse | none (Stage 12) |
 | `32916e10` / `32916e40` / `32916e70` / `32916ea0` / `32916ed0` / `329191c0` | packet senders `0x4d9` / `0x4fd` / `0x5e3`, lock check | none |
 | `32915080` (slot 56) | UIServerEventProc: `0x62c` / `0x62d` | `:1070` (empty) |
-| `32917080` (slot 21) / `32918410` (slot 58) / `32917fd0` (slot 57 [I]) / `329128e0` (slot 54 [I]) | right-click equip path / OnDropAnyItem / SetNowDragItemReturn / a mouse forwarder | `:657` / `:784` / `:754` / `:430`-`:647` |
-| `32913b90` (slot 27) / `32916810` (slot 17) / `3291d830` (slot 20) / `3291d9f0` (slot 16) | mouse-over / slot desc / MouseUp + drop / refresh hook (`3291d2e0`, skill tree `328eea70`) | `:2900` / `:2990` / `:485` / none |
+| `32917080` (slot 21) / `32918410` (slot 58) / `32917fd0` (slot 57) / `329128e0` (slot 54) | MouseUp (cursor switch) / OnDropAnyItem / OnRClickedItem / MouseRButtonUp (C0) | `:485` / `:784` / `:657` / `:647` |
+| `32913b90` (slot 27) / `32916810` (slot 17) / `3291d830` (slot 20) / `3291d9f0` (slot 16) / `32914380` (slot 25) | DrawSlotMouseOverImage / GetSlotItemDesc / MouseDown / SetNowDragItemReturn (+ skill tree `328eea70`) / OnFrameMove (C0) | `:2900` / `:2990` / `:430` / `:754` / `:113` |
+
+**C0 readings (2026-10-30; verdict per function in `june2017_re/charinfo_functions.tsv`):** the vtable map above is anchored on RegisterLuaBind
+`327433e0` = slot 19 (the ctor calls it). `32914d70` is dead in June (its only caller `32915760` is referenced nowhere in the image). Unit `+0xe40` is
+the Lu/Ciel form byte (1 = Ciel, the minor unit; setter `3234b8c0` refreshes the inventory) and `+0xe50` Rose's weapon index: **switching is Lu/Ciel-only**
+(SetShow shows the buttons only for `UT_LUCIEL`), like the weapon change is Rose-only. June has no event-name table, so the six packets stay unnamed:
+`0x4d9` / `0x4da` and `0x4fd` / `0x4fe` = Lu/Ciel form (or Rose weapon) REQ / NOT in village / guild agit, `0x5e3` = Rose weapon-lock REQ, `0x62b`-`0x62d` =
+customize list REQ / ACK / NOT; March has none, the emulator answers none. Unequip-all sends only the slot-change REQ March already has (`32916d90`).
 
 June members: `+0x1b4` viewer, `+0x1e4 / +0x1e5` show, `+0x258` (word) / `+0x259` stat radio, `+0x25a` switching view, `+0x25b` unit-click latch,
 `+0x25c` customize data received, `+0x260..+0x268` a vector. Unnamed: packets `0x4d9`, `0x4fd`, `0x5e3`, `0x62b`-`0x62d`, unit `+0xe40` / `+0xe50` (C0).
@@ -104,11 +111,14 @@ and must keep working: `JUNE_SKILL_TITLE_NOTICE` (`X2TitleManager.cpp:2195`), `J
 
 **In this plan:** June's `DLG_UI_CHARACTER_NEW_4.lua` (and June's same-name `DLG_UI_CHARACTER*` files) with their textures, byte-exact; CIM 10007-10024
 and `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG` in `Enum.lua` and `X2UICharInfo.h`; every `CX2UICharInfo` function in the table above whose June body differs
-(whole body, "no partial updates"); the socket total (`3291ba40` family, taken over from Stage 9's S7p bullet); the emulator answers for the window's
-own actions (switching, unequip all).
+(whole body, "no partial updates"); the socket total (`3291ba40` family, taken over from Stage 9's S7p bullet); unequip-all (it rides March's
+slot-change REQ, which the emulator already answers).
 
 **Drawn, click logs `[JUNE_CHARINFO] STUB <name> -> <owner>`, opens nothing (user, 2026-10-28):** Customize (Stage 12), Resonance (Stage 30),
-Achievement (Stage 31), Damage Meter (owner set by C0), Rose's weapon change / lock (Stage 8; June shows them for Rose only).
+Achievement (Stage 31), Rose's weapon change / lock (Stage 8; June shows them for Rose only), Lu/Ciel switching `CIM_SWITCHING` /
+`_ONLY_THIS_DIALOG` (Stage 8; June shows them for Lu/Ciel only, C0). **Damage Meter** is dead in June (C0): drawn hidden as NEW_4 has it, no stub.
+**Lu/Ciel in ported bodies (C0):** unit `+0xe40` reads as 0 (`stand-in: Lu/Ciel not ported`); the 17 `NESI_MINORUNIT_*` slots stay hidden. June's NESI
+renumbering (`NESI_ONEPIECE_FASHION` 20 -> 35, `NESI_END` 21 -> 43, a save migration) and the minor-unit content are Stage 8's.
 
 **Not in this plan:** `CX2UIWatch` (other players' info, `DLG_UI_Watch_Ver1.lua`: Stage 9, user 2026-10-28); the title window itself; the resonance,
 damage-meter and customize windows; the item data behind earring / minime / second ring (Stage 16 unless C0 finds March already has them); the
@@ -150,13 +160,56 @@ live-lines copy (US_SERVICE), not from its `#ifdef`s (`MODIFY_CHARACTER_STAT_INF
 7. Fix C1-C5's lists if the readings move them; add the Done note (<= 60 lines).
 **Gate:** every tsv row has a verdict and an owner; every packet is named or "none (why)"; the asset list is final.
 
+### C0 Done (2026-10-30, Opus 5.5 high; read-only, no code, no build)
+
+**Landed:** `june2017_re/charinfo_functions.tsv` (49 rows: verdict + phase each), funcmap rows `(CharInfo C0)`, the Context / Scope fence / C1-C5 corrections
+above. Method: Ghidra decompiles + a string/call signature per June body, against a `cl /P` live-lines copy of `X2UICharInfo.cpp` (US_SERVICE:
+`SERV_PVP_NEW_SYSTEM`, `PVP_SEASON2`, `SERV_SKILL_NOTE` on; `MODIFY_CHARACTER_STAT_INFO`, `MONSTER_TROPHY` off).
+
+**1. Verdicts.** Same as March (keep): UpdateLevel, ResetResurrectionStoneUI, UpdateItemLevel, GetSlotItemDesc, MouseRButtonUp; ED [I]. MouseDown
+keeps March's call order. Everything else differs or is June-only (tsv). Vtable map anchored on RegisterLuaBind = slot 19: 16 SetNowDragItemReturn,
+17 GetSlotItemDesc, 20 MouseDown, 21 MouseUp, 25 OnFrameMove, 27 DrawSlotMouseOverImage, 54 MouseRButtonUp, 57 OnRClickedItem (the plan had 57 as
+SetNowDragItemReturn), 58 OnDropAnyItem. `32914d70` is dead (only caller `32915760`, which nothing references: whole-image scan).
+**2. Packets.** June has no event-name table (as the quest plan found); none of the six can be named and March has none. `0x4d9`/`0x4da`,
+`0x4fd`/`0x4fe` = Lu/Ciel form (Rose: weapon index) REQ / NOT in village / guild agit; `0x5e3` Rose weapon-lock REQ (4-bool vector); `0x62b`/`0x62c`/`0x62d`
+customize list REQ / ACK / NOT. No emulator handler; none needed (all are stubs). Unit `+0xe40` = Lu/Ciel form byte (1 = Ciel; setter `3234b8c0`
+refreshes the inventory; equip lookups `3234fa70`/`3234fb00` test it for item group 2/3, type 10 only); `+0xe50` = Rose's weapon index (setter
+`3234dff0`, lock vector `+0xe54`). Unequip-all sends June `0x100` via `32916d90` = March's `Handler_EGS_CHANGE_INVENTORY_SLOT_REQ` (answered).
+**3. Damage meter.** Nobody handles 10019: CharInfo's byte map `3291df50` sends it to default, no other June compare of 0x2723 is a CIM, no C++
+names `Button_DamageLog` (hidden in NEW_4). Owner: none; drawn hidden, no stub.
+**4. Dialog.** `luabind check DLG_UI_CHARACTER_NEW_4`: 45 methods, 0 unbound, PASS. March's C++ reads 13 controls NEW_4 lacks; all are NULL-checked
+(Accuracy / Evade rows go through `SetStatInfoStatic`, whose miss is a no-op in US_SERVICE; the rest are other dialogs or dead flags). 43 STR_IDs, all
+in the live `StringID_def` with June's values. Textures: 22 sheets, 33 identical, 1 new `.TET`, 9 replaced (list in C1); every replaced TET only adds
+keys (March's `DLG_UI_Title04.TET` lacks the 7 keys the plan named). NEW_4 names 22 enum members the live `Enum.lua` lacks (C1 list).
+**5. Lua.** `SocketOptionForm.lua` (data036, June bytecode, not core-list) already holds all 145 `Calculate*` functions, decompile-equal to June.
+Lead (Stage 33): `X2GameUnit.cpp:15916` / `:15992` / `:2473`, `X2SocketItem.cpp:1178` still say March lacks June's curves.
+**6. Slots.** `EP_AC_MINIME` / `EARRING` / `RING2` = March's `EP_AC_TEMP2-4` (26-28, same values); `item.kim` has 475 / 305 / 0 items there, remapped to
+FACE1/FACE2 by `JUNE_KIM_MINIME_REMAP` (Stage 16 removes it): the slots draw empty until then. `NESI_MINORUNIT_*` are Lu/Ciel's second body.
+**Decision (mine, user may overrule):** keep March's NESI numbering. June's `NESI_MINORUNIT_DEFENCE_HAIR_FASHION = 20` is March's
+`NESI_ONEPIECE_FASHION`, the equipped-bag index in every save; June's renumber (ONEPIECE 35, END 43) needs a save migration and only matters to Lu/Ciel.
+So C1 registers every June name but that one, and C2 hides minor-unit slots by their `IS_FOR_MINOR_UNIT` flag (stand-in), not by June's ids
+(`32e22ce0` would hide the onepiece slot at 20). Stage 8 owns the renumber.
+**7. Plan moves.** Switching leaves C5 for a Stage 8 stub (Lu/Ciel only, like Rose's weapon change); C5 keeps unequip-all with no new packet or DB
+column; C2 takes the switching view `32912c50` (SetShow calls it) and the slot hide; C4 gains OnFrameMove and `3291d360`, loses `32914d70`.
+
+**Drift (routed in this commit):** Stage 8 (Lu/Ciel switching UI + `+0xe40`, the four form packets, NESI renumber, minor-unit slot content, Rose's
+`0x5e3`); Stage 9 (Watch's light branch `328883b0` of `32150e30`); Stage 12 (customize light branch `32d76da0`, CharInfo's `0x62b`-`0x62d`);
+MagicalCloset light `32d9c150` with the closet window (Stage 9, no owner yet); Stage 33 (the stale SocketOptionForm comments above).
+**Open questions:** none blocking. The NESI decision above is the one to overrule before C1.
+
 ## Phase C1 - June's dialog, textures, ids, stubs (Sonnet 5.5, high)
 
 **Depends on:** C0. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_DLG`.
-- `luasrc.py adopt-june DLG_UI_CHARACTER_NEW_4.lua` (+ June's same-name `DLG_UI_CHARACTER*` files, per C0); `kom.py stage-june` the C0 texture list.
-- `Enum.lua`: CIM 10007-10024 and `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG` with June's names and values, then `luasrc.py refresh`. `X2UICharInfo.h`: the same CIM members.
+- `luasrc.py adopt-june` (data034): `DLG_UI_CHARACTER_NEW_4.lua`, `_NEW_3.lua` (new), `_NEW_2.lua`, `_NEW.lua`, `DLG_UI_CHARACTER.lua` (replace; C0).
+- `kom.py stage-june` (C0 list, every other NEW_4 sheet is already identical): new `DLG_UI_Common_Texture_PVE_01.TET` (data057); replace
+  `DLG_UI_Button21_NEW.TET/.tga` (data056), `DLG_UI_Common_Texture66_NEW.tga` (data057), `DLG_UI_Title04.TET/.tga` (data063),
+  `DLG_Common_Texture_INT_ALL01.TET/.tga` (datai021), `DLG_UI_Title01_A.TET/.tga` (datai022). Every replaced TET only adds keys.
+- `Enum.lua`: CIM 10007-10024 and `UI_ACHIEVEMENT_SYSTEM_CUSTOM_MSG`; `EP_AC_MINIME` 26 / `EP_AC_EARRING` 27 / `EP_AC_RING2` 28 (beside March's
+  `EP_AC_TEMP2-4`, same values); June's `NESI_AC_*` 37 / 39 / 41 and every `NESI_MINORUNIT_*` except `NESI_MINORUNIT_DEFENCE_HAIR_FASHION` (June 20 =
+  March's `NESI_ONEPIECE_FASHION`: held back, Stage 8; its slot reads `SLOT_ID` 0). Then `luasrc.py refresh`. `X2UICharInfo.h`: the same CIM members.
 - `CreateUICharInfo` builds NEW_4 (March's NEW_2 line in `#else`).
-- `UICustomEventProc`: a case per STUB id logging `[JUNE_CHARINFO] STUB <name> -> <owner>` once per click.
+- `UICustomEventProc`: a case per STUB id (customize, resonance, achievement, Rose's 8, Lu/Ciel's 2) logging `[JUNE_CHARINFO] STUB <name> -> <owner>`
+  once per click. No damage-meter case (C0). NEW_4's minor-unit slots overlap the main ones until C2 hides them: say so in the hand-off.
 - Pack the touched koms; ask before copy.
 **Gate:** U in the village shows June's dialog art; every stub click logs; no `KEM_ERROR` for the dialog; `ledger --check` and `luabind` PASS; no new
 `UNHANDLED` / `EXCEPTION`. (Numbers and new rows are still March's code until C2 / C3: say so in the hand-off.)
@@ -166,7 +219,11 @@ live-lines copy (US_SERVICE), not from its `#ifdef`s (`MODIFY_CHARACTER_STAT_INF
 **Depends on:** C1. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_SHOW`.
 June's whole bodies: SetShow `3291df90` (T6c icon kept), SetTitle `32915100`, level / ED / stone (`32914ca0` / `32915490` / `32915550`), ResetNowEquipUI +
 item level (`329146d0` / `32914440`), UICustomEventProc `3291db60` (title-manager pre-forward; March's PROFILE / PASSWORD bodies in `#else`), UIServerEventProc
-`32915080`. Resonance buttons and the PvE record take June's absent-value default (resonance off; C0 says what the PvE record reads offline).
+`32915080`. Resonance buttons and the PvE record take June's absent-value default (resonance off; the PvE record reads June UnitData members March
+lacks: 0 wins, grade hidden). C0: level / ED / stone / item level are the same as March (keep); UIServerEventProc only parses the customize ACKs, so March's empty
+body stays. SetShow's switching view `32912c50` comes here (ctor members `+0x25a..+0x268` too), with the per-slot hide `32e22ce0` as a labelled stand-in
+that hides by the slot's `IS_FOR_MINOR_UNIT` (new `CX2SlotItem` field) instead of June's NESI ids, which clash with March's numbering; adds
+`X2SlotItem.{h,cpp}` to Touches.
 **Gate:** the header and equipment match June's layout in game; the radio toggles; title opens; log clean.
 
 ## Phase C3 - Stat panels and the socket total (Opus 5.5, high)
@@ -175,15 +232,19 @@ item level (`329146d0` / `32914440`), UICustomEventProc `3291db60` (title-manage
 ResetStat `3291cfb0` / `3291d2e0`, `32913460`, `32913df0`, basic `32915ab0`, option `32919430` (13 rows), resistances `32916160`, opacity `32915620`, the Lua
 callers `3291eb50` / `3291f0c0`-`3291f960` / `32920210`, and the socket total `3291ba40` / `3291cee0` / `3291b4b0` (S7p's brief `kickoffs/skill-system-core/S7p.md`
 is the reading list for it). Add the rows to Stage 33's map (`june2017_re/statcalc/`, or a note in the Stage 33 section if the map does not exist yet) as
-"display: June (CharInfo C3)".
+"display: June (CharInfo C3)". C0: add EquipChanged `3291d2e0` and UpdateOptionStatFromSpecialSkill `32912a90`; `SocketOptionForm.lua` (data036) is already
+June's with all 145 curve functions (no Lua work); ResetStat's socket group and UpdateResistanceStatUI's `GetEnchantStat` 4th argument (June `32358df0`) read
+the Lu/Ciel form (stand-in 0): C3 decides whether March's 3-argument `GetEnchantStat` is June's namesake at form 0 or a `june_march_divergent.tsv` row.
 **Gate:** the 13 option rows and resistances show; PvE / PvP switch changes numbers; a `_DEBUG` line per refresh prints the inputs and each printed value
 (retired by the review); log clean.
 
 ## Phase C4 - Unit viewer, light, slots (Sonnet 5.5, high)
 
 **Depends on:** C3 (same file). **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_VIEW`.
-MsgProc `3291d390`, UnitHandling `32912d90`, viewer `329148d0` (and `32914d70` if C0 places it), light `329142a0` + UI manager `32150e30`, switching view
-`32912c50`, and the slot paths: `32917080`, `32918410`, `32917fd0`, `329128e0`, `32913b90`, `32916810`, `3291d830`, `3291d9f0`.
+MsgProc `3291d390` (switching click: Lu/Ciel only, stand-in), UnitHandling `32912d90`, OnFrameMove `32914380`, viewer `329148d0` + `3291d360`, light
+`329142a0` + UI manager `32150e30` (CharInfo branch; its Custom / MagicalCloset / Watch branches belong to their windows), and the slot paths (C0 map):
+MouseUp `32917080`, OnDropAnyItem `32918410`, OnRClickedItem `32917fd0`, DrawSlotMouseOverImage `32913b90`, MouseDown `3291d830`, SetNowDragItemReturn
+`3291d9f0`. MouseRButtonUp `329128e0` and GetSlotItemDesc `32916810` are the same as March (keep). `32914d70` is dead in June (not ported).
 **Gate:** rotate / zoom the model, light on / off, drag-equip, right-click unequip, tooltips; log clean.
 **Add-on (moved from june-march-divergence D1-3g, user 2026-10-29, scope rule):** the viewer's attribute-enchant family, June's two handle lists
 (fire `+0xd90`, hand `+0xda0`) and the ~18 functions that read them. Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT`, brief `kickoffs/june-charinfo/C4-enchant.md`.
@@ -192,11 +253,10 @@ Gate adds: the model in the U window shows the weapon's attribute sparks, none w
 ## Phase C5 - Actions that send packets (Sonnet 5.5, high)
 
 **Depends on:** C4. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS`.
-CIM_SWITCHING (unit `+0xe40`, packets per C0) and unequip-all `32918c70`; the emulator handlers in `X2Lib/Offline/Handlers_*.cpp` and any `X2OfflineDB`
-column the switch state needs (schema step, forward migration). June-only wire ids are added client-side under the flag (offline-only rule;
-`CommonPacket.h` flags also in `ServerDefine.h` + `flagcheck.py` `SECOND_HOMES`).
-**Gate:** switching toggles and survives relog; unequip-all moves every item to the bag (and refuses with a full bag as June does); `offline_packets.log`
-shows the packets `HANDLED`.
+Unequip-all `32918c70` (`CIM_ALL_EQUIPPED_ITEM_RELEASE`): per equipped item, the first empty bag slot, then `32916d90` = March's
+`Handler_EGS_CHANGE_INVENTORY_SLOT_REQ` (already answered offline); no new wire id, no `X2OfflineDB` column. C0 moved switching (unit `+0xe40`, `0x4d9` /
+`0x4fd`) to Stage 8 (Lu/Ciel only); C1 stubs it.
+**Gate:** unequip-all moves every item to the bag (and refuses with a full bag as June does); `offline_packets.log` shows the slot-change REQs `HANDLED`.
 
 ## Review (Opus 5.5, high)
 
