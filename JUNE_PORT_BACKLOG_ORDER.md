@@ -73,6 +73,7 @@ The user's remaining backlog, in the order they listed it:
 | 33 | June damage and character stat calculation *(added 2026-10-27, user)* | - (the Aisha instant-MP bug) | Not a backlog item but a correctness gap: June's stat and damage formulas were ported piecemeal, by the buff, socket, effect and skill plans. Where a June seed or refresh now sits beside a March helper, the result is neither game's number: one ranged hit gave +6722 MP. This stage maps every stat and damage formula as June / March / mixed and replaces each mixed one with June's whole calculation. Its code runs after the character ports (Stages 7 and 8), so every character's damage can be tested on June's formulas (user, 2026-10-27). A mixed formula that breaks play before then is still fixed at once (*Scope*). Brief `kickoffs/june-backlog/stage33-plan.md`. |
 | 34 | June character info window *(added 2026-10-28, user: split out of Stage 9)* | - (user request) | The U-key window as June draws it: June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's `CX2UICharInfo` bodies (header, equipment, the stat panels with the socket total, the viewer, light, switching, unequip-all). Buttons for missing systems are drawn and log a `STUB` click. Planned in full as `JUNE_CHARINFO_PHASES.md` (C0-C5, review, Z); runs now, outside the Stage 9 order. |
 | 36 | June extra-damage cases *(added 2026-10-29, user: moved out of june-march-divergence D1-2c)* | - (found by june-march-divergence D1-2b) | `Process_ExtraDamage` cases March lacks: the black-out screens (`EDT_BLIND`, `EDT_AMUSEMENT_ITEM_DARK_CLOUD`) and the timed per-unit mark list `CX2GameUnit +0x3b84`. Cosmetic / minor; `EDT_BLIND` is reachable offline. Unplanned. |
+| 37 | June HUD: buff icon row and quick slot *(added 2026-10-31, user: split out of Stage 9)* | - (user request) | June's buff / debuff icon row anchored at the top right (`DLG_BuffManager.lua`'s dummy positions, which March ignores) with a stack counter on each icon, replacing the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (deleted); and June's consumable quick slot at the bottom left (`DLG_UI_Quick_Slot.lua`, no wide-bar lift). Planned in full as `JUNE_HUD_PHASES.md` (H0-H4, review, Z); runs now, outside the Stage 9 order. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -536,9 +537,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - What is left in `SetShowUI`:
     - the shop-open early return (`g_pData+0x290 +0xd8`);
     - the state switch around the now-state call (vslot `0x104`);
-    - the quick-slot terms `3266d250` and training -> hidden;
+    - the quick-slot terms `3266d250` and training -> hidden (**moved to Stage 37**, `june-hud` H4, 2026-10-31);
     - the minimap call (`32481fa0` / `+4 == 6`);
-    - the gage-manager cooltime UI (`324943c0`, `32489e30`, `3248ac30`);
+    - the gage-manager cooltime UI (`324943c0`, `32489e30`, `3248ac30`) (**Stage 37** `june-hud` H0 decides whether it is the quick slot's; what it does not take stays here);
     - `32150f50`, `32151980`, `32457e70` / `32457b40` and `32676150` / `326765f0`;
     - the guide-manager step gates on the skill and riding slots (`+0xe4 < 3`), which need the June-only `CX2TutorialGuideManager`.
     - the tutorial key mask `320708f0( InputData&, guide step +0xe4, unit +0xaf0 value )` (zeroes the held keys per step; step -1 does nothing), called by `CX2GUUser::InitInpuDataProcess` `31fcea10` and Eve's `32978e80` (handed here by char-eve CH1l, 2026-10-26; the Eve port leaves the call out).
@@ -1400,6 +1401,26 @@ out of the divergence plan (no `replace` row, nothing blocks play), so they are 
 - **Black-out screens:** `EDT_BLIND` (`@32035ff7`) and `EDT_AMUSEMENT_ITEM_DARK_CLOUD` (`@320392cd`), their user state, and `DyingStart`'s cleanup (a stand-in comment today).
 - **The timed mark list** `CX2GameUnit +0x3b84`, its unit effect set `+0x41ec` and the NPC side `327995c0`.
 - **Brief:** `kickoffs/june-backlog/stage36-extra-damage.md` (`/x2-phase new-plan june-extra-damage`). **Depends on:** nothing. Priority: scattered systems.
+
+### Stage 37: June HUD, buff icon row and quick slot (user, 2026-10-31; split out of Stage 9)
+
+The user asked for June's buff display with its counter (top right) and the consumable quick slot (bottom left), and for the 2026-08-25 buff-duration mod
+to go. Plan `JUNE_HUD_PHASES.md` (`june-hud`, H0-H4, review, Z; evidence `june2017_re/hud_functions.tsv`, funcmap rows `(HUD H<n>)`).
+- **Buff row:**
+  - H1 deletes `SERV_IRUHADEV_BUFF_DURATION_TEXT` (user: delete the code);
+  - H2 ports June's `UpdateBuffIcon` `32e67050` (anchor 993 via the dummy positions, June's state list) and `SetBuffIconStatic` `32e661d0` (two strings);
+  - H3 ports the counter (`32e64530`, `32e60480`, `32489810`, `3236a430`; STR_ID_30715);
+  - other units' icons do what June does, even if that is nothing.
+- **Quick slot (H4):**
+  - June's `DLG_UI_Quick_Slot.lua` (adopt-june) and textures;
+  - ctor `3294dd50`, the icon fills `3294d320` / `32950060` (711 / 686, no `MOVE_BAR_Y`), the rest of `SetEnable` `3294c460`, and `3266d250`;
+  - the cooltime trio if H0 takes it;
+  - `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` stays (user).
+- **Stays Stage 9:**
+  - the Amusement block's mode if it needs a missing system (drawn as June leaves it, `STUB` log);
+  - the rest of `SetShowUI`;
+  - the PvP item bar `329515f0` (no PvP offline).
+- **Depends on:** nothing. Start: `/x2-phase june-hud H0` (Opus 5.5 high).
 
 ## Open decisions that gate stages
 
