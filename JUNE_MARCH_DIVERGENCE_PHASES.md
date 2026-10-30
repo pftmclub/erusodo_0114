@@ -1491,8 +1491,15 @@ Kickoff `kickoffs/june-march-divergence/Smoke.md`: it merges every Done note's "
 unported classes are not played and their checks are listed as "not covered"; dungeon / camera, UI / quests), the user plays it, `logs.py` reads `ErrorLog.txt` and the offline logs, a failure
 traced to a plan flag is fixed under that flag, anything else is routed by the backlog scope rule. It writes "Phase S Done". D2 review depends on it.
 
-### Phase S, in progress (2026-10-30, Opus 5.5)
+### Phase S Done (2026-10-30, Opus 5.5)
 
+- **Result: all four parts pass** on md5 `ed49cfdf` (user, 2026-10-30, run 13:44-13:59). Part 1 ArmeDW (17 checks: +11 / +13 / attribute glows, riding
+  pose, Luto one-piece, skill tree, dash ZZZ no super armour, cool times, Fate Space sub-cameras + hyper item, Magical Makeup collision, hyper end, big
+  head, hidden UI, boss focus, result, death); Part 2 EveSeraph (both-drone glow, hand sparks, Luto, Z hits, B-slots, Kugelblitz cameras, Cheat Code:
+  Electro cool time, death); Part 3 Iivue (quick-quest window, quest window tabs / detail / Remind / Skip Epic, NPC faces, +8 grey, key 39162, map LOW,
+  Henir tooltip); Part 4 ArmeEM (frozen NPC takes no state change). Logs: `GAME     unitUID=53 died (killer NPC UID=1000007)`, `unitUID=60 died
+  (killer NPC UID=1000021)`; 0 EXCEPTION, no crash bundle; IGNORED = `EGS_ADMIN_SERVER_STATUS_REQ` (ignore list), UNHANDLED = `E_DISABLE_HB_CHECK_REQ`
+  x5 (pre-existing emulator gap, not this plan).
 - **Save setup** (backup `db_backup\els_db_20261030_105201_pre_phaseS_smoke_before.sql`): ArmeDW (53) staff 1669 -> +11, bag 1953 (+13) and 1954 (+10, attrib 4/5/6),
   riding pet row (id 7); EveSeraph (60) wears Void Drone 1866 (+11, attrib 4/5/6) and armour 1867-1870. Quest-UI checks on Iivue (19), freeze on ArmeEM (51).
 - **Fix 1, crash leaving a field with Aisha** (`~CX2GUArme_VioletMage` -> `~CKTDXDeviceHolder` -> `~CKTDXDeviceData`, AV in msvcr100; CrashRpt `X2_D2B.tmp`):

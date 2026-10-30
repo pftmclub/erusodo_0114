@@ -11,14 +11,14 @@
 ## Read first
 
 ```sh
-python tools/docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md "Context" "Rules" "Starting context" "Phase D2 - The gate and the wiring (Sonnet 5.5, high)" "Phase D2 - Review and close (Opus 5.5, high)"
+python tools/docsection.py JUNE_MARCH_DIVERGENCE_PHASES.md "Context" "Rules" "Starting context" "Phase D2 - The gate and the wiring (Sonnet 5.5, high)" "Phase D2 - Review and close (Opus 5.5, high)" "Phase S Done (2026-10-30, Opus 5.5)"
 ```
 
 and D2's Done note, `tools/data/june_diverge_allow.tsv`.
 
 ## Task
 
-Review D2 and read Phase S's Done note (every smoke failure fixed or routed): `junediverge.py --selftest` and `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason, the wiring.
+Review D2 and read Phase S's Done note (every smoke failure fixed or routed; check fix 1 `OpenSoundInBackground` and fix 2's collision stand-in against June, and triage its lead: June's `PlaySound` adds to the close list with no `bLoop == false` test): `junediverge.py --selftest` and `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason, the wiring.
 Then close the plan ("Phase D2 - Review and close"): `MODS.md`, backlog Stage 35 closing note, STATUS, and the standing-rule additions
 the section names (CLAUDE.md gate + table rule, backlog "Standing rules", `kickoffs/TEMPLATE.md`, memory).
 
