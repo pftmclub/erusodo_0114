@@ -350,6 +350,40 @@ click switching) + `3 of 3` (narrow: CharWindowCharLightSet, Light_On, Light_Off
 drag and eases back; dragging an inventory weapon / armor over the window frames the real slot; drag-equip, right-click unequip and the tooltips work; log lines
 `[JUNE_CHARINFO] VIEW light dark N` at each open and click. **Open questions:** none. Watch for one June quirk (JUNE_BUGS 484): a tooltip can stay when the mouse leaves.
 
+### C4 add-on Done (2026-10-30, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT`)
+
+**Landed (`X2UnitViewerUI.{h,cpp}`, `Always.h`; June's body inside March's function, March's in `#else`):** the seven scalar attribute-enchant handles
+become June's two lists `m_vecSeqWeaponFire` (`+0xd90`) and `m_vecSeqWeaponWind` (`+0xda0`, the hand sparks); ctor `31fab020` (clear + reserve 3 / 4).
+- **Creators** `31f9d1f0` / `31f9d3b0`: variadic `( int iNameCount, ... )`, one handle per name, emit 0, push_back (whole definitions swapped: the parameter list changes).
+- **EDT switches** `31f9ea20` / `31f9eeb0` / `31f9d570`: case tables read by emulating each switch over every June `EDT_ENCHANT_*` value (unicorn, sinks on the
+  creators). Weapon names are March's; June adds the `TRIPPLE_*` types to the element groups, `DOUBLE_<elem>_DOUBLE_*` / `TRIPPLE_<elem>_*` to the master groups and
+  `QUADRA_<elem>_MASTER` -> `Property04_M_*`. The hand switch is new: `Attribute_Piercing / Light / Dark` `_Ring_1` + `_Particle` (single), `Ring_2` / `4` + `Particle`
+  (master or double), `Ring_1` / `2` / `4` + `Particle` (double master, triple), `Ring_1`-`4` + `Particle` (`QUADRA_*_MASTER`). All 21 names are already in data036's
+  `UIMajorParticle.txt`: nothing staged.
+- **Delete** `31f9da10` (destroy both lists, clear). **Hand sparks** `31f961a0`: five rates per class from the disassembly (floats 10 / 15 / 30 / 60 / 25): Elsword,
+  Aisha, Raven, Elesis `Dummy1_Rhand` 10/30/60/25/10; Rena `Dummy2_Lhand` 15/30/60/25/15; Eve `Dummy2_Lhand` 10/10/10/25/10; Chung `Bip01_R_Hand` 10/30/60/25/10
+  (March: `Dummy1_Rhand`); Ara `Dummy3_Weapon`, Add `Weapon02` 15/30/60/25/15. Rate i goes to handle i.
+- **Frame moves** Eve / Ara / Add / Bow `31f92de0` / `31f92ec0` / `31f92f70` / `31f932e0` (list [0], March's bones) and Sword `31f9daf0` (index 0 centre, 1 trace end,
+  2 trace start, 3+ centre): the hide test is `CanShowWeaponEffect` (`31f91230`, D1-3c) instead of March's riding / `FIX_UPGRADE_WEAPON_PARTICLE` test.
+- **Draw** `31fa00b0` and **`SetShowAttribEnchant`** `31f91f90`: loops over both lists, the hand list without the z test, as March.
+- **Compared equal, no edit:** `OnFrameMove` `31fa8ce0` and `SetUnit` `31faa6f0` enchant parts (only June-only types 10-12 differ), dtor `31fab920`.
+- **Kickoff corrections:** `31f97960` is June's vslot 0x10 post-effect draw (engine R4a / R4i), not March's `Render_DrawForAvartaScreenCapture`; that one is under
+  `AVATAR_IMAGE_TEST` (off) with no June twin found, so it got March's draw over the lists only to compile if the flag returns. The `#error` names
+  `..._DIVERGE_UPGRADE_WEAPON_PARTICLE` (where the viewer's `CanShowWeaponEffect` lives) and `..._JUNE_ENCHANT_PARITY` (the triple / quadra names), both proved
+  DEFINED at the end of `Always.h` and after `X2Lib/StdAfx.h` by `cl /EP`.
+- **Routed:** types 10-12 (viewer at-hand cases, frame moves `31f93050` / `31f93200` / `31f940b0`, Rose -> ForBow in SetUnit): checklist 7as, updated.
+- **June bug kept:** JUNE_BUGS 486 (sword sparks: a missing trace frame is looked up again only while the fire list is empty).
+- **Bookkeeping:** funcmap rows `(CharInfo S34)` x10; `MODS.md` entry; checklist 7as.
+
+**Gates:** `flagcheck JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT --worktree --files`: RESULT PASS (`X2UnitViewerUI.cpp` +727, `.h` +10, `Always.h` DEFINE +13; 0 deleted,
+0 non-ASCII, 0 EOL mismatch). `junediverge --check`: RESULT: PASS. `enumscan --check`: 0 A/B rows.
+`DEPLOY OK: X2_offline.exe is 25,863,680 B, dated 2026-10-30 19:48:24, md5 54293f3bbb9a43024ecd07e536c2f026, equal to X2/US_SERVICE/x2.exe (2026-10-30 19:48:17); built at main ef1f3805 + 3 uncommitted code file(s).` (all three are this phase's.)
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 25863680 B, dated 2026-10-30 19:48:24, md5 54293f3bbb9a43024ecd07e536c2f026` (wide: `Attribute_Piercing_Ring_1`, `Attribute_Dark_Ring_3`, `Weapon_Elsword_Property04_M_Fire`, `Bip01_R_Hand`).
+
+**See it in game:** U window with an attribute weapon: the element glow on the weapon (Elsword's sword shows three sequences along the blade) and the
+`Attribute_*_Ring` sparks on the hand; Chung's hand sparks now sit on the right hand bone. The U window always shows them (June's charinfo state skips the riding /
+emotion test); a village viewer hides them while riding or during an avatar emotion. No log tag. **Open questions:** none.
+
 ## Phase C5 - Actions that send packets (Sonnet 5.5, high)
 
 **Depends on:** C4. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS`.

@@ -10990,3 +10990,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-charinfo C5: the U-key window's EquipRelease button ( CIM_ALL_EQUIPPED_ITEM_RELEASE, operators only ) runs June 32918c70: every equipped item goes to the next empty bag slot of its inventory tab through March's slot-change REQ. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C4 add-on: the unit viewer's attribute-enchant sparks run June's two handle lists ( fire +0xd90, hand +0xda0 ): variadic creators 31f9d1f0 / 31f9d3b0, EDT switches 31f9ea20 / 31f9eeb0 / 31f9d570 ( June's Attribute_*_Ring_* hand sparks, triple / quadra types ), delete 31f9da10, frame moves 31f961a0 ( Chung on Bip01_R_Hand ) / 31f92de0 / 31f92ec0 / 31f92f70 / 31f932e0 / 31f9daf0 hidden by CanShowWeaponEffect, draw 31fa00b0, SetShowAttribEnchant 31f91f90. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+#if defined( SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE )
+#error SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT needs SERV_IRUHADEV_JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE ( CX2UnitViewerUI::CanShowWeaponEffect )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+#if defined( SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT ) && !defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY )
+#error SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY ( June EDT_ENCHANT_* values )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+//////////////////////////////////////////////////////////////////////////

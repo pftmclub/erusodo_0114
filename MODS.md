@@ -5516,3 +5516,8 @@ Flag `SERV_IRUHADEV_JUNE_CHARINFO_SHOW` (`Always.h`): `CX2UICharInfo::SetShow`, 
 
 Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW` (`Always.h`): `CX2UICharInfo::OnFrameMove` (no invalidate when the mouse is off the dialog), `UnitHandling` (drag latch), `MsgProc` (mouse-up bookkeeping before the mouse-over test; Lu/Ciel click switching is a logged stub), `DrawSlotMouseOverImage` and `OnDropAnyItem` (minor-unit slots are never the highlighted / drop slot), `OnRClickedItem` and `MouseUp` (no `IsTransformed` test); new `CX2UICharInfo::SetLight` and `CX2UIManager::SetCharWindowDarkBackground` (CIM_LIGHT_ON / OFF, applied again by SetShow). March's code stays in `#else`. No asset changed.
 **Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June character info window: the viewer's attribute-enchant sparks (june-charinfo C4 add-on, 2026-10-30)
+
+Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT` (`Always.h`; `#error` without `..._JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE` or `..._JUNE_ENCHANT_PARITY`): `CX2UnitViewerUI` keeps its attribute-enchant sequences in two lists (`m_vecSeqWeaponFire`, `m_vecSeqWeaponWind`) instead of seven handles. The creators take a count and names, the three EDT switches carry June's triple / quadra types and June's `Attribute_*_Ring_*` hand sparks, the hand sparks use five rates per class (Chung on `Bip01_R_Hand`), and every frame move hides with `CanShowWeaponEffect`. Delete, draw, `SetShowAttribEnchant` and the ctor follow the lists. March's code stays in `#else`. No asset changed: data036's `UIMajorParticle.txt` already has every sequence name.
+**Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

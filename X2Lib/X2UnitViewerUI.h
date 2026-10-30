@@ -223,8 +223,13 @@
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+		void CreateEnchantedWeaponParticleAtWeapon( int iNameCount, ... );	// June 31f9d1f0
+		void CreateEnchantedWeaponParticleAtHand( int iNameCount, ... );	// June 31f9d3b0
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 		void CreateEnchantedWeaponParticleAtWeapon( const WCHAR* pName1, const WCHAR* pName2 = NULL, const WCHAR* pName3 = NULL );
 		void CreateEnchantedWeaponParticleAtHand( const WCHAR* pName1, const WCHAR* pName2 = NULL, const WCHAR* pName3 = NULL, const WCHAR* pName4 = NULL );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 		void ProcessEnchantedWeaponEffectAtHand( CX2Unit::UNIT_TYPE unitType );
 		void InitEnchantedWeaponEffectAtHand();
 
@@ -308,6 +313,10 @@
 		static bool										m_sbShow;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqHandFire;
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+		std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecSeqWeaponFire;	// June +0xd90
+		std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecSeqWeaponWind;	// June +0xda0: the hand sparks
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqWeapon_Fire;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqWeapon_Fire2;
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqWeapon_Fire3;
@@ -316,6 +325,7 @@
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqWeapon_Wind2;
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqWeapon_Wind3;
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqWeapon_Wind4;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 
 #ifdef NEW_CHARACTER_EL
 		// 파이로 나이트 불

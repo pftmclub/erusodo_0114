@@ -82,6 +82,13 @@ CX2UnitViewerUI::CX2UnitViewerUI(void)
 	m_hSeqEnergyBullet3			= INVALID_PARTICLE_SEQUENCE_HANDLE;
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31fab020
+	m_vecSeqWeaponFire.clear();
+	m_vecSeqWeaponFire.reserve( 3 );
+	m_vecSeqWeaponWind.clear();
+	m_vecSeqWeaponWind.reserve( 4 );
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	m_hSeqWeapon_Fire		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqWeapon_Fire2		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqWeapon_Fire3		= INVALID_PARTICLE_SEQUENCE_HANDLE;
@@ -90,6 +97,7 @@ CX2UnitViewerUI::CX2UnitViewerUI(void)
 	m_hSeqWeapon_Wind2		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqWeapon_Wind3		= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqWeapon_Wind4		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 
 
 
@@ -1583,6 +1591,28 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 		}
 #endif //SERV_ADD_LUNATIC_PSYKER
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+		// June 31fa00b0: the fire list, then the hand list without the z test
+		for( UINT i = 0; i < m_vecSeqWeaponFire.size(); ++i )
+		{
+			pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[i] );
+			if( pSeq != NULL )
+			{
+				CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
+				pSeq->OnFrameRender_Draw();
+			}
+		}
+		for( UINT i = 0; i < m_vecSeqWeaponWind.size(); ++i )
+		{
+			pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponWind[i] );
+			if( pSeq != NULL )
+			{
+				CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
+				CKTDGStateManager::PushRenderState( D3DRS_ZENABLE,	FALSE );
+				pSeq->OnFrameRender_Draw();
+			}
+		}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 		pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqWeapon_Fire );
 		if( pSeq != NULL )
 		{	
@@ -1636,6 +1666,7 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 			CKTDGStateManager::PushRenderState( D3DRS_ZENABLE,	FALSE );
 			pSeq->OnFrameRender_Draw();
 		}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE			/// 무기 강화 파티클
 		pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqUpgradeWeapon );
@@ -1864,6 +1895,28 @@ void	CX2UnitViewerUI::Render_DrawForAvartaScreenCapture()
 			pSeq->OnFrameRender_Draw();
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+		// no June twin found ( AVATAR_IMAGE_TEST is off ): March's draw over the lists
+		for( UINT i = 0; i < m_vecSeqWeaponFire.size(); ++i )
+		{
+			pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[i] );
+			if( pSeq != NULL )
+			{
+				CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
+				pSeq->OnFrameRender_Draw();
+			}
+		}
+		for( UINT i = 0; i < m_vecSeqWeaponWind.size(); ++i )
+		{
+			pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponWind[i] );
+			if( pSeq != NULL )
+			{
+				CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
+				CKTDGStateManager::PushRenderState( D3DRS_ZENABLE,	FALSE );
+				pSeq->OnFrameRender_Draw();
+			}
+		}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 		pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqWeapon_Fire );
 		if( pSeq != NULL )
 		{	
@@ -1917,6 +1970,7 @@ void	CX2UnitViewerUI::Render_DrawForAvartaScreenCapture()
 			CKTDGStateManager::PushRenderState( D3DRS_ZENABLE,	FALSE );
 			pSeq->OnFrameRender_Draw();
 		}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	}
 	//}}
 }
@@ -5362,6 +5416,113 @@ void CX2UnitViewerUI::ReplaceEmptyToBasic( CX2Unit::EQIP_POSITION eqipPos, int i
 
 void CX2UnitViewerUI::InitEnchantWeaponEffectForSword()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f9ea20
+	switch( GetEnchantExtraDamageType() )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_Fire", L"Weapon_Elsword_Property01_Fire2", L"Weapon_Elsword_Property01_Fire2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_Ice", L"Weapon_Elsword_Property01_Ice2", L"Weapon_Elsword_Property01_Ice2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON:
+	case CX2DamageManager::EDT_ENCHANT_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_Poison", L"Weapon_Elsword_Property01_Poison2", L"Weapon_Elsword_Property01_Poison2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_M_Fire", L"Weapon_Elsword_Property01_M_Fire2", L"Weapon_Elsword_Property01_M_Fire2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_M_Ice", L"Weapon_Elsword_Property01_M_Ice2", L"Weapon_Elsword_Property01_M_Ice2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property01_M_Poison", L"Weapon_Elsword_Property01_M_Poison2", L"Weapon_Elsword_Property01_M_Poison2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property04_M_Fire", L"Weapon_Elsword_Property04_M_Fire2", L"Weapon_Elsword_Property04_M_Fire2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property04_M_Ice", L"Weapon_Elsword_Property04_M_Ice2", L"Weapon_Elsword_Property04_M_Ice2" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 3, L"Weapon_Elsword_Property04_M_Poison", L"Weapon_Elsword_Property04_M_Poison2", L"Weapon_Elsword_Property04_M_Poison2" );
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	// attribute prefix 에 대한 이펙트 생성
 
 	switch( GetEnchantExtraDamageType() )
@@ -5439,11 +5600,119 @@ void CX2UnitViewerUI::InitEnchantWeaponEffectForSword()
 		} break;
 	}
 	
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 
 void CX2UnitViewerUI::InitEnchantWeaponEffectForBow()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f9eeb0
+	switch( GetEnchantExtraDamageType() )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_Fire" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_Ice" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON:
+	case CX2DamageManager::EDT_ENCHANT_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_Poison" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_M_Fire" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_M_Ice" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property01_M_Poison" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property04_M_Fire" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property04_M_Ice" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtWeapon( 1, L"Weapon_Lire_Property04_M_Poison" );
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	// attribute prefix 에 대한 이펙트 생성
 
 	switch( GetEnchantExtraDamageType() )
@@ -5510,12 +5779,48 @@ void CX2UnitViewerUI::InitEnchantWeaponEffectForBow()
 		} break; 
 	}
 	
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+void CX2UnitViewerUI::CreateEnchantedWeaponParticleAtWeapon( int iNameCount, ... )
+{
+	// June 31f9d1f0
+	va_list vaNames;
+	va_start( vaNames, iNameCount );
+	for( int i = 0; i < iNameCount; ++i )
+	{
+		const WCHAR* pName = va_arg( vaNames, const WCHAR* );
+		CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = g_pData->GetUIMajorParticle()->CreateSequenceHandle( NULL, pName, 0,0,0 );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( hSeq );
+		if( NULL != pSeq )
+			pSeq->SetEmitRate( 0, 0 );
+		m_vecSeqWeaponFire.push_back( hSeq );
+	}
+	va_end( vaNames );
+}
+
+void CX2UnitViewerUI::CreateEnchantedWeaponParticleAtHand( int iNameCount, ... )
+{
+	// June 31f9d3b0
+	va_list vaNames;
+	va_start( vaNames, iNameCount );
+	for( int i = 0; i < iNameCount; ++i )
+	{
+		const WCHAR* pName = va_arg( vaNames, const WCHAR* );
+		CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = g_pData->GetUIMajorParticle()->CreateSequenceHandle( NULL, pName, 0,0,0 );
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( hSeq );
+		if( NULL != pSeq )
+			pSeq->SetEmitRate( 0, 0 );
+		m_vecSeqWeaponWind.push_back( hSeq );
+	}
+	va_end( vaNames );
+}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 void CX2UnitViewerUI::CreateEnchantedWeaponParticleAtWeapon( const WCHAR* pName1, const WCHAR* pName2 /*= NULL*/, const WCHAR* pName3 /*= NULL*/ )
 {
 	if( NULL != pName1 )
@@ -5621,8 +5926,128 @@ void CX2UnitViewerUI::CreateEnchantedWeaponParticleAtHand( const WCHAR* pName1, 
 
 
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 void CX2UnitViewerUI::InitEnchantedWeaponEffectAtHand()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f9d570
+	switch( GetEnchantExtraDamageType() )
+	{
+	case CX2DamageManager::EDT_ENCHANT_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+		{
+			CreateEnchantedWeaponParticleAtHand( 2, L"Attribute_Piercing_Ring_1", L"Attribute_Piercing_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+		{
+			CreateEnchantedWeaponParticleAtHand( 2, L"Attribute_Light_Ring_1", L"Attribute_Light_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtHand( 2, L"Attribute_Dark_Ring_1", L"Attribute_Dark_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_MASTER_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+		{
+			CreateEnchantedWeaponParticleAtHand( 3, L"Attribute_Piercing_Ring_2", L"Attribute_Piercing_Ring_4", L"Attribute_Piercing_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+		{
+			CreateEnchantedWeaponParticleAtHand( 3, L"Attribute_Light_Ring_2", L"Attribute_Light_Ring_4", L"Attribute_Light_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_MASTER_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+		{
+			CreateEnchantedWeaponParticleAtHand( 3, L"Attribute_Dark_Ring_2", L"Attribute_Dark_Ring_4", L"Attribute_Dark_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+		{
+			CreateEnchantedWeaponParticleAtHand( 4, L"Attribute_Piercing_Ring_1", L"Attribute_Piercing_Ring_2", L"Attribute_Piercing_Ring_4", L"Attribute_Piercing_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+		{
+			CreateEnchantedWeaponParticleAtHand( 4, L"Attribute_Light_Ring_1", L"Attribute_Light_Ring_2", L"Attribute_Light_Ring_4", L"Attribute_Light_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_MASTER_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+		{
+			CreateEnchantedWeaponParticleAtHand( 4, L"Attribute_Dark_Ring_1", L"Attribute_Dark_Ring_2", L"Attribute_Dark_Ring_4", L"Attribute_Dark_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_PIERCING_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtHand( 5, L"Attribute_Piercing_Ring_1", L"Attribute_Piercing_Ring_2", L"Attribute_Piercing_Ring_3", L"Attribute_Piercing_Ring_4", L"Attribute_Piercing_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SHOCK_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtHand( 5, L"Attribute_Light_Ring_1", L"Attribute_Light_Ring_2", L"Attribute_Light_Ring_3", L"Attribute_Light_Ring_4", L"Attribute_Light_Particle" );
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SNATCH_MASTER:
+		{
+			CreateEnchantedWeaponParticleAtHand( 5, L"Attribute_Dark_Ring_1", L"Attribute_Dark_Ring_2", L"Attribute_Dark_Ring_3", L"Attribute_Dark_Ring_4", L"Attribute_Dark_Particle" );
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	// attribute postfix 에 대한 이펙트 생성
 
 	switch( GetEnchantExtraDamageType() )
@@ -5722,11 +6147,26 @@ void CX2UnitViewerUI::InitEnchantedWeaponEffectAtHand()
 				L"Triple_Weapon_Property_Curse01" );
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 
 void CX2UnitViewerUI::DeleteEnchantWeaponEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f9da10
+	if( NULL != g_pData &&
+		NULL != g_pData->GetUIMajorParticle() )
+	{
+		for( UINT i = 0; i < m_vecSeqWeaponFire.size(); ++i )
+			g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_vecSeqWeaponFire[i] );
+		m_vecSeqWeaponFire.clear();
+
+		for( UINT i = 0; i < m_vecSeqWeaponWind.size(); ++i )
+			g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_vecSeqWeaponWind[i] );
+		m_vecSeqWeaponWind.clear();
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	if( NULL != g_pData &&
 		NULL != g_pData->GetUIMajorParticle() )
 	{
@@ -5738,6 +6178,7 @@ void CX2UnitViewerUI::DeleteEnchantWeaponEffect()
 		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqWeapon_Wind3 );
 		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqWeapon_Wind4 );
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 
@@ -5745,6 +6186,106 @@ void CX2UnitViewerUI::DeleteEnchantWeaponEffect()
 
 void CX2UnitViewerUI::ProcessEnchantedWeaponEffectAtHand( CX2Unit::UNIT_TYPE unitType )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	KTDXPROFILE();
+	// June 31f961a0
+	if( true == m_vecSeqWeaponWind.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponWind[0] )
+		return;
+
+	if( m_pXSkinAnim == NULL )
+		return;
+
+	D3DXVECTOR3 vHandPos( 0, 0, 0 );
+	std::vector<float> vecEmitRate;
+	switch( unitType )
+	{
+	case CX2Unit::UT_ELSWORD:
+	case CX2Unit::UT_ARME:
+	case CX2Unit::UT_RAVEN:
+	case CX2Unit::UT_ELESIS:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			vecEmitRate.push_back( 10.f );
+			vecEmitRate.push_back( 30.f );
+			vecEmitRate.push_back( 60.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 10.f );
+		} break;
+
+	case CX2Unit::UT_LIRE:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			vecEmitRate.push_back( 15.f );
+			vecEmitRate.push_back( 30.f );
+			vecEmitRate.push_back( 60.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 15.f );
+		} break;
+
+	case CX2Unit::UT_EVE:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			vecEmitRate.push_back( 10.f );
+			vecEmitRate.push_back( 10.f );
+			vecEmitRate.push_back( 10.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 10.f );
+		} break;
+
+	case CX2Unit::UT_CHUNG:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_R_Hand" );
+			vecEmitRate.push_back( 10.f );
+			vecEmitRate.push_back( 30.f );
+			vecEmitRate.push_back( 60.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 10.f );
+		} break;
+
+	case CX2Unit::UT_ARA:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy3_Weapon" );
+			vecEmitRate.push_back( 15.f );
+			vecEmitRate.push_back( 30.f );
+			vecEmitRate.push_back( 60.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 15.f );
+		} break;
+
+	case CX2Unit::UT_ADD:
+		{
+			vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Weapon02" );
+			vecEmitRate.push_back( 15.f );
+			vecEmitRate.push_back( 30.f );
+			vecEmitRate.push_back( 60.f );
+			vecEmitRate.push_back( 25.f );
+			vecEmitRate.push_back( 15.f );
+		} break;
+
+	// UT_LUCIEL / UT_ROSE / UT_AIN cases: checklist 7as
+	default:
+		break;
+	}
+
+	for( UINT i = 0; i < m_vecSeqWeaponWind.size(); ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponWind[i] );
+		if( NULL == pSeq )
+			continue;
+
+		if( true == CanShowWeaponEffect() )
+		{
+			pSeq->SetPosition( vHandPos );
+			if( i < vecEmitRate.size() )
+				pSeq->SetEmitRate( vecEmitRate[i], vecEmitRate[i] );
+		}
+		else
+		{
+			pSeq->ClearAllParticle();
+			pSeq->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	KTDXPROFILE();
 
 
@@ -5888,12 +6429,36 @@ void CX2UnitViewerUI::ProcessEnchantedWeaponEffectAtHand( CX2Unit::UNIT_TYPE uni
 
 	}
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 
 
 void CX2UnitViewerUI::ProcessEnchantWeaponEffectForEve()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f92de0
+	if( true == m_vecSeqWeaponFire.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[0] )
+		return;
+
+	if( m_pXSkinAnim == NULL )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqWeaponFire1 = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[0] );
+	if ( pSeqWeaponFire1 != NULL )
+	{
+		if( true == CanShowWeaponEffect() )
+		{
+			D3DXVECTOR3 vWeaponPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			pSeqWeaponFire1->SetPosition( vWeaponPos );
+			pSeqWeaponFire1->SetEmitRate( 10, 10 );
+		}
+		else
+		{
+			pSeqWeaponFire1->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqWeapon_Fire )
 		return;
 
@@ -5926,11 +6491,36 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForEve()
 			pSeqWeaponFire1->SetEmitRate( 0, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 #ifdef ARA_CHARACTER_BASE
 void CX2UnitViewerUI::ProcessEnchantWeaponEffectForAra()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f92ec0
+	if( true == m_vecSeqWeaponFire.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[0] )
+		return;
+
+	if( m_pXSkinAnim == NULL )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqWeaponFire1 = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[0] );
+	if ( pSeqWeaponFire1 != NULL )
+	{
+		if( true == CanShowWeaponEffect() )
+		{
+			D3DXVECTOR3 vWeaponPos = D3DXVECTOR3( 0, 0, 0 );
+			GetFramePos( &vWeaponPos, m_pFrame_WEAPON_BONE[0] );
+			pSeqWeaponFire1->SetPosition( vWeaponPos );
+			pSeqWeaponFire1->SetEmitRate( 10, 10 );
+		}
+		else
+		{
+			pSeqWeaponFire1->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqWeapon_Fire )
 		return;
 
@@ -5965,6 +6555,7 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForAra()
 			pSeqWeaponFire1->SetEmitRate( 0, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 #endif
 
@@ -5972,6 +6563,29 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForAra()
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
 void CX2UnitViewerUI::ProcessEnchantWeaponEffectForAdd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f92f70
+	if( true == m_vecSeqWeaponFire.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[0] )
+		return;
+
+	if( m_pXSkinAnim == NULL )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqWeaponFire1 = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[0] );
+	if ( pSeqWeaponFire1 != NULL )
+	{
+		if( true == CanShowWeaponEffect() )
+		{
+			D3DXVECTOR3 vWeaponPos = m_pXSkinAnim->GetCloneFramePosition( L"Weapon05" );
+			pSeqWeaponFire1->SetPosition( vWeaponPos );
+			pSeqWeaponFire1->SetEmitRate( 10, 10 );
+		}
+		else
+		{
+			pSeqWeaponFire1->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqWeapon_Fire )
 		return;
 
@@ -6005,12 +6619,62 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForAdd()
 			pSeqWeaponFire1->SetEmitRate( 0, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 #endif //SERV_9TH_NEW_CHARACTER
 
 
 void CX2UnitViewerUI::ProcessEnchantWeaponEffectForSword()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	KTDXPROFILE();
+	// June 31f9daf0; quirk kept: a missing trace frame is looked up again only while the list is empty
+	if( ( true == m_vecSeqWeaponFire.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[0] ) &&
+		( NULL == m_pFrame_TRACE_START[0] || NULL == m_pFrame_TRACE_END[0] ) )
+	{
+		if( m_TimerResetWeaponTraceFrame.elapsed() > 2.f )
+		{
+			InitWeaponTrace();
+		}
+		return;
+	}
+
+	D3DXVECTOR3 vTraceEndPos = D3DXVECTOR3( 0, 0, 0 );
+	GetFramePos( &vTraceEndPos, m_pFrame_TRACE_END[0] );
+	D3DXVECTOR3 vTraceStartPos = D3DXVECTOR3( 0, 0, 0 );
+	GetFramePos( &vTraceStartPos, m_pFrame_TRACE_START[0] );
+	D3DXVECTOR3 vTraceCenterPos = vTraceEndPos + ( vTraceStartPos - vTraceEndPos ) * 0.5f;
+
+	for( UINT i = 0; i < m_vecSeqWeaponFire.size(); ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[i] );
+		if( NULL == pSeq )
+			continue;
+
+		if( true == CanShowWeaponEffect() )
+		{
+			switch( i )
+			{
+			case 1:
+				pSeq->SetPosition( vTraceEndPos );
+				break;
+
+			case 2:
+				pSeq->SetPosition( vTraceStartPos );
+				break;
+
+			default:
+				pSeq->SetPosition( vTraceCenterPos );
+				break;
+			}
+			pSeq->SetEmitRate( 10, 10 );
+		}
+		else
+		{
+			pSeq->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	KTDXPROFILE();
 
 
@@ -6077,10 +6741,36 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForSword()
 			pSeqWeaponFire3->SetEmitRate( 0, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 void CX2UnitViewerUI::ProcessEnchantWeaponEffectForBow()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	KTDXPROFILE();
+
+	// June 31f932e0
+	if( true == m_vecSeqWeaponFire.empty() || INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[0] )
+		return;
+
+	if( m_pXSkinAnim == NULL )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqWeaponFire1 = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[0] );
+	if ( pSeqWeaponFire1 != NULL )
+	{
+		if( true == CanShowWeaponEffect() )
+		{
+			D3DXVECTOR3 vWeaponPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			pSeqWeaponFire1->SetPosition( vWeaponPos );
+			pSeqWeaponFire1->SetEmitRate( 10, 10 );
+		}
+		else
+		{
+			pSeqWeaponFire1->SetEmitRate( 0, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 	KTDXPROFILE();
 
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqWeapon_Fire )
@@ -6114,6 +6804,7 @@ void CX2UnitViewerUI::ProcessEnchantWeaponEffectForBow()
 			pSeq->SetEmitRate( 0, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 }
 
 //{{ robobeg : 2008-10-18
@@ -6320,6 +7011,41 @@ void CX2UnitViewerUI::UpdateTitle()
 void CX2UnitViewerUI::SetShowAttribEnchant( bool bShow )
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
+	// June 31f91f90: the fire list, then the hand list
+	for( UINT i = 0; i < m_vecSeqWeaponFire.size(); ++i )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponFire[i] )
+			continue;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponFire[i] );
+		if( NULL != pSeq )
+		{
+			pSeq->SetShowObject( bShow );
+			if ( bShow == false )
+			{
+				pSeq->ClearAllParticle();
+				pSeq->SetEmitRate( 0,0 );
+			}
+		}
+	}
+	for( UINT i = 0; i < m_vecSeqWeaponWind.size(); ++i )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_vecSeqWeaponWind[i] )
+			continue;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_vecSeqWeaponWind[i] );
+		if( NULL != pSeq )
+		{
+			pSeq->SetShowObject( bShow );
+			if ( bShow == false )
+			{
+				pSeq->ClearAllParticle();
+				pSeq->SetEmitRate( 0,0 );
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 
 
 	if( m_hSeqWeapon_Fire != INVALID_PARTICLE_SEQUENCE_HANDLE )
@@ -6420,6 +7146,7 @@ void CX2UnitViewerUI::SetShowAttribEnchant( bool bShow )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
 
 #ifdef ADD_UPGRADE_WEAPON_PARTICLE		/// 무기 강화 이펙트 표시 설정
 	if ( m_hSeqUpgradeWeapon != INVALID_PARTICLE_SEQUENCE_HANDLE ) 
