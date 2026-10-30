@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-charinfo C5 review` |
 | Plan doc | `JUNE_CHARINFO_PHASES.md` (branch `main`) |
 | Depends on | C5 done (its Done note and commits) |
-| Flag | `SERV_IRUHADEV_JUNE_CHARINFO_DLG` / `_SHOW` / `_STATS` / `_VIEW` / `_ACTIONS` |
+| Flag | `SERV_IRUHADEV_JUNE_CHARINFO_DLG` / `_SHOW` / `_STATS` / `_VIEW` / `_ACTIONS` / `_VIEW_ATTRIB_ENCHANT` (C4 add-on) |
 | Log tag | `[JUNE_CHARINFO]` |
 
 ## Read first
@@ -27,6 +27,9 @@ Hygiene is one command per flag, not a fresh script:
 `python tools/flagcheck.py <FLAG> --range <first commit of that flag>^..<its last commit>` (a `..HEAD` range can time out).
 Paste the `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding.
 Also `enumscan.py --check` on the touched files and `luabind.py check DLG_UI_CHARACTER_NEW_4`.
+
+C4 add-on (`X2UnitViewerUI`): re-run its EDT switch tables against Ghidra yourself (they were read by emulation), the at-hand rates per class from the
+disassembly of `31f961a0`, and the kept quirk JUNE_BUGS 486.
 
 Retire C3's `_DEBUG` flag. Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions back to the
 user. Write "Review - Done" into the plan doc, update STATUS.md, check `kickoffs/june-charinfo/Z.md`, and commit.
