@@ -177,8 +177,8 @@ Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · 
 | C2 | **built, play-test owed** (hand-off in the C2 session; then say "check logs") | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}`, `X2SlotItem.{h,cpp}` | `C2.md` |
 | C4 | **done** (attribute-enchant add-on play-test passed 2026-10-30; C4's light toggle seen in the log, its drag / equip checks untested) | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `X2UnitViewerUI.{h,cpp}` (add-on) | `C4.md`, `C4-enchant.md` |
 | C5 | **done** (play-test passed 2026-10-30; check 3 untested) | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp` | `C5.md` |
-| C5 review | ready (covers C1-C5) | Opus 5.5 / high | C5 | - | `C5-review.md` |
-| Z | waiting on the review | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |
+| C5 review | **done, PASS** (no transcription error; `_DEBUG` retired; light-option drift -> Stage 9; Done note in the plan) | Opus 5.5 / high | C5 | `Always.h` | `C5-review.md` |
+| Z | ready (best after the C1 / C2 play-tests) | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |
 Done: C0, C3.
 
 ## Other plans (no STATUS rows)

@@ -442,6 +442,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 - **The character info window (U key) moved to Stage 34 (user, 2026-10-28)**: `JUNE_CHARINFO_PHASES.md`. Stays here: the other-player window `CX2UIWatch` (`DLG_UI_Watch_Ver1.lua`, user 2026-10-28) and the transcend-UI items below. From june-charinfo C0
   (2026-10-30): June's UI-manager light toggle `32150e30` (flag `g_pMain +0x2ac`) also lights Watch (`WatchCharLightSet`, `328883b0`) and the magical closet
   (`MagicalClosetCharLightSet`, `32d9c150`, no owning stage yet); those branches come with their windows.
+- **From the june-charinfo review (2026-10-30), the character-window light as a game option**: June keeps the light flag (`g_pMain +0x2ac`) as game option `0x15`.
+  Its checkbox handler (inside the option dialog's switch, `@32ede2a1`) and the option-apply switch `32ee02e0` (case `0x15`) both set the flag to `option == 0`
+  and call `32150e30`; `3224d0f0` (cases near `0x27` / `0x28`) also calls it. March keeps the flag in `CX2UIManager` for the session only, and it starts lit (June's
+  CX2Main ctor writes 0 too, `@32ee7b7b`). This comes with June's option window: the option id, its default in the saved-option map (an absent entry reads 0 = dark),
+  and the checkbox. Offline reach: every U-window open.
 - **From june-charinfo C4 (2026-10-30), cursor mode on the character window**: June's `CX2UICharInfo::MouseUp` (`32917080`) switches on its own cursor state set
   (`g_pMain->state +0x64 cursor +0xb4`, 33 values; March's `CX2Cursor` has 20 and a different order: June 0xc / 0xd = March's DELETE_ITEM / SEAL_ITEM messages 4426 / 4425)
   and its states 4, 5, 6, 8, 0xb, 0x16, 0x20, 0x21 call the inventory UI with the clicked equipped slot (`321846a0`, `3219f690`,

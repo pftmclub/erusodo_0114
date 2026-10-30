@@ -424,6 +424,44 @@ Debug line under C3's `_DEBUG`: `[JUNE_CHARINFO] RELEASE item <tid> equip slot <
 `/x2-phase june-charinfo C5 review` covers C1-C5: June vs ours line by line, the asset list against June's bytes, flagcheck ranges per flag, enumscan,
 luabind, the deployed exe and the play-test lines; retire C3's `_DEBUG`.
 
+### Review - Done (2026-10-30, Opus 5.5 high; verdict PASS, no transcription error found)
+
+**Code change:** `_DEBUG` retired (define commented out in `Always.h`, house pattern; the five STATS / RELEASE log sites stay behind it). No other edit.
+**Read against June (Ghidra + raw disassembly), line by line:**
+- **UICustomEventProc `3291db60`** (vslot 55, no Ghidra function): title-manager pre-forward (`g_pData +0x28c`, `326f7d20` / `32703a70`) = ours. Jump table `3291df1c`
+  with byte map `3291df50` decoded: 10000 SetShow( false ), 10001 OpenTitle, 10003 radio (index 0 -> dungeon `+0x258 = 0x100`, 1 -> PvP, then ResetStat( 0 )),
+  10007 customize, 10008 / 10009 switching, 10010 `32918c70` -> false, 10011-10014 / 10015-10018 Rose, 10020 resonance, 10021 / 10022 `32150e30( 0 / 1 )` -> false;
+  10002, 10004-10006, 10019 default. Our cases match; stubs return true where June opens a window (no effect). 83010 is outside June's range (the achievement
+  window takes it); March sends every custom message to CharInfo while it is shown (`X2UIManager.cpp:1026`), so our stub fires.
+- **SetShow `3291df90`:** call order matches (ResetStat / equip / ED / level / stone / viewer / PlayByMotionType / SetShowObject / SetHideSelectUnitWeapon / UIOpened
+  / play guide, resonance, switching buttons, `+0x25b` reset, light, Rose stubs); radio forced dungeon in states 0xb / 0x17; EquipRelease at auth `>= 2`
+  (`cmp [+0x2c],2 / jl`) = `> XUAL_SPECIAL_USER`; close path and the slot tail (LostItemUI when hidden, SetShow / SetEnable( m_bShow )), dialog, inventory re-sort.
+- **SetTitle `32915100`**, **ResetNowEquipUI `329146d0`** (no minimap call; slot `+0x44` minor flag, `31d41d10` = IsCreatedItemUI), **SetSwitchingView**: match.
+- **Light `329142a0` / `32150e30`:** match (pictures 0-2 = flag, 3-5 = not flag, 6 untouched; Light_On shown while dark). Default lit = June's ctor (`@32ee7b7b`).
+- **C3:** socket group filter `3291ba40` (fashion / accessory, group 2 = both) re-read: match. The rest was C3's own Opus reading plus its numbers play-test.
+- **C5 `32918c70`:** gate, slot copy (vslot 15), `+0xc` = `m_bEnable`, `+0x10` = ST_EQUIPPED (March `CX2Slot` layout), CheckIsReady, send-start flag, states
+  0xb / 0x15 = March `XS_DUNGEON_GAME` / `XS_BATTLE_FIELD` (0x17 / 0x1a absent), IsTransformed `+0x8c0c`, hp > 0 else STR 2691, busy, ToggleUI, tab, per-tab cursors
+  for sorts 1 / 2 / 7, send, DestroyItemUI, InvalidSlotDesc: match.
+- **C4 add-on, re-run independently:** my own unicorn harness over June's three EDT switches (`31f9ea20` / `31f9eeb0` / `31f9d570`), every June `EDT_ENCHANT_*`
+  value, diffed against the C++ cases: 66 / 66 / 66 types produce names, 0 mismatches; all 78 C++ `EDT_ENCHANT_*` values equal June's. Hand sparks `31f961a0`:
+  floats `3344a51c` 10, `33441b9c` 30, `33458fa0` 60, `3345b370` 25, `3345b368` 15; per class and bone exactly as ported. JUNE_BUGS 486 matches `31f9daf0`.
+
+**Hygiene (one run per flag, own commit range):** all `RESULT: PASS`, `0 FAIL, 0 ERROR`, every flag 0 deleted / 0 non-ASCII / 0 EOL-mismatched in its own files.
+DLG `files: 3 PASS, 1 DEFINE`; SHOW `4 PASS, 1 DEFINE`; STATS `2 PASS, 3 OTHER` (Always.h block; `X2Inventory.cpp` = `_EQUIP_GROUP`; `X2SkillTree.h` =
+`JUNE_ENUM_NAMES`); EQUIP_GROUP `1 PASS, 4 OTHER` (same commit); DEBUG `0 PASS, 13 OTHER` (its sites sit inside STATS / ACTIONS code, attributed there); VIEW
+`2 PASS, 1 PASS~, 1 DEFINE, 1 OTHER` (the `-3` = C4's three rewritten comments in C2's `_SHOW` region, as its note says); ACTIONS `2 PASS, 1 DEFINE`;
+VIEW_ATTRIB_ENCHANT `2 PASS, 1 DEFINE`. Review edit: `flagcheck JUNE_CHARINFO_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, 1 deleted
+line (the define, now `//#define`), `RESULT: FAIL` only for "not #defined anywhere": the intended state of a retired debug flag (as `JUNE_BUFF_DEBUG` and the rest).
+`junediverge --check-all` RESULT: PASS. `enumscan --check` (8 files) 0 A/B rows. `luabind check` NEW_4 / NEW_3 / NEW_2 / NEW / DLG_UI_CHARACTER: 0 unbound, PASS.
+`ledger --check` PASS, `core --check` PASS. **Assets:** 17 staged files (5 Lua in data034, 12 textures in data057 / 056 / 063 / datai021 / datai022 / data002)
+identical to June (`stage-june` / `adopt-june --dry-run`: 0 new, 0 replaced); all 8 packed koms equal the deployed ones (data002 copy done).
+
+`DEPLOY OK: X2_offline.exe is 25,861,120 B, dated 2026-10-30 21:19:29, md5 e7c166a1201d1fc9d7d3c466e4e56629, equal to X2/US_SERVICE/x2.exe (2026-10-30 21:19:22); built at main 8aff342d + 1 uncommitted code file(s).`
+`EXESTR OK: 2 of 2 absent` (wide `[JUNE_CHARINFO] RELEASE item`, `[JUNE_CHARINFO] STATS`); `EXESTR OK: 2 of 2 found` (wide `VIEW light dark`, `STUB CIM_CUSTOMIZE`).
+
+**Routed:** the light as June's persisted game option `0x15` -> Stage 9 bullet (option window). **Kept:** the `[JUNE_CHARINFO] VIEW light dark` line (one per
+open / click, C4's play-test evidence). **Play-tests still owed:** C1, C2 (C3 / C4 add-on / C5 passed; C4's drag / equip checks untested). **Open questions:** none.
+
 ## Phase Z - Close-out (Sonnet 5.5, medium)
 
 `MODS.md` (flags, staged files and backups, revert steps), backlog Stage 34 closing note, the Stage 9 bullets (Watch window, transcend-UI items) checked,

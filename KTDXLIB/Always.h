@@ -10967,7 +10967,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-30
 // Description: june-charinfo C3 debug: one "[JUNE_CHARINFO] STATS" line per stat refresh with the inputs and every printed value ( ResetStat, basic, option, resistance, record ). Retired by the june-charinfo review. Revert: undefine the flag.
-#define SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
