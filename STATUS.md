@@ -209,8 +209,8 @@ Done: D0a, D0b, C0.
 | D1-4 review (D1-3 + D1-3b-h + D1-4 + D1-4b) | done 2026-10-30, smoke at plan end (all pass; Bow enchant pair ported under ENCHANT_PARTICLE, IsFriendshipQuest -> IsBingoQuest, ScaleHead tsv 373 -> D1-5) | Opus 5.5 / high | D1-3d, D1-3e, D1-3f, D1-3h, D1-4b | as D1-3 / D1-4 | `D1-4-review.md` |
 | D1-5 (KTDXLIB engine, buff popups, ScaleHead) | done 2026-10-30, smoke at plan end (11 `JUNE_DIVERGE_*` flags; 360-363 no code, already logged; 351 OpenSound split to D1-5b) | Opus 5.5 / high | D1-4 review | `KTDXDeviceManager`, `KTDGUI*`, `KTDIDevice`, `KTDGLineMap`, `KTDGObject`, `X2BuffFactor`, `X2GUUser`, Eve / VioletMage calls | `D1-5.md` |
 | D1-5b (OpenSound tsv 351) | done 2026-10-30, smoke at plan end (`JUNE_DIVERGE_OPEN_SOUND`: `_INT` voice variants, Korean sound off; option -> Stage 9) | Opus 5.5 / high | D1-5 | `KTDXDeviceManager`, `KTDSManager` | `D1-5b.md` |
-| D1 review (D1-5 + D1-5b, closes D1) | waiting | Opus 5.5 / high | D1-5b | as D1-5 / D1-5b | `D1-review.md` |
-| D2 (gate + wiring), then Phase S below, then D2 review / close (plan closes) | waiting | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
+| D1 review (D1-5 + D1-5b, closes D1) | done 2026-10-30, smoke at plan end (all 12 flags pass, no fix; camera lead: compensation unused in June and March, no code; tsv 360-363 marked no code) | Opus 5.5 / high | D1-5b | as D1-5 / D1-5b | `D1-review.md` |
+| D2 (gate + wiring), then Phase S below, then D2 review / close (plan closes) | ready (D1 closed 2026-10-30) | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
 | S (plan-end smoke play-test: one hand-off from every Done note's smoke line, user plays, logs, fixes) | waiting | Opus 5.5 / high | D2 | none (fixes under the broken phase's flag) | `Smoke.md` |
 
 ## Other plans (no STATUS rows)
