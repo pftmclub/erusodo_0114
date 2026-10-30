@@ -1398,43 +1398,6 @@ Row 351, `CKTDXDeviceManager::OpenSound` = June `31cdf4a0`, read from the disass
   (2026-10-30 09:08:26); built at main 1f072535 + 5 uncommitted code file(s).` First run. `EXESTR OK: 2 of 2 found` (wide `.OGG` x1, `_INT`).
 - **Smoke (plan end):** an Aisha voice line that has an `_INT` file (`AishaVoice_Thanks01`, ...) plays (the `_INT` recording); other sounds unchanged.
 
-### D1 review Done (2026-10-30, Opus 5.5; reviews `1f072535`, `da5b3b61`; closes D1; no code fix, no new flag)
-
-**Verdict: D1-5 and D1-5b pass.** Every replaced body was re-read in Ghidra against its June listing; `#else` bodies are March's, byte-intact (flagcheck below).
-- **346-347 SetTex / SetMouseOverTex** (`31c96540`, `31c97320`, `31c96910`, `31c96ad0`, `31ccda90`): order, returns (`ResetTex` AL = 1 on a device-id or
-  name match, 0 on a failed reopen, disassembly @31c969e8 / @31c96a38 / @31c96aa9) and the UV slots (`TEXTURE_UV` leftTop / rightBottom / leftBottom / rightTop ->
-  `[6,7]` = `VP_RIGHT_TOP`, `[4,5]` = `VP_LEFT_BOTTOM`, `[2,3]` = `VP_RIGHT_BOTTOM`) match. Unported caller: any March dialog's `SetTex` from Lua;
-  ownership is per picture (March's `#else` deletes the old data), so refilling in place cannot touch another control.
-- **348-350 OPEN_DEVICE**, **352 GetButtonState** (`31d24260`: swap only for `MOUSE`, `rgbButtons` +0xc / joystick +0x30, lock by swapped index), **353
-  GetKeyState** (`31d24fb0`: allow-list test first, then March's lock), **356** (`31cf1df0` NULL test), **357** (`31c82d60`: +0x3dc before / +0x3d8 elapsed /
-  +0x3e0 global, both `ELSWORD_SHEATH_KNIGHT` tests = March's): match.
-- **354-355 FIXED_DISTANCE_POSITION** (lead): `31c5f090` and `31c68ec0` flip first. `31c68ec0` compared line by line with March's body: the filter is
-  enabled + type < 4 or (> 5, != 8) + != `LT_WALL` (1); the three branches (both ends beyond, start beyond / end inside, end beyond / start inside), their
-  `projection > 0`, `perp^2 <= d^2`, `lsp <= length` tests, both `2*lsp - target` mirrors and the `endPos` base of the third branch are March's; constants
-  `0x3342e84c` = 0.0, `0x334380f0` = -1.0 (the initial target y). Returns false / writes nothing when no line hit, as March.
-- **358 SET_MANAGER_OBJECT** (lead): June ctor `31d28a20` builds the matrix in place, `31d28a00` stores the pointer only. Managed then unmanaged:
-  `GetMatrix()` reads the manager's while managed and the own matrix after; nothing writes `m_pMatrix` while managed (`SetScale` tests the manager, no
-  other writer in X2Lib / KTDXLIB), so the matrix an unmanaged equip (`X2GUUser.cpp:1509` / `1521`, `X2SquareUnit.cpp:481`) gets back is the ctor's
-  identity, the same state March's fresh `new` gave it. Sane.
-- **359 APPLY_EXTERNAL_FACTOR** (`32d41910`): type 1 = `BFT_TIME`, `size > 1`, value[1] = `FO_NORMAL_TIME` (1); March's `ApplyExternalFactorToTimeFinalizer`
-  added, so every March caller passing true keeps its result. All 21 call sites carry the flag (Eve 14, VioletMage 3, GUUser 3, GameUnit 1); no
-  unflagged `ApplyExternalFactorToFinalizer` / `SetTimeFinalizerValue` call is left.
-- **360-363** (lead): inside a buff parse capture `RuntimeError` calls `DisplayErrorMessage`, whose `JUNE_BUFF_LOADER` branch hands the text to the
-  thread's sink and returns before any `MessageBox` (`KTDXCommonFunc.h:1477` / `1508`): no popup there either. tsv rows 360-363 now say "D1-5: no code", as
-  D1-4's no-code rows do, so D2's gate (c) can tell them from unreplaced rows.
-- **373 SCALE_HEAD** (`31fdc070`: +0x8fc0 == 0 -> `Bip01_Head` (10 chars) else `Bip01_Spine1` (12), body 0; `31fd64a0`: +0x87d4 skin anim, head then
-  `COLLISION_SPHERE1_Face`): match. No other `CX2GUUser` subclass declares `ScaleHead`; `CX2GUNPC::ScaleHead()` is a different class.
-- **351 OPEN_SOUND** (`31cdf4a0`, `31cdd720`): empty -> NULL, upper-case, `GetSoundDeviceID`, `OpenDevice( sound )`, then on a miss `IsValidFile( sound )`,
-  DS +0x34 `GetInit`, +0x4c Korean flag choosing `int` / `deviceID` / `sound` for the name, `CreateAndOpenDevice`, FAILED (+0x44 == 3) -> NULL,
-  `SetMax3DDistance` when > 0: match. `GetSoundDeviceID` fills both outputs, `find( ".OGG" )`, insert `_INT`, `IsValidFile( int )` -> sound = int: match.
-- **Camera lead (D1-2 review):** June's `CalcNormalCameraPosition` is `31fb4100` (called by `Debug_RenderHelp` `322df160`, found through its string
-  `CAMERA_DISTANCE: ` 3348b0b8). Both versions compute the height compensation (June tests types 2, 3, 4 through vslot 0x10c) and never use it: the returned eye
-  is the same formula, so the type list changes nothing. `ManualTrackingCamera` is the in-house `IN_GAME_MANUAL_CAMERA_POSITION_TEST` path
-  (`InHouseEtc.h:108`); June's `NomalTrackingCamera` `31fb3640` has no manual-camera branch, so it has no June counterpart. No code.
-- **Hygiene (`--range 1f072535^..da5b3b61`, per flag):** HYGIENE_PLACEHOLDER
-- **Build:** no code changed in this review, so no build; the deployed exe is D1-5b's (md5 `b80b46a2`).
-- **Open questions:** none. D1 is closed; next is D2.
-
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 
 **Depends on:** D1 review. `tools/junediverge.py`:
