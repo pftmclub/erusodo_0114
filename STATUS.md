@@ -175,7 +175,7 @@ Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · 
 |---|---|---|---|---|---|
 | C1 | **built + koms copied, play-test owed** (hand-off in the C1 session; then say "check logs") | Sonnet 5.5 / high | C0 | data034/056/057/063 + datai021/022 koms, `Enum.lua` (core list), `X2UICharInfo.h`, `X2UIManager.cpp`, `Always.h` | `C1.md` |
 | C2 | **built, play-test owed** (hand-off in the C2 session; then say "check logs") | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}`, `X2SlotItem.{h,cpp}` | `C2.md` |
-| C4 | **built, play-test owed** (C4's hand-off, plus the attribute-enchant add-on's, built 2026-10-30; then say "check logs") | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `X2UnitViewerUI.{h,cpp}` (add-on) | `C4.md`, `C4-enchant.md` |
+| C4 | **done** (attribute-enchant add-on play-test passed 2026-10-30; C4's light toggle seen in the log, its drag / equip checks untested) | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `X2UnitViewerUI.{h,cpp}` (add-on) | `C4.md`, `C4-enchant.md` |
 | C5 | **done** (play-test passed 2026-10-30; check 3 untested) | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp` | `C5.md` |
 | C5 review | ready (covers C1-C5) | Opus 5.5 / high | C5 | - | `C5-review.md` |
 | Z | waiting on the review | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |

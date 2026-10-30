@@ -386,6 +386,12 @@ become June's two lists `m_vecSeqWeaponFire` (`+0xd90`) and `m_vecSeqWeaponWind`
 `Attribute_*_Ring` sparks on the hand; Chung's hand sparks now sit on the right hand bone. The U window always shows them (June's charinfo state skips the riding /
 emotion test); a village viewer hides them while riding or during an avatar emotion. No log tag. **Open questions:** none.
 
+**Play-test (2026-10-30, after deploy md5 54293f3b + data002 copy):** passed. 19 characters with three of one attribute on the weapon (fire / ice / poison
+glows, wind / light / dark ring sets); the user confirmed the flat hand rings against the wiki's June look. Logs: 0 EXCEPTION; ErrorLog's
+`OpenTexture ATTRIBUTE_HAND_WHITE.TGA` and `OpenXET ATTRIBUTE_LIGHT_1.XET` are June's own misses (the ring mesh names a `.tga` June ships only as `.dds`, and
+June ships no `.xet`; no extension fallback in either loader, as ATLAS A11 found), so the staged `.dds` is unused but harmless. C4's light toggle logged
+`VIEW light dark 0` -> `1`. Unrelated lines left alone: `E_DISABLE_HB_CHECK_REQ` UNHANDLED x3, `AddGroupChainQuest` unbound, the JUNE_FX applied-skill line.
+
 ## Phase C5 - Actions that send packets (Sonnet 5.5, high)
 
 **Depends on:** C4. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS`.
