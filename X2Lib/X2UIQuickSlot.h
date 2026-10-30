@@ -121,6 +121,10 @@ private:
 #ifdef SERV_NEW_DEFENCE_DUNGEON // 적용날짜: 2013-03-25
 	bool					m_bIsSummonCardSlot;		/// 어둠의 문 몬스터 카드용 퀵슬롯 여부
 #endif //SERV_NEW_DEFENCE_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+	bool					m_bIsAmusementItemSlot;				/// June +0x101: the PvP / amusement item-bar mode, never set offline
+	static bool				ms_bAmusementDescriptionChecked;	/// stand-in for June g_pMain +0x2a8 (option byte); June's default was not found
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 };
 
 #endif

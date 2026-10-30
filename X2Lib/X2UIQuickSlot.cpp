@@ -1,6 +1,10 @@
 #include "StdAfx.h"
 #include ".\x2uiQuickSlot.h"
 
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-03-26
 
 namespace _CONST_QUICK_SLOT_
@@ -11,6 +15,23 @@ namespace _CONST_QUICK_SLOT_
 
 #endif // SERV_NEW_DEFENCE_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+namespace _CONST_UIQUICKSLOT_H4_
+{
+	const float fItemIconSize		= 40.f;		/// June SetSlotItemIcon 3294d320
+	const float fItemIconPosX		= 9.f;
+	const float fItemIconStepX		= 46.f;
+	const float fItemIconPosY		= 711.f;
+	const float fCardIconSize		= 64.f;		/// June SetSummonMonsterItemIcon 32950060
+	const float fCardIconPosX		= 11.f;
+	const float fCardIconStepX		= 72.f;
+	const float fCardIconPosY		= 686.f;
+}
+
+using namespace _CONST_UIQUICKSLOT_H4_;
+
+bool CX2UIQuickSlot::ms_bAmusementDescriptionChecked = false;
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 CX2UIQuickSlot::CX2UIQuickSlot( CKTDXStage* pNowStage, const WCHAR* pFileName )
 : CX2UIDragable( pNowStage, NULL ),
 m_bShow(false),
@@ -24,12 +45,26 @@ m_bWaiting_EGS_USE_QUICK_SLOT_ACK( false )
 , m_bIsSummonCardSlot( false )	/// 어둠의 문 몬스터 카드용 퀵슬롯 적용 여부
 #endif //SERV_NEW_DEFENCE_DUNGEON
 //m_mapQuickSlotItemCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+, m_bIsAmusementItemSlot( false )
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 {
 
 	RegisterLuaBind();
 	
 	m_pDLGQuickSlot = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_UI_Quick_Slot.lua" );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGQuickSlot );
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+	// June ctor 3294dd50 @3294df60: the description checkbox follows the option byte
+	{
+		CKTDGUICheckBox* pCheckBoxDescription = (CKTDGUICheckBox*) m_pDLGQuickSlot->GetControl( L"DescriptionCheckBox" );
+		if( NULL != pCheckBoxDescription )
+			pCheckBoxDescription->SetChecked( ms_bAmusementDescriptionChecked );
+	#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] SLOT ctor checkBox=%d checked=%d", ( NULL != pCheckBoxDescription ), ms_bAmusementDescriptionChecked );
+	#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+	}
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 	//{{ 오현빈 // 2012-04-12 // 퀵슬롯 쿨타임 숫자 표기 추가
 #ifdef SHOW_QUICKSLOT_COOLTIME
 	CKTDGUIStatic* pStaticCoolTime = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"QuickSlotCoolTime" );		
@@ -62,6 +97,9 @@ m_bWaiting_EGS_USE_QUICK_SLOT_ACK( false )
 #ifdef NEW_ITEM_NOTICE
 	m_pDLGItemHighLight = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_UI_QuickSlot_HighLight.lua" );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGItemHighLight );
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+	m_pDLGItemHighLight->SetDisableUnderWindow( false );	// June ctor 3294dd50 @3294e064
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 	m_pDLGItemHighLight->SetShow(false);
 #endif //NEW_ITEM_NOTICE
 
@@ -1235,6 +1273,43 @@ bool CX2UIQuickSlot::ResetCoolTime()
 #endif	REAL_TIME_ELSWORD
 //}} kimhc // 실시간 엘소드 중 실시간 퀵슬롯 교체
 
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+void CX2UIQuickSlot::ResetQuickSlotUI()
+{
+	// June ResetQuickSlotUI 329517f0: nothing is refilled while the quick slot is hidden
+	if( g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetSelectUnit() == NULL || false == m_bShow )
+		return;
+
+	const CX2Inventory& kInventory = g_pData->GetMyUser()->GetSelectUnit()->GetInventory();
+
+	CKTDGUIStatic* pStatic = NULL;
+	if( m_pDLGItemHighLight != NULL )
+	{
+		pStatic = (CKTDGUIStatic*)m_pDLGItemHighLight->GetControl(L"g_pStaticInvenHighLight");
+		if( NULL != pStatic )
+		{
+			for ( int slotIndex = 0; slotIndex < static_cast<int>(m_SlotList.size()); ++slotIndex)
+			{
+				if( NULL != pStatic->GetPicture(slotIndex) )
+				{
+					pStatic->GetPicture(slotIndex)->SetShow(false);
+				}
+			}
+		}
+	}
+
+	if( true == m_bIsAmusementItemSlot )
+	{
+		// stand-in: June 329506d0 (amusement item-bar icon fill) is not ported, the mode is never set offline
+	}
+	else if( true == GetIsSummonCardSlot() )
+		SetSummonMonsterItemIcon( m_SlotList, kInventory, pStatic );
+	else
+		SetSlotItemIcon( m_SlotList, kInventory, pStatic );
+
+	UpdateSlotKey();
+}
+#else SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 void CX2UIQuickSlot::ResetQuickSlotUI()
 {
 	if( g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetSelectUnit() == NULL )
@@ -1342,6 +1417,7 @@ void CX2UIQuickSlot::ResetQuickSlotUI()
 
 
 
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 void CX2UIQuickSlot::SetLayer(X2_DIALOG_LAYER layer)
 {
 #ifdef FIX_TOOLTIP
@@ -1560,6 +1636,86 @@ bool CX2UIQuickSlot::OnRClickedItem( D3DXVECTOR2 mousePos )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+void CX2UIQuickSlot::SetShow(bool val)
+{
+	// June SetShow 32951900
+	if(val)
+	{
+		m_bShow = true;
+		m_pDLGQuickSlot->SetShow(true);
+
+		CKTDGUIStatic* pStaticCardSlot = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"CardSlot" );
+		CKTDGUIStatic* pStaticSlot = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"Slot" );
+		CKTDGUIStatic* pStaticAmusementItemSlot = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"AmusementItemSlot" );
+		CKTDGUIStatic* pStaticDescriptionBox = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"DescriptionBox" );
+		CKTDGUICheckBox* pCheckBoxDescription = (CKTDGUICheckBox*) m_pDLGQuickSlot->GetControl( L"DescriptionCheckBox" );
+
+		if( NULL != pCheckBoxDescription )
+			ms_bAmusementDescriptionChecked = pCheckBoxDescription->GetChecked();
+
+		if( NULL != pStaticCardSlot && NULL != pStaticSlot && NULL != pStaticAmusementItemSlot && NULL != pStaticDescriptionBox && NULL != pCheckBoxDescription )
+		{
+			if( true == m_bIsAmusementItemSlot )
+			{
+				// stand-in: June sets the two Amusement labels from the g_pMain +0x7ec table (ids 0x2f, 0x30); the mode is never set offline
+				pStaticAmusementItemSlot->SetShow( true );
+				pStaticCardSlot->SetShow( false );
+				pStaticSlot->SetShow( false );
+				pCheckBoxDescription->SetShow( true );
+				pStaticDescriptionBox->SetShow( pCheckBoxDescription->GetChecked() );
+			}
+			else
+			{
+				pStaticCardSlot->SetShow( true == GetIsSummonCardSlot() );
+				pStaticSlot->SetShow( false == GetIsSummonCardSlot() );
+				pStaticAmusementItemSlot->SetShow( false );
+				pCheckBoxDescription->SetShow( false );
+				pStaticDescriptionBox->SetShow( false );
+			}
+		}
+
+		SetLayer( XDL_NORMAL_3 );
+		for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+			pItemSlot->SetShow( true, true );
+		}
+		ResetQuickSlotUI();
+
+		if( NULL != m_pDLGItemHighLight )
+		{
+			if( true == GetIsSummonCardSlot() || true == m_bIsAmusementItemSlot )
+				m_pDLGItemHighLight->SetShow( false );
+			else
+				m_pDLGItemHighLight->SetShow( true );
+		}
+	#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] SLOT show=1 slots=%d summon=%d amusement=%d", (int)m_SlotList.size(), GetIsSummonCardSlot(), m_bIsAmusementItemSlot );
+	#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+	}
+	else
+	{
+		m_bShow = false;
+		m_pDLGQuickSlot->SetShow(false);
+		m_pDLGSelectedItem->SetShow( false );
+		InvalidSlotDesc();
+
+		for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+			pItemSlot->LostItemUI();
+			pItemSlot->SetShow( false, true );
+		}
+
+		if( NULL != m_pDLGItemHighLight )
+			m_pDLGItemHighLight->SetShow(false);
+	#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] SLOT show=0 slots=%d", (int)m_SlotList.size() );
+	#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+	}
+}
+#else SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 void CX2UIQuickSlot::SetShow(bool val)
 {
 	if(val)
@@ -1642,6 +1798,85 @@ void CX2UIQuickSlot::SetShow(bool val)
 #endif //NEW_ITEM_NOTICE
 	}
 }
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+void CX2UIQuickSlot::SetEnable( bool val, bool bDirectEnable/*= false*/ )
+{
+	// June SetEnable 3294c460
+	if ( val == m_bEnable && false == bDirectEnable )
+		return;
+
+	m_bEnable = val;
+
+	CKTDGUIStatic* pStatic_Black = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"Slot_Black" );
+
+	bool bExpandQuickSlot = false;
+	if( g_pData != NULL && g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL )
+	{
+		bExpandQuickSlot = g_pData->GetMyUser()->GetSelectUnit()->IsExpandQuickSlot();
+	}
+
+	if( NULL != pStatic_Black )
+	{
+		for( int iSlotNum = 0; iSlotNum < (int)m_SlotList.size(); iSlotNum++ )
+		{
+			CKTDGUIControl::CPictureData* pPictureData = pStatic_Black->GetPicture( iSlotNum );
+
+			if ( NULL == pPictureData )
+			{
+				ASSERT( ! L"PictureData Is NULL" );
+				return;
+			}
+
+			if( true == GetIsSummonCardSlot() || true == m_bIsAmusementItemSlot )
+				pPictureData->SetShow( false );
+			else if( bExpandQuickSlot == false && m_bEnable == true && iSlotNum >= 3 )
+				pPictureData->SetShow( m_bEnable );
+			else
+				pPictureData->SetShow( !m_bEnable );
+		}
+	}
+
+	if( false == val )
+	{
+		for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+	#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			pItemSlot->SetShow( false == g_pMain->GetIsPlayingTutorial(), true );
+	#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			pItemSlot->SetShow( true, true );
+	#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+			pItemSlot->SetEnable( false, true );
+		}
+
+		m_pDLGSelectedItem->SetShow( false );
+		InvalidSlotDesc();
+	}
+	else
+	{
+		for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+			bool bShow = true;
+
+			if( true == m_bIsAmusementItemSlot )
+				bShow = ( i < 2 );
+			else if( true == GetIsSummonCardSlot() )
+				bShow = ( i < _CONST_QUICK_SLOT_::MAX_CARD_SLOT_NUM );
+			else if( bExpandQuickSlot == false && m_bEnable == true && i >= 3 )
+				bShow = false;
+
+			pItemSlot->SetShow( bShow, true );
+			pItemSlot->SetEnable( bShow, true );
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_HUD] SLOT enable=%d direct=%d expand=%d summon=%d", val, bDirectEnable, bExpandQuickSlot, GetIsSummonCardSlot() );
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+}
+#else SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 
 #ifdef SERV_NEW_DEFENCE_DUNGEON	// 적용날짜: 2013-03-25
 void CX2UIQuickSlot::SetEnable( bool val, bool bDirectEnable/*= false*/ )
@@ -1766,6 +2001,7 @@ void CX2UIQuickSlot::SetEnable( bool val )
 		InvalidSlotDesc();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 
 CX2SlotItem* CX2UIQuickSlot::GetEmptyslot()
 {
@@ -2106,6 +2342,99 @@ void CX2UIQuickSlot::GetQuickSlotStringByIndex( IN int iIndex_, OUT wstring& str
 	@param		: 아이템 슬롯들이 저장되어 있는 컨테이너, 인벤토리 객체, 아이콘 컨트롤 객체
 */
 #ifdef SERV_NEW_DEFENCE_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+void CX2UIQuickSlot::SetSlotItemIcon( vector< CX2Slot* >& m_SlotList, const CX2Inventory& kInventory, CKTDGUIStatic* pStatic )
+{
+	// June SetSlotItemIcon 3294d320
+	if( NULL == pStatic )
+		return;
+
+	for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+	{
+		CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+		if( NULL == pItemSlot )
+			continue;
+
+		pItemSlot->DestroyItemUI();
+
+		pItemSlot->SetSize( D3DXVECTOR2( fItemIconSize, fItemIconSize ) );
+		pItemSlot->SetPos( D3DXVECTOR2( fItemIconPosX + ( static_cast<float>( i ) * fItemIconStepX ), fItemIconPosY ) );
+
+		CX2Item* pItem = kInventory.GetItem( CX2Inventory::ST_E_QUICK_SLOT, i );
+		if ( pItem == NULL )
+			continue;
+
+		{
+			UidType iItemUID = pItem->GetItemData().m_ItemUID;
+			bool	bNewItem = kInventory.IsNewItem( CX2Inventory::ST_QUICK_SLOT, iItemUID );
+
+			if( true == bNewItem && NULL != pStatic->GetPicture(i) )
+			{
+				pStatic->GetPicture(i)->SetShow(bNewItem);
+			}
+		}
+
+		pItemSlot->CreateItemUI( pItem );
+
+		// the item dialog is named so the GFx hide-mode presets find it (June 32597410)
+		WCHAR wszItemDialogName[64] = {0};
+		StringCchPrintfW( wszItemDialogName, 64, L"DLG_UI_Quick_Slot_Item_%d", i );
+		pItemSlot->GetDialog()->SetName( wszItemDialogName );
+	#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] SLOT fill i=%d dialog=%s x=%.0f y=%.0f", i, wszItemDialogName, pItemSlot->GetPos().x, pItemSlot->GetPos().y );
+	#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+
+		CKTDGUIStatic* pStaticHotKey = pItemSlot->GetDialog()->CreateStatic();
+		if( NULL != pStaticHotKey )
+		{
+			pStaticHotKey->SetName(L"StaticHotKey");
+			pItemSlot->GetDialog()->AddControl(pStaticHotKey);
+			CKTDGUIControl::UIStringData* pString = new CKTDGUIControl::UIStringData();
+			pStaticHotKey->AddString( pString );
+
+			GetQuickSlotStringByIndex( i , pString->msg );
+			pString->fontIndex = XUF_DODUM_11_NORMAL;
+			pString->fontStyle = CKTDGFontManager::FS_SHELL;
+			pString->sortFlag = DT_RIGHT;
+			pString->pos = D3DXVECTOR2 ( 26.f, 0.f );
+			pString->color = D3DXCOLOR( 1.f, 1.f, 0.f, 1.f );
+			pString->outlineColor = D3DXCOLOR( 0.3f,0.2f,0.2f,1.f );
+		}
+
+		CKTDGUIStatic* pStaticCoolTime = pItemSlot->GetDialog()->CreateStatic();
+		if( NULL != pStaticCoolTime )
+		{
+			pStaticCoolTime->SetName(L"CoolTime");
+			pItemSlot->GetDialog()->AddControl(pStaticCoolTime);
+			CKTDGUIControl::UIStringData* pString = new CKTDGUIControl::UIStringData();
+			pStaticCoolTime->AddString( pString );
+
+			pString->fontIndex = XUF_DODUM_20_BOLD;
+			pString->fontStyle = CKTDGFontManager::FS_SHELL;
+			pString->sortFlag = DT_CENTER;
+			pString->pos = D3DXVECTOR2 ( 20.f, 10.f );
+			pString->color = D3DXCOLOR( 1.f, 1.f, 0.f, 1.f );
+			pString->outlineColor = D3DXCOLOR( 0.3f,0.2f,0.2f,1.f );
+		}
+
+		// June 3294d7e1: a hidden black bar, no other reader
+		CKTDGUIStatic* pStaticSlotDisable = pItemSlot->GetDialog()->CreateStatic();
+		if( NULL != pStaticSlotDisable )
+		{
+			pStaticSlotDisable->SetName(L"pStaticSlotDisable");
+			pItemSlot->GetDialog()->AddControl(pStaticSlotDisable);
+			CKTDGUIControl::CPictureData* pPicture = new CKTDGUIControl::CPictureData();
+			pStaticSlotDisable->AddPicture( pPicture );
+
+			pPicture->SetTex( L"DLG_UI_Common_Texture01.tga", L"black_bar" );
+			pPicture->SetSize( D3DXVECTOR2( fItemIconSize, fItemIconSize ) );
+			if( NULL != pPicture->pPoint )
+				pPicture->pPoint->color = D3DXCOLOR( 0.3f, 0.3f, 0.3f, 0.6f );
+			pPicture->SetShow( false );
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 void CX2UIQuickSlot::SetSlotItemIcon( vector< CX2Slot* >& m_SlotList, const CX2Inventory& kInventory, CKTDGUIStatic* pStatic )
 {
 	if( NULL == pStatic )
@@ -2186,10 +2515,101 @@ void CX2UIQuickSlot::SetSlotItemIcon( vector< CX2Slot* >& m_SlotList, const CX2I
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 /** @function	: SetSummonMonsterItemIcon
 	@brief		: 몬스터 소환 카드 퀵슬롯 아이콘 설정 함수
 	@param		: 아이템 슬롯들이 저장되어 있는 컨테이너, 인벤토리 객체, 아이콘 컨트롤 객체
 */
+#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
+void CX2UIQuickSlot::SetSummonMonsterItemIcon( vector< CX2Slot* >& m_SlotList, const CX2Inventory& kInventory, CKTDGUIStatic* pStatic )
+{
+	// June SetSummonMonsterItemIcon 32950060
+	if( NULL == pStatic )
+		return;
+
+	CKTDGUIStatic* pStaticBuyGuideQuickSlot = (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"Button_Buy_Guide_Quick_Slot" );
+	CKTDGUIStatic* pStaticLock				= (CKTDGUIStatic*) m_pDLGQuickSlot->GetControl( L"LOCK" );
+
+	if ( pStaticBuyGuideQuickSlot || NULL != pStaticLock )
+	{
+		pStaticBuyGuideQuickSlot->SetShow( false );
+		pStaticLock->SetShow( false );
+	}
+
+	SetExpandQuickSlot( _CONST_QUICK_SLOT_::MAX_CARD_SLOT_NUM );
+
+	for ( int i = 0; i < _CONST_QUICK_SLOT_::MAX_CARD_SLOT_NUM; ++i )
+	{
+		CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+		if( NULL == pItemSlot )
+			continue;
+
+		pItemSlot->DestroyItemUI();
+
+		pItemSlot->SetSize( D3DXVECTOR2( fCardIconSize, fCardIconSize ) );
+		pItemSlot->SetPos( D3DXVECTOR2( fCardIconPosX + ( static_cast<float>( i ) * fCardIconStepX ), fCardIconPosY ) );
+
+		CX2Item* pItem = kInventory.GetItem( CX2Inventory::ST_E_DEFENCE_QUICK_SLOT, i );
+		if ( pItem == NULL )
+			continue;
+
+		{
+			UidType iItemUID = pItem->GetItemData().m_ItemUID;
+			bool	bNewItem = kInventory.IsNewItem( CX2Inventory::ST_E_DEFENCE_QUICK_SLOT, iItemUID );
+
+			if( true == bNewItem && NULL != pStatic->GetPicture(i) )
+			{
+				pStatic->GetPicture(i)->SetShow(bNewItem);
+			}
+		}
+
+		pItemSlot->CreateItemUI( pItem );
+
+		WCHAR wszItemDialogName[64] = {0};
+		StringCchPrintfW( wszItemDialogName, 64, L"DLG_UI_Quick_Slot_Item_%d", i );
+		pItemSlot->GetDialog()->SetName( wszItemDialogName );
+	#ifdef SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] SLOT card fill i=%d dialog=%s x=%.0f y=%.0f", i, wszItemDialogName, pItemSlot->GetPos().x, pItemSlot->GetPos().y );
+	#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+
+		CKTDGUIStatic* pStaticHotKey = pItemSlot->GetDialog()->CreateStatic();
+		if( NULL != pStaticHotKey )
+		{
+			pStaticHotKey->SetName(L"StaticHotKey");
+			pItemSlot->GetDialog()->AddControl(pStaticHotKey);
+			CKTDGUIControl::UIStringData* pString = new CKTDGUIControl::UIStringData();
+			pStaticHotKey->AddString( pString );
+
+			GetQuickSlotStringByIndex( i , pString->msg );
+			pString->fontIndex = XUF_DODUM_20_BOLD;
+			pString->fontStyle = CKTDGFontManager::FS_SHELL;
+			pString->sortFlag = DT_RIGHT;
+			pString->pos = D3DXVECTOR2 ( 40.f, 2.f );
+			pString->color = D3DXCOLOR( 1.f, 1.f, 0.f, 1.f );
+			pString->outlineColor = D3DXCOLOR( 0.3f,0.2f,0.2f,1.f );
+		}
+
+		CKTDGUIStatic* pStaticCoolTime = pItemSlot->GetDialog()->CreateStatic();
+		if( NULL != pStaticCoolTime )
+		{
+			pStaticCoolTime->SetName(L"CoolTime");
+			pItemSlot->GetDialog()->AddControl(pStaticCoolTime);
+			CKTDGUIControl::UIStringData* pString = new CKTDGUIControl::UIStringData();
+			pStaticCoolTime->AddString( pString );
+
+			pString->fontIndex = XUF_HEADLINE_30_NORMAL;
+			pString->fontStyle = CKTDGFontManager::FS_SHELL;
+			pString->sortFlag = DT_CENTER;
+			pString->pos = D3DXVECTOR2 ( 30.f, 17.f );
+			pString->color = D3DXCOLOR( 1.f, 1.f, 0.f, 1.f );
+			pString->outlineColor = D3DXCOLOR( 0.3f,0.2f,0.2f,1.f );
+		}
+	}
+
+	// June inlines SetEnable( true, true ) here
+	SetEnable( true, true );
+}
+#else SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 void CX2UIQuickSlot::SetSummonMonsterItemIcon( vector< CX2Slot* >& m_SlotList, const CX2Inventory& kInventory, CKTDGUIStatic* pStatic )
 {
 	if( NULL == pStatic )
@@ -2284,6 +2704,7 @@ void CX2UIQuickSlot::SetSummonMonsterItemIcon( vector< CX2Slot* >& m_SlotList, c
 	SetEnable( true, true );
 }
 
+#endif SERV_IRUHADEV_JUNE_HUD_QUICKSLOT
 /** @function	: InputSummonCardSlotKey
 	@brief		: 몬스터 소환 카드 슬롯 키보드 입력 함수
 	@param		: 인벤토리 정보, 설정할 퀵슬롯 아이템, 설정할 슬롯 인덱스

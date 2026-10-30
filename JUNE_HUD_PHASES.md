@@ -278,6 +278,20 @@ Play-test: Sheath Knight with Brutal Slayer (skill 1411), five-hit combos in a d
 - the cooldown survives a stage change;
 - 0 EXCEPTION.
 
+**Done note (H4, 2026-10-31, Sonnet 5.5):**
+- Flags `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT` + `_DEBUG` (`Always.h:11005`; H1's commit 6fca3e00 swept the define block and the MODS entry in with it). Code: `X2UIQuickSlot.{h,cpp}` only.
+- June bodies, March's in `#else`: ctor `3294dd50` (checkbox from a stand-in byte, highlight `SetDisableUnderWindow( false )`), `SetSlotItemIcon` `3294d320` (y 711, item dialog `DLG_UI_Quick_Slot_Item_%d`, hidden `pStaticSlotDisable`), `SetSummonMonsterItemIcon` `32950060` (y 686; June inlines `SetEnable( true, true )`), `SetEnable` `3294c460`, `SetShow` `32951900`.
+- **Found while porting:** `ResetQuickSlotUI` `329517f0` differs (returns while hidden; calls the Amusement fill in the +0x101 mode). Ported whole under the same flag; new `replace` row, done. `SetLayer` (`3294c320`) equals March's FIX_TOOLTIP body: not touched.
+- Stand-ins: Amusement labels (g_pMain `+0x7ec` table, ids 0x2f / 0x30) and fill `329506d0` (mode never set offline); the option byte `+0x2a8` is `ms_bAmusementDescriptionChecked`, default false (June's default not found).
+- Lua: `adopt-june data034 DLG_UI_Quick_Slot.lua DLG_UI_QuickSlot_HighLight.lua` (2 replaced, backups `kom_backup_stage_june61031_054307`); `luabind.py check`: 28 / 12 methods, 0 unbound, PASS. **`PACK OK data034`** (2 entries changed). The copy is not done: ask the user.
+- `QUICK_SLOT_FULL_FREE` untouched. JUNE_BUGS #487 (OR-test null deref, latent).
+- Tool: `junediverge.py` row_done also accepts "ported under SERV_IRUHADEV_JUNE_<X>"; 5 rows marked, 3 allow rows deleted, the `SetShow` allow row now parks only `CX2GageManager::SetShow`.
+- Hygiene: `flagcheck JUNE_HUD_QUICKSLOT --with _DEBUG --worktree`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 FAIL`, `RESULT: PASS`, 0 deleted lines; `junediverge --check`: `RESULT: PASS` (6 allow-listed), `--selftest` PASS; `enumscan --check`: 0 rows.
+- Build: the first run deployed without the code (X2Lib's PCH stale, exestr MISSING); rebuilt with `--pch force`.
+  `DEPLOY OK: X2_offline.exe is 25,862,656 B, dated 2026-10-31 06:13:17, md5 bbd5b5cb81b085110c9e23da93cb4ebb`
+  `EXESTR OK: 4 of 4 found` (`DLG_UI_Quick_Slot_Item_%d`, `pStaticSlotDisable`, `DescriptionCheckBox`, `[JUNE_HUD] SLOT`).
+- Play-test (after the user's `/x2-kom-packed copy data034`): frames at y 708, icons at 711, key numbers at 711; potions in slots 1-6; keys 1-6; cooldown across a stage change. Log lines: `[JUNE_HUD] SLOT ctor`, `fill i=N dialog=DLG_UI_Quick_Slot_Item_N x=9+46N y=711`, `show=1`, `enable=`.
+
 ## Review (Opus 5.5, high)
 
 **Run with:** `/x2-phase june-hud H4 review`. Covers H1-H4.

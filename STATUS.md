@@ -176,7 +176,7 @@ Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Do
 |---|---|---|---|---|---|
 | H2 | ready | Opus 5.5 / high (party / PvP differ; tooltip callees to read) | H1 | `X2GageUI.{h,cpp}`, `X2BuffFactor.h`, village enum, Hero oggs kom, `Always.h` | `H2.md` |
 | H3 | waiting | Sonnet 5.5 / high | H2 | `X2GageUI.{h,cpp}`, `X2GageManager.{h,cpp}`, `X2BuffTemplet.cpp`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h` | `H3.md` |
-| H4 | ready (runs beside H1-H3) | Sonnet 5.5 / high | H0 | `X2UIQuickSlot.{h,cpp}`, data034 (no texture koms: H0), `Always.h` | `H4.md` |
+| H4 | built, owes play-test (3 checks) + `/x2-kom-packed copy data034` (PACK OK) | Sonnet 5.5 / high | H0 | `X2UIQuickSlot.{h,cpp}`, data034 (no texture koms: H0), `Always.h` | `H4.md` |
 | H4 review | waiting (covers H1-H4) | Opus 5.5 / high | H1-H4 | - | `H4-review.md` |
 | Z | waiting | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory | `Z.md` |
 

@@ -18,7 +18,4 @@ X2UICharInfo.cpp	CX2UICharInfo::SumSocketOption	GT_PVP	June 3291b4b0 @3291b71a: 
 *	*	SetBuffIconGuideDesc	tsv SetBuffIconGuideDesc (32e70960): routed to june-hud H2 (SERV_IRUHADEV_JUNE_HUD_BUFF_ROW; H0 2026-10-31)
 *	*	RestartDisplayerForAccumulationDecrease	tsv RestartDisplayerForAccumulationDecrease (3236a190): routed to june-hud H3 (SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT; H0 2026-10-31)
 *	*	SetAccumulationCountNow	tsv SetAccumulationCountNow (3236a430): routed to june-hud H3 (SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT; H0 2026-10-31)
-*	*	SetSlotItemIcon	tsv SetSlotItemIcon (3294d320): routed to june-hud H4 (SERV_IRUHADEV_JUNE_HUD_QUICKSLOT; H0 2026-10-31)
-*	*	SetSummonMonsterItemIcon	tsv SetSummonMonsterItemIcon (32950060): routed to june-hud H4 (SERV_IRUHADEV_JUNE_HUD_QUICKSLOT; H0 2026-10-31)
-*	*	SetEnable	tsv CX2UIQuickSlot::SetEnable (3294c460): routed to june-hud H4; the name is generic, so this row only parks that one function (H0 2026-10-31)
-*	*	SetShow	tsv CX2UIQuickSlot::SetShow (32951900) -> june-hud H4 and CX2GageManager::SetShow (32489e30) -> Stage 9; the name is generic, so this row only parks those two (H0 2026-10-31)
+*	*	SetShow	tsv CX2GageManager::SetShow (32489e30) -> Stage 9; the name is generic, so this row parks only that function (CX2UIQuickSlot::SetShow was ported in june-hud H4, 2026-10-31)

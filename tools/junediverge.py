@@ -15,7 +15,7 @@
      that is GT_PVP only (June 322cc1a0 tests GT_PVP or GT_PVE: write `GetIsNowPVPCorrectionGame()`). The other idiom rows
      (322d0350, 32d4ce60, 32630d20, 322ece70) have no textual shape; they stay a read of the June body.
   c  a June-code call to a function of a `replace` row that is not done. Done = the row's source names the
-     SERV_IRUHADEV_JUNE_DIVERGE_* flag it was ported under, or says "no code", or the tree's definition of that function holds a
+     SERV_IRUHADEV_JUNE_DIVERGE_* flag it was ported under, or says "ported under SERV_IRUHADEV_JUNE_<X>" (a phase flag), or says "no code", or the tree's definition of that function holds a
      SERV_IRUHADEV_JUNE_DIVERGE_* block. `--open-rows` lists the rest.
 Allow-list: tools/data/june_diverge_allow.tsv, one row per line, tab separated, `#` starts a comment:
     file<TAB>function<TAB>name<TAB>reason        (file: basename or path suffix; function: `Name` or `Class::Name`; `*` = any)
@@ -209,7 +209,7 @@ def diverge_functions():
 
 def row_done(row, fns):
     src = row['source']  # write_instead names the planned flag before any code lands
-    if DIVERGE_FLAG in src or re.search(r'(?i)\bno code\b', src):
+    if DIVERGE_FLAG in src or re.search(r'(?i)\bno code\b', src) or re.search(r'ported under SERV_IRUHADEV_JUNE_[A-Z0-9_]+', src):
         return True
     return any(n in fns for n in callable_names(row))
 
