@@ -10983,3 +10983,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-charinfo C4: the U-key window's viewer and slot paths run June's bodies: OnFrameMove 32914380 ( no invalidate when the mouse is off the dialog ), UnitHandling 32912d90 ( drag latch ), MsgProc 3291d390 ( mouse-up bookkeeping before the mouse-over test, Lu/Ciel click switching as a logged stub ), the dark / lit background light 329142a0 + CX2UIManager 32150e30 ( CIM_LIGHT_ON / OFF ), DrawSlotMouseOverImage 32913b90 and OnDropAnyItem 32918410 ( minor-unit slots are not drag targets ), OnRClickedItem 32917fd0 and MouseUp 32917080 ( no IsTransformed test ). Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_CHARINFO_VIEW
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C5: the U-key window's EquipRelease button ( CIM_ALL_EQUIPPED_ITEM_RELEASE, operators only ) runs June 32918c70: every equipped item goes to the next empty bag slot of its inventory tab through March's slot-change REQ. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
+//////////////////////////////////////////////////////////////////////////

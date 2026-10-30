@@ -160,6 +160,9 @@ public:
 protected:
 	bool Handler_EGS_CHANGE_INVENTORY_SLOT_REQ( CX2SlotItem* pFromCX2SlotItem, CX2SlotItem* pToCX2SlotItem );
 	bool Handler_EGS_CHANGE_INVENTORY_SLOT_REQ( CX2Inventory::SORT_TYPE fromSortType, int fromSlotID, CX2Inventory::SORT_TYPE toSortType, int toSlotID );
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
+	void ReleaseAllEquippedItems();
+#endif SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
 
 #ifdef SERV_LOCAL_RANKING_SYSTEM
 	void OpenProfilePasswordDlg();

@@ -39,7 +39,7 @@ june_va	vslot	june_role	march_counterpart	verdict	phase	evidence
 329128e0	54	MouseRButtonUp: GetSlotInMousePos (vfunc 0x60) then OnRClickedItem (vfunc 0xe4)	:647	same	C4 (keep March)	asm | C4: same as March, kept
 32917fd0	57	OnRClickedItem	:657	differs [I] (state checks incl. 0xf, ToggleUI, ChangeInventoryTabByUid, empty-slot move 32916d90, DestroyItemUI)	C4	sig | C4 ported (VIEW): IsTransformed test dropped; rest same as March ( CheckIsReady, send-start flag, state 0xb / 0x15 / 0x17 / 0x1a = DUNGEON_GAME / BATTLE_FIELD / PVE_GAME / PHOTOZONE_GAME, empty-slot move )
 32918410	58	OnDropAnyItem	:784	differs [I] (0x5f5ea39 item test, 0x1000 class test, 3234f4d0; drop sound)	C4	sig | C4 ported (VIEW): slot search skips minor-unit slots ( templet minor flag ); 3234f4d0 ( Lu/Ciel equip conflict, STR 39493 ) and 321693b0 ( Lu/Ciel equip-position remap ) -> Stage 8
-32918c70	-	unequip all ([S%1%]%2%)	none	June-only	C5	only caller 3291dc91 (CIM_ALL_EQUIPPED_ITEM_RELEASE)
+32918c70	-	unequip all ([S%1%]%2%)	none	June-only	C5	C5 ported (ACTIONS) as ReleaseAllEquippedItems; only caller 3291dc91 (CIM_ALL_EQUIPPED_ITEM_RELEASE)
 32916e10 / 32916e70	-	send 0x4d9 (1 byte)	none	June-only	C5	decompile
 32916e40 / 32916ea0	-	send 0x4fd (1 byte)	none	June-only	C5	decompile
 32913f40 / 32912d10 / 329141b0	-	Rose weapon-change UI / button reset / lock UI (unit +0xe50)	none	STUB (Stage 8)	C1 stub	sig

@@ -1209,6 +1209,12 @@ bool CX2UICharInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			g_pData->GetUIManager()->SetCharWindowDarkBackground( true );
 		return false;
 #endif SERV_IRUHADEV_JUNE_CHARINFO_VIEW
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
+	/// June 3291dc91 calls 32918c70 and answers false
+	case CIM_ALL_EQUIPPED_ITEM_RELEASE:
+		ReleaseAllEquippedItems();
+		return false;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
 	}
 	return false;
 }
@@ -4260,6 +4266,114 @@ bool CX2UICharInfo::Handler_EGS_CHANGE_INVENTORY_SLOT_REQ( CX2Inventory::SORT_TY
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
+/// June 32918c70: one slot-change REQ per equipped item, into the next empty slot of the tab ChangeInventoryTabByUid shows
+void CX2UICharInfo::ReleaseAllEquippedItems()
+{
+	if ( g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetAuthLevel() <= CX2User::XUAL_SPECIAL_USER )
+		return;
+
+	vector< CX2SlotManager::CX2Slot* > vecSlot = m_SlotList;	/// June copies the list through vslot 15
+	/// the REQs are not answered yet, so the next item of a tab starts one slot further
+	int iNextEmptyEquip = 0;
+	int iNextEmptyAccessory = 0;
+	int iNextEmptyAvatar = 0;
+
+	for ( UINT i = 0; i < vecSlot.size(); ++i )
+	{
+		CX2SlotItem* pItemSlot = static_cast<CX2SlotItem*>( vecSlot[i] );
+		if ( pItemSlot == NULL || pItemSlot->GetEnable() == false || pItemSlot->GetSlotType() != CX2SlotManager::CX2Slot::ST_EQUIPPED )
+			continue;
+
+		if ( pItemSlot->IsResetItemUI() == false )
+			continue;
+
+		if ( g_pData->GetItemManager()->GetItemTemplet( pItemSlot->GetItemTID() ) == NULL )
+			continue;
+
+		/// June keeps going with the next slot after each refusal below
+		if ( g_pMain->GetNowState() != NULL )
+		{
+			CX2State* pX2State = static_cast<CX2State*>( g_pMain->GetNowState() );
+			if ( pX2State->CheckIsReady() == true )
+			{
+				pX2State->ShowOkAndCancelMsgForUnReadyByEquip();
+				continue;
+			}
+		}
+
+		if ( g_pInstanceData->GetSendGameStartReqPacket() == true )
+			continue;
+
+		switch ( g_pMain->GetNowStateID() )
+		{
+		case CX2Main::XS_DUNGEON_GAME:
+		case CX2Main::XS_BATTLE_FIELD:
+			{
+				if ( g_pX2Game == NULL || g_pX2Game->GetMyUnit() == NULL )
+					continue;
+
+#ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
+				if ( g_pX2Game->GetMyUnit()->IsTransformed() )
+					continue;
+#endif
+
+				if ( g_pX2Game->GetMyUnit()->GetNowHp() <= 0 )
+				{
+					g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2(-999,-999), GET_STRING( STR_ID_2691 ), g_pMain->GetNowState() );
+					continue;
+				}
+
+				if ( g_pX2Game->CheckAndWarningBusyStateNow() )
+					continue;
+			} break;
+
+		default:
+			break;
+		}
+
+		if ( g_pData->GetUIManager() != NULL )
+			g_pData->GetUIManager()->ToggleUI( CX2UIManager::UI_MENU_INVEN, true );
+
+		g_pData->GetUIManager()->GetUIInventory()->ChangeInventoryTabByUid( pItemSlot->GetItemUID() );
+		const CX2Inventory::SORT_TYPE eNowSortType = g_pData->GetUIManager()->GetUIInventory()->GetSortType();
+
+		int* piNextEmpty = NULL;
+		switch ( eNowSortType )
+		{
+		case CX2Inventory::ST_EQUIP:
+			piNextEmpty = &iNextEmptyEquip;
+			break;
+		case CX2Inventory::ST_ACCESSORY:
+			piNextEmpty = &iNextEmptyAccessory;
+			break;
+		case CX2Inventory::ST_AVARTA:
+			piNextEmpty = &iNextEmptyAvatar;
+			break;
+		}
+
+		const CX2Inventory& kInventory = g_pData->GetMyUser()->GetSelectUnit()->GetInventory();
+		for ( int iSlot = ( piNextEmpty != NULL ) ? *piNextEmpty : 0; iSlot < kInventory.GetItemMaxNum( eNowSortType ); ++iSlot )
+		{
+			if ( kInventory.GetItem( eNowSortType, iSlot ) != NULL )
+				continue;
+
+			Handler_EGS_CHANGE_INVENTORY_SLOT_REQ( pItemSlot->GetSortType(), pItemSlot->GetSlotID(), eNowSortType, iSlot );
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHARINFO] RELEASE item %d equip slot %d -> sort %d slot %d",
+				pItemSlot->GetItemTID(), pItemSlot->GetSlotID(), static_cast<int>( eNowSortType ), iSlot );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_DEBUG
+
+			pItemSlot->DestroyItemUI();
+			InvalidSlotDesc();
+
+			if ( piNextEmpty != NULL )
+				*piNextEmpty = iSlot + 1;
+			break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS
 bool CX2UICharInfo::GetOverMouseCharInfo()
 {
 	if( GetShow() == true && m_pDLGCharInfo != NULL && m_pDLGCharInfo->GetIsMouseOver() == true )

@@ -358,6 +358,24 @@ Unequip-all `32918c70` (`CIM_ALL_EQUIPPED_ITEM_RELEASE`): per equipped item, the
 `0x4fd`) to Stage 8 (Lu/Ciel only); C1 stubs it.
 **Gate:** unequip-all moves every item to the bag (and refuses with a full bag as June does); `offline_packets.log` shows the slot-change REQs `HANDLED`.
 
+### C5 Done (2026-10-30, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS`)
+
+**Landed (`X2UICharInfo.{h,cpp}`, `Always.h`; no `#else` needed, the case and the member are June-only):** new `CX2UICharInfo::ReleaseAllEquippedItems` = June
+`32918c70`, called from `CIM_ALL_EQUIPPED_ITEM_RELEASE` (`3291dc91`, answers false). Body: only for auth level above `XUAL_SPECIAL_USER` (June `+0x2c > 1`; same gate
+as C2's EquipRelease button); walks a copy of the slot list (June vslot 15 = `m_SlotList` copy); per `ST_EQUIPPED` slot that is enabled, `IsResetItemUI` and has a templet:
+`CheckIsReady` -> unready box, send-start flag, then in `XS_DUNGEON_GAME` / `XS_BATTLE_FIELD` (June's 0x17 / 0x1a states do not exist in March): no game or unit, **IsTransformed**
+(June tests unit `+0x8c0c` here; its OnRClickedItem does not), hp <= 0 -> STR_ID_2691 box, busy state; then `ToggleUI( UI_MENU_INVEN, true )`, `ChangeInventoryTabByUid`,
+and the first empty slot of that tab from a per-tab cursor (EQUIP / ACCESSORY / AVARTA, June `local_110 / 10c / 114`) because the REQ is not answered yet; sends March's
+`Handler_EGS_CHANGE_INVENTORY_SLOT_REQ` (= June `32916d90`, already answered), `DestroyItemUI`, `InvalidSlotDesc`. A full tab sends nothing and says nothing (June). No new wire id,
+no `X2OfflineDB` change, no Lua, no kom. Switching stays Stage 8's stub (C0). JUNE_BUGS 485 (the refusal box repeats per item). Funcmap + `charinfo_functions.tsv` rows updated.
+Debug line under C3's `_DEBUG`: `[JUNE_CHARINFO] RELEASE item <tid> equip slot <n> -> sort <s> slot <i>`.
+
+**Gates:** `flagcheck JUNE_CHARINFO_ACTIONS --worktree`: files 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 EOL-mismatched; RESULT PASS. `junediverge --check` RESULT: PASS.
+`enumscan --check` 0 A/B rows. `DEPLOY OK: X2_offline.exe 25,864,192 B, 2026-10-30 19:08:33, md5 b3e4ef33762de4cf2b31074a2b55cefa`. `EXESTR OK: 1 of 1 found` (wide `[JUNE_CHARINFO] RELEASE item`).
+
+**Save prepared (backup `db_backup/els_db_20261030_190902_pre_manual.sql`):** unit 32 MagicKnightT got a worn Bronze Sword and 24 Intermediate Bronze Top Piece (equip bag full) for the full-bag check.
+**Open questions:** none.
+
 ## Review (Opus 5.5, high)
 
 `/x2-phase june-charinfo C5 review` covers C1-C5: June vs ours line by line, the asset list against June's bytes, flagcheck ranges per flag, enumscan,
