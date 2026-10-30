@@ -69,6 +69,9 @@ public:
 
     void SetShow(bool val);
 	bool GetShow(){ return m_bShow; }
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	void SetSwitchingView( bool bSwitchingView_ );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 
 	virtual void SetNowDragItemReturn();
 
@@ -221,6 +224,10 @@ private:
 	bool					m_bShow;
     
 	D3DXVECTOR2				m_MovedPosition;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	bool					m_bSwitchingView;
+	bool					m_bUnitClickedForSwitching;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 
 
 #ifdef MONSTER_TROPHY

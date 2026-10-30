@@ -239,6 +239,21 @@ that hides by the slot's `IS_FOR_MINOR_UNIT` (new `CX2SlotItem` field) instead o
 `X2SlotItem.{h,cpp}` to Touches.
 **Gate:** the header and equipment match June's layout in game; the radio toggles; title opens; log clean.
 
+### C2 Done (2026-10-30, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_CHARINFO_SHOW`)
+
+**Landed:** June's bodies inside March's functions (`X2UICharInfo.cpp`, March in `#else`): SetShow `3291df90`, SetTitle `32915100`, ResetNowEquipUI `329146d0`, UICustomEventProc `3291db60` (PROFILE / PASSWORD_* not handled); new `SetSwitchingView` (`32912c50`) with the slot show rule in `_CONST_CHARINFO_C2_`; `CX2SlotItem` reads `IS_FOR_MINOR_UNIT` (`GetIsForMinorUnit`); ctor members `m_bSwitchingView` (+0x25a), `m_bUnitClickedForSwitching` (+0x25b). Funcmap rows `(CharInfo C2)`.
+- **SetShow:** nickname, guild, PvP win (STR 669), PVP_Grade, PvE win, PVE_Grade, char icon (T6c line kept under `JUNE_TRANSCEND_IMAGE`), radio forced Dungeon in a dungeon, EquipRelease (auth level > special user; offline level 3 shows it), resonance buttons, `CharacterSwitching*` (UT_LUCIEL only), inventory refresh at the tail; no Profile / PVP_SCORE / PVP_Total rows (June has none). Close hides the viewer, the item description and the slots.
+- **SetTitle:** the title picture is index 1 of `g_pStaticInfo_Title` (March read `g_pStaticInfo`); no title-score row.
+- **Kept as March (same in June):** ctor/dtor (GetDummyPos already guarded), level / ED / stone / item level, UIServerEventProc (empty).
+- **Stand-ins (labelled in code):** PvE record 0 wins and grade hidden (UnitData lacks June +0xa00 / +0xa0c / +0xa0d); resonance flag (unit +0xaa9) false, so the button is drawn disabled with its guide; Lu/Ciel form byte false; `3286a350` / `3234fe90` (minor-unit item test, ring-in-second-slot remap) false / no-op; state 0x17 `XS_PVE_GAME` and 0xf `XS_GUILD_AGIT_GAME` have no March state; the achievement window June hides on close (`g_pData +0x5c8`, class unlocated here, Stage 31).
+- **Left to later phases:** viewer lines in SetShow stay March's (`329148d0` / `31faa150` ApplyCustomize / `31fa7ef0`: C4); light `329142a0` (C4); Rose weapon UIs `32913f40` / `329141b0` (Stage 8); the +0x25c customize flag and the +0x260 vector (Stage 12, no reader yet); viewer flag +0xd80 in `32912c50` (C4).
+- **Ghidra readings worth keeping:** slot show rule `32e22ce0`: minor slots show only in the switching view; BODY / LEG / HAND / FOOT / WEAPON_HAND always; other equipped slots only outside it. `3218b410` = `SetInventorySort( sort, page )`.
+
+**Gates:** `flagcheck JUNE_CHARINFO_SHOW --worktree --files ...` files: 4 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, `RESULT: PASS`. `junediverge --check` `RESULT: PASS`. `enumscan --check` 0 A/B rows. `DEPLOY OK: X2_offline.exe is 25,851,392 B, dated 2026-10-30 16:39:52, md5 8f83d6a231d4c18a902f7400ed26a51a`. `EXESTR OK: 4 of 4` (wide control names) + `1 of 1` (`IS_FOR_MINOR_UNIT`). No Lua or kom change this phase.
+
+**See it in game:** U window: header text, record rows (PvE 0), equipment in the right slots with no overlapping minor-unit slots, Dungeon / PvP radio switches the numbers, Title button opens the title window and the picked title shows in the window, EquipRelease radio drawn (no action until C5), resonance button greyed with its guide. No new log line.
+**Open questions:** none.
+
 ## Phase C3 - Stat panels and the socket total (Opus 5.5, high)
 
 **Depends on:** C2. **Flag:** `SERV_IRUHADEV_JUNE_CHARINFO_STATS`.

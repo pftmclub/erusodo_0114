@@ -7,6 +7,9 @@ CX2SlotItem::CX2SlotItem(void)
 	m_SlotID	= -1;
 
 	m_bFashion	= false;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	m_bIsForMinorUnit = false;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 	m_EquipPos	= CX2Unit::EP_NONE;
 
 	m_SlotDesc	= L"";
@@ -57,6 +60,9 @@ void CX2SlotItem::LuaGetValue( KLuaManager& luaManager )
 	LUA_GET_VALUE_ENUM( luaManager, "SORT_TYPE", m_SortType, CX2Inventory::SORT_TYPE, CX2Inventory::ST_NONE );
 
 	LUA_GET_VALUE( luaManager, "FASHION", m_bFashion, false );
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	LUA_GET_VALUE( luaManager, "IS_FOR_MINOR_UNIT", m_bIsForMinorUnit, false );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 	LUA_GET_VALUE_ENUM( luaManager, "EQUIP_POS", m_EquipPos, CX2Unit::EQIP_POSITION, CX2Unit::EP_NONE );
 
     int iIndex;

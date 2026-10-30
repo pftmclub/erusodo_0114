@@ -49,6 +49,10 @@ m_MovedPosition(0,0)				// D3DXVECTOR2
 //{{ robobeg : 2013-11-04
 , m_Stat()
 , m_StatEqip()
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+, m_bSwitchingView( false )
+, m_bUnitClickedForSwitching( false )
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 #ifdef  PET_AURA_SKILL
 , m_StatPet()
 #endif  PET_AURA_SKILL
@@ -964,6 +968,9 @@ bool CX2UICharInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			}
 		}
 		break;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	/// June 3291db60 does not handle PROFILE / PASSWORD_OK / PASSWORD_CANCLE
+#else SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 #ifdef SERV_LOCAL_RANKING_SYSTEM
 
 	case CIM_PASSWORD_OK:
@@ -1040,6 +1047,7 @@ bool CX2UICharInfo::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 #endif //SERV_LOCAL_RANKING_SYSTEM
 
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 #ifdef VIEW_SPECIAL_OPTIONDATA
 	case CIM_SPECIAL_OPTIONDATA_TOGGLE:
 		{
@@ -1119,6 +1127,190 @@ bool CX2UICharInfo::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 void CX2UICharInfo::SetShow(bool val)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	// June 3291df90
+	m_bShow = val;
+
+	if ( val == true )
+	{
+		CX2Unit* pSelectUnit = g_pData->GetMyUser()->GetSelectUnit();
+		const CX2Unit::UnitData* pUnitData = &pSelectUnit->GetUnitData();
+		WCHAR buff[256] = {0};
+
+		CKTDGUIStatic* pStaticUserInfo = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"Static_Nickname" );
+		if ( pStaticUserInfo != NULL && pStaticUserInfo->GetString(0) != NULL )
+			pStaticUserInfo->GetString(0)->msg = pSelectUnit->GetNickName();
+
+		CKTDGUIStatic* pStaticGuildName = static_cast< CKTDGUIStatic* >( m_pDLGCharInfo->GetControl( L"Static_GuildName" ) );
+		if ( pStaticGuildName != NULL )
+			pStaticGuildName->SetString( 0, g_pData->GetGuildManager()->ConvertDisplayGuildName( pUnitData->m_wstrGuildName ).c_str() );
+
+		CKTDGUIStatic* pStaticPvpWin = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"g_pStaticInfo_PVP_Win" );
+		if ( pStaticPvpWin != NULL && pStaticPvpWin->GetString(0) != NULL )
+		{
+			StringCchPrintf( buff, 256, GET_REPLACED_STRING( ( STR_ID_669, "i", ( int )pUnitData->m_Win ) ) );
+			pStaticPvpWin->GetString(0)->msg = buff;
+		}
+
+		CKTDGUIStatic* pStaticPvpGrade = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"PVP_Grade" );
+		if ( pStaticPvpGrade != NULL && g_pMain->GetPVPEmblem()->GetMyNowUnitPVPEmblem() != NULL )
+		{
+			pStaticPvpGrade->GetPicture(0)->SetTex( g_pMain->GetPVPEmblem()->GetMyNowUnitPVPEmblem()->m_TextureName.c_str(),
+				g_pMain->GetPVPEmblem()->GetMyNowUnitPVPEmblem()->m_TextureKey.c_str() );
+		}
+
+		/// stand-in: UnitData has no PvE record ( June +0xa00 count, +0xa0c grade, +0xa0d wins ): 0 wins, grade hidden as June does under 5 records
+		const int iPveWin = 0;
+		CKTDGUIStatic* pStaticPveWin = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"g_pStaticInfo_PVE_Win" );
+		if ( pStaticPveWin != NULL && pStaticPveWin->GetString(0) != NULL )
+		{
+			StringCchPrintf( buff, 256, GET_REPLACED_STRING( ( STR_ID_669, "i", iPveWin ) ) );
+			pStaticPveWin->GetString(0)->msg = buff;
+		}
+
+		CKTDGUIStatic* pStaticPveGrade = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"PVE_Grade" );
+		if ( pStaticPveGrade != NULL && pStaticPveGrade->GetPicture(0) != NULL )
+			pStaticPveGrade->SetShow( false );
+
+		CKTDGUIStatic* pStaticCharIcon = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"Static_CharIcon" );
+		wstring fileName;
+		wstring pieceName;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnitData->m_UnitClass, CX2Data::CIT_20by20, 1 == pUnitData->m_iUnitClassTran ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		if ( true == CX2Data::GetCharacterImageName( fileName, pieceName, pUnitData->m_UnitClass, CX2Data::CIT_20by20 ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+		{
+			pStaticCharIcon->GetPicture(0)->SetTex( fileName.c_str(), pieceName.c_str() );
+		}
+
+		/// June's 0x17 ( XS_PVE_GAME ) has no March state
+		if ( g_pMain->GetNowStateID() == CX2Main::XS_DUNGEON_GAME )
+		{
+			m_bShowPVPOption = false;
+			m_bShowDungeonOption = true;
+		}
+
+		if ( m_bShowDungeonOption == true )
+		{
+			CKTDGUIRadioButton* pRadioDungeonStat = static_cast<CKTDGUIRadioButton*>( m_pDLGCharInfo->GetControl( L"DungeonStat" ) );
+			if ( pRadioDungeonStat != NULL )
+				pRadioDungeonStat->SetChecked( true );
+		}
+		if ( m_bShowPVPOption == true )
+		{
+			CKTDGUIRadioButton* pRadioPvpStat = static_cast<CKTDGUIRadioButton*>( m_pDLGCharInfo->GetControl( L"PvpStat" ) );
+			if ( pRadioPvpStat != NULL )
+				pRadioPvpStat->SetChecked( true );
+		}
+
+		if ( g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetAuthLevel() > CX2User::XUAL_SPECIAL_USER )
+		{
+			CKTDGUIControl* pRadioEquipRelease = m_pDLGCharInfo->GetControl( L"EquipRelease" );
+			if ( pRadioEquipRelease != NULL )
+			{
+				pRadioEquipRelease->SetEnable( true );
+				pRadioEquipRelease->SetShow( true );
+			}
+		}
+
+		/// stand-in: Lu/Ciel not ported, the form byte ( unit +0xe40 ) is 0
+		SetSwitchingView( false );
+
+		ResetStat();
+		ResetNowEquipUI();
+		ResetEDnCashnVP();
+		UpdateLevel();
+		ResetResurrectionStoneUI();
+
+		/// viewer lines stay March's until the viewer phase ( June 329148d0 / 31faa150 / 31fa7ef0 )
+		ResetUnitViewerUI();
+		m_pUnitViewerUI->PlayByMotionType( CX2UnitViewerUI::UVVMT_DOWN_LANDING );
+		m_pUnitViewerUI->SetShowObject(true);
+		m_pUnitViewerUI->SetHideSelectUnitWeapon();
+
+		g_pData->GetUIManager()->UIOpened( CX2UIManager::UI_MENU_CHARINFO );
+		if ( NULL != g_pData->GetPlayGuide() )
+			g_pData->GetPlayGuide()->SetPlayGuide( CX2PlayGuide::PGT_OBTAIN_TITLE, false );
+
+		CKTDGUIControl* pButtonResonance = m_pDLGCharInfo->GetControl( L"g_pButton_Resonance" );
+		CKTDGUIControl* pButtonResonanceGuide = m_pDLGCharInfo->GetControl( L"g_pButton_Resonance_Guide" );
+		CKTDGUIControl* pButtonResonanceGuideOnGame = m_pDLGCharInfo->GetControl( L"g_pButton_Resonance_Guide_OnGame" );
+		if ( pButtonResonance != NULL && pButtonResonanceGuide != NULL && pButtonResonanceGuideOnGame != NULL )
+		{
+			/// stand-in: the unit's resonance flag ( +0xaa9 ) is not in March, June's absent value 0; 0xf ( XS_GUILD_AGIT_GAME ) has no March state
+			bool bResonanceOpen = false;
+			if ( bResonanceOpen == false )
+			{
+				pButtonResonance->SetShowEnable( true, false );
+				pButtonResonanceGuide->SetShowEnable( true, true );
+				pButtonResonanceGuideOnGame->SetShowEnable( false, false );
+			}
+			else if ( g_pMain->GetNowStateID() == CX2Main::XS_VILLAGE_MAP )
+			{
+				pButtonResonance->SetShowEnable( true, true );
+				pButtonResonanceGuide->SetShowEnable( false, false );
+				pButtonResonanceGuideOnGame->SetShowEnable( false, false );
+			}
+			else
+			{
+				pButtonResonance->SetShowEnable( true, false );
+				pButtonResonanceGuide->SetShowEnable( false, false );
+				pButtonResonanceGuideOnGame->SetShowEnable( true, true );
+			}
+		}
+
+		CKTDGUIControl* pButtonSwitching = m_pDLGCharInfo->GetControl( L"CharacterSwitching" );
+		CKTDGUIControl* pButtonSwitchingInThisDialog = m_pDLGCharInfo->GetControl( L"CharacterSwitchingInThisDialog" );
+		if ( pButtonSwitching != NULL && pButtonSwitchingInThisDialog != NULL )
+		{
+			pButtonSwitching->SetShowEnable( false, false );
+			pButtonSwitchingInThisDialog->SetShowEnable( false, false );
+
+			if ( pSelectUnit->GetType() == CX2Unit::UT_LUCIEL )
+			{
+				if ( g_pMain->GetNowStateID() == CX2Main::XS_VILLAGE_MAP )
+					pButtonSwitching->SetShowEnable( true, true );
+				else
+					pButtonSwitchingInThisDialog->SetShowEnable( true, true );
+			}
+		}
+
+		m_bUnitClickedForSwitching = false;
+
+		/// the light ( 329142a0 ) belongs to the viewer phase, Rose's weapon change / lock UIs ( 32913f40 / 329141b0 ) to Stage 8
+	}
+	else
+	{
+		if ( m_pUnitViewerUI != NULL )
+			m_pUnitViewerUI->SetShowObject( false );
+		m_pDLGSelectedItem->SetShow( false );
+		InvalidSlotDesc();
+		g_pData->GetUIManager()->UIClosed( CX2UIManager::UI_MENU_CHARINFO );
+		/// stand-in: June also hides the account achievement window ( g_pData +0x5c8 ) here, not ported ( Stage 31 )
+	}
+
+	if ( m_bShow == true )
+	{
+		SetSwitchingView( false );
+	}
+	else
+	{
+		for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+		{
+			CX2SlotItem* pItemSlot = (CX2SlotItem*)m_SlotList[i];
+			pItemSlot->LostItemUI();
+			pItemSlot->SetShow( false );
+			pItemSlot->SetEnable( false );
+		}
+	}
+
+	m_pDLGCharInfo->SetShowEnable( m_bShow, m_bShow );
+
+	CX2UIInventory* pUIInventory = g_pData->GetUIManager()->GetUIInventory();
+	if ( pUIInventory != NULL && pUIInventory->GetShow() == true )
+		pUIInventory->SetInventorySort( pUIInventory->GetSortType(), pUIInventory->GetNowInvenSortTypePageNum() );
+#else SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 	m_bShow = val;
 	//SetEnable(m_bShow);
 	//SetShow(m_bShow);
@@ -1328,6 +1520,7 @@ void CX2UICharInfo::SetShow(bool val)
 	}
 
 #endif MONSTER_TROPHY
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 }
 
 
@@ -1369,6 +1562,47 @@ void CX2UICharInfo::SetLayer(X2_DIALOG_LAYER layer)
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+namespace _CONST_CHARINFO_C2_
+{
+	/// June 32e22ce0: stand-in, a minor-unit slot is told by IS_FOR_MINOR_UNIT ( June's NESI ids for them clash with March's )
+	bool IsEquippedSlotShown( CX2SlotItem* pItemSlot_, bool bSwitchingView_ )
+	{
+		if ( pItemSlot_->GetIsForMinorUnit() == true )
+			return bSwitchingView_;
+
+		switch ( pItemSlot_->GetSlotID() )
+		{
+		case CX2Unit::NESI_DEFENCE_BODY:
+		case CX2Unit::NESI_DEFENCE_LEG:
+		case CX2Unit::NESI_DEFENCE_HAND:
+		case CX2Unit::NESI_DEFENCE_FOOT:
+		case CX2Unit::NESI_WEAPON_HAND:
+			return true;
+		}
+
+		return bSwitchingView_ == false;
+	}
+}
+using namespace _CONST_CHARINFO_C2_;
+
+void CX2UICharInfo::SetSwitchingView( bool bSwitchingView_ )
+{
+	/// June 32912c50; its viewer flag ( viewer +0xd80 ) rides with the viewer phase
+	m_bSwitchingView = bSwitchingView_;
+
+	for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+	{
+		CX2SlotItem* pItemSlot = (CX2SlotItem*)GetSlot(i);
+		if ( pItemSlot == NULL || pItemSlot->GetSlotType() != CX2Slot::ST_EQUIPPED )
+			continue;
+
+		const bool bShow = IsEquippedSlotShown( pItemSlot, bSwitchingView_ );
+		pItemSlot->SetShow( bShow );
+		pItemSlot->SetEnable( bShow );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 void CX2UICharInfo::SetTitle()
 {	
 //#ifdef TITLE_SYSTEM
@@ -1387,7 +1621,11 @@ void CX2UICharInfo::SetTitle()
 #endif ELLIPSE_GLOBAL
 
 			// 칭호 이미지		
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+			CKTDGUIStatic* pStaticTitleImg = pStaticUserInfo;	/// June 32915100: the picture sits in g_pStaticInfo_Title
+#else SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 			CKTDGUIStatic* pStaticTitleImg = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"g_pStaticInfo" );
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 			if(pStaticTitleImg != NULL)
 			{
 				CKTDGUIControl::CPictureData* pTitlePicture = pStaticTitleImg->GetPictureIndex(1);
@@ -1396,6 +1634,9 @@ void CX2UICharInfo::SetTitle()
 				{
 					wstring imgName = g_pData->GetTitleManager()->GetTitleImgName();
 					pTitlePicture->SetTex(imgName.c_str());
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+					/// June 32915100 has no title score row
+#else SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 #ifdef TITLE_SHOWING_PVP_RESULT
 					CKTDGUIStatic* pStaticTitleScore = (CKTDGUIStatic*)m_pDLGCharInfo->GetControl( L"g_pStaticInfo_TitleScore" );
 					if( pStaticTitleScore != NULL )
@@ -1414,6 +1655,7 @@ void CX2UICharInfo::SetTitle()
 						}
 					}
 #endif //TITLE_SHOWING_PVP_RESULT
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 
 #ifdef ADD_TITLE_DESCRIPTION
 					// 타이틀 디스크립션 추가
@@ -2700,6 +2942,49 @@ CX2SocketItem::SocketData CX2UICharInfo::GetMyEquippedSocketData()
 
 void CX2UICharInfo::ResetNowEquipUI()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+	// June 329146d0
+	for ( int i = 0; i < (int)m_SlotList.size(); i++ )
+	{
+		CX2SlotItem* pItemSlot = (CX2SlotItem*)GetSlot(i);
+		if ( pItemSlot != NULL && pItemSlot->GetSlotType() == CX2Slot::ST_EQUIPPED )
+			pItemSlot->DestroyItemUI();
+	}
+
+	if ( g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL )
+	{
+		const CX2Unit::UnitData* pMyUnitData = &g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
+		const CX2Inventory& kInventory = g_pData->GetMyUser()->GetSelectUnit()->GetInventory();
+
+		for ( int i = 0; i < (int)pMyUnitData->m_NowEqipItemUIDList.size(); i++ )
+		{
+			CX2Item* pItem = kInventory.GetItem( pMyUnitData->m_NowEqipItemUIDList[i] );
+			if ( pItem == NULL )
+				continue;
+
+			/// stand-in: 3286a350 tests June's minor-unit equip positions, Lu/Ciel not ported; 3234fe90 ( ring in the second ring slot ) needs a slot map March lacks
+			const bool bMinorUnitItem = false;
+
+			for ( int j = 0; j < (int)m_SlotList.size(); j++ )
+			{
+				CX2SlotItem* pItemSlot = (CX2SlotItem*)GetSlot(j);
+				if ( pItemSlot->GetEquipPos() == pItem->GetItemTemplet()->GetEqipPosition() &&
+					( pItem->GetItemTemplet()->GetItemType() == CX2Item::IT_ACCESSORY || pItemSlot->GetFashion() == pItem->GetItemTemplet()->GetFashion() ) &&
+					pItemSlot->GetIsForMinorUnit() == bMinorUnitItem )
+				{
+					if ( pItemSlot->IsCreatedItemUI() == true )
+						pItemSlot->ResetItemUI( pItem );
+					else
+						pItemSlot->CreateItemUI( pItem );
+
+					break;
+				}
+			}
+		}
+	}
+
+	UpdateItemLevel();
+#else SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 
 
 	for ( int i = 0; i < (int)m_SlotList.size(); i++ )
@@ -2752,6 +3037,7 @@ void CX2UICharInfo::ResetNowEquipUI()
 		g_pInstanceData->GetMiniMapUI()->UpdateEnduranceNotice();
 	}
 	UpdateItemLevel();
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 }
 
 

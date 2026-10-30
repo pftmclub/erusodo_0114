@@ -15,6 +15,9 @@ class CX2SlotItem : public CX2SlotManager::CX2Slot
 		void SetSlotID( int slotID ) { m_SlotID = slotID; }
 
 		bool GetFashion() { return m_bFashion; }
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+		bool GetIsForMinorUnit() { return m_bIsForMinorUnit; }
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 		CX2Unit::EQIP_POSITION GetEquipPos() { return m_EquipPos; }
 
 		wstring GetSlotDesc() { return m_SlotDesc; }
@@ -104,6 +107,9 @@ class CX2SlotItem : public CX2SlotManager::CX2Slot
 		CX2Inventory::SORT_TYPE m_SortType;
 
 		bool					m_bFashion;
+#ifdef SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+		bool					m_bIsForMinorUnit;
+#endif SERV_IRUHADEV_JUNE_CHARINFO_SHOW
 		CX2Unit::EQIP_POSITION	m_EquipPos;
 
 		wstring					m_SlotDesc;

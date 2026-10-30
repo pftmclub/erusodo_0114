@@ -10948,3 +10948,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-charinfo C1: the U-key window builds June's DLG_UI_CHARACTER_NEW_4.lua ( CX2UIManager::CreateUICharInfo 3214fd30 ), CHARACTER_INFORMATION_MSG gets June's 10007-10024 and UASCM_ACHIEVEMENT_OPEN, and the buttons whose feature is not ported ( customize, resonance, achievement, Rose weapon change / lock, Lu/Ciel switching ) log "[JUNE_CHARINFO] STUB <name> -> <owner>" on click. Revert: undefine the flag.
 #define SERV_IRUHADEV_JUNE_CHARINFO_DLG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-charinfo C2: CX2UICharInfo::SetShow, SetTitle, ResetNowEquipUI and the custom events run June's bodies ( 3291df90 / 32915100 / 329146d0 / 3291db60 ): PvE record, EquipRelease, resonance and switching buttons, the minor-unit slot view ( CX2SlotItem IS_FOR_MINOR_UNIT ), the inventory refresh; no local-ranking profile or PvP score rows. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHARINFO_SHOW
+//////////////////////////////////////////////////////////////////////////
