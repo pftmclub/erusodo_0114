@@ -1124,6 +1124,45 @@ CKTDXDeviceSound* CKTDXDeviceManager::OpenSoundInBackground( wstring deviceID,
 #else	X2OPTIMIZE_SOUND_BACKGROUND_LOAD
 	EPriority ePriority = PRIORITY_BLOCKING;
 #endif	X2OPTIMIZE_SOUND_BACKGROUND_LOAD
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+	// June 31ce0580: the background open looks up and creates the same NAME_INT.OGG device as OpenSound
+	MakeUpperCase( deviceID );
+
+	wstring wstrIntSoundID;
+	wstring wstrSoundID;
+	GetSoundDeviceID( deviceID, wstrIntSoundID, wstrSoundID );
+
+	CKTDXDeviceSound* pSound = static_cast<CKTDXDeviceSound*>( PendDevice( wstrSoundID.c_str(), CKTDXDevice::DT_SOUND, ePriority ) );
+	if( pSound == NULL )
+	{
+		if( m_MassFileManager.IsValidFile( wstrSoundID ) == false )
+			return NULL;
+
+		CKTDSManager* pDSManager = g_pKTDXApp->GetDSManager();
+		if( pDSManager->GetInit() == false )
+			return NULL;
+
+		if( pDSManager->GetEnableKoreanSound() == false )
+		{
+			if( m_MassFileManager.IsValidFile( wstrIntSoundID ) == false )
+				pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), deviceID, bUse3D );
+			else
+				pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), wstrIntSoundID, bUse3D );
+		}
+		else
+		{
+			pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), wstrSoundID, bUse3D );
+		}
+		pSound = static_cast<CKTDXDeviceSound*>( CreateAndPendDevice( pSound, ePriority ) );
+		if( pSound == NULL )
+			return NULL;
+	}
+
+	if( CKTDXDevice::DEVICE_STATE_FAILED == pSound->GetDeviceState() )
+		return NULL;
+
+	return pSound;
+#else SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 
     MakeUpperCase( deviceID );
 	
@@ -1143,6 +1182,7 @@ CKTDXDeviceSound* CKTDXDeviceManager::OpenSoundInBackground( wstring deviceID,
 		}
 	}
 	return pSound;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 }
 
 

@@ -1491,6 +1491,22 @@ Kickoff `kickoffs/june-march-divergence/Smoke.md`: it merges every Done note's "
 unported classes are not played and their checks are listed as "not covered"; dungeon / camera, UI / quests), the user plays it, `logs.py` reads `ErrorLog.txt` and the offline logs, a failure
 traced to a plan flag is fixed under that flag, anything else is routed by the backlog scope rule. It writes "Phase S Done". D2 review depends on it.
 
+### Phase S, in progress (2026-10-30, Opus 5.5)
+
+- **Save setup** (backup `db_backup\els_db_20261030_105201_pre_phaseS_smoke_before.sql`): ArmeDW (53) staff 1669 -> +11, bag 1953 (+13) and 1954 (+10, attrib 4/5/6),
+  riding pet row (id 7); EveSeraph (60) wears Void Drone 1866 (+11, attrib 4/5/6) and armour 1867-1870. Quest-UI checks on Iivue (19), freeze on ArmeEM (51).
+- **Fix 1, crash leaving a field with Aisha** (`~CX2GUArme_VioletMage` -> `~CKTDXDeviceHolder` -> `~CKTDXDeviceData`, AV in msvcr100; CrashRpt `X2_D2B.tmp`):
+  D1-5b ported June's `OpenSound` (31cdf4a0, `X_INT.OGG` when the `_INT` file exists) but not its other caller of `GetSoundDeviceID` 31cdd720, June's
+  `OpenSoundInBackground` 31ce0580. The holder pended `X.OGG`; `PlaySound` opened `X_INT.OGG` and recorded `X.OGG`; `CX2SoundCloseManager::CloseSound`
+  (CLOSE_SOUND_TEST) then unref'd the holder's `X.OGG` and freed it under the holder. Now `OpenSoundInBackground` looks up and creates the same id under
+  `SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND`, March's body in `#else`. June's `PlaySound` (32276220) also records the caller's name, so the close is a no-op
+  for `_INT` sounds in June too (kept). Lead for D2 review: June's `PlaySound` adds to the close list with no `bLoop == false` test.
+  flagcheck `--worktree` PASS (+40, 0 deleted); junediverge `--check` RESULT: PASS; enumscan 0 rows.
+  `DEPLOY OK: X2_offline.exe is 25,848,320 B, dated 2026-10-30 11:02:55, md5 84d4f9b1245102ce0a0b0b899731c22e, equal to X2/US_SERVICE/x2.exe (2026-10-30 11:02:49); built at main b7f0cf6c + 1 uncommitted code file(s).`
+- **Not covered** (unported classes, by rule): Elsword / Chung / Ara / Add / Lire checks. **Not reachable offline:** amusement items (PvP), shared-bank quest
+  items (bank not modelled), Pandemonium Fear (Chung debuff), no-display mana drain (Elesis / Rose / Luciel only), Aisha `_INT` voice (`SelectVoiceTable`
+  not ported), Eve accel / spectrum (not learned on EveSeraph), PvP socket.
+
 ## Phase D2 - Review and close (Opus 5.5, high)
 
 `/x2-phase june-march-divergence D2 review` (after Phase S): the smoke's Done note, selftest, `--check` over X2Lib / KTDXLIB yourself, every sweep fix and allow-list reason,

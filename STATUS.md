@@ -211,7 +211,7 @@ Done: D0a, D0b, C0.
 | D1-5b (OpenSound tsv 351) | done 2026-10-30, smoke at plan end (`JUNE_DIVERGE_OPEN_SOUND`: `_INT` voice variants, Korean sound off; option -> Stage 9) | Opus 5.5 / high | D1-5 | `KTDXDeviceManager`, `KTDSManager` | `D1-5b.md` |
 | D1 review (D1-5 + D1-5b, closes D1) | done 2026-10-30, smoke at plan end (all 12 flags pass, no fix; camera lead: compensation unused in June and March, no code; tsv 360-363 marked no code) | Opus 5.5 / high | D1-5b | as D1-5 / D1-5b | `D1-review.md` |
 | D2 (gate + wiring), then Phase S below, then D2 review / close (plan closes) | D2 done 2026-10-30, smoke at plan end (`junediverge.py` gate + allow-list; 8 idiom sites swapped, 7 allow-listed; wired into x2-phase) | Sonnet 5.5 / high, Opus review | D1 review | `tools/junediverge.py`, allow-list, idiom sites, x2-phase skill, Stage 7 template, `CLAUDE.md` | `D2.md`, `D2-review.md` |
-| S (plan-end smoke play-test: one hand-off from every Done note's smoke line, user plays, logs, fixes) | ready (D2 done 2026-10-30) | Opus 5.5 / high | D2 | none (fixes under the broken phase's flag) | `Smoke.md` |
+| S (plan-end smoke play-test: one hand-off from every Done note's smoke line, user plays, logs, fixes) | in progress 2026-10-30: fix 1 (Aisha field-exit crash, `OPEN_SOUND` background open) deployed; user replays the hand-off | Opus 5.5 / high | D2 | none (fixes under the broken phase's flag) | `Smoke.md` |
 
 ## Other plans (no STATUS rows)
 
