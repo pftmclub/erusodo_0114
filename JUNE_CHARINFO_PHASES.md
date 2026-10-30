@@ -225,6 +225,7 @@ MagicalCloset light `32d9c150` with the closet window (Stage 9, no owner yet); S
 - **Gates:** `flagcheck JUNE_CHARINFO_DLG --worktree` RESULT: PASS (3 PASS, 1 DEFINE, 0 FAIL); `junediverge --check` RESULT: PASS; `enumscan --check` 0 A/B rows; `ledger --check` PASS, `core --check` PASS. `PACK OK` data034 / 036 / 056 / 057 / 063 / datai021 / datai022; `COPY OK` (user said "copy") md5 data056 `3ebecf46`, data057 `be599ed5`, data063 `3339d269`, datai021 `74f98a13`, datai022 `e6df65ff`; data034 / data036 copied in the same run.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,850,368 B, dated 2026-10-30 16:00:14, md5 a3cbf643d3fd4cb5ff365ce845454182`. `EXESTR OK: 5 of 5 found in X2_offline.exe` (the four stub tags checked + `DLG_UI_CHARACTER_NEW_4.lua`, wide).
 - **Slip, fixed:** the first build failed (`CX2OfflineLog` undeclared): a bytepatch spec with two `@@ file` sections for `X2UICharInfo.cpp` dropped the `#include`. Re-applied alone; no code change otherwise.
+**Play-test (2026-10-31, review exe e7c166a1, run after deploy):** `OpenScriptFile.log` loads `DLG_UI_CHARACTER_NEW_4.lua`; `STUB UASCM_ACHIEVEMENT_OPEN -> Stage 31` and `STUB CIM_CUSTOMIZE -> Stage 12` logged once per click (Resonance is drawn disabled since C2, so no line); ErrorLog has no dialog / texture / `KEM_ERROR` line; 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` UNHANDLED. C1 done.
 **Open questions:** none.
 
 ## Phase C2 - SetShow, header, equipment, events (Sonnet 5.5, high)
@@ -253,6 +254,7 @@ that hides by the slot's `IS_FOR_MINOR_UNIT` (new `CX2SlotItem` field) instead o
 
 **See it in game:** U window: header text, record rows (PvE 0), equipment in the right slots with no overlapping minor-unit slots, Dungeon / PvP radio switches the numbers, Title button opens the title window and the picked title shows in the window, EquipRelease radio drawn (no action until C5), resonance button greyed with its guide. No new log line.
 **Open questions:** none.
+**Play-test (2026-10-31, same run as C1):** user play-tested, logs clean (0 EXCEPTION, no dialog error). C2's checks are visual (header, records, slots, radio, title) and have no log line since `_DEBUG` was retired; the light kept "dark 1" across a close / reopen (05:32:50 -> 05:33:04). C2 done.
 
 ## Phase C3 - Stat panels and the socket total (Opus 5.5, high)
 
