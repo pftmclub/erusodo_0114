@@ -1349,6 +1349,7 @@ The user asked for the U-key window as June has it. Plan `JUNE_CHARINFO_PHASES.m
 - **Stays Stage 9:** `CX2UIWatch` (user, 2026-10-28), the transcend-UI leftovers. **Stage 33** keeps the `CX2Stat` sums under the printed numbers; C3 records
   its display rows in that map.
 - **Depends on:** nothing. Start: `/x2-phase june-charinfo C0` (Opus 5.5 high).
+- **Closed 2026-10-31 (Z).** C0-C5 and the review are done; play-tests passed (C1-C5, C4 add-on), 0 EXCEPTION. Routed on: Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Lu/Ciel and Rose switching -> Stage 8 (STUB clicks); the light as game option `0x15` and the cursor modes -> Stage 9 (bullets above). Untested: C4 drag / equip checks, C5 check 3 (button hidden below auth 2).
 
 ### Stage 35: March behaviour inside June code (user, 2026-10-28)
 

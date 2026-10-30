@@ -168,17 +168,6 @@ Done: R0, R1, R2, R3, R3b, R3c, R3d, R4.
 |---|---|---|---|---|---|
 | Z | blocked (waits for the R4 review) | Sonnet 5.5 / medium | R3 review (+ R4 review if run) | `MODS.md`, backlog, memory | `Z.md` |
 
-## june-charinfo - June character info window (U key): dialog, header, stat panels, viewer, actions
-Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · flags `SERV_IRUHADEV_JUNE_CHARINFO_*` (`_DLG`, `_SHOW`, `_STATS`, `_VIEW`, `_ACTIONS`, + `_DEBUG`) · kickoffs `kickoffs/june-charinfo/` · evidence `june2017_re/charinfo_functions.tsv` (C0) · backlog Stage 34, split out of Stage 9 (user, 2026-10-28) · planned on Opus 2026-10-28.
-
-| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
-|---|---|---|---|---|---|
-| C4 | **done** (attribute-enchant add-on play-test passed 2026-10-30; C4's light toggle seen in the log, its drag / equip checks untested) | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `X2UnitViewerUI.{h,cpp}` (add-on) | `C4.md`, `C4-enchant.md` |
-| C5 | **done** (play-test passed 2026-10-30; check 3 untested) | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp` | `C5.md` |
-| C5 review | **done, PASS** (no transcription error; `_DEBUG` retired; light-option drift -> Stage 9; Done note in the plan) | Opus 5.5 / high | C5 | `Always.h` | `C5-review.md` |
-| Z | ready | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |
-Done: C0, C1, C2, C3.
-
 ## june-hud - June HUD: buff icon row (top right, counter) and quick slot (bottom left)
 Plan `JUNE_HUD_PHASES.md` · branch `main` · log tag `[JUNE_HUD]` (sub-tags `BUFF`, `SLOT`) · flags `SERV_IRUHADEV_JUNE_HUD_*` (`_BUFF_ROW`, `_BUFF_COUNT`, `_QUICKSLOT`, + `_DEBUG`) · kickoffs `kickoffs/june-hud/` · evidence `june2017_re/hud_functions.tsv` · backlog Stage 37, split out of Stage 9 (user, 2026-10-31) · planned on Opus 2026-10-31. H1 deletes the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (user: delete the code).
 Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan).
@@ -221,3 +210,4 @@ Full rows in `STATUS_ARCHIVE.md`.
 | char-eve | `JUNE_CHARACTER_EVE_PHASES.md` | - |
 | june-enum-names | `JUNE_ENUM_NAMES_PHASES.md` | - |
 | june-march-divergence | `JUNE_MARCH_DIVERGENCE_PHASES.md` | june-engine R6c / R12c / R14c / R15, june-charinfo C4 add-on, Stage 36, Stage 9 (Korean-sound option) |
+| june-charinfo | `JUNE_CHARINFO_PHASES.md` | Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Lu/Ciel and Rose switching -> Stage 8 (STUB clicks); light option, cursor modes -> Stage 9 |

@@ -5521,3 +5521,15 @@ Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW` (`Always.h`): `CX2UICharInfo::OnFrameMov
 
 Flag `SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT` (`Always.h`; `#error` without `..._JUNE_DIVERGE_UPGRADE_WEAPON_PARTICLE` or `..._JUNE_ENCHANT_PARITY`): `CX2UnitViewerUI` keeps its attribute-enchant sequences in two lists (`m_vecSeqWeaponFire`, `m_vecSeqWeaponWind`) instead of seven handles. The creators take a count and names, the three EDT switches carry June's triple / quadra types and June's `Attribute_*_Ring_*` hand sparks, the hand sparks use five rates per class (Chung on `Bip01_R_Hand`), and every frame move hides with `CanShowWeaponEffect`. Delete, draw, `SetShowAttribEnchant` and the ctor follow the lists. March's code stays in `#else`. data036's `UIMajorParticle.txt` already has every sequence name; June's `Attribute_Hand_White.dds` (the ring mesh's texture) and `black_02.dds` were staged into data002 (`kom.py stage-june`, nothing replaced: reverting means removing the two entries and repacking).
 **Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June character info window: stat panels, socket total, equip group (june-charinfo C3, 2026-10-30)
+
+Flags `SERV_IRUHADEV_JUNE_CHARINFO_STATS` and `SERV_IRUHADEV_JUNE_CHARINFO_EQUIP_GROUP` (`Always.h`; `_DEBUG` is retired, its define commented out): `CX2UICharInfo` ResetStat (new `bool` argument), GetDamageDecrement, UpdateBasicStatUI, UpdateOptionStatUI, UpdateOptionStatFromSpecialSkill, UpdateBasicStatFromSpecialSkill, SumSocketOption and GetMyEquippedSocketData (new equip-group argument) take June's bodies, March's in `#else`; new GetMyFormSocketData, GetShownEquipStat, UpdateRecordGuideUI. `_EQUIP_GROUP`: `GetEquipGroup` maps March's onepiece slot 20 to June's group 0 (Stage 8's NESI renumber removes it). Nine June SKILL_ID names in `X2SkillTree.h`. Stand-ins (0): Lu/Ciel form, attack spread, PvE record / grade. No asset change.
+**Revert.** Comment out each `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June character info window: unequip all (june-charinfo C5, 2026-10-30)
+
+Flag `SERV_IRUHADEV_JUNE_CHARINFO_ACTIONS` (`Always.h`): new `CX2UICharInfo::ReleaseAllEquippedItems`, called from `CIM_ALL_EQUIPPED_ITEM_RELEASE`; sends March's slot-change REQ per equipped item (auth level above special user only). June-only code, no `#else`. No wire, save, Lua or kom change.
+**Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+**Whole plan (Z, 2026-10-31).** 17 staged files (5 Lua in data034, 12 textures in data057 / 056 / 063 / datai021 / datai022 / data002), all byte-identical to June; backups under `kom_backup_stage_june\`. Reverting the window entirely: comment out the seven live flags above, rebuild; the staged Lua stays (June's NEW_2 works with March's code).

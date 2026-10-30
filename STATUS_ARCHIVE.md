@@ -918,23 +918,15 @@ Plan `JUNE_BOTTOMBAR_PHASES.md` · branch `main` · log tag `[JUNE_BOTTOMBAR]` �
 Running together: B0 has no code and can run beside anything. B1-B4 edit `X2StateMenu.cpp`: not alongside another running code row on that file (quest-system, june-engine, char ports). B1's koms data056 / data057 / datai020-022 are also packed by asset and character rows: check STATUS before packing.
 
 ## june-charinfo - June character info window (U key): dialog, header, stat panels, viewer, actions
-
 Plan `JUNE_CHARINFO_PHASES.md` · branch `main` · log tag `[JUNE_CHARINFO]` · flags `SERV_IRUHADEV_JUNE_CHARINFO_*` (`_DLG`, `_SHOW`, `_STATS`, `_VIEW`, `_ACTIONS`, + `_DEBUG`) · kickoffs `kickoffs/june-charinfo/` · evidence `june2017_re/charinfo_functions.tsv` (C0) · backlog Stage 34, split out of Stage 9 (user, 2026-10-28) · planned on Opus 2026-10-28.
-
-**Scope:** June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's whole `CX2UICharInfo` bodies: SetShow / header / equipment, the stat panels (13 option rows, resistances, PvE / PvP) with the socket total (Stage 9's S7p), the unit viewer, light and slots, switching and unequip-all with their emulator answers. Customize (12), Resonance (30), Achievement (31), Damage Meter and Rose's weapon buttons (8) are drawn and log `STUB`. `CX2UIWatch` stays Stage 9.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| C0 | **ready** (start: `/x2-phase june-charinfo C0`; read-only: function verdicts, the six packets, asset list, stub owners) | Opus 5.5 / high | - | `june2017_re/`, funcmap | `C0.md` |
-| C1 | waiting on C0 | Sonnet 5.5 / high | C0 | data034 Lua + texture koms, `Enum.lua` (core list), `X2UICharInfo.h`, `X2UIManager.cpp`, `Always.h` | `C1.md` |
-| C2 | waiting on C1 | Sonnet 5.5 / high | C1 | `X2UICharInfo.{h,cpp}` | `C2.md` |
-| C3 | waiting on C2 | Opus 5.5 / high | C2 | `X2UICharInfo.{h,cpp}` | `C3.md` |
-| C4 | waiting on C3 | Sonnet 5.5 / high | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.cpp` | `C4.md` |
-| C5 | waiting on C4 | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp`, `X2Lib/Offline/Handlers_*.cpp`, `X2OfflineDB` | `C5.md` |
-| C5 review | waiting on C5 (covers C1-C5) | Opus 5.5 / high | C5 | - | `C5-review.md` |
-| Z | waiting on the review | Sonnet 5.5 / medium | C5 review | `MODS.md`, backlog, memory | `Z.md` |
+| C4 | **done** (attribute-enchant add-on play-test passed 2026-10-30; C4's light toggle seen in the log, its drag / equip checks untested) | Sonnet 5.5 / high (add-on: Opus) | C3 | `X2UICharInfo.{h,cpp}`, `X2UIManager.{h,cpp}`, `X2UnitViewerUI.{h,cpp}` (add-on) | `C4.md`, `C4-enchant.md` |
+| C5 | **done** (play-test passed 2026-10-30; check 3 untested) | Sonnet 5.5 / high | C4 | `X2UICharInfo.cpp` | `C5.md` |
+| C5 review | **done, PASS** (no transcription error; `_DEBUG` retired; light-option drift -> Stage 9; Done note in the plan) | Opus 5.5 / high | C5 | `Always.h` | `C5-review.md` |
+Done: C0, C1, C2, C3, C4, C5, C5 review, Z (CLOSED 2026-10-31; C1 + C2 play-test passed 2026-10-31).
 
-Running together: C0 has no code and can run beside anything. C1-C5 edit `X2UICharInfo.*` / `X2UIManager.cpp`: not alongside another running code row on those files (char ports' title / HUD hooks, quest-system). C1 packs data034 / data036 and texture koms that asset and character rows also pack: check STATUS before packing.
 
 ## char-eve - June character port, Stage 7: Eve
 

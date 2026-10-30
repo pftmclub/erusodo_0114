@@ -468,3 +468,10 @@ open / click, C4's play-test evidence). **Play-tests still owed:** C1, C2 (C3 / 
 
 `MODS.md` (flags, staged files and backups, revert steps), backlog Stage 34 closing note, the Stage 9 bullets (Watch window, transcend-UI items) checked,
 STATUS, memory. No code.
+
+### Z Done (2026-10-31, Sonnet 5.5 medium; no code, no build)
+
+`MODS.md`: C3 (STATS, EQUIP_GROUP) and C5 (ACTIONS) entries added beside C1 / C2 / C4 / C4 add-on, plus a whole-plan line (17 staged files, revert). Backlog Stage 34 closing note.
+Stage 9 bullets checked, all present: light as game option `0x15`, cursor modes on the character window, the Watch window, the transcend-UI items. STATUS block moved to
+`STATUS_ARCHIVE.md`, one *Closed plans* row. **Play-tests:** C1 + C2 passed 2026-10-31 (commit 22d91779), so the review's "still owed" is cleared; untested: C4 drag / equip checks, C5 check 3.
+**Open questions:** none.
