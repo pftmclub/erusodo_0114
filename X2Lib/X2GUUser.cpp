@@ -5791,10 +5791,8 @@ void CX2GUUser::UpdateEquipCollisionData( IN vector<CX2EqipPtr>& m_vecEquipList 
 
 		for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
 		{
-			CKTDGXSkinAnim* pAnim = NULL;
-			if( CX2Unit::UT_ROSE == pEqip->GetItemTemplet()->GetUnitType() || CX2Unit::UT_ADD == pEqip->GetItemTemplet()->GetUnitType() )
-				pAnim = pEqip->GetNormalAnim( j );
-			// else June reads the Lu/Ciel minor-unit anim +0x584 ( checklist 7aa ), which March lacks
+			// stand-in: June uses this anim only for Rose / Add items, else the class's basic-item anim +0x584 ( 3295dfa0, 329657d0 ), which March does not build
+			CKTDGXSkinAnim* pAnim = pEqip->GetNormalAnim( j );
 
 			if( pAnim != NULL )
 			{

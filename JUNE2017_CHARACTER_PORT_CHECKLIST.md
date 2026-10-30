@@ -694,6 +694,10 @@ owner and the templet's unit type is not 9 / 0xb: the owner templet's minor-unit
 `m_ItemIDForMinorUnit` (+0x30) instead; model name `32867210`( slot ), Set / Add with the normal XETs (collision 1), ChangeAnim( m_AniName ), the
 `GetJiggleBone` (`3295b230`, DITT 30) jiggle. `3295a570` also changes this third array's anim. R14b left it as a comment (`X2Eqip.cpp`,
 `SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM`). Its own 0xb remap (slots 4..7 -> 0..3) is dead code in June (the outer test excludes 0xb). Related: 7v, 7z.
+**Corrected 2026-10-30 (june-march-divergence Phase S):** `329657d0` reads the unit templet's *basic* items (`basicWeapon/Hair/Face/Body/Leg/HandItemID`,
+`basicFoot`, `m_RavenLeftArmItemID`), not minor-unit ones, so this pair exists for **every class**: June's `UpdateEquipCollisionData` (`31fd8c00`,
+Aisha `32cc8d30`) takes a non-Add / non-Rose item's hit lines from the basic item's anim. Not Lu/Ciel-only: it belongs to the engine plan (with its
+`3295a570` ChangeAnim and the equip frame move / delete). Until then D1-3h's sites use the worn item's own anim (stand-in, same lines, worn weapon's reach).
 
 ### 7ab. Rose weapon attach frames (from June engine R14b)
 

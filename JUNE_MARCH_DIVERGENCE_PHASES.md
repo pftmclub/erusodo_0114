@@ -1503,6 +1503,14 @@ traced to a plan flag is fixed under that flag, anything else is routed by the b
   for `_INT` sounds in June too (kept). Lead for D2 review: June's `PlaySound` adds to the close list with no `bLoop == false` test.
   flagcheck `--worktree` PASS (+40, 0 deleted); junediverge `--check` RESULT: PASS; enumscan 0 rows.
   `DEPLOY OK: X2_offline.exe is 25,848,320 B, dated 2026-10-30 11:02:55, md5 84d4f9b1245102ce0a0b0b899731c22e, equal to X2/US_SERVICE/x2.exe (2026-10-30 11:02:49); built at main b7f0cf6c + 1 uncommitted code file(s).`
+- **Fix 2, Aisha's Z combo hit nothing** (user, ArmeDW): the staff's hit lines (`ATTACK_LINE_START0_Wand` / `ATTACK_LINE_END0` in
+  `Mesh_Arme_Legend_Weapon03_Sorted.X`; the body has only `Rfoot` / `Lfoot` spheres) reach `m_AttackListSet` through the equip's normal anim. D1-3h's
+  sites took that anim only for Add / Rose items and read June's `+0x584` as Lu/Ciel-only. Wrong: `329657d0`'s eight positions are UnitTemplet
+  `basic*ItemID` + `m_RavenLeftArmItemID`, so June builds a basic-item anim for every class. Both sites (`X2GUUser.cpp`, Aisha's override) now use the worn
+  item's own anim as a labelled stand-in under `..._UPDATE_EQUIP_COLLISION_DATA` (same lines; only the reach follows the worn weapon, not the basic
+  one). The port goes to june-engine R14c (row + kickoff); checklist 7aa and funcmap `329657d0` corrected. Every non-Add / non-Rose class was affected.
+  flagcheck `--worktree` (2 files) PASS (8 deleted lines are D1-3h's own lines inside the flag); junediverge PASS; enumscan 0 rows.
+  `DEPLOY OK: X2_offline.exe is 25,848,320 B, dated 2026-10-30 11:30:51, md5 ed49cfdf7d1beec7f4db82f777dbab68, equal to X2/US_SERVICE/x2.exe (2026-10-30 11:30:44); built at main e457e7b1 + 2 uncommitted code file(s).`
 - **Not covered** (unported classes, by rule): Elsword / Chung / Ara / Add / Lire checks. **Not reachable offline:** amusement items (PvP), shared-bank quest
   items (bank not modelled), Pandemonium Fear (Chung debuff), no-display mana drain (Elesis / Rose / Luciel only), Aisha `_INT` voice (`SelectVoiceTable`
   not ported), Eve accel / spectrum (not learned on EveSeraph), PvP socket.
