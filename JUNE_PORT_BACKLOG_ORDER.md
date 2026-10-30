@@ -492,6 +492,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     `g_pInstanceData +0xabd = 0` (`32478ecc`). The `Story_New` mark: `324708c0` @32471129 shows it from `+0xabd` (hidden in state 0xb); placed by
     `3245cba0`, the bar layout `3245bb70`. Quest-system Q10 writes `+0xabd` (`CX2InstanceData::m_bJuneStoryBookNew`).
 
+- **The game option `ENABLE_KOREAN_SOUND`** (found by june-march-divergence D1-5b, 2026-10-30). `CX2GameOption` +0x65; on = plain (Korean)
+  voice files, off = `NAME_INT.OGG` through D1-5b's `OpenSound`, which reads `CKTDSManager::m_bEnableKoreanSound` (+0x4c, added false, no writer).
+  - Setter `3241db70` mirrors it into the DS manager when it is up; the option apply (`32421110` @32421316) does the same.
+  - Saved by `3241ef40` @3241f2b2, loaded by `324214a0` @324238e0 (false when absent).
+  - The option window (`32ee02e0` @32ee099f) sets it; `32edf070` (and `3257cd60`) send packet `0x772` with it.
 - **The own gauge's wake-orb tooltip** (handed here by char-eve CH1s, 2026-10-27).
   - June's `DLG_PVP_Game_My_State_NEW.lua` (live since CH1s) has two invisible buttons, `opacity1` (orbs) and `opacity2` (bars), that send
     `GAGE_UI_CUSTOM_MSG.STUCM_CHARACTER_SYSTEM_TOOLTIP_ON` / `_OFF` (54002 / 54003) with dummy int `UI_TOOLTIP_TYPE.UTT_WAKE_ORB`.

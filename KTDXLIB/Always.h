@@ -10934,3 +10934,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD needs SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP ( m_bSDOnePieceAvatar )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-30
+// Description: june-march-divergence D1-5b: CKTDXDeviceManager::OpenSound is June's ( 31cdf4a0 ): with Korean sound off ( CKTDSManager +0x4c, June's default; the ENABLE_KOREAN_SOUND option is not ported ) a NAME_INT.OGG voice variant replaces NAME.OGG when that file exists ( GetSoundDeviceID = June 31cdd720 ), and a FAILED sound device is not handed out. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+//////////////////////////////////////////////////////////////////////////

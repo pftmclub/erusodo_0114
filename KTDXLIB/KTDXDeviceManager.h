@@ -109,6 +109,9 @@ class CKTDXDeviceManager :
 		CKTDXDeviceRenderTargetTexture*	OpenRenderTargetTexture( wstring deviceID, int width = 128, int height = 128, D3DFORMAT fmt = D3DFMT_UNKNOWN );
 #endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 		CKTDXDeviceSound*				OpenSound( wstring deviceID, int bufCount = 10, bool bUse3D = true, float fMax3DDistance = -1.f );
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+		void							GetSoundDeviceID( wstring deviceID, wstring& wstrIntSoundID, wstring& wstrSoundID );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 #ifdef CHECK_SOUND_LOADING_TIME
 		CKTDXDeviceSound*				CheckOpenSound( bool& bCreateSound, wstring deviceID, int bufCount = 10, bool bUse3D = true, float fMax3DDistance = -1.f );
 #endif // CHECK_SOUND_LOADING_TIME

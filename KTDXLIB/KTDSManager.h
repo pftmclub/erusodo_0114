@@ -53,6 +53,10 @@ class CKTDSManager : public CKTDXStage
 
 		bool GetCapable3DSound() const { return m_bCapable3DSound; }
 		void SetCapable3DSound(bool val) { m_bCapable3DSound = val; }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+		bool GetEnableKoreanSound() const { return m_bEnableKoreanSound; }
+		void SetEnableKoreanSound(bool val) { m_bEnableKoreanSound = val; }
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 
 
 		float GetDistanceUnit() const { return m_fDistanceUnit; }
@@ -93,5 +97,8 @@ class CKTDSManager : public CKTDXStage
 		
 
 		float					m_fDistanceUnit;          // Units per meter.  I.e feet would = 3.28.  centimeters would = 100.
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+		bool					m_bEnableKoreanSound;	// June +0x4c ( setter 3241db70, game option ENABLE_KOREAN_SOUND: not ported )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 
 };

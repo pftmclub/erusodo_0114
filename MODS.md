@@ -5472,3 +5472,9 @@ Eleven flags in `KTDXLIB/Always.h`, each one change; March's body is the `#else`
 - `SERV_IRUHADEV_JUNE_DIVERGE_APPLY_EXTERNAL_FACTOR`: `ApplyExternalFactorToFinalizer( type, value, bAdd )` (June `32d41910`); `SetTimeFinalizerValue` folded into it.
 - `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD`: `ScaleHead( fHead, fFace )`, SD one-piece avatars scale `Bip01_Spine1` (June `31fdc070` / `31fd64a0`).
 - **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### One function per name: OpenSound replaced by June's (june-march-divergence D1-5b, 2026-10-30)
+
+One flag in `KTDXLIB/Always.h`; March's body is the `#else`. Plan `JUNE_MARCH_DIVERGENCE_PHASES.md` "D1-5b Done"; row 351 of `tools/data/june_march_divergent.tsv`.
+- `SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND`: `CKTDXDeviceManager::OpenSound` opens `NAME_INT.OGG` instead of `NAME.OGG` when that file exists (the new `GetSoundDeviceID`, June `31cdd720`), because Korean sound is off (`CKTDSManager::m_bEnableKoreanSound`, new, false; June's option `ENABLE_KOREAN_SOUND` is not ported, backlog Stage 9); a sound device in the FAILED state is not handed out (June `31cdf4a0`; JUNE_BUGS 482). 380 voice lines in the March koms have an `_INT` file.
+- **Revert.** Comment out the flag's `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

@@ -780,7 +780,7 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **D1-4** UI, quest, local map, play guide: 280, 285, 287, 288, 289, 290, 293-297, 299, 300, 301, 302, 306, 307, 314, 318, 326-329, 337, 339, 341-343
   (done below, but 342). **D1-4b** (split in the D1-4 session): 342 `UpdateQuickQuestDLG` with its three slot setters; reviewed in `D1-4 review`.
 - **D1-5** KTDXLIB engine and buff popups: 346-363, and 373 `ScaleHead` (added by the D1-4 review) (done below, but 351). **D1-5b** (split in the D1-5
-  session): 351 `OpenSound` (name variants and a DS-manager mode); reviewed with D1-5 in `D1 review`.
+  session): 351 `OpenSound` (name variants and a DS-manager mode); reviewed with D1-5 in `D1 review` (done below).
 
 ### D1-1 Done (2026-10-29, Opus 5.5; nine `SERV_IRUHADEV_JUNE_DIVERGE_*` flags, March's body in every `#else`)
 
@@ -1369,6 +1369,31 @@ each Opus 5.5 high, kickoffs `D1-1.md` (= `D1.md`) .. `D1-5.md`; reviews pair th
 - **Smoke (plan end):** with Windows' "switch primary and secondary buttons" on, left click still selects; a big-head buff (side-effect medicine, BTI 75)
   on Elsword (unported) and on an SD one-piece avatar (Spine1 scales); Eve's accel / spectrum buff durations unchanged; dialog pictures that swap
   texture (skill / title icons) still change.
+
+### D1-5b Done (2026-10-30, Opus 5.5; `SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND`, March's body in the `#else`)
+
+Row 351, `CKTDXDeviceManager::OpenSound` = June `31cdf4a0`, read from the disassembly (stack frame 0x64: `deviceID` +0x68, `bUse3D` +0x88, `fMax3DDistance` +0x8c).
+- **June's body** (`KTDXDeviceManager.cpp`): empty -> NULL; upper-case; `GetSoundDeviceID( deviceID, int, sound )`; `OpenDevice( sound, DT_SOUND )`; on a miss:
+  `IsValidFile( sound )` else NULL, DS `GetInit()` else NULL, then `new CKTDXDeviceSound( system +0x40, name, bUse3D )` with name = Korean sound on ? sound :
+  ( `IsValidFile( int )` ? int : deviceID ), `CreateAndOpenDevice`, NULL -> NULL; then `DEVICE_STATE_FAILED` (+0x44 == 3) -> NULL (found or created);
+  `SetMax3DDistance` (`31d41750`) when > 0 (`FCOM` / `TEST AH,0x41`). `bufCount` unread, as March.
+- **`GetSoundDeviceID`** (new member, June `31cdd720`, `RET 0x24`): both outputs = `deviceID`; with DS +0x4c == 0, `find( L".OGG", 0, 4 )` and, when found,
+  `insert` `L"_INT"` there (`31cc0c00` is `replace( pos, 0, L"_INT" )`, first == last); if `IsValidFile( int )`, sound = int. The three `new` names
+  therefore always equal `sound`; kept as June writes them.
+- **DS manager +0x4c** = June's `ENABLE_KOREAN_SOUND` option (`CX2GameOption` +0x65): ctor `31ceec30` @31ceecce sets 0; its only writers are the option
+  setter `3241db70` and the option apply @32421323 (sweep of every `[0x337676e8] -> +0x200 -> +0x4c` access: 2 writes, reads in `31cdd720` and the
+  two `0x772` senders). March has no such option, so `CKTDSManager` gets June's member `m_bEnableKoreanSound` (false, June's default) with
+  `Get` / `SetEnableKoreanSound` beside the 3D-sound pair; nothing sets it. The option, its save key, the option-window item and packet `0x772` went
+  to backlog Stage 9 (bullet "The game option `ENABLE_KOREAN_SOUND`").
+- **Reach:** Korean sound off -> every `NAME.OGG` with a `NAME_INT.OGG` beside it now plays the `_INT` file: 380 such files in the March koms (voices,
+  tutorial lines), none named by March Lua directly. June's `PlaySound` `31ce0e10` matches March's ported caller (`SOUND_AUTO_RELEASE`): plain-name map
+  lookup, then `OpenSound( name, 10, b3D )`; the `_INT` key makes that lookup miss every time (JUNE_BUGS 482).
+- **`CheckOpenSound`** sits under `CHECK_SOUND_LOADING_TIME`, defined only in `OnlyGlobal/Always_ID.h` (Indonesia): not compiled in US; unchanged.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND --worktree --files` (5 files): 4 PASS + 1 DEFINE, 0 FAIL, 0 deleted lines, 0 non-ASCII inserts,
+  0 EOL mismatches, 0 encoding changes; `RESULT: PASS`. `enumscan --check` (3 files): 0 A/B rows.
+- **Build:** `DEPLOY OK: X2_offline.exe is 25,847,808 B, dated 2026-10-30 09:08:33, md5 b80b46a27538fcca797d035773ae290b, equal to X2/US_SERVICE/x2.exe
+  (2026-10-30 09:08:26); built at main 1f072535 + 5 uncommitted code file(s).` First run. `EXESTR OK: 2 of 2 found` (wide `.OGG` x1, `_INT`).
+- **Smoke (plan end):** an Aisha voice line that has an `_INT` file (`AishaVoice_Thanks01`, ...) plays (the `_INT` recording); other sounds unchanged.
 
 ## Phase D2 - The gate and the wiring (Sonnet 5.5, high)
 

@@ -21,6 +21,9 @@ CKTDSManager::CKTDSManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 
 	m_bSoundMute		= false;
 	m_fSoundVolume		= 0.f;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+	m_bEnableKoreanSound = false;	// June ctor 31ceecce
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 
 	FMOD_RESULT      result;
 	unsigned int     version;

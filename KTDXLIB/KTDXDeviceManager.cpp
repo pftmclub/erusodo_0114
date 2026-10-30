@@ -823,8 +823,74 @@ CKTDXDeviceRenderTargetTexture*	CKTDXDeviceManager::OpenRenderTargetTexture( wst
 	return pRenderTargetTexture;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+// June 31cdd720: with Korean sound off, NAME_INT.OGG replaces NAME.OGG when that file exists
+void CKTDXDeviceManager::GetSoundDeviceID( wstring deviceID, wstring& wstrIntSoundID, wstring& wstrSoundID )
+{
+	wstrIntSoundID = deviceID;
+	wstrSoundID = deviceID;
+
+	if( g_pKTDXApp->GetDSManager()->GetEnableKoreanSound() == false )
+	{
+		const wstring::size_type uiExtensionPos = wstrIntSoundID.find( L".OGG", 0, 4 );
+		const wstring wstrIntSuffix( L"_INT", 4 );
+		if( uiExtensionPos != wstring::npos )
+		{
+			wstrIntSoundID.insert( uiExtensionPos, wstrIntSuffix );
+			if( m_MassFileManager.IsValidFile( wstrIntSoundID ) == true )
+				wstrSoundID = wstrIntSoundID;
+		}
+	}
+}
+
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 CKTDXDeviceSound* CKTDXDeviceManager::OpenSound( wstring deviceID, int bufCount, bool bUse3D, float fMax3DDistance /*= -1.f*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
+	// June 31cdf4a0
+	if( true == deviceID.empty() )
+		return NULL;
+
+	MakeUpperCase(deviceID);
+
+	wstring wstrIntSoundID;
+	wstring wstrSoundID;
+	GetSoundDeviceID( deviceID, wstrIntSoundID, wstrSoundID );
+
+	CKTDXDeviceSound* pSound = static_cast<CKTDXDeviceSound*>( OpenDevice( wstrSoundID, CKTDXDevice::DT_SOUND ) );
+	if( pSound == NULL )
+	{
+		if( m_MassFileManager.IsValidFile( wstrSoundID ) == false )
+			return NULL;
+
+		CKTDSManager* pDSManager = g_pKTDXApp->GetDSManager();
+		if( pDSManager->GetInit() == false )
+			return NULL;
+
+		if( pDSManager->GetEnableKoreanSound() == false )
+		{
+			if( m_MassFileManager.IsValidFile( wstrIntSoundID ) == false )
+				pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), deviceID, bUse3D );
+			else
+				pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), wstrIntSoundID, bUse3D );
+		}
+		else
+		{
+			pSound = new CKTDXDeviceSound( pDSManager->GetSystem(), wstrSoundID, bUse3D );
+		}
+		pSound = static_cast<CKTDXDeviceSound*>( CreateAndOpenDevice( pSound ) );
+		if( pSound == NULL )
+			return NULL;
+	}
+
+	if( CKTDXDevice::DEVICE_STATE_FAILED == pSound->GetDeviceState() )
+		return NULL;
+
+	if( fMax3DDistance > 0.f )
+		pSound->SetMax3DDistance( fMax3DDistance );
+
+	return pSound;
+#else SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 	if( true == deviceID.empty() )
 	{
 		return NULL;
@@ -855,6 +921,7 @@ CKTDXDeviceSound* CKTDXDeviceManager::OpenSound( wstring deviceID, int bufCount,
 	}
 
 	return pSound;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND
 }
 
 #ifdef CHECK_SOUND_LOADING_TIME
