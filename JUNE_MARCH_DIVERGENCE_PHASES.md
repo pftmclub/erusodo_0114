@@ -1390,7 +1390,8 @@ Row 351, `CKTDXDeviceManager::OpenSound` = June `31cdf4a0`, read from the disass
   lookup, then `OpenSound( name, 10, b3D )`; the `_INT` key makes that lookup miss every time (JUNE_BUGS 482).
 - **`CheckOpenSound`** sits under `CHECK_SOUND_LOADING_TIME`, defined only in `OnlyGlobal/Always_ID.h` (Indonesia): not compiled in US; unchanged.
 - **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_DIVERGE_OPEN_SOUND --worktree --files` (5 files): 4 PASS + 1 DEFINE, 0 FAIL, 0 deleted lines, 0 non-ASCII inserts,
-  0 EOL mismatches, 0 encoding changes; `RESULT: PASS`. `enumscan --check` (3 files): 0 A/B rows.
+  0 EOL mismatches, 0 encoding changes; `RESULT: PASS`. After commit `--range da5b3b61^..da5b3b61`: the same tallies, `RESULT: PASS`.
+  `enumscan --check` (3 files): 0 A/B rows.
 - **Build:** `DEPLOY OK: X2_offline.exe is 25,847,808 B, dated 2026-10-30 09:08:33, md5 b80b46a27538fcca797d035773ae290b, equal to X2/US_SERVICE/x2.exe
   (2026-10-30 09:08:26); built at main 1f072535 + 5 uncommitted code file(s).` First run. `EXESTR OK: 2 of 2 found` (wide `.OGG` x1, `_INT`).
 - **Smoke (plan end):** an Aisha voice line that has an `_INT` file (`AishaVoice_Thanks01`, ...) plays (the `_INT` recording); other sounds unchanged.
