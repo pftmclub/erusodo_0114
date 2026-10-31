@@ -6446,3 +6446,24 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c03b30	CX2GUChung::ComboZZdownZFrameMove	PORTED	Char Chung CH1d: inside; = March: UpCannonBallCountAtThisAnimationTime( 0.466, 1 ) ( 32bf3d30, body in CH1q ) then Land Demolisher vertical at 0.72
 32c1bad0	CX2GUChung::ComboXXFrameMove	PORTED	Char Chung CH1d: inside; = March: DAMAGE_DATA_NEXT at 0.466, else Land Demolisher vertical 80 ahead at 0.5, UpCannonBallCountAtThisAnimationTime( 0.54, 1 ) ( 32bf3d30, body in CH1q )
 32beaf10	CX2GUChung::IsInJobLine	declared	Char Chung CH1d: declared in X2GUChung.h under _CORE ( CH1d calls it from ComboXXEventProcess ); body is CH1l's ( vslot 0x670: 1 = classes 20 / 110, 2 = 21 / 111, 3 = 27 / 117, else false )
+32bd8cb0	CX2GUChung::AttackDashXInit	PORTED	Char Chung CH1d2: inside; = March: the five cannon effect meshes / textures preloaded (also CSI_CSG_COMBO_DASH_X / CSI_CIP_COMBO_DASH_X Init)
+32bd8d00	CX2GUChung::AttackDashXEndFuture	PORTED	Char Chung CH1d2: inside; = March: CommonStateEndFuture, bIsRight flipped, dirDegree.y += 180
+32bd8d40	CX2GUChung::ComboDashJumpZZLandingCannonBallShotInit	PORTED	Char Chung CH1d2: inside; = March: Effect02, the two Nuclear dust meshes, VANGUARD_MagicAttack_Explosion.Y, GroundShockWave / CenterLight / Steam textures preloaded
+32bd8da0	CX2GUChung::AttackDashJumpXInit	PORTED	Char Chung CH1d2: inside; = March: the five cannon effect meshes / textures preloaded
+32bd8df0	CX2GUChung::AttackDashJumpXFrameMoveFuture	PORTED	Char Chung CH1d2: inside; = March: tail jump to CX2GUUser::JumpFrameMoveFuture (31fd2470)
+32bde810	CX2GUChung::ComboDashZEventProcess	PORTED	Char Chung CH1d2: inside; skill / awakening cancel as the macros, then any-direction walk (to WAIT) and dash cancel after 0.5 both need ground ( March: no ground test ), arrow keys to WALK, anim end -> JUMP_DOWN / WAIT + 0.1 can-not-attack
+32bdea80	CX2GUChung::AttackDashXEventProcess	PORTED	Char Chung CH1d2: inside; X X branch only for class 111 ( March: Shooting Guardian 21 too; JUNE_BUGS 492 ), Iron Paladin 110 Z at 0.53333, Tactical Trooper 117 X at 0.53333; the 111 dash cancel needs ground
+32bdec60	CX2GUChung::AttackJumpZEventProcess	PORTED	Char Chung CH1d2: inside; = March: on ground, flag [0] (down held) sets m_fCanNotJumpTime 0.2, then USI_JUMP_LANDING
+32bdeca0	CX2GUChung::AttackJumpXEventProcess	PORTED	Char Chung CH1d2: inside; = March (same as AttackJumpZ)
+32bdece0	CX2GUChung::ComboDashJumpZEventProcess	PORTED	Char Chung CH1d2: inside; four flag + m_fEventTime pairs ( [0] ZZ 0xba, [1] CFG ZX 0xc3 job line 1, [2] CHG ZX 0x10e job line 3, [3] CSG ZX_READY 0x14d job line 2 ) each firing on stateChange < t or anim end; replaces March's 0.3 s class tests
+32bdf040	CX2GUChung::ComboDashJumpZZLandingEventProcess	PORTED	Char Chung CH1d2: inside; = March: no ground -> DASH_JUMP_LANDING, SKILL_CANCEL_AFTER( 0.01 ), anim end -> WAIT + 0.1 can-not-attack
+32bdf160	CX2GUChung::ComboDashJumpZZLandingCannonBallShotEventProcess	PORTED	Char Chung CH1d2: inside; as March but the any-direction walk (to WAIT) and dash cancels after 0.566 need ground
+32beb6d0	CX2GUChung::AttackJumpZFrameMoveFuture	PORTED	Char Chung CH1d2: inside; = March: walk speed in the facing direction, down held lowers nowSpeed.y by fGAccel * dt and sets flag [0]
+32beb760	CX2GUChung::AttackJumpXFrameMoveFuture	PORTED	Char Chung CH1d2: inside; = March (same as AttackJumpZ)
+32bedef0	CX2GUChung::ComboDashJumpZZEventProcess	PORTED	Char Chung CH1d2: inside; = March: on ground -> CBS landing if CanUseCannon ( IsFullHyperMode || count > 0 ) else landing
+32bee7c0	CX2GUChung::AttackDashJumpXStartFuture	PORTED	Char Chung CH1d2: inside; as March, and the 1/4 speed on every speed factor is skipped when skill 26415 RNSI_P_CIP_OPEN_MIND is learned ( also CSI_CTT_DASH_JUMP_COMBO_XX.StartFuture, CH1j )
+32befa80	CX2GUChung::AttackDashJumpXEventProcess	PORTED	Char Chung CH1d2: inside; 0.36 X branch only for class 111 ( March: Shooting Guardian too; JUNE_BUGS 492 ), new CSI_CIP_COMBO_DASHJUMP_XX / CSI_CTT_DASH_JUMP_COMBO_XX windows ( m_fEventTime[0] / [1] ), X in the air only for classes 6 / 20 / 27 ( March: 110 / 117 too )
+32bf80e0	CX2GUChung::AttackDashXFrameMove	PORTED	Char Chung CH1d2: inside; as March, plus: skill 26415 learned plays the CIP effect set and spends no cannon ball, no onomatopoeia ( also CSG / CIP DASH_X FrameMove )
+32bf8840	CX2GUChung::AttackDashJumpXFrameMove	PORTED	Char Chung CH1d2: inside; as March, plus: skill 26415 learned plays the effect set and spends no cannon ball
+32c02c30	CX2GUChung::ComboDashJumpZZLandingFrameMove	PORTED	Char Chung CH1d2: inside; = March: Land Demolisher vertical effect 120 ahead at 0.01 when m_bApplyLandDemolisher
+32c03cf0	CX2GUChung::ComboDashJumpZZLandingCannonBallShotFrameMove	PORTED	Char Chung CH1d2: inside; = March: Land Demolisher vertical effect 100 ahead at 0.01, cannon ball shot effect set + UseCannon( 1 ) at 0.15 when CanUseCannon

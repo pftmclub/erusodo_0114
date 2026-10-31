@@ -59,3 +59,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH1j0** (`32008660`, `31fe4870`, `31fe9840`).
 - Opus helper phase **CH1j0** runs first (`32008660`, `31fe4870`, `31fe9840`).
 - `CSI_CTT_MOBILE_ARMORED_MODE_X` (id 308) / `_Z` are registered by the class-117 gate.
+
+## Amended by CH1d2 (2026-10-31)
+
+- `CSI_CTT_DASH_JUMP_COMBO_XX` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 328, appended without `= value`). CH1d2's `AttackDashJumpXEventProcess` (`32befa80`) sets its flag (`bEventFlagList[1]`, class 117 + X, `m_fEventTime[1]`) and switches into it. `32bee7c0` (`AttackDashJumpXStartFuture`, shared with `CSI_ATTACK_DASH_JUMP_X`) is written; the state's own `32bf02c0` / `32c0a5b0` are yours.

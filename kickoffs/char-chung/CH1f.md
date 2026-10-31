@@ -57,3 +57,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 10** (`awk -F'\t' '$8=="CH1f"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CIP_COMBO_DASH_X`, `CSI_CIP_COMBO_DASH_XX`, `CSI_CIP_COMBO_DASH_XXX`, `CSI_CIP_COMBO_DASH_XXXX`, `CSI_CIP_COMBO_DASH_XXXZ`, `CSI_CIP_COMBO_DASHJUMP_XX`, `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`, `CSI_CIP_POWER_DOWN_LANDING`, `CSI_CIP_COMBO_POWER_DOWN_LANDING_Z`, `CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
 - `LEAP_ATTACK_LANDING` is one state (id 228) whose table name is picked at run time (class 110 -> CIP name, else CFG name); one set of callbacks `32c23430` / `32c23440` / `32c23f80`.
+
+## Amended by CH1d2 (2026-10-31)
+
+- `CSI_CIP_COMBO_DASHJUMP_XX` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 325, appended without `= value`). CH1d2's `AttackDashJumpXEventProcess` (`32befa80`) sets its flag (`bEventFlagList[0]`, class 110 + X, `m_fEventTime[0]`) and switches into it; the state's own `32be9930` / `32c01be0`-side functions are yours. `AttackDashXEventProcess` (`32bdea80`) already switches Iron Paladin into `CSI_CIP_COMBO_DASH_XX` on Z at 0.53333.

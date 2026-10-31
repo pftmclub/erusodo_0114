@@ -59,3 +59,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` is named by June's script and defined in no June EffectSet file: keep it, JUNE_BUGS row (logs `[RANOX_EFFECT_MISSING]`).
 - `CSI_SI_A_CSG_HEAD_SHOT` (id 236) is registered by InitStateCommon's class-21 gate, so it is class core; its case id 26220 is `RNSI_A_CSG_HEAD_SHOT_TRANS` (no tree row, 26225 likewise).
 - Memo lookups `31fdbcc0` at `32bfcbb0` / `32bfcfd8` / `32bfd1e7` ride with their functions.
+
+## Amended by CH1d2 (2026-10-31)
+
+- `CSI_CSG_COMBO_DASH_JUMP_ZX_READY` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 333, appended without `= value`). CH1d2's `ComboDashJumpZEventProcess` (`32bdece0`) sets its flag (`bEventFlagList[3]`, job line 2 = classes 21 / 111, `m_fEventTime[3]`) and switches into it; the state's own `32bdb7f0` / `32bea970` are yours. `CSI_CSG_COMBO_DASH_JUMP_X`'s switch in `AttackDashJumpXEventProcess` is Deadly Chaser only (JUNE_BUGS 492).
