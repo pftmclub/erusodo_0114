@@ -2946,6 +2946,12 @@ class CX2UnitManager
 			NUI_CSM_LU_DIABLA                       = 2282,
 			NUI_CSM_CIEL_DEMONIO                    = 2283,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//{{ Iruha : 2026-10-31 // June character port Phase CH1b (JUNE_CHARACTER_CHUNG_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// June NPC id of Chung's Heavy Field targeting summon, killed on death with the other targeting NPCs
+			NUI_TARGETING_CHUNG_HEAVY_FIELD         = 2525,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //}}
 //}}
 //}} robobeg : 2013-02-27

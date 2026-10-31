@@ -408,6 +408,34 @@ only the three suggested. Branch order, `StateChange` ids, the x87 compare direc
 
 **Nothing to play-test.** Next: `/x2-phase char-chung CH1b` (Sonnet 5.5 high).
 
+### CH1b - Done (2026-10-31)
+
+All 27 class-map rows of phase CH1b are written: 26 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`) and 1 `new`
+(`EraseTargetingNPC`, June `32c04140`, CH0's name, under `_CORE`, declared in `X2GUChung.h`). 27 funcmap rows `Char Chung CH1b`. No new `Always.h` define (`_CORE` / `_LIVE` are CH1a's; `_LIVE` stays `//#define`).
+`NUI_TARGETING_CHUNG_HEAVY_FIELD = 2525` registered in `X2UnitManager.h` under `JUNE_ENUM_NAMES` (June `Enum.src.lua` line 4030); 863 and 1419 already had March names.
+
+| June | `CX2GUChung::` | June | `CX2GUChung::` |
+|---|---|---|---|
+| `32bdc940` `32c0dd90` `32bd88f0` `32bdc9a0` | DieFront StartFuture / Start / FrameMove / EventProcess (also `CSI_RIDING_DIE`) | `32bdc9e0` `32c0de40` `32bd8910` `32bdca40` | DieBack StartFuture / Start / FrameMove / EventProcess |
+| `32c04140` (new) | EraseTargetingNPC | `32bdcba0` `32bdcc40` | DamageSmall / DamageBig EventProcess |
+| `32bdcd90` `32bdcde0` `32bedb80` `32bedd30` `32bedee0` | DamageDownFront / Back FrameMove, DamageDownFront / Back / AirDownLanding EventProcess | `32bdce20` `32bd89d0` `32bdcea0` `32bd8a10` | StandUpRolling EventProcess / End, StandUpAttack EventProcess / End |
+| `32c02ee0` `32c033b0` | StandUpAttackFront / Back FrameMove | `32bd8e00` `32bf8c50` `32bdf400` `32bd8e50` `32bd8e90` | StandUpCannonAttack Init / FrameMove / EventProcess / End / EndFuture |
+
+**Where June differs from March** (everything else is March's logic written out whole; checked against the listings):
+- **Die Start (both):** June calls `EraseTargetingNPC( id, 3.0 )` for 863 `NUI_TARGETING_CHUNG`, 1419 `_NOT_SHOW_OTHER_PLAYER`, 2525 `_HEAVY_FIELD` with no `CHUNG_SECOND_CLASS_CHANGE` guard; March self-destructs the first two after 3 s with a countdown particle. June's helper walks the units, keeps NPCs of the id with hp > 0 whose ally AI follows this unit, and kills them with `SetNowHp( 0 )` (NPC vslot `0xf4`); the 3.0 is never read. The other June callers (`32c08010` / `32c0c4e0` / `32c0ca60`) belong to later phases, which keep March's `SetSelfDestructSummonedNPC` until then.
+- **Damage Small / Big:** June tests only `GetGameUnitStateFuture() == USI_DAMAGE_SMALL_FRONT` (`_BIG_FRONT`) and `SpecialAttackEventProcess( ASUT_GROUND )`; March also needs `SMI_CHUNG_MEMO12` equipped and a non-PvP game (`ADDITIONAL_MEMO`). The rest, incl. the 200-unit gap, the 0.93 key-cancel of Big and the `-45` y shift, is March.
+- **StandUpCannonAttack EventProcess:** the walk and dash cancels after 0.833 also require `IsOnSomethingFuture()` (March's macros do not, same as CH1a Guard X); the skill and awakening cancels are the `SKILL_CANCEL_AFTER` expansion; June reads the alternate future animation (`+0x8e90 ? +0x8e84 : m_pXSkinAnimFuture`, `32070cf0`) as `m_pXSkinAnimFuture` (as Aisha, CH1d).
+- **= March after the macros expand** (March's active `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branch is `EventTimerOneshot`, June's `t > +0x24c && EventTimer`): the four Die functions that are not Start, DamageDown (all five), StandUpRolling / Attack (EventProcess, End), StandUpAttackFront / Back FrameMove (0.58 / 0.60 and 0.45 / 0.47 Land Demolisher sets), StandUpCannonAttack Init / FrameMove / End / EndFuture. June inlines `CanUseCannon` (not full hyper -> balls > 0), the same as March's.
+- **Not in CH1b's functions:** the states whose callbacks are `CX2GUUser` virtuals (Damage Groggy, Standup front / back, the three `BOUNDING_*`, Air Small / Down / Down Invincible / Fall / Up / Fly, Revenge, Wall Landing, Amusement Phoenix Run End) have no class-range function. The three bounding callbacks are thunks to `31fd0230` / `31fd0260` / `31fd02d0`; CH1m registers them, CH1n owns the base bodies. Checklist §7 L253: no CH1b function touches `+0x7cc8`.
+- No `JUNE_BUGS` row: nothing here looks like a June bug. `m_fLandDemolisherPowerRate` is used as is.
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2UnitManager.h`: `RESULT: PASS` (1 PASS, 2 OTHER: `_LIVE` / `JUNE_ENUM_NAMES`; 0 deleted, 0 non-ASCII, 0 EOL mismatch, 0 `#else`/`#endif` without the token); `_LIVE` reports FAIL only because its `#define` is commented out. `git diff --patience --numstat`: 586 / 0 in `X2GUChung.cpp`, 3 / 0 `X2GUChung.h`, 6 / 0 `X2UnitManager.h`.
+`junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2UnitManager.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,865,216 B, dated 2026-10-31 15:37:45, md5 1510294a014ae442e8899798907d2a5e`, equal to `X2/US_SERVICE/x2.exe`; built at main `2e0aa199` + the 3 code files of this phase (X2Lib build 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states or calls `EraseTargetingNPC`). Next: `/x2-phase char-chung CH1b review` (Opus 5.5 high), then CH1c.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

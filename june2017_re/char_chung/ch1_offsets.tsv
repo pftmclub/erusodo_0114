@@ -73,3 +73,4 @@ offset	kind	name	note
 0x6ac	vslot	CallSummonedNPC( npcId ) ( CH1o2: March's virtual; caller CX2DungeonGame::SubStageStart 327cf620 @327cfb79, base 32001660 = March's base )
 0x77c	vslot	JuneCollectOwnWatchSummons( class, vector<CX2GUNPC*>& ) ( CH1o; callers Eve 3299a140 / 3299a400 / 329b1e20, base ret 8 )
 0x828	vslot	JuneIsNotCommonMoveState() ( CH1o; callers 31fc87d0 / 3206f99f reset the idle timer +0x91ac, base 31fd7640 )
+0x8e84	field	alternate future animation	CX2GUUser: +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture ( 32070cf0 ); read as m_pXSkinAnimFuture ( CH1b )

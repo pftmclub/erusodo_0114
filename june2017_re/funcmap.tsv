@@ -6377,3 +6377,30 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32bd8a60	CX2GUChung::GuardAttackXInit	PORTED	Char Chung CH1a: inside; no Ghidra function; = March ( five background loads )
 32bf7250	CX2GUChung::GuardAttackXFrameMove	PORTED	Char Chung CH1a: inside; CanUseCannon + OPEN_MIND clause, UseCannon( 1 ) only below OPEN_MIND level 1 ( UseCannon body 32bf5280 is CH1q's )
 32bdd1d0	CX2GUChung::GuardAttackXEventProcess	PORTED	Char Chung CH1a: inside; no Ghidra function; walk and dash cancels after 0.7 also need IsOnSomethingFuture ( March macros do not )
+32bd88f0	CX2GUChung::DieFrontFrameMove	PORTED	Char Chung CH1b: inside; DieFrameMove( 0.19, 1.12 ) = March
+32bd8910	CX2GUChung::DieBackFrameMove	PORTED	Char Chung CH1b: inside; = March
+32bdc940	CX2GUChung::DieFrontStartFuture	PORTED	Char Chung CH1b: inside (CSI_DIE_FRONT + CSI_RIDING_DIE); play speed 0.5 on the future anim = March
+32bdc9a0	CX2GUChung::DieFrontEventProcess	PORTED	Char Chung CH1b: inside; hidden and anim end -> GUSI_DIE = March
+32bdc9e0	CX2GUChung::DieBackStartFuture	PORTED	Char Chung CH1b: inside; = March
+32bdca40	CX2GUChung::DieBackEventProcess	PORTED	Char Chung CH1b: inside; = March
+32c0dd90	CX2GUChung::DieFrontStart	PORTED	Char Chung CH1b: inside; CommonStateStart, DyingStart ( vslot 0x338 ), speed 0.5, then EraseTargetingNPC( 863 / 1419 / 2525, 3.0 ); March self-destructs 863 / 1419 after 3 s
+32c0de40	CX2GUChung::DieBackStart	PORTED	Char Chung CH1b: inside; same as DieFrontStart
+32c04140	CX2GUChung::EraseTargetingNPC	PORTED	Char Chung CH1b: new (CORE); own ally NPCs of the id with hp > 0 get SetNowHp( 0 ) when the id is 863 / 1419 / 2525; fDeleteTime ( 3.0 ) is never read; other callers 32c08010 / 32c0c4e0 / 32c0ca60 in later phases
+32bdcba0	CX2GUChung::DamageSmallEventProcess	PORTED	Char Chung CH1b: inside; gap > 200 -> AIR_SMALL; state SMALL_FRONT + SpecialAttackEventProcess( GROUND ) with no memo 12 / PvP test ( March: ADDITIONAL_MEMO ); anim end -> AIR_SMALL / WAIT
+32bdcc40	CX2GUChung::DamageBigEventProcess	PORTED	Char Chung CH1b: inside; as Small with BIG_FRONT, then any of the 14 keys after 0.93 -> WAIT; no memo 12 / PvP test
+32bdcd90	CX2GUChung::DamageDownFrontFrameMove	PORTED	Char Chung CH1b: inside; EventTimerOneshot( 0.19 ) = March
+32bdcde0	CX2GUChung::DamageDownBackFrameMove	PORTED	Char Chung CH1b: inside; EventTimer( 0.32 ) = March
+32bedb80	CX2GUChung::DamageDownFrontEventProcess	PORTED	Char Chung CH1b: inside; = March ( June inlines CanUseCannon: not full hyper -> balls > 0 )
+32bedd30	CX2GUChung::DamageDownBackEventProcess	PORTED	Char Chung CH1b: inside; = DamageDownFront with the back state ids
+32bedee0	CX2GUChung::DamageAirDownLandingEventProcess	PORTED	Char Chung CH1b: inside; tail jump to 32bedb80 = March
+32bdce20	CX2GUChung::StandUpRollingEventProcess	PORTED	Char Chung CH1b: inside ( four rolling states ) = March
+32bd89d0	CX2GUChung::StandUpRollingEnd	PORTED	Char Chung CH1b: inside; CommonStateEnd, SetForceInvincible / SetShowInvincible 0.3 = March
+32bdcea0	CX2GUChung::StandUpAttackEventProcess	PORTED	Char Chung CH1b: inside = March
+32bd8a10	CX2GUChung::StandUpAttackEnd	PORTED	Char Chung CH1b: inside = March
+32c02ee0	CX2GUChung::StandUpAttackFrontFrameMove	PORTED	Char Chung CH1b: inside; Land Demolisher effect sets at 0.58 ( HORIZONTAL, right -120 ) and 0.60 ( REVERSE ) = March
+32c033b0	CX2GUChung::StandUpAttackBackFrameMove	PORTED	Char Chung CH1b: inside; 0.45 REVERSE and 0.47 HORIZONTAL = March
+32bd8e00	CX2GUChung::StandUpCannonAttackInit	PORTED	Char Chung CH1b: inside; five background loads = March
+32bf8c50	CX2GUChung::StandUpCannonAttackFrameMove	PORTED	Char Chung CH1b: inside; 0.15 Oneshot, CanUseCannon, guard-mastery roll, effect set by state, UseCannon( 1 ) ( body 32bf5280 is CH1q ) = March
+32bdf400	CX2GUChung::StandUpCannonAttackEventProcess	PORTED	Char Chung CH1b: inside; cancels after 0.833; walk / dash cancels also need IsOnSomethingFuture ( March macros do not ); future anim accessor +0x8e90 ? +0x8e84 read as m_pXSkinAnimFuture
+32bd8e50	CX2GUChung::StandUpCannonAttackEnd	PORTED	Char Chung CH1b: inside = March
+32bd8e90	CX2GUChung::StandUpCannonAttackEndFuture	PORTED	Char Chung CH1b: inside; flips bIsRight and dirDegree.y + 180 = March

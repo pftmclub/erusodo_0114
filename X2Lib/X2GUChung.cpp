@@ -7169,10 +7169,18 @@ void CX2GUChung::SetReduceGuardDamageAtHeavyStanceFromGuardSkill()
 */
 void CX2GUChung::DieFrontStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc940 ( CSI_DIE_FRONT and CSI_RIDING_DIE )
+	CommonStateStartFuture();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieFrontStart
@@ -7180,6 +7188,18 @@ void CX2GUChung::DieFrontStartFuture()
 */
 void CX2GUChung::DieFrontStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0dd90 ( CSI_DIE_FRONT and CSI_RIDING_DIE ); March self-destructs the targeting NPCs after 3 s, June kills them
+	CommonStateStart();
+	DyingStart();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -7190,6 +7210,7 @@ void CX2GUChung::DieFrontStart()
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG );
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER );
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieFrontFrameMove
@@ -7197,10 +7218,18 @@ void CX2GUChung::DieFrontStart()
 */
 void CX2GUChung::DieFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd88f0 ( CSI_DIE_FRONT and CSI_RIDING_DIE )
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieFrontEventProcess
@@ -7208,8 +7237,14 @@ void CX2GUChung::DieFrontFrameMove()
 */
 void CX2GUChung::DieFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc9a0 ( CSI_DIE_FRONT and CSI_RIDING_DIE )
 	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
 		StateChange( GUSI_DIE );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
+		StateChange( GUSI_DIE );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieBackStartFuture
@@ -7217,10 +7252,18 @@ void CX2GUChung::DieFrontEventProcess()
 */
 void CX2GUChung::DieBackStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc9e0
+	CommonStateStartFuture();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieBackStart
@@ -7228,6 +7271,18 @@ void CX2GUChung::DieBackStartFuture()
 */
 void CX2GUChung::DieBackStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0de40; March self-destructs the targeting NPCs after 3 s, June kills them
+	CommonStateStart();
+	DyingStart();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
+	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -7238,6 +7293,7 @@ void CX2GUChung::DieBackStart()
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG );
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER );
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieBackFrameMove
@@ -7245,10 +7301,18 @@ void CX2GUChung::DieBackStart()
 */
 void CX2GUChung::DieBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8910
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DieBackEventProcess
@@ -7256,8 +7320,14 @@ void CX2GUChung::DieBackFrameMove()
 */
 void CX2GUChung::DieBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdca40
 	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
 		StateChange( GUSI_DIE );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
+		StateChange( GUSI_DIE );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
@@ -8950,6 +9020,32 @@ void CX2GUChung::HyperModeFrameMove()
 */
 void CX2GUChung::DamageSmallEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcba0; June has no SMI_CHUNG_MEMO12 or PvP test on the skill cancel ( March: ADDITIONAL_MEMO )
+	float fGapFromUnitToLineMap = m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y;
+	const float ACCEPTABLE_GAP = 200.0f;
+
+	if ( ACCEPTABLE_GAP < fGapFromUnitToLineMap )
+	{
+		StateChange( USI_DAMAGE_AIR_SMALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( USI_DAMAGE_SMALL_FRONT == GetGameUnitStateFuture() && true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_DAMAGE_AIR_SMALL );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	float fGapFromUnitToLineMap = m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y;
 	const float ACCEPTABLE_GAP = 200.0f;	// 이것보다 거리가 크면 공중에 있는 상태임
 	
@@ -8978,6 +9074,7 @@ void CX2GUChung::DamageSmallEventProcess()
 	}	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageBigStart
@@ -8994,6 +9091,39 @@ void CX2GUChung::DamageBigStart()
 */
 void CX2GUChung::DamageBigEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcc40; June has no SMI_CHUNG_MEMO12 or PvP test on the skill cancel ( March: ADDITIONAL_MEMO )
+	float fGapFromUnitToLineMap = m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y;
+	const float ACCEPTABLE_GAP = 200.0f;
+
+	if ( ACCEPTABLE_GAP < fGapFromUnitToLineMap )
+	{
+		StateChange( USI_DAMAGE_AIR_SMALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( USI_DAMAGE_BIG_FRONT == GetGameUnitStateFuture() && true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_DAMAGE_AIR_SMALL );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if ( 0.93f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	float fGapFromUnitToLineMap = m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y;
 	const float ACCEPTABLE_GAP = 200.0f;	// 이것보다 거리가 크면 공중에 있는 상태임
 	
@@ -9029,6 +9159,7 @@ void CX2GUChung::DamageBigEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageDownFrontFrameMove
@@ -9036,6 +9167,15 @@ void CX2GUChung::DamageBigEventProcess()
 */
 void CX2GUChung::DamageDownFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcd90
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9046,6 +9186,7 @@ void CX2GUChung::DamageDownFrontFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageDownFrontEventProcess
@@ -9053,6 +9194,92 @@ void CX2GUChung::DamageDownFrontFrameMove()
 */
 void CX2GUChung::DamageDownFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bedb80 ( CanUseCannon is June's inline )
+	bool& bChangeStandUpAttackFront			= m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool& bChangeStandUpRollingFrontFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
+	bool& bChangeStandUpRollingFrontBack	= m_FrameDataFuture.stateParam.bEventFlagList[3];
+	bool& bChangeStandUpCannonAttackFront	= m_FrameDataFuture.stateParam.bEventFlagList[4];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == bChangeStandUpAttackFront )
+		{
+			StateChange( CSI_STANDUP_ATTACK_FRONT );
+		}
+		else if ( true == bChangeStandUpCannonAttackFront )
+		{
+			if ( CanUseCannon() )
+				StateChange( CSI_STANDUP_CANNON_ATTACK_FRONT );
+			else
+				StateChange( CSI_STANDUP_ATTACK_FRONT );
+		}
+		else if ( true == bChangeStandUpRollingFrontFront )
+			StateChange( CSI_STANDUP_ROLLING_FRONT_FRONT );
+		else if ( true == bChangeStandUpRollingFrontBack )
+			StateChange( CSI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	else if ( 0.66f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			bChangeStandUpAttackFront		= true;
+			bChangeStandUpRollingFrontFront	= false;
+			bChangeStandUpRollingFrontBack	= false;
+			bChangeStandUpCannonAttackFront	= false;
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			bChangeStandUpAttackFront		= false;
+			bChangeStandUpRollingFrontFront	= false;
+			bChangeStandUpRollingFrontBack	= false;
+			bChangeStandUpCannonAttackFront	= true;
+		}
+		else if ( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontBack	= false;
+				bChangeStandUpRollingFrontFront	= true;
+				bChangeStandUpCannonAttackFront	= false;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontFront	= false;
+				bChangeStandUpRollingFrontBack	= true;
+				bChangeStandUpCannonAttackFront	= false;
+			}
+		}
+		else
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontFront	= false;
+				bChangeStandUpRollingFrontBack	= true;
+				bChangeStandUpCannonAttackFront	= false;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontBack	= false;
+				bChangeStandUpRollingFrontFront	= true;
+				bChangeStandUpCannonAttackFront	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	bool& bChangeStandUpAttackFront			= m_FrameDataFuture.stateParam.bEventFlagList[1];
 	bool& bChangeStandUpRollingFrontFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
 	bool& bChangeStandUpRollingFrontBack	= m_FrameDataFuture.stateParam.bEventFlagList[3];
@@ -9156,6 +9383,7 @@ void CX2GUChung::DamageDownFrontEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageDownBackFrameMove
@@ -9163,12 +9391,22 @@ void CX2GUChung::DamageDownFrontEventProcess()
 */
 void CX2GUChung::DamageDownBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcde0
+	if ( true == m_pXSkinAnim->EventTimer( 0.32f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( true == m_pXSkinAnim->EventTimer( 0.32f ) )
 	{
 		CreateStepDust();
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageDownBackEventProcess
@@ -9176,6 +9414,92 @@ void CX2GUChung::DamageDownBackFrameMove()
 */
 void CX2GUChung::DamageDownBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bedd30 ( CanUseCannon is June's inline )
+	bool& bChangeStandUpAttackBack			= m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool& bChangeStandUpRollingBackFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
+	bool& bChangeStandUpRollingBackBack		= m_FrameDataFuture.stateParam.bEventFlagList[3];
+	bool& bChangeStandUpCannonAttackBack	= m_FrameDataFuture.stateParam.bEventFlagList[4];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == bChangeStandUpAttackBack )
+		{
+			StateChange( CSI_STANDUP_ATTACK_BACK );
+		}
+		else if ( true == bChangeStandUpCannonAttackBack )
+		{
+			if ( CanUseCannon() )
+				StateChange( CSI_STANDUP_CANNON_ATTACK_BACK );
+			else
+				StateChange( CSI_STANDUP_ATTACK_BACK );
+		}
+		else if ( true == bChangeStandUpRollingBackFront )
+			StateChange( CSI_STANDUP_ROLLING_BACK_FRONT );
+		else if ( true == bChangeStandUpRollingBackBack )
+			StateChange( CSI_STANDUP_ROLLING_BACK_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_BACK );
+	}
+	else if ( 0.66f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			bChangeStandUpAttackBack		= true;
+			bChangeStandUpRollingBackFront	= false;
+			bChangeStandUpRollingBackBack	= false;
+			bChangeStandUpCannonAttackBack	= false;
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			bChangeStandUpAttackBack		= false;
+			bChangeStandUpRollingBackFront	= false;
+			bChangeStandUpRollingBackBack	= false;
+			bChangeStandUpCannonAttackBack	= true;
+		}
+		else if ( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackBack	= false;
+				bChangeStandUpRollingBackFront	= true;
+				bChangeStandUpCannonAttackBack	= false;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackFront	= false;
+				bChangeStandUpRollingBackBack	= true;
+				bChangeStandUpCannonAttackBack	= false;
+			}
+		}
+		else
+		{
+			if ( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackFront	= false;
+				bChangeStandUpRollingBackBack	= true;
+				bChangeStandUpCannonAttackBack	= false;
+			}
+			else if ( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackBack	= false;
+				bChangeStandUpRollingBackFront	= true;
+				bChangeStandUpCannonAttackBack	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	bool& bChangeStandUpAttackBack			= m_FrameDataFuture.stateParam.bEventFlagList[1];
 	bool& bChangeStandUpRollingBackFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
 	bool& bChangeStandUpRollingBackBack		= m_FrameDataFuture.stateParam.bEventFlagList[3];
@@ -9278,6 +9602,7 @@ void CX2GUChung::DamageDownBackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageAirDownLandingEventProcess
@@ -9285,8 +9610,13 @@ void CX2GUChung::DamageDownBackEventProcess()
 */
 void CX2GUChung::DamageAirDownLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bedee0 ( jumps to 32bedb80 )
+	DamageDownFrontEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 앞에서 공격받아 넘어졌을 때의 경우와 EventProcess가 같기 때문에 DamageDownFrontEventProcess를 호출 하도록 하였음
 	DamageDownFrontEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpRollingEventProcess
@@ -9294,6 +9624,26 @@ void CX2GUChung::DamageAirDownLandingEventProcess()
 */
 void CX2GUChung::StandUpRollingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdce20 ( four CSI_STANDUP_ROLLING_* states )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9311,6 +9661,7 @@ void CX2GUChung::StandUpRollingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpRollingEnd
@@ -9318,10 +9669,18 @@ void CX2GUChung::StandUpRollingEventProcess()
 */
 void CX2GUChung::StandUpRollingEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd89d0 ( four CSI_STANDUP_ROLLING_* states )
 	CommonStateEnd();
 
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpAttackEventProcess
@@ -9329,6 +9688,26 @@ void CX2GUChung::StandUpRollingEnd()
 */
 void CX2GUChung::StandUpAttackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcea0 ( CSI_STANDUP_ATTACK_FRONT / _BACK )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -9349,6 +9728,7 @@ void CX2GUChung::StandUpAttackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpAttackEnd
@@ -9356,10 +9736,18 @@ void CX2GUChung::StandUpAttackEventProcess()
 */
 void CX2GUChung::StandUpAttackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8a10 ( CSI_STANDUP_ATTACK_FRONT / _BACK )
 	CommonStateEnd();
 
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ChargeCannonBallStart
@@ -11808,11 +12196,20 @@ void CX2GUChung::AttackDashJumpXEventProcess()
 */
 void CX2GUChung::StandUpCannonAttackInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8e00
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XMeshReadyInBackground( L"VANGUARD_MagicAttack_Explosion.Y" );
+	XMeshReadyInBackground( L"Up_Impact01.Y" );
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XMeshReadyInBackground( L"VANGUARD_MagicAttack_Explosion.Y");
 	XMeshReadyInBackground( L"Up_Impact01.Y");
 	TextureReadyInBackground( L"GroundShockWave.dds" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpCannonAttackFrameMove
@@ -11820,6 +12217,46 @@ void CX2GUChung::StandUpCannonAttackInit()
 */
 void CX2GUChung::StandUpCannonAttackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf8c50 ( CSI_STANDUP_CANNON_ATTACK_FRONT / _BACK; CanUseCannon is June's inline )
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
+	{
+		if ( CanUseCannon() )
+		{
+			bool bApplyGuardMastery = false;
+			if ( GetRandomFloat() <= GetProbabilityBigDamageAtGuardMastery() )
+				bApplyGuardMastery = true;
+
+			switch ( CHUNG_STATE_ID( GetNowStateID() ) )
+			{
+			case CSI_STANDUP_CANNON_ATTACK_FRONT:
+				{
+					if ( true == bApplyGuardMastery )
+						g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_STANDUP_CANNON_ATTACK_FRONT_BIG_DAMAGE", this );
+					else
+						g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_STANDUP_CANNON_ATTACK_FRONT", this );
+				}
+				break;
+
+			case CSI_STANDUP_CANNON_ATTACK_BACK:
+				{
+					if ( true == bApplyGuardMastery )
+						g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_STANDUP_CANNON_ATTACK_BACK_BIG_DAMAGE", this );
+					else
+						g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_STANDUP_CANNON_ATTACK_BACK", this );
+				}
+				break;
+
+			default:
+				break;
+			}
+
+			UseCannon( 1 );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11887,6 +12324,7 @@ void CX2GUChung::StandUpCannonAttackFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpCannonAttackEventProcess
@@ -11894,6 +12332,41 @@ void CX2GUChung::StandUpCannonAttackFrameMove()
 */
 void CX2GUChung::StandUpCannonAttackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdf400 ( CSI_STANDUP_CANNON_ATTACK_FRONT / _BACK ); June reads the +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture accessor as m_pXSkinAnimFuture
+	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.833f;
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_TO_CANCEL && true == IsOnSomethingFuture()
+			  && ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_TO_CANCEL && true == IsOnSomethingFuture()
+			  && ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.833f;
 
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
@@ -11942,6 +12415,7 @@ void CX2GUChung::StandUpCannonAttackEventProcess()
 #endif //SKILL_CANCEL_BY_HYPER_MODE
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpCannonAttackEnd
@@ -11949,10 +12423,18 @@ void CX2GUChung::StandUpCannonAttackEventProcess()
 */
 void CX2GUChung::StandUpCannonAttackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8e50 ( CSI_STANDUP_CANNON_ATTACK_FRONT / _BACK )
 	CommonStateEnd();
 
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : StandUpCannonAttackEndFuture
@@ -11960,6 +12442,13 @@ void CX2GUChung::StandUpCannonAttackEnd()
 */
 void CX2GUChung::StandUpCannonAttackEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8e90 ( CSI_STANDUP_CANNON_ATTACK_BACK )
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.syncData.bIsRight				= !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y		+= 180.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEndFuture();
 
 	// 방향이 반대라고 알려줌
@@ -11967,6 +12456,7 @@ void CX2GUChung::StandUpCannonAttackEndFuture()
 
 	// 회전했다고 알려줌
 	m_FrameDataFuture.unitCondition.dirDegree.y		+= 180.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 //{{ kimhc // 2011.1.4 // 청 1차 전직 통상기
@@ -20099,6 +20589,33 @@ void CX2GUChung::ComboDashJumpZZLandingFrameMove()
 
 void CX2GUChung::StandUpAttackFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c02ee0 ( CSI_STANDUP_ATTACK_FRONT )
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.58f ) && m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if ( GetIsRight() == true )
+			vTargetPos = GetPos() + GetDirVector() * -120.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * 120.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree() );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.60f ) && m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if ( GetIsRight() == true )
+			vTargetPos = GetPos() + GetDirVector() * 120.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -120.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL_REVERSE", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree() );
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.58f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20133,10 +20650,38 @@ void CX2GUChung::StandUpAttackFrontFrameMove()
 			true, vTargetPos, GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::StandUpAttackBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c033b0 ( CSI_STANDUP_ATTACK_BACK )
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.45f ) && m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if ( GetIsRight() == true )
+			vTargetPos = GetPos() + GetDirVector() * -120.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * 120.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL_REVERSE", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree() );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.47f ) && m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if ( GetIsRight() == true )
+			vTargetPos = GetPos() + GetDirVector() * 120.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -120.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree() );
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.45f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20171,6 +20716,7 @@ void CX2GUChung::StandUpAttackBackFrameMove()
 			true, vTargetPos, GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
@@ -20527,6 +21073,46 @@ void CX2GUChung::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID 
 }
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/** @function : EraseTargetingNPC
+	@brief : June 32c04140; kills this unit's own targeting NPCs of the given id ( fDeleteTime is passed but June never reads it )
+*/
+void CX2GUChung::EraseTargetingNPC( CX2UnitManager::NPC_UNIT_ID eNPCID, float fDeleteTime )
+{
+	if ( NULL == g_pX2Game )
+		return;
+
+	for ( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if ( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if ( CX2UnitManager::NUI_NONE != eNPCID && pNPC->GetNPCTemplet().m_nNPCUnitID != eNPCID )
+			continue;
+
+		if ( pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if ( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		CX2AllyNPCAI* pAllyAI = static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() );
+		if ( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
+			continue;
+
+		switch ( eNPCID )
+		{
+		case CX2UnitManager::NUI_TARGETING_CHUNG:
+		case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER:
+		case CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD:
+			pNPC->SetNowHp( 0.f );
+			break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 
 void CX2GUChung::CHG_ComboXFrameMove()
