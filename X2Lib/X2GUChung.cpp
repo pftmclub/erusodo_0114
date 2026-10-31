@@ -25841,7 +25841,7 @@ void CX2GUChung::SateliteRainFrameMove()
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 namespace _CONST_CHUNG_CH1c_
 {
-	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 6 ), June's empty-map default
+	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 12 ), June's empty-name default
 	void ChungAwakeningEffectBegin()			{}
 	bool ChungAwakeningEffectSetPresent()		{ return false; }
 	void ChungAwakeningEffectPlay()				{}

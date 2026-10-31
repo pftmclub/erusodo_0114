@@ -500,6 +500,41 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 No drift. **Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1c review` (Opus 5.5 high), then CH1d0.
 
+### CH1c - Review (2026-10-31, Opus 5.5)
+
+**Verdict: pass, one comment fixed.** I read both functions against June's listings (`charport_adis.py chung --phase CH1c`).
+- **`32c09b60` CommonHyperModeFrameMove.** Each timer is `fld [anim+0x24c]; fld fTimeN; fcom; test ah,0x41; jne skip` followed by `EventTimer`: run when
+  `fTimeN > +0x24c`. That is March's `EventTimerOneshot` (`KTDGXSkinAnim.h:272`, `m_fAnimOneshotTimer < fTime && EventTimer( fTime )`). A failed test
+  or a failed `EventTimer` falls through to the next timer, so the `else if` chain is right. The world colour is three `0.13333334` and one `fld1` into a
+  `D3DXCOLOR`, stored at `+0xb4` / `+0xc4` with `+0xd4 = 0`. That is March's inline `SetWorldColor` (`m_NowColor`, `m_FadeColor`, `m_fFadeTime`) with
+  `0xff222222` (0x22 / 255). The inlined `ClearScreen` writes DGManager `+0xa8 = 1` and four `1.0` values at `+0xac`, which is March's
+  `ClearScreen( 1, 0xffffffff )` default. The t1 branch builds `L"Dummy1_Rhand"` for `ShowMinorParticleHyperModeChange`, which is March's default argument.
+  The t2 order (Begin, present? -> Play, Shock `L"Dummy1_Rhand"`, `UpDownCrashCamera( 30, 0.4 )`, ClearScreen, Trace only when not present, vslot 0xc0
+  `ApplyHyperModeBuff`, then Energy / Break / Change as `PlaySound( name, true, false )` when `bSound_`) matches the port. The t3 branch is `EventTimer` and
+  nothing else (JUNE_BUGS 490). The tail is vslot 0x7cc. `call [344c0044]` is the static guard, not ported. Chung's June body never calls `31febf50` (the
+  Dark Dragon hyper-mode item set that Eve's calls), so there is no stand-in for it here.
+- **`32c113e0` RidingHyperModeFrameMove**: `( 0, 0.11, 0.1, true )` = March.
+- **Fix:** the stand-in comment named "Stage 6" and an "empty-map default". The Stage 6 planning moved the family to **Stage 12**
+  (`JUNE_PORT_BACKLOG_ORDER.md` L363; funcmap 4588 / 4589: `+0x9578` is the set-name wstring). The line now reads `( Stage 12 ), June's empty-name default`.
+- **Stand-ins:** Aisha (`_CONST_ARME_CH1b_` `AwakeningEffect*`, plus the `HyperModeBuffEffectStart` reader at `X2GUArme_VioletMage.cpp:29404`), Eve
+  (`EveAwakeningEffect*`) and Chung (`ChungAwakeningEffect*`) have the same shape. June's three are `CX2GUUser` members, so whichever phase ports them should
+  replace every class copy with one `CX2GUUser` trio. That is Stage 12, not Stage 6: Stage 6 ports only `Effectset_TRANScendence_WakeUp_FX`. The L363
+  bullet now says so.
+- **User-side check confirmed.** `ch0_vtable_slots.tsv` has no Chung override in `0x58c`-`0x5b4` or `0x610`-`0x624`. `PEPPER_RUN_READY_EventProcess`
+  (`X2GUUser.cpp:30858`) and `RidingStartStartFuture` (:44839) are March `CX2GUUser` bodies. `RidingHyperModeEnd` carries
+  `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END` (:47473). The CH1m kickoff's "Amended by CH1c" leaves out the 8 states with owners
+  (PvP / Stage 10 / Stage 17) and registers `CSI_RIDING_DAMAGE_BACK` as June does (JUNE_BUGS 489).
+- **CH1d0 lead:** `+0x24c` is `m_fAnimOneshotTimer`, so `31fd4290` / `31fd4340` look like March's `CX2GUUser::ClearAnimEventTimerOneshotNow` / `Future`
+  (`X2GUUser.cpp:48871` / `:48879`, `ResetOneshotPerformed` on the unit's and the riding pet's anim). The kickoff now says so. CH1d0 confirms the offsets.
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --range 94b7fdc9^..94b7fdc9`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 FAIL`, `0 deleted line(s), 0
+non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `--worktree --files
+X2Lib/X2GUChung.cpp`: `1 PASS`, with 1 deleted line (the replaced comment, inside the flag). Both runs are RESULT FAIL only because the `#define` is commented out.
+`junediverge.py --check-all`: `RESULT: PASS` (allow-listed 158). `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows. One-file probes (`census.cl_cmd` /
+`cl_env`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` exit 0 / 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 16:14:29, md5 ee90d3201b67ed8e296be4d5eb46c5b7, equal to X2/US_SERVICE/x2.exe (2026-10-31
+16:14:22); built at main 94b7fdc9 + 1 uncommitted code file(s).` Nothing to play-test. Next: `/x2-phase char-chung CH1d0` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
