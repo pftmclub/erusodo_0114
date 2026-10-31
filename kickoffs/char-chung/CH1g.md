@@ -57,3 +57,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 8** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CSG_COMBO_DASH_X`, `CSI_CSG_COMBO_DASH_Z`, `CSI_CSG_COMBO_DASH_ZX`, `CSI_CSG_COMBO_DASH_ZXX_READY`, `CSI_CSG_COMBO_DASH_ZXX`, `CSI_CSG_COMBO_DASH_ZXX_END`, `CSI_CSG_COMBO_DASH_XX`, `CSI_CSG_COMBO_DASH_XXX`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
 - Split by CH0 (50 functions): CH1g = CSG dash combos; CH1g2 = X-front, dash-jump and Head Shot.
+
+## Checked by the CH1f review (2026-10-31)
+
+- `SKILL_CANCEL_AFTER` / `WALK_CANCEL_AFTER` / `DASH_CANCEL_AFTER` open with `else if`. Placed straight after an anim-end `if` block, they form June's if / else, where the anim end exits the function. Check each June listing for that exit before adding or dropping an `else`.
+- In the hyper branch, read June's alternate future animation (`32070cf0`, `+0x8e84` when `+0x8e90`) as `m_pXSkinAnimFuture`, as every CH1 phase so far has.
