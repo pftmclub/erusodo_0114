@@ -10368,7 +10368,7 @@ void CX2GUChung::ComboZEventProcess()
 void CX2GUChung::ComboZZEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
-	/// June 32bdd5e0; the Z Z X flag at [3] is set for Iron Paladin and Deadly Chaser only, Fury Guardian is not tested ( JUNE_BUGS 491 )
+	/// June 32bdd5e0; the Z Z X flag at [3] is set for Iron Paladin only, Fury Guardian is not tested ( JUNE_BUGS 491 )
 	bool &bCanChangeStateComboZZZ    = m_FrameDataFuture.stateParam.bEventFlagList[0];
 	bool &bCanChangeStateComboZZdownZ  = m_FrameDataFuture.stateParam.bEventFlagList[1];
 	bool &bCanChangeStateCGFComboZZX  = m_FrameDataFuture.stateParam.bEventFlagList[3];

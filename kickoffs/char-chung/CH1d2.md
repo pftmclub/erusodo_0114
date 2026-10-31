@@ -34,7 +34,7 @@ Transcribe every function the class map gives phase `CH1d2` (the dash / jump com
 - June's numbers, order and quirks verbatim (a `JUNE_BUGS.md` row each); `m_fNowStatePowerRate` (7i); June's BFI arguments (7ai,
   `s3e_bybfi_callers.tsv`).
 - `X2GUChung.*` are CP949 (`.cpp` CRLF, `.h` mixed): `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
-- Done gate: every class-map row with phase `CH1d` is written (the Done note lists them with June addresses and `inside` / `new`); the build passes
+- Done gate: every class-map row with phase `CH1d2` is written (the Done note lists them with June addresses and `inside` / `new`); the build passes
   with `_LIVE` undefined and the one-file probe passes with it defined; `junediverge.py --check` and `enumscan.py --check` on the class files PASS.
   Nothing to play-test: the hand-off says so and names the next phase.
 
@@ -57,3 +57,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 9** (`awk -F'\t' '$8=="CH1d2"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_COMBO_DASH_Z`, `CSI_ATTACK_DASH_X`, `CSI_ATTACK_JUMP_Z`, `CSI_ATTACK_JUMP_X`, `CSI_COMBO_DASH_JUMP_Z`, `CSI_COMBO_DASH_JUMP_ZZ`, `CSI_COMBO_DASH_JUMP_ZZLanding`, `CSI_COMBO_DASH_JUMP_ZZLanding_CANNON_BALL_SHOT`, `CSI_ATTACK_DASH_JUMP_X`.
 - `CSI_ATTACK_DASH_X` is defined twice in June's script (the last table wins): JUNE_BUGS row. The same function serves `CSI_CSG_COMBO_DASH_X` / `CSI_CIP_COMBO_DASH_X` (class-gated names, `ch0_reg.tsv` `~` rows).
 - Uses CH1d0's `31fd4290` mapping.
+
+## Amended by CH1d review (2026-10-31)
+
+- Reading notes from CH1d that hold here: June reads `+0x8e90 ? +0x8e84 : +0x87d0` (Lu/Ciel's alternate future anim) where March has `m_pXSkinAnimFuture`; `fld +0x24c; fcom t; jne` + `EventTimer` is `EventTimerOneshot`; the `SKILL_CANCEL_AFTER` / `IF_SKILL_CANCEL_AFTER` macros already expand to June's code (awake lock, `+0x8d4c`).
+- Walk / dash cancels that June gates on `bFootOnLine` (`+0x7e1c`) are written out with `IsOnSomethingFuture()`, as CH1d did for the two Finish states; check per function whether the walk is opposite-direction (`CAN_WALK_CANCEL`) or any direction.
+- Follow June's JUMP_DOWN jump target: where it lands on the anim-end test, that test sits outside the ground `else` (CH1d's ZZdownZ); where it lands on vslot 0x7d4, inside (ZZ).
+- `flagcheck` on `X2GUChung.cpp` needs the patience diff: `GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=diff.algorithm GIT_CONFIG_VALUE_0=patience`.
