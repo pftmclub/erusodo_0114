@@ -6404,3 +6404,5 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32bdf400	CX2GUChung::StandUpCannonAttackEventProcess	PORTED	Char Chung CH1b: inside; cancels after 0.833; walk / dash cancels also need IsOnSomethingFuture ( March macros do not ); future anim accessor +0x8e90 ? +0x8e84 read as m_pXSkinAnimFuture
 32bd8e50	CX2GUChung::StandUpCannonAttackEnd	PORTED	Char Chung CH1b: inside = March
 32bd8e90	CX2GUChung::StandUpCannonAttackEndFuture	PORTED	Char Chung CH1b: inside; flips bIsRight and dirDegree.y + 180 = March
+32c09b60	CX2GUChung::CommonHyperModeFrameMove	PORTED	Char Chung CH1c: inside; 3 timers, awakening effect-set stand-ins (32011d20 / 31fd66b0 / 32011f50), no BoostPower voice (JUNE_BUGS 490), Energy / Break / Change sounds when bSound; ends in vslot 0x7cc CommonFrameMove
+32c113e0	CX2GUChung::RidingHyperModeFrameMove	PORTED	Char Chung CH1c: inside; CommonHyperModeFrameMove( 0, 0.11, 0.1, true ) = March

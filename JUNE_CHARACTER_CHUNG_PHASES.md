@@ -477,6 +477,29 @@ order, `StateChange` ids, x87 compare directions and constants match. The transc
 
 **Nothing to play-test.** Next: `/x2-phase char-chung CH1c` (Sonnet 5.5 high).
 
+### CH1c - Done (2026-10-31)
+
+Both class-map rows of phase CH1c are written, both `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`). No new `Always.h` define (`_CORE` / `_LIVE` are CH1a's; `_LIVE` stays `//#define`). 2 funcmap rows `Char Chung CH1c`.
+
+| June | `CX2GUChung::` | Notes |
+|---|---|---|
+| `32c09b60` | CommonHyperModeFrameMove | March's hyper-mode body with June's changes below |
+| `32c113e0` | RidingHyperModeFrameMove | `CommonHyperModeFrameMove( 0, 0.11, 0.1, true )` = March |
+
+**Where June differs from March** (the timers are March's active `EventTimerOneshot`; June's `t > +0x24c && EventTimer` is the same test):
+- **No voice line.** March plays `ChungVoice_BoostPower.ogg` at the third timer (full hyper only) and in the second timer's branch when the two times are equal. June has neither: its third `else if` keeps the timer test with an empty body (JUNE_BUGS 490, kept as an empty branch).
+- **Awakening effect-set family.** At the second timer June calls `32011d20`, then `31fd66b0` (present?) and `32011f50` (play) before the Shock particle, and skips the Trace particle when the set is present. They are `CX2GUUser` members March lacks (the unit's awakening set name, +0x9578); stand-ins in `_CONST_CHUNG_CH1c_` (`ChungAwakeningEffectBegin` / `SetPresent` / `Play`: nothing plays, present = false, June's empty-map default), the same shape as Aisha's and Eve's. Order: Begin, Play, Shock, `UpDownCrashCamera( 30, 0.4 )`, `ClearScreen`, Trace (if no set), `ApplyHyperModeBuff` (vslot 0xc0), then Energy / Break / Change when `bSound_`.
+- **Same as March:** the world colour (0.1333 x3, 1.0 = `0xff222222`), the first timer (`ShowMinorParticleHyperModeChange` only), the inlined `ClearScreen`, the `CommonFrameMove` tail (vslot 0x7cc). The prologue's `call [344c0044]` is the compiler artefact Aisha's `32ce12c0` also has; not ported.
+- Checklist §7 L253 (`+0x7cc8` power rate): neither function touches it. 7ai (BFI arguments): none.
+
+**The user-side check.** CH0 expected the riding / pepper-run callbacks to be Aisha's or Eve's ports to widen. They are not: every riding, pepper-run and hyper-end target (`31fc....`-`3203....`, `329cc....`) is a `CX2GUUser` member whose March body no `_ARME_` / `_EVE_` flag touches (X2GUUser.cpp:30858 `PEPPER_RUN_*`, :44839 `Riding*`); `RidingHyperModeEnd` (vslot 0x608) is `virtual` under `_ARME_CORE` for every class, with the Eve-owned `SERV_IRUHADEV_JUNE_DIVERGE_RIDING_HYPER_MODE_END` body. So nothing is widened and nothing is copied. Chung overrides none of vslots `0x58c`-`0x5b4` and `0x610`-`0x624` (`ch0_vtable_slots.tsv`). Eight states have no March callbacks (`CSI_AMUSEMENT_ITEM_PHOENIX_RUN`, `CSI_DANCE_Z/X/WAIT`, `CSI_RIDING_SPECIFIC`, `_ATTACK_X_READY(_2)`, `_END`): owners PvP / Stage 10 / Stage 17 (`JUNE_PORT_BACKLOG_ORDER.md`); the CH1m kickoff now says to leave them out as Eve did. **JUNE_BUGS 489:** `CSI_RIDING_DAMAGE_BACK` has no script table and `CSI_RIDING_DAMAGE_FRONT` is defined twice (CH0's candidate; Chung's twin of 379 / 422).
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --worktree --files X2Lib/X2GUChung.cpp`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 FAIL`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out (by design). `git diff --patience --numstat`: 54 / 0 in `X2GUChung.cpp`. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 16:08:03, md5 9c67ab96686d36e54704e755d7eb1e8a`, equal to `X2/US_SERVICE/x2.exe`; built at main `5504e2ec` + the 1 code file of this phase. No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+No drift. **Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1c review` (Opus 5.5 high), then CH1d0.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -58,6 +58,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **§7l bounding:** the three `CSI_DAMAGE_BOUNDING_*` rows carry five callbacks (thunks `329cc970`-`329cc9b0` to `CX2GUUser` vslots 0x5d4-0x5e4); Chung overrides none, and the bodies are already `CX2GUUser`'s (Effect C3d-3, `SERV_IRUHADEV_JUNE_BOUNDING_STATE`). Register them with `InitBoundingStates( "CSI_" )` (`X2GUUser.cpp:32816`), the way Arme (`X2GUArme_VioletMage.cpp:3920`) and Eve (`X2GuEve.cpp:1979`) do; CH1n has no bounding body to write.
 
+## Amended by CH1c (2026-10-31)
+
+- **Leave out the 8 states with no March callbacks, as Eve and Aisha did:** `CSI_AMUSEMENT_ITEM_PHOENIX_RUN` (PvP, one state with three callback triples `329cc870..329cc930`), `CSI_DANCE_Z` / `_X` / `_WAIT` (Stage 10) and `CSI_RIDING_SPECIFIC` / `CSI_RIDING_ATTACK_X_READY` / `_READY_2` / `_END` (Stage 17, `JUNE_PORT_BACKLOG_ORDER.md`). Each gets a comment line with its owner. Every other riding / pepper-run row (`CSI_PEPPER_RUN*`, `CSI_RIDING_*`, 27 tables) takes the existing `CX2GUUser` member by its March name; `CSI_RIDING_HYPER_MODE` FrameMove is `CX2GUChung::RidingHyperModeFrameMove` (CH1c) and `CSI_RIDING_DIE` uses CH1b's `DieFront*`.
+- `CSI_RIDING_DAMAGE_BACK` has no script table in `Chung_Iron_Cannon.lua`: register it as June does (JUNE_BUGS 489).
+
 ## Amended by CH1a review (2026-10-31)
 
 - **Register `JumpUpStart`** (June `32bdbcd0`, compiled under `_CORE` since CH1a) as `CSI_JUMP_UP`'s StateStart. CH0 proposed

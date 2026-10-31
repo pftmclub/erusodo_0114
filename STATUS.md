@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1c | **ready** (CH1b review passed 2026-10-31): class core, riding, pepper, dance; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |
+| CH1c | **built 2026-10-31, awaits `/x2-phase char-chung CH1c review` (Opus 5.5 high)**: 2 inside (hyper-mode frame moves); riding / pepper / dance callbacks are CX2GUUser's, nothing to widen; nothing to play-test | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |
 | CH1d0 | blocked (CH1c review): Opus helpers `31fd4290` / `31fd4340` before CH1d | Opus 5.5 / high, Opus review | CH1c review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1d0.md` |
 | CH1d | blocked (CH1d0 review): class core, base combos; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d0 review | `X2GUChung.*`, Always.h | `CH1d.md` |
 | CH1d2 | blocked (CH1d review): class core, Iron Cannon dash / jump combos; split from CH1d by CH0 | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUChung.*`, Always.h | `CH1d2.md` |

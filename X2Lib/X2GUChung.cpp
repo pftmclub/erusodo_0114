@@ -25838,16 +25838,69 @@ void CX2GUChung::SateliteRainFrameMove()
 	ShowActiveSkillCutInAndLightByBerserkMode( fTimeToShow_, bOnlyLight_ );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+namespace _CONST_CHUNG_CH1c_
+{
+	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 6 ), June's empty-map default
+	void ChungAwakeningEffectBegin()			{}
+	bool ChungAwakeningEffectSetPresent()		{ return false; }
+	void ChungAwakeningEffectPlay()				{}
+}
+using namespace _CONST_CHUNG_CH1c_;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+
 #ifdef MODIFY_RIDING_PET_AWAKE
 /** @function : HyperModeFrameMove
 	@brief : 각성 상태에서 표현되야하는 파티클 출력 및 각성 구슬 카운트 수행
 */
 void CX2GUChung::RidingHyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c113e0
+	CommonHyperModeFrameMove( 0.f, 0.11f, 0.1f, true );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonHyperModeFrameMove( 0.f, 0.11f, 0.1f, true);
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CommonHyperModeFrameMove( float fTime1_, float fTime2_, float fTime3_, bool bSound_ /*= false*/  )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c09b60: the third timer has no body ( the BoostPower voice line is gone )
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		ShowMinorParticleHyperModeChange();
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		ChungAwakeningEffectBegin();
+		if( true == ChungAwakeningEffectSetPresent() )
+			ChungAwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == ChungAwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+
+		ApplyHyperModeBuff();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( fTime3_ ) )
+	{
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -25897,6 +25950,7 @@ void CX2GUChung::CommonHyperModeFrameMove( float fTime1_, float fTime2_, float f
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 #endif // MODIFY_RIDING_PET_AWAKE
 
