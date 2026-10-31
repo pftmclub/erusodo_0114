@@ -6556,3 +6556,25 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c181f0	CX2GUChung::CSGComboXFrontXFireFrameMove	PORTED	Char Chung CH1g2: inside; June differs: 4 x Open Mind MP rate, power x rifling damage rate, head shot through the CEffect function
 32c18f30	CX2GUChung::CSGComboDashJumpXFrameMove	PORTED	Char Chung CH1g2: inside; June differs: two mini guns (slots 7 / 6), shots at 0.207 (left) and 0.338 (right), Open Mind MP rate, rifling rate, head shot
 32c19710	CX2GUChung::CSGComboDashJumpXXFrameMove	PORTED	Char Chung CH1g2: inside; June differs: left / right CDC mini guns, shots at 0.013 (left, no count) and 0.127 (right, counts), a short shot sets the count to 4
+32bd9ee0	CX2GUChung::CDCComboXInit	PORTED	Char Chung CH1h: inside; = March (seven preloads)
+32bd9f40	CX2GUChung::CDCComboXXInit	PORTED	Char Chung CH1h: inside; = March (three preloads)
+32bd9f70	CX2GUChung::CDCComboXZInit	PORTED	Char Chung CH1h: inside; = March (seven preloads)
+32bd9fd0	CX2GUChung::CDCComboXZZInit	PORTED	Char Chung CH1h: inside; = March (five preloads)
+32bda020	CX2GUChung::CDCComboZZXXInit	PORTED	Char Chung CH1h: inside; = March (seven preloads)
+32bda080	CX2GUChung::CDCComboZZXXXInit	PORTED	Char Chung CH1h: inside; = March (thirteen preloads)
+32be30c0	CX2GUChung::CDCComboXEventProcess	PORTED	Char Chung CH1h: inside; = March (0.865 branch to X X / X Z, dash cancel after m_fDashCancelAfter)
+32be31f0	CX2GUChung::CDCComboXXEventProcess	PORTED	Char Chung CH1h: inside; = March (walk cancel clears both flags, 1.282 / 1.584 window to X X Z / X X X)
+32be3320	CX2GUChung::CDCComboXZEventProcess	PORTED	Char Chung CH1h: inside; = March (1.3 input / 1.458 branch to X Z Z, cancels at 1.074 / 1.495 then m_fDashCancelAfter / m_fSkillCancelAfter)
+32be3730	CX2GUChung::CDCComboXZZEventProcess	PORTED	Char Chung CH1h: inside; = March (skill cancel 0.9, arrow cancel 1.44, dash cancel after m_fDashCancelAfter)
+32be3960	CX2GUChung::CDCComboZZXEventProcess	PORTED	Char Chung CH1h: inside; = March (0.521 branch to Z Z X X, ground test again at the animation end)
+32be3a30	CX2GUChung::CDCComboZZXXEventProcess	PORTED	Char Chung CH1h: inside; = March (1.5 input / 1.9 branch to Z Z X X X, walk / dash / skill cancel members)
+32be3cb0	CX2GUChung::CDCComboZZXXXEventProcess	PORTED	Char Chung CH1h: inside; = March (skill cancel 0.9, arrow cancel 1.44, no dash cancel)
+32bfd690	CX2GUChung::CDCComboXEnd	PORTED	Char Chung CH1h: inside; = March (frees mini gun handle slot 9)
+32bfd6b0	CX2GUChung::CDCComboXZEnd	PORTED	Char Chung CH1h: inside; = March (frees mini gun handle slots 10 / 11)
+32bfd6f0	CX2GUChung::CDCComboXZZFrameMove	PORTED	Char Chung CH1h: inside; = March (0.666 cannon ball: effect set, UseCannon 1, Kwang particle, or misfire)
+32bfda10	CX2GUChung::CDCComboZZXXEnd	PORTED	Char Chung CH1h: inside; = March (frees mini gun handle slots 13 / 14)
+32bfda50	CX2GUChung::CDCComboZZXXXFrameMove	PORTED	Char Chung CH1h: inside; = March (0.594 cannon ball: effect set with power rate, UseCannon 1, or misfire)
+32c19f30	CX2GUChung::CDCComboXFrameMove	PORTED	Char Chung CH1h: inside; June differs: 0.599 shot at 4 x Open Mind MP rate, power x rifling damage rate, head shot through the CEffect function
+32c1a480	CX2GUChung::CDCComboXZFrameMove	PORTED	Char Chung CH1h: inside; June differs: three shots (0.632 left, 0.965 right, 1.332 left) at 4 x Open Mind MP rate, power x rifling damage rate, head shot each
+32c1ae60	CX2GUChung::CDCComboZZXXFrameMove	PORTED	Char Chung CH1h: inside; June differs: 5 left + 4 right + last shell at 2 x Open Mind MP rate, power x rifling damage rate, head shot each
+32c1ba00	CX2GUChung::CDCComboXXFrameMove	PORTED	Char Chung CH1h: inside; = March (1.232 DAMAGE_DATA_NEXT table, cannon ball count up 1)

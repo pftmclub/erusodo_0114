@@ -64,3 +64,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1g (2026-10-31)
 
 - **Three `_CORE` members stand in for June members the ctor map must place:** `m_fRemodelRifleDamageRate` (June `+0x98ac`, protected float, ctor 1.0; written by CH4a) and `m_iCountbyCsgComboDashZXXMiniGun` (June `+0x9894`, int, 0); both are in March's ctor initializer list since CH1g. `CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L` / `_R` were appended before `CHUNG_MAJOR_MII_END` for June's handle slots 0x11 / 0x12 (`+0x960c` / `+0x9610`). June's own slot order differs from March's after 0x0f (Bullet Blitz's left gun is slot 0x10 in `32bffd20`): settle `InitializeMajorMeshArray` / `DeleteMajorMesh` / DamageReact `32c0cf90` (which destroys 0x11 and 0x12) against it.
+
+## Amended by CH1h (2026-11-01)
+
+- **Deadly Chaser mini gun handle slots are placed by June's number, written by March's enumerator.** June frees / reads slot 9 (CDC X, left), 10 / 11 (CDC X Z, left / right) and 13 / 14 (CDC Z Z X X, left / right); slot 12 (`CHUNG_MAJOR_MII_CDC_COMBO_XZZ_MINI_GUN_L`) is never used. March's enumerators sit one higher (10, 11, 12, 14, 15) because June has no slot for Head Shot between dash-jump landing (8) and the CDC block. CH1h wrote the March names with the June slot in the comment, so the June bodies work only if `InitializeMajorMeshArray` / `DeleteMajorMesh` clear all of `CHUNG_MAJOR_MII_END`: settle that together with the CH1g2 slot note above.

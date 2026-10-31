@@ -832,6 +832,33 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1h` (Sonnet 5.5 high).
 
+### CH1h - Done (2026-11-01)
+
+All 22 class-map rows of phase CH1h are written, all `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`); no `new` row, no new member, enumerator, state id or `Always.h` define. `_LIVE` stays `//#define`. 22 funcmap rows `Char Chung CH1h`. Read from `charport_adis.py chung --phase CH1h` (listings cut at the next non-`dead` class-map address).
+
+| June | `CX2GUChung::CDCCombo...` | vs March |
+|---|---|---|
+| `32bd9ee0` `32bd9f40` `32bd9f70` `32bd9fd0` `32bda020` `32bda080` | `XInit` `XXInit` `XZInit` `XZZInit` `ZZXXInit` `ZZXXXInit` | = March (7 / 3 / 7 / 5 / 7 / 13 preloads, same names) |
+| `32be30c0` `32be31f0` `32be3320` | `XEventProcess` `XXEventProcess` `XZEventProcess` | = March (0.865 to X X / X Z; walk cancel clears both flags, 1.282 / 1.584 window to X X Z / X X X; 1.3 input / 1.458 branch to X Z Z, cancels 1.074 / 1.495, then `m_fDashCancelAfter` / `m_fSkillCancelAfter`) |
+| `32be3730` `32be3960` `32be3a30` `32be3cb0` | `XZZEventProcess` `ZZXEventProcess` `ZZXXEventProcess` `ZZXXXEventProcess` | = March (skill 0.9 / arrow 1.44, dash cancel only on X Z Z; 0.521 to Z Z X X; 1.5 / 1.9 to Z Z X X X with the walk / dash / skill members) |
+| `32bfd690` `32bfd6b0` `32bfda10` | `XEnd` `XZEnd` `ZZXXEnd` | = March (frees June slots 9 / 10 + 11 / 13 + 14) |
+| `32bfd6f0` `32bfda50` `32c1ba00` | `XZZFrameMove` `ZZXXXFrameMove` `XXFrameMove` | = March (0.666 and 0.594 cannon ball or misfire, the latter with `GetPowerRate()` in the effect set; 1.232 `DAMAGE_DATA_NEXT` table, `UpCannonBallCountAtThisAnimationTime( 1.232f, 1 )`) |
+| `32c19f30` | `XFrameMove` | differs: the 0.599 shot costs 4 x the Open Mind rate (`RNSI_P_CDC_OPEN_MIND`), power x `m_fRemodelRifleDamageRate` (`+0x98ac`), head shot through the CEffect `SetExtraDamageMiniGun` (`32c15990`) |
+| `32c1a480` | `XZFrameMove` | differs: shots 0.632 (left) / 0.965 (right) / 1.332 (left), each 4 x rate, x `+0x98ac`, head shot |
+| `32c1ae60` | `ZZXXFrameMove` | differs: 5 left shots (0.6 step 0.25), 4 right (0.67 step 0.25) and the 1.67 last shell, each 2 x rate, x `+0x98ac`, head shot; a short shot passes 23 as the effect's angle z |
+
+No function of the phase reads `+0x7cc8` (`m_fNowStatePowerRate`, checklist §7 L253): nothing to scale here. The head shot of `32c15990` is on the three FrameMoves above (CH1g review amendment); the `+0x9718` write at 0.599 / 0.001 stays behind March's own `SKILL_BALANCE_20110728` as in CH1g2. `UpCannonBallCountAtThisAnimationTime` is March's, called by name (its June body `32bf3d30` is CH1q's, as CH1d).
+
+**Mini gun handle slots.** June frees slot 9 (X), 10 / 11 (X Z), 13 / 14 (Z Z X X); March's enumerators for the same guns are one higher (10, 11, 12, 14, 15). The bodies use March's names with the June slot in the comment; `CH1k.md` is amended to settle the array against June's numbering.
+
+**Checked against the preprocessed file.** `cl /P` with `_LIVE` off and on, 22 bodies compared token-wise: 17 identical, 2 differ only by an unused local (`iExtraChargeCannonBall`, X X FrameMove) or a bare block (Z Z X X EventProcess), 3 differ exactly as the table says. No JUNE_BUGS row: nothing in the 22 functions is a June mistake (the redundant ground tests inside the `IsOnSomethingFuture` else are treated as in CH1g2).
+
+**Gates.** `GIT_CONFIG_KEY_0=diff.algorithm GIT_CONFIG_VALUE_0=patience flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out. `junediverge.py --check X2Lib/X2GUChung.cpp`: `RESULT: PASS` (allow-listed 2). `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,879,552 B, dated 2026-11-01 03:13:10, md5 dd88ab2a63d4b2474aabfb06abba8b39, equal to X2/US_SERVICE/x2.exe (2026-11-01 03:13:03); built at main 2a9098bb + 1 uncommitted code file(s)` (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1h review` (Opus 5.5 high), then CH1i.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
