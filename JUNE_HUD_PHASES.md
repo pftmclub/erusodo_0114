@@ -288,6 +288,8 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND`. Re-bind Lua's `SetBuffFactorToGa
 - Hygiene: `flagcheck JUNE_BUFF_FACTOR_LUA_BIND --worktree`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
   `0 deleted line(s)`; `RESULT: PASS`. `junediverge --check`: `RESULT: PASS`; `enumscan --check`: 0 rows.
 - Build: `DEPLOY OK: X2_offline.exe is 25,865,216 B, dated 2026-10-31 08:29:23, md5 0649259cb7a00bb59122fd0e897b0620` (no new strings to exestr).
+- **Play-test passed (user, 2026-10-31, jtLordKnight):** the 2-argument console line applied the buff in a dungeon (08:31:39-08:32:07); ErrorLog has no
+  `no class at first argument` and no `SetBuffFactorToGameUnitByBuffFactorID_LUA` error; 0 EXCEPTION.
 
 ## Phase H3 - The buff counter (Sonnet 5.5, high)
 
