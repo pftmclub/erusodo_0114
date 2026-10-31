@@ -175,8 +175,8 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1g2 | **done, review next**: 30 rows written (26 inside, 4 new + Head Shot default), DEPLOY OK md5 2b64b17f, no play-test (`CH1g2-review.md`) | Sonnet 5.5 / high, Opus review | CH1g review (done) | `X2GUChung.*`, Always.h | `CH1g2.md` |
-| CH1h | blocked (CH1g2 review): class core, Deadly Chaser line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUChung.*`, Always.h | `CH1h.md` |
+| CH1g2 | **reviewed**: 30 rows match June except the Z X cannon tilt (roll % 10 is the angle z), fixed under `_CORE`; DEPLOY OK, no play-test (`CH1g2-review.md`) | Sonnet 5.5 / high, Opus review | CH1g review (done) | `X2GUChung.*`, Always.h | `CH1g2.md` |
+| CH1h | ready: class core, Deadly Chaser line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUChung.*`, Always.h | `CH1h.md` |
 | CH1i | blocked (CH1h review): class core, Shelling Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUChung.*`, Always.h | `CH1i.md` |
 | CH1j0 | blocked (CH1i review): Opus helpers `32008660` / `31fe4870` / `31fe9840` before CH1j | Opus 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1j0.md` |
 | CH1j | blocked (CH1j0 review): class core, Tactical Trooper line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1j0 review | `X2GUChung.*`, Always.h | `CH1j.md` |

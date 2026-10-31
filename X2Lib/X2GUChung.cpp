@@ -23889,7 +23889,7 @@ void CX2GUChung::CSGComboDashJumpZXFrameMove()
 		if( true == IsFullHyperMode() || 0 < GetCannonBallCount() )
 		{
 			D3DXVECTOR3 vAngle = GetRotateDegree();
-			float fRandomTilt = static_cast<float>( GetRandomInt() % 10 );  /// June rolls this and never reads it; the roll still advances the random state
+			vAngle.z = static_cast<float>( GetRandomInt() % 10 );	/// June @32c0ad2a: the 0-9 roll replaces the rotation's z
 			if( GetRandomFloat() < 0.5f )
 				vAngle.z *= -1.f;
 			vAngle.z -= 45.f;
