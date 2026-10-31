@@ -4430,8 +4430,12 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameUnit>( L, "GetUnitUID",				&CX2GameUnit::GetUnitUID );
 #endif	SERV_TRAPPING_RANGER_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
+	lua_tinker::class_def<CX2GameUnit>( L, "SetBuffFactorToGameUnitByBuffFactorID_LUA", &CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID_LUA );	// June 31dea6c1: thunk 31e4ea50 = slot 134
+#else SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
 	lua_tinker::class_def<CX2GameUnit>( L, "SetBuffFactorToGameUnitByBuffFactorID_LUA",	
 		&CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID );
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
 
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 	lua_tinker::class_def<CX2GameUnit>( L, "BuffTestNewStat_LUA",	&CX2GameUnit::BuffTestNewStat_LUA );	/// June buff port Phase 5 console hook, DEBUG only

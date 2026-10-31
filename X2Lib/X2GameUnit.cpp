@@ -13643,6 +13643,13 @@ static BUFF_TEMPLET_ID BuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 	ptrBuffFactorClone->SetGameUnitBuffFactor( this, iCreatorUID, bCreatorIsUser );
 	return SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 }
+#ifdef SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
+/// June 3208dd90 (slot 134, bound to Lua through thunk 31e4ea50): slot 135 with no creator unit
+/*virtual*/ bool CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID_LUA( const UINT uiBuffFactorId_, const UINT uiLevel_, const int iAdjustSkillID_, const bool bSkipAdjust_ )
+{
+	return SetBuffFactorToGameUnitByBuffFactorID( uiBuffFactorId_, uiLevel_, NULL, iAdjustSkillID_, bSkipAdjust_ );
+}
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 /** @function : SetBuffFactorToGameUnitByBuffFactorID
 	@brief : 버프팩터 ID로 게임유닛에 버프 적용

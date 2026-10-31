@@ -4,8 +4,8 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-hud H4 review` |
 | Plan doc | `JUNE_HUD_PHASES.md` (branch `main`) |
-| Depends on | H1, H2, H3, H4 |
-| Flag | every `SERV_IRUHADEV_JUNE_HUD_*` flag |
+| Depends on | H1, H2, H2b, H3, H4 |
+| Flag | every `SERV_IRUHADEV_JUNE_HUD_*` flag + `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND` (H2b) |
 | Log tag | `[JUNE_HUD]` (`python tools/logs.py --tag JUNE_HUD`) |
 | Review | this is the review |
 

@@ -268,7 +268,26 @@ no time, which is June's behaviour (H0); their counter comes with H3.
   (`0x21c`, creator pointer 3rd), and this lua_tinker errors on a nil pointer, so every 1- or 2-argument Lua call fails ("no class at first argument").
   June binds thunk `31e4ea50` = slot 134 `3208dd90`: `( BFI, level, adjust skill id, skip )`, forwarding `( BFI, NULL, level, adjust, skip )`; invoker
   `31e6afe0` reads args 2-4 as numbers and arg 5 as a bool. 162 kom scripts call it (June's pass the BFI only, e.g. `BFI_NPC_RED_POTION`). The play-test
-  used `( 648, 1, u, 0, true )`. Routing: the user's call (fix now vs its own plan).
+  used `( 648, 1, u, 0, true )`. Fixed in H2b (user, 2026-10-31).
+
+## Phase H2b - The buff-factor Lua binding (Opus 5.5, high)
+
+**Added 2026-10-31 (user: "make a new phase in this plan if it's really small, but use what June offers").** Found in H2's play-test.
+Flag `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND`. Re-bind Lua's `SetBuffFactorToGameUnitByBuffFactorID_LUA` to June's slot 134 `3208dd90`.
+
+**Gate:** the 2-argument console line applies the buff with no `[LUA_SRC] ... no class at first argument` line; 0 EXCEPTION.
+
+**Done note (H2b, 2026-10-31, Opus 5.5):**
+- June: registration `31d95080` binds the name (decrypted @31dea419) @31dea6c1 to thunk `31e4ea50` = `jmp [vtable+0x218]`, slot 134 `3208dd90`:
+  `( BFI, level, adjust skill id, skip )` -> slot 135 `( BFI, NULL creator, level, adjust, skip )`. Slot 134 is the same address in the base, user and
+  NPC vtables (18 vtable refs; no override). Invoker `31e6afe0` reads args 2-4 as numbers and arg 5 as a bool, so nil -> 0 / false.
+- Port: virtual `CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID_LUA( BFI, level, adjust skill id, skip )` (the class's `_LUA` pattern; an overload
+  of the 5-argument name would be ambiguous to bind) forwarding with `NULL`; `X2Main.cpp` binds it, the S3e binding kept in `#else`. `#error` needs
+  `JUNE_SKILL_STATE_BUFF` (ON by `cl /P` probe). 162 kom scripts call this name (June's pass the BFI only).
+- Divergence row `SetBuffFactorToGameUnitByBuffFactorID_LUA` (replace, ported); funcmap `(HUD H2b)` rows for `3208dd90`, `31e4ea50`, `31e6afe0`.
+- Hygiene: `flagcheck JUNE_BUFF_FACTOR_LUA_BIND --worktree`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s)`; `RESULT: PASS`. `junediverge --check`: `RESULT: PASS`; `enumscan --check`: 0 rows.
+- Build: `DEPLOY OK: X2_offline.exe is 25,865,216 B, dated 2026-10-31 08:29:23, md5 0649259cb7a00bb59122fd0e897b0620` (no new strings to exestr).
 
 ## Phase H3 - The buff counter (Sonnet 5.5, high)
 

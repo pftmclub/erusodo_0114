@@ -11037,3 +11037,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-hud H2 diagnostics: one [JUNE_HUD] BUFF anchor line per buff-row dialog create (my, party, PvP gage). Retired by the plan review.
 #define SERV_IRUHADEV_JUNE_HUD_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H2b: Lua's SetBuffFactorToGameUnitByBuffFactorID_LUA binds June's slot 134 (3208dd90: BFI, level, adjust skill id, skip; slot 135 with no creator unit) instead of the 5-argument S3e function, whose creator pointer made every 1- or 2-argument Lua call raise "no class at first argument". Revert: undefine.
+#define SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
+#if defined( SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND ) && !defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF )
+#error SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the 5-argument slot 135 )
+#endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
+//////////////////////////////////////////////////////////////////////////
