@@ -874,6 +874,33 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 **Nothing to play-test** (`_LIVE` is off). `CH1i.md` checked, no amendment needed. Next: `/x2-phase char-chung CH1i` (Sonnet 5.5 high).
 
+### CH1i - Done (2026-11-01)
+
+All 15 class-map rows of phase CH1i are written: 14 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`) and 1 `new` (`CHG_ComboDashJumpZXXFrameMove`, June `32c11ad0`, under `_CORE`, declared in `X2GUChung.h`, referenced by nothing; CH1m registers it). One new enumerator, `CSI_CHG_DASH_JUMP_COMBO_ZXX` (June script id 327, `Enum.src.lua` `USI_END + 175`), appended to the `_CORE` block of the state enum. `_LIVE` stays `//#define`; no new `Always.h` define. 15 funcmap rows `Char Chung CH1i`. Read from `charport_adis.py chung --phase CH1i`.
+
+| June | `CX2GUChung::` | vs March |
+|---|---|---|
+| `32be52a0` `CHG_ComboXEventProcess` | differs: the Z (to `CSI_CHG_COMBO_XZ`, flag [0], `m_fEventTime[0]`) and X (to `CSI_CHG_COMBO_XX`, flag [1], `m_fEventTime[1]`) flags also fire when the future animation ends, not only past `stateChange`; walk cancel `m_fWalkCancelAfter` |
+| `32be54f0` `CHG_ComboDashZEventProcess` | differs: the Z flag (to `CSI_CHG_DASH_COMBO_ZZ`) also fires at the animation end |
+| `32be5680` `CHG_ComboDashZZEventProcess` | differs: the X flag (to `CSI_CHG_DASH_COMBO_ZZX`) also fires at the animation end; walk / dash / skill cancels (`+0x8c98` / `+0x8c9c` / `+0x8c90`) as March |
+| `32be5960` `CHG_ComboDashJumpZXEventProcess` | differs: the animation end is tested first (foot: `USI_WAIT`, else `USI_JUMP_DOWN` and y - 45); else X in the `m_fEventTime[0]` window sets the flag and it branches to `CSI_CHG_DASH_JUMP_COMBO_ZXX` at `stateChange` or the end (March has no third hit) |
+| `32be5fe0` `32bf3270` `32bf3350` `32bf34c0` | = March (`WITHSTANDING_WAIT` / `ComboXX` / `ComboDashZZX` / `WITHSTANDING_SIEGE` EventProcesses: animation end -> `USI_WAIT` or `m_iSiegeShellingCount = 0` + `CSI_SI_A_SIEGE_SHELLING_READYLOOP`; no foot -> `USI_JUMP_DOWN`) |
+| `32bf4440` `32bf4470` | = March (`ComboXFrameMove` 0.432 / `ComboDashZZFrameMove` 0.633: `UpCannonBallCountAtThisAnimationTime( t, 1 )`) |
+| `32c042c0` `32c048b0` | = March (X X: aim 0.55, shot or misfire 0.666, `CHG_COMO_XX_EXPLOSION` 0.69; dash Z Z X: 0.415 / 0.581 / 0.585 / 0.834) |
+| `32c04ed0` | = March (both `WITHSTANDING` states: count up 0.533 with `m_iChargeCannonBall`, `CHG_WITHSTANDING` at 0.364, power x `m_fWithStandingPowerRate`) |
+| `32c0e1f0` | = March (dash jump Z X: 0.202 bomb for 3 MP, else the magic-fail particle) |
+| `32c11ad0` (new) | byte-identical to `32c0e1f0` except the jump targets: the dash jump Z X X state throws the same bomb at 0.202 |
+
+`CSI_CHG_COMBO_XZ` has no function of its own in June (`ComboXXZEventProcess`, CH1d); `CSI_CHG_DASH_JUMP_COMBO_ZXX` shares `32be8ef0` with `CSI_CSG_COMBO_DASH_ZXX_END` (`CSGComboDashZXXEndEventProcess`, CH1g). No function of the phase reads `+0x7cc8` (checklist §7 L253). The June flag clause `stateChange < now || IsAnimationEnd()` is written out in each body: March's `ELSE_IF_STATE_CHANGE_ON_EX_` macro has no animation-end term, so it is not used in these four. `PlaySound`, `UseCannon`, `UpCannonBallCountAtThisAnimationTime` and `CommonFrameMove` are called by March's names (the June bodies `32276220`, `32bf5280`, `32bf3d30` are other phases'). No JUNE_BUGS row: nothing in the 15 is a June mistake (the `|| IsAnimationEnd()` in the dash jump Z X flag branch is dead after the end test, kept as June has it).
+
+**Checked against the preprocessed file.** `cl /P` with `_LIVE` off and on: `bCanChangeStateComboDashJumpZXX` 0 / 4 hits (the June path is compiled in only with `-D`), `CHG_ComboDashJumpZXXFrameMove` 2 / 2 (declaration + definition in both, `_CORE`).
+
+**Gates.** `GIT_CONFIG_KEY_0=diff.algorithm GIT_CONFIG_VALUE_0=patience flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` (the `.h` OTHER is the `_CORE` enumerator and declaration; `flagcheck JUNE_CHAR_CHUNG_CORE --files X2Lib/X2GUChung.h`: PASS, `+3`); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS` (allow-listed 2). `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,880,576 B, dated 2026-11-01 04:47:17, md5 f97e46e828b5ed276d0c818f1e0e09df, equal to X2/US_SERVICE/x2.exe (2026-11-01 04:47:10); built at main 8267d632 + 2 uncommitted code file(s).` No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1i review` (Opus 5.5 high), then CH1j0.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -26238,13 +26238,61 @@ void CX2GUChung::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID 
 
 void CX2GUChung::CHG_ComboXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4440 ( = March )
 	UpCannonBallCountAtThisAnimationTime( 0.432f, 1 );
 
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	UpCannonBallCountAtThisAnimationTime( 0.432f, 1 );
+
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CHG_ComboXEventProcess()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be52a0; the Z and X flags also fire at the animation end ( March: only past stateChange )
+	bool &bCanChangeStateComboXZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanChangeStateComboXX = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == bCanChangeStateComboXZ &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CHG_COMBO_XZ );
+		bCanChangeStateComboXZ = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_InputData.oneZ )
+	{
+		bCanChangeStateComboXZ = true;
+	}
+	else if ( true == bCanChangeStateComboXX &&
+		( m_fEventTime[1].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CHG_COMBO_XX );
+		bCanChangeStateComboXX = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[1].keyInputEnd &&
+		m_fEventTime[1].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_InputData.oneX )
+	{
+		bCanChangeStateComboXX = true;
+	}
+	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -26262,10 +26310,60 @@ void CX2GUChung::CHG_ComboXEventProcess()
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CHG_ComboXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c042c0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.55f ) )
+	{
+		float fMinCoefficient = -1.f * tan( D3DX_PI * 10.f / 180.f );
+		float fMaxCoefficient = tan( D3DX_PI * 60.f / 180.f );
+		D3DXVECTOR3 vCoefficient = D3DXVECTOR3( fMaxCoefficient, fMinCoefficient, D3DX_PI * 45.f / 180.f );
+		float fDegree = ( DoAimingTarget( 800.f, vCoefficient, m_bAimingTarget, m_vAimingTargetPos, m_vAimingTargetLandPos, false ) * 180.f ) / D3DX_PI;
+		if( m_bAimingTarget == true && ( fDegree >= 0.001f || fDegree <= -0.001f ) )
+		{
+			m_bRotateBone = true;
+			m_fRotateBoneDegree = -fDegree;
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.666f ) )
+	{
+		float fRotateDegree = m_fRotateBoneDegree;
+		if( m_bAimingTarget == true && ( GetCannonBallCount() >= 1 || IsFullHyperMode() == true ) )
+		{
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3( 0.f, 0.f, fRotateDegree ) );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+			m_bRotateBone = false;
+
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+
+		if( m_fSiegeShellingUserBallRate < GetRandomFloat() )
+			UseCannon( 1 );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.69f ) )
+	{
+		if( m_bAimingTarget == true )
+		{
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CHG_COMO_XX_EXPLOSION", GetPowerRate() * m_fSiegeShellingDamageRel, m_vAimingTargetPos, GetRotateDegree(), GetRotateDegree(), m_vAimingTargetLandPos.y );
+		}
+
+		m_bRotateBone = false;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 에이밍 방식 동작
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.55f ) )
@@ -26327,10 +26425,26 @@ void CX2GUChung::CHG_ComboXXFrameMove()
 
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CHG_ComboXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3270 ( = March )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_iSiegeShellingCount = 0;
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -26344,10 +26458,40 @@ void CX2GUChung::CHG_ComboXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CHG_ComboDashZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be54f0; the Z flag also fires at the animation end ( March: only past stateChange )
+	bool &bCanChangeStateComboDashZZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == bCanChangeStateComboDashZZ &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CHG_DASH_COMBO_ZZ );
+		bCanChangeStateComboDashZZ = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_InputData.oneZ )
+	{
+		bCanChangeStateComboDashZZ = true;
+	}
+	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -26364,15 +26508,54 @@ void CX2GUChung::CHG_ComboDashZEventProcess()
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CHG_ComboDashZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4470 ( = March )
 	UpCannonBallCountAtThisAnimationTime( 0.633f, 1 );
 
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	UpCannonBallCountAtThisAnimationTime( 0.633f, 1 );
+
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CHG_ComboDashZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be5680; the X flag also fires at the animation end ( March: only past stateChange )
+	bool &bCanChangeStateComboDashZZX = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == bCanChangeStateComboDashZZX &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CHG_DASH_COMBO_ZZX );
+		bCanChangeStateComboDashZZX = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_InputData.oneX )
+	{
+		bCanChangeStateComboDashZZX = true;
+	}
+	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -26391,9 +26574,62 @@ void CX2GUChung::CHG_ComboDashZZEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CHG_ComboDashZZXFrameMove()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c048b0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.415f ) )
+	{
+		float fMinCoefficient = -1.f * tan( D3DX_PI * 10.f / 180.f );
+		float fMaxCoefficient = tan( D3DX_PI * 60.f / 180.f );
+		D3DXVECTOR3 vCoefficient = D3DXVECTOR3( fMaxCoefficient, fMinCoefficient, D3DX_PI * 45.f / 180.f );
+		float fDegree = ( DoAimingTarget( 800.f, vCoefficient, m_bAimingTarget, m_vAimingTargetPos, m_vAimingTargetLandPos, false ) * 180.f ) / D3DX_PI;
+		if( m_bAimingTarget == true && ( fDegree >= 0.001f || fDegree <= -0.001f ) )
+		{
+			m_bRotateBone = true;
+			m_fRotateBoneDegree = -fDegree;
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.581f ) )
+	{
+		float fRotateDegree = m_fRotateBoneDegree;
+		if( m_bAimingTarget == true && ( GetCannonBallCount() >= 1 || IsFullHyperMode() == true ) )
+		{
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3( 0.f, 0.f, fRotateDegree ) );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+			m_bRotateBone = false;
+
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+
+		if( m_fSiegeShellingUserBallRate < GetRandomFloat() )
+			UseCannon( 1 );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.585f ) )
+	{
+		if( m_bAimingTarget == true )
+		{
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CHG_COMO_XX_EXPLOSION", GetPowerRate() * m_fSiegeShellingDamageRel, m_vAimingTargetPos, GetRotateDegree(), GetRotateDegree(), m_vAimingTargetLandPos.y );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.834f ) )
+	{
+		m_bRotateBone = false;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 에이밍 방식 동작
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.415f ) )
@@ -26461,9 +26697,26 @@ void CX2GUChung::CHG_ComboDashZZXFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CHG_ComboDashZZXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3350 ( = March )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_iSiegeShellingCount = 0;
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		m_iSiegeShellingCount = 0;
@@ -26481,10 +26734,43 @@ void CX2GUChung::CHG_ComboDashZZXEventProcess()
 
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CHG_ComboDashJumpZXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0e1f0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.202f ) )
+	{
+		if( FlushMp( 3.0f ) == true )
+		{
+			D3DXVECTOR3 vPos = GetPos();
+			D3DXVECTOR3 vHandPos = GetBonePos( L"Dummy2_Lhand" );
+			vPos.y = vHandPos.y;
+			CX2DamageEffect::CEffect* pDamageEffectHandGrenade = g_pX2Game->GetDamageEffect()->CreateInstance(
+				this, L"CHG_DASHJUM_ZX_BOMB", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+			if( g_pX2Game != NULL && pDamageEffectHandGrenade != NULL )
+				g_pX2Game->AddRemoveDamageEffect( pDamageEffectHandGrenade->GetHandle() );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 vAngle = GetRotateDegree();
+			vAngle.z -= 50.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vAngle );
+				pSeq->SetAddRotate( vAngle );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.202f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -26527,9 +26813,40 @@ void CX2GUChung::CHG_ComboDashJumpZXFrameMove()
  	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CHG_ComboDashJumpZXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be5960; X in the window goes on to CSI_CHG_DASH_JUMP_COMBO_ZXX at stateChange or the animation end ( March: no third hit )
+	bool &bCanChangeStateComboDashJumpZXX = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( true == bCanChangeStateComboDashJumpZXX &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CHG_DASH_JUMP_COMBO_ZXX );
+		bCanChangeStateComboDashJumpZXX = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_InputData.oneX )
+	{
+		bCanChangeStateComboDashJumpZXX = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		// 발밑에 라인맵이 없으면
@@ -26545,8 +26862,46 @@ void CX2GUChung::CHG_ComboDashJumpZXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/** @function : CHG_ComboDashJumpZXXFrameMove
+	@brief : June 32c11ad0, CSI_CHG_DASH_JUMP_COMBO_ZXX FrameMove ( the Z X bomb again ); registered by the class core
+*/
+void CX2GUChung::CHG_ComboDashJumpZXXFrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.202f ) )
+	{
+		if( FlushMp( 3.0f ) == true )
+		{
+			D3DXVECTOR3 vPos = GetPos();
+			D3DXVECTOR3 vHandPos = GetBonePos( L"Dummy2_Lhand" );
+			vPos.y = vHandPos.y;
+			CX2DamageEffect::CEffect* pDamageEffectHandGrenade = g_pX2Game->GetDamageEffect()->CreateInstance(
+				this, L"CHG_DASHJUM_ZX_BOMB", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+			if( g_pX2Game != NULL && pDamageEffectHandGrenade != NULL )
+				g_pX2Game->AddRemoveDamageEffect( pDamageEffectHandGrenade->GetHandle() );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 vAngle = GetRotateDegree();
+			vAngle.z -= 50.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vAngle );
+				pSeq->SetAddRotate( vAngle );
+			}
+		}
+	}
+
+	CommonFrameMove();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_StateStart()
 {
 	CommonStateStart();
@@ -26910,6 +27265,19 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Z_Finish_EventProcess()
 
 void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c04ed0 ( = March )
+	UpCannonBallCountAtThisAnimationTime( 0.533f, m_iChargeCannonBall );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.364f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		vPos.y += 100.f;
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CHG_WITHSTANDING", GetPowerRate() * m_fWithStandingPowerRate, vPos, GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	UpCannonBallCountAtThisAnimationTime( 0.533f, m_iChargeCannonBall );
 
 	// 특정 시간에 공격 이펙트 발동 - 이펙트의 공격력은 m_fWithStandingPowerRate만큼 증가한다.
@@ -26925,10 +27293,27 @@ void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove()
 	}	
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf34c0 ( = March )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_iSiegeShellingCount = 0;
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		m_iSiegeShellingCount = 0;
@@ -26942,10 +27327,26 @@ void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be5fe0 ( = March )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -26958,6 +27359,7 @@ void CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove()

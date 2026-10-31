@@ -6578,3 +6578,18 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c1a480	CX2GUChung::CDCComboXZFrameMove	PORTED	Char Chung CH1h: inside; June differs: three shots (0.632 left, 0.965 right, 1.332 left) at 4 x Open Mind MP rate, power x rifling damage rate, head shot each
 32c1ae60	CX2GUChung::CDCComboZZXXFrameMove	PORTED	Char Chung CH1h: inside; June differs: 5 left + 4 right + last shell at 2 x Open Mind MP rate, power x rifling damage rate, head shot each
 32c1ba00	CX2GUChung::CDCComboXXFrameMove	PORTED	Char Chung CH1h: inside; = March (1.232 DAMAGE_DATA_NEXT table, cannon ball count up 1)
+32be52a0	CX2GUChung::CHG_ComboXEventProcess	PORTED	Char Chung CH1i: inside; June differs: the Z (XZ) and X (XX) flags also fire at the animation end (+0x2ac), not only past stateChange
+32be54f0	CX2GUChung::CHG_ComboDashZEventProcess	PORTED	Char Chung CH1i: inside; June differs: the Z flag (to DASH_COMBO_ZZ) also fires at the animation end
+32be5680	CX2GUChung::CHG_ComboDashZZEventProcess	PORTED	Char Chung CH1i: inside; June differs: the X flag (to DASH_COMBO_ZZX) also fires at the animation end; walk / dash / skill cancels as March
+32be5960	CX2GUChung::CHG_ComboDashJumpZXEventProcess	PORTED	Char Chung CH1i: inside; June differs: X in the window branches to CSI_CHG_DASH_JUMP_COMBO_ZXX at stateChange or the animation end; the end test comes first
+32be5fe0	CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT_EventProcess	PORTED	Char Chung CH1i: inside; = March
+32bf3270	CX2GUChung::CHG_ComboXXEventProcess	PORTED	Char Chung CH1i: inside; = March (animation end: siege count 0, READYLOOP)
+32bf3350	CX2GUChung::CHG_ComboDashZZXEventProcess	PORTED	Char Chung CH1i: inside; = March (animation end: siege count 0, READYLOOP)
+32bf34c0	CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE_EventProcess	PORTED	Char Chung CH1i: inside; = March (animation end: siege count 0, READYLOOP)
+32bf4440	CX2GUChung::CHG_ComboXFrameMove	PORTED	Char Chung CH1i: inside; = March (cannon ball count up 0.432, 1)
+32bf4470	CX2GUChung::CHG_ComboDashZZFrameMove	PORTED	Char Chung CH1i: inside; = March (cannon ball count up 0.633, 1)
+32c042c0	CX2GUChung::CHG_ComboXXFrameMove	PORTED	Char Chung CH1i: inside; = March (aim 0.55, shot or misfire 0.666, explosion 0.69)
+32c048b0	CX2GUChung::CHG_ComboDashZZXFrameMove	PORTED	Char Chung CH1i: inside; = March (aim 0.415, shot or misfire 0.581, explosion 0.585, bone reset 0.834)
+32c04ed0	CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove	PORTED	Char Chung CH1i: inside; = March (cannon ball count up 0.533, CHG_WITHSTANDING at 0.364)
+32c0e1f0	CX2GUChung::CHG_ComboDashJumpZXFrameMove	PORTED	Char Chung CH1i: inside; = March (0.202 bomb for 3 MP, or the magic-fail particle)
+32c11ad0	CX2GUChung::CHG_ComboDashJumpZXXFrameMove	PORTED	Char Chung CH1i: new (_CORE); the same body as 32c0e1f0 ( bomb at 0.202 ); CSI_CHG_DASH_JUMP_COMBO_ZXX enumerator (script id 327) added

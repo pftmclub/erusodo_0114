@@ -292,6 +292,7 @@ public:
 		CSI_CSG_COMBO_DASH_ZXX,				/// June script id 331 ( Shooting Guardian dash Z X X; CH1g owns the state )
 		CSI_CSG_COMBO_DASH_ZXX_END,			/// June script id 332 ( Shooting Guardian dash Z X X end; CH1g owns the state )
 		CSI_CSG_COMBO_DASH_JUMP_ZX,			/// June script id 334 ( Shooting Guardian dash jump Z X; CH1g2 owns the state )
+		CSI_CHG_DASH_JUMP_COMBO_ZXX,		/// June script id 327 ( Shelling Guardian dash jump Z X X; CH1i owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -1201,6 +1202,8 @@ protected:
 	void CSGComboDashJumpZXEventProcess();
 	void CSGComboDashJumpZXFrameMove();
 	void CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove();
+	// CSI_CHG_DASH_JUMP_COMBO_ZXX ( its event process is CSGComboDashZXXEndEventProcess )
+	void CHG_ComboDashJumpZXXFrameMove();
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	// ·£µåµð¸ô¸®¼Å ÄÞº¸¿¡ ºÙ´Â ÀÌÆåÆ® À§ÇØ ÇÑ°÷¿¡ ¸ô¾Æ³ÖÀ½
