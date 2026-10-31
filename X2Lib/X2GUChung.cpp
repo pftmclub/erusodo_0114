@@ -6481,12 +6481,22 @@ void CX2GUChung::ResetCannonBallCountWhenRebirthInPVPGame( int iNumOfMyTeamKill_
 */
 void CX2GUChung::ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, const WCHAR* wszParticleName_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf5360
 	if ( GetShowSmallGageAndName() )
 	{
 		D3DXVECTOR3 vWeaponBonePos = GetWeaponBonePos( 0, wszWeaponBoneName_, 0 );
 		D3DXVECTOR2 projPos = g_pKTDXApp->GetProj3DPos( vWeaponBonePos );
 		g_pX2Game->GetMinorParticle()->CreateSequence( (CKTDGObject*) this,  wszParticleName_, projPos.x, projPos.y, 0.f );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if ( GetShowSmallGageAndName() )
+	{
+		D3DXVECTOR3 vWeaponBonePos = GetWeaponBonePos( 0, wszWeaponBoneName_, 0 );
+		D3DXVECTOR2 projPos = g_pKTDXApp->GetProj3DPos( vWeaponBonePos );
+		g_pX2Game->GetMinorParticle()->CreateSequence( (CKTDGObject*) this,  wszParticleName_, projPos.x, projPos.y, 0.f );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : NoStateChangeActionFrameMove
 	@brief : 스테이트의 변화가 없는 스킬 사용 시 수행되는 FrameMove
@@ -10235,6 +10245,54 @@ void CX2GUChung::GuardAttackXEventProcess()
 */
 void CX2GUChung::ComboZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdd420
+	bool &bCanChangeStateComboZZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if( CAN_WALK_CANCEL )
+	{
+		bCanChangeStateComboZZ = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_COMBO_Z = 0.42f;
+
+		IF_SKILL_CANCEL_AFTER( 0.01f )
+		else if ( TRIGGER_TIME_COMBO_Z >= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneZ )
+				bCanChangeStateComboZZ = true;
+		}
+		else
+		{
+			const float TIGGER_TIME_COMBO_Z_LIMIT = 0.4f;
+
+			if ( true == bCanChangeStateComboZZ )
+			{
+				StateChange( CSI_COMBO_ZZ );
+			}
+			else if ( true == m_InputData.oneZ &&
+						TIGGER_TIME_COMBO_Z_LIMIT > m_pXSkinAnimFuture->GetNowAnimationTime() )
+			{
+				StateChange( CSI_COMBO_ZZ );
+			}
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboZZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
 
@@ -10301,6 +10359,7 @@ void CX2GUChung::ComboZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZEventProcess
@@ -10308,6 +10367,109 @@ void CX2GUChung::ComboZEventProcess()
 */
 void CX2GUChung::ComboZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdd5e0; the Z Z X flag at [3] is set for Iron Paladin and Deadly Chaser only, Fury Guardian is not tested ( JUNE_BUGS 491 )
+	bool &bCanChangeStateComboZZZ    = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanChangeStateComboZZdownZ  = m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool &bCanChangeStateCGFComboZZX  = m_FrameDataFuture.stateParam.bEventFlagList[3];
+	bool &bCanChangeStateCDCComboZZX  = m_FrameDataFuture.stateParam.bEventFlagList[4];
+	bool &bCanChangeStateCTTComboZZX  = m_FrameDataFuture.stateParam.bEventFlagList[5];
+
+	if( CAN_WALK_CANCEL )
+	{
+		bCanChangeStateComboZZZ      = false;
+		bCanChangeStateComboZZdownZ    = false;
+		bCanChangeStateCGFComboZZX    = false;
+		bCanChangeStateCDCComboZZX    = false;
+		bCanChangeStateCTTComboZZX    = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_COMBO_ZZ = 0.45f;
+		const float CTT_TRIGGER_TIME_COMBO_ZZ = 0.83f;
+
+		if ( CTT_TRIGGER_TIME_COMBO_ZZ >= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+				true == m_InputData.oneX && GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+		{
+			bCanChangeStateCTTComboZZX    = true;
+			bCanChangeStateCDCComboZZX    = false;
+			bCanChangeStateCGFComboZZX    = false;
+			bCanChangeStateComboZZdownZ    = false;
+			bCanChangeStateComboZZZ      = false;
+		}
+		else if ( TRIGGER_TIME_COMBO_ZZ >= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneZ )
+			{
+				if ( true == m_InputData.pureDown )
+				{
+					bCanChangeStateComboZZdownZ    = true;
+					bCanChangeStateComboZZZ      = false;
+				}
+				else
+				{
+					bCanChangeStateComboZZdownZ    = false;
+					bCanChangeStateComboZZZ      = true;
+				}
+
+				bCanChangeStateCGFComboZZX      = false;
+			}
+			else if ( true == m_InputData.oneX && GetUnitClass() == CX2Unit::UC_CHUNG_IRON_PALADIN )
+			{
+				bCanChangeStateCGFComboZZX      = true;
+				bCanChangeStateComboZZdownZ      = false;
+				bCanChangeStateComboZZZ        = false;
+				bCanChangeStateCDCComboZZX      = false;
+				bCanChangeStateCTTComboZZX      = false;
+			}
+			else if ( true == m_InputData.oneX && GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			{
+				bCanChangeStateCDCComboZZX      = true;
+				bCanChangeStateCGFComboZZX      = false;
+				bCanChangeStateComboZZdownZ      = false;
+				bCanChangeStateComboZZZ        = false;
+				bCanChangeStateCTTComboZZX      = false;
+			}
+		}
+		else
+		{
+			if ( true == bCanChangeStateComboZZdownZ )
+			{
+				StateChange( CSI_COMBO_ZZdownZ );
+			}
+			else if ( true == bCanChangeStateComboZZZ )
+			{
+				StateChange( CSI_COMBO_ZZZ );
+			}
+			else if ( true == bCanChangeStateCGFComboZZX )
+			{
+				StateChange( CSI_CFG_COMBO_ZZX );
+			}
+			else if ( true == bCanChangeStateCDCComboZZX )
+			{
+				StateChange( CSI_CDC_COMBO_ZZX );
+			}
+			else if ( true == bCanChangeStateCTTComboZZX )
+			{
+				StateChange( CSI_CTT_COMBO_ZZX );
+			}
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboZZZ		= m_FrameDataFuture.stateParam.bEventFlagList[0];
 	bool &bCanChangeStateComboZZdownZ	= m_FrameDataFuture.stateParam.bEventFlagList[1];
@@ -10484,6 +10646,7 @@ void CX2GUChung::ComboZZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZEventProcess
@@ -10491,6 +10654,71 @@ void CX2GUChung::ComboZZEventProcess()
 */
 void CX2GUChung::ComboZZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdd7e0; the walk cancel is the opposite-direction one and the walk and dash cancels also need ground
+	bool &bCanChangeStateComboZZZZ      = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanChangeStateComboZZZX      = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME_COMBO = 0.4f;
+		const float UPPER_BOUNT_INPUT_TIME_COMBO = 0.69f;
+		if ( LOWER_BOUND_INPUT_TIME_COMBO <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+			 UPPER_BOUNT_INPUT_TIME_COMBO >= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneZ )
+			{
+				bCanChangeStateComboZZZZ = true;
+				bCanChangeStateComboZZZX = false;
+			}
+			else if ( true == m_InputData.oneX )
+			{
+				bCanChangeStateComboZZZZ = false;
+				bCanChangeStateComboZZZX = true;
+			}
+		}
+
+		const float TRIGGER_TIME_COMBO_ZZZ  = 0.69f;
+		if( TRIGGER_TIME_COMBO_ZZZ < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == bCanChangeStateComboZZZZ )
+			{
+				StateChange( CSI_COMBO_ZZZZ );
+			}
+			else if ( true == bCanChangeStateComboZZZX )
+			{
+				StateChange( CSI_COMBO_ZZZX_READY );
+			}
+		}
+
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.5f;
+
+		IF_SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+					&& CAN_WALK_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+					&& CAN_DASH_CANCEL )
+		{
+			StateChangeDashIfPossible();
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboZZZZ			= m_FrameDataFuture.stateParam.bEventFlagList[0];
 	bool &bCanChangeStateComboZZZX			= m_FrameDataFuture.stateParam.bEventFlagList[1];
@@ -10582,6 +10810,7 @@ void CX2GUChung::ComboZZZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZZEventProcess
@@ -10589,6 +10818,31 @@ void CX2GUChung::ComboZZZEventProcess()
 */
 void CX2GUChung::ComboZZZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdda60
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_COMBO_ZZZZ = 0.607f;
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 1.033f;
+
+		if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+		SKILL_CANCEL_AFTER( TRIGGER_TIME_COMBO_ZZZZ )
+		ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -10620,6 +10874,7 @@ void CX2GUChung::ComboZZZZEventProcess()
 	}
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXEventProcess
@@ -10627,6 +10882,28 @@ void CX2GUChung::ComboZZZZEventProcess()
 */
 void CX2GUChung::ComboZZZXReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb2a0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( 1 >= GetCannonBallCount() && false == IsFullHyperMode() )
+		{
+			StateChange( CSI_COMBO_ZZZX_FINISH );
+		}
+		else
+		{
+			StateChange( CSI_COMBO_ZZZX_CANNON_BALL_SHOT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -10648,6 +10925,7 @@ void CX2GUChung::ComboZZZXReadyEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXCannonBallShotInit
@@ -10656,11 +10934,20 @@ void CX2GUChung::ComboZZZXReadyEventProcess()
 
 void CX2GUChung::ComboZZZXCannonBallShotInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8ab0
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXCannonBallShotStartFuture
@@ -10668,15 +10955,44 @@ void CX2GUChung::ComboZZZXCannonBallShotInit()
 */
 void CX2GUChung::ComboZZZXCannonBallShotStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8b00
 	CommonStateStartFuture();
 
 	m_bApplyMotionOffset = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStartFuture();
+
+	m_bApplyMotionOffset = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : ComboZZZXCannonBallShotFrameMove
 	@brief : ComboZZZXCannonBallShot의 FrameMove ( 캐논볼 소비 )
 */
 void CX2GUChung::ComboZZZXCannonBallShotFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf75b0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE > m_pXSkinAnim->GetNowPlayCount() )
+		{
+			if ( 1 < GetCannonBallCount() || IsFullHyperMode() )
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_COMBO_ZZZX_CANNON_BALL_SHOT", this );
+				UseCannon( 1 );
+				ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwa" );
+			}
+		}
+	}
+
+	if ( true == m_pXSkinAnim->IsAnimationEnd() )
+	{
+		ClearAnimEventTimerOneshotNow();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10708,6 +11024,7 @@ void CX2GUChung::ComboZZZXCannonBallShotFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXCannonBallShotEventProcess
@@ -10715,6 +11032,48 @@ void CX2GUChung::ComboZZZXCannonBallShotFrameMove()
 */
 void CX2GUChung::ComboZZZXCannonBallShotEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb330
+	const int TRIGGER_CANNON_BALL_COUNT = 3;
+	bool &bCanDashCancel = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanWalkCancel = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( TRIGGER_CANNON_BALL_COUNT <= m_CannonBallSystem.GetUsedCannonballCountAtThisState() )
+	{
+		if ( CAN_DASH_CANCEL )
+		{
+			bCanDashCancel = true;
+			bCanWalkCancel = false;
+		}
+		else if ( CAN_WALK_CANCEL )
+		{
+			bCanDashCancel = false;
+			bCanWalkCancel = true;
+		}
+	}
+
+	if ( true == bCanDashCancel )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == bCanWalkCancel )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE <= m_pXSkinAnimFuture->GetNowPlayCount() ||
+			 ( false == IsFullHyperMode() && 1 == GetCannonBallCount() ) )
+			StateChange( CSI_COMBO_ZZZX_FINISH );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 대시 캔슬등은 3개 이상의 캐논볼을 소비해야지만 가능하다.
 	const int TRIGGER_CANNON_BALL_COUNT = 3;
 	bool &bCanDashCancel = m_FrameDataFuture.stateParam.bEventFlagList[0];
@@ -10758,6 +11117,7 @@ void CX2GUChung::ComboZZZXCannonBallShotEventProcess()
 	}
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXFinish
@@ -10766,11 +11126,20 @@ void CX2GUChung::ComboZZZXCannonBallShotEventProcess()
 
 void CX2GUChung::ComboZZZXFinishInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8b20
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXFinishStartFuture
@@ -10778,9 +11147,16 @@ void CX2GUChung::ComboZZZXFinishInit()
 */
 void CX2GUChung::ComboZZZXFinishStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8b70
 	CommonStateStartFuture();
 
 	m_bApplyMotionOffset = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStartFuture();
+
+	m_bApplyMotionOffset = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXFinishFrameMove
@@ -10788,6 +11164,24 @@ void CX2GUChung::ComboZZZXFinishStartFuture()
 */
 void CX2GUChung::ComboZZZXFinishFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf77c0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		if ( CanUseCannon() )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_COMBO_ZZZX_FINISH", this );
+			UseCannon( 1 );
+			ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwang" );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_MISFIRE", this );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10808,6 +11202,7 @@ void CX2GUChung::ComboZZZXFinishFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZZXFinishEventProcess
@@ -10815,6 +11210,33 @@ void CX2GUChung::ComboZZZXFinishFrameMove()
 */
 void CX2GUChung::ComboZZZXFinishEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bddc20; the walk and dash cancels also need ground
+	const float TRIGGER_TIME_CANCEL = 0.2f;
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( TRIGGER_TIME_CANCEL )
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > TRIGGER_TIME_CANCEL && true == IsOnSomethingFuture()
+				&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > TRIGGER_TIME_CANCEL && true == IsOnSomethingFuture()
+				&& CAN_DASH_CANCEL )
+	{
+		StateChangeDashIfPossible();
+	}
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	const float TRIGGER_TIME_CANCEL = 0.2f;
 
 	// 발밑에 라인맵이 없으면
@@ -10854,6 +11276,7 @@ void CX2GUChung::ComboZZZXFinishEventProcess()
 #endif //SKILL_CANCEL_BY_HYPER_MODE
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
@@ -10863,6 +11286,59 @@ void CX2GUChung::ComboZZZXFinishEventProcess()
 */
 void CX2GUChung::ComboZZdownZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdddf0
+	bool &bCanChangeStateComboZZdownZZ    = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.766f;
+		const float LOWER_BOUND_INPUT_TIME_COMBO = 0.566f;
+
+		const float TRIGGER_TIME_COMBO_ZZZdownZ = 1.1f;
+
+		if ( LOWER_BOUND_INPUT_TIME_COMBO <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+			 TRIGGER_TIME_COMBO_ZZZdownZ > m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneZ )
+			{
+				bCanChangeStateComboZZdownZZ = true;
+			}
+		}
+		else if ( TRIGGER_TIME_COMBO_ZZZdownZ <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == bCanChangeStateComboZZdownZZ )
+			{
+				StateChange( CSI_COMBO_ZZdownZZ );
+			}
+		}
+
+		if ( LOWER_BOUND_INPUT_TIME_CANCEL <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( CAN_DASH_CANCEL )
+			{
+				StateChangeDashIfPossible();
+			}
+			else if ( CAN_WALK_CANCEL )
+			{
+				StateChange( USI_WALK );
+			}
+		}
+	}
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboZZdownZZ		= m_FrameDataFuture.stateParam.bEventFlagList[0];
 	
@@ -10922,6 +11398,7 @@ void CX2GUChung::ComboZZdownZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZZdownZZEventProcess
@@ -10929,6 +11406,31 @@ void CX2GUChung::ComboZZdownZEventProcess()
 */
 void CX2GUChung::ComboZZdownZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bddf30
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_COMBO_ZZdownZZ = 0.766f;
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 1.233f;
+
+		if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+		SKILL_CANCEL_AFTER( TRIGGER_TIME_COMBO_ZZdownZZ )
+		ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -10960,6 +11462,7 @@ void CX2GUChung::ComboZZdownZZEventProcess()
 	}
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXEventProcess
@@ -10968,6 +11471,68 @@ void CX2GUChung::ComboZZdownZZEventProcess()
 */
 void CX2GUChung::ComboXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bde0f0
+	bool &bCanChangeStateComboXX = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if( CAN_WALK_CANCEL )
+	{
+		bCanChangeStateComboXX = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_COMBO_X = 0.6f;
+
+		if ( TRIGGER_TIME_COMBO_X >= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneX )
+				bCanChangeStateComboXX = true;
+		}
+		else
+		{
+			if ( true == bCanChangeStateComboXX )
+			{
+				StateChange( CSI_COMBO_XX );
+			}
+		}
+
+		if( GetUnitClass() == CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN ||
+			GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+		{
+			const float TRIGGER_TIME_CSG_COMBO_XX = 0.54f;
+			bool &bCanChangeStateCSGComboXX = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+			if( false == bCanChangeStateCSGComboXX && TRIGGER_TIME_CSG_COMBO_XX >= m_pXSkinAnimFuture->GetNowAnimationTime() )
+			{
+				if ( true == m_InputData.oneZ )
+				{
+					bCanChangeStateCSGComboXX = true;
+				}
+			}
+			else if( TRIGGER_TIME_CSG_COMBO_XX <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+			{
+				if( true == bCanChangeStateCSGComboXX )
+				{
+					StateChange(CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON);
+				}
+			}
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboXX = m_FrameDataFuture.stateParam.bEventFlagList[0];
 
@@ -11062,6 +11627,7 @@ void CX2GUChung::ComboXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXInit
@@ -11070,9 +11636,16 @@ void CX2GUChung::ComboXEventProcess()
 
 void CX2GUChung::ComboXXInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8b90
 	XSkinMeshReadyInBackground( L"SI_SA_ROT_NUCLEAR_Effect_Dust01.X" );
 	XSkinMeshReadyInBackground( L"SI_SA_ROT_NUCLEAR_Effect_Dust02.X" );
 	TextureReadyInBackground( L"GroundShockWave.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"SI_SA_ROT_NUCLEAR_Effect_Dust01.X" );
+	XSkinMeshReadyInBackground( L"SI_SA_ROT_NUCLEAR_Effect_Dust02.X" );
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 }
 
@@ -11083,6 +11656,88 @@ void CX2GUChung::ComboXXInit()
 */
 void CX2GUChung::ComboXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bde240; the Fury / Paladin line ( job line 1 ) can branch to CSI_CFG_COMBO_XXFRONTZ ( flag [2], m_fEventTime[0] )
+	bool &bCanChangeStateComboXXX  = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanChangeStateComboXXZ  = m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool &bCanChangeStateCFGComboXXFrontZ  = m_FrameDataFuture.stateParam.bEventFlagList[2];
+
+	if( CAN_WALK_CANCEL )
+	{
+		bCanChangeStateComboXXX    = false;
+		bCanChangeStateComboXXZ    = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		if ( true == bCanChangeStateCFGComboXXFrontZ )
+		{
+			if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange ||
+				 true == m_pXSkinAnimFuture->IsAnimationEnd() )
+			{
+				StateChange( CSI_CFG_COMBO_XXFRONTZ );
+				bCanChangeStateCFGComboXXFrontZ = false;
+				CommonEventProcess();
+				return;
+			}
+		}
+
+		if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+			 m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == IsInJobLine( 1 ) && true == m_InputData.oneZ &&
+				 ( ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight ) ||
+					( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+			{
+				bCanChangeStateCFGComboXXFrontZ = true;
+				CommonEventProcess();
+				return;
+			}
+		}
+
+		const float LOWER_BOUND_INPUT_TIME  = 0.4f;
+		const float TRIGGER_TIME_COMBO_XX  = 0.8f;
+
+		if ( ( LOWER_BOUND_INPUT_TIME <= m_pXSkinAnimFuture->GetNowAnimationTime() ) &&
+			 ( TRIGGER_TIME_COMBO_XX >= m_pXSkinAnimFuture->GetNowAnimationTime() ) )
+		{
+			if ( true == m_InputData.oneZ && false == bCanChangeStateCFGComboXXFrontZ )
+			{
+				bCanChangeStateComboXXZ    = true;
+				bCanChangeStateComboXXX    = false;
+			}
+			else if ( true == m_InputData.oneX )
+			{
+				bCanChangeStateComboXXZ    = false;
+				bCanChangeStateComboXXX    = true;
+			}
+		}
+		else if ( TRIGGER_TIME_COMBO_XX < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == bCanChangeStateComboXXZ )
+			{
+				StateChange( CSI_COMBO_XXZ );
+			}
+			else if ( true == bCanChangeStateComboXXX )
+			{
+				StateChange( CSI_COMBO_XXX );
+			}
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboXXX	= m_FrameDataFuture.stateParam.bEventFlagList[0];
 	bool &bCanChangeStateComboXXZ	= m_FrameDataFuture.stateParam.bEventFlagList[1];
@@ -11149,6 +11804,7 @@ void CX2GUChung::ComboXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXXInit
@@ -11156,11 +11812,20 @@ void CX2GUChung::ComboXXEventProcess()
 */
 void CX2GUChung::ComboXXXInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8bc0
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXFrameMove
@@ -11168,6 +11833,20 @@ void CX2GUChung::ComboXXXInit()
 */
 void CX2GUChung::ComboXXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf7ae0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.56f ) )
+	{
+		if ( CanUseCannon() )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_COMBO_XXX", this );
+			UseCannon( 1 );
+			ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwang" );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.56f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11185,6 +11864,7 @@ void CX2GUChung::ComboXXXFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXXEventProcess
@@ -11192,6 +11872,32 @@ void CX2GUChung::ComboXXXFrameMove()
 */
 void CX2GUChung::ComboXXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bde470
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		float LOWER_BOUND_INPUT_TIME_SKILL_CANCEL = 0.9f;
+		float LOWER_BOUND_INPUT_TIME_CANCEL = 1.533f;
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+		SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_SKILL_CANCEL )
+		ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -11224,6 +11930,7 @@ void CX2GUChung::ComboXXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZEventProcess
@@ -11231,6 +11938,58 @@ void CX2GUChung::ComboXXXEventProcess()
 */
 void CX2GUChung::ComboXXZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb450 ( also CSI_CHG_COMBO_XZ )
+	bool &bCanChangeStateComboXXZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME  = 0.433f;
+		const float TRIGGER_TIME_COMBO_XXZ  = 1.066f;
+
+		if ( ( LOWER_BOUND_INPUT_TIME <= m_pXSkinAnimFuture->GetNowAnimationTime() ) &&
+			 ( TRIGGER_TIME_COMBO_XXZ >= m_pXSkinAnimFuture->GetNowAnimationTime() ) )
+		{
+			if ( true == m_InputData.oneX )
+				bCanChangeStateComboXXZ = true;
+		}
+		else if ( TRIGGER_TIME_COMBO_XXZ < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( CAN_DASH_CANCEL )
+			{
+				StateChangeDashIfPossible();
+			}
+			else if ( CAN_WALK_CANCEL )
+			{
+				StateChange( USI_WALK );
+			}
+			if ( true == bCanChangeStateComboXXZ )
+			{
+				if ( 1 >= GetCannonBallCount() && false == IsFullHyperMode() )
+				{
+					StateChange( CSI_COMBO_XXZX_FINISH );
+				}
+				else
+				{
+					StateChange( CSI_COMBO_XXZX_CANNON_BALL_SHOT );
+				}
+			}
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 이벤트 플래그가 무엇을 나타내는지 알기 쉽게 하도록
 	bool &bCanChangeStateComboXXZ = m_FrameDataFuture.stateParam.bEventFlagList[0];
 
@@ -11292,6 +12051,7 @@ void CX2GUChung::ComboXXZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXCannonBallShotFrameMove
@@ -11299,6 +12059,28 @@ void CX2GUChung::ComboXXZEventProcess()
 */
 void CX2GUChung::ComboXXZXCannonBallShotFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf7cd0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE > m_pXSkinAnim->GetNowPlayCount() )
+		{
+			if ( 1 < GetCannonBallCount() || IsFullHyperMode() )
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_COMBO_XXZX_CANNON_BALL_SHOT", this );
+				UseCannon( 1 );
+				ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwa" );
+			}
+		}
+	}
+
+	if ( true == m_pXSkinAnim->IsAnimationEnd() )
+	{
+		ClearAnimEventTimerOneshotNow();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11329,6 +12111,7 @@ void CX2GUChung::ComboXXZXCannonBallShotFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXCannonBallShotInit
@@ -11336,11 +12119,20 @@ void CX2GUChung::ComboXXZXCannonBallShotFrameMove()
 */
 void CX2GUChung::ComboXXZXCannonBallShotInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8c10
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXCannonBallShotEventProcess
@@ -11348,6 +12140,48 @@ void CX2GUChung::ComboXXZXCannonBallShotInit()
 */
 void CX2GUChung::ComboXXZXCannonBallShotEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb5b0
+	const int TRIGGER_CANNON_BALL_COUNT = 3;
+	bool &bCanDashCancel = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool &bCanWalkCancel = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( TRIGGER_CANNON_BALL_COUNT <= m_CannonBallSystem.GetUsedCannonballCountAtThisState() )
+	{
+		if ( CAN_DASH_CANCEL )
+		{
+			bCanDashCancel = true;
+			bCanWalkCancel = false;
+		}
+		else if ( CAN_WALK_CANCEL )
+		{
+			bCanDashCancel = false;
+			bCanWalkCancel = true;
+		}
+	}
+
+	if ( true == bCanDashCancel )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == bCanWalkCancel )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE <= m_pXSkinAnimFuture->GetNowPlayCount() ||
+			 ( false == IsFullHyperMode() && 1 == GetCannonBallCount() ) )
+			StateChange( CSI_COMBO_XXZX_FINISH );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 대시 캔슬등은 3개 이상의 캐논볼을 소비해야지만 가능하다.
 	const int TRIGGER_CANNON_BALL_COUNT = 3;
 	bool &bCanDashCancel = m_FrameDataFuture.stateParam.bEventFlagList[0];
@@ -11391,6 +12225,7 @@ void CX2GUChung::ComboXXZXCannonBallShotEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXFinishInit
@@ -11398,11 +12233,20 @@ void CX2GUChung::ComboXXZXCannonBallShotEventProcess()
 */
 void CX2GUChung::ComboXXZXFinishInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8c60
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXFinishFrameMove
@@ -11410,6 +12254,20 @@ void CX2GUChung::ComboXXZXFinishInit()
 */
 void CX2GUChung::ComboXXZXFinishFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf7ef0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
+	{
+		if ( CanUseCannon() )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_COMBO_XXZX_FINISH", this );
+			UseCannon( 1 );
+			ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwang" );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11426,6 +12284,7 @@ void CX2GUChung::ComboXXZXFinishFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXZXFinishEventProcess
@@ -11433,6 +12292,36 @@ void CX2GUChung::ComboXXZXFinishFrameMove()
 */
 void CX2GUChung::ComboXXZXFinishEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bde640; the walk and dash cancels also need ground
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.3f;
+
+		if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+		SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+					&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+		{
+			StateChange( USI_WAIT );
+		}
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+					&& CAN_DASH_CANCEL )
+		{
+			StateChangeDashIfPossible();
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -11471,6 +12360,7 @@ void CX2GUChung::ComboXXZXFinishEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboDashZEventProcess
@@ -20318,6 +21208,16 @@ void CX2GUChung::CSI_SI_SA_CIP_LAND_DEMOLISHER_LANDING_EventProcess()
 
 void CX2GUChung::ComboZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c00ec0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.1400f ) &&
+		m_bApplyLandDemolisher )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			false, GetPos(), GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.1400f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20329,10 +21229,21 @@ void CX2GUChung::ComboZFrameMove()
 			false, GetPos(), GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::ComboZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c01070
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.2300f ) &&
+		m_bApplyLandDemolisher )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			false, GetPos(), GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.2300f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20344,10 +21255,27 @@ void CX2GUChung::ComboZZFrameMove()
 			false, GetPos(), GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::ComboZZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c01220
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.5400f ) &&
+		m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if(GetIsRight() == true)
+			vTargetPos = GetPos() + GetDirVector() * 150.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -150.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_VERTICAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.5400f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20365,10 +21293,27 @@ void CX2GUChung::ComboZZZFrameMove()
 			true, vTargetPos, GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::ComboZZZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c014d0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.6000f ) &&
+		m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if(GetIsRight() == true)
+			vTargetPos = GetPos() + GetDirVector() * 50.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -50.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.6000f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20386,11 +21331,22 @@ void CX2GUChung::ComboZZZZFrameMove()
 			true, vTargetPos, GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
 void CX2GUChung::ComboZZdownZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c01780
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.7900f ) &&
+		m_bApplyLandDemolisher )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			false, GetPos(), GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.7900f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20402,10 +21358,27 @@ void CX2GUChung::ComboZZdownZZFrameMove()
 			false, GetPos(), GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::ComboXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c01930
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.3000f ) &&
+		m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if(GetIsRight() == true)
+			vTargetPos = GetPos() + GetDirVector() * 80.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -80.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_VERTICAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree());
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.3000f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20425,6 +21398,7 @@ void CX2GUChung::ComboXFrameMove()
 
 	CommonFrameMove();
 	return;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
@@ -20765,6 +21739,18 @@ void CX2GUChung::GuardAttackZFrameMove()
 */
 void CX2GUChung::ComboZZdownZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c03b30; June 32bf3d30 ( the cannon ball count up ) has its body in CH1q
+	UpCannonBallCountAtThisAnimationTime( 0.466f, 1 );
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.7200f ) &&
+		m_bApplyLandDemolisher )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_VERTICAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			false, GetPos(), GetRotateDegree());
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	UpCannonBallCountAtThisAnimationTime( 0.466f, 1 );
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	// oasis907 : 김상윤 [2011.6.23] 청 2차 전직 - 아이언 팔라딘
@@ -20781,6 +21767,7 @@ void CX2GUChung::ComboZZdownZFrameMove()
 #endif CHUNG_SECOND_CLASS_CHANGE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboXXFrameMove
@@ -20788,6 +21775,42 @@ void CX2GUChung::ComboZZdownZFrameMove()
 */
 void CX2GUChung::ComboXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c1bad0; June 32bf3d30 ( the cannon ball count up ) has its body in CH1q
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.466f ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+
+		if ( true == bTableOpen)
+		{
+			m_DamageData.SimpleInit();
+			m_DamageData.attackerType    = CX2DamageManager::AT_UNIT;
+			m_DamageData.optrAttackerGameUnit    = this;
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+			m_LuaManager.EndTable();
+		}
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) &&
+		m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if(GetIsRight() == true)
+			vTargetPos = GetPos() + GetDirVector() * 80.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -80.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_VERTICAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree());
+	}
+
+	UpCannonBallCountAtThisAnimationTime( 0.54f, 1 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.466f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20835,6 +21858,7 @@ void CX2GUChung::ComboXXFrameMove()
 	UpCannonBallCountAtThisAnimationTime( 0.54f, 1 );
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 

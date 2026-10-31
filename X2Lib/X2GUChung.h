@@ -280,6 +280,9 @@ public:
 		CSI_A_CIP_ARTILLERY_NOVA_FIRE,		// 아틸러리 노바 발사
 #endif // UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+		CSI_CFG_COMBO_XXFRONTZ,				/// June script id 323 ( Fury Guardian / Iron Paladin X X front Z; CH1e owns the state )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
 	enum CHUNG_MAJOR_PARTICLE_INSTANCE_ID
@@ -597,6 +600,9 @@ protected:
 	void SetBasicCannonBallCount( UCHAR ucBasicCannonBallCount_ ) { m_ucBasicCannonBallCount = ucBasicCannonBallCount_; }
 
 	void ResetCannonBallCountWhenRebirthInPVPGame( int iNumOfMyTeamKill_, int iNumOfEnmyTeamKill_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	bool IsInJobLine( int iJobLine_ );		/// June 32beaf10 ( vslot 0x670 ): body in CH1l
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	void ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, const WCHAR* wszParticleName_ );	// '쾅' 하는 의성어 파티클을 출력
 

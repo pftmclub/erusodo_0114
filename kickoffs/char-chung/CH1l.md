@@ -57,3 +57,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH1l0** (`31fcd740`, `31fd2f00`, `31fe21a0`, `31ffe990`).
 - Opus helper phase **CH1l0** runs first (`31fcd740`, `31fd2f00`, `31fe21a0`, `31ffe990`; the last three are called only from `32bdc750`).
 - Gauge snapshot overrides 0x740 / 0x744 (`32bed760`, `32bf4600`) and 0x688 `32bf44d0` touch the cannon-ball counter; they stay here and call CH1q's helpers.
+
+## Amended by CH1d (2026-10-31)
+
+- `32beaf10` (vslot 0x670) now has a name: `CX2GUChung::IsInJobLine( int iJobLine_ )`, declared (no body) in `X2GUChung.h` under `_CORE`; CH1d's `ComboXXEventProcess` calls it with 1. Body: `iJobLine_` 1 -> unit class 20 (`UC_CHUNG_FURY_GUARDIAN`) or 110 (`UC_CHUNG_IRON_PALADIN`), 2 -> 21 / 111 (`UC_CHUNG_SHOOTING_GUARDIAN` / `UC_CHUNG_DEADLY_CHASER`), 3 -> 27 / 117 (`UC_CHUNG_SHELLING_GUARDIAN` / `UC_CHUNG_TACTICAL_TROOPER`), anything else or no unit false. Write the body, and decide whether it becomes the `CX2GUUser` virtual (base 331a4950 = false) the other classes would override; until then the `_LIVE` build does not link.

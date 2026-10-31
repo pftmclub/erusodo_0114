@@ -59,3 +59,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - `CSI_SI_SA_CFG_IRON_HOWLING_HYPER` (a CH3a2 skill state) plays `SI_SA_CFG_IRON_HOWLING`, which no June motion file has: JUNE_BUGS row when CH3a2 writes it; noted here because the `XXX_CSI_CFG_*` dead tables sit beside it.
 - The 2 `XXX_CSI_CFG_COMBO_DASH_JUMP_ZXX*` tables and `_CSI_CFG_COMBO_XXFRONTZ` are dead data (no June registration): nothing to write.
 - `CSI_CFG_COMBO_XXFRONTZ` / `ZZ` are registered for 20 and 110 (32c1d1d0 case 0x6e falls into 0x14).
+
+## Amended by CH1d (2026-10-31)
+
+- `CSI_CFG_COMBO_XXFRONTZ` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 323). CH1d's `ComboXXEventProcess` (`32bde240`) sets its flag (`bEventFlagList[2]`, job line 1 = classes 20 / 110, `m_fEventTime[0]`) and switches into it, so the state's own `32be9210` / `32c01be0` are the only pieces left here. Add `CSI_CFG_COMBO_XXFRONTZZ` (script id 324) and any other June-only state of this line the same way (an enumerator at the end of the enum under `_CORE`, a one-line comment with June's script id).

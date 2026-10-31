@@ -6408,3 +6408,41 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c113e0	CX2GUChung::RidingHyperModeFrameMove	PORTED	Char Chung CH1c: inside; CommonHyperModeFrameMove( 0, 0.11, 0.1, true ) = March
 31fd4290	CX2GUUser::ClearAnimEventTimerOneshotNow (March X2GUUser.cpp:48871)	confirmed	Char Chung CH1d0: = March (m_fAnimOneshotTimer +0x24c = 0 on m_pXSkinAnim +0x87d4 and on the riding pet's now anim +0x238 via 32071a10) plus June-only second-body anim +0x8e88 (Lu/Ciel, Stage 8; NULL for Chung); callers: Chung 32bf1000 32bf75b0 32bf7cd0 32bfb6e0 32bfc310 32bfd2b0 32c11e10 32c12660 32c07cba, user 32022380 32057b80; no new body
 31fd4340	CX2GUUser::ClearAnimEventTimerOneshotFuture (March X2GUUser.cpp:48879)	confirmed	Char Chung CH1d0: = March on m_pXSkinAnimFuture +0x87d0 and the riding pet's future anim +0x23c via 32071a30, plus June-only second-body anim +0x8e84 (Lu/Ciel, Stage 8; NULL for Chung); callers: Chung 32beba58, user 32022380 320506f0; no new body
+32bd8ab0	CX2GUChung::ComboZZZXCannonBallShotInit	PORTED	Char Chung CH1d: inside; = March: the five cannon effect meshes / textures preloaded
+32bd8b00	CX2GUChung::ComboZZZXCannonBallShotStartFuture	PORTED	Char Chung CH1d: inside; = March: vslot 0x7c0 CommonStateStartFuture, +0x411c ( m_bApplyMotionOffset ) = 0
+32bd8b20	CX2GUChung::ComboZZZXFinishInit	PORTED	Char Chung CH1d: inside; = March: the same five preloads
+32bd8b70	CX2GUChung::ComboZZZXFinishStartFuture	PORTED	Char Chung CH1d: inside; = March: CommonStateStartFuture, m_bApplyMotionOffset = false
+32bd8b90	CX2GUChung::ComboXXInit	PORTED	Char Chung CH1d: inside; = March: Nuclear Dust meshes and GroundShockWave.dds preloaded
+32bd8bc0	CX2GUChung::ComboXXXInit	PORTED	Char Chung CH1d: inside; = March: the five cannon preloads
+32bd8c10	CX2GUChung::ComboXXZXCannonBallShotInit	PORTED	Char Chung CH1d: inside; = March: the five cannon preloads
+32bd8c60	CX2GUChung::ComboXXZXFinishInit	PORTED	Char Chung CH1d: inside; = March: the five cannon preloads
+32bdd420	CX2GUChung::ComboZEventProcess	PORTED	Char Chung CH1d: inside; = March after the macros: walk cancel clears the Z Z flag, IF_SKILL_CANCEL_AFTER( 0.01 ), 0.42 branch, 0.4 limit
+32bdd5e0	CX2GUChung::ComboZZEventProcess	PORTED	Char Chung CH1d: inside; June: the Z Z X flag [3] is set for Iron Paladin 110 only ( March: Fury Guardian 20 or Iron Paladin ), Deadly Chaser 111 -> [4], Tactical Trooper 117 -> [5]; JUNE_BUGS 491
+32bdd7e0	CX2GUChung::ComboZZZEventProcess	PORTED	Char Chung CH1d: inside; June: the walk cancel is the opposite-direction one ( CAN_WALK_CANCEL ) and the walk and dash cancels also need IsOnSomethingFuture; no IsAnimationEnd test in the cancel chain
+32bdda60	CX2GUChung::ComboZZZZEventProcess	PORTED	Char Chung CH1d: inside; = March after the macros: IsAnimationEnd, SKILL_CANCEL_AFTER( 0.607 ), arrow / ASDC after 1.033
+32bddc20	CX2GUChung::ComboZZZXFinishEventProcess	PORTED	Char Chung CH1d: inside; June: the walk and dash cancels also need IsOnSomethingFuture ( March's WALK_CANCEL_AFTER / DASH_CANCEL_AFTER do not ); IsAnimationEnd -> USI_WAIT
+32bdddf0	CX2GUChung::ComboZZdownZEventProcess	PORTED	Char Chung CH1d: inside; = March: 0.566-1.1 window, 0.766 dash / walk cancel, IsAnimationEnd outside the ground test
+32bddf30	CX2GUChung::ComboZZdownZZEventProcess	PORTED	Char Chung CH1d: inside; = March after the macros: SKILL_CANCEL_AFTER( 0.766 ), arrow / ASDC after 1.233
+32bde0f0	CX2GUChung::ComboXEventProcess	PORTED	Char Chung CH1d: inside; = March ( Shooting Guardian 21 / Deadly Chaser 111 branch, Z key, 0.54 ); the CHUNG_FIRST_CLASS_CHANGE guards are gone
+32bde240	CX2GUChung::ComboXXEventProcess	PORTED	Char Chung CH1d: inside; June adds the Fury / Paladin job line 1 ( IsInJobLine, 32beaf10 ) branch to CSI_CFG_COMBO_XXFRONTZ: flag [2], m_fEventTime[0] keyInputStart / keyInputEnd / stateChange ( +0x8c10 / 14 / 18 ), and oneZ only sets the X X Z flag while [2] is off
+32bde470	CX2GUChung::ComboXXXEventProcess	PORTED	Char Chung CH1d: inside; = March after the macros: IsAnimationEnd, SKILL_CANCEL_AFTER( 0.9 ), arrow / ASDC after 1.533
+32bde640	CX2GUChung::ComboXXZXFinishEventProcess	PORTED	Char Chung CH1d: inside; June: the walk and dash cancels also need IsOnSomethingFuture; SKILL_CANCEL_AFTER( 0.3 )
+32beb2a0	CX2GUChung::ComboZZZXReadyEventProcess	PORTED	Char Chung CH1d: inside; = March: JUMP_DOWN test is not an else; IsAnimationEnd -> FINISH when balls <= 1 and not full hyper, else CANNON_BALL_SHOT
+32beb330	CX2GUChung::ComboZZZXCannonBallShotEventProcess	PORTED	Char Chung CH1d: inside; = March: used balls >= 3 allows the dash / walk cancel, IsAnimationEnd -> FINISH at 5 loops or one ball left
+32beb450	CX2GUChung::ComboXXZEventProcess	PORTED	Char Chung CH1d: inside; = March; June also registers it for CSI_CHG_COMBO_XZ
+32beb5b0	CX2GUChung::ComboXXZXCannonBallShotEventProcess	PORTED	Char Chung CH1d: inside; = March ( FINISH = CSI_COMBO_XXZX_FINISH )
+32bf5360	CX2GUChung::ShowOnomatopoeiaParticle	PORTED	Char Chung CH1d: inside; = March: GetShowSmallGageAndName ( +0x41f9 ) -> weapon bone position projected, minor particle sequence
+32bf75b0	CX2GUChung::ComboZZZXCannonBallShotFrameMove	PORTED	Char Chung CH1d: inside; = March: EventTimerOneshot( 0.001 ), loop < 5, balls > 1 or full hyper -> effect set, UseCannon( 1 ), STR_Kwa; ClearAnimEventTimerOneshotNow at the end
+32bf77c0	CX2GUChung::ComboZZZXFinishFrameMove	PORTED	Char Chung CH1d: inside; = March ( June inlines CanUseCannon; misfire effect set otherwise )
+32bf7ae0	CX2GUChung::ComboXXXFrameMove	PORTED	Char Chung CH1d: inside; = March: EventTimerOneshot( 0.56 ), CanUseCannon, STR_Kwang
+32bf7cd0	CX2GUChung::ComboXXZXCannonBallShotFrameMove	PORTED	Char Chung CH1d: inside; = March: 0.03, loop < 5, balls > 1 or full hyper, STR_Kwa
+32bf7ef0	CX2GUChung::ComboXXZXFinishFrameMove	PORTED	Char Chung CH1d: inside; = March: 0.15, CanUseCannon, STR_Kwang
+32c00ec0	CX2GUChung::ComboZFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher horizontal effect set at 0.14
+32c01070	CX2GUChung::ComboZZFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher horizontal at 0.23
+32c01220	CX2GUChung::ComboZZZFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher vertical 150 ahead at 0.54
+32c014d0	CX2GUChung::ComboZZZZFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher horizontal 50 ahead at 0.6
+32c01780	CX2GUChung::ComboZZdownZZFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher horizontal at 0.79
+32c01930	CX2GUChung::ComboXFrameMove	PORTED	Char Chung CH1d: inside; = March: Land Demolisher vertical 80 ahead at 0.3
+32c03b30	CX2GUChung::ComboZZdownZFrameMove	PORTED	Char Chung CH1d: inside; = March: UpCannonBallCountAtThisAnimationTime( 0.466, 1 ) ( 32bf3d30, body in CH1q ) then Land Demolisher vertical at 0.72
+32c1bad0	CX2GUChung::ComboXXFrameMove	PORTED	Char Chung CH1d: inside; = March: DAMAGE_DATA_NEXT at 0.466, else Land Demolisher vertical 80 ahead at 0.5, UpCannonBallCountAtThisAnimationTime( 0.54, 1 ) ( 32bf3d30, body in CH1q )
+32beaf10	CX2GUChung::IsInJobLine	declared	Char Chung CH1d: declared in X2GUChung.h under _CORE ( CH1d calls it from ComboXXEventProcess ); body is CH1l's ( vslot 0x670: 1 = classes 20 / 110, 2 = 21 / 111, 3 = 27 / 117, else false )

@@ -579,6 +579,36 @@ Next: `/x2-phase char-chung CH1d0 review` (Opus 5.5 high).
 **Gates.** `junediverge.py --check-all`: `RESULT: PASS` (allow-listed 158). No source change, so no flagcheck or build (last deploy: CH1c review, md5 ee90d320).
 Nothing to play-test. Next: `/x2-phase char-chung CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-10-31)
+
+All 37 class-map rows of phase CH1d are written, all `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`). No `new` row, no new `Always.h` define (`_LIVE` stays `//#define`). 38 funcmap rows `Char Chung CH1d` (the 37 + `32beaf10`). JUNE_BUGS 491.
+
+| Group | June -> `CX2GUChung::` |
+|---|---|
+| Init (preload, `= March`) | `32bd8ab0` ZZZXCannonBallShotInit, `32bd8b20` ZZZXFinishInit, `32bd8b90` XXInit, `32bd8bc0` XXXInit, `32bd8c10` XXZXCannonBallShotInit, `32bd8c60` XXZXFinishInit |
+| StartFuture (`= March`) | `32bd8b00` ZZZXCannonBallShot, `32bd8b70` ZZZXFinish |
+| Z line EventProcess | `32bdd420` Z, `32bdd5e0` ZZ, `32bdd7e0` ZZZ, `32bdda60` ZZZZ, `32beb2a0` ZZZXReady, `32beb330` ZZZXCannonBallShot, `32bddc20` ZZZXFinish, `32bdddf0` ZZdownZ, `32bddf30` ZZdownZZ |
+| X line EventProcess | `32bde0f0` X, `32bde240` XX, `32bde470` XXX, `32beb450` XXZ (also `CSI_CHG_COMBO_XZ`), `32beb5b0` XXZXCannonBallShot, `32bde640` XXZXFinish |
+| FrameMove | `32c00ec0` Z, `32c01070` ZZ, `32c01220` ZZZ, `32c014d0` ZZZZ, `32c03b30` ZZdownZ, `32c01780` ZZdownZZ, `32c01930` X, `32c1bad0` XX, `32bf75b0` ZZZXCannonBallShot, `32bf77c0` ZZZXFinish, `32bf7ae0` XXX, `32bf7cd0` XXZXCannonBallShot, `32bf7ef0` XXZXFinish |
+| Helper | `32bf5360` ShowOnomatopoeiaParticle (`X2GUChung.h:601`) |
+
+**Where June differs from March** (the other 28 are March's logic written out whole; the `SKILL_CANCEL_AFTER` / `IF_SKILL_CANCEL_AFTER` / `ELSE_IF_ARROW_ASDC_PRESSED_AFTER` macros already expand to June's code, `+0x24c` < t && `EventTimer` = March's `EventTimerOneshot`, June reads the alternate future animation `+0x8e90 ? +0x8e84 : +0x87d0` as `m_pXSkinAnimFuture`):
+- **ZZ `32bdd5e0`:** the Z Z X flag [3] (`CSI_CFG_COMBO_ZZX`) is set for Iron Paladin (110) only; March also takes Fury Guardian (20). Deadly Chaser (111) -> [4], Tactical Trooper (117) -> [5] with its 0.83 window first (all as March). **JUNE_BUGS 491.**
+- **ZZZ `32bdd7e0`:** the walk cancel after 0.5 is the opposite-direction one (`CAN_WALK_CANCEL`, March: any direction) and both it and the dash cancel need `IsOnSomethingFuture`; `IF_SKILL_CANCEL_AFTER( 0.5 )` leads; no `IsAnimationEnd` in the cancel chain.
+- **ZZZXFinish `32bddc20`, XXZXFinish `32bde640`:** the any-direction walk cancel and the dash cancel also need `IsOnSomethingFuture` (March's `WALK_CANCEL_AFTER` / `DASH_CANCEL_AFTER` do not), written out as CH1a did for Guard X.
+- **XX `32bde240`:** a branch March lacks. Flag `bEventFlagList[2]` (`+0x7d87`): while it is set, once t > `m_fEventTime[0].stateChange` or the animation ends, `StateChange( CSI_CFG_COMBO_XXFRONTZ )`; it is set when `m_fEventTime[0].keyInputStart <= t < keyInputEnd`, job line 1 (`0x670( 1 )`: classes 20 / 110), `oneZ` and a forward direction key; both paths end in `CommonEventProcess()` at once. `oneZ` sets the X X Z flag only while [2] is off. `m_fEventTime[0]` (`+0x8c10` / `14` / `18`) is CX2GUUser's `EVENT_PROCESS_TIME` table, already in March.
+- **Floats:** every compare constant is a float literal widened to double (0.42, 0.4, 0.45, 0.69, 0.607, 1.033, 0.566, 1.1, 0.766, 1.233, 0.6, 0.54, 0.9, 1.533, 0.433, 1.066, 0.3, 0.2, ...), read out of the exe with the same values as March's `f` literals.
+
+**Declared for later phases.** `CX2GUChung::IsInJobLine( int )` (`32beaf10`, vslot 0x670; classes 20 / 110 -> 1, 21 / 111 -> 2, 27 / 117 -> 3) is declared in `X2GUChung.h` under `_CORE` with no body: CH1l owns it (its kickoff says so), and the `_LIVE` build does not link until it lands. `CSI_CFG_COMBO_XXFRONTZ` (June script id 323) is the last enumerator of `CHUNG_STATE_ID`, under `_CORE`; CH1e owns the state (kickoff amended). `UpCannonBallCountAtThisAnimationTime` (`32bf3d30`) is March's, called by name; its June body is CH1q's. `CanUseCannon` is June's inline (as CH1b).
+Checklist §7 L253 (`+0x7cc8` power rate): none of the 37 functions touches it. 7ai (BFI arguments): none.
+
+**Gates.** `GIT_CONFIG ... diff.algorithm=patience flagcheck JUNE_CHAR_CHUNG_LIVE --worktree --files X2Lib/X2GUChung.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out. (Git's default Myers diff mis-aligns the 1,024 inserted lines and prints `+1059 -35 nonascii 6`; `git diff --patience --numstat` is `1024 / 0` in `X2GUChung.cpp` and `6 / 0` in `X2GUChung.h`. The review's flagcheck needs the same env.) `flagcheck JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.h`: `RESULT: PASS`.
+`junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH, `cl /P` shows `IsInJobLine( 1 )` once with `_LIVE` and not without): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 17:00:50, md5 0f6d97b3b85073e929a545c2bb19d735`, equal to `X2/US_SERVICE/x2.exe`; built at main `65c33d7f` + the 2 code files of this phase (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+No drift beyond the two declarations above. **Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1d review` (Opus 5.5 high), then CH1d2.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
