@@ -262,6 +262,13 @@ no time, which is June's behaviour (H0); their counter comes with H3.
   `DEPLOY OK: X2_offline.exe is 25,865,216 B, dated 2026-10-31 07:54:48, md5 26e27ce47853fa6bb84d04318156563f`
   `EXESTR OK: 4 of 4 found` (`[JUNE_HUD] BUFF anchor`, `Hero_Dungeon_Buff_STOP.ogg`, `Hero_UiParticle_Action_ADD`, `HeroDungeon_Skill_Bonus`).
 - H3 note: string 1 now exists on every icon (empty); H3's slot-12 setter writes it. `SetBuffIconStatic` is virtual now.
+- **Play-test passed (user, 2026-10-31, jtLordKnight):** `[JUNE_HUD] BUFF anchor 993,26 ... dummy 0` on every dialog create (states 5 / 11 / 14),
+  Hero HP / MP buffs 648 / 649 and debuff 67 applied in a dungeon, re-apply refreshed the time; 0 EXCEPTION. No party gauge was on screen (check 3 not seen).
+- **Found (not this plan): the Lua binding `SetBuffFactorToGameUnitByBuffFactorID_LUA` broke in S3e (`c6ca2d33`).** It binds the 5-argument slot 135
+  (`0x21c`, creator pointer 3rd), and this lua_tinker errors on a nil pointer, so every 1- or 2-argument Lua call fails ("no class at first argument").
+  June binds thunk `31e4ea50` = slot 134 `3208dd90`: `( BFI, level, adjust skill id, skip )`, forwarding `( BFI, NULL, level, adjust, skip )`; invoker
+  `31e6afe0` reads args 2-4 as numbers and arg 5 as a bool. 162 kom scripts call it (June's pass the BFI only, e.g. `BFI_NPC_RED_POTION`). The play-test
+  used `( 648, 1, u, 0, true )`. Routing: the user's call (fix now vs its own plan).
 
 ## Phase H3 - The buff counter (Sonnet 5.5, high)
 
