@@ -63,3 +63,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d2 (2026-10-31)
 
 - `CSI_CSG_COMBO_DASH_JUMP_ZX_READY` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 333, appended without `= value`). CH1d2's `ComboDashJumpZEventProcess` (`32bdece0`) sets its flag (`bEventFlagList[3]`, job line 2 = classes 21 / 111, `m_fEventTime[3]`) and switches into it; the state's own `32bdb7f0` / `32bea970` are yours. `CSI_CSG_COMBO_DASH_JUMP_X`'s switch in `AttackDashJumpXEventProcess` is Deadly Chaser only (JUNE_BUGS 492).
+
+## Amended by CH1g (2026-10-31)
+
+- `SetExtraDamageMiniGun( CEffect*, rate )` (June `32c15990`) now exists beside March's `DamageData&` overload (`_CORE`; divergent row added). It is the only place in June's exe that sets the head shot (`mov [reg+0x250], 0x26` occurs once), and its four callers are the two dead `32c15e60` / `32c185b0`, dash XX `32c18950` and dash Z X X `32c163f0`. So June's X-front, dash-jump and Head Shot shells carry no head shot: drop March's `SetExtraDamageMiniGun( pEffect->GetDamageData(), ... )` from each `_LIVE` branch where the listing has no call to `32c15990`.
+- June's mini-gun shell FrameMoves multiply `GetPowerRate()` by the protected float at `+0x98ac` (`m_fRemodelRifleDamageRate`, CH1g added it, default 1, CH4a writes it); `32c181f0` and the later `32c18f30` / `32c19710` / `32c19f30` / `32c1a480` / `32c1ae60` read it too. Read each site; the dash XX / Z X / Z X X shells already use it.
+- The shot MP is `FlushMp( base x Open Mind MP rate )`: `GetSkillLevelValue( RNSI_P_CDC_OPEN_MIND ) > 0` then `GetLearnedSkillAbilityValue( SA_MP_CONSUME_REL, RNSI_P_CDC_OPEN_MIND )`, else 1 (CH1g registered the enumerator `RNSI_P_CDC_OPEN_MIND` = 26417 in `X2SkillTree.h`).

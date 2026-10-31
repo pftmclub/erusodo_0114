@@ -47,3 +47,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178-181 June-only members of tables March has (SKILL_ID names) fail silently; §7 L246 32c16be0 InitPassiveSkillState: SetPassiveMultiple( GetPassiveMultiple; §7ae L713-720 an id of a listed type with no case plays the class's first skill stat; §7am L897 delegate-list registrations in InitPassiveSkillState: Chung 32c16be0 p.
 - **Callees this Opus phase maps itself:** `31fc94d0` CX2GUUser add-to-gauge helper: +0x93b8 += (rate > 1 ? rate-1 : rate).
 - 22 passive / buff ids with no state (part 2 of `ch0_state_skill.tsv`); `31fc94d0` (called by InitPassiveSkillState `32c16be0`) is yours to map.
+
+## Amended by CH1g (2026-10-31)
+
+- `InitPassiveSkillState` `32c16be0` writes the protected float at `+0x98ac` (1.0, then for `RNSI_P_CSG_REMODEL_RIFLE` 26405 the `SA_DAMAGE_REL` value): CH1g added the member `m_fRemodelRifleDamageRate` (default 1) that the dash XX / Z X / Z X X shell FrameMoves multiply into their power. Port that write here, next to the `+0x96b8` / `+0x96bc` ones.

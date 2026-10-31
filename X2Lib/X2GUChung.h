@@ -287,6 +287,10 @@ public:
 		CSI_CSG_COMBO_DASH_JUMP_ZX_READY,	/// June script id 333 ( Shooting Guardian dash jump Z X ready; CH1g2 owns the state )
 		CSI_CFG_COMBO_XXFRONTZZ,			/// June script id 324 ( Fury Guardian / Iron Paladin X X front Z Z; CH1e owns the state )
 		CSI_CIP_COMBO_DASHJUMP_XX_LANDING,	/// June script id 326 ( Iron Paladin dash jump X X landing; CH1f owns the state )
+		CSI_CSG_COMBO_DASH_ZX,				/// June script id 329 ( Shooting Guardian dash Z X; CH1g owns the state )
+		CSI_CSG_COMBO_DASH_ZXX_READY,		/// June script id 330 ( Shooting Guardian dash Z X X ready; CH1g owns the state )
+		CSI_CSG_COMBO_DASH_ZXX,				/// June script id 331 ( Shooting Guardian dash Z X X; CH1g owns the state )
+		CSI_CSG_COMBO_DASH_ZXX_END,			/// June script id 332 ( Shooting Guardian dash Z X X end; CH1g owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -335,6 +339,10 @@ public:
 
 		CHUNG_MAJOR_MII_SI_SA_CDC_BULLET_BLITZ_MINI_GUN_L,
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+		CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L,	/// June +0x960c ( handle slot 0x11 ): the left mini gun of the Shooting Guardian dash Z X states
+		CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R,	/// June +0x9610 ( handle slot 0x12 ): the right mini gun
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 		CHUNG_MAJOR_MII_END,
 	};
 	//}} 장훈 : 2011-01-15 : 청이 쓰는 메이져 메쉬 인스턴스
@@ -664,6 +672,9 @@ protected:
 #ifdef BALANCE_DEADLY_CHASER_20130214
 	void SetExtraDamageMiniGun( CX2DamageManager::DamageData& DamageData_, float fRate_ ); // 
 #endif //BALANCE_DEADLY_CHASER_20130214
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	void SetExtraDamageMiniGun( CX2DamageEffect::CEffect* pEffect_, float fRate_ );	/// June 32c15990
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 public:
 	static CX2GUChung*	CreateGUChung( int iUnitIndex_, int iTeamNum_, 
@@ -1170,6 +1181,17 @@ protected:
 	// CSI_CIP_COMBO_DASHJUMP_XX / CSI_CIP_COMBO_DASHJUMP_XX_LANDING
 	void CIPComboDashJumpXXEventProcess();
 	void CIPComboDashJumpXXLandingEventProcess();
+	// CSI_COMBO_DASH_Z ( Shooting Guardian ) / CSI_CSG_COMBO_DASH_ZX / _ZXX_READY / _ZXX / _ZXX_END
+	void CSGComboDashZEventProcess();
+	void CSGComboDashZXFrameMove();
+	void CSGComboDashZXEventProcess();
+	void CSGComboDashZXEnd();
+	void CSGComboDashZXXReadyFrameMove();
+	void CSGComboDashZXXReadyEventProcess();
+	void CSGComboDashZXXFrameMove();
+	void CSGComboDashZXXEventProcess();
+	void CSGComboDashZXXEndStateStart();
+	void CSGComboDashZXXEndEventProcess();
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	// 랜드디몰리셔 콤보에 붙는 이펙트 위해 한곳에 몰아넣음
@@ -1850,6 +1872,8 @@ protected:
 	bool						m_bApplyLandDemolisher;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	bool						m_bDownForcePressedInState;		/// June +0x8bf9 ( CX2GUUser region ): a down press in this jump keeps m_bDownForce
+	float						m_fRemodelRifleDamageRate;		/// June +0x98ac ( protected float, 1 ): the rifling remodel passive's damage rate, written by InitPassiveSkillState 32c16be0 ( CH4a )
+	int							m_iCountbyCsgComboDashZXXMiniGun;	/// June +0x9894: the dash Z X X loops since the ready state
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

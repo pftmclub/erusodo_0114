@@ -168,6 +168,8 @@ iFrameBufferNum_, pUnit_ )
 , m_bApplyLandDemolisher( false )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_bDownForcePressedInState( false )
+, m_fRemodelRifleDamageRate( 1.f )
+, m_iCountbyCsgComboDashZXXMiniGun( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -5502,6 +5504,8 @@ void CX2GUChung::InitializeMajorMeshArray()
 */
 void CX2GUChung::SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MESH_INSTANCE_ID eVal_, CKTDGXMeshPlayer::CXMeshInstanceHandle hHandle_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf5060 ( = March )
 	if( INVALID_MESH_INSTANCE_HANDLE == hHandle_ && INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( eVal_ ) )
 	{
 		CKTDGXMeshPlayer::CXMeshInstanceHandle hHandleChungMesh = GetHandleChungMajorMeshByEnum( eVal_ );
@@ -5510,6 +5514,16 @@ void CX2GUChung::SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MESH_INSTANCE_ID eVa
 	}
 
 	m_ahChungMajorMeshInstance[eVal_] = hHandle_;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if( INVALID_MESH_INSTANCE_HANDLE == hHandle_ && INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( eVal_ ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstanceHandle hHandleChungMesh = GetHandleChungMajorMeshByEnum( eVal_ );
+
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle(hHandleChungMesh);
+	}
+
+	m_ahChungMajorMeshInstance[eVal_] = hHandle_;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DeleteMajorMesh
@@ -15107,12 +15121,22 @@ void CX2GUChung::CSGComboXFrontXXEnd()
 */
 void CX2GUChung::CSGComboDashXXInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8fc0 ( = March )
 	XSkinMeshReadyInBackground(L"CSG_Mini_Gun_COMBO_DASH_XX.X");
 	XSkinMeshReadyInBackground(L"Mini_Gun_Shell_Dummy.X");
 	XMeshReadyInBackground(L"CSG_DUAL_BUSTER_Shell.Y");
 	TextureReadyInBackground(L"IceHit_Impact01.dds");
 	TextureReadyInBackground(L"ColorBallFire.dds");
 	TextureReadyInBackground(L"Arme_Critical2.dds");
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground(L"CSG_Mini_Gun_COMBO_DASH_XX.X");
+	XSkinMeshReadyInBackground(L"Mini_Gun_Shell_Dummy.X");
+	XMeshReadyInBackground(L"CSG_DUAL_BUSTER_Shell.Y");
+	TextureReadyInBackground(L"IceHit_Impact01.dds");
+	TextureReadyInBackground(L"ColorBallFire.dds");
+	TextureReadyInBackground(L"Arme_Critical2.dds");
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : void CSGComboDashXXFrameMove()
@@ -15121,6 +15145,88 @@ void CX2GUChung::CSGComboDashXXInit()
 */
 void CX2GUChung::CSGComboDashXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c18950; the shots cost the Open Mind MP rate, their power is x the rifling damage rate, and the head shot adds a hit
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+#ifdef SKILL_BALANCE_20110728
+		m_bIncreaseCritical = true;
+#endif
+
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CSG_COMBO_DASH_XX_Mini_Gun", vBonePos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pMeshInst_MiniGun )
+		{
+			pMeshInst_MiniGun->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN, pMeshInst_MiniGun->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN ) );
+		if( NULL != pMeshInst_MiniGun )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	D3DXVECTOR3 vBonePos_MiniGun;
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN ) );
+		if( NULL != pMeshInst_MiniGun )
+		{
+			vBonePos_MiniGun = pMeshInst_MiniGun->GetXSkinAnim()->GetCloneFramePosition( L"Dummy01" );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.533f ) )
+	{
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 4.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_XX_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(),
+															0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire1.ogg" );
+		}
+		else
+		{
+			float fDegreeZ = GetRotateDegree().z;
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, fDegreeZ );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.93f ) )
+	{
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 4.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_XX_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(),
+															0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire2.ogg" );
+		}
+		else
+		{
+			float fDegreeZ = GetRotateDegree().z;
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, fDegreeZ );
+		}
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -15221,6 +15327,7 @@ void CX2GUChung::CSGComboDashXXFrameMove()
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXEventProcess()
 	@brief : 청 1차 전직 슈터 가디언 평상기 이벤트 처리
@@ -15228,6 +15335,35 @@ void CX2GUChung::CSGComboDashXXFrameMove()
 */
 void CX2GUChung::CSGComboDashXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be08b0 ( = March )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float TRIGGER_TIME_CSG_COMBO_DASH_XX = 1.1f;
+
+		if ( TRIGGER_TIME_CSG_COMBO_DASH_XX < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( true == m_InputData.oneX )
+				StateChange( CSI_CSG_COMBO_DASH_XXX );
+		}
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+		WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+		DASH_CANCEL_AFTER( m_fDashCancelAfter )
+		SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -15299,6 +15435,7 @@ void CX2GUChung::CSGComboDashXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXEnd()
 	@brief : 청 1차 전직 슈터 가디언 평상기 스테이트 종료처리(리소스 소멸등)
@@ -15306,8 +15443,14 @@ void CX2GUChung::CSGComboDashXXEventProcess()
 */
 void CX2GUChung::CSGComboDashXXEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf9790 ( = March )
 	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN, INVALID_MESH_INSTANCE_HANDLE );
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XX_MINI_GUN, INVALID_MESH_INSTANCE_HANDLE );
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXXInit()
 	@brief : 청 1차 전직 슈터 가디언 평상기 - 리소스 초기화
@@ -15315,12 +15458,22 @@ void CX2GUChung::CSGComboDashXXEnd()
 */
 void CX2GUChung::CSGComboDashXXXInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd9020 ( = March )
 	XSkinMeshReadyInBackground(L"CSG_Mini_Gun_COMBO_DASH_XXX.X");
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground(L"CSG_Mini_Gun_COMBO_DASH_XXX.X");
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXXFrameMove()
 	@brief : 청 1차 전직 슈터 가디언 평상기 - 리소스 싱크처리
@@ -15328,6 +15481,48 @@ void CX2GUChung::CSGComboDashXXXInit()
 */
 void CX2GUChung::CSGComboDashXXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf97b0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CSG_COMBO_DASH_XXX_Mini_Gun", vBonePos, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pMeshInst_MiniGun )
+		{
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XXX_MINI_GUN, pMeshInst_MiniGun->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XXX_MINI_GUN ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XXX_MINI_GUN ) );
+		if( NULL != pMeshInst_MiniGun )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.48f ) )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE > m_pXSkinAnim->GetNowPlayCount() )
+		{
+			if ( 1 <= GetCannonBallCount() || IsFullHyperMode() )
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CSG_COMBO_DASH_XXX_CANNON_BALL_SHOT", this );
+				UseCannon( 1 );
+			}
+			else
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_MISFIRE", this );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -15380,6 +15575,7 @@ void CX2GUChung::CSGComboDashXXXFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXXEventProcess()
 	@brief : 청 1차 전직 슈터 가디언 평상기 - 이벤트 처리
@@ -15387,6 +15583,26 @@ void CX2GUChung::CSGComboDashXXXFrameMove()
 */
 void CX2GUChung::CSGComboDashXXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be0b10 ( = March )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+		WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+		DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -15432,6 +15648,7 @@ void CX2GUChung::CSGComboDashXXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashXXXEnd()
 	@brief : 청 1차 전직 슈터 가디언 평상기 - 스테이지 종료처리
@@ -15439,8 +15656,14 @@ void CX2GUChung::CSGComboDashXXXEventProcess()
 */
 void CX2GUChung::CSGComboDashXXXEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf9c10 ( = March )
 	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XXX_MINI_GUN, INVALID_MESH_INSTANCE_HANDLE );
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_XXX_MINI_GUN, INVALID_MESH_INSTANCE_HANDLE );
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : void CSGComboDashJumpXInit()
 	@brief : 청 1차 전직 슈터 가디언 평상기 - 리소스 초기화
@@ -22118,6 +22341,562 @@ void CX2GUChung::CIPComboDashJumpXXLandingEventProcess()
 	CommonEventProcess();
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/** @function : CSGComboDashZEventProcess
+	@brief : June 32be9c90, CSI_COMBO_DASH_Z EventProcess of the Shooting Guardian; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZEventProcess()
+{
+	bool& bCanChangeCSGComboDashZX = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+			m_fCanNotAttackTime = 0.1f;
+		}
+	}
+	else if ( true == bCanChangeCSGComboDashZX &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CSG_COMBO_DASH_ZX );
+		bCanChangeCSGComboDashZX = false;
+	}
+	else if ( true == m_InputData.oneX && m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		bCanChangeCSGComboDashZX = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+			 ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture()
+		&& CAN_DASH_CANCEL )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+/** @function : CSGComboDashZXEventProcess
+	@brief : June 32bea080, CSI_CSG_COMBO_DASH_ZX EventProcess; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXEventProcess()
+{
+	bool& bCanChangeCSGComboDashZXXReady = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( true == bCanChangeCSGComboDashZXXReady &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CSG_COMBO_DASH_ZXX_READY );
+		bCanChangeCSGComboDashZXXReady = false;
+	}
+	else if ( true == m_InputData.oneX && m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		bCanChangeCSGComboDashZXXReady = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+			 ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture()
+		&& CAN_DASH_CANCEL )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+/** @function : CSGComboDashZXXReadyEventProcess
+	@brief : June 32bea460, CSI_CSG_COMBO_DASH_ZXX_READY EventProcess; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXReadyEventProcess()
+{
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_CSG_COMBO_DASH_ZXX );
+	}
+
+	CommonEventProcess();
+}
+
+/** @function : CSGComboDashZXXEventProcess
+	@brief : June 32bea4c0, CSI_CSG_COMBO_DASH_ZXX EventProcess; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXEventProcess()
+{
+	bool& bCanChangeCSGComboDashZXXAgain = m_FrameDataFuture.stateParam.bEventFlagList[0];
+	bool& bCanChangeCSGHeadShot = m_FrameDataFuture.stateParam.bEventFlagList[1];
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( CSI_CSG_COMBO_DASH_ZXX_END );
+		}
+	}
+	else if ( true == bCanChangeCSGComboDashZXXAgain &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		if ( m_iCountbyCsgComboDashZXXMiniGun >= 5 )
+			StateChange( CSI_SI_A_CSG_HEAD_SHOT );
+		else
+			StateChange( CSI_CSG_COMBO_DASH_ZXX );
+		bCanChangeCSGComboDashZXXAgain = false;
+	}
+	else if ( true == m_InputData.oneX && m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		bCanChangeCSGComboDashZXXAgain = true;
+	}
+	else if ( true == bCanChangeCSGHeadShot &&
+		( m_fEventTime[1].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_SI_A_CSG_HEAD_SHOT );
+		bCanChangeCSGHeadShot = false;
+	}
+	else if ( true == m_InputData.oneZ && m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[1].keyInputEnd &&
+		m_fEventTime[1].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		bCanChangeCSGHeadShot = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+			 ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture()
+		&& CAN_DASH_CANCEL )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+/** @function : CSGComboDashZXXEndEventProcess
+	@brief : June 32be8ef0, CSI_CSG_COMBO_DASH_ZXX_END and CSI_CHG_DASH_JUMP_COMBO_ZXX EventProcess; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXEndEventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+			 ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture()
+		&& ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture()
+		&& CAN_DASH_CANCEL )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture()
+		&& true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+/** @function : CSGComboDashZXXEndStateStart
+	@brief : June 32c0abc0, CSI_CSG_COMBO_DASH_ZXX_END StateStart; releases the two mini guns; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXEndStateStart()
+{
+	CommonStateStart();
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, INVALID_MESH_INSTANCE_HANDLE );
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, INVALID_MESH_INSTANCE_HANDLE );
+}
+
+/** @function : CSGComboDashZXEnd
+	@brief : June 32c0ac00, StateEnd of CSI_CSG_COMBO_DASH_ZX / _ZXX_READY / _ZXX; releases the two mini guns; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXEnd()
+{
+	CommonStateEnd();
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, INVALID_MESH_INSTANCE_HANDLE );
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, INVALID_MESH_INSTANCE_HANDLE );
+}
+
+/** @function : CSGComboDashZXXReadyFrameMove
+	@brief : June 32c0a8d0, CSI_CSG_COMBO_DASH_ZXX_READY FrameMove; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXReadyFrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.123f ) )
+	{
+#ifdef SKILL_BALANCE_20110728
+		m_bIncreaseCritical = true;
+#endif
+
+		D3DXVECTOR3 vBonePosL = GetBonePos( L"Bip01_L_Hand" );
+		D3DXVECTOR3 vBonePosR = GetBonePos( L"Bip01_R_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_Mini_Gun_L", vBonePosL, GetRotateDegree(), GetRotateDegree() );
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_Mini_Gun_R", vBonePosR, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			pMeshInst_MiniGun_L->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, pMeshInst_MiniGun_L->GetHandle() );
+		}
+
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			pMeshInst_MiniGun_R->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, pMeshInst_MiniGun_R->GetHandle() );
+		}
+
+		m_iCountbyCsgComboDashZXXMiniGun = 0;
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) );
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun_L->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) );
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_R_Hand" );
+			pMeshInst_MiniGun_R->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+/** @function : CSGComboDashZXFrameMove
+	@brief : June 32c15c00, CSI_CSG_COMBO_DASH_ZX FrameMove; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXFrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+#ifdef SKILL_BALANCE_20110728
+		m_bIncreaseCritical = true;
+#endif
+
+		D3DXVECTOR3 vBonePosL = GetBonePos( L"Bip01_L_Hand" );
+		D3DXVECTOR3 vBonePosR = GetBonePos( L"Bip01_R_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_ZZXX_Mini_Gun_L", vBonePosL, GetRotateDegree(), GetRotateDegree() );
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_ZZXX_Mini_Gun_R", vBonePosR, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			pMeshInst_MiniGun_L->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, pMeshInst_MiniGun_L->GetHandle() );
+		}
+
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			pMeshInst_MiniGun_R->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, pMeshInst_MiniGun_R->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) );
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun_L->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) );
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_R_Hand" );
+			pMeshInst_MiniGun_R->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.378f ) )
+	{
+		D3DXVECTOR3 vBonePos_MiniGun = GetPos( false );
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) );
+			if( NULL != pMeshInst_MiniGun_R )
+				vBonePos_MiniGun = pMeshInst_MiniGun_R->GetXSkinAnim()->GetCloneFramePosition( L"Gun_R_Dummy03" );
+		}
+
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 2.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_ZX_FIRE_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(), 0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire1.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, 0.f );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.567f ) )
+	{
+		D3DXVECTOR3 vBonePos_MiniGun = GetPos( false );
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) );
+			if( NULL != pMeshInst_MiniGun_L )
+				vBonePos_MiniGun = pMeshInst_MiniGun_L->GetXSkinAnim()->GetCloneFramePosition( L"Gun_L_Dummy03" );
+		}
+
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 2.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_ZX_FIRE_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(), 0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire1.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+/** @function : CSGComboDashZXXFrameMove
+	@brief : June 32c163f0, CSI_CSG_COMBO_DASH_ZXX FrameMove; counts the loops in m_iCountbyCsgComboDashZXXMiniGun; registered by the class core
+*/
+void CX2GUChung::CSGComboDashZXXFrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		++m_iCountbyCsgComboDashZXXMiniGun;
+#ifdef SKILL_BALANCE_20110728
+		m_bIncreaseCritical = true;
+#endif
+
+		D3DXVECTOR3 vBonePosL = GetBonePos( L"Bip01_L_Hand" );
+		D3DXVECTOR3 vBonePosR = GetBonePos( L"Bip01_R_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_Mini_Gun_L", vBonePosL, GetRotateDegree(), GetRotateDegree() );
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_COMBO_Mini_Gun_R", vBonePosR, GetRotateDegree(), GetRotateDegree() );
+
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			pMeshInst_MiniGun_L->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, pMeshInst_MiniGun_L->GetHandle() );
+		}
+
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			pMeshInst_MiniGun_R->SetPerFrameSimulation( true );
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, pMeshInst_MiniGun_R->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) );
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun_L->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) );
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_R_Hand" );
+			pMeshInst_MiniGun_R->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.036f ) )
+	{
+		D3DXVECTOR3 vBonePos_MiniGun = GetPos( false );
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R ) );
+			if( NULL != pMeshInst_MiniGun_R )
+				vBonePos_MiniGun = pMeshInst_MiniGun_R->GetXSkinAnim()->GetCloneFramePosition( L"Gun_R_Dummy03" );
+		}
+
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 2.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_ZX_FIRE_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(), 0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire1.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, 0.f );
+		}
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.164f ) )
+	{
+		D3DXVECTOR3 vBonePos_MiniGun = GetPos( false );
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L ) );
+			if( NULL != pMeshInst_MiniGun_L )
+				vBonePos_MiniGun = pMeshInst_MiniGun_L->GetXSkinAnim()->GetCloneFramePosition( L"Gun_L_Dummy03" );
+		}
+
+		float fOpenMindMpRate = 1.f;
+		if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) > 0 )
+			fOpenMindMpRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+
+		if( true == FlushMp( 2.f * fOpenMindMpRate ) )
+		{
+			CX2DamageEffect::CEffect* pEffect =
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CSG_COMBO_DASH_ZX_FIRE_Mini_Gun_Shell", GetPowerRate() * m_fRemodelRifleDamageRate, vBonePos_MiniGun, GetRotateDegree(), GetRotateDegree(), 0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+			SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate );
+			PlaySound( L"Chung_MiniGun_Fire1.ogg" );
+		}
+		else
+		{
+			CreateNotEnoughMPEffect( vBonePos_MiniGun, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 /////////////////////////////////
 // CSI_SI_A_CIP_SUDDEN_BURSTER //
 void CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_Init()
@@ -26832,6 +27611,28 @@ void CX2GUChung::SetExtraDamageMiniGun( CX2DamageManager::DamageData& damageData
 	//damageData_.m_ExtraDamage.m_bIgnoreResist = true;
 }
 #endif //BALANCE_DEADLY_CHASER_20130214
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/// June 32c15990, the head shot of a mini gun shell; it also gives the effect one more hit
+void CX2GUChung::SetExtraDamageMiniGun( CX2DamageEffect::CEffect* pEffect_, float fRate_ )
+{
+	if ( NULL == pEffect_ )
+		return;
+
+	CX2DamageManager::DamageData& damageData = pEffect_->GetDamageData();
+
+	damageData.m_ExtraDamage.Init();
+	if( 0.f >= fRate_ )
+		return;
+
+	pEffect_->SetDamageTime( pEffect_->GetDamageTime() + 1 );
+	damageData.m_ExtraDamage.m_ExtraDamageType = CX2DamageManager::EDT_HEAD_SHOT;
+	damageData.m_ExtraDamage.m_fTime = 5.f;
+	damageData.m_ExtraDamage.m_iLevel = 0;
+	damageData.m_ExtraDamage.m_fRate = fRate_;
+	damageData.m_ExtraDamage.m_fPureRate = fRate_;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 #ifdef RIDING_SYSTEM
 /*virtual*/ bool CX2GUChung::CanRidingState()

@@ -60,3 +60,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - InitComponent `32bf4900` (slot 0x3c) is written whole here, with its key reads: `COMMAND_HIT_ADD_MP_BONUS` (+0x98c4, consumer CH1p), `SIEGE_ANGLE` (+0x261a..d) / `MOBILE_SIEGE_ANGLE` (+0x261e..21) (consumers in the siege skill states), `EXTRA_CANNON_BALL_DAMAGE_RATE` (+0x2626 / 7, CH1q).
 - The ctor `32bf1040` is kind `not-Chung` in the map only because its caller (`3230f409`) is outside the range: it is Chung's ctor and the source of the ctor / dtor offset map. Dtor body `32c0c4e0`, slot 0 `32c25880`.
 - 7p: DamageReact `32c0cf90` with the hit-stop.
+
+## Amended by CH1g (2026-10-31)
+
+- **Three `_CORE` members stand in for June members the ctor map must place:** `m_fRemodelRifleDamageRate` (June `+0x98ac`, protected float, ctor 1.0; written by CH4a) and `m_iCountbyCsgComboDashZXXMiniGun` (June `+0x9894`, int, 0); both are in March's ctor initializer list since CH1g. `CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L` / `_R` were appended before `CHUNG_MAJOR_MII_END` for June's handle slots 0x11 / 0x12 (`+0x960c` / `+0x9610`). June's own slot order differs from March's after 0x0f (Bullet Blitz's left gun is slot 0x10 in `32bffd20`): settle `InitializeMajorMeshArray` / `DeleteMajorMesh` / DamageReact `32c0cf90` (which destroys 0x11 and 0x12) against it.

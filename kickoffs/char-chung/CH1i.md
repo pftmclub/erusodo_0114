@@ -57,3 +57,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 10** (`awk -F'\t' '$8=="CH1i"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CHG_COMBO_X`, `CSI_CHG_COMBO_XX`, `CSI_CHG_COMBO_XZ`, `CSI_CHG_DASH_COMBO_Z`, `CSI_CHG_DASH_COMBO_ZZ`, `CSI_CHG_DASH_COMBO_ZZX`, `CSI_CHG_DASH_JUMP_COMBO_ZX`, `CSI_CHG_DASH_JUMP_COMBO_ZXX`, `CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE`, `CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
 - `CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT` (id 277) is registered by the class-27 gate: class core here; the passive data is CH4a.
+
+## Amended by CH1g (2026-10-31)
+
+- `CSI_CHG_DASH_JUMP_COMBO_ZXX` shares its EventProcess with `CSI_CSG_COMBO_DASH_ZXX_END`: June `32be8ef0` is `CSGComboDashZXXEndEventProcess`, written by CH1g under `_CORE`. Register it; do not write a second copy.

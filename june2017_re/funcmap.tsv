@@ -6506,3 +6506,23 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c02280	CX2GUChung::PowerDownLandingFrameMove	PORTED	Char Chung CH1f: inside; = March: Land Demolisher vertical effect (POWER_DOWN_LANDING) 125 behind at 0.1333
 32c02530	CX2GUChung::CIPComboPowerDownLandingZFrameMove	PORTED	Char Chung CH1f: inside; = March: Land Demolisher horizontal effect at 0.35, vertical 220 behind at 0.51
 32c02920	CX2GUChung::CIPComboPowerDownLandingZZFrameMove	PORTED	Char Chung CH1f: inside; = March: at 0.335 cannon effect set + UseCannon( 1 ) when CanUseCannon, else misfire effect set
+32bd8fc0	CX2GUChung::CSGComboDashXXInit	PORTED	Char Chung CH1g: inside; = March (six preloads)
+32bd9020	CX2GUChung::CSGComboDashXXXInit	PORTED	Char Chung CH1g: inside; = March (six preloads)
+32be08b0	CX2GUChung::CSGComboDashXXEventProcess	PORTED	Char Chung CH1g: inside; = March (the walk / dash ground tests repeat the else-branch ground test)
+32be0b10	CX2GUChung::CSGComboDashXXXEventProcess	PORTED	Char Chung CH1g: inside; = March (walk and dash cancel, no skill cancel)
+32be8ef0	CX2GUChung::CSGComboDashZXXEndEventProcess	PORTED	Char Chung CH1g: new (_CORE); shared by CSI_CSG_COMBO_DASH_ZXX_END and CSI_CHG_DASH_JUMP_COMBO_ZXX (CH1i registers); five ground-gated cancels, no m_fCanNotAttackTime
+32be9c90	CX2GUChung::CSGComboDashZEventProcess	PORTED	Char Chung CH1g: new (_CORE); Shooting Guardian CSI_COMBO_DASH_Z: X in the m_fEventTime[0] window -> CSI_CSG_COMBO_DASH_ZX
+32bea080	CX2GUChung::CSGComboDashZXEventProcess	PORTED	Char Chung CH1g: new (_CORE); X in the m_fEventTime[0] window -> CSI_CSG_COMBO_DASH_ZXX_READY
+32bea460	CX2GUChung::CSGComboDashZXXReadyEventProcess	PORTED	Char Chung CH1g: new (_CORE); off ground -> JUMP_DOWN, animation end -> CSI_CSG_COMBO_DASH_ZXX
+32bea4c0	CX2GUChung::CSGComboDashZXXEventProcess	PORTED	Char Chung CH1g: new (_CORE); X window [0] -> again, or CSI_SI_A_CSG_HEAD_SHOT from the fifth loop; Z window [1] -> head shot
+32bf5060	CX2GUChung::SetHandleChungMajorMeshByEnum	PORTED	Char Chung CH1g: inside; = March
+32bf9790	CX2GUChung::CSGComboDashXXEnd	PORTED	Char Chung CH1g: inside; = March (handle slot 4)
+32bf97b0	CX2GUChung::CSGComboDashXXXFrameMove	PORTED	Char Chung CH1g: inside; = March (handle slot 5, 0.48 cannon shot)
+32bf9c10	CX2GUChung::CSGComboDashXXXEnd	PORTED	Char Chung CH1g: inside; = March (handle slot 5)
+32c0a8d0	CX2GUChung::CSGComboDashZXXReadyFrameMove	PORTED	Char Chung CH1g: new (_CORE); 0.123 creates the two CDC mini guns ( handle slots 0x11 / 0x12 ), loop count = 0
+32c0abc0	CX2GUChung::CSGComboDashZXXEndStateStart	PORTED	Char Chung CH1g: new (_CORE); CommonStateStart, releases slots 0x11 / 0x12
+32c0ac00	CX2GUChung::CSGComboDashZXEnd	PORTED	Char Chung CH1g: new (_CORE); shared StateEnd of ZX / ZXX_READY / ZXX: CommonStateEnd, releases slots 0x11 / 0x12
+32c15990	CX2GUChung::SetExtraDamageMiniGun ( CEffect* overload )	PORTED	Char Chung CH1g: new (_CORE); head shot extra damage plus one more hit ( CEffect m_DamageTime +0x84c ); divergent row added
+32c15c00	CX2GUChung::CSGComboDashZXFrameMove	PORTED	Char Chung CH1g: new (_CORE); 0.001 mini gun meshes, 0.378 right / 0.567 left shot at 2 x Open Mind MP rate
+32c163f0	CX2GUChung::CSGComboDashZXXFrameMove	PORTED	Char Chung CH1g: new (_CORE); like ZX with the CDC mini gun meshes, shots at 0.036 / 0.164, loop count + 1
+32c18950	CX2GUChung::CSGComboDashXXFrameMove	PORTED	Char Chung CH1g: inside; June differs: FlushMp( 4 x Open Mind MP rate ), power x the rifling damage rate, shell through the CEffect head shot function

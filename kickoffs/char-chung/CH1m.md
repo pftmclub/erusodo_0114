@@ -73,3 +73,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Register the two `new` Iron Paladin dash-jump functions:** `CIPComboDashJumpXXEventProcess` (June `32be9930`, `CSI_CIP_COMBO_DASHJUMP_XX`, script id 325)
   and `CIPComboDashJumpXXLandingEventProcess` (June `32be9960`, `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`, script id 326, enumerator added by CH1f).
   The Landing FrameMove is CH1e's `CFGComboDashZFrameMove` (`32c01be0`). Neither state has a Start or End callback of its own in June's tables.
+
+## Amended by CH1g (2026-10-31)
+
+- **Register the `new` Shooting Guardian dash Z X functions** (hooks as `ch0_state_skill.tsv`; all `_CORE`, declared in `X2GUChung.h` after CH1f's two):
+  `CSI_COMBO_DASH_Z` (Shooting Guardian branch, id 181) EventProcess `CSGComboDashZEventProcess` (`32be9c90`);
+  `CSI_CSG_COMBO_DASH_ZX` (329) FrameMove `CSGComboDashZXFrameMove` (`32c15c00`), EventProcess `CSGComboDashZXEventProcess` (`32bea080`), End `CSGComboDashZXEnd` (`32c0ac00`);
+  `CSI_CSG_COMBO_DASH_ZXX_READY` (330) FrameMove `CSGComboDashZXXReadyFrameMove` (`32c0a8d0`), EventProcess `CSGComboDashZXXReadyEventProcess` (`32bea460`), End `CSGComboDashZXEnd`;
+  `CSI_CSG_COMBO_DASH_ZXX` (331) FrameMove `CSGComboDashZXXFrameMove` (`32c163f0`), EventProcess `CSGComboDashZXXEventProcess` (`32bea4c0`), End `CSGComboDashZXEnd`;
+  `CSI_CSG_COMBO_DASH_ZXX_END` (332) Start `CSGComboDashZXXEndStateStart` (`32c0abc0`), EventProcess `CSGComboDashZXXEndEventProcess` (`32be8ef0`, also `CSI_CHG_DASH_JUMP_COMBO_ZXX`, CH1i).
+  The four `CSI_CSG_COMBO_DASH_ZX*` enumerators were appended to the `_CORE` block of `CHUNG_STATE_ID` without `= value`: reconcile with script ids 329-332.
