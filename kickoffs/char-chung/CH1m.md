@@ -53,3 +53,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - InitStateCommon is two functions: `32c12a30` (110 rows, no gate; `USI_HYPER_MODE` id 23 named by `31fdd490` at line 737) and `32c1d1d0` (116 rows, class-gated on *(+0x867c)+0x38, two switches with fallthroughs 110 -> 20 and 117 -> 27; line ranges in `ch0_build_state_skill.py` GATES). `ch0c_listing_check.py` reproduced 188 / 188 distinct rows.
 - June registers six names with no script table (`CSI_RIDING_DAMAGE_BACK`, `USI_EVENT_SNIPER_*` x3, `USI_EVENT_PROTON_BOMB_*` x2 from the base `3202b110`) and drops three March states (`CSI_SI_A_CDC_LEG_SHOT`, `CSI_SI_A_SIEGE_SHELLING_READY_HYPER`, `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CANCEL`: June wins).
 - Skill 26032 registers `DUAL_BUSTER` a second time with id 336 (0x150) (listing, `ch0_skill_listing_rows.tsv`). `32078bc0` (unknown, called 21x by the registrars) is yours to map.
+
+## Amended by CH1a review (2026-10-31)
+
+- **Register `JumpUpStart`** (June `32bdbcd0`, compiled under `_CORE` since CH1a) as `CSI_JUMP_UP`'s StateStart. CH0 proposed
+  `CSI_JUMP_UP_StateStart`; CH1a named it in the class pattern, and the class map's `proposed_name` now says `JumpUpStart`.

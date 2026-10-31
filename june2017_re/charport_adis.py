@@ -130,10 +130,14 @@ def main(argv):
         if argv[i] == '--phase':
             ph = argv[i + 1]
             i += 2
-            for l in open(os.path.join(HERE, 'char_' + key, 'ch0_class_map.tsv'), encoding='latin1'):
-                c = l.rstrip('\n').split('\t')
-                if len(c) > 5 and c[5].strip() == ph:
+            rows = [l.rstrip('\n').split('\t') for l in open(os.path.join(HERE, 'char_' + key, 'ch0_class_map.tsv'), encoding='latin1')]
+            # Eve's map has the phase in column 6, Chung's in column 7 (inside_new / proposed_name added)
+            col = rows[0].index('phase') if 'phase' in rows[0] else 5
+            for c in rows[1:]:
+                if len(c) > col and c[col].strip() == ph:
                     vas.append(c[0])
+            if not vas:
+                sys.exit('no class-map row of phase %s in char_%s/ch0_class_map.tsv' % (ph, key))
         elif argv[i] == '--out':
             outdir = argv[i + 1]
             i += 2

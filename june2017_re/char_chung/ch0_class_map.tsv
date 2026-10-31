@@ -199,7 +199,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bdbb40	state-fn	CSI_SA_CDC_BURNING_PUNISHER.Init	-	new	CSI_SA_CDC_BURNING_PUNISHER_Init	CH3b	1 states	n
 32bdbbd0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.Init CSI_SA_CTT_HEAVY_FIELD_LOOP.Init	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_Init	CH3c	2 states	n
 32bdbca0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.StartFuture CSI_SA_CTT_HEAVY_FIELD_LOOP.StartFuture	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_StateStartFuture	CH3c	2 states	y
-32bdbcd0	state-fn	CSI_JUMP_UP.Start	-	new	CSI_JUMP_UP_StateStart	CH1a	1 states	y
+32bdbcd0	state-fn	CSI_JUMP_UP.Start	-	new	JumpUpStart	CH1a	1 states	y
 32bdbcf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
 32bdbd10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
 32bdbd30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n

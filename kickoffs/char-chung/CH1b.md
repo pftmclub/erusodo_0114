@@ -57,3 +57,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 33** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_DIE_FRONT`, `CSI_DIE_BACK`, `CSI_DAMAGE_GROGGY`, `CSI_DAMAGE_SMALL_FRONT`, `CSI_DAMAGE_SMALL_BACK`, `CSI_DAMAGE_BIG_FRONT`, `CSI_DAMAGE_BIG_BACK`, `CSI_DAMAGE_DOWN_FRONT`, `CSI_DAMAGE_DOWN_BACK`, `CSI_DAMAGE_STANDUP_FRONT`, `CSI_DAMAGE_STANDUP_BACK`, `CSI_DAMAGE_BOUNDING_DOWN`, `CSI_DAMAGE_BOUNDING_LANDCRASH`, `CSI_DAMAGE_BOUNDING_UP`, `CSI_DAMAGE_AIR_SMALL`, `CSI_DAMAGE_AIR_DOWN`, `CSI_DAMAGE_AIR_DOWN_INVINCIBLE`, `CSI_DAMAGE_AIR_DOWN_LANDING`, `CSI_DAMAGE_AIR_FALL`, `CSI_DAMAGE_AIR_UP`, `CSI_DAMAGE_AIR_FLY_FRONT`, `CSI_DAMAGE_AIR_FLY_BACK`, `CSI_DAMAGE_REVENGE`, `CSI_STANDUP_ROLLING_FRONT_FRONT`, `CSI_STANDUP_ROLLING_FRONT_BACK`, `CSI_STANDUP_ROLLING_BACK_FRONT`, `CSI_STANDUP_ROLLING_BACK_BACK`, `CSI_STANDUP_ATTACK_FRONT`, `CSI_STANDUP_ATTACK_BACK`, `CSI_STANDUP_CANNON_ATTACK_FRONT`, `CSI_STANDUP_CANNON_ATTACK_BACK`, `CSI_WALL_LANDING`, `CSI_AMUSEMENT_ITEM_PHOENIX_RUN_END`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8); §7l L469 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla.
 - June registers `CSI_RIDING_DAMAGE_BACK` with no script table (CH1c's riding row; JUNE_BUGS row there).
+
+## Amended by CH1a review (2026-10-31)
+
+- `python june2017_re/charport_adis.py chung --phase CH1b --out <scratch dir>` now works (it read Eve's phase column before and printed nothing).
+- `june2017_re/char_chung/ch1_offsets.tsv` no longer carries Eve's class fields (0x95bc-0x9c74 were hers); it has Chung's from CH1a. Add a row
+  for each Chung field you identify, so later listings name it.
+- The `_LIVE` probe the review ran: `june2017_re/census.py`'s `cl_cmd( 'X2GUChung.cpp', ... )` with `/P` and `/Fi` dropped and `/Zs /EHsc
+  /DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` added, run in `X2Lib/` with `cl_env()`: exit 0 and no `error` line is a pass.

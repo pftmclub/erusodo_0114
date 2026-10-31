@@ -378,6 +378,36 @@ One-file probes (`cl /Zs`, US_SERVICE defines, no PCH, Boost / DXSDK include dir
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers `JumpUpStart`). Next: `/x2-phase char-chung CH1a review` (Opus 5.5 high), then CH1b.
 
+### CH1a - Review (2026-10-31, Opus 5.5)
+
+**Verdict: pass, no code change.** All 29 functions were read against June's annotated listings (`charport_adis.py chung <va>...`), not
+only the three suggested. Branch order, `StateChange` ids, the x87 compare directions and every constant match.
+- **The six differences hold.** (1) Wait: `[+0x89d8] == 0` is `ET_NONE == GetNowEmotionId()`; vslot 0x9c is `IsFullHyperMode` (Chung `32c24b50` =
+  gage data +0x140, `GetBerserkMode()`). (2) Latch: JumpUp sets both bytes in one `word 0x101` store, JumpDown's oneDown sets only +0x8bf8, and
+  JumpDown's Z / X clear `m_bDownForce` before `StateChange`. (3) Guard: X takes `GUARD_ATTACK_Z` only when not full hyper, count `setg` 0 is false
+  and `31fceab0( 26415 ) <= 0` (`GetSkillLevelValue` is the `replace` row, hence `_LIVE`'s `#error` on `JUNE_DIVERGE_SKILL_LEVEL_VALUE`). (4) Guard X
+  frame move: the same gate, then `UseCannon( 1 )` only at level <= 0. (5) Guard X event process: walk (to `USI_WAIT`) and dash after 0.7 re-test
+  `bFootOnLine`. (6) DashJump: the both-keys branch, the `GetJumpSpeed()` clamp and `0 < nowSpeed.y` match.
+- **Spot checks end to end:** DashEnd `32bf67e0` (`now > ( max - transition ) * 0.3`, the oneRight / oneLeft-with-facing dash order),
+  DashJump `32bef6f0` (event flag 0 re-arm at `nowSpeed.y <= 0`, ending at the `ret` @32befa7f; the code after it is the next function),
+  PowerDownLanding `32bf6d30` (0.06 / 0.13333 / max/6; Z only for Iron Paladin, a nested time test).
+- **`JumpUpStart`** stays the name. CH1m's kickoff now says to register it, and the class map's `proposed_name` reads `JumpUpStart`.
+- **+0x8bf9 stays on `CX2GUChung`.** A census of June's `.text` finds 4 readers or writers, all Chung's (`32bdbcd0` / `32bdcb50` / `32bef2d0` /
+  `32bef6f0`). The other two byte hits are misaligned decodes (inside `cmp ecx, 0x8b`). +0x8bf8 is used by 57 functions, the only word-wide
+  store being Chung's JumpUp, so no other class sets the latch.
+- **Hygiene.** `flagcheck JUNE_CHAR_CHUNG_CORE --range db34715a^..db34715a`: `RESULT: PASS` (1 PASS, 3 OTHER: `_LIVE` / Always.h /
+  `JUNE_ENUM_NAMES`; 0 deleted). `_LIVE` range: FAIL only because its `#define` is still commented out (by design). `git diff --patience` and
+  `--histogram`: 903 / 0 in `X2GUChung.cpp` (the default diff's -22 is alignment). `junediverge.py --check-all`: `RESULT: PASS` (158
+  allow-listed). `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows. `cl /Zs X2GUChung.cpp /DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+- **No build.** No client file changed. The deployed exe is still CH1a's (`X2_offline.exe` md5 `f7acf6cde643e4eba96325b552df9230` = `X2/US_SERVICE/x2.exe`).
+- **Tool and data fixes (no client code).** `charport_adis.py --phase` now finds the `phase` column by its header (Chung's map has it in
+  column 7, so the old index printed nothing for every Chung phase). `char_chung/ch1_offsets.tsv` was a byte copy of Eve's: her 19 class
+  fields (0x95bc-0x9c74, e.g. +0x96b4 labelled `m_sEGQueensThrone`) are replaced by 12 Chung fields and 2 vslots read here (+0xc04 gage data,
+  +0x89d8, +0x8bf9, +0x8d4c, +0x9624 / +0x9628 cannon-ball wait timer, +0x96b4 / +0x96c8 / +0x96d0, +0x971c, +0x9740, +0x9794; vslots 0x9c, 0x1cc).
+- No `JUNE_BUGS` row and no drift.
+
+**Nothing to play-test.** Next: `/x2-phase char-chung CH1b` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

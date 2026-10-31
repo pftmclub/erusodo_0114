@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1a | **done 2026-10-31, awaits Opus review** (`CH1a-review.md`): 29 fns (28 inside, `JumpUpStart` new), `_CORE` on, `_LIVE` `//#define`; nothing to play-test | Sonnet 5.5 / high, Opus review | CH0 | `X2GUChung.*`, Always.h | `CH1a.md` |
-| CH1b | blocked (CH1a review): class core, reactions; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUChung.*`, Always.h | `CH1b.md` |
+| CH1b | **ready** (CH1a review passed 2026-10-31, no code change): class core, reactions; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUChung.*`, Always.h | `CH1b.md` |
 | CH1c | blocked (CH1b review): class core, riding, pepper, dance; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |
 | CH1d0 | blocked (CH1c review): Opus helpers `31fd4290` / `31fd4340` before CH1d | Opus 5.5 / high, Opus review | CH1c review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1d0.md` |
 | CH1d | blocked (CH1d0 review): class core, base combos; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d0 review | `X2GUChung.*`, Always.h | `CH1d.md` |
@@ -221,7 +220,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b.
+Done: CH0, CH0b, CH1a.
 
 ## Other plans (no STATUS rows)
 

@@ -5,6 +5,7 @@ offset	kind	name	note
 0x314	field	m_PhysicParam.fDownAccel	FLY_DOWN StartFuture: = fGAccel * -0.8
 0x31c	field	m_PhysicParam.fGAccel
 0x320	field	m_PhysicParam.fMaxGSpeed
+0xc04	field	GetGageData()	Chung: CX2ChungGageData*; +0x110 now cannon-ball count triple, +0x11c max count triple, +0x140 GetBerserkMode() ( CH1a review )
 0x3e59	field	m_bAbsoluteInvisibility	GetAbsoluteInvisibility()
 0x423c	field	m_fRunJumpSpeedRate	GetWalkSpeed / GetDashSpeed multiply it
 0x4910	field	walk speed triple ( +0x4910 ^ +0x4914 ^ &+0x4918 )	GetWalkSpeed()
@@ -28,33 +29,27 @@ offset	kind	name	note
 0x86da	field	m_InputData.pureLeft	groups of 4 ( pure, one, pureDouble, oneDouble ) in March's key order; 0x8722 pureLCtr, 0x8726 pureSit, 0x8727 oneSit
 0x87d0	field	m_pXSkinAnimFuture	anim +0x214 now time, +0x220 max time, +0x2ac IsAnimationEnd, +0x2b0 transition time
 0x87d4	field	m_pXSkinAnim
+0x89d8	field	m_ePlayedEmotion	GetNowEmotionId(); Wait EventProcess 32bf5de0 tests == ET_NONE ( CH1a review )
 0x8a60	field	m_pComboGuide
 0x8bf8	field	m_bDownForce
-0x95bc	field	m_bReAttackZ1Right
-0x95c0	field	m_fReAttackZ1Time
-0x95c4	field	m_fReDashJumpXTime
-0x95c8	field	m_iJumpFlyCount
-0x95cc	field	m_iDashJumpCount
-0x95d0	field	m_iDashJumpUpCount
-0x95d4	field	m_bAfterJumpDash
-0x95d5	field	m_bEnableBoostDash
-0x95d8	field	m_eBoostDashState	BDS_NONE 0, BDS_RIGHT 1, BDS_LEFT 2
-0x95dc	field	m_fCurrDashJumpTime
-0x96b4	field	m_sEGQueensThrone.m_bEnable	read by JUMP_DOWN EventProcess
-0x99b4	field	m_iPhotonBoosterAdditionalDashJumpCount	a float
-0x9a80	field	m_bHighPoweredElectrics
-0x9c60	field	m_iJuneAddAirDashCount	June-only ( ADD_AIR_DASH_COUNT ); written by 329c47e0 ( CH1k )
-0x9c64	field	m_fJuneCodeRecoveryCoolLeft	June-only; CH4c
-0x9c68	field	( Code Recovery field written by 329c47e0 )	June-only; not read by CH1a
-0x9c6c	field	m_fJuneCodeRecoveryConsumeMp	June-only ( CODE_RECOVERY_CONSUME_MP* )
-0x9c70	field	( Code Recovery field written by 329c47e0 )	June-only; not read by CH1a
-0x9c74	field	( Code Recovery field written by 329c47e0 )	June-only; not read by CH1a
+0x8bf9	field	m_bDownForcePressedInState	Chung-only in June ( 4 readers: 32bdbcd0 / 32bdcb50 / 32bef2d0 / 32bef6f0; CH1a review census )
+0x8d4c	field	m_bHyperModeStartedByInput	set by SKILL_CANCEL_AFTER ( CH1a review )
+0x9624	field	m_CannonBallSystem time needed to charge	GetTimeNeededToChangeCannonBallChargeState() ( CH1a review )
+0x9628	field	m_CannonBallSystem time elapsed at wait	Get/SetTimeElapsedAtWaitState() ( CH1a review )
+0x96b4	field	m_fProbabilityBigDamageAtGuardMastery	Guard X FrameMove 32bf7250 ( CH1a review )
+0x96c8	field	m_bApplyLandDemolisher	Guard Z FrameMove 32c03880 ( CH1a review )
+0x96d0	field	m_fLandDemolisherPowerRate	Guard Z FrameMove 32c03880 ( CH1a review )
+0x971c	field	m_iSiegeShellingCount	protected int triple; Guard EventProcess 32bf2b50 sets 0 ( CH1a review )
+0x9740	field	m_fWithStandingRate	Guard EventProcess 32bf2b50: <= -1 plain guard attack, else vs GetRandomFloat( 1 ) ( CH1a review )
+0x9794	field	m_fChaosCannonTime	Wait EventProcess 32bf5de0 ( CH1a review )
 0x5c	vslot	StateChange( int, bool )
 0x84	vslot	GetBonePos( wstring )
+0x9c	vslot	IsFullHyperMode()	Chung 32c24b50 = GetChungGageData()->GetBerserkMode() ( CH1a review )
 0xd8	vslot	GetNowMp()
 0x150	vslot	GetRotateDegree()
 0x16c	vslot	GetDirVector()
 0x170	vslot	GetIsRight()
+0x1cc	vslot	GetRandomFloat( int )	( CH1a review )
 0x200	vslot	GetRidingOn()
 0x55c	vslot	TryHyperModeStateChange( int )
 0x5f4	vslot	COMMON_RELATIONSHIP_SKILL_FrameMove()
