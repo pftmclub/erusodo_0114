@@ -5,7 +5,7 @@
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase june-hud Z` |
 | Plan doc | `JUNE_HUD_PHASES.md` (branch `main`) |
 | Depends on | H4 review |
-| Flag | `_DEBUG` off |
+| Flag | both debug flags off: `SERV_IRUHADEV_JUNE_HUD_DEBUG` (H2) and `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG` (H4) |
 | Log tag | `[JUNE_HUD]` (`python tools/logs.py --tag JUNE_HUD`) |
 | Review | none |
 

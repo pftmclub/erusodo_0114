@@ -1994,7 +1994,7 @@ void CX2MyGageUI::SetBuffIconGuideDesc()
 		slotItemDesc += L"\n\n";
 #ifdef SERV_PC_BANG_TYPE
 		if( NULL != g_pData->GetPremiumBuffManager() && BTI_BUFF_PREMIUM_PC_ROOM == BuffIconData.eBuffID )
-			slotItemDesc += g_pData->GetPremiumBuffManager()->GetPcBangBuffString();	// stand-in: June 326c8280 (PC-room text) not ported, no PC room offline
+			slotItemDesc = g_pData->GetPremiumBuffManager()->GetPcBangBuffString();	// stand-in: June 326c8280 (PC-room text, replaces name + desc @32e70bb1) not ported, no PC room offline
 		else
 #endif SERV_PC_BANG_TYPE
 		slotItemDesc += GET_STRING( BuffIconData.iBuffDesc );

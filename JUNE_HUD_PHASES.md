@@ -377,6 +377,22 @@ Play-test: a ported class (Eve / Aisha) with a stacking buff via the console (Br
 - JUNE_BUGS rows for kept quirks.
 - H1's deletion re-proven against its parent commit.
 
+**Done note (review of H1-H4, 2026-10-31, Opus 5.5):**
+- **Re-read against June's assembly** (decompile + disasm, constants read from the binary):
+  - H2: `32e67050` (skip list, dummy 0 / 1, size 24, `bNew` cleared), `32e672c0` (base then `32e5d0a0` with the icon), `32e5d0a0` (BTI 558-561, ogg, 5 sequences on UI major `+0x7c`), `32e661d0` (24 / 12,16 / 0.5,-2 / +4 / +140, fade 1.2, font 0, `FS_SHELL`, `DT_RIGHT`, ceil refresh else 0, spa 1500/1501), `32e68660` / `32e68de0` (150, 155 + 44 idx, +20 for type B; PvP create 125 + 30), `32e6f890`, `328651e0` (22727 / 22728 / 22729 / 24523).
+  - H2b: `3208dd90` forwards `( BFI, 0, level, adjust, skip )` to slot 135 = March's `( BFI, level, creator, adjust, skip )` order; thunk `31e4ea50` = `[vtable+0x218]`.
+  - H3: `32e64530`, `32e60480` (string offsets 0x55 / 0x58 / 0x5c / 0x60 = `bSpread` / `fSpreadTimeGap` / `iSpreadCount` / `fNowSpreadTime`), `32489810`, `3236a190`, `3236a430` (`32580100` = BuffIcon dtor), SetFactor @3236d50b.
+  - H4: `3294dd50`, `3294d320` (40, 9 + 46i, 711), `32950060` (64, 11 + 72i, 686, 4 slots; cooltime font 6 = June `XUF_HEADLINE_30_NORMAL`, `Enum.lua:6538`), `3294c460`, `32951900`, `329517f0`.
+- **Fixed (H2 transcription error):** `SetBuffIconGuideDesc`'s PC-room branch replaces the tooltip in June (`31f54a10` assign "" @32e70bb1, then the PC-room text), the port appended it. Now `=`, under `JUNE_HUD_BUFF_ROW` (`X2GageUI.cpp:1997`). No PC room offline, so nothing changes in play.
+- **Fixed (H1 leftover):** `X2GameUnit.cpp:16797` called the deleted `GetRemainDurationTime()` inside `#ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG` (commented out, so it never compiled); it now reads `GetBuffTimeFinalizerDuration( BTI )`. H1's grep gate missed this site.
+- **H1 re-proof** (`flagcheck BUFF_DURATION_TEXT --base 6fca3e00^ --at 6fca3e00`): PASS for X2BuffTemplet.{cpp,h}, X2GageUI.cpp, X2PremiumBuffManager.cpp; PASS~ X2GageUI.h (one blank line); OTHER for Always.h (H4's two define blocks rode in with H1), X2BuffFinalizerTemplet.h (+`GetDurationTime` under `JUNE_CHAR_EVE_PASSIVE`) and X2GameUnit.cpp (the one-line `GetRemainTime` -> `GetDurationTime` swap inside June's own `JUNE_CHAR_EVE_PASSIVE` body; `m_fDurationTime` is decremented every frame, so it is the remaining time). The RESULT line says FAIL only because the define is gone, as intended. Source grep: 0 left.
+- **Hygiene:** `junediverge.py --check-all`: `RESULT: PASS` (158 allow-listed). Per commit: H4 `JUNE_HUD_QUICKSLOT --with JUNE_HUD_QUICKSLOT_DEBUG`: `1 PASS, 1 PASS~`, RESULT: PASS; H2 `JUNE_HUD_BUFF_ROW --with JUNE_HUD_DEBUG`: `1 PASS, 1 PASS~, 1 DEFINE, 2 OTHER (JUNE_ENUM_NAMES rows)`, RESULT: PASS; H2b: `3 PASS, 1 DEFINE`, RESULT: PASS; H3: `8 PASS, 1 DEFINE`, RESULT: PASS; all 0 deleted lines. No later commit touches the flags. enumscan: the only phase rows are the four `BTI_BUFF_HERO_*` enum definitions.
+  This review's edit: `flagcheck JUNE_HUD_BUFF_ROW --worktree --files X2GageUI.cpp X2GameUnit.cpp`: `1 PASS, 1 OTHER (JUNE_BUFF_DEBUG)`, RESULT: PASS; `junediverge --check`: `RESULT: PASS`. Encoding / EOL unchanged (`bytepatch.py`).
+- **JUNE_BUGS:** no new row. The only kept June quirk is #487 (H4). The always-false `m_bFlickerLoop` test after `InitAction` in `SetBuffIconStatic` is March's own code too (`#else` body), so it does not belong in the file.
+- **Naming note:** H4's debug flag is `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG`, H2's is `SERV_IRUHADEV_JUNE_HUD_DEBUG`; Z turns both off.
+- Build: `DEPLOY OK: X2_offline.exe is 25,865,728 B, dated 2026-10-31 09:11:21, md5 3521164655617fa476b860d1fe5b4bb2` (no new strings to exestr).
+- No play-test: the only behaviour change is unreachable offline.
+
 ## Phase Z - Close-out (Sonnet 5.5, medium)
 
 **Run with:** `/x2-phase june-hud Z`. MODS.md "June HUD: Stage 37" section, backlog Stage 37 CLOSED line, memory, `_DEBUG` off, STATUS block to the archive.

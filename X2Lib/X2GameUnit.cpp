@@ -16794,7 +16794,7 @@ void CX2GameUnit::OnFrameMoveBuff()
 				IncreaseBuffSyncCount();
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 				CX2BuffCapture::Line( "stick shake took time off BTI %d: %g s left, buff-change counter %I64u",
-					static_cast<int>( (*vItr)->GetBuffTempletID() ), (*vItr)->GetRemainDurationTime(), GetBuffSyncCount() );
+					static_cast<int>( (*vItr)->GetBuffTempletID() ), GetBuffTimeFinalizerDuration( (*vItr)->GetBuffTempletID() ), GetBuffSyncCount() );
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
