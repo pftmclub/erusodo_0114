@@ -174,7 +174,7 @@ Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Do
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| H2 | built, owes play-test (3 checks) + `/x2-kom-packed copy data078` (PACK OK) | Opus 5.5 / high | H1 | `X2GageUI.{h,cpp}`, `X2BuffFactor.h`, `Enum.h`, data078, `Always.h` | `H2.md` |
+| H2 | built, owes play-test (3 checks); COPY OK data078 | Opus 5.5 / high | H1 | `X2GageUI.{h,cpp}`, `X2BuffFactor.h`, `Enum.h`, data078, `Always.h` | `H2.md` |
 | H3 | waiting | Sonnet 5.5 / high | H2 | `X2GageUI.{h,cpp}`, `X2GageManager.{h,cpp}`, `X2BuffTemplet.cpp`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h` | `H3.md` |
 | H4 review | waiting (covers H1-H4) | Opus 5.5 / high | H1-H4 | - | `H4-review.md` |
 | Z | waiting | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory | `Z.md` |

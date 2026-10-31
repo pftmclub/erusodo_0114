@@ -247,7 +247,7 @@ no time, which is June's behaviour (H0); their counter comes with H3.
   (base, then the Hero tail `32e5d0a0`: ogg + 5 `GetUIMajorParticle()` sequences, all 8 present in `UIMajorParticle.txt`).
 - **CRT settled:** IAT `333bc928` is **ceil** (8 of 8 neighbouring slots match msvcr100 exports at base 61c00000; funcmap `(HUD H2)`).
 - Enums under `JUNE_ENUM_NAMES`: `BTI_BUFF_HERO_STOP` 558 / `_UNLIMITED_HP` 559 / `_UNLIMITED_MP` 560 / `_COOLTIME_FREE` 561, `VMI_SPA_RUBEN` 1500.
-- Assets: `kom.py stage-june` the four `Hero_Dungeon_Buff_*.ogg` (4 new, data078); **`PACK OK data078`**. The copy is not done: ask the user.
+- Assets: `kom.py stage-june` the four `Hero_Dungeon_Buff_*.ogg` (4 new, data078); **`PACK OK data078`**; `COPY OK data078` (91 entries, md5 b0849262).
 - Tooltip: June's "[%S]1_2_3" id form is its `GET_STRING` macro (`31e71c10`, ~3000 callers), so March's `GET_STRING` stays. `_IN_HOUSE_` Key and
   `ERASE_BUFF_CHEAT` lines are kept inside June's bodies: a service binary cannot show in-house code. Stand-ins (one-line comments): PC-room text
   `326c8280` (March's `GetPcBangBuffString`) and time line `326c86b0`, and the `BTI_NONE_INT` end-time line `32e5d050` (no PC room / premium end time
