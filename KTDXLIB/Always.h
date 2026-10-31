@@ -11009,7 +11009,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-31
 // Description: june-hud H4 diagnostics: [JUNE_HUD] SLOT lines from the quick slot ctor, icon fills, SetEnable and SetShow. Retired by the plan review.
-#define SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
+//#define SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG		// off since the june-hud review ( 2026-10-31 )
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11035,7 +11035,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-31
 // Description: june-hud H2 diagnostics: one [JUNE_HUD] BUFF anchor line per buff-row dialog create (my, party, PvP gage). Retired by the plan review.
-#define SERV_IRUHADEV_JUNE_HUD_DEBUG
+//#define SERV_IRUHADEV_JUNE_HUD_DEBUG		// off since the june-hud review ( 2026-10-31 )
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

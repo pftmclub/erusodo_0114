@@ -1047,6 +1047,14 @@ Done: D0a, D0b, C0.
 | S (plan-end smoke play-test: one hand-off from every Done note's smoke line, user plays, logs, fixes) | done 2026-10-30: all 4 parts pass after fix 1 (field-exit crash, `OPEN_SOUND`) and fix 2 (staff hits, collision stand-in; port -> june-engine R14c) | Opus 5.5 / high | D2 | none (fixes under the broken phase's flag) | `Smoke.md` |
 | D2 review / close | **done 2026-10-30 - plan CLOSED** (D2 + S pass; gate done test reads `source` only; `PlaySound` close-list divergence -> june-engine R15; standing rules in CLAUDE.md / backlog / template) | Opus 5.5 / high | S | tools, docs | `D2-review.md` |
 
+## june-hud - June HUD: buff icon row (top right, counter) and quick slot (bottom left)
+Plan `JUNE_HUD_PHASES.md` · branch `main` · log tag `[JUNE_HUD]` (sub-tags `BUFF`, `SLOT`) · flags `SERV_IRUHADEV_JUNE_HUD_*` (`_BUFF_ROW`, `_BUFF_COUNT`, `_QUICKSLOT`, + `_DEBUG`) and `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND` (H2b) · kickoffs `kickoffs/june-hud/` · evidence `june2017_re/hud_functions.tsv` · backlog Stage 37, split out of Stage 9 (user, 2026-10-31) · planned on Opus 2026-10-31. H1 deletes the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (user: delete the code).
+Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan). H1 (2026-10-31, BUFF_DURATION_TEXT deleted, DEPLOY OK md5 c4686fcb, no play-test). H4 (2026-10-31, quick slot, DEPLOY OK md5 bbd5b5cb, COPY OK data034, play-tested: layout, keys 1-6, cooldown, 0 EXCEPTION). H2 (2026-10-31, buff row, DEPLOY OK md5 26e27ce4, COPY OK data078, play-tested: anchor 993,26, Hero buffs, refresh, 0 EXCEPTION). H2b (2026-10-31, Lua buff binding = June slot 134, DEPLOY OK md5 0649259c, play-tested: 2-argument line applies, 0 Lua errors, 0 EXCEPTION). H3 (2026-10-31, buff counter, DEPLOY OK md5 9523dc90, play-tested on EveEmpress with BFI 877: x2 / x3 shown, 0 Lua errors, 0 EXCEPTION). H4 review (2026-10-31, H1-H4 re-read against June; PC-room tooltip `=` fix + H1 debug-line leftover; no play-test).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| Z | done 2026-10-31 (plan CLOSED) | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory, `Always.h` (2 debug flags off) | `Z.md` |
+
 ## Other plans
 
 No `kickoffs/` files yet: `/x2-phase <plan> <phase>` writes the kickoff from the plan doc's

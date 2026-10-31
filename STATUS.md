@@ -168,14 +168,6 @@ Done: R0, R1, R2, R3, R3b, R3c, R3d, R4.
 |---|---|---|---|---|---|
 | Z | blocked (waits for the R4 review) | Sonnet 5.5 / medium | R3 review (+ R4 review if run) | `MODS.md`, backlog, memory | `Z.md` |
 
-## june-hud - June HUD: buff icon row (top right, counter) and quick slot (bottom left)
-Plan `JUNE_HUD_PHASES.md` · branch `main` · log tag `[JUNE_HUD]` (sub-tags `BUFF`, `SLOT`) · flags `SERV_IRUHADEV_JUNE_HUD_*` (`_BUFF_ROW`, `_BUFF_COUNT`, `_QUICKSLOT`, + `_DEBUG`) and `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND` (H2b) · kickoffs `kickoffs/june-hud/` · evidence `june2017_re/hud_functions.tsv` · backlog Stage 37, split out of Stage 9 (user, 2026-10-31) · planned on Opus 2026-10-31. H1 deletes the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (user: delete the code).
-Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan). H1 (2026-10-31, BUFF_DURATION_TEXT deleted, DEPLOY OK md5 c4686fcb, no play-test). H4 (2026-10-31, quick slot, DEPLOY OK md5 bbd5b5cb, COPY OK data034, play-tested: layout, keys 1-6, cooldown, 0 EXCEPTION). H2 (2026-10-31, buff row, DEPLOY OK md5 26e27ce4, COPY OK data078, play-tested: anchor 993,26, Hero buffs, refresh, 0 EXCEPTION). H2b (2026-10-31, Lua buff binding = June slot 134, DEPLOY OK md5 0649259c, play-tested: 2-argument line applies, 0 Lua errors, 0 EXCEPTION). H3 (2026-10-31, buff counter, DEPLOY OK md5 9523dc90, play-tested on EveEmpress with BFI 877: x2 / x3 shown, 0 Lua errors, 0 EXCEPTION). H4 review (2026-10-31, H1-H4 re-read against June; PC-room tooltip `=` fix + H1 debug-line leftover; no play-test).
-
-| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
-|---|---|---|---|---|---|
-| Z | ready | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory, `Always.h` (2 debug flags off) | `Z.md` |
-
 ## Other plans (no STATUS rows)
 
 | Plan | Doc | Note |
@@ -193,6 +185,7 @@ Full rows in `STATUS_ARCHIVE.md`.
 | june-buff | `JUNE_BUFF_PORT_PHASES.md` | - |
 | june-effect | `JUNE2017_EFFECT_COMPLETION_PHASES.md` | C3z-4s-pvp parked (no PvP offline); C1b / C8c / C10b-3 handed to the checklist / Stage 9 |
 | offline-grade | `OFFLINE_MONSTER_GRADE_PHASES.md` | - |
+| june-hud | `JUNE_HUD_PHASES.md` | Amusement / `SetShowUI` / PC-room stubs -> Stage 9; PvP item bar parked (no PvP offline) |
 | june-item-kim | `JUNE_ITEM_KIM_PHASES.md` | - |
 | june-asset-extract | `JUNE_ASSET_EXTRACT_PHASES.md` | - |
 | atlas | `ATLAS_PORT_PHASES.md` | A6b queued (battlefield types), E12b parked (needs PvP) |

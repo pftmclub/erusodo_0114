@@ -5541,3 +5541,20 @@ Flags `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT` and `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_D
 Flag `SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT` (`Always.h`; needs `_BUFF_ROW`, `JUNE_BUFF_TEMPLET_PARITY`, `JUNE_BUFF_BEHAVIOR_PARITY`, `BUFF_ICON_UI`): `PushBuff` takes a stack count (`CX2GageManager` and `CX2StatusGageUI`, June `32489810` / `32e64530`); new gage virtual `SetBuffIconCount` (`32e60480`) writes string 1 of the `Buff_%d` icon (empty below 2 stacks, else string 30715 "x2", yellow, typed in); every push site passes the count (`PushNewBuffTempletToGameUnit`, `SetKBuffFactorPacketToGameUnit`, `SetFactor` via `RestartDisplayerForAccumulationDecrease`, `SetAccumulationCountNow`, `Handler_EGS_UPDATE_BUFF_INFO_NOT`); new empty user virtual `CX2GUUser::ChangeBuffIconText` (June vslot 0x788, Ain overrides it later).
 
 **Revert.** Comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+### June HUD: Stage 37 (plan `june-hud`, closed 2026-10-31)
+
+Buff icon row (top right, with a stack counter) and consumable quick slot (bottom left), June's bodies in March's functions, March's in `#else`. Log tag `[JUNE_HUD]`. Plan `JUNE_HUD_PHASES.md`, evidence `june2017_re/hud_functions.tsv`. Per-phase detail is in the H3 and H4 sections above.
+
+| Flag (`Always.h`) | Phase | What it does | Files |
+|---|---|---|---|
+| (deleted) `SERV_IRUHADEV_BUFF_DURATION_TEXT` | H1 | the user's 2026-08-25 duration-text mod, code removed (flag-off code kept); Eve's `GetBuffTimeFinalizerDuration` reads a new `GetDurationTime` | `X2BuffTemplet`, `X2GageUI`, `X2PremiumBuffManager`, `X2GameUnit`, `X2BuffFinalizerTemplet.h` |
+| `SERV_IRUHADEV_JUNE_HUD_BUFF_ROW` | H2 | `UpdateBuffIcon` anchored at `DLG_BuffManager` dummy 0 / 1 (x 993), virtual `SetBuffIconStatic` with duration and counter strings, Hero-dungeon tail, party / PvP rows, `SetBuffIconGuideDesc`, `UpdateTradeBlockDesc`; `BTI_BUFF_HERO_*` 558-561 and `VMI_SPA_RUBEN` registered | `X2GageUI.{h,cpp}`, `X2BuffFactor.h`, `Enum.h` |
+| `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND` | H2b | Lua `SetBuffFactorToGameUnitByBuffFactorID_LUA` binds June's slot 134 (BFI, level, adjust, skip) so the 1- and 2-argument calls in 162 scripts work again | `X2GameUnit.{h,cpp}`, `X2Main.cpp` |
+| `SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT` | H3 | stack counter on the icon | see the H3 section |
+| `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT` | H4 | June's quick slot | see the H4 section |
+| `SERV_IRUHADEV_JUNE_HUD_DEBUG`, `_QUICKSLOT_DEBUG` | H2 / H4 | `[JUNE_HUD] BUFF` / `SLOT` diagnostics; **commented out** by Z (2026-10-31) | `X2GageUI.cpp`, `X2UIQuickSlot.cpp` |
+
+Data: four `Hero_Dungeon_Buff_*.ogg` staged byte-exact from June into data078 (H2, `COPY OK`); `DLG_UI_Quick_Slot.lua` and `DLG_UI_QuickSlot_HighLight.lua` in data034 (H4, backups under `kom_backup_stage_june61031_054307`). `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` is untouched.
+
+**Revert.** Comment out the flag(s) above (the debug pair is already off), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. H1's deletion is not revertible by flag: restore the code from `6fca3e00^`. For March's quick-slot Lua, restore the two files from the H4 backup folder and `/elstools pack data034`.

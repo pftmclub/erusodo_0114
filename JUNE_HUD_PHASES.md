@@ -396,3 +396,9 @@ Play-test: a ported class (Eve / Aisha) with a stacking buff via the console (Br
 ## Phase Z - Close-out (Sonnet 5.5, medium)
 
 **Run with:** `/x2-phase june-hud Z`. MODS.md "June HUD: Stage 37" section, backlog Stage 37 CLOSED line, memory, `_DEBUG` off, STATUS block to the archive.
+
+**Done note (Z, 2026-10-31, Sonnet 5.5):**
+- `SERV_IRUHADEV_JUNE_HUD_DEBUG` and `SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG` commented out in `Always.h` (`bytepatch.py`, CRLF kept; PCH touched).
+- `MODS.md` "June HUD: Stage 37" section (flags, files, data, revert, H1 deletion line); backlog Stage 37 CLOSED line with every stub routed (Amusement, `SetShowUI`, PC-room text -> Stage 9; PvP item bar parked); STATUS block moved to `STATUS_ARCHIVE.md`, one Closed-plans row.
+- Not seen in play: the party gauge's no-timer check (H2). Folded into the next party play-test.
+- Build: `DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 09:26:29, md5 fbb6c88dee42b95d3b2c6613aaf5d9fb`. No play-test (debug flags off only).

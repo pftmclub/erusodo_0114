@@ -1422,6 +1422,13 @@ to go. Plan `JUNE_HUD_PHASES.md` (`june-hud`, H0-H4, review, Z; evidence `june20
   - the rest of `SetShowUI`;
   - the PvP item bar `329515f0` (no PvP offline).
 - **Depends on:** nothing. Start: `/x2-phase june-hud H0` (Opus 5.5 high).
+- **CLOSED 2026-10-31** (`june-hud` H0-H4, H2b, review, Z). Both debug flags off. Every stub is routed:
+  - Amusement item-bar labels and icon fill (`329506d0`), and the option byte `+0x2a8` default (`ms_bAmusementDescriptionChecked`, false): **Stage 9** (the mode is never set offline);
+  - the rest of `SetShowUI`, `SetShowBuffIcon` (`3248ac30`) and the gage-manager cooltime UI (`324943c0`, `32489e30`): **Stage 9**;
+  - PC-room buff text (`326c8280`, `326c86b0`) and the `BTI_NONE_INT` end-time line (`32e5d050`): **Stage 9** (no PC room or premium end time offline);
+  - the PvP item bar `329515f0`: parked (no PvP offline);
+  - the party-gauge no-timer check was not seen in play (no party on screen): fold into the next party play-test.
+  Lua `SetBuffFactorToGameUnitByBuffFactorID_LUA` was re-bound to June's slot 134 (H2b).
 
 ## Open decisions that gate stages
 
