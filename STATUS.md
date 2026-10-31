@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1d2 | **built 2026-10-31, awaits `/x2-phase char-chung CH1d2 review` (Opus 5.5 high)**: 21 inside (dash / jump combos); Open Mind and 3 new CSI enumerators, JUNE_BUGS 492; nothing to play-test | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUChung.*`, Always.h | `CH1d2.md` |
-| CH1e | blocked (CH1d2 review): class core, Fury Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUChung.*`, Always.h | `CH1e.md` |
+| CH1e | **ready**: class core, Fury Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUChung.*`, Always.h | `CH1e.md` |
 | CH1f | blocked (CH1e review): class core, Iron Paladin line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUChung.*`, Always.h | `CH1f.md` |
 | CH1g | blocked (CH1f review): class core, Shooting Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUChung.*`, Always.h | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): class core, CSG X-front / dash-jump / Head Shot; split from CH1g by CH0 | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUChung.*`, Always.h | `CH1g2.md` |
@@ -216,7 +215,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d.
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2.
 
 ## Other plans (no STATUS rows)
 

@@ -63,3 +63,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d (2026-10-31)
 
 - `CSI_CFG_COMBO_XXFRONTZ` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 323). CH1d's `ComboXXEventProcess` (`32bde240`) sets its flag (`bEventFlagList[2]`, job line 1 = classes 20 / 110, `m_fEventTime[0]`) and switches into it, so the state's own `32be9210` / `32c01be0` are the only pieces left here. Add `CSI_CFG_COMBO_XXFRONTZZ` (script id 324) and any other June-only state of this line the same way (an enumerator at the end of the enum under `_CORE`, a one-line comment with June's script id).
+
+## Checked by the CH1d2 review (2026-10-31)
+
+- `CSI_CFG_COMBO_DASH_JUMP_ZX` (June 0xc3) is entered from CH1d2's `ComboDashJumpZEventProcess` (`32bdece0`): flag `bEventFlagList[1]` and `m_fEventTime[1]` (`+0x8c1c` / `+0x8c20` / `+0x8c24`), X plus `IsInJobLine( 1 )` (vslot 0x670). The ZX state's own functions in this phase read the same `m_fEventTime` layout. `IsInJobLine` is still only declared; CH1l writes its body.
+- No other change: CH1d2's 21 bodies match June, and this kickoff stands as written.
