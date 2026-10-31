@@ -667,6 +667,34 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH; from Git Bash the define 
 
 **Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --range c747a3bb^..c747a3bb` (patience diff): `X2GUChung.cpp +554 PASS`, `X2GUChung.h OTHER (_CORE)`, `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched inserted, 0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only because the `#define` is commented out. `flagcheck JUNE_CHAR_CHUNG_CORE`, same range: `X2GUChung.h +3 PASS`, `RESULT: PASS`. `junediverge.py --check-all`: `RESULT: PASS` (allow-listed 158). `enumscan.py --check X2GUChung.cpp X2GUChung.h`: 0 A/B rows. One-file probes (`census.cl_cmd`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` exit 0 / 0 errors. No build: no source changed (the deployed exe is CH1d2's `f7afb96b`). Nothing to play-test. Next: `/x2-phase char-chung CH1e` (Sonnet 5.5 high).
 
+### CH1e - Done (2026-10-31)
+
+All 12 class-map rows of phase CH1e are written: 10 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`), 2 `new` (`CFGComboXXFrontZEventProcess` `32be9210`, `CFGComboXXFrontZZEventProcess` `32be9600`, under `_CORE`, declared in `X2GUChung.h`, referenced by nothing). `_LIVE` stays `//#define`; no new `Always.h` define. 12 funcmap rows `Char Chung CH1e`. No JUNE_BUGS row (nothing June shows is a bug; the dead `|| IsAnimationEnd` in `32be9210` after the animation-end branch is kept as written).
+
+| June | `CX2GUChung::` | kind | vs March |
+|---|---|---|---|
+| `32bd8ed0` | CFGComboDashJumpZXXStart | inside | = March (CommonStateStart) |
+| `32bdf650` | CFGComboZZXEventProcess | inside | walk / dash cancel (1.16) need ground; macros already expand to June's hyper branch |
+| `32bdf820` | CFGComboDashZEventProcess | inside | walk / dash cancel (0.5) need ground |
+| `32bdfaf0` | CFGComboDashZZEventProcess | inside | = March |
+| `32bdfba0` | CFGComboDashZZZEventProcess | inside | walk / dash cancel (0.633) need ground |
+| `32bdfe00` | CFGComboDashJumpZXEventProcess | inside | rewritten: Z and X are `m_fEventTime[0]` / `[1]` windows with flags [0] / [1] (`+0x8c10`-`+0x8c24`), no anim-end branch, no 0.45 X |
+| `32be0030` | CFGComboDashJumpZXXEventProcess | inside | ground contact alone -> `CSI_CFG_COMBO_DASH_JUMP_ZXXLanding` (March also needed the anim end) |
+| `32be0060` | CFGComboDashJumpZXXLandingEventProcess | inside | walk / dash cancel (0.3) need ground |
+| `32be9210` | CFGComboXXFrontZEventProcess | new | flag [0] + `m_fEventTime[0]` Z window -> `CSI_CFG_COMBO_XXFRONTZZ`; cancels from `m_fSkillCancelAfter` / `m_fBWalkCancelAfter` / `m_fWalkCancelAfter` / `m_fDashCancelAfter` / `m_fAttackCancelAfter` (`+0x8c90`-`+0x8c8c`), all ground-gated |
+| `32be9600` | CFGComboXXFrontZZEventProcess | new | anim end, then the same five cancels |
+| `32c01be0` | CFGComboDashZFrameMove | inside | = March; June also uses it for `CSI_CFG_COMBO_XXFRONTZ` and `CSI_CIP_COMBO_DASHJUMP_XX_LANDING` (CH1f/CH1m register it) |
+| `32c1be30` | CFGComboZZXFrameMove | inside | = March (0.53/0.61/0.71/0.8/0.94 effects, `DAMAGE_DATA_SECOND` 0.633, `DAMAGE_DATA_FINAL` 0.84; narrow strings read from the exe) |
+
+New enumerator `CSI_CFG_COMBO_XXFRONTZZ` (June script id 324) appended at the end of the `_CORE` block (earlier enumerator values unchanged). The new functions are named after the class's pattern (`CFGCombo*EventProcess`), not CH0's `CSI_*_EventProcess` proposal (CH1a did the same for `JumpUpStart`). The 2 `XXX_CSI_CFG_COMBO_DASH_JUMP_ZXX*` tables and `_CSI_CFG_COMBO_XXFRONTZ` are dead data (CH0 found no June registration): nothing written.
+Reading notes: `+0x8e90 ? +0x8e84 : +0x87d0` = `m_pXSkinAnimFuture`; `32070cf0` / `32070d60` are inside the `SKILL_CANCEL_AFTER` macro (JUNE_BUFF_AWAKE_LOCK); `0x4b0` / `0x4b4` = `GetComboZStateID` / `GetComboXStateID`. Float literals are float widened to double in June's compares. Checklist §7 L253 (`+0x7cc8`): none of the 12 touches it. 7ai: none. No drift.
+
+**Gates.** `GIT_CONFIG ... diff.algorithm=patience flagcheck JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.h`: `1 PASS`, `RESULT: PASS`; the same flag on the `.cpp` and `JUNE_CHAR_CHUNG_LIVE` report the file as `OTHER` (the file carries both flags; `+497`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`); LIVE's RESULT FAIL is only the commented-out `#define`. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` exit 0 / 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,866,240 B, dated 2026-10-31 20:32:49, md5 f67db16912cab018d01614b914151db0, equal to X2/US_SERVICE/x2.exe (2026-10-31 20:32:42)`; built at main `341b4bf7` + the 2 code files of this phase (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1e review` (Opus 5.5 high), then CH1f.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -61,3 +61,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d2 (2026-10-31)
 
 - `CSI_CIP_COMBO_DASHJUMP_XX` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 325, appended without `= value`). CH1d2's `AttackDashJumpXEventProcess` (`32befa80`) sets its flag (`bEventFlagList[0]`, class 110 + X, `m_fEventTime[0]`) and switches into it; the state's own `32be9930` / `32c01be0`-side functions are yours. `AttackDashXEventProcess` (`32bdea80`) already switches Iron Paladin into `CSI_CIP_COMBO_DASH_XX` on Z at 0.53333.
+
+## Amended by CH1e (2026-10-31)
+
+- `32c01be0` (`CFGComboDashZFrameMove`, shared by `CSI_CFG_COMBO_XXFRONTZ`, `CSI_CFG_COMBO_DASH_Z` and `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`) was written in CH1e (June body = March's). The class map's CH1f rows do not repeat it; CH1m registers `CSI_CIP_COMBO_DASHJUMP_XX_LANDING` with that function.

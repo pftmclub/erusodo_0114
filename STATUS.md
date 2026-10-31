@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1e | **ready**: class core, Fury Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUChung.*`, Always.h | `CH1e.md` |
+| CH1e | **done, review next**: 12 rows (10 inside, 2 new) written; `_LIVE` still off; owes nothing | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUChung.*`, Always.h | `CH1e.md` |
 | CH1f | blocked (CH1e review): class core, Iron Paladin line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUChung.*`, Always.h | `CH1f.md` |
 | CH1g | blocked (CH1f review): class core, Shooting Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUChung.*`, Always.h | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): class core, CSG X-front / dash-jump / Head Shot; split from CH1g by CH0 | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUChung.*`, Always.h | `CH1g2.md` |

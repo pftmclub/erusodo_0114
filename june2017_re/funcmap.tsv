@@ -6467,3 +6467,15 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32bf8840	CX2GUChung::AttackDashJumpXFrameMove	PORTED	Char Chung CH1d2: inside; as March, plus: skill 26415 learned plays the effect set and spends no cannon ball
 32c02c30	CX2GUChung::ComboDashJumpZZLandingFrameMove	PORTED	Char Chung CH1d2: inside; = March: Land Demolisher vertical effect 120 ahead at 0.01 when m_bApplyLandDemolisher
 32c03cf0	CX2GUChung::ComboDashJumpZZLandingCannonBallShotFrameMove	PORTED	Char Chung CH1d2: inside; = March: Land Demolisher vertical effect 100 ahead at 0.01, cannon ball shot effect set + UseCannon( 1 ) at 0.15 when CanUseCannon
+32bd8ed0	CX2GUChung::CFGComboDashJumpZXXStart	PORTED	Char Chung CH1e: inside; = March: CommonStateStart
+32bdf650	CX2GUChung::CFGComboZZXEventProcess	PORTED	Char Chung CH1e: inside; hyper / skill cancel 1.16, walk and dash cancels need ground, then the anim end to JUMP_DOWN / WAIT
+32bdf820	CX2GUChung::CFGComboDashZEventProcess	PORTED	Char Chung CH1e: inside; cancels at 0.5 (walk and dash need ground), Z before 0.38 sets flag [0], 0.38 and flag -> CSI_CFG_COMBO_DASH_ZZ
+32bdfaf0	CX2GUChung::CFGComboDashZZEventProcess	PORTED	Char Chung CH1e: inside; = March: Z in 0.6-0.87 sets flag [0], then CSI_CFG_COMBO_DASH_ZZZ
+32bdfba0	CX2GUChung::CFGComboDashZZZEventProcess	PORTED	Char Chung CH1e: inside; cancels at 0.633 (walk and dash need ground), arrow keys to USI_WALK
+32bdfe00	CX2GUChung::CFGComboDashJumpZXEventProcess	PORTED	Char Chung CH1e: inside; Z / X read m_fEventTime[0] / [1] windows (flags [0] / [1]) to CSI_ATTACK_JUMP_Z / CSI_CFG_COMBO_DASH_JUMP_ZXX, landing, down key
+32be0030	CX2GUChung::CFGComboDashJumpZXXEventProcess	PORTED	Char Chung CH1e: inside; ground contact alone goes to CSI_CFG_COMBO_DASH_JUMP_ZXXLanding
+32be0060	CX2GUChung::CFGComboDashJumpZXXLandingEventProcess	PORTED	Char Chung CH1e: inside; anim end to WAIT, cancels at 0.3 (walk and dash need ground)
+32be9210	CX2GUChung::CFGComboXXFrontZEventProcess	PORTED	Char Chung CH1e: new (_CORE); flag [0] / m_fEventTime[0] Z window to CSI_CFG_COMBO_XXFRONTZZ, five cancel times (m_fSkillCancelAfter .. m_fAttackCancelAfter, ground)
+32be9600	CX2GUChung::CFGComboXXFrontZZEventProcess	PORTED	Char Chung CH1e: new (_CORE); anim end, then the same five cancel times as XXFRONTZ
+32c01be0	CX2GUChung::CFGComboDashZFrameMove	PORTED	Char Chung CH1e: inside; = March: Land Demolisher horizontal effect at 0.27, vertical at 0.49 (also CSI_CFG_COMBO_XXFRONTZ, CSI_CIP_COMBO_DASHJUMP_XX_LANDING)
+32c1be30	CX2GUChung::CFGComboZZXFrameMove	PORTED	Char Chung CH1e: inside; = March: Land Demolisher effects at 0.53 / 0.61 / 0.71 / 0.8 / 0.94, DAMAGE_DATA_SECOND at 0.633, DAMAGE_DATA_FINAL at 0.84

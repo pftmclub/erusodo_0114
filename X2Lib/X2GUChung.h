@@ -285,6 +285,7 @@ public:
 		CSI_CIP_COMBO_DASHJUMP_XX,			/// June script id 325 ( Iron Paladin dash jump X X; CH1f owns the state )
 		CSI_CTT_DASH_JUMP_COMBO_XX,			/// June script id 328 ( Tactical Trooper dash jump X X; CH1j owns the state )
 		CSI_CSG_COMBO_DASH_JUMP_ZX_READY,	/// June script id 333 ( Shooting Guardian dash jump Z X ready; CH1g2 owns the state )
+		CSI_CFG_COMBO_XXFRONTZZ,			/// June script id 324 ( Fury Guardian / Iron Paladin X X front Z Z; CH1e owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -1039,6 +1040,11 @@ protected:
 		
 	// CSI_CFG_COMBO_DASH_JUMP_ZXXLanding
 	void CFGComboDashJumpZXXLandingEventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	// CSI_CFG_COMBO_XXFRONTZ / CSI_CFG_COMBO_XXFRONTZZ
+	void CFGComboXXFrontZEventProcess();
+	void CFGComboXXFrontZZEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	///////////////////////////////////////////////////////
 	//{{ 장훈 : 2011-01-12 : 청 1차 전직 슈팅가디언
