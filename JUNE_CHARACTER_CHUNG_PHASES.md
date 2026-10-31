@@ -558,6 +558,27 @@ X2Lib/X2GUChung.cpp`: `1 PASS`, with 1 deleted line (the replaced comment, insid
 `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `RESULT: PASS` (allow-listed 4); `--list` reads the two new rows. Nothing to play-test.
 Next: `/x2-phase char-chung CH1d0 review` (Opus 5.5 high).
 
+## CH1d0 - Review (2026-10-31)
+
+**Verdict: pass, nothing changed.** The CH1d0 note's mapping, offsets and `out` verdict hold.
+- **Bodies (Ghidra).** `31fd4290`: `FLDZ` / `FST` to `+0x24c` on `+0x87d4` and on `+0x8e88` (each NULL-tested), then, if the riding pet `+0x683c` is set,
+  the smart-pointer getter `32071a10` (returns `+0x238`, refcount `+8` up / down through `31d28b60`) and the same store on it. `31fd4340` is the same on
+  `+0x87d0`, `+0x8e84` and getter `32071a30` (`+0x23c`). March `X2GUUser.cpp:48872-48886` does `ResetOneshotPerformed()` (`m_fAnimOneshotTimer = 0.f`,
+  `KTDGXSkinAnim.h:298`) on `m_pXSkinAnim` / `m_pXSkinAnimFuture` and `m_ptrRidingPet->GetXSkinAnimPtr()` / `GetXSkinAnimFuturePtr()`
+  (`X2RidingPet.h:424` / `:426`, members `:537` / `:538` in that order = `+0x238` / `+0x23c`). Live: `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` is defined (`KTDX.h:342`).
+- **Second pair NULL for Chung.** `InitMotion` `31fe5860` writes `+0x8e80` / `+0x8e84` / `+0x8e88` only inside `if ( unit type == 10 )` (`@31fe5f2x`, unit
+  templet `+0x867c` -> `+0xaf0`); June `Enum.src.lua` `UNIT_TYPE`: `UT_LUCIEL = 10`, `UT_CHUNG = 6`. The `out` rows (divergent.tsv l.390-391) stand; no
+  `replace` row or body is owed.
+- **Caller spot-check.** `32bf75b0` = March `CX2GUChung::ComboZZZXCannonBallShotFrameMove` (`X2GUChung.cpp:10678`): one-shot 0.001 event, play count
+  `+0x248` < 5, cannon balls > 1 or full hyper (vslot `0x9c`), `EffectSet_CSI_COMBO_ZZZX_CANNON_BALL_SHOT`, `UseCannon( 1 )`, `TRACE_START0` / `STR_Kwa`,
+  then on anim end (`+0x2ac`) `31fd4290`, where March calls `ClearAnimEventTimerOneshotNow()` (`:10704`), then `CommonFrameMove` (vslot `0x7cc`).
+- **Callers.** Ghidra xrefs equal the note's lists (11 to `31fd4290`, 3 to `31fd4340`); March has 13 / 3 call sites, matching the tsv rows.
+- **Bookkeeping.** `kickoffs/char-chung/CH1d.md` l.62-63 names both March symbols; backlog Stage 8 dual-body bullet (`JUNE_PORT_BACKLOG_ORDER.md`
+  l.416-420) carries the second-body reset.
+
+**Gates.** `junediverge.py --check-all`: `RESULT: PASS` (allow-listed 158). No source change, so no flagcheck or build (last deploy: CH1c review, md5 ee90d320).
+Nothing to play-test. Next: `/x2-phase char-chung CH1d` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
