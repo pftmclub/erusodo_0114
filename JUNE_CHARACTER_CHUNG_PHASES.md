@@ -305,6 +305,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
   42 RapidT (111, lv 70), 43 NovaT (110, lv 70), 50 Chung99 (111).
 - **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_chung.txt`
   (`KEM_ERROR`, `Motion Error`, missing texture / mesh). The class script and motions are still March's, so Chung plays as before.
+- **Logs checked (user play-test passed, 2026-10-31, run 11:19-11:22):** `KEM_ERROR` 0 and `Motion Error` 0 (pre run 0 / 0); `offline_packets.log` 0 EXCEPTION. 142 failed names the pre run lacks, none a regression: ~120 are `.XET` probes whose `.X` / `.Y` is in `kom_contents` (the engine's fallback; the pre run had 37 `_SORTED.XET`), ~80 of them Ruben village; loose `eventscene` probes (`PC_CHUNG_PNG.SWF`, `QUEST_11000_CHUNG_END`; the files exist loose, the pre run had 11); `MESH_CHUNG_BASIC_FACE_ANGRY5.TGA` and `RUBEN_TECHHOUSE_GANPAN.DDS` are in no June kom (`ch0_assets` `dangling`, June's own); `DLG_UI_GUILD_02.TGA` is June's guild UI (Stage 9), not Chung's.
 - **Drift:** none new. The data101 restore is june-asset-port P0's.
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
