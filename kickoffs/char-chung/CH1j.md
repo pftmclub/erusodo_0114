@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1j` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1i review. One at a time: `X2GUChung.*` |
+| Depends on | CH1j0 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1j-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1j"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1j"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1j"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1j/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 41** (`awk -F'\t' '$7=="CH1j"' june2017_re/char_chung/ch0_class_map.tsv`; inside 36, new 5).
+  June addresses: `32bda820` `32bda860`(new CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD_StateStartFuture) `32bda8a0` `32bda8f0` `32bda970` `32bda9b0` `32bdaa00` `32bdaa80` `32bdaac0` `32bdab10` `32bdab50` `32bdaba0` `32bdabe0` `32bdac00` `32bdac50` `32bdac90` `32bdacb0` `32bdad00` `32be6c50` `32be6f40` `32be6fe0` `32be7180` `32be7230` `32be72f0` `32be7350` `32bec410` `32bec950` `32bece90` `32bf00c0`(new ApplySpineAimRotation) `32bf02c0`(new CSI_CTT_DASH_JUMP_COMBO_XX_EventProcess) `32bf07b0` `32bf3630` `32bf3710` `32bf4510` `32c06b00` `32c09e40`(new CreateCannonBulletDamageEffect) `32c0a5b0`(new CSI_CTT_DASH_JUMP_COMBO_XX_FrameMove) `32c0ff80` `32c102d0` `32c104d0` `32c108d0`.
+- **States: 12** (`awk -F'\t' '$8=="CH1j"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CTT_COMBO_ZZX`, `CSI_CTT_COMBO_ZZXX`, `CSI_CTT_DASH_COMBO_XX`, `CSI_CTT_DASH_JUMP_COMBO_XX`, `CSI_CTT_MOBILE_ARMORED_MODE_READY`, `CSI_CTT_MOBILE_ARMORED_MODE_LOOP`, `CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD`, `CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD`, `CSI_CTT_MOBILE_ARMORED_MODE_UNREADY`, `CSI_CTT_MOBILE_ARMORED_MODE_Z`, `CSI_CTT_MOBILE_ARMORED_MODE_X`, `CSI_CTT_COMBO_DASH_X`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- **Depends on CH0's Opus helper phase CH1j0** (`32008660`, `31fe4870`, `31fe9840`).
+- Opus helper phase **CH1j0** runs first (`32008660`, `31fe4870`, `31fe9840`).
+- `CSI_CTT_MOBILE_ARMORED_MODE_X` (id 308) / `_Z` are registered by the class-117 gate.

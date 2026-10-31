@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1f"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1f"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1f"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1f/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 27** (`awk -F'\t' '$7=="CH1f"' june2017_re/char_chung/ch0_class_map.tsv`; inside 25, new 2).
+  June addresses: `32bda3a0` `32bda3b0` `32bda3c0` `32bda410` `32bda420` `32bda430` `32bda440` `32bda450` `32bda460` `32bda470` `32bda480` `32bda490` `32bda4a0` `32bda4b0` `32bda4c0` `32be42c0` `32be4500` `32be4710` `32be4810` `32be48e0` `32be4b40` `32be9930`(new CSI_CIP_COMBO_DASHJUMP_XX_EventProcess) `32be9960`(new CSI_CIP_COMBO_DASHJUMP_XX_LANDING_EventProcess) `32c01fd0` `32c02280` `32c02530` `32c02920`.
+- **States: 10** (`awk -F'\t' '$8=="CH1f"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CIP_COMBO_DASH_X`, `CSI_CIP_COMBO_DASH_XX`, `CSI_CIP_COMBO_DASH_XXX`, `CSI_CIP_COMBO_DASH_XXXX`, `CSI_CIP_COMBO_DASH_XXXZ`, `CSI_CIP_COMBO_DASHJUMP_XX`, `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`, `CSI_CIP_POWER_DOWN_LANDING`, `CSI_CIP_COMBO_POWER_DOWN_LANDING_Z`, `CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- `LEAP_ATTACK_LANDING` is one state (id 228) whose table name is picked at run time (class 110 -> CIP name, else CFG name); one set of callbacks `32c23430` / `32c23440` / `32c23f80`.

@@ -41,6 +41,6 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L278 Chung Metabolism Boost in CX2Game::UseItemSpecialAbility (322fbc60; un; §7b L325-326 skill-memo entry 31fdbbb0 / class callers of 31fdbcc0; §7u L637 March-only memo effect CHUNG_BIGBANGSTREAM_MEMO (X2BuffTemplet.cpp:169; §7u L644-646 grenade memo X2BuffTemplet.cpp:1695-1706: 20% memo-26 roll else skips .

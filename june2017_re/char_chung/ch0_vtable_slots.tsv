@@ -1,0 +1,75 @@
+slot_off	vt_entry	fn	base_fn	name	src	eve_fn	eve_name	march
+0x0	3350967c	32c25880	3208f650	~CX2GUChung (scalar deleting dtor)	CONF: Eve/Aisha class map 0x0; X2GUChung.h:492	329cf670	~CX2GUEve (scalar deleting dtor)	X2GUChung.h:492 virtual ~CX2GUChung();
+0x4	33509680	32bdc850	3206eaf0	OnFrameMove	CONF: Aisha class map 0x4; X2GUChung.h:773	-	-	X2GUChung.h:773 virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
+0x28	335096a4	32bdc700	31ff1950	NotifyShowObjectChanged	HINT: base 31ff1950 then the SetShowViewList slot (0x63c) with the unit show flag (+0x172); X2GUChung.h:752 sits before NotifyDGManagerChanged:753	-	-	X2GUChung.h:752 virtual void NotifyShowObjectChanged();
+0x30	335096ac	32bee680	31fd56e0	NotifyDGManagerChanged	CONF: Aisha class map 0x30; X2GUChung.h:753	-	-	X2GUChung.h:753 virtual void NotifyDGManagerChanged( CKTDGManager& refInManager_ );
+0x3c	335096b8	32bf4900	31fee090	InitComponent	CONF: Eve/Aisha class map 0x3c; funcmap 32bf4900 (data ref 335096b8 = this slot)	329c47e0	InitComponent	X2GUChung.h:502 virtual void InitComponent();
+0x40	335096bc	32c0c8f0	3204ea20	Init	CONF: funcmap 3204ea20 CX2GUUser::Init (June) is the base; X2GUChung.h:495	-	-	X2GUChung.h:495 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );
+0x44	335096c0	32c0ca60	32022380	ReInit	CONF: Eve/Aisha class map 0x44	329af460	ReInit	X2GUChung.h:682 virtual void ReInit( bool bTeamPos_ = false, int iStartPosIndex_ = -1 );
+0x48	335096c4	32bd86f0	32012760	InitEffect	CONF: Eve/Aisha class map 0x48	32965dd0	InitEffect	X2GUChung.h:690 virtual void InitEffect();
+0x4c	335096c8	32c06220	31fc87c0	DeleteMinorParticle	CONF: Eve/Aisha class map 0x4c	32994710	DeleteMinorParticle	X2GUChung.h:747 virtual void DeleteMinorParticle();
+0x60	335096dc	32c0cf90	320462a0	DamageReact	CONF: Eve/Aisha class map 0x60	32977130	DamageReact	X2GUChung.h:684 virtual void DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ );
+0x90	3350970c	32bdbdd0	32014660	Win	CONF: Eve/Aisha class map 0x90	32968ea0	Win	X2GUChung.h:686 virtual void Win();
+0x94	33509710	32beaf90	31ff15d0	Lose	CONF: Eve/Aisha class map 0x94	32977300	Lose	X2GUChung.h:687 virtual void Lose();
+0x98	33509714	32bdbe10	31ff17c0	Draw	CONF: Eve/Aisha class map 0x98	32968ee0	Draw	X2GUChung.h:688 virtual void Draw();
+0x9c	33509718	32c24b50	31e4c550	IsFullHyperMode	CONF: Eve class map 0x9c; funcmap slot 39; X2GUChung.h:761	329cf220	IsFullHyperMode	X2GUChung.h:761 virtual bool IsFullHyperMode() const { return GetChungGageData()->GetBerserkMode(); }
+0xa0	3350971c	32c24b60	3208ddc0	SetFullHyperMode	CONF: Eve class map 0xa0; X2GUChung.h:765	329cf230	SetFullHyperMode	X2GUChung.h:765 virtual void SetFullHyperMode( const bool bBerserkMode_ )
+0xa4	33509720	32c24b90	31e4c550	IsBerserkByChance	CONF: funcmap Effect C3t row (31e4c550 / 32c24b90): unit vslot 0xa4 berserk-by-chance, none in March; only CX2GUChung overrides it	-	-	- (CX2GUChung does not override it in March; X2GUUser.h:4169 virtual bool IsBerserkByChance() { return false; })
+0xb8	33509734	32bed3d0	3208dc20	?	HINT: class 0x75 (CTT) gate, float member at +0xc04 gage, then a call with (0,1): not identified; base 3208dc20	-	-	- (not found; name unsettled)
+0xc0	3350973c	32c06270	32298590	ApplyHyperModeBuff	CONF: funcmap 32298590 CX2GameUnit::ApplyHyperModeBuff (vslot 48); X2GUChung.h:777	-	-	X2GUChung.h:777 virtual void ApplyHyperModeBuff();
+0xc4	33509740	32c063d0	31fd5cb0	HyperModeBuffEffectStart	CONF: Eve class map 0xc4; X2GUChung.h:778	32994750	HyperModeBuffEffectStart	X2GUChung.h:778 virtual void HyperModeBuffEffectStart();
+0xc8	33509744	32c06750	31fd5d70	HyperModeBuffEffectEnd	CONF: Eve class map 0xc8; X2GUChung.h:779	329cf4b0	HyperModeBuffEffectEnd	X2GUChung.h:779 virtual void HyperModeBuffEffectEnd();
+0xd0	3350974c	32c0feb0	322984c0	?	HINT: bool-returning; calls the own-unit slot 0x198 first, then a SEH-protected create (alloc 0x144): not identified; base 322984c0	-	-	- (not found; name unsettled)
+0x1b8	33509834	32beec40	3208e290	?	HINT: float getter; passive 0x672f (RNSI_P_CIP_OPEN_MIND) scales a protected float by the skill level value; base 3208e290	-	-	- (not found; name unsettled)
+0x1d8	33509854	32bedb40	3208e5a0	?	HINT: float(float) hook: protected float + member +0x96bc when +0x9718 == 1; base 3208e5a0	-	-	- (not found; name unsettled)
+0x24c	335098c8	32bec1a0	3204b5e0	SetSpecificValueByBuffTempletID	CONF: Eve class map 0x24c; X2GUChung.h:781	329b3b50	SetSpecificValueByBuffTempletID	X2GUChung.h:781 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x250	335098cc	32bda7d0	3202ed60	UnSetSpecificValueByBuffTempletID	CONF: Eve class map 0x250; X2GUChung.h:782	3297a440	UnSetSpecificValueByBuffTempletID	X2GUChung.h:782 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x2b8	33509934	32bf28f0	32045340	SetDamageExceptionProcess	CONF: Eve class map 0x2b8; funcmap 32bf28f0	329bc560	SetDamageExceptionProcess	- (CX2GUChung does not override it in March; X2GUUser.h:3076 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)
+0x2e8	33509964	32bed7e0	3208dd70	?	HINT: float(DamageData*) hook, returns 1.0 unless passive 0x6734 and attacker flag; base 3208dd70 returns 1.0	-	-	- (not found; name unsettled)
+0x2ec	33509968	32bed840	3208dd70	?	HINT: float(DamageData*) hook, passive 0x65b8 and damage type 0x21 / 0x22; base 3208dd70 returns 1.0	-	-	- (not found; name unsettled)
+0x314	33509990	32bec310	3226e190	ApplyRenderParamOnEmptyRenderParamByBuff	CONF: Eve class map 0x314; funcmap 32bec310 (vslot 197); X2GUChung.h:783	32978420	ApplyRenderParamOnEmptyRenderParamByBuff	X2GUChung.h:783 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
+0x324	335099a0	32bf4880	3208ddc0	ChangeMaxCharacterAddResource	CONF: funcmap 32bf4880 (slot 201); X2GUChung.h:763	-	-	X2GUChung.h:763 virtual void ChangeMaxCharacterAddResource( const float fRate_ );
+0x3a8	33509a24	32beeed0	31fd4460	ApplyRenderParam	CONF: Eve class map 0x3a8; X2GUChung.h:1773	32973e70	ApplyRenderParam	X2GUChung.h:1773 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
+0x4b0	33509b2c	32c24b80	3208df10	GetComboZStateID	CONF: Eve class map 0x4b0; X2GUChung.h:796	329cf210	GetComboZStateID	X2GUChung.h:796 virtual int GetComboZStateID() const { return CSI_COMBO_Z; }
+0x4b4	33509b30	32beaf70	3208df10	GetComboXStateID	CONF: Eve class map 0x4b4 (CH1o); X2GUChung.h:797	-	-	X2GUChung.h:797 virtual int GetComboXStateID() const { return CSI_COMBO_X; }
+0x540	33509bbc	32beefb0	32012800	CreateMajorParticleArray	CONF: Eve/Aisha class map 0x540	3297a940	CreateMajorParticleArray	X2GUChung.h:694 virtual void CreateMajorParticleArray();
+0x548	33509bc4	32bd8730	32012920	CreateMinorParticleArray	CONF: Eve/Aisha class map 0x548	32965e10	CreateMinorParticleArray	X2GUChung.h:713 virtual void CreateMinorParticleArray();
+0x54c	33509bc8	32bed9a0	31aa1d30	InitEnchantWeaponEffectUnitSpecific	CONF: Eve/Aisha class map 0x54c	32969190	InitEnchantWeaponEffectUnitSpecific	X2GUChung.h:691 virtual void InitEnchantWeaponEffectUnitSpecific();
+0x5f0	33509c6c	32beb050	31aa1d30	COMMON_BUFF_FrameMove	CONF: Eve/Aisha class map 0x5f0	3297fdd0	COMMON_BUFF_FrameMove	X2GUChung.h:750 virtual void COMMON_BUFF_FrameMove();
+0x600	33509c7c	32c0def0	31aa1d30	HyperModeFrameMove	CONF: Eve/Aisha class map 0x600	3299cf70	HyperModeFrameMove	X2GUChung.h:860 void HyperModeFrameMove(); (no virtual keyword; overrides the pure virtual X2GUUser.h:2335)
+0x628	33509ca4	32beeaa0	31fd7930	CanRidingState	CONF: Aisha class map 0x628; X2GUChung.h:481	-	-	X2GUChung.h:481 virtual bool CanRidingState();
+0x634	33509cb0	32bd8880	31fc7a60	?	HINT: if not IsFullHyperMode: SetShowViewList(1) + 3201c3a0, then the UpdateEquipCollisionData base 31fd8c00 and three bone calls (Rfoot, Lfoot, Lhand2); base 31fc7a60	-	-	- (not found; name unsettled)
+0x63c	33509cb8	32bf0a40	31fd5b80	SetShowViewList	CONF: Aisha class map 0x63c; X2GUChung.h:755	-	-	X2GUChung.h:755 virtual void SetShowViewList( bool bShow_ );
+0x644	33509cc0	32bdc750	3201b930	UpdateEquipViewListInfo	CONF: Aisha class map 0x644; X2GUChung.h:758	-	-	X2GUChung.h:758 virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );
+0x66c	33509ce8	32bf0480	31fdc070	ScaleHead	CONF: funcmap 31fdc070 CX2GUUser::ScaleHead vslot 0x66c (head bone Bip01_Head / Bip01_Spine1 by the berserk flag)	-	-	- (CX2GUChung does not override it in March; X2GUUser.h:2765 virtual void ScaleHead( float fHeadScale, float fFaceScale );)
+0x670	33509cec	32beaf10	331a4950	?	HINT: bool(int 1..3): class 0x1b / 0x75 (1), 0x15 / 0x6f (2): a per-class capability test; base 331a4950	-	-	- (not found; name unsettled)
+0x688	33509d04	32bf44d0	31fcd740	?	HINT: base 31fcd740, then gage +0x142 = 1 and a call with the gage value (+0x11c): follows InitEquippedActiveSkillState; base 31fcd740	-	-	- (not found; name unsettled)
+0x690	33509d0c	32c16be0	31fe19d0	InitPassiveSkillState	CONF: funcmap 32c16be0; X2GUChung.h:504	3297f290	InitPassiveSkillState	X2GUChung.h:504 virtual void InitPassiveSkillState();
+0x6a0	33509d1c	32bed9d0	31fd1840	GetActualMPConsume	CONF: Eve class map 0x6a0; X2GUChung.h:523	329a79c0	GetActualMPConsume	X2GUChung.h:523 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+0x6a4	33509d20	32be8e50	31fd1920	GetActualCoolTime	CONF: Eve class map 0x6a4; X2GUChung.h:1780	32979420	GetActualCoolTime	X2GUChung.h:1780 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;
+0x6a8	33509d24	32bdba60	3208e190	?	HINT: float(float, int skillId): returns arg1 unless skill 0x65b7 with member +0x98d4 live; base 3208e190 (same shape as Eve 0x6a8)	32977090	?	- (not found; name unsettled)
+0x740	33509dbc	32bed760	32009780	?	CONF: funcmap 32009780 CX2GUUser slot 0x740 Crest of Time snapshot (none in March); Chung adds its gauges	-	-	- (not found; name unsettled)
+0x744	33509dc0	32bf4600	3204da60	?	CONF: funcmap 3204da60 CX2GUUser slot 0x744 Crest of Time restore (none in March); Chung restores its gauges	-	-	- (not found; name unsettled)
+0x748	33509dc4	32beeca0	3208e1b0	?	HINT: float getter, passive 0x672f value 0xaa when 32bee5b0 true; base 3208e1b0	-	-	- (not found; name unsettled)
+0x774	33509df0	32befec0	31f3f070	?	HINT: base 31f3f070 is the empty CX2State stub; Chung body builds a 0x44 byte record with floats: not identified	-	-	- (not found; name unsettled)
+0x7a4	33509e20	32c22540	31aa1d30	InitState	CONF: Eve/Aisha class map 0x7a4; X2GUChung.h:497	329ba9c0	InitState	X2GUChung.h:497 virtual void InitState();
+0x7b4	33509e30	32c1f530	31aa1d30	SetEquippedSkillFuncBySkillSlotIndex	CONF: Eve/Aisha class map 0x7b4; X2GUChung.h:505	329c8a00	SetEquippedSkillFuncBySkillSlotIndex	X2GUChung.h:505 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );
+0x7b8	33509e34	32bdbe50	31aa1d30	SetEquippedSkillLevel	CONF: Eve/Aisha class map 0x7b8; X2GUChung.h:506	32968f20	SetEquippedSkillLevel	X2GUChung.h:506 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );
+0x7c0	33509e3c	32bd8740	320506f0	CommonStateStartFuture	CONF: Eve/Aisha class map 0x7c0	32965e20	CommonStateStartFuture	X2GUChung.h:509 virtual void CommonStateStartFuture();
+0x7c4	33509e40	32bf3990	32057b80	CommonStateStart	CONF: Eve/Aisha class map 0x7c4	32965e30	CommonStateStart	X2GUChung.h:510 virtual void CommonStateStart();
+0x7c8	33509e44	32bf2a40	32061bf0	CommonFrameMoveFuture	CONF: Eve/Aisha class map 0x7c8	32980f90	CommonFrameMoveFuture	X2GUChung.h:512 virtual void CommonFrameMoveFuture();
+0x7cc	33509e48	32c0d570	32063650	CommonFrameMove	CONF: Eve/Aisha class map 0x7cc	329c5bc0	CommonFrameMove	X2GUChung.h:513 virtual void CommonFrameMove();
+0x7d8	33509e54	32bd8750	31fdd8e0	CommonStateEndFuture	CONF: Eve/Aisha class map 0x7d8	3297a400	CommonStateEndFuture	X2GUChung.h:515 virtual void CommonStateEndFuture();
+0x7dc	33509e58	32bd8760	32015250	CommonStateEnd	CONF: Eve/Aisha class map 0x7dc	32965e50	CommonStateEnd	X2GUChung.h:516 virtual void CommonStateEnd();
+0x7e8	33509e64	32bd8770	31fd07b0	CommonRender_Prepare	CONF: Eve/Aisha class map 0x7e8	32965e70	CommonRender_Prepare	X2GUChung.h:518 virtual RENDER_HINT CommonRender_Prepare();
+0x7f4	33509e70	32bd8790	31aa1d30	SpecialAttackEventProcess	CONF: funcmap 32bd8790 (slot 509, vtable 33509e74 = Chung); X2GUChung.h:520	32969300	SpecialAttackEventProcess	X2GUChung.h:520 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );
+0x7f8	33509e74	32c17830	31aa1d30	SpecialAttackEventProcess part: skill lookup (slot 510)	CONF: funcmap 32bd8790 note: calls slot 510 32c17830 first	329b5af0	CanUseSpecialAttack	- (part of SpecialAttackEventProcess, X2GUChung.h:520)
+0x7fc	33509e78	32bee490	31aa1d30	SpecialAttackEventProcess part: skill use (slot 511)	CONF: Eve/Aisha class map 0x7fc	329693e0	SpecialAttackEventProcess part: skill use (slot 511)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)
+0x800	33509e7c	32bf5130	31aa1d30	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	CONF: Eve/Aisha class map 0x800	32981130	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)
+0x80c	33509e88	32bd8870	32008e40	NoStateChangeActionFrameMove	CONF: Eve/Aisha class map 0x80c; X2GUChung.h:521	329b6810	NoStateChangeActionFrameMove	X2GUChung.h:521 virtual void NoStateChangeActionFrameMove();
+0x810	33509e8c	32bd8860	31aa1d30	SpecialAttackNoStageChange	CONF: Eve/Aisha class map 0x810; X2GUChung.h:749	3297c570	SpecialAttackNoStageChange	X2GUChung.h:749 virtual bool SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ );
+0x824	33509ea0	32bed8c0	3208dd70	?	HINT: bool-ish; shares the stream 32bed840 (no int3 padding between them); damage-type test on 0x21 / 0x22 and passive 0x65b8; base 3208dd70	-	-	- (not found; name unsettled)
+0x828	33509ea4	32beebd0	31fd7640	?	HINT: base 31fd7640 true, then hit-count test (/100 == 0xa2) on +0x7cbc..: not identified (Aisha calls it an idle-timer reset)	3297a6d0	?	- (not found; name unsettled)
+0x834	33509eb0	32bf0cc0	33093ad0	ShowActiveSkillCutInAndLightByScript	CONF: Eve/Aisha class map 0x834; X2GUChung.h:589	3297baa0	ShowActiveSkillCutInAndLightByScript	X2GUChung.h:589 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );
+# Chung vtable CX2GUChung 3350967c: 544 slots (0x0-0x87c); overrides (target in 32bd86f0-32c25a1f and != base): 72
+# base_fn = CX2GUUser vtable 334781f4; eve_fn / eve_name = the Eve class map entry of the same slot (char_eve/ch0_vtable_all.tsv)

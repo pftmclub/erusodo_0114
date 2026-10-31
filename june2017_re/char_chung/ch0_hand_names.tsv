@@ -1,0 +1,114 @@
+fn	proposed_name	why
+32bd8880	UpdateEquipCollisionData	inside: X2GUChung.h:759 virtual UpdateEquipCollisionData(); vslot 0x634: SetShowViewList(1), base 31fd8c00, Rfoot/Lfoot/Lhand2 bone calls
+32bd91d0	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_Init	inside: X2GUChung.h:1332 Init; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bd9810	CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd	StateEnd; state CSI_SI_SA_CFG_IRON_HOWLING_END (id 322, june-only, no March member); registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bd9990	CSI_SI_A_CFG_LEAP_ATTACK_LANDING_Start	inside: X2GUChung.h:1435 StateStart (shared by the CIP_LEAP_ATTACK_LANDING registration); registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bd99b0	CSI_SI_A_CFG_LEAP_ATTACK_LANDING_FrameMove	inside: X2GUChung.h:1436 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bdae60	CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_StartFuture	inside: X2GUChung.h:1633 StateStartFuture; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bdaff0	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_Init	inside: X2GUChung.h:1662 Init; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bdb1d0	CSI_A_CDC_RAPID_CANNON_FINAL_StartFuture	inside: X2GUChung.h:1695 StateStartFuture; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bdb760	?	reached only through pointer @33509538, before the Chung vtable; uncarved, not read
+32bdba10	?	tiny, reads a skill level via 31fceab0, no string; not read further
+32bdba60	ShownSkillCoolTime	June-only virtual X2GUUser.h:3423 (vslot 0x6a8, base 3208e190); Chung returns arg1 unless skill 0x65b7 with member live
+32bdc520	AppendMajorParticleToDeviceList	inside: X2GUChung.h:696; static; appends the DamageImpact* particle names
+32bdc600	InitializeMajorMeshArray	inside: X2GUChung.h:731; sets 19 handles +0x95c8..+0x9610 to -1
+32bdc890	GetMetabolismBoostValue	float(float): class 0x14/0x6e only, passive CFG_METABOLISM_BOOST 0x6720 value scaled by the arg; role guess
+32be0d50	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_EventProcess	inside: X2GUChung.h:1334 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be13b0	CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess	EventProcess; state CSI_SI_SA_CFG_IRON_HOWLING_END (june-only); registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be1760	CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess	inside: X2GUChung.h:1437 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be2300	CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess	inside: X2GUChung.h:1465 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be28e0	CSI_SI_SA_CSG_SHOOTING_STAR_END_EventProcess	inside: X2GUChung.h:1481 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be2d60	CSI_SI_SA_CSG_COMET_CRASHER_FINISH_EventProcess	inside: X2GUChung.h:1507 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be3eb0	CSI_SI_SA_CDC_ARTILLERY_STRIKE_END_EventProcess	inside: X2GUChung.h:1599 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be65e0	CSI_SA_CHG_DREAD_CHASE_END_EventProcess	inside: X2GUChung.h:1224 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be77c0	CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_EventProcess	inside: X2GUChung.h:1635 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be7aa0	CSI_A_CIP_ARTILLERY_NOVA_FIRE_EventProcess	inside: X2GUChung.h:1644 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be7f40	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_EventProcess	inside: X2GUChung.h:1664 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be8360	CSI_A_CDC_RAPID_CANNON_FINAL_EventProcess	inside: X2GUChung.h:1697 EventProcess; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32be8df0	?	random of 3 via GetRandomInt then vslot 0x5c (state change) to 0x124/0x125/0x126; used by CH2d states
+32beaf10	?	vslot 0x670 base 331a4950 = bool(int 1..3): unit class 0x14/0x6e (1), 0x15/0x6f (2), 0x1b/0x75 (3); a class-branch test, no March member
+32bed3d0	GetDefenderDamageRate	vslot 0xb8 = defender rate read in GetFinalDamage (funcmap 322868d1); CTT passive REACTIVE_ARMOR 0x672e x member +0x41f4; role guess
+32bed560	GetTotalCannonBallCount	inside: X2GUChung.h:557; now count (+ extra for the CTT mode)
+32bed5d0	CanUseCannon	inside: X2GUChung.h:552; June takes (skillId, count) and compares with the total; March CanUseCannon() has no args
+32bed760	StoreGageSnapshot	June-only virtual vslot 0x740 (funcmap 32009780 Crest of Time snapshot); Chung also stores cannon-ball counts to +0x92c0/+0x92c4
+32bed7e0	?	vslot 0x2e8 base 3208dd70 (float 1.0 getter of DamageData*): passive 0x6734 + attacker buff 0x3e; no name in X2GUUser.h / X2GameUnit.h
+32bed840	?	vslot 0x2ec base 3208dd70 (float 1.0 getter of DamageData*): passive 0x65b8 and damage type 0x21/0x22; no name known
+32bed8c0	?	vslot 0x824 base 3208dd70: shares the 0x2ec stream, damage-type 0x21/0x22 test with passive 0x65b8; no name known
+32bedb40	GetCriticalValue	inside: X2GUChung.h:619 virtual float GetCriticalValue( float ); vslot 0x1d8 = GetCV (funcmap 32048b15)
+32bee3e0	?	(skillId) guard 0x665f/0x6677, vslot 0x4f4 tests, vslot 0x5c(0x12a/0x12b), sets +0x985c; role not read
+32bee5b0	IsThisStateCanBeChangedToGuardStateOnHit	inside: X2GUChung.h:530; matches the current state against the 12-byte list +0x9638
+32beeb90	?	bool: (+0x7cbc / 100) in [0x11d, 0x128)
+32beebd0	IsNotCommonMoveState	June-only virtual X2GUUser.h:3399 (vslot 0x828, base 31fd7640); Chung adds the hit-count window test on +0x7cbc
+32beec40	?	vslot 0x1b8 base 3208e290: float getter scaling a protected float by passive CIP_OPEN_MIND 0x672f; no name known
+32beeca0	?	vslot 0x748 base 3208e1b0: float getter, passive CIP_OPEN_MIND 0x672f value when 32bee5b0 true; no name known
+32beece0	LoadPromotionItemID	inside: X2GUChung.h:527; PROMOTION_ITEM_ID_LIST + CHUNG_<class> tables
+32bef140	ReplaceWeapon	inside: X2GUChung.h:757; swaps a ref-counted equip pointer in the equip list
+32befec0	UpdateSpineAimRotation	June-only virtual vslot 0x774 (base 31f3f070 empty stub); builds a Bip01_Spine1 rotation from aim angles; role guess
+32bf00c0	ApplySpineAimRotation	same Bip01_Spine1 rotation math as the 0x774 override with negated pitch; callers 32bf07b0 / 32c108d0
+32bf0530	SetShowPromotionEquips	inside: X2GUChung.h:754; sets the show flag over list +0x9648 (promotion equips)
+32bf0670	SetShowOriginalViewList	inside: X2GUChung.h:756; sets the show flag over list +0x8834
+32bf0800	ShowActiveSkillCutInAndLightByBerserkMode	inside: X2GUChung.h:587; Dummy1_Rhand cut-in; cppmatch hit
+32bf0ce0	LoadStateIDCanBeChangedGuardState	inside: X2GUChung.h:526; string CHUNG_STATE_ID_LIST_ABLE_TO_BE_...; fills the 12-byte list +0x9638
+32bf0e90	InitPromotionEquipList	inside: X2GUChung.h:579; CreateDummyEquip over list +0x9658, show off
+32bf3d30	UpCannonBallCount	inside: X2GUChung.h:538; adds count, SetNowCannonBallCount
+32bf3e40	ConsumeCannonBallCount	inside: X2GUChung.h:550; now count minus n, zero-count refill branch
+32bf3f60	SetTotalCannonBallCount	inside: X2GUChung.h:558; %7 split into now / extra for CTT
+32bf4040	ResetCannonBallCountWhenRebirthInPVPGame	inside: X2GUChung.h:599; (a<=b) floors the count to the basic-count byte +0x9680
+32bf40e0	InitRemodelMagazinePassiveSkill	inside: X2GUChung.h:614; passive CSG_REMODEL_MAGAZINE 0x6726
+32bf44d0	AfterInitEquippedActiveSkillState	June-only virtual vslot 0x688 right after InitEquippedActiveSkillState (0x684): base 31fcd740, then re-sets the cannon-ball count; role guess
+32bf4600	RestoreGageSnapshot	June-only virtual vslot 0x744 (funcmap 3204da60 Crest of Time restore); Chung re-sets cannon-ball counts then calls base
+32bf4680	?	cannon-ball gauge tick on protected float +0x98b8 with 32c24db0; role not read
+32bf5060	SetHandleChungMajorMeshByEnum	inside: X2GUChung.h:742; releases the old handle then stores into +0x95c8[idx]
+32bf50e0	DeleteMajorMesh	inside: X2GUChung.h:732; releases the 19 handles at +0x95c8
+32bf5280	UseCannon	inside: X2GUChung.h:549; plays Chung_CannonGun_Reload.ogg, decrements, ConsumeCannonBallCount
+32bf5360	ShowOnomatopoeiaParticle	inside: X2GUChung.h:601; (bone, particle) effect when flag +0x41f9 set
+32bf5430	LoadPersonalInfo	inside: X2GUChung.h:525; INIT_PERSONAL_INFO table
+32bfa2c0	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_FrameMove	inside: X2GUChung.h:1333 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bfd4b0	CSI_SI_SA_CSG_COMET_CRASHER_FINISH_FrameMove	inside: X2GUChung.h:1506 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32bfeb80	?	switch on +0x8ac0 over per-slot byte flags (+0x86f2..+0x872e), GetDistance, HaveThisBuff; role not read
+32c04140	EraseTargetingNPC	kills own NUI_TARGETING_CHUNG* NPCs (0x35f / 0x58b / 0x9dd) of the given id; caller ResetArtilleryStrikeData
+32c058a0	DoCarpetBombing	inside: X2GUChung.h:1229; CHUNG_CARPETBOMBING_BIG/SMALL damage effects
+32c073e0	CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_FrameMove	inside: X2GUChung.h:1634 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c076e0	CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove	inside: X2GUChung.h:1643 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c07990	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_FrameMove	inside: X2GUChung.h:1663 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c07cf0	CSI_A_CDC_RAPID_CANNON_FINAL_FrameMove	inside: X2GUChung.h:1696 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c08010	ResetArtilleryStrikeData	inside: X2GUChung.h:1717; clears +0x97d4.., erases buff 0x1a2 ARTILLERY_STRIKE_SCOPE, kills targeting NPCs
+32c080f0	DoArtilleryStrikeFire	inside: X2GUChung.h:1716; DAMAGE_EFFECT_CSI_SI_SA_CDC_CH..., SA_FALL_HEIGHT
+32c09390	DoSateliteRain	inside: X2GUChung.h:1766; DamageEffect_CTT_Satelite_Rain_B / Satellite_Rain
+32c09ad0	ResetSateliteRain	inside: X2GUChung.h:1767; kills the rain effect, clears +0x9820..
+32c09b60	CommonHyperModeFrameMove	inside: X2GUChung.h:863; Change/Break/Energy.ogg, hyper-mode minor particles
+32c09e40	CreateCannonBulletDamageEffect	DAMAGE_EFFECT_Cannon_Ball_Bullet + SetLockOn from a weapon bone; callers 32c0e530 / 32c0e9b0 / 32c108d0; role guess
+32c0a230	CanConsumeCannonBallForShot	(count, count2, hyper, float* out): checks GetTotalCannonBallCount >= count, outputs a rate; role guess
+32c0a500	GetUsefulTacticValue	skill level of CTT passive 0x6734 -> value index 2 times a float; role guess
+32c0c1c0	CSI_SA_CTT_HEAVY_FIELD_END_StateStart	StateStart; state CSI_SA_CTT_HEAVY_FIELD_END (id 338, june-only); registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c0feb0	CreateGageData	inside: X2GUChung.h:651 virtual CX2GageData* CreateGageData(); vslot 0xd0, new 0x144-byte object under SEH
+32c10d20	?	erases dead entries of the NPC/effect list +0x97bc (vslot 0xa8, die vslot 0xf4); caller 32c12470
+32c11410	PlayCannonShotEffectSet	PlayEffectSet with "_EXTRA" suffix, guarded by 32c0a230; role guess
+32c116e0	CreateCannonShotDamageEffect	TRACE_START0 weapon bone + "_EXTRA" name; role guess
+32c11980	SetLockOnCannonShot	SetLockOn of the effect created by 32c116e0; role guess
+32c12400	CSI_SA_CHG_DREAD_CHASE_END_FrameMove	inside: X2GUChung.h:1223 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
+32c12910	?	reached only through callers with no phased caller; not read
+32c15990	?	(obj, float) clears +0x250/+0x254/+0x258 smart pointer and bumps +0x84c; role not read
+32c23090	?	reached only through pointer @32c1781d; uncarved, not read
+32c23600	-	std template instantiation, no class member: vector<12-byte>::_Allocate
+32c242c0	?	calls 324144b0 only; not read
+32c24360	-	std template instantiation, no class member: std::map insert-position search
+32c24400	-	std template instantiation, no class member: std::map header/node allocation
+32c24470	-	std template instantiation, no class member: std::copy of 8-byte elements
+32c244a0	-	std template instantiation, no class member: std::map _Buynode (16-byte value)
+32c24520	?	allocator wrapper (32fe243e / 32fe2444); possibly std, not read
+32c245a0	-	std template instantiation, no class member: vector<12-byte>::reserve
+32c246f0	-	std template instantiation, no class member: vector<12-byte>::_Reserve(n)
+32c24770	-	std template instantiation, no class member: vector<8-byte>::reserve
+32c24860	-	std template instantiation, no class member: vector<8-byte>::_Reserve(n)
+32c24930	?	protected-value tail (31c2e4a0 / 33441d84); not read
+32c24b30	?	reached only through pointer @33509668; uncarved
+32c24b40	?	reached only through pointer @33509670; uncarved
+32c24c80	SetExtraCannonBallReloadCount	protected int setter used by UseCannon; March m_iExtraCannonBallReloadCount; role guess
+32c24d00	SetExtraCannonBallCount	inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d40
+32c24d40	SetExtraCannonBallCount	inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d00
+32c24db0	SetCannonBallCount	inside: X2GUChung.h:570; SetCannonBallChanged + SetNowCannonBallCount
+32c24dd0	?	protected byte +0x9668 setter, caller InitPassiveSkillState (32c16be0); no March UCHAR member matched
+32c24e50	SetCannonBallCountToBeUpUsingReLoadCannon	inside: X2GUChung.h:593; protected byte +0x9674 setter, reload-cannon state callers
+32c24ed0	SetBasicCannonBallCount	inside: X2GUChung.h:597; protected byte +0x9680, the byte 32bf4040 floors to
+32c258a0	?	reached only through pointer @32c177f1; uncarved

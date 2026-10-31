@@ -1,0 +1,131 @@
+# skill ids: 127 distinct (Chung tree rows of s3_reform_ids_no_state.tsv); cpp SKILL_ID enum (X2SkillTree.h, 885 live names parsed from the cl /P stream): lookalike 43, name 10, none 74
+# skill ids in core March Enum.lua SKILL_ID (data036 BOM source, 805 names): absent 67, name 60; June Enum.src.lua SKILL_ID has 2407 names
+# cpp_enum: name = same name live in the enum; lookalike = RNSI_ -> SI_ name is live; value-only = other name at the value; none. cpp_commented: n/y (line-level guess). cpp_live column left empty (live status from the cl /P stream, not per-site)
+kind	name	june_value	cpp_enum	cpp_line	cpp_commented	core_enum_lua	cpp_live	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	name	1918	n	absent		enum value 106
+skill	SI_ETC_WS_COMMON_LOVE	900	name	132	n	absent		enum value 900
+skill	RNSI_SA_CC_SCARE_CHASE	26000	lookalike	537	n	name; march=26000		SI_SA_CC_SCARE_CHASE=6001 (value differs from June 26000)
+skill	RNSI_SA_CC_LUNATIC_BLOW	26001	lookalike	536	n	name; march=26001		SI_SA_CC_LUNATIC_BLOW=6000 (value differs from June 26001)
+skill	RNSI_SA_CC_ACELDAMA	26002	lookalike	539	n	name; march=26002		SI_SA_CC_ACELDAMA=6003 (value differs from June 26002)
+skill	RNSI_SA_CIP_BURST_WOLF	26003	none			name; march=26003		
+skill	RNSI_SA_CFG_PANDEMONIUM_CHAOS	26004	lookalike	541	n	name; march=26004		SI_SA_CFG_PANDEMONIUM_CHAOS=6005 (value differs from June 26004)
+skill	RNSI_SA_CC_BRUTAL_SWING	26005	none			name; march=26005		
+skill	RNSI_SA_CFG_LUNATIC_FURY	26006	lookalike	540	n	name; march=26006		SI_SA_CFG_LUNATIC_FURY=6004 (value differs from June 26006)
+skill	RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE	26007	lookalike	546	n	name; march=26007		SI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE=6010 (value differs from June 26007)
+skill	RNSI_SA_CIP_IRON_HOWLING	26008	lookalike	544	n	name; march=26008		SI_SA_CIP_IRON_HOWLING=6008 (value differs from June 26008)
+skill	RNSI_SA_CFG_PAIN_OF_CALADBOLG	26009	lookalike	543	n	name; march=26009		SI_SA_CFG_PAIN_OF_CALADBOLG=6007 (value differs from June 26009)
+skill	RNSI_SA_CTT_WONDER_WALL	26010	none			name; march=26010		
+skill	RNSI_SA_CSG_DUAL_BUSTER	26011	none			name; march=26011		
+skill	RNSI_SA_CDC_SHARPSHOOTER_SYNDROME	26012	lookalike	551	n	name; march=26012		SI_SA_CDC_SHARPSHOOTER_SYNDROME=6015 (value differs from June 26012)
+skill	RNSI_SA_CDC_DEADLY_SHOT	26013	none			name; march=26013		
+skill	RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA	26014	name	1709	n	name; march=26014		enum value 26014
+skill	RNSI_SA_CSG_SHOOTING_STAR	26015	lookalike	549	n	name; march=26015		SI_SA_CSG_SHOOTING_STAR=6013 (value differs from June 26015)
+skill	RNSI_SA_CSG_HEAVY_RAILGUN	26016	lookalike	548	n	name; march=26016		SI_SA_CSG_HEAVY_RAILGUN=6012 (value differs from June 26016)
+skill	RNSI_SA_CDC_COMET_CRASHER	26017	lookalike	550	n	name; march=26017		SI_SA_CDC_COMET_CRASHER=6014 (value differs from June 26017)
+skill	RNSI_SA_CDC_BULLET_BLITZ	26018	none			name; march=26018		
+skill	RNSI_SA_CHG_BIGBANG_STREAM	26019	lookalike	552	n	name; march=26019		SI_SA_CHG_BIGBANG_STREAM=6016 (value differs from June 26019)
+skill	RNSI_SA_CTT_DREAD_CHASE	26020	lookalike	556	n	name; march=26020		SI_SA_CTT_DREAD_CHASE=6020 (value differs from June 26020)
+skill	RNSI_SA_CC_IMPACT_DETONATION	26021	none			name; march=26021		
+skill	RNSI_SA_CHG_CHAOS_CANNON	26022	lookalike	553	n	name; march=26022		SI_SA_CHG_CHAOS_CANNON=6017 (value differs from June 26022)
+skill	RNSI_SA_CHG_CARPET_BOMBING	26023	lookalike	554	n	name; march=26023		SI_SA_CHG_CARPET_BOMBING=6018 (value differs from June 26023)
+skill	RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE	26024	lookalike	557	n	name; march=26024		SI_SA_CTT_TACTICAL_FIELD_INDURANCE=6021 (value differs from June 26024)
+skill	RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER	26025	name	1710	n	name; march=26025		enum value 26025
+skill	RNSI_SA_CHG_CANNON_STRIKE	26026	none			name; march=26026		
+skill	(no SKILL_ID name)	26027	none			absent		
+skill	(no SKILL_ID name)	26028	none			absent		
+skill	(no SKILL_ID name)	26029	none			absent		
+skill	RNSI_SA_CIP_BURST_WOLF_UPGRADE	26031	none			absent		
+skill	RNSI_SA_CSG_DUAL_BUSTER_UPGRADE	26032	none			absent		
+skill	RNSI_SA_CHG_BIGBANG_STREAM_UPGRADE	26033	none			absent		
+skill	RNSI_SA_CFG_PANDEMONIUM_CHAOS_UPGRADE	26034	none			absent		
+skill	RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE	26035	none			absent		
+skill	RNSI_SA_CTT_DREAD_CHASE_UPGRADE	26036	none			absent		
+skill	RNSI_SA_CIP_CRACK_CRASHER	26037	none			name; march=26037		
+skill	RNSI_SA_CIP_RAGE_OF_GUARDIAN	26038	none			name; march=26038		
+skill	RNSI_SA_CDC_SHOOTING_BIND	26039	none			name; march=26039		
+skill	RNSI_SA_CDC_EXCITING_CRASH	26040	none			name; march=26040		
+skill	RNSI_SA_CTT_CANNON_PRISON	26041	none			name; march=26041		
+skill	RNSI_SA_CTT_BOMBING_ARTILLERRY	26042	none			name; march=26042		
+skill	RNSI_SA_CC_BRUTAL_SWING_UPGRADE	26043	none			absent		
+skill	RNSI_SA_CFG_LUNATIC_FURY_UPGRADE	26044	none			absent		
+skill	RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_UPGRADE	26045	none			absent		
+skill	RNSI_SA_CIP_IRON_HOWLING_UPGRADE	26046	none			absent		
+skill	RNSI_SA_CFG_PAIN_OF_CALADBOLG_UPGRADE	26047	none			absent		
+skill	RNSI_SA_CTT_WONDER_WALL_UPGRADE	26048	none			absent		
+skill	RNSI_SA_CDC_DEADLY_SHOT_UPGRADE	26049	none			absent		
+skill	RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA_UPGRADE	26050	name	1711	n	absent		enum value 26050
+skill	RNSI_SA_CSG_SHOOTING_STAR_UPGRADE	26051	none			absent		
+skill	RNSI_SA_CSG_HEAVY_RAILGUN_UPGRADE	26053	none			absent		
+skill	RNSI_SA_CDC_COMET_CRASHER_UPGRADE	26054	none			absent		
+skill	RNSI_SA_CDC_BULLET_BLITZ_UPGRADE	26055	none			absent		
+skill	RNSI_SA_CC_IMPACT_DETONATION_UPGRADE	26056	none			absent		
+skill	RNSI_SA_CHG_CHAOS_CANNON_UPGRADE	26057	none			absent		
+skill	RNSI_SA_CHG_CARPET_BOMBING_UPGRADE	26058	none			absent		
+skill	RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE_UPGRADE	26059	none			absent		
+skill	RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER_UPGRADE	26060	name	1712	n	absent		enum value 26060
+skill	RNSI_SA_CHG_CANNON_STRIKE_UPGRADE	26061	none			absent		
+skill	RNSI_SA_CIP_RAPID_GUARDIAN	26062	none			name; march=26062		
+skill	RNSI_SA_CDC_BURNING_PUNISHER	26063	none			name; march=26063		
+skill	RNSI_SA_CTT_HEAVY_FIELD	26064	name	1713	n	name; march=26064		enum value 26064
+skill	RNSI_A_CC_BACK_BLAST	26200	none			name; march=26200		
+skill	RNSI_A_CC_SIEGE_SHELLING	26201	lookalike	567	n	name; march=26201		SI_A_CC_SIEGE_SHELLING=6205 (value differs from June 26201)
+skill	RNSI_A_CC_RELOAD_CANNON	26202	lookalike	565	n	name; march=26202		SI_A_CC_RELOAD_CANNON=6203 (value differs from June 26202)
+skill	RNSI_A_CC_AIMMING_SHOT	26203	lookalike	566	n	name; march=26203		SI_A_CC_AIMMING_SHOT=6204 (value differs from June 26203)
+skill	RNSI_A_CFG_LEAP_ATTACK	26204	lookalike	570	n	name; march=26204		SI_A_CFG_LEAP_ATTACK=6208 (value differs from June 26204)
+skill	RNSI_A_CIP_SUDDEN_BURSTER	26205	lookalike	571	n	name; march=26205		SI_A_CIP_SUDDEN_BURSTER=6209 (value differs from June 26205)
+skill	RNSI_A_CIP_ARTILLERY_NOVA	26206	lookalike	572	n	name; march=26206		SI_A_CIP_ARTILLERY_NOVA=6210 (value differs from June 26206)
+skill	RNSI_A_CFG_GUARD	26207	lookalike	569	n	name; march=26207		SI_A_CFG_GUARD=6207 (value differs from June 26207)
+skill	RNSI_A_CSG_HEAD_SHOT	26208	lookalike	576	n	name; march=26208		SI_A_CSG_HEAD_SHOT=6214 (value differs from June 26208)
+skill	RNSI_A_CDC_TRICK_SHOT	26209	none			name; march=26209		
+skill	RNSI_A_CDC_RUMBLE_SHOT	26210	lookalike	578	n	name; march=26210		SI_A_CDC_RUMBLE_SHOT=6216 (value differs from June 26210)
+skill	RNSI_A_CDC_GATLING_SHOT	26211	lookalike	580	n	name; march=26211		SI_A_CDC_GATLING_SHOT=6218 (value differs from June 26211)
+skill	RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE	26212	none			name; march=26212		
+skill	RNSI_A_CSG_MAGNUM_SHOT	26213	lookalike	577	n	name; march=26213		SI_A_CSG_MAGNUM_SHOT=6215 (value differs from June 26213)
+skill	RNSI_A_CHG_MARK_OF_COMMANDER	26214	lookalike	585	n	name; march=26214		SI_A_CHG_MARK_OF_COMMANDER=6223 (value differs from June 26214)
+skill	RNSI_A_CTT_AUTOMATIC_MORTAR	26215	name	1714	n	name; march=26215		enum value 26215
+skill	(no SKILL_ID name)	26216	none			absent		
+skill	(no SKILL_ID name)	26217	none			absent		
+skill	(no SKILL_ID name)	26218	none			absent		
+skill	(no SKILL_ID name)	26219	none			absent		
+skill	RNSI_A_CFG_LEAP_ATTACK_UPGRADE	26222	none			absent		
+skill	RNSI_A_CSG_HEAD_SHOT_UPGRADE	26223	none			absent		
+skill	RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE_UPGRADE	26224	none			absent		
+skill	RNSI_A_CIP_LAND_SMASH	26226	none			name; march=26226		
+skill	RNSI_A_CDC_STUN_SHOT	26227	none			name; march=26227		
+skill	RNSI_A_CTT_FATAL_CANNON	26228	none			name; march=26228		
+skill	RNSI_A_CIP_SUDDEN_BURSTER_UPGRADE	26229	none			absent		
+skill	RNSI_A_CIP_ARTILLERY_NOVA_UPGRADE	26230	none			absent		
+skill	RNSI_A_CFG_GUARD_UPGRADE	26231	none			absent		
+skill	RNSI_A_CDC_TRICK_SHOT_UPGRADE	26232	none			absent		
+skill	RNSI_A_CDC_RUMBLE_SHOT_UPGRADE	26233	none			absent		
+skill	RNSI_A_CDC_GATLING_SHOT_UPGRADE	26234	none			absent		
+skill	RNSI_A_CSG_MAGNUM_SHOT_UPGRADE	26236	none			absent		
+skill	RNSI_A_CHG_MARK_OF_COMMANDER_UPGRADE	26237	none			absent		
+skill	RNSI_A_CTT_AUTOMATIC_MORTAR_UPGRADE	26238	name	1715	n	absent		enum value 26238
+skill	RNSI_P_CFG_METABOLISM_BOOST	26400	lookalike	592	n	absent		SI_P_CFG_METABOLISM_BOOST=6400 (value differs from June 26400)
+skill	RNSI_P_CFG_ELEMENTAL_DEFENCE_A	26401	lookalike	594	n	absent		SI_P_CFG_ELEMENTAL_DEFENCE_A=6402 (value differs from June 26401)
+skill	RNSI_P_CIP_IRON_WILL	26402	name	1925	n	absent		enum value 26402
+skill	RNSI_P_CFG_GUARD_MASTERY	26403	lookalike	593	n	absent		SI_P_CFG_GUARD_MASTERY=6401 (value differs from June 26403)
+skill	RNSI_P_CIP_ADVANCED_METABOLISM_BOOST	26404	lookalike	596	n	absent		SI_P_CIP_ADVANCED_METABOLISM_BOOST=6404 (value differs from June 26404)
+skill	RNSI_P_CSG_REMODEL_RIFLE	26405	lookalike	599	n	absent		SI_P_CSG_REMODEL_RIFLE=6407 (value differs from June 26405)
+skill	RNSI_P_CSG_REMODEL_MAGAZINE	26406	lookalike	598	n	absent		SI_P_CSG_REMODEL_MAGAZINE=6406 (value differs from June 26406)
+skill	RNSI_P_CDC_INTENSE_SHOWTIME	26407	lookalike	602	n	absent		SI_P_CDC_INTENSE_SHOWTIME=6410 (value differs from June 26407)
+skill	RNSI_P_CDC_TUSSLE_TECHNIQUE	26408	lookalike	600	n	absent		SI_P_CDC_TUSSLE_TECHNIQUE=6408 (value differs from June 26408)
+skill	RNSI_P_CDC_GAS_PISTON_SYSTEM	26409	lookalike	603	n	absent		SI_P_CDC_GAS_PISTON_SYSTEM=6411 (value differs from June 26409)
+skill	RNSI_P_CHG_CONVERTED_WARHEAD	26410	lookalike	605	n	absent		SI_P_CHG_CONVERTED_WARHEAD=6413 (value differs from June 26410)
+skill	RNSI_P_CHG_RELOAD_MASTERY	26411	lookalike	604	n	absent		SI_P_CHG_RELOAD_MASTERY=6412 (value differs from June 26411)
+skill	RNSI_P_CTT_MOBILE_ARMORED_MODE	26412	lookalike	607	n	name; march=26412		SI_P_CTT_MOBILE_ARMORED_MODE=6415 (value differs from June 26412)
+skill	RNSI_P_CTT_CANNONEER_WITHSTANDING	26413	none			name; march=26413		
+skill	RNSI_P_CTT_REACTIVE_ARMOR	26414	lookalike	608	n	absent		SI_P_CTT_REACTIVE_ARMOR=6416 (value differs from June 26414)
+skill	RNSI_P_CIP_OPEN_MIND	26415	none			absent		
+skill	RNSI_P_CIP_GUARDIAN_FORCE	26416	none			absent		
+skill	RNSI_P_CDC_OPEN_MIND	26417	none			absent		
+skill	RNSI_P_CDC_ENDLESS_CHASE	26418	none			absent		
+skill	RNSI_P_CTT_OPEN_MIND	26419	none			absent		
+skill	RNSI_P_CTT_USEFUL_TACTIC	26420	none			absent		
+skill	RNSI_HA_CIP_DOOM_STRIKE	26600	none			name; march=26600		
+skill	RNSI_HA_CDC_OUTRAGE_STRIKE	26601	lookalike	613	n	name; march=26601		SI_HA_CDC_OUTRAGE_STRIKE=6601 (value differs from June 26601)
+skill	RNSI_HA_CTT_SATELLITE_RAIN	26602	none			name; march=26602		
+skill	RNSI_HA_CIP_DOOM_STRIKE_UPGRADE	26603	none			absent		
+skill	RNSI_HA_CDC_OUTRAGE_STRIKE_UPGRADE	26604	none			absent		
+skill	RNSI_HA_CTT_SATELLITE_RAIN_UPGRADE	26605	none			absent		

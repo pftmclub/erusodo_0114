@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1l` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1k review. One at a time: `X2GUChung.*` |
+| Depends on | CH1l0 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1l-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1l"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1l"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1l"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1l/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 16** (`awk -F'\t' '$7=="CH1l"' june2017_re/char_chung/ch0_class_map.tsv`; inside 9, new 7).
+  June addresses: `32bd8880` `32bdbe50` `32bdc750` `32beaf10`(new ?) `32bed760`(new StoreGageSnapshot) `32beeaa0` `32beeca0`(new ?) `32bef140` `32befec0`(new UpdateSpineAimRotation) `32bf0480`(new ScaleHead) `32bf0530` `32bf0670` `32bf0a40` `32bf44d0`(new AfterInitEquippedActiveSkillState) `32bf4600`(new RestoreGageSnapshot) `32c0def0`.
+- **Depends on CH0's Opus helper phase CH1l0** (`31fcd740`, `31fd2f00`, `31fe21a0`, `31ffe990`).
+- Opus helper phase **CH1l0** runs first (`31fcd740`, `31fd2f00`, `31fe21a0`, `31ffe990`; the last three are called only from `32bdc750`).
+- Gauge snapshot overrides 0x740 / 0x744 (`32bed760`, `32bf4600`) and 0x688 `32bf44d0` touch the cannon-ball counter; they stay here and call CH1q's helpers.

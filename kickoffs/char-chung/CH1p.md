@@ -44,6 +44,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 per-character parser census; §5 L184-188 keys COMMAND_HIT_ADD_MP_BONUS, SIEGE_ANGLE, MOBILE_SIEGE_ANGLE (INIT_C; §7ag L802-814 pressed-index space 5 + 5: CommonSpecialAttackEventProcess and every >.
+- Keys: `COMMAND_HIT_ADD_MP_BONUS` (read in InitComponent, +0x98c4); `IMMUNE_TO_SUPER_ARMOR_DOWN` / `IMMUNITY_EDT_LIST_AT_THIS_STATE` are read by `CX2GUUser` `31fdaaa0`: backlog Stage 2, not here. `HEAD_IK*`, `NOMAL_CAMERA*_RATE`, `ATTACK_ACTION_TYPE` are in no June reader (`ch0_keys.tsv`).

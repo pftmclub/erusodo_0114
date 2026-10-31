@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1c"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1c"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1c"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1c/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1c"' june2017_re/char_chung/ch0_class_map.tsv`; inside 2).
+  June addresses: `32c09b60` `32c113e0`.
+- **States: 36** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_PEPPER_RUN_READY`, `CSI_PEPPER_RUN`, `CSI_PEPPER_RUN_END`, `CSI_PEPPER_RUN_JUMP_UP`, `CSI_PEPPER_RUN_JUMP_DOWN`, `CSI_AMUSEMENT_ITEM_PHOENIX_RUN`, `CSI_DANCE_Z`, `CSI_DANCE_X`, `CSI_DANCE_WAIT`, `CSI_RIDING_START`, `CSI_RIDING_ON`, `CSI_RIDING_OFF`, `CSI_RIDING_WAIT_HABIT`, `CSI_RIDING_WAIT`, `CSI_RIDING_WALK`, `CSI_RIDING_JUMP_UP`, `CSI_RIDING_JUMP_DOWN`, `CSI_RIDING_JUMP_LANDING`, `CSI_RIDING_DASH`, `CSI_RIDING_DASH_END`, `CSI_RIDING_DASH_JUMP`, `CSI_RIDING_DASH_JUMP_LANDING`, `CSI_RIDING_DAMAGE_FRONT`, `CSI_RIDING_DAMAGE_FRONT`, `CSI_RIDING_ATTACK_Z`, `CSI_RIDING_ATTACK_X`, `CSI_RIDING_JUMP_ATTACK_Z`, `CSI_RIDING_ATTACK_SPECIAL`, `CSI_RIDING_DIE`, `CSI_RIDING_SPECIAL_MOVE`, `CSI_RIDING_HYPER_MODE`, `CSI_RIDING_SPECIFIC`, `CSI_RIDING_ATTACK_X_READY`, `CSI_RIDING_ATTACK_X_READY_2`, `CSI_RIDING_ATTACK_X_END`, `CSI_RIDING_DAMAGE_BACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- Only 2 class functions: June moved the riding / pepper / dance callbacks into `CX2GUUser` (the registration rows point at `329c....` / `3207....` user thunks). CH1c writes the 2 and checks that the user-side bodies are Aisha's / Eve's ports (`X2GUUser.*`, flags `_ARME_LIVE` / `_EVE_LIVE`): widen their `#if` to `_CHUNG_LIVE`, never copy. `CSI_RIDING_DAMAGE_BACK` is registered with no script table: JUNE_BUGS row.

@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1i"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1i"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1i"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1i/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 15** (`awk -F'\t' '$7=="CH1i"' june2017_re/char_chung/ch0_class_map.tsv`; inside 14, new 1).
+  June addresses: `32be52a0` `32be54f0` `32be5680` `32be5960` `32be5fe0` `32bf3270` `32bf3350` `32bf34c0` `32bf4440` `32bf4470` `32c042c0` `32c048b0` `32c04ed0` `32c0e1f0` `32c11ad0`(new CSI_CHG_DASH_JUMP_COMBO_ZXX_FrameMove).
+- **States: 10** (`awk -F'\t' '$8=="CH1i"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CHG_COMBO_X`, `CSI_CHG_COMBO_XX`, `CSI_CHG_COMBO_XZ`, `CSI_CHG_DASH_COMBO_Z`, `CSI_CHG_DASH_COMBO_ZZ`, `CSI_CHG_DASH_COMBO_ZZX`, `CSI_CHG_DASH_JUMP_COMBO_ZX`, `CSI_CHG_DASH_JUMP_COMBO_ZXX`, `CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE`, `CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- `CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT` (id 277) is registered by the class-27 gate: class core here; the passive data is CH4a.

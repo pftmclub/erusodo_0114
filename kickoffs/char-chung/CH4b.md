@@ -40,6 +40,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_chung/ch0_class_map.tsv`; inside 2, new 1).
+  June addresses: `32be8e50` `32bed9d0` `32bf28f0`(new SetDamageExceptionProcess).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L255 death-prevention pre-apply: gauge snapshot override (vslot 0x740) Chun; §7 L280 3201ad10 skill-group power socket rate called from Chung code: 32bec28; §7 L287 engine readers keyed by a March skill id where June pushes the reform ; §7b L327 SetDamageExceptionProcess per-class block 32bf28f0; §7an L920 vslot 0x748 soul gain when hit: Chung 32beeca0; §7an L921 GetCharacterSpecializationB() readers: Chung 32bf528d (in 32bf5280).

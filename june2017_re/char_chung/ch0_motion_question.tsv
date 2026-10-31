@@ -1,0 +1,99 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_CHUNG.x	(no name dropped)	-	-	-	-	March 4173402 B, June 5927830 B; 4 new names
+Motion_CHUNG.x	Dance_Wait	no	yes	no	Chung_Iron_Cannon.src.lua:4793	new in June
+Motion_CHUNG.x	Dance_X	no	yes	no	Chung_Iron_Cannon.src.lua:4788	new in June
+Motion_CHUNG.x	Dance_Z	no	yes	no	Chung_Iron_Cannon.src.lua:4783	new in June
+Motion_CHUNG.x	SI_A_BACK_BLAST	no	yes	no	Chung_Iron_Cannon.src.lua:6416	new in June
+Motion_CHUNG_CDC.x	(no name dropped)	-	-	-	-	March 1632684 B, June 2817639 B; 4 new names
+Motion_CHUNG_CDC.x	SI_A_CDC_STUN_SHOT	no	yes	no	Chung_Iron_Cannon.src.lua:18854	new in June
+Motion_CHUNG_CDC.x	SI_SA_CDC_BURNING_PUNISHER	no	yes	no	Chung_Iron_Cannon.src.lua:19220	new in June
+Motion_CHUNG_CDC.x	SI_SA_CDC_EXCITING_CRASH	no	yes	no	Chung_Iron_Cannon.src.lua:18938	new in June
+Motion_CHUNG_CDC.x	SI_SA_CDC_SHOOTING_BIND	no	yes	no	Chung_Iron_Cannon.src.lua:18880	new in June
+Motion_CHUNG_CFG.x	SI_SA_CFG_IRON_HOWLING	yes	no	Chung_Iron_Cannon.lua bytecode const x2	Chung_Iron_Cannon.src.lua:10483	not in any June Eve motion file
+Motion_CHUNG_CFG.x	CSI_CFG_COMBO_XXFRONTZ	no	yes	no	Chung_Iron_Cannon.src.lua:7461	new in June
+Motion_CHUNG_CFG.x	CSI_CFG_COMBO_XXFRONTZZ	no	yes	no	Chung_Iron_Cannon.src.lua:7512	new in June
+Motion_CHUNG_CFG.x	CSI_CFG_COMBO_XXFRONTZZZ	no	yes	no	Chung_Iron_Cannon.src.lua:7605	new in June
+Motion_CHUNG_CFG.x	CSI_CIP_DASH_JUMP_COMBO_XX	no	yes	no	Chung_Iron_Cannon.src.lua:7941,9913	new in June
+Motion_CHUNG_CFG.x	CSI_CIP_DASH_JUMP_COMBO_XX_LANDING	no	yes	no	Chung_Iron_Cannon.src.lua:7967,9943	new in June
+Motion_CHUNG_CFG.x	SI_A_CIP_SUDDEN_BURSTER	no	yes	Chung_Iron_Cannon.lua bytecode const x1	Chung_Iron_Cannon.src.lua:9132	new in June
+Motion_CHUNG_CFG.x	SI_SA_CFG_IRON_HOWLING_END	no	yes	no	Chung_Iron_Cannon.src.lua:10473	new in June
+Motion_CHUNG_CFG.x	SI_SA_CFG_IRON_HOWLING_LOOP	no	yes	no	Chung_Iron_Cannon.src.lua:10459	new in June
+Motion_CHUNG_CFG.x	SI_SA_CFG_IRON_HOWLING_START	no	yes	no	Chung_Iron_Cannon.src.lua:10394	new in June
+Motion_CHUNG_CFG.x	SI_SA_CHUNG_BRUTAL_SWING	no	yes	Chung_Iron_Cannon.lua bytecode const x2	Chung_Iron_Cannon.src.lua:8870,9001	new in June
+Motion_CHUNG_CFG.x	SI_SA_CIP_BURST_WOLF	no	yes	Chung_Iron_Cannon.lua bytecode const x2	Chung_Iron_Cannon.src.lua:8272,8424	new in June
+Motion_CHUNG_CHG.x	(no name dropped)	-	-	-	-	March 2266865 B, June 3122550 B; 1 new names
+Motion_CHUNG_CHG.x	CSI_CHG_DASH_JUMP_COMBO_ZXX	no	yes	no	Chung_Iron_Cannon.src.lua:11856	new in June
+Motion_CHUNG_CIP.x	SI_A_CIP_SUDDEN_BURSTER	yes	no	Chung_Iron_Cannon.lua bytecode const x1	Chung_Iron_Cannon.src.lua:9132	moved to June Motion_CHUNG_CFG.x
+Motion_CHUNG_CIP.x	SI_SA_CIP_BURST_WOLF	yes	no	Chung_Iron_Cannon.lua bytecode const x2	Chung_Iron_Cannon.src.lua:8272,8424	moved to June Motion_CHUNG_CFG.x
+Motion_CHUNG_CIP.x	SI_A_CIP_LAND_SMASH	no	yes	no	Chung_Iron_Cannon.src.lua:18662	new in June
+Motion_CHUNG_CIP.x	SI_SA_CIP_CRACK_CRASHER	no	yes	no	Chung_Iron_Cannon.src.lua:18701	new in June
+Motion_CHUNG_CIP.x	SI_SA_CIP_RAGE_OF_GUARDIAN	no	yes	no	Chung_Iron_Cannon.src.lua:18792	new in June
+Motion_CHUNG_CIP.x	SI_SA_CIP_RAPID_GUARDIAN	no	yes	no	Chung_Iron_Cannon.src.lua:19157	new in June
+Motion_CHUNG_Common.x	(no name dropped)	-	-	-	-	March 1120364 B, June 5817217 B; 21 new names
+Motion_CHUNG_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_CHUNG_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_CHUNG_CSG.x	(no name dropped)	-	-	-	-	March 1685496 B, June 2894234 B; 10 new names
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_COMBO_ZX	no	yes	no	Chung_Iron_Cannon.src.lua:14701	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_COMBO_ZXXX	no	yes	no	no	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_COMBO_ZXX_END	no	yes	no	Chung_Iron_Cannon.src.lua:14783	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_COMBO_ZXX_LOOP	no	yes	no	Chung_Iron_Cannon.src.lua:14759	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_COMBO_ZXX_READY	no	yes	no	Chung_Iron_Cannon.src.lua:14751	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_JUMP_COMBO_ZX_ATTACK	no	yes	no	Chung_Iron_Cannon.src.lua:15617	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_JUMP_COMBO_ZX_FINISH	no	yes	no	no	new in June
+Motion_CHUNG_CSG.x	CSI_CSG_DASH_JUMP_COMBO_ZX_READY	no	yes	no	Chung_Iron_Cannon.src.lua:15600	new in June
+Motion_CHUNG_CSG.x	SI_A_CDC_LEG_SHOT	no	yes	Chung_Iron_Cannon.lua bytecode const x1	Chung_Iron_Cannon.src.lua:17677	new in June
+Motion_CHUNG_CSG.x	SI_SA_CDC_BULLET_BLITZ	no	yes	Chung_Iron_Cannon.lua bytecode const x2	Chung_Iron_Cannon.src.lua:12522,14148,14190	new in June
+Motion_CHUNG_CTT.x	(no name dropped)	-	-	-	-	March 1655598 B, June 2878158 B; 7 new names
+Motion_CHUNG_CTT.x	CSI_CTT_DASH_JUMP_COMBO_XX	no	yes	no	Chung_Iron_Cannon.src.lua:13156	new in June
+Motion_CHUNG_CTT.x	SI_A_CTT_FATAL_CANNON	no	yes	no	Chung_Iron_Cannon.src.lua:18996	new in June
+Motion_CHUNG_CTT.x	SI_SA_CTT_BOMBING_ARTILLERRY	no	yes	no	Chung_Iron_Cannon.src.lua:19099	new in June
+Motion_CHUNG_CTT.x	SI_SA_CTT_CANNON_PRISON	no	yes	no	Chung_Iron_Cannon.src.lua:19045	new in June
+Motion_CHUNG_CTT.x	SI_SA_CTT_HEAVY_FIELD_END	no	yes	no	Chung_Iron_Cannon.src.lua:19343	new in June
+Motion_CHUNG_CTT.x	SI_SA_CTT_HEAVY_FIELD_LOOP	no	yes	no	Chung_Iron_Cannon.src.lua:19318	new in June
+Motion_CHUNG_CTT.x	SI_SA_CTT_HEAVY_FIELD_READY	no	yes	no	Chung_Iron_Cannon.src.lua:19279	new in June
+Motion_CHUNG_Emotion.x	(no name dropped)	-	-	-	-	March 814107 B, June 1130155 B; 0 new names
+Motion_CHUNG_Emotion_APINK.X	(no name dropped)	-	-	-	-	March 873764 B, June 873764 B; 0 new names; identical bytes
+Motion_CHUNG_Emotion_APINK_LOVE.X	(no name dropped)	-	-	-	-	March 300589 B, June 300589 B; 0 new names; identical bytes
+Motion_CHUNG_Emotion_BIGBANG.X	(no name dropped)	-	-	-	-	March 910494 B, June 910494 B; 0 new names; identical bytes
+Motion_Chung_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 612282 B, June 612282 B; 0 new names; identical bytes
+Motion_Chung_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 351657 B, June 351657 B; 0 new names; identical bytes
+Motion_CHUNG_Field.x	(no name dropped)	-	-	-	-	March 241172 B, June 423793 B; 2 new names
+Motion_CHUNG_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_CHUNG_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_CHUNG_Lobby.x	(no name dropped)	-	-	-	-	March 920996 B, June 1246184 B; 0 new names
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_CHUNG.x	4173402	5927830	dropped=0	new=4	differs
+# Motion_CHUNG_CDC.x	1632684	2817639	dropped=0	new=4	differs
+# Motion_CHUNG_CFG.x	1817203	3171606	dropped=1	new=11	differs
+# Motion_CHUNG_CHG.x	2266865	3122550	dropped=0	new=1	differs
+# Motion_CHUNG_CIP.x	1674097	2526389	dropped=2	new=4	differs
+# Motion_CHUNG_Common.x	1120364	5817217	dropped=0	new=21	differs
+# Motion_CHUNG_CSG.x	1685496	2894234	dropped=0	new=10	differs
+# Motion_CHUNG_CTT.x	1655598	2878158	dropped=0	new=7	differs
+# Motion_CHUNG_Emotion.x	814107	1130155	dropped=0	new=0	differs
+# Motion_CHUNG_Emotion_APINK.X	873764	873764	dropped=0	new=0	identical
+# Motion_CHUNG_Emotion_APINK_LOVE.X	300589	300589	dropped=0	new=0	identical
+# Motion_CHUNG_Emotion_BIGBANG.X	910494	910494	dropped=0	new=0	identical
+# Motion_Chung_Emotion_CRAYONPOP_Sorted.X	612282	612282	dropped=0	new=0	identical
+# Motion_Chung_Emotion_DeepBow.X	351657	351657	dropped=0	new=0	identical
+# Motion_CHUNG_Field.x	241172	423793	dropped=0	new=2	differs
+# Motion_CHUNG_Lobby.x	920996	1246184	dropped=0	new=0	differs

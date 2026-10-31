@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1g"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1g"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1g"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1g/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 20** (`awk -F'\t' '$7=="CH1g"' june2017_re/char_chung/ch0_class_map.tsv`; inside 9, new 11).
+  June addresses: `32bd8fc0` `32bd9020` `32be08b0` `32be0b10` `32be8ef0`(new CSI_CHG_DASH_JUMP_COMBO_ZXX_EventProcess) `32be9c90`(new CSI_CSG_COMBO_DASH_Z_EventProcess) `32bea080`(new CSI_CSG_COMBO_DASH_ZX_EventProcess) `32bea460`(new CSI_CSG_COMBO_DASH_ZXX_READY_EventProcess) `32bea4c0`(new CSI_CSG_COMBO_DASH_ZXX_EventProcess) `32bf5060` `32bf9790` `32bf97b0` `32bf9c10` `32c0a8d0`(new CSI_CSG_COMBO_DASH_ZXX_READY_FrameMove) `32c0abc0`(new CSI_CSG_COMBO_DASH_ZXX_END_StateStart) `32c0ac00`(new CSI_CSG_COMBO_DASH_ZX_StateEnd) `32c15990`(new ?) `32c15c00`(new CSI_CSG_COMBO_DASH_ZX_FrameMove) `32c163f0`(new CSI_CSG_COMBO_DASH_ZXX_FrameMove) `32c18950`.
+- **States: 8** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CSG_COMBO_DASH_X`, `CSI_CSG_COMBO_DASH_Z`, `CSI_CSG_COMBO_DASH_ZX`, `CSI_CSG_COMBO_DASH_ZXX_READY`, `CSI_CSG_COMBO_DASH_ZXX`, `CSI_CSG_COMBO_DASH_ZXX_END`, `CSI_CSG_COMBO_DASH_XX`, `CSI_CSG_COMBO_DASH_XXX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- Split by CH0 (50 functions): CH1g = CSG dash combos; CH1g2 = X-front, dash-jump and Head Shot.

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1e` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1d review. One at a time: `X2GUChung.*` |
+| Depends on | CH1d2 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1e-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1e"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1e"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1e"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1e/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 12** (`awk -F'\t' '$7=="CH1e"' june2017_re/char_chung/ch0_class_map.tsv`; inside 10, new 2).
+  June addresses: `32bd8ed0` `32bdf650` `32bdf820` `32bdfaf0` `32bdfba0` `32bdfe00` `32be0030` `32be0060` `32be9210`(new CSI_CFG_COMBO_XXFRONTZ_EventProcess) `32be9600`(new CSI_CFG_COMBO_XXFRONTZZ_EventProcess) `32c01be0` `32c1be30`.
+- **States: 9** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CFG_COMBO_XXFRONTZ`, `CSI_CFG_COMBO_XXFRONTZZ`, `CSI_CFG_COMBO_DASH_Z`, `CSI_CFG_COMBO_DASH_ZZ`, `CSI_CFG_COMBO_DASH_ZZZ`, `CSI_CFG_COMBO_DASH_JUMP_ZX`, `CSI_CFG_COMBO_DASH_JUMP_ZXX`, `CSI_CFG_COMBO_DASH_JUMP_ZXXLanding`, `CSI_CFG_COMBO_ZZX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- `CSI_SI_SA_CFG_IRON_HOWLING_HYPER` (a CH3a2 skill state) plays `SI_SA_CFG_IRON_HOWLING`, which no June motion file has: JUNE_BUGS row when CH3a2 writes it; noted here because the `XXX_CSI_CFG_*` dead tables sit beside it.
+- The 2 `XXX_CSI_CFG_COMBO_DASH_JUMP_ZXX*` tables and `_CSI_CFG_COMBO_XXFRONTZ` are dead data (no June registration): nothing to write.
+- `CSI_CFG_COMBO_XXFRONTZ` / `ZZ` are registered for 20 and 110 (32c1d1d0 case 0x6e falls into 0x14).

@@ -39,6 +39,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 4** (`awk -F'\t' '$7=="CH4a"' june2017_re/char_chung/ch0_class_map.tsv`; inside 3, new 1).
+  June addresses: `32bda7d0` `32bec1a0` `32c16be0` `32c24dd0`(new ?).
+- **Skills: 22** (part 2 of `ch0_state_skill.tsv`, col 6): 106 RNSI_P_COMMON_HYPER_AURA, 26400 RNSI_P_CFG_METABOLISM_BOOST, 26401 RNSI_P_CFG_ELEMENTAL_DEFENCE_A, 26402 RNSI_P_CIP_IRON_WILL, 26403 RNSI_P_CFG_GUARD_MASTERY, 26404 RNSI_P_CIP_ADVANCED_METABOLISM_BOOST, 26405 RNSI_P_CSG_REMODEL_RIFLE, 26406 RNSI_P_CSG_REMODEL_MAGAZINE, 26407 RNSI_P_CDC_INTENSE_SHOWTIME, 26408 RNSI_P_CDC_TUSSLE_TECHNIQUE, 26409 RNSI_P_CDC_GAS_PISTON_SYSTEM, 26410 RNSI_P_CHG_CONVERTED_WARHEAD, 26411 RNSI_P_CHG_RELOAD_MASTERY, 26412 RNSI_P_CTT_MOBILE_ARMORED_MODE, 26413 RNSI_P_CTT_CANNONEER_WITHSTANDING, 26414 RNSI_P_CTT_REACTIVE_ARMOR, 26415 RNSI_P_CIP_OPEN_MIND, 26416 RNSI_P_CIP_GUARDIAN_FORCE, 26417 RNSI_P_CDC_OPEN_MIND, 26418 RNSI_P_CDC_ENDLESS_CHASE, 26419 RNSI_P_CTT_OPEN_MIND, 26420 RNSI_P_CTT_USEFUL_TACTIC.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178-181 June-only members of tables March has (SKILL_ID names) fail silently; §7 L246 32c16be0 InitPassiveSkillState: SetPassiveMultiple( GetPassiveMultiple; §7ae L713-720 an id of a listed type with no case plays the class's first skill stat; §7am L897 delegate-list registrations in InitPassiveSkillState: Chung 32c16be0 p.
+- **Callees this Opus phase maps itself:** `31fc94d0` CX2GUUser add-to-gauge helper: +0x93b8 += (rate > 1 ? rate-1 : rate).
+- 22 passive / buff ids with no state (part 2 of `ch0_state_skill.tsv`); `31fc94d0` (called by InitPassiveSkillState `32c16be0`) is yours to map.

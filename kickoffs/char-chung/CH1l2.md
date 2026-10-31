@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1l2"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1l2"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1l2"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1l2/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 9** (`awk -F'\t' '$7=="CH1l2"' june2017_re/char_chung/ch0_class_map.tsv`; inside 6, new 3).
+  June addresses: `32bd8740` `32bd8750` `32bd8760` `32bd8770` `32bf2a40` `32bf3990` `32c24470`(new -) `32c24770`(new -) `32c24860`(new -).
+- CommonStateStart `32bf3990` (0x7c4) reads the June-only per-state key `USE_CANNON_BALL%d` into +0x98d8: written whole here, the consumer is CH1q.

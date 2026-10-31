@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1d` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1c review. One at a time: `X2GUChung.*` |
+| Depends on | CH1d0 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1d-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1d"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1d"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1d"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1d/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 37** (`awk -F'\t' '$7=="CH1d"' june2017_re/char_chung/ch0_class_map.tsv`; inside 37).
+  June addresses: `32bd8ab0` `32bd8b00` `32bd8b20` `32bd8b70` `32bd8b90` `32bd8bc0` `32bd8c10` `32bd8c60` `32bdd420` `32bdd5e0` `32bdd7e0` `32bdda60` `32bddc20` `32bdddf0` `32bddf30` `32bde0f0` `32bde240` `32bde470` `32bde640` `32beb2a0` `32beb330` `32beb450` `32beb5b0` `32bf5360` `32bf75b0` `32bf77c0` `32bf7ae0` `32bf7cd0` `32bf7ef0` `32c00ec0` `32c01070` `32c01220` `32c014d0` `32c01780` `32c01930` `32c03b30` `32c1bad0`.
+- **States: 15** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_COMBO_Z`, `CSI_COMBO_ZZ`, `CSI_COMBO_ZZZ`, `CSI_COMBO_ZZZZ`, `CSI_COMBO_ZZZX_READY`, `CSI_COMBO_ZZZX_CANNON_BALL_SHOT`, `CSI_COMBO_ZZZX_FINISH`, `CSI_COMBO_ZZdownZ`, `CSI_COMBO_ZZdownZZ`, `CSI_COMBO_X`, `CSI_COMBO_XX`, `CSI_COMBO_XXX`, `CSI_COMBO_XXZ`, `CSI_COMBO_XXZX_CANNON_BALL_SHOT`, `CSI_COMBO_XXZX_FINISH`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+- **Depends on CH0's Opus helper phase CH1d0** (`31fd4290`, `31fd4340`).
+- Split by CH0 (59 functions): CH1d = `CSI_COMBO_Z*` / `CSI_COMBO_X*`; CH1d2 = dash / jump combos and `CSI_ATTACK_*`.
+- Opus helper phase **CH1d0** runs first (`31fd4290`, 9 callers, and its neighbour `31fd4340`).
+- `32bf3d30` (UpCannonBallCount) is CH1q's: declare it.

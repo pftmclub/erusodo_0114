@@ -41,6 +41,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 24** (`awk -F'\t' '$7=="CH1o"' june2017_re/char_chung/ch0_class_map.tsv`; inside 8, new 16).
+  June addresses: `32bdb760`(new ?) `32bdba10`(new ?) `32bdba60`(new ShownSkillCoolTime) `32bdc520` `32bdc600` `32bf0ce0` `32bf40e0` `32bfeb80`(new ?) `32c12910`(new ?) `32c23090`(new ?) `32c23600`(new -) `32c242c0`(new ?) `32c24520`(new ?) `32c245a0`(new -) `32c246f0`(new -) `32c24930`(new ?) `32c24b30`(new ?) `32c24b40`(new ?) `32c24b50` `32c24b60` `32c24b90`(new IsBerserkByChance) `32c24e50` `32c24ed0` `32c258a0`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L259 quick-slot special-item prefix at the top of SpecialAttackEventProcess; §7 L262 riding-key skill wait after CheckSkillUsePVPOfficial in the 510 lookup; §7t L599 unit vslot 0xa4 override 32c24b90: +0x9714 > GetRandomFloat( 0 ), a be; §7t L610 L614 sound-set picks: Chung JuneIsBerserkByChance is one of the three overr; §7ap L969 0x6a8 JuneShownSkillCoolTime override 32bdba60 (skill use 32c17b82).
+- June-only overrides named by CH0 (`ch0_hand_names.tsv`): `ShownSkillCoolTime` 0x6a8 `32bdba60`, `IsNotCommonMoveState` 0x828, `GetDefenderDamageRate` 0xb8, `UpdateSpineAimRotation` 0x774, `AfterInitEquippedActiveSkillState` 0x688, `StoreGageSnapshot` / `RestoreGageSnapshot` 0x740 / 0x744; `?` rows (0x670, 0x2e8, 0x2ec, 0x824, 0x1b8, 0x748) are named from the body by the class pattern.

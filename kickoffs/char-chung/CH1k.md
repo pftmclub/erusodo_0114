@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1k` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1j review. One at a time: `X2GUChung.*` |
+| Depends on | CH1k0 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1k-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1k"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1k"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1k"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1k/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 38** (`awk -F'\t' '$7=="CH1k"' june2017_re/char_chung/ch0_class_map.tsv`; inside 32, new 6).
+  June addresses: `32bd86f0` `32bd8730` `32bdbdd0` `32bdbe10` `32bdc700` `32bdc850` `32bdc890`(new GetMetabolismBoostValue) `32beaf70` `32beaf90` `32beb050` `32bec310` `32bed3d0`(new GetDefenderDamageRate) `32bed7e0`(new ?) `32bed840`(new ?) `32bed9a0` `32bedb40` `32bee5b0` `32bee680` `32beeb90`(new ?) `32beec40`(new ?) `32beece0` `32beeed0` `32beefb0` `32bf0e90` `32bf4880` `32bf4900` `32bf50e0` `32c06220` `32c06270` `32c063d0` `32c06750` `32c0c4e0` `32c0c8f0` `32c0ca60` `32c0cf90` `32c0feb0` `32c24b80` `32c25880`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 keys COMMAND_HIT_ADD_MP_BONUS, SIEGE_ANGLE, MOBILE_SIEGE_ANGLE (INIT_C; §7 L246 32bf4900 InitComponent reader (COMMAND_HIT_ADD_MP_BONUS 1.15, SIEGE_AN; §7p L546 DamageReact 32c0cf90 (vslot 0x60) hit-stop: attacker SetStopTime( 0.5,.
+- **Depends on CH0's Opus helper phase CH1k0** (`31d28b30`, `3226e020`, `3226f870`, `31ff1950`, `32497d80`, `32a37130`).
+- Opus helper phase **CH1k0** runs first (`31d28b30`, `3226e020` / `3226f870` weapon render pulse, `31ff1950`, `32497d80`, `32a37130`).
+- InitComponent `32bf4900` (slot 0x3c) is written whole here, with its key reads: `COMMAND_HIT_ADD_MP_BONUS` (+0x98c4, consumer CH1p), `SIEGE_ANGLE` (+0x261a..d) / `MOBILE_SIEGE_ANGLE` (+0x261e..21) (consumers in the siege skill states), `EXTRA_CANNON_BALL_DAMAGE_RATE` (+0x2626 / 7, CH1q).
+- The ctor `32bf1040` is kind `not-Chung` in the map only because its caller (`3230f409`) is outside the range: it is Chung's ctor and the source of the ctor / dtor offset map. Dtor body `32c0c4e0`, slot 0 `32c25880`.
+- 7p: DamageReact `32c0cf90` with the hit-stop.

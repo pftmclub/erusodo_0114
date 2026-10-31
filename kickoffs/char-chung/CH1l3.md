@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1l3` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1l2 review. One at a time: `X2GUChung.*` |
+| Depends on | CH1l30 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1l3-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1l3"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1l3"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1l3"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1l3/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 13** (`awk -F'\t' '$7=="CH1l3"' june2017_re/char_chung/ch0_class_map.tsv`; inside 10, new 3).
+  June addresses: `32bd8790` `32bd8860` `32bd8870` `32bed560` `32bed5d0` `32bed8c0`(new ?) `32bee3e0`(new ?) `32bee490` `32beebd0`(new IsNotCommonMoveState) `32bf0800` `32bf0cc0` `32bf5130` `32c17830`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L250 class skill-use function sets the cooldown then calls ApplySkillCoolTi; §7 L275 specialization A / B readers: Chung 32bed5d0 (A), 32bf5280 (B); §7al L876-881 new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 512, UpdateE; §7ap L969 0x6a8 JuneShownSkillCoolTime override 32bdba60 (skill use 32c17b82).
+- **Depends on CH0's Opus helper phase CH1l30** (`31d70b60`, `31fd7640`, `3288fe90`, `31f66620`).
+- Opus helper phase **CH1l30** runs first (`31d70b60` GetCustomizeManager, no March system: stand-in, Stage 12 owns it; `31fd7640` vslot 0x828 base predicate; `3288fe90` skill-tree slot accessor; `31f66620` for CH1l4).
+- Slot 0x800 `32bf5130` is the one 7al hook Chung overrides.

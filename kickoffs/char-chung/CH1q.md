@@ -44,6 +44,14 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 15** (`awk -F'\t' '$7=="CH1q"' june2017_re/char_chung/ch0_class_map.tsv`; inside 13, new 2).
+  June addresses: `32bdcf20` `32bdcf70` `32bf3d30` `32bf3e40` `32bf3f60` `32bf4040` `32bf4150` `32bf4680`(new ?) `32bf5280` `32bf5430` `32bf6f20` `32c24c80`(new SetExtraCannonBallReloadCount) `32c24d00` `32c24d40` `32c24db0`.
+- **States: 1** (`awk -F'\t' '$8=="CH1q"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CHARGE_CANNON_BALL`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 keys COMMAND_HIT_ADD_MP_BONUS, SIEGE_ANGLE, MOBILE_SIEGE_ANGLE (INIT_C; §5 L184-188 keys CANNON_BALL_COUNT_AT_DUNGEON_START / _AT_PVP_START (INIT_PERSONAL; §7 L236 32bf4680 skips its timer work when the buff hyper count is 3.
+- **Cannon-ball map `ch0_cannonball.tsv` (196 rows):** 111 per-March-function rows, 18 sites (UI, gauge data, game readers, sync), 67 June-only counter touchers (state callbacks: they ride with their states' phases and call this phase's helpers).
+- Gauge at unit +0xc04, fields equal to March's `CX2ChungGageData`: now +0x110, max +0x11c, extra now +0x128, extra max +0x134, berserk +0x140 / +0x141, cannon-changed +0x142; now / extra set through `3231d7a0` / `3231d880`.
+- This phase owns the counter API (`ch0_hand_phases.tsv`): `32bf3d30` up, `32bf3e40` consume, `32bf3f60` set total (%7 split), `32bf4040` set with floor, `32bf5280` use cannon (Reload.ogg), `32bf5430` start counts (`CANNON_BALL_COUNT_AT_DUNGEON_START` / `_PVP_START`; March reads one key `CANNON_BALL_COUNT_AT_DUNGEON_OR_PVP_START`), `32bf4680` hyper-count-3 timer skip, `32c24c80` / `32c24d00` / `32c24d40` / `32c24db0` setters, and `CSI_CHARGE_CANNON_BALL`.
+- Outside the class: UI `32e6d6c0` InitUI, `32e63470` InitCannonBallUI, `32e63990` UpdateCannonBallCountUI (`DLG_Chung_Cannonball_NEW.lua`); gauge-data update `32a34720` (uncarved); DamageEffect `USE_CANNONBALL` reader `31f7aab0 @31f7c535`. `FIX_CANNON_BALL_SYNC_CALCULATION` is defined (Always.h:1993): its `#ifdef` arms at X2GUChung.cpp:6350 / 6369 are live.
+- Doubtful pairings to settle first: GetTotalCannonBallCount -> `32bed560`, InitRemodelMagazinePassiveSkill -> `32bf4900`, CreateNotEnoughMPEffect -> `32bf3990`, Chung's InitWakeOrb among `32e5b310`-`32e5b8a0`. June's `GameEditCommandList.lua` binds `AddChungCannonBall_Cheat` / `AddChungExtraCannonBall_Cheat` (unbound in March): dev commands, port only if the dev console needs them.

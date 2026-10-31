@@ -1,0 +1,1400 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32bd86f0	override 0x48	InitEffect	X2GUChung.h:690 virtual void InitEffect();	inside	-	CH1k	base 32012760	y
+32bd8720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32bd8730	override 0x548	CreateMinorParticleArray	X2GUChung.h:713 virtual void CreateMinorParticleArray();	inside	-	CH1k	base 32012920	n
+32bd8740	override 0x7c0	CommonStateStartFuture	X2GUChung.h:509 virtual void CommonStateStartFuture();	inside	-	CH1l2	base 320506f0	n
+32bd8750	override 0x7d8	CommonStateEndFuture	X2GUChung.h:515 virtual void CommonStateEndFuture();	inside	-	CH1l2	base 31fdd8e0	n
+32bd8760	override 0x7dc	CommonStateEnd	X2GUChung.h:516 virtual void CommonStateEnd();	inside	-	CH1l2	base 32015250	n
+32bd8770	override 0x7e8	CommonRender_Prepare	X2GUChung.h:518 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1l2	base 31fd07b0	y
+32bd8790	override 0x7f4	SpecialAttackEventProcess	X2GUChung.h:520 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );	inside	-	CH1l3	base 31aa1d30	n
+32bd8860	override 0x810	SpecialAttackNoStageChange	X2GUChung.h:749 virtual bool SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	inside	-	CH1l3	base 31aa1d30	n
+32bd8870	override 0x80c	NoStateChangeActionFrameMove	X2GUChung.h:521 virtual void NoStateChangeActionFrameMove();	inside	-	CH1l3	base 32008e40	n
+32bd8880	override 0x634	?	- (not found; name unsettled)	inside	-	CH1l	base 31fc7a60; inside: X2GUChung.h:759 virtual UpdateEquipCollisionData(); vslot 0x634: SetShowViewList(1), base 31fd8c00, Rfoot/Lfoot/Lhand2 bone calls	y
+32bd88f0	state-fn	CSI_DIE_FRONT.FrameMove CSI_RIDING_DIE.FrameMove	inside X2GUChung.cpp:899 CX2GUChung::DieFrontFrameMove ; inside X2GUChung.cpp:1424 CX2GUChung::DieFrontFrameMove	inside	-	CH1b	2 states	n
+32bd8910	state-fn	CSI_DIE_BACK.FrameMove	inside X2GUChung.cpp:908 CX2GUChung::DieBackFrameMove	inside	-	CH1b	1 states	n
+32bd8930	state-fn	CSI_DASH_JUMP.StartFuture	inside X2GUChung.cpp:989 CX2GUChung::DashJumpStartFuture	inside	-	CH1a	1 states	y
+32bd8960	state-fn	CSI_DASH_JUMP.EndFuture	inside X2GUChung.cpp:993 CX2GUChung::DashJumpEndFuture	inside	-	CH1a	1 states	y
+32bd8980	state-fn	CSI_POWER_DOWN_LANDING.StartFuture CSI_CIP_POWER_DOWN_LANDING.StartFuture	inside X2GUChung.cpp:1802 CX2GUChung::PowerLandingStartFuture ; inside X2GUChung.cpp:2035 CX2GUChung::PowerLandingStartFuture	inside	-	CH1a	2 states	y
+32bd89b0	state-fn	CSI_POWER_DOWN_LANDING.Start CSI_CIP_POWER_DOWN_LANDING.Start	inside X2GUChung.cpp:1803 CX2GUChung::PowerDownLandingStart ; inside X2GUChung.cpp:2036 CX2GUChung::PowerDownLandingStart	inside	-	CH1a	2 states	y
+32bd89d0	state-fn	CSI_STANDUP_ROLLING_FRONT_FRONT.End CSI_STANDUP_ROLLING_FRONT_BACK.End CSI_STANDUP_ROLLING_BACK_FRONT.End +1	inside X2GUChung.cpp:1152 CX2GUChung::StandUpRollingEnd ; inside X2GUChung.cpp:1159 CX2GUChung::StandUpRollingEnd ; inside X2GUChung.cpp:1166 CX2GUChung::StandUpRollingEnd ; inside X2GUChung.cpp:1173 CX2GUChung::StandUpRollingEnd	inside	-	CH1b	4 states	y
+32bd8a10	state-fn	CSI_STANDUP_ATTACK_FRONT.End CSI_STANDUP_ATTACK_BACK.End	inside X2GUChung.cpp:1183 CX2GUChung::StandUpAttackEnd ; inside X2GUChung.cpp:1193 CX2GUChung::StandUpAttackEnd	inside	-	CH1b	2 states	y
+32bd8a50	state-fn	CSI_GUARD.Start	inside X2GUChung.cpp:1512 CX2GUChung::GuardStart	inside	-	CH1a	1 states	n
+32bd8a60	state-fn	CSI_GUARD_ATTACK_X.Init	inside X2GUChung.cpp:1529 CX2GUChung::GuardAttackXInit	inside	-	CH1a	1 states	n
+32bd8ab0	state-fn	CSI_COMBO_ZZZX_CANNON_BALL_SHOT.Init	inside X2GUChung.cpp:1587 CX2GUChung::ComboZZZXCannonBallShotInit	inside	-	CH1d	1 states	n
+32bd8b00	state-fn	CSI_COMBO_ZZZX_CANNON_BALL_SHOT.StartFuture	inside X2GUChung.cpp:1588 CX2GUChung::ComboZZZXCannonBallShotStartFuture	inside	-	CH1d	1 states	y
+32bd8b20	state-fn	CSI_COMBO_ZZZX_FINISH.Init	inside X2GUChung.cpp:1596 CX2GUChung::ComboZZZXFinishInit	inside	-	CH1d	1 states	n
+32bd8b70	state-fn	CSI_COMBO_ZZZX_FINISH.StartFuture	inside X2GUChung.cpp:1597 CX2GUChung::ComboZZZXFinishStartFuture	inside	-	CH1d	1 states	y
+32bd8b90	state-fn	CSI_COMBO_XX.Init	inside X2GUChung.cpp:1816 CX2GUChung::ComboXXInit	inside	-	CH1d	1 states	n
+32bd8bc0	state-fn	CSI_COMBO_XXX.Init	inside X2GUChung.cpp:1824 CX2GUChung::ComboXXXInit	inside	-	CH1d	1 states	n
+32bd8c10	state-fn	CSI_COMBO_XXZX_CANNON_BALL_SHOT.Init	inside X2GUChung.cpp:1653 CX2GUChung::ComboXXZXCannonBallShotInit	inside	-	CH1d	1 states	n
+32bd8c60	state-fn	CSI_COMBO_XXZX_FINISH.Init	inside X2GUChung.cpp:1661 CX2GUChung::ComboXXZXFinishInit	inside	-	CH1d	1 states	n
+32bd8cb0	state-fn	CSI_ATTACK_DASH_X.Init CSI_CSG_COMBO_DASH_X.Init CSI_CIP_COMBO_DASH_X.Init +1	inside X2GUChung.cpp:1838 CX2GUChung::AttackDashXInit ; inside X2GUChung.cpp:2234 CX2GUChung::AttackDashXInit ; inside X2GUChung.cpp:2098 CX2GUChung::AttackDashXInit ; inside X2GUChung.cpp:2565 CX2GUChung::AttackDashXInit	inside	-	CH1d2	4 states	n
+32bd8d00	state-fn	CSI_ATTACK_DASH_X.EndFuture CSI_CSG_COMBO_DASH_X.EndFuture CSI_CIP_COMBO_DASH_X.EndFuture +1	inside X2GUChung.cpp:1841 CX2GUChung::AttackDashXEndFuture ; inside X2GUChung.cpp:2237 CX2GUChung::AttackDashXEndFuture ; inside X2GUChung.cpp:2101 CX2GUChung::AttackDashXEndFuture ; inside X2GUChung.cpp:2568 CX2GUChung::AttackDashXEndFuture	inside	-	CH1d2	4 states	y
+32bd8d40	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding_CANNON_BALL_SHOT.Init	inside X2GUChung.cpp:1715 CX2GUChung::ComboDashJumpZZLandingCannonBallShotInit	inside	-	CH1d2	1 states	n
+32bd8da0	state-fn	CSI_ATTACK_DASH_JUMP_X.Init	inside X2GUChung.cpp:1723 CX2GUChung::AttackDashJumpXInit	inside	-	CH1d2	1 states	n
+32bd8df0	state-fn	CSI_ATTACK_DASH_JUMP_X.FrameMoveFuture	inside X2GUChung.cpp:1726 CX2GUChung::AttackDashJumpXFrameMoveFuture	inside	-	CH1d2	1 states	n
+32bd8e00	state-fn	CSI_STANDUP_CANNON_ATTACK_FRONT.Init	inside X2GUChung.cpp:1733 CX2GUChung::StandUpCannonAttackInit	inside	-	CH1b	1 states	n
+32bd8e50	state-fn	CSI_STANDUP_CANNON_ATTACK_FRONT.End CSI_STANDUP_CANNON_ATTACK_BACK.End	inside X2GUChung.cpp:1736 CX2GUChung::StandUpCannonAttackEnd ; inside X2GUChung.cpp:1745 CX2GUChung::StandUpCannonAttackEnd	inside	-	CH1b	2 states	y
+32bd8e90	state-fn	CSI_STANDUP_CANNON_ATTACK_BACK.EndFuture	inside X2GUChung.cpp:1746 CX2GUChung::StandUpCannonAttackEndFuture	inside	-	CH1b	1 states	y
+32bd8ed0	state-fn	CSI_CFG_COMBO_DASH_JUMP_ZXX.Start	inside X2GUChung.cpp:1930 CX2GUChung::CFGComboDashJumpZXXStart	inside	-	CH1e	1 states	n
+32bd8ee0	state-fn	CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON.Init	inside X2GUChung.cpp:2159 CX2GUChung::CSGComboXFrontXPullSubweaponInit	inside	-	CH1g2	1 states	n
+32bd8f00	state-fn	CSI_CSG_COMBO_XFRONTX_FIRE.Init	inside X2GUChung.cpp:2168 CX2GUChung::CSGComboXFrontXFireInit	inside	-	CH1g2	1 states	n
+32bd8f60	state-fn	CSI_CSG_COMBO_XFRONTXX.Init	inside X2GUChung.cpp:2177 CX2GUChung::CSGComboXFrontXXInit	inside	-	CH1g2	1 states	n
+32bd8fc0	state-fn	CSI_CSG_COMBO_DASH_XX.Init	inside X2GUChung.cpp:2186 CX2GUChung::CSGComboDashXXInit	inside	-	CH1g	1 states	n
+32bd9020	state-fn	CSI_CSG_COMBO_DASH_XXX.Init	inside X2GUChung.cpp:2195 CX2GUChung::CSGComboDashXXXInit	inside	-	CH1g	1 states	n
+32bd9080	state-fn	CSI_CSG_COMBO_DASH_JUMP_X.Init	inside X2GUChung.cpp:2205 CX2GUChung::CSGComboDashJumpXInit	inside	-	CH1g2	1 states	n
+32bd90e0	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX.Init	inside X2GUChung.cpp:2214 CX2GUChung::CSGComboDashJumpXXInit	inside	-	CH1g2	1 states	n
+32bd9140	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX_Landing.Init	inside X2GUChung.cpp:2223 CX2GUChung::CSGComboDashJumpXXLandingInit	inside	-	CH1g2	1 states	n
+32bd9160	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION.Init	inside X2GUChung.cpp:3316 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_Init	inside	-	CH2a	1 states	n
+32bd91d0	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH.Init	inside X2GUChung.cpp:3324 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_Init	inside	-	CH2a	1 states	n
+32bd9260	state-fn	CSI_SI_A_CHUNG_RELOAD_CANNON.Init	inside X2GUChung.cpp:3340 CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_Init	inside	-	CH2a	1 states	n
+32bd92b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bd9370	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32bd9390	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bd9420	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bd94c0	state-fn	CSI_SI_SA_CHUNG_BRUTAL_SWING.Init CSI_SI_SA_CHUNG_BRUTAL_SWING_HYPER.Init	inside X2GUChung.cpp:3426 CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_Init	inside	-	CH2b	2 states	n
+32bd94f0	state-fn	CSI_SI_SA_CHUNG_BRUTAL_SWING.StartFuture CSI_SI_SA_CHUNG_BRUTAL_SWING_HYPER.StartFuture	inside X2GUChung.cpp:3427 CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_StartFuture ; inside X2GUChung.cpp:3427(=normal CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_StartFuture	inside	-	CH2b	2 states	y
+32bd9510	state-fn	CSI_SI_SA_CHUNG_SCARE_CHASE.Init CSI_SI_SA_CHUNG_SCARE_CHASE_HYPER.Init	inside X2GUChung.cpp:3445 CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_Init	inside	-	CH2a	2 states	n
+32bd95c0	state-fn	CSI_SI_A_CHUNG_AIMMING_SHOT.Init	inside X2GUChung.cpp:3483 CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_Init	inside	-	CH2a	1 states	n
+32bd95d0	state-fn	CSI_SI_A_CHUNG_AIMMING_SHOT.Start	inside X2GUChung.cpp:3484 CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_StateStart	inside	-	CH2a	1 states	n
+32bd95e0	state-fn	CSI_SI_A_CHUNG_AIMMING_SHOT.End	inside X2GUChung.cpp:3487 CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_StateEnd	inside	-	CH2a	1 states	n
+32bd9600	state-fn	CSI_SI_SA_CHUNG_ACELDAMA.Init CSI_SI_SA_CHUNG_ACELDAMA_HYPER.Init	inside X2GUChung.cpp:3462 CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_Init	inside	-	CH2a	2 states	n
+32bd96e0	state-fn	CSI_SI_SA_CHUNG_ACELDAMA.End CSI_SI_SA_CHUNG_ACELDAMA_HYPER.End	inside X2GUChung.cpp:3466 CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_StateEnd ; inside X2GUChung.cpp:3466(=normal CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_StateEnd	inside	-	CH2a	2 states	n
+32bd9700	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bd9760	state-fn	CSI_SI_SA_CFG_IRON_HOWLING.Init CSI_SI_SA_CFG_IRON_HOWLING_LOOP.Init	inside X2GUChung.cpp:3550 CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_Init	inside	-	CH3a2	2 states	n
+32bd97c0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING.StartFuture CSI_SI_SA_CFG_IRON_HOWLING_LOOP.StartFuture	-	new	CSI_SI_SA_CFG_IRON_HOWLING_StateStartFuture	CH3a2	2 states	y
+32bd97f0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING.Start CSI_SI_SA_CFG_IRON_HOWLING_LOOP.Start	-	new	CSI_SI_SA_CFG_IRON_HOWLING_StateStart	CH3a2	2 states	n
+32bd9810	state-fn	CSI_SI_SA_CFG_IRON_HOWLING_END.End	-	new	CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd	CH3a2	1 states	n
+32bd9820	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_READY.Init CSI_SI_SA_CFG_LUNATIC_FURY_READY_HYPER.Init CSI_SI_SA_CFG_LUNATIC_FURY_RUN.Init +3	inside X2GUChung.cpp:3563 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_Init	inside	-	CH2b	6 states	n
+32bd98e0	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK.FrameMove	inside X2GUChung.cpp:3584 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_FrameMove	inside	-	CH2b	1 states	n
+32bd98f0	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_READY.Init CSI_SI_A_CFG_LEAP_ATTACK_JUMP.Init CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.Init	inside X2GUChung.cpp:3615 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_Init	inside	-	CH2b	3 states	n
+32bd9900	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_READY.StartFuture CSI_SI_A_CFG_LEAP_ATTACK_JUMP.StartFuture CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.StartFuture	-	new	CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture	CH2b	3 states	y
+32bd9930	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP.Start	inside X2GUChung.cpp:3629 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_Start	inside	-	CH2b	1 states	y
+32bd9950	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.Start	inside X2GUChung.cpp:3637 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_Start	inside	-	CH2b	1 states	y
+32bd9970	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.FrameMove	inside X2GUChung.cpp:3638 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_FrameMove	inside	-	CH2b	1 states	n
+32bd9990	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_LANDING.Start CSI_SI_A_CIP_LEAP_ATTACK_LANDING.Start	inside (hand names) CSI_SI_A_CFG_LEAP_ATTACK_LANDING_Start	inside	-	CH2b	2 states	y
+32bd99b0	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_LANDING.FrameMove CSI_SI_A_CIP_LEAP_ATTACK_LANDING.FrameMove	inside (hand names) CSI_SI_A_CFG_LEAP_ATTACK_LANDING_FrameMove	inside	-	CH2b	2 states	n
+32bd99d0	state-fn	CSI_SI_A_CFG_GUARD_READY.Init CSI_SI_A_CFG_GUARD_READY_MEMO.Init	inside X2GUChung.cpp:3683 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_Init ; inside X2GUChung.cpp:3729 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_Init	inside	-	CH3a2	2 states	n
+32bd99e0	state-fn	CSI_SI_A_CFG_GUARD_READY.FrameMove CSI_SI_A_CFG_GUARD_READY_MEMO.FrameMove	inside X2GUChung.cpp:3685 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_FrameMove ; inside X2GUChung.cpp:3731 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_FrameMove	inside	-	CH3a2	2 states	n
+32bd99f0	state-fn	CSI_SI_A_CFG_GUARD_END.FrameMove	inside X2GUChung.cpp:3709 CX2GUChung::CSI_SI_A_CFG_GUARD_END_FrameMove	inside	-	CH3a2	1 states	n
+32bd9a00	state-fn	CSI_SI_A_CFG_GUARD_END.End	inside X2GUChung.cpp:3711 CX2GUChung::CSI_SI_A_CFG_GUARD_END_End	inside	-	CH3a2	1 states	n
+32bd9a20	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER.Init CSI_SI_SA_CSG_DUAL_BUSTER_HYPER.Init CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.Init	inside X2GUChung.cpp:3756 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_Init	inside	-	CH2c	3 states	n
+32bd9a80	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER.StartFuture CSI_SI_SA_CSG_DUAL_BUSTER_HYPER.StartFuture CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.StartFuture	-	new	CSI_SI_SA_CSG_DUAL_BUSTER_StateStartFuture	CH2c	3 states	y
+32bd9ab0	state-fn	CSI_SI_SA_CSG_HEAVY_RAILGUN.Init CSI_SI_SA_CSG_HEAVY_RAILGUN_HYPER.Init	inside X2GUChung.cpp:3780 CX2GUChung::CSI_SI_SA_CSG_HEAVY_RAILGUN_Init	inside	-	CH3b	2 states	n
+32bd9b70	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_READY.Init CSI_SI_SA_CSG_SHOOTING_STAR_READY_HYPER.Init CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.Init	inside X2GUChung.cpp:3792 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_READY_Init	inside	-	CH3b	3 states	n
+32bd9b80	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.Start	inside X2GUChung.cpp:3807 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_Start	inside	-	CH3b	1 states	n
+32bd9ba0	state-fn	CSI_SI_A_CSG_RUMBLE_SHOT.Init	inside X2GUChung.cpp:3826 CX2GUChung::CSI_SI_A_CSG_RUMBLE_SHOT_Init	inside	-	CH3b	1 states	n
+32bd9c10	state-fn	CSI_SI_A_CSG_HEAD_SHOT.Init	inside X2GUChung.cpp:3838 CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_Init	inside	-	CH1g2	1 states	n
+32bd9c70	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_READY.Init CSI_SI_SA_CSG_COMET_CRASHER_READY_HYPER.Init CSI_SI_SA_CSG_COMET_CRASHER_LOOP.Init	inside X2GUChung.cpp:3859 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_READY_Init	inside	-	CH3b	3 states	n
+32bd9d10	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.Init CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.Init	inside X2GUChung.cpp:3894 CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_Init	inside	-	CH2c	2 states	n
+32bd9dd0	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.FrameMoveFuture CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.FrameMoveFuture	inside X2GUChung.cpp:3896 CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMoveFuture	inside	-	CH2c	2 states	n
+32bd9de0	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.StartFuture CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.StartFuture	-	new	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStartFuture	CH2c	2 states	y
+32bd9e50	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.Start CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.Start	-	new	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStart	CH2c	2 states	y
+32bd9ec0	state-fn	CSI_SI_SA_CFG_PANDEMONIUM.Init CSI_SI_SA_CFG_PANDEMONIUM_HYPER.Init	inside X2GUChung.cpp:3912 CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_Init	inside	-	CH2b	2 states	n
+32bd9ed0	state-fn	CSI_SI_SA_CFG_PAIN_OF_CALADBOLG.Init CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_HYPER.Init	inside X2GUChung.cpp:3925 CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_Init	inside	-	CH3a2	2 states	n
+32bd9ee0	state-fn	CSI_CDC_COMBO_X.Init	inside X2GUChung.cpp:2340 CX2GUChung::CDCComboXInit	inside	-	CH1h	1 states	n
+32bd9f40	state-fn	CSI_CDC_COMBO_XX.Init	inside X2GUChung.cpp:2349 CX2GUChung::CDCComboXXInit	inside	-	CH1h	1 states	n
+32bd9f70	state-fn	CSI_CDC_COMBO_XZ.Init	inside X2GUChung.cpp:2357 CX2GUChung::CDCComboXZInit	inside	-	CH1h	1 states	n
+32bd9fd0	state-fn	CSI_CDC_COMBO_XZZ.Init	inside X2GUChung.cpp:2380 CX2GUChung::CDCComboXZZInit	inside	-	CH1h	1 states	n
+32bda020	state-fn	CSI_CDC_COMBO_ZZXX.Init	inside X2GUChung.cpp:2394 CX2GUChung::CDCComboZZXXInit	inside	-	CH1h	1 states	n
+32bda080	state-fn	CSI_CDC_COMBO_ZZXXX.Init	inside X2GUChung.cpp:2403 CX2GUChung::CDCComboZZXXXInit	inside	-	CH1h	1 states	n
+32bda130	state-fn	CSI_SI_A_CDC_TRICK_SHOT.Init	-	new	CSI_SI_A_CDC_TRICK_SHOT_Init	CH2c	1 states	n
+32bda1a0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY.Init CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_HYPER.Init CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.Init +10	inside X2GUChung.cpp:4051 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Init	inside	-	CH2c	13 states	n
+32bda2e0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE.Start	inside X2GUChung.cpp:4077 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateStart	inside	-	CH2c	1 states	y
+32bda300	state-fn	CSI_SI_SA_CDC_BULLET_BLITZ.Init CSI_SI_SA_CDC_BULLET_BLITZ_HYPER.Init	inside X2GUChung.cpp:4173 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_Init	inside	-	CH3b	2 states	n
+32bda3a0	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_Z.Init	inside X2GUChung.cpp:2044 CX2GUChung::CIPComboPowerDownLandingZInit	inside	-	CH1f	1 states	n
+32bda3b0	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_Z.End	inside X2GUChung.cpp:2047 CX2GUChung::CIPComboPowerDownLandingZEnd	inside	-	CH1f	1 states	n
+32bda3c0	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ.Init	inside X2GUChung.cpp:2053 CX2GUChung::CIPComboPowerDownLandingZZInit	inside	-	CH1f	1 states	n
+32bda410	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ.End	inside X2GUChung.cpp:2056 CX2GUChung::CIPComboPowerDownLandingZZEnd	inside	-	CH1f	1 states	n
+32bda420	state-fn	CSI_CIP_COMBO_DASH_XX.Init	inside X2GUChung.cpp:2062 CX2GUChung::CIPComboDashXXInit	inside	-	CH1f	1 states	n
+32bda430	state-fn	CSI_CIP_COMBO_DASH_XX.FrameMove	inside X2GUChung.cpp:2063 CX2GUChung::CIPComboDashXXFrameMove	inside	-	CH1f	1 states	n
+32bda440	state-fn	CSI_CIP_COMBO_DASH_XX.End	inside X2GUChung.cpp:2065 CX2GUChung::CIPComboDashXXEnd	inside	-	CH1f	1 states	n
+32bda450	state-fn	CSI_CIP_COMBO_DASH_XXX.Init	inside X2GUChung.cpp:2071 CX2GUChung::CIPComboDashXXXInit	inside	-	CH1f	1 states	n
+32bda460	state-fn	CSI_CIP_COMBO_DASH_XXX.FrameMove	inside X2GUChung.cpp:2072 CX2GUChung::CIPComboDashXXXFrameMove	inside	-	CH1f	1 states	n
+32bda470	state-fn	CSI_CIP_COMBO_DASH_XXX.End	inside X2GUChung.cpp:2074 CX2GUChung::CIPComboDashXXXEnd	inside	-	CH1f	1 states	n
+32bda480	state-fn	CSI_CIP_COMBO_DASH_XXXX.Init	inside X2GUChung.cpp:2080 CX2GUChung::CIPComboDashXXXXInit	inside	-	CH1f	1 states	n
+32bda490	state-fn	CSI_CIP_COMBO_DASH_XXXX.End	inside X2GUChung.cpp:2083 CX2GUChung::CIPComboDashXXXXEnd	inside	-	CH1f	1 states	n
+32bda4a0	state-fn	CSI_CIP_COMBO_DASH_XXXZ.Init	inside X2GUChung.cpp:2089 CX2GUChung::CIPComboDashXXXZInit	inside	-	CH1f	1 states	n
+32bda4b0	state-fn	CSI_CIP_COMBO_DASH_XXXZ.FrameMove	inside X2GUChung.cpp:2090 CX2GUChung::CIPComboDashXXXZFrameMove	inside	-	CH1f	1 states	n
+32bda4c0	state-fn	CSI_CIP_COMBO_DASH_XXXZ.End	inside X2GUChung.cpp:2092 CX2GUChung::CIPComboDashXXXZEnd	inside	-	CH1f	1 states	n
+32bda4d0	state-fn	CSI_SI_A_CIP_SUDDEN_BURSTER.Init	inside X2GUChung.cpp:3941 CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_Init	inside	-	CH2b	1 states	n
+32bda530	state-fn	CSI_SI_A_CIP_SUDDEN_BURSTER.FrameMoveFuture	inside X2GUChung.cpp:3942 CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_FrameMoveFuture	inside	-	CH2b	1 states	n
+32bda540	state-fn	CSI_SI_SA_CIP_BURST_WOLF.Init CSI_SI_SA_CIP_BURST_WOLF_HYPER.Init	inside X2GUChung.cpp:3963 CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_Init	inside	-	CH2b	2 states	n
+32bda590	state-fn	CSI_SI_SA_CIP_BURST_WOLF.End CSI_SI_SA_CIP_BURST_WOLF_HYPER.End	inside X2GUChung.cpp:3967 CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateEnd ; inside X2GUChung.cpp:3967(=normal CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateEnd	inside	-	CH2b	2 states	n
+32bda5b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32bda5d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90d8070000	n
+32bda5f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32bda610	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90cc070000	n
+32bda620	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90d8070000	n
+32bda630	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bda6b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c4070000	n
+32bda6c0	state-fn	CSI_SI_A_SIEGE_SHELLING_READYLOOP.Start CSI_SI_A_SIEGE_SHELLING_X.Start CSI_SI_A_SIEGE_SHELLING_X_FINISH.Start +1	-	new	CSI_SI_A_SIEGE_SHELLING_READYLOOP_StateStart	CH2a	4 states	n
+32bda6d0	state-fn	CSI_A_CHG_MARK_OF_COMMANDER.Init CSI_A_CHG_MARK_OF_COMMANDER_HYPER.Init	inside X2GUChung.cpp:4230 CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_Init	inside	-	CH3c	2 states	n
+32bda750	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_WAIT.FrameMove	inside X2GUChung.cpp:4326 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_FrameMove	inside	-	CH2d	1 states	n
+32bda760	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_WALK.FrameMove	inside X2GUChung.cpp:4334 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_FrameMove	inside	-	CH2d	1 states	n
+32bda770	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_JUMP_UP.EventProcess	inside X2GUChung.cpp:4348 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_UP_EventProcess	inside	-	CH2d	1 states	y
+32bda7c0	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG.FrameMove	inside X2GUChung.cpp:4361 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_FrameMove	inside	-	CH2d	1 states	n
+32bda7d0	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUChung.h:782 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH4a	base 3202ed60	n
+32bda820	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_READY.End	inside X2GUChung.cpp:2613 CX2GUChung::CTT_MobileArmoredModeReadyStateEnd	inside	-	CH1j	1 states	y
+32bda860	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD.StartFuture CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD.StartFuture	-	new	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD_StateStartFuture	CH1j	2 states	y
+32bda8a0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD.Start	inside X2GUChung.cpp:2628 CX2GUChung::CTT_MobileArmoredModeLoopFowardStateStart	inside	-	CH1j	1 states	y
+32bda8f0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD.FrameMove	inside X2GUChung.cpp:2629 CX2GUChung::CTT_MobileArmoredModeLoopFowardFrameMove	inside	-	CH1j	1 states	n
+32bda970	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD.End	inside X2GUChung.cpp:2631 CX2GUChung::CTT_MobileArmoredModeLoopFowardStateEnd	inside	-	CH1j	1 states	y
+32bda9b0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD.Start	inside X2GUChung.cpp:2637 CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateStart	inside	-	CH1j	1 states	y
+32bdaa00	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD.FrameMove	inside X2GUChung.cpp:2638 CX2GUChung::CTT_MobileArmoredModeLoopBackwardFrameMove	inside	-	CH1j	1 states	n
+32bdaa80	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD.End	inside X2GUChung.cpp:2640 CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateEnd	inside	-	CH1j	1 states	y
+32bdaac0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP.Start	inside X2GUChung.cpp:2619 CX2GUChung::CTT_MobileArmoredModeLoopStateStart	inside	-	CH1j	1 states	y
+32bdab10	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP.End	inside X2GUChung.cpp:2622 CX2GUChung::CTT_MobileArmoredModeLoopStateEnd	inside	-	CH1j	1 states	y
+32bdab50	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_UNREADY.Start	inside X2GUChung.cpp:2646 CX2GUChung::CTT_MobileArmoredModeUnreadyStateStart	inside	-	CH1j	1 states	y
+32bdaba0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_UNREADY.End	inside X2GUChung.cpp:2649 CX2GUChung::CTT_MobileArmoredModeUnreadyStateEnd	inside	-	CH1j	1 states	y
+32bdabe0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_Z.StartFuture	inside X2GUChung.cpp:2655 CX2GUChung::CTT_MobileArmoredModeZStateStartFuture	inside	-	CH1j	1 states	y
+32bdac00	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_Z.Start	inside X2GUChung.cpp:2656 CX2GUChung::CTT_MobileArmoredModeZStateStart	inside	-	CH1j	1 states	y
+32bdac50	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_Z.End	inside X2GUChung.cpp:2659 CX2GUChung::CTT_MobileArmoredModeZStateEnd	inside	-	CH1j	1 states	y
+32bdac90	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_X.StartFuture	inside X2GUChung.cpp:2665 CX2GUChung::CTT_MobileArmoredModeXStateStartFuture	inside	-	CH1j	1 states	y
+32bdacb0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_X.Start	inside X2GUChung.cpp:2666 CX2GUChung::CTT_MobileArmoredModeXStateStart	inside	-	CH1j	1 states	y
+32bdad00	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_X.End	inside X2GUChung.cpp:2669 CX2GUChung::CTT_MobileArmoredModeXStateEnd	inside	-	CH1j	1 states	y
+32bdad40	state-fn	CSI_SI_SA_CTT_CANNON_STRIKE.Init CSI_SI_SA_CTT_CANNON_STRIKE_HYPER.Init	inside X2GUChung.cpp:4421 CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_Init	inside	-	CH3c	2 states	n
+32bdad50	state-fn	CSI_SI_SA_CTT_CANNON_STRIKE.StartFuture CSI_SI_SA_CTT_CANNON_STRIKE_HYPER.StartFuture	inside X2GUChung.cpp:4422 CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_StartFuture ; inside X2GUChung.cpp:4422(=normal CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_StartFuture	inside	-	CH3c	2 states	n
+32bdad60	state-fn	CSI_A_CTT_REMOTE_MORTAR.Init	inside X2GUChung.cpp:4402 CX2GUChung::CSI_A_CTT_REMOTE_MORTAR_Init	inside	-	CH3c	1 states	n
+32bdad70	state-fn	CSI_A_CTT_REMOTE_MORTAR.Start	inside X2GUChung.cpp:4403 CX2GUChung::CSI_A_CTT_REMOTE_MORTAR_StateStart	inside	-	CH3c	1 states	n
+32bdad80	state-fn	CSI_SA_CTT_TACTICAL_FIELD.Init CSI_SA_CTT_TACTICAL_FIELD_HYPER.Init	inside X2GUChung.cpp:4440 CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_Init	inside	-	CH3c	2 states	n
+32bdad90	state-fn	CSI_SA_CTT_TACTICAL_FIELD.Start CSI_SA_CTT_TACTICAL_FIELD_HYPER.Start	inside X2GUChung.cpp:4441 CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_StateStart ; inside X2GUChung.cpp:4441(=normal CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_StateStart	inside	-	CH3c	2 states	n
+32bdada0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_READY.StartFuture CSI_A_CHUNG_IMPACT_DETONATION_LOOP.StartFuture	inside X2GUChung.cpp:4505 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_READY_StartFuture ; inside X2GUChung.cpp:4518 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_StartFuture	inside	-	CH2d	2 states	y
+32bdadc0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_LOOP.Init	inside X2GUChung.cpp:4517 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_Init	inside	-	CH2d	1 states	n
+32bdae40	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_LOOP.StartFuture	inside X2GUChung.cpp:4518 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_StartFuture	inside	-	CH2d	1 states	y
+32bdae60	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_FINAL.StartFuture	inside X2GUChung.cpp:4526 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_StartFuture	inside	-	CH2d	1 states	y
+32bdae80	state-fn	CSI_A_CIP_ARTILLERY_NOVA_CHARGE.Init	inside X2GUChung.cpp:4535 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_Init	inside	-	CH3a	1 states	n
+32bdaf00	state-fn	CSI_A_CIP_ARTILLERY_NOVA_CHARGE.StartFuture	inside X2GUChung.cpp:4536 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_StartFuture	inside	-	CH3a	1 states	y
+32bdaf30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bdaf90	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START.StartFuture CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.StartFuture	inside X2GUChung.cpp:4470 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_StartFuture ; inside X2GUChung.cpp:4489 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_StartFuture	inside	-	CH3a	2 states	y
+32bdafb0	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START.EndFuture CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.EndFuture	inside X2GUChung.cpp:4474 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_EndFuture	inside	-	CH3a	2 states	n
+32bdafd0	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.StartFuture	inside X2GUChung.cpp:4489 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_StartFuture	inside	-	CH3a	1 states	y
+32bdaff0	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING.Init	inside X2GUChung.cpp:4496 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_Init	inside	-	CH3a	1 states	n
+32bdb0d0	state-fn	CSI_A_CSG_MAGNUM_SHOT.Init	inside X2GUChung.cpp:4573 CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_Init	inside	-	CH2d	1 states	n
+32bdb130	state-fn	CSI_A_CDC_RAPID_CANNON_READY.StartFuture CSI_A_CDC_RAPID_CANNON_LOOP.StartFuture	inside X2GUChung.cpp:4587 CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_StartFuture ; inside X2GUChung.cpp:4604 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_StartFuture	inside	-	CH3b	2 states	y
+32bdb160	state-fn	CSI_A_CDC_RAPID_CANNON_LOOP.Init	inside X2GUChung.cpp:4603 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_Init	inside	-	CH3b	1 states	n
+32bdb1b0	state-fn	CSI_A_CDC_RAPID_CANNON_LOOP.StartFuture	inside X2GUChung.cpp:4604 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_StartFuture	inside	-	CH3b	1 states	y
+32bdb1d0	state-fn	CSI_A_CDC_RAPID_CANNON_FINAL.StartFuture	inside X2GUChung.cpp:4612 CX2GUChung::CSI_A_CDC_RAPID_CANNON_FINAL_StartFuture	inside	-	CH3b	1 states	y
+32bdb1f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bdb250	not-Chung	called only from outside the range: 3230c6ba 3230c7f9	-	-	-	n/a	shared / folded code	y
+32bdb260	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bdb2c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32bdb340	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY.Init CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.Init CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE.Init +9	inside X2GUChung.cpp:4673 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY_Init	inside	-	CH2c	12 states	n
+32bdb550	state-fn	CSI_HA_CTT_SATELITE_RAIN.Init	inside X2GUChung.cpp:4815 CX2GUChung::CSI_HA_CTT_SATELITE_RAIN_Init	inside	-	CH3d	1 states	n
+32bdb610	state-fn	CSI_HA_CDC_OUTRAGE_STRIKE.Init	inside X2GUChung.cpp:4789 CX2GUChung::CSI_HA_CDC_OUTRAGE_STRIKE_Init	inside	-	CH3d	1 states	n
+32bdb6a0	state-fn	CSI_HA_CIP_DOOM_STRIKER.Init	inside X2GUChung.cpp:4802 CX2GUChung::CSI_HA_CIP_DOOM_STRIKER_Init	inside	-	CH3d	1 states	n
+32bdb760	helper	reached only through pointer @33509538	-	new	?	CH1o	phase unsettled: read it; name: reached only through pointer @33509538, before the Chung vtable; uncarved, not read	n
+32bdb780	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32bdb790	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b74240885f674	n
+32bdb7e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 68a2010000e80603	n
+32bdb7f0	state-fn	CSI_CSG_COMBO_DASH_JUMP_ZX_READY.Start	-	new	CSI_CSG_COMBO_DASH_JUMP_ZX_READY_StateStart	CH1g2	1 states	y
+32bdb810	state-fn	CSI_SI_SA_CSG_DEADLY_SHOT.Init	-	new	CSI_SI_SA_CSG_DEADLY_SHOT_Init	CH2c	1 states	n
+32bdb8b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51d9e85668316700	n
+32bdb8f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e816b9	n
+32bdba10	helper	reached only through callers with no phased caller 32c23091	-	new	?	CH1o	phase unsettled: read it; name: tiny, reads a skill level via 31fceab0, no string; not read further	y
+32bdba60	override 0x6a8	?	- (not found; name unsettled)	new	ShownSkillCoolTime	CH1o	base 3208e190; name: June-only virtual X2GUUser.h:3423 (vslot 0x6a8, base 3208e190); Chung returns arg1 unless skill 0x65b7 with member live	n
+32bdba90	state-fn	CSI_SA_CDC_SHOOTING_BIND.StartFuture	-	new	CSI_SA_CDC_SHOOTING_BIND_StateStartFuture	CH3b	1 states	y
+32bdbab0	state-fn	CSI_SA_CDC_SHOOTING_BIND.EndFuture	-	new	CSI_SA_CDC_SHOOTING_BIND_StateEndFuture	CH3b	1 states	y
+32bdbae0	state-fn	CSI_SA_CIP_RAPID_GUARDIAN.Init	-	new	CSI_SA_CIP_RAPID_GUARDIAN_Init	CH3a	1 states	n
+32bdbb40	state-fn	CSI_SA_CDC_BURNING_PUNISHER.Init	-	new	CSI_SA_CDC_BURNING_PUNISHER_Init	CH3b	1 states	n
+32bdbbd0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.Init CSI_SA_CTT_HEAVY_FIELD_LOOP.Init	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_Init	CH3c	2 states	n
+32bdbca0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.StartFuture CSI_SA_CTT_HEAVY_FIELD_LOOP.StartFuture	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_StateStartFuture	CH3c	2 states	y
+32bdbcd0	state-fn	CSI_JUMP_UP.Start	-	new	CSI_JUMP_UP_StateStart	CH1a	1 states	y
+32bdbcf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32bdbd10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32bdbd30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32bdbd80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32bdbdd0	override 0x90	Win	X2GUChung.h:686 virtual void Win();	inside	-	CH1k	base 32014660	y
+32bdbe00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32bdbe10	override 0x98	Draw	X2GUChung.h:688 virtual void Draw();	inside	-	CH1k	base 31ff17c0	y
+32bdbe40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32bdbe50	override 0x7b8	SetEquippedSkillLevel	X2GUChung.h:506 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	inside	-	CH1l	base 31aa1d30	n
+32bdc500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e818df3eff	y
+32bdc520	helper	reached only through callers with no phased caller 32beb036	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:696; static; appends the DamageImpact* particle names	y
+32bdc5e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e818df3eff	y
+32bdc600	helper	reached only through callers with no phased caller 32bf281a	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:731; sets 19 handles +0x95c8..+0x9610 to -1	y
+32bdc680	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90cc	y
+32bdc6c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf10fb786587e	y
+32bdc700	override 0x28	NotifyShowObjectChanged	X2GUChung.h:752 virtual void NotifyShowObjectChanged();	inside	-	CH1k	base 31ff1950	y
+32bdc750	override 0x644	UpdateEquipViewListInfo	X2GUChung.h:758 virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );	inside	-	CH1l	base 3201b930	y
+32bdc850	override 0x4	OnFrameMove	X2GUChung.h:773 virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );	inside	-	CH1k	base 3206eaf0	n
+32bdc890	helper	called by 32c0cf90	-	new	GetMetabolismBoostValue	CH1k	name: float(float): class 0x14/0x6e only, passive CFG_METABOLISM_BOOST 0x6720 value scaled by the arg; role guess	y
+32bdc940	state-fn	CSI_DIE_FRONT.StartFuture CSI_RIDING_DIE.StartFuture	inside X2GUChung.cpp:897 CX2GUChung::DieFrontStartFuture ; inside X2GUChung.cpp:1422 CX2GUChung::DieFrontStartFuture	inside	-	CH1b	2 states	y
+32bdc9a0	state-fn	CSI_DIE_FRONT.EventProcess CSI_RIDING_DIE.EventProcess	inside X2GUChung.cpp:900 CX2GUChung::DieFrontEventProcess ; inside X2GUChung.cpp:1425 CX2GUChung::DieFrontEventProcess	inside	-	CH1b	2 states	y
+32bdc9e0	state-fn	CSI_DIE_BACK.StartFuture	inside X2GUChung.cpp:906 CX2GUChung::DieBackStartFuture	inside	-	CH1b	1 states	y
+32bdca40	state-fn	CSI_DIE_BACK.EventProcess	inside X2GUChung.cpp:909 CX2GUChung::DieBackEventProcess	inside	-	CH1b	1 states	y
+32bdca80	state-fn	CSI_WAIT.StartFuture	inside X2GUChung.cpp:925 CX2GUChung::WaitStartFuture	inside	-	CH1a	1 states	y
+32bdcac0	state-fn	CSI_WAIT.Start	inside X2GUChung.cpp:926 CX2GUChung::WaitStart	inside	-	CH1a	1 states	y
+32bdcaf0	state-fn	CSI_WAIT.FrameMoveFuture	inside X2GUChung.cpp:927 CX2GUChung::WaitFrameMoveFuture	inside	-	CH1a	1 states	n
+32bdcb10	state-fn	CSI_DASH_END.FrameMove	inside X2GUChung.cpp:982 CX2GUChung::DashEndFrameMove	inside	-	CH1a	1 states	n
+32bdcb50	state-fn	CSI_DASH_JUMP.Start	inside X2GUChung.cpp:990 CX2GUChung::DashJumpStart	inside	-	CH1a	1 states	y
+32bdcba0	state-fn	CSI_DAMAGE_SMALL_FRONT.EventProcess CSI_DAMAGE_SMALL_BACK.EventProcess	inside X2GUChung.cpp:1038 CX2GUChung::DamageSmallEventProcess ; inside X2GUChung.cpp:1044 CX2GUChung::DamageSmallEventProcess	inside	-	CH1b	2 states	n
+32bdcc40	state-fn	CSI_DAMAGE_BIG_FRONT.EventProcess CSI_DAMAGE_BIG_BACK.EventProcess	inside X2GUChung.cpp:1051 CX2GUChung::DamageBigEventProcess ; inside X2GUChung.cpp:1058 CX2GUChung::DamageBigEventProcess	inside	-	CH1b	2 states	n
+32bdcd90	state-fn	CSI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GUChung.cpp:1064 CX2GUChung::DamageDownFrontFrameMove	inside	-	CH1b	1 states	n
+32bdcde0	state-fn	CSI_DAMAGE_DOWN_BACK.FrameMove	inside X2GUChung.cpp:1071 CX2GUChung::DamageDownBackFrameMove	inside	-	CH1b	1 states	n
+32bdce20	state-fn	CSI_STANDUP_ROLLING_FRONT_FRONT.EventProcess CSI_STANDUP_ROLLING_FRONT_BACK.EventProcess CSI_STANDUP_ROLLING_BACK_FRONT.EventProcess +1	inside X2GUChung.cpp:1151 CX2GUChung::StandUpRollingEventProcess ; inside X2GUChung.cpp:1158 CX2GUChung::StandUpRollingEventProcess ; inside X2GUChung.cpp:1165 CX2GUChung::StandUpRollingEventProcess ; inside X2GUChung.cpp:1172 CX2GUChung::StandUpRollingEventProcess	inside	-	CH1b	4 states	y
+32bdcea0	state-fn	CSI_STANDUP_ATTACK_FRONT.EventProcess CSI_STANDUP_ATTACK_BACK.EventProcess	inside X2GUChung.cpp:1182 CX2GUChung::StandUpAttackEventProcess ; inside X2GUChung.cpp:1192 CX2GUChung::StandUpAttackEventProcess	inside	-	CH1b	2 states	y
+32bdcf20	state-fn	CSI_CHARGE_CANNON_BALL.Start	inside X2GUChung.cpp:1503 CX2GUChung::ChargeCannonBallStart	inside	-	CH1q	1 states	y
+32bdcf70	state-fn	CSI_CHARGE_CANNON_BALL.StartFuture	inside X2GUChung.cpp:1504 CX2GUChung::ChargeCannonBallStartFuture	inside	-	CH1q	1 states	y
+32bdcfc0	state-fn	CSI_GUARD_ATTACK_Z.EventProcess	inside X2GUChung.cpp:1523 CX2GUChung::GuardAttackZEventProcess	inside	-	CH1a	1 states	n
+32bdd1d0	state-fn	CSI_GUARD_ATTACK_X.EventProcess	inside X2GUChung.cpp:1531 CX2GUChung::GuardAttackXEventProcess	inside	-	CH1a	1 states	n
+32bdd420	state-fn	CSI_COMBO_Z.EventProcess	inside X2GUChung.cpp:1546 CX2GUChung::ComboZEventProcess	inside	-	CH1d	1 states	n
+32bdd5e0	state-fn	CSI_COMBO_ZZ.EventProcess	inside X2GUChung.cpp:1555 CX2GUChung::ComboZZEventProcess	inside	-	CH1d	1 states	y
+32bdd670	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 742183783875751b	n
+32bdd7e0	state-fn	CSI_COMBO_ZZZ.EventProcess	inside X2GUChung.cpp:1564 CX2GUChung::ComboZZZEventProcess	inside	-	CH1d	1 states	n
+32bdda60	state-fn	CSI_COMBO_ZZZZ.EventProcess	inside X2GUChung.cpp:1573 CX2GUChung::ComboZZZZEventProcess	inside	-	CH1d	1 states	n
+32bddc20	state-fn	CSI_COMBO_ZZZX_FINISH.EventProcess	inside X2GUChung.cpp:1599 CX2GUChung::ComboZZZXFinishEventProcess	inside	-	CH1d	1 states	n
+32bdddf0	state-fn	CSI_COMBO_ZZdownZ.EventProcess	inside X2GUChung.cpp:1608 CX2GUChung::ComboZZdownZEventProcess	inside	-	CH1d	1 states	y
+32bddf30	state-fn	CSI_COMBO_ZZdownZZ.EventProcess	inside X2GUChung.cpp:1617 CX2GUChung::ComboZZdownZZEventProcess	inside	-	CH1d	1 states	n
+32bde0f0	state-fn	CSI_COMBO_X.EventProcess	inside X2GUChung.cpp:1810 CX2GUChung::ComboXEventProcess	inside	-	CH1d	1 states	y
+32bde240	state-fn	CSI_COMBO_XX.EventProcess	inside X2GUChung.cpp:1818 CX2GUChung::ComboXXEventProcess	inside	-	CH1d	1 states	y
+32bde470	state-fn	CSI_COMBO_XXX.EventProcess	inside X2GUChung.cpp:1826 CX2GUChung::ComboXXXEventProcess	inside	-	CH1d	1 states	n
+32bde640	state-fn	CSI_COMBO_XXZX_FINISH.EventProcess	inside X2GUChung.cpp:1663 CX2GUChung::ComboXXZXFinishEventProcess	inside	-	CH1d	1 states	n
+32bde810	state-fn	CSI_COMBO_DASH_Z.EventProcess	inside X2GUChung.cpp:1795 CX2GUChung::ComboDashZEventProcess	inside	-	CH1d2	1 states	n
+32bdea80	state-fn	CSI_ATTACK_DASH_X.EventProcess CSI_CSG_COMBO_DASH_X.EventProcess CSI_CIP_COMBO_DASH_X.EventProcess +1	inside X2GUChung.cpp:1840 CX2GUChung::AttackDashXEventProcess ; inside X2GUChung.cpp:2236 CX2GUChung::AttackDashXEventProcess ; inside X2GUChung.cpp:2100 CX2GUChung::AttackDashXEventProcess ; inside X2GUChung.cpp:2567 CX2GUChung::AttackDashXEventProcess	inside	-	CH1d2	4 states	y
+32bdec60	state-fn	CSI_ATTACK_JUMP_Z.EventProcess	inside X2GUChung.cpp:1680 CX2GUChung::AttackJumpZEventProcess	inside	-	CH1d2	1 states	y
+32bdeca0	state-fn	CSI_ATTACK_JUMP_X.EventProcess	inside X2GUChung.cpp:1687 CX2GUChung::AttackJumpXEventProcess	inside	-	CH1d2	1 states	y
+32bdece0	state-fn	CSI_COMBO_DASH_JUMP_Z.EventProcess	inside X2GUChung.cpp:1694 CX2GUChung::ComboDashJumpZEventProcess	inside	-	CH1d2	1 states	y
+32bdf040	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding.EventProcess	inside X2GUChung.cpp:1709 CX2GUChung::ComboDashJumpZZLandingEventProcess	inside	-	CH1d2	1 states	n
+32bdf160	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding_CANNON_BALL_SHOT.EventProcess	inside X2GUChung.cpp:1717 CX2GUChung::ComboDashJumpZZLandingCannonBallShotEventProcess	inside	-	CH1d2	1 states	n
+32bdf400	state-fn	CSI_STANDUP_CANNON_ATTACK_FRONT.EventProcess CSI_STANDUP_CANNON_ATTACK_BACK.EventProcess	inside X2GUChung.cpp:1735 CX2GUChung::StandUpCannonAttackEventProcess ; inside X2GUChung.cpp:1744 CX2GUChung::StandUpCannonAttackEventProcess	inside	-	CH1b	2 states	n
+32bdf650	state-fn	CSI_CFG_COMBO_ZZX.EventProcess	inside X2GUChung.cpp:1895 CX2GUChung::CFGComboZZXEventProcess	inside	-	CH1e	1 states	n
+32bdf820	state-fn	CSI_CFG_COMBO_DASH_Z.EventProcess	inside X2GUChung.cpp:1905 CX2GUChung::CFGComboDashZEventProcess	inside	-	CH1e	1 states	n
+32bdfaf0	state-fn	CSI_CFG_COMBO_DASH_ZZ.EventProcess	inside X2GUChung.cpp:1911 CX2GUChung::CFGComboDashZZEventProcess	inside	-	CH1e	1 states	y
+32bdfba0	state-fn	CSI_CFG_COMBO_DASH_ZZZ.EventProcess	inside X2GUChung.cpp:1917 CX2GUChung::CFGComboDashZZZEventProcess	inside	-	CH1e	1 states	n
+32bdfe00	state-fn	CSI_CFG_COMBO_DASH_JUMP_ZX.EventProcess	inside X2GUChung.cpp:1924 CX2GUChung::CFGComboDashJumpZXEventProcess	inside	-	CH1e	1 states	n
+32be0030	state-fn	CSI_CFG_COMBO_DASH_JUMP_ZXX.EventProcess	inside X2GUChung.cpp:1931 CX2GUChung::CFGComboDashJumpZXXEventProcess	inside	-	CH1e	1 states	y
+32be0060	state-fn	CSI_CFG_COMBO_DASH_JUMP_ZXXLanding.EventProcess	inside X2GUChung.cpp:1937 CX2GUChung::CFGComboDashJumpZXXLandingEventProcess	inside	-	CH1e	1 states	n
+32be0200	state-fn	CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON.EventProcess	inside X2GUChung.cpp:2161 CX2GUChung::CSGComboXFrontXPullSubweaponEventProcess	inside	-	CH1g2	1 states	y
+32be0270	state-fn	CSI_CSG_COMBO_XFRONTX_FIRE.EventProcess	inside X2GUChung.cpp:2170 CX2GUChung::CSGComboXFrontXFireEventProcess	inside	-	CH1g2	1 states	n
+32be0630	state-fn	CSI_CSG_COMBO_XFRONTXX.EventProcess	inside X2GUChung.cpp:2179 CX2GUChung::CSGComboXFrontXXEventProcess	inside	-	CH1g2	1 states	n
+32be08b0	state-fn	CSI_CSG_COMBO_DASH_XX.EventProcess	inside X2GUChung.cpp:2188 CX2GUChung::CSGComboDashXXEventProcess	inside	-	CH1g	1 states	n
+32be0b10	state-fn	CSI_CSG_COMBO_DASH_XXX.EventProcess	inside X2GUChung.cpp:2197 CX2GUChung::CSGComboDashXXXEventProcess	inside	-	CH1g	1 states	y
+32be0c30	state-fn	CSI_CSG_COMBO_DASH_JUMP_X.EventProcess	inside X2GUChung.cpp:2207 CX2GUChung::CSGComboDashJumpXEventProcess	inside	-	CH1g2	1 states	y
+32be0cb0	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX.EventProcess	inside X2GUChung.cpp:2216 CX2GUChung::CSGComboDashJumpXXEventProcess	inside	-	CH1g2	1 states	y
+32be0d50	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH.EventProcess	inside X2GUChung.cpp:3326 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_EventProcess	inside	-	CH2a	1 states	y
+32be0da0	state-fn	CSI_SI_A_CHUNG_RELOAD_CANNON.EventProcess	inside X2GUChung.cpp:3343 CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_EventProcess	inside	-	CH2a	1 states	y
+32be0df0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32be0e20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf180be1c7e00	y
+32be0e50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32be0e90	state-fn	CSI_SI_SA_CHUNG_BRUTAL_SWING.EventProcess CSI_SI_SA_CHUNG_BRUTAL_SWING_HYPER.EventProcess	inside X2GUChung.cpp:3429 CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_EventProcess ; inside X2GUChung.cpp:3429(=normal CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_EventProcess	inside	-	CH2b	2 states	y
+32be0ed0	state-fn	CSI_SI_SA_CHUNG_SCARE_CHASE.EventProcess CSI_SI_SA_CHUNG_SCARE_CHASE_HYPER.EventProcess	inside X2GUChung.cpp:3447 CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_EventProcess ; inside X2GUChung.cpp:3447(=normal CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_EventProcess	inside	-	CH2a	2 states	y
+32be0f10	state-fn	CSI_SI_A_CHUNG_AIMMING_SHOT.EventProcess	inside X2GUChung.cpp:3486 CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_EventProcess	inside	-	CH2a	1 states	y
+32be0f50	state-fn	CSI_SI_SA_CHUNG_ACELDAMA.Start CSI_SI_SA_CHUNG_ACELDAMA_HYPER.Start	inside X2GUChung.cpp:3463 CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_StateStart ; inside X2GUChung.cpp:3463(=normal CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_StateStart	inside	-	CH2a	2 states	y
+32be0fb0	state-fn	CSI_SI_SA_CHUNG_ACELDAMA.EventProcess CSI_SI_SA_CHUNG_ACELDAMA_HYPER.EventProcess	inside X2GUChung.cpp:3465 CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_EventProcess ; inside X2GUChung.cpp:3465(=normal CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_EventProcess	inside	-	CH2a	2 states	y
+32be0ff0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b86d0	n
+32be11a0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING.EventProcess CSI_SI_SA_CFG_IRON_HOWLING_LOOP.EventProcess	inside X2GUChung.cpp:3552 CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_EventProcess	inside	-	CH3a2	2 states	y
+32be1260	state-fn	CSI_SI_SA_CFG_IRON_HOWLING_LOOP.Start	-	new	CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart	CH3a2	1 states	n
+32be12c0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING_LOOP.EventProcess	-	new	CSI_SI_SA_CFG_IRON_HOWLING_LOOP_EventProcess	CH3a2	1 states	n
+32be1390	state-fn	CSI_SI_SA_CFG_IRON_HOWLING_LOOP.End	-	new	CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateEnd	CH3a2	1 states	n
+32be13b0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING_END.EventProcess	-	new	CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess	CH3a2	1 states	n
+32be15b0	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_READY.EventProcess CSI_SI_SA_CFG_LUNATIC_FURY_READY_HYPER.EventProcess CSI_SI_SA_CFG_LUNATIC_FURY_RUN.EventProcess +3	inside X2GUChung.cpp:3565 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_EventProcess ; inside X2GUChung.cpp:3565(=normal CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_EventProcess ; inside X2GUChung.cpp:3578 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_EventProcess ; inside X2GUChung.cpp:3585 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_EventProcess ; inside X2GUChung.cpp:3592 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_EventProcess ; inside X2GUChung.cpp:3599 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_EventProcess	inside	-	CH2b	6 states	y
+32be15e0	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_RUN.EventProcess	inside X2GUChung.cpp:3578 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_EventProcess	inside	-	CH2b	1 states	y
+32be1620	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK.EventProcess	inside X2GUChung.cpp:3585 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_EventProcess	inside	-	CH2b	1 states	y
+32be1650	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_END.EventProcess CSI_SI_SA_CFG_LUNATIC_FURY_END_HYPER.EventProcess	inside X2GUChung.cpp:3599 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_EventProcess ; inside X2GUChung.cpp:3606 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_EventProcess	inside	-	CH2b	2 states	y
+32be1690	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_READY.FrameMove CSI_SI_A_CFG_LEAP_ATTACK_JUMP.FrameMove CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.FrameMove	inside X2GUChung.cpp:3616 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_FrameMove ; inside X2GUChung.cpp:3630 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove ; inside X2GUChung.cpp:3638 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_FrameMove	inside	-	CH2b	3 states	n
+32be16c0	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_READY.EventProcess CSI_SI_A_CFG_LEAP_ATTACK_JUMP.EventProcess CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.EventProcess	inside X2GUChung.cpp:3617 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_EventProcess ; inside X2GUChung.cpp:3631 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_EventProcess ; inside X2GUChung.cpp:3639 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_EventProcess	inside	-	CH2b	3 states	y
+32be16f0	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP.EventProcess	inside X2GUChung.cpp:3631 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_EventProcess	inside	-	CH2b	1 states	y
+32be1720	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN.EventProcess	inside X2GUChung.cpp:3639 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_EventProcess	inside	-	CH2b	1 states	y
+32be1760	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_LANDING.EventProcess CSI_SI_A_CIP_LEAP_ATTACK_LANDING.EventProcess	inside (hand names) CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess	inside	-	CH2b	2 states	y
+32be1ae0	state-fn	CSI_SI_A_CFG_GUARD_FIRST_STRIKE.StartFuture CSI_SI_A_CFG_GUARD_READY.StartFuture CSI_SI_A_CFG_GUARD_READY_MEMO.StartFuture +3	inside X2GUChung.cpp:3684 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture ; inside X2GUChung.cpp:3730 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture	inside	-	CH3a2	6 states	n
+32be1ba0	state-fn	CSI_SI_A_CFG_GUARD_FIRST_STRIKE.EventProcess CSI_SI_A_CFG_GUARD_READY.EventProcess CSI_SI_A_CFG_GUARD_READY_MEMO.EventProcess +3	inside X2GUChung.cpp:3686 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_EventProcess ; inside X2GUChung.cpp:3732 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_EventProcess ; inside X2GUChung.cpp:3702 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_EventProcess ; inside X2GUChung.cpp:3710 CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess ; inside X2GUChung.cpp:3719 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess	inside	-	CH3a2	6 states	n
+32be1e90	state-fn	CSI_SI_A_CFG_GUARD_READY.StartFuture CSI_SI_A_CFG_GUARD_READY_MEMO.StartFuture	inside X2GUChung.cpp:3684 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture ; inside X2GUChung.cpp:3730 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture	inside	-	CH3a2	2 states	y
+32be1f70	state-fn	CSI_SI_A_CFG_GUARD_READY.EventProcess CSI_SI_A_CFG_GUARD_READY_MEMO.EventProcess	inside X2GUChung.cpp:3686 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_EventProcess ; inside X2GUChung.cpp:3732 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_EventProcess	inside	-	CH3a2	2 states	y
+32be1fa0	state-fn	CSI_SI_A_CFG_GUARD_WAIT.FrameMove	inside X2GUChung.cpp:3701 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_FrameMove	inside	-	CH3a2	1 states	n
+32be1ff0	state-fn	CSI_SI_A_CFG_GUARD_WAIT.EventProcess	inside X2GUChung.cpp:3702 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_EventProcess	inside	-	CH3a2	1 states	y
+32be2060	state-fn	CSI_SI_A_CFG_GUARD_END.EventProcess	inside X2GUChung.cpp:3710 CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess	inside	-	CH3a2	1 states	n
+32be2270	state-fn	CSI_SI_A_CFG_GUARD_DAMAGE.FrameMove	inside X2GUChung.cpp:3718 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_FrameMove	inside	-	CH3a2	1 states	n
+32be22c0	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER.EventProcess CSI_SI_SA_CSG_DUAL_BUSTER_HYPER.EventProcess CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.EventProcess	inside X2GUChung.cpp:3758 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess ; inside X2GUChung.cpp:3758(=normal CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess ; inside X2GUChung.cpp:3772 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess	inside	-	CH2c	3 states	y
+32be2300	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.EventProcess	inside X2GUChung.cpp:3772 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess	inside	-	CH2c	1 states	n
+32be2460	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.EventProcess	inside X2GUChung.cpp:3772 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess	inside	-	CH2c	1 states	y
+32be2730	state-fn	CSI_SI_SA_CSG_HEAVY_RAILGUN.EventProcess CSI_SI_SA_CSG_HEAVY_RAILGUN_HYPER.EventProcess	inside X2GUChung.cpp:3782 CX2GUChung::CSI_SI_SA_CSG_HEAVY_RAILGUN_EventProcess ; inside X2GUChung.cpp:3782(=normal CX2GUChung::CSI_SI_SA_CSG_HEAVY_RAILGUN_EventProcess	inside	-	CH3b	2 states	n
+32be28b0	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_READY.EventProcess CSI_SI_SA_CSG_SHOOTING_STAR_READY_HYPER.EventProcess CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.EventProcess	inside X2GUChung.cpp:3794 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_READY_EventProcess ; inside X2GUChung.cpp:3794(=normal CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_READY_EventProcess ; inside X2GUChung.cpp:3809 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_EventProcess	inside	-	CH3b	3 states	y
+32be28e0	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_END.EventProcess	inside X2GUChung.cpp:3815 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_END_EventProcess	inside	-	CH3b	1 states	y
+32be2930	state-fn	CSI_SI_A_CSG_RUMBLE_SHOT.EventProcess	inside X2GUChung.cpp:3828 CX2GUChung::CSI_SI_A_CSG_RUMBLE_SHOT_EventProcess	inside	-	CH3b	1 states	n
+32be2ad0	state-fn	CSI_SI_A_CSG_HEAD_SHOT.EventProcess	inside X2GUChung.cpp:3840 CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_EventProcess	inside	-	CH1g2	1 states	n
+32be2b40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f84cb0100008bce	n
+32be2d30	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_READY.EventProcess CSI_SI_SA_CSG_COMET_CRASHER_READY_HYPER.EventProcess CSI_SI_SA_CSG_COMET_CRASHER_LOOP.EventProcess	inside X2GUChung.cpp:3861 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_READY_EventProcess ; inside X2GUChung.cpp:3861(=normal CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_READY_EventProcess ; inside X2GUChung.cpp:3875 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_LOOP_EventProcess	inside	-	CH3b	3 states	y
+32be2d60	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_FINISH.EventProcess	inside X2GUChung.cpp:3882 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_FINISH_EventProcess	inside	-	CH3b	1 states	y
+32be2db0	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.EventProcess CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.EventProcess	inside X2GUChung.cpp:3897 CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_EventProcess ; inside X2GUChung.cpp:3897(=normal CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_EventProcess	inside	-	CH2c	2 states	n
+32be2f10	state-fn	CSI_SI_SA_CFG_PANDEMONIUM.EventProcess CSI_SI_SA_CFG_PANDEMONIUM_HYPER.EventProcess	inside X2GUChung.cpp:3914 CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_EventProcess ; inside X2GUChung.cpp:3914(=normal CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_EventProcess	inside	-	CH2b	2 states	y
+32be2f60	state-fn	CSI_SI_SA_CFG_PAIN_OF_CALADBOLG.EventProcess CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_HYPER.EventProcess	inside X2GUChung.cpp:3927 CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_EventProcess ; inside X2GUChung.cpp:3927(=normal CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_EventProcess	inside	-	CH3a2	2 states	n
+32be30c0	state-fn	CSI_CDC_COMBO_X.EventProcess	inside X2GUChung.cpp:2342 CX2GUChung::CDCComboXEventProcess	inside	-	CH1h	1 states	y
+32be31f0	state-fn	CSI_CDC_COMBO_XX.EventProcess	inside X2GUChung.cpp:2351 CX2GUChung::CDCComboXXEventProcess	inside	-	CH1h	1 states	y
+32be3320	state-fn	CSI_CDC_COMBO_XZ.EventProcess	inside X2GUChung.cpp:2359 CX2GUChung::CDCComboXZEventProcess	inside	-	CH1h	1 states	n
+32be3730	state-fn	CSI_CDC_COMBO_XZZ.EventProcess	inside X2GUChung.cpp:2382 CX2GUChung::CDCComboXZZEventProcess	inside	-	CH1h	1 states	n
+32be3960	state-fn	CSI_CDC_COMBO_ZZX.EventProcess	inside X2GUChung.cpp:2388 CX2GUChung::CDCComboZZXEventProcess	inside	-	CH1h	1 states	y
+32be3a30	state-fn	CSI_CDC_COMBO_ZZXX.EventProcess	inside X2GUChung.cpp:2396 CX2GUChung::CDCComboZZXXEventProcess	inside	-	CH1h	1 states	n
+32be3cb0	state-fn	CSI_CDC_COMBO_ZZXXX.EventProcess	inside X2GUChung.cpp:2405 CX2GUChung::CDCComboZZXXXEventProcess	inside	-	CH1h	1 states	n
+32be3e80	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE.EventProcess	inside X2GUChung.cpp:4143 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_EventProcess	inside	-	CH2c	1 states	y
+32be3eb0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_END.EventProcess	inside X2GUChung.cpp:4150 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_END_EventProcess	inside	-	CH2c	1 states	y
+32be3f00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32be3f50	state-fn	CSI_SI_SA_CDC_BULLET_BLITZ.Start CSI_SI_SA_CDC_BULLET_BLITZ_HYPER.Start	inside X2GUChung.cpp:4174 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_StateStart ; inside X2GUChung.cpp:4180 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_HYPER_StateStart	inside	-	CH3b	2 states	y
+32be3fe0	state-fn	CSI_SI_SA_CDC_BULLET_BLITZ.Start CSI_SI_SA_CDC_BULLET_BLITZ_HYPER.Start	inside X2GUChung.cpp:4174 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_StateStart ; inside X2GUChung.cpp:4180 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_HYPER_StateStart	inside	-	CH3b	2 states	y
+32be4070	state-fn	CSI_SI_SA_CDC_BULLET_BLITZ.EventProcess CSI_SI_SA_CDC_BULLET_BLITZ_HYPER.EventProcess	inside X2GUChung.cpp:4176 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_EventProcess ; inside X2GUChung.cpp:4176(=normal CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_EventProcess	inside	-	CH3b	2 states	n
+32be40e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f84bd0100008bce	n
+32be42c0	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_Z.EventProcess	inside X2GUChung.cpp:2046 CX2GUChung::CIPComboPowerDownLandingZEventProcess	inside	-	CH1f	1 states	n
+32be4500	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ.EventProcess	inside X2GUChung.cpp:2055 CX2GUChung::CIPComboPowerDownLandingZZEventProcess	inside	-	CH1f	1 states	n
+32be4710	state-fn	CSI_CIP_COMBO_DASH_XX.EventProcess	inside X2GUChung.cpp:2064 CX2GUChung::CIPComboDashXXEventProcess	inside	-	CH1f	1 states	y
+32be4810	state-fn	CSI_CIP_COMBO_DASH_XXX.EventProcess	inside X2GUChung.cpp:2073 CX2GUChung::CIPComboDashXXXEventProcess	inside	-	CH1f	1 states	y
+32be48e0	state-fn	CSI_CIP_COMBO_DASH_XXXX.EventProcess	inside X2GUChung.cpp:2082 CX2GUChung::CIPComboDashXXXXEventProcess	inside	-	CH1f	1 states	n
+32be4b40	state-fn	CSI_CIP_COMBO_DASH_XXXZ.EventProcess	inside X2GUChung.cpp:2091 CX2GUChung::CIPComboDashXXXZEventProcess	inside	-	CH1f	1 states	n
+32be4da0	state-fn	CSI_SI_A_CIP_SUDDEN_BURSTER.EventProcess	inside X2GUChung.cpp:3944 CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_EventProcess	inside	-	CH2b	1 states	n
+32be4e70	state-fn	CSI_SI_SA_CIP_BURST_WOLF.Start CSI_SI_SA_CIP_BURST_WOLF_HYPER.Start	inside X2GUChung.cpp:3964 CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateStart ; inside X2GUChung.cpp:3964(=normal CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateStart	inside	-	CH2b	2 states	y
+32be4f50	state-fn	CSI_SI_SA_CIP_BURST_WOLF.EventProcess CSI_SI_SA_CIP_BURST_WOLF_HYPER.EventProcess	inside X2GUChung.cpp:3966 CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_EventProcess ; inside X2GUChung.cpp:3966(=normal CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_EventProcess	inside	-	CH2b	2 states	n
+32be51c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b81d0870000d980	n
+32be51f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32be5220	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c8070000	n
+32be5230	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf180be1c7e00	y
+32be5260	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32be52a0	state-fn	CSI_CHG_COMBO_X.EventProcess	inside X2GUChung.cpp:2461 CX2GUChung::CHG_ComboXEventProcess	inside	-	CH1i	1 states	y
+32be54f0	state-fn	CSI_CHG_DASH_COMBO_Z.EventProcess	inside X2GUChung.cpp:2425 CX2GUChung::CHG_ComboDashZEventProcess	inside	-	CH1i	1 states	y
+32be5680	state-fn	CSI_CHG_DASH_COMBO_ZZ.EventProcess	inside X2GUChung.cpp:2432 CX2GUChung::CHG_ComboDashZZEventProcess	inside	-	CH1i	1 states	n
+32be5960	state-fn	CSI_CHG_DASH_JUMP_COMBO_ZX.EventProcess	inside X2GUChung.cpp:2446 CX2GUChung::CHG_ComboDashJumpZXEventProcess	inside	-	CH1i	1 states	y
+32be5a80	state-fn	CSI_SI_A_SIEGE_SHELLING_READYLOOP.FrameMove	inside X2GUChung.cpp:1753 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_FrameMove	inside	-	CH2a	1 states	n
+32be5b40	state-fn	CSI_SI_A_SIEGE_SHELLING_X.EventProcess	inside X2GUChung.cpp:1761 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_EventProcess	inside	-	CH2a	1 states	n
+32be5d00	state-fn	CSI_SI_A_SIEGE_SHELLING_X_FINISH.EventProcess	inside X2GUChung.cpp:1768 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_Finish_EventProcess	inside	-	CH2a	1 states	n
+32be5e00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f84fc0000008bce	n
+32be5f20	state-fn	CSI_SI_A_SIEGE_SHELLING_Z_FINISH.EventProcess	inside X2GUChung.cpp:1774 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Z_Finish_EventProcess	inside	-	CH2a	1 states	y
+32be5fe0	state-fn	CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT.EventProcess	inside X2GUChung.cpp:2497 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT_EventProcess	inside	-	CH1i	1 states	y
+32be6040	state-fn	CSI_A_CHG_ELASTIC_BOMB.EventProcess CSI_A_CHG_ELASTIC_BOMB_HYPER.EventProcess	inside X2GUChung.cpp:4220 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_EventProcess ; inside X2GUChung.cpp:4224 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_EventProcess	inside	-	CH2d	2 states	n
+32be6140	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f849b0000008bce	n
+32be6200	state-fn	CSI_A_CHG_MARK_OF_COMMANDER.EventProcess CSI_A_CHG_MARK_OF_COMMANDER_HYPER.EventProcess	inside X2GUChung.cpp:4232 CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_EventProcess ; inside X2GUChung.cpp:4232(=normal CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_EventProcess	inside	-	CH3c	2 states	n
+32be6400	state-fn	CSI_SA_CHG_WONDER_WALL.EventProcess CSI_SA_CHG_WONDER_WALL_HYPER.EventProcess	inside X2GUChung.cpp:4246 CX2GUChung::CSI_SA_CHG_WONDER_WALL_EventProcess ; inside X2GUChung.cpp:4246(=normal CX2GUChung::CSI_SA_CHG_WONDER_WALL_EventProcess	inside	-	CH3a2	2 states	n
+32be65e0	state-fn	CSI_SA_CHG_DREAD_CHASE_END.EventProcess	inside X2GUChung.cpp:4284 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_END_EventProcess	inside	-	CH2d	1 states	n
+32be6780	state-fn	CSI_SA_CHG_BIGBANG_STREAM.EventProcess CSI_SA_CHG_BIGBANG_STREAM_HYPER.EventProcess	inside X2GUChung.cpp:4292 CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_EventProcess ; inside X2GUChung.cpp:4296 CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_EventProcess	inside	-	CH2d	2 states	n
+32be6920	state-fn	CSI_SA_CHG_CARPET_BOMBING.EventProcess CSI_SA_CHG_CARPET_BOMBING_HYPER.EventProcess	inside X2GUChung.cpp:4303 CX2GUChung::CSI_SA_CHG_CARPET_BOMBING_EventProcess ; inside X2GUChung.cpp:4307 CX2GUChung::CSI_SA_CHG_CARPET_BOMBING_EventProcess	inside	-	CH3c	2 states	y
+32be69b0	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_START.EventProcess CSI_SI_A_CHG_CHAOS_CANNON_START_HYPER.EventProcess CSI_SI_A_CHG_CHAOS_CANNON_WAIT.EventProcess +9	inside X2GUChung.cpp:4314 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_EventProcess ; inside X2GUChung.cpp:4318 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_EventProcess ; inside X2GUChung.cpp:4327 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_EventProcess ; inside X2GUChung.cpp:4335 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_EventProcess ; inside X2GUChung.cpp:4341 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_READY_EventProcess ; inside X2GUChung.cpp:4348 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_UP_EventProcess ; inside X2GUChung.cpp:4355 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_DOWN_EventProcess ; inside X2GUChung.cpp:4362 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_EventProcess ; inside X2GUChung.cpp:4368 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_END_EventProcess ; inside X2GUChung.cpp:4374 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_GUARD_EventProcess ; inside X2GUChung.cpp:4380 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess ; inside X2GUChung.cpp:4385 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess	inside	-	CH2d	12 states	y
+32be6a50	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_JUMP_DOWN.EventProcess	inside X2GUChung.cpp:4355 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_DOWN_EventProcess	inside	-	CH2d	1 states	y
+32be6af0	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_END.EventProcess	inside X2GUChung.cpp:4368 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_END_EventProcess	inside	-	CH2d	1 states	y
+32be6b30	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_GUARD.EventProcess	inside X2GUChung.cpp:4374 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_GUARD_EventProcess	inside	-	CH2d	1 states	y
+32be6bf0	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_01.EventProcess CSI_SI_A_CHG_CHAOS_CANNON_02.EventProcess CSI_SI_A_CHG_CHAOS_CANNON_03.EventProcess	inside X2GUChung.cpp:4380 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess ; inside X2GUChung.cpp:4385 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess ; inside X2GUChung.cpp:4390 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess	inside	-	CH2d	3 states	y
+32be6c50	state-fn	CSI_CTT_COMBO_ZZX.EventProcess	inside X2GUChung.cpp:2590 CX2GUChung::CTT_ComboZZXEventProcess	inside	-	CH1j	1 states	n
+32be6f40	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_READY.FrameMove	inside X2GUChung.cpp:2611 CX2GUChung::CTT_MobileArmoredModeReadyFrameMove	inside	-	CH1j	1 states	n
+32be6fe0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_READY.EventProcess	inside X2GUChung.cpp:2612 CX2GUChung::CTT_MobileArmoredModeReadyEventProcess	inside	-	CH1j	1 states	y
+32be7180	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_UNREADY.FrameMove	inside X2GUChung.cpp:2647 CX2GUChung::CTT_MobileArmoredModeUnreadyFrameMove	inside	-	CH1j	1 states	n
+32be7230	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_UNREADY.EventProcess	inside X2GUChung.cpp:2648 CX2GUChung::CTT_MobileArmoredModeUnreadyEventProcess	inside	-	CH1j	1 states	y
+32be72f0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_Z.EventProcess	inside X2GUChung.cpp:2658 CX2GUChung::CTT_MobileArmoredModeZEventProcess	inside	-	CH1j	1 states	n
+32be7350	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_X.EventProcess	inside X2GUChung.cpp:2668 CX2GUChung::CTT_MobileArmoredModeXEventProcess	inside	-	CH1j	1 states	y
+32be73b0	state-fn	CSI_A_CTT_REMOTE_MORTAR.EventProcess	inside X2GUChung.cpp:4405 CX2GUChung::CSI_A_CTT_REMOTE_MORTAR_EventProcess	inside	-	CH3c	1 states	n
+32be75b0	state-fn	CSI_SA_CTT_TACTICAL_FIELD.EventProcess CSI_SA_CTT_TACTICAL_FIELD_HYPER.EventProcess	inside X2GUChung.cpp:4443 CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_EventProcess ; inside X2GUChung.cpp:4443(=normal CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_EventProcess	inside	-	CH3c	2 states	n
+32be77c0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_FINAL.EventProcess	inside X2GUChung.cpp:4528 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_EventProcess	inside	-	CH2d	1 states	n
+32be79d0	state-fn	CSI_A_CIP_ARTILLERY_NOVA_CHARGE.FrameMove	inside X2GUChung.cpp:4537 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove	inside	-	CH3a	1 states	n
+32be7a30	state-fn	CSI_A_CIP_ARTILLERY_NOVA_CHARGE.EventProcess	inside X2GUChung.cpp:4538 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess	inside	-	CH3a	1 states	y
+32be7aa0	state-fn	CSI_A_CIP_ARTILLERY_NOVA_FIRE.EventProcess	inside X2GUChung.cpp:4552 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_EventProcess	inside	-	CH3a	1 states	n
+32be7ca0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32be7eb0	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START.FrameMoveFuture CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.FrameMoveFuture	inside X2GUChung.cpp:4471 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_FrameMoveFuture	inside	-	CH3a	2 states	n
+32be7ee0	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START.EventProcess CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.EventProcess	inside X2GUChung.cpp:4473 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_EventProcess ; inside X2GUChung.cpp:4490 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_EventProcess	inside	-	CH3a	2 states	y
+32be7f10	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.EventProcess	inside X2GUChung.cpp:4490 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_EventProcess	inside	-	CH3a	1 states	y
+32be7f40	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING.EventProcess	inside X2GUChung.cpp:4498 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_EventProcess	inside	-	CH3a	1 states	n
+32be8140	state-fn	CSI_A_CSG_MAGNUM_SHOT.EventProcess	inside X2GUChung.cpp:4575 CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_EventProcess	inside	-	CH2d	1 states	n
+32be82a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f849b0000008bce	n
+32be8360	state-fn	CSI_A_CDC_RAPID_CANNON_FINAL.EventProcess	inside X2GUChung.cpp:4614 CX2GUChung::CSI_A_CDC_RAPID_CANNON_FINAL_EventProcess	inside	-	CH3b	1 states	n
+32be8570	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b86d0	n
+32be86d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f849b0000008bce	n
+32be8790	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b8ed087	n
+32be89a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b8ed087	n
+32be8bb0	state-fn	CSI_HA_CTT_SATELITE_RAIN.EventProcess	inside X2GUChung.cpp:4816 CX2GUChung::CSI_HA_CTT_SATELITE_RAIN_EventProcess	inside	-	CH3d	1 states	n
+32be8dc0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9ee568bf1d99e24	n
+32be8df0	helper	called by 32c05c90 32c05e80 32c06050	-	new	?	CH2d	name: random of 3 via GetRandomInt then vslot 0x5c (state change) to 0x124/0x125/0x126; used by CH2d states	y
+32be8e50	override 0x6a4	GetActualCoolTime	X2GUChung.h:1780 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	inside	-	CH4b	base 31fd1920	n
+32be8ed0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8f8fd3dff	y
+32be8ef0	state-fn	CSI_CHG_DASH_JUMP_COMBO_ZXX.EventProcess CSI_CSG_COMBO_DASH_ZXX_END.EventProcess	-	new	CSI_CHG_DASH_JUMP_COMBO_ZXX_EventProcess	CH1g	2 states	n
+32be9210	state-fn	CSI_CFG_COMBO_XXFRONTZ.EventProcess	-	new	CSI_CFG_COMBO_XXFRONTZ_EventProcess	CH1e	1 states	n
+32be9600	state-fn	CSI_CFG_COMBO_XXFRONTZZ.EventProcess	-	new	CSI_CFG_COMBO_XXFRONTZZ_EventProcess	CH1e	1 states	n
+32be9930	state-fn	CSI_CIP_COMBO_DASHJUMP_XX.EventProcess	-	new	CSI_CIP_COMBO_DASHJUMP_XX_EventProcess	CH1f	1 states	y
+32be9960	state-fn	CSI_CIP_COMBO_DASHJUMP_XX_LANDING.EventProcess	-	new	CSI_CIP_COMBO_DASHJUMP_XX_LANDING_EventProcess	CH1f	1 states	n
+32be9c90	state-fn	CSI_CSG_COMBO_DASH_Z.EventProcess	-	new	CSI_CSG_COMBO_DASH_Z_EventProcess	CH1g	1 states	n
+32bea080	state-fn	CSI_CSG_COMBO_DASH_ZX.EventProcess	-	new	CSI_CSG_COMBO_DASH_ZX_EventProcess	CH1g	1 states	n
+32bea460	state-fn	CSI_CSG_COMBO_DASH_ZXX_READY.EventProcess	-	new	CSI_CSG_COMBO_DASH_ZXX_READY_EventProcess	CH1g	1 states	y
+32bea4c0	state-fn	CSI_CSG_COMBO_DASH_ZXX.EventProcess	-	new	CSI_CSG_COMBO_DASH_ZXX_EventProcess	CH1g	1 states	n
+32bea970	state-fn	CSI_CSG_COMBO_DASH_JUMP_ZX_READY.EventProcess	-	new	CSI_CSG_COMBO_DASH_JUMP_ZX_READY_EventProcess	CH1g2	1 states	y
+32bea9c0	state-fn	CSI_A_CC_BACK_BLAST.EventProcess	-	new	CSI_A_CC_BACK_BLAST_EventProcess	CH2a	1 states	n
+32beacc0	state-fn	CSI_SI_SA_CSG_DEADLY_SHOT.EventProcess	-	new	CSI_SI_SA_CSG_DEADLY_SHOT_EventProcess	CH2c	1 states	n
+32bead30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f84bd0100008bce	n
+32beaf10	override 0x670	?	- (not found; name unsettled)	new	?	CH1l	base 331a4950; name: vslot 0x670 base 331a4950 = bool(int 1..3): unit class 0x14/0x6e (1), 0x15/0x6f (2), 0x1b/0x75 (3); a class-branch test, no March member	n
+32beaf70	override 0x4b4	GetComboXStateID	X2GUChung.h:797 virtual int GetComboXStateID() const { return CSI_COMBO_X; }	inside	-	CH1k	base 3208df10	n
+32beaf90	override 0x94	Lose	X2GUChung.h:687 virtual void Lose();	inside	-	CH1k	base 31ff15d0	n
+32beb030	not-Chung	called only from outside the range: 31fef54d	-	-	-	n/a	shared / folded code	y
+32beb050	override 0x5f0	COMMON_BUFF_FrameMove	X2GUChung.h:750 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1k	base 31aa1d30	y
+32beb140	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 3eff3c01754f8b54	n
+32beb1b0	state-fn	CSI_JUMP_READY.EventProcess	inside X2GUChung.cpp:945 CX2GUChung::JumpReadyEventProcess	inside	-	CH1a	1 states	n
+32beb260	state-fn	CSI_DASH_END.StartFuture	inside X2GUChung.cpp:981 CX2GUChung::DashEndStartFuture	inside	-	CH1a	1 states	n
+32beb2a0	state-fn	CSI_COMBO_ZZZX_READY.EventProcess	inside X2GUChung.cpp:1581 CX2GUChung::ComboZZZXReadyEventProcess	inside	-	CH1d	1 states	y
+32beb330	state-fn	CSI_COMBO_ZZZX_CANNON_BALL_SHOT.EventProcess	inside X2GUChung.cpp:1590 CX2GUChung::ComboZZZXCannonBallShotEventProcess	inside	-	CH1d	1 states	y
+32beb450	state-fn	CSI_COMBO_XXZ.EventProcess CSI_CHG_COMBO_XZ.EventProcess	inside X2GUChung.cpp:1832 CX2GUChung::ComboXXZEventProcess ; inside X2GUChung.cpp:2474 CX2GUChung::ComboXXZEventProcess	inside	-	CH1d	2 states	y
+32beb5b0	state-fn	CSI_COMBO_XXZX_CANNON_BALL_SHOT.EventProcess	inside X2GUChung.cpp:1655 CX2GUChung::ComboXXZXCannonBallShotEventProcess	inside	-	CH1d	1 states	y
+32beb6d0	state-fn	CSI_ATTACK_JUMP_Z.FrameMoveFuture	inside X2GUChung.cpp:1681 CX2GUChung::AttackJumpZFrameMoveFuture	inside	-	CH1d2	1 states	n
+32beb760	state-fn	CSI_ATTACK_JUMP_X.FrameMoveFuture	inside X2GUChung.cpp:1688 CX2GUChung::AttackJumpXFrameMoveFuture	inside	-	CH1d2	1 states	n
+32beb7f0	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION.EventProcess	inside X2GUChung.cpp:3318 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_EventProcess	inside	-	CH2a	1 states	y
+32beb890	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING.EventProcess	inside X2GUChung.cpp:3592 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_EventProcess	inside	-	CH2b	1 states	n
+32beb940	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.EventProcess	inside X2GUChung.cpp:3809 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_EventProcess	inside	-	CH3b	1 states	n
+32beba10	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_LOOP.EventProcess	inside X2GUChung.cpp:3875 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_LOOP_EventProcess	inside	-	CH3b	1 states	n
+32beba80	state-fn	CSI_SI_A_SIEGE_SHELLING_READY.EventProcess	inside X2GUChung.cpp:4201 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_EventProcess	inside	-	CH2a	1 states	y
+32bebc40	state-fn	CSI_SI_A_SIEGE_SHELLING_READYLOOP.EventProcess	inside X2GUChung.cpp:1754 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_EventProcess	inside	-	CH2a	1 states	n
+32bec100	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_JUMP_READY.EventProcess	inside X2GUChung.cpp:4341 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_READY_EventProcess	inside	-	CH2d	1 states	n
+32bec1a0	override 0x24c	SetSpecificValueByBuffTempletID	X2GUChung.h:781 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH4a	base 3204b5e0	n
+32bec310	override 0x314	ApplyRenderParamOnEmptyRenderParamByBuff	X2GUChung.h:783 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1k	base 3226e190	n
+32bec410	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD.EventProcess	inside X2GUChung.cpp:2630 CX2GUChung::CTT_MobileArmoredModeLoopFowardEventProcess	inside	-	CH1j	1 states	y
+32bec950	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD.EventProcess	inside X2GUChung.cpp:2639 CX2GUChung::CTT_MobileArmoredModeLoopBackwardEventProcess	inside	-	CH1j	1 states	y
+32bece90	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP.EventProcess	inside X2GUChung.cpp:2621 CX2GUChung::CTT_MobileArmoredModeLoopEventProcess	inside	-	CH1j	1 states	y
+32bed3d0	override 0xb8	?	- (not found; name unsettled)	new	GetDefenderDamageRate	CH1k	base 3208dc20; name: vslot 0xb8 = defender rate read in GetFinalDamage (funcmap 322868d1); CTT passive REACTIVE_ARMOR 0x672e x member +0x41f4; role guess	n
+32bed4c0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_LOOP.EventProcess	inside X2GUChung.cpp:4520 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_EventProcess	inside	-	CH2d	1 states	y
+32bed560	helper	called by 32bed5d0 32bedf60 32bedfc0 32bee020	-	inside	-	CH1l3	inside: X2GUChung.h:557; now count (+ extra for the CTT mode)	y
+32bed5c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c903c15ec3cccc	n
+32bed5d0	helper	called by 32c17830	-	inside	-	CH1l3	also called from outside the class: 322e1556; inside: X2GUChung.h:552; June takes (skillId, count) and compares with the total; March CanUseCannon() has no args	y
+32bed760	override 0x740	?	- (not found; name unsettled)	new	StoreGageSnapshot	CH1l	base 32009780; name: June-only virtual vslot 0x740 (funcmap 32009780 Crest of Time snapshot); Chung also stores cannon-ball counts to +0x92c0/+0x92c4	n
+32bed7e0	override 0x2e8	?	- (not found; name unsettled)	new	?	CH1k	base 3208dd70; name: vslot 0x2e8 base 3208dd70 (float 1.0 getter of DamageData*): passive 0x6734 + attacker buff 0x3e; no name in X2GUUser.h / X2GameUnit.h	n
+32bed840	override 0x2ec	?	- (not found; name unsettled)	new	?	CH1k	base 3208dd70; name: vslot 0x2ec base 3208dd70 (float 1.0 getter of DamageData*): passive 0x65b8 and damage type 0x21/0x22; no name known	n
+32bed8c0	override 0x824	?	- (not found; name unsettled)	new	?	CH1l3	base 3208dd70; name: vslot 0x824 base 3208dd70: shares the 0x2ec stream, damage-type 0x21/0x22 test with passive 0x65b8; no name known	n
+32bed9a0	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUChung.h:691 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1k	base 31aa1d30	n
+32bed9d0	override 0x6a0	GetActualMPConsume	X2GUChung.h:523 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	base 31fd1840	n
+32bedb40	override 0x1d8	?	- (not found; name unsettled)	inside	-	CH1k	base 3208e5a0; inside: X2GUChung.h:619 virtual float GetCriticalValue( float ); vslot 0x1d8 = GetCV (funcmap 32048b15)	n
+32bedb80	state-fn	CSI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GUChung.cpp:1065 CX2GUChung::DamageDownFrontEventProcess	inside	-	CH1b	1 states	n
+32bedd30	state-fn	CSI_DAMAGE_DOWN_BACK.EventProcess	inside X2GUChung.cpp:1072 CX2GUChung::DamageDownBackEventProcess	inside	-	CH1b	1 states	n
+32bedee0	state-fn	CSI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GUChung.cpp:1113 CX2GUChung::DamageAirDownLandingEventProcess	inside	-	CH1b	1 states	n
+32bedef0	state-fn	CSI_COMBO_DASH_JUMP_ZZ.EventProcess	inside X2GUChung.cpp:1700 CX2GUChung::ComboDashJumpZZEventProcess	inside	-	CH1d2	1 states	n
+32bedf60	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_START.EventProcess CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_HYPER.EventProcess CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION.EventProcess	inside X2GUChung.cpp:3305 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_EventProcess ; inside X2GUChung.cpp:3305(=normal CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_EventProcess ; inside X2GUChung.cpp:3318 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_EventProcess	inside	-	CH2a	3 states	y
+32bedfc0	state-fn	CSI_SA_CHG_DREAD_CHASE_START.EventProcess CSI_SA_CHG_DREAD_CHASE_START_HYPER.EventProcess CSI_SA_CHG_DREAD_CHASE_LOOP.EventProcess	inside X2GUChung.cpp:4263 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_EventProcess ; inside X2GUChung.cpp:4263(=normal CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_EventProcess ; inside X2GUChung.cpp:4277 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_EventProcess	inside	-	CH2d	3 states	y
+32bee020	state-fn	CSI_SA_CHG_DREAD_CHASE_LOOP.EventProcess	inside X2GUChung.cpp:4277 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_EventProcess	inside	-	CH2d	1 states	y
+32bee0e0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_READY.EventProcess CSI_A_CHUNG_IMPACT_DETONATION_LOOP.EventProcess	inside X2GUChung.cpp:4506 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_READY_EventProcess ; inside X2GUChung.cpp:4520 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_EventProcess	inside	-	CH2d	2 states	y
+32bee140	state-fn	CSI_A_CDC_RAPID_CANNON_READY.EventProcess CSI_A_CDC_RAPID_CANNON_LOOP.EventProcess	inside X2GUChung.cpp:4589 CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_EventProcess ; inside X2GUChung.cpp:4606 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess	inside	-	CH3b	2 states	y
+32bee210	state-fn	CSI_A_CDC_RAPID_CANNON_LOOP.EventProcess	inside X2GUChung.cpp:4606 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess	inside	-	CH3b	1 states	y
+32bee360	state-fn	CSI_CSG_COMBO_DASH_JUMP_ZX.EventProcess	-	new	CSI_CSG_COMBO_DASH_JUMP_ZX_EventProcess	CH1g2	1 states	n
+32bee3e0	helper	called by 32bee490	-	new	?	CH1l3	name: (skillId) guard 0x665f/0x6677, vslot 0x4f4 tests, vslot 0x5c(0x12a/0x12b), sets +0x985c; role not read	y
+32bee490	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)	inside	-	CH1l3	base 31aa1d30	n
+32bee5b0	helper	called by 32beec40 32beeca0 32beeed0 32c0cf90	-	inside	-	CH1k	inside: X2GUChung.h:530; matches the current state against the 12-byte list +0x9638	y
+32bee680	override 0x30	NotifyDGManagerChanged	X2GUChung.h:753 virtual void NotifyDGManagerChanged( CKTDGManager& refInManager_ );	inside	-	CH1k	base 31fd56e0	y
+32bee7c0	state-fn	CSI_ATTACK_DASH_JUMP_X.StartFuture CSI_CTT_DASH_JUMP_COMBO_XX.StartFuture	inside X2GUChung.cpp:1724 CX2GUChung::AttackDashJumpXStartFuture	inside	-	CH1d2	2 states	y
+32bee840	state-fn	CSI_SI_A_CFG_LEAP_ATTACK_JUMP.FrameMove	inside X2GUChung.cpp:3630 CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove	inside	-	CH2b	1 states	y
+32beeaa0	override 0x628	CanRidingState	X2GUChung.h:481 virtual bool CanRidingState();	inside	-	CH1l	base 31fd7930	n
+32beeb90	helper	called by 32beeed0	-	new	?	CH1k	name: bool: (+0x7cbc / 100) in [0x11d, 0x128)	y
+32beebd0	override 0x828	?	- (not found; name unsettled)	new	IsNotCommonMoveState	CH1l3	base 31fd7640; name: June-only virtual X2GUUser.h:3399 (vslot 0x828, base 31fd7640); Chung adds the hit-count window test on +0x7cbc	n
+32beec40	override 0x1b8	?	- (not found; name unsettled)	new	?	CH1k	base 3208e290; name: vslot 0x1b8 base 3208e290: float getter scaling a protected float by passive CIP_OPEN_MIND 0x672f; no name known	y
+32beeca0	override 0x748	?	- (not found; name unsettled)	new	?	CH1l	base 3208e1b0; name: vslot 0x748 base 3208e1b0: float getter, passive CIP_OPEN_MIND 0x672f value when 32bee5b0 true; no name known	n
+32beece0	helper	called by 32c0c8f0	-	inside	-	CH1k	inside: X2GUChung.h:527; PROMOTION_ITEM_ID_LIST + CHUNG_<class> tables	y
+32beeed0	override 0x3a8	ApplyRenderParam	X2GUChung.h:1773 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1k	base 31fd4460	y
+32beefb0	override 0x540	CreateMajorParticleArray	X2GUChung.h:694 virtual void CreateMajorParticleArray();	inside	-	CH1k	base 32012800	n
+32bef140	helper	called by 32bf0530 32bf0670	-	inside	-	CH1l	inside: X2GUChung.h:757; swaps a ref-counted equip pointer in the equip list	y
+32bef230	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56576a018bf18b8e	n
+32bef2d0	state-fn	CSI_JUMP_UP.EventProcess	inside X2GUChung.cpp:952 CX2GUChung::JumpUpEventProcess	inside	-	CH1a	1 states	y
+32bef3e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 751e6a006a49eb0f	n
+32bef450	state-fn	CSI_JUMP_DOWN.EventProcess	inside X2GUChung.cpp:959 CX2GUChung::JumpDownEventProcess	inside	-	CH1a	1 states	y
+32bef6f0	state-fn	CSI_DASH_JUMP.EventProcess	inside X2GUChung.cpp:992 CX2GUChung::DashJumpEventProcess	inside	-	CH1a	1 states	y
+32bef830	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0100008b168b82f4	n
+32befa80	state-fn	CSI_ATTACK_DASH_JUMP_X.EventProcess	inside X2GUChung.cpp:1727 CX2GUChung::AttackDashJumpXEventProcess	inside	-	CH1d2	1 states	y
+32befdf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 896424306800cd4c	n
+32befec0	override 0x774	?	- (not found; name unsettled)	new	UpdateSpineAimRotation	CH1l	base 31f3f070; name: June-only virtual vslot 0x774 (base 31f3f070 empty stub); builds a Bip01_Spine1 rotation from aim angles; role guess	y
+32bf0070	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8964243c8950086a	n
+32bf00b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e8a7233f0083c424	n
+32bf00c0	helper	called by 32bf07b0 32c108d0	-	new	ApplySpineAimRotation	CH1j	name: same Bip01_Spine1 rotation math as the 0x774 override with negated pitch; callers 32bf07b0 / 32c108d0	y
+32bf02c0	state-fn	CSI_CTT_DASH_JUMP_COMBO_XX.EventProcess	-	new	CSI_CTT_DASH_JUMP_COMBO_XX_EventProcess	CH1j	1 states	y
+32bf0480	override 0x66c	ScaleHead	- (CX2GUChung does not override it in March; X2GUUser.h:2765 virtual void ScaleHead( float fHeadScale, float fFaceScale );)	new	ScaleHead	CH1l	base 31fdc070	y
+32bf0530	helper	called by 32bf0a40	-	inside	-	CH1l	inside: X2GUChung.h:754; sets the show flag over list +0x9648 (promotion equips)	y
+32bf0670	helper	called by 32bf0a40	-	inside	-	CH1l	inside: X2GUChung.h:756; sets the show flag over list +0x8834	y
+32bf07b0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_LOOP.FrameMove	inside X2GUChung.cpp:2620 CX2GUChung::CTT_MobileArmoredModeLoopFrameMove	inside	-	CH1j	1 states	y
+32bf0800	helper	called by 32bf0a90 32bf0ac0 32bf0af0 32bf0b20	-	inside	-	CH1l3	inside: X2GUChung.h:587; Dummy1_Rhand cut-in; cppmatch hit	y
+32bf0a40	override 0x63c	SetShowViewList	X2GUChung.h:755 virtual void SetShowViewList( bool bShow_ );	inside	-	CH1l	base 31fd5b80	y
+32bf0a90	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_START.FrameMove CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_HYPER.FrameMove CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION.FrameMove	inside X2GUChung.cpp:3304 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_FrameMove ; inside X2GUChung.cpp:3304(=normal CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_FrameMove ; inside X2GUChung.cpp:3317 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove	inside	-	CH2a	3 states	y
+32bf0ab0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8980941ff	y
+32bf0ae0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0af0	state-fn	CSI_SI_SA_CFG_IRON_HOWLING.FrameMove CSI_SI_SA_CFG_IRON_HOWLING_LOOP.FrameMove	inside X2GUChung.cpp:3551 CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_FrameMove	inside	-	CH3a2	2 states	y
+32bf0b10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0b20	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_READY.FrameMove CSI_SI_SA_CFG_LUNATIC_FURY_READY_HYPER.FrameMove CSI_SI_SA_CFG_LUNATIC_FURY_RUN.FrameMove +3	inside X2GUChung.cpp:3564 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_FrameMove ; inside X2GUChung.cpp:3564(=normal CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_FrameMove ; inside X2GUChung.cpp:3577 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_FrameMove ; inside X2GUChung.cpp:3584 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_FrameMove ; inside X2GUChung.cpp:3591 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_FrameMove ; inside X2GUChung.cpp:3598 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove	inside	-	CH2b	6 states	y
+32bf0b40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0b50	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_READY.FrameMove CSI_SI_SA_CSG_COMET_CRASHER_READY_HYPER.FrameMove CSI_SI_SA_CSG_COMET_CRASHER_LOOP.FrameMove	inside X2GUChung.cpp:3860 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_READY_FrameMove ; inside X2GUChung.cpp:3860(=normal CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_READY_FrameMove ; inside X2GUChung.cpp:3874 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_LOOP_FrameMove	inside	-	CH3b	3 states	y
+32bf0b70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0b80	state-fn	CSI_SI_SA_CFG_PAIN_OF_CALADBOLG.FrameMove CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_HYPER.FrameMove	inside X2GUChung.cpp:3926 CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_FrameMove ; inside X2GUChung.cpp:3926(=normal CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_FrameMove	inside	-	CH3a2	2 states	y
+32bf0ba0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0bb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec20568bf1e8a5	y
+32bf0c60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8f80741ff	y
+32bf0c80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0c90	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START.FrameMove CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN.FrameMove	inside X2GUChung.cpp:4472 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_FrameMove	inside	-	CH3a	2 states	y
+32bf0cb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe2	n
+32bf0cc0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUChung.h:589 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1l3	base 33093ad0	n
+32bf0ce0	helper	reached only through callers with no phased caller 32bf5464	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:526; string CHUNG_STATE_ID_LIST_ABLE_TO_BE_...; fills the 12-byte list +0x9638	y
+32bf0e90	helper	called by 32c0c8f0	-	inside	-	CH1k	inside: X2GUChung.h:579; CreateDummyEquip over list +0x9658, show off	y
+32bf1000	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_RUN.FrameMove	inside X2GUChung.cpp:3577 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_FrameMove	inside	-	CH2b	1 states	y
+32bf1040	not-Chung	called only from outside the range: 3230f409	-	-	-	n/a	shared / folded code	y
+32bf28f0	override 0x2b8	SetDamageExceptionProcess	- (CX2GUChung does not override it in March; X2GUUser.h:3076 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)	new	SetDamageExceptionProcess	CH4b	base 32045340	n
+32bf2a40	override 0x7c8	CommonFrameMoveFuture	X2GUChung.h:512 virtual void CommonFrameMoveFuture();	inside	-	CH1l2	base 32061bf0	y
+32bf2b50	state-fn	CSI_GUARD.EventProcess	inside X2GUChung.cpp:1513 CX2GUChung::GuardEventProcess	inside	-	CH1a	1 states	y
+32bf2e10	state-fn	CSI_SI_A_CHUNG_RELOAD_CANNON.Start	inside X2GUChung.cpp:3341 CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_Start	inside	-	CH2a	1 states	n
+32bf2f70	state-fn	CSI_SI_A_CFG_GUARD_DAMAGE.EventProcess	inside X2GUChung.cpp:3719 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess	inside	-	CH3a2	1 states	y
+32bf2ff0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 01000053dd5c2414	n
+32bf3270	state-fn	CSI_CHG_COMBO_XX.EventProcess	inside X2GUChung.cpp:2468 CX2GUChung::CHG_ComboXXEventProcess	inside	-	CH1i	1 states	y
+32bf3350	state-fn	CSI_CHG_DASH_COMBO_ZZX.EventProcess	inside X2GUChung.cpp:2439 CX2GUChung::CHG_ComboDashZZXEventProcess	inside	-	CH1i	1 states	n
+32bf3430	state-fn	CSI_SI_A_SIEGE_SHELLING_READY.Start	inside X2GUChung.cpp:4199 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_StateStart	inside	-	CH2a	1 states	y
+32bf34c0	state-fn	CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE.EventProcess	inside X2GUChung.cpp:2490 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE_EventProcess	inside	-	CH1i	1 states	n
+32bf35a0	state-fn	CSI_SA_CHG_DREAD_CHASE_START.Start CSI_SA_CHG_DREAD_CHASE_START_HYPER.Start CSI_SA_CHG_DREAD_CHASE_LOOP.Start	inside X2GUChung.cpp:4261 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_StateStart ; inside X2GUChung.cpp:4266 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_StateStart	inside	-	CH2d	3 states	y
+32bf3630	state-fn	CSI_CTT_COMBO_ZZXX.EventProcess	inside X2GUChung.cpp:2597 CX2GUChung::CTT_ComboZZXXEventProcess	inside	-	CH1j	1 states	n
+32bf3710	state-fn	CSI_CTT_DASH_COMBO_XX.EventProcess	inside X2GUChung.cpp:2604 CX2GUChung::CTT_DashComboXXEventProcess	inside	-	CH1j	1 states	n
+32bf3830	state-fn	CSI_SI_SA_CTT_CANNON_STRIKE.EventProcess CSI_SI_SA_CTT_CANNON_STRIKE_HYPER.EventProcess	inside X2GUChung.cpp:4424 CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_EventProcess ; inside X2GUChung.cpp:4424(=normal CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_EventProcess	inside	-	CH3c	2 states	y
+32bf3900	state-fn	CSI_A_CDC_RAPID_CANNON_READY.Start CSI_A_CDC_RAPID_CANNON_LOOP.Start	inside X2GUChung.cpp:4588 CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_Start	inside	-	CH3b	2 states	y
+32bf3990	override 0x7c4	CommonStateStart	X2GUChung.h:510 virtual void CommonStateStart();	inside	-	CH1l2	base 32057b80	y
+32bf3c40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e817e83e008be55d	n
+32bf3d30	helper	-	-	inside	-	CH1q	cannon-ball counter API: up cannon-ball count (ch0_cannonball.tsv); earlier callers declare it; inside: X2GUChung.h:538; adds count, SetNowCannonBallCount	y
+32bf3e40	helper	-	-	inside	-	CH1q	cannon-ball counter API: consume cannon balls; earlier callers declare it; inside: X2GUChung.h:550; now count minus n, zero-count refill branch	y
+32bf3f60	helper	-	-	inside	-	CH1q	cannon-ball counter API: set total count, %7 split into now / extra; earlier callers declare it; inside: X2GUChung.h:558; %7 split into now / extra for CTT	y
+32bf4040	helper	-	-	inside	-	CH1q	cannon-ball counter API: set count with a floor; earlier callers declare it; inside: X2GUChung.h:599; (a<=b) floors the count to the basic-count byte +0x9680	y
+32bf40e0	helper	reached only through callers with no phased caller 32bf5674	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:614; passive CSG_REMODEL_MAGAZINE 0x6726	y
+32bf4150	state-fn	CSI_CHARGE_CANNON_BALL.FrameMove	inside X2GUChung.cpp:1505 CX2GUChung::ChargeCannonBallFrameMove	inside	-	CH1q	1 states	y
+32bf4180	state-fn	CSI_SI_A_CHUNG_RELOAD_CANNON.FrameMove	inside X2GUChung.cpp:3342 CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_FrameMove	inside	-	CH2a	1 states	n
+32bf41b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5effe0	n
+32bf41c0	state-fn	CSI_SI_A_CFG_GUARD_WAIT.Start	inside X2GUChung.cpp:3700 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_Start	inside	-	CH3a2	1 states	y
+32bf4200	state-fn	CSI_SI_A_CFG_GUARD_WAIT.End	inside X2GUChung.cpp:3703 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_End	inside	-	CH3a2	1 states	y
+32bf4240	state-fn	CSI_SI_A_CFG_GUARD_DAMAGE.Start	inside X2GUChung.cpp:3717 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_Start	inside	-	CH3a2	1 states	y
+32bf4280	state-fn	CSI_SI_A_CFG_GUARD_DAMAGE.End	inside X2GUChung.cpp:3720 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_End	inside	-	CH3a2	1 states	y
+32bf42c0	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.FrameMove	inside X2GUChung.cpp:3771 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_FrameMove	inside	-	CH2c	1 states	n
+32bf4440	state-fn	CSI_CHG_COMBO_X.FrameMove	inside X2GUChung.cpp:2460 CX2GUChung::CHG_ComboXFrameMove	inside	-	CH1i	1 states	n
+32bf4470	state-fn	CSI_CHG_DASH_COMBO_ZZ.FrameMove	inside X2GUChung.cpp:2431 CX2GUChung::CHG_ComboDashZZFrameMove	inside	-	CH1i	1 states	n
+32bf44a0	state-fn	CSI_SI_A_SIEGE_SHELLING_READY.FrameMove	inside X2GUChung.cpp:4200 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_FrameMove	inside	-	CH2a	1 states	n
+32bf44d0	override 0x688	?	- (not found; name unsettled)	new	AfterInitEquippedActiveSkillState	CH1l	base 31fcd740; name: June-only virtual vslot 0x688 right after InitEquippedActiveSkillState (0x684): base 31fcd740, then re-sets the cannon-ball count; role guess	y
+32bf4510	state-fn	CSI_CTT_COMBO_ZZXX.FrameMove	inside X2GUChung.cpp:2596 CX2GUChung::CTT_ComboZZXXFrameMove	inside	-	CH1j	1 states	n
+32bf4540	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53568bf18b068b90	y
+32bf4600	override 0x744	?	- (not found; name unsettled)	new	RestoreGageSnapshot	CH1l	base 3204da60; name: June-only virtual vslot 0x744 (funcmap 3204da60 Crest of Time restore); Chung re-sets cannon-ball counts then calls base	y
+32bf4680	helper	-	-	new	?	CH1q	cannon-ball counter API: hyper-count-3 timer skip (checklist l.236); earlier callers declare it; name: cannon-ball gauge tick on protected float +0x98b8 with 32c24db0; role not read	y
+32bf4880	override 0x324	ChangeMaxCharacterAddResource	X2GUChung.h:763 virtual void ChangeMaxCharacterAddResource( const float fRate_ );	inside	-	CH1k	base 3208ddc0	n
+32bf48e0	state-fn	CSI_A_CTT_FATAL_CANNON.Start	-	new	CSI_A_CTT_FATAL_CANNON_StateStart	CH3c	1 states	y
+32bf4900	override 0x3c	InitComponent	X2GUChung.h:502 virtual void InitComponent();	inside	-	CH1k	base 31fee090	y
+32bf4d80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff689cb0333364	y
+32bf4eb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8e8ac3fff	y
+32bf4ef0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68bfb0333364	y
+32bf5020	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8d8ab3fff	y
+32bf5060	helper	called by 32bf9100 32bf92d0 32bf9770 32bf9c10	-	inside	-	CH1g	inside: X2GUChung.h:742; releases the old handle then stores into +0x95c8[idx]	y
+32bf50e0	helper	called by 32bfdd70 32bfe4d0 32c0c4e0	-	inside	-	CH1k	inside: X2GUChung.h:732; releases the 19 handles at +0x95c8	y
+32bf5130	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)	inside	-	CH1l3	base 31aa1d30	y
+32bf5280	helper	-	-	inside	-	CH1q	cannon-ball counter API: use cannon (Reload.ogg); earlier callers declare it; inside: X2GUChung.h:549; plays Chung_CannonGun_Reload.ogg, decrements, ConsumeCannonBallCount	y
+32bf5360	helper	called by 32bf75b0 32bf77c0 32bf7ae0 32bf7cd0	-	inside	-	CH1d	inside: X2GUChung.h:601; (bone, particle) effect when flag +0x41f9 set	y
+32bf5430	helper	-	-	inside	-	CH1q	cannon-ball counter API: reads CANNON_BALL_COUNT_AT_DUNGEON_START / _PVP_START; earlier callers declare it; inside: X2GUChung.h:525; INIT_PERSONAL_INFO table	y
+32bf5790	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 885c24218a1d0adc	n
+32bf5de0	state-fn	CSI_WAIT.EventProcess	inside X2GUChung.cpp:928 CX2GUChung::WaitEventProcess	inside	-	CH1a	1 states	y
+32bf60e0	state-fn	CSI_WALK.EventProcess	inside X2GUChung.cpp:939 CX2GUChung::WalkEventProcess	inside	-	CH1a	1 states	y
+32bf62f0	state-fn	CSI_JUMP_LANDING.EventProcess	inside X2GUChung.cpp:966 CX2GUChung::JumpLandingEventProcess	inside	-	CH1a	1 states	y
+32bf65e0	state-fn	CSI_DASH.EventProcess	inside X2GUChung.cpp:975 CX2GUChung::DashEventProcess	inside	-	CH1a	1 states	y
+32bf67b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 750d6a006a498bce	n
+32bf67e0	state-fn	CSI_DASH_END.EventProcess	inside X2GUChung.cpp:983 CX2GUChung::DashEndEventProcess	inside	-	CH1a	1 states	y
+32bf6ae0	state-fn	CSI_DASH_JUMP_LANDING.EventProcess	inside X2GUChung.cpp:1001 CX2GUChung::DashJumpLandingEventProcess	inside	-	CH1a	1 states	y
+32bf6d30	state-fn	CSI_POWER_DOWN_LANDING.EventProcess CSI_CIP_POWER_DOWN_LANDING.EventProcess	inside X2GUChung.cpp:1804 CX2GUChung::PowerDownLandingEventProcess ; inside X2GUChung.cpp:2038 CX2GUChung::PowerDownLandingEventProcess	inside	-	CH1a	2 states	y
+32bf6eb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 75218bce8b068b50	n
+32bf6f20	state-fn	CSI_CHARGE_CANNON_BALL.EventProcess	inside X2GUChung.cpp:1506 CX2GUChung::ChargeCannonBallEventProcess	inside	-	CH1q	1 states	y
+32bf7250	state-fn	CSI_GUARD_ATTACK_X.FrameMove	inside X2GUChung.cpp:1530 CX2GUChung::GuardAttackXFrameMove	inside	-	CH1a	1 states	y
+32bf75b0	state-fn	CSI_COMBO_ZZZX_CANNON_BALL_SHOT.FrameMove	inside X2GUChung.cpp:1589 CX2GUChung::ComboZZZXCannonBallShotFrameMove	inside	-	CH1d	1 states	y
+32bf77c0	state-fn	CSI_COMBO_ZZZX_FINISH.FrameMove	inside X2GUChung.cpp:1598 CX2GUChung::ComboZZZXFinishFrameMove	inside	-	CH1d	1 states	y
+32bf7ae0	state-fn	CSI_COMBO_XXX.FrameMove	inside X2GUChung.cpp:1825 CX2GUChung::ComboXXXFrameMove	inside	-	CH1d	1 states	y
+32bf7cd0	state-fn	CSI_COMBO_XXZX_CANNON_BALL_SHOT.FrameMove	inside X2GUChung.cpp:1654 CX2GUChung::ComboXXZXCannonBallShotFrameMove	inside	-	CH1d	1 states	y
+32bf7ef0	state-fn	CSI_COMBO_XXZX_FINISH.FrameMove	inside X2GUChung.cpp:1662 CX2GUChung::ComboXXZXFinishFrameMove	inside	-	CH1d	1 states	y
+32bf80e0	state-fn	CSI_ATTACK_DASH_X.FrameMove CSI_CSG_COMBO_DASH_X.FrameMove CSI_CIP_COMBO_DASH_X.FrameMove +1	inside X2GUChung.cpp:1839 CX2GUChung::AttackDashXFrameMove ; inside X2GUChung.cpp:2235 CX2GUChung::AttackDashXFrameMove ; inside X2GUChung.cpp:2099 CX2GUChung::AttackDashXFrameMove ; inside X2GUChung.cpp:2566 CX2GUChung::AttackDashXFrameMove	inside	-	CH1d2	4 states	y
+32bf8840	state-fn	CSI_ATTACK_DASH_JUMP_X.FrameMove	inside X2GUChung.cpp:1725 CX2GUChung::AttackDashJumpXFrameMove	inside	-	CH1d2	1 states	y
+32bf8c50	state-fn	CSI_STANDUP_CANNON_ATTACK_FRONT.FrameMove CSI_STANDUP_CANNON_ATTACK_BACK.FrameMove	inside X2GUChung.cpp:1734 CX2GUChung::StandUpCannonAttackFrameMove ; inside X2GUChung.cpp:1743 CX2GUChung::StandUpCannonAttackFrameMove	inside	-	CH1b	2 states	y
+32bf90d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bceffd08b	n
+32bf9100	state-fn	CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON.FrameMove	inside X2GUChung.cpp:2160 CX2GUChung::CSGComboXFrontXPullSubweaponFrameMove	inside	-	CH1g2	1 states	y
+32bf92d0	state-fn	CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON.End	inside X2GUChung.cpp:2162 CX2GUChung::CSGComboXFrontXPullSubweaponEnd	inside	-	CH1g2	1 states	n
+32bf92f0	state-fn	CSI_CSG_COMBO_XFRONTX_FIRE.End	inside X2GUChung.cpp:2171 CX2GUChung::CSGComboXFrontXFireEnd	inside	-	CH1g2	1 states	n
+32bf9310	state-fn	CSI_CSG_COMBO_XFRONTXX.FrameMove	inside X2GUChung.cpp:2178 CX2GUChung::CSGComboXFrontXXFrameMove	inside	-	CH1g2	1 states	n
+32bf9770	state-fn	CSI_CSG_COMBO_XFRONTXX.End	inside X2GUChung.cpp:2180 CX2GUChung::CSGComboXFrontXXEnd	inside	-	CH1g2	1 states	n
+32bf9790	state-fn	CSI_CSG_COMBO_DASH_XX.End	inside X2GUChung.cpp:2189 CX2GUChung::CSGComboDashXXEnd	inside	-	CH1g	1 states	n
+32bf97b0	state-fn	CSI_CSG_COMBO_DASH_XXX.FrameMove	inside X2GUChung.cpp:2196 CX2GUChung::CSGComboDashXXXFrameMove	inside	-	CH1g	1 states	n
+32bf9c10	state-fn	CSI_CSG_COMBO_DASH_XXX.End	inside X2GUChung.cpp:2198 CX2GUChung::CSGComboDashXXXEnd	inside	-	CH1g	1 states	n
+32bf9c30	state-fn	CSI_CSG_COMBO_DASH_JUMP_X.End CSI_CSG_COMBO_DASH_JUMP_XX.End CSI_CSG_COMBO_DASH_JUMP_XX_Landing.End	inside X2GUChung.cpp:2208 CX2GUChung::CSGComboDashJumpXEnd ; inside X2GUChung.cpp:2217 CX2GUChung::CSGComboDashJumpXXEnd ; inside X2GUChung.cpp:2226 CX2GUChung::CSGComboDashJumpXXLandingEnd	inside	-	CH1g2	3 states	n
+32bf9c70	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX_Landing.FrameMove	inside X2GUChung.cpp:2224 CX2GUChung::CSGComboDashJumpXXLandingFrameMove	inside	-	CH1g2	1 states	y
+32bf9f40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e817853e0083c41c	n
+32bf9f50	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX_Landing.EventProcess	inside X2GUChung.cpp:2225 CX2GUChung::CSGComboDashJumpXXLandingEventProcess	inside	-	CH1g2	1 states	n
+32bf9fb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f84ed0200008bce	n
+32bfa2c0	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH.FrameMove	inside X2GUChung.cpp:3325 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_FrameMove	inside	-	CH2a	1 states	y
+32bfa4a0	state-fn	CSI_SI_SA_CHUNG_BRUTAL_SWING.FrameMove CSI_SI_SA_CHUNG_BRUTAL_SWING_HYPER.FrameMove	inside X2GUChung.cpp:3428 CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove ; inside X2GUChung.cpp:3428(=normal CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove	inside	-	CH2b	2 states	y
+32bfa670	state-fn	CSI_SI_SA_CHUNG_SCARE_CHASE.FrameMove CSI_SI_SA_CHUNG_SCARE_CHASE_HYPER.FrameMove	inside X2GUChung.cpp:3446 CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_FrameMove ; inside X2GUChung.cpp:3446(=normal CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_FrameMove	inside	-	CH2a	2 states	y
+32bfa860	state-fn	CSI_SI_A_CHUNG_AIMMING_SHOT.FrameMove	inside X2GUChung.cpp:3485 CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_FrameMove	inside	-	CH2a	1 states	y
+32bfafa0	state-fn	CSI_SI_SA_CHUNG_ACELDAMA.FrameMove CSI_SI_SA_CHUNG_ACELDAMA_HYPER.FrameMove	inside X2GUChung.cpp:3464 CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_FrameMove ; inside X2GUChung.cpp:3464(=normal CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_FrameMove	inside	-	CH2a	2 states	y
+32bfb6e0	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING.FrameMove	inside X2GUChung.cpp:3591 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_FrameMove	inside	-	CH2b	1 states	y
+32bfb8f0	state-fn	CSI_SI_SA_CFG_LUNATIC_FURY_END.FrameMove CSI_SI_SA_CFG_LUNATIC_FURY_END_HYPER.FrameMove	inside X2GUChung.cpp:3598 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove ; inside X2GUChung.cpp:3605 CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove	inside	-	CH2b	2 states	y
+32bfbc10	state-fn	CSI_SI_A_CFG_GUARD_FIRST_STRIKE.FrameMove CSI_SI_A_CFG_GUARD_READY.FrameMove CSI_SI_A_CFG_GUARD_READY_MEMO.FrameMove +3	inside X2GUChung.cpp:3685 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_FrameMove ; inside X2GUChung.cpp:3731 CX2GUChung::CSI_SI_A_CFG_GUARD_READY_FrameMove ; inside X2GUChung.cpp:3701 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_FrameMove ; inside X2GUChung.cpp:3709 CX2GUChung::CSI_SI_A_CFG_GUARD_END_FrameMove ; inside X2GUChung.cpp:3718 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_FrameMove	inside	-	CH3a2	6 states	y
+32bfbe30	state-fn	CSI_SI_A_CFG_GUARD_FIRST_STRIKE.End CSI_SI_A_CFG_GUARD_READY.End CSI_SI_A_CFG_GUARD_READY_MEMO.End +3	inside X2GUChung.cpp:3703 CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_End ; inside X2GUChung.cpp:3711 CX2GUChung::CSI_SI_A_CFG_GUARD_END_End ; inside X2GUChung.cpp:3720 CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_End	inside	-	CH3a2	6 states	y
+32bfbe80	state-fn	CSI_SI_SA_CSG_DUAL_BUSTER.FrameMove CSI_SI_SA_CSG_DUAL_BUSTER_HYPER.FrameMove CSI_SI_SA_CSG_DUAL_BUSTER_LANDING.FrameMove	inside X2GUChung.cpp:3757 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove ; inside X2GUChung.cpp:3757(=normal CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove ; inside X2GUChung.cpp:3771 CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_FrameMove	inside	-	CH2c	3 states	y
+32bfc310	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.FrameMove	inside X2GUChung.cpp:3808 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_FrameMove	inside	-	CH3b	1 states	y
+32bfc860	state-fn	CSI_SI_A_CSG_HEAD_SHOT.FrameMove	inside X2GUChung.cpp:3839 CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_FrameMove	inside	-	CH1g2	1 states	y
+32bfcc80	state-fn	CSI_SI_A_CSG_HEAD_SHOT.FrameMove	inside X2GUChung.cpp:3839 CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_FrameMove	inside	-	CH1g2	1 states	y
+32bfd2b0	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_LOOP.FrameMove	inside X2GUChung.cpp:3874 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_LOOP_FrameMove	inside	-	CH3b	1 states	y
+32bfd4b0	state-fn	CSI_SI_SA_CSG_COMET_CRASHER_FINISH.FrameMove	inside X2GUChung.cpp:3881 CX2GUChung::CSI_SI_SA_CSG_COMET_CRASHER_FINISH_FrameMove	inside	-	CH3b	1 states	y
+32bfd690	state-fn	CSI_CDC_COMBO_X.End	inside X2GUChung.cpp:2343 CX2GUChung::CDCComboXEnd	inside	-	CH1h	1 states	n
+32bfd6b0	state-fn	CSI_CDC_COMBO_XZ.End	inside X2GUChung.cpp:2360 CX2GUChung::CDCComboXZEnd	inside	-	CH1h	1 states	n
+32bfd6f0	state-fn	CSI_CDC_COMBO_XZZ.FrameMove	inside X2GUChung.cpp:2381 CX2GUChung::CDCComboXZZFrameMove	inside	-	CH1h	1 states	y
+32bfda10	state-fn	CSI_CDC_COMBO_ZZXX.End	inside X2GUChung.cpp:2397 CX2GUChung::CDCComboZZXXEnd	inside	-	CH1h	1 states	n
+32bfda50	state-fn	CSI_CDC_COMBO_ZZXXX.FrameMove	inside X2GUChung.cpp:2404 CX2GUChung::CDCComboZZXXXFrameMove	inside	-	CH1h	1 states	y
+32bfdd70	state-fn	CSI_SI_A_CDC_TRICK_SHOT.FrameMove	-	new	CSI_SI_A_CDC_TRICK_SHOT_FrameMove	CH2c	1 states	y
+32bfe4d0	state-fn	CSI_SI_A_CDC_TRICK_SHOT.EventProcess	-	new	CSI_SI_A_CDC_TRICK_SHOT_EventProcess	CH2c	1 states	n
+32bfe730	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY.FrameMove CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY.FrameMove CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_HYPER.FrameMove +11	inside X2GUChung.cpp:4053 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove ; inside X2GUChung.cpp:4675 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove ; inside X2GUChung.cpp:4053(=normal CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove ; inside X2GUChung.cpp:4142 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_FrameMove	inside	-	CH2c	14 states	y
+32bfea90	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY.EventProcess CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY.EventProcess CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_HYPER.EventProcess +11	inside X2GUChung.cpp:4054 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess ; inside X2GUChung.cpp:4676 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess ; inside X2GUChung.cpp:4054(=normal CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess ; inside X2GUChung.cpp:4071 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4078 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4114 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4121 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4128 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4135 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4086 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4093 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4100 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4107 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4143 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_EventProcess	inside	-	CH2c	14 states	y
+32bfeb30	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY.End CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY.End CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_HYPER.End +11	inside X2GUChung.cpp:4055 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_StateEnd ; inside X2GUChung.cpp:4677 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_StateEnd ; inside X2GUChung.cpp:4055(=normal CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_StateEnd ; inside X2GUChung.cpp:4079 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateEnd ; inside X2GUChung.cpp:4144 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_StateEnd	inside	-	CH2c	14 states	y
+32bfeb80	helper	reached only through callers with no phased caller 32bff353	-	new	?	CH1o	phase unsettled: read it; name: switch on +0x8ac0 over per-slot byte flags (+0x86f2..+0x872e), GetDistance, HaveThisBuff; role not read	y
+32bfedf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 67ff84c00f84bbfd	n
+32bff350	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.EventProcess CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE.EventProcess CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_LEFT.EventProcess +7	inside X2GUChung.cpp:4071 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4078 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4114 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4121 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4128 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4135 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4086 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4093 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4100 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess ; inside X2GUChung.cpp:4107 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess	inside	-	CH2c	10 states	n
+32bff370	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.Start	inside X2GUChung.cpp:4070 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart	inside	-	CH2c	1 states	y
+32bff3d0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.StartFuture	-	new	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture	CH2c	1 states	y
+32bff430	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE.End	inside X2GUChung.cpp:4079 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateEnd	inside	-	CH2c	1 states	y
+32bff4f0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_LEFT.Start	inside X2GUChung.cpp:4085 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_LEFT_StateStart	inside	-	CH2c	1 states	y
+32bff550	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_RIGHT.Start	inside X2GUChung.cpp:4092 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_RIGHT_StateStart	inside	-	CH2c	1 states	y
+32bff5b0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP.Start	inside X2GUChung.cpp:4099 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_StateStart	inside	-	CH2c	1 states	y
+32bff610	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN.Start	inside X2GUChung.cpp:4106 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_StateStart	inside	-	CH2c	1 states	y
+32bff670	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_LEFT.Start	inside X2GUChung.cpp:4113 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_LEFT_StateStart	inside	-	CH2c	1 states	y
+32bff6d0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_RIGHT.Start	inside X2GUChung.cpp:4120 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_RIGHT_StateStart	inside	-	CH2c	1 states	y
+32bff730	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_LEFT.Start	inside X2GUChung.cpp:4127 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_LEFT_StateStart	inside	-	CH2c	1 states	y
+32bff790	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_RIGHT.Start	inside X2GUChung.cpp:4134 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_RIGHT_StateStart	inside	-	CH2c	1 states	y
+32bff7f0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE.FrameMove	inside X2GUChung.cpp:4142 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_FrameMove	inside	-	CH2c	1 states	y
+32bffb20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 81ec98000000a180	n
+32bffd20	state-fn	CSI_SI_SA_CDC_BULLET_BLITZ.FrameMove CSI_SI_SA_CDC_BULLET_BLITZ_HYPER.FrameMove	inside X2GUChung.cpp:4175 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_FrameMove ; inside X2GUChung.cpp:4181 CX2GUChung::CSI_SI_SA_CDC_BULLET_BLITZ_HYPER_FrameMove	inside	-	CH3b	2 states	y
+32c00270	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c003c0	state-fn	CSI_SI_A_CIP_SUDDEN_BURSTER.FrameMove	inside X2GUChung.cpp:3943 CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_FrameMove	inside	-	CH2b	1 states	y
+32c007c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bceffd08b	n
+32c007e0	state-fn	CSI_SI_SA_CIP_BURST_WOLF.FrameMove CSI_SI_SA_CIP_BURST_WOLF_HYPER.FrameMove	inside X2GUChung.cpp:3965 CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_FrameMove ; inside X2GUChung.cpp:3965(=normal CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_FrameMove	inside	-	CH2b	2 states	y
+32c00be0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c00cb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff689db6333364	y
+32c00ec0	state-fn	CSI_COMBO_Z.FrameMove	inside X2GUChung.cpp:1544 CX2GUChung::ComboZFrameMove	inside	-	CH1d	1 states	y
+32c01070	state-fn	CSI_COMBO_ZZ.FrameMove	inside X2GUChung.cpp:1553 CX2GUChung::ComboZZFrameMove	inside	-	CH1d	1 states	y
+32c01220	state-fn	CSI_COMBO_ZZZ.FrameMove	inside X2GUChung.cpp:1562 CX2GUChung::ComboZZZFrameMove	inside	-	CH1d	1 states	y
+32c014d0	state-fn	CSI_COMBO_ZZZZ.FrameMove	inside X2GUChung.cpp:1571 CX2GUChung::ComboZZZZFrameMove	inside	-	CH1d	1 states	y
+32c01780	state-fn	CSI_COMBO_ZZdownZZ.FrameMove	inside X2GUChung.cpp:1615 CX2GUChung::ComboZZdownZZFrameMove	inside	-	CH1d	1 states	y
+32c01930	state-fn	CSI_COMBO_X.FrameMove	inside X2GUChung.cpp:1863 CX2GUChung::ComboXFrameMove	inside	-	CH1d	1 states	y
+32c01be0	state-fn	CSI_CFG_COMBO_XXFRONTZ.FrameMove CSI_CFG_COMBO_DASH_Z.FrameMove CSI_CIP_COMBO_DASHJUMP_XX_LANDING.FrameMove	inside X2GUChung.cpp:1903 CX2GUChung::CFGComboDashZFrameMove	inside	-	CH1e	3 states	y
+32c01fd0	state-fn	CSI_CIP_COMBO_DASH_XXXX.FrameMove	inside X2GUChung.cpp:2081 CX2GUChung::CIPComboDashXXXXFrameMove	inside	-	CH1f	1 states	y
+32c02280	state-fn	CSI_CIP_POWER_DOWN_LANDING.FrameMove	inside X2GUChung.cpp:2037 CX2GUChung::PowerDownLandingFrameMove	inside	-	CH1f	1 states	y
+32c02530	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_Z.FrameMove	inside X2GUChung.cpp:2045 CX2GUChung::CIPComboPowerDownLandingZFrameMove	inside	-	CH1f	1 states	y
+32c02920	state-fn	CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ.FrameMove	inside X2GUChung.cpp:2054 CX2GUChung::CIPComboPowerDownLandingZZFrameMove	inside	-	CH1f	1 states	y
+32c02c30	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding.FrameMove	inside X2GUChung.cpp:1707 CX2GUChung::ComboDashJumpZZLandingFrameMove	inside	-	CH1d2	1 states	y
+32c02ee0	state-fn	CSI_STANDUP_ATTACK_FRONT.FrameMove	inside X2GUChung.cpp:1180 CX2GUChung::StandUpAttackFrontFrameMove	inside	-	CH1b	1 states	y
+32c033b0	state-fn	CSI_STANDUP_ATTACK_BACK.FrameMove	inside X2GUChung.cpp:1190 CX2GUChung::StandUpAttackBackFrameMove	inside	-	CH1b	1 states	y
+32c03880	state-fn	CSI_GUARD_ATTACK_Z.FrameMove	inside X2GUChung.cpp:1521 CX2GUChung::GuardAttackZFrameMove	inside	-	CH1a	1 states	y
+32c03b30	state-fn	CSI_COMBO_ZZdownZ.FrameMove	inside X2GUChung.cpp:1607 CX2GUChung::ComboZZdownZFrameMove	inside	-	CH1d	1 states	y
+32c03cf0	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding_CANNON_BALL_SHOT.FrameMove	inside X2GUChung.cpp:1716 CX2GUChung::ComboDashJumpZZLandingCannonBallShotFrameMove	inside	-	CH1d2	1 states	y
+32c04130	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e827e33d0081c4a0	n
+32c04140	helper	called by 32c08010 32c0c4e0 32c0ca60 32c0dd90	-	new	EraseTargetingNPC	CH1b	name: kills own NUI_TARGETING_CHUNG* NPCs (0x35f / 0x58b / 0x9dd) of the given id; caller ResetArtilleryStrikeData	y
+32c042c0	state-fn	CSI_CHG_COMBO_XX.FrameMove	inside X2GUChung.cpp:2467 CX2GUChung::CHG_ComboXXFrameMove	inside	-	CH1i	1 states	y
+32c048b0	state-fn	CSI_CHG_DASH_COMBO_ZZX.FrameMove	inside X2GUChung.cpp:2438 CX2GUChung::CHG_ComboDashZZXFrameMove	inside	-	CH1i	1 states	y
+32c04ed0	state-fn	CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE.FrameMove CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT.FrameMove	inside X2GUChung.cpp:2489 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove ; inside X2GUChung.cpp:2496 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove	inside	-	CH1i	2 states	n
+32c05060	state-fn	CSI_SA_CHG_BIGBANG_STREAM.FrameMove CSI_SA_CHG_BIGBANG_STREAM_HYPER.FrameMove	inside X2GUChung.cpp:4291 CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_FrameMove ; inside X2GUChung.cpp:4295 CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_FrameMove	inside	-	CH2d	2 states	n
+32c05730	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0100006a0a8bceff	n
+32c058a0	helper	called by 32c0d570	-	inside	-	CH1l4	inside: X2GUChung.h:1229; CHUNG_CARPETBOMBING_BIG/SMALL damage effects	y
+32c05c90	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_WAIT.EventProcess	inside X2GUChung.cpp:4327 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_EventProcess	inside	-	CH2d	1 states	n
+32c05e80	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_WALK.EventProcess	inside X2GUChung.cpp:4335 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_EventProcess	inside	-	CH2d	1 states	n
+32c06050	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG.EventProcess	inside X2GUChung.cpp:4362 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_EventProcess	inside	-	CH2d	1 states	n
+32c06220	override 0x4c	DeleteMinorParticle	X2GUChung.h:747 virtual void DeleteMinorParticle();	inside	-	CH1k	base 31fc87c0	y
+32c06270	override 0xc0	ApplyHyperModeBuff	X2GUChung.h:777 virtual void ApplyHyperModeBuff();	inside	-	CH1k	base 32298590	y
+32c063d0	override 0xc4	HyperModeBuffEffectStart	X2GUChung.h:778 virtual void HyperModeBuffEffectStart();	inside	-	CH1k	base 31fd5cb0	y
+32c06750	override 0xc8	HyperModeBuffEffectEnd	X2GUChung.h:779 virtual void HyperModeBuffEffectEnd();	inside	-	CH1k	base 31fd5d70	y
+32c069b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0074166a008d4c24	n
+32c06af0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e867b93d0083c474	n
+32c06b00	state-fn	CSI_CTT_DASH_COMBO_XX.FrameMove	inside X2GUChung.cpp:2603 CX2GUChung::CTT_DashComboXXFrameMove	inside	-	CH1j	1 states	y
+32c07040	state-fn	CSI_SI_SA_CTT_CANNON_STRIKE.FrameMove CSI_SI_SA_CTT_CANNON_STRIKE_HYPER.FrameMove	inside X2GUChung.cpp:4423 CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_FrameMove ; inside X2GUChung.cpp:4423(=normal CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_FrameMove	inside	-	CH3c	2 states	y
+32c073e0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_FINAL.FrameMove	inside X2GUChung.cpp:4527 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_FrameMove	inside	-	CH2d	1 states	y
+32c076e0	state-fn	CSI_A_CIP_ARTILLERY_NOVA_FIRE.FrameMove	inside X2GUChung.cpp:4551 CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove	inside	-	CH3a	1 states	y
+32c07990	state-fn	CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING.FrameMove	inside X2GUChung.cpp:4497 CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_FrameMove	inside	-	CH3a	1 states	n
+32c079f0	state-fn	CSI_A_CDC_RAPID_CANNON_LOOP.FrameMove	inside X2GUChung.cpp:4605 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_FrameMove	inside	-	CH3b	1 states	n
+32c07ce0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e877a73d0083c460	n
+32c07cf0	state-fn	CSI_A_CDC_RAPID_CANNON_FINAL.FrameMove	inside X2GUChung.cpp:4613 CX2GUChung::CSI_A_CDC_RAPID_CANNON_FINAL_FrameMove	inside	-	CH3b	1 states	y
+32c07dc0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 34ffd9eed954245c	n
+32c08010	helper	called by 32c080f0	-	inside	-	CH1l4	inside: X2GUChung.h:1717; clears +0x97d4.., erases buff 0x1a2 ARTILLERY_STRIKE_SCOPE, kills targeting NPCs	y
+32c080f0	helper	called by 32c084e0 32c0d570 32c0e150	-	inside	-	CH1l4	inside: X2GUChung.h:1716; DAMAGE_EFFECT_CSI_SI_SA_CDC_CH..., SA_FALL_HEIGHT	y
+32c084e0	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY.Start CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.Start CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE.Start +9	inside X2GUChung.cpp:4674 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY_Start ; inside X2GUChung.cpp:4070 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart ; inside X2GUChung.cpp:4077 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateStart ; inside X2GUChung.cpp:4113 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_LEFT_StateStart ; inside X2GUChung.cpp:4120 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_RIGHT_StateStart ; inside X2GUChung.cpp:4127 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_LEFT_StateStart ; inside X2GUChung.cpp:4134 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_RIGHT_StateStart ; inside X2GUChung.cpp:4085 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_LEFT_StateStart ; inside X2GUChung.cpp:4092 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_RIGHT_StateStart ; inside X2GUChung.cpp:4099 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_StateStart ; inside X2GUChung.cpp:4106 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_StateStart ; inside X2GUChung.cpp:4141 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start	inside	-	CH2c	12 states	y
+32c08520	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51535556578bf1e8	n
+32c087e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5304895104	n
+32c08970	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 558bec83e4f86aff	y
+32c08fa0	state-fn	CSI_HA_CTT_SATELITE_RAIN.FrameMove	inside X2GUChung.cpp:4817 CX2GUChung::CSI_HA_CTT_SATELITE_RAIN_FrameMove	inside	-	CH3d	1 states	y
+32c09390	helper	called by 32c09ad0	-	inside	-	CH1l4	inside: X2GUChung.h:1766; DamageEffect_CTT_Satelite_Rain_B / Satellite_Rain	y
+32c09ad0	helper	called by 32c0d570	-	inside	-	CH1l4	inside: X2GUChung.h:1767; kills the rain effect, clears +0x9820..	y
+32c09b60	helper	called by 32c0def0 32c113e0	-	inside	-	CH1c	inside: X2GUChung.h:863; Change/Break/Energy.ogg, hyper-mode minor particles	y
+32c09e40	helper	called by 32c0e530 32c0e9b0 32c108d0	-	new	CreateCannonBulletDamageEffect	CH1j	name: DAMAGE_EFFECT_Cannon_Ball_Bullet + SetLockOn from a weapon bone; callers 32c0e530 / 32c0e9b0 / 32c108d0; role guess	y
+32c0a230	helper	called by 32c0e190 32c0f6d0 32c0fc30 32c11410	-	new	CanConsumeCannonBallForShot	CH2a	name: (count, count2, hyper, float* out): checks GetTotalCannonBallCount >= count, outputs a rate; role guess	y
+32c0a420	not-Chung	called only from outside the range: 3230bc46	-	-	-	n/a	shared / folded code	y
+32c0a500	helper	called by 32c10d20 32c11940	-	new	GetUsefulTacticValue	CH3c	name: skill level of CTT passive 0x6734 -> value index 2 times a float; role guess	y
+32c0a5b0	state-fn	CSI_CTT_DASH_JUMP_COMBO_XX.FrameMove	-	new	CSI_CTT_DASH_JUMP_COMBO_XX_FrameMove	CH1j	1 states	y
+32c0a8d0	state-fn	CSI_CSG_COMBO_DASH_ZXX_READY.FrameMove	-	new	CSI_CSG_COMBO_DASH_ZXX_READY_FrameMove	CH1g	1 states	y
+32c0abb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e8a7783d0083c41c	n
+32c0abc0	state-fn	CSI_CSG_COMBO_DASH_ZXX_END.Start	-	new	CSI_CSG_COMBO_DASH_ZXX_END_StateStart	CH1g	1 states	y
+32c0ac00	state-fn	CSI_CSG_COMBO_DASH_ZX.End CSI_CSG_COMBO_DASH_ZXX_READY.End CSI_CSG_COMBO_DASH_ZXX.End	-	new	CSI_CSG_COMBO_DASH_ZX_StateEnd	CH1g	3 states	y
+32c0ac40	state-fn	CSI_CSG_COMBO_DASH_JUMP_ZX.FrameMove	-	new	CSI_CSG_COMBO_DASH_JUMP_ZX_FrameMove	CH1g2	1 states	y
+32c0b160	state-fn	CSI_SI_SA_CSG_DEADLY_SHOT.FrameMove	-	new	CSI_SI_SA_CSG_DEADLY_SHOT_FrameMove	CH2c	1 states	y
+32c0b340	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5604895104	n
+32c0b7c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bcdffd28b	n
+32c0b7f0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.FrameMove CSI_SA_CTT_HEAVY_FIELD_LOOP.FrameMove	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_FrameMove	CH3c	2 states	y
+32c0b9b0	state-fn	CSI_SA_CTT_HEAVY_FIELD_READY.EventProcess CSI_SA_CTT_HEAVY_FIELD_LOOP.EventProcess	-	new	CSI_SA_CTT_HEAVY_FIELD_READY_EventProcess	CH3c	2 states	y
+32c0ba60	state-fn	CSI_SA_CTT_HEAVY_FIELD_LOOP.FrameMove	-	new	CSI_SA_CTT_HEAVY_FIELD_LOOP_FrameMove	CH3c	1 states	n
+32c0bd20	state-fn	CSI_SA_CTT_HEAVY_FIELD_LOOP.EventProcess	-	new	CSI_SA_CTT_HEAVY_FIELD_LOOP_EventProcess	CH3c	1 states	n
+32c0c1c0	state-fn	CSI_SA_CTT_HEAVY_FIELD_END.Start	-	new	CSI_SA_CTT_HEAVY_FIELD_END_StateStart	CH3c	1 states	y
+32c0c4a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b442404568bf185	n
+32c0c4e0	helper	called by 32c25880	CX2GUChung::~CX2GUChung	inside	-	CH1k		y
+32c0c620	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f94c03ac3755c68	n
+32c0c8f0	override 0x40	Init	X2GUChung.h:495 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );	inside	-	CH1k	base 3204ea20	n
+32c0ca60	override 0x44	ReInit	X2GUChung.h:682 virtual void ReInit( bool bTeamPos_ = false, int iStartPosIndex_ = -1 );	inside	-	CH1k	base 32022380	y
+32c0cf90	override 0x60	DamageReact	X2GUChung.h:684 virtual void DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ );	inside	-	CH1k	base 320462a0	y
+32c0d570	override 0x7cc	CommonFrameMove	X2GUChung.h:513 virtual void CommonFrameMove();	inside	-	CH1l4	base 32063650	y
+32c0dd40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed48700	y
+32c0dd90	state-fn	CSI_DIE_FRONT.Start CSI_RIDING_DIE.Start	inside X2GUChung.cpp:898 CX2GUChung::DieFrontStart ; inside X2GUChung.cpp:1423 CX2GUChung::DieFrontStart	inside	-	CH1b	2 states	y
+32c0de40	state-fn	CSI_DIE_BACK.Start	inside X2GUChung.cpp:907 CX2GUChung::DieBackStart	inside	-	CH1b	1 states	y
+32c0def0	override 0x600	HyperModeFrameMove	X2GUChung.h:860 void HyperModeFrameMove(); (no virtual keyword; overrides the pure virtual X2GUUser.h:2335)	inside	-	CH1l	base 31aa1d30	n
+32c0df20	state-fn	CSI_SI_SA_CSG_HEAVY_RAILGUN.FrameMove CSI_SI_SA_CSG_HEAVY_RAILGUN_HYPER.FrameMove	inside X2GUChung.cpp:3781 CX2GUChung::CSI_SI_SA_CSG_HEAVY_RAILGUN_FrameMove ; inside X2GUChung.cpp:3781(=normal CX2GUChung::CSI_SI_SA_CSG_HEAVY_RAILGUN_FrameMove	inside	-	CH3b	2 states	y
+32c0df80	state-fn	CSI_SI_SA_CSG_SHOOTING_STAR_READY.FrameMove CSI_SI_SA_CSG_SHOOTING_STAR_READY_HYPER.FrameMove CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK.FrameMove	inside X2GUChung.cpp:3793 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_READY_FrameMove ; inside X2GUChung.cpp:3793(=normal CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_READY_FrameMove ; inside X2GUChung.cpp:3808 CX2GUChung::CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_FrameMove	inside	-	CH3b	3 states	y
+32c0dfe0	state-fn	CSI_SI_A_CSG_RUMBLE_SHOT.FrameMove	inside X2GUChung.cpp:3827 CX2GUChung::CSI_SI_A_CSG_RUMBLE_SHOT_FrameMove	inside	-	CH3b	1 states	n
+32c0e150	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY.Start CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_HYPER.Start CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE.Start +10	inside X2GUChung.cpp:4052 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Start ; inside X2GUChung.cpp:4052(=normal CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Start ; inside X2GUChung.cpp:4070 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart ; inside X2GUChung.cpp:4077 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateStart ; inside X2GUChung.cpp:4113 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_LEFT_StateStart ; inside X2GUChung.cpp:4120 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_RIGHT_StateStart ; inside X2GUChung.cpp:4127 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_LEFT_StateStart ; inside X2GUChung.cpp:4134 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_RIGHT_StateStart ; inside X2GUChung.cpp:4085 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_LEFT_StateStart ; inside X2GUChung.cpp:4092 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_RIGHT_StateStart ; inside X2GUChung.cpp:4099 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_UP_StateStart ; inside X2GUChung.cpp:4106 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_StateStart ; inside X2GUChung.cpp:4141 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start	inside	-	CH2c	13 states	y
+32c0e190	state-fn	CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE.Start	inside X2GUChung.cpp:4141 CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start	inside	-	CH2c	1 states	n
+32c0e1f0	state-fn	CSI_CHG_DASH_JUMP_COMBO_ZX.FrameMove	inside X2GUChung.cpp:2445 CX2GUChung::CHG_ComboDashJumpZXFrameMove	inside	-	CH1i	1 states	y
+32c0e530	state-fn	CSI_SI_A_SIEGE_SHELLING_X.FrameMove	inside X2GUChung.cpp:1760 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_FrameMove	inside	-	CH2a	1 states	y
+32c0e9b0	state-fn	CSI_SI_A_SIEGE_SHELLING_X_FINISH.FrameMove	inside X2GUChung.cpp:1767 CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_Finish_FrameMove	inside	-	CH2a	1 states	y
+32c0ede0	state-fn	CSI_A_CHG_ELASTIC_BOMB.FrameMove CSI_A_CHG_ELASTIC_BOMB_HYPER.FrameMove	inside X2GUChung.cpp:4219 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove ; inside X2GUChung.cpp:4223 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove	inside	-	CH2d	2 states	y
+32c0f1f0	state-fn	CSI_A_CHG_ELASTIC_BOMB.FrameMove CSI_A_CHG_ELASTIC_BOMB_HYPER.FrameMove	inside X2GUChung.cpp:4219 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove ; inside X2GUChung.cpp:4223 CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove	inside	-	CH2d	2 states	y
+32c0f6d0	state-fn	CSI_SA_CHG_CARPET_BOMBING.FrameMove CSI_SA_CHG_CARPET_BOMBING_HYPER.FrameMove	inside X2GUChung.cpp:4302 CX2GUChung::CSI_SA_CHG_CARPET_BOMBING_FrameMove ; inside X2GUChung.cpp:4306 CX2GUChung::CSI_SA_CHG_CARPET_BOMBING_FrameMove	inside	-	CH3c	2 states	y
+32c0f8c0	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_START.FrameMove CSI_SI_A_CHG_CHAOS_CANNON_START_HYPER.FrameMove CSI_SI_A_CHG_CHAOS_CANNON_WAIT.FrameMove +9	inside X2GUChung.cpp:4313 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove ; inside X2GUChung.cpp:4317 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove ; inside X2GUChung.cpp:4326 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_FrameMove ; inside X2GUChung.cpp:4334 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_FrameMove ; inside X2GUChung.cpp:4361 CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_FrameMove	inside	-	CH2d	12 states	y
+32c0fc30	state-fn	CSI_SI_A_CHG_CHAOS_CANNON_01.FrameMove CSI_SI_A_CHG_CHAOS_CANNON_02.FrameMove CSI_SI_A_CHG_CHAOS_CANNON_03.FrameMove	-	new	CSI_SI_A_CHG_CHAOS_CANNON_01_FrameMove	CH2d	3 states	y
+32c0feb0	override 0xd0	?	- (not found; name unsettled)	inside	-	CH1k	base 322984c0; inside: X2GUChung.h:651 virtual CX2GageData* CreateGageData(); vslot 0xd0, new 0x144-byte object under SEH	y
+32c0ff80	state-fn	CSI_CTT_COMBO_ZZX.FrameMove	inside X2GUChung.cpp:2589 CX2GUChung::CTT_ComboZZXFrameMove	inside	-	CH1j	1 states	y
+32c102d0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_READY.Start	inside X2GUChung.cpp:2610 CX2GUChung::CTT_MobileArmoredModeReadyStateStart	inside	-	CH1j	1 states	y
+32c104d0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_Z.FrameMove	inside X2GUChung.cpp:2657 CX2GUChung::CTT_MobileArmoredModeZFrameMove	inside	-	CH1j	1 states	y
+32c108d0	state-fn	CSI_CTT_MOBILE_ARMORED_MODE_X.FrameMove	inside X2GUChung.cpp:2667 CX2GUChung::CTT_MobileArmoredModeXFrameMove	inside	-	CH1j	1 states	y
+32c10d20	helper	called by 32c12470	-	new	?	CH3c	name: erases dead entries of the NPC/effect list +0x97bc (vslot 0xa8, die vslot 0xf4); caller 32c12470	y
+32c10fb0	state-fn	CSI_A_CSG_MAGNUM_SHOT.FrameMove	inside X2GUChung.cpp:4574 CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_FrameMove	inside	-	CH2d	1 states	n
+32c113e0	state-fn	CSI_RIDING_HYPER_MODE.FrameMove	inside X2GUChung.cpp:1491 CX2GUChung::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
+32c11410	helper	called by 32c11e10 32c12660	-	new	PlayCannonShotEffectSet	CH2a	name: PlayEffectSet with "_EXTRA" suffix, guarded by 32c0a230; role guess	y
+32c116e0	helper	called by 32c11980	-	new	CreateCannonShotDamageEffect	CH2d	name: TRACE_START0 weapon bone + "_EXTRA" name; role guess	y
+32c11940	not-Chung	called only from outside the range: 3230c7b7	-	-	-	n/a	shared / folded code	y
+32c11980	helper	called by 32c12100 32c12240 32c12400	-	new	SetLockOnCannonShot	CH2d	name: SetLockOn of the effect created by 32c116e0; role guess	y
+32c11ad0	state-fn	CSI_CHG_DASH_JUMP_COMBO_ZXX.FrameMove	-	new	CSI_CHG_DASH_JUMP_COMBO_ZXX_FrameMove	CH1i	1 states	y
+32c11e10	state-fn	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION.FrameMove	inside X2GUChung.cpp:3317 CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove	inside	-	CH2a	1 states	y
+32c12100	state-fn	CSI_SA_CHG_DREAD_CHASE_START.FrameMove CSI_SA_CHG_DREAD_CHASE_START_HYPER.FrameMove CSI_SA_CHG_DREAD_CHASE_LOOP.FrameMove	inside X2GUChung.cpp:4262 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_FrameMove ; inside X2GUChung.cpp:4262(=normal CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_FrameMove ; inside X2GUChung.cpp:4276 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_FrameMove	inside	-	CH2d	3 states	y
+32c12240	state-fn	CSI_SA_CHG_DREAD_CHASE_LOOP.FrameMove	inside X2GUChung.cpp:4276 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_FrameMove	inside	-	CH2d	1 states	y
+32c12400	state-fn	CSI_SA_CHG_DREAD_CHASE_END.FrameMove	inside X2GUChung.cpp:4283 CX2GUChung::CSI_SA_CHG_DREAD_CHASE_END_FrameMove	inside	-	CH2d	1 states	n
+32c12470	state-fn	CSI_A_CTT_REMOTE_MORTAR.FrameMove	inside X2GUChung.cpp:4404 CX2GUChung::CSI_A_CTT_REMOTE_MORTAR_FrameMove	inside	-	CH3c	1 states	y
+32c12600	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c12660	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_LOOP.FrameMove	inside X2GUChung.cpp:4519 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_FrameMove	inside	-	CH2d	1 states	y
+32c12900	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e857fb3c0081c480	n
+32c12910	helper	reached only through callers with no phased caller 32c258a1	-	new	?	CH1o	phase unsettled: read it; name: reached only through callers with no phased caller; not read	y
+32c12a30	registrar	InitStateCommon (registers the common states, ids 7-205)	X2GUChung.cpp InitStateCommon	inside	-	CH1m		y
+32c15330	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e827d13c0081c490	n
+32c15340	state-fn	CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME.FrameMove CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER.FrameMove	inside X2GUChung.cpp:3895 CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove ; inside X2GUChung.cpp:3895(=normal CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove	inside	-	CH2c	2 states	y
+32c15680	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 3c0083c404eb02dd	n
+32c156c0	state-fn	CSI_SA_CHG_WONDER_WALL.FrameMove CSI_SA_CHG_WONDER_WALL_HYPER.FrameMove	inside X2GUChung.cpp:4245 CX2GUChung::CSI_SA_CHG_WONDER_WALL_FrameMove ; inside X2GUChung.cpp:4245(=normal CX2GUChung::CSI_SA_CHG_WONDER_WALL_FrameMove	inside	-	CH3a2	2 states	y
+32c15990	helper	called by 32c15e60 32c163f0 32c185b0 32c18950	-	new	?	CH1g	name: (obj, float) clears +0x250/+0x254/+0x258 smart pointer and bumps +0x84c; role not read	y
+32c15c00	state-fn	CSI_CSG_COMBO_DASH_ZX.FrameMove	-	new	CSI_CSG_COMBO_DASH_ZX_FrameMove	CH1g	1 states	y
+32c15e60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 890168702a7233b9	n
+32c163f0	state-fn	CSI_CSG_COMBO_DASH_ZXX.FrameMove	-	new	CSI_CSG_COMBO_DASH_ZXX_FrameMove	CH1g	1 states	y
+32c16be0	override 0x690	InitPassiveSkillState	X2GUChung.h:504 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	y
+32c17830	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)	inside	-	CH1l3	base 31aa1d30	y
+32c17f90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b54244c8951	n
+32c17fb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b54244c8951	n
+32c18170	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 00020000740f8d4c	n
+32c181f0	state-fn	CSI_CSG_COMBO_XFRONTX_FIRE.FrameMove	inside X2GUChung.cpp:2169 CX2GUChung::CSGComboXFrontXFireFrameMove	inside	-	CH1g2	1 states	y
+32c185b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 01000051d91c24e8	n
+32c18930	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bcdffd08b	n
+32c18950	state-fn	CSI_CSG_COMBO_DASH_XX.FrameMove	inside X2GUChung.cpp:2187 CX2GUChung::CSGComboDashXXFrameMove	inside	-	CH1g	1 states	y
+32c18e70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c18f30	state-fn	CSI_CSG_COMBO_DASH_JUMP_X.FrameMove	inside X2GUChung.cpp:2206 CX2GUChung::CSGComboDashJumpXFrameMove	inside	-	CH1g2	1 states	y
+32c190b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5604895104	n
+32c19710	state-fn	CSI_CSG_COMBO_DASH_JUMP_XX.FrameMove	inside X2GUChung.cpp:2215 CX2GUChung::CSGComboDashJumpXXFrameMove	inside	-	CH1g2	1 states	y
+32c19890	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5604895104	n
+32c19f30	state-fn	CSI_CDC_COMBO_X.FrameMove	inside X2GUChung.cpp:2341 CX2GUChung::CDCComboXFrameMove	inside	-	CH1h	1 states	y
+32c1a480	state-fn	CSI_CDC_COMBO_XZ.FrameMove	inside X2GUChung.cpp:2358 CX2GUChung::CDCComboXZFrameMove	inside	-	CH1h	1 states	y
+32c1ae60	state-fn	CSI_CDC_COMBO_ZZXX.FrameMove	inside X2GUChung.cpp:2395 CX2GUChung::CDCComboZZXXFrameMove	inside	-	CH1h	1 states	y
+32c1b8e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578bf1e8775b3e	y
+32c1ba00	state-fn	CSI_CDC_COMBO_XX.FrameMove	inside X2GUChung.cpp:2350 CX2GUChung::CDCComboXXFrameMove	inside	-	CH1h	1 states	n
+32c1bad0	state-fn	CSI_COMBO_XX.FrameMove	inside X2GUChung.cpp:1817 CX2GUChung::ComboXXFrameMove	inside	-	CH1d	1 states	y
+32c1be20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e837663c0083c460	n
+32c1be30	state-fn	CSI_CFG_COMBO_ZZX.FrameMove	inside X2GUChung.cpp:1894 CX2GUChung::CFGComboZZXFrameMove	inside	-	CH1e	1 states	y
+32c1c840	state-fn	CSI_A_CHG_MARK_OF_COMMANDER.FrameMove CSI_A_CHG_MARK_OF_COMMANDER_HYPER.FrameMove	inside X2GUChung.cpp:4231 CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_FrameMove ; inside X2GUChung.cpp:4231(=normal CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_FrameMove	inside	-	CH3c	2 states	y
+32c1ca20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5704895104	n
+32c1cc70	state-fn	CSI_SA_CTT_TACTICAL_FIELD.FrameMove CSI_SA_CTT_TACTICAL_FIELD_HYPER.FrameMove	inside X2GUChung.cpp:4442 CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_FrameMove ; inside X2GUChung.cpp:4442(=normal CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_FrameMove	inside	-	CH3c	2 states	y
+32c1cf80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c1d1d0	registrar	InitState class-gated part (per-class combo / skill states)	X2GUChung.cpp InitStateCommon	inside	-	CH1m		y
+32c1d6a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0000008bce897424	n
+32c1f530	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUChung.h:505 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
+32c22540	override 0x7a4 + registrar	InitState	X2GUChung.h:497 virtual void InitState();	inside	-	CH1m	base 31aa1d30	n
+32c22b70	not-Chung	called only from outside the range: 32310e5a 32d3dc47 3304d387	-	-	-	n/a	shared / folded code	y
+32c22b90	not-Chung	called only from outside the range: 3207643e	-	-	-	n/a	shared / folded code	y
+32c22bb0	thunk	jmp 32bd88f0	-	-	-	n/a	not ported	n
+32c22bc0	thunk	jmp 32bd8910	-	-	-	n/a	not ported	n
+32c22bd0	thunk	jmp 32bdbcd0	-	-	-	n/a	not ported	n
+32c22be0	thunk	jmp 32bd8930	-	-	-	n/a	not ported	n
+32c22bf0	thunk	jmp 32bd8960	-	-	-	n/a	not ported	n
+32c22c00	thunk	jmp 32bd89d0	-	-	-	n/a	not ported	n
+32c22c10	thunk	jmp 32bd8a10	-	-	-	n/a	not ported	n
+32c22c20	thunk	jmp 32bd8a50	-	-	-	n/a	not ported	n
+32c22c30	thunk	jmp 32bd8a60	-	-	-	n/a	not ported	n
+32c22c40	thunk	jmp 32bd8ab0	-	-	-	n/a	not ported	n
+32c22c50	thunk	jmp 32bd8b00	-	-	-	n/a	not ported	n
+32c22c60	thunk	jmp 32bd8b20	-	-	-	n/a	not ported	n
+32c22c70	thunk	jmp 32bd8b70	-	-	-	n/a	not ported	n
+32c22c80	thunk	jmp 32bd8c10	-	-	-	n/a	not ported	n
+32c22c90	thunk	jmp 32bd8c60	-	-	-	n/a	not ported	n
+32c22ca0	thunk	jmp 32bd8d40	-	-	-	n/a	not ported	n
+32c22cb0	thunk	jmp 32bd8da0	-	-	-	n/a	not ported	n
+32c22cc0	thunk	jmp 32bd8df0	-	-	-	n/a	not ported	n
+32c22cd0	thunk	jmp 32bd8e00	-	-	-	n/a	not ported	n
+32c22ce0	thunk	jmp 32bd8e50	-	-	-	n/a	not ported	n
+32c22cf0	thunk	jmp 32bd8e90	-	-	-	n/a	not ported	n
+32c22d00	thunk	jmp 32bda6c0	-	-	-	n/a	not ported	n
+32c22d10	thunk	jmp 32bd8980	-	-	-	n/a	not ported	n
+32c22d20	thunk	jmp 32bd89b0	-	-	-	n/a	not ported	n
+32c22d30	thunk	jmp 32bd8b90	-	-	-	n/a	not ported	n
+32c22d40	thunk	jmp 32bd8bc0	-	-	-	n/a	not ported	n
+32c22d50	thunk	jmp 32bd8cb0	-	-	-	n/a	not ported	n
+32c22d60	thunk	jmp 32bd8d00	-	-	-	n/a	not ported	n
+32c22d70	thunk	jmp 32bd8ed0	-	-	-	n/a	not ported	n
+32c22d80	thunk	jmp 32bda3a0	-	-	-	n/a	not ported	n
+32c22d90	thunk	jmp 32bda3b0	-	-	-	n/a	not ported	n
+32c22da0	thunk	jmp 32bda3c0	-	-	-	n/a	not ported	n
+32c22db0	thunk	jmp 32bda410	-	-	-	n/a	not ported	n
+32c22dc0	thunk	jmp 32bda420	-	-	-	n/a	not ported	n
+32c22dd0	thunk	jmp 32bda430	-	-	-	n/a	not ported	n
+32c22de0	thunk	jmp 32bda440	-	-	-	n/a	not ported	n
+32c22df0	thunk	jmp 32bda450	-	-	-	n/a	not ported	n
+32c22e00	thunk	jmp 32bda460	-	-	-	n/a	not ported	n
+32c22e10	thunk	jmp 32bda470	-	-	-	n/a	not ported	n
+32c22e20	thunk	jmp 32bda480	-	-	-	n/a	not ported	n
+32c22e30	thunk	jmp 32bda490	-	-	-	n/a	not ported	n
+32c22e40	thunk	jmp 32bda4a0	-	-	-	n/a	not ported	n
+32c22e50	thunk	jmp 32bda4b0	-	-	-	n/a	not ported	n
+32c22e60	thunk	jmp 32bda4c0	-	-	-	n/a	not ported	n
+32c22e70	thunk	jmp 32bd8ee0	-	-	-	n/a	not ported	n
+32c22e80	thunk	jmp 32bd8f00	-	-	-	n/a	not ported	n
+32c22e90	thunk	jmp 32bd8f60	-	-	-	n/a	not ported	n
+32c22ea0	thunk	jmp 32bd8fc0	-	-	-	n/a	not ported	n
+32c22eb0	thunk	jmp 32bd9020	-	-	-	n/a	not ported	n
+32c22ec0	thunk	jmp 32bd9080	-	-	-	n/a	not ported	n
+32c22ed0	thunk	jmp 32bd90e0	-	-	-	n/a	not ported	n
+32c22ee0	thunk	jmp 32bd9140	-	-	-	n/a	not ported	n
+32c22ef0	thunk	jmp 32bd9ee0	-	-	-	n/a	not ported	n
+32c22f00	thunk	jmp 32bd9f40	-	-	-	n/a	not ported	n
+32c22f10	thunk	jmp 32bd9f70	-	-	-	n/a	not ported	n
+32c22f20	thunk	jmp 32bd9fd0	-	-	-	n/a	not ported	n
+32c22f30	thunk	jmp 32bda020	-	-	-	n/a	not ported	n
+32c22f40	thunk	jmp 32bda080	-	-	-	n/a	not ported	n
+32c22f50	thunk	jmp 32bda820	-	-	-	n/a	not ported	n
+32c22f60	thunk	jmp 32bdaac0	-	-	-	n/a	not ported	n
+32c22f70	thunk	jmp 32bdab10	-	-	-	n/a	not ported	n
+32c22f80	thunk	jmp 32bda860	-	-	-	n/a	not ported	n
+32c22f90	thunk	jmp 32bda8a0	-	-	-	n/a	not ported	n
+32c22fa0	thunk	jmp 32bda8f0	-	-	-	n/a	not ported	n
+32c22fb0	thunk	jmp 32bda970	-	-	-	n/a	not ported	n
+32c22fc0	thunk	jmp 32bda9b0	-	-	-	n/a	not ported	n
+32c22fd0	thunk	jmp 32bdaa00	-	-	-	n/a	not ported	n
+32c22fe0	thunk	jmp 32bdaa80	-	-	-	n/a	not ported	n
+32c22ff0	thunk	jmp 32bdab50	-	-	-	n/a	not ported	n
+32c23000	thunk	jmp 32bdaba0	-	-	-	n/a	not ported	n
+32c23010	thunk	jmp 32bdabe0	-	-	-	n/a	not ported	n
+32c23020	thunk	jmp 32bdac00	-	-	-	n/a	not ported	n
+32c23030	thunk	jmp 32bdac50	-	-	-	n/a	not ported	n
+32c23040	thunk	jmp 32bdac90	-	-	-	n/a	not ported	n
+32c23050	thunk	jmp 32bdacb0	-	-	-	n/a	not ported	n
+32c23060	thunk	jmp 32bdad00	-	-	-	n/a	not ported	n
+32c23070	thunk	jmp 32bd9c10	-	-	-	n/a	not ported	n
+32c23080	thunk	jmp 32bdb7f0	-	-	-	n/a	not ported	n
+32c23090	helper	reached only through pointer @32c1781d	-	new	?	CH1o	phase unsettled: read it; name: reached only through pointer @32c1781d; uncarved, not read	n
+32c230a0	thunk	jmp 32bd9b70	-	-	-	n/a	not ported	n
+32c230b0	thunk	jmp 32bd9b80	-	-	-	n/a	not ported	n
+32c230c0	thunk	jmp 32bdb130	-	-	-	n/a	not ported	n
+32c230d0	thunk	jmp 32bdb160	-	-	-	n/a	not ported	n
+32c230e0	thunk	jmp 32bdb1b0	-	-	-	n/a	not ported	n
+32c230f0	thunk	jmp 32bdb1d0	-	-	-	n/a	not ported	n
+32c23100	thunk	jmp 32bd9160	-	-	-	n/a	not ported	n
+32c23110	thunk	jmp 32bd91d0	-	-	-	n/a	not ported	n
+32c23120	thunk	jmp 32bd9510	-	-	-	n/a	not ported	n
+32c23130	thunk	jmp 32bd9600	-	-	-	n/a	not ported	n
+32c23140	thunk	jmp 32bd96e0	-	-	-	n/a	not ported	n
+32c23150	thunk	jmp 32bd9820	-	-	-	n/a	not ported	n
+32c23160	thunk	jmp 32bd98e0	-	-	-	n/a	not ported	n
+32c23170	thunk	jmp 32bd9ec0	-	-	-	n/a	not ported	n
+32c23180	thunk	jmp 32bd9ed0	-	-	-	n/a	not ported	n
+32c23190	thunk	jmp 32bd9760	-	-	-	n/a	not ported	n
+32c231a0	thunk	jmp 32bd97c0	-	-	-	n/a	not ported	n
+32c231b0	thunk	jmp 32bd97f0	-	-	-	n/a	not ported	n
+32c231c0	thunk	jmp 32bd9810	-	-	-	n/a	not ported	n
+32c231d0	thunk	jmp 32bdaf90	-	-	-	n/a	not ported	n
+32c231e0	thunk	jmp 32bdafb0	-	-	-	n/a	not ported	n
+32c231f0	thunk	jmp 32bdafd0	-	-	-	n/a	not ported	n
+32c23200	thunk	jmp 32bdaff0	-	-	-	n/a	not ported	n
+32c23210	thunk	jmp 32bdb340	-	-	-	n/a	not ported	n
+32c23220	thunk	jmp 32bda2e0	-	-	-	n/a	not ported	n
+32c23230	thunk	jmp 32bd9ab0	-	-	-	n/a	not ported	n
+32c23240	thunk	jmp 32bd9c70	-	-	-	n/a	not ported	n
+32c23250	thunk	jmp 32bd9d10	-	-	-	n/a	not ported	n
+32c23260	thunk	jmp 32bd9dd0	-	-	-	n/a	not ported	n
+32c23270	thunk	jmp 32bd9de0	-	-	-	n/a	not ported	n
+32c23280	thunk	jmp 32bd9e50	-	-	-	n/a	not ported	n
+32c23290	thunk	jmp 32bda750	-	-	-	n/a	not ported	n
+32c232a0	thunk	jmp 32bda760	-	-	-	n/a	not ported	n
+32c232b0	thunk	jmp 32bda770	-	-	-	n/a	not ported	n
+32c232c0	thunk	jmp 32bda7c0	-	-	-	n/a	not ported	n
+32c232d0	thunk	jmp 32bda1a0	-	-	-	n/a	not ported	n
+32c232e0	thunk	jmp 32bdad80	-	-	-	n/a	not ported	n
+32c232f0	thunk	jmp 32bdad90	-	-	-	n/a	not ported	n
+32c23300	thunk	jmp 32bd94c0	-	-	-	n/a	not ported	n
+32c23310	thunk	jmp 32bd94f0	-	-	-	n/a	not ported	n
+32c23320	thunk	jmp 32bdada0	-	-	-	n/a	not ported	n
+32c23330	thunk	jmp 32bdadc0	-	-	-	n/a	not ported	n
+32c23340	thunk	jmp 32bdae40	-	-	-	n/a	not ported	n
+32c23350	thunk	jmp 32bdae60	-	-	-	n/a	not ported	n
+32c23360	thunk	jmp 32bd9260	-	-	-	n/a	not ported	n
+32c23370	thunk	jmp 32bd95c0	-	-	-	n/a	not ported	n
+32c23380	thunk	jmp 32bd95d0	-	-	-	n/a	not ported	n
+32c23390	thunk	jmp 32bd95e0	-	-	-	n/a	not ported	n
+32c233a0	thunk	jmp 32bd99d0	-	-	-	n/a	not ported	n
+32c233b0	thunk	jmp 32bd99e0	-	-	-	n/a	not ported	n
+32c233c0	thunk	jmp 32bd99f0	-	-	-	n/a	not ported	n
+32c233d0	thunk	jmp 32bd9a00	-	-	-	n/a	not ported	n
+32c233e0	thunk	jmp 32bd98f0	-	-	-	n/a	not ported	n
+32c233f0	thunk	jmp 32bd9900	-	-	-	n/a	not ported	n
+32c23400	thunk	jmp 32bd9930	-	-	-	n/a	not ported	n
+32c23410	thunk	jmp 32bd9950	-	-	-	n/a	not ported	n
+32c23420	thunk	jmp 32bd9970	-	-	-	n/a	not ported	n
+32c23430	thunk	jmp 32bd9990	-	-	-	n/a	not ported	n
+32c23440	thunk	jmp 32bd99b0	-	-	-	n/a	not ported	n
+32c23450	thunk	jmp 32bda4d0	-	-	-	n/a	not ported	n
+32c23460	thunk	jmp 32bda530	-	-	-	n/a	not ported	n
+32c23470	thunk	jmp 32bdae80	-	-	-	n/a	not ported	n
+32c23480	thunk	jmp 32bdaf00	-	-	-	n/a	not ported	n
+32c23490	thunk	jmp 32bda540	-	-	-	n/a	not ported	n
+32c234a0	thunk	jmp 32bda590	-	-	-	n/a	not ported	n
+32c234b0	thunk	jmp 32bd9a20	-	-	-	n/a	not ported	n
+32c234c0	thunk	jmp 32bd9a80	-	-	-	n/a	not ported	n
+32c234d0	thunk	jmp 32bda130	-	-	-	n/a	not ported	n
+32c234e0	thunk	jmp 32bdb810	-	-	-	n/a	not ported	n
+32c234f0	thunk	jmp 32bdb0d0	-	-	-	n/a	not ported	n
+32c23500	thunk	jmp 32bd9ba0	-	-	-	n/a	not ported	n
+32c23510	thunk	jmp 32bda300	-	-	-	n/a	not ported	n
+32c23520	thunk	jmp 32bdad40	-	-	-	n/a	not ported	n
+32c23530	thunk	jmp 32bdad50	-	-	-	n/a	not ported	n
+32c23540	thunk	jmp 32bda6d0	-	-	-	n/a	not ported	n
+32c23550	thunk	jmp 32bdad60	-	-	-	n/a	not ported	n
+32c23560	thunk	jmp 32bdad70	-	-	-	n/a	not ported	n
+32c23570	thunk	jmp 32bdb6a0	-	-	-	n/a	not ported	n
+32c23580	thunk	jmp 32bdb610	-	-	-	n/a	not ported	n
+32c23590	thunk	jmp 32bdb550	-	-	-	n/a	not ported	n
+32c235a0	thunk	jmp 32bdba90	-	-	-	n/a	not ported	n
+32c235b0	thunk	jmp 32bdbab0	-	-	-	n/a	not ported	n
+32c235c0	thunk	jmp 32bdbae0	-	-	-	n/a	not ported	n
+32c235d0	thunk	jmp 32bdbb40	-	-	-	n/a	not ported	n
+32c235e0	thunk	jmp 32bdbbd0	-	-	-	n/a	not ported	n
+32c235f0	thunk	jmp 32bdbca0	-	-	-	n/a	not ported	n
+32c23600	helper	reached only through callers with no phased caller 31e86dd6 31f33ca4 3207a1ac	-	new	-	CH1o	phase unsettled: read it; name: std template instantiation, no class member: vector<12-byte>::_Allocate	y
+32c23660	thunk	jmp 32bdc940	-	-	-	n/a	not ported	n
+32c23670	thunk	jmp 32bdc9a0	-	-	-	n/a	not ported	n
+32c23680	thunk	jmp 32bdc9e0	-	-	-	n/a	not ported	n
+32c23690	thunk	jmp 32bdca40	-	-	-	n/a	not ported	n
+32c236a0	thunk	jmp 32bdca80	-	-	-	n/a	not ported	n
+32c236b0	thunk	jmp 32bdcac0	-	-	-	n/a	not ported	n
+32c236c0	thunk	jmp 32bdcaf0	-	-	-	n/a	not ported	n
+32c236d0	thunk	jmp 32bdcb10	-	-	-	n/a	not ported	n
+32c236e0	thunk	jmp 32bdcb50	-	-	-	n/a	not ported	n
+32c236f0	thunk	jmp 32bdcba0	-	-	-	n/a	not ported	n
+32c23700	thunk	jmp 32bdcc40	-	-	-	n/a	not ported	n
+32c23710	thunk	jmp 32bdcd90	-	-	-	n/a	not ported	n
+32c23720	thunk	jmp 32bdcde0	-	-	-	n/a	not ported	n
+32c23730	thunk	jmp 32bdce20	-	-	-	n/a	not ported	n
+32c23740	thunk	jmp 32bdcea0	-	-	-	n/a	not ported	n
+32c23750	thunk	jmp 32bdcf20	-	-	-	n/a	not ported	n
+32c23760	thunk	jmp 32bdcf70	-	-	-	n/a	not ported	n
+32c23770	thunk	jmp 32bdcfc0	-	-	-	n/a	not ported	n
+32c23780	thunk	jmp 32bdd1d0	-	-	-	n/a	not ported	n
+32c23790	thunk	jmp 32bea9c0	-	-	-	n/a	not ported	n
+32c237a0	thunk	jmp 32bdd420	-	-	-	n/a	not ported	n
+32c237b0	thunk	jmp 32bdd5e0	-	-	-	n/a	not ported	n
+32c237c0	thunk	jmp 32bdd7e0	-	-	-	n/a	not ported	n
+32c237d0	thunk	jmp 32bdda60	-	-	-	n/a	not ported	n
+32c237e0	thunk	jmp 32bddc20	-	-	-	n/a	not ported	n
+32c237f0	thunk	jmp 32bdddf0	-	-	-	n/a	not ported	n
+32c23800	thunk	jmp 32bddf30	-	-	-	n/a	not ported	n
+32c23810	thunk	jmp 32bde640	-	-	-	n/a	not ported	n
+32c23820	thunk	jmp 32bdec60	-	-	-	n/a	not ported	n
+32c23830	thunk	jmp 32bdeca0	-	-	-	n/a	not ported	n
+32c23840	thunk	jmp 32bdece0	-	-	-	n/a	not ported	n
+32c23850	thunk	jmp 32bdf040	-	-	-	n/a	not ported	n
+32c23860	thunk	jmp 32bdf160	-	-	-	n/a	not ported	n
+32c23870	thunk	jmp 32bdf400	-	-	-	n/a	not ported	n
+32c23880	thunk	jmp 32be5a80	-	-	-	n/a	not ported	n
+32c23890	thunk	jmp 32be5b40	-	-	-	n/a	not ported	n
+32c238a0	thunk	jmp 32be5d00	-	-	-	n/a	not ported	n
+32c238b0	thunk	jmp 32be5f20	-	-	-	n/a	not ported	n
+32c238c0	thunk	jmp 32bde810	-	-	-	n/a	not ported	n
+32c238d0	thunk	jmp 32bde0f0	-	-	-	n/a	not ported	n
+32c238e0	thunk	jmp 32bde240	-	-	-	n/a	not ported	n
+32c238f0	thunk	jmp 32bde470	-	-	-	n/a	not ported	n
+32c23900	thunk	jmp 32bdea80	-	-	-	n/a	not ported	n
+32c23910	thunk	jmp 32bdf820	-	-	-	n/a	not ported	n
+32c23920	thunk	jmp 32bdfaf0	-	-	-	n/a	not ported	n
+32c23930	thunk	jmp 32bdfba0	-	-	-	n/a	not ported	n
+32c23940	thunk	jmp 32bdfe00	-	-	-	n/a	not ported	n
+32c23950	thunk	jmp 32be0030	-	-	-	n/a	not ported	n
+32c23960	thunk	jmp 32be0060	-	-	-	n/a	not ported	n
+32c23970	thunk	jmp 32bdf650	-	-	-	n/a	not ported	n
+32c23980	thunk	jmp 32be42c0	-	-	-	n/a	not ported	n
+32c23990	thunk	jmp 32be4500	-	-	-	n/a	not ported	n
+32c239a0	thunk	jmp 32be4710	-	-	-	n/a	not ported	n
+32c239b0	thunk	jmp 32be4810	-	-	-	n/a	not ported	n
+32c239c0	thunk	jmp 32be48e0	-	-	-	n/a	not ported	n
+32c239d0	thunk	jmp 32be4b40	-	-	-	n/a	not ported	n
+32c239e0	thunk	jmp 32be0200	-	-	-	n/a	not ported	n
+32c239f0	thunk	jmp 32be0270	-	-	-	n/a	not ported	n
+32c23a00	thunk	jmp 32be0630	-	-	-	n/a	not ported	n
+32c23a10	thunk	jmp 32be08b0	-	-	-	n/a	not ported	n
+32c23a20	thunk	jmp 32be0b10	-	-	-	n/a	not ported	n
+32c23a30	thunk	jmp 32be0c30	-	-	-	n/a	not ported	n
+32c23a40	thunk	jmp 32be0cb0	-	-	-	n/a	not ported	n
+32c23a50	thunk	jmp 32be30c0	-	-	-	n/a	not ported	n
+32c23a60	thunk	jmp 32be31f0	-	-	-	n/a	not ported	n
+32c23a70	thunk	jmp 32be3320	-	-	-	n/a	not ported	n
+32c23a80	thunk	jmp 32be3730	-	-	-	n/a	not ported	n
+32c23a90	thunk	jmp 32be3960	-	-	-	n/a	not ported	n
+32c23aa0	thunk	jmp 32be3a30	-	-	-	n/a	not ported	n
+32c23ab0	thunk	jmp 32be3cb0	-	-	-	n/a	not ported	n
+32c23ac0	thunk	jmp 32be54f0	-	-	-	n/a	not ported	n
+32c23ad0	thunk	jmp 32be5680	-	-	-	n/a	not ported	n
+32c23ae0	thunk	jmp 32be5960	-	-	-	n/a	not ported	n
+32c23af0	thunk	jmp 32be52a0	-	-	-	n/a	not ported	n
+32c23b00	thunk	jmp 32be5fe0	-	-	-	n/a	not ported	n
+32c23b10	thunk	jmp 32be6c50	-	-	-	n/a	not ported	n
+32c23b20	thunk	jmp 32be6f40	-	-	-	n/a	not ported	n
+32c23b30	thunk	jmp 32be6fe0	-	-	-	n/a	not ported	n
+32c23b40	thunk	jmp 32be7180	-	-	-	n/a	not ported	n
+32c23b50	thunk	jmp 32be7230	-	-	-	n/a	not ported	n
+32c23b60	thunk	jmp 32be72f0	-	-	-	n/a	not ported	n
+32c23b70	thunk	jmp 32be7350	-	-	-	n/a	not ported	n
+32c23b80	thunk	jmp 32be9930	-	-	-	n/a	not ported	n
+32c23b90	thunk	jmp 32be9960	-	-	-	n/a	not ported	n
+32c23ba0	thunk	jmp 32be9210	-	-	-	n/a	not ported	n
+32c23bb0	thunk	jmp 32be9600	-	-	-	n/a	not ported	n
+32c23bc0	thunk	jmp 32be8ef0	-	-	-	n/a	not ported	n
+32c23bd0	thunk	jmp 32be9c90	-	-	-	n/a	not ported	n
+32c23be0	thunk	jmp 32bea080	-	-	-	n/a	not ported	n
+32c23bf0	thunk	jmp 32bea460	-	-	-	n/a	not ported	n
+32c23c00	thunk	jmp 32bea4c0	-	-	-	n/a	not ported	n
+32c23c10	thunk	jmp 32be2ad0	-	-	-	n/a	not ported	n
+32c23c20	thunk	jmp 32bea970	-	-	-	n/a	not ported	n
+32c23c30	thunk	jmp 32be28b0	-	-	-	n/a	not ported	n
+32c23c40	thunk	jmp 32be28e0	-	-	-	n/a	not ported	n
+32c23c50	thunk	jmp 32be8360	-	-	-	n/a	not ported	n
+32c23c60	thunk	jmp 32be0d50	-	-	-	n/a	not ported	n
+32c23c70	thunk	jmp 32be0ed0	-	-	-	n/a	not ported	n
+32c23c80	thunk	jmp 32be0f50	-	-	-	n/a	not ported	n
+32c23c90	thunk	jmp 32be0fb0	-	-	-	n/a	not ported	n
+32c23ca0	thunk	jmp 32be15b0	-	-	-	n/a	not ported	n
+32c23cb0	thunk	jmp 32be15e0	-	-	-	n/a	not ported	n
+32c23cc0	thunk	jmp 32be1620	-	-	-	n/a	not ported	n
+32c23cd0	thunk	jmp 32be1650	-	-	-	n/a	not ported	n
+32c23ce0	thunk	jmp 32be2f10	-	-	-	n/a	not ported	n
+32c23cf0	thunk	jmp 32be2f60	-	-	-	n/a	not ported	n
+32c23d00	thunk	jmp 32be11a0	-	-	-	n/a	not ported	n
+32c23d10	thunk	jmp 32be1260	-	-	-	n/a	not ported	n
+32c23d20	thunk	jmp 32be12c0	-	-	-	n/a	not ported	n
+32c23d30	thunk	jmp 32be1390	-	-	-	n/a	not ported	n
+32c23d40	thunk	jmp 32be13b0	-	-	-	n/a	not ported	n
+32c23d50	thunk	jmp 32be7eb0	-	-	-	n/a	not ported	n
+32c23d60	thunk	jmp 32be7ee0	-	-	-	n/a	not ported	n
+32c23d70	thunk	jmp 32be7f10	-	-	-	n/a	not ported	n
+32c23d80	thunk	jmp 32be7f40	-	-	-	n/a	not ported	n
+32c23d90	thunk	jmp 32be3e80	-	-	-	n/a	not ported	n
+32c23da0	thunk	jmp 32be3eb0	-	-	-	n/a	not ported	n
+32c23db0	thunk	jmp 32be2730	-	-	-	n/a	not ported	n
+32c23dc0	thunk	jmp 32be2d30	-	-	-	n/a	not ported	n
+32c23dd0	thunk	jmp 32be2d60	-	-	-	n/a	not ported	n
+32c23de0	thunk	jmp 32be2db0	-	-	-	n/a	not ported	n
+32c23df0	thunk	jmp 32be6780	-	-	-	n/a	not ported	n
+32c23e00	thunk	jmp 32be69b0	-	-	-	n/a	not ported	n
+32c23e10	thunk	jmp 32be6a50	-	-	-	n/a	not ported	n
+32c23e20	thunk	jmp 32be6af0	-	-	-	n/a	not ported	n
+32c23e30	thunk	jmp 32be6b30	-	-	-	n/a	not ported	n
+32c23e40	thunk	jmp 32be6bf0	-	-	-	n/a	not ported	n
+32c23e50	thunk	jmp 32be6920	-	-	-	n/a	not ported	n
+32c23e60	thunk	jmp 32be65e0	-	-	-	n/a	not ported	n
+32c23e70	thunk	jmp 32be75b0	-	-	-	n/a	not ported	n
+32c23e80	thunk	jmp 32be0e90	-	-	-	n/a	not ported	n
+32c23e90	thunk	jmp 32be77c0	-	-	-	n/a	not ported	n
+32c23ea0	thunk	jmp 32be0da0	-	-	-	n/a	not ported	n
+32c23eb0	thunk	jmp 32be0f10	-	-	-	n/a	not ported	n
+32c23ec0	thunk	jmp 32be1ae0	-	-	-	n/a	not ported	n
+32c23ed0	thunk	jmp 32be1ba0	-	-	-	n/a	not ported	n
+32c23ee0	thunk	jmp 32be1e90	-	-	-	n/a	not ported	n
+32c23ef0	thunk	jmp 32be1f70	-	-	-	n/a	not ported	n
+32c23f00	thunk	jmp 32be1fa0	-	-	-	n/a	not ported	n
+32c23f10	thunk	jmp 32be1ff0	-	-	-	n/a	not ported	n
+32c23f20	thunk	jmp 32be2060	-	-	-	n/a	not ported	n
+32c23f30	thunk	jmp 32be2270	-	-	-	n/a	not ported	n
+32c23f40	thunk	jmp 32be1690	-	-	-	n/a	not ported	n
+32c23f50	thunk	jmp 32be16c0	-	-	-	n/a	not ported	n
+32c23f60	thunk	jmp 32be16f0	-	-	-	n/a	not ported	n
+32c23f70	thunk	jmp 32be1720	-	-	-	n/a	not ported	n
+32c23f80	thunk	jmp 32be1760	-	-	-	n/a	not ported	n
+32c23f90	thunk	jmp 32be4da0	-	-	-	n/a	not ported	n
+32c23fa0	thunk	jmp 32be79d0	-	-	-	n/a	not ported	n
+32c23fb0	thunk	jmp 32be7a30	-	-	-	n/a	not ported	n
+32c23fc0	thunk	jmp 32be7aa0	-	-	-	n/a	not ported	n
+32c23fd0	thunk	jmp 32be4e70	-	-	-	n/a	not ported	n
+32c23fe0	thunk	jmp 32be4f50	-	-	-	n/a	not ported	n
+32c23ff0	thunk	jmp 32be22c0	-	-	-	n/a	not ported	n
+32c24000	thunk	jmp 32be2300	-	-	-	n/a	not ported	n
+32c24010	thunk	jmp 32be2460	-	-	-	n/a	not ported	n
+32c24020	thunk	jmp 32beacc0	-	-	-	n/a	not ported	n
+32c24030	thunk	jmp 32be8140	-	-	-	n/a	not ported	n
+32c24040	thunk	jmp 32be2930	-	-	-	n/a	not ported	n
+32c24050	thunk	jmp 32be3f50	-	-	-	n/a	not ported	n
+32c24060	thunk	jmp 32be4070	-	-	-	n/a	not ported	n
+32c24070	thunk	jmp 32be3fe0	-	-	-	n/a	not ported	n
+32c24080	thunk	jmp 32be6040	-	-	-	n/a	not ported	n
+32c24090	thunk	jmp 32be6200	-	-	-	n/a	not ported	n
+32c240a0	thunk	jmp 32be6400	-	-	-	n/a	not ported	n
+32c240b0	thunk	jmp 32be73b0	-	-	-	n/a	not ported	n
+32c240c0	thunk	jmp 32be8bb0	-	-	-	n/a	not ported	n
+32c240d0	thunk	jmp 32beb1b0	-	-	-	n/a	not ported	n
+32c240e0	thunk	jmp 32beb260	-	-	-	n/a	not ported	n
+32c240f0	thunk	jmp 32beb2a0	-	-	-	n/a	not ported	n
+32c24100	thunk	jmp 32beb330	-	-	-	n/a	not ported	n
+32c24110	thunk	jmp 32beb5b0	-	-	-	n/a	not ported	n
+32c24120	thunk	jmp 32beb6d0	-	-	-	n/a	not ported	n
+32c24130	thunk	jmp 32beb760	-	-	-	n/a	not ported	n
+32c24140	thunk	jmp 32bebc40	-	-	-	n/a	not ported	n
+32c24150	thunk	jmp 32beb450	-	-	-	n/a	not ported	n
+32c24160	thunk	jmp 32bece90	-	-	-	n/a	not ported	n
+32c24170	thunk	jmp 32bec410	-	-	-	n/a	not ported	n
+32c24180	thunk	jmp 32bec950	-	-	-	n/a	not ported	n
+32c24190	thunk	jmp 32beb940	-	-	-	n/a	not ported	n
+32c241a0	thunk	jmp 32beb7f0	-	-	-	n/a	not ported	n
+32c241b0	thunk	jmp 32beb890	-	-	-	n/a	not ported	n
+32c241c0	thunk	jmp 32beba10	-	-	-	n/a	not ported	n
+32c241d0	thunk	jmp 32bec100	-	-	-	n/a	not ported	n
+32c241e0	thunk	jmp 32bed4c0	-	-	-	n/a	not ported	n
+32c241f0	thunk	jmp 32beba80	-	-	-	n/a	not ported	n
+32c24200	not-Chung	called only from outside the range: 3333aeff 3333be9e	-	-	-	n/a	shared / folded code	n
+32c24210	thunk	jmp 32bedb80	-	-	-	n/a	not ported	n
+32c24220	thunk	jmp 32bedd30	-	-	-	n/a	not ported	n
+32c24230	thunk	jmp 32bedee0	-	-	-	n/a	not ported	n
+32c24240	thunk	jmp 32bedef0	-	-	-	n/a	not ported	n
+32c24250	thunk	jmp 32bee360	-	-	-	n/a	not ported	n
+32c24260	thunk	jmp 32bee140	-	-	-	n/a	not ported	n
+32c24270	thunk	jmp 32bee210	-	-	-	n/a	not ported	n
+32c24280	thunk	jmp 32bedf60	-	-	-	n/a	not ported	n
+32c24290	thunk	jmp 32bedfc0	-	-	-	n/a	not ported	n
+32c242a0	thunk	jmp 32bee020	-	-	-	n/a	not ported	n
+32c242b0	thunk	jmp 32bee0e0	-	-	-	n/a	not ported	n
+32c242c0	helper	reached only through callers with no phased caller 32c08cf3	-	new	?	CH1o	phase unsettled: read it; name: calls 324144b0 only; not read	y
+32c24360	helper	called by 32bfafa0	-	new	-	CH2a	name: std template instantiation, no class member: std::map insert-position search	y
+32c24400	helper	called by 32c1f530	-	new	-	CH1n	name: std template instantiation, no class member: std::map header/node allocation	y
+32c24450	thunk	jmp 32bee7c0	-	-	-	n/a	not ported	n
+32c24460	thunk	jmp 32bee840	-	-	-	n/a	not ported	n
+32c24470	helper	called by 32c24770 32c25a10	-	new	-	CH1l2	also called from outside the class: 32d5b250 32d5b27e; name: std template instantiation, no class member: std::copy of 8-byte elements	y
+32c244a0	helper	called by 32bfafa0	-	new	-	CH2a	name: std template instantiation, no class member: std::map _Buynode (16-byte value)	y
+32c24520	helper	reached only through callers with no phased caller 32c08ce6	-	new	?	CH1o	phase unsettled: read it; name: allocator wrapper (32fe243e / 32fe2444); possibly std, not read	y
+32c245a0	helper	reached only through callers with no phased caller 31cf898e 31f6612c 32c2475f	-	new	-	CH1o	phase unsettled: read it; name: std template instantiation, no class member: vector<12-byte>::reserve	y
+32c246a0	thunk	jmp 32bef2d0	-	-	-	n/a	not ported	n
+32c246b0	thunk	jmp 32bef450	-	-	-	n/a	not ported	n
+32c246c0	thunk	jmp 32bef6f0	-	-	-	n/a	not ported	n
+32c246d0	thunk	jmp 32befa80	-	-	-	n/a	not ported	n
+32c246e0	thunk	jmp 32bf02c0	-	-	-	n/a	not ported	n
+32c246f0	helper	reached only through callers with no phased caller 31f8c47c 3207af1c 3210ab10	-	new	-	CH1o	phase unsettled: read it; name: std template instantiation, no class member: vector<12-byte>::_Reserve(n)	y
+32c24770	helper	called by 32c24860	-	new	-	CH1l2	name: std template instantiation, no class member: vector<8-byte>::reserve	y
+32c24850	thunk	jmp 32bf07b0	-	-	-	n/a	not ported	n
+32c24860	helper	called by 32bf3990 32c25a10	-	new	-	CH1l2	also called from outside the class: 32d5b143 32d5b170; name: std template instantiation, no class member: vector<8-byte>::_Reserve(n)	y
+32c248c0	thunk	jmp 32bf0a90	-	-	-	n/a	not ported	n
+32c248d0	thunk	jmp 32bf0b20	-	-	-	n/a	not ported	n
+32c248e0	thunk	jmp 32bf0b80	-	-	-	n/a	not ported	n
+32c248f0	thunk	jmp 32bf0af0	-	-	-	n/a	not ported	n
+32c24900	thunk	jmp 32bf0c90	-	-	-	n/a	not ported	n
+32c24910	thunk	jmp 32bf0b50	-	-	-	n/a	not ported	n
+32c24920	thunk	jmp 32bf1000	-	-	-	n/a	not ported	n
+32c24930	helper	reached only through callers with no phased caller 32bf1187	-	new	?	CH1o	phase unsettled: read it; name: protected-value tail (31c2e4a0 / 33441d84); not read	y
+32c24b30	helper	reached only through pointer @33509668	-	new	?	CH1o	phase unsettled: read it; name: reached only through pointer @33509668; uncarved	n
+32c24b40	helper	reached only through pointer @33509670	-	new	?	CH1o	phase unsettled: read it; name: reached only through pointer @33509670; uncarved	n
+32c24b50	override 0x9c	IsFullHyperMode	X2GUChung.h:761 virtual bool IsFullHyperMode() const { return GetChungGageData()->GetBerserkMode(); }	inside	-	CH1o	base 31e4c550	n
+32c24b60	override 0xa0	SetFullHyperMode	X2GUChung.h:765 virtual void SetFullHyperMode( const bool bBerserkMode_ )	inside	-	CH1o	base 3208ddc0	n
+32c24b80	override 0x4b0	GetComboZStateID	X2GUChung.h:796 virtual int GetComboZStateID() const { return CSI_COMBO_Z; }	inside	-	CH1k	base 3208df10	n
+32c24b90	override 0xa4	IsBerserkByChance	- (CX2GUChung does not override it in March; X2GUUser.h:4169 virtual bool IsBerserkByChance() { return false; })	new	IsBerserkByChance	CH1o	base 31e4c550	y
+32c24bc0	thunk	jmp 32bf2b50	-	-	-	n/a	not ported	n
+32c24bd0	thunk	jmp 32bf3350	-	-	-	n/a	not ported	n
+32c24be0	thunk	jmp 32bf3270	-	-	-	n/a	not ported	n
+32c24bf0	thunk	jmp 32bf34c0	-	-	-	n/a	not ported	n
+32c24c00	thunk	jmp 32bf3630	-	-	-	n/a	not ported	n
+32c24c10	thunk	jmp 32bf3710	-	-	-	n/a	not ported	n
+32c24c20	thunk	jmp 32bf3900	-	-	-	n/a	not ported	n
+32c24c30	thunk	jmp 32bf35a0	-	-	-	n/a	not ported	n
+32c24c40	thunk	jmp 32bf2e10	-	-	-	n/a	not ported	n
+32c24c50	thunk	jmp 32bf3430	-	-	-	n/a	not ported	n
+32c24c60	thunk	jmp 32bf2f70	-	-	-	n/a	not ported	n
+32c24c70	thunk	jmp 32bf3830	-	-	-	n/a	not ported	n
+32c24c80	helper	-	-	new	SetExtraCannonBallReloadCount	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; name: protected int setter used by UseCannon; March m_iExtraCannonBallReloadCount; role guess	y
+32c24d00	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d40	y
+32c24d40	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d00	y
+32c24db0	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:570; SetCannonBallChanged + SetNowCannonBallCount	y
+32c24dd0	helper	called by 32c16be0	-	new	?	CH4a	name: protected byte +0x9668 setter, caller InitPassiveSkillState (32c16be0); no March UCHAR member matched	y
+32c24e50	helper	reached only through callers with no phased caller 32bf58e1	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:593; protected byte +0x9674 setter, reload-cannon state callers	y
+32c24ed0	helper	reached only through callers with no phased caller 32bf5b02	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:597; protected byte +0x9680, the byte 32bf4040 floors to	y
+32c24f50	thunk	jmp 32bf4150	-	-	-	n/a	not ported	n
+32c24f60	thunk	jmp 32bf4470	-	-	-	n/a	not ported	n
+32c24f70	thunk	jmp 32bf4440	-	-	-	n/a	not ported	n
+32c24f80	thunk	jmp 32bf4510	-	-	-	n/a	not ported	n
+32c24f90	thunk	jmp 32bf4180	-	-	-	n/a	not ported	n
+32c24fa0	thunk	jmp 32bf44a0	-	-	-	n/a	not ported	n
+32c24fb0	thunk	jmp 32bf41c0	-	-	-	n/a	not ported	n
+32c24fc0	thunk	jmp 32bf4200	-	-	-	n/a	not ported	n
+32c24fd0	thunk	jmp 32bf4240	-	-	-	n/a	not ported	n
+32c24fe0	thunk	jmp 32bf4280	-	-	-	n/a	not ported	n
+32c24ff0	thunk	jmp 32bf42c0	-	-	-	n/a	not ported	n
+32c25000	thunk	jmp 32bf48e0	-	-	-	n/a	not ported	n
+32c25010	thunk	jmp 32bf5de0	-	-	-	n/a	not ported	n
+32c25020	thunk	jmp 32bf60e0	-	-	-	n/a	not ported	n
+32c25030	thunk	jmp 32bf62f0	-	-	-	n/a	not ported	n
+32c25040	thunk	jmp 32bf65e0	-	-	-	n/a	not ported	n
+32c25050	thunk	jmp 32bf67e0	-	-	-	n/a	not ported	n
+32c25060	thunk	jmp 32bf6ae0	-	-	-	n/a	not ported	n
+32c25070	thunk	jmp 32c02ee0	-	-	-	n/a	not ported	n
+32c25080	thunk	jmp 32c033b0	-	-	-	n/a	not ported	n
+32c25090	thunk	jmp 32bf6f20	-	-	-	n/a	not ported	n
+32c250a0	thunk	jmp 32c03880	-	-	-	n/a	not ported	n
+32c250b0	thunk	jmp 32bf7250	-	-	-	n/a	not ported	n
+32c250c0	thunk	jmp 32c00ec0	-	-	-	n/a	not ported	n
+32c250d0	thunk	jmp 32c01070	-	-	-	n/a	not ported	n
+32c250e0	thunk	jmp 32c01220	-	-	-	n/a	not ported	n
+32c250f0	thunk	jmp 32c014d0	-	-	-	n/a	not ported	n
+32c25100	thunk	jmp 32bf75b0	-	-	-	n/a	not ported	n
+32c25110	thunk	jmp 32bf77c0	-	-	-	n/a	not ported	n
+32c25120	thunk	jmp 32c03b30	-	-	-	n/a	not ported	n
+32c25130	thunk	jmp 32c01780	-	-	-	n/a	not ported	n
+32c25140	thunk	jmp 32bf7cd0	-	-	-	n/a	not ported	n
+32c25150	thunk	jmp 32bf7ef0	-	-	-	n/a	not ported	n
+32c25160	thunk	jmp 32c02c30	-	-	-	n/a	not ported	n
+32c25170	thunk	jmp 32c03cf0	-	-	-	n/a	not ported	n
+32c25180	thunk	jmp 32bf8840	-	-	-	n/a	not ported	n
+32c25190	thunk	jmp 32bf8c50	-	-	-	n/a	not ported	n
+32c251a0	thunk	jmp 32bf6d30	-	-	-	n/a	not ported	n
+32c251b0	thunk	jmp 32bf7ae0	-	-	-	n/a	not ported	n
+32c251c0	thunk	jmp 32bf80e0	-	-	-	n/a	not ported	n
+32c251d0	thunk	jmp 32c01930	-	-	-	n/a	not ported	n
+32c251e0	thunk	jmp 32c01be0	-	-	-	n/a	not ported	n
+32c251f0	thunk	jmp 32c02280	-	-	-	n/a	not ported	n
+32c25200	thunk	jmp 32c02530	-	-	-	n/a	not ported	n
+32c25210	thunk	jmp 32c02920	-	-	-	n/a	not ported	n
+32c25220	thunk	jmp 32c01fd0	-	-	-	n/a	not ported	n
+32c25230	thunk	jmp 32bf9100	-	-	-	n/a	not ported	n
+32c25240	thunk	jmp 32bf92d0	-	-	-	n/a	not ported	n
+32c25250	thunk	jmp 32bf92f0	-	-	-	n/a	not ported	n
+32c25260	thunk	jmp 32bf9310	-	-	-	n/a	not ported	n
+32c25270	thunk	jmp 32bf9770	-	-	-	n/a	not ported	n
+32c25280	thunk	jmp 32bf9790	-	-	-	n/a	not ported	n
+32c25290	thunk	jmp 32bf97b0	-	-	-	n/a	not ported	n
+32c252a0	thunk	jmp 32bf9c10	-	-	-	n/a	not ported	n
+32c252b0	thunk	jmp 32bf9c30	-	-	-	n/a	not ported	n
+32c252c0	thunk	jmp 32bf9c70	-	-	-	n/a	not ported	n
+32c252d0	thunk	jmp 32bf9f50	-	-	-	n/a	not ported	n
+32c252e0	thunk	jmp 32bfd690	-	-	-	n/a	not ported	n
+32c252f0	thunk	jmp 32bfd6b0	-	-	-	n/a	not ported	n
+32c25300	thunk	jmp 32bfd6f0	-	-	-	n/a	not ported	n
+32c25310	thunk	jmp 32bfda10	-	-	-	n/a	not ported	n
+32c25320	thunk	jmp 32bfda50	-	-	-	n/a	not ported	n
+32c25330	thunk	jmp 32c048b0	-	-	-	n/a	not ported	n
+32c25340	thunk	jmp 32c042c0	-	-	-	n/a	not ported	n
+32c25350	thunk	jmp 32c04ed0	-	-	-	n/a	not ported	n
+32c25360	thunk	jmp 32c06b00	-	-	-	n/a	not ported	n
+32c25370	thunk	jmp 32c0a5b0	-	-	-	n/a	not ported	n
+32c25380	thunk	jmp 32c0ac00	-	-	-	n/a	not ported	n
+32c25390	thunk	jmp 32c0a8d0	-	-	-	n/a	not ported	n
+32c253a0	thunk	jmp 32c0abc0	-	-	-	n/a	not ported	n
+32c253b0	thunk	jmp 32bfc860	-	-	-	n/a	not ported	n
+32c253c0	thunk	jmp 32c0ac40	-	-	-	n/a	not ported	n
+32c253d0	thunk	jmp 32bfc310	-	-	-	n/a	not ported	n
+32c253e0	thunk	jmp 32c079f0	-	-	-	n/a	not ported	n
+32c253f0	thunk	jmp 32c07cf0	-	-	-	n/a	not ported	n
+32c25400	thunk	jmp 32bfcc80	-	-	-	n/a	not ported	n
+32c25410	thunk	jmp 32bfa2c0	-	-	-	n/a	not ported	n
+32c25420	thunk	jmp 32bfa670	-	-	-	n/a	not ported	n
+32c25430	thunk	jmp 32bfafa0	-	-	-	n/a	not ported	n
+32c25440	thunk	jmp 32bfb6e0	-	-	-	n/a	not ported	n
+32c25450	thunk	jmp 32bfb8f0	-	-	-	n/a	not ported	n
+32c25460	thunk	jmp 32c07990	-	-	-	n/a	not ported	n
+32c25470	thunk	jmp 32c084e0	-	-	-	n/a	not ported	n
+32c25480	thunk	jmp 32bfe730	-	-	-	n/a	not ported	n
+32c25490	thunk	jmp 32bfea90	-	-	-	n/a	not ported	n
+32c254a0	thunk	jmp 32bfeb30	-	-	-	n/a	not ported	n
+32c254b0	thunk	jmp 32bff370	-	-	-	n/a	not ported	n
+32c254c0	thunk	jmp 32bff3d0	-	-	-	n/a	not ported	n
+32c254d0	thunk	jmp 32bff350	-	-	-	n/a	not ported	n
+32c254e0	thunk	jmp 32bff430	-	-	-	n/a	not ported	n
+32c254f0	thunk	jmp 32bff4f0	-	-	-	n/a	not ported	n
+32c25500	thunk	jmp 32bff550	-	-	-	n/a	not ported	n
+32c25510	thunk	jmp 32bff5b0	-	-	-	n/a	not ported	n
+32c25520	thunk	jmp 32bff610	-	-	-	n/a	not ported	n
+32c25530	thunk	jmp 32bff670	-	-	-	n/a	not ported	n
+32c25540	thunk	jmp 32bff6d0	-	-	-	n/a	not ported	n
+32c25550	thunk	jmp 32bff730	-	-	-	n/a	not ported	n
+32c25560	thunk	jmp 32bff790	-	-	-	n/a	not ported	n
+32c25570	thunk	jmp 32bff7f0	-	-	-	n/a	not ported	n
+32c25580	thunk	jmp 32bfd2b0	-	-	-	n/a	not ported	n
+32c25590	thunk	jmp 32bfd4b0	-	-	-	n/a	not ported	n
+32c255a0	thunk	jmp 32c05060	-	-	-	n/a	not ported	n
+32c255b0	thunk	jmp 32c05c90	-	-	-	n/a	not ported	n
+32c255c0	thunk	jmp 32c05e80	-	-	-	n/a	not ported	n
+32c255d0	thunk	jmp 32c06050	-	-	-	n/a	not ported	n
+32c255e0	thunk	jmp 32bfa4a0	-	-	-	n/a	not ported	n
+32c255f0	thunk	jmp 32c073e0	-	-	-	n/a	not ported	n
+32c25600	thunk	jmp 32bfa860	-	-	-	n/a	not ported	n
+32c25610	thunk	jmp 32bfbc10	-	-	-	n/a	not ported	n
+32c25620	thunk	jmp 32bfbe30	-	-	-	n/a	not ported	n
+32c25630	thunk	jmp 32c003c0	-	-	-	n/a	not ported	n
+32c25640	thunk	jmp 32c076e0	-	-	-	n/a	not ported	n
+32c25650	thunk	jmp 32c007e0	-	-	-	n/a	not ported	n
+32c25660	thunk	jmp 32bfbe80	-	-	-	n/a	not ported	n
+32c25670	thunk	jmp 32bfdd70	-	-	-	n/a	not ported	n
+32c25680	thunk	jmp 32bfe4d0	-	-	-	n/a	not ported	n
+32c25690	thunk	jmp 32c0b160	-	-	-	n/a	not ported	n
+32c256a0	thunk	jmp 32bffd20	-	-	-	n/a	not ported	n
+32c256b0	thunk	jmp 32c07040	-	-	-	n/a	not ported	n
+32c256c0	thunk	jmp 32c08fa0	-	-	-	n/a	not ported	n
+32c256d0	thunk	jmp 32c0b7f0	-	-	-	n/a	not ported	n
+32c256e0	thunk	jmp 32c0b9b0	-	-	-	n/a	not ported	n
+32c256f0	thunk	jmp 32c0ba60	-	-	-	n/a	not ported	n
+32c25700	thunk	jmp 32c0bd20	-	-	-	n/a	not ported	n
+32c25710	thunk	jmp 32c0c1c0	-	-	-	n/a	not ported	n
+32c25720	thunk	jmp 32c0dd90	-	-	-	n/a	not ported	n
+32c25730	thunk	jmp 32c0de40	-	-	-	n/a	not ported	n
+32c25740	thunk	jmp 32c113e0	-	-	-	n/a	not ported	n
+32c25750	thunk	jmp 32c0e530	-	-	-	n/a	not ported	n
+32c25760	thunk	jmp 32c0e9b0	-	-	-	n/a	not ported	n
+32c25770	thunk	jmp 32c0e1f0	-	-	-	n/a	not ported	n
+32c25780	thunk	jmp 32c0ff80	-	-	-	n/a	not ported	n
+32c25790	thunk	jmp 32c102d0	-	-	-	n/a	not ported	n
+32c257a0	thunk	jmp 32c104d0	-	-	-	n/a	not ported	n
+32c257b0	thunk	jmp 32c108d0	-	-	-	n/a	not ported	n
+32c257c0	thunk	jmp 32c11ad0	-	-	-	n/a	not ported	n
+32c257d0	thunk	jmp 32c0df80	-	-	-	n/a	not ported	n
+32c257e0	thunk	jmp 32c0e190	-	-	-	n/a	not ported	n
+32c257f0	thunk	jmp 32c0df20	-	-	-	n/a	not ported	n
+32c25800	thunk	jmp 32c0f8c0	-	-	-	n/a	not ported	n
+32c25810	thunk	jmp 32c0fc30	-	-	-	n/a	not ported	n
+32c25820	thunk	jmp 32c0f6d0	-	-	-	n/a	not ported	n
+32c25830	thunk	jmp 32c0e150	-	-	-	n/a	not ported	n
+32c25840	thunk	jmp 32c10fb0	-	-	-	n/a	not ported	n
+32c25850	thunk	jmp 32c0dfe0	-	-	-	n/a	not ported	n
+32c25860	thunk	jmp 32c0ede0	-	-	-	n/a	not ported	n
+32c25870	thunk	jmp 32c0f1f0	-	-	-	n/a	not ported	n
+32c25880	override 0x0	~CX2GUChung (scalar deleting dtor)	X2GUChung.h:492 virtual ~CX2GUChung();	inside	-	CH1k	base 3208f650	y
+32c258a0	helper	reached only through pointer @32c177f1	-	new	?	CH1o	phase unsettled: read it; name: reached only through pointer @32c177f1; uncarved	n
+32c258b0	thunk	jmp 32c11e10	-	-	-	n/a	not ported	n
+32c258c0	thunk	jmp 32c12100	-	-	-	n/a	not ported	n
+32c258d0	thunk	jmp 32c12240	-	-	-	n/a	not ported	n
+32c258e0	thunk	jmp 32c12400	-	-	-	n/a	not ported	n
+32c258f0	thunk	jmp 32c12660	-	-	-	n/a	not ported	n
+32c25900	thunk	jmp 32c12470	-	-	-	n/a	not ported	n
+32c25910	thunk	jmp 32c15c00	-	-	-	n/a	not ported	n
+32c25920	thunk	jmp 32c163f0	-	-	-	n/a	not ported	n
+32c25930	thunk	jmp 32c15340	-	-	-	n/a	not ported	n
+32c25940	thunk	jmp 32c156c0	-	-	-	n/a	not ported	n
+32c25950	thunk	jmp 32c181f0	-	-	-	n/a	not ported	n
+32c25960	thunk	jmp 32c18950	-	-	-	n/a	not ported	n
+32c25970	thunk	jmp 32c18f30	-	-	-	n/a	not ported	n
+32c25980	thunk	jmp 32c19710	-	-	-	n/a	not ported	n
+32c25990	thunk	jmp 32c19f30	-	-	-	n/a	not ported	n
+32c259a0	thunk	jmp 32c1a480	-	-	-	n/a	not ported	n
+32c259b0	thunk	jmp 32c1ae60	-	-	-	n/a	not ported	n
+32c259c0	thunk	jmp 32c1bad0	-	-	-	n/a	not ported	n
+32c259d0	thunk	jmp 32c1be30	-	-	-	n/a	not ported	n
+32c259e0	thunk	jmp 32c1ba00	-	-	-	n/a	not ported	n
+32c259f0	thunk	jmp 32c1cc70	-	-	-	n/a	not ported	n
+32c25a00	thunk	jmp 32c1c840	-	-	-	n/a	not ported	n
+32c25a10	not-Chung	called only from outside the range: 31fca1cc	-	-	-	n/a	shared / folded code	y
+# totals kind: dead=127, helper=71, not-Chung=9, override=72, registrar=2, state-fn=557, thunk=558; functions in range 1396; carved 442; uncarved 954 (thunks 565)
+# totals per phase (to transcribe): CH1a=29, CH1b=27, CH1c=2, CH1d=37, CH1d2=21, CH1e=12, CH1f=27, CH1g=20, CH1g2=30, CH1h=22, CH1i=15, CH1j=41, CH1k=38, CH1l=16, CH1l2=9, CH1l3=13, CH1l4=6, CH1m=3, CH1n=2, CH1o=24, CH1q=15, CH2a=41, CH2b=39, CH2c=43, CH2d=42, CH3a=17, CH3a2=34, CH3b=38, CH3c=27, CH3d=5, CH4a=4, CH4b=3
+# inside/new per phase: CH1a inside=28, CH1a new=1, CH1b inside=26, CH1b new=1, CH1c inside=2, CH1d inside=37, CH1d2 inside=21, CH1e inside=10, CH1e new=2, CH1f inside=25, CH1f new=2, CH1g inside=9, CH1g new=11, CH1g2 inside=26, CH1g2 new=4, CH1h inside=22, CH1i inside=14, CH1i new=1, CH1j inside=36, CH1j new=5, CH1k inside=32, CH1k new=6, CH1l inside=9, CH1l new=7, CH1l2 inside=6, CH1l2 new=3, CH1l3 inside=10, CH1l3 new=3, CH1l4 inside=6, CH1m inside=3, CH1n inside=1, CH1n new=1, CH1o inside=8, CH1o new=16, CH1q inside=13, CH1q new=2, CH2a inside=35, CH2a new=6, CH2b inside=38, CH2b new=1, CH2c inside=33, CH2c new=10, CH2d inside=38, CH2d new=4, CH3a inside=16, CH3a new=1, CH3a2 inside=27, CH3a2 new=7, CH3b inside=35, CH3b new=3, CH3c inside=17, CH3c new=10, CH3d inside=5, CH4a inside=3, CH4a new=1, CH4b inside=2, CH4b new=1

@@ -1,0 +1,25 @@
+side	site	function	npc_id_name	note
+june	32bfea4d (call 31f8b010 CreateNPCReq forwarder, push 0x35f)	32bfe730 (CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY[_HYPER] FrameMove via thunk 32c25480; also QUANTUM_BALLISTA_READY state 26014/26050)	863 NUI_TARGETING_CHUNG	Missile Shower scope; skill 26025 (RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER per summon_npc_skill_map.tsv); same function holds both calls
+june	32bfe9ae (call 322e67c0 core, push 0x58b)	32bfe730 (same FrameMove)	1419 NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER	Quantum Ballista scope; skill 26014
+june	32c0b97d (call 322e67c0, push 0x9dd)	32c0b7f0 (CSI_SA_CTT_HEAVY_FIELD_READY FrameMove via thunk 32c256d0; June-only skill 26064)	2525 NUI_TARGETING_CHUNG_HEAVY_FIELD	June-only NPC; no March Enum/NPCTemplet row
+june	32c10f99 (call 322e67c0, push 0x44c)	32c10d20 (called from 32c124ae inside 32c12470 = CSI_A_CTT_REMOTE_MORTAR FrameMove, thunk 32c25900)	1100 NUI_REMOTE_MORTAR	skill 26215 (RNSI_A_CTT_AUTOMATIC_MORTAR)
+june	callee note	31f8b010 forwarder and 322e67c0 core; 3230d2b0 CX2Game::CreateNPC (no direct Chung call); raw E8/E9 scan of 32bd86f0-32c25a1f found only these 4 calls	-	no other June CreateNPC entry used by Chung; SelfDestruct for 863/1419 is not a create call
+march	X2GUChung.cpp:17205 CreateNPCReq	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove (inside #ifdef NEW_CHARACTER_CHUNG > CHUNG_SECOND_CLASS_CHANGE)	863 NUI_TARGETING_CHUNG	live per enclosing flags (cl /P to confirm); else-branch of UPGRADE_SKILL_SYSTEM_2013 type test
+march	X2GUChung.cpp:17202 CreateNPCReq	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove (UPGRADE_SKILL_SYSTEM_2013)	1419 NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER	when m_eArtilleryStrikeType == CAST_QUANTUM_BALLISTA
+march	X2GUChung.cpp:22611 CreateNPCReq	CreateRemoteMortar (SERV_CHUNG_TACTICAL_TROOPER)	1100 NUI_REMOTE_MORTAR	hyper flag as level
+march	X2GUChung.cpp:286-287	~CX2GUChung (SetSelfDestructSummonedNPC)	863 / 1419	CHUNG_SECOND_CLASS_CHANGE
+march	X2GUChung.cpp:375-376	CreateNotEnoughMPEffect (SetSelfDestructSummonedNPC)	863 / 1419	NEW_CHARACTER_CHUNG > CHUNG_SECOND_CLASS_CHANGE
+march	X2GUChung.cpp:5605-5606	CommonFrameMove (SetSelfDestructSummonedNPC)	863 / 1419	same flags
+march	X2GUChung.cpp:7187-7188	DieFrontStart (SetSelfDestructSummonedNPC)	863 / 1419	same flags
+march	X2GUChung.cpp:7235-7236	DieBackStart (SetSelfDestructSummonedNPC)	863 / 1419	same flags
+march	X2GUChung.cpp:17176-17177 (BALANCE_PATCH_20131107 arm) / 17179-17180 (#else arm)	CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove SetSelfDestruct	863 / 1419	both arms present; which is live depends on BALANCE_PATCH_20131107
+march	X2GUChung.cpp:23731-23732	ResetArtilleryStrikeData SetSelfDestruct	863 / 1419	UPGRADE_SKILL_SYSTEM_2013 > BALANCE_PATCH_20131107
+march	X2GUChung.cpp:19606,19609	SetSelfDestructSummonedNPC switch case labels	863 / 1419	CHUNG_SECOND_CLASS_CHANGE (1419 also UPGRADE_SKILL_SYSTEM_2013)
+march	X2Game.cpp:9488	NPC death hook (SERV_CHUNG_TACTICAL_TROOPER)	1100 NUI_REMOTE_MORTAR	owner Chung check
+march	X2Game.cpp:18190,18238,18490	CX2Game::SetUserSummonedNPCInfo cases	1419 / 863 / 1100	fStatScale *= fHyperModeStatScale; June 3230c1a0 has own cases; no case for 2525
+march	X2GUUser.cpp:26427-26428	GetSummonBuffFactorID	863 / 1419 -> BFI_BUFF_ARTILLERY_STRIKE_SCOPE	June-port code already present
+march	X2GUChung.cpp	count of NPC id uses	863: 2 create-adjacent + 7 SelfDestruct + 2 switch/Game; 1419: same; 1100: 1 create + 2 Game; 2525: 0	no use of NUI_TARGETING_CHUNG_HEAVY_FIELD; no other CreateNPC-style call in X2GUChung.cpp
+lua	Targeting_Chung.lua (data037)	March kom_contents copy is March bytecode 1B4B4C81, 8356 B, md5 0fda65f4; June is 1B4B4C82 8356 B, md5 7fc27e3f (junekom extract)	-	not in lua_source_ledger.tsv, not on lua_core_list.tsv; luasrc.py adopt-june data037 --dry-run reports "same ... identical" (equal after ljconv), so already June's content
+lua	Remote_Mortar.lua / Remote_Mortar_APINK.lua	same pattern (5246 B / 4881 B, header 81 vs 82, adopt-june dry-run identical)	1100 / 1101	identical content
+lua	luabind check	Targeting_Chung 22 methods 0 unbound; Remote_Mortar 25 methods 0 unbound; Remote_Mortar_APINK 9 methods 0 unbound	-	RESULT: PASS
+lua	NPCTemplet.lua (data037, core-list merged)	March has rows 863, 1419, 1100 (byte-identical to June src); NUI_TARGETING_CHUNG_HEAVY_FIELD (2525) row missing (June NPCTemplet.src.lua:21708, LUA_FILE_NAME Targeting_Chung.lua)	2525	needs row + Enum.lua member (data036 Enum.lua has no 2525 name) + X2UnitManager.h member

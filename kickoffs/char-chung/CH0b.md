@@ -43,6 +43,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ad L745 L751-755 stage June Motion_<Class>* files with the class script; Motion_CHUNG.x.
+- **Stage list `june2017_re/char_chung/ch0b_stage_list.tsv`: 5,093 files** (4,788 missing in March, 305 March copies; 8,518 more are already June bytes). `kom.py stage-june --dry-run`: 35 koms, 5,093 staged (4,789 new, 304 replaced, 0 identical), **0 refused**; one new kom, `data204` (54 files). Routes a / b / c unioned in `ch0_assets.tsv` (13,947 rows); owner rules keep NPC copies (25), Stage 9 UI (11), Stage 17 pet (10) and june-dungeons tutorials (181) out of the list.
+- **Hold the class motions for CH1 final (checklist 7ad).** March's script plays all three animations June dropped (`ch0_motion_question.tsv`): `SI_SA_CFG_IRON_HOWLING` (gone from every June file; June's own `CSI_SI_SA_CFG_IRON_HOWLING_HYPER` still names it: JUNE_BUGS row in CH1e), `SI_A_CIP_SUDDEN_BURSTER` and `SI_SA_CIP_BURST_WOLF` (moved CIP -> June `Motion_CHUNG_CFG.x`). Stage and pack everything, but leave the 10 differing class motions (`Motion_CHUNG_CDC / CFG / CHG / CIP / Common / CSG / CTT / Emotion / Field / Lobby .x`) out of the copy until CH1 final; the 53 June-only emotion motions and the rest go now. Say in the hand-off which kom holds them back.
+- **Skill icons:** `skillicons.py check` over 106, 900, 26000-26064, 26200-26238, 26400-26420, 26600-26605 = FAIL (133 skills, 22 misses) until `DLG_SKILL_ChungActive_05` (absent), `DLG_SKILL_ChungActive_04` and `DLG_Chung_SKILL_ScreenShot_04` (March `.tet` smaller than June's) are copied: all in the list. Transcendence passives sit on `DLG_SKILL_Passive_13` (26415-26420) and `_12` (106), already June bytes. Gate: the check PASSes after the copy.
+- **In the list too:** `POPUP_TR_I_PALADIN / D_CHASER / T_TROOPER` (+ `.tet`, June data215, names from `DLG_Transcendental_Change_Guide_Chung`), `DDS_Chung_CTT_Skill_Normal / _Rage`, `HQ_CutIn_Chung_Basic`, `HQ_CutIn_Chung_CASH_*`. The six `HQ_Cutin_{CIP,CDC,CTT}[_1]_Transcendence.gfx` are already June bytes.
+- Effect closure `ch0_effect_closure.tsv`: 7,263 rows, 1,945 names, 64 missing (50 sounds), 15 June never defines.
+- The builder is `june2017_re/char_eve/ch0_build_assets.py chung` (CHARS entry `chung`, new optional keys `extra_lua` / `skill_icon_ranges`).

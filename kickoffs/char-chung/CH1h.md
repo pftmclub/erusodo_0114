@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-chung CH1h` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1g review. One at a time: `X2GUChung.*` |
+| Depends on | CH1g2 review. One at a time: `X2GUChung.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-chung/CH1h-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1h"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1h"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1h"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1h/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 22** (`awk -F'\t' '$7=="CH1h"' june2017_re/char_chung/ch0_class_map.tsv`; inside 22).
+  June addresses: `32bd9ee0` `32bd9f40` `32bd9f70` `32bd9fd0` `32bda020` `32bda080` `32be30c0` `32be31f0` `32be3320` `32be3730` `32be3960` `32be3a30` `32be3cb0` `32bfd690` `32bfd6b0` `32bfd6f0` `32bfda10` `32bfda50` `32c19f30` `32c1a480` `32c1ae60` `32c1ba00`.
+- **States: 7** (`awk -F'\t' '$8=="CH1h"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CDC_COMBO_X`, `CSI_CDC_COMBO_XX`, `CSI_CDC_COMBO_XZ`, `CSI_CDC_COMBO_XZZ`, `CSI_CDC_COMBO_ZZX`, `CSI_CDC_COMBO_ZZXX`, `CSI_CDC_COMBO_ZZXXX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).

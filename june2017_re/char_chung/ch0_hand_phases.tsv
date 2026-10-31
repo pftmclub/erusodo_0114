@@ -1,0 +1,12 @@
+fn	phase	why
+32bf3d30	CH1q	cannon-ball counter API: up cannon-ball count (ch0_cannonball.tsv); earlier callers declare it
+32bf3e40	CH1q	cannon-ball counter API: consume cannon balls; earlier callers declare it
+32bf3f60	CH1q	cannon-ball counter API: set total count, %7 split into now / extra; earlier callers declare it
+32bf4040	CH1q	cannon-ball counter API: set count with a floor; earlier callers declare it
+32bf5280	CH1q	cannon-ball counter API: use cannon (Reload.ogg); earlier callers declare it
+32bf5430	CH1q	cannon-ball counter API: reads CANNON_BALL_COUNT_AT_DUNGEON_START / _PVP_START; earlier callers declare it
+32bf4680	CH1q	cannon-ball counter API: hyper-count-3 timer skip (checklist l.236); earlier callers declare it
+32c24c80	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it
+32c24d00	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it
+32c24d40	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it
+32c24db0	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it

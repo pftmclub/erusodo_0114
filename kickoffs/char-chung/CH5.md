@@ -37,6 +37,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7t L591-593 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn / _Trans keys and t; §7t L617-622 skill cut-in names -> June .gfx; replace s_SkillCutInSet and the InitS.
+- `ch0_unittemplet_chung.tsv`: June adds `m_fLobbyRotationY` (6: 10, 20: 10, 21: 20, 27: 1, 110: 20, 111: 30, 117: 25; March ignores it) and for 110 / 111 / 117 `m_BerserkCutIn` / `m_HyperCutIn` (`HQ_Cutin_{CIP,CDC,CTT}_1_Transcendence` / `_Transcendence`). Tactical Trooper `name` STR_ID_9739 -> STR_ID_17435: present (`StringID_def`, General.ess row 17435 "Tactical Trooper"). Every other key equal.
+- June's cut-in set index by class (InitState `32c22540`): 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 5, 110 -> 3, 111 -> 4, 117 -> 6.
+- StatTable: 110 / 111 have 99 live rows each; the 19 extra are commented copies, equal (no duplicate to route).

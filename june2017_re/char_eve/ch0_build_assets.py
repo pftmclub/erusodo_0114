@@ -12,6 +12,7 @@ Never writes into a kom, kom_contents or the game dir.
 """
 import argparse
 import collections
+import glob
 import os
 import re
 import sys
@@ -62,6 +63,35 @@ CHARS = {
             (r'(?i)^DLG_Transcendental_Change_Guide_Eve', 'char-eve', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
             (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
             (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+        ],
+    ),
+    'chung': dict(
+        owner='char-chung',
+        script='Chung_Iron_Cannon', lo=0x32bd86f0, hi=0x32c25a1f,
+        unit_type=6, unit_type_name='UT_CHUNG',
+        unit_classes=[6, 20, 21, 27, 110, 111, 117],
+        tokens=['chung'],
+        abbr=['CFG', 'CSG', 'CHG', 'CIP', 'CDC', 'CTT', 'CSI'],      # not CC: 526 DLG_CC_* / Field_*_CC files are other things
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet'),
+        short_re=re.compile(r'(?!)'),                                # Chung has no short-token prefix
+        job_re=re.compile(r'(?i)iron[_ ]?cannon|fury[_ ]?guardian|shooting[_ ]?guardian|shelling[_ ]?guardian|iron[_ ]?paladin|'
+                          r'deadly[_ ]?chaser|tactical[_ ]?trooper'),
+        lua_script='Chung_Iron_Cannon',
+        skill_lua=['Targeting_Chung', 'Remote_Mortar'],
+        extra_lua=['DLG_Transcendental_Change_Guide_Chung'],          # other Lua whose file literals are the character's (route b)
+        skill_icon_ranges=[(106, 106), (900, 900), (26000, 26064), (26200, 26238), (26400, 26420), (26600, 26605)],      # skill ids: icon / image sheets (route b)
+        motion_glob=re.compile(r'(?i)^Motion_CHUNG'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Chung|^DLG_UI_JUMPING_EVENT_CHUNG|^DLG_Unit_(Create|Select)_|'
+             r'^DLG_Class_Change_|^DLG_PVP_Game_Damaged_Chung', 'stage9-ui', '-', 'class-change / jumping / unit dialog'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Chung', 'char-chung', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^DLG_Chung_Cannonball', 'char-chung', 'CH1q', 'cannon-ball dialog'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^POPUP_TR_(I_PALADIN|D_CHASER|T_TROOPER)\.', 'char-chung', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Chung'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^(Npc_Chung_|.*_SHADOW_CHUNG|TIME_CHUNG|PVP_BOT_CHUNG|APINK_ANGEL_06_CHUNG)', 'npc-lua (check ledger)', '-',
+             'NPC / shadow / bot copy of the character'),
         ],
     ),
 }
@@ -312,6 +342,24 @@ def main():
         for m in re.finditer(r'(?:basic|promotion)\w*ItemID\s*=\s*(\d+)', r):
             ut_items.add(int(m.group(1)))
     log('UnitTemplet rows', n_ut_rows, 'items', len(ut_items))
+    # b2b: other Lua a character names (C['extra_lua']) and skill icon / image sheets (C['skill_icon_ranges']); neither key is set for Eve
+    for xl in C.get('extra_lua', []):
+        xp = glob.glob(os.path.join(os.path.dirname(CC.SRC_DIR), 'data*_kom', xl + '.src.lua'))
+        if not xp:
+            log('extra_lua not found', xl)
+            continue
+        for s in set(re.findall(r'"([^"]+)"', open(xp[0], 'rb').read().decode('utf-8', 'replace'))):
+            if ext(s) in FILE_EXT and '%' not in s:
+                add(s, 'b', 'named in %s' % xl)
+                if ext(s) in TEX and os.path.splitext(s)[0].lower() + '.tet' in names_all:      # the sheet's piece table
+                    add(os.path.splitext(s)[0] + '.tet', 'b', 'piece table of %s' % s)
+    if C.get('skill_icon_ranges'):
+        import skillicons as SIC
+        for sid, _n, refs in SIC.templets():
+            if any(lo <= sid <= hi for lo, hi in C['skill_icon_ranges']):
+                for _kind, tex, _piece in refs:
+                    add(tex, 'b', 'skill %d icon sheet' % sid)
+                    add(os.path.splitext(tex)[0] + '.tet', 'b', 'skill %d icon sheet' % sid)
     # b3: effect closure files
     closure_n = 0
     with open(closure_tsv, encoding='utf-8') as f:

@@ -41,6 +41,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 5** (`awk -F'\t' '$7=="CH3d"' june2017_re/char_chung/ch0_class_map.tsv`; inside 5).
+  June addresses: `32bdb550` `32bdb610` `32bdb6a0` `32be8bb0` `32c08fa0`.
+- **States: 3** (`awk -F'\t' '$8=="CH3d"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_HA_CIP_DOOM_STRIKER`, `CSI_HA_CTT_SATELITE_RAIN`, `CSI_HA_CDC_OUTRAGE_STRIKE`.
+- **Skills: 6** (part 2 of `ch0_state_skill.tsv`, col 6): 26600 RNSI_HA_CIP_DOOM_STRIKE, 26601 RNSI_HA_CDC_OUTRAGE_STRIKE, 26602 RNSI_HA_CTT_SATELLITE_RAIN, 26603 RNSI_HA_CIP_DOOM_STRIKE_UPGRADE, 26604 RNSI_HA_CDC_OUTRAGE_STRIKE_UPGRADE, 26605 RNSI_HA_CTT_SATELLITE_RAIN_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7t L591-593 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn / _Trans keys and t; §7t L604-608 hyper active skills: cut-in shown whatever the option says (type 13); §7ag L807-809 TC slot A-5 / B-5 states and the Stage 6 skips; §7ao L932-937 every class: emulator transcend allow-list id, LevelUpEvent TYPE row, ; §7ao L954 hyper effect start 32c063d0 (vslot 49): the transcended branch.
+- 5 hyper-state functions; no transcendence-memo case in Chung's switch (Eve had 12). 26220 / 26225 are `_TRANS` ids with no tree row.

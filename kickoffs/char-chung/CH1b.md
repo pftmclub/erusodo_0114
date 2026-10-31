@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_CHUNG_PHASES.md "Rules" "Phase CH0 - Chung map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-awk -F'\t' '$6=="CH1b"' june2017_re/char_chung/ch0_class_map.tsv      # CH0 amends the column number if it differs
+awk -F'\t' '$7=="CH1b"' june2017_re/char_chung/ch0_class_map.tsv
 awk -F'\t' '$8=="CH1b"' june2017_re/char_chung/ch0_state_skill.tsv
 awk -F'\t' '$5 ~ /CH1b/' june2017_re/char_chung/ch0_checklist_rows.tsv
 ```
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 27** (`awk -F'\t' '$7=="CH1b"' june2017_re/char_chung/ch0_class_map.tsv`; inside 26, new 1).
+  June addresses: `32bd88f0` `32bd8910` `32bd89d0` `32bd8a10` `32bd8e00` `32bd8e50` `32bd8e90` `32bdc940` `32bdc9a0` `32bdc9e0` `32bdca40` `32bdcba0` `32bdcc40` `32bdcd90` `32bdcde0` `32bdce20` `32bdcea0` `32bdf400` `32bedb80` `32bedd30` `32bedee0` `32bf8c50` `32c02ee0` `32c033b0` `32c04140`(new EraseTargetingNPC) `32c0dd90` `32c0de40`.
+- **States: 33** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_DIE_FRONT`, `CSI_DIE_BACK`, `CSI_DAMAGE_GROGGY`, `CSI_DAMAGE_SMALL_FRONT`, `CSI_DAMAGE_SMALL_BACK`, `CSI_DAMAGE_BIG_FRONT`, `CSI_DAMAGE_BIG_BACK`, `CSI_DAMAGE_DOWN_FRONT`, `CSI_DAMAGE_DOWN_BACK`, `CSI_DAMAGE_STANDUP_FRONT`, `CSI_DAMAGE_STANDUP_BACK`, `CSI_DAMAGE_BOUNDING_DOWN`, `CSI_DAMAGE_BOUNDING_LANDCRASH`, `CSI_DAMAGE_BOUNDING_UP`, `CSI_DAMAGE_AIR_SMALL`, `CSI_DAMAGE_AIR_DOWN`, `CSI_DAMAGE_AIR_DOWN_INVINCIBLE`, `CSI_DAMAGE_AIR_DOWN_LANDING`, `CSI_DAMAGE_AIR_FALL`, `CSI_DAMAGE_AIR_UP`, `CSI_DAMAGE_AIR_FLY_FRONT`, `CSI_DAMAGE_AIR_FLY_BACK`, `CSI_DAMAGE_REVENGE`, `CSI_STANDUP_ROLLING_FRONT_FRONT`, `CSI_STANDUP_ROLLING_FRONT_BACK`, `CSI_STANDUP_ROLLING_BACK_FRONT`, `CSI_STANDUP_ROLLING_BACK_BACK`, `CSI_STANDUP_ATTACK_FRONT`, `CSI_STANDUP_ATTACK_BACK`, `CSI_STANDUP_CANNON_ATTACK_FRONT`, `CSI_STANDUP_CANNON_ATTACK_BACK`, `CSI_WALL_LANDING`, `CSI_AMUSEMENT_ITEM_PHOENIX_RUN_END`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8); §7l L469 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla.
+- June registers `CSI_RIDING_DAMAGE_BACK` with no script table (CH1c's riding row; JUNE_BUGS row there).

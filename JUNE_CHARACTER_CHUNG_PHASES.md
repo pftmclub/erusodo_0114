@@ -220,6 +220,52 @@ LOSE roll) by hand. Eve's builders take a character argument or are copied into 
 395 / 395 tables and 127 / 127 ids mapped; assets union routes a / b / c; the motion question answered; the cannon-ball and summon maps exist;
 kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-10-31)
+
+Read-only, no flag, no build. Outputs in `june2017_re/char_chung/`. Builders copied from Eve's with Chung's range (`ch0_build_state_skill.py`,
+`ch0_build_class_map.py`, `ch0_build_vtable.py`, `ch0_march_live_states.py`, `ch0_unmapped_callees.py`) plus new `ch0_skill_listing_emu.py` and
+`ch0_amend_kickoffs.py`; `char_eve/ch0_build_assets.py` gained a `chung` entry (Eve's run still reproduces); `charport_adis.py` has `chung`.
+
+**Step 0.** InitStateCommon is two functions: `charport_states.py init 32c12a30 32c1d1d0 3202b110` -> `ch0_reg.tsv`; `ch0c_listing_check.py`
+reproduces **188 / 188** distinct rows. InitState `32c22540` is **not carved in Ghidra**, so its 4 registrations (START / WIN / LOSE roll, `CSI_WAIT_STATE_CHANGE`)
+were read from the listing by hand (rows `@<call>`), as were the `USI_HYPER_MODE` std::string row and the 9 `~` rows (class gate *(+0x867c)+0x38 in `32c1d1d0`,
+fallthroughs 110 -> 20, 117 -> 27). `skill 32c1f530` -> `ch0_skill.tsv`; the listing emulator then corrected **16 of 27** address-order guesses (callbacks belong
+to the END / FINAL / LANDING state registered through the shared tail `32c2219e`) and filled 15 tables the decompile names only through a variable.
+
+**Maps**
+- `ch0_class_map.tsv`: 1,396 starts in `32bd86f0-32c25a1f` (442 carved, 954 uncarved): 557 state-fn, 558 thunks, 72 overrides, 71 helpers, 2 registrars,
+  127 dead (no reference in the exe; spot-checked), 9 not-Chung (incl. the ctor `32bf1040`, whose caller is outside: it is Chung's, CH1k). **702 to transcribe: 593 `inside`, 109 `new`**
+  (names in `ch0_hand_names.tsv`; 24 stay `?` with a hint, the transcribing phase names them by the class pattern). Boundary: `32c25880` slot-0 dtor, `32c258b0`-`32c25a00` thunks, `32c25a10` not Chung's.
+- `ch0_state_skill.tsv`: **395 / 395 tables** (30 dead data, 8 non-state, 0 unassigned), **127 / 127 ids** (22 passives CH4a, 900 = `CSI_THROW_ITEM`).
+  3 March-only states dropped (`CSI_SI_A_CDC_LEG_SHOT`, `..._SIEGE_SHELLING_READY_HYPER`, `..._ARTILLERY_STRIKE_CANCEL`); 6 names registered with no table
+  (`CSI_RIDING_DAMAGE_BACK`, 5 base `USI_EVENT_*`); `CSI_ATTACK_DASH_X` and `CSI_A_CDC_RAPID_CANNON_READY` defined twice in June's script (JUNE_BUGS rows in CH1d2 / CH3b).
+- `ch0_vtable_all.tsv` (544 slots) / `ch0_vtable_slots.tsv` (72 overrides; every slot the plan named confirmed). `ch0_checklist_rows.tsv`: 123 rows, every one a phase or n/a (46 n/a).
+- `ch0_keys.tsv` (249): readers found for `SIEGE_ANGLE` / `MOBILE_SIEGE_ANGLE` / `EXTRA_CANNON_BALL_DAMAGE_RATE` (InitComponent `32bf4900`) and `USE_CANNON_BALL%d`
+  (CommonStateStart `32bf3990`): the census had the last two as `neither`. `HEAD_IK*`, `NOMAL_CAMERA*`, `ATTACK_ACTION_TYPE` are in no June reader. Immunity keys -> Stage 2 (`31fdaaa0`, CX2GUUser).
+- Assets: `ch0_assets.tsv` 13,947 rows (routes a / b / c), **`ch0b_stage_list.tsv` 5,093** (4,788 missing, 305 March copies), dry run 35 koms, 0 refused, new kom `data204`.
+  `ch0_effect_closure.tsv` 7,263 rows, 1,945 names, 64 missing. `skillicons.py check` FAILs until `DLG_SKILL_ChungActive_04 / _05` and `DLG_Chung_SKILL_ScreenShot_04` are copied (in the list).
+  `POPUP_TR_I_PALADIN / D_CHASER / T_TROOPER` staged.
+- **The motion question:** three animations are lost, and March's script plays all three. `SI_A_CIP_SUDDEN_BURSTER` and `SI_SA_CIP_BURST_WOLF` moved CIP -> June `Motion_CHUNG_CFG.x`;
+  `SI_SA_CFG_IRON_HOWLING` is in no June file, yet June's own `_HYPER` state plays it (JUNE_BUGS row, CH3a2). **CH0b holds the 10 differing class motions for CH1 final** (7ad).
+- Summons (`ch0_summons.tsv`): 4 June spawn sites (`32bfe730` x2, `32c0b7f0`, `32c10d20`), entry points `31f8b010` / `322e67c0`; June-only NPC **2525 `NUI_TARGETING_CHUNG_HEAVY_FIELD`**
+  (no NPCTemplet row, no enum here). `Targeting_Chung` / `Remote_Mortar` already June's content; `luabind.py check` PASS. **CH3b0 moves before CH2c** (Quantum Ballista spawns first).
+- Cannon balls (`ch0_cannonball.tsv`, 196 rows): gauge +0xc04 equals March's `CX2ChungGageData`; CH1q owns the counter API (11 helpers via `ch0_hand_phases.tsv`, 15 functions) and the UI outside the class.
+- Item 9: the "49 unnamed" are 7 ids x 7 classes (26027-26029, 26216-26219), named in neither Enum (`ch0_unnamed_ids.tsv`): raw id + comment. `ch0_enum_names.tsv`: 10 / 127 in the C++ enum by name,
+  60 in the core Enum.lua. UnitTemplet (`ch0_unittemplet_chung.tsv`): June adds `m_fLobbyRotationY` and 110 / 111 / 117 cut-in keys; `STR_ID_17435` exists ("Tactical Trooper").
+  StatTable: no duplicate (the 19 extra rows per 110 / 111 are commented copies, equal).
+- S3 baseline (`ch0_s3_baseline.txt`): 261 rows, 254 no_state. Item 2: state ids are 16-bit already (`SERV_IRUHADEV_JUNE_USER_STATE_ID16`); the `UCHAR` sites in `X2GUUser.h` are its dead `#else`.
+- Item 6: 294 out-of-class callees, 115 unmapped; `ch0_unmapped_identified.tsv`: 68 confirmed, 33 candidate, 14 unknown; 26 need Opus.
+
+**Splits and new phases** (functions to transcribe): CH1d 37 + **CH1d2** 21; CH1g 20 + **CH1g2** 30; CH3a 17 + **CH3a2** 34. Opus helper phases **CH1d0, CH1j0, CH1k0, CH1l0, CH1l30, CH2b0**
+(the other needs-Opus callees go to CH1m / CH1n / CH4a, already Opus). Others: CH1a 29, CH1b 27, CH1c 2 (riding is CX2GUUser code), CH1e 12, CH1f 27, CH1h 22, CH1i 15, CH1j 41, CH1k 38,
+CH1l 16, CH1l2 9, CH1l3 13, CH1l4 6, CH1m 3, CH1n 2, CH1o 24, CH1q 15, CH2a 41, CH2b 39, CH2c 43, CH2d 42, CH3b 38, CH3c 27, CH3d 5, CH4a 4, CH4b 3.
+Every kickoff CH0b-CH6 has its "Amended by CH0" section (filters: class map col 7, state table col 8); 9 new kickoffs; STATUS rows added and Depends rewired.
+**Corrections to the plan:** Siege Shelling (26201) and Back Blast are class 6 (CH2a, not CH2c); Head Shot is class core (CH1g2, its id 26220 is a `_TRANS` id); 7ai L835 is CH2c; 7al: Chung overrides only slot 0x800.
+
+**Drift** (scope rule): CustomizeManager (`31d70b60`) is Stage 12's (CH1l30 writes a stand-in); immunity keys stay on the Stage 2 bullet; June's `AddChungCannonBall_Cheat` dev commands noted in CH1q.
+Nothing needs a new plan. `funcmap.tsv`: 110 rows `Char Chung CH0`.
+**Open:** the doubtful cannon-ball pairings and Chung's InitWakeOrb variant (CH1q kickoff); 24 `?` helper names. Next: CH0b (Sonnet) and CH1a may start; they may run side by side.
+
 ## Phase CH0b - Every June Chung asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

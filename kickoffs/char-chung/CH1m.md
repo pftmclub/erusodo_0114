@@ -42,6 +42,14 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-10-31)
 
-(CH0 fills this: the filters with real column numbers, function counts, addresses, checklist rows, callees, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH1m"' june2017_re/char_chung/ch0_class_map.tsv`; inside 3).
+  June addresses: `32c12a30` `32c1d1d0` `32c22540`.
+- **States: 44** (`awk -F'\t' '$8=="CH1m"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_START`, `CSI_WIN`, `CSI_WIN2`, `CSI_LOSE`, `CSI_LOSE2`, `CSI_CFG_START`, `CSI_CFG_WIN`, `CSI_CFG_WIN2`, `CSI_CFG_LOSE`, `CSI_CFG_LOSE2`, `CSI_CSG_START`, `CSI_CSG_WIN`, `CSI_CSG_WIN2`, `CSI_CSG_LOSE`, `CSI_CSG_LOSE2`, `CSI_CIP_START`, `CSI_CIP_WIN`, `CSI_CIP_WIN2`, `CSI_CIP_LOSE`, `CSI_CIP_LOSE2`, `CSI_CDC_START`, `CSI_CDC_WIN`, `CSI_CDC_WIN2`, `CSI_CDC_LOSE`, `CSI_CDC_LOSE2`, `CSI_CHG_START`, `CSI_CHG_WIN`, `CSI_CHG_WIN2`, `CSI_CHG_LOSE`, `CSI_CHG_LOSE2`, `CSI_CTT_START`, `CSI_CTT_WIN`, `CSI_CTT_WIN2`, `CSI_CTT_LOSE`, `CSI_CTT_LOSE2`, `CSI_HYPER_MODE`, `CSI_CIP_HYPER_MODE`, `CSI_CDC_HYPER_MODE`, `CSI_CTT_HYPER_MODE`, `USI_EVENT_PROTON_BOMB_CONTROL_FIRE`, `USI_EVENT_PROTON_BOMB_CONTROL_IDLE`, `USI_EVENT_SNIPER_CONTROL_FIRE`, `USI_EVENT_SNIPER_CONTROL_IDLE`, `USI_EVENT_SNIPER_END`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7h L425 USI_WAIT_STATE_CHANGE registered in every class InitState; WIN OnEvent; §7l L469 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7ao L932-937 every class: emulator transcend allow-list id, LevelUpEvent TYPE row, .
+- **Callees this Opus phase maps itself:** `32078bc0` June polymorphic object ctor (vtable 33473170, 0x19 dwords zeroed, +8 = 1.0f).
+- InitState `32c22540` is **not carved in Ghidra** (no decompile): its 4 registrations were read from the listing (`ch0_reg.tsv` rows `@32c2277e` / `@32c22852` / `@32c2291f` / `@32c229db`: START / WIN / LOSE roll `31fe22d0`, `CSI_WAIT_STATE_CHANGE` id 130). It then sets +0x7d04 = 0xa2 and +0x4088 = 13 and the cut-in set index +0x8ac8 by class: 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 5, 110 -> 3, 111 -> 4, 117 -> 6 (byte table `32c22af8`).
+- InitStateCommon is two functions: `32c12a30` (110 rows, no gate; `USI_HYPER_MODE` id 23 named by `31fdd490` at line 737) and `32c1d1d0` (116 rows, class-gated on *(+0x867c)+0x38, two switches with fallthroughs 110 -> 20 and 117 -> 27; line ranges in `ch0_build_state_skill.py` GATES). `ch0c_listing_check.py` reproduced 188 / 188 distinct rows.
+- June registers six names with no script table (`CSI_RIDING_DAMAGE_BACK`, `USI_EVENT_SNIPER_*` x3, `USI_EVENT_PROTON_BOMB_*` x2 from the base `3202b110`) and drops three March states (`CSI_SI_A_CDC_LEG_SHOT`, `CSI_SI_A_SIEGE_SHELLING_READY_HYPER`, `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CANCEL`: June wins).
+- Skill 26032 registers `DUAL_BUSTER` a second time with id 336 (0x150) (listing, `ch0_skill_listing_rows.tsv`). `32078bc0` (unknown, called 21x by the registrars) is yours to map.
