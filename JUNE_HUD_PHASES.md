@@ -328,6 +328,7 @@ Play-test: a ported class (Eve / Aisha) with a stacking buff via the console (Br
   `enumscan --check`: 0 rows.
 - Build (PCH auto-touched): `DEPLOY OK: X2_offline.exe is 25,865,728 B, dated 2026-10-31 08:52:50, md5 9523dc904b5ff974040a83b786762bdd`. No new strings to exestr (the string id is a number).
 - **Play-test (user decision 2026-10-31: unported classes cannot use skills, so test on a ported class):** EveEmpress (uid 61) with `BFI_BUFF_ECE_OPEN_MIND` (BFI 877, limit 3).
+  **Passed (user, 2026-10-31):** the counter showed x2 and x3 as expected; logs: 0 EXCEPTION, no Lua error from the console lines.
   Brutal Slayer (Sheath Knight) is not testable until that class is ported; the save row for SheathKnightT (21410 at level 5) stays harmless.
 
 ## Phase H4 - The quick slot (Sonnet 5.5, high)

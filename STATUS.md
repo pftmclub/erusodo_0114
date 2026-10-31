@@ -170,11 +170,10 @@ Done: R0, R1, R2, R3, R3b, R3c, R3d, R4.
 
 ## june-hud - June HUD: buff icon row (top right, counter) and quick slot (bottom left)
 Plan `JUNE_HUD_PHASES.md` · branch `main` · log tag `[JUNE_HUD]` (sub-tags `BUFF`, `SLOT`) · flags `SERV_IRUHADEV_JUNE_HUD_*` (`_BUFF_ROW`, `_BUFF_COUNT`, `_QUICKSLOT`, + `_DEBUG`) and `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND` (H2b) · kickoffs `kickoffs/june-hud/` · evidence `june2017_re/hud_functions.tsv` · backlog Stage 37, split out of Stage 9 (user, 2026-10-31) · planned on Opus 2026-10-31. H1 deletes the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (user: delete the code).
-Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan). H1 (2026-10-31, BUFF_DURATION_TEXT deleted, DEPLOY OK md5 c4686fcb, no play-test). H4 (2026-10-31, quick slot, DEPLOY OK md5 bbd5b5cb, COPY OK data034, play-tested: layout, keys 1-6, cooldown, 0 EXCEPTION). H2 (2026-10-31, buff row, DEPLOY OK md5 26e27ce4, COPY OK data078, play-tested: anchor 993,26, Hero buffs, refresh, 0 EXCEPTION). H2b (2026-10-31, Lua buff binding = June slot 134, DEPLOY OK md5 0649259c, play-tested: 2-argument line applies, 0 Lua errors, 0 EXCEPTION).
+Done: H0 (2026-10-31, read-only: verdicts in `june2017_re/hud_functions.tsv`, Done note in the plan). H1 (2026-10-31, BUFF_DURATION_TEXT deleted, DEPLOY OK md5 c4686fcb, no play-test). H4 (2026-10-31, quick slot, DEPLOY OK md5 bbd5b5cb, COPY OK data034, play-tested: layout, keys 1-6, cooldown, 0 EXCEPTION). H2 (2026-10-31, buff row, DEPLOY OK md5 26e27ce4, COPY OK data078, play-tested: anchor 993,26, Hero buffs, refresh, 0 EXCEPTION). H2b (2026-10-31, Lua buff binding = June slot 134, DEPLOY OK md5 0649259c, play-tested: 2-argument line applies, 0 Lua errors, 0 EXCEPTION). H3 (2026-10-31, buff counter, DEPLOY OK md5 9523dc90, play-tested on EveEmpress with BFI 877: x2 / x3 shown, 0 Lua errors, 0 EXCEPTION).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| H3 | built, DEPLOY OK md5 9523dc90; play-test owed (EveEmpress, BFI 877 x3) | Sonnet 5.5 / high | H2 | `X2GageUI.{h,cpp}`, `X2GageManager.{h,cpp}`, `X2BuffTemplet.cpp`, `X2GameUnit.cpp`, `X2PremiumBuffManager.cpp`, `Always.h` | `H3.md` |
 | H4 review | waiting (covers H1-H4) | Opus 5.5 / high | H1-H4 | - | `H4-review.md` |
 | Z | waiting | Sonnet 5.5 / medium | H4 review | `MODS.md`, backlog, memory | `Z.md` |
 
