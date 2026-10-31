@@ -74,5 +74,6 @@ no `#ifdef` needed beyond the class's own):
 - `31fe9840` -> `SetRotateBone( true, L"Bip01_Spine1", D3DXVECTOR3( -1, -1, 0 ), D3DXVECTOR3( yaw gap, -pitch, 0 ) )` and
   `31fe4870` -> `EraseRotateBone( L"Bip01_Spine1" )` (`SERV_IRUHADEV_JUNE_USER_BONE_ROTATION`); the erase runs when |yaw| and |pitch| are
   both <= `FLT_EPSILON`; the function ends with `m_fRotateBoneDegree` (`+0x8a68`) = the result's z.
-- `RotateBone` is June's (`SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE`); `OnFrameMove` applies the map (`ApplyRotateBoneMap`), so CH1j writes
+  The yaw gap (CH1j0 review, `32bf00c0`) is `GetRotateDegree().y - result.y`, then >= 360 -> `360 - v` and <= -360 (qword `334e6fb0`) -> `v + 360` (both `test 0x41 / jp`, NaN keeps v).
+- `RotateBone` is June's (`SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE`); `CommonFrameMove` applies the map (`ApplyRotateBoneMap`), so CH1j writes
   no frame-move code for it.

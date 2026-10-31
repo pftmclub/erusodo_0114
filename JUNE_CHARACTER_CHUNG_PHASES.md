@@ -977,6 +977,52 @@ reading), written on `CX2GameUnit::GetNearestCollisionFrameName` / `IsPosAlongLa
 
 Nothing to play-test (the map stays empty and the aim helper is unreferenced). Next: `/x2-phase char-chung CH1j0 review` (Opus 5.5 high).
 
+### CH1j0 - Review (2026-11-01, Opus 5.5)
+
+**Verdict: the code passes and no source changed.** I read all six June bodies in Ghidra, both asm and decompile.
+- **`32008660` -> `GetNearestTargetAimDegree`.** The skip order matches the port: `IsValidUnit` (`322ccf50`), then team `+0x278`, then HP. For HP,
+  gage `+0xc04` NULL passes, hp gage `+0x20` NULL skips, and a unit passes only when `0 <` hp. March's `GetNowHp()` gives the same answers (1 with
+  no gage, 0 with no hp gage). Next is my centre / its centre (vslot `0x2c8`). For an NPC (`+0x264 == 1`): `+0x85f8 +4` (`m_ClassType`) `!= 0`,
+  vslot `0x180` (`GetInvincible()`, slot 96) and `31fd5ef0( npc, 1, 1, &centre )` skip it. Any other type takes the
+  `32293b80( centre ) == vslot 0x170` test. Arguments: `[esp+0x5c]` = up, `+0x60` = down, `+0x64` = yaw range, `+0x68` = max distance.
+  Out = the `31c19930` angles. Every x87 compare equals the port's C++ `<`, NaN included:
+  distance `test 0x41 / jz` (NaN passes), pitch `-down` and `up` (`test 5 / jnp`, NaN passes), both yaw folds `test 5 / jp` (`360 - y` only for
+  y < 0, JUNE_BUGS 497 at @32008920 / @32008955), the 180 fold `test 0x41 / jnz`, and the ±range x 0.5 window (NaN passes). Constants 0 / 360 / 180 / 0.5
+  (`charport_consts.py`).
+- **`31fe9840` / `31fe4870` / `31fdb4e0`.** Value = bool `+0`, name `+4`, axis `+0x20`, degree `+0x2c` (ctor `320799f0` and Set `32079aa0`
+  both write all four), which puts the map node's value at `+0x28`. Erase = `equal_range` + erase. Apply skips a disabled entry and a name equal to `L""`.
+  Each axis needs `FLT_EPSILON < |axis.c|` (`test 5 / jp`) and `|degree.c| > FLT_EPSILON` (`test 0x41 / jnz`); NaN skips both, as in the port. The calls build
+  (ax,0,0) / (0,ay,0) / (0,0,az). Call site: the join of both `m_bRotateBone` exits (`jnz` @32065745, `jz` @32065799 -> @320657e2) =
+  March's `CommonFrameMove` line after that block. Clear: `3207c850` on `+0x8a6c` right after `+0x8a64 = 0` (`CommonStateStart`).
+- **`31fd93e0` -> `RotateBone`.** Guards `+0x87cc` / `+0x87d4` / `fucompp test 0x44 / jnp` (= `0.f ==`, NaN goes on). Radians = qword
+  0.01745329238 = `(float)( D3DX_PI / 180.f )`. `std::string == "Dummy4_LWeapon01"`; `FindFrame( "Bip01_L_Finger1" )` and the child
+  `FindFrame` both on `+0x87cc` (`m_pMotion`); the multiply is rotation x that frame's `+0x90`, copied into `pFrame +0x90`. The second
+  `UpdateAnimationFrame_Public` has ECX = `+0x8e88`. The `#else` is March's body, unchanged (0 deleted lines).
+- **`31fd5ef0` -> `GetTargetHitPos`.** It matches the buff static line by line (700 qword, `test 0x41 / jnz`, my-bone `< target` `test 5 / jp`,
+  modes 0 / 1 / other). **The target-centre branch is right for an NPC:** NPC vslot `0x434` = `327574e0` = GetPos( false ) + vslot
+  `0x18c`( false ) x 0.5 on y, the same body as the user's `0x2c8` (`31fc9380`). The user's slot `0x434` is `32034c00`, a state-change-like
+  function, not a position. All three June callers (`32008660`, `32008a20`, `3236e2a0`) reach it with an NPC only (`+0x264 == 1` before
+  the call), so the port computing a centre for a user target is unreachable. Noted, no JUNE_BUGS row.
+
+**Lu/Ciel material found (routed, checklist §7 row after `3208e160`):** `ApplyRotateBoneMap` takes its frame from `32071d80`
+(`+0x8e90 ? +0x8e88 : +0x87d4`). June's `m_bRotateBone` block also rotates `Bip01_Spine1` on `+0x8e88` (@32065792-320657dd). Add to that
+RotateBone's second child update. Chung's second pair is NULL (CH1d0), so all three read as March's single body here.
+
+**CH1j kickoff:** "Amended by CH1j0" checked against `32bf00c0`. The arguments are `+0x9878` / `+0x987c` / `+0x9880` / `+0x9884 x +0x97a4`, the result
+goes to `+0x9888`, Set fires when either |y| or |z| > `FLT_EPSILON` (else Erase), and `+0x8a68` = z. Two fixes: `CommonFrameMove`, not
+`OnFrameMove`; degree x = `GetRotateDegree().y - aim.y`, with June's folds (>= 360 -> 360 - v, <= -360 -> v + 360), axis (-1, -1, 0).
+
+**Gates.**
+- `flagcheck JUNE_USER_BONE_ROTATION --range 7da8b1f1^..7da8b1f1 --with JUNE_USER_AIM_TARGET JUNE_DIVERGE_ROTATE_BONE` (patience):
+  `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted
+  line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`: the old `X2GUUser.h:2550-2551` rows only (09107672, untouched).
+- `X2GUUser.cpp` one-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors.
+- No build (CH1j0 `DEPLOY OK` md5 `d78cfd9f` stands; nothing changed in source).
+
+**Nothing to play-test.** Next: `/x2-phase char-chung CH1j` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
