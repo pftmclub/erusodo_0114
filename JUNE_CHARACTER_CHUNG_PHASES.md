@@ -347,6 +347,37 @@ verbatim; class code multiplies `m_fNowStatePowerRate` (7i); June's BFI argument
 `Motion Error` / missing-animation line against a pre-CH1 run; combos, dash, jump, guard, damage, bounding and riding play June's animations;
 cannon balls fill, spend and show on the gauge as June; `charport_scan.py` / `charport_keys.py Chung_Iron_Cannon` show nothing new.
 
+### CH1a - Done (2026-10-31)
+
+All 29 class-map rows of phase CH1a are written: 28 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`) and 1 `new`
+(`JumpUpStart`, June `32bdbcd0`, under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE`; CH0 proposed `CSI_JUMP_UP_StateStart`, renamed to the class pattern: **CH1m registers `JumpUpStart`**).
+Both flags are in `Always.h`: `_CORE` defined, `_LIVE` as `//#define` with nested `#error` guards (needs `_CORE`, `JUNE_ENUM_NAMES`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`).
+`RNSI_P_CIP_OPEN_MIND = 26415` registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES` (June `Enum.lua`). 29 funcmap rows `Char Chung CH1a`; Chung's offset table is `june2017_re/char_chung/ch1_offsets.tsv` (seeded from Eve's).
+
+| June | Function (`CX2GUChung::`) | June | Function |
+|---|---|---|---|
+| `32bdca80` `32bdcac0` `32bdcaf0` `32bf5de0` | WaitStartFuture / WaitStart / WaitFrameMoveFuture / WaitEventProcess | `32bf60e0` `32beb1b0` | WalkEventProcess / JumpReadyEventProcess |
+| `32bdbcd0` (new) `32bef2d0` `32bef450` `32bf62f0` | JumpUpStart / JumpUpEventProcess / JumpDownEventProcess / JumpLandingEventProcess | `32bf65e0` | DashEventProcess |
+| `32beb260` `32bdcb10` `32bf67e0` | DashEndStartFuture / DashEndFrameMove / DashEndEventProcess | `32bd8930` `32bdcb50` `32bd8960` `32bef6f0` `32bf6ae0` | DashJumpStartFuture / Start / EndFuture / EventProcess / DashJumpLandingEventProcess |
+| `32bd8980` `32bd89b0` `32bf6d30` | PowerLandingStartFuture / PowerDownLandingStart / PowerDownLandingEventProcess | `32bd8a50` `32bf2b50` | GuardStart / GuardEventProcess |
+| `32bdcfc0` `32c03880` | GuardAttackZEventProcess / FrameMove | `32bd8a60` `32bf7250` `32bdd1d0` | GuardAttackXInit / FrameMove / EventProcess |
+
+**Where June differs from March** (everything else is March's logic, written out whole):
+- **Wait**: the cannon-ball charge test needs no emotion playing at all (`m_ePlayedEmotion == ET_NONE`, +0x89d8); March only refuses SITWAIT / SITREADY.
+- **Down-force latch**: June has a second byte at +0x8bf9 next to `m_bDownForce` (+0x8bf8). New member `m_bDownForcePressedInState` (CX2GUChung, `_CORE`, ctor false): a Down press in JUMP_UP / DASH_JUMP sets both; without a press `m_bDownForce` is cleared each frame unless the latch is set; `JumpUpStart` and `DashJumpStart` reset it. JUMP_DOWN's Z / X air attacks clear `m_bDownForce` before the state change. June keeps the byte in the CX2GUUser region; it stays on the Chung class until another class needs it.
+- **Guard / Guard X**: June inlines `CanUseCannon` with a third clause, skill level of `RNSI_P_CIP_OPEN_MIND` (26415) >= 1 (March: full hyper mode or balls left); Guard X frame move calls `UseCannon( 1 )` only below that level (`UseCannon` body `32bf5280` is CH1q's). Guard X event process: walk and dash cancels after 0.7 also require `IsOnSomethingFuture()`.
+- **DashJump** event process: the both-keys branch tests `oneRight` / `oneLeft` against the facing before the jump-state clamp.
+- Identical to March after the macros expand (checked against the listing): Walk, JumpReady, JumpLanding, Dash, DashEnd (3), DashJumpStartFuture / EndFuture / Landing, PowerLanding (3), Guard start, Guard Z (2), Guard X init.
+- State ids are written by name; the `CSI_*` numbers differ from June's raw ids by design (script tables bind names through `MakeTableReference`); every name used compiles. `0xb9` / `0xbd` / `0x11e` resolved through `ch0_state_skill.tsv` (`CSI_COMBO_DASH_JUMP_Z`, `CSI_ATTACK_DASH_JUMP_X`, `CSI_SI_A_CHG_CHAOS_CANNON_WAIT`).
+- Checklist §7 L253 (`+0x7cc8` power rate): no CH1a function touches it. No `JUNE_BUGS` row: nothing here looks like a June bug.
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_CORE --worktree --files ...`: `RESULT: PASS` (0 deleted lines, 0 non-ASCII inserted, 0 `#else`/`#endif` without the token). `_LIVE` reports FAIL only because its `#define` is commented out
+(as the kickoff says); `git diff --patience` shows 903 inserted lines, 0 deleted in `X2GUChung.cpp`. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`cl /Zs`, US_SERVICE defines, no PCH, Boost / DXSDK include dirs from the vcxproj): `X2GUChung.cpp` with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: 0 errors each.
+`DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 11:47:15, md5 f7acf6cde643e4eba96325b552df9230`, equal to `X2/US_SERVICE/x2.exe`; built at main `3db0b96a` + the 4 code files of this phase.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers `JumpUpStart`). Next: `/x2-phase char-chung CH1a review` (Opus 5.5 high), then CH1b.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -826,6 +826,9 @@ protected:
 
 	// CSI_JUMP_UP
 	void JumpUpEventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	void JumpUpStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	// CSI_JUMP_DOWN
 	void JumpDownEventProcess();
@@ -1824,6 +1827,9 @@ protected:
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	float						m_fProbabilityIronWill;
 	bool						m_bApplyLandDemolisher;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	bool						m_bDownForcePressedInState;		/// June +0x8bf9 ( CX2GUUser region ): a down press in this jump keeps m_bDownForce
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;
 	float						m_fRemainIronWillRenderEffectTime;

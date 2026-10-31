@@ -6348,3 +6348,32 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c24b80	CX2GUChung::GetComboZStateID	confirmed	Char Chung CH0: override 0x4b0; March X2GUChung.h:796 virtual int GetComboZStateID() const { return CSI_COMBO_Z; }; phase CH1k; inside; base 3208df10
 32c24b90	CX2GUChung::IsBerserkByChance (June-only; no March member)	candidate	Char Chung CH0: override 0xa4; March - (CX2GUChung does not override it in March; X2GUUser.h:4169 virtual bool IsBerserkByChance() { return false; }); phase CH1o; new; base 31e4c550
 32c25880	CX2GUChung::~CX2GUChung	confirmed	Char Chung CH0: override 0x0; March X2GUChung.h:492 virtual ~CX2GUChung();; phase CH1k; inside; base 3208f650
+32bdca80	CX2GUChung::WaitStartFuture	PORTED	Char Chung CH1a: inside, June body under JUNE_CHAR_CHUNG_LIVE; = March (PlayAnimationWaitStart future; wait timer = -elapsed)
+32bdcac0	CX2GUChung::WaitStart	PORTED	Char Chung CH1a: inside; = March
+32bdcaf0	CX2GUChung::WaitFrameMoveFuture	PORTED	Char Chung CH1a: inside; wait timer +0x9628 += elapsed, then CommonFrameMoveFuture = March
+32bf5de0	CX2GUChung::WaitEventProcess	PORTED	Char Chung CH1a: inside; differs from March only in the charge-ball test: no emotion at all ( +0x89d8 == ET_NONE ) instead of not SITWAIT / SITREADY
+32bf60e0	CX2GUChung::WalkEventProcess	PORTED	Char Chung CH1a: inside; = March
+32beb1b0	CX2GUChung::JumpReadyEventProcess	PORTED	Char Chung CH1a: inside; = March
+32bdbcd0	CX2GUChung::JumpUpStart	PORTED	Char Chung CH1a: new under JUNE_CHAR_CHUNG_CORE ( CH0 proposed CSI_JUMP_UP_StateStart; renamed to the class pattern ); CommonStateStart, then +0x8bf9 = 0 ( m_bDownForcePressedInState )
+32bef2d0	CX2GUChung::JumpUpEventProcess	PORTED	Char Chung CH1a: inside; adds the +0x8bf9 down-force latch: Down press sets m_bDownForce and the latch, else m_bDownForce clears while the latch is 0
+32bef450	CX2GUChung::JumpDownEventProcess	PORTED	Char Chung CH1a: inside; the Z / X air attacks clear m_bDownForce before their state change ( March keeps it )
+32bf62f0	CX2GUChung::JumpLandingEventProcess	PORTED	Char Chung CH1a: inside; = March
+32bf65e0	CX2GUChung::DashEventProcess	PORTED	Char Chung CH1a: inside; = March
+32beb260	CX2GUChung::DashEndStartFuture	PORTED	Char Chung CH1a: inside; = March ( +0x411c = 0 is m_bApplyMotionOffset )
+32bdcb10	CX2GUChung::DashEndFrameMove	PORTED	Char Chung CH1a: inside; = March ( EventTimer 0.4 step dust )
+32bf67e0	CX2GUChung::DashEndEventProcess	PORTED	Char Chung CH1a: inside; = March ( 0.3 x GetMaxAnimationTime = June ( max - transition ) x 0.3 )
+32bd8930	CX2GUChung::DashJumpStartFuture	PORTED	Char Chung CH1a: inside; = March ( fDownAccel = fGAccel x 1.2, m_bDownForce = false )
+32bdcb50	CX2GUChung::DashJumpStart	PORTED	Char Chung CH1a: inside; March plus the +0x8bf9 latch reset
+32bef6f0	CX2GUChung::DashJumpEventProcess	PORTED	Char Chung CH1a: inside; adds the +0x8bf9 latch; both-keys branch tests oneRight / oneLeft against facing; March otherwise
+32bd8960	CX2GUChung::DashJumpEndFuture	PORTED	Char Chung CH1a: inside; = March
+32bf6ae0	CX2GUChung::DashJumpLandingEventProcess	PORTED	Char Chung CH1a: inside; = March
+32bd8980	CX2GUChung::PowerLandingStartFuture	PORTED	Char Chung CH1a: inside; = March ( nowSpeed.x x 0.5 )
+32bd89b0	CX2GUChung::PowerDownLandingStart	PORTED	Char Chung CH1a: inside; = March ( CommonStateStart, CreateStepDust )
+32bf6d30	CX2GUChung::PowerDownLandingEventProcess	PORTED	Char Chung CH1a: inside; = March ( Iron Paladin Z cancel 0.06, walk 0.13333, ( max - transition ) / 6 )
+32bd8a50	CX2GUChung::GuardStart	PORTED	Char Chung CH1a: inside; thunk to CommonStateStart ( vslot 0x7c4 ), no Ghidra function; = March
+32bf2b50	CX2GUChung::GuardEventProcess	PORTED	Char Chung CH1a: inside; CanUseCannon inlined with the RNSI_P_CIP_OPEN_MIND ( 26415 ) skill-level clause ( March: IsFullHyperMode or balls left )
+32bdcfc0	CX2GUChung::GuardAttackZEventProcess	PORTED	Char Chung CH1a: inside; no Ghidra function; = March ( SKILL_CANCEL_AFTER 0.01 )
+32c03880	CX2GUChung::GuardAttackZFrameMove	PORTED	Char Chung CH1a: inside; = March ( land demolisher horizontal effect at 0.27 )
+32bd8a60	CX2GUChung::GuardAttackXInit	PORTED	Char Chung CH1a: inside; no Ghidra function; = March ( five background loads )
+32bf7250	CX2GUChung::GuardAttackXFrameMove	PORTED	Char Chung CH1a: inside; CanUseCannon + OPEN_MIND clause, UseCannon( 1 ) only below OPEN_MIND level 1 ( UseCannon body 32bf5280 is CH1q's )
+32bdd1d0	CX2GUChung::GuardAttackXEventProcess	PORTED	Char Chung CH1a: inside; no Ghidra function; walk and dash cancels after 0.7 also need IsOnSomethingFuture ( March macros do not )

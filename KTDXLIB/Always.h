@@ -11066,3 +11066,33 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT needs BUFF_ICON_UI ( CX2GageUI::BuffIcon )
 #endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: June character port ( Chung ) Phase CH1a - June's class-core functions that March's CX2GUChung lacks ( the jump-up state start ) and the
+//              down-force latch member, compiled in every build and referenced by nothing until CH1m registers them.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: June character port ( Chung ) Phase CH1a - Chung runs on June's class core: June's bodies inside March's own CX2GUChung functions.
+//              Stays commented out until CH1's final sub-phase ships it with June's Chung_Iron_Cannon.lua ( one deploy unit ). Needs
+//              SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE, SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_P_CIP_OPEN_MIND ) and SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE.
+//              Revert: comment out the #define ( JUNE_CHAR_CHUNG_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifndef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+//////////////////////////////////////////////////////////////////////////

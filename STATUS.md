@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1a | **ready** (may run beside CH0b): class core, movement, guard, slot-head; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUChung.*`, Always.h | `CH1a.md` |
+| CH1a | **done 2026-10-31, awaits Opus review** (`CH1a-review.md`): 29 fns (28 inside, `JumpUpStart` new), `_CORE` on, `_LIVE` `//#define`; nothing to play-test | Sonnet 5.5 / high, Opus review | CH0 | `X2GUChung.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): class core, reactions; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUChung.*`, Always.h | `CH1b.md` |
 | CH1c | blocked (CH1b review): class core, riding, pepper, dance; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |
 | CH1d0 | blocked (CH1c review): Opus helpers `31fd4290` / `31fd4340` before CH1d | Opus 5.5 / high, Opus review | CH1c review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1d0.md` |

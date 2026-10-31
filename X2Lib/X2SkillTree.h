@@ -1923,6 +1923,7 @@ public:
 		RNSI_P_RF_PHYSIC_MAGIC_ATTACK                         = 24400,
 		RNSI_P_RRF_SPIRITUALIZED_FURY                         = 24405,
 		RNSI_P_CIP_IRON_WILL                                  = 26402,
+		RNSI_P_CIP_OPEN_MIND                                  = 26415,
 		RNSI_P_RSR_OPEN_MIND                                  = 31417,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}

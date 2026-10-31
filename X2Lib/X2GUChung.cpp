@@ -166,6 +166,9 @@ iFrameBufferNum_, pUnit_ )
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 , m_fProbabilityIronWill( 0.f )
 , m_bApplyLandDemolisher( false )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+, m_bDownForcePressedInState( false )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
 , m_fRemainIronWillRenderEffectTime( 0.f )
@@ -7257,16 +7260,33 @@ void CX2GUChung::DieBackEventProcess()
 		StateChange( GUSI_DIE );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/** @function : JumpUpStart
+	@brief : June 32bdbcd0, CSI_JUMP_UP StateStart; registered by the class core
+*/
+void CX2GUChung::JumpUpStart()
+{
+	CommonStateStart();
+	m_bDownForcePressedInState = false;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 /** @function :WaitStartFuture
 	@brief : Wait 상태의 StartFuture() 함수
 */
 void CX2GUChung::WaitStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdca80
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+	m_CannonBallSystem.SetTimeElapsedAtWaitState( -m_fElapsedTime );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
 
 	// Wait상태를 시작할 때 -m_fElapsedTime으로 초기화 함 (-m_fElapsedTime으로 한 이유는 현재 프레임에서의 경과시간은 포함하지 않기 위해서 이다.)
 	m_CannonBallSystem.SetTimeElapsedAtWaitState( -m_fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : Wait 상태의 StartFuture() 함수
@@ -7274,8 +7294,14 @@ void CX2GUChung::WaitStartFuture()
 */
 void CX2GUChung::WaitStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcac0
 	CommonStateStart();
 	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : WaitFrameMoveFuture
@@ -7283,10 +7309,16 @@ void CX2GUChung::WaitStart()
 */
 void CX2GUChung::WaitFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcaf0
+	m_CannonBallSystem.SetTimeElapsedAtWaitState( m_CannonBallSystem.GetTimeElapsedAtWaitState() + m_fElapsedTime );
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// Wait 상태에서의 대기 시간에 경과 시간을 더해줌
 	m_CannonBallSystem.SetTimeElapsedAtWaitState( m_CannonBallSystem.GetTimeElapsedAtWaitState() + m_fElapsedTime );
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : WaitEventProcess
@@ -7294,6 +7326,71 @@ void CX2GUChung::WaitFrameMoveFuture()
 */
 void CX2GUChung::WaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf5de0
+	if ( m_fChaosCannonTime > 0.f )
+	{
+		StateChange( CSI_SI_A_CHG_CHAOS_CANNON_WAIT );
+		CommonEventProcess();
+		return;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			StateChange( CSI_CDC_COMBO_X );
+		else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			StateChange( CSI_CHG_COMBO_X );
+		else
+			StateChange( CSI_COMBO_X );
+	}
+	else if ( false == IsFullHyperMode() && ( m_CannonBallSystem.GetTimeElapsedAtWaitState() >= m_CannonBallSystem.GetTimeNeededToChangeCannonBallChargeState() )
+			  && false == IsFullCannonBallCount() && CX2Unit::ET_NONE == GetNowEmotionId() )	/// June tests no emotion at all ( March: not SITWAIT / SITREADY )
+	{
+		StateChange( CSI_CHARGE_CANNON_BALL );
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	if( m_fChaosCannonTime > 0.f )
 	{
@@ -7376,6 +7473,7 @@ void CX2GUChung::WaitEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : WalkEventProcess
@@ -7383,6 +7481,55 @@ void CX2GUChung::WaitEventProcess()
 */
 void CX2GUChung::WalkEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf60e0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			StateChange( CSI_CDC_COMBO_X );
+		else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			StateChange( CSI_CHG_COMBO_X );
+		else
+			StateChange( CSI_COMBO_X );
+	}
+	else if ( false == m_InputData.pureRight && false == m_InputData.pureLeft )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( false == IsOnSomethingFuture() )	// 밟고 있는 것이 없으면
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7442,6 +7589,7 @@ void CX2GUChung::WalkEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : JumpReadyEventProcess
@@ -7449,6 +7597,25 @@ void CX2GUChung::WalkEventProcess()
 */
 void CX2GUChung::JumpReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb1b0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() || true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7467,6 +7634,7 @@ void CX2GUChung::JumpReadyEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : JumpUpEventProcess
@@ -7474,6 +7642,48 @@ void CX2GUChung::JumpReadyEventProcess()
 */
 void CX2GUChung::JumpUpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bef2d0
+	if ( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		if ( true == GetEnableDash() )
+			StateChange( USI_DASH_JUMP );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_ATTACK_JUMP_Z );
+		m_pComboGuide->ShowComboCommand( L"J", L"JZ" );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( CSI_ATTACK_JUMP_X );
+		m_pComboGuide->ShowComboCommand( L"J", L"JX" );
+	}
+	else if ( 0.0f >= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if ( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+		m_bDownForcePressedInState = true;
+	}
+	else if ( false == m_bDownForcePressedInState )
+	{
+		m_bDownForce = false;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 대시 중에 점프를 했는지 판단
 	if( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
 	{
@@ -7513,6 +7723,7 @@ void CX2GUChung::JumpUpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : JumpDownEventProcess
@@ -7520,6 +7731,67 @@ void CX2GUChung::JumpUpEventProcess()
 */
 void CX2GUChung::JumpDownEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bef450
+	if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_bDownForce )
+		{
+			StateChange( CSI_POWER_DOWN_LANDING );
+			m_bDownForce = false;
+
+			m_pComboGuide->ShowComboCommand( L"J", L"D" );
+			m_pComboGuide->ShowComboCommand( L"A", L"AXD" );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+			m_bDownForce = false;
+		}
+	}
+	else if ( true == m_FrameDataFuture.unitCondition.bFootOnWall &&
+			  ( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( CSI_WALL_LANDING );
+	}
+	else if ( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		if ( true == GetEnableDash() )
+			StateChange( USI_DASH_JUMP );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		m_bDownForce = false;
+		StateChange( CSI_ATTACK_JUMP_Z );
+		m_pComboGuide->ShowComboCommand( L"A", L"AXZ" );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		m_bDownForce = false;
+		StateChange( CSI_ATTACK_JUMP_X );
+		m_pComboGuide->ShowComboCommand( L"A", L"AXX" );
+	}
+	else if ( 0.0f <= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if ( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발 아래에 라인맵이 있으면 착지
 	if ( true == IsOnSomethingFuture() )
 	{
@@ -7582,6 +7854,7 @@ void CX2GUChung::JumpDownEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : JumpLandingEventProcess
@@ -7589,6 +7862,63 @@ void CX2GUChung::JumpDownEventProcess()
 */
 void CX2GUChung::JumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf62f0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			StateChange( CSI_CDC_COMBO_X );
+		else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			StateChange( CSI_CHG_COMBO_X );
+		else
+			StateChange( CSI_COMBO_X );
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		StateChange( USI_WAIT, false );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7655,6 +7985,7 @@ void CX2GUChung::JumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashEventProcess
@@ -7662,6 +7993,61 @@ void CX2GUChung::JumpLandingEventProcess()
 */
 void CX2GUChung::DashEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf65e0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_DASH_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( CSI_ATTACK_DASH_X );
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.oneUp )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( false == m_InputData.pureRight && false == m_InputData.pureLeft )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( false == IsOnSomethingFuture() )	// 발 밑에 라인맵이 있을 때
 	{
 		StateChange( USI_DASH_JUMP );
@@ -7721,6 +8107,7 @@ void CX2GUChung::DashEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashEndStartFuture
@@ -7728,9 +8115,16 @@ void CX2GUChung::DashEventProcess()
 */
 void CX2GUChung::DashEndStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb260
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	m_bApplyMotionOffset = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	m_bApplyMotionOffset = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashEndFrameMove
@@ -7738,12 +8132,22 @@ void CX2GUChung::DashEndStartFuture()
 */
 void CX2GUChung::DashEndFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcb10
+	if ( true == m_pXSkinAnim->EventTimer( 0.4f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( true == m_pXSkinAnim->EventTimer( 0.4f ) )
 	{
 		CreateStepDust();
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashEndEventProcess
@@ -7751,6 +8155,81 @@ void CX2GUChung::DashEndFrameMove()
 */
 void CX2GUChung::DashEndEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf67e0
+	const float TRIGGER_TIME_FACTOR_DASH_ATTACK = 0.3f;
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() * TRIGGER_TIME_FACTOR_DASH_ATTACK )
+			StateChange( CSI_COMBO_Z );
+		else
+			StateChange( CSI_COMBO_DASH_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() * TRIGGER_TIME_FACTOR_DASH_ATTACK )
+		{
+			if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+				StateChange( CSI_CDC_COMBO_X );
+			else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+				StateChange( CSI_CHG_COMBO_X );
+			else
+				StateChange( CSI_COMBO_X );
+		}
+		else
+		{
+			StateChange( CSI_ATTACK_DASH_X );
+		}
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneUp )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// DashEnd에서 공격 키를 눌렀을 때 대시 공격인지, 일반 공격인지를 정하기 위한 const 값. 
 	const float TRIGGER_TIME_FACTOR_DASH_ATTACK = 0.3f;
 
@@ -7844,6 +8323,7 @@ void CX2GUChung::DashEndEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpStartFuture
@@ -7851,12 +8331,19 @@ void CX2GUChung::DashEndEventProcess()
 */
 void CX2GUChung::DashJumpStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8930
+	CommonStateStartFuture();
+	m_bDownForce = false;
+	m_PhysicParam.fDownAccel = m_PhysicParam.fGAccel * 1.2f;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 
 	const float MAGIC_NUMBER_MULTIPLY_GRAVITY_ACCEL = 1.2f;
 
 	m_PhysicParam.fDownAccel		= m_PhysicParam.fGAccel * MAGIC_NUMBER_MULTIPLY_GRAVITY_ACCEL;
 	m_bDownForce					= false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpStart
@@ -7864,12 +8351,24 @@ void CX2GUChung::DashJumpStartFuture()
 */
 void CX2GUChung::DashJumpStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcb50
+	CommonStateStart();
+
+	if ( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
+	{
+		CreateStepDust();
+	}
+
+	m_bDownForcePressedInState = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 
 	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
 	{
 		CreateStepDust();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpFrameMoveFuture
@@ -7897,6 +8396,115 @@ void CX2GUChung::DashJumpFrameMoveFuture()
 */
 void CX2GUChung::DashJumpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bef6f0
+	bool &bCanDashJump = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == bCanDashJump )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+			m_bDownForce = false;
+		}
+		else if ( true == m_bDownForce )
+		{
+			StateChange( CSI_POWER_DOWN_LANDING );
+			m_bDownForce = false;
+			m_pComboGuide->ShowComboCommand( L"A", L"AD" );
+		}
+		else
+		{
+			if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+				StateChangeDashIfPossible();
+			else
+				StateChange( USI_DASH_JUMP_LANDING );
+
+			m_bDownForce = false;
+		}
+	}
+	else if ( true == m_FrameDataFuture.unitCondition.bFootOnWall &&
+			  ( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( CSI_WALL_LANDING );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_DASH_JUMP_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( CSI_ATTACK_DASH_JUMP_X );
+	}
+	else if ( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		if ( ( true == m_InputData.oneRight && false == m_FrameDataFuture.syncData.bIsRight )
+			 || ( true == m_InputData.oneLeft && true == m_FrameDataFuture.syncData.bIsRight ) )
+		{
+			if ( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( 0.0f < m_PhysicParam.nowSpeed.y )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if ( true == m_InputData.pureRight )
+	{
+		if ( false == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( 0.0f < m_PhysicParam.nowSpeed.y )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if ( true == m_InputData.pureLeft )
+	{
+		if ( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( 0.0f < m_PhysicParam.nowSpeed.y )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if ( true == m_InputData.oneUp && 0.0f >= m_PhysicParam.nowSpeed.y )
+	{
+		bCanDashJump = true;
+	}
+
+	if ( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+		bCanDashJump = false;
+		m_bDownForcePressedInState = true;
+	}
+	else if ( false == m_bDownForcePressedInState )
+	{
+		m_bDownForce = false;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	bool &bCanDashJump = m_FrameDataFuture.stateParam.bEventFlagList[0];
 
 	// 대시 점프중 라인맵에 닿은 경우 ( 점프해서 위의 라인맵에 올라간 경우 또는 하강하는 경우 )
@@ -7998,6 +8606,7 @@ void CX2GUChung::DashJumpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpEndFuture
@@ -8005,8 +8614,14 @@ void CX2GUChung::DashJumpEventProcess()
 */
 void CX2GUChung::DashJumpEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8960
+	CommonStateEndFuture();
+	m_PhysicParam.fDownAccel = 0.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEndFuture();
 	m_PhysicParam.fDownAccel	= 0.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpLandingEventProcess
@@ -8014,6 +8629,64 @@ void CX2GUChung::DashJumpEndFuture()
 */
 void CX2GUChung::DashJumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf6ae0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			StateChange( CSI_CDC_COMBO_X );
+		else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			StateChange( CSI_CHG_COMBO_X );
+		else
+			StateChange( CSI_COMBO_X );
+	}
+	else if ( true == SpecialAttackEventProcess() )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 랜딩 상태 인데 발 밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -8084,6 +8757,7 @@ void CX2GUChung::DashJumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : PowerLandingStartFuture
@@ -8091,8 +8765,14 @@ void CX2GUChung::DashJumpLandingEventProcess()
 */
 void CX2GUChung::PowerLandingStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8980
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x *= 0.5f; // kimhc // /= 2.0f 과 같으나 나누기 보다 * 연산이 더 빠름
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpPowerLandingStart
@@ -8100,8 +8780,14 @@ void CX2GUChung::PowerLandingStartFuture()
 */
 void CX2GUChung::PowerDownLandingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd89b0
 	CommonStateStart();
 	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStart();
+	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DashJumpPowerLandingEventProcess
@@ -8109,6 +8795,51 @@ void CX2GUChung::PowerDownLandingStart()
 */
 void CX2GUChung::PowerDownLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf6d30
+	const float TRIGGER_TIME_COMBO_PZ	= 0.060f;
+	const float TRIGGER_TIME_WALK		= 0.13333f;
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ && GetUnitClass() == CX2Unit::UC_CHUNG_IRON_PALADIN )
+	{
+		if ( TRIGGER_TIME_COMBO_PZ < m_pXSkinAnimFuture->GetNowAnimationTime() )
+			StateChange( CSI_CIP_COMBO_POWER_DOWN_LANDING_Z );
+	}
+	else if ( true == m_InputData.oneRight || true == m_InputData.oneLeft )
+	{
+		if ( TRIGGER_TIME_WALK < m_pXSkinAnimFuture->GetNowAnimationTime() )
+			StateChange( USI_WALK );
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 6.0f )
+	{
+		if ( true == SpecialAttackEventProcess() )
+		{
+		}
+		else if ( true == m_InputData.pureUp )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if ( true == m_InputData.oneDown
+				  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+							LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+							&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발 밑에 라인 맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -8164,6 +8895,7 @@ void CX2GUChung::PowerDownLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : HyperModeFrameMove
@@ -8743,7 +9475,12 @@ void CX2GUChung::ChargeCannonBallEventProcess()
 */
 void CX2GUChung::GuardStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8a50
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardEventProcess
@@ -8751,6 +9488,55 @@ void CX2GUChung::GuardStart()
 */
 void CX2GUChung::GuardEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf2b50
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if ( true == m_InputData.oneZ )
+	{
+		if ( m_fWithStandingRate <= -1.f )
+			StateChange( CSI_GUARD_ATTACK_Z );
+		else if ( m_fWithStandingRate >= GetRandomFloat( 1 ) )
+		{
+			m_iSiegeShellingCount = 0;
+			StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE );
+		}
+		else
+		{
+			StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT );
+		}
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( m_fWithStandingRate <= -1.f )
+		{
+			if ( false == IsFullHyperMode() && GetChungGageData()->GetNowCannonBallCount() < 1 && GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) < 1 )
+				StateChange( CSI_GUARD_ATTACK_Z );
+			else
+				StateChange( CSI_GUARD_ATTACK_X );
+		}
+		else if ( m_fWithStandingRate >= GetRandomFloat( 1 ) )
+		{
+			m_iSiegeShellingCount = 0;
+			StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE );
+		}
+		else
+		{
+			StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT );
+		}
+	}
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -8818,6 +9604,7 @@ void CX2GUChung::GuardEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardAttackZEventProcess
@@ -8825,6 +9612,38 @@ void CX2GUChung::GuardEventProcess()
 */
 void CX2GUChung::GuardAttackZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcfc0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.7f;
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+		SKILL_CANCEL_AFTER( 0.01f )
+		else if ( CAN_DASH_CANCEL )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if ( CAN_WALK_CANCEL )
+		{
+			StateChange( USI_WALK );
+		}
+		ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -8861,6 +9680,7 @@ void CX2GUChung::GuardAttackZEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardAttackXFrameMove
@@ -8868,6 +9688,27 @@ void CX2GUChung::GuardAttackZEventProcess()
 */
 void CX2GUChung::GuardAttackXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf7250
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.05f ) )
+	{
+		if ( false == IsFullHyperMode() && GetChungGageData()->GetNowCannonBallCount() < 1 && GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) < 1 )
+		{
+			CommonFrameMove();
+			return;
+		}
+
+		if ( GetRandomFloat( 0 ) <= GetProbabilityBigDamageAtGuardMastery() )
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_GUARD_ATTACK_X_BIG_DAMAGE", this );
+		else
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_GUARD_ATTACK_X", this );
+
+		if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) < 1 )
+			UseCannon( 1 );	/// June 32bf5280: body in CH1q
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.05f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -8897,6 +9738,7 @@ void CX2GUChung::GuardAttackXFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardAttackXInit
@@ -8904,11 +9746,20 @@ void CX2GUChung::GuardAttackXFrameMove()
 */
 void CX2GUChung::GuardAttackXInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8a60
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
 	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
 	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
 	TextureReadyInBackground( L"Steam_Bp.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect01.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect02.X" );
+	XSkinMeshReadyInBackground( L"CHUNG_Cannon_Effect03.X" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardAttackXEventProcess
@@ -8916,6 +9767,40 @@ void CX2GUChung::GuardAttackXInit()
 */
 void CX2GUChung::GuardAttackXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdd1d0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.7f;
+
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+		SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+				  && ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+		{
+			StateChange( USI_WAIT );
+		}
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > LOWER_BOUND_INPUT_TIME_CANCEL && true == IsOnSomethingFuture()
+				  && ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+		{
+			StateChangeDashIfPossible();
+		}
+		ELSE_IF_ARROW_ASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 발밑에 라인맵이 없으면
 	if( false == IsOnSomethingFuture() )
 	{
@@ -8954,6 +9839,7 @@ void CX2GUChung::GuardAttackXEventProcess()
 	}
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ComboZEventProcess
@@ -19290,6 +20176,22 @@ void CX2GUChung::StandUpAttackBackFrameMove()
 
 void CX2GUChung::GuardAttackZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c03880
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.2700f ) && m_bApplyLandDemolisher )
+	{
+		D3DXVECTOR3 vTargetPos( 0.0f, 0.0f, 0.0f );
+		if ( GetIsRight() == true )
+			vTargetPos = GetPos() + GetDirVector() * 120.f;
+		else
+			vTargetPos = GetPos() + GetDirVector() * -120.f;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_LAND_DEMOLISHER_COMBO_HORIZONTAL", this, NULL, false, m_fLandDemolisherPowerRate, -1.0f, D3DXVECTOR3( 1, 1, 1 ),
+			true, vTargetPos, GetRotateDegree() );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.2700f ) &&
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -19307,6 +20209,7 @@ void CX2GUChung::GuardAttackZFrameMove()
 			true, vTargetPos, GetRotateDegree());
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 #endif CHUNG_SECOND_CLASS_CHANGE
