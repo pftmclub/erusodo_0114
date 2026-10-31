@@ -436,6 +436,47 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers these states or calls `EraseTargetingNPC`). Next: `/x2-phase char-chung CH1b review` (Opus 5.5 high), then CH1c.
 
+### CH1b - Review (2026-10-31, Opus 5.5)
+
+**Verdict: pass after one structural fix.** I read all 27 functions against June's listings (`charport_adis.py chung --phase CH1b`). Branch
+order, `StateChange` ids, x87 compare directions and constants match. The transcription had no logic errors.
+- **Fix: `32c04140` is June's `SetSelfDestructSummonedNPC`, not a new function.** It has March's signature (`( id, fDeleteTime )`, `ret 8`), the
+  same loop (GUT_NPC, templet id, hp > 0, ally AI owned by this UID, switch on the id) and March's callers: destructor `32c0c4e0`, ReInit `32c0ca60`,
+  artillery reset `32c08010`, Die Start `32c0dd90` / `32c0de40`. Under the no-copy rule (CLAUDE.md, 2026-10-28) June's body now sits inside
+  March's `CX2GUChung::SetSelfDestructSummonedNPC` under `_LIVE` (March in `#else`). `EraseTargetingNPC` and its `_CORE` declaration are
+  gone (`X2GUChung.h` is byte-equal to `03ec44d1^` again), and both Die Starts call `SetSelfDestructSummonedNPC( id, 3.f )`. June's version
+  drops March's `GetSelfDestruction()` skip, `StartSelfDestruction( fDeleteTime )` and the `CountDown3` particle, kills with `SetNowHp( 0 )`
+  (NPC vslot 0xf4) and adds 2525. `june_march_divergent.tsv` row `CX2GUChung::SetSelfDestructSummonedNPC` (replace, ported under `_LIVE`).
+  The class map, `ch0_hand_names.tsv` and funcmap rows `32c04140` / `32c0dd90` now carry the name.
+- **The other callers follow June when `_LIVE` turns on** (March's destructor, ReInit, CommonFrameMove, ARTILLERY_STRIKE_READY and
+  ResetArtilleryStrikeData sites). This is the rule's "unported callers follow June", and their own June bodies land in CH1k / CH1l / CH1l4. The
+  `0x333bc990( 0x33722a70 )` call in each loop pass belongs to June's `g_pX2Game` handle fetch (it also appears in `32c033b0`), not to the logic.
+  `GetNowHp()` returns 1 when there is no gage data, which matches June's skip of the hp test.
+- **Damage Small / Big** (`32bdcba0` / `32bdcc40`): the state test is `GetGameUnitStateFuture()` (vslot 0x4f4) == 0x1a / 0x1c, then
+  `SpecialAttackEventProcess( 1 )`. There is no memo or PvP test, the gap is `200 < gap`, the shift is `y -= 45.0`, and Big's skip-point keys are exactly
+  `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC` (14 keys, then `0.93 < t`).
+- **StandUpCannonAttack EventProcess** (`32bdf400`): anim end -> `JUMP_DOWN` (+ y shift) / `WAIT`. After 0.833 come the skill cancel with
+  `bFootOnLine`, then the hyper branch in `_BUFF_AWAKE_LOCK`'s `SKILL_CANCEL_AFTER` order (black hole, oneLCtr, count > 0, `CanHyperMode`
+  vslot 0x560, time, quick-slot wait, `m_bHyperModeStartedByInput`), then walk -> `WAIT` and dash -> `StateChangeDashIfPossible`, both on
+  `bFootOnLine`, then `ELSE_IF_ARROW_ASDC_PRESSED_AFTER` (no Z / X).
+- **Spot checks end to end:** `32bedb80` (+0x7d86..+0x7d89 = `bEventFlagList[1..4]`; the anim-end order, the oneZ / oneX word stores and the
+  facing-mirrored rolling flags all match); `32bf8c50` (state from `(+0x7cbc - +0x7cec) / 100` = `GetNowStateID()`, BIG when `rand <= prob`,
+  `UseCannon( 1 )` after the switch, default included); `32c033b0` (oneshot `+0x24c < t`, `m_bApplyLandDemolisher`, -120 / +120 by facing,
+  `m_fLandDemolisherPowerRate`, `true`, target, rotate degree).
+- **Bounding states:** there are 5 callbacks, not 3 (DOWN EP, LANDCRASH EP, UP StartFuture / Start / EP: thunks to vslots 0x5d4-0x5e4). Chung
+  overrides none of them, and the bodies are already `CX2GUUser`'s (C3d-3, `SERV_IRUHADEV_JUNE_BOUNDING_STATE`), so CH1n has nothing to write.
+  The CH1m kickoff now says `InitBoundingStates( "CSI_" )`.
+- **Hygiene.** `flagcheck JUNE_CHAR_CHUNG_CORE --range 03ec44d1^..03ec44d1`: `RESULT: PASS` (1 PASS, 2 OTHER, 0 deleted). Worktree
+  (`--files X2GUChung.cpp X2GUChung.h`): `RESULT: PASS`. Its 3 deleted lines are CH1b's own `EraseTargetingNPC` declaration; against `03ec44d1^`
+  the .cpp is 582 / 0 and the .h has no change. `_LIVE` reports FAIL only because its `#define` is still commented out (by design). `junediverge.py
+  --check-all`: `RESULT: PASS` (158 allow-listed); `--check X2GUChung.cpp X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+  One-file probes (`census.cl_cmd`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` exit 0 / 0 errors
+  (which also proves the two-argument `BALANCE_PATCH_20131107` signature is the live one).
+- `DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 15:58:37, md5 8077f072334beba92f4bb7525d4338f9`, equal to `X2/US_SERVICE/x2.exe`; built at main `03ec44d1` + the 2 code files of this review. No `exestr` line: `_LIVE` is off and the review adds no string to the flag-off exe.
+- No `JUNE_BUGS` row and no drift.
+
+**Nothing to play-test.** Next: `/x2-phase char-chung CH1c` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -7189,16 +7189,16 @@ void CX2GUChung::DieFrontStartFuture()
 void CX2GUChung::DieFrontStart()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
-	/// June 32c0dd90 ( CSI_DIE_FRONT and CSI_RIDING_DIE ); March self-destructs the targeting NPCs after 3 s, June kills them
+	/// June 32c0dd90 ( CSI_DIE_FRONT and CSI_RIDING_DIE ); June adds the Heavy Field NPC and drops the CHUNG_SECOND_CLASS_CHANGE guard
 	CommonStateStart();
 	DyingStart();
 
 	const float PLAY_SPEED = 0.5f;
 	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
 
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	DyingStart();
@@ -7272,16 +7272,16 @@ void CX2GUChung::DieBackStartFuture()
 void CX2GUChung::DieBackStart()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
-	/// June 32c0de40; March self-destructs the targeting NPCs after 3 s, June kills them
+	/// June 32c0de40; June adds the Heavy Field NPC and drops the CHUNG_SECOND_CLASS_CHANGE guard
 	CommonStateStart();
 	DyingStart();
 
 	const float PLAY_SPEED = 0.5f;
 	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
 
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
-	EraseTargetingNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 3.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD, 3.f );
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	DyingStart();
@@ -21018,6 +21018,41 @@ void CX2GUChung::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID 
 void CX2GUChung::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID /*= CX2UnitManager::NUI_NONE*/ )
 #endif // BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c04140; June kills the NPC with SetNowHp( 0 ) and never reads fDeleteTime ( March: StartSelfDestruction and the CountDown3 particle )
+	if ( NULL == g_pX2Game )
+		return;
+
+	for ( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if ( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if ( CX2UnitManager::NUI_NONE != eNPCID && pNPC->GetNPCTemplet().m_nNPCUnitID != eNPCID )
+			continue;
+
+		if ( pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if ( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		CX2AllyNPCAI* pAllyAI = static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() );
+		if ( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
+			continue;
+
+		switch ( eNPCID )
+		{
+		case CX2UnitManager::NUI_TARGETING_CHUNG:
+		case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER:
+		case CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD:
+			pNPC->SetNowHp( 0.f );
+			break;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( NULL == g_pX2Game )
 		return; 
 	
@@ -21070,49 +21105,10 @@ void CX2GUChung::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_ID eNPCID 
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 #endif
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
-/** @function : EraseTargetingNPC
-	@brief : June 32c04140; kills this unit's own targeting NPCs of the given id ( fDeleteTime is passed but June never reads it )
-*/
-void CX2GUChung::EraseTargetingNPC( CX2UnitManager::NPC_UNIT_ID eNPCID, float fDeleteTime )
-{
-	if ( NULL == g_pX2Game )
-		return;
-
-	for ( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
-	{
-		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
-		if ( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
-			continue;
-
-		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
-		if ( CX2UnitManager::NUI_NONE != eNPCID && pNPC->GetNPCTemplet().m_nNPCUnitID != eNPCID )
-			continue;
-
-		if ( pNPC->GetNowHp() <= 0.f )
-			continue;
-
-		if ( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
-			continue;
-
-		CX2AllyNPCAI* pAllyAI = static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() );
-		if ( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
-			continue;
-
-		switch ( eNPCID )
-		{
-		case CX2UnitManager::NUI_TARGETING_CHUNG:
-		case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER:
-		case CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD:
-			pNPC->SetNowHp( 0.f );
-			break;
-		}
-	}
-}
-#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 
 void CX2GUChung::CHG_ComboXFrameMove()

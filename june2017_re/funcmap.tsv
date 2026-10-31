@@ -6383,9 +6383,9 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32bdc9a0	CX2GUChung::DieFrontEventProcess	PORTED	Char Chung CH1b: inside; hidden and anim end -> GUSI_DIE = March
 32bdc9e0	CX2GUChung::DieBackStartFuture	PORTED	Char Chung CH1b: inside; = March
 32bdca40	CX2GUChung::DieBackEventProcess	PORTED	Char Chung CH1b: inside; = March
-32c0dd90	CX2GUChung::DieFrontStart	PORTED	Char Chung CH1b: inside; CommonStateStart, DyingStart ( vslot 0x338 ), speed 0.5, then EraseTargetingNPC( 863 / 1419 / 2525, 3.0 ); March self-destructs 863 / 1419 after 3 s
+32c0dd90	CX2GUChung::DieFrontStart	PORTED	Char Chung CH1b: inside; CommonStateStart, DyingStart ( vslot 0x338 ), speed 0.5, then SetSelfDestructSummonedNPC( 863 / 1419 / 2525, 3.0 ); March self-destructs 863 / 1419 after 3 s
 32c0de40	CX2GUChung::DieBackStart	PORTED	Char Chung CH1b: inside; same as DieFrontStart
-32c04140	CX2GUChung::EraseTargetingNPC	PORTED	Char Chung CH1b: new (CORE); own ally NPCs of the id with hp > 0 get SetNowHp( 0 ) when the id is 863 / 1419 / 2525; fDeleteTime ( 3.0 ) is never read; other callers 32c08010 / 32c0c4e0 / 32c0ca60 in later phases
+32c04140	CX2GUChung::SetSelfDestructSummonedNPC	PORTED	Char Chung CH1b: inside (CH1b review: was the new EraseTargetingNPC); June's namesake of March's, same callers; own ally NPCs of the id with hp > 0 get SetNowHp( 0 ) when the id is 863 / 1419 / 2525; fDeleteTime ( 3.0 ) is never read; no GetSelfDestruction test, no CountDown3 particle; other callers 32c08010 / 32c0c4e0 / 32c0ca60 in later phases
 32bdcba0	CX2GUChung::DamageSmallEventProcess	PORTED	Char Chung CH1b: inside; gap > 200 -> AIR_SMALL; state SMALL_FRONT + SpecialAttackEventProcess( GROUND ) with no memo 12 / PvP test ( March: ADDITIONAL_MEMO ); anim end -> AIR_SMALL / WAIT
 32bdcc40	CX2GUChung::DamageBigEventProcess	PORTED	Char Chung CH1b: inside; as Small with BIG_FRONT, then any of the 14 keys after 0.93 -> WAIT; no memo 12 / PvP test
 32bdcd90	CX2GUChung::DamageDownFrontFrameMove	PORTED	Char Chung CH1b: inside; EventTimerOneshot( 0.19 ) = March

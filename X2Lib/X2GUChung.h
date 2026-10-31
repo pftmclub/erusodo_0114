@@ -648,9 +648,6 @@ protected:
 
 #endif
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
-	void EraseTargetingNPC( CX2UnitManager::NPC_UNIT_ID eNPCID, float fDeleteTime );
-#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	virtual CX2GageData*	CreateGageData();
 
 #ifdef BALANCE_DEADLY_CHASER_20130214

@@ -66,7 +66,7 @@ fn	proposed_name	why
 32bfa2c0	CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_FrameMove	inside: X2GUChung.h:1333 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
 32bfd4b0	CSI_SI_SA_CSG_COMET_CRASHER_FINISH_FrameMove	inside: X2GUChung.h:1506 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
 32bfeb80	?	switch on +0x8ac0 over per-slot byte flags (+0x86f2..+0x872e), GetDistance, HaveThisBuff; role not read
-32c04140	EraseTargetingNPC	kills own NUI_TARGETING_CHUNG* NPCs (0x35f / 0x58b / 0x9dd) of the given id; caller ResetArtilleryStrikeData
+32c04140	SetSelfDestructSummonedNPC	March's namesake (same callers); kills own NUI_TARGETING_CHUNG* NPCs (0x35f / 0x58b / 0x9dd) of the given id (CH1b review; was EraseTargetingNPC)
 32c058a0	DoCarpetBombing	inside: X2GUChung.h:1229; CHUNG_CARPETBOMBING_BIG/SMALL damage effects
 32c073e0	CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_FrameMove	inside: X2GUChung.h:1634 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)
 32c076e0	CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove	inside: X2GUChung.h:1643 FrameMove; registered via a 32c1f530 thunk store; state name = the push following the store (class map used the preceding one)

@@ -54,6 +54,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - June registers six names with no script table (`CSI_RIDING_DAMAGE_BACK`, `USI_EVENT_SNIPER_*` x3, `USI_EVENT_PROTON_BOMB_*` x2 from the base `3202b110`) and drops three March states (`CSI_SI_A_CDC_LEG_SHOT`, `CSI_SI_A_SIEGE_SHELLING_READY_HYPER`, `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CANCEL`: June wins).
 - Skill 26032 registers `DUAL_BUSTER` a second time with id 336 (0x150) (listing, `ch0_skill_listing_rows.tsv`). `32078bc0` (unknown, called 21x by the registrars) is yours to map.
 
+## Amended by CH1b review (2026-10-31)
+
+- **§7l bounding:** the three `CSI_DAMAGE_BOUNDING_*` rows carry five callbacks (thunks `329cc970`-`329cc9b0` to `CX2GUUser` vslots 0x5d4-0x5e4); Chung overrides none, and the bodies are already `CX2GUUser`'s (Effect C3d-3, `SERV_IRUHADEV_JUNE_BOUNDING_STATE`). Register them with `InitBoundingStates( "CSI_" )` (`X2GUUser.cpp:32816`), the way Arme (`X2GUArme_VioletMage.cpp:3920`) and Eve (`X2GuEve.cpp:1979`) do; CH1n has no bounding body to write.
+
 ## Amended by CH1a review (2026-10-31)
 
 - **Register `JumpUpStart`** (June `32bdbcd0`, compiled under `_CORE` since CH1a) as `CSI_JUMP_UP`'s StateStart. CH0 proposed

@@ -668,7 +668,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c03b30	state-fn	CSI_COMBO_ZZdownZ.FrameMove	inside X2GUChung.cpp:1607 CX2GUChung::ComboZZdownZFrameMove	inside	-	CH1d	1 states	y
 32c03cf0	state-fn	CSI_COMBO_DASH_JUMP_ZZLanding_CANNON_BALL_SHOT.FrameMove	inside X2GUChung.cpp:1716 CX2GUChung::ComboDashJumpZZLandingCannonBallShotFrameMove	inside	-	CH1d2	1 states	y
 32c04130	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e827e33d0081c4a0	n
-32c04140	helper	called by 32c08010 32c0c4e0 32c0ca60 32c0dd90	-	new	EraseTargetingNPC	CH1b	name: kills own NUI_TARGETING_CHUNG* NPCs (0x35f / 0x58b / 0x9dd) of the given id; caller ResetArtilleryStrikeData	y
+32c04140	helper	called by 32c08010 32c0c4e0 32c0ca60 32c0dd90	inside X2GUChung.cpp:21016 CX2GUChung::SetSelfDestructSummonedNPC	inside	-	CH1b	inside: June's SetSelfDestructSummonedNPC (same callers as March: dtor, ReInit, artillery reset, Die Start); CH0 had named it EraseTargetingNPC, CH1b review	y
 32c042c0	state-fn	CSI_CHG_COMBO_XX.FrameMove	inside X2GUChung.cpp:2467 CX2GUChung::CHG_ComboXXFrameMove	inside	-	CH1i	1 states	y
 32c048b0	state-fn	CSI_CHG_DASH_COMBO_ZZX.FrameMove	inside X2GUChung.cpp:2438 CX2GUChung::CHG_ComboDashZZXFrameMove	inside	-	CH1i	1 states	y
 32c04ed0	state-fn	CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE.FrameMove CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT.FrameMove	inside X2GUChung.cpp:2489 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove ; inside X2GUChung.cpp:2496 CX2GUChung::CSI_P_CHG_CANNONEER_WITHSTANDING_FrameMove	inside	-	CH1i	2 states	n
