@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1d0 | **ready**: Opus helpers `31fd4290` / `31fd4340` before CH1d (CH1c review: likely March's `ClearAnimEventTimerOneshotNow` / `Future`) | Opus 5.5 / high, Opus review | CH1c review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1d0.md` |
+| CH1d0 | **review**: done, no code: `31fd4290` / `31fd4340` = March's `ClearAnimEventTimerOneshotNow` / `Future` (+ Lu/Ciel second body, `out` rows) | Opus 5.5 / high, Opus review | CH1c review | docs, tsv | `CH1d0-review.md` |
 | CH1d | blocked (CH1d0 review): class core, base combos; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d0 review | `X2GUChung.*`, Always.h | `CH1d.md` |
 | CH1d2 | blocked (CH1d review): class core, Iron Cannon dash / jump combos; split from CH1d by CH0 | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUChung.*`, Always.h | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): class core, Fury Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUChung.*`, Always.h | `CH1e.md` |

@@ -59,4 +59,6 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH1d0** (`31fd4290`, `31fd4340`).
 - Split by CH0 (59 functions): CH1d = `CSI_COMBO_Z*` / `CSI_COMBO_X*`; CH1d2 = dash / jump combos and `CSI_ATTACK_*`.
 - Opus helper phase **CH1d0** runs first (`31fd4290`, 9 callers, and its neighbour `31fd4340`).
+- **Amended by CH1d0 (2026-10-31):** `31fd4290` is March's `CX2GUUser::ClearAnimEventTimerOneshotNow()` and `31fd4340` is `ClearAnimEventTimerOneshotFuture()`;
+  call them by name (June's extra second-body anims `+0x8e88` / `+0x8e84` are Lu/Ciel's, NULL for Chung; divergent.tsv rows `out`).
 - `32bf3d30` (UpCannonBallCount) is CH1q's: declare it.

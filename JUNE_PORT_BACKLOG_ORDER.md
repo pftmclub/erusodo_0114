@@ -416,7 +416,8 @@ Everything from Stages 5 and 6, plus:
   - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
     with it PhysicProcess's not-selected-body branch (`32015b30 @32019f9b-3201a1c7`, funcmap `(C9h-4g)`), the only reader of
     `CUSTOM_OFFSET_NOT_SELECT_UNIT` / `USE_NOT_SELECT_MOTION_DIFFERENCE` (parsed since june-effect C9h-4g: `JuneGetNotSelectUnitOffset( i )`,
-    `JuneGetUseNotSelectMotionDifference()`; June data: `Luciel_Demonio`);
+    `JuneGetUseNotSelectMotionDifference()`; June data: `Luciel_Demonio`); and the second-body anims' one-shot reset in
+    `ClearAnimEventTimerOneshotNow` / `Future` (`31fd4290` `+0x8e88` / `31fd4340` `+0x8e84`, char-chung CH1d0);
   - Ain's `USEFUL_STRING` readers: 15 class-code callers of the getter `32a78fa0` (ported as `JuneGetUsefulString( index, bFuture )`, june-effect
     C9h-4g) and the static `ParseUsefulString( table, vector )` helper `31fea4d0` (6 Ain callers, not ported); June data: `Ain_Apostasia`,
     `Ain_Erbluhen_Emotion`;

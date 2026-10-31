@@ -535,6 +535,29 @@ X2Lib/X2GUChung.cpp`: `1 PASS`, with 1 deleted line (the replaced comment, insid
 `DEPLOY OK: X2_offline.exe is 25,864,704 B, dated 2026-10-31 16:14:29, md5 ee90d3201b67ed8e296be4d5eb46c5b7, equal to X2/US_SERVICE/x2.exe (2026-10-31
 16:14:22); built at main 94b7fdc9 + 1 uncommitted code file(s).` Nothing to play-test. Next: `/x2-phase char-chung CH1d0` (Opus 5.5 high).
 
+## CH1d0 - Done (2026-10-31)
+
+**Result: no code change.** Both helpers are March functions; CH1d calls them by name.
+
+| June | March | June's body |
+|---|---|---|
+| `31fd4290` | `CX2GUUser::ClearAnimEventTimerOneshotNow()` (`X2GUUser.cpp:48871`) | `+0x24c` (`m_fAnimOneshotTimer`) = 0 on `+0x87d4` (`m_pXSkinAnim`), on `+0x8e88`, and on the riding pet (`+0x683c`) now anim `+0x238` (getter `32071a10`) |
+| `31fd4340` | `CX2GUUser::ClearAnimEventTimerOneshotFuture()` (`:48879`) | the same on `+0x87d0` (`m_pXSkinAnimFuture`), `+0x8e84`, and the pet's future anim `+0x23c` (`32071a30`) |
+
+- **Now vs Future:** `+0x87d4` is the now anim (funcmap rows `32071d80` C3r / R12b), `+0x87d0` the future one (`32070cf0`); March's `CX2RidingPet`
+  declares `m_pXSkinAnim` before `m_pXSkinAnimFuture` (`X2RidingPet.h:537-538`), matching `+0x238` / `+0x23c`. The kickoff's lead was right.
+- **The one difference:** June also clears `+0x8e88` / `+0x8e84`, the second skin-anim pair that `InitMotion` loads only for unit type 10 (funcmap R12,
+  row `31fe5860`): Lu/Ciel's dual body. For Chung both are NULL, so March's body does exactly what June's does. Recorded as two `out` rows in
+  `tools/data/june_march_divergent.tsv` (same treatment as `AnimPlay` / `AnimStop`), and appended to backlog Stage 8's dual-body bullet
+  (`JUNE_PORT_BACKLOG_ORDER.md`). No `JUNE_BUGS` row: nothing quirky.
+- **Callers (Ghidra xrefs):** `31fd4290` from Chung `32bf1000` `32bf75b0` `32bf7cd0` `32bfb6e0` `32bfc310` `32bfd2b0` `32c11e10` `32c12660` `32c07cba` and
+  user `32022380` / `32057b80`; `31fd4340` from Chung `32beba58` and user `32022380` / `320506f0`. March calls Now 13 times, Future 3 times.
+- funcmap rows `31fd4290` / `31fd4340` (`Char Chung CH1d0`); `kickoffs/char-chung/CH1d.md` "Amended by CH1d0" names the March symbols.
+
+**Gates.** No client source changed, so no flag, flagcheck, enumscan or build applies (last deploy: CH1c review, md5 ee90d320).
+`junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `RESULT: PASS` (allow-listed 4); `--list` reads the two new rows. Nothing to play-test.
+Next: `/x2-phase char-chung CH1d0 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
