@@ -175,9 +175,8 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1g2 | **reviewed**: 30 rows match June except the Z X cannon tilt (roll % 10 is the angle z), fixed under `_CORE`; DEPLOY OK, no play-test (`CH1g2-review.md`) | Sonnet 5.5 / high, Opus review | CH1g review (done) | `X2GUChung.*`, Always.h | `CH1g2.md` |
-| CH1h | **done, review next**: 22 rows written, all inside (19 = March, 3 FrameMoves differ: Open Mind MP rate, rifling rate, head shot); DEPLOY OK md5 dd88ab2a, no play-test (`CH1h-review.md`) | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUChung.*`, Always.h | `CH1h.md` |
-| CH1i | blocked (CH1h review): class core, Shelling Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUChung.*`, Always.h | `CH1i.md` |
+| CH1h | **reviewed**: 22 rows match June (3 FrameMoves: Open Mind MP rate, rifling rate, head shot; guns and loops checked), no source change; DEPLOY OK md5 dd88ab2a, no play-test (`CH1h-review.md`) | Sonnet 5.5 / high, Opus review | CH1g2 review (done) | `X2GUChung.*`, Always.h | `CH1h.md` |
+| CH1i | **ready**: class core, Shelling Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review (done) | `X2GUChung.*`, Always.h | `CH1i.md` |
 | CH1j0 | blocked (CH1i review): Opus helpers `32008660` / `31fe4870` / `31fe9840` before CH1j | Opus 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1j0.md` |
 | CH1j | blocked (CH1j0 review): class core, Tactical Trooper line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1j0 review | `X2GUChung.*`, Always.h | `CH1j.md` |
 | CH1k0 | blocked (CH1j review): Opus helpers (6, weapon render pulse `3226e020` / `3226f870`) before CH1k | Opus 5.5 / high, Opus review | CH1j review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1k0.md` |
@@ -212,7 +211,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g.
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2.
 
 ## Other plans (no STATUS rows)
 
