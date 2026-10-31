@@ -45,4 +45,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7h L420 EFFECT_SET_LIST variants (EX, EX_TRANS, ULTIMATE_EX, FINAL ...); §7h L424 USEFUL_VALUE rows and getters; §7o L506 SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN; §7p L545 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L589 SHOW_HYPER_CUT_IN_TIME in the class script; §7t L610 L614 sound-set picks: Chung JuneIsBerserkByChance is one of the three overr; §7x L668 combo hits carry June's AT_COMMAND tag; adopt the script with its tags; §7ad L745 L751-755 stage June Motion_<Class>* files with the class script; Motion_CHUNG.x.
 - Script: `luasrc.py adopt-june data036 Chung_Iron_Cannon.lua`. `Targeting_Chung`, `Remote_Mortar`, `Remote_Mortar_APINK` (data037) are already June's content (adopt dry run: identical); `luabind.py check` PASS (22 / 25 / 9 methods).
-- Copy the class motions CH0b held back (checklist 7ad) together with `_LIVE`.
+- Copy the class motions CH0b held back (checklist 7ad) together with `_LIVE`: they sit packed in `data033` (`kom.py copy data033`; ask first).

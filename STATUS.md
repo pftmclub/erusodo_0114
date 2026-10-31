@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **ready**: 5,093 June files byte-exact (dry run 0 refused, new kom data204), pack, ask, copy; class motions held for CH1 final; walk units 6 / 20 / 21 / 27 | Sonnet 5.5 / high, then user play-test | CH0 | Chung's assets in `kom_contents/*_kom` + game-dir koms, save | `CH0b.md` |
+| CH0b | **done, owes play-test**: 5,093 files staged, 35 koms packed, 33 copied (data033 motions held for CH1, data101 held for june-asset-port P0), walk units 62-65; Done note in plan | Sonnet 5.5 / high, then user play-test | CH0 | Chung's assets in `kom_contents/*_kom` + game-dir koms, save | `CH0b.md` |
 | CH1a | **ready** (may run beside CH0b): class core, movement, guard, slot-head; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUChung.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): class core, reactions; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUChung.*`, Always.h | `CH1b.md` |
 | CH1c | blocked (CH1b review): class core, riding, pepper, dance; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |

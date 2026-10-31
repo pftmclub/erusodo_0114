@@ -280,6 +280,33 @@ first. Create the walk units the save lacks (classes 6, 20, 21, 27; level 99, cl
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Chung per job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-10-31)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets and the save only.
+- **Reference:** `ErrorLog.txt` (263,310 B, last run 2026-10-31 08:56) saved as `data\ErrorLog_pre_CH0b_chung.txt` before any copy.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_chung/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 35 kom(s), 5093 staged (4789 new, 304 replaced, 0 identical), 0 refused, 31s`
+  (the dry run matched CH0's numbers). Replaced March files are backed up under `24965799\kom_backup_stage_june\20261031_110724`.
+- **Packed:** `kom.py pack` x35, 35 `PACK OK`, 0 refusals (no Lua staged).
+- **Copied (user approved the 33, 2026-10-31):** `kom.py copy` x33, 33 `COPY OK`: data002 013 016 017 019 020 021 044 052 063 067 069 107 109 117 130 148 151 159 185
+  191 192 198 204 215 222 226 datai006 007 019 020 023 031. `data204` is a new archive (June's 53 emotion motions); `X2Main.cpp` mounts `data001-226`.
+- **Held back, packed in `kom_contents`:**
+  - **data033** (`~10 changed` = `Motion_CHUNG_CDC / CFG / CHG / CIP / Common / CSG / CTT / Emotion / Field / Lobby .x`): CH1 final copies it with `_LIVE`
+    (March's script plays the three animations June dropped, `ch0_motion_question.tsv`).
+  - **data101**: `kom.py status` shows `+2 added, -1070 removed, ~747 changed`. The 1,070 are March entries never restored into `kom_contents`
+    (june-asset-port P0 step 2; a copy would delete them) and the +2 / ~747 come from other sessions' staging. CH0b's only row there is
+    `Velder_Gate_Stage2_Wall_BlueTile01.dds` (a Velder tile, not Chung's). It ships with P0's restore. Not touched by `--allow-removed`.
+- **Done-gate re-run:** `kom.py stage-june --dry-run` over the same list: `5093 staged (0 new, 0 replaced, 5093 identical), 0 refused`. 0 `missing` / `march-copy`.
+- **Skill icons:** `skillicons.py check 106 900 26000-26064 26200-26238 26400-26420 26600-26605`: 133 skills, **2 misses** (was 22), `RESULT: FAIL`.
+  The two are 26406 `SI_P_CSG_REMODEL_MAGAZINE` and 26413 `SI_P_CTT_CANNONEER_WITHSTANDING`: their skill-tree picture names a piece of
+  `DLG_Chung_SKILL_ScreenShot_04` that June's own `.TET` (identical bytes, 10 pieces) does not have. June's gap, kept: `JUNE_BUGS.md` row 488.
+  Their icons are fine. Nothing to stage.
+- **Save:** backup `db_backup\els_db_20261031_111102_pre_manual.sql`; added with `createchar.py` (lv 99, class costume + top gear +10): unit 62 ChungIron
+  (Iron Cannon 6), 63 ChungFury (Fury Guardian 20), 64 ChungShoot (Shooting Guardian 21), 65 ChungShell (Shelling Guardian 27). Existing: 18 Freils (117),
+  42 RapidT (111, lv 70), 43 NovaT (110, lv 70), 50 Chung99 (111).
+- **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_chung.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh). The class script and motions are still March's, so Chung plays as before.
+- **Drift:** none new. The data101 restore is june-asset-port P0's.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):

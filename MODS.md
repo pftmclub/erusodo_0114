@@ -5558,3 +5558,7 @@ Buff icon row (top right, with a stack counter) and consumable quick slot (botto
 Data: four `Hero_Dungeon_Buff_*.ogg` staged byte-exact from June into data078 (H2, `COPY OK`); `DLG_UI_Quick_Slot.lua` and `DLG_UI_QuickSlot_HighLight.lua` in data034 (H4, backups under `kom_backup_stage_june61031_054307`). `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE` is untouched.
 
 **Revert.** Comment out the flag(s) above (the debug pair is already off), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. H1's deletion is not revertible by flag: restore the code from `6fca3e00^`. For March's quick-slot Lua, restore the two files from the H4 backup folder and `/elstools pack data034`.
+
+## Stage 7 Chung, CH0b: June assets staged (data only, 2026-10-31)
+
+No flag, no exe change. `kom.py stage-june june2017_re/char_chung/ch0b_stage_list.tsv`: 5,093 June files byte-exact in 35 koms (4,789 new, 304 replaced; the 304 March copies are backed up under `kom_backup_stage_june\20261031_110724`). 33 koms copied to the game dir; `data033` (10 `Motion_CHUNG_*` class motions) and `data101` stay packed in `kom_contents` only. `data204` is a new archive (53 emotion motions). Save: units 62-65 (Chung classes 6 / 20 / 21 / 27, lv 99). **Revert:** restore the replaced files from the backup folder, `kom.py pack` the koms, `kom.py copy` them; `data204.kom` can be deleted from the game dir.
