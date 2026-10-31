@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1j0 | **ready**: Opus helpers `32008660` / `31fe4870` / `31fe9840` before CH1j | Opus 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1j0.md` |
+| CH1j0 | **review**: done ( `CX2GUUser` bone map, aim helper, `RotateBone` divergence; three shared flags ); review owed | Opus 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1j0-review.md` |
 | CH1j | blocked (CH1j0 review): class core, Tactical Trooper line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1j0 review | `X2GUChung.*`, Always.h | `CH1j.md` |
 | CH1k0 | blocked (CH1j review): Opus helpers (6, weapon render pulse `3226e020` / `3226f870`) before CH1k | Opus 5.5 / high, Opus review | CH1j review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1k0.md` |
 | CH1k | blocked (CH1k0 review): class core, overrides < 0x600, ctor / dtor map; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k0 review | `X2GUChung.*`, Always.h | `CH1k.md` |

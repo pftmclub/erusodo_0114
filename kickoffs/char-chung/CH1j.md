@@ -63,3 +63,16 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d2 (2026-10-31)
 
 - `CSI_CTT_DASH_JUMP_COMBO_XX` is already in `CX2GUChung::CHUNG_STATE_ID` (end of the enum, under `_CORE`, June script id 328, appended without `= value`). CH1d2's `AttackDashJumpXEventProcess` (`32befa80`) sets its flag (`bEventFlagList[1]`, class 117 + X, `m_fEventTime[1]`) and switches into it. `32bee7c0` (`AttackDashJumpXStartFuture`, shared with `CSI_ATTACK_DASH_JUMP_X`) is written; the state's own `32bf02c0` / `32c0a5b0` are yours.
+
+## Amended by CH1j0 (2026-11-01)
+
+The three engine callees of `32bf00c0` (`ApplySpineAimRotation`, new) are `CX2GUUser` members now; call them by these names (flags are on,
+no `#ifdef` needed beyond the class's own):
+- `32008660` -> `D3DXVECTOR3 GetNearestTargetAimDegree( fMaxUpDegree_, fMaxDownDegree_, fYawRangeDegree_, fMaxDistance_ )`
+  (`SERV_IRUHADEV_JUNE_USER_AIM_TARGET`). June passes `+0x9878`, `+0x987c`, `+0x9880` and `+0x9884 x +0x97a4` (`32bf00c0`; `32befec0`
+  passes `+0x9868` .. `+0x9874 x +0x9728`) and stores the result at `+0x9888` .. `+0x9890`.
+- `31fe9840` -> `SetRotateBone( true, L"Bip01_Spine1", D3DXVECTOR3( -1, -1, 0 ), D3DXVECTOR3( yaw gap, -pitch, 0 ) )` and
+  `31fe4870` -> `EraseRotateBone( L"Bip01_Spine1" )` (`SERV_IRUHADEV_JUNE_USER_BONE_ROTATION`); the erase runs when |yaw| and |pitch| are
+  both <= `FLT_EPSILON`; the function ends with `m_fRotateBoneDegree` (`+0x8a68`) = the result's z.
+- `RotateBone` is June's (`SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE`); `OnFrameMove` applies the map (`ApplyRotateBoneMap`), so CH1j writes
+  no frame-move code for it.

@@ -11096,3 +11096,40 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-01
+// Description: June character port ( Chung ) Phase CH1j0 - CX2GUUser's per-bone rotation map ( June +0x8a6c ): SetRotateBone 31fe9840,
+//              EraseRotateBone 31fe4870, ApplyRotateBoneMap 31fdb4e0 ( called by OnFrameMove after March's m_bRotateBone block ), cleared
+//              in CommonStateStart. Empty until a ported class fills it ( Chung's spine aim, CH1j / CH1l ), so it changes nothing today.
+//              Revert: undefine the flag ( JUNE_USER_BONE_ROTATION ).
+#define SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-01
+// Description: June/March divergence ( found by char-chung CH1j0 ) - CX2GUUser::RotateBone is June 31fd93e0: a Dummy4_LWeapon01 frame
+//              turns on the motion's Bip01_L_Finger1 matrix; every other frame as March. The second body ( +0x8e88, Lu/Ciel ) is not ported.
+//              Revert: undefine the flag ( JUNE_DIVERGE_ROTATE_BONE ).
+#define SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-01
+// Description: June character port ( Chung ) Phase CH1j0 - CX2GUUser aim helpers: GetTargetHitPos ( June 31fd5ef0, the member form of
+//              X2BuffTemplet.cpp's file-static ) and GetNearestTargetAimDegree ( June 32008660 ), compiled and referenced by nothing until
+//              Chung's spine aim ( CH1j / CH1l ) calls them. Needs SERV_IRUHADEV_JUNE_DAMAGEDATA and SERV_IRUHADEV_JUNE_CHAR_ARME_CORE.
+//              Revert: undefine the flag ( JUNE_USER_AIM_TARGET ).
+#define SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+#ifdef SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+#ifndef SERV_IRUHADEV_JUNE_DAMAGEDATA
+#error SERV_IRUHADEV_JUNE_USER_AIM_TARGET needs SERV_IRUHADEV_JUNE_DAMAGEDATA
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#error SERV_IRUHADEV_JUNE_USER_AIM_TARGET needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+//////////////////////////////////////////////////////////////////////////

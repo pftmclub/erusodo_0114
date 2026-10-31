@@ -3923,6 +3923,15 @@ public:
 
 		float DoAimingTarget(float fDist, const D3DXVECTOR3& vCoefficient, bool &bIsTarget, D3DXVECTOR3 &vTargetPos, D3DXVECTOR3 &vLandPos, bool bGap = true );
 		void RotateBone( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame, const D3DXVECTOR3& vRotationAxis, const float fRotationAngle );
+#ifdef SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+		void SetRotateBone( IN const bool bEnable_, IN const std::wstring& wstrBoneName_, IN const D3DXVECTOR3& vAxis_, IN const D3DXVECTOR3& vDegree_ );	/// June 31fe9840
+		void EraseRotateBone( IN const std::wstring& wstrBoneName_ );	/// June 31fe4870
+		void ApplyRotateBoneMap();	/// June 31fdb4e0
+#endif SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+#ifdef SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+		bool GetTargetHitPos( IN const CX2GameUnit* pTarget_, IN const bool bCenter_, IN const BYTE byMode_, OUT D3DXVECTOR3& vOut_ );	/// June 31fd5ef0
+		D3DXVECTOR3 GetNearestTargetAimDegree( IN const float fMaxUpDegree_, IN const float fMaxDownDegree_, IN const float fYawRangeDegree_, IN const float fMaxDistance_ );	/// June 32008660
+#endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
 
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 		void SetUnitReForm();
@@ -4621,6 +4630,20 @@ public:
 #endif RENA_SIEGE_MODE_ANGLE_TEST
 		bool m_bRotateBone;
 		float m_fRotateBoneDegree;
+#ifdef SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+		struct RotateBoneData	/// June map value, 0x38 bytes ( 320799f0 / 32079aa0 )
+		{
+			bool			m_bEnable;
+			std::wstring	m_wstrBoneName;
+			D3DXVECTOR3		m_vAxis;
+			D3DXVECTOR3		m_vDegree;
+
+			RotateBoneData() : m_bEnable( false ), m_vAxis( 0, 0, 0 ), m_vDegree( 0, 0, 0 ) {}
+			RotateBoneData( const bool bEnable_, const std::wstring& wstrBoneName_, const D3DXVECTOR3& vAxis_, const D3DXVECTOR3& vDegree_ )
+				: m_bEnable( bEnable_ ), m_wstrBoneName( wstrBoneName_ ), m_vAxis( vAxis_ ), m_vDegree( vDegree_ ) {}
+		};
+		std::map< std::wstring, RotateBoneData > m_mapRotateBone;	/// June +0x8a6c
+#endif SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
 
 		
 		//optimization

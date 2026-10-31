@@ -16499,6 +16499,9 @@ void CX2GUUser::CommonStateStart()
 	m_bEnableLookAtIK_Spine = false;
 #endif RENA_SIEGE_MODE_ANGLE_TEST
 	m_bRotateBone = false;
+#ifdef SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+	m_mapRotateBone.clear();	// June 32057e01
+#endif SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
 
 
 
@@ -19001,6 +19004,9 @@ void CX2GUUser::CommonFrameMove()
 			}
 
 
+#ifdef SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+			ApplyRotateBoneMap();	// June 320657e4
+#endif SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
 			for( int i = 0; i < (int)m_ViewEqipList.size(); i++ )
 			{
 				CX2EqipPtr pCX2Eqip = m_ViewEqipList[i];
@@ -22636,6 +22642,34 @@ float CX2GUUser::DoAimingTarget(float fDist, const D3DXVECTOR3& vCoefficient, bo
 void CX2GUUser::RotateBone( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame, const D3DXVECTOR3& vRotationAxis, const float fRotationAngle )
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE
+	// June 31fd93e0
+	if( NULL == pFrame || NULL == m_pMotion || m_pXSkinAnim == NULL || 0.f == fRotationAngle )
+		return;
+
+	D3DXMATRIX matRotation;
+	D3DXMatrixRotationAxis( &matRotation, &vRotationAxis, D3DX_PI / 180.f * fRotationAngle );
+	if( 0 == strcmp( pFrame->Name, "Dummy4_LWeapon01" ) )
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFingerFrame = m_pMotion->FindFrame( "Bip01_L_Finger1" );
+		if( NULL == pFingerFrame )
+			return;		// June reads the frame without a NULL test
+		pFrame->combineMatrix = matRotation * pFingerFrame->combineMatrix;
+	}
+	else
+		pFrame->combineMatrix = matRotation * pFrame->combineMatrix;
+
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrameFirstChildClone = (CKTDXDeviceXSkinMesh::MultiAnimFrame*) pFrame->pFrameFirstChild;
+	if( pFrameFirstChildClone != NULL )
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrameFirstChildSrc = m_pMotion->FindFrame(pFrameFirstChildClone->Name);
+		if( NULL != pFrameFirstChildSrc )
+		{
+			m_pXSkinAnim->UpdateAnimationFrame_Public( pFrameFirstChildSrc, &pFrame->combineMatrix, pFrameFirstChildClone );
+			// stand-in: the second body ( +0x8e88, Lu/Ciel ) not ported
+		}
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE
 
 	if( NULL == pFrame )
 		return;
@@ -22663,10 +22697,167 @@ void CX2GUUser::RotateBone( CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame, const 
 			m_pXSkinAnim->UpdateAnimationFrame_Public( pFrameFirstChildSrc, &pFrame->combineMatrix, pFrameFirstChildClone );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE
 }
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+// June 31fe9840
+void CX2GUUser::SetRotateBone( IN const bool bEnable_, IN const std::wstring& wstrBoneName_, IN const D3DXVECTOR3& vAxis_, IN const D3DXVECTOR3& vDegree_ )
+{
+	m_mapRotateBone[wstrBoneName_] = RotateBoneData( bEnable_, wstrBoneName_, vAxis_, vDegree_ );
+}
+
+// June 31fe4870
+void CX2GUUser::EraseRotateBone( IN const std::wstring& wstrBoneName_ )
+{
+	m_mapRotateBone.erase( wstrBoneName_ );
+}
+
+// June 31fdb4e0
+void CX2GUUser::ApplyRotateBoneMap()
+{
+	for( std::map< std::wstring, RotateBoneData >::const_iterator it = m_mapRotateBone.begin(); it != m_mapRotateBone.end(); ++it )
+	{
+		const RotateBoneData& rotateBoneData = it->second;
+		if( false == rotateBoneData.m_bEnable || true == rotateBoneData.m_wstrBoneName.empty() )
+			continue;
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame( rotateBoneData.m_wstrBoneName.c_str() );
+		if( NULL == pFrame )
+			continue;
+
+		if( FLT_EPSILON < fabs( rotateBoneData.m_vAxis.x ) && FLT_EPSILON < fabs( rotateBoneData.m_vDegree.x ) )
+			RotateBone( pFrame, D3DXVECTOR3( rotateBoneData.m_vAxis.x, 0, 0 ), rotateBoneData.m_vDegree.x );
+		if( FLT_EPSILON < fabs( rotateBoneData.m_vAxis.y ) && FLT_EPSILON < fabs( rotateBoneData.m_vDegree.y ) )
+			RotateBone( pFrame, D3DXVECTOR3( 0, rotateBoneData.m_vAxis.y, 0 ), rotateBoneData.m_vDegree.y );
+		if( FLT_EPSILON < fabs( rotateBoneData.m_vAxis.z ) && FLT_EPSILON < fabs( rotateBoneData.m_vDegree.z ) )
+			RotateBone( pFrame, D3DXVECTOR3( 0, 0, rotateBoneData.m_vAxis.z ), rotateBoneData.m_vDegree.z );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_USER_BONE_ROTATION
+
+#ifdef SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+namespace _CONST_GUUSER_CH1J0_
+{
+	// June unit vslot 0x2c8: a user's centre is half its height up, any other unit's is GetPos( false )
+	D3DXVECTOR3 GetUnitCenterPos( const CX2GameUnit* pUnit_ )
+	{
+		D3DXVECTOR3 vPos = pUnit_->GetPos( false );
+		if ( CX2GameUnit::GUT_USER == pUnit_->GetGameUnitType() )
+			vPos.y += pUnit_->GetUnitHeight( false ) * 0.5f;
+		return vPos;
+	}
+}
+using namespace _CONST_GUUSER_CH1J0_;
+
+// June 31fd5ef0
+bool CX2GUUser::GetTargetHitPos( IN const CX2GameUnit* pTarget_, IN const bool bCenter_, IN const BYTE byMode_, OUT D3DXVECTOR3& vOut_ )
+{
+	if ( NULL == pTarget_ )
+		return false;
+
+	const D3DXVECTOR3 vMyPos = ( bCenter_ ? GetUnitCenterPos( this ) : GetPos( false ) );
+	D3DXVECTOR3 vTargetPos = pTarget_->GetPos( false );
+	if ( true == bCenter_ )
+		vTargetPos.y += pTarget_->GetUnitHeight( false ) * 0.5f;	// June target vslot 0x434 ( NPC 327574e0 )
+	const float fTargetDistance = GetDistance( vTargetPos, vMyPos );
+
+	const std::wstring wstrFrameName = pTarget_->GetNearestCollisionFrameName( vTargetPos );
+	D3DXVECTOR3 vBonePos( 0.0f, 0.0f, 0.0f );
+	if ( true == pTarget_->GetBonePos( wstrFrameName.c_str(), vBonePos )
+		&& 700.0f < GetDistance( vTargetPos, vBonePos )
+		&& GetDistance( vMyPos, vBonePos ) < fTargetDistance )
+	{
+		if ( 0 == byMode_ )
+		{
+			vOut_ = vBonePos;
+			return true;
+		}
+		else if ( 1 == byMode_ )
+		{
+			if ( IsPosAlongLastTouchLine( vBonePos ) == GetIsRight() )
+			{
+				vOut_ = vBonePos;
+				return true;
+			}
+		}
+		else
+			return false;
+	}
+
+	if ( 0 == byMode_ )
+	{
+		vOut_ = vTargetPos;
+		return true;
+	}
+	else if ( 1 == byMode_ && IsPosAlongLastTouchLine( vTargetPos ) == GetIsRight() )
+	{
+		vOut_ = vTargetPos;
+		return true;
+	}
+	return false;
+}
+
+// June 32008660
+D3DXVECTOR3 CX2GUUser::GetNearestTargetAimDegree( IN const float fMaxUpDegree_, IN const float fMaxDownDegree_, IN const float fYawRangeDegree_, IN const float fMaxDistance_ )
+{
+	D3DXVECTOR3 vAimDegree( 0.f, 0.f, 0.f );
+	float fNearestDistance = fMaxDistance_;
+	if ( NULL == g_pX2Game )
+		return vAimDegree;
+
+	const D3DXVECTOR3 vMyCenterPos = GetUnitCenterPos( this );
+	for ( int iUnit = 0; iUnit < g_pX2Game->GetUnitNum(); ++iUnit )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( iUnit );
+		if ( NULL == pUnit || false == g_pX2Game->IsValidUnit( pUnit ) )
+			continue;
+		if ( GetTeam() == pUnit->GetTeam() )
+			continue;
+		if ( false == ( 0.f < pUnit->GetNowHp() ) )
+			continue;
+
+		D3DXVECTOR3 vTargetPos = GetUnitCenterPos( pUnit );
+		if ( GUT_NPC == pUnit->GetGameUnitType() )
+		{
+			if ( CX2UnitManager::NCT_BASIC != static_cast<CX2GUNPC*>( pUnit )->GetNPCTemplet().m_ClassType
+				|| true == pUnit->GetInvincible()
+				|| false == GetTargetHitPos( pUnit, true, 1, vTargetPos ) )
+				continue;
+		}
+		else if ( IsPosAlongLastTouchLine( vTargetPos ) != GetIsRight() )
+			continue;
+
+		const float fDistance = GetDistance( vTargetPos, vMyCenterPos );
+		if ( fNearestDistance < fDistance )
+			continue;
+
+		const D3DXVECTOR3 vDegree = GetDirVecToDegree( vTargetPos - vMyCenterPos );
+		if ( vDegree.z < -fMaxDownDegree_ || fMaxUpDegree_ < vDegree.z )
+			continue;
+
+		float fTargetYaw = vDegree.y;
+		if ( fTargetYaw < 0.f )
+			fTargetYaw = 360.f - fTargetYaw;	// June: 360 - yaw, not 360 + yaw
+		float fMyYaw = GetRotateDegree().y;
+		if ( fMyYaw < 0.f )
+			fMyYaw = 360.f - fMyYaw;
+		float fYawGap = fabs( fTargetYaw - fMyYaw );
+		if ( 180.f < fYawGap )
+			fYawGap = 360.f - fYawGap;
+
+		const float fHalfYawRange = fYawRangeDegree_ * 0.5f;
+		if ( fYawGap < -fHalfYawRange || fHalfYawRange < fYawGap )
+			continue;
+
+		fNearestDistance = fDistance;
+		vAimDegree = vDegree;
+	}
+	return vAimDegree;
+}
+#endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
 void CX2GUUser::CommonCameraMove()
 {
 	KTDXPROFILE();

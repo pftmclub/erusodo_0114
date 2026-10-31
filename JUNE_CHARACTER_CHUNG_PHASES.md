@@ -915,6 +915,68 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 **Nothing to play-test** (`_LIVE` is off). `CH1j0.md` checked, no amendment needed. Next: `/x2-phase char-chung CH1j0` (Opus 5.5 high).
 
+### CH1j0 - Done (2026-11-01)
+
+The three helpers CH1j needs are `CX2GUUser` code, ported whole under three shared flags (compiled, live, inert): nothing fills the new
+map until Chung's spine aim runs. funcmap rows `Char Chung CH1j0` (6). JUNE_BUGS 497, 498.
+
+| June | March home | What it is |
+|---|---|---|
+| `31fe9840` | `CX2GUUser::SetRotateBone( bEnable, wstrBoneName, vAxis, vDegree )` | `m_mapRotateBone[name] = RotateBoneData( ... )`; RET 0x38 |
+| `31fe4870` | `CX2GUUser::EraseRotateBone( wstrBoneName )` | `m_mapRotateBone.erase( name )`; RET 0x1c |
+| `32008660` | `CX2GUUser::GetNearestTargetAimDegree( fMaxUpDegree, fMaxDownDegree, fYawRangeDegree, fMaxDistance )` | the aim angles to the nearest enemy in range; vec3 by hidden pointer, RET 0x14 |
+
+**The bone map** (flag `SERV_IRUHADEV_JUNE_USER_BONE_ROTATION`). June added `std::map<wstring, RotateBoneData>` at `+0x8a6c`, right after
+March's `m_bRotateBone` / `m_fRotateBoneDegree` (`+0x8a64` / `+0x8a68`). The value is 0x38 bytes: bool, bone name, axis vec3 and degree vec3
+(ctor `320799f0`, Set `32079aa0`). Two more June functions make the map do anything, so they came with it:
+- `ApplyRotateBoneMap` (`31fdb4e0`): called by `OnFrameMove` `@320657e4`, after March's `m_bRotateBone` block and before the
+  `m_ViewEqipList` loop. For each enabled, named entry it does `GetCloneFrame` and then x, y, z in turn: when `FLT_EPSILON` < |axis| and
+  |degree|, `RotateBone( frame, axis on that axis only, degree )`.
+- `CommonStateStart` (`32057b80 @32057e01`) clears the map after `m_bRotateBone = false`.
+Chung's callers (`32befec0` / `32bf00c0`) pass `Bip01_Spine1`, axis (-1, -1, 0), degree (yaw gap, -pitch, 0), and erase the entry when both
+aim angles are within `FLT_EPSILON` of 0.
+
+**`RotateBone` diverges** (`31fd93e0`, flag `SERV_IRUHADEV_JUNE_DIVERGE_ROTATE_BONE`, a `replace` row in `june_march_divergent.tsv`). It
+matches March except:
+- a frame named `Dummy4_LWeapon01` multiplies onto `m_pMotion->FindFrame( "Bip01_L_Finger1" )->combineMatrix`, with no NULL test (JUNE_BUGS
+  498: the port returns instead of crashing);
+- it repeats the child update on the second body `+0x8e88`. That is Lu/Ciel's dual body, NULL for Chung, and left as a stand-in comment
+  (same treatment as CH1d0).
+March's one caller (Chung's `m_bRotateBone` on `Bip01_Spine1`) gets identical results.
+
+**The aim helper** (flag `SERV_IRUHADEV_JUNE_USER_AIM_TARGET`, needs `_DAMAGEDATA` and `_CHAR_ARME_CORE`, each guarded by `#error`).
+`32008660` walks `g_pX2Game`'s units from my centre (vslot 0x2c8: `GetPos(false)` plus half the height for a user). It keeps a unit that:
+- is valid, on another team, and has HP > 0;
+- if an NPC: is `NCT_BASIC`, is not `GetInvincible`, and gets a hit position from `31fd5ef0`; if a user: passes
+  `IsPosAlongLastTouchLine == GetIsRight`;
+- is no further than the nearest so far (starting at `fMaxDistance`);
+- has `GetDirVecToDegree` z in [-down, up] and a yaw gap within ±range x 0.5.
+It returns those angles; constants (qword) 0 / 360 / 180 / 0.5. The negative-yaw fold is `360 - y` (JUNE_BUGS 497). `31fd5ef0` needed a
+`CX2GUUser` home: `CX2GUUser::GetTargetHitPos` is the body Buff 9a wrote as a file-static in `X2BuffTemplet.cpp` (re-read in Ghidra, same
+reading), written on `CX2GameUnit::GetNearestCollisionFrameName` / `IsPosAlongLastTouchLine`. The buff static stays untouched.
+
+**For CH1j:** `ApplySpineAimRotation` (`32bf00c0`) calls `GetNearestTargetAimDegree`, then `SetRotateBone` / `EraseRotateBone`
+(`L"Bip01_Spine1"`), and finally sets `m_fRotateBoneDegree` = the pitch. `kickoffs/char-chung/CH1j.md` "Amended by CH1j0" lists the symbols.
+`32befec0` (CH1l) uses the same three.
+
+**Branches seen, not ported:** the other June callers of the map and aim helpers (`32aac830`, `32aac940`, `32ab4a70`, `32b15680`,
+`32bc0e30`, `32c863d0`, `32c86620`, `32ca2520`, `32aef530`, `32af59c0`) belong to their own classes' ports and need nothing more here.
+
+**Gates.**
+- `flagcheck USER_BONE_ROTATION --with USER_AIM_TARGET DIVERGE_ROTATE_BONE --worktree` (patience): `files: 1 PASS, 1 PASS~, 1 DEFINE,
+  0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s)`, `RESULT: PASS`. The
+  PASS~ is the blank line after the new `.cpp` block.
+- `junediverge.py --check X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`: `RESULT: PASS` (allow-listed 4). `--open-rows` does not list `RotateBone`.
+- `enumscan.py --check`: the two rows left are `X2GUUser.h:2550-2551` (`NUI_NEIL_THE_SNIPER_EVENT` / `NUI_PROTON_BOMB_EVENT`). They are old
+  and untouched; the new code has none.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUUser.cpp` exit 0, 0 errors; `X2GUChung.cpp` exit 0, 0 errors. A flag
+  probe shows all three flags on.
+- `DEPLOY OK: X2_offline.exe is 25,887,232 B, dated 2026-11-01 05:33:35, md5 d78cfd9fb8b09a7f74dc1dc4a169b65d, equal to X2/US_SERVICE/x2.exe (2026-11-01 05:33:28); built at main 5256502e + 3 uncommitted code file(s).`
+  The build started before the `#ifdef SERV_IRUHADEV_JUNE_USER_AIM_TARGET` wrap around the `Always.h` guards; that wrap is preprocessor-only and changes nothing while the flags are on.
+- No `exestr` line: there is no new string to show.
+
+Nothing to play-test (the map stays empty and the aim helper is unreferenced). Next: `/x2-phase char-chung CH1j0 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
