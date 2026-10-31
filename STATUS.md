@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1g2 | **ready**: class core, CSG X-front / dash-jump / Head Shot; the CH1g review corrected its head-shot note (`CH1g2.md`) | Sonnet 5.5 / high, Opus review | CH1g review (done) | `X2GUChung.*`, Always.h | `CH1g2.md` |
+| CH1g2 | **done, review next**: 30 rows written (26 inside, 4 new + Head Shot default), DEPLOY OK md5 2b64b17f, no play-test (`CH1g2-review.md`) | Sonnet 5.5 / high, Opus review | CH1g review (done) | `X2GUChung.*`, Always.h | `CH1g2.md` |
 | CH1h | blocked (CH1g2 review): class core, Deadly Chaser line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUChung.*`, Always.h | `CH1h.md` |
 | CH1i | blocked (CH1h review): class core, Shelling Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUChung.*`, Always.h | `CH1i.md` |
 | CH1j0 | blocked (CH1i review): Opus helpers `32008660` / `31fe4870` / `31fe9840` before CH1j | Opus 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1j0.md` |

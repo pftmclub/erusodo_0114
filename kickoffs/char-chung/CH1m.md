@@ -83,3 +83,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `CSI_CSG_COMBO_DASH_ZXX` (331) FrameMove `CSGComboDashZXXFrameMove` (`32c163f0`), EventProcess `CSGComboDashZXXEventProcess` (`32bea4c0`), End `CSGComboDashZXEnd`;
   `CSI_CSG_COMBO_DASH_ZXX_END` (332) Start `CSGComboDashZXXEndStateStart` (`32c0abc0`), EventProcess `CSGComboDashZXXEndEventProcess` (`32be8ef0`, also `CSI_CHG_DASH_JUMP_COMBO_ZXX`, CH1i).
   The four `CSI_CSG_COMBO_DASH_ZX*` enumerators were appended to the `_CORE` block of `CHUNG_STATE_ID` without `= value`: reconcile with script ids 329-332.
+
+## Amended by CH1g2 (2026-10-31)
+
+- **Register the `new` dash-jump Z X functions and the Head Shot default** (all `_CORE`, declared after CH1g's):
+  `CSI_CSG_COMBO_DASH_JUMP_ZX_READY` (333) Start `CSGComboDashJumpZXReadyStateStart` (`32bdb7f0`), EventProcess `CSGComboDashJumpZXReadyEventProcess` (`32bea970`);
+  `CSI_CSG_COMBO_DASH_JUMP_ZX` (334) FrameMove `CSGComboDashJumpZXFrameMove` (`32c0ac40`), EventProcess `CSGComboDashJumpZXEventProcess` (`32bee360`); its enumerator was appended to the `_CORE` block of `CHUNG_STATE_ID` without `= value`: reconcile with script id 334.
+  `CSI_SI_A_CSG_HEAD_SHOT` (236, InitState's class-21 gate): FrameMove `CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove` (`32bfc860`), EventProcess `CSI_SI_A_CSG_HEAD_SHOT_EventProcess`; the equipped skill (26208 / 26223, CH2c) swaps in `CSI_SI_A_CSG_HEAD_SHOT_FrameMove` (`32bfcc80`).
+- The dash-jump X, X X and X X landing states share one End in June (`32bf9c30`) and two mini gun slots, enumerators `CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_L` / `_R` (June slots 7 / 6, appended to the `_CORE` block): CH1k reconciles slot order.

@@ -6526,3 +6526,33 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c15c00	CX2GUChung::CSGComboDashZXFrameMove	PORTED	Char Chung CH1g: new (_CORE); 0.001 mini gun meshes, 0.378 right / 0.567 left shot at 2 x Open Mind MP rate
 32c163f0	CX2GUChung::CSGComboDashZXXFrameMove	PORTED	Char Chung CH1g: new (_CORE); like ZX with the CDC mini gun meshes, shots at 0.036 / 0.164, loop count + 1
 32c18950	CX2GUChung::CSGComboDashXXFrameMove	PORTED	Char Chung CH1g: inside; June differs: FlushMp( 4 x Open Mind MP rate ), power x the rifling damage rate, shell through the CEffect head shot function
+32bd8ee0	CX2GUChung::CSGComboXFrontXPullSubweaponInit	PORTED	Char Chung CH1g2: inside; = March (one preload)
+32bd8f00	CX2GUChung::CSGComboXFrontXFireInit	PORTED	Char Chung CH1g2: inside; = March (six preloads)
+32bd8f60	CX2GUChung::CSGComboXFrontXXInit	PORTED	Char Chung CH1g2: inside; = March (six preloads)
+32bd9080	CX2GUChung::CSGComboDashJumpXInit	PORTED	Char Chung CH1g2: inside; = March (six preloads)
+32bd90e0	CX2GUChung::CSGComboDashJumpXXInit	PORTED	Char Chung CH1g2: inside; = March (six preloads)
+32bd9140	CX2GUChung::CSGComboDashJumpXXLandingInit	PORTED	Char Chung CH1g2: inside; = March (one preload)
+32bd9c10	CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_Init	PORTED	Char Chung CH1g2: inside; = March (six preloads)
+32bdb7f0	CX2GUChung::CSGComboDashJumpZXReadyStateStart	PORTED	Char Chung CH1g2: new (_CORE); CommonStateStart, loop count = 0
+32be0200	CX2GUChung::CSGComboXFrontXPullSubweaponEventProcess	PORTED	Char Chung CH1g2: inside; = March (animation end -> CSI_CSG_COMBO_XFRONTX_FIRE)
+32be0270	CX2GUChung::CSGComboXFrontXFireEventProcess	PORTED	Char Chung CH1g2: inside; = March (Z before 1.02 -> X X, cancels at 1.2 / 0.43, ground repeated inside the ground else)
+32be0630	CX2GUChung::CSGComboXFrontXXEventProcess	PORTED	Char Chung CH1g2: inside; = March (cancels at 0.9)
+32be0c30	CX2GUChung::CSGComboDashJumpXEventProcess	PORTED	Char Chung CH1g2: inside; = March (landing, X flag, animation end -> X X, Down speed x 2)
+32be0cb0	CX2GUChung::CSGComboDashJumpXXEventProcess	PORTED	Char Chung CH1g2: inside; = March (landing resets the shot count, 0.4 window, count below 4)
+32be2ad0	CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_EventProcess	PORTED	Char Chung CH1g2: inside; June differs: skill, walk and dash cancels at 0.933 need the ground (no outer ground branch), the arrow cancel does not
+32bea970	CX2GUChung::CSGComboDashJumpZXReadyEventProcess	PORTED	Char Chung CH1g2: new (_CORE); ground -> USI_DASH_JUMP_LANDING, animation end -> CSI_CSG_COMBO_DASH_JUMP_ZX
+32bee360	CX2GUChung::CSGComboDashJumpZXEventProcess	PORTED	Char Chung CH1g2: new (_CORE); ground -> landing; animation end -> again while (full hyper mode or a cannon ball) and loop count < 6
+32bf9100	CX2GUChung::CSGComboXFrontXPullSubweaponFrameMove	PORTED	Char Chung CH1g2: inside; = March (0.01 pull effect, mini gun slot 1)
+32bf92d0	CX2GUChung::CSGComboXFrontXPullSubweaponEnd	PORTED	Char Chung CH1g2: inside; = March (slot 1)
+32bf92f0	CX2GUChung::CSGComboXFrontXFireEnd	PORTED	Char Chung CH1g2: inside; = March (slot 2)
+32bf9310	CX2GUChung::CSGComboXFrontXXFrameMove	PORTED	Char Chung CH1g2: inside; = March (slot 3, 0.44 cannon shot)
+32bf9770	CX2GUChung::CSGComboXFrontXXEnd	PORTED	Char Chung CH1g2: inside; = March (slot 3)
+32bf9c30	CX2GUChung::CSGComboDashJumpXEnd / CSGComboDashJumpXXEnd / CSGComboDashJumpXXLandingEnd	PORTED	Char Chung CH1g2: inside; June differs: one function for the three states, frees both dash jump mini guns (June slots 7 and 6)
+32bf9c70	CX2GUChung::CSGComboDashJumpXXLandingFrameMove	PORTED	Char Chung CH1g2: inside; June differs: the landing mini gun mesh in both hands (slots 7 / 6), no per-frame flag, no position copy
+32bf9f50	CX2GUChung::CSGComboDashJumpXXLandingEventProcess	PORTED	Char Chung CH1g2: inside; = March (hyper-mode SKILL_CANCEL form, CDC X branch)
+32bfc860	CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove	PORTED	Char Chung CH1g2: new (_CORE); the frame move InitState registers for state 236; memo of 26208 -> 26220 adds 0.15 head shot rate; CH1m registers it
+32bfcc80	CX2GUChung::CSI_SI_A_CSG_HEAD_SHOT_FrameMove	PORTED	Char Chung CH1g2: inside; June differs: memo (current skill -> 26225) adds 0.15 head shot rate, and an SA_EFFECTIVE_RATE chance fires a second shell at +-30 / +10, no CHUNG_MEMO8 shell
+32c0ac40	CX2GUChung::CSGComboDashJumpZXFrameMove	PORTED	Char Chung CH1g2: new (_CORE); 0.1 cannon ball (UseCannon 1, damage effect, effect set, Kwang particle) or misfire; loop count + 1 (misfire sets 6 first)
+32c181f0	CX2GUChung::CSGComboXFrontXFireFrameMove	PORTED	Char Chung CH1g2: inside; June differs: 4 x Open Mind MP rate, power x rifling damage rate, head shot through the CEffect function
+32c18f30	CX2GUChung::CSGComboDashJumpXFrameMove	PORTED	Char Chung CH1g2: inside; June differs: two mini guns (slots 7 / 6), shots at 0.207 (left) and 0.338 (right), Open Mind MP rate, rifling rate, head shot
+32c19710	CX2GUChung::CSGComboDashJumpXXFrameMove	PORTED	Char Chung CH1g2: inside; June differs: left / right CDC mini guns, shots at 0.013 (left, no count) and 0.127 (right, counts), a short shot sets the count to 4

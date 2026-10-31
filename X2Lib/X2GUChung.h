@@ -291,6 +291,7 @@ public:
 		CSI_CSG_COMBO_DASH_ZXX_READY,		/// June script id 330 ( Shooting Guardian dash Z X X ready; CH1g owns the state )
 		CSI_CSG_COMBO_DASH_ZXX,				/// June script id 331 ( Shooting Guardian dash Z X X; CH1g owns the state )
 		CSI_CSG_COMBO_DASH_ZXX_END,			/// June script id 332 ( Shooting Guardian dash Z X X end; CH1g owns the state )
+		CSI_CSG_COMBO_DASH_JUMP_ZX,			/// June script id 334 ( Shooting Guardian dash jump Z X; CH1g2 owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -342,6 +343,8 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 		CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L,	/// June +0x960c ( handle slot 0x11 ): the left mini gun of the Shooting Guardian dash Z X states
 		CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R,	/// June +0x9610 ( handle slot 0x12 ): the right mini gun
+		CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_L,	/// June +0x95e4 ( handle slot 7 ): the left mini gun of the dash jump X, X X and X X landing states
+		CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_R,	/// June +0x95e0 ( handle slot 6 ): the right mini gun of the same states
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 		CHUNG_MAJOR_MII_END,
 	};
@@ -1192,6 +1195,12 @@ protected:
 	void CSGComboDashZXXEventProcess();
 	void CSGComboDashZXXEndStateStart();
 	void CSGComboDashZXXEndEventProcess();
+	// CSI_CSG_COMBO_DASH_JUMP_ZX_READY / CSI_CSG_COMBO_DASH_JUMP_ZX / the Head Shot state's registered frame move
+	void CSGComboDashJumpZXReadyStateStart();
+	void CSGComboDashJumpZXReadyEventProcess();
+	void CSGComboDashJumpZXEventProcess();
+	void CSGComboDashJumpZXFrameMove();
+	void CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove();
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	// ·£µåµð¸ô¸®¼Å ÄÞº¸¿¡ ºÙ´Â ÀÌÆåÆ® À§ÇØ ÇÑ°÷¿¡ ¸ô¾Æ³ÖÀ½

@@ -1928,6 +1928,14 @@ public:
 		RNSI_P_RSR_OPEN_MIND                                  = 31417,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-31 // char-chung CH1g2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Shooting Guardian Head Shot state reads ( values from June's Enum.lua )
+		RNSI_A_CSG_HEAD_SHOT                                  = 26208,
+		RNSI_A_CSG_HEAD_SHOT_TRANS                            = 26220,
+		RNSI_A_CSG_HEAD_SHOT_TRANS_UPGRADE                    = 26225,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

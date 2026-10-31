@@ -783,6 +783,40 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_L
 
 **Gates** (range `86ecb41e^..86ecb41e`, patience diff). `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE`: `files: 0 PASS, 1 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR` and `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched inserted, 0 #else/#endif without the flag token, 0 encoding change(s)`. RESULT is FAIL only because the `#define` is commented out. `flagcheck JUNE_CHAR_CHUNG_CORE`: `X2GUChung.h +24 PASS`, `RESULT: PASS`. `junediverge.py --check-all`: `RESULT: PASS` (allow-listed 160). `enumscan.py --check X2GUChung.cpp X2GUChung.h`: 0 A/B rows. One-file probes (`census.cl_cmd`, `/Zs /EHsc`): with `_LIVE` off, exit 0 / 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, exit 0 / 0 errors. No build: no source changed (the deployed exe is CH1g's `67b7ac49`). Nothing to play-test. Next: `/x2-phase char-chung CH1g2` (Sonnet 5.5 high).
 
+### CH1g2 - Done (2026-10-31)
+
+All 30 class-map rows of phase CH1g2 are written: 26 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`; 27 March functions because the dash-jump X / X X / landing Ends are one June function) and 4 `new` under `_CORE`, plus a 5th `new` for the second Head Shot frame move (`32bfc860`, see below). `_LIVE` stays `//#define`; no new `Always.h` define. 30 funcmap rows `Char Chung CH1g2`. JUNE_BUGS 493-496. Read from `charport_adis.py chung --phase CH1g2` (listings cut at the next non-`dead` class-map address).
+
+| June | `CX2GUChung::` | vs March |
+|---|---|---|
+| `32bd8ee0` `32bd8f00` `32bd8f60` `32bd9080` `32bd90e0` `32bd9140` `32bd9c10` | the seven `Init`s (pull, fire, X X, dash-jump X, X X, landing, Head Shot) | = March (same preloads) |
+| `32be0200` `32bf9100` `32bf92d0` | pull-sub-weapon EventProcess / FrameMove / End | = March (slot 1) |
+| `32be0270` `32bf92f0` | X-front fire EventProcess / End | = March (1.02 Z window, cancels 1.2 / 0.43; the ground tests repeat the ground `else`) |
+| `32c181f0` | X-front fire FrameMove | differs: three shots (0.01 / 0.36 / 0.72) at `FlushMp( 4 x Open Mind rate )`, power x `+0x98ac`, head shot through the CEffect `SetExtraDamageMiniGun`, per-frame simulation |
+| `32be0630` `32bf9310` `32bf9770` | X-front X X EventProcess / FrameMove / End | = March (0.9 cancels; 0.44 cannon shot; slot 3) |
+| `32be0c30` `32be0cb0` | dash-jump X / X X EventProcess | = March (landing, X flag, 0.4 window, count < 4, Down speed x 2) |
+| `32bf9f50` | landing EventProcess | = March |
+| `32c18f30` | dash-jump X FrameMove | differs: two mini guns (left `Mesh_CSI_CSG_COMBO_DASH_JUMP_X_Mini_Gun`, right `Mesh_CSI_CDC_COMBO_Mini_Gun_R`), attach with `SetPos`, shots 0.207 (left `Dummy01`) / 0.338 (right `Gun_R_Dummy03`) at 4 x rate, x `+0x98ac`, head shot |
+| `32c19710` | dash-jump X X FrameMove | differs: CDC left / right mini guns, shots 0.013 / 0.127 (`Gun_L/R_Dummy03`), only the right one counts, a short shot stores 4 (JUNE_BUGS 493) |
+| `32bf9c70` | landing FrameMove | differs: the landing mesh in both hands, no per-frame flag, no `SetPos` |
+| `32bf9c30` | dash-jump X / X X / landing End | differs: one function frees both hand slots (`CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_L` / `_R`, June 7 / 6) |
+| `32be2ad0` | Head Shot EventProcess | differs: skill / walk / dash cancels at 0.933 need `bFootOnLine` (no outer ground branch), the arrow cancel does not |
+| `32bfcc80` | Head Shot FrameMove (inside) | differs: transcendence memo of the current skill == 26225 adds 0.15 to the shell's head shot rate; `32007c40( SA_EFFECTIVE_RATE )` chance fires a second shell at +-30 / +10; no CHUNG_MEMO8 shell |
+| `32bfc860` | `CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove` (new) | the frame move InitState registers for state 236 (memo of 26208 -> 26220, no second shell); the equipped skill replaces it with `32bfcc80`. CH1m registers it (`CH1m.md` amended) |
+| `32bdb7f0` `32bea970` `32bee360` `32c0ac40` | `CSGComboDashJumpZXReadyStateStart` / `...ReadyEventProcess` / `...EventProcess` / `...FrameMove` (new) | ready: CommonStateStart + loop count 0; ZX: ground -> `USI_DASH_JUMP_LANDING`, animation end -> again while (full hyper mode or a cannon ball) and count < 6; FrameMove: at 0.1 a cannon ball thrown ahead (random z flip, z - 45, `Bip01` +- dir x 35, effect set, `UseCannon( 1 )`, `STR_Kwang`) or a misfire (count 6), then count + 1 (JUNE_BUGS 494) |
+
+**What the headers gained** (all under existing flags): `CSI_CSG_COMBO_DASH_JUMP_ZX` (script id 334, appended to the `_CORE` state block), `CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_L` / `_R` (`_CORE`), 5 declarations, and in `X2SkillTree.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES` `RNSI_A_CSG_HEAD_SHOT` 26208, `_TRANS` 26220, `_TRANS_UPGRADE` 26225 (June `Enum.src.lua`; March's own `SI_A_CSG_HEAD_SHOT` is 6214). A file-local `TryGetAcquiredSkillAbilityValue` (June `32007c40`, same body as Eve's) sits in `_CONST_CHUNG_CH1g2_` under `_CORE`.
+
+**Unsure, for the review**: the cannon-ball FrameMove's random block (`32c0ac40` @32c0ad0c-@32c0ad4b) was read from the stack traffic: the `% 10` roll is never used (kept for the random state), and which of `z` / `-z` gets the `- 45` is the part to re-read. The mini-gun slot numbering stays a CH1k hand-off.
+
+**Routed, not ported**: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` has no June definition (JUNE_BUGS 496, script data). The Head Shot memo MP/skill readers are CH4c. `+0x98ac` writer: CH4a. Registration: `CH1m.md`.
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h` (patience diff): `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out. `flagcheck JUNE_CHAR_CHUNG_CORE`: `RESULT: PASS`; `JUNE_ENUM_NAMES` (X2SkillTree.h): `RESULT: PASS`. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,879,552 B, dated 2026-10-31 22:55:46, md5 2b64b17ff322d45ac51bdfcd4a4cfb6e, equal to X2/US_SERVICE/x2.exe (2026-10-31 22:55:39)`; built at main `bf1f5c44` + the code files of this phase (X2Lib, X2 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1g2 review` (Opus 5.5 high), then CH1h.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
