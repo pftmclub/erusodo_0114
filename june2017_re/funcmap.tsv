@@ -6479,3 +6479,30 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32be9600	CX2GUChung::CFGComboXXFrontZZEventProcess	PORTED	Char Chung CH1e: new (_CORE); anim end, then the same five cancel times as XXFRONTZ
 32c01be0	CX2GUChung::CFGComboDashZFrameMove	PORTED	Char Chung CH1e: inside; = March: Land Demolisher horizontal effect at 0.27, vertical at 0.49 (also CSI_CFG_COMBO_XXFRONTZ, CSI_CIP_COMBO_DASHJUMP_XX_LANDING)
 32c1be30	CX2GUChung::CFGComboZZXFrameMove	PORTED	Char Chung CH1e: inside; = March: Land Demolisher effects at 0.53 / 0.61 / 0.71 / 0.8 / 0.94, DAMAGE_DATA_SECOND at 0.633, DAMAGE_DATA_FINAL at 0.84
+32bda3a0	CX2GUChung::CIPComboPowerDownLandingZInit	PORTED	Char Chung CH1f: inside; = March (empty)
+32bda3b0	CX2GUChung::CIPComboPowerDownLandingZEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32bda3c0	CX2GUChung::CIPComboPowerDownLandingZZInit	PORTED	Char Chung CH1f: inside; = March (five cannon effect preloads)
+32bda410	CX2GUChung::CIPComboPowerDownLandingZZEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32bda420	CX2GUChung::CIPComboDashXXInit	PORTED	Char Chung CH1f: inside; = March (empty)
+32bda430	CX2GUChung::CIPComboDashXXFrameMove	PORTED	Char Chung CH1f: inside; = March (CommonFrameMove)
+32bda440	CX2GUChung::CIPComboDashXXEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32bda450	CX2GUChung::CIPComboDashXXXInit	PORTED	Char Chung CH1f: inside; = March (empty)
+32bda460	CX2GUChung::CIPComboDashXXXFrameMove	PORTED	Char Chung CH1f: inside; = March (CommonFrameMove)
+32bda470	CX2GUChung::CIPComboDashXXXEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32bda480	CX2GUChung::CIPComboDashXXXXInit	PORTED	Char Chung CH1f: inside; = March (empty)
+32bda490	CX2GUChung::CIPComboDashXXXXEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32bda4a0	CX2GUChung::CIPComboDashXXXZInit	PORTED	Char Chung CH1f: inside; = March (empty)
+32bda4b0	CX2GUChung::CIPComboDashXXXZFrameMove	PORTED	Char Chung CH1f: inside; = March (CommonFrameMove)
+32bda4c0	CX2GUChung::CIPComboDashXXXZEnd	PORTED	Char Chung CH1f: inside; = March (CommonStateEnd)
+32be42c0	CX2GUChung::CIPComboPowerDownLandingZEventProcess	PORTED	Char Chung CH1f: inside; Z window 0.2-0.6 sets flag [0], skill / hyper cancel at 0.6 as March; the any-direction walk cancel and the dash cancel also need ground; flag -> CSI_CIP_COMBO_POWER_DOWN_LANDING_ZZ after 0.6
+32be4500	CX2GUChung::CIPComboPowerDownLandingZZEventProcess	PORTED	Char Chung CH1f: inside; = March: after 0.6 skill / hyper cancel, dash, opposite-direction walk, any key -> wait; anim end -> wait
+32be4710	CX2GUChung::CIPComboDashXXEventProcess	PORTED	Char Chung CH1f: inside; = March: walk cancel from 0.8, Z flag before 1.0, flag at 1.0 -> CSI_CIP_COMBO_DASH_XXX
+32be4810	CX2GUChung::CIPComboDashXXXEventProcess	PORTED	Char Chung CH1f: inside; = March: X flag [0] / Z flag [1] in 0.6-0.87, then CSI_CIP_COMBO_DASH_XXXX / _XXXZ
+32be48e0	CX2GUChung::CIPComboDashXXXXEventProcess	PORTED	Char Chung CH1f: inside; skill / hyper, walk and dash cancels from 1.1333, the walk and dash cancels also need ground
+32be4b40	CX2GUChung::CIPComboDashXXXZEventProcess	PORTED	Char Chung CH1f: inside; skill / hyper, walk and dash cancels from 0.633, the walk and dash cancels also need ground
+32be9930	CX2GUChung::CIPComboDashJumpXXEventProcess	PORTED	Char Chung CH1f: new (_CORE); ground contact alone -> CSI_CIP_COMBO_DASHJUMP_XX_LANDING
+32be9960	CX2GUChung::CIPComboDashJumpXXLandingEventProcess	PORTED	Char Chung CH1f: new (_CORE); anim end, then the same five cancel times as CSI_CFG_COMBO_XXFRONTZZ
+32c01fd0	CX2GUChung::CIPComboDashXXXXFrameMove	PORTED	Char Chung CH1f: inside; = March: Land Demolisher horizontal effect 50 ahead at 0.62
+32c02280	CX2GUChung::PowerDownLandingFrameMove	PORTED	Char Chung CH1f: inside; = March: Land Demolisher vertical effect (POWER_DOWN_LANDING) 125 behind at 0.1333
+32c02530	CX2GUChung::CIPComboPowerDownLandingZFrameMove	PORTED	Char Chung CH1f: inside; = March: Land Demolisher horizontal effect at 0.35, vertical 220 behind at 0.51
+32c02920	CX2GUChung::CIPComboPowerDownLandingZZFrameMove	PORTED	Char Chung CH1f: inside; = March: at 0.335 cannon effect set + UseCannon( 1 ) when CanUseCannon, else misfire effect set

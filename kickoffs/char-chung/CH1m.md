@@ -67,3 +67,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Register `JumpUpStart`** (June `32bdbcd0`, compiled under `_CORE` since CH1a) as `CSI_JUMP_UP`'s StateStart. CH0 proposed
   `CSI_JUMP_UP_StateStart`; CH1a named it in the class pattern, and the class map's `proposed_name` now says `JumpUpStart`.
+
+## Amended by CH1f (2026-10-31)
+
+- **Register the two `new` Iron Paladin dash-jump functions:** `CIPComboDashJumpXXEventProcess` (June `32be9930`, `CSI_CIP_COMBO_DASHJUMP_XX`, script id 325)
+  and `CIPComboDashJumpXXLandingEventProcess` (June `32be9960`, `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`, script id 326, enumerator added by CH1f).
+  The Landing FrameMove is CH1e's `CFGComboDashZFrameMove` (`32c01be0`). Neither state has a Start or End callback of its own in June's tables.

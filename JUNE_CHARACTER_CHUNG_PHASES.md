@@ -707,6 +707,28 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `
 
 **Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --range 16490f1e^..16490f1e` (patience diff): `X2GUChung.cpp +497 OTHER (_CORE)`, `X2GUChung.h +0 OTHER (_CORE)`, `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched inserted, 0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only because the `#define` is commented out. `flagcheck JUNE_CHAR_CHUNG_CORE`, same range: `X2GUChung.h +6 PASS`, `.cpp OTHER (_LIVE)`, `RESULT: PASS`. `junediverge.py --check-all`: `RESULT: PASS` (allow-listed 158). `enumscan.py --check X2GUChung.cpp X2GUChung.h`: 0 A/B rows. One-file probes (`census.cl_cmd`, `/Zs /EHsc`): `_LIVE` off exit 0 / 0 errors; `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` exit 0 / 0 errors. No build: no source changed (the deployed exe is CH1e's `f67db169`). Nothing to play-test. Next: `/x2-phase char-chung CH1f` (Sonnet 5.5 high).
 
+### CH1f - Done (2026-10-31)
+
+All 27 class-map rows of phase CH1f are written: 25 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`), 2 `new` under `_CORE` (`CIPComboDashJumpXXEventProcess` `32be9930`, `CIPComboDashJumpXXLandingEventProcess` `32be9960`, declared in `X2GUChung.h`, referenced by nothing). `_LIVE` stays `//#define`; no new `Always.h` define. 27 funcmap rows `Char Chung CH1f`. No JUNE_BUGS row. Read from `charport_adis.py chung --phase CH1f` (fifteen of these are thunks or stubs Ghidra has no function for).
+
+| Group | June -> `CX2GUChung::` | vs March |
+|---|---|---|
+| Init / End / FrameMove stubs (15) | `32bda3a0`-`32bda4c0`: PowerDownLandingZ / ZZ, DashXX / XXX / XXXX / XXXZ | = March (`ret`, `CommonStateEnd` vslot `0x7dc`, `CommonFrameMove` vslot `0x7cc`, the five preloads of `32bda3c0`) |
+| EventProcess | `32be4500` PowerDownLandingZZ, `32be4710` DashXX, `32be4810` DashXXX | = March |
+| EventProcess | `32be42c0` PowerDownLandingZ | the any-direction walk cancel and the dash cancel after 0.6 also need ground |
+| EventProcess | `32be48e0` DashXXXX (1.1333), `32be4b40` DashXXXZ (0.633) | skill / hyper, then walk (`USI_WAIT`) and dash cancels need ground, then the 14-key test -> `USI_WALK` (no ground test) |
+| EventProcess (new) | `32be9930` DashJumpXX | `bFootOnLine` alone -> `CSI_CIP_COMBO_DASHJUMP_XX_LANDING` (0x146) |
+| EventProcess (new) | `32be9960` DashJumpXXLanding | anim end, then the five cancel members `+0x8c90` / `94` / `98` / `9c` / `8c`, each ground-gated (same shape as CH1e's `CFGComboXXFrontZZEventProcess`) |
+| FrameMove | `32c01fd0` DashXXXX, `32c02280` PowerDownLanding, `32c02530` PowerDownLandingZ, `32c02920` PowerDownLandingZZ | = March: Land Demolisher effect sets at 0.62 / 0.1333 / 0.35 + 0.51, cannon effect + `UseCannon( 1 )` at 0.335 (no Open Mind clause) |
+
+In June the `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` form is the only one (`EventTimerOneshot`), so the `_LIVE` branches use it. New enumerator `CSI_CIP_COMBO_DASHJUMP_XX_LANDING` (June script id 326) is appended to the `_CORE` block of `CHUNG_STATE_ID`, like CH1d2's. Names are in the class pattern (`CIPComboDashJumpXX...`), not CH0's proposals. Checklist §7 L253 (`+0x7cc8`): none of the 27 touches it (`grep 7cc8` over the listings is empty). 7ai: none. No drift. The CH1m kickoff gains an "Amended by CH1f" note (register the two new functions).
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h` (patience diff): `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (the .h, _CORE), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is still commented out. `flagcheck JUNE_CHAR_CHUNG_CORE`: `1 PASS`, `RESULT: PASS`. `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors; `cl /P` shows both new functions and the enumerator in both.
+`DEPLOY OK: X2_offline.exe is 25,867,264 B, dated 2026-10-31 21:04:50, md5 5c90647edf0fa0c07e346521952e3457, equal to X2/US_SERVICE/x2.exe (2026-10-31 21:04:43)`; built at main `0510b763` + the 2 code files of this phase (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1f review` (Opus 5.5 high), then CH1g.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

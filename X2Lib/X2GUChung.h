@@ -286,6 +286,7 @@ public:
 		CSI_CTT_DASH_JUMP_COMBO_XX,			/// June script id 328 ( Tactical Trooper dash jump X X; CH1j owns the state )
 		CSI_CSG_COMBO_DASH_JUMP_ZX_READY,	/// June script id 333 ( Shooting Guardian dash jump Z X ready; CH1g2 owns the state )
 		CSI_CFG_COMBO_XXFRONTZZ,			/// June script id 324 ( Fury Guardian / Iron Paladin X X front Z Z; CH1e owns the state )
+		CSI_CIP_COMBO_DASHJUMP_XX_LANDING,	/// June script id 326 ( Iron Paladin dash jump X X landing; CH1f owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -1165,6 +1166,11 @@ protected:
 	void CIPComboDashXXXZFrameMove();
 	void CIPComboDashXXXZEventProcess();
 	void CIPComboDashXXXZEnd();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	// CSI_CIP_COMBO_DASHJUMP_XX / CSI_CIP_COMBO_DASHJUMP_XX_LANDING
+	void CIPComboDashJumpXXEventProcess();
+	void CIPComboDashJumpXXLandingEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	// 랜드디몰리셔 콤보에 붙는 이펙트 위해 한곳에 몰아넣음
 	// 제작 다 되면 원위치로 갈 예정
