@@ -307,7 +307,28 @@ Flag `SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND`. Re-bind Lua's `SetBuffFactorToGa
 - Update row 254 `PushBuff` and the two `X2BuffTemplet` rows routed to H3, and their allow rows.
 
 **Gate:** count 1 shows no counter; 2+ shows "x2".. in yellow at the icon's top left, typed in; a re-push updates it; party icons show the counter too.
-Play-test: Sheath Knight with Brutal Slayer (skill 1411), five-hit combos in a dungeon.
+Play-test: a ported class (Eve / Aisha) with a stacking buff via the console (Brutal Slayer needs the Sheath Knight port).
+
+**Done note (H3, 2026-10-31, Sonnet 5.5):**
+- Flag `SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT` (`Always.h:11055`; `#error` needs `_BUFF_ROW`, `JUNE_BUFF_TEMPLET_PARITY`, `JUNE_BUFF_BEHAVIOR_PARITY`, `BUFF_ICON_UI`, all defined above it).
+- June bodies, March's in `#else`: `CX2StatusGageUI::PushBuff( icon, bDebuff, count )` `32e64530` (March's push, then the setter); new virtual `SetBuffIconCount( BTI, count )`
+  `32e60480` (empty in the `CX2GageUI` base): string 1 of `Buff_%d` is empty below 2 stacks, else string 30715 "x@1", and an empty string is re-armed to type in
+  (+0x58 0.5, +0x55 true, +0x60 / +0x5c 0); `CX2GageManager::PushBuff` `32489810` forwards the count. Constants in `_CONST_STATUS_GAGE_UI_H3_`.
+- Push sites: `PushNewBuffTempletToGameUnit` `:14115` and `SetKBuffFactorPacketToGameUnit` `:16749` pass the clone's `GetAccumulationCountNow`; `RestartDisplayerForAccumulationDecrease`
+  `3236a190` gets the icon tail and `SetFactor` now calls it instead of its inline displayers + push; `SetAccumulationCountNow` `3236a430` gets its icon tail;
+  `Handler_EGS_UPDATE_BUFF_INFO_NOT` `:785` passes the raw record byte `m_ucAccumulationCountNow` (`[ebp]` @326c9932; 0 stays 0).
+- **User vslot 0x788** (`3236a190`, before a user's push): the base is empty (`33093ad0`); `vtslot.py 0x788 CX2GU` shows **only `CX2GUAin` overrides it** (`32a3d330`:
+  BTI 966-968 swap the icon name / desc string ids). March gets the empty `CX2GUUser::ChangeBuffIconText`; Ain's body went to checklist 7au. `3236a430` does not call it (June).
+- **`:908` / `326c9030`:** June's in-room handler pushes no icon (it applies buffs through `SetBuffFactorToGameUnitByBuffFactorID`, so the count arrives via `3229dee0`).
+  March's `:902` push sits in the dead `#else` of `JUNE_BUFF_PREMIUM`; left as is.
+- Stale comments left (insert-only): the "count not ported" lines above `RestartDisplayerForAccumulationDecrease` and `SetAccumulationCountNow` in `X2BuffTemplet.cpp`.
+- Divergence: rows `PushBuff`, `RestartDisplayerForAccumulationDecrease`, `SetAccumulationCountNow` marked ported, 3 allow rows deleted. `hud_functions.tsv` 9 rows, funcmap 10 `(HUD H3)` rows.
+- Hygiene: `flagcheck JUNE_HUD_BUFF_COUNT --worktree --files <9 code files>`: `files: 8 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s)`; `RESULT: PASS`. `junediverge --check` (8 files): `RESULT: PASS` (8 allow-listed), `--selftest` PASS;
+  `enumscan --check`: 0 rows.
+- Build (PCH auto-touched): `DEPLOY OK: X2_offline.exe is 25,865,728 B, dated 2026-10-31 08:52:50, md5 9523dc904b5ff974040a83b786762bdd`. No new strings to exestr (the string id is a number).
+- **Play-test (user decision 2026-10-31: unported classes cannot use skills, so test on a ported class):** EveEmpress (uid 61) with `BFI_BUFF_ECE_OPEN_MIND` (BFI 877, limit 3).
+  Brutal Slayer (Sheath Knight) is not testable until that class is ported; the save row for SheathKnightT (21410 at level 5) stays harmless.
 
 ## Phase H4 - The quick slot (Sonnet 5.5, high)
 

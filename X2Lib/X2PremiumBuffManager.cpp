@@ -782,8 +782,14 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_NOT( IN HWND hWnd, IN U
 			CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( ptrBuffFactor->GetBuffTempletID() );
 			if ( NULL != ptrBuffTemplet && true == ptrBuffTemplet->GetUseBuffIcon() )
 			{
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+				/// June 326c9530 @326c9958: the record's raw stack count byte ( 0 stays 0 )
+				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
+					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc() ), ptrBuffTemplet->IsDeBuff(), static_cast<int>( kBuffInfo.m_kFactorInfo.m_ucAccumulationCountNow ) );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 				CX2GageManager::GetInstance()->PushBuff( pCX2Unit->GetUID(), CX2GageUI::BuffIcon( ptrBuffTemplet->GetBuffTempletID(),ptrBuffTemplet->GetIconFileName(),
 					ptrBuffTemplet->GetIconKeyName() , ptrBuffTemplet->GetBuffName(), ptrBuffTemplet->GetBuffDesc() ), ptrBuffTemplet->IsDeBuff() );
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 			}
 #endif // BUFF_ICON_UI
 

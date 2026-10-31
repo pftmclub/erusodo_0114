@@ -112,7 +112,12 @@ public:
 	//void					SetOwnerGameUnit( CX2GameUnit* pOwnerGameUnit_ ) { m_optrGameUnit = pOwnerGameUnit_; }
 
 #ifdef BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	virtual	void			PushBuff( const BuffIcon& BuffIconInfo_, bool bIsDeBuff_, int iCount_ ){};
+	virtual	void			SetBuffIconCount( BUFF_TEMPLET_ID eBuffID_, int iCount_ ){};	/// June 32e60480 (slot 12, right after PushBuff)
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	virtual	void			PushBuff( const BuffIcon& BuffIconInfo_, bool bIsDeBuff_){};
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	virtual	void			EraseBuff(BUFF_TEMPLET_ID eBuffID_, bool bIsDeBuff_){};
 	virtual	void			ClearBuffList(){};
 	virtual	void			UpdateBuffIcon(){};
@@ -286,7 +291,12 @@ public:
 	void					SetOwnerUnitClass( CX2Unit::UNIT_CLASS eOwnerGameUnitClass_ ) { m_eOwnerGameUnitClass = eOwnerGameUnitClass_; }
 
 #ifdef BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	virtual	void			PushBuff( const BuffIcon& BuffIconInfo_, bool bIsDeBuff_, int iCount_ );
+	virtual	void			SetBuffIconCount( BUFF_TEMPLET_ID eBuffID_, int iCount_ );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	virtual	void			PushBuff( const BuffIcon& BuffIconInfo_, bool bIsDeBuff_);
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	virtual	void			EraseBuff(BUFF_TEMPLET_ID eBuffID_, bool bIsDeBuff_);
 	virtual	void			ClearBuffList();
 	virtual	void			UpdateBuffIcon(){}

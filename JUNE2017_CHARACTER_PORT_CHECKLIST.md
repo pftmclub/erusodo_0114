@@ -1010,3 +1010,10 @@ at-hand case (`31f961a0`: 10 on `Dummy1_Rhand` when viewer `+0xd80` is 1, else `
 June `3229da40` (CX2GameUnit: add N to a buff's stack count by BTI; erase when it reaches 0) calls `3236a2f0` (count += N, displayers restart, buff icon
 pushed with the new count through `CX2GageManager::PushBuff`). Its only callers are Ara class code, `32bbb050` / `32bbb720` (the `SA_ALD_WOLF_Break` and
 `P_AYR_GOOD_ENERGY_BALL` effects). March has neither function. The Ara port brings both, and passes the count once june-hud H3 has given `PushBuff` one.
+
+### 7au. Ain's buff-icon text hook (from june-hud H3)
+
+June's user vslot `0x788` (`ChangeBuffIconText( BTI, icon )`, empty base `33093ad0`, called by `3236a190` before a user's icon push) is overridden only by
+`CX2GUAin` (`32a3d330`): for BTI `0x3c6` / `0x3c7` / `0x3c8`, when unit vslot `0x670( 3 )` is true, the icon's name id becomes `0xaca8` / `0xaca7` / `0xaca6` and its
+description id `0xacab` / `0xacaa` / `0xaca9`. March has the empty `CX2GUUser::ChangeBuffIconText` (`SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT`); the Ain port fills it. June's
+`3236a430` (`SetAccumulationCountNow`) does not call it.

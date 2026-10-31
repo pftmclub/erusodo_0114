@@ -14112,8 +14112,14 @@ void CX2GameUnit::PushNewBuffTempletToGameUnit( IN CX2BuffTempletPtr ptrBuffTemp
 #ifdef BUFF_ICON_UI		
 			if( true == ptrCloneBuffTemplet->GetUseBuffIcon() )
 			{
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+				/// June 3229dee0 @3229e0e8: the clone's stack count
+				CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
+					ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff(), static_cast<int>( ptrCloneBuffTemplet->GetAccumulationCountNow() ) );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 				CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
 					ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff() );
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 			}
 #endif //BUFF_ICON_UI
 		}
@@ -16746,8 +16752,14 @@ void CX2GameUnit::SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vec
 #ifdef BUFF_ICON_UI
 					if( true == ptrCloneBuffTemplet->GetUseBuffIcon() )
 					{
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+						/// June 322a6d00 @322a6f3d: the clone's stack count
+						CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
+						ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff(), static_cast<int>( ptrCloneBuffTemplet->GetAccumulationCountNow() ) );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 						CX2GageManager::GetInstance()->PushBuff( m_UnitUID, CX2GageUI::BuffIcon( ptrCloneBuffTemplet->GetBuffTempletID(),ptrCloneBuffTemplet->GetIconFileName(), 
 						ptrCloneBuffTemplet->GetIconKeyName(), ptrCloneBuffTemplet->GetBuffName(), ptrCloneBuffTemplet->GetBuffDesc() ), ptrCloneBuffTemplet->IsDeBuff());
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 					}
 #endif //BUFF_ICON_UI
 				}

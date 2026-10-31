@@ -3112,6 +3112,10 @@ public:
 		/// layer. Only Ara overrides it (32bca010, the Ara port).
 		virtual void				DamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ ) {}
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+		/// June CX2GUUser vslot 0x788 ( BTI, icon ): the per-class icon text hook of a user's buff icon push (3236a190). Empty in the base 33093ad0; only Ain overrides it (32a3d330, the Ain port)
+		virtual void				ChangeBuffIconText( const BUFF_TEMPLET_ID eBuffTempletID_, CX2GageUI::BuffIcon& kBuffIcon_ ) {}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 
 #ifdef NOT_CANCEL_BBT_STUN_BY_HIT		/// 버프를 통한 스턴 그로기 스테이트 전환 여부
 		void SetChangeGroggyState( bool bChangeGroggyState_ ) { m_bChangeGroggyState = bChangeGroggyState_; }

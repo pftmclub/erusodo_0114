@@ -314,7 +314,11 @@ public:
 	void UpdatePartyMemberGageData( const UidType uidPartyMember_, const KPartyMemberStatus& kPartyMemberStatus_ );
 
 #ifdef BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	void PushBuff( UidType uiUnitUID, const CX2GageUI::BuffIcon& BuffIconInfo_, bool bIsDeBuff, int iCount_ );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	void PushBuff( UidType uiUnitUID, const CX2GageUI::BuffIcon& BuffIconInfo_, bool bIsDeBuff );
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 	void EraseBuff( UidType uiUnitUID, BUFF_TEMPLET_ID eBuffID_, bool bIsDeBuff);
 	void ClearBuffList(UidType uiUnitUID);
 	void NotifyDurationTime5sec(UidType uiUnitUID, BUFF_TEMPLET_ID eBuffID_);

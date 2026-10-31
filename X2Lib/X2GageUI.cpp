@@ -778,6 +778,73 @@ void CX2StatusGageUI::UpdateGageForUV( IN CKTDGUIStatic* pStaticBar_, IN int iPi
 	@brief : GameUnit에서 새로운 버프가 등록되었을 때 UI출력에 사용 되는 버프 리스트 갱신
 	@param : 해당 버프 ID,텍스쳐명(BuffIconInfo_), 버프,디버프 구분(bIsDeBuff)
 */
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+namespace _CONST_STATUS_GAGE_UI_H3_
+{
+	const int	iBuffCountStringIndex = 1;			// the second string of a Buff_%d static ( SetBuffIconStatic )
+	const int	iBuffCountStringID = 30715;			// no STR_ID name: "x@1"
+	const float	fBuffCountSpreadTimeGap = 0.5f;		// June 32e60480: the counter types itself in
+}
+using namespace _CONST_STATUS_GAGE_UI_H3_;
+
+// June 32e64530 ( ret 0xc ): March's push, then the counter setter
+void CX2StatusGageUI::PushBuff(const BuffIcon& BuffIconInfo_, bool bIsDeBuff_, int iCount_)
+{
+	BUFF_TEMPLET_ID eBuffID = BuffIconInfo_.eBuffID;
+	auto FindFunc = [eBuffID](const BuffIcon& BuffIconInfo ) {
+		return BuffIconInfo.eBuffID == eBuffID;
+	};
+
+	vector<BuffIcon>* pVecBuffList = NULL;
+	(false == bIsDeBuff_) ? pVecBuffList = &m_vecBuffList : pVecBuffList = &m_vecDebuffList;
+
+	if( std::_Find_if( pVecBuffList->begin(),pVecBuffList->end(), FindFunc) == pVecBuffList->end() )
+	{
+		pVecBuffList->push_back(BuffIconInfo_);
+		UpdateBuffIcon();
+	}
+	else
+	{
+		InitBuffIconFlicker( BuffIconInfo_.eBuffID );
+	}
+
+	SetBuffIconCount( BuffIconInfo_.eBuffID, iCount_ );
+}
+
+// June 32e60480 ( slot 12 ): string 1 of the icon is "" below 2 stacks, else "x<count>"; an empty counter is re-armed to type itself in
+/*virtual*/ void CX2StatusGageUI::SetBuffIconCount( BUFF_TEMPLET_ID eBuffID_, int iCount_ )
+{
+	if( NULL == m_pDlgBuffIcon )
+		return;
+
+	WCHAR szStaticName[20];
+	StringCchPrintfW( szStaticName, 20, L"Buff_%d", eBuffID_ );
+	if( false == m_pDlgBuffIcon->CheckControl( szStaticName ) )
+		return;
+
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_pDlgBuffIcon->GetControl( szStaticName ) );
+	if( NULL == pStatic )
+		return;
+
+	CKTDGUIControl::UIStringData* pStringCount = pStatic->GetString( iBuffCountStringIndex );
+	if( NULL == pStringCount )
+		return;
+
+	const bool bWasEmpty = pStringCount->msg.empty();
+	if( iCount_ < 2 )
+		pStringCount->msg = L"";
+	else
+		pStringCount->msg = GET_REPLACED_STRING( ( iBuffCountStringID, "i", iCount_ ) );
+
+	if( true == bWasEmpty )
+	{
+		pStringCount->fSpreadTimeGap = fBuffCountSpreadTimeGap;
+		pStringCount->bSpread = true;
+		pStringCount->fNowSpreadTime = 0.f;
+		pStringCount->iSpreadCount = 0;
+	}
+}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 void CX2StatusGageUI::PushBuff(const BuffIcon& BuffIconInfo_, bool bIsDeBuff_)
 {
 	BUFF_TEMPLET_ID eBuffID = BuffIconInfo_.eBuffID;
@@ -799,6 +866,7 @@ void CX2StatusGageUI::PushBuff(const BuffIcon& BuffIconInfo_, bool bIsDeBuff_)
 		InitBuffIconFlicker( BuffIconInfo_.eBuffID );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 /** @function : EraseBuff
 	@brief : GameUnit에서 버프가 제거될 때 UI출력에 사용 되는 버프 리스트 갱신
 	@param : 버프가 갱신된 유닛UID(uiUnitUID), 해당 버프 ID(eBuffID_), 버프,디버프 구분(bIsDeBuff)

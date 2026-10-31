@@ -11047,3 +11047,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the 5-argument slot 135 )
 #endif SERV_IRUHADEV_JUNE_BUFF_FACTOR_LUA_BIND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H3: June's buff stack counter - the count argument of PushBuff (CX2GageManager 32489810, CX2StatusGageUI 32e64530), the counter setter 32e60480 (the string 1 of every Buff_%d icon: "x2" in yellow at 2 or more stacks), the count at every push site (PushNewBuffTempletToGameUnit 3229dee0, SetKBuffFactorPacketToGameUnit 322a6d00, SetFactor / RestartDisplayerForAccumulationDecrease 3236a190, SetAccumulationCountNow 3236a430, Handler_EGS_UPDATE_BUFF_INFO_NOT 326c9530) and the user vslot 0x788 icon-text hook. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT ) && !defined( SERV_IRUHADEV_JUNE_HUD_BUFF_ROW )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT needs SERV_IRUHADEV_JUNE_HUD_BUFF_ROW ( the string 1 of SetBuffIconStatic )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT ) && !defined( SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT needs SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY ( CX2BuffTemplet::RestartDisplayerForAccumulationDecrease )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT ) && !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ( CX2BuffTemplet::SetAccumulationCountNow )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT ) && !defined( BUFF_ICON_UI )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT needs BUFF_ICON_UI ( CX2GageUI::BuffIcon )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+//////////////////////////////////////////////////////////////////////////

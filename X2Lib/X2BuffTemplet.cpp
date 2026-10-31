@@ -251,6 +251,10 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 
 	if ( GetAccumulationLimit() > 1 )	/// 중첩 되는 것이라면 위의 항목들을 실행 후 중첩 카운트 올려줌
 		IncreaseAccumulationCountNow();
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	/// June 3236d400 @3236d50b: the displayers and the icon push with the count are 3236a190
+	RestartDisplayerForAccumulationDecrease( pGameUnit_ );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 
 	/// 표현조건 셋팅
 	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
@@ -270,6 +274,7 @@ bool CX2BuffTemplet::SetFactor( const CX2BuffFactor& buffFactor_, CX2GameUnit* p
 		CX2GageManager::GetInstance()->PushBuff( pGameUnit_->GetUnitUID(), BuffIconData, IsDeBuff() );
 	}
 #endif //BUFF_ICON_UI
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 
 	return true;
 }
@@ -678,6 +683,16 @@ void CX2BuffTemplet::RestartDisplayerForAccumulationDecrease( CX2GameUnit* pGame
 			ptrDisplayer->SetStart( true );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	/// June 3236a190: then the icon with the stack count, after the user's icon text hook ( vslot 0x788 )
+	if ( true == GetUseBuffIcon() )
+	{
+		CX2GageUI::BuffIcon kBuffIcon( GetBuffTempletID(), GetIconFileName(), GetIconKeyName(), GetBuffName(), GetBuffDesc() );
+		if ( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() )
+			static_cast<CX2GUUser*>( pGameUnit_ )->ChangeBuffIconText( GetBuffTempletID(), kBuffIcon );
+		CX2GageManager::GetInstance()->PushBuff( pGameUnit_->GetUnitUID(), kBuffIcon, IsDeBuff(), static_cast<int>( GetAccumulationCountNow() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
@@ -712,6 +727,14 @@ void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pG
 			ptrDisplayer->SetStart( true );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+	/// June 3236a430: then the icon with the new count (no icon text hook here)
+	if ( true == GetUseBuffIcon() )
+	{
+		CX2GageUI::BuffIcon kBuffIcon( GetBuffTempletID(), GetIconFileName(), GetIconKeyName(), GetBuffName(), GetBuffDesc() );
+		CX2GageManager::GetInstance()->PushBuff( pGameUnit_->GetUnitUID(), kBuffIcon, IsDeBuff(), static_cast<int>( GetAccumulationCountNow() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY

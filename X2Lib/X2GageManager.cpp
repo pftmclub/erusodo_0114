@@ -3275,6 +3275,35 @@ void CX2OldGageManager::SetNumberIcon( CKTDGUIControl::CPictureData* const pPict
 	@brief : GameUnit에서 새로운 버프가 등록되었을 때 UI출력에 사용 되는 버프 리스트를 갱신하는 함수
 	@param : 버프가 갱신된 유닛UID(uiUnitUID), 해당 버프 ID,텍스쳐명(BuffIconInfo_), 버프,디버프 구분(bIsDeBuff)
 */
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
+// June 32489810: March's lookup ( my set, party, PvP team ), the count forwarded to the gage's PushBuff
+void CX2GageManager::PushBuff( UidType uiUnitUID, const CX2GageUI::BuffIcon& BuffIconInfo_, bool bIsDeBuff, int iCount_ )
+{
+	if( uiUnitUID == m_ptrMyGageSet->GetUid() )
+	{
+		m_ptrMyGageSet->GetGageUI()->PushBuff(BuffIconInfo_, bIsDeBuff, iCount_);
+		return;
+	}
+	vector<CX2GageSetPtr>::iterator it = m_vecGageSetPartyMember.begin();
+	for( ; it != m_vecGageSetPartyMember.end(); ++it)
+	{
+		if( NULL != (*it) && uiUnitUID == (*it)->GetUid() )
+		{
+			(*it)->GetGageUI()->PushBuff(BuffIconInfo_, bIsDeBuff, iCount_);
+			return;
+		}
+	}
+	it = m_vecGageSetPvpMyTeam.begin();
+	for( ; it != m_vecGageSetPvpMyTeam.end(); ++it)
+	{
+		if( NULL != (*it) && uiUnitUID == (*it)->GetUid() )
+		{
+			(*it)->GetGageUI()->PushBuff(BuffIconInfo_, bIsDeBuff, iCount_);
+			return;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 void CX2GageManager::PushBuff( UidType uiUnitUID, const CX2GageUI::BuffIcon& BuffIconInfo_, bool bIsDeBuff)
 {	
 	if( uiUnitUID == m_ptrMyGageSet->GetUid() )
@@ -3302,6 +3331,7 @@ void CX2GageManager::PushBuff( UidType uiUnitUID, const CX2GageUI::BuffIcon& Buf
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 /** @function : EraseBuff
 	@brief : GameUnit에서 버프가 제거될 때 UI출력에 사용 되는 버프 리스트를 갱신하는 함수
 	@param : 버프가 갱신된 유닛UID(uiUnitUID), 해당 버프 ID(eBuffID_), 버프,디버프 구분(bIsDeBuff)
