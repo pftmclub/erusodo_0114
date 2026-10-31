@@ -300,7 +300,11 @@ protected:
 							 IN float fPercent_, IN bool isWidth_ );
 
 #ifdef BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	virtual void	SetBuffIconStatic( const BuffIcon& BuffIconInfo_, int iIndex_, bool bIsDebuff_, const D3DXVECTOR2& vSize_ );	/// June 32e661d0 (slot 20 of every gage)
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	void	SetBuffIconStatic( const BuffIcon& BuffIconInfo_, int iIndex_, bool bIsDebuff_, const D3DXVECTOR2& vSize_ );
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 #endif //BUFF_ICON_UI
 
 protected:
@@ -339,6 +343,9 @@ public:
 #ifdef BUFF_ICON_UI
 	virtual	void			UpdateBuffIcon();
 	void					SetBuffIconGuideDesc();
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	virtual void			SetBuffIconStatic( const BuffIcon& BuffIconInfo_, int iIndex_, bool bIsDebuff_, const D3DXVECTOR2& vSize_ );	/// June 32e672c0
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 #endif //BUFF_ICON_UI	
 	virtual void			SetCharacterImage( const CX2Unit::UNIT_CLASS eGameUnitClass_ );
 #ifdef FIX_CHUNG_GAGE_UI_UPDATE_BUG

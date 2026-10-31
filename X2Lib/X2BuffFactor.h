@@ -548,6 +548,15 @@ enum BUFF_TEMPLET_ID
 	BTI_ARA_SECOND_HYPER_MODE             = 661,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-10-31 // june-hud Phase H2 (JUNE_HUD_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI names the my-gage Hero-dungeon icon tail 32e5d0a0 spells
+	BTI_BUFF_HERO_STOP                    = 558,
+	BTI_BUFF_HERO_UNLIMITED_HP            = 559,
+	BTI_BUFF_HERO_UNLIMITED_MP            = 560,
+	BTI_BUFF_HERO_COOLTIME_FREE           = 561,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID

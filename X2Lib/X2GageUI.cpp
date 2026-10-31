@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\X2GageUI.h"
+#ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_HUD_DEBUG
 
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -861,6 +864,153 @@ void CX2StatusGageUI::ClearBuffList()
 */
 void CX2StatusGageUI::SetBuffIconStatic(const BuffIcon& BuffIconInfo_, int iIndex_, bool bIsDebuff_, const D3DXVECTOR2& vSize_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	// June 32e661d0
+	if( NULL == m_pDlgBuffIcon )
+		return;
+
+	WCHAR szSButtonName[20];
+	StringCchPrintfW( szSButtonName, 20, L"ButtonBuff_%d", BuffIconInfo_.eBuffID );
+	CKTDGUIButton* pButtonBuffIcon = NULL;
+
+	if( false == m_pDlgBuffIcon->CheckControl( szSButtonName ) )
+	{
+		pButtonBuffIcon = m_pDlgBuffIcon->CreateButton();
+
+		pButtonBuffIcon->SetName( szSButtonName );
+		pButtonBuffIcon->SetSize( vSize_ );
+
+		pButtonBuffIcon->SetNormalTex( L"DLG_Common_New_Texture03.tga", L"INVISIBLE" );
+		pButtonBuffIcon->SetOverTex( L"DLG_Common_New_Texture03.tga", L"INVISIBLE" );
+		pButtonBuffIcon->SetDownTex( L"DLG_Common_New_Texture03.tga", L"INVISIBLE" );
+
+		CKTDGUIControl::UIPointData* pNormalPointData = new CKTDGUIControl::UIPointData();
+		pNormalPointData->addSize.y = 24.f;
+		pNormalPointData->addSize.x = 24.f;
+		pNormalPointData->color = D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		CKTDGUIControl::UIPointData* pOverPointData = new CKTDGUIControl::UIPointData();
+		pOverPointData->addSize.y = 24.f;
+		pOverPointData->addSize.x = 24.f;
+		pOverPointData->color = D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		CKTDGUIControl::UIPointData* pDownPointData = new CKTDGUIControl::UIPointData();
+		pDownPointData->addSize.y = 24.f;
+		pDownPointData->addSize.x = 24.f;
+		pDownPointData->color = D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		pButtonBuffIcon->SetNormalPoint( pNormalPointData );
+		pButtonBuffIcon->SetOverPoint( pOverPointData );
+		pButtonBuffIcon->SetDownPoint( pDownPointData );
+		pButtonBuffIcon->SetShowEnable( true, true );
+
+#ifdef ERASE_BUFF_CHEAT
+		pButtonBuffIcon->SetCustomMsgMouseDblClk( CX2GageManager::GUCM_ERASE_BUFF_CHEAT );
+		pButtonBuffIcon->AddDummyInt( static_cast<int>( BuffIconInfo_.eBuffID ) );
+#endif // ERASE_BUFF_CHEAT
+
+		m_pDlgBuffIcon->AddControl( pButtonBuffIcon );
+	}
+	else
+	{
+		pButtonBuffIcon = static_cast<CKTDGUIButton*>( m_pDlgBuffIcon->GetControl( szSButtonName ) );
+	}
+
+	if( NULL != pButtonBuffIcon )
+	{
+		const float fButtonOffsetY = ( true == bIsDebuff_ ) ? vSize_.x + 1.f + 4.f : 0.f;
+		const D3DXVECTOR2 vPos( ( -vSize_.y - 1.f ) * iIndex_, fButtonOffsetY );
+
+		pButtonBuffIcon->SetOffsetPos( vPos );
+		pButtonBuffIcon->SetGuideDescOffsetPos( D3DXVECTOR2( vPos.x, vPos.y + 140.f ) );
+	}
+
+	WCHAR szStaticName[20];
+	StringCchPrintfW( szStaticName, 20, L"Buff_%d", BuffIconInfo_.eBuffID );
+	CKTDGUIStatic* pStaticBuffIcon = NULL;
+
+	if( false == m_pDlgBuffIcon->CheckControl( szStaticName ) )
+	{
+		pStaticBuffIcon = new CKTDGUIStatic();
+		if( NULL != pStaticBuffIcon )
+		{
+			pStaticBuffIcon->SetName( szStaticName );
+			m_pDlgBuffIcon->AddControl( pStaticBuffIcon );
+			CKTDGUIControl::CPictureData* pPicture = new CKTDGUIControl::CPictureData();
+			pStaticBuffIcon->AddPicture( pPicture );
+			pPicture->SetTex( BuffIconInfo_.szTextureFileName.c_str(), BuffIconInfo_.szTextureKeyName.c_str() );
+			pPicture->SetSize( vSize_ );
+		}
+
+		// string 0: the remaining time (my gage's SetDurationTime writes it)
+		CKTDGUIControl::UIStringData* pStringDuration = new CKTDGUIControl::UIStringData();
+		pStaticBuffIcon->AddString( pStringDuration );
+		pStringDuration->fontIndex = XUF_DODUM_11_NORMAL;
+		pStringDuration->color = D3DXCOLOR( 1, 1, 1, 1 );
+		pStringDuration->outlineColor = D3DXCOLOR( 0, 0, 0, 1 );
+		pStringDuration->msg = L"";
+		pStringDuration->fontStyle = CKTDGFontManager::FS_SHELL;
+		pStringDuration->sortFlag = DT_RIGHT;
+		pStringDuration->pos = D3DXVECTOR2( 12.f, 16.f );
+
+		// string 1: the stack counter (June 32e60480 writes it)
+		CKTDGUIControl::UIStringData* pStringCount = new CKTDGUIControl::UIStringData();
+		pStaticBuffIcon->AddString( pStringCount );
+		pStringCount->fontIndex = XUF_DODUM_11_NORMAL;
+		pStringCount->color = D3DXCOLOR( 1, 1, 0, 1 );
+		pStringCount->outlineColor = D3DXCOLOR( 0, 0, 0, 1 );
+		pStringCount->msg = L"";
+		pStringCount->fontStyle = CKTDGFontManager::FS_SHELL;
+		pStringCount->sortFlag = DT_RIGHT;
+		pStringCount->pos = D3DXVECTOR2( 0.5f, -2.f );
+	}
+	else
+	{
+		pStaticBuffIcon = static_cast<CKTDGUIStatic*>( m_pDlgBuffIcon->GetControl( szStaticName ) );
+		if( NULL == pStaticBuffIcon )
+			return;
+
+		// June @32e667d7: the IAT import at 333bc928 is ceil
+		int iDurationTime = 0;
+		if( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+			iDurationTime = static_cast<int>( ceil( g_pX2Game->GetMyUnit()->GetBuffTimeFinalizerDuration( BuffIconInfo_.eBuffID ) ) );
+		SetDurationTime( BuffIconInfo_.eBuffID, iDurationTime );
+	}
+
+	if( NULL != pStaticBuffIcon )
+	{
+		CKTDGUIControl::CPictureData* pPicture = pStaticBuffIcon->GetPicture( 0 );
+		if( NULL != pPicture )
+		{
+			pPicture->InitAction();
+			if( true == BuffIconInfo_.bNew )
+			{
+				pPicture->SetFadeIn( 1.2f );
+			}
+			else
+			{
+				if ( NULL != pPicture->pPoint )
+					pPicture->pPoint->color.a = 1.f;
+
+				if( true == pPicture->m_bFlicker && true == pPicture->m_bFlickerLoop )
+					NotifyDurationTime5sec( BuffIconInfo_.eBuffID );
+				else
+					InitBuffIconFlicker( BuffIconInfo_.eBuffID );
+			}
+		}
+
+		const float fStaticOffsetY = ( true == bIsDebuff_ ) ? vSize_.x + 1.f + 4.f : 0.f;
+
+		const CX2LocationManager* pLocationManager = g_pData->GetLocationManager();
+		if( NULL != pLocationManager
+			&& ( SEnum::VMI_SPA_RUBEN == pLocationManager->GetCurrentVillageID() || SEnum::VMI_SPA_RANOX == pLocationManager->GetCurrentVillageID() ) )
+			pStaticBuffIcon->SetShow( true );
+		else
+			pStaticBuffIcon->SetShow( CX2GageManager::GetInstance()->GetShowMyGageUI() );
+
+		pStaticBuffIcon->SetOffsetPos( D3DXVECTOR2( ( -vSize_.y - 1.f ) * iIndex_, fStaticOffsetY ) );
+	}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	if( NULL != m_pDlgBuffIcon )
 	{
 		/// 툴팁용 투명 버튼 생성
@@ -1014,6 +1164,7 @@ void CX2StatusGageUI::SetBuffIconStatic(const BuffIcon& BuffIconInfo_, int iInde
 			pStaticBuffIcon->SetOffsetPos( D3DXVECTOR2( (-vSize_.y-1.f) * (iIndex_++), fOffsetY ) );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 }
 /** @function : NotifyDurationTime5sec
 	@brief : 지속 시간이 5초 남은 버프 알림
@@ -1600,6 +1751,63 @@ void CX2MyGageUI::InitStatusUI()
 			 위치 지정을 위해 CX2MyGageUI, CX2PartyMemberGageUI에서 각각 재정의
 */
 void CX2MyGageUI::UpdateBuffIcon()
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+{
+	// June 32e67050; its third skipped state, XS_PHOTOZONE_GAME, has no March member
+	if( NULL != g_pMain )
+	{
+		switch ( g_pMain->GetNowStateID() )
+		{
+		case CX2Main::XS_PVP_LOBBY:
+		case CX2Main::XS_WEDDING_GAME:
+			return;
+		default:
+			break;
+		}
+	}
+
+	bool bCreated = false;
+	if( NULL == m_pDlgBuffIcon )
+	{
+		m_pDlgBuffIcon = new CKTDGUIDialog( NULL, L"DLG_BuffManager.lua" );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDlgBuffIcon );
+		m_pDlgBuffIcon->SetShow( true );
+#ifdef ERASE_BUFF_CHEAT
+		m_pDlgBuffIcon->SetStage( g_pMain->GetNowState() );
+#endif // ERASE_BUFF_CHEAT
+		bCreated = true;
+	}
+
+	if( NULL != m_pDlgBuffIcon )
+	{
+		if( NULL != g_pMain )
+		{
+			// DLG_BuffManager.lua: dummy 0 (993, 26), dummy 1 (993, 2) in PvP / training
+			const int iDummyIndex = ( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() || CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID() ) ? 1 : 0;
+			const D3DXVECTOR3 vAnchor = m_pDlgBuffIcon->GetDummyPos( iDummyIndex );
+			m_pDlgBuffIcon->SetPos( D3DXVECTOR2( vAnchor.x, vAnchor.y ) );
+#ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
+			if( true == bCreated )
+				CX2OfflineLog::Server( L"[JUNE_HUD] BUFF anchor %.0f,%.0f state %d dummy %d", vAnchor.x, vAnchor.y, (int)g_pMain->GetNowStateID(), iDummyIndex );
+#endif SERV_IRUHADEV_JUNE_HUD_DEBUG
+		}
+
+		int iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecBuffList.begin(); it != m_vecBuffList.end(); ++it )
+		{
+			SetBuffIconStatic( *it, iIndex++, false, D3DXVECTOR2( 24.f, 24.f ) );
+			it->bNew = false;
+		}
+
+		iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecDebuffList.begin(); it != m_vecDebuffList.end(); ++it )
+		{
+			SetBuffIconStatic( *it, iIndex++, true, D3DXVECTOR2( 24.f, 24.f ) );
+			it->bNew = false;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 {	
 #ifdef FIX_VISIBLE_BUFF_ICON_UI		/// 굳이 버프 아이콘을 만들 필요가 없는 State면 만들지 말자.
 	if( NULL != g_pMain )
@@ -1653,12 +1861,115 @@ void CX2MyGageUI::UpdateBuffIcon()
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+/// June 32e672c0 (my gage slot 20): the base, then the Hero-dungeon tail 32e5d0a0 for a new icon
+void CX2MyGageUI::SetBuffIconStatic( const BuffIcon& BuffIconInfo_, int iIndex_, bool bIsDebuff_, const D3DXVECTOR2& vSize_ )
+{
+	CX2StatusGageUI::SetBuffIconStatic( BuffIconInfo_, iIndex_, bIsDebuff_, vSize_ );
+
+	if( false == BuffIconInfo_.bNew )
+		return;
+
+	const WCHAR* pwszParticleName = NULL;
+	switch( BuffIconInfo_.eBuffID )
+	{
+	case BTI_BUFF_HERO_STOP:
+		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Hero_Dungeon_Buff_STOP.ogg", false, false, true );
+		pwszParticleName = L"HeroDungeon_Monster_Stop";
+		break;
+	case BTI_BUFF_HERO_UNLIMITED_HP:
+		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Hero_Dungeon_Buff_HP.ogg", false, false, true );
+		pwszParticleName = L"HeroDungeon_HP_Bonus";
+		break;
+	case BTI_BUFF_HERO_UNLIMITED_MP:
+		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Hero_Dungeon_Buff_MP.ogg", false, false, true );
+		pwszParticleName = L"HeroDungeon_MP_Bonus";
+		break;
+	case BTI_BUFF_HERO_COOLTIME_FREE:
+		g_pKTDXApp->GetDeviceManager()->PlaySound( L"Hero_Dungeon_Buff_SKILL.ogg", false, false, true );
+		pwszParticleName = L"HeroDungeon_Skill_Bonus";
+		break;
+	default:
+		return;
+	}
+
+	CKTDGParticleSystem* pUIParticle = g_pData->GetUIMajorParticle();
+	pUIParticle->CreateSequence( NULL, pwszParticleName, 0, 0, 0 );
+	pUIParticle->CreateSequence( NULL, L"Hero_UiParticle_Glow", 0, 0, 0 );
+	pUIParticle->CreateSequence( NULL, L"Hero_UiParticle_Particle", 0, 0, 0 );
+	pUIParticle->CreateSequence( NULL, L"Hero_UiParticle_Action", 0, 0, 0 );
+	pUIParticle->CreateSequence( NULL, L"Hero_UiParticle_Action_ADD", 0, 0, 0 );
+}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 
 /** @function : SetBuffIconGuideDesc
 	@brief : 버프 아이콘 툴팁을 설정하는 함수
 */
 void CX2MyGageUI::SetBuffIconGuideDesc()
 {
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	// June 32e70960
+	BOOST_FOREACH( BuffIcon BuffIconData, m_vecBuffList )
+	{
+		if( -1 == BuffIconData.iBuffName )
+			continue;
+
+		WCHAR szStaticName[20];
+		StringCchPrintfW( szStaticName, 20, L"ButtonBuff_%d", BuffIconData.eBuffID );
+		CKTDGUIButton* pButtonBuffIcon = static_cast<CKTDGUIButton*>( m_pDlgBuffIcon->GetControl( szStaticName ) );
+		if( NULL == pButtonBuffIcon )
+			continue;
+
+		std::wstring slotItemDesc = GET_STRING( BuffIconData.iBuffName );
+		slotItemDesc += L"\n\n";
+#ifdef SERV_PC_BANG_TYPE
+		if( NULL != g_pData->GetPremiumBuffManager() && BTI_BUFF_PREMIUM_PC_ROOM == BuffIconData.eBuffID )
+			slotItemDesc += g_pData->GetPremiumBuffManager()->GetPcBangBuffString();	// stand-in: June 326c8280 (PC-room text) not ported, no PC room offline
+		else
+#endif SERV_PC_BANG_TYPE
+		slotItemDesc += GET_STRING( BuffIconData.iBuffDesc );
+
+#ifdef SERV_NEW_UNIT_TRADE_LIMIT
+		if( true == g_pData->GetMyUser()->GetSelectUnit()->IsTradeBlockUnit() && BTI_BUFF_TRADE_BLOCK == BuffIconData.eBuffID )
+			UpdateTradeBlockDesc( slotItemDesc );
+#endif SERV_NEW_UNIT_TRADE_LIMIT
+
+		// stand-in: June 32e5d050 (BTI_NONE_INT premium end-time line) not ported, CX2PremiumBuffManager +0x60 has no March member
+		// stand-in: June 326c55f0 / 326c86b0 (PC-room remaining-time line) not ported, no PC room offline
+
+#ifdef _IN_HOUSE_
+		slotItemDesc += L"\n\nKey : ";
+		slotItemDesc += BuffIconData.szTextureKeyName;
+#endif //_IN_HOUSE_
+
+		pButtonBuffIcon->SetGuideDesc( slotItemDesc.c_str() );
+	}
+
+	BOOST_FOREACH( BuffIcon BuffIconData, m_vecDebuffList )
+	{
+		if( -1 == BuffIconData.iBuffName )
+			continue;
+
+		WCHAR szStaticName[20];
+		StringCchPrintfW( szStaticName, 20, L"ButtonBuff_%d", BuffIconData.eBuffID );
+		CKTDGUIButton* pButtonBuffIcon = static_cast<CKTDGUIButton*>( m_pDlgBuffIcon->GetControl( szStaticName ) );
+		if( NULL == pButtonBuffIcon )
+			continue;
+
+		std::wstring slotItemDesc = GET_STRING( BuffIconData.iBuffName );
+		slotItemDesc += L"\n\n";
+		slotItemDesc += GET_STRING( BuffIconData.iBuffDesc );
+
+#ifdef _IN_HOUSE_
+		slotItemDesc += L"\n\nKey : ";
+		slotItemDesc += BuffIconData.szTextureKeyName;
+#endif //_IN_HOUSE_
+
+		pButtonBuffIcon->SetGuideDesc( slotItemDesc.c_str() );
+	}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	BOOST_FOREACH( BuffIcon BuffIconData ,m_vecBuffList )	/// 버프 툴팁
 	{
 		if( -1 != BuffIconData.iBuffName )
@@ -1723,6 +2034,7 @@ void CX2MyGageUI::SetBuffIconGuideDesc()
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 }
 #endif //BUFF_ICON_UI
 #ifdef DISPLAY_BUFF_DURATION_TIME
@@ -1814,8 +2126,56 @@ void CX2MyGageUI::SetBuffIconGuideDesc()
 #endif // DISPLAY_BUFF_DURATION_TIME
 
 #ifdef SERV_NEW_UNIT_TRADE_LIMIT
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+namespace _CONST_MY_GAGE_UI_H2_
+{
+	// June 328651e0: " " then days and hours, "less than an hour", or nothing once the time is past
+	void AppendRemainTimeString( std::wstring& wstrDesc_, const __int64 iRemainSecond_ )
+	{
+		wstrDesc_ += L" ";
+
+		const __int64 iDay = iRemainSecond_ / 86400;
+		if( 0 < iDay )
+		{
+			wstrDesc_ += GET_REPLACED_STRING( ( STR_ID_22727, "i", static_cast<int>( iDay ) ) );
+
+			const int iHourOfDay = static_cast<int>( iRemainSecond_ / 3600 ) - static_cast<int>( iDay ) * 24;
+			if( 0 < iHourOfDay )
+			{
+				wstrDesc_ += L" ";
+				wstrDesc_ += GET_REPLACED_STRING( ( STR_ID_22728, "i", iHourOfDay ) );
+			}
+		}
+		else if( 0 == iDay )
+		{
+			const int iHour = static_cast<int>( iRemainSecond_ / 3600 );
+			if( 0 < iHour )
+				wstrDesc_ += GET_REPLACED_STRING( ( STR_ID_22728, "i", iHour ) );
+			else if( 0 == iHour )
+				wstrDesc_ += GET_STRING( STR_ID_22729 );
+		}
+	}
+}
+using namespace _CONST_MY_GAGE_UI_H2_;
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 void CX2MyGageUI::UpdateTradeBlockDesc( std::wstring& wstrBuffDesc )
 {
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	// June 32e6f890
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const __time64_t tCurrentTime = g_pData->GetServerCurrentTime();
+	CTime tUnitCreateTime;
+	KncUtil::ConvertStringToCTime( pUnit->GetUnitCreateDate(), tUnitCreateTime );
+	const __int64 iTradeBlockReleaseTime = tUnitCreateTime.GetTime() + static_cast<__int64>( pUnit->GetNewUnitTradeBlockDay() ) * 86400;
+
+	if( iTradeBlockReleaseTime < tCurrentTime && 0 != pUnit->GetNewUnitTradeBlockUnitClass() && 0 == pUnit->GetClassLevel() )
+	{
+		wstrBuffDesc += GET_STRING( STR_ID_24523 );
+		return;
+	}
+
+	AppendRemainTimeString( wstrBuffDesc, iTradeBlockReleaseTime - tCurrentTime );
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	wstring wstrTradeBlockReleaseTime = g_pData->GetMyUser()->GetSelectUnit()->GetUnitCreateDate();
 	CTime tCurrentTime, tTradeBlockReleaseTime;
 	tCurrentTime = g_pData->GetServerCurrentTime();
@@ -1857,6 +2217,7 @@ void CX2MyGageUI::UpdateTradeBlockDesc( std::wstring& wstrBuffDesc )
 	}
 
 	return;
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 }
 #endif // SERV_NEW_UNIT_TRADE_LIMIT
 
@@ -3048,6 +3409,52 @@ void CX2PartyMemberGageUI::UpdatePartyLeaderUI()
 */
 void CX2PartyMemberGageUI::UpdateBuffIcon()
 {
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	// June 32e68660: the row sits at y 155 where March's sat at 125
+	if( NULL == m_pDlgBuffIcon )
+	{
+		m_pDlgBuffIcon = new CKTDGUIDialog( NULL, L"DLG_BuffManager.lua" );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDlgBuffIcon );
+		m_pDlgBuffIcon->SetShow( true );
+
+		D3DXVECTOR2 vPos( 150.f, 155.f + ( m_uiPositionIndex * 44 ) );
+		if( NULL != g_pMain )
+		{
+			m_bIsSkillUITypeA = g_pMain->GetGameOption().GetIsSkillUITypeA();
+			if( false == m_bIsSkillUITypeA )
+				vPos.y += 20.f;
+		}
+		m_pDlgBuffIcon->SetPos( vPos );
+#ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] BUFF anchor %.0f,%.0f party %u", vPos.x, vPos.y, m_uiPositionIndex );
+#endif SERV_IRUHADEV_JUNE_HUD_DEBUG
+	}
+	if( m_bIsSkillUITypeA != g_pMain->GetGameOption().GetIsSkillUITypeA() )
+	{
+		m_bIsSkillUITypeA = g_pMain->GetGameOption().GetIsSkillUITypeA();
+		D3DXVECTOR2 vPos( 150.f, 155.f + ( m_uiPositionIndex * 44 ) );
+		if( false == g_pMain->GetGameOption().GetIsSkillUITypeA() )
+			vPos.y += 20.f;
+		m_pDlgBuffIcon->SetPos( vPos );
+	}
+
+	if( NULL != m_pDlgBuffIcon )
+	{
+		int iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecBuffList.begin(); it != m_vecBuffList.end(); ++it )
+		{
+			it->bNew = false;
+			SetBuffIconStatic( *it, iIndex--, false, D3DXVECTOR2( 16.f, 16.f ) );
+		}
+
+		iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecDebuffList.begin(); it != m_vecDebuffList.end(); ++it )
+		{
+			it->bNew = false;
+			SetBuffIconStatic( *it, iIndex--, true, D3DXVECTOR2( 16.f, 16.f ) );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	if( NULL == m_pDlgBuffIcon )
 	{
 		m_pDlgBuffIcon = new CKTDGUIDialog( NULL, L"DLG_BuffManager.lua" );
@@ -3096,6 +3503,7 @@ void CX2PartyMemberGageUI::UpdateBuffIcon()
 			SetBuffIconStatic( (*it), iIndex--, bIsDebuff, D3DXVECTOR2(16,16));
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 }
 #endif //BUFF_ICON_UI
 
@@ -3437,6 +3845,50 @@ void CX2PVPPlayerGageUI::UpdatePvpRank()
 */
 void CX2PVPPlayerGageUI::UpdateBuffIcon()
 {
+#ifdef SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+	// June 32e68de0: created at y 125 + 30, re-placed at y 155 where March used 125 for both
+	if( NULL == m_pDlgBuffIcon )
+	{
+		m_pDlgBuffIcon = new CKTDGUIDialog( NULL, L"DLG_BuffManager.lua" );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDlgBuffIcon );
+		m_pDlgBuffIcon->SetShow( true );
+
+		D3DXVECTOR2 vPos( 150.f, 125.f + ( m_uiPositionIndex * 44 ) );
+		vPos.y += 30.f;
+		m_bIsSkillUITypeA = g_pMain->GetGameOption().GetIsSkillUITypeA();
+		if( false == m_bIsSkillUITypeA )
+			vPos.y += 20.f;
+		m_pDlgBuffIcon->SetPos( vPos );
+#ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_HUD] BUFF anchor %.0f,%.0f pvp %u", vPos.x, vPos.y, m_uiPositionIndex );
+#endif SERV_IRUHADEV_JUNE_HUD_DEBUG
+	}
+	if( m_bIsSkillUITypeA != g_pMain->GetGameOption().GetIsSkillUITypeA() )
+	{
+		m_bIsSkillUITypeA = g_pMain->GetGameOption().GetIsSkillUITypeA();
+		D3DXVECTOR2 vPos( 150.f, 155.f + ( m_uiPositionIndex * 44 ) );
+		if( false == g_pMain->GetGameOption().GetIsSkillUITypeA() )
+			vPos.y += 20.f;
+		m_pDlgBuffIcon->SetPos( vPos );
+	}
+
+	if( NULL != m_pDlgBuffIcon )
+	{
+		int iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecBuffList.begin(); it != m_vecBuffList.end(); ++it )
+		{
+			it->bNew = false;
+			SetBuffIconStatic( *it, iIndex--, false, D3DXVECTOR2( 16.f, 16.f ) );
+		}
+
+		iIndex = 0;
+		for( vector<BuffIcon>::iterator it = m_vecDebuffList.begin(); it != m_vecDebuffList.end(); ++it )
+		{
+			it->bNew = false;
+			SetBuffIconStatic( *it, iIndex--, true, D3DXVECTOR2( 16.f, 16.f ) );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 	if( NULL == m_pDlgBuffIcon )
 	{
 		m_pDlgBuffIcon = new CKTDGUIDialog( NULL, L"DLG_BuffManager.lua" );
@@ -3484,6 +3936,7 @@ void CX2PVPPlayerGageUI::UpdateBuffIcon()
 			SetBuffIconStatic( (*it), iIndex--, bIsDebuff, D3DXVECTOR2(16,16));
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
 }
 #endif //BUFF_ICON_UI
 

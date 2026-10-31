@@ -237,6 +237,32 @@ no time, which is June's behaviour (H0); their counter comes with H3.
 - my unit's time text is still June's 11b text, and a re-applied buff refreshes it;
 - other units' icons show no time.
 
+**Done note (H2, 2026-10-31, Opus 5.5):**
+- Flags `SERV_IRUHADEV_JUNE_HUD_BUFF_ROW` + `SERV_IRUHADEV_JUNE_HUD_DEBUG` (`Always.h:11019` / `:11038`; `#error` guards on `JUNE_ENUM_NAMES`, `RANOX_PORT`,
+  `JUNE_CHAR_EVE_PASSIVE`, `JUNE_SOUND_AUTO_RELEASE`, all ON by `cl /P` probe). Code: `X2GageUI.{h,cpp}`; enums `X2BuffFactor.h`, `Enum.h`.
+- June bodies, March's in `#else`: `CX2MyGageUI::UpdateBuffIcon` `32e67050` (dummy 0 / 1 anchor every call, logs on create), `SetBuffIconStatic`
+  `32e661d0` (now virtual, as June's slot 20: strings 0 and 1, existing-icon `SetDurationTime( BTI, (int)ceil( GetBuffTimeFinalizerDuration ) )`, shown
+  in the spa villages), party / PvP `UpdateBuffIcon` `32e68660` / `32e68de0`, `SetBuffIconGuideDesc` `32e70960`, `UpdateTradeBlockDesc` `32e6f890`
+  (+ the remain-time string `328651e0` as `_CONST_MY_GAGE_UI_H2_::AppendRemainTimeString`). New `CX2MyGageUI::SetBuffIconStatic` override = `32e672c0`
+  (base, then the Hero tail `32e5d0a0`: ogg + 5 `GetUIMajorParticle()` sequences, all 8 present in `UIMajorParticle.txt`).
+- **CRT settled:** IAT `333bc928` is **ceil** (8 of 8 neighbouring slots match msvcr100 exports at base 61c00000; funcmap `(HUD H2)`).
+- Enums under `JUNE_ENUM_NAMES`: `BTI_BUFF_HERO_STOP` 558 / `_UNLIMITED_HP` 559 / `_UNLIMITED_MP` 560 / `_COOLTIME_FREE` 561, `VMI_SPA_RUBEN` 1500.
+- Assets: `kom.py stage-june` the four `Hero_Dungeon_Buff_*.ogg` (4 new, data078); **`PACK OK data078`**. The copy is not done: ask the user.
+- Tooltip: June's "[%S]1_2_3" id form is its `GET_STRING` macro (`31e71c10`, ~3000 callers), so March's `GET_STRING` stays. `_IN_HOUSE_` Key and
+  `ERASE_BUFF_CHEAT` lines are kept inside June's bodies: a service binary cannot show in-house code. Stand-ins (one-line comments): PC-room text
+  `326c8280` (March's `GetPcBangBuffString`) and time line `326c86b0`, and the `BTI_NONE_INT` end-time line `32e5d050` (no PC room / premium end time
+  offline). Trade block is never set offline (`Handlers_Unit.cpp:876`), so `UpdateTradeBlockDesc` is ported dormant; `3234c170` = `GetClassLevel`.
+- Divergence: rows `SetBuffIconStatic` / `UpdateBuffIcon` / `SetBuffIconGuideDesc` marked ported, their 3 allow rows deleted; new rows
+  `UpdateTradeBlockDesc` (replace, ported) and `GetPcBangBuffString` (out, no PC room). The kickoff's "five rows" were these three (one covers 3 VAs).
+- No JUNE_BUGS row: nothing June does here looks unintended (PvP's create y 125 + 30 equals its re-place y 155).
+- Hygiene: `flagcheck JUNE_HUD_BUFF_ROW --with JUNE_HUD_DEBUG --worktree`: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags),
+  0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s)`; `RESULT: PASS` (OTHER = the enum rows under `JUNE_ENUM_NAMES`).
+  `junediverge --check X2GageUI.{cpp,h}`: `RESULT: PASS` (5 allow-listed), `--selftest` PASS; `enumscan --check`: 0 rows.
+- Build (PCH auto-touched for `Always.h`):
+  `DEPLOY OK: X2_offline.exe is 25,865,216 B, dated 2026-10-31 07:54:48, md5 26e27ce47853fa6bb84d04318156563f`
+  `EXESTR OK: 4 of 4 found` (`[JUNE_HUD] BUFF anchor`, `Hero_Dungeon_Buff_STOP.ogg`, `Hero_UiParticle_Action_ADD`, `HeroDungeon_Skill_Bonus`).
+- H3 note: string 1 now exists on every icon (empty); H3's slot-12 setter writes it. `SetBuffIconStatic` is virtual now.
+
 ## Phase H3 - The buff counter (Sonnet 5.5, high)
 
 **Run with:** `/x2-phase june-hud H3`. Depends on H2. Flag `SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT` (with `#error` if `_BUFF_ROW` is off; prove with `cl /EP`).

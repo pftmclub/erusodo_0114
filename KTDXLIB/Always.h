@@ -11011,3 +11011,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: june-hud H4 diagnostics: [JUNE_HUD] SLOT lines from the quick slot ctor, icon fills, SetEnable and SetShow. Retired by the plan review.
 #define SERV_IRUHADEV_JUNE_HUD_QUICKSLOT_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H2: June's buff icon row - CX2MyGageUI::UpdateBuffIcon 32e67050 (anchored at DLG_BuffManager.lua dummy 0 (993, 26), dummy 1 in PvP / training), SetBuffIconStatic 32e661d0 made virtual (two strings: duration and stack counter; an existing icon refreshes its time through SetDurationTime( ceil( GetBuffTimeFinalizerDuration ) ); always shown in the spa villages), the my-gage override 32e672c0 with the Hero-dungeon tail 32e5d0a0, party / PvP UpdateBuffIcon 32e68660 / 32e68de0 (y 155), SetBuffIconGuideDesc 32e70960 and UpdateTradeBlockDesc 32e6f890. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_ROW ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_ROW needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( BTI_BUFF_HERO_*, VMI_SPA_RUBEN )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_ROW ) && !defined( SERV_IRUHADEV_RANOX_PORT )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_ROW needs SERV_IRUHADEV_RANOX_PORT ( VMI_SPA_RANOX )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_ROW ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_ROW needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( CX2GameUnit::GetBuffTimeFinalizerDuration )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+#if defined( SERV_IRUHADEV_JUNE_HUD_BUFF_ROW ) && !defined( SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE )
+#error SERV_IRUHADEV_JUNE_HUD_BUFF_ROW needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE ( June's 4-argument PlaySound )
+#endif SERV_IRUHADEV_JUNE_HUD_BUFF_ROW
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-31
+// Description: june-hud H2 diagnostics: one [JUNE_HUD] BUFF anchor line per buff-row dialog create (my, party, PvP gage). Retired by the plan review.
+#define SERV_IRUHADEV_JUNE_HUD_DEBUG
+//////////////////////////////////////////////////////////////////////////

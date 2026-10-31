@@ -232,6 +232,9 @@ namespace SEnum
 #ifdef SERV_IRUHADEV_RANOX_PORT
 		VMI_SPA_RANOX					= 1501,
 #endif SERV_IRUHADEV_RANOX_PORT
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		VMI_SPA_RUBEN					= 1500,	// June Enum.lua; read by the buff icon row (june-hud H2)
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	//}}
 		VMI_TUTORIAL = 2000,			// 캐릭터 생성 시 최초 발급 MID
 //#endif SERV_REFORM_QUEST
