@@ -1,0 +1,26 @@
+script: june_src_fixed/data036_kom/Chung_Iron_Cannon.src.lua
+top-level tables: 395 (INIT_*: 7)   distinct keys: 249   key occurrences: 10583
+verdicts: june-only=11  neither=8  march-only-site=7  both=223
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x3     damage-data            june=plain readers=none census=implemented/unassigned
+  CANNON_BALL_COUNT_AT_DUNGEON_START       x1     INIT_PERSONAL_INFO     june=xor readers=32bf5430:? 
+  CANNON_BALL_COUNT_AT_PVP_START           x1     INIT_PERSONAL_INFO     june=xor readers=32bf5430:? 
+  COMMAND_HIT_ADD_MP_BONUS                 x1     INIT_COMPONENT         june=xor readers=32bf4900:CX2GUChung init-script reader (COMMAND_HIT_ADD_MP_BONUS) 
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  IMMUNE_TO_SUPER_ARMOR_DOWN               x11    state                  june=xor readers=31fdaaa0:? 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x46    state                  june=plain readers=none 
+  MOBILE_SIEGE_ANGLE                       x1     INIT_COMPONENT         june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  SIEGE_ANGLE                              x1     INIT_COMPONENT         june=plain readers=none 
+neither (no reader found on either side):
+  ATTACK_ACTION_TYPE                       x51    damage-data
+  EXTRA_CANNON_BALL_DAMAGE_RATE            x1     INIT_COMPONENT
+  HEAD_IK                                  x8     state
+  HEAD_IK_MAX_ANGLE                        x1     INIT_COMPONENT
+  NOMAL_CAMERA0_RATE                       x2     state
+  NOMAL_CAMERA1_RATE                       x2     state
+  NOMAL_CAMERA2_RATE                       x2     state
+  USE_CANNON_BALL0                         x3     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+wrote char_chung/plan_charport_keys.tsv

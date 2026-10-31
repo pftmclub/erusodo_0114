@@ -113,7 +113,7 @@ Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-p
 | stage30-plan | ready (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 ...) | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
 | stage31-plan | ready (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> ... | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
 | stage33-plan | ready (start: `/x2-phase new-plan june-stat-calc`): June's damage and character stat calculation. Map every stat / damage formula as June / March / mixed, then replace each mixed one with June's whole function ... | Opus 5.5 / xhigh | dep: -; runs with anything (read-only); code after the character ports, Stages ... | docs, `june2017_re/statcalc/`, funcmap rows (`StatCalc S33`) | `stage33-plan.md` |
-| stage7-plan | Eve planned 2026-10-25, closed 2026-10-28 (Z) (`JUNE_CHARACTER_EVE_PHASES.md` + `kickoffs/char-eve/` + the `char-eve` block; next planning session: `/x2-phase new-plan char-chung`). ready (one planning session ...) | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
+| stage7-plan | Eve closed 2026-10-28; **Chung planned 2026-10-31** (`JUNE_CHARACTER_CHUNG_PHASES.md` + `kickoffs/char-chung/` + the `char-chung` block). queued: next planning session `/x2-phase new-plan char-elsword`, set ready by char-chung Z | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch `main` · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`, `SHIMMER`, `CRS`, `SMRT`, `UI`, `WORLD`) · flags `SERV_IRUHADEV_JUNE_RENDER_*` / `_JUNE_UI_*` / `_JUNE_WORLD_*` · kickoffs `kickoffs/june-engine/` · backlog Stage 2 · created 2026-10-16.
@@ -167,6 +167,52 @@ Done: R0, R1, R2, R3, R3b, R3c, R3d, R4.
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | Z | blocked (waits for the R4 review) | Sonnet 5.5 / medium | R3 review (+ R4 review if run) | `MODS.md`, backlog, memory | `Z.md` |
+
+## char-chung - June character port, Stage 7: Chung
+Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `CHUNG <sub>`: `DATA`, `CORE`, `CBALL`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_*` (`_CORE`, `_LIVE`, `_CBALL`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-chung/` · backlog Stage 7 · created 2026-10-31.
+
+**Scope:** Chung (`CX2GUChung`, 7 classes 6 / 20 / 21 / 27 / 110 / 111 / 117) from his March kit to June 2017's, incl. cannon balls, summons and his transcendence rows. June class `32bd86f0`-`32c25a1f` (441 carved functions, 385 script states). First character under the no-`June`-prefix rule: CH1a-CH1l4 write June bodies inside March's functions under `_LIVE`. No dormant March system, no open decision.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| CH0 | **ready** (read-only; runs alongside anything): Chung map, `inside` / `new` column, assets, summons, cannon-ball map, motion question | Opus 5.5 / high | - | `june2017_re/char_chung/`, charport tools, funcmap, plan doc, kickoffs | `CH0.md` |
+| CH0b | blocked (CH0): every June Chung asset byte-exact, pack, ask, copy; walk units 6 / 20 / 21 / 27 created | Sonnet 5.5 / high, then user play-test | CH0 | Chung's assets in `kom_contents/*_kom` + game-dir koms, save | `CH0b.md` |
+| CH1a | blocked (CH0): class core, movement, guard, slot-head; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUChung.*`, Always.h | `CH1a.md` |
+| CH1b | blocked (CH1a review): class core, reactions; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUChung.*`, Always.h | `CH1b.md` |
+| CH1c | blocked (CH1b review): class core, riding, pepper, dance; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUChung.*`, Always.h | `CH1c.md` |
+| CH1d | blocked (CH1c review): class core, base combos; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1c review | `X2GUChung.*`, Always.h | `CH1d.md` |
+| CH1e | blocked (CH1d review): class core, Fury Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUChung.*`, Always.h | `CH1e.md` |
+| CH1f | blocked (CH1e review): class core, Iron Paladin line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUChung.*`, Always.h | `CH1f.md` |
+| CH1g | blocked (CH1f review): class core, Shooting Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUChung.*`, Always.h | `CH1g.md` |
+| CH1h | blocked (CH1g review): class core, Deadly Chaser line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUChung.*`, Always.h | `CH1h.md` |
+| CH1i | blocked (CH1h review): class core, Shelling Guardian line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUChung.*`, Always.h | `CH1i.md` |
+| CH1j | blocked (CH1i review): class core, Tactical Trooper line; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1i review | `X2GUChung.*`, Always.h | `CH1j.md` |
+| CH1k | blocked (CH1j review): class core, overrides < 0x600, ctor / dtor map; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GUChung.*`, Always.h | `CH1k.md` |
+| CH1l | blocked (CH1k review): class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k review | `X2GUChung.*`, Always.h | `CH1l.md` |
+| CH1l2 | blocked (CH1l review): class core, Common* overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l review | `X2GUChung.*`, Always.h | `CH1l2.md` |
+| CH1l3 | blocked (CH1l2 review): class core, skill-use overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l2 review | `X2GUChung.*`, Always.h | `CH1l3.md` |
+| CH1l4 | blocked (CH1l3 review): class core, CommonFrameMove; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l3 review | `X2GUChung.*`, Always.h | `CH1l4.md` |
+| CH1m | blocked (CH1l4 review): registration (`InitState` `32c22540` / `InitStateCommon`), hyper table name, the `_LIVE` gate | Opus 5.5 / high, Opus review | CH1l4 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
+| CH1n | blocked (CH1m review): CX2GUUser base callbacks, `SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` head, dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
+| CH1o | blocked (CH1n review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
+| CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
+| CH1q | blocked (CH1p review): cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
+| CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt `Chung_Iron_Cannon.lua`, pack / ask / copy, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |
+| CH2a | blocked (CH1 review): Iron Cannon (6) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUChung.*`, `MODS.md` | `CH2a.md` |
+| CH2b | blocked (CH2a review): Fury Guardian (20) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUChung.*`, `MODS.md` | `CH2b.md` |
+| CH2c | blocked (CH2b review): Shooting Guardian (21) skills, siege mode, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
+| CH2d | blocked (CH2c review): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |
+| CH3b0 | blocked (CH1 review): summoned NPCs (targeting NPC, remote mortar), `Targeting_Chung.lua`, binder check; CH0 may move it earlier | Opus 5.5 / high, Opus review, user play-test | CH1 review | `X2GUChung.*`, data037 | `CH3b0.md` |
+| CH3a | blocked (CH2d review): Iron Paladin (110) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `MODS.md` | `CH3a.md` |
+| CH3b | blocked (CH3a review, CH3b0 review): Deadly Chaser (111) skills, Artillery Strike 7r / 7ac | Sonnet 5.5 / high, Opus review, user play-test | CH3a review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH3b.md` |
+| CH3c | blocked (CH3b review): Tactical Trooper (117) skills, Heavy Field 7r / 7n | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUChung.*`, `MODS.md` | `CH3c.md` |
+| CH3d | blocked (CH3c review): hyper actives, transcendence rows (7ao, allow-list, TR pictures), `skillicons.py check` PASS | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GUChung.*`, `MODS.md`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
+| CH4a | blocked (CH2d review, no CH3 running): passives (`InitPassiveSkillState` `32c16be0`), 7am delegate lists, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review, no CH3 running | `X2GUChung.*` | `CH4a.md` |
+| CH4b | blocked (CH4a review): `SetDamageExceptionProcess` `32bf28f0`, overrides, 7an soul gain, death-prevention override, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUChung.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4c | blocked (CH4b review): memo and item readers: `MemoConditionChung`, grenade memo 7u, Metabolism Boost, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GUChung.*`, `X2BuffTemplet.cpp`, `X2Game.cpp` | `CH4c.md` |
+| CH5 | blocked (CH1 review): Chung's 7 `UnitTemplet` rows, cut-in table; may run beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUChung.cpp` cut-in table, data036 | `CH5.md` |
+| CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
+| Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
 ## Other plans (no STATUS rows)
 
