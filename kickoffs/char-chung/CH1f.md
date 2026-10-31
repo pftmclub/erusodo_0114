@@ -65,3 +65,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1e (2026-10-31)
 
 - `32c01be0` (`CFGComboDashZFrameMove`, shared by `CSI_CFG_COMBO_XXFRONTZ`, `CSI_CFG_COMBO_DASH_Z` and `CSI_CIP_COMBO_DASHJUMP_XX_LANDING`) was written in CH1e (June body = March's). The class map's CH1f rows do not repeat it; CH1m registers `CSI_CIP_COMBO_DASHJUMP_XX_LANDING` with that function.
+
+## Checked by the CH1e review (2026-10-31)
+
+- The five cancel members June reads are `m_fAttackCancelAfter` `+0x8c8c` (Z / X through vslots `0x4b0` / `0x4b4`), `m_fSkillCancelAfter` `+0x8c90`, `m_fBWalkCancelAfter` `+0x8c94`, `m_fWalkCancelAfter` `+0x8c98`, `m_fDashCancelAfter` `+0x8c9c` (`X2GUUser.h:4755-4759`). In CH1e every one of them is ground-gated (`+0x7e1c`); `CFGComboXXFrontZEventProcess` is the worked example.
