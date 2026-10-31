@@ -56,3 +56,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32bd9ee0` `32bd9f40` `32bd9f70` `32bd9fd0` `32bda020` `32bda080` `32be30c0` `32be31f0` `32be3320` `32be3730` `32be3960` `32be3a30` `32be3cb0` `32bfd690` `32bfd6b0` `32bfd6f0` `32bfda10` `32bfda50` `32c19f30` `32c1a480` `32c1ae60` `32c1ba00`.
 - **States: 7** (`awk -F'\t' '$8=="CH1h"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_CDC_COMBO_X`, `CSI_CDC_COMBO_XX`, `CSI_CDC_COMBO_XZ`, `CSI_CDC_COMBO_XZZ`, `CSI_CDC_COMBO_ZZX`, `CSI_CDC_COMBO_ZZXX`, `CSI_CDC_COMBO_ZZXXX`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L253 class code scales the cached state power rate (+0x7cc8).
+
+## Amended by the CH1g review (2026-10-31)
+
+- June's CDC X `32c19f30` (`@32c1a3f8`), XZ `32c1a480` (`@32c1a9fd`, `@32c1abf2`, `@32c1adda`) and ZZXX `32c1ae60` (`@32c1b3f0`, `@32c1b635`, `@32c1b873`) call `32c15990`, the head shot. Their June bodies call `SetExtraDamageMiniGun( pEffect, m_fMiniGunHeadShotRate )` (CH1g's CEffect overload, which also adds one hit), not March's `DamageData&` one. Read each shot for the `+0x98ac` power factor (`m_fRemodelRifleDamageRate`) and the Open Mind MP rate, as in CH1g's shells: see `CH1g2.md`, "Amended by CH1g".
