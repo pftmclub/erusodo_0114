@@ -429,8 +429,10 @@ Everything from Stages 5 and 6, plus:
   around Lu/Ciel's two bodies: per-form fashion / normal tables (unit `+0xb7d` / `+0xbf2`, equip `+0x15d4`, form `+0xe40`), Ciel copies from
   `m_ItemIDForMinorUnit` (templet `+0x30`, user `+0x9570` / `+0x9574`), Ciel slot ids `0x14`..`0x2a`, skin anim vslot 0x570 (`31fd48a0`), the
   ( pos, form ) test `31fd63c0`. Port the set whole with these classes, including the non-Lu/Ciel residue: CreateEquip always with the unit type
-  plus two arguments, GetEquippingItemByEquipPos's third argument (Stage 33 row), the usable test `328825c0` and enchant `32882540` (Stage 16 parts),
-  no `INIT_COMPONENT` read. `RemoveEquipFromViewList` (`31fe21a0`) is March's. For other classes the result is March's today.
+  plus two arguments (the ctor `32961280` keeps March's `UC_ANYONE` gate, so the model is the same), GetEquippingItemByEquipPos's third argument
+  (Stage 33 row), the usable test `328825c0` (March's `IsDisabled`: taking off a fashion item over a broken normal item shows the basic model, all
+  classes) and enchant `32882540` (a PvP-equip / 0x4d item shows +7; Stage 16 parts). `RemoveEquipFromViewList` (`31fe21a0`) is March's. For
+  other classes the result is March's today except those two cosmetic cases (char-chung CH1l0 review).
 - the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
 - Ain's SetStopTime / SetStop2Time overrides (june-effect C3e-3, funcmap `32a38e70 / 32a38ea0 (C3e-3)`): the stop time times Ain's

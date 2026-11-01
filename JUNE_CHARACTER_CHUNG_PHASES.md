@@ -1319,6 +1319,53 @@ kickoff has "Amended by CH1l0".
 
 **Nothing to play-test.** Next: `/x2-phase char-chung CH1l0 review` (Opus 5.5 high).
 
+### CH1l0 - Review (2026-11-01, Opus 5.5)
+
+**Verdict: passes. All four verdicts hold, nothing changes in source, and CH1l can start.** Three readings in the notes were wrong and are
+corrected below. None of them moves anything out of Stage 8.
+- **`31fcd740` is dead (holds).** I re-scanned `14JUN17\data\unpacked_x2.exe` below raw `0x1cbbe00` for disp32 `0x688`: 111 hits. None is
+  `FF /2` or `FF /4` (`call` / `jmp [reg+0x688]`, including SIB forms). The 8 loads from a register other than `esp` (`31d80d17`..`31d81094`,
+  `31d943d8` and `32fdfd35`, plus `ebp` at `32193fca`) and the `add [esi+0x688]` at `31d81075` read `this` members: `+0x684` / `+0x688`
+  vector pairs. The `add ecx, 0x688` lines at
+  `332db6af` / `332dbc56` are SEH unwind funclets, and there is no `add reg, 0x688` before an indirect call. A raw rel32 scan finds only three
+  `call` / `jmp` to the three bodies: Chung's base call `32bf44d3`, Add's base call `329e2773`, and `32b90da0` (`jmp 31fcd740`). That `jmp` is
+  the thunk Ara's vtable holds in slot 0x688 (`3350599c`), so it is not a caller. Thirteen RTTI-resolved vtables hold slot 0x688. No member
+  pointer or Lua binding could reach the slot either: either one would need a vcall thunk (`jmp [eax+0x688]`), and none exists. So `32bf44d0`
+  is still n/a.
+- **`31fe21a0` = March `RemoveEquipFromViewList` (holds).** It reads the position at `+0x1b0` and erases `m_ViewEqipList` at the index. It maps
+  2 -> 0 and 0x25 -> 1: `EP_WEAPON_HAND` and `EP_WEAPON_SECOND` by count in `X2Unit_PreHeader.h`. On an `m_iWeaponIndex` match it erases with
+  memmove, calls `DeleteKTDGObject` (`31d28b60`) and does `--i`, then re-tests against the new size. It releases the by-value smart pointer
+  (`+8` refcount, `31d28b60` at 0).
+- **`32bdc750` = March's body + `slotId` (holds).** At entry plus 0x1c, args 1 / 2 / 3 are `[esp+0x20]` / `+0x24` / `+0x28`. The calls are
+  `31fd2f00( &ptr, &add, remove, &index )`, then `31fe21a0( ptr by value, index )` and `31ffe990( add, slotId, 0 )`. The function ends with
+  `RET 0xc` on both paths.
+- **The equip-view set goes to Stage 8 (holds).** No residue changes what Chung shows on any playable path:
+  - *CreateEquip always gets the unit type:* **no visible difference** (correction). June's `CX2Eqip` ctor `32961280` sets the unit type to 0
+    unless the displayed templet's `m_dwFlags & 0xf000 == 0x1000`. That field is `m_UseCondition` (bits 12-15), and 1 is `UC_ANYONE`. June
+    moved March's `UC_ANYONE` gate from `AddEquipToViewList` into the ctor. A class-locked item therefore gets March's model, never
+    `GetCommonItemModelName( type )`.
+  - *"No `INIT_COMPONENT` read":* **not a difference** (correction). March's read sits under `#ifndef FIX_SLASH_TRACE`, and `FIX_SLASH_TRACE`
+    is ON (`cl /EP` probe through `stdafx.h`).
+  - *Usable test `328825c0`:* its first clause is **not an expiry test** (correction to the S7k reading). Templet `+6 & 0xf` is `ITEM_TYPE`, and
+    1 / 2 is weapon / defence. Templet `+4` bit 0 is `FLAG_BIT_FASHION`. `32882540 < 0` is a negative enchant level. Together that is March's
+    `CX2Item::IsDisabled()` (`ITEM_RECOVERY_TEST`, ON by probe), read through June's enchant getter. The getter returns 7 or special ability
+    0x28 for a PvP-equip templet (bit 7) or a type-0x4d division item, and `+0x18` otherwise. The endurance clause is March's.
+    `32809f40( 0x4d, id )` with `+0xc4` / `+0x48d` stays unknown (Stage 16).
+  - *What Chung can see:* a broken item is possible offline, because enchanting can break one (`ERR_ENCHANT_RESULT_04`). If Chung takes off a
+    fashion item that sits over a broken normal item, June shows the basic model and March shows the broken item. Stats are dropped in both
+    (`CX2Unit::EqipAbility`). A PvP-equip weapon also shows a +7 glow in June. Both cases are cosmetic and apply to every class, which is not
+    playability under the scope rule (crash, softlock, progression, combat numbers). They stay with the set in Stage 8, and the bullet now names
+    them.
+  - *`GetEquippingItemByEquipPos( pos, false, 0 )`:* slot class 0 covers every non-Ciel equip slot (`stage33` row), so Chung gets the same item.
+
+**Corrected rows.** `funcmap.tsv`: `328825c0 (S7k)`, `31fd2f00`, `31ffe990` and `31fcd740` are reworded, and `32b90da0` is added (Ara slot
+0x688 thunk). `june_march_divergent.tsv`: the `GetAddItemAndRemoveItemToViewList` and `AddEquipToViewList` rows are reworded (verdict
+`stage8` unchanged). The `JUNE_PORT_BACKLOG_ORDER.md` Stage 8 bullet is updated. `kickoffs/char-chung/CH1l.md` "Amended by CH1l0" is
+checked and correct as written (14 of 16 rows; `32bdc750` stays March, `32bf44d0` n/a).
+
+**Gates.** No source changed: no flagcheck, no build (the CH1k review's `DEPLOY OK` md5 `05b833e8` stands). `junediverge.py --check-all`:
+`allow-listed: 160`, `RESULT: PASS`. Nothing to play-test. Next: `/x2-phase char-chung CH1l` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

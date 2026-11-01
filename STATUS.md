@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1l0 | done 2026-11-01, review next: no source change; `31fe21a0` = March, `31fcd740` dead (vslot 0x688 uncalled), equip-view pair -> Stage 8 | Opus 5.5 / high, Opus review | CH1k review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l0.md` |
-| CH1l | blocked (CH1l0 review): class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l0 review | `X2GUChung.*`, Always.h | `CH1l.md` |
+| CH1l | ready: class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l0 review | `X2GUChung.*`, Always.h | `CH1l.md` |
 | CH1l2 | blocked (CH1l review): class core, Common* overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l review | `X2GUChung.*`, Always.h | `CH1l2.md` |
 | CH1l30 | blocked (CH1l2 review): Opus helpers (CustomizeManager stand-in `31d70b60`, `31fd7640`, `3288fe90`, `31f66620`) before CH1l3 | Opus 5.5 / high, Opus review | CH1l2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l30.md` |
 | CH1l3 | blocked (CH1l30 review): class core, skill-use overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l30 review | `X2GUChung.*`, Always.h | `CH1l3.md` |
@@ -205,7 +204,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`).
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8).
 
 ## Other plans (no STATUS rows)
 
