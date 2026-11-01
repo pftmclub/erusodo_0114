@@ -1498,6 +1498,35 @@ No new enum literal, no JUNE_BUGS row (no quirk). `DEPLOY OK: X2_offline.exe is 
 
 **Play-test:** none. Nothing new runs (both added tests are false for every March class); CH1l3 is next after the review.
 
+### CH1l30 - Review (2026-11-01)
+
+**Passes, no source change.** All four readings hold against Ghidra and the exe bytes.
+- **`31fd7640`.** Ten vslots (0x438-0x45c) plus member `+0x7d04`, each compared with the Now index, then the ten riding ids, then 0x520 / 0x578; any hit -> false.
+  Base getters from the bytes: 0x43c `31b052e0` = 0xe, 0x440 = 0x13, 0x444 = 0x14, 0x448 = 0x15, 0x44c = 0x16, 0x450 = 0xf, 0x454 = 0x10, 0x458 `3208de10` =
+  riding ? 0x4f : 0x11, 0x45c = 0x12, 0x438 `3208ddd0` = riding ? 0x4c : `+0x4088`. Same order and names as March's body. Only Luciel overrides
+  0x438-0x45c, so writing March's `USI_*` constants is right for every March class. Riding: March `USI_RIDING_WAIT_HABIT`..`_DASH_JUMP_LANDING` = 74..83
+  (`cl -Zs` probe, contiguous, `RIDING_SYSTEM` on). June uses 0x4b..0x54, one higher, the same +1 as June's riding wait 0x4c and jump down 0x4f (March 75 / 78).
+  The name mapping holds.
+- **0x520 / 0x578.** `3208e710` = `sete` on Now == vslot 0x438; `31e4c550` = `xor al,al`. `vtslot.py`: only Rose `32ae37f0` (0x520) and Luciel `32b15340`
+  (0x578) differ from the base. A mov+call / `call [r+disp]` scan of `.text` finds exactly @31fd786b and @31fd7910 (0x520) and @31fd787b (0x578).
+  `IsWaitState` / `IsClassCommonMoveState` occur nowhere else in X2Lib / KTDXLIB, so no March class's function is overridden or hidden.
+- **`3288fe90`.** Index `< 0` or `> 4` -> 0. Otherwise it reads the protected value at +0x84 / +0x278 + 100 x index; the row helper `3288fe00` puts the bases
+  at +0x48 / +0x23c, so the field is row +0x3c. The caller @32c17e8a splits the slot inline (> 4 -> B, -5) and `movzx`es the result (16-bit). March's
+  `SkillSlotData` (`VERIFY_STAT_BY_BUFF`, `NEW_CHARACTER_CHUNG`, `ARA_CHARACTER_BASE` all on) has `m_usCBConsumption` at 0x3c, row size 84 (June's is 100).
+  Rows are only reached by name through March's `GetCBConsumption`, so the different row size changes nothing.
+- **`31f66620`.** `31f8c540` sets up a critical section, requested size 0xb8, next size 0x20. Enter / pop free list +0x18 (else grow `31c5b8c0`) / Leave.
+  The caller pushes 0xb8; ctor `31f8bf00` writes no further than +0xb6. March's operator new (X2DamageEffect.cpp:10933) = `DamageEffectDataPool::malloc()`
+  under `BOOST_SINGLETON_POOL_TEST` (defined).
+- **`31d70b60`.** `LEA EAX,[ECX+0x9e4]; RET`, called only at @32bf08dc, inside the `31fd8a50() > 0` block @32bf08b4-@32bf0929 (which ends `JMP 32bf0956`).
+  The `<= 0` path @32bf092b and the event 0x8b3 check @32bf0956 are as the CH1l3 kickoff says. The stand-in comment matches Arme's
+  (X2GUArme_VioletMage.cpp:28769) and Eve's (X2GuEve.cpp:37603).
+
+**Gates.** `flagcheck JUNE_CHAR_ARME_CORE --range e61bc4e8^..e61bc4e8`: `2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 7 #else/#endif without the flag token, 0 encoding change(s)`.
+The seven untokened `#else` / `#endif` lines are already in the two files; CH1l30 added none. `RESULT: PASS`. `junediverge.py --check-all`:
+`allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.*`: the two pre-existing `NPC_UNIT_ID` rows (X2GUUser.h:2550-2551) only. No build
+(no source change; `DEPLOY OK` md5 558cbabb stands). CH1l3 kickoff: one clarifying line added (the `<= 0` path runs unconditionally).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

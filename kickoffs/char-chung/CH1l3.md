@@ -67,3 +67,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **`31d70b60`** (customize manager) has no March home. In `32bf0800` leave out the `31fd8a50() > 0` block (@32bf08b4-@32bf0929: GetItemData, the custom
   cut-in name) with the one-line comment Arme and Eve use: `// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )`.
   The `<= 0` path (@32bf092b: vslot 0x9c, then the class cut-in) and the event 0x8b3 swap (@32bf0956) stay.
+- CH1l30 review: with the block left out, the `<= 0` path runs every time, as if `31fd8a50` returned 0. There is no `else` to keep.
