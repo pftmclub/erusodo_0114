@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1k | ready: class core, overrides < 0x600, ctor / dtor map; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k0 review | `X2GUChung.*`, Always.h | `CH1k.md` |
+| CH1k | done (38 rows + ctor map; `beec40` base member needs Opus); awaits Opus review | Opus 5.5 / high | CH1k | `X2GUChung.*`, `X2SkillTree.h` | `CH1k-review.md` |
 | CH1l0 | blocked (CH1k review): Opus helpers `31fcd740` / `31fd2f00` / `31fe21a0` / `31ffe990` before CH1l | Opus 5.5 / high, Opus review | CH1k review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l0.md` |
 | CH1l | blocked (CH1l0 review): class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l0 review | `X2GUChung.*`, Always.h | `CH1l.md` |
 | CH1l2 | blocked (CH1l review): class core, Common* overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l review | `X2GUChung.*`, Always.h | `CH1l2.md` |

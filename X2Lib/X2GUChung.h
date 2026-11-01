@@ -644,6 +644,15 @@ protected:
 	float GetCriticalDamageRate() const { return m_fCriticalDamageRate; }	// 청 1차 전직, 슈팅 가디언의 강선개조에 의한 Critical 시 데미지 증가
 	void SetCriticalDamageRate(float fCriticalDamageRate_) { m_fCriticalDamageRate = fCriticalDamageRate_; }
 	float CalculateHpPercentUpRateByDamageDataHpUp( float fDamageDataHpPercentUp_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	float GetDefenderDamageRate( float fDamageRate_ );		/// June 32bed3d0 ( unit vslot 0xb8, base 3208dc20 returns the argument ): the defender's damage rate in GetFinalDamage
+	float GetDamageRateOnCommanderMarkedDefender( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32bed7e0 ( unit vslot 0x2e8, base 3208dd70 returns 1.0 )
+	float GetDamageRateOnExcitingCrashDefender( const CX2DamageManager::DamageData* pDamageData_ );		/// June 32bed840 ( unit vslot 0x2ec, base 3208dd70 returns 1.0 )
+	float GetOpenMindScaledValueInGuardState( float fBaseValue_ );	/// June 32beec40 ( unit vslot 0x1b8, base 3208e290 returns the protected float at CX2GameUnit +0x567c; stand-in: the caller passes it )
+	bool IsNowStateChaosCannon();							/// June 32beeb90: the state is one of the twelve Chaos Cannon states
+	UCHAR GetPvpStartCannonBallCount() const { return m_ucPvpStartCannonBallCount; }
+	void SetPvpStartCannonBallCount( UCHAR ucPvpStartCannonBallCount_ ) { m_ucPvpStartCannonBallCount = ucPvpStartCannonBallCount_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	void SetReduceGuardDamageAtHeavyStanceFromGuardSkill();	// 퓨리가디언의 가드 스킬에 의해서 증가된 값을 헤비스텐스의 데미지 감소율을 셋팅
 #endif	CHUNG_FIRST_CLASS_CHANGE
@@ -819,8 +828,13 @@ public:
 
 	virtual float		GetFinalDamageToBeChangedBySkill( float fFinalDamage_ );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	virtual int GetComboZStateID() const { return CSI_COMBO_Z; }	/// June 32c24b80 ( = March )
+	virtual int GetComboXStateID() const { return ( NULL != GetUnit() && CX2Unit::UC_CHUNG_DEADLY_CHASER == GetUnit()->GetClass() ) ? CSI_CDC_COMBO_X : CSI_COMBO_X; }	/// June 32beaf70
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	virtual int GetComboZStateID() const { return CSI_COMBO_Z; }
 	virtual int GetComboXStateID() const { return CSI_COMBO_X; }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	//							스테이트 함수 시작
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1905,6 +1919,11 @@ protected:
 	float						m_fSpineAimYawRangeDegree;		/// June +0x9880: the aim yaw window
 	float						m_fSpineAimMaxDistance;			/// June +0x9884: the farthest target, times m_fMobileArmoredModeDistance
 	D3DXVECTOR3					m_vSpineAimDegree;				/// June +0x9888: the last aim angles to the nearest enemy
+	UCHAR						m_ucPvpStartCannonBallCount;	/// June +0x9680 ( protected UCHAR, 0 ): the cannon balls a PvP start or rebirth begins with, written by LoadPersonalInfo ( CH1l ); March's m_ucBasicCannonBallCount is June's +0x9674, the dungeon start count
+	float						m_afSiegeAngle[4];				/// June +0x9868 .. +0x9874: INIT_COMPONENT SIEGE_ANGLE, read by InitComponent; consumers are the siege skill states
+	float						m_afExtraCannonBallDamageRate[2];	/// June +0x9898 / +0x989c ( ctor 1 ): INIT_COMPONENT EXTRA_CANNON_BALL_DAMAGE_RATE; consumer CH1q
+	float						m_fCommandHitAddMpBonus;		/// June +0x98c4 ( protected float, ctor 1 ): INIT_COMPONENT COMMAND_HIT_ADD_MP_BONUS; consumer CH1p
+	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

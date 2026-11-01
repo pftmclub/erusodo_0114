@@ -1942,6 +1942,15 @@ public:
 		RNSI_P_CTT_OPEN_MIND                                  = 26419,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1k
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Chung class core reads ( values from June's Enum.lua )
+		RNSI_SA_CDC_EXCITING_CRASH                            = 26040,
+		RNSI_P_CFG_METABOLISM_BOOST                           = 26400,
+		RNSI_P_CTT_REACTIVE_ARMOR                             = 26414,
+		RNSI_P_CTT_USEFUL_TACTIC                              = 26420,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

@@ -1,0 +1,164 @@
+offset	width	value	ctor_addr	march_member_or_owner
+0x9598	4	0	32bf10ae	
+0x959c	4	0	32bf10b4	
+0x95a0	2	?	32bf10d0	
+0x95b0	4	0	32bf10c6	
+0x95b4	4	7	32bf10bc	
+0x95bc	1	1	32bf10d7	
+0x95c0	4	-1	32bf2807	March m_ahChungMajorParticleInstance[0] ( INVALID handle ); freed by DeleteChungMajorParticle ( dtor )
+0x95c4	4	-1	32bf2814	March m_ahChungMinorParticleInstance[0]; freed by DeleteChungMinorParticle / DeleteMinorParticle
+0x95c8	4	-1	32bf10ed	March m_ahChungMajorMeshInstance[0] ( 19 handle slots 0x95c8 .. 0x9610, all -1 ); March's enumerator order differs after slot 0x0f: see the CH1g2 / CH1h notes; DeleteMajorMesh loops CHUNG_MAJOR_MII_END
+0x95cc	4	-1	32bf10f3	
+0x95d0	4	-1	32bf10f9	
+0x95d4	4	-1	32bf10ff	
+0x95d8	4	-1	32bf1105	
+0x95dc	4	-1	32bf110b	
+0x95e0	4	-1	32bf1111	
+0x95e4	4	-1	32bf1117	
+0x95e8	4	-1	32bf111d	
+0x95ec	4	-1	32bf1123	
+0x95f0	4	-1	32bf1129	
+0x95f4	4	-1	32bf112f	
+0x95f8	4	-1	32bf1135	
+0x95fc	4	-1	32bf113b	
+0x9600	4	-1	32bf1141	
+0x9604	4	-1	32bf1147	
+0x9608	4	-1	32bf114d	
+0x960c	4	-1	32bf1153	
+0x9610	4	-1	32bf1159	
+0x9614	4	6	32bf116f	March m_GuardSystem.m_iGuardPointRemain ( 6 )
+0x9618	4	6	32bf1175	March m_GuardSystem.m_iMaxGuardPoint ( 6 )
+0x961c	1	0	32bf117b	March m_GuardSystem ( bool, 0 )
+0x9620	4	0	32bf1181	March m_GuardSystem.m_iDamageReducePercentGuardState ( 0 )
+0x9638	4	0	32bf118c	March m_vecStateIDCanBeChangedToGuardState ( 12-byte entries, list for IsThisStateCanBeChangedToGuardStateOnHit )
+0x963c	4	0	32bf1192	
+0x9640	4	0	32bf1198	
+0x9648	4	0	32bf119e	March m_vecPromotionEquipList
+0x964c	4	0	32bf11a4	
+0x9650	4	0	32bf11aa	
+0x9658	4	0	32bf11b0	March m_vecPromotionItemIDList
+0x965c	4	0	32bf11b6	
+0x9660	4	0	32bf11bc	
+0x9668	protected	see ctor	32bf11c2	March m_ucCannonBallCountToBeUpUsingReLoadCannon ( protected UCHAR, 1 )
+0x9674	protected	see ctor	32bf13b7	March m_ucBasicCannonBallCount ( protected UCHAR, 0 ): June's CANNON_BALL_COUNT_AT_DUNGEON_START
+0x9680	protected	see ctor	32bf15b2	NEW m_ucPvpStartCannonBallCount ( protected UCHAR, 0 ): June's CANNON_BALL_COUNT_AT_PVP_START ( written by LoadPersonalInfo 32bf5430, CH1l )
+0x968c	4	1	32bf17b4	March m_fDamageRelByCannonBallMastery ( 1 )
+0x9690	1	0	32bf17ba	March m_bAimingTarget ( false )
+0x9694	4	0	32bf17c8	March m_vAimingTargetPos
+0x9698	4	0	32bf17ce	
+0x969c	4	0	32bf17d4	
+0x96a0	4	0	32bf17da	March m_vAimingTargetLandPos
+0x96a4	4	0	32bf17e0	
+0x96a8	4	0	32bf17e6	
+0x96ac	4	0	32bf17c2	March m_GuardForFuryGuardianPtr ( intrusive ptr, 0 )
+0x96b0	4	1	32bf17ee	March m_fForceDownRelAtMeleeAttack ( 1 )
+0x96b4	4	0	32bf1809	March m_fProbabilityBigDamageAtGuardMastery
+0x96b8	4	1	32bf17fa	March m_fIncreaseRangeSubWeaponShot ( 1 )
+0x96bc	4	0	32bf180f	March m_fCriticalDamageRate
+0x96c0	4	0	32bf17f4	March m_iCountbyCsgComboDashJumpXXMiniGun
+0x96c4	4	0	32bf1815	March m_fProbabilityIronWill
+0x96c8	1	0	32bf1800	March m_bApplyLandDemolisher
+0x96cc	4	-1	32bf181b	March m_hLandDemolisherAfterEffect ( -1 )
+0x96d0	4	0	32bf1821	March m_fLandDemolisherPowerRate
+0x96d4	4	0	32bf182d	March m_fRemainIronWillRenderEffectTime
+0x96d8	4	0	32bf1827	March m_iDebuffTransitNum
+0x96dc	4	-1	32bf1833	March m_iShot ( -1 )
+0x96e0	4	6	32bf1841	
+0x96e4	4	-1	32bf1847	
+0x96e8	4	0	32bf184d	
+0x96ec	4	0	32bf1853	
+0x96f0	4	0	32bf185f	
+0x96f4	4	0	32bf1867	
+0x96f8	4	0	32bf186f	
+0x96fc	4	0	32bf1879	
+0x9700	4	0	32bf187f	
+0x9704	protected	see ctor	32bf1859	
+0x9710	4	0	32bf1a63	
+0x9714	4	0	32bf1a6b	
+0x9718	1	0	32bf1a73	
+0x971c	protected	see ctor	32bf1a5d	March m_iSiegeShellingCount ( protected int )
+0x9728	4	1	32bf1c43	March m_fSiegeShellingDistance ( 1 )
+0x972c	4	1	32bf1c4f	March m_fSiegeShellingDamageRel ( 1 )
+0x9730	4	-1	32bf1c5f	March m_fSiegeShellingUserBallRate ( -1 )
+0x9734	4	-1	32bf1c69	March m_fInsertCannonBallRel ( -1 )
+0x9738	4	-1	32bf1c6f	March m_fBeShotCannonBallRel ( -1 )
+0x973c	4	0	32bf1c77	March m_fBeShotCannonBallRelTime
+0x9740	4	-1	32bf1c7d	March m_fWithStandingRate ( -1 )
+0x9744	4	1	32bf1c83	March m_fWithStandingPowerRate ( 1 )
+0x9748	protected	see ctor	32bf1c49	March m_iChargeCannonBall ( protected int )
+0x9754	protected	see ctor	32bf1e4d	March m_iDreadChaseCount ( protected int )
+0x9760	4	0	32bf1f9c	March m_iCarpetBombingCount
+0x9764	4	0	32bf1fa2	March m_iCarpetBombingSmallCount
+0x9768	4	0	32bf1f96	March m_fCarpetBombingTime
+0x976c	1	0	32bf1fa8	March m_bCarpetBombing
+0x9770	4	0	32bf1fae	
+0x9774	4	0	32bf1fb4	
+0x9778	4	0	32bf1fbd	
+0x977c	4	0	32bf1fc3	
+0x9780	4	0	32bf1fc9	
+0x9784	4	0	32bf1fcf	
+0x9788	4	0	32bf1fd5	
+0x978c	4	0	32bf1fdb	
+0x9790	4	0	32bf1fe1	
+0x9794	4	0	32bf1fe7	March m_fChaosCannonTime
+0x9798	4	-1	32bf1fed	March m_hChaosCannonEffect ( -1 )
+0x979c	4	0	32bf1ff9	March m_pChaosCannonSound ( NULL )
+0x97a0	2	?	32bf2005	March m_bMobileArmoredModeEnable
+0x97a2	1	0	32bf2012	March m_bInStateMobileArmoredMode
+0x97a4	4	0	32bf1ff3	
+0x97a8	4	0	32bf1fff	
+0x97ac	4	0	32bf200c	
+0x97b0	4	0	32bf2018	
+0x97b4	4	0	32bf201e	
+0x97b8	4	-1	32bf2024	
+0x97bc	4	0	32bf202a	
+0x97c0	4	0	32bf2030	
+0x97c4	4	0	32bf2036	
+0x97cc	4	0	32bf203c	
+0x97d0	4	0	32bf2048	
+0x97d4	4	0	32bf2058	
+0x97d8	4	0	32bf2050	
+0x97dc	protected	see ctor	32bf2042	
+0x97e8	4	60161	32bf21aa	
+0x97ec	1	0	32bf21bc	
+0x97f0	4	0	32bf21b0	
+0x9804	protected	see ctor	32bf21c7	protected int; owner phase maps it ( CH1l .. CH1q )
+0x9810	4	0	32bf2312	
+0x9814	4	0	32bf231b	
+0x9818	4	-1	32bf2321	
+0x981c	4	60417	32bf232f	
+0x9820	1	0	32bf233d	
+0x9824	4	0	32bf2335	
+0x9828	4	-1	32bf2343	
+0x9838	1	0	32bf234f	
+0x9854	4	0	32bf2361	owner phase maps it
+0x9858	4	0	32bf2369	
+0x985c	1	0	32bf2355	
+0x9860	4	0	32bf2371	
+0x9864	4	0	32bf237b	
+0x9868	4	0	32bf2381	NEW m_afSiegeAngle[4] ( INIT_COMPONENT SIEGE_ANGLE, read in InitComponent; zero in the ctor )
+0x986c	4	0	32bf2387	
+0x9870	4	0	32bf238d	
+0x9874	4	0	32bf2393	
+0x9878	4	0	32bf2399	CH1g/CH1j m_fSpineAimMaxUpDegree ( INIT_COMPONENT MOBILE_SIEGE_ANGLE[1]; not set by the ctor )
+0x987c	4	0	32bf239f	m_fSpineAimMaxDownDegree ( MOBILE_SIEGE_ANGLE[2] )
+0x9880	4	0	32bf23a5	m_fSpineAimYawRangeDegree ( MOBILE_SIEGE_ANGLE[3] )
+0x9884	4	0	32bf23ab	m_fSpineAimMaxDistance ( MOBILE_SIEGE_ANGLE[4] )
+0x9888	4	0	32bf23b1	m_vSpineAimDegree ( 3 floats, 0 )
+0x988c	4	0	32bf23b7	
+0x9890	4	0	32bf23bd	
+0x9894	4	0	32bf23c3	CH1g m_iCountbyCsgComboDashZXXMiniGun
+0x9898	4	1	32bf23d1	NEW m_afExtraCannonBallDamageRate[2] ( 1; INIT_COMPONENT EXTRA_CANNON_BALL_DAMAGE_RATE )
+0x989c	4	1	32bf23dd	
+0x98a0	4	1	32bf23e3	
+0x98a4	4	0	32bf23cb	
+0x98a8	1	0	32bf23d7	
+0x98ac	protected	see ctor	32bf235b	CH1g m_fRemodelRifleDamageRate ( protected float, 1 )
+0x98b8	protected	see ctor	32bf2532	NEW m_fCannonBallGaugeTimer ( protected float, -1 )
+0x98c4	protected	see ctor	32bf2683	NEW m_fCommandHitAddMpBonus ( protected float, 1 )
+0x98d0	1	0	32bf27d2	
+0x98d8	4	0	32bf27d8	owner phase maps it ( vector-like 3 dwords, freed by the dtor )
+0x98dc	4	0	32bf27de	
+0x98e0	4	0	32bf27e4	
+0x98e8	4	-1	32bf27f4	
+0x98ec	4	0	32bf27fa	

@@ -170,6 +170,14 @@ iFrameBufferNum_, pUnit_ )
 , m_bDownForcePressedInState( false )
 , m_fRemodelRifleDamageRate( 1.f )
 , m_iCountbyCsgComboDashZXXMiniGun( 0 )
+, m_fSpineAimMaxUpDegree( 0.f )
+, m_fSpineAimMaxDownDegree( 0.f )
+, m_fSpineAimYawRangeDegree( 0.f )
+, m_fSpineAimMaxDistance( 0.f )
+, m_vSpineAimDegree( 0.f, 0.f, 0.f )
+, m_ucPvpStartCannonBallCount( 0 )
+, m_fCommandHitAddMpBonus( 1.f )
+, m_fCannonBallGaugeTimer( -1.f )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -260,6 +268,10 @@ iFrameBufferNum_, pUnit_ )
 , m_fSiegeShellingIncraseMPRel ( 0.f )
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	m_afSiegeAngle[0] = m_afSiegeAngle[1] = m_afSiegeAngle[2] = m_afSiegeAngle[3] = 0.f;
+	m_afExtraCannonBallDamageRate[0] = m_afExtraCannonBallDamageRate[1] = 1.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	InitializeChungMajorParticleArray();
 	InitializeChungMinorParticleArray();
 	///////////////////////////////////////////////////////
@@ -279,6 +291,27 @@ iFrameBufferNum_, pUnit_ )
 */
 /*virtual*/ CX2GUChung::~CX2GUChung()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0c4e0; Heavy Field targeting is removed too
+	DeleteChungMajorParticle();
+	DeleteChungMinorParticle();
+	DeleteMajorMesh();
+	
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD );
+	
+	if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL )
+	{
+		if( m_hChaosCannonEffect != INVALID_EFFECTSET_HANDLE )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hChaosCannonEffect );
+	}
+	if( m_pChaosCannonSound != NULL && m_pChaosCannonSound->IsPlaying() == true )
+	{
+		m_pChaosCannonSound->Stop();
+	}
+	SAFE_CLOSE( m_pChaosCannonSound );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	DeleteChungMajorParticle();
 	DeleteChungMinorParticle();
 	///////////////////////////////////////////////////////
@@ -305,6 +338,7 @@ iFrameBufferNum_, pUnit_ )
 	SAFE_CLOSE( m_pChaosCannonSound );
 #endif
 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
@@ -341,6 +375,22 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::Init( bool bUseTeamPos_, int iStartPosIndex_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0c8f0 ( = March )
+	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
+	
+	LoadPersonalInfo( m_LuaManager );
+	LoadPromotionItemID( m_LuaManager );
+	InitPromotionEquipList();
+	UpdateEquipCollisionData();
+	
+	if ( IsMyUnit() )
+	{
+		if( m_bMobileArmoredModeEnable == true )
+			GetChungGageData()->SetCannonBallChanged( true );
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetTotalCannonBallCount();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
 
 	LoadPersonalInfo( m_LuaManager );
@@ -365,6 +415,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 		m_FrameDataFuture.syncData.m_CannonBallCount = GetCannonBallCount();
 #endif SERV_CHUNG_TACTICAL_TROOPER
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ReInit
@@ -373,6 +424,75 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::ReInit( bool bTeamPos_ /*= false*/, int iStartPosIndex_ /*= -1 */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0ca60; PvP and PvE start with the PvP cannon ball count, the other games raise the count to the dungeon start count; Heavy Field targeting is removed too
+	SetFullHyperMode( false );
+	CX2GUUser::ReInit( bTeamPos_, iStartPosIndex_ );
+	
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER );
+	
+	if( m_eNowPulseWeaponColorID == PWCI_CHUNG_LAND_DEMOLISHER )
+		SetEnableWeaponRenderEffect( false );
+	
+	if( INVALID_EFFECTSET_HANDLE != m_hLandDemolisherAfterEffect )
+	{
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hLandDemolisherAfterEffect );
+		m_hLandDemolisherAfterEffect = INVALID_EFFECTSET_HANDLE;
+	}
+	m_bApplyLandDemolisher = false;
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD );
+	
+	if( true == g_pX2Game->GetIsNowPVPCorrectionGame() )
+	{
+		switch ( GetTeam() )
+		{
+		case CX2Room::TN_RED:
+			{
+				ResetCannonBallCountWhenRebirthInPVPGame( g_pX2Game->GetRedTeamKill(), g_pX2Game->GetBlueTeamKill() );
+			} break;
+	
+		case CX2Room::TN_BLUE:
+			{
+				ResetCannonBallCountWhenRebirthInPVPGame( g_pX2Game->GetBlueTeamKill(), g_pX2Game->GetRedTeamKill() );
+			} break;
+	
+		default:
+			{
+				SetCannonBallCount( GetPvpStartCannonBallCount() );
+			} break;
+		}
+	}
+	else
+	{
+		if ( GetCannonBallCount() < GetBasicCannonBallCount() )
+			SetCannonBallCount( GetBasicCannonBallCount() );
+	}
+	
+	if ( IsMyUnit() )
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetTotalCannonBallCount();
+	
+	m_iSiegeShellingCount = 0;
+	m_fBeShotCannonBallRelTime = 0.f;
+	m_iDreadChaseCount = 0;
+	m_iCarpetBombingCount = 0;
+	m_fCarpetBombingTime = 0.f;
+	m_bCarpetBombing = false;
+	m_fChaosCannonTime = 0.f;
+	
+	if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL )
+	{
+		if( m_hChaosCannonEffect != INVALID_EFFECTSET_HANDLE )
+		{
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hChaosCannonEffect );
+			m_hChaosCannonEffect = INVALID_EFFECTSET_HANDLE;
+		}
+	}
+	if( m_pChaosCannonSound != NULL && m_pChaosCannonSound->IsPlaying() == true )
+	{
+		m_pChaosCannonSound->Stop();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	SetFullHyperMode( false );
 	CX2GUUser::ReInit( bTeamPos_, iStartPosIndex_ );
 
@@ -455,6 +575,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 		m_pChaosCannonSound->Stop();
 	}
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
@@ -476,6 +597,163 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0cf90; the 7p hit stop ( @32c0d18c / d19c / d1b4 ) is the Iron Will branch's: attacker 0.5 s, the unit 0.5 s, its second stop 0
+	float fHpPercentUp = CalculateHpPercentUpRateByDamageDataHpUp( pDamageData_->m_fHpPercentUp );
+	if ( 0.0f < fHpPercentUp )
+		pDamageData_->m_fHpPercentUp += fHpPercentUp;
+	
+	float fProbabilityIronWill = GetProbabilityIronWill();
+	switch ( GetNowStateID() )
+	{
+	case CSI_SI_A_CFG_GUARD_WAIT:
+	case CSI_SI_A_CFG_GUARD_DAMAGE:
+		fProbabilityIronWill *= 2.f;
+		break;
+	default:
+		break;
+	}
+	switch ( g_pX2Game->GetGameType() )
+	{
+	case CX2Game::GT_DUNGEON:
+	case CX2Game::GT_BATTLE_FIELD:
+		fProbabilityIronWill *= 2.f;
+		break;
+	default:
+		break;
+	}
+	
+	int iGetDamageReducePercentGuardState = 0;
+	if ( IsThisStateCanBeChangedToGuardStateOnHit() == true )
+	{
+		m_GuardSystem.SetGuardPointRemain( m_GuardSystem.GetGuardPointRemain() - 1 );
+		iGetDamageReducePercentGuardState = m_GuardSystem.GetDamageReducePercentGuardState();
+	}
+	
+	bool bInvokeIronWill = false;
+	if( GetUnitClass() == CX2Unit::UC_CHUNG_IRON_PALADIN &&
+		pDamageData_->reActType != CX2DamageManager::RT_NO_DAMAGE &&
+		pDamageData_->reActType != CX2DamageManager::RT_DUMMY_DAMAGE &&
+		pDamageData_->reActType != CX2DamageManager::RT_SENSOR &&
+		GetInvincible() == false &&
+		GetNowHp() > 0.f &&
+		m_FrameDataNow.unitCondition.bFootOnLine == true &&
+		fProbabilityIronWill > GetRandomFloat() )
+	{
+		bInvokeIronWill = true;
+		m_fRemainIronWillRenderEffectTime = _CONST_CHUNG_::MAGIC_NUMBER_IRON_WILL_RENDER_EFFECT_TIME;
+	
+		if( null != pDamageData_->optrAttackerGameUnit &&
+			pDamageData_->attackerType != CX2DamageManager::AT_EFFECT )
+		{
+			pDamageData_->optrAttackerGameUnit->SetStopTime( 0.5f, false, NULL, false );
+		}
+		SetStopTime( 0.5f, false, NULL, false );
+		SetStop2Time( 0.f, false, NULL, false );
+	
+		AddForceDownGage( 5.f );
+	
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_IRON_WILL", this );
+	
+		const int DAMAGE_REDUCE_PERCENT_IRON_WILL = 100;
+		SetDamageReducePercent( GetDamageReducePercent() + (DAMAGE_REDUCE_PERCENT_IRON_WILL + iGetDamageReducePercentGuardState) );
+		CX2GUUser::DamageReact( pDamageData_ );
+		SetDamageReducePercent( GetDamageReducePercent() - (DAMAGE_REDUCE_PERCENT_IRON_WILL + iGetDamageReducePercentGuardState) );
+	}
+	else if( ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+		&& m_fChaosCannonTime > 0.f )
+	{
+		const int DAMAGE_REDUCE_PERCENT_CHAOSCANNON = 80;
+		SetDamageReducePercent( GetDamageReducePercent() + (DAMAGE_REDUCE_PERCENT_CHAOSCANNON + iGetDamageReducePercentGuardState) );
+		CX2GUUser::DamageReact( pDamageData_ );
+		SetDamageReducePercent( GetDamageReducePercent() - (DAMAGE_REDUCE_PERCENT_CHAOSCANNON + iGetDamageReducePercentGuardState) );
+	}
+	else
+	{
+		SetDamageReducePercent( GetDamageReducePercent() + iGetDamageReducePercentGuardState );
+		CX2GUUser::DamageReact( pDamageData_ );
+		SetDamageReducePercent( GetDamageReducePercent() - iGetDamageReducePercentGuardState );
+	}
+	
+	if ( 0.0f < fHpPercentUp)
+		pDamageData_->m_fHpPercentUp -= fHpPercentUp;
+	
+	switch ( pDamageData_->reActType )
+	{
+	case CX2DamageManager::RT_NO_DAMAGE:
+	case CX2DamageManager::RT_DUMMY_DAMAGE:
+	case CX2DamageManager::RT_SENSOR:
+		{
+			DamageReactStateChange( pDamageData_ );
+		} break;
+	
+	default:
+		{
+			if( m_fBeShotCannonBallRelTime <= 0.f && m_fBeShotCannonBallRel >= GetRandomFloat() )
+			{
+				m_fBeShotCannonBallRelTime = 2.f;
+				UpCannonBallCount( 1, true );
+			}
+	
+			if( true == bInvokeIronWill)
+			{
+				if( pDamageData_->reActResult == CX2DamageManager::RT_DOWN ||
+					pDamageData_->reActResult == CX2DamageManager::RT_UP ||
+					pDamageData_->reActResult == CX2DamageManager::RT_FLY ||
+					pDamageData_->reActResult == CX2DamageManager::RT_DRAG_UP)
+				{
+					pDamageData_->reActResult = CX2DamageManager::RT_BIG_DAMAGE;
+				}
+			}
+	
+			if ( true == IsThisStateCanBeChangedToGuardStateOnHit() )
+			{
+				if( GetInvincible() == false )
+				{
+					StateChange( CSI_GUARD );
+				}
+			}
+			else
+			{
+				switch ( GetNowStateID() )
+				{
+				case CSI_SI_A_CFG_GUARD_WAIT:
+				case CSI_SI_A_CFG_GUARD_DAMAGE:
+					{
+						if ( true == m_FrameDataNow.unitCondition.bAttackerFront && GetInvincible() == false )
+						{
+							StateChange( CSI_SI_A_CFG_GUARD_DAMAGE );
+						}
+						else
+						{
+							DamageReactStateChange( pDamageData_ );
+						}
+					}
+					break;
+	
+				case CSI_SI_A_CHG_CHAOS_CANNON_GUARD:
+					break;
+	
+				default:
+					{
+						if( m_fChaosCannonTime > 0.f && GetInvincible() == false )
+						{
+							StateChange( CSI_SI_A_CHG_CHAOS_CANNON_GUARD );
+						}
+						else
+						{
+							DamageReactStateChange( pDamageData_ );
+						}
+					}
+					break;
+				}
+			}
+		} break;
+	}
+	
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_L, INVALID_MESH_INSTANCE_HANDLE );
+	SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_CSG_COMBO_DASH_ZX_MINI_GUN_R, INVALID_MESH_INSTANCE_HANDLE );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	//{{ kimhc // 2011.1.20 // 청 1차 전직
 #ifdef	CHUNG_FIRST_CLASS_CHANGE
 	// 퓨리가디언의 신진대사촉진 스킬에 의해 아이레린나, 일리피아의 손길 등의 Hp Up양을 증가 시킴
@@ -711,6 +989,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 		DamageReactStateChange( pDamageData_ );
 #endif	CHUNG_FIRST_CLASS_CHANGE
 //}} kimhc // 2011.1.12 // 청 1차 전직
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : Win
@@ -718,6 +997,15 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdbdd0 ( = March )
+	CX2GUUser::Win();
+	
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::Win();
 
 #ifdef RIDING_SYSTEM
@@ -728,6 +1016,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : Lose
@@ -735,6 +1024,19 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beaf90 ( = March )
+	CX2GUUser::Lose();
+	
+	if ( true == IsMyUnit() &&
+		0.f < GetNowHp() )
+	{
+		if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::Lose();
 
 	if ( true == IsMyUnit() &&
@@ -749,6 +1051,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 		StateChange( USI_LOSE );
 #endif //RIDING_SYSTEM
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : Draw
@@ -756,6 +1059,15 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 */
 /*virtual*/ void CX2GUChung::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdbe10 ( = March )
+	CX2GUUser::Draw();
+	
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -766,6 +1078,7 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : InitStateID
@@ -5185,6 +5498,62 @@ void	CX2GUChung::AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ )
 
 /*virtual*/ void CX2GUChung::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4900; PvP and PvE take the PvP start cannon ball count, the training game 3; then the SIEGE_ANGLE, MOBILE_SIEGE_ANGLE, EXTRA_CANNON_BALL_DAMAGE_RATE tables and COMMAND_HIT_ADD_MP_BONUS
+	CX2GUUser::InitComponent();
+	
+	if ( IsMyUnit() )
+	{
+		if( true == g_pX2Game->GetIsNowPVPCorrectionGame() )
+		{
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetBerserkMode(false);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetBerserkModeChanged(false);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetNowCannonBallCount( GetPvpStartCannonBallCount() );
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetNowCannonBallCountEx(0);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetCannonBallChanged(true);
+		}
+		else if ( g_pMain->GetNowStateID() == CX2Main::XS_TRAINING_GAME )
+		{
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetBerserkMode(false);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetBerserkModeChanged(false);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetNowCannonBallCount(3);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetNowCannonBallCountEx(0);
+			static_cast<CX2ChungGageData*>(m_pGageData)->SetCannonBallChanged(true);
+		}
+	}
+	
+	if( true == m_LuaManager.BeginTable( "INIT_COMPONENT" ) )
+	{
+		if( true == m_LuaManager.BeginTable( "SIEGE_ANGLE" ) )
+		{
+			m_LuaManager.GetValue( 1, m_afSiegeAngle[0] );
+			m_LuaManager.GetValue( 2, m_afSiegeAngle[1] );
+			m_LuaManager.GetValue( 3, m_afSiegeAngle[2] );
+			m_LuaManager.GetValue( 4, m_afSiegeAngle[3] );
+			m_LuaManager.EndTable();
+		}
+	
+		if( true == m_LuaManager.BeginTable( "MOBILE_SIEGE_ANGLE" ) )
+		{
+			m_LuaManager.GetValue( 1, m_fSpineAimMaxUpDegree );
+			m_LuaManager.GetValue( 2, m_fSpineAimMaxDownDegree );
+			m_LuaManager.GetValue( 3, m_fSpineAimYawRangeDegree );
+			m_LuaManager.GetValue( 4, m_fSpineAimMaxDistance );
+			m_LuaManager.EndTable();
+		}
+	
+		if( true == m_LuaManager.BeginTable( "EXTRA_CANNON_BALL_DAMAGE_RATE" ) )
+		{
+			m_LuaManager.GetValue( 1, m_afExtraCannonBallDamageRate[0] );
+			m_LuaManager.GetValue( 2, m_afExtraCannonBallDamageRate[1] );
+			m_LuaManager.EndTable();
+		}
+	
+		LUA_GET_VALUE( m_LuaManager, "COMMAND_HIT_ADD_MP_BONUS", m_fCommandHitAddMpBonus, 1.f );
+	
+		m_LuaManager.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::InitComponent();
 
 	if ( IsMyUnit() )
@@ -5214,6 +5583,7 @@ void	CX2GUChung::AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ )
 			} break;
 		}			
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ParseCommonRandomState
@@ -5299,10 +5669,18 @@ void	CX2GUChung::AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2D
 */
 /*virtual*/ void CX2GUChung::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd86f0 ( = March )
+	CX2GUUser::InitEffect();
+	
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::InitEffect();
 
 	CreateMajorParticleArray();
 	CreateMinorParticleArray();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : InitEnchantWeaponEffectUnitSpecific
@@ -5310,11 +5688,20 @@ void	CX2GUChung::AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2D
 */
 /*virtual*/ void CX2GUChung::InitEnchantWeaponEffectUnitSpecific()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bed9a0 ( = March )
+	BOOST_TEST_FOREACH( Weapon*, pWeapon, m_vecpWeapon )
+	{
+		ASSERT( NULL != pWeapon );
+		pWeapon->InitEnchantParticleForSword();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	BOOST_TEST_FOREACH( Weapon*, pWeapon, m_vecpWeapon )
 	{
 		ASSERT( NULL != pWeapon );
 		pWeapon->InitEnchantParticleForSword();	// 임시
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : InitializeMajorParticleArray
 	@brief : 멤버로 가지고 있는 메이저 파티클 핸들 배열 초기화
@@ -5351,6 +5738,40 @@ void	CX2GUChung::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 */
 /*virtual*/ void CX2GUChung::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beefb0 ( = March )
+	CX2GUUser::CreateMajorParticleArray();
+	
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT,			L"DamageImpact",			2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE,		L"DamageImpactCore",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH,		L"DamageImpactSlash",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED,			L"DamageImpactRed",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED,	L"DamageImpactRingRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED,	L"DamageImpactCoreRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+	
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"DamageImpactSlashRed",	1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -5384,6 +5805,7 @@ void	CX2GUChung::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"DamageImpactSlashRed",	1 );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetChungMajorParticleByEnum
@@ -5448,7 +5870,12 @@ void	CX2GUChung::AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 */
 /*virtual*/ void CX2GUChung::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8730 ( = March )
 	CX2GUUser::CreateMinorParticleArray();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CX2GUUser::CreateMinorParticleArray();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetChungMinorParticleByEnum
@@ -5531,6 +5958,15 @@ void CX2GUChung::SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MESH_INSTANCE_ID eVa
 */
 void CX2GUChung::DeleteMajorMesh()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf50e0; June frees 19 handle slots ( +0x95c8 ), March's enumerators map onto them one to one
+	CKTDGXMeshPlayer* pMajorMeshSystem = g_pX2Game->GetMajorXMeshPlayer();
+	
+	for ( int index = 0; index < CHUNG_MAJOR_MII_END; index++ )
+	{
+		pMajorMeshSystem->DestroyInstanceHandle( m_ahChungMajorMeshInstance[index] );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CKTDGXMeshPlayer* pMajorMeshSystem = g_pX2Game->GetMajorXMeshPlayer();
 
 	for ( int index = 0; index < CHUNG_MAJOR_MII_END; index++ )
@@ -5541,6 +5977,7 @@ void CX2GUChung::DeleteMajorMesh()
 		pMajorMeshSystem->DestroyInstanceHandle( m_ahChungMinorParticleInstance[index] );
 #endif  X2OPTIMIZE_ARA_MESH_DESTROY_BUG_FIX
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CommonStateStartFuture
@@ -6140,6 +6577,35 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 */
 /*virtual*/ void CX2GUChung::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beb050 ( = March )
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( 0.25f ) )
+	{
+		int	iSkillSlotIndex = 0;
+		bool bSlotB = false;
+	
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+	
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+	
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+	
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+	
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // 공통 스킬 개편, 김종훈
 	// 각성 인지 아닌지에 따라 World색 변경
 	ChangeWorldColorByHyperMode();		
@@ -6181,6 +6647,7 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ChangeAnimationChargeCannonBall
@@ -6418,6 +6885,22 @@ void CX2GUChung::SetTotalCannonBallCount( int iTotalCannonBallCount_ )
 */
 void CX2GUChung::InitPromotionEquipList()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0e90 ( = March )
+	m_vecPromotionEquipList.reserve( m_vecPromotionItemIDList.size() );
+	
+	BOOST_TEST_FOREACH( int, iItemID, m_vecPromotionItemIDList )
+	{
+		CX2EqipPtr pEquipPtr = CX2ItemManager::CreateDummyEquip( iItemID, GetUnit(), m_pXSkinAnim );
+		pEquipPtr->SetShowObject( false );
+	
+		if ( pEquipPtr != NULL )
+		{
+			pEquipPtr->SetManagerObject( this );
+			m_vecPromotionEquipList.push_back( pEquipPtr );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_vecPromotionEquipList.reserve( m_vecPromotionItemIDList.size() );
 
 	BOOST_TEST_FOREACH( int, iItemID, m_vecPromotionItemIDList )
@@ -6432,6 +6915,7 @@ void CX2GUChung::InitPromotionEquipList()
 		}//if	
 		
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ShowActiveSkillCutInAndLight
@@ -6682,6 +7166,54 @@ void CX2GUChung::LoadStateIDCanBeChangedGuardState( IN KLuaManager& luaManager_ 
 */
 void CX2GUChung::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beece0 ( = March ): the class selects the table; an unknown class takes the Iron Cannon one
+	if ( true == luaManager_.BeginTable( "PROMOTION_ITEM_ID_LIST" ) )
+	{
+		bool bOpenTable = false;
+		switch ( GetUnit()->GetClass() )
+		{
+		case CX2Unit::UC_CHUNG_FURY_GUARDIAN:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_FURY_GUARDIAN" );
+			break;
+		case CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_SHOOTING_GUARDIAN" );
+			break;
+		case CX2Unit::UC_CHUNG_SHELLING_GUARDIAN:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_SHELLING_GUARDIAN" );
+			break;
+		case CX2Unit::UC_CHUNG_IRON_PALADIN:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_IRON_PALADIN" );
+			break;
+		case CX2Unit::UC_CHUNG_DEADLY_CHASER:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_DEADLY_CHASER" );
+			break;
+		case CX2Unit::UC_CHUNG_TACTICAL_TROOPER:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_TACTICAL_TROOPER" );
+			break;
+		default:
+			bOpenTable = luaManager_.BeginTable( "CHUNG_IRON_CANNON" );
+			break;
+		}
+	
+		if ( true == bOpenTable )
+		{
+			int iIndex = 1;
+			int iItemID = 0;
+	
+			do 
+			{
+				LUA_GET_VALUE( luaManager_, iIndex++, iItemID, 0 );
+				if ( 0 != iItemID )
+					m_vecPromotionItemIDList.push_back( iItemID );
+			} while ( iItemID != 0 );
+	
+			luaManager_.EndTable();
+		}
+	
+		luaManager_.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == luaManager_.BeginTable( "PROMOTION_ITEM_ID_LIST" ) )
 	{
 		bool bOpenTable = false;
@@ -6758,14 +7290,143 @@ void CX2GUChung::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 
 		luaManager_.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+namespace _CONST_CHUNG_CH1c_
+{
+	bool ChungAwakeningEffectSetPresent();	/// defined with the CommonHyperModeFrameMove stand-ins below
+}
+
+namespace _CONST_CHUNG_CH1K_
+{
+	/// June CX2Unit +0x3c ( the transcended test )
+	bool IsTranscendedUnit( const CX2Unit* pUnit_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	}
+}
+using namespace _CONST_CHUNG_CH1c_;
+using namespace _CONST_CHUNG_CH1K_;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/// June 32bed3d0 ( unit vslot 0xb8 ): Tactical Trooper's Reactive Armor while the berserk gauge runs, then the tactical field damage cut
+float CX2GUChung::GetDefenderDamageRate( float fDamageRate_ )
+{
+	if( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && NULL != m_pGageData && 0.f < GetRemainHyperModeTime() )
+	{
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CTT_REACTIVE_ARMOR, true, 0, true );
+		if( 0 < iSkillLevel )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CTT_REACTIVE_ARMOR );
+			if( NULL != pSkillTemplet )
+			{
+				CX2SkillTree::SKILL_ABILITY_TYPE eAbilityType = CX2SkillTree::SA_THIRD_HYPER_EFFECTIVE;
+				switch( GetHyperModeCountUsed() )
+				{
+				case 1:
+					eAbilityType = CX2SkillTree::SA_FIRST_HYPER_EFFECTIVE;
+					break;
+				case 2:
+					eAbilityType = CX2SkillTree::SA_SECOND_HYPER_EFFECTIVE;
+					break;
+				default:
+					break;
+				}
+				fDamageRate_ *= 1.f - pSkillTemplet->GetSkillAbilityValue( eAbilityType, iSkillLevel );
+			}
+		}
+	}
+
+	if( m_fTacticalFieldDecreaseDamageValue < 1.f )
+		fDamageRate_ *= m_fTacticalFieldDecreaseDamageValue;
+
+	return fDamageRate_;
+}
+
+/// June 32bed7e0 ( unit vslot 0x2e8 ): Useful Tactic's rate against a defender carrying the commander's mark
+float CX2GUChung::GetDamageRateOnCommanderMarkedDefender( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	float fDamageRate = 1.f;
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_USEFUL_TACTIC ) )
+	{
+		if( null != pDamageData_->optrDefenderGameUnit && true == pDamageData_->optrDefenderGameUnit->HaveThisBuff( BTI_DEBUFF_MARK_OF_COMMANDER ) )
+			fDamageRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, CX2SkillTree::RNSI_P_CTT_USEFUL_TACTIC );
+	}
+	return fDamageRate;
+}
+
+/// June 32bed840 ( unit vslot 0x2ec ): Exciting Crash's rate for a hand gun command hit against a defender carrying its debuff
+float CX2GUChung::GetDamageRateOnExcitingCrashDefender( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	float fDamageRate = 1.f;
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_CDC_EXCITING_CRASH ) )
+	{
+		if( ( CX2DamageManager::HT_HANDGUN_HIT1 == pDamageData_->hitType || CX2DamageManager::HT_HANDGUN_HIT2 == pDamageData_->hitType )
+			&& CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
+		{
+			const BUFF_TEMPLET_ID eBuffTempletID = GetSkillBuffTempletID( CX2SkillTree::RNSI_SA_CDC_EXCITING_CRASH, 0, true );
+			if( null != pDamageData_->optrDefenderGameUnit && true == pDamageData_->optrDefenderGameUnit->HaveThisBuff( eBuffTempletID ) )
+				fDamageRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_SOUL_GAIN_ON_HIT_REL, CX2SkillTree::RNSI_SA_CDC_EXCITING_CRASH );
+		}
+	}
+	return fDamageRate;
+}
+
+/// June 32beec40 ( unit vslot 0x1b8 ); stand-in: the base value is June's CX2GameUnit +0x567c protected float ( 3208e290 ), not yet identified in March, so the caller passes it
+float CX2GUChung::GetOpenMindScaledValueInGuardState( float fBaseValue_ )
+{
+	float fValue = fBaseValue_;
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) && true == IsThisStateCanBeChangedToGuardStateOnHit() )
+		fValue = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_GET_HIT_REL, CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) * fBaseValue_;
+	return fValue;
+}
+
+/// June 32beeb90: the twelve Chaos Cannon states ( START to END ) are contiguous
+bool CX2GUChung::IsNowStateChaosCannon()
+{
+	return CSI_SI_A_CHG_CHAOS_CANNON_START <= GetNowStateID() && GetNowStateID() <= CSI_SI_A_CHG_CHAOS_CANNON_END;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 /** @function : IsThisStateCanBeChangedToGuardStateOnHit
 	@brief : 타격을 받았을 때 Guard 상태로 변경 될 수 있는 스테이트 인가를 얻어옴
 	@return : bool (true 면 가드 상태로 변경 가능)
 */
 bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bee5b0 ( = March )
+	CHUNG_STATE_ID eChungStateID = CHUNG_STATE_ID( GetNowStateID() );
+	
+	for(UINT i=0; i<m_vecStateIDCanBeChangedToGuardState.size(); ++i)
+	{
+		GUARD_STATE_INFO stGuardStateInfo = m_vecStateIDCanBeChangedToGuardState[i];
+		if( stGuardStateInfo.m_eStateId == eChungStateID )
+		{
+			if( stGuardStateInfo.m_vecGuardTimer.x <= m_pXSkinAnim->GetNowAnimationTime() &&
+				stGuardStateInfo.m_vecGuardTimer.y >= m_pXSkinAnim->GetNowAnimationTime() )
+			{
+				if ( CSI_GUARD != stGuardStateInfo.m_eStateId )
+					return true;
+				else if ( 0 < m_GuardSystem.GetGuardPointRemain() )
+					return true;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+	}
+	
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CHUNG_STATE_ID eChungStateID = CHUNG_STATE_ID( GetNowStateID() );
 
 	for(UINT i=0; i<m_vecStateIDCanBeChangedToGuardState.size(); ++i)
@@ -6792,6 +7453,7 @@ bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 	}
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : NotifyShowObjectChanged
@@ -6799,11 +7461,19 @@ bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 */
 /*virtual*/ void CX2GUChung::NotifyShowObjectChanged()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc700 ( = March )
+	CX2GUUser::NotifyShowObjectChanged();
+	
+	SetShowViewList( GetShowObject() );
+	UpdateEquipCollisionData();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::NotifyShowObjectChanged();
 
 	// 청이 보이지 않는다면
 	SetShowViewList( GetShowObject() );
 	UpdateEquipCollisionData();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : NotifyDGManagerChanged
@@ -6812,6 +7482,27 @@ bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 */
 /*virtual*/ void CX2GUChung::NotifyDGManagerChanged( CKTDGManager& refInManager_ )		// DGManager에 등록
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bee680 ( = March )
+	CX2GUUser::NotifyDGManagerChanged( refInManager_ );
+	
+	if ( IsRecursivelyManagedByDGManager() )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+				refInManager_.AddObjectChain( pEquipPtr.get() );
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+				refInManager_.RemoveObjectChain( pEquipPtr.get() );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::NotifyDGManagerChanged( refInManager_ );
 
 	if ( IsRecursivelyManagedByDGManager() )
@@ -6830,6 +7521,7 @@ bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 				refInManager_.RemoveObjectChain( pEquipPtr.get() );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetShowPromotionEquips
@@ -6977,6 +7669,18 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 */
 /*virtual*/ HRESULT CX2GUChung::OnFrameMove( double fTime, float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc850 ( = March )
+	CX2GUUser::OnFrameMove( fTime, fElapsedTime );
+	
+	if ( GetNeedToUpdateWeaponEffect() )
+	{
+		UpdateWeaponEnchantEffectAndExtraDamageType();
+		SetNeedToUpdateWeaponEffect( false );
+	}
+	
+	return S_OK;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::OnFrameMove( fTime, fElapsedTime );
 
 	if ( GetNeedToUpdateWeaponEffect() )
@@ -6986,6 +7690,7 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 	}
 
 	return S_OK;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 //{{ kimhc // 2011.1.19 // 청 1차 전직
@@ -7041,6 +7746,15 @@ void CX2GUChung::InitRemodelMagazinePassiveSkill()
 */
 /*virtual*/ float CX2GUChung::GetCriticalValue( float fDefenderCritical_ /*= 0.f*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bedb40 ( = March ): the unit critical value plus the Shooting Guardian critical damage rate while the passive is on
+	float fCriticalValue = CX2GameUnit::GetCriticalValue( fDefenderCritical_ );
+	
+	if ( true == m_bIncreaseCritical )
+		return fCriticalValue + GetCriticalDamageRate();
+	else
+		return fCriticalValue;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	float fCriticalValue = CX2GameUnit::GetCriticalValue( fDefenderCritical_ );
 
 #ifdef SKILL_BALANCE_20110728
@@ -7051,6 +7765,7 @@ void CX2GUChung::InitRemodelMagazinePassiveSkill()
 #else
 	return fCriticalValue + GetCriticalDamageRate();
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CalculateHpPercentUpRateByDamageDataHpUp
@@ -7060,6 +7775,36 @@ void CX2GUChung::InitRemodelMagazinePassiveSkill()
 */
 float CX2GUChung::CalculateHpPercentUpRateByDamageDataHpUp( float fDamageDataHpPercentUp_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc890 ( the class map's GetMetabolismBoostValue; it is this March function )
+	float fHpUpRate = 0.0f;
+	
+	if ( 0.f < fDamageDataHpPercentUp_ )
+	{
+		if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == GetUnitClass() ||
+			CX2Unit::UC_CHUNG_IRON_PALADIN == GetUnitClass() )
+		{
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	
+			int iSkillLv = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+	
+			if ( 0 < iSkillLv )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet =
+					g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+	
+				if ( NULL != pSkillTemplet )
+				{
+					float fIncreaseRateMetabolism	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv );
+					fIncreaseRateMetabolism			= CalculateIncreasingRate( fIncreaseRateMetabolism );
+					fHpUpRate =  fDamageDataHpPercentUp_ * fIncreaseRateMetabolism;
+				}
+			}
+		}
+	}
+	
+	return fHpUpRate;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	float fHpUpRate = 0.0f;
 
 	if ( 0.f < fDamageDataHpPercentUp_ )
@@ -7107,6 +7852,7 @@ float CX2GUChung::CalculateHpPercentUpRateByDamageDataHpUp( float fDamageDataHpP
 	} // if
 
 	return fHpUpRate;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetReduceGuardDamageAtHeavyStanceFromGuardSkill
@@ -28487,13 +29233,35 @@ void CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess()
 
 void CX2GUChung::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c06220 ( = March )
+	CX2GUUser::DeleteMinorParticle();
+	
+	DeleteChungMinorParticle();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteChungMinorParticle();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /*virtual*/ CX2GageData* CX2GUChung::CreateGageData()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0feb0 ( = March )
+	if ( IsMyUnit() )
+	{
+		const CX2ChungGageData* pChungGageData
+			= static_cast<const CX2ChungGageData*>( CX2GageManager::GetInstance()->GetMyGageData() );
+	
+		if ( NULL != pChungGageData )
+			return new CX2ChungGageData( *pChungGageData );
+		else
+			return new CX2ChungGageData();
+	}
+	else
+		return new CX2ChungGageData();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( IsMyUnit() )
 	{
 		const CX2ChungGageData* pChungGageData 
@@ -28506,6 +29274,7 @@ void CX2GUChung::DeleteMinorParticle()
 	}
 	else
 		return new CX2ChungGageData();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /*virtual*/ void CX2GUChung::ChargeMpAndEtcInTrainingGame()
@@ -28520,10 +29289,18 @@ void CX2GUChung::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUChung::ApplyHyperModeBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c06270 ( = March )
+	CX2GameUnit::ApplyHyperModeBuff();
+	
+	if ( IsFullHyperMode() )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CHUNG_BERSERK_MODE_START", this );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GameUnit::ApplyHyperModeBuff();
 
 	if ( IsFullHyperMode() )	/// 풀각성 시작시 나오는 이펙트
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CHUNG_BERSERK_MODE_START", this );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : HyperModeBuffEffectStart
@@ -28531,6 +29308,45 @@ void CX2GUChung::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUChung::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c063d0; the hyper boost handles are skipped for a transcended unit or an awakening effect set, and the cannon balls are filled here ( March fills them in HyperModeBuffEffectEnd )
+	if( !( NULL != GetUnit() && true == IsTranscendedUnit( GetUnit() ) ) && false == ChungAwakeningEffectSetPresent() )
+	{
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+			m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightBlue",	0, 0, 0, 0, 0);
+	
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+			m_hHyperBoostLFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftBlue",		0, 0, 0, 0, 0);
+	
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+			m_hHyperBoostRArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightBlue",	0, 0, 0, 0, 0);
+	
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+			m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftBlue",		0, 0, 0, 0, 0);
+	}
+	
+	SetCannonBallCount( GetChungGageData()->GetMaxCannonBallCount() );
+	
+	if ( IsFullHyperMode() )
+	{
+		SetShowViewList( true );
+		UpdateEquipCollisionData();
+		SetNeedToUpdateWeaponEffect( true );
+		GetChungGageData()->SetCannonBallChanged( true );
+	
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeHyperMode();
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+		{
+			pEquipPtr->ChangeHyperMode();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
 		m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightBlue",	0, 0, 0, 0, 0);
 
@@ -28566,6 +29382,7 @@ void CX2GUChung::DeleteMinorParticle()
 			pEquipPtr->ChangeHyperMode();
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : HyperModeBuffEffectEnd
@@ -28573,6 +29390,39 @@ void CX2GUChung::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUChung::HyperModeBuffEffectEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c06750; no cannon ball refill here ( June does it at the start ), the gauge timer is set to -100
+	CX2GUUser::HyperModeBuffEffectEnd();
+	
+	if ( IsFullHyperMode() )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+	
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CHUNG_BERSERK_MODE_START", this );
+	
+		SetFullHyperMode( false );
+		SetShowViewList( true );
+		UpdateEquipCollisionData();
+		SetNeedToUpdateWeaponEffect( true );
+		GetChungGageData()->SetCannonBallChanged( true );
+		m_fCannonBallGaugeTimer = -100.f;
+	
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CX2GUUser::HyperModeBuffEffectEnd();
 
 	// 광폭화 모드인데, 각성시간이 다 되었으면
@@ -28607,6 +29457,7 @@ void CX2GUChung::DeleteMinorParticle()
 			pEquipPtr->ChangeNormalMode();
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetSpecificValueByBuffTempletID
@@ -28719,6 +29570,23 @@ void CX2GUChung::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUChung::ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beeed0; the Chaos Cannon states also take the guard outline; the else branch is CX2GUUser's 31fd4460 ( CUSTOM_RENDER_STATE setup ), stand-in: the engine renderer phase is not ported
+	if ( m_bPassDash )
+		return;
+	
+	if ( true == IsThisStateCanBeChangedToGuardStateOnHit()
+		|| CSI_SI_A_CFG_GUARD_DAMAGE == GetNowStateID()
+		|| m_fChaosCannonTime > 0.f
+		|| true == IsNowStateChaosCannon() )
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
+		pRenderParam_->outLineColor		= 0xff00f5ff;
+	}
+	else
+		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -28741,10 +29609,38 @@ void CX2GUChung::DeleteMinorParticle()
 	} // if
 	else 
 		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /*virtual*/ void CX2GUChung::ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bec310 ( = March )
+	if( GetRemainHyperModeTime() > 0.0f )
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
+		pRenderParam_->outLineColor		= 0xffffffff;
+	}
+	else
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
+		pRenderParam_->outLineColor		= 0xffffffff;
+	}
+	
+	if(m_fRemainIronWillRenderEffectTime > 0.f)
+	{
+		SetUseWorldColor(false);
+		float fAlpha = 1.f - m_fRemainIronWillRenderEffectTime / _CONST_CHUNG_::MAGIC_NUMBER_IRON_WILL_RENDER_EFFECT_TIME;
+		pRenderParam_->renderType			= CKTDGXRenderer::RT_CARTOON_FADE;
+		pRenderParam_->color = D3DXCOLOR( 0.4f, 1.f, 0.7f, fAlpha );
+	}
+	else
+	{
+		SetUseWorldColor(true);
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( GetRemainHyperModeTime() > 0.0f )
 	{
 		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
@@ -28771,6 +29667,7 @@ void CX2GUChung::DeleteMinorParticle()
 		SetUseWorldColor(true);
 	}
 #endif CHUNG_SECOND_CLASS_CHANGE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER

@@ -1187,6 +1187,39 @@ correction (below). I read each function in Ghidra (decompile and, for the gates
 **Gates.** No source change: no flagcheck, no build (CH1j review `DEPLOY OK` md5 `25c79d0f` stands). `junediverge.py --check-all`:
 `allow-listed: 160`, `RESULT: PASS`. Nothing to play-test. Next: `/x2-phase char-chung CH1k` (Sonnet 5.5 high).
 
+### CH1k - Done (2026-11-01)
+
+All 38 class-map rows of phase CH1k are written, plus the ctor map: 33 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`; `_LIVE` stays `//#define`) and 5 `new` under `_CORE` (declared in `X2GUChung.h`, referenced by nothing; one of them, `32bdc890`, is not new: see below). 39 funcmap rows `Char Chung CH1k`. Read from `charport_adis.py chung --phase CH1k`; Ghidra for the key strings (obfuscated Lua keys decoded with a scratch decoder).
+
+| June | `CX2GUChung::` | vs March |
+|---|---|---|
+| `32c0cf90` | `DamageReact` | differs: Iron Will 7p hit stop (attacker and unit `SetStopTime( 0.5, false, NULL, false )`, `SetStop2Time( 0 )`); guard-damage branch also needs `!GetInvincible()`; dash Z X mini gun handles (slots 0x11 / 0x12) cleared at the end for every reAct type |
+| `32c0ca60` | `ReInit` | differs: Heavy Field NPC 2525 removed; PvP / PvE (type 1 / 4, `GetIsNowPVPCorrectionGame()`) start with the PvP count (`+0x9680`), other games raise to the dungeon count (`+0x9674` = March's `m_ucBasicCannonBallCount`) |
+| `32bf4900` | `InitComponent` | differs: PvP / PvE take `m_ucPvpStartCannonBallCount` (March 3 in PvP), training 3; reads `SIEGE_ANGLE` (4), `MOBILE_SIEGE_ANGLE` (4 = CH1j's spine aim limits), `EXTRA_CANNON_BALL_DAMAGE_RATE` (2), `COMMAND_HIT_ADD_MP_BONUS` (default 1) |
+| `32c063d0` / `32c06750` | `HyperModeBuffEffectStart` / `End` | differs: boost handles only for a non-transcended unit without an awakening effect set; cannon balls refilled at the start (March: end); end sets `m_fCannonBallGaugeTimer = -100` |
+| `32beeed0` | `ApplyRenderParam` | differs: Chaos Cannon states (`IsNowStateChaosCannon`) take the guard outline; else branch = CX2GUUser `31fd4460`, stand-in `CX2GameUnit::ApplyRenderParam` |
+| `32c0c4e0` | dtor | differs: also removes NPC 2525 |
+| `32beaf70` | `GetComboXStateID` (header) | differs: Deadly Chaser -> `CSI_CDC_COMBO_X` |
+| `32bdc890` | `CalculateHpPercentUpRateByDamageDataHpUp` | the class map's "new GetMetabolismBoostValue" is March's function; body `= March`, skill id by June name |
+| `32bed3d0`, `32bed7e0`, `32bed840`, `32beeb90`, `32beec40` | `GetDefenderDamageRate`, `GetDamageRateOnCommanderMarkedDefender`, `GetDamageRateOnExcitingCrashDefender`, `IsNowStateChaosCannon`, `GetOpenMindScaledValueInGuardState` | `new` under `_CORE`, plain names by role; callers are GetFinalDamage / GetAdditionalAttackPowerRateByType (Stage 33) |
+| the other 22 | Init, Win, Lose, Draw, InitEffect, CreateMinor/MajorParticleArray, InitEnchant..., COMMON_BUFF_FrameMove, NotifyShowObjectChanged, NotifyDGManagerChanged, OnFrameMove, GetCriticalValue, DeleteMinorParticle, ApplyHyperModeBuff, ApplyRenderParamOnEmptyRenderParamByBuff, CreateGageData, DeleteMajorMesh, InitPromotionEquipList, LoadPromotionItemID, IsThisStateCanBeChangedToGuardStateOnHit, GetComboZStateID | = March (copy in the `_LIVE` branch, `/// June <va> ( = March )`); `ChangeMaxCharacterAddResource` is already June's (Buff 7b) and untouched |
+
+**Members and the ctor map.** New `_CORE` members (ctor values = June's): `m_ucPvpStartCannonBallCount` (`+0x9680`, 0; June splits March's one start count into dungeon `+0x9674` and PvP `+0x9680`, Lua keys `CANNON_BALL_COUNT_AT_DUNGEON_START` / `_AT_PVP_START`, written by LoadPersonalInfo `32bf5430`, CH1l), `m_afSiegeAngle[4]` (`+0x9868`), `m_afExtraCannonBallDamageRate[2]` (`+0x9898`, 1), `m_fCommandHitAddMpBonus` (`+0x98c4`, 1), `m_fCannonBallGaugeTimer` (`+0x98b8`, -1). CH1j's spine aim members were not ctor-set: the ctor zeroes them and `InitComponent`'s MOBILE_SIEGE_ANGLE writes them (the header comment "set by the constructor" is stale). `june2017_re/char_chung/ch1k_ctor_map.tsv` lists all 163 offsets June's ctor writes (`+0x9598` .. `+0x98ec`) with width, value, ctor address and the March member where I could pair it; rows with an empty last column belong to the phase that reads that member (their names come with their consumers, no member is invented here). RNSI names registered (`JUNE_ENUM_NAMES`): `RNSI_SA_CDC_EXCITING_CRASH` 26040, `RNSI_P_CFG_METABOLISM_BOOST` 26400, `RNSI_P_CTT_REACTIVE_ARMOR` 26414, `RNSI_P_CTT_USEFUL_TACTIC` 26420. New namespace `_CONST_CHUNG_CH1K_` (`IsTranscendedUnit` through `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT`; the awakening-set stand-in is CH1c's, forward-declared).
+
+**Open items (for the review).**
+- **Needs Opus:** `GetOpenMindScaledValueInGuardState` (`32beec40`, unit vslot 0x1b8): June reads a protected float at `CX2GameUnit +0x567c` (base `3208e290`); that member and the vslot's caller are not identified in March, so the port takes the base value as an argument (stand-in).
+- June dereferences the defender optr of `32bed7e0` / `32bed840` without a null test; the port tests it (a crash otherwise, no JUNE_BUGS row).
+- The `ApplyRenderParam` else branch, `HyperModeBuffEffectStart`'s awakening and transcended gates are stand-ins already used by Eve / CH1c.
+- `SetStopTime( 0.5, false, NULL, false )` compiles in this build (the 4-argument overload is the active one).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `9 deleted line(s)` (flagcheck's own alignment of the LoadPromotionItemID copy: `git diff --patience` on the cpp shows 897 insertions, 0 deletions), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because the `#define` is commented out.
+- `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `allow-listed: 2`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+- `DEPLOY OK: X2_offline.exe is 25,891,328 B, dated 2026-11-01 09:28:10, md5 c47b1572aee03fdbb1e8c8469204450c, equal to X2/US_SERVICE/x2.exe (2026-11-01 09:28:03); built at main 1f33e82c + 3 uncommitted code file(s).` No `exestr` line: `_LIVE` is off, so the phase adds no string to the exe.
+
+**Nothing to play-test** (`_LIVE` is off; the flag-off tree adds only unused `_CORE` members and functions). Next: `/x2-phase char-chung CH1k review` (Opus 5.5 high), then CH1l0.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
