@@ -648,7 +648,7 @@ protected:
 	float GetDefenderDamageRate( float fDamageRate_ );		/// June 32bed3d0 ( unit vslot 0xb8, base 3208dc20 returns the argument ): the defender's damage rate in GetFinalDamage
 	float GetDamageRateOnCommanderMarkedDefender( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32bed7e0 ( unit vslot 0x2e8, base 3208dd70 returns 1.0 )
 	float GetDamageRateOnExcitingCrashDefender( const CX2DamageManager::DamageData* pDamageData_ );		/// June 32bed840 ( unit vslot 0x2ec, base 3208dd70 returns 1.0 )
-	float GetOpenMindScaledValueInGuardState( float fBaseValue_ );	/// June 32beec40 ( unit vslot 0x1b8, base 3208e290 returns the protected float at CX2GameUnit +0x567c; stand-in: the caller passes it )
+	virtual float GetChargeMpHitted() const;					/// June 32beec40 ( unit vslot 0x1b8, base 3208e290 = CX2GameUnit::GetChargeMpHitted, virtual under _LIVE )
 	bool IsNowStateChaosCannon();							/// June 32beeb90: the state is one of the twelve Chaos Cannon states
 	UCHAR GetPvpStartCannonBallCount() const { return m_ucPvpStartCannonBallCount; }
 	void SetPvpStartCannonBallCount( UCHAR ucPvpStartCannonBallCount_ ) { m_ucPvpStartCannonBallCount = ucPvpStartCannonBallCount_; }

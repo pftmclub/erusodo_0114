@@ -2753,7 +2753,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float						GetChargeMpHitMeleeAttack() const { return m_AdditionalChargeMpHitMeleeAttack.GetResultValue(); }
 		float						GetChargeMpHitRangeAttack() const { return m_AdditionalChargeMpHitRangeAttack.GetResultValue(); }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+		virtual float				GetChargeMpHitted() const { return m_AdditionalChargeMpHitted.GetResultValue(); }	/// June 3208e290 ( unit vslot 0x1b8 ); CX2GUChung overrides it ( 32beec40 )
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		float						GetChargeMpHitted() const { return m_AdditionalChargeMpHitted.GetResultValue(); }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 		float						GetDistanceFrom( D3DXVECTOR3 vPos ) 
 		{ 

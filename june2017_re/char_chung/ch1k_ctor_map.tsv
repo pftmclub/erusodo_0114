@@ -75,7 +75,7 @@ offset	width	value	ctor_addr	march_member_or_owner
 0x9704	protected	see ctor	32bf1859	
 0x9710	4	0	32bf1a63	
 0x9714	4	0	32bf1a6b	
-0x9718	1	0	32bf1a73	
+0x9718	1	0	32bf1a73	March m_bIncreaseCritical ( false; GetCriticalValue 32bedb40 reads it with m_fCriticalDamageRate +0x96bc ) - CH1k review
 0x971c	protected	see ctor	32bf1a5d	March m_iSiegeShellingCount ( protected int )
 0x9728	4	1	32bf1c43	March m_fSiegeShellingDistance ( 1 )
 0x972c	4	1	32bf1c4f	March m_fSiegeShellingDamageRel ( 1 )

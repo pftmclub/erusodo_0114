@@ -7380,13 +7380,13 @@ float CX2GUChung::GetDamageRateOnExcitingCrashDefender( const CX2DamageManager::
 	return fDamageRate;
 }
 
-/// June 32beec40 ( unit vslot 0x1b8 ); stand-in: the base value is June's CX2GameUnit +0x567c protected float ( 3208e290 ), not yet identified in March, so the caller passes it
-float CX2GUChung::GetOpenMindScaledValueInGuardState( float fBaseValue_ )
+/// June 32beec40: Open Mind scales the MP a hit gives while a guard state can take the hit
+/*virtual*/ float CX2GUChung::GetChargeMpHitted() const
 {
-	float fValue = fBaseValue_;
-	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) && true == IsThisStateCanBeChangedToGuardStateOnHit() )
-		fValue = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_GET_HIT_REL, CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) * fBaseValue_;
-	return fValue;
+	float fChargeMpHitted = CX2GameUnit::GetChargeMpHitted();
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) && true == const_cast<CX2GUChung*>( this )->IsThisStateCanBeChangedToGuardStateOnHit() )
+		fChargeMpHitted = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_GET_HIT_REL, CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) * fChargeMpHitted;
+	return fChargeMpHitted;
 }
 
 /// June 32beeb90: the twelve Chaos Cannon states ( START to END ) are contiguous

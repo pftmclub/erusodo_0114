@@ -1220,6 +1220,62 @@ All 38 class-map rows of phase CH1k are written, plus the ctor map: 33 `inside` 
 
 **Nothing to play-test** (`_LIVE` is off; the flag-off tree adds only unused `_CORE` members and functions). Next: `/x2-phase char-chung CH1k review` (Opus 5.5 high), then CH1l0.
 
+### CH1k - Review (2026-11-01, Opus 5.5)
+
+**Verdict: passes, and the one stand-in is resolved.** I read every CH1k row against `charport_adis.py chung --phase CH1k` (and Ghidra or
+`disasm_range.py`), and compile-probed 34 enum values (`enumprobe.py`).
+- **`DamageReact` `32c0cf90` = port.** Iron Will gate: class 110, reActType not 0 / 7 / 10, not invincible, HP > 0, foot on line, chance > random;
+  the chance doubles in CFG guard wait / damage and in dungeon / field. The hit stop is vslot 0x100 `( 0.5, 0, 0, 0 )` on the attacker unless
+  `AT_EFFECT`, the unit gets 0.5, and its second stop (vslot 0x104) gets 0: March's one-argument calls with the same values. Reduce +100 / +80
+  (plus guard) around `CX2GUUser::DamageReact`. Be-shot ball: time <= 0, random <= rate, 2 s, then June's inlined not-berserk +1, which is
+  `UpCannonBallCount( 1, true )`. Iron Will turns DOWN / UP / FLY / DRAG_UP into BIG_DAMAGE. Guard branch: `bAttackerFront && !GetInvincible()`
+  (`@32c0d4de`). The slot 0x11 / 0x12 handles are cleared after every branch, including the invincible `CSI_GUARD` path.
+- **Enum shifts are harmless.** March's Chung states are June's minus 0x2e (the common-state shift), for example `CSI_GUARD` 0x75 / 0xa3,
+  `CFG_GUARD_WAIT` 0xb7 / 0xe5, Chaos Cannon 0xef..0xfa / 0x11d..0x128, `CSI_COMBO_Z` / `_X` / `CSI_CDC_COMBO_X` 0x78 / 0x81 / 0xa0. The order
+  is the same, so the names are right. The mesh enumerators `CSG_COMBO_DASH_ZX_MINI_GUN_L` / `_R` (March 18 / 19) are June slots 0x11 / 0x12 by
+  name (CH1 header comments). `XS_TRAINING_GAME` is 17 in March; June compares 0x12, which three confirmed funcmap rows name.
+- **`ReInit` `32c0ca60` = port.** It turns full hyper off and calls the base. Then targeting NPCs 863 / 1419, land demolisher (colour 2,
+  `+0x96cc`), Heavy Field 2525. Game type 1 or 4 takes team kills (`+0x4a4` red, `+0x4a8` blue, `32bf4040`) or the PvP count `+0x9680`;
+  otherwise the count is raised to `+0x9674`. Then the sync (Tactical Trooper total), the counters, and the Chaos Cannon effect and sound.
+- **`InitComponent` `32bf4900` = port.** Type 1 / 4: `+0x140` / `+0x141` false, count `+0x9680`, Ex 0, changed; training: 3. The table names
+  follow from the string layout `33509f4c` / `f6c` / `f80` (EXTRA_CANNON_BALL_DAMAGE_RATE / MOBILE_SIEGE_ANGLE / SIEGE_ANGLE), offsets
+  `+0x9898` / `+0x9878` / `+0x9868`. I decoded `COMMAND_HIT_ADD_MP_BONUS` again from the 24-byte XOR at `337adba0`; default 1, `+0x98c4`.
+- **Hyper mode `32c063d0` / `32c06750`, `ApplyRenderParam` `32beeed0` = port.** Start: unit `+0x3c`, the `31fd66b0` stand-in, the refill from
+  gage `+0x11c`. End: `-100` at `+0x98b8` after the changed flag; March's End refill is gone. Render: `+0x6840`, state 0xe7, Chaos time, `32beeb90`;
+  colour `( 0, 245/255, 1, 1 )` = `0xff00f5ff`. START..END in March's enum is the same 12 states.
+- **The three damage-rate `_CORE` bodies = port.** `32bed3d0`: `GetSkillLevel( 26414, true, 0, true )`; hyper count 1 / 2 / else gives SA
+  0x88 / 0x89 / 0x8a; `1 - v`; tactical field `+0x41f4` < 1. `32bed7e0`: 26420, BTI 62, SA 0x1c. `32bed840`: 26040, HT 0x21 / 0x22, AT 2,
+  `GetSkillBuffTempletID( 26040, 0, true )`, SA 0x39. `31fceab0` / `32007b10` are March's `GetSkillLevelValue` / `GetLearnedSkillAbilityValue`.
+  June calls `HaveThisBuff` on a null defender with no test; the port's null test stays, because June's way would crash.
+- **Dtor `32c0c4e0`, both combo ids, `DeleteMajorMesh` = port.** Correction to the Done note: June frees 19 slots, but March's loop covers
+  `CHUNG_MAJOR_MII_END` = 22, not "one to one". The extra slots are March meshes June dropped, and freeing them is harmless.
+- **`= March` spot checks pass:** `GetCriticalValue` (`+0x4dfc`, `+0x9718`, `+0x96bc`), `IsThisStateCanBeChangedToGuardStateOnHit` (the 12-byte
+  list `+0x9638`, the window, the guard point), `CalculateHpPercentUpRateByDamageDataHpUp` (classes 20 / 110, 26400, SA 0x37, `v - 1 + 5e-8`),
+  `Init`. RNSI 26040 / 26400 / 26414 / 26420 (and 26415 `RNSI_P_CIP_OPEN_MIND`) match June's `Enum.lua`.
+- **Ctor map.** Most blank rows are continuation words (vector tails, array elements, handle slots); the rest stay with the reading phases.
+  Filled: `+0x9718` = `m_bIncreaseCritical`.
+
+**`32beec40` is no longer a stand-in.** `dispsweep.py 567c` finds `+0x567c` only in the base `3208e290` and in `32beec40`. It is
+`m_AdditionalChargeMpHitted` (`+0x55dc`) `+0xa0` = its `m_fResultValue`. Evidence: `320870a0` = `CheckAndUpdateAdditionalChargeMpHitted` gates on
+`+0x568c` = `m_bMustChangeResultValue`, and `32070c30` = `SetBasicStatValueChargeMpHitted`. So unit vslot 0x1b8 is `CX2GameUnit::GetChargeMpHitted`,
+virtual in June. Its only callers are `CX2GUUser::DamageReact` `@32049f5c` / `@32049fb9`, `UpNowMp( GetChargeMpHitted() )` = `X2GUUser.cpp:11497` / `11509`.
+- `X2GameUnit.h`: `GetChargeMpHitted` is virtual under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`; the `#else` is March's line.
+- `X2GUChung.*`: `GetOpenMindScaledValueInGuardState( float )` becomes `virtual float GetChargeMpHitted() const` (`_CORE`) with June's body:
+  base x SA_MP_GAIN_GET_HIT_REL of 26415 while the guard test holds. It uses a `const_cast` because March's guard test is non-const. It stays
+  inert until `_LIVE` makes the base virtual.
+- Rows: `june_march_divergent.tsv` `GetChargeMpHitted` (replace, ported under `_LIVE`), funcmap `32beec40` / `3208e290`.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2GameUnit.h`:
+  `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`. `7 deleted line(s)` are CH1k's own stand-in lines; `0 non-ASCII inserted`,
+  `0 EOL-mismatched`, `0 #else/#endif without the flag token`, `0 encoding change(s)`. RESULT FAIL only because `_LIVE` is `//#define`.
+- `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2GameUnit.h`: 0 A/B rows.
+- Probes (`/Zs /EHsc`, no PCH), all exit 0 with 0 errors: `X2GUChung.cpp` as in the tree; `X2GUChung.cpp` with `-D..._LIVE`; `X2GUUser.cpp` with `-D..._LIVE`.
+- `DEPLOY OK: X2_offline.exe is 25,891,328 B, dated 2026-11-01 09:53:59, md5 05b833e84d40a542d33d854ef1ba91ea, equal to X2/US_SERVICE/x2.exe
+  (2026-11-01 09:53:52); built at main 802a550b + 3 uncommitted code file(s).` No `exestr` line: `_LIVE` is off, so no string is added.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1l0` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
