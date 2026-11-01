@@ -1216,7 +1216,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c24c50	thunk	jmp 32bf3430	-	-	-	n/a	not ported	n
 32c24c60	thunk	jmp 32bf2f70	-	-	-	n/a	not ported	n
 32c24c70	thunk	jmp 32bf3830	-	-	-	n/a	not ported	n
-32c24c80	helper	-	-	new	SetExtraCannonBallReloadCount	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; name: protected int setter used by UseCannon; March m_iExtraCannonBallReloadCount; role guess	y
+32c24c80	helper	-	-	new	SetUsedCannonballCountAtThisState	CH1q	protected-int setter of m_CannonBallSystem's used count ( this = unit +0x9624, int at this + 8 ) = March CCannonBallSystem::SetUsedCannonballCountAtThisState; CH1l2 calls it with 0 in CommonStateStart ( the CH0 name SetExtraCannonBallReloadCount was a role guess )	y
 32c24d00	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d40	y
 32c24d40	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d00	y
 32c24db0	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:570; SetCannonBallChanged + SetNowCannonBallCount	y

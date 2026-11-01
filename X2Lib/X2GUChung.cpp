@@ -180,6 +180,7 @@ iFrameBufferNum_, pUnit_ )
 , m_fCannonBallGaugeTimer( -1.f )
 , m_iSnapshotCannonBallCount( 0 )
 , m_iSnapshotCannonBallCountEx( 0 )
+, m_iPrevStateSkillID( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -6190,8 +6191,13 @@ void CX2GUChung::DeleteMajorMesh()
 */
 void CX2GUChung::CommonStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8740 ( a bare jump to the base )
+	CX2GUUser::CommonStateStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateStartFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CommonStateStart
@@ -6199,6 +6205,64 @@ void CX2GUChung::CommonStateStartFuture()
 */
 void CX2GUChung::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3990
+	CX2GUUser::CommonStateStart();
+
+	/// the Open Mind buff factors ( index 1 ) are applied when the state skill changes to one of these skills
+	const CX2SkillTree::SKILL_ID eStateSkillID = GetNowStateSkillID();	// vslot 0x524
+	switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eStateSkillID ) )	// 32207210
+	{
+	case CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER:
+	case CX2SkillTree::RNSI_SA_CDC_DEADLY_SHOT:
+	case CX2SkillTree::RNSI_SA_CDC_BULLET_BLITZ:
+	case CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE:
+	case CX2SkillTree::RNSI_SA_CDC_SHOOTING_BIND:
+	case CX2SkillTree::RNSI_SA_CDC_BURNING_PUNISHER:
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT:
+	case CX2SkillTree::RNSI_A_CDC_TRICK_SHOT:
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT_TRANS:
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT_UPGRADE:
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT_TRANS_UPGRADE:
+	case CX2SkillTree::RNSI_A_CDC_STUN_SHOT:
+		{
+			if ( static_cast<int>( eStateSkillID ) != m_iPrevStateSkillID )
+				SetSkillBuffFactors( CX2SkillTree::RNSI_P_CDC_OPEN_MIND, 1, true );	// 31fcac90 ( vslot 0x23c )
+		} break;
+
+	default:
+		break;
+	}
+	m_iPrevStateSkillID = static_cast<int>( eStateSkillID );
+
+	if ( CSI_GUARD != GetNowStateID() )
+		m_GuardSystem.ChargeGuardPointRemain();
+
+	m_CannonBallSystem.SetUsedCannonballCountAtThisState( 0 );	// 32c24c80, the used count is a protected int in June
+
+	if ( m_DamageData.m_bMeleeAttack )
+		m_DamageData.fForceDownValue *= GetForceDownRelAtMeleeAttack();
+
+	SetPassiveCriticalRate( m_fPassiveCriticalRateChung );
+	m_bIncreaseCritical = false;
+
+	/// USE_CANNON_BALL<n> = { [1] float, [2] int }; a row that fails to read is not closed with EndTable ( JUNE_BUGS )
+	m_vecUseCannonBall.clear();
+	int iRow = 0;
+	while ( true == m_LuaManager.BeginTable( "USE_CANNON_BALL", iRow ) )
+	{
+		++iRow;
+
+		float fValue = 0.f;
+		int iValue = 0;
+		if ( true == m_LuaManager.GetValue( 1, fValue ) &&
+			true == m_LuaManager.GetValue( 2, iValue ) )
+		{
+			m_vecUseCannonBall.push_back( std::make_pair( fValue, iValue ) );
+			m_LuaManager.EndTable();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateStart();
 
@@ -6225,6 +6289,7 @@ void CX2GUChung::CommonStateStart()
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // ±èÅÂÈ¯
 	SetPassiveCriticalRate(m_fPassiveCriticalRateChung);
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 }
 
@@ -6233,6 +6298,17 @@ void CX2GUChung::CommonStateStart()
 */
 void CX2GUChung::CommonFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf2a40: the cannon ball count goes to the class sync int ( June has no m_CannonBallCount )
+	CX2GUUser::CommonFrameMoveFuture();
+
+	const bool bMobileArmoredMode = ( NULL != GetUnit() &&
+		CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable );
+	const int iCannonBallCount = ( true == bMobileArmoredMode ) ?
+		GetExtraCannonBallCount() * 7 + GetCannonBallCount() : GetCannonBallCount();
+	if ( m_FrameDataFuture.syncData.iClassSyncInt != iCannonBallCount )
+		m_FrameDataFuture.syncData.iClassSyncInt = iCannonBallCount;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonFrameMoveFuture();
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
@@ -6241,6 +6317,7 @@ void CX2GUChung::CommonFrameMoveFuture()
 	m_FrameDataFuture.syncData.m_CannonBallCount = GetCannonBallCount();
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 // 	int iMaxAnimationLoopTimeAtThisSate = 1;
 // 	LUA_GET_VALUE( m_LuaManager, "MAX_AIMATION_LOOP_TIME_AT_THIS_STATE", iMaxAnimationLoopTimeAtThisSate, 1 );
 // 	SetMaxAnimationLoopTimeAtThisSate( iMaxAnimationLoopTimeAtThisSate, false );	
@@ -6443,8 +6520,13 @@ void CX2GUChung::CommonFrameMove()
 */
 void CX2GUChung::CommonStateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8750 ( a bare jump to the base )
+	CX2GUUser::CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CommonStateEnd
@@ -6452,8 +6534,13 @@ void CX2GUChung::CommonStateEndFuture()
 */
 void CX2GUChung::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8760 ( a bare jump to the base )
+	CX2GUUser::CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CommonRender_Prepare
@@ -6461,9 +6548,14 @@ void CX2GUChung::CommonStateEnd()
 */
 RENDER_HINT CX2GUChung::CommonRender_Prepare()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8770 ( returns the base's RENDER_HINT through the hidden pointer )
+	return CX2GUUser::CommonRender_Prepare();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 
 	return CX2GUUser::CommonRender_Prepare();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SepcialAttackEventProcess

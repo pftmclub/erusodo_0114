@@ -1971,6 +1971,19 @@ public:
 		RNSI_A_CDC_GATLING_SHOT                               = 26211,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1l2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Chung CommonStateStart switch spells ( values from June's Enum.lua )
+		RNSI_SA_CDC_DEADLY_SHOT                               = 26013,
+		RNSI_SA_CDC_BULLET_BLITZ                              = 26018,
+		RNSI_SA_CSG_DUAL_BUSTER_UPGRADE                       = 26032,
+		RNSI_SA_CDC_SHOOTING_BIND                             = 26039,
+		RNSI_SA_CDC_BURNING_PUNISHER                          = 26063,
+		RNSI_A_CDC_TRICK_SHOT                                 = 26209,
+		RNSI_A_CSG_HEAD_SHOT_UPGRADE                          = 26223,
+		RNSI_A_CDC_STUN_SHOT                                  = 26227,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

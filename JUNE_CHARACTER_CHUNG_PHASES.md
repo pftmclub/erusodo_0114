@@ -1423,6 +1423,35 @@ checked and correct as written (14 of 16 rows; `32bdc750` stays March, `32bf44d0
 
 Nothing to play-test (`_LIVE` off). `CH1l2.md` checked and amended (decompile every user helper before calling it equal; read each `GetSkillLevel` fourth argument). Next: `/x2-phase char-chung CH1l2` (Sonnet 5.5 high).
 
+### CH1l2 - Done (2026-11-01)
+
+All 9 class-map rows are written: 6 `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March's in `#else`; `_LIVE` stays `//#define`) and 3 `new` that need no source. Read from `charport_adis.py chung --phase CH1l2`; the jump table and byte index of `CommonStateStart` were decoded from the exe (`32bf3c4c` / `32bf3c54`).
+
+| June | `CX2GUChung::` | kind | vs March |
+|---|---|---|---|
+| `32bd8740` `32bd8750` `32bd8760` | `CommonStateStartFuture` `CommonStateEndFuture` `CommonStateEnd` | inside | = March: bare jumps to `320506f0` / `31fdd8e0` / `32015250` (March: `KTDXPROFILE` + the same base call) |
+| `32bd8770` | `CommonRender_Prepare` | inside | = March: calls `31fd07b0` and returns the hidden `RENDER_HINT` pointer |
+| `32bf2a40` | `CommonFrameMoveFuture` | inside | differs: base first, then `m_FrameDataFuture.syncData.iClassSyncInt` (June `+0x7ec0`) = now count, plus extra x 7 for class 117 with `m_bMobileArmoredModeEnable` (compare, then assign). March wrote `m_CannonBallCount`; June never does |
+| `32bf3990` | `CommonStateStart` | inside | differs: after the base, `GetNowStateSkillID()` through `GetUpgradeBaseSkillID` (`32207210`) switches on 12 skill ids; a new raw id re-applies Open Mind (`SetSkillBuffFactors( 26417, 1, true )`, vslot 0x23c) and is kept in `m_iPrevStateSkillID` (`+0x98ec`). Then guard refill (not in `CSI_GUARD` = June 163), used cannon ball count 0, melee force-down x `m_fForceDownRelAtMeleeAttack`, passive critical rate, `m_bIncreaseCritical` false, and the new `USE_CANNON_BALL<n>` rows into `m_vecUseCannonBall` (`+0x98d8`, `{ float, int }`; consumer CH1q) |
+| `32c24470` `32c24770` `32c24860` | - | new | std template instantiations behind `push_back` of the 8-byte rows; no source of their own |
+
+**Registered here.** `RNSI_*` x8 in `X2SkillTree.h` (`JUNE_ENUM_NAMES`: June `26013` `26018` `26032` `26039` `26063` `26209` `26223` `26227`); the other 5 names the switch and the Open Mind call spell were already there. All 13 values and `UC_CHUNG_TACTICAL_TROOPER == 117` were compile-probed. Members `m_iPrevStateSkillID`, `m_vecUseCannonBall` under `_CORE`.
+
+**Found.**
+- `32c24c80` (class map: CH1q, `SetExtraCannonBallReloadCount`, a role guess) is the protected-int setter of `m_CannonBallSystem`'s used count (`this` = `+0x9624`, int at `this + 8`) = March's `SetUsedCannonballCountAtThisState`; CommonStateStart calls it with 0. `32bf3990` is `CommonStateStart`, not CH1q's `CreateNotEnoughMPEffect`. Both corrected in `ch0_class_map.tsv` and the CH1q kickoff.
+- `32bed560` (June's total cannon ball count) is not March's `GetTotalCannonBallCount`: no x7, full hyper reads the max. It was not called; row `GetTotalCannonBallCount` in `june_march_divergent.tsv` (replace, ported in CH1q). `JUNE_BUGS.md` #499: a `USE_CANNON_BALL<n>` row that fails to read skips `EndTable`.
+- `+0x8b10` = the passive critical rate (read by `31fd19b0`, written here from `+0x9814`); `+0x3cc` / `+0x790` = `m_bMeleeAttack` / `fForceDownValue`. Stated, not re-proven in Ghidra beyond that.
+- **For CH1l4:** with `_LIVE`, nothing writes `m_CannonBallCount` any more; `CommonFrameMove` (Now side) must read `iClassSyncInt`. Kickoff amended.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because `_LIVE` is `//#define`. `git diff --numstat`: 92 + 2 + 13 insertions, 0 deletions.
+- `junediverge.py --check` on the three files: `allow-listed: 2`, `RESULT: PASS`. `enumscan.py --check X2GUChung.*`: 0 A/B rows.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH; from Git Bash pass `-D`, not `/D`, which MSYS turns into a path): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors (`cl /P` confirms the June body is the selected branch: `USE_CANNON_BALL` 1 vs 0).
+- `DEPLOY OK: X2_offline.exe is 25,892,864 B, dated 2026-11-01 16:00:00, md5 a10300c83fd36116ca9edf4bb3f73b01, equal to X2/US_SERVICE/x2.exe (2026-11-01 15:59:53); built at main 271885e5 + 3 uncommitted code file(s).`
+- `EXESTR OK: 1 of 1 absent in X2_offline.exe` (`USE_CANNON_BALL`, flag-off build carries no June string).
+
+**Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1l2 review` (Opus 5.5 high), then `CH1l30` (Opus).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

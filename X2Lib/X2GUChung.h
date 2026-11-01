@@ -1951,6 +1951,8 @@ protected:
 	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
 	int							m_iSnapshotCannonBallCount;		/// June +0x92c0 ( CX2GUUser snapshot region, ctor 0 ): the now cannon ball count StoreGageSnapshot keeps
 	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only
+	int							m_iPrevStateSkillID;			/// June +0x98ec ( ctor 0 ): the state skill id at the last CommonStateStart
+	std::vector< std::pair<float, int> >	m_vecUseCannonBall;	/// June +0x98d8: the rows of the state's USE_CANNON_BALL<n> tables, { [1] float, [2] int }; consumer CH1q
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

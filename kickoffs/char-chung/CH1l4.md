@@ -56,3 +56,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32c058a0` `32c08010` `32c080f0` `32c09390` `32c09ad0` `32c0d570`.
 - `31f66620` (pooled alloc) is mapped by CH1l30.
 - The hyper-count-3 timer skip `32bf4680` and `32bf3f60` are CH1q's: declare them.
+
+## Amended by CH1l2 (2026-11-01)
+
+- CH1l2's `CommonFrameMoveFuture` writes the cannon ball count (now + 7 x extra in mobile armored mode) to `m_FrameDataFuture.syncData.iClassSyncInt` (June `+0x7ec0`) and no longer to `m_CannonBallCount`. March's `CommonFrameMove` sets the count of a unit that is not mine from `m_FrameDataNow.syncData.m_CannonBallCount`; check which Now field June's `CommonFrameMove` reads (`iClassSyncInt` is June `+0x8160`) and that the Future -> Now copy carries it.
