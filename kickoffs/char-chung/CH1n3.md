@@ -33,3 +33,7 @@ the two line-type branches, so read the listing):
 CP949: `bytepatch.py` only; `cl /P` each `#ifdef` (`ADD_LINEMAP_JUMPUP_DIRECTION` is on). One-line comments with the June address. No hardcoded enum
 literals, no `June` in names (CLAUDE.md). Done gate: build passes, flag on; `flagcheck`, `junediverge --check`, `enumscan --check` clean; a play-test
 hand-off on a map with a jump pad (Aisha or Eve): step on the pad, hold down on it, step on it twice quickly, pepper run onto it.
+
+**Scope fence (user, 2026-11-02):** CH1n3 is kept in the Chung plan only if it does not grow. Port `31fd6ce0`'s own body and nothing else. A callee or
+June branch it reaches that March lacks or that differs gets a stand-in line plus a backlog bullet (Stage 22 for line-map / jump-pad matters). It
+never becomes a CH1n4 or a new phase in this plan.
