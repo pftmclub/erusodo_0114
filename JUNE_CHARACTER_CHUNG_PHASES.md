@@ -1527,6 +1527,41 @@ The seven untokened `#else` / `#endif` lines are already in the two files; CH1l3
 `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.*`: the two pre-existing `NPC_UNIT_ID` rows (X2GUUser.h:2550-2551) only. No build
 (no source change; `DEPLOY OK` md5 558cbabb stands). CH1l3 kickoff: one clarifying line added (the `<= 0` path runs unconditionally).
 
+### CH1l3 - Done (2026-11-01)
+
+All 13 class-map rows are written. `_LIVE` stays `//#define`. funcmap rows `Char Chung CH1l3:` (12); read from `charport_adis.py chung --phase CH1l3`, the jump table `32bed6a0` / byte index `32bed6a8` from the exe.
+
+| June | `CX2GUChung::` | kind | Notes |
+|---|---|---|---|
+| `32bd8790` | `SpecialAttackEventProcess` | inside | lookup, use (`Send_SKILL_USE_REQ` always), the 3 / 5 use-condition values come back; March body in `#else` |
+| `32bd8860` `32bd8870` | `SpecialAttackNoStageChange` / `NoStateChangeActionFrameMove` | inside | false (= March) / bare jump to `UserNoStateChangeActionFrameMove` |
+| `32c17830` `32bee490` `32bf5130` | `SpecialAttackLookup` / `Use` / `Cooldown` | `_CORE` | June-only functions (vslots 0x7f8 / 0x7fc / 0x800), Arme's and Eve's shape; the class map's "inside" is these three as pieces of the one March function |
+| `32bee3e0` | `TryGuardReadyStateChange` | `_CORE` | Guard 26207 / 26231 from a damage state: `CSI_SI_A_CFG_GUARD_READY_MEMO`; no ball, not berserk: `CSI_SI_A_CFG_GUARD_READY` |
+| `32bed5d0` | `CanPayCannonBallConsumption` | `_CORE` | Fatal Cannon 26228 reads the extra count; five skills read the total, the rest the now count |
+| `32bed560` | `GetTotalCannonBallCount` | inside | June's body (berserk = max, + extra in class 117's mobile mode, no x 7); divergence row done (below) |
+| `32bed8c0` | `GetStateAnimSpeedRate` | `_CORE` | user vslot 0x824 (sole caller `ResetAnimSpeed` `31ffe2b0`); Intense Showtime x acquired value of 26061 / 26234-26235 |
+| `32beebd0` | `IsNotCommonMoveState` | `_CORE` | base `31fd7640`, then false in `CSI_CHARGE_CANNON_BALL` / `CSI_POWER_DOWN_LANDING` |
+| `32bf0800` `32bf0cc0` | `ShowActiveSkillCutInAndLightByBerserkMode` / `...ByScript` | inside | event 0x8b3 swap kept (`CASH_21` / `CASH_22`, data `s_SkillCutInSetEvent8b3` under `_LIVE`); customize override left out with Arme's comment (Stage 12) |
+
+**Beyond the rows (needed for the skill use to run under `_LIVE`).**
+- `CX2GUChung::ReservedSkillStart` (override, `_LIVE`) = Arme's / Eve's: `32057b80` @32057c4c calls vslot 0x800, so the reserved MP is spent at state start. `X2GUUser.h` / `.cpp` got a third `#ifndef` block so the hook exists when only `_CHUNG_LIVE` is defined (7 + 7 lines).
+- Registered `RNSI_*` x9 in `X2SkillTree.h` (`JUNE_ENUM_NAMES`): 26036 26061 26200 26203 26228 26231 26233 26235 26407; the rest were there. States 298 / 299 = `CSI_SI_A_CFG_GUARD_READY` / `_MEMO` (`USI_END` 152 + 146 / 147), 26 / 28 = `USI_DAMAGE_SMALL_FRONT` / `_BIG_FRONT`, 162 / 154 = `CSI_CHARGE_CANNON_BALL` / `CSI_POWER_DOWN_LANDING`.
+- Members `m_bGuardStartedFromDamageReact` (`+0x985c`, set by 32bee3e0, read by GUARD_END / GUARD_DAMAGE: CH3a2) and `m_bDualBusterLandingMpSpent` (`+0x98d0`, written in DUAL_BUSTER_LANDING, cleared by skill 26032: CH2c), both ctor false.
+- **Divergence row `GetTotalCannonBallCount` done here, not in CH1q**: June's callers `32bedf60` / `32bedfc0` / `32bee020` compare it with 1 / 2 and `IsFullHyperMode` exactly as March's `CSI_A_CDC_RAPID_CANNON_*` sites (cpp ~32689 / 32729 / 32767), which settles the namesake CH1l2's review asked CH1q to prove. March's x 7 formula now sits only in the `#else`.
+- `JUNE_BUGS.md` #500 (Rumble Shot upgrade 26233 outside the Gatling range of `GetStateAnimSpeedRate`).
+
+**Routed.**
+- **CH1o:** add the user virtual 0x824 (base 1.0) to `CX2GUUser`, call it from `ResetAnimSpeed` as June does and drop March's Intense Showtime block there (`GetStateAnimSpeedRate` is written, called by nothing). Kickoff amended.
+- The cut-in set content and the 0x8b3 names are CH5's (GFx names without extension); the `ShownSkillCoolTime` override for Chung (`32bdba60`) stays CH1o.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --worktree --files <5 files>`: `3 PASS, 1 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 14 #else/#endif carrying other flags' tokens, 0 encoding change(s)`; RESULT FAIL only because `_LIVE` is `//#define`. The `_CORE` view: `1 PASS, 1 PASS~, 3 OTHER`, `0 #else/#endif without the flag token`, `RESULT: PASS`.
+- `junediverge.py --check` on the 5 files: `allow-listed: 6`, `RESULT: PASS`. `enumscan.py --check X2GUChung.*`: 0 A/B rows.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH) of `X2GUChung.cpp` and `X2GUUser.cpp`, `_LIVE` off and `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: all four exit 0, 0 errors (`cl /P`: the June path is selected, `HQ_CutIn_Chung_CASH_21` 1 vs 0).
+- `DEPLOY OK: X2_offline.exe is 25,895,936 B, dated 2026-11-01 17:33:32, md5 cc063003fed99c73d05595d2407ed564` (built at main 88727edf + these files). `EXESTR OK: 2 of 2 absent` (`USE_CANNON_BALL`, `HQ_CutIn_Chung_CASH_21`: the flag-off build carries no June string).
+
+**Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1l3 review` (Opus 5.5 high), then `CH1l4`.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

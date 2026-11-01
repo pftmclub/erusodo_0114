@@ -43268,6 +43268,13 @@ void CX2GUUser::CountReservedSkillUse()
 	ReservedSkillStart( pSkillTemplet );	// June @32057c4c-cb2
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+	ReservedSkillStart( pSkillTemplet );	// June @32057c4c-cb2
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	ClearSkillUseReserve();		/// @32057cbe
 
 	if ( !IsSkillUseCountExcludedState() && 0 < static_cast<int>( eSkillID )

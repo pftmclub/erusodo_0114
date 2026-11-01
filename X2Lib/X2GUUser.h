@@ -3413,6 +3413,13 @@ public:
 		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE
 		virtual void SkillIconOverride( const int iSkillID_, wstring& wstrIconTexName_, wstring& wstrIconTexKey_ ) {}	/// June user vslot 0x56c ( base 33108560, empty )
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_ICON_OVERRIDE

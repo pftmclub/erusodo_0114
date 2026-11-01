@@ -124,6 +124,15 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = /// 필살기 쓸 때 cut i
 #endif SERV_CHUNG_TACTICAL_TROOPER
 };
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+/// June 337adc48 / 337adc78: the cut-ins of code event 0x8b3 ( GFx names without extension; the cut-in sets are CH5 )
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_CASH_22"),
+};
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+
 /** @function : 생성자
 	@brief : 멤버 초기화 및 상위 클래스의 생성자에 인수 전달
 	@param : iUnitIndex_(슬롯 인덱스), iTeamNum_(팀 넘버), pWstrScriptFileName_(캐릭터의 루아파일 명), iFrameBufferNum_(프레임을 모아놓을 벡터의 크기), pUnit_(유닛정보)
@@ -181,6 +190,8 @@ iFrameBufferNum_, pUnit_ )
 , m_iSnapshotCannonBallCount( 0 )
 , m_iSnapshotCannonBallCountEx( 0 )
 , m_iPrevStateSkillID( 0 )
+, m_bGuardStartedFromDamageReact( false )
+, m_bDualBusterLandingMpSpent( false )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -6565,6 +6576,37 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUChung::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8790 ( user vslot 0x7f4 ): the lookup, then the use; a skill of use condition 3 / 5 gives the chosen values back
+	const float fSavedReservedMp = m_fReservedSkillMp;
+	const int iSavedSlotIndex = m_iChosenSkillSlotIndex;
+	const int iSavedSkillID = m_iChosenSkillID;
+
+	bool bUsed = false;
+	if ( true == SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iChosenSkillID )
+	{
+		bUsed = true;
+		SpecialAttackUse( m_iChosenSkillID, true );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ), true );
+	if ( NULL != pSkillTemplet && ( CX2SkillTree::ASUT_ANYTIME == pSkillTemplet->m_eActiveSkillUseCondtion || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == pSkillTemplet->m_eActiveSkillUseCondtion ) )
+	{
+		m_iChosenSkillID = iSavedSkillID;
+		m_fReservedSkillMp = fSavedReservedMp;
+		m_iChosenSkillSlotIndex = iSavedSlotIndex;
+	}
+
+	if ( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iChosenSkillSlotIndex + 1;
+		return true;
+	}
+
+	m_iChosenSkillID = iSavedSkillID;
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Chung 32c17830 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -6846,6 +6888,7 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 #endif SERV_SKILL_USE_SUBQUEST
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SpecialAttackNoStageChange
@@ -6855,6 +6898,11 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUChung::SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8860 ( user vslot 0x810 ): answers false
+	UNREFERENCED_PARAMETER( pSkillTemplet_ );
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// pSkillTemplet_ NULL 처리 안함, 상위 함수에서 호출시 이미 처리하였음
 
 // 	switch ( pSkillTemplet_->m_eID )
@@ -6867,6 +6915,7 @@ RENDER_HINT CX2GUChung::CommonRender_Prepare()
 // 	} // switch
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : COMMON_BUFF_FrameMove
@@ -7073,6 +7122,327 @@ void CX2GUChung::UseCannon( int iCount_ )
 	m_CannonBallSystem.SetUsedCannonballCountAtThisState( m_CannonBallSystem.GetUsedCannonballCountAtThisState() + iCount_ );
 }
 
+//{{ Iruha : 2026-11-01 // char-chung CH1l3
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+namespace _CONST_CHUNG_CH1g2_
+{
+	bool TryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ );	/// defined with the Shooting Guardian states
+}
+using namespace _CONST_CHUNG_CH1g2_;
+
+namespace _CONST_CHUNG_CH1l3_
+{
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June 31edf560: the skill tree must exist; then the ids are equal or the first is the "[Enhanced]" skill of the second
+	bool IsSkillOrUpgrade( const int iSkillID_, const int iTarget_ )
+	{
+		if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return false;
+
+		if ( iSkillID_ == iTarget_ )
+			return true;
+
+		return iSkillID_ == g_pData->GetSkillTree()->GetUpgradedSkillID( iTarget_ );
+	}
+
+	/// June's state-data byte +0x11 ( 3208e430 ): the skill slot states
+	bool IsSkillSlotState( const int iStateID_ )
+	{
+		for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+		{
+			if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateID[i] == iStateID_ ||
+				_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iStateID_ )
+				return true;
+		}
+
+		return false;
+	}
+}
+using namespace _CONST_CHUNG_CH1l3_;
+
+/// June 32c17830 ( user vslot 0x7f8, step 510 ): chooses the skill of the pressed slot and checks that it can be used now
+bool CX2GUChung::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if ( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	if ( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+
+	if ( false == CheckSkillUseCondition( eActiveSkillUseCondition, pSkillTemplet->m_eActiveSkillUseCondtion ) )
+		return false;
+
+	if ( false == CheckSummonSpecialAttack( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	if ( true == m_bInStateMobileArmoredMode && false == IsSkillOrUpgrade( pSkillTemplet->m_eID, CX2SkillTree::RNSI_A_CC_BACK_BLAST ) )
+		return false;
+
+	if ( USI_DAMAGE_SMALL_FRONT == GetFutureStateID() || USI_DAMAGE_BIG_FRONT == GetFutureStateID() )
+	{
+		if ( false == IsSkillOrUpgrade( pSkillTemplet->m_eID, CX2SkillTree::RNSI_A_CFG_GUARD ) )
+			return false;
+	}
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+
+	const bool bSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree && false == IsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+#ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+		const float fShownCoolTimeLeft = ShownSkillCoolTime( pSkillSlotData->m_fCoolTimeLeft, pSkillTemplet->m_eID );	// vslot 0x6a8
+#else SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+		const float fShownCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
+#endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+		if ( 0.f < fShownCoolTimeLeft )
+		{
+			PushInfoText( 226 );
+			return false;
+		}
+
+		if ( m_fReservedSkillMp + m_fChosenSkillMp > GetNowMp() )
+		{
+			PushInfoText( 2549 );
+			return false;
+		}
+
+		const bool bSlotB = ( iPressedSkillSlotIndex > 4 );
+		const int iSlotIndex = ( true == bSlotB ) ? iPressedSkillSlotIndex - 5 : iPressedSkillSlotIndex;
+		const USHORT usCBConsumption = accessUserSkillTree.GetCBConsumption( iSlotIndex, bSlotB );
+		if ( false == CanPayCannonBallConsumption( pSkillTemplet->m_eID, usCBConsumption ) )
+		{
+			PushInfoText( 10225 );
+			return false;
+		}
+
+		if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+		{
+			if ( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+	m_iChosenSkillSlotIndex = iPressedSkillSlotIndex;
+	return true;
+}
+
+/// June 32bee490 ( user vslot 0x7fc, step 511 ): the use of the skill the lookup chose
+void CX2GUChung::SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if ( true == SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		SpecialAttackCooldown( pSkillTemplet->m_eID, m_fChosenSkillMp );
+		SkillMemoMpRefund( iSkillID_, true, m_fChosenSkillMp );
+		m_fChosenSkillMp = 0.0f;
+	}
+	else
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+
+		if ( false == TryGuardReadyStateChange( pSkillTemplet->m_eID ) )
+			StateChangeBySkillSlot( m_iChosenSkillSlotIndex );
+	}
+
+	m_bSpecialAttackEventProcessedAtThisFrame = true;
+
+	if ( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE == pSkillTemplet->m_eID )
+		m_bDualBusterLandingMpSpent = false;
+}
+
+/// June 32bf5130 ( user vslot 0x800, step 512 ): the MP, the finality stone and the cool time of a skill use
+void CX2GUChung::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if ( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	MarkSkillSlotUsed( m_iChosenSkillSlotIndex, false );
+	UpNowMp( -fMpConsume_ );
+
+	if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if ( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, GetActualCoolTime( pSkillTemplet, iSkillLevel ) );
+
+	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+
+	m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED) ( m_iChosenSkillSlotIndex + 1 );
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+}
+
+/// June 32bee3e0: the guard skill used from a damage state, or with no cannon ball and no berserk, starts its ready state
+bool CX2GUChung::TryGuardReadyStateChange( const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_A_CFG_GUARD != iSkillID_ && CX2SkillTree::RNSI_A_CFG_GUARD_UPGRADE != iSkillID_ )
+		return false;
+
+	if ( USI_DAMAGE_SMALL_FRONT == GetFutureStateID() || USI_DAMAGE_BIG_FRONT == GetFutureStateID() )
+	{
+		m_bGuardStartedFromDamageReact = true;
+		StateChange( CSI_SI_A_CFG_GUARD_READY_MEMO, true );
+		return true;
+	}
+
+	if ( false == IsFullHyperMode() && GetChungGageData()->GetNowCannonBallCount() <= 0 )
+	{
+		StateChange( CSI_SI_A_CFG_GUARD_READY, true );
+		return true;
+	}
+
+	return false;
+}
+
+/// June 32bed5d0: whether the skill's cannon ball cost can be paid ( Fatal Cannon: the extra balls of the mobile armored mode )
+bool CX2GUChung::CanPayCannonBallConsumption( const int iSkillID_, const USHORT usConsumption_ )
+{
+	if ( CX2SkillTree::RNSI_A_CTT_FATAL_CANNON == iSkillID_ )
+	{
+		if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+			return usConsumption_ <= GetChungGageData()->GetNowCannonBallCountEx();
+
+		return usConsumption_ <= 0;
+	}
+
+	if ( true == IsFullHyperMode() )
+		return true;
+
+	switch ( iSkillID_ )
+	{
+	case CX2SkillTree::RNSI_SA_CTT_DREAD_CHASE:
+	case CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER:
+	case CX2SkillTree::RNSI_SA_CTT_DREAD_CHASE_UPGRADE:
+	case CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER_UPGRADE:
+	case CX2SkillTree::RNSI_A_CC_AIMMING_SHOT:
+		return usConsumption_ <= GetTotalCannonBallCount();
+
+	default:
+		return usConsumption_ <= GetChungGageData()->GetNowCannonBallCount();
+	}
+}
+
+/// June 32bed8c0 ( user vslot 0x824 ): Intense Showtime's animation speed in the berserk mode, times the acquired value for four skills
+float CX2GUChung::GetStateAnimSpeedRate( const bool bFuture_ )
+{
+	float fAnimSpeedRate = 1.f;
+
+	if ( NULL != GetUnit() )
+	{
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CDC_INTENSE_SHOWTIME, true, 0, true );
+		if ( 0 < iSkillLevel && true == IsFullHyperMode() )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CDC_INTENSE_SHOWTIME );
+			if ( NULL != pSkillTemplet )
+				fAnimSpeedRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel );
+		}
+	}
+
+	const int iStateSkillID = ( true == bFuture_ ) ? GetFutureStateSkillID() : GetNowStateSkillID();
+	if ( CX2SkillTree::RNSI_SA_CHG_CANNON_STRIKE_UPGRADE == iStateSkillID ||
+		( CX2SkillTree::RNSI_A_CDC_RUMBLE_SHOT_UPGRADE < iStateSkillID && iStateSkillID <= CX2SkillTree::RNSI_A_CDC_GATLING_SHOT_TRANS_UPGRADE ) )
+	{
+		float fAcquiredRate = 1.f;
+		if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_ANI_SPEED, iStateSkillID, false, fAcquiredRate ) )
+			fAnimSpeedRate *= fAcquiredRate;
+	}
+
+	return fAnimSpeedRate;
+}
+
+/// June 32beebd0 ( user vslot 0x828 ): the base test less the cannon ball charge and power down landing states
+/*virtual*/ bool CX2GUChung::IsNotCommonMoveState()
+{
+	if ( false == CX2GUUser::IsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	const int iNowStateID = GetNowStateID();
+	if ( CSI_CHARGE_CANNON_BALL == iNowStateID || CSI_POWER_DOWN_LANDING == iNowStateID )
+		return false;
+
+	return true;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+/// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and 0x764 refunds the memo share
+/*virtual*/ void CX2GUChung::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	SpecialAttackCooldown( iSkillID, m_fReservedSkillMp );
+	SkillMemoMpRefund( iSkillID, IsSkillSlotState( GetNowStateID() ), m_fReservedSkillMp );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+//}} Iruha : 2026-11-01 // char-chung CH1l3
 /** @function : ConsumeCannonBallCount
 	@brief : 캐논볼을 한개 소모한다.
 */
@@ -7128,6 +7498,13 @@ __forceinline int	CX2GUChung::GetCannonBallCount()
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 __forceinline int	CX2GUChung::GetTotalCannonBallCount() 
 { 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bed560: the now count ( the max in the berserk mode ), plus the extra count in class 117's mobile armored mode, without March's x 7
+	int iTotalCannonBallCount = ( true == IsFullHyperMode() ) ? GetChungGageData()->GetMaxCannonBallCount() : GetChungGageData()->GetNowCannonBallCount();
+	if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+		iTotalCannonBallCount += GetChungGageData()->GetNowCannonBallCountEx();
+	return iTotalCannonBallCount;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef FIX_CANNON_BALL_SYNC_CALCULATION		///데들리 체이서 탄창/약실 개조로 인한 캐논볼 갯수 증가시, 캐논볼 동기화 연산식에서 오차가 생기던 문제 수정
 	/// 택티컬 트루퍼 일 때만 특수 포탄 연산
 	if ( CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnitClass() && true == m_bMobileArmoredModeEnable )
@@ -7140,6 +7517,7 @@ __forceinline int	CX2GUChung::GetTotalCannonBallCount()
 	return GetExtraCannonBallCount() * 7 + GetCannonBallCount();
 
 #endif FIX_CANNON_BALL_SYNC_CALCULATION
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 __forceinline int	CX2GUChung::GetExtraCannonBallCount() 
 { 
@@ -7221,6 +7599,22 @@ void CX2GUChung::InitPromotionEquipList()
 */
 void CX2GUChung::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, bool bOnlyLight_ /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0800
+	if ( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
+	{
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0];
+
+		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
+		if ( true == IsFullHyperMode() )
+			cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[1];
+
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// even rand() -> CASH_21
+
+		ActiveSkillShow( L"Dummy1_Rhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -7244,6 +7638,7 @@ void CX2GUChung::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, 
 				ActiveSkillShow( L"Dummy1_Rhand", s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0].fileName.c_str(), s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0].vSize, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0].vPosition, IsHyperState(), bOnlyLight_ );
 		}
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ResetCannonBallCountWhenRebirthInPVPGame
@@ -7298,6 +7693,9 @@ void CX2GUChung::ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, cons
 */
 /*virtual*/ void CX2GUChung::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	UserNoStateChangeActionFrameMove();	/// June 32bd8870 ( a bare jump to 32008e40 )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /*virtual*/ float CX2GUChung::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
@@ -33548,7 +33946,12 @@ void CX2GUChung::SateliteRainFrameMove()
 
 /*virtual*/ void CX2GUChung::ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0cc0 ( user vslot 0x834 ): a call to 32bf0800
 	ShowActiveSkillCutInAndLightByBerserkMode( fTimeToShow_, bOnlyLight_ );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	ShowActiveSkillCutInAndLightByBerserkMode( fTimeToShow_, bOnlyLight_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE

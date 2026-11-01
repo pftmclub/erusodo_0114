@@ -442,11 +442,11 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bed4c0	state-fn	CSI_A_CHUNG_IMPACT_DETONATION_LOOP.EventProcess	inside X2GUChung.cpp:4520 CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_EventProcess	inside	-	CH2d	1 states	y
 32bed560	helper	called by 32bed5d0 32bedf60 32bedfc0 32bee020	-	inside	-	CH1l3	inside: X2GUChung.h:557; now count (+ extra for the CTT mode)	y
 32bed5c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c903c15ec3cccc	n
-32bed5d0	helper	called by 32c17830	-	inside	-	CH1l3	also called from outside the class: 322e1556; inside: X2GUChung.h:552; June takes (skillId, count) and compares with the total; March CanUseCannon() has no args	y
+32bed5d0	helper	called by 32c17830	-	new	CanPayCannonBallConsumption	CH1l3	also called from outside the class: 322e1556; inside: X2GUChung.h:552; June takes (skillId, count) and compares with the total; March CanUseCannon() has no args	y
 32bed760	override 0x740	?	- (not found; name unsettled)	new	StoreGageSnapshot	CH1l	base 32009780; name: June-only virtual vslot 0x740 (funcmap 32009780 Crest of Time snapshot); Chung also stores cannon-ball counts to +0x92c0/+0x92c4	n
 32bed7e0	override 0x2e8	?	- (not found; name unsettled)	new	?	CH1k	base 3208dd70; name: vslot 0x2e8 base 3208dd70 (float 1.0 getter of DamageData*): passive 0x6734 + attacker buff 0x3e; no name in X2GUUser.h / X2GameUnit.h	n
 32bed840	override 0x2ec	?	- (not found; name unsettled)	new	?	CH1k	base 3208dd70; name: vslot 0x2ec base 3208dd70 (float 1.0 getter of DamageData*): passive 0x65b8 and damage type 0x21/0x22; no name known	n
-32bed8c0	override 0x824	?	- (not found; name unsettled)	new	?	CH1l3	base 3208dd70; name: vslot 0x824 base 3208dd70: shares the 0x2ec stream, damage-type 0x21/0x22 test with passive 0x65b8; no name known	n
+32bed8c0	override 0x824	?	- (not found; name unsettled)	new	GetStateAnimSpeedRate	CH1l3	base 3208dd70; name: vslot 0x824 base 3208dd70: shares the 0x2ec stream, damage-type 0x21/0x22 test with passive 0x65b8; no name known	n
 32bed9a0	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUChung.h:691 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1k	base 31aa1d30	n
 32bed9d0	override 0x6a0	GetActualMPConsume	X2GUChung.h:523 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	base 31fd1840	n
 32bedb40	override 0x1d8	?	- (not found; name unsettled)	inside	-	CH1k	base 3208e5a0; inside: X2GUChung.h:619 virtual float GetCriticalValue( float ); vslot 0x1d8 = GetCV (funcmap 32048b15)	n
@@ -461,7 +461,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bee140	state-fn	CSI_A_CDC_RAPID_CANNON_READY.EventProcess CSI_A_CDC_RAPID_CANNON_LOOP.EventProcess	inside X2GUChung.cpp:4589 CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_EventProcess ; inside X2GUChung.cpp:4606 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess	inside	-	CH3b	2 states	y
 32bee210	state-fn	CSI_A_CDC_RAPID_CANNON_LOOP.EventProcess	inside X2GUChung.cpp:4606 CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess	inside	-	CH3b	1 states	y
 32bee360	state-fn	CSI_CSG_COMBO_DASH_JUMP_ZX.EventProcess	-	new	CSI_CSG_COMBO_DASH_JUMP_ZX_EventProcess	CH1g2	1 states	n
-32bee3e0	helper	called by 32bee490	-	new	?	CH1l3	name: (skillId) guard 0x665f/0x6677, vslot 0x4f4 tests, vslot 0x5c(0x12a/0x12b), sets +0x985c; role not read	y
+32bee3e0	helper	called by 32bee490	-	new	TryGuardReadyStateChange	CH1l3	name: (skillId) guard 0x665f/0x6677, vslot 0x4f4 tests, vslot 0x5c(0x12a/0x12b), sets +0x985c; role not read	y
 32bee490	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (part of SpecialAttackEventProcess, X2GUChung.h:520)	inside	-	CH1l3	base 31aa1d30	n
 32bee5b0	helper	called by 32beec40 32beeca0 32beeed0 32c0cf90	-	inside	-	CH1k	inside: X2GUChung.h:530; matches the current state against the 12-byte list +0x9638	y
 32bee680	override 0x30	NotifyDGManagerChanged	X2GUChung.h:753 virtual void NotifyDGManagerChanged( CKTDGManager& refInManager_ );	inside	-	CH1k	base 31fd56e0	y

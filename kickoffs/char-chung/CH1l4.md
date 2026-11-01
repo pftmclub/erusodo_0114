@@ -61,3 +61,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l2 (2026-11-01)
 
 - CH1l2's `CommonFrameMoveFuture` writes the cannon ball count (now + 7 x extra in mobile armored mode) to `m_FrameDataFuture.syncData.iClassSyncInt` (June `+0x7ec0`) and no longer to `m_CannonBallCount`. March's `CommonFrameMove` sets the count of a unit that is not mine from `m_FrameDataNow.syncData.m_CannonBallCount`; check which Now field June's `CommonFrameMove` reads (`iClassSyncInt` is June `+0x8160`) and that the Future -> Now copy carries it.
+
+## Amended by CH1l3 (2026-11-01)
+
+- `GetTotalCannonBallCount` (`32bed560`) is already June's body inside March's function under `_LIVE` (divergence row done); CH1l4 calls it by name.
+- `SpecialAttackLookup` / `Use` / `Cooldown` and `CanPayCannonBallConsumption` exist (`_CORE`); `CX2GUChung::ReservedSkillStart` spends the reserved MP at state start (`_LIVE`).

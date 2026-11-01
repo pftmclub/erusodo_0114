@@ -1984,6 +1984,20 @@ public:
 		RNSI_A_CDC_STUN_SHOT                                  = 26227,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1l3
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Chung skill-use functions spell ( values from June's Enum.lua )
+		RNSI_SA_CTT_DREAD_CHASE_UPGRADE                       = 26036,
+		RNSI_SA_CHG_CANNON_STRIKE_UPGRADE                     = 26061,
+		RNSI_A_CC_BACK_BLAST                                  = 26200,
+		RNSI_A_CC_AIMMING_SHOT                                = 26203,
+		RNSI_A_CTT_FATAL_CANNON                               = 26228,
+		RNSI_A_CFG_GUARD_UPGRADE                              = 26231,
+		RNSI_A_CDC_RUMBLE_SHOT_UPGRADE                        = 26233,
+		RNSI_A_CDC_GATLING_SHOT_TRANS_UPGRADE                 = 26235,
+		RNSI_P_CDC_INTENSE_SHOWTIME                           = 26407,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

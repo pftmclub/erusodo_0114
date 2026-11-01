@@ -51,3 +51,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l (2026-11-01)
 
 - CH1l wrote the Chung bodies for the new user virtuals as plain `_CORE` members; this phase decides each user virtual and makes the Chung function an override: `IsInJobLine` (vslot 0x670, base `331a4950` returns false), `StoreGageSnapshot` / `RestoreGageSnapshot` (0x740 / 0x744, bases are the unported Crest of Time pair), `GetIncreaseSoulRateOnDamageReact` (0x748, base + `DamageReact` call are CH4b), `UpdateSpineAimRotation` (0x774, base `31f3f070` is an empty stub). `ScaleHead` (0x66c) already overrides the existing virtual under `_LIVE`.
+
+## Amended by CH1l3 (2026-11-01)
+
+- **User vslot 0x824** (base `3208dd70`, returns 1.0): add the virtual to `CX2GUUser`, call it from `ResetAnimSpeed` (`31ffe2b0`, arg bFuture) and drop March's inline Intense Showtime block there; `CX2GUChung::GetStateAnimSpeedRate` (`32bed8c0`) is written and called by nothing. Proof: `ResetAnimSpeed` with Chung at full hyper and the skill learned.

@@ -671,6 +671,16 @@ protected:
 	void RestoreGageSnapshot();								/// June 32bf4600 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported )
 	UCHAR GetPvpStartCannonBallCount() const { return m_ucPvpStartCannonBallCount; }
 	void SetPvpStartCannonBallCount( UCHAR ucPvpStartCannonBallCount_ ) { m_ucPvpStartCannonBallCount = ucPvpStartCannonBallCount_; }
+	bool SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32c17830 ( user vslot 0x7f8, step 510 )
+	void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32bee490 ( user vslot 0x7fc, step 511 )
+	void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32bf5130 ( user vslot 0x800, step 512 )
+	bool TryGuardReadyStateChange( const int iSkillID_ );	/// June 32bee3e0: the guard skill's ready state, from a damage state or without cannon balls
+	bool CanPayCannonBallConsumption( const int iSkillID_, const USHORT usConsumption_ );	/// June 32bed5d0
+	float GetStateAnimSpeedRate( const bool bFuture_ );	/// June 32bed8c0 ( user vslot 0x824, base 3208dd70 returns 1.0; the base and its ResetAnimSpeed call are CH1o )
+	virtual bool IsNotCommonMoveState();	/// June 32beebd0 ( user vslot 0x828 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c: step 512 and the memo refund
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 	void SetReduceGuardDamageAtHeavyStanceFromGuardSkill();	// 퓨리가디언의 가드 스킬에 의해서 증가된 값을 헤비스텐스의 데미지 감소율을 셋팅
@@ -1953,6 +1963,8 @@ protected:
 	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only
 	int							m_iPrevStateSkillID;			/// June +0x98ec ( ctor 0 ): the state skill id at the last CommonStateStart
 	std::vector< std::pair<float, int> >	m_vecUseCannonBall;	/// June +0x98d8: the rows of the state's USE_CANNON_BALL<n> tables, { [1] float, [2] int }; consumer CH1q
+	bool							m_bGuardStartedFromDamageReact;	/// June +0x985c ( ctor false ): the guard skill started from a damage state; GUARD_END End clears it, the GUARD_END / GUARD_DAMAGE event processes read it ( CH3a2 )
+	bool							m_bDualBusterLandingMpSpent;	/// June +0x98d0 ( ctor false ): DUAL_BUSTER_LANDING has spent its MP; the Dual Buster upgrade's skill use clears it ( CH2c )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;
