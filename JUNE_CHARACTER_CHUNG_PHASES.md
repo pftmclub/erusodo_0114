@@ -1398,6 +1398,31 @@ checked and correct as written (14 of 16 rows; `32bdc750` stays March, `32bf44d0
 
 **Nothing to play-test** (`_LIVE` is off; the flag-off tree adds only unused `_CORE` members, enum names and functions). Next: `/x2-phase char-chung CH1l review` (Opus 5.5 high), then CH1l2.
 
+### CH1l - Review (2026-11-01, Opus 5.5)
+
+**Passes, with two fixes, both `_LIVE`-only.** Read against `charport_adis.py chung --phase CH1l` and Ghidra (`32028190`, `3201f850`, `32206e50`, `32206fb0`, `32c24400`).
+
+**Fixed.**
+- **`SetEquippedSkillLevelStateData` was not "= March".** Vslot 0x7a8 `32028190` writes the state slot (`+ id x 100`) through `3201f850`, which takes the level from `GetSkillLevel( id, 0, 0, 1 )` (upgrade swap) and multiplies the power rate by `GetSkillAdditionalPowerRate( id ) + 1` (`3201ad10`; Arme / Eve already port it). March's Chung wrapper had neither. June's body now sits inside `CX2GUChung::SetEquippedSkillLevelStateData` under `_LIVE`, March's in `#else`. New `june_march_divergent.tsv` row `SetEquippedSkillLevelStateData` (verdict `replace`, ported under `_LIVE`); funcmap `32028190` row corrected. All 111 call sites are in `SetEquippedSkillLevel`.
+- **The Guard block's level** is `32890620( id, 0, 0, 1 )` (`@32bdc0cb`, pushes `1, 0, 0`). CH1l called `GetSkillLevel( id )` (swap false); it is now `GetSkillLevel( id, false, 0, true )`.
+
+**Holds.**
+- `SetEquippedSkillLevel` `32bdbe50`: 18 blocks in June's order, ids 26201 .. 26064, each equal to `Enum.src.lua`. All 51 pushed state ids map by name through `ch0_reg.tsv` / `ch0_skill_listing_rows.tsv`, including `0x111`-`0x113` (X, Z finish 274, X finish 275), `0x12a` / `0x12b` Guard ready / ready memo, `0x141` / `0x142` Iron Howling, `0x151` / `0x152` Heavy Field, and `0xf1` = 241 `ARTILLERY_STRIKE_READY` (March enum order READY / FIRE / CANCEL / END). Guard: templet null skips to the next block, unit null returns from the function (`@32bdc0b3` -> `32bdc4f5`); `100 - (int)( SA_DAMAGED_REL x 100 )` -> guard `+0x10`; `TryGetSkillAbilityValue( SA_MP_CONSUMPTION 0x8f )` with -4 in -> `+0x14` only on success. Ctor `32c24400` (0x18 B: ref, slot 0x99, key, bool, `+0x10` int 0, `+0x14` -4.0) confirms both members. `32206e50`'s fourth stack dword (0.0) is unused (`RET 0x10`, three params read).
+- State 336 keeps `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE`: June's Enum has `RNSI_SA_CSG_DUAL_BUSTER_UPGRADE = 26032`, the skill that registers id 336. `+0x178` = `m_DeleteSkillIDByUpgrade` (funcmap C3l). `CH1m.md` amended.
+- `ReplaceWeapon` `32bef140`: no `GetItem()` test; enchant `+0x194` / templet `+0x198` (`m_pItemTemplet`, CX2Eqip ctor C9f) read before the reset. `SetShowViewList` `32bf0a40`: `+0x93da` is the only difference, and `JUNE_PORT_BACKLOG_ORDER.md` L969-973 lists `32bf0a43`.
+- `IsInJobLine`: 1 -> 0x14 / 0x6e, 2 -> 0x15 / 0x6f, 3 -> 0x1b / 0x75, else or no unit false. `GetIncreaseSoulRateOnDamageReact`: `31fceab0( 26415 ) > 0` and the guard test, then `32007b10( 0xaa = SA_SOUL_ABS 170, 26415 )`.
+- Gauge snapshots: `IsMyUnit` (vslot 0x198), counts at `+0x92c0` / `+0x92c4`, `+0x142` = `m_bCannonBallChanged`. Leaving out the base call is safe while nothing calls the two functions. The bases clear `+0x92a4..+0x92c4`, so `CH4b.md` now says the clear must reach Chung's two members.
+- `UpdateSpineAimRotation` `32befec0`: `( eps < |y| ) || ( eps < |z| )` (both `test ah,5 / jnp`); gap = rot.y - aim.y, `360 <= gap` -> `360 - gap`, `gap <= -360` -> `+360`; axis ( -1, 0, -1 ), degree ( gap, 0, z ); `+0x8a68` = aim z; `+0x9868..+0x9874` / `+0x9728` = `m_afSiegeAngle` / `m_fSiegeShellingDistance` (ctor map). The twin `32bf00c0` keeps ( -1, -1, 0 ) / ( gap, -z, 0 ).
+- `ScaleHead` `32bf0480`: `+0x8fc0 == 1 && !IsFullHyperMode()` -> `Bip01_Spine1`, else `Bip01_Head`; `31fd64a0( bone, head, face, 0 )`, the same inline as the base `CX2GUUser::ScaleHead` (`DIVERGE_SCALE_HEAD`).
+- `= March` spot checks: `HyperModeFrameMove` (0.05 / 0.2 / 0.3, bSound 0), `SetShowPromotionEquips` (inline `SetShowObject`, then `ReplaceWeapon` when shown and `+0x1b0 == 2`), `CanRidingState` (the ten ids).
+
+**Gates.**
+- CH1l commit: `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES JUNE_DIVERGE_SCALE_HEAD --range 7fa748b7^..7fa748b7`: `1 PASS, 1 PASS~, 2 OTHER, 0 FAIL`, `0 deleted line(s) ... 0 encoding change(s)`; RESULT FAIL only for the `//#define`. `junediverge --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan --check X2GUChung.*`: 0 A/B rows. Probes: `_LIVE` off exit 0 / 0 errors; on exit 0 / 0 errors.
+- Review fix: `flagcheck JUNE_CHAR_CHUNG_LIVE --with ... --worktree --files X2Lib/X2GUChung.cpp`: `PASS worktree X2Lib/X2GUChung.cpp +17 -1`, `1 PASS, 0 FAIL`, `1 deleted line(s)` (the Guard line inside CH1l's own `_LIVE` block, replaced in place), `0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only for the `//#define`. `junediverge --check X2Lib/X2GUChung.cpp`: `allow-listed: 2`, `RESULT: PASS`. `enumscan`: 0 A/B rows. Probes: off exit 0 / 0 errors, on exit 0 / 0 errors.
+- `DEPLOY OK: X2_offline.exe is 25,892,864 B, dated 2026-11-01 15:29:43, md5 b23f7e943ce9293c639624f23a48397e, equal to X2/US_SERVICE/x2.exe (2026-11-01 15:29:36); built at main 7fa748b7 + 1 uncommitted code file(s).`
+
+Nothing to play-test (`_LIVE` off). `CH1l2.md` checked and amended (decompile every user helper before calling it equal; read each `GetSkillLevel` fourth argument). Next: `/x2-phase char-chung CH1l2` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

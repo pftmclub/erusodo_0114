@@ -95,5 +95,6 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l (2026-11-01)
 
 - State 336 now has a `_CORE` member, `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE`, used by `SetEquippedSkillLevel` (`32bdbe50`, when the equipped Dual Buster templet is an upgrade). Rename it if your mapping of `32078bc0` and the registrars gives it a better name, and register it with the table `CSI_SI_SA_CSG_DUAL_BUSTER`.
+  **CH1l review (2026-11-01): the name is settled.** June's `Enum.src.lua` has `RNSI_SA_CSG_DUAL_BUSTER_UPGRADE = 26032`, the skill whose slot registers id 336 (`ch0_skill_listing_rows.tsv` row 117). Keep the member; only register it.
 - CH1l also added `CHUNG_STATE_ID` members for June ids 298 `CSI_SI_A_CFG_GUARD_READY`, 321 / 322 `CSI_SI_SA_CFG_IRON_HOWLING_LOOP` / `_END`, 337 / 338 `CSI_SA_CTT_HEAVY_FIELD_LOOP` / `_END` (registered by CH3a2 / CH3c, not here).
 - `CX2GUChung::ScaleHead` (`32bf0480`) sits under `_LIVE` and `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD`. When CH1 defines `_LIVE`, Always.h's `_LIVE` block must also `#error` without `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD` (prove it defined at that line with `cl /EP`).

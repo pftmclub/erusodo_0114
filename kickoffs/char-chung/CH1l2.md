@@ -55,3 +55,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Functions: 9** (`awk -F'\t' '$7=="CH1l2"' june2017_re/char_chung/ch0_class_map.tsv`; inside 6, new 3).
   June addresses: `32bd8740` `32bd8750` `32bd8760` `32bd8770` `32bf2a40` `32bf3990` `32c24470`(new -) `32c24770`(new -) `32c24860`(new -).
 - CommonStateStart `32bf3990` (0x7c4) reads the June-only per-state key `USE_CANNON_BALL%d` into +0x98d8: written whole here, the consumer is CH1q.
+
+## Amended by CH1l review (2026-11-01)
+
+- A June call to a `CX2GUUser` helper is not "= March" just because Chung has a wrapper of the same purpose. CH1l read vslot 0x7a8 `32028190` as
+  March's `CX2GUChung::SetEquippedSkillLevelStateData`, but June's `3201f850` adds the upgrade swap (`GetSkillLevel( id, false, 0, true )`) and
+  `x ( GetSkillAdditionalPowerRate( id ) + 1 )`. The review put June's body in March's wrapper under `_LIVE`. Decompile every user helper a
+  transcribed body calls before you call it equal, and read every `32890620` (`GetSkillLevel`) call's fourth argument (1 = upgrade swap).

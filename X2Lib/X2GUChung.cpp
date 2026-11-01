@@ -5228,7 +5228,7 @@ void CX2GUChung::InitStateByUnitClass()
 
 			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 
-			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTempletGuard->m_eID ) );
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTempletGuard->m_eID, false, 0, true ) );
 			const int iReduceDamagePercent = 100 - static_cast<int>( pSkillTempletGuard->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillTempletLevel, false ) * 100 );
 
 			if ( m_GuardForFuryGuardianPtr != NULL )
@@ -5651,6 +5651,21 @@ void CX2GUChung::InitStateByUnitClass()
 */
 void CX2GUChung::SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet, CHUNG_STATE_ID eStateID )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32028190 -> 3201f850 ( differs from March: upgrade-swapped level, power rate x ( GetSkillAdditionalPowerRate + 1 ) )
+	if ( NULL == pSkillTemplet || NULL == GetUnit() )
+		return;
+
+	int iSkillTempletLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	UserUnitStateData& stateData = m_StateList[eStateID];
+	stateData.m_SPLevel		= iSkillTempletLevel;
+	stateData.m_fPowerRate	= pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel );
+	stateData.m_eSkillID	= pSkillTemplet->m_eID;
+	stateData.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet->m_eID ) ) + 1.f ) * stateData.m_fPowerRate;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( NULL != pSkillTemplet )
 	{
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
@@ -5672,6 +5687,7 @@ void CX2GUChung::SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemple
 		stateData.m_eSkillID	= pSkillTemplet->m_eID;
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	} // if
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : InitComponent
