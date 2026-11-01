@@ -1562,6 +1562,41 @@ All 13 class-map rows are written. `_LIVE` stays `//#define`. funcmap rows `Char
 
 **Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1l3 review` (Opus 5.5 high), then `CH1l4`.
 
+### CH1l3 - Review (2026-11-01)
+
+**Passes, no source change.** All 13 rows checked against `charport_adis.py chung --phase CH1l3` (read-only).
+- **`32c17830`.** Order as written: `+0x8d78 > 0` -> false (`fldz; fcomp; test ah,5; jnp`) = `IsQuickSlotSpecialItemWaiting`; `CommonSpecialAttackEventProcess`
+  (unit `+0x494`, slot -1); templet id != slot id -> 0x8bae; `+0x8ea0` = id before `CheckSkillUseCondition`; summon / PVP official / `3202d140` NotPve /
+  `3202d3c0` NotDungeon / `329cc370` riding wait; `+0x97a2` (`m_bInStateMobileArmoredMode`, CH1k ctor map) -> only 26200; vslot 0x4f4 == 26 / 28 -> only 26207;
+  level max( 1, `GetSkillLevel( id, 0, 0, 1 )` ); vslot 0x6a0 -> `+0x8eb0`; 0x82c true skips to success. Then cool time (slot `+0x24` protected) through 0x6a8 `> 0` -> 226;
+  `NowMp < +0x8ea8 + +0x8eb0` -> 2549; `> 4` / `- 5` split, `movzx`, 32bed5d0 -> 10225; type 13 and not training, `GetNumItemByTID( 130208, 0, 0, 1, 0 )` <= 0 -> 26119.
+  Success writes `+0x8ea0` / `+0x8ea4`. `PushText( 3, str, white, black, 1, 1.f, 1.f )` decoded from the stack copies (both colours, both orders).
+- **`32bd8790` / `32bee490` / `32bf5130`.** Saved `+0x8ea0` / `+0x8ea4` / `+0x8ea8`, restored for use condition 3 / 5 (`ASUT_ANYTIME` / `_EXCEPT_AIR`, probed);
+  `+0x88bc` = slot + 1 (`m_iNowSpecialAttack`) only when used, else `+0x8ea0` alone restored. `+0x8ac0` (`m_eSpecialAttackKeyPressed`) is 32bf5130's.
+  32bee490: tables `33507b00` / `7b14` / `7b28` / `7b3c` = Normal A, Hyper A, Normal B, Hyper B, hyper while gage `+0xe8` > 0, `StateChange( id, false )`:
+  the shared `StateChangeBySkillSlot` (31fd32e0, `GetRemainHyperModeTime() > 0`). `+0x8ac4` = 1 always; 26032 clears `+0x98d0`.
+  32bf5130's extra arguments are March's defaults (`GetItemByTID` ( tid, 0, 1 ), `SetSkillCoolTimeLeft` true, the 0x6a4 third 0 as Eve's).
+- **`32bed5d0`.** Jump table `32bed6a0` = { 32bed609 total, 32bed620 now }; byte index `32bed6a8` has 0 at +0, +5, +0x10, +0x28, +0xb7 = 26020 26025 26036 26060
+  26203. 26228 -> class 117 and `+0x97a0` ? cost <= `+0x128` : cost <= 0; berserk true; three exits as written. **`32bed560`:** `+0x110` / `+0x11c` / `+0x128`.
+  The namesake proof stands as the Done note gives it.
+- **`32bed8c0`.** `GetSkillTemplet( 26407, 1 )`, `GetSkillAbilityValue( 0x67, level, 0 )` = March's 2-argument overload (June `32206e50` with bPvp false);
+  rate is assigned, not multiplied. `bFuture` -> `+0x7cb0` -> `+0xc` (= `GetFutureStateSkillID`), else vslot 0x524 (`GetNowStateSkillID`, funcmap 3208e410).
+  `== 26061 || 26233 < id <= 26235` (JUNE_BUGS #500 holds). **`32bee3e0`:** 26207 / 26207 + 0x18; 0x12b with `+0x985c` = 1; `setg` on the now count -> 0x12a.
+- **`32bf0800` / `32bf0cc0`.** cutIn[0] at `337adca8 + 0x90 x +0x8ac8`, cutIn[1] at `+0x30`; event 0x8b3 `rand() % 2 == 0` -> `337adc48` (CASH_21); hyper argument =
+  now state data byte `+0x10` = `IsHyperState()`; `ActiveSkillShow` order (name, file, vSize, vPosition, hyper, bOnlyLight) from the stack.
+- **State ids.** The C++ values are March's (probe: `USI_DAMAGE_SMALL_FRONT` 25, `_BIG_FRONT` 27, `CSI_SI_A_CFG_GUARD_READY` 286, `_MEMO` 252,
+  `CSI_CHARGE_CANNON_BALL` 116, `CSI_POWER_DOWN_LANDING` 108); June's 26 / 28 / 298 / 299 / 162 / 154 are the same states in June's numbering (CH0 state map,
+  `X2GUChung.h` "June script id" comments; March's own Chung guard code tests `USI_DAMAGE_SMALL_FRONT` there). The names are right; never compare raw June ids.
+  `ST_HYPER_ACTIVE_SKILL` 13, `SA_ANI_SPEED` 103, `XUF_DODUM_20_BOLD` 3, `UC_CHUNG_TACTICAL_TROOPER` 117 probed. All 14 `RNSI_*` names match June's `Enum.src.lua`.
+- **`ReservedSkillStart`.** One declaration and one call for every combination of `_ARME_LIVE` / `_EVE_LIVE` / `_CHUNG_LIVE`; body = Arme's.
+
+**Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --range dba0f93d^..dba0f93d`: `3 PASS, 1 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL,
+0 ERROR`; `0 deleted, 0 non-ASCII, 0 EOL-mismatch, 14 #else/#endif without the flag token, 0 encoding change(s)` (the 14 are the nested other-flag closers the
+Done note lists); RESULT FAIL only because `_LIVE` is `//#define`. `_CORE` view: `1 PASS, 1 PASS~, 3 OTHER`, `0 #else/#endif without token`, `RESULT: PASS`.
+`junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.*`: `0 A/B row(s)` (D 1 ignored). One-file probes
+(`census.cl_cmd`, `/Zs /EHsc`, no PCH) of `X2GUChung.cpp` and `X2GUUser.cpp`, with and without `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: all four exit 0, 0 errors.
+No build (no source change; `DEPLOY OK` md5 cc063003 stands). CH1l4 kickoff checked, unchanged; CH1l4 is ready.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

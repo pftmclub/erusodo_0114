@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1l3 | done, review ready: skill-use overrides (13 rows); `GetTotalCannonBallCount` divergence row done here | Sonnet 5.5 / high, Opus review | CH1l30 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l3.md`, `CH1l3-review.md` |
-| CH1l4 | blocked (CH1l3 review): class core, CommonFrameMove; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l3 review | `X2GUChung.*`, Always.h | `CH1l4.md` |
+| CH1l4 | ready: class core, CommonFrameMove; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l3 review | `X2GUChung.*`, Always.h | `CH1l4.md` |
 | CH1m | blocked (CH1l4 review): registration (`InitState` `32c22540` / `InitStateCommon`), hyper table name, the `_LIVE` gate | Opus 5.5 / high, Opus review | CH1l4 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): CX2GUUser base callbacks, `SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` head, dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
@@ -201,7 +200,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8), CH1l (review: `SetEquippedSkillLevelStateData` and the Guard level = June's, under `_LIVE`), CH1l2 (review: 9 rows hold, no change), CH1l30 (review: 4 helpers hold, no change).
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8), CH1l (review: `SetEquippedSkillLevelStateData` and the Guard level = June's, under `_LIVE`), CH1l2 (review: 9 rows hold, no change), CH1l30 (review: 4 helpers hold, no change), CH1l3 (review: 13 rows hold, no change).
 
 ## Other plans (no STATUS rows)
 
