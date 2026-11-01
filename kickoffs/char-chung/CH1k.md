@@ -68,3 +68,14 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1h (2026-11-01)
 
 - **Deadly Chaser mini gun handle slots are placed by June's number, written by March's enumerator.** June frees / reads slot 9 (CDC X, left), 10 / 11 (CDC X Z, left / right) and 13 / 14 (CDC Z Z X X, left / right); slot 12 (`CHUNG_MAJOR_MII_CDC_COMBO_XZZ_MINI_GUN_L`) is never used. March's enumerators sit one higher (10, 11, 12, 14, 15) because June has no slot for Head Shot between dash-jump landing (8) and the CDC block. CH1h wrote the March names with the June slot in the comment, so the June bodies work only if `InitializeMajorMeshArray` / `DeleteMajorMesh` clear all of `CHUNG_MAJOR_MII_END`: settle that together with the CH1g2 slot note above.
+
+## Amended by CH1k0 (2026-11-01)
+
+CH1k0 found that all six engine callees are March functions that already match June (nothing new in source). Call them by these names:
+- `31d28b30` = `IsRecursivelyManagedByDGManager()` (in `NotifyDGManagerChanged` `32bee680`: managed -> `refInManager_.AddObjectChain` `31ce9a60`,
+  else `RemoveObjectChain` `31ce9860`, over `m_vecPromotionEquipList` `+0x9648`).
+- `31ff1950` = `CX2GUUser::NotifyShowObjectChanged()` (the base call in `32bdc700`; vslots 0x63c / 0x634 follow with `GetShowObject()`).
+- `3226e020` = `SetEnableWeaponRenderEffect( bool )` (`32bda7d0`, `32c0ca60`). `3226f870` = `FadeInWeaponRenderEffect( start, end, fChangeTime,
+  fDuration )` (its caller `32c007e0` is CH2b's).
+- `32497d80` / `32a37130` = `new CX2ChungGageData()` / `new CX2ChungGageData( *pChungGageData )` in `CreateGageData` `32c0feb0` (`IsMyUnit()`
+  vslot 0x198, `CX2GageManager::GetInstance()->GetMyGageData()`).

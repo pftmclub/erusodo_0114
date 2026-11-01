@@ -457,6 +457,13 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   (1, 2, 3 / 0x17, 0xc, 0xd) prefix the item name (format `3342f1d0`). It comes with the inventory / shop / enchant UI sweep and a June `CX2Cursor` enum. Also June's skill-tree window owns a unit viewer (`+0xbc`)
   that `SetNowDragItemReturn` refreshes (`328eea70`); March's `CX2UISkillTree` has none.
 
+- **Two June-only unit emblems found by char-chung CH1k0 (2026-11-01).** June's `CX2GUUser::NotifyShowObjectChanged` (`31ff1950`) also shows
+  or hides two UI-major sequences March has no members for. Both are absent here, so March's body stays:
+  - a second title emblem at user `+0x8808` (particle `+0x880c`), made by `31fd54b0` from a June-only string at title templet `+0x60`
+    (title manager `g_pData +0x28c`, `326f8010( unit +0x9a0 )`);
+  - the `PC_ROOM_EMBLEM` sequence at `+0x8810` (particle `+0x8814`), made by `31fcfde0` (no PC room offline).
+  Both are also read by `3203d160` and `CommonFrameMove` (`32063650`), and freed in the dtor `3203a620`. They come with June's title templet and the
+  PC-room UI.
 - **Three June-only UI pieces found by june-march-divergence D1-4 (2026-10-29).** Each sits in a function D1-4 left as March's because the
   piece is absent here (June's test reads it as absent):
   - The game option `MUTE_ON_DEFOCUS` (`CX2GameOption` +0x66): `SetMusic` (`3241dba0`) pauses the music only while the app is active

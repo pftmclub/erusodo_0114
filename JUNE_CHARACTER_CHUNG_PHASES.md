@@ -1105,6 +1105,57 @@ I read every function from `charport_adis.py chung --phase CH1j` against the por
 
 **Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1k0` (Opus 5.5 high).
 
+### CH1k0 - Done (2026-11-01)
+
+All six callees are March functions that already do what June's do on every member March has, so nothing changed in source and no flag
+was added. funcmap rows `Char Chung CH1k0` (8: the six, plus the two June-only emblem creators below). No JUNE_BUGS row: no June quirk is
+kept, because nothing is transcribed.
+
+| June | March home (CH1k calls it by this name) | Why no port |
+|---|---|---|
+| `31d28b30` | `CKTDGObject::IsRecursivelyManagedByDGManager()` (`KTDGObject.cpp:153`) | June loops up `+0xc` (`m_pManagerObject`) while `+0x178` == manager `+0x130`; March's `CONVERSION_VS` body compares the same handle with `GetRenderObjectChainEnd()` and recurses |
+| `3226e020` | `CX2GameUnit::SetEnableWeaponRenderEffect( bool )` (`X2GameUnit.cpp:13243`) | `+0x416c` = arg; false zeroes the six times `+0x4170..+0x4184` and `+0x4188` (`PWCI_NONE` = 0) |
+| `3226f870` | `CX2GameUnit::FadeInWeaponRenderEffect( start, end, fChangeTime, fDuration )` (`:13167`) | the `m_fPulseTimeLeft <= fDuration` gate is March's `NEW_HENIR_TEST` early return (on); same stores |
+| `31ff1950` | `CX2GUUser::NotifyShowObjectChanged()` (`X2GUUser.cpp:15436`) | see below |
+| `32497d80` | `CX2ChungGageData()` (`X2GageData.h:620`) | 0x144 bytes: four `KProtectedType<int>` = 0, three bools false |
+| `32a37130` | `CX2ChungGageData( const CX2ChungGageData& )` (`:626`) | the same seven members copied |
+
+**Layout of the weapon render block** (`3226f900` Pulse, `3226f870` Fade, `3226e020`): `+0x416c` bool, `+0x4170` fade time left, `+0x4174` /
+`+0x4178` fade change time (left), `+0x417c` pulse duration, `+0x4180` period, `+0x4184` pulse time left, `+0x4188` colour id, `+0x418c` /
+`+0x419c` start / end colour. That is March's member order.
+
+**`NotifyShowObjectChanged` (`31ff1950`).** June does March's steps in March's order: `GetShowObject`, the `CX2GameUnit` base (`322845c0`),
+the shadow (`+0xcb8`), vslot 0x394 = `SetShowEnchantWeaponParticle` (`32000490`: base, then `SetShowEnchantedWeaponEffectAtHand`;
+`ENCHANT_BUG_TEST` on), the head marker (`+0x87f8`, game major), the title emblem (`+0x87fc`, UI major), hold centre and circle (`+0x8818` /
+`+0x881c`, game major = March's `X2OPTIMIZE_CONFUSE_DIFFERENT_PARTICLE_SYSTEMS_BUG_FIX` branch, on), `DisableAfterImage` when hidden, then
+`m_ViewEqipList` and the pet manager (`g_pData +0x328`, `326cb840`). June also does three things that need systems March does not have:
+- `+0x8808`, a second title emblem: made by `31fd54b0` from a June-only string at title templet `+0x60` (title manager `g_pData +0x28c`).
+- `+0x8810`, the `PC_ROOM_EMBLEM` sequence, made by `31fcfde0`.
+- `DisableAfterImage( true, 1 )`, after `( true, 3 )`: the second after-image. That is Lu/Ciel's second body (Buff 4b-iii, checklist s7).
+March never creates the two handles, so on March's members its body already gives June's result. A June body with three stand-ins would
+compile to the same code, so no `june_march_divergent.tsv` row: the row is for a March function that does something different.
+
+Flag states (`cl /P` probe through `stdafx.h`): `NEW_HENIR_TEST`, `CHUNG_SECOND_CLASS_CHANGE`,
+`X2OPTIMIZE_CONFUSE_DIFFERENT_PARTICLE_SYSTEMS_BUG_FIX`, `ENCHANT_BUG_TEST`, `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE`, `CONVERSION_VS` and
+`SERV_PET_SYSTEM` are all on.
+
+**For CH1k:** `32bee680` calls the base, then on `IsRecursivelyManagedByDGManager()` adds (`31ce9a60`) or removes (`31ce9860`) each
+`+0x9648` equip = March's Chung body. `32bdc700` calls the base, then
+vslots 0x63c / 0x634 with `GetShowObject()`. `32bda7d0` / `32c0ca60` call `SetEnableWeaponRenderEffect`. `32c0feb0` is March's
+`CreateGageData` (`IsMyUnit`, `GetMyGageData`, copy or default ctor). `3226f870`'s caller `32c007e0` is CH2b's. `kickoffs/char-chung/CH1k.md`
+"Amended by CH1k0" lists them.
+
+**Routed, not ported:** the two June-only emblems go to **Stage 9** (a bullet in `JUNE_PORT_BACKLOG_ORDER.md`). Both are made by June
+code March lacks and are also read in `3203d160` and `CommonFrameMove` `32063650`. The second after-image is already Lu/Ciel's (checklist s7).
+
+**Gates.**
+- No client source changed: no flagcheck, no build. CH1j review's `DEPLOY OK` md5 `25c79d0f` stands for this tree.
+- `junediverge.py --check X2Lib/X2GUUser.cpp X2Lib/X2GameUnit.cpp X2Lib/X2GageData.h KTDXLIB/KTDGObject.cpp` (the homes): `allow-listed: 6`,
+  `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GageData.h KTDXLIB/KTDGObject.cpp`: `0 A/B row(s) remain in 2 file(s)`.
+
+**Nothing to play-test** (no code changed). Next: `/x2-phase char-chung CH1k0 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
