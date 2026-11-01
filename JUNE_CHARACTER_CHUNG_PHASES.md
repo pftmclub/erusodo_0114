@@ -1894,6 +1894,44 @@ in the air, a dungeon start (Fight.ogg, GameStart). Pepper run is unchanged unti
 **Play-test passed (user, 2026-11-02):** all 6 checks. Logs on md5 f179e5e9 (run 06:29-06:33, after deploy): 0 EXCEPTION, 2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`,
 known); the one unbound name, `AddGroupChainQuest` in `ChainQuestInfo.lua`, is quest-system's (Q0a / Q1), not this phase's.
 
+### CH1n2 - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `f179e5e9` stands). Every body was re-read against `charport_adis.py chung <va>`.
+- **StartEnd** (`3201b460`): CommonStateEnd first; gate vslot 0x198 / `g_pMain +0x16a` / `+0x8b61`. Room `+0xd8` is the PvP game type: June's own
+  StartStateStart tests `+0xd8 == 0xa` (`PGT_BEST_OF_N_GAMES`) @`31ffbe86` before `L"PVP_Best_OF_N_Round"`. A dungeon room's `+0xd8` (difficulty 0-2)
+  or a battle-field room's (field id) is never 6, so the port's PvP-room-only test is the same. Fight.ogg: type 5 or a null room still plays, as in
+  June. PvP: null room or winner -> no particle; `GameFightNew` then `m_bStarted` and return. Dungeon (type 2 or IsPve): `+0xc44` -> `[0]` -> `+0x10` id;
+  `32070f40` true -> GameFightNew, then straight to the defence test (stand-in holds). 0xa1e0 / 0xa1fe / 0xa1f4 = 41440 / 41470 / 41460. `IsDefenceDungeon`,
+  `GameStart`, `ClearScreen( 10, (1,1,1,1) )` = March's default colour. `m_bStarted = 1` on every path (@`3201b8d3`). March's CommonStartStateEnd and
+  party-bonus particle are not in June.
+- **HyperModeStart** (`31ffd490`): gauge > 0 and `+0x8fc3` (= `GetCanChangeHyperModeInHyperModeState`) -> count, then `31fceab0( 0x5f63 ) > 0` ->
+  vslot 0x23c `( 0x5f63, 1, 1 )`; `+0x8fc3` false skips both, as the port's `#ifdef SUPERPOSITION` block does. `+0x9176` / `+0x8d4c` cleared, then
+  `31f4b1e0( 0x73d, 203630 )` (stand-in).
+- **THROW_ITEM_FrameMove** (`31ff92d0`): `> 0x3f2` -> `31ffaa70` (value - 0x3fd, 22 entries), `== 0x3f2` -> `EVENT_SPECIAL_ITEM_LIGHT_SPEAR`, else
+  `dec eax` -> `31ffaa38` (1..14; case 1 = `SPECIAL_ITEM_WOODEN_SPEAR`, string read from the exe). The velocity tail `31ffa9b2` is taken by 3-10, 12-14
+  and 1027-1042. 1-2, 11, 1010 and 1021-1026 skip it; 1023 / 1025 are empty. Every string and tail matches the port. June has no 1011: the US
+  defines agree (`EVENT_ICICLE_THROW_ITEM` BR only; `EXESTR OK` for the light spear and fire cracker, the icicle spear absent). StateEnd `31ffb0fc`
+  (value - 3, 12 entries): 3-8, 13 anger, 14 Lofty @`31ffb087`, 9-12 nothing = the port. Lofty 14 and the 8 SST names = `Enum.src.lua`.
+  EventProcess `31fcbc10`: airborne `StateChange( 0x11 )` and then y -= 30; on foot `m_Wait`. `IsOnSomethingFuture()` = `bFootOnLine` (`+0x7e1c`).
+- **Facing:** walk `31fd23eb`, jump `31fd247b`, dash `31fd262e` (after the speed test), pepper run `31fd1ca4` / `31fd1da4` / `31fd1e77`. All six are the
+  same block. When both keys are held, the speed is set even with neither one-key, so the helper returns true. Walk: no arrow -> `fldz`. Jump: no
+  arrow -> speed untouched.
+- **Pepper run:** `+0x8fc1 == 1` returns from StartFuture and leaves FrameMoveFuture with only CommonFrameMoveFuture. The templet at unit `+0xaf0` is
+  null-safe and `[0]` = `m_UnitType`: 5 -> 2300. y += 30 = `LINE_RADIUS`. The June ctor zeroes the word `+0x8fc0` @`32040f1d`. The PEPPER_RUN_END
+  stand-in holds.
+- **Dash starts** `31fcbe80` / `31fcbe40`: CommonStateStartFuture first, then GetRidingOn (dash only), `+0x683c` pet, `32d27830` / `32d27810` (stand-ins).
+  `nowSpeed.x = 0` / `*= 0.5`. **DamageAirSmallEventProcess** `31fcc150`: foot -> `StateChange( 0x12 )`, else vslot 0x7f4 `( 6 )`, then
+  CommonEventProcess. Each class passes the condition through to `CheckSkillUseCondition`, which takes `ASUT_DAMAGE` under `_ARME_CORE`. That holds
+  for Elsword, Ara, Lire, Raven, El and Add directly, and for Aisha, Eve and Chung (`_LIVE`) via SpecialAttackLookup. Lire's Night Watcher rewrites
+  any non-ANYTIME condition to GROUND for Delayed Firing alone. That is March class code for Lire's own port (Stage 7), not a CH1n2 change.
+
+**Checks.** `flagcheck JUNE_USER_BASE_STATE_BODIES --range 7da7ff34^..7da7ff34`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags),
+0 FAIL, 0 ERROR`, `RESULT: PASS`. The 4 OTHER are the enum headers (`JUNE_ENUM_NAMES`). Same range for `JUNE_ENUM_NAMES` over the four headers: `files: 2 PASS,
+2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`. Both show 0 deleted, non-ASCII, EOL or encoding lines. `git diff
+--patience --numstat`: no code deletions. `junediverge.py --check-all`: `allow-listed: 162`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B
+row(s)`. The one-file probe of `X2GUUser.cpp` gives 0 errors with `_LIVE` both off and on. Play-test (6 checks, 0 EXCEPTION) judged a pass. CH1n3 and CH1o
+are ready, one at a time (both touch `X2GUUser.*`); the `CH1n3.md` kickoff was checked.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
