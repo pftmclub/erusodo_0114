@@ -994,6 +994,15 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   (SIEE 18 + clear-all, then `CommonStateEnd`), which March's `DoStateEndStart` copy runs only for DIE_FRONT / BACK (CH1j review). Aisha's registration leaves all of these out with a note. This stage
   ports the states with the riding code that enters them, then adds them to each ported class (`june2017_re/char_arme/ch1j_reg_by_class.tsv` has Aisha's rows).
 
+- **June's riding base callbacks** (char-chung CH1n, 2026-11-02). 48 of the `CX2GUUser` `Riding*` state callbacks every class registers differ
+  from March's bodies (`june2017_re/char_chung/ch1n_user_callback_triage.tsv`, verdict `DIFF`, rows `Riding*`): StartFuture calls
+  `CommonStateStartFuture` before the pet's `StateChangeFuture`; pet state ids go through the transformed-set getters `32d27750`-`32d279f0`;
+  the EventProcess rows add `CSI_RIDING_SPECIFIC` (pet `+0x93d9`), special moves 6 / 7 (`+0x924c` / `+0x9244` / `+0x9248` / `+0x8bfa`), drop the
+  oneDown block, and RidingDash's boost threshold is 0.5 (March 1.0); the Start rows add per-pet effect sets (pet id `+0x350`, e.g. 0x18
+  `EffectSet_Riding_Pet_NBG_Walk_Booster`) and `+0x924c` resets; RidingOnStart erases BTI 0x1a4 (`3229e160`); RidingStartEventProcess calls
+  `3200ac50` (Stage 19); RidingHyperModeStart / EventProcess carry `31f4b1e0( 0x73d )` (unidentified, see CH1n2). The triage is a lead list:
+  each row is re-read against the listing when this stage ports it, with the riding states above.
+
 ### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)
 
 june-effect C9h-5 diffed June's `CX2TFieldNpc::OnFrameMove` (`june2017_re/c9h5_fieldnpc_onframemove_diff.md`, blocks 19, 26, 30, 32 and 33). The village NPC calls into a June-only friendship system. March has none of it.

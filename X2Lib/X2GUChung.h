@@ -539,6 +539,9 @@ protected:
 
 	virtual void		InitPassiveSkillState();	// 패시브 스킬 초기화
 	virtual void		SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	// 장착한 스킬 상태 셋팅
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	void				SetLunaticBlowSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 32c1f530 @32c220ae ( both skill switches' default )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	virtual void		SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	// 장착한 스킬의 레벨에 따라 각 스킬에 해당하는 상태의 PowerRate등을 셋팅
 	void				SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet, CHUNG_STATE_ID eStateID );	// 장착한 스킬의 레벨등이 변경될 때 같이 변경되어야 할 스테이트 데이타
 

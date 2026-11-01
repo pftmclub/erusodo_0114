@@ -1174,7 +1174,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c242b0	thunk	jmp 32bee0e0	-	-	-	n/a	not ported	n
 32c242c0	helper	reached only through callers with no phased caller 32c08cf3	-	new	?	CH1o	phase unsettled: read it; name: calls 324144b0 only; not read	y
 32c24360	helper	called by 32bfafa0	-	new	-	CH2a	name: std template instantiation, no class member: std::map insert-position search	y
-32c24400	helper	called by 32c1f530	-	new	-	CH1n	name: std template instantiation, no class member: std::map header/node allocation	y
+32c24400	helper	CFuryGuardianGuardSkill::CreateFuryGuardianGuardSkill ( called once, @32c212e4 in the Guard case 26207 / 26231 )	X2GUChung.h:483 CX2GUChung::CFuryGuardianGuardSkill::CreateFuryGuardianGuardSkill	inside	-	CH1n	= March: new 0x18-byte object, first field 0x99 ( March ctor: m_eSkillSlotID_Guard( CSI_BASE ) ), refcount 1; CH1n found it in the Guard case ( CH2b ), not a std template	y
 32c24450	thunk	jmp 32bee7c0	-	-	-	n/a	not ported	n
 32c24460	thunk	jmp 32bee840	-	-	-	n/a	not ported	n
 32c24470	helper	called by 32c24770 32c25a10	-	new	-	CH1l2	also called from outside the class: 32d5b250 32d5b27e; name: std template instantiation, no class member: std::copy of 8-byte elements	y

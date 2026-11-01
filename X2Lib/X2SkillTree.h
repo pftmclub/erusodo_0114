@@ -2004,6 +2004,20 @@ public:
 		RNSI_SA_CHG_CARPET_BOMBING                            = 26023,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH1n
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Chung's skill-slot head spells ( values from June's Enum.lua )
+		RNSI_SA_CSG_SHOOTING_STAR_TRANS                       = 26030,
+		RNSI_SA_CSG_SHOOTING_STAR_TRANS_UPGRADE               = 26052,
+		RNSI_A_CDC_GATLING_SHOT_TRANS                         = 26221,
+		RNSI_HA_CIP_DOOM_STRIKE                               = 26600,
+		RNSI_HA_CDC_OUTRAGE_STRIKE                            = 26601,
+		RNSI_HA_CTT_SATELLITE_RAIN                            = 26602,
+		RNSI_HA_CIP_DOOM_STRIKE_UPGRADE                       = 26603,
+		RNSI_HA_CDC_OUTRAGE_STRIKE_UPGRADE                    = 26604,
+		RNSI_HA_CTT_SATELLITE_RAIN_UPGRADE                    = 26605,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

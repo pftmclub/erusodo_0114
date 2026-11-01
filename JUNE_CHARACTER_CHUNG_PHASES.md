@@ -331,6 +331,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 | CH1l4 | Sonnet high, Opus review | CommonFrameMove 0x7cc and the helpers only it reaches |
 | CH1m | Opus high, Opus review | Registration: June's `InitState` `32c22540` / `InitStateCommon`, the hyper-mode table name (`GetHyperModeTableName`, `31fdd490`), START / WIN / LOSE roll, base event states, the `_LIVE` gate |
 | CH1n | Opus high, Opus review | The CX2GUUser base callbacks Chung registers; `SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` head (bounds, slot tables, the 7i rule) + the dev free-skill gate |
+| CH1n2 | Opus high, Opus review | (split from CH1n) The non-riding `CX2GUUser` base callbacks whose June body differs from March's (`ch1n_user_callback_triage.tsv`, 16 rows), every class, own flag |
 | CH1o | Opus high, Opus review | The virtuals under `_LIVE`; June-only and changed user virtuals Chung overrides (7ap 0x6a8 `32bdba60`, 7t 0xa4 `IsBerserkByChance` `32c24b90` with `+0x9714`, 0x9c / 0xa0 `32c24b50` / `32c24b60`); gaps the CH1a-CH1l4 reviews routed |
 | CH1p | Opus high, Opus review | 7ag pressed-index space (Chung's own 4+4 decode `:5923`, `:6064-6081` and the encoders `:6087` / `:6090`, every reader, together); hooks 7h / 7l / 7o / 7p / 7x; June-only script keys (`COMMAND_HIT_ADD_MP_BONUS`, `IMMUNE_TO_SUPER_ARMOR_DOWN`, `SIEGE_ANGLE` if CH0 finds a reader) |
 | CH1q | Opus high, Opus review | Cannon balls (`ch0_cannonball.tsv`): June's bodies inside March's cannon-ball functions, `CANNON_BALL_COUNT_AT_DUNGEON_START` / `_PVP_START` (`32bf5430`), the hyper-count-3 timer skip `32bf4680`, the gauge UI and orb; flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL`, sub-tag `CBALL` |
@@ -1753,6 +1754,54 @@ RESULT FAIL only for the `//#define`. The misalignment noted in the Done note is
 the patience diff's inserted lines contain no non-ASCII byte. `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`.
 `enumscan.py --check X2Lib/X2GUChung.cpp`: `0 A/B row(s)`. One-file probes of `X2GUChung.cpp` (`/Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`.
 No build (no source change; `DEPLOY OK` ba6bf95b stands). **Nothing to play-test.** CH1n kickoff: line ref and callback table added.
+
+### CH1n - Done (2026-11-02)
+
+**Head (`32c1f530`), inside, `_LIVE`.** June's head sits in March's own `SetEquippedSkillFuncBySkillSlotIndex` up to the id switch; March's head
+and type switch are the `#else`. Read from the decompile and the exe bytes:
+- Bounds `0 > slot || 4 < slot`; tables `33507b00` / `33507b28` (normal A / B = 50.. / 60..) and `33507b14` / `33507b3c` (hyper 51.. / 61..) = March's
+  four arrays; `31fd2af0` dropped (7i), `+0x11` = `IsSkillSlotState`, hyper `0x101`. `GetEquippedActiveSkillTemplet( id, true )`.
+- **Batch `3207c1a0` / `31fdf970`:** begin takes the state vector `+0x7cec` and the protect byte `+0x7cfc` into a `std::set<ushort>`; the accessor
+  `31fd88f0` records each id; the end re-protects each recorded entry (`31c594b0`). Anti-tamper only, as Aisha's CH1l found: nothing to port.
+- **Transcendence memo** (`31fdbcc0`, then `GetSkillTemplet( memo )` must exist): 26030 / 26052 Shooting Star (READY, ATTACK 0xe9, END 0xea),
+  26220 Head Shot with `CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove` (`32bfc860`), 26221 / 26235 Rapid Cannon (READY, LOOP 0x13e, FINAL 0x13f), 26225 Head
+  Shot with its full FrameMove (`32bfcc80`); any other memo registers nothing. **CH0's "no transcendence-memo case in Chung's switch" was wrong.**
+- **Types:** 5 buff (`CSI_COMMON_BUFF` both, FM vslot 0x5f0, EP `31fcbd60`); 6 / 7 / 0xd-0x10: 26601 / 26604 Outrage Strike, 26602 / 26605 Satellite
+  Rain, 26600 / 26603 Doom Striker (EP `31fcc740` = `GenericSpecialActiveSkillEventProcess`), `> 26600` Lunatic Blow, else the id switch; 0xc + 900 throw
+  item (vslots 0x5f4 / 0x5f8); anything else returns.
+- **`SetLunaticBlowSkillFunc`** (new, `_CORE`; June `@32c220ae`, the default of both June switches) = March's Lunatic Blow case (START / _HYPER,
+  EXPLOSION 0xd7, EXPLOSION_FINISH 0xd8). Under `_LIVE` March's id-switch `default:` (which falls into Detonation) calls it instead.
+- Every callback the head names is a March `CX2GUChung` member of the same name (class map column 4); their June bodies are CH1g2 (Head Shot, done),
+  CH2a (Lunatic Blow), CH3b (Shooting Star, Rapid Cannon), CH3d (hyper actives). The id switch stays March's until CH2-CH3.
+- Enum names (`JUNE_ENUM_NAMES`, `X2SkillTree.h`): `RNSI_SA_CSG_SHOOTING_STAR_TRANS(_UPGRADE)` 26030 / 26052, `RNSI_A_CDC_GATLING_SHOT_TRANS` 26221,
+  `RNSI_HA_CIP_DOOM_STRIKE` / `_CDC_OUTRAGE_STRIKE` / `_CTT_SATELLITE_RAIN` 26600-26602 and their `_UPGRADE` 26603-26605 (June `Enum.src.lua`).
+- `32c24400` is not a std template: it is March's `CFuryGuardianGuardSkill::CreateFuryGuardianGuardSkill`, called once in the Guard case (CH2b); map row fixed.
+
+**Dev free-skill gate.** `32c1f530` has no cool-time / MP check; the gate is CH1l3's in `SpecialAttackLookup` (`32c17830`, `X2GUChung.cpp`
+`IsDevUnlimitedSkillUse()`). Checklist §7 dev-gate row and 7i marked `(Chung: ...)`.
+
+**Base callbacks (127, `ch1m_user_callbacks.tsv`).** None needs an `#if` widened: no body is gated on `_ARME_LIVE` / `_EVE_LIVE`; Aisha's and Eve's
+ported bases (START, WIN / LOSE, DamageBigStart, DashJumpFrameMoveFuture, HyperModeEnd, RandomLose) are under `_CORE` flags, so every class has them.
+A triage of every June body against March's live C++ (`june2017_re/char_chung/ch1n_user_callback_triage.tsv`; spot-checked: `31fd23e0`,
+`31fcc150`, `3201b460`, `31ffd490`, `31fcbe80`) gives **58 SAME, 69 DIFF**. Too large and not Chung's own, so it is split (scope rule):
+- **CH1n2 (new, this plan, Opus):** the 16 non-riding rows with a real June difference, for every class under their own flag: Walk / Jump / Dash
+  FrameMoveFuture (both arrows held -> facing from oneRight / oneLeft, `31fd23eb`), DashStartFuture / DashJumpLandingStartFuture (CommonStateStartFuture
+  first), DamageAirSmallEventProcess (airborne skill use, condition 6, `31fcc169`), StartEnd (`3201b460`), HyperModeStart (`31ffd55a`, `31f4b1e0`),
+  PEPPER_RUN x5, THROW_ITEM FrameMove / EventProcess / StateEnd.
+- **Kept, already decided:** StartStateStart's PvP round particles (no PvP offline), StartEventProcess's `3200ac50` (Stage 19), HyperModeEnd /
+  RidingHyperModeEnd's Add stand-in, RandomLose's `find` guard.
+- **Stage 17:** the other 48 `Riding*` rows (bullet added in `JUNE_PORT_BACKLOG_ORDER.md`).
+
+**Checks.** One-file probes of `X2GUChung.cpp` (`/Zs /EHsc`, US_SERVICE defines): `_LIVE` off exit 0 / 0 errors, `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`
+exit 0 / 0 errors. `git diff --patience --numstat`: `X2GUChung.cpp` 245 / 0, `X2GUChung.h` 3 / 0, `X2SkillTree.h` 14 / 0.
+`flagcheck JUNE_CHAR_CHUNG_CORE --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_CHAR_CHUNG_LIVE --files X2Lib/X2GUChung.cpp`: FAIL only for the `//#define` (by design). Each: `0 deleted line(s), 0 non-ASCII inserted line(s),
+0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `junediverge.py --check X2Lib/X2GUChung.cpp
+X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: 0 A/B rows. Funcmap rows `Char Chung CH1n` (7). No JUNE_BUGS row.
+`DEPLOY OK: X2_offline.exe is 25,896,960 B, dated 2026-11-02 04:27:43, md5 062caaaf0f70f793b0fd6c8d5d146d6c, equal to X2/US_SERVICE/x2.exe (2026-11-02 04:27:36); built at main 9fc55a44 + 3 uncommitted code file(s).` No `exestr` line: `_LIVE` is off and the flag-off exe gains no string.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1n review` (Opus 5.5 high), then CH1n2.
 
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
