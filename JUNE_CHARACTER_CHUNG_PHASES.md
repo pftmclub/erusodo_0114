@@ -1276,6 +1276,49 @@ virtual in June. Its only callers are `CX2GUUser::DamageReact` `@32049f5c` / `@3
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1l0` (Opus 5.5 high).
 
+### CH1l0 - Done (2026-11-01)
+
+No source change and no flag: one helper is March's own function, one is dead in June, and two belong to June's equip-view rewrite, which is
+Lu/Ciel's (scope rule; routed to Stage 8). funcmap rows `Char Chung CH1l0` (15); `june_march_divergent.tsv` 3 rows, verdict `stage8`
+(the `stage33` shape: informational, no replacement here). No JUNE_BUGS row: nothing is transcribed.
+
+| June | March home (CH1l calls it by this name) | Verdict |
+|---|---|---|
+| `31fcd740` | none | **dead**: base of a June-only vslot 0x688 (`SetNowMp( GetMaxMp() )`, then +1 awakening orb when `GetHyperModeCount()` equals the protected int `+0x8154` and is < 1) |
+| `31fe21a0` | `CX2GUUser::RemoveEquipFromViewList( CX2EqipPtr, int )` (`X2GUUser.cpp:35764`) | **same**: erase at index, weapon index 0 / 1 for `EP_WEAPON_HAND` / `EP_WEAPON_SECOND` (2 / 0x25), erase + delete the matching `m_vecpWeapon` entries |
+| `31fd2f00` | `CX2GUUser::GetAddItemAndRemoveItemToViewList` (`:41897`) | **differs, Stage 8**; for a non-Lu/Ciel unit the result is March's except Stage 16's expiry test |
+| `31ffe990` | `CX2GUUser::AddEquipToViewList( CX2Item* )` (`:35650`) | **differs, Stage 8**; June: `( item, slotId, bForceBasic )`, Ciel copies, CreateEquip via vslot 0x570 |
+
+**vslot 0x688 is never called.** A byte scan of June's exe for `call` / `jmp [reg+0x688]` (incl. vcall thunks and SIB forms) and
+`mov reg, [reg+0x688]` finds 13 hits, all data members or `esp` locals. The slot's only callers are the base calls in Chung's override
+`32bf44d0` (then gage `+0x142` = 1, `SetNowCannonBallCount( max )`) and Add's `329e2770`, which nothing reaches. So `32bf44d0` (CH0's "new
+AfterInitEquippedActiveSkillState") is dead June code: CH1l marks it n/a, and Add's port has nothing to transcribe there.
+
+**The equip-view set** (`32bdc750`'s three callees). Chung's override is March's body: `GetAdd...` false -> false; remove the found equip;
+add the item. The only new thing is a third argument, `slotId`, passed through to `AddEquipToViewList( item, slotId, 0 )`. It comes from
+vslot 0x644's June signature, which the base `3201b930` (rewritten too) and every override share. What June changed is Lu/Ciel's two bodies:
+- per-form tables: fashion is unit `+0xb7d` `[pos*3 + (equip +0x15d4 != 0)]`; `IsNormalEquipInThePosition` (`31fac260`) reads `+0xbf2` per form for
+  positions 16-29 (form = unit `+0xe40`);
+- Ciel copies built from the templet's `m_ItemIDForMinorUnit` (`+0x30`) when the unit type is 10 (`31fac140`), and Ciel slot ids `0x14`-`0x2a`
+  picking form 1;
+- skin anim per form, vslot 0x570 (`31fd48a0`: `+0x87d4` or Ciel's `+0x8e88`), and "( pos, form ) already shown" `31fd63c0`.
+These need June's CX2Unit form tables, Ciel's skin anim and the minor-unit item ids, none of which March has. For any other class the
+form is 0 and the result is March's. The remaining differences, which do apply to Chung, go to Stage 8 with the set:
+- CreateEquip always gets the unit type, plus two arguments (cf. the `CreateDummyEquip` replace row);
+- `GetEquippingItemByEquipPos` takes a third argument (`stage33` row);
+- the usable test `328825c0` and enchant `32882540` (the Stage 16 parts);
+- there is no `INIT_COMPONENT` read.
+Bullet added to `JUNE_PORT_BACKLOG_ORDER.md` Stage 8 ("June's equip-view rewrite").
+
+**For CH1l.** `UpdateEquipViewListInfo` (`32bdc750`): leave March's body, with no `_LIVE` block. It calls `GetAddItemAndRemoveItemToViewList` /
+`RemoveEquipFromViewList` / `AddEquipToViewList` by March's names; Stage 8 adds `slotId` to every override at once. `32bf44d0`: n/a (dead). The
+kickoff has "Amended by CH1l0".
+
+**Gates.** No source changed, so there is nothing to flagcheck and no build; the CH1k deploy (`DEPLOY OK` md5 `05b833e8`) stands.
+`junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`.
+
+**Nothing to play-test.** Next: `/x2-phase char-chung CH1l0 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

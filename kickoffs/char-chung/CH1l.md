@@ -61,3 +61,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d (2026-10-31)
 
 - `32beaf10` (vslot 0x670) now has a name: `CX2GUChung::IsInJobLine( int iJobLine_ )`, declared (no body) in `X2GUChung.h` under `_CORE`; CH1d's `ComboXXEventProcess` calls it with 1. Body: `iJobLine_` 1 -> unit class 20 (`UC_CHUNG_FURY_GUARDIAN`) or 110 (`UC_CHUNG_IRON_PALADIN`), 2 -> 21 / 111 (`UC_CHUNG_SHOOTING_GUARDIAN` / `UC_CHUNG_DEADLY_CHASER`), 3 -> 27 / 117 (`UC_CHUNG_SHELLING_GUARDIAN` / `UC_CHUNG_TACTICAL_TROOPER`), anything else or no unit false. Write the body, and decide whether it becomes the `CX2GUUser` virtual (base 331a4950 = false) the other classes would override; until then the `_LIVE` build does not link.
+
+## Amended by CH1l0 (2026-11-01)
+
+- **`32bdc750` `UpdateEquipViewListInfo` (inside):** June's body is March's, except for a third argument `slotId` passed to `AddEquipToViewList`.
+  That argument is vslot 0x644's June signature, shared by the base `3201b930` and every override, so it goes to Stage 8. **Leave March's
+  body, with no `_LIVE` block.** The callees keep their March names: `GetAddItemAndRemoveItemToViewList` (`31fd2f00`), `RemoveEquipFromViewList`
+  (`31fe21a0`), `AddEquipToViewList` (`31ffe990`). Their `june_march_divergent.tsv` rows are verdict `stage8`; `junediverge --check` does not flag them.
+- **`32bf44d0` (CH0's "new AfterInitEquippedActiveSkillState"): n/a, dead.** No code in June's exe calls vslot 0x688 virtually. Do not
+  transcribe it, and do not add the CX2GUUser virtual for base `31fcd740`.
+- So CH1l writes **14** of the 16 class-map rows. The Done note lists these two as n/a, with the CH1l0 reason.

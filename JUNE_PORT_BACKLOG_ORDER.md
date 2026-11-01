@@ -423,6 +423,14 @@ Everything from Stages 5 and 6, plus:
     `Ain_Erbluhen_Emotion`;
   - Lu/Ciel's float (`0x10000`); the class short of Ain (Disparate Force), Rose and Lu/Ciel (`0x100000`); Ain's 10-dword array (`0x20000000`);
   - their drivers of the class-skill float C3e-1 ports (`0x200000`), including Rose's Neil the Sniper aim (`3200d3f0` / `3200d900`).
+- **June's equip-view rewrite** *(from char-chung CH1l0, 2026-11-01; funcmap rows `Char Chung CH1l0`, divergence rows verdict `stage8`)*. June
+  rewrote `CX2GUUser::UpdateEquipViewListInfo` (`3201b930`, a third `slotId` argument on vslot 0x644 for every override: Chung `32bdc750`, Ara
+  `32bc89e0`, Arme `32cc9950`), `GetAddItemAndRemoveItemToViewList` (`31fd2f00`) and `AddEquipToViewList` (`31ffe990`, `( item, slotId, bForceBasic )`)
+  around Lu/Ciel's two bodies: per-form fashion / normal tables (unit `+0xb7d` / `+0xbf2`, equip `+0x15d4`, form `+0xe40`), Ciel copies from
+  `m_ItemIDForMinorUnit` (templet `+0x30`, user `+0x9570` / `+0x9574`), Ciel slot ids `0x14`..`0x2a`, skin anim vslot 0x570 (`31fd48a0`), the
+  ( pos, form ) test `31fd63c0`. Port the set whole with these classes, including the non-Lu/Ciel residue: CreateEquip always with the unit type
+  plus two arguments, GetEquippingItemByEquipPos's third argument (Stage 33 row), the usable test `328825c0` and enchant `32882540` (Stage 16 parts),
+  no `INIT_COMPONENT` read. `RemoveEquipFromViewList` (`31fe21a0`) is March's. For other classes the result is March's today.
 - the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
 - Ain's SetStopTime / SetStop2Time overrides (june-effect C3e-3, funcmap `32a38e70 / 32a38ea0 (C3e-3)`): the stop time times Ain's
