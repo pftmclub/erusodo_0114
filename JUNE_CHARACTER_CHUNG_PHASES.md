@@ -1662,6 +1662,58 @@ One-file probes (`census.cl_cmd`, `/Zs /EHsc`) of `X2GUChung.cpp` with and witho
 
 **Nothing to play-test** (`_LIVE` off). CH1m kickoff checked, unchanged; CH1m is ready.
 
+### CH1m - Done (2026-11-01)
+
+All 3 class-map rows are written, all `inside`: June's bodies sit in March's own `InitState` (`32c22540`), `InitStateCommon` (`32c12a30`) and
+`InitStateByUnitClass` (`32c1d1d0`) under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, with March's bodies in the `#else` (still `//#define`d).
+CH0's class map paired `32c1d1d0` with `InitStateCommon`; March splits the class-gated part out as `InitStateByUnitClass`, so it goes there (map row fixed).
+
+**How it was derived.** `june2017_re/char_chung/ch1m_regsim.py` (Eve's, with Chung's class tests) walks fresh decompiles of `32c12a30` / `32c1d1d0`
+once per class; `ch1m_reg_by_class.tsv` is that output plus the four listing rows of the uncarved `32c22540` (CH0's `ch0_reg.tsv`) per class.
+`ch1m_gen.py` writes the C++ from it: ids by table name through March's own registration of the table (else the `CHUNG_STATE_ID` member of that
+name, else the id another table of the same June id took), callbacks from `funcmap.tsv`, checked against the headers. `ch1m_regcheck.py` parses the
+`_LIVE` branches per class: **814 registrations match slot by slot, 0 problems; 163 June ids map one-to-one both ways** (`ch1m_idmap.tsv`).
+
+**InitState `32c22540`** (read from the listing): cut-in jump table `32c22ad8` / bytes `32c22af8` give 0 / 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 5, 110 -> 3,
+111 -> 4, 117 -> 6: March's values, no `ASSERT` on `UC_NONE`. `+0x7d04 = 0xa2` / `+0x4088 = 0xd` are March's `InitStateID` inlined. Calls `32c12a30`,
+`3202b110`, `32c1d1d0`, roll `31fe22d0`; the C++ calls `InitStateByUnitClass` before `InitStateCommonRandom`, whose head runs the event states
+(different ids, same result). START Start / EventProcess / End, WIN Start + `RandomLoseEventProcess` (`320718d0`), LOSE Start,
+`InitWaitStateChange( "CSI_WAIT_STATE_CHANGE" )` (7h), then vslots 0x690 / 0x684( 0 ) / `31fd8f00`. **No WIN2 / LOSE2 flag tests** (Eve has them; Chung has none).
+
+**InitStateCommon `32c12a30`** (110, no gate): hyper id 23 = `GetHyperModeTableName( false )` (`31fdd490`; Chung's CIP / CDC / CTT cases were already
+there), FrameMove = Chung's `HyperModeFrameMove` (vslot 0x600), End = `CX2GUUser::HyperModeEnd` (vslot 0x604). Bounding = `InitBoundingStates( "CSI_" )`
+at June's place (7l). `CSI_JUMP_UP` Start = `JumpUpStart`; `CSI_RIDING_START` = `GetRidingStartStateID()` (June 72); `CSI_RIDING_DAMAGE_BACK` registered
+as June (JUNE_BUGS 489). `CSI_CHARGE_CANNON_BALL` takes March's names (CH1q writes June's bodies into them).
+**June uses `CX2GUUser`'s callback where March used Chung's own:** `DamageBigStart` (same body) and `DashJumpFrameMoveFuture` (June's base `31fd2520`;
+Chung's March copy added 1.6x dash speed in the facing direction, so June's dash jump differs from March's once `_LIVE` is on).
+
+**InitStateByUnitClass `32c1d1d0`:** June's two switches; the first (20 joins the default's tail, 27 / 117 jump to `LAB_32c1f0af` with 0x115 / 0x134)
+and the second (fallthroughs 110 -> 20, 117 -> 27) are written out whole per class: 6 / 20 / 21 / 27 / 110 / 111 / 117 = 7 / 14 / 22 / 12 / 23 / 27 / 23.
+June 181 = `CSI_COMBO_DASH_Z` for all four dash-Z tables (`CSI_CSG_COMBO_DASH_Z` has no March registration). March's tables are a subset of June's.
+
+**Left out, each a comment line with its owner:** phoenix run 123-126 (PvP; June passes the RUN table for 124 / 125 too), dance 127-129 (Stage 10),
+riding 93-96 (Stage 17), the empty slots `3202a7d0` (die end, in `StateChange`) and `32002f70` (Stage 17). **Routed to CH2a** (kickoff amended):
+Back Blast 335 (`@1543`, only when 26200 is equipped, then vslot 0x7a8) and the shared siege-shelling StateStart `32bda6c0` (4 states registered with
+March's FrameMove / EventProcess now). `32078bc0` = `UserUnitStateData`'s constructor (funcmap). **JUNE_BUGS:** none new.
+
+**The `_LIVE` gate (`Always.h`):** `#error` guards for every shared flag the registration needs (`JUNE_CHAR_ARME_CORE`, `JUNE_CHAR_EVE_CORE`,
+`HYPER_MODE_FIX`, `JUNE_COMMON_RANDOM_STATE`, `JUNE_EVENT_STATES`, `JUNE_WAIT_STATE_CHANGE`, `JUNE_BOUNDING_STATE`) and CH1l's `JUNE_DIVERGE_SCALE_HEAD`;
+the probe with `_LIVE` defined passes them all, which proves each defined at that line.
+For CH1n: `june2017_re/char_chung/ch1m_user_callbacks.tsv` lists the 127 `CX2GUUser` members the registration names, with their June targets.
+Checklist: 7h, 7l and the 7ao hyper-table bullet marked `(Chung: CH1m)`.
+
+**Checks.** One-file probes (`census.cl_cmd`, `/Zs /EHsc`) of `X2GUChung.cpp`, `_LIVE` off and on: exit 0, 0 errors each. `cl /P`: with `_LIVE` the
+`.i` has `InitWaitStateChange( "CSI_WAIT_STATE_CHANGE" )`, `InitBoundingStates( "CSI_" )`, `GetHyperModeTableName( false )` and
+`"CSI_CSG_COMBO_DASH_ZXX_END"` once each; without it none. `git diff --patience --numstat`: `X2GUChung.cpp` 1812 / 0, `Always.h` 25 / 0.
+`flagcheck.py JUNE_CHAR_CHUNG_LIVE --worktree --files X2Lib/X2GUChung.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 276 deleted line(s), 10 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+RESULT FAIL only for the `//#define`. The 276 / 10 are the default diff misaligning the long insertion against March's identical lines (patience and histogram: 1812 / 0).
+`junediverge.py --check X2Lib/X2GUChung.cpp KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`: `0 A/B row(s)`.
+`DEPLOY OK: X2_offline.exe is 25,895,936 B, dated 2026-11-01 20:04:21, md5 ba6bf95b0e041a96956a1f7db693146e, equal to X2/US_SERVICE/x2.exe (2026-11-01 20:04:14); built at main 7604fe38 + 2 uncommitted code file(s).`
+After the build only the three `#else` lines gained the house `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` token (no compiled change; probes rerun, 0 errors).
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1m review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

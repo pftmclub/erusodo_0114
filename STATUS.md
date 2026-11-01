@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1m | ready (`/x2-phase char-chung CH1m`, Opus 5.5 high): registration (`InitState` `32c22540` / `InitStateCommon`), hyper table name, the `_LIVE` gate | Opus 5.5 / high, Opus review | CH1l4 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
+| CH1m | done, review next (`CH1m-review.md`, Opus 5.5 high): `InitState` / `InitStateCommon` / `InitStateByUnitClass` June bodies under `_LIVE`, 814 registrations checked; `_LIVE` guards in Always.h | Opus 5.5 / high, Opus review | CH1l4 review | `X2GUChung.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): CX2GUUser base callbacks, `SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` head, dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
