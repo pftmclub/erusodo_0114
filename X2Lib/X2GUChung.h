@@ -1357,6 +1357,20 @@ protected:
 	void CTT_MobileArmoredModeXFrameMove();
 	void CTT_MobileArmoredModeXEventProcess();
 	void CTT_MobileArmoredModeXStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	enum CANNON_BULLET_TYPE
+	{
+		CBT_SIEGE,						/// June 32c09e40 type 0: DAMAGE_EFFECT_Cannon_Ball_Bullet_By_Siege
+		CBT_SIEGE_FINISH,				/// type 1: ..._By_Siege_Finish
+		CBT_MOBILE_SIEGE,				/// type 2: ..._By_Mobile_Siege
+	};
+
+	void CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD_StateStartFuture();	/// June 32bda860, also the LOOP_BACKWARD StartFuture ( body only; CH1m registers )
+	void CSI_CTT_DASH_JUMP_COMBO_XX_EventProcess();					/// June 32bf02c0
+	void CSI_CTT_DASH_JUMP_COMBO_XX_FrameMove();					/// June 32c0a5b0
+	void ApplySpineAimRotation();									/// June 32bf00c0
+	void CreateCannonBulletDamageEffect( CANNON_BULLET_TYPE eBulletType_, float fPowerRate_ );	/// June 32c09e40
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
 
@@ -1886,6 +1900,11 @@ protected:
 	bool						m_bDownForcePressedInState;		/// June +0x8bf9 ( CX2GUUser region ): a down press in this jump keeps m_bDownForce
 	float						m_fRemodelRifleDamageRate;		/// June +0x98ac ( protected float, 1 ): the rifling remodel passive's damage rate, written by InitPassiveSkillState 32c16be0 ( CH4a )
 	int							m_iCountbyCsgComboDashZXXMiniGun;	/// June +0x9894: the dash Z X X loops since the ready state
+	float						m_fSpineAimMaxUpDegree;			/// June +0x9878: ApplySpineAimRotation's highest aim pitch ( set by the constructor, CH1k )
+	float						m_fSpineAimMaxDownDegree;		/// June +0x987c: the lowest aim pitch
+	float						m_fSpineAimYawRangeDegree;		/// June +0x9880: the aim yaw window
+	float						m_fSpineAimMaxDistance;			/// June +0x9884: the farthest target, times m_fMobileArmoredModeDistance
+	D3DXVECTOR3					m_vSpineAimDegree;				/// June +0x9888: the last aim angles to the nearest enemy
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

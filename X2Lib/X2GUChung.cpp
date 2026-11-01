@@ -28774,9 +28774,56 @@ void CX2GUChung::DeleteMinorParticle()
 }
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+namespace _CONST_CHUNG_CH1J_
+{
+	const float MOBILE_MODE_X_COOLTIME = 0.8f;	/// June 32bdac90 ( March: _CONST_CHUNG_::MAGIC_MOBILE_MODE_X_COOLTIME 1.1 )
+}
+using namespace _CONST_CHUNG_CH1J_;
+
+/// June's expansion of ELSE_IF_STATE_CHANGE_ON_EX_ in the Tactical Trooper states: the flag also fires when the future animation ends, the time tests run before the key test
+#define ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( iEventFlagIndex, fInputTimingStart, fInputTiming, fChangeTiming, bCondition, iStateID ) \
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
+		( (float)(fChangeTiming) < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) ) \
+	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(fInputTiming) && (float)(fInputTimingStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
+	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 /// CSI_CTT_COMBO_ZZX
 void CX2GUChung::CTT_ComboZZXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0ff80 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4333f ) )
+	{
+		if( FlushMp( 3.0f ) == true )
+		{
+			D3DXVECTOR3 vPos = GetPos();
+			D3DXVECTOR3 vHandPos = GetBonePos( L"Dummy2_Lhand" );
+			vPos.y = vHandPos.y + 50.f;
+
+			CX2DamageEffect::CEffect* pDamageEffectHandGrenade = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CTT_ComboZZX_BOMB", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+			if( g_pX2Game != NULL && pDamageEffectHandGrenade != NULL )
+				g_pX2Game->AddRemoveDamageEffect( pDamageEffectHandGrenade->GetHandle() );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 vAngle = GetRotateDegree();
+			vAngle.z -= 50.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vAngle );
+				pSeq->SetAddRotate( vAngle );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.4333f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -28817,10 +28864,30 @@ void CX2GUChung::CTT_ComboZZXFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_ComboZZXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be6c50; the Z X X flag also fires at the animation end ( March: only past stateChange )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, m_InputData.oneX == true, CSI_CTT_COMBO_ZZXX )
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.1f;
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	BWALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -28837,19 +28904,40 @@ void CX2GUChung::CTT_ComboZZXEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /// CSI_CTT_COMBO_ZZXX
 void CX2GUChung::CTT_ComboZZXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4510 ( = March )
 	UpCannonBallCountAtThisAnimationTime( 0.4f, 1 );
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	UpCannonBallCountAtThisAnimationTime( 0.4f, 1 );
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
 /// CSI_CTT_COMBO_ZZXX
 void CX2GUChung::CTT_ComboZZXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3630 ( = March )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_iSiegeShellingCount = 0;
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -28861,12 +28949,53 @@ void CX2GUChung::CTT_ComboZZXXEventProcess()
 		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
 /// CSI_CTT_COMBO_ZZX
 void CX2GUChung::CTT_DashComboXXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c06b00 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.8f ) )
+	{
+		float fMinCoefficient = -1.f * tan( D3DX_PI * 10.f / 180.f );
+		float fMaxCoefficient = tan( D3DX_PI * 30.f / 180.f );
+		D3DXVECTOR3 vCoefficient = D3DXVECTOR3( fMaxCoefficient, fMinCoefficient, D3DX_PI * 45.f / 180.f );
+		float fDegree = ( DoAimingTarget( 800.f, vCoefficient, m_bAimingTarget, m_vAimingTargetPos, m_vAimingTargetLandPos, false ) * 180.f ) / D3DX_PI;
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.8333f ) )
+	{
+		if( m_bAimingTarget == true && ( GetCannonBallCount() >= 1 || IsFullHyperMode() ) )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CTT_ATTACK_DASH_XX", this );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+
+		if( m_fSiegeShellingUserBallRate < GetRandomFloat() )
+			UseCannon( 1 );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.866f ) )
+	{
+		if( m_bAimingTarget == true )
+		{
+			CX2DamageEffect::CEffect* pDamageEffectAimmingShot = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CTT_ATTACK_DASH_XX", GetPowerRate() * m_fSiegeShellingDamageRel, m_vAimingTargetPos, GetRotateDegree(), GetRotateDegree(), m_vAimingTargetLandPos.y );
+		}
+	}
+
+	UpCannonBallCountAtThisAnimationTime( 0.3f, 1 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 에이밍 방식 동작
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.8f ) )
@@ -28917,10 +29046,28 @@ void CX2GUChung::CTT_DashComboXXFrameMove()
 	UpCannonBallCountAtThisAnimationTime( 0.3f, 1 );
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_DashComboXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3710 ( = March )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_iSiegeShellingCount = 0;
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
 	if( false == IsOnSomethingFuture() )
@@ -28935,10 +29082,30 @@ void CX2GUChung::CTT_DashComboXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeReadyStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c102d0 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = 0.f;
+	}
+	m_fMobileArmoredModeFireZCoolTime = 0.f;
+	m_fMobileArmoredModeFireXCoolTime = 0.f;
+
+	if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL &&
+		m_hMobileArmoredModeEffect == INVALID_EFFECTSET_HANDLE )
+	{
+		m_hMobileArmoredModeEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EFFECTSET_CHUNG_CHAOS_CANNON", this );
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -28955,9 +29122,12 @@ void CX2GUChung::CTT_MobileArmoredModeReadyStateStart()
 		m_hMobileArmoredModeEffect = g_pX2Game->GetEffectSet()->PlayEffectSet(L"EFFECTSET_CHUNG_CHAOS_CANNON", this );
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeReadyFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be6f40 ( = March )
 	if( IsMyUnit() )
 	{
 		m_GameCameraOffset.fLookatDistance = ( m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
@@ -28966,9 +29136,34 @@ void CX2GUChung::CTT_MobileArmoredModeReadyFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = ( m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.fCameraDistance = ( m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be6fe0; the X flag also fires at the animation end ( March: only past stateChange )
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, m_InputData.oneX == true && m_fMobileArmoredModeFireXCoolTime <= 0.f, CSI_CTT_MOBILE_ARMORED_MODE_X )
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
@@ -28982,9 +29177,20 @@ void CX2GUChung::CTT_MobileArmoredModeReadyEventProcess()
 	ELSE_IF_STATE_CHANGE_ON_EX_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, m_InputData.oneX == true && m_fMobileArmoredModeFireXCoolTime <= 0.f, CSI_CTT_MOBILE_ARMORED_MODE_X )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeReadyStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bda820 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -28992,10 +29198,22 @@ void CX2GUChung::CTT_MobileArmoredModeReadyStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeLoopFowardStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bda8a0 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29004,9 +29222,12 @@ void CX2GUChung::CTT_MobileArmoredModeLoopFowardStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopFowardFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bda8f0 ( = March )
 	m_fMobileArmoredModeStepDustElapsedTime += m_fElapsedTime;
 	if( m_fMobileArmoredModeStepDustElapsedTime > 0.4666f )
 	{
@@ -29016,9 +29237,48 @@ void CX2GUChung::CTT_MobileArmoredModeLoopFowardFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_fMobileArmoredModeStepDustElapsedTime += m_fElapsedTime;
+	if( m_fMobileArmoredModeStepDustElapsedTime > 0.4666f )
+	{
+		m_fMobileArmoredModeStepDustElapsedTime = 0.f;
+		CreateStepDust();
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopFowardEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bec410; the MP drain scales with the open mind passive, the flags also fire at the animation end, the skill cancel is added
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) > 0 )
+		UpNowMp( (float)( m_fElapsedTime * -3.0 * GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) ) );
+	else
+		UpNowMp( (float)( m_fElapsedTime * -3.0 ) );
+	if( GetNowMp() <= 0.f )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_UNREADY );
+	}
+
+	const bool bFowardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureRight ) : ( true == m_InputData.pureLeft );
+	const bool bBackwardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureLeft ) : ( true == m_InputData.pureRight );
+
+	/// stand-in: June reads the extra cannon ball count through an inline that is 0 unless the unit is a Tactical Trooper with the mode enabled ( cannon balls, CH1q )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange, m_InputData.oneDown == true || GetExtraCannonBallCount() <= 0, CSI_CTT_MOBILE_ARMORED_MODE_UNREADY )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange, m_InputData.oneX == true && m_fMobileArmoredModeFireXCoolTime <= 0.f, CSI_CTT_MOBILE_ARMORED_MODE_X )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd, m_fEventTime[3].stateChange, bBackwardKey == true, CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bFowardKey == false, CSI_CTT_MOBILE_ARMORED_MODE_LOOP )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	UpNowMp( -3.f * m_fElapsedTime );
 	if( GetNowMp() <= 0.f )
 	{
@@ -29064,9 +29324,20 @@ void CX2GUChung::CTT_MobileArmoredModeLoopFowardEventProcess()
 	ELSE_IF_STATE_CHANGE_ON_EX_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bFowardKey == false, CSI_CTT_MOBILE_ARMORED_MODE_LOOP )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopFowardStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bda970 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29074,10 +29345,22 @@ void CX2GUChung::CTT_MobileArmoredModeLoopFowardStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bda9b0 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29086,9 +29369,12 @@ void CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopBackwardFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdaa00 ( = March )
 	m_fMobileArmoredModeStepDustElapsedTime += m_fElapsedTime;
 	if( m_fMobileArmoredModeStepDustElapsedTime > 0.4666f )
 	{
@@ -29098,9 +29384,47 @@ void CX2GUChung::CTT_MobileArmoredModeLoopBackwardFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_fMobileArmoredModeStepDustElapsedTime += m_fElapsedTime;
+	if( m_fMobileArmoredModeStepDustElapsedTime > 0.4666f )
+	{
+		m_fMobileArmoredModeStepDustElapsedTime = 0.f;
+		CreateStepDust();
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopBackwardEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bec950; same changes as the Loop state
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) > 0 )
+		UpNowMp( (float)( m_fElapsedTime * -3.0 * GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) ) );
+	else
+		UpNowMp( (float)( m_fElapsedTime * -3.0 ) );
+	if( GetNowMp() <= 0.f )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_UNREADY );
+	}
+
+	const bool bFowardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureRight ) : ( true == m_InputData.pureLeft );
+	const bool bBackwardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureLeft ) : ( true == m_InputData.pureRight );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange, m_InputData.oneDown == true || GetExtraCannonBallCount() <= 0, CSI_CTT_MOBILE_ARMORED_MODE_UNREADY )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange, m_InputData.oneX == true && m_fMobileArmoredModeFireXCoolTime <= 0.f, CSI_CTT_MOBILE_ARMORED_MODE_X )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd, m_fEventTime[3].stateChange, bFowardKey == true, CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bBackwardKey == false, CSI_CTT_MOBILE_ARMORED_MODE_LOOP )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	UpNowMp( -3.f * m_fElapsedTime );
 	if( GetNowMp() <= 0.f )
 	{
@@ -29146,9 +29470,20 @@ void CX2GUChung::CTT_MobileArmoredModeLoopBackwardEventProcess()
 	ELSE_IF_STATE_CHANGE_ON_EX_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bBackwardKey == false, CSI_CTT_MOBILE_ARMORED_MODE_LOOP )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdaa80 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29156,10 +29491,22 @@ void CX2GUChung::CTT_MobileArmoredModeLoopBackwardStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeLoopStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdaac0 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29168,15 +29515,52 @@ void CX2GUChung::CTT_MobileArmoredModeLoopStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf07b0; the spine aim follows the nearest enemy every frame
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	/// stand-in: June skips it while the game option at g_pMain +0x1a0 is not 0 ( the option is not mapped; its default is 0 )
+	ApplySpineAimRotation();
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bece90; the MP drain scales with the open mind passive, the flags also fire at the animation end, the skill cancel is added
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) > 0 )
+		UpNowMp( (float)( m_fElapsedTime * -3.0 * GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) ) );
+	else
+		UpNowMp( (float)( m_fElapsedTime * -3.0 ) );
+	if( GetNowMp() <= 0.f )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_UNREADY );
+	}
+
+	const bool bFowardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureRight ) : ( true == m_InputData.pureLeft );
+	const bool bBackwardKey = ( true == GetIsRight() ) ? ( true == m_InputData.pureLeft ) : ( true == m_InputData.pureRight );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange, m_InputData.oneDown == true || GetExtraCannonBallCount() <= 0, CSI_CTT_MOBILE_ARMORED_MODE_UNREADY )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange, m_InputData.oneX == true && m_fMobileArmoredModeFireXCoolTime <= 0.f, CSI_CTT_MOBILE_ARMORED_MODE_X )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd, m_fEventTime[3].stateChange, bFowardKey == true, CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bBackwardKey == true, CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	UpNowMp( -3.f * m_fElapsedTime );
 	if( GetNowMp() <= 0.f )
 	{
@@ -29222,9 +29606,20 @@ void CX2GUChung::CTT_MobileArmoredModeLoopEventProcess()
 	ELSE_IF_STATE_CHANGE_ON_EX_( 4, m_fEventTime[4].keyInputStart, m_fEventTime[4].keyInputEnd, m_fEventTime[4].stateChange, bBackwardKey == true, CSI_CTT_MOBILE_ARMORED_MODE_LOOP_BACKWARD )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeLoopStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdab10 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29232,10 +29627,22 @@ void CX2GUChung::CTT_MobileArmoredModeLoopStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeUnreadyStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdab50 ( = March )
+	CommonStateStart();
+	m_bInStateMobileArmoredMode = false;
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29244,9 +29651,12 @@ void CX2GUChung::CTT_MobileArmoredModeUnreadyStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeUnreadyFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be7180 ( = March )
 	if( IsMyUnit() )
 	{
 		m_GameCameraOffset.fLookatDistance = ( 1.f - m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
@@ -29255,9 +29665,33 @@ void CX2GUChung::CTT_MobileArmoredModeUnreadyFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = ( 1.f - m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.fCameraDistance = ( 1.f - m_pXSkinAnim->GetNowAnimationTime() / m_pXSkinAnim->GetMaxAnimationTime() ) * _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeUnreadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be7230 ( = March )
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
@@ -29270,9 +29704,20 @@ void CX2GUChung::CTT_MobileArmoredModeUnreadyEventProcess()
 	}
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeUnreadyStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdaba0 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29280,16 +29725,34 @@ void CX2GUChung::CTT_MobileArmoredModeUnreadyStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeZStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdabe0 ( = March )
 	CommonStateStartFuture();
 	m_fMobileArmoredModeFireZCoolTime = _CONST_CHUNG_::MAGIC_MOBILE_MODE_Z_COOLTIME;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStartFuture();
+	m_fMobileArmoredModeFireZCoolTime = _CONST_CHUNG_::MAGIC_MOBILE_MODE_Z_COOLTIME;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeZStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdac00 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29298,9 +29761,55 @@ void CX2GUChung::CTT_MobileArmoredModeZStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c104d0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vWeaponBonePos	= GetWeaponBonePos( 0, L"TRACE_END0", 0 );
+		D3DXVECTOR3 vDirVector		= GetDirVector();
+		D3DXVECTOR3 vOffsetPos( 170.0f, 22.0f, 0.0f );
+		if( true == GetIsRight() )
+		{
+			vWeaponBonePos += vDirVector * vOffsetPos.x;
+		}
+		else
+		{
+			vWeaponBonePos -= vDirVector * vOffsetPos.x;
+		}
+		vWeaponBonePos.y += vOffsetPos.y;
+
+		D3DXVECTOR3 vPos = GetPos();
+		D3DXVECTOR3 vHandPos = GetBonePos( L"Dummy2_Lhand" );
+		vPos.y = vHandPos.y;
+
+		if( FlushMp( 3.0f ) == true )
+		{
+			CX2DamageEffect::CEffect* pDamageEffectHandGrenade = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CTT_MOBILE_MODE_Z_BOMB", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+			if( g_pX2Game != NULL && pDamageEffectHandGrenade != NULL )
+				g_pX2Game->AddRemoveDamageEffect( pDamageEffectHandGrenade->GetHandle() );
+		}
+		else
+		{
+			D3DXVECTOR3 vAngle = GetRotateDegree();
+			vAngle.z += 10.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, vWeaponBonePos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vAngle );
+				pSeq->SetAddRotate( vAngle );
+			}
+		}
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -29354,9 +29863,23 @@ void CX2GUChung::CTT_MobileArmoredModeZFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be72f0 ( = March )
+	if( 0.06666f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->GetNowAnimationTime() > 0.06666f )
 	{
 		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
@@ -29368,9 +29891,20 @@ void CX2GUChung::CTT_MobileArmoredModeZEventProcess()
 		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeZStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdac50 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29378,15 +29912,33 @@ void CX2GUChung::CTT_MobileArmoredModeZStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CTT_MobileArmoredModeXStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdac90; the X cool time is 0.8 ( March: 1.1 )
+	CommonStateStartFuture();
+	m_fMobileArmoredModeFireXCoolTime = _CONST_CHUNG_CH1J_::MOBILE_MODE_X_COOLTIME;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStartFuture();
 	m_fMobileArmoredModeFireXCoolTime = _CONST_CHUNG_::MAGIC_MOBILE_MODE_X_COOLTIME;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeXStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdacb0 ( = March )
+	CommonStateStart();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_LOOKAT_DISTANCE;
+		m_GameCameraOffset.bEnable = true;
+		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
+	}
+	m_bInStateMobileArmoredMode = true;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateStart();
 	if( IsMyUnit() )
 	{
@@ -29395,9 +29947,35 @@ void CX2GUChung::CTT_MobileArmoredModeXStateStart()
 		m_GameCameraOffset.fCameraDistance = _CONST_CHUNG_::MAGIC_MOBILE_MODE_CAMERA_DISTANCE;
 	}
 	m_bInStateMobileArmoredMode = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c108d0; the shot spins the spine toward the nearest enemy and spawns the bullet damage effect itself ( March: aims with DoAimingTarget and spawns the explosion at 0.066666 )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.033333f ) )
+	{
+		ApplySpineAimRotation();
+		/// stand-in: June reads the extra cannon ball count through an inline that is 0 unless the unit is a Tactical Trooper with the mode enabled ( cannon balls, CH1q )
+		if( GetExtraCannonBallCount() >= 1 )
+		{
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CTT_MOBILE_MODE_X", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3( 0.f, 0.f, 10.f ) );
+			SetExtraCannonBallCount( GetExtraCannonBallCount() - 1 );
+			m_bMobileArmoredModeXFired = true;
+			CreateCannonBulletDamageEffect( CBT_MOBILE_SIEGE, GetPowerRate() * m_fMobileArmoredModeDamageRel );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CTT_MOBILE_MODE_X_MISFIRE", this );
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+	}
+	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
+	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.033333f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -29448,9 +30026,23 @@ void CX2GUChung::CTT_MobileArmoredModeXFrameMove()
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32be7350 ( = March )
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_LOOP );
@@ -29462,9 +30054,20 @@ void CX2GUChung::CTT_MobileArmoredModeXEventProcess()
 		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CTT_MobileArmoredModeXStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdad00 ( = March )
+	CommonStateEnd();
+	if( IsMyUnit() )
+	{
+		m_GameCameraOffset.fLookatDistance = 0.f;
+		m_GameCameraOffset.bEnable = false;
+	}
+	m_bInStateMobileArmoredMode = false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	CommonStateEnd();
 	if( IsMyUnit() )
 	{
@@ -29472,12 +30075,165 @@ void CX2GUChung::CTT_MobileArmoredModeXStateEnd()
 		m_GameCameraOffset.fLookatDistance = 0.f;
 	}
 	m_bInStateMobileArmoredMode = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/// June 32bda860: CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD and _LOOP_BACKWARD StartFuture; the open mind passive scales the walk speed ( CH1m registers it )
+void CX2GUChung::CSI_CTT_MOBILE_ARMORED_MODE_LOOP_FOWARD_StateStartFuture()
+{
+	CommonStateStartFuture();
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) > 0 )
+		m_PhysicParam.passiveSpeed.x *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, CX2SkillTree::RNSI_P_CTT_OPEN_MIND );
+}
+
+/// June 32bf00c0: turns Bip01_Spine1 toward the nearest enemy in range and keeps the aim for the cannon bullet
+void CX2GUChung::ApplySpineAimRotation()
+{
+	m_vSpineAimDegree = GetNearestTargetAimDegree( m_fSpineAimMaxUpDegree, m_fSpineAimMaxDownDegree, m_fSpineAimYawRangeDegree, m_fSpineAimMaxDistance * m_fMobileArmoredModeDistance );
+
+	if( FLT_EPSILON < fabsf( m_vSpineAimDegree.y ) || FLT_EPSILON < fabsf( m_vSpineAimDegree.z ) )
+	{
+		float fYawGap = GetRotateDegree().y - m_vSpineAimDegree.y;
+		if( 360.0 <= fYawGap )
+			fYawGap = (float)( 360.0 - fYawGap );
+		if( fYawGap <= -360.0 )
+			fYawGap = (float)( fYawGap + 360.0 );
+
+		SetRotateBone( true, L"Bip01_Spine1", D3DXVECTOR3( -1.f, -1.f, 0.f ), D3DXVECTOR3( fYawGap, -m_vSpineAimDegree.z, 0.f ) );
+	}
+	else
+	{
+		EraseRotateBone( L"Bip01_Spine1" );
+	}
+
+	m_fRotateBoneDegree = m_vSpineAimDegree.z;
+}
+
+/// June 32c09e40: the cannon bullet damage effect flies along the spine aim, its range follows the siege / mobile mode distance
+void CX2GUChung::CreateCannonBulletDamageEffect( CANNON_BULLET_TYPE eBulletType_, float fPowerRate_ )
+{
+	if( g_pX2Game == NULL || g_pX2Game->GetDamageEffect() == NULL )
+		return;
+
+	wstring wstrDamageEffectName = L"";
+	wstring wstrBoneName = L"";
+	float fRangeRate = 1.f;
+
+	switch( eBulletType_ )
+	{
+	case CBT_SIEGE:
+		wstrDamageEffectName = L"DAMAGE_EFFECT_Cannon_Ball_Bullet_By_Siege";
+		wstrBoneName = L"ATTACK_SPHERE1_Front01";
+		fRangeRate = m_fSiegeShellingDistance;
+		break;
+
+	case CBT_SIEGE_FINISH:
+		wstrDamageEffectName = L"DAMAGE_EFFECT_Cannon_Ball_Bullet_By_Siege_Finish";
+		wstrBoneName = L"ATTACK_SPHERE1_Front01";
+		fRangeRate = m_fSiegeShellingDistance;
+		break;
+
+	case CBT_MOBILE_SIEGE:
+		wstrDamageEffectName = L"DAMAGE_EFFECT_Cannon_Ball_Bullet_By_Mobile_Siege";
+		wstrBoneName = L"ATTACK_SPHERE3_Back01";
+		fRangeRate = m_fMobileArmoredModeDistance;
+		break;
+	}
+
+	D3DXVECTOR3 vBonePos = GetWeaponBonePos( 0, wstrBoneName.c_str(), 0 );
+	vBonePos.y -= 15.f;
+
+	D3DXVECTOR3 vRotateDegree = m_vSpineAimDegree;
+	if( false == ( FLT_EPSILON < fabsf( m_vSpineAimDegree.x ) ) && false == ( FLT_EPSILON < fabsf( m_vSpineAimDegree.y ) ) && true == IsSamef( 0.f, m_vSpineAimDegree.z ) )
+	{
+		const D3DXVECTOR3& vUnitRotateDegree = GetRotateDegree();
+		vRotateDegree = D3DXVECTOR3( vUnitRotateDegree.x + m_vSpineAimDegree.x, m_vSpineAimDegree.y + vUnitRotateDegree.y, m_vSpineAimDegree.z + vUnitRotateDegree.z );
+	}
+
+	CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, wstrDamageEffectName.c_str(), fPowerRate_, vBonePos, vRotateDegree, vRotateDegree );
+	if( pDamageEffect != NULL )
+	{
+		if( CKTDGXMeshPlayer::CXMeshInstance* pMeshInstance = pDamageEffect->GetMainEffect() )
+		{
+			if( fRangeRate < 1.f )
+				fRangeRate = 1.f;
+
+			pMeshInstance->SetMaxLifeTime( fRangeRate * pMeshInstance->GetMaxLifeTime() );
+			SetLockOn( pDamageEffect );
+		}
+	}
+}
+
+/// June 32bf02c0: CSI_CTT_DASH_JUMP_COMBO_XX; lands like the dash jump, the air actions open after 0.58 ( no X branch ), CH1m registers it
+void CX2GUChung::CSI_CTT_DASH_JUMP_COMBO_XX_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_bDownForce )
+		{
+			StateChange( CSI_POWER_DOWN_LANDING );
+			m_bDownForce = false;
+
+			m_pComboGuide->ShowComboCommand( L"A", L"AXD" );
+		}
+		else
+		{
+			StateChange( USI_DASH_JUMP_LANDING );
+			m_bDownForce = false;
+		}
+	}
+	else if( 0.58f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+		{
+		}
+		else if( true == m_FrameDataFuture.unitCondition.bFootOnWall &&
+			( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+		{
+			m_bDisableGravity = true;
+			StateChange( CSI_WALL_LANDING );
+		}
+		else if( true == m_InputData.oneZ )
+		{
+			StateChange( CSI_ATTACK_JUMP_Z );
+			m_pComboGuide->ShowComboCommand( L"J", L"JZ" );
+		}
+	}
+
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c0a5b0: CSI_CTT_DASH_JUMP_COMBO_XX; the 0.202 shot costs a cannon ball, empty fires the misfire effect
+void CX2GUChung::CSI_CTT_DASH_JUMP_COMBO_XX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.202f ) )
+	{
+		if( IsFullHyperMode() || GetCannonBallCount() > 0 )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CTT_DASH_JUMP_COMBO_XX", this );
+			UseCannon( 1 );
+			ShowOnomatopoeiaParticle( L"TRACE_START0", L"STR_Kwang" );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_MISFIRE", this );
+		}
+	}
+
+	CommonFrameMove();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 void CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_Init()
 {
 

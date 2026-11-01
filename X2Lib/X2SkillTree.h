@@ -1936,6 +1936,12 @@ public:
 		RNSI_A_CSG_HEAD_SHOT_TRANS_UPGRADE                    = 26225,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1j
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID name the Tactical Trooper mobile states read ( value from June's Enum.lua )
+		RNSI_P_CTT_OPEN_MIND                                  = 26419,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
