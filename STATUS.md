@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1n2 | built + deployed 2026-11-02 (flag `SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES`, every class): 16 base bodies; user owes the play-test, then the Opus review | Opus 5.5 / high, Opus review, user play-test | CH1n review | `X2GUUser.*`, Always.h, enum headers | `CH1n2-review.md` |
+| CH1n2 | built + deployed 2026-11-02 (flag `SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES`, every class): 16 base bodies; play-test passed 2026-11-02, Opus review next | Opus 5.5 / high, Opus review, user play-test | CH1n review | `X2GUUser.*`, Always.h, enum headers | `CH1n2-review.md` |
 | CH1n3 | blocked (CH1n2 review): June's `PhysicProcess_Jumping` `31fd6ce0` (jump-up lines, writer of `m_bOnJumpUpLine`), every class, own flag | Opus 5.5 / high, Opus review, user play-test | CH1n2 review | `X2GUUser.cpp`, Always.h | `CH1n3.md` |
 | CH1o | blocked (CH1n2 review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |

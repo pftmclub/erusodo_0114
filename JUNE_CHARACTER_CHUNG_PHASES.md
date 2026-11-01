@@ -1891,6 +1891,8 @@ X2Lib/X2GUUser.cpp`: `0 A/B row(s)`. No JUNE_BUGS row.
 (Green Fire Cracker `100002331`, Pesop's Wind Orb `100003449`, Perkisas's Crystal Ball `100003918`; no June item carries Lofty 14) thrown on the ground and
 in the air, a dungeon start (Fight.ogg, GameStart). Pepper run is unchanged until CH1n3 (the jump-up flag stays false). Next: the play-test, then
 `/x2-phase char-chung CH1n2 review` (Opus 5.5 high); CH1n3 and CH1o follow the review, one at a time (both touch `X2GUUser.*`).
+**Play-test passed (user, 2026-11-02):** all 6 checks. Logs on md5 f179e5e9 (run 06:29-06:33, after deploy): 0 EXCEPTION, 2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`,
+known); the one unbound name, `AddGroupChainQuest` in `ChainQuestInfo.lua`, is quest-system's (Q0a / Q1), not this phase's.
 
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
