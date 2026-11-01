@@ -325,6 +325,11 @@ The planning census (`june2017_re/quest_plan/`) found June's data replaces March
 8 new sub-quest types), so the plan flips the data in one phase (Q2) with an old-save migration, as skill S3 did. June's random
 mission system (carried in from skill S3c) is RM0 / RM1.
 
+- **The awakening sub-quest report** (char-chung CH1n2, 2026-11-02). June's `CX2GUUser::HyperModeStart` (`31ffd490` @`31ffd61c`), the Ain copy
+  (`32a599c0`) and RidingHyperModeStart / EventProcess send event 0x73d through ServerProtocol (`31f4b1e0`, `g_pData +0x64`) with sub-quest
+  203630 ("Use Awakening 2 times", `FieldSubQuest.lua`, clear type `SQT_DUNGEON_CLEAR_COUNT`, count 2): the server counts the awakenings. No
+  June event name exists (XOR-built), so it needs a registered id and an emulator handler that advances that sub-quest. CH1n2 left a stand-in line.
+
 **Why here:** transcendence is quest-gated, and three regions' worth of inert quest keys wait on the same engine. Doing quests once, after all three regions are in and before transcendence, avoids porting the quest engine piecemeal inside each feature.
 
 ### Stage 5: pilot character revamp
@@ -727,6 +732,11 @@ which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, a
   saves the playing emotion (`+0x89d8`) into `+0x89e0` when its flag argument is set and `31fd7b60( -1 )` passes; `PlayAnimationWaitStart`
   (`31fe1dd0`) then re-applies it through June's emotion setter `31fe0bb0` (emotion effect set, equipment show for unit types 5 / 9) instead
   of playing Wait; StageLoad clears it (`327cda99`). March has none of it, so D1-2 left `PlayAnimationWaitStart` March's (row 247).
+- **Named motion through PEPPER_RUN_END** (char-chung CH1n2, 2026-11-02). A June Lua global (`32747090`, registered in `31d95080` @`31e1f77c`,
+  XOR-built name) calls `31d87640( name )`: in a game my unit's `31fdbaf0` stores the name in `+0x93bc` (wstring) and enters PEPPER_RUN_END; in
+  the square the unit's `323ffd20`. `31fdbb70` (called twice each from CommonStateStartFuture / CommonStateStart) swaps that state's anim name
+  for `+0x93bc`, and PEPPER_RUN_END_FrameMove (`31fd98b0`) clears it 0.01 s in. CH1n2 left a stand-in line there. Placed here as the nearest
+  owner (motion by name in game and square); decode the binder's name first and move it if it belongs elsewhere.
 
 ### Stage 11: division item templets (june-effect C9f, 2026-10-07)
 
@@ -1000,8 +1010,12 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   the EventProcess rows add `CSI_RIDING_SPECIFIC` (pet `+0x93d9`), special moves 6 / 7 (`+0x924c` / `+0x9244` / `+0x9248` / `+0x8bfa`), drop the
   oneDown block, and RidingDash's boost threshold is 0.5 (March 1.0); the Start rows add per-pet effect sets (pet id `+0x350`, e.g. 0x18
   `EffectSet_Riding_Pet_NBG_Walk_Booster`) and `+0x924c` resets; RidingOnStart erases BTI 0x1a4 (`3229e160`); RidingStartEventProcess calls
-  `3200ac50` (Stage 19); RidingHyperModeStart / EventProcess carry `31f4b1e0( 0x73d )` (unidentified, see CH1n2). The triage is a lead list:
+  `3200ac50` (Stage 19); RidingHyperModeStart / EventProcess carry `31f4b1e0( 0x73d )` (a ServerProtocol send of event 0x73d with sub-quest
+  203630, identified by char-chung CH1n2; the send is Stage 4's). The triage is a lead list:
   each row is re-read against the listing when this stage ports it, with the riding states above.
+- **The base dash starts' pet getters** (char-chung CH1n2, 2026-11-02). June's `DashStartFuture` / `DashJumpLandingStartFuture` (`31fcbe80` /
+  `31fcbe40`) take the pet's state from `32d27830` / `32d27810` (pet `+0x560` / `+0x55c` while pet `+0x5a0` is set, else `+0x4fc` / `+0x4f8`).
+  CH1n2 ported both bodies with March's `m_DashState` / `m_JumpLandingState` and a stand-in line; this stage's transformed set replaces them.
 
 ### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)
 
@@ -1067,6 +1081,11 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   - In a `GT_PVE` game (June's PvE game class, ctor `328c0560`, base `327cef70`; e.g. `DI_PVE_BATTLE_WORLD_ISLAND_OF_ERDA_NEW` 41130) the die
     request carries the game's two host-synced floats (`+0xe78` / `+0xe58`, sent by `328bcfb0`) and user `+0x91b8` (set by `3201a2b0`). D1-2b
     added the fields to `KEGS_USER_UNIT_DIE_REQ` (`m_fPveSyncValue1/2`, `m_iPortalValue`, sent 0, 0, -1); name them when the PvE game is ported.
+- **StartEnd's event-dungeon hooks** (char-chung CH1n2, 2026-11-02; June `CX2GUUser::StartEnd` `3201b460`). For `DI_EVENT_2017_VALENTINE`
+  (41440, after its `Valentine2017_GameStart` particle) and `DI_EVENT_2017_TREASURE` (41470) June sends event 0x67e (`31e57100`) and
+  `AddServerPacket( 0x67f, 60 )` (March's analogue: `Send_EGS_SYNC_DUNGEON_TIMER_NOT`, `SERV_EVENT_VALENTINE_DUNGEON`, off); for
+  `DI_EVENT_2017_FOOLSDAY` (41460) it clears byte `+0x64` of the now sub-stage; and the game's event object (`+0xbd8`, `32070f40` -> `322cc5a0`,
+  the XMAS-2016 object of X2GUUser.cpp's fail hook) can pick the `GameFightNew` particle. CH1n2 left stand-in lines for all four.
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 
 ### Stage 20: damage-number customization (june-effect C3e, 2026-10-09)

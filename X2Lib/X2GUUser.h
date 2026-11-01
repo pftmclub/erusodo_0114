@@ -2796,6 +2796,9 @@ public:
 #ifdef FIX_QUICK_SLOT_USE_DUNGEON_PLAY
 		bool GetStarted(){ return m_bStarted; }
 #endif 
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+		bool UpdateFutureIsRightByArrowKeys();		/// June 31fd23eb: false when no arrow is held
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 		//}}
 
 		int GetUnitLevel() const
@@ -4516,6 +4519,9 @@ public:
 		// 라인맵 점프 발판 관련
 		D3DXVECTOR3										m_vAddJumpSpeed;
 		bool											m_bSteppedJumpLinemap;
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+		bool											m_bOnJumpUpLine;		/// June +0x8fc1: the last foot line is a jump-up line ( written by PhysicProcess_Jumping 31fd6ce0 )
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 
 		float											m_fAnimSpeedRate;			/// 속성 데미지등에 의해 애니메이션 속도가 느려지는 경우, m_fAnimSpeed에 곱해진다.

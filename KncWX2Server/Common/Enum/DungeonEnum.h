@@ -517,6 +517,12 @@ namespace SEnum
 		DI_EVENT_2017_TREASURE					= 41470,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 	//}}
+	//{{ Iruha : 2026-11-02 // char-chung CH1n2 -- June DungeonEnum's 2017 event dungeons StartEnd names
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		DI_EVENT_2017_VALENTINE					= 41440,
+		DI_EVENT_2017_FOOLSDAY					= 41460,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+	//}}
 #ifdef SERV_IRUHADEV_ELYSION_PORT
 	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- DUNGEON_ID, Hero rows are june-dungeons
 		DI_ATLASDEVELOPMENT_NORMAL = 33330,

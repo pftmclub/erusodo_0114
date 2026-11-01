@@ -1040,6 +1040,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 
 	m_vAddJumpSpeed = D3DXVECTOR3(0, 0, 0 );
 	m_bSteppedJumpLinemap = false;
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	m_bOnJumpUpLine = false;
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 	m_fAnimSpeedRate = 1.f;
 	m_fAnimSpeed = 1.f;
@@ -31086,6 +31089,9 @@ void CX2GUUser::PEPPER_RUN_READY_EventProcess()
 
 void CX2GUUser::PEPPER_RUN_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	UpdateFutureIsRightByArrowKeys();		// June 31fd1c90
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -31094,6 +31100,7 @@ void CX2GUUser::PEPPER_RUN_FrameMoveFuture()
 	{
 		m_FrameDataFuture.syncData.bIsRight = false;
 	}
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 	m_PhysicParam.nowSpeed.x = GetDashSpeed() * 1.5f;
 
@@ -31124,6 +31131,9 @@ void CX2GUUser::PEPPER_RUN_EventProcess()
 
 void CX2GUUser::PEPPER_RUN_END_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	// stand-in: June 31fd98b0 clears its pepper-run end anim name ( +0x93bc, set by 31fdbaf0 ) 0.01 s in; that system is Stage 10's
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	CommonFrameMove();
 }
 
@@ -31147,6 +31157,17 @@ void CX2GUUser::PEPPER_RUN_END_EventProcess()
 
 void CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( false == m_bOnJumpUpLine )		// June 31fd1d20: on a jump-up line the line's own jump stands
+	{
+		if( NULL != GetUnit()->GetUnitTemplet() && CX2Unit::UT_EVE == GetUnit()->GetUnitTemplet()->m_UnitType )
+			m_PhysicParam.nowSpeed.y = 2300.f;
+		else
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	switch( GetUnit()->GetType() )
 	{
 	default:
@@ -31162,10 +31183,26 @@ void CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture()
 
 	m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
 
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 void CX2GUUser::PEPPER_RUN_JUMP_UP_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( false == m_bOnJumpUpLine )		// June 31fd1d80: on a jump-up line only the common move runs
+	{
+		UpdateFutureIsRightByArrowKeys();
+
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * 1.5f;
+
+		if( m_InputData.pureDown == true && m_InputData.pureUp == false )
+		{
+			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -31183,6 +31220,7 @@ void CX2GUUser::PEPPER_RUN_JUMP_UP_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 void CX2GUUser::PEPPER_RUN_JUMP_UP_EventProcess()
@@ -31211,6 +31249,9 @@ void CX2GUUser::PEPPER_RUN_JUMP_DOWN_StateStartFuture()
 
 void CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	UpdateFutureIsRightByArrowKeys();		// June 31fd1e60
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -31219,6 +31260,7 @@ void CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture()
 	{
 		m_FrameDataFuture.syncData.bIsRight = false;
 	}
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 	m_PhysicParam.nowSpeed.x = GetDashSpeed() * 1.5f;		
 
@@ -31288,11 +31330,28 @@ void CX2GUUser::THROW_ITEM_CameraMove()
 
 void CX2GUUser::THROW_ITEM_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	// stand-in: June 31fcbc10 reads the second body's anim ( +0x8e84 while +0x8e90, Lu/Ciel ); not ported
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( m_CommonState.m_Wait );
+		}
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		StateChange( m_CommonState.m_Wait );
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 void CX2GUUser::THROW_ITEM_FrameMove()
@@ -31384,6 +31443,65 @@ void CX2GUUser::THROW_ITEM_FrameMove()
 			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_GOOD_FIRE_CRACKER", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
 			break;
 #endif //EVENT_FIRE_CRACKER_THROW_ITEM
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+		case CX2Item::SST_LOFTY_SPHERE:		// June 31ff92d0: June's extra throw items
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LOFTY_SPHERE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_NASOD_SPHERE:
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_NASOD_SPHERE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1026:		// no SPECIAL_SKILL_TYPE name in June's Enum.lua ( 1026, 1032-1038, 1040-1042 )
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_GLAVES_AXE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_GREEN_EXPLOSION:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_NATURE_EXPLOSION", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_PURPLE_EXPLOSION:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_DARK_EXPLOSION", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_BLUE_EXPLOSION:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_WATER_EXPLOSION", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_RED_EXPLOSION:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_FIRE_EXPLOSION", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_GOLD_EXPLOSION:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LIGHT_EXPLOSION", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1032:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_SOUL_SEALSTONE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1033:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_DARK_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1034:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LIGHT_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1035:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_FIRE_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1036:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_WATER_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1037:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_NATURE_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1038:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_WIND_SPHERE_FACEOFF", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case CX2Item::SST_PERKISAS_BREATH:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_PERKISAS_SPHERE_FIRE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1040:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LURIEL_BUFF_SHPERE_TACTICAL_FIELD", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1041:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LURIEL_BUFF_SHPERE_TIME_ACCEL", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+		case 1042:
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LURIEL_BUFF_SHPERE_SPEED_ACCEL", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 		default:
 			break;
 		}
@@ -31442,6 +31560,11 @@ void CX2GUUser::THROW_ITEM_StateEnd()
 		case CX2Item::SST_ANGER_SPHERE:
 			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_ANGER_SPHERE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
 			break;
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+		case CX2Item::SST_LOFTY_SPHERE:		// June 31ffb087
+			pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"SPECIAL_ITEM_LOFTY_SPHERE", GetPowerRate(), vEffectPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			break;
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 		default:
 			break;
 		}
@@ -32190,6 +32313,52 @@ void CX2GUUser::StartMotionStateChange()
 void CX2GUUser::StartEnd()
 {
 	CommonStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( IsMyUnit() == true && false == g_pMain->GetIsPlayingTutorial() && false == m_bStarted )		// June 3201b460
+	{
+		// June reads +0xd8 of any room ( 3201b4b2 ): PVP_GAME_TYPE in a PvP room, the difficulty in a dungeon room
+		const bool bWinnerPVPRoom = NULL != g_pX2Room && g_pData->GetPVPRoom() == g_pX2Room && CX2PVPRoom::PGT_WINNER == g_pData->GetPVPRoom()->GetPVPGameType();
+
+		if( 5 != static_cast<int>( g_pX2Game->GetGameType() ) && false == bWinnerPVPRoom )		// June 3201b4e8: type 5 has no GAME_TYPE name
+			PlaySound( L"Fight.ogg", false, false );
+
+		if( g_pX2Game->GetGameType() == CX2Game::GT_PVP )
+		{
+			if( NULL != g_pX2Room && false == bWinnerPVPRoom )
+				g_pX2Game->GetMajorParticle()->CreateSequence( NULL,  L"GameFightNew", 0,0,0, 1000, 1000, 1, 1 );
+		}
+		else if( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON )		// stand-in: June also takes GT_PVE ( 322cc1c0 ); March has no PvE game
+		{
+			CX2DungeonGame* pDungeonGame = static_cast<CX2DungeonGame*>( g_pX2Game );
+			if( NULL != pDungeonGame->GetDungeon() && NULL != pDungeonGame->GetDungeon()->GetDungeonData() )
+			{
+				const int iNowDungeonID = pDungeonGame->GetDungeon()->GetDungeonData()->m_DungeonID;
+
+				// stand-in: June's event-game object ( game +0xbd8, 32070f40 ) can pick GameFightNew here; March has none ( Stage 19 )
+				if( SEnum::DI_EVENT_2017_VALENTINE == iNowDungeonID )
+				{
+					g_pX2Game->GetMajorParticle()->CreateSequence( NULL,  L"Valentine2017_GameStart", 0,0,0, 1000, 1000, 1, 1 );
+					// stand-in: June sends event 0x67e and waits 60 s for 0x67f ( 3201b7be ); not ported ( Stage 19 )
+				}
+				else if( SEnum::DI_EVENT_2017_TREASURE == iNowDungeonID )
+				{
+					// stand-in: June sends event 0x67e and waits 60 s for 0x67f ( 3201b7fb ); not ported ( Stage 19 )
+				}
+				else if( SEnum::DI_EVENT_2017_FOOLSDAY == iNowDungeonID )
+				{
+					// stand-in: June clears a byte of the now sub-stage ( +0x64, 3201b841 ); no March member ( Stage 19 )
+				}
+
+				if( false == g_pData->GetDungeonManager()->IsDefenceDungeon( iNowDungeonID ) )
+					g_pX2Game->GetMajorParticle()->CreateSequence( NULL,  L"GameStart", 0,0,0, 1000, 1000, 1, 1 );
+
+				g_pKTDXApp->GetDGManager()->ClearScreen( 10 );
+			}
+		}
+	}
+
+	m_bStarted = true;
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	/// June buff port Phase 14c, CX2GUUser::StartEnd 3201b460 @3201b47c-3201b49f: the start fanfare (Fight.ogg and the
@@ -32294,6 +32463,7 @@ void CX2GUUser::StartEnd()
 	m_bStarted = true;
 #endif 
 	//}}
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : StartIntrudeStart
@@ -32656,11 +32826,47 @@ bool CX2GUUser::PlaySitReadyWaitStart( CKTDGXSkinAnim* pXSkinAnim_ )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+// June 31fd23eb ( inlined in walk / jump / dash / pepper run ): both arrows held -> the arrow pressed this frame turns the unit
+bool CX2GUUser::UpdateFutureIsRightByArrowKeys()
+{
+	if( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		if( true == m_InputData.oneRight )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( true == m_InputData.oneLeft )
+			m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else if( true == m_InputData.pureRight )
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+	}
+	else if( true == m_InputData.pureLeft )
+	{
+		m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 /** @function : WalkFrameMoveFuture
 	@brief : Walk 상태의 FrameMoveFuture 로 키입력에 따라 걷는 속도로 이동
 */
 void CX2GUUser::WalkFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31fd23e0
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	else
+		m_PhysicParam.nowSpeed.x = 0.0f;
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( true == m_InputData.pureRight )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32677,6 +32883,7 @@ void CX2GUUser::WalkFrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();	// override 된 함수 실행
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : JumpFrameMoveFuture
@@ -32684,6 +32891,17 @@ void CX2GUUser::WalkFrameMoveFuture()
 */
 void CX2GUUser::JumpFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31fd2470
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+
+	if( m_InputData.pureDown == true  && m_InputData.pureUp == false )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32701,6 +32919,7 @@ void CX2GUUser::JumpFrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : JumpLandingStart
@@ -32714,6 +32933,17 @@ void CX2GUUser::JumpLandingStart()
 
 void CX2GUUser::DashJumpLandingStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	CommonStateStartFuture();		// June 31fcbe40: the common start before the pet
+
+#ifdef RIDING_SYSTEM
+	// stand-in: June's pet getter 32d27810 takes pet +0x55c instead while pet +0x5a0 is set ( Stage 17 )
+	if ( NULL != m_ptrRidingPet )
+		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_JumpLandingState );
+#endif //RIDING_SYSTEM
+
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 #ifdef RIDING_SYSTEM
 	if ( NULL != m_ptrRidingPet )
 		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_JumpLandingState );
@@ -32722,6 +32952,7 @@ void CX2GUUser::DashJumpLandingStartFuture()
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.x *= 0.5f;
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : DashStartFuture
@@ -32729,6 +32960,17 @@ void CX2GUUser::DashJumpLandingStartFuture()
 */
 void CX2GUUser::DashStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	CommonStateStartFuture();		// June 31fcbe80: the common start before the pet
+
+#ifdef RIDING_SYSTEM
+	// stand-in: June's pet getter 32d27830 takes pet +0x560 instead while pet +0x5a0 is set ( Stage 17 )
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_DashState );
+#endif //RIDING_SYSTEM
+
+	m_PhysicParam.nowSpeed.x = 0.0f;
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 #ifdef RIDING_SYSTEM
 	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
 		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_DashState );
@@ -32736,6 +32978,7 @@ void CX2GUUser::DashStartFuture()
 
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x = 0.0f;
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : DashStart
@@ -32759,6 +33002,9 @@ void CX2GUUser::DashFrameMoveFuture()
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	}
 	
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	UpdateFutureIsRightByArrowKeys();		// June 31fd262e
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	CommonFrameMoveFuture();
 }
 
@@ -32818,12 +33064,21 @@ void CX2GUUser::DamageAirSmallStartFuture()
 */
 void CX2GUUser::DamageAirSmallEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	if( true == IsOnSomethingFuture() )
+		StateChange( USI_JUMP_LANDING );
+	else
+		SpecialAttackEventProcess( CX2SkillTree::ASUT_DAMAGE );		// June 31fcc169: a damage-condition skill while hit in the air
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_LANDING );
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 }
 
 /** @function : DamageAirDownEventProcess
@@ -33517,6 +33772,10 @@ void CX2GUUser::HyperModeStart()
 #endif // SUPERPOSITION_HYPER_MODE_BUG
 		{
 			SetHyperModeCount( max( GetLastStateHyperModeCount() - 1, 0 ) );	 
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+			if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) )		// June 31ffd537
+				SetSkillBuffFactors( CX2SkillTree::RNSI_P_RRF_OPEN_MIND, 1, true );
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 		}
 	}
 	else
@@ -33538,6 +33797,9 @@ void CX2GUUser::HyperModeStart()
 	/// state starts on the Now side, CX2GUUser::HyperModeStart (June 31ffd490 @31ffd5fa; USI_HYPER_MODE StateStart)
 	m_bHyperModeStartedByInput = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+	// stand-in: June 31ffd61c sends event 0x73d ( sub-quest 203630 "Use Awakening 2 times" ); not ported ( Stage 4 )
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 
 }
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE

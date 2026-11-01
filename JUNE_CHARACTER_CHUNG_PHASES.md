@@ -1845,6 +1845,53 @@ Each: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 
 
 User owes nothing. Next: `/x2-phase char-chung CH1n2` (Opus 5.5 high).
 
+### CH1n2 - Done (2026-11-02)
+
+**Flag `SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES`** (defined, every class; guards: `_CHAR_ARME_CORE`, `_CHAR_EVE_PASSIVE`, `_DIVERGE_SKILL_LEVEL_VALUE`,
+`_ENUM_NAMES`). June's body inside each March `CX2GUUser` member, March in `#else`. Each row re-read against the listing; funcmap rows `Char Chung CH1n2` (22).
+- **Facing with both arrows held** (`31fd23eb`, inlined 6 times in June): new `UpdateFutureIsRightByArrowKeys()` (both held -> `oneRight` / `oneLeft`
+  decides; false when none held). Walk (`31fd23e0`: speed or 0), Jump (`31fd2470`: speed only when held), Dash (`31fd262e`: after March's speed test),
+  PEPPER_RUN / JUMP_UP / JUMP_DOWN FrameMoveFuture (`31fd1c90` / `31fd1d80` / `31fd1e60`).
+- **Dash starts** (`31fcbe80`, `31fcbe40`): `CommonStateStartFuture` before the pet. June's pet getters `32d27830` / `32d27810` pick `+0x560` / `+0x55c`
+  while pet `+0x5a0` is set: stand-in lines, March's `m_DashState` / `m_JumpLandingState` (Stage 17 bullet).
+- **DamageAirSmallEventProcess** (`31fcc150`): airborne -> `SpecialAttackEventProcess( ASUT_DAMAGE )`. Every class's lookup reaches the shared
+  `CheckSkillUseCondition` (Aisha CH1k's case: only `ASUT_DAMAGE` / `_EXCEPT_AIR` templets pass); March classes run `CommonSpecialAttackEventProcess` first.
+- **StartEnd** (`3201b460`): gate = March's tutorial port; room `+0xd8 == 6` is the room's first own member (`m_PVPGameType` in CX2PVPRoom, `m_DifficultyLevel`
+  in CX2DungeonRoom, whose `+0xdc` is the dungeon id), so it is `PGT_WINNER` of the PvP room: no Fight.ogg, no particle. Game type 5 (no name) blocks the
+  sound. PvP -> `GameFightNew`. Dungeon (stand-in: June's GT_PVE too) -> `Valentine2017_GameStart` for `DI_EVENT_2017_VALENTINE`, `GameStart` unless defence,
+  `ClearScreen( 10 )`; stand-ins: event object `+0xbd8` (`32070f40`), sends 0x67e / `AddServerPacket( 0x67f, 60 )` (Valentine, Treasure), Fools' Day sub-stage
+  `+0x64` (Stage 19 bullet). March's empty `CommonStartStateEnd` and the party-bonus particle (off) are not in June.
+- **HyperModeStart** (`31ffd490`): in the `+0x8fc3` branch, `RNSI_P_RRF_OPEN_MIND` (24419) learned -> `SetSkillBuffFactors( 24419, 1, true )` (vslot 0x23c).
+  `31f4b1e0` @`31ffd61c` = ServerProtocol send of event 0x73d with sub-quest 203630 ("Use Awakening 2 times"): stand-in (Stage 4 bullet).
+- **Pepper run:** `+0x8fc1` = new `m_bOnJumpUpLine` (ctor false; June's ctor zeroes it @`32040f1e`); JUMP_UP StateStartFuture (`31fd1d20`) skips its body and
+  FrameMoveFuture (`31fd1d80`) runs only CommonFrameMoveFuture while it is set; UT_EVE test null-safe on the templet. Its writer is June's
+  `PhysicProcess_Jumping` (`31fd6ce0`, a reworked jump-pad handler): divergent row + allow row, ported by **new CH1n3**. Until then the flag stays false.
+  PEPPER_RUN_END_FrameMove (`31fd98b0`): clearing `+0x93bc` is a stand-in line; the named-motion system behind it (`31fdbaf0`, `31fdbb70`, Lua `32747090`) is a
+  Stage 10 bullet.
+- **THROW_ITEM:** EventProcess (`31fcbc10`) foot test (airborne -> `USI_JUMP_DOWN`, y -= 30). FrameMove (`31ff92d0`, tables `31ffaa38` value-1 / `31ffaa70` from
+  1021) gains 19 cases: Lofty 14, Nasod 1024 and Glaves Axe 1026 (no velocity, like the spears), explosions 1027-1031, Soul Sealstone 1032, face-off spheres
+  1033-1038, Perkisas 1039, Luriel 1040-1042. StateEnd (`31ffb087`) gains Lofty. The triage's "WOODEN_SPEAR is March-only" was wrong (case 1, `dec eax`).
+  Every `SPECIAL_ITEM_*` effect is in March's koms (`DamageEffect.lua`, `DamageEffect_INT.lua`). Second-body anim (`+0x8e84`): stand-in line.
+- **Enum names** (`JUNE_ENUM_NAMES`, June `Enum.src.lua` / `DungeonEnum.src.lua`): `RNSI_P_RRF_OPEN_MIND` 24419; SST `LOFTY_SPHERE` 14, `NASOD_SPHERE` 1024,
+  `GREEN` / `PURPLE` / `BLUE` / `RED` / `GOLD_EXPLOSION` 1027-1031, `PERKISAS_BREATH` 1039 (1026, 1032-1038, 1040-1042 have no name: numbers with a comment);
+  `PGT_WINNER` 6; `DI_EVENT_2017_VALENTINE` 41440, `DI_EVENT_2017_FOOLSDAY` 41460.
+
+**Checks.** One-file probe of `X2GUUser.cpp` (`census.cl_cmd`, `/Zs /EHsc`): exit 0, 0 errors. `git diff --patience --numstat`: Always.h 24 / 0,
+X2GUUser.cpp 262 / 0, X2GUUser.h 6 / 0, X2Item.h 10 / 0, X2SkillTree.h 6 / 0, X2PVPRoom.h 3 / 0, DungeonEnum.h 6 / 0.
+`flagcheck JUNE_USER_BASE_STATE_BODIES --worktree`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_ENUM_NAMES` (4 headers): `files: 2 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`; each `0 deleted line(s),
+0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `junediverge.py --check` (7 files):
+`allow-listed: 6`, `RESULT: PASS` (new allow rows: StartEnd's GT_PVP = June `322cc180` type 1; `PhysicProcess_Jumping` -> CH1n3). `enumscan.py --check
+X2Lib/X2GUUser.cpp`: `0 A/B row(s)`. No JUNE_BUGS row.
+`DEPLOY OK: X2_offline.exe is 25,902,080 B, dated 2026-11-02 05:28:04, md5 f179e5e90c14c477f3c57d420ee13501, equal to X2/US_SERVICE/x2.exe (2026-11-02 05:27:57); built at main 6a920926 + 7 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 25902080 B, dated 2026-11-02 05:28:04, md5 f179e5e90c14c477f3c57d420ee13501` (`GameFightNew`, `Valentine2017_GameStart`,
+`SPECIAL_ITEM_LOFTY_SPHERE`, `SPECIAL_ITEM_LURIEL_BUFF_SHPERE_SPEED_ACCEL`, wide).
+
+**Play-test** (Aisha or Eve, every class has it): both-arrow facing on walk / jump / dash, a damage-condition skill while hit in the air, throw items
+(Green Fire Cracker `100002331`, Pesop's Wind Orb `100003449`, Perkisas's Crystal Ball `100003918`; no June item carries Lofty 14) thrown on the ground and
+in the air, a dungeon start (Fight.ogg, GameStart). Pepper run is unchanged until CH1n3 (the jump-up flag stays false). Next: the play-test, then
+`/x2-phase char-chung CH1n2 review` (Opus 5.5 high); CH1n3 and CH1o follow the review, one at a time (both touch `X2GUUser.*`).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

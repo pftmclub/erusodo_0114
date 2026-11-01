@@ -11167,3 +11167,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_USER_NUMERICAL_BY_NAME ); Eve's own member returns.
 #define SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: June character port ( Chung ) Phase CH1n2 - June's bodies of 16 CX2GUUser base state callbacks, for every class: walk / jump /
+//              dash / pepper-run facing with both arrows held, the common start before the riding pet in the dash starts, a damage-condition
+//              skill while hit in the air ( ASUT_DAMAGE ), the start fanfare ( StartEnd 3201b460 ), Open Mind's buff on a re-awakening
+//              ( HyperModeStart 31ffd490 ), the pepper-run jump skip on a jump-up line, and the throw item's foot test, new cases and Lofty sphere.
+//              Revert: undefine the flag ( JUNE_USER_BASE_STATE_BODIES ).
+#define SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#error SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#error SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
+#ifndef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#error SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES needs SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+//////////////////////////////////////////////////////////////////////////

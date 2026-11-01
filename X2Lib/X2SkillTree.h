@@ -2018,6 +2018,12 @@ public:
 		RNSI_HA_CTT_SATELLITE_RAIN_UPGRADE                    = 26605,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH1n2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID name HyperModeStart spells ( value from June's Enum.lua )
+		RNSI_P_RRF_OPEN_MIND                                  = 24419,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
