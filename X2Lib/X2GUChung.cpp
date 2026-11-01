@@ -29523,8 +29523,9 @@ void CX2GUChung::CTT_MobileArmoredModeLoopFrameMove()
 	/// June 32bf07b0; the spine aim follows the nearest enemy every frame
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;
 	m_fMobileArmoredModeFireXCoolTime -= m_fElapsedTime;
-	/// stand-in: June skips it while the game option at g_pMain +0x1a0 is not 0 ( the option is not mapped; its default is 0 )
-	ApplySpineAimRotation();
+	/// June 32bf07dc: g_pMain +0x1a0 is m_UnitDetail; the spine aim runs only at the highest unit detail, as March's siege aim
+	if( g_pMain->GetGameOption().GetOptionList().m_UnitDetail == CX2GameOption::OL_HIGH )
+		ApplySpineAimRotation();
 	CommonFrameMove();
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_fMobileArmoredModeFireZCoolTime -= m_fElapsedTime;

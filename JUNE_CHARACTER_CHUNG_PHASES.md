@@ -1056,6 +1056,55 @@ All 41 class-map rows of phase CH1j are written: 36 `inside` (June body in March
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers these states). Next: `/x2-phase char-chung CH1j review` (Opus 5.5 high), then CH1k0.
 
+### CH1j - Review (2026-11-01, Opus 5.5)
+
+**Verdict: the code passes with one correction: the stand-in gate is replaced** (`X2GUChung.cpp` Loop FrameMove, inside `_LIVE`, +3 / -2).
+I read every function from `charport_adis.py chung --phase CH1j` against the port.
+- **The open item: `g_pMain +0x1a0` is `GetOptionList().m_UnitDetail`.** `3377585c` = g_pMain (funcmap). June has 16 readers of `+0x1a0`. The
+  unit-viewer one (`31ff0745`) writes render type 3 for 1 and 0 for 2, which is `RT_CARTOON` for `OL_MEDIUM` and `RT_REAL_COLOR` for `OL_LOW` (March
+  `X2UnitViewerUI.cpp:447-454`). The riding-pet one (`32d2c49f`, `OnFrameRender_Prepare`) matches March `X2RidingPet.cpp:293-299` the same way.
+  So June `32bf07dc` is `m_UnitDetail == CX2GameOption::OL_HIGH`, the same test March's own siege aim makes (`X2GUChung.cpp:26943`).
+  The port now calls `ApplySpineAimRotation` only under that test. Other Chung readers: `32be5b14` (in `32be5a80`) and `32c0e949` (in
+  `32c0e530`, a `CreateCannonBulletDamageEffect` caller), for the phases that port them. The X FrameMove (`32c108d0`) calls it ungated, as the port does.
+- **Loop / Forward / Backward EventProcess** (`32bece90` / `32bec410` / `32bec950`). MP drain: `31fceab0( 26419 ) > 0` (`GetSkillLevelValue`), then
+  `elapsed x -3.0 (qword) x 32007b10( 0x1b = SA_MP_CONSUME_REL, 26419 )`, then `GetNowMp() <= 0` -> UNREADY.
+  Keys: Loop and Backward store forward at `+0xa`, Forward stores it at `+0xb`. The flag tests read them back right: Loop FWD / BWD, Forward BWD / `!fwd` -> LOOP,
+  Backward FWD / `!bwd` -> LOOP. Flags `0x7d85 + i`, event times `0x8c10 + 12i` [start, end, change], order 2, 1, 3, 4, all in one else-if chain.
+  Change: `change < now` (`test 5 / jnp`) `|| +0x2ac`; key: `now < end && start <= now` (`test 0x41`). `SKILL_CANCEL_AFTER( +0x8c90 )` = the
+  AWAKE_LOCK expansion. The flag-2 condition `oneDown || !(class 117 && +0x97a0 && count > 0)` is the port's `oneDown || GetExtraCannonBallCount() <= 0`.
+- **The cannon-ball guard (kickoff item).** `+0x97a0` = `m_bMobileArmoredModeEnable`. June's inline is March's `GetExtraCannonBallCount()` plus
+  a Tactical Trooper / mode-enabled test. These states are reached only by a TT with the mode enabled, so the March call gives the same value
+  there. CH1q owns the inline.
+- **Member layout (June differs from March).** June drops `m_iExtraCannonBallReloadCount` from this block. `+0x97a4` = Distance
+  (`32c17079`: from SA 0x1f), `+0x97a8` = DamageRel (SA 0xf), `+0x97ac` = step dust, `+0x97b0` / `+0x97b4` = X / Z cool. The port's names hold:
+  the X shot's power is `GetPowerRate() x m_fMobileArmoredModeDamageRel`, and the spine distance and mobile range read `m_fMobileArmoredModeDistance`.
+  `+0x9728` = `m_fSiegeShellingDistance` (`32c16d91`, SA 0x1f).
+- **Ready EP / Z Z X EP / X StartFuture.** The animation-end term is on flag 0 (`0x8c18`); cool `<= 0` (`fcom` / `test 1`, NaN refuses).
+  DASH / BWALK / SKILL cancels are in June's order. Z Z X falls back to `m_fCanNotAttackTime` 0.1 -> WAIT. X cool is float 0.8.
+- **X FrameMove.** EventTimerOneshot 0.033333, then ApplySpineAimRotation, then `count >= 1` (EffectSet + local rotate (0, 0, 10), gage `+0x142` = 1 +
+  set count - 1, `+0x97a1` = true, `CreateCannonBulletDamageEffect( 2, ... )`), else misfire + `Chung_CannonGun_Trigger.ogg`. Last come the
+  Z / X cool decrements and CommonFrameMove. June never clears `+0x97a1` at the start (March did); the port follows June.
+- **New rows.** `32bda860`: SA 0x22 = `SA_MOVE_SPEED` x `+0x30c`. `32bf00c0`: args up / down / yaw / `+0x9884 x +0x97a4`; erase unless
+  `eps < |y| || eps < |z|`; both folds `test 0x41`; axis (-1, -1, 0), degree (gap, -z, 0); `+0x8a68` = z on both paths. `32c09e40`: types 0 / 1 / 2,
+  names, bones, y - 15, rotation test `|x|`, `|y|` and `31c7b640` (IsSamef); clamp `range < 1 -> 1` (NaN kept); max life `+0x44c` x range;
+  `SetLockOn( e, 0, LOT_NONE, 30 )`. `32bf02c0`: landing, `0.58 < now`, ASUT_AIR / wall / Z. `32c0a5b0`: 0.202, `IsFullHyperMode || count > 0`,
+  `EffectSet_CSI_CTT_DASH_JUMP_COMBO_XX`, `UseCannon( 1 )`, `TRACE_START0` / `STR_Kwang`, else MISFIRE.
+- **Spot checks of the "= March" bodies:** Z FM `32c104d0` (0.01, 170 / 22, 3.0, +10, 100), dash X X FM `32c06b00` (0.8, 10 / 30 / 45 deg, 800, 0.8333, 0.866, 0.3) and
+  Z Z X FM `32c0ff80` (0.4333, 3.0, +50, -50, 100) all equal the port.
+- No JUNE_BUGS row: nothing here is a June mistake.
+
+**Gates.**
+- flagcheck range (`60801ef4^..60801ef4`, patience): `1 PASS, 2 OTHER, 0 FAIL, 0 ERROR`; 0 deleted lines.
+- flagcheck worktree (this fix): `X2GUChung.cpp PASS +3 -2`. The 2 deleted lines are CH1j's own stand-in inside `_LIVE`.
+- RESULT FAIL in both runs only because the `#define` is commented out.
+- `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`.
+- `enumscan.py --check X2GUChung.cpp`: 0 rows (the 315 rows in `X2SkillTree.h` are its own enum declarations).
+- Probes: `_LIVE` off exit 0 / 0 errors, `_LIVE` on exit 0 / 0 errors.
+- `DEPLOY OK: X2_offline.exe is 25,890,816 B, dated 2026-11-01 08:18:18, md5 25c79d0fc2fac9c05b22db674a5bc9a4, equal to X2/US_SERVICE/x2.exe (2026-11-01 08:18:10); built at main 60801ef4 + 1 uncommitted code file(s).`
+  No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1k0` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
