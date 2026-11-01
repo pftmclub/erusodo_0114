@@ -6438,13 +6438,13 @@ void CX2GUChung::CommonFrameMove()
 
 	if ( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL )
 	{
-		for ( std::map< int, CX2EffectSet::Handle >::iterator mItr = m_mapBombardServiceEffect.begin(); mItr != m_mapBombardServiceEffect.end(); )
+		for ( std::multimap< float, std::pair< int, CX2EffectSet::Handle > >::iterator mItr = m_mapBombardServiceEffect.begin(); mItr != m_mapBombardServiceEffect.end(); )
 		{
-			const std::map< int, CX2EffectSet::Handle >::iterator mItrNow = mItr++;
-			CX2GameUnit* pTargetUnit = g_pX2Game->GetUnit( mItrNow->first );
-			if ( ( NULL == pTargetUnit || pTargetUnit->GetNowHp() <= 0.f ) && INVALID_EFFECTSET_HANDLE != mItrNow->second )
+			const std::multimap< float, std::pair< int, CX2EffectSet::Handle > >::iterator mItrNow = mItr++;	/// June 32c0db97 tests the next node but erases this one ( JUNE_BUGS ); this one is tested
+			CX2GameUnit* pTargetUnit = g_pX2Game->GetUnit( mItrNow->second.first );
+			if ( ( NULL == pTargetUnit || pTargetUnit->GetNowHp() <= 0.f ) && INVALID_EFFECTSET_HANDLE != mItrNow->second.second )
 			{
-				g_pX2Game->GetEffectSet()->StopEffectSet( mItrNow->second );
+				g_pX2Game->GetEffectSet()->StopEffectSet( mItrNow->second.second );
 				m_mapBombardServiceEffect.erase( mItrNow );
 			}
 		}

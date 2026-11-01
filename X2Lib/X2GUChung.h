@@ -1970,7 +1970,7 @@ protected:
 	bool							m_bDualBusterLandingMpSpent;	/// June +0x98d0 ( ctor false ): DUAL_BUSTER_LANDING has spent its MP; the Dual Buster upgrade's skill use clears it ( CH2c )
 	int							m_iCarpetBombingMaxCount;		/// June +0x98a4 ( ctor 0 ): the shots a Carpet Bombing run fires; CommonFrameMove ends the run at it ( set by the skill start, CH3c )
 	float						m_fCarpetBombingExtraRoundPowerRate;	/// June +0x98a0 ( ctor 1 ): DoCarpetBombing's power factor from the 19th shot on ( at least 1; set by the skill start, CH3c )
-	std::map< int, CX2EffectSet::Handle >	m_mapBombardServiceEffect;	/// June +0x97f8: the Bombard Service mark effect set per target unit; CommonFrameMove stops the ones of dead targets ( its only filler 32c08970 has no caller )
+	std::multimap< float, std::pair< int, CX2EffectSet::Handle > >	m_mapBombardServiceEffect;	/// June +0x97f4: distance -> { unit index, mark effect set }; CommonFrameMove stops the ones of dead targets ( its only filler 32c08970 has no caller )
 	float						m_fShootingBindCoolTimeLeft;	/// June +0x98d4: counts down in CommonFrameMove; two CH3b states set it, ShownSkillCoolTime ( CH1o ) reads it
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;

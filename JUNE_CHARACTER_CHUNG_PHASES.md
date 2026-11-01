@@ -1626,6 +1626,42 @@ All 6 class-map rows are written. `_LIVE` stays `//#define`. funcmap rows `Char 
 
 **Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1l4 review` (Opus 5.5 high), then `CH1m`.
 
+### CH1l4 - Review (2026-11-01)
+
+**Passes with one fix:** the Bombard Service container's shape. All 6 rows checked against `charport_adis.py chung --phase CH1l4` and the Ghidra decompiles (read-only).
+- **`32c0d570`.** Block order as written. Vslot 0x198 (own unit) false -> `32bf3f60( +0x8160 )`, the XOR-decoded `KProtectedType` = Now `iClassSyncInt`. Promotion equip loop
+  (`SetRenderParam` / vslot 4), Iron Will `+0x96d4` (`> 0` subtract, else 0), shot cancel (vslot 0xa8 on `+0x96e4`, `> 1.0` s, `+0x8a48 == 1 || +0x9108 == 1`
+  -> `StateChange_LUA( .., true )`) and `+0x973c` are March's own code (its `GetHold()` / `GetGrap()` / `GetShot()`). Carpet bombing `+0x976c` and
+  `+0x9760 < +0x98a4`, else time / count / flag cleared. Chaos Cannon: HP from gage `+0x20` (`<= 0` -> 0), tick, `+0x9894 >= 10` -> 0, `>= 8` and `32bed560 <= 1`
+  -> 0 (JUNE_BUGS #501 holds), `<= 0` stops `+0x9798` and the `+0x979c` sound (the sound test sits outside the `g_pX2Game` test, as ported). Mobile armored
+  `+0x97a2` / `+0x97b8`. Artillery: type `+0x97d4 == 1` (`CAST_MISSILE_SHOWER`, enum value 1) skips `SA_DELAY` ( 26014, upgrade swap true ), `delay < elapsed`
+  then gap += elapsed. `USE_CANNON_BALL` loop: `first <= anim +0x214` (`m_fAnimCurrTime`) or `anim + elapsed < first` -> next, else `32bf5280( second )` and the
+  tail shifts down 8; `+0x98d4` subtracts while `> 0`, no clamp.
+- **The fix.** June's container is not a unit -> handle map: the object starts at `+0x97f4` (erase `this`), nodes carry 12 bytes (`isnil` at `+0x19`), and the
+  filler `32c08970` inserts { distance float, unit index, -1 } through `32c242c0`, which never tests for an equal key (a `multimap`). CommonFrameMove passes
+  `+0x10` (unit index) to vslot 0xb0 (`GetUnit`) and stops `+0x14`. `m_mapBombardServiceEffect` is now `std::multimap< float, std::pair< int, Handle > >`
+  and the loop reads `second.first` / `second.second`. June also tests the **next** node (`@32c0db97`, decompile `piVar13[4]`) while erasing the current
+  one, so its last test reads `end()`'s head node; the port tests the node it erases (undefined behaviour otherwise; the map is never filled, #502 amended).
+- **`32c058a0`.** `count x 0.2 <= time` (`test ah, 0x41; jp`), `count % 9`, 2400 / 2000 / 375, y + 2500 and the old y as `fLandPos` (stack traced: the y copy at
+  frame `+0x20` is the 13th argument), `GetEquippedActiveSkillTemplet( 26023, true )`, NULL unit returns before the count, level `max( 1, GetSkillLevel( id, 0, 0, 1 ) )`,
+  `( 3201ad10 + 1 ) x rate`, `count >= 18` x `( +0x98a0 >= 1 ? it : 1 )`. The other 9 `CreateInstance` arguments are March's defaults. Small shells as March.
+- **`32c08010` / `32c080f0`.** Reset clears `+0x97d4`, the protected `+0x97dc`, `+0x97f0`, `+0x9854`, `+0x97ec`, erases BTI 0x1a2 ( 418 ), self-destructs
+  0x35f / 0x58b ( 863 / 1419, June `Enum.src.lua` ) at 0.f, and nothing else (no summoned life time). Fire: `type == 1` -> `0.15 < gap`, `( vslot 0x1c8( count ) % 8 - 4 ) x 100` along `+0x96f4`,
+  y + 4000, gap 0, `SHELL_GROUND`, count + 1; `>= 15` -> reset (outside the gap test). `type == 2` -> y + `SA_FALL_HEIGHT`( 26014, true ), `QUANTUM_BALLISTA_GROUND_SHELL`
+  with `fLandPos` 0, reset.
+- **`32c09390` / `32c09ad0`.** Spot-checked: 0.5 / 850 / 0.2, the Bomb3 loop key steps by 6 to 25 (4 shells) and Bomb4 by 7 to 22 (3), `SetPowerRate` at `+0x1d8`.
+  The "= March" verdict holds.
+- **`GetSkillNumericalByName`.** `CX2GUUser`'s body is byte-for-byte Eve's (Eve's `.cpp` body and `.h` declaration both under `#ifndef`).
+
+**Gates.** CH1l4 commit (`--range d1ddcf8f^..d1ddcf8f`): `_LIVE` view `2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL`, `0 deleted, 0 #else/#endif without the flag token`,
+RESULT FAIL only because `_LIVE` is `//#define`; `_CORE` view `1 PASS, 3 OTHER`, `RESULT: PASS`; `JUNE_USER_NUMERICAL_BY_NAME` `4 PASS, 1 DEFINE`, `RESULT: PASS`.
+Review fix (`--worktree --files X2GUChung.cpp X2GUChung.h`): `2 PASS, 0 FAIL`; the 6 deleted lines are CH1l4's own lines inside its `_LIVE` / `_CORE` blocks;
+RESULT FAIL only for the `//#define`. `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2GUChung.*`: `0 A/B row(s)`.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`) of `X2GUChung.cpp` with and without `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, `X2GUUser.cpp`, `X2GuEve.cpp`: exit 0, 0 errors.
+`DEPLOY OK: X2_offline.exe is 25,895,936 B, dated 2026-11-01 19:33:28, md5 a40ed149c9992c0a12c0c143aa7a8a0e, equal to X2/US_SERVICE/x2.exe` (main d1ddcf8f + the 2 fix files; X2Lib 536 s, PCH rebuilt).
+
+**Nothing to play-test** (`_LIVE` off). CH1m kickoff checked, unchanged; CH1m is ready.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
