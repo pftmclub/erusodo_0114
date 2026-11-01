@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1k0 | review next: all six callees are March functions that already match June; no source change, 8 funcmap rows, emblems routed to Stage 9 | Opus 5.5 / high, Opus review | CH1j review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1k0-review.md` |
-| CH1k | blocked (CH1k0 review): class core, overrides < 0x600, ctor / dtor map; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k0 review | `X2GUChung.*`, Always.h | `CH1k.md` |
+| CH1k | ready: class core, overrides < 0x600, ctor / dtor map; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k0 review | `X2GUChung.*`, Always.h | `CH1k.md` |
 | CH1l0 | blocked (CH1k review): Opus helpers `31fcd740` / `31fd2f00` / `31fe21a0` / `31ffe990` before CH1l | Opus 5.5 / high, Opus review | CH1k review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l0.md` |
 | CH1l | blocked (CH1l0 review): class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l0 review | `X2GUChung.*`, Always.h | `CH1l.md` |
 | CH1l2 | blocked (CH1l review): class core, Common* overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l review | `X2GUChung.*`, Always.h | `CH1l2.md` |
@@ -207,7 +206,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j.
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0.
 
 ## Other plans (no STATUS rows)
 

@@ -1156,6 +1156,37 @@ code March lacks and are also read in `3203d160` and `CommonFrameMove` `32063650
 
 **Nothing to play-test** (no code changed). Next: `/x2-phase char-chung CH1k0 review` (Opus 5.5 high).
 
+### CH1k0 - Review (2026-11-01, Opus 5.5)
+
+**Verdict: passes; nothing changes in source.** All six callees are March functions that already do what June's do. One bookkeeping
+correction (below). I read each function in Ghidra (decompile and, for the gates, the disassembly).
+- **`31ff1950` = `NotifyShowObjectChanged`.** June's order is March's: `GetShowObject` (`31fae370`: `+0xc` chain, `+0x172`), the base
+  `322845c0`, shadow `+0xcb8`, vslot 0x394, then the handles head marker `+0x87f8` (game major), emblem `+0x87fc` (`g_pData +0x7c`, UI major),
+  hold centre / circle `+0x8818` / `+0x881c` (game major `322ceaa0`), then `SetShowObject( bShow )` on each, `+0x8808`, then `+0x8810`. Then
+  `DisableAfterImage`, the `+0x8834` equip loop (vslot 0x28, intrusive release `31d28b60`), and the pet manager `g_pData +0x328` with
+  `GetUnitUID` (vslot 0x54) and `bShow` (`326cb840`). This is March's `X2GUUser.cpp:15436` body.
+- **The second after-image is not Chung's.** `322720f0( 1, 3 )`: mode 3 takes `+0x6758` only when vslot 0x260 (`3208e160`, byte `+0x8e90`) is
+  set, else `+0x6754`. `( 1, 1 )` takes `+0x6758`. The user init `31fee090` builds `+0x6758` only when `+0x8e88` (the second skin anim, unit
+  type 10) is set. For Chung both calls reduce to March's `DisableAfterImage( true )`. No divergence row is needed.
+- **`+0x8808` / `+0x8810`.** Swept with `dispsweep.py 8808 8810 6758`. Writers: the ctor `3203e850` (init), `31fd54b0` (create `+0x8808`),
+  `31fd58c0` (destroy `+0x8808`, new funcmap row) and `31fcfde0` (create `+0x8810`). Readers: `31ff1950`, `CommonFrameMove` `32063650` and
+  the dtor `3203a620`, plus `3203d160` for `+0x8810` only. **Correction:** the Done note and backlog bullet said `3203d160` reads both. It reads
+  only `+0x8810`; the bullet in `JUNE_PORT_BACKLOG_ORDER.md` (Stage 9) is fixed. None of these writers exists in March.
+- **`3226e020` / `3226f870`.** The stores land in March's member order (`X2GameUnit.h:5127-5140`): `+0x416c` bool, `+0x4170` fade left,
+  `+0x4174` change time, `+0x4178` change left, `+0x417c` / `+0x4180` / `+0x4184` pulse duration / period / left, `+0x4188` colour id,
+  `+0x418c` / `+0x419c` start / end. The Fade gate is `fld [+0x4184]; fld dur; fcom; test ah,5; jnp return`. It returns only when `dur < left`,
+  and runs the body on equal or NaN. That is March's `if( m_fPulseTimeLeft > _fDuration ) return;`, NaN included (Ghidra's `<=` hides this).
+- **`31d28b30`.** The June ctor `31d28a20` stores `g_pKTDXApp +0x1fc` (`GetDGManager`) `+0x130` into `+0x178`, as March's `KTDGObject.cpp:68`
+  `m_hKTDGManagerHandle = GetRenderObjectChainEnd()`. `+0xc` is `m_pManagerObject` (`31fae370`). The loop is March's recursion.
+- **`32497d80` / `32a37130`.** Four `KProtectedType<int>` at `+0x110` / `+0x11c` / `+0x128` / `+0x134` (12 bytes each), default-built
+  (ctor) or decoded from rhs and re-encoded (copy). Bools: `+0x140..+0x142` = 0 (ctor) or copied from rhs (copy). That is the
+  `X2GageData.h:620-632` initializer lists. June's `KProtectedType` has a registry `3376cdd0` and a vtable that March's lacks. That is the
+  anti-cheat type, not this class, so it is out of scope.
+- **`kickoffs/char-chung/CH1k.md` "Amended by CH1k0"** names the March symbols correctly. CH1k is ready.
+
+**Gates.** No source change: no flagcheck, no build (CH1j review `DEPLOY OK` md5 `25c79d0f` stands). `junediverge.py --check-all`:
+`allow-listed: 160`, `RESULT: PASS`. Nothing to play-test. Next: `/x2-phase char-chung CH1k` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
