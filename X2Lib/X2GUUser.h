@@ -3942,6 +3942,9 @@ public:
 		bool GetTargetHitPos( IN const CX2GameUnit* pTarget_, IN const bool bCenter_, IN const BYTE byMode_, OUT D3DXVECTOR3& vOut_ );	/// June 31fd5ef0
 		D3DXVECTOR3 GetNearestTargetAimDegree( IN const float fMaxUpDegree_, IN const float fMaxDownDegree_, IN const float fYawRangeDegree_, IN const float fMaxDistance_ );	/// June 32008660
 #endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+#ifdef SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
+		float GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910
+#endif SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 		void SetUnitReForm();

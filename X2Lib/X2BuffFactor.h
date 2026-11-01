@@ -557,6 +557,12 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_HERO_COOLTIME_FREE           = 561,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1l4
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI name Chung's artillery strike data reset spells
+	BTI_BUFF_ARTILLERY_STRIKE_SCOPE       = 418,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID

@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1l4 | ready: class core, CommonFrameMove; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l3 review | `X2GUChung.*`, Always.h | `CH1l4.md` |
+| CH1l4 | done, review next (`CH1l4-review.md`, Opus 5.5 high): CommonFrameMove, carpet bombing, artillery strike; `GetSkillNumericalByName` moved to `CX2GUUser`; `32bf4680` declared for CH1q | Sonnet 5.5 / high, Opus review | CH1l3 review | `X2GUChung.*`, `X2GUUser.*`, `X2GuEve.*`, Always.h | `CH1l4.md` |
 | CH1m | blocked (CH1l4 review): registration (`InitState` `32c22540` / `InitStateCommon`), hyper table name, the `_LIVE` gate | Opus 5.5 / high, Opus review | CH1l4 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): CX2GUUser base callbacks, `SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` head, dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |

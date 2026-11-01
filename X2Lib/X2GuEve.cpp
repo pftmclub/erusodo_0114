@@ -54904,6 +54904,7 @@ void CX2GUEve::SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnit
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 //{{ Iruha : 2026-10-27 // June character Eve Phase CH2a ( JUNE_CHARACTER_EVE_PHASES.md )
+#ifndef SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 // June 32007910 ( CX2GUUser, name / skill / upgrade swap ): the numerical row at the learned level x its PvP rate in PvP or PvE; 1.0 with no tree, unit, level or templet
 float CX2GUEve::GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const
 {
@@ -54929,6 +54930,7 @@ float CX2GUEve::GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkil
 	const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
 	return kRow.m_fValue * ( true == bPvpOrPve ? kRow.m_fPvpRate : 1.f );
 }
+#endif SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 
 // June 3296f0e0: Eve's copy of 31fcc740 tests the back-walk window before the walk and dash windows
 void CX2GUEve::EveSpecialActiveSkillEventProcess()

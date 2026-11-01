@@ -1597,6 +1597,35 @@ Done note lists); RESULT FAIL only because `_LIVE` is `//#define`. `_CORE` view:
 (`census.cl_cmd`, `/Zs /EHsc`, no PCH) of `X2GUChung.cpp` and `X2GUUser.cpp`, with and without `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: all four exit 0, 0 errors.
 No build (no source change; `DEPLOY OK` md5 cc063003 stands). CH1l4 kickoff checked, unchanged; CH1l4 is ready.
 
+### CH1l4 - Done (2026-11-01)
+
+All 6 class-map rows are written. `_LIVE` stays `//#define`. funcmap rows `Char Chung CH1l4:` (6); read from `charport_adis.py chung --phase CH1l4` and the Ghidra decompiles, every constant and member offset checked in the listing.
+
+| June | `CX2GUChung::` | kind | vs March |
+|---|---|---|---|
+| `32c0d570` | `CommonFrameMove` | inside | June body under `_LIVE`: no summoned-NPC life timer; Now cannon ball count from `iClassSyncInt` (`32bf3f60`); carpet bombing ends at `+0x98a4`; Chaos Cannon time also ends by the Dash Z X X count (JUNE_BUGS #501); artillery fire waits `SA_DELAY` (skill 26014, zero for Missile Shower); Bombard Service marks are a map (JUNE_BUGS #502); the state's `USE_CANNON_BALL` rows call `UseCannon` inside their frame and are erased; `+0x98d4` counts down |
+| `32c058a0` | `DoCarpetBombing` | inside | a shot when `count x 0.2 <= time` (March waits 1 s more), `y + 2500` with the old y as the landing y (March: random y + 2000), power x (1 + `GetSkillAdditionalPowerRate`) with skill 26023, x `max( 1, +0x98a0 )` from shot 19; the small shells are March's |
+| `32c08010` | `ResetArtilleryStrikeData` | inside | also erases buff 418 and self-destructs NPCs 863 / 1419; `m_fSummonedLifeTime` is not reset |
+| `32c080f0` | `DoArtilleryStrikeFire` | inside | Missile Shower: gap > 0.15, `(rand % 8 - 4) x 100` along the last shot direction, y + 4000, reset at 15 shells; Quantum Ballista: y + `SA_FALL_HEIGHT` of 26014, no memo variant |
+| `32c09390` `32c09ad0` | `DoSateliteRain` / `SateliteRainFrameMove` | = March | read in full: same tick 0.2, big shell 0.5 s before the summoner ends, Bomb1-4 counts 1 / 2 / 4 / 3 and random keys (June's `( r * 5 - 250 ) * 2` = March's `( r - 50 ) * 10`), power rate on each effect. `32c09ad0` is `SateliteRainFrameMove` with `ResetSateliteRain` inlined (CH0's name was wrong; `ch0_hand_names.tsv` fixed). No source |
+
+**Beyond the rows.**
+- `CX2GUUser::GetSkillNumericalByName` (June `32007910`) moved up from `CX2GUEve` (flag `SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME`, defined; Eve's decl and body are `#ifndef`-ed out): Chung reads `SA_DELAY` / `SA_FALL_HEIGHT` through it, as Eve's note planned.
+- Registered `RNSI_SA_CHG_CARPET_BOMBING` = 26023 (`X2SkillTree.h`) and `BTI_BUFF_ARTILLERY_STRIKE_SCOPE` = 418 (`X2BuffFactor.h`), both `JUNE_ENUM_NAMES`.
+- Members under `_CORE`: `m_iCarpetBombingMaxCount` (`+0x98a4`), `m_fCarpetBombingExtraRoundPowerRate` (`+0x98a0`), `m_mapBombardServiceEffect` (`+0x97f8`), `m_fShootingBindCoolTimeLeft` (`+0x98d4`); `CannonBallGaugeTimerFrameMove()` (`32bf4680`) declared, **body is CH1q's**: `_LIVE` will not link until it exists (CH1q kickoff amended). CH3c / CH3b kickoffs name the writers of the new members.
+- JUNE_BUGS #501, #502.
+
+**Checked, not changed.** `+0x9108` is `m_bGrap` (funcmap); `+0x8a48` was read as `m_bHold` from the pair of tests, not matched to a name. `32007910` / `3201ad10` / `31fca8e0` / `32890620` map to `GetSkillNumericalByName` / `GetSkillAdditionalPowerRate` / `GetEquippedActiveSkillTemplet( id, true )` / `GetSkillLevel( id, false, 0, true )`. The decompiler garbled the `CreateInstance` arguments; the stack pushes were traced by hand (all defaults but the landing y).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --worktree --files X2GUChung.cpp X2GUChung.h X2SkillTree.h X2BuffFactor.h`: `2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token`; RESULT FAIL only because `_LIVE` is `//#define`. `flagcheck JUNE_USER_NUMERICAL_BY_NAME --worktree --files X2GUUser.* X2GuEve.* Always.h`: `4 PASS, 1 DEFINE`, `RESULT: PASS`.
+- `junediverge.py --check` on the 8 files: `allow-listed: 25`, `RESULT: PASS`. `enumscan.py --check X2GUChung.*`: `0 A/B row(s)`.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH) of `X2GUChung.cpp` with and without `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, `X2GUUser.cpp`, `X2GuEve.cpp`: all exit 0, 0 errors (`cl /P`: the June path is selected, `SA_FALL_HEIGHT` 1 vs 0).
+- `DEPLOY OK: X2_offline.exe is 25,895,936 B, dated 2026-11-01 19:11:30, md5 443cb60ba33692d5902f8a1f42b24be2, equal to X2/US_SERVICE/x2.exe` (built at main 799ae6d0 + these files; X2Lib stage 523 s).
+- `EXESTR OK: 2 of 2 absent in X2_offline.exe` (`SA_FALL_HEIGHT`, `SA_DELAY`: the flag-off build carries no June string).
+
+**Nothing to play-test** (`_LIVE` off). Next: `/x2-phase char-chung CH1l4 review` (Opus 5.5 high), then `CH1m`.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

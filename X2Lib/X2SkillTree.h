@@ -1998,6 +1998,12 @@ public:
 		RNSI_P_CDC_INTENSE_SHOWTIME                           = 26407,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1l4
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )
+		RNSI_SA_CHG_CARPET_BOMBING                            = 26023,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

@@ -75,7 +75,7 @@ fn	proposed_name	why
 32c08010	ResetArtilleryStrikeData	inside: X2GUChung.h:1717; clears +0x97d4.., erases buff 0x1a2 ARTILLERY_STRIKE_SCOPE, kills targeting NPCs
 32c080f0	DoArtilleryStrikeFire	inside: X2GUChung.h:1716; DAMAGE_EFFECT_CSI_SI_SA_CDC_CH..., SA_FALL_HEIGHT
 32c09390	DoSateliteRain	inside: X2GUChung.h:1766; DamageEffect_CTT_Satelite_Rain_B / Satellite_Rain
-32c09ad0	ResetSateliteRain	inside: X2GUChung.h:1767; kills the rain effect, clears +0x9820..
+32c09ad0	SateliteRainFrameMove	inside = March ( CH1l4: the body is March's SateliteRainFrameMove with ResetSateliteRain inlined; CH0's name was wrong )
 32c09b60	CommonHyperModeFrameMove	inside: X2GUChung.h:863; Change/Break/Energy.ogg, hyper-mode minor particles
 32c09e40	CreateCannonBulletDamageEffect	DAMAGE_EFFECT_Cannon_Ball_Bullet + SetLockOn from a weapon bone; callers 32c0e530 / 32c0e9b0 / 32c108d0; role guess
 32c0a230	CanConsumeCannonBallForShot	(count, count2, hyper, float* out): checks GetTotalCannonBallCount >= count, outputs a rate; role guess

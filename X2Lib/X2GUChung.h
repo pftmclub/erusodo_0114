@@ -585,6 +585,9 @@ protected:
 	void				UseCannon( int iCount_ );	// 캐논을 사용 할 때 호출 해야한다.
 	void				ConsumeCannonBallCount( int iCount_  );	// 캐논볼을 전달한 인자 만큼 소모한다.
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+	void				CannonBallGaugeTimerFrameMove();	/// June 32bf4680: body in CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	__forceinline bool	CanUseCannon();
 	__forceinline bool	IsEmptyCannonBallCount();
 	__forceinline bool	IsFullCannonBallCount();
@@ -1965,6 +1968,10 @@ protected:
 	std::vector< std::pair<float, int> >	m_vecUseCannonBall;	/// June +0x98d8: the rows of the state's USE_CANNON_BALL<n> tables, { [1] float, [2] int }; consumer CH1q
 	bool							m_bGuardStartedFromDamageReact;	/// June +0x985c ( ctor false ): the guard skill started from a damage state; GUARD_END End clears it, the GUARD_END / GUARD_DAMAGE event processes read it ( CH3a2 )
 	bool							m_bDualBusterLandingMpSpent;	/// June +0x98d0 ( ctor false ): DUAL_BUSTER_LANDING has spent its MP; the Dual Buster upgrade's skill use clears it ( CH2c )
+	int							m_iCarpetBombingMaxCount;		/// June +0x98a4 ( ctor 0 ): the shots a Carpet Bombing run fires; CommonFrameMove ends the run at it ( set by the skill start, CH3c )
+	float						m_fCarpetBombingExtraRoundPowerRate;	/// June +0x98a0 ( ctor 1 ): DoCarpetBombing's power factor from the 19th shot on ( at least 1; set by the skill start, CH3c )
+	std::map< int, CX2EffectSet::Handle >	m_mapBombardServiceEffect;	/// June +0x97f8: the Bombard Service mark effect set per target unit; CommonFrameMove stops the ones of dead targets ( its only filler 32c08970 has no caller )
+	float						m_fShootingBindCoolTimeLeft;	/// June +0x98d4: counts down in CommonFrameMove; two CH3b states set it, ShownSkillCoolTime ( CH1o ) reads it
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

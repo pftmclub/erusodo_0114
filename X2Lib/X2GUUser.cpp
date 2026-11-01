@@ -22858,6 +22858,33 @@ D3DXVECTOR3 CX2GUUser::GetNearestTargetAimDegree( IN const float fMaxUpDegree_, 
 	return vAimDegree;
 }
 #endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
+#ifdef SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
+// June 32007910 ( name / skill / upgrade swap ): the numerical row at the learned level x its PvP rate in PvP or PvE; 1.0 with no tree, unit, level or templet
+float CX2GUUser::GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.f;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ );
+	if( true == bUpgradeSwap_ )
+		eSkillID = userSkillTree.GetUpgradeSwappedSkillID( eSkillID );
+
+	const int iSkillLevel = userSkillTree.GetSkillLevel( eSkillID, false, 0, true );
+	if( iSkillLevel <= 0 )
+		return 1.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+	if( NULL == pSkillTemplet )
+		return 1.f;
+
+	CX2SkillTree::SkillTemplet::NumericalRow kRow;
+	pSkillTemplet->GetNumericalRowByName( pwszName_, iSkillLevel, kRow );
+
+	const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
+	return kRow.m_fValue * ( true == bPvpOrPve ? kRow.m_fPvpRate : 1.f );
+}
+#endif SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 void CX2GUUser::CommonCameraMove()
 {
 	KTDXPROFILE();

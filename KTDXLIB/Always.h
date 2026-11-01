@@ -11133,3 +11133,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif SERV_IRUHADEV_JUNE_USER_AIM_TARGET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-01
+// Description: June character port ( Chung ) Phase CH1l4 - CX2GUUser::GetSkillNumericalByName ( June 32007910 ), moved up from CX2GUEve ( Eve CH2a kept
+//              it there until a second class needed it ). Chung's CommonFrameMove and artillery strike fire read SA_DELAY / SA_FALL_HEIGHT through it.
+//              Revert: undefine the flag ( JUNE_USER_NUMERICAL_BY_NAME ); Eve's own member returns.
+#define SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
+//////////////////////////////////////////////////////////////////////////

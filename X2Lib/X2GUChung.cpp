@@ -192,6 +192,9 @@ iFrameBufferNum_, pUnit_ )
 , m_iPrevStateSkillID( 0 )
 , m_bGuardStartedFromDamageReact( false )
 , m_bDualBusterLandingMpSpent( false )
+, m_iCarpetBombingMaxCount( 0 )
+, m_fCarpetBombingExtraRoundPowerRate( 1.f )
+, m_fShootingBindCoolTimeLeft( 0.f )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -6339,6 +6342,132 @@ void CX2GUChung::CommonFrameMoveFuture()
 */
 void CX2GUChung::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0d570: no summoned NPC life timer; the Bombard Service marks are a map; the state's cannon ball use rows run here
+	CX2GUUser::CommonFrameMove();
+
+	if ( false == IsMyUnit() )
+		SetTotalCannonBallCount( m_FrameDataNow.syncData.iClassSyncInt );	/// June 32bf3f60: body in CH1q
+
+	BOOST_TEST_FOREACH( CX2EqipPtr, pPromotionEquipPtr, m_vecPromotionEquipList )
+	{
+		pPromotionEquipPtr->SetRenderParam( m_fTime, m_fElapsedTime, m_pXSkinAnim->GetRenderParam() );
+		pPromotionEquipPtr->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	if ( m_fRemainIronWillRenderEffectTime > 0.f )
+		m_fRemainIronWillRenderEffectTime -= m_fElapsedTime;
+	else
+		m_fRemainIronWillRenderEffectTime = 0.f;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
+	if ( NULL != pNPC )
+	{
+		if ( m_TimerCheckInvalidShot.elapsed() > 1.0 )
+		{
+			m_TimerCheckInvalidShot.restart();
+
+			if ( true == GetHold() || true == GetGrap() )
+				pNPC->StateChange( "SHOT_ARTILLERY_STRIKER_CANCEL", true );
+		}
+	}
+
+	if ( m_fBeShotCannonBallRelTime > 0.f )
+	{
+		m_fBeShotCannonBallRelTime -= m_fElapsedTime;
+		if ( m_fBeShotCannonBallRelTime < 0.f )
+			m_fBeShotCannonBallRelTime = 0.f;
+	}
+
+	if ( true == m_bCarpetBombing && m_iCarpetBombingCount < m_iCarpetBombingMaxCount )
+	{
+		m_fCarpetBombingTime += m_fElapsedTime;
+		DoCarpetBombing();
+	}
+	else
+	{
+		m_fCarpetBombingTime = 0.f;
+		m_iCarpetBombingCount = 0;
+		m_bCarpetBombing = false;
+	}
+
+	if ( GetNowHp() <= 0.f )
+		m_fChaosCannonTime = 0.f;
+
+	if ( m_fChaosCannonTime > 0.f )
+		m_fChaosCannonTime -= m_fElapsedTime;
+
+	if ( m_iCountbyCsgComboDashZXXMiniGun >= 10 )	/// June 32c0d830: the Dash Z X X loop count ends the Chaos Cannon time ( JUNE_BUGS )
+		m_fChaosCannonTime = 0.f;
+
+	if ( m_iCountbyCsgComboDashZXXMiniGun >= 8 && GetTotalCannonBallCount() < 2 )
+		m_fChaosCannonTime = 0.f;
+
+	if ( m_fChaosCannonTime <= 0.f )
+	{
+		m_fChaosCannonTime = 0.f;
+		if ( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL &&
+			m_hChaosCannonEffect != INVALID_EFFECTSET_HANDLE )
+		{
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hChaosCannonEffect );
+			m_hChaosCannonEffect = INVALID_EFFECTSET_HANDLE;
+		}
+		if ( m_pChaosCannonSound != NULL && m_pChaosCannonSound->IsPlaying() == true )
+			m_pChaosCannonSound->Stop();
+	}
+
+	if ( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL && false == m_bInStateMobileArmoredMode &&
+		m_hMobileArmoredModeEffect != INVALID_EFFECTSET_HANDLE )
+	{
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hMobileArmoredModeEffect );
+		m_hMobileArmoredModeEffect = INVALID_EFFECTSET_HANDLE;
+	}
+
+	if ( true == m_bArtilleryStrikeFire )
+	{
+		float fArtilleryStrikeFireDelay = 0.f;
+		if ( CAST_MISSILE_SHOWER != m_eArtilleryStrikeType )
+			fArtilleryStrikeFireDelay = GetSkillNumericalByName( L"SA_DELAY", CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA, true );
+
+		if ( fArtilleryStrikeFireDelay < m_TimerCheckArtilleryStrikeFire.elapsed() )
+		{
+			m_fArtilleryStrikeCreateDamageEffectGapTime += m_fElapsedTime;
+			DoArtilleryStrikeFire();
+		}
+	}
+
+	if ( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL )
+	{
+		for ( std::map< int, CX2EffectSet::Handle >::iterator mItr = m_mapBombardServiceEffect.begin(); mItr != m_mapBombardServiceEffect.end(); )
+		{
+			const std::map< int, CX2EffectSet::Handle >::iterator mItrNow = mItr++;
+			CX2GameUnit* pTargetUnit = g_pX2Game->GetUnit( mItrNow->first );
+			if ( ( NULL == pTargetUnit || pTargetUnit->GetNowHp() <= 0.f ) && INVALID_EFFECTSET_HANDLE != mItrNow->second )
+			{
+				g_pX2Game->GetEffectSet()->StopEffectSet( mItrNow->second );
+				m_mapBombardServiceEffect.erase( mItrNow );
+			}
+		}
+	}
+
+	SateliteRainFrameMove();	/// June 32c09ad0 ( = March )
+	CannonBallGaugeTimerFrameMove();
+
+	for ( std::vector< std::pair<float, int> >::iterator vItr = m_vecUseCannonBall.begin(); vItr != m_vecUseCannonBall.end(); )
+	{
+		const float fNowAnimationTime = m_pXSkinAnim->GetNowAnimationTime();
+		if ( vItr->first <= fNowAnimationTime || fNowAnimationTime + m_fElapsedTime < vItr->first )
+			++vItr;
+		else
+		{
+			UseCannon( vItr->second );	/// June 32bf5280: body in CH1q
+			vItr = m_vecUseCannonBall.erase( vItr );
+		}
+	}
+
+	if ( m_fShootingBindCoolTimeLeft > 0.f )
+		m_fShootingBindCoolTimeLeft -= m_fElapsedTime;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonFrameMove();
 
@@ -6524,6 +6653,7 @@ void CX2GUChung::CommonFrameMove()
 	SateliteRainFrameMove();	// 새틀라이트 레인, CommonFrameMove 쪽에 들어가는 함수
 #endif // FINALITY_SKILL_SYSTEM // 김종훈, 궁극기 시스템
 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : CommonStateEndFuture
@@ -29526,6 +29656,82 @@ void CX2GUChung::CSI_SA_CHG_CARPET_BOMBING_EventProcess()
 
 void CX2GUChung::DoCarpetBombing()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c058a0: a shot from the start of the run ( no 1 s wait ), a fixed height, power times the extra-round rate from the 19th shot
+	if( m_iCarpetBombingCount * 0.2f <= m_fCarpetBombingTime )
+	{
+		const int iCarpetBombingCnt = m_iCarpetBombingCount % 9;
+
+		const float fBaseDist = 2400.f;
+		const float fBombDist = 2000.f;
+
+		const float fGap = 3000.f / 8.f;
+		D3DXVECTOR3 vPos = m_vCarpetBombingPos;
+		const float fLandPos = vPos.y;
+		vPos.x = vPos.x + (m_vCarpetBombingDir.x * fBaseDist) + (m_vCarpetBombingDir.x * fBombDist);
+		vPos.z = vPos.z + (m_vCarpetBombingDir.z * fBaseDist) + (m_vCarpetBombingDir.z * fBombDist);
+
+		vPos.x -= (m_vCarpetBombingDir.x * fGap * iCarpetBombingCnt);
+		vPos.z -= (m_vCarpetBombingDir.z * fGap * iCarpetBombingCnt);
+		vPos.y += 2500.f;
+
+		float fPowerRate = 1.f;
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CHG_CARPET_BOMBING, true );
+		if( NULL != pSkillTemplet )
+		{
+			if ( NULL == GetUnit() )
+				return;
+
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+
+			fPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel );
+			fPowerRate = ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet->m_eID ) ) + 1.f ) * fPowerRate;
+		}
+
+		if( m_iCarpetBombingCount >= 18 )
+			fPowerRate *= ( m_fCarpetBombingExtraRoundPowerRate >= 1.f ) ? m_fCarpetBombingExtraRoundPowerRate : 1.f;
+
+		CX2DamageEffect::CEffect *pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"CHUNG_CARPETBOMBING_BIG", fPowerRate, vPos, m_vCarpetBombingRot, m_vCarpetBombingRot,  fLandPos );
+#ifdef ADD_GAME_STAGE_DELETE_DAMAGEEFFECT
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        g_pX2Game->AddRemoveDamageEffect( pDamageEffect->GetHandle() );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		g_pX2Game->AddRemoveDamageEffect( pDamageEffect );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#endif
+
+		CX2DamageEffect::DamageEffectDataInLua &damageEffectDataInLua = pDamageEffect->GetDamageEffectDataInLua();
+		float fRotateTemp = 0.f;
+
+		for(int i=0; i<m_iCarpetBombingSmallCount; ++i)
+		{
+			CX2DamageEffect::DamageEffectData* pData = new CX2DamageEffect::DamageEffectData;
+			pData->fEventTime	= 0.85f;
+			pData->posType = CX2DamageEffect::DEPT_POS;
+			pData->damageEffectName = L"CHUNG_CARPETBOMBING_SMALL";
+			pData->bApplyRotate = true;
+			pData->bApplyRotatedOffset = true;
+			pData->bAutoDie = true;
+			float fBombRot = fRotateTemp;
+ 			if( i % 2 == 1 )
+ 			{
+ 				fBombRot *= -1.f;
+ 			}
+ 			else
+ 			{
+ 				fRotateTemp += 10.f;
+ 				fBombRot = fRotateTemp;
+ 			}
+
+			pData->vRotateAngleDegree.z = fBombRot;
+			damageEffectDataInLua.m_vecCreateDamageEffect.push_back( pData );
+		}
+
+		++m_iCarpetBombingCount;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if( m_fCarpetBombingTime >= (1.f+(m_iCarpetBombingCount*0.2f)) )
 	{
 		int iCarpetBombingCnt = m_iCarpetBombingCount % 9;
@@ -29603,6 +29809,7 @@ void CX2GUChung::DoCarpetBombing()
 
 		++m_iCarpetBombingCount;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove()
@@ -33316,6 +33523,17 @@ void CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_LAUNCHER_EventProcess()
 */
 void CX2GUChung::ResetArtilleryStrikeData()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c08010: the scope buff goes too; no summoned NPC life time to clear
+	m_eArtilleryStrikeType = CAST_NONE;
+	m_iArtilleryStrikeNowPlayCount = 0;
+	m_fArtilleryStrikePowerRate = 0.f;
+	m_fArtilleryStrikeCreateDamageEffectGapTime = 0.f;
+	m_bArtilleryStrikeFire = false;
+	EraseBuffTempletFromGameUnit( BTI_BUFF_ARTILLERY_STRIKE_SCOPE );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 0.f );
+	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 0.f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_eArtilleryStrikeType = CAST_NONE;
 	m_iArtilleryStrikeNowPlayCount = 0;
 	m_bArtilleryStrikeFire = false;
@@ -33327,6 +33545,7 @@ void CX2GUChung::ResetArtilleryStrikeData()
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG, 0.f );
 	SetSelfDestructSummonedNPC( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER , 0.f );
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /*  @function : 아틸러리 스트라이크 실행
@@ -33335,6 +33554,34 @@ void CX2GUChung::ResetArtilleryStrikeData()
 */
 void CX2GUChung::DoArtilleryStrikeFire()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c080f0: a fixed drop height and shell count; the Quantum Ballista drop height is the skill's SA_FALL_HEIGHT and has no memo variant
+	if ( m_eArtilleryStrikeType > CAST_NONE )
+	{
+		if ( CAST_MISSILE_SHOWER == m_eArtilleryStrikeType )
+		{
+			if ( m_fArtilleryStrikeCreateDamageEffectGapTime > _CONST_CHUNG_::GAP_TIME_OF_ARTILLERY_STRIKE_CREATE_DAMAGE_EFFECT_TIME )
+			{
+				D3DXVECTOR3 vTempPos = m_vLastShotPos;
+				vTempPos = vTempPos + m_vLastShotDir * static_cast<float>( ( GetRandomInt( m_iArtilleryStrikeNowPlayCount ) % 8 - 4 ) * 100 );
+				vTempPos.y += 4000.f;
+				m_fArtilleryStrikeCreateDamageEffectGapTime = 0.f;
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_SI_SA_CDC_CHUNG_ARTILLERY_STRIKE_SHELL_GROUND", m_fArtilleryStrikePowerRate, vTempPos, GetRotateDegree(), GetRotateDegree() );
+				m_iArtilleryStrikeNowPlayCount += 1;
+			}
+
+			if ( m_iArtilleryStrikeNowPlayCount >= 15 )
+				ResetArtilleryStrikeData();
+		}
+		else if ( CAST_QUANTUM_BALLISTA == m_eArtilleryStrikeType )
+		{
+			D3DXVECTOR3 vTempPos = m_vLastShotPos;
+			vTempPos.y += GetSkillNumericalByName( L"SA_FALL_HEIGHT", CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA, true );
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_SI_SA_CDC_CHUNG_ARTILLERY_STRIKE_QUANTUM_BALLISTA_GROUND_SHELL", m_fArtilleryStrikePowerRate, vTempPos, GetRotateDegree(), GetRotateDegree() );
+			ResetArtilleryStrikeData();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( m_eArtilleryStrikeType > CAST_NONE )			
 	{
 		switch ( m_eArtilleryStrikeType )
@@ -33400,6 +33647,7 @@ void CX2GUChung::DoArtilleryStrikeFire()
 		ResetArtilleryStrikeData();
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 

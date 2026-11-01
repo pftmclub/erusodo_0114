@@ -2939,7 +2939,9 @@ protected:
 	void		SetFaenaSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 329c8a00 @329ca9d1 ( both switches' default )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	/// June character port Phase CH2a: Eve's Nasod skill states; the registration cases are in June_SetEquippedSkillFuncHead
+#ifndef SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 	float		GetSkillNumericalByName( const WCHAR* pwszName_, const int iSkillID_, const bool bUpgradeSwap_ ) const;	/// June 32007910 ( CX2GUUser )
+#endif SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 	void		EveSpecialActiveSkillEventProcess();		/// June 3296f0e0
 	/// June character port Phase CH2b: Architecture's skill states
 	void		ENSI_A_EAT_FAENA_Init();					/// June 32968da0

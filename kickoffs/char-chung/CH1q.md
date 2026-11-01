@@ -63,3 +63,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **`32bed560` is not March's `GetTotalCannonBallCount`.** It returns (full hyper mode ? gage max `+0x11c` : now `+0x110`) + (class 117 and `+0x97a0` ? extra `+0x128` : 0), with no x7. The formula `CommonFrameMoveFuture` writes into the sync int is a different one (now + 7 x extra, March's `FIX_CANNON_BALL_SYNC_CALCULATION` arm), so June has two formulas; port each where June uses it. CH1l2 inlines its own and calls neither (`june_march_divergent.tsv` row `GetTotalCannonBallCount`).
 - **Per-state rows `m_vecUseCannonBall`** (`std::vector< std::pair<float, int> >`, June `+0x98d8`) are filled by CommonStateStart from `USE_CANNON_BALL<n>` ({ [1] float, [2] int }); this phase finds the reader and names the two fields.
 - **CH1l2 review:** `32bed560` is March's `GetTotalCannonBallCount` namesake only by the class map; prove it from June's callers (where March calls `GetTotalCannonBallCount`) before replacing March's body, else re-point the divergence row.
+
+## Amended by CH1l4 (2026-11-01)
+
+- CH1l4's `CommonFrameMove` (`_LIVE`) calls three bodies you own: `SetTotalCannonBallCount( iClassSyncInt )` (`32bf3f60`, Now side, not my unit), `CannonBallGaugeTimerFrameMove()` (`32bf4680`; declared under `_CORE`, **no body yet**, so the link fails once `_LIVE` is defined until you write it; the class map's `?` name is now this one), and `UseCannon( count )` (`32bf5280`) for each `m_vecUseCannonBall` row whose time falls inside this frame (`anim +0x214 < time <= +0x214 + elapsed`, the row is erased after the call).
+- `GetTotalCannonBallCount` (`32bed560`) is already June's body (CH1l3); CH1l4 calls it in the Chaos Cannon block.
