@@ -637,6 +637,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 - **June's idle timer** (handed here by pilot-char-revamp CH1l, 2026-10-21). User floats `+0x91a8 / +0x91ac` (set @32041ae3 in `3203e850`,
   reset by `CX2GUUser::OnFrameMove` @3206f99d when user vslot 0x828 answers true), read by CX2Game `323022b0`, which shows text `0x4b1f` with the
   remaining time. All classes; the 0x828 base is `CX2GUUser::JuneIsNotCommonMoveState` (CH1l). Identify the screen it drives, then port whole.
+  (char-chung CH1l30, 2026-11-01:) the base is now `CX2GUUser::IsNotCommonMoveState`, complete with vslots 0x520 `IsWaitState` / 0x578
+  `IsClassCommonMoveState`. A third float `+0x91b4` (init @32041b04) is zeroed by `31fd78a0` (OnFrameMove @3206fa18) unless the Now state is
+  wait, charge MP or `IsWaitState()`; port it with the timer.
 - **June's skill-slot show writers March lacks** (handed here by pilot-char-revamp CH4d, 2026-10-22). UI manager `+0x89` is March's `m_bShowSkillSlot`
   (setter `32150b70` = `SetShowSkillSlot`, same guard); 8 of June's 16 writers are already March's. Missing: `CX2GUUser::Init` `3204ef16` (dungeon
   without a riding pet, DCC 8: `SetShowSkillSlot( true )` + `SetShowRidingPetSkillSlot( false )`, anchor `X2GUUser.cpp:1812-1819`); the PvP game ctor

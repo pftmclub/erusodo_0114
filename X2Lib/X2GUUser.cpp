@@ -43301,6 +43301,9 @@ bool CX2GUUser::IsNotCommonMoveState()
 	if( USI_RIDING_WAIT_HABIT <= iNow && iNow <= USI_RIDING_DASH_JUMP_LANDING )
 		return false;
 
+	if( IsWaitState() || IsClassCommonMoveState() )	// June @31fd786b / @31fd787b
+		return false;
+
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

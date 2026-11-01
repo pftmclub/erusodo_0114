@@ -3398,6 +3398,8 @@ public:
 		void CountReservedSkillUse();		/// June CommonStateStart 32057b80 @32057c23-d84
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 		virtual bool IsNotCommonMoveState();	/// June 31fd7640, the base of user vslot 0x828
+		virtual bool IsWaitState() { return GetWaitStateID() == GetNowStateID(); }	/// June user vslot 0x520 ( base 3208e710; Rose adds her second wait )
+		virtual bool IsClassCommonMoveState() { return false; }	/// June user vslot 0x578 ( base 31e4c550; Luciel adds his two move-state sets )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		virtual void AfterEquipSlotChange() {}	/// June user vslot 0x654 ( base 31f3f070, empty )

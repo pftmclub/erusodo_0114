@@ -58,3 +58,12 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH1l30** (`31d70b60`, `31fd7640`, `3288fe90`, `31f66620`).
 - Opus helper phase **CH1l30** runs first (`31d70b60` GetCustomizeManager, no March system: stand-in, Stage 12 owns it; `31fd7640` vslot 0x828 base predicate; `3288fe90` skill-tree slot accessor; `31f66620` for CH1l4).
 - Slot 0x800 `32bf5130` is the one 7al hook Chung overrides.
+
+## Amended by CH1l30 (2026-11-01): the helpers' March names
+
+- **`31fd7640`** = `CX2GUUser::IsNotCommonMoveState()` (X2GUUser.h, `_ARME_CORE`, compiled). `32beebd0`'s override calls it first, as Arme's and Eve's do.
+- **`3288fe90`** = March's `CX2UserSkillTree::GetCBConsumption( iSlotIndex, bSlotB )`, unchanged (5 slots under `JUNE_SKILL_SLOT_10`). In `32c17830` @32c17e8a
+  the slot is split inline (> 4 -> B, index - 5) before the call; write the split as June does it, then `GetUnit()->GetUnitData().m_UserSkillTree.GetCBConsumption( ... )`.
+- **`31d70b60`** (customize manager) has no March home. In `32bf0800` leave out the `31fd8a50() > 0` block (@32bf08b4-@32bf0929: GetItemData, the custom
+  cut-in name) with the one-line comment Arme and Eve use: `// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )`.
+  The `<= 0` path (@32bf092b: vslot 0x9c, then the class cut-in) and the event 0x8b3 swap (@32bf0956) stay.

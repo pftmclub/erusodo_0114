@@ -54,7 +54,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Functions: 6** (`awk -F'\t' '$7=="CH1l4"' june2017_re/char_chung/ch0_class_map.tsv`; inside 6).
   June addresses: `32c058a0` `32c08010` `32c080f0` `32c09390` `32c09ad0` `32c0d570`.
-- `31f66620` (pooled alloc) is mapped by CH1l30.
+- `31f66620` (pooled alloc) is mapped by CH1l30: it is `CX2DamageEffect::DamageEffectData::operator new` (boost pool, element 0xb8), so `32c058a0`'s
+  `31f66620( 0xb8 )` + ctor `31f8bf00` is `new CX2DamageEffect::DamageEffectData`, as March's carpet-bombing loop (X2GUChung.cpp:29183) writes it.
 - The hyper-count-3 timer skip `32bf4680` and `32bf3f60` are CH1q's: declare them.
 
 ## Amended by CH1l2 (2026-11-01)

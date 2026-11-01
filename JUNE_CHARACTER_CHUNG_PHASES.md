@@ -1465,6 +1465,39 @@ All 9 class-map rows are written: 6 `inside` (June body in March's own `CX2GUChu
 
 **Gates.** `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES --range acec8aab^..acec8aab`: `2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (X2SkillTree.h, JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`. RESULT FAIL only because `_LIVE` is `//#define`. `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2GUChung.*`: 0 A/B rows. One-file probes of `X2GUChung.cpp`, `_LIVE` off and `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: both exit 0, 0 errors. No build: no source change, so `DEPLOY OK` md5 `a10300c8` stands. Nothing to play-test. Next: `CH1l30` (Opus 5.5 high); its kickoff is checked.
 
+### CH1l30 - Done (2026-11-01)
+
+**Four helpers mapped; two are March's own functions, one needs no home until Stage 12, and one shared base was finished.** funcmap rows
+`Char Chung CH1l30:` (7). The CH1l3 and CH1l4 kickoffs name the March symbols.
+
+| June | March | How |
+|---|---|---|
+| `31fd7640` | `CX2GUUser::IsNotCommonMoveState()` (X2GUUser.cpp, `_ARME_CORE`) | already ported by Arme CH1i; **completed** (below) |
+| `3288fe90` | `CX2UserSkillTree::GetCBConsumption( iSlotIndex, bSlotB )` = March | slot +0x84 / +0x278 - row bases +0x48 / +0x23c = SkillSlotData +0x3c = `m_usCBConsumption`; bound `> 4` = 5 slots (`JUNE_SKILL_SLOT_10`) |
+| `31f66620` | `CX2DamageEffect::DamageEffectData::operator new` = March | boost singleton pool `31f8c540` (requested 0xb8 = June's DamageEffectData, ctor `31f8bf00`), critical section, free list `+0x18`, grow `31c5b8c0` |
+| `31d70b60` | none (CX2CustomizeManager, Stage 12) | `LEA EAX,[ECX+0x9e4]`. Chung's only use is `32bf0800`'s cut-in item override @32bf08b4-@32bf0929; CH1l3 leaves it out with Arme's / Eve's one-line comment |
+
+- **`IsNotCommonMoveState` was short two tests.** June's body ends with vslot 0x520 (@31fd786b) and 0x578 (@31fd787b); either true -> false. Arme's
+  transcription stopped at the riding range. Added under the same flag (`_ARME_CORE`, X2GUUser.h / .cpp, +2 / +3 lines):
+  `virtual bool IsWaitState()` = June base `3208e710` (Now == `GetWaitStateID()`; only Rose `32ae37f0` overrides it, adding state 0x9a) and
+  `virtual bool IsClassCommonMoveState()` = June base `31e4c550` (false; only Luciel `32b15340` overrides it: states 424-433 / 469-478). Both slots are
+  the base in every March class's June vtable (Chung `3350967c` included), so the result is unchanged for every class in the game today.
+- Re-read of the eleven getters: vslots 0x438 / 0x43c-0x45c = wait, walk 0xe, dash 0x13, dash end 0x14, dash jump 0x15, dash jump landing 0x16, jump ready
+  0xf, up 0x10, down (`3208de10`), landing 0x12, plus charge MP `+0x7d04`: all match March's names in the body. The CH0 row's "protected counts" was wrong:
+  `+0x7cbc` is the Now state-data pointer (index = ( ptr - `+0x7cec` ) / 100, `3208ec80`).
+- `3288fe90`'s only caller is `32c17830` (@32c17e8a), not `32bf5130` (CH0's "to confirm"). `31f66620`'s only out-of-line caller is `32c058a0` (CH1l4).
+
+**Gates.** `flagcheck JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`: `2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched`; `RESULT: PASS`. `junediverge.py --check X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`:
+`RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.*`: 2 rows, both pre-existing (`NPC_UNIT_ID` 4342 / 4343 at X2GUUser.h:2550-2551), none in this diff.
+No new enum literal, no JUNE_BUGS row (no quirk). `DEPLOY OK: X2_offline.exe is 25,892,864 B, dated 2026-11-01 16:42:59, md5 558cbabb`
+(built at main 989ec7a0 + these 2 files).
+
+**Routed.** `31fd78a0` (OnFrameMove @3206fa18 zeroes user float `+0x91b4` unless waiting, charging MP or `IsWaitState()`) joins the backlog bullet
+"June's idle timer" (same `+0x91a8`-`+0x91b8` block); the bullet's stale `JuneIsNotCommonMoveState` name now points at the March one.
+
+**Play-test:** none. Nothing new runs (both added tests are false for every March class); CH1l3 is next after the review.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
