@@ -1803,6 +1803,48 @@ X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2L
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1n review` (Opus 5.5 high), then CH1n2.
 
+### CH1n - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `062caaaf` stands).
+
+- **Head, against the listing** (`32c1f530`): bounds `0 > slot || 5 <= slot` before `3207c1a0`; tables from the exe bytes `33507b00` = 50..58,
+  `33507b14` = 51..59, `33507b28` = 60..68, `33507b3c` = 61..69 (March's four arrays); `31fd2af0` on the normal only (dropped, 7i); normal `+0x11 = 1`,
+  hyper word `+0x10 = 0x101`; `31fca8e0( id, 1 )`; memo `31fdbcc0( id )` then `32206450( memo, 1 )`, a NULL templet falls to the type switch.
+- **Memo switch** (`memo - 26030`, `JA` past 0xcd, bytes `32c22264` / targets `32c22250`): 26030 / 26052 -> 0, 26220 -> 1, 26221 / 26235 -> 2,
+  26225 -> 3, the rest -> `32c2221d` (nothing). Delegates are 8 bytes from `+0x14` (Init, StartFuture, Start, FMFuture, FM, Camera, EP, ...); every
+  `LAB_` thunk resolved through its `E9`: Shooting Star READY Init / FM / EP `32bd9b70` / `32c0df80` / `32be28b0`, hyper copies FM + EP; ATTACK 0xe9
+  Start / FM / EP `32bd9b80` / `32bfc310` / `32beb940`; END 0xea EP `32be28e0` (shared tail `32c22198` sets only the EP `this`). Head Shot 26220 Init
+  `32bd9c10`, FM `32bfc860` (= `_DefaultFrameMove`, CH1g2), EP `32be2ad0`, hyper the same table, FM + EP; 26225 the same with FM `32bfcc80`.
+  Rapid Cannon READY StartFuture / Start / EP `32bdb130` / `32bf3900` / `32bee140` on both, hyper `+0x10 = 1`; LOOP 0x13e Init / SF / FM / EP
+  `32bdb160` / `32bdb1b0` / `32c079f0` / `32bee210`; FINAL 0x13f SF / FM / EP `32bdb1d0` / `32c07cf0` / `32be8360` (tail `32c22190`). = the port.
+- **Type switch** (`type - 5`, bytes `32c22344` / targets `32c22334`): 5 buff (FM thunk `329ccd90` -> `32a77a20` = `jmp [eax+0x5f0]`, EP `31fcbd60`);
+  6 / 7 / 13-16 actives; 12 throw item; 8-11 and the rest nothing. March's enum: ST_BUFF 5, ACTIVE 6, SPECIAL_ACTIVE 7, RELATIONSHIP 12, HYPER_ACTIVE 13,
+  GRADE_1-3 14-16. Actives: `> 26600` (table `32c2252c`: 26601 / 26604 Outrage `32bdb610` + EP `31fcc740`, 26602 / 26605 Satellite Rain Init / EP / FM
+  `32bdb550` / `32be8bb0` / `32c08fa0`, 26603 Doom Strike, else `32c220ae`), `== 26600` Doom Strike Init `32bdb6a0` + EP `31fcc740`, else the id switch
+  (default `32c220ae`). Throw item: `id == 900` (`SI_ETC_WS_COMMON_LOVE`, the live value), thunks `329ccda0` / `329ccdb0` = vslots 0x5f4 / 0x5f8.
+- **`@32c220ae` = `SetLunaticBlowSkillFunc`** = March's Lunatic Blow case (`X2GUChung.cpp:5658`): START FM / EP `32bf0a90` / `32bedf60`, `_HYPER`
+  copies both; EXPLOSION 0xd7 Init / FM / EP `32bd9160` / `32c11e10` / `32beb7f0`; FINISH 0xd8 `32bd91d0` / `32bfa2c0` / `32be0d50`.
+- **Call site:** March's head and type switch are the `#else`; under `_LIVE` the id switch's `default:` calls the helper and Detonation keeps its own
+  case; the id switch ends the function (`X2GUChung.cpp:7191`), so the head's early returns skip nothing. `stateID` kept as March sets it (June's Init
+  zeroes `+4` and passes the raw id to MakeTableReference: same table, same id).
+- **Enum names:** the 9 values equal `Enum.src.lua`; no non-`RNSI_` `SKILL_ID` member has an explicit value in 20000-26999, each value appears once.
+- **Triage** (`ch1n_user_callback_triage.tsv`): counts reconcile (non-riding 36 SAME / 20 DIFF = 16 CH1n2 + 4 kept; riding 22 / 49 = 48 Stage 17 +
+  RidingHyperModeEnd kept; 58 / 69). Re-read against the listings: Walk / Dash FMF (both-keys block), DashStartFuture / DashJumpLandingStartFuture
+  (Common first), DamageAirSmallEventProcess (`vslot 0x7f4( 6 )` airborne), THROW_ITEM_EventProcess (foot test, y -= 30), PEPPER_RUN_JUMP_UP_SSF
+  (`+0x8fc1` skip), JUMP_UP_FMF, PEPPER_RUN_END_FM (`31f54a10` on `+0x93bc`), StartEnd / HyperModeStart / THROW_ITEM FM / StateEnd evidence at the
+  cited addresses: all DIFF as written. SAME re-read: HyperModeStartFuture, DamageAirSmallStartFuture (`+0x80cd` is in `m_FrameDataNow`, base `0x7fb4`),
+  DAMAGE_GROGGY_EventProcess, THROW_ITEM_StateStart, PEPPER_RUN_END_EventProcess: all SAME. The 5 kept rows are the Done note's. `CH1n2.md` lists the 16.
+- `32c24400` = `CreateFuryGuardianGuardSkill` (class map row) as fixed in CH1n.
+
+**Hygiene** (`--range d2c23a9b^..d2c23a9b`). `JUNE_CHAR_CHUNG_CORE`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+`JUNE_CHAR_CHUNG_LIVE`: `files: 0 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: FAIL` (`the flag is not #defined anywhere tracked`, by design).
+`JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+Each: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+`git diff --patience --numstat`: 245 / 0, 3 / 0, 14 / 0. `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp`:
+`0 A/B row(s) remain in 1 file(s)`. Probes of `X2GUChung.cpp` (`/Zs /EHsc`, US_SERVICE defines): `_LIVE` off exit 0 / 0 errors, on exit 0 / 0 errors.
+
+User owes nothing. Next: `/x2-phase char-chung CH1n2` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

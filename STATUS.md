@@ -175,8 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1n | review next: head of `32c1f530` under `_LIVE` + `SetLunaticBlowSkillFunc`; base-callback triage 58 same / 69 differ, split to CH1n2 (16) and Stage 17 (48) | Opus 5.5 / high, Opus review | CH1m review | `X2GUChung.*`, `X2SkillTree.h` | `CH1n-review.md` |
-| CH1n2 | blocked (CH1n review): the 16 non-riding `CX2GUUser` base callbacks June changed (walk / jump / dash both keys, air-hit skill use, pepper run, throw item), every class, own flag | Opus 5.5 / high, Opus review, user play-test | CH1n review | `X2GUUser.cpp`, Always.h | `CH1n2.md` |
+| CH1n2 | ready: the 16 non-riding `CX2GUUser` base callbacks June changed (walk / jump / dash both keys, air-hit skill use, pepper run, throw item), every class, own flag | Opus 5.5 / high, Opus review, user play-test | CH1n review | `X2GUUser.cpp`, Always.h | `CH1n2.md` |
 | CH1o | blocked (CH1n2 review): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
 | CH1q | blocked (CH1p review): cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
@@ -199,7 +198,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8), CH1l (review: `SetEquippedSkillLevelStateData` and the Guard level = June's, under `_LIVE`), CH1l2 (review: 9 rows hold, no change), CH1l30 (review: 4 helpers hold, no change), CH1l3 (review: 13 rows hold, no change), CH1l4 (review: rows hold; Bombard Service container = June's distance multimap), CH1m (review: registration holds, no change; June's dash jump keeps 1.6x).
+Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8), CH1l (review: `SetEquippedSkillLevelStateData` and the Guard level = June's, under `_LIVE`), CH1l2 (review: 9 rows hold, no change), CH1l30 (review: 4 helpers hold, no change), CH1l3 (review: 13 rows hold, no change), CH1l4 (review: rows hold; Bombard Service container = June's distance multimap), CH1m (review: registration holds, no change; June's dash jump keeps 1.6x), CH1n (review: head, memo / type switches and triage hold, no change).
 
 ## Other plans (no STATUS rows)
 
