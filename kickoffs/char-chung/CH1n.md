@@ -20,9 +20,9 @@ Eve's matching sub-phase is the worked example.
 
 ## Task
 
-The CX2GUUser base callbacks Chung registers (CH1m's table names them): reuse every base Aisha and Eve already ported (widen its `#if` to
+The CX2GUUser base callbacks Chung registers (CH1m's `june2017_re/char_chung/ch1m_user_callbacks.tsv`: 127 members with their June targets): reuse every base Aisha and Eve already ported (widen its `#if` to
 `|| defined(SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE)` instead of copying), port the ones still missing whole. Then the head of
-`SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` (March `X2GUChung.cpp:3184`): bounds, slot tables, the 7i rule, the cases CH1 owns (900 and the
+`SetEquippedSkillFuncBySkillSlotIndex` `32c1f530` (March `X2GUChung.cpp:5331` since CH1m): bounds, slot tables, the 7i rule, the cases CH1 owns (900 and the
 non-skill rows CH0 lists), and the dev free-skill gate `CX2GUUser::IsDevUnlimitedSkillUse()` in Chung's skill-use check (standing rule 2026-10-22).
 Skill cases stay March's until CH2 / CH3.
 

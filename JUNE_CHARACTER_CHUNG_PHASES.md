@@ -1686,6 +1686,8 @@ at June's place (7l). `CSI_JUMP_UP` Start = `JumpUpStart`; `CSI_RIDING_START` = 
 as June (JUNE_BUGS 489). `CSI_CHARGE_CANNON_BALL` takes March's names (CH1q writes June's bodies into them).
 **June uses `CX2GUUser`'s callback where March used Chung's own:** `DamageBigStart` (same body) and `DashJumpFrameMoveFuture` (June's base `31fd2520`;
 Chung's March copy added 1.6x dash speed in the facing direction, so June's dash jump differs from March's once `_LIVE` is on).
+*Corrected by the review:* June's base keeps the 1.6x (`m_fDashJumpSpeedRate`, base ctor `@32040f15`; Chung's ctor `32bf1040` leaves +0x8fbc alone) and
+adds one case, both arrow keys held. That case is the only difference from March.
 
 **InitStateByUnitClass `32c1d1d0`:** June's two switches; the first (20 joins the default's tail, 27 / 117 jump to `LAB_32c1f0af` with 0x115 / 0x134)
 and the second (fallthroughs 110 -> 20, 117 -> 27) are written out whole per class: 6 / 20 / 21 / 27 / 110 / 111 / 117 = 7 / 14 / 22 / 12 / 23 / 27 / 23.
@@ -1713,6 +1715,44 @@ RESULT FAIL only for the `//#define`. The 276 / 10 are the default diff misalign
 After the build only the three `#else` lines gained the house `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` token (no compiled change; probes rerun, 0 errors).
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1m review` (Opus 5.5 high).
+
+### CH1m - Review (2026-11-02)
+
+**Verdict: passes, no source change.** One fix, to the Done note only: June's dash jump keeps the 1.6x (correction above).
+
+- **Simulation.** Fresh Ghidra decompiles of `32c12a30` / `32c1d1d0` through `ch1m_regsim.py` reproduce the 898 non-listing rows of
+  `ch1m_reg_by_class.tsv` exactly (line endings aside); no `UNKNOWN COND`. The overrides hold: `+0x867c == 0` only zeroes the class (the unit
+  exists at `InitState`), every `piVar != 0` block is a shared_ptr release (lock xadd, vslot +4 / +8, no registration), and `iVar4` at `@1543` is
+  `31fca8e0( 0x6658 = 26200, 1 )`, Back Blast's own gate. `ch1m_regcheck.py`: `matched 814 registrations, 0 problems; ids mapped 163`.
+- **Gates of `32c1d1d0`, from the exe bytes.** Switch 1 (bytes `32c1f44c`, table `32c1f430`): 20 / 21 / 27 / 110 / 111 / 117 each have a slot, the
+  other 92 values take default `32c1eb25`. 20 ends at `code_r0x32c1f09d` (`push 0x3350e0b8` "CSI_ATTACK_DASH_X"), which default also reaches. 27 and 117
+  jump to `32c1f0af` with 0x115 / 0x134. 110 / 111 / 21 break with `CIP_` / `CSG_` / `CSG_COMBO_DASH_X` into the 0xb6 tail (Init / FrameMove /
+  EventProcess / EndFuture). Switch 2 (bytes `32c1f4c8`, table `32c1f4b0`): 21 and 111 share a slot; 110 (`f0e5`) falls into 20 (`f14a`), 117 (`f1a9`)
+  into 27 (`f1ef`); the rest go to `32c1f409`. The tsv per class gives 182 = `ATTACK_DASH_X` (6, 20, 27), `CSG_` (21, 111), `CIP_` (110), `CTT_` (117).
+- **`32c22540` (capstone sweep, not carved).** Its byte table `32c22af8` (0, 6 -> 0; 20 -> 1; 21 -> 2; 27 -> 3; 110 -> 4; 111 -> 5; 117 -> 6) indexes
+  `32c22ad8`, which gives cut-in 0 / 1 / 2 / 5 / 3 / 4 / 6, as in the port; no `ASSERT`. Then `+0x7d04 = 0xa2`, `+0x4088 = 0xd` and the calls `32c12a30`,
+  `3202b110`, `32c1d1d0`, `31fe22d0`. The registrations: START (9) slots 2 / 6 / 8 = `31ffbd70` / `3201b390` / `3201b460`, WIN (0xb) 2 / 6 =
+  `320004b0` / `320718d0`, LOSE (0xc) 2 = `320007e0`, 0x82 "CSI_WAIT_STATE_CHANGE" slot 6 = `31fc8620`. stateData sits at `esp+0x14` and slot n is
+  the pair at +0x14 + 8n. There is no flag test between the registrations, and the tail is vslot 0x690, vslot 0x684( 0 ), `31fd8f00`.
+  Order: June's `32c1d1d0` runs after the event states, the port's before them. That is harmless: the event states are `USI_*` below `USI_END`
+  and every Chung id is `CSI_BASE` (`USI_END + 1`) or above, so neither set overwrites the other.
+- **Ids.** `ch1m_idmap.tsv` is one-to-one both ways (no duplicate on either side). June 72 = `GetRidingStartStateID()` (`USI_RIDING_START`);
+  June 181 = `CSI_COMBO_DASH_Z` under all four dash-Z tables.
+- **Callbacks from `CX2GUUser`.** `DamageBigStart` is `CommonStateStart(); CreateStepDust();` in both classes. Neither member is virtual, so
+  `SET_CB_FUNC( CX2GUUser, ... )` binds the base and not Chung's hiding copy.
+- **Left out / routed.** Each left-out state has its comment line with an owner. CH2a's kickoff carries Back Blast 335 (`@1543`-`@1549`, vslot 0x7a8)
+  and `32bda6c0` on the four siege-shelling states, plus the `LEFT` / `EMPTYOK` edits to `ch1m_regcheck.py`.
+- **`Always.h`.** Each `#error` names the flag that declares what the registration calls: `ARME_CORE` (`StartStateStart`, `DamageBigStart`,
+  `DashJumpFrameMoveFuture`, `GetHyperModeTableName`), `HYPER_MODE_FIX` (`HyperModeStartFuture` / `HyperModeEnd`), `COMMON_RANDOM_STATE`
+  (`RandomLoseEventProcess`), `EVENT_STATES`, `WAIT_STATE_CHANGE` and `BOUNDING_STATE`. `EVE_CORE` (HyperModeEnd body) and `SCALE_HEAD` are each
+  used in the `.cpp`. The `_LIVE` probe compiles, so all of them are defined at that line.
+
+**Hygiene.** `flagcheck.py SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE --range 52d2db77^..52d2db77 --files X2Lib/X2GUChung.cpp KTDXLIB/Always.h`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `276 deleted line(s), 10 non-ASCII inserted line(s)`,
+RESULT FAIL only for the `//#define`. The misalignment noted in the Done note is confirmed: `git diff --patience --numstat` gives `1812 0` / `25 0`, and
+the patience diff's inserted lines contain no non-ASCII byte. `junediverge.py --check-all`: `allow-listed: 160`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUChung.cpp`: `0 A/B row(s)`. One-file probes of `X2GUChung.cpp` (`/Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`.
+No build (no source change; `DEPLOY OK` ba6bf95b stands). **Nothing to play-test.** CH1n kickoff: line ref and callback table added.
 
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
