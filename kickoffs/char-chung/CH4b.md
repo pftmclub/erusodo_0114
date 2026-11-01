@@ -45,3 +45,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Functions: 3** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_chung/ch0_class_map.tsv`; inside 2, new 1).
   June addresses: `32be8e50` `32bed9d0` `32bf28f0`(new SetDamageExceptionProcess).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L255 death-prevention pre-apply: gauge snapshot override (vslot 0x740) Chun; §7 L280 3201ad10 skill-group power socket rate called from Chung code: 32bec28; §7 L287 engine readers keyed by a March skill id where June pushes the reform ; §7b L327 SetDamageExceptionProcess per-class block 32bf28f0; §7an L920 vslot 0x748 soul gain when hit: Chung 32beeca0; §7an L921 GetCharacterSpecializationB() readers: Chung 32bf528d (in 32bf5280).
+
+## Amended by CH1l (2026-11-01)
+
+- `CX2GUChung::GetIncreaseSoulRateOnDamageReact` (`32beeca0`, unit vslot 0x748) has its body since CH1l (`_CORE`, plain member). Still yours: the base virtual (returns 1.0, `3208e1b0`) and its call in `CX2GUUser::DamageReact` (`@32049d8a`, times `fIncreaseSoulRate`), then make Chung's an override.
+- `StoreGageSnapshot` / `RestoreGageSnapshot` (`32bed760` / `32bf4600`, vslots 0x740 / 0x744) are written too, without the base call: the bases `32009780` / `3204da60` are the Crest of Time HP / MP snapshot and restore (Buff Phase 11b), not ported. The death-prevention override listed here is these two once the bases exist.

@@ -91,3 +91,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `CSI_CSG_COMBO_DASH_JUMP_ZX` (334) FrameMove `CSGComboDashJumpZXFrameMove` (`32c0ac40`), EventProcess `CSGComboDashJumpZXEventProcess` (`32bee360`); its enumerator was appended to the `_CORE` block of `CHUNG_STATE_ID` without `= value`: reconcile with script id 334.
   `CSI_SI_A_CSG_HEAD_SHOT` (236, InitState's class-21 gate): FrameMove `CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove` (`32bfc860`), EventProcess `CSI_SI_A_CSG_HEAD_SHOT_EventProcess`; the equipped skill (26208 / 26223, CH2c) swaps in `CSI_SI_A_CSG_HEAD_SHOT_FrameMove` (`32bfcc80`).
 - The dash-jump X, X X and X X landing states share one End in June (`32bf9c30`) and two mini gun slots, enumerators `CHUNG_MAJOR_MII_CSG_COMBO_DASH_JUMP_MINI_GUN_L` / `_R` (June slots 7 / 6, appended to the `_CORE` block): CH1k reconciles slot order.
+
+## Amended by CH1l (2026-11-01)
+
+- State 336 now has a `_CORE` member, `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE`, used by `SetEquippedSkillLevel` (`32bdbe50`, when the equipped Dual Buster templet is an upgrade). Rename it if your mapping of `32078bc0` and the registrars gives it a better name, and register it with the table `CSI_SI_SA_CSG_DUAL_BUSTER`.
+- CH1l also added `CHUNG_STATE_ID` members for June ids 298 `CSI_SI_A_CFG_GUARD_READY`, 321 / 322 `CSI_SI_SA_CFG_IRON_HOWLING_LOOP` / `_END`, 337 / 338 `CSI_SA_CTT_HEAVY_FIELD_LOOP` / `_END` (registered by CH3a2 / CH3c, not here).
+- `CX2GUChung::ScaleHead` (`32bf0480`) sits under `_LIVE` and `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD`. When CH1 defines `_LIVE`, Always.h's `_LIVE` block must also `#error` without `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD` (prove it defined at that line with `cl /EP`).

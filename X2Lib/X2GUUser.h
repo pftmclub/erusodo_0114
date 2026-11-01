@@ -2763,6 +2763,7 @@ public:
 
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 		virtual void ScaleHead( float fHeadScale, float fFaceScale );	// June vslot 0x66c ( 31fdc070 )
+		bool IsSDOnePieceAvatar() const { return m_bSDOnePieceAvatar; }	// June +0x8fc0, read by the class ScaleHead overrides ( Chung 32bf0480 )
 #else SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
 		void ScaleHead();
 #endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD

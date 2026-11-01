@@ -51,3 +51,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §1 L37-105 numerical-only DAMAGE_DATA + numerical override live (the 15 tables ab; §4 L178-181 June-only members of tables March has (SKILL_ID names) fail silently; §7b L325-326 skill-memo entry 31fdbbb0 / class callers of 31fdbcc0; §7i L436-437 class code multiplies m_fNowStatePowerRate, never the entry's; §7u L637 March-only effect DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell (; §7ae L713-720 an id of a listed type with no case plays the class's first skill stat; §7ae L728 49 rows with no June SKILL_ID name (Chung upgrade ids 26027-26029, 262; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTim; §7ai L835 pass June's skip / adjust / level / creator at every ported BFI call.
 - **CH3b0 (summons) runs before this phase:** Quantum Ballista's READY FrameMove `32bfe730` spawns `NUI_TARGETING_CHUNG` / `_NOT_SHOW_OTHER_PLAYER` (also Artillery Strike's). 7ai L835 (BFI 452 at `32bfea69`) is in that function: here.
 - Trick Shot `32bfdd70` replaces March's `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell` caller (7u).
+
+## Amended by CH1l (2026-11-01)
+
+- State 336 (the upgraded Dual Buster's second registration of table `CSI_SI_SA_CSG_DUAL_BUSTER`) is the `_CORE` enum member `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE` (CH1l; CH1m may rename it). `RNSI_SA_CSG_DUAL_BUSTER` 26011 is registered; `RNSI_SA_CSG_DUAL_BUSTER_UPGRADE` 26032 is still yours.

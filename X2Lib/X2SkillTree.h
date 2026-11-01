@@ -1951,6 +1951,26 @@ public:
 		RNSI_P_CTT_USEFUL_TACTIC                              = 26420,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-01 // char-chung CH1l
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Chung SetEquippedSkillLevel cases spell ( values from June's Enum.lua )
+		RNSI_SA_CC_LUNATIC_BLOW                               = 26001,
+		RNSI_SA_CFG_LUNATIC_FURY                              = 26006,
+		RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE                = 26007,
+		RNSI_SA_CIP_IRON_HOWLING                              = 26008,
+		RNSI_SA_CSG_DUAL_BUSTER                               = 26011,
+		RNSI_SA_CSG_SHOOTING_STAR                             = 26015,
+		RNSI_SA_CDC_COMET_CRASHER                             = 26017,
+		RNSI_SA_CTT_DREAD_CHASE                               = 26020,
+		RNSI_SA_CC_IMPACT_DETONATION                          = 26021,
+		RNSI_SA_CHG_CHAOS_CANNON                              = 26022,
+		RNSI_A_CC_SIEGE_SHELLING                              = 26201,
+		RNSI_A_CFG_LEAP_ATTACK                                = 26204,
+		RNSI_A_CIP_ARTILLERY_NOVA                             = 26206,
+		RNSI_A_CFG_GUARD                                      = 26207,
+		RNSI_A_CDC_GATLING_SHOT                               = 26211,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

@@ -293,6 +293,12 @@ public:
 		CSI_CSG_COMBO_DASH_ZXX_END,			/// June script id 332 ( Shooting Guardian dash Z X X end; CH1g owns the state )
 		CSI_CSG_COMBO_DASH_JUMP_ZX,			/// June script id 334 ( Shooting Guardian dash jump Z X; CH1g2 owns the state )
 		CSI_CHG_DASH_JUMP_COMBO_ZXX,		/// June script id 327 ( Shelling Guardian dash jump Z X X; CH1i owns the state )
+		CSI_SI_A_CFG_GUARD_READY,			/// June script id 298 ( Fury Guardian / Iron Paladin guard ready; CH3a2 owns the state )
+		CSI_SI_SA_CFG_IRON_HOWLING_LOOP,	/// June script id 321 ( Iron Paladin Iron Howling loop; CH3a2 owns the state )
+		CSI_SI_SA_CFG_IRON_HOWLING_END,		/// June script id 322 ( Iron Paladin Iron Howling end; CH3a2 owns the state )
+		CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE,	/// June script id 336 ( table CSI_SI_SA_CSG_DUAL_BUSTER registered a second time for the upgraded skill; CH1m maps )
+		CSI_SA_CTT_HEAVY_FIELD_LOOP,		/// June script id 337 ( Tactical Trooper Heavy Field loop; CH3c owns the state )
+		CSI_SA_CTT_HEAVY_FIELD_END,			/// June script id 338 ( Tactical Trooper Heavy Field end; CH3c owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -460,8 +466,14 @@ public:
 		const bool*		m_pGuardKey;					/// 퓨리가디언의 Guard가 장착되어 있는 스킬슬롯의 Key(A, S, D, C 등)	
 		bool			m_bGuardEquippedAtSlotB;		/// 퓨리가디언의 Guard가 B슬롯에 장착되어 있는지를 담는 변수
 		int				m_iDamageReducePercent;			/// 퓨리가디언의 Guard 상태에서 데미지 감소율
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+		float			m_fMpConsumption;				/// June +0x14 ( ctor -4 ): SA_MP_CONSUMPTION of the guard skill, written by SetEquippedSkillLevel
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 		CFuryGuardianGuardSkill() : m_eSkillSlotID_Guard( CSI_BASE ),
 			m_pGuardKey( NULL ), m_bGuardEquippedAtSlotB( false ), m_iDamageReducePercent( 0 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+			, m_fMpConsumption( -4.f )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
             , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -481,6 +493,10 @@ public:
 
 		int GetDamageReducePercent() const { return m_iDamageReducePercent; }
 		void SetDamageReducePercent(int iDamageReducePercent_) { m_iDamageReducePercent = iDamageReducePercent_; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+		float GetMpConsumption() const { return m_fMpConsumption; }
+		void SetMpConsumption( float fMpConsumption_ ) { m_fMpConsumption = fMpConsumption_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
         void    AddRef()    {   ++m_uRefCount; }
@@ -650,6 +666,9 @@ protected:
 	float GetDamageRateOnExcitingCrashDefender( const CX2DamageManager::DamageData* pDamageData_ );		/// June 32bed840 ( unit vslot 0x2ec, base 3208dd70 returns 1.0 )
 	virtual float GetChargeMpHitted() const;					/// June 32beec40 ( unit vslot 0x1b8, base 3208e290 = CX2GameUnit::GetChargeMpHitted, virtual under _LIVE )
 	bool IsNowStateChaosCannon();							/// June 32beeb90: the state is one of the twelve Chaos Cannon states
+	float GetIncreaseSoulRateOnDamageReact();				/// June 32beeca0 ( unit vslot 0x748, base 3208e1b0 returns 1.0; the base and its DamageReact call are CH4b )
+	void StoreGageSnapshot();								/// June 32bed760 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported )
+	void RestoreGageSnapshot();								/// June 32bf4600 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported )
 	UCHAR GetPvpStartCannonBallCount() const { return m_ucPvpStartCannonBallCount; }
 	void SetPvpStartCannonBallCount( UCHAR ucPvpStartCannonBallCount_ ) { m_ucPvpStartCannonBallCount = ucPvpStartCannonBallCount_; }
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
@@ -788,6 +807,11 @@ public:
 	virtual void		NotifyDGManagerChanged( CKTDGManager& refInManager_ );		// DGManager에 등록
 	void				SetShowPromotionEquips( bool bShow_ );
 	virtual void		SetShowViewList( bool bShow_ );	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+	virtual void		ScaleHead( float fHeadScale_, float fFaceScale_ );	/// June 32bf0480 ( user vslot 0x66c, base 31fdc070 ): an override of an existing virtual, so it waits for _LIVE
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	void				SetShowOriginalViewList( bool bShow_ );
 	void				ReplaceWeapon( CX2EqipPtr pWeaponPtr_ );	// 광폭화 모드와 관련하여 무기 변경
 	virtual bool		UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );
@@ -1383,6 +1407,7 @@ protected:
 	void CSI_CTT_DASH_JUMP_COMBO_XX_EventProcess();					/// June 32bf02c0
 	void CSI_CTT_DASH_JUMP_COMBO_XX_FrameMove();					/// June 32c0a5b0
 	void ApplySpineAimRotation();									/// June 32bf00c0
+	void UpdateSpineAimRotation();									/// June 32befec0 ( user vslot 0x774, base 31f3f070 is an empty stub )
 	void CreateCannonBulletDamageEffect( CANNON_BULLET_TYPE eBulletType_, float fPowerRate_ );	/// June 32c09e40
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #endif SERV_CHUNG_TACTICAL_TROOPER
@@ -1924,6 +1949,8 @@ protected:
 	float						m_afExtraCannonBallDamageRate[2];	/// June +0x9898 / +0x989c ( ctor 1 ): INIT_COMPONENT EXTRA_CANNON_BALL_DAMAGE_RATE; consumer CH1q
 	float						m_fCommandHitAddMpBonus;		/// June +0x98c4 ( protected float, ctor 1 ): INIT_COMPONENT COMMAND_HIT_ADD_MP_BONUS; consumer CH1p
 	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
+	int							m_iSnapshotCannonBallCount;		/// June +0x92c0 ( CX2GUUser snapshot region, ctor 0 ): the now cannon ball count StoreGageSnapshot keeps
+	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

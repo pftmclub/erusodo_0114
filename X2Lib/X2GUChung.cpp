@@ -178,6 +178,8 @@ iFrameBufferNum_, pUnit_ )
 , m_ucPvpStartCannonBallCount( 0 )
 , m_fCommandHitAddMpBonus( 1.f )
 , m_fCannonBallGaugeTimer( -1.f )
+, m_iSnapshotCannonBallCount( 0 )
+, m_iSnapshotCannonBallCountEx( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -5155,6 +5157,192 @@ void CX2GUChung::InitStateByUnitClass()
 */
 /*virtual*/ void CX2GUChung::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdbe50 ( differs from March: 18 skills by June id, the removed skills' cases are gone; the guard also reads SA_MP_CONSUMPTION )
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_CC_SIEGE_SHELLING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletSiegeShelling = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CC_SIEGE_SHELLING, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletSiegeShelling, CSI_SI_A_SIEGE_SHELLING_X );
+		SetEquippedSkillLevelStateData( pSkillTempletSiegeShelling, CSI_SI_A_SIEGE_SHELLING_X_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTempletSiegeShelling, CSI_SI_A_SIEGE_SHELLING_Z_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CC_LUNATIC_BLOW == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletLunaticBlow = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CC_LUNATIC_BLOW, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticBlow, CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION );
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticBlow, CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_CFG_LEAP_ATTACK == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletLeapAttack = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CFG_LEAP_ATTACK, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletLeapAttack, CSI_SI_A_CFG_LEAP_ATTACK_JUMP );
+		SetEquippedSkillLevelStateData( pSkillTempletLeapAttack, CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN );
+		SetEquippedSkillLevelStateData( pSkillTempletLeapAttack, CSI_SI_A_CFG_LEAP_ATTACK_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CFG_LUNATIC_FURY == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletLunaticFury = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CFG_LUNATIC_FURY, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticFury, CSI_SI_SA_CFG_LUNATIC_FURY_RUN );
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticFury, CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticFury, CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING );
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticFury, CSI_SI_SA_CFG_LUNATIC_FURY_END );
+		SetEquippedSkillLevelStateData( pSkillTempletLunaticFury, CSI_SI_SA_CFG_LUNATIC_FURY_END_HYPER );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletArtilleryNova = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletArtilleryNova, CSI_A_CIP_ARTILLERY_NOVA_FIRE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CIP_IRON_HOWLING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletIronHowling = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CIP_IRON_HOWLING, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletIronHowling, CSI_SI_SA_CFG_IRON_HOWLING_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletIronHowling, CSI_SI_SA_CFG_IRON_HOWLING_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_CFG_GUARD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletGuard = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CFG_GUARD, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletGuard, CSI_SI_A_CFG_GUARD_WAIT );
+		SetEquippedSkillLevelStateData( pSkillTempletGuard, CSI_SI_A_CFG_GUARD_END );
+		SetEquippedSkillLevelStateData( pSkillTempletGuard, CSI_SI_A_CFG_GUARD_DAMAGE );
+		SetEquippedSkillLevelStateData( pSkillTempletGuard, CSI_SI_A_CFG_GUARD_READY );
+		SetEquippedSkillLevelStateData( pSkillTempletGuard, CSI_SI_A_CFG_GUARD_READY_MEMO );
+
+		if ( NULL != pSkillTempletGuard )
+		{
+			if ( NULL == GetUnit() )
+				return;
+
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTempletGuard->m_eID ) );
+			const int iReduceDamagePercent = 100 - static_cast<int>( pSkillTempletGuard->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillTempletLevel, false ) * 100 );
+
+			if ( m_GuardForFuryGuardianPtr != NULL )
+			{
+				m_GuardForFuryGuardianPtr->SetDamageReducePercent( iReduceDamagePercent );
+
+				float fMpConsumption = -4.f;
+				if ( true == pSkillTempletGuard->TryGetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUMPTION, iSkillTempletLevel, false, fMpConsumption ) )
+					m_GuardForFuryGuardianPtr->SetMpConsumption( fMpConsumption );
+			}
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CTT_DREAD_CHASE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletDreadChase = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CTT_DREAD_CHASE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletDreadChase, CSI_SA_CHG_DREAD_CHASE_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletDreadChase, CSI_SA_CHG_DREAD_CHASE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CC_IMPACT_DETONATION == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletImpactDetonation = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CC_IMPACT_DETONATION, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletImpactDetonation, CSI_A_CHUNG_IMPACT_DETONATION_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletImpactDetonation, CSI_A_CHUNG_IMPACT_DETONATION_FINAL );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CHG_CHAOS_CANNON == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletChaosCannon = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CHG_CHAOS_CANNON, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_WAIT );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_WALK );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_JUMP_READY );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_JUMP_UP );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_JUMP_DOWN );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_END );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_GUARD );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_01 );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_02 );
+		SetEquippedSkillLevelStateData( pSkillTempletChaosCannon, CSI_SI_A_CHG_CHAOS_CANNON_03 );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletArtilleryStrike = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletArtilleryStrike, CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY );
+		SetEquippedSkillLevelStateData( pSkillTempletArtilleryStrike, CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTempletArtilleryStrike, CSI_SI_SA_CDC_ARTILLERY_STRIKE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletDualBuster = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletDualBuster, CSI_SI_SA_CSG_DUAL_BUSTER_LANDING );
+
+		if ( NULL != pSkillTempletDualBuster && 0 != pSkillTempletDualBuster->m_iDeleteSkillIDByUpgrade )
+			SetEquippedSkillLevelStateData( pSkillTempletDualBuster, CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CDC_COMET_CRASHER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletCometCrasher = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CDC_COMET_CRASHER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletCometCrasher, CSI_SI_SA_CSG_COMET_CRASHER_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletCometCrasher, CSI_SI_SA_CSG_COMET_CRASHER_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletQuantumBallista = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletQuantumBallista, CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY );
+		SetEquippedSkillLevelStateData( pSkillTempletQuantumBallista, CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTempletQuantumBallista, CSI_SI_SA_CDC_ARTILLERY_STRIKE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CSG_SHOOTING_STAR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletShootingStar = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CSG_SHOOTING_STAR, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletShootingStar, CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTempletShootingStar, CSI_SI_SA_CSG_SHOOTING_STAR_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_CDC_GATLING_SHOT == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletGatlingShot = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CDC_GATLING_SHOT, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletGatlingShot, CSI_A_CDC_RAPID_CANNON_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletGatlingShot, CSI_A_CDC_RAPID_CANNON_FINAL );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletLandDemolisher = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletLandDemolisher, CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN );
+		SetEquippedSkillLevelStateData( pSkillTempletLandDemolisher, CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_CTT_HEAVY_FIELD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletHeavyField = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CTT_HEAVY_FIELD, true );
+
+		SetEquippedSkillLevelStateData( pSkillTempletHeavyField, CSI_SA_CTT_HEAVY_FIELD_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTempletHeavyField, CSI_SA_CTT_HEAVY_FIELD_END );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	if ( true == bChangeAll_ || CX2SkillTree::SI_A_CC_DETONATION == eSkillID_ )
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -5454,6 +5642,7 @@ void CX2GUChung::InitStateByUnitClass()
 	}
 
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetEquippedSkillLevelStateData
@@ -7530,6 +7719,21 @@ bool CX2GUChung::IsThisStateCanBeChangedToGuardStateOnHit()
 */
 void CX2GUChung::SetShowPromotionEquips( bool bShow_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0530 ( = March )
+	BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+	{
+		if ( pEquipPtr != NULL )
+		{
+			pEquipPtr->SetShowObject( bShow_ );
+
+			if ( true == bShow_ && CX2Unit::EP_WEAPON_HAND == pEquipPtr->GetEqipPos() )
+			{
+				ReplaceWeapon( pEquipPtr );
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 프로모션 장비만 보여야 함
 	BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
 	{
@@ -7543,6 +7747,7 @@ void CX2GUChung::SetShowPromotionEquips( bool bShow_ )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetShowViewList
@@ -7551,6 +7756,19 @@ void CX2GUChung::SetShowPromotionEquips( bool bShow_ )
 */
 /*virtual*/ void CX2GUChung::SetShowViewList( bool bShow_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0a40 ( = March, stand-in: user +0x93da, the riding pet's hide-equipment byte that forces bShow_ to false, is not ported: Stage 17 )
+	if ( IsFullHyperMode() )
+	{
+		SetShowOriginalViewList( false );
+		SetShowPromotionEquips( bShow_ );
+	}
+	else
+	{
+		SetShowPromotionEquips( false );
+		SetShowOriginalViewList( bShow_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 광폭화 모드 면
 	if ( IsFullHyperMode() )
 	{
@@ -7563,6 +7781,7 @@ void CX2GUChung::SetShowPromotionEquips( bool bShow_ )
 		SetShowPromotionEquips( false );
 		SetShowOriginalViewList( bShow_ );
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetShowOriginalViewList
@@ -7571,6 +7790,8 @@ void CX2GUChung::SetShowPromotionEquips( bool bShow_ )
 */
 void CX2GUChung::SetShowOriginalViewList( bool bShow_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0670 ( = March )
 	BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquipPtr, m_ViewEqipList )
 	{
 		if ( pViewEquipPtr != NULL )
@@ -7583,6 +7804,20 @@ void CX2GUChung::SetShowOriginalViewList( bool bShow_ )
 			}
 		}
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquipPtr, m_ViewEqipList )
+	{
+		if ( pViewEquipPtr != NULL )
+		{
+			pViewEquipPtr->SetShowObject( bShow_ );
+
+			if ( true == bShow_ && CX2Unit::EP_WEAPON_HAND == pViewEquipPtr->GetEqipPos() )
+			{
+				ReplaceWeapon( pViewEquipPtr );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 /** @function : ReplaceWeapon
 	@brief : 광폭화등을 시행하거나 끝났을 때 무기 변경
@@ -7590,6 +7825,25 @@ void CX2GUChung::SetShowOriginalViewList( bool bShow_ )
 */
 void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bef140 ( differs from March: no GetItem() test, the old equip's own item templet )
+	CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
+
+	if ( NULL != pOldWeapon &&
+		 pOldWeapon->m_pUserWeaponEquip != NULL &&
+		 pOldWeapon->m_pUserWeaponEquip != pWeaponPtr_ )
+	{
+		int iEnchantLevel = pOldWeapon->m_pUserWeaponEquip->GetEnchantLevel();
+		const CX2Item::ItemTemplet* pOldItemTemplet = pOldWeapon->m_pUserWeaponEquip->GetItemTemplet();
+
+		pOldWeapon->m_pUserWeaponEquip.reset();
+		SAFE_DELETE_KTDGOBJECT( pOldWeapon );
+		m_vecpWeapon.resize(0);
+
+		pWeaponPtr_->ChangeEnchantLevel( iEnchantLevel );
+		CreateWeapon( pOldItemTemplet, pWeaponPtr_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// kimhc // 2010-12-13 // 현재 청은 m_vecpWeapon을 한개만 사용함
 	CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
 
@@ -7610,6 +7864,7 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 		pWeaponPtr_->ChangeEnchantLevel( iEnchantLevel );
 		CreateWeapon( pOldItemTemplet, pWeaponPtr_ );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : UpdateEquipViewListInfo
@@ -7644,6 +7899,23 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 */
 /*virtual*/ void CX2GUChung::UpdateEquipCollisionData()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bd8880 ( = March )
+	if ( IsFullHyperMode() )
+	{
+		CX2GUUser::UpdateEquipCollisionData( m_vecPromotionEquipList );
+	}
+	else
+	{
+		CX2GUUser::SetShowViewList( true );
+		CX2GUUser::UpdateNotRenderingOtherEquipList();
+		CX2GUUser::UpdateEquipCollisionData( m_ViewEqipList );
+	}
+
+	SetEnableAttackBox( L"Rfoot", false );
+	SetEnableAttackBox( L"Lfoot", false );
+	SetEnableAttackBox( L"Lhand2", false );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 광폭화 모드 이면
 	if ( IsFullHyperMode() )
 	{
@@ -7660,6 +7932,7 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 	SetEnableAttackBox( L"Rfoot", false );
 	SetEnableAttackBox( L"Lfoot", false );
 	SetEnableAttackBox( L"Lhand2", false );		
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : OnFrameMove
@@ -9743,6 +10016,10 @@ void CX2GUChung::PowerDownLandingEventProcess()
 */
 void CX2GUChung::HyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32c0def0 ( = March )
+	CommonHyperModeFrameMove( 0.05f, 0.2f, 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 	CommonHyperModeFrameMove( 0.05f, 0.2f, 0.3f );
 #else
@@ -9783,6 +10060,7 @@ void CX2GUChung::HyperModeFrameMove()
 
 	CommonFrameMove();
 #endif // MODIFY_RIDING_PET_AWAKE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : DamageSmallEventProcess
@@ -31486,9 +31764,132 @@ void CX2GUChung::SetExtraDamageMiniGun( CX2DamageEffect::CEffect* pEffect_, floa
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/// June 32beaf10 ( user vslot 0x670, base 331a4950 returns false ): the unit is in the job line, 1 Fury Guardian / Iron Paladin, 2 Shooting Guardian / Deadly Chaser, 3 Shelling Guardian / Tactical Trooper
+bool CX2GUChung::IsInJobLine( int iJobLine_ )
+{
+	if ( NULL == GetUnit() )
+		return false;
+
+	switch ( iJobLine_ )
+	{
+	case 1:
+		return ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == GetUnitClass() );
+
+	case 2:
+		return ( CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN == GetUnitClass() || CX2Unit::UC_CHUNG_DEADLY_CHASER == GetUnitClass() );
+
+	case 3:
+		return ( CX2Unit::UC_CHUNG_SHELLING_GUARDIAN == GetUnitClass() || CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnitClass() );
+	}
+
+	return false;
+}
+
+/// June 32beeca0 ( unit vslot 0x748 ): the soul a hit adds is multiplied by Open Mind's rate while the state can change to guard on a hit
+float CX2GUChung::GetIncreaseSoulRateOnDamageReact()
+{
+	float fIncreaseSoulRate = 1.f;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) > 0 && true == IsThisStateCanBeChangedToGuardStateOnHit() )
+		fIncreaseSoulRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_SOUL_ABS, CX2SkillTree::RNSI_P_CIP_OPEN_MIND );
+
+	return fIncreaseSoulRate;
+}
+
+/// June 32bed760 ( user vslot 0x740 ): keeps the cannon ball counts; stand-in: the base 32009780 ( Crest of Time HP / MP snapshot ) is not ported
+void CX2GUChung::StoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnitClass() && true == m_bMobileArmoredModeEnable )
+		m_iSnapshotCannonBallCountEx = GetChungGageData()->GetNowCannonBallCountEx();
+	else
+		m_iSnapshotCannonBallCountEx = 0;
+
+	m_iSnapshotCannonBallCount = GetChungGageData()->GetNowCannonBallCount();
+}
+
+/// June 32bf4600 ( user vslot 0x744 ): gives the kept cannon ball counts back; stand-in: the base 3204da60 ( Crest of Time HP / MP restore ) is not ported
+void CX2GUChung::RestoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnitClass() && true == m_bMobileArmoredModeEnable )
+	{
+		GetChungGageData()->SetCannonBallChanged( true );
+		GetChungGageData()->SetNowCannonBallCountEx( m_iSnapshotCannonBallCountEx );
+	}
+
+	GetChungGageData()->SetCannonBallChanged( true );
+	GetChungGageData()->SetNowCannonBallCount( m_iSnapshotCannonBallCount );
+}
+
+/// June 32befec0 ( user vslot 0x774, base 31f3f070 is an empty stub ): the siege twin of ApplySpineAimRotation, aim limits from SIEGE_ANGLE, another bone axis
+void CX2GUChung::UpdateSpineAimRotation()
+{
+	m_vSpineAimDegree = GetNearestTargetAimDegree( m_afSiegeAngle[0], m_afSiegeAngle[1], m_afSiegeAngle[2], m_afSiegeAngle[3] * m_fSiegeShellingDistance );
+
+	if( FLT_EPSILON < fabsf( m_vSpineAimDegree.y ) || FLT_EPSILON < fabsf( m_vSpineAimDegree.z ) )
+	{
+		float fYawGap = GetRotateDegree().y - m_vSpineAimDegree.y;
+		if( 360.0 <= fYawGap )
+			fYawGap = (float)( 360.0 - fYawGap );
+		if( fYawGap <= -360.0 )
+			fYawGap = (float)( fYawGap + 360.0 );
+
+		SetRotateBone( true, L"Bip01_Spine1", D3DXVECTOR3( -1.f, 0.f, -1.f ), D3DXVECTOR3( fYawGap, 0.f, m_vSpineAimDegree.z ) );
+	}
+	else
+	{
+		EraseRotateBone( L"Bip01_Spine1" );
+	}
+
+	m_fRotateBoneDegree = m_vSpineAimDegree.z;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+/// June 32bf0480 ( user vslot 0x66c, base 31fdc070 ): an SD one-piece avatar scales Bip01_Spine1 outside the hyper mode, else Bip01_Head; the scaling is 31fd64a0 ( body 0 )
+void CX2GUChung::ScaleHead( float fHeadScale_, float fFaceScale_ )
+{
+	// stand-in: 31fd64a0's second body ( Lu/Ciel +0x8e88 ) is not ported
+	if( NULL == m_pXSkinAnim )
+		return;
+
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame( ( true == IsSDOnePieceAvatar() && false == IsFullHyperMode() ) ? L"Bip01_Spine1" : L"Bip01_Head" );
+	if( NULL != pFrame )
+	{
+		D3DXVECTOR3 vScale = D3DXVECTOR3( fHeadScale_, fHeadScale_, fHeadScale_ );
+		SetFrameScale( &vScale, false, pFrame );
+	}
+
+	pFrame = m_pXSkinAnim->GetCloneFrame( L"COLLISION_SPHERE1_Face" );
+	if( NULL != pFrame )
+	{
+		D3DXVECTOR3 vScale = D3DXVECTOR3( fFaceScale_, fFaceScale_, fFaceScale_ );
+		SetFrameScale( &vScale, false, pFrame );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef RIDING_SYSTEM
 /*virtual*/ bool CX2GUChung::CanRidingState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32beeaa0 ( = March, the ten states in another order )
+	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK ||
+		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT_HABIT || GetNowStateID() == CX2GUUser::USI_RIDING_DASH ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_DASH_END || GetNowStateID() == CX2GUChung::CSI_CHARGE_CANNON_BALL )
+		return true;
+
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK || 
 		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END || 
 		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
@@ -31497,6 +31898,7 @@ void CX2GUChung::SetExtraDamageMiniGun( CX2DamageEffect::CEffect* pEffect_, floa
 		return true;
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 #endif //RIDING_SYSTEM
 

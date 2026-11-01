@@ -1366,6 +1366,38 @@ checked and correct as written (14 of 16 rows; `32bdc750` stays March, `32bf44d0
 **Gates.** No source changed: no flagcheck, no build (the CH1k review's `DEPLOY OK` md5 `05b833e8` stands). `junediverge.py --check-all`:
 `allow-listed: 160`, `RESULT: PASS`. Nothing to play-test. Next: `/x2-phase char-chung CH1l` (Sonnet 5.5 high).
 
+### CH1l - Done (2026-11-01)
+
+14 of the 16 class-map rows are written. The other two are CH1l0's verdicts: `32bdc750` keeps March's body with no block, `32bf44d0` is dead (n/a). 8 are `inside` (June body in March's own `CX2GUChung` function under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, March in `#else`; `_LIVE` stays `//#define`), 5 are `new` under `_CORE` (declared in `X2GUChung.h`, referenced by nothing) and 1 is an override of an existing virtual, so it waits for `_LIVE`. Read from `charport_adis.py chung --phase CH1l`; `SetEquippedSkillLevel` ids and states mapped through `ch0_enum_names.tsv` / `ch0_reg.tsv` / `ch0_skill.tsv`.
+
+| June | `CX2GUChung::` | kind | vs March |
+|---|---|---|---|
+| `32bdbe50` | `SetEquippedSkillLevel` | inside | differs: 18 cases keyed by June skill id (`RNSI_*`), `GetEquippedActiveSkillTemplet( id, true )`. New: Siege Shelling Z finish, Iron Howling loop / end, Guard ready / ready memo, Heavy Field loop / end, Dual Buster upgrade state (when the equipped templet's `m_iDeleteSkillIDByUpgrade` is set). Gone: Detonation, Gigantic Impact, Sudden Burster, Burst Wolf, old Land Demolisher, Leg Shot. The Guard block also writes `SA_MP_CONSUMPTION` (default -4) into the guard object |
+| `32bef140` | `ReplaceWeapon` | inside | differs: no `GetItem()` test, the old equip's own enchant level and `GetItemTemplet()` |
+| `32bf0a40` | `SetShowViewList` | inside | = March; stand-in: user `+0x93da` (the riding pet's hide-equipment byte that forces `bShow_` false) is not ported, already routed to Stage 17 (`JUNE_PORT_BACKLOG_ORDER.md`, it lists `32bf0a43`) |
+| `32bd8880` `32beeaa0` `32bf0530` `32bf0670` `32c0def0` | `UpdateEquipCollisionData` `CanRidingState` `SetShowPromotionEquips` `SetShowOriginalViewList` `HyperModeFrameMove` | inside | = March (CanRidingState tests the same ten states in another order; the two show loops inline `CKTDGObject::SetShowObject`, equal to `KTDGObject.h`; HyperModeFrameMove is March's `MODIFY_RIDING_PET_AWAKE` branch) |
+| `32beaf10` | `IsInJobLine` | new | job line 1 / 2 / 3 = classes 20 / 110, 21 / 111, 27 / 117, no unit false. Stays a plain member; CH1o decides the `CX2GUUser` virtual (vslot 0x670, base returns false) |
+| `32beeca0` | `GetIncreaseSoulRateOnDamageReact` | new | vslot 0x748 (checklist 7an, "soul gain when hit"): 1.0, or `SA_SOUL_ABS` of `RNSI_P_CIP_OPEN_MIND` while `IsThisStateCanBeChangedToGuardStateOnHit()`. The base virtual (returns 1.0) and the `DamageReact @32049d8a` call are CH4b's |
+| `32bed760` `32bf4600` | `StoreGageSnapshot` `RestoreGageSnapshot` | new | vslot 0x740 / 0x744: keep and give back the cannon ball counts (members `m_iSnapshotCannonBallCount` / `Ex` = June `+0x92c0` / `+0x92c4`; the extra count only for class 117 in mobile armored mode). Stand-in: the Crest of Time bases `32009780` / `3204da60` (HP / MP snapshot, Buff Phase 11b) are not ported, so the base call is left out |
+| `32befec0` | `UpdateSpineAimRotation` | new | vslot 0x774 (base `31f3f070` is an empty stub): `ApplySpineAimRotation`'s twin with the `SIEGE_ANGLE` limits, range x `m_fSiegeShellingDistance`, and the other bone axis ( -1, 0, -1 ) / ( gap, 0, pitch ) against ( -1, -1, 0 ) / ( gap, -pitch, 0 ); no `JUNE_BUGS` row (two bodies of one design) |
+| `32bf0480` | `ScaleHead` | `_LIVE` override | vslot 0x66c: an SD one-piece avatar scales `Bip01_Spine1` outside the hyper mode, else `Bip01_Head`. `CX2GUUser::ScaleHead( float, float )` is already June's virtual (`DIVERGE_SCALE_HEAD`), so a `_CORE` override would change Chung now; it sits under `_LIVE` and `DIVERGE_SCALE_HEAD` (the body is `31fd64a0` body 0, Lu/Ciel's second body is a stand-in). Reads `m_bSDOnePieceAvatar` through the new `CX2GUUser::IsSDOnePieceAvatar()` |
+
+**Registered here.** `RNSI_*` x15 in `X2SkillTree.h` (`JUNE_ENUM_NAMES`: June `26001` .. `26211`; the other three `SetEquippedSkillLevel` ids and `RNSI_P_CIP_OPEN_MIND` were already there). Six `CHUNG_STATE_ID` members under `_CORE` (June script ids `298` `CSI_SI_A_CFG_GUARD_READY`, `321` / `322` `CSI_SI_SA_CFG_IRON_HOWLING_LOOP` / `_END`, `336` `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE`, `337` / `338` `CSI_SA_CTT_HEAVY_FIELD_LOOP` / `_END`); their states belong to CH3a2 / CH3c / CH2c. `CFuryGuardianGuardSkill::m_fMpConsumption` (June `+0x14`, ctor -4 from `32c24400`). `IsSDOnePieceAvatar()` in `X2GUUser.h` under `DIVERGE_SCALE_HEAD`. All 28 values (19 skill ids incl. `RNSI_P_CIP_OPEN_MIND`, 3 `SA_*`, 6 unit classes) were compile-probed against June's numbers.
+
+**Open items (for the review).**
+- **State `336`.** June registers table `CSI_SI_SA_CSG_DUAL_BUSTER` a second time under id 336 (skill 26032 slot); its C++ name is unknown. I named the member `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE`; CH1m (which maps `32078bc0` and the registrars) may rename it. `kickoffs/char-chung/CH1m.md` and `CH2c.md` are amended.
+- **Base virtuals.** The user virtuals for 0x670 / 0x740 / 0x744 / 0x748 / 0x774 are CH1o / CH4b; until then the five `_CORE` functions are plain members and the two Crest of Time bases stay a stand-in.
+- **`_LIVE` dependency.** When CH1 defines `_LIVE`, Always.h must also require `SERV_IRUHADEV_JUNE_DIVERGE_SCALE_HEAD` (the `ScaleHead` override sits under both; without it the override silently drops).
+- The `m_ucPvpStartCannonBallCount` header comment says LoadPersonalInfo `32bf5430` is "CH1l"; it is CH1q's (CH1 table).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_LIVE --with JUNE_CHAR_CHUNG_CORE JUNE_ENUM_NAMES JUNE_DIVERGE_SCALE_HEAD --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h X2Lib/X2GUUser.h`: `1 PASS, 1 PASS~, 2 OTHER, 0 FAIL`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because `_LIVE` is `//#define`. Own-flag runs: `JUNE_DIVERGE_SCALE_HEAD` on `X2GUUser.h` PASS, `JUNE_ENUM_NAMES` on `X2SkillTree.h` PASS~. `git diff --numstat`: 402 + 27 + 20 + 1 insertions, 0 deletions.
+- `junediverge.py --check` on the four files: `allow-listed: 2`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`, no PCH): `X2GUChung.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`: exit 0, 0 errors.
+- `DEPLOY OK: X2_offline.exe is 25,892,864 B, dated 2026-11-01 14:08:56, md5 2ff27838351bb8bcc4412b780ea54a2e, equal to X2/US_SERVICE/x2.exe (2026-11-01 14:08:49); built at main 0364128b + 4 uncommitted code file(s).` No `exestr` line: `_LIVE` is off, so the phase adds no string to the exe.
+
+**Nothing to play-test** (`_LIVE` is off; the flag-off tree adds only unused `_CORE` members, enum names and functions). Next: `/x2-phase char-chung CH1l review` (Opus 5.5 high), then CH1l2.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

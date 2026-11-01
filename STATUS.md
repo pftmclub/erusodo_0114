@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1l | ready: class core, overrides 0x600-0x7bc; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l0 review | `X2GUChung.*`, Always.h | `CH1l.md` |
+| CH1l | done (14 rows: 8 inside, 5 new, `ScaleHead` under `_LIVE`); awaits Opus review | Opus 5.5 / high | CH1l | `X2GUChung.*`, `X2SkillTree.h`, `X2GUUser.h` | `CH1l-review.md` |
 | CH1l2 | blocked (CH1l review): class core, Common* overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l review | `X2GUChung.*`, Always.h | `CH1l2.md` |
 | CH1l30 | blocked (CH1l2 review): Opus helpers (CustomizeManager stand-in `31d70b60`, `31fd7640`, `3288fe90`, `31f66620`) before CH1l3 | Opus 5.5 / high, Opus review | CH1l2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1l30.md` |
 | CH1l3 | blocked (CH1l30 review): class core, skill-use overrides; June bodies inside March's functions under `_LIVE`, new ones under `_CORE` | Sonnet 5.5 / high, Opus review | CH1l30 review | `X2GUChung.*`, Always.h | `CH1l3.md` |

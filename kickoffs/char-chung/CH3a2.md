@@ -43,3 +43,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 13** (`awk -F'\t' '$8=="CH3a2"' june2017_re/char_chung/ch0_state_skill.tsv`): `CSI_SI_SA_CFG_IRON_HOWLING`, `CSI_SI_SA_CFG_IRON_HOWLING_LOOP`, `CSI_SI_SA_CFG_IRON_HOWLING_END`, `CSI_SI_SA_CFG_PAIN_OF_CALADBOLG`, `CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_HYPER`, `CSI_SA_CHG_WONDER_WALL`, `CSI_SA_CHG_WONDER_WALL_HYPER`, `CSI_SI_A_CFG_GUARD_FIRST_STRIKE`, `CSI_SI_A_CFG_GUARD_READY`, `CSI_SI_A_CFG_GUARD_READY_MEMO`, `CSI_SI_A_CFG_GUARD_WAIT`, `CSI_SI_A_CFG_GUARD_END`, `CSI_SI_A_CFG_GUARD_DAMAGE`.
 - Iron Howling (`CSI_SI_SA_CFG_IRON_HOWLING*`): June's `_HYPER` state plays `SI_SA_CFG_IRON_HOWLING`, which no June motion file has (CH0 motion question): JUNE_BUGS row. Its `_END` StateEnd / EventProcess (`32bd9810`, `32be13b0`) are `new`.
 - Wonder Wall (`CSI_SA_CHG_WONDER_WALL*`) and the CFG guard states are class 110 skills in June's tree.
+
+## Amended by CH1l (2026-11-01)
+
+- CH1l already added the `CHUNG_STATE_ID` members `CSI_SI_A_CFG_GUARD_READY` (June id 298) and `CSI_SI_SA_CFG_IRON_HOWLING_LOOP` / `_END` (321 / 322): do not declare them again, only their callbacks. `RNSI_A_CFG_GUARD`, `RNSI_SA_CIP_IRON_HOWLING`, `RNSI_A_CFG_LEAP_ATTACK`, `RNSI_SA_CFG_LUNATIC_FURY` and `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` are registered in `X2SkillTree.h`. The Guard object has `m_fMpConsumption` (CH1l, June `+0x14`); its reader is the guard state.
