@@ -11284,5 +11284,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Shelling shells with the cannon ball counts. CH2a's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
 //              CH2a review ( 2026-11-02 ): retired, the CH2a play-test read the shot / loop / shell lines with their ball counts.
-//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH2b ( 2026-11-02 ): defined again for the Leap Attack landing's Back Blast chain and the Burst Wolf lunge lines. CH2b's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

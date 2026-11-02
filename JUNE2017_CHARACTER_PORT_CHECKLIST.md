@@ -50,7 +50,7 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
 | `RAVEN_FIGHTER` | 25 | 70 |
 | `Elsword_SwordMan` | 20 | 87 |
 | `ELESIS_KNIGHT` | 20 | 69 |
-| `Chung_Iron_Cannon` | 15 (Chung: CH2a, 6 of them: Back Blast, Reload Cannon, Siege Shelling x2, Lunatic Blow x2) | 74 |
+| `Chung_Iron_Cannon` | 15 (Chung: CH2a, 6 of them: Back Blast, Reload Cannon, Siege Shelling x2, Lunatic Blow x2; CH2b, 6 of them: Burst Wolf x2, Brutal Swing x2, Sudden Burster, Lunatic Fury Run) | 74 |
 | `Luciel_Duo` | 15 | 67 |
 | `Ara_Martial_Artist` | 14 | 49 |
 | `Lire_ElvenRanger` | 12 | 65 |
@@ -113,8 +113,8 @@ Matched by exact sub-path under the `DAMAGE_DATA*` table (`charport_scan.py`, se
 
 | key | census status | owner | uses (June script × count) |
 |---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported (parsed, logged) | 8c, done | 167: every character script except `Add_NasodRuler`, `Ain_Angel`, `Rose_Mechanic` and `Rose_Ranger` (Chung: CH2a, the 6 Iron Cannon tables run through the engine; `NUM use` from the play-test) |
-| `NUMERICAL_DATA_INDEX` | unsupported (parsed, logged) | 8c, done | 132: see section 1 (Chung: CH2a, same 6 tables) |
+| `APPLIED_SKILL_ID` | unsupported (parsed, logged) | 8c, done | 167: every character script except `Add_NasodRuler`, `Ain_Angel`, `Rose_Mechanic` and `Rose_Ranger` (Chung: CH2a, the 6 Iron Cannon tables run through the engine; `NUM use` from the play-test; CH2b, the Burst Wolf, Brutal Swing, Sudden Burster and Lunatic Fury Run tables) |
+| `NUMERICAL_DATA_INDEX` | unsupported (parsed, logged) | 8c, done | 132: see section 1 (Chung: CH2a, same 6 tables; CH2b, same 6 tables) |
 | `NATURAL_FORCE_TYPE` | unsupported (parsed, logged) | 8c, done | `Lire_ElvenRanger` ×77. See section 3 |
 | `HIT_ADD_COMBINATION_POINT` | unsupported (parsed, logged) | 8c, done | `Luciel_Duo` ×6 |
 | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | to-implement | 8b group 3 | `RAVEN_FIGHTER` ×7 |
@@ -175,7 +175,7 @@ values, before loading the script. Otherwise **every state after the first refer
 - **The scan also flags other names that are in neither Enum file** (`INIT_PHYSIC`, `WT_XXXXX_1`,
   effect names, …). These are probably globals defined elsewhere or data quirks, not enum tables.
   Check each when that character is ported. They are not listed here because they are unverified.
-- **Missing members of tables March *does* have** (for example the June `SKILL_ID`s) fail silently (Chung: CH2a, the Iron Cannon ids: RNSI_* names where June has them, raw ids with a comment otherwise)
+- **Missing members of tables March *does* have** (for example the June `SKILL_ID`s) fail silently (Chung: CH2a, the Iron Cannon ids: RNSI_* names where June has them, raw ids with a comment otherwise; CH2b, the 10 June names of Burst Wolf, Pandemonium, Brutal Swing, Lunatic Fury, Sudden Burster and Leap Attack are registered, all 12 ids have a name)
   to defaults. The effect side's list is in the matrix's *Enum census*. The character side's has not
   been built yet.
 
@@ -434,7 +434,7 @@ state vector. Since skill-system-core S8 (2026-10-19, flag `SERV_IRUHADEV_JUNE_S
 engine makes June's call itself: `JuneSnapshotBeforeSlotRebind( slot, bSlotB )` runs right before both `SetEquippedSkillFuncBySkillSlotIndex`
 call sites (`ChangeEquippedSkillState`, `SetEquippedSkillFunc`), on the same normal-state entry the class picks. So the class port still
 drops the call (a second one would only re-read the same delegates). A class port that adds a new caller of
-`SetEquippedSkillFuncBySkillSlotIndex` calls `JuneSnapshotBeforeSlotRebind` first. Class code multiplies `m_fNowStatePowerRate` (Chung: CH2a, Reload Cannon Start)
+`SetEquippedSkillFuncBySkillSlotIndex` calls `JuneSnapshotBeforeSlotRebind` first. Class code multiplies `m_fNowStatePowerRate` (Chung: CH2a, Reload Cannon Start; CH2b, none of the 12 skills multiplies it; the effects take GetPowerRate)
 (June `+0x7cc8`), never the entry's `m_fPowerRate`. Funcmap rows `Effect C9h-6`, `Skill S8`. (Eve: CH1n, `June_SetEquippedSkillFuncHead`) (Chung: CH1n, the head inside `SetEquippedSkillFuncBySkillSlotIndex` under `_LIVE`)
 
 | June | Class | What the port must bring |
@@ -710,7 +710,7 @@ June's attach-anim init (`3295dfa0` @`3295ea4f`-`3295ec1e`) binds a Rose weapon 
 
 Since S3, data036 ships June's `NewSkillTempletVer2.lua` and every save is on June's trees (schema v17). The census
 `june2017_re/s3_reform_ids_no_state.tsv` lists every tree row of the 55 classes March has (2,044 rows) with its June name, templet name, type,
-master level, row / column, and whether the class family's GU file has a state for it. **1,989 rows have none.** Every reform id (21000+, `RNSI_*`) is (Chung: CH2a, the six Iron Cannon skill ids and their upgrade ids are bound in CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex)
+master level, row / column, and whether the class family's GU file has a state for it. **1,989 rows have none.** Every reform id (21000+, `RNSI_*`) is (Chung: CH2a, the six Iron Cannon skill ids and their upgrade ids are bound in CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex; CH2b, the 12 Fury Guardian / Iron Paladin ids 26003-26006, 26031, 26034, 26043, 26044, 26204, 26205, 26222, 26229 are bound the same way)
 absent from March's C++ `SKILL_ID` enum, so no class `case` can name it. The only rows with a state are `SI_ETC_WS_COMMON_LOVE` (900), one per class.
 Per family (rows / no state; first job, second job): base classes 15 / 14 each (Raven 14 / 13); first jobs 28-34 / 27-33; second jobs 52-57 / 51-56.
 
@@ -726,7 +726,7 @@ What a class port does with its rows:
 - `lookalike_march_name` in the tsv names March's old skill with the same suffix (e.g. `RNSI_SA_ES_MEGASLASH` 21000 vs `SI_A_ES_MEGASLASH` 1200):
   a hint for where the old state's code lives, not proof that the June skill behaves the same.
 - (Eve: CH4a - her 24 passive / buff-data ids (106, 25201, 25214, 25400-25420) have no state in June either: `InitPassiveSkillState` `3297f290`, `GetAdditionalAccelBuffTime` `32978370` and the June_* states read them; 11 `RNSI_P_*` names added. Readers left: `GetActualMPConsume` `329a79c0` (CH4b), Code Recovery `329b57a0` / `329b4860` (CH4c); `32968dd0` / `32988e40` are dead.)
-- 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet. (Chung: CH2a, 26027 / 26029 / 26216-26219 are raw case labels with the templet name in a comment; 26028 is the Lunatic Blow default)
+- 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet. (Chung: CH2a, 26027 / 26029 / 26216-26219 are raw case labels with the templet name in a comment; 26028 is the Lunatic Blow default; CH2b has no unnamed id, all 12 ids have June names)
 - **Since S3c (2026-10-18)** `CX2SkillTree::SKILL_TYPE` has `ST_SPECIAL_ACTIVE_GRADE_1..3` (14-16), `ST_CORE` (17) and `ST_CORE_PASSIVE` (18)
   (`SERV_IRUHADEV_JUNE_SKILL_TYPE`). A class switch names them as June's does (June's class `SetEquippedSkillFuncBySkillSlotIndex` blocks
   in `june2017_re/s3c_skill_type_readers.tsv` group 7 with 14-16). A class port that calls `ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE )`

@@ -2474,6 +2474,49 @@ No play-test: nothing calls the helpers yet; CH2b's play-test exercises them.
 `RESULT: PASS`. `junediverge --check-all`: `allow-listed: 178`, `RESULT: PASS`. `enumscan --check X2GUUser.cpp X2GUUser.h`: the 2 B rows at `X2GUUser.h:2550-2551`
 (pre-CH2b0), none new. No build (no code change; CH2b0's DEPLOY OK md5 765442cd stands). `CH2b.md` "Amended by CH2b0" names the right symbols. CH2b ready.
 
+### CH2b - Done (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined) and `..._SKILL_DEBUG` (`Always.h`, defined again for this phase; CH2b's review retires it). The twelve class-20 / 110 skills class 6 lacks run June's bodies. All 39 class-map rows
+were read from `charport_adis.py chung --phase CH2b` listings (+ Ghidra decompiles for the long ones): 7 are written (June body inside March's function, March in `#else`), 1 of them new, 32 are June = March (`funcmap.tsv` rows `Char Chung CH2b`,
+each says which). MODS.md "Stage 7 Chung, CH2b" has the March vs June damage table (March from `DamageEffect.src.lua`, T0-proven against the shipped bytecode).
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32bfa4a0` | `CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove` | always `EffectSet_..._BRUTAL_SWING_MEMO` at `GetPowerRate()`; no memo 9 branch, no x1.2 |
+| `32bfb8f0` | `CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove` | power rate `GetPowerRate()` (March: 1, or 2 on memo 20 at 20 %) |
+| `32bd9900` | new `CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture` | `CommonStateStartFuture` + `m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 )`, on the READY state (normal + hyper) |
+| `32be1760` | `CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess` | `FollowSlotSwap`; the upgraded skill chains into Back Blast (flag `[0]`, `m_fEventTime[0]`, `IsNowStateSkillUpgraded` + `IsKeyPressedOnce`, MP x ( 1 - `SA_MP_CONSUME_REL` ) of the now-state skill); walk / dash cancels gated on the line map. JUNE_BUGS 503 |
+| `32be4e70` | `CSI_SI_SA_CIP_BURST_WOLF_StateStart` | `GetEquippedActiveSkillTemplet( RNSI_SA_CIP_BURST_WOLF, true )`, the rest = March |
+| `32c007e0` | `CSI_SI_SA_CIP_BURST_WOLF_FrameMove` | 0.1 s fade, else 0.33 s lunge (damage effect 200 ahead, debuff 180 ahead / 100 up, no `bHit` test, no `..._FIRST / _SECOND` effect sets; March 1.1 s, 400) |
+| `32be4f50` | `CSI_SI_SA_CIP_BURST_WOLF_EventProcess` | skill / back walk / walk / dash cancels (`m_fSkillCancelAfter` .. `m_fDashCancelAfter`), gated on the line map |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26003-26006, 26031, 26034, 26043, 26044, 26204, 26205, 26222, 26229 are extra labels on March's blocks (before: they fell into the Lunatic Blow default). Ten `RNSI_*` names added to
+`X2SkillTree.h` (all twelve have a June name; no raw id). Leap Attack READY gets `StateStartFuture`; its LANDING table is `CSI_SI_A_CIP_LEAP_ATTACK_LANDING` for class 110 and `..._CFG_...` otherwise, no memo 7 table (June never picks them);
+Pandemonium registers no FrameMove (June `32c23170`; March's FrameMove and its dummy damage effect stay in `#else`). Sudden Burster, Lunatic Fury READY / RUN / ATTACK / BOMBING / END EP, Leap JUMP / JUMP_DOWN, Pandemonium EP and all `Init`s = March.
+Checklist rows marked `(Chung: CH2b)` (l.53, 116, 117, 178, 437, 713, 729).
+
+**Left to later phases / notes.** The skill templets' Lua `EVENT_TIME` for the Leap Attack landing is June's script (CH1 final); the review checks the key names. Upgrade ids reach their base through `GetEquippedActiveSkillTemplet( id, true )` in Burst Wolf; no other
+term reads the id. `SetEquippedSkillLevel` (CH1l, June's 18 skills) already covers Leap Attack and Lunatic Fury. The `Pandemonium Chaos` MP memo 19 in `GetActualMPConsume` is a Chung override outside the 39 rows (CH4c memo readers).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 1 PASS, 1 PASS~ (blank line outside the flag), 1 DEFINE (Always.h debug define), 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token`, `RESULT: PASS` (the 1 deleted line is the `//#define` of `_SKILL_DEBUG`). `git diff --patience --numstat`: cpp 232 / 0, h 3 / 0, `X2SkillTree.h` 15 / 0.
+- `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `allow-listed: 18`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows (C 6, D 1: old code).
+- `skillicons.py check`: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. `ch1m_regcheck.py`: `matched 821 registrations, 0 problems`.
+- DEPLOY OK: X2_offline.exe is 25,916,416 B, dated 2026-11-02 16:57:47, md5 a220ef545f4d90cf20e09f55f66d1d41, equal to X2/US_SERVICE/x2.exe (2026-11-02 16:57:40); built at main f3b2b0a5 + 4 uncommitted code file(s) (this phase's).
+- EXESTR OK: 3 of 3 found in X2_offline.exe md5 a220ef54 (wide `[JUNE_CHAR] CHUNG SKILL burst wolf lunge`, `EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO`, `[JUNE_CHAR] CHUNG SKILL leap attack landing chains into back blast`); 1 of 1 narrow `CSI_SI_A_CIP_LEAP_ATTACK_LANDING`.
+
+**Play-test hand-off.** Save (backup `db_backup\els_db_20261102_164956_pre_sql.sql`): unit 63 `ChungFury` (Fury Guardian, lv 99): A Leap Attack (26222, upgraded), S Back Blast (26216), D Reload Cannon (26218), C Siege Shelling (26217); Q Lunatic Fury (26044),
+W Pandemonium (26034), E Brutal Swing (26043); slots 4 and 9 empty. Unit 43 `NovaT` (Iron Paladin, lv 70): A Sudden Burster (26205), S Leap Attack (26204), D Reload Cannon, C Siege Shelling; Q Burst Wolf (26003), W Brutal Swing (26005).
+Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/stage 1`-style). Checks:
+1. **ChungFury A Leap Attack.** Ready -> jump -> fall -> landing; damage in the jump (4 hits). On landing, press A again between the key window (ready animation of the landing) and the chain time: Back Blast starts and MP drops
+   by its cost (log `leap attack landing chains into back blast`). If nothing: the Lua `EVENT_TIME` of the landing table (ErrorLog / no log line).
+2. **Q Lunatic Fury.** Ready, three run loops, attack, bombing loops (one ball each, up to 5), end with the explosion (`ES_CREATE EffectSet_SI_SA_CFG_LUNATIC_FURY_END`). **W Pandemonium.** Plays and ends (WAIT / JUMP_DOWN), no dummy damage effect.
+   **E Brutal Swing.** One big swing; `ES_CREATE EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO`.
+3. **NovaT A Sudden Burster.** Cannon-ball blast at 0.5 s with the six particle sprays; any key after 1.06 s cancels. **Q Burst Wolf.** Quick lunge: fade at 0.1 s, damage effect ahead at 0.33 s
+   (`burst wolf lunge, debuff transit num N` in the log); walk / dash cancel late in the animation.
+4. Optional: Brutal Swing (W) from NovaT, and Leap Attack's landing Z on the Paladin (Z within the landing after 0.133 s starts the power-down combo).
+Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`; `ES_CREATE` lines for the effect sets). Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.

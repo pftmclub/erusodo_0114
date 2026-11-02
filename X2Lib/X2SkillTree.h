@@ -2007,6 +2007,21 @@ public:
 		RNSI_P_CDC_ENDLESS_CHASE                              = 26418,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH2b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Fury Guardian / Iron Paladin skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CIP_BURST_WOLF                                = 26003,
+		RNSI_SA_CFG_PANDEMONIUM_CHAOS                         = 26004,
+		RNSI_SA_CC_BRUTAL_SWING                               = 26005,
+		RNSI_SA_CIP_BURST_WOLF_UPGRADE                        = 26031,
+		RNSI_SA_CFG_PANDEMONIUM_CHAOS_UPGRADE                 = 26034,
+		RNSI_SA_CC_BRUTAL_SWING_UPGRADE                       = 26043,
+		RNSI_SA_CFG_LUNATIC_FURY_UPGRADE                      = 26044,
+		RNSI_A_CIP_SUDDEN_BURSTER                             = 26205,
+		RNSI_A_CFG_LEAP_ATTACK_UPGRADE                        = 26222,
+		RNSI_A_CIP_SUDDEN_BURSTER_UPGRADE                     = 26229,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

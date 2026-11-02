@@ -5591,3 +5591,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined). Plan `JUNE_CHARACT
 - **What changes in game.** Chung's targeting NPCs (863 Missile Shower, 1419 Quantum Ballista, June-only 2525 Heavy Field) and Remote Mortar (1100) take June's stats and power rate from June's summon helper `322ece70`, now one shared `CX2GUUser::SetSummonHelperInfo` (Eve's summons use it too, same numbers). The Remote Mortar keeps June's list: 1 mortar (2 in PvP) plus Useful Tactic's effective count, the oldest dying at the cap (March: always one). 2525 gets its NPCTemplet row and `Enum.lua` member (data036 / data037).
 - **Damage.** Targeting NPCs: March put the skill power rate on the NPC's power rate, June puts it on the five stats (power rate = socket x buff x AT_SPECIAL). Remote Mortar: March = (skill power rate x buff x socket) - 1 on the power rate, own HP / defence unscaled; June = stats x skill power rate x the skill's MAX_HP / ATK / DEF _REL abilities (own HP and defence scaled too), power rate = socket x buff x AT_SPECIAL - 1.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (with the CH2a skills), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The 2525 rows are harmless without it.
+
+## Stage 7 Chung, CH2b: Fury Guardian / Iron Paladin skills (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH2b - Done". Client only, no data change.
+- **What changes in game.** The twelve skills of class 20 / 110 that class 6 lacks run June's bodies: Burst Wolf (26003 / 26031), Pandemonium (26004 / 26034), Brutal Swing (26005 / 26043), Lunatic Fury (26006 / 26044), Leap Attack (26204 / 26222), Sudden Burster (26205 / 26229). `SetEquippedSkillFuncBySkillSlotIndex` gains the June id labels (before this, these ids fell into the Lunatic Blow default). Ten `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** Brutal Swing always plays its `_MEMO` effect set at the plain power rate (no memo 9 branch, no x1.2). Lunatic Fury's last hit uses `GetPowerRate()` (no memo 20 double damage). Leap Attack: the landing of the upgraded skill chains into Back Blast (second press of the skill key, MP cost x ( 1 - `SA_MP_CONSUME_REL` )), its cancels are gated on the line map, the READY state follows the slot key (`CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture`), the landing table is the class's (no memo 7 table). Burst Wolf is a quick lunge: the damage effect appears at 0.33 s, 200 ahead (March: 1.1 s, 400 ahead, only when it had hit), the debuff 180 ahead; no `..._FIRST / _SECOND` effect sets; it gains skill / walk / dash cancels. Pandemonium registers no FrameMove (March created the dummy damage effect with the buff factor there). Sudden Burster is = March.
+- **Damage (level-1 flat value; June = numerical x 0.01 through the engine; March = the shipped `DamageEffect.src.lua`).**
+
+| Effect | March | June |
+|---|---|---|
+| BRUTAL_SWING ( and _MEMO ) | PHYSIC 7.8 | 15.75 |
+| LUNATIC_FURY_ATTACK / _BOMBING / _END / _END_HYPER | PHYSIC 1.31 / MAGIC 4.55 / MAGIC 22.78 / MAGIC 0.83 | 14.23 / 4.69 / 25.07 / 1.81 |
+| LEAP_ATTACK_LANDING ( CFG and CIP ) | PHYSIC 3.49 | 4.7 |
+| CIP_BURST_WOLF ( _DEBUFF ) | PHYSIC 10.18 ( 0 ) | 12.76 ( 0 ) |
+| CIP_SUDDEN_BURST | MAGIC 1.02 | 5.54 |
+| PANDEMONIUM_FEAR ( DUMMY_ATTACK ) | PHYSIC 16.91 ( 14.25 ) | 29.43 ( literal 19.73, no longer created by the class ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` ( CH2a's six skills fall back too; the CH2b ids then play Lunatic Blow's default ), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

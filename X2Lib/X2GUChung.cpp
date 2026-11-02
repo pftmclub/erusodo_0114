@@ -5900,6 +5900,10 @@ void CX2GUChung::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_CC_BRUTAL_SWING:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CC_BRUTAL_SWING:	/// June 32c1f530: the state tables are June's
+		case CX2SkillTree::RNSI_SA_CC_BRUTAL_SWING_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CHUNG_BRUTAL_SWING:
 #endif //UPGRADE_SKILL_SYSTEM_2013
@@ -6052,6 +6056,10 @@ void CX2GUChung::InitStateByUnitClass()
 		} break;
 
 	case CX2SkillTree::SI_SA_CFG_LUNATIC_FURY:	// 루나틱퓨리(퓨리가디언)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_SA_CFG_LUNATIC_FURY:	/// June 32c1f530: the state tables are June's
+	case CX2SkillTree::RNSI_SA_CFG_LUNATIC_FURY_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			// 하이퍼 상태는 따로 만들지 않음
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_LUNATIC_FURY_READY", normalStateData.stateID );
@@ -6105,13 +6113,23 @@ void CX2GUChung::InitStateByUnitClass()
 		} break;
 
 	case CX2SkillTree::SI_A_CFG_LEAP_ATTACK:	// 리프어택(퓨리가디언)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CFG_LEAP_ATTACK:	/// June 32c1f530: the state tables are June's
+	case CX2SkillTree::RNSI_A_CFG_LEAP_ATTACK_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_LEAP_ATTACK_READY", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_READY_Init );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture );	// June 32bd9900
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_READY_FrameMove );
 			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_READY_EventProcess );	
 
 			m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_LEAP_ATTACK_READY", hyperStateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
 
@@ -6136,6 +6154,13 @@ void CX2GUChung::InitStateByUnitClass()
 
 				stateData.Init();
 				stateData.stateID			= CSI_SI_A_CFG_LEAP_ATTACK_LANDING;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				/// June 32c1f530: Iron Paladin's table by class, the memo 7 tables are never chosen
+				if ( CX2Unit::UC_CHUNG_IRON_PALADIN == GetUnitClass() )
+					m_LuaManager.MakeTableReference( "CSI_SI_A_CIP_LEAP_ATTACK_LANDING", stateData.stateID );
+				else
+					m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_LEAP_ATTACK_LANDING", stateData.stateID );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 				// oasis907 : 김상윤 [2011.6.14] 청 2차 전직 - 아이언 팔라딘
@@ -6164,6 +6189,7 @@ void CX2GUChung::InitStateByUnitClass()
 					m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_LEAP_ATTACK_LANDING", stateData.stateID );
 #endif CHUNG_SECOND_CLASS_CHANGE
 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 				stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_LANDING_Start );
 				stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_LANDING_FrameMove );
 				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess );
@@ -6399,13 +6425,21 @@ void CX2GUChung::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_SA_CFG_PANDEMONIUM_CHAOS:	// 판데모니움(퓨리가디언)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CFG_PANDEMONIUM_CHAOS:	/// June 32c1f530: the state tables are June's
+		case CX2SkillTree::RNSI_SA_CFG_PANDEMONIUM_CHAOS_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CFG_PANDEMONIUM:	// 판데모니움(퓨리가디언)
 #endif //UPGRADE_SKILL_SYSTEM_2013
 		{
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_PANDEMONIUM", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_PANDEMONIUM_Init );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			/// June 32c23170: Pandemonium registers no FrameMove ( the fear is the damage effect script's )
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_PANDEMONIUM_FrameMove );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_PANDEMONIUM_EventProcess );	
 
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_PANDEMONIUM_HYPER", hyperStateData.stateID );
@@ -6431,6 +6465,10 @@ void CX2GUChung::InitStateByUnitClass()
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 		// oasis907 : 김상윤 [2011.6.16] 청 2차 전직 - 아이언 팔라딘
 	case CX2SkillTree::SI_A_CIP_SUDDEN_BURSTER: // 서든 버스터 (아이언 팔라딘)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CIP_SUDDEN_BURSTER:	/// June 32c1f530: the state tables are June's
+	case CX2SkillTree::RNSI_A_CIP_SUDDEN_BURSTER_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_SI_A_CIP_SUDDEN_BURSTER", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CIP_SUDDEN_BURSTER_Init );
@@ -6450,6 +6488,10 @@ void CX2GUChung::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_CIP_BURST_WOLF: // 버스트 울프 (아이언 팔라딘)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CIP_BURST_WOLF:	/// June 32c1f530: the state tables are June's
+		case CX2SkillTree::RNSI_SA_CIP_BURST_WOLF_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CIP_BURST_WOLF: // 버스트 울프 (아이언 팔라딘)
 #endif //UPGRADE_SKILL_SYSTEM_2013
@@ -21684,6 +21726,22 @@ void CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_StartFuture()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfa4a0: always the _MEMO effect set at the plain power rate ( no memo 9 branch, no x1.2 )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 0.001f ) && true == EventCheck( 0.001f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO", this, NULL, false, GetPowerRate() );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // #ifndef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
@@ -21725,6 +21783,7 @@ void CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove()
 #endif
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_BRUTAL_SWING_EventProcess
@@ -22591,6 +22650,27 @@ void CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_EventProcess()
 */
 void CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfb8f0: the power rate is the plain one ( no memo 20 double damage )
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 0.5f ) && true == EventCheck( 0.5f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( CanUseCannon() )
+		{
+			if ( true == IsHyperState() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_CFG_LUNATIC_FURY_END_HYPER", this, NULL, true, GetPowerRate() );
+			else
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_CFG_LUNATIC_FURY_END", this, NULL, false, GetPowerRate() );
+
+			UseCannon( 1 );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -22619,6 +22699,7 @@ void CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CFG_LUNATIC_FURY_END_EventProcess
@@ -22644,6 +22725,16 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_Init()
 {
 
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+/// June 32bd9900: the held skill key follows the slot the skill was cast from
+void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 /** @function : CSI_SI_A_CFG_LEAP_ATTACK_READY_FrameMove
 	@brief : 청 1차 전직, 퓨리가디언의 리프어택 스킬 Ready상태의 FrameMove로 이펙트 출력
@@ -22859,6 +22950,69 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_FrameMove()
 */
 void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be1760 ( classes 20 and 110 ): the upgraded skill chains into Back Blast, the walk and dash cancels need the line map under the unit
+	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.4f;
+
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( true == m_InputData.oneZ && NULL != GetUnit() && CX2Unit::UC_CHUNG_IRON_PALADIN == GetUnitClass() )
+	{
+		const float TRIGGER_TIME_COMBO_PZ	= 0.133f;
+
+		if ( TRIGGER_TIME_COMBO_PZ < m_pXSkinAnimFuture->GetNowAnimationTime() )
+			StateChange( CSI_CIP_COMBO_POWER_DOWN_LANDING_Z );
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		/// stays in this branch until Back Blast is cast ( a skill without MP_CONSUME_REL, no Back Blast or too little MP blocks the cancels below, as June )
+		if ( NULL != GetUnit() )
+		{
+			const int iBackBlastLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_CC_BACK_BLAST, false, 0, true );
+			if ( 0 < iBackBlastLevel )
+			{
+				float fMpConsume = GetActualMPConsume( GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_CC_BACK_BLAST ), iBackBlastLevel );
+				float fMpConsumeRel = 0.f;
+				if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_MP_CONSUME_REL, GetNowStateSkillID(), false, fMpConsumeRel ) )
+				{
+					fMpConsume *= ( 1.f - fMpConsumeRel );
+					if ( fMpConsume <= GetNowMp() )
+					{
+						StateChange( CSI_A_CC_BACK_BLAST );
+						UpNowMp( -fMpConsume );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+						CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL leap attack landing chains into back blast, mp %.1f", fMpConsume );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+					}
+				}
+			}
+		}
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		true == IsNowStateSkillUpgraded() && true == m_kSkillSlotKey.IsKeyPressedOnce( m_InputData ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+	else if ( LOWER_BOUND_INPUT_TIME_TO_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( LOWER_BOUND_INPUT_TIME_TO_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.4f;
 
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
@@ -22901,6 +23055,7 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess()
 #endif //SKILL_CANCEL_BY_HYPER_MODE
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CFG_GUARD_READY_Init
@@ -29135,12 +29290,17 @@ void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_Init()
 void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateStart()
 {
 	CommonStateStart();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be4e70: the skill is looked up by its June id ( the upgrade swap picks the upgraded templet )
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CIP_BURST_WOLF, true );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet(CX2SkillTree::SI_A_CIP_BURST_WOLF);
 #else //UPGRADE_SKILL_SYSTEM_2013
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet(CX2SkillTree::SI_SA_CIP_BURST_WOLF);
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if( NULL != pSkillTemplet )
 	{
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
@@ -29165,6 +29325,48 @@ void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateStart()
 
 void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c007e0: the lunge is at 0.33 s, 200 ahead with the debuff 180 ahead, no hit test and no effect sets
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.1f ) == true && EventCheck( 0.1f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		FadeInWeaponRenderEffect(D3DXCOLOR(1.f, 1.f, 1.f, 1.f), D3DXCOLOR(1.f, 1.f, 1.f, 0.f), 0.7f, 0.7f);
+	}
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    else if( m_pXSkinAnim->EventTimerOneshot( 0.33f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnim->EventTimer( 0.33f ) == true && EventCheck( 0.33f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		m_bDisableGravity = false;
+
+		D3DXVECTOR3 vTargetPos = GetPos() + GetDirVector() * ( true == GetIsRight() ? 200.f : -200.f );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CIP_BURST_WOLF", GetPowerRate(), vTargetPos,
+			GetRotateDegree(), GetRotateDegree(), vTargetPos.y, true );
+
+		vTargetPos = GetPos() + GetDirVector() * ( true == GetIsRight() ? 180.f : -180.f );
+		vTargetPos.y += 100.f;
+
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CIP_BURST_WOLF_DEBUFF", GetPowerRate(), vTargetPos,
+			GetRotateDegree(), GetRotateDegree(), vTargetPos.y, true );
+
+		if( pEffect != NULL )
+			pEffect->GetDamageData().m_ExtraDamage.m_Accumulation = m_iDebuffTransitNum;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL burst wolf lunge, debuff transit num %d", m_iDebuffTransitNum );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // #ifndef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
@@ -29234,10 +29436,40 @@ else if( m_pXSkinAnim->EventTimerOneshot( 1.1f ) &&
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be4f50: the skill, back walk, walk and dash cancels need the line map under the unit
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -29247,6 +29479,7 @@ void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateEnd()

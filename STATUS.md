@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2b | **ready** (start: `/x2-phase char-chung CH2b`): Fury Guardian (20) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b0 review | `X2GUChung.*`, `MODS.md` | `CH2b.md` |
+| CH2b | done 2026-11-02, **review ready** (start: `/x2-phase char-chung CH2b review`): Fury Guardian / Iron Paladin 12 skills, flag `_SKILL`; user play-test ( ChungFury 63, NovaT 43 ) then "check logs" | Opus 5.5 / high, Opus review | CH2b0 review | `X2GUChung.*`, `MODS.md` | `CH2b-review.md` |
 | CH2c | blocked (CH2b review): Shooting Guardian (21) skills, siege mode, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |
 | CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |

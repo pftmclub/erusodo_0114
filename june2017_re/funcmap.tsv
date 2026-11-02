@@ -7029,3 +7029,43 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c0a420 (CH3b0)	CX2GUChung::EraseRemoteMortarNPCUID	PORTED	Char Chung CH3b0: ( uid, bKill ): find in +0x97bc, bKill -> SetNowHp( 0 ) on the NPC, erase. Only caller 3230b7b0 @3230bc46 with bKill 0
 32c10d20 (CH3b0)	CX2GUChung::CreateRemoteMortar	PORTED	Char Chung CH3b0: June body inside March's: size >= 32c0a500() -> erase + kill the front; pos = GetPos +- dir * 50 (qword 0x33449120); IsMyUnit (vslot 0x198) -> CreateNPCReq( 1100, now state data +0x10 = IsHyperState, true, pos, right, 0, true, -1, team, NAT_ALLY, uid ). March: one mortar, IsHost. CH0 had it as CH3c helper '?'
 3230b7b0 @3230bc08 (CH3b0)	CX2Game::Handler_EGS_NPC_UNIT_DIE_NOT: Remote Mortar	PORTED	Char Chung CH3b0: NPC id 0x44c, owner type 6 -> 32c0a420( GetUnitUID, 0 ). March's X2Game.cpp hook kept in #else
+32bd94c0	CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd94f0	CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_StartFuture	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9820	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd98e0	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd98f0	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9900	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture	PORTED	Char Chung CH2b: new: CommonStateStartFuture + m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ); registered on the READY state only ( normal and hyper )
+32bd9930	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_Start	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9950	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_Start	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9970	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9990	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_Start	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd99b0	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bd9ec0	CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bda4d0	CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bda530	CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_FrameMoveFuture	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bda540	CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_Init	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bda590	CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateEnd	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be0e90	CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be15b0	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be15e0	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be1620	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_ATTACK_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be1650	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be1690	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be16c0	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_READY_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be16f0	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be1720	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_DOWN_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be1760	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess	PORTED	Char Chung CH2b: June body inside March's: FollowSlotSwap, Paladin Z, Back Blast chain ( flag [0], +0x8c18 stateChange, key window +0x8c10..+0x8c14, IsNowStateSkillUpgraded + IsKeyPressedOnce ), then SKILL / walk / dash cancels gated on the line map; JUNE_BUGS 503
+32be2f10	CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be4da0	CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32be4e70	CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_StateStart	PORTED	Char Chung CH2b: June body inside March's: GetEquippedActiveSkillTemplet( RNSI_SA_CIP_BURST_WOLF, true ) in place of March's id; the rest = March
+32be4f50	CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_EventProcess	PORTED	Char Chung CH2b: June body inside March's: animation end, then SKILL / back walk / walk / dash cancels ( m_fSkillCancelAfter .. m_fDashCancelAfter ) gated on the line map
+32beb890	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_EventProcess	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bee840	CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bf0b20	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_READY_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bf1000	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_RUN_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bfa4a0	CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove	PORTED	Char Chung CH2b: June body inside March's: always the _MEMO effect set at GetPowerRate() ( no memo 9 branch, no x1.2 ), no EventCheck
+32bfb6e0	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_BOMBING_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32bfb8f0	CX2GUChung::CSI_SI_SA_CFG_LUNATIC_FURY_END_FrameMove	PORTED	Char Chung CH2b: June body inside March's: CanUseCannon, power GetPowerRate() ( no memo 20 random double ), hyper or normal END effect set, UseCannon( 1 )
+32c003c0	CX2GUChung::CSI_SI_A_CIP_SUDDEN_BURSTER_FrameMove	PORTED	Char Chung CH2b: = March, no code ( listing read against March's body )
+32c007e0	CX2GUChung::CSI_SI_SA_CIP_BURST_WOLF_FrameMove	PORTED	Char Chung CH2b: June body inside March's: EventTimer 0.1 fade, else EventTimer 0.33 lunge ( DAMAGE_EFFECT_CSI_CIP_BURST_WOLF 200 ahead, _DEBUFF 180 ahead and 100 up, no bHit test ), no EffectSet FIRST / SECOND
+32c1f530 (CH2b)	CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex ( Brutal Swing, Lunatic Fury, Leap Attack, Pandemonium, Sudden Burster, Burst Wolf )	PORTED	Char Chung CH2b: June ids ( 26003-26006, 26031, 26034, 26043, 26044, 26204, 26205, 26222, 26229 ) as extra labels on March's blocks; Leap Attack READY gains StateStartFuture ( normal + hyper ); its LANDING table is CIP by class with no memo 7 table; Pandemonium registers no FrameMove ( 32c23170 )
