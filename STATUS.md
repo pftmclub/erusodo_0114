@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1n3 | done 2026-11-02, flag `JUNE_USER_JUMP_UP_LINE`: June's `PhysicProcess_Jumping` `31fd6ce0` (jump-up flag, repeat-touch guard), every class. **User owes:** play-test (4 checks), then review | Opus 5.5 / high, Opus review, user play-test | CH1n2 review | `X2GUUser.*`, Always.h | `CH1n3.md`, `CH1n3-review.md` |
+| CH1n3 | done 2026-11-02, flag `JUNE_USER_JUMP_UP_LINE`: June's `PhysicProcess_Jumping` `31fd6ce0` (jump-up flag, repeat-touch guard), every class. Play-test passed 2026-11-02; review next | Opus 5.5 / high, Opus review, user play-test | CH1n2 review | `X2GUUser.*`, Always.h | `CH1n3.md`, `CH1n3-review.md` |
 | CH1o | ready after CH1n3 review (one at a time, both touch `X2GUUser.*`): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
 | CH1q | blocked (CH1p review): cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |

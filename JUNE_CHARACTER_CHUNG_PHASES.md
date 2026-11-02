@@ -1962,6 +1962,8 @@ X2GUUser.cpp +82, X2GUUser.h +4, no deletions. `flagcheck JUNE_USER_JUMP_UP_LINE
 **Play-test** (any class; Aisha or Eve): Garpai Rock (Sander, `DI_SANDER_GARPAI_ROCK_NORMAL` 33210; stages 1-3 have key-stop pads of 1-2 s) for the pad, the
 hold-down drop, the double touch and a pepper run (Hot Pepper `130507`). Dry Sander (33200) for the direction pads. Next: the play-test, then
 `/x2-phase char-chung CH1n3 review` (Opus 5.5 high); CH1o follows the review.
+**Play-test passed (user, 2026-11-02):** all checks. Logs on md5 26d1965e (run 07:10-07:14, after deploy; dungeon 33210 played 07:11-07:13): 0 EXCEPTION,
+2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`, known), clean exit. Not this phase's: `DLG_UI_LOCAL_MAP` lacks a "Garpai Rock" control (local-map UI); `AddGroupChainQuest` (quest-system).
 
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
