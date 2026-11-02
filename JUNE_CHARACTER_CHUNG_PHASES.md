@@ -2399,6 +2399,34 @@ Siege Shelling shells 1-3 + `finish shot` (balls 5 -> 0, extra 0), Lunatic Blow 
 63 `ErrorEnum(381) result : 47` lines for `CHUNG_SCARECHASE_EXPLOSION / _CANNONFIRE`, `CHUNG_ACELDAMA_READY / _ROCKETFALL / _GROUNDEXPLOSION`, `CHUNG_LUNATICBLOW_HIT`, `CHUNG_CANNONGUN_FIRE` in
 `CKTDXDeviceSound::Update3DPosition` (the files are in `data069`; the 3D-position call fails on them, no other class's sounds appear): routed to the review (is it the June OGG format or the Chung 3D-sound path?).
 
+### CH2a - Review (2026-11-02, Opus 5.5)
+
+**Verdict: passes, no skill code change.** `_SKILL_DEBUG` is retired (`Always.h`, `//#define` + one comment line). Listings: `charport_adis.py chung --phase CH2a` (41 rows) plus `32c24d40 32c24db0 32bed560 31f72300`.
+- **Lunatic Blow / `PlayCannonShotEffectSet`.** `32c11e10` builds the `EXPLOSION` name, then reassigns the same string to `ADDITION_EXPLOSION` when loop `>= 2`. It calls `32c11410( ret, name, 2, 1, power, 1, L"" = 3344f1f4 )`
+  with no `UseCannon`. Loops `< 2` call `PlayEffectSet` with the defaults, then `UseCannon( 1 )`. `32c11410`: arguments at `+0x98..+0xb0` = (ret, name, needed, use, power, second, fallback). `CanConsume( needed, use, second, &rate = 1 )`.
+  On success, `rate > 1.0` (`test ah,0x41`) appends `_EXTRA`; on failure it takes the fallback. `fld rate; fmul [esp+0xd0]` = arg 5 power, then `PlayEffectSet( ret, &name, this, 0, 0, rate x power, -1, ... )`. All of this matches the port.
+- **`CanConsumeCannonBallForShot` `32c0a230`.** `second == 1` loads `+0x989c` (`[1]`), else `+0x9898` (`[0]`). The rate gap is `r - 1`. Extra `>= use`: `use x gap + 1`, then `32c24d40( use )`. Otherwise, if not hyper: normal `use - extra`, `UseCannon` or `32c24db0( 0 )` (= `SetCannonBallCount( 0 )`).
+  Then, in class 117 mobile mode with extra `>= 1`: `extra x gap + 1`, then `32c24d40( extra )` (`0` outside the mode). `32c24d40( n )`: guarded (117, `+0x97a0`), `+0x142 = 1`, set `get - n` = the port's guarded `SetExtraCannonBallCount( Get - n )`. `32bed560` = the `_LIVE` `GetTotalCannonBallCount`.
+- **Aimming Shot `32bfa860`.** Templet `26203` (`0x665b`, true) `+0xc` cost. `+0x98a8 = 0` sits beside the `+0x9690` aiming test. Extra `>= cost` sets `+0x98a8 = 1` and calls `32c24d40( cost )`; else now `>= cost` or hyper calls `UseCannon`; else misfire (clears `+0x9690` / `+0x8a64`).
+  At 0.17 s, `+0x98a8` selects `AIMING_EXPLOSION_EXTRA` at `GetPowerRate() x +0x9898` (`@32bfae33`). The trailing `GetEqippedSkillMemo( 0x93f36 )` x3 branch is June's stub and is dropped, as the Done note says.
+- **Scare Chase `32bfa670`.** No `SetLockOn`. `31fceab0( 0x6732 = 26418 ) > 0` (the class resolves to the `_DIVERGE_SKILL_LEVEL_VALUE` replacement). `32007b10( 0x1d = SA_SCOPE_ABS (29), 26418 )` scales `+0x970 / 974` (DUNGEON min 150 / max 750, `@31f72375` / `@31f72385`)
+  and `+0x978 / 97c` (PVP min 150 / max 300, `@31f72407` / `@31f72412`), which are `m_fDungeonTargetRangeMin..m_fPvpTargetRangeMax` in that order. `UseCannon( 1 )` then follows.
+- **Siege Shelling.** `32beba80`: flag 0 fires on `+0x8c18 < t` or animation end, down-key window `+0x8c10 <= t < +0x8c14`, `+0x97a0`, class 117 extra `> 0`, dash last. `32bebc40`: flag 1 (count `>= 6` and `26419 <= 0` gives X_FINISH; else not hyper with now `<= 0` gives Z_FINISH,
+  `<= 1` with `+0x9730 <` random (`GetRandomFloat( +0x7e58 )`) gives X_FINISH, else X), then flag 2 (no clear), key X, key down, the Z flag, then walk / dash / skill. `32be5a80`: `26419 > 0` gives `-3 x dt x SA_MP_CONSUME_REL (0x1b = 27)`; `Mp <= 0` gives WAIT; `+0x1a0 == 0` (`OL_HIGH`) calls vslot `0x774`.
+  `32c0e530`: `0x774` every frame; misfire (clears `+0x9690` / `+0x8a64`, `PlaySound( trigger, 1 )`) or shot + `32c09e40( 0 = CBT_SIEGE, power )`. Both paths reach the `+0x9730 <` random roll before `UseCannon( 1 )`, then `++count` and the guarded extra `+1`. The `0.245` bone-off applies only below `OL_HIGH`.
+  `32c0e9b0`: the dead `now > 0` test inside `now < 1` is kept; `UseCannon( 1 )` comes before the shot effect; `CBT_SIEGE_FINISH` (1); bone-off at 0.466. The hyper slot of 26200 / 26201 shares the normal table (`32c1f530` @1165 / @1172).
+- **Back Blast `32bea9c0`.** Animation end: `+0x8bf8 = 0`, JUMP_DOWN. Then skill (`+0x8c90`), BWALK (`+0x8c94`: left+facing right / right+facing left -> WAIT), WALK (`+0x8c98`), DASH (`+0x8c9c`, vslot `0x668`), then Z / X on `+0x8c8c` (vslots `0x4b0` / `0x4b4`). Each cancel is foot-on-line gated.
+- **"= March" spot checks.** `32be0f50` = `ACELDAMA_StateStart` (gravity off, speed 0/0, passive -1/-1). `32bd9510`: the same 13 preloads in March's order. `32bf2e10`: the `+0x968c` mastery rate on the damage fields, as March.
+- **Sound lines.** `result : 47` is `FMOD_ERR_NEEDS3D` (`fmod.h:146`); the logger is `Update3DPosition` (`KTDXDeviceSound.cpp:934`), reached only through `Set3DPositionAndUpdate` (June `31d41710`, flag `JUNE_DAMAGEEFFECT_SOUND`) from the damage-effect play `X2DamageEffect.cpp:3641`.
+  The seven OGGs are mono 44.1 kHz like the sounds that play fine. The cause is `JUNE_BUGS` 138: the copied `SoundData` carries a stray 3D byte, so some plays go 2D (still audible, Play unpauses them) and June's set-and-apply then fails. This is not Chung code and not a port gap. No change; row 138 now names the symptom.
+- **Dev gate.** `SpecialAttackLookup` `X2GUChung.cpp:9580` (`IsDevUnlimitedSkillUse`, CH1l3) covers all seven slot skills. Cannon-ball costs are not gated, as in June.
+
+**Hygiene** (range `072e8401^..072e8401`): `flagcheck JUNE_CHAR_CHUNG_SKILL --with ..._SKILL_DEBUG`: `2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, `0 deleted, 0 non-ASCII, 0 EOL-mismatched`, `RESULT: PASS`.
+`numstat`: cpp 625 / 0, h 12 / 0, `X2SkillTree.h` 9 / 0, `Always.h` 22 / 0. `junediverge --check-all`: `allow-listed: 178`, `RESULT: PASS`. `enumscan --check X2GUChung.cpp X2GUChung.h`: `0 A/B (C 6, D 1)`. `ch1m_regcheck`: `821 registrations, 0 problems`.
+Retire (worktree): `flagcheck JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, `1 deleted` (the `#define` line), FAIL only "not #defined" (the `//#define`, as the CH1 review's `_CBALL_DEBUG`).
+DEPLOY OK: X2_offline.exe is 25,914,368 B, dated 2026-11-02 14:23:29, md5 db5785dc9133d5e47828e8a5165174c6, equal to X2/US_SERVICE/x2.exe (2026-11-02 14:23:22); built at main 2c4c6e1f + 1 uncommitted code file(s) (this `Always.h` retire).
+EXESTR OK: 1 of 1 absent (`[JUNE_CHAR] CHUNG SKILL`, wide) and 1 of 1 found (`AIMING_EXPLOSION_EXTRA`, wide) in X2_offline.exe md5 db5785dc. No new play-test: the retire only removes log lines.
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.

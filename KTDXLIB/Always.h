@@ -11283,5 +11283,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH2a debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: Scare Chase and Aimming Shot shots, the Lunatic Blow loops and the Siege
 //              Shelling shells with the cannon ball counts. CH2a's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH2a review ( 2026-11-02 ): retired, the CH2a play-test read the shot / loop / shell lines with their ball counts.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
