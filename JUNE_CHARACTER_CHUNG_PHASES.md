@@ -2831,7 +2831,7 @@ MODS.md "Stage 7 Chung, CH2d" has the March vs June damage table.
 | `32c05060` | `CSI_SA_CHG_BIGBANG_STREAM_FrameMove` | swapped skill templet; the grenades are `HAND_GRENADE_0_BIGBANGSTREAM` at `GetPowerRate()` (March: `HAND_GRENADE_0` at 1.0) |
 | `32c12100` `32c12240` `32c12400` | `CSI_SA_CHG_DREAD_CHASE_START / LOOP / END_FrameMove`, new `SetLockOnCannonShot` + `CreateCannonShotDamageEffect` | the shot spends its ball through `CanConsumeCannonBallForShot` (`_EXTRA` effect on extra balls), `_BIG_MEMO` up to count 2 then `_FLY_MEMO`, no memo 15 test, no `UseCannon` |
 | `32bedfc0` `32bee020` | `..._DREAD_CHASE_START / LOOP_EventProcess` | ball tests read `GetTotalCannonBallCount` |
-| `32c0f8c0` `32c0fc30` | `CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove`, new `..._01_FrameMove` (for `_01` / `_02` / `_03`) | a ball back at 0.315 s (extra-charge roll), at 1.5 s skill 26022, `UseCannon( 1 )`, time + 3 s, shot counter `+0x9894` reset; the attack states play `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` and spend two balls from the last 3 s or the 8th shot on |
+| `32c0f8c0` `32c0fc30` | `CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove`, new `..._01_FrameMove` (for `_01` / `_02` / `_03`) | a ball back at 0.315 s (Reload Mastery roll, fixed by the review), at 1.5 s skill 26022, `UseCannon( 1 )`, time + 3 s, shot counter `+0x9894` reset; the attack states play `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` and spend two balls from the last 3 s or the 8th shot on |
 | `32bdadc0` `32bee0e0` `32bed4c0` `32c12660` | `..._IMPACT_DETONATION_LOOP_Init / READY_EP / LOOP_EP / LOOP_FrameMove` | two more preloads; total ball count; the loop ends at now count <= 1 and no extra balls; loops 3 to 5 play the addition set through `PlayCannonShotEffectSet( 2, 1 )`, no ball test, `UseCannon( 1 )` only in loops 1 and 2 |
 | `32c10fb0` | `CSI_A_CSG_MAGNUM_SHOT_FrameMove` | the cost is the now-state skill's `m_usCBConsumption` (March: 3) |
 
@@ -2858,3 +2858,40 @@ Q Impact Detonation up ( 26056 ), W Chaos Cannon up ( 26057 ); slots 4 and 9 emp
 4. **Q Impact Detonation.** Loops 1 and 2 plain, loops 3 to 5 the addition set ( log `impact detonation loop N, balls now M` ), final blast; with 0 balls the misfire set.
 5. **W Chaos Cannon.** A ball returns at 0.315 s, one is spent at 1.5 s ( log `chaos cannon start, time T balls now N` ); the cannon then fires on its own ( log `chaos cannon shot N, power rate X` ), walk / jump / guard still work, it ends when the time runs out.
 Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"` ). Then say "check logs".
+
+### CH2d - Review (2026-11-02, Opus 5.5)
+
+**PASS after 1 fix.** Every written body, both helpers, the registrations and 4 "= March" rows were re-read from the `charport_adis.py chung --phase CH2d` listings.
+- **Fix: Chaos Cannon START `32c0f8c0` @32c0f943.** The 0.315 s roll loads `+0x9734`, which the ctor map (`ch1k_ctor_map.tsv` row `0x9734`, init -1) and CH1q's
+  `UpCannonBallCount` give as March's `m_fInsertCannonBallRel` (Reload Mastery). The port read `m_fCannonBallExtraChargeRate` (`+0x97cc`). Now `m_fInsertCannonBallRel`
+  (`X2GUChung.cpp` 33919, inside CH2d's own `_SKILL` lines). Compare: `fcomp` of random vs the rate, `test ah, 0x41` / `jp` = random above the rate gives +1, else +2, so
+  `rate >= random` -> +2 holds. funcmap row and `MODS.md` corrected.
+- **`CreateCannonShotDamageEffect` `32c116e0`** (`ret 0x18`, six args): name and no-shot name by reference, `CanConsumeCannonBallForShot( needed, use, secondRate, &rate )`
+  with rate 1.0; `_EXTRA` only when `rate > 1.0` (`fcomp 1.0` / `test ah, 0x41` / `jne`); else the no-shot name; `GetWeaponBonePos( 0, L"TRACE_START0", 0 )` after the consume
+  (`0x3344ab00` read from the binary); power x rate; the 16 trailing `CreateInstance` arguments (`0, -1, 1, 1, -1, -1.0, 0, -1.0, 0, 0`) = March's defaults. June has no
+  empty-name test; the port's stand-in returns NULL (June's lookup of "" finds nothing).
+- **`SetLockOnCannonShot` `32c11980`** (wstring by value, `ret 0x1c`): `( name, 1, 1, vslot 0x204 = GetPowerRate, true, "" )` (`0x3344f1f4` = empty), then
+  `SetLockOn( effect, 0, 5, 0x1e )` = `LOT_NEARST_UID_VECTOR` with modulus 30.
+- **Chaos Cannon.** START: `IsFullHyperMode` skip, `SetNowCannonBallCount` + changed flag = `SetCannonBallCount`; `0x65a6` swap 1, `SA_EFFECTIVE_TIME`, `UseCannon( 1 )` before
+  `+ 3.0`, effect set `EFFECTSET_CHUNG_CHAOS_CANNON`, `+0x9894` reset at `32c0fb9c` (every exit of the templet branch), unit null -> return before `CommonFrameMove`; 1.6 s sound
+  in the `else`. `_01_FrameMove` `32c0fc30`: `jnp` after `fcomp 3.0` = time <= 3, else `+0x9894 >= 8`; `( 2, 2, 1, &rate )`, power x rate on any return; `+0x9860 > 0` ->
+  x ( v + 1 ); `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` at that rate; `inc +0x9894` on every path past the timer.
+- **Dread Chase.** `32c12100`: `_BIG_MEMO` then `+0x9754` + 1 (its `GetWeaponBonePos` / `GetRotateDegree` results are unused). `32c12240`: + 1 first, `> 2` -> `_FLY_MEMO`.
+  `32c12400`: `_FLY_MEMO`. EPs `32bedfc0` / `32bee020` call `32bed560`.
+- **Impact Detonation.** LOOP FM `32c12660`: play count < 5; `>= 2` -> `PlayCannonShotEffectSet( ADDITION_LOOP, 2, 1, rate, 0, "" )`, else the LOOP set (no game null test in
+  June either) and `UseCannon( 1 )`; anim end -> `ClearAnimEventTimerOneshotNow`. EP `32bed4c0`: >= 5 loops, else not berserk and now count <= 1 and (not class 117 /
+  not mobile mode / extra <= 0) = the port's `GetExtraCannonBallCount() <= 0`. READY EP `32bee0e0`, Init `32bdadc0` (June preloads Steam_Bp before the two new ones; order only).
+- **Elastic Bomb.** `32c0ede0` / `32c0f1f0`: `GetRandomFloat( 0 )` vs 0.3, `test ah, 5` / `jp` = shell when below; four-bomb `fcompp` (rate vs random) `test ah, 1` / `jne` = 4
+  when `rate >= roll`, through `32007c40( 5, vslot 0x524, 1, &rate )`; `0x6664` swap 1, ability `0x1f` = `SA_PROJECTILE_RANGE_REL` (31st after `SA_INVALID`); rows 0.6 / 1.75 /
+  -1.0, 0.8 / 1.55 / -0.5, 0.4 / 1.95 / -1.5, index 0 untouched; effect or mesh null -> next bomb; unit null -> return before `CommonFrameMove`. 26224 alone takes `32c25870`.
+- **Big Bang Stream `32c05060`:** `0x65a3` swap 1, `push edi (0); push eax` -> vslot `0x228( templet, 0 )`; both names at vslot `0x204`; 12 iterations, `<= 3` big. **Magnum
+  Shot `32c10fb0`:** vslot `0x524`, swap 0, null -> skip, `UseCannon( word +0xc )`.
+- **Registration.** `ch0_skill.tsv` (June `32c1f530` lines 736 / 749 / 780 / 814 / 1464 / 1477 / 1532) = the port's six label pairs; `ch1m_regcheck.py`: `matched 821
+  registrations, 0 problems; ids mapped 164`. **"= March":** `32bf35a0`, `32be6b30` (`% 4`: 0 -> _02, 1 -> _03, else _01), `32be77c0` (the hyper-input tail is inside
+  March's `SKILL_CANCEL_AFTER`), `32c073e0` hold. Dev gate: `IsDevUnlimitedSkillUse` in Chung's skill-use test (cpp 9764); the CH2d play-test log has all six skills.
+- **Gates.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 41fe0896^..41fe0896 --with JUNE_CHAR_CHUNG_SKILL_DEBUG`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`,
+  `RESULT: PASS` (numstat cpp 425 / 0, h 9 / 0, SkillTree 13 / 0). Review edits `--worktree`: `1 PASS, 1 DEFINE, 0 FAIL`, `RESULT: PASS`; 3 deleted lines = the two
+  rewritten port lines and the `_SKILL_DEBUG` define. `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan`: 0 A/B ( C 6, D 1 ).
+- **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,924,096 B, dated 2026-11-02 20:05:52, md5 b52ba7070ab934977351d77f91e4e655,
+  built at main 065ddf97 + `X2GUChung.cpp`, `Always.h`. EXESTR OK: 1 of 1 absent (wide `[JUNE_CHAR] CHUNG SKILL chaos cannon shot`), md5 b52ba707.
+- **Play-test (optional).** The fix only shows with Reload Mastery learned: Chaos Cannon outside berserk mode returns one ball at 0.315 s, sometimes two.

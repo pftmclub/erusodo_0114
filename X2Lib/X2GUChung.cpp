@@ -33903,7 +33903,7 @@ void CX2GUChung::DoCarpetBombing()
 void CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
-	/// June 32c0f8c0: a ball back at 0.315 s ( the extra charge roll adds one ), at 1.5 s one ball is spent and the time is 3 s longer; the shot counter restarts
+	/// June 32c0f8c0: a ball back at 0.315 s ( the Reload Mastery roll adds one ), at 1.5 s one ball is spent and the time is 3 s longer; the shot counter restarts
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
 
@@ -33916,7 +33916,7 @@ void CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove()
 		if ( false == IsFullHyperMode() )
 		{
 			int iUpCount = 1;
-			if ( m_fCannonBallExtraChargeRate >= GetRandomFloat( 0 ) )
+			if ( m_fInsertCannonBallRel >= GetRandomFloat( 0 ) )	// June +0x9734 ( Reload Mastery ), not +0x97cc
 				++iUpCount;
 			SetCannonBallCount( GetCannonBallCount() + iUpCount );
 		}
