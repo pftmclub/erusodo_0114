@@ -25,7 +25,7 @@ Check CH5 against June (read-only Ghidra):
 - **`UnitTemplet.lua`:** compare Chung's 7 blocks with `june_src_fixed/data036_kom/UnitTemplet.src.lua` (CRLF normalised only), and the other 48 against
   `kom_backup_tools/data036.kom.20261102_131543`'s extracted file. `luasrc.py ledger --check`, `core --check`, `luabind.py check UnitTemplet`.
 - **Play-test lines:** one `CHUNG UI cut-in set <n> index 0 / 1 name HQ_CutIn_Chung_...` per class tested, each beside a `[JUNE_GFX] CUTIN play`; `CHUNG UI hyper cut-in`
-  only for classes whose script sets `SHOW_HYPER_CUT_IN_TIME` (CH3d's hyper actives; none before then is not a failure).
+  not tested here: the hyper cut-in needs a transcended unit (user, 2026-11-02), so `CHUNG UI hyper cut-in` is CH6's walk check; its absence is not a finding.
 - Hygiene: `flagcheck.py JUNE_CHAR_CHUNG_UI --range <CH5 commit>^..<CH5 commit>`, `junediverge.py --check-all`, `enumscan.py --check X2Lib/X2GUChung.cpp`.
 
 Write "CH5 - Review" into the plan doc, update the STATUS row (CH6 waits on CH3d, CH4c and CH5 reviews), check `kickoffs/char-chung/CH6.md` and commit.
