@@ -11299,7 +11299,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH3a debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Artillery Nova shell (charge, power and range factors) and the
 //              Land Demolisher landing buff. CH3a's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH3a review ( 2026-11-03 ): retired, the CH3a play-test read the Artillery Nova fire ( charge 0.00 / 1.00 ) and Land Demolisher landing lines.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

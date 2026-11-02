@@ -83,3 +83,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   Reload Cannon; the real count is yours.
 - `m_fSiegeShellingDamageRel`, `m_fSiegeShellingDistance`, `m_fSiegeShellingUserBallRate`, `m_fSiegeShellingIncraseMPRel` come from the same function (March reads `SI_A_CC_SIEGE_SHELLING` 6xxx). CH2a's Siege Shelling
   reads `m_fSiegeShellingUserBallRate` (default from the ctor) and `m_fSiegeShellingDistance` (through `UpdateSpineAimRotation`); until you port the writers they stay at their ctor values.
+
+## Amended by CH3a review (2026-11-03)
+
+- Earthquake's landing (26007 / 26045) now applies `BFI_BUFF_LAND_DIMOLISHER` (`BTI_BUFF_LAND_DIMOLISHER` 54) as June. March's `SetSpecificValueByBuffTempletID` case for it reads
+  `SI_SA_CIP_LAND_DEMOLISHIER_HEAVY_ARMS` (6xxx), so `m_bApplyLandDemolisher`, `m_fLandDemolisherPowerRate` and the weapon pulse stay off until you port June's `32bec1a0` /
+  `32bda7d0` cases (funcmap rows 6307 / 6294).

@@ -2751,6 +2751,40 @@ Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/st
 3. **D Land Smash, Q Crack Crasher, W Guardian's Rage, E Rapid Guardian.** Each plays June's motion and effect (script states): look for the cast, the hit effect and damage; `ES_CREATE EffectSet_A_CIP_LAND_SMASH` / `EffectSet_SA_CIP_Crack_Crasher` lines. Missing sound files (JUNE_BUGS 505) are expected; report whether `ErrorLog.txt` lists them.
 Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
 
+### CH3a - Review (2026-11-03, Opus 5.5)
+
+**PASS, no code change.** The written bodies, the new Init, the registrations and 4 "= March" rows were re-read from the `charport_adis.py chung --phase CH3a` listings; the mesh
+modifier functions and `32c1f530` from Ghidra.
+- **Artillery Nova fire `32c076e0`.** Floors: `fcomp 1.0` / `test ah, 5` / `jp` skips at `>= 1.0` (power floor 1.0), same for life at 0.0; `fcomp 0.99` / `jp` skips at `>= 0.99`, so the
+  99999 store at `+0x950` (= `TIME_UNLOCK_FROM_START`, funcmap row `31f8cc80`) runs for a part charge, inside the main-effect test as June. Templet `GetEquippedActiveSkillTemplet( 0x665e, 1 )`,
+  level `( 0x665e, 0, 0, 1 )`; abilities `0xf` = `SA_DAMAGE_REL`, `0x1f` = `SA_PROJECTILE_RANGE_REL`, `0x22` = `SA_MOVE_SPEED` (ordinals after `SA_INVALID`); June's 4th argument `0.0` to
+  `32206e50` = March's not-found 0. `32206fb0( 0x22, level, &out, 0 )` is only a presence test; both modifiers take the life factor `( L, L, L )`: `31c8aac0( 1, 0, v )`, `( 3, 0, v )`.
+  `+0x44c *= L` = `SetMaxLifeTime`. Null skill tree / unit returns before `CommonFrameMove`; null effect / main effect / templet run it. `0x3344ab00` = `TRACE_START0` (CH2d review).
+- **Mesh modifier (KTDXLIB).** `31c8aac0` builds `{ add, tag, v3 }` and calls `31c8a9b0`, which merges into every entry of the same tag and add flag (`+=` or `*=` per component), else pushes.
+  `31c89d60( tag, &v )`: tag 1 per component; tag 3 multiplies `.x` only, while its add path adds all three components. The only caller of tag 3 (`31c8a720`) passes a local
+  `( speed, 0, 0 )` and reads back `.x`, so the port's scalar add is the same; no tag-3 add pusher exists. `31c8a720`: non-fading sets `+0x5cc`, then applies only when `0 < Min`
+  (`fcom` / `test ah, 5` / `jp`); fading applies to `+0x5d0` when `fOldTime <= Min`. `X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION` (the edited branch, June's 5-argument `ret 0x14`) is
+  defined (`KTDX.h:330`). Live `data036` `MESH_MAJOR_CSI_A_CIP_ARTILLERY_NOVA`: `LifeTime 0.400`, `Velocity XYZ(1500, 0, 0)` initial, then `Velocity 0` and `DirSpeed 1500` at 0.100.
+- **Charge `32be79d0` / `32be7a30`.** `anim <= +0x8eb8` (`test ah, 0x41` / `jne`) gives 0, else `anim - value`, clamped to 1.0 when above; the release test is `+0x8ef4 < anim`. Live
+  `Chung_Iron_Cannon.lua` `CSI_A_CIP_ARTILLERY_NOVA_CHARGE.USEFUL_VALUE0` = 0.66.
+- **Earthquake landing `32c07990`.** `EventTimer( 1.15 )`, `UseCannon( 3 )`, vslot `0x228( GetEquippedActiveSkillTemplet( 0x6597, 1 ), 0 )`; March's `SetBuffFactorToGameUnit` tests the null templet.
+  June's 26007 row gives `BFI_BUFF_LAND_DIMOLISHER` (50, `BTI_BUFF_LAND_DIMOLISHER` 54). Its `SetSpecificValueByBuffTempletID` case (`m_bApplyLandDemolisher`, the power rate, the
+  weapon pulse) still reads March's Heavy Arms templet; June's `32bec1a0` / `32bda7d0` are CH4a's (kickoff amended).
+- **Registration.** `32c1f530`: Crack Crasher `32c21c82`, Guardian's Rage `32c21cc6`, Land Smash `32c21db9`, Rapid Guardian `32c21e44`: two `MakeTableReference`, EventProcess thunk
+  `329cbfc0` -> `31fcc740`, Rapid Guardian Init thunk `32c235c0` -> `32bdbae0`, `CopyStateCallbacks` (copies `+0x14..+0x58`), exit. None stores the hyper flag: the head sets
+  `+0x10` / `+0x11` (`32c1f619`, `0x101`), which the port's `_LIVE` head does, so the port's per-case `m_bHyperState = true` is the same value. `ch1m_regcheck.py`: 821 matched,
+  0 problems. **"= March":** `32be7aa0`, `32be7f40` (anim end -> JUMP_DOWN / WAIT, the three cancel macros), `32bdaff0` (17 preloads in order), `32bf0c90` (`ChangeWorldColorByHyperMode`,
+  cut-in 0.7) hold. `32bdbae0`: the six preloads in June's order.
+- **Play-test (user, 2026-11-03, logs).** Nova `charge 0.00, power x1.00, life x0.00` (tap: max life 0, no shell, as March) and `charge 1.00, power x1.40, life x1.00`; four `land demolisher
+  landing buff factor` lines; `ES_CREATE` and hits for `EffectSet_A_CIP_LAND_SMASH` (+ `_DEBUFF`), `EffectSet_SA_CIP_Crack_Crasher` (+ `_Expl`), `EffectSet_SA_CIP_Rage_Of_Guardian`,
+  `EffectSet_SA_CIP_Rapid_Guardian`. JUNE_BUGS 505: the engine logs nothing for the 12 sounds / 1 particle (row updated). `result : 47` lines = JUNE_BUGS 138. Rapid Guardian cast three
+  times in 5 s (dev gate).
+- **Gates.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 1cf00f09^..1cf00f09 --with JUNE_CHAR_CHUNG_SKILL_DEBUG --with JUNE_MESH_DIR_SPEED_MODIFIER`: `files: 1 PASS, 1 PASS~, 0 DEFINE, 4 OTHER,
+  0 FAIL, 0 ERROR`, `RESULT: PASS`; numstat: code files insert-only (cpp 151, h 3, SkillTree 11, mesh 63 / 13, Always.h 21). Review edit `--worktree --files KTDXLIB/Always.h`: `1 DEFINE,
+  0 FAIL`, `RESULT: PASS` (1 deleted line = the `_SKILL_DEBUG` define). `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan`: 0 A/B ( C 6, D 1 ).
+- **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,926,144 B, dated 2026-11-03 05:21:00, md5 bde8104e73509e821039d23f84ebacb3,
+  built at main 1cf00f09 + `Always.h`. EXESTR OK: 2 of 2 absent (wide `... artillery nova fire`, `... land demolisher landing buff factor`), md5 bde8104e.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
