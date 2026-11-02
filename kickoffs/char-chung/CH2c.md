@@ -72,3 +72,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   Shooting Guardian's own states (Mobile Siege, Shooting Star ...) stay yours. `CSI_SI_A_SIEGE_SHELLING_StateStart` (June `32bda6c0`) is the shared `CommonStateStart` wrapper.
 - `PlayEffectSet` of an empty name plays nothing (stand-in in `PlayCannonShotEffectSet`).
 - **Amended by CH3b0 (2026-11-02):** Quantum Ballista's READY FrameMove (`32bfe730`) spawns 1419 (`m_eArtilleryStrikeType == CAST_QUANTUM_BALLISTA`) or 863; the owner link and stats are CH3b0's (`CX2Game::SetUserSummonedNPCInfo` cases under `_SKILL`, shared `CX2GUUser::SetSummonHelperInfo` = June `322ece70`). CH3b0 could not play-test (no state for the summon skill yet), so this phase's hand-off carries its check: each spawn logs `[JUNE_CHAR] SUMMON npc <id> uid <uid> skill <skill> lv <n> flags 0x<f> ...` (read with `python tools/logs.py --grep "JUNE_CHAR] SUMMON"`). Expect `npc 1419 ... skill 26014 ... flags 0x0` (or 26050 upgraded).
+
+## Amended by CH2b review (2026-11-02)
+
+- **Direct base calls stay direct.** Where a listing calls `31fd1840` (or any `CX2GUUser` function) by address instead of through the vtable, write `CX2GUUser::X( ... )`: an unqualified call reaches Chung's override (`GetActualMPConsume` `32bed9d0` adds memo and full-hyper terms). CH2b's Back Blast chain had this slip.

@@ -5609,3 +5609,4 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`
 | PANDEMONIUM_FEAR ( DUMMY_ATTACK ) | PHYSIC 16.91 ( 14.25 ) | 29.43 ( literal 19.73, no longer created by the class ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` ( CH2a's six skills fall back too; the CH2b ids then play Lunatic Blow's default ), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+- **CH2b review (2026-11-02).** The Leap Attack landing's Back Blast MP calls the base `CX2GUUser::GetActualMPConsume` (June `31fd1840` direct), so Chung's full-hyper `m_fDecreaseRate` cut no longer applies to that chain; `..._SKILL_DEBUG` retired.

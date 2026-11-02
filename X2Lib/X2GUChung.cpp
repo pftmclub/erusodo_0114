@@ -22976,7 +22976,7 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_LANDING_EventProcess()
 			const int iBackBlastLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_CC_BACK_BLAST, false, 0, true );
 			if ( 0 < iBackBlastLevel )
 			{
-				float fMpConsume = GetActualMPConsume( GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_CC_BACK_BLAST ), iBackBlastLevel );
+				float fMpConsume = CX2GUUser::GetActualMPConsume( GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_CC_BACK_BLAST ), iBackBlastLevel );	// June 31fd1840: the base, not Chung's override
 				float fMpConsumeRel = 0.f;
 				if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_MP_CONSUME_REL, GetNowStateSkillID(), false, fMpConsumeRel ) )
 				{

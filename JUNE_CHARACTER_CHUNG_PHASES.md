@@ -2517,6 +2517,46 @@ Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/st
 4. Optional: Brutal Swing (W) from NovaT, and Leap Attack's landing Z on the Paladin (Z within the landing after 0.133 s starts the power-down combo).
 Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`; `ES_CREATE` lines for the effect sets). Then say "check logs".
 
+### CH2b - Review (2026-11-02, Opus 5.5)
+
+**PASS with one fix.** The 7 written bodies, the READY registration and 4 "= March" rows were re-read from the `charport_adis.py chung --phase CH2b` listings.
+- **Fix: `32be1760` Back Blast MP.** June calls the base `31fd1840` directly (`@32be184b`, args id / level / 1), not vslot `0x6a0`. The port called the virtual,
+  i.e. Chung's override (`32bed9d0`; March's adds memo cases and, in full hyper mode, `x m_fDecreaseRate`). It is now `CX2GUUser::GetActualMPConsume( ... )` (the
+  2-argument virtual's base = June's slot 424 with `true`). It differs from CH2b only when the chain is cast in full hyper mode.
+- **`32be1760`, the rest holds.** Order: animation end (WAIT, `+0xde0` = 0.1), Z at class `0x6e` after 0.133 s, flag `[0]` (`+0x7d85`) with `stateChange` (`+0x8c18`)
+  `< t` -> `GetSkillLevel( 26200, 0, 0, 1 )`, `GetUpgradeSwappedSkillID`, ability `0x1b` = `SA_MP_CONSUME_REL` of vslot `0x524` (swap 0), `cost x ( 1 - rel ) <= GetNowMp()`
+  -> `StateChange( 0x14f )` then `UpNowMp( -cost )` (vslot `0xf0`). Every failure in that branch returns, so the cancels below are blocked (JUNE_BUGS 503 holds).
+  Then the key window `+0x8c10 <= t < +0x8c14`, `329cc340`, `31fc8900` -> flag. `SKILL_CANCEL_AFTER( 0.4 )` = June's (foot `+0x7e1c` on the skill branch, the
+  awakening branch as the `JUNE_BUFF_AWAKE_LOCK` macro). Walk and dash both test `+0x7e1c`. Offsets: `m_fEventTime` at `+0x8c10` (12-byte entries), so `+0x8c88` ..
+  `+0x8c9c` = attack-ex / attack / skill / bwalk / walk / dash cancel. June's `Chung_Iron_Cannon.src.lua`: `EVENT_PROCESS_TIME0` = { 0.1, 0.43, 0.43 } (CFG) and
+  { 0.1, 0.35, 0.35 } (CIP), read by `BeginTable( "EVENT_PROCESS_TIME", i )` into start / end / stateChange; the memo 7 tables have none.
+- **Burst Wolf.** `32c007e0`: 0.1 fade, else 0.33 (`m_bDisableGravity = 0`, 200 / -200, debuff 180 / -180, +100), no `bHit`, `KProtectedType` set of the accumulation
+  = March's assignment. June's exe has **no** `EffectSet_CSI_CIP_BURST_WOLF_FIRST` / `_SECOND` string (`exestr --exe unpacked_x2.exe`: both MISSING), so nothing else
+  plays them. `32be4e70`: `31fca8e0( 0x6593, 1 )`, `GetSkillLevel( m_eID, 0, 0, 1 )` (March's call has no swap; same level, since the templet already is the acquired
+  id), `max( 1, ... )`, `32206e50( 2 = SA_EFFECTIVE_COUNT, level, 0 )`. `32be4f50`: end, skill, bwalk (`pureLeft` and right-facing, or `pureRight` and left-facing),
+  walk, dash, each `>= 0`, `t >` and `+0x7e1c`. June's table sets all four cancels to 1.
+- **Brutal Swing `32bfa4a0`.** One 0.001 timer, `_MEMO` (`0x2b` chars) at vslot `0x204` = `GetPowerRate`, bHyper 0. June's exe has the plain `..._BRUTAL_SWING` name
+  only as the prefix of `_MEMO` (same address). **Lunatic Fury END `32bfb8f0`.** 0.5, `IsFullHyperMode() || cannon count > 0` = `CanUseCannon()`, `GetPowerRate()`,
+  `+0x7cbc` entry byte `+0x10` = `m_bHyperState` = `IsHyperState()` -> `_END_HYPER` bHyper 1 / `_END` 0, `UseCannon( 1 )` on both paths. **`32bd9900`**:
+  `CommonStateStartFuture`, `Set( +0x88bc - 1 )`.
+- **"= March" spot checks.** `32bee840`: timers 0.03 / 0.06 / 0.09 / 0.12 with `DAMAGE_DATA_SECOND` / `THIRD` / `FOURTH` / `FIFTH` (strings read in June's exe).
+  `32beb890`: play count `>= 5` or (not full hyper and count `== 1`) -> remain hyper time `> 0` ? `0xe1` : `0xe0`. `32bfb6e0`: 0.001, loop `< 5`, `1 <` count or full
+  hyper -> `_BOMBING` + `UseCannon( 1 )`, end -> clear timers. `32c003c0`: 0.5, `CanUseCannon`, crash camera 20, `TRACE_START0`, `SUDDEN_BURST`, P04 / P03 / P01 / P02 /
+  P05 / P06, `UseCannon( 1 )`. All four are March's bodies.
+- **Registration.** `ch1m_regcheck.py`: `matched 821 registrations, 0 problems; ids mapped 164`. The 12 labels have June's Enum values (`Enum.src.lua`: 26003 / 26004 /
+  26005 / 26006 / 26031 / 26034 / 26043 / 26044 / 26204 / 26205 / 26222 / 26229).
+- **Play-test: passed (user, 2026-11-02).** Checks 1-4 passed in game; the last run (17:03-17:04) re-played the chain alone: `leap attack landing chains into back
+  blast, mp 10.0` x3 (17:04:00.963 / :02.791 / :05.742) beside the leap's `ES_CREATE` lines; no EXCEPTION, clean exit. `_SKILL_DEBUG` retired. The fix changes the
+  chain's cost only in full hyper mode, so no re-test is owed.
+- **Dev gate.** `SpecialAttackLookup` (CH1l3) is the slot path for all six skills; the chain's own MP is June's (spent even under the gate, as the log's `mp 10.0` shows).
+
+**Hygiene.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 1f22798a^..1f22798a --with ..._SKILL_DEBUG`: `files: 1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER (JUNE_ENUM_NAMES), 0 FAIL,
+0 ERROR`, `RESULT: PASS`. This review: `--worktree --files X2Lib/X2GUChung.cpp KTDXLIB/Always.h`: `1 PASS, 1 DEFINE, 0 FAIL`, `RESULT: PASS` (2 deleted = the replaced
+call line and the `#define`). `git diff --patience --numstat` (CH2b): cpp 233 / 0, h 3 / 0, `X2SkillTree.h` 15 / 0. `junediverge --check-all`: `allow-listed: 179`,
+`RESULT: PASS`. `enumscan --check X2GUChung.cpp X2GUChung.h`: `0 A/B`. One-file probe: `build.py` has no one-file mode; the full build below compiles it.
+DEPLOY OK: X2_offline.exe is 25,914,368 B, dated 2026-11-02 17:23:39, md5 9ff2f96bb0f02c1c3854c687d1a6578b, equal to X2/US_SERVICE/x2.exe (2026-11-02 17:23:32); built at main 1f22798a + 2 uncommitted code file(s).
+EXESTR OK: 1 of 1 found (wide `EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO`); EXESTR OK: 2 of 2 absent (the two `[JUNE_CHAR] CHUNG SKILL` debug lines), md5 9ff2f96b.
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
