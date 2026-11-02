@@ -2599,6 +2599,47 @@ W Trick Shot up ( 26232 ); slots 4 and 9 empty. Dev console ( END key, auth 3 ):
 5. **Q Head Shot, W Trick Shot.** Head Shot as before; Trick Shot: the right gun, a hit at 0.2 s, muzzle effect at 0.27 s, two effects at 0.299 s ( log `trick shot A and B` ), the gun goes at 0.94 s.
 Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "JUNE_CHAR] SUMMON"` ). Then say "check logs".
 
+### CH2c - Review (2026-11-02, Opus 5.5)
+
+**PASS, no code change.** Every written body, the registrations and 4 "= March" rows were re-read from the `charport_adis.py chung --phase CH2c` listings.
+- **Artillery Strike READY FrameMove `32bfe730`.** `+0x8040` = 0, world color, cut-in 0.04; one 0.001 timer; pos = `GetPos()` ± dir x 120, y + 300; `CanDown( pos, 30, &copy,
+  &lastTouchLineIndex, NULL, 1, 0, 1, 0 )` (the out index is never read, so March's 4-argument form is equal); false -> unit x / z, y + 240. Type 2 (`+0x97d4`): `IsMyUnit`
+  (vslot `0x198`) -> `322e67c0( 0x58b, 0, 1, pos, bRight, 0.3, 1, -1, team, 1 = NAT_ALLY, uid, 0, -1, 0, IsMyUnit, 0 )`; type 1: the forwarder `31f8b010( IsMyUnit, 0x35f, ...
+  same )`. Both then BFI `0x1c4` with `skip|adjust|level|creator|BFI` = `0|0|1|0|0x1c4` = the port's `( 452, 1, NULL, 0, false )`.
+- **READY EventProcess `32bfea90`.** Future anim `>= 0.6`; NPC -> `0xf5` (CONTROL_IDLE); else `fcomp 10.0` / `test ah, 5` / `jnp` = `10 < fStateTime` -> `0xd`, else
+  `3201bd60( 0 )` false -> `0xd`. **READY Starts `32c0e150` / `32c084e0`:** fire flag -> `DoArtilleryStrikeFire`, type 1 / 2, `+0x97f0` = vslot `0x204` (`GetPowerRate`).
+- **`ArtilleryStrikeControl_EventProcess` `32bfeb80`.** Held path = key byte, then `HaveThisBuff( 0x1a2 )` @32bfeded, nothing else. Released path: no NPC -> END
+  (`0xf4`); `dist < -750` (never) -> CANCEL `0xf3`, else STRIKE `0xf6` = March. Held chain, every `fcom` / `test ah` pair read: UP_LEFT `0xfb` (x `>= 0`, y `<= 0`),
+  UP_RIGHT `0xfc` (`<= 0`, `<= 0`), DOWN_LEFT `0xfd` (`>= 0`, `>= 0`), DOWN_RIGHT `0xfe` (`<= 0`, `>= 0`), LEFT `0xf7` (`>= 0`), RIGHT `0xf8` (`<= 0`), UP `0xf9` (y `<= 0`),
+  DOWN `0xfa` (y `>= 0`), else IDLE `0xf5`; `dist <= -750` then x = dx + dz; `npc.y >= my.y + 1500` -> y = 1500. Same order and tests as March.
+- **STRIKE End `32bff430`** (NPC `SHOT_ARTILLERY_STRIKE_FIRE` direct, `+0x96e8` pos / `+0x96f4` dir, `StateChange( 0xf2, true )`, `+0x96e4` = -1), **IDLE StartFuture
+  `32bff3d0`** (`+0x8750` / `+0x8d34` = 1, `+0x8e39` = 0: `m_bFocusCamera` / `m_bFocusCameraForce` / `m_bIsApplyCinematicUI`, the setters write exactly those, funcmap C9h-4h
+  and C3o), **FIRE Start `32c0e190`** (type 2 `UseCannon( 6 )`; type 1 `32c0a230( 6, 6, 1, &rate )`, `+0x97f0 *= rate`), **FIRE FrameMove** (no power-rate store),
+  **END EventProcess `32be3eb0`** (end -> JUMP_DOWN / WAIT, erase BTI `0x1a2`, `+0xde0` = 0.1) hold.
+- **Dual Buster.** `32bfbe80`: 0.69 / 0.96, `Bip01_L_Hand`, gauge `+0xe8` `> 0` -> `_HYPER`, `GetPowerRate`, land 0, range `+0x96b8`. `32bf42c0`: timer first, then
+  `+0x97cc >= GetRandomFloat( 1 )` (+1), then `UpCannonBallCount`'s own full-hyper test and `+0x9734` roll (CH1q), the sound on every path. `32be2460`: foot `+0x7e1c`;
+  flag `[0]` and `+0x8c18 < t` -> unit, level `( id, 0, 0, 1 )`, `31fd1840( id, level, 1 )` = the base virtual, ability `0x1b`, `cost <= GetNowMp()` -> `StateChange( 0x150 )`
+  before `UpNowMp( -cost )`, `+0x98d0` = 1; else cancels at 0.566, key window `+0x8c10 <= t < +0x8c14`, `+0x98d0 == 0`, key -> flag. State 336 registration holds.
+- **Deadly Shot `32c0b160`.** `GetEquippedActiveSkillTemplet( 0x659d, 1 )`, `UseCannon( word +0xc )` = `m_usCBConsumption`, effect checked after it, level `31fceab0`,
+  ability 5 / 2 = `SA_EFFECTIVE_RATE` / `SA_EFFECTIVE_COUNT` (`SA_INVALID` = 0), `GetRandomFloat( 0 ) < rate`, count `> 0` -> `_ftol2` added to `+0x84c`. Hit_Skill at
+  `GetPowerRate`, the shell at `landPosition.y`; June's two 0.598 timers = the port's one block (same test).
+- **Trick Shot `32bfdd70`.** Gun handle `+0x9604` (slot 0xf); Hit_Skill power 1.0 (`fld1` kept by `fst`); GUNFIRE at the gun's `Gun_R_Dummy03`, else `GetPos()`; at
+  0.299 the leftover 50.0 is added to y after `push 0x33722a70` (`[esp+0x28]` = y), so y + 50 holds.
+- **Sharpshooter `32c15340`.** `0x659c` swap 1, `NULL == GetUnit()` -> return before `CommonFrameMove`, `max( 1, level )`, memo type `0xf` = `MI_CHECK_AND_KILL_1` ->
+  `32d41910( 1 = BFT_TIME, value, 1 )`, `SetGameUnitBuffFactor( this, -1, true )`, team, `GetNowHp() > 0`, distance² `< 640000`. StartFuture / Start match their rows.
+- **Head Shot 26223 hyper.** June's 26223 block (`@32c2183a`) sets FM `32c25400` and jumps into 26220's tail `32c1f78d`; the hyper copy at `32c1fa0a` reads the normal
+  state's `+0x38`, so 26223's hyper FM is `32bfcc80`, as the port. The tsv row "26220,26223 hyper `32bfc860`" is a listing artifact.
+- **"= March" spot checks.** `32be2300` (landing cancels), `32be2db0` (3.6 s, JUMP_DOWN / WAIT, walk / any-key cancels), `32bfeb30` (`IsMyUnit` -> `InitFocusUnit`,
+  `CommonStateEnd`), `32bff4f0` (NPC `SHOT_ARTILLERY_STRIKE_LEFT`, direct): March's bodies.
+- **Gates.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 0466d56f^..0466d56f --with JUNE_CHAR_CHUNG_SKILL_DEBUG`: `files: 4 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`,
+  `RESULT: PASS`; numstat cpp 719 / 0 (only `Always.h` deletes, the define line). `junediverge.py --check-all`: `allow-listed: 180`, `RESULT: PASS`. `enumscan`: 0 A/B
+  ( C 6, D 1 ). `ch1m_regcheck.py`: `matched 821 registrations, 0 problems; ids mapped 164`.
+- **Play-test (18:21-18:23 run, after the CH2c deploy).** `dual buster landing chains into the second cast, mp 50.0` x3, `trick shot A and B` x2,
+  `artillery strike fire, type 2, power rate 1.00`, `SUMMON npc 1419 ... skill 26050 ... flags 0x0`, `[JUNE_SUMMON] npc 1419 ... died ... buff templet 418 erased`. No
+  `sharpshooter` and no `deadly shot` line (the second is a chance); the review hand-off asks for a visual check of both.
+- **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,921,024 B, dated 2026-11-02 18:43:57, md5 a5db65aeb9d4c3f2ea103470913dd9f3,
+  built at main 0466d56f + `Always.h`. EXESTR OK: 1 of 1 absent (the wide `dual buster landing chains into the second cast` line), md5 a5db65ae.
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.

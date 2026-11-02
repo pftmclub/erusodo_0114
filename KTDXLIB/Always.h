@@ -11287,5 +11287,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH2b ( 2026-11-02 ): defined again for the Leap Attack landing's Back Blast chain and the Burst Wolf lunge lines. CH2b's review retires it.
 //              CH2b review ( 2026-11-02 ): retired, the CH2b play-test read the Back Blast chain line ( mp 10.0, three casts ).
 //              CH2c ( 2026-11-02 ): defined again for the Dual Buster chain, Sharpshooter buff, Trick Shot, Deadly Shot and Artillery Strike fire lines. CH2c's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH2c review ( 2026-11-02 ): retired, the CH2c play-test read the Dual Buster chain ( mp 50.0 ), Trick Shot and Quantum Ballista fire lines.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
