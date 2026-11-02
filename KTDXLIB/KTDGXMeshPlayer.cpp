@@ -1704,6 +1704,51 @@ void CKTDGXMeshPlayer::CXMeshInstance::ApplyVelocityModifier( IN OUT D3DXVECTOR3
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+/** @function : AddDirSpeedModifier
+	@brief : June2017 FUN_31c8a9b0 for tag 3 ( pushed by FUN_31c8aac0 ). An entry with the same add flag absorbs the new one
+			 (added, or multiplied); otherwise it is pushed. June's only tag-3 pusher is Artillery Nova's FrameMove ( 32c076e0 ).
+*/
+void CKTDGXMeshPlayer::CXMeshInstance::AddDirSpeedModifier( IN bool bAdd_, IN float fValue_ )
+{
+	bool bMerged = false;
+	for( UINT i = 0; i < m_vecDirSpeedModifier.size(); ++i )
+	{
+		DirSpeedModifier& kModifier = m_vecDirSpeedModifier[i];
+		if( kModifier.m_bAdd != bAdd_ )
+			continue;
+
+		if( true == bAdd_ )
+			kModifier.m_fValue += fValue_;
+		else
+			kModifier.m_fValue *= fValue_;
+		bMerged = true;
+	}
+
+	if( false == bMerged )
+	{
+		DirSpeedModifier kModifier;
+		kModifier.m_bAdd	= bAdd_;
+		kModifier.m_fValue	= fValue_;
+		m_vecDirSpeedModifier.push_back( kModifier );
+	}
+}
+
+/** @function : ApplyDirSpeedModifier
+	@brief : June2017 FUN_31c89d60 for tag 3: each entry in order, added or multiplied. Called by CXMeshEvent_DirSpeed::OnFrameMove ( June FUN_31c8a720 ).
+*/
+void CKTDGXMeshPlayer::CXMeshInstance::ApplyDirSpeedModifier( IN OUT float& fDirSpeed_ ) const
+{
+	for( UINT i = 0; i < m_vecDirSpeedModifier.size(); ++i )
+	{
+		const DirSpeedModifier& kModifier = m_vecDirSpeedModifier[i];
+		if( true == kModifier.m_bAdd )
+			fDirSpeed_ += kModifier.m_fValue;
+		else
+			fDirSpeed_ *= kModifier.m_fValue;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 /** @function : ChangeAnimByTrigger
 	@brief : June2017 FUN_31c89ab0 -> FUN_31c83280, the motion of a mesh trigger. With a skin anim: marks
 			 the trigger played (+0x634); a negative speed becomes the mesh's own (m_fAniPlaySpeed, June
@@ -3965,12 +4010,30 @@ void CKTDGXMeshPlayer::CXMeshEvent_DirSpeed::
 {
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
 
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+	if( !IsFade() ) 
+	{
+		pInstance->m_fDirSpeed = m_DirSpeed.GetRandomNumInRange();
+		// June2017 FUN_31c8a720: an event that starts after time 0 re-applies the DirSpeed modifiers ( tag 3 )
+		if( 0.f < m_ActualTime.m_Min )
+			pInstance->ApplyDirSpeedModifier( pInstance->m_fDirSpeed );
+	}
+#else SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 	if( !IsFade() ) 
 		pInstance->m_fDirSpeed = m_DirSpeed.GetRandomNumInRange();
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+		if( fOldTime <= m_ActualTime.m_Min )
+		{
+			pInstance->m_fDirSpeedFinal = m_DirSpeed.GetRandomNumInRange();
+			pInstance->ApplyDirSpeedModifier( pInstance->m_fDirSpeedFinal );	// June2017 FUN_31c8a720: a fading event re-applies them to its final speed
+		}
+#else SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 		if( fOldTime <= m_ActualTime.m_Min )
 			pInstance->m_fDirSpeedFinal = m_DirSpeed.GetRandomNumInRange();
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 
 		if( m_ActualTime.m_Max <= fNowTime )
 			pInstance->m_fDirSpeed = pInstance->m_fDirSpeedFinal;

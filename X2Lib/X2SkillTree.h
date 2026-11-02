@@ -2044,6 +2044,17 @@ public:
 		RNSI_A_CDC_TRICK_SHOT_UPGRADE                         = 26232,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH3a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Iron Paladin skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CIP_CRACK_CRASHER                             = 26037,
+		RNSI_SA_CIP_RAGE_OF_GUARDIAN                          = 26038,
+		RNSI_SA_CIP_RAPID_GUARDIAN                            = 26062,
+		RNSI_A_CIP_LAND_SMASH                                 = 26226,
+		RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_UPGRADE        = 26045,
+		RNSI_A_CIP_ARTILLERY_NOVA_UPGRADE                     = 26230,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

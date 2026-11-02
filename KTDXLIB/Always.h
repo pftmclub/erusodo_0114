@@ -11292,3 +11292,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH2d review ( 2026-11-02 ): retired, the CH2d play-test read the Elastic Bomb, Dread Chase, Chaos Cannon, Impact Detonation and Magnum Shot lines.
 //#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: char-chung CH3a debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Artillery Nova shell (charge, power and range factors) and the
+//              Land Demolisher landing buff. CH3a's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: char-chung CH3a - the mesh instance's modifier list takes June's tag 3 ( the DirSpeed event's scalar, FUN_31c8aac0 / FUN_31c8a9b0 / FUN_31c89d60 ):
+//              Artillery Nova scales the shell's speed by its charge. Tag 1 ( velocity ) is JUNE_EFFECTSET_RUNTIME's.
+//              Revert: undefine the flag ( JUNE_MESH_DIR_SPEED_MODIFIER ).
+#define SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+#if defined( SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER ) && !defined( SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME )
+#error SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+//////////////////////////////////////////////////////////////////////////

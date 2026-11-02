@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
-| CH3a | **ready** (start: `/x2-phase char-chung CH3a`): Iron Paladin (110) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `MODS.md` | `CH3a.md` |
+| CH3a | done 2026-11-02, **user play-test owed** (unit 43 NovaT: Nova S, Earthquake A / C, Land Smash D, Crack Crasher Q, Rage W, Rapid Guardian E), then `/x2-phase char-chung CH3a review` | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `KTDGXMeshPlayer.*`, `MODS.md` | `CH3a.md`, `CH3a-review.md` |
 | CH3a2 | blocked (CH3a review): Iron Paladin (110) CFG / CHG-named skills; split from CH3a by CH0 | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUChung.*`, `MODS.md` | `CH3a2.md` |
 | CH3b | blocked (CH3a2 review): Deadly Chaser (111) skills, Artillery Strike 7r / 7ac | Sonnet 5.5 / high, Opus review, user play-test | CH3a2 review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Tactical Trooper (117) skills, Heavy Field 7r / 7n | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUChung.*`, `MODS.md` | `CH3c.md` |

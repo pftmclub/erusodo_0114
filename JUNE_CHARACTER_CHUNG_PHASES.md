@@ -2718,6 +2718,39 @@ EXESTR OK: 2 of 2 found (`[JUNE_CHAR] SUMMON npc %d uid %d skill`, `[JUNE_CHAR] 
 715d3c74..HEAD`: none. `junediverge --check-all`: `allow-listed: 179`, `RESULT: PASS`. No build (no code change; CH3b0's DEPLOY OK md5 04cd3eae stands).
 The user still owes `/x2-kom-packed copy data036` and `data037`. CH2c waits only on CH2b review now.
 
+### CH3a - Done (2026-11-02)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (+ `..._SKILL_DEBUG`, defined again for this phase; CH3a's review retires it) and the new `SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER` (`Always.h`, `#error` without `JUNE_EFFECTSET_RUNTIME`). The Iron Paladin (110) skills run June's bodies. All 17 class-map rows were read from `charport_adis.py chung --phase CH3a`
+listings (+ Ghidra for the mesh modifier): 4 are written (inside March's function, March in `#else`), 1 is new, 1 was CH1p's, 11 are June = March (`funcmap.tsv` rows `Char Chung CH3a`). MODS.md "Stage 7 Chung, CH3a" has the March vs June damage table.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32be79d0` `32be7a30` | `CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove` / `_EventProcess` | the charge and release window start at the state's `USEFUL_VALUE0` (0.66 s: `GetUsefulValueNow` / `GetUsefulValueFuture( 0, 0 )`) instead of 0.7 s |
+| `32c076e0` | `CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove` | equipped (upgrade / memo swapped) templet of 26206, level `GetSkillLevel( id, 0, 0, 1 )`; a charge under 0.99 s sets the shell's `m_fTimeUnlockFromStart` 99999 (no homing); `SA_MOVE_SPEED` (34) present: shell velocity (tag 1) and dir speed (tag 3) x the range factor |
+| `32c07990` | `CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_FrameMove` | after `UseCannon( 3 )` at 1.15 s: `SetBuffFactorToGameUnit( the equipped 26007 templet, 0 )` (vslot `0x228`) |
+| `32bdbae0` | new `CSI_SA_CIP_RAPID_GUARDIAN_Init` | six preloads (CFG_BurstWolf01, Chung_Hit_Impact01, DummyAttackBox, WhitePointSmall, aisha energySpurt circle, Eve HornetSting piece) |
+| `31c8aac0` `31c8a720` | `CXMeshInstance::AddDirSpeedModifier` / `ApplyDirSpeedModifier`, `CXMeshEvent_DirSpeed::OnFrameMove` | new (`KTDGXMeshPlayer.*`): June's mesh modifier list tag 3 = the DirSpeed scalar; the event applies it when it starts after 0 (non-fading) or to its final speed (fading). The live Nova mesh has `Velocity` at 0 and `DirSpeed 1500` at 0.1 s, so the modifier does reach it |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26007 / 26045 and 26206 / 26230 are extra labels on March's Earthquake and Nova blocks; Land Smash (26226), Crack Crasher (26037), Guardian's Rage (26038) and Rapid Guardian (26062) have their own blocks
+(normal `OnEventProcess` = `GenericSpecialActiveSkillEventProcess` `31fcc740`, hyper = `CopyStateCallbacks` `329cc2c0`, Rapid Guardian also `StateInit` `32bdbae0`). `X2SkillTree.h`: `RNSI_SA_CIP_CRACK_CRASHER` 26037, `_RAGE_OF_GUARDIAN` 26038, `_RAPID_GUARDIAN` 26062, `RNSI_A_CIP_LAND_SMASH` 26226, `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_UPGRADE` 26045, `RNSI_A_CIP_ARTILLERY_NOVA_UPGRADE` 26230. `ch1m_regcheck.py`: 0 problems (821). Checklist rows marked `(Chung: CH3a)` (l.53, 116, 117, 178, 424, 437, 713, 729).
+
+**Left out / notes (scope rule).** The CFG / CHG skills of class 110 (Iron Howling, Pain of Caladbolg, Wonder Wall, G.U.A.R.D. and their upgrades) are CH3a2's. `funcmap` row 84 said tags 2 / 3 for Nova's `31c8aac0` calls; the listing pushes 1 and 3 (velocity, DirSpeed). The tag-2 consumer (Size event) has no pusher in Chung. The
+June ids of Earthquake / Nova had fallen into the Lunatic Blow default before this phase. JUNE_BUGS 505: 12 sounds and 1 particle named by the new states exist in no June kom (nothing to stage).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --with JUNE_MESH_DIR_SPEED_MODIFIER --worktree --files <6 code files>`: `files: 1 PASS, 1 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+  `flagcheck JUNE_MESH_DIR_SPEED_MODIFIER` (mesh files): `2 PASS`, `RESULT: PASS`. `git diff --numstat`: `X2GUChung.cpp` 151 / 0, `.h` 3 / 0, `X2SkillTree.h` 11 / 0, `KTDGXMeshPlayer.cpp` 63 / 0, `.h` 13 / 0, `Always.h` 21 / 0.
+- `junediverge.py --check` (5 files): `allow-listed: 20`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows. `skillicons.py check 26007 26037 26038 26045 26062 26206 26226 26230`: `skills 8, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged (`Chung_Iron_Cannon.lua` is CH1's).
+- DEPLOY OK: X2_offline.exe is 25,930,240 B, dated 2026-11-02 20:50:46, md5 5693b5df98d6b68af0fe4628a810983b, equal to X2/US_SERVICE/x2.exe (2026-11-02 20:50:39); built at main 7617cdd5 + 6 uncommitted code file(s).
+- EXESTR OK: 4 of 4 found (wide `[JUNE_CHAR] CHUNG SKILL artillery nova fire, charge ...`, `..land demolisher landing buff factor`, `aisha_active_energySpurt_circle.X`, `Eve_EG_SP1_HornetSting_Piece03.tga`), md5 5693b5df.
+
+**Play-test hand-off.** Save: unit 43 `NovaT` (Iron Paladin, now lv 99, SP 843; backup `db_backup\els_db_20261102_205135_pre_sql.sql`): A Earthquake up (26045), S Artillery Nova up (26230), D Land Smash (26226), C Earthquake (26007); Q Crack Crasher (26037), W Guardian's Rage (26038), E Rapid Guardian (26062); slots 4 and 9 empty.
+Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/stage 1`-style); keep 3+ cannon balls.
+1. **S Artillery Nova.** Hold S: the charge animation runs, release after ~1 s (full charge) and after a quick tap (part charge). Log `artillery nova fire, charge X, power xY, life xZ`. Full charge: the shell homes on the nearest enemy and flies far; a tap: a short straight shot. If no shell: `DAMAGE_EFFECT` error in `ErrorLog.txt`.
+2. **A / C Earthquake.** Jump, hover, slam down; the landing explosion hits and costs 3 balls; log `land demolisher landing buff factor` (a self buff icon may show). If it hangs in the air: `EARTHQUAKE_DOWN` in `ErrorLog.txt`.
+3. **D Land Smash, Q Crack Crasher, W Guardian's Rage, E Rapid Guardian.** Each plays June's motion and effect (script states): look for the cast, the hit effect and damage; `ES_CREATE EffectSet_A_CIP_LAND_SMASH` / `EffectSet_SA_CIP_Crack_Crasher` lines. Missing sound files (JUNE_BUGS 505) are expected; report whether `ErrorLog.txt` lists them.
+Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

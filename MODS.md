@@ -5650,3 +5650,23 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`
 | `DamageEffect_CSG_Magnum_Shot_Explosion` (26213) | MAGIC | 1.05 | 4.83 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH2c skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH3a: Iron Paladin skills (2026-11-02)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines) and `SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER` (the DirSpeed modifier, `KTDGXMeshPlayer.*`). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH3a - Done". Client only, no data change.
+- **What changes in game.** Land Demolisher - Earthquake (26007 / 26045) and Artillery Nova (26206 / 26230) run June's ids through March's blocks (before: the ids fell into the Lunatic Blow default); four skills that March does not have get states: Land Smash (26226), Crack Crasher (26037), Guardian's Rage (26038), Rapid Guardian (26062); six `RNSI_*` names are added to `X2SkillTree.h`.
+- **Differs from March.** Artillery Nova: the charge starts at the state's `USEFUL_VALUE0` (0.66 s; March 0.7 s); the shell reads the equipped (upgrade / memo swapped) templet; a charge under 0.99 s sets the shell's `TIME_UNLOCK_FROM_START` to 99999 (no homing until then); a templet with `SA_MOVE_SPEED` multiplies the shell's velocity and dir speed by the range factor (new mesh DirSpeed modifier). Earthquake: the landing applies the skill's first buff factor to Chung. The four new skills are script states (`Chung_Iron_Cannon.lua`) with the shared special-active event process; Rapid Guardian preloads six files.
+- **Damage (level-1 flat value; June = the numerical row x 0.01 through the engine; March = the templet's own value in the shipped `DamageEffect.src.lua`, read per templet block; the type is the templet's `DAMAGE_TYPE`).**
+
+| Effect (June id) | Type | March | June |
+|---|---|---|---|
+| `DAMAGE_EFFECT_CSI_A_CIP_ARTILLERY_NOVA_EXPLOSION` (26206) | MAGIC | 14.47 | 14.53 |
+| `DAMAGE_EFFECT_CSI_CIP_LAND_DEMOLISHER_COMBO` / `..._for_POWER_DOWN_LANDING` (26007) | PHYSIC | 0.77 / 0.77 | 1.50 / 1.50 |
+| `DAMAGE_EFFECT_DEMOLISHER_EARTHQUAKE` (26007) | PHYSIC | 5.16 | 6.91 |
+| `DAMAGE_EFFECT_DEMOLISHER_EARTHQUAKE_STREAM_MAIN_DAMAGE` / `_SUB_DAMAGE` | PHYSIC | 21.94 / 0.25 | 31.88 / 0.64 |
+| `DamageEffect_A_CIP_LAND_SMASH` (26226) | new | - | 19.08 |
+| `DamageEffect_SA_CIP_Crack_Crasher_Expl` (26037) | new | - | 23.37 |
+| `DamageEffect_SA_CIP_Rage_Of_Guardian_DAMAGE` (26038) | new | - | 58.63 |
+| `DamageEffect_EffectSet_SA_CIP_Rapid_Guardian_Damage` (26062) | new | - | 47.59 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH2d skills fall back too) and `SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

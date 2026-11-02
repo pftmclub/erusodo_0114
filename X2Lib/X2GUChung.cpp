@@ -7127,6 +7127,10 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.m_bHyperState = true;
 		} break;
 	case CX2SkillTree::SI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE: // 랜드 디몰리셔 - 어스퀘이크
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE:		/// June 32c1f530
+	case CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START", normalStateData.stateID );
 
@@ -7197,6 +7201,10 @@ void CX2GUChung::InitStateByUnitClass()
 			}
 		} break;
 	case CX2SkillTree::SI_A_CIP_ARTILLERY_NOVA:		// 아틸러리 노바
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA:		/// June 32c1f530
+	case CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_A_CIP_ARTILLERY_NOVA_CHARGE", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_A_CIP_ARTILLERY_NOVA_CHARGE_Init );
@@ -7220,6 +7228,45 @@ void CX2GUChung::InitStateByUnitClass()
 				m_StateList[stateData.stateID]	= stateData;
 			}
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CIP_LAND_SMASH:		/// June 32c1f530: the script state, the shared special active event process
+		{
+			m_LuaManager.MakeTableReference( "CSI_A_CIP_LAND_SMASH", normalStateData.stateID );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
+
+			m_LuaManager.MakeTableReference( "CSI_A_CIP_LAND_SMASH", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );	// June 329cc2c0
+			hyperStateData.m_bHyperState	= true;
+		} break;
+	case CX2SkillTree::RNSI_SA_CIP_CRACK_CRASHER:
+		{
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_CRACK_CRASHER", normalStateData.stateID );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
+
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_CRACK_CRASHER", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );	// June 329cc2c0
+			hyperStateData.m_bHyperState	= true;
+		} break;
+	case CX2SkillTree::RNSI_SA_CIP_RAGE_OF_GUARDIAN:
+		{
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_RAGE_OF_GUARDIAN", normalStateData.stateID );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
+
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_RAGE_OF_GUARDIAN", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );	// June 329cc2c0
+			hyperStateData.m_bHyperState	= true;
+		} break;
+	case CX2SkillTree::RNSI_SA_CIP_RAPID_GUARDIAN:
+		{
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_RAPID_GUARDIAN", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GUChung, CSI_SA_CIP_RAPID_GUARDIAN_Init );		// June 32bdbae0
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
+
+			m_LuaManager.MakeTableReference( "CSI_SA_CIP_RAPID_GUARDIAN", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );	// June 329cc2c0
+			hyperStateData.m_bHyperState	= true;
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	case CX2SkillTree::SI_A_CSG_DOUBLE_FIRE:		// 더블 파이어
 		{
 			m_LuaManager.MakeTableReference( "CSI_A_CSG_DOUBLE_FIRE", normalStateData.stateID );
@@ -37257,6 +37304,22 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_StartFuture()
 
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be79d0: the charge starts at the state's USEFUL_VALUE0 ( March: 0.7 s )
+	const float fAnimationTime = m_pXSkinAnim->GetNowAnimationTime();
+	const float fChargeStartTime = GetUsefulValueNow( 0, 0 );
+	if ( fChargeStartTime < fAnimationTime )
+	{
+		m_fChargeTime = fAnimationTime - fChargeStartTime;
+
+		if ( 1.f < m_fChargeTime )
+			m_fChargeTime = 1.f;
+	}
+	else
+		m_fChargeTime = 0;
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	/// 애니메이션 0.7초 이후로 차지 시간 연산
 	const float fAnimationTime = m_pXSkinAnim->GetNowAnimationTime();
 	if ( 0.7f < fAnimationTime )
@@ -37271,6 +37334,7 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove()
 		m_fChargeTime = 0;
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess()
@@ -37285,7 +37349,11 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess()
 	/// 애니메이션이 끝났거나, 특정 시간 이후로 스킬 키를 놓았을 때 발사 스테이트로 전환
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() || 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		 ( GetUsefulValueFuture( 0, 0 ) < m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) )	// June 32be7a30 @32be7a4e: USEFUL_VALUE0 for 0.7
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		 ( 0.7f < m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) )	// June 32be7a30 @32be7a70
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		 ( 0.7f < m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_sCurrentSkillKeyManager.IsUnpressedCurrentSkillKey( m_InputData ) ) )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
@@ -37297,6 +37365,68 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess()
 // 아틸러리 노바 발사
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c076e0: the equipped ( upgrade / memo swapped ) templet; the range factor scales the shell's life time, a part charge unlocks the lock-on late,
+	/// a skill with SA_MOVE_SPEED scales the shell's velocity and dir speed by the same factor
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.079f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 0.079f ) && true == EventCheck(0.079f, false) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( NULL == g_pData ||
+			NULL == g_pData->GetSkillTree() ||
+			NULL == GetUnit() )
+			return;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA, true );
+
+		if ( NULL != pSkillTemplet )
+		{
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_CIP_ARTILLERY_NOVA, false, 0, true );
+
+			float fIncreasePowerRate	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel, false ) * m_fChargeTime;
+
+			if ( 1.f > fIncreasePowerRate )
+				fIncreasePowerRate = 1.f;
+
+			float fLifeTime				= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel, false ) * m_fChargeTime;
+
+			if ( 0.f > fLifeTime )
+				fLifeTime = 0.f;
+
+			D3DXVECTOR3 vFirePos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+
+			CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_A_CIP_ARTILLERY_NOVA",
+				GetPowerRate() * fIncreasePowerRate, vFirePos, GetRotateDegree(), GetRotateDegree() );
+
+			UseCannon( 1 );
+
+			if ( CKTDGXMeshPlayer::CXMeshInstance *pMeshInstance = ( pDamageEffect != NULL ) ? pDamageEffect->GetMainEffect() : NULL )
+			{
+				pMeshInstance->SetMaxLifeTime( pMeshInstance->GetMaxLifeTime() * fLifeTime );
+
+				if ( m_fChargeTime < 0.99 )
+					pDamageEffect->GetLockOnData().m_fTimeUnlockFromStart = 99999.f;
+
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+				float fMoveSpeedAbility = 1.f;
+				if ( true == pSkillTemplet->TryGetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iSkillLevel, false, fMoveSpeedAbility ) )
+				{
+					pMeshInstance->AddVelocityModifier( false, D3DXVECTOR3( fLifeTime, fLifeTime, fLifeTime ) );
+					pMeshInstance->AddDirSpeedModifier( false, fLifeTime );
+				}
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+			}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL artillery nova fire, charge %.2f, power x%.2f, life x%.2f", m_fChargeTime, fIncreasePowerRate, fLifeTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.079f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -37344,7 +37474,21 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+/// June 32bdbae0: Rapid Guardian's preloads
+void CX2GUChung::CSI_SA_CIP_RAPID_GUARDIAN_Init()
+{
+	TextureReadyInBackground( L"CFG_BurstWolf01.dds" );
+	TextureReadyInBackground( L"Chung_Hit_Impact01.tga" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+	XSkinMeshReadyInBackground( L"aisha_active_energySpurt_circle.X" );
+	TextureReadyInBackground( L"Eve_EG_SP1_HornetSting_Piece03.tga" );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_EventProcess()
 {
@@ -37487,6 +37631,13 @@ void CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_FrameMove()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
 		UseCannon( 3 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		/// June 32c07990: the skill's first buff factor goes onto Chung at the landing
+		SetBuffFactorToGameUnit( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE, true ), 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL land demolisher landing buff factor" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	}
 
 	CommonFrameMove();

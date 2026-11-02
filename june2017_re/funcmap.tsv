@@ -7156,3 +7156,24 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c12240	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_FrameMove	PORTED	Char Chung CH2d: count + 1, then _BIG_MEMO up to 2 and _FLY_MEMO after
 32c12400	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_END_FrameMove	PORTED	Char Chung CH2d: the _FLY_MEMO shot
 32c12660	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_FrameMove	PORTED	Char Chung CH2d: loops 0 and 1 EffectSet_..._LOOP and UseCannon( 1 ); loops 2 to 4 EffectSet_..._ADDITION_LOOP through PlayCannonShotEffectSet( 2, 1 ); no ball test
+32bdae80	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_Init	= March	Char Chung CH3a: = March, no code (9 preloads compared name by name)
+32bdaf00 (CH3a)	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_StartFuture	PORTED	Char Chung CH3a: done by CH1p ( CommonStateStartFuture, m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ) )
+32bdaf90	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_StartFuture	= March	Char Chung CH3a: = March ( CommonStateStartFuture, gravity on ); shared with DOWN
+32bdafb0	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_EndFuture	= March	Char Chung CH3a: = March ( gravity on, CommonStateEndFuture )
+32bdafd0	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_StartFuture	= March	Char Chung CH3a: = March
+32bdaff0	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_Init	= March	Char Chung CH3a: = March, no code ( 17 preloads compared name by name )
+32bdbae0	CX2GUChung::CSI_SA_CIP_RAPID_GUARDIAN_Init	PORTED	Char Chung CH3a: new; 3 textures, DummyAttackBox_50x50x50.X, aisha_active_energySpurt_circle.X, Eve_EG_SP1_HornetSting_Piece03.tga preloads
+32be79d0	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove	PORTED	Char Chung CH3a: the charge starts at GetUsefulValueNow( 0, 0 ) ( USEFUL_VALUE0 = 0.66 ), March 0.7; the rest = March
+32be7a30 (CH3a)	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess	PORTED	Char Chung CH3a: the release window starts at GetUsefulValueFuture( 0, 0 ) ( March 0.7 ); the key calls are CH1p's
+32be7aa0	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_EventProcess	= March	Char Chung CH3a: = March ( anim end -> JUMP_DOWN / WAIT, then the walk / dash / skill cancel macros; Chung takes the first-body animation )
+32be7eb0	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_FrameMoveFuture	= March	Char Chung CH3a: = March ( gravity off after 0.4 s )
+32be7ee0	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_EventProcess	= March	Char Chung CH3a: = March ( anim end -> DOWN 316 )
+32be7f10	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_DOWN_EventProcess	= March	Char Chung CH3a: = March ( foot on line -> LANDING 317 )
+32be7f40	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_EventProcess	= March	Char Chung CH3a: = March
+32bf0c90	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_START_FrameMove	= March	Char Chung CH3a: = March ( ChangeWorldColorByHyperMode, cut-in 0.7 )
+32c076e0	CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_FIRE_FrameMove	PORTED	Char Chung CH3a: equipped templet of 26206 ( upgrade / memo swapped ), level GetSkillLevel( id, 0, 0, 1 ); charge < 0.99 sets the shell's TIME_UNLOCK_FROM_START 99999; a templet with SA_MOVE_SPEED ( 34 ) multiplies the shell's velocity ( tag 1 ) and dir speed ( tag 3 ) by the range factor
+32c07990	CX2GUChung::CSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE_LANDING_FrameMove	PORTED	Char Chung CH3a: after UseCannon( 3 ) at 1.15 s, vslot 0x228 = SetBuffFactorToGameUnit( the equipped 26007 templet, 0 )
+31c8aac0 (CH3a)	CKTDGXMeshPlayer::CXMeshInstance::AddDirSpeedModifier / AddVelocityModifier ( tags 3 / 1 )	PORTED	Char Chung CH3a ( SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER ): Nova's FrameMove is the only pusher of tags 1 and 3 on a mesh; funcmap row 84's 'tags 2/3' is tags 1/3 ( push 1, push 3 at 32c0794c / 32c0795c )
+31c8a720	CKTDGXMeshPlayer::CXMeshEvent_DirSpeed::OnFrameMove ( June )	PORTED	Char Chung CH3a: a non-fading event with Min > 0 applies the tag-3 modifiers to m_fDirSpeed; a fading one applies them to m_fDirSpeedFinal; vtable slot 334498f4
+31c89d60 (CH3a)	CXMeshInstance::ApplyDirSpeedModifier	PORTED	Char Chung CH3a: tag 3 = scalar ( .x ), added or multiplied per entry in push order
+32c1f530 (CH3a)	CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex cases 26007 / 26045 / 26206 / 26230 / 26226 / 26037 / 26038 / 26062	PORTED	Char Chung CH3a: 26007 / 26045 and 26206 / 26230 are extra labels on March's Earthquake and Nova blocks; 26226 / 26037 / 26038 / 26062 are new blocks ( normal EventProcess GenericSpecialActiveSkillEventProcess 31fcc740, hyper = CopyStateCallbacks 329cc2c0, Rapid Guardian also StateInit 32bdbae0 )

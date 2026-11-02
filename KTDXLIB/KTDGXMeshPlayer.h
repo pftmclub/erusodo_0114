@@ -1378,6 +1378,11 @@ public:
 				// June2017 velocity modifiers (CXMeshInstance +0x568 in June); see the .cpp
 				void AddVelocityModifier( IN bool bAdd_, IN const D3DXVECTOR3& vValue_ );
 				void ApplyVelocityModifier( IN OUT D3DXVECTOR3& vVelocity_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+				// June2017 tag 3 of the same list: the DirSpeed event's scalar; see the .cpp
+				void AddDirSpeedModifier( IN bool bAdd_, IN float fValue_ );
+				void ApplyDirSpeedModifier( IN OUT float& fDirSpeed_ ) const;
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 				// June2017 mesh triggers (CXMeshInstance +0x194, +0x634..+0x658); see the .cpp
 				void ChangeAnimByTrigger( const WCHAR* wszAnimName_, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE ePlayType_, float fAnimSpeed_, bool bTransition_, float fStartTime_ );
 				bool GetTriggerBlocked() const { return m_bTriggerBlocked; }
@@ -1646,6 +1651,14 @@ public:
 					D3DXVECTOR3		m_vValue;
 				};
 				std::vector<VelocityModifier>	m_vecVelocityModifier;
+#ifdef SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
+				struct DirSpeedModifier
+				{
+					bool			m_bAdd;		// true: added; false: multiplied
+					float			m_fValue;
+				};
+				std::vector<DirSpeedModifier>	m_vecDirSpeedModifier;
+#endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 
 				// June2017 mesh-trigger state, read and written by the EffectSet's trigger (FUN_321dfc40), by
 				// ChangeAnimByTrigger (FUN_31c89ab0) and by OnFrameMove (31c87b80). June keeps +0x194 just
