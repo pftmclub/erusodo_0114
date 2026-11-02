@@ -2108,6 +2108,34 @@ Funcmap: 3 rows `Char Chung CH1p` (`32bfeb80`, `32bdaf00`, `32bdb130`). No `JUNE
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1p review` (Opus 5.5 high).
 
+### CH1p - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `3f412a24` stands). Listings: `charport_adis.py chung 32bfeb80 31fc89a0 32bdaf00 32be7a30 32bdb130 32bee210 32bdb1b0 32c16be0`.
+- **No reader left behind.** `_LIVE` preprocess of `X2GUChung.cpp`: the only survivors are June's 0-9 space (`SpecialAttackEventProcess` 32bd8790 `m_iNowSpecialAttack = slot + 1`,
+  `SpecialAttackLookup` -> `CommonSpecialAttackEventProcess`, `SpecialAttackUse` / `Cooldown`: `StateChangeBySkillSlot`, `MarkSkillSlotUsed`, `m_eSpecialAttackKeyPressed = slot + 1`)
+  and the six converted sites. No `m_sCurrentSkillKeyManager`, `SAKP_`, `CountUsedSkill` or `GetPressedSkillState` survives; the one `- 4` is Artillery Strike's random scatter
+  (`% 8 - 4`). `X2GUUser.cpp` under `_LIVE`: `CountUsedSkill` / `GetPressedSkillState` (4 + 4) are definitions with no caller in either file; the `+/- 4` is inside
+  `CurrentSkillKeyManager`, which Chung no longer uses; the rest are resets to 0. Elsewhere only `X2TrainingGameUI.cpp:303` (`GetNowSpecialAttack() > 0`) and the Lua getter.
+- **Shared reader:** `UT_CHUNG` joins the June set only under `_LIVE`; the `#else` is CH1m's line unchanged.
+- **SkillSlotKey:** `32bdaf00` = CommonStateStartFuture, `Set( [+0x88bc] - 1 )` on `+0x8b58`; `32bdb130` the same plus `+0x411c = 0` (March's `m_bApplyMotionOffset = false`);
+  `32be7a30` `FollowSlotSwap` @32be7a3a, `IsKeyReleased` @32be7a70; `32bee210` @32bee21a / @32bee32b. LOOP's StartFuture `32bdb1b0` is CommonStateStartFuture plus `+0x411c = 0`,
+  no `Set`, = March's. All six sites match.
+- **Artillery Strike control `32bfeb80`:** `[+0x8ac0] - 1`, `cmp 9; ja` -> not-held path `32bfebb5`; table `32bff328` decodes to A S D C (`+0x86f6` / `fa` / `fe` / `f2`), F `+0x872a`,
+  Q W E R (`+0x8706` .. `+0x8712`), T `+0x872e`, each `cmp pure, 0; jne` held. That is `IsKeyReleased` `31fc89a0`'s order (`+0x1c` `+0x20` `+0x24` `+0x18` `+0x50` / `+0x2c` .. `+0x38` `+0x54`).
+  `+0x872a` / `+0x872e` = base `+0x50` / `+0x54` = `pureSkill5` / `pureSkillEx5` (June's `+0x4c` is Sit; Eve CH1j20 mapping, checked against `31fcadd0`'s `+0x872b` = oneSkill5).
+  March's struct has them at 76 / 80, which is why the port goes by name. Out of range: our `IsKeyReleased` returns true (not held) = June's `ja`. Held path @32bfede8 starts
+  `HaveThisBuff( 0x1a2 )`: routed to CH2c (kickoff amended in CH1p).
+- **`COMMAND_HIT_ADD_MP_BONUS`:** `32c16be0` @32c16c2c decodes the protected float `+0x98c4` (`[+0x98c8] ^ &, [+0x98cc] ^`) and multiplies the passive multiples at `+0x68d4` (`+0x68ec`) and
+  `+0x6988` (`+0x69a0`) before `SetPassiveMultiple` `3236ccc0`. `dispsweep 98c4`: in the class range ctor `32bf1040`, InitComponent `32bf4900`, dtor `32c0c4e0`, and this function;
+  outside it Add (`329faa80`, `32a02960`) and Rose (`32ac3f70`, `32ac8a60`, `32ad1080`) own members, an EH-unwind funclet `3333acd0`, and misaligned `add [ecx+0x98c4]` noise.
+- **Added to CH3a's kickoff:** `32be7a30`'s release test compares the anim time with `+0x8ef4` = `GetUsefulValueFuture( 0, 0 )` (C9h-4f), where March has `0.7f`.
+
+**Hygiene** (range `e34b3fb4^..e34b3fb4`): `flagcheck JUNE_CHAR_CHUNG_LIVE`: `2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (X2GUChung.h = _CORE), 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII,
+0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only for `define: NOT FOUND` (`//#define`). `_CORE`: `1 PASS, 2 OTHER, 0 FAIL`, 1 deleted
+line (the member comment), `RESULT: PASS`. `git diff --patience --numstat`: 30/0, 1/1, 5/0. `junediverge.py --check-all`: `allow-listed: 163`, `RESULT: PASS`. `enumscan.py --check
+X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`): both files, `_LIVE` off and on, exit 0, 0 errors, warnings equal (38 / 39).
+No play-test. Next: `/x2-phase char-chung CH1q` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

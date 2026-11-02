@@ -50,3 +50,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - Artillery Nova charge: CH1p moved the key calls onto June's `m_kSkillSlotKey` (`+0x8b58`, slot 0-9) under `_LIVE`. StartFuture `32bdaf00` (whole:
   `Set( m_iNowSpecialAttack - 1 )`) and EventProcess `32be7a30`'s `FollowSlotSwap` `@32be7a3a` / `IsKeyReleased` `@32be7a70` are done. The rest of
   `32be7a30` is yours.
+- CH1p review: `32be7a30` @32be7a4e compares the anim time with `+0x8ef4` = `GetUsefulValueFuture( 0, 0 )` (USEFUL_VALUE Future row 0), where March has `0.7f`.
