@@ -52,3 +52,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH2b0** (`31fcf430`, `329cc340`, `31fc8900`).
 - Opus helper phase **CH2b0** runs first (`31fcf430` master-ultimate memo lookup, `329cc340` vslot 0x524 predicate, `31fc8900`).
 - Brutal Swing (26005, numerical-only x2) is class 20 / 110: here.
+
+## Amended by CH2b0 (2026-11-02)
+
+The three helpers are ported (flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE`, funcmap rows `(CH2b0)`); call them by these March names:
+- `31fcf430` -> `CX2GUUser::GetUpgradeSwappedSkillID( eSkillID )` (the upgrade swap; no unit -> the id). It is not a memo lookup.
+- `329cc340` -> `CX2GUUser::IsNowStateSkillUpgraded()` (= `IsEquippedSkillUpgraded( GetNowStateSkillID() )`).
+- `31fc8900` (ECX = `+0x8b58`, arg `+0x86da`) -> `m_kSkillSlotKey.IsKeyPressedOnce( m_InputData )`; `31fce670` at the top of `32be1760` is `m_kSkillSlotKey.FollowSlotSwap()`.

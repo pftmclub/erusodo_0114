@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2b0 | ready (CH2a review done 2026-11-02; one at a time with CH3b0: `X2GUChung.*`): Opus helpers `31fcf430` / `329cc340` / `31fc8900` before CH2b | Opus 5.5 / high, Opus review | CH2a review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH2b0.md` |
+| CH2b0 | done 2026-11-02, **review ready** (start: `/x2-phase char-chung CH2b0 review`): 3 `CX2GUUser` helpers under `_CORE`, unreferenced until CH2b | Opus 5.5 / high, Opus review | CH2a review | `X2GUUser.*` | `CH2b0-review.md` |
 | CH2b | blocked (CH2b0 review): Fury Guardian (20) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b0 review | `X2GUChung.*`, `MODS.md` | `CH2b.md` |
 | CH2c | blocked (CH2b review, CH3b0 review): Shooting Guardian (21) skills, siege mode, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |

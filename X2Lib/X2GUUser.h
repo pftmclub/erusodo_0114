@@ -2696,6 +2696,10 @@ public:
 		const CX2SkillTree::SkillTemplet* GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ = false ) const;     /// June 31fca8e0: arg 2 is the upgrade swap
 		bool IsEquippedSkillUpgraded( CX2SkillTree::SKILL_ID eSkillID ) const;      /// June 32071e70: is the equipped version of the skill an upgraded one
 		bool IsUpgradedSkillLearned( CX2SkillTree::SKILL_ID eSkillID ) const;       /// June 31fcf3e0: the skill-memo gate of every _ULTIMATE read
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+		CX2SkillTree::SKILL_ID GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID_ ) const;	/// June 31fcf430
+		bool IsNowStateSkillUpgraded() const;	/// June 329cc340
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		const CX2SkillTree::SkillTemplet* GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID ) const;
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -3721,6 +3725,9 @@ public:
 			void Set( const int iSlotIndex_ );								/// June 31fce6d0
 			void FollowSlotSwap();											/// June 31fce670
 			bool IsKeyReleased( const InputData& kInputData_ ) const;		/// June 31fc89a0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+			bool IsKeyPressedOnce( const InputData& kInputData_ ) const;	/// June 31fc8900
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 		};
 		SkillSlotKey m_kSkillSlotKey;	/// June +0x8b58
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE

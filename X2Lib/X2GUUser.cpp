@@ -6820,6 +6820,23 @@ bool CX2GUUser::IsUpgradedSkillLearned( CX2SkillTree::SKILL_ID eSkillID ) const
 	const CX2SkillTree::SKILL_ID eSwapped = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( eSkillID );
 	return g_pData->GetSkillTree()->IsUpgradedSkill( eSwapped );
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+
+/// June 31fcf430: the upgrade swap 328905b0 on the unit's skill tree; no CX2Unit -> the id unchanged
+CX2SkillTree::SKILL_ID CX2GUUser::GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return eSkillID_;
+
+	return GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( eSkillID_ );
+}
+
+/// June 329cc340: vslot 0x524 ( GetNowStateSkillID ), then 31fca8e0( id, 1 ) +0x178 != 0
+bool CX2GUUser::IsNowStateSkillUpgraded() const
+{
+	return IsEquippedSkillUpgraded( GetNowStateSkillID() );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_SKILL_NOTE
 bool CX2GUUser::GetEqippedSkillMemo(CX2SkillTree::SKILL_MEMO_ID eMemoId) const
@@ -26617,10 +26634,34 @@ bool CX2GUUser::SkillSlotKey::IsKeyReleased( const InputData& kInputData_ ) cons
 	}
 	return true;
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+
+// June 31fc8900: the slot's key pressed this frame ( the one* byte beside 31fc89a0's pure* ); an index outside 0-9 reads as not pressed
+bool CX2GUUser::SkillSlotKey::IsKeyPressedOnce( const InputData& kInputData_ ) const
+{
+	switch( m_iSlotIndex )
+	{
+	case 0:		return kInputData_.oneA;
+	case 1:		return kInputData_.oneS;
+	case 2:		return kInputData_.oneD;
+	case 3:		return kInputData_.oneC;
+	case 4:		return kInputData_.oneSkill5;
+	case 5:		return kInputData_.oneQ;
+	case 6:		return kInputData_.oneW;
+	case 7:		return kInputData_.oneE;
+	case 8:		return kInputData_.oneR;
+	case 9:		return kInputData_.oneSkillEx5;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #ifndef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( CH1m ) needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( IsHyperModeBuffPending )
 #endif
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_CORE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ( CH2b0 ) needs SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( SkillSlotKey ) and SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( IsEquippedSkillUpgraded )
+#endif
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 #if !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE )
 #error SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ( CH2b0 ) needs SERV_IRUHADEV_JUNE_DAMAGEDATA, SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME and SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

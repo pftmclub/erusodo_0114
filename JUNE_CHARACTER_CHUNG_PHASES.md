@@ -2427,6 +2427,32 @@ Retire (worktree): `flagcheck JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files KTD
 DEPLOY OK: X2_offline.exe is 25,914,368 B, dated 2026-11-02 14:23:29, md5 db5785dc9133d5e47828e8a5165174c6, equal to X2/US_SERVICE/x2.exe (2026-11-02 14:23:22); built at main 2c4c6e1f + 1 uncommitted code file(s) (this `Always.h` retire).
 EXESTR OK: 1 of 1 absent (`[JUNE_CHAR] CHUNG SKILL`, wide) and 1 of 1 found (`AIMING_EXPLOSION_EXTRA`, wide) in X2_offline.exe md5 db5785dc. No new play-test: the retire only removes log lines.
 
+### CH2b0 - Done (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` (already defined; no `Always.h` change). Three `CX2GUUser` helpers CH2b's `32be1760` / `32be2460` call, ported whole and
+unreferenced until CH2b. Checked first: no earlier port held them as functions (`funcmap.tsv`, `junediverge.py --list`). Funcmap rows `(CH2b0)`.
+
+| June | March name (`X2GUUser.*`) | Body |
+|---|---|---|
+| `31fcf430` | `CX2GUUser::GetUpgradeSwappedSkillID( eSkillID_ )` | no CX2Unit (`+0x867c`) -> the id; else `m_UserSkillTree.GetUpgradeSwappedSkillID` (`328905b0` on unit `+0x494`) |
+| `329cc340` | `CX2GUUser::IsNowStateSkillUpgraded()` | `IsEquippedSkillUpgraded( GetNowStateSkillID() )`: vslot `0x524`, `31fca8e0( id, 1 )`, `+0x178 != 0` |
+| `31fc8900` | `CX2GUUser::SkillSlotKey::IsKeyPressedOnce( kInputData_ )` | slot 0-9 -> `oneA / oneS / oneD / oneC / oneSkill5 / oneQ / oneW / oneE / oneR / oneSkillEx5`; else false |
+
+- **CH0's labels corrected.** `31fcf430` is not a "skill-memo lookup for the master ultimate flag": it is the user-level upgrade swap that Aisha, Eve and the Big Bang
+  Stream port wrote inline after their own `GetUnit()` test. `329cc340` confirms CH0's candidate. `31fc8900` is the `+0x8b58` `SkillSlotKey` (Eve CH1j20) read one byte
+  above `31fc89a0`'s `IsKeyReleased` in each 4-byte key group (`one*` beside `pure*`); it settles Luciel CH0's candidate row 6991 as well.
+- **Placement.** The first two sit beside `IsEquippedSkillUpgraded` / `IsUpgradedSkillLearned` inside `SERV_IRUHADEV_JUNE_SKILL_TEMPLET`; the key reader inside the
+  struct's `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE` block. `X2GUUser.cpp` has an `#error` if `_CHUNG_CORE` lacks either (both ON by `flagprobe.py`, with `JUNE_SKILL_SLOT_10`).
+- **June quirks:** none. `31fc8900` returns false outside 0-9 where its sibling returns true (JUNE_BUGS 426); for a "pressed" test false is the safe answer, so no row.
+- **CH2b** kickoff: "Amended by CH2b0" names the three March symbols (and `31fce670` = `m_kSkillSlotKey.FollowSlotSwap()`).
+
+**Hygiene** (worktree, `--files X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`): `flagcheck JUNE_CHAR_CHUNG_CORE`: `2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`,
+`0 deleted, 0 non-ASCII, 0 EOL-mismatched`, `1 #else/#endif without the flag token` (the plain `#endif` closing the `#error` guard, Eve's pattern), `RESULT: PASS`.
+`numstat`: cpp 41 / 0, h 7 / 0. `junediverge --check X2GUUser.h X2GUUser.cpp`: `allow-listed: 7`, `RESULT: PASS`. `enumscan --check`: 2 B rows at `X2GUUser.h:2550-2551`
+(`NUI_NEIL_THE_SNIPER_EVENT` / `NUI_PROTON_BOMB_EVENT`, not CH2b0's lines), none in the new code.
+DEPLOY OK: X2_offline.exe is 25,914,880 B, dated 2026-11-02 15:53:25, md5 765442cdc3d1d2a2a95817610ab8d996, equal to X2/US_SERVICE/x2.exe (2026-11-02 15:53:17); built at main 89b4efa1 + 2 uncommitted code file(s) (this phase's).
+No play-test: nothing calls the helpers yet; CH2b's play-test exercises them.
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
