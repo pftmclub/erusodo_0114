@@ -457,6 +457,11 @@ Everything from Stages 5 and 6, plus:
   only adds the int after it (T1).
 **Hard gate:** the starter-item rows (below). The live DB has none for these classes (user, 2026-10-27), so each character's planning session derives them from `item.kim` by the name pattern of the existing classes' starter items, as a labelled stand-in under that character's own flag.
 
+**Planned (2026-11-02): Lu/Ciel -> `char-luciel`** (`JUNE_CHARACTER_LUCIEL_PHASES.md`). It owns every bullet above that names Lu/Ciel, and the
+class-agnostic ones (new `UT_END`, the 2-byte class, which Lu/Ciel needs because he is classes 128 / 129 / 200, creation, the equip view and NESI renumber, and the
+damage-state getters) under `SERV_IRUHADEV_JUNE_CHAR_*` flags. Rose and Ain are left to `char-rose` / `char-ain` (brief
+`kickoffs/june-backlog/stage8-plan.md`), and they widen those flags. Starter rows: Lu/Ciel 15 (user, 2026-11-02).
+
 ### Stage 9: UI sweep
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.

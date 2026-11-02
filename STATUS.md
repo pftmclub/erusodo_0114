@@ -114,6 +114,7 @@ Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-p
 | stage31-plan | ready (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> ... | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
 | stage33-plan | ready (start: `/x2-phase new-plan june-stat-calc`): June's damage and character stat calculation. Map every stat / damage formula as June / March / mixed, then replace each mixed one with June's whole function ... | Opus 5.5 / xhigh | dep: -; runs with anything (read-only); code after the character ports, Stages ... | docs, `june2017_re/statcalc/`, funcmap rows (`StatCalc S33`) | `stage33-plan.md` |
 | stage7-plan | Eve closed 2026-10-28; **Chung planned 2026-10-31** (`JUNE_CHARACTER_CHUNG_PHASES.md` + `kickoffs/char-chung/` + the `char-chung` block). queued: next planning session `/x2-phase new-plan char-elsword`, set ready by char-chung Z | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
+| stage8-plan | **Lu/Ciel planned 2026-11-02** (`JUNE_CHARACTER_LUCIEL_PHASES.md` + `kickoffs/char-luciel/` + the `char-luciel` block). queued: `/x2-phase new-plan char-rose` (then `char-ain`), set ready by char-luciel Z | Opus 5.5 / high | dep: char-luciel Z (NU / DU foundation) | docs, kickoffs | `stage8-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch `main` · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`, `SHIMMER`, `CRS`, `SMRT`, `UI`, `WORLD`) · flags `SERV_IRUHADEV_JUNE_RENDER_*` / `_JUNE_UI_*` / `_JUNE_WORLD_*` · kickoffs `kickoffs/june-engine/` · backlog Stage 2 · created 2026-10-16.
@@ -195,6 +196,62 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
 Done: CH0, CH0b, CH1a, CH1b, CH1c, CH1d0, CH1d, CH1d2, CH1e, CH1f, CH1g, CH1g2, CH1h, CH1i, CH1j0, CH1j, CH1k0, CH1k (review: `32beec40` = `GetChargeMpHitted` override, base virtual under `_LIVE`), CH1l0 (review: verdicts hold; equip-view residue is cosmetic, Stage 8), CH1l (review: `SetEquippedSkillLevelStateData` and the Guard level = June's, under `_LIVE`), CH1l2 (review: 9 rows hold, no change), CH1l30 (review: 4 helpers hold, no change), CH1l3 (review: 13 rows hold, no change), CH1l4 (review: rows hold; Bombard Service container = June's distance multimap), CH1m (review: registration holds, no change; June's dash jump keeps 1.6x), CH1n (review: head, memo / type switches and triage hold, no change), CH1n2 (review: 16 bodies, both THROW_ITEM tables and the room +0xd8 = PvP game type hold, no change), CH1n3 (review: June body holds, no change; Stage 8 Lu/Ciel bullet gains `32b4da10` and the 0x458 override), CH1o (review: overrides and the 0x824 call hold; only `ResetAnimSpeed` loads vslot 0x824; 0x670 / 0x774 stay members; no change), CH1p (review: no 4 + 4 reader left on Chung's `_LIVE` path; key table and `+0x98c4` reader hold; no change), CH1q (review: refill compares, spend roll, keys and `_CBALL` sites hold; `32bef230` has no reference; no change).
+
+## char-luciel - June character port, Stage 8: Lu/Ciel (first new character)
+Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `LUCIEL <sub>`: `DATA`, `NEWUNIT`, `CREATE`, `DUO`, `CORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`, `JOB`, `TUTORIAL`) · flags `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_*` (`_CORE`, `_LIVE`, `_DUO`, `_DATA`, `_STARTER_ITEMS`, `_SKILL`, `_PASSIVE`, `_UI`, `_CLASS_CHANGE`, `_TUTORIAL`, + `_DEBUG`) and class-agnostic `SERV_IRUHADEV_JUNE_CHAR_*` (`UNIT_TYPE_RANGE`, `UNIT_CLASS_WORD`, `MINOR_UNIT_TEMPLET`, `CREATE`, `DUO_BODY`, `EQUIP_VIEW`, `NESI_RENUMBER`, `DUO_VIEW`), `SERV_IRUHADEV_JUNE_USER_DAMAGE_STATE_GETTERS` · kickoffs `kickoffs/char-luciel/` · backlog Stage 8 · created 2026-11-02.
+
+**Scope:** Lu/Ciel (`UT_LUCIEL` 10; classes 200 / 37 / 38 / 39 / 127 / 128 / 129) from nothing: new-character foundation (NU), two-body engine (DU), new class `CX2GULuciel` (June `32ae4080`-`32b4e76f`, ~583 functions, vtable `334f06fc`), job change, tutorial, skills, transcendence. **User, 2026-11-02:** maps (CH0, NU0) and CH0b now; every code phase after char-chung Z; 15 starter rows; NESI migration yes; stat rows asked after CH0.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| CH0 | **ready** (start: `/x2-phase char-luciel CH0`): class map, states / skills (S3 baseline), keys, checklist rows, assets, summons, stat-row data question | Opus 5.5 / high | - (read-only; beside NU0) | docs, `june2017_re/char_luciel/`, funcmap | `CH0.md` |
+| NU0 | **ready** (start: `/x2-phase char-luciel NU0`): engine map: `UT_END` / `UC_END` / class-width sites, 60 per-type switches, creation, templet keys, two-body readers, NESI / DU4 shape | Opus 5.5 / high | - (read-only; beside CH0) | docs, `june2017_re/char_luciel/`, funcmap | `NU0.md` |
+| CH0b | blocked (CH0): every June Lu/Ciel asset staged whole (125 motions, meshes, cut-ins, icons); assets only, may run before char-chung Z | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy) | `CH0b.md` |
+| NU1 | blocked (NU0, char-chung Z): `UT_END` -> June's 13, arrays / loops / script table, `UC_END` guards, flag `UNIT_TYPE_RANGE` | Opus 5.5 / high, Opus review | NU0, char-chung Z | `X2UnitManager.*`, `X2Item*`, `X2State*`, `X2SocketItem.cpp`, Always.h | `NU1.md` |
+| NU2 | blocked (NU1 review): unit class as June's word on the wire + emulator, flag `UNIT_CLASS_WORD` (CommonPacket.h exception) | Opus 5.5 / xhigh, Opus review | NU1 review | `CommonPacket.h`, `ClientPacket.h`, `ServerDefine.h`, `Handlers_Unit.cpp`, `X2Unit.cpp`, vcxproj | `NU2.md` |
+| NU3 | blocked (NU1 review): Lu/Ciel's 7 `UnitTemplet` rows + parser for the 18 June-only keys | Opus 5.5 / high, Opus review | NU1 review | `UnitTemplet.lua`, `X2UnitManager.*`, data036 | `NU3.md` |
+| NU4 | blocked (NU2, NU3 reviews): creation-screen entry (slot, portrait, preview, job buttons) + `SelectLuciel`, emulator create-unit, 15 starter rows, stat fallback fix, `createchar.py` | Opus 5.5 / high, Opus review, user play-test | NU2 review, NU3 review | `X2StateCreateUnit.*`, `X2Offline*`, `tools/createchar.py`, data koms | `NU4.md` |
+| DU1 | blocked (NU3 review, char-chung Z): second body in `CX2GUUser`: members, minor-unit model, user sync, not-selected-body physics | Opus 5.5 / high, Opus review | NU3 review, char-chung Z | `X2GUUser.*`, `X2GameUnit.*` | `DU1.md` |
+| DU2 | blocked (NU1 review): damage-state getter virtuals + `PhysicProcess_Jumping` / StateChange readers | Opus 5.5 / high, Opus review | NU1 review | `X2GUUser.*` | `DU2.md` |
+| CH1a | blocked (CH0, NU1 review): new `X2GULuciel.*` skeleton (ctor / dtor / members / own virtuals), flags `_CORE` / `_LIVE` | Opus 5.5 / high, Opus review | CH0, NU1 review | `X2GULuciel.*` (new), `X2Lib_2010.vcxproj`, Always.h | `CH1a.md` |
+| CH1b | blocked (CH1a review): Lu common states 1, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULuciel.*` | `CH1b.md` |
+| CH1c | blocked (CH1b review): Lu common states 2, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULuciel.*` | `CH1c.md` |
+| CH1d | blocked (CH1c review): Ciel common states 1, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULuciel.*` | `CH1d.md` |
+| CH1e | blocked (CH1d review): Ciel common states 2, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULuciel.*` | `CH1e.md` |
+| CH1f | blocked (CH1e review): Duo combos, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULuciel.*` | `CH1f.md` |
+| CH1g | blocked (CH1f review): Chiliarch + Royal Guard states, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULuciel.*` | `CH1g.md` |
+| CH1h | blocked (CH1g review): Dread Lord + Noblesse states, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULuciel.*` | `CH1h.md` |
+| CH1i | blocked (CH1h review): Demonio script states, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULuciel.*` | `CH1i.md` |
+| CH1j | blocked (CH1i review): Riding states, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULuciel.*` | `CH1j.md` |
+| CH1k | blocked (CH1j review): overrides band 1, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULuciel.*` | `CH1k.md` |
+| CH1l | blocked (CH1k review): overrides band 2, transcription under `_CORE` | Sonnet 5.5 / high, Opus review | CH1k review | `X2GULuciel.*` | `CH1l.md` |
+| CH1m | blocked (CH1l review): registration (InitState `32b43d10`, InitStateCommon `32b3e8b0`, 294 registrations) | Opus 5.5 / high, Opus review | CH1l review | `X2GULuciel.*` | `CH1m.md` |
+| CH1n | blocked (CH1m review): skill head `32b46580` (0x7b4, uncarved) + base callbacks | Opus 5.5 / high, Opus review | CH1m review | `X2GULuciel.*` | `CH1n.md` |
+| CH1o | blocked (CH1n review): virtual wiring, June-only keys, checklist hooks | Opus 5.5 / high, Opus review | CH1n review | `X2GULuciel.*`, `X2GUUser.h` | `CH1o.md` |
+| CH1p | blocked (CH1o, DU1, DU2 reviews): in-class duo switch, `DT_BOTH` / `DT_KEEP`, combination points, flag `_DUO` | Opus 5.5 / high, Opus review | CH1o, DU1, DU2 reviews | `X2GULuciel.*`, `Enum.lua` | `CH1p.md` |
+| CH1 | blocked (CH1p, NU4 reviews, CH0b): `_LIVE` defined, factory cases, both scripts adopted, play-test | Opus 5.5 / high, Opus review, user play-test | CH1p review, NU4 review, CH0b | `X2GULuciel.*`, `X2Game.cpp`, Always.h, data036 | `CH1.md` |
+| DU3 | blocked (CH1 review): June's equip-view rewrite (every class) + item-templet minor-unit fields | Opus 5.5 / high, Opus review, user play-test | CH1 review | `X2GUUser.*`, `X2Eqip.*`, `X2Item*`, class overrides | `DU3.md` |
+| DU4 | blocked (DU3 review): NESI renumber + forward-only save migration (user yes 2026-11-02) | Opus 5.5 / xhigh, Opus review, user play-test | DU3 review | `X2Item.h`, `X2OfflineDB.*`, `X2UICharInfo.cpp`, save | `DU4.md` |
+| DU5 | blocked (DU4 review): two bodies in the character window / unit viewer, form packets `0x4d9` / `0x4da` | Opus 5.5 / high, Opus review, user play-test | DU4 review | `X2UICharInfo.*`, `X2UnitViewerUI.*`, `Handlers_*` | `DU5.md` |
+| CHN | blocked (CH1 review): job change 200 -> 37 / 38 / 39 -> 127 / 128 / 129 (quests, items, seeds, class-change dialogs) | Opus 5.5 / high, Opus review, user play-test | CH1 review | `X2Offline*`, `Handlers_Quest.cpp`, data koms | `CHN.md` |
+| TU | blocked (CH1 review): tutorial dungeon 41240, field 39609, world 633, first-entry route | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `DungeonEnum.*`, `DungeonData.lua`, data koms | `TU.md` |
+| CH2a0 | blocked (CH1 review): summoned NPCs (CH0 places it) | Opus 5.5 / high, Opus review, user play-test | CH1 review | `X2GULuciel.*` | `CH2a0.md` |
+| CH2a | blocked (CH1 review): Duo (200) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULuciel.*`, `MODS.md` | `CH2a.md` |
+| CH2b | blocked (CH2a, CHN reviews): Chiliarch (37) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review, CHN review | `X2GULuciel.*` | `CH2b.md` |
+| CH2c | blocked (CH2b review): Royal Guard (38) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULuciel.*` | `CH2c.md` |
+| CH2d | blocked (CH2c review): Diablura (39) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GULuciel.*` | `CH2d.md` |
+| CH3a | blocked (CH2d review): Dread Lord (127) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GULuciel.*` | `CH3a.md` |
+| CH3b | blocked (CH3a review): Noblesse (128) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GULuciel.*` | `CH3b.md` |
+| CH3c | blocked (CH3b, DU1 reviews): Demonio (129) skills, `CUSTOM_RENDER_STATE` | Sonnet 5.5 / high, Opus review, user play-test | CH3b review, DU1 review | `X2GULuciel.*` | `CH3c.md` |
+| CH3d | blocked (CH3c review): hyper actives + transcendence rows, both bodies' cut-ins | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GULuciel.*`, `X2GUUser.cpp`, data koms | `CH3d.md` |
+| CH4a | blocked (CH2d review): passive state, delegate lists, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GULuciel.*` | `CH4a.md` |
+| CH4b | blocked (CH4a review): damage exception + overrides | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GULuciel.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4c | blocked (CH4b review): memo and item readers (`MemoConditionLuciel`) | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GULuciel.*`, `X2BuffTemplet.cpp`, `X2Game.cpp` | `CH4c.md` |
+| CH5 | blocked (CH1, DU5 reviews): two-body cut-ins, HUD portraits, bounding-key dialog, combination-point UI | Sonnet 5.5 / high, Opus review, user play-test | CH1 review, DU5 review | `X2GULuciel.cpp`, UI koms | `CH5.md` |
+| CH6 | blocked: scans rerun + user walk incl. creation, tutorial, job change and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5, TU reviews | docs, save | `CH6.md` |
+| Z | blocked (CH6): close-out, `MODS.md`, "Template for Stage 8", `stage8-plan` -> `char-rose` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
+
+Done: -
 
 ## Other plans (no STATUS rows)
 

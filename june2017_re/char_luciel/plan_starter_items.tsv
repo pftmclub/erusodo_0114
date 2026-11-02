@@ -1,0 +1,11 @@
+slot	pattern_example_class	pattern_example_id	pattern_example_name	luciel_id	luciel_name	luciel_class_restriction	confidence	note
+gear_weapon	Ara	112700	Cobo Spear for Beginners	113300	Cobo Dual Weapon for Beginners	UT_LU_CIEL(10)/UC 200	exact	IT_WEAPON EP_WEAPON_HAND lvl1 PT_ENDURANCE; Rose 113306 and Ain 113312 are the same block shape
+gear_body	Ara	112701	Cobo Warrior Top Piece for Beginners	113301	Cobo Top Piece for Beginners	UT_LU_CIEL(10)/UC 200	exact	EP_DEFENCE_BODY
+gear_leg	Ara	112702	Cobo Warrior Bottom Piece for Beginners	113302	Cobo Bottom Piece for Beginners	UT_LU_CIEL(10)/UC 200	exact	EP_DEFENCE_LEG
+gear_hand	Ara	112703	Cobo Warrior Gloves for Beginners	113303	Cobo Gloves for Beginners	UT_LU_CIEL(10)/UC 200	exact	EP_DEFENCE_HAND
+gear_foot	Ara	112704	Cobo Warrior Shoes for Beginners	113304	Cobo Shoes for Beginners	UT_LU_CIEL(10)/UC 200	exact	EP_DEFENCE_FOOT; item_id_for_minor_unit 2001133xx = Ciel dummy copy (named in kim), not a separate starter row
+costume_weapon	Ara	41460	Ara's Promotion Weapon	41890	Lu's Promotion Dual Weapon	UT_LU_CIEL(10)/UC 200	ambiguous	fashion=1 PT_INFINITY, set 5933 Lu's Promotional Costume, is_for_minor_unit=0. Alternative Ciel 41900 (is_for_minor_unit=1, set 5934)
+costume_body	Ara	41470	Ara's Promotion Top Piece	41891	Lu's Promotion Top Piece	UT_LU_CIEL(10)/UC 200	ambiguous	alt Ciel 41901 Ciel's Promotion Top Piece
+costume_leg	Ara	41480	Ara's Promotion Bottom Piece	41892	Lu's Promotion Bottom Piece	UT_LU_CIEL(10)/UC 200	ambiguous	alt Ciel 41902 Ciel's Promotion Bottom Piece
+costume_hand	Ara	41490	Ara's Promotion Gloves	41893	Lu's Promotion Gloves	UT_LU_CIEL(10)/UC 200	ambiguous	alt Ciel 41903 Ciel's Promotion Gloves
+costume_foot	Ara	41500	Ara's Promotion Shoes	41894	Lu's Promotion Shoes	UT_LU_CIEL(10)/UC 200	ambiguous	alt Ciel 41904 Ciel's Promotion Shoes

@@ -1,0 +1,55 @@
+### python charport_keys.py Luciel_Duo
+script: june_src_fixed/data036_kom/Luciel_Duo.src.lua
+top-level tables: 406 (INIT_*: 6)   distinct keys: 230   key occurrences: 11463
+verdicts: june-only=23  neither=3  march-only-site=4  both=200
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x6     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x6     damage-data            june=plain readers=none census=implemented/unassigned
+  CIEL                                     x4     INIT_SYSTEM            june=both readers=3202b9e0:?, 327e0040:? 
+  CP_AMOUNT                                x2     state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture 
+  DEFAULT_UNSELECTED_UNIT_MP_CHARGE_VALUE_PER_SECOND x1     INIT_COMPONENT         june=xor readers=32b0f080:? 
+  DEFAULT_UNSELECTED_UNIT_MP_CHARGE_VALUE_PER_SECOND_AT_PVP x1     INIT_COMPONENT         june=xor readers=32b0f080:? 
+  DUNGEON_SPEECH_LUCIEL                    x1     INIT_SYSTEM            june=plain readers=none 
+  DUO_TYPE                                 x390   state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32383080:?, 326525d0:CX2CustomizeManager::OpenScriptFile (CharCustomData*.lua) 
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  IMMUNE_TO_SUPER_ARMOR_DOWN               x1     state                  june=xor readers=31fdaaa0:? 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x13    state                  june=plain readers=none 
+  LU                                       x4     INIT_SYSTEM            june=both readers=3202b9e0:?, 327e0040:? 
+  MINOR_UNIT_AFTER_IMAGE                   x8     state                  june=plain readers=none 
+  MINOR_UNIT_ANIM_NAME                     x247   state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  MINOR_UNIT_MOTION_FILE_NAME              x1     INIT_MOTION            june=xor readers=31fe5860:? 
+  MINOR_UNIT_SPEED_TIME0                   x67    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME1                   x30    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME2                   x20    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME3                   x9     state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME4                   x3     state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_X                       x4     state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture 
+  NOT_SHOW_UNIT_BY_DUOTYPE                 x2     state                  june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+neither (no reader found on either side):
+  HEAD_IK                                  x16    state
+  HEAD_IK_MAX_ANGLE                        x1     INIT_COMPONENT
+  MINOR_SPEED_TIME0                        x1     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+
+### python charport_keys.py Luciel_Demonio
+script: june_src_fixed/data036_kom/Luciel_Demonio.src.lua
+top-level tables: 158 (INIT_*: 0)   distinct keys: 127   key occurrences: 3525
+verdicts: june-only=12  neither=2  march-only-site=3  both=110
+june-only keys (a port item):
+  DUO_TYPE                                 x158   state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32383080:?, 326525d0:CX2CustomizeManager::OpenScriptFile (CharCustomData*.lua) 
+  MINOR_UNIT_AFTER_IMAGE                   x4     state                  june=plain readers=none 
+  MINOR_UNIT_ANIM_NAME                     x108   state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  MINOR_UNIT_SPEED_TIME0                   x63    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME1                   x38    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME2                   x23    state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME3                   x7     state                  june=plain(base) readers=none 
+  MINOR_UNIT_SPEED_TIME4                   x2     state                  june=plain(base) readers=none 
+  SUPER_ARMOR_CUSTOM_COLOR                 x49    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  USE_NOT_SELECT_MOTION_BEFORE_POS         x13    state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  USE_NOT_SELECT_UNIT_ANIM_TIME_IN_SPEED   x3     state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture 
+  USE_PHYSICPROCESS_NOT_SELECT_UNIT        x15    state                  june=xor readers=320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+neither (no reader found on either side):
+  CUSTOM_RENDER_STATE                      x3     state
+  STOP_TIME_ATK                            x2     damage-data
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
