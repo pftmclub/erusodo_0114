@@ -495,4 +495,6 @@ Settled at planning (user, 2026-11-02):
 
 Open:
 4. **Stat rows** for 37-39 / 127-129 / 200: asked again after CH0 item 8 reports what June data exists. Until then the synthetic curve is used,
-   logged. CH0 (2026-11-02) reported: no June per-level table exists; the existing rows all follow June's relative table (CH0 Done note). Asked.
+   logged. CH0 (2026-11-02) reported: no June per-level table exists; the existing rows all follow June's relative table (CH0 Done note).
+   **Settled (user, 2026-11-02): derive from June.** NU4 writes Lu/Ciel's `StatTable.lua` rows from June's `CharacterStatTable` relative rows with
+   the fitted formula (levels 1-80; 81-99 by `cap99_gen.py` as for the other classes), a labelled stand-in under its own flag; the user packs it.
