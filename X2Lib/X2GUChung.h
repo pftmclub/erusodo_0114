@@ -299,6 +299,9 @@ public:
 		CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE,	/// June script id 336 ( table CSI_SI_SA_CSG_DUAL_BUSTER registered a second time for the upgraded skill; CH1m maps )
 		CSI_SA_CTT_HEAVY_FIELD_LOOP,		/// June script id 337 ( Tactical Trooper Heavy Field loop; CH3c owns the state )
 		CSI_SA_CTT_HEAVY_FIELD_END,			/// June script id 338 ( Tactical Trooper Heavy Field end; CH3c owns the state )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		CSI_A_CC_BACK_BLAST,				/// June script id 335 ( Back Blast, registered by InitStateCommon while skill 26200 is equipped; CH2a )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	};
 
@@ -1438,6 +1441,12 @@ protected:
 	void ApplySpineAimRotation();									/// June 32bf00c0
 	void UpdateSpineAimRotation();									/// June 32befec0 ( user vslot 0x774, base 31f3f070 is an empty stub )
 	void CreateCannonBulletDamageEffect( CANNON_BULLET_TYPE eBulletType_, float fPowerRate_ );	/// June 32c09e40
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void CSI_SI_A_SIEGE_SHELLING_StateStart();	/// June 32bda6c0 ( READYLOOP / X / X_FINISH / Z_FINISH )
+	void CSI_A_CC_BACK_BLAST_EventProcess();	/// June 32bea9c0
+	bool CanConsumeCannonBallForShot( int iNeededCannonBallCount_, int iUseCannonBallCount_, bool bSecondRate_, float* pfDamageRate_ );	/// June 32c0a230
+	CX2EffectSet::Handle PlayCannonShotEffectSet( const wstring& wstrEffectSetName_, int iNeededCannonBallCount_, int iUseCannonBallCount_, float fPowerRate_, bool bSecondRate_, const wstring& wstrEffectSetNameNoShot_ );	/// June 32c11410
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
@@ -1978,6 +1987,9 @@ protected:
 	float						m_afExtraCannonBallDamageRate[2];	/// June +0x9898 / +0x989c ( ctor 1 ): INIT_COMPONENT EXTRA_CANNON_BALL_DAMAGE_RATE; consumer CH1q
 	float						m_fCommandHitAddMpBonus;		/// June +0x98c4 ( protected float, ctor 1 ): INIT_COMPONENT COMMAND_HIT_ADD_MP_BONUS; consumer InitPassiveSkillState 32c16be0 ( CH4a )
 	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	bool						m_bAimingShotUsedExtraCannonBall;	/// June +0x98a8 ( ctor 0 ): the Aimming Shot spent extra cannon balls, so its explosion is AIMING_EXPLOSION_EXTRA ( CH2a )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	int							m_iSnapshotCannonBallCount;		/// June +0x92c0 ( CX2GUUser snapshot region, ctor 0 ): the now cannon ball count StoreGageSnapshot keeps
 	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only
 	int							m_iPrevStateSkillID;			/// June +0x98ec ( ctor 0 ): the state skill id at the last CommonStateStart

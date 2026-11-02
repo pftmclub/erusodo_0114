@@ -11263,3 +11263,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: char-chung CH2a - Iron Cannon's skills run June's bodies: Scare Chase, Aceldama, Reload Cannon, Aimming Shot, Lunatic Blow, Siege Shelling and the new
+//              Back Blast ( June 32bd9160 .. 32c244a0 ), the cannon ball spend helpers CanConsumeCannonBallForShot / PlayCannonShotEffectSet, the skill-slot cases
+//              for June's skill ids and the Back Blast / siege shelling registrations in InitStateCommon. Log: [JUNE_CHAR] CHUNG SKILL, [JUNE_SKILL] NUM use.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE, SERV_IRUHADEV_JUNE_ENUM_NAMES, SERV_IRUHADEV_JUNE_SKILL_NUMERICAL and SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: char-chung CH2a debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: Scare Chase and Aimming Shot shots, the Lunatic Blow loops and the Siege
+//              Shelling shells with the cannon ball counts. CH2a's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////

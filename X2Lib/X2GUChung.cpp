@@ -252,6 +252,9 @@ iFrameBufferNum_, pUnit_ )
 , m_fCarpetBombingExtraRoundPowerRate( 1.f )
 , m_fShootingBindCoolTimeLeft( 0.f )
 , m_fBerserkChanceOnAwakening( 0.f )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+, m_bAimingShotUsedExtraCannonBall( false )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -1937,6 +1940,22 @@ void CX2GUChung::InitStateCommon()
 	m_StateList[stateData.stateID] = stateData;
 
 	/// June 32c12a30 @1547: CSI_A_CC_BACK_BLAST ( id 335 ), left out: registered when skill 26200 is equipped, CH2a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c12a30 @1547: Back Blast's own state, only while skill 26200 is equipped; EventProcess 32bea9c0, then the skill level data ( vslot 0x7a8 )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletBackBlast = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CC_BACK_BLAST, true );
+		if ( NULL != pSkillTempletBackBlast )
+		{
+			stateData.Init();
+			stateData.stateID			= CSI_A_CC_BACK_BLAST;
+			m_LuaManager.MakeTableReference( "CSI_A_CC_BACK_BLAST", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_A_CC_BACK_BLAST_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			SetEquippedSkillLevelStateData( pSkillTempletBackBlast, CSI_A_CC_BACK_BLAST );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	stateData.Init();
 	stateData.stateID			= CSI_COMBO_Z;
 	m_LuaManager.MakeTableReference( "CSI_COMBO_Z", stateData.stateID );
@@ -2092,6 +2111,9 @@ void CX2GUChung::InitStateCommon()
 	stateData.stateID			= CSI_SI_A_SIEGE_SHELLING_READYLOOP;
 	m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_READYLOOP", stateData.stateID );
 	/// June 32bda6c0 ( StateStart ): written by CH2a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_ReadyLoop_FrameMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_ReadyLoop_EventProcess );
 	m_StateList[stateData.stateID] = stateData;
@@ -2100,6 +2122,9 @@ void CX2GUChung::InitStateCommon()
 	stateData.stateID			= CSI_SI_A_SIEGE_SHELLING_X;
 	m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_X", stateData.stateID );
 	/// June 32bda6c0 ( StateStart ): written by CH2a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_X_FrameMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_X_EventProcess );
 	m_StateList[stateData.stateID] = stateData;
@@ -2108,6 +2133,9 @@ void CX2GUChung::InitStateCommon()
 	stateData.stateID			= CSI_SI_A_SIEGE_SHELLING_X_FINISH;
 	m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_X_FINISH", stateData.stateID );
 	/// June 32bda6c0 ( StateStart ): written by CH2a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_X_Finish_FrameMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_X_Finish_EventProcess );
 	m_StateList[stateData.stateID] = stateData;
@@ -2116,6 +2144,9 @@ void CX2GUChung::InitStateCommon()
 	stateData.stateID			= CSI_SI_A_SIEGE_SHELLING_Z_FINISH;
 	m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_Z_FINISH", stateData.stateID );
 	/// June 32bda6c0 ( StateStart ): written by CH2a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_Z_Finish_EventProcess );
 	m_StateList[stateData.stateID] = stateData;
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
@@ -5668,6 +5699,31 @@ void CX2GUChung::InitStateByUnitClass()
 
 	switch ( eSkillID_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CC_BACK_BLAST:	/// June 32c1f530 @1165
+	case 26216:		/// no June SKILL_ID name ( templet "[Enhanced] Back Blast" )
+		{
+			m_LuaManager.MakeTableReference( "CSI_A_CC_BACK_BLAST", normalStateData.stateID );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_A_CC_BACK_BLAST_EventProcess );		// June 32bea9c0
+
+			m_LuaManager.MakeTableReference( "CSI_A_CC_BACK_BLAST", hyperStateData.stateID );
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_CC_SIEGE_SHELLING:	/// June 32c1f530 @1172; June has no _HYPER table, both slots use CSI_SI_A_SIEGE_SHELLING_READY
+	case 26217:		/// no June SKILL_ID name ( templet "[Enhanced] Siege Shelling" )
+		{
+			m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_READY", normalStateData.stateID );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_Ready_StateStart );		// June 32bf3430
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_Ready_FrameMove );		// June 32bf44a0
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_SIEGE_SHELLING_Ready_EventProcess );	// June 32beba80
+
+			m_LuaManager.MakeTableReference( "CSI_SI_A_SIEGE_SHELLING_READY", hyperStateData.stateID );
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	default:
 		{
@@ -5751,6 +5807,10 @@ void CX2GUChung::InitStateByUnitClass()
 		} break;
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_A_CC_RELOAD_CANNON:	/// June 32c1f530 @1185: the state tables below are June's
+		case 26218:		/// no June SKILL_ID name ( templet "[Enhanced] Reload Cannon" )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		case CX2SkillTree::SI_A_CC_RELOAD_CANNON:	// 리로드캐넌
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_A_CHUNG_RELOAD_CANNON:	// 리로드캐넌
@@ -5856,6 +5916,10 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CC_SCARE_CHASE:	/// June 32c1f530 @283: the state tables below are June's
+		case 26027:		/// no June SKILL_ID name ( templet "[Enhanced] Scare Chase" )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_SA_CC_SCARE_CHASE:
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -5873,6 +5937,10 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CC_ACELDAMA:	/// June 32c1f530 @293: the state tables below are June's
+		case 26029:		/// no June SKILL_ID name ( templet "[Enhanced] Aceldama" )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_SA_CC_ACELDAMA:
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -5894,6 +5962,10 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.StateEnd			= normalStateData.StateEnd;
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_A_CC_AIMMING_SHOT:	/// June 32c1f530 @1204: the state tables below are June's
+		case 26219:		/// no June SKILL_ID name ( templet "[Enhanced] Aiming Shot" )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_CC_AIMMING_SHOT:
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -21143,6 +21215,18 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_FrameMove()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bedf60; the choice reads the total cannon ball count ( the extra balls count too )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( 1 >= GetTotalCannonBallCount() && false == IsFullHyperMode() )
+			StateChange( CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH );
+		else
+			StateChange( CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if ( m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		// 광폭화모드가 아니면 캐논볼 갯수에 따라
@@ -21157,6 +21241,7 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_START_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_Init
@@ -21179,6 +21264,46 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_Init()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c11e10; the first two loops play the explosion and spend a ball, later loops play the addition explosion through PlayCannonShotEffectSet ( extra balls first )
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 0.001f ) && true == EventCheck( 0.001f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const int iPlayCount = m_pXSkinAnim->GetNowPlayCount();
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE > iPlayCount )
+		{
+			if ( 2 <= iPlayCount )
+			{
+				PlayCannonShotEffectSet( L"EffectSet_CSI_SI_SA_CHUNG_LUNATIC_BLOW_ADDITION_EXPLOSION", 2, 1, GetPowerRate(), true, L"" );
+			}
+			else
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION", this );
+				UseCannon( 1 );
+			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL lunatic blow explosion loop %d balls now %d extra now %d", iPlayCount, GetCannonBallCount(), GetExtraCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		}
+	}
+
+	if ( true == m_pXSkinAnim->IsAnimationEnd() )
+	{
+#ifdef RESET_HIT_UNIT_LIST_WHEN_STATE_END
+		m_DamageData.hitUnitList.clear();
+#endif // RESET_HIT_UNIT_LIST_WHEN_STATE_END
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+        ClearAnimEventTimerOneshotNow();
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+        m_EventTimeStampNow.clear();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21211,6 +21336,7 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_EventProcess
@@ -21218,6 +21344,17 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32beb7f0; the loop ends at the last cannon ball when no extra ball is left
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE <= m_pXSkinAnimFuture->GetNowPlayCount() ||
+			( false == IsFullHyperMode() && GetCannonBallCount() <= 1 && GetExtraCannonBallCount() <= 0 ) )
+			StateChange( CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	// 애니메이션이 끝났고
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() ) 
 	{
@@ -21228,6 +21365,7 @@ void CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FINISH_Init
@@ -21323,6 +21461,12 @@ void CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_Start()
 */
 void CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_FrameMove() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bf4180; no memo branch ( June's GetEqippedSkillMemo is a stub )
+	UpCannonBallCountAtThisAnimationTime( 0.52f, GetCannonBallCountToBeUpUsingReLoadCannon() );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 	int iExtraChargeCannonBall = 0;
 	//{{ kimhc // 2011-03-30 // 2011-04 에 패치될 청 메모 스킬
@@ -21339,6 +21483,7 @@ void CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_FrameMove()
 	UpCannonBallCountAtThisAnimationTime( 0.52f, GetCannonBallCountToBeUpUsingReLoadCannon() + iExtraChargeCannonBall );
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CHUNG_RELOAD_CANNON_EventProcess
@@ -21621,6 +21766,43 @@ void CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_Init()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfa670; no memo branch and no SetLockOn ( the damage effect script locks on ), Endless Chase widens the lock-on target range
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+	UpCannonBallCountAtThisAnimationTime( 0.6f, 1 );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( true == m_pXSkinAnim->EventTimerOneshot( 1.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 1.3f ) && true == EventCheck( 1.3f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vWeaponBonePos		= GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+		D3DXVECTOR3 vRotateDegree	= GetRotateDegree();
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_SI_SA_CHUNG_SCARE_CHASE", GetPowerRate(), vWeaponBonePos, vRotateDegree, vRotateDegree, m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect && 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_ENDLESS_CHASE ) )
+		{
+			const float fRangeRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, CX2SkillTree::RNSI_P_CDC_ENDLESS_CHASE );
+			pDamageEffect->GetLockOnData().m_fDungeonTargetRangeMin *= fRangeRate;
+			pDamageEffect->GetLockOnData().m_fDungeonTargetRangeMax *= fRangeRate;
+			pDamageEffect->GetLockOnData().m_fPvpTargetRangeMin *= fRangeRate;
+			pDamageEffect->GetLockOnData().m_fPvpTargetRangeMax *= fRangeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL scare chase endless chase range x %.2f", fRangeRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		}
+
+		UseCannon( 1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL scare chase shot, balls now %d", GetCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
 
@@ -21652,6 +21834,7 @@ void CX2GUChung::CSI_SI_SA_CHUNG_SCARE_CHASE_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_SCARE_CHASE_EventProcess
@@ -21680,6 +21863,98 @@ void CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_StateStart()
 
 void CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfa860; extra cannon balls ( Tactical Trooper's mobile armored mode ) are spent first and the shot explodes as AIMING_EXPLOSION_EXTRA; no memo branch
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		float fMinCoefficient = -1.f * tan( D3DX_PI * 40.f / 180.f );
+		float fMaxCoefficient = tan( D3DX_PI * 80.f / 180.f);
+		D3DXVECTOR3 vCoefficient = D3DXVECTOR3(fMaxCoefficient, fMinCoefficient, D3DX_PI * 45.f / 180.f);
+		float fDegree = ( DoAimingTarget( 1000.f, vCoefficient, m_bAimingTarget, m_vAimingTargetPos, m_vAimingTargetLandPos ) * 180.f ) / D3DX_PI;
+		if( m_bAimingTarget == true && (fDegree >= 0.001f || fDegree <= -0.001f) )
+		{
+			m_bRotateBone = true;
+			m_fRotateBoneDegree = fDegree;
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.15f ) == true && EventCheck( 0.15f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const float fRotateDegree = m_fRotateBoneDegree;
+
+		int iCbCount = 0;
+		const CX2SkillTree::SkillTemplet* pSkillTempletUsing = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_CC_AIMMING_SHOT, true );
+		if( pSkillTempletUsing != NULL )
+			iCbCount = (int)pSkillTempletUsing->m_usCBConsumption;
+
+		m_bAimingShotUsedExtraCannonBall = false;
+		bool bFired = false;
+		if( m_bAimingTarget == true )
+		{
+			if( GetExtraCannonBallCount() >= iCbCount )
+			{
+				m_bAimingShotUsedExtraCannonBall = true;
+				SetExtraCannonBallCount( GetExtraCannonBallCount() - iCbCount );
+				bFired = true;
+			}
+			else if( GetCannonBallCount() >= iCbCount || IsFullHyperMode() == true )
+			{
+				UseCannon( iCbCount );
+				bFired = true;
+			}
+		}
+
+		if( true == bFired )
+		{
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3(0.f, 0.f, fRotateDegree) );
+		}
+		else
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+			m_bRotateBone = false;
+		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL aimming shot cost %d fired %d extra %d balls now %d extra now %d", iCbCount, bFired ? 1 : 0, m_bAimingShotUsedExtraCannonBall ? 1 : 0, GetCannonBallCount(), GetExtraCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.17f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.17f ) == true && EventCheck( 0.17f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( m_bAimingTarget == true )
+		{
+			if( true == m_bAimingShotUsedExtraCannonBall )
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"AIMING_EXPLOSION_EXTRA", GetPowerRate() * m_afExtraCannonBallDamageRate[0], m_vAimingTargetPos, GetRotateDegree(), GetRotateDegree(), m_vAimingTargetLandPos.y );
+			else
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"AIMING_EXPLOSION", GetPowerRate(), m_vAimingTargetPos, GetRotateDegree(), GetRotateDegree(), m_vAimingTargetLandPos.y );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.2f ) == true && EventCheck( 0.2f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		m_bRotateBone = false;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21765,6 +22040,7 @@ void CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_EventProcess()
@@ -21795,8 +22071,29 @@ void CX2GUChung::CSI_SI_A_CHUNG_AIMMING_SHOT_StateEnd()
 */
 void CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bd9600; June preloads the ten Aceldama / Riding Red Hamelling effect meshes and textures
 	XSkinMeshReadyInBackground( L"CHUNG_ACELDAMA_Shell.X" );
 	XMeshReadyInBackground( L"ACELDAMA_Shell.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"Red_HAMELLING_Skill_C_Attack_Sphere.X" );
+	XSkinMeshReadyInBackground( L"aisha_active_energySpurt_circle.X" );
+	XMeshReadyInBackground( L"Arme_ChargeMp2.Y" );
+	XMeshReadyInBackground( L"GunFire01.Y" );
+	XMeshReadyInBackground( L"EffectSet_Riding_Red_HAMELLING_Skill_C01.Y" );
+	XMeshReadyInBackground( L"EffectSet_Riding_Red_HAMELLING_Skill_C02.Y" );
+	XMeshReadyInBackground( L"Spin_Liner02.Y" );
+	TextureReadyInBackground( L"CenterLight_Gray01.dds" );
+	TextureReadyInBackground( L"GroundShockWave02.dds" );
+	TextureReadyInBackground( L"IceHit_Impact01.dds" );
+	TextureReadyInBackground( L"Particle_Blur.dds" );
+	TextureReadyInBackground( L"Steam_Bp.dds" );
+	TextureReadyInBackground( L"Arme_Ring2.dds" );
+	TextureReadyInBackground( L"smoke02.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	XSkinMeshReadyInBackground( L"CHUNG_ACELDAMA_Shell.X" );
+	XMeshReadyInBackground( L"ACELDAMA_Shell.Y" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CHUNG_ACELDAMA_StateStart
@@ -21827,11 +22124,15 @@ void CX2GUChung::CSI_SI_SA_CHUNG_ACELDAMA_FrameMove()
 	{
 		m_bDisableGravity = false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CC_ACELDAMA, true );	/// June 32bfafa0 @32bfafe6; the rest of the body = March
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::SI_SA_CC_ACELDAMA );
 #else //UPGRADE_SKILL_SYSTEM_2013
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::SI_SA_CHUNG_ACELDAMA );
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		if( NULL != pSkillTemplet )
 		{
 			const int	NUM_OF_FIXED_POS_SHELL				= 10;
@@ -30975,6 +31276,34 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_FrameMove()
 }
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32beba80; a Tactical Trooper presses down in the ready animation to enter the mobile armored mode
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_READY );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		true == m_bMobileArmoredModeEnable && true == m_InputData.oneDown && GetExtraCannonBallCount() > 0 )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( CSI_SI_A_SIEGE_SHELLING_READYLOOP );
@@ -30988,10 +31317,28 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_Ready_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be5a80; Open Mind ( Tactical Trooper ) lowers the MP drain, the aim is UpdateSpineAimRotation ( no DoAimingTarget )
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) )
+		UpNowMp( -3.f * m_fElapsedTime * GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) );
+	else
+		UpNowMp( -3.f * m_fElapsedTime );
+
+	if( GetNowMp() <= 0.f )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if( g_pMain->GetGameOption().GetOptionList().m_UnitDetail == CX2GameOption::OL_HIGH )
+		UpdateSpineAimRotation();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	UpNowMp(-3.f * m_fElapsedTime);
 	if( GetNowMp() <= 0.f )
 	{
@@ -31018,10 +31365,75 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_FrameMove()
 	}	
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bebc40; X stops at the sixth shell unless Open Mind ( Tactical Trooper ) is learned, the Z flag also fires when the animation ends
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[1].stateChange )
+	{
+		if( m_iSiegeShellingCount >= 6 && GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_OPEN_MIND ) <= 0 )
+		{
+			StateChange( CSI_SI_A_SIEGE_SHELLING_X_FINISH );
+		}
+		else if( IsFullHyperMode() == false )
+		{
+			if( GetCannonBallCount() <= 0 )
+				StateChange( CSI_SI_A_SIEGE_SHELLING_Z_FINISH );
+			else if( GetCannonBallCount() <= 1 && m_fSiegeShellingUserBallRate < GetRandomFloatFuture() )
+				StateChange( CSI_SI_A_SIEGE_SHELLING_X_FINISH );
+			else
+				StateChange( CSI_SI_A_SIEGE_SHELLING_X );
+		}
+		else
+		{
+			StateChange( CSI_SI_A_SIEGE_SHELLING_X );
+		}
+
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true && GetExtraCannonBallCount() > 0 &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[2].stateChange )
+	{
+		StateChange( CSI_CTT_MOBILE_ARMORED_MODE_READY );
+	}
+	else if( m_InputData.oneX == true &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[1].keyInputEnd &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() >= m_fEventTime[1].keyInputStart )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+	else if( m_bMobileArmoredModeEnable == true && m_InputData.oneDown == true &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[2].keyInputEnd &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() >= m_fEventTime[2].keyInputStart )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = true;
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( CSI_SI_A_SIEGE_SHELLING_Z_FINISH );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	// 발밑에 라인맵이 없으면
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -31080,9 +31492,63 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_ReadyLoop_EventProcess()
 	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c0e530; the aim is UpdateSpineAimRotation, the shell is CreateCannonBulletDamageEffect, a Tactical Trooper in the mobile armored mode gains an extra ball per shot
+	UpdateSpineAimRotation();
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.144f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.144f ) == true && EventCheck( 0.144f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const float fRotateDegree = m_fRotateBoneDegree;
+		if( GetCannonBallCount() < 1 && IsFullHyperMode() == false )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+			m_bRotateBone = false;
+
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+		else
+		{
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3(0.f, 0.f, fRotateDegree) );
+
+			CreateCannonBulletDamageEffect( CBT_SIEGE, GetPowerRate() );
+		}
+
+		if( m_fSiegeShellingUserBallRate < GetRandomFloat() )
+			UseCannon( 1 );
+		++m_iSiegeShellingCount;
+
+		if( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+			SetExtraCannonBallCount( GetExtraCannonBallCount() + 1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL siege shelling shot %d balls now %d extra now %d", m_iSiegeShellingCount, GetCannonBallCount(), GetExtraCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+	if( g_pMain->GetGameOption().GetOptionList().m_UnitDetail != CX2GameOption::OL_HIGH )
+	{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if( m_pXSkinAnim->EventTimerOneshot( 0.245f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if( m_pXSkinAnim->EventTimer( 0.245f ) == true && EventCheck( 0.245f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		{
+			m_bRotateBone = false;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	// 에이밍 방식 동작
 	bool bBoneRotate = true;
 
@@ -31183,6 +31649,7 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_FrameMove()
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_EventProcess()
 {
@@ -31203,6 +31670,63 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_EventProcess()
 }
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_Finish_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c0e9b0; the aim is UpdateSpineAimRotation, the finishing shell is CreateCannonBulletDamageEffect, a Tactical Trooper in the mobile armored mode gains an extra ball
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		UpdateSpineAimRotation();
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.124f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.124f ) == true && EventCheck( 0.124f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const float fRotateDegree = m_fRotateBoneDegree;
+		if( GetCannonBallCount() < 1 && IsFullHyperMode() == false )
+		{
+			if( GetCannonBallCount() > 0 )
+				UseCannon( 1 );
+
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT_MISFIRE", this );
+			m_bAimingTarget = false;
+			m_bRotateBone = false;
+
+			PlaySound( L"Chung_CannonGun_Trigger.ogg" );
+		}
+		else
+		{
+			UseCannon( 1 );
+
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_A_CHUNG_AIMMING_SHOT", this );
+			if( CX2EffectSet::EffectSetInstance* pEffect = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+				pEffect->SetLocalRotateDegree( D3DXVECTOR3(0.f, 0.f, fRotateDegree) );
+
+			CreateCannonBulletDamageEffect( CBT_SIEGE_FINISH, GetPowerRate() );
+		}
+
+		if( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+			SetExtraCannonBallCount( GetExtraCannonBallCount() + 1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL siege shelling finish shot balls now %d extra now %d", GetCannonBallCount(), GetExtraCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.466f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.466f ) == true && EventCheck( 0.466f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		m_bRotateBone = false;
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	// 에이밍 방식 동작
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
@@ -31286,6 +31810,7 @@ void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_Finish_FrameMove()
 		m_bRotateBone = false;
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_X_Finish_EventProcess()
 {
@@ -34963,6 +35488,106 @@ void CX2GUChung::UpdateSpineAimRotation()
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+/// June 32bda6c0: the StateStart of the siege shelling loop states ( READYLOOP / X / X_FINISH / Z_FINISH )
+void CX2GUChung::CSI_SI_A_SIEGE_SHELLING_StateStart()
+{
+	CommonStateStart();
+}
+
+/// June 32bea9c0: Back Blast ( EventProcess of the skill state and of its own state 335 ); the cancels also need the line map under the unit
+void CX2GUChung::CSI_A_CC_BACK_BLAST_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_bDownForce = false;
+		StateChange( USI_JUMP_DOWN );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_fAttackCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfter && true == IsOnSomethingFuture() )
+	{
+		if ( true == m_InputData.pureZ )
+			StateChange( GetComboZStateID() );
+		else if ( true == m_InputData.pureX )
+			StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c0a230: checks that iNeededCannonBallCount_ balls are held in total ( the extra balls count ), spends iUseCannonBallCount_ ( extra balls first ) and
+/// returns the damage rate 1 + spent extra balls x ( the extra ball damage rate - 1 ); bSecondRate_ picks m_afExtraCannonBallDamageRate[1]. Callers: Lunatic Blow, CH2c
+bool CX2GUChung::CanConsumeCannonBallForShot( int iNeededCannonBallCount_, int iUseCannonBallCount_, bool bSecondRate_, float* pfDamageRate_ )
+{
+	if ( iNeededCannonBallCount_ < 0 || iUseCannonBallCount_ < 0 || iNeededCannonBallCount_ > GetTotalCannonBallCount() )
+		return false;
+
+	const float fExtraRateGap = m_afExtraCannonBallDamageRate[ true == bSecondRate_ ? 1 : 0 ] - 1.f;
+
+	if ( GetExtraCannonBallCount() >= iUseCannonBallCount_ )
+	{
+		*pfDamageRate_ = static_cast<float>( iUseCannonBallCount_ ) * fExtraRateGap + 1.f;
+		SetExtraCannonBallCount( GetExtraCannonBallCount() - iUseCannonBallCount_ );
+		return true;
+	}
+
+	if ( false == IsFullHyperMode() )
+	{
+		const int iNormalUseCount = iUseCannonBallCount_ - GetExtraCannonBallCount();
+		if ( GetCannonBallCount() >= iNormalUseCount )
+			UseCannon( iNormalUseCount );
+		else
+			SetCannonBallCount( 0 );
+	}
+
+	const int iExtraCannonBallCount = GetExtraCannonBallCount();
+	if ( iExtraCannonBallCount >= 1 )
+		*pfDamageRate_ = static_cast<float>( iExtraCannonBallCount ) * fExtraRateGap + 1.f;
+	SetExtraCannonBallCount( GetExtraCannonBallCount() - iExtraCannonBallCount );
+	return true;
+}
+
+/// June 32c11410: plays wstrEffectSetName_ ( with "_EXTRA" when extra balls raised the rate ) after CanConsumeCannonBallForShot, wstrEffectSetNameNoShot_ when it fails;
+/// the power rate is fPowerRate_ x the extra rate. An empty name plays nothing ( stand-in: June's PlayEffectSet finds no set called "" )
+CX2EffectSet::Handle CX2GUChung::PlayCannonShotEffectSet( const wstring& wstrEffectSetName_, int iNeededCannonBallCount_, int iUseCannonBallCount_, float fPowerRate_, bool bSecondRate_, const wstring& wstrEffectSetNameNoShot_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
+		return INVALID_EFFECTSET_HANDLE;
+
+	wstring wstrEffectSetName = wstrEffectSetName_;
+	float fExtraRate = 1.f;
+	if ( true == CanConsumeCannonBallForShot( iNeededCannonBallCount_, iUseCannonBallCount_, bSecondRate_, &fExtraRate ) )
+	{
+		if ( 1.f < fExtraRate )
+			wstrEffectSetName += L"_EXTRA";
+	}
+	else
+	{
+		wstrEffectSetName = wstrEffectSetNameNoShot_;
+	}
+
+	if ( true == wstrEffectSetName.empty() )
+		return INVALID_EFFECTSET_HANDLE;
+
+	return g_pX2Game->GetEffectSet()->PlayEffectSet( wstrEffectSetName, this, NULL, false, fExtraRate * fPowerRate_ );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 /// June 32c1f530 @32c220ae: the default of both skill switches registers Lunatic Blow ( its states are CH2a's )
 void CX2GUChung::SetLunaticBlowSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ )

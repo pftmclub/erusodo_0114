@@ -62,3 +62,12 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `32bff350` `@32bff353`). CH1p converted only its key test under `_LIVE`: the key-pressed value is slot + 1 (`32bff328`: A S D C, F `+0x872a`, Q W E R,
   T `+0x872e`), read through `SkillSlotKey::IsKeyReleased`. June also gates a held key on `HaveThisBuff( BTI_BUFF_ARTILLERY_STRIKE_SCOPE )` (418,
   `@32bfeded`); without it, it takes the not-held path. That gate and the rest of the body are yours, written whole inside March's function.
+
+## Amended by CH2a (2026-11-02)
+
+- **Already written (do not redo):** `CX2GUChung::CanConsumeCannonBallForShot( needed, use, bSecondRate, float* out )` (June `32c0a230`) and `PlayCannonShotEffectSet( name, needed, use, power,
+  bSecondRate, fallbackName )` (`32c11410`, returns the `CX2EffectSet::Handle`), both under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`. Your callers `32c0e190` / `32c0f6d0` / `32c0fc30` use them by these
+  names; read the Done note ("CH2a - Done") for the argument order and the extra-ball rules.
+- **Siege Shelling (`CSI_SI_A_SIEGE_SHELLING_*`, 26201) is CH2a's:** its bodies, `CreateCannonBulletDamageEffect( CBT_SIEGE / CBT_SIEGE_FINISH )` calls and `UpdateSpineAimRotation` calls are in. The
+  Shooting Guardian's own states (Mobile Siege, Shooting Star ...) stay yours. `CSI_SI_A_SIEGE_SHELLING_StateStart` (June `32bda6c0`) is the shared `CommonStateStart` wrapper.
+- `PlayEffectSet` of an empty name plays nothing (stand-in in `PlayCannonShotEffectSet`).

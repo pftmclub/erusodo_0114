@@ -91,8 +91,8 @@ def sim(fn):
 
 
 HOOK = {'CSI_WAIT_STATE_CHANGE', 'CSI_DAMAGE_BOUNDING_DOWN', 'CSI_DAMAGE_BOUNDING_LANDCRASH', 'CSI_DAMAGE_BOUNDING_UP'}
-LEFT = {'123', '124', '125', '126', '127', '128', '129', '93', '94', '95', '96', '335'}   # phoenix run, dance, riding Stage 17, Back Blast ( CH2a )
-EMPTYOK = {'3202a7d0', '32002f70', '32bda6c0'}     # die end ( StateChange ), riding attack X frame move ( Stage 17 ), siege shelling Start ( CH2a )
+LEFT = {'123', '124', '125', '126', '127', '128', '129', '93', '94', '95', '96'}   # phoenix run, dance, riding Stage 17
+EMPTYOK = {'3202a7d0', '32002f70'}     # die end ( StateChange ), riding attack X frame move ( Stage 17 )
 ROLL = {('32c22540', '9'): 'strStartTableNameUTF8.c_str()', ('32c22540', '11'): 'strWinTableNameUTF8.c_str()',
         ('32c22540', '12'): 'strLoseTableNameUTF8.c_str()', ('32c12a30', '23'): 'strHyperModeTable.c_str()'}
 idmap = collections.defaultdict(set); bad = 0; n = 0; skipped = collections.Counter(); allhooks = []

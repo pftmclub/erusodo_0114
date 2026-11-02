@@ -1998,6 +1998,15 @@ public:
 		RNSI_P_CDC_INTENSE_SHOWTIME                           = 26407,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH2a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Iron Cannon skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CC_SCARE_CHASE                                = 26000,
+		RNSI_SA_CC_ACELDAMA                                   = 26002,
+		RNSI_A_CC_RELOAD_CANNON                               = 26202,
+		RNSI_P_CDC_ENDLESS_CHASE                              = 26418,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

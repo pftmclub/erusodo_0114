@@ -2349,6 +2349,50 @@ the templet swap for every term that reads the id (the Aisha CH3b review defect)
 **Done gate:** every class-6 / 20 / 21 / 27 id in the S3 census has a state (except CH0's passive / CH4 ids); each skill in an A and a B slot
 casts June's state, motion and effect and deals damage; no missing particle / mesh / texture line.
 
+### CH2a - Done (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#error` without `_LIVE`, `JUNE_ENUM_NAMES`, `JUNE_SKILL_NUMERICAL`, `JUNE_USER_SKILL_LEVEL_HELPERS`) is defined: Iron Cannon's seven skills run June's bodies. All 41 class-map rows are
+read from `charport_adis.py chung --phase CH2a` listings (+ Ghidra decompiles); 13 are written (inside March's function under the flag, March in `#else`), 4 are new, 2 are `std::multimap` template instantiations (no code), 22 are June = March
+(`funcmap.tsv` rows `Char Chung CH2a`, each says which). MODS.md "Stage 7 Chung, CH2a" has the March vs June damage table.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32bd9600` | `CSI_SI_SA_CHUNG_ACELDAMA_Init` | 17 preloads (Red Hamelling / Riding effect sets, Gungnir mesh ...) instead of 2 |
+| `32bfa670` | `..._SCARE_CHASE_FrameMove` | no memo-2 branch and no `SetLockOn` (the damage effect script locks on); `RNSI_P_CDC_ENDLESS_CHASE` (26418) multiplies the effect's lock-on DUNGEON / PVP target range min / max (CEffect `+0x970..+0x97c`) by `SA_SCOPE_ABS` |
+| `32bfa860` | `..._AIMMING_SHOT_FrameMove` | cost paid from the extra balls first (`m_bAimingShotUsedExtraCannonBall`, `+0x98a8`), explosion `AIMING_EXPLOSION_EXTRA` at power x `m_afExtraCannonBallDamageRate[0]`; no memo-6 x3 |
+| `32bfafa0` | `..._ACELDAMA_FrameMove` | = March except `GetEquippedActiveSkillTemplet( RNSI_SA_CC_ACELDAMA, true )` (inline `#ifdef`) |
+| `32bf4180` | `..._RELOAD_CANNON_FrameMove` | no memo-5 extra ball |
+| `32bedf60` `32beb7f0` `32c11e10` | Lunatic Blow START EP / EXPLOSION EP / EXPLOSION FM | the choice and the loop end read `GetTotalCannonBallCount()` / the extra balls; loops 0-1 play the explosion + `UseCannon( 1 )`, loops >= 2 play the addition explosion through `PlayCannonShotEffectSet` |
+| `32beba80` `32bebc40` `32be5a80` | Siege Shelling Ready EP / ReadyLoop EP / ReadyLoop FM | Tactical Trooper's down key -> `CSI_CTT_MOBILE_ARMORED_MODE_READY`; 6 shells end X only without `RNSI_P_CTT_OPEN_MIND` (26419); the Z flag also fires on the animation end; Open Mind scales the MP drain; the aim is `UpdateSpineAimRotation` (vslot 0x774) |
+| `32c0e530` `32c0e9b0` | Siege Shelling X FM / X_FINISH FM | spine aim, shells = `CreateCannonBulletDamageEffect( CBT_SIEGE / CBT_SIEGE_FINISH )`, +1 extra ball per shell (class 117 mobile mode), no `..._EXPLOSION` effects, no reload counter |
+| new | `CSI_SI_A_SIEGE_SHELLING_StateStart` `CSI_A_CC_BACK_BLAST_EventProcess` `CanConsumeCannonBallForShot` `PlayCannonShotEffectSet` | `32bda6c0` (4 registrations), `32bea9c0`, `32c0a230`, `32c11410` |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26000 / 26002 / 26202 / 26203 and the upgrade ids 26027 / 26029 / 26218 / 26219 are extra labels on March's blocks (their tables are June's); Siege Shelling (26201 / 26217) and Back Blast (26200 / 26216) have
+their own blocks (June has no `_HYPER` table for them); Lunatic Blow (26001 / 26028) is the existing default. `InitStateCommon`: state `CSI_A_CC_BACK_BLAST` (new enumerator, June 335) while skill 26200 is equipped + `SetEquippedSkillLevelStateData`; the siege
+`StateStart` on the four loop states. `X2SkillTree.h`: `RNSI_SA_CC_SCARE_CHASE` 26000, `RNSI_SA_CC_ACELDAMA` 26002, `RNSI_A_CC_RELOAD_CANNON` 26202, `RNSI_P_CDC_ENDLESS_CHASE` 26418. 26027 / 26029 / 26216-26219 have no June name: raw labels with the templet name.
+`ch1m_regcheck.py`: `335` and `32bda6c0` dropped from `LEFT` / `EMPTYOK`, **0 problems** (821 registrations). Checklist rows marked `(Chung: CH2a)` (l.53, 116, 117, 178, 437, 713, 729).
+
+**Left to later phases (scope rule).** Reload Cannon charges 1 ball and Siege Shelling spends a ball per shell (`m_fSiegeShellingUserBallRate` -1) until CH4a ports `InitPassiveSkillState` (it reads skills 26202 / 26201; `kickoffs/char-chung/CH4a.md` amended). Callers of the new
+helpers in CH2c (`32c0e190` / `32c0f6d0` / `32c0fc30`; `CH2c.md` amended). June reads animation time through the Lu/Ciel second-body accessor (`+0x8e84` / `+0x8e90`): Chung always takes the first body. June's `GetEqippedSkillMemo` stub drops the memo branches (no `JUNE_BUGS` row).
+`PlaySound( name, true, false )` in the shells is March's `PlaySound( name )`; `PlayCannonShotEffectSet` skips an empty effect name (June's `PlayEffectSet` finds no set called `""`).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `git diff --patience --numstat`: cpp 625 / 0, h 12 / 0, `X2SkillTree.h` 9 / 0, `Always.h` 22 / 0.
+- `junediverge.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`: `allow-listed: 17`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows (6 C, 1 D: old code).
+- `skillicons.py check 26000-26029 26200-26219`: `skills 50, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged (`Chung_Iron_Cannon.lua` is CH1's, PASS). One-file probe of `X2GUChung.cpp` (`/Zs /EHsc`, flag on): exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 25,915,904 B, dated 2026-11-02 13:52:56, md5 9f8454c552bba41174294a0aec3befad, equal to X2/US_SERVICE/x2.exe (2026-11-02 13:52:48); built at main b2d4e49a + 4 uncommitted code file(s).
+- EXESTR OK: 3 of 3 found in X2_offline.exe, 25915904 B, md5 9f8454c5 ([JUNE_CHAR] CHUNG SKILL scare chase shot, AIMING_EXPLOSION_EXTRA, EffectSet_CSI_SI_SA_CHUNG_LUNATIC_BLOW_ADDITION_EXPLOSION).
+
+**Play-test hand-off.** Save: unit 62 `ChungIron` (Iron Cannon, lv 99). A Scare Chase (26027), S Back Blast (26216), D Reload Cannon (26218), C Siege Shelling (26217); Q Lunatic Blow (26028), W Aceldama (26029), E Aimming Shot (26219); slots 4 and 9 empty. Backup `db_backup\els_db_20261102_134506_pre_sql.sql`.
+Dev console (END key, auth 3): `/invin 0`, `/stage 1`-style dungeon with enemies in front; for balls the HUD shows the count. Checks, each with a few enemies near:
+1. **A Scare Chase.** A shell flies from the barrel to the nearest enemy and explodes (13.32); the ball count drops by 1; it gains 1 ball at 0.6 s. If no shell appears: `[LUA_SRC]` / `DAMAGE_EFFECT` error in `ErrorLog.txt`.
+2. **S Back Blast.** The Back Blast animation plays and ends in a fall (JUMP_DOWN); walk / dash / Z / X cancel it once on the ground. If nothing happens, look for `CSI_A_CC_BACK_BLAST` in `ErrorLog.txt`.
+3. **D Reload Cannon.** One ball is added at 0.52 s (CH4a raises it later). **C Siege Shelling.** Ready -> loop; hold X for shells (each hits where the spine aim points), Z or 6 shells end it, 0 balls ends with Z_FINISH. MP drains in the loop.
+4. **Q Lunatic Blow.** Start -> explosion loops; loops 1-2 hit with the explosion, from the third the addition explosion; the last ball ends it. **W Aceldama.** Shells fall from above after 1.5 s (9.5 / 13.83). **E Aimming Shot.** Aim at an enemy: shot + explosion (14.82); with no target a misfire.
+5. Optional (Tactical Trooper `Freils`, unit 18, needs the class 117 slots): extra balls feed Aimming Shot / the siege shells first.
+Log tag `[JUNE_CHAR] CHUNG SKILL` (grep `CHUNG SKILL` and `NUM use` with `python tools/logs.py --grep "CHUNG SKILL"`); the debug lines list balls and extra balls after each shot. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.

@@ -75,3 +75,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `CHUNG_FIRST_CLASS_CHANGE` block (`X2GUChung.cpp` ~5155 before CH1q) goes too.
 - `32c16be0 @32c16f23-32c16f8f` writes Chung `+0x9864` / `+0x9860` from skill 26410 (`0x672a`): March's `CX2GUUser::m_fForceDownRelDamageRateBase` /
   `m_fCannonBallDamageUp`. The DamageEffect reader (CH1q, `_CBALL`) reads them through the March getters.
+
+## Amended by CH2a (2026-11-02)
+
+- Reload Cannon (26202) charges `m_ucCannonBallCountToBeUpUsingReLoadCannon` balls (default 1) and multiplies its damage by `m_fDamageRelByCannonBallMastery` (default 1). March's `InitPassiveSkillState` writes
+  both from `SI_A_CC_RELOAD_CANNON` (6xxx), which June's skill tree never holds; June's `32c16be0` reads skill 26202 (`SA_CHARGE_CANNON_BALL`, `SA_DAMAGE_REL`). CH2a's play-test therefore shows 1 ball per
+  Reload Cannon; the real count is yours.
+- `m_fSiegeShellingDamageRel`, `m_fSiegeShellingDistance`, `m_fSiegeShellingUserBallRate`, `m_fSiegeShellingIncraseMPRel` come from the same function (March reads `SI_A_CC_SIEGE_SHELLING` 6xxx). CH2a's Siege Shelling
+  reads `m_fSiegeShellingUserBallRate` (default from the ctor) and `m_fSiegeShellingDistance` (through `UpdateSpineAimRotation`); until you port the writers they stay at their ctor values.

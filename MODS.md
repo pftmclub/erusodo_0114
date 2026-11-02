@@ -5566,3 +5566,21 @@ No flag, no exe change. `kom.py stage-june june2017_re/char_chung/ch0b_stage_lis
 ## Stage 7 Chung, CH5: UnitTemplet rows and cut-in table (2026-11-02)
 
 Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI` (`Always.h`; `#error` without `..._CHUNG_LIVE` and `..._JUNE_HYPER_CUT_IN_TIME`): `s_SkillCutInSet` in `X2GUChung.cpp` is June's `333a96b0` / `337adca8` (`HQ_CutIn_Chung_01 / 11`, `_IP_`, `_DC_`, `_TT_` GFx names, no extension; March's `.dds` table stays in `#else`), and `[JUNE_CHAR] CHUNG UI cut-in set / hyper cut-in` lines are logged. Data: Chung's 7 blocks of `data036` `UnitTemplet.lua` are June's (new `m_fLobbyRotationY`, `m_HyperCutIn` / `m_BerserkCutIn` on 110 / 111 / 117, Tactical Trooper name `STR_ID_17435`; the other 48 blocks untouched; `COPY OK` backup `kom_backup_tools/data036.kom.20261102_131543`). **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, build; restore `UnitTemplet.lua` from the backup kom, `kom.py pack data036`, `kom.py copy data036`.
+
+## Stage 7 Chung, CH2a: Iron Cannon skills (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (`Always.h`; `#error` without `..._CHUNG_LIVE`, `..._ENUM_NAMES`, `..._SKILL_NUMERICAL`, `..._USER_SKILL_LEVEL_HELPERS`) and the temporary `..._SKILL_DEBUG` (`[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH2a - Done". Client only, no data change.
+- **What changes in game.** Iron Cannon's seven skills run June's state bodies: Scare Chase (26000), Lunatic Blow (26001), Aceldama (26002), Back Blast (26200, new), Siege Shelling (26201), Reload Cannon (26202), Aimming Shot (26203), each also under its upgrade id (26027-26029, 26216-26219). `SetEquippedSkillFuncBySkillSlotIndex` gains the June id cases (Siege Shelling and Back Blast own blocks, June has no `_HYPER` table for them), `InitStateCommon` registers Back Blast's own state while skill 26200 is equipped and the shared siege `StateStart`. New: `CanConsumeCannonBallForShot` and `PlayCannonShotEffectSet` (extra cannon balls first, `_EXTRA` effect names), `CSI_A_CC_BACK_BLAST_EventProcess`, `CSI_SI_A_SIEGE_SHELLING_StateStart`, member `m_bAimingShotUsedExtraCannonBall`, enumerator `CSI_A_CC_BACK_BLAST`, four `RNSI_*` names.
+- **Differs from March.** The memo branches are gone (Scare Chase memo 2, Reload Cannon memo 5, Aimming Shot memo 6); Scare Chase no longer calls `SetLockOn` (its lock-on is the damage effect script's) and Endless Chase (26418) widens the lock-on range; the Siege Shelling aim is the spine aim (`UpdateSpineAimRotation`), its shells are `CreateCannonBulletDamageEffect` bullets (no `..._X_EXPLOSION` / `..._FINISH_EXPLOSION` effects), a Tactical Trooper in the mobile armored mode gains an extra ball per shell (no reload counter); Lunatic Blow's first two loops spend a ball, later loops play the addition explosion.
+- **Damage (level-1 value, June = numerical x 0.01 through the engine; March = the shipped `DamageEffect` table).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Scare Chase (26000) | DAMAGE_EFFECT_CSI_SI_SA_CHUNG_SCARE_CHASE = PHYSIC 3.97, _EXPLOSION = MAGIC 13.32 | 8.3 ( PvP rate 0.28 ), _EXPLOSION = 13.32 |
+| Aceldama (26002) | CHUNG_ACELDAMA_SHELL = PHYSIC 2.33, _GROUND_EXPLOSION = MAGIC 5.32, _HIT_EXPLOSION = MAGIC 5.38 | 9.5, 13.83, 13.83 |
+| Aimming Shot (26203) | AIMING_EXPLOSION = MAGIC 5.63 | 14.82 ( AIMING_EXPLOSION_EXTRA: June-only, same value x the extra rate ) |
+| Siege Shelling (26201) | ..._X_EXPLOSION = MAGIC 1.47, ..._FINISH_EXPLOSION = MAGIC 2.94 | same-named blocks 4.41, 5.51, which June's code no longer plays: its shells are the `DAMAGE_EFFECT_Cannon_Ball_Bullet_By_Siege*` bullets ( script numerical tables ) |
+| Lunatic Blow (26001) | state tables of March's script | EXPLOSION 6.19, EXPLOSION_FINISH 11.08, ADDITION_EXPLOSION ( _EXTRA ) 2.86 |
+| Reload Cannon (26202), Back Blast (26200) | state tables of March's script ( Back Blast June-only ) | numerical tables of the script states ( `[JUNE_SKILL] NUM use` ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (the skills fall back to March's id switch, which never matches June's ids, so they play Lunatic Blow's default), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
