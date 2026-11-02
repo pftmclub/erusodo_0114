@@ -1423,7 +1423,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 	void SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x2aa
 	enum SUMMON_HELPER_FLAG { JSHF_NO_ATK_RATE = 0x20, JSHF_SKILL_ABILITY_REL = 0x40, JSHF_NUMBER_STORE = 0x200 };	/// June 322ece70 flag bits
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	void SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 protected:
 	virtual void ParseCommonRandomState();
@@ -2781,7 +2783,9 @@ protected:
 
 	/// Phase CH1d: Nasod ground combos ( Z chain and X chain )
 	/// June character port Phase CH1e: inert June_* members of Eve's dash, jump and dash-jump combos; nothing calls them until CH1
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	bool TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	/// June character port Phase CH1f: inert June_* members of Eve's Exotic Gear / Architecture ground states; nothing calls them until CH1
 	void ENSI_EEG_DASH_JUMP_ZX_Init();					/// June 32968510
 	void ENSI_EEG_DASH_JUMP_ZX_FrameMove();			/// June 32968560

@@ -5584,3 +5584,10 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (`Always.h`; `#error` without `..._CH
 | Reload Cannon (26202), Back Blast (26200) | state tables of March's script ( Back Blast June-only ) | numerical tables of the script states ( `[JUNE_SKILL] NUM use` ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (the skills fall back to March's id switch, which never matches June's ids, so they play Lunatic Blow's default), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH3b0: summoned NPCs (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined). Plan `JUNE_CHARACTER_CHUNG_PHASES.md`, "CH3b0 - Done". Log `[JUNE_CHAR] SUMMON` / `CHUNG SKILL remote mortar`.
+- **What changes in game.** Chung's targeting NPCs (863 Missile Shower, 1419 Quantum Ballista, June-only 2525 Heavy Field) and Remote Mortar (1100) take June's stats and power rate from June's summon helper `322ece70`, now one shared `CX2GUUser::SetSummonHelperInfo` (Eve's summons use it too, same numbers). The Remote Mortar keeps June's list: 1 mortar (2 in PvP) plus Useful Tactic's effective count, the oldest dying at the cap (March: always one). 2525 gets its NPCTemplet row and `Enum.lua` member (data036 / data037).
+- **Damage.** Targeting NPCs: March put the skill power rate on the NPC's power rate, June puts it on the five stats (power rate = socket x buff x AT_SPECIAL). Remote Mortar: March = (skill power rate x buff x socket) - 1 on the power rate, own HP / defence unscaled; June = stats x skill power rate x the skill's MAX_HP / ATK / DEF _REL abilities (own HP and defence scaled too), power rate = socket x buff x AT_SPECIAL - 1.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (with the CH2a skills), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The 2525 rows are harmless without it.

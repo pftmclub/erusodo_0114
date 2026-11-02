@@ -27782,6 +27782,106 @@ float CX2GUUser::GetSummonPowerRateByBuff( const int iSkillID_ ) const
 	return false;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//{{ Iruha : 2026-11-02 // June character Chung Phase CH3b0 (JUNE_CHARACTER_CHUNG_PHASES.md)
+// June 32007ce0: the ability of an equipped skill at the learned level ( IsPvpOrPve is false offline ); Eve's class copy is folded into this one
+bool CX2GUUser::TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const
+{
+	if( NULL == GetUnit() )
+		return false;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+	if( iSkillLevel <= 0 )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), bUpgradeSwap_ );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+}
+
+// June 322ece70: stats and power rate of a summon of iSkillID_ after the upgrade swap; flags 0x10 / 0x100 / 0x800 have no ported caller yet
+void CX2GUUser::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ )
+{
+	if( NULL == pNPC_ || NULL == GetUnit() )
+		return;
+
+	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	const int iSkillLevel = max( 1, GetSkillLevelValue( iSummonSkillID ) );
+
+	const CX2Stat::Stat& ownStat = pNPC_->GetStat().GetStat();
+	float fBaseHp = npcStat_.m_fBaseHP;
+	if( 0 != ( uFlags_ & SHF_FIXED_HP ) )
+		fBaseHp = 100000000.f;
+	else if( 0 != ( uFlags_ & SHF_OWN_HP ) )
+		fBaseHp = ownStat.m_fBaseHP;
+	const float fAtkPhysic = ( 0 != ( uFlags_ & SHF_OWN_ATK ) ) ? ownStat.m_fAtkPhysic : npcStat_.m_fAtkPhysic;
+	const float fAtkMagic = ( 0 != ( uFlags_ & SHF_OWN_ATK ) ) ? ownStat.m_fAtkMagic : npcStat_.m_fAtkMagic;
+	const float fDefPhysic = ( 0 != ( uFlags_ & SHF_OWN_DEF ) ) ? ownStat.m_fDefPhysic : npcStat_.m_fDefPhysic;
+	const float fDefMagic = ( 0 != ( uFlags_ & SHF_OWN_DEF ) ) ? ownStat.m_fDefMagic : npcStat_.m_fDefMagic;
+
+	float fStatScale = fStatScale_;
+	float fHpRel = 1.f;
+	float fAtkPhysicRel = 1.f;
+	float fAtkMagicRel = 1.f;
+	float fDefPhysicRel = 1.f;
+	float fDefMagicRel = 1.f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSummonSkillID ), true );
+	if( NULL != pSkillTemplet )
+	{
+		fStatScale *= pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
+		if( 0 == ( uFlags_ & SHF_NO_ATK_RATE ) )
+		{
+			fAtkPhysicRel = fStatAtkRate_;
+			fAtkMagicRel = fStatAtkRate_;
+		}
+
+		if( 0 != ( uFlags_ & SHF_SKILL_ABILITY_REL ) )
+		{
+			/// June @322ed0e8: a found ability replaces the rate ( JUNE_BUGS 454 )
+			const bool bPvp = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );
+			float fValue = 1.f;
+			if( true == TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_MAX_HP_REL_PVP : CX2SkillTree::SA_MAX_HP_REL, iSummonSkillID, true, fValue ) )
+				fHpRel = fValue;
+			if( true == TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_ATK_PHYSIC_REL_PVP : CX2SkillTree::SA_ATK_PHYSIC_REL, iSummonSkillID, true, fValue ) )
+				fAtkPhysicRel = fValue;
+			if( true == TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_ATK_MAGIC_REL_PVP : CX2SkillTree::SA_ATK_MAGIC_REL, iSummonSkillID, true, fValue ) )
+				fAtkMagicRel = fValue;
+			if( true == TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_DEF_PHYSIC_REL_PVP : CX2SkillTree::SA_DEF_PHYSIC_REL, iSummonSkillID, true, fValue ) )
+				fDefPhysicRel = fValue;
+			if( true == TryGetEquippedSkillAbilityValue( bPvp ? CX2SkillTree::SA_DEF_MAGIC_REL_PVP : CX2SkillTree::SA_DEF_MAGIC_REL, iSummonSkillID, true, fValue ) )
+				fDefMagicRel = fValue;
+		}
+	}
+
+	pNPC_->SetNPCStat( fBaseHp * fStatScale * fHpRel, fAtkPhysic * fStatScale * fAtkPhysicRel, fAtkMagic * fStatScale * fAtkMagicRel,
+		fDefPhysic * fStatScale * fDefPhysicRel, fDefMagic * fStatScale * fDefMagicRel );
+
+	float fPowerRate = GetSummonPowerRateBySocket( iSummonSkillID ) * GetSummonPowerRateByBuff( iSummonSkillID ) * GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+	if( 0 != ( uFlags_ & SHF_POWER_RATE_LESS_ONE ) )
+		fPowerRate -= 1.f;	/// June @322ed366
+	if( 0 != ( uFlags_ & SHF_NUMBER_STORE ) )
+	{
+		/// June @322ed38c: the factor ( 31e8d610 ) instead of +0x8ce0, and +0x8800 = m_NumberList[0]
+#ifdef SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetMultiplyPowerRate_LUA( fPowerRate );
+#else SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetDefaultPowerRate( fPowerRate );
+#endif SERV_IRUHADEV_JUNE_NPC_LUA_SUMMON_RATE
+		pNPC_->SetNumber_LUA( 0, static_cast<double>( GetSkillAdditionalPowerRate( iSummonSkillID ) ) + 1.0 );
+	}
+	else
+	{
+		pNPC_->SetDefaultPowerRate( fPowerRate );
+	}
+	pNPC_->SetRealatedSkillLevel( iSkillLevel );	/// June @322ed3b8: NPC +0x8e74
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] SUMMON npc %d uid %d skill %d lv %d flags 0x%x stat scale %.3f hp %.0f power rate %.3f", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ),
+		pNPC_->GetUID(), iSummonSkillID, iSkillLevel, uFlags_, fStatScale, fBaseHp * fStatScale * fHpRel, fPowerRate );
+}
+//}}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 /** @function : RebuildSkillCoolTimeSpeed
 	@brief : June 32039fb0 (BBT 103). Does nothing unless the dirty flag is set. Otherwise it clears the flag, sets every entry of the table to 1.0 (the
 		keys stay), then for every live type-103 factor and every BCT_PERCENT triple multiplies the entry for its skill type by the value (a new

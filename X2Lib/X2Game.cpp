@@ -9485,6 +9485,15 @@ ELSWORD_VIRTUALIZER_END
 #endif //UPGRADE_SKILL_SYSTEM_2013
 
 #ifdef	SERV_CHUNG_TACTICAL_TROOPER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		// June 3230b7b0 @3230bc08: a dead mortar leaves its owner's list without a kill ( 32c0a420 )
+		if( pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID == CX2UnitManager::NUI_REMOTE_MORTAR )
+		{
+			CX2GUUser* pUser = static_cast<CX2GUUser*>( pCX2GUNPC->GetOwnerGameUnit() );
+			if( NULL != pUser && NULL != pUser->GetUnit() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetType() )
+				static_cast<CX2GUChung*>( pUser )->EraseRemoteMortarNPCUID( static_cast<int>( pCX2GUNPC->GetUnitUID() ), false );
+		}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		if( pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID == CX2UnitManager::NUI_REMOTE_MORTAR )
 		{
 			CX2GUUser* pUser = static_cast<CX2GUUser*>( pCX2GUNPC->GetOwnerGameUnit() );
@@ -9501,6 +9510,7 @@ ELSWORD_VIRTUALIZER_END
 				}
 			}
 		}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif	SERV_CHUNG_TACTICAL_TROOPER
 
 #ifdef FINALITY_SKILL_SYSTEM //김창한
@@ -18185,6 +18195,39 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 
 #endif AISHA_SECOND_CLASS_CHANGE
 	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			// June 3230c1a0 cases 0x58b / 0x35f / 0x9dd: 322ece70 flags 0, then the owner Chung keeps the targeting NPC
+			case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA, 0 );
+					pNPC->SetFlag_LUA( 1, true );	// June +0x8752: the lock-on is hidden from other players
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetType() )
+					{
+						CX2GUChung* pChung = static_cast<CX2GUChung*>( pUser );
+						pChung->SetShot( pNPC->GetUID() );
+						pChung->SetArtilleryStrikeType( CX2GUChung::CAST_QUANTUM_BALLISTA );
+					}
+				} break;
+
+			case CX2UnitManager::NUI_TARGETING_CHUNG:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER, 0 );
+					pNPC->SetFlag_LUA( 1, false );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetType() )
+					{
+						CX2GUChung* pChung = static_cast<CX2GUChung*>( pUser );
+						pChung->SetShot( pNPC->GetUID() );
+						pChung->SetArtilleryStrikeType( CX2GUChung::CAST_MISSILE_SHOWER );
+					}
+				} break;
+
+			case CX2UnitManager::NUI_TARGETING_CHUNG_HEAVY_FIELD:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_CTT_HEAVY_FIELD, 0 );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUChung*>( pUser )->SetHeavyFieldTargetingNPCUID( pNPC->GetUID() );
+				} break;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 			case CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER :
@@ -18303,6 +18346,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					}
 				} break;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 #ifdef	SERV_TRAPPING_RANGER_TEST
 			case CX2UnitManager::NUI_EVOKE_TRAP_LIRE:
@@ -18487,6 +18531,16 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #endif
 
 #ifdef	SERV_CHUNG_TACTICAL_TROOPER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			// June 3230c1a0 case 0x44c: 322ece70 flags 0x44a, then the owner's mortar list ( 32c11940 )
+			case CX2UnitManager::NUI_REMOTE_MORTAR:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_A_CTT_AUTOMATIC_MORTAR,
+						CX2GUUser::SHF_OWN_HP | CX2GUUser::SHF_OWN_DEF | CX2GUUser::SHF_SKILL_ABILITY_REL | CX2GUUser::SHF_POWER_RATE_LESS_ONE );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUChung*>( pUser )->AddRemoteMortarNPCUID( pNPC->GetUID() );
+				} break;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			case CX2UnitManager::NUI_REMOTE_MORTAR:		/// 청 2차 전직 택티컬 트루퍼 - 박격포
 				{
 					fStatScale *= fHyperModeStatScale;
@@ -18552,6 +18606,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						pNPC->SetNowHp( 0.f );
 					}
 				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한

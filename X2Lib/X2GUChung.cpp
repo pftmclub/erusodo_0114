@@ -254,6 +254,7 @@ iFrameBufferNum_, pUnit_ )
 , m_fBerserkChanceOnAwakening( 0.f )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 , m_bAimingShotUsedExtraCannonBall( false )
+, m_iHeavyFieldTargetingNPCUID( -1 )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
@@ -35165,6 +35166,23 @@ void CX2GUChung::CSI_A_CTT_REMOTE_MORTAR_EventProcess()
 /// 박격포 소환 함수
 void CX2GUChung::CreateRemoteMortar()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	// June 32c10d20: at the cap the oldest mortar dies; one more mortar per Useful Tactic count
+	if( GetRemoteMortarMaxCount() <= static_cast<int>( m_vecRemoteMortarNPCUID.size() ) )
+		EraseRemoteMortarNPCUID( m_vecRemoteMortarNPCUID.front(), true );
+
+	D3DXVECTOR3 vPos = GetPos();
+	if( true == GetIsRight() )
+		vPos += GetDirVector() * 50.f;
+	else
+		vPos -= GetDirVector() * 50.f;
+
+	if( true == IsMyUnit() )
+		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_REMOTE_MORTAR, IsHyperState(), true, vPos,
+			GetIsRight(), 0.f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL remote mortar create: %d live of max %d", static_cast<int>( m_vecRemoteMortarNPCUID.size() ), GetRemoteMortarMaxCount() );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if( -1 != m_iRemoteMortarNPCUID )
 	{
 		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( static_cast<int>( m_iRemoteMortarNPCUID ) );
@@ -35192,8 +35210,48 @@ void CX2GUChung::CreateRemoteMortar()
 		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_REMOTE_MORTAR, IsHyperState(), true, vPos, 
 			GetIsRight(), 0.f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//{{ Iruha : 2026-11-02 // June character Chung Phase CH3b0 (JUNE_CHARACTER_CHUNG_PHASES.md)
+// June 32c0a500: one mortar ( two in PvP ) plus Useful Tactic's effective count when learned
+int CX2GUChung::GetRemoteMortarMaxCount() const
+{
+	int iMaxCount = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() ) ? 2 : 1;
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CTT_USEFUL_TACTIC ) )
+		iMaxCount += static_cast<int>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_P_CTT_USEFUL_TACTIC ) );
+	return iMaxCount;
+}
+
+// June 32c11940: SetUserSummonedNPCInfo records a new mortar only below the cap
+void CX2GUChung::AddRemoteMortarNPCUID( const int iNPCUID_ )
+{
+	if( static_cast<int>( m_vecRemoteMortarNPCUID.size() ) < GetRemoteMortarMaxCount() )
+		m_vecRemoteMortarNPCUID.push_back( iNPCUID_ );
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL remote mortar uid %d added: %d live", iNPCUID_, static_cast<int>( m_vecRemoteMortarNPCUID.size() ) );
+}
+
+// June 32c0a420
+void CX2GUChung::EraseRemoteMortarNPCUID( const int iNPCUID_, const bool bKill_ )
+{
+	std::vector<int>::iterator it = std::find( m_vecRemoteMortarNPCUID.begin(), m_vecRemoteMortarNPCUID.end(), iNPCUID_ );
+	if( it == m_vecRemoteMortarNPCUID.end() )
+		return;
+
+	if( true == bKill_ && NULL != g_pX2Game )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( iNPCUID_ );
+		if( NULL != pNPC )
+			pNPC->SetNowHp( 0.f );
+	}
+	m_vecRemoteMortarNPCUID.erase( it );
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL remote mortar uid %d erased ( kill %d ): %d live", iNPCUID_, bKill_ ? 1 : 0, static_cast<int>( m_vecRemoteMortarNPCUID.size() ) );
+}
+//}}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 void CX2GUChung::SupplyCannonBallCount( int SupplyCount )
 { 
 	UpCannonBallCount( SupplyCount, false, true );		/// 택티컬 필드는 리로드 마스터리 적용 제외

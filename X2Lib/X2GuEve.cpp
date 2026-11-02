@@ -51606,6 +51606,7 @@ void CX2GUEve::ENSI_RIDING_DASH_END_EventProcess()
 //{{ Iruha : 2026-10-26 // June character port Phase CH1e ( JUNE_CHARACTER_EVE_PHASES.md )
 // Inert June class core: Eve's dash, jump and dash-jump combos ( class map phase CH1e ); nothing calls them until CH1 wires them in.
 
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // June 32007ce0: the ability of an equipped skill at the learned level ( IsPvpOrPve is false offline )
 bool CX2GUEve::TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const
 {
@@ -51622,6 +51623,7 @@ bool CX2GUEve::TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILIT
 
 	return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 // ---- dash combos ----
 
@@ -55370,6 +55372,7 @@ void CX2GUEve::SetAtomicShieldSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& 
 	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL atomic shield npc skill %d lv %d size %.1f scale %.3f hp %.0f", iSummonSkillID, iSkillLevel, fShieldSize, vScale.x, npcStat_.m_fBaseHP * fStatScale * fHpRel );
 }
 
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // June 322ece70 ( rate 1.0, flags 0x20 / 0x40 / 0x200 ): stats and power rate of a summon of iSkillID_ after the upgrade swap, as 3230c1a0 calls it for the Eve summons
 void CX2GUEve::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ )
 {
@@ -55436,6 +55439,7 @@ void CX2GUEve::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcSta
 	CX2OfflineLog::Server( L"[JUNE_CHAR] EVE SKILL summon npc %d skill %d lv %d flags 0x%x stat scale %.3f hp %.0f power rate %.3f", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ),
 		iSummonSkillID, iSkillLevel, uFlags_, fStatScale, npcStat_.m_fBaseHP * fStatScale * fHpRel, fPowerRate );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // June 32968ab0
 void CX2GUEve::ENSI_SA_ECN_PSYKER_KINESIS_Init()
 {

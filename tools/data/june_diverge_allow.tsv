@@ -15,3 +15,4 @@ X2UICharInfo.cpp	CX2UICharInfo::SumSocketOption	GT_PVP	June 3291b4b0 @3291b71a: 
 *	*	SetShow	tsv CX2GageManager::SetShow (32489e30) -> Stage 9; the name is generic, so this row parks only that function (CX2UIQuickSlot::SetShow was ported in june-hud H4, 2026-10-31)
 X2GUUser.cpp	CX2GUUser::StartEnd	GT_PVP	June 3201b51d: the GameFightNew branch tests 322cc180 IsPvp (type 1 only)
 *	*	ResetAnimSpeed	tsv ResetAnimSpeed (31ffe190): the rest of June's body is per class (Lire 0x824 override, Add / Ain +0x92a0, Lu/Ciel dual body), routed by char-chung CH1o; the callers are fine
+X2GUChung.cpp	CX2GUChung::GetRemoteMortarMaxCount	GT_PVP	June 32c0a500: game vslot 0x10c == 1 (type 1 only)

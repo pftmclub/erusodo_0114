@@ -2490,6 +2490,43 @@ No play-test: nothing calls the helpers yet; CH2b's play-test exercises them.
 B-5 work, the transcended picture and cut-in show; `python tools/skillicons.py check <Chung's skill-id range>` = PASS after the transcendence
 rows (the shared `DLG_SKILL_Passive_*` sheets included).
 
+### CH3b0 - Done (2026-11-02, Opus 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined; no `Always.h` change). One spawn rule, as CH0 said: every Chung summon goes through `CreateNPCReq`
+(`31f8b010` / `322e67c0`, gated `IsMyUnit`), and June's per-NPC behaviour lives in `CX2Game::SetUserSummonedNPCInfo` (`3230c1a0`) plus the Remote Mortar's owner
+list. No split (`CH3b02` not needed). Funcmap rows `(CH3b0)` (10).
+
+| June | March (file) | What |
+|---|---|---|
+| `322ece70` | `CX2GUUser::SetSummonHelperInfo` (`X2GUUser.*`) | Eve's `CX2GUEve` copy moved up (hers hidden `#ifndef _CHUNG_SKILL`; her `X2Game.cpp` calls reach the base unchanged) + flags 0x1 HP 1e8, 0x2 / 0x4 / 0x8 the NPC's own HP / attack / defence, 0x400 power - 1.0 |
+| `32007ce0` | `CX2GUUser::TryGetEquippedSkillAbilityValue` | Eve's copy moved up the same way (flag 0x40 needs it) |
+| `3230c1a0` 0x58b / 0x35f | `X2Game.cpp` cases 1419 / 863 | helper flags 0 ( skill 26014 / 26025 ); `m_FlagList[1]` = 1 / 0; owner Chung: `SetShot( uid )` (`+0x96e4`), `SetArtilleryStrikeType` (`32bdb250`, `+0x97d4`) = QUANTUM_BALLISTA / MISSILE_SHOWER |
+| `3230c1a0` 0x9dd | new case 2525 | helper flags 0 ( 26064 ); owner Chung: `m_iHeavyFieldTargetingNPCUID` (`+0x98e8`, ctor -1; reader `32c0ba60` is CH3c's) |
+| `3230c1a0` 0x44c | case 1100 | helper flags 0x44a ( 26215 ); owner Chung: `AddRemoteMortarNPCUID` (`32c11940`) |
+| `32c0a500` / `32c11940` / `32c0a420` | `GetRemoteMortarMaxCount` / `AddRemoteMortarNPCUID` / `EraseRemoteMortarNPCUID` (`X2GUChung.*`) | `m_vecRemoteMortarNPCUID` (`+0x97bc`); cap 1, 2 when game type == 1, + (int) Useful Tactic (26420) SA_EFFECTIVE_COUNT |
+| `32c10d20` | `CreateRemoteMortar` (June body inside, March `#else`) | at the cap the front mortar is killed and erased; pos +- dir x 50 (qword `0x33449120`); level = now state data `+0x10` = `IsHyperState()` |
+| `3230b7b0 @3230bc08` | `X2Game.cpp` NPC-die hook (March `#else`) | a dead 1100 of a Chung owner: `EraseRemoteMortarNPCUID( uid, false )` |
+
+- **Differs from March.** Targeting NPCs: the skill power rate scales the five stats, not the power rate (MODS "CH3b0"). Remote Mortar: March allowed one; June's list
+  and cap. The skill-ability REL rates (flag 0x40) and own-HP scaling are new. CH0's "`32c0a500` GetUsefulTacticValue" guess and "`32c10d20` erases dead entries" label
+  are corrected (cap getter; June's `CreateRemoteMortar`).
+- **Already done, checked:** `NUI_TARGETING_CHUNG_HEAVY_FIELD` C++ member (CH1b), `SetSelfDestructSummonedNPC` with 2525 (CH1b, divergent row), 863 / 1419 in
+  `GetSummonBuffFactorID` (Eve CH2b2: one per owner through `KillOlderSummonsOfSameID`, the scope buff erased on death, CH2b4); 2525 and 1100 are in neither June map
+  (`31fc96b0`: no 0x9dd), so no uniqueness or buff. `IsSummonSkillBy` already lists 26014 / 26025 / 26050 / 26060 / 26064 / 26215 / 26238.
+- **Lua.** `Targeting_Chung.lua`, `Remote_Mortar.lua`: `adopt-june --dry-run` = identical to June (no stage); `luabind.py check Targeting_Chung Remote_Mortar`: 22 / 25
+  methods, 0 unbound, `RESULT: PASS`. Core `Enum.lua` gains `NUI_TARGETING_CHUNG_HEAVY_FIELD = 2525`, `NPCTemplet.lua` June's row verbatim (`NPCTemplet.src.lua:21708`);
+  `luasrc refresh` both, `ledger --check` PASS, `core --check` PASS. `PACK OK data036` (~ Enum.lua) and `PACK OK data037` (~ NPCTemplet.lua); copy waits on the user.
+- **Routed.** Aisha's class copy of `322ece70` (`SetSummonStatAndPowerRate`, flags 0) folds into the user helper at char-chung Z (Z kickoff amended). Flags 0x10 / 0x100 /
+  0x800 have no ported caller. Spawn sites (`32bfe730`, `32c0b7f0`, `32c12470`) stay with CH2c / CH3b / CH3c (kickoffs amended with the log checks).
+- **No play-test:** Chung's saves are on June's ids and the four summon skills have no state until CH2c / CH3b / CH3c; the console's `CreateNPCReqAlly` passes owner -1,
+  so `SetUserSummonedNPCInfo` never runs. Those phases' hand-offs carry `[JUNE_CHAR] SUMMON npc ...` and `CHUNG SKILL remote mortar ...`.
+
+**Hygiene** (worktree, `--files` the 7 code files): `flagcheck JUNE_CHAR_CHUNG_SKILL`: `7 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted, 0 non-ASCII,
+0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `junediverge --check` (7 files): `RESULT: PASS` after one allow row
+(`GetRemoteMortarMaxCount` GT_PVP: June `32c0a500 @32c0a56b` compares type == 1). `enumscan --check`: 0 A/B rows.
+DEPLOY OK: X2_offline.exe is 25,915,392 B, dated 2026-11-02 16:28:12, md5 04cd3eae6bb78e5dbd868e63d4f2dba2, equal to X2/US_SERVICE/x2.exe (2026-11-02 16:28:04); built at main 2e7d2468 + 7 uncommitted code file(s) (this phase's).
+EXESTR OK: 2 of 2 found (`[JUNE_CHAR] SUMMON npc %d uid %d skill`, `[JUNE_CHAR] CHUNG SKILL remote mortar uid %d added`, wide), md5 04cd3eae.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

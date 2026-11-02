@@ -3206,6 +3206,11 @@ public:
 		float								GetSummonPowerRateByBuff( const int iSkillID_ ) const;
 		/// June 31fc8200: the 54 summon skills whose 98 rate DoStateEndStart keeps for the summon power rate
 		static bool							IsSummonSkillBy( const int iSkillID_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		bool								TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
+		enum SUMMON_HELPER_FLAG { SHF_FIXED_HP = 0x1, SHF_OWN_HP = 0x2, SHF_OWN_ATK = 0x4, SHF_OWN_DEF = 0x8, SHF_NO_ATK_RATE = 0x20, SHF_SKILL_ABILITY_REL = 0x40, SHF_NUMBER_STORE = 0x200, SHF_POWER_RATE_LESS_ONE = 0x400 };	/// June 322ece70 flag bits
+		void								SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		/// Phase 6 console hook (DEBUG only): iMode_ 1 puts one new-type entry straight into its store, 0 takes it out, 2 only reads; the type's reader is logged each time.
 		/// 75 ( rate ), 89 ( skill type, rate ), 90 and 91 ( skill id, rate ), 103 ( skill type, speed ) have a store; 98, 99 and 100 only read (mode 2).

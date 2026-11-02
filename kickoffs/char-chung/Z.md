@@ -35,3 +35,9 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH3b0 (2026-11-02)
+
+- June `322ece70` is one `CX2GUUser::SetSummonHelperInfo` since CH3b0 (Eve's copy hidden under `#ifndef _CHUNG_SKILL`). Aisha's class copy
+  `X2GUArme_VioletMage::SetSummonStatAndPowerRate` (flags 0) still stands: fold its two callers into the user helper under `_CHUNG_SKILL` (flagcheck PASS,
+  one Aisha summon spawned in the play-test), and once `_CHUNG_SKILL` is permanent the Eve `#ifndef` copies can go with the template row.

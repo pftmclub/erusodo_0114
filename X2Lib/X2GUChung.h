@@ -868,6 +868,13 @@ public:
 	virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
 	virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
 	virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void				SetArtilleryStrikeType( const CHUNG_ARTILLERY_STIKE_TYPE eType_ ) { m_eArtilleryStrikeType = eType_; }	/// June 32bdb250 ( +0x97d4 )
+	void				SetHeavyFieldTargetingNPCUID( const int iNPCUID_ ) { m_iHeavyFieldTargetingNPCUID = iNPCUID_; }	/// June 3230c1a0 case 0x9dd ( +0x98e8 )
+	int					GetRemoteMortarMaxCount() const;	/// June 32c0a500
+	void				AddRemoteMortarNPCUID( const int iNPCUID_ );	/// June 32c11940
+	void				EraseRemoteMortarNPCUID( const int iNPCUID_, const bool bKill_ );	/// June 32c0a420
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 #ifdef SERV_CHUNG_TACTICAL_TROOPER
 	void				CreateRemoteMortar();							/// 박격포 소환 함수
@@ -1989,6 +1996,8 @@ protected:
 	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	bool						m_bAimingShotUsedExtraCannonBall;	/// June +0x98a8 ( ctor 0 ): the Aimming Shot spent extra cannon balls, so its explosion is AIMING_EXPLOSION_EXTRA ( CH2a )
+	std::vector<int>			m_vecRemoteMortarNPCUID;		/// June +0x97bc: the owner's live remote mortars, oldest first
+	int							m_iHeavyFieldTargetingNPCUID;	/// June +0x98e8 ( ctor -1 ): reader CSI_SA_CTT_HEAVY_FIELD_LOOP 32c0ba60 ( CH3c )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	int							m_iSnapshotCannonBallCount;		/// June +0x92c0 ( CX2GUUser snapshot region, ctor 0 ): the now cannon ball count StoreGageSnapshot keeps
 	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only
