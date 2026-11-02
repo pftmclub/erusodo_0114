@@ -2894,4 +2894,4 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"` 
   rewritten port lines and the `_SKILL_DEBUG` define. `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan`: 0 A/B ( C 6, D 1 ).
 - **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,924,096 B, dated 2026-11-02 20:05:52, md5 b52ba7070ab934977351d77f91e4e655,
   built at main 065ddf97 + `X2GUChung.cpp`, `Always.h`. EXESTR OK: 1 of 1 absent (wide `[JUNE_CHAR] CHUNG SKILL chaos cannon shot`), md5 b52ba707.
-- **Play-test (optional).** The fix only shows with Reload Mastery learned: Chaos Cannon outside berserk mode returns one ball at 0.315 s, sometimes two.
+- **Play-test (optional).** The fix only shows with Reload Mastery learned: Chaos Cannon outside berserk mode returns one ball at 0.315 s, sometimes two. Passed (user, 2026-11-02).
