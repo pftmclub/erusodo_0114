@@ -46,4 +46,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Hyper cut-in walk check (user: only available after transcendence).** On transcended 110 / 111 / 117 (`/tc 1`), run the awakening and read
   `[JUNE_CHAR] CHUNG UI hyper cut-in class <110|111|117> name HQ_Cutin_C{IP,DC,TT}_Transcendence` (`_1_Transcendence` in Berserk states) beside a `[JUNE_GFX] CUTIN play`.
-  CH5 shipped the `UnitTemplet` keys and the log line; no test could reach them before. `SetHyperModeCount` is not a console global: use the awakening command a prior walk used (Eve CH5: `SetHyperModeCount( 3 )` through the char-eve hand-off).
+  CH5 shipped the `UnitTemplet` keys and the log line; no test could reach them before. A bare `SetHyperModeCount( 3 )` in the console failed in CH5's play-test (nil global): find the working awakening command (Eve's CH5 hand-off used one) before writing the walk step.
