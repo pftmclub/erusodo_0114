@@ -14,4 +14,3 @@ X2GuEve.cpp	*	SetEnchantParticleShow	tsv 263: June's equip enchant-particle list
 X2UICharInfo.cpp	CX2UICharInfo::SumSocketOption	GT_PVP	June 3291b4b0 @3291b71a: game vslot 0x10c != 1 (type 1 only)
 *	*	SetShow	tsv CX2GageManager::SetShow (32489e30) -> Stage 9; the name is generic, so this row parks only that function (CX2UIQuickSlot::SetShow was ported in june-hud H4, 2026-10-31)
 X2GUUser.cpp	CX2GUUser::StartEnd	GT_PVP	June 3201b51d: the GameFightNew branch tests 322cc180 IsPvp (type 1 only)
-*	*	PhysicProcess_Jumping	tsv CX2GUUser::PhysicProcess_Jumping (31fd6ce0) -> char-chung CH1n3; the CH1n2 pepper-run bodies read only its +0x8fc1 flag (m_bOnJumpUpLine)

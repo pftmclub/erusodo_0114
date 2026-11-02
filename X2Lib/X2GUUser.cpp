@@ -1043,6 +1043,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 	m_bOnJumpUpLine = false;
 #endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#ifdef SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+	m_iLastJumpUpLineIndex = -1;		// June ctor @3204259a
+	m_dwLastJumpUpLineTouchTime = 0;
+#endif SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
 
 	m_fAnimSpeedRate = 1.f;
 	m_fAnimSpeed = 1.f;
@@ -25831,6 +25835,83 @@ void CX2GUUser::PhysicProcess()
 
 void CX2GUUser::PhysicProcess_Jumping( CKTDGLineMap* pLineMap )
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+	if( true == IsOnSomethingFuture() )
+	{
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( m_FrameDataFuture.syncData.lastTouchLineIndex );
+		if( NULL != pLineData )
+		{
+			if ( 0.f < pLineData->m_fKeyStopTime )
+				SetCanNotInputTime_LUA( pLineData->m_fKeyStopTime );
+
+			switch( pLineData->lineType )
+			{
+			case CKTDGLineMap::LT_JUMP_UP_REL:
+			case CKTDGLineMap::LT_JUMP_UP_ABS:
+				{
+					m_bOnJumpUpLine = true;		// June 31fd6d92 / 31fd702a: set before the state tests
+
+					if( USI_DAMAGE_DOWN_FRONT == GetNowStateID() ||
+						USI_DAMAGE_DOWN_BACK == GetNowStateID() ||
+						USI_DAMAGE_AIR_FALL == GetNowStateID() ||
+						USI_DAMAGE_AIR_DOWN_LANDING == GetNowStateID() )
+						break;
+
+					if( GetJumpDownStateID() == GetNowStateID() &&
+						true == m_InputData.pureDown &&
+						true == pLineMap->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+					{
+						m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.1f;
+						break;
+					}
+
+					const bool bRepeatTouchGuard = ( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() && 0.f < pLineData->m_fKeyStopTime );		// June 31fd6eec / 31fd719e
+					const DWORD dwNowTime = ( true == bRepeatTouchGuard ? timeGetTime() : 0 );
+
+					if( CKTDGLineMap::LT_JUMP_UP_REL == pLineData->lineType )
+					{
+						if ( CKTDGLineMap::LDO_RIGHT == pLineData->m_eDirection )
+						{
+							if ( false == GetIsRight() )
+								m_FrameDataFuture.syncData.bIsRight = true;
+						}
+						else if ( CKTDGLineMap::LDO_LEFT == pLineData->m_eDirection )
+						{
+							if ( true == GetIsRight() )
+								m_FrameDataFuture.syncData.bIsRight = false;
+						}
+
+						if ( false == bRepeatTouchGuard && 0.f < pLineData->m_fKeyStopTime )
+							SetCanNotInputTime_LUA( pLineData->m_fKeyStopTime );
+					}
+
+					m_bSteppedJumpLinemap = true;
+					PlaySound( L"HighJump.ogg" );
+					m_vAddJumpSpeed = pLineData->m_vJumpSpeed;
+					if( CKTDGLineMap::LT_JUMP_UP_ABS == pLineData->lineType && false == m_FrameDataFuture.syncData.bIsRight )
+						m_vAddJumpSpeed.x = -m_vAddJumpSpeed.x;
+
+					if( true == bRepeatTouchGuard )
+					{
+						if( m_iLastJumpUpLineIndex != pLineData->lineIndex )
+							m_iLastJumpUpLineIndex = pLineData->lineIndex;
+						else if( pLineData->m_fKeyStopTime < 0.001f * ( dwNowTime - m_dwLastJumpUpLineTouchTime ) )
+							SetCanNotInputTime_LUA( 0.f );		// June 31fd6fae / 31fd7295: same line touched again after its key stop ran out
+
+						m_dwLastJumpUpLineTouchTime = dwNowTime;
+					}
+				} break;
+
+			default:
+				{
+					m_iLastJumpUpLineIndex = -1;
+					m_dwLastJumpUpLineTouchTime = 0;
+					m_bOnJumpUpLine = false;
+				} break;
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
 	if( true == IsOnSomethingFuture()  )
 	{
 		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( m_FrameDataFuture.syncData.lastTouchLineIndex );
@@ -25942,6 +26023,7 @@ void CX2GUUser::PhysicProcess_Jumping( CKTDGLineMap* pLineMap )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
 }
 void CX2GUUser::PhysicProcess_Bungee( CKTDGLineMap* pLineMap )
 {

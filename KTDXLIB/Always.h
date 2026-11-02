@@ -11191,3 +11191,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: June character port ( Chung ) Phase CH1n3 - June's CX2GUUser::PhysicProcess_Jumping ( 31fd6ce0 ), every class: a jump-up line
+//              sets m_bOnJumpUpLine ( read by the pepper-run jump-up states ), any other foot line clears it; in a dungeon a key-stop jump pad
+//              touched again after its key stop ran out lifts the input lock ( repeat-touch guard ).
+//              Revert: undefine the flag ( JUNE_USER_JUMP_UP_LINE ).
+#define SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+#ifdef SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+#ifndef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#error SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE needs SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#ifndef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+#error SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+#endif SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+//////////////////////////////////////////////////////////////////////////

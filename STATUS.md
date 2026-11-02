@@ -175,8 +175,8 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1n3 | ready (CH1n2 review passed 2026-11-02; before CH1o, both touch `X2GUUser.*`): June's `PhysicProcess_Jumping` `31fd6ce0` (jump-up lines, writer of `m_bOnJumpUpLine`), every class, own flag | Opus 5.5 / high, Opus review, user play-test | CH1n2 review | `X2GUUser.cpp`, Always.h | `CH1n3.md` |
-| CH1o | ready after CH1n3 (one at a time, both touch `X2GUUser.*`): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
+| CH1n3 | done 2026-11-02, flag `JUNE_USER_JUMP_UP_LINE`: June's `PhysicProcess_Jumping` `31fd6ce0` (jump-up flag, repeat-touch guard), every class. **User owes:** play-test (4 checks), then review | Opus 5.5 / high, Opus review, user play-test | CH1n2 review | `X2GUUser.*`, Always.h | `CH1n3.md`, `CH1n3-review.md` |
+| CH1o | ready after CH1n3 review (one at a time, both touch `X2GUUser.*`): virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n2 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
 | CH1q | blocked (CH1p review): cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt `Chung_Iron_Cannon.lua`, pack / ask / copy, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |

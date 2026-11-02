@@ -1932,6 +1932,37 @@ known); the one unbound name, `AddGroupChainQuest` in `ChainQuestInfo.lua`, is q
 row(s)`. The one-file probe of `X2GUUser.cpp` gives 0 errors with `_LIVE` both off and on. Play-test (6 checks, 0 EXCEPTION) judged a pass. CH1n3 and CH1o
 are ready, one at a time (both touch `X2GUUser.*`); the `CH1n3.md` kickoff was checked.
 
+### CH1n3 - Done (2026-11-02)
+
+**Flag `SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE`** (defined, every class; guards: `_USER_BASE_STATE_BODIES`, `_LINEMAP_CANDOWN_SIGNATURE`). June's `CX2GUUser::PhysicProcess_Jumping`
+(`31fd6ce0`, read from the listing) inside March's function, March in `#else`. funcmap row `31fd6ce0` now `ported`.
+- **Entry** = March's: foot on line (`+0x7e1c` = `IsOnSomethingFuture()`), line from `lastTouchLineIndex`, key stop `+0xe4 > 0` -> `SetCanNotInputTime_LUA` (`+0xde8`).
+- **Types 4 / 5** (`LT_JUMP_UP_REL` / `_ABS`, June blocks `31fd7022` / `31fd6d86`, merged into one case): `m_bOnJumpUpLine = true` *before* the state tests. The four
+  tests are vslots 0x114 / 0x118 / 0x494 / 0x490, which return 0x1e / 0x1f / 0x26 / 0x25 (`USI_DAMAGE_DOWN_FRONT` / `_DOWN_BACK` / `_AIR_FALL` / `_AIR_DOWN_LANDING`,
+  vtable `334781f4`), the same set as March. The down-drop test is vslot 0x458 = `GetJumpDownStateID()` (Diverge D0c-1: same as March). `CanDown` `31c6c310` with
+  ( pos, 30, &landPosition, &index, &index, 1, 0, 1, 0 ) = March's `unsigned short*` overload; y -= 33 (`LINE_RADIUS * 1.1f`).
+- **Repeat-touch guard** (`31fd6eec` / `31fd719e`): `g_pMain +0x8c == XS_DUNGEON_GAME` (11) and key stop > 0. `[0x344c0178]` = `winmm!timeGetTime` (import table).
+  A new line (`LineData +0 lineIndex`) stores id and time. The same line clears the input lock when key stop < 0.001 x elapsed (`test ah, 5; jp`), then stores the time.
+  New members `m_iLastJumpUpLineIndex` (`+0x88f0`) and `m_dwLastJumpUpLineTouchTime` (`+0x88f4`); ctor -1 / 0 (`@3204259a`).
+- **REL:** direction `+0xe0` (2 `LDO_RIGHT` / 1 `LDO_LEFT`) on both paths. Its second key-stop write is only outside the guard (`31fd72eb`), as March's has it.
+  **ABS:** x flipped when facing left, no direction. Both: `m_bSteppedJumpLinemap`, `HighJump.ogg` (args ( name, true, false ) = March's defaults), `m_vAddJumpSpeed`.
+- **Other foot lines:** `+0x8fc1 = 0`, `+0x88f0 = -1`, `+0x88f4 = 0` (June's `default`, which March lacks). The CH1n2 pepper-run skip now goes live: on a pad,
+  PEPPER_RUN_JUMP_UP keeps the pad's own jump.
+- Divergence: `june_march_divergent.tsv` row marked `ported under`, `june_diverge_allow.tsv` row removed. No JUNE_BUGS row.
+- **Routed (scope fence):** Lu/Ciel overrides the four damage getters (`32b4d810` / `32b4d850` / `32b4d9d0`); March has no such virtuals. Stage 8 bullet
+  (`JUNE_PORT_BACKLOG_ORDER.md`). No other callee differs (`PlaySound` is already June's under `_DIVERGE_PLAY_SOUND`).
+
+**Checks.** `cl /P` of `X2GUUser.cpp`: June branch live, 9-arg CanDown present. One-file probe (`/Zs /EHsc`): exit 0, 0 errors. `git diff --stat`: Always.h +17,
+X2GUUser.cpp +82, X2GUUser.h +4, no deletions. `flagcheck JUNE_USER_JUMP_UP_LINE --worktree`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags),
+0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+`junediverge.py --check` (3 files): `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s)`.
+`DEPLOY OK: X2_offline.exe is 25,902,080 B, dated 2026-11-02 07:06:23, md5 26d1965e5fea78a2d7411f542b2d1868, equal to X2/US_SERVICE/x2.exe (2026-11-02 07:06:16); built at main 2d243c46 + 3 uncommitted code file(s).`
+`EXESTR OK: 1 of 1 found in X2_offline.exe, 25902080 B, dated 2026-11-02 07:06:23, md5 26d1965e5fea78a2d7411f542b2d1868` (`HighJump.ogg`, wide).
+
+**Play-test** (any class; Aisha or Eve): Garpai Rock (Sander, `DI_SANDER_GARPAI_ROCK_NORMAL` 33210; stages 1-3 have key-stop pads of 1-2 s) for the pad, the
+hold-down drop, the double touch and a pepper run (Hot Pepper `130507`). Dry Sander (33200) for the direction pads. Next: the play-test, then
+`/x2-phase char-chung CH1n3 review` (Opus 5.5 high); CH1o follows the review.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

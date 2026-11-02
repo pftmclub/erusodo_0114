@@ -4522,6 +4522,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 		bool											m_bOnJumpUpLine;		/// June +0x8fc1: the last foot line is a jump-up line ( written by PhysicProcess_Jumping 31fd6ce0 )
 #endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#ifdef SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
+		int												m_iLastJumpUpLineIndex;			/// June +0x88f0: the line of the last repeat-touch check ( -1 off a jump-up line )
+		DWORD											m_dwLastJumpUpLineTouchTime;	/// June +0x88f4: timeGetTime of that check
+#endif SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
 
 
 		float											m_fAnimSpeedRate;			/// 속성 데미지등에 의해 애니메이션 속도가 느려지는 경우, m_fAnimSpeed에 곱해진다.
