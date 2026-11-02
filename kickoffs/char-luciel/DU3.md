@@ -41,3 +41,7 @@ NU0 (2026-11-02), `nu0_equip_nesi.tsv` rows `DU3` and `nu0_duo_engine.tsv` rows 
 look), `31fd48a0` (Now anim for a form, vslot 0x570), `31fd63c0`, `31fd9200` / `31fda280` (the `MAJOR:` / `MINOR:` equip dump; labels rest on
 strings), `328825c0`, `32882540`. `31fd48a0`, `31fd63c0`, `32882540` have no March symbol. EP 28: June's second ring goes to `EP_AC_RING2` (28), March's
 `EP_AC_TEMP4` has the value: register the name (`321693b0` is DU5's, it uses it).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7g L407 item record +48 m_ItemIDForMinorUnit (429 Lu items -> Ciel dummy, 30344 -> 20003; §7g L408 item flags2 bit 2 m_bIsForMinorUnit (2,582 Ciel dummies); §7g L409 Extra accessors 32867660..32867960: unit type 10 -> key 10 (Lu) or 11 (Ciel) by ; §7z L683-688 CX2Eqip::_UpdateSkin 3295ae20 attaches every model for owner unit type 10 when t; §7aa L690-697 minor-unit attach-anim models: 3295dfa0 @3295e2cf-3295e4f6 builds the second ani; §7aa L698-701 UpdateEquipCollisionData pair (329657d0 reads basic items) is every-class, not L; §7as L994-1003 upgrade-weapon glow type 10 cases: InitUpgradeWeaponParticle 32299730, ProcessUp.

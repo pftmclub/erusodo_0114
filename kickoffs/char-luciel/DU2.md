@@ -48,3 +48,8 @@ NU0 (2026-11-02), `nu0_duo_engine.tsv` rows `DU2`. Base targets (vtable `334781f
 - the state-id predicates vslot 0x530 `3208e7d0`, 0x534 `3208e8c0` (all four), 0x538 `3208eb60`; `32296570`; DamageEffect `31f6eea0`; Aisha's
   InitState `32cea0c0`.
 Port the getters, then route every reader that has a March counterpart (map each in funcmap first; a reader with no March body is recorded).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7q L551-555 Luciel overrides all four down-state getters: make them virtual (or test the cla.
+- CH0 names the getters from the June registration ids (`ch0_hand_names.tsv`): 0x114 GetDamageDownFrontStateID (30), 0x118 GetDamageDownBackStateID (31), 0x48c GetDamageAirDownInvincibleStateID (36), 0x490 ...AirDownLanding (37), 0x494 ...AirFall (38), 0x458 GetJumpDownStateID. the Lu/Ciel bodies are transcribed in CH1k2 / CH1l.

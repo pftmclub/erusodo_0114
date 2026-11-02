@@ -1,0 +1,24 @@
+# totals	rows=301	no_state=301	has_state=0
+# Lu/Ciel S3 baseline (CH6 compares against this). Command: python june2017_re/s3_no_state.py --family X2GULuciel.cpp -o june2017_re/char_luciel/ch0_s3_baseline_rows.tsv (textual mode; March has no X2GULuciel.cpp/.h, so every row is no_state by construction)
+# tree rows: June NewSkillTempletVer2.src.lua AddSkillTreeTemplet_LUA with m_eUnitClass = UC_LUCIEL_* (301 rows), names from Enum.src.lua SKILL_ID, templet name/type from AddSkillTemplet_LUA; 137 distinct skill ids
+# per class (rows / no_state):
+#   UC_LUCIEL_DUO	19	19
+#   UC_LUCIEL_CHILIARCH	35	35
+#   UC_LUCIEL_ROYAL_GUARD	35	35
+#   UC_LUCIEL_DIABLURA	35	35
+#   UC_LUCIEL_DREAD_LORD	59	59
+#   UC_LUCIEL_NOBLESSE	59	59
+#   UC_LUCIEL_DEMONIO	59	59
+# s3_no_state.py edit: JUNE_ONLY_FAMILIES + june_only_rows() (rows read from June Lua when the family has none in s3_reform_ids_no_state.tsv; a missing March class file counts as empty). Shared tsv untouched.
+# re-run of the 9 existing families (output in june2017_re/char_luciel/s3_rerun/*.tsv) vs s3_reform_ids_no_state.tsv columns 1-20:
+#   tree columns 1-10: IDENTICAL for all 9 families. Verdict columns: NOT identical, because the tsv is a snapshot of older March source: Add/Ara/EL/Elsword/Lire/Raven differ only in in_cpp_enum/march_value_of_name/march_names_at_same_id/case_in_X2GUUser (March SKILL_ID gained June names since); Arme/Chung/Eve also differ in verdict (class ports landed: no_state now Arme 51, Chung 219 (was 254), Eve 33).
+#   X2GUAdd.cpp 97 97 DIFF tree_cols_same True {'in_cpp_enum': 7, 'march_value_of_name': 7, 'march_names_at_same_id': 7, 'case_in_X2GUUser_cpp': 7}
+#   X2GUAra.cpp 197 197 DIFF tree_cols_same True {'in_cpp_enum': 2, 'march_value_of_name': 2, 'march_names_at_same_id': 2, 'case_in_X2GUUser_cpp': 2}
+#   X2GUArme_VioletMage.cpp 267 267 DIFF tree_cols_same True {'in_cpp_enum': 233, 'cpp_case_in_family': 209, 'verdict': 209, 'march_value_of_name': 233, 'march_names_at_same_id': 233, 'cpp_any_token_in_family': 228, 'case_in_X2GUUser_cpp': 5}
+#   X2GUChung.cpp 261 261 DIFF tree_cols_same True {'in_cpp_enum': 98, 'march_value_of_name': 98, 'march_names_at_same_id': 98, 'cpp_any_token_in_family': 90, 'cpp_case_in_family': 35, 'verdict': 35, 'case_in_X2GUUser_cpp': 12}
+#   X2GUEL.cpp 179 179 DIFF tree_cols_same True {'in_cpp_enum': 4, 'march_value_of_name': 4, 'march_names_at_same_id': 4, 'case_in_X2GUUser_cpp': 4}
+#   X2GUElsword_SwordMan.cpp 261 261 DIFF tree_cols_same True {'in_cpp_enum': 7, 'march_value_of_name': 7, 'march_names_at_same_id': 7, 'case_in_X2GUUser_cpp': 3}
+#   X2GULire_ElvenRanger.cpp 267 267 DIFF tree_cols_same True {'in_cpp_enum': 9, 'march_value_of_name': 9, 'march_names_at_same_id': 9, 'case_in_X2GUUser_cpp': 9}
+#   X2GURaven.cpp 254 254 DIFF tree_cols_same True {'in_cpp_enum': 12, 'march_value_of_name': 12, 'march_names_at_same_id': 12, 'case_in_X2GUUser_cpp': 3}
+#   X2GuEve.cpp 261 261 DIFF tree_cols_same True {'in_cpp_enum': 250, 'cpp_case_in_family': 221, 'verdict': 221, 'march_value_of_name': 250, 'march_names_at_same_id': 250, 'cpp_any_token_in_family': 247, 'case_in_X2GUUser_cpp': 31}
+# re-run AFTER the s3_no_state.py edit: byte-identical to the pre-edit re-runs for 8 of 9 families; X2GUChung differs only in evidence line numbers (case@X2GUChung.cpp:5644 vs :5594) because X2Lib/X2GUChung.cpp is modified in the working tree by another session (git status ' M')

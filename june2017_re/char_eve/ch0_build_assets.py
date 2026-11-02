@@ -94,6 +94,38 @@ CHARS = {
              'NPC / shadow / bot copy of the character'),
         ],
     ),
+    'luciel': dict(
+        owner='char-luciel',
+        script='Luciel_Duo', lo=0x32ae4080, hi=0x32b4e76f,
+        extra_scripts=['Luciel_Demonio'],                            # second class script (route b literals; class script CH1)
+        string_refs=os.path.join(TRUNK, 'june2017_re', 'char_luciel', 'ghidra', 'range_string_refs.tsv'),   # strings the class code references (route b)
+        unit_type=10, unit_type_name='UT_LUCIEL',
+        unit_classes=[200, 37, 38, 39, 127, 128, 129],
+        tokens=['lu', 'ciel', 'luciel'],                             # whole token: "LuCiel" / "RuCiel" / "Mseh_Lu" split at the capital; "lucky" / "cielo" / "lucifer" are other tokens
+        abbr=['LLC', 'LCG', 'LDB', 'LLD', 'LCN', 'LDN', 'LCM'],      # not LD: 97 of 102 are Ara's Little Devil (Mesh_Ara_LD_*, LD_SLICER_*)
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet'),
+        short_re=re.compile(r'(?!)'),
+        job_re=re.compile(r'(?i)chiliarch|royal[_ ]?guard|diablura|dread[_ ]?lord|noblesse|demonio'),
+        lua_script='Luciel_Duo',
+        skill_lua=[],                                                # NPC / summon Lua reach the list through the class-script and class-code literals
+        extra_lua=['DLG_Transcendental_Change_Guide_Luciel', 'DLG_LUCIEL_BOUNDING_KEY', 'DLG_LUCIEL_TRANSFORM_SKILL_SLOT', 'DLG_Luciel_CombinationPoint'],
+        skill_icon_ranges=[(10000, 10601), (30001, 30606)],          # SI_ and RNSI_ skill ids
+        motion_glob=re.compile(r'(?i)^Motion_(CSM_)?(Lu|Ciel|LuCiel)_'),
+        march_motion_koms=('data033', 'data012'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)tuto', 'char-luciel', 'TU', 'tutorial dungeon / field asset (Tutorial_Luciel_*, Tuto_Lu_*, Dungeon_Tutorial_Luciel)'),
+            (r'(?i)^(DLG_(1ST|2ND)_)?Class_Change_Guide_Luciel|^DLG_Class_Change_Luciel_|^DLG_CC_|^DLG_INT_Button16_Luciel', 'char-luciel', 'CHN',
+             'class-change dialog / picture'),
+            (r'(?i)^DLG_UI_JUMPING_', 'stage9-ui', '-', 'jumping dialog'),
+            (r'(?i)^DLG_(Unit_|CU_|Background_Luciel)', 'char-luciel', 'NU4', 'creation / select screen dialog'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Luciel', 'char-luciel', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^DLG_(LUCIEL_BOUNDING_KEY|LUCIEL_TRANSFORM_SKILL_SLOT|Luciel_CombinationPoint)', 'char-luciel', 'CH5', 'two-body UI dialog Lua (adopt-june, not stage-june)'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^POPUP_TR_(NOBLESSE|D_LORD|DEMONIO)\.', 'char-luciel', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Luciel'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+        ],
+    ),
 }
 
 FILE_EXT = ('.dds', '.tga', '.bmp', '.png', '.jpg', '.jpeg', '.x', '.y', '.xet', '.ksm', '.ogg', '.wav', '.mp3', '.tet', '.gfx',
@@ -182,15 +214,18 @@ def motion_question(C, out_dir):
                 if d is not None:
                     june[e['name']] = (d, k.stem)
     march = {}
-    for dn in ('data033', 'data012'):
+    for dn in C.get('march_motion_koms', ('data033', 'data012')):
         dd = os.path.join(MARCH_DATA, dn)
         if os.path.isdir(dd):
             for f in os.listdir(dd):
                 if C['motion_glob'].match(f) and not f.lower().startswith('motion_event'):
                     raw = open(os.path.join(dd, f), 'rb').read()
                     march[f] = raw if raw[:4] == b'KSM ' else bytes(c ^ MARCH_XOR[i % 12] for i, c in enumerate(raw))
-    lua_m = open(os.path.join(MARCH_DATA, 'data036', C['lua_script'] + '.lua'), 'rb').read()
-    lua_j = open(os.path.join(CC.SRC_DIR, C['lua_script'] + '.src.lua'), 'rb').read().decode('utf-8', 'replace').split('\n')
+    lp = os.path.join(MARCH_DATA, 'data036', C['lua_script'] + '.lua')
+    lua_m = open(lp, 'rb').read() if os.path.isfile(lp) else b''     # a character March has no script for
+    lua_j = []
+    for sn in [C['lua_script']] + C.get('extra_scripts', []):
+        lua_j += open(os.path.join(CC.SRC_DIR, sn + '.src.lua'), 'rb').read().decode('utf-8', 'replace').split('\n')
     srcs = []
     for dn in ('X2Lib', 'KTDXLIB'):
         for f in sorted(os.listdir(os.path.join(TRUNK, dn))):
@@ -316,13 +351,23 @@ def main():
     n_a = len(info)
 
     # ---- route b1: class script literals
-    sp = os.path.join(CC.SRC_DIR, C['script'] + '.src.lua')
-    states = CC.script_states(sp)
     script_files = set()
-    for st, strs in states.items():
-        for s in strs:
-            if s and ext(s) in FILE_EXT and '%' not in s:
-                script_files.add(s)
+    for sname in [C['script']] + C.get('extra_scripts', []):
+        states = CC.script_states(os.path.join(CC.SRC_DIR, sname + '.src.lua'))
+        for st, strs in states.items():
+            for s in strs:
+                if s and ext(s) in FILE_EXT and '%' not in s:
+                    script_files.add(s)
+    n_code_refs = 0
+    if C.get('string_refs'):                                      # strings the class code references (Ghidra range census): file names only
+        with open(C['string_refs'], encoding='utf-8') as fh:
+            next(fh)
+            for line in fh:
+                p = line.rstrip('\n').split('\t')
+                if len(p) > 1 and p[1] and ext(p[1]) in FILE_EXT and '%' not in p[1] and p[1] not in script_files:
+                    script_files.add(p[1])
+                    n_code_refs += 1
+    log('class-code string refs added', n_code_refs)
     for s in sorted(script_files):
         add(s, 'b', 'named in %s' % C['script'])
     for sl in C['skill_lua']:
@@ -545,7 +590,7 @@ def main():
             note.append('Eve tutorial dungeon asset, not the character')
         elif kind == 'lua':
             stem = nm.rsplit('.', 1)[0]
-            if stem.lower() == C['lua_script'].lower():
+            if stem.lower() in [x.lower() for x in [C['lua_script']] + C.get('extra_scripts', [])]:
                 ph = 'CH1'
                 note.append('class script')
             elif stem in C['skill_lua'] or stem.lower() in [s.lower() for s in C['skill_lua']]:

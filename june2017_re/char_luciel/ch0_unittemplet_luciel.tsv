@@ -1,0 +1,293 @@
+# UnitTemplet.src.lua Lu/Ciel rows (UC_LUCIEL_DUO@1723, UC_LUCIEL_CHILIARCH@1765, UC_LUCIEL_ROYAL_GUARD@1807, UC_LUCIEL_DIABLURA@1849, UC_LUCIEL_DREAD_LORD@1891, UC_LUCIEL_NOBLESSE@1935, UC_LUCIEL_DEMONIO@1979); March live K/data036_kom/UnitTemplet.lua has 55 rows, 0 UC_LUCIEL
+# keys no other June class row has (18): m_HyperCutIn_Trans m_MinorUnitCommonMotion m_MinorUnitEmotionMotion m_MinorUnitFieldMotion m_MinorUnitGameMotion0 m_MinorUnitGameMotion1 m_MinorUnitGameMotion2 m_MinorUnitHyperCutIn m_MinorUnitHyperCutIn_Trans m_MinorUnitLobbyMotion m_MinorUnitPromotionBodyItemID m_MinorUnitPromotionFootItemID m_MinorUnitPromotionHandItemID m_MinorUnitPromotionLegItemID m_MinorUnitPromotionWeaponItemID m_fMinorUnitLobbyRotationY majorUnitName minorUnitName
+# keys absent from every March live row (18): m_HyperCutIn_Trans m_MinorUnitCommonMotion m_MinorUnitEmotionMotion m_MinorUnitFieldMotion m_MinorUnitGameMotion0 m_MinorUnitGameMotion1 m_MinorUnitGameMotion2 m_MinorUnitHyperCutIn m_MinorUnitHyperCutIn_Trans m_MinorUnitLobbyMotion m_MinorUnitPromotionBodyItemID m_MinorUnitPromotionFootItemID m_MinorUnitPromotionHandItemID m_MinorUnitPromotionLegItemID m_MinorUnitPromotionWeaponItemID m_fMinorUnitLobbyRotationY majorUnitName minorUnitName
+# STR check: general.ess = live game-dir text table (id<TAB>text, XOR 0x10, utf-16le); sd_live = STR_ID_n defined in live data036 StringID_def.src.lua; sd_june = defined in June StringID_def.src.lua
+unit_class	key	june_value	only_lu_ciel_key	str_id	in_general_ess	sd_live	sd_june	march_text
+UC_LUCIEL_DUO	basicBodyItemID	41872	n					
+UC_LUCIEL_DUO	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_DUO	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_DUO	m_GameMotion1	""	n					
+UC_LUCIEL_DUO	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_DUO	m_MinorUnitPromotionFootItemID	41904	y					
+UC_LUCIEL_DUO	promotionBodyItemID	41891	n					
+UC_LUCIEL_DUO	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_DUO	promotionWeaponItemID	41890	n					
+UC_LUCIEL_DUO	m_MinorUnitPromotionWeaponItemID	41900	y					
+UC_LUCIEL_DUO	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_DUO	basicLegItemID	41873	n					
+UC_LUCIEL_DUO	basicHairItemID	41870	n					
+UC_LUCIEL_DUO	promotionLegItemID	41892	n					
+UC_LUCIEL_DUO	m_MinorUnitPromotionHandItemID	41903	y					
+UC_LUCIEL_DUO	basicFootItemID	41875	n					
+UC_LUCIEL_DUO	m_MinorUnitPromotionLegItemID	41902	y					
+UC_LUCIEL_DUO	m_MinorUnitPromotionBodyItemID	41901	y					
+UC_LUCIEL_DUO	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_DUO	basicHandItemID	41874	n					
+UC_LUCIEL_DUO	m_MinorUnitGameMotion2	""	y					
+UC_LUCIEL_DUO	promotionHandItemID	41893	n					
+UC_LUCIEL_DUO	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_DUO	m_fLobbyRotationY	30	n					
+UC_LUCIEL_DUO	basicFaceItemID	41871	n					
+UC_LUCIEL_DUO	basicWeaponItemID	41876	n					
+UC_LUCIEL_DUO	m_MinorUnitGameMotion1	""	y					
+UC_LUCIEL_DUO	m_fMinorUnitLobbyRotationY	30	y					
+UC_LUCIEL_DUO	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_DUO	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_DUO	introMovieFIleName	"Movie_Create_Luciel_Base.avi"	n					
+UC_LUCIEL_DUO	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_DUO	m_GameMotion2	""	n					
+UC_LUCIEL_DUO	promotionFootItemID	41894	n					
+UC_LUCIEL_DUO	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_DUO	unitClass	UNIT_CLASS.UC_LUCIEL_DUO	n					
+UC_LUCIEL_DUO	name	STR_ID_33020	n	33020	y	y	y	Lu/Ciel
+UC_LUCIEL_DUO	majorUnitName	STR_ID_33021	y	33021	y	y	y	Lu
+UC_LUCIEL_DUO	minorUnitName	STR_ID_33022	y	33022	y	y	y	Ciel
+UC_LUCIEL_DUO	description	STR_ID_33020	n	33020	y	y	y	Lu/Ciel
+UC_LUCIEL_CHILIARCH	basicBodyItemID	41872	n					
+UC_LUCIEL_CHILIARCH	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_CHILIARCH	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_CHILIARCH	m_GameMotion1	"Motion_Lu_LC.x"	n					
+UC_LUCIEL_CHILIARCH	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitPromotionFootItemID	41904	y					
+UC_LUCIEL_CHILIARCH	promotionBodyItemID	135624	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_CHILIARCH	promotionWeaponItemID	135623	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitPromotionWeaponItemID	41900	y					
+UC_LUCIEL_CHILIARCH	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_CHILIARCH	basicLegItemID	41873	n					
+UC_LUCIEL_CHILIARCH	basicHairItemID	135628	n					
+UC_LUCIEL_CHILIARCH	promotionLegItemID	135625	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitPromotionHandItemID	41903	y					
+UC_LUCIEL_CHILIARCH	basicFootItemID	41875	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitPromotionLegItemID	41902	y					
+UC_LUCIEL_CHILIARCH	m_MinorUnitPromotionBodyItemID	41901	y					
+UC_LUCIEL_CHILIARCH	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_CHILIARCH	basicHandItemID	41874	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitGameMotion2	""	y					
+UC_LUCIEL_CHILIARCH	promotionHandItemID	135626	n					
+UC_LUCIEL_CHILIARCH	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_CHILIARCH	m_fLobbyRotationY	25	n					
+UC_LUCIEL_CHILIARCH	basicFaceItemID	41871	n					
+UC_LUCIEL_CHILIARCH	basicWeaponItemID	41876	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitGameMotion1	"Motion_Ciel_LC.x"	y					
+UC_LUCIEL_CHILIARCH	m_fMinorUnitLobbyRotationY	25	y					
+UC_LUCIEL_CHILIARCH	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_CHILIARCH	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_CHILIARCH	introMovieFIleName	"Movie_Create_Luciel_LD.avi"	n					
+UC_LUCIEL_CHILIARCH	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_CHILIARCH	m_GameMotion2	""	n					
+UC_LUCIEL_CHILIARCH	promotionFootItemID	135627	n					
+UC_LUCIEL_CHILIARCH	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_CHILIARCH	unitClass	UNIT_CLASS.UC_LUCIEL_CHILIARCH	n					
+UC_LUCIEL_CHILIARCH	name	STR_ID_33628	n	33628	y	y	y	Chiliarch
+UC_LUCIEL_CHILIARCH	majorUnitName	STR_ID_33659	y	33659	y	y	y	Lu (Chiliarch)
+UC_LUCIEL_CHILIARCH	minorUnitName	STR_ID_33660	y	33660	y	y	y	Ciel (Chiliarch)
+UC_LUCIEL_CHILIARCH	description	STR_ID_33626	n	33626	y	y	y	Lu/Ciel (Chiliarch)
+UC_LUCIEL_ROYAL_GUARD	basicBodyItemID	41872	n					
+UC_LUCIEL_ROYAL_GUARD	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_ROYAL_GUARD	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_ROYAL_GUARD	m_GameMotion1	"Motion_Lu_CG.x"	n					
+UC_LUCIEL_ROYAL_GUARD	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitPromotionFootItemID	135633	y					
+UC_LUCIEL_ROYAL_GUARD	promotionBodyItemID	41891	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_ROYAL_GUARD	promotionWeaponItemID	41890	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitPromotionWeaponItemID	135629	y					
+UC_LUCIEL_ROYAL_GUARD	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_ROYAL_GUARD	basicLegItemID	41873	n					
+UC_LUCIEL_ROYAL_GUARD	basicHairItemID	41935	n					
+UC_LUCIEL_ROYAL_GUARD	promotionLegItemID	41892	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitPromotionHandItemID	135632	y					
+UC_LUCIEL_ROYAL_GUARD	basicFootItemID	41875	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitPromotionLegItemID	135631	y					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitPromotionBodyItemID	135630	y					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_ROYAL_GUARD	basicHandItemID	41874	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitGameMotion2	""	y					
+UC_LUCIEL_ROYAL_GUARD	promotionHandItemID	41893	n					
+UC_LUCIEL_ROYAL_GUARD	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_ROYAL_GUARD	m_fLobbyRotationY	20	n					
+UC_LUCIEL_ROYAL_GUARD	basicFaceItemID	41871	n					
+UC_LUCIEL_ROYAL_GUARD	basicWeaponItemID	41876	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitGameMotion1	"Motion_Ciel_CG.x"	y					
+UC_LUCIEL_ROYAL_GUARD	m_fMinorUnitLobbyRotationY	30	y					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_ROYAL_GUARD	introMovieFIleName	"Movie_Create_Luciel_CN.avi"	n					
+UC_LUCIEL_ROYAL_GUARD	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_ROYAL_GUARD	m_GameMotion2	""	n					
+UC_LUCIEL_ROYAL_GUARD	promotionFootItemID	41894	n					
+UC_LUCIEL_ROYAL_GUARD	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_ROYAL_GUARD	unitClass	UNIT_CLASS.UC_LUCIEL_ROYAL_GUARD	n					
+UC_LUCIEL_ROYAL_GUARD	name	STR_ID_33629	n	33629	y	y	y	Royal\nGuard
+UC_LUCIEL_ROYAL_GUARD	majorUnitName	STR_ID_33661	y	33661	y	y	y	Lu (Royal Guard)
+UC_LUCIEL_ROYAL_GUARD	minorUnitName	STR_ID_33662	y	33662	y	y	y	Ciel (Royal Guard)
+UC_LUCIEL_ROYAL_GUARD	description	STR_ID_33627	n	33627	y	y	y	Lu/Ciel (Royal Guard)
+UC_LUCIEL_DIABLURA	basicBodyItemID	41872	n					
+UC_LUCIEL_DIABLURA	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_DIABLURA	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_DIABLURA	m_GameMotion1	"Motion_Lu_LDB.x"	n					
+UC_LUCIEL_DIABLURA	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitPromotionFootItemID	41904	y					
+UC_LUCIEL_DIABLURA	promotionBodyItemID	42104	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_DIABLURA	promotionWeaponItemID	42103	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitPromotionWeaponItemID	41900	y					
+UC_LUCIEL_DIABLURA	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_DIABLURA	basicLegItemID	41873	n					
+UC_LUCIEL_DIABLURA	basicHairItemID	42101	n					
+UC_LUCIEL_DIABLURA	promotionLegItemID	42105	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitPromotionHandItemID	41903	y					
+UC_LUCIEL_DIABLURA	basicFootItemID	41875	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitPromotionLegItemID	41902	y					
+UC_LUCIEL_DIABLURA	m_MinorUnitPromotionBodyItemID	41901	y					
+UC_LUCIEL_DIABLURA	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_DIABLURA	basicHandItemID	41874	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitGameMotion2	""	y					
+UC_LUCIEL_DIABLURA	promotionHandItemID	42106	n					
+UC_LUCIEL_DIABLURA	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_DIABLURA	m_fLobbyRotationY	1	n					
+UC_LUCIEL_DIABLURA	basicFaceItemID	42102	n					
+UC_LUCIEL_DIABLURA	basicWeaponItemID	41876	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitGameMotion1	"Motion_Ciel_LDB.x"	y					
+UC_LUCIEL_DIABLURA	m_fMinorUnitLobbyRotationY	30	y					
+UC_LUCIEL_DIABLURA	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_DIABLURA	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_DIABLURA	introMovieFIleName	"Movie_Create_Luciel_LN.avi"	n					
+UC_LUCIEL_DIABLURA	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_DIABLURA	m_GameMotion2	""	n					
+UC_LUCIEL_DIABLURA	promotionFootItemID	42107	n					
+UC_LUCIEL_DIABLURA	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_DIABLURA	unitClass	UNIT_CLASS.UC_LUCIEL_DIABLURA	n					
+UC_LUCIEL_DIABLURA	name	STR_ID_39438	n	39438	y	y	y	Diabla
+UC_LUCIEL_DIABLURA	majorUnitName	STR_ID_39439	y	39439	y	y	y	Lu (Diabla)
+UC_LUCIEL_DIABLURA	minorUnitName	STR_ID_39440	y	39440	y	y	y	Ciel (Diabla)
+UC_LUCIEL_DIABLURA	description	STR_ID_39441	n	39441	y	y	y	Lu/Ciel (Diabla)
+UC_LUCIEL_DREAD_LORD	basicBodyItemID	41872	n					
+UC_LUCIEL_DREAD_LORD	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_DREAD_LORD	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_DREAD_LORD	m_GameMotion1	"Motion_Lu_LC.x"	n					
+UC_LUCIEL_DREAD_LORD	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitPromotionFootItemID	135641	y					
+UC_LUCIEL_DREAD_LORD	promotionBodyItemID	135624	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_DREAD_LORD	promotionWeaponItemID	135623	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitPromotionWeaponItemID	135637	y					
+UC_LUCIEL_DREAD_LORD	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_DREAD_LORD	basicLegItemID	41873	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitHyperCutIn	"HQ_Cutin_LLD_CIEL_Transcendence"	y					
+UC_LUCIEL_DREAD_LORD	promotionLegItemID	135625	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitPromotionHandItemID	135640	y					
+UC_LUCIEL_DREAD_LORD	basicFootItemID	41875	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitPromotionLegItemID	135639	y					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitPromotionBodyItemID	135638	y					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_DREAD_LORD	basicHandItemID	41874	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitGameMotion2	"Motion_Ciel_LD.x"	y					
+UC_LUCIEL_DREAD_LORD	m_HyperCutIn	"HQ_Cutin_LLD_LU_Transcendence"	n					
+UC_LUCIEL_DREAD_LORD	promotionHandItemID	135626	n					
+UC_LUCIEL_DREAD_LORD	basicHairItemID	135649	n					
+UC_LUCIEL_DREAD_LORD	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_DREAD_LORD	m_fLobbyRotationY	1	n					
+UC_LUCIEL_DREAD_LORD	basicFaceItemID	135651	n					
+UC_LUCIEL_DREAD_LORD	basicWeaponItemID	41876	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitGameMotion1	"Motion_Ciel_LC.x"	y					
+UC_LUCIEL_DREAD_LORD	m_fMinorUnitLobbyRotationY	20	y					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_DREAD_LORD	introMovieFIleName	"Movie_Create_Luciel_LD.avi"	n					
+UC_LUCIEL_DREAD_LORD	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_DREAD_LORD	m_GameMotion2	"Motion_Lu_LD.x"	n					
+UC_LUCIEL_DREAD_LORD	promotionFootItemID	135627	n					
+UC_LUCIEL_DREAD_LORD	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_DREAD_LORD	unitClass	UNIT_CLASS.UC_LUCIEL_DREAD_LORD	n					
+UC_LUCIEL_DREAD_LORD	name	STR_ID_33865	n	33865	y	y	y	Dreadlord
+UC_LUCIEL_DREAD_LORD	majorUnitName	STR_ID_33866	y	33866	y	y	y	Lu (Dreadlord)
+UC_LUCIEL_DREAD_LORD	minorUnitName	STR_ID_33867	y	33867	y	y	y	Ciel (Dreadlord)
+UC_LUCIEL_DREAD_LORD	description	STR_ID_33868	n	33868	y	y	y	Lu/Ciel (Dreadlord)
+UC_LUCIEL_NOBLESSE	basicBodyItemID	41872	n					
+UC_LUCIEL_NOBLESSE	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_NOBLESSE	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_NOBLESSE	m_GameMotion1	"Motion_Lu_CG.x"	n					
+UC_LUCIEL_NOBLESSE	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitPromotionFootItemID	135633	y					
+UC_LUCIEL_NOBLESSE	promotionBodyItemID	135644	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_NOBLESSE	promotionWeaponItemID	135643	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitPromotionWeaponItemID	135629	y					
+UC_LUCIEL_NOBLESSE	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_NOBLESSE	basicLegItemID	41873	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitHyperCutIn	"HQ_Cutin_LCN_CIEL_Transcendence"	y					
+UC_LUCIEL_NOBLESSE	promotionLegItemID	135645	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitPromotionHandItemID	135632	y					
+UC_LUCIEL_NOBLESSE	basicFootItemID	41875	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitPromotionLegItemID	135631	y					
+UC_LUCIEL_NOBLESSE	m_MinorUnitPromotionBodyItemID	135630	y					
+UC_LUCIEL_NOBLESSE	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_NOBLESSE	basicHandItemID	41874	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitGameMotion2	"Motion_Ciel_CN.x"	y					
+UC_LUCIEL_NOBLESSE	m_HyperCutIn	"HQ_Cutin_LCN_LU_Transcendence"	n					
+UC_LUCIEL_NOBLESSE	promotionHandItemID	135646	n					
+UC_LUCIEL_NOBLESSE	basicHairItemID	135648	n					
+UC_LUCIEL_NOBLESSE	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_NOBLESSE	m_fLobbyRotationY	-5	n					
+UC_LUCIEL_NOBLESSE	basicFaceItemID	135653	n					
+UC_LUCIEL_NOBLESSE	basicWeaponItemID	41876	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitGameMotion1	"Motion_Ciel_CG.x"	y					
+UC_LUCIEL_NOBLESSE	m_fMinorUnitLobbyRotationY	35	y					
+UC_LUCIEL_NOBLESSE	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_NOBLESSE	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_NOBLESSE	introMovieFIleName	"Movie_Create_Luciel_CN.avi"	n					
+UC_LUCIEL_NOBLESSE	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_NOBLESSE	m_GameMotion2	"Motion_Lu_CN.x"	n					
+UC_LUCIEL_NOBLESSE	promotionFootItemID	135647	n					
+UC_LUCIEL_NOBLESSE	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_NOBLESSE	unitClass	UNIT_CLASS.UC_LUCIEL_NOBLESSE	n					
+UC_LUCIEL_NOBLESSE	name	STR_ID_33869	n	33869	y	y	y	Noblesse
+UC_LUCIEL_NOBLESSE	majorUnitName	STR_ID_33870	y	33870	y	y	y	Lu (Noblesse)
+UC_LUCIEL_NOBLESSE	minorUnitName	STR_ID_33871	y	33871	y	y	y	Ciel (Noblesse)
+UC_LUCIEL_NOBLESSE	description	STR_ID_33872	n	33872	y	y	y	Lu/Ciel (Noblesse)
+UC_LUCIEL_DEMONIO	basicBodyItemID	41872	n					
+UC_LUCIEL_DEMONIO	m_FieldMotion	"Motion_Lu_Field.x"	n					
+UC_LUCIEL_DEMONIO	m_CommonMotion	"Motion_Lu_Common.x"	n					
+UC_LUCIEL_DEMONIO	m_GameMotion1	"Motion_Lu_LDB.x"	n					
+UC_LUCIEL_DEMONIO	m_GameMotion0	"Motion_Lu.x"	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitPromotionFootItemID	42115	y					
+UC_LUCIEL_DEMONIO	promotionBodyItemID	42104	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitGameMotion0	"Motion_Ciel.x"	y					
+UC_LUCIEL_DEMONIO	promotionWeaponItemID	42103	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitPromotionWeaponItemID	42111	y					
+UC_LUCIEL_DEMONIO	m_LobbyMotion	"Motion_Lu_Lobby.x"	n					
+UC_LUCIEL_DEMONIO	basicLegItemID	41873	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitHyperCutIn	"HQ_Cutin_LDN_CIEL_Transcendence"	y					
+UC_LUCIEL_DEMONIO	promotionLegItemID	42105	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitPromotionHandItemID	42114	y					
+UC_LUCIEL_DEMONIO	basicFootItemID	41875	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitPromotionLegItemID	42113	y					
+UC_LUCIEL_DEMONIO	m_MinorUnitPromotionBodyItemID	42112	y					
+UC_LUCIEL_DEMONIO	m_MinorUnitEmotionMotion	"Motion_Ciel_Emotion.x"	y					
+UC_LUCIEL_DEMONIO	basicHandItemID	41874	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitGameMotion2	"Motion_Ciel_LDN.x"	y					
+UC_LUCIEL_DEMONIO	m_HyperCutIn	"HQ_Cutin_LDN_LU_Transcendence"	n					
+UC_LUCIEL_DEMONIO	promotionHandItemID	42106	n					
+UC_LUCIEL_DEMONIO	basicHairItemID	42117	n					
+UC_LUCIEL_DEMONIO	m_HyperCutIn_Trans	"HQ_Cutin_LDN_LU_Transcendence_Trans"	y					
+UC_LUCIEL_DEMONIO	m_MinorUnitHyperCutIn_Trans	"HQ_Cutin_LDN_CIEL_Transcendence_Trans"	y					
+UC_LUCIEL_DEMONIO	m_EmotionMotion	"Motion_Lu_Emotion.x"	n					
+UC_LUCIEL_DEMONIO	m_fLobbyRotationY	1	n					
+UC_LUCIEL_DEMONIO	basicFaceItemID	42118	n					
+UC_LUCIEL_DEMONIO	basicWeaponItemID	41876	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitGameMotion1	"Motion_Ciel_LDB.x"	y					
+UC_LUCIEL_DEMONIO	m_fMinorUnitLobbyRotationY	-5	y					
+UC_LUCIEL_DEMONIO	m_MinorUnitLobbyMotion	"Motion_Ciel_Lobby.x"	y					
+UC_LUCIEL_DEMONIO	m_MinorUnitCommonMotion	"Motion_Ciel_Common.x"	y					
+UC_LUCIEL_DEMONIO	introMovieFIleName	"Movie_Create_Luciel_LN.avi"	n					
+UC_LUCIEL_DEMONIO	m_MinorUnitFieldMotion	"Motion_Ciel_Field.x"	y					
+UC_LUCIEL_DEMONIO	m_GameMotion2	"Motion_Lu_LDN.x"	n					
+UC_LUCIEL_DEMONIO	promotionFootItemID	42107	n					
+UC_LUCIEL_DEMONIO	unitType	UNIT_TYPE.UT_LUCIEL	n					
+UC_LUCIEL_DEMONIO	unitClass	UNIT_CLASS.UC_LUCIEL_DEMONIO	n					
+UC_LUCIEL_DEMONIO	name	STR_ID_39442	n	39442	y	y	y	Demonio
+UC_LUCIEL_DEMONIO	majorUnitName	STR_ID_39443	y	39443	y	y	y	Lu (Demonio)
+UC_LUCIEL_DEMONIO	minorUnitName	STR_ID_39444	y	39444	y	y	y	Ciel (Demonio)
+UC_LUCIEL_DEMONIO	description	STR_ID_39445	n	39445	y	y	y	Lu/Ciel (Demonio)

@@ -201,6 +201,59 @@ to `charport_adis.py`'s `CLASS_RANGE`.
 **Done gate:** the tsvs exist; `ch0c_listing_check.py` passes; every function has a sub-phase and a name; 406 + 158 tables and 195 ids mapped;
 the S3 baseline exists; assets union routes a / b / c; the summon map exists; the stat question is with the user; kickoffs amended.
 
+### CH0 - Done (2026-11-02)
+
+Read-only, no flag, no build (Opus 5.5 high; Sonnet subagents ran the builders, each claim below spot-checked). Outputs and their builders are in
+`june2017_re/char_luciel/` (`ch0_*.py`, rerun order in each docstring); `charport_adis.py` has `luciel`; `s3_no_state.py` has the 7 Lu/Ciel families;
+`char_eve/ch0_build_assets.py` has a `luciel` entry (run it with `--out`). 139 funcmap rows `Char Luciel CH0` (`ch0_funcmap_new_rows.tsv`).
+
+**Step 0.** GhidraMCP has no create-function endpoint, so nothing was carved: uncarved functions (1,144 of 1,643 starts) are read with capstone
+(`charport_adis.py luciel`). `charport_states.py init 32b43d10 32b3e8b0 3202b110` -> `ch0_reg.tsv`, 364 rows; `ch0c_listing_check.py` **364 / 364**
+(re-run by me), no `~` rows; the 5 std::string rows are the START / WIN / LOSE rolls (9 / 11 / 12) and hyper 23 / 204 (8 names by class).
+
+**Maps**
+- `ch0_class_map.tsv` (1,643 starts): **867 to transcribe** (651 state-fn, 119 overrides, 93 helpers, 3 own virtuals, 1 registrar), 731 thunks, 27 dead,
+  18 not Lu/Ciel. Names: every state-fn, 105 of 122 vtable rows, 33 of 93 helpers; 75 stay `?` with a hint (names in `ch0_hand_names.tsv`).
+  The state-id getter band (0x114 / 0x118 / 0x438-0x4a4 / 0x5c4) returns June ids: **June inserts a state at 24**, so 25 = DAMAGE_GROGGY ... 42 =
+  DAMAGE_REVENGE (NU0's DU2 note agrees); never count March's enum. `31fc9d90` / `31fc9d50` = CX2GUUser transformed-form flags (+0x8f6e Lu,
+  +0x8f6f Ciel; 2 = either, 3 = both), checked in the bytes.
+- `ch0_state_skill.tsv`: **564 tables** (553 phased, 5 dead, 6 INIT_*, 0 unassigned) + 46 registered names with no table; **198 ids** (195 templets +
+  106 / 900 / 208), 301 tree rows (271 with a state, 30 passive). Prefixes: `LD` / `LUCIEL` 200, `LLC` 37, `LCG` 38, `LDB` 39, `LLD` 127, `LCN` 128, `LDN` 129.
+  State ids 7-592 (16-bit already, `SERV_IRUHADEV_JUNE_USER_STATE_ID16`); no `LSI_` in either `Enum.lua`.
+- `ch0_skill.tsv`: the uncarved setter `32b46580` via a listing emulator: **64 cases, 112 ids**; 12 states are set elsewhere (InitStateCommon, vslot 0x57c).
+- `ch0_vtable_all.tsv` (547) / `ch0_vtable_slots.tsv` (122). `ch0_keys.tsv` (357; census counts match the plan): owners per key. `ch0_checklist_rows.tsv`
+  171 rows (43 n/a, 36 NU / DU with "NU0 confirms"). `ch0_s3_baseline.txt`: 301 rows, all no_state.
+- Assets: `ch0_assets.tsv` 17,227; **`ch0b_stage_list.tsv` 14,609** (dry run 37 koms, 0 refused, 4 new kom dirs); `ch0_effect_closure.tsv` 13,049 rows,
+  572 missing. **127 motions, not 125**; the 4 same-name ones are already June's bytes. `skillicons` both ranges FAIL until CH0b copies 12 sheets.
+- Summons (`ch0_summons.tsv`): 3 class spawn sites, 1906 (LLD, `@32b20486`), 1908 (LCN, `@32b2fe73`), 2269 (LDN, `@32b340ce`); 2270 is spawned by the
+  Garden NPC's Lua; **1907 `NUI_SI_A_LCN_SHADOW` is spawned by nothing** (June ships no script; the shadow is DamageEffect `Mesh_LCN_SHADOW`).
+  `luabind` PASS for 4 scripts, Garden FAIL (4 unbound). The dtor / ReInit look up 2269, so CH1a registers its name.
+- Item 9: `ch0_enum_names.tsv`: 7 of 195 ids in the C++ enum by name, 68 in the core `Enum.lua`, 126 in neither; **none unnamed in June**.
+  `ch0_unittemplet_luciel.tsv`: all 28 name / description STR ids exist in March's `general.ess`; the 18 June-only keys = NU0's.
+- Item 6: 379 out-of-class callees, 131 unmapped (72 confirmed, 57 candidate, 2 unknown); 21 + the transform-link group need Opus.
+
+**Phase changes** (kickoffs amended by `ch0_amend_kickoffs.py`; STATUS rewired):
+- Merged: **CH1c -> CH1b** (41), **CH1e -> CH1d** (30), **CH1j -> CH1i** (45, riding is 3 functions). Split: CH1f / **CH1f2**, CH1g / **CH1g2**, CH1k /
+  **CH1k2**, CH1l / **CH1l2** / **CH1l3**, CH2c / **CH2c2**, CH2d / **CH2d2**, CH3c / **CH3c2** (CH1h 47 stays whole).
+- New Opus helper phases: **CH1a0** (gauge class, transform link, hold-key selector, switching guide; before CH1a, after DU1), **CH1k0** (buff
+  Time-finalizer passes), **CH1l30** (unit scans, effect aim), **CH2d20** (transform HUD), **CH3c20** (`SLockOnSystem::ProcessLockOn` out of
+  `CX2GUAra`, Garden binders). **CH2a0 -> CH3a0** (first spawn is 127's). `31fd6260` / `31fdd8e0` go to DU1.
+- InitState pushes the ten passive delegates (7am): nine are CH4a's, `AddCombinationPointOnHit` `32b14bc0` CH1p's; CH1m keeps 4 functions.
+- **Corrections to the plan:** `LSI_A_*` are actives, not combos (CH1f is `*_COMBO_*`); `Enum.lua` also needs the `CUSTOM_RENDER_STATE` table
+  (CH1p); `DLG_LUCIEL_BOUNDING_KEY.lua` is adopted at CH1 (Init reads it), the two other Lu/Ciel dialogs at CH5; the `CommonStateStart` key
+  parse is DU1's (NU0 agrees); of the checklist's type-10 branches, L274 (`BOUNDING_UP` StateStart `31fd02d0`) is DU1's, L379 / L454 CH4b's, L471 CH1i's
+  (none of the four is in NU0's tsvs, so their kickoffs carry them).
+
+Functions per phase: CH1a 21, CH1b 41, CH1d 30, CH1f 39, CH1f2 38, CH1g 38, CH1g2 38, CH1h 47, CH1i 45, CH1k 31, CH1k2 30, CH1l 32, CH1l2 32,
+CH1l3 32, CH1m 4, CH1n 1, CH1p 1, CH2a 32, CH2b 27, CH2c 35, CH2c2 35, CH2d 31, CH2d2 31, CH3a 26, CH3b 45, CH3c 41, CH3c2 40, CH3d 7, CH4a 15, CH4c 2.
+
+**Stat rows (item 8, with the user).** June has **no per-level table** for Lu/Ciel: `CharacterStatTable` is gear-stat scaling (one relative row per
+unit type, `UT_LUCIEL` :166-173 `430, 98, 410, 93, 10000`; second-class rows 127 / 128 / 129 :417-433; 37 / 38 / 39 / 200 use the type row), and no
+June server `StatTable` exists here. But **every existing `StatTable.lua` row (50 classes, levels 1-80, 4,000 rows) is that relative row x (0.8 +
+0.0225 (L-1)), HP x (1 + 0.15 (L-1)), within 1** (`ch0_stat_fit.tsv`; spot-checked Elsword L1 / L40, Lord Knight L1 / L40); second jobs start at 0.8 x
+their own row and then follow the type curve; 81-99 is `cap99_gen.py`'s extension. Trap for NU4: once the templet exists, `UnitTypeOf` maps 200 to
+type 10 and the fallback silently reads Knight's class-10 rows.
+
 ## Phase NU0 - New-unit and two-body engine map (read-only)
 
 **Run with:** Opus 5.5 high, beside CH0. No code. Outputs `june2017_re/char_luciel/nu0_*.tsv`, funcmap rows `Char Luciel NU0`.
@@ -442,4 +495,4 @@ Settled at planning (user, 2026-11-02):
 
 Open:
 4. **Stat rows** for 37-39 / 127-129 / 200: asked again after CH0 item 8 reports what June data exists. Until then the synthetic curve is used,
-   logged.
+   logged. CH0 (2026-11-02) reported: no June per-level table exists; the existing rows all follow June's relative table (CH0 Done note). Asked.

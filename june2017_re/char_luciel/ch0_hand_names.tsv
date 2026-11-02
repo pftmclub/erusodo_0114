@@ -1,0 +1,157 @@
+fn	name	why
+32b37c70	CreateGageData	X2GameUnit.h:2383 / X2GUChung.h:730 virtual CX2GageData* CreateGageData(), vslot 0xd0; body: vslot 0x198 IsMyUnit then new 0x130-byte gage (32a38250)
+32aeb280	FlushMp	funcmap 3208dc70 CX2GameUnit::FlushMp vslot 0xe4; body gage (+0xc04) vslot 0x2c( fMp, IsMyUnit, arg )
+32b0efc0	StampEffectSetIndex	X2GameUnit.h virtual StampEffectSetIndex vslot 0x248; instance +0x1b8 = unit +0x988c
+32b0efe0	GetDamageEffectIndex	X2GameUnit.h virtual GetDamageEffectIndex vslot 0x2e0; returns unit +0x988c
+32b4dbe0	IsHyperModeState	X2GUUser.h IsHyperModeState vslot 0x51c; funcmap row 3208e6d0 / 32b4dbe0 (C3t)
+32b13b60	GetSkinAnimByForm	funcmap 31fd48a0 vslot 0x570 skin anim of a form (no March name in X2GUUser.h / X2GameUnit.h); body picks +0x87d4 / +0x8e88 / transformed +0x8f9c by form and vslot 0x260
+32b15340	IsClassCommonMoveState	X2GUUser.h:3405 virtual IsClassCommonMoveState vslot 0x578
+32aeb380	IsInJobLine	X2GUChung.h:655 IsInJobLine( int ) vslot 0x670; body switches 1 / 2 / 3 on unit class +0x38 ( 0x27 = 39, 0x81 = 129 )
+32aeb410	StoreGageSnapshot	X2GUChung.h:688 StoreGageSnapshot vslot 0x740; IsMyUnit then jmp base 32009780
+32aeb430	RestoreGageSnapshot	X2GUChung.h:689 RestoreGageSnapshot vslot 0x744; IsMyUnit then jmp base 3204da60
+32b0f940	SpecialAttackUse	X2GUChung.h SpecialAttackUse( int, bool ) vslot 0x7fc; calls 31fca8e0 templet, vslot 0x810, vslot 0x800, vslot 0x764
+32b1eef0	SpecialAttackCooldown	X2GUChung.h SpecialAttackCooldown( int, float ) vslot 0x800; IsMyUnit first
+32b15430	AfterImageFrameMove	X2GUUser.h:3409 AfterImageFrameMove vslot 0x850
+32b4d3f0	GetWalkStateID	base returns 14 = USI_WALK ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d430	GetDashStateID	base returns 19 = USI_DASH ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d470	GetDashEndStateID	base returns 20 = USI_DASH_END ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d4b0	GetDashJumpStateID	base returns 21 = USI_DASH_JUMP ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d4f0	GetDashJumpLandingStateID	base returns 22 = USI_DASH_JUMP_LANDING ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d530	GetJumpReadyStateID	base returns 15 = USI_JUMP_READY ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d570	GetJumpUpStateID	base returns 16 = USI_JUMP_UP ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d610	GetJumpLandingStateID	base returns 18 = USI_JUMP_LANDING ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d650	GetDieFrontStateID	base returns 7 = USI_DIE_FRONT ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d690	GetDieBackStateID	base returns 8 = USI_DIE_BACK ( X2GUUser.h USI enum ); override: 31fc9d90( 2 ) transformed -> 0x1a8-based id, +0x2d on Ciel ( vslot 0x260 )
+32b4d6d0	GetDamageGroggyStateID	base returns 25; June registration id 25 is CSI/LSI_DAMAGEGROGGY (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d710	GetDamageSmallFrontStateID	base returns 26; June registration id 26 is CSI/LSI_DAMAGESMALLFRONT (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d750	GetDamageSmallBackStateID	base returns 27; June registration id 27 is CSI/LSI_DAMAGESMALLBACK (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d790	GetDamageBigFrontStateID	base returns 28; June registration id 28 is CSI/LSI_DAMAGEBIGFRONT (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d7d0	GetDamageBigBackStateID	base returns 29; June registration id 29 is CSI/LSI_DAMAGEBIGBACK (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d810	GetDamageDownFrontStateID	base returns 30; June registration id 30 is CSI/LSI_DAMAGEDOWNFRONT (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d850	GetDamageDownBackStateID	base returns 31; June registration id 31 is CSI/LSI_DAMAGEDOWNBACK (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d890	GetDamageStandUpFrontStateID	base returns 32; June registration id 32 is CSI/LSI_DAMAGESTANDUPFRONT (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d8d0	GetDamageStandUpBackStateID	base returns 33; June registration id 33 is CSI/LSI_DAMAGESTANDUPBACK (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d910	GetDamageAirSmallStateID	base returns 34; June registration id 34 is CSI/LSI_DAMAGEAIRSMALL (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d950	GetDamageAirDownStateID	base returns 35; June registration id 35 is CSI/LSI_DAMAGEAIRDOWN (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d990	GetDamageAirDownInvincibleStateID	base returns 36; June registration id 36 is CSI/LSI_DAMAGEAIRDOWNINVINCIBLE (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4d9d0	GetDamageAirDownLandingStateID	base returns 37; June registration id 37 is CSI/LSI_DAMAGEAIRDOWNLANDING (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4da10	GetDamageAirFallStateID	base returns 38; June registration id 38 is CSI/LSI_DAMAGEAIRFALL (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4da50	GetDamageAirUpStateID	base returns 39; June registration id 39 is CSI/LSI_DAMAGEAIRUP (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4da90	GetDamageAirFlyFrontStateID	base returns 40; June registration id 40 is CSI/LSI_DAMAGEAIRFLYFRONT (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4dad0	GetDamageAirFlyBackStateID	base returns 41; June registration id 41 is CSI/LSI_DAMAGEAIRFLYBACK (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4db10	GetDamageRevengeStateID	base returns 42; June registration id 42 is CSI/LSI_DAMAGEREVENGE (char_chung/ch0_reg.tsv, ch0_reg.tsv): June inserts a state at 24, so from 25 June = March USI + 1
+32b4db50	GetDanceWaitStateID	base 3208e140 returns 0x81 = USI_DANCE_WAIT ( Enum.src.lua GUSI_END + 124; ch0_reg id 129 = LSI_LU_DANCE_WAIT ); override picks 0x1a8, +0x2d on Ciel
+32ae5480	GetReduceDebuffDurationRate	X2GameUnit.h:3873 GetReduceDebuffDurationRate( BTI ) is slot 0x29c ( funcmap 32ec27d0 reads unit slot +0x29c, Ara 32bd32f0 = slot 167 ); body: 7 tests 32d40b80.. over CC debuff BTI lists ( STUN PANIC CONFUSION FEAR SUPPRESSION AGING CURSE ) -> +0x966c else 1.0
+32ae9bf0	CanPlayEmotion	called first in CX2GUUser::PlayEmotion 32043380 @320433d7 ( vslot 0x574, arg = emotion id ); body: !31fc9d90( 2 ) = no body transformed
+32ae9c00	GetTransformedSkillStateID	skill id ( 32207210 ) 30044-30046 -> 0x1be-0x1c0, 30050-30052 -> 0x1ee 0x1ef 0x1f4 = LSI_SA_LDB_ALTAR_OF_EVIL_TRANSFORM_* / LSI_SA_LDN_TRANSCENDENCE_TRANSFORM_* state ids ( ch0_state_skill ids 446-448, 494 495 500 ); vslot 0x57c
+32b0fa90	ResetMaxMP	funcmap 31fd2810 CX2GUUser::ResetMaxMP is the base of vslot 0x664 ( X2GUUser.h:2709 ResetMaxMP ); body SetBasicStatValue 3236ca50 / ResetMaxMp 3234b9d0 / SetOptionValue 3236cb20
+32b0e670	SumSocketOptionAfterSlots	X2GUUser.h:3162 SumSocketOptionAfterSlots = vslot 0x794 ( names Luciel 32b0e670 ); body 31fe14f0 for skills 30044-46 / 30050-52
+32b4dbb0	StateChange	X2GUUser.h:1467 virtual bool StateChange( int state, int subState, bool bDirectChange ); base 32034c00 is that overload ( funcmap C3e-4 ); body maps the id with 32aeb450 then calls the base
+32b34680	CheckBoundingTarget	funcmap C3j: Luciel virtual slot 0x568, bounding-target check ( target 32294460( +0x96f0 ), IsBoundingUp / IsBoundingLandCrash, vslot 0x5c state change 0x1fe / 0x1ff )
+32b15900	GetSkillIconTexture	base 31fdb990 copies a skill templet's two icon strings ( +0x50 / +0x6c ) into the two out strings; override swaps in DLG_SKILL_LUCIEL_Active_03.tga + SI_SA_LCN_TWILIGHT_JUDGEMENT_01 / _02 keys ( March has SkillIconOverride at the neighbouring 0x56c )
+32aeb2c0	SetNowMpFromStoredValue	base 31fceed0 = vslot 0xf8 SetNowMp( protected float +0x813c, 0 ), called every frame after SetNowHp in CommonFrameMove @3206c1e6; override also sets the second form from +0x8148 through gage vslot 8
+32b14db0	FindDamageEffectIndexEntry	own virtual: finds the +0x9890 vector entry ( 12 B: applied skill id, damage-effect index, ref-counted ptr ) matching DamageData +0x5c4 / +0x638 ( 32b4cb80 ) and takes a reference
+32ae6130	PreloadAuraAccelResources	own virtual, Init callback of LSI_SA_F_COMMON_AURA_DEPRAVITY_ACCEL ( 32b4c1a0 > 32b4b570 > vslot 0x888 ): TextureReadyInBackground x6 ( AURA_DEPRAVITY_ACCEL.dds, LD_PUNISHING_ACCEL.dds, ... ) + XMeshReadyInBackground x3 ( *.Y )
+32ae9bd0	?	vslot 0x658 ( skill id, arg2 ) ret 8: returns byte +0x9710 only for skills 30216 / 30220 ( A_LDB_PHANTOM_RUSH / _UPGRADE ), else 0; base 330fb7d0 stub
+32ae9de0	?	vslot 0x580 ( CommonStateStart @32061976 stores +0x94c0 = !this( templet of vslot 0x524( 1 ) ) ): not transformed: skill 30043 / 30049 ( ALTAR_OF_EVIL / TRANSCENDENCE ); transformed: state ids 424..505 table
+32ae9f20	?	vslot 0x640 ( byte ): 1 -> 31fd6260 ( show/hide each equip view object by form +0x8e90 ), else vslot 0x63c( arg ); base 31fca010 = 0x63c( b ) then 0x630() when b == 1
+32b0e3f0	?	vslot 0x318 void( ): if 31fc9d90( 2 ) and +0x9828 > 0: 322a74a0( +0x982c ), 31fc9f00( +0x9828, 0 ); base 3208ddc0 empty
+32b0e440	?	vslot 0x6b0 ( bool bSecondForm ): picks skin anim ( +0x87d4 / +0x8e88, or transformed +0x8f84 / +0x8f9c ) and +0x6754 / +0x6758 object, tail-calls 3322aa80; base 3208e530 does the same with +0x6754 / +0x87d4 only
+32b0fa20	?	vslot 0x648 ( a, b ) ret 8: if +0x84dc: +0x96b4 = 1.0, +0x96bc = 0, +0x84dc = 0, ++counter +0x988c; no skill templet -> +0x96bc = b; base 33093ad0 bare ret 8
+32b0fa00	?	non-virtual getter: gage ( +0xc04 ) protected float at +0x114; 0 without a gage
+32b143e0	?	vslot 0x62c ( bool ): called with 0 in StateChange @320349cb and 1 in PlayEmotion @320447e9; toggles show flag +0x172 of the equip view objects ( +0x8834 ) and the two skin anims by +0x8e90 / +0x95d8; base 3208ddc0 empty
+32b151b0	?	vslot 0x2b0 ( int index < 8 ) ret 4: scans the +0x3cfc vector of objects, tests mesh slot [+0x1c0 -> +0x544 or +0x5a4 + index*4] by form +0x8e90; base 330f9c30 ret 4 stub
+32b172b0	?	vslot 0x87c ( key, bool ) ret 8: *map[ this+0x9848 ]( key ) = bool; base 3208e280
+32b17660	?	vslot 0x2e4 void( DamageData* ): non-null -> 32b16810 ( erase the +0x9890 entry matching DamageData +0x5c4 / +0x638 ); identical to 0x2fc 32b17680; base 3208ddc0 empty
+32b17680	?	vslot 0x2fc void( DamageData* ): same body as 0x2e4 ( 32b16810 ); base 3208ddc0 empty
+32b18170	?	vslot 0x848: GetSkillTemplet( 32207210( ... ) ) + 32b4cb40 on the +0x9890 / +0x9894 range; base 31f3f070 empty ( shared with ResetAnimSpeed )
+32b1c960	?	vslot 0x64c: GetNowMp ( vslot 0xd8 ) vs protected float +0x7e9c; on a difference writes the KProtectedType global 3376cdc8; base 31fe9da0
+32b1e720	?	vslot 0x300 void( DamageData* ): for applied skill 30207 ( A_LCG_SOUL_STRIKE ) scales dd +0x38 / +0x3c / +0x3f0 / +0x514 by +0x96c4 / +0x9740 / +0x97cc / +0x97d0 and records into the protected global 3376cdc8; base 3208ddc0 empty
+32b3acf0	?	own virtual 0x884 ( 294 insns ): skill-use check like CanUseSpecialAttack 0x7f8: GetSkillTemplet, CheckSkillUseCondition, PVP bans, skill level, vslot 0x6a0, 32b14f70, message L"[S%1%]%2%"
+32ae50f0	SetGageNowMp	gage ( +0xc04 ) vslot 8 ( float, a, b ) passthrough = the slot funcmap 3208dd20 CX2GameUnit::SetNowMp( float, bool ) calls
+32ae9c90	GetTransformedSkillID	switch returns 30044 / 30045 / 30046 ( DEATH_TOUCH / MORTAL_FEAR / DARK_PLASMA ), +6 on Ciel ( vslot 0x260 ) = 30050-30052; callers are the registrars 32b43910 / 32b43b10
+32ae9d00	GetEffectOffsetByIndex	out vec3 by switch( 0..7 ): +-140.0 / +-80.0 / 120.0 offsets; sole caller 32b35600 ( EffectSet_SA_LDB_ALTAR_OF_EVIL_XXX )
+32ae9ea0	ChangeDesperadoAttackState	vslot 0x5c StateChange( 0x1c9 UP / 0x1ca DOWN / 0x1c7 ) by +0x9804 > 30.0 / < -20.0 ( LSI_SA_LDN_DESPERADO_ATTACK_UP / _DOWN / _ )
+32aeb1a0	UpGageNowMp	gage vslot 0xc ( float, 1, idx ): idx arg 3 -> ( +0x8e90 == 1 ), else the arg
+32aeb1e0	UpGageNowMpOfForm	( float, bool bCurrentForm ): form = +0x8e90 == 1, flipped when the bool is 0, then gage vslot 0xc( float, 1, form )
+32aeb450	GetStateIDByForm	472 insns: switch on ( id - 7 ) when 31fc9d90( 2 ); returns the Lu / Ciel variant of a common state id ( +0x2f / +0x1b3 style, form by vslot 0x260 ); callers 32b4d3e1 32b4db9f 32b4dbc4 ( state getters, StateChange 0x434 )
+32b0e4e0	AccumulateShadowFuryDamage	DamageData arg: applied skill 0x7562 = 30050 ( SA_LDN_SHADOW_FURY ), attack type 0x43 / 0x10 -> +0x9838 += protected dd +0xa4 * const
+32b0e620	SetGageNowMpOfForm	( float, int, bool ): form = +0x8e90 == 1, flipped when the bool is 0, gage vslot 8 ( float, arg2, form )
+32b0eed0	UpdateStableDarkEnergyBuff	HaveThisBuff 0x37f / 0x2fc / 0x2fb, GetSkillLevel( 0x76d5 = 30421 P_LDN_STABLE_DARKENERGY ), erase-by-BTI 0x37f; caller 32b39d6e in the 32b397a0 frame move
+32b0ef80	GetOpenMindSkillID	unit class +0x38: 127 -> 0x76d4 ( P_LDN_OPEN_MIND ), 128 -> 0x76d2 ( P_LCN ), 129 -> 0x76d0 ( P_LLD ); else -1
+32b13d30	ReleaseTransformedSkinAnim	( iForm ): closes the two sounds and DeleteKTDGObject on the +0x8f78..+0x8fa0 members of form 0 or 1; callers 32b162e0 and the dtor 32b39380
+32b162e0	LoadTransformedSkinAnim	( iForm ): releases 32b13d30, then OpenXSkinMesh L"Motion_Lu_LDB_Evil.x" / L"Motion_Ciel_LDN_Evil.x" into +0x8f78.. ( source X2GULuciel.cpp assert string ); caller 32b1e8e0
+32b13e20	SetFormSkinAnim	( iForm, struct* ): writes +0x87d4 / +0x8e88 and the +0x87cc / +0x8e7c companions, DisableAfterImage 322720f0 / EnableAfterImage 32275a30; callers 32b34fe0 and 32b38f30
+32b14bc0	AddCombinationPointOnHit	funcmap: none in March: CX2GULuciel add HIT_ADD_COMBINATION_POINT on hit; ( DamageData ) tests +0x96a8 and calls 32b14860
+32b14d10	UpdateOpenMindBuff	HaveThisBuff 0x36d, GetSkillLevel by 32b4c7f0 / 0x76d0-0x76d4 ( OPEN_MIND ), erase-by-BTI 0x36d; mirrors 32b0eed0; caller 32b39d67
+32b15680	SetLeftHandRotateBone	SetRotateBone 31fe9840 on L"Dummy2_Lhand"; skills 30204 FEAR_ABSORPTION / 30013 SUMMON_DARKNESS; 4 callers
+32b16810	EraseDamageEffectIndexEntry	finds the +0x9890 entry matching DamageData +0x5c4 / +0x638 ( 32b4cb80 ), drops the reference, erases ( 32b4cfb0 ); callers vslot 0x2e4 / 0x2fc overrides
+32b1eb10	DeleteMinorParticle	31fefc00 DeleteGUUserMinorParticle + game GetMinorParticle 322ceab0 + DestroyInstanceHandle 31cefbc0
+32b1f800	CreateChaserOfDarknessDamageEffect	strings DamageEffect_LD_M_ / LD_F_CHASER_OF_DARKNESS_Projectile / _Ready, Dummy02; CX2DamageEffect::GetInstance 31f64190
+32b34c70	PlayPunisherEffectSet	strings EffectSet_A_LDN_PUNISHER / _TRANSCENDENCE ( chosen by skill 30421 / 0x76d5 level ), PlayEffectSet 321e1e60
+32b34fe0	StartTransformedForm	( iForm ): if !31fc9d90( iForm ): 31fc9d50( iForm, 1 ), hides equip objects ( vslot 0x63c( 0 ) ), 32b13e20, ChangeAnim L"EVIL_Ru_Wait" / L"Wait", SetUnitReForm 31fda0d0, effect set; 5 callers incl. the buff hook 0x24c
+32b38f30	EndTransformedForm	( iForm ): mirror of 32b34fe0: 31fc9d50( iForm, 0 ), 32b13e20, 31fd6260, strings L"Bip01_Head", EffectSet_SA_LDB_TRANSFORM_END_BY_DIE; 12 callers incl. dtor 32b39380
+32b35600	PlayAltarOfEvilEffectSet	string EffectSet_SA_LDB_ALTAR_OF_EVIL_XXX, GetEffectSet 322ceae0 + PlayEffectSet 321e1e60, offsets from 32ae9d00
+32b358b0	CreateAltarOfEvilProjectile	strings DamageEffect_SA_LDB_ALTAR_OF_EVIL_XXX_Projectile, Luciel_Altar_Of_Evil_XXX02.ogg, LuVoice_Altar_of_Evil_XXX_End.ogg, JuneCollectEnemyUnitsInCone 32009180
+32b37090	PlayBluffEffectSet	strings EffectSet_A_LLD_Bluff_Lu / _Lu_Super / _Ciel / _Ciel_Super chosen by form ( vslot 0x260 ) and super armor, PlayEffectSet 321e1e60
+32b3ca30	CreateFearDamageEffect	strings DamageEffect_SI_P_LLD_LORD_OF_FEAR and DamageEffect_SI_P_LLC_SEIZED_BY_FEAR_BurstFear; skills 30403 / 30401 / 30405; CX2DamageEffect::CreateInstance 31f8ff00
+32b435f0	PlaySoulExtortionDrain	strings LCG_SOUL_EXTORTION_Soul_M, LuCiel_SP_SoulExtortion02_Drain.ogg, Bip01_L_Hand; skill 30019 SA_LCG_SOUL_EXTORTION; UpNowMp text 32278070
+32b4b580	?	returns ( 0 < +0x97cc ) as bool; sole caller 32b1e720 ( vslot 0x300 )
+32aeaa10	?	625 insns; skills 30007 RUINOUS_IMPACT, 30009 DARK_CRESCENT, 30301 / 30302 AURA_PUNISHMENT_ACCEL, 30303 PHANTOM_CIRCLE; HaveThisBuff 0x1e2; callers vslot 0x648 override area 32b0f9d5 / 32b3b4df
+32aeb090	?	gage ( +0xc04 ) byte +0x110 = 1 then tail-calls gage method 32a327a0; caller 32b373e0
+32aebb60	?	skill 30022 SA_LCN_TWILIGHT_JUDGEMENT: HaveThisBuff 0x1e2, skill-memo test 31fcf430, UpNowMp text 32278070; caller 32b39cb5
+32b0e550	?	timer +0x9700 -= dt; ids +0x9704 / +0x9708 into 31d41d90 / 31d41c90; at <= 0 sets -1.0; caller 32b397a0 frame move
+32b0fc50	?	HaveThisBuff 0x1d0 ( A_LDN_F_RAPID_IMPACT ) / 0x208 ( BOUNDING_TARGET ); fields +0x95f4 +0x470; caller 32b4cd91
+32b0fce0	?	skill 30015 SA_LLD_PHANTOM_BLADE; fields +0x6898 +0x689c +0x68a0 +0x7d85; caller 32b4cda1
+32b13c80	?	skill 30217 A_LDN_RAPID_IMPACT; fields +0x6898 +0x689c +0x68a0 +0x7d85; caller 32b4cdb1
+32b14030	?	285 insns; GetDirVecToDegree, HaveThisBuff, StateChange 320348c0, fields +0x97e4-0x9804 +0x7e1c; callers 32b32066 32b3250d
+32b14860	?	GetSkillLevel / templet value of 30410 P_LCN_NOBILITY, UpNowMp text 32278070, fields +0x6c50 +0x6c54 +0x6d04-0x6d0c; 12 callers
+32b14f70	?	GetSkillLevel + GetSkillTemplet + 32207210 + _ftol2, fields +0x7cbc +0x7cc0 +0x7cec +0x9444; 4 callers incl. 32b3ae06
+32b153d0	?	DamageData arg ( +8 == 2, +0x470 id ); state index from +0x7cbc / +0x7cec; sets byte +0x96e0 = 1; caller 32b3776f
+32b15780	?	string L"SA_RECOVER_MP_ABS"; skill 30204 / 30013 level, UpNowMp text 32278070, fields +0x9678-0x9680; caller 32b39cbc
+32b16260	?	list helper over +0x97d4 / +0x97d8 ( 0x18-byte entries ) keyed by team +0x264; callers 32b17ff3 32b1e885
+32b166e0	?	finds a 0x18-byte entry in the +0x97d4 / +0x97d8 vector by id and vslot 0x54 value; erases it ( 32a779e0 ); caller 32b1e720
+32b16760	?	per-frame: entry float -= dt over the +0x97d4 / +0x97d8 vector, erase when <= 0; caller 32b397a0
+32b16880	?	walks the +0x9890 entries matching DamageData, 328905b0 upgrade swap, GetSkillTemplet, 32b14860; caller 32b37730
+32b16940	?	230 insns; L"Dummy1_Rhand", GetShowCutInAndChangeWorldColor, GetShowActiveSkillShow; skin anim EventTimer; caller 32b16c94
+32b17090	?	99 insns; JuneCollectEnemyUnitsInCone 32009180, gage +0xc04 / +0x118; callers 32b179d6 32b17d46
+32b176a0	?	82 insns; equip view list +0x8834, 328c1bf0, push_back; 4 callers ( skill states )
+32b177b0	?	skill 30007 RUINOUS_IMPACT; DamageData +0x470 / +0x5c4, 32b4caf0 find, 3207b5d0; caller 32b4d361
+32b17f90	?	fields +0x97c0-0x97d4; 32b16260, observer ptr; caller 32b4d371
+32b18060	?	skill 30047 SA_LDN_DESPERADO; fields +0x97ec +0x97f0; 32b4d260; caller 32b37759
+32b1eca0	?	CreateSequenceHandle on the game minor particle system + GetInstanceSequence; 7 callers 32b377b8..
+32b1f2b0	?	strings L"MAJOR:" L"MINOR:" L"LD_STR_TuKang_M" L"Bip01"; fields +0x8e90 +0x9010-0x9018; caller 32b37f84
+32b1f650	?	L"Bip01"; CX2DamageEffect::GetInstance + SetPos; fields +0x95c0 +0x95c4 +0x95d0; caller 32b397db
+32b1fc90	?	string EffectSet_SA_LLC_OBLIVION_Death; skill 30014 SA_LLD_OBLIVION; 328 insns; caller 32b2ba44
+32b20100	?	108 insns; game valid + fetch, team +0x264, +0x85f8, gage; 14 callers
+32b20260	?	skill 30013 SA_LLD_SUMMON_DARKNESS ability value + HaveThisBuff 0x1da; caller 32b2f48b
+32b204d0	?	skill 30013; HaveThisBuff 0x1da, GetBuffFinalizerTempletPtrList, GetActualMPConsume; callers 32b2f484 32b37c64
+32b20670	?	skill 30209 A_LCG_SHADOW ability value; IsPVP/PVE 322cc1a0; callers 32b30d17 32b30e97
+32b20780	?	string EffectSet_SI_SA_LCN_SHADOW_BOLT_Spear; skill 30016 SA_LCN_SHADOW_BOLT; StateChange_LUA; caller 32b39cae
+32b20a10	?	erase-by-BTI 0x1e2, UpdateSkillSlotUI 322de5d0; caller 32b308c3
+32b347f0	?	skills 30216 PHANTOM_RUSH + 30421; fields +0x9710-0x9728 +0x9860; caller 32b37749
+32b34920	?	stops effect-set handles +0x9714 / +0x9720 / +0x9724 / +0x9728, UpdateSkillSlotUI, skill 30421 level; 7 callers
+32b349f0	?	DestroyInstanceHandle on damage effect handles +0x97a0-0x97b8, erase-by-BTI 0x2f8; callers 32b34b94 32b3811f
+32b34a90	?	L"Bip01"; GetDistance, damage effect GetInstance / SetPos, fields +0x97a0-0x97bc; caller 32b39d36
+32b35540	?	stops effect-set handles +0x9758 / +0x975c / +0x9768 / +0x976c; 4 callers
+32b35c60	?	StateChange 320348c0 + CKTDXCheckElapsedTime on +0x9750 / +0x9758; caller 32b39d44
+32b37d80	?	strings L"Bip01_Spine1" Stickslash1.ogg Slash.ogg Break.ogg Change.ogg; ShowMinorParticle; callers 32b38098 32b39e84
+32b3d380	?	607 insns; skills 30405 THREAT_OF_FEAR 30203 BLASTING_FEAR 30204 FEAR_ABSORPTION 30206 CHAINS_OF_BONDAGE 30015 PHANTOM_BLADE 30401 30403 30404; caller 32b4e6c1 ( scalar dtor tail )
+32b3db80	?	skill 30409 P_LCN_TRIBUTE; BuffTemplet 0x1ce, accumulation count 322a0090; 4 callers
+32b3e470	?	skill 30414 P_LDN_MADNESS_CRAVE; BuffFactor clone 32089f60; caller 32b4e6d0
+32b3e720	?	BuffFactor GetBuffFactorPtr + clone + set finalizer value 32d41960; 4 callers 32b43966..
+32b43590	?	tail of 32b3db80 with fields +0x9610 / +0x960c; caller 32b4e711
+32b4c7f0	?	GetSkillLevel / ability value / _ftol2 of OPEN_MIND 30416 / 30418 / 30420; 5 callers
+32b4caf0	?	STL instance: std::find over 16-byte elements comparing 3 dwords; caller 32b177b0
+32b4cb40	?	STL instance: std::find over 12-byte elements ( 2 dwords ); caller 32b18170
+32b4cb80	?	STL instance: std::find_if over 12-byte entries ( +0 == dd +0x5c4, +4 == dd +0x638 ); callers 32b14db0 32b16810
+32b4cfb0	?	STL instance: vector::erase for 12-byte entries; callers 32b16810 32b16880
+32b4ce50	?	STL instance: uninitialized copy of 24-byte elements; callers 32b16fc0 32b17040
+32b4cef0	?	STL instance: copy of 24-byte elements; caller 32b4cff0
+32b4cff0	?	STL instance: vector insert of 24-byte elements ( 32ed38f0 / 32b4cef0 ); caller 32b4d1b1
+32b4d140	?	STL instance: vector _Reserve with L"vector<T> too long" ( 24-byte elements ); callers 32b4d291 32b4d2d3
+32b4d260	?	STL instance: vector push_back for 24-byte elements ( 32b4d140 ); caller 32b1815b
+32b4ce90	?	ref-counted pointer release helper ( dec + free 32fe2300 ); shared with 32bd0851 32bd14ca 32bd3e93
+32b4cf30	?	allocates a 0x38-byte struct with defaults ( -1, 99999.0 ) and returns it as ref-counted; shared with 32bd14bb
+32b4d1c0	?	member default initializer called only from the ctor 32b1bd90: floats 2.0 / 1200.0 / 0.2 and two vectors
+32b4dd50	?	KProtectedType<float> store of +0x6844 into global 3376cdc8; shared with 32bc7eae 32bc8069 32e7dc69

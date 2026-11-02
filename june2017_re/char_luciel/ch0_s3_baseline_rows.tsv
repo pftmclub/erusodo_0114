@@ -1,0 +1,307 @@
+# s3_no_state.py --family X2GULuciel.cpp
+# mode: textual, every occurrence counts (no live/dead #ifdef resolution in the class files)
+# enum SKILL_ID: 939 enumerators, 0 unresolved initialisers
+# verdict: has_state = a case label resolves to the id (strict)
+unit_class_name	unit_class_value	family_cpp_file	skill_id	skill_name	templet_name	skill_type	master_level	row	column	in_cpp_enum	cpp_case_in_family	verdict	march_value_of_name	march_names_at_same_id	cpp_any_token_in_family	case_in_X2GUUser_cpp	lookalike_march_name	lookalike_march_value	lookalike_case_in_family	evidence
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DUO	200	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30203	RNSI_A_LLC_BLASTING_FEAR	Terror Chain	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30213	RNSI_A_LLC_BLASTING_FEAR_UPGRADE	#Cffcc00[Enhanced]#CX\nTerror Chain	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30007	RNSI_SA_LLC_RUINOUS_IMPACT	Ruinous Impact	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30036	RNSI_SA_LLC_RUINOUS_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX\nRuinous Impact	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30401	RNSI_P_LLC_SEIZED_BY_FEAR	Creeping Terror	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30008	RNSI_SA_LLC_DEAD_HANDS	Dead Hands	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30038	RNSI_SA_LLC_DEAD_HANDS_UPGRADE	#Cffcc00[Enhanced]#CX\nDead Hands	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30009	RNSI_SA_LLC_DARK_CRESCENT	Dark Crescent	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30061	RNSI_SA_LLC_DARK_CRESCENT_UPGRADE	#Cffcc00[Enhanced]#CX Dark Crescent	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30010	RNSI_SA_LLC_POWER_OF_ORIAX	Power of Oriax	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30062	RNSI_SA_LLC_POWER_OF_ORIAX_UPGRADE	#Cffcc00[Enhanced]#CX Power of Oriax	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30011	RNSI_SA_LLC_APOLLYON	Apollyon	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30063	RNSI_SA_LLC_APOLLYON_UPGRADE	#Cffcc00[Enhanced]#CX Apollyon	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30205	RNSI_A_LLC_BACKSTAB	Ambush Attack	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30307	RNSI_A_LLC_BACKSTAB_UPGRADE	#Cffcc00[Enhanced]#CX Ambush Attack	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_CHILIARCH	37	X2GULuciel.cpp	30402	RNSI_P_LLC_COMMUNION_EXPAND	Communication-Amplification	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30207	RNSI_A_LCG_SOUL_STRIKE	Trigger-Soul Eruption	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30214	RNSI_A_LCG_SOUL_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nTrigger-Soul Eruption	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30018	RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS	Death Sentence of Marbas	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30037	RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS_UPGRADE	#Cffcc00[Enhanced]#CX\nDeath Sentence of Marbas	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30406	RNSI_P_LCG_SOUL_COLLECTOR	Soul Collector	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30019	RNSI_SA_LCG_SOUL_EXTORTION	Soul Extortion	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30039	RNSI_SA_LCG_SOUL_EXTORTION_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Extortion	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30017	RNSI_SA_LCG_DEMONIC_BREATH	Demonic Breath	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30068	RNSI_SA_LCG_DEMONIC_BREATH_UPGRADE	#Cffcc00[Enhanced]#CX Demonic Breath	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30021	RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT	Fantasy Impromptu\n- 1st Movement	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30069	RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT_UPGRADE	#Cffcc00[Enhanced]#CX Fantasy Impromptu - 1st Movement	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30020	RNSI_SA_LCG_ESCHATON	Eschaton	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30070	RNSI_SA_LCG_ESCHATON_UPGRADE	#Cffcc00[Enhanced]#CX Eschaton	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30209	RNSI_A_LCG_SHADOW	Shadow	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30310	RNSI_A_LCG_SHADOW_UPGRADE	#Cffcc00[Enhanced]#CX Shadow	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_ROYAL_GUARD	38	X2GULuciel.cpp	30407	RNSI_P_LCG_COMMUNION_RECOVERY	Communication-Restoration	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30219	RNSI_A_LDB_ABYSS_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Abyss Strike	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30215	RNSI_A_LDB_ABYSS_STRIKE	Abyss Strike	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30054	RNSI_SA_LDB_LAND_CRASHER_UPGRADE	#Cffcc00[Enhanced]#CX Land Crusher	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30040	RNSI_SA_LDB_LAND_CRASHER	Land Crusher	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30411	RNSI_P_LDB_CHEMISTRY	Chemistry	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30216	RNSI_A_LDB_PHANTOM_RUSH	Phantom Rush	6	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30220	RNSI_A_LDB_PHANTOM_RUSH_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Rush	6	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30041	RNSI_SA_LDB_BLOODLUST	Bloodlust	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30075	RNSI_SA_LDB_BLOODLUST_UPGRADE	#Cffcc00[Enhanced]#CX Bloodlust	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30042	RNSI_SA_LDB_NIGHTMARE	Nightmare	15	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30076	RNSI_SA_LDB_NIGHTMARE_UPGRADE	#Cffcc00[Enhanced]#CX Nightmare	15	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30043	RNSI_SA_LDB_ALTAR_OF_EVIL	Altar of Evil	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30077	RNSI_SA_LDB_ALTAR_OF_EVIL_UPGRADE	#Cffcc00[Enhanced]#CX Altar of Evil	16	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30303	RNSI_BUFF_PHANTOM_CIRCLE	Phantom Circle	5	1	8	1	y	n	no_state	30303	RNSI_BUFF_PHANTOM_CIRCLE	n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30313	RNSI_BUFF_PHANTOM_CIRCLE_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Circle	5	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_DIABLURA	39	X2GULuciel.cpp	30412	RNSI_P_LDB_COMMUNION_ABSORB	Communication - Absorption	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30203	RNSI_A_LLC_BLASTING_FEAR	Terror Chain	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30213	RNSI_A_LLC_BLASTING_FEAR_UPGRADE	#Cffcc00[Enhanced]#CX\nTerror Chain	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30007	RNSI_SA_LLC_RUINOUS_IMPACT	Ruinous Impact	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30036	RNSI_SA_LLC_RUINOUS_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX\nRuinous Impact	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30401	RNSI_P_LLC_SEIZED_BY_FEAR	Creeping Terror	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30008	RNSI_SA_LLC_DEAD_HANDS	Dead Hands	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30038	RNSI_SA_LLC_DEAD_HANDS_UPGRADE	#Cffcc00[Enhanced]#CX\nDead Hands	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30009	RNSI_SA_LLC_DARK_CRESCENT	Dark Crescent	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30061	RNSI_SA_LLC_DARK_CRESCENT_UPGRADE	#Cffcc00[Enhanced]#CX Dark Crescent	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30010	RNSI_SA_LLC_POWER_OF_ORIAX	Power of Oriax	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30062	RNSI_SA_LLC_POWER_OF_ORIAX_UPGRADE	#Cffcc00[Enhanced]#CX Power of Oriax	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30011	RNSI_SA_LLC_APOLLYON	Apollyon	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30063	RNSI_SA_LLC_APOLLYON_UPGRADE	#Cffcc00[Enhanced]#CX Apollyon	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30204	RNSI_A_LLD_FEAR_ABSORPTION	Terror Absorption	6	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30308	RNSI_A_LLD_FEAR_ABSORPTION_UPGRADE	#Cffcc00[Enhanced]#CX Terror Absorption	6	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30012	RNSI_SA_LLD_SUPREME_PUNISHMENT	Supreme Punishment	15	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30064	RNSI_SA_LLD_SUPREME_PUNISHMENT_UPGRADE	#Cffcc00[Enhanced]#CX Supreme Punishment	15	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30403	RNSI_P_LLD_LORD_OF_FEAR	Lord of Terror	8	4	7	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30205	RNSI_A_LLC_BACKSTAB	Ambush Attack	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30307	RNSI_A_LLC_BACKSTAB_UPGRADE	#Cffcc00[Enhanced]#CX Ambush Attack	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30402	RNSI_P_LLC_COMMUNION_EXPAND	Communication-Amplification	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30013	RNSI_SA_LLD_SUMMON_DARKNESS	Summon Darkness	15	1	9	1	y	n	no_state	30013	RNSI_SA_LLD_SUMMON_DARKNESS	n	y				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30065	RNSI_SA_LLD_SUMMON_DARKNESS_UPGRADE	#Cffcc00[Enhanced]#CX Summon Darkness	15	1	9	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30014	RNSI_SA_LLD_OBLIVION	Oblivion	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30066	RNSI_SA_LLD_OBLIVION_UPGRADE	#Cffcc00[Enhanced]#CX Oblivion	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30206	RNSI_A_LLD_CHAINS_OF_BONDAGE	Shackling Chain	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30309	RNSI_A_LLD_CHAINS_OF_BONDAGE_UPGRADE	#Cffcc00[Enhanced]#CX Shackling Chain	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30015	RNSI_SA_LLD_PHANTOM_BLADE	Phantom Blade	14	1	11	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30067	RNSI_SA_LLD_PHANTOM_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Blade	14	1	11	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30404	RNSI_P_LLD_AURA_OF_FEAR	Force of Fear	8	4	12	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30405	RNSI_P_LLD_THREAT_OF_FEAR	Threat of Terror	8	4	12	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30601	RNSI_HA_LLD_DESCENT_DARKNESS	Descent Darkness	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30603	RNSI_HA_LLD_DESCENT_DARKNESS_UPGRADE	#Cffcc00[Enhanced]#CX\nDescent Darkness	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30055	RNSI_SA_LLD_FEAR_TOMORROW	Fear Tomorrow	14	1	14	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30416	RNSI_P_LLD_OPEN_MIND	Awakened Will: Dreadlord	8	1	14	3	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30304	RNSI_A_LLD_BLUFF	Bluff	6	1	15	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	y	n	no_state	106	RNSI_P_COMMON_HYPER_AURA	n	y				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30056	RNSI_SA_LLD_DEAD_CROSS	Dead Cross	15	1	16	1	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30417	RNSI_P_LLD_THRONE_AUTHORITY	Demonic Authority	8	1	16	4	n	n	no_state			n	n				
+UC_LUCIEL_DREAD_LORD	127	X2GULuciel.cpp	30083	RNSI_SA_LLD_DEMONIC_CANNON	Demonic Cannon	16	1	17	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30207	RNSI_A_LCG_SOUL_STRIKE	Trigger-Soul Eruption	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30214	RNSI_A_LCG_SOUL_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nTrigger-Soul Eruption	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30018	RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS	Death Sentence of Marbas	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30037	RNSI_SA_LCG_DEATH_CRISIS_OF_MARBAS_UPGRADE	#Cffcc00[Enhanced]#CX\nDeath Sentence of Marbas	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30406	RNSI_P_LCG_SOUL_COLLECTOR	Soul Collector	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30019	RNSI_SA_LCG_SOUL_EXTORTION	Soul Extortion	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30039	RNSI_SA_LCG_SOUL_EXTORTION_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Extortion	14	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30017	RNSI_SA_LCG_DEMONIC_BREATH	Demonic Breath	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30068	RNSI_SA_LCG_DEMONIC_BREATH_UPGRADE	#Cffcc00[Enhanced]#CX Demonic Breath	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30021	RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT	Fantasy Impromptu\n- 1st Movement	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30069	RNSI_SA_LCG_FANTASIE_IMPROMPTU_1ST_MOVEMENT_UPGRADE	#Cffcc00[Enhanced]#CX Fantasy Impromptu - 1st Movement	14	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30020	RNSI_SA_LCG_ESCHATON	Eschaton	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30070	RNSI_SA_LCG_ESCHATON_UPGRADE	#Cffcc00[Enhanced]#CX Eschaton	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30016	RNSI_SA_LCN_SHADOW_BOLT	Shadow Bolt	15	1	7	1	y	n	no_state	30016	RNSI_SA_LCN_SHADOW_BOLT	n	y				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30071	RNSI_SA_LCN_SHADOW_BOLT_UPGRADE	#Cffcc00[Enhanced]#CX Shadow Bolt	15	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30208	RNSI_A_LCN_SUMMON_FAMILIAR	Soul Sigil	6	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30311	RNSI_A_LCN_SUMMON_FAMILIAR_UPGRADE	#Cffcc00[Enhanced]#CX Soul Sigil	6	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30408	RNSI_P_LCN_ENHANCED_SPECTER	Spiritual Enhancement	8	4	7	3	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30209	RNSI_A_LCG_SHADOW	Shadow	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30310	RNSI_A_LCG_SHADOW_UPGRADE	#Cffcc00[Enhanced]#CX Shadow	6	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30407	RNSI_P_LCG_COMMUNION_RECOVERY	Communication-Restoration	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30022	RNSI_SA_LCN_TWILIGHT_JUDGEMENT	Twilight Judgment	15	1	9	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30072	RNSI_SA_LCN_TWILIGHT_JUDGEMENT_UPGRADE	#Cffcc00[Enhanced]#CX Twilight Judgment	15	1	9	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30023	RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT	Fantasy Impromptu\n- 2nd Movement	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30073	RNSI_SA_LCN_FANTASIE_IMPROMPTU_2ND_MOVEMENT_UPGRADE	#Cffcc00[Enhanced]#CX Fantasy Impromptu - 2nd Movement	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30210	RNSI_A_LCN_SWIFT_SMASH	Swift Smash	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30312	RNSI_A_LCN_SWIFT_SMASH_UPGRADE	#Cffcc00[Enhanced]#CX Swift Smash	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30024	RNSI_SA_LCN_SPECTRAL_SPEAR	Spectral Spear	14	1	11	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30074	RNSI_SA_LCN_SPECTRAL_SPEAR_UPGRADE	#Cffcc00[Enhanced]#CX Spectral Spear	14	1	11	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30409	RNSI_P_LCN_TRIBUTE	Tribute	8	4	12	3	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30410	RNSI_P_LCN_NOBILITY	Nobility	8	4	12	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30602	RNSI_HA_LCN_CASTLE_OF_ABADDON	Castle of Abaddon	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30604	RNSI_HA_LCN_CASTLE_OF_ABADDON_UPGRADE	#Cffcc00[Enhanced]#CX\nCastle of Abaddon	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30057	RNSI_SA_LCN_SOUL_LOCK	Soul Entrapment	14	1	14	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30418	RNSI_P_LCN_OPEN_MIND	Awakened Will: Noblesse	8	1	14	3	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30305	RNSI_A_LCN_SOUL_SPREAD	Soul Spread	6	1	15	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	y	n	no_state	106	RNSI_P_COMMON_HYPER_AURA	n	y				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30058	RNSI_SA_LCN_MAGDONIC_CANNON	Magdonic Cannon	15	1	16	1	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30419	RNSI_P_LCN_NOBLE_DEVOTION	Noblesse Oblige	8	1	16	4	n	n	no_state			n	n				
+UC_LUCIEL_NOBLESSE	128	X2GULuciel.cpp	30084	RNSI_SA_LCN_RAIN_OF_CHAOS	Rain of Chaos	16	1	17	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30025	RNSI_SA_LUCIEL_TRIPLE_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30001	RNSI_SA_LUCIEL_TRIPLE_SHOT	Triple Shot	14	1	0	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30002	RNSI_SA_LUCIEL_STOMP	Stomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30026	RNSI_SA_LUCIEL_STOMP_UPGRADE	#Cffcc00[Enhanced]#CX\nStomp	14	1	0	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30212	RNSI_A_LUCIEL_HEAVY_HIT_UPGRADE	#Cffcc00[Enhanced]#CX\nStrong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30201	RNSI_A_LUCIEL_HEAVY_HIT	Strong Strike	6	1	0	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	n	no_state	900	SI_ETC_WS_COMMON_LOVE	n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30027	RNSI_SA_LUCIEL_FLICK_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nFlick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30003	RNSI_SA_LUCIEL_FLICK_SHOT	Flick Shot	15	1	1	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30028	RNSI_SA_LUCIEL_NETHER_SHREDDER_UPGRADE	#Cffcc00[Enhanced]#CX\nNether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30004	RNSI_SA_LUCIEL_NETHER_SHREDDER	Nether Shredder	16	1	2	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX\nAura of Punishment	5	1	2	2	y	n	no_state	30302	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL_UPGRADE	n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	Aura of Punishment	5	1	2	2	y	n	no_state	30301	RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL	n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30005	RNSI_SA_LUCIEL_EVIL_CLAW	Evil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30029	RNSI_SA_LUCIEL_EVIL_CLAW_UPGRADE	#Cffcc00[Enhanced]#CX\nEvil Claw	14	1	3	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30219	RNSI_A_LDB_ABYSS_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Abyss Strike	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30215	RNSI_A_LDB_ABYSS_STRIKE	Abyss Strike	6	1	3	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30054	RNSI_SA_LDB_LAND_CRASHER_UPGRADE	#Cffcc00[Enhanced]#CX Land Crusher	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30040	RNSI_SA_LDB_LAND_CRASHER	Land Crusher	15	1	3	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30411	RNSI_P_LDB_CHEMISTRY	Chemistry	8	4	3	3	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30202	RNSI_A_LUCIEL_HAUNTING_BEAT	Hunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30211	RNSI_A_LUCIEL_HAUNTING_BEAT_UPGRADE	#Cffcc00[Enhanced]#CX\nHunting Prey	6	1	4	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30006	RNSI_SA_LUCIEL_SOUL_INFEST	Soul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30030	RNSI_SA_LUCIEL_SOUL_INFEST_UPGRADE	#Cffcc00[Enhanced]#CX\nSoul Infest	16	1	4	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30220	RNSI_A_LDB_PHANTOM_RUSH_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Rush	6	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30216	RNSI_A_LDB_PHANTOM_RUSH	Phantom Rush	6	1	5	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30041	RNSI_SA_LDB_BLOODLUST	Bloodlust	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30075	RNSI_SA_LDB_BLOODLUST_UPGRADE	#Cffcc00[Enhanced]#CX Bloodlust	14	1	6	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30042	RNSI_SA_LDB_NIGHTMARE	Nightmare	15	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30076	RNSI_SA_LDB_NIGHTMARE_UPGRADE	#Cffcc00[Enhanced]#CX Nightmare	15	1	6	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30043	RNSI_SA_LDB_ALTAR_OF_EVIL	Altar of Evil	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30077	RNSI_SA_LDB_ALTAR_OF_EVIL_UPGRADE	#Cffcc00[Enhanced]#CX Altar of Evil	16	1	7	0	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30217	RNSI_A_LDN_RAPID_IMPACT	Rapid Impact	6	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30314	RNSI_A_LDN_RAPID_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX Rapid Impact	6	1	7	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30047	RNSI_SA_LDN_DESPERADO	Desperado	15	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30078	RNSI_SA_LDN_DESPERADO_UPGRADE	#Cffcc00[Enhanced]#CX Desperado	15	1	7	2	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30413	RNSI_P_LDN_INVASION_OF_DARKENERGY	Demonic Invasion	8	4	7	3	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30303	RNSI_BUFF_PHANTOM_CIRCLE	Phantom Circle	5	1	8	1	y	n	no_state	30303	RNSI_BUFF_PHANTOM_CIRCLE	n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30313	RNSI_BUFF_PHANTOM_CIRCLE_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Circle	5	1	8	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30412	RNSI_P_LDB_COMMUNION_ABSORB	Communication - Absorption	8	4	8	3	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30048	RNSI_SA_LDN_SINISTER_MIND	Sinister Mind	15	1	9	1	y	n	no_state	30048	RNSI_SA_LDN_SINISTER_MIND	n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30079	RNSI_SA_LDN_SINISTER_MIND_UPGRADE	#Cffcc00[Enhanced]#CX Sinister Mind	15	1	9	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30049	RNSI_SA_LDN_TRANSCENDENCE	Transcendence	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30080	RNSI_SA_LDN_TRANSCENDENCE_UPGRADE	#Cffcc00[Enhanced]#CX Transcendence	16	1	9	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30218	RNSI_A_LDN_PUNISHER	Punisher	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30315	RNSI_A_LDN_PUNISHER_UPGRADE	#Cffcc00[Enhanced]#CX Punisher	6	1	10	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30053	RNSI_SA_LDN_GARDEN_OF_HAURES	Garden of Haures	14	1	11	1	y	n	no_state	30053	RNSI_SA_LDN_GARDEN_OF_HAURES	n	y				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30081	RNSI_SA_LDN_GARDEN_OF_HAURES_UPGRADE	#Cffcc00[Enhanced]#CX Garden of Haures	14	1	11	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30414	RNSI_P_LDN_MADNESS_CRAVE	Manic Demon Form - Thirst	8	4	12	3	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30415	RNSI_P_LDN_MADNESS_DESTROY	Manic Demon Form - Destruction	8	4	12	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30606	RNSI_HA_LDN_DIABOLIC_DISASTER_UPGRADE	#Cffcc00[Enhanced]#CX Diabolic Disaster	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30605	RNSI_HA_LDN_DIABOLIC_DISASTER	Diabolic Disaster	13	1	13	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30059	RNSI_SA_LDN_ABYSS_SNIPING	Abyss Sniper	14	1	14	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30420	RNSI_P_LDN_OPEN_MIND	Awakened Will: Demonio	8	1	14	3	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30306	RNSI_A_LDN_RAPID_FURY	Rapid Fury	6	1	15	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	y	n	no_state	106	RNSI_P_COMMON_HYPER_AURA	n	y				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30060	RNSI_SA_LDN_DEMONIC_RUSH	Demonic Rush	15	1	16	1	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30421	RNSI_P_LDN_STABLE_DARKENERGY	True Demon	8	1	16	4	n	n	no_state			n	n				
+UC_LUCIEL_DEMONIO	129	X2GULuciel.cpp	30085	RNSI_SA_LDN_ABYSS_EXTINCTION	Abyss Extinction	16	1	17	1	n	n	no_state			n	n				
+# totals	rows=301	no_state=301	has_state=0

@@ -32,3 +32,7 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH0 (2026-11-02)
+
+- S3 baseline `june2017_re/char_luciel/ch0_s3_baseline.txt`: 301 tree rows, 301 no_state (March has no class), 137 distinct ids; rerun with `s3_no_state.py` (Lu/Ciel families added by CH0).

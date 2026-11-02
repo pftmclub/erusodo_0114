@@ -36,7 +36,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by CH0 / NU0
 
-CH0: (pending)
+CH0 (2026-11-02):
+- 221 asset rows carry owner TU in `ch0_assets.tsv` (col 9).
 
 NU0 (2026-11-02), `nu0_jobchange_tutorial.tsv`:
 - **June's entry diverges for every class.** `Handler_EGS_CREATE_TUTORIAL_ROOM_REQ` (June `325622e0`, caller `325712b0` inventory ACK) sends

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-luciel CH1a` |
 | Plan doc | `JUNE_CHARACTER_LUCIEL_PHASES.md` (branch `main`) |
-| Depends on | CH0, NU1 review |
+| Depends on | CH1a0 review
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_CORE` (compiled, unreferenced) and `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_LIVE` (`//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | kickoffs/char-luciel/CH1a-review.md (Opus 5.5 high; the phase writes it when done) |
@@ -36,6 +36,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Functions: 21 to transcribe** (+ 4 thunks) (`awk -F'\t' '$6=="CH1a"' june2017_re/char_luciel/ch0_class_map.tsv`; all new).
+  June addresses: `32ae6130` PreloadAuraAccelResources `32aeaa10` `32aeb1e0` UpGageNowMpOfForm `32aeb3f0` MemoConditionLuciel::MemoConditionLuciel `32b0fa00` `32b13d30` ReleaseTransformedSkinAnim `32b13e20` SetFormSkinAnim `32b14860` `32b14db0` FindDamageEffectIndexEntry `32b14f70` `32b1bd90` CX2GULuciel `32b1eb10` DeleteMinorParticle `32b20100` `32b34920` `32b35540` `32b38f30` EndTransformedForm `32b39380` ~CX2GULuciel `32b3acf0` `32b4cb80` `32b4d1c0` `32b4e660` ~CX2GULuciel (scalar deleting dtor).
+  Still `?` (name it by the class pattern from the hint in col 7): `32aeaa10` `32b0fa00` `32b14860` `32b14f70` `32b20100` `32b34920` `32b35540` `32b3acf0` `32b4cb80` `32b4d1c0`.
+- **Depends on CH1a0** (gauge class, transform link `IsTransformedForm` / `SetTransformedForm` 31fc9d90 / 31fc9d50, switching guide): CH1a calls them by their March names.
+- Class-map names for CH1a: ctor `32b1bd90`, dtor `32b39380`, scalar dtor `32b4e660`, own virtuals 0x880 `32b14db0` FindDamageEffectIndexEntry, 0x884 `32b3acf0` `?` (a skill-use check with a `[S%1%]%2%` message, shaped like `CanUseSpecialAttack` 0x7f8: name it), 0x888 `32ae6130` PreloadAuraAccelResources; MemoConditionLuciel ctor `32aeb3f0` (vtable `334f036c`; its IsCondition `32ae5150` is CH4c's).
+- **States enum** for `X2GULuciel.h`: 515 registered ids (7-592; 7-130 shared USI, 154-592 the class's); 585 LSI names across both scripts (28 alias lines in Duo); neither June's `Enum.lua` nor the live one has an `LSI_` entry. State ids are 16-bit already (`SERV_IRUHADEV_JUNE_USER_STATE_ID16`, `Always.h:6188`).
+- **June ids are not March's USI from 24 up:** June inserts a state at 24 (`USI_DAMAGE_GROGGY` is 25 in June, 24 in March's enum). Name ids from `ch0_reg.tsv`, never by counting March's enum.
+- **Register `NUI_SA_LDN_GARDEN_OF_HAURES` = 2269** in `X2UnitManager.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: the dtor (`@32b394c7`) and ReInit (`@32b37713`, CH1k2) look the NPC up (`ch0_summons.tsv` last row). 1906 / 1908 are already named.

@@ -33,6 +33,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L256 death prevention: gauge snapshot override vslot 0x740 Luciel 32aeb410 (and the r; §7b L327 SetDamageExceptionProcess per-class block; §7d L379 DamageReact 320483e4 (user) / 327b33cf (NPC): type-10 attacker with USED_SKILL_I; §7j L454 inline user-DamageReact step 320462a0 @3204963d + 32aebaf0: a type-10 unit absor.
+- No class function carries CH4b: SetDamageExceptionProcess 0x2b8 `32aea530` is transcribed in CH1k. This phase wires the damage-exception checklist rows below.

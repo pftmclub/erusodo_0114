@@ -51,3 +51,7 @@ NU0 (2026-11-02), `june2017_re/char_luciel/nu0_templet_keys.tsv`:
   per-class constant switch, so add it with the 15 (NU4's lobby preview reads it).
 - Readers: `31fe5860` `InitMotion` (Emotion, GameMotion0-2: DU1's second body), `3254e410` (promotion texture preload), `32d85650` (names),
   `31edf260` (lobby rotation). No reader found for Common / Field / Lobby motion (parse them; DU1 / DU5 look again).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L155-156 New characters need a unit type, a unit class, a skill tree and server-side data; §7t L591-593 UnitTemplet m_HyperCutIn / m_BerserkCutIn / m_MinorUnitHyperCutIn and the two _T.

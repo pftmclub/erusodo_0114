@@ -58,3 +58,7 @@ NU0 (2026-11-02), `june2017_re/char_luciel/nu0_unit_class_width.tsv` (202 rows: 
   `Handlers_Room.cpp:186,360`, `X2OfflineServer.cpp:466,961` (`(char)kRow.m_iUnitClass`). `X2UIPersonalShopBoard.cpp:2201` `static_cast<char>`.
   Dead: `KPartyUserInfo` 4683 (`#else` of `SERV_CHANNEL_PARTY`), `X2UIInventory.cpp:6650`.
 - No `sizeof` / `memcpy` of these structs exists (the one hit, `X2Game.cpp:747`, is unrelated).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L155-156 New characters need a unit type, a unit class, a skill tree and server-side data.

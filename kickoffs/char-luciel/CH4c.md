@@ -33,6 +33,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Functions: 2 to transcribe** (+ 0 thunks) (`awk -F'\t' '$6=="CH4c"' june2017_re/char_luciel/ch0_class_map.tsv`; all new).
+  June addresses: `32ae5150` MemoConditionLuciel::IsCondition `32ae5170`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L325-326 skill-memo entry 31fdbbb0 / class callers of 31fdbcc0.
+- `MemoConditionLuciel::IsCondition` `32ae5150` (`31fd4450( arg ) != 0`) and its slot-2 thunk `32ae5170`.

@@ -37,9 +37,16 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ad L745 L751-755 stage June Motion_<Class>* files with the class script.
+- **Stage list `june2017_re/char_luciel/ch0b_stage_list.tsv`: 14,609 files** (14,607 missing, 2 replaced: `DLG_SKILL_Buff_01.tga` / `.tet`, NO_PIECE). `kom.py stage-june` dry run: 37 koms, 0 refused; **4 new kom dirs** with no live archive (`data162` 331, `data163` 294, `datai028` 250, `datai029` 245): pack them and ask before each copy. Routes a / b / c unioned in `ch0_assets.tsv` (17,227 rows; builder `python june2017_re/char_eve/ch0_build_assets.py luciel --out june2017_re/char_luciel`, always with `--out`).
+- **Motions: 127, not 125** (data208 Lu 63, data218 Ciel 64; 101 `*Emotion*`). The 4 same-name files (`Motion_CSM_Lu_LDB.x`, `Motion_Lu_LDB_Evil.x`, `Motion_CSM_Ciel_LDN.X`, `Motion_Ciel_LDN_Evil.X`) are already June's bytes in the live data208 / data218: nothing to replace. March readers: `CSM_Lu_Diabla.lua` / `CSM_Ciel_Demonio.lua` (data037 monster cards) and `GameMajorXMeshPlayer.txt` (data036, the `_Evil` meshes).
+- **Skill icons:** `skillicons.py check 10000-10601` and `check 30001-30606` FAIL until the 12 sheets are copied (11 NO_TEXTURE: `DLG_Luciel_SKILL_ScreenShot_01-03`, `DLG_SKILL_LUCIEL_Active_01-05`, shared `DLG_SKILL_Passive_09 / _11 / _15`; `DLG_SKILL_Buff_01` NO_PIECE): all in the list (data063). Gate: both checks PASS after the copy.
+- `POPUP_TR_NOBLESSE`, `POPUP_TR_D_LORD`, `POPUP_TR_DEMONIO` (+ `.tet`, data215) are in the list. The `HQ_Cutin_{LLD,LCN,LDN}_{LU,CIEL}_Transcendence` cut-ins are already June bytes.
+- **Lua is not in the stage list** (June `0x82` bytecode goes through `adopt-june` by its owner): `Luciel_Duo` / `Luciel_Demonio` and `DLG_LUCIEL_BOUNDING_KEY.lua` CH1; `DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua`, `DLG_Luciel_CombinationPoint.lua` CH5; `DLG_Class_Change_Luciel_*` (6) and the 4 guide dialogs CHN; `DLG_Unit_Create_ClassChange_Button_Luciel` NU4; `Tutorial_Luciel_Stage0` (+ `_LineMap`) TU.
+- Effect closure `ch0_effect_closure.tsv`: 13,049 rows, 3,815 names, 572 missing (557 in the list; `Ciel_Claw04.ogg`, `Luciel_Shadow_Fury04.ogg`, `WhiteImage.tga`, `__Motion_HAURES2_Ciel_LDN.X` are in no June kom; 15 templets June never defines, e.g. `LDN_Bounding_Lu_StoneFloor`): nothing to stage for those.
+- About 14k of the rows are Lu/Ciel shop / costume meshes and `VoicePack_Lu_*`: the character's June assets go in whole (user rule), so they stay.
 
 ## Amended by NU0
 

@@ -52,3 +52,7 @@ NU0 (2026-11-02), `nu0_equip_nesi.tsv` rows `DU5`, `nu0_duo_engine.tsv` rows `DU
   `3372c1e8`) by form (`Mesh_Lu_Base_SD.X` / `Mesh_Ciel_Base_SD.X`): June's body, not a new case.
 - **Both bodies** on the create screen (SelectLuciel `@32555fe8`) and the select screen (`32564400`, `3255e570`), with `31edf260( class, 1 )`
   (NU4 ports it). `321693b0` drops a second ring on EP 28 (`EP_AC_RING2`, DU3 registers the name).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L153 CharCustomData (22 Lu/Ciel rows in June); customize reader reads DUO_TYPE; §3 L153 UnitViewerEffectSetTable (Lu/Ciel duo rows); §7e L368 duo minor model in the unit viewer: +0xd7c skin anim, +0xd80-0xd82 duo type / sh; §7v L649-653 IS_FOR_MINOR_UNIT slot key (X2SlotItem.cpp:53-65 LuaGetValue, June 32e284b0 @32e; §7aj L870-872 unit form change 3234d930 (my unit +0x28 / +0x2c match, 3214f050, 328e8cd0( form; §7as L1001-1012 unit viewer glow: 31f92910, 31f9a900, 31f961a0, frame move 31f93050 (+0xd80), vi.

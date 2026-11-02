@@ -57,3 +57,7 @@ branches by `cl /P`):
 - **Owned elsewhere:** `PlaySoundCreateUnit` (:3985, June `32550aea` types 1..12 + voice-prefix getter `32376270`) is NU4's; `PlaySoundRevive`
   (`X2GUUser.cpp:49580`, `31fdb3f2`) reads `+0x8e90`, so its body is DU1's. NU1 owns `ChangeUnitButtonInfo` (`X2StateServerSelect.cpp:11412`): June
   tests the type 1..12, and until then a type-10 unit pops STR_ID 707 (`nu0_type_switches.tsv`).
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L155-156 New characters need a unit type, a unit class, a skill tree and server-side data; §7 L225 UT_LUCIEL and ST_SPECIAL_ACTIVE_GRADE_1-3 Enum members; §7s L583 BOSS_DROP_ITEM.LUCIEL and ENDING_SPEECH<n>.LUCIEL (101 tables), speech entries {; §7ar L988-992 GetX2UnitClassCompatibility 31ed6500: June's 31 extra switch cases (unit classes.

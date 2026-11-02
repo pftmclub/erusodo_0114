@@ -67,3 +67,7 @@ NU0 (2026-11-02), `june2017_re/char_luciel/nu0_create.tsv` (47 rows) and `nu0_ty
   builder and its loader whole for the create / select sounds (`adopt-june` + `luabind.py check`), and say in the Done note whether any other class's
   voice changes.
 - Assets: CH0b's NU0 list. Select-list guard (`X2StateServerSelect.cpp:2951` / `:11391`, STR_ID 707) is NU1's. First entry is TU's.
+
+## Amended by CH0 (2026-11-02)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L155-156 New characters need a unit type, a unit class, a skill tree and server-side data; §5 L190-193 server side: stat rows (StatTable.lua) for 37/38/39/127/128/129/200.

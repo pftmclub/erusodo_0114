@@ -1,0 +1,10 @@
+# charport_scan.py restricted to Luciel_Duo + Luciel_Demonio (2026-11-02): scratch dir held only their .lua/.src.lua/.std.luac and prepare() was skipped, because the full decompile-batch stalls on ljd for large scripts (GameEditCommandList, ManufactureItem). KEYS/NUMERIC/ENUM are per-file, so the Luciel rows are the same as a full run.
+KEYS (exact sub-path under DAMAGE_DATA*)
+KEYS-BYNAME (bytecode, any table; leads only)
+NUMERIC (DAMAGE_DATA* tables)
+  Luciel_Demonio               {'no NUMERICAL_DATA_INDEX': 11, 'no DAMAGE table': 2}
+  Luciel_Duo                   {'no NUMERICAL_DATA_INDEX': 67, 'no DAMAGE table': 15}
+ENUM (June-only Enum.lua tables indexed)
+  Luciel_Demonio               {'CUSTOM_RENDER_STATE': 3}
+SKIPPED []
+SRC/BYTECODE MISMATCH (not path-checked) []

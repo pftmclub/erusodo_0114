@@ -34,6 +34,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 keys DUNGEON_SPEECH_LUCIEL, LU, CIEL x4 (INIT_SYSTEM Duo L1-22, STR_ID_33342-333; §7 L260 vslot 510 skill lookup 32b3a310 (+ slot 545 = 0x884 32b3acf0): quick-slot specia; §7 L263 vslot 510 copy @32b3a61f after CheckSkillUsePVPOfficial: riding-key skill wait; §7ap L977 slot 0x56c skill icon override 32b16220 and slot 0x6a8 shown cool time 32aea8c0 .
+- June-only keys and owners in `ch0_keys.tsv` (357 rows, counts = the plan's census). The keys `CX2GUUser::CommonStateStart(Future)` parses (`DUO_TYPE`, `MINOR_UNIT_*`, `CP_AMOUNT`, `USE_NOT_SELECT_*`, `USE_PHYSICPROCESS_NOT_SELECT_UNIT`, `FORCE_DYNAMIC_CAMERA_INDEX` @3205c0e8, `RETAIN_CAMERA_STATE` @3205b934, `SUPER_ARMOR_CUSTOM_COLOR` @3205941f) are DU1's parse; the class only reads the members. `DEFAULT_UNSELECTED_UNIT_MP_CHARGE_VALUE_PER_SECOND(_AT_PVP)` is read by InitComponent 0x3c `32b0f080` (CH1k).
+- No June reader (dead data, nothing to port): `HEAD_IK`, `HEAD_IK_MAX_ANGLE`, `MINOR_SPEED_TIME0` (Duo L7969 typo), `STOP_TIME_ATK` (Demonio typo of `STOP_TIME_ATT`), `DAMAGE_DATA_MEMO`, `STATE_STRING`. Immunity keys (`31fdaaa0`) stay on the Stage 2 bullet, as for Chung.

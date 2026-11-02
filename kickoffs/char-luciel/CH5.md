@@ -33,6 +33,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L153 EmotionData, EventScene* (Lu/Ciel rows); §7t L617-622 skill cut-in names -> June .gfx: replace s_SkillCutInSet and the InitState index; §7ah L827 class statics Static_LucielSwitchingGuide / g_pStatic_LucielCooltime in the 10-s; §7aj L862-864 slot data type 6 (328d9b00 / 328da050): Luciel transform slot, ctor caller 3200f; §7aj L865 Luciel's portrait 328dcba0 / 328db7a0: form flag at tree +0x8c from unit +0xe40,.
+- Adopt `DLG_LUCIEL_TRANSFORM_SKILL_SLOT.lua` and `DLG_Luciel_CombinationPoint.lua` (data034). The switching guide (`322e6300`) is CH1a0's, the transform HUD CH2d20's.

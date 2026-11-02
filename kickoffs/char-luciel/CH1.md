@@ -36,6 +36,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 per-character parser census; §7h L421 EFFECT_SET_LIST variants; §7h L423 SOUND_PLAY_EX x5, CUSTOM_STATE_DELETE_SOUND x5, STATE_SOUND_PLAY x0; §7h L424 USEFUL_VALUE0..4 rows and getters; §7o L506-507 SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN (13 tables; Lu and C; §7p L545 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L586-589 SHOW_HYPER_CUT_IN_TIME in the class script; §7x L664 combo hits carry June AT_COMMAND tag; adopt the script with its tags.
+- Adopt `DLG_LUCIEL_BOUNDING_KEY.lua` (data034) with the scripts: Init 0x40 `32b1e8e0` loads it at `32b1ea23`. `luabind.py check` all three.

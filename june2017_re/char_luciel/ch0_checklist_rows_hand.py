@@ -1,0 +1,265 @@
+r"""Hand-written rows of char-luciel CH0 item 4 (see ch0_build_checklist_rows.py). Evidence sources: JUNE2017_CHARACTER_PORT_CHECKLIST.md, plan_march_side.md 6a,
+plan_june_side.md, plan_charport_keys.txt, ghidra/vtable_334f06fc_all.tsv, ch0_checklist_calls.py (raw call scan of 0x32ae4080-0x32b4e76f),
+s3e_bybfi_callers.tsv, w1f_candown_callers.tsv, the two June scripts."""
+
+
+def add(row, APPLIED_EV, APPLIED_PH):
+    row('§0', 'L3', 'intro: Lu/Ciel named among the new characters; read before any port', 'checklist L3', 'n/a', 'read; no work item')
+    # section 1
+    row('§1', 'L37-105', 'blocks that index past their skill data need a JUNE_BUGS row',
+        'c1a_numerical_blocks.tsv has no Luciel row (it censuses DamageEffect.lua blocks); the 17 tables above are unchecked',
+        'CH2a CH2b CH3a CH3c', 'the phase that ports a table compares its level index with the skill templet NUMERICAL_DATA length; a short block gets a JUNE_BUGS row')
+    row('§1', 'L37-105', 'retire SKILL_NUMERICAL_DEBUG', 'checklist section 1 Aisha note: already retired by Aisha CH2a', 'n/a', '')
+    # section 2
+    row('§2', 'L116', 'APPLIED_SKILL_ID (parsed since 8c)',
+        '21 uses: Luciel_Duo 18 (L16009-L22191), Luciel_Demonio 3 (L4377, L4652 RNSI_SA_LDN_DESPERADO 30047, L6711); every SKILL_ID name resolves in june_src_fixed Enum.src.lua; owner phase: ids = ' + APPLIED_EV,
+        APPLIED_PH, 'no name absent from June Enum (no Chung-style nil)')
+    row('§2', 'L117', 'NUMERICAL_DATA_INDEX', '17 tables (Duo 15, Demonio 2), the numerical-only rows above', 'CH2a CH2b CH3a CH3c', 'see the 17 numerical-only rows')
+    row('§2', 'L119', 'HIT_ADD_COMBINATION_POINT (parsed, logged) x6',
+        'Luciel_Duo L7359 LSI_LU_COMBO_ZZZZX, L7990 LSI_LU_COMBO_XXXZX, L8851 LSI_LU_DASH_JUMP_COMBO_XXXXZ, L10924 LSI_CIEL_COMBO_ZZZZX, L11436 LSI_CIEL_COMBO_XXXZX, L12312 LSI_CIEL_DASH_JUMP_COMBO_XXXXZ (each = 1); reader CX2GULuciel 32b14bc0 (DD +0x594 > 0, then 32b14860)',
+        'CH1p', 'the DamageData member and parse exist (parsed, logged); the reader and the combination points are class code')
+    row('§2', 'L126', 'DAMAGE_RATE_TO_SUPERAMOR x2',
+        'Luciel_Duo L22132 LSI_A_LLD_BLUFF_LU and L22183 LSI_A_LLD_BLUFF_CIEL (= 2); skill 30304 RNSI_A_LLD_BLUFF, tree owner 127',
+        'CH3a', 'engine side implemented (effect C3): the skill phase checks the x2 against a super-armoured target')
+    row('§2', 'L110-127', 'other DamageData keys (NATURAL_FORCE_TYPE, ADDITIONAL_ATTACK_TRIGGER_TYPE, BUFF_FACTOR_ID_ULTIMATE, IGNORE_DEFENCE*, APPLY_LEARNED_*)',
+        'grep of both scripts: 0 uses of each', 'n/a', '')
+    # section 3
+    row('§3', 'L151', 'Combination point absent',
+        'reader CX2GULuciel 32b14bc0 (DD +0x594 > 0, then 32b14860, which reads spec A/B: L276); CP_AMOUNT x2 (LSI_CIEL_DIE_FRONT L8915, LSI_CIEL_DIE_BACK L8972); DLG_Luciel_CombinationPoint.lua is the UI (169 lines)',
+        'CH1p', 'UI half is CH5')
+    row('§3', 'L153', 'Lu/Ciel duo absent (no DUO_TYPE enum)',
+        'DUO_TYPE x390 (Duo) + x158 (Demonio); live Enum.lua has DT_MAJOR 0 / DT_MINOR 1 only (L13156-13157)',
+        'CH1p', 'two-body engine = DU1; the in-class switch and the Enum members = CH1p')
+    row('§3', 'L153', 'CharCustomData (22 Lu/Ciel rows in June); customize reader reads DUO_TYPE',
+        'plan_june_side.md section 4; charport_keys DUO_TYPE reader 326525d0 CX2CustomizeManager::OpenScriptFile',
+        'DU5', 'engine site: NU0 confirms; character window / customize')
+    row('§3', 'L153', 'EmotionData, EventScene* (Lu/Ciel rows)', 'checklist L153 names them; June files not read in CH0 item 4',
+        'CH5', 'data adoption with the cut-in and event-scene names; NU0 confirms')
+    row('§3', 'L153', 'UnitViewerEffectSetTable (Lu/Ciel duo rows)', 'checklist 7e L368 (DT_MINOR row LDN_LobbyWait -> EffectSet_LDN_Start_Ciel)',
+        'DU5', 'engine site: NU0 confirms')
+    row('§3', 'L146-152', 'systems absent: numerical data, natural force, Rose weapon',
+        'numerical data engine ported (S4, section 1); natural force = Rena; Rose weapon = Rose', 'n/a', 'covered by section 1 / other characters')
+    row('§3', 'L155-156', 'New characters need a unit type, a unit class, a skill tree and server-side data',
+        'UT_LUCIEL = 10 shares UT_END (X2Unit.h:36), June UT_END 13; classes 37/38/39/127/128/129/200 in X2Unit.h:167-191; stat rows absent from server StatTable.lua',
+        'NU1 NU2 NU3 NU4', 'engine site: NU0 confirms; stat rows are CH0 item 8, a question to the user')
+    # section 4
+    row('§4', 'L166', 'CUSTOM_RENDER_STATE (17473) Enum table missing',
+        'live kom_contents/data036_kom/Enum.lua has no CUSTOM_RENDER_STATE or CRS_*; Luciel_Demonio uses CRS_INVISIBLE in 3 states (L6515/6518, L6947/6950, L7447/7450); Demonio is included from Luciel_Duo:22107',
+        'CH1p', 'PLAN CORRECTION: the table must be in Enum.lua before CH1 adopts the scripts (a missing table cuts off the rest of the file); the plan puts only the key use in CH3c')
+    row('§4', 'L167', 'DUO_TYPE (17515) members DT_BOTH = 2, DT_KEEP = 3',
+        'live Enum.lua:13155-13157 has DT_MAJOR 0 / DT_MINOR 1; Luciel_Duo uses DT_BOTH 47x, DT_KEEP 24x', 'CH1p', 'core-list Enum.lua; the plan already names it')
+    row('§4', 'L168-176', 'ROSE_WEAPON_TYPE (17636)', 'Rose scripts only', 'n/a', '')
+    row('§4', 'L178-181', 'June-only SKILL_ID members fail silently (52 SI_ 10000-10699 + 143 RNSI_ 30001-30999)',
+        'ch0_enum_names.tsv (195 templets + 2 tree-only ids: name, value, cpp_enum, cpp_state)', 'CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d CH4a',
+        'each phase registers the names of its ids (no literals, Enum rule)')
+    # section 5
+    row('§5', 'L184-188', 'per-character parser census',
+        'plan_charport_keys.txt: Duo 230 keys (june-only 23, neither 3, march-only-site 4); Demonio 127 keys (june-only 12, neither 2)',
+        'CH1', 'CH1 reruns charport_keys.py after adopting the scripts')
+    row('§5', 'L184-188', 'keys DUO_TYPE x390 / x158',
+        'readers 320506f0 CX2GUUser::CommonStateStartFuture, 32057b80 CommonStateStart, 32383080 (?), 326525d0 customize OpenScriptFile',
+        'DU1', 'plan owner CH1p (the in-class switch); the parse is CX2GUUser engine code: engine site, NU0 confirms')
+    row('§5', 'L184-188', 'keys MINOR_UNIT_ANIM_NAME x247 / x108, MINOR_UNIT_SPEED_X x4, CP_AMOUNT x2',
+        'readers 320506f0, 32057b80 (CP_AMOUNT 320506f0)', 'DU1', 'engine parse in CommonStateStart[Future]; the CP_AMOUNT use is CH1p; engine site: NU0 confirms')
+    row('§5', 'L184-188', 'keys MINOR_UNIT_AFTER_IMAGE x8 / x4, MINOR_UNIT_SPEED_TIME0-4 (x129 Duo / x133 Demonio), NOT_SHOW_UNIT_BY_DUOTYPE x2 (Duo L3920, L4598)',
+        'charport_keys: no June reader found for these groups (plain / base keys read elsewhere)', 'DU1', 'engine site: NU0 confirms the readers (7o L530: +0x8604, list swap 31fe3a60)')
+    row('§5', 'L184-188', 'key MINOR_UNIT_MOTION_FILE_NAME x1 (INIT_MOTION)', 'reader 31fe5860', 'DU1', 'with NU3 minor-unit templet members; engine site: NU0 confirms')
+    row('§5', 'L184-188', 'Demonio keys USE_NOT_SELECT_MOTION_BEFORE_POS x13, USE_NOT_SELECT_UNIT_ANIM_TIME_IN_SPEED x3, USE_PHYSICPROCESS_NOT_SELECT_UNIT x15 (and USE_NOT_SELECT_MOTION_DIFFERENCE x15, CUSTOM_OFFSET_NOT_SELECT_UNIT x10, counted March-read)',
+        'readers 320506f0, 32057b80', 'DU1', 'plan item 3 already names DU1')
+    row('§5', 'L184-188', 'key SUPER_ARMOR_CUSTOM_COLOR x49 (Demonio)', 'reader 32057b80 CommonStateStart', 'CH3c', 'plan puts it in CH3c; the parse is engine: NU0 confirms')
+    row('§5', 'L184-188', 'keys DEFAULT_UNSELECTED_UNIT_MP_CHARGE_VALUE_PER_SECOND and _AT_PVP (INIT_COMPONENT)', 'reader 32b0f080 = Luciel vtable 0x3c override (InitComponent)', 'CH1k', 'class own code')
+    row('§5', 'L184-188', 'keys DUNGEON_SPEECH_LUCIEL, LU, CIEL x4 (INIT_SYSTEM Duo L1-22, STR_ID_33342-33349)',
+        'readers 3202b9e0, 327e0040; March reads DUNGEON_SPEECH at X2GUUser.cpp:2586', 'CH1o', 'type-10 branch in the engine InitSystem reader: engine site, NU0 confirms')
+    row('§5', 'L184-188', 'keys BBT_CHANGE_NOW_HP_PER_SECOND x6, BFT_TIME x6', 'buff sub-table keys read by stringized type name (census implemented/unassigned)', 'n/a', 'as Chung')
+    row('§5', 'L184-188', 'keys FORCE_DYNAMIC_CAMERA_INDEX x15, RETAIN_CAMERA_STATE x1', 'reader 32057b80 CX2GUUser::CommonStateStart', 'n/a', 'engine camera keys, as Chung / Eve')
+    row('§5', 'L184-188', 'keys IMMUNE_TO_SUPER_ARMOR_DOWN x1, IMMUNITY_EDT_LIST_AT_THIS_STATE x13', 'reader 31fdaaa0 (per-state parse, +0x8648)', 'n/a', 'backlog Stage 2 "Per-state immunity lists", as Chung')
+    row('§5', 'L184-188', 'neither-side keys HEAD_IK x16, HEAD_IK_MAX_ANGLE x1, MINOR_SPEED_TIME0 x1 (Duo); STOP_TIME_ATK x2 (Demonio)', 'no reader on either side', 'n/a',
+        'MINOR_SPEED_TIME0 looks like a typo of MINOR_UNIT_SPEED_TIME0: keep verbatim')
+    row('§5', 'L190-193', 'tokenizer-rejected files', 'not Lu/Ciel-specific', 'n/a', '')
+    row('§5', 'L190-193', 'server side: stat rows (StatTable.lua) for 37/38/39/127/128/129/200',
+        'plan_june_side Gaps: none in the server StatTable; CharacterStatTable.src.lua UT_LUCIEL :167, DREAD_LORD / NOBLESSE / DEMONIO :417-433',
+        'NU4', 'open decision, CH0 item 8 (user question); NU4 never borrows another class and logs the synthetic curve')
+    row('§6', 'L199-212', 'order of work; mark format (Luciel: CHn)', 'each phase writes its (Luciel: CHn) mark on the rows it settles', 'n/a', 'step 6 = CH1 adopt-june of Luciel_Duo.lua + Luciel_Demonio.lua')
+    # section 7
+    row('§7', 'L225', 'UT_LUCIEL and ST_SPECIAL_ACTIVE_GRADE_1-3 Enum members',
+        'Lua Enum.lua has them since buff Phase 14; C++ X2Unit.h:36 UT_LUCIEL = 10 shares UT_END (June UT_END 13)', 'NU1', 'engine site: NU0 confirms; ST_SPECIAL_ACTIVE_GRADE_1-3 already in C++ (S3c)')
+    row('§7', 'L238', '32b1e8e0 (vslot 16, user slot 0x40) writes 0 at init', 'vtable 334f06fc 0x40 = 32b1e8e0, base 3204ea20', 'CH1k', 'override band 1 (slots below 0x4a0, pending ch0_class_map)')
+    row('§7', 'L240', 'SetBuffAccumulationCount 322a7660 / AddBuffAccumulationCount 322a8a70 callers include Luciel',
+        'raw scan: 322a7660 call @32b3d789 (function 32b3d6fc, next to delegate 32b3d380); 322a8a70 from 32b20890, 32b20ade, 32b2fb67, 32b308ef, 32b36b6e, 32b36d5e',
+        'CH1l3 CH3b CH4a', 'callers: 32b20780 CH1l3, 32b2f4b0 / 32b308e0 / 32b369b0 / 32b36ba0 CH3b, 32b3d380 delegate CH4a; 32b20ad0 is dead; pass x as June (Aisha rule)')
+    row('§7', 'L241', 'AnimPlay extra skin anims +0x8e84 / +0x8e88 (31fe8130 / 31fe8050), clears +0x8080', 'two-body members: the second skin anim exists only for the form byte', 'DU1', 'engine site: NU0 confirms')
+    row('§7', 'L243', 'unit vslot 152 = user byte +0x8e90 (setter 3204e030), second after-image +0x6758 on skin anim +0x8e80, second head frame 31fcac20, second AFTER_IMAGE table +0x852c; +0x8e90 copied from CX2Unit +0xe40 at creation (32d51e80)',
+        'vtable 0x260 = 3208e160 (base, not overridden); ghidra/decomp_32d51e80.c', 'DU1', 'engine site: NU0 confirms')
+    row('§7', 'L244', 'bone rotation second pair +0x8e84 / +0x8e88 (31fd93e0 @31fd954e, 32063650 @32065792, 31fdb4e0 via 32071d80)', 'exists only for unit type 10', 'DU1',
+        'engine site: NU0 confirms; March stand-ins: JUNE_DIVERGE_ROTATE_BONE / JUNE_USER_BONE_ROTATION')
+    row('§7', 'L245-246', 'after-image "on by buff" +0x7c80 and saved enable +0x1d1', 'every user, no Lu/Ciel branch', 'n/a', 'engine')
+    row('§7', 'L251', 'skill-use function 32b1eef0 (vtable +0x800, also slot 512 the reserved-skill hook) sets the cooldown (32893880 @32b1f059) then 3235a710 @32b1f082',
+        'raw scan of the class range; vtable 0x800 = 32b1eef0', 'CH1l', 'band 2; wire ApplySkillCoolTimeRateByBuff after the cooldown (Phase 6b shape)')
+    row('§7', 'L253', 'IsSummonSkill (54 ids) and summon cases of 3230c1a0 that March lacks (Luciel NPC ids 1906, 1908, 1937, 2269, 2270)',
+        'NUI_SI_SA_LLD_SUMMON_DARKNESS 1906, NUI_SI_SA_LCN_SHADOW_BOLT 1908, NUI_SI_SA_LLD_SUMMON_DARKNESS_PVP 1937, NUI_SA_LDN_GARDEN_OF_HAURES 2269 / _ADD 2270; NUI_SI_A_LCN_SHADOW 1907 has no script',
+        'CH2a0', 'power rate through 322ece70 x GetSummonPowerRateByBuff')
+    row('§7', 'L254', 'class code scales the cached state power rate (+0x7cc8), e.g. 32b1cd20', '32b1cd20 sits in the Luciel range',
+        'CH1b CH1d CH1f CH1g CH1h CH1i', 'multiply m_fNowStatePowerRate, never assign')
+    row('§7', 'L255', 'ChangeMaxCharacterAddResource override 32b14cd0 (unit vslot 201, BBT 97)', 'vtable 0x324 = 32b14cd0, base 3208ddc0; checklist: "Rose and Luciel not decoded"', 'CH1k', 'decode in the phase')
+    row('§7', 'L256', 'death prevention: gauge snapshot override vslot 0x740 Luciel 32aeb410 (and the restore at 0x744, 32aeb430)', 'vtable 0x740 = 32aeb410, 0x744 = 32aeb430', 'CH4b',
+        'both overrides are in the Luciel range; engine hooks 320072d0 / 3202b9a0 are every-user')
+    row('§7', 'L257', 'slot 251 3204dcd0 post-apply hook: Soul Collector, BTI 462, RNSI_P_LCN_TRIBUTE 30409 / NOBLE_DEVOTION 30419',
+        'checklist: March has no post-apply hook (X2GameUnit.cpp "slot 251")', 'CH4a', 'the engine hook is absent in March and in no NU/DU scope: CH4a adds it with the passive')
+    row('§7', 'L260', 'vslot 510 skill lookup 32b3a310 (+ slot 545 = 0x884 32b3acf0): quick-slot special item wait at the top',
+        'vtable 0x7f8 = 32b3a310; 0x884 = 32b3acf0 (own virtual)', 'CH1o', 'IsQuickSlotSpecialItemWaiting() exists (Phase 7c)')
+    row('§7', 'L261', 'dev free-skill gate around the cool-time / MP / hyper-stone block of the skill-use check', 'every class; the Luciel block is in 32b3a310 / 32b1eef0', 'CH1n',
+        'CX2GUUser::IsDevUnlimitedSkillUse()')
+    row('§7', 'L263', 'vslot 510 copy @32b3a61f after CheckSkillUsePVPOfficial: riding-key skill wait', 'IsRidingKeySkillWaiting() exists (Phase 7e)', 'CH1o', '')
+    row('§7', 'L258-259 L264-270 L272-273 L276 L279-281 L283-291', 'Add / Ara / Rose / Ain / Elesis / Eve / Lanox / Aisha-only buff-hook rows',
+        'not Luciel (raw scans: no Luciel-range caller of 3201ad10 or 3201f850)', 'n/a', 'OTHER')
+    row('§7', 'L271', 'ally-summon focus target (32011960 / 31fd0590 / 32011ab0)', 'raw scan: no Luciel call', 'n/a', 'engine')
+    row('§7', 'L274', 'last-hit serial +0x40dc read at 31fd0311 (user) and 3275a0f5 (NPC) for unit type 10', 'engine BOUNDING_UP StateStart 31fd02d0 supplies 32b38cb0 (L471)', 'DU1',
+        'engine type-10 branch, engine site: NU0 confirms. PLAN GAP: no NU/DU phase lists type-10 DamageReact / StateStart branches (see L379, L454, L471)')
+    row('§7', 'L275', 'SocketData_DuoUnit (vt 33478ab0, 0x488) built by the user ctor 32042060 for type 10; vslots 3/4 32091b10 / 32091b60; read in 32b0fa90',
+        'vtable 0x664 = 32b0fa90 (override of 31fd2810)', 'DU1', 'structure and ctor branch are engine (March socket aggregate is the plain m_SocketData); the reader 32b0fa90 is CH1l; NU0 confirms')
+    row('§7', 'L276', 'Spec A / B readers 32b14860 (A and B) and 32b37910 (B)', '32b37910 = vtable 0x7c4 override (base 32057b80); 32b14860 is the combination-point function', 'CH1p CH1l',
+        'GetCharacterSpecializationA/B() exist (Phase 16)')
+    row('§7', 'L278', 'SetUserSummonedNPCInfo / 322ece70 per-case flags for every class with a summon', 'Luciel summons: see L253', 'CH2a0', '')
+    row('§7', 'L282', 'vslot 485 (+0x794) override 32b0e670 (CX2GULuciel vtable 334f06fc): skill-group power socket pass 31fe14f0 for 3 skills 0x755c..0x755e (30044-30046) or 30050-30052 (LDN) when vslot 0x260 is true',
+        'vtable 0x794 = 32b0e670, base 33093ad0', 'CH1l', 'band 2; the 0x260 test is the second-body flag (DU1)')
+    row('§7a', 'L301', 'AddDamageEffectModifier list (June-only system)', 'no Luciel tag in the 7a table', 'n/a', 'other tags log once in the play-test; a Luciel tag found there gets its own row')
+    row('§7a', 'L308', 'vslot 0x248 override 32b0efc0 (instance +0x1b8 = unit +0x988c), vslot 0x2e0 override 32b0efe0; DamageData +0x638 readers 32b14db0, 32b16810, 32b16880, 32b4cb80',
+        'vtable 0x248 = 32b0efc0, 0x2e0 = 32b0efe0 (both override); 32b14db0 = own virtual 0x880', 'CH1k', 'engine C6b members exist (JuneStampEffectSetIndex, m_iJuneDamageEffectIndex); 32b14db0 is CH1a')
+    row('§7b', 'L325-326', 'skill-memo entry 31fdbbb0 / class callers of 31fdbcc0', 'raw scan: 31fdbcc0 called from 32b3c4b4, 32b3c4e4 (in 32b3c3b0) and 32b46680 (in the skill head 32b46580)', 'CH1n CH4c', '')
+    row('§7b', 'L327', 'SetDamageExceptionProcess per-class block', 'vtable 0x2b8 = 32aea530 (override of 32045340)', 'CH4b', '')
+    row('§7c', 'L350', 'effect-alpha tag sites by class region', 'c10a_alpha_sites.tsv: no Luciel-range row', 'n/a', '')
+    row('§7e', 'L368', 'duo minor model in the unit viewer: +0xd7c skin anim, +0xd80-0xd82 duo type / shown flags, DT_MINOR row LDN_LobbyWait -> EffectSet_LDN_Start_Ciel (8 particles), LDB_LobbyReadyAction flag +0x11d8, second frame move 31fa8ce0',
+        'March viewer passes duo 0 and runs one frame move', 'DU5', 'engine site: NU0 confirms; see also the viewer glow rows (L1001)')
+    row('§7d', 'L379', 'DamageReact 320483e4 (user) / 327b33cf (NPC): type-10 attacker with USED_SKILL_ID 30205 forces IGNORE_DEFENCE (+0x528 / +0x529; NPC also +0x534)',
+        'USED_SKILL_ID = RNSI_A_LLC_BACKSTAB at Luciel_Duo L17402 (F) and L17487 (M); owner class 37 (CH2b)', 'CH4b',
+        'engine type-10 branch in two DamageReacts: engine site, NU0 confirms; members are buff port 5c (SERV_IRUHADEV_JUNE_BUFF_NEW_STAT)')
+    row('§7g', 'L382-391', 'lobby habit motion / unit-type remap (Rose)', 'Rose only', 'n/a', '')
+    row('§7g', 'L407', 'item record +48 m_ItemIDForMinorUnit (429 Lu items -> Ciel dummy, 30344 -> 200030344)', 'item.kim K2 adds the accessor only', 'DU3', 'engine site: NU0 confirms; the starter rows 200113300-200113304 use it (NU4)')
+    row('§7g', 'L408', 'item flags2 bit 2 m_bIsForMinorUnit (2,582 Ciel dummies)', 'same consumer', 'DU3', 'DU4 retires the IS_FOR_MINOR_UNIT stand-in')
+    row('§7g', 'L409', 'Extra accessors 32867660..32867960: unit type 10 -> key 10 (Lu) or 11 (Ciel) by bool; 11 -> 12, 12 -> 13', 'K2 ported the remap with the bool false', 'DU3', 'engine site: NU0 confirms')
+    row('§7h', 'L420', 'UPDOWN_CANCEL_AFTER state cancel branches', 'grep: 0 uses in both scripts', 'n/a', '')
+    row('§7h', 'L421', 'EFFECT_SET_LIST variants',
+        'Luciel_Duo EFFECT_SET_LIST_ULTIMATE_EX x3 (L15181, L16186, L16310); Luciel_Demonio EFFECT_SET_LIST_FINAL x2 (L3512, L3557); EX_TRANS / EX_NO_TRANS / EX_APPLIED_SKILL: 0',
+        'CH1', 'engine reader exists; arrives with the adopted script')
+    row('§7h', 'L422', 'POSSIBLE_NASOD_BARRIER / RELATE_SKILL_ID fields, +0x3f00 writers', 'grep: 0 uses; no Luciel class site named', 'n/a', '')
+    row('§7h', 'L423', 'SOUND_PLAY_EX x5, CUSTOM_STATE_DELETE_SOUND x5, STATE_SOUND_PLAY x0',
+        'Duo SOUND_PLAY_EX L7851, L11339, L14363, L18091, L21382; CUSTOM_STATE_DELETE_SOUND L5175, L5238, L7931, L8917, L8974', 'CH1', 'engine readers ported (C9h-4a); nothing extra in code')
+    row('§7h', 'L424', 'USEFUL_VALUE0..4 rows and getters', 'USEFUL_VALUE0: Luciel_Duo x3 (first L830), Luciel_Demonio x13 (first L62); USEFUL_VALUE1-4: 0', 'CH1', 'readers are in the class states: they follow their state group')
+    row('§7h', 'L425', 'USI_WAIT_STATE_CHANGE registered in every class InitState; WIN OnEventProcess = delegate 320718d0', 'Luciel_Duo has LSI_WAIT_STATE_CHANGE at L815', 'CH1m', '')
+    row('§7i', 'L427-442', 'SetEquippedSkillFuncBySkillSlotIndex: drop the 31fd2af0 snapshot call, set state byte +0x1; Luciel 32b46580 is June-only', 'vtable 0x7b4 = 32b46580', 'CH1n',
+        'JuneSnapshotBeforeSlotRebind is made by the engine')
+    row('§7i', 'L436-437', 'class code multiplies m_fNowStatePowerRate, never the entry', 'every class', 'CH2a CH2b CH2c CH2d CH3a CH3b CH3c', '')
+    row('§7j', 'L443-453', 'Elesis 0x4f8 / 0x4fc DamageReact hooks', 'vtable 0x4f8 / 0x4fc not overridden by Luciel', 'n/a', '')
+    row('§7j', 'L454', 'inline user-DamageReact step 320462a0 @3204963d + 32aebaf0: a type-10 unit absorbs damage x 0.2 while BTI_BUFF_SHADOW_LU 478 / SHADOW_CIEL 479 holds (drains +0x968c, erases both at <= 0)',
+        '32aebaf0 is inside the Luciel range', 'CH4b', 'inline engine step (after the 0x4f8/0x4fc call, before 322cfca0): engine site, NU0 confirms')
+    row('§7k', 'L461', 'class-set callback +0x8dc0', 'no Luciel writer named', 'n/a', 'unowned engine item')
+    row('§7l', 'L469', 'SUPER_ARMOR_FRONT states', 'Luciel_Duo x4: LSI_LLD_COMBO_XX_DOWN_XX_LOOP L14603, LSI_A_LD_F_HAUNTING_BEAT L16093, LSI_A_LD_M_HAUNTING_BEAT L16226, LSI_LLD_M_COMBO_XX_DOWN_XX_LOOP L21838',
+        'n/a', 'works once C3c is in; nothing per class')
+    row('§7l', 'L470', 'USI_BOUNDING_DOWN / _LANDCRASH / _UP registered in every class InitState with their *_DAMAGE_BOUNDING_* tables',
+        'Luciel_Duo LSI_LU_DAMAGE_BOUNDING_DOWN/LANDCRASH/UP L6066-6088, LSI_CIEL_ L9718-9742; Demonio LSI_BOUNDING_* x30 incl. LSI_BOUNDING_TARGET_LU_STRIKER (L1)', 'CH1m', 'tables arrive with the script')
+    row('§7l', 'L471', 'bounding-target hook: BOUNDING_UP StateStart 31fd02d0 calls 32b38cb0( type, uid64, +0x40dc ) when the last attacker is type 0xa; NPC twin 3275a070',
+        '32b38cb0 = the LSI_BOUNDING_TARGET_* combo (Demonio L1 first table)', 'CH1i', 'class fn 32b38cb0 in CH1i; the engine call is DU1 (L274)')
+    row('§7l', 'L474', 'virtual 32b34680 (slot 0x568): target check via JuneIsBoundingLandCrash 0x2f4 / JuneIsBoundingUp 0x2f0, state change 0x1fe / 0x1ff', 'vtable 0x568 = 32b34680, base 31e4c550', 'CH1l', 'engine side done (C3j)')
+    row('§7l', 'L467 L472-473', 'other 7l rows (Add super-armour, +0x9175 byte, packet-buff refusal)', 'not Luciel', 'n/a', '')
+    row('§7m', 'L479-480', 'NOTIFY_TO_OWNER_WHEN_DIE (Add only)', 'not Luciel', 'n/a', '')
+    row('§7n', 'L496', 'user-sync class-skill float: Rose, Ain and Lu/Ciel drive it too', 'plan DU1: user-sync bits c3e rows B, E, F, H, I, G (0x200000 class-skill float drivers)', 'DU1', 'engine site: NU0 confirms')
+    row('§7o', 'L506-507', 'SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN (13 tables; Lu and Ciel one each)', 'LSI_LU_DAMAGE_BOUNDING_DOWN L6068, LSI_CIEL_DAMAGE_BOUNDING_DOWN L9720', 'CH1', 'script adopted; the user reader is C3g')
+    row('§7o', 'L511-513', "minor unit's second PhysicParam +0x36c, MINOR_UNIT_PASSIVE_SPEED_X/Y, APPLY_MOVEMENT_SPEED copy (32015b30 @3201745a-32017861); June builds the limit and ignores it (JUNE_BUGS 142)",
+        'comes with Lu/Ciel (Stage 8)', 'DU1', 'engine site: NU0 confirms; keep the JUNE_BUGS 142 behaviour verbatim')
+    row('§7o', 'L519', 'walk-speed rescale uses the main unit (funcmap C3h rows 3205419d, 32015b30 @32016996)', 'minor-unit half', 'DU1', 'engine site: NU0 confirms')
+    row('§7o', 'L530-532', 'MINOR_UNIT_SPEED_TIME(_ULTIMATE) twins (+0x8604, 262 June rows), main / minor list swap on the second body (+0x8e90, 31fe3a60), anim-clock override (+0x8f6d, vslot 0x260, +0x8e91, @3206211c-32062172), minor list consumer pass (@320623c9..)',
+        'MINOR_UNIT_SPEED_TIME x129 Duo + x133 Demonio = 262', 'DU1', 'engine site: NU0 confirms')
+    row('§7o', 'L508-529', 'Raven / Add / Ara / Elesis / Rose speed rows', 'not Luciel', 'n/a', '')
+    row('§7p', 'L545', 'TIME_STOP_IMMUNE_STATE = TRUE in the class script',
+        'Duo L19806 LSI_HA_LLD_DESCENT_DARKNESS, L20308 LSI_SA_LCN_SHADOW_BOLT_CONTROL, L20792 LSI_HA_LCN_CASTLE_OF_ABADDON; Demonio L6961 LSI_HA_LDN_DIABOLIC_DISASTER, L7461 LSI_SA_LDN_ABYSS_EXTINCTION',
+        'CH1', 'script adopted: 5 states')
+    row('§7p', 'L546-548', 'hit-stop DamageReact 32c0cf90, Aisha binding circle, Elsword wooden piece', 'not Luciel', 'n/a', '')
+    row('§7q', 'L551-555', 'Luciel overrides all four down-state getters: make them virtual (or test the class); AIR_DOWN / GetJumpDownStateID', 'plan DU2: vslots 0x114 / 0x118 / 0x494 / 0x490 and 0x458', 'DU2',
+        'base bodies = the USI_DAMAGE_* constants; the two engine readers')
+    row('§7q', 'L557-562', 'Luciel getter bodies 32b4d810 (0x114), 32b4d850 (0x118), 32b4d990 (0x48c), 32b4d9d0 (0x490); also 32b4da10 (0x494) and 32b4d5b0 (0x458)',
+        'vtable overrides confirmed; branch on byte +0x8f6e / +0x8f6f (31fc9d90) and vslot 0x260', 'CH1l',
+        'plan names 0x494 / 0x490 / 0x458 for DU2 but the checklist table has 0x114 / 0x118 / 0x48c / 0x490: DU2 must cover 0x48c too')
+    row('§7r', 'L570-571', 'Chung cinematic-UI writes, Heavy Field', 'not Luciel', 'n/a', '')
+    row('§7s', 'L583', 'BOSS_DROP_ITEM.LUCIEL and ENDING_SPEECH<n>.LUCIEL (101 tables), speech entries { LU = STR_ID, CIEL = STR_ID }',
+        'X2DungeonManager.cpp:297 BOSS_DROP_ITEM and :488 ENDING_SPEECH read COMMON..ADD only; June 327e0f80 reads the two-speaker pair', 'NU1',
+        'PLAN GAP: the engine registry reader is in no phase; NU1 (unit-type loops) is the nearest home; NU0 confirms')
+    row('§7t', 'L586-589', 'SHOW_HYPER_CUT_IN_TIME in the class script', 'Duo x6 (LSI_LLD/LCN/LDN_LU_ and _CIEL_HYPER_MODE, L5489-9398), Demonio x2 (L3118, L5491)', 'CH1', 'script adopted; 0.06 each')
+    row('§7t', 'L591-593', 'UnitTemplet m_HyperCutIn / m_BerserkCutIn / m_MinorUnitHyperCutIn and the two _Trans keys; HQ_Cutin_*_Transcendence textures',
+        'UnitTemplet 1891-2019: HQ_Cutin_{LLD,LCN,LDN}_{LU,CIEL}_Transcendence + _Trans; gfx in K/data195_kom; Lu rows have no m_BerserkCutIn', 'NU3 CH3d',
+        'rows and keys NU3; the cut-in names and play CH3d; textures in CH0b')
+    row('§7t', 'L602', 'user vslot 0x51c override 32b4dbe0: state 0x17 or a Luciel state (@32b4dc12) -> JuneIsHyperModeState', 'vtable 0x51c = 32b4dbe0', 'CH1l', 'band 2')
+    row('§7t', 'L603', '32014fc0 ShowHyperSkillCutInByScript: second body + non-empty m_MinorUnitHyperCutIn; type 10 / class 0x81: state 0x1c2 -> m_HyperCutIn_Trans, 0x1f6 -> m_MinorUnitHyperCutIn_Trans',
+        'engine function with a type-10 branch', 'CH3d', "plan CH3d names both bodies' cut-ins; engine site: NU0 confirms; needs NU3 members and the DU1 flag")
+    row('§7t', 'L604-608', 'hyper active skills (type 13): cut-in shown whatever the option says', 'SI_HA 10600-10601, RNSI_HA 30601-30606; LSI_HA_* states', 'CH3d', '')
+    row('§7t', 'L611', 'sound sets: JuneIsHyperModeState also picks the HYPER / BERSERK sound set in CommonStateStart', 'same override 32b4dbe0', 'CH1l', 'one override serves L602 and L611')
+    row('§7t', 'L617-622', 'skill cut-in names -> June .gfx: replace s_SkillCutInSet and the InitState index switch for both bodies', 'June 329cd890 + 32078b70 per class; art in data152 / data195 (HQ_CutIn_LuCiel_01.gfx ...)', 'CH5', '')
+    row('§7u', 'L625-648', 'March-only effect templets the June re-adoption dropped', 'March has no Lu/Ciel code', 'n/a', '')
+    row('§7v', 'L649-653', 'IS_FOR_MINOR_UNIT slot key (X2SlotItem.cpp:53-65 LuaGetValue, June 32e284b0 @32e2870a) used by DLG_Magical_Closet, UI_CHARACTER_NEW_2/3/4',
+        'member and readers come with Lu/Ciel; under March data the key never matches', 'DU5', 'DU4 retires the stand-in (slot hide by June ids, 32e22ce0); engine site: NU0 confirms')
+    row('§7w', 'L656-662', 'CUSTOM_RENDER_STATE class users: Luciel_Demonio (CRS_INVISIBLE)', 'L6515-6518 SILENT_RAGE, L6947-6950 DIABOLIC_DISASTER, L7447-7450 ABYSS_EXTINCTION', 'CH3c', 'the Enum table itself is CH1p (L166)')
+    row('§7x', 'L664', 'combo hits carry June AT_COMMAND tag; adopt the script with its tags', 'AT_COMMAND x50 Duo (first L7035), x10 Demonio (first L166)', 'CH1', 'adopt-june brings them')
+    row('§7y', 'L680', 'GetLandPosition bMonster true in Luciel class code', 'Rose and Luciel pass true', 'CH1i CH2d2 CH3a CH3c2', '31c7bb00 callers: 32b341b0 / 32b343b0 / 32b35fd0 CH1i, 32b30ec0 / 32b38540 CH2d2, 32b2f1c0 CH3a, 32b32550 CH3c2')
+    row('§7y', 'L680-681', "Lu/Ciel's minor-body block in CX2GUUser::PhysicProcess (@320194bb, bMonster false)", 'belongs with 7o', 'DU1', 'engine site: NU0 confirms')
+    row('§7z', 'L683-688', 'CX2Eqip::_UpdateSkin 3295ae20 attaches every model for owner unit type 10 when the eqip ctor flag +0x15d4 is clear and the item has a second model +0x5a8',
+        'R14 left the term as a comment (SERV_IRUHADEV_JUNE_EQIP_SKIN)', 'DU3', 'engine site: NU0 confirms; adds the ctor flag and the term')
+    row('§7aa', 'L690-697', 'minor-unit attach-anim models: 3295dfa0 @3295e2cf-3295e4f6 builds the second anim / model pair +0x584 / +0x5e4 for the minor-unit item (329657d0, 325bb740, m_bIsForMinorUnit, m_ItemIDForMinorUnit +0x30)',
+        'R14b left it as a comment (SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM)', 'DU3', 'engine site: NU0 confirms')
+    row('§7aa', 'L698-701', 'UpdateEquipCollisionData pair (329657d0 reads basic items) is every-class, not Lu/Ciel-only', 'corrected 2026-10-30 (june-march-divergence Phase S)', 'DU3',
+        'natural home is the DU3 equip-view rewrite; the checklist says "belongs to the engine plan": NU0 confirms')
+    row('§7ab', 'L703-707', 'Rose weapon attach frames', 'Rose only', 'n/a', '')
+    row('§7ae', 'L713-720', 'June skill-tree ids with no March class state (reform ids 21000+, RNSI_*)', 'ch0_s3_baseline_rows.tsv: 301 Luciel tree rows (header lines excluded); none has a state in any family file',
+        'CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d CH4a', 'passives and buff-data ids (RNSI_P_*) are CH4a')
+    row('§7ae', 'L728', 'ids with no June SKILL_ID name', 'ch0_unnamed_ids.tsv held only its header when read', 'n/a', 're-read the tsv at review: a row there gets a name from the templet')
+    row('§7ae', 'L729-733', "June skill types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE ) needs June's rule from 32895390",
+        'Luciel SA ids are type 14 (30001 TRIPLE_SHOT); the call has June callers only in Ain', 'CH1n CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'the call is not Luciel; the switch cases follow the skill phases')
+    row('§7ae', 'L734-740', 'Ain gauge charge (32622bd0 / 32622e80)', 'Ain only', 'n/a', '')
+    row('§7ad', 'L745 L751-755', 'stage June Motion_<Class>* files with the class script', '125 motions (data208 = 62, data218 = 63); 4 same-name March files replaced by June (asset rule)', 'CH0b', '')
+    row('§7ac', 'L774', 'ProcessLockOn (3200fa20) is shared with Luciel', 'engine function; Luciel lock-on states', 'CH3c0 CH3c2', 'SLockOnSystem::ProcessLockOn 3200fa20 (March X2GUAra.h:428) called from 32b07a40 / 32b15290 (LDN transcendence Shrewd Cut, CH3c2): CH3c0 hoists it out of CX2GUAra; the Ara row stays Ara')
+    row('§7ac', 'L777', 'user landing prediction 32021390 has Luciel callers', 'raw scan: call from 32ae9b8e (function 32ae9b40); Aisha ported 32021390 as a class-local helper', 'CH1i',
+        'Luciel needs the same helper: hoist or a second local copy, decide in the phase')
+    row('§7ac', 'L778', "Luciel's CanDown call shape in states @32b2fd79, @32b33fb7, @32b33d09",
+        'w1f_candown_callers.tsv: 32b2fba0 LSI_SA_LCN_SHADOW_BOLT_START FrameMove (in ptr, out NULL, bDownRadius 1); 32b33bf0 state 0x1f2 / 0x1f3 StateStart (in NULL, out ptr); 32b33dc0 LSI_SA_LDN_GARDEN_OF_HAURES FrameMove; 51 CanDown calls in the class range in all',
+        'CH1h CH1i', 'the LCN state is CH1h; the 0x1f2 / 0x1f3 and LDN ones CH1i (class map confirms)')
+    row('§7ac', 'L770-776', 'Ara / Chung / Aisha CanDown rows', 'not Luciel', 'n/a', '')
+    row('§7af', 'L782-798', 'camera linear tracking, SUB_CAMERA sequencer 31ff5df0', 'SUB_CAMERA appears 477x in Luciel_Duo and 77x in Luciel_Demonio (data read by the Lua camera)', 'n/a',
+        'engine sequencer, as Chung / Aisha; a C++ site that plays a SUB_CAMERA table by name is found in its skill phase')
+    row('§7ag', 'L802-814', 'pressed-index space 5 + 5: every > 3 / -4 decode; slot id + 1 decode', 'the skill head 32b46580 (0x7b4) and 32b3a310', 'CH1n', 'the June common special-attack event process exists (Aisha CH1m)')
+    row('§7ag', 'L807-809', 'TC slot A-5 / B-5 states and the Stage 6 skips', 'transcendence rows', 'CH3d', '')
+    row('§7ah', 'L827', 'class statics Static_LucielSwitchingGuide / g_pStatic_LucielCooltime in the 10-slot dialog',
+        'June driver CX2Game 322cd5c0-322e07e0 loops slots 0-9 with 3214f3d0; CTI_ICON_LUCIEL_SWITCHING* Enum names (E:10796-10877)', 'CH5', 'the switch cooldown value is fed by CH1p unit code')
+    row('§7ah', 'L818-826 L828-833', 'other class statics, key-config rows', 'not Luciel', 'n/a', '')
+    row('§7ai', 'L835-841', 'pass June skip / adjust / level / creator at every ported BFI call',
+        's3e_bybfi_callers.tsv part 2: 26 call sites in 16 Luciel-range functions (32b0eed0, 32b0fc50 [creator example @32b0fccc], 32b13180, 32b135e0, 32b14d10, 32b1f800, 32b1fc90, 32b20670, 32b20a10, 32b2fba0, 32b318e0, 32b39e90, 32b3d380, 32b3db80, 32b3dea0, 32b3e470)',
+        'CH1l3 CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a', 'per caller: 32b0eed0 / 32b14d10 / 32b1f800 CH1l3, 32b13180 CH2b, 32b20670 / 32b3db80 / 32b3dea0 CH2c2, 32b318e0 CH2d2, 32b1fc90 CH3a, 32b20a10 / 32b2fba0 / 32b39e90 CH3b, 32b135e0 CH3c2, delegates 32b0fc50 / 32b3d380 / 32b3e470 CH4a')
+    row('§7ai', 'L842-846', 'vslot 0x830 (Rose), ShowSkillNameStateString callers, reserved-buff first use (Elesis)', 'vtable 0x830 not overridden by Luciel', 'n/a', '')
+    row('§7aj', 'L858-861', 'equipped-slot icon overrides 328e0aa0 per class type; Install / G-Core marks 328e0290', 'class types 0x6d, 0x7b, 0x72, 0x73, 0x1a, 0x7e, 0x24: not type 10', 'n/a', '')
+    row('§7aj', 'L862-864', 'slot data type 6 (328d9b00 / 328da050): Luciel transform slot, ctor caller 3200f380; memorize-mouse cases 29078 / 29079', 'raw scan: 3200f380 called from 32b43910 and 32b43b10', 'CH5',
+        'the callers are class code (CH1p); the slot UI is CH5')
+    row('§7aj', 'L865', "Luciel's portrait 328dcba0 / 328db7a0: form flag at tree +0x8c from unit +0xe40, DLG_UI_Common_Texture91/89/96/103_NEW keys", 'unit type 10', 'CH5', 'needs the DU1 flag')
+    row('§7aj', 'L870-872', "unit form change 3234d930 (my unit +0x28 / +0x2c match, 3214f050, 328e8cd0( form ), 328dcba0), tree Luciel _MINOR command lists 328e7ba0 and COMMAND_DATA_MINOR 3220bdb0 (June minor flag = unit +0x3c)",
+        'JuneSetCommandGroup 328e8cd0 already ported', 'DU5', 'engine site: NU0 confirms; NOTE +0x3c is also the transcendence int of CX2Unit (7ao): check whether these are the same field')
+    row('§7ak', 'L874-878', 'decide-page ACK class pieces', 'Aisha, Add only', 'n/a', '')
+    row('§7al', 'L880-888', 'new CX2GUUser hooks: 0x654, 0x850 (after-image frame move), 0x860, 512, 0x638', 'Luciel overrides 0x850 (32b15430) and slot 512 = 0x800 (32b1eef0); 0x654 / 0x860 / 0x638 are base', 'CH1l', '0x800 is the L251 row')
+    row('§7am', 'L907', 'delegate-list registrations: Lu/Ciel 32b43d10 (slot 0x7a4 of 334f06fc) pushes ten A / C entries 32b14bc0, 32b3d380, 32b0fc50, 32b43590, 32b435f0, 32b0fce0, 32b177b0, 32b13c80, 32b17f90, C 32b3e470',
+        'vtable 0x7a4 = 32b43d10 but the InitPassiveSkillState slot 0x690 = 32b45820 (base 31fe19d0); no direct reference to the ten callbacks found in the class range', 'CH4a',
+        'CHECK in the class map which of 32b43d10 / 32b45820 registers them (the plan calls 32b43d10 InitState, CH1m)')
+    row('§7an', 'L920-926', 'defence-rate 0x428, MP-rate 0x73c and soul-gain 0x748 overrides', 'vtable 0x428 / 0x73c / 0x748 are base for Luciel', 'n/a', '')
+    row('§7an', 'L927', 'GetCharacterSpecializationB readers Lu/Ciel 32b14950 / 32b3794d', '32b14950 is inside the combination-point function 32b14860; 32b3794d inside 32b37910 (vtable 0x7c4 override)', 'CH1p CH1l', '')
+    row('§7ao', 'L932-939', 'transcend allow-list id, LevelUpEvent TYPE rows, DLG_Transcendental_Change_Guide_<Class>', 'LevelUpEvent.src.lua :158 UC_LUCIEL_DUO, :381-383, :627-629; DLG_Transcendental_Change_Guide_Luciel.lua present (data034)', 'CH3d', '')
+    row('§7ao', 'L940', 'JuneGetHyperModeTableName 31fdd490 cases (March bCiel_ branch) and transcended cut-in names', 'HQ_Cutin_{LLD,LCN,LDN}_{LU,CIEL}_Transcendence (+ _Trans for LDN) in K/data195_kom', 'CH3d', 'LSI_*_HYPER_MODE state registration is CH1m')
+    row('§7ao', 'L941-943', 'hyper-class skills (SPRT_HYPER_CLASS), the four base skill helpers with the flag test, hyper effect start returns at once when transcended', 'helpers 31fcac90, 31fcad70, 31fceab0, 31ff1e80', 'CH3d', '')
+    row('§7ao', 'L944', 'ApplyAuraAcceleratorBuffToGameUnit 32028790 is June-changed for a class with an aura-accelerator skill',
+        'Luciel has RNSI_A_LUCIEL_AURA_PUNISHMENT_ACCEL 30301, but vtable 0x7b0 = base 32028790 (not overridden)', 'n/a', 'as Chung')
+    row('§7ao', 'L945-949', 'base-code branches left to Raven / Rena / Add / Ain', 'not Luciel', 'n/a', '')
+    row('§7ao', 'L964', 'Lu/Ciel hyper effect start 32b1f0a0 (vslot 19) and CommonFrameMove override 32b397a0 (vslot 499)', 'vtable 0x4c = 32b1f0a0, 0x7cc = 32b397a0', 'CH3d', 'the checklist says Stage 8')
+    row('§7ap', 'L977', 'slot 0x56c skill icon override 32b16220 and slot 0x6a8 shown cool time 32aea8c0 (skill use 32b3a6ba)', 'vtable 0x56c = 32b16220, 0x6a8 = 32aea8c0; 0x3ac / 0x3b0 / 0x584 / 0x65c not overridden', 'CH1o',
+        'the skill-use call @32b3a6ba is in 32b3a310 (CH1o as well)')
+    row('§7aq', 'L984-986', 'three-orb ball on the own gauge UI', 'Raven / Eve only', 'n/a', '')
+    row('§7ar', 'L988-992', "GetX2UnitClassCompatibility 31ed6500: June's 31 extra switch cases (unit classes 33-46, 123-136, 200-202)", 'covers Lu/Ciel classes 37, 38, 39, 127, 128, 129, 200', 'NU1',
+        'engine site: NU0 confirms (tools/data/june_march_divergent.tsv row GetX2UnitClassCompatibility, verdict out)')
+    row('§7as', 'L994-1003', 'upgrade-weapon glow type 10 cases: InitUpgradeWeaponParticle 32299730, ProcessUpgradeWeaponParticle 32292610 (Effect_LWeapon / RWeapon of the skin anim when unit +0xe40 = 1), enchanted-weapon hand sparks 31ff8510',
+        'funcmap rows (Diverge D1-3b)', 'DU3', 'PLAN GAP: no phase lists it; DU3 (equip view) proposed; NU0 confirms')
+    row('§7as', 'L1001-1012', 'unit viewer glow: 31f92910, 31f9a900, 31f961a0, frame move 31f93050 (+0xd80), viewer at-hand case', 'funcmap rows (Diverge D1-3c, D1-3e)', 'DU5', 'PLAN GAP: no phase lists it; DU5 (viewer) proposed')
+    row('§7at', 'L1014-1025', 'Ara add-N-stacks buff path; Ain buff-icon text hook', 'not Luciel', 'n/a', '')
+    row('§7av', 'L1027-1035', 'GetStateAnimSpeedRate vslot 0x824', 'vtable 0x824 = base 3208dd70 (Luciel does not override)', 'n/a', 'Chung / Lire / Add / Ain only')
+    row('§7av', 'L1036', 'Lu/Ciel future anim = +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture (dual body) in the state anim rate / ResetAnimSpeed path', 'two-body member read', 'DU1', 'engine site: NU0 confirms')

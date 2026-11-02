@@ -37,7 +37,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by CH0 / NU0
 
-CH0: (pending)
+CH0 (2026-11-02):
+- Adopt the 6 `DLG_Class_Change_Luciel_*` (data217) and the 4 guide dialogs (`DLG_1ST` / `DLG_2ND_Class_Change_Guide_Luciel`, `Class_Change_Guide_Luciel` (+ `_1`), data034).
 
 NU0 (2026-11-02), `june2017_re/char_luciel/nu0_jobchange_tutorial.tsv`. The quests are in the shipped `FieldQuest.lua` (June bytecode); the
 emulator applies the reward through `CX2OfflineQuest::GetChangeUnitClass`.

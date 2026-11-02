@@ -1,0 +1,380 @@
+callee	mapped	cited_elsewhere	n_callers	phases	callers	other_chars	diverge
+32070cf0	y	y	197	CH1b CH1d CH1f CH1f2 CH1g CH1g2 CH1h CH1i CH2a CH2b CH2c CH2c2 CH2d CH2d2 CH3a CH3b CH3c CH3c2 CH3d	32aec3c0 32aec6b0 32aec9a0 32aece00 32aed0f0 32aed320	-	-
+32070d60	y	y	181	CH1f CH1f2 CH1g CH1g2 CH1h CH1i CH2a CH2b CH2c CH2c2 CH2d CH2d2 CH3a CH3b CH3c CH3c2 CH3d	32aec3c0 32aec6b0 32aec9a0 32aece00 32aed0f0 32aed320	-	-
+322731a0	y	y	181	CH1f CH1f2 CH1g CH1g2 CH1h CH1i CH2a CH2b CH2c CH2c2 CH2d CH2d2 CH3a CH3b CH3c CH3c2 CH3d	32aec3c0 32aec6b0 32aec9a0 32aece00 32aed0f0 32aed320	-	-
+31aad500	y	y	123	CH1a CH1f2 CH1g2 CH1h CH1i CH1j CH1k2 CH1l CH1l2 CH1l3 CH1m CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b1eb10 32b1eca0 32b1edd0 32b1f0b0 32b1f2b0 32b1f650	chung:confirmed	-
+32fe245c	n	n	104	CH1a CH1f CH1f2 CH1g2 CH1h CH1i CH1j CH1k CH1l CH1l2 CH1l3 CH1m CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32ae9b40 32aef530 32af59c0 32b0f080 32b15780 32b15900	chung:confirmed eve:confirmed	-
+31d28b60	y	y	85	CH1a CH1b CH1c CH1d CH1e CH1f2 CH1g2 CH1h CH1j CH1k CH1l CH1l2 CH1l3 CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b0fef0 32b10260 32b10310 32b103b0 32b11830 32b11ba0	chung:confirmed	-
+31d28e10	y	y	83	CH1b CH1c CH1d CH1e CH1f CH1f2 CH1g2 CH1h CH1j CH1l CH1l2 CH1l3 CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH3d	32aef530 32af59c0 32b07f30 32b0fef0 32b10260 32b10310	-	-
+32071d80	y	y	76	CH1b CH1c CH1d CH1e CH1f2 CH1g2 CH1h CH1j CH1l CH1l2 CH1l3 CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2	32b0fef0 32b10260 32b10310 32b103b0 32b11830 32b11ba0	-	-
+32fe2300	n	n	68	CH1a CH1f2 CH1g2 CH1h CH1j CH1k CH1k2 CH1l CH1l2 CH1l3 CH1m CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b15900 32b15b20 32b15d40 32b15fe0 32b162e0 32b16940	chung:confirmed	-
+31d16ef0	y	y	67	CH1a CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d	32ae6130 32ae61b0 32ae6250 32ae6300 32ae63c0 32ae6480	chung:confirmed	-
+31d16f90	y	y	66	CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d	32ae61b0 32ae6250 32ae6300 32ae63c0 32ae6480 32ae65a0	chung:confirmed	-
+321e1e60	y	y	65	CH1a CH1f2 CH1g2 CH1h CH1l2 CH1l3 CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b15b20 32b15d40 32b15fe0 32b1cd20 32b1cf90 32b1fc90	-	-
+322ceae0	y	y	65	CH1a CH1f2 CH1g2 CH1h CH1l2 CH1l3 CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b1fc90 32b20780 32b21cd0 32b21f80 32b22240 32b23820	-	-
+3227baf0	y	y	63	CH1a CH1l CH1l2 CH1l3 CH1m CH2b CH2d CH2d2 CH3a CH3b CH3c CH3c2	32aea8c0 32aeaa10 32aebb60 32b02e60 32b02f10 32b03250	-	-
+31d170a0	y	y	60	CH1a CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d	32ae6130 32ae6250 32ae6300 32ae63c0 32ae6480 32ae65a0	eve:confirmed	-
+320348c0	y	y	53	CH1k2 CH1l3 CH2d CH2d2 CH3c CH3c2	32ae8b60 32ae95a0 32b02dd0 32b02e10 32b02e60 32b02f10	-	-
+31f54a10	n	y	51	CH1a CH1f2 CH1g2 CH1h CH1j CH1k CH1l CH1l2 CH1l3 CH1m CH2a CH2b CH2c2 CH2d2 CH3a CH3b CH3c2 CH4a	32b154f0 32b15680 32b15900 32b15b20 32b15d40 32b15fe0	chung:confirmed	-
+31fc9d90	n	y	41	CH1a CH1k CH1k2 CH1l CH1l2 CH1l3 CH3c CH4a	32ae9bf0 32ae9de0 32aeb450 32b059a0 32b0e3f0 32b0e440	-	-
+31aada50	y	y	40	CH1a CH1b CH1d CH1g2 CH1l2 CH1l3 CH1m CH2b CH2c2 CH2d2 CH3a CH3b CH3c2	32b1eef0 32b1f800 32b1fc90 32b20780 32b20b30 32b20d70	-	-
+32890620	y	y	36	CH1a CH1l2 CH1l3 CH1m CH2b CH2c2 CH3a CH3b CH3c CH3c2 CH4a	32b05520 32b0e710 32b0e850 32b0eed0 32b13180 32b14860	-	-
+32414880	n	y	34	CH1a CH1f2 CH1g2 CH1h CH1l2 CH1l3 CH3a CH3b	32b15780 32b16940 32b1f800 32b1fc90 32b20780 32b21f80	chung:confirmed	-
+31aa1670	n	n	30	CH1f2 CH1g2 CH1h CH1l2 CH1l3 CH3a CH3b CH3c2	32b15780 32b1f800 32b1fc90 32b20780 32b21f80 32b22240	chung:confirmed	-
+31c2e4a0	n	n	30	CH1a CH1g2 CH1k CH1k2 CH1l CH1l2 CH2a CH2b CH2c2 CH3b CH4a	32b1bd90 32b1c880 32b1c960 32b1cba0 32b1cc60 32b1cd20	chung:candidate	-
+31c6c310	y	y	28	CH1b CH1d CH2b CH2d2 CH3b CH3c2	32b20b30 32b20d70 32b20f70 32b21250 32b214c0 32b21830	-	CanDown/out
+32030160	n	n	27	CH2d CH2d2 CH3c CH3c2	32b02f10 32b03250 32b03590 32b038d0 32b03bb0 32b03ef0	-	-
+32039dc0	n	n	27	CH2d CH2d2 CH3c CH3c2	32b02f10 32b03250 32b03590 32b038d0 32b03bb0 32b03ef0	-	-
+31aad340	y	y	26	CH1a CH1f2 CH1g2 CH1h CH1l3 CH3c2	32b1f650 32b1f800 32b20100 32b21f80 32b22240 32b23820	chung:confirmed	-
+321db050	y	y	25	CH1f2 CH1g2 CH1h CH1l3 CH2c2 CH3a	32b23820 32b23b80 32b23ee0 32b24560 32b24c40 32b24fa0	-	AddDamageEffectModifier/out
+3229e160	y	y	21	CH1a CH1k CH1l3 CH1m CH2b CH2c2 CH3b	32aea530 32aea5e0 32b0eed0 32b14d10 32b204d0 32b20a10	-	-
+322a0090	y	y	21	CH1k CH1l CH1l2 CH1l3 CH1m CH2b CH2c2 CH3b	32aea530 32aea8c0 32aebb60 32b0e710 32b0e850 32b15050	-	-
+321d97c0	y	y	20	CH1f2 CH1g2 CH1l3 CH2b CH2c2 CH2d2 CH3c2	32b21cd0 32b26030 32b26a40 32b282c0 32b287b0 32b2b050	-	-
+32206450	y	y	20	CH1a CH1l CH1l2 CH1l3 CH1m CH1n CH2c2 CH3b CH4a	32b0e710 32b0e850 32b0fa20 32b14860 32b14f70 32b16880	-	-
+32206e50	y	y	20	CH1a CH1l3 CH1m CH2b CH2c2 CH3a CH3b CH4a	32b0e710 32b0e850 32b14860 32b15780 32b1fc90 32b20260	-	-
+323101d0	y	y	19	CH1g2 CH1k CH1k2 CH1l CH1l2 CH2a CH2b CH2c2 CH4a	32b1c960 32b1cba0 32b1cc60 32b1cd20 32b1cf90 32b1d8d0	chung:confirmed	-
+31fca8e0	y	y	18	CH1l2 CH1l3 CH1n CH2b CH2c CH2c2 CH3a CH3b	32ae40c0 32ae4fb0 32b00840 32b0f940 32b15780 32b1eef0	-	-
+32294460	n	y	18	CH1h CH1i CH1k CH1l CH1l3 CH2b CH2d2 CH3a CH3c2	32b135e0 32b14030 32b15b20 32b15d40 32b15fe0 32b16260	-	-
+32fe25f0	y	y	15	CH1a CH1k CH1l3 CH1m CH2a CH2b CH3a CH3b CH3c2 CH4a	32b0e710 32b0e850 32b135e0 32b14cd0 32b14f70 32b20260	-	-
+32fe243e	n	y	14	CH1a CH1k CH1k2 CH1m CH2c2 CH2d2 CH3b CH3c2	32b162e0 32b1bd90 32b1e8e0 32b318e0 32b37c70 32b3db80	chung:confirmed	-
+32007c40	y	y	13	CH1l3 CH2a CH2c CH2d2 CH3c2 CH4a	32ae6ec0 32ae6f30 32b00840 32b135e0 32b172d0 32b1cd20	-	-
+32207210	y	y	13	CH1a CH1l CH1l2 CH1n	32ae9c00 32ae9de0 32aea8c0 32aeaa10 32b14640 32b14f70	-	-
+31e4f990	y	y	12	CH1g2	32b105d0 32b10980 32b10bd0 32b10e20 32b111d0 32b11420	-	-
+31fca9e0	y	y	11	CH1l2 CH1m CH2a CH2b CH2c2 CH3a CH3b	32b15050 32b1fc90 32b29af0 32b2ba70 32b2bf20 32b2c270	-	GetEqippedSkillMemo/replace
+31f64190	y	y	10	CH1h CH1l2 CH1l3 CH2b CH2c2	32b1f650 32b1f800 32b270b0 32b29360 32b29570 32b2db60	chung:confirmed	-
+31fcf430	y	y	10	CH1l3 CH1m CH2b CH2c CH2c2 CH3a CH4a	32ae7c90 32aebb60 32b00510 32b13180 32b1d5f0 32b204d0	chung:confirmed	-
+31fd0440	n	n	10	CH2d2 CH3c2	32b133d0 32b13730 32b14180 32b31260 32b31480 32b33480	-	-
+32072ae0	n	y	10	CH1l2 CH2b CH2c2 CH3b	32b1c880 32b1d200 32b1d2a0 32b1d350 32b1d490 32b1d5f0	-	-
+3275da30	y	y	10	CH1l3 CH3b	32b20780 32b30500 32b305c0 32b30620 32b30680 32b306e0	chung:confirmed	-
+31f8ff00	y	y	9	CH1f2 CH1l3 CH1m CH2a CH2c2 CH2d2 CH3b	32b1f800 32b248c0 32b29fb0 32b2e5a0 32b2ec50 32b2f4b0	chung:confirmed	-
+31fc8900	n	n	9	CH2b CH2c CH2c2 CH2d2 CH3a	32ae6b40 32ae7110 32b021a0 32b13260 32b178b0 32b17c20	chung:unknown	-
+32276220	y	y	9	CH1g2 CH1j CH1l2 CH1m CH2c2 CH2d2	32b13360 32b22240 32b27b60 32b2bf20 32b2c270 32b358b0	-	PlaySound/replace
+31fce6d0	y	y	8	CH2b CH2c CH2c2 CH2d2 CH3a CH3b	32ae6a30 32ae7280 32ae7bc0 32ae80a0 32ae8360 32affca0	eve:candidate	-
+31c60890	n	n	7	CH1i CH2d2 CH3a CH3c2	32b2f1c0 32b30ec0 32b32550 32b341b0 32b343b0 32b35fd0	-	-
+31c7b560	y	y	7	CH1l3 CH1m CH2b CH3a CH3b	32b1fc90 32b2ac20 32b2b050 32b2f1c0 32b30090 32b34a90	-	-
+31c7bb00	y	y	7	CH1i CH2d2 CH3a CH3c2	32b2f1c0 32b30ec0 32b32550 32b341b0 32b343b0 32b35fd0	-	-
+32007b10	y	y	7	CH1l2 CH2b CH2c2 CH3a CH3c2	32b14640 32b1d350 32b1d490 32b2b050 32b2e5a0 32b30970	-	-
+321dafb0	y	y	7	CH1a CH1l2 CH1l3 CH2d2 CH3c2	32b32090 32b347f0 32b34920 32b35540 32b358b0 32b38f30	-	-
+31ef64f0	n	n	6	CH1m CH2c2 CH2d2 CH3b	32b3db80 32b3dd80 32b3dea0 32b3e120 32b3e720 32b435f0	-	-
+31fc9f80	n	n	6	CH2d CH2d2 CH3c CH3c2	32ae8cf0 32ae8e00 32ae96e0 32ae9900 32b07a40 32b38110	-	-
+31fd0490	n	n	6	CH2d CH2d2 CH3c CH3c2	32ae8cf0 32ae8e00 32ae96e0 32ae9900 32b07a40 32b38110	-	-
+32278070	y	y	6	CH1a CH1l3 CH1m CH3a	32ae7c90 32aebb60 32b14860 32b15780 32b204d0 32b435f0	-	-
+322de5d0	y	y	6	CH1a CH1l3 CH3a CH3b	32b20260 32b204d0 32b20a10 32b308e0 32b347f0 32b34920	eve:confirmed	-
+326c3170	y	y	6	CH1m CH2c2 CH3b	32b3d380 32b3db80 32b3dd80 32b3dea0 32b3e120 32b435f0	-	-
+31aaba70	n	n	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:candidate eve:candidate	-
+31aaba90	n	n	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:candidate eve:candidate	-
+31aadd10	n	n	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:candidate eve:candidate	-
+31aae590	n	n	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:confirmed eve:confirmed	-
+31c30d30	y	y	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	-	-
+31c31060	n	y	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:candidate	-
+31e55340	y	y	5	CH1k CH1l3 CH1m	32b17f90 32b1e720 32b1f800 32b347f0 32b34c70	chung:confirmed	-
+31e71c10	n	y	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	chung:candidate eve:candidate	-
+31ef1d90	n	n	5	CH1m CH2c2 CH3b	32b3db80 32b3dd80 32b3dea0 32b3e120 32b435f0	-	-
+3226ddb0	y	y	5	CH1b CH1d CH1l2	32ae5400 32ae5540 32ae5960 32aebc60 32af1b80	-	-
+322a8a70	y	y	5	CH1l3 CH3b	32b20780 32b2f4b0 32b308e0 32b369b0 32b36ba0	-	-
+322db770	y	y	5	CH1a CH1g2 CH1l2 CH3a	32b3a310 32b3acf0 32b3b530 32b3bc70 32b3c3b0	-	-
+329cd320	y	y	5	CH1h CH2c2	32b270b0 32b29360 32b29570 32b2db60 32b2e080	-	-
+32a2dec0	y	y	5	CH1g2 CH1l3 CH2c2	32b26030 32b266a0 32b26a40 32b2c5e0 32b35600	-	-
+32a327a0	n	n	5	CH1a CH1k CH1k2 CH1l2	32aeb090 32b0f080 32b14860 32b373e0 32b397a0	-	-
+31aa6560	n	n	4	CH1j CH2a CH2c2	32b1f2b0 32b29af0 32b2ba70 32b2c270	chung:candidate	-
+31f6eb30	y	y	4	CH1h CH1l3	32b1f800 32b270b0 32b29360 32b29570	-	-
+31f73df0	y	y	4	CH1l2 CH1l3 CH2d2	32b1f650 32b318e0 32b34a90 32b397a0	-	-
+31fae370	y	y	4	CH1a CH1l CH4a	32b143e0 32b18220 32b34fe0 32b38f30	-	-
+31fce5c0	n	n	4	CH2d2 CH3c2	32b43910 32b43ae0 32b43b10 32b43ce0	-	-
+31fce670	y	y	4	CH2d2 CH3a	32b021a0 32b178b0 32b17c20 32b3c3b0	eve:candidate	-
+322cc1a0	y	y	4	CH2c2 CH2d2 CH3a	32b1fc90 32b20260 32b20670 32b3e720	-	IsPvpOrPve test (game type 1 or 4)/idiom
+322ceab0	y	y	4	CH1a CH1j CH1k2 CH1l3	32b1eb10 32b1eca0 32b1f0b0 32b1f2b0	-	-
+32893880	y	y	4	CH1a CH1l2 CH1m	32b14860 32b1eef0 32b3acf0 32b3ca30	-	SetSkillCoolTimeLeft/replace
+32898c80	n	n	4	CH1a CH1l CH1l2	32b171c0 32b172b0 32b18220 32b1bd90	-	-
+31d41c20	n	n	3	CH1a CH1k	32b1bd90 32b1e8e0 32b39380	-	-
+31e4f900	y	y	3	CH1i CH1l CH3a	32b1fc90 32b34680 32b35fd0	-	-
+31edf560	y	y	3	CH1l2 CH2b	32affca0 32b2ac20 32b37910	eve:candidate	-
+31fd03f0	n	n	3	CH1a CH1k2	32b373e0 32b38f30 32b39380	-	-
+31fd0570	y	y	3	CH1a CH1l2	32b1eef0 32b3a310 32b3acf0	-	-
+31fd89b0	y	y	3	CH1m CH1n	32b3e8b0 32b43d10 32b46580	-	-
+32009180	y	y	3	CH2d2 CH3c2	32b17090 32b172d0 32b358b0	eve:confirmed	-
+3200a590	y	y	3	CH3c2 CH3d	32ae9b20 32b07ac0 32b07f30	-	-
+32070d10	y	y	3	CH1i	32b08940 32b09bb0 32b09fa0	-	-
+320775a0	y	y	3	CH1m CH1n	32b3e8b0 32b43d10 32b46580	-	-
+32078bc0	y	y	3	CH1m CH1n	32b3e8b0 32b43d10 32b46580	chung:unknown	-
+3208ec80	y	y	3	CH1l CH1l2 CH3b	32b14e10 32b30090 32b37910	-	-
+322ceaa0	y	y	3	CH1a CH1j CH1m	32b1f2b0 32b39380 32b435f0	-	-
+328c1bf0	n	y	3	CH1l CH1l3	32b143e0 32b176a0 32b18220	chung:candidate eve:candidate	-
+32a779e0	n	n	3	CH1a CH1k CH4a	32b166e0 32b1bd90 32b45820	-	-
+32fe2370	y	y	3	CH1h CH2d2 CH3b	32b15d40 32b38540 32b39e90	-	-
+31aa9200	n	n	2	CH1l CH1l3	32b15900 32b34c70	-	-
+31c19930	y	y	2	CH3c2	32b14030 32b172d0	-	-
+31c1c1a0	n	y	2	CH2c2	32b30bc0 32b30d40	-	-
+31cd32e0	n	n	2	CH1k CH1l3	32b0e550 32b1e8e0	-	-
+31cefbc0	y	y	2	CH1a	32b1eb10 32b39380	chung:confirmed	-
+31cefdd0	y	y	2	CH1j CH1l3	32b1eca0 32b1f2b0	-	-
+31d28d00	y	y	2	CH1l2 CH4a	32b34fe0 32b397a0	-	-
+31d33fd0	y	y	2	CH1l2 CH4a	32b34fe0 32b397a0	-	ChangeAnim/out
+31d38a20	y	y	2	CH1a CH4a	32b34fe0 32b38f30	-	-
+31d41c90	n	y	2	CH1k CH1l3	32b0e550 32b1e8e0	-	-
+31d41d10	n	y	2	CH1a CH1k	32b1e8e0 32b39380	-	-
+31e4c230	n	y	2	CH2a CH3b	32b29fb0 32b2f4b0	-	-
+31e920b0	n	n	2	CH1m CH2d2	32b3e470 32b3e720	chung:candidate eve:candidate	-
+31ef6990	n	y	2	CH1m	32b3d380 32b3e470	-	-
+31f318d0	y	y	2	CH1k2 CH1l3	32b1eca0 32b1f0b0	chung:confirmed	-
+31f75980	n	n	2	CH1l3 CH2d2	32b318e0 32b34a90	-	-
+31fc66d0	y	y	2	CH3b	32b2ff50 32b30090	-	-
+31fc8cd0	y	y	2	CH1a	32aeb3f0 32b1bd90	eve:confirmed	-
+31fc93d0	y	y	2	CH1m	32b3e8b0 32b43d10	chung:confirmed	-
+31fc9d50	n	n	2	CH1a CH4a	32b34fe0 32b38f30	-	-
+31fca9f0	y	y	2	CH1a CH1l2	32b3a310 32b3acf0	-	-
+31fcd3d0	y	y	2	CH1a CH1l2	32b1eef0 32b3acf0	-	-
+31fceab0	y	y	2	CH1m CH2b	32b2b050 32b3e470	-	GetSkillLevelValue/replace
+31fd1840	y	y	2	CH1l2 CH1l3	32b14640 32b204d0	-	-
+31fd4930	n	n	2	CH2d2 CH3c2	32b43910 32b43b10	-	-
+31fd5ab0	n	y	2	CH1l	32b143e0 32b18220	-	-
+31fd6260	n	n	2	CH1a CH1l	32ae9f20 32b38f30	-	-
+31fd66b0	y	y	2	CH1j CH1k2	32b1f0b0 32b37d80	-	-
+31fdbcc0	y	y	2	CH1n CH3a	32b3c3b0 32b46580	-	-
+31fdc4c0	n	n	2	CH2d2 CH3c2	32b43910 32b43b10	-	-
+31fe1dd0	y	y	2	CH1b	32aebc10 32b0fd90	-	PlayAnimationWaitStart/replace
+31fe2b80	n	n	2	CH2d2 CH3c2	32b43910 32b43b10	-	-
+31ffe190	y	y	2	CH2c	32ae6ec0 32ae6f30	-	ResetAnimSpeed/replace
+32008660	y	y	2	CH1f CH1f2	32aef530 32af59c0	chung:candidate	-
+3200f380	n	n	2	CH2d2 CH3c2	32b43910 32b43b10	-	-
+3200fa20	n	n	2	CH3c2	32b07a40 32b15290	-	-
+3202cba0	y	y	2	CH1a CH1l2	32b3a310 32b3acf0	-	CheckSkillUsePVPOfficial/replace
+3202d140	y	y	2	CH1a CH1l2	32b3a310 32b3acf0	-	-
+3202d3c0	y	y	2	CH1a CH1l2	32b3a310 32b3acf0	-	-
+32070d40	n	n	2	CH1k CH1n	32aeb450 32b46580	-	-
+32071720	y	y	2	CH1m CH2c2	32b2ec50 32b3ca30	-	GetSkillPowerRateValue/out
+32073380	n	n	2	CH1m CH1n	32b3e8b0 32b46580	chung:confirmed eve:confirmed	-
+3207b5d0	n	y	2	CH1m CH2d2	32b177b0 32b30ec0	-	-
+3207b770	y	y	2	CH1l3 CH4a	32b176a0 32b45820	-	-
+32083e40	n	y	2	CH2d2 CH3c2	32b43910 32b43b10	-	-
+32089f60	y	y	2	CH1m CH2d2	32b3e470 32b3e720	-	-
+3210aae0	n	y	2	CH1l2 CH1l3	32b18170 32b35600	-	-
+321df750	y	y	2	CH1l3 CH2d2	32b35600 32b358b0	-	-
+32206d00	y	y	2	CH2a	32b29780 32b29af0	-	-
+3227b920	y	y	2	CH1l3 CH3b	32b204d0 32b39e90	-	-
+32290350	y	y	2	CH1j CH1l	32b12fd0 32b37d80	eve:confirmed	-
+322a7000	n	n	2	CH1m CH2c2	32b3db80 32b3dea0	-	-
+322acb80	n	n	2	CH1l3 CH3b	32b204d0 32b39e90	eve:candidate	-
+322ccf50	y	y	2	CH1i CH1l	32b34100 32b34680	-	-
+322e6300	n	n	2	CH1a CH1l2	32b1edd0 32b39380	-	-
+322e67c0	y	y	2	CH3b CH3c2	32b2fba0 32b33dc0	-	CreateNPCReq/out
+322eef30	y	y	2	CH1a CH1l2	32b1eef0 32b3acf0	-	Handler_EGS_USE_FINALITY_SKILL_REQ/out
+3241d2a0	n	n	2	CH1l3 CH2d2	32b35600 32b358b0	-	-
+3260ea70	n	y	2	CH1a CH4a	32b34fe0 32b38f30	-	-
+326c32a0	y	y	2	CH1m CH2d2	32b3e470 32b3e720	-	-
+32869b80	y	y	2	CH1a CH1l2	32b3a310 32b3acf0	-	GetNumItemByTID/replace
+32869d40	y	y	2	CH1a CH1l2	32b1eef0 32b3acf0	-	-
+3288fe00	y	y	2	CH1a CH1m	32b14860 32b3ca30	-	-
+32d4d670	y	y	2	CH1m CH2d2	32b3e470 32b3e720	-	-
+32fe2444	n	y	2	CH1a CH1l3	32b1bd90 32b4cff0	chung:confirmed eve:confirmed	-
+32fe2c3c	n	y	2	CH1f CH1f2	32aef530 32af59c0	chung:confirmed	-
+32fe2daa	n	y	2	CH1l3 CH3b	32b204d0 32b39e90	-	-
+3322a380	y	y	2	CH1l3 CH1m	32b35c60 32b3e470	-	-
+31aa75e0	n	n	1	CH1m	32b3e8b0	chung:confirmed eve:confirmed	-
+31c204b0	n	y	1	CH1a	32b39380	-	-
+31c33990	n	n	1	CH1a	32b1bd90	chung:candidate eve:candidate	-
+31c5c240	n	n	1	CH1i	32b35fd0	-	-
+31c7b640	y	y	1	CH1a	32b3acf0	-	-
+31c7cfb0	n	n	1	CH1l3	32b1f800	-	-
+31cb2510	n	y	1	CH1l3	32b1f800	-	-
+31cd0850	y	y	1	CH1l	32b15900	-	-
+31cd9230	n	y	1	CH1k	32b1e8e0	-	-
+31cdd8d0	y	y	1	CH1a	32b13d30	-	-
+31cdef40	y	y	1	CH1k	32b162e0	-	OpenXSkinMesh/replace
+31cf1a40	y	y	1	CH1j	32b1f2b0	-	-
+31cf90f0	y	y	1	CH1m	32b435f0	-	-
+31cfd6b0	n	y	1	CH1i	32b35fd0	-	-
+31cfe4a0	y	y	1	CH1l	32b18220	-	-
+31cfe530	n	n	1	CH1k	32b162e0	-	-
+31d006b0	y	y	1	CH1j	32b1f2b0	eve:confirmed	-
+31d04390	n	y	1	CH1k	32b1e8e0	-	-
+31d05d30	n	y	1	CH1a	32b39380	-	-
+31d17130	n	n	1	CH3c	32ae9920	-	-
+31d28e40	y	y	1	CH1k	32b162e0	-	-
+31d2f3f0	y	y	1	CH1k	32b162e0	-	AddModelXSkinMesh/out
+31d2f930	n	n	1	CH1k	32b162e0	-	-
+31d32040	y	y	1	CH1k	32b162e0	-	-
+31d32750	y	y	1	CH1k	32b162e0	-	SetAnimXSkinMesh/out
+31d41d90	n	y	1	CH1l3	32b0e550	-	-
+31d70b60	y	y	1	CH1l3	32b16940	chung:confirmed	-
+31e551a0	y	y	1	CH2c2	32b20670	-	-
+31e556b0	n	n	1	CH1l3	32b1f800	-	-
+31e5a860	y	y	1	CH1l3	32b16940	-	IsEnableCode/out
+31e8a1b0	n	n	1	CH1m	32b3ca30	-	-
+31ef2c70	n	n	1	CH1m	32b3d380	-	-
+31f4df80	n	n	1	CH1m	32b3ca30	-	-
+31f83830	y	y	1	CH1l3	32b349f0	-	-
+31f83a80	y	y	1	CH1l3	32b1f800	eve:confirmed	-
+31f8b010	y	y	1	CH3a	32b20260	-	-
+31f8b1c0	n	n	1	CH1k	32b1e720	eve:candidate	-
+31f8de20	y	y	1	CH2c2	32b3dea0	-	-
+31f8df00	n	n	1	CH1m	32b3db80	-	-
+31fc85b0	y	y	1	CH1l2	32ae5400	-	-
+31fc86e0	y	y	1	CH1l2	32b1eef0	-	-
+31fc87c0	y	y	1	CH1k2	32b1f0a0	chung:confirmed	-
+31fc89a0	y	y	1	CH3b	32b30090	eve:candidate	-
+31fc8cf0	y	y	1	CH4c	32ae5170	-	-
+31fc9f00	n	n	1	CH1k	32b0e3f0	-	-
+31fca420	y	y	1	CH1a	32b1bd90	-	-
+31fca500	y	y	1	CH1a	32b1bd90	eve:confirmed	-
+31fcadd0	y	y	1	CH1l2	32b3a310	-	-
+31fcef00	y	y	1	CH1l3	32b16940	-	-
+31fd07b0	y	y	1	CH1l2	32ae4f90	chung:confirmed	-
+31fd1920	y	y	1	CH1l2	32b15050	chung:confirmed	-
+31fd2af0	y	y	1	CH1n	32b46580	-	-
+31fd2d60	n	n	1	CH1c	32b3a250	-	-
+31fd2e30	n	n	1	CH1c	32b3a270	-	-
+31fd3180	y	y	1	CH1l3	32b16940	-	GetShowActiveSkillShow/out
+31fd32e0	y	y	1	CH1l2	32b0f940	-	-
+31fd4450	y	y	1	CH4c	32ae5150	chung:confirmed	MemoCondition::decide / parse/replace
+31fd48a0	y	y	1	CH1l	32b13b60	-	-
+31fd5cb0	n	y	1	CH1k2	32b1f0b0	-	-
+31fd64a0	y	y	1	CH1l2	32b171c0	-	ScaleHead/replace
+31fd7640	y	y	1	CH1l2	32b15220	chung:confirmed	-
+31fd88f0	y	y	1	CH1n	32b46580	-	-
+31fd8a50	y	y	1	CH1l3	32b16940	-	-
+31fd8f00	y	y	1	CH1m	32b43d10	-	-
+31fda0d0	y	y	1	CH4a	32b34fe0	-	SetUnitReForm/replace
+31fdbfc0	y	y	1	CH2b	32b3d010	-	-
+31fdd490	y	y	1	CH1m	32b3e8b0	-	-
+31fdd8e0	n	y	1	CH1l2	32ae4f70	-	-
+31fde0f0	y	y	1	CH1l3	32b16940	-	-
+31fdf970	y	y	1	CH1n	32b46580	chung:candidate	-
+31fe14f0	y	y	1	CH1l2	32b0e670	-	-
+31fe19d0	y	y	1	CH4a	32b45820	-	InitPassiveSkillState/out
+31fe22d0	y	y	1	CH1m	32b43d10	-	-
+31fe9840	y	y	1	CH2c2	32b15680	chung:unknown	-
+31feabd0	y	y	1	CH1k	32ae4080	-	DamageReactStateChange/out
+31fee090	y	y	1	CH1k	32b0f080	-	-
+31fef620	y	y	1	CH1l	32b154f0	eve:confirmed	-
+31fefba0	y	y	1	CH1a	32b39380	eve:confirmed	-
+31fefc00	y	y	1	CH1a	32b1eb10	-	-
+31ff15d0	y	y	1	CH1k	32b0eff0	chung:confirmed	-
+31ff17c0	y	y	1	CH1k	32aea650	chung:confirmed	-
+31ff6ec0	y	y	1	CH2a	32b29fb0	-	-
+31ffd630	y	y	1	CH1j	32b37d80	-	-
+31ffda00	y	y	1	CH1j	32b37d80	-	-
+320004b0	y	y	1	CH1g2	32b3a290	-	-
+320007e0	y	y	1	CH1g2	32b3a2b0	-	-
+32001380	y	y	1	CH1l3	32b16940	-	GetShowCutInAndChangeWorldColor/out
+32006b30	y	y	1	CH1l2	32ae4fb0	-	-
+32007910	y	y	1	CH1l3	32b15780	eve:candidate	-
+32008e40	y	y	1	CH1l2	32b37c40	-	-
+32009780	y	y	1	CH1l2	32aeb410	-	-
+32011d20	y	y	1	CH1j	32b37d80	-	-
+32011f50	y	y	1	CH1j	32b37d80	-	-
+32012760	y	y	1	CH1k	32ae4f30	-	-
+32012800	y	y	1	CH1l	32b154f0	chung:confirmed	-
+32012920	n	y	1	CH1l	32b37780	-	-
+320144d0	y	y	1	CH1l	32b37730	-	AttackResultByType/out
+32014660	y	y	1	CH1k	32aea610	chung:confirmed	-
+32015250	y	y	1	CH1l2	32ae4f80	-	-
+3201bd60	y	y	1	CH3b	32b2ff50	-	-
+32021390	y	y	1	CH1i	32ae9b40	-	-
+32022380	y	y	1	CH1k2	32b373e0	-	-
+3202b110	y	y	1	CH1m	32b43d10	-	-
+3202c360	y	y	1	CH1l	32b12fd0	-	ProcessAcceleraterBuff/out
+3202daf0	y	y	1	CH1l2	32b3a310	-	CheckSummonSpecialAttack/replace
+3202ed60	y	y	1	CH4a	32ae5080	eve:candidate	-
+32034c00	y	y	1	CH1k2	32b4dbb0	-	-
+3203a620	y	y	1	CH1a	32b39380	-	-
+3203e850	y	y	1	CH1a	32b1bd90	-	-
+32045340	y	y	1	CH1k	32aea530	-	SetDamageExceptionProcess/out
+320462a0	y	y	1	CH1k	32ae4080	-	DamageReact reflect (Rune Slayer)/out
+3204b5e0	y	y	1	CH4a	32b37d40	-	-
+3204da60	y	y	1	CH1l2	32aeb430	-	-
+3204ea20	y	y	1	CH1k	32b1e8e0	-	-
+320506f0	y	y	1	CH1l2	32ae4f60	-	CommonStateStartFuture/out
+32057b80	y	y	1	CH1l2	32b37910	-	CommonStateStart/out
+32061bf0	y	y	1	CH1l2	32b1edd0	-	-
+32063650	y	y	1	CH1l2	32b397a0	-	CommonFrameMove/out
+320708b0	n	n	1	CH1l	32b18220	-	-
+32071d60	y	y	1	CH2a	32b29fb0	-	-
+32078b70	y	y	1	CH1l3	32b16940	-	-
+3207b4c0	n	y	1	CH2c2	32b2c7d0	-	-
+3207c1a0	y	y	1	CH1n	32b46580	chung:candidate	-
+3215a5a0	y	y	1	CH1a	32b39380	-	-
+321cd590	y	y	1	CH1l3	32b16940	eve:candidate	-
+321cdbb0	y	y	1	CH1l3	32b16940	eve:candidate	-
+321f2990	y	y	1	CH1l3	32b1f800	-	-
+321f3650	n	n	1	CH2b	32b16ca0	-	-
+32205510	y	y	1	CH1m	32b3d380	-	-
+32205ab0	y	y	1	CH1m	32b3d380	-	-
+3226e230	n	n	1	CH1m	32b3ca30	-	-
+3226e240	n	n	1	CH1m	32b3ca30	-	-
+3226e250	n	n	1	CH1m	32b3ca30	-	-
+3226e260	n	n	1	CH1m	32b3ca30	-	-
+3226e270	n	n	1	CH1m	32b3ca30	-	-
+3226e280	n	n	1	CH1m	32b3ca30	-	-
+3226e290	n	n	1	CH1m	32b3ca30	-	-
+322720f0	y	y	1	CH1a	32b13e20	-	-
+32275a30	y	y	1	CH1a	32b13e20	-	-
+3227ba10	y	y	1	CH3b	32b39e90	-	-
+3227bcb0	n	n	1	CH1m	32b3d380	-	-
+3227bfa0	y	y	1	CH1a	32b38f30	-	-
+32282440	n	y	1	CH1l	32b34680	-	-
+3228cfc0	y	y	1	CH1l	32aea690	eve:confirmed	-
+32293b80	y	y	1	CH2b	32b2ac20	-	-
+32293f80	y	y	1	CH2b	32b2ac20	-	-
+32295360	n	n	1	CH1m	32b3e470	-	-
+3229fe80	n	y	1	CH1m	32b3ca30	-	-
+322a74a0	n	n	1	CH1k	32b0e3f0	-	-
+322a7660	y	y	1	CH1m	32b3d380	-	SetBuffAccumulationCount/out
+322a9500	y	y	1	CH4a	32b34fe0	-	-
+322a9e60	n	y	1	CH1l3	32b1f800	-	-
+322ab6c0	n	n	1	CH1l3	32b1f800	-	-
+322b5320	y	y	1	CH2b	32b3d010	-	-
+322d38f0	y	y	1	CH3c2	32b33b00	-	DisplayAddMPInformation/replace
+322d7b30	n	n	1	CH2d2	32b318e0	-	-
+322f1a90	n	n	1	CH1l3	32b34c70	-	-
+3234b9d0	y	y	1	CH1l2	32b0fa90	-	ResetMaxMp/out
+32358970	y	y	1	CH1l2	32b0fa90	-	-
+3235a710	y	y	1	CH1l2	32b1eef0	-	-
+3236ca50	y	y	1	CH1l2	32b0fa90	-	-
+3236cb20	y	y	1	CH1l2	32b0fa90	-	-
+3236ccc0	y	y	1	CH4a	32b45820	-	-
+3236d350	y	y	1	CH1l2	32b0fa90	-	-
+32489200	y	y	1	CH1k2	32b37c70	-	-
+324943c0	y	y	1	CH1k2	32b37c70	-	GetInstance/out
+32498e40	n	n	1	CH1k2	32b37c70	-	-
+32505560	n	n	1	CH1l3	32b34c70	-	-
+32610fb0	y	y	1	CH1k	32aea530	-	-
+3264e800	y	y	1	CH1l3	32b16940	-	-
+32699670	n	n	1	CH1a	32b39380	-	-
+326bd250	y	y	1	CH4a	32b34fe0	-	-
+326f5ff0	n	n	1	CH1i	32b343b0	-	-
+32807db0	y	y	1	CH1l	32b18220	-	IsDivisionItem/out
+328343d0	n	n	1	CH1a	32b1bd90	-	-
+3288ff80	n	y	1	CH1a	32b3acf0	-	-
+328905b0	y	y	1	CH1l3	32b16880	-	-
+32894e40	y	y	1	CH2b	32b2b050	-	-
+328ee0b0	n	n	1	CH2d2	32b318e0	-	-
+329cc2c0	y	y	1	CH1n	32b46580	-	-
+329cc370	y	y	1	CH1l2	32b3a310	-	-
+329cd4a0	n	n	1	CH1n	32b46580	-	-
+329cd6f0	n	n	1	CH1n	32b46580	chung:candidate	-
+329cd890	y	y	1	CH1l3	32b16940	chung:confirmed	-
+329cd9c0	y	y	1	CH1l3	32b16940	chung:confirmed	-
+32a38250	n	n	1	CH1k2	32b37c70	-	-
+32a79420	n	n	1	CH1m	32b17f90	-	-
+32d40b80	n	n	1	CH1k	32ae5480	-	-
+32d40ba0	n	n	1	CH1k	32ae5480	-	-
+32d40bc0	n	n	1	CH1k	32ae5480	-	-
+32d40be0	n	n	1	CH1k	32ae5480	-	-
+32d40c00	n	n	1	CH1k	32ae5480	-	-
+32d40c20	n	n	1	CH1k	32ae5480	-	-
+32d40c40	n	n	1	CH1k	32ae5480	-	-
+32d418a0	y	y	1	CH1m	32b3e470	-	-
+32d41960	y	y	1	CH2d2	32b3e720	-	-
+32ed38f0	n	n	1	CH1l3	32b4cff0	-	-
+32fe9940	y	y	1	CH1k	32b0f080	-	-
+32fe9a10	y	y	1	CH1k	32b0f080	-	-
+32fe9a40	y	y	1	CH1n	32b46580	-	-
+32fea370	y	y	1	CH1k	32b0f080	-	-
+33086a02	n	y	1	CH2d2	32b38540	chung:confirmed	-
+3322a3f0	y	y	1	CH1k	32b162e0	-	-
+3322a5d0	y	y	1	CH1l	32b18220	-	-
+3322a9c0	n	n	1	CH1a	32b13e20	-	-
+3322aa80	y	y	1	CH1l2	32b0e440	-	-
+3322abc0	n	n	1	CH1k	32b162e0	-	-
+63e75d67	n	n	1	CH1n	32b46580	-	-

@@ -11,7 +11,8 @@ Input (tree rows).  The rows are read from the existing s3_reform_ids_no_state.t
 templet name, type, master level, row / column) already joined and in the order the checklist cites; June's
 SkillTree*.src.lua / NewSkillTempletVer2.src.lua would need a Lua walk plus the same join, and the tsv rows do not
 change when a March class file does.  Only the verdict columns are recomputed.  A June-only class (no rows in the
-tsv) cannot be generated here yet: add its rows to the tsv first.
+tsv) is listed in JUNE_ONLY_FAMILIES below: its rows (columns 1-10) are read from June's NewSkillTempletVer2.src.lua
+tree rows + SKILL_ID names in Enum.src.lua, and a missing March class file counts as empty (every row no_state).
 
 Class text.  --class-file (repeatable; default X2Lib/<family> and the same name with .h) is read as bytes and
 decoded latin-1 (CP949 safe); // and /* */ comments are stripped (line numbers kept), strings left alone.
@@ -56,6 +57,11 @@ DEFINE_FILES = [
     'KncWX2Server/Common/ServerDefine.h', 'KncWX2Server/Common/OnlyGlobal/ServerDefine/ServerDefine_Global.h',
     'KncWX2Server/Common/OnlyGlobal/ServerDefine/ServerDefine_US.h', 'X2Lib/X2Define.h',
 ]
+JUNE_LUA_DIR = os.path.join(TRUNK, 'june_src_fixed', 'data036_kom')
+JUNE_ONLY_FAMILIES = {          # family_cpp_file -> UNIT_CLASS names, in the order the rows are written
+    'X2GULuciel.cpp': ('UC_LUCIEL_DUO', 'UC_LUCIEL_CHILIARCH', 'UC_LUCIEL_ROYAL_GUARD', 'UC_LUCIEL_DIABLURA',
+                       'UC_LUCIEL_DREAD_LORD', 'UC_LUCIEL_NOBLESSE', 'UC_LUCIEL_DEMONIO'),
+}
 COLS = ['unit_class_name', 'unit_class_value', 'family_cpp_file', 'skill_id', 'skill_name', 'templet_name',
         'skill_type', 'master_level', 'row', 'column', 'in_cpp_enum', 'cpp_case_in_family', 'verdict',
         'march_value_of_name', 'march_names_at_same_id', 'cpp_any_token_in_family', 'case_in_X2GUUser_cpp',
@@ -311,6 +317,46 @@ def parse_live_lines(path):
     return out
 
 
+def lua_table(text, name):
+    """-> {key: int} for the top-level `NAME = { KEY = int, ... }` table of Enum.src.lua."""
+    m = re.search(r'^%s = \{\n(.*?)^\}' % re.escape(name), text, re.S | re.M)
+    return {k: int(v) for k, v in re.findall(r'^\t(\w+) = (-?\d+),?\s*$', m.group(1), re.M)}
+
+
+def june_only_rows(fam):
+    """Tree rows (columns 1-10 of the tsv) for a June-only family from June's Lua source."""
+    enum = read_latin1(os.path.join(JUNE_LUA_DIR, 'Enum.src.lua'))
+    classes = lua_table(enum, 'UNIT_CLASS')
+    names = {}
+    for n, v in lua_table(enum, 'SKILL_ID').items():
+        names.setdefault(v, []).append(n)
+    src = read_latin1(os.path.join(JUNE_LUA_DIR, 'NewSkillTempletVer2.src.lua'))
+    blocks = src.split('g_pSkillTree:AddSkill')
+    templets, tree = {}, {}
+    for b in blocks[1:]:
+        if b.startswith('Templet_LUA'):
+            i = re.search(r'^\tm_eID = (\d+)', b, re.M)
+            if i:
+                nm = re.search(r'^\tm_wstrName = "(.*)",\s*$', b, re.M)
+                ty = re.search(r'^\tm_eType = (\d+)', b, re.M)
+                templets[int(i.group(1))] = (nm.group(1) if nm else '', ty.group(1) if ty else '')
+        elif b.startswith('TreeTemplet_LUA'):
+            g = dict(re.findall(r'^\t(m_\w+) = ([\w.]+)', b, re.M))
+            uc = g['m_eUnitClass'].split('.')[-1]
+            tree.setdefault(uc, []).append(g)
+    rows = []
+    for uc in JUNE_ONLY_FAMILIES[fam]:
+        for g in tree.get(uc, []):
+            sid = int(g['m_iSkillID'])
+            cand = names.get(sid, [])
+            nm = ([n for n in cand if n.startswith('RNSI_')] or cand or ['not found'])[0]
+            tn, ty = templets.get(sid, ('', ''))
+            rows.append({'unit_class_name': uc, 'unit_class_value': str(classes[uc]), 'family_cpp_file': fam,
+                         'skill_id': str(sid), 'skill_name': nm, 'templet_name': tn, 'skill_type': ty,
+                         'master_level': g['m_iMasterLevel'], 'row': g['m_iRowIndex'], 'column': g['m_iColumnIndex']})
+    return rows
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--family', required=True, help='tsv family_cpp_file value, e.g. X2GuEve.cpp')
@@ -327,6 +373,8 @@ def main():
     base_cpp = os.path.join(X2LIB, fam)
     files = a.class_file or [base_cpp, os.path.splitext(base_cpp)[0] + '.h']
     files = [f if os.path.isabs(f) else os.path.join(TRUNK, f) for f in files]
+    if fam in JUNE_ONLY_FAMILIES and not a.class_file:
+        files = [f for f in files if os.path.exists(f)]      # no March class yet: nothing to scan
     for f in files:
         if not os.path.exists(f):
             sys.exit('class file not found: %s' % f)
@@ -341,8 +389,10 @@ def main():
         for r in rd:
             if r and not r[0].startswith('#') and r[idx['family_cpp_file']].lower() == fam.lower():
                 rows.append(dict(zip(hdr, r)))
+    if not rows and fam in JUNE_ONLY_FAMILIES:
+        rows = june_only_rows(fam)
     if not rows:
-        sys.exit('no rows for family %s in %s (a June-only class needs its tree rows added to the tsv first)' % (fam, a.tsv))
+        sys.exit('no rows for family %s in %s (add the family to JUNE_ONLY_FAMILIES or its tree rows to the tsv)' % (fam, a.tsv))
 
     notes = []
     if a.preprocess:

@@ -35,6 +35,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-02)
 
-(empty until CH0 runs)
+- **Functions: 1 to transcribe** (+ 1 thunks) (`awk -F'\t' '$6=="CH1p"' june2017_re/char_luciel/ch0_class_map.tsv`; all new).
+  June addresses: `32b14bc0` AddCombinationPointOnHit.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §2 L119 HIT_ADD_COMBINATION_POINT (parsed, logged) x6; §3 L151 Combination point absent; §3 L153 Lu/Ciel duo absent (no DUO_TYPE enum); §4 L166 CUSTOM_RENDER_STATE (17473) Enum table missing; §4 L167 DUO_TYPE (17515) members DT_BOTH = 2, DT_KEEP = 3; §7 L276 Spec A / B readers 32b14860 (A and B) and 32b37910 (B); §7an L927 GetCharacterSpecializationB readers Lu/Ciel 32b14950 / 32b3794d.
+- `AddCombinationPointOnHit` `32b14bc0` (the `HIT_ADD_COMBINATION_POINT` consumer, a delegate InitState pushes) is this phase's; the engine reader is `32632390` @3263dfd2.
+- **`Enum.lua` also needs the `CUSTOM_RENDER_STATE` table** (checklist agent; `Luciel_Demonio` uses it in 3 states and a missing table stops the file there): add it with `DT_BOTH` / `DT_KEEP`, before CH1 adopts the scripts.
