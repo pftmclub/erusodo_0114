@@ -11248,5 +11248,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH1q debug - [JUNE_CHAR] CHUNG CBALL lines in offline_server.log: the start counts, each spend and gain, the
 //              awakening refill and the PvP rebirth refill. They sit in the _LIVE bodies, so nothing logs before CH1; CH1's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_CBALL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+//              CH1 review ( 2026-11-02 ): retired, the CH1 play-test read the start / gain / spend lines.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
 //////////////////////////////////////////////////////////////////////////

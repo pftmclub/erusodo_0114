@@ -2286,6 +2286,48 @@ probes (449 -> 668), `MESH_CHUNG_BASIC_FACE_ANGRY5.TGA` / `MESH_CHUNG_CTT_CASH_H
 Chung sounds (the pre-CH1 run has the same error on Eve's, 42 lines), and `HQ_CUTIN_CHUNG_NORMAL.DDS.GFX` not found: March's cut-in table name
 plus `.gfx`, already owned by CH5 (cut-in set content, plan l.144 / CH1l3 note). No new routing.
 
+### CH1 - Review (2026-11-02)
+
+Opus 5.5. **Verdict: passes.** One source change: `_CBALL_DEBUG` retired (`Always.h:11252`, `//#define`). The `CHUNG CBALL` lines and the debug-only
+include go dark. `CHUNG DATA` stays, because `_LIVE` has its own `X2OfflineLog.h` include.
+- **Deploy unit:** data036 `Chung_Iron_Cannon.lua` matches the `june_adopt_20261102_094116.tsv` row: 243,462 B, sha1 `486f48da45a5...`, header `1B 4B 4C 81`,
+  `bytecode` / `ljconv`. It has no `.src.lua` sidecar. `kom.py status data036 data033`: both `in sync`, +0 / -0 / ~0 vs live (md5 `b27b9eef` / `c369e74f`).
+  `EXESTR OK: 5 of 5` on md5 `eca7c15d`: `CHUNG DATA` once (wide x1), and the four `CBALL` strings.
+- **START / WIN / LOSE (Ghidra):** `31feaac0` has one caller, a direct call from `CX2GUUser::Init` at `3204eae1` between vslots 0x3c and 0x48.
+  `31fe6780` has one caller, `31feaac0`. June therefore has no `ParseCommonRandomState` vslot, and Chung adds nothing over the base.
+  `31fdcc20` cases 6 / 0x14 / 0x15 / 0x1b / 0x6e / 0x6f / 0x75 give `CHUNG_IRON_CANNON` .. `CHUNG_TACTICAL_TROOPER`. These are the seven names in
+  March's Chung parse (`X2GUChung.cpp:7850`), and that parse stays outside `_LIVE`.
+- **`CHUNG DATA` states vs `ch1m_reg_by_class.tsv`:** the logged count is the tsv rows + 18 + 2 + the learned-skill sub-states, exact for all 7 classes.
+  - **The 18** are the base and hook states (Eve's 19, less Reason Pride's unconditional one).
+  - **The 2** are Lunatic Blow 26001: every test unit has a row for it.
+  - **The varying part** comes from June's `SetEquippedSkillLevel` (`32bdbe50`, `bChangeAll`). `GetEquippedActiveSkillTemplet( id, true )` falls back to
+    the learned templet (level-0 rows count), so `m_StateList[ id ]` adds each listed sub-state of a learned skill.
+  - **Per class (log - tsv):** 6 = 20 (none); 20 = 28 (Lunatic Fury 5, Leap 3); 21 = 25 (Dual Buster 2, Quantum Ballista 3);
+    27 = 35 (Dread Chase 2, Impact Detonation 2, Chaos Cannon 11); 110 = 36 (Fury 5, Iron Howling 2, Leap 3, Nova 1, Guard 5);
+    111 = 29 (Dual Buster 2, Ballista 3, Shooting Star 2, Gatling 2); 117 = 37 (Dread 2, Impact 2, Chaos 11, Heavy Field 2).
+  - The units are 62 / 63 / 64 / 65 / 43 / 42 / 18 (`unit_skill`). The count follows each unit's learned skills, not its class. Each class logged the same
+    count on every load.
+- **Cannon balls:** 16 + 2 `start` lines, all `dungeon 3 pvp 0`; `gain` / `spend` as played. **Awakening refill: no log evidence, skipped by the user.**
+  - The 12:47-12:49 re-run's console line ran in the village (`can't find 'GetMyUnit'`). Every later effect line reads `hyper=0`, and the spend to `now 0`
+    (12:48:28) reads `timer -1.00`, so no `gauge refill` line was logged.
+  - The user reports the awakening flow works in game and chose to skip the log proof.
+  - Code evidence: the CH1q review's compares of `32bf3e40` / `32bf4680` hold (`X2GUChung.cpp:9686`, `:9705`).
+- **ErrorLog** vs `ErrorLog_pre_CH1_chung.txt`: `KEM_ERROR` 0 / 0, `Motion Error` 0 / 0, `[LUA_SRC]` 7 / 7, `lua error` 3 / 3. Apart from the timestamps,
+  no line in those categories is new. The rest is as in the CH1 note.
+- **Checklist:** the 8 `(Chung: CH1, ...)` marks (l.421, 425, 507, 546, 590, 616, 671, 756) and l.162 (§4: no Chung `ENUM` line) are in place.
+
+Hygiene:
+- `flagcheck.py JUNE_CHAR_CHUNG_LIVE --range b9cdb691^..b9cdb691`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+- `_CBALL` (same range): `0 PASS, 2 OTHER, 0 FAIL`, 0 deleted, `RESULT: PASS`.
+- `_CBALL_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, `RESULT: FAIL` only because the `#define` is now `//#define` (the 1 deleted line is the define).
+- `junediverge.py --check-all`: `allow-listed: 176`, `RESULT: PASS`. `--check KTDXLIB/Always.h`: `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GUChung.cpp`: `0 A/B row(s)`.
+- `DEPLOY OK: X2_offline.exe is 25,911,808 B, dated 2026-11-02 13:02:03, md5 07efefc47617e10f1d2ecc85824e4301, equal to X2/US_SERVICE/x2.exe (2026-11-02 13:01:56); built at main 3e916c5b + 1 uncommitted code file(s).`
+- `EXESTR OK: 1 of 1 found` (`CHUNG DATA`) and `EXESTR OK: 5 of 5 absent` (`CHUNG CBALL start` / `spend` / `gain` / `gauge refill` / `rebirth`), same md5.
+
+CH2a, CH3b0 and CH5 are ready (kickoffs checked: each depends only on this review, and none reads a `CBALL` debug line). Nothing to play-test for the
+retirement: the next Chung run must show no `CHUNG CBALL` line and `CHUNG DATA` per load.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
