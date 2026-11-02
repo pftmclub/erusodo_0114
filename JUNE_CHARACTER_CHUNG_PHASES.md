@@ -2412,6 +2412,24 @@ Chung's skill and hyper cut-ins play June's art.
 - **Not ported, routed:** the cut-in item override (`31fd8a50` -> customize manager) -> Stage 12 bullet, as in Aisha / Eve.
 - **Play-test passed (user, 2026-11-02, logs read):** `CHUNG UI cut-in set` 4 x2 (`HQ_CutIn_Chung_DC_01`), 3 (`_IP_01`), 2 (`_01`), 6 index 0 / 1 (`_TT_01` / `_TT_11`), each with a `[JUNE_GFX] CUTIN play ... .gfx`. ErrorLog: no `KEM_ERROR`, no Motion Error, nothing on UnitTemplet; the `ChainQuestInfo.lua` `AddGroupChainQuest` and `TutorSystem.lua` LUA_SRC lines are older and not CH5's. Sets 1 and 5 (classes 20 / 27) were not exercised; same table code. **Hyper cut-in not exercised:** the console line `SetHyperModeCount( 3 )` failed (`global 'SetHyperModeCount' (a nil value)`, 13:42:2), so no `CHUNG UI hyper cut-in` line. **User, 2026-11-02:** the hyper cut-in is only available after transcendence, so it cannot be tested before CH3d / CH6; CH6's walk (`/tc 1` on 110 / 111 / 117) owns the `CHUNG UI hyper cut-in` check, and the CH5 review does not re-ask it.
 
+#### CH5 - Review (2026-11-02, Opus 5.5): PASS, no code change
+
+I read each item against June: `333a96b0`, `32078b70` and `32bf0800` in Ghidra. InitState `32c22540` is not carved, so its jump table was decoded from the exe bytes (`charport_consts.read_va` + capstone).
+- **Table `333a96b0`.** It builds 21 `SkillCutIn` entries at `337adca8 + i * 0x30` (`337adca8` .. `337ae068`). Strings: `3350f898` = `HQ_CutIn_Chung_01`, `f874` = `_11`, `f848` / `f81c` = `_IP_01` / `_IP_11`, `f7f0` / `f7c4` = `_DC_01` / `_DC_11`, `f798` / `f76c` = `_TT_01` / `_TT_11`.
+  In order: sets 0 / 1 / 2 = `_01 _11 _11`, set 3 = `IP`, set 4 = `DC`, set 5 = `_01 _11 _11`, set 6 = `TT`. That is the port's table, row for row. Entries 0-15 inline the stores, and 16-20 (`337adfa8` on) call `32078b70`.
+  Both store `( [334367ac], [334367ac] )`, then `( [33435598], [334367ac] )`, then an uninitialised z at +0x2c. That is March's `SkillCutIn( name )` (`X2GUUser.h:830`, 512 x 512 at ( 256, 512 )). The `#else` keeps March's `.dds` table.
+- **Reader `32bf0800`.** It reads entry 0 at `337adca8 + [this+0x8ac8] * 0x90`. Entry 1 at `337adcd8 + ... * 0x90` is read when vslot 0x9c is true (`IsFullHyperMode`), and only when `31fd8a50` returns < 1. That is the item override, not ported (Stage 12). The set stride of 0x90 and the member `m_iSkillCutInSetIndex` (+0x8ac8) hold.
+  The CH5 log line prints `iCutInIndex` before the 0x8b3 event swap. That swap is CH1's code and is unchanged.
+- **Set index (InitState `32c22540` @32c2258e).** `cmp class, 0x75; ja default; movzx byte [32c22af8 + class]; jmp [32c22ad8 + idx*4]`. The byte map is 0 / 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 3, 110 -> 4, 111 -> 5, 117 -> 6, and every other byte is 7 (the default, which keeps the value).
+  The targets set +0x8ac8 = 0 (EBX), 1, 2, 5, 3, 4, 6. So the mapping is 0 / 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 5, 110 -> 3, 111 -> 4, 117 -> 6, and a NULL templet reads class 0 -> 0. This equals `X2GUChung.cpp:1176-1206` (CH1m, `_LIVE`, `UC_NONE` folded into set 0). No index can reach past set 6.
+- **UnitTemplet.** I compared block-wise on `unitClass`, with CRLF and BOM normalised only. The current, pre-phase (`kom_backup_tools/data036.kom.20261102_131543`) and June files hold 55 / 55 / 87 blocks; current and pre-phase have the same class set.
+  Chung's 7 `UC_CHUNG_*` blocks match June's text 7 of 7. The other 48 match pre-phase 48 of 48. The file starts with a BOM, with 1455 CRLF and 0 lone LF. `luasrc.py ledger --check`: PASS (0 FAIL, 0 WARN); `core --check`: PASS; `luabind.py check UnitTemplet`: RESULT: PASS (0 unbound).
+- **Play-test lines** (run 13:40-13:44, on the deployed exe `8e41d63b`). Each `CHUNG UI cut-in set` line has its `[JUNE_GFX] CUTIN play ... .gfx` in the same second: set 4 index 0 `DC_01` x2, set 3 `IP_01`, set 2 `_01`, set 6 index 0 `TT_01`, and set 6 index 1 `TT_11`.
+  Sets 1 / 5 (classes 20 / 27) were not reached; they use the same table code and are CH6's walk. The `CHUNG UI hyper cut-in` check is CH6's (user, 2026-11-02), so its absence here is not a finding.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI --range f1f669ee^..f1f669ee`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS. No later commit touches the flag (`git log -S`).
+  `junediverge.py --check-all`: allow-listed 178, RESULT: PASS. `enumscan --check X2Lib/X2GUChung.cpp`: 0 A/B rows (the working tree includes CH2a's uncommitted edits). There was no rebuild; the deployed exe stays md5 `8e41d63b`.
+- **Next.** `kickoffs/char-chung/CH6.md` has been checked: its CH5 amendment carries the hyper cut-in check. Its walk (one unit per class) also covers sets 1 / 5. CH6 still waits on the CH3d and CH4c reviews.
+
 ## Phase CH-N - not run for Chung
 
 All seven June Chung classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara runs

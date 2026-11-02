@@ -47,3 +47,5 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Hyper cut-in walk check (user: only available after transcendence).** On transcended 110 / 111 / 117 (`/tc 1`), run the awakening and read
   `[JUNE_CHAR] CHUNG UI hyper cut-in class <110|111|117> name HQ_Cutin_C{IP,DC,TT}_Transcendence` (`_1_Transcendence` in Berserk states) beside a `[JUNE_GFX] CUTIN play`.
   CH5 shipped the `UnitTemplet` keys and the log line; no test could reach them before. A bare `SetHyperModeCount( 3 )` in the console failed in CH5's play-test (nil global): find the working awakening command (Eve's CH5 hand-off used one) before writing the walk step.
+- **Skill cut-in sets 1 / 5 (CH5 review).** CH5's play-test reached sets 2 / 3 / 4 / 6 only. On Fury Guardian (20) and Shelling Guardian (27), any active skill should log
+  `[JUNE_CHAR] CHUNG UI cut-in set 1` / `set 5 ... name HQ_CutIn_Chung_01` beside a `[JUNE_GFX] CUTIN play`.
