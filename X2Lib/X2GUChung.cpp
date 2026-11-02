@@ -195,6 +195,7 @@ iFrameBufferNum_, pUnit_ )
 , m_iCarpetBombingMaxCount( 0 )
 , m_fCarpetBombingExtraRoundPowerRate( 1.f )
 , m_fShootingBindCoolTimeLeft( 0.f )
+, m_fBerserkChanceOnAwakening( 0.f )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 , m_hLandDemolisherAfterEffect( INVALID_EFFECTSET_HANDLE )
 , m_fLandDemolisherPowerRate( 0.f )
@@ -7966,6 +7967,8 @@ void CX2GUChung::InitializeChungMajorParticleArray()
 /*static*/
 void	CX2GUChung::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc520 ( = March )
 	if ( g_pData->GetGameMajorParticle() == NULL )
 		return;
 
@@ -7976,6 +7979,18 @@ void	CX2GUChung::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRingRed" );
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCoreRed" );
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlashRed" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	if ( g_pData->GetGameMajorParticle() == NULL )
+		return;
+
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpact" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCore" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlash" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRingRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCoreRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlashRed" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 
@@ -8165,10 +8180,18 @@ void CX2GUChung::DeleteChungMinorParticle()
 */
 void CX2GUChung::InitializeMajorMeshArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdc600 ( = March: every handle slot invalid; June's 19 slots are spread over March's CHUNG_MAJOR_MII_END )
 	for ( int index = 0; index < CHUNG_MAJOR_MII_END; ++index )
 	{
 		m_ahChungMajorMeshInstance[index] = INVALID_MESH_INSTANCE_HANDLE;
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	for ( int index = 0; index < CHUNG_MAJOR_MII_END; ++index )
+	{
+		m_ahChungMajorMeshInstance[index] = INVALID_MESH_INSTANCE_HANDLE;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : SetHandleChungMajorMeshByEnum
@@ -9589,6 +9612,22 @@ float CX2GUChung::GetStateAnimSpeedRate( const bool bFuture_ )
 }
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+/// June 32bdba60 ( user vslot 0x6a8 ): Shooting Bind shows no cool time while its own timer runs
+/*virtual*/ float CX2GUChung::ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_SA_CDC_SHOOTING_BIND == iSkillID_ && 0.f < m_fShootingBindCoolTimeLeft )
+		return 0.f;
+
+	return fCoolTime_;
+}
+
+/// June 32c24b90 ( unit vslot 0xa4 ): the awakening turns into berserk at Tussle Technique's chance
+/*virtual*/ bool CX2GUChung::IsBerserkByChance()
+{
+	return m_fBerserkChanceOnAwakening > GetRandomFloat( 0 );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 /// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and 0x764 refunds the memo share
 /*virtual*/ void CX2GUChung::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
 {
@@ -9984,6 +10023,34 @@ void CX2GUChung::LoadPersonalInfo( IN KLuaManager& luaManager_ )
 */
 void CX2GUChung::LoadStateIDCanBeChangedGuardState( IN KLuaManager& luaManager_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf0ce0 ( = March )
+	if ( true == luaManager_.BeginTable( "CHUNG_STATE_ID_LIST_ABLE_TO_BE_CHANGED_TO_GUARD_STATE" ) )
+	{
+		int iIndex = 1;
+		CHUNG_STATE_ID eChungStateID = CSI_BASE;
+
+		while( luaManager_.BeginTable(iIndex) == true )
+		{
+			GUARD_STATE_INFO stGuardStateInfo;
+
+			LUA_GET_VALUE_ENUM( luaManager_, 1, eChungStateID, CHUNG_STATE_ID, CSI_BASE );
+			LUA_GET_VALUE( luaManager_, 2, stGuardStateInfo.m_vecGuardTimer.x, 0.f );
+			LUA_GET_VALUE( luaManager_, 3, stGuardStateInfo.m_vecGuardTimer.y, 100.f );
+
+			if ( CSI_BASE != eChungStateID )
+			{
+				stGuardStateInfo.m_eStateId = eChungStateID;
+				m_vecStateIDCanBeChangedToGuardState.push_back( stGuardStateInfo );
+			}
+
+			++iIndex;
+			luaManager_.EndTable();
+		}
+
+		luaManager_.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == luaManager_.BeginTable( "CHUNG_STATE_ID_LIST_ABLE_TO_BE_CHANGED_TO_GUARD_STATE" ) )
 	{
 		int iIndex = 1;
@@ -10009,6 +10076,7 @@ void CX2GUChung::LoadStateIDCanBeChangedGuardState( IN KLuaManager& luaManager_ 
 		
 		luaManager_.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : LoadPromotionItemID
@@ -10635,6 +10703,16 @@ void CX2GUChung::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 */
 void CX2GUChung::InitRemodelMagazinePassiveSkill()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf40e0: the renewed Remodel Magazine id, its level with the upgrade swap
+	const int iSkillLevelRemodelMagazine = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CSG_REMODEL_MAGAZINE, true, 0, true );
+	if ( 0 < iSkillLevelRemodelMagazine )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CSG_REMODEL_MAGAZINE );
+		if ( NULL != pSkillTemplet )
+			SetMaxCannonBallCount( static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EXPAND_CB, iSkillLevelRemodelMagazine ) ) );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 캐논볼 UI가 아직 생성되지 않았다면 실행하지 않음
 //	if ( m_GageManager.GetCannonBallUIPtr() == NULL )
 //		return;
@@ -10672,6 +10750,7 @@ void CX2GUChung::InitRemodelMagazinePassiveSkill()
 		} // if
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	} // if
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GetCriticalValue

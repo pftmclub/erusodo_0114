@@ -51,3 +51,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1g (2026-10-31)
 
 - `InitPassiveSkillState` `32c16be0` writes the protected float at `+0x98ac` (1.0, then for `RNSI_P_CSG_REMODEL_RIFLE` 26405 the `SA_DAMAGE_REL` value): CH1g added the member `m_fRemodelRifleDamageRate` (default 1) that the dash XX / Z X / Z X X shell FrameMoves multiply into their power. Port that write here, next to the `+0x96b8` / `+0x96bc` ones.
+
+## Amended by CH1o (2026-11-02)
+
+- `+0x9714` is `m_fBerserkChanceOnAwakening` (CH1o: member, ctor 0, read by the `IsBerserkByChance` override `32c24b90`). `InitPassiveSkillState` writes it:
+  0 `@32c1757e`, then `RNSI_P_CDC_TUSSLE_TECHNIQUE` (26408, register it under `JUNE_ENUM_NAMES`; not in March's enum) level `> 0` -> `SA_EFFECTIVE_RATE` (5) `@32c175d3`
+  ("Berserk Chance when Awakening" 30-60 %). `+0x9710` beside it is the same skill's `SA` `0x92` value (`@32c1756e`).
+- Two delegates registered from `InitPassiveSkillState` are yours (7am): `32bdba10` via thunk `32c23090` (pointer `@32c1781d`: damage type `0x21` / `0x22`, `+8` == 2,
+  skill `0x6731` learned -> vslot `0x23c( 0x6731, 0, 1 )`) and `32c12910` via thunk `32c258a0` (pointer `@32c177f1`).

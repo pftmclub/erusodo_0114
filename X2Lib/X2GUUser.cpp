@@ -34750,6 +34750,11 @@ void CX2GUUser::ResetAnimSpeed( float fAnimSpeed, bool bSpeedUpByItem, bool bFut
 		}
 #endif ELSWORD_WAY_OF_SWORD
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 31ffe190 @31ffe2b0: the class's state rate through user vslot 0x824 takes the place of the inline Intense Showtime block
+	fAnimSpeed *= GetStateAnimSpeedRate( bFuture );
+	int iSkillLevel = 0;	// March's Lire block below reuses it
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
@@ -34780,6 +34785,7 @@ void CX2GUUser::ResetAnimSpeed( float fAnimSpeed, bool bSpeedUpByItem, bool bFut
 		}
 	}
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
 	//컴뱃레인져 - 재빠른 몸놀림

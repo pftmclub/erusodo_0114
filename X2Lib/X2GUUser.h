@@ -3435,6 +3435,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
 		virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; }	/// June user vslot 0x6a8 ( base 3208e190 )
 #endif SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+		virtual float GetStateAnimSpeedRate( const bool bFuture_ ) { return 1.f; }	/// June user vslot 0x824 ( base 3208dd70 ): a class's state animation rate, read by ResetAnimSpeed
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
 		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
 		virtual bool IsSkillUseCountExcludedState() const { return false; }

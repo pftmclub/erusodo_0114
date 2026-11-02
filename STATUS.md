@@ -175,8 +175,8 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1o | ready: virtuals under `_LIVE`, June-only user virtuals (0x6a8, 0xa4 berserk-by-chance, 0x9c / 0xa0) | Opus 5.5 / high, Opus review | CH1n3 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md` |
-| CH1p | blocked (CH1o review): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
+| CH1o | done 2026-11-02 under `_LIVE` (off): overrides 0x6a8 / 0xa4, user virtual 0x824 in `ResetAnimSpeed`, Remodel Magazine; 24 rows judged, no CH1o2. Opus review next, no play-test | Opus 5.5 / high, Opus review | CH1n3 review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1o.md`, `CH1o-review.md` |
+| CH1p | blocked (CH1o review; CH1o done 2026-11-02): 7ag pressed-index space (Chung's 4+4 decode), hooks 7h / 7l / 7o / 7p / 7x, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH1p.md` |
 | CH1q | blocked (CH1p review): cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt `Chung_Iron_Cannon.lua`, pack / ask / copy, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Iron Cannon (6) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUChung.*`, `MODS.md` | `CH2a.md` |

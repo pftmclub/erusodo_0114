@@ -869,6 +869,10 @@ public:
 	virtual float		GetFinalDamageToBeChangedBySkill( float fFinalDamage_ );
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32bdba60 ( user vslot 0x6a8 )
+	virtual bool IsBerserkByChance();	/// June 32c24b90 ( unit vslot 0xa4 )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	virtual int GetComboZStateID() const { return CSI_COMBO_Z; }	/// June 32c24b80 ( = March )
 	virtual int GetComboXStateID() const { return ( NULL != GetUnit() && CX2Unit::UC_CHUNG_DEADLY_CHASER == GetUnit()->GetClass() ) ? CSI_CDC_COMBO_X : CSI_COMBO_X; }	/// June 32beaf70
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
@@ -1975,6 +1979,7 @@ protected:
 	float						m_fCarpetBombingExtraRoundPowerRate;	/// June +0x98a0 ( ctor 1 ): DoCarpetBombing's power factor from the 19th shot on ( at least 1; set by the skill start, CH3c )
 	std::multimap< float, std::pair< int, CX2EffectSet::Handle > >	m_mapBombardServiceEffect;	/// June +0x97f4: distance -> { unit index, mark effect set }; CommonFrameMove stops the ones of dead targets ( its only filler 32c08970 has no caller )
 	float						m_fShootingBindCoolTimeLeft;	/// June +0x98d4: counts down in CommonFrameMove; two CH3b states set it, ShownSkillCoolTime ( CH1o ) reads it
+	float						m_fBerserkChanceOnAwakening;	/// June +0x9714 ( ctor 0 ): Tussle Technique's berserk chance on awakening, written by InitPassiveSkillState ( CH4a )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

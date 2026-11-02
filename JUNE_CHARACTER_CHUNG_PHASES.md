@@ -1992,6 +1992,45 @@ hold-down drop, the double touch and a pepper run (Hot Pepper `130507`). Dry San
 `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probe (`census.cl_cmd`, `/Zs /EHsc`) of `X2GUUser.cpp`: `_LIVE` off and on, exit 0, 0 errors.
 **Play-test:** passed (pad, hold-down drop, double touch, pepper run; 0 EXCEPTION on `26d1965e`). Next: `/x2-phase char-chung CH1o` (Opus 5.5 high).
 
+### CH1o - Done (2026-11-02)
+
+**Landed** (flag `_LIVE`, still `//#define`; members under `_CORE`; listings `charport_adis.py chung --phase CH1o`, all 24 rows read):
+- **0x6a8 `ShownSkillCoolTime` `32bdba60`:** Chung override; `RNSI_SA_CDC_SHOOTING_BIND` (0x65b7) shows 0 while `m_fShootingBindCoolTimeLeft` (+0x98d4) > 0.
+  The base and its `UpdateSkillCoolTime` call are Eve CH1o2's; Chung's own skill-use call (`32c17b82`) is CH1l3's `SpecialAttackLookup` line.
+- **0xa4 `IsBerserkByChance` `32c24b90`:** `m_fBerserkChanceOnAwakening > GetRandomFloat( 0 )`. **`+0x9714` identified:** Tussle Technique's "Berserk Chance when
+  Awakening" (`RNSI_P_CDC_TUSSLE_TECHNIQUE` 26408, `SA_EFFECTIVE_RATE`), written only by `InitPassiveSkillState` (0 `@32c1757e`, value `@32c175d3`): new member
+  (`_CORE`, ctor 0 `@32bf1a6b`); the writer is CH4a's (kickoff amended). Until then the roll is always false. Always.h: `_LIVE` now `#error`s without
+  `JUNE_USER_SHOWN_SKILL_COOL_TIME` / `JUNE_DIVERGE_BERSERK_BY_CHANCE` (both bases).
+- **User vslot 0x824 (CH1l3 amendment):** base `CX2GUUser::GetStateAnimSpeedRate( bFuture )` returns 1.0 (`3208dd70`); `ResetAnimSpeed` calls it `@31ffe2b0`
+  in place of March's Intense Showtime block (`#else`). Chung's `_CORE` body (`32bed8c0`) becomes the override. June's only 0x824 caller is `ResetAnimSpeed`.
+  **The rest of June's `ResetAnimSpeed` differs per class:** divergent row + allow row `ResetAnimSpeed` (`31ffe190`), checklist **7av** (Lire's Agile Movement
+  override, Add / Ain `+0x92a0` rate, Lu/Ciel dual-body future anim).
+- **`InitRemodelMagazinePassiveSkill` `32bf40e0`:** June reads `RNSI_P_CSG_REMODEL_MAGAZINE` 26406 (registered, `JUNE_ENUM_NAMES`), level `( id, 1, 0, 1 )`,
+  `SA_EXPAND_CB` -> gauge `SetMaxCannonBallCount` (`32a36ba0`); March read `SI_P_CSG_REMODEL_MAGAZINE` 6406.
+- **= March, written under `_LIVE` (house pattern):** `AppendMajorParticleToDeviceList` `32bdc520` (7 names, `0x334b7718` = `DamageImpactRingRed`),
+  `InitializeMajorMeshArray` `32bdc600` (June's 19 handle slots are spread over March's 21-entry `CHUNG_MAJOR_MII_END`), `LoadStateIDCanBeChangedGuardState`
+  `32bf0ce0` (default 0x99 = `CSI_BASE`, x 0 / y 100). **= March, no edit (header one-liners):** `IsFullHyperMode` `32c24b50` (gauge +0x140), `SetFullHyperMode`
+  `32c24b60` (+0x141 = 1, +0x140 = arg), `CCannonBallSystem()` `32c24930` (0.5 / 0 / 0), `SetBasicCannonBallCount` `32c24e50` (+0x9674).
+  **CH0 names corrected:** `32c24e50` = dungeon-start setter (CH0: `SetCannonBallCountToBeUpUsingReLoadCannon`), `32c24ed0` = `SetPvpStartCannonBallCount`
+  (+0x9680, CH1l's; CH0: `SetBasicCannonBallCount`); both are called only by `LoadPersonalInfo` `32bf5430` (CH1q).
+
+**Decisions (no CH1o2):** June calls user vslots 0x670 (`IsInJobLine`, 135 sites) and 0x774 (`UpdateSpineAimRotation`) only from class code on the class
+itself, never from engine code, so both stay plain Chung members (no `CX2GUUser` base). 0x740 / 0x744 are called only by the Crest of Time hook `3201ffb0`
+and death prevention `320072d0`: CH4b (amended), with 0x748. 0x688 stays dead (CH1k0).
+
+**Routed (kickoffs amended):** CH4a: `+0x9714` / `+0x9710` writers, delegates `32bdba10` (thunk `32c23090`) and `32c12910` (thunk `32c258a0`) registered by
+`InitPassiveSkillState`. CH4c: `32bdb760` = `MemoConditionChung` vtable slot 1 (RTTI `3361d48c`). CH3b: `32bfeb80` (Artillery Strike control helper,
+caller `32bff350`). **n/a:** `32c23600` / `32c245a0` / `32c246f0` (std `vector<12-byte>` instantiations), `32c242c0` / `32c24520` (callees of the dead
+`32c08970`, JUNE_BUGS #502), `32c24b30` / `32c24b40` (dtor adjustor thunks, secondary vtables `+0x1a0` / `+0x190`). Checklist: L260 / L263 / 7ap / 7t marked.
+
+**Hygiene.** `flagcheck JUNE_CHAR_CHUNG_LIVE --worktree --files <6>`: `3 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII,
+0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only because `_LIVE` is `//#define`. `_CORE` view of the three code
+files: `3 OTHER`, `RESULT: PASS` (Always.h's 6 lines sit in the `_LIVE` block). `JUNE_ENUM_NAMES`: `1 PASS~`, `RESULT: PASS`. `git diff --patience --numstat`: Always.h
+6/0, X2GUChung.cpp 79/0, X2GUChung.h 5/0, X2GUUser.cpp 6/0, X2GUUser.h 3/0, X2SkillTree.h 6/0. `junediverge.py --check-all`: `allow-listed: 163`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp` and `X2GUUser.cpp`, `_LIVE`
+off and on, exit 0, 0 errors. `DEPLOY OK: X2_offline.exe is 25,902,080 B, dated 2026-11-02 07:55:15, md5 34c683ba6006503b49155c46e71a52ee` (main 38940bf1 + these 6 files). No exe string: every change is under the undefined `_LIVE`. No play-test: nothing runs until CH1.
+Next: `/x2-phase char-chung CH1o review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

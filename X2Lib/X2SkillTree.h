@@ -2024,6 +2024,12 @@ public:
 		RNSI_P_RRF_OPEN_MIND                                  = 24419,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH1o
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID name InitRemodelMagazinePassiveSkill spells ( value from June's Enum.lua )
+		RNSI_P_CSG_REMODEL_MAGAZINE                           = 26406,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

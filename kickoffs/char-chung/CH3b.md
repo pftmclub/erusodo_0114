@@ -49,3 +49,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - CH1l4 declared `m_fShootingBindCoolTimeLeft` (June `+0x98d4`, ctor 0; counts down in `CommonFrameMove`, read by `ShownSkillCoolTime` = CH1o). Two CH3b functions write it (`32bdba9d`: 10.0; `32bdbace`: a skill value from `32007b10`); CH1o's `32bdba60` reads it for skill 26039 (`RNSI_SA_CDC_SHOOTING_BIND`). Rename it if the states say it is another skill's.
 - CH1l4 declared `m_mapBombardServiceEffect` (June `+0x97f8`, `std::map< int, CX2EffectSet::Handle >`); June's only filler `32c08970` has no caller (JUNE_BUGS #502). Artillery Strike's own `m_iBombardServiceTarget` code stays March's until a June reader is found.
+
+## Amended by CH1o (2026-11-02)
+
+- CH1o wrote `ShownSkillCoolTime` (`32bdba60`): `RNSI_SA_CDC_SHOOTING_BIND` shows 0 while `m_fShootingBindCoolTimeLeft > 0`, so your two writers make it visible.
+- `32bfeb80` (CH0 row, 647 lines: a switch on `+0x8ac0` over per-slot byte flags `+0x86f2..+0x872e`, `GetDistance`, `HaveThisBuff`) is called only from the
+  Artillery Strike control EventProcess `32bff350` (`@32bff353`): yours with 7r / 7ac.

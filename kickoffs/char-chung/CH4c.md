@@ -44,3 +44,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH0 (2026-10-31)
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L278 Chung Metabolism Boost in CX2Game::UseItemSpecialAbility (322fbc60; un; §7b L325-326 skill-memo entry 31fdbbb0 / class callers of 31fdbcc0; §7u L637 March-only memo effect CHUNG_BIGBANGSTREAM_MEMO (X2BuffTemplet.cpp:169; §7u L644-646 grenade memo X2BuffTemplet.cpp:1695-1706: 20% memo-26 roll else skips .
+
+## Amended by CH1o (2026-11-02)
+
+- `32bdb760` (CH0 row "reached only through pointer `@33509538`") is slot 1 of `CX2GUChung::MemoConditionChung`'s vtable (`33509534`, RTTI `3361d48c`): it returns
+  the user skill-decide stub `31fd4450( arg )` (always false); slot 2 `32bdb780` jumps to `31fc8cf0`. Port it with `MemoConditionChung`.
