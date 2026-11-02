@@ -2031,6 +2031,37 @@ files: `3 OTHER`, `RESULT: PASS` (Always.h's 6 lines sit in the `_LIVE` block). 
 off and on, exit 0, 0 errors. `DEPLOY OK: X2_offline.exe is 25,902,080 B, dated 2026-11-02 07:55:15, md5 34c683ba6006503b49155c46e71a52ee` (main 38940bf1 + these 6 files). No exe string: every change is under the undefined `_LIVE`. No play-test: nothing runs until CH1.
 Next: `/x2-phase char-chung CH1o review` (Opus 5.5 high).
 
+### CH1o - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `34c683ba` stands). Listings: `charport_adis.py chung --phase CH1o` (24) and `chung 31ffe190`.
+- **`ResetAnimSpeed` `31ffe190`:** extra rate (`!= 1` -> x), then the item block (`bSpeedUpByItem == 1`: protected rate, world-mission `+0x330` x 0.01 unless game
+  type 1, then Elsword vigor `+0x961c`); its `jne` lands on `@31ffe2b0`: `[vtbl + 0x824]( bFuture )`, x. Then `+0x88f8` floor 0.1 and x, world `+0x188` rate, `+0x92a0` x,
+  future anim `+0x8e90 ? +0x8e84 : m_pXSkinAnimFuture`. The `_LIVE` call sits exactly there; March's Lire block stays after it (products commute) on `int iSkillLevel = 0`.
+  The routed rest (`+0x92a0`, the dual body, Lire's override) is everything else that differs. **Sweep:** of 12 `[r + 0x824]` loads in the exe, only `@31ffe2b0` is a
+  vtable load; the other 11 (`31d309f2`..`31d30f2e`, `322de71c`, `3296079c`, `3303747f`/`ab`, `3303d4b6`) read data members (vector / string fields).
+- **`ShownSkillCoolTime` `32bdba60`:** ( cool `[esp+4]`, id `[esp+8]` ), `ret 8`; `0x65b7` = 26039 = `RNSI_SA_CDC_SHOOTING_BIND`; `fldz; fcom [+0x98d4]`, `test ah,5; jnp`
+  taken only for C0 alone (0 < member) -> returns the 0 on ST0; equal / greater / unordered -> the cool time. Port = June.
+- **`IsBerserkByChance` `32c24b90`:** vslot 0x1cc `GetRandomFloat( 0 )` first, then `fld [+0x9714]`: `fcompp` compares member (ST0) with roll; `test ah,0x41; jne` -> false on
+  `<=` / unordered, so true when member > roll. Port = June. Writers `@32c1757e` / `@32c175d3` stay CH4a's.
+- **`InitRemodelMagazinePassiveSkill` `32bf40e0`:** `GetSkillLevel( 0x6726, 1, 0, 1 )` (pushes reversed), `> 0`; `GetSkillTemplet( id, 1 )` = March's one-argument form
+  (UPGRADE_SKILL_SYSTEM_2013); `GetSkillAbilityValue( 0x66, level, 0, 0.0f )`: `32206e50` is `ret 0x10`, the 4th argument is the miss default (`fld [esp+0x60]`), 0 = March's
+  `return 0.f`, bPvp 0 = the two-argument getter; `_ftol2`; gauge `[+0xc04]` -> `32a36ba0` sets the protected int at `+0x11c` (`ret 4`) = `SetMaxCannonBallCount`. No else
+  branch in June either. Port = June.
+- **Verdict rows hold:** `32c24b50` (`+0x140`), `32c24b60` (`+0x141 = 1`, `+0x140 = arg`) = March. `32bdc520` 7 names (`[g_pData+0x84]` null test = `GetGameMajorParticle`),
+  `32bdc600` 19 x -1 from `+0x95c8`, `32bf0ce0` (default `0x99`, `[2]` 0, `[3]` 100.0), `32c24930` (0.5 / 0 / protected 0) = March. `32c24e50` (+0x9674) / `32c24ed0` (+0x9680)
+  are byte setters with only `LoadPersonalInfo` callers, CH0 names corrected as the note says. Routed and n/a rows as listed; nothing to add.
+- **0x670 / 0x774 decision holds:** 126 vtable loads of 0x670, all in class code (`329d..` to `32cf..`; Chung's 4 at `32bde360` / `32bdee8e` / `32bdef64` / `32bdf01b`, its combo
+  handlers, `ecx = this`); `324ef57c` is a member read `[ebp + 0x670]`. 0x774: 5 loads, `32be5b25`, `32c0e566`, `32c0ea11` (Chung, `mov ecx, esi`) and `32c6af88` / `32ca535b`
+  (other classes' own frame moves on `esi = this`, which reach the empty base `31f3f070`). No engine caller, so no base virtual is needed for Chung.
+
+**Hygiene** (range `1e2bf4ce^..1e2bf4ce`): `flagcheck JUNE_CHAR_CHUNG_LIVE`: `3 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched,
+0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only for `define: NOT FOUND` (`//#define`). `_CORE --files` the four class/user files: `4 OTHER, 0 FAIL`,
+`RESULT: PASS`; `ENUM_NAMES --files X2SkillTree.h`: `1 PASS~`, `RESULT: PASS` (whole-range runs trip on Always.h only: the `_LIVE` guard lines and an old compound `#if` at
+:10175 flagcheck cannot parse). Both new `#error` guards' flags are defined above the block (Always.h:10235, :10448). `git diff --patience --numstat`: code 6/0, 79/0, 5/0, 6/0, 3/0,
+6/0. `junediverge.py --check-all`: `allow-listed: 163`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes
+(`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp` and `X2GUUser.cpp`, `_LIVE` off and on (`/D`), exit 0, 0 errors, warnings equal off / on (38 / 39). No play-test.
+Next: `/x2-phase char-chung CH1p` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
