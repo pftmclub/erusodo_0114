@@ -53,3 +53,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   the cannon-ball sites outside the class: gauge play status x 13, gauge copy, InitUI order, the DamageEffect `USE_CANNONBALL` boost.
 - `_CBALL_DEBUG` stays on for this play-test: `[JUNE_CHAR] CHUNG CBALL start ...` at load, `gain` / `spend` per charge and shot, `gauge refill` in the
   awakening after the count runs out. CH1's review retires it.
+
+## Checked by CH1q review (2026-11-02)
+
+- The adopted `Chung_Iron_Cannon.lua` is the only script with `CANNON_BALL_COUNT_AT_DUNGEON_START = 3` / `_AT_PVP_START = 0`. March's script carries
+  `..._DUNGEON_OR_PVP_START`, which `_LIVE` no longer reads, so both counts fall to 0. The hand-off's `[JUNE_CHAR] CHUNG CBALL start` line must read `dungeon 3 pvp 0`.
+  `0 / 0` means the March script is still being loaded.

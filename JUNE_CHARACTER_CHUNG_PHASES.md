@@ -2198,6 +2198,40 @@ No JUNE_BUGS row: nothing here reads as a June mistake. The % 7 / x 13 split is 
 
 **Nothing to play-test** (`_LIVE` and `_CBALL` are off). Next: `/x2-phase char-chung CH1q review` (Opus 5.5 high), then CH1.
 
+### CH1q - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `d4f966c9` stands). Listings: `charport_adis.py chung 32bf3e40 32bf4680 32bf5280 32bf5430 32a32390
+32a347e0 32a34720 32e6d6c0 32c24d00 32bef230`, `disasm_range.py 31f7cae4 31f7cc80`.
+- **Awakening refill.** `32bf3e40`: `jg` after the reread skips while now > 0; `fldz; fcomp t; test ah,5; jp` = continue on `0 < t` (gage `+0xe8`, null-tested);
+  the 0.3 (`3345993c`) store is the protected set-if-changed. `32bf4680`: `fcom; test ah,0x41; jp` = decrement only while `0 <= timer`; then `test ah,5; jnp` = `timer <= 0`,
+  `-10 fcomp; test ah,0x41; je` = `-10 <= timer`, `0 < t` (`test ah,1; je`), protected `+0x6844 != 3`, now `jg` = `now <= 0`, vslot `0x524 == 0`; `SetCannonBallCount( 1 )`
+  (`32c24db0`), timer -100. `+0x6844` = `m_iHyperModeCountByBuff` (`X2GameUnit.h:4671`, Buff 4b `32b4dd50`). `dispsweep 98b8 98bc 98c0` in the class range: ctor `32bf1040` (-1),
+  `32bf3e40`, `32bf4680`, `HyperModeBuffEffectEnd` `32c06750` (-100) and the dtor's protected teardown `32c0c70c`. No other writer.
+- **`UseCannon` `32bf5280`:** `+0x6d04` (`GetCharacterSpecializationB`) vs vslot `0x1cc` `GetRandomFloat( 0 )` is drawn first, then `IsFullHyperMode`. The reload roll
+  `GetRandomFloat( 0, 1 ) <= +0x97d8`; `dec edi; jns` floors at 0 only on that branch, and edi feeds both Consume and the used count. `PlaySound( name, 1, 0 )` = March defaults.
+- **`LoadPersonalInfo` `32bf5430`:** `xorstrings.tsv` decodes the four keys (`BASIC_MAX_CANNON_BALL_COUNT`, `CANNON_BALL_COUNT_AT_DUNGEON_START`, `_AT_PVP_START`,
+  `DAMAGE_REDUCE_PERCENT_AT_GUARD_STATE`); the defaults are 6 / 0 / 0 / 0, written to `32a36ba0` + `32a36c20( 6 )`, `32c24e50`, `32c24ed0` and `+0x9620`. GUARD_BUG_TEST: auth `>= 2`
+  (`XUAL_OPERATOR`), `+0x95bc == 1`, value `<= 0`, then `L"LoadPersonalInfo()"` into `+0x95a0`. `32bef230`: no rel32 call / jmp / jcc and no absolute dword anywhere in
+  the image (the same scan finds `32bf3e40`'s two calls and `32c06750`'s vtable slot). The function is dead in June.
+- **`_CBALL`.** `32a32390`: `imul bl(13)` extra `+0x128` + now `+0x110`, `movsx`, so `static_cast<char>`. `32a347e0`: `% 13` / `/ 13` (magic `0x4ec4ec4f`) on `+0x16` when
+  `+0x15 == 2`; Max `32a36ba0` then Now, MaxEx `32a36c20` then NowEx, `+0x142 = 1`. `EXTRA_CANNON_BALL_COUNT_BITMASK_VALUE` has only these two readers. `32a34720`: Now, Max,
+  NowEx, MaxEx, `+0x140`, `+0x142`, and no `+0x141`. InitUI `32e6d6c0`: `335333fc + 0x54` = `32e5b3a0`, called before the dialog; switch bytes `32e6d748`: 6 / 20 / 27 / 110
+  -> (1, false), 21 / 111 -> (2, false), 117 -> (1, true), as March's `InitNumOfVerticalOfCannonBall`. DamageEffect `31f7cae4`: `+0xae8`, GUT_USER (`+0x264 == 0`),
+  `[[+0x867c]+0xaf0]->[0] == 6` (`UT_CHUNG`), class 27 (`+0x38`) or 117, `0 < +0x9860`; physic / magic `+= x v`, `rate = v x pr + pr`, `+0x714 = +0x9864` unscaled,
+  protected extra damage `x rate` unless `+0x255`.
+- **Guarded extra count `32c24d00`:** `GetUnit()` non-null, `[+0x38] == 0x75`, `+0x97a0 == 1`, then `+0x142` and `3231d880` = the port. `m_bMobileArmoredModeEnable` is
+  written only by the ctor (false) and `InitPassiveSkillState` (`X2GUChung.cpp:5262` / `5271`, called from Init at 1187), before any state runs. The two
+  `SetExtraCannonBallCount( GetMaxCannonBallCountEx() )` sites (`34683`, `36117`) are Tactical Field refills, not mode entry. Without the passive they leave the extra count at 0, as June does.
+- **CH1 kickoff amended.** Only June's `Chung_Iron_Cannon.lua` carries `CANNON_BALL_COUNT_AT_DUNGEON_START = 3` / `_AT_PVP_START = 0`. March's
+  carries `..._DUNGEON_OR_PVP_START`, which `_LIVE` no longer reads. So CH1's `CBALL start` line must show `dungeon 3 pvp 0`.
+
+**Hygiene** (range `a176e117^..a176e117`): `flagcheck JUNE_CHAR_CHUNG_LIVE`: `1 PASS, 0 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`; `_CBALL`: `4 PASS, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`;
+both RESULT FAIL only for the `//#define`. `_CORE` (`Always.h:11076`) and `_CBALL_DEBUG` (`Always.h:11249`): `RESULT: PASS`. All four: `0 deleted, 0 non-ASCII,
+0 EOL-mismatched, 0 #else/#endif without token, 0 encoding change(s)`. `git diff --patience --numstat`: 34 / 25 / 225 / 9 / 9 / 4 / 11 added, 0 deleted.
+`junediverge.py --check-all`: `allow-listed: 163`, `RESULT: PASS`. `enumscan.py --check` (six files): the old `X2DamageEffect.cpp:1705` `SI_SA_ES_FATAL_FURY` row only.
+Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp`, `X2GageData.cpp`, `X2GageUI.cpp`, `X2DamageEffect.cpp`, with `_LIVE` + `_CBALL` off and on: exit 0, 0 errors (8 runs).
+`/P` with both flags on: `CannonBallGaugeTimerFrameMove` 3 times. `_CBALL_DEBUG` stays until CH1's review. No play-test. Next: `/x2-phase char-chung CH1` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.
