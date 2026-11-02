@@ -26,7 +26,9 @@ Review CH1 final against its Done gate (plan section "Phase CH1 - Deploy unit", 
 - **START / WIN / LOSE:** Chung's March `ParseCommonRandomState` stays (not under `_LIVE`): its 7 table names equal June's `INIT_COMMON_RANDOM_STATE`
   keys and `GetUnitClassName`'s Chung names, so the rolls pick real tables. Confirm in Ghidra that June's Chung vtable slot for it adds nothing
   over the base `31feaac0` parse (no `list size 0` / `re-bind skipped` for `CSI_` in the log).
-- **Cannon balls:** `CHUNG CBALL start ... dungeon 3 pvp 0`; gain / spend / gauge refill lines match the play-test steps. Then **retire
+- **Cannon balls:** `CHUNG CBALL start ... dungeon 3 pvp 0`; gain / spend / gauge refill lines match the play-test steps. CH1's run (2026-11-02)
+  had no `gauge refill` line (no spend emptied the count while awakened): before retiring the debug flag, ask the user for the awakening step once
+  more (`g_pX2Game:GetMyUnit():SetHyperModeCount( 3 )` in a dungeon, press the awakening key, fire X until the gauge is empty) and read it. Then **retire
   `_CBALL_DEBUG`** (comment out its `#define`; the lines and the debug include go dark), rebuild.
 - **ErrorLog** against `data\ErrorLog_pre_CH1_chung.txt` (270,399 B, run 2026-11-02 07:10): no new `KEM_ERROR` / `Motion Error` / missing Chung
   animation and no new `[LUA_SRC]` error; anything new is routed under the scope rule.

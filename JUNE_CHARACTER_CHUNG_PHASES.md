@@ -2274,6 +2274,18 @@ Build: `DEPLOY OK: X2_offline.exe is 25,912,832 B, dated 2026-11-02 09:56:39, md
 **Play-test (user) is the gate:** one Chung per job (units 62 / 63 / 64 / 65 / 43 / 42 / 18); combos, dash, jump, guard, a bounding hit, riding (unit 18),
 cannon balls filling / spending on the gauge, awakening; `CHUNG DATA` per class; ErrorLog against the pre-CH1 copy. Skills are CH2-CH3's. No JUNE_BUGS row, no drift.
 
+**Play-test (2026-11-02, run 12:17-12:26 on md5 eca7c15d): user "all test passed".** `offline_server.log`:
+- `CHUNG DATA` for all 7 classes, each `script CHUNG_IRON_CANNON.lua motion MOTION_CHUNG.X wait_state_change 1`; states 6: 141, 20: 156, 21: 161,
+  27: 161, 110: 173, 111: 170, 117: 174 (the review checks them against `ch1m_reg_by_class.tsv`).
+- `CBALL start` x16, every one `dungeon 3 pvp 0` (max 6, or 12 for class 21); `gain` x42, `spend` x19 (one run down to `now 0`).
+- **Open:** no `CBALL gauge refill` line. Every `spend` reads `timer -1.00`, so no spend emptied the count during awakening this run. Step 4 is
+  re-run (`g_pX2Game:GetMyUnit():SetHyperModeCount( 3 )`, awaken, fire X until empty) before or inside the CH1 review.
+ErrorLog against `ErrorLog_pre_CH1_chung.txt`: `KEM_ERROR` 0 / 0, `Motion Error` 0 / 0, `[LUA_SRC]` 7 / 7 (TutorSystem, ChainQuestInfo
+`AddGroupChainQuest`, JUNE_BUGS 320: both pre-CH1), `lua error` 3 / 3. New lines are Chung assets the earlier run never opened: optional `.XET`
+probes (449 -> 668), `MESH_CHUNG_BASIC_FACE_ANGRY5.TGA` / `MESH_CHUNG_CTT_CASH_HAIR.TGA` and Ruben field textures, `Update3DPosition result : 47` on
+Chung sounds (the pre-CH1 run has the same error on Eve's, 42 lines), and `HQ_CUTIN_CHUNG_NORMAL.DDS.GFX` not found: March's cut-in table name
+plus `.gfx`, already owned by CH5 (cut-in set content, plan l.144 / CH1l3 note). No new routing.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

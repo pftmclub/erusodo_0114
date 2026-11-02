@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1 | user play-test: `_LIVE` + `_CBALL` defined, June script + motions copied (data036 / data033); then "check logs", then CH1 review | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |
+| CH1 | play-test passed, logs checked (7 classes on June's script, `dungeon 3 pvp 0`); awakening refill line still unseen; next CH1 review | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Iron Cannon (6) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUChung.*`, `MODS.md` | `CH2a.md` |
 | CH2b0 | blocked (CH2a review): Opus helpers `31fcf430` / `329cc340` / `31fc8900` before CH2b | Opus 5.5 / high, Opus review | CH2a review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH2b0.md` |
 | CH2b | blocked (CH2b0 review): Fury Guardian (20) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b0 review | `X2GUChung.*`, `MODS.md` | `CH2b.md` |
