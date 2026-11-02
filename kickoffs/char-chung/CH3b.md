@@ -63,3 +63,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   (`32bdb130`, the whole June body), `FollowSlotSwap` / `IsKeyReleased` in LOOP's EventProcess (`32bee210` `@32bee21a` / `@32bee32b`). The rest of
   `32bee210` (the transcendence-memo id `0x6663`, the `0x666d` test) and LOOP's StartFuture `32bdb1b0` are still yours.
 - **Amended by CH3b0 (2026-11-02):** Artillery Strike / Missile Shower's READY FrameMove (`32bfe730`) spawns 863 ( `_NOT_SHOW_OTHER_PLAYER` 1419 for Quantum Ballista ); the owner link and stats are CH3b0's (`CX2Game::SetUserSummonedNPCInfo` cases under `_SKILL`, shared `CX2GUUser::SetSummonHelperInfo` = June `322ece70`). CH3b0 could not play-test (no state for the summon skill yet), so this phase's hand-off carries its check: each spawn logs `[JUNE_CHAR] SUMMON npc <id> uid <uid> skill <skill> lv <n> flags 0x<f> ...` (read with `python tools/logs.py --grep "JUNE_CHAR] SUMMON"`). Expect `npc 863 ... skill 26025 ... flags 0x0` (or 26060 upgraded).
+
+## Amended by CH2c (2026-11-02)
+
+- **The Artillery Strike's state bodies are June's already** (CH2c, shared with the Quantum Ballista 26014): ready Start / FrameMove / EventProcess, control Idle StartFuture, control Strike End, Fire Start / FrameMove,
+  End EventProcess and the held-aim gate in `ArtilleryStrikeControl_EventProcess` (funcmap `Char Chung CH2c`). This phase only registers the Missile Shower ids (`RNSI_SA_CTT_ARTILLERY_STRIKE_MISSILE_SHOWER` 26025 and its upgrade 26060) as labels
+  on the existing March block (`SI_SA_CDC_ARTILLERY_STRIKE`, which CH2c gave the IDLE `StateStartFuture`), checks June's table for them (`ch0_skill_listing_rows.tsv`) and plays it.
+- Checklist 7r row 1 (the three cinematic writes) and 7ac `@32bfe8c3` / BFI 452 `@32bfea69` are in CH2c's bodies; their Chung marks read CH2c.

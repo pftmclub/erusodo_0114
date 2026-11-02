@@ -1582,6 +1582,19 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	void CSI_SI_A_CFG_LEAP_ATTACK_READY_StateStartFuture();
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void CSI_SI_SA_CSG_DUAL_BUSTER_StateStartFuture();							// June 32bd9a80
+	void CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE_LANDING_EventProcess();				// June 32be2460
+	void CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStartFuture();				// June 32bd9de0
+	void CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStart();						// June 32bd9e50
+	void CSI_SI_A_CDC_TRICK_SHOT_Init();										// June 32bda130
+	void CSI_SI_A_CDC_TRICK_SHOT_FrameMove();									// June 32bfdd70
+	void CSI_SI_A_CDC_TRICK_SHOT_EventProcess();								// June 32bfe4d0
+	void CSI_SI_SA_CSG_DEADLY_SHOT_Init();										// June 32bdb810
+	void CSI_SI_SA_CSG_DEADLY_SHOT_FrameMove();									// June 32c0b160
+	void CSI_SI_SA_CSG_DEADLY_SHOT_EventProcess();								// June 32beacc0
+	void CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture();		// June 32bff3d0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 	void CSI_SI_A_CFG_LEAP_ATTACK_JUMP_Start();
 	void CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove();

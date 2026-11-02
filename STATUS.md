@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2c | **ready** (start: `/x2-phase char-chung CH2c`): Shooting Guardian (21) skills, siege mode, flag `_SKILL`; play-test after CH3b0's kom copies | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
+| CH2c | **done 2026-11-02**: Shooting Guardian (21) skills + Artillery Strike bodies, flag `_SKILL`; user owes the play-test (unit 64 `ChungShoot`) + "check logs", then `/x2-phase char-chung CH2c review` (Opus 5.5 high) | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c-review.md` |
 | CH2d | blocked (CH2c review): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |
 | CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
 | CH3a | blocked (CH2d review): Iron Paladin (110) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `MODS.md` | `CH3a.md` |

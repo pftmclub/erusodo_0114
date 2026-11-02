@@ -113,8 +113,8 @@ Matched by exact sub-path under the `DAMAGE_DATA*` table (`charport_scan.py`, se
 
 | key | census status | owner | uses (June script × count) |
 |---|---|---|---|
-| `APPLIED_SKILL_ID` | unsupported (parsed, logged) | 8c, done | 167: every character script except `Add_NasodRuler`, `Ain_Angel`, `Rose_Mechanic` and `Rose_Ranger` (Chung: CH2a, the 6 Iron Cannon tables run through the engine; `NUM use` from the play-test; CH2b, the Burst Wolf, Brutal Swing, Sudden Burster and Lunatic Fury Run tables) |
-| `NUMERICAL_DATA_INDEX` | unsupported (parsed, logged) | 8c, done | 132: see section 1 (Chung: CH2a, same 6 tables; CH2b, same 6 tables) |
+| `APPLIED_SKILL_ID` | unsupported (parsed, logged) | 8c, done | 167: every character script except `Add_NasodRuler`, `Ain_Angel`, `Rose_Mechanic` and `Rose_Ranger` (Chung: CH2a, the 6 Iron Cannon tables run through the engine; `NUM use` from the play-test; CH2b, the Burst Wolf, Brutal Swing, Sudden Burster and Lunatic Fury Run tables; CH2c, the Dual Buster, Sharpshooter Syndrome, Deadly Shot, Quantum Ballista, Head Shot and Trick Shot tables) |
+| `NUMERICAL_DATA_INDEX` | unsupported (parsed, logged) | 8c, done | 132: see section 1 (Chung: CH2a, same 6 tables; CH2b, same 6 tables; CH2c, same 6 tables) |
 | `NATURAL_FORCE_TYPE` | unsupported (parsed, logged) | 8c, done | `Lire_ElvenRanger` ×77. See section 3 |
 | `HIT_ADD_COMBINATION_POINT` | unsupported (parsed, logged) | 8c, done | `Luciel_Duo` ×6 |
 | `ADDITIONAL_ATTACK_TRIGGER_TYPE` | to-implement | 8b group 3 | `RAVEN_FIGHTER` ×7 |
@@ -175,7 +175,7 @@ values, before loading the script. Otherwise **every state after the first refer
 - **The scan also flags other names that are in neither Enum file** (`INIT_PHYSIC`, `WT_XXXXX_1`,
   effect names, …). These are probably globals defined elsewhere or data quirks, not enum tables.
   Check each when that character is ported. They are not listed here because they are unverified.
-- **Missing members of tables March *does* have** (for example the June `SKILL_ID`s) fail silently (Chung: CH2a, the Iron Cannon ids: RNSI_* names where June has them, raw ids with a comment otherwise; CH2b, the 10 June names of Burst Wolf, Pandemonium, Brutal Swing, Lunatic Fury, Sudden Burster and Leap Attack are registered, all 12 ids have a name)
+- **Missing members of tables March *does* have** (for example the June `SKILL_ID`s) fail silently (Chung: CH2a, the Iron Cannon ids: RNSI_* names where June has them, raw ids with a comment otherwise; CH2b, the 10 June names of Burst Wolf, Pandemonium, Brutal Swing, Lunatic Fury, Sudden Burster and Leap Attack are registered, all 12 ids have a name; CH2c, RNSI_SA_CDC_SHARPSHOOTER_SYNDROME 26012, RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE 26035, RNSI_SA_CDC_DEADLY_SHOT_UPGRADE 26049 and RNSI_A_CDC_TRICK_SHOT_UPGRADE 26232 are registered, all 12 ids have a name)
   to defaults. The effect side's list is in the matrix's *Enum census*. The character side's has not
   been built yet.
 
@@ -434,7 +434,7 @@ state vector. Since skill-system-core S8 (2026-10-19, flag `SERV_IRUHADEV_JUNE_S
 engine makes June's call itself: `JuneSnapshotBeforeSlotRebind( slot, bSlotB )` runs right before both `SetEquippedSkillFuncBySkillSlotIndex`
 call sites (`ChangeEquippedSkillState`, `SetEquippedSkillFunc`), on the same normal-state entry the class picks. So the class port still
 drops the call (a second one would only re-read the same delegates). A class port that adds a new caller of
-`SetEquippedSkillFuncBySkillSlotIndex` calls `JuneSnapshotBeforeSlotRebind` first. Class code multiplies `m_fNowStatePowerRate` (Chung: CH2a, Reload Cannon Start; CH2b, none of the 12 skills multiplies it; the effects take GetPowerRate)
+`SetEquippedSkillFuncBySkillSlotIndex` calls `JuneSnapshotBeforeSlotRebind` first. Class code multiplies `m_fNowStatePowerRate` (Chung: CH2a, Reload Cannon Start; CH2b, none of the 12 skills multiplies it; the effects take GetPowerRate; CH2c, none of the states multiplies it, the Missile Shower fire start multiplies the kept m_fArtilleryStrikePowerRate by the extra balls rate)
 (June `+0x7cc8`), never the entry's `m_fPowerRate`. Funcmap rows `Effect C9h-6`, `Skill S8`. (Eve: CH1n, `June_SetEquippedSkillFuncHead`) (Chung: CH1n, the head inside `SetEquippedSkillFuncBySkillSlotIndex` under `_LIVE`)
 
 | June | Class | What the port must bring |
@@ -568,7 +568,7 @@ anything on screen (JUNE_BUGS 164; the readers need the NPC's start state), but 
 
 | Class | June site | March site | Port |
 |---|---|---|---|
-| Chung (Missile Shower 6019, Quantum Ballista 6011) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE` StateStartFuture `32bff3d0 @32bff412-32bff420` (state `0xf5`, registered `@32c1fffa`) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess` (`X2GUChung.cpp`, before `StateChange( ..._CONTROL_IDLE )`) | move the three writes into a CONTROL_IDLE StateStartFuture; June has no `IsMyUnit` test there |
+| Chung (Missile Shower 6019, Quantum Ballista 6011) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE` StateStartFuture `32bff3d0 @32bff412-32bff420` (state `0xf5`, registered `@32c1fffa`) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess` (`X2GUChung.cpp`, before `StateChange( ..._CONTROL_IDLE )`) | move the three writes into a CONTROL_IDLE StateStartFuture; June has no `IsMyUnit` test there (Chung: CH2c - CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture holds the three writes and the ready event process no longer makes them) |
 | Chung (June-only Heavy Field) | `CSI_SA_CTT_HEAVY_FIELD_LOOP` (`0x151`) `32c0ba60 @32c0ba9f-32c0bac2`: every frame, when vslot `0x198` is true, the same three writes, then the NPC state from a 9-way switch (`SHOT_ARTILLERY_STRIKE_*`, only when it differs) | none | comes with the skill |
 
 ### 7s. Dungeon-registry class tables only the new classes read (from June effect completion C3z-3)
@@ -635,7 +635,7 @@ caller with June's, which does not name them; until then they are a visible gap,
 | Elsword | `X2GUElsword_SwordMan.cpp`: `LORD_KNIGHT_SAND_STORM`, `EffectSet_ELSWORD_DOUBLE_SLASH_HYPER` | - |
 | Rena | `X2GULire_ElvenRanger.cpp`: `DamageEffect_LGA_Arc_Shot`, `DamageEffect_Cryotron_Bolt_GUIDED_ARROW` | `Lire_ElvenRanger.lua`: `Effectset_Rena_DiveKickBombingA/B`, `..._B_Memo` |
 | Aisha | `X2GUArme_VioletMage.cpp`: `EffectSet_Aisha_DeathField_FirstImpact`, `EffectSet_Aisha_DeathFieldBomb` | `Arme_VioletMage.lua`: `EffectSet_AHM_Blaze_Step_Damage_MEMO`, `EffectSet_Aisha_Blaze_step_MEMO` | (Aisha: CH2b - the Death Field names are June's `EffectSet_SA_ADM_DeathField` / `_Bomb` now; the Blaze Step ones are CH2a's)
-| Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` |
+| Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` | (Chung: CH2c - Trick Shot ( 32bfdd70 ) creates DamageEffect_CDC_Trick_Shot_A / _B in place of DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell ) |
 | Eve | `X2GuEve.cpp`: `EVE_EP_DASH_COMBO_Z` | - |
 Not a class: `BOMB` (`X2GUNPCFunc.cpp`, an NPC function, and June's `Bunker.lua`) has no owner; noted in the C11a Done note.
 Two notes from the C11a review (2026-10-16):
@@ -710,7 +710,7 @@ June's attach-anim init (`3295dfa0` @`3295ea4f`-`3295ec1e`) binds a Rose weapon 
 
 Since S3, data036 ships June's `NewSkillTempletVer2.lua` and every save is on June's trees (schema v17). The census
 `june2017_re/s3_reform_ids_no_state.tsv` lists every tree row of the 55 classes March has (2,044 rows) with its June name, templet name, type,
-master level, row / column, and whether the class family's GU file has a state for it. **1,989 rows have none.** Every reform id (21000+, `RNSI_*`) is (Chung: CH2a, the six Iron Cannon skill ids and their upgrade ids are bound in CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex; CH2b, the 12 Fury Guardian / Iron Paladin ids 26003-26006, 26031, 26034, 26043, 26044, 26204, 26205, 26222, 26229 are bound the same way)
+master level, row / column, and whether the class family's GU file has a state for it. **1,989 rows have none.** Every reform id (21000+, `RNSI_*`) is (Chung: CH2a, the six Iron Cannon skill ids and their upgrade ids are bound in CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex; CH2b, the 12 Fury Guardian / Iron Paladin ids 26003-26006, 26031, 26034, 26043, 26044, 26204, 26205, 26222, 26229 are bound the same way; CH2c, the 12 Shooting Guardian ids 26011-26014, 26032, 26035, 26049, 26050, 26208, 26209, 26223, 26232 are bound the same way)
 absent from March's C++ `SKILL_ID` enum, so no class `case` can name it. The only rows with a state are `SI_ETC_WS_COMMON_LOVE` (900), one per class.
 Per family (rows / no state; first job, second job): base classes 15 / 14 each (Raven 14 / 13); first jobs 28-34 / 27-33; second jobs 52-57 / 51-56.
 
@@ -726,7 +726,7 @@ What a class port does with its rows:
 - `lookalike_march_name` in the tsv names March's old skill with the same suffix (e.g. `RNSI_SA_ES_MEGASLASH` 21000 vs `SI_A_ES_MEGASLASH` 1200):
   a hint for where the old state's code lives, not proof that the June skill behaves the same.
 - (Eve: CH4a - her 24 passive / buff-data ids (106, 25201, 25214, 25400-25420) have no state in June either: `InitPassiveSkillState` `3297f290`, `GetAdditionalAccelBuffTime` `32978370` and the June_* states read them; 11 `RNSI_P_*` names added. Readers left: `GetActualMPConsume` `329a79c0` (CH4b), Code Recovery `329b57a0` / `329b4860` (CH4c); `32968dd0` / `32988e40` are dead.)
-- 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet. (Chung: CH2a, 26027 / 26029 / 26216-26219 are raw case labels with the templet name in a comment; 26028 is the Lunatic Blow default; CH2b has no unnamed id, all 12 ids have June names)
+- 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet. (Chung: CH2a, 26027 / 26029 / 26216-26219 are raw case labels with the templet name in a comment; 26028 is the Lunatic Blow default; CH2b has no unnamed id, all 12 ids have June names; CH2c has no unnamed id, all 12 ids have June names)
 - **Since S3c (2026-10-18)** `CX2SkillTree::SKILL_TYPE` has `ST_SPECIAL_ACTIVE_GRADE_1..3` (14-16), `ST_CORE` (17) and `ST_CORE_PASSIVE` (18)
   (`SERV_IRUHADEV_JUNE_SKILL_TYPE`). A class switch names them as June's does (June's class `SetEquippedSkillFuncBySkillSlotIndex` blocks
   in `june2017_re/s3c_skill_type_readers.tsv` group 7 with 14-16). A class port that calls `ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE )`
@@ -845,6 +845,7 @@ rescales the factor by the state's reserved-buff skill id (`+0x9274`) when that 
 - (Eve: CH2a - `32989b60` `June_ENSI_SI1_DIMENSION_LINK_FrameMove` passes `( BFI_BUFF_SENTRY, level, NULL, 0, false )`; `32993020` Photon Blink's `( 418, ... )` is behind the always-false memo stub and not applied (JUNE_BUGS 445); `329b1e20` BFI 0x28c -> CH2a3.)
 - (Eve: CH2a3 - `329b1e20` has no buff-factor call: the BFI 0x28c call `@329b2e8f` is in the next function `329b2e10`, Oberon Guard's FrameMove ( no int3 padding between them ), which stays CH2b's.)
 - (Eve: CH2b - both remaining Architecture sites: `329b2e10` Oberon Guard's FrameMove passes `( BFI 0x28c = BFI_BUFF_OBERON_GUARD, 1, NULL, 0, false )` @329b2e8f; `3299b810` Surface Cuting's helper passes `( BFI 0x1b9 = BFI_BUFF_OBERON, level, NULL, 0, false )` @3299b8b0. Faena's BFI 842 clone does not go through `SetBuffFactorToGameUnitByBuffFactorID`: `329c4380` clones it with the level argument, calls slot 476 with the cast skill id and stamps my UID on each enemy ( JUNE_BUGS 451 ).)
+- (Chung: CH2c - the ready state's frame move ( 32bfe730 ) passes `( BFI_BUFF_ARTILLERY_STRIKE_SCOPE 452, 1, NULL, 0, false )` @32bfea69 after the targeting NPC is created; the control event process keeps the aim only while the buff is on.)
 - **User vslot 0x830** (`CX2GUUser::JuneOnStateInsertBuffFactorApplied( BFI, level )`, empty) runs after each reserved buff factor of a state is applied, in the frame apply and at state end. Only **Rose** overrides it
   (`32ad9a40`: it looks the factor up and walks a list at `+0x9818`). The Rose port adds the override.
 - **`CX2GUUser::JuneShowSkillNameStateString( iSkillID )`** (June `3200ab60`, static) shows a skill's name as the state string for 3 s. Its callers are class code: `32b818b0` (skills 28201 / 28218, after `32b80c60`),

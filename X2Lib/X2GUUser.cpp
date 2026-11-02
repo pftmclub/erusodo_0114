@@ -23569,11 +23569,15 @@ void CX2GUUser::WaitStateChangeEventProcess()
 /// Else: the game has not ended ( June's end phase +0x748 != 2; 2 is set by Handler_EGS_END_GAME_NOT 322cd0f0 = March m_bGameEnd; June's phase 1,
 /// "end requested" 327ca110, has no March counterpart and counts as running ) and, with the argument false, no last-kill check ( +0x3b9 = SetLastKillCheck ).
 /// The argument-true branch ( 322f43e0 / 322f42a0 / 322f4340 ) has other callers only ( 3202daf0 and class code ) and is not ported.
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+bool IsEventGamePlayable( bool bSummonSkill )	/// not file-local ( X2GUUser.h )
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 static bool IsEventGamePlayable( bool bSummonSkill = false )
 #else SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
 static bool IsEventGamePlayable()
 #endif SERV_IRUHADEV_JUNE_DIVERGE_SUMMON_SPECIAL_ATTACK
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 {
 	if( NULL == g_pX2Game )
 		return false;

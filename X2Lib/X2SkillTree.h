@@ -2022,6 +2022,15 @@ public:
 		RNSI_A_CIP_SUDDEN_BURSTER_UPGRADE                     = 26229,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH2c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Shooting Guardian skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CDC_SHARPSHOOTER_SYNDROME                     = 26012,
+		RNSI_SA_CDC_DEADLY_SHOT_UPGRADE                       = 26049,
+		RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE             = 26035,
+		RNSI_A_CDC_TRICK_SHOT_UPGRADE                         = 26232,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

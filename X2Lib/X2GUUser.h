@@ -5298,5 +5298,8 @@ struct  CX2UnitManager_UnitTypeTemplet
 
 
 typedef KObserverPtr<CX2GUUser> CX2GUUseroPtr;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+bool IsEventGamePlayable( bool bSummonSkill_ = false );	/// June 3201bd60 ( defined in X2GUUser.cpp ): Chung's Artillery Strike ready state asks it too
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 IMPLEMENT_INTRUSIVE_PTR( CX2GUUser::CSkillDataBase );

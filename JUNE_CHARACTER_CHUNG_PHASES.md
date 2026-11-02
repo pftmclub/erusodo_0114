@@ -2557,6 +2557,48 @@ call line and the `#define`). `git diff --patience --numstat` (CH2b): cpp 233 / 
 DEPLOY OK: X2_offline.exe is 25,914,368 B, dated 2026-11-02 17:23:39, md5 9ff2f96bb0f02c1c3854c687d1a6578b, equal to X2/US_SERVICE/x2.exe (2026-11-02 17:23:32); built at main 1f22798a + 2 uncommitted code file(s).
 EXESTR OK: 1 of 1 found (wide `EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO`); EXESTR OK: 2 of 2 absent (the two `[JUNE_CHAR] CHUNG SKILL` debug lines), md5 9ff2f96b.
 
+### CH2c - Done (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined) and `..._SKILL_DEBUG` (`Always.h`, defined again for this phase; CH2c's review retires it). The twelve skills class 21 has that class 6 lacks run June's bodies. All 44 class-map rows
+were read from `charport_adis.py chung --phase CH2c` listings: 12 are written (inside March's function under the flag, March in `#else`), 11 are new, 21 are June = March (`funcmap.tsv` rows `Char Chung CH2c`, each says which, 45 rows with the
+`IsEventGamePlayable` row). MODS.md "Stage 7 Chung, CH2c" has the March vs June damage table.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32bfbe80` `32bf42c0` | `CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove` / `_LANDING_FrameMove` | no memo 4 shell and no critical flag; the landing's reload is `UpCannonBallCount( 1 + extra-charge roll )` plus the sound (also in the full hyper mode) |
+| `32be2460` `32bd9a80` | new `..._DUAL_BUSTER_UPGRADE_LANDING_EventProcess`, `..._DUAL_BUSTER_StateStartFuture` | the upgraded landing: flag `[0]` + `stateChange` chains once ( `m_bDualBusterLandingMpSpent`, `SpecialAttackEventProcess` re-arms it ) into script state 336 for the base `GetActualMPConsume` x ( 1 - `SA_MP_CONSUME_REL` ) |
+| `32c15340` `32bd9de0` `32bd9e50` | `..._SHARPSHOOTER_SYNDROME_FrameMove`, new `_StateStartFuture`, `_StateStart` | the swapped skill's factor at `max( 1, level )`, the Check and Kill memo adds time, dead allies skipped; the upgraded skill scales the animation speed ( `SA_ANI_SPEED` ) |
+| `32bfdd70` `32bfe4d0` `32bda130` | new `CSI_SI_A_CDC_TRICK_SHOT_FrameMove` / `_EventProcess` / `_Init` | Leg Shot's gun mesh and cancels; `DamageEffect_CDC_Trick_Shot_A` / `_B` replace the Mini Gun shell ( checklist 7u ) |
+| `32c0b160` `32beacc0` `32bdb810` | new `CSI_SI_SA_CSG_DEADLY_SHOT_FrameMove` / `_EventProcess` / `_Init` | Bullet Blitz's start effect set and left gun, the shell `DamageEffect_Chung_CSG_Deadly_Shot` at 0.598 s, `UseCannon( templet cost )`, an `SA_EFFECTIVE_RATE` chance for `SA_EFFECTIVE_COUNT` more hits |
+| `32c0e150` `32c084e0` `32bfe730` `32bfea90` | `..._ARTILLERY_STRIKE_READY_Start`, `..._QUANTUM_BALLISTA_READY_Start`, `_READY_FrameMove`, `_READY_EventProcess` | type + power rate set in the start; the NPC at once ( 1419 behind `IsMyUnit`, 863 ) and the scope buff ( BFI 452, 7ai ); the wait ends after 10 s or when `IsEventGamePlayable( false )` ( `3201bd60`, no longer file-local ) is false |
+| `32bff3d0` `32bff430` `32c0e190` `32bff7f0` `32be3eb0` `32bfeb80` | new `..._CONTROL_IDLE_StateStartFuture`, `..._CONTROL_STRIKE_StateEnd`, `..._FIRE_Start`, `..._FIRE_FrameMove`, `..._END_EventProcess`, `ArtilleryStrikeControl_EventProcess` | the camera writes move into the idle StartFuture ( JUNE_BUGS 164 ); `SetShot( -1 )` at the strike end; the fire start spends 6 balls ( the Missile Shower through `CanConsumeCannonBallForShot` ); the end state erases the scope buff; the held aim needs the scope buff, not the 10 s timer |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26011 / 26032, 26012 / 26035 and 26014 / 26050 are extra labels on March's Dual Buster, Sharpshooter and Quantum Ballista blocks ( the upgrades add `StateStartFuture`, the landing EP and script state 336 ); Head Shot
+( 26208 / 26223 ), Trick Shot ( 26209 / 26232 ) and Deadly Shot ( 26013 / 26049 ) have their own blocks; both Artillery Strike blocks ( March ids and the Quantum Ballista ) register the idle `StateStartFuture`. `X2SkillTree.h`: `RNSI_SA_CDC_SHARPSHOOTER_SYNDROME` 26012 / `_UPGRADE` 26035,
+`RNSI_SA_CDC_DEADLY_SHOT_UPGRADE` 26049, `RNSI_A_CDC_TRICK_SHOT_UPGRADE` 26232 ( all 12 ids have a June name ). `ch1m_regcheck.py`: **0 problems** ( 821 registrations ). Checklist rows marked `(Chung: CH2c)` ( 116, 117, 178, 437, 571, 638, 713, 729, a 7ai bullet ).
+
+**Left to later phases / notes.** The Missile Shower ids ( 26025 / 26060, CH3b ) only need labels on the March block ( `CH3b.md` amended ). June creates the Missile Shower NPC with `IsMyUnit()` as a trailing `CreateNPCReq` argument March lacks ( stand-in: always true offline ).
+June does not register the Artillery Strike's CANCEL state ( 243 ); March's registration stays, it is never reached ( the distance test is `< -750` ). 26223's hyper table copies the normal one ( the decompile row for `26220,26223` hyper shows `32bfc860`; the review checks ).
+Trick Shot's `DamageEffect_CDC_Trick_Shot_A` / `_B` carry PHYSIC 0 in June's data, and no `NUM use` line exists in this build.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 4 PASS, 0 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`;
+  `1 deleted line(s)` ( the `//#define` of `_SKILL_DEBUG` ), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `git diff --patience --numstat`: cpp 719 / 0, `X2GUChung.h` 13 / 0, `X2GUUser.cpp` 4 / 0, `X2GUUser.h` 3 / 0, `X2SkillTree.h` 9 / 0, `Always.h` 2 / 1.
+- `junediverge.py --check` ( the five code files ): `allow-listed: 26`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows ( C 6, D 1: old code ).
+- `skillicons.py check 26011-26014 26032 26035 26049 26050 26208 26209 26223 26232`: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. No one-file probe tool exists; `build.py` compiled `X2GUChung.cpp` and `X2GUUser.cpp` with 0 errors.
+- DEPLOY OK: X2_offline.exe is 25,924,096 B, dated 2026-11-02 18:10:36, md5 13e21ff794d1179ffd727d091a75f262, equal to X2/US_SERVICE/x2.exe ( 2026-11-02 18:10:29 ); built at main 0fb4bdfa + 6 uncommitted code files ( this phase's ).
+- EXESTR OK: 5 of 5 found ( wide `[JUNE_CHAR] CHUNG SKILL dual buster landing chains into the second cast`, `..deadly shot extra hits`, `..artillery strike fire`, `DamageEffect_CDC_Trick_Shot_A`, `DamageEffect_Chung_CSG_Deadly_Shot` ), md5 13e21ff7.
+
+**Play-test hand-off.** Save ( backup `db_backup\els_db_20261102_180727_pre_sql.sql` ): unit 64 `ChungShoot` ( Shooting Guardian, lv 99 ): A Dual Buster up ( 26032 ), S Sharpshooter Syndrome up ( 26035 ), D Deadly Shot up ( 26049 ), C Quantum Ballista up ( 26050 ), Q Head Shot up ( 26223 ),
+W Trick Shot up ( 26232 ); slots 4 and 9 empty. Dev console ( END key, auth 3 ): `/invin 0`, a dungeon with enemies in front ( `/stage 1`-style ); keep 6+ cannon balls for the Quantum Ballista ( reload with the Z / X combo or Reload Cannon ).
+1. **A Dual Buster.** Two shells ( 0.69 s, 0.96 s ), landing reloads a ball. During the landing press A again in the ready part of the landing animation: the second cast starts and MP drops ( log `dual buster landing chains into the second cast, mp N` ); the second landing does not chain again.
+2. **S Sharpshooter Syndrome.** Particles at 0.5 s, the buff on you and near allies at 1.4 s ( log `sharpshooter syndrome buff, level N, memo M` ); the animation runs faster than before ( the upgrade ). Cancels after 3.6 s.
+3. **D Deadly Shot.** Bullet Blitz's start effect, the left gun, one shell with a hit at 0.598 s, balls drop by the skill's cost; sometimes `deadly shot extra hits N` ( the chance ). Cancels from 1.2 s ( walk keys give wait ).
+4. **C Quantum Ballista.** A targeting NPC ( `[JUNE_CHAR] SUMMON npc 1419 ... skill 26050 ... flags 0x0` ) appears ahead and the camera follows it ( no timer: hold C and steer with the arrow keys; letting go fires ). The ball count drops by 6
+   ( log `artillery strike fire, type 2, power rate X` ) and the big shell falls; the scope buff ends with the cast. If nothing aims: no scope buff ( `ErrorLog.txt` BFI 452 / BTI 418 lines ).
+5. **Q Head Shot, W Trick Shot.** Head Shot as before; Trick Shot: the right gun, a hit at 0.2 s, muzzle effect at 0.27 s, two effects at 0.299 s ( log `trick shot A and B` ), the gun goes at 0.94 s.
+Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "JUNE_CHAR] SUMMON"` ). Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.

@@ -5610,3 +5610,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` ( CH2a's six skills fall back too; the CH2b ids then play Lunatic Blow's default ), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 - **CH2b review (2026-11-02).** The Leap Attack landing's Back Blast MP calls the base `CX2GUUser::GetActualMPConsume` (June `31fd1840` direct), so Chung's full-hyper `m_fDecreaseRate` cut no longer applies to that chain; `..._SKILL_DEBUG` retired.
+
+## Stage 7 Chung, CH2c: Shooting Guardian skills (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH2c - Done". Client only, no data change.
+- **What changes in game.** The twelve skills class 21 has that class 6 lacks run June's bodies: Dual Buster (26011 / 26032), Sharpshooter Syndrome (26012 / 26035), Deadly Shot (26013 / 26049), Quantum Ballista (26014 / 26050), Head Shot (26208 / 26223), Trick Shot (26209 / 26232). `SetEquippedSkillFuncBySkillSlotIndex` gains June's ids as extra labels on March's Dual Buster, Sharpshooter and Quantum Ballista blocks and three new blocks (Head Shot, Trick Shot, Deadly Shot); the Artillery Strike's control-idle state gains a StartFuture in both Artillery Strike blocks.
+- **Differs from March.** Dual Buster: no memo 4 shell, and the upgraded skill's landing chains once into a second cast (second press of the skill key in the key window, MP x ( 1 - `SA_MP_CONSUME_REL` ), script state 336); the landing's reload gets the extra-charge ball and plays the sound also in the full hyper mode. Sharpshooter Syndrome: the buff factor is the swapped skill's at its level, the Check and Kill memo lengthens it, dead allies get none, and the upgraded skill scales its animation speed. Trick Shot is Leg Shot with two `DamageEffect_CDC_Trick_Shot_A / _B` effects in place of the Mini Gun shell. Deadly Shot is new (Bullet Blitz's gun and start effect set, one shell; an `SA_EFFECTIVE_RATE` chance adds `SA_EFFECTIVE_COUNT` hits). Head Shot: registration only. Artillery Strike (Quantum Ballista, shared with the Missile Shower): the ready state sets the type and power rate in its start, creates the targeting NPC at once (no host test, no self-destruct of old ones) and puts on the scope buff (BFI 452); the aim holds only while that buff is on (no 10 s timer); the camera focus moves into the control-idle StartFuture; the fire state's start spends 6 balls (the Missile Shower asks `CanConsumeCannonBallForShot`) and the end state removes the scope buff.
+- **Damage (level-1 flat value; June = numerical x 0.01 through the engine; March = the shipped `DamageEffect.src.lua`).**
+
+| Skill (June id) | March | June |
+|---|---|---|
+| Dual Buster (26011) shell, _HYPER | MAGIC 4.33 | 9.19 |
+| Sharpshooter Syndrome (26012) DUMMY_ATTACK, _FINAL | MAGIC 2.66 | 4.97 (not played by the class code) |
+| Quantum Ballista (26014) EXPLOSION, GROUND_SHELL | MAGIC 57.9, PHYSIC 1.69 | 51.07, 0.5 |
+| Head Shot (26208) shell | MAGIC 3.73 | 5.89 |
+| Trick Shot (26209) | LEG_SHOT_Mini_Gun_Shell MAGIC 5.43 | `DamageEffect_CDC_Trick_Shot_A` / `_B` PHYSIC 0 (literal, no numerical row), `..._LEG_SHOT_GUNFIRE` PHYSIC 4.21 |
+| Deadly Shot (26013) | June-only | `DamageEffect_Chung_CSG_Deadly_Shot` MAGIC 4.64 (literal) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a / CH2b skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

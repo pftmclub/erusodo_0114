@@ -5725,6 +5725,49 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 		} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT:			/// June 32c1f530 @32c217fa
+	case CX2SkillTree::RNSI_A_CSG_HEAD_SHOT_UPGRADE:	/// @32c2183a: the upgraded skill's frame move is 32bfcc80
+		{
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CSG_HEAD_SHOT", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CSG_HEAD_SHOT_Init );			// June 32bd9c10
+			if ( CX2SkillTree::RNSI_A_CSG_HEAD_SHOT_UPGRADE == eSkillID_ )
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CSG_HEAD_SHOT_FrameMove );		// June 32bfcc80
+			else
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CSG_HEAD_SHOT_DefaultFrameMove );	// June 32bfc860
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CSG_HEAD_SHOT_EventProcess );	// June 32be2ad0
+
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CSG_HEAD_SHOT", hyperStateData.stateID );
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_CDC_TRICK_SHOT:		/// June 32c1f530 @32c21863
+	case CX2SkillTree::RNSI_A_CDC_TRICK_SHOT_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CDC_TRICK_SHOT", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CDC_TRICK_SHOT_Init );			// June 32bda130
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CDC_TRICK_SHOT_FrameMove );		// June 32bfdd70
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CDC_TRICK_SHOT_EventProcess );	// June 32bfe4d0
+
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CDC_TRICK_SHOT", hyperStateData.stateID );
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_CDC_DEADLY_SHOT:			/// June 32c1f530 @32c218b5
+	case CX2SkillTree::RNSI_SA_CDC_DEADLY_SHOT_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_DEADLY_SHOT", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DEADLY_SHOT_Init );		// June 32bdb810
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DEADLY_SHOT_FrameMove );	// June 32c0b160
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DEADLY_SHOT_EventProcess );	// June 32beacc0
+
+			m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_DEADLY_SHOT", hyperStateData.stateID );
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	default:
 		{
@@ -6269,6 +6312,10 @@ void CX2GUChung::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_CSG_DUAL_BUSTER:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER:			/// June 32c1f530 @32c21652
+		case CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE:	/// @32c216f1: StartFuture, the chaining landing and the second state
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CSG_DUAL_BUSTER:
 #endif //UPGRADE_SKILL_SYSTEM_2013
@@ -6277,8 +6324,16 @@ void CX2GUChung::InitStateByUnitClass()
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_Init );
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove );
 			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess );	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			if ( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE == eSkillID_ )
+				normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_StateStartFuture );	// June 32bd9a80
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_DUAL_BUSTER_HYPER", hyperStateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			if ( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE == eSkillID_ )
+				hyperStateData.StateStartFuture	= normalStateData.StateStartFuture;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
@@ -6291,7 +6346,25 @@ void CX2GUChung::InitStateByUnitClass()
 				m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_DUAL_BUSTER_LANDING", stateData.stateID );
 				stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_FrameMove );
 				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				if ( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE == eSkillID_ )
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE_LANDING_EventProcess );	// June 32be2460
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 				m_StateList[stateData.stateID] = stateData;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				if ( CX2SkillTree::RNSI_SA_CSG_DUAL_BUSTER_UPGRADE == eSkillID_ )
+				{
+					/// June 32c1f530 @32c2219e: the same table again as script state 336, the second cast the upgraded landing chains into
+					stateData.Init();
+					stateData.stateID			= CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE;
+					m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_DUAL_BUSTER", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_Init );
+					stateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_StateStartFuture );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			}
 		} break;
 
@@ -6407,6 +6480,10 @@ void CX2GUChung::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_SA_CDC_SHARPSHOOTER_SYNDROME:	// 샤프슈터신드롬(슈팅가디언)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME:	/// June 32c1f530 @32c20473
+		case CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE:	/// @32c204be
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CSG_SHARPSHOOTER_SYNDROME:	// 샤프슈터신드롬(슈팅가디언)
 #endif //UPGRADE_SKILL_SYSTEM_2013
@@ -6416,8 +6493,22 @@ void CX2GUChung::InitStateByUnitClass()
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove );
 			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMoveFuture );
 			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_EventProcess );	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			if ( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE == eSkillID_ )	/// the upgraded skill: the animation speed rate of its ability
+			{
+				normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStartFuture );	// June 32bd9de0
+				normalStateData.StateStart			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStart );		// June 32bd9e50
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_HYPER", hyperStateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			if ( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE == eSkillID_ )
+			{
+				hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+				hyperStateData.StateStart			= normalStateData.StateStart;
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
@@ -6605,6 +6696,9 @@ void CX2GUChung::InitStateByUnitClass()
 				stateData.stateID	= CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE;
 				m_LuaManager.MakeTableReference( "CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE", stateData.stateID );
 				stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				stateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture );	// June 32bff3d0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess );
 				m_StateList[stateData.stateID] = stateData;
 
@@ -7203,6 +7297,10 @@ void CX2GUChung::InitStateByUnitClass()
 		break;
 
 	case CX2SkillTree::SI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA:	// 아틸러리 스트라이크 퀀텀 발리스타
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA:			/// June 32c1f530 @32c1ff44
+	case CX2SkillTree::RNSI_SA_CSG_ARTILLERY_STRIKE_QUANTUM_BALLISTA_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			// 아틸러리 스트라이크 와 CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY_Start 
 			// 와 Init 부분만 다르다.
@@ -7227,6 +7325,9 @@ void CX2GUChung::InitStateByUnitClass()
 				stateData.stateID	= CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE;
 				m_LuaManager.MakeTableReference( "CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE", stateData.stateID );
 				stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				stateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture );	// June 32bff3d0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_EventProcess );
 				m_StateList[stateData.stateID] = stateData;
 
@@ -23383,6 +23484,28 @@ void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_Init()
 */
 void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfbe80: the shell at 0.69 s and 0.96 s is the hyper one while the hyper time lasts ( no memo 4 shell, no critical flag )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
+
+	const float afShellTime[2] = { 0.69f, 0.96f };
+	for ( int i = 0; i < 2; ++i )
+	{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if ( false == m_pXSkinAnim->EventTimerOneshot( afShellTime[i] ) )
+			continue;
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		if ( false == ( m_pXSkinAnim->EventTimer( afShellTime[i] ) && EventCheck( afShellTime[i], false ) ) )
+			continue;
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01_L_Hand" );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, ( 0.0f < GetRemainHyperModeTime() ) ? L"DAMAGE_EFFECT_CSI_SI_SA_CSG_DUAL_BUSTER_Mini_Gun_Shell_HYPER" : L"DAMAGE_EFFECT_CSI_SI_SA_CSG_DUAL_BUSTER_Mini_Gun_Shell",
+			GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree(), 0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // #ifndef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
@@ -23464,6 +23587,7 @@ void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess
@@ -23488,6 +23612,23 @@ void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_EventProcess()
 */
 void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bf42c0: the reload comes with no memo; the extra-charge roll adds a ball ( 32bf3d30 inlined ) and the sound plays also in the full hyper mode
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.5f ) && true == EventCheck( 0.5f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		int iUpCount = 1;
+		if ( m_fCannonBallExtraChargeRate >= GetRandomFloat( 1 ) )
+			++iUpCount;
+		UpCannonBallCount( iUpCount );
+		PlaySound( L"Chung_CannonGun_Reload.ogg" );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if ( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23516,6 +23657,7 @@ void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_SA_CSG_DUAL_BUSTER_LANDING_EventProcess
@@ -24332,6 +24474,65 @@ void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_Init()
 
 void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c15340: the buff factor of the learned ( or upgraded ) skill at its level, lengthened by the Check and Kill memo, goes to the living allies within 800
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( true == m_pXSkinAnim->EventTimer( 0.5f ) && true == EventCheck( 0.5f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+		vBonePos.y += 50.0f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pParticleEventSeq =
+			g_pX2Game->GetMajorParticle()->CreateSequence( static_cast<CKTDGObject*>(this),
+			L"CHUNG_SHARPSHOOTER_SYNDROME01", vBonePos );
+
+		pParticleEventSeq->SetBlackHolePosition( vBonePos );
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 1.4f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 1.4f ) && true == EventCheck( 1.4f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const CX2SkillTree::SkillTemplet* pSharpShooterSyndromeTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME, true );
+		if ( NULL != pSharpShooterSyndromeTemplet && false == pSharpShooterSyndromeTemplet->m_vecBuffFactorPtr.empty() )
+		{
+			if ( NULL == GetUnit() )
+				return;		/// June 32c154cd leaves without CommonFrameMove
+
+			const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSharpShooterSyndromeTemplet->m_eID, false, 0, true ) );
+
+			CX2BuffFactorPtr ptrBuffFactorClone = pSharpShooterSyndromeTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillTempletLevel );
+			if ( NULL != ptrBuffFactorClone )
+			{
+				const SkillMemoEntry* pMemoEntry = GetSkillMemoEntry( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME );
+				if ( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemoEntry->m_iType )
+					ptrBuffFactorClone->ApplyExternalFactorToFinalizer( BFT_TIME, true == pMemoEntry->m_vecValue.empty() ? 0.f : pMemoEntry->m_vecValue[0], true );	// June 32d41910
+
+				ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+				for ( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+				{
+					CX2GameUnit* pGameUnit = g_pX2Game->GetUnit( i );
+					if( pGameUnit != NULL && pGameUnit->GetTeam() == GetTeam() && 0.f < pGameUnit->GetNowHp() &&
+						GetDistance3Sq( GetPos(), pGameUnit->GetPos() ) < 640000.0f )	/// within 800
+						pGameUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+				}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL sharpshooter syndrome buff, level %d, memo %d", iSkillTempletLevel, ( NULL != pMemoEntry ? pMemoEntry->m_iType : 0 ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
 
@@ -24401,6 +24602,7 @@ void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove()
 	//}} kimhc // 2011.03.29 // 2011-04 에 패치될 청 캐시 스킬 중 버프 기능 구현
 	
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMoveFuture()
@@ -24436,6 +24638,391 @@ void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_EventProcess()
 	CommonEventProcess();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//{{ Iruha : 2026-11-02 // June character Chung Phase CH2c (JUNE_CHARACTER_CHUNG_PHASES.md)
+/// June 32bd9a80: the held skill key follows the slot the skill was cast from
+void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+}
+
+/// June 32be2460: the upgraded Dual Buster's landing; a second press of its key in the key window chains into a second cast once, for the skill's MP less its MP_CONSUME_REL
+void CX2GUChung::CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE_LANDING_EventProcess()
+{
+	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.566f;
+
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			/// stays in this branch until the second cast starts ( a skill without MP_CONSUME_REL or too little MP blocks the cancels below, as June )
+			if ( NULL != GetUnit() )
+			{
+				const CX2SkillTree::SKILL_ID eNowStateSkillID = GetNowStateSkillID();
+				const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eNowStateSkillID, false, 0, true );
+				if ( 0 < iSkillLevel )
+				{
+					float fMpConsume = CX2GUUser::GetActualMPConsume( eNowStateSkillID, iSkillLevel );	// June 31fd1840: the base, not Chung's override
+					float fMpConsumeRel = 0.f;
+					if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_MP_CONSUME_REL, eNowStateSkillID, false, fMpConsumeRel ) )
+					{
+						fMpConsume *= ( 1.f - fMpConsumeRel );
+						if ( fMpConsume <= GetNowMp() )
+						{
+							StateChange( CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE );
+							UpNowMp( -fMpConsume );
+							m_bDualBusterLandingMpSpent = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+							CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL dual buster landing chains into the second cast, mp %.1f", fMpConsume );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			IF_SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+			DASH_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+			else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+				m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+				false == m_bDualBusterLandingMpSpent && true == m_kSkillSlotKey.IsKeyPressedOnce( m_InputData ) )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+			}
+		}
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32bd9de0: the upgraded skill scales the animation speed of the future state
+void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	float fAnimSpeedRate = 1.f;
+	if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_ANI_SPEED, CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE, false, fAnimSpeedRate ) )
+	{
+		m_fAnimSpeedFuture *= fAnimSpeedRate;
+		ResetAnimSpeed( m_fAnimSpeedFuture, true, true );
+	}
+}
+
+/// June 32bd9e50: the same for the present state
+void CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_StateStart()
+{
+	CommonStateStart();
+
+	float fAnimSpeedRate = 1.f;
+	if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_ANI_SPEED, CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME_UPGRADE, false, fAnimSpeedRate ) )
+	{
+		m_fAnimSpeed *= fAnimSpeedRate;
+		ResetAnimSpeed( m_fAnimSpeed, true, false );
+	}
+}
+
+/// June 32bda130: Leg Shot's preloads
+void CX2GUChung::CSI_SI_A_CDC_TRICK_SHOT_Init()
+{
+	XSkinMeshReadyInBackground(L"SI_A_CDC_MiniGun_R_LEG_SHOT.X");
+	XSkinMeshReadyInBackground(L"Mini_Gun_Shell_Dummy.X");
+	XSkinMeshReadyInBackground(L"CDC_LEG_SHOT_GUNSMOKE.X");
+	XSkinMeshReadyInBackground(L"CDC_LEG_SHOT_GUNFIRE.X");
+	XMeshReadyInBackground(L"CSG_DUAL_BUSTER_Shell.Y");
+	TextureReadyInBackground(L"ColorBallBlue.dds");
+	TextureReadyInBackground(L"stone.dds");
+	TextureReadyInBackground(L"Smoke.dds");
+}
+
+/// June 32bfdd70: Leg Shot's gun mesh and effects, the shell replaced by the two Trick Shot damage effects
+void CX2GUChung::CSI_SI_A_CDC_TRICK_SHOT_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.001f ) == true && EventCheck( 0.001f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePosR = GetBonePos( L"Bip01_R_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_R = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_SI_A_CDC_Mini_Gun_LEG_SHOT_Mini_Gun", vBonePosR, GetRotateDegree(), GetRotateDegree() );
+		if( NULL != pMeshInst_MiniGun_R )
+		{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			pMeshInst_MiniGun_R->SetPerFrameSimulation( true );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R, pMeshInst_MiniGun_R->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) );
+		if( NULL != pMeshInst_MiniGun )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_R_Hand" );
+			pMeshInst_MiniGun->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimer( 0.2f ) == true && EventCheck( 0.2f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePosR = GetBonePos( L"Bip01_R_Hand" );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CDC_COMBO_X_Mini_Gun_Hit_Skill", 1.f, vBonePosR, GetRotateDegree(), GetRotateDegree() );
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.27f ) == true && EventCheck( 0.27f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vGunPos = GetPos();
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) );
+			if( NULL != pMeshInst_MiniGun )
+				vGunPos = pMeshInst_MiniGun->GetXSkinAnim()->GetCloneFramePosition( L"Gun_R_Dummy03" );
+		}
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_GUNFIRE", GetPowerRate(), vGunPos, GetRotateDegree(), GetRotateDegree(),
+			0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.299f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.299f ) == true && EventCheck( 0.299f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		if ( true == GetIsRight() )
+			vBonePos += GetDirVector() * 50.f;
+		else
+			vBonePos -= GetDirVector() * 50.f;
+		vBonePos.y += 50.f;
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_CDC_Trick_Shot_A", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree(),
+			0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_CDC_Trick_Shot_B", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree(),
+			0, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL trick shot A and B" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.94f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.94f ) == true && EventCheck( 0.94f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+			DeleteMajorMesh();
+	}
+
+	CommonFrameMove();
+}
+
+/// June 32bfe4d0: Leg Shot's cancels; the gun mesh goes with every state change
+void CX2GUChung::CSI_SI_A_CDC_TRICK_SHOT_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+			DeleteMajorMesh();
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	const float LOWER_BOUND_INPUT_TIME_CANCEL = 0.833f;
+
+	if ( LOWER_BOUND_INPUT_TIME_CANCEL <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		IF_SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		else if ( CAN_WALK_CANCEL )
+		{
+			if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+				DeleteMajorMesh();
+			StateChange( USI_WALK );
+		}
+		else if ( CAN_DASH_CANCEL )
+		{
+			if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+				DeleteMajorMesh();
+			StateChangeDashIfPossible();
+		}
+		ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		{
+			if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_A_CDC_LEG_SHOT_MINI_GUN_R ) )
+				DeleteMajorMesh();
+			StateChange( USI_WALK );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32bdb810
+void CX2GUChung::CSI_SI_SA_CSG_DEADLY_SHOT_Init()
+{
+	XSkinMeshReadyInBackground(L"CDC_BULLET_BLITZ_GUNFIRE1.X");
+	XSkinMeshReadyInBackground(L"CDC_BULLET_BLITZ_GUNFIRE2.X");
+	XSkinMeshReadyInBackground(L"CDC_BULLET_BLITZ_WIND.X");
+	XSkinMeshReadyInBackground(L"CDC_BULLET_BLITZ_Dummy.X");
+	XSkinMeshReadyInBackground(L"SI_SA_CDC_MiniGun_R_BULLET_BLITZ.X");
+	XSkinMeshReadyInBackground(L"Spin_Liner03.X");
+	XMeshReadyInBackground(L"Ring_Plane.Y");
+	TextureReadyInBackground(L"Smoke.dds");
+	TextureReadyInBackground(L"Light_Impact01.dds");
+	TextureReadyInBackground(L"ColorBallBlue2.dds");
+	TextureReadyInBackground(L"steam_BP.dds");
+	TextureReadyInBackground(L"Explosion_Sphere.dds");
+}
+
+/// June 32c0b160: Bullet Blitz's start effect set and left gun, one shot with the Deadly Shot damage effect, which gets an extra hit by chance
+void CX2GUChung::CSI_SI_SA_CSG_DEADLY_SHOT_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.001f ) == true && EventCheck( 0.001f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effect_CDC_Chung_Bullet_Blitz_Start", this );
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.01f ) == true && EventCheck( 0.01f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePosL = GetBonePos( L"Bip01_L_Hand" );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun_L = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( this, L"Mesh_CSI_CDC_MiniGun_L_BULLET_BLITZ", vBonePosL, GetRotateDegree(), GetRotateDegree() );
+		if( NULL != pMeshInst_MiniGun_L )
+		{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			pMeshInst_MiniGun_L->SetPerFrameSimulation( true );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			SetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_SA_CDC_BULLET_BLITZ_MINI_GUN_L, pMeshInst_MiniGun_L->GetHandle() );
+		}
+	}
+
+	if( INVALID_MESH_INSTANCE_HANDLE != GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_SA_CDC_BULLET_BLITZ_MINI_GUN_L ) )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_MiniGun = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( GetHandleChungMajorMeshByEnum( CHUNG_MAJOR_MII_SI_SA_CDC_BULLET_BLITZ_MINI_GUN_L ) );
+		if( NULL != pMeshInst_MiniGun )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Hand" );
+			pMeshInst_MiniGun->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.598f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.598f ) == true && EventCheck( 0.598f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vBonePosL = GetBonePos( L"Bip01_L_Hand" );
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_CSI_CDC_COMBO_X_Mini_Gun_Hit_Skill", GetPowerRate(), vBonePosL, GetRotateDegree(), GetRotateDegree() );
+
+		D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		if ( true == GetIsRight() )
+			vBonePos += GetDirVector() * 50.f;
+		else
+			vBonePos -= GetDirVector() * 50.f;
+		vBonePos.y += 50.f;
+
+		CX2DamageEffect::CEffect* pDeadlyShotEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Chung_CSG_Deadly_Shot", GetPowerRate(), vBonePos, GetRotateDegree(), GetRotateDegree(),
+			m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, 1.f, GetIncreaseRangeSubWeaponShot() );
+
+		const CX2SkillTree::SkillTemplet* pDeadlyShotTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CDC_DEADLY_SHOT, true );
+		if ( NULL != pDeadlyShotTemplet )
+		{
+			UseCannon( static_cast<int>( pDeadlyShotTemplet->m_usCBConsumption ) );
+
+			if ( NULL != pDeadlyShotEffect )
+			{
+				const int iSkillLevel = GetSkillLevelValue( pDeadlyShotTemplet->m_eID );
+				if ( GetRandomFloat( 0 ) < pDeadlyShotTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel, false ) )
+				{
+					const float fAddHitCount = pDeadlyShotTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, iSkillLevel, false );
+					if ( 0.f < fAddHitCount )
+						pDeadlyShotEffect->SetDamageTime( pDeadlyShotEffect->GetDamageTime() + static_cast<int>( fAddHitCount ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL deadly shot extra hits %d, balls %d", static_cast<int>( fAddHitCount ), GetTotalCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+				}
+			}
+		}
+	}
+
+	CommonFrameMove();
+}
+
+/// June 32beacc0: the cancels start at 1.2 s; walk keys give the wait state here, as June
+void CX2GUChung::CSI_SI_SA_CSG_DEADLY_SHOT_EventProcess()
+{
+	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 1.2f;
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	IF_SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+	else if ( LOWER_BOUND_INPUT_TIME_TO_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( LOWER_BOUND_INPUT_TIME_TO_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER( LOWER_BOUND_INPUT_TIME_TO_CANCEL )
+	{
+		StateChange( USI_WALK );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32bff3d0 ( JUNE_BUGS 164 ): the targeting NPC takes the camera here, not in the ready state's event process
+void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
+
+	if( NULL != pNPC )
+	{
+		pNPC->SetFocusCamera( true );
+		pNPC->SetFocusCameraForce( true );
+		pNPC->SetApplyCinematicUI( false );
+	}
+}
+//}} Iruha : 2026-11-02 // June character Chung Phase CH2c
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 void CX2GUChung::CSI_SI_SA_CFG_PANDEMONIUM_Init()
 {
 
@@ -26664,6 +27251,16 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Init()
 */
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c0e150: the type and the power rate are set here ( the shells of the fire state use them )
+	CommonStateStart();
+
+	if ( true == m_bArtilleryStrikeFire )
+		DoArtilleryStrikeFire();
+
+	m_eArtilleryStrikeType = CAST_MISSILE_SHOWER;
+	m_fArtilleryStrikePowerRate = GetPowerRate();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	CommonStateStart();
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	if ( true == m_bArtilleryStrikeFire )
@@ -26673,12 +27270,59 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_Start()
 	SetArtilleryStrikeData ( CAST_MISSILE_SHOWER );
 #endif // UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	m_bIsSummoningShot = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 /** @function : CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove
 	@brief : 청 2차 전직 데들리 체이서 아틸러리 스트라이크 준비 FrameMove
 */
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfe730: the targeting NPC is created at once ( no host test, the old ones are not removed ), then the scope buff goes on
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.001f ) == true && EventCheck( 0.001f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const bool bIsRight = GetIsRight();
+		D3DXVECTOR3 vPos = GetPos();
+
+		const float fOffsetPosX = 120.f;
+		if ( bIsRight )
+			vPos += GetDirVector() * fOffsetPosX;
+		else
+			vPos -= GetDirVector() * fOffsetPosX;
+		vPos.y += 300.f;
+
+		int iNewLineIndex = m_FrameDataNow.syncData.lastTouchLineIndex;
+		D3DXVECTOR3 vLandPos = vPos;
+		if( false == g_pX2Game->GetWorld()->GetLineMap()->CanDown( vPos, LINE_RADIUS, &vLandPos, &iNewLineIndex ) )
+		{
+			vPos = GetPos();
+			vPos.y += 240.f;
+		}
+
+		if ( CAST_QUANTUM_BALLISTA == m_eArtilleryStrikeType )
+		{
+			if ( true == IsMyUnit() )
+				g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_TARGETING_CHUNG_NOT_SHOW_OTHER_PLAYER, 0, true, vPos, bIsRight, 0.3f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+		}
+		else if ( CAST_MISSILE_SHOWER == m_eArtilleryStrikeType )
+		{
+			/// stand-in: June passes IsMyUnit() as a trailing CreateNPCReq argument that March's lacks ( always true offline )
+			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_TARGETING_CHUNG, 0, true, vPos, bIsRight, 0.3f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+		}
+
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_ARTILLERY_STRIKE_SCOPE, 1, NULL, 0, false );	// June 32bfea69
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.04f );
@@ -26749,12 +27393,28 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 /** @function : CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess
 	@brief : 청 2차 전직 데들리 체이서 아틸러리 스트라이크 준비 EventProcess
 */
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bfea90: the camera focus is the control idle state's ( its StartFuture ); the wait ends after 10 s or when the game is no longer running
+	if ( 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
+
+		if( NULL != pNPC )
+			StateChange( CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE );
+		else if ( 10.f < m_FrameDataFuture.unitCondition.fStateTime || false == IsEventGamePlayable( false ) )
+			StateChange( USI_WAIT );
+	}
+	m_InputData.Init();
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef BALANCE_DEADLY_CHASER_20130214
 	if ( 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
 #else
@@ -26783,6 +27443,7 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess()
 	m_InputData.Init();
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 /** @function : CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_StateEnd
 	@brief : 청 2차 전직 데들리 체이서 아틸러리 스트라이크 StateEnd
@@ -26881,8 +27542,12 @@ void CX2GUChung::ArtilleryStrikeControl_EventProcess()
 	const float MAGIC_CONTROL_RADIUS_Y = 1500.f;
 	const double MAGIC_CONTROL_TIME = 10.0;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	if( true == bSpecialAttackKeyPressed && true == HaveThisBuff( BTI_BUFF_ARTILLERY_STRIKE_SCOPE ) )	// June 32bfeb80 @32bfeded: the scope buff holds the aim, not a 10 s timer
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if( true == bSpecialAttackKeyPressed &&
 		m_TimerShotControl.elapsed() < MAGIC_CONTROL_TIME )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	{
 		D3DXVECTOR3 vDirection(0,0,0);
 		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
@@ -27023,6 +27688,23 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateStart()
 
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bff430: the shot goes to the fire state with no summoning flag, and the targeting NPC is let go
+	CommonStateEnd();
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
+
+	if( NULL != pNPC )
+	{
+		pNPC->StateChange( "SHOT_ARTILLERY_STRIKE_FIRE", true );
+		m_vLastShotPos = pNPC->GetPos();
+		m_vLastShotDir = pNPC->GetDirVector();
+
+		StateChange( CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE, true );
+
+		SetShot( -1 );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	CommonStateEnd();
 
 	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( GetShot() );
@@ -27037,6 +27719,7 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_STRIKE_StateEnd()
 
 		m_bIsSummoningShot = false;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 /** @function : CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE_StateStart
 	@brief : 청 2차 전직 데들리 체이서 아틸러리 스트라이크 컨트롤
@@ -27155,6 +27838,24 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_DOWN_RIGHT_StateStart()
 */
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c0e190: the Quantum Ballista spends 6 balls, the Missile Shower 6 with the extra balls' rate on its shells
+	CommonStateStart();
+
+	if ( CAST_QUANTUM_BALLISTA == m_eArtilleryStrikeType )
+	{
+		UseCannon( 6 );
+	}
+	else if ( CAST_MISSILE_SHOWER == m_eArtilleryStrikeType )
+	{
+		float fExtraBallDamageRate = 1.f;
+		CanConsumeCannonBallForShot( 6, 6, true, &fExtraBallDamageRate );
+		m_fArtilleryStrikePowerRate *= fExtraBallDamageRate;
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL artillery strike fire, type %d, power rate %.2f", static_cast<int>( m_eArtilleryStrikeType ), m_fArtilleryStrikePowerRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	CommonStateStart();
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
@@ -27176,6 +27877,7 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start()
 #else // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 	m_iArtilleryStrikePlayCount = 30;
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 /** @function : CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_FrameMove
 	@brief : 청 2차 전직 데들리 체이서 아틸러리 스트라이크 공격 FrameMove
@@ -27208,7 +27910,9 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_FrameMove()
 		}
 		
 		m_bArtilleryStrikeFire = true;					// 아틸러리 스트라이크 발사!
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		m_fArtilleryStrikePowerRate	= GetPowerRate();	// PowerRate 값을 저장
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		m_TimerCheckArtilleryStrikeFire.restart();		// 타이머 리스타트
 		
 	}
@@ -27280,7 +27984,11 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_END_EventProcess()
 		else
 			StateChange( USI_WAIT );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		EraseBuffTempletFromGameUnit( BTI_BUFF_ARTILLERY_STRIKE_SCOPE );	// June 32be3eb0 @32be3ee1: the aim ends with the cast
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		m_bIsSummoningShot = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		m_fCanNotAttackTime = 0.1f;
 	} // if
 
@@ -37033,6 +37741,16 @@ void CX2GUChung::SetArtilleryStrikeData (CHUNG_ARTILLERY_STIKE_TYPE eType_ )
 
 void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c084e0: as the Artillery Strike's ready start with the Quantum Ballista type
+	CommonStateStart();
+
+	if ( true == m_bArtilleryStrikeFire )
+		DoArtilleryStrikeFire();
+
+	m_eArtilleryStrikeType = CAST_QUANTUM_BALLISTA;
+	m_fArtilleryStrikePowerRate = GetPowerRate();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	CommonStateStart();
 	if ( true == m_bArtilleryStrikeFire )
 		DoArtilleryStrikeFire ();		// 아틸러리 스트라이크 특성 상 차지 부터 쿨타임이 흐르고
@@ -37040,6 +37758,7 @@ void CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_QUANTUM_BALLISTA_READY_Start()
 										// 문제가 생길 수 있으므로 미리 예약해놓은게 있으면 바로 발사하고 초기화
 	SetArtilleryStrikeData ( CAST_QUANTUM_BALLISTA );
 	m_bIsSummoningShot = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SA_CTT_TACTICAL_FIELD_RAID_Init()
