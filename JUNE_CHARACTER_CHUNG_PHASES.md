@@ -1965,6 +1965,33 @@ hold-down drop, the double touch and a pepper run (Hot Pepper `130507`). Dry San
 **Play-test passed (user, 2026-11-02):** all checks. Logs on md5 26d1965e (run 07:10-07:14, after deploy; dungeon 33210 played 07:11-07:13): 0 EXCEPTION,
 2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`, known), clean exit. Not this phase's: `DLG_UI_LOCAL_MAP` lacks a "Garpai Rock" control (local-map UI); `AddGroupChainQuest` (quest-system).
 
+### CH1n3 - Review (2026-11-02)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `26d1965e` stands). Re-read against `charport_adis.py chung 31fd6ce0` (456 lines).
+- **Entry:** `+0x7e1c == 1` (`IsOnSomethingFuture()`), index in range, line non-null; key stop `> 0` (`test ah, 0x41`) -> `+0xde8` (`SetCanNotInputTime_LUA`).
+  `[ebx+4] - 4` -> `31fd7022` = type 4 (`LT_JUMP_UP_REL`, has the direction), `- 1` -> `31fd6d86` = type 5 (`LT_JUMP_UP_ABS`, has the x flip).
+  Other types: `+0x88f0 = -1`, `+0x88f4 = 0`, `+0x8fc1 = 0`; off-line / null line touches nothing. Port = June.
+- **Both types:** `+0x8fc1 = 1` first (`31fd6d92` / `31fd702a`). Base slots (vtable `334781f4`): 0x114 `3208de60` = 0x1e, 0x118 `3208de70` = 0x1f,
+  0x494 `3208dec0` = 0x26, 0x490 `330de330` = 0x25 = `USI_DAMAGE_DOWN_FRONT` / `_DOWN_BACK` / `_AIR_FALL` / `_AIR_DOWN_LANDING` (`ch1m_idmap.tsv`); each
+  match exits with nothing else. 0x458 `3208de10` = riding ? 79 : 17 = March's `GetJumpDownStateID()`. `vtslot.py`: all 12 other user classes, Chung
+  included, use these bases; only `CX2GULuciel` overrides (see the routing fix below).
+- **CanDown** `31c6c310`: ( pos, 30.0, &landPosition, &idx, &idx, 1, 0, 1, 0 ), index written back = March's `unsigned short*` overload -> `int*` forwarder
+  under `_LINEMAP_CANDOWN_SIGNATURE` (`KTDGLineMap.h:1299`). True -> y -= 33.0 (`LINE_RADIUS * 1.1f` folds to 33.0f) and return. False -> the guard test.
+- **Guard** (`31fd6eec` / `31fd719e`): `g_pMain +0x8c == 0xb` and key stop `> 0`; `[0x344c0178]` called first. Same id: (elapsed, unsigned via the
+  2^32 fix-up) x 0.001f vs key stop, `test ah, 5; jp` skips on `>=` / unordered, else `+0xde8 = 0`; time stored on both paths. New id -> `31fd7254`
+  stores id and time. Port = June; order (time read, direction, `+0x88ec`, HighJump.ogg ( 1, 0 ), `+0x88e0..e8`, id) = June.
+- **REL:** direction `+0xe0` 2 / 1 through vslot 0x170 `GetIsRight` in both paths; second key-stop write only at `31fd72eb` (non-guard). **ABS:** no
+  direction, no second write, x negated when `bIsRight != 1` in both paths (guard `31fd6f5f`, non-guard `31fd6fe2`). Port = June.
+- **Ctor:** `or ebp, -1` @`3204249e`, `+0x88f0 = ebp` @`3204259a`, `+0x88f4 = ebx` (= the `bl` stored into `+0x88ec` false) = -1 / 0.
+- **Routing fix (doc only):** Lu/Ciel overrides four damage slots, not three (`32b4da10` for 0x494 was missing), and 0x458 `GetJumpDownStateID`
+  (`32b4d5b0`; non-virtual in March). Stage 8 bullet corrected (`JUNE_PORT_BACKLOG_ORDER.md`). Scope fence held: only `31fd6ce0`'s body changed.
+
+**Hygiene:** `flagcheck JUNE_USER_JUMP_UP_LINE --range 3628840d^..3628840d`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL,
+0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+`git diff --patience --numstat`: Always.h 17/0, X2GUUser.cpp 82/0, X2GUUser.h 4/0. `junediverge.py --check-all`: `allow-listed: 163`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probe (`census.cl_cmd`, `/Zs /EHsc`) of `X2GUUser.cpp`: `_LIVE` off and on, exit 0, 0 errors.
+**Play-test:** passed (pad, hold-down drop, double touch, pepper run; 0 EXCEPTION on `26d1965e`). Next: `/x2-phase char-chung CH1o` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-chung CH1o` |
 | Plan doc | `JUNE_CHARACTER_CHUNG_PHASES.md` (branch `main`) |
-| Depends on | CH1n2 review (CH1n split, 2026-11-02). One at a time: `X2GUChung.*` |
+| Depends on | CH1n3 review (CH1n split, 2026-11-02). One at a time: `X2GUChung.*`, `X2GUUser.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE` |
 | Log tag | none (nothing runs until `_LIVE`) |
 | Review | `kickoffs/char-chung/CH1o-review.md` (Opus 5.5 high; the phase writes it when done) |

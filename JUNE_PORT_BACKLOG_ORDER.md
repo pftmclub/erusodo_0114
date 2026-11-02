@@ -445,7 +445,8 @@ Everything from Stages 5 and 6, plus:
 - Ain's Lied Schwach ( `RNSI_A_ALA_LIED_SCHWACH` 32218 ): its target search `32a71030` ( thunk `32a7a210` ) is Energy Drain's shape and calls the
   view cone `322f0e60`, which pilot CH2c ported as `CX2Game::JuneIsUnitInViewCone` ( funcmap `322f0e60 (CH2b)` row ); reuse it, do not re-port.
 - **Lu/Ciel's damage-state getters** *(from char-chung CH1n3, 2026-11-02)*. June asks virtuals for the damage states (vslots 0x114 / 0x118 / 0x494 / 0x490;
-  Lu/Ciel overrides `32b4d810` / `32b4d850` / `32b4d9d0`); March has none, so `CX2GUUser::PhysicProcess_Jumping` (flag `SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE`)
+  Lu/Ciel overrides `32b4d810` / `32b4d850` / `32b4da10` / `32b4d9d0`, and 0x458 `GetJumpDownStateID` with `32b4d5b0`, non-virtual in March; CH1n3 review);
+  March has none, so `CX2GUUser::PhysicProcess_Jumping` (flag `SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE`)
   tests the `USI_DAMAGE_*` constants. Add the getters with Lu/Ciel and route that test (and StateChange's force-down flush, funcmap row `320348c0 @32034931-32034994`) through them.
 - **Event scenes and cut-in art** (june-gfx Z, 2026-10-19): 439 of the 493 GFx event scenes are Rose quests and 21 are Ain (`GFXEventSceneInfo.xml`, scene `.swf` loose in `data\eventscene\`, all staged); they play once the quest
   system and these classes exist. Rose / Ain / Lu-Ciel cut-in names are June `.gfx` names in data152 / data195 (staged by june-gfx GA); name them in the class tables when the classes are ported.
