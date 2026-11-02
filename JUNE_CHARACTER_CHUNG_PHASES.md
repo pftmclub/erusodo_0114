@@ -2636,7 +2636,7 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"`,
   ( C 6, D 1 ). `ch1m_regcheck.py`: `matched 821 registrations, 0 problems; ids mapped 164`.
 - **Play-test (18:21-18:23 run, after the CH2c deploy).** `dual buster landing chains into the second cast, mp 50.0` x3, `trick shot A and B` x2,
   `artillery strike fire, type 2, power rate 1.00`, `SUMMON npc 1419 ... skill 26050 ... flags 0x0`, `[JUNE_SUMMON] npc 1419 ... died ... buff templet 418 erased`. No
-  `sharpshooter` and no `deadly shot` line (the second is a chance); the review hand-off asks for a visual check of both.
+  `sharpshooter` and no `deadly shot` line (the second is a chance); the review hand-off's visual check of both (buff icon, faster animation; left gun, one shot, ball drop) passed (user, 2026-11-02).
 - **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,921,024 B, dated 2026-11-02 18:43:57, md5 a5db65aeb9d4c3f2ea103470913dd9f3,
   built at main 0466d56f + `Always.h`. EXESTR OK: 1 of 1 absent (the wide `dual buster landing chains into the second cast` line), md5 a5db65ae.
 
