@@ -37,4 +37,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `nu0_equip_nesi.tsv` rows `DU3` and `nu0_duo_engine.tsv` rows `DU3`: `3201b930`, `31fd2f00`, `31ffe990` (form 1 builds Ciel's
+look), `31fd48a0` (Now anim for a form, vslot 0x570), `31fd63c0`, `31fd9200` / `31fda280` (the `MAJOR:` / `MINOR:` equip dump; labels rest on
+strings), `328825c0`, `32882540`. `31fd48a0`, `31fd63c0`, `32882540` have no March symbol. EP 28: June's second ring goes to `EP_AC_RING2` (28), March's
+`EP_AC_TEMP4` has the value: register the name (`321693b0` is DU5's, it uses it).

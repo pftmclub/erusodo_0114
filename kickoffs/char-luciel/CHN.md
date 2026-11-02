@@ -37,4 +37,14 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by CH0 / NU0
 
-(empty until CH0 / NU0 runs)
+CH0: (pending)
+
+NU0 (2026-11-02), `june2017_re/char_luciel/nu0_jobchange_tutorial.tsv`. The quests are in the shipped `FieldQuest.lua` (June bytecode); the
+emulator applies the reward through `CX2OfflineQuest::GetChangeUnitClass`.
+- 200 -> 37: 35644-35647 (NPC 10004, level 15); 200 -> 38: 35648-35651 (10005, 15); 200 -> 39: 35660 / 35670 / 35680 / 35690 (15).
+- 37 -> 127: 35750-35790 (35); 38 -> 128: 35700-35740 (35); 39 -> 129: 35800-35840 (35).
+- Tickets (`item.kim`): 276955 (37), 276956 (38), 276957 (127), 276958 (128); 39 / 129 candidates 135824 / 277104 and 135825 / 277106 (check their
+  family with `/x2-kim` first). Transcendence tickets 288347-288349 already work.
+- `X2OfflineClassChangeSeed.h`: ticket `ROWS`, `PARENT_ROWS` {200,200} {37,200} {38,200} {39,200} {127,37} {128,38} {129,39}, 39 in
+  `SIDE_STEP_CLASSES` (without parent rows the gates read "no row" and do not refuse). `X2OfflineLuaEnumSeed.h`: the 7 `UC_LUCIEL_*` names.
+- `DLG_Class_Change_Luciel_*` (6, named in `X2StateClassChange.cpp:335-374`) are June data217 only; 4 guide dialogs in June data034: CH0b stages them.

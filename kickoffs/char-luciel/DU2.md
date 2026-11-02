@@ -38,4 +38,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `nu0_duo_engine.tsv` rows `DU2`. Base targets (vtable `334781f4`): 0x114 `3208de60` returns 30 (`USI_DAMAGE_DOWN_FRONT`),
+0x118 `3208de70` 31 (`_DOWN_BACK`), 0x490 `330de330` 37 (`_AIR_DOWN_LANDING`), 0x494 `3208dec0` 38 (`_AIR_FALL`), 0x458 `3208de10`
+(`USI_RIDING_JUMP_DOWN` when vslot 0x200 == 1, else `USI_JUMP_DOWN`). **There are more readers than the two the plan names:**
+- `PhysicProcess_Jumping` `31fd6ce0` (all five, two passes) and its landing-line helper `31fd7350` (0x118 / 0x494 / 0x490 / 0x458; not in funcmap);
+- StateChange `320348c0` (0x114 @32034943, 0x118 @32034960, 0x490 @3203497d; **no 0x494** there);
+- `CommonFrameMove` `32063650` (@32067680-32067726), `CommonEventProcess` `31fe7610` (@31fe7944, @31fe7992), `ForceDownAndDetonationProcess`
+  `3202a9c0` (@3202a9e7, @3202aa1e);
+- the state-id predicates vslot 0x530 `3208e7d0`, 0x534 `3208e8c0` (all four), 0x538 `3208eb60`; `32296570`; DamageEffect `31f6eea0`; Aisha's
+  InitState `32cea0c0`.
+Port the getters, then route every reader that has a March counterpart (map each in funcmap first; a reader with no March body is recorded).

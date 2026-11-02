@@ -36,4 +36,18 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by CH0 / NU0
 
-(empty until CH0 / NU0 runs)
+CH0: (pending)
+
+NU0 (2026-11-02), `nu0_jobchange_tutorial.tsv`:
+- **June's entry diverges for every class.** `Handler_EGS_CREATE_TUTORIAL_ROOM_REQ` (June `325622e0`, caller `325712b0` inventory ACK) sends
+  `DI_DUNGEON_TUTORIAL_*` (type 2 -> 0xa0c8 ... 10 -> 41240, 11 -> 0xa122, 12 -> 0xa1cc, default 0xa0be), event 0x5c. March
+  (`X2StateServerSelect.cpp:7501`, copy `X2StateBeginning.cpp:4057`) sends `DI_BATTLE_FIELD_TUTORIAL_*` with no `UT_LUCIEL` case (Lu/Ciel gets
+  Elsword's). Divergence row `Handler_EGS_CREATE_TUTORIAL_ROOM_REQ` (verdict `stage8`): TU ports June's whole body, every class. Check the
+  other classes' `DI_DUNGEON_TUTORIAL_*` rows exist in the live `DungeonData.lua` first; a missing one is a TU gap, not a reason to keep March's.
+  Emulator: `Handlers_Room.cpp:568`.
+- Data: `DI_DUNGEON_TUTORIAL_LUCIEL` 41240 (`DungeonEnum.src.lua:101`) and its `DungeonData.src.lua:29877` row are missing from the live files.
+  `DI_BATTLE_FIELD_TUTORIAL_LUCIEL` 39609 is in the live `DungeonEnum.lua` but June has no data row and no code reads it: not needed.
+  `WI_TUTORIAL_LUCIEL_STAGE0` 633 is missing from the live `Enum.lua`, and the live `WorldData.lua` has no `WI_TUTORIAL_*_STAGE0` row for any class
+  (June `WorldData.src.lua:3153`): add Lu/Ciel's.
+- Files: `Dungeon_Tutorial_Luciel.lua` live (June bytecode); `Tutorial_Luciel_Stage0.lua` (15,580 B) and `_LineMap.lua` (5,332 B) June data040, new
+  (CH0b); `HQ_Loading_TUTORIAL_LUCIEL_01/02.tga` not found in kom_contents (CH0b checks June's koms).

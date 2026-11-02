@@ -38,4 +38,16 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `june2017_re/char_luciel/nu0_templet_keys.tsv`:
+- **June's parser** is `CX2UnitManager::AddUnitTemplet_LUA` `3237aa40` (keys XOR-decoded: `june2017_re/xorstrings.tsv` gives each key's decode and
+  getter VA). Templet offset = parser ESI offset - 4; templet 0x368 bytes. Getters: int `32fe9fd0`, wstring `32feae90`, float `32fea370`. March:
+  `X2UnitManager.cpp:836`, struct `CX2Unit::UnitTemplet` `X2Unit.h:329-383`.
+- **The 18 keys** (all scalars, no sub-table): `majorUnitName` +0x24 / `minorUnitName` +0x40 (STR_ID ints turned into wstrings by `31c31060`;
+  `minorUnitName`'s length at +0x50 is June's "has a second body" test, `3254e410`, `32d85650`), `m_MinorUnitPromotion{Weapon,Body,Leg,Hand,Foot}ItemID`
+  +0x1cc..+0x1dc int, `m_MinorUnit{Common,Field,Lobby,Emotion}Motion` +0x1e0 / +0x1fc / +0x218 / +0x234, `m_MinorUnitGameMotion0/1/2` +0x250 / +0x26c
+  / +0x288 wstring, `m_fMinorUnitLobbyRotationY` +0x2d8 float, and the three cut-ins already parsed by `SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`
+  (`m_MinorUnitHyperCutIn`, `m_HyperCutIn_Trans`, `m_MinorUnitHyperCutIn_Trans`, `X2Unit.h:377-381`). So 15 new members, plus
+  **`m_fLobbyRotationY`** (+0x2d4, every June row; March has none, comment :892-893): its reader `31edf260( unitClass, bMinor )` falls back to a
+  per-class constant switch, so add it with the 15 (NU4's lobby preview reads it).
+- Readers: `31fe5860` `InitMotion` (Emotion, GameMotion0-2: DU1's second body), `3254e410` (promotion texture preload), `32d85650` (names),
+  `31edf260` (lobby rotation). No reader found for Common / Field / Lobby motion (parse them; DU1 / DU5 look again).

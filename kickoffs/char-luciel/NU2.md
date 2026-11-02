@@ -39,4 +39,22 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `june2017_re/char_luciel/nu0_unit_class_width.tsv` (202 rows: member 50, serializer 34, reader 68, writer 39, sizeof 11):
+- **Width: a word.** June reads `movzx word ptr` at `KUnitInfo +0x15` (`3235eb7b`), `KRoomUserInfo +0x21` (`323600f8`), `KFieldUserInfo +0x24`
+  (`3236150f`), `KSquareUserInfo +0x4a` (`32361e4f`); the transcendence int follows at +2 (`+0x17` etc.). March's class offsets are the same
+  (a `cl /c` offsetof probe), so a `short` with June's name reproduces June's layout exactly (`#pragma pack(1)`, no padding). Precedent:
+  `KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT::m_sNewUnitClass` (`ClientPacket.h:7905`). Other structs: June's width not read (`not found` in the tsv);
+  widen every member the tsv lists so no class above 127 wraps anywhere, and say so in the Done note.
+- **Serializers:** every struct is `PUT` / `GET` member by member (`KSerializer::Put( char )` is 1 byte), defined in
+  `KncWX2Server/Common/CommonPacket.cpp` / `ClientPacket.cpp`, compiled only through `X2Lib/X2ServerPacket.cpp:15,18`. Offline transport is bytes
+  (`KEvent::SetData` -> `KSession::SendPacket` -> `OnClientSend`, `Session.cpp:343-349`; emulator `ReadReq` / `Reply`), with both ends in X2Lib,
+  so a widened member stays consistent.
+- **X2ServerProtocol:** reached by `CommonPacket.h` as a header only (`X2ServerProtocolLib.h:68` -> `SystemPacket.h:5`); no X2ServerProtocol source
+  names these structs, takes a `sizeof` or copies one. The `ServerDefine.h` twin + `SECOND_HOMES` are required (CommonPacket.h precedes Always.h
+  in X2Lib TUs); the vcxproj define keeps the header consistent but no X2ServerProtocol code depends on it. `ClientPacket.h` is X2Lib-only.
+- **Casts and signatures:** ~68 sign-extending readers (`X2Unit.cpp:175,189,4342,4586,4753,4845` and the rest in the tsv), and `char` parameters
+  `MakeDefaultUnitInfo( char )` (`X2OfflineServer.cpp:456`), `CX2Main::ChangeUnitClass( char )`, `AllocateRelationDummyUnit( char )`,
+  `SetCharIcon( char )`, `AddSealSkillInfo_LUA( ..., char )` (`X2SkillTree.cpp:1824` `<= 0` test). Emulator writers `Handlers_Unit.cpp:251,263,411,499`,
+  `Handlers_Room.cpp:186,360`, `X2OfflineServer.cpp:466,961` (`(char)kRow.m_iUnitClass`). `X2UIPersonalShopBoard.cpp:2201` `static_cast<char>`.
+  Dead: `KPartyUserInfo` 4683 (`#else` of `SERV_CHANNEL_PARTY`), `X2UIInventory.cpp:6650`.
+- No `sizeof` / `memcpy` of these structs exists (the one hit, `X2Game.cpp:747`, is unrelated).

@@ -241,6 +241,46 @@ the S3 baseline exists; assets union routes a / b / c; the summon map exists; th
 
 **Done gate:** the tsvs exist; every site has an owner phase and a verdict; the DU4 migration shape is written; kickoffs amended.
 
+### Done (2026-11-02, Opus 5.5 high; read-only, no flag, no build)
+
+Eight tsvs in `june2017_re/char_luciel/` (Sonnet subagents; each spot-checked against the June bytes or the March line it cites). The
+kickoffs NU1-NU4, DU1-DU5, CHN, TU and CH0b carry the per-phase detail ("Amended by NU0"); 25 funcmap rows `Char Luciel NU0`.
+- **Item 1** `nu0_unit_type_sites.tsv` (55 rows; `cl /P` liveness): widen 15, june_body 2, leave 38 (15 dead). June's script table holds 13
+  (`337341b8`, `cmp esi, 0x337341ec`), getter `3237a680` `cmp eax, 0xc`, classes accepted 1..202 (`3271a858 cmp eax, 0xc9` after `dec`).
+  **Trap:** March's `ASSERT` at `X2UnitManager.cpp:425` compiles out, so the loop must not widen before the table. `SERV_LIMIT_UNIT` is live (the
+  planning digest said dead). `X2OfflineStatTable.cpp:283` stays (class -> type for base classes only).
+- **Item 2** `nu0_type_switches.tsv` (60 sites): CH1 7, CH5 10, DU1 3, DU5 6, NU1 1, NU4 9, TU 1, none 23 (dead, already June's, or June
+  data-driven). Rose / Ain cases recorded in their column. June reads the form byte (`+0x8e90` / unit `+0xe40`) in the revive voice, weapon-effect
+  bones, emotion sound, Square SD mesh and reform.
+- **Item 3** `nu0_unit_class_width.tsv` (202 rows): June's class is a **word** at the same offsets as March's char (`3235eb7b movzx ecx, word ptr
+  [ebp + 0x15]` and three siblings; transcendence int at +2), packs 1, PUT / GET member by member. **The layout change does not reach
+  X2ServerProtocol's code:** the serializers compile only in `X2ServerPacket.cpp`, offline transport is bytes with both ends in X2Lib
+  (`Session.cpp:343-349`), and X2ServerProtocol sees `CommonPacket.h` as an unused header. NU2's size: 50 members, 34 serializers, 68 readers,
+  39 writers, 5 `char` signatures; no `sizeof` / `memcpy`.
+- **Item 4** `nu0_create.tsv` (47 rows): SelectLuciel `325559f0`, event proc `32558860` (messages 36 / 50), no June entry switch. June shows
+  **two bodies** on the create and select screens (`@32555fe8` viewer `+0xd7c`); NU4 shows Lu, DU5 adds Ciel. Create request trap: March's live
+  branch sends the unit type as the class (`X2StateCreateUnit.cpp:2505`). Name / description are pictures in `GUI_character_info_10.TET`. Assets
+  listed in CH0b's kickoff (new: background, info_10, bt_03, 6 voices, 4 Common / Lobby motions, 29 basic / cash meshes, `SelectVoiceTable.lua`;
+  June replaces `bt_01` / `bt_02`, `Texture67`); the 4 job movies are already in March.
+- **Item 5** `nu0_templet_keys.tsv`: June parser `3237aa40` (XOR keys, `xorstrings.tsv`), 18 keys all scalar; 15 new members plus
+  `m_fLobbyRotationY` (+0x2d4, every June row, March has none); `minorUnitName`'s length (+0x50) is June's "has a second body" test.
+- **Item 6** `nu0_duo_engine.tsv` (2,964 rows: DU1 440, DU1-accessor 2,248, DU2 48, DU3 6, DU5 123, out 90, Ain / Rose 9). The second body
+  mirrors the first at +0x6b4 (`+0x8e7c..+0x8e8c`), `+0x8e90` active body, `+0x8e91` dual enabled. **June's skin-anim accessor is duo-aware and
+  inlined into every class** (`32070cf0`; Eve's range alone reads it 420 times): DU1 changes `X2GUUser.h:2092-2094`, not 2,248 sites (rows
+  retagged from the subagent's `CH1`). The second body is built only in `InitMotion` `31fe5860`. DU2 has seven reader functions, not two
+  (`31fd6ce0`, `31fd7350`, `320348c0`, `32063650`, `31fe7610`, `3202a9c0`, the 0x530-0x538 predicates).
+- **Items 7-8** `nu0_equip_nesi.tsv` (33: DU3 7, DU4 10, DU5 12, none 4), `nu0_jobchange_tutorial.tsv` (19: CHN 11, TU 8). **DU4 shape:**
+  `item.slot` 20 -> 35 for category 9 and `inventory_size.size` 21 -> 43 for category 9, schema v22 -> v23; no other table holds an NESI id.
+  Guild agit is not reachable offline: `0x4fd` / `0x4fe` dropped. Job change: quests already in `FieldQuest.lua` (200 -> 37 35644-35647, -> 38
+  35648-35651, -> 39 35660-35690; 127 35750-35790, 128 35700-35740, 129 35800-35840), tickets 276955-276958.
+- **Divergence rows** (verdict `stage8`, `junediverge.py --check-all` RESULT: PASS): `Handler_EGS_CREATE_TUTORIAL_ROOM_REQ` (`325622e0`: June
+  sends every class to `DI_DUNGEON_TUTORIAL_*`, March to `DI_BATTLE_FIELD_TUTORIAL_*`; TU) and `RotateYSelectCharacterType` (`31edf260`, the
+  templet rotation keys; NU4).
+- **Open, in the owning kickoffs:** `USE_PHYSICPROCESS_NOT_SELECT_UNIT` / `..._ANIM_TIME_IN_SPEED` members (DU1); readers of the Common /
+  Field / Lobby minor motions (NU3 / DU5); where the form persists across a relog (DU4, so there is one migration); June's widths of the 46
+  members outside the four disassembled structs (NU2 widens all); the 50 unit `+0xe40` hits marked "other struct?" (DU5); the 39 / 129 ticket
+  family (CHN). `dispsweep.py` misreads `cmp [reg+disp32], imm` and drops 66 / F2 / F3 prefixes (noted in DU1).
+
 ## Phase CH0b - Every June Lu/Ciel asset, whole, first
 
 **Run with:** Sonnet 5.5 high, user play-test (ErrorLog diff on a select-screen pass of all nine March characters). `kom.py stage-june

@@ -41,4 +41,29 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `june2017_re/char_luciel/nu0_create.tsv` (47 rows) and `nu0_type_switches.tsv` rows `NU4` (9):
+- **June functions:** SelectLuciel `325559f0` (Add `32555320`); UICustomEventProc `32558860` (uncarved; table `3255aabc`, index msg - 1:
+  `SCUUCM_LUCIEL_BUTTON_UP` 36 and `_JUMPING` 50 both call SelectLuciel, 50 also sets `+0x71c` = 1; re-select table `3255ab8c`, type 10
+  `@325593da`); SelectUpperClass `325519d0`; ChangeCreateUnitClassChangeInfoDlg `325514e0`; class-change dialog loader `325525a0`; info texture
+  `325506e0`; stand mesh `32551e30` (select screen `32561130`); OnFrameMove `3254f180`; InitDummyUnits `3255b800`; PlaySoundCreateUnit `32550aa0`;
+  create request `325584f0`; select background `3255ecf0`; PlaySoundSelect `3255f240`; voice-name builder `32376270` (prefix switch `32375d00`).
+- **Entry:** June's ctor (`3255bd10` -> `32556f60`) has no per-type switch. March's `SERV_LIMIT_UNIT` switch (`X2StateCreateUnit.cpp:175-230`) is
+  **live** by `cl /P` (the planning digest said dead): it needs the Lu/Ciel case.
+- **Create request trap:** March's live `REFORM_ENTRY_POINT` branch sends `m_SelectUnitType` as `m_iClass` (`X2StateCreateUnit.cpp:2505`) and the
+  emulator (`Handlers_Unit.cpp:330`) reads it as a class; June sends the class (`m_SelectUnitClass`, 200). Port June's request body.
+  `InitDummyUnits` keeps the class in a signed `char` (NU2's list).
+- **Button slot:** `LucielCreateUnitSlot` x 668 (308 + 45 * 8), y 558, `BT_LUCIEL_SELECT_N` / `_O` in `bt_01.TGA`, group 1, message 36, no sound.
+  June's whole file re-orders every slot and adds Rose / Ain slots whose `SCUUCM_ROSE_BUTTON_UP` / `SCUUCM_AIN_BUTTON_UP` March's `Enum.lua` lacks:
+  as the Rules say, core-list source with only Lu/Ciel's slot (and `SCUUCM_LUCIEL_BUTTON_UP` 36 / `_JUMPING` 50 in `Enum.lua` and the C++ enum).
+- **Screen content:** name and description are pictures in `DLG_UI_Common_Texture_GUI_character_info_10.TET` (19 keys); background
+  `DLG_Unit_Background_Luciel.tga`; stand `Dummy_Village_Board11` + `EffectSet_Luciel_Stand_Aura` (x + 25, z + 50); camera / scale / light as
+  Add's; `PlayAnim( "LobbyDownLanding", 2, 0, 2 )` on both skins; voice `LucielVoice_Introduce.ogg`; job movies `Movie_Create_Luciel_{Base,LD,CN,LN}.avi`
+  already loose in `data\movie`. Create voices `LucielVoice_Create01/02.ogg`, select `LucielVoice_Character_Select.ogg` / `_GameStart.ogg`.
+- **Two bodies in June** on the create screen (`@32555fe8` viewer `+0xd7c`, minor rotation `31edf260( class, 1 )`) and the select screen
+  (`32564400`, per-frame `3255e570`): NU4 shows Lu only, DU5 adds Ciel (plan).
+- **Rotation:** June's `31edf260( unitClass, bMinor )` replaces March's `RotateYSelectCharacterType` (`X2Data.cpp:3490`; divergence row,
+  verdict `stage8`, NU4 replaces for every class): templet `m_fLobbyRotationY` / `m_fMinorUnitLobbyRotationY` (NU3), constant switch when 0.
+- **Voices:** June's builder `32376270` reads `SelectVoiceTable.lua` (data036, June-only; March has no loader) before its fallback names. Port the
+  builder and its loader whole for the create / select sounds (`adopt-june` + `luabind.py check`), and say in the Done note whether any other class's
+  voice changes.
+- Assets: CH0b's NU0 list. Select-list guard (`X2StateServerSelect.cpp:2951` / `:11391`, STR_ID 707) is NU1's. First entry is TU's.

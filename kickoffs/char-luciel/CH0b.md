@@ -40,3 +40,19 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH0
 
 (empty until CH0 runs)
+
+## Amended by NU0
+
+NU0 (2026-11-02): the creation / select screen and tutorial assets (`june2017_re/char_luciel/nu0_create.tsv` `asset_names` / `asset_in_march`,
+`nu0_jobchange_tutorial.tsv`), whole, through `kom.py stage-june`:
+- **New:** `DLG_Unit_Background_Luciel.tga` (data051); `DLG_Unit_Create_ClassChange_Button_Luciel.lua` (data034, `adopt-june` + `luabind.py
+  check`); `DLG_UI_Common_Texture_GUI_character_info_10.tga` / `.TET` (data057); `DLG_UI_Button_NEW_GUI_character_bt_03.TGA` / `.TET` (data215);
+  `LucielVoice_Introduce`, `_Create01`, `_Create02`, `_Character_Select`, `_GameStart`, `_Character_Select_Nobless` `.ogg` (data162);
+  `Motion_Lu_Common.x`, `Motion_Lu_Lobby.x` (data208), `Motion_Ciel_Common.x`, `Motion_Ciel_Lobby.x` (data218); `Mesh_Lu_Basic_*` + face `.XET`,
+  `Mesh_Lu_Cash_*`, `Mesh_LU_Cash_AC_Lowbody` (data158); `Mesh_Ciel_Basic_*` + face `.XET`, `Mesh_Ciel_Cash_*` (data159); `SelectVoiceTable.lua`
+  (data036, NU4 ports its loader); `Tutorial_Luciel_Stage0.lua`, `_LineMap.lua` (data040); `DLG_Class_Change_Luciel_*` (6, data217) and the 4
+  guide dialogs (data034); `HQ_Loading_TUTORIAL_LUCIEL_01/02.tga` (not found in March: find June's kom).
+- **Replace with June's** (same name): `bt_01` / `bt_02` `.TGA` / `.TET` (data215; March's TETs lack the Luciel keys), `DLG_UI_Common_Texture67.tga`
+  (data057). `DLG_Unit_Create_Unit_Button_New.lua` and `Enum.lua` are core-list: NU4 edits them, not CH0b.
+- Already in March: `Movie_Create_Luciel_*.avi`, `Mesh_PC_LuCiel_Stand.X`, `UIMajorXMeshPlayer.txt`, `UIEffectSet.lua`, `UIMajorParticle.txt`, the
+  7 aura particle assets, `GUI_FLOW_01`, `GUI_character_01` (+ `_gray`), `AnimationNameTable.lua`.

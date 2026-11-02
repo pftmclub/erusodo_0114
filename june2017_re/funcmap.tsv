@@ -6852,3 +6852,28 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c11e10	CX2GUChung::CSI_SI_SA_CHUNG_LUNATIC_BLOW_EXPLOSION_FrameMove	PORTED	Char Chung CH2a: differs, inside under _SKILL: at 0.001 s while the loop is < 5: loops 0 and 1 play EffectSet_..._LUNATIC_BLOW_EXPLOSION and UseCannon( 1 ), loops >= 2 play ..._ADDITION_EXPLOSION through PlayCannonShotEffectSet( 2, 1, GetPowerRate(), second rate, "" )
 32c24360	std::multimap<float,D3DXVECTOR3>::insert helper ( Aceldama FrameMove )	PORTED	Char Chung CH2a: template instantiation, no code ( March uses the same container )
 32c244a0	std::multimap<float,D3DXVECTOR3> _Buynode ( Aceldama FrameMove )	PORTED	Char Chung CH2a: template instantiation, no code
+325559f0	CX2StateCreateUnit::SelectLuciel (June-only; March has Select<Char> per type)	planned	Char Luciel NU0: SelectAdd 32555320 sibling; PlayAnim( "LobbyDownLanding", 2, 0, 2 ) on both skins, viewer +0xd7c minor skin rotated by 31edf260( class, 1 ) @32555fe8-32556005; LucielVoice_Introduce.ogg, DLG_Unit_Background_Luciel.tga; NU4 (Lu only), DU5 (Ciel)
+32555320	CX2StateCreateUnit::SelectAdd	likely	Char Luciel NU0: neighbour of SelectLuciel 325559f0 / Rose 32556150 / Ain 32556860, same PlayAnim call without the minor-body code
+32558860	CX2StateCreateUnit::UICustomEventProc	likely	Char Luciel NU0: uncarved; jump table 3255aabc index msg - 1: SCUUCM_LUCIEL_BUTTON_UP 36 and _JUMPING 50 -> SelectLuciel (50 sets +0x71c = 1); re-select table 3255ab8c type 10 @325593da; NU4
+325622e0	CX2StateServerSelect::Handler_EGS_CREATE_TUTORIAL_ROOM_REQ	routed	Char Luciel NU0: unit-type switch to DI_DUNGEON_TUTORIAL_* for every class (10 -> 0xa118 = 41240, default 0xa0be), event 0x5c; March sends DI_BATTLE_FIELD_TUTORIAL_* (X2StateServerSelect.cpp:7501); divergence row (stage8) -> TU
+31edf260	CX2Data::RotateYSelectCharacterType (June: ( unitClass, bMinor ))	routed	Char Luciel NU0: templet m_fLobbyRotationY +0x2d4 / m_fMinorUnitLobbyRotationY +0x2d8, per-class constant switch when 0; Lu/Ciel 200 30/30; divergence row (stage8) -> NU4
+32071d60	CX2GUUser: active Now skin anim (inline GetXSkinAnim, duo-aware)	planned	Char Luciel NU0: +0x8e90 ? +0x8e88 : +0x87d4 (twin 32071d80); inlined in every class; DU1 (X2GUUser.h:2092-2094)
+32070d10	CX2GUUser: other body's Future skin anim (June-only)	planned	Char Luciel NU0: NULL when +0x8e91 == 0, else the not-active body's Future anim (Now twin 32071db0); gates PhysicProcess's not-selected-body branch; DU1
+3204df80	CX2GUUser::UpdateDuo (June-only)	planned	Char Luciel NU0: called with 1 when DUO_TYPE = DT_KEEP (3) clears the +0x8e91 word; DU1
+32092a00	CX2GUUser::SetDuoEnabled (June-only)	planned	Char Luciel NU0: byte store +0x8e91 @32092a04; DU1
+31fd7350	CX2GUUser: PhysicProcess_Jumping landing-line helper	candidate	Char Luciel NU0: calls vslots 0x118 @31fd73fb, 0x494 @31fd7418, 0x490 @31fd7435, 0x458 @31fd77b1; March counterpart not mapped; DU2
+3208de70	CX2GUUser vslot 0x118 base: damage-down-back state id (June-only virtual)	planned	Char Luciel NU0: returns 31 USI_DAMAGE_DOWN_BACK; Lu/Ciel 32b4d850; DU2
+330de330	CX2GUUser vslot 0x490 base: air-down-landing state id (June-only virtual)	planned	Char Luciel NU0: returns 37 USI_DAMAGE_AIR_DOWN_LANDING; Lu/Ciel 32b4d9d0; DU2
+3208dec0	CX2GUUser vslot 0x494 base: air-fall state id (June-only virtual)	planned	Char Luciel NU0: returns 38 USI_DAMAGE_AIR_FALL; Lu/Ciel 32b4da10; DU2
+32916e10	CX2UICharInfo: send unit form 0x4d9 (June-only)	planned	Char Luciel NU0: 1-byte form, fire-and-forget through 32920900 (twin 32916e70); no March event; DU5
+323bda90	CX2TFieldGame::EventProcess	likely	Char Luciel NU0: receives 0x4da { UidType unit uid, bool form } -> 323acfb0 (NOT-apply); DU5
+3237a680	CX2UnitManager::GetUnitTypeLuaTemplet	confirmed	Char Luciel NU0: cmp eax, 0xc / jbe @3237a6b3: type <= 12 returns this + type * 8, else static default 337a1e24 (X2UnitManager.cpp:667); NU1
+32376270	CX2UnitManager: voice-name builder (June-only)	planned	Char Luciel NU0: reads SelectVoiceTable.lua first, else prefix switch 32375d00 + suffix (LucielVoice_*); callers 32550aa0, 3255f240, 323cd570, 31ebdd5d; NU4
+32550aa0	CX2StateCreateUnit::PlaySoundCreateUnit	likely	Char Luciel NU0: type guard @32550aea types 1..12, names by 32376270 (LucielVoice_Create01/02.ogg); NU4
+325584f0	CX2StateCreateUnit: create-unit request	likely	Char Luciel NU0: sends m_SelectUnitClass (200 for Lu/Ciel); March's REFORM_ENTRY_POINT branch sends m_SelectUnitType (X2StateCreateUnit.cpp:2505); NU4
+31ee3470	CX2SquareUnit: SD mesh name by unit type and form (June-only table)	planned	Char Luciel NU0: 24-name table 3372c1e8 (Mesh_Lu_Base_SD.X / Mesh_Ciel_Base_SD.X by unit +0xe40), replaces March's switch X2SquareUnit.cpp:220; DU5
+31fdb390	CX2GUUser::PlaySoundRevive	likely	Char Luciel NU0: type guard @31fdb3f2 types 1..12; Lu/Ciel picks LuVoice_Revival.ogg / CielVoice_Revival.ogg by +0x8e90; DU1
+3228c540	CX2GameUnit::Weapon enchant particle bone (X2GameUnit.cpp:11909)	likely	Char Luciel NU0: +0x8e90: Ciel TRACE bone midpoint, Lu L"MAJOR:Bone_RFinger2"; DU1
+32551e30	CX2StateCreateUnit::ChangeCreateUnitStandMeshInstance	likely	Char Luciel NU0: case 10 Dummy_Village_Board11 + EffectSet_Luciel_Stand_Aura, x + 25 z + 50 (select-screen twin 32561130); NU4
+32561130	CX2StateServerSelect::ChangeSelectUnitStandMeshInstance	likely	Char Luciel NU0: same case 10 as 32551e30; NU4
+32564400	CX2StateServerSelect: select-screen unit viewer rotation	candidate	Char Luciel NU0: viewer +0xd7c minor skin rotated by 31edf260( class, 1 ); per-frame main rotation 3255e570; DU5

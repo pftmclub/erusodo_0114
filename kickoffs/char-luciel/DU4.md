@@ -38,4 +38,16 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `nu0_equip_nesi.tsv` (`migration` rows). **Map** (checked against June `Enum.src.lua:6653-6696`): `NESI_*` 0-19 keep their
+values and names; `NESI_ONEPIECE_FASHION` 20 -> 35; `NESI_END` 21 -> 43; June adds Ciel's slots 20-34, 36, 38, 40, 42
+(`NESI_MINORUNIT_DEFENCE_HAIR_FASHION` = 20 ...) and the main body's `NESI_AC_MINIME` 37, `NESI_AC_EARRING` 39, `NESI_AC_RING2` 41.
+`SERV_NEW_ONE_PIECE_AVATAR_SLOT` is on for US, so a March save can hold slot 20.
+**Save shape** (schema v22 now, `X2OfflineDB.h:452`, rung `X2OfflineDB.cpp:1195`; the step is v23 under this flag, `#error` guard on
+`SERV_IRUHADEV_JUNE_TRANSCEND_UNIT`):
+1. `item.slot` where `category` = the equipped category (9): `UPDATE item SET slot = 35 WHERE category = 9 AND slot = 20`.
+2. `inventory_size.size` for category 9: 21 -> 43 (`UPDATE inventory_size SET size = 43 WHERE category = 9 AND size = 21`); the loader only
+   fills missing rows, so a stale 21 leaves slot 35 out of range.
+No other table holds an NESI id (`unit_skill.slot`, `unit_skill_page.slot` and bag slots are not NESI). C++ in `X2Lib/Offline` is symbolic (comments
+only carry numbers); `IsSuitableSlot` (`X2OfflineInventory.cpp:197-239`) needs the new slot cases. Tools: `elsdb.py` `EQUIP_SLOTS[20]` -> 35;
+`createchar.py` `COSTUME_SLOTS` unchanged. Client stand-in to retire: `X2Inventory.cpp:1284`; slot hide `32e22ce0` (main {0,2,...,19,35,37,39,41}
+hidden in the switching view; Ciel {20..34,36,38,40,42} shown only there).

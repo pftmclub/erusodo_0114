@@ -203,9 +203,8 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0 | **ready** (start: `/x2-phase char-luciel CH0`): class map, states / skills (S3 baseline), keys, checklist rows, assets, summons, stat-row data question | Opus 5.5 / high | - (read-only; beside NU0) | docs, `june2017_re/char_luciel/`, funcmap | `CH0.md` |
-| NU0 | **ready** (start: `/x2-phase char-luciel NU0`): engine map: `UT_END` / `UC_END` / class-width sites, 60 per-type switches, creation, templet keys, two-body readers, NESI / DU4 shape | Opus 5.5 / high | - (read-only; beside CH0) | docs, `june2017_re/char_luciel/`, funcmap | `NU0.md` |
 | CH0b | blocked (CH0): every June Lu/Ciel asset staged whole (125 motions, meshes, cut-ins, icons); assets only, may run before char-chung Z | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy) | `CH0b.md` |
-| NU1 | blocked (NU0, char-chung Z): `UT_END` -> June's 13, arrays / loops / script table, `UC_END` guards, flag `UNIT_TYPE_RANGE` | Opus 5.5 / high, Opus review | NU0, char-chung Z | `X2UnitManager.*`, `X2Item*`, `X2State*`, `X2SocketItem.cpp`, Always.h | `NU1.md` |
+| NU1 | blocked (char-chung Z; NU0 done 2026-11-02, kickoff amended): `UT_END` -> June's 13, arrays / loops / script table, `UC_END` guards, flag `UNIT_TYPE_RANGE` | Opus 5.5 / high, Opus review | NU0, char-chung Z | `X2UnitManager.*`, `X2Item*`, `X2State*`, `X2SocketItem.cpp`, Always.h | `NU1.md` |
 | NU2 | blocked (NU1 review): unit class as June's word on the wire + emulator, flag `UNIT_CLASS_WORD` (CommonPacket.h exception) | Opus 5.5 / xhigh, Opus review | NU1 review | `CommonPacket.h`, `ClientPacket.h`, `ServerDefine.h`, `Handlers_Unit.cpp`, `X2Unit.cpp`, vcxproj | `NU2.md` |
 | NU3 | blocked (NU1 review): Lu/Ciel's 7 `UnitTemplet` rows + parser for the 18 June-only keys | Opus 5.5 / high, Opus review | NU1 review | `UnitTemplet.lua`, `X2UnitManager.*`, data036 | `NU3.md` |
 | NU4 | blocked (NU2, NU3 reviews): creation-screen entry (slot, portrait, preview, job buttons) + `SelectLuciel`, emulator create-unit, 15 starter rows, stat fallback fix, `createchar.py` | Opus 5.5 / high, Opus review, user play-test | NU2 review, NU3 review | `X2StateCreateUnit.*`, `X2Offline*`, `tools/createchar.py`, data koms | `NU4.md` |
@@ -249,7 +248,7 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CH6 | blocked: scans rerun + user walk incl. creation, tutorial, job change and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5, TU reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, "Template for Stage 8", `stage8-plan` -> `char-rose` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: -
+Done: NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
 
 ## Other plans (no STATUS rows)
 

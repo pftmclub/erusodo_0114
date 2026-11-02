@@ -38,4 +38,22 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `june2017_re/char_luciel/nu0_unit_type_sites.tsv` (55 rows: widen 15, june_body 2, leave 38; 15 of the leave rows are dead
+branches by `cl /P`):
+- **Script table first.** `apszScript[]` (`X2UnitManager.cpp:405-423`) has 10 entries and its `ASSERT` (:425) compiles to `((void)0)`: widening the
+  loop at :427 alone reads past the table. Grow it to June's 13 (table `337341b8`, loop end `cmp esi, 0x337341ec`): index 10 `LUCIEL_DUO.LUA`,
+  11 / 12 NULL (Rose / Ain not ported; log once). Getter :667 is June's `3237a680` (`cmp eax, 0xc; jbe`, else the static default).
+- **Arrays** `X2UnitManager.h:3442` (June 13 x 8 B, `32385a07`): widen. `X2UnitManager.h:3444`, `.cpp:679`, `X2Item.h:208-209,347` sit in dead
+  branches (`X2OPTIMIZE_*` on); the live item path already has K2's key remap: leave.
+- **Loops by 12 pictures** (`X2StateDungeonRoom.cpp:2908`, `X2StatePVPResult.cpp:2258`, `X2StatePVPRoom.cpp:3814`: June `cmp ..., 0xc`): widen; the
+  dialogs must hold the pictures (check, else the loop logs and skips a missing one).
+- **`UC_END` guards:** June accepts classes 1..202 (`X2SocketItem.cpp:2897` = `3271a810`: `dec eax; cmp eax, 0xc9; ja`; item parse
+  `X2ItemManager_Preprocessing.cpp:688` = `325bd515` `cmp eax, 0xca; jbe`, type `325bd4d8` `cmp ebx, 0xc; jbe`). June's `Enum.lua` has no `UC_END`:
+  bound the test by `UC_AIN_ANGEL` (inclusive), never by a number, and keep `UC_END` itself unrenumbered. `InvalideDataCheck`
+  (`X2ItemStatCalculator.cpp:195,203`, `328d6ad4` types `< 0xd`, `328d6b30` classes 100 .. `< 0x89`) only logs `XEM_ERROR148`: widen both.
+- **Leave:** `X2OfflineStatTable.cpp:283` (class -> type identity for base classes 1-9: classes 10-12 are Elsword / Aisha / Lena jobs; NU4
+  fixes the fallback). `X2BuffDisplayerTemplet.cpp:1257` (June's 12 keys already live, the bound is in the dead `#else`). `X2GameEdit.cpp:1643`
+  (June has no class cheat dialog). `X2StateServerSelect.cpp:3393` (inside a block comment).
+- **Owned elsewhere:** `PlaySoundCreateUnit` (:3985, June `32550aea` types 1..12 + voice-prefix getter `32376270`) is NU4's; `PlaySoundRevive`
+  (`X2GUUser.cpp:49580`, `31fdb3f2`) reads `+0x8e90`, so its body is DU1's. NU1 owns `ChangeUnitButtonInfo` (`X2StateServerSelect.cpp:11412`): June
+  tests the type 1..12, and until then a type-10 unit pops STR_ID 707 (`nu0_type_switches.tsv`).

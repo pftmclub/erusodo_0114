@@ -38,4 +38,17 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by NU0
 
-(empty until NU0 runs)
+NU0 (2026-11-02), `nu0_equip_nesi.tsv` rows `DU5`, `nu0_duo_engine.tsv` rows `DU5` (123), `nu0_type_switches.tsv` rows `DU5` (6):
+- **Form packets:** `0x4d9` is fire-and-forget, a 1-byte form, sent by `32916e10` / `32916e70` through `32920900`, no ACK. `0x4da` is received in
+  `CX2TFieldGame::EventProcess` `323bda90`: `{ UidType unit uid, bool form }` -> `323acfb0`. March has no event, struct or handler. Events go
+  before `EGS_CLIENT_EVENT_ID_END` in `EventID_Client.h`, the structs in `ClientPacket.h` (both before `Always.h`: second home in `ServerDefine.h`
+  + `SECOND_HOMES`). June has no name table: names such as `EGS_CHANGE_UNIT_FORM_REQ` / `_NOT`. Where the form persists across a relog (June's
+  `KUnitInfo` may carry it: read `3235eb20` first) is DU4's one migration, not a second one.
+- **Guild agit is not reachable offline** (no agit state, village, house, events or `X2Lib/Offline` handler): `0x4fd` / `0x4fe` are dropped.
+- **Unit form byte** `+0xe40`: `3234b8c0` (SetForm) is the only plain writer; the other readers sit in `3234f...`, `3236....`, `323fad80`,
+  `3291....`. 50 rows tagged `out-of-scope "other struct?"`: re-check each (viewer / UI members, stack locals).
+- **Viewer** `+0xd80` duo flag, `+0xd7c` minor skin: `X2UnitViewerUI.cpp:960` (`31f93050`), `:6255` (`31f961a0` case 10), `:8681` (also unit
+  `+0xe40`); `:7938` is dead (live June body has a stand-in). Square unit `X2SquareUnit.cpp:220`: June's 24-name mesh table `31ee3470` (array
+  `3372c1e8`) by form (`Mesh_Lu_Base_SD.X` / `Mesh_Ciel_Base_SD.X`): June's body, not a new case.
+- **Both bodies** on the create screen (SelectLuciel `@32555fe8`) and the select screen (`32564400`, `3255e570`), with `31edf260( class, 1 )`
+  (NU4 ports it). `321693b0` drops a second ring on EP 28 (`EP_AC_RING2`, DU3 registers the name).
