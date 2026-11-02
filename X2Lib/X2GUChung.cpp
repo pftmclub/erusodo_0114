@@ -65,6 +65,55 @@ namespace _CONST_CHUNG_
 #ifdef SERV_APRIL_FOOLS_DAY
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_Gura.dds");
 #endif //APRIL_FOOLS_DAY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
+
+// June 333a96b0 / table 337adca8: GFx names without extension ( ActiveSkillShow appends .gfx ); 7 sets of 3, in the class-index order of InitState
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	// Iron Cannon
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+	},
+	// Fury Guardian
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+	},
+	// Shooting Guardian
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+	},
+	// Iron Paladin
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_IP_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_IP_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_IP_11"),
+	},
+	// Deadly Chaser
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_DC_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_DC_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_DC_11"),
+	},
+	// Shelling Guardian
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_11"),
+	},
+	// Tactical Trooper
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_TT_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_TT_11"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Chung_TT_11"),
+	},
+};
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
 
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = /// 필살기 쓸 때 cut in image 
 {
@@ -129,6 +178,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = /// 필살기 쓸 때 cut i
 		},
 #endif SERV_CHUNG_TACTICAL_TROOPER
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 /// June 337adc48 / 337adc78: the cut-ins of code event 0x8b3 ( GFx names without extension; the cut-in sets are CH5 )
@@ -9898,6 +9948,9 @@ void CX2GUChung::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, 
 	if ( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
 	{
 		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0];
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
+		const int iCutInIndex = ( true == IsFullHyperMode() ) ? 1 : 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
 
 		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
 		if ( true == IsFullHyperMode() )
@@ -9906,6 +9959,9 @@ void CX2GUChung::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, 
 		IF_EVENT_ENABLED( 0x8b3 )
 			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// even rand() -> CASH_21
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG UI cut-in set %d index %d name %s", m_iSkillCutInSetIndex, iCutInIndex, cutIn.fileName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
 		ActiveSkillShow( L"Dummy1_Rhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 	}
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE

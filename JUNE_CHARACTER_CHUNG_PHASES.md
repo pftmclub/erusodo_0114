@@ -2388,6 +2388,27 @@ InitState index switch `:781-838` replaced by June's names and layout (`g4`: Jun
 candidates); the dialog / gauge pieces CH1q does not take. **Done gate:** a select-screen pass of all nine March characters with no new error;
 Chung's skill and hyper cut-ins play June's art.
 
+### CH5 - Done (2026-11-02)
+
+- **`UnitTemplet.lua` (data036, core-list BOM source):** Chung's 7 blocks are June's text, block-wise swap (55 blocks before and after, the other 48 untouched, BOM and CRLF kept). Delta vs the old file = exactly `ch0_unittemplet_chung.tsv`:
+  `m_fLobbyRotationY` 10 / 10 / 20 / 1 / 20 / 30 / 25 (March's reader ignores it), `m_HyperCutIn` / `m_BerserkCutIn` = `HQ_Cutin_{CIP,CDC,CTT}_Transcendence` / `_1_Transcendence` on 110 / 111 / 117, Tactical Trooper `name` `STR_ID_9739` -> `STR_ID_17435`
+  (present, General.ess row 17435). `luasrc.py refresh data036 UnitTemplet.lua` REFRESHED, `ledger --check` PASS, `core --check` PASS, `luabind.py check UnitTemplet` PASS (0 unbound).
+  `kom.py pack data036`: PACK OK, only `UnitTemplet.lua` changed vs the live kom. **`COPY OK data036`** (user yes) md5 `368285ec15016e883376c986300cf6d0`, backup `kom_backup_tools/data036.kom.20261102_131543`.
+- **Cut-in table (`SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`, new in `Always.h`; `#error` without `_CHUNG_LIVE` / `_JUNE_HYPER_CUT_IN_TIME`, both defined earlier at 11088 / 6840):** `s_SkillCutInSet` = June `333a96b0` (table `337adca8`, set stride 0x90 as `32bf0800` reads it),
+  7 sets x 3 GFx names with no extension: sets 0 / 1 / 2 / 5 `HQ_CutIn_Chung_01` / `_11` / `_11`, set 3 `_IP_01` / `_IP_11` / `_IP_11`, set 4 `_DC_01` / `_DC_11` / `_DC_11`, set 6 `_TT_01` / `_TT_11` / `_TT_11`. Entries 17-21 go through `32078b70` (= March's `SkillCutIn( name )`),
+  so size / position are March's constructor values. March's `.dds` table is in `#else`; `EXESTR` shows the four March `.dds` names absent from the exe.
+  The index switch of InitState (`32c22540`) and `ShowActiveSkillCutInAndLightByBerserkMode` (`32bf0800`, entry 0, entry 1 under `IsFullHyperMode`, event 0x8b3) were already June's from CH1; CH5 changed neither.
+- **Assets:** all 8 `HQ_CutIn_Chung_*.gfx` are in data152 and the 6 `HQ_Cutin_C{IP,DC,TT}_*Transcendence.gfx` in data195 (CH0b, byte-exact, `kom.py status` in sync with live); nothing staged.
+  (`g4_cutin_names.tsv` said "no" for the March `.dds` names; those are not June names, the June names above exist.)
+- **Logs:** `[JUNE_CHAR] CHUNG UI cut-in set <set> index <0|1> name <gfx>` (class function) and `[JUNE_CHAR] CHUNG UI hyper cut-in class <c> name <gfx>` (`CX2GUUser::ShowHyperSkillCutInByScript`, Chung only).
+- **Dialog / gauge pieces:** none left. CH0's only CH5 checklist rows are 7t L591-593 (rows) and L617-622 (table), both above; the three cannon-ball readers CH1q left (`X2Game.cpp` ~15011 slot fade, F7 refill ~5835, `X2StateMenu.cpp` ~5181) are not UI of this phase and stay with the Stage 12 / CH6 scans.
+- **Hygiene:** `flagcheck JUNE_CHAR_CHUNG_UI --worktree --files KTDXLIB/Always.h X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: 1 PASS, 1 PASS~ (one blank line), 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatch; RESULT PASS.
+  `junediverge --check X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: RESULT: PASS. `enumscan --check X2Lib/X2GUChung.cpp`: 0 A/B rows.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,912,320 B, dated 2026-11-02 13:33:54, md5 8e41d63b91985da4cbf87be18b0d9e77`. `EXESTR OK: 2 of 2` (`CHUNG UI cut-in set`, `CHUNG UI hyper cut-in`), `EXESTR OK: 8 of 8` (the eight June GFx names), `EXESTR OK: 4 of 4 absent` (`HQ_CutIn_Chung_normal.dds`, `_Rage.dds`, `DDS_Chung_CIP_Skill_Normal.dds`, `DDS_Chung_CTT_Skill_Rage.dds`).
+- **See it in game:** select screen: all nine March characters' names and models, Chung's seven classes (lobby pose rotation changes by class); a Chung skill cut-in shows June's `HQ_CutIn_Chung_*` art (set 0 on 6, 1 on 20, 2 on 21, 5 on 27, 3 on 110, 4 on 111, 6 on 117), entry 1 while his Berserk gauge is full;
+  an awakening hyper on 110 / 111 / 117 shows `HQ_Cutin_C{IP,DC,TT}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH1's script has it in three states).
+- **Not ported, routed:** the cut-in item override (`31fd8a50` -> customize manager) -> Stage 12 bullet, as in Aisha / Eve.
+
 ## Phase CH-N - not run for Chung
 
 All seven June Chung classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara runs
