@@ -2062,6 +2062,52 @@ Next: `/x2-phase char-chung CH1o review` (Opus 5.5 high).
 (`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp` and `X2GUUser.cpp`, `_LIVE` off and on (`/D`), exit 0, 0 errors, warnings equal off / on (38 / 39). No play-test.
 Next: `/x2-phase char-chung CH1p` (Opus 5.5 high).
 
+### CH1p - Done (2026-11-02)
+
+Flags: `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (insert-only, `//#define`); one `_CORE` comment fixed. No new flag, no new `Always.h` guard (`_LIVE` already
+needs `_ARME_CORE` and `_EVE_CORE`, which hold the reader and `SkillSlotKey`).
+
+**Method.** I ran `cl /P` on `X2GUChung.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` and listed every surviving line that reads a slot id, the pressed index,
+`m_iNowSpecialAttack` or `m_eSpecialAttackKeyPressed`. Each is checked against June's listing.
+
+**7ag, the pressed-index space.**
+- **Already June's** (CH1l3 / CH1n): `SpecialAttackLookup` (`32c17830`: calls `31fcadd0` `@32c178ab`, decodes `> 4` / `- 5` for `GetCBConsumption` `@32c17e7f`), the encoders
+  (`m_iNowSpecialAttack = slot + 1`, `SpecialAttackCooldown`'s `m_eSpecialAttackKeyPressed = slot + 1`), `StateChangeBySkillSlot` / `MarkSkillSlotUsed` (0-9),
+  `SetEquippedSkillFuncBySkillSlotIndex`'s head (per-bank 0-4). The CH0 sites `:5923`, `:6064-6081`, `:6087`, `:6090` are March's `SpecialAttackEventProcess`, all in `#else`.
+- **Fixed: the shared reader.** `CX2GUUser::CommonSpecialAttackEventProcess` (June `31fcadd0`) still handed every class but Eve / Aisha March's 4 + 4. So under
+  `_LIVE`, Q (4) would have decoded as A-TC, and W / E / R as B1-B3. `UT_CHUNG` now joins the June set (`X2GUUser.cpp`, `_LIVE` / `#else`).
+- **Fixed: `CurrentSkillKeyManager` (March 4 + 4) fed June's 0-9.** June's Artillery Nova charge (`32bdaf00`, `32be7a30`) and Rapid Cannon (`32bdb130`, `32bee210`)
+  use `+0x8b58` = `CX2GUUser::m_kSkillSlotKey` (Eve CH1j20: `Set` `31fce6d0`, `FollowSlotSwap` `31fce670`, `IsKeyReleased` `31fc89a0`). The 6 call sites now use it
+  under `_LIVE`. Both StartFutures are then June's whole body. The rest of the EventProcesses is CH3a / CH3b's (kickoffs amended).
+- **Fixed: Artillery Strike's control switch** (`ArtilleryStrikeControl_EventProcess`, June `32bfeb80`, which was CH0's unnamed "helper"). June switches on `value - 1`
+  over 0-9 (table `32bff328`: A S D C, F `+0x872a`, Q W E R, T `+0x872e`), the same table as `IsKeyReleased`, so the March `SAKP_*` switch became a local
+  `SkillSlotKey` decode. June's held-key gate `HaveThisBuff( BTI_BUFF_ARTILLERY_STRIKE_SCOPE )` (418, `@32bfeded`) and the rest of the body go to **CH2c**, which owns
+  the only caller `32bff350`. The class map row moved there from CH3b.
+- **No change, routed:** G.U.A.R.D. ready StartFuture (`32be1e90`) reads the slot state id, not the pressed index; June has the TC cases and March falls back to A
+  (TC locked until Stage 6): CH3a2 kickoff. `CountUsedSkill` (4 + 4) is only in March's `#else`; June counts through `MarkSkillSlotUsed`.
+- **Lead, not drift:** `SkillSlotKey` is June's version of March's `CurrentSkillKeyManager` (same `+0x8b58` role, 5 + 5). Each later class port moves its users over
+  with the pressed index (checklist 7ag line added). The March struct goes away once no class reads 4 + 4.
+
+**Hooks 7h / 7l / 7o / 7p / 7x** (CH0 rows, all confirmed in the `_LIVE` preprocess): 7h `InitWaitStateChange( "CSI_WAIT_STATE_CHANGE" )`, WIN `RandomLoseEventProcess`
+(CH1m), the `EFFECT_SET_LIST*` / `USEFUL_VALUE` rows come with the script (MEMO reader CH4c, Nova's `USEFUL_VALUE` readers CH3a). 7l `InitBoundingStates( "CSI_" )` (CH1m).
+7o `SET_LIMIT_MAX_G_SPEED` and 7p `TIME_STOP_IMMUNE_STATE` are script data that June's script brings in final CH1, and their readers are done. The 7p DamageReact hit-stop
+(`SetStopTime( 0.5 )` x2, `SetStop2Time( 0 )`) is CH1k's. 7x: the 53 `AT_COMMAND` tags come with the script.
+
+**June-only keys.** `SIEGE_ANGLE` / `MOBILE_SIEGE_ANGLE`: read by CH1k's InitComponent; readers `32befec0` (vslot 0x774, CH1o) and the spine-aim members.
+`COMMAND_HIT_ADD_MP_BONUS` (`+0x98c4`): `dispsweep 98c4` over June's `.text` finds, in the class range, only the ctor, InitComponent, the dtor and
+`InitPassiveSkillState` `32c16be0` `@32c16c2c`. That is the one consumer: it multiplies the passive multiples of BBT 85 / 86 (range / melee command MP gain) before
+`SetPassiveMultiple`. It is part of CH4a's whole body (kickoff amended; the member comment now names it). `IMMUNE_TO_SUPER_ARMOR_DOWN`: Stage 2 (CH0).
+
+**Checks.** Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp` and `X2GUUser.cpp`, `_LIVE` off and on, exit 0, 0 errors, warnings equal (38 / 39).
+`flagcheck JUNE_CHAR_CHUNG_LIVE --worktree --files X2GUChung.cpp X2GUUser.cpp`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched,
+0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only for `define: NOT FOUND` (`//#define`). `_CORE --files X2GUChung.h`: `1 PASS`, `1 deleted line(s)` (the
+member comment, replaced inside `_CORE`), `RESULT: PASS`. `git diff --patience --numstat`: 30/0, 1/1, 5/0. `junediverge.py --check X2GUChung.cpp X2GUChung.h X2GUUser.cpp`:
+`RESULT: PASS`. `enumscan.py --check X2GUChung.cpp X2GUUser.cpp`: `0 A/B row(s) remain`.
+`DEPLOY OK: X2_offline.exe is 25,902,080 B, dated 2026-11-02 08:32:55, md5 3f412a248afcbc78dfc0f68f2621ea71, equal to X2/US_SERVICE/x2.exe (2026-11-02 08:32:48); built at main 2afae8d1 + 3 uncommitted code file(s).` No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+Funcmap: 3 rows `Char Chung CH1p` (`32bfeb80`, `32bdaf00`, `32bdb130`). No `JUNE_BUGS` row.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-chung CH1p review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

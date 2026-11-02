@@ -47,3 +47,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l (2026-11-01)
 
 - CH1l already added the `CHUNG_STATE_ID` members `CSI_SI_A_CFG_GUARD_READY` (June id 298) and `CSI_SI_SA_CFG_IRON_HOWLING_LOOP` / `_END` (321 / 322): do not declare them again, only their callbacks. `RNSI_A_CFG_GUARD`, `RNSI_SA_CIP_IRON_HOWLING`, `RNSI_A_CFG_LEAP_ATTACK`, `RNSI_SA_CFG_LUNATIC_FURY` and `RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE` are registered in `X2SkillTree.h`. The Guard object has `m_fMpConsumption` (CH1l, June `+0x14`); its reader is the guard state.
+
+## Amended by CH1p (2026-11-02)
+
+- G.U.A.R.D. ready StartFuture `32be1e90` picks the held key from the slot state id (`- 0x32`, table `32be1f58`), with cases for
+  `USI_SPECIAL_ATTACK_5` / `_SLOTB_5` (`+0x872a` / `+0x872e`). March's switch has no TC case and falls back to A. The TC slot is locked until Stage 6.

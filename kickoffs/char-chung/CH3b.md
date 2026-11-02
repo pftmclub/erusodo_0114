@@ -55,3 +55,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - CH1o wrote `ShownSkillCoolTime` (`32bdba60`): `RNSI_SA_CDC_SHOOTING_BIND` shows 0 while `m_fShootingBindCoolTimeLeft > 0`, so your two writers make it visible.
 - `32bfeb80` (CH0 row, 647 lines: a switch on `+0x8ac0` over per-slot byte flags `+0x86f2..+0x872e`, `GetDistance`, `HaveThisBuff`) is called only from the
   Artillery Strike control EventProcess `32bff350` (`@32bff353`): yours with 7r / 7ac.
+
+## Amended by CH1p (2026-11-02)
+
+- `32bfeb80` moved to CH2c: it is March's `ArtilleryStrikeControl_EventProcess`, and its only caller `32bff350` is CH2c's.
+- Rapid Cannon: CH1p moved the key calls onto June's `m_kSkillSlotKey` (`+0x8b58`, slot 0-9) under `_LIVE`. That means `Set` in READY's StartFuture
+  (`32bdb130`, the whole June body), `FollowSlotSwap` / `IsKeyReleased` in LOOP's EventProcess (`32bee210` `@32bee21a` / `@32bee32b`). The rest of
+  `32bee210` (the transcendence-memo id `0x6663`, the `0x666d` test) and LOOP's StartFuture `32bdb1b0` are still yours.

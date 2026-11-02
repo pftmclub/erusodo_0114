@@ -1967,7 +1967,7 @@ protected:
 	UCHAR						m_ucPvpStartCannonBallCount;	/// June +0x9680 ( protected UCHAR, 0 ): the cannon balls a PvP start or rebirth begins with, written by LoadPersonalInfo ( CH1l ); March's m_ucBasicCannonBallCount is June's +0x9674, the dungeon start count
 	float						m_afSiegeAngle[4];				/// June +0x9868 .. +0x9874: INIT_COMPONENT SIEGE_ANGLE, read by InitComponent; consumers are the siege skill states
 	float						m_afExtraCannonBallDamageRate[2];	/// June +0x9898 / +0x989c ( ctor 1 ): INIT_COMPONENT EXTRA_CANNON_BALL_DAMAGE_RATE; consumer CH1q
-	float						m_fCommandHitAddMpBonus;		/// June +0x98c4 ( protected float, ctor 1 ): INIT_COMPONENT COMMAND_HIT_ADD_MP_BONUS; consumer CH1p
+	float						m_fCommandHitAddMpBonus;		/// June +0x98c4 ( protected float, ctor 1 ): INIT_COMPONENT COMMAND_HIT_ADD_MP_BONUS; consumer InitPassiveSkillState 32c16be0 ( CH4a )
 	float						m_fCannonBallGaugeTimer;		/// June +0x98b8 ( protected float, ctor -1 ): the cannon ball gauge tick ( 32bf4680, CH1q ); the berserk end sets it to -100
 	int							m_iSnapshotCannonBallCount;		/// June +0x92c0 ( CX2GUUser snapshot region, ctor 0 ): the now cannon ball count StoreGageSnapshot keeps
 	int							m_iSnapshotCannonBallCountEx;	/// June +0x92c4 ( CX2GUUser snapshot region, ctor 0 ): the extra count, Tactical Trooper mobile armored mode only

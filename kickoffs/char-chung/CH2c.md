@@ -55,3 +55,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l (2026-11-01)
 
 - State 336 (the upgraded Dual Buster's second registration of table `CSI_SI_SA_CSG_DUAL_BUSTER`) is the `_CORE` enum member `CSI_SI_SA_CSG_DUAL_BUSTER_UPGRADE` (CH1l; CH1m may rename it). `RNSI_SA_CSG_DUAL_BUSTER` 26011 is registered; `RNSI_SA_CSG_DUAL_BUSTER_UPGRADE` 26032 is still yours.
+
+## Amended by CH1p (2026-11-02)
+
+- `32bfeb80` is June's `ArtilleryStrikeControl_EventProcess` (March has the function; class map row moved here from CH3b, since its only caller is your
+  `32bff350` `@32bff353`). CH1p converted only its key test under `_LIVE`: the key-pressed value is slot + 1 (`32bff328`: A S D C, F `+0x872a`, Q W E R,
+  T `+0x872e`), read through `SkillSlotKey::IsKeyReleased`. June also gates a held key on `HaveThisBuff( BTI_BUFF_ARTILLERY_STRIKE_SCOPE )` (418,
+  `@32bfeded`); without it, it takes the not-held path. That gate and the rest of the body are yours, written whole inside March's function.

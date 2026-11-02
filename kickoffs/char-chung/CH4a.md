@@ -59,3 +59,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   ("Berserk Chance when Awakening" 30-60 %). `+0x9710` beside it is the same skill's `SA` `0x92` value (`@32c1756e`).
 - Two delegates registered from `InitPassiveSkillState` are yours (7am): `32bdba10` via thunk `32c23090` (pointer `@32c1781d`: damage type `0x21` / `0x22`, `+8` == 2,
   skill `0x6731` learned -> vslot `0x23c( 0x6731, 0, 1 )`) and `32c12910` via thunk `32c258a0` (pointer `@32c177f1`).
+
+## Amended by CH1p (2026-11-02)
+
+- `COMMAND_HIT_ADD_MP_BONUS` (`m_fCommandHitAddMpBonus`, June `+0x98c4`, read by CH1k's InitComponent) has exactly one reader, `InitPassiveSkillState`
+  `32c16be0` `@32c16c2c`: it multiplies the passive multiple of `BBT_CHANGE_RANGE_COMMAND_MP_GAIN_RATE` (85, `+0x68d4`, protected `+0x68ec`) and of
+  `BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE` (86, `+0x6988`, protected `+0x69a0`), then calls `SetPassiveMultiple` (`3236ccc0`). This is part of the whole
+  body you write. The CH0 key row routed it to CH1p, which found no other reader in June's `.text` (dispsweep 98c4: in the class range only the ctor,
+  InitComponent, the dtor and this function).

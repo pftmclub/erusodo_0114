@@ -26055,6 +26055,11 @@ void CX2GUChung::ArtilleryStrikeControl_EventProcess()
 {
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
 	bool bSpecialAttackKeyPressed = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	SkillSlotKey kPressedSlotKey;	// June 32bfeb80 @32bfeba1: the key-pressed value is slot + 1, decoded over IsKeyReleased's ten keys
+	kPressedSlotKey.m_iSlotIndex = static_cast<int>( m_eSpecialAttackKeyPressed ) - 1;
+	bSpecialAttackKeyPressed = ( false == kPressedSlotKey.IsKeyReleased( m_InputData ) );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	switch( m_eSpecialAttackKeyPressed )
 	{
 	case SAKP_A:
@@ -26121,6 +26126,7 @@ void CX2GUChung::ArtilleryStrikeControl_EventProcess()
 			bSpecialAttackKeyPressed = false;
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 #ifdef BALANCE_DEADLY_CHASER_20130214
 	const float MAGIC_CONTROL_RADIUS_X = -750.f;
@@ -34917,7 +34923,11 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_StartFuture()
 	CommonStateStartFuture();
 
 	/// 키 입력 제어 객체 초기화
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );	// June 32bdaf00: +0x8b58, the slot index is June's 0-9
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_sCurrentSkillKeyManager.InitCurrentSkillKeyManager( m_iNowSpecialAttack - 1 );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove()
@@ -34941,11 +34951,19 @@ void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_FrameMove()
 void CX2GUChung::CSI_A_CIP_ARTILLERY_NOVA_CHARGE_EventProcess()
 {
 	/// 키 입력 제어 객체에서 슬롯이 변경 되어 있는지 검사
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_kSkillSlotKey.FollowSlotSwap();	// June 32be7a30 @32be7a3a
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_sCurrentSkillKeyManager.CheckSkillSlotSwap();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 	/// 애니메이션이 끝났거나, 특정 시간 이후로 스킬 키를 놓았을 때 발사 스테이트로 전환
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() || 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+		 ( 0.7f < m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) )	// June 32be7a30 @32be7a70
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		 ( 0.7f < m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_sCurrentSkillKeyManager.IsUnpressedCurrentSkillKey( m_InputData ) ) )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		StateChange( CSI_A_CIP_ARTILLERY_NOVA_FIRE );
 
 	CommonEventProcess();
@@ -35414,7 +35432,11 @@ void CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_StartFuture()
 	m_bApplyMotionOffset = false;
 
 	/// 키 입력 제어 객체 초기화
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );	// June 32bdb130: +0x8b58, the slot index is June's 0-9
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_sCurrentSkillKeyManager.InitCurrentSkillKeyManager( m_iNowSpecialAttack - 1 );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_Start()
 {
@@ -35493,7 +35515,11 @@ void CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_FrameMove()
 void CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess()
 {
 	/// 키 입력 제어 객체에서 슬롯이 변경 되어 있는지 검사
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	m_kSkillSlotKey.FollowSlotSwap();	// June 32bee210 @32bee21a
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	m_sCurrentSkillKeyManager.CheckSkillSlotSwap();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() ) 
@@ -35506,7 +35532,11 @@ void CX2GUChung::CSI_A_CDC_RAPID_CANNON_LOOP_EventProcess()
 		/// 최소 발사 탄수를 넘겼으며 스킬 키 입력을 해제했으면 마무리 스테이트로 변경
 		if ( iMaxFireNum <= m_iFireCount || 
 			 ( false == IsFullHyperMode() && 1 == GetTotalCannonBallCount() ) ||
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+			 ( iMinFireNum <= m_iFireCount && true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) )	// June 32bee210 @32bee32b
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 			 ( iMinFireNum <= m_iFireCount && true == m_sCurrentSkillKeyManager.IsUnpressedCurrentSkillKey( m_InputData ) ) )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 			StateChange( CSI_A_CDC_RAPID_CANNON_FINAL );
 	}
 
