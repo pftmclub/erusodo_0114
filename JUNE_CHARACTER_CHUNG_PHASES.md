@@ -2136,6 +2136,68 @@ line (the member comment), `RESULT: PASS`. `git diff --patience --numstat`: 30/0
 X2Lib/X2GUChung.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`): both files, `_LIVE` off and on, exit 0, 0 errors, warnings equal (38 / 39).
 No play-test. Next: `/x2-phase char-chung CH1q` (Opus 5.5 high).
 
+### CH1q - Done (2026-11-02)
+
+All 15 class-map rows are written, plus the cannon-ball sites outside the class. Class bodies sit inside March's functions under
+`SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (March in `#else`), and one new function sits under `_CORE`. The outside sites use the new
+`SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL`, a `//#define` that CH1 defines together with `_LIVE` (`_LIVE` `#error`s without it). Chung stays on his March kit
+until then. `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG` is defined; its `[JUNE_CHAR] CHUNG CBALL` lines (start / gain / spend / gauge refill / rebirth)
+sit in the `_LIVE` bodies (the refill line in the `_CORE` function, uncalled until `_LIVE`). Funcmap rows `(CH1q)`, 12; divergence rows, 6 (`replace`, ported); checklist §7 l.236 marked.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32bf3d30` | UpCannonBallCountAtThisAnimationTime | = March (UpCannonBallCount inlined); CH0 had paired it with UpCannonBallCount |
+| `32bf5280` | UseCannon | a roll `GetCharacterSpecializationB() > GetRandomFloat( 0 )` (`+0x6d04`, Eve's DoParrying read) keeps the balls |
+| `32bf3e40` | ConsumeCannonBallCount | an empty count with hyper time left arms `m_fCannonBallGaugeTimer` (`+0x98b8`) = 0.3 |
+| `32bf4680` (new, `_CORE`) | CannonBallGaugeTimerFrameMove | ticks the timer; at -10..0, in the awakening, buff hyper count != 3, count 0 and no skill state, sets 1 ball, timer -100 |
+| inline (`32bed560`, `32c24d40`) | GetExtraCannonBallCount | 0 unless class 117 is in the mobile armored mode |
+| `32c24d00` | SetExtraCannonBallCount (header) | the same class 117 / mode guard |
+| `32bf3f60` | SetTotalCannonBallCount | = March's `FIX_CANNON_BALL_SYNC_CALCULATION` arm (still % 7) |
+| `32bf4040` | ResetCannonBallCountWhenRebirthInPVPGame | refills to the PvP start count (`+0x9680`), not the basic (dungeon) count |
+| `32bf5430` | LoadPersonalInfo | keys `CANNON_BALL_COUNT_AT_DUNGEON_START` -> basic, `_AT_PVP_START` -> PvP start (March: one key); no `SetReduceGuardDamageAtHeavyStanceFromGuardSkill` call |
+| `32bdcf20` `32bdcf70` `32bf4150` `32bf6f20` | ChargeCannonBall Start / StartFuture / FrameMove / EventProcess | = March, written under `_LIVE` |
+
+`32c24db0` = SetCannonBallCount and `32c24c80` = SetUsedCannonballCountAtThisState are March's header one-liners (no edit). `32c24d40` is
+`SetExtraCannonBallCount( GetExtraCannonBallCount() - n )` (CH0 said it duplicated `32c24d00`); its callers are CH2a / CH3c (kickoffs amended).
+`ChangeMaxCharacterAddResource` `32bf4880` still matches the buff-port body. `FIX_CANNON_BALL_SYNC_CALCULATION`, `GAGEDATA_NULLCHECK`,
+`FIX_CHUNG_GAGE_UI_UPDATE_BUG2`, `UPGRADE_SKILL_SYSTEM_2013`, `GUARD_BUG_TEST` and the Chung class flags are all ON (`flagprobe.py`).
+
+**Outside the class (`_CBALL`).**
+- `CX2ChungGageData` (vtable `3349b064`): the play status packs the extra balls x 13 (`32a32390` / `32a347e0`; March 7) and FromPacket sets the extra
+  max before the extra count. `UpdateDataFromGameUnit` `32a34720` copies no berserk-changed flag (no March reader). The setters `3231d7a0` / `3231d880` /
+  `32a36ba0` / `32a36c20`, `InitWhenGameIsOver` and `CopyGageData` = March. The emulator stores the packed int as-is: a Tactical Trooper save with
+  extra balls may decode once with the new factor after CH1.
+- `CX2ChungMyGageUI::InitUI` `32e6d6c0` (vtable `335333fc`): InitWakeOrb (vslot 0x54 = `32e5b3a0`, = March) runs before the
+  `DLG_Chung_Cannonball_NEW.lua` open (March already opens that dialog). InitCannonBallUI `32e63470` and UpdateCannonBallCountUI `32e63990` = March.
+- DamageEffect `USE_CANNONBALL` (`31f7aab0 @31f7cae4`, the only `+0xae8` reader): the owner must be unit type `UT_CHUNG`, there is no
+  `fUseCannonBallDamageRel` factor (1.0 here anyway), and `m_fDecreaseForceDown` = `GetForceDownRelDamageRateBase()` with no x rate (March:
+  rate x base). `+0x9860` / `+0x9864` are March's `m_fCannonBallDamageUp` / `m_fForceDownRelDamageRateBase` (writer `32c16be0`, skill 26410).
+
+**Dropped (June removed it).** `SetReduceGuardDamageAtHeavyStanceFromGuardSkill` (`32bef230`) has no caller in June. Its March call in
+`InitPassiveSkillState` goes in CH4a (kickoff amended).
+
+**Routed.** `EXTRA_CANNON_BALL_DAMAGE_RATE` readers `32c0a230` / `32bfa860` -> CH2a. The skill-slot fade on cannon balls (`X2Game.cpp` ~15011), the F7
+refill, the StateMenu site and June's `AddChungCannonBall_Cheat` binders -> CH5. CH1 defines `_CBALL` with `_LIVE` (kickoff amended).
+No JUNE_BUGS row: nothing here reads as a June mistake. The % 7 / x 13 split is June's (class sync vs play status).
+
+**For the review.** The debug flag stays until CH1's review, because its lines can only appear once `_LIVE` is on. Confirm the mode-entry callers of
+`SetExtraCannonBallCount( GetMaxCannonBallCountEx() )` set `m_bMobileArmoredModeEnable` first under the new guard.
+
+**Gates.**
+- flagcheck `--worktree --files` (the six code files): `_LIVE` `files: 1 PASS, 1 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL`; `_CBALL` `4 PASS, 1 PASS~, 1 OTHER,
+  0 FAIL`. Both report RESULT FAIL only for the commented-out `#define`. `_CORE` and `_CBALL_DEBUG` (with Always.h): RESULT PASS. All four: `0 deleted
+  line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  `git diff --numstat`: +225 / +9 / +9 / +4 / +11 / +25 / +34 (Always.h), 0 deletions.
+- `junediverge.py --check` (six files): `allow-listed: 8`, `RESULT: PASS`; `--check-all`: `allow-listed: 163`, `RESULT: PASS`.
+  `enumscan.py --check`: 1 row, `X2DamageEffect.cpp:1705` `SI_SA_ES_FATAL_FURY` (old code, not touched).
+- One-file probes (`cl /Zs /EHsc`, no PCH), `X2GUChung.cpp` / `X2GageData.cpp` / `X2GageUI.cpp` / `X2DamageEffect.cpp`, with `_LIVE` + `_CBALL` off and on:
+  exit 0, 0 errors (8 runs). `_LIVE` without `_CBALL` stops at the new `#error` (Always.h:11230), which proves the probes read Always.h.
+- `DEPLOY OK: X2_offline.exe is 25,902,592 B, dated 2026-11-02 09:23:18, md5 d4f966c927f9f4c1ce40f3df7fb67092, equal to X2/US_SERVICE/x2.exe (2026-11-02 09:23:11); built at main fd01385e + 7 uncommitted code file(s).`
+  `EXESTR OK: 4 of 4 absent` (the spend / gain / start / rebirth lines, `_LIVE` bodies). The gauge refill line is in the exe (`EXESTR OK: 1 of 1 found`):
+  it sits in the `_CORE` `CannonBallGaugeTimerFrameMove`, which nothing calls until CH1's `_LIVE` CommonFrameMove.
+
+**Nothing to play-test** (`_LIVE` and `_CBALL` are off). Next: `/x2-phase char-chung CH1q review` (Opus 5.5 high), then CH1.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

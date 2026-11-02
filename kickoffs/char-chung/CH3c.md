@@ -52,3 +52,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1l4 (2026-11-01)
 
 - CH1l4 declared `m_iCarpetBombingMaxCount` (June `+0x98a4`, ctor 0) and `m_fCarpetBombingExtraRoundPowerRate` (`+0x98a0`, ctor 1); the Carpet Bombing skill start (`32c0f854`-`32c0f88e`) writes them: rate 0, count 18, and +9 more shots (a second `32c0a230` call) with 6 or more cannon balls. `CommonFrameMove` ends the run at the count; `DoCarpetBombing` multiplies the power from shot 19 by `max( 1, rate )`. Without the start's writes the run never fires.
+
+## Amended by CH1q (2026-11-02)
+
+- Fatal Cannon Start `32bf48e0` = CommonStateStart, then `32c24d40( 1 )` = `SetExtraCannonBallCount( GetExtraCannonBallCount() - 1 )` (guarded since CH1q).

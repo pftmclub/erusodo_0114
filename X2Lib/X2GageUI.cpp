@@ -2297,6 +2297,16 @@ CX2ChungMyGageUI::CX2ChungMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT
 
 void CX2ChungMyGageUI::InitUI()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+	// June 32e6d6c0: the wake orb ( vslot 0x54 ) before the cannon ball dialog
+	InitStatusUI();
+	InitWakeOrb();
+
+	m_pDLGMyUnit->OpenScriptFile( L"DLG_Chung_Cannonball_NEW.lua" );
+
+	InitNumOfVerticalOfCannonBall( m_eOwnerGameUnitClass );
+	InitCannonBallUI();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 	InitStatusUI();
 
 	m_pDLGMyUnit->OpenScriptFile( L"DLG_Chung_Cannonball_NEW.lua" );
@@ -2304,6 +2314,7 @@ void CX2ChungMyGageUI::InitUI()
 	InitNumOfVerticalOfCannonBall( m_eOwnerGameUnitClass );
 	InitWakeOrb();
 	InitCannonBallUI();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 }
 
 void CX2ChungMyGageUI::InitWakeOrb()

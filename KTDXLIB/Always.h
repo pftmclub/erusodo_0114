@@ -11214,3 +11214,37 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 #endif SERV_IRUHADEV_JUNE_USER_JUMP_UP_LINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: June character port ( Chung ) Phase CH1q - cannon balls outside the class: the gauge's play status packs the extra balls
+//              with 13 ( March 7 ) and sets the max before the count, the gauge copy drops the berserk-changed flag, Chung's InitUI clears
+//              the wake orb before the cannon ball dialog, and a USE_CANNONBALL damage effect takes the Converted Warhead boost only from
+//              a Chung owner, with the force-down decrease set to the base rate. Chung's own June cannon ball bodies are under _LIVE;
+//              CH1 defines this flag together with SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE.
+//              Revert: comment out the #define ( JUNE_CHAR_CHUNG_CBALL ).
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL ( the cannon ball gauge and damage effect sites )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY ( UseCannon reads GetCharacterSpecializationB )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ( CannonBallGaugeTimerFrameMove reads GetHyperModeCountByBuff )
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-02
+// Description: char-chung CH1q debug - [JUNE_CHAR] CHUNG CBALL lines in offline_server.log: the start counts, each spend and gain, the
+//              awakening refill and the PvP rebirth refill. They sit in the _LIVE bodies, so nothing logs before CH1; CH1's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_CBALL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+//////////////////////////////////////////////////////////////////////////

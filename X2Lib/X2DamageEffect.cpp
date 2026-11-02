@@ -1925,6 +1925,30 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	}
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+	// June 31f7aab0 @31f7cae4: Chung only, no fUseCannonBallDamageRel, and the force-down decrease is the base rate itself
+	if( m_bUseCannonBall == true && null != m_optrOwnerUnit && m_optrOwnerUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
+	{
+		CX2GUUser *pUser = static_cast<CX2GUUser*>( m_optrOwnerUnit.GetObservable() );
+		if( NULL != pUser->GetUnit() && NULL != pUser->GetUnit()->GetUnitTemplet() && CX2Unit::UT_CHUNG == pUser->GetUnit()->GetUnitTemplet()->m_UnitType
+			&& ( pUser->GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || pUser->GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			&& pUser->GetCannonBallDamageUp() > 0.f )
+		{
+			const float fUpDamage = pUser->GetCannonBallDamageUp();
+			m_DamageData.damage.fPhysic += m_DamageData.damage.fPhysic * fUpDamage;
+			m_DamageData.damage.fMagic += m_DamageData.damage.fMagic * fUpDamage;
+
+			const float fCannonBallDamageUp = m_fPowerRate + m_fPowerRate * fUpDamage;
+			m_DamageData.m_fDecreaseForceDown = pUser->GetForceDownRelDamageRateBase();
+
+			if( m_DamageData.m_ExtraDamage.m_bFixedDamage == false )
+			{
+				m_DamageData.m_ExtraDamage.m_DamagePerSec	*= fCannonBallDamageUp;
+				m_DamageData.m_ExtraDamage.m_Damage			*= fCannonBallDamageUp;
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 	if( m_bUseCannonBall == true && null != m_optrOwnerUnit && m_optrOwnerUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 	{
 		CX2GUUser *pUser = static_cast<CX2GUUser*>( m_optrOwnerUnit.GetObservable() );
@@ -1954,6 +1978,7 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 			}	
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 #endif //SERV_ADD_CHUNG_SHELLING_GUARDIAN
 
 	PLUA_GET_VALUE_ENUM( m_pLuaManager, "EFFECT_TYPE", m_EffectType, CX2DamageEffect::EFFECT_TYPE, DEET_NONE );

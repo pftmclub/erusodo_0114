@@ -694,7 +694,11 @@ public:
 	virtual void CopyGageData( IN CX2GageData* pGageData_ );
 
 private:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+	const static int		EXTRA_CANNON_BALL_COUNT_BITMASK_VALUE = 13;	// June 32a32390 / 32a347e0 pack the play status with 13
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 	const static int		EXTRA_CANNON_BALL_COUNT_BITMASK_VALUE = 7;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 	KProtectedType<int>		m_iNowCannonBallCount;
 	KProtectedType<int>		m_iMaxCannonBallCount;
 	

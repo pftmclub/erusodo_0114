@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "./X2GUChung.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
 
 //{{ kimhc // 2010.11.22 // 2010-12-23 New Character CHUNG
 #ifdef	NEW_CHARACTER_CHUNG
@@ -9243,6 +9246,19 @@ __forceinline void CX2GUChung::UpCannonBallCount( int iUpCount_ )
 */
 void CX2GUChung::UpCannonBallCountAtThisAnimationTime( float fAnimationTimeNeededToChargeCannonBall_, int iUpCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3d30 ( = March, UpCannonBallCount inlined )
+	if ( m_fCannonBallExtraChargeRate >= GetRandomFloat( 1 ) )
+		++iUpCount_;
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( fAnimationTimeNeededToChargeCannonBall_ ) )
+	{
+		UpCannonBallCount( iUpCount_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG CBALL gain %d at %.3f now %d max %d", iUpCount_, fAnimationTimeNeededToChargeCannonBall_, GetCannonBallCount(), GetChungGageData()->GetMaxCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef BALANCE_DEADLY_CHASER_20130214
 	if( m_fCannonBallExtraChargeRate >= GetRandomFloat( 1 ) )
 	{
@@ -9258,6 +9274,7 @@ void CX2GUChung::UpCannonBallCountAtThisAnimationTime( float fAnimationTimeNeede
 	{
 		UpCannonBallCount( iUpCount_ );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : UseCannonAtThisAnimationTime
@@ -9281,6 +9298,23 @@ void CX2GUChung::UseCannonAtThisAnimationTime( float fAnimationTimeNeededToUseCa
 */
 void CX2GUChung::UseCannon( int iCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf5280: a specialization B roll keeps the cannon balls ( March has no such roll )
+	const bool bKeepCannonBall = GetCharacterSpecializationB() > GetRandomFloat( 0 );
+	if ( false == IsFullHyperMode() && false == bKeepCannonBall )
+	{
+		if ( RandomFloat() <= m_fRateGasPistonSystemAutoRecharge )
+		{
+			PlaySound( L"Chung_CannonGun_Reload.ogg" );
+			iCount_ -= 1;
+			if ( iCount_ < 0 )
+				iCount_ = 0;
+		}
+		ConsumeCannonBallCount( iCount_ );
+	}
+
+	m_CannonBallSystem.SetUsedCannonballCountAtThisState( m_CannonBallSystem.GetUsedCannonballCountAtThisState() + iCount_ );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 광폭화 모드에서는 캐논볼을 소비 하지 않는다.
 	if ( false == IsFullHyperMode() )
 	{
@@ -9299,6 +9333,7 @@ void CX2GUChung::UseCannon( int iCount_ )
 	}
 
 	m_CannonBallSystem.SetUsedCannonballCountAtThisState( m_CannonBallSystem.GetUsedCannonballCountAtThisState() + iCount_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 //{{ Iruha : 2026-11-01 // char-chung CH1l3
@@ -9643,8 +9678,42 @@ float CX2GUChung::GetStateAnimSpeedRate( const bool bFuture_ )
 */
 void CX2GUChung::ConsumeCannonBallCount( int iCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3e40: emptied in the awakening, the gauge timer refills one ball 0.3 s later ( CannonBallGaugeTimerFrameMove )
+	SetCannonBallCount( GetCannonBallCount() - iCount_ );
+	if ( GetCannonBallCount() <= 0 && 0.f < GetRemainHyperModeTime() )
+		m_fCannonBallGaugeTimer = 0.3f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG CBALL spend %d now %d extra %d timer %.2f", iCount_, GetCannonBallCount(), GetExtraCannonBallCount(), m_fCannonBallGaugeTimer );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	SetCannonBallCount( GetCannonBallCount() - iCount_ ); 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+/** @function : CannonBallGaugeTimerFrameMove
+	@brief : June 32bf4680; in the awakening, one cannon ball 0.3 s after the count ran out ( not at buff hyper count 3, not in a skill state )
+*/
+void CX2GUChung::CannonBallGaugeTimerFrameMove()
+{
+	if ( 0.f <= m_fCannonBallGaugeTimer )
+		m_fCannonBallGaugeTimer -= m_fElapsedTime;
+
+	if ( m_fCannonBallGaugeTimer <= 0.f && -10.f <= m_fCannonBallGaugeTimer
+		 && 0.f < GetRemainHyperModeTime()
+		 && 3 != GetHyperModeCountByBuff()
+		 && GetCannonBallCount() <= 0
+		 && CX2SkillTree::SI_NONE == GetNowStateSkillID() )
+	{
+		SetCannonBallCount( 1 );
+		m_fCannonBallGaugeTimer = -100.f;	// June's idle value until the next empty count
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG CBALL gauge refill now %d hyper %.2f", GetCannonBallCount(), GetRemainHyperModeTime() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 
 /** @function : CanUseCannon
 	@brief : 캐논을 사용할 수 있는지 여부 판단한 후 리턴함
@@ -9716,10 +9785,32 @@ __forceinline int	CX2GUChung::GetTotalCannonBallCount()
 }
 __forceinline int	CX2GUChung::GetExtraCannonBallCount() 
 { 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June inline ( 32bed560, 32c24d40 ): 0 unless class 117 is in the mobile armored mode
+	if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+		return GetChungGageData()->GetNowCannonBallCountEx();
+	return 0;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	return GetChungGageData()->GetNowCannonBallCountEx(); 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 void CX2GUChung::SetTotalCannonBallCount( int iTotalCannonBallCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf3f60 ( = March's FIX_CANNON_BALL_SYNC_CALCULATION arm ); the class sync keeps 7 while June's play status packet uses 13
+	if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+	{
+		const int iCannonBallCount = iTotalCannonBallCount_ % 7;
+		const int iExtraCannonBallCount = ( iTotalCannonBallCount_ - iCannonBallCount ) / 7;
+
+		SetCannonBallCount( iCannonBallCount );
+		SetExtraCannonBallCount( iExtraCannonBallCount );
+	}
+	else
+	{
+		SetCannonBallCount( iTotalCannonBallCount_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef FIX_CANNON_BALL_SYNC_CALCULATION		///데들리 체이서 탄창/약실 개조로 인한 캐논볼 갯수 증가시, 캐논볼 동기화 연산식에서 오차가 생기던 문제 수정
 	/// 택티컬 트루퍼 일 때만 특수 포탄 연산
 	if ( CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnitClass() && true == m_bMobileArmoredModeEnable )
@@ -9747,6 +9838,7 @@ void CX2GUChung::SetTotalCannonBallCount( int iTotalCannonBallCount_ )
 		SetExtraCannonBallCount( iExtraCannonBallCount );
 
 #endif FIX_CANNON_BALL_SYNC_CALCULATION
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 #endif SERV_CHUNG_TACTICAL_TROOPER
 
@@ -9842,6 +9934,21 @@ void CX2GUChung::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, 
 */
 void CX2GUChung::ResetCannonBallCountWhenRebirthInPVPGame( int iNumOfMyTeamKill_, int iNumOfEnmyTeamKill_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4040: refills to the PvP start count ( March: the basic count, which June keeps for the dungeon start )
+	if ( iNumOfMyTeamKill_ <= iNumOfEnmyTeamKill_ )
+	{
+		if ( GetCannonBallCount() < GetPvpStartCannonBallCount() )
+			SetCannonBallCount( GetPvpStartCannonBallCount() );
+	}
+	else
+	{
+		SetCannonBallCount( GetPvpStartCannonBallCount() );
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG CBALL rebirth kills %d / %d now %d", iNumOfMyTeamKill_, iNumOfEnmyTeamKill_, GetCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	// 대전에서 죽었다가 부활하는 경우
 	// 비기거나 지고 있고
 	if ( iNumOfMyTeamKill_ <= iNumOfEnmyTeamKill_ )
@@ -9858,6 +9965,7 @@ void CX2GUChung::ResetCannonBallCountWhenRebirthInPVPGame( int iNumOfMyTeamKill_
 	}
 
 	// 이기고 있는데 기본 갯수보다 많으면 그냥 놔둠
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ShowOnomatopoeiaParticle
@@ -9972,6 +10080,46 @@ void CX2GUChung::ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, cons
 */
 void CX2GUChung::LoadPersonalInfo( IN KLuaManager& luaManager_ )	
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf5430: separate dungeon and PvP start counts; no SetReduceGuardDamageAtHeavyStanceFromGuardSkill ( June 32bef230 has no caller )
+	if ( true == luaManager_.BeginTable( "INIT_PERSONAL_INFO" ) )
+	{
+		LoadStateIDCanBeChangedGuardState( luaManager_ );
+
+		int iBasicMaxCannonBallCount = 0;
+		LUA_GET_VALUE( luaManager_, "BASIC_MAX_CANNON_BALL_COUNT", iBasicMaxCannonBallCount, 6 );
+		SetMaxCannonBallCount( iBasicMaxCannonBallCount );
+		SetMaxExtraCannonBallCount( 6 );
+
+		InitRemodelMagazinePassiveSkill();
+
+		int iDungeonStartCannonBallCount = 0;
+		LUA_GET_VALUE( luaManager_, "CANNON_BALL_COUNT_AT_DUNGEON_START", iDungeonStartCannonBallCount, 0 );
+		SetBasicCannonBallCount( iDungeonStartCannonBallCount );
+
+		int iPvpStartCannonBallCount = 0;
+		LUA_GET_VALUE( luaManager_, "CANNON_BALL_COUNT_AT_PVP_START", iPvpStartCannonBallCount, 0 );
+		SetPvpStartCannonBallCount( iPvpStartCannonBallCount );
+
+		int iDamageReducePercentGuardState = 0;
+		LUA_GET_VALUE( luaManager_, "DAMAGE_REDUCE_PERCENT_AT_GUARD_STATE", iDamageReducePercentGuardState, 0 );
+		m_GuardSystem.SetDamageReducePercentGuardState( iDamageReducePercentGuardState );
+
+#ifdef	GUARD_BUG_TEST
+		if ( CX2User::XUAL_OPERATOR <= g_pData->GetMyUser()->GetAuthLevel() && true == m_bVerifyGuardSystem && 0 >= iDamageReducePercentGuardState )
+		{
+			m_bVerifyGuardSystem = false;
+			m_wstrFunctionName = L"LoadPersonalInfo()";
+		}
+#endif	GUARD_BUG_TEST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG CBALL start max %d dungeon %d pvp %d now %d", GetChungGageData()->GetMaxCannonBallCount(), static_cast<int>( GetBasicCannonBallCount() ),
+			static_cast<int>( GetPvpStartCannonBallCount() ), GetCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+
+		luaManager_.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( true == luaManager_.BeginTable( "INIT_PERSONAL_INFO" ) )
 	{
 		LoadStateIDCanBeChangedGuardState( luaManager_ );
@@ -10015,6 +10163,7 @@ void CX2GUChung::LoadPersonalInfo( IN KLuaManager& luaManager_ )
 
 		luaManager_.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : LoadStateIDCanBeChangedGuardState
@@ -13544,8 +13693,14 @@ void CX2GUChung::StandUpAttackEnd()
 */
 void CX2GUChung::ChargeCannonBallStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcf20 ( = March )
 	CommonStateStart();
 	ChangeAnimationChargeCannonBallNow();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStart();
+	ChangeAnimationChargeCannonBallNow();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ChargeCannonBallStartFuture
@@ -13553,8 +13708,14 @@ void CX2GUChung::ChargeCannonBallStart()
 */
 void CX2GUChung::ChargeCannonBallStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bdcf70 ( = March )
 	CommonStateStartFuture();
 	ChangeAnimationChargeCannonBallFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	CommonStateStartFuture();
+	ChangeAnimationChargeCannonBallFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ChargeCannonBallFrameMove
@@ -13562,9 +13723,16 @@ void CX2GUChung::ChargeCannonBallStartFuture()
 */
 void CX2GUChung::ChargeCannonBallFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf4150 ( = March )
 	UpCannonBallCountAtThisAnimationTime( 0.96f, 1 );
 
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	UpCannonBallCountAtThisAnimationTime( 0.96f, 1 );
+
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : ChargeCannonBallEventProcess
@@ -13572,6 +13740,62 @@ void CX2GUChung::ChargeCannonBallFrameMove()
 */
 void CX2GUChung::ChargeCannonBallEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+	/// June 32bf6f20 ( = March )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( CSI_COMBO_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( GetUnitClass() == CX2Unit::UC_CHUNG_DEADLY_CHASER )
+			StateChange( CSI_CDC_COMBO_X );
+		else if ( GetUnitClass() == CX2Unit::UC_CHUNG_SHELLING_GUARDIAN || GetUnitClass() == CX2Unit::UC_CHUNG_TACTICAL_TROOPER )
+			StateChange( CSI_CHG_COMBO_X );
+		else
+			StateChange( CSI_COMBO_X );
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+			  && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+						LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition,
+						&m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	if ( false == IsOnSomethingFuture() )	// 밟고 있는 것이 없으면
 	{
 		// 하강
@@ -13645,6 +13869,7 @@ void CX2GUChung::ChargeCannonBallEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 }
 
 /** @function : GuardStart

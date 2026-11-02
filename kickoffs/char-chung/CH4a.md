@@ -67,3 +67,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `BBT_CHANGE_MELEE_COMMAND_MP_GAIN_RATE` (86, `+0x6988`, protected `+0x69a0`), then calls `SetPassiveMultiple` (`3236ccc0`). This is part of the whole
   body you write. The CH0 key row routed it to CH1p, which found no other reader in June's `.text` (dispsweep 98c4: in the class range only the ctor,
   InitComponent, the dtor and this function).
+
+## Amended by CH1q (2026-11-02)
+
+- `SetReduceGuardDamageAtHeavyStanceFromGuardSkill` is dead in June (`32bef230`: no call, jump or pointer; its string `335095a0` is pushed only there).
+  CH1q dropped March's call in `LoadPersonalInfo`; June's `InitPassiveSkillState` has none either, so March's call at the end of the
+  `CHUNG_FIRST_CLASS_CHANGE` block (`X2GUChung.cpp` ~5155 before CH1q) goes too.
+- `32c16be0 @32c16f23-32c16f8f` writes Chung `+0x9864` / `+0x9860` from skill 26410 (`0x672a`): March's `CX2GUUser::m_fForceDownRelDamageRateBase` /
+  `m_fCannonBallDamageUp`. The DamageEffect reader (CH1q, `_CBALL`) reads them through the March getters.

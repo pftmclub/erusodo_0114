@@ -534,10 +534,10 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bf3900	state-fn	CSI_A_CDC_RAPID_CANNON_READY.Start CSI_A_CDC_RAPID_CANNON_LOOP.Start	inside X2GUChung.cpp:4588 CX2GUChung::CSI_A_CDC_RAPID_CANNON_READY_Start	inside	-	CH3b	2 states	y
 32bf3990	override 0x7c4	CommonStateStart	X2GUChung.h:510 virtual void CommonStateStart();	inside	-	CH1l2	base 32057b80	y
 32bf3c40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e817e83e008be55d	n
-32bf3d30	helper	-	-	inside	-	CH1q	cannon-ball counter API: up cannon-ball count (ch0_cannonball.tsv); earlier callers declare it; inside: X2GUChung.h:538; adds count, SetNowCannonBallCount	y
+32bf3d30	helper	-	-	inside	-	CH1q	cannon-ball counter API: up cannon-ball count (ch0_cannonball.tsv); earlier callers declare it; inside: X2GUChung.h:538; adds count, SetNowCannonBallCount; CH1q: UpCannonBallCountAtThisAnimationTime ( float, int ), UpCannonBallCount inlined; = March, under _LIVE	y
 32bf3e40	helper	-	-	inside	-	CH1q	cannon-ball counter API: consume cannon balls; earlier callers declare it; inside: X2GUChung.h:550; now count minus n, zero-count refill branch	y
 32bf3f60	helper	-	-	inside	-	CH1q	cannon-ball counter API: set total count, %7 split into now / extra; earlier callers declare it; inside: X2GUChung.h:558; %7 split into now / extra for CTT	y
-32bf4040	helper	-	-	inside	-	CH1q	cannon-ball counter API: set count with a floor; earlier callers declare it; inside: X2GUChung.h:599; (a<=b) floors the count to the basic-count byte +0x9680	y
+32bf4040	helper	-	-	inside	-	CH1q	cannon-ball counter API: set count with a floor; earlier callers declare it; inside: X2GUChung.h:599; (a<=b) floors the count to the basic-count byte +0x9680; CH1q: ResetCannonBallCountWhenRebirthInPVPGame ( my kills, enemy kills ), the PvP start count; under _LIVE	y
 32bf40e0	helper	reached only through callers with no phased caller 32bf5674	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:614; passive CSG_REMODEL_MAGAZINE 0x6726	y
 32bf4150	state-fn	CSI_CHARGE_CANNON_BALL.FrameMove	inside X2GUChung.cpp:1505 CX2GUChung::ChargeCannonBallFrameMove	inside	-	CH1q	1 states	y
 32bf4180	state-fn	CSI_SI_A_CHUNG_RELOAD_CANNON.FrameMove	inside X2GUChung.cpp:3342 CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_FrameMove	inside	-	CH2a	1 states	n
@@ -554,7 +554,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bf4510	state-fn	CSI_CTT_COMBO_ZZXX.FrameMove	inside X2GUChung.cpp:2596 CX2GUChung::CTT_ComboZZXXFrameMove	inside	-	CH1j	1 states	n
 32bf4540	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53568bf18b068b90	y
 32bf4600	override 0x744	?	- (not found; name unsettled)	new	RestoreGageSnapshot	CH1l	base 3204da60; name: June-only virtual vslot 0x744 (funcmap 3204da60 Crest of Time restore); Chung re-sets cannon-ball counts then calls base	y
-32bf4680	helper	-	-	new	?	CH1q	cannon-ball counter API: hyper-count-3 timer skip (checklist l.236); earlier callers declare it; name: cannon-ball gauge tick on protected float +0x98b8 with 32c24db0; role not read	y
+32bf4680	helper	-	-	new	CannonBallGaugeTimerFrameMove	CH1q	cannon-ball counter API: hyper-count-3 timer skip (checklist l.236); earlier callers declare it; name: cannon-ball gauge tick on protected float +0x98b8 with 32c24db0; role not read; CH1q: CannonBallGaugeTimerFrameMove ( _CORE ), the awakening refill of one ball	y
 32bf4880	override 0x324	ChangeMaxCharacterAddResource	X2GUChung.h:763 virtual void ChangeMaxCharacterAddResource( const float fRate_ );	inside	-	CH1k	base 3208ddc0	n
 32bf48e0	state-fn	CSI_A_CTT_FATAL_CANNON.Start	-	new	CSI_A_CTT_FATAL_CANNON_StateStart	CH3c	1 states	y
 32bf4900	override 0x3c	InitComponent	X2GUChung.h:502 virtual void InitComponent();	inside	-	CH1k	base 31fee090	y
@@ -1217,9 +1217,9 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c24c60	thunk	jmp 32bf2f70	-	-	-	n/a	not ported	n
 32c24c70	thunk	jmp 32bf3830	-	-	-	n/a	not ported	n
 32c24c80	helper	-	-	new	SetUsedCannonballCountAtThisState	CH1q	protected-int setter of m_CannonBallSystem's used count ( this = unit +0x9624, int at this + 8 ) = March CCannonBallSystem::SetUsedCannonballCountAtThisState; CH1l2 calls it with 0 in CommonStateStart ( the CH0 name SetExtraCannonBallReloadCount was a role guess )	y
-32c24d00	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d40	y
-32c24d40	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d00	y
-32c24db0	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:570; SetCannonBallChanged + SetNowCannonBallCount	y
+32c24d00	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d40; CH1q: SetExtraCannonBallCount ( class 117 mobile-mode guard ), under _LIVE	y
+32c24d40	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:561; class 0x75 guard then SetNowCannonBallCountEx; duplicate of 32c24d00; CH1q: SetExtraCannonBallCount( GetExtraCannonBallCount() - n ), not a duplicate of 32c24d00; callers write the expression	y
+32c24db0	helper	-	-	inside	-	CH1q	cannon-ball counter API: thin setter thunk over the gauge counter; earlier callers declare it; inside: X2GUChung.h:570; SetCannonBallChanged + SetNowCannonBallCount; CH1q: SetCannonBallCount ( = March header inline )	y
 32c24dd0	helper	called by 32c16be0	-	new	?	CH4a	name: protected byte +0x9668 setter, caller InitPassiveSkillState (32c16be0); no March UCHAR member matched	y
 32c24e50	helper	reached only through callers with no phased caller 32bf58e1	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:593; protected byte +0x9674 setter, reload-cannon state callers	y
 32c24ed0	helper	reached only through callers with no phased caller 32bf5b02	-	inside	-	CH1o	phase unsettled: read it; inside: X2GUChung.h:597; protected byte +0x9680, the byte 32bf4040 floors to	y

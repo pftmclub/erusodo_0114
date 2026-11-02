@@ -652,7 +652,11 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 		SetMaxCannonBallCountEx( pChungGageData->GetMaxCannonBallCountEx() );
 
 		SetBerserkMode( pChungGageData->GetBerserkMode() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+		// June 32a34720 copies no berserk-changed flag
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 		SetBerserkModeChanged( pChungGageData->GetBerserkModeChanged() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 		SetCannonBallChanged( pChungGageData->GetCannonBallChanged() );
 	}
 }
@@ -684,8 +688,13 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 	SetMaxCannonBallCount( iCannonBallCount );
 	SetNowCannonBallCount( iCannonBallCount );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+	SetMaxCannonBallCountEx( iExtraCannonBallCount );	// June 32a347e0 sets the max first, so the count is not clamped to the old max
+	SetNowCannonBallCountEx( iExtraCannonBallCount );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 	SetNowCannonBallCountEx( iExtraCannonBallCount );
 	SetMaxCannonBallCountEx( iExtraCannonBallCount );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 
 	SetCannonBallChanged( true );
 }

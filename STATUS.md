@@ -175,7 +175,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1q | ready: cannon balls: June's bodies in March's cannon-ball code, start counts `32bf5430`, gauge; flag `_CBALL` | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
+| CH1q | done 2026-11-02, review next: cannon-ball bodies under `_LIVE` (spend roll, awakening refill, dungeon / PvP start keys); gauge x 13 + DamageEffect under `_CBALL` (CH1 defines it) | Opus 5.5 / high, Opus review | CH1p review | `X2GUChung.*`, `X2GUUser.*`, `X2GageUI.*`, `X2GageManager.*`, Always.h | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt `Chung_Iron_Cannon.lua`, pack / ask / copy, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | `X2GUChung.*`, Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Iron Cannon (6) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUChung.*`, `MODS.md` | `CH2a.md` |
 | CH2b0 | blocked (CH2a review): Opus helpers `31fcf430` / `329cc340` / `31fc8900` before CH2b | Opus 5.5 / high, Opus review | CH2a review | `X2GUChung.*`, `X2GUUser.*`, Always.h | `CH2b0.md` |

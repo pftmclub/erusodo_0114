@@ -43,3 +43,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - `ch0_unittemplet_chung.tsv`: June adds `m_fLobbyRotationY` (6: 10, 20: 10, 21: 20, 27: 1, 110: 20, 111: 30, 117: 25; March ignores it) and for 110 / 111 / 117 `m_BerserkCutIn` / `m_HyperCutIn` (`HQ_Cutin_{CIP,CDC,CTT}_1_Transcendence` / `_Transcendence`). Tactical Trooper `name` STR_ID_9739 -> STR_ID_17435: present (`StringID_def`, General.ess row 17435 "Tactical Trooper"). Every other key equal.
 - June's cut-in set index by class (InitState `32c22540`): 6 -> 0, 20 -> 1, 21 -> 2, 27 -> 5, 110 -> 3, 111 -> 4, 117 -> 6.
 - StatTable: 110 / 111 have 99 live rows each; the 19 extra are commented copies, equal (no duplicate to route).
+
+## Amended by CH1q (2026-11-02)
+
+- Cannon-ball readers outside the class that CH1q did not take (`ch0_cannonball.tsv` rows, June sites not located): the skill-slot fade
+  `X2Game.cpp` ~15011 (`GetCannonBallCount() < m_usCBConsumption`; does June test the total with the extra balls?), the F7 refill ~5835 and
+  `X2StateMenu.cpp` ~5181. `AddChungCannonBall_Cheat` / `AddChungExtraCannonBall_Cheat` (June `GameEditCommandList.lua`, unbound in March: binder
+  names differ from March's `AddChungCannonBall`) only matter if the dev console runs June's list.

@@ -233,7 +233,7 @@ apply/read lines.
 |---|---|---|---|
 | `32bb22d0` / `32bb2740` (vslots 49/50, `HyperModeBuffEffectStart/End`) | Ara | Start: when `+0x9744 > 0` and the buff hyper count `< 3`, a loop over June-only members; End: writes the count back to 0 | `CX2GameUnit::GetHyperModeCountByBuff()` (June `+0x6844`). **March has both functions, June reworked them: port each whole.** |
 | `32ba6cc0` (vslot 39), `32ba6d00` (vslot 147: count 1 -> state `0x294`, 2 -> `0x295`), `32badc80` region (vslot 485, 3 reads), `32baf270` (397), `32bc8be0` region (198), `32bc8030` (vslot 17, writes) | Ara | Read or write the buff hyper count | same |
-| `32bf4680` (non-virtual, after vslot 465) | Chung | Skips its timer work when the buff hyper count is 3 | same |
+| `32bf4680` (non-virtual, after vslot 465) | Chung | Skips its timer work when the buff hyper count is 3 (Chung: CH1q, `CannonBallGaugeTimerFrameMove`) | same |
 | `329f538a` (inside the vslot-16 range) | Add | Reads the buff hyper count | same |
 | `32b1e8e0` (vslot 16) | Luciel | Writes 0 at init | same |
 | `3227c360` `(op, BTI, index, value)` | Rose only (`32ab2f02`, `32ab2f6d`, `32ae305b`, `32ae30ac`) | Finds the buff by BTI and calls its N-th behavior's vslot 9 (`+= v`), 10 (`*= v`) or 11 (`= v`); overrides exist on NowMp (9, 10) and ChangeStat (11) | callers only. The buff port owns `3227c360` and the three vslots and ports them dormant (`JUNE_BUFF_PORT_PHASES.md`, part 3, "Where part 3 stopped" item 5). **Ported dormant in 4b-i part 5:** call `CX2GameUnit::OperateBuffBehaviorValue( op, BTI, index, value )` (op 0/1/2 = slot 9/10/11) |

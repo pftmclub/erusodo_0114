@@ -58,3 +58,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   - `CSI_A_CC_BACK_BLAST` (June id 335, `@1543`-`@1549`): only when `GetEquippedActiveSkillTemplet( 26200, true )` (`31fca8e0`) is non-null; EventProcess `32bea9c0` (new), then vslot `0x7a8` ( templet, state ) = `32028190`. Register it where the comment sits, after `CSI_GUARD_ATTACK_X`.
   - `CSI_SI_A_SIEGE_SHELLING_READYLOOP` / `_X` / `_X_FINISH` / `_Z_FINISH` (`@1699`-`@1721`): CH1m registered March's FrameMove / EventProcess names (the `inside` rows); add the shared StateStart `32bda6c0` (new, `CSI_SI_A_SIEGE_SHELLING_*_StateStart` in CH0's proposal) to all four.
 - Re-run `python june2017_re/char_chung/ch1m_regcheck.py` after: drop `335` from `LEFT` and `32bda6c0` from `EMPTYOK`; it must print `0 problems`.
+
+## Amended by CH1q (2026-11-02)
+
+- `EXTRA_CANNON_BALL_DAMAGE_RATE` (`m_afExtraCannonBallDamageRate`, `+0x9898` / `+0x989c`) has two June readers, both yours: `CanConsumeCannonBallForShot`
+  `32c0a230` (`@32c0a265` / `@32c0a26d`) and Aimming Shot FrameMove `32bfa860` (`@32bfae33`).
+- `32c24d40` is `SetExtraCannonBallCount( GetExtraCannonBallCount() - n )` (both guarded under `_LIVE` since CH1q): write that expression at
+  `32bfaa3f` / `32c0a2d0` / `32c0a3ee` / `32c0a400`, no new function.

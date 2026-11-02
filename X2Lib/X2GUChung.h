@@ -602,8 +602,17 @@ protected:
 	__forceinline int	GetExtraCannonBallCount();
 	void				SetExtraCannonBallCount( int iExtraCannonBallCount_ ) 
 	{ 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+		/// June 32c24d00: only class 117 in the mobile armored mode keeps extra cannon balls
+		if ( NULL != GetUnit() && CX2Unit::UC_CHUNG_TACTICAL_TROOPER == GetUnit()->GetClass() && true == m_bMobileArmoredModeEnable )
+		{
+			GetChungGageData()->SetCannonBallChanged( true );
+			GetChungGageData()->SetNowCannonBallCountEx( iExtraCannonBallCount_ );
+		}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		GetChungGageData()->SetCannonBallChanged( true );
 		GetChungGageData()->SetNowCannonBallCountEx( iExtraCannonBallCount_ ); 
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	}
 
 	void				SetMaxExtraCannonBallCount( int iMaxExtraCannonCount_ ) { GetChungGageData()->SetMaxCannonBallCountEx( iMaxExtraCannonCount_ ); }
