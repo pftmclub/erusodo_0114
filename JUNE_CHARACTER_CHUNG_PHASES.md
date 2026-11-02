@@ -2818,3 +2818,43 @@ None at planning (2026-10-31). Two items that look like decisions are settled by
 comment (no-enum-literal rule: no invented names), and March's cannon-ball code is the base June's bodies go into (it is live, not dormant, so
 the Eve decision does not arise). CH0 may raise one if the StatTable duplicates for 110 / 111 differ or the motion question finds a lost
 animation June's files no longer carry.
+
+### CH2d - Done (2026-11-02)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (already defined) and `..._SKILL_DEBUG` (`Always.h`, defined again for this phase; CH2d's review retires it). The twelve skills class 27 has that class 6 lacks run June's bodies. All 42 class-map rows
+were read from `charport_adis.py chung --phase CH2d` listings: 17 are written (inside March's function under the flag, March in `#else`; 4 of them are new functions), 25 are June = March (`funcmap.tsv` rows `Char Chung CH2d`, 42 rows, each says which).
+MODS.md "Stage 7 Chung, CH2d" has the March vs June damage table.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32c0ede0` `32c0f1f0` | `CSI_A_CHG_ELASTIC_BOMB_FrameMove`, new `_UPGRADE_FrameMove`, new `CreateElasticBomb` | two bombs (no memo 16), each a 30 % grenade launcher shell; skill 26212's `SA_PROJECTILE_RANGE_REL`; the upgraded throw (26224) has an `SA_EFFECTIVE_RATE` chance of four bombs, bombs 1 to 3 slower. JUNE_BUGS 504 |
+| `32c05060` | `CSI_SA_CHG_BIGBANG_STREAM_FrameMove` | swapped skill templet; the grenades are `HAND_GRENADE_0_BIGBANGSTREAM` at `GetPowerRate()` (March: `HAND_GRENADE_0` at 1.0) |
+| `32c12100` `32c12240` `32c12400` | `CSI_SA_CHG_DREAD_CHASE_START / LOOP / END_FrameMove`, new `SetLockOnCannonShot` + `CreateCannonShotDamageEffect` | the shot spends its ball through `CanConsumeCannonBallForShot` (`_EXTRA` effect on extra balls), `_BIG_MEMO` up to count 2 then `_FLY_MEMO`, no memo 15 test, no `UseCannon` |
+| `32bedfc0` `32bee020` | `..._DREAD_CHASE_START / LOOP_EventProcess` | ball tests read `GetTotalCannonBallCount` |
+| `32c0f8c0` `32c0fc30` | `CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove`, new `..._01_FrameMove` (for `_01` / `_02` / `_03`) | a ball back at 0.315 s (extra-charge roll), at 1.5 s skill 26022, `UseCannon( 1 )`, time + 3 s, shot counter `+0x9894` reset; the attack states play `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` and spend two balls from the last 3 s or the 8th shot on |
+| `32bdadc0` `32bee0e0` `32bed4c0` `32c12660` | `..._IMPACT_DETONATION_LOOP_Init / READY_EP / LOOP_EP / LOOP_FrameMove` | two more preloads; total ball count; the loop ends at now count <= 1 and no extra balls; loops 3 to 5 play the addition set through `PlayCannonShotEffectSet( 2, 1 )`, no ball test, `UseCannon( 1 )` only in loops 1 and 2 |
+| `32c10fb0` | `CSI_A_CSG_MAGNUM_SHOT_FrameMove` | the cost is the now-state skill's `m_usCBConsumption` (March: 3) |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26019 / 26033, 26020 / 26036, 26021 / 26056, 26022 / 26057, 26212 / 26224 and 26213 / 26236 are extra labels on March's six blocks (before: they fell into the Lunatic Blow default); 26224
+(normal and hyper tables) takes the four-bomb frame move; the three Chaos Cannon attack tables take `_01_FrameMove`. `X2SkillTree.h`: eight `RNSI_*` names (values checked against `Enum.src.lua`, all 12 ids have a June name). `ch1m_regcheck.py`: **0 problems** (821).
+Checklist rows marked `(Chung: CH2d)` (116, 117, 178, 281, 437, 713, 729).
+
+**Notes.** `32be8df0` is March's `ChaosCannonAttackStateChange` (the class map's "new" was a namesake). Checklist §7 l.280's `32bec286` is inside `SetSpecificValueByBuffTempletID` (CH4a), not a Chaos Cannon state; `32c058a0` is `DoCarpetBombing` (CH1l4). `32bedfc0` / `32bee020` / `32bee0e0` call June's
+total count (`32bed560` = `GetTotalCannonBallCount`, CH1l3), so Tactical Trooper's Dread Chase / Detonation follow June too. Chaos Cannon's shot counter is the same member as the Dash Z X X loop count (JUNE_BUGS 501). No Lua staged; the effect names are all in CH0b's staging (`ch0_effect_closure.tsv`).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`;
+  `1 deleted line(s)` ( the `//#define` of `_SKILL_DEBUG` ), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. cpp +425 / 0, `X2GUChung.h` +9.
+- `junediverge.py --check` ( cpp, h, `X2SkillTree.h` ): `allow-listed: 20`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`: 0 A/B rows ( C 6, D 1: old code ).
+- `skillicons.py check 26019-26022 26033 26036 26056 26057 26212 26213 26224 26236`: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged.
+- DEPLOY OK: X2_offline.exe is 25,927,680 B, dated 2026-11-02 19:18:09, md5 5b5cb12fbaa74f921c889c968c212630, equal to X2/US_SERVICE/x2.exe ( 19:18:02 ); built at main 6ac7db86 + 4 uncommitted code files ( this phase's ).
+- EXESTR OK: 7 of 7 found ( wide `[JUNE_CHAR] CHUNG SKILL elastic bomb throw, 2 bombs`, `..chaos cannon shot ..`, `..impact detonation loop ..`, `..magnum shot cost ..`, `..cannon shot lock-on ..`, `HAND_GRENADE_0_BIGBANGSTREAM`, `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` ), md5 5b5cb12f.
+
+**Play-test hand-off.** Save ( backup `db_backup\els_db_20261102_191151_pre_sql.sql` ): unit 65 `ChungShell` ( Shelling Guardian, lv 99 ): A Elastic Bomb up ( 26224 ), S Magnum Shot up ( 26236 ), D Big Bang Stream up ( 26033 ), C Dread Chase up ( 26036 ),
+Q Impact Detonation up ( 26056 ), W Chaos Cannon up ( 26057 ); slots 4 and 9 empty. Dev console ( END key, auth 3 ): `/invin 0`, a dungeon with enemies in front ( `/stage 1`-style ); keep 6+ cannon balls ( Reload Cannon, or the hyper mode ).
+1. **A Elastic Bomb.** Hand grenade throw at 0.195 s: 2 bombs, sometimes 4, some of them the launcher shell ( log `elastic bomb throw, N bombs ( upgraded )` ). **S Magnum Shot.** One big blast at 0.19 s; balls drop by the skill's cost ( log `magnum shot cost N, balls now M` ).
+2. **D Big Bang Stream.** Twelve bursts at 0.68 s ( four big, eight flying grenades ), buff on you; no log line.
+3. **C Dread Chase.** Shots at 1.0 s, then loops (down to 1 ball); each shot locks on the nearest enemy and spends one ball ( log `cannon shot lock-on DAMAGE_EFFECT_..._BIG_MEMO, effect 1, balls now N`; `_FLY_MEMO` from the third shot; `_EXTRA` when extra balls help ).
+4. **Q Impact Detonation.** Loops 1 and 2 plain, loops 3 to 5 the addition set ( log `impact detonation loop N, balls now M` ), final blast; with 0 balls the misfire set.
+5. **W Chaos Cannon.** A ball returns at 0.315 s, one is spent at 1.5 s ( log `chaos cannon start, time T balls now N` ); the cannon then fires on its own ( log `chaos cannon shot N, power rate X` ), walk / jump / guard still work, it ends when the time runs out.
+Log tag `[JUNE_CHAR] CHUNG SKILL` ( `python tools/logs.py --grep "CHUNG SKILL"` ). Then say "check logs".

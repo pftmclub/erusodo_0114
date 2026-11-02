@@ -7114,3 +7114,45 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32c0e190	CX2GUChung::CSI_SI_SA_CDC_ARTILLERY_STRIKE_FIRE_Start	PORTED	Char Chung CH2c: CommonStateStart; Quantum Ballista UseCannon( 6 ); Missile Shower CanConsumeCannonBallForShot( 6, 6, true ) and its rate on m_fArtilleryStrikePowerRate; no play count
 32c15340	CX2GUChung::CSI_SI_SA_CSG_SHARPSHOOTER_SYNDROME_FrameMove	PORTED	Char Chung CH2c: 0.5 s particle as March; 1.4 s the swapped equipped skill 26012 ( true ) at max( 1, level ), the Check and Kill memo ( MI_CHECK_AND_KILL_1 ) adds its value to the factor's time ( ApplyExternalFactorToFinalizer BFT_TIME, add ), the living allies within 800 get it; no unit leaves the function without CommonFrameMove
 3201bd60 (CH2c)	IsEventGamePlayable( bool )	PORTED	Char Chung CH2c: no longer file-local ( X2GUUser.h declares it ); Chung's Artillery Strike ready event process is its second caller
+32bda750	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_FrameMove	= March	Char Chung CH2d: = March ( tail jump to vslot 0x7cc CommonFrameMove )
+32bda760	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_FrameMove	= March	Char Chung CH2d: = March ( tail jump to CommonFrameMove )
+32bda770	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_UP_EventProcess	= March	Char Chung CH2d: = March ( speed.y <= 0 -> JUMP_DOWN, oneDown -> m_bDownForce and 2 x fMaxGSpeed )
+32bda7c0	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_FrameMove	= March	Char Chung CH2d: = March ( tail jump to CommonFrameMove )
+32bdada0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_READY_StartFuture	= March	Char Chung CH2d: = March ( CommonStateStartFuture, m_bApplyMotionOffset = false )
+32bdadc0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_Init	PORTED	Char Chung CH2d: March's preloads plus SHOOTING_STAR_Shell_Dummy.X and Explosion_Fire01.dds ( the two CenterLight_Gray01 preloads are one in June )
+32bdae40	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_StartFuture	= March	Char Chung CH2d: = March ( CommonStateStartFuture, m_bApplyMotionOffset = false )
+32bdae60	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_StartFuture	= March	Char Chung CH2d: = March ( CommonStateStartFuture, m_bApplyMotionOffset = false )
+32bdb0d0	CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_Init	= March	Char Chung CH2d: = March ( the 6 preloads compared name by name )
+32be6040	CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT, no floor JUMP_DOWN and y - 45, walk / skill cancels )
+32be65e0	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_END_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT or JUMP_DOWN, skill and walk cancels )
+32be6780	CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT or JUMP_DOWN, skill and walk cancels )
+32be69b0	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_EventProcess	= March	Char Chung CH2d: = March ( animation end JUMP_DOWN or _01, walk cancel to WAIT )
+32be6a50	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_DOWN_EventProcess	= March	Char Chung CH2d: = March ( land -> JUMP_LANDIG, wall jump, speed.y >= 0 -> JUMP_UP, oneDown )
+32be6af0	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_END_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT or JUMP_DOWN )
+32be6b30	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_GUARD_EventProcess	= March	Char Chung CH2d: = March ( animation end JUMP_DOWN / END / WAIT; from 0.2 s a random _01 / _02 / _03 )
+32be6bf0	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_ATTACK_EventProcess	= March	Char Chung CH2d: = March ( animation end JUMP_DOWN / END / WAIT ), shared by _01 / _02 / _03
+32be77c0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT or JUMP_DOWN and y - 45, walk / dash / skill cancels )
+32be8140	CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_EventProcess	= March	Char Chung CH2d: = March ( animation end WAIT, no floor JUMP_DOWN and y - 45, walk / dash / skill cancels )
+32be8df0	CX2GUChung::ChaosCannonAttackStateChange	= March	Char Chung CH2d: = March namesake ( GetRandomInt( state index + offset ) % 4 -> _02 / _03 / _01 ); the class map's 'new' was a missed namesake
+32bec100	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_READY_EventProcess	= March	Char Chung CH2d: = March ( no floor JUMP_DOWN, animation end or a side key JUMP_UP with the jump speed and y + 30 )
+32bed4c0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_EventProcess	PORTED	Char Chung CH2d: the end test is the now ball count <= 1 and no extra balls ( March: == 1 ); 5 loops end it too
+32bedfc0	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_EventProcess	PORTED	Char Chung CH2d: the ball test is GetTotalCannonBallCount ( March: GetCannonBallCount ); target LOOP
+32bee020	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_EventProcess	PORTED	Char Chung CH2d: the ball tests are GetTotalCannonBallCount ( March: GetCannonBallCount )
+32bee0e0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_READY_EventProcess	PORTED	Char Chung CH2d: the ball test is GetTotalCannonBallCount ( March: GetCannonBallCount )
+32bf35a0	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_StateStart	= March	Char Chung CH2d: = March ( CommonStateStart, m_iDreadChaseCount = 0 )
+32c05060	CX2GUChung::CSI_SA_CHG_BIGBANG_STREAM_FrameMove	PORTED	Char Chung CH2d: the swapped skill's templet ( RNSI_SA_CHG_BIGBANG_STREAM, memo swap ) for the buff factor; the 8 grenades are HAND_GRENADE_0_BIGBANGSTREAM at GetPowerRate ( March: HAND_GRENADE_0 at 1.0 ); the 12-burst switch = March. The carve's tail 32c058a0 is DoCarpetBombing ( CH1l4 )
+32c05c90	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WAIT_EventProcess	= March	Char Chung CH2d: = March ( BALANCE_PATCH_20131107 arm: floor, time <= 0 END, oneX -0.35 s and ChaosCannonAttackStateChange( 1 ), 0.4 s, walk, jump, down )
+32c05e80	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_WALK_EventProcess	= March	Char Chung CH2d: = March ( BALANCE_PATCH_20131107 arm, ChaosCannonAttackStateChange( 2 ) )
+32c06050	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_JUMP_LANDIG_EventProcess	= March	Char Chung CH2d: = March ( BALANCE_PATCH_20131107 arm, animation end ChaosCannonAttackStateChange( 3 ) )
+32c073e0	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_FINAL_FrameMove	= March	Char Chung CH2d: = March ( 0.01 s: FINAL set at GetPowerRate and UseCannon( 1 ) while CanUseCannon, else EffectSet_CSI_SI_A_CHUNG_MISFIRE; the handle goes to m_vecEffectSetToDeleteOnStateEnd )
+32c0ede0	CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_FrameMove	PORTED	Char Chung CH2d: two bombs, 30 % grenade launcher shell, the grenade skill 26212 range ( March: skill SI_A_CHG_ELASTIC_BOMB_GRENADE, memo 16 four bombs ); bomb 1 slower. JUNE_BUGS 504
+32c0f1f0	CX2GUChung::CSI_A_CHG_ELASTIC_BOMB_UPGRADE_FrameMove	PORTED	Char Chung CH2d: new; the upgraded grenade ( 26224 ): SA_EFFECTIVE_RATE chance of four bombs, bombs 1 to 3 at 0.6 / 0.8 / 0.4 x velocity.x. Registered for 26224 ( normal and hyper )
+32c0f8c0	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove	PORTED	Char Chung CH2d: a ball back at 0.315 s ( the extra charge roll adds one ), 1.5 s: skill 26022, UseCannon( 1 ), time + 3 s, shot counter ( +0x9894 ) = 0
+32c0fc30	CX2GUChung::CSI_SI_A_CHG_CHAOS_CANNON_01_FrameMove	PORTED	Char Chung CH2d: new, for _01 / _02 / _03; EffectSet_CHUNG_CHAOS_CANNON_ATTACK at 0.01 s; CanConsumeCannonBallForShot( 2, 2 ) when the time <= 3 or the 8th shot on; x ( m_fCannonBallDamageUp + 1 )
+32c10fb0	CX2GUChung::CSI_A_CSG_MAGNUM_SHOT_FrameMove	PORTED	Char Chung CH2d: the cost is the now state skill's m_usCBConsumption ( March: 3 )
+32c116e0	CX2GUChung::CreateCannonShotDamageEffect	PORTED	Char Chung CH2d: new; CanConsumeCannonBallForShot, '_EXTRA' when the rate is above 1, the shell at the TRACE_START0 bone, power x extra rate
+32c11980	CX2GUChung::SetLockOnCannonShot	PORTED	Char Chung CH2d: new; CreateCannonShotDamageEffect( name, 1, 1, GetPowerRate(), second rate, '' ) then SetLockOn( LOT_NEARST_UID_VECTOR )
+32c12100	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_FrameMove	PORTED	Char Chung CH2d: 1.0 s shot DREAD_CHASE_BIG_MEMO through SetLockOnCannonShot ( no memo 15 test, no UseCannon ), count + 1
+32c12240	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_LOOP_FrameMove	PORTED	Char Chung CH2d: count + 1, then _BIG_MEMO up to 2 and _FLY_MEMO after
+32c12400	CX2GUChung::CSI_SA_CHG_DREAD_CHASE_END_FrameMove	PORTED	Char Chung CH2d: the _FLY_MEMO shot
+32c12660	CX2GUChung::CSI_SA_CHUNG_IMPACT_DETONATION_LOOP_FrameMove	PORTED	Char Chung CH2d: loops 0 and 1 EffectSet_..._LOOP and UseCannon( 1 ); loops 2 to 4 EffectSet_..._ADDITION_LOOP through PlayCannonShotEffectSet( 2, 1 ); no ball test

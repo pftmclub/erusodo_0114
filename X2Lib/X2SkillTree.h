@@ -2022,6 +2022,19 @@ public:
 		RNSI_A_CIP_SUDDEN_BURSTER_UPGRADE                     = 26229,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-02 // char-chung CH2d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Shelling Guardian skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CHG_BIGBANG_STREAM                            = 26019,
+		RNSI_SA_CHG_BIGBANG_STREAM_UPGRADE                    = 26033,
+		RNSI_SA_CC_IMPACT_DETONATION_UPGRADE                  = 26056,
+		RNSI_SA_CHG_CHAOS_CANNON_UPGRADE                      = 26057,
+		RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE                  = 26212,
+		RNSI_A_CSG_MAGNUM_SHOT                                = 26213,
+		RNSI_A_CHG_ELASTIC_BOMB_HAND_GRENADE_UPGRADE          = 26224,
+		RNSI_A_CSG_MAGNUM_SHOT_UPGRADE                        = 26236,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-02 // char-chung CH2c
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names the Shooting Guardian skill bodies spell ( values from June's Enum.lua )

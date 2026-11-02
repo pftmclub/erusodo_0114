@@ -1345,6 +1345,10 @@ protected:
 
 	void CSI_A_CHG_ELASTIC_BOMB_FrameMove();
 	void CSI_A_CHG_ELASTIC_BOMB_EventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void CSI_A_CHG_ELASTIC_BOMB_UPGRADE_FrameMove();	/// June 32c0f1f0
+	bool CreateElasticBomb( int iBombIndex_, const D3DXVECTOR3& vPos_ );	/// June 32c0ede0 / 32c0f1f0 loop body
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	void CSI_A_CHG_MARK_OF_COMMANDER_Init();
 	void CSI_A_CHG_MARK_OF_COMMANDER_FrameMove();
 	void CSI_A_CHG_MARK_OF_COMMANDER_EventProcess();
@@ -1364,6 +1368,9 @@ protected:
 	void DoCarpetBombing();
 
 	void CSI_SI_A_CHG_CHAOS_CANNON_START_FrameMove();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void CSI_SI_A_CHG_CHAOS_CANNON_01_FrameMove();	/// June 32c0fc30 ( _01 / _02 / _03 )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	void CSI_SI_A_CHG_CHAOS_CANNON_START_EventProcess();
 	void CSI_SI_A_CHG_CHAOS_CANNON_WAIT_FrameMove();
 	void CSI_SI_A_CHG_CHAOS_CANNON_WAIT_EventProcess();
@@ -1453,6 +1460,8 @@ protected:
 	void CSI_A_CC_BACK_BLAST_EventProcess();	/// June 32bea9c0
 	bool CanConsumeCannonBallForShot( int iNeededCannonBallCount_, int iUseCannonBallCount_, bool bSecondRate_, float* pfDamageRate_ );	/// June 32c0a230
 	CX2EffectSet::Handle PlayCannonShotEffectSet( const wstring& wstrEffectSetName_, int iNeededCannonBallCount_, int iUseCannonBallCount_, float fPowerRate_, bool bSecondRate_, const wstring& wstrEffectSetNameNoShot_ );	/// June 32c11410
+	CX2DamageEffect::CEffect* CreateCannonShotDamageEffect( const wstring& wstrDamageEffectName_, int iNeededCannonBallCount_, int iUseCannonBallCount_, float fPowerRate_, bool bSecondRate_, const wstring& wstrDamageEffectNameNoShot_ );	/// June 32c116e0
+	void SetLockOnCannonShot( const wstring& wstrDamageEffectName_ );	/// June 32c11980
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #endif SERV_CHUNG_TACTICAL_TROOPER

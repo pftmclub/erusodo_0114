@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2d | **ready** (start: `/x2-phase char-chung CH2d`): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |
+| CH2d | done 2026-11-02, DEPLOY OK: Shelling Guardian (27) skills as June's; user owes the play-test of unit 65 `ChungShell` (Done note) then "check logs"; review next | Opus 5.5 / high, Opus review | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d-review.md` |
 | CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
 | CH3a | blocked (CH2d review): Iron Paladin (110) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `MODS.md` | `CH3a.md` |
 | CH3a2 | blocked (CH3a review): Iron Paladin (110) CFG / CHG-named skills; split from CH3a by CH0 | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUChung.*`, `MODS.md` | `CH3a2.md` |
