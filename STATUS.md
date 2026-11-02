@@ -177,12 +177,12 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH2b | **ready** (start: `/x2-phase char-chung CH2b`): Fury Guardian (20) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b0 review | `X2GUChung.*`, `MODS.md` | `CH2b.md` |
-| CH2c | blocked (CH2b review, CH3b0 review): Shooting Guardian (21) skills, siege mode, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
+| CH2c | blocked (CH2b review): Shooting Guardian (21) skills, siege mode, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2b review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Shelling Guardian (27) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUChung.*`, `MODS.md` | `CH2d.md` |
-| CH3b0 | done 2026-11-02, **review ready** (start: `/x2-phase char-chung CH3b0 review`): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037`; no play-test (CH2c/CH3b/CH3c carry it) | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
+| CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
 | CH3a | blocked (CH2d review): Iron Paladin (110) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUChung.*`, `MODS.md` | `CH3a.md` |
 | CH3a2 | blocked (CH3a review): Iron Paladin (110) CFG / CHG-named skills; split from CH3a by CH0 | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUChung.*`, `MODS.md` | `CH3a2.md` |
-| CH3b | blocked (CH3a2 review, CH3b0 review): Deadly Chaser (111) skills, Artillery Strike 7r / 7ac | Sonnet 5.5 / high, Opus review, user play-test | CH3a2 review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH3b.md` |
+| CH3b | blocked (CH3a2 review): Deadly Chaser (111) skills, Artillery Strike 7r / 7ac | Sonnet 5.5 / high, Opus review, user play-test | CH3a2 review, CH3b0 review | `X2GUChung.*`, `MODS.md` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Tactical Trooper (117) skills, Heavy Field 7r / 7n | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUChung.*`, `MODS.md` | `CH3c.md` |
 | CH3d | blocked (CH3c review): hyper actives, transcendence rows (7ao, allow-list, TR pictures), `skillicons.py check` PASS | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GUChung.*`, `MODS.md`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
 | CH4a | blocked (CH2d review, no CH3 running): passives (`InitPassiveSkillState` `32c16be0`), 7am delegate lists, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review, no CH3 running | `X2GUChung.*` | `CH4a.md` |

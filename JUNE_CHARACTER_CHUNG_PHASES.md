@@ -2527,6 +2527,31 @@ list. No split (`CH3b02` not needed). Funcmap rows `(CH3b0)` (10).
 DEPLOY OK: X2_offline.exe is 25,915,392 B, dated 2026-11-02 16:28:12, md5 04cd3eae6bb78e5dbd868e63d4f2dba2, equal to X2/US_SERVICE/x2.exe (2026-11-02 16:28:04); built at main 2e7d2468 + 7 uncommitted code file(s) (this phase's).
 EXESTR OK: 2 of 2 found (`[JUNE_CHAR] SUMMON npc %d uid %d skill`, `[JUNE_CHAR] CHUNG SKILL remote mortar uid %d added`, wide), md5 04cd3eae.
 
+### CH3b0 - Review (2026-11-02, Opus 5.5)
+
+**PASS, no code change.** Re-read from June's listings (Ghidra `decompile_function` / `disassemble_function`, read-only):
+- **`322ece70`**: flag 0x1 -> HP `_DAT_3348be20`, else 0x2 -> NPC `+0xd14`; 0x4 -> `+0xd18` / `+0xd1c`; 0x8 -> `+0xd28` / `+0xd2c` (all keyed `+0xcf8` / `+0xcf4`, the
+  NPC's own stat block, same layout as the user's `+0xcfc` thirteen-dword copy: base HP is dword 6). 0x400 subtracts 1.0 after the 0x800 multiply and before the
+  0x200 split. The port's `SHF_*` bits and order match. Eve's flags (0, 0x240, 0x260) set none of the new bits, so her result is unchanged; her two copies are
+  `#ifndef _CHUNG_SKILL` and her `X2Game.cpp` calls (`static_cast<CX2GUEve*>( pUser )->SetSummonHelperInfo`, 6 sites) now reach the public base;
+  `TryGetEquippedSkillAbilityValue` bodies compared byte-equal. Only visible change for Eve: her summon log line reads `[JUNE_CHAR] SUMMON npc` (was `EVE SKILL summon npc`).
+- **`3230c1a0`**: 0x58b / 0x35f / 0x9dd call `322ece70( npc, user, 0, 1.0 )`, 0x44c with `0x44a` (= `SHF_OWN_HP | SHF_OWN_DEF | SHF_SKILL_ABILITY_REL |
+  SHF_POWER_RATE_LESS_ONE`). `31fcf520` maps 0x58b / 0x35f / 0x9dd / 0x44c to 0x659e / 0x65a9 / 0x65d0 / 0x6667 = 26014 / 26025 / 26064 / 26215 (the port's enum
+  members). `+0x8752` = 1 / 0 sits where March's own arm calls `SetFlag_LUA( 1, true / false )`; `user[0x25b9]` (`+0x96e4`) where March calls `SetShot`;
+  `32bdb250( 2 / 1 )` = `CAST_QUANTUM_BALLISTA` / `CAST_MISSILE_SHOWER` (2 / 1); `user[0x263a]` = `+0x98e8`; owner type `31e4d0e0() == 6` = `UT_CHUNG`.
+- **Mortar list**: `32c0a500` 1, 2 when vslot `0x10c` == 1 (`GT_PVP` = 1), + `32fe25f0`( `32007b10( 2, 0x6734 )` ) when `31fceab0( 0x6734 ) > 0` (SA 2 =
+  `SA_EFFECTIVE_COUNT`). `32c11940` pushes only below the cap. `32c0a420` find, bKill -> vslot `0xf4( 0 )`, erase. `32c10d20`: at the cap the front is killed and
+  erased on every client; position from the disassembly `@32c10e4b-32c10ec3` is `GetPos +- GetDirVector x 50` per component (the decompile's z is garbled);
+  `CreateNPCReq( 0x44c, state data +0x10, ... )` only under vslot `0x198`. March's `m_iRemoteMortarNPCUID` accessors are now read only in `#else` arms.
+- **Die hook** `3230bc08-3230bc46`: NPC id `0x44c`, owner `+0x867c -> +0xaf0` type 6, `32c0a420( GetUnitUID, 0 )`. Matches.
+- **Logs:** no play-test owed or run (`offline_server.log` last written 14:00, before the 16:28 deploy); the `SUMMON` / `remote mortar` checks ride on CH2c / CH3b / CH3c
+  (their kickoffs carry them; `CH2c.md` and `CH3b.md` amendments name the right symbols).
+
+**Hygiene:** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 715d3c74^..715d3c74`: `files: 7 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files:
+0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `git log -S JUNE_CHAR_CHUNG_SKILL
+715d3c74..HEAD`: none. `junediverge --check-all`: `allow-listed: 179`, `RESULT: PASS`. No build (no code change; CH3b0's DEPLOY OK md5 04cd3eae stands).
+The user still owes `/x2-kom-packed copy data036` and `data037`. CH2c waits only on CH2b review now.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
