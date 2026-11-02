@@ -32,6 +32,7 @@ Check CH2a against June (read-only; read the listings, not the decompiles). In o
   The hyper table of 26201 and 26200 is the same script table as the normal one.
 - **Back Blast:** `32bea9c0` cancels (`+0x8c8c` / `8c90` / `8c94` / `8c98` / `8c9c`), InitStateCommon registration of state 335 (`@1543`-`@1549`), `CSI_A_CC_BACK_BLAST` enumerator.
 - **The "= March" rows** (funcmap `Char Chung CH2a`, 22 of 41): confirm 3 of them against the listing (e.g. `32bf2e10`, `32be0f50`, `32bd9510`).
+- **The sound errors:** 63 `ErrorEnum(381) result : 47` lines in `Update3DPosition` for the seven `CHUNG_*.OGG` files named in the Done note's play-test paragraph. Find out why (file format vs the 3D path; compare a class without the error) and fix or route it.
 - Dev free-skill gate: CH1l3 put it in `SpecialAttackLookup`; confirm the six skills cast with no cool time / MP under `/invin 0` + dev gate.
 
 Hygiene: `python tools/flagcheck.py JUNE_CHAR_CHUNG_SKILL --range <CH2a commit>^..<CH2a commit> --with JUNE_CHAR_CHUNG_SKILL_DEBUG`, `git diff --patience --numstat`, `junediverge.py --check-all`,

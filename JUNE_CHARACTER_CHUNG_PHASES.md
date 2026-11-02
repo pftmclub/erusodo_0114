@@ -2393,6 +2393,12 @@ Dev console (END key, auth 3): `/invin 0`, `/stage 1`-style dungeon with enemies
 5. Optional (Tactical Trooper `Freils`, unit 18, needs the class 117 slots): extra balls feed Aimming Shot / the siege shells first.
 Log tag `[JUNE_CHAR] CHUNG SKILL` (grep `CHUNG SKILL` and `NUM use` with `python tools/logs.py --grep "CHUNG SKILL"`); the debug lines list balls and extra balls after each shot. Then say "check logs".
 
+**Play-test (user, 2026-11-02 13:57-14:00, md5 `de485896`): passed; logs checked.** `ErrorLog.txt` has no lua / `KEM_ERROR` / Motion Error line from the skills. `[JUNE_CHAR] CHUNG SKILL`: Scare Chase x5 (balls 5 after the shot),
+Siege Shelling shells 1-3 + `finish shot` (balls 5 -> 0, extra 0), Lunatic Blow loops 0-4 (balls 5 -> 1), Aimming Shot `fired 1` then a misfire (`fired 0`). `ES_CREATE`: `..._LUNATIC_BLOW_EXPLOSION`, `..._EXPLOSION_FINISH`, `..._ADDITION_EXPLOSION`
+(loops >= 2), `EffectSet_CSI_SI_SA_CHUNG_ACELDAMA`, `EffectSet_A_Chung_BackBlast` (JUNE_FX alpha). No `NUM use` line exists: the numerical override logs nothing in this build (the kickoff's name is stale). Not in this phase:
+63 `ErrorEnum(381) result : 47` lines for `CHUNG_SCARECHASE_EXPLOSION / _CANNONFIRE`, `CHUNG_ACELDAMA_READY / _ROCKETFALL / _GROUNDEXPLOSION`, `CHUNG_LUNATICBLOW_HIT`, `CHUNG_CANNONGUN_FIRE` in
+`CKTDXDeviceSound::Update3DPosition` (the files are in `data069`; the 3D-position call fails on them, no other class's sounds appear): routed to the review (is it the June OGG format or the Chung 3D-sound path?).
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
