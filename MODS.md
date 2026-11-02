@@ -5634,16 +5634,19 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`
 Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH2d - Done". Client only, no data change.
 - **What changes in game.** The twelve skills class 27 has that class 6 lacks run June's bodies: Big Bang Stream (26019 / 26033), Dread Chase (26020 / 26036), Impact Detonation (26021 / 26056), Chaos Cannon (26022 / 26057), Elastic Bomb - Hand Grenade (26212 / 26224), Magnum Shot (26213 / 26236). `SetEquippedSkillFuncBySkillSlotIndex` gains June's ids as extra labels on March's six blocks (before: they fell into the Lunatic Blow default); eight `RNSI_*` names are added to `X2SkillTree.h`.
 - **Differs from March.** Elastic Bomb: two bombs (no memo 16), each a 30 % chance of the grenade launcher shell; the upgraded grenade has an `SA_EFFECTIVE_RATE` chance of four. Big Bang Stream: the eight grenades are `HAND_GRENADE_0_BIGBANGSTREAM` at the skill's power rate. Dread Chase: every shot spends its ball through `CanConsumeCannonBallForShot` ( `_EXTRA` effect when extra balls raised the rate ), no memo 15 split. Chaos Cannon: a ball back at 0.315 s, one ball spent at 1.5 s, the time 3 s longer; the three attack states play `EffectSet_CHUNG_CHAOS_CANNON_ATTACK` (the shots spend two balls from the last 3 s or the 8th shot on). Impact Detonation: loops 3 to 5 play the addition set through `CanConsumeCannonBallForShot`, no ball test in the frame move. Magnum Shot: the cost is the skill's own cannon ball consumption (March: 3). The ball tests of the Dread Chase and Impact Detonation event processes use the total ball count.
-- **Damage (level-1 flat value; June = numerical x 0.01 through the engine; March = the shipped `DamageEffect.src.lua`; the damage type of June's numerical rows is not listed).**
+- **Damage (level-1 flat value; June = the numerical row x 0.01 through the engine, the type is the templet's `DAMAGE_TYPE`; March = the templet's own value in the shipped `DamageEffect.src.lua`, read per templet block). The skill's shells (`_BIG`, `_FLY`, `CHAOSCANNON_ATTACK`) carry a small hit and spawn the EXPLOSION effects.**
 
-| Effect (June id) | March | June |
-|---|---|---|
-| `CHUNG_BIGBANGSTREAM_EXPLOSION` (26019) | PHYSIC 1.26 | 4.12 |
-| `HAND_GRENADE_0_EXPLOSION` (26019) | PHYSIC 1.0 (at power rate 1.0) | 4.12 (`..._EXPLOSION_BIGBANGSTREAM` 2.70, at the skill's rate) |
-| `CHUNG_ELACTIC_BOMB_EXPLOSION` / `_BIG` (26212) | PHYSIC 1.0 / MAGIC 7.25 | 3.27 / 3.27 |
-| `DAMAGE_EFFECT_CHAOSCANNON_ATTACK` / `_EXPLOSION` (26022) | no value / MAGIC 9.94 | 2.29 / 22.80 |
-| `DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_EXPLOSION` (26020) | MAGIC 5.58 | 5.76 (`_BIG` / `_FLY` shells 2.16, the `_MEMO` set June's default) |
-| `DAMAGE_IMPACT_DETONATION_EXPLOSION` / `_HYPER` (26021) | MAGIC 2.28 / 2.28 | 3.71 / 4.63 (`_ADDITION` 2.68) |
-| `DamageEffect_CSG_Magnum_Shot_Explosion` (26213) | MAGIC 1.05 | 4.83 |
+| Effect (June id) | Type | March | June |
+|---|---|---|---|
+| `CHUNG_BIGBANGSTREAM_EXPLOSION` (26019) | MAGIC | 1.56 | 4.12 |
+| Big Bang grenade: `HAND_GRENADE_0_EXPLOSION` / `HAND_GRENADE_0_EXPLOSION_BIGBANGSTREAM` | MAGIC | 3.00 at power rate 1.0 / templet absent | 4.12 (not played any more) / 2.70 at the skill's rate |
+| `CHUNG_ELACTIC_BOMB_EXPLOSION` / `_BIG` (26212) | MAGIC | 1.86 / 7.25 | 3.27 / 3.27 |
+| `DAMAGE_EFFECT_CHAOSCANNON_ATTACK` (26022) | PHYSIC | 0.90 | 2.29 |
+| `DAMAGE_EFFECT_CHAOSCANNON_ATTACK_EXPLOSION` | MAGIC | 9.94 | 22.80 |
+| Dread Chase shells `..._DREAD_CHASE_BIG` / `_FLY` (and the `_MEMO` ones June plays) (26020) | PHYSIC | 0.49 | 2.16 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_EXPLOSION` / `_BIG` | MAGIC | 5.58 / 5.58 | 5.76 / 5.76 |
+| `DAMAGE_IMPACT_DETONATION_EXPLOSION` / `_HYPER` (26021) | MAGIC | 2.28 / 4.56 | 3.71 / 4.63 |
+| `DAMAGE_IMPACT_DETONATION_EXPLOSION_ADDITION` | MAGIC | templet absent | 2.68 |
+| `DamageEffect_CSG_Magnum_Shot_Explosion` (26213) | MAGIC | 1.05 | 4.83 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH2c skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
