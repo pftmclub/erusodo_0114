@@ -29,7 +29,7 @@ Then the character's own checklist rows (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` 
 | 5 | Rena | `char-rena` | Gap 12 would put her second, but she needs the **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses). Ask it when she is scheduled; if the user answers before Eve closes, move her to #2. |
 | 6 | Ara | `char-ara` | Gap 14; first run of **CH-N** (classes 34, 124), the stat-row decision, `CUSTOM_RENDER_STATE`, 2 new motion files. After the plain characters, so CH-N is written once from the most mature template. |
 | 7 | Elesis | `char-elesis` | Gap 20; CH-N for 35 / 125 (reuses Ara's), first live reserved-buff path (7ai). |
-| 8 | Add | `char-add` | Skeleton March kit, 4 June-only classes (33, 36, 123, 126), no stat rows for 9 / 32 / 122, 4 new motion files: last, with everything proven. |
+| 8 | Add | `char-add` | Skeleton March kit, 4 June-only classes (33, 36, 123, 126), no stat rows for 9 / 32 / 122, 4 new motion files: last, with everything proven. Add overrides vslot 0x524 (`32a315a0`): its calls to `329cc340` need Add's own now-state id (funcmap row `329cc340 (CH2b0)`). |
 
 Gap alone did not predict effort (Aisha's gap of 1 took about 96 commits); the order follows blockers and decisions first, gap second.
 

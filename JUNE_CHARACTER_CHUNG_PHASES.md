@@ -2453,6 +2453,27 @@ unreferenced until CH2b. Checked first: no earlier port held them as functions (
 DEPLOY OK: X2_offline.exe is 25,914,880 B, dated 2026-11-02 15:53:25, md5 765442cdc3d1d2a2a95817610ab8d996, equal to X2/US_SERVICE/x2.exe (2026-11-02 15:53:17); built at main 89b4efa1 + 2 uncommitted code file(s) (this phase's).
 No play-test: nothing calls the helpers yet; CH2b's play-test exercises them.
 
+### CH2b0 - Review (2026-11-02)
+
+**PASS, no code change.** Re-read from June's listings (Ghidra `disassemble_function` / `decompile_function`, read-only):
+- **`31fcf430`**: `MOV EAX,[ECX+0x867c]`; zero -> `MOV EAX,[ESP+4]; RET 4`; else `LEA ECX,[EAX+0x494]; JMP 328905b0`. The port's `NULL == GetUnit()` -> id, else
+  `GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID` (`328905b0`, Skill S2) is the same function.
+- **`329cc340`**: vslot `0x524` call, `PUSH 1; PUSH EAX; CALL 31fca8e0`, null -> false, `CMP [EAX+0x178],0` -> `MOV AL,1`. That is `32071e70`'s body with the id from
+  `0x524` (`32071e70` = the same `31fca8e0( id, 1 )` / `+0x178` test), so `IsEquippedSkillUpgraded( GetNowStateSkillID() )` holds. Chung's vtable `3350967c` slot
+  `0x524` (`33509ba0`) is `3208e410` = `GetNowStateSkillID`, so March's non-virtual call is exact for Chung.
+- **Found:** 12 of the 13 user vtables hold `3208e410` at `0x524`; **Add's (`334daaec`, slot `334db010`) holds its own `32a315a0`** (reads `+0x7cbc` and a `+0x7cec`
+  list base, S0b sweep). Not Chung's subject: routed to `char-add` (Stage 7 brief row 8 and funcmap row `329cc340 (CH2b0)`): Add's callers of `329cc340` need
+  Add's override, not `CX2GUUser::GetNowStateSkillID`.
+- **`31fc8900`**: `MOV ECX,[ECX]` (`m_iSlotIndex`), `XOR AL,AL`, `CMP ECX,9; JA` -> `RET 4` with AL 0 (false outside 0-9); the jump table (10 `COMPUTED_JUMP`s in
+  order) gives 0..9 -> `+0x1d +0x21 +0x25 +0x19 +0x51 +0x2d +0x31 +0x35 +0x39 +0x55`. March `InputData` (`X2GameUnit.h:170`): A `0x1c`, S `0x20`, D `0x24`, C `0x18`,
+  Q `0x2c`, W `0x30`, E `0x34`, R `0x38`; June puts `Sit` at `+0x4c` (`+0x8726 - 0x86da`), so `Skill5` / `SkillEx5` are `0x50` / `0x54`. `+1` in each group is the
+  `one*` byte: `oneA / oneS / oneD / oneC / oneSkill5 / oneQ / oneW / oneE / oneR / oneSkillEx5` is exact, one byte above `31fc89a0`'s `pure*` reads (`+0x1c ...`).
+
+**Hygiene:** `flagcheck JUNE_CHAR_CHUNG_CORE --range 45787714^..45787714 --files X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER,
+0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 1 #else/#endif without the flag token` (the `#error` guard's plain `#endif`),
+`RESULT: PASS`. `junediverge --check-all`: `allow-listed: 178`, `RESULT: PASS`. `enumscan --check X2GUUser.cpp X2GUUser.h`: the 2 B rows at `X2GUUser.h:2550-2551`
+(pre-CH2b0), none new. No build (no code change; CH2b0's DEPLOY OK md5 765442cd stands). `CH2b.md` "Amended by CH2b0" names the right symbols. CH2b ready.
+
 ## Phase CH3 - Skills: second jobs (110, 111, 117), hyper actives, transcendence
 
 **Run with:** as CH2. Sub-tag `SKILL`.
