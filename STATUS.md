@@ -190,7 +190,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH4a | blocked (CH2d review, no CH3 running): passives (`InitPassiveSkillState` `32c16be0`), 7am delegate lists, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review, no CH3 running | `X2GUChung.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): `SetDamageExceptionProcess` `32bf28f0`, overrides, 7an soul gain, death-prevention override, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUChung.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b review): memo and item readers: `MemoConditionChung`, grenade memo 7u, Metabolism Boost, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GUChung.*`, `X2BuffTemplet.cpp`, `X2Game.cpp` | `CH4c.md` |
-| CH5 | built + COPY OK data036 (flag `_UI`); waits on the user's play-test (select screen, skill / hyper cut-ins), then Opus review | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUChung.cpp` cut-in table, data036 | `CH5-review.md` |
+| CH5 | play-test passed, logs checked (skill cut-ins all 6 sets, select screen); hyper cut-in not exercised; Opus review next | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUChung.cpp` cut-in table, data036 | `CH5-review.md` |
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
