@@ -2232,6 +2232,48 @@ both RESULT FAIL only for the `//#define`. `_CORE` (`Always.h:11076`) and `_CBAL
 Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUChung.cpp`, `X2GageData.cpp`, `X2GageUI.cpp`, `X2DamageEffect.cpp`, with `_LIVE` + `_CBALL` off and on: exit 0, 0 errors (8 runs).
 `/P` with both flags on: `CannonBallGaugeTimerFrameMove` 3 times. `_CBALL_DEBUG` stays until CH1's review. No play-test. Next: `/x2-phase char-chung CH1` (Opus 5.5 high).
 
+### CH1 - Done (2026-11-02)
+
+Opus 5.5. **The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (`Always.h:11088`) and `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL` (`Always.h:11229`) are
+defined, so Chung runs June's registration, state bodies, virtuals, skill head, pressed-slot space and cannon balls (CH1a-CH1q). `_CBALL_DEBUG` stays on for
+the play-test (the review retires it). Shipped together with the exe:
+- **Script:** `luasrc.py adopt-june data036 Chung_Iron_Cannon.lua`: June's file replaces March's whole as `ljconv` bytecode (243,462 B, header `1B 4B 4C 81`,
+  sha1 `486f48da`; no core-list row, no edit). March spells it one way only in `kom_contents` (`Chung_Iron_Cannon.lua`). Backup
+  `24965799\kom_backup_stage_june\20261102_094116`, record `june2017_re/june_adopt_20261102_094116.tsv`. `PACK OK data036` (vs live ~1 changed);
+  `COPY OK data036 ... 14022709 bytes, 269 entries, md5 b27b9eefa4f6f23aa8ea67665bab2148` (user approved).
+- **Motions:** CH0b's held data033 (10 `Motion_CHUNG_*.x`, packed 2026-10-31) `COPY OK data033 ... 152106552 bytes, 165 entries, md5
+  c369e74fbfda6c1953d33d92a089feff` (user approved). `Motion_CHUNG.x` was June's already.
+- **Summon scripts:** `Targeting_Chung`, `Remote_Mortar`, `Remote_Mortar_APINK` (data037) are June's bytes already (CH0); nothing re-adopted.
+  `luabind.py check Chung_Iron_Cannon Targeting_Chung Remote_Mortar Remote_Mortar_APINK`: 0 / 22 / 25 / 9 methods, 0 unbound, `RESULT: PASS`.
+- **`[JUNE_CHAR] CHUNG DATA`** (`_LIVE`, end of `InitState`, offline_server.log): class, script, motion, state count, `wait_state_change` (1 only with
+  June's script). Eve's line, same fields. `X2GUChung.cpp` includes `Offline/X2OfflineLog.h` under `_LIVE` too (it was only under `_CBALL_DEBUG`).
+- **START / WIN / LOSE:** Eve's CH1 bug (an empty LIVE parse) cannot recur: Chung's `ParseCommonRandomState` is March's, not under `_LIVE`, and its 7
+  names (`CHUNG_IRON_CANNON` .. `CHUNG_TACTICAL_TROOPER`) are June's `INIT_COMMON_RANDOM_STATE` keys (`Chung_Iron_Cannon.src.lua:310-489`).
+- **7h:** June's `CSI_WAIT_STATE_CHANGE` has `ANIM_NAME = ""` (`:529`); March's `CommonStateStart` takes it as for Aisha and Eve (`ChangeAnim( L"" )`
+  returns false, the pose holds until `USEFUL_VALUE0[0]`).
+- **Cannon balls:** only June's script carries `CANNON_BALL_COUNT_AT_DUNGEON_START = 3` / `_AT_PVP_START = 0` (`:565-566`); the start line must read `dungeon 3 pvp 0`.
+- **Lua load check:** the pack gate parsed every BOM-source `.lua` of data036 (PACK OK). Load-time errors of the core-list files Chung reads
+  (`DamageEffect.lua`, `EffectSet.lua`) show only in `ErrorLog.txt`: the play-test compares against `data\ErrorLog_pre_CH1_chung.txt`
+  (270,399 B, run 2026-11-02 07:10-07:14).
+- **Scans:** `charport_keys.py Chung_Iron_Cannon`: `june-only=6 neither=6 march-only-site=9 both=228` (plan: 11 / 8 / 7 / 223). The 6 left all have
+  owners in the plan's census row: `BBT_CHANGE_NOW_HP_PER_SECOND` / `BFT_TIME` (buff sub-table keys, read through the buff templets),
+  `IMMUNE_TO_SUPER_ARMOR_DOWN` (Stage 2), `IMMUNITY_EDT_LIST_AT_THIS_STATE` (no reader, as Eve), `FORCE_DYNAMIC_CAMERA_INDEX` / `RETAIN_CAMERA_STATE` (Stage 9).
+  `charport_scan.py` (census rerun first): Chung = `no NUMERICAL_DATA_INDEX` 74 / `no DAMAGE table` 15, the same as `plan_charport_scan_20261031.txt`;
+  no `ENUM` line for Chung, so §4 has no table to add (l.162 marked).
+- **Checklist:** `(Chung: CH1, ...)` on 7h list variants (l.421), 7h USEFUL_VALUE (l.425), 7o bounding (l.507), 7p time-stop (l.546), 7t cut-in (l.590),
+  7t sound sets (l.616), 7x AT_COMMAND (l.671), 7ad motions (l.756).
+
+Hygiene: `flagcheck.py JUNE_CHAR_CHUNG_LIVE --worktree --files X2Lib/X2GUChung.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+`_CBALL --files KTDXLIB/Always.h`: `RESULT: PASS` (same zeros). `junediverge.py --check X2Lib/X2GUChung.cpp KTDXLIB/Always.h`: `allow-listed: 15`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUChung.cpp`: `0 A/B row(s)`. One-file probes (`census.cl_cmd`, `/Zs /EHsc`, both flags on): `X2GUChung.cpp`, `X2GUUser.cpp`,
+`X2GageData.cpp`, `X2GageUI.cpp`, `X2DamageEffect.cpp` exit 0, 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 25,912,832 B, dated 2026-11-02 09:56:39, md5 eca7c15d44ad431eab4ae4fa9e0c498a, equal to X2/US_SERVICE/x2.exe (2026-11-02 09:56:31); built at main b47006c3 + 2 uncommitted code file(s).`
+`EXESTR OK: 3 of 3 found in X2_offline.exe, 25912832 B, dated 2026-11-02 09:56:39, md5 eca7c15d44ad431eab4ae4fa9e0c498a` (`CHUNG DATA`, `CHUNG CBALL start`, `CHUNG CBALL spend`).
+
+**Play-test (user) is the gate:** one Chung per job (units 62 / 63 / 64 / 65 / 43 / 42 / 18); combos, dash, jump, guard, a bounding hit, riding (unit 18),
+cannon balls filling / spending on the gauge, awakening; `CHUNG DATA` per class; ErrorLog against the pre-CH1 copy. Skills are CH2-CH3's. No JUNE_BUGS row, no drift.
+
 ## Phase CH2 - Skills: Iron Cannon and the first jobs (classes 6, 20, 21, 27)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`.

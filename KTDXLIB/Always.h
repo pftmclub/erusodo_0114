@@ -11084,7 +11084,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE, SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_P_CIP_OPEN_MIND ) and SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE.
 //              CH1m: the registration ( InitState 32c22540 ) also needs the shared user flags guarded below; CH1l: ScaleHead needs SCALE_HEAD.
 //              Revert: comment out the #define ( JUNE_CHAR_CHUNG_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+//              CH1 ( 2026-11-02 ): defined, shipped with June's Chung_Iron_Cannon.lua ( data036 ) and the class motions ( data033 ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
@@ -11224,7 +11225,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              a Chung owner, with the force-down decrease set to the base rate. Chung's own June cannon ball bodies are under _LIVE;
 //              CH1 defines this flag together with SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE.
 //              Revert: comment out the #define ( JUNE_CHAR_CHUNG_CBALL ).
-//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
+//              CH1 ( 2026-11-02 ): defined together with SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE.
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL ( the cannon ball gauge and damage effect sites )

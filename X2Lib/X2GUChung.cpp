@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CBALL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 //{{ kimhc // 2010.11.22 // 2010-12-23 New Character CHUNG
 #ifdef	NEW_CHARACTER_CHUNG
@@ -1187,6 +1190,10 @@ void CX2GUChung::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, floa
 	InitPassiveSkillState();					/// June vslot 0x690 ( 32c16be0, CH4a )
 	InitEquippedActiveSkillState( false );		/// June vslot 0x684
 	CX2GUUser::InitState();						/// June 31fd8f00
+	// Not June: CH1 done-gate line, proves June's script ( its CSI_WAIT_STATE_CHANGE table ) and the motion loaded.
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( eClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 	switch ( GetUnitClass() )
 	{
