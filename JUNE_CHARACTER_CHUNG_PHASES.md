@@ -3199,6 +3199,7 @@ Files: `X2GUUser.cpp` / `.h`, `X2Unit.cpp`, `X2SkillTree.h` (names), `Always.h`.
 **Hygiene.** `flagcheck.py JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE --with JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2SkillTree.h X2Lib/X2Unit.cpp`:
 `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = X2SkillTree.h under `JUNE_ENUM_NAMES`); 0 deleted lines.
 `junediverge.py --check` (4 files): `RESULT: PASS`; `--check-all`: `allow-listed: 181` `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2Unit.cpp`: no row inside the CH4a2 blocks.
+**Range (commit `f0b7edba`):** `--range f0b7edba^..f0b7edba`, same files: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1, equal to X2/US_SERVICE/x2.exe (2026-11-03 15:04:41); built at main 32b0175b + 5 uncommitted code file(s).`
 `EXESTR OK: 1 of 1 found in X2_offline.exe, 25937408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1` (`CHUNG PASSIVE base`, wide).
 **Save:** no change (unit 43 `NovaT` has 26401 level 4; unit 21 `eresisu` has 28405 level 3).
