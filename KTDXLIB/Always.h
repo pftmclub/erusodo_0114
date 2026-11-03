@@ -11331,5 +11331,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH3b debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Shooting Star play limit and Endless Chase range, the Bullet Blitz hit count and Endless Chase stretch, the Rapid Cannon fire limit, the Shooting Bind cool time.
 //              CH3b's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH3b review ( 2026-11-03 ): retired, the CH3b play-test read the Shooting Star play limit, Shooting Bind cool time, Rapid Cannon fire and Bullet Blitz hit lines.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

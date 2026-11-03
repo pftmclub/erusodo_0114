@@ -2882,6 +2882,39 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, 
 
 **Play-test (user, 2026-11-03, logs).** Run 09:19-09:22 on the CH3b exe (md5 fa23c41e). Shooting Star `max plays 12` (normal) and `15` (berserk); Shooting Bind `start, cool time left 10.0` then `end, cool time left 2.0` (x4); `rumble shot shell` x3; Rapid Cannon `fire 1` / `fire 2, limit 6` then the Final effect set (x4, tapped); Bullet Blitz `start, hits 17` (12 + 5, both casts in the berserk mode) with `shell, hyper 1`; `ES_CREATE` for Heavy Railgun, Stun Shot (x4), Burning Punisher (x2), Shooting Bind, Gatling Loop / Final. `ErrorLog.txt`: 0 `CHUNG SKILL` errors; missing sounds only (`CHUNG_RUMBLESHOT_RUMBLE.OGG` x3 is new, `CHUNG_CANNONGUN_FIRE.OGG`, Scare Chase ones = JUNE_BUGS 138 / 505 kind). **Not seen:** the Endless Chase lines (no `endless chase` on Shooting Star or Bullet Blitz although 26418 is in the save, level 1: `GetSkillLevelValue` reads 0, probably June's transcendence gate on that passive; the review checks it, and `settranscend 50 1` tests it); a Bullet Blitz cast outside the berserk mode (hits 12); a Rapid Cannon held to the limit (fire 6); Comet Crasher and Exciting Crash (not slotted).
 
+### CH3b - Review (2026-11-03, Opus 5.5)
+
+**PASS, no code change.** The 12 written / new bodies, the registration and 5 "= March" rows were re-read from the `charport_adis.py chung --phase CH3b` listings.
+- **Shooting Star `32beb940` / `32bfc310`.** Count: gage `+0xe8` `> 0` -> 15, and 18 when `31edf580( 31fdbcc0( 0x659f ), 0x65ae )` (26015 memo vs 26030) is true; else 12 (the 18 is nested
+  in the berserk branch, as `GetShootingStarMaxPlayCount`); then `31fceab0( 26418 ) > 0` -> `( int )( 32007b10( 0x1e, 26418 ) + count )`; `playCount >= max` -> END `0xea`. FrameMove: count first,
+  then `now < max`: bone pos `+- dir x 70` (dir y zeroed, normalized), y + 130, `GetZVector x 40`; shell; Endless Chase `32007b10( 0x1d )` x `+0x970 / +0x974` and `+0x978 / +0x97c` (= dungeon / PvP
+  min / max, funcmap row `31f8cc80`); `SetLockOn( effect, now, 4, max )` also with a null effect, as the port; no memo 23 branch. `SA_SCOPE_ABS` = 29, `SA_PROJECTILE_FIRE_COUNT` = 30 (enum count).
+- **Bullet Blitz `32be3f50` / `32be3fe0` / `32bffd20`.** Start: templet `31fca8e0( 0x65a2, 1 )`, unit check, `max( 1, GetSkillLevel( id, 0, 0, 1 ) )`, `32206e50( 2, level, 0, 0.0 )` into
+  `+0x9700`; the hyper one differs only by `add eax, 5`. FrameMove: cut-in 0.04, start set 0.001, mini gun 0.01, `..._Mini_Gun_Hit_Skill` at 0.598 (land 0), shell `Damage_Chung_CDC_Bullet_Blitz`
+  at 0.598 with land y; Endless Chase: main effect `+0x44c` (max life time; `+0x448` is the running life) x `32007b10( 1 )`, written only when the main effect exists, then the four ranges x
+  `32007b10( 0x1d )`. **JUNE_BUGS 511 reader search:** `june2017_re/dispsweep.py 9700` finds 3 hits in Chung's range `32bd86f0`-`32c25880`, all writes (`32be3fc8`, `32be405b`, ctor `32bf187f`),
+  no read and no `lea`: the row holds. In the port the only reader of `m_sBulletCount` is March's `#else`.
+- **Rapid Cannon `32bee140` / `32c079f0` / `32bee210`.** Ball count inlined in all three: class `0x75` (117) and `+0x97a0` -> `ex x 8 - ex + now`, else now (JUNE_BUGS 510). READY: `> 1` or
+  full hyper -> LOOP `0x13e`, else FINAL `0x13f`. FrameMove: `fire <= 2 x sete + 6` (26211 memo vs 26221), count `> 1` or full hyper -> loop set, `UseCannon( 1 )`, fire++ (protected int).
+  EventProcess: `FollowSlotSwap`; at animation end `2 x sete + 5 <= fire` -> FINAL; else not full hyper and count `== 1` -> FINAL; else `fire >= 2` (`MIN_NUMBER_OF_RAPID_CANNON_BULLET` 3 - 1)
+  and `IsKeyReleased` -> FINAL. All = the port.
+- **Rumble Shot `32c0dfe0`:** `UseCannon( 1 )` at 0.01, one `DAMAGE_CSI_SI_A_CSG_RUMBLE_SHOT_Shell` at 0.24 with land y. **Shooting Bind `32bdba90` / `32bdbab0`:** `+0x98d4` = 10.0, then
+  `32007b10( 0x94, 0x65b7 )` (`SA_COOLTIME_1`, 26039). **Burning Punisher `32bdbb40`:** 11 preloads, order and kind (5 textures, 6 skin meshes) = the port.
+- **Registration.** `ch1m_regcheck.py`: `matched 821 registrations, 0 problems; ids mapped 164`; the 7 label pairs and 4 script-only blocks (`GenericSpecialActiveSkillEventProcess` +
+  `CopyStateCallbacks`, Shooting Bind's two futures, Burning Punisher's Init) are in the diff as listed in the Done note.
+- **"= March":** `32bd9c70` (Comet Crasher preloads, order), `32be4070` (WAIT + 0.1, 1.2 s cancels), `32bfd2b0` (5 plays, loop set, `UseCannon( 1 )`), `32be8360` (JUMP_DOWN y - 45 / WAIT),
+  `32bf3900` (`CommonStateStart`, fire count = 0; the listing runs on) hold.
+- **Endless Chase not seen in the play-test = June.** `GetSkillLevelValue` (`31fceab0`) returns 0 for a `SPRT_HYPER_CLASS` skill of an untranscended unit, and June's `NewSkillTempletVer2` has
+  26418 `m_ePowerRate = SPRT_HYPER_CLASS`. So Endless Chase only works after transcendence; CH3d's hand-off (transcended Deadly Chaser) now carries that check.
+- **Play-test (logs, read by the CH3b session):** plays 12 / 15, hits 17 (berserk), fire 1 / 2 limit 6, Shooting Bind 10.0 / 2.0, Rumble Shot shell, `ES_CREATE` lines; ErrorLog: missing sounds only
+  (JUNE_BUGS 138 / 505 kind). Not seen and not needed for the verdict: a Rapid Cannon held to fire 6, Comet Crasher / Exciting Crash (bodies = March / script-only).
+- **Gates.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range e9962ecf^..e9962ecf --with JUNE_CHAR_CHUNG_SKILL_DEBUG`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`,
+  `RESULT: PASS` (OTHER = `X2SkillTree.h`, `JUNE_ENUM_NAMES`); numstat: code insert-only (cpp 440, h 8, SkillTree 12, Always.h 9; the 7 deletions are checklist / STATUS lines). Review edit
+  `--worktree --files KTDXLIB/Always.h`: `1 DEFINE, 0 FAIL`, `RESULT: PASS` (1 deleted line = the `_SKILL_DEBUG` define). `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+  `enumscan`: `0 A/B row(s)` (C 6, D 1).
+- **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,929,728 B, dated 2026-11-03 09:39:04, md5 4498411de9bed43d511aa36c16f2616c,
+  built at main 9554757f + `Always.h`. EXESTR OK: 4 of 4 absent (wide `... shooting star, max plays`, `... bullet blitz endless chase`, `... rapid cannon fire`, `... shooting bind start`), md5 4498411d.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

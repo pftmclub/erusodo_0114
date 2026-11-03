@@ -28,6 +28,9 @@ Do the CH3d row of the plan's CH3 table: hyper actives (type 13, 6 rows), the 3 
 `python tools/skillicons.py check <Chung's skill-id range>` = PASS (stage what it lists, `DLG_SKILL_Passive_*` included).
 - Hand-off: `python tools/elsdb.py settranscend <unit> 1` on one unit per second job (after a backup), slots A-5 / B-5, each hyper-class skill, the
   transcended picture and cut-in.
+- Hand-off, added by CH3b's review: on the transcended Deadly Chaser with Endless Chase 26418 learned (`SPRT_HYPER_CLASS`, reads 0 before transcendence),
+  Shooting Star logs `max plays` 12 + its fire count and Bullet Blitz stretches its shell (CH3b's `shooting star ... endless chase range` / `bullet blitz endless chase`
+  lines need `_SKILL_DEBUG` defined again).
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
 `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
