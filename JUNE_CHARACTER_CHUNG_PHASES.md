@@ -2814,6 +2814,8 @@ Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/st
 4. **Q / W / E / R upgrades.** The same four with the upgrade ids.
 Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
 
+**Play-test (user, 2026-11-03, logs).** First run: Wonder Wall cast Lunatic Blow (the 26010 / 26048 labels were missing, fixed in `c44834c8`; DEPLOY OK md5 0dd01573f4740bb091d1b083fd2f5b04). Second run passed: `wonder wall buff, level 1, allies 0, pvp 0` + `ES_CREATE EFFECTSET_CHG_WONDERWALL`; Iron Howling start -> loop 1 -> loop 2 -> end (`mp cost 5.0`, the loop state's skill id is 26046 = the upgrade, both skills are learned in the save; `EffectSet_SI_SA_CFG_IRON_HOWLING_LOOP` / `_ADDITION`); `guard first strike, balls now 2 / 1 / 0` + `ES_CREATE EffectSet_CFG_A_Guard_First_Strike`; Pain of Caladbolg `ES_CREATE`. `ErrorLog.txt`: 0 `CHUNG SKILL` errors. First-run Iron Howling loop read the default cost 10.0 (not seen again; the review checks the state skill id read).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
