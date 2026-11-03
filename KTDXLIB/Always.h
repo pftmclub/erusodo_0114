@@ -11423,5 +11423,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-03
 // Description: char-chung CH4a2 debug - one [JUNE_CHAR] CHUNG PASSIVE base line per base passive init ( the six element defences ).
 //              Temporary: retired in the CH4a2 review.
-#define SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
+//              CH4a2 review ( 2026-11-03 ): retired, the play-test logs ( 15:41-15:44 ) were read.
+//#define SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
 //////////////////////////////////////////////////////////////////////////

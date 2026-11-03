@@ -3207,6 +3207,36 @@ Files: `X2GUUser.cpp` / `.h`, `X2Unit.cpp`, `X2SkillTree.h` (names), `Always.h`.
 **In game:** one `[JUNE_CHAR] CHUNG PASSIVE base` line per user-unit passive init with the six element defences; the character window's element resistances
 on unit 43 include Elemental Defence A (before: 0 from it, March read id 6402).
 
+#### CH4a2 - Review (2026-11-03, Opus 5.5): PASS, no code change; `_DEBUG` retired
+
+Read against the listings of `31fe19d0`, `31fe0790`, `31fd8790`, `32274b00`, `3234b6b0`, `31edf060`.
+- **`31fe19d0` holds statement by statement, in June's order.** `322718e0`; five list clears `+0x66ac..+0x66ec` (the fifth under `JUNE_UNIT_DELEGATE_LIST`, defined);
+  `FLD1` to `+0x4058` / `+0x4054` (the setter stores 1.0 unchanged), `+0x4060` = 0, `+0x8df0` = 0 (`NEW_CHARACTER_EL` defined). `GetSkillLevel` pushes
+  `( id, 1, 0, 1 )` for 0x68 / 0x6b09 / 0x6721 and `( id, 0, 0, 1 )` for 0x6ef5 / 0x76c9; SA pushes 5 / 0x27 / 0x58 / 0x58 / 0x54 x6. Every value checked with
+  `enumprobe.py` (SA 5 / 39 / 88 / 84 / 94-101, skills 104 / 509 / 27401 / 26401 / 28405 / 30409, EDT 3 / 17 / 8 / 1 / 9 / 18 / 55 / 24 / 4): equal to June's pushes.
+- **Get Chance:** `x [3342f360]` as a double, then ftol `32fe25f0`, then `+=`: same as `static_cast<int>( float x 100.0 )`. Gate: `31edf060` = `g_pData +0x68 ->
+  +0x90 -> +0xaf0 -> +4` (my unit's templet class, 0 when NULL) = `GetMyUser()->GetSelectUnit()->GetClass()`, then `HasMemoClass` with no reference to the unit
+  being initialised (JUNE_BUGS 516 holds).
+- **Guild flag:** `+0x8ad0` = 0 before `328907e0( 0x1fd, unit +0x988 grade )`, 1 on non-NULL: holds.
+- **27401 clamp:** float(value) - 1 + 5e-8 (double `3346ed68`) rounded to float, + `+0x4058` rounded to float; `fcom [334350e8]` (= 0.0) `test ah,0x41 / jnp` and
+  `fcompp` against the leftover 1.0: 1.0 when `<= 0` or `> 1`. March's `SetForceDownValueRateOfMeleeAttack` (`X2GameUnit.h:1940`) clamps exactly that way.
+- **Enchant block:** six zero stores `+0x9258..+0x926c` (= `m_EnchantStatFromPassiveSkill.Init()`), then 26401 one value on all six, 28405 blaze, 30409 six reads; then
+  `31fe0790`, `+0x92a0` = 1, `+0x93b8` = 0 (last store): holds.
+- **`31fe0790`:** 26401 `( 1, 0, 1 )`, nine `31fe0730` pairs SA 0x5e / 0x5f / 0x60 / 0x61 / 0x62 / 0x63 / **0x63** / 0x64 / 0x65 -> EDT 3 / 17 / 8 / 1 / 9 / 18 / 55 / 24 / 4: holds.
+- **`31fd8790`:** per type passive float + protected buff resist (the same decode as base `32274b00`, March's `GetResultValue()`), then `fild` map value: holds.
+  The map's other readers: base `GetEnchantResist` and `IsImmuneToEnchant` (`> EAR_MAX_VALUE`, unreachable for users since `AddDefenceEnchantData` caps at the max);
+  nothing else read the passive share from the map.
+- **`3234b6b0`:** six zero stores `+0xd3c..+0xd50`, the same three blocks on `this +0x494`: holds.
+- **Dropped March blocks** (`SI_P_RF_INDUCE_DESIRE_WINNING` 4402, `SI_P_RF_HARDEN_BODY` 4401, `SI_P_ALH_VIGOR_ENERGIZE` 7401): the save has no skill id between 1000
+  and 20000 (`elsdb.py q`), so no unit reached them; June's Raven 24404 is Raven's own override (Stage 7 Raven port).
+- **Play-test logs:** read in the Done note (15:41-15:44): unit 43 100 on all six, unit 21 blaze 120, 0 EXCEPTION.
+- **Retired:** `SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG` commented out.
+
+**Hygiene.** `flagcheck.py JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE --with JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG --range f0b7edba^..f0b7edba` (Always.h, X2GUUser.*,
+X2SkillTree.h, X2Unit.cpp): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `junediverge.py --check-all`:
+`allow-listed: 181` `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2Unit.cpp`: no row inside the CH4a2 blocks.
+**Deploy:** not awaited (the only change retires a `_DEBUG` define; rule 2026-11-03).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`. Sub-tag `UI`.
