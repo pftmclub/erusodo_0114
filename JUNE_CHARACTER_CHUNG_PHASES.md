@@ -2880,6 +2880,8 @@ Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/st
 5. **W Stun Shot, E Shooting Bind, R Burning Punisher.** Each plays June's motion and effect; Shooting Bind logs `shooting bind start, cool time left 10.0` and `end` (its slot shows the cool time after).
 Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
 
+**Play-test (user, 2026-11-03, logs).** Run 09:19-09:22 on the CH3b exe (md5 fa23c41e). Shooting Star `max plays 12` (normal) and `15` (berserk); Shooting Bind `start, cool time left 10.0` then `end, cool time left 2.0` (x4); `rumble shot shell` x3; Rapid Cannon `fire 1` / `fire 2, limit 6` then the Final effect set (x4, tapped); Bullet Blitz `start, hits 17` (12 + 5, both casts in the berserk mode) with `shell, hyper 1`; `ES_CREATE` for Heavy Railgun, Stun Shot (x4), Burning Punisher (x2), Shooting Bind, Gatling Loop / Final. `ErrorLog.txt`: 0 `CHUNG SKILL` errors; missing sounds only (`CHUNG_RUMBLESHOT_RUMBLE.OGG` x3 is new, `CHUNG_CANNONGUN_FIRE.OGG`, Scare Chase ones = JUNE_BUGS 138 / 505 kind). **Not seen:** the Endless Chase lines (no `endless chase` on Shooting Star or Bullet Blitz although 26418 is in the save, level 1: `GetSkillLevelValue` reads 0, probably June's transcendence gate on that passive; the review checks it, and `settranscend 50 1` tests it); a Bullet Blitz cast outside the berserk mode (hits 12); a Rapid Cannon held to the limit (fire 6); Comet Crasher and Exciting Crash (not slotted).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
