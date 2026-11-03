@@ -2979,6 +2979,37 @@ So a summoned NPC carries heap garbage, and a 1 makes the walk strip its camera 
 **Play-test hand-off.** Unit 18 `Freils`, a fresh game session, field 40001 as in round 3: the first **C Heavy Field** cast (hold, steer with the arrows) and the first **R Missile Shower** cast. Expected: the camera follows the reticle from the start, every time. Logs: `camera heavy field: npc focused 1`, `camera artillery strike: npc focused 1` with `force 1` on every sample, and `npc main boss 0, boss group 0`. Not fixed if: any `npc focused 0` with `npc main boss 0`, which means a second cause (the kickoff's other branches).
 **Play-test (user, 2026-11-03, logs 11:24-11:25, exe daf29b95): PASS, "it works".** There were 6 casts (3 Heavy Field, 3 Missile Shower) and 37 samples: 31 `npc focused 1`, `force 1` on all 37, `npc main boss 0, boss group 0` on all 37, and no `main boss 1`. Missile Shower keeps `force 1` (round 3: 0 after its first sample). The 6 `focused 0` samples are each cast's first (`npc state 6` = start state). That sample is logged on the frame the camera is handed over, before the focus walk runs, so it is not a lost camera: the focus is the NPC from the next sample on.
 
+### CH3c2 - Review (2026-11-03, Opus 5.5)
+
+**Verdict: PASS, no code change.** `_SKILL_DEBUG` retired.
+
+**Ghidra (read-only).**
+- The June ctor `32762670` writes `+0x8e7c` as a dword from `EBX` (zeroed @3276268b) @3276344b, and `+0x8e81` as a word @32762952. It never writes `+0x8e80`, and none of its calls is a memset (`32fe2300` is a 5-byte stub). The bug row holds.
+- The walk `32d530a0` @32d53173 runs `CMP byte [EDI+0x8e80],1` / `JNZ`. Then it tests the cinematic bytes `[+0x8c4]`, `[+0x8c4]+1` and writes `+0x8d34 = 0` (Force). That is March's `X2BattleFieldGame.cpp` ~1223 clause.
+- Own byte scan of `unpacked_x2.exe` for disp32 `0x8e80`: 9 opcode hits.
+  - NPC writes: `32d53b73` (0), `32d53b83` (CL), beside `32d53b60` (`+0x8e7c`); `32796bb5`/`32796bbf` (`SetBossGroupID( 0 ); SetIsMainBoss( false )`, `X2GUNPC.cpp` ~15341).
+  - Reads: `32d53173`, `32d515c6` (a compare with 0 in the battlefield game code, not placed), and `32272753` (funcmap `322726f0`: the Rena Supersonic HP-rate gate that reads the defender's byte, Rena port).
+  - The dword writes `31fe62e4`, `3203a8b8` and `32042419` sit in `CX2GUUser` code (another class's `+0x8e80`).
+- `+0x8e7c` / `+0x8e80` = March's `m_uiBossGroupID` / `m_bIsMainBoss` (`X2GUNPC.h` 4652-4653, the setters in `X2BattleFieldGame.cpp` 995-1003).
+
+**No March path relied on the garbage.**
+- Only field monsters (995-1003) and the boss hand-over set the two members. A summoned NPC now reads group 0 and main 0.
+- So `GetChainedBossGroup` (1836-1849, the main-boss finder and the `> 100` event-boss pick) skips it, and its death hand-over (`X2GUNPC.cpp` 15320, `GetBossGroupID() > 0`) does not run. Both now match June, since June zeroes the group.
+- Before, a garbage group could have handed the boss indicator or damage map to a summon.
+- Both ctors are covered (`X2GUNPC.cpp` 1760, 1911; 1765 is commented out).
+
+**Logs (11:24-11:25, exe daf29b95).** 74 camera lines, 37 samples, `main boss 0, boss group 0` on all 37, `force 1` on all 37. The only `focused 0` samples are each cast's first (state 6), as the Done note says. Missile Shower keeps force 1.
+
+**Note.** The `m_uiBossGroupID( 0 )` init sits under `_CHUNG_SKILL`, a class flag for an NPC-wide June init. It is kept: flagcheck passes and the change is June's. A flag split is not worth a rebuild.
+
+**Hygiene.**
+- `flagcheck JUNE_FIX_NPC_MAIN_BOSS_INIT --range 21523866^..21523866`: `1 DEFINE, 2 OTHER, 0 FAIL`, `0 deleted line(s)`, `RESULT: PASS`.
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with ..._SKILL_DEBUG` (same range): `1 PASS, 2 OTHER, 0 FAIL`, `RESULT: PASS`.
+- `_SKILL_DEBUG --worktree`: the expected retirement shape (1 deleted line = the commented-out `#define`).
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan --check X2GUNPC.cpp`: `0 A/B row(s)`.
+- DEPLOY OK: X2_offline.exe is 25,934,848 B, dated 2026-11-03 11:39:57, md5 02cb7a47037bb727b36f844099cde3e0, equal to X2/US_SERVICE/x2.exe (2026-11-03 11:39:50); built at main 11b14ff5 + 1 uncommitted code file(s).
+- EXESTR OK: 2 of 2 absent (wide `CHUNG SKILL camera`, `CHUNG SKILL heavy field`), md5 02cb7a47.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

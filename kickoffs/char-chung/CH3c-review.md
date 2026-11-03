@@ -37,5 +37,5 @@ Check CH3c against June (read-only; read the listings, not the decompiles). In o
   `ES_CREATE` for the effect sets, `ErrorLog.txt` (no missing mesh / particle / sound of JUNE_BUGS 505's kind, no `DAMAGE_EFFECT` / NPC state error for the SHOT_ARTILLERY states).
 
 Hygiene: `python tools/flagcheck.py JUNE_CHAR_CHUNG_SKILL --range <CH3c commit>^..<CH3c commit> --with JUNE_CHAR_CHUNG_SKILL_DEBUG`, `git diff --patience --numstat`, `junediverge.py --check-all`,
-`enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`, `skillicons.py check` (the 16 ids), `ch1m_regcheck.py`. Retire `_SKILL_DEBUG` (comment out the define, note it in the review). Write
+`enumscan.py --check X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h`, `skillicons.py check` (the 16 ids), `ch1m_regcheck.py`. `_SKILL_DEBUG` is already retired (CH3c2 review, 2026-11-03): judge the play-test from the CH3c Done note's round-1 lines; do not re-define it. Write
 "CH3c - Review" into the plan doc, update the STATUS rows (CH3d unblocks) and commit.
