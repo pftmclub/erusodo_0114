@@ -1,0 +1,59 @@
+offset	kind	name	note
+0x2b0	field	m_fElapsedTime	CX2GameUnit
+0x304	field	m_PhysicParam.nowSpeed.x
+0x308	field	m_PhysicParam.nowSpeed.y
+0x314	field	m_PhysicParam.fDownAccel	FLY_DOWN StartFuture: = fGAccel * -0.8
+0x31c	field	m_PhysicParam.fGAccel
+0x320	field	m_PhysicParam.fMaxGSpeed
+0xc04	field	GetGageData()	Elsword: CX2ElswordGageData* ( way of the sword )
+0x3e59	field	m_bAbsoluteInvisibility	GetAbsoluteInvisibility()
+0x423c	field	m_fRunJumpSpeedRate	GetWalkSpeed / GetDashSpeed multiply it
+0x4910	field	walk speed triple ( +0x4910 ^ +0x4914 ^ &+0x4918 )	GetWalkSpeed()
+0x49c4	field	dash speed triple	GetDashSpeed() ( also called as 32071a80 )
+0x4a78	field	jump speed triple	GetJumpSpeed()
+0x4b2c	field	dash jump speed triple	GetDashJumpSpeed()
+0x7d14	field	m_FrameDataFuture
+0x7d85	field	m_FrameDataFuture.stateParam.bEventFlagList[0]
+0x7de8	field	m_FrameDataFuture.unitCondition.fStateTime
+0x7e1c	field	m_FrameDataFuture.unitCondition.bFootOnLine	IsOnSomethingFuture()
+0x7e20	field	m_FrameDataFuture.unitCondition.landPosition
+0x7e31	field	m_FrameDataFuture.unitCondition.bFootOnWall
+0x7e3c	field	m_FrameDataFuture.syncData.position.x	+4 y, +8 z
+0x7e54	field	m_FrameDataFuture.syncData.lastTouchLineIndex	ushort
+0x7e56	field	m_FrameDataFuture.syncData.bIsRight
+0x7fb4	field	m_FrameDataNow
+0x80c4	field	m_FrameDataNow.unitCondition.landPosition.y
+0x80f6	field	m_FrameDataNow.syncData.bIsRight
+0x84f3	field	m_bDisableGravity
+0x867c	field	GetUnit()	CX2Unit*
+0x86da	field	m_InputData.pureLeft	groups of 4 ( pure, one, pureDouble, oneDouble ) in March's key order; 0x8722 pureLCtr, 0x8726 pureSit, 0x8727 oneSit
+0x87d0	field	m_pXSkinAnimFuture	anim +0x214 now time, +0x220 max time, +0x2ac IsAnimationEnd, +0x2b0 transition time
+0x87d4	field	m_pXSkinAnim
+0x89d8	field	m_ePlayedEmotion	GetNowEmotionId(); Wait EventProcess 32bf5de0 tests == ET_NONE ( CH1a review )
+0x8a60	field	m_pComboGuide
+0x8bf8	field	m_bDownForce
+0x8d4c	field	m_bHyperModeStartedByInput	set by SKILL_CANCEL_AFTER ( CH1a review )
+0x5c	vslot	StateChange( int, bool )
+0x84	vslot	GetBonePos( wstring )
+0xd8	vslot	GetNowMp()
+0x150	vslot	GetRotateDegree()
+0x16c	vslot	GetDirVector()
+0x170	vslot	GetIsRight()
+0x1cc	vslot	GetRandomFloat( int )	( CH1a review )
+0x200	vslot	GetRidingOn()
+0x55c	vslot	TryHyperModeStateChange( int )
+0x5f4	vslot	COMMON_RELATIONSHIP_SKILL_FrameMove()
+0x5f8	vslot	COMMON_RELATIONSHIP_SKILL_EventProcess()
+0x5fc	vslot	DashStartFuture()	Eve override 32965f80
+0x668	vslot	StateChangeDashIfPossible()
+0x6b8	vslot	GetHyperModeStateID()	Eve 32968470 returns 0x17 USI_HYPER_MODE
+0x7c0	vslot	CommonStateStartFuture()
+0x7c4	vslot	CommonStateStart()
+0x7c8	vslot	CommonFrameMoveFuture()
+0x7cc	vslot	CommonFrameMove()
+0x7d4	vslot	CommonEventProcess()
+0x7d8	vslot	CommonStateEndFuture()
+0x7dc	vslot	CommonStateEnd()
+0x7ec	vslot	CreateStepDust()
+0x7f4	vslot	SpecialAttackEventProcess( ASUT )	1 = ASUT_GROUND, 2 = ASUT_AIR
+0x8e84	field	alternate future animation	CX2GUUser: +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture ( 32070cf0 ); read as m_pXSkinAnimFuture ( CH1b )

@@ -5518,18 +5518,82 @@ void CX2GUElsword_SwordMan::WinFrameMove()
 //USI_WAIT
 void CX2GUElsword_SwordMan::WaitStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf33a0
 	CommonStateStartFuture();
 	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::WaitStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5930
 	CommonStateStart();
 	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::WaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0db30: Z has no re-attack gate; wait enters ESSI_SWORD_WAIT from the way of the sword state
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_COMBO_X1 );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( ( WSS_VIGOR == GetWayOfSwordState() || WSS_DESTRUCTION == GetWayOfSwordState() )
+		&& m_FrameDataNow.unitCondition.fStateTime >= 0.1f )
+	{
+		StateChange( ESSI_SWORD_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5604,6 +5668,7 @@ void CX2GUElsword_SwordMan::WaitEventProcess()
 	}
 #endif //RIDING_SYSTEM
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -5621,6 +5686,49 @@ void CX2GUElsword_SwordMan::WalkStart()
 
 void CX2GUElsword_SwordMan::WalkEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0dd90: Z has no re-attack gate
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_COMBO_X1 );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( false == m_InputData.pureRight && false == m_InputData.pureLeft )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5692,12 +5800,44 @@ void CX2GUElsword_SwordMan::WalkEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //USI_JUMP_READY
 void CX2GUElsword_SwordMan::JumpReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d072a0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_JUMP_ATTACK_Z );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_JUMP_ATTACK_X );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() || true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5728,10 +5868,42 @@ void CX2GUElsword_SwordMan::JumpReadyEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::JumpUpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf33d0
+	if ( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		if ( true == GetEnableDash() )
+		{
+			StateChange( USI_DASH_JUMP );
+		}
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_JUMP_ATTACK_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_JUMP_ATTACK_X );
+	}
+	else if ( m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
 	{
 		if( GetEnableDash() == true )
@@ -5762,10 +5934,52 @@ void CX2GUElsword_SwordMan::JumpUpEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::JumpDownEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5960: no cliff-climb branch
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	else if ( true == m_FrameDataFuture.unitCondition.bFootOnWall
+		&& ( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ESSI_WALL_LANDING );
+	}
+	else if ( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		if ( true == GetEnableDash() )
+		{
+			StateChange( USI_DASH_JUMP );
+		}
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_JUMP_ATTACK_Z );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_JUMP_ATTACK_X );
+	}
+	else if ( m_PhysicParam.nowSpeed.y >= 0.0f )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_LANDING );
@@ -5814,10 +6028,62 @@ void CX2GUElsword_SwordMan::JumpDownEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::JumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0df70: Z has no re-attack gate
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_COMBO_X1 );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		StateChange( USI_WAIT, false );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5870,10 +6136,65 @@ void CX2GUElsword_SwordMan::JumpLandingEventProcess()
 	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0e210
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_DASH_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_DASH_ATTACK_X );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.oneUp )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( false == m_InputData.pureRight && false == m_InputData.pureLeft )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP );
@@ -5950,25 +6271,46 @@ void CX2GUElsword_SwordMan::DashEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_DASH_END
 void CX2GUElsword_SwordMan::DashEndStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d073a0
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashEndStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3470
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
 void CX2GUElsword_SwordMan::DashEndFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5a40
+	if ( true == m_pXSkinAnim->EventTimer( 0.4f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnim->EventTimer( 0.4f ) == true )
 	{
 		CreateStepDust();
@@ -5976,10 +6318,82 @@ void CX2GUElsword_SwordMan::DashEndFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashEndEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0e410: Z has no re-attack gate
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() * 0.125f )
+		{
+			StateChange( ESSI_COMBO_Z1 );
+		}
+		else
+		{
+			StateChange( ESSI_DASH_COMBO_Z1 );
+		}
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() * 0.125f )
+		{
+			StateChange( ESSI_COMBO_X1 );
+		}
+		else
+		{
+			StateChange( ESSI_DASH_ATTACK_X );
+		}
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneUp )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6054,6 +6468,7 @@ void CX2GUElsword_SwordMan::DashEndEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -6093,6 +6508,110 @@ void CX2GUElsword_SwordMan::DashJumpFrameMoveFuture()
 
 void CX2GUElsword_SwordMan::DashJumpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d073e0: no cliff-climb branch; both keys held re-test the key press against the facing
+	if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+			m_bDownForce = false;
+		}
+		else if ( true == m_bDownForce )
+		{
+			StateChange( ESSI_DASH_JUMP_POWER_LANDING );
+			m_bDownForce = false;
+		}
+		else
+		{
+			if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_DASH_JUMP_LANDING );
+			}
+			m_bDownForce = false;
+		}
+	}
+	else if ( true == m_FrameDataFuture.unitCondition.bFootOnWall
+		&& ( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ESSI_WALL_LANDING );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_DASH_JUMP_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX && m_fReDashJumpXTime <= 0.0f )
+	{
+		StateChange( ESSI_DASH_JUMP_COMBO_X1 );
+	}
+	else if ( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+	{
+		if ( ( true == m_InputData.oneRight && false == m_FrameDataFuture.syncData.bIsRight )
+			|| ( true == m_InputData.oneLeft && true == m_FrameDataFuture.syncData.bIsRight ) )
+		{
+			if ( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if ( true == m_InputData.pureRight )
+	{
+		if ( false == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if ( true == m_InputData.pureLeft )
+	{
+		if ( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if ( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if ( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	if ( true == m_InputData.oneUp && m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if ( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( true == IsOnSomethingFuture() )
 	{
 		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
@@ -6187,6 +6706,7 @@ void CX2GUElsword_SwordMan::DashJumpEventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpEndFuture()
@@ -6197,6 +6717,59 @@ void CX2GUElsword_SwordMan::DashJumpEndFuture()
 
 void CX2GUElsword_SwordMan::DashJumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0e6c0: the Z test is a separate if after the off-line check
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_COMBO_X1 );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.oneLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6249,27 +6822,91 @@ void CX2GUElsword_SwordMan::DashJumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_DASH_JUMP_POWER_LANDING
 void CX2GUElsword_SwordMan::DashJumpPowerLandingStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3480
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x /= 2.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpPowerLandingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf34b0
+	CommonStateStart();
+	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStart();
 
 
 	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
 void CX2GUElsword_SwordMan::DashJumpPowerLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0e8e0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneRight || true == m_InputData.oneLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 6.0f )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			StateChange( ESSI_COMBO_Z1 );
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			StateChange( ESSI_COMBO_X1 );
+		}
+		else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+		{
+		}
+		else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if ( true == m_InputData.pureUp )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if ( true == m_InputData.oneDown
+			&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+				&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6322,6 +6959,7 @@ void CX2GUElsword_SwordMan::DashJumpPowerLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -13037,6 +13675,48 @@ void CX2GUElsword_SwordMan::THROW_WOODEN_PIECE_FrameMove()
 
 void CX2GUElsword_SwordMan::ESSI_LEAP_StartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d119b0: no early return when no target is found, as March
+	m_fElapsedTimeToLeap = 0.0f;
+	m_bLeaping = true;
+
+	int iTargetNPCUID = g_pX2Game->GetNearestNPCUnitUID( GetPos(), -1 );
+	if ( 0 == iTargetNPCUID )
+		StateChange( m_CommonState.m_Wait );
+
+	CX2GUNPC* pTargetNPC = g_pX2Game->GetNPCUnitByUID( iTargetNPCUID );
+	if ( NULL == pTargetNPC )
+		StateChange( m_CommonState.m_Wait );
+
+	m_fTimeToLeap = 1.0f;
+	m_StartPosToLeap = GetPos();
+
+	pTargetNPC->GetPos();
+	D3DXVECTOR3 vecToTarget = pTargetNPC->GetPos() - GetPos();
+	D3DXVec3Normalize( &m_DirVecToLeap, &vecToTarget );
+
+	float fHypotenuseLength = D3DXVec3Length( &vecToTarget );
+	vecToTarget.y = 0;
+	float fBaseLineLength = D3DXVec3Length( &vecToTarget );
+
+	float fDegree = D3DXToDegree( acosf( fBaseLineLength / fHypotenuseLength ) );
+	fDegree = abs( fDegree );
+
+	int iDegreeToLeap = 45;
+	if ( fDegree >= 45 )
+		iDegreeToLeap = 45 - (int)fDegree;
+
+	if ( iDegreeToLeap < 10 )
+		iDegreeToLeap = 10;
+
+	m_fParallelSpeedToLeap = fBaseLineLength / m_fTimeToLeap;
+
+	m_fHeightToLeap = fHypotenuseLength / 3.0f;
+	m_fHeightToLeap *= iDegreeToLeap / 45.0f;
+	m_fVerticalSpeedToLeap = 2.0f * m_fHeightToLeap / pow( m_fTimeToLeap / 2.0f, 2 ) * ( m_fTimeToLeap / 2.0f );
+
+	m_DegreeToLeap = (int)fDegree;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	m_bLeaping = true;
 	m_fElapsedTimeToLeap = 0.0f;
 
@@ -13113,11 +13793,49 @@ void CX2GUElsword_SwordMan::ESSI_LEAP_StartFuture()
 	
 
 	m_DegreeToLeap = (int)degree;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
 void CX2GUElsword_SwordMan::ESSI_LEAP_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfa360
+	CommonFrameMoveFuture();
+
+	m_fElapsedTimeToLeap += m_fElapsedTime;
+	m_FrameDataFuture.syncData.position = m_StartPosToLeap;
+
+	D3DXVECTOR3 vecMove = m_DirVecToLeap;
+	vecMove.y = 0;
+	D3DXVec3Normalize( &vecMove, &vecMove );
+	vecMove = m_DirVecToLeap * m_fElapsedTimeToLeap * m_fParallelSpeedToLeap;
+	float fMoveHeight = vecMove.y;
+
+	m_FrameDataFuture.syncData.position.x += vecMove.x;
+	m_FrameDataFuture.syncData.position.z += vecMove.z;
+	m_FrameDataFuture.syncData.position.y += fMoveHeight;
+
+	D3DXVECTOR3 vecHeight = D3DXVECTOR3( 0, 0, 0 );
+	vecHeight.y = ( m_fVerticalSpeedToLeap * m_fElapsedTimeToLeap )
+		- ( 0.5f * ( 2.0f * m_fHeightToLeap / pow( m_fTimeToLeap / 2.0f, 2 ) ) * pow( m_fElapsedTimeToLeap, 2 ) );
+
+	D3DXMATRIX matRotate;
+	D3DXMatrixIdentity( &matRotate );
+	D3DXMatrixRotationY( &matRotate, D3DXToRadian( 90 ) );
+	D3DXVECTOR3 vecAxis;
+	D3DXVec3TransformNormal( &vecAxis, &m_DirVecToLeap, &matRotate );
+	D3DXVec3Normalize( &vecAxis, &vecAxis );
+
+	D3DXMatrixIdentity( &matRotate );
+	D3DXMatrixRotationAxis( &matRotate, &vecAxis, D3DXToRadian( m_DegreeToLeap ) );
+	D3DXVec3TransformCoord( &vecHeight, &vecHeight, &matRotate );
+
+	m_FrameDataFuture.syncData.position += vecHeight;
+
+	m_FrameDataFuture.unitCondition.dirDegree = m_DirVecToLeap;
+	m_FrameDataFuture.unitCondition.dirVector = m_DirVecToLeap;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonFrameMoveFuture();
 
 	m_fElapsedTimeToLeap += m_fElapsedTime;
@@ -13168,10 +13886,18 @@ void CX2GUElsword_SwordMan::ESSI_LEAP_FrameMoveFuture()
 
 
 	
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_LEAP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3ca0
+	if ( m_fTimeToLeap <= m_fElapsedTimeToLeap )
+		StateChange( m_CommonState.m_Wait );
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	/*
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -13186,11 +13912,18 @@ void CX2GUElsword_SwordMan::ESSI_LEAP_EventProcess()
 
 	CommonEventProcess();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 void CX2GUElsword_SwordMan::ESSI_LEAP_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3ce0
 	m_bLeaping = false;
 	m_fElapsedTimeToLeap = 0.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	m_bLeaping = false;
+	m_fElapsedTimeToLeap = 0.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_SI_A_ES_KICK_Start()

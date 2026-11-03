@@ -7349,3 +7349,25 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 322cd5c0	CX2Game::UpdateElswordSkillSlotEffect (skill slot Vigor/Destruction frames Static_EL_SKILL_B_B / R_B) (X2Game.cpp:13458, 13534-13560 + h:1408)	confirmed	Char Elsword CH0 Way of the Sword (ch0_wos.tsv, piece class): strings Static_EL_SKILL_B_B 33489ec4 / R_B 33489e9c xref 322cd6a5..; called at the end of UpdateUIElswordWSP 32e681a9; Elesis UI 32e69a80 calls it too
 32371180	CX2BuffTemplet PHANTOM_BLADE_* key reader (X2BuffTemplet.cpp:1227-1233; Sheath Knight phantom-sword buff, not Way of the Sword)	confirmed	Char Elsword CH0 Way of the Sword (ch0_wos.tsv, piece lua): xorstrings: 5 keys 3237121a / 32371448 / 3237166a / 3237183b / 32371a08 (flags 1,2,4,8,0x10); Sheath Knight phantom-sword buff, not the WoS gauge
 32d1f8f0	CX2GUElsword_SwordMan::InitStateCommon (registers the common states, ids 7-286)	confirmed	Char Elsword CH0: called by InitState 32d23ff0; ch0c_listing_check 180 / 180 rows (ch0_reg.tsv)
+32cf33a0	CX2GUElsword_SwordMan::WaitStartFuture	PORTED	Char Elsword CH1a: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf5930	CX2GUElsword_SwordMan::WaitStart	PORTED	Char Elsword CH1a: inside; = March
+32d0db30	CX2GUElsword_SwordMan::WaitEventProcess	PORTED	Char Elsword CH1a: inside; Z needs no re-attack gate (March: m_bReAttackZ1Right / m_fReAttackZ1Time); way-of-the-sword wait branch (vslot 0x674 = +0x114 of the gage data) = March
+32d0dd90	CX2GUElsword_SwordMan::WalkEventProcess	PORTED	Char Elsword CH1a: inside; Z needs no re-attack gate
+32d072a0	CX2GUElsword_SwordMan::JumpReadyEventProcess	PORTED	Char Elsword CH1a: inside; = March
+32cf33d0	CX2GUElsword_SwordMan::JumpUpEventProcess	PORTED	Char Elsword CH1a: inside; = March (GetEnableDash( EDS_END ) = push 2)
+32cf5960	CX2GUElsword_SwordMan::JumpDownEventProcess	PORTED	Char Elsword CH1a: inside; no cliff-climb branch (March: IsOnCliffFuture + pureUp -> m_ClimbUp, live in March)
+32d0df70	CX2GUElsword_SwordMan::JumpLandingEventProcess	PORTED	Char Elsword CH1a: inside; Z needs no re-attack gate
+32d0e210	CX2GUElsword_SwordMan::DashEventProcess	PORTED	Char Elsword CH1a: inside; = March
+32d073a0	CX2GUElsword_SwordMan::DashEndStartFuture	PORTED	Char Elsword CH1a: inside; = March (nowSpeed.x = GetDashSpeed())
+32cf3470	CX2GUElsword_SwordMan::DashEndStart	PORTED	Char Elsword CH1a: inside; tail call of vslot 0x7c4 CommonStateStart = March
+32cf5a40	CX2GUElsword_SwordMan::DashEndFrameMove	PORTED	Char Elsword CH1a: inside; = March (EventTimer 0.4 -> CreateStepDust, then CommonFrameMove)
+32d0e410	CX2GUElsword_SwordMan::DashEndEventProcess	PORTED	Char Elsword CH1a: inside; Z needs no re-attack gate; time test is ( max - transition ) * 0.125 = GetMaxAnimationTime() / 8
+32d073e0	CX2GUElsword_SwordMan::DashJumpEventProcess	PORTED	Char Elsword CH1a: inside; no cliff-climb branch; new both-keys branch ( pureRight && pureLeft: oneRight vs facing, then the jump-speed clamp ) before the single-key branches
+32d0e6c0	CX2GUElsword_SwordMan::DashJumpLandingEventProcess	PORTED	Char Elsword CH1a: inside; = March (the Z test is a separate if after the off-line check, as March)
+32cf3480	CX2GUElsword_SwordMan::DashJumpPowerLandingStartFuture	PORTED	Char Elsword CH1a: inside; nowSpeed.x *= 0.5 = March / 2
+32cf34b0	CX2GUElsword_SwordMan::DashJumpPowerLandingStart	PORTED	Char Elsword CH1a: inside; CommonStateStart then vslot 0x7ec CreateStepDust = March
+32d0e8e0	CX2GUElsword_SwordMan::DashJumpPowerLandingEventProcess	PORTED	Char Elsword CH1a: inside; = March
+32d119b0	CX2GUElsword_SwordMan::ESSI_LEAP_StartFuture	PORTED	Char Elsword CH1a: inside; = March incl. no early return when no NPC is found; CX2Game::GetNearestNPCUnitUID called by its March name ( replace row 322d2680, body in CH1o )
+32cfa360	CX2GUElsword_SwordMan::ESSI_LEAP_FrameMoveFuture	PORTED	Char Elsword CH1a: inside; = March
+32cf3ca0	CX2GUElsword_SwordMan::ESSI_LEAP_EventProcess	PORTED	Char Elsword CH1a: inside; m_fTimeToLeap <= m_fElapsedTimeToLeap -> m_CommonState.m_Wait ( +0x4088 ) = March
+32cf3ce0	CX2GUElsword_SwordMan::ESSI_LEAP_End	PORTED	Char Elsword CH1a: inside; m_bLeaping ( +0x899d ) = false, elapsed ( +0x9604 ) = 0 = March

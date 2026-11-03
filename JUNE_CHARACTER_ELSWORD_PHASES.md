@@ -369,6 +369,38 @@ phase that owns the function. June's numbers and quirks verbatim; `m_fNowStatePo
 the Way of the Sword gauge moves toward vigor and destruction and enters both modes as June; `charport_scan.py` / `charport_keys.py
 Elsword_SwordMan` show nothing new.
 
+### CH1a - Done (2026-11-04)
+
+All 22 class-map rows of phase CH1a are written, all `inside`: June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`.
+No `new` row, so no `_CORE` define yet (the first phase with a `new` row adds it, and the `#error` guard `_LIVE` then needs). `_LIVE` is in `Always.h` as `//#define`, as the kickoff says.
+22 funcmap rows `Char Elsword CH1a`. `june2017_re/char_elsword/ch1_offsets.tsv` is new (seeded from Chung's, class fields dropped; the review confirms the Elsword fields).
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cf33a0` `32cf5930` `32d0db30` | WaitStartFuture / WaitStart / WaitEventProcess | `32d0dd90` `32d072a0` | WalkEventProcess / JumpReadyEventProcess |
+| `32cf33d0` `32cf5960` `32d0df70` | JumpUp / JumpDown / JumpLanding EventProcess | `32d0e210` | DashEventProcess |
+| `32d073a0` `32cf3470` `32cf5a40` `32d0e410` | DashEnd StartFuture / Start / FrameMove / EventProcess | `32d073e0` `32d0e6c0` | DashJump / DashJumpLanding EventProcess |
+| `32cf3480` `32cf34b0` `32d0e8e0` | DashJumpPowerLanding StartFuture / Start / EventProcess | `32d119b0` `32cfa360` `32cf3ca0` `32cf3ce0` | ESSI_LEAP StartFuture / FrameMoveFuture / EventProcess / End |
+
+**Where June differs from March** (everything else is March's logic written out whole; checked against the listings, `charport_adis.py elsword`):
+- **Z needs no re-attack gate** in Wait, Walk, JumpLanding and DashEnd: June tests `oneZ` alone. March also needs `m_bReAttackZ1Right != bIsRight || m_fReAttackZ1Time <= 0`.
+- **No cliff-climb branch** in JumpDown and DashJump (March's `IsOnCliffFuture() && pureUp && nowSpeed.y <= 0 -> m_CommonState.m_ClimbUp` is live in March).
+- **DashJump, both keys held** (`pureRight && pureLeft`): when `oneRight` against a left facing or `oneLeft` against a right facing, the jump speed is clamped and the state goes to JUMP_UP / JUMP_DOWN; otherwise nothing. The single-key branches follow as in March.
+- **Wait** enters `ESSI_SWORD_WAIT` from the way-of-the-sword state (vigor / destruction after 0.1 s), as March's live branch; the getter is vslot 0x674 (`32cf50f0` returns gage data `+0x114`), called through March's `GetWayOfSwordState()`. Its body is CH1q's.
+- **= March after the macros expand:** Wait Start / StartFuture, JumpReady, JumpUp, DashEnd StartFuture / Start / FrameMove, Dash, DashJumpLanding (the Z test is a separate `if` after the off-line check, as March), DashJumpPowerLanding (all three), the four Leap functions. `CanDown` is called with March's four arguments (the engine port, `JUNE_LINEMAP_CANDOWN_LINK`, takes June's extra ones).
+- **Leap StartFuture** keeps the missing early return: with no NPC it changes state and then dereferences a NULL pointer. March has the same code, so there is no `JUNE_BUGS` row. `CX2Game::GetNearestNPCUnitUID` is called by its March name (replace row `322d2680`, allow-listed in `june_diverge_allow.tsv` until CH1o).
+- State ids are written by name (`ESSI_*` / `USI_*`); every name already compiles in March. Checklist §7 L254 (`+0x7cc8` power rate): no CH1a function touches it.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because the `#define` is commented out (by design).
+- `git diff --patience --numstat`: 733 inserted, 0 deleted in `X2GUElsword_SwordMan.cpp`; 9 / 0 in `Always.h`.
+- `cl /P` of `X2GUElsword_SwordMan.cpp`: with `_LIVE` undefined the preprocessed output equals the pre-change output (0 differing non-blank lines); with `/D SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` JumpDown has no cliff branch and DashJump has the both-keys branch.
+- One-file probe (`cl /Zs`, US_SERVICE defines, no PCH): `X2GUElsword_SwordMan.cpp` with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: 0 errors each.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 04:58:46, md5 ffead37d8388881ed39809faccdcc462, equal to X2/US_SERVICE/x2.exe`; built at main `90886cfb` + the 2 code files of this phase.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1a review` (Opus 5.5 high), then CH1b.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

@@ -11440,3 +11440,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH4a2 review ( 2026-11-03 ): retired, the play-test logs ( 15:41-15:44 ) were read.
 //#define SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: June character port ( Elsword ) Phase CH1a - Elsword runs on June's class core: June's bodies inside March's own CX2GUElsword_SwordMan functions.
+//              Stays commented out until CH1's final sub-phase ships it with June's Elsword_SwordMan.lua ( one deploy unit ).
+//              Revert: comment out the #define ( JUNE_CHAR_ELSWORD_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+//////////////////////////////////////////////////////////////////////////
