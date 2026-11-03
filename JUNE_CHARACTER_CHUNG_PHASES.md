@@ -3316,7 +3316,7 @@ Files: `X2Game.cpp`, `X2GageData.cpp`, `X2GUUser.cpp`, `X2GUChung.cpp`, `X2BuffT
 `32a34020`, `31fcd470`, `32bdc890`, `3236dbf0`, `32bdb760` / `32bdb780`, `31e4d0c0`; a `push 0x6720` scan of `.text` found these five readers plus `32c16be0` (CH4a).
 - **Metabolism Boost on June's 26400** (March read 6400, absent from June's trees, so it was off): `CX2Game::UseItemSpecialAbility` HP up / HP % up
   (`GetUnitClass` 20 / 110, `GetSkillLevel( 26400, true, 0, true )`, templet NULL test, SA 55 `- 1.0 + 5e-8`); the village `CX2GageData::UseSpecialAbilityInVillage`
-  `32a34020` (same; HP % tests Fury Guardian only, as March: **JUNE_BUGS 518**); `CX2GUUser::GetHpUpRateBySkill` `31fcd470` (Henir HP buffs; the raw ability,
+  `32a34020` (same; HP % tests Fury Guardian only, as March: **JUNE_BUGS 518**; unreached in June and here: the quick-slot gate `3294f070` / March's commented village `case` sends no request in a village, found by the user's test); `CX2GUUser::GetHpUpRateBySkill` `31fcd470` (Henir HP buffs; the raw ability,
   no `- 1`). Both functions otherwise = March (divergence rows added, ported). Each June block sits inside March's own `#ifdef`, March's in `#else`.
 - **Correction to CH1:** `CalculateHpPercentUpRateByDamageDataHpUp` (`32bdc890`) used March's `CalculateIncreasingRate` (5e-5); June is `- 1.0 + 5e-8`: now `GetIncreasingRate`.
 - **Big Bang Stream grenade** (`DoExtraAttack` `3236dbf0`): buff Phase 9a left June's gate false because `31fcf3e0` was unknown then; it is
@@ -3336,7 +3336,7 @@ Files: `X2Game.cpp`, `X2GageData.cpp`, `X2GUUser.cpp`, `X2GUChung.cpp`, `X2BuffT
 `EXESTR OK: 4 of 4 found in X2_offline.exe, 25943552 B, dated 2026-11-03 18:54:26, md5 eaa29e8e26ec727b07feb6d63a40bd54` (item / village metabolism lines, grenade line, `CHUNG_BIGBANGSTREAM_ULTIMATE`, wide).
 **Range (commit `5e478874`):** `--range 5e478874^..5e478874`, same file lists: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`, and X2GUUser.cpp `RESULT: PASS`.
 **Save:** no change. Unit 63 `ChungFury` (Fury Guardian) has 26400 level 4; unit 65 `ChungShell` has 26033 in slot 2.
-**In game:** `[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp up | item hp percent up | village hp up | village hp percent up | henir hp up | damage data hp up ... )`
+**In game:** `[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp up | item hp percent up | henir hp up | damage data hp up ... )` (the `village` lines never print, see above)
 per potion use; `big bang stream grenade ( rate 0.25, roll r: <name> )` per throw, about 1 in 4 `CHUNG_BIGBANGSTREAM_ULTIMATE` (a bigger bomb).
 CH4a / CH4b's `init` / `skill use` lines print again while `_DEBUG` is on.
 
