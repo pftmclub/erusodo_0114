@@ -56,3 +56,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - CH1o checked June's callers of user vslots 0x740 / 0x744: only the Crest of Time pre-apply hook `3201ffb0` (`@3201ffec`) and the death-prevention passive
   `320072d0` (`@320074f9`). So the two bases and their calls come with those hooks here; `StoreGageSnapshot` / `RestoreGageSnapshot` stay plain members until then.
+
+## Amended by CH4a (2026-11-03)
+
+- CH4a writes the members your readers need (`_PASSIVE`): `+0x9704` = `m_fDecreaseRate` (Intense Showtime `SA_DECREASE_REL`, the MP cut, read by
+  `GetActualMPConsume` `32bed9d0` @32beda5b), `+0x9710` = new `m_fAwakeningCoolTimeRate` (`SA_DECREASE_REL_2`, read by `GetActualCoolTime` `32be8e50`
+  @32be8e86: in the awakening, x rate for skills whose type is not 12 / 13 when the rate > 0). March's one `m_fDecreaseRate` served both; June splits them.
+- `+0x9858` = `m_fSiegeShellingIncraseMPRel` (Converted Warhead `SA_MP_GAIN_ON_HIT_REL`, reset to 0 each init), read by `SetDamageExceptionProcess` `32bf28f0` @32bf295e.
+- The user MP gain on hit (`AttackResult` scale, `+0x93b8`) is ported (`SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT`); it is not soul gain (7an stays yours).

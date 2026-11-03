@@ -255,6 +255,9 @@ iFrameBufferNum_, pUnit_ )
 , m_fCarpetBombingExtraRoundPowerRate( 1.f )
 , m_fShootingBindCoolTimeLeft( 0.f )
 , m_fBerserkChanceOnAwakening( 0.f )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+, m_fAwakeningCoolTimeRate( 0.f )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 , m_bAimingShotUsedExtraCannonBall( false )
 , m_iHeavyFieldTargetingNPCUID( -1 )
@@ -4917,11 +4920,255 @@ void CX2GUChung::InitStateByUnitClass()
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+namespace _CONST_CHUNG_CH4A_
+{
+	/// June's rate - 1.0 + 5e-8 ( 334355b0 / 3346ed68 ); March's CalculateIncreasingRate adds 5e-5
+	inline float GetIncreasingRate( const float fRate_ ) { return static_cast<float>( fRate_ - 1.0 + 5e-8 ); }
+}
+using namespace _CONST_CHUNG_CH4A_;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 /** @function : InitPassiveSkillState
 	@brief : 습득한 패시브 스킬에 따라 초기화
 */
 /*virtual*/ void CX2GUChung::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 32c16be0 ( vslot 0x690 )
+	CX2GUUser::InitPassiveSkillState();
+
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	if ( NULL == pSkillTree )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	m_AdditionalRangeCommandMpGainRate.SetPassiveMultiple( m_fCommandHitAddMpBonus * m_AdditionalRangeCommandMpGainRate.GetPassiveMultiple() );
+	m_AdditionalMeleeCommandMpGainRate.SetPassiveMultiple( m_AdditionalMeleeCommandMpGainRate.GetPassiveMultiple() * m_fCommandHitAddMpBonus );
+
+	/// the Reload Cannon count keeps its last value when the skill is not learned
+	const CX2SkillTree::SKILL_ID eReloadCannonID = userSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_CC_RELOAD_CANNON );
+	int iSkillLevel = userSkillTree.GetSkillLevel( eReloadCannonID, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( eReloadCannonID );
+		if ( NULL != pSkillTemplet )
+			SetCannonBallCountToBeUpUsingReLoadCannon( static_cast<UCHAR>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHARGE_CANNON_BALL, iSkillLevel ) ) );
+	}
+
+	m_fSiegeShellingDamageRel = 1.f;
+	m_fSiegeShellingDistance = 1.f;
+	m_fSiegeShellingUserBallRate = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_CC_SIEGE_SHELLING, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_A_CC_SIEGE_SHELLING );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fSiegeShellingDamageRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+			m_fSiegeShellingDistance = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fSiegeShellingUserBallRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_NOT_CANNONBALL_REL, iSkillLevel );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+		if ( NULL != pSkillTemplet )
+			SetForceDownRelAtMeleeAttack( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_MELEE_REL, iSkillLevel ) );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CIP_IRON_WILL, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CIP_IRON_WILL );
+		if ( NULL != pSkillTemplet )
+		{
+			SetProbabilityIronWill( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) );
+			AddMpGainOnHitRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel ) );
+		}
+	}
+
+	float fAddAnimSpeedFactor = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_GUARD_MASTERY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_GUARD_MASTERY );
+		if ( NULL != pSkillTemplet )
+		{
+			SetProbabilityBigDamageAtGuardMastery( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) );
+			fAddAnimSpeedFactor = GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel ) );
+		}
+	}
+	SetAddAnimSpeedFactor( fAddAnimSpeedFactor );
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CIP_ADVANCED_METABOLISM_BOOST, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CIP_ADVANCED_METABOLISM_BOOST );
+		if ( NULL != pSkillTemplet )
+			m_fAntiCriticalRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CRITICAL_EVASION_REL, iSkillLevel );
+	}
+
+	m_fForceDownRelDamageRateBase = 0.f;
+	m_fCannonBallDamageUp = 0.f;
+	m_fSiegeShellingIncraseMPRel = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CHG_CONVERTED_WARHEAD, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CHG_CONVERTED_WARHEAD );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fForceDownRelDamageRateBase = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL_DAMAGE_RATE_BASE, iSkillLevel );
+			m_fCannonBallDamageUp = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CANNONBALL_DAMAGE_UP_REL, iSkillLevel );
+			m_fSiegeShellingIncraseMPRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel );
+		}
+	}
+
+	m_fInsertCannonBallRel = -1.f;
+	m_fBeShotCannonBallRel = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CHG_RELOAD_MASTERY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CHG_RELOAD_MASTERY );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fInsertCannonBallRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_INSERT_CANNONBALL_REL, iSkillLevel );
+			m_fBeShotCannonBallRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_BE_SHOT_CANNONBALL_REL, iSkillLevel );
+		}
+	}
+
+	m_fMobileArmoredModeDistance = 0.f;
+	m_fMobileArmoredModeDamageRel = 0.f;
+	m_bMobileArmoredModeEnable = false;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CTT_MOBILE_ARMORED_MODE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CTT_MOBILE_ARMORED_MODE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_bMobileArmoredModeEnable = true;
+			m_fMobileArmoredModeDistance = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fMobileArmoredModeDamageRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+		}
+	}
+
+	/// the power rate resets to -1 ( the ctor's 1 ), the rate keeps its last value ( JUNE_BUGS 515 )
+	m_fWithStandingPowerRate = -1.f;
+	m_iChargeCannonBall = 0;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CTT_CANNONEER_WITHSTANDING, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CTT_CANNONEER_WITHSTANDING );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fWithStandingPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
+			m_fWithStandingRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SIEGE_SHELLING_REL, iSkillLevel );
+			m_iChargeCannonBall = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHARGE_CANNON_BALL, iSkillLevel ) );
+		}
+	}
+
+	SetIncreaseRangeSubWeaponShot( 1.f );
+	SetCriticalDamageRate( 0.f );
+	m_fRemodelRifleDamageRate = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CSG_REMODEL_RIFLE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CSG_REMODEL_RIFLE );
+		if ( NULL != pSkillTemplet )
+		{
+			SetIncreaseRangeSubWeaponShot( 1.f + GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel ) ) );
+			SetCriticalDamageRate( GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_DAM_ABS, iSkillLevel ) ) + 0.f );
+			m_fRemodelRifleDamageRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+		}
+	}
+
+	m_fCannonBallExtraChargeRate = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CSG_REMODEL_MAGAZINE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CSG_REMODEL_MAGAZINE );
+		if ( NULL != pSkillTemplet )
+			m_fCannonBallExtraChargeRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_INSERT_CANNONBALL_REL, iSkillLevel );
+	}
+
+	m_fDecreaseRate = 0.f;
+	m_fAwakeningCoolTimeRate = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CDC_INTENSE_SHOWTIME, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CDC_INTENSE_SHOWTIME );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fDecreaseRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DECREASE_REL, iSkillLevel );
+			m_fAwakeningCoolTimeRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DECREASE_REL_2, iSkillLevel );
+		}
+	}
+
+	m_fBerserkChanceOnAwakening = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CDC_TUSSLE_TECHNIQUE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CDC_TUSSLE_TECHNIQUE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fBerserkChanceOnAwakening = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+			m_SkillRelatedData.SetForceDownValueRateOfRangeAttack( GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_RANGE_REL, iSkillLevel ) )
+				+ m_SkillRelatedData.GetForceDownValueRateOfRangeAttack() );
+			SetAddAnimSpeedFactor( GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel ) ) );
+		}
+	}
+
+	m_fRateGasPistonSystemAutoRecharge = 0.f;
+	m_fPassiveCriticalRateChung = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CDC_GAS_PISTON_SYSTEM, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CDC_GAS_PISTON_SYSTEM );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fRateGasPistonSystemAutoRecharge = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+			m_fPassiveCriticalRateChung = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, iSkillLevel );
+		}
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) )
+	{
+		const float fMoveSpeed = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, CX2SkillTree::RNSI_P_CIP_OPEN_MIND );
+		m_AdditionalWalkSpeed.SetPassiveMultiple( m_AdditionalWalkSpeed.GetPassiveMultiple() * fMoveSpeed );
+		m_AdditionalDashSpeed.SetPassiveMultiple( m_AdditionalDashSpeed.GetPassiveMultiple() * fMoveSpeed );
+
+		const float fJumpSpeed = GetLearnedSkillAbilityValue( CX2SkillTree::SA_JUMP_SPEED, CX2SkillTree::RNSI_P_CIP_OPEN_MIND );
+		m_AdditionalJumpPower.SetPassiveMultiple( m_AdditionalJumpPower.GetPassiveMultiple() * fJumpSpeed );
+		m_AdditionalDashJumpPower.SetPassiveMultiple( m_AdditionalDashJumpPower.GetPassiveMultiple() * fJumpSpeed );
+	}
+
+	const bool bGuardianForce = 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_GUARDIAN_FORCE );
+	if ( bGuardianForce )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUChung, GuardianForceAttackResult ) );
+
+	const bool bOpenMind = 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND );
+	if ( bOpenMind )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUChung, OpenMindAttackResult ) );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE init ( unit %I64d class %d: command mp x%.3f / x%.3f, reload balls %d, siege %.2f / %.2f / %.2f, iron will %.2f mp add %.3f, guard mastery %.2f anim %.3f, anti critical %.2f )",
+		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_AdditionalRangeCommandMpGainRate.GetPassiveMultiple(), m_AdditionalMeleeCommandMpGainRate.GetPassiveMultiple(),
+		static_cast<int>( GetCannonBallCountToBeUpUsingReLoadCannon() ), m_fSiegeShellingDamageRel, m_fSiegeShellingDistance, m_fSiegeShellingUserBallRate,
+		m_fProbabilityIronWill, m_fMpGainOnHitAddRate, m_fProbabilityBigDamageAtGuardMastery, GetAddAnimSpeedFactor(), m_fAntiCriticalRate );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE init ( unit %I64d: warhead %.2f / %.2f / %.2f, reload mastery %.2f / %.2f, withstanding %.2f / %.2f / %d, rifle %.3f / %.3f / %.2f, magazine %.2f, showtime %.2f / %.2f, tussle %.2f force down %.3f, gas piston %.2f / %.2f )",
+		GetUnitUID(), m_fForceDownRelDamageRateBase, m_fCannonBallDamageUp, m_fSiegeShellingIncraseMPRel, m_fInsertCannonBallRel, m_fBeShotCannonBallRel,
+		m_fWithStandingPowerRate, m_fWithStandingRate, m_iChargeCannonBall, m_fIncreaseRangeSubWeaponShot, m_fCriticalDamageRate, m_fRemodelRifleDamageRate,
+		m_fCannonBallExtraChargeRate, m_fDecreaseRate, m_fAwakeningCoolTimeRate, m_fBerserkChanceOnAwakening, m_SkillRelatedData.GetForceDownValueRateOfRangeAttack(),
+		m_fRateGasPistonSystemAutoRecharge, m_fPassiveCriticalRateChung );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE init ( unit %I64d: mobile armored mode %s %.2f / %.2f, open mind walk x%.3f jump x%.3f, guardian force %s, open mind %s )",
+		GetUnitUID(), m_bMobileArmoredModeEnable ? L"on" : L"off", m_fMobileArmoredModeDistance, m_fMobileArmoredModeDamageRel,
+		m_AdditionalWalkSpeed.GetPassiveMultiple(), m_AdditionalJumpPower.GetPassiveMultiple(),
+		bGuardianForce ? L"registered" : L"not registered", bOpenMind ? L"registered" : L"not registered" );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 	
@@ -5419,6 +5666,7 @@ void CX2GUChung::InitStateByUnitClass()
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	}
 #endif // UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 }
 
 /** @function : SetEquippedSkillFunc
@@ -35747,6 +35995,47 @@ void CX2GUChung::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUChung::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 32bec1a0 ( vslot 0x24c )
+	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_SI_SA_CSG_SHARPSHOOTER_SYNDROME:
+		{
+			m_fMiniGunHeadShotRate = 0.f;
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME, false, 0, true );
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CDC_SHARPSHOOTER_SYNDROME, true );
+				if ( NULL != pSkillTemplet )
+					m_fMiniGunHeadShotRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE sharpshooter syndrome ( level %d, head shot rate %.2f )", iSkillLevel, m_fMiniGunHeadShotRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		} break;
+
+	case BTI_BUFF_LAND_DIMOLISHER:
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CIP_LAND_DEMOLISHER_EARTHQUAKE, true );
+			if ( NULL != pSkillTemplet && NULL != GetUnit() )
+			{
+				const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+				m_bApplyLandDemolisher = true;
+				m_fLandDemolisherPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillLevel );
+				PulseWeaponRenderEffect( D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ), D3DXCOLOR( 1.f, 1.f, 1.f, 0.1f ), 1.f, 9999.f, PWCI_CHUNG_LAND_DEMOLISHER );
+				m_fLandDemolisherPowerRate *= GetSkillAdditionalPowerRate( pSkillTemplet->m_eID ) + 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE land demolisher ( skill %d level %d, power rate %.3f )", static_cast<int>( pSkillTemplet->m_eID ), iSkillLevel, m_fLandDemolisherPowerRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			}
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -35816,6 +36105,7 @@ void CX2GUChung::DeleteMinorParticle()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 }
 
 /** @function : UnSetSpecificValueByBuffTempletID
@@ -35844,6 +36134,56 @@ void CX2GUChung::DeleteMinorParticle()
 		break;
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+//{{ Iruha : 2026-11-03 // char-chung CH4a
+/// June 32c12910 ( thunk 32c258a0 ): Guardian Force's buff factor 0 on the defender of five Fury Guardian / Iron Paladin skills
+void CX2GUChung::GuardianForceAttackResult( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( 0 >= GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_GUARDIAN_FORCE ) )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	if ( NULL == pDefender )
+		return;
+
+	switch ( damageData_.m_iAppliedSkillID )
+	{
+	case CX2SkillTree::RNSI_SA_CFG_PANDEMONIUM_CHAOS:
+	case CX2SkillTree::RNSI_SA_CFG_PANDEMONIUM_CHAOS_UPGRADE:
+	case CX2SkillTree::RNSI_SA_CFG_PAIN_OF_CALADBOLG:
+	case CX2SkillTree::RNSI_SA_CIP_IRON_HOWLING:
+	case CX2SkillTree::RNSI_SA_CIP_RAPID_GUARDIAN:
+		break;
+
+	default:
+		return;
+	}
+
+	CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_CIP_GUARDIAN_FORCE, 0, true );
+	if ( NULL != ptrBuffFactor )
+		pDefender->SetBuffFactorToGameUnit( *ptrBuffFactor );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE guardian force ( skill %d, buff factor %s to %I64d )", damageData_.m_iAppliedSkillID, NULL != ptrBuffFactor ? L"applied" : L"missing", pDefender->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+}
+
+/// June 32bdba10 ( thunk 32c23090 ): a command hand-gun hit puts Open Mind's buff factor 0 on Chung
+void CX2GUChung::OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( ( CX2DamageManager::HT_HANDGUN_HIT1 == damageData_.hitType || CX2DamageManager::HT_HANDGUN_HIT2 == damageData_.hitType )
+		&& CX2DamageManager::AT_COMMAND == damageData_.attackType
+		&& 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CDC_OPEN_MIND ) )
+	{
+		const bool bApplied = SetSkillBuffFactors( CX2SkillTree::RNSI_P_CDC_OPEN_MIND, 0, true );	// 31fcac90 ( vslot 0x23c )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE open mind ( hit type %d, buff factor %s )", static_cast<int>( damageData_.hitType ), bApplied ? L"applied" : L"not applied" );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		UNREFERENCED_PARAMETER( bApplied );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	}
+}
+//}} Iruha : 2026-11-03 // char-chung CH4a
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 /** @function : ApplyRenderParam
 	@brief : 버프에 의한 renderparam과 함께 추가적으로 해비스텐스에 대한 renderparam을 설정하는 함수
 	@param : SkinAnim의 RenderParam 포인터(pRenderParam_)

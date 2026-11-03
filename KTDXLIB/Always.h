@@ -11368,3 +11368,41 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL, SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ( the allow-list and picture switches it extends ), SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE and SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH4a - June's MP gain on hit in CX2GUUser::AttackResult ( 32012b50 @32013355-320134bd ): the scale is the last learned
+//              of 21400 / 23406 / 23407 / 26404 ( March read 1401 / 3408 / 3409 / 6404, which June's trees never hold ) plus the class add
+//              +0x93b8 ( AddMpGainOnHitRate 31fc94d0, reset at the end of the base InitPassiveSkillState 31fe19d0 @31fe1db8 ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#if defined( SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT ) && ( !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) )
+#error SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT needs SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel with the upgrade swap )
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH4a - CX2GUChung::InitPassiveSkillState is June's 32c16be0 ( the passives on June's 26xxx ids, the command MP bonus on
+//              BBT 85 / 86, Mobile Armored Mode's extra balls, Guardian Force 26416 and Open Mind 26417 on the attack-result list ) and
+//              SetSpecificValueByBuffTempletID is June's 32bec1a0 ( Land Demolisher from 26007 with the socket power rate, Sharpshooter Syndrome
+//              from 26012 ). Log [JUNE_CHAR] CHUNG PASSIVE ( _DEBUG ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE, _USER_SKILL_LEVEL_HELPERS, _CHAR_EVE_PASSIVE ( GetSkillBuffFactorPtr, SetSkillBuffFactors ) and _SOCKET_PARITY ( GetSkillAdditionalPowerRate )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#ifndef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE needs SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT ( AddMpGainOnHitRate )
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH4a debug - [JUNE_CHAR] CHUNG PASSIVE lines ( passive init values, Land Demolisher / Sharpshooter values, the two
+//              attack-result callbacks ). Temporary: retired in the CH4a review.
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////

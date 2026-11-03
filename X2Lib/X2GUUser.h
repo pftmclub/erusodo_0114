@@ -4874,6 +4874,10 @@ public:
 	float		m_fCannonBallDamageUp;
 	float		m_fForceDownRelDamageRateBase;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+	float		m_fMpGainOnHitAddRate;	/// June +0x93b8 ( ctor 0 ): added to AttackResult's MP scale; the base InitPassiveSkillState resets it, Chung's adds Iron Will
+	void		AddMpGainOnHitRate( const float fRate_ ) { m_fMpGainOnHitAddRate += ( 1.f <= fRate_ ? fRate_ - 1.f : fRate_ ); }	/// June 31fc94d0
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 
 	float m_fSummonNpcCoolTime;
 	vector<SummonNpcSocket> m_vecSummonNpcSocket;

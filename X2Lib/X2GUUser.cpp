@@ -736,6 +736,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fCannonBallDamageUp( 0.f )
 , m_fForceDownRelDamageRateBase ( 0.f )
 #endif
+#ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+, m_fMpGainOnHitAddRate( 0.f )
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 #ifdef DUNGEON_DASH_LOG
 , m_iDashCount ( 0 )
 #endif DUNGEON_DASH_LOG
@@ -6499,6 +6502,9 @@ void CX2GUUser::InitPassiveSkillState()
 	AddEnchantStatFromPassiveSkillToDefenceEnchantData();
 	AddExtraDamageImmuneRateFromPassiveSkillToImmuneData();
 #endif // CHUNG_FIRST_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+	m_fMpGainOnHitAddRate = 0.f;	/// June 31fe19d0 @31fe1db8 ( the rest of June's base body is char-chung CH4a2's )
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 }
 
 void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSkillId_ )
@@ -14640,6 +14646,25 @@ void CX2GUUser::AttackResult()
 			ProcessAttackResult();
 
 			float fUpMPScaleBySkill = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+			/// June 32012b50 @32013355-320134bd: off for AT_SPECIAL; the last learned of the four passives, then the class add
+			if( CX2DamageManager::AT_SPECIAL != m_DamageData.attackType )
+			{
+				const CX2SkillTree::SKILL_ID aeMpGainOnHitSkillID[] = { CX2SkillTree::RNSI_P_ESK_GET_MANA_UP, CX2SkillTree::RNSI_P_RGA_COMMUNE_OF_NATURE,
+					CX2SkillTree::RNSI_P_RGA_VIBRATION_SHOOTING, CX2SkillTree::RNSI_P_CIP_ADVANCED_METABOLISM_BOOST };
+				for( int iIndex = 0; iIndex < ARRAY_SIZE( aeMpGainOnHitSkillID ); ++iIndex )
+				{
+					const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( aeMpGainOnHitSkillID[iIndex], true, 0, true );
+					if( iSkillLevel > 0 )
+					{
+						const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( aeMpGainOnHitSkillID[iIndex] );
+						if( NULL != pSkillTemplet )
+							fUpMPScaleBySkill = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel );
+					}
+				}
+				fUpMPScaleBySkill += m_fMpGainOnHitAddRate;
+			}
+#else SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 #ifdef NEW_SKILL_TREE
 			if( CX2DamageManager::AT_SPECIAL != m_DamageData.attackType )
 			{
@@ -14738,6 +14763,7 @@ void CX2GUUser::AttackResult()
 			
 #endif CHUNG_SECOND_CLASS_CHANGE
 
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 		#ifdef SERV_9TH_NEW_CHARACTER // 김태환
 			/// 애드일 땐, 타격시 DP 수치 올려 주자
 			if ( NULL != GetUnit() && CX2Unit::UT_ADD == GetUnit()->GetType() )

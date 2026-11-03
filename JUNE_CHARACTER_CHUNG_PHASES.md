@@ -3086,11 +3086,56 @@ Fix `flagcheck JUNE_CHAR_CHUNG_SKILL --worktree --files X2Lib/X2GUChung.cpp`: `1
 | Sub-phase | Scope |
 |---|---|
 | CH4a | `InitPassiveSkillState` `32c16be0` and Chung's passive ids (types 1 / 8: 3 + 27 rows), their objects and readers; 7am delegate-list registrations (`32c16be0`, A `32c12910`, A `32bdba10`); flag `_PASSIVE` |
+| CH4a2 | June's base `CX2GUUser::InitPassiveSkillState` `31fe19d0` whole (found by CH4a: 26401 Elemental Defence A and other classes' passives on June ids; March's base reads March ids), with `31fe0790` / `322718e0` / `3234b6b0`; flag `SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE` |
 | CH4b | `SetDamageExceptionProcess` `32bf28f0` whole (June-only, 7b; `RNSI_P_CIP_IRON_WILL` 26402), the other overrides CH0 finds (`GetActualMPConsume` / `GetActualCoolTime` style); 7an soul gain when hit (vslot 0x748 `32beeca0`) and the specialization-B reader `32bf528d`; the death-prevention pre-apply override `32bed760` (§7 l.255); the per-skill stores of §7 l.280 / l.287 (`3201ad10` socket rate, `31fd7cc0` buff rate) |
 | CH4c | Memo and item readers: `MemoConditionChung` (JUNE_BUGS 332, `EFFECT_SET_LIST_MEMO`), 7u's grenade memo (`X2BuffTemplet.cpp:1695-1706`, `HAND_GRENADE_0`) and `CHUNG_BIGBANGSTREAM_MEMO` / `_EXPLOSION_MEMO`, Metabolism Boost in `CX2Game::UseItemSpecialAbility` (§7 l.278, unit classes `0x14` / `0x6e`, skill `0x6720`) |
 
 **Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); 0 Chung `no_state` rows left except passives with no
 state in June.
+
+
+### CH4a - Done (2026-11-03)
+
+**Landed.** Commit: see `git log`, "char-chung Phase CH4a". Flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (+ temporary `_DEBUG`) and
+`SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT` (every class). Files: `X2GUChung.*`, `X2GUUser.*` (the MP block, one member, one reset), `X2SkillTree.h` (names).
+- **`InitPassiveSkillState` `32c16be0` whole** inside March's function (March's in `#else`). June offset -> March member, in June's order:
+  85 / 86 passive multiple x `m_fCommandHitAddMpBonus` (`+0x68d4` / `+0x6988` = `m_AdditionalRange/MeleeCommandMpGainRate`); 26202 (swapped by
+  `GetUpgradeSwappedSkillID`, level `0,0,1`) `SA_CHARGE_CANNON_BALL` -> `+0x9668` (`32c24dd0` = the setter; no reset); 26201 (`0,0,1`) -> `+0x972c / 9728 / 9730`
+  Siege Shelling damage / distance / user-ball rate (reset 1 / 1 / -1); 26400 `+0x96b0` force-down melee; 26402 `+0x96c4` Iron Will + `31fc94d0`
+  (`AddMpGainOnHitRate`, `+0x93b8 += rate >= 1 ? rate - 1 : rate`); 26403 `+0x96b4` and `+0x9134` anim speed (0 when unlearned); 26404 `+0x4154`
+  `m_fAntiCriticalRate`; 26410 `+0x9864 / 9860 / 9858` (reset 0); 26411 `+0x9734 / 9738` (reset -1); 26412 `+0x97a0 / 97a4 / 97a8` Mobile Armored Mode
+  (reset off / 0 / 0); 26413 `+0x9744` power rate (`32071720`, reset **-1**, JUNE_BUGS 515) / `+0x9740` / `+0x9748` (reset 0); 26405 `+0x96b8 / 96bc / 98ac`
+  (reset 1 / 0 / 1, `rate - 1 + 5e-8`); 26406 `+0x97cc` `m_fCannonBallExtraChargeRate`; 26407 `+0x9704` `m_fDecreaseRate` and `+0x9710` new
+  `m_fAwakeningCoolTimeRate` (`SA_DECREASE_REL_2`); 26408 `+0x9714`, `+0x4050` setter `32070b70` (= `SetForceDownValueRateOfRangeAttack`), `+0x9134`;
+  26409 `+0x97d8 / 9814`; 26415 walk / dash / jump / dash-jump x `SA_MOVE_SPEED` / `SA_JUMP_SPEED`; 26416 / 26417 pushes on `+0x66ac`.
+  June drops March's `InitRemodelMagazinePassiveSkill` and `SetReduceGuardDamageAtHeavyStanceFromGuardSkill` calls (both stay in `#else`).
+- **Callbacks:** `GuardianForceAttackResult` `32c12910` (defender of 26004 / 26034 / 26009 / 26008 / 26062 gets 26416's factor 0) and
+  `OpenMindAttackResult` `32bdba10` (hand-gun hit 1 / 2, `AT_COMMAND` -> `SetSkillBuffFactors( 26417, 0, true )`).
+- **`SetSpecificValueByBuffTempletID` `32bec1a0`** (funcdis): BTI 45 from 26012 (`0,0,1`, equipped templet with swap); BTI 54 from 26007, level `max( 1, .. )`,
+  `32071720`, March's pulse, then x `( GetSkillAdditionalPowerRate + 1 )` (`3201ad10`). `UnSet` `32bda7d0` = March's live body: unchanged.
+- **User MP gain on hit** (`32012b50 @32013355-320134bd`): March's chain read 1401 / 3408 / 3409 / 6404 (absent from June's trees, so dead for every
+  class); June's four ids 21400 / 23406 / 23407 / 26404 + `m_fMpGainOnHitAddRate` (ctor 0 `@32041d30`, reset at the end of the base `@31fe1db8`).
+- **Names** (`JUNE_ENUM_NAMES`, X2SkillTree.h): 21400, 23406, 23407, 26403-26405, 26408-26413, 26416. `enumscan`: 0 A/B rows.
+- **The 22 passive ids:** 16 are read here; 106 by `GetUnitStat` (S7k), 26414 / 26420 by CH1k's `GetDefenderDamageRate` / `GetDamageRateOnCommanderMarkedDefender`,
+  26418 / 26419 by ported states, 26401 by the base `31fe19d0` / `31fe0790` / `3234b6b0` -> **new phase CH4a2**.
+- **Drift found, own phase (CH4a2, this plan):** June's base `CX2GUUser::InitPassiveSkillState` `31fe19d0` differs whole (Elemental Defence A 26401 and
+  four other classes' passives on June ids; March's reads March ids). Divergence row `CX2GUUser::InitPassiveSkillState` (replace, source CH4a2) and the
+  allow row `InitPassiveSkillState`. Kickoff `kickoffs/char-chung/CH4a2.md`. CH4b's kickoff amended (`+0x9704` / `+0x9710` / `+0x9858` members).
+- **Corrections to the kickoff:** `31fc94d0` subtracts 1 at `>= 1.0`, not `> 1`; `32c16be0` reads only the ball count from 26202 (`m_fDamageRelByCannonBallMastery`
+  keeps its ctor 1, no June writer); `+0x9710` is 26407's, the cool-time rate.
+
+**Hygiene.** `/Zs` X2GUChung.cpp / X2GUUser.cpp: 0 errors; `cl /P`: the June branches are the live ones.
+`flagcheck.py JUNE_CHAR_CHUNG_PASSIVE --with JUNE_CHAR_CHUNG_PASSIVE_DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2SkillTree.h`:
+`files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = Always.h's other block, X2SkillTree.h under `JUNE_ENUM_NAMES`).
+`flagcheck.py JUNE_USER_MP_GAIN_ON_HIT --worktree --files KTDXLIB/Always.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+(Checked per flag: with X2GUUser.cpp in the first run the tool stops on that file's pre-existing compound `#if` at 26692.) 0 deleted lines.
+`junediverge.py --check` (6 files): `RESULT: PASS`. `enumscan.py --check`: 0 A/B rows.
+**Range:** RANGE_PENDING
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,939,456 B, dated 2026-11-03 13:40:42, md5 ea5cce8cbe377cbc1697932e61b31f71, equal to X2/US_SERVICE/x2.exe (2026-11-03 13:40:35); built at main d7286009 + 6 uncommitted code file(s).` `EXESTR OK: 4 of 4 found in X2_offline.exe, 25939456 B, dated 2026-11-03 13:40:42, md5 ea5cce8cbe377cbc1697932e61b31f71` (the `init`, `guardian force`, `open mind`, `land demolisher` lines).
+**Save** (backup `els_db_20261103_133040_pre_sql.sql`): unit 43 `NovaT` + 26404 level 4, 26416 level 1, Iron Howling 26008 in slot 5, Earthquake 26007 in slot 6;
+unit 50 `Chung99` + 26409 level 4, Sharpshooter Syndrome 26012 in slot 4; unit 18 `Freils` unchanged (26410-26413 level 4).
+**In game:** three `[JUNE_CHAR] CHUNG PASSIVE init` lines per Chung load name every value; `guardian force`, `open mind`, `land demolisher` and
+`sharpshooter syndrome` lines on use; CH3c's `extra 6` on unit 18's Cannon Strike.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 

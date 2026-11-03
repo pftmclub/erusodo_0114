@@ -545,6 +545,10 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	void				SetLunaticBlowSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// June 32c1f530 @32c220ae ( both skill switches' default )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	void				GuardianForceAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32c12910 ( thunk 32c258a0 )
+	void				OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32bdba10 ( thunk 32c23090 )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	virtual void		SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	// 장착한 스킬의 레벨에 따라 각 스킬에 해당하는 상태의 PowerRate등을 셋팅
 	void				SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet, CHUNG_STATE_ID eStateID );	// 장착한 스킬의 레벨등이 변경될 때 같이 변경되어야 할 스테이트 데이타
 
@@ -2073,6 +2077,9 @@ protected:
 	std::multimap< float, std::pair< int, CX2EffectSet::Handle > >	m_mapBombardServiceEffect;	/// June +0x97f4: distance -> { unit index, mark effect set }; CommonFrameMove stops the ones of dead targets ( its only filler 32c08970 has no caller )
 	float						m_fShootingBindCoolTimeLeft;	/// June +0x98d4: counts down in CommonFrameMove; two CH3b states set it, ShownSkillCoolTime ( CH1o ) reads it
 	float						m_fBerserkChanceOnAwakening;	/// June +0x9714 ( ctor 0 ): Tussle Technique's berserk chance on awakening, written by InitPassiveSkillState ( CH4a )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	float						m_fAwakeningCoolTimeRate;		/// June +0x9710 ( ctor 0 ): Intense Showtime's SA_DECREASE_REL_2, the cool-time rate in the awakening ( GetActualCoolTime 32be8e50, CH4b )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE
 	CX2EffectSet::Handle		m_hLandDemolisherAfterEffect;
 	float						m_fLandDemolisherPowerRate;

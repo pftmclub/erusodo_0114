@@ -2122,6 +2122,24 @@ public:
 		RNSI_P_CSG_REMODEL_MAGAZINE                           = 26406,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // char-chung CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Chung's InitPassiveSkillState and the user MP gain on hit spell ( values from June's Enum.lua )
+		RNSI_P_ESK_GET_MANA_UP                                = 21400,
+		RNSI_P_RGA_COMMUNE_OF_NATURE                          = 23406,
+		RNSI_P_RGA_VIBRATION_SHOOTING                         = 23407,
+		RNSI_P_CFG_GUARD_MASTERY                              = 26403,
+		RNSI_P_CIP_ADVANCED_METABOLISM_BOOST                  = 26404,
+		RNSI_P_CSG_REMODEL_RIFLE                              = 26405,
+		RNSI_P_CDC_TUSSLE_TECHNIQUE                           = 26408,
+		RNSI_P_CDC_GAS_PISTON_SYSTEM                          = 26409,
+		RNSI_P_CHG_CONVERTED_WARHEAD                          = 26410,
+		RNSI_P_CHG_RELOAD_MASTERY                             = 26411,
+		RNSI_P_CTT_MOBILE_ARMORED_MODE                        = 26412,
+		RNSI_P_CTT_CANNONEER_WITHSTANDING                     = 26413,
+		RNSI_P_CIP_GUARDIAN_FORCE                             = 26416,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
