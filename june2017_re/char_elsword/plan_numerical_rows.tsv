@@ -1,0 +1,104 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+166	DamageEffect.lua	DAMAGE_EFFECT_ERS_Luna_Buster_Blackhole	DAMAGE_DATA	21601	Shining Rune Buster	INDEX 1	ok	142	1.42	0.24	35	0.46	False
+167	DamageEffect.lua	DAMAGE_EFFECT_ERS_Luna_Buster_Explosion	DAMAGE_DATA	21601	Shining Rune Buster	INDEX 3	ok	1329	13.29	0.24	333	4.44	False
+168	DamageEffect.lua	DAMAGE_EFFECT_ERS_Luna_Buster_Explosion	DAMAGE_DATA_NEXT	21601	Shining Rune Buster	INDEX 3	ok	1329	13.29	0.24	333	4.44	False
+200	DamageEffect.lua	DAMAGE_EFFECT_IMPACT_SMASH	DAMAGE_DATA	21203	Impact Smash	INDEX 2	ok	865	8.65	0.24	200	2	False
+226	DamageEffect.lua	DAMAGE_EFFECT_RUNESLAYER_RUNE_OF_FIRE_DUMMY_DAMAGE	DAMAGE_DATA	21210	Fire Rune	INDEX 2	ok	24	0.24	0.32	5	0.05	False
+227	DamageEffect.lua	DAMAGE_EFFECT_RUNESLAYER_RUNE_OF_FIRE_STOP_DAMAGE	DAMAGE_DATA	21210	Fire Rune	INDEX 1	ok	736	7.36	0.4	125	1.25	False
+276	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_EIS_Blade_Rain	DAMAGE_DATA	21602	Blade Rain	INDEX 1	ok	366	3.66	0.24	89	1.19	False
+277	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_EIS_Blade_Rain_Fast	DAMAGE_DATA	21602	Blade Rain	INDEX 1	ok	366	3.66	0.24	89	1.19	False
+278	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_EIS_Blade_Rain_Fast	DAMAGE_DATA_NEXT	21602	Blade Rain	INDEX 1	ok	366	3.66	0.24	89	1.19	False
+279	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_EIS_Blade_Rain_Mid	DAMAGE_DATA	21602	Blade Rain	INDEX 1	ok	366	3.66	0.24	89	1.19	False
+282	DamageEffect.lua	DAMAGE_EFFECT_SWORD_SHIELD	DAMAGE_DATA	21212	Sword Shield	INDEX 1	ok	96	0.96	0.32	17	0.25	False
+283	DamageEffect.lua	DAMAGE_EFFECT_SWORD_SHIELD	DAMAGE_DATA_NEXT	21212	Sword Shield	INDEX 1	ok	96	0.96	0.32	17	0.25	False
+284	DamageEffect.lua	DAMAGE_EFFECT_SWORD_SHIELD_ULTIMATE	DAMAGE_DATA	21212	Sword Shield	INDEX 1	ok	96	0.96	0.32	17	0.25	False
+285	DamageEffect.lua	DAMAGE_EFFECT_SWORD_SHIELD_ULTIMATE	DAMAGE_DATA_NEXT	21212	Sword Shield	INDEX 1	ok	96	0.96	0.32	17	0.25	False
+295	DamageEffect.lua	DAMEGA_EFFECT_ELSWORD_MNK_BIG_BURST	DAMAGE_DATA	21207	Explosive Fist	INDEX 2	ok	762	7.62	0.4	100	1	False
+296	DamageEffect.lua	DAMEGA_EFFECT_ELSWORD_MNK_BIG_BURST	DAMAGE_DATA_NEXT	21207	Explosive Fist	INDEX 3	ok	116	1.16	0.4	14	0.14	False
+297	DamageEffect.lua	DAMEGA_EFFECT_ELSWORD_MNK_BIG_BURST	DAMAGE_DATA_NEXT_ULTIMATE	21207	Explosive Fist	INDEX 3	ok	116	1.16	0.4	14	0.14	False
+298	DamageEffect.lua	DAMEGA_EFFECT_ELSWORD_MNK_BIG_BURST	DAMAGE_DATA_ULTIMATE	21207	Explosive Fist	INDEX 2	ok	762	7.62	0.4	100	1	False
+303	DamageEffect.lua	DOUBLE_SLASH	DAMAGE_DATA	21007	Double Slash	INDEX 2	ok	604	6.04	0.4	206	2.75	False
+556	DamageEffect.lua	DamageEffect_A_ELK_Blade_Crash	DAMAGE_DATA	21222	Power Smash	INDEX 1	ok	1544	15.44	0.32	200	2	False
+557	DamageEffect.lua	DamageEffect_A_EMK_SwordWave_Attack	DAMAGE_DATA	21208	Sword Wave	INDEX 1	ok	854	8.54	0.4	150	2.5	False
+709	DamageEffect.lua	DamageEffect_EIS_Fatal_Slap	DAMAGE_DATA	21213	Fatal Slap	INDEX 1	ok	1187	11.87	0.32	200	2	False
+710	DamageEffect.lua	DamageEffect_ELK_Sand_Storm_Main	DAMAGE_DATA	21009	Sandstorm	INDEX 2	ok	1496	14.96	0.4	750	15	False
+711	DamageEffect.lua	DamageEffect_ELK_Sand_Storm_Main_UpGrade	DAMAGE_DATA	21045	#Cffcc00[Enhanced]#CXSandstorm	INDEX 2	ok	1496	14.96	0.4	750	15	False
+712	DamageEffect.lua	DamageEffect_ELK_Sand_Storm_Sub	DAMAGE_DATA	21009	Sandstorm	INDEX 1	ok	164	1.64	0.4	58	0.77	False
+713	DamageEffect.lua	DamageEffect_ELK_Sand_Storm_Sub	DAMAGE_DATA_NEXT	21009	Sandstorm	INDEX 1	ok	164	1.64	0.4	58	0.77	False
+714	DamageEffect.lua	DamageEffect_ELK_Wind_Slicer_Projectile	DAMAGE_DATA	21402	Wind Slicer	INDEX 1	ok	213	2.13	0.36	50	1	False
+715	DamageEffect.lua	DamageEffect_EMK_Sand_RisingSlashFX2	DAMAGE_DATA	21012	Rising Slash	INDEX 1	ok	592	5.92	0.4	300	4	False
+716	DamageEffect.lua	DamageEffect_EMK_SwordFire_FireFX	DAMAGE_DATA	21016	Sword Fire	INDEX 1	ok	690	6.9	0.36	375	5	False
+717	DamageEffect.lua	DamageEffect_EMK_SwordFire_Fire_Attack	DAMAGE_DATA	21016	Sword Fire	INDEX 2	ok	230	2.3	0.36	102	1.82	False
+718	DamageEffect.lua	DamageEffect_EMK_SwordFire_Fire_Attack	DAMAGE_DATA_NEXT	21016	Sword Fire	INDEX 2	ok	230	2.3	0.36	102	1.82	False
+728	DamageEffect.lua	DamageEffect_ESK_DoubleSlash_FirstImpact	DAMAGE_DATA	21007	Double Slash	INDEX 1	ok	469	4.69	0.4	188	2.5	False
+729	DamageEffect.lua	DamageEffect_ESK_Mortal_Blow_MOVE_MEMO	DAMAGE_DATA	21006	Mortal Blow	INDEX 1	ok	1459	14.59	0.28	750	3.33	False
+730	DamageEffect.lua	DamageEffect_ESK_Mortal_Blow_MOVE_Ultimate	DAMAGE_DATA	21006	Mortal Blow	INDEX 1	ok	1459	14.59	0.28	750	3.33	False
+731	DamageEffect.lua	DamageEffect_ESK_Mortal_Blow_Ultimate_Fire_Ground	DAMAGE_DATA	21006	Mortal Blow	INDEX 2	index out of range: June writes a zero row	0	0	0	0	0	False
+754	DamageEffect.lua	DamageEffect_Gigantic_Slash_Attack02	DAMAGE_DATA	21600	Gigantic Slash	INDEX 1	ok	1106	11.06	0.24	268	3.57	False
+755	DamageEffect.lua	DamageEffect_Gigantic_Slash_Attack03	DAMAGE_DATA	21600	Gigantic Slash	INDEX 2	ok	914	9.14	0.24	208	2.78	False
+756	DamageEffect.lua	DamageEffect_Gigantic_Slash_Attack04	DAMAGE_DATA	21600	Gigantic Slash	INDEX 3	ok	6511	65.11	0.24	1875	25	False
+1248	DamageEffect.lua	DamageEffect_SA_EIS_Blade_Circle_1	DAMAGE_DATA	21042	Blade Circle	INDEX 1	ok	328	3.28	0.4	113	1.5	False
+1249	DamageEffect.lua	DamageEffect_SA_EIS_Blade_Circle_2	DAMAGE_DATA	21042	Blade Circle	INDEX 2	ok	2458	24.58	0.4	938	12.5	False
+1250	DamageEffect_Character.lua	DamageEffect_SA_EIS_Infinity_Strike_LandingFX	DAMAGE_DATA	21060	Infinite Strike	INDEX 3	ok	1152	11.52	0.4	300	7.5	False
+1251	DamageEffect_Character.lua	DamageEffect_SA_EIS_Infinity_Strike_SwordSpearUpFX	DAMAGE_DATA	21060	Infinite Strike	INDEX 1	ok	302	3.02	0.4	89	1.36	False
+1252	DamageEffect_Character.lua	DamageEffect_SA_EIS_Infinity_Strike_SwordSpearUpFX2	DAMAGE_DATA	21060	Infinite Strike	INDEX 2	ok	238	2.38	0.4	70	1.07	False
+1253	DamageEffect.lua	DamageEffect_SA_EIS_Inpinity_Chacer	DAMAGE_DATA	21041	Infinite Chaser	INDEX 1	ok	74	0.74	0.4	25	0.33	False
+1254	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_FireFX	DAMAGE_DATA	21058	Grand Cross	INDEX 2	ok	405	4.05	0.4	125	1.67	False
+1255	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_FireFX_2nd	DAMAGE_DATA	21058	Grand Cross	INDEX 2	ok	405	4.05	0.4	125	1.67	False
+1256	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_FireFX_Full_Charge	DAMAGE_DATA	21058	Grand Cross	INDEX 2	ok	405	4.05	0.4	125	1.67	False
+1257	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_FireFX_Full_Charge_2nd	DAMAGE_DATA	21058	Grand Cross	INDEX 2	ok	405	4.05	0.4	125	1.67	False
+1258	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_Fire_Big_Damage	DAMAGE_DATA	21058	Grand Cross	INDEX 3	ok	2108	21.08	0.4	750	10	False
+1259	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Final_Fire_Full_Charge_Big_Damage	DAMAGE_DATA	21058	Grand Cross	INDEX 3	ok	2108	21.08	0.4	750	10	False
+1260	DamageEffect_Character.lua	DamageEffect_SA_ELK_Grand_Cross_Start_FireFX	DAMAGE_DATA	21058	Grand Cross	INDEX 1	ok	351	3.51	0.4	94	1.25	False
+1261	DamageEffect.lua	DamageEffect_SA_ELK_Nibbles_Cutter_1	DAMAGE_DATA	21038	Imperial Crusher	INDEX 1	ok	664	6.64	0.4	214	2.86	False
+1262	DamageEffect.lua	DamageEffect_SA_ELK_Nibbles_Cutter_2	DAMAGE_DATA	21038	Imperial Crusher	INDEX 1	ok	664	6.64	0.4	214	2.86	False
+1263	DamageEffect.lua	DamageEffect_SA_ELK_Sonic_Blade_1st	DAMAGE_DATA	21037	Sonic Blade: Crescent	INDEX 1	ok	1201	12.01	0.4	375	5	False
+1264	DamageEffect.lua	DamageEffect_SA_ELK_Sonic_Blade_2nd	DAMAGE_DATA	21037	Sonic Blade: Crescent	INDEX 1	ok	1201	12.01	0.4	375	5	False
+1269	DamageEffect.lua	DamageEffect_SA_EMK_StromBlade	DAMAGE_DATA	21014	Storm Blade	INDEX 1	ok	164	1.64	0.32	63	0.83	False
+1270	DamageEffect.lua	DamageEffect_SA_EMK_StromBlade	DAMAGE_DATA_NEXT	21014	Storm Blade	INDEX 1	ok	164	1.64	0.32	63	0.83	False
+1271	DamageEffect.lua	DamageEffect_SA_EMK_StromBladeCenter	DAMAGE_DATA	21014	Storm Blade	INDEX 1	ok	164	1.64	0.32	63	0.83	False
+1272	DamageEffect.lua	DamageEffect_SA_EMK_StromBladeCenter	DAMAGE_DATA_NEXT	21014	Storm Blade	INDEX 1	ok	164	1.64	0.32	63	0.83	False
+1273	DamageEffect.lua	DamageEffect_SA_EMK_WindBlade_Attack	DAMAGE_DATA	21013	Wind Blade	INDEX 1	ok	1518	15.18	0.28	750	10	False
+1274	DamageEffect.lua	DamageEffect_SA_EMK_WindBlade_Ultimate_Projectile	DAMAGE_DATA	21013	Wind Blade	INDEX 2	index out of range: June writes a zero row	0	0	0	0	0	False
+1277	DamageEffect_Character.lua	DamageEffect_SA_ERS_ExtremeRuneBuster_LandingFX	DAMAGE_DATA	21059	Extreme Rune Buster	INDEX 2	ok	440	4.4	0.4	141	1.88	False
+1278	DamageEffect_Character.lua	DamageEffect_SA_ERS_ExtremeRuneBuster_RuneExplosion_B	DAMAGE_DATA	21059	Extreme Rune Buster	INDEX 3	ok	855	8.55	0.32	214	2.86	False
+1279	DamageEffect_Character.lua	DamageEffect_SA_ERS_ExtremeRuneBuster_RuneExplosion_G	DAMAGE_DATA	21059	Extreme Rune Buster	INDEX 3	ok	855	8.55	0.32	214	2.86	False
+1280	DamageEffect_Character.lua	DamageEffect_SA_ERS_ExtremeRuneBuster_RuneExplosion_R	DAMAGE_DATA	21059	Extreme Rune Buster	INDEX 3	ok	855	8.55	0.32	214	2.86	False
+1281	DamageEffect_Character.lua	DamageEffect_SA_ERS_ExtremeRuneBuster_WeaponFX	DAMAGE_DATA	21059	Extreme Rune Buster	INDEX 1	ok	122	1.22	0.4	38	0.5	False
+1282	DamageEffect.lua	DamageEffect_SA_ERS_LunaBlade	DAMAGE_DATA	21017	Luna Blade	INDEX 1	ok	2758	27.58	0.28	1500	20	False
+1283	DamageEffect.lua	DamageEffect_SA_ERS_OversGeyser_AttackFX	DAMAGE_DATA	21040	Overs Geyser	INDEX 1	ok	469	4.69	0.4	125	2	False
+1284	DamageEffect.lua	DamageEffect_SA_ERS_PhoenixTalon	DAMAGE_DATA	21015	Phoenix Talon	INDEX 1	ok	319	3.19	0.4	134	1.79	False
+1285	DamageEffect.lua	DamageEffect_SA_ERS_PhoenixTalon	DAMAGE_DATA_NEXT	21015	Phoenix Talon	INDEX 2	ok	1186	11.86	0.28	938	12.5	False
+1286	DamageEffect.lua	DamageEffect_SA_ERS_SplashExplosion_Attack	DAMAGE_DATA	21018	Splash Explosive	INDEX 1	ok	478	4.78	0.4	188	2.5	False
+1287	DamageEffect.lua	DamageEffect_SA_ERS_SplashExplosion_Attack_2	DAMAGE_DATA	21018	Splash Explosive	INDEX 2	ok	1288	12.88	0.4	563	7.5	False
+1288	DamageEffect.lua	DamageEffect_SA_ERS_Triple_Saber_Attack	DAMAGE_DATA	21039	Triple Saber	INDEX 1	ok	2681	26.81	0.4	750	10	False
+1303	DamageEffect.lua	DamageEffect_SA_Elsword_MegaSlash_Damage	DAMAGE_DATA	21000	Mega Slash	INDEX 1	ok	2329	23.29	0.4	750	10	False
+1304	DamageEffect.lua	DamageEffect_SA_Elsword_TripleGeyser_RE	DAMAGE_DATA	21004	Triple Geyser	INDEX 1	ok	510	5.1	0.4	188	1.25	False
+1727	DamageEffect.lua	DamageEffect_TRIPLE_GEYSER_Real_Damage	DAMAGE_DATA	21004	Triple Geyser	INDEX 1	ok	510	5.1	0.4	188	1.25	False
+1756	DamageEffect.lua	ELSWORD_CRESCENT_ONE	DAMAGE_DATA	21020	Crescent Cut	INDEX 1	ok	130	1.3	0.4	63	0.83	False
+1757	DamageEffect.lua	ELSWORD_CRESCENT_THREE	DAMAGE_DATA	21020	Crescent Cut	INDEX 1	ok	130	1.3	0.4	63	0.83	False
+1758	DamageEffect.lua	ELSWORD_CRESCENT_TWO	DAMAGE_DATA	21020	Crescent Cut	INDEX 1	ok	130	1.3	0.4	63	0.83	False
+1759	DamageEffect.lua	ELSWORD_CRITICAL_SWORD	DAMAGE_DATA	21209	Critical Sword	INDEX 1	ok	1481	14.81	0.28	300	2	False
+1760	DamageEffect.lua	ELSWORD_EIS_SWORDBLASTING_HIT	DAMAGE_DATA	21025	Sword Blasting	INDEX 2	ok	580	5.8	0.4	200	2.67	False
+1761	DamageEffect.lua	ELSWORD_FINALSTRIKE	DAMAGE_DATA	21021	Final Strike	INDEX 2	ok	1907	19.07	0.4	750	10	False
+1762	DamageEffect.lua	ELSWORD_FINALSTRIKE_BLACKHOLE	DAMAGE_DATA	21021	Final Strike	INDEX 1	ok	300	3	0.32	150	1.67	False
+1763	DamageEffect.lua	ELSWORD_FINALSTRIKE_UpGrade	DAMAGE_DATA	21053	#Cffcc00[Enhanced]#CX Final Strike	INDEX 2	ok	1907	19.07	0.4	750	10	False
+1764	DamageEffect.lua	ELSWORD_FLAME_GEYSER_HYPER_MEMO	DAMAGE_DATA	21001	Flame Geyser	INDEX 1	ok	585	5.85	0.28	225	3	False
+1765	DamageEffect.lua	ELSWORD_HASHCHASER_PULL	DAMAGE_DATA	21215	Harsh Chaser	INDEX 1	ok	784	7.84	0.36	150	1.5	False
+1766	DamageEffect.lua	ELSWORD_MAELSTROM	DAMAGE_DATA	21024	Maelstrom Rage	INDEX 1	ok	819	8.19	0.4	375	5	False
+1767	DamageEffect.lua	ELSWORD_MAELSTROM	DAMAGE_DATA_NEXT	21024	Maelstrom Rage	INDEX 2	ok	82	0.82	0.4	29	0.69	False
+1768	DamageEffect.lua	ELSWORD_MAELSTROM_UpGrade	DAMAGE_DATA	21056	#Cffcc00[Enhanced]#CX Maelstrom Rage	INDEX 1	ok	819	8.19	0.4	375	5	False
+1769	DamageEffect.lua	ELSWORD_MAELSTROM_UpGrade	DAMAGE_DATA_NEXT	21056	#Cffcc00[Enhanced]#CX Maelstrom Rage	INDEX 2	ok	82	0.82	0.4	29	0.69	False
+1770	DamageEffect.lua	ELSWORD_MAGNUM_BLADE_HYPER	DAMAGE_DATA	21002	Unlimited Blade	INDEX 2	ok	329	3.29	0.4	134	1.79	False
+1771	DamageEffect.lua	ELSWORD_ROLLING_SMASH_LANDING	DAMAGE_DATA	21205	Rolling Smash	INDEX 2	ok	547	5.47	0.32	100	1	False
+1772	DamageEffect.lua	ELSWORD_SA_RAGECUTTER_HIT_M02	DAMAGE_DATA	21023	Rage Cutter	INDEX 1	ok	408	4.08	0.4	188	0.83	False
+1773	DamageEffect.lua	ELSWORD_SA_SPIRALSTING_M01	DAMAGE_DATA	21214	Mirage Sting	INDEX 1	ok	206	2.06	0.4	30	0.3	False
+1774	DamageEffect.lua	ELSWORD_SONIC_BLADE	DAMAGE_DATA	21011	Sonic Blade	INDEX 1	ok	1050	10.5	0.3	750	10	False
+1775	DamageEffect.lua	ELSWORD_SWORDFALL_BLADE1	DAMAGE_DATA	21019	Sword Fall	INDEX 1	ok	616	6.16	0.4	225	3.3	False
+1776	DamageEffect.lua	ELSWORD_SWORDFALL_BLADE2	DAMAGE_DATA	21019	Sword Fall	INDEX 1	ok	616	6.16	0.4	225	3.3	False
+1777	DamageEffect.lua	ELSWORD_SWORDFALL_BLADE3	DAMAGE_DATA	21019	Sword Fall	INDEX 1	ok	616	6.16	0.4	225	3.3	False
+1778	DamageEffect.lua	ELSWORD_SWORDFALL_BLADE4	DAMAGE_DATA	21019	Sword Fall	INDEX 1	ok	616	6.16	0.4	225	3.3	False
+1779	DamageEffect.lua	ELSWORD_WIND_MILL	DAMAGE_DATA	21010	Windmill	INDEX 1	ok	259	2.59	0.4	75	0.94	False
+1909	DamageEffect.lua	SPIRAL_BLAST	DAMAGE_DATA	21005	Spiral Blast	INDEX 2	ok	381	3.81	0.4	164	3.5	False
+1910	DamageEffect.lua	SPIRAL_BLAST_FIRST_MEMO	DAMAGE_DATA	21005	Spiral Blast	INDEX 1	ok	463	4.63	0.4	188	2.5	False
+1913	DamageEffect.lua	THIRD_BLADE	DAMAGE_DATA	21022	Phantom Sword	INDEX 1	ok	2314	23.14	0.24	1875	25	False

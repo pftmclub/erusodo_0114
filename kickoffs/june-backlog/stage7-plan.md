@@ -24,7 +24,7 @@ Then the character's own checklist rows (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` 
 |---|---|---|---|
 | 1 | Eve | `char-eve` | Smallest gap (3) and no blocker: a second character proves the template without new decisions. Its extras (167 alpha tags, 7ag slot encoders, El Crystal statics) are the 7c / 7ag / 7ah traps Aisha already walked. |
 | 2 | Chung | `char-chung` | Gap 15, no June-only class, no decision; `ChangeMaxCharacterAddResource` is ported. |
-| 3 | Elsword | `char-elsword` | Gap 20, no blocker, but `DAMAGE_SKILL_ID` x103 in his damage data is a large table job: plan its data phase first. |
+| 3 | Elsword | `char-elsword` | Gap 20, no blocker. (Planning, 2026-11-03: the `DAMAGE_SKILL_ID` x103 of `Elsword_DamageData.lua` are Rose's ids 31011-31607, so there is no Elsword table job.) |
 | 4 | Raven | `char-raven` | Gap 25, the biggest plain character; after three clean runs the template should be tight. |
 | 5 | Rena | `char-rena` | Gap 12 would put her second, but she needs the **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses). Ask it when she is scheduled; if the user answers before Eve closes, move her to #2. |
 | 6 | Ara | `char-ara` | Gap 14; first run of **CH-N** (classes 34, 124), the stat-row decision, `CUSTOM_RENDER_STATE`, 2 new motion files. After the plain characters, so CH-N is written once from the most mature template. |

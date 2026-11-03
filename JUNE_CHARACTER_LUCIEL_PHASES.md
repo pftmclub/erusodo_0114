@@ -20,7 +20,9 @@ new-character foundation (phases `NU*`) and the two-body engine (phases `DU*`). 
 `SERV_IRUHADEV_JUNE_CHAR_*`), so Rose (`UT_ROSE` 11, base `UC_ROSE_GUNNER` 201) and Ain (`UT_AIN` 12, base 202) reuse them.
 
 **Order (user, 2026-11-02).** CH0 and NU0 (the two maps, read-only) and CH0b (assets) run now. **Every code phase starts after char-chung Z**,
-ahead of `char-elsword`: Chung's CH2-CH4 edit `X2GUUser.*` and `X2Game.cpp`, which NU1-DU5 also edit.
+ahead of `char-elsword`: Chung's CH2-CH4 edit `X2GUUser.*` and `X2Game.cpp`, which NU1-DU5 also edit. **Changed by the user 2026-11-03
+(`new-plan char-elsword`): Lu/Ciel is lower priority; every phase after CH0b waits until the March characters are ported (Stage 7
+closed).**
 
 **The state he starts from** (planning evidence below; CH0 / NU0 re-verify anything they build on).
 - **Enums are registered** (`SERV_IRUHADEV_JUNE_ENUM_NAMES`): `X2Unit.h:36` `UT_LUCIEL = 10` (**equal to March's `UT_END`**; June's `UT_END` is
