@@ -11321,5 +11321,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH3a2 debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Iron Howling loop and end, the guard first strike, the Wonder Wall buff.
 //              CH3a2's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//              CH3a2 review ( 2026-11-03 ): retired, the CH3a2 play-test read the Iron Howling loop ( mp cost 5.0 ), guard first strike and Wonder Wall buff lines.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

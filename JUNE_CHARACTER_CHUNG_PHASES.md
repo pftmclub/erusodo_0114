@@ -2816,6 +2816,39 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, 
 
 **Play-test (user, 2026-11-03, logs).** First run: Wonder Wall cast Lunatic Blow (the 26010 / 26048 labels were missing, fixed in `c44834c8`; DEPLOY OK md5 0dd01573f4740bb091d1b083fd2f5b04). Second run passed: `wonder wall buff, level 1, allies 0, pvp 0` + `ES_CREATE EFFECTSET_CHG_WONDERWALL`; Iron Howling start -> loop 1 -> loop 2 -> end (`mp cost 5.0`, the loop state's skill id is 26046 = the upgrade, both skills are learned in the save; `EffectSet_SI_SA_CFG_IRON_HOWLING_LOOP` / `_ADDITION`); `guard first strike, balls now 2 / 1 / 0` + `ES_CREATE EffectSet_CFG_A_Guard_First_Strike`; Pain of Caladbolg `ES_CREATE`. `ErrorLog.txt`: 0 `CHUNG SKILL` errors. First-run Iron Howling loop read the default cost 10.0 (not seen again; the review checks the state skill id read).
 
+### CH3a2 - Review (2026-11-03, Opus 5.5)
+
+**PASS, no code change.** The 15 written bodies, the registration and 4 "= March" rows were re-read from the `charport_adis.py chung --phase CH3a2` listings and `32c1f530`.
+- **G.U.A.R.D. first strike `32bfbc10` / `32be1ba0`.** FrameMove: `[anim +0x24c] < 0.05` then `EventTimer( 0.05 )` (= `EventTimerOneshot`); gate `IsFullHyperMode()` (vslot 0x9c) or gage `+0x110` `> 0`
+  (`setg` after the protected-int `xor`); the old handle is stopped only when not `-1`, then `PlayEffectSet( L"EffectSet_CFG_A_Guard_First_Strike", this )` and `UseCannon( 1 )`; `CommonFrameMove` always.
+  EventProcess: off the ground `JUMP_DOWN`, `y -= 45` (= `LINE_RADIUS` x 1.5), straight to `CommonEventProcess`; else skill / hyper cancel, walk, dash; then the flag branch (`fcompp [+0x8c18]`
+  vs anim, `jnp` = `stateChange < anim`, or animation end -> READY `0x12a`, flag cleared), else the window `+0x8c10 <= anim < +0x8c14` with the key held sets the flag, else animation end -> WAIT.
+  `+0x8c10 / 14 / 18` = `m_fEventTime[0].keyInputStart / keyInputEnd / stateChange` (struct order, loader `[1] [2] [3]`); June's Lua `EVENT_PROCESS_TIME0 = { 0.55, 0.6, 0.6 }`.
+  StartFuture: the byte table `32be1b88` maps slot id - 0x32 (0 A, 2 S, 4 D, 6 C, 8 skill 5, 10-16 Q W E R, 18 skill Ex5, hyper / other = A) = the port's switch.
+- **Registration `32c1f530`.** G.U.A.R.D. normal: StartFuture / FrameMove / EventProcess / End (`+0x20 / 38 / 48 / 58`), hyper copies `+0x1c..+0x58` (no Init). READY `0x12a` and READY_MEMO `0x12b`:
+  Init / StartFuture / FrameMove / EventProcess, each after `UserUnitStateData::Init`; WAIT `0xe5`, END `0xe6`, DAMAGE `0xe7` = March's. Iron Howling: both tables `0x3350f3e0`; normal Init /
+  StartFuture / Start / FrameMove / EventProcess, hyper copies `+0x1c..+0x48` (not Init); LOOP `0x141` Start / EventProcess / End, END `0x142` EventProcess / End. Caladbolg (own HYPER table)
+  and Wonder Wall need only the labels. `UpdateUserUnitStateData` (`31fd89b0`) = `MakeTableReference` + `list[ id ] = data` (CH1n), as the port. `ch1m_regcheck.py`: 821 matched, 0 problems.
+- **Iron Howling.** `32007ce0( 0x1b, GetNowStateSkillID(), 1, &out )` with out preset 10.0: vslot 0x524 = `GetNowStateSkillID` takes no argument (funcmap `3208e410`), so the `push 1` is
+  `32007ce0`'s third argument = the port's `bUpgradeSwap_ true`. `GetNowMp() < cost` (`test ah, 5` / `jp`). LOOP start: `++ +0x9894`, `+0x6890 = 1`, vslot 0xe4 = `FlushMp( cost )`; loop test
+  `setge` = count `>= 5`; END = cancels, then animation end -> JUMP_DOWN / WAIT on every path. The loop's skill id is CH1l's `SetEquippedSkillLevelStateData( 26008 swapped, LOOP / END )`,
+  so 26046 when the upgrade is learned (the play-test's `mp cost 5.0`). Reads and writes are June's; the first run's 10.0 (log overwritten) was not seen again, no change.
+- **Wonder Wall `32c156c0` / `32be6400`.** `g_pMain +0x8c == 9` (`XS_PVP_GAME`): buff index `( state == 9 ) ? 2 : 0` via vslot 0x228, clone index `2 x ( == 9 ) + 1`; templet 26010 swap 1;
+  null templet or size `<= 3` -> `CommonFrameMove`; null unit -> return without it; level `max( 1, GetSkillLevel( id, 0, 0, 1 ) )`; per ally (team, vslot 0x210, distance `< 160000.0`) user slot 476
+  `( skill id, factor )` on the shared clone (JUNE_BUGS 508), then vslot 0x224. EventProcess: animation end, walk, dash, skill / hyper.
+- **Guard damage / end / wait `32bf2f70` / `32be2060` / `32be1fa0` / `32be2270`.** Damage: animation end -> WAIT + 0.1; Z (not from damage) `rate <= -1` -> `GUARD_ATTACK_Z`, else `random <= rate`
+  -> siege; X: `rate <= -1` -> X if berserk, a ball or Open Mind `0x672f` (26415) level `> 0`, else Z; `jnp 32bf3009` = `random <= rate` -> siege; key up -> END before the 0.01 s cancel. End:
+  animation end WAIT + 0.1, cancels only when `+0x985c` is false. Wait / damage drain: `( int ) guard +0x14 x dt` into vslot 0xf0 = `UpNowMp` (`+0x14` is negative, ctor -4).
+- **"= March":** `32be1ff0` (play count `> 1` and key up, `( int )` MP `<= 0` -> END), `32bf4280` (`CommonStateStart` + `SetDamageReducePercent`, JUNE_BUGS 509), `32bd9760` (7 preloads in order),
+  `32be2f60` (3.55 s, `USI_WALK` cancels, JUMP_DOWN / WAIT + 0.1) hold.
+- **Play-test (logs).** `ES_CREATE` for `EffectSet_SI_SA_CFG_IRON_HOWLING` / `_LOOP`, `EffectSet_CFG_A_Guard_First_Strike`, `EFFECTSET_CHG_WONDERWALL`, `EffectSet_CSI_SI_SA_CFG_PAIN_OF_CALADBOLG`.
+  ErrorLog: no missing sound or particle; the `CHUNG_IRONHOWLING_SHOT.OGG` / `CHUNG_CANNONGUN_FIRE.OGG` `result : 47` lines = JUNE_BUGS 138.
+- **Gates.** `flagcheck JUNE_CHAR_CHUNG_SKILL --range 21a725d4^..21a725d4 --with JUNE_CHAR_CHUNG_SKILL_DEBUG`: `files: 1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`
+  (OTHER = `X2SkillTree.h`, `JUNE_ENUM_NAMES`); `c44834c8^..c44834c8`: `1 PASS`, `RESULT: PASS`; numstat insert-only (Always.h 9, cpp 487, h 18, SkillTree 10). Review edit `--worktree --files
+  KTDXLIB/Always.h`: `1 DEFINE, 0 FAIL`, `RESULT: PASS` (1 deleted line = the `_SKILL_DEBUG` define). `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan`: 0 A/B (C 6, D 1).
+- **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,929,728 B, dated 2026-11-03 08:09:32, md5 36ef8840fc76e78ebd836c28f675b463,
+  built at main debf3400 + `Always.h`. EXESTR OK: 3 of 3 absent (wide `... iron howling loop`, `... guard first strike`, `... wonder wall buff`), md5 36ef8840.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
