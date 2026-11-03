@@ -3441,7 +3441,7 @@ A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
-### CH6 - Done (2026-11-03, Sonnet 5.5): scans PASSED, walk owed
+### CH6 - Done (2026-11-03, Sonnet 5.5): scans PASSED, walk PASSED
 
 **No code change, no flag, no build** (deployed exe is CH4c's). Save backed up first: `data\db_backup` snapshot tag `pre_ch6_walk`.
 
@@ -3457,6 +3457,7 @@ A defect goes back to its phase's flag.
 - 21 type-8 passives (26400-26420): no class state in June (CH4).
 
 **Walk units (in the save).** 62 ChungIron (6), 63 ChungFury (20), 64 ChungShoot (21), 65 ChungShell (27), all lv 99; 43 NovaT (110), 50 Chung99 and 42 RapidT (111), 18 Freils (117). All transcendence 0. Failures go back to the owning phase's flag (`JUNE_CHAR_CHUNG_*`).
+**Gate status: PASSED (2026-11-03).** User walk: first jobs (6 / 20 / 21 / 27, all rounds), second jobs (43 / 50 / 18), the transition on each (book, `/tc 0`, quest 42030, guide popup, relog), then transcended hyper actives and awakening. Logs: `JUNE_TRANSCEND` book / quest / popup / IMAGE lines for 110 / 111 / 117; `CHUNG UI hyper cut-in class 117 / 111 / 110 name HQ_Cutin_C{TT,DC,IP}_1_Transcendence`; `hyper active registered` 26600 / 26601 / 26602; skill cut-in sets 1 / 5 `HQ_CutIn_Chung_01`; `ErrorLog.txt` 0 `KEM_ERROR`. Finding: Pandemonium Chaos shows no cut-in because June registers no FrameMove for it (`JUNE_BUGS` 519, kept verbatim). Unrelated: Velder Market (33080) hung while loading for Freils (client hang after the dungeon map UI, no crash dump; logs kept in `logs_backup_velder_softlock_20261103_205416`); not diagnosed, not a Chung phase item. Not run: Endless Chase exact counts (debug flag not redefined; user eyeballed).
 **Walk save set-up (elsdb x, backed up).** Round 1 slotted (A S D C = slots 0-3, Q W E R = 5-8; 4 and 9 empty): 63 / 64 / 65 first-job upgrades + Scare Chase, Back Blast; 43 / 50 / 18 as CH3 hand-offs. Units 18 / 43 / 50 reset to transcendence 0 and quest 42030 completion rows deleted (they end transcended after the transition test). Awakening: `g_pX2Game:GetMyUnit():SetHyperModeCount( 3 )` (X2Main.cpp:5016).
 
 
