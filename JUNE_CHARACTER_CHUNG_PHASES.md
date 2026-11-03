@@ -3457,7 +3457,7 @@ A defect goes back to its phase's flag.
 - 21 type-8 passives (26400-26420): no class state in June (CH4).
 
 **Walk units (in the save).** 62 ChungIron (6), 63 ChungFury (20), 64 ChungShoot (21), 65 ChungShell (27), all lv 99; 43 NovaT (110), 50 Chung99 and 42 RapidT (111), 18 Freils (117). All transcendence 0. Failures go back to the owning phase's flag (`JUNE_CHAR_CHUNG_*`).
-**Open at hand-off:** no console command found that gives awakening orbs (`SetHyperModeCount` is C++ only); the walk fills orbs in play.
+**Walk save set-up (elsdb x, backed up).** Round 1 slotted (A S D C = slots 0-3, Q W E R = 5-8; 4 and 9 empty): 63 / 64 / 65 first-job upgrades + Scare Chase, Back Blast; 43 / 50 / 18 as CH3 hand-offs. Units 18 / 43 / 50 reset to transcendence 0 and quest 42030 completion rows deleted (they end transcended after the transition test). Awakening: `g_pX2Game:GetMyUnit():SetHyperModeCount( 3 )` (X2Main.cpp:5016).
 
 
 ## Phase Z - Close-out
