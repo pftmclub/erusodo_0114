@@ -2915,6 +2915,38 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, 
 - **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,929,728 B, dated 2026-11-03 09:39:04, md5 4498411de9bed43d511aa36c16f2616c,
   built at main 9554757f + `Always.h`. EXESTR OK: 4 of 4 absent (wide `... shooting star, max plays`, `... bullet blitz endless chase`, `... rapid cannon fire`, `... shooting bind start`), md5 4498411d.
 
+### CH3c - Done (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (+ `..._SKILL_DEBUG`, defined again; CH3c's review retires it). The Tactical Trooper skills and the June-only Heavy Field run June's bodies. All 27 class-map rows were read from `charport_adis.py chung --phase CH3c` listings (+ the `32c1f530` registration @32c21ec5-32c21f88): 4 are written inside March's function (March in `#else`), 9 are new, 14 are June = March (`funcmap.tsv` rows `Char Chung CH3c`). MODS.md "Stage 7 Chung, CH3c".
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32c1c840` | `CSI_A_CHG_MARK_OF_COMMANDER_FrameMove` | equipped (upgrade swapped) templet, first buff factor only (no memo 17), pushed with the skill's memo rate, time finalizers + `SA_EFFECTIVE_TIME` (`32610e90`) |
+| `32c0f6d0` | `CSI_SA_CHG_CARPET_BOMBING_FrameMove` | shot count from the equipped templet at the learned level; limit 18, + 9 and the extra round rate with 6+ balls (CH1l4's members) |
+| `32c07040` | `CSI_SI_SA_CTT_CROSS_FIRE_FrameMove` (Cannon Strike) | at 0.5 s all cannon balls (and the extra balls in armored mode) fill, no memo test |
+| `32c1cc70` | `CSI_SA_CTT_TACTICAL_FIELD_FrameMove` | equipped templet; time memo scales both fields' life; zone buff with the memo rate; only the normal balls refill |
+| `32bf48e0` | new `CSI_A_CTT_FATAL_CANNON_StateStart` | `CommonStateStart` + one extra ball spent |
+| `32bdbbd0` `32bdbca0` `32c0b7f0` `32c0b9b0` | new `CSI_SA_CTT_HEAVY_FIELD_READY_Init` / `_StateStartFuture` / `_FrameMove` / `_EventProcess` | 16 preloads; slot key; targeting NPC 2525 requested at 0.001 s (my unit); loop after 0.6 s with the NPC, end without it (the sniper ready state's twin) |
+| `32c0ba60` `32c0bd20` `32c0c1c0` | new `CSI_SA_CTT_HEAVY_FIELD_LOOP_FrameMove` / `_EventProcess`, `CSI_SA_CTT_HEAVY_FIELD_END_StateStart` | NPC camera + aim state (7n reader), aim by arrow keys (7n writer), end on key release / window / lost NPC; end projectile effect set |
+
+Reused, not copied: the sniper's `EventSetAimByKeys` / `EventNpcFollowAim` / `EventPlayEffectSet` / `IsEventGamePlayable` (CX2GUUser) do the aim and effect parts; only Heavy Field's nine NPC state names are new (`_CONST_CHUNG_CH3C_`). `PushBuffFactorWithMemoRate` is a Chung copy of Aisha's (CH3b); the shared home in CX2GUUser is routed, and `Always.h` gains an `#error` that `_CHUNG_SKILL` needs `JUNE_CHAR_ARME_SKILL` (defined at line 9673, plain `#define`).
+= March (listings read): `32bda6d0` `32bdad40` `32bdad50` `32bdad60` `32bdad70` `32bdad80` `32bdad90` `32be6200` `32be6920` `32be73b0` `32be75b0` `32bf3830` `32c12470`, and `32c0a500` / `32c10d20` already June's from CH3b0.
+
+**Registration.** Labels on March's blocks for 26214 / 26237, 26023 / 26058, 26215 / 26238, 26026 / 26061, 26024 / 26059; new blocks 26228, 26041, 26042 (script state + `GenericSpecialActiveSkillEventProcess`, hyper copy) and 26064 (READY with hyper copy, LOOP 337 and END 338 as plain states). `X2SkillTree.h`: eight `RNSI_*` names. Checklist rows marked `(Chung: CH3c)` (l.53, 116, 117, 178, 437, 493, 572, 713, 729). JUNE_BUGS 512 (Heavy Field spawn distance reads the loop's key window).
+**Not done / routed.** `GetActualMPConsume` still has March's memo branches for Cannon Strike / Carpet Bombing (June's version is CH4b). Mark of Commander's mark readers are CH4b (l.287). The June damage numbers are not tabled (numerical tables through the engine; `NUM use` at play-test).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files <4 code files>`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS` (OTHER = `X2SkillTree.h`, `JUNE_ENUM_NAMES`).
+- `junediverge.py --check` (cpp, h, `X2SkillTree.h`): `allow-listed: 20`, `RESULT: PASS`. `enumscan.py --check`: `0 A/B row(s)`. `skillicons.py check` (16 ids): `skills 16, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged (`Targeting_Chung.lua` has every `SHOT_ARTILLERY_STRIKE_*` / `SELF_DESTRUCTION` state).
+- DEPLOY OK: X2_offline.exe is 25,943,552 B, dated 2026-11-03 10:12:56, md5 4ac74bdc97d6531a94c1b3138444bdcf, equal to X2/US_SERVICE/x2.exe (10:12:50); built at main 1ab2bd71 + 4 uncommitted code files.
+- EXESTR OK: 6 of 6 found (wide `[JUNE_CHAR] CHUNG SKILL heavy field targeting npc requested`, `carpet bombing start`, `cannon strike balls full`, `tactical field, level`, `mark of commander buff`, `fatal cannon start`), md5 4ac74bdc.
+
+**Play-test hand-off.** Save (backup `db_backup\els_db_20261103_101333_pre_ch3c.sql`): unit 18 `Freils` (Tactical Trooper, lv 99): A Carpet Bombing up (26058), S Tactical Field up (26059), D Cannon Strike up (26061), C Heavy Field (26064); Q Mark of Commander up (26237), W Remote Mortar up (26238), E Fatal Cannon (26228), R Missile Shower up (26060); slots 4 and 9 empty. Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies (`/stage 1`-style); keep 6+ cannon balls for check 2.
+1. **C Heavy Field.** Ready animation, then the camera moves to a targeting reticle: hold C and steer with the arrow keys (the reticle shows the 9 aim poses), release after 0.3 s or wait 10 s: the end animation plays the projectile effect set at the reticle. Logs: `heavy field targeting npc requested`, `SUMMON npc 2525 ... skill 26064 ... flags 0x0`, `heavy field ready ends, npc uid`, `heavy field loop ends`, `heavy field end, npc 1`. If the reticle never appears: `heavy field ready ends without the targeting npc`.
+2. **A Carpet Bombing.** Log `carpet bombing start, max shots 18` (27 with 6+ balls); bombs fall from the first moment. **D Cannon Strike:** `cannon strike balls full`; the ball gauge fills. **S Tactical Field:** `tactical field, level N, life time rate 1.00`; balls refill.
+3. **Q Mark of Commander:** `mark of commander buff, level N, effective time`; **W Remote Mortar:** `SUMMON npc 1100 ... skill 26215 ... flags 0x44a`, a second cast at the cap logs `remote mortar uid ... erased ( kill 1 )`; **E Fatal Cannon:** `fatal cannon start, extra balls` (needs the mobile armored mode: otherwise it cannot be cast); **R Missile Shower:** `SUMMON npc 863 ... skill 26025`; also Rapid Cannon in armored mode (JUNE_BUGS 510).
+Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, `--grep "JUNE_CHAR] SUMMON"`, `--grep "ES_CREATE"`). Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

@@ -2077,6 +2077,19 @@ public:
 		RNSI_A_CDC_GATLING_SHOT_UPGRADE                       = 26234,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // char-chung CH3c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Tactical Trooper / Shelling Guardian skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE                  = 26024,
+		RNSI_SA_CHG_CANNON_STRIKE                             = 26026,
+		RNSI_SA_CTT_CANNON_PRISON                             = 26041,
+		RNSI_SA_CTT_BOMBING_ARTILLERRY                        = 26042,
+		RNSI_SA_CHG_CARPET_BOMBING_UPGRADE                    = 26058,
+		RNSI_SA_CTT_TACTICAL_FIELD_INDURANCE_UPGRADE          = 26059,
+		RNSI_A_CHG_MARK_OF_COMMANDER                          = 26214,
+		RNSI_A_CHG_MARK_OF_COMMANDER_UPGRADE                  = 26237,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

@@ -1588,6 +1588,15 @@ protected:
 	void CSI_SA_CDC_SHOOTING_BIND_StateStartFuture();	/// June 32bdba90
 	void CSI_SA_CDC_SHOOTING_BIND_StateEndFuture();	/// June 32bdbab0
 	void CSI_SA_CDC_BURNING_PUNISHER_Init();	/// June 32bdbb40
+	void PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ );	/// June 322b5320 ( the Rate of 31fdbfc0 ): the buff factor with the skill's memo rate
+	void CSI_A_CTT_FATAL_CANNON_StateStart();	/// June 32bf48e0
+	void CSI_SA_CTT_HEAVY_FIELD_READY_Init();	/// June 32bdbbd0
+	void CSI_SA_CTT_HEAVY_FIELD_READY_StateStartFuture();	/// June 32bdbca0
+	void CSI_SA_CTT_HEAVY_FIELD_READY_FrameMove();	/// June 32c0b7f0
+	void CSI_SA_CTT_HEAVY_FIELD_READY_EventProcess();	/// June 32c0b9b0
+	void CSI_SA_CTT_HEAVY_FIELD_LOOP_FrameMove();	/// June 32c0ba60
+	void CSI_SA_CTT_HEAVY_FIELD_LOOP_EventProcess();	/// June 32c0bd20
+	void CSI_SA_CTT_HEAVY_FIELD_END_StateStart();	/// June 32c0c1c0
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 	// 루나틱 퓨리 (퓨리가디언)

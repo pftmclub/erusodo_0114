@@ -11334,3 +11334,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3b review ( 2026-11-03 ): retired, the CH3b play-test read the Shooting Star play limit, Shooting Bind cool time, Rapid Cannon fire and Bullet Blitz hit lines.
 //#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH3c debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Mark of Commander buff, the Carpet Bombing start, the Cannon Strike balls, the Tactical Field,
+//              the Fatal Cannon start and the Heavy Field request / ready / loop / end. CH3c's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL ( CX2GUUser::RescaleBuffFactorByMemoRate, used by CX2GUChung::PushBuffFactorWithMemoRate )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//////////////////////////////////////////////////////////////////////////
