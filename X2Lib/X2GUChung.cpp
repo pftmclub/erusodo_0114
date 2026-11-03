@@ -40122,8 +40122,16 @@ void CX2GUChung::CSI_HA_CTT_SATELITE_RAIN_EventProcess()
 			StateChange( USI_WAIT );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be8bb0: the walk and dash cancels also need IsOnSomethingFuture
+	else if ( true == CanWalkCancelOnGround() )
+		StateChange( USI_WAIT );
+	else if ( true == CanDashCancelOnGround() )
+		StateChangeDashIfPossible();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 	CommonEventProcess();
 }

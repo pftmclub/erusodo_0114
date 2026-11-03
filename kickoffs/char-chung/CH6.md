@@ -49,3 +49,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   CH5 shipped the `UnitTemplet` keys and the log line; no test could reach them before. A bare `SetHyperModeCount( 3 )` in the console failed in CH5's play-test (nil global): find the working awakening command (Eve's CH5 hand-off used one) before writing the walk step.
 - **Skill cut-in sets 1 / 5 (CH5 review).** CH5's play-test reached sets 2 / 3 / 4 / 6 only. On Fury Guardian (20) and Shelling Guardian (27), any active skill should log
   `[JUNE_CHAR] CHUNG UI cut-in set 1` / `set 5 ... name HQ_CutIn_Chung_01` beside a `[JUNE_GFX] CUTIN play`.
+
+## Amended by CH3d review (2026-11-03)
+
+- **Endless Chase on transcended Deadly Chaser (CH3b review, not run in CH3d).** Unit 50 with 26418 learned: Shooting Star logs `max plays` 12 + its fire count and
+  Bullet Blitz stretches its shell (CH3b's `shooting star ... endless chase range` / `bullet blitz endless chase` lines need `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG` defined again; retire it after).
+- **Satellite Rain cancels (CH3d review fix, June `32be8bb0`).** On transcended unit 18, after the cancel time the arrow keys walk out and a double tap dashes out on the ground only.
