@@ -341,6 +341,27 @@ ch0b_stage_list.tsv`, then pack, then ask before each copy. Nothing reads the fi
 names the readers). **Gate:** `python tools/skillicons.py check <Lu/Ciel's skill-id ranges 10000-10699, 30001-30999>` = PASS, with the shared
 `DLG_SKILL_Passive_*` sheets included.
 
+### CH0b - Done (2026-11-03)
+
+Sonnet 5.5. No C++, no flag, no build (assets and data only; CH0 found no March reader a June asset breaks).
+- **Reference:** `ErrorLog.txt` (287,399 B, 2026-11-03 19:26) saved as `data\ErrorLog_pre_CH0b_luciel.txt` before any copy.
+- **Staged (stage list):** `kom.py stage-june --jobs 8 ch0b_stage_list.tsv`: `STAGE-JUNE OK: 37 kom(s), 14609 staged (14607 new, 2 replaced, 0 identical), 0 refused, 89s`
+  (dry run identical). Replaced: `DLG_SKILL_Buff_01.tga` / `.tet` (data063), backup `kom_backup_stage_june\20261103_201733`.
+- **Packed / copied (user approved, 2026-11-03):** 37 `PACK OK`, 37 `COPY OK` (all add-only: 0 removed; 33 existing archives + 4 new: `data162` 331, `data163` 294,
+  `datai028` 250, `datai029` 245; `X2Main.cpp` mounts `datai001-032`). The 4 same-name motions were already June's bytes (nothing replaced).
+- **NU0 amendment (not in the stage list, which holds CH0b-owned files only):**
+  - `kom.py stage-june` 12 files: `DLG_Unit_Background_Luciel.tga` (data051), `DLG_UI_Common_Texture_GUI_character_info_10.tga/.TET` and `DLG_UI_Common_Texture67.tga` (data057; Texture67 replaced),
+    `DLG_UI_Button_NEW_GUI_character_bt_01/_02 .TGA/.TET` (March's data056, 4 replaced, backup `20261103_202419`), `bt_03 .TGA/.TET` (data215),
+    `HQ_Loading_TUTORIAL_LUCIEL_01/02.tga` (data126, found there). `STAGE-JUNE OK: 5 kom(s), 12 staged (7 new, 5 replaced)`.
+  - `luasrc.py adopt-june` (June bytecode) 14 Lua: data034 `DLG_Unit_Create_ClassChange_Button_Luciel`, `Class_Change_Guide_Luciel` / `_1`, `DLG_1ST_` / `DLG_2ND_Class_Change_Guide_Luciel`;
+    data036 `SelectVoiceTable`; data040 `Tutorial_Luciel_Stage0` / `_LineMap`; data217 `DLG_Class_Change_Luciel_CG / CN / DB / DN / LC / LD`.
+  - `luabind.py check` over the 14: PASS after one row in `tools/data/lua_unbound_known.tsv` (`AddVoice`, SelectVoiceTable, NU4 ports the loader; March does not open the file yet, `X2Data.cpp:1920`).
+  - 9 `PACK OK`, 9 `COPY OK` (data034 036 040 051 056 057 126 215 217). `data051` also deployed 48 older entries (`DLG_Background_*`, dated 2026-09-22, not CH0b's) already in `kom_contents`; the user approved.
+- **Skill icons:** `skillicons.py check 10000-10601` PASS (52 skills), `check 30001-30606` PASS (143), `check 10000-10699 30001-30999` PASS (195, 0 misses, 0 sheets).
+- **Not staged here (routed):** the 43 `Tutorial_Luciel_Stage0_*` meshes / textures (data164) and the other TU / CHN / CH5 Lua stay with their owners (TU, CHN, CH5, CH1); `ch0_effect_closure` names in no June kom (`Ciel_Claw04.ogg`, `Luciel_Shadow_Fury04.ogg`, `WhiteImage.tga`, `__Motion_HAURES2_Ciel_LDN.X`) have nothing to stage.
+- **Play-test (user) is the gate:** log tag `[JUNE_CHAR]` has no lines; check `ErrorLog.txt` against `ErrorLog_pre_CH0b_luciel.txt` (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Lu/Ciel is not selectable until NU4.
+- **Drift:** none new.
+
 ## Phase NU - New-character foundation (NU1-NU4)
 
 | Sub-phase | Scope | Flag |

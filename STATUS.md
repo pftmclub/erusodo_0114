@@ -189,7 +189,6 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **ready** (start: `/x2-phase char-luciel CH0b`): every June Lu/Ciel asset staged whole (14,609 files: 127 motions, meshes, icons, `POPUP_TR_*`; 4 new koms); may run before char-chung Z | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy) | `CH0b.md` |
 | NU1 | blocked (char-chung Z; NU0 done 2026-11-02, kickoff amended): `UT_END` -> June's 13, arrays / loops / script table, `UC_END` guards, flag `UNIT_TYPE_RANGE` | Opus 5.5 / high, Opus review | NU0, char-chung Z | `X2UnitManager.*`, `X2Item*`, `X2State*`, `X2SocketItem.cpp`, Always.h | `NU1.md` |
 | NU2 | blocked (NU1 review): unit class as June's word on the wire + emulator, flag `UNIT_CLASS_WORD` (CommonPacket.h exception) | Opus 5.5 / xhigh, Opus review | NU1 review | `CommonPacket.h`, `ClientPacket.h`, `ServerDefine.h`, `Handlers_Unit.cpp`, `X2Unit.cpp`, vcxproj | `NU2.md` |
 | NU3 | blocked (NU1 review): Lu/Ciel's 7 `UnitTemplet` rows + parser for the 18 June-only keys | Opus 5.5 / high, Opus review | NU1 review | `UnitTemplet.lua`, `X2UnitManager.*`, data036 | `NU3.md` |
@@ -244,7 +243,7 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CH6 | blocked: scans rerun + user walk incl. creation, tutorial, job change and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5, TU reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, "Template for Stage 8", `stage8-plan` -> `char-rose` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-02, read-only class map: 867 functions / 553 tables / 198 ids phased, splits + 5 Opus helper phases, kickoffs amended; stat-row question with the user), NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
+Done: CH0b (2026-11-03, 14,609 + 12 June files and 14 Lua staged, 44 koms packed and copied, skill icons PASS; user select-screen ErrorLog pass owed), CH0 (2026-11-02, read-only class map: 867 functions / 553 tables / 198 ids phased, splits + 5 Opus helper phases, kickoffs amended; stat-row question with the user), NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
 
 ## Other plans (no STATUS rows)
 

@@ -5748,3 +5748,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (CH4a's; + temporary `_DEBUG`). Pla
 - **Damage numbers (March -> June):** the potion and damage-data HP rates use June's `rate - 1 + 5e-8` (March 5e-5).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (reverts CH4a / CH4b too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 - **Review (2026-11-03):** PASS with 1 fix under `SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY` (the village MP cases track, `UpNowHp` keeps the before-change HP; no reader, so no change in game); `_DEBUG` retired.
+
+## Stage 8 Lu/Ciel, CH0b: June assets staged (data only, 2026-11-03)
+
+No flag, no exe change. `kom.py stage-june june2017_re/char_luciel/ch0b_stage_list.tsv`: 14,609 June files byte-exact in 37 koms (14,607 new, 2 replaced: `DLG_SKILL_Buff_01.tga/.tet` in data063, backup `kom_backup_stage_june61103_201733`); plus the NU0 amendment: 12 textures in data051 / 056 / 057 / 126 / 215 (5 replaced in data056 and data057: `bt_01` / `bt_02` TGA+TET, `DLG_UI_Common_Texture67.tga`, backup `20261103_202419`) and 14 June-bytecode Lua (data034 x5, data036 `SelectVoiceTable.lua`, data040 x2, data217 x6). 44 distinct koms copied to the game dir; `data162`, `data163`, `datai028`, `datai029` are new archives. data051's copy also carried 48 older `DLG_Background_*` entries from kom_contents. `lua_unbound_known.tsv` gains `AddVoice` (NU4 ports the loader). **Revert:** restore the replaced files from the backup folders, `kom.py pack` the koms, `kom.py copy` them; delete the four new `.kom` files from the game dir.

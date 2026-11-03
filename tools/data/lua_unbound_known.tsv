@@ -1,3 +1,4 @@
 # name	phase	reason  (an unbound Lua method a phase knowingly left absent; tools/luabind.py skips it)
 GetEffectSetInstance	add port (Stage 8)	June CX2EffectSet binding 321d97c0 (bound @31e17d9e): SI_HA_APOCALYPSE 445 / 488; Apocalypse is Add's summon (created at 329f5430 in CX2GUAdd), not Eve's; routed by char-eve CH3d
 SetLocalRotateDegree	add port (Stage 8)	June CX2EffectSet instance binding 31e4c520 (bound @31e17fa5): SI_HA_APOCALYPSE 453 / 496; Add's summon, routed by char-eve CH3d
+AddVoice	char-luciel NU4	SelectVoiceTable.lua (data036, staged whole by CH0b): g_pUnitManager:AddVoice is bound by June's SelectVoiceTable loader (31ee6100 @31ee6217); March does not open the file yet (X2Data.cpp:1920), so it is inert; NU4 ports the loader and the binding
