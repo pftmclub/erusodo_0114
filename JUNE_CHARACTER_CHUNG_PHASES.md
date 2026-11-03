@@ -3441,6 +3441,25 @@ A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
+### CH6 - Done (2026-11-03, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build** (deployed exe is CH4c's). Save backed up first: `data\db_backup` snapshot tag `pre_ch6_walk`.
+
+| Scan | Before | After |
+|---|---|---|
+| `census.py` | 26 PASS, 0 FAIL, `to-implement 0` | 26 PASS, 0 FAIL; regenerated `census.tsv` / KEY_MATRIX reverted |
+| `charport_scan.py` (`C:	mp\cps6`) | `Chung_Iron_Cannon {'no NUMERICAL_DATA_INDEX': 74, 'no DAMAGE table': 15}` | identical |
+| `charport_keys.py Chung_Iron_Cannon` | 249 keys: june-only 11 / neither 8 / march-only-site 7 / both 223 | 249 keys: **6 / 6 / 9 / 228** (left june-only: `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME` damage data; two camera keys -> Stage 9; `IMMUNE_TO_SUPER_ARMOR_DOWN` x11 read by `31fdaaa0`; `IMMUNITY_EDT_LIST_AT_THIS_STATE` no reader) |
+| `s3_no_state.py --family X2GUChung.cpp --preprocess` | 261 rows, 254 no_state | 261 rows, `no_state=76` (38 ids), **0 unexplained** |
+
+**The 38 `no_state` ids** (the generator resolves `case SI_*` only):
+- 17 active ids whose March cases are `RNSI_*` labels (26000, 26001, 26003, 26012, 26013, 26016, 26019, 26023, 26024, 26036, 26037, 26040, 26046, 26208, plus 26028 which reaches June's `default` branch with 26001); 106 / 900 common hyper aura / Heavenly Love;
+- 21 type-8 passives (26400-26420): no class state in June (CH4).
+
+**Walk units (in the save).** 62 ChungIron (6), 63 ChungFury (20), 64 ChungShoot (21), 65 ChungShell (27), all lv 99; 43 NovaT (110), 50 Chung99 and 42 RapidT (111), 18 Freils (117). All transcendence 0. Failures go back to the owning phase's flag (`JUNE_CHAR_CHUNG_*`).
+**Open at hand-off:** no console command found that gives awakening orbs (`SetHyperModeCount` is C++ only); the walk fills orbs in play.
+
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Chung" section (flags, files, data, revert order: exe + data036 + motion koms
