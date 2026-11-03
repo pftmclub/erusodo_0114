@@ -89,3 +89,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - Earthquake's landing (26007 / 26045) now applies `BFI_BUFF_LAND_DIMOLISHER` (`BTI_BUFF_LAND_DIMOLISHER` 54) as June. March's `SetSpecificValueByBuffTempletID` case for it reads
   `SI_SA_CIP_LAND_DEMOLISHIER_HEAVY_ARMS` (6xxx), so `m_bApplyLandDemolisher`, `m_fLandDemolisherPowerRate` and the weapon pulse stay off until you port June's `32bec1a0` /
   `32bda7d0` cases (funcmap rows 6307 / 6294).
+
+## Amended by CH3c (2026-11-03)
+
+- **User, 2026-11-03: the orange (extra) cannon balls are CH4a's.** CH3c's play-test showed `cannon strike balls full, now 6, extra 0`: `m_bMobileArmoredModeEnable` is set only from March's passive id (`SI_P_CTT_MOBILE_ARMORED_MODE` 6415) while June's is `RNSI_P_CTT_MOBILE_ARMORED_MODE` 26412 (register the name), so `SetExtraCannonBallCount` (class 117 + armored mode guard) does nothing. Port `32c16be0 @32c17037` first: skill 26412 level > 0 -> enable = 1, `m_fMobileArmoredModeDistance` = SA 0x1f and `m_fMobileArmoredModeDamageRel` = SA 0xf at the learned level (GetSkillTemplet with the upgrade swap), reset to 0 otherwise; log `mobile armored mode on`. Play-test: `/stage 1`, Cannon Strike (D) must log `extra 6`, the orange balls fill; the down key enters the armored mode; Fatal Cannon (26228) casts with an extra ball.

@@ -9836,6 +9836,56 @@ __forceinline void CX2GUChung::UpCannonBallCount( int iUpCount_ )
 	 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+//{{ Iruha : 2026-11-03 // June character Chung Phase CH3c (JUNE_CHARACTER_CHUNG_PHASES.md)
+namespace _CONST_CHUNG_CH3C_
+{
+	/// June 31fdbfc0: the skill memo types that rescale a pushed buff factor ( 15 the time, 16 the value ); no Enum entry
+	const int MEMO_TYPE_BUFF_TIME_RATE		= 0xf;
+	const int MEMO_TYPE_BUFF_VALUE_RATE		= 0x10;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	/// diagnostic ( CH3c play-test: the camera sometimes does not follow the aim ): whether the game's focus unit is the targeting NPC; a lost focus is always logged, a held one every 0.4 s
+	inline void LogTargetingNpcFocus( const WCHAR* pwszTag_, CX2GUNPC* pNpc_ )
+	{
+		static DWORD s_dwLastTick = 0;
+		if ( NULL == pNpc_ || NULL == g_pX2Game )
+			return;
+
+		CX2GameUnit* pFocusUnit = g_pX2Game->GetFocusUnit();
+		const bool bFocused = ( pFocusUnit == static_cast<CX2GameUnit*>( pNpc_ ) );
+		const DWORD dwTick = GetTickCount();
+		if ( true == bFocused && dwTick - s_dwLastTick < 400 )
+			return;
+
+		s_dwLastTick = dwTick;
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL camera %s: npc focused %d ( focus unit type %d ), force %d, camera flag %d, npc pos ( %.0f, %.0f ), npc state %d",
+			pwszTag_, bFocused ? 1 : 0, ( NULL != pFocusUnit ) ? static_cast<int>( pFocusUnit->GetGameUnitType() ) : -1, pNpc_->GetFocusCameraForce() ? 1 : 0,
+			pNpc_->GetFocusCamera() ? 1 : 0, pNpc_->GetPos().x, pNpc_->GetPos().y, static_cast<int>( pNpc_->GetGameUnitState() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+
+	/// June 32c0ba60 @32c0baf0 ( jump table 32c0bcfc ): the targeting NPC's state of the aim value 1 .. 9, anything else ( 5 too ) is the idle state
+	static const char* const s_apszHeavyFieldAimState[10] =
+	{
+		"SHOT_ARTILLERY_STRIKE_IDLE", "SHOT_ARTILLERY_STRIKE_UP_LEFT", "SHOT_ARTILLERY_STRIKE_UP", "SHOT_ARTILLERY_STRIKE_UP_RIGHT", "SHOT_ARTILLERY_STRIKE_LEFT",
+		"SHOT_ARTILLERY_STRIKE_IDLE", "SHOT_ARTILLERY_STRIKE_RIGHT", "SHOT_ARTILLERY_STRIKE_DOWN_LEFT", "SHOT_ARTILLERY_STRIKE_DOWN", "SHOT_ARTILLERY_STRIKE_DOWN_RIGHT",
+	};
+
+	/// June 32610e90 ( op 0, value ): every pushed buff factor's time finalizer values grow by fValue_
+	inline void AddBuffFactorFinalizerTime( CX2DamageManager::DamageData& damageData_, const float fValue_ )
+	{
+		for ( UINT i = 0; i < damageData_.m_vecBuffFactorPtr.size(); ++i )
+		{
+			if ( NULL != damageData_.m_vecBuffFactorPtr[i] )
+				damageData_.m_vecBuffFactorPtr[i]->SetFinalizerValue( BFT_TIME, fValue_, 0 );
+		}
+	}
+}
+using namespace _CONST_CHUNG_CH3C_;
+//}}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+
 /** @function : UpCannonBallCountAtThisAnimationTime
 	@brief : 정해진 애니메이션 타임에 캐논볼 카운트를 한개 올린다. (m_pXSkinAnim의 animation 시간을 체크함)
 */
@@ -28337,6 +28387,9 @@ void CX2GUChung::ArtilleryStrikeControl_EventProcess()
 			{
 				vDirection.y -= vDirection.y - MAGIC_CONTROL_RADIUS_Y;
 			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			LogTargetingNpcFocus( L"artillery strike", pNPC );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 		}
 
 		if( vDirection.x >= 0.f && vDirection.y <= 0.f && 
@@ -34029,34 +34082,6 @@ bool CX2GUChung::CreateElasticBomb( int iBombIndex_, const D3DXVECTOR3& vPos_ )
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
-#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
-//{{ Iruha : 2026-11-03 // June character Chung Phase CH3c (JUNE_CHARACTER_CHUNG_PHASES.md)
-namespace _CONST_CHUNG_CH3C_
-{
-	/// June 31fdbfc0: the skill memo types that rescale a pushed buff factor ( 15 the time, 16 the value ); no Enum entry
-	const int MEMO_TYPE_BUFF_TIME_RATE		= 0xf;
-	const int MEMO_TYPE_BUFF_VALUE_RATE		= 0x10;
-
-	/// June 32c0ba60 @32c0baf0 ( jump table 32c0bcfc ): the targeting NPC's state of the aim value 1 .. 9, anything else ( 5 too ) is the idle state
-	static const char* const s_apszHeavyFieldAimState[10] =
-	{
-		"SHOT_ARTILLERY_STRIKE_IDLE", "SHOT_ARTILLERY_STRIKE_UP_LEFT", "SHOT_ARTILLERY_STRIKE_UP", "SHOT_ARTILLERY_STRIKE_UP_RIGHT", "SHOT_ARTILLERY_STRIKE_LEFT",
-		"SHOT_ARTILLERY_STRIKE_IDLE", "SHOT_ARTILLERY_STRIKE_RIGHT", "SHOT_ARTILLERY_STRIKE_DOWN_LEFT", "SHOT_ARTILLERY_STRIKE_DOWN", "SHOT_ARTILLERY_STRIKE_DOWN_RIGHT",
-	};
-
-	/// June 32610e90 ( op 0, value ): every pushed buff factor's time finalizer values grow by fValue_
-	inline void AddBuffFactorFinalizerTime( CX2DamageManager::DamageData& damageData_, const float fValue_ )
-	{
-		for ( UINT i = 0; i < damageData_.m_vecBuffFactorPtr.size(); ++i )
-		{
-			if ( NULL != damageData_.m_vecBuffFactorPtr[i] )
-				damageData_.m_vecBuffFactorPtr[i]->SetFinalizerValue( BFT_TIME, fValue_, 0 );
-		}
-	}
-}
-using namespace _CONST_CHUNG_CH3C_;
-//}}
-#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 void CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_Init()
 {
 	TextureReadyInBackground( L"soket_earth_quake_smoke02.DDS");
@@ -37890,6 +37915,9 @@ void CX2GUChung::CSI_SA_CTT_HEAVY_FIELD_LOOP_FrameMove()
 			pNpc->SetApplyCinematicUI( false );
 		}
 		EventNpcFollowAim( pNpc, s_apszHeavyFieldAimState );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		LogTargetingNpcFocus( L"heavy field", pNpc );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 	}
 
 	CommonFrameMove();
