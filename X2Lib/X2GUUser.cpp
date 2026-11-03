@@ -42977,6 +42977,23 @@ float CX2GUUser::GetHpUpRateBySkill()
 		}
 	}
 	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 31fcd470 @31fcd4fe-31fcd565: Metabolism Boost on June's 26400, the raw ability ( no - 1 here )
+	float fIncreaseRateMetabolism = 1.f;
+	if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == GetUnitClass() )
+	{
+		const int iSkillLv = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+		if ( 0 < iSkillLv )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+			if ( NULL != pSkillTemplet )
+				fIncreaseRateMetabolism = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( henir hp up: level %d, alchemist x%.3f, metabolism x%.3f )", iSkillLv, fIncreaseRateFromMasterOfAlchemistSkill, fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	float fIncreaseRateMetabolism = 1.f;
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == GetUnitClass() || 
@@ -43008,6 +43025,7 @@ float CX2GUUser::GetHpUpRateBySkill()
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	return fIncreaseRateFromMasterOfAlchemistSkill * fIncreaseRateMetabolism;
 }
 

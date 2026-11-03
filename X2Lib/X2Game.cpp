@@ -11456,6 +11456,25 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 //{{ kimhc // 2011.1.14 // 청 1차 전직
 #ifdef	CHUNG_FIRST_CLASS_CHANGE
 					// 퓨리가디언 신진대사 촉진
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+					/// June 322fbc60 @322fbe08-322fbe83: Metabolism Boost on June's 26400, ability - 1.0 + 5e-8 ( 3346ed68 )
+					if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == pCX2GUUser->GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == pCX2GUUser->GetUnitClass() )
+					{
+						const int iSkillLv = pCX2GUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+						if ( 0 < iSkillLv )
+						{
+							const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+							if ( NULL != pSkillTemplet )
+							{
+								const float fIncreaseRateMetabolism = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv ) - 1.0 + 5e-8 );
+								fIncreateRateHpUp += fIncreaseRateMetabolism;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+								CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp up: value %.0f, level %d, rate +%.3f )", fValue, iSkillLv, fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+							}
+						}
+					}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 					if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == pCX2GUUser->GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == pCX2GUUser->GetUnitClass() )
 					{
 						const CX2UserSkillTree& userSkillTree = pCX2GUUser->GetUnit()->GetUnitData().m_UserSkillTree;
@@ -11490,6 +11509,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 						} // if
 					}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #endif	CHUNG_FIRST_CLASS_CHANGE
 //}} kimhc // 2011.1.14 // 청 1차 전직
 
@@ -11799,6 +11819,25 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 					//{{ kimhc // 2011.1.14 // 청 1차 전직
 #ifdef	CHUNG_FIRST_CLASS_CHANGE
 					// 퓨리가디언 신진대사 촉진
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+					/// June 322fbc60 @322fd495-322fd510: Metabolism Boost on June's 26400, ability - 1.0 + 5e-8 ( 3346ed68 )
+					if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == pCX2GUUser->GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == pCX2GUUser->GetUnitClass() )
+					{
+						const int iSkillLv = pCX2GUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+						if ( 0 < iSkillLv )
+						{
+							const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+							if ( NULL != pSkillTemplet )
+							{
+								const float fIncreaseRateMetabolism = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv ) - 1.0 + 5e-8 );
+								fIncreateRateHpPercentUp += fIncreaseRateMetabolism;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+								CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp percent up: value %.3f, level %d, rate +%.3f )", fValue, iSkillLv, fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+							}
+						}
+					}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 					if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == pCX2GUUser->GetUnitClass() || CX2Unit::UC_CHUNG_IRON_PALADIN == pCX2GUUser->GetUnitClass() )
 					{
 						const CX2UserSkillTree& userSkillTree = pCX2GUUser->GetUnit()->GetUnitData().m_UserSkillTree;
@@ -11833,6 +11872,7 @@ void CX2Game::UseItemSpecialAbility( const CX2Item::ItemTemplet* pItemTemplet, C
 		#endif // UPGRADE_SKILL_SYSTEM_2013
 						} // if
 					}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #endif	CHUNG_FIRST_CLASS_CHANGE
 					//}} kimhc // 2011.1.14 // 청 1차 전직
 

@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\X2GageData.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 
 void CX2GageData::Gage::Increase( const float fIncrement, const float fMinimum /*= 0.f */ )
 {
@@ -463,6 +466,25 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 				float fValue = static_cast< float >( specialAbility.m_Value1 );
 
 				// 퓨리가디언 신진대사 촉진
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+				/// June 32a34020 @32a34142-32a341a4: Metabolism Boost on June's 26400, ability - 1.0 + 5e-8 ( 3346ed68 )
+				if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == eUnitClass || CX2Unit::UC_CHUNG_IRON_PALADIN == eUnitClass )
+				{
+					const int iSkillLv = pUnitData->m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+					if ( 0 < iSkillLv )
+					{
+						const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+						if ( NULL != pSkillTemplet )
+						{
+							const float fIncreaseRateMetabolism = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv ) - 1.0 + 5e-8 );
+							fIncreateRateHpUp += fIncreaseRateMetabolism;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+							CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( village hp up: value %.0f, level %d, rate +%.3f )", fValue, iSkillLv, fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+						}
+					}
+				}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				switch ( eUnitClass )
 				{
 				case CX2Unit::UC_CHUNG_FURY_GUARDIAN:
@@ -496,6 +518,7 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 				default:
 					break;
 				}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				
 
 				// 길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
@@ -547,6 +570,25 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 				float fValue = specialAbility.m_Value1 / 100.0f;
 
 				// 퓨리가디언 신진대사 촉진
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+				/// June 32a34020 @32a3422c-32a342a1: Fury Guardian only ( = March ), June's 26400, ability - 1.0 + 5e-8 ( 3346ed68 )
+				if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == eUnitClass )
+				{
+					const int iSkillLv = pUnitData->m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST, true, 0, true );
+					if ( 0 < iSkillLv )
+					{
+						const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_METABOLISM_BOOST );
+						if ( NULL != pSkillTemplet )
+						{
+							const float fIncreaseRateMetabolism = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv ) - 1.0 + 5e-8 );
+							fIncreateRateHpPercentUp += fIncreaseRateMetabolism;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+							CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( village hp percent up: value %.3f, level %d, rate +%.3f )", fValue, iSkillLv, fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+						}
+					}
+				}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				if ( CX2Unit::UC_CHUNG_FURY_GUARDIAN == eUnitClass )
 				{
 					const CX2UserSkillTree& userSkillTree = pUnitData->m_UserSkillTree;
@@ -575,6 +617,7 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 						fIncreateRateHpPercentUp += fIncreaseRateMetabolism;
 					} // if
 				}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				// 길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
 				if ( true == bDoIHaveMasterOfAlchemistSkill &&
                     EGG_ITEM_ID == pItemTemplet_->GetItemID()

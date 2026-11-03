@@ -5740,3 +5740,10 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (+ temporary `_DEBUG`; needs `_CHU
 - **Every class:** the on-hit MP scale in `CX2GUUser::AttackResult` reads June's 21400 / 23406 / 23407 / 26404 (Elsword's Get Mana Up, Rena's Commune of Nature / Vibration Shooting, Chung's Advanced Metabolism Boost), all dead before.
 - **Damage numbers (March -> June):** Land Demolisher power rate x ( 1 + socket skill power ), was without it; Remodel Rifle's range / critical use June's `rate - 1 + 5e-8` (March 5e-5); Cannoneer's Withstanding power rate is June's `32071720` (upgraded skills take SA 0xad first).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (and then `SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT` if wanted; `_PASSIVE` needs it), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH4c: Metabolism Boost on June's id, Big Bang Stream's giant grenade (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (CH4a's; + temporary `_DEBUG`). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH4c - Done". Client only.
+- **What changes in game.** Fury Guardian / Iron Paladin's Metabolism Boost ( 26400 ) raises HP potions again: in dungeons ( `CX2Game::UseItemSpecialAbility` ), in villages ( `CX2GageData::UseSpecialAbilityInVillage`; HP % potions Fury Guardian only, as June and March ) and Henir's HP buffs ( `GetHpUpRateBySkill` ). March read 6400, which June's skill trees never hold. A Chung with Enhanced Big Bang Stream ( 26033 ) throws `CHUNG_BIGBANGSTREAM_ULTIMATE` in place of `HAND_GRENADE_0` on 25% of the buff's command throws.
+- **Damage numbers (March -> June):** the potion and damage-data HP rates use June's `rate - 1 + 5e-8` (March 5e-5).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (reverts CH4a / CH4b too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

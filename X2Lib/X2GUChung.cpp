@@ -11921,8 +11921,15 @@ float CX2GUChung::CalculateHpPercentUpRateByDamageDataHpUp( float fDamageDataHpP
 				if ( NULL != pSkillTemplet )
 				{
 					float fIncreaseRateMetabolism	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ITEM_SPECIAL_ABILITY_REL, iSkillLv );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+					fIncreaseRateMetabolism			= GetIncreasingRate( fIncreaseRateMetabolism );	/// June 32bdc90c-32bdc912: - 1.0 + 5e-8
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 					fIncreaseRateMetabolism			= CalculateIncreasingRate( fIncreaseRateMetabolism );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 					fHpUpRate =  fDamageDataHpPercentUp_ * fIncreaseRateMetabolism;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( damage data hp up: %.3f, level %d, rate +%.3f, up %.4f )", fDamageDataHpPercentUp_, iSkillLv, fIncreaseRateMetabolism, fHpUpRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 				}
 			}
 		}

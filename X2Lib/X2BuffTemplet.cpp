@@ -1656,6 +1656,29 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+namespace _CONST_BUFF_CH4C_
+{
+	/// June 32007c40: the ability of an acquired skill at the learned level ( the upgrade swap picks the upgraded templet )
+	bool TryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), bUpgradeSwap_ );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	/// June 322cc1a0: PVP or PVE
+		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, bPvpOrPve, fOut_ );
+	}
+}
+using namespace _CONST_BUFF_CH4C_;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 /** @function : DoExtraAttack
 	@brief : June 3236dbf0 (vtable slot 9). Bip01, then HAND_GRENADE_0 at GetPowerRate(); March's 20% memo grenade
 			 (SMI_CHUNG_MEMO26) is gone. June's replacement, CHUNG_BIGBANGSTREAM_ULTIMATE when GetRandomFloat( 0 ) <=
@@ -1667,10 +1690,34 @@ void CX2CustomFunctionByBuffPhantomSword::MoveDataDataToDamageEffect( CX2GameUni
 /*virtual*/ void CX2CustomFunctionByBuffBigBangStream::DoExtraAttack( CX2GameUnit* pGameUnit_ )
 {
 	const D3DXVECTOR3& vBonePos = pGameUnit_->GetBonePos( L"Bip01" );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 3236dc3c-3236dc99: a user with Big Bang Stream's upgrade rolls GetRandomFloat( 0 ) <= its SA_EFFECTIVE_RATE for the giant grenade
+	const WCHAR* pwszGrenadeName = L"HAND_GRENADE_0";
+	if ( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() )
+	{
+		CX2GUUser* pUser = static_cast<CX2GUUser*>( pGameUnit_ );
+		float fGiantGrenadeRate = 0.f;
+		if ( true == pUser->IsUpgradedSkillLearned( CX2SkillTree::RNSI_SA_CHG_BIGBANG_STREAM )
+			&& true == TryGetAcquiredSkillAbilityValue( pUser->GetUnit(), CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_SA_CHG_BIGBANG_STREAM, true, fGiantGrenadeRate ) )
+		{
+			const float fRoll = pUser->GetRandomFloat( 0 );
+			if ( fRoll <= fGiantGrenadeRate )
+				pwszGrenadeName = L"CHUNG_BIGBANGSTREAM_ULTIMATE";
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE big bang stream grenade ( rate %.2f, roll %.3f: %s )", fGiantGrenadeRate, fRoll, pwszGrenadeName );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		}
+	}
+	CX2DamageEffect::CEffect* pDamageEffect
+		= g_pX2Game->GetDamageEffect()->CreateInstance(
+		pGameUnit_, pwszGrenadeName, pGameUnit_->GetPowerRate(), vBonePos,
+		pGameUnit_->GetRotateDegree(), pGameUnit_->GetRotateDegree(),  pGameUnit_->GetLandPos().y );
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	CX2DamageEffect::CEffect* pDamageEffect
 		= g_pX2Game->GetDamageEffect()->CreateInstance(
 		pGameUnit_, L"HAND_GRENADE_0", pGameUnit_->GetPowerRate(), vBonePos,
 		pGameUnit_->GetRotateDegree(), pGameUnit_->GetRotateDegree(),  pGameUnit_->GetLandPos().y );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	if ( NULL == pDamageEffect )
 		return;
 

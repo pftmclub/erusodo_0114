@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_CHUNG_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH3b0 | done 2026-11-02, **review PASS** 2026-11-02 (no code change): summon cases + mortar list under `_SKILL`; user owes `/x2-kom-packed copy data036` + `data037` (before CH2c's play-test); no play-test here | Opus 5.5 / high, Opus review | CH1 review | `X2GUChung.*`, `X2GUUser.*`, `X2Game.cpp`, data036/037 | `CH3b0-review.md` |
-| CH4c | **ready** (start: `/x2-phase char-chung CH4c`): memo and item readers: `MemoConditionChung`, grenade memo 7u, Metabolism Boost, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2GUChung.*`, `X2BuffTemplet.cpp`, `X2Game.cpp` | `CH4c.md` |
+| CH4c | done 2026-11-03, **user owes play-test** (Metabolism Boost potions, giant Big Bang grenade), then `/x2-phase char-chung CH4c review`; MemoConditionChung n/a | Opus 5.5 / high, Opus review, user play-test | CH4b review | `X2Game.cpp`, `X2GageData.cpp`, `X2GUUser.cpp`, `X2GUChung.cpp`, `X2BuffTemplet.cpp` | `CH4c-review.md` |
 | CH6 | blocked: scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-elsword` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
