@@ -3054,6 +3054,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND` (needs `_CHUNG_SKILL`, `_EVE_TRAN
 
 **Play-test set-up ( save, backed up as `pre_ch3d_before` ).** Unit 43 `NovaT` ( Iron Paladin ) 26600 Doom Strike, unit 50 `Chung99` ( Deadly Chaser ) 26601 Outrage Strike, unit 18 `Freils` ( Tactical Trooper ) 26602 Satellite Rain, each transcended and in slot A-5 ( slot 4 ). Unit 50 also has Endless Chase 26418 learned ( CH3b review's check ).
 **In game** ( after `/x2-kom-packed copy data036` and a restart ): see the plan's play-test hand-off; log lines `hyper active registered CSI_HA_*`, `[JUNE_TRANSCEND] IMAGE class 110 / 111 / 117`.
+**Play-test PASS ( user, 2026-11-03; `data036` copied, `COPY OK` md5 05de4e01 ).** Logs: `hyper active registered` CSI_HA_CIP_DOOM_STRIKER ( 26600 ), CSI_HA_CTT_SATELITE_RAIN ( 26602 ), CSI_HA_CDC_OUTRAGE_STRIKE ( 26601 ); `[JUNE_TRANSCEND] IMAGE` for 110 / 111 / 117 ( unit slot type 9 `list_TR_*`, LARGE in Texture99, STATE in Texture97, ICON in Texture100 ); `ErrorLog.txt` 0 lines; no EXCEPTION. Not this phase: the `E_DISABLE_HB_CHECK_REQ` UNHANDLED baseline and one unbound `AddGroupChainQuest` call from a June quest script.
 **Open for the review:** the three FrameMove/EventProcess "= March" claims ( confirm 2 ), the picture rows against `FUN_33374620`.
 
 ## Phase CH4 - Passives and class mechanics
