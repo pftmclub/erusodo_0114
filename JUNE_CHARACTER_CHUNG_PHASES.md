@@ -3268,6 +3268,7 @@ Listings read (`funcdis.py`): `32bf28f0`, `32bed9d0`, `32be8e50`, `3208e1b0`, `3
 PASS~ = one blank line before the new function; the 1 deleted line is the commented `_DEBUG` define, now live). `--files X2Lib/X2GUUser.cpp` alone (its compound `#if`
 stops a joint run): `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
 `junediverge.py --check` (7 files): `RESULT: PASS`. `enumscan.py --check` (5 files): 0 A/B rows.
+**Range (commit `3ed3ddbb`):** `--range 3ed3ddbb^..3ed3ddbb`, same file lists: `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`, and X2GUUser.cpp `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,942,016 B, dated 2026-11-03 16:23:03, md5 5dbc60fd8c7c5e577f371f52d40ed3d9, equal to X2/US_SERVICE/x2.exe (2026-11-03 16:22:56); built at main a151a827 + 8 uncommitted code file(s).`
 `EXESTR OK: 4 of 4 found in X2_offline.exe, 25942016 B, dated 2026-11-03 16:23:03, md5 5dbc60fd8c7c5e577f371f52d40ed3d9` (the `skill use`, `converted warhead`, `soul rate`, `mark of commander shell` lines, wide).
 **Save** (backup `els_db_20261103_161620_pre_sql.sql`): unit 18 `Freils` + 26420 Commander Tactics level 1, 26214 Mark of Commander level 1 in slot 7 (26228
