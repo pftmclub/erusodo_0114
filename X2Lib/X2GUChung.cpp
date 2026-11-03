@@ -37781,6 +37781,10 @@ void CX2GUChung::CSI_SI_SA_CTT_CROSS_FIRE_FrameMove()
 
 		SetCannonBallCount( GetChungGageData()->GetMaxCannonBallCount() );
 		SetExtraCannonBallCount( GetChungGageData()->GetMaxCannonBallCountEx() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE cannon strike refill ( balls %d / %d, extra %d / %d )", GetChungGageData()->GetNowCannonBallCount(),
+			GetChungGageData()->GetMaxCannonBallCount(), GetChungGageData()->GetNowCannonBallCountEx(), GetChungGageData()->GetMaxCannonBallCountEx() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL cannon strike balls full, now %d, extra %d", GetChungGageData()->GetNowCannonBallCount(), GetChungGageData()->GetNowCannonBallCountEx() );
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
@@ -38176,7 +38180,16 @@ void CX2GUChung::PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damag
 void CX2GUChung::CSI_A_CTT_FATAL_CANNON_StateStart()
 {
 	CommonStateStart();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	const int iExtraBallsBefore = GetChungGageData()->GetNowCannonBallCountEx();
+	const int iBallsBefore = GetChungGageData()->GetNowCannonBallCount();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 	SetExtraCannonBallCount( GetExtraCannonBallCount() - 1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE fatal cannon start ( class %d armored mode %d: extra balls %d -> %d, balls %d -> %d, hyper %d )",
+		static_cast<int>( GetUnitClass() ), m_bMobileArmoredModeEnable ? 1 : 0, iExtraBallsBefore, GetChungGageData()->GetNowCannonBallCountEx(),
+		iBallsBefore, GetChungGageData()->GetNowCannonBallCount(), IsFullHyperMode() ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL fatal cannon start, extra balls %d", GetExtraCannonBallCount() );
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
