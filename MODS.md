@@ -5725,3 +5725,10 @@ Flag `SERV_IRUHADEV_JUNE_FIX_NPC_MAIN_BOSS_INIT` (a fix of June bug 513, the use
 - **What changes in game.** Both `CX2GUNPC` constructors set `m_bIsMainBoss` to false (June's and March's leave it unset). In a battlefield, a summoned camera NPC (Heavy Field's reticle, Missile Shower's, any other) no longer loses the camera at random to the middle-boss clause of `CX2BattleFieldGame::UpdateUnitPointerNPCWalk`.
 - Under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`: the constructors also zero `m_uiBossGroupID`, as June's does (`32762670` @3276344b).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_FIX_NPC_MAIN_BOSS_INIT`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH3d: Chung on the transcendence list (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND` (needs `_CHUNG_SKILL`, `_EVE_TRANSCEND`, `JUNE_TRANSCEND_CHANGE`, `JUNE_TRANSCEND_IMAGE`). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH3d - Done". Client and emulator.
+- **What changes in game.** Iron Paladin ( 110 ), Deadly Chaser ( 111 ) and Tactical Trooper ( 117 ) can transcend (the emulator's allow-list, `CX2OfflineServer::TranscendCheck`); a transcended Chung shows June's TR pictures ( `TR_I_PALADIN` / `TR_D_CHASER` / `TR_T_TROOPER`: Texture99 large, Texture100 medium / icon / party, Texture97 gauge, `list_TR_*` unit slot ). Each of the three hyper actives logs `[JUNE_CHAR] CHUNG SKILL hyper active registered <table>` when equipped.
+- `data036` ( `LevelUpEvent.lua` event 6, `TYPE2` = Chung's three classes, June's TYPE5 row byte for byte ): the user copies `data036` ( `PACK OK data036` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; the extra `TYPE2` only adds the level-70 guide popup ( drop it with `luasrc.py restore data036 LevelUpEvent.lua` and a pack ).

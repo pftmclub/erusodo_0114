@@ -11356,3 +11356,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( June's uninitialised byte returns ).
 #define SERV_IRUHADEV_JUNE_FIX_NPC_MAIN_BOSS_INIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH3d - Iron Paladin ( 110 ), Deadly Chaser ( 111 ) and Tactical Trooper ( 117 ) join the transcendence allow-list ( TranscendCheck ) and the transcended class
+//              pictures ( T6c rows TR_I_PALADIN / TR_D_CHASER / TR_T_TROOPER: 160by160 and gray in Texture99, 50by50, 20by20, gauge, party, unit slot ); a hyper active registers with a log line.
+//              Log [JUNE_TRANSCEND] IMAGE, [JUNE_CHAR] CHUNG SKILL. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL, SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ( the allow-list and picture switches it extends ), SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE and SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+//////////////////////////////////////////////////////////////////////////

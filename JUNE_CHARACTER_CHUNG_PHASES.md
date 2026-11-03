@@ -3033,6 +3033,29 @@ So a summoned NPC carries heap garbage, and a 1 makes the walk strip its camera 
 - DEPLOY OK: X2_offline.exe is 25,934,848 B, dated 2026-11-03 11:39:57, md5 02cb7a47037bb727b36f844099cde3e0, equal to X2/US_SERVICE/x2.exe (2026-11-03 11:39:50); built at main 11b14ff5 + 1 uncommitted code file(s).
 - EXESTR OK: 2 of 2 absent (wide `CHUNG SKILL camera`, `CHUNG SKILL heavy field`), md5 02cb7a47.
 
+### CH3d - Done (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND` (needs `_CHUNG_SKILL`, `_EVE_TRANSCEND`, `JUNE_TRANSCEND_CHANGE`, `JUNE_TRANSCEND_IMAGE`). Log `[JUNE_CHAR] CHUNG SKILL hyper active registered <table>`, `[JUNE_TRANSCEND] IMAGE`. MODS entry "Stage 7 Chung, CH3d".
+
+**The 5 functions** (`ch0_class_map.tsv`, phase CH3d), all equal to March (listings via `funcann.py`), so no body change:
+- Init `32bdb550` / `32bdb610` / `32bdb6a0`: 15 / 11 / 14 preloads, same strings in the same order.
+- EventProcess `32be8bb0`: future-anim end -> `USI_JUMP_DOWN` with `y -= 45` ( LINE_RADIUS x 1.5 ) off the ground, else `USI_WAIT`; walk, dash, skill cancels ( June's macro expansion is already in `X2GUUser.h` ), `CommonEventProcess`.
+- FrameMove `32c08fa0`: gate is `EventTimerOneshot` ( `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` is defined ); 0.01 s reset + power rate + stop the big-missile set; 4.094 s summoner damage effect ( every defaulted `CreateInstance` argument equal ) and `EffectSet_Satelite_Rain_Call_BigThing` with `IsHyperState()`.
+- The registrations ( 26600-26605 ) were already in the head from CH1n. Added: one log line per hyper active at registration.
+
+**Transcendence rows (7ao).**
+- Allow-list: `TranscendCheck` takes 110 / 111 / 117 ( insert-only guard before Eve's `if` ). `LevelUpEvent.lua` event 6 `TYPE2` = June's `TYPE5` ( LEVEL 70, classes, `DLG_Transcendental_Change_Guide_Chung.lua`, two Chung voices ). `ledger --check` PASS; `PACK OK data036` ( only `LevelUpEvent.lua` changed ); the copy waits for the user's yes.
+- Pictures: `GetCharacterImageName` prefixes `I_PALADIN` / `D_CHASER` / `T_TROOPER`. Row pushes in `FUN_33374620` give 160by160 + gray in `DLG_UI_Common_Texture99_NEW` / `_GRAY` ( Eve's file ), MEDIUM / ICON / PARTY in Texture100, STATE in Texture97, unit slot `list_TR_*` in `GUI_character_01` ( + `_gray` ). All 24 piece names are in the staged TETs ( UTF-16, upper case ); nothing to stage.
+- Already June's, verified: `HyperModeBuffEffectStart` = `32c063d0` ( skips the boost for a transcended unit ); `GetHyperModeTableName` Chung cases ( `CSI_CIP / CDC / CTT_HYPER_MODE` ); `TRANSCENDENTAL_SKILL_DATA` ids 26407 / 26412 / 26416 / 26418 / 26420 in the live `SkillCommandDescriptionData.lua`; the guide dialog ( data034 ) and its textures incl. `POPUP_TR_I_PALADIN / D_CHASER / T_TROOPER` ( data215 ); `UnitTemplet.lua` `m_HyperCutIn` / `m_BerserkCutIn` rows and the `HQ_Cutin_CIP / CDC / CTT[_1]_Transcendence` .gfx ( data195 ).
+- **Skill icon gate: not PASS, June's own gap.** `skillicons.py check 26000-26999`: 131 skills, 2 misses, 26406 / 26413 `NO_PIECE` ( skill-tree picture, `DLG_Chung_SKILL_ScreenShot_04` ). `stage-june` dry run: June's file is identical to March's data063, so nothing to stage. JUNE_BUGS 514 ( verbatim ). Both are CH4a passives.
+
+**Hygiene.** `flagcheck JUNE_CHAR_CHUNG_TRANSCEND --worktree --files <4 code files>`: `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `junediverge --check`: `RESULT: PASS`. `enumscan`: no new literal ( the 4 rows left are old T2 lines ).
+**Deploy.** `DEPLOY OK: X2_offline.exe is 25,935,872 B, dated 2026-11-03 12:15:53, md5 296ffcb3d460310a4d35cd1fd399ff4b, equal to X2/US_SERVICE/x2.exe (2026-11-03 12:15:46); built at main aac9c8db + 4 uncommitted code file(s).` `EXESTR OK: 3 of 3 found in X2_offline.exe, 25935872 B, dated 2026-11-03 12:15:53, md5 296ffcb3d460310a4d35cd1fd399ff4b` ( the three hyper-active log lines ).
+
+**Play-test set-up ( save, backed up as `pre_ch3d_before` ).** Unit 43 `NovaT` ( Iron Paladin ) 26600 Doom Strike, unit 50 `Chung99` ( Deadly Chaser ) 26601 Outrage Strike, unit 18 `Freils` ( Tactical Trooper ) 26602 Satellite Rain, each transcended and in slot A-5 ( slot 4 ). Unit 50 also has Endless Chase 26418 learned ( CH3b review's check ).
+**In game** ( after `/x2-kom-packed copy data036` and a restart ): see the plan's play-test hand-off; log lines `hyper active registered CSI_HA_*`, `[JUNE_TRANSCEND] IMAGE class 110 / 111 / 117`.
+**Open for the review:** the three FrameMove/EventProcess "= March" claims ( confirm 2 ), the picture rows against `FUN_33374620`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

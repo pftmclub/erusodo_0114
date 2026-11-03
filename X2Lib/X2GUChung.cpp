@@ -5569,6 +5569,9 @@ void CX2GUChung::InitStateByUnitClass()
 				{
 					m_LuaManager.MakeTableReference( "CSI_HA_CDC_OUTRAGE_STRIKE", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUChung, CSI_HA_CDC_OUTRAGE_STRIKE_Init );			// June 32bdb610, CH3d
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+					CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL hyper active registered CSI_HA_CDC_OUTRAGE_STRIKE ( skill %d )", static_cast<int>( eSkillID_ ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
 
 					m_LuaManager.MakeTableReference( "CSI_HA_CDC_OUTRAGE_STRIKE", hyperStateData.stateID );
@@ -5581,6 +5584,9 @@ void CX2GUChung::InitStateByUnitClass()
 				{
 					m_LuaManager.MakeTableReference( "CSI_HA_CTT_SATELITE_RAIN", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUChung, CSI_HA_CTT_SATELITE_RAIN_Init );			// June 32bdb550, CH3d
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+					CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL hyper active registered CSI_HA_CTT_SATELITE_RAIN ( skill %d )", static_cast<int>( eSkillID_ ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_HA_CTT_SATELITE_RAIN_EventProcess );	// June 32be8bb0, CH3d
 					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_HA_CTT_SATELITE_RAIN_FrameMove );	// June 32c08fa0, CH3d
 
@@ -5595,6 +5601,9 @@ void CX2GUChung::InitStateByUnitClass()
 				{
 					m_LuaManager.MakeTableReference( "CSI_HA_CIP_DOOM_STRIKER", normalStateData.stateID );
 					normalStateData.StateInit		= SET_CB_FUNC( CX2GUChung, CSI_HA_CIP_DOOM_STRIKER_Init );			// June 32bdb6a0, CH3d
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+					CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL hyper active registered CSI_HA_CIP_DOOM_STRIKER ( skill %d )", static_cast<int>( eSkillID_ ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
 
 					m_LuaManager.MakeTableReference( "CSI_HA_CIP_DOOM_STRIKER", hyperStateData.stateID );

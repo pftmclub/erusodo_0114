@@ -3010,6 +3010,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CX2Unit::UC_EVE_CODE_NEMESIS:	pwszPrefix = L"C_NEMESIS";	break;
 	case CX2Unit::UC_EVE_CODE_EMPRESS:	pwszPrefix = L"C_EMPRESS";	break;
 	case CX2Unit::UC_EVE_BATTLE_SERAPH:	pwszPrefix = L"B_SERAPH";	break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+	case CX2Unit::UC_CHUNG_IRON_PALADIN:	pwszPrefix = L"I_PALADIN";	break;
+	case CX2Unit::UC_CHUNG_DEADLY_CHASER:	pwszPrefix = L"D_CHASER";	break;
+	case CX2Unit::UC_CHUNG_TACTICAL_TROOPER:	pwszPrefix = L"T_TROOPER";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
@@ -3024,7 +3029,13 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	case CIT_160by160:
 	case CIT_160by160Gray:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+		/// June 33376520 / 3337b76b ( Eve ) and the same rows for Chung: the large TR pieces are in Texture99
+		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass
+			|| CX2Unit::UC_CHUNG_IRON_PALADIN == eUnitClass || CX2Unit::UC_CHUNG_DEADLY_CHASER == eUnitClass || CX2Unit::UC_CHUNG_TACTICAL_TROOPER == eUnitClass )
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 			pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture99_NEW.tga" : L"DLG_UI_Common_Texture99_GRAY.tga";	/// June 33376520 / 3337b76b: Eve's large TR rows are in Texture99
 		else
 			pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture98_NEW.tga" : L"DLG_UI_Common_Texture98_GRAY.tga";
