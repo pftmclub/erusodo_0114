@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elsword CH1e` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
-| Depends on | CH1d review, char-chung Z. One at a time with CH1a-CH1k: they all edit `X2GUElsword_SwordMan.*` |
+| Depends on | CH1d2 review (char-chung Z done 2026-11-03). One at a time with CH1a-CH1k: they all edit `X2GUElsword_SwordMan.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-elsword/CH1e-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -48,6 +48,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 30** (`awk -F'\t' '$7=="CH1e"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 16, new 14).
+  June addresses: `32cf38f0` `32cf3f70` `32cf3f80` `32cf3f90` `32cf4d30`(new ESSI_ESK_DASH_COMBO_ZX_StateStartFuture) `32cf4d40`(new ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture) `32cf8920` `32cf9670` `32cf96c0` `32cf9720` `32cf9830` `32cfaed0` `32cfafa0` `32cfb420` `32cff880` `32cff8d0`(new ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess) `32cff920`(new ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess) `32d01040`(new ESSI_ESK_DASH_COMBO_ZX_EventProcess) `32d014c0`(new ESSI_ESK_DASH_COMBO_ZXX_EventProcess) `32d017f0`(new ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess) `32d01b70`(new ESSI_ESK_DASH_JUMP_ZZZ_EventProcess) `32d01ba0`(new ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess) `32d01f10`(new ESSI_ELK_DASH_COMBO_XChargeX_EventProcess) `32d02290`(new ESSI_ELK_DASH_COMBO_XX_EventProcess) `32d02710`(new ESSI_ELK_DASH_COMBO_XXX_EventProcess) `32d02a90`(new ESSI_ELK_XXXXX_EventProcess) `32d02ed0`(new ESSI_ELK_XXXXXX_EventProcess) `32d07fd0` `32d0c740` `32d180a0`.
+- **States: 31** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_ESK_START`, `ESSI_ELK_START`, `ESSI_ESK_WIN`, `ESSI_ESK_WIN2`, `ESSI_ELK_WIN`, `ESSI_ELK_WIN2`, `ESSI_ESK_LOSE`, `ESSI_ESK_LOSE2`, `ESSI_ELK_LOSE`, `ESSI_ELK_LOSE2`, `ESSI_ELK_HYPER_MODE`, `ESSI_KNIGHT_DASH_COMBO_Z3a`, `ESSI_SI_P_ESK_AUTO_GUARD`, `ESSI_SI_P_ESK_AUTO_GUARD_END`, `ESSI_SI_P_ESK_AUTO_GUARD_SMALL`, `ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL`, `ESSI_ELK_XXX`, `ESSI_ELK_XXXX`, `ESSI_ELK_XXXXX`, `ESSI_ESK_DASH_COMBO_ZChargeX`, `ESSI_ESK_DASH_COMBO_ZX`, `ESSI_ESK_DASH_COMBO_ZXX`, `ESSI_ESK_DASH_JUMP_ZZZ`, `ESSI_ESK_DASH_JUMP_ZZZ_LANDING`, `ESSI_ELK_ZZZfrontZ`, `ESSI_ELK_DASH_COMBO_XChargeX`, `ESSI_ELK_DASH_COMBO_XX`, `ESSI_ELK_DASH_COMBO_XXX`, `ESSI_KNIGHT_DASH_JUMP_COMBO_X2`, `ESSI_KNIGHT_DASH_JUMP_COMBO_X3`, `ESSI_ELK_XXXXXX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8); §7h L420 Elsword 25 functions 32cf8230..32d06c50 (e.g. 32d01040): UPDOWN_CANCEL.

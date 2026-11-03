@@ -42,6 +42,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1m"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 2).
+  June addresses: `32d1f8f0` `32d23ff0`.
+- **States: 5** (`awk -F'\t' '$8=="CH1m"' june2017_re/char_elsword/ch0_state_skill.tsv`): `USI_EVENT_PROTON_BOMB_CONTROL_FIRE`, `USI_EVENT_PROTON_BOMB_CONTROL_IDLE`, `USI_EVENT_SNIPER_CONTROL_FIRE`, `USI_EVENT_SNIPER_CONTROL_IDLE`, `USI_EVENT_SNIPER_END`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7h L426 USI_WAIT_STATE_CHANGE registered in every class InitState; WIN OnEvent; §7l L470 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7ao L940-945 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
+- InitStateCommon is **one** function, `32d1f8f0` (ids 7-286, no class gate); InitState `32d23ff0` is carved and holds the class gates (`*(+0x867c)+0x38`; ranges in `ch0_build_state_skill.py` GATES), the START / WIN / LOSE roll and id 130. `ch0c_listing_check.py`: **180 / 180** rows; no hand rows.
+- Id 162: June registers `ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK` when 21216 `RNSI_A_EIS_COMPACT_COUNTER` is learned, else `ESSI_REVENGE_ATTACK` (March gates on `SI_P_ETK_COMPACT_COUNTER`). 7 names registered with no table (`ESSI_ELK_XXXXXX`, `ESSI_RIDING_DAMAGE_BACK`, 5 `USI_EVENT_SNIPER/PROTON_BOMB_*`); `ESSI_RIDING_DAMAGE_FRONT` is defined twice in June's script (a JUNE_BUGS row); 27 March-only states dropped (26 `*_HYPER`, `ESSI_SI1_ES_MEGA_SLASH`); 45 dead tables (`ch0_state_skill.tsv` totals).

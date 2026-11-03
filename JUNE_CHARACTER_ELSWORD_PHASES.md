@@ -221,6 +221,83 @@ builders take a character argument or are copied into `char_elsword/` with Elswo
 335 / 335 tables and 127 / 127 ids mapped; the 25 uncarved overrides have rows; assets union routes a / b / c and the `data199` target is named;
 the motion question answered; the WoS map exists; kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-11-03)
+
+Read-only: no flag, no build. The outputs are in `june2017_re/char_elsword/`.
+
+Tooling:
+- Builders copied from Chung's, with Elsword's range and rules: `ch0_build_state_skill.py`, `ch0_skill_listing_emu.py`, `ch0_march_live_states.py`, `ch0_build_class_map.py`, `ch0_unmapped_callees.py` and `ch0_amend_kickoffs.py`.
+- `ch0_build_vtable.py` is copied from Luciel's generalised builder.
+- New: `ch0_make_hand_names.py`, plus `ch0_numtables.py`, `ch0_build_checklist_rows.py` and `ch0_checklist_lead_fixes.py`.
+- `char_eve/ch0_build_assets.py` gained an `elsword` entry and a `name_re` key; Eve's and Chung's runs still reproduce. `charport_adis.py` gained `elsword`.
+- Run order for the class map: `NO_HAND_NAMES=1` class map, then `ch0_make_hand_names.py`, then the class map again.
+
+**Step 0.**
+- InitStateCommon is **one** function, `32d1f8f0` (ids 7-286, no class gate).
+- InitState `32d23ff0` is carved. It holds the class gates (`*(+0x867c)+0x38`), the START / WIN / LOSE roll and id 130.
+- Command: `charport_states.py init 32d1f8f0 32d23ff0 3202b110` -> `ch0_reg.tsv`. `ch0c_listing_check.py` reproduces **180 / 180** rows with no hand rows: the roll, `USI_HYPER_MODE` and the 13 `~` rows all came from the tool.
+- `skill 32d223e0` + the listing emulator: 143 rows for 127 ids (Elsword's listing exits when `32206450` is non-zero).
+
+**Maps**
+- `ch0_class_map.tsv`: 1,004 starts (308 carved, 696 uncarved).
+  - By kind: 396 state-fn, 411 thunk, 58 override, 51 helper, 1 registrar, 83 dead, 4 not-Elsword.
+  - All **25 uncarved overrides** have rows.
+  - **503 to transcribe: 384 `inside`, 119 `new`.** 38 `new` helpers keep `?` with a hint, as Chung's 24 did; the transcribing phase names them.
+  - Lead routings are in `ch0_hand_phases.tsv` (WoS functions to CH1q, the CH1o triage) and in `ch0_make_hand_names.py` SPECIAL (March pairs).
+- `ch0_state_skill.tsv`: **335 / 335 tables** (284 states, 45 dead, 6 `INIT_*`, 0 unassigned) and **127 / 127 ids** (22 passives CH4a).
+  - 27 March-only states are dropped (26 `*_HYPER`, `ESSI_SI1_ES_MEGA_SLASH`).
+  - 7 names are registered with no table.
+  - `ESSI_RIDING_DAMAGE_FRONT` is defined twice in June's script.
+  - 8 names were placed by hand rule: Sword Wait / Destruction Rage CH1q; the shared knight dash combos CH1d2; Leap CH1a; Summon Magic Spear CH1n; Compact Counter guard attack CH1g2. June gates the last on **21216 `RNSI_A_EIS_COMPACT_COUNTER`**; March gates it on `SI_P_ETK_COMPACT_COUNTER`.
+- `ch0_vtable_all.tsv` / `ch0_vtable_slots.tsv`: 544 slots, 58 overrides.
+  - 0x670 `IsInJobLine`, 0x740 / 0x744 `StoreGageSnapshot` / `RestoreGageSnapshot`, 0x4ac `GetSpecialItemUsableExtraStateID`, 0x850 `AfterImageFrameMove`.
+  - 0x508 / 0x50c / 0x510 / 0x840 stay `?` with a hint.
+- `ch0_checklist_rows.tsv`: 136 rows, every one a phase or n/a (61 n/a). L140 (x103) is marked stale.
+  - 7h has 24 functions, not 25.
+  - 7c: 6 of the 14 functions are dead in June (no call, pointer or Ghidra xref).
+- `ch0_keys.tsv`: no June-only key needs an Elsword owner (the camera pair is Stage 9's; `IMMUNITY_EDT` is backlog Stage 2's). The 8 march-only-site keys drop no March input.
+  - `WAY_OF_SWORD_TYPE` is read at June `32632390` / March `X2DamageManager.cpp:289`.
+  - `PHANTOM_BLADE_*` is the Sheath Knight buff (June `32371180` / `X2BuffTemplet.cpp:1227`), not WoS.
+- Item 8 data:
+  - `ch0_enum_names.tsv`: 4 / 127 in the C++ enum by name, 64 in the core `Enum.lua`.
+  - `ch0_unittemplet_elsword.tsv`: `STR_ID_4641` / `4642` / `17425` exist. No UCHAR state id in the class (7l; the only `UCHAR` is a debuff counter).
+- S3 baseline `ch0_s3_baseline.txt`: 261 rows, 254 `no_state`.
+
+**Assets**
+- `ch0_assets.tsv`: 14,522 rows, routes a / b / c.
+- **`ch0b_stage_list.tsv`: 4,848 rows** (4,465 missing, 383 march-copy). Dry run: 36 koms, 0 refused, no new kom.
+- `ch0_effect_closure.tsv`: 5,499 rows, 1,963 names. 63 are missing: 52 are sounds already in the list; 11 June itself does not define.
+- **data199 clash:** March's `data199.kom` holds 3 CSM motions that are byte-identical to June's. June's 54 Elsword-only motions join them in **data199** (June's number). The 11 differing class motions go to **data033**.
+- **Motion question:** nothing is lost. `SI_A_EIS_SPIRAL_STING` moved from `Motion_Elsword_IS.x` to `_TK.x`, and the Infinity Sword row loads `_TK.x` as `m_GameMotion1` in both March and June. **CH0b holds nothing back.**
+- Skill icons: 17 misses, all in 3 listed sheets. 21402 `SI_P_ELK_WIND_SLICER` stays missing because its piece is absent from June's own `.TET` (a `JUNE_BUGS.md` row in CH0b).
+
+**Way of the Sword** (`ch0_wos.tsv`, 111 rows: 76 paired, 15 not located, 4 absent in June, 6 June-only)
+- Liveness by `cl /EP`: `ELSWORD_WAY_OF_SWORD` and `SPECIAL_ABILITY_WAY_OF_SWORD` are live.
+- The Crest of Time pair (0x740 / 0x744) saves and restores only the point. It goes to CH1q.
+- About 60 functions in all, so **split CH1q** (class side + damage math + attack MP factor + sync) **/ CH1q2** (gauge data, UI, manager, skill-slot effect, June-only randomiser `322ed400`).
+- Elesis's class copies stay hers: brief line added to `stage7-plan.md`.
+- `WayOfSword.lua`: June has 42 keys to March's 28, and 3 values changed. 14 June keys have no reader found; CH1q settles them.
+- `luabind.py check` on the WoS dialogs: PASS.
+
+**Item 6:** 250 out-of-class callees; 33 are unmapped (`ch0_unmapped_identified.tsv`: 22 confirmed, 11 candidate).
+- Four need Opus. All go to phases already on Opus, so **no `CH<n>0` phase is needed**:
+  - CH1o: `GetNearestNPCUnitUID` `322d2680` (replace) and June-only `31f76580`.
+  - CH1q: `CalcWayOfSwordPointOnDamageReact` `326106c0` (replace) and June-only soft cap `32715040`.
+- New `june_march_divergent.tsv` rows: `GetNearestNPCUnitUID` and `CalcWayOfSwordPointOnDamageReact`, each with an allow row until its phase lands. `junediverge.py --selftest` PASS.
+- `funcmap.tsv`: 52 rows `Char Elsword CH0`.
+
+**Splits and kickoffs**
+- Splits (functions to transcribe): CH1d 28 + **CH1d2** 28; CH1g 31 + **CH1g2** 16; CH1q 21 class functions + engine + **CH1q2**.
+- Other phases: CH1a 22, CH1b 35, CH1c 2, CH1e 30, CH1f 36, CH1h 32, CH1i 4, CH1j 13, CH1k 15, CH1m 2, CH1n 1, CH2a 26, CH2b 11, CH2c 18, CH2d 19, CH3a 38, CH3b 22, CH3c 26, CH3d 5, CH4a 18, CH4b 3, CH4c 1.
+- Every kickoff CH0b-CH5 has its "Amended by CH0" section (class map col 7, state table col 8). There are 3 new kickoffs; STATUS rows were added and Depends rewired.
+
+**Corrections to the plan:**
+- The two `c1a` zero rows are CH2b (21006 Mortal Blow) and CH2c (21013 Wind Blade), not CH2a.
+- Overrides 0x24c / 0x250 stay in CH1h (buff ids on class fields).
+- L281 `32d076f0` is the Revenge state (CH1b).
+
+**Drift:** the Elesis class side goes to char-elesis (brief line). Nothing needs a new plan. **Open for the user:** none.
+
 ## Phase CH0b - Every June Elsword asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

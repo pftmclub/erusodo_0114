@@ -1,0 +1,25 @@
+fn	phase	why
+32d09490	CH1k	ctor: CX2GUElsword_SwordMan::CX2GUElsword_SwordMan (vtable store 32d094e4, body 32d09490-32d0b4c5); its only caller 3230f189 is outside the class
+32d1b810	CH1q	Way of the Sword: vslot 0xd0 creates CX2ElswordGageData (ch0_wos.tsv)
+32cf50f0	CH1q	Way of the Sword: vslot 0x674 GetWayOfSwordState (ch0_wos.tsv)
+32cf5100	CH1q	Way of the Sword: SetWayOfSwordState (ch0_wos.tsv)
+32cf5130	CH1q	Way of the Sword: vslot 0x678 GetWayOfSwordPoint (ch0_wos.tsv)
+32cf5140	CH1q	Way of the Sword: vslot 0x67c SetWayOfSwordPoint (ch0_wos.tsv)
+32d0eeb0	CH1q	Way of the Sword: WayOfSwordStateChange, called from CommonFrameMove 32d1b2b0
+32d0c960	CH1q	Way of the Sword: Start_SwordmanVigor
+32d0cd60	CH1q	Way of the Sword: End_SwordmanVigor (Die states call it: declared there, body here)
+32d0cf70	CH1q	Way of the Sword: Start_SwordmanDestruction
+32d0d240	CH1q	Way of the Sword: End_SwordmanDestruction (Die states call it: declared there, body here)
+32d0f300	CH1q	Way of the Sword: DoStateDestructionRage
+32d18cd0	CH1q	Way of the Sword: vslot 0x74 GetFinalDamage_WayOfSword (June adds a PvP-type branch)
+32d058a0	CH1q	Way of the Sword: vslot 0x740 Crest of Time snapshot saves GetWayOfSwordPoint at +0x92b8 (June-only)
+32d058d0	CH1q	Way of the Sword: vslot 0x744 Crest of Time restore calls SetWayOfSwordPoint (June-only)
+32cf4d00	CH4c	MemoConditionElsword vtable 3352286c slot 1 decide( CX2GUUser* ): calls the base always-false 31fd4450 (as Eve 32968490); tsv row MemoCondition (replace)
+32cf55a0	CH1h	AppendMajorParticleToDeviceList (7 names); caller AppendEffectToDeviceList 32d07060, folded, reached from 31fef520 (Arme analogue CH1h)
+32cf56a0	CH1h	AppendMinorParticleToDeviceList (7 names)
+32cf5660	CH1k	InitializeElswordMinorParticleArray: called from inside the ctor 32d09490 @32d0b07b (ctor is CH1k)
+32cff1f0	n/a	not a function: a jump-table arm inside dead 32cff190 (no references)
+32d08ba0	CH4a	LightingStepFrameMove: frame-move delegate registered by InitPassiveSkillState 32d1c560 @32d1d410 via thunk 32d26fd0; June threshold 0.5 s, March 1.0 s
+32d270a0	CH4a	vector<KObserverPtr> clear on the +0x97c4 hit list; caller 32d1db98 inside InitPassiveSkillState
+32d270f0	n/a	compiler-made secondary-base this-adjust thunk into the dtor 32d27620 (vtable 33522908): no source to write
+32d27100	n/a	compiler-made secondary-base this-adjust thunk into the dtor 32d27620 (vtable 33522900): no source to write

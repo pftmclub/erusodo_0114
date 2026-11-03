@@ -41,6 +41,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 18** (`awk -F'\t' '$7=="CH4a"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 2, new 16).
+  June addresses: `32d05a00`(new ?) `32d05a50`(new ?) `32d05af0`(new ?) `32d08ba0` `32d0baf0`(new ?) `32d0bc60`(new ?) `32d0c180`(new ?) `32d0c4e0`(new ?) `32d1a370`(new ?) `32d1c560` `32d26a40`(new ?) `32d270a0`(new ?) `32d27160`(new ?) `32d27170`(new ?) `32d27180`(new ?) `32d27190`(new ?) `32d272b0`(new ?) `32d27470`(new ?).
+- **Skills: 22** (part 2 of `ch0_state_skill.tsv`, col 6): 106 RNSI_P_COMMON_HYPER_AURA, 21400 RNSI_P_ESK_GET_MANA_UP, 21401 RNSI_P_ESK_AUTO_GUARD, 21402 RNSI_P_ELK_WIND_SLICER, 21403 RNSI_P_ELK_STRONG_BONE, 21404 RNSI_P_ELK_REDUCE_PAIN, 21405 RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET, 21406 RNSI_P_EMK_SPELL_CHAIN, 21407 RNSI_P_ERS_SWORD_ENCHANT, 21408 RNSI_P_ERS_RUNE_MASTERY, 21409 RNSI_P_ERS_MAGIC_RESISTANCE, 21410 RNSI_P_ETK_BRUTAL_SLAYER, 21411 RNSI_P_ETK_SHORTTIME_STRONGATTACK, 21412 RNSI_P_EIS_HARSH_SLAYER, 21413 RNSI_P_EIS_CUTTING_SWORD, 21414 RNSI_P_EIS_LIGHTNING_STEP, 21415 RNSI_P_ELK_OPEN_MIND, 21416 RNSI_P_ELK_FIGHT_GOD, 21417 RNSI_P_ERS_OPEN_MIND, 21418 RNSI_P_ERS_MAGIC_COATING, 21419 RNSI_P_EIS_OPEN_MIND, 21420 RNSI_P_EIS_INFINITY_POTENTIAL.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §2 L124 APPLY_LEARNED_SKILL_BUFF_FACTOR_ID and _RELATIVE_SKILL_ID x1 each (8b ; §4 L178 June-only members of tables March has (SKILL_ID names) fail silently; §7ae L713-721 an id of a listed type with no case plays the class's first skill stat; §7am L901 delegate-list registrations in InitPassiveSkillState: Elsword 32d1c560; §7am L916 March pushes replaced by June's set; §7ao L957 transcend readers: 32d17e90 hyper effect start (vslot 19, slot 0x4c); .
+- `LightingStepFrameMove` `32d08ba0` (delegate registered @32d1d410): June's dash threshold is 0.5 s, March's 1.0 s. The hit-list clear `32d270a0` is here. Enum names: 4 of 127 ids are in the C++ enum by name, 28 lookalikes, 95 none; 64 in the live core `Enum.lua` (`ch0_enum_names.tsv`).

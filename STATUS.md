@@ -176,25 +176,27 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (start: `/x2-phase char-elsword CH0`): map (class map + 25 uncarved overrides, states / ids, checklist, assets, WoS map, motion question, `data199` clash); read-only | Opus 5.5 / high | - | `june2017_re/char_elsword/`, funcmap, kickoffs | `CH0.md` |
-| CH0b | blocked (CH0): every June Elsword asset staged whole, skill icons PASS; may run before char-chung Z | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
-| CH1a | blocked (CH0; char-chung Z done 2026-11-03): movement and slot-head states, `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUElsword_SwordMan.*`, Always.h | `CH1a.md` |
+| CH0b | **ready** (start: `/x2-phase char-elsword CH0b`): stage 4,848 files / 36 koms (no hold-back), skill icons, save units; ask before copy | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
+| CH1a | **ready** (start: `/x2-phase char-elsword CH1a`; may run beside CH0b): movement and slot-head states (22 fns), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUElsword_SwordMan.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 23, stand-up 8, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUElsword_SwordMan.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance, `MACHINE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUElsword_SwordMan.*` | `CH1c.md` |
-| CH1d | blocked (CH1c review): Sword Man ground combos | Sonnet 5.5 / high, Opus review | CH1c review | `X2GUElsword_SwordMan.*` | `CH1d.md` |
-| CH1e | blocked (CH1d review): Sword Knight + Lord Knight lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUElsword_SwordMan.*` | `CH1e.md` |
+| CH1d | blocked (CH1c review): Sword Man ground combos + jump attacks (28; CH0 split) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GUElsword_SwordMan.*` | `CH1d.md` |
+| CH1d2 | blocked (CH1d review): dash and dash-jump combos, shared knight dash combos (28; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUElsword_SwordMan.*` | `CH1d2.md` |
+| CH1e | blocked (CH1d2 review): Sword Knight + Lord Knight lines | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUElsword_SwordMan.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Magic Knight + Rune Slayer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUElsword_SwordMan.*` | `CH1f.md` |
-| CH1g | blocked (CH1f review): Sheath Knight + Infinity Sword lines | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |
-| CH1h | blocked (CH1g review): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUElsword_SwordMan.*` | `CH1h.md` |
+| CH1g | blocked (CH1f review): Sheath Knight line (31; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |
+| CH1g2 | blocked (CH1g review): Infinity Sword line + Compact Counter guard attack (16; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUElsword_SwordMan.*` | `CH1g2.md` |
+| CH1h | blocked (CH1g2 review): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUElsword_SwordMan.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUElsword_SwordMan.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GUElsword_SwordMan.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32cf3290` (uncarved) | Sonnet 5.5 / high, Opus review | CH1j review | `X2GUElsword_SwordMan.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32d23ff0`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GUElsword_SwordMan.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32d223e0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1n.md` |
-| CH1o | blocked (CH1n review): virtuals under `_LIVE`, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1o.md` |
+| CH1o | blocked (CH1n review): virtuals under `_LIVE`, routed gaps; replaces `GetNearestNPCUnitUID`, writes `31f76580` | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1p.md` |
-| CH1q | blocked (CH1p review): Way of the Sword, flag `_WOS` | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2Gage*`, `X2DamageManager.*` | `CH1q.md` |
-| CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the scripts, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036 | `CH1.md` |
+| CH1q | blocked (CH1p review): Way of the Sword class side + damage math, flag `_WOS` (CH0 split) | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2Gage*`, `X2DamageManager.*` | `CH1q.md` |
+| CH1q2 | blocked (CH1q review): Way of the Sword gauge data / UI / manager, skill-slot effect (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2GageData.*`, `X2GageUI.*`, `X2GageManager.*`, `X2Game.cpp` | `CH1q2.md` |
+| CH1 | blocked (CH1q2 review, CH0b): define `_LIVE`, adopt the scripts, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Sword Man (1) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Magic Knight (11) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GUElsword_SwordMan.*` | `CH2c.md` |
@@ -210,7 +212,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-raven` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: none yet.
+Done: CH0 (2026-11-03).
 
 ## char-luciel - June character port, Stage 8: Lu/Ciel (first new character)
 Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `LUCIEL <sub>`: `DATA`, `NEWUNIT`, `CREATE`, `DUO`, `CORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`, `JOB`, `TUTORIAL`) · flags `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_*` (`_CORE`, `_LIVE`, `_DUO`, `_DATA`, `_STARTER_ITEMS`, `_SKILL`, `_PASSIVE`, `_UI`, `_CLASS_CHANGE`, `_TUTORIAL`, + `_DEBUG`) and class-agnostic `SERV_IRUHADEV_JUNE_CHAR_*` (`UNIT_TYPE_RANGE`, `UNIT_CLASS_WORD`, `MINOR_UNIT_TEMPLET`, `CREATE`, `DUO_BODY`, `EQUIP_VIEW`, `NESI_RENUMBER`, `DUO_VIEW`), `SERV_IRUHADEV_JUNE_USER_DAMAGE_STATE_GETTERS` · kickoffs `kickoffs/char-luciel/` · backlog Stage 8 · created 2026-11-02.

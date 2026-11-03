@@ -48,6 +48,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 15** (`awk -F'\t' '$7=="CH1k"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 9, new 6).
+  June addresses: `32cf3290` `32cf5660` `32cf5760` `32d00fe0`(new ?) `32d08b30`(new IsNotCommonMoveState) `32d08d20`(new ?) `32d08d70`(new AfterImageFrameMove) `32d09050`(new ?) `32d09270` `32d09490` `32d0b5a0` `32d0d8e0` `32d1bd10` `32d1dbd0`(new ?) `32d1ddf0`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L251 class skill-use function sets the cooldown then calls ApplySkillCoolTi; §7 L260 quick-slot special-item prefix at the top of SpecialAttackEventProcess; §7 L261 dev free-skill gate around the cool-time / MP / hyper-stone block of t; §7 L263 riding-key skill wait after CheckSkillUsePVPOfficial in the 510 lookup; §7ai L852 JuneShowSkillNameStateString callers; §7al L888 new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 512, UpdateE.
+- The ctor `32d09490` (caller outside the class) and `InitializeElswordMinorParticleArray` `32cf5660` (called inside the ctor @32d0b07b). 0x840 `32d00fe0` (`?`): called from DamageReact @320478dd, applies skill 0x539c's buff when `GetApplyWeaponExtraDamageType` != 0. 0x850 `AfterImageFrameMove`.

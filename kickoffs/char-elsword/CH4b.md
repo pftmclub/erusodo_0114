@@ -42,6 +42,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 1, new 2).
+  June addresses: `32cf4b70` `32cf4df0`(new GetActualCoolTime) `32d1e0e0`(new SetDamageExceptionProcess).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 per-class SetDamageExceptionProcess blocks, funcmap 32d1e0e0 (Elsword).
+- Read whether June's `GetActualMPConsume` `32cf4b70` still applies the Vigor x0.7 MP rule (CH0's WoS read found no WoS access; unproven).

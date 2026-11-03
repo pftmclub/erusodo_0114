@@ -45,6 +45,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ad L750 stage June Motion_Elsword* files with the class script.
+- **Stage list** `june2017_re/char_elsword/ch0b_stage_list.tsv`: 4,848 rows (4,465 missing, 383 march-copy; texture 3,305, mesh 1,249, sound 202, motion 65, other 27), no Lua. CH0 dry run: `STAGE-JUNE DRY RUN: 36 kom(s), 4848 staged (4465 new, 383 replaced, 0 identical), 0 refused` (largest data017 2,226, data191 433, data130 423, data192 289). No new kom number.
+- **data199:** March's `data199.kom` holds 3 files (`Motion_CSM_EIS_BC.x`, `_ELK_IC.x`, `_ERS_OG.x`), byte-identical to June's; June's data199 adds 70 `Motion_Elsword*` + `Motion_Standard_Elsword.X`. `stage-june` routes the 54 June-only motions (53 emotions + Standard) to **data199** (June's own number; the packed kom is a superset of March's, nothing dropped) and the 11 differing class motions to **data033**, where March ships them.
+- **Motion question answered: nothing is lost.** Only `SI_A_EIS_SPIRAL_STING` leaves `Motion_Elsword_IS.x`; June moved it to `Motion_Elsword_TK.x`, which the Infinity Sword templet row loads as `m_GameMotion1` in both March and June. So **no kom is held for CH1 final**: data033 and data199 are copied here with the rest (`ch0_motion_question.tsv`, 82 rows).
+- **Skill icons:** `skillicons.py check 106 900 21000-21060 21200-21236 21400-21420 21600-21605` = 17 misses in `DLG_SKILL_ElswordActive_04`, `_05`, `DLG_Elsword_SKILL_ScreenShot_04` (all in the list). 16 clear once staged; **21402 `SI_P_ELK_WIND_SLICER`**'s picture names a piece June's own `ScreenShot_04` .TET lacks: June's gap, a `JUNE_BUGS.md` row (as Chung's 488), not a stage miss.
+- `POPUP_TR_L_KNIGHT` / `_R_SLAYER` / `_I_SWORD` (.tga + .TET) are in the list (data215). The transcendence cut-ins `HQ_Cutin_ELK/ERS/EIS_Transcendence` are already June's bytes (data195). `Motion_EVENT_ELSWORD_DP1.x` is an event NPC motion (june-dungeons), not staged. Save: no Sword Knight (10) unit exists; create it and a lv 99 Sword Man.

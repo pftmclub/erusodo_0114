@@ -21,7 +21,8 @@ sys.path.insert(0, HERE)
 from charport_consts import read_va, func_bounds, md, T
 
 CLASS_RANGE = {'eve': (0x32965dd0, 0x329cf86f), 'chung': (0x32bd86f0, 0x32c25a1f),
-                'luciel': (0x32ae4080, 0x32b4e76f)}
+                'luciel': (0x32ae4080, 0x32b4e76f),
+                'elsword': (0x32cf2da0, 0x32d2763f)}
 
 
 def load(key):

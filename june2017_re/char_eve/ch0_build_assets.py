@@ -94,6 +94,37 @@ CHARS = {
              'NPC / shadow / bot copy of the character'),
         ],
     ),
+    'elsword': dict(
+        owner='char-elsword',
+        script='Elsword_SwordMan', lo=0x32cf2da0, hi=0x32d2763f,
+        unit_type=1, unit_type_name='UT_ELSWORD',
+        unit_classes=[1, 10, 11, 22, 100, 101, 112],                 # third jobs (UC_150-186) are out of scope
+        tokens=['elsword', 'elsowrd'],                               # June spells the transcendence guide Elsowrd
+        name_re=re.compile(r'(?i)el_?sword'),                        # "ElSword" splits into two tokens
+        abbr=['ELK', 'ERS', 'EIS', 'EMK', 'ESK', 'ETK'],             # Lord Knight, Rune Slayer, Infinity Sword, Magic Knight, Sword Knight, Sheath Knight line
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet'),
+        short_re=re.compile(r'^(?:SI_(?:SA|A|HA)_|A_)?ES_(?:SWORD|WINDMILL)'),      # ES_ alone is also ES_Card_Rabbit / ES_Sander (other things)
+        job_re=re.compile(r'(?i)lord[_ ]?knight|rune[_ ]?slayer|infinity[_ ]?sword|magic[_ ]?knight|sheath[_ ]?knight|sword[_ ]?knight'),
+        lua_script='Elsword_SwordMan',
+        skill_lua=[],                                                # Elsword summons no NPC (plan_june_side section 3)
+        extra_lua=['DLG_Transcendental_Change_Guide_Elsowrd'],       # June's spelling
+        skill_icon_ranges=[(106, 106), (900, 900), (21000, 21060), (21200, 21236), (21400, 21420), (21600, 21605)],
+        motion_glob=re.compile(r'(?i)^Motion_Elsword'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Elsword|^DLG_UI_JUMPING_(EVENT|SYSTEM)_ELSWORD|^DLG_Unit_(Create|Select)_|'
+             r'^DLG_Class_Change_|^DLG_PVP_Game_Damaged_Elsword', 'stage9-ui', '-', 'class-change / jumping / unit dialog'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Els(word|owrd)', 'char-elsword', 'CH3d', 'transcendence guide (Stage 6 pattern; June spells it Elsowrd)'),
+            (r'(?i)^(DLG_Elsword_)?WayOfSword\.', 'char-elsword', 'CH1q', 'Way of the Sword dialog / table'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^Motion_EVENT_', 'june-dungeons', '-', 'event NPC motion, not the character'),
+            (r'(?i)^POPUP_TR_(L_KNIGHT|R_SLAYER|I_SWORD)\.', 'char-elsword', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Elsowrd'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^HQ_Cut_?in_(Elsword|ELK_|ERS_|EIS_)', 'char-elsword', 'CH0b', 'skill / hyper cut-in art (UnitTemplet m_HyperCutIn, SHOW_SKILL_CUT_IN_TIME)'),
+            (r'(?i)^((NPC_|Npc_)Elsword|.*_SHADOW_ELSWORD|PVP_BOT_ELSWORD|.*ELSWORD_PARASITE|CSM_Elsword|APINK_ANGEL_\d+_ELSWORD|EVENT_.*ELSWORD|NPC_DDongUGi_Elsword)', 'npc-lua (check ledger)', '-',
+             'NPC / shadow / bot copy of the character'),
+        ],
+    ),
     'luciel': dict(
         owner='char-luciel',
         script='Luciel_Duo', lo=0x32ae4080, hi=0x32b4e76f,
@@ -337,6 +368,9 @@ def main():
         base = nm.rsplit('.', 1)[0] if '.' in nm else nm
         if any(t in tokset for t in tl):
             add(nm, 'a', 'token ' + '/'.join(t for t in ts if t.lower() in tokset))
+            continue
+        if C.get('name_re') is not None and C['name_re'].search(nm):
+            add(nm, 'a', 'name pattern')
             continue
         hit = [t for t in ts if t in C['abbr']]
         if hit and not C['abbr_exclude'].search(nm):

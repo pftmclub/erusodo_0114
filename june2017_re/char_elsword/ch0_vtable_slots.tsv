@@ -1,0 +1,61 @@
+slot_off	vt_entry	fn	base_fn	name	src	march
+0x0	33522914	32d27620	3208f650	~CX2GUElsword_SwordMan (scalar deleting dtor)	CONF: sibling class maps slot 0x0; ctor 32d09490, dtor body 32d1a5d0, slot-0 dtor 32d27620	X2GUElsword_SwordMan.h:278 virtual ~CX2GUElsword_SwordMan(void);
+0x3c	33522950	32d0d3f0	31fee090	InitComponent	CONF: char_chung class map 0x3c	X2GUElsword_SwordMan.h:453 virtual void InitComponent();
+0x44	33522958	32d1a920	32022380	ReInit	CONF: char_chung class map 0x44	X2GUElsword_SwordMan.h:312 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );
+0x48	3352295c	32d0d540	32012760	InitEffect	CONF: char_chung class map 0x48	X2GUElsword_SwordMan.h:337 virtual void InitEffect();
+0x4c	33522960	32d17e90	31fc87c0	DeleteMinorParticle	CONF: char_chung class map 0x4c	X2GUElsword_SwordMan.h:392 virtual void DeleteMinorParticle();
+0x60	33522974	32d1ac60	320462a0	DamageReact	CONF: char_chung class map 0x60	X2GUElsword_SwordMan.h:315 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );
+0x74	33522988	32d18cd0	3208dd70	?	HINT: base 3208dd70; 29 insns; calls 31aad500 322cc1a0	- (name unsettled)
+0x90	335229a4	32cf5190	32014660	Win	CONF: char_chung class map 0x90	X2GUElsword_SwordMan.h:332 virtual void Win();
+0x94	335229a8	32d06fd0	31ff15d0	Lose	CONF: char_chung class map 0x94	X2GUElsword_SwordMan.h:333 virtual void Lose();
+0x98	335229ac	32cf51d0	31ff17c0	Draw	CONF: char_chung class map 0x98	X2GUElsword_SwordMan.h:334 virtual void Draw();
+0xbc	335229d0	32cf2e20	3208dc20	?	HINT: base 3208dc20; 5 insns; calls -	- (name unsettled)
+0xc4	335229d8	32d17ea0	31fd5cb0	HyperModeBuffEffectStart	CONF: char_chung class map 0xc4	X2GUElsword_SwordMan.h:481 virtual void HyperModeBuffEffectStart();
+0xd0	335229e4	32d1b810	322984c0	?	HINT: base 322984c0; 38 insns; calls 324943c0 32489200 32fe243e	- (name unsettled)
+0x24c	33522b60	32d1f690	3204b5e0	SetSpecificValueByBuffTempletID	CONF: char_chung class map 0x24c	X2GUElsword_SwordMan.h:456 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x250	33522b64	32d0b870	3202ed60	UnSetSpecificValueByBuffTempletID	CONF: char_chung class map 0x250	X2GUElsword_SwordMan.h:457 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x2b8	33522bcc	32d1e0e0	32045340	SetDamageExceptionProcess	CONF: char_chung class map 0x2b8	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3084 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)
+0x4ac	33522dc0	32d27130	3208df00	?	HINT: base 3208df00; 2 insns; calls -	- (name unsettled)
+0x4b0	33522dc4	32d27110	3208df10	GetComboZStateID	CONF: char_chung class map 0x4b0	X2GUElsword_SwordMan.h:440 virtual int GetComboZStateID() const { return ESSI_COMBO_Z1; }
+0x4b4	33522dc8	32d27120	3208df10	GetComboXStateID	CONF: char_chung class map 0x4b4	X2GUElsword_SwordMan.h:441 virtual int GetComboXStateID() const { return ESSI_COMBO_X1; }
+0x4d0	33522de4	32cf2da0	31feabd0	DamageReactStateChange	CONF: funcmap 31feabd0 CX2GUUser::DamageReactStateChange	X2GUElsword_SwordMan.h:318 virtual void DamageReactStateChange( CX2DamageManager::DamageData* pDamageData, int iRevengeAttack = -1, int iAvoidance = -1 );
+0x508	33522e1c	32d05b60	33093ad0	?	HINT: base 33093ad0; 1 insns; calls -	- (name unsettled)
+0x50c	33522e20	32d05b70	33093ad0	?	HINT: base 33093ad0; 1 insns; calls -	- (name unsettled)
+0x510	33522e24	32d0c780	31fc7ab0	?	HINT: base 31fc7ab0; 44 insns; calls 31fc7ab0 32890620 32206450	- (name unsettled)
+0x540	33522e54	32d08ec0	32012800	CreateMajorParticleArray	CONF: char_chung class map 0x540	X2GUElsword_SwordMan.h:342 virtual void CreateMajorParticleArray();
+0x548	33522e5c	32d1b120	32012920	CreateMinorParticleArray	CONF: char_chung class map 0x548	X2GUElsword_SwordMan.h:368 virtual void CreateMinorParticleArray();
+0x54c	33522e60	32cf5530	31aa1d30	InitEnchantWeaponEffectUnitSpecific	CONF: char_chung class map 0x54c	X2GUElsword_SwordMan.h:338 virtual void InitEnchantWeaponEffectUnitSpecific();
+0x5f0	33522f04	32d08590	31aa1d30	COMMON_BUFF_FrameMove	CONF: char_chung class map 0x5f0	X2GUElsword_SwordMan.h:1228 virtual void COMMON_BUFF_FrameMove();
+0x600	33522f14	32d1b720	31aa1d30	HyperModeFrameMove	CONF: char_chung class map 0x600	X2GUElsword_SwordMan.h:755 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)
+0x628	33522f3c	32d08c30	31fd7930	CanRidingState	CONF: char_chung class map 0x628	X2GUElsword_SwordMan.h:433 virtual bool CanRidingState();
+0x670	33522f84	32d05960	331a4950	?	HINT: base 331a4950; 19 insns; calls -	- (name unsettled)
+0x674	33522f88	32cf50f0	31fc8770	?	HINT: base 31fc8770; 3 insns; calls -	- (name unsettled)
+0x678	33522f8c	32cf5130	31fc8780	?	HINT: base 31fc8780; 3 insns; calls -	- (name unsettled)
+0x67c	33522f90	32cf5140	31fc8790	?	HINT: base 31fc8790; 22 insns; calls -	- (name unsettled)
+0x690	33522fa4	32d1c560	31fe19d0	InitPassiveSkillState	CONF: char_chung class map 0x690	X2GUElsword_SwordMan.h:459 virtual void InitPassiveSkillState();
+0x6a0	33522fb4	32cf4b70	31fd1840	GetActualMPConsume	CONF: char_chung class map 0x6a0	X2GUElsword_SwordMan.h:396 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+0x6a4	33522fb8	32cf4df0	31fd1920	GetActualCoolTime	CONF: char_chung class map 0x6a4	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3233 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)
+0x740	33523054	32d058a0	32009780	?	HINT: base 32009780; 16 insns; calls 32009780	- (name unsettled)
+0x744	33523058	32d058d0	3204da60	?	HINT: base 3204da60; 19 insns; calls -	- (name unsettled)
+0x7a4	335230b8	32d23ff0	31aa1d30	InitState	CONF: char_chung class map 0x7a4	X2GUElsword_SwordMan.h:446 virtual void InitState();
+0x7b4	335230c8	32d223e0	31aa1d30	SetEquippedSkillFuncBySkillSlotIndex	CONF: char_chung class map 0x7b4	X2GUElsword_SwordMan.h:460 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );
+0x7b8	335230cc	32cf5210	31aa1d30	SetEquippedSkillLevel	CONF: char_chung class map 0x7b8	X2GUElsword_SwordMan.h:461 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );
+0x7c0	335230d4	32cf2e80	320506f0	CommonStateStartFuture	CONF: char_chung class map 0x7c0	X2GUElsword_SwordMan.h:464 virtual void CommonStateStartFuture();
+0x7c4	335230d8	32cf2e90	32057b80	CommonStateStart	CONF: char_chung class map 0x7c4	X2GUElsword_SwordMan.h:465 virtual void CommonStateStart();
+0x7c8	335230dc	32d0b4d0	32061bf0	CommonFrameMoveFuture	CONF: char_chung class map 0x7c8	X2GUElsword_SwordMan.h:466 virtual void CommonFrameMoveFuture();
+0x7cc	335230e0	32d1b2b0	32063650	CommonFrameMove	CONF: char_chung class map 0x7cc	X2GUElsword_SwordMan.h:467 virtual void CommonFrameMove();
+0x7d8	335230ec	32cf3210	31fdd8e0	CommonStateEndFuture	CONF: char_chung class map 0x7d8	X2GUElsword_SwordMan.h:468 virtual void CommonStateEndFuture();
+0x7dc	335230f0	32cf3220	32015250	CommonStateEnd	CONF: char_chung class map 0x7dc	X2GUElsword_SwordMan.h:469 virtual void CommonStateEnd();
+0x7e8	335230fc	32cf3230	31fd07b0	CommonRender_Prepare	CONF: char_chung class map 0x7e8	X2GUElsword_SwordMan.h:472 virtual RENDER_HINT CommonRender_Prepare();
+0x7f4	33523108	32cf3290	31aa1d30	SpecialAttackEventProcess	CONF: char_chung class map 0x7f4	X2GUElsword_SwordMan.h:475 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );
+0x7f8	3352310c	32d1bd10	31aa1d30	SpecialAttackEventProcess part: skill lookup (slot 510)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)
+0x7fc	33523110	32cf5760	31aa1d30	SpecialAttackEventProcess part: skill use (slot 511)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)
+0x800	33523114	32d0d8e0	31aa1d30	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)
+0x80c	33523120	32d1ddf0	32008e40	NoStateChangeActionFrameMove	CONF: char_chung class map 0x80c	X2GUElsword_SwordMan.h:476 virtual void NoStateChangeActionFrameMove();
+0x810	33523124	32d0b5a0	31aa1d30	SpecialAttackNoStageChange	CONF: char_chung class map 0x810	X2GUElsword_SwordMan.h:394 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );
+0x828	3352313c	32d08b30	31fd7640	IsNotCommonMoveState	CONF: char_luciel class map 0x828	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3415 virtual bool IsNotCommonMoveState();)
+0x834	33523148	32d09270	33093ad0	ShowActiveSkillCutInAndLightByScript	CONF: char_chung class map 0x834	X2GUElsword_SwordMan.h:1643 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );
+0x840	33523154	32d00fe0	31f3f070	?	HINT: base 31f3f070; 22 insns; calls 32272200 32206450	- (name unsettled)
+0x850	33523164	32d08d70	31fd8230	?	HINT: base 31fd8230; 90 insns; calls -	- (name unsettled)
+# Elsword vtable CX2GUElsword_SwordMan 33522914: 544 slots (0x0-0x87c); in-range entries (target in 32cf2da0-32d2763f): 58 (overrides 58, unnamed 15)
+# base_fn = CX2GUUser vtable 334781f4 (544 slots)

@@ -1,0 +1,131 @@
+# skill ids: 127 distinct (Elsword tree rows of s3_reform_ids_no_state.tsv); cpp SKILL_ID enum (X2SkillTree.h, 966 live enumerators parsed from the cl /P stream): lookalike 28, name 4, value-only 0, none 95
+# skill ids in core March Enum.lua SKILL_ID (data036 BOM source, 805 names): absent 63, name 64; June Enum.src.lua SKILL_ID has 2407 names
+# cpp_enum: name = same name live in the enum; lookalike = RNSI_ -> SI_ name is live; value-only = other name at the value; none. cpp_commented: n/y (line-level guess). cpp_live column left empty (live status from the cl /P stream, not per-site)
+kind	name	june_value	cpp_enum	cpp_line	cpp_commented	core_enum_lua	cpp_live	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	none			absent		
+skill	SI_ETC_WS_COMMON_LOVE	900	name	132	n	absent		enum value 900
+skill	RNSI_SA_ES_MEGASLASH	21000	none			name; march=21000		SI_SA_ES_MEGASLASH at X2SkillTree.h:740 sits in the dead #else of UPGRADE_SKILL_SYSTEM_2013 (not live)
+skill	RNSI_SA_ES_FLAME_GEYSER	21001	lookalike	137	n	name; march=21001		SI_SA_ES_FLAME_GEYSER=1001 (value differs from June 21001)
+skill	RNSI_SA_ES_UNLIMITED_BLADE	21002	lookalike	138	n	name; march=21002		SI_SA_ES_UNLIMITED_BLADE=1002 (value differs from June 21002)
+skill	RNSI_SA_ES_ASSAULT_SLASH	21003	none			name; march=21003		SI_SA_ES_ASSAULT_SLASH at X2SkillTree.h:741 sits in the dead #else of UPGRADE_SKILL_SYSTEM_2013 (not live)
+skill	RNSI_SA_ES_TRIPLE_GEYSER	21004	lookalike	139	n	name; march=21004		SI_SA_ES_TRIPLE_GEYSER=1003 (value differs from June 21004)
+skill	RNSI_SA_ESK_SPIRAL_BLAST	21005	lookalike	140	n	name; march=21005		SI_SA_ESK_SPIRAL_BLAST=1004 (value differs from June 21005)
+skill	RNSI_SA_ESK_MORTAL_BLOW	21006	none			name; march=21006		
+skill	RNSI_SA_ESK_DOUBLE_SLASH	21007	lookalike	142	n	name; march=21007		SI_SA_ESK_DOUBLE_SLASH=1006 (value differs from June 21007)
+skill	RNSI_SA_ELK_ARMAGEDON_BLADE	21008	none			name; march=21008		
+skill	RNSI_SA_ELK_SAND_STORM	21009	lookalike	144	n	name; march=21009		SI_SA_ELK_SAND_STORM=1008 (value differs from June 21009)
+skill	RNSI_SA_ELK_WINDMILL	21010	lookalike	143	n	name; march=21010		SI_SA_ELK_WINDMILL=1007 (value differs from June 21010)
+skill	RNSI_SA_ELK_SONIC_BLADE	21011	none			name; march=21011		
+skill	RNSI_SA_EMK_RISING_SLASH	21012	lookalike	145	n	name; march=21012		SI_SA_EMK_RISING_SLASH=1009 (value differs from June 21012)
+skill	RNSI_SA_EMK_WIND_BLADE	21013	none			name; march=21013		
+skill	RNSI_SA_EMK_STORM_BLADE	21014	none			name; march=21014		
+skill	RNSI_SA_ERS_PHOENIX_TALON	21015	none			name; march=21015		
+skill	RNSI_SA_ERS_SWORD_FIRE	21016	none			name; march=21016		
+skill	RNSI_SA_ERS_LUNA_BLADE	21017	lookalike	150	n	name; march=21017		SI_SA_ERS_LUNA_BLADE=1014 (value differs from June 21017)
+skill	RNSI_SA_ERS_SPLASH_EXPLOSION	21018	none			name; march=21018		
+skill	RNSI_SA_ETK_SWORD_FALL	21019	none			name; march=21019		
+skill	RNSI_SA_ETK_CRESCENT_CUT	21020	none			name; march=21020		
+skill	RNSI_SA_ETK_FINAL_STRIKE	21021	lookalike	151	n	name; march=21021		SI_SA_ETK_FINAL_STRIKE=1015 (value differs from June 21021)
+skill	RNSI_SA_ETK_PHANTOM_SWORD	21022	lookalike	152	n	name; march=21022		SI_SA_ETK_PHANTOM_SWORD=1016 (value differs from June 21022)
+skill	RNSI_SA_EIS_RAGE_CUTTER	21023	lookalike	155	n	name; march=21023		SI_SA_EIS_RAGE_CUTTER=1019 (value differs from June 21023)
+skill	RNSI_SA_EIS_MAELSTROM_RAGE	21024	none			name; march=21024		
+skill	RNSI_SA_EIS_SWORD_BLASTING	21025	none			name; march=21025		
+skill	RNSI_SA_ES_MEGASLASH_UPGRADE	21026	none			absent		
+skill	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	21027	none			absent		
+skill	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	21028	none			absent		
+skill	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	21029	none			absent		
+skill	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	21030	none			absent		
+skill	RNSI_SA_ESK_SPIRAL_BLAST_UPGRADE	21031	none			absent		
+skill	RNSI_SA_EMK_RISING_SLASH_UPGRADE	21032	none			absent		
+skill	RNSI_SA_ETK_SWORD_FALL_UPGRADE	21033	none			absent		
+skill	RNSI_SA_ESK_MORTAL_BLOW_UPGRADE	21034	none			absent		
+skill	RNSI_SA_EMK_WIND_BLADE_UPGRADE	21035	none			absent		
+skill	RNSI_SA_ETK_CRESCENT_CUT_UPGRADE	21036	none			absent		
+skill	RNSI_SA_ELK_SONIC_BLADE_CRESCENT	21037	none			name; march=21037		
+skill	RNSI_SA_ELK_IMPERIAL_CRUSHER	21038	none			name; march=21038		
+skill	RNSI_SA_ERS_TRIPLE_SABER	21039	none			name; march=21039		
+skill	RNSI_SA_ERS_OVERS_GEYSER	21040	none			name; march=21040		
+skill	RNSI_SA_EIS_INFINITY_CHASER	21041	none			name; march=21041		
+skill	RNSI_SA_EIS_BLADE_CIRCLE	21042	none			name; march=21042		
+skill	RNSI_SA_ESK_DOUBLE_SLASH_UPGRADE	21043	none			absent		
+skill	RNSI_SA_ELK_ARMAGEDON_BLADE_UPGRADE	21044	none			absent		
+skill	RNSI_SA_ELK_SAND_STORM_UPGRADE	21045	none			name; march=21045		
+skill	RNSI_SA_ELK_WINDMILL_UPGRADE	21046	none			absent		
+skill	RNSI_SA_ELK_SONIC_BLADE_UPGRADE	21047	none			absent		
+skill	RNSI_SA_EMK_STORM_BLADE_UPGRADE	21048	none			absent		
+skill	RNSI_SA_ERS_PHOENIX_TALON_UPGRADE	21049	none			name; march=21049		
+skill	RNSI_SA_ERS_SWORD_FIRE_UPGRADE	21050	none			absent		
+skill	RNSI_SA_ERS_LUNA_BLADE_UPGRADE	21051	none			absent		
+skill	RNSI_SA_ERS_SPLASH_EXPLOSION_UPGRADE	21052	none			absent		
+skill	RNSI_SA_ETK_FINAL_STRIKE_UPGRADE	21053	none			name; march=21053		
+skill	RNSI_SA_ETK_PHANTOM_SWORD_UPGRADE	21054	none			absent		
+skill	RNSI_SA_EIS_RAGE_CUTTER_UPGRADE	21055	none			absent		
+skill	RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE	21056	none			name; march=21056		
+skill	RNSI_SA_EIS_SWORD_BLASTING_UPGRADE	21057	none			name; march=21057		
+skill	RNSI_SA_ELK_GRAND_CROSS	21058	none			name; march=21058		
+skill	RNSI_SA_ERS_EXTREME_RUNE_BUSTER	21059	none			name; march=21059		
+skill	RNSI_SA_EIS_INFINITY_STRIKE	21060	none			name; march=21060		
+skill	RNSI_A_ES_ROLLING	21200	lookalike	164	n	name; march=21200		SI_A_ES_ROLLING=1205 (value differs from June 21200)
+skill	RNSI_A_ES_ENDURANCE	21201	lookalike	162	n	name; march=21201		SI_A_ES_ENDURANCE=1203 (value differs from June 21201)
+skill	RNSI_A_ESK_KICK	21202	none			name; march=21202		
+skill	RNSI_A_ESK_IMPACT_SMASH	21203	none			name; march=21203		
+skill	RNSI_A_ESK_ARMOR_BREAK	21204	lookalike	168	n	name; march=21204		SI_A_ESK_ARMOR_BREAK=1209 (value differs from June 21204)
+skill	RNSI_A_ELK_ROLLING_SMASH	21205	lookalike	171	n	name; march=21205		SI_A_ELK_ROLLING_SMASH=1212 (value differs from June 21205)
+skill	RNSI_A_ELK_COUNTER	21206	none			name; march=21206		
+skill	RNSI_A_EMK_BIG_BURST	21207	lookalike	173	n	name; march=21207		SI_A_EMK_BIG_BURST=1214 (value differs from June 21207)
+skill	RNSI_A_EMK_SWORD_WAVE	21208	none			name; march=21208		
+skill	RNSI_A_EMK_CRITICAL_SWORD	21209	none			name; march=21209		
+skill	RNSI_A_ERS_RUNE_OF_FIRE	21210	lookalike	178	n	name; march=21210		SI_A_ERS_RUNE_OF_FIRE=1219 (value differs from June 21210)
+skill	RNSI_A_ERS_COUNTER	21211	none			name; march=21211		
+skill	RNSI_A_ETK_SWORD_SHIELD	21212	lookalike	181	n	name; march=21212		SI_A_ETK_SWORD_SHIELD=1222 (value differs from June 21212)
+skill	RNSI_A_ETK_FATAL_SLAP	21213	none			name; march=21213		
+skill	RNSI_A_ETK_MIRAGE_STING	21214	none			name; march=21214		
+skill	RNSI_A_EIS_HARSH_CHASER	21215	none			name; march=21215		
+skill	RNSI_A_EIS_COMPACT_COUNTER	21216	none			name; march=21216		
+skill	RNSI_A_ES_ROLLING_UPGRADE	21217	none			absent		
+skill	RNSI_A_ES_ENDURANCE_UPGRADE	21218	none			absent		
+skill	RNSI_A_ESK_KICK_UPGRADE	21219	none			absent		
+skill	RNSI_A_EMK_BIG_BURST_UPGRADE	21220	none			absent		
+skill	RNSI_A_ETK_SWORD_SHIELD_UPGRADE	21221	none			absent		
+skill	RNSI_A_ELK_POWER_SMASH	21222	none			name; march=21222		
+skill	RNSI_A_ERS_ENCHANT_BREAK	21223	none			absent		
+skill	RNSI_A_EIS_ANOTHER_SWORD	21224	none			name; march=21224		
+skill	RNSI_A_ESK_IMPACT_SMASH_UPGRADE	21225	none			absent		
+skill	RNSI_A_ESK_ARMOR_BREAK_UPGRADE	21226	none			absent		
+skill	RNSI_A_ELK_ROLLING_SMASH_UPGRADE	21227	none			absent		
+skill	RNSI_A_ELK_COUNTER_UPGRADE	21228	none			absent		
+skill	RNSI_A_EMK_SWORD_WAVE_UPGRADE	21229	none			absent		
+skill	RNSI_A_EMK_CRITICAL_SWORD_UPGRADE	21230	none			absent		
+skill	RNSI_A_ERS_RUNE_OF_FIRE_UPGRADE	21231	none			absent		
+skill	RNSI_A_ERS_COUNTER_UPGRADE	21232	none			absent		
+skill	RNSI_A_ETK_FATAL_SLAP_UPGRADE	21233	none			absent		
+skill	RNSI_A_ETK_MIRAGE_STING_UPGRADE	21234	none			absent		
+skill	RNSI_A_EIS_HARSH_CHASER_UPGRADE	21235	none			absent		
+skill	RNSI_A_EIS_COMPACT_COUNTER_UPGRADE	21236	none			absent		
+skill	RNSI_P_ESK_GET_MANA_UP	21400	lookalike	191	n	absent		SI_P_ESK_GET_MANA_UP=1401 (value differs from June 21400)
+skill	RNSI_P_ESK_AUTO_GUARD	21401	lookalike	192	n	absent		SI_P_ESK_AUTO_GUARD=1402 (value differs from June 21401)
+skill	RNSI_P_ELK_WIND_SLICER	21402	none			name; march=21402		
+skill	RNSI_P_ELK_STRONG_BONE	21403	lookalike	193	n	absent		SI_P_ELK_STRONG_BONE=1403 (value differs from June 21403)
+skill	RNSI_P_ELK_REDUCE_PAIN	21404	lookalike	194	n	absent		SI_P_ELK_REDUCE_PAIN=1404 (value differs from June 21404)
+skill	RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET	21405	name	1919	n	absent		enum value 21405
+skill	RNSI_P_EMK_SPELL_CHAIN	21406	none			absent		
+skill	RNSI_P_ERS_SWORD_ENCHANT	21407	none			absent		
+skill	RNSI_P_ERS_RUNE_MASTERY	21408	name	1920	n	absent		enum value 21408
+skill	RNSI_P_ERS_MAGIC_RESISTANCE	21409	name	1921	n	absent		enum value 21409
+skill	RNSI_P_ETK_BRUTAL_SLAYER	21410	lookalike	201	n	absent		SI_P_ETK_BRUTAL_SLAYER=1411 (value differs from June 21410)
+skill	RNSI_P_ETK_SHORTTIME_STRONGATTACK	21411	none			absent		
+skill	RNSI_P_EIS_HARSH_SLAYER	21412	none			absent		
+skill	RNSI_P_EIS_CUTTING_SWORD	21413	lookalike	206	n	absent		SI_P_EIS_CUTTING_SWORD=1416 (value differs from June 21413)
+skill	RNSI_P_EIS_LIGHTNING_STEP	21414	lookalike	205	n	absent		SI_P_EIS_LIGHTNING_STEP=1415 (value differs from June 21414)
+skill	RNSI_P_ELK_OPEN_MIND	21415	none			absent		
+skill	RNSI_P_ELK_FIGHT_GOD	21416	none			absent		
+skill	RNSI_P_ERS_OPEN_MIND	21417	none			absent		
+skill	RNSI_P_ERS_MAGIC_COATING	21418	none			absent		
+skill	RNSI_P_EIS_OPEN_MIND	21419	none			absent		
+skill	RNSI_P_EIS_INFINITY_POTENTIAL	21420	none			name; march=21420		
+skill	RNSI_HA_ELK_GIGANTIC_SLASH	21600	lookalike	210	n	name; march=21600		SI_HA_ELK_GIGANTIC_SLASH=1600 (value differs from June 21600)
+skill	RNSI_HA_ERS_SHININGRUNE_BUSTER	21601	none			name; march=21601		spelling differs: live SI_HA_ERS_SHINING_RUNE_BUSTER at X2SkillTree.h:211 (value not resolved here), June is RNSI_HA_ERS_SHININGRUNE_BUSTER
+skill	RNSI_HA_EIS_BLADE_RAIN	21602	lookalike	212	n	name; march=21602		SI_HA_EIS_BLADE_RAIN=1602 (value differs from June 21602)
+skill	RNSI_HA_ELK_GIGANTIC_SLASH_UPGRADE	21603	none			absent		
+skill	RNSI_HA_ERS_SHININGRUNE_BUSTER_UPGRADE	21604	none			absent		
+skill	RNSI_HA_EIS_BLADE_RAIN_UPGRADE	21605	none			absent		

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elsword CH1h` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
-| Depends on | CH1g review, char-chung Z. One at a time with CH1a-CH1k: they all edit `X2GUElsword_SwordMan.*` |
+| Depends on | CH1g2 review (char-chung Z done 2026-11-03). One at a time with CH1a-CH1k: they all edit `X2GUElsword_SwordMan.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-elsword/CH1h-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -48,6 +48,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 32** (`awk -F'\t' '$7=="CH1h"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 23, new 9).
+  June addresses: `32cf2da0` `32cf2e20` `32cf5190` `32cf51d0` `32cf5530` `32cf55a0` `32cf56a0` `32d059b0`(new ?) `32d05b60`(new ?) `32d05b70`(new ?) `32d06fd0` `32d08590` `32d08ec0` `32d0b870` `32d0c780`(new ?) `32d0d3f0` `32d0d540` `32d0d600`(new ?) `32d0d7a0`(new ?) `32d17e90` `32d17ea0` `32d1a5d0` `32d1a920` `32d1ac60` `32d1b120` `32d1b9d0`(new ?) `32d1f690` `32d26ff0`(new ?) `32d27110` `32d27120` `32d27130`(new GetSpecialItemUsableExtraStateID) `32d27620`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L262 vslot 0x4ac GetSpecialItemUsableExtraStateID returns 0xce; §7 L291 tutorial flag read in CX2GUElsword_SwordMan::DamageReact 32d1af6c; §7c L352 29 alpha-tag sites 32d0d660 .. 32d1ecc0.
+- 0x24c / 0x250 (`32d1f690` / `32d0b870`) stay here: they switch on buff ids 3 / 163-165 / 19 and set class fields (Chung sent his to CH4a; Elsword's read no passive).
+- ReInit, DamageReact, InitComponent, InitEffect hold Way of the Sword parts: call CH1q's functions (declared, `body in CH1q`). DamageReact calls `CX2DamageManager::CalcWayOfSwordPointOnDamageReact` by its March name (June `326106c0` differs; allow-listed until CH1q).
+- Slot names (`ch0_vtable_slots.tsv`, `ch0_unmapped_identified.tsv`): 0xbc `GetFinalDamageToBeChangedByActiveSkill` (inside), 0x4ac `GetSpecialItemUsableExtraStateID` (returns 0xce `ESSI_SWORD_WAIT`), 0x508 / 0x50c empty overrides (called from `GetFinalDamage` 32284d43 / 32284d62), 0x510 applies passive 0x53a9's buff after `ProcessSocketEffectEx` (DamageReact @320478c9). `32d270f0` / `32d27100` are compiler this-adjust thunks (n/a).

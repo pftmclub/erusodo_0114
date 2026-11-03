@@ -1,0 +1,39 @@
+row_kind	june_func_va	checklist_line	n_sites	ghidra_func_defined	detail	classmap_snapshot_name	classmap_snapshot_phase
+7c	32d0d660	L352	1	y	alpha-tag sites: 32d0d72d 32296da0 (tag particle (handle, major/minor)) tsv l.236	-	n/a
+7c	32d0d7a0	L352	1	y	alpha-tag sites: 32d0d86d 32296da0 (tag particle (handle, major/minor)) tsv l.237	called by 32d1ac60	CH1h
+7c	32d0f300	L352	2	y	alpha-tag sites: 32d0f4dd 32296d60 (tag particle (ptr)) tsv l.238; 32d0f54e 32296d60 (tag particle (ptr)) tsv l.239	called by 32d1ac60	CH1h
+7c	32d10610	L352	1	y	alpha-tag sites: 32d10718 32296ee0 (tag mesh instance) tsv l.240	-	n/a
+7c	32d108e0	L352	1	y	alpha-tag sites: 32d109d5 32296ee0 (tag mesh instance) tsv l.241	-	n/a
+7c	32d10a00	L352	1	y	alpha-tag sites: 32d10b08 32296ee0 (tag mesh instance) tsv l.242	-	n/a
+7c	32d10cd0	L352	1	y	alpha-tag sites: 32d10dc5 32296ee0 (tag mesh instance) tsv l.243	-	n/a
+7c	32d10df0	L352	7	y	alpha-tag sites: 32d10f4f 32296d60 (tag particle (ptr)) tsv l.244; 32d10fe9 32296d60 (tag particle (ptr)) tsv l.245; 32d112ce 32296d60 (tag particle (ptr)) tsv l.246; 32d1135c 32296d60 (tag particle (ptr)) tsv l.247; 32d1163e 32296d60 (tag particle (ptr)) tsv l.248; 32d116cc 32296d60 (tag particle (ptr)) tsv l.249; 32d118c0 32296ee0 (tag mesh instance) tsv l.250	-	n/a
+7c	32d14100	L352	9	y	alpha-tag sites: 32d143cd 32296ee0 (tag mesh instance) tsv l.251; 32d144e0 32296ee0 (tag mesh instance) tsv l.252; 32d145d9 32296ee0 (tag mesh instance) tsv l.253; 32d146d8 32296ee0 (tag mesh instance) tsv l.254; 32d147cd 32296ee0 (tag mesh instance) tsv l.255; 32d148cc 32296ee0 (tag mesh instance) tsv l.256; 32d149c1 32296ee0 (tag mesh instance) tsv l.257; 32d14aba 32296ee0 (tag mesh instance) tsv l.258; 32d14bb3 32296ee0 (tag mesh instance) tsv l.259	ESSI_SI_SA_ETK_SWORD_FALL.FrameMove	CH2d
+7c	32d170e0	L352	1	y	alpha-tag sites: 32d17216 32296ee0 (tag mesh instance) tsv l.260	ESSI_SI_SA_ETK_PHANTOM_SWORD.FrameMove	CH3c
+7c	32d1e200	L352	1	y	alpha-tag sites: 32d1e2ee 32296ee0 (tag mesh instance) tsv l.261	ESSI_ETK_COMBO_ZZZ.FrameMove	CH1g
+7c	32d1e5a0	L352	1	y	alpha-tag sites: 32d1e68e 32296ee0 (tag mesh instance) tsv l.262	ESSI_ETK_COMBO_XX.FrameMove	CH1g
+7c	32d1ea10	L352	1	n	"alpha-tag sites: 32d1eafe 32296ee0 (tag mesh instance) tsv l.263 | c10a lists this site with containing function ""-""; start 32d1ea10 found by int3-run scan of unpacked_x2.exe"	ESSI_ETK_DASH_COMBO_ZZ.FrameMove	CH1g
+7c	32d1ecc0	L352	1	y	alpha-tag sites: 32d1efb2 32296ee0 (tag mesh instance) tsv l.264	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.FrameMove	CH3c
+7h	32cf8230	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32cf83f2 32cf8417 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_KNIGHT_DASH_COMBO_Z2.EventProcess	CH1d2
+7h	32cfafa0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32cfb0d6 32cfb0fb (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_XXX.EventProcess	CH1e
+7h	32cfb420	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32cfb52e 32cfb553 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_XXXX.EventProcess	CH1e
+7h	32cfb970	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32cfba8a 32cfbaab (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ERS_XZ.EventProcess	CH1f
+7h	32d01040	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d01093 32d010b9 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ESK_DASH_COMBO_ZX.EventProcess	CH1e
+7h	32d017f0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d01845 32d0186b (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ESK_DASH_COMBO_ZChargeX.EventProcess	CH1e
+7h	32d01ba0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d01be0 32d01c06 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ESK_DASH_JUMP_ZZZ_LANDING.EventProcess	CH1e
+7h	32d01f10	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d01f65 32d01f8b (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_DASH_COMBO_XChargeX.EventProcess	CH1e
+7h	32d02290	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d022e3 32d02309 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_DASH_COMBO_XX.EventProcess	CH1e
+7h	32d02710	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d02762 32d02788 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_DASH_COMBO_XXX.EventProcess	CH1e
+7h	32d02a90	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d02ba3 32d02bc4 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_XXXXX.EventProcess	CH1e
+7h	32d02ed0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d02f22 32d02f48 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ELK_XXXXXX.EventProcess	CH1e
+7h	32d03880	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d038d3 32d038f9 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_EMK_COMBO_XZ.EventProcess	CH1f
+7h	32d03d00	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d03d96 32d03dc1 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_EMK_COMBO_XZ_CHARGE.EventProcess	CH1f
+7h	32d040c0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d04112 32d04138 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_EMK_COMBO_XZZ.EventProcess	CH1f
+7h	32d04440	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d04492 32d044b8 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_EMK_COMBO_FULL_CHARGE_XZZ.EventProcess	CH1f
+7h	32d047c0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d04856 32d04881 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ERS_XZ_CHARGE.EventProcess	CH1f
+7h	32d04b80	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d04bd2 32d04bf8 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ERS_FULL_CHARGE_XZZ.EventProcess	CH1f
+7h	32d05530	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d05570 32d05596 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_SA_ESK_MORTAL_BLOW.EventProcess	CH2b
+7h	32d05b80	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d05bd2 32d05bf8 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_ERS_COUNTER_GUARD_END.EventProcess	CH3b
+7h	32d061d0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d06222 32d06248 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_SA_ELK_GRAND_CROSS_END.EventProcess	CH3a
+7h	32d06550	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d065a2 32d065c8 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE.EventProcess	CH3a
+7h	32d068d0	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d06922 32d06948 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_SA_ERS_EXTREME_RUNE_BUSTER.EventProcess	CH3b
+7h	32d06c50	L420	2	n	UPDOWN_CANCEL_AFTER member +0x8ca4 read at 32d06ca2 32d06cc8 (fcom/fld pair); start = int3-run boundary in unpacked_x2.exe	ESSI_SA_EIS_INFINITY_STRIKE.EventProcess	CH3c

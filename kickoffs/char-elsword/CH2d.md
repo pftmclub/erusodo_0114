@@ -42,6 +42,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 19** (`awk -F'\t' '$7=="CH2d"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 18, new 1).
+  June addresses: `32cf4310` `32cf4370` `32cf4400` `32cf4890` `32cf48e0` `32cfde50` `32cfdee0` `32cfdf70` `32cfe840` `32d005e0` `32d007e0` `32d14100` `32d15f80` `32d162d0` `32d16c00`(new ?) `32d189a0` `32d18a60` `32d1b740` `32d1f3a0`.
+- **States: 7** (`awk -F'\t' '$8=="CH2d"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_A_ETK_SWORD_SHIELD`, `ESSI_SI_SA_ETK_SWORD_FALL`, `ESSI_SI_SA_ETK_CRESCENT_CUT`, `ESSI_SI_A_EIS_FATAL_SLAP`, `ESSI_SI_A_EIS_SPIRAL_STING`, `ESSI_SI_SA_ETK_FINAL_STRIKE`, `ESSI_SI_SA_ETK_FINAL_STRIKE_UPGRADE`.
+- **Skills: 12** (part 2 of `ch0_state_skill.tsv`, col 6): 21019 RNSI_SA_ETK_SWORD_FALL, 21020 RNSI_SA_ETK_CRESCENT_CUT, 21021 RNSI_SA_ETK_FINAL_STRIKE, 21033 RNSI_SA_ETK_SWORD_FALL_UPGRADE, 21036 RNSI_SA_ETK_CRESCENT_CUT_UPGRADE, 21053 RNSI_SA_ETK_FINAL_STRIKE_UPGRADE, 21212 RNSI_A_ETK_SWORD_SHIELD, 21213 RNSI_A_ETK_FATAL_SLAP, 21214 RNSI_A_ETK_MIRAGE_STING, 21221 RNSI_A_ETK_SWORD_SHIELD_UPGRADE, 21233 RNSI_A_ETK_FATAL_SLAP_UPGRADE, 21234 RNSI_A_ETK_MIRAGE_STING_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §1 L51 numerical-only DAMAGE_DATA table in state ESSI_SI_A_EIS_SPIRAL_STING (; §1 L51 numerical-only DAMAGE_DATA_NEXT table in state ESSI_SI_A_EIS_SPIRAL_ST; §1 L37-105 numerical-only DAMAGE_DATA + numerical override live (the 20 tables ab; §2 L116 APPLIED_SKILL_ID (parsed since 8c); §2 L117 NUMERICAL_DATA_INDEX; §4 L178 June-only members of tables March has (SKILL_ID names) fail silently; §7 L254 class code scales the cached state power rate (+0x7cc8); §7c L352 29 alpha-tag sites 32d0d660 .. 32d1ecc0; §7i L436-437 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L713-721 an id of a listed type with no case plays the class's first skill stat; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTim.
+- `32d16c00` (Crescent Cut) calls June-only `31f76580`: CH1o writes it; call it by CH1o's name. Alpha tags (7c): `32d14100` x9 (Sword Fall FrameMove).

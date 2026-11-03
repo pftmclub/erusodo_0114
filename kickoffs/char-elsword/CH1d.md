@@ -48,6 +48,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 28** (`awk -F'\t' '$7=="CH1d"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 28).
+  June addresses: `32cf36d0` `32cf36f0` `32cf3700` `32cf3710` `32cf3720` `32cf3730` `32cf3740` `32cf3750` `32cf3760` `32cf37d0` `32cf37e0` `32cf6440` `32cf67c0` `32cf6d80` `32cf7260` `32cf7340` `32cf73e0` `32cf7810` `32cf7b00` `32cf7bd0` `32cf9050` `32cf9090` `32d07c40` `32d07cc0` `32d07d30` `32d07db0` `32d080f0` `32d08180`.
+- **States: 11** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_COMBO_Z1`, `ESSI_COMBO_Z2`, `ESSI_COMBO_Z3`, `ESSI_COMBO_Z4`, `ESSI_COMBO_Z4a`, `ESSI_COMBO_X1`, `ESSI_COMBO_X2`, `ESSI_COMBO_X3`, `ESSI_COMBO_X3a`, `ESSI_JUMP_ATTACK_Z`, `ESSI_JUMP_ATTACK_X`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8).
+- **Split by CH0:** CH1d = ground combos `ESSI_COMBO_*` and `ESSI_JUMP_ATTACK_X/Z` (28); the dash and dash-jump combos are **CH1d2** (28).

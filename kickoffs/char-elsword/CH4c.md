@@ -42,6 +42,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 1** (`awk -F'\t' '$7=="CH4c"' june2017_re/char_elsword/ch0_class_map.tsv`; new 1).
+  June addresses: `32cf4d00`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7j L456 Rune Slayer magic-reflect: DamageReact 320462a0 @32046a55-32046aa0 + 3.
+- `MemoConditionElsword` vtable `3352286c`: dtor `32c69d80`, decide `32cf4d00` (calls the always-false base `31fd4450`, as Eve's `32968490`), parse thunk `32cf4d20` -> `31fc8cf0`; tsv row `MemoCondition` (replace).

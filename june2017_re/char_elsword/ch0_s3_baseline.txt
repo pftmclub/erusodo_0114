@@ -1,0 +1,268 @@
+# s3_no_state.py --family X2GUElsword_SwordMan.cpp
+# mode: cl /P (live branches exact; line numbers are positions in the preprocessed stream)
+# enum SKILL_ID: 966 enumerators, 0 unresolved initialisers
+# verdict: has_state = a case label resolves to the id (strict)
+# case labels not resolved (not in enum / consts): 50
+unit_class_name	unit_class_value	family_cpp_file	skill_id	skill_name	templet_name	skill_type	master_level	row	column	in_cpp_enum	cpp_case_in_family	verdict	march_value_of_name	march_names_at_same_id	cpp_any_token_in_family	case_in_X2GUUser_cpp	lookalike_march_name	lookalike_march_value	lookalike_case_in_family	evidence
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_SWORDMAN	1	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21202	RNSI_A_ESK_KICK	Kick	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21219	RNSI_A_ESK_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nKick	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21005	RNSI_SA_ESK_SPIRAL_BLAST	Spiral Blast	15	1	3	2	n	n	no_state			n	n	SI_SA_ESK_SPIRAL_BLAST	1004	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21031	RNSI_SA_ESK_SPIRAL_BLAST_UPGRADE	#Cffcc00[Enhanced]#CX\nSpiral Blast	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21400	RNSI_P_ESK_GET_MANA_UP	Vitality	8	4	3	3	n	n	no_state			n	n	SI_P_ESK_GET_MANA_UP	1401	n	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21006	RNSI_SA_ESK_MORTAL_BLOW	Mortal Blow	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21034	RNSI_SA_ESK_MORTAL_BLOW_UPGRADE	#Cffcc00[Enhanced]#CX\nMortal Blow	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21203	RNSI_A_ESK_IMPACT_SMASH	Impact Smash	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21225	RNSI_A_ESK_IMPACT_SMASH_UPGRADE	#Cffcc00[Enhanced]#CX Impact Smash	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21204	RNSI_A_ESK_ARMOR_BREAK	Armor Break	6	1	6	4	n	n	no_state			n	n	SI_A_ESK_ARMOR_BREAK	1209	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21226	RNSI_A_ESK_ARMOR_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Armor Break	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21007	RNSI_SA_ESK_DOUBLE_SLASH	Double Slash	16	1	7	1	n	n	no_state			n	n	SI_SA_ESK_DOUBLE_SLASH	1006	y	
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21043	RNSI_SA_ESK_DOUBLE_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX Double Slash	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_KNIGHT	10	X2GUElsword_SwordMan.cpp	21401	RNSI_P_ESK_AUTO_GUARD	Auto Guard	8	4	8	3	n	n	no_state			n	n	SI_P_ESK_AUTO_GUARD	1402	n	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21207	RNSI_A_EMK_BIG_BURST	Explosive Fist	6	1	3	1	n	n	no_state			n	n	SI_A_EMK_BIG_BURST	1214	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21220	RNSI_A_EMK_BIG_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nExplosive Fist	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21012	RNSI_SA_EMK_RISING_SLASH	Rising Slash	15	1	3	2	n	n	no_state			n	n	SI_SA_EMK_RISING_SLASH	1009	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21032	RNSI_SA_EMK_RISING_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nRising Slash	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21405	RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET	Thinking Outside the Box	2	4	3	3	y	n	no_state	21405	RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET	n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21013	RNSI_SA_EMK_WIND_BLADE	Wind Blade	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21035	RNSI_SA_EMK_WIND_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nWind Blade	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21208	RNSI_A_EMK_SWORD_WAVE	Sword Wave	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21229	RNSI_A_EMK_SWORD_WAVE_UPGRADE	#Cffcc00[Enhanced]#CX Sword Wave	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21209	RNSI_A_EMK_CRITICAL_SWORD	Critical Sword	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21230	RNSI_A_EMK_CRITICAL_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX Critical Sword	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21014	RNSI_SA_EMK_STORM_BLADE	Storm Blade	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21048	RNSI_SA_EMK_STORM_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Storm Blade	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_MAGIC_KNIGHT	11	X2GUElsword_SwordMan.cpp	21406	RNSI_P_EMK_SPELL_CHAIN	Magic Chain	8	4	8	3	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21212	RNSI_A_ETK_SWORD_SHIELD	Sword Shield	6	1	3	1	n	n	no_state			n	n	SI_A_ETK_SWORD_SHIELD	1222	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21221	RNSI_A_ETK_SWORD_SHIELD_UPGRADE	#Cffcc00[Enhanced]#CX\nSword Shield	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21019	RNSI_SA_ETK_SWORD_FALL	Sword Fall	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21033	RNSI_SA_ETK_SWORD_FALL_UPGRADE	#Cffcc00[Enhanced]#CX\nSword Fall	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21410	RNSI_P_ETK_BRUTAL_SLAYER	Cruel Slayer	8	4	3	3	n	n	no_state			n	n	SI_P_ETK_BRUTAL_SLAYER	1411	n	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21020	RNSI_SA_ETK_CRESCENT_CUT	Crescent Cut	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21036	RNSI_SA_ETK_CRESCENT_CUT_UPGRADE	#Cffcc00[Enhanced]#CX\nCrescent Cut	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21213	RNSI_A_ETK_FATAL_SLAP	Fatal Slap	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21233	RNSI_A_ETK_FATAL_SLAP_UPGRADE	#Cffcc00[Enhanced]#CX Fatal Slap	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21214	RNSI_A_ETK_MIRAGE_STING	Mirage Sting	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21234	RNSI_A_ETK_MIRAGE_STING_UPGRADE	#Cffcc00[Enhanced]#CX Mirage Sting	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21021	RNSI_SA_ETK_FINAL_STRIKE	Final Strike	16	1	7	1	n	n	no_state			n	n	SI_SA_ETK_FINAL_STRIKE	1015	y	
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21053	RNSI_SA_ETK_FINAL_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Final Strike	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_SHEATH_KNIGHT	22	X2GUElsword_SwordMan.cpp	21411	RNSI_P_ETK_SHORTTIME_STRONGATTACK	Sudden Strike	8	4	8	3	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21202	RNSI_A_ESK_KICK	Kick	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21219	RNSI_A_ESK_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nKick	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21005	RNSI_SA_ESK_SPIRAL_BLAST	Spiral Blast	15	1	3	2	n	n	no_state			n	n	SI_SA_ESK_SPIRAL_BLAST	1004	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21031	RNSI_SA_ESK_SPIRAL_BLAST_UPGRADE	#Cffcc00[Enhanced]#CX\nSpiral Blast	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21400	RNSI_P_ESK_GET_MANA_UP	Vitality	8	4	3	3	n	n	no_state			n	n	SI_P_ESK_GET_MANA_UP	1401	n	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21006	RNSI_SA_ESK_MORTAL_BLOW	Mortal Blow	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21034	RNSI_SA_ESK_MORTAL_BLOW_UPGRADE	#Cffcc00[Enhanced]#CX\nMortal Blow	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21203	RNSI_A_ESK_IMPACT_SMASH	Impact Smash	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21225	RNSI_A_ESK_IMPACT_SMASH_UPGRADE	#Cffcc00[Enhanced]#CX Impact Smash	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21204	RNSI_A_ESK_ARMOR_BREAK	Armor Break	6	1	6	4	n	n	no_state			n	n	SI_A_ESK_ARMOR_BREAK	1209	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21226	RNSI_A_ESK_ARMOR_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Armor Break	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21007	RNSI_SA_ESK_DOUBLE_SLASH	Double Slash	16	1	7	0	n	n	no_state			n	n	SI_SA_ESK_DOUBLE_SLASH	1006	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21043	RNSI_SA_ESK_DOUBLE_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX Double Slash	16	1	7	0	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21008	RNSI_SA_ELK_ARMAGEDON_BLADE	Armageddon Blade	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21044	RNSI_SA_ELK_ARMAGEDON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Armageddon Blade	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21205	RNSI_A_ELK_ROLLING_SMASH	Rolling Smash	6	1	7	2	n	n	no_state			n	n	SI_A_ELK_ROLLING_SMASH	1212	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21227	RNSI_A_ELK_ROLLING_SMASH_UPGRADE	#Cffcc00[Enhanced]#CX Rolling Smash	6	1	7	2	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21402	RNSI_P_ELK_WIND_SLICER	Wind Slicer	8	4	7	3	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21401	RNSI_P_ESK_AUTO_GUARD	Auto Guard	8	4	8	3	n	n	no_state			n	n	SI_P_ESK_AUTO_GUARD	1402	n	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21009	RNSI_SA_ELK_SAND_STORM	Sandstorm	15	1	9	1	n	n	no_state			n	n	SI_SA_ELK_SAND_STORM	1008	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21045	RNSI_SA_ELK_SAND_STORM_UPGRADE	#Cffcc00[Enhanced]#CXSandstorm	15	1	9	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21010	RNSI_SA_ELK_WINDMILL	Windmill	15	1	9	4	n	n	no_state			n	n	SI_SA_ELK_WINDMILL	1007	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21046	RNSI_SA_ELK_WINDMILL_UPGRADE	#Cffcc00[Enhanced]#CX Windmill	15	1	9	4	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21206	RNSI_A_ELK_COUNTER	Counter Attack	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21228	RNSI_A_ELK_COUNTER_UPGRADE	#Cffcc00[Enhanced]#CX Counter Attack	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21011	RNSI_SA_ELK_SONIC_BLADE	Sonic Blade	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21047	RNSI_SA_ELK_SONIC_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Sonic Blade	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21403	RNSI_P_ELK_STRONG_BONE	Warrior Physique	8	4	12	3	n	n	no_state			n	n	SI_P_ELK_STRONG_BONE	1403	n	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21404	RNSI_P_ELK_REDUCE_PAIN	Counter Patience	8	4	12	4	n	n	no_state			n	n	SI_P_ELK_REDUCE_PAIN	1404	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21600	RNSI_HA_ELK_GIGANTIC_SLASH	Gigantic Slash	13	1	13	1	n	n	no_state			n	n	SI_HA_ELK_GIGANTIC_SLASH	1600	y	
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21603	RNSI_HA_ELK_GIGANTIC_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nGigantic Slash	13	1	13	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21037	RNSI_SA_ELK_SONIC_BLADE_CRESCENT	Sonic Blade: Crescent	14	1	14	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21415	RNSI_P_ELK_OPEN_MIND	Awakened Will: Lord Knight	8	1	14	3	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21222	RNSI_A_ELK_POWER_SMASH	Power Smash	6	1	15	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21038	RNSI_SA_ELK_IMPERIAL_CRUSHER	Imperial Crusher	15	1	16	1	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21416	RNSI_P_ELK_FIGHT_GOD	God of War	8	1	16	4	n	n	no_state			n	n				
+UC_ELSWORD_LORD_KNIGHT	100	X2GUElsword_SwordMan.cpp	21058	RNSI_SA_ELK_GRAND_CROSS	Grand Cross	16	1	17	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21207	RNSI_A_EMK_BIG_BURST	Explosive Fist	6	1	3	1	n	n	no_state			n	n	SI_A_EMK_BIG_BURST	1214	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21220	RNSI_A_EMK_BIG_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nExplosive Fist	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21012	RNSI_SA_EMK_RISING_SLASH	Rising Slash	15	1	3	2	n	n	no_state			n	n	SI_SA_EMK_RISING_SLASH	1009	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21032	RNSI_SA_EMK_RISING_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nRising Slash	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21405	RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET	Thinking Outside the Box	2	4	3	3	y	n	no_state	21405	RNSI_P_EMK_IF_PHYSICUP_MAGIC_GET	n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21013	RNSI_SA_EMK_WIND_BLADE	Wind Blade	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21035	RNSI_SA_EMK_WIND_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nWind Blade	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21208	RNSI_A_EMK_SWORD_WAVE	Sword Wave	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21229	RNSI_A_EMK_SWORD_WAVE_UPGRADE	#Cffcc00[Enhanced]#CX Sword Wave	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21209	RNSI_A_EMK_CRITICAL_SWORD	Critical Sword	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21230	RNSI_A_EMK_CRITICAL_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX Critical Sword	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21014	RNSI_SA_EMK_STORM_BLADE	Storm Blade	16	1	7	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21048	RNSI_SA_EMK_STORM_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Storm Blade	16	1	7	0	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21015	RNSI_SA_ERS_PHOENIX_TALON	Phoenix Talon	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21049	RNSI_SA_ERS_PHOENIX_TALON_UPGRADE	#Cffcc00[Enhanced]#CX Phoenix Talon	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21210	RNSI_A_ERS_RUNE_OF_FIRE	Fire Rune	6	1	7	2	n	n	no_state			n	n	SI_A_ERS_RUNE_OF_FIRE	1219	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21231	RNSI_A_ERS_RUNE_OF_FIRE_UPGRADE	#Cffcc00[Enhanced]#CX Fire Rune	6	1	7	2	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21407	RNSI_P_ERS_SWORD_ENCHANT	Sword Enchant	8	4	7	3	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21406	RNSI_P_EMK_SPELL_CHAIN	Magic Chain	8	4	8	3	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21016	RNSI_SA_ERS_SWORD_FIRE	Sword Fire	15	1	9	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21050	RNSI_SA_ERS_SWORD_FIRE_UPGRADE	#Cffcc00[Enhanced]#CX Sword Fire	15	1	9	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21017	RNSI_SA_ERS_LUNA_BLADE	Luna Blade	15	1	9	4	n	n	no_state			n	n	SI_SA_ERS_LUNA_BLADE	1014	y	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21051	RNSI_SA_ERS_LUNA_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX Luna Blade	15	1	9	4	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21211	RNSI_A_ERS_COUNTER	Magic Counter	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21232	RNSI_A_ERS_COUNTER_UPGRADE	#Cffcc00[Enhanced]#CX Magic Counter	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21018	RNSI_SA_ERS_SPLASH_EXPLOSION	Splash Explosive	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21052	RNSI_SA_ERS_SPLASH_EXPLOSION_UPGRADE	#Cffcc00[Enhanced]#CX Splash Explosion	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21408	RNSI_P_ERS_RUNE_MASTERY	Rune Mastery	8	4	12	3	y	n	no_state	21408	RNSI_P_ERS_RUNE_MASTERY	n	n	SI_P_ERS_RUNE_MASTERY	1410	n	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21409	RNSI_P_ERS_MAGIC_RESISTANCE	Magic Resistance Mastery	8	4	12	4	y	n	no_state	21409	RNSI_P_ERS_MAGIC_RESISTANCE	n	n	SI_P_ERS_MAGIC_RESISTANCE	1409	n	
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21601	RNSI_HA_ERS_SHININGRUNE_BUSTER	Shining Rune Buster	13	1	13	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21604	RNSI_HA_ERS_SHININGRUNE_BUSTER_UPGRADE	#Cffcc00[Enhanced]#CX\nShining Rune Buster	13	1	13	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21039	RNSI_SA_ERS_TRIPLE_SABER	Triple Saber	14	1	14	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21417	RNSI_P_ERS_OPEN_MIND	Awakened Will: Rune Slayer	8	1	14	3	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21223	RNSI_A_ERS_ENCHANT_BREAK	Enchant Breaker	6	1	15	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21040	RNSI_SA_ERS_OVERS_GEYSER	Overs Geyser	15	1	16	1	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21418	RNSI_P_ERS_MAGIC_COATING	Magic Coating	8	1	16	4	n	n	no_state			n	n				
+UC_ELSWORD_RUNE_SLAYER	101	X2GUElsword_SwordMan.cpp	21059	RNSI_SA_ERS_EXTREME_RUNE_BUSTER	Extreme Rune Buster	16	1	17	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21000	RNSI_SA_ES_MEGASLASH	Mega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21026	RNSI_SA_ES_MEGASLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nMega Slash	14	1	0	0	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21200	RNSI_A_ES_ROLLING	Roll	6	1	0	2	n	n	no_state			n	n	SI_A_ES_ROLLING	1205	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21217	RNSI_A_ES_ROLLING_UPGRADE	#Cffcc00[Enhanced]#CX\nRoll	6	1	0	2	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GUElsword_SwordMan.cpp:2800
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21001	RNSI_SA_ES_FLAME_GEYSER	Flame Geyser	15	1	1	1	n	n	no_state			n	n	SI_SA_ES_FLAME_GEYSER	1001	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21027	RNSI_SA_ES_FLAME_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Geyser	15	1	1	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21002	RNSI_SA_ES_UNLIMITED_BLADE	Unlimited Blade	16	1	2	1	n	n	no_state			n	n	SI_SA_ES_UNLIMITED_BLADE	1002	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21028	RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nUnlimited Blade	16	1	2	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21003	RNSI_SA_ES_ASSAULT_SLASH	Assault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21029	RNSI_SA_ES_ASSAULT_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Slash	14	1	3	0	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21212	RNSI_A_ETK_SWORD_SHIELD	Sword Shield	6	1	3	1	n	n	no_state			n	n	SI_A_ETK_SWORD_SHIELD	1222	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21221	RNSI_A_ETK_SWORD_SHIELD_UPGRADE	#Cffcc00[Enhanced]#CX\nSword Shield	6	1	3	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21019	RNSI_SA_ETK_SWORD_FALL	Sword Fall	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21033	RNSI_SA_ETK_SWORD_FALL_UPGRADE	#Cffcc00[Enhanced]#CX\nSword Fall	15	1	3	2	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21410	RNSI_P_ETK_BRUTAL_SLAYER	Cruel Slayer	8	4	3	3	n	n	no_state			n	n	SI_P_ETK_BRUTAL_SLAYER	1411	n	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21004	RNSI_SA_ES_TRIPLE_GEYSER	Triple Geyser	16	1	4	1	n	n	no_state			n	n	SI_SA_ES_TRIPLE_GEYSER	1003	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21030	RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE	#Cffcc00[Enhanced]#CX\nTriple Geyser	16	1	4	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21201	RNSI_A_ES_ENDURANCE	Iron Body	6	1	4	4	n	n	no_state			n	n	SI_A_ES_ENDURANCE	1203	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21218	RNSI_A_ES_ENDURANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nIron Body	6	1	4	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21020	RNSI_SA_ETK_CRESCENT_CUT	Crescent Cut	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21036	RNSI_SA_ETK_CRESCENT_CUT_UPGRADE	#Cffcc00[Enhanced]#CX\nCrescent Cut	14	1	5	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21213	RNSI_A_ETK_FATAL_SLAP	Fatal Slap	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21233	RNSI_A_ETK_FATAL_SLAP_UPGRADE	#Cffcc00[Enhanced]#CX Fatal Slap	6	1	6	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21214	RNSI_A_ETK_MIRAGE_STING	Mirage Sting	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21234	RNSI_A_ETK_MIRAGE_STING_UPGRADE	#Cffcc00[Enhanced]#CX Mirage Sting	6	1	6	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21021	RNSI_SA_ETK_FINAL_STRIKE	Final Strike	16	1	7	0	n	n	no_state			n	n	SI_SA_ETK_FINAL_STRIKE	1015	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21053	RNSI_SA_ETK_FINAL_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Final Strike	16	1	7	0	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21022	RNSI_SA_ETK_PHANTOM_SWORD	Phantom Sword	16	1	7	1	n	n	no_state			n	n	SI_SA_ETK_PHANTOM_SWORD	1016	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21054	RNSI_SA_ETK_PHANTOM_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Sword	16	1	7	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21215	RNSI_A_EIS_HARSH_CHASER	Harsh Chaser	6	1	7	2	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21235	RNSI_A_EIS_HARSH_CHASER_UPGRADE	#Cffcc00[Enhanced]#CX Harsh Chaser	6	1	7	2	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21412	RNSI_P_EIS_HARSH_SLAYER	Brutal Slayer	8	4	7	3	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21411	RNSI_P_ETK_SHORTTIME_STRONGATTACK	Sudden Strike	8	4	8	3	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21023	RNSI_SA_EIS_RAGE_CUTTER	Rage Cutter	15	1	9	1	n	n	no_state			n	n	SI_SA_EIS_RAGE_CUTTER	1019	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21055	RNSI_SA_EIS_RAGE_CUTTER_UPGRADE	#Cffcc00[Enhanced]#CX Rage Cutter	15	1	9	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21024	RNSI_SA_EIS_MAELSTROM_RAGE	Maelstrom Rage	15	1	9	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21056	RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE	#Cffcc00[Enhanced]#CX Maelstrom Rage	15	1	9	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21216	RNSI_A_EIS_COMPACT_COUNTER	Compact Counter	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21236	RNSI_A_EIS_COMPACT_COUNTER_UPGRADE	#Cffcc00[Enhanced]#CX Compact Counter	6	1	10	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21025	RNSI_SA_EIS_SWORD_BLASTING	Sword Blasting	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21057	RNSI_SA_EIS_SWORD_BLASTING_UPGRADE	#Cffcc00[Enhanced]#CX Sword Blasting	14	1	11	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21413	RNSI_P_EIS_CUTTING_SWORD	Sharp Sword	8	4	12	3	n	n	no_state			n	n	SI_P_EIS_CUTTING_SWORD	1416	n	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21414	RNSI_P_EIS_LIGHTNING_STEP	Lightning Surge	8	4	12	4	n	n	no_state			n	n	SI_P_EIS_LIGHTNING_STEP	1415	n	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21602	RNSI_HA_EIS_BLADE_RAIN	Blade Rain	13	1	13	1	n	n	no_state			n	n	SI_HA_EIS_BLADE_RAIN	1602	y	
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21605	RNSI_HA_EIS_BLADE_RAIN_UPGRADE	#Cffcc00[Enhanced]#CX\nBlade Rain	13	1	13	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21041	RNSI_SA_EIS_INFINITY_CHASER	Infinite Chaser	14	1	14	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21419	RNSI_P_EIS_OPEN_MIND	Awakened Will: Infinity Sword	8	1	14	3	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21224	RNSI_A_EIS_ANOTHER_SWORD	Infinite: Flurry	6	1	15	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21042	RNSI_SA_EIS_BLADE_CIRCLE	Blade Circle	15	1	16	1	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21420	RNSI_P_EIS_INFINITY_POTENTIAL	Master of Infinity	8	1	16	4	n	n	no_state			n	n				
+UC_ELSWORD_INFINITY_SWORD	112	X2GUElsword_SwordMan.cpp	21060	RNSI_SA_EIS_INFINITY_STRIKE	Infinite Strike	16	1	17	1	n	n	no_state			n	n				
+# totals	rows=261	no_state=254	has_state=7

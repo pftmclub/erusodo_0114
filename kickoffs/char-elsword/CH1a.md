@@ -48,6 +48,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 22** (`awk -F'\t' '$7=="CH1a"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 22).
+  June addresses: `32cf33a0` `32cf33d0` `32cf3470` `32cf3480` `32cf34b0` `32cf3ca0` `32cf3ce0` `32cf5930` `32cf5960` `32cf5a40` `32cfa360` `32d072a0` `32d073a0` `32d073e0` `32d0db30` `32d0dd90` `32d0df70` `32d0e210` `32d0e410` `32d0e6c0` `32d0e8e0` `32d119b0`.
+- **States: 17** (`awk -F'\t' '$8=="CH1a"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_START_INTRUDE`, `ESSI_WAIT_STATE_CHANGE`, `ESSI_WAIT`, `ESSI_WALK`, `ESSI_JUMP_READY`, `ESSI_JUMP_UP`, `ESSI_JUMP_DOWN`, `ESSI_JUMP_LANDING`, `ESSI_DASH`, `ESSI_DASH_END`, `ESSI_DASH_JUMP`, `ESSI_DASH_JUMP_LANDING`, `ESSI_DASH_JUMP_POWER_LANDING`, `ESSI_HYPER_MODE`, `ESSI_SI_ES_COMMON_BUFF`, `ESSI_THROW_ITEM`, `ESSI_LEAP`.
+- **Skills: 1** (part 2 of `ch0_state_skill.tsv`, col 6): 900 SI_ETC_WS_COMMON_LOVE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8).
+- `ESSI_LEAP` (id 287, ungated) is here by CH0's hand rule. Its StartFuture `32d119b0` calls `CX2Game::GetNearestNPCUnitUID` (June `322d2680` differs: a NULL gage counts as alive): call the March name; the replace row is allow-listed until CH1o ports June's body.

@@ -1,0 +1,64 @@
+fn	proposed_name	why
+32cf2e20	GetFinalDamageToBeChangedByActiveSkill	inside: X2GUElsword_SwordMan.h:323 GetFinalDamageToBeChangedByActiveSkill (vslot 0xbc; body multiplies by +0x96e4 m_fActiveSkillAddPowerRate)
+32cf4d00	?	MemoConditionElsword vtable 33522870 slot 0 (RTTI .?AVMemoConditionElsword@CX2GUElsword_SwordMan@@, March nested class); name by the memo-condition pattern (CH1h / CH4a decision)
+32cf50f0	GetWayOfSwordState	inside: X2GUElsword_SwordMan.h:416 GetWayOfSwordState (Way of the Sword, ch0_wos.tsv)
+32cf5100	SetWayOfSwordState	inside: X2GUElsword_SwordMan.h:417 SetWayOfSwordState (Way of the Sword, ch0_wos.tsv)
+32cf5130	GetWayOfSwordPoint	inside: X2GUElsword_SwordMan.h:419 GetWayOfSwordPoint (Way of the Sword, ch0_wos.tsv)
+32cf5140	SetWayOfSwordPoint	inside: X2GUElsword_SwordMan.h:420 SetWayOfSwordPoint (Way of the Sword, ch0_wos.tsv)
+32cf55a0	AppendMajorParticleToDeviceList	inside: X2GUElsword_SwordMan.h:344 AppendMajorParticleToDeviceList (ch0_unmapped_identified CH1o triage)
+32cf5660	InitializeElswordMinorParticleArray	inside: X2GUElsword_SwordMan.h:367 InitializeElswordMinorParticleArray (ch0_unmapped_identified CH1o triage)
+32cf56a0	AppendMinorParticleToDeviceList	inside: X2GUElsword_SwordMan.h:370 AppendMinorParticleToDeviceList (ch0_unmapped_identified CH1o triage)
+32d00fe0	?	virtual 0x840 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32d058a0	StoreGageSnapshot	user vslot 0x740 (Chung X2GUChung.h:693 name): saves GetWayOfSwordPoint at +0x92b8
+32d058d0	RestoreGageSnapshot	user vslot 0x744 (Chung X2GUChung.h:694 name): SetWayOfSwordPoint from +0x92b8, then base 3204da60
+32d05960	IsInJobLine	user vslot 0x670 (Chung X2GUChung.h:660 name): line 1 = classes 10/100, 2 = 11/101, 3 = 22/112
+32d059b0	?	called by 32d1b9d0(helper)
+32d05a00	?	called by 32d0baf0(helper)
+32d05a50	?	called by 32d0bc60(helper)
+32d05af0	?	called by 32d26a40(helper)
+32d05b60	?	virtual 0x508 (base 33093ad0); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32d05b70	?	virtual 0x50c (base 33093ad0); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32d07810	PlayAnimationSwordWaitStart	inside: X2GUElsword_SwordMan.h:1582 PlayAnimationSwordWaitStart (Way of the Sword, ch0_wos.tsv)
+32d08ba0	LightingStepFrameMove	inside: X2GUElsword_SwordMan.h:688 LightingStepFrameMove (ch0_unmapped_identified CH1o triage)
+32d08d20	?	called by 32d1bd10(SpecialAttackEventProcess pa)
+32d08d70	AfterImageFrameMove	user vslot 0x850 (X2GUUser.h:3421): toggles the two after-images by now state 13 or 0xce
+32d09050	?	called by 32d09270(ShowActiveSkillCutInAndLight) 32d09290(ESSI_SA_EMK_PHOENIX_TALON.Fr) 32d10610(dead) 32d10a00(dead)
+32d09490	CX2GUElsword_SwordMan	inside: X2GUElsword_SwordMan.h constructor (vtable store 32d094e4, body 32d09490-32d0b4c5); caller 3230f189 is outside the class
+32d0b650	?	called by 32d1b2b0(CommonFrameMove)
+32d0ba00	?	called by 32d1b2b0(CommonFrameMove)
+32d0baf0	?	called by 32d27160(helper)
+32d0bc60	?	called by 32d27170(helper)
+32d0bdc0	?	called by 32d1b2b0(CommonFrameMove)
+32d0beb0	?	called by 32d1b2b0(CommonFrameMove)
+32d0bfa0	?	called by 32d1b2b0(CommonFrameMove)
+32d0c090	?	called by 32d1b2b0(CommonFrameMove)
+32d0c180	?	called by 32d27180(helper)
+32d0c4e0	?	called by 32d272b0(helper)
+32d0c780	?	virtual 0x510 (base 31fc7ab0); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32d0c960	Start_SwordmanVigor	inside: X2GUElsword_SwordMan.h:423 Start_SwordmanVigor (Way of the Sword, ch0_wos.tsv)
+32d0cd60	End_SwordmanVigor	inside: X2GUElsword_SwordMan.h:424 End_SwordmanVigor (Way of the Sword, ch0_wos.tsv)
+32d0cf70	Start_SwordmanDestruction	inside: X2GUElsword_SwordMan.h:425 Start_SwordmanDestruction (Way of the Sword, ch0_wos.tsv)
+32d0d240	End_SwordmanDestruction	inside: X2GUElsword_SwordMan.h:426 End_SwordmanDestruction (Way of the Sword, ch0_wos.tsv)
+32d0d600	?	called by 32d17e90(DeleteMinorParticle) 32d1a5d0(helper)
+32d0d7a0	?	called by 32d1ac60(DamageReact)
+32d0eeb0	WayOfSwordStateChange	inside: X2GUElsword_SwordMan.h:1584 WayOfSwordStateChange (Way of the Sword, ch0_wos.tsv)
+32d0f300	DoStateDestructionRage	inside: X2GUElsword_SwordMan.h:1587 DoStateDestructionRage (Way of the Sword, ch0_wos.tsv)
+32d16c00	?	called by 32d1b740(ESSI_SI_SA_ETK_CRESCENT_CUT.)
+32d18cd0	GetFinalDamage_WayOfSword	inside: X2GUElsword_SwordMan.h:437 GetFinalDamage_WayOfSword (Way of the Sword, ch0_wos.tsv)
+32d18d80	?	called by 32d1b720(HyperModeFrameMove) 32d1b910(ESSI_RIDING_HYPER_MODE.Frame)
+32d19dd0	?	called by 32d1b930(ESSI_SA_ELK_GRAND_CROSS_END.) 32d1b980(ESSI_SA_ELK_GRAND_CROSS_FULL)
+32d1a370	?	called by 32d27470(helper)
+32d1a5d0	~CX2GUElsword_SwordMan	inside: X2GUElsword_SwordMan.h:278 destructor body (ctor store 32d094e4 / dtor store 32d1a5fd; the scalar deleting dtor 32d27620 calls it, then the delete helper 32fe2300)
+32d1b810	CreateGageData	inside: X2GUElsword_SwordMan.h:1645 CreateGageData (Way of the Sword, ch0_wos.tsv)
+32d1b9d0	?	called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 32d27641
+32d1dbd0	?	called by 32d1ddf0(NoStateChangeActionFrameMove)
+32d26a40	?	called by 32d1c560(InitPassiveSkillState)
+32d26ff0	?	called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 33340877 33341048
+32d270a0	?	-; vector<KObserverPtr> clear on the +0x97c4 hit list; caller 32d1db98 inside InitPassiveSkillState
+32d27130	GetSpecialItemUsableExtraStateID	user vslot 0x4ac (X2GUUser.h:3347): returns 0xce = ESSI_SWORD_WAIT
+32d27160	?	called by 32d1c560(InitPassiveSkillState)
+32d27170	?	called by 32d1c560(InitPassiveSkillState)
+32d27180	?	called by 32d1c560(InitPassiveSkillState)
+32d27190	?	called by 32d0c4e0(helper)
+32d272b0	?	called by 32d1c560(InitPassiveSkillState)
+32d27470	?	called by 32d1c560(InitPassiveSkillState)

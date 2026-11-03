@@ -1,0 +1,1008 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32cf2da0	override 0x4d0	DamageReactStateChange	X2GUElsword_SwordMan.h:318 virtual void DamageReactStateChange( CX2DamageManager::DamageData* pDamageData, int iRevengeAttack = -1, int iAvoidance = -1 );	inside	-	CH1h	base 31feabd0	y
+32cf2e20	override 0xbc	?	- (name unsettled)	inside	-	CH1h	base 3208dc20; inside: X2GUElsword_SwordMan.h:323 GetFinalDamageToBeChangedByActiveSkill (vslot 0xbc; body multiplies by +0x96e4 m_fActiveSkillAddPowerRate)	n
+32cf2e40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes b80d000000c78100	n
+32cf2e70	not-Elsword	called only from outside the range: 31fedfdc	-	-	-	n/a	shared / folded code	y
+32cf2e80	override 0x7c0	CommonStateStartFuture	X2GUElsword_SwordMan.h:464 virtual void CommonStateStartFuture();	inside	-	CH1j	base 320506f0	n
+32cf2e90	override 0x7c4	CommonStateStart	X2GUElsword_SwordMan.h:465 virtual void CommonStateStart();	inside	-	CH1j	base 32057b80	y
+32cf3210	override 0x7d8	CommonStateEndFuture	X2GUElsword_SwordMan.h:468 virtual void CommonStateEndFuture();	inside	-	CH1j	base 31fdd8e0	n
+32cf3220	override 0x7dc	CommonStateEnd	X2GUElsword_SwordMan.h:469 virtual void CommonStateEnd();	inside	-	CH1j	base 32015250	n
+32cf3230	override 0x7e8	CommonRender_Prepare	X2GUElsword_SwordMan.h:472 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1j	base 31fd07b0	y
+32cf3290	override 0x7f4	SpecialAttackEventProcess	X2GUElsword_SwordMan.h:475 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );	inside	-	CH1k	base 31aa1d30	n
+32cf3360	state-fn	ESSI_DIE_FRONT.FrameMove ESSI_RIDING_DIE.FrameMove	inside X2GUElsword_SwordMan.cpp:1335 CX2GUElsword_SwordMan::DieFrontFrameMove ; inside X2GUElsword_SwordMan.cpp:2109 CX2GUElsword_SwordMan::DieFrontFrameMove	inside	-	CH1b	2 states	n
+32cf3380	state-fn	ESSI_DIE_BACK.FrameMove	inside X2GUElsword_SwordMan.cpp:1344 CX2GUElsword_SwordMan::DieBackFrameMove	inside	-	CH1b	1 states	n
+32cf33a0	state-fn	ESSI_WAIT.StartFuture	inside X2GUElsword_SwordMan.cpp:1361 CX2GUElsword_SwordMan::WaitStartFuture	inside	-	CH1a	1 states	y
+32cf33d0	state-fn	ESSI_JUMP_UP.EventProcess	inside X2GUElsword_SwordMan.cpp:1386 CX2GUElsword_SwordMan::JumpUpEventProcess	inside	-	CH1a	1 states	y
+32cf3470	state-fn	ESSI_DASH_END.Start	inside X2GUElsword_SwordMan.cpp:1416 CX2GUElsword_SwordMan::DashEndStart	inside	-	CH1a	1 states	n
+32cf3480	state-fn	ESSI_DASH_JUMP_POWER_LANDING.StartFuture	inside X2GUElsword_SwordMan.cpp:1442 CX2GUElsword_SwordMan::DashJumpPowerLandingStartFuture	inside	-	CH1a	1 states	y
+32cf34b0	state-fn	ESSI_DASH_JUMP_POWER_LANDING.Start	inside X2GUElsword_SwordMan.cpp:1443 CX2GUElsword_SwordMan::DashJumpPowerLandingStart	inside	-	CH1a	1 states	y
+32cf34d0	state-fn	ESSI_STANDUP_ROLLING_FRONT_FRONT.End	inside X2GUElsword_SwordMan.cpp:1582 CX2GUElsword_SwordMan::StandUpRollingFrontFrontEnd	inside	-	CH1b	1 states	y
+32cf3510	state-fn	ESSI_STANDUP_ROLLING_FRONT_BACK.End	inside X2GUElsword_SwordMan.cpp:1589 CX2GUElsword_SwordMan::StandUpRollingFrontBackEnd	inside	-	CH1b	1 states	y
+32cf3550	state-fn	ESSI_STANDUP_ROLLING_BACK_FRONT.End	inside X2GUElsword_SwordMan.cpp:1596 CX2GUElsword_SwordMan::StandUpRollingBackFrontEnd	inside	-	CH1b	1 states	y
+32cf3590	state-fn	ESSI_STANDUP_ROLLING_BACK_BACK.End	inside X2GUElsword_SwordMan.cpp:1603 CX2GUElsword_SwordMan::StandUpRollingBackBackEnd	inside	-	CH1b	1 states	y
+32cf35d0	state-fn	ESSI_STANDUP_ATTACK_FRONT.End	inside X2GUElsword_SwordMan.cpp:1610 CX2GUElsword_SwordMan::StandUpAttackFrontEnd	inside	-	CH1b	1 states	y
+32cf3610	state-fn	ESSI_STANDUP_ATTACK_BACK.End	inside X2GUElsword_SwordMan.cpp:1617 CX2GUElsword_SwordMan::StandUpAttackBackEnd	inside	-	CH1b	1 states	y
+32cf3650	state-fn	ESSI_REVENGE_WAIT.Start	inside X2GUElsword_SwordMan.cpp:3485 CX2GUElsword_SwordMan::RevengeWaitStart	inside	-	CH3a	1 states	y
+32cf3670	state-fn	ESSI_REVENGE_WAIT.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:3486 CX2GUElsword_SwordMan::RevengeWaitFrameMoveFuture	inside	-	CH3a	1 states	n
+32cf3690	state-fn	ESSI_REVENGE_ATTACK.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1673 CX2GUElsword_SwordMan::RevengeAttackFrameMoveFuture	inside	-	CH1b	1 states	n
+32cf36a0	state-fn	ESSI_REVENGE_ATTACK.FrameMove	inside X2GUElsword_SwordMan.cpp:1674 CX2GUElsword_SwordMan::RevengeAttackFrameMove	inside	-	CH1b	1 states	n
+32cf36b0	state-fn	ESSI_DESTRUCTION_RAGE.Start	inside X2GUElsword_SwordMan.cpp:1858 CX2GUElsword_SwordMan::DestructionRageStateStart	inside	-	CH1q	1 states	n
+32cf36c0	state-fn	ESSI_DESTRUCTION_RAGE.FrameMove	inside X2GUElsword_SwordMan.cpp:1859 CX2GUElsword_SwordMan::DestructionRageStateFrameMove	inside	-	CH1q	1 states	n
+32cf36d0	state-fn	ESSI_COMBO_Z1.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1694 CX2GUElsword_SwordMan::ComboZ1FrameMoveFuture	inside	-	CH1d	1 states	n
+32cf36f0	state-fn	ESSI_COMBO_Z1.FrameMove	inside X2GUElsword_SwordMan.cpp:1695 CX2GUElsword_SwordMan::ComboZ1FrameMove	inside	-	CH1d	1 states	n
+32cf3700	state-fn	ESSI_COMBO_Z2.FrameMove	inside X2GUElsword_SwordMan.cpp:1702 CX2GUElsword_SwordMan::ComboZ2FrameMove	inside	-	CH1d	1 states	n
+32cf3710	state-fn	ESSI_COMBO_Z3.FrameMove	inside X2GUElsword_SwordMan.cpp:1709 CX2GUElsword_SwordMan::ComboZ3FrameMove	inside	-	CH1d	1 states	n
+32cf3720	state-fn	ESSI_COMBO_Z4.FrameMove	inside X2GUElsword_SwordMan.cpp:1717 CX2GUElsword_SwordMan::ComboZ4FrameMove	inside	-	CH1d	1 states	n
+32cf3730	state-fn	ESSI_COMBO_Z4a.FrameMove	inside X2GUElsword_SwordMan.cpp:1724 CX2GUElsword_SwordMan::ComboZ4aFrameMove	inside	-	CH1d	1 states	n
+32cf3740	state-fn	ESSI_COMBO_X1.FrameMove	inside X2GUElsword_SwordMan.cpp:1732 CX2GUElsword_SwordMan::ComboX1FrameMove	inside	-	CH1d	1 states	n
+32cf3750	state-fn	ESSI_COMBO_X2.FrameMove	inside X2GUElsword_SwordMan.cpp:1740 CX2GUElsword_SwordMan::ComboX2FrameMove	inside	-	CH1d	1 states	n
+32cf3760	state-fn	ESSI_COMBO_X3.FrameMove	inside X2GUElsword_SwordMan.cpp:1748 CX2GUElsword_SwordMan::ComboX3FrameMove	inside	-	CH1d	1 states	n
+32cf3770	state-fn	ESSI_DASH_COMBO_Z2.FrameMove	inside X2GUElsword_SwordMan.cpp:1048 CX2GUElsword_SwordMan::DashComboZ2FrameMove	inside	-	CH1d2	1 states	n
+32cf3780	state-fn	ESSI_KNIGHT_DASH_COMBO_Z3.StartFuture	inside X2GUElsword_SwordMan.cpp:1066 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture	inside	-	CH1d2	1 states	n
+32cf3790	state-fn	ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a.EndFuture	inside X2GUElsword_SwordMan.cpp:1101 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_StateEndFuture	inside	-	CH1f	1 states	y
+32cf37d0	state-fn	ESSI_JUMP_ATTACK_Z.FrameMove	inside X2GUElsword_SwordMan.cpp:1780 CX2GUElsword_SwordMan::JumpAttackZFrameMove	inside	-	CH1d	1 states	n
+32cf37e0	state-fn	ESSI_JUMP_ATTACK_X.FrameMove	inside X2GUElsword_SwordMan.cpp:1788 CX2GUElsword_SwordMan::JumpAttackXFrameMove	inside	-	CH1d	1 states	n
+32cf37f0	state-fn	ESSI_DASH_JUMP_COMBO_Z1.FrameMove	inside X2GUElsword_SwordMan.cpp:1795 CX2GUElsword_SwordMan::DashJumpComboZ1FrameMove	inside	-	CH1d2	1 states	n
+32cf3800	state-fn	ESSI_DASH_JUMP_COMBO_Z2.FrameMove	inside X2GUElsword_SwordMan.cpp:1803 CX2GUElsword_SwordMan::DashJumpComboZ2FrameMove	inside	-	CH1d2	1 states	n
+32cf3810	state-fn	ESSI_DASH_JUMP_COMBO_Z3_LANDING.StartFuture	inside X2GUElsword_SwordMan.cpp:1817 CX2GUElsword_SwordMan::DashJumpComboZ3LandingStartFuture	inside	-	CH1d2	1 states	y
+32cf3840	state-fn	ESSI_DASH_JUMP_COMBO_Z3_LANDING.Start	inside X2GUElsword_SwordMan.cpp:1818 CX2GUElsword_SwordMan::DashJumpComboZ3LandingStart	inside	-	CH1d2	1 states	y
+32cf3860	state-fn	ESSI_DASH_JUMP_COMBO_X1.FrameMove	inside X2GUElsword_SwordMan.cpp:1827 CX2GUElsword_SwordMan::DashJumpComboX1FrameMove	inside	-	CH1d2	1 states	n
+32cf3870	state-fn	ESSI_DASH_JUMP_COMBO_X2.End ESSI_EIS_DASHJUMP_COMBO_XX.End	inside X2GUElsword_SwordMan.cpp:1139 CX2GUElsword_SwordMan::DashJumpComboX2End ; inside X2GUElsword_SwordMan.cpp:1199 CX2GUElsword_SwordMan::DashJumpComboX2End	inside	-	CH1d2	2 states	y
+32cf38a0	state-fn	ESSI_DASH_JUMP_COMBO_X2_LANDING.StartFuture	inside X2GUElsword_SwordMan.cpp:1839 CX2GUElsword_SwordMan::DashJumpComboX2LandingStartFuture	inside	-	CH1d2	1 states	y
+32cf38d0	state-fn	ESSI_DASH_JUMP_COMBO_X2_LANDING.Start	inside X2GUElsword_SwordMan.cpp:1840 CX2GUElsword_SwordMan::DashJumpComboX2LandingStart	inside	-	CH1d2	1 states	y
+32cf38f0	state-fn	ESSI_KNIGHT_DASH_JUMP_COMBO_X2.End	inside X2GUElsword_SwordMan.cpp:1155 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_End	inside	-	CH1e	1 states	y
+32cf3920	state-fn	ESSI_SI_A_MEGASLASH_MEMO_READY.Init ESSI_SI_A_MEGASLASH_MEMO_CHARGE.Init	-	new	ESSI_SI_A_MEGASLASH_MEMO_READY_Init	CH2a	2 states	n
+32cf3950	state-fn	ESSI_SI_A_MEGASLASH_MEMO_READY.Start ESSI_SI_A_MEGASLASH_MEMO_CHARGE.Start	-	new	ESSI_SI_A_MEGASLASH_MEMO_READY_StateStart	CH2a	2 states	y
+32cf3970	state-fn	ESSI_SI_A_MEGASLASH_MEMO_READY.StartFuture ESSI_SI_A_MEGASLASH_MEMO_CHARGE.StartFuture	-	new	ESSI_SI_A_MEGASLASH_MEMO_READY_StateStartFuture	CH2a	2 states	y
+32cf39a0	state-fn	ESSI_SI_A_MEGASLASH_MEMO_CHARGE.Start	-	new	ESSI_SI_A_MEGASLASH_MEMO_CHARGE_StateStart	CH2a	1 states	n
+32cf39b0	state-fn	ESSI_SI_A_MEGASLASH_MEMO_CHARGE.EventProcess	-	new	ESSI_SI_A_MEGASLASH_MEMO_CHARGE_EventProcess	CH2a	1 states	y
+32cf3a10	state-fn	ESSI_SI2_ES_FLAME_GEYSER.Init	inside X2GUElsword_SwordMan.cpp:3283 CX2GUElsword_SwordMan::ESSI_SI2_ES_FLAME_GEYSER_Init	inside	-	CH2a	1 states	n
+32cf3a40	state-fn	ESSI_SI3_ES_UNLIMITED_BLADE.Init ESSI_SI3_ES_UNLIMITED_BLADE_HYPER.Init	inside X2GUElsword_SwordMan.cpp:3361 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_Init ; inside X2GUElsword_SwordMan.cpp:3370 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_HYPER_Init	inside	-	CH2a	2 states	n
+32cf3a70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32cf3aa0	state-fn	ESSI_SI1_ES_ASSAULT_SLASH.Init	inside X2GUElsword_SwordMan.cpp:3250 CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Init	inside	-	CH2a	1 states	n
+32cf3ad0	state-fn	ESSI_SI1_ES_ASSAULT_SLASH.Start	inside X2GUElsword_SwordMan.cpp:3251 CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Start	inside	-	CH2a	1 states	y
+32cf3b00	state-fn	ESSI_SI2_ES_SPIRAL_BLAST.Init	-	new	ESSI_SI2_ES_SPIRAL_BLAST_Init	CH2b	1 states	n
+32cf3b20	state-fn	ESSI_SI3_ES_TRIPLE_GEYSER.Init	inside X2GUElsword_SwordMan.cpp:3382 CX2GUElsword_SwordMan::ESSI_SI3_ES_TRIPLE_GEYSER_Init	inside	-	CH2a	1 states	n
+32cf3b70	state-fn	ESSI_SI3_ES_ARMAGEDDON_BLADE.Init	inside X2GUElsword_SwordMan.cpp:3401 CX2GUElsword_SwordMan::ESSI_SI3_ES_ARMAGEDDON_BLADE_Init	inside	-	CH3a	1 states	n
+32cf3b90	state-fn	ESSI_SI1_ES_WIND_BLADE.Init	inside X2GUElsword_SwordMan.cpp:3269 CX2GUElsword_SwordMan::ESSI_SI1_ES_WIND_BLADE_Init	inside	-	CH2c	1 states	n
+32cf3bd0	state-fn	ESSI_SI1_ES_WIND_BLADE.StartFuture	-	new	ESSI_SI1_ES_WIND_BLADE_StateStartFuture	CH2c	1 states	y
+32cf3c00	state-fn	ESSI_SI2_ES_RISING_SLASH.Init	inside X2GUElsword_SwordMan.cpp:3348 CX2GUElsword_SwordMan::ESSI_SI2_ES_RISING_SLASH_Init	inside	-	CH2c	1 states	y
+32cf3c70	state-fn	ESSI_SI3_ES_STORM_BLADE.Init	inside X2GUElsword_SwordMan.cpp:3414 CX2GUElsword_SwordMan::ESSI_SI3_ES_STORM_BLADE_Init	inside	-	CH2c	1 states	n
+32cf3ca0	state-fn	ESSI_LEAP.EventProcess	inside X2GUElsword_SwordMan.cpp:2311 CX2GUElsword_SwordMan::ESSI_LEAP_EventProcess	inside	-	CH1a	1 states	y
+32cf3ce0	state-fn	ESSI_LEAP.End	inside X2GUElsword_SwordMan.cpp:2312 CX2GUElsword_SwordMan::ESSI_LEAP_End	inside	-	CH1a	1 states	n
+32cf3cf0	state-fn	ESSI_STANDUP_ATTACK_FRONT_NO_DOWN.End	inside X2GUElsword_SwordMan.cpp:1626 CX2GUElsword_SwordMan::StandUpAttackFrontNoDownEnd	inside	-	CH1b	1 states	y
+32cf3d30	state-fn	ESSI_STANDUP_ATTACK_BACK_NO_DOWN.End	inside X2GUElsword_SwordMan.cpp:1633 CX2GUElsword_SwordMan::StandUpAttackBackNoDownEnd	inside	-	CH1b	1 states	y
+32cf3d70	state-fn	ESSI_SA_ESK_WINDMILL_START.Init ESSI_SA_ESK_WINDMILL.Init	inside X2GUElsword_SwordMan.cpp:3530 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_START_Init	inside	-	CH3a	2 states	n
+32cf3da0	state-fn	ESSI_SA_ESK_WINDMILL_START.StartFuture ESSI_SA_ESK_WINDMILL.StartFuture	-	new	ESSI_SA_ESK_WINDMILL_START_StateStartFuture	CH3a	2 states	y
+32cf3dd0	state-fn	ESSI_SA_ESK_WINDMILL_START.End ESSI_SA_ESK_WINDMILL.End	inside X2GUElsword_SwordMan.cpp:3534 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_START_StateEnd ; inside X2GUElsword_SwordMan.cpp:3554 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_StateEnd	inside	-	CH3a	2 states	y
+32cf3e20	state-fn	ESSI_SA_ESK_WINDMILL.FrameMoveFuture ESSI_SA_ESK_WINDMILL_END.FrameMoveFuture	-	new	ESSI_SA_ESK_WINDMILL_FrameMoveFuture	CH3a	2 states	n
+32cf3e90	state-fn	ESSI_SA_ESK_WINDMILL_END.FrameMove	inside X2GUElsword_SwordMan.cpp:3569 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_END_FrameMove	inside	-	CH3a	1 states	n
+32cf3ea0	state-fn	ESSI_SA_EMK_SWORD_FIRE.Init	inside X2GUElsword_SwordMan.cpp:3588 CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_Init	inside	-	CH3b	1 states	n
+32cf3ec0	state-fn	ESSI_SA_EMK_SWORD_FIRE.EndFuture	inside X2GUElsword_SwordMan.cpp:3593 CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_EndFuture	inside	-	CH3b	1 states	n
+32cf3ee0	state-fn	ESSI_SA_EMK_SWORD_FIRE_LANDING.End	inside X2GUElsword_SwordMan.cpp:3612 CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_LANDING_End	inside	-	CH3b	1 states	n
+32cf3f10	state-fn	ESSI_A_ESK_ARMOR_BREAK.Init	inside X2GUElsword_SwordMan.cpp:3631 CX2GUElsword_SwordMan::ESSI_A_ESK_ARMOR_BREAK_Init	inside	-	CH2b	1 states	n
+32cf3f30	state-fn	ESSI_SA_EMK_BIG_BURST.Init	inside X2GUElsword_SwordMan.cpp:3650 CX2GUElsword_SwordMan::ESSI_SA_EMK_BIG_BURST_Init	inside	-	CH2c	1 states	n
+32cf3f70	state-fn	ESSI_ELK_ZZZfrontZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1233 CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_FrameMove	inside	-	CH1e	1 states	n
+32cf3f80	state-fn	ESSI_ELK_XXX.FrameMove	inside X2GUElsword_SwordMan.cpp:1241 CX2GUElsword_SwordMan::ESSI_ELK_XXX_FrameMove	inside	-	CH1e	1 states	n
+32cf3f90	state-fn	ESSI_ELK_XXXX.FrameMove	inside X2GUElsword_SwordMan.cpp:1249 CX2GUElsword_SwordMan::ESSI_ELK_XXXX_FrameMove	inside	-	CH1e	1 states	n
+32cf3fa0	state-fn	ESSI_ERS_XZ.StartFuture	inside X2GUElsword_SwordMan.cpp:1261 CX2GUElsword_SwordMan::ESSI_ERS_XZ_StateStartFuture	inside	-	CH1f	1 states	y
+32cf3fc0	state-fn	ESSI_ERS_DASH_JUMP_XZ.StartFuture	inside X2GUElsword_SwordMan.cpp:1280 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateStartFuture	inside	-	CH1f	1 states	y
+32cf3ff0	state-fn	ESSI_ERS_DASH_JUMP_XZ.EndFuture	inside X2GUElsword_SwordMan.cpp:1281 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateEndFuture	inside	-	CH1f	1 states	n
+32cf4010	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32cf4050	state-fn	ESSI_SA_EMK_PHOENIX_TALON.Init ESSI_SA_EMK_PHOENIX_TALON_UPGRADE.Init	inside X2GUElsword_SwordMan.cpp:3674 CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_Init	inside	-	CH3b	2 states	n
+32cf4080	state-fn	ESSI_SA_EMK_PHOENIX_TALON.Start ESSI_SA_EMK_PHOENIX_TALON_UPGRADE.Start	inside X2GUElsword_SwordMan.cpp:3675 CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_StateStart	inside	-	CH3b	2 states	n
+32cf4090	state-fn	ESSI_ETK_COMBO_ZZZ.End	inside X2GUElsword_SwordMan.cpp:966 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_StateEnd	inside	-	CH1g	1 states	n
+32cf40b0	state-fn	ESSI_ETK_COMBO_ZZZZ.End	inside X2GUElsword_SwordMan.cpp:974 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_StateEnd	inside	-	CH1g	1 states	n
+32cf40d0	state-fn	ESSI_ETK_COMBO_ZZZZZ.Start	inside X2GUElsword_SwordMan.cpp:980 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_StateStart	inside	-	CH1g	1 states	n
+32cf40e0	state-fn	ESSI_ETK_COMBO_ZZZZZ.End	inside X2GUElsword_SwordMan.cpp:983 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_StateEnd	inside	-	CH1g	1 states	n
+32cf4100	state-fn	ESSI_ETK_COMBO_XX.End	inside X2GUElsword_SwordMan.cpp:1003 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_StateEnd	inside	-	CH1g	1 states	n
+32cf4120	state-fn	ESSI_ETK_COMBO_XXX_LOOP.End	inside X2GUElsword_SwordMan.cpp:1012 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_StateEnd	inside	-	CH1g	1 states	n
+32cf4150	state-fn	ESSI_ETK_COMBO_XXXZ.End	inside X2GUElsword_SwordMan.cpp:1020 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_StateEnd	inside	-	CH1g	1 states	n
+32cf4170	state-fn	ESSI_ETK_COMBO_XXX_END.Start	inside X2GUElsword_SwordMan.cpp:1026 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_StateStart	inside	-	CH1g	1 states	y
+32cf4190	state-fn	ESSI_ETK_COMBO_XXX_END.End	inside X2GUElsword_SwordMan.cpp:1029 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_StateEnd	inside	-	CH1g	1 states	n
+32cf41b0	state-fn	ESSI_ETK_DASH_COMBO_ZZ.End	inside X2GUElsword_SwordMan.cpp:1116 CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_StateEnd	inside	-	CH1g	1 states	n
+32cf41d0	state-fn	ESSI_SI_A_ES_ROLLING.StartFuture	inside X2GUElsword_SwordMan.cpp:3906 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_StateStartFuture	inside	-	CH2a	1 states	y
+32cf4200	state-fn	ESSI_SI_A_ES_ROLLING.FrameMove	inside X2GUElsword_SwordMan.cpp:3907 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_FrameMove	inside	-	CH2a	1 states	n
+32cf4210	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.StartFuture	inside X2GUElsword_SwordMan.cpp:3467 CX2GUElsword_SwordMan::CompactCounterAttackStartFuture	inside	-	CH3c	1 states	y
+32cf4230	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:3468 CX2GUElsword_SwordMan::CompactCounterAttackFrameMoveFuture	inside	-	CH3c	1 states	n
+32cf4240	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.End	inside X2GUElsword_SwordMan.cpp:3471 CX2GUElsword_SwordMan::CompactCounterAttackStateEnd	inside	-	CH3c	1 states	n
+32cf4260	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.StartFuture	inside X2GUElsword_SwordMan.cpp:1659 CX2GUElsword_SwordMan::CompactCounterGuardAttackStartFuture	inside	-	CH1g2	1 states	y
+32cf4280	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.End	inside X2GUElsword_SwordMan.cpp:1664 CX2GUElsword_SwordMan::CompactCounterGuardAttackStateEnd	inside	-	CH1g2	1 states	n
+32cf42a0	state-fn	ESSI_SI_SA_ETK_MAELSTORM_RAGE.Init	inside X2GUElsword_SwordMan.cpp:3957 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_Init	inside	-	CH3c	1 states	n
+32cf42f0	state-fn	ESSI_SI_SA_ETK_MAELSTORM_RAGE.EndFuture	inside X2GUElsword_SwordMan.cpp:3962 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_EndFuture	inside	-	CH3c	1 states	n
+32cf4310	state-fn	ESSI_SI_SA_ETK_FINAL_STRIKE.Init ESSI_SI_SA_ETK_FINAL_STRIKE_UPGRADE.Init	inside X2GUElsword_SwordMan.cpp:3976 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_FINAL_STRIKE_Init	inside	-	CH2d	2 states	n
+32cf4370	state-fn	ESSI_SI_SA_ETK_SWORD_FALL.Init	inside X2GUElsword_SwordMan.cpp:3992 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_SWORD_FALL_Init	inside	-	CH2d	1 states	n
+32cf4400	state-fn	ESSI_SI_SA_ETK_CRESCENT_CUT.Init	inside X2GUElsword_SwordMan.cpp:4009 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_CRESCENT_CUT_Init	inside	-	CH2d	1 states	n
+32cf4450	state-fn	ESSI_SI_SA_ETK_PHANTOM_SWORD.Init	inside X2GUElsword_SwordMan.cpp:4025 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_PHANTOM_SWORD_Init	inside	-	CH3c	1 states	n
+32cf4470	state-fn	ESSI_EIS_DASH_COMBO_ZX.End	-	new	ESSI_EIS_DASH_COMBO_ZX_StateEnd	CH1g2	1 states	n
+32cf4490	state-fn	ESSI_EIS_DASHJUMP_COMBO_XXX.End	inside X2GUElsword_SwordMan.cpp:1207 CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_End	inside	-	CH1g2	1 states	n
+32cf44b0	state-fn	ESSI_SI_SA_EIS_SWORD_BLASTING.End ESSI_SI_SA_EIS_SWORD_BLASTING_UPGRADE.End	-	new	ESSI_SI_SA_EIS_SWORD_BLASTING_StateEnd	CH3c	2 states	n
+32cf44d0	state-fn	ESSI_SA_ERS_LUNA_BLADE.Init	inside X2GUElsword_SwordMan.cpp:3889 CX2GUElsword_SwordMan::ESSI_SA_ERS_LUNA_BLADE_Init	inside	-	CH3b	1 states	n
+32cf4530	state-fn	ESSI_A_ELK_IMPACT_SMASH.Init	inside X2GUElsword_SwordMan.cpp:2987 CX2GUElsword_SwordMan::ESSI_A_ELK_IMPACT_SMASH_Init	inside	-	CH2b	1 states	n
+32cf45c0	state-fn	ESSI_A_ES_SWORD_WAVE.Init	inside X2GUElsword_SwordMan.cpp:2998 CX2GUElsword_SwordMan::ESSI_A_ES_SWORD_WAVE_Init	inside	-	CH2c	1 states	n
+32cf4650	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c4070000	n
+32cf4670	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf1d986b002	n
+32cf46b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32cf4710	state-fn	ESSI_SI_A_ERS_CRITICAL_SWORD.Init	inside X2GUElsword_SwordMan.cpp:3068 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_CRITICAL_SWORD_Init	inside	-	CH2c	1 states	n
+32cf4770	state-fn	ESSI_SI_A_ERS_RUNE_OF_FIRE.Init	inside X2GUElsword_SwordMan.cpp:3080 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_Init	inside	-	CH3b	1 states	n
+32cf47f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32cf4870	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 68b424523381c190	n
+32cf4890	state-fn	ESSI_SI_A_EIS_FATAL_SLAP.Init	inside X2GUElsword_SwordMan.cpp:3120 CX2GUElsword_SwordMan::ESSI_SI_A_EIS_FATAL_SLAP_Init	inside	-	CH2d	1 states	n
+32cf48e0	state-fn	ESSI_A_ETK_SWORD_SHIELD.Init	inside X2GUElsword_SwordMan.cpp:3130 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_Init	inside	-	CH2d	1 states	n
+32cf4910	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 685811503381c190	n
+32cf4930	state-fn	ESSI_HA_ELK_GIGANTIC_SLASH.Init	inside X2GUElsword_SwordMan.cpp:4080 CX2GUElsword_SwordMan::ESSI_HA_ELK_Gigantic_Slash_Init	inside	-	CH3d	1 states	n
+32cf49d0	state-fn	ESSI_HA_ERS_SHINING_RUNE_BUSTER.Init	inside X2GUElsword_SwordMan.cpp:4094 CX2GUElsword_SwordMan::ESSI_HA_ERS_Shining_Rune_Buster_Init	inside	-	CH3d	1 states	n
+32cf4ab0	state-fn	ESSI_HA_EIS_BLADE_RAIN.Init	inside X2GUElsword_SwordMan.cpp:4111 CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_Init	inside	-	CH3d	1 states	n
+32cf4b70	override 0x6a0	GetActualMPConsume	X2GUElsword_SwordMan.h:396 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	base 31fd1840	n
+32cf4cf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 32c0c20400cccccc	n
+32cf4d00	helper	-	-	new	?	CH4c	MemoConditionElsword vtable 3352286c slot 1 decide( CX2GUUser* ): calls the base always-false 31fd4450 (as Eve 32968490); tsv row MemoCondition (replace); name: MemoConditionElsword vtable 33522870 slot 0 (RTTI .?AVMemoConditionElsword@CX2GUElsword_SwordMan@@, March nested class); name by the memo-condition pattern (CH1h / CH4a decision)	n
+32cf4d20	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32cf4d30	state-fn	ESSI_ESK_DASH_COMBO_ZX.StartFuture	-	new	ESSI_ESK_DASH_COMBO_ZX_StateStartFuture	CH1e	1 states	n
+32cf4d40	state-fn	ESSI_ESK_DASH_COMBO_ZXX.StartFuture	-	new	ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture	CH1e	1 states	n
+32cf4d50	state-fn	ESSI_ERS_XZ_CHARGE.Start	-	new	ESSI_ERS_XZ_CHARGE_StateStart	CH1f	1 states	y
+32cf4d70	state-fn	ESSI_ERS_COUNTER_GUARD.EventProcess	-	new	ESSI_ERS_COUNTER_GUARD_EventProcess	CH3b	1 states	y
+32cf4de0	state-fn	ESSI_SA_ESK_MORTAL_BLOW.FrameMove	-	new	ESSI_SA_ESK_MORTAL_BLOW_FrameMove	CH2b	1 states	n
+32cf4df0	override 0x6a4	GetActualCoolTime	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3233 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)	new	GetActualCoolTime	CH4b	base 31fd1920	y
+32cf4e50	state-fn	ESSI_ERS_COUNTER_GUARD_READY.StartFuture ESSI_ERS_COUNTER_GUARD.StartFuture	-	new	ESSI_ERS_COUNTER_GUARD_READY_StateStartFuture	CH3b	2 states	n
+32cf4e80	state-fn	ESSI_SA_ELK_GRAND_CROSS_START.Init ESSI_SA_ELK_GRAND_CROSS_CHARGE.Init ESSI_SA_ELK_GRAND_CROSS_END.Init	-	new	ESSI_SA_ELK_GRAND_CROSS_START_Init	CH3a	3 states	n
+32cf4e90	state-fn	ESSI_SA_ELK_GRAND_CROSS_START.Start ESSI_SA_ELK_GRAND_CROSS_CHARGE.Start ESSI_SA_ELK_GRAND_CROSS_END.Start	-	new	ESSI_SA_ELK_GRAND_CROSS_START_StateStart	CH3a	3 states	y
+32cf4ec0	state-fn	ESSI_SA_ELK_GRAND_CROSS_START.StartFuture ESSI_SA_ELK_GRAND_CROSS_CHARGE.StartFuture ESSI_SA_ELK_GRAND_CROSS_END.StartFuture	-	new	ESSI_SA_ELK_GRAND_CROSS_START_StateStartFuture	CH3a	3 states	y
+32cf4ef0	state-fn	ESSI_SA_ELK_GRAND_CROSS_CHARGE.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_CHARGE_FrameMove	CH3a	1 states	n
+32cf4f60	state-fn	ESSI_SA_ELK_GRAND_CROSS_CHARGE.EventProcess	-	new	ESSI_SA_ELK_GRAND_CROSS_CHARGE_EventProcess	CH3a	1 states	y
+32cf4fe0	state-fn	ESSI_SA_ELK_GRAND_CROSS_CHARGE.End	-	new	ESSI_SA_ELK_GRAND_CROSS_CHARGE_StateEnd	CH3a	1 states	n
+32cf4ff0	state-fn	ESSI_SA_ERS_EXTREME_RUNE_BUSTER.Init	-	new	ESSI_SA_ERS_EXTREME_RUNE_BUSTER_Init	CH3b	1 states	n
+32cf5000	state-fn	ESSI_SA_EIS_INFINITY_STRIKE.Init	-	new	ESSI_SA_EIS_INFINITY_STRIKE_Init	CH3c	1 states	n
+32cf5010	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32cf5030	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32cf5050	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32cf50a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32cf50f0	override 0x674	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0x674 GetWayOfSwordState (ch0_wos.tsv); inside: X2GUElsword_SwordMan.h:416 GetWayOfSwordState (Way of the Sword, ch0_wos.tsv)	n
+32cf5100	helper	-	-	inside	-	CH1q	Way of the Sword: SetWayOfSwordState (ch0_wos.tsv); inside: X2GUElsword_SwordMan.h:417 SetWayOfSwordState (Way of the Sword, ch0_wos.tsv)	y
+32cf5130	override 0x678	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0x678 GetWayOfSwordPoint (ch0_wos.tsv); inside: X2GUElsword_SwordMan.h:419 GetWayOfSwordPoint (Way of the Sword, ch0_wos.tsv)	n
+32cf5140	override 0x67c	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0x67c SetWayOfSwordPoint (ch0_wos.tsv); inside: X2GUElsword_SwordMan.h:420 SetWayOfSwordPoint (Way of the Sword, ch0_wos.tsv)	n
+32cf5190	override 0x90	Win	X2GUElsword_SwordMan.h:332 virtual void Win();	inside	-	CH1h	base 32014660	y
+32cf51c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32cf51d0	override 0x98	Draw	X2GUElsword_SwordMan.h:334 virtual void Draw();	inside	-	CH1h	base 31ff17c0	y
+32cf5200	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32cf5210	override 0x7b8	SetEquippedSkillLevel	X2GUElsword_SwordMan.h:461 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	inside	-	CH1i	base 31aa1d30	y
+32cf5530	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUElsword_SwordMan.h:338 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1h	base 31aa1d30	n
+32cf5580	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8984e2dff	y
+32cf55a0	helper	-	-	inside	-	CH1h	AppendMajorParticleToDeviceList (7 names); caller AppendEffectToDeviceList 32d07060, folded, reached from 31fef520 (Arme analogue CH1h); inside: X2GUElsword_SwordMan.h:344 AppendMajorParticleToDeviceList (ch0_unmapped_identified CH1o triage)	y
+32cf5660	helper	-	-	inside	-	CH1k	InitializeElswordMinorParticleArray: called from inside the ctor 32d09490 @32d0b07b (ctor is CH1k); inside: X2GUElsword_SwordMan.h:367 InitializeElswordMinorParticleArray (ch0_unmapped_identified CH1o triage)	y
+32cf56a0	helper	-	-	inside	-	CH1h	AppendMinorParticleToDeviceList (7 names); inside: X2GUElsword_SwordMan.h:370 AppendMinorParticleToDeviceList (ch0_unmapped_identified CH1o triage)	y
+32cf5760	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32cf57f0	state-fn	ESSI_DIE_FRONT.StartFuture ESSI_RIDING_DIE.StartFuture	inside X2GUElsword_SwordMan.cpp:1333 CX2GUElsword_SwordMan::DieFrontStartFuture ; inside X2GUElsword_SwordMan.cpp:2107 CX2GUElsword_SwordMan::DieFrontStartFuture	inside	-	CH1b	2 states	y
+32cf5850	state-fn	ESSI_DIE_FRONT.EventProcess ESSI_RIDING_DIE.EventProcess	inside X2GUElsword_SwordMan.cpp:1336 CX2GUElsword_SwordMan::DieFrontEventProcess ; inside X2GUElsword_SwordMan.cpp:2110 CX2GUElsword_SwordMan::DieFrontEventProcess	inside	-	CH1b	2 states	y
+32cf5890	state-fn	ESSI_DIE_BACK.StartFuture	inside X2GUElsword_SwordMan.cpp:1342 CX2GUElsword_SwordMan::DieBackStartFuture	inside	-	CH1b	1 states	y
+32cf58f0	state-fn	ESSI_DIE_BACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1345 CX2GUElsword_SwordMan::DieBackEventProcess	inside	-	CH1b	1 states	y
+32cf5930	state-fn	ESSI_WAIT.Start	inside X2GUElsword_SwordMan.cpp:1362 CX2GUElsword_SwordMan::WaitStart	inside	-	CH1a	1 states	y
+32cf5960	state-fn	ESSI_JUMP_DOWN.EventProcess	inside X2GUElsword_SwordMan.cpp:1393 CX2GUElsword_SwordMan::JumpDownEventProcess	inside	-	CH1a	1 states	y
+32cf5a40	state-fn	ESSI_DASH_END.FrameMove	inside X2GUElsword_SwordMan.cpp:1417 CX2GUElsword_SwordMan::DashEndFrameMove	inside	-	CH1a	1 states	n
+32cf5a80	state-fn	ESSI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GUElsword_SwordMan.cpp:1494 CX2GUElsword_SwordMan::DamageDownFrontFrameMove	inside	-	CH1b	1 states	n
+32cf5ad0	state-fn	ESSI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GUElsword_SwordMan.cpp:1495 CX2GUElsword_SwordMan::DamageDownFrontEventProcess	inside	-	CH1b	1 states	y
+32cf5c50	state-fn	ESSI_DAMAGE_DOWN_BACK.FrameMove	inside X2GUElsword_SwordMan.cpp:1501 CX2GUElsword_SwordMan::DamageDownBackFrameMove	inside	-	CH1b	1 states	n
+32cf5c90	state-fn	ESSI_DAMAGE_DOWN_BACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1502 CX2GUElsword_SwordMan::DamageDownBackEventProcess	inside	-	CH1b	1 states	y
+32cf5e10	state-fn	ESSI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1543 CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess	inside	-	CH1b	1 states	y
+32cf5f90	state-fn	ESSI_STANDUP_ROLLING_FRONT_FRONT.EventProcess	inside X2GUElsword_SwordMan.cpp:1581 CX2GUElsword_SwordMan::StandUpRollingFrontFrontEventProcess	inside	-	CH1b	1 states	y
+32cf6010	state-fn	ESSI_STANDUP_ROLLING_FRONT_BACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1588 CX2GUElsword_SwordMan::StandUpRollingFrontBackEventProcess	inside	-	CH1b	1 states	y
+32cf6090	state-fn	ESSI_STANDUP_ROLLING_BACK_FRONT.EventProcess	inside X2GUElsword_SwordMan.cpp:1595 CX2GUElsword_SwordMan::StandUpRollingBackFrontEventProcess	inside	-	CH1b	1 states	y
+32cf6110	state-fn	ESSI_STANDUP_ROLLING_BACK_BACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1602 CX2GUElsword_SwordMan::StandUpRollingBackBackEventProcess	inside	-	CH1b	1 states	y
+32cf6190	state-fn	ESSI_STANDUP_ATTACK_FRONT.EventProcess	inside X2GUElsword_SwordMan.cpp:1609 CX2GUElsword_SwordMan::StandUpAttackFrontEventProcess	inside	-	CH1b	1 states	y
+32cf6210	state-fn	ESSI_STANDUP_ATTACK_BACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1616 CX2GUElsword_SwordMan::StandUpAttackBackEventProcess	inside	-	CH1b	1 states	y
+32cf6290	state-fn	ESSI_REVENGE_WAIT.EventProcess	inside X2GUElsword_SwordMan.cpp:3488 CX2GUElsword_SwordMan::RevengeWaitEventProcess	inside	-	CH3a	1 states	y
+32cf6370	state-fn	ESSI_REVENGE_ATTACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1676 CX2GUElsword_SwordMan::RevengeAttackEventProcess	inside	-	CH1b	1 states	y
+32cf63c0	state-fn	ESSI_DESTRUCTION_RAGE.EventProcess	inside X2GUElsword_SwordMan.cpp:1860 CX2GUElsword_SwordMan::DestructionRageStateEventProcess	inside	-	CH1q	1 states	y
+32cf6440	state-fn	ESSI_COMBO_Z1.EventProcess	inside X2GUElsword_SwordMan.cpp:1696 CX2GUElsword_SwordMan::ComboZ1EventProcess	inside	-	CH1d	1 states	n
+32cf6500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 57ff84c00f859000	n
+32cf67c0	state-fn	ESSI_COMBO_Z2.EventProcess	inside X2GUElsword_SwordMan.cpp:1703 CX2GUElsword_SwordMan::ComboZ2EventProcess	inside	-	CH1d	1 states	n
+32cf6d80	state-fn	ESSI_COMBO_Z3.EventProcess	inside X2GUElsword_SwordMan.cpp:1710 CX2GUElsword_SwordMan::ComboZ3EventProcess	inside	-	CH1d	1 states	n
+32cf7260	state-fn	ESSI_COMBO_Z4.EventProcess	inside X2GUElsword_SwordMan.cpp:1718 CX2GUElsword_SwordMan::ComboZ4EventProcess	inside	-	CH1d	1 states	y
+32cf7340	state-fn	ESSI_COMBO_Z4a.EventProcess	inside X2GUElsword_SwordMan.cpp:1725 CX2GUElsword_SwordMan::ComboZ4aEventProcess	inside	-	CH1d	1 states	y
+32cf73e0	state-fn	ESSI_COMBO_X1.EventProcess	inside X2GUElsword_SwordMan.cpp:1733 CX2GUElsword_SwordMan::ComboX1EventProcess	inside	-	CH1d	1 states	y
+32cf7810	state-fn	ESSI_COMBO_X2.EventProcess	inside X2GUElsword_SwordMan.cpp:1741 CX2GUElsword_SwordMan::ComboX2EventProcess	inside	-	CH1d	1 states	y
+32cf7b00	state-fn	ESSI_COMBO_X3.EventProcess	inside X2GUElsword_SwordMan.cpp:1749 CX2GUElsword_SwordMan::ComboX3EventProcess	inside	-	CH1d	1 states	y
+32cf7bd0	state-fn	ESSI_COMBO_X3a.EventProcess	inside X2GUElsword_SwordMan.cpp:1756 CX2GUElsword_SwordMan::ComboX3aEventProcess	inside	-	CH1d	1 states	y
+32cf7cb0	state-fn	ESSI_DASH_COMBO_Z1.EventProcess	inside X2GUElsword_SwordMan.cpp:1763 CX2GUElsword_SwordMan::DashComboZ1EventProcess	inside	-	CH1d2	1 states	y
+32cf8110	state-fn	ESSI_DASH_COMBO_Z2.EventProcess	inside X2GUElsword_SwordMan.cpp:1049 CX2GUElsword_SwordMan::DashComboZ2EventProcess	inside	-	CH1d2	1 states	n
+32cf8230	state-fn	ESSI_KNIGHT_DASH_COMBO_Z2.EventProcess	inside X2GUElsword_SwordMan.cpp:1060 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess	inside	-	CH1d2	1 states	n
+32cf8770	state-fn	ESSI_KNIGHT_DASH_COMBO_Z3.EventProcess	inside X2GUElsword_SwordMan.cpp:1067 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess	inside	-	CH1d2	1 states	y
+32cf8840	state-fn	ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3.EventProcess	inside X2GUElsword_SwordMan.cpp:1093 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess	inside	-	CH1f	1 states	y
+32cf8920	state-fn	ESSI_KNIGHT_DASH_COMBO_Z3a.EventProcess	inside X2GUElsword_SwordMan.cpp:1074 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess	inside	-	CH1e	1 states	y
+32cf8a00	state-fn	ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a.EventProcess	inside X2GUElsword_SwordMan.cpp:1100 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_EventProcess	inside	-	CH1f	1 states	y
+32cf8b30	state-fn	ESSI_DASH_ATTACK_X.EventProcess	inside X2GUElsword_SwordMan.cpp:1773 CX2GUElsword_SwordMan::DashAttackXEventProcess	inside	-	CH1d2	1 states	y
+32cf9050	state-fn	ESSI_JUMP_ATTACK_Z.EventProcess	inside X2GUElsword_SwordMan.cpp:1781 CX2GUElsword_SwordMan::JumpAttackZEventProcess	inside	-	CH1d	1 states	y
+32cf9090	state-fn	ESSI_JUMP_ATTACK_X.EventProcess	inside X2GUElsword_SwordMan.cpp:1789 CX2GUElsword_SwordMan::JumpAttackXEventProcess	inside	-	CH1d	1 states	y
+32cf90d0	state-fn	ESSI_DASH_JUMP_COMBO_Z1.EventProcess	inside X2GUElsword_SwordMan.cpp:1796 CX2GUElsword_SwordMan::DashJumpComboZ1EventProcess	inside	-	CH1d2	1 states	y
+32cf9220	state-fn	ESSI_DASH_JUMP_COMBO_Z2.EventProcess	inside X2GUElsword_SwordMan.cpp:1804 CX2GUElsword_SwordMan::DashJumpComboZ2EventProcess	inside	-	CH1d2	1 states	y
+32cf9380	state-fn	ESSI_DASH_JUMP_COMBO_Z3.FrameMove	inside X2GUElsword_SwordMan.cpp:1810 CX2GUElsword_SwordMan::DashJumpComboZ3FrameMove	inside	-	CH1d2	1 states	n
+32cf9400	state-fn	ESSI_DASH_JUMP_COMBO_Z3.EventProcess	inside X2GUElsword_SwordMan.cpp:1811 CX2GUElsword_SwordMan::DashJumpComboZ3EventProcess	inside	-	CH1d2	1 states	y
+32cf9410	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8000008b068b505c	n
+32cf9440	state-fn	ESSI_DASH_JUMP_COMBO_X1.EventProcess	inside X2GUElsword_SwordMan.cpp:1828 CX2GUElsword_SwordMan::DashJumpComboX1EventProcess	inside	-	CH1d2	1 states	y
+32cf9530	state-fn	ESSI_DASH_JUMP_COMBO_X2.FrameMoveFuture ESSI_EIS_DASHJUMP_COMBO_XX.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1136 CX2GUElsword_SwordMan::DashJumpComboX2FrameMoveFuture ; inside X2GUElsword_SwordMan.cpp:1196 CX2GUElsword_SwordMan::DashJumpComboX2FrameMoveFuture	inside	-	CH1d2	2 states	y
+32cf9580	state-fn	ESSI_DASH_JUMP_COMBO_X2.FrameMove ESSI_EIS_DASHJUMP_COMBO_XX.FrameMove	inside X2GUElsword_SwordMan.cpp:1137 CX2GUElsword_SwordMan::DashJumpComboX2FrameMove ; inside X2GUElsword_SwordMan.cpp:1197 CX2GUElsword_SwordMan::DashJumpComboX2FrameMove	inside	-	CH1d2	2 states	n
+32cf95e0	state-fn	ESSI_DASH_JUMP_COMBO_X2.EventProcess	inside X2GUElsword_SwordMan.cpp:1138 CX2GUElsword_SwordMan::DashJumpComboX2EventProcess	inside	-	CH1d2	1 states	y
+32cf9610	state-fn	ESSI_DASH_JUMP_COMBO_X2_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1841 CX2GUElsword_SwordMan::DashJumpComboX2LandingEventProcess	inside	-	CH1d2	1 states	y
+32cf9670	state-fn	ESSI_KNIGHT_DASH_JUMP_COMBO_X2.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1152 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMoveFuture	inside	-	CH1e	1 states	y
+32cf96c0	state-fn	ESSI_KNIGHT_DASH_JUMP_COMBO_X2.FrameMove	inside X2GUElsword_SwordMan.cpp:1153 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMove	inside	-	CH1e	1 states	n
+32cf9720	state-fn	ESSI_KNIGHT_DASH_JUMP_COMBO_X2.EventProcess	inside X2GUElsword_SwordMan.cpp:1154 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_EventProcess	inside	-	CH1e	1 states	y
+32cf97a0	state-fn	ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1185 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFuture	inside	-	CH1f	1 states	n
+32cf97e0	state-fn	ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a.EventProcess	inside X2GUElsword_SwordMan.cpp:1187 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess	inside	-	CH1f	1 states	y
+32cf9830	state-fn	ESSI_KNIGHT_DASH_JUMP_COMBO_X3.EventProcess	inside X2GUElsword_SwordMan.cpp:1162 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X3_EventProcess	inside	-	CH1e	1 states	y
+32cf9920	state-fn	ESSI_SI_A_MEGASLASH_MEMO_FIRE.EventProcess	-	new	ESSI_SI_A_MEGASLASH_MEMO_FIRE_EventProcess	CH2a	1 states	y
+32cf9960	state-fn	ESSI_SI_A_MEGASLASH_MEMO_READY.EventProcess ESSI_SI_A_MEGASLASH_MEMO_CHARGE.EventProcess	-	new	ESSI_SI_A_MEGASLASH_MEMO_READY_EventProcess	CH2a	2 states	y
+32cf9990	state-fn	ESSI_SI2_ES_FLAME_GEYSER.EventProcess	inside X2GUElsword_SwordMan.cpp:3288 CX2GUElsword_SwordMan::ESSI_SI2_ES_FLAME_GEYSER_EventProcess	inside	-	CH2a	1 states	y
+32cf99d0	state-fn	ESSI_SI3_ES_UNLIMITED_BLADE.EventProcess ESSI_SI3_ES_UNLIMITED_BLADE_HYPER.EventProcess	inside X2GUElsword_SwordMan.cpp:3365 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_EventProcess ; inside X2GUElsword_SwordMan.cpp:3374 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_HYPER_EventProcess	inside	-	CH2a	2 states	y
+32cf9b30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d905e8bf4f33568b	n
+32cf9b70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed08700	y
+32cf9c40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d905e8bf4f33568b	n
+32cf9c80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed08700	y
+32cf9d50	state-fn	ESSI_SI1_ES_ASSAULT_SLASH.FrameMove	inside X2GUElsword_SwordMan.cpp:3253 CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_FrameMove	inside	-	CH2a	1 states	n
+32cf9d80	state-fn	ESSI_SI1_ES_ASSAULT_SLASH.EventProcess	inside X2GUElsword_SwordMan.cpp:3255 CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_EventProcess	inside	-	CH2a	1 states	y
+32cf9e50	state-fn	ESSI_SI2_ES_SPIRAL_BLAST.EventProcess	-	new	ESSI_SI2_ES_SPIRAL_BLAST_EventProcess	CH2b	1 states	y
+32cf9f20	state-fn	ESSI_SI3_ES_TRIPLE_GEYSER.EventProcess	inside X2GUElsword_SwordMan.cpp:3386 CX2GUElsword_SwordMan::ESSI_SI3_ES_TRIPLE_GEYSER_EventProcess	inside	-	CH2a	1 states	y
+32cf9f60	state-fn	ESSI_SI3_ES_ARMAGEDDON_BLADE.FrameMove	inside X2GUElsword_SwordMan.cpp:3402 CX2GUElsword_SwordMan::ESSI_SI3_ES_ARMAGEDDON_BLADE_FrameMove	inside	-	CH3a	1 states	n
+32cfa000	state-fn	ESSI_SI3_ES_ARMAGEDDON_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3403 CX2GUElsword_SwordMan::ESSI_SI3_ES_ARMAGEDDON_BLADE_EventProcess	inside	-	CH3a	1 states	y
+32cfa040	state-fn	ESSI_SI1_ES_WIND_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3271 CX2GUElsword_SwordMan::ESSI_SI1_ES_WIND_BLADE_EventProcess	inside	-	CH2c	1 states	y
+32cfa080	state-fn	ESSI_SI1_ES_WIND_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3271 CX2GUElsword_SwordMan::ESSI_SI1_ES_WIND_BLADE_EventProcess	inside	-	CH2c	1 states	y
+32cfa230	state-fn	ESSI_SI2_ES_RISING_SLASH.EventProcess	inside X2GUElsword_SwordMan.cpp:3350 CX2GUElsword_SwordMan::ESSI_SI2_ES_RISING_SLASH_EventProcess	inside	-	CH2c	1 states	y
+32cfa270	state-fn	ESSI_SI3_ES_STORM_BLADE.FrameMove	inside X2GUElsword_SwordMan.cpp:3415 CX2GUElsword_SwordMan::ESSI_SI3_ES_STORM_BLADE_FrameMove	inside	-	CH2c	1 states	n
+32cfa320	state-fn	ESSI_SI3_ES_STORM_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3416 CX2GUElsword_SwordMan::ESSI_SI3_ES_STORM_BLADE_EventProcess	inside	-	CH2c	1 states	y
+32cfa360	state-fn	ESSI_LEAP.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:2310 CX2GUElsword_SwordMan::ESSI_LEAP_FrameMoveFuture	inside	-	CH1a	1 states	n
+32cfa530	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9c9d95c2414d944	n
+32cfa6c0	state-fn	ESSI_SI_A_ES_KICK.Start	inside X2GUElsword_SwordMan.cpp:3517 CX2GUElsword_SwordMan::ESSI_SI_A_ES_KICK_Start	inside	-	CH2b	1 states	y
+32cfa740	state-fn	ESSI_SI_A_ES_KICK.EventProcess	inside X2GUElsword_SwordMan.cpp:3518 CX2GUElsword_SwordMan::ESSI_SI_A_ES_KICK_EventProcess	inside	-	CH2b	1 states	y
+32cfa810	state-fn	ESSI_STANDUP_ATTACK_FRONT_NO_DOWN.EventProcess	inside X2GUElsword_SwordMan.cpp:1625 CX2GUElsword_SwordMan::StandUpAttackFrontNoDownEventProcess	inside	-	CH1b	1 states	y
+32cfa890	state-fn	ESSI_STANDUP_ATTACK_BACK_NO_DOWN.EventProcess	inside X2GUElsword_SwordMan.cpp:1632 CX2GUElsword_SwordMan::StandUpAttackBackNoDownEventProcess	inside	-	CH1b	1 states	y
+32cfa910	state-fn	ESSI_SA_ESK_WINDMILL_START.Start ESSI_SA_ESK_WINDMILL.Start	inside X2GUElsword_SwordMan.cpp:3531 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_START_StateStart	inside	-	CH3a	2 states	y
+32cfa970	state-fn	ESSI_SA_ESK_WINDMILL_START.EventProcess ESSI_SA_ESK_WINDMILL.EventProcess	inside X2GUElsword_SwordMan.cpp:3533 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_START_EventProcess ; inside X2GUElsword_SwordMan.cpp:3553 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_EventProcess	inside	-	CH3a	2 states	y
+32cfa9a0	state-fn	ESSI_SA_ESK_WINDMILL.FrameMove	inside X2GUElsword_SwordMan.cpp:3552 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_FrameMove	inside	-	CH3a	1 states	y
+32cfaa30	state-fn	ESSI_SA_ESK_WINDMILL_END.EventProcess	inside X2GUElsword_SwordMan.cpp:3570 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_END_EventProcess	inside	-	CH3a	1 states	n
+32cfaa60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32cfad40	state-fn	ESSI_SA_EMK_SWORD_FIRE.EventProcess	inside X2GUElsword_SwordMan.cpp:3592 CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_EventProcess	inside	-	CH3b	1 states	y
+32cfad80	state-fn	ESSI_SA_EMK_SWORD_FIRE_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:3611 CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_LANDING_EventProcess	inside	-	CH3b	1 states	y
+32cfadc0	state-fn	ESSI_A_ESK_ARMOR_BREAK.EventProcess	inside X2GUElsword_SwordMan.cpp:3634 CX2GUElsword_SwordMan::ESSI_A_ESK_ARMOR_BREAK_EventProcess	inside	-	CH2b	1 states	y
+32cfae00	state-fn	ESSI_SA_EMK_BIG_BURST.EventProcess	inside X2GUElsword_SwordMan.cpp:3653 CX2GUElsword_SwordMan::ESSI_SA_EMK_BIG_BURST_EventProcess	inside	-	CH2c	1 states	y
+32cfaed0	state-fn	ESSI_ELK_ZZZfrontZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1234 CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_EventProcess	inside	-	CH1e	1 states	y
+32cfafa0	state-fn	ESSI_ELK_XXX.EventProcess	inside X2GUElsword_SwordMan.cpp:1242 CX2GUElsword_SwordMan::ESSI_ELK_XXX_EventProcess	inside	-	CH1e	1 states	n
+32cfb420	state-fn	ESSI_ELK_XXXX.EventProcess	inside X2GUElsword_SwordMan.cpp:1250 CX2GUElsword_SwordMan::ESSI_ELK_XXXX_EventProcess	inside	-	CH1e	1 states	n
+32cfb900	state-fn	ESSI_ERS_XZ.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1262 CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMoveFuture	inside	-	CH1f	1 states	n
+32cfb970	state-fn	ESSI_ERS_XZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1264 CX2GUElsword_SwordMan::ESSI_ERS_XZ_EventProcess	inside	-	CH1f	1 states	n
+32cfbdb0	state-fn	ESSI_ERS_XZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1272 CX2GUElsword_SwordMan::ESSI_ERS_XZZ_EventProcess	inside	-	CH1f	1 states	y
+32cfbe10	state-fn	ESSI_ERS_DASH_JUMP_XZ.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1282 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMoveFuture	inside	-	CH1f	1 states	n
+32cfbe80	state-fn	ESSI_ERS_DASH_JUMP_XZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1284 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_EventProcess	inside	-	CH1f	1 states	y
+32cfbee0	state-fn	ESSI_ERS_DASH_JUMP_XZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1292 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_EventProcess	inside	-	CH1f	1 states	y
+32cfc050	state-fn	ESSI_SA_ELK_SONIC_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3719 CX2GUElsword_SwordMan::ESSI_SA_ELK_SONIC_BLADE_EventProcess	inside	-	CH3a	1 states	y
+32cfc120	state-fn	ESSI_A_ELK_ROLLING_SMASH_READY.EventProcess ESSI_A_ELK_ROLLING_SMASH.EventProcess	inside X2GUElsword_SwordMan.cpp:3781 CX2GUElsword_SwordMan::ESSI_A_ELK_ROLLING_SMASH_READY_EventProcess ; inside X2GUElsword_SwordMan.cpp:3803 CX2GUElsword_SwordMan::ESSI_A_ELK_ROLLING_SMASH_EventProcess	inside	-	CH3a	2 states	y
+32cfc150	state-fn	ESSI_A_ELK_ROLLING_SMASH.StartFuture	inside X2GUElsword_SwordMan.cpp:3801 CX2GUElsword_SwordMan::ESSI_A_ELK_ROLLING_SMASH_StateStartFuture	inside	-	CH3a	1 states	y
+32cfc1f0	state-fn	ESSI_A_ELK_ROLLING_SMASH.EventProcess	inside X2GUElsword_SwordMan.cpp:3803 CX2GUElsword_SwordMan::ESSI_A_ELK_ROLLING_SMASH_EventProcess	inside	-	CH3a	1 states	y
+32cfc230	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d90574aa4b33568b	n
+32cfc3f0	state-fn	ESSI_SA_EMK_PHOENIX_TALON.EventProcess ESSI_SA_EMK_PHOENIX_TALON_UPGRADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3677 CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_EventProcess	inside	-	CH3b	2 states	y
+32cfc430	state-fn	ESSI_SA_ESK_DOUBLE_SLASH.EventProcess	inside X2GUElsword_SwordMan.cpp:3694 CX2GUElsword_SwordMan::ESSI_SA_ESK_DOUBLE_SLASH_EventProcess	inside	-	CH2b	1 states	y
+32cfc500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53566a018bd98b4c	n
+32cfc5d0	state-fn	ESSI_SA_ELK_SAND_STORM.EventProcess ESSI_SA_ELK_SAND_STORM_UPGRADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3872 CX2GUElsword_SwordMan::ESSI_SA_ELK_SAND_STORM_EventProcess	inside	-	CH3a	2 states	n
+32cfc600	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32cfc8e0	state-fn	ESSI_ETK_COMBO_ZZZ.Start	inside X2GUElsword_SwordMan.cpp:963 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_StateStart	inside	-	CH1g	1 states	y
+32cfc900	state-fn	ESSI_ETK_COMBO_ZZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:965 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_EventProcess	inside	-	CH1g	1 states	n
+32cfcb70	state-fn	ESSI_ETK_COMBO_ZZZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:973 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_EventProcess	inside	-	CH1g	1 states	n
+32cfce30	state-fn	ESSI_ETK_COMBO_ZZZZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:982 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_EventProcess	inside	-	CH1g	1 states	n
+32cfcfe0	state-fn	ESSI_ETK_COMBO_XX.EventProcess	inside X2GUElsword_SwordMan.cpp:1002 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_EventProcess	inside	-	CH1g	1 states	y
+32cfd210	state-fn	ESSI_ETK_COMBO_XXX_LOOP.EventProcess	inside X2GUElsword_SwordMan.cpp:1011 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_EventProcess	inside	-	CH1g	1 states	n
+32cfd540	state-fn	ESSI_ETK_COMBO_XXXZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1019 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_EventProcess	inside	-	CH1g	1 states	n
+32cfd700	state-fn	ESSI_ETK_COMBO_XXX_END.EventProcess	inside X2GUElsword_SwordMan.cpp:1028 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_EventProcess	inside	-	CH1g	1 states	y
+32cfd7a0	state-fn	ESSI_ETK_DASH_COMBO_ZZ.EventProcess	inside X2GUElsword_SwordMan.cpp:1115 CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_EventProcess	inside	-	CH1g	1 states	y
+32cfd840	state-fn	ESSI_SI_A_ES_ROLLING.EventProcess	inside X2GUElsword_SwordMan.cpp:3908 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_EventProcess	inside	-	CH2a	1 states	y
+32cfd880	state-fn	ESSI_SI_A_ES_ROLLING_END.EventProcess	inside X2GUElsword_SwordMan.cpp:3923 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_EventProcess	inside	-	CH2a	1 states	y
+32cfd910	state-fn	ESSI_SI_SA_ETK_HARSH_CHASER.Start	inside X2GUElsword_SwordMan.cpp:3931 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_HARSH_CHASER_StateStart	inside	-	CH3c	1 states	y
+32cfd990	state-fn	ESSI_SI_SA_ETK_HARSH_CHASER_PULL.EventProcess	inside X2GUElsword_SwordMan.cpp:3949 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_HARSH_CHASER_PULL_EventProcess	inside	-	CH3c	1 states	n
+32cfdb30	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.EventProcess	inside X2GUElsword_SwordMan.cpp:3470 CX2GUElsword_SwordMan::CompactCounterAttackEventProcess	inside	-	CH3c	1 states	y
+32cfdbe0	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.Start	inside X2GUElsword_SwordMan.cpp:1658 CX2GUElsword_SwordMan::CompactCounterGuardAttackStart	inside	-	CH1g2	1 states	y
+32cfdcb0	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.EventProcess	inside X2GUElsword_SwordMan.cpp:1663 CX2GUElsword_SwordMan::CompactCounterGuardAttackEventProcess	inside	-	CH1g2	1 states	y
+32cfdd60	state-fn	ESSI_SI_SA_ETK_MAELSTORM_RAGE.StartFuture	inside X2GUElsword_SwordMan.cpp:3958 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_StartFuture	inside	-	CH3c	1 states	y
+32cfddc0	state-fn	ESSI_SI_SA_ETK_MAELSTORM_RAGE.EventProcess	inside X2GUElsword_SwordMan.cpp:3961 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_EventProcess	inside	-	CH3c	1 states	y
+32cfde50	state-fn	ESSI_SI_SA_ETK_FINAL_STRIKE.EventProcess ESSI_SI_SA_ETK_FINAL_STRIKE_UPGRADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3978 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_FINAL_STRIKE_EventProcess	inside	-	CH2d	2 states	y
+32cfdee0	state-fn	ESSI_SI_SA_ETK_SWORD_FALL.EventProcess	inside X2GUElsword_SwordMan.cpp:3994 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_SWORD_FALL_EventProcess	inside	-	CH2d	1 states	y
+32cfdf70	state-fn	ESSI_SI_SA_ETK_CRESCENT_CUT.EventProcess	inside X2GUElsword_SwordMan.cpp:4011 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_CRESCENT_CUT_EventProcess	inside	-	CH2d	1 states	y
+32cfe000	state-fn	ESSI_SI_SA_ETK_PHANTOM_SWORD.EventProcess	inside X2GUElsword_SwordMan.cpp:4027 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_PHANTOM_SWORD_EventProcess	inside	-	CH3c	1 states	y
+32cfe090	state-fn	ESSI_EIS_DASH_COMBO_ZX.EventProcess	-	new	ESSI_EIS_DASH_COMBO_ZX_EventProcess	CH1g2	1 states	n
+32cfe280	state-fn	ESSI_EIS_DASH_COMBO_XX.EventProcess	inside X2GUElsword_SwordMan.cpp:1301 CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_EventProcess	inside	-	CH1g2	1 states	n
+32cfe440	state-fn	ESSI_EIS_DASH_COMBO_XXX.EventProcess	inside X2GUElsword_SwordMan.cpp:1307 CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XXX_EventProcess	inside	-	CH1g2	1 states	n
+32cfe5e0	state-fn	ESSI_EIS_DASHJUMP_COMBO_XX.EventProcess	inside X2GUElsword_SwordMan.cpp:1198 CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XX_EventProcess	inside	-	CH1g2	1 states	y
+32cfe650	state-fn	ESSI_EIS_DASHJUMP_COMBO_XXX.EventProcess	inside X2GUElsword_SwordMan.cpp:1206 CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_EventProcess	inside	-	CH1g2	1 states	n
+32cfe840	state-fn	ESSI_SI_A_EIS_SPIRAL_STING.EventProcess	inside X2GUElsword_SwordMan.cpp:4043 CX2GUElsword_SwordMan::ESSI_SI_A_EIS_SPIRAL_STING_EventProcess	inside	-	CH2d	1 states	n
+32cfea40	state-fn	ESSI_SI_SA_EIS_SWORD_BLASTING.EventProcess ESSI_SI_SA_EIS_SWORD_BLASTING_UPGRADE.EventProcess	inside X2GUElsword_SwordMan.cpp:4054 CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_SWORD_BLASTING_EventProcess	inside	-	CH3c	2 states	y
+32cfea80	state-fn	ESSI_SI_SA_EIS_RAGE_CUTTER.EventProcess	inside X2GUElsword_SwordMan.cpp:4065 CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_RAGE_CUTTER_EventProcess	inside	-	CH3c	1 states	n
+32cfec80	state-fn	ESSI_SA_ERS_LUNA_BLADE.EventProcess	inside X2GUElsword_SwordMan.cpp:3891 CX2GUElsword_SwordMan::ESSI_SA_ERS_LUNA_BLADE_EventProcess	inside	-	CH3b	1 states	y
+32cfed60	state-fn	ESSI_A_ELK_IMPACT_SMASH.EventProcess	inside X2GUElsword_SwordMan.cpp:2988 CX2GUElsword_SwordMan::ESSI_A_ELK_IMPACT_SMASH_EventProcess	inside	-	CH2b	1 states	n
+32cfef60	state-fn	ESSI_A_ES_SWORD_WAVE.EventProcess	inside X2GUElsword_SwordMan.cpp:2999 CX2GUElsword_SwordMan::ESSI_A_ES_SWORD_WAVE_EventProcess	inside	-	CH2c	1 states	n
+32cff160	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c4	y
+32cff190	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32cff1f0	helper	-	-	-	-	n/a	not a function: a jump-table arm inside dead 32cff190 (no references)	n
+32cff280	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32cff470	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf1d986b002	n
+32cff4d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32cff530	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b91c496000032c0	n
+32cff550	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32cff880	state-fn	ESSI_SI_P_ESK_AUTO_GUARD.EventProcess	inside X2GUElsword_SwordMan.cpp:1641 CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_EventProcess	inside	-	CH1e	1 states	y
+32cff8d0	state-fn	ESSI_SI_P_ESK_AUTO_GUARD_SMALL.EventProcess	-	new	ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess	CH1e	1 states	y
+32cff920	state-fn	ESSI_SI_P_ESK_AUTO_GUARD_END.EventProcess ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL.EventProcess	-	new	ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess	CH1e	2 states	y
+32cffaf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32cffcf0	state-fn	ESSI_SI_A_ERS_CRITICAL_SWORD.FrameMove	inside X2GUElsword_SwordMan.cpp:3070 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_CRITICAL_SWORD_FrameMove	inside	-	CH2c	1 states	n
+32cffd60	state-fn	ESSI_SI_A_ERS_CRITICAL_SWORD.EventProcess	inside X2GUElsword_SwordMan.cpp:3069 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_CRITICAL_SWORD_EventProcess	inside	-	CH2c	1 states	n
+32cfff60	state-fn	ESSI_SI_A_ERS_RUNE_OF_FIRE.EventProcess	inside X2GUElsword_SwordMan.cpp:3081 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_EventProcess	inside	-	CH3b	1 states	n
+32d00160	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32d00360	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32d00560	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578bf98b078b90	y
+32d005e0	state-fn	ESSI_SI_A_EIS_FATAL_SLAP.EventProcess	inside X2GUElsword_SwordMan.cpp:3121 CX2GUElsword_SwordMan::ESSI_SI_A_EIS_FATAL_SLAP_EventProcess	inside	-	CH2d	1 states	n
+32d007e0	state-fn	ESSI_A_ETK_SWORD_SHIELD.EventProcess	inside X2GUElsword_SwordMan.cpp:3132 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_EventProcess	inside	-	CH2d	1 states	n
+32d009e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32d00be0	state-fn	ESSI_HA_ERS_SHINING_RUNE_BUSTER.EventProcess	inside X2GUElsword_SwordMan.cpp:4095 CX2GUElsword_SwordMan::ESSI_HA_ERS_Shining_Rune_Buster_EventProcess	inside	-	CH3d	1 states	n
+32d00de0	state-fn	ESSI_HA_EIS_BLADE_RAIN.EventProcess	inside X2GUElsword_SwordMan.cpp:4112 CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_EventProcess	inside	-	CH3d	1 states	n
+32d00fe0	override 0x840	?	- (name unsettled)	new	?	CH1k	base 31f3f070; name: virtual 0x840 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32d01020	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8a87c2cff	y
+32d01040	state-fn	ESSI_ESK_DASH_COMBO_ZX.EventProcess	-	new	ESSI_ESK_DASH_COMBO_ZX_EventProcess	CH1e	1 states	n
+32d014c0	state-fn	ESSI_ESK_DASH_COMBO_ZXX.EventProcess	-	new	ESSI_ESK_DASH_COMBO_ZXX_EventProcess	CH1e	1 states	n
+32d017f0	state-fn	ESSI_ESK_DASH_COMBO_ZChargeX.EventProcess	-	new	ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess	CH1e	1 states	n
+32d01b70	state-fn	ESSI_ESK_DASH_JUMP_ZZZ.EventProcess	-	new	ESSI_ESK_DASH_JUMP_ZZZ_EventProcess	CH1e	1 states	y
+32d01ba0	state-fn	ESSI_ESK_DASH_JUMP_ZZZ_LANDING.EventProcess	-	new	ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess	CH1e	1 states	n
+32d01f10	state-fn	ESSI_ELK_DASH_COMBO_XChargeX.EventProcess	-	new	ESSI_ELK_DASH_COMBO_XChargeX_EventProcess	CH1e	1 states	n
+32d02290	state-fn	ESSI_ELK_DASH_COMBO_XX.EventProcess	-	new	ESSI_ELK_DASH_COMBO_XX_EventProcess	CH1e	1 states	n
+32d02710	state-fn	ESSI_ELK_DASH_COMBO_XXX.EventProcess	-	new	ESSI_ELK_DASH_COMBO_XXX_EventProcess	CH1e	1 states	n
+32d02a90	state-fn	ESSI_ELK_XXXXX.EventProcess	-	new	ESSI_ELK_XXXXX_EventProcess	CH1e	1 states	n
+32d02ed0	state-fn	ESSI_ELK_XXXXXX.EventProcess	-	new	ESSI_ELK_XXXXXX_EventProcess	CH1e	1 states	n
+32d03250	state-fn	ESSI_EMK_DASH_JUMP_ZX.EventProcess	-	new	ESSI_EMK_DASH_JUMP_ZX_EventProcess	CH1f	1 states	n
+32d035d0	state-fn	ESSI_EMK_DASH_JUMP_ZXX.EventProcess	-	new	ESSI_EMK_DASH_JUMP_ZXX_EventProcess	CH1f	1 states	y
+32d03880	state-fn	ESSI_EMK_COMBO_XZ.EventProcess	-	new	ESSI_EMK_COMBO_XZ_EventProcess	CH1f	1 states	n
+32d03d00	state-fn	ESSI_EMK_COMBO_XZ_CHARGE.EventProcess	-	new	ESSI_EMK_COMBO_XZ_CHARGE_EventProcess	CH1f	1 states	n
+32d040c0	state-fn	ESSI_EMK_COMBO_XZZ.EventProcess	-	new	ESSI_EMK_COMBO_XZZ_EventProcess	CH1f	1 states	n
+32d04440	state-fn	ESSI_EMK_COMBO_FULL_CHARGE_XZZ.EventProcess	-	new	ESSI_EMK_COMBO_FULL_CHARGE_XZZ_EventProcess	CH1f	1 states	n
+32d047c0	state-fn	ESSI_ERS_XZ_CHARGE.EventProcess	-	new	ESSI_ERS_XZ_CHARGE_EventProcess	CH1f	1 states	n
+32d04b80	state-fn	ESSI_ERS_FULL_CHARGE_XZZ.EventProcess	-	new	ESSI_ERS_FULL_CHARGE_XZZ_EventProcess	CH1f	1 states	n
+32d04f00	state-fn	ESSI_ERS_COMBO_ZZZ.EventProcess	-	new	ESSI_ERS_COMBO_ZZZ_EventProcess	CH1f	1 states	n
+32d05250	state-fn	ESSI_ERS_COMBO_ZZZZ.EventProcess	-	new	ESSI_ERS_COMBO_ZZZZ_EventProcess	CH1f	1 states	n
+32d054d0	state-fn	ESSI_ETK_DASH_JUMP_ZZZ.EventProcess	-	new	ESSI_ETK_DASH_JUMP_ZZZ_EventProcess	CH1g	1 states	y
+32d05500	state-fn	ESSI_ERS_COUNTER_GUARD_READY.EventProcess ESSI_ERS_COUNTER_GUARD.EventProcess	-	new	ESSI_ERS_COUNTER_GUARD_READY_EventProcess	CH3b	2 states	y
+32d05530	state-fn	ESSI_SA_ESK_MORTAL_BLOW.EventProcess	-	new	ESSI_SA_ESK_MORTAL_BLOW_EventProcess	CH2b	1 states	n
+32d058a0	override 0x740	?	- (name unsettled)	new	StoreGageSnapshot	CH1q	Way of the Sword: vslot 0x740 Crest of Time snapshot saves GetWayOfSwordPoint at +0x92b8 (June-only); name: user vslot 0x740 (Chung X2GUChung.h:693 name): saves GetWayOfSwordPoint at +0x92b8	y
+32d058d0	override 0x744	?	- (name unsettled)	new	RestoreGageSnapshot	CH1q	Way of the Sword: vslot 0x744 Crest of Time restore calls SetWayOfSwordPoint (June-only); name: user vslot 0x744 (Chung X2GUChung.h:694 name): SetWayOfSwordPoint from +0x92b8, then base 3204da60	y
+32d05910	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec088b91089700	y
+32d05960	override 0x670	?	- (name unsettled)	new	IsInJobLine	CH1i	base 331a4950; name: user vslot 0x670 (Chung X2GUChung.h:660 name): line 1 = classes 10/100, 2 = 11/101, 3 = 22/112	n
+32d059b0	helper	called by 32d1b9d0	-	new	?	CH1h	name: called by 32d1b9d0(helper)	y
+32d05a00	helper	called by 32d0baf0	-	new	?	CH4a	name: called by 32d0baf0(helper)	y
+32d05a50	helper	called by 32d0bc60	-	new	?	CH4a	name: called by 32d0bc60(helper)	y
+32d05aa0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec088b91689700	y
+32d05af0	helper	called by 32d26a40	-	new	?	CH4a	name: called by 32d26a40(helper)	y
+32d05b60	override 0x508	?	- (name unsettled)	new	?	CH1h	base 33093ad0; name: virtual 0x508 (base 33093ad0); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32d05b70	override 0x50c	?	- (name unsettled)	new	?	CH1h	base 33093ad0; name: virtual 0x50c (base 33093ad0); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32d05b80	state-fn	ESSI_ERS_COUNTER_GUARD_END.EventProcess	-	new	ESSI_ERS_COUNTER_GUARD_END_EventProcess	CH3b	1 states	n
+32d05f00	state-fn	ESSI_SA_ELK_SONIC_BLADE_CRESCENT.EventProcess	-	new	ESSI_SA_ELK_SONIC_BLADE_CRESCENT_EventProcess	CH3a	1 states	n
+32d061a0	state-fn	ESSI_SA_ELK_GRAND_CROSS_START.EventProcess ESSI_SA_ELK_GRAND_CROSS_CHARGE.EventProcess ESSI_SA_ELK_GRAND_CROSS_END.EventProcess	-	new	ESSI_SA_ELK_GRAND_CROSS_START_EventProcess	CH3a	3 states	y
+32d061d0	state-fn	ESSI_SA_ELK_GRAND_CROSS_END.EventProcess	-	new	ESSI_SA_ELK_GRAND_CROSS_END_EventProcess	CH3a	1 states	n
+32d06550	state-fn	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE.EventProcess	-	new	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_EventProcess	CH3a	1 states	n
+32d068d0	state-fn	ESSI_SA_ERS_EXTREME_RUNE_BUSTER.EventProcess	-	new	ESSI_SA_ERS_EXTREME_RUNE_BUSTER_EventProcess	CH3b	1 states	n
+32d06c50	state-fn	ESSI_SA_EIS_INFINITY_STRIKE.EventProcess	-	new	ESSI_SA_EIS_INFINITY_STRIKE_EventProcess	CH3c	1 states	n
+32d06fd0	override 0x94	Lose	X2GUElsword_SwordMan.h:333 virtual void Lose();	inside	-	CH1h	base 31ff15d0	n
+32d07060	not-Elsword	called only from outside the range: 31fef520	-	-	-	n/a	shared / folded code	y
+32d07090	state-fn	ESSI_WIN.FrameMove ESSI_WIN2.FrameMove ESSI_ESK_WIN.FrameMove +11	inside X2GUElsword_SwordMan.cpp:929 CX2GUElsword_SwordMan::WinFrameMove	inside	-	CH1b	14 states	y
+32d072a0	state-fn	ESSI_JUMP_READY.EventProcess	inside X2GUElsword_SwordMan.cpp:1379 CX2GUElsword_SwordMan::JumpReadyEventProcess	inside	-	CH1a	1 states	n
+32d073a0	state-fn	ESSI_DASH_END.StartFuture	inside X2GUElsword_SwordMan.cpp:1415 CX2GUElsword_SwordMan::DashEndStartFuture	inside	-	CH1a	1 states	n
+32d073e0	state-fn	ESSI_DASH_JUMP.EventProcess	inside X2GUElsword_SwordMan.cpp:1427 CX2GUElsword_SwordMan::DashJumpEventProcess	inside	-	CH1a	1 states	n
+32d076f0	state-fn	ESSI_REVENGE_ATTACK.Start	inside X2GUElsword_SwordMan.cpp:1672 CX2GUElsword_SwordMan::RevengeAttackStart	inside	-	CH1b	1 states	y
+32d07810	helper	called by 32d08ad0 32d08b00	-	inside	-	CH1q	inside: X2GUElsword_SwordMan.h:1582 PlayAnimationSwordWaitStart (Way of the Sword, ch0_wos.tsv)	y
+32d07c40	state-fn	ESSI_COMBO_Z4.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1716 CX2GUElsword_SwordMan::ComboZ4FrameMoveFuture	inside	-	CH1d	1 states	n
+32d07cc0	state-fn	ESSI_COMBO_X1.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1731 CX2GUElsword_SwordMan::ComboX1FrameMoveFuture	inside	-	CH1d	1 states	n
+32d07d30	state-fn	ESSI_COMBO_X2.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1739 CX2GUElsword_SwordMan::ComboX2FrameMoveFuture	inside	-	CH1d	1 states	n
+32d07db0	state-fn	ESSI_COMBO_X3.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1747 CX2GUElsword_SwordMan::ComboX3FrameMoveFuture	inside	-	CH1d	1 states	n
+32d07e20	state-fn	ESSI_DASH_COMBO_Z2.StartFuture	inside X2GUElsword_SwordMan.cpp:1047 CX2GUElsword_SwordMan::DashComboZ2StartFuture	inside	-	CH1d2	1 states	n
+32d07eb0	state-fn	ESSI_KNIGHT_DASH_COMBO_Z2.StartFuture	inside X2GUElsword_SwordMan.cpp:1059 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_StateStartFuture	inside	-	CH1d2	1 states	n
+32d07f40	state-fn	ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3.StartFuture	inside X2GUElsword_SwordMan.cpp:1092 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_StateStartFuture	inside	-	CH1f	1 states	n
+32d07fd0	state-fn	ESSI_KNIGHT_DASH_COMBO_Z3a.StartFuture	inside X2GUElsword_SwordMan.cpp:1073 CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_StateStartFuture	inside	-	CH1e	1 states	n
+32d08060	state-fn	ESSI_DASH_ATTACK_X.StartFuture	inside X2GUElsword_SwordMan.cpp:1771 CX2GUElsword_SwordMan::DashAttackXStartFuture	inside	-	CH1d2	1 states	n
+32d080f0	state-fn	ESSI_JUMP_ATTACK_Z.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1779 CX2GUElsword_SwordMan::JumpAttackZFrameMoveFuture	inside	-	CH1d	1 states	n
+32d08180	state-fn	ESSI_JUMP_ATTACK_X.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:1787 CX2GUElsword_SwordMan::JumpAttackXFrameMoveFuture	inside	-	CH1d	1 states	n
+32d08210	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b8ed087	n
+32d08280	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b8ed087	n
+32d082f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 81ec94000000a180	n
+32d08590	override 0x5f0	COMMON_BUFF_FrameMove	X2GUElsword_SwordMan.h:1228 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1h	base 31aa1d30	y
+32d086e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5e83c4	n
+32d086f0	state-fn	ESSI_SA_EMK_BIG_BURST.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:3651 CX2GUElsword_SwordMan::ESSI_SA_EMK_BIG_BURST_FrameMoveFuture	inside	-	CH2c	1 states	n
+32d087a0	state-fn	ESSI_SA_ELK_SAND_STORM.FrameMoveFuture ESSI_SA_ELK_SAND_STORM_UPGRADE.FrameMoveFuture	inside X2GUElsword_SwordMan.cpp:3870 CX2GUElsword_SwordMan::ESSI_SA_ELK_SAND_STORM_FrameMoveFuture	inside	-	CH3a	2 states	n
+32d08880	state-fn	ESSI_SI_A_ES_ROLLING_END.Start	inside X2GUElsword_SwordMan.cpp:3921 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_StateStart	inside	-	CH2a	1 states	y
+32d089b0	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.Start	inside X2GUElsword_SwordMan.cpp:3466 CX2GUElsword_SwordMan::CompactCounterAttackStart	inside	-	CH3c	1 states	y
+32d08a20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b86d087	n
+32d08ad0	state-fn	ESSI_SWORD_WAIT.StartFuture	inside X2GUElsword_SwordMan.cpp:1849 CX2GUElsword_SwordMan::SwordWaitStartFuture	inside	-	CH1q	1 states	y
+32d08b00	state-fn	ESSI_SWORD_WAIT.Start	inside X2GUElsword_SwordMan.cpp:1850 CX2GUElsword_SwordMan::SwordWaitStart	inside	-	CH1q	1 states	y
+32d08b30	override 0x828	IsNotCommonMoveState	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3415 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	y
+32d08ba0	helper	-	-	inside	-	CH4a	LightingStepFrameMove: frame-move delegate registered by InitPassiveSkillState 32d1c560 @32d1d410 via thunk 32d26fd0; June threshold 0.5 s, March 1.0 s; inside: X2GUElsword_SwordMan.h:688 LightingStepFrameMove (ch0_unmapped_identified CH1o triage)	n
+32d08c30	override 0x628	CanRidingState	X2GUElsword_SwordMan.h:433 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	y
+32d08d20	helper	called by 32d1bd10	-	new	?	CH1k	name: called by 32d1bd10(SpecialAttackEventProcess pa)	y
+32d08d70	override 0x850	?	- (name unsettled)	new	AfterImageFrameMove	CH1k	base 31fd8230; name: user vslot 0x850 (X2GUUser.h:3421): toggles the two after-images by now state 13 or 0xce	y
+32d08ec0	override 0x540	CreateMajorParticleArray	X2GUElsword_SwordMan.h:342 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
+32d09050	helper	called by 32d09270 32d09290 32d10610 32d10a00	-	new	?	CH1k	name: called by 32d09270(ShowActiveSkillCutInAndLight) 32d09290(ESSI_SA_EMK_PHOENIX_TALON.Fr) 32d10610(dead) 32d10a00(dead)	y
+32d09260	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e8f7912d0081c418	n
+32d09270	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUElsword_SwordMan.h:1643 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
+32d09290	state-fn	ESSI_SA_EMK_PHOENIX_TALON.FrameMove ESSI_SA_EMK_PHOENIX_TALON_UPGRADE.FrameMove	inside X2GUElsword_SwordMan.cpp:3676 CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_FrameMove	inside	-	CH3b	2 states	y
+32d09310	state-fn	ESSI_SA_ERS_EXTREME_RUNE_BUSTER.Start	-	new	ESSI_SA_ERS_EXTREME_RUNE_BUSTER_StateStart	CH3b	1 states	y
+32d09490	helper	-	-	inside	-	CH1k	ctor: CX2GUElsword_SwordMan::CX2GUElsword_SwordMan (vtable store 32d094e4, body 32d09490-32d0b4c5); its only caller 3230f189 is outside the class; inside: X2GUElsword_SwordMan.h constructor (vtable store 32d094e4, body 32d09490-32d0b4c5); caller 3230f189 is outside the class	y
+32d09720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes cd76338bd02500ff	n
+32d09f50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c789470433c733	n
+32d0b040	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 970000899ed49700	n
+32d0b4d0	override 0x7c8	CommonFrameMoveFuture	X2GUElsword_SwordMan.h:466 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	y
+32d0b5a0	override 0x810	SpecialAttackNoStageChange	X2GUElsword_SwordMan.h:394 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	inside	-	CH1k	base 31aa1d30	n
+32d0b650	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0b720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ddd8d99f18960000	n
+32d0b730	state-fn	ESSI_ETK_COMBO_XX.Start	inside X2GUElsword_SwordMan.cpp:1000 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_StateStart	inside	-	CH1g	1 states	y
+32d0b7d0	state-fn	ESSI_ETK_COMBO_XXX_LOOP.Start	inside X2GUElsword_SwordMan.cpp:1009 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_StateStart	inside	-	CH1g	1 states	y
+32d0b870	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUElsword_SwordMan.h:457 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3202ed60	y
+32d0ba00	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0baf0	helper	called by 32d27160	-	new	?	CH4a	name: called by 32d27160(helper)	y
+32d0bc60	helper	called by 32d27170	-	new	?	CH4a	name: called by 32d27170(helper)	y
+32d0bdc0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0beb0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0bfa0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0c090	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0c180	helper	called by 32d27180	-	new	?	CH4a	name: called by 32d27180(helper)	y
+32d0c4e0	helper	called by 32d272b0	-	new	?	CH4a	name: called by 32d272b0(helper)	y
+32d0c740	state-fn	ESSI_SI_P_ESK_AUTO_GUARD.End ESSI_SI_P_ESK_AUTO_GUARD_SMALL.End	inside X2GUElsword_SwordMan.cpp:1642 CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_End	inside	-	CH1e	2 states	y
+32d0c780	override 0x510	?	- (name unsettled)	new	?	CH1h	base 31fc7ab0; name: virtual 0x510 (base 31fc7ab0); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32d0c820	not-Elsword	called only from outside the range: 32046a66	-	-	-	n/a	shared / folded code	y
+32d0c960	helper	-	-	inside	-	CH1q	Way of the Sword: Start_SwordmanVigor; inside: X2GUElsword_SwordMan.h:423 Start_SwordmanVigor (Way of the Sword, ch0_wos.tsv)	y
+32d0cd60	helper	-	-	inside	-	CH1q	Way of the Sword: End_SwordmanVigor (Die states call it: declared there, body here); inside: X2GUElsword_SwordMan.h:424 End_SwordmanVigor (Way of the Sword, ch0_wos.tsv)	y
+32d0cf70	helper	-	-	inside	-	CH1q	Way of the Sword: Start_SwordmanDestruction; inside: X2GUElsword_SwordMan.h:425 Start_SwordmanDestruction (Way of the Sword, ch0_wos.tsv)	y
+32d0d160	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 00000068702a7233	n
+32d0d240	helper	-	-	inside	-	CH1q	Way of the Sword: End_SwordmanDestruction (Die states call it: declared there, body here); inside: X2GUElsword_SwordMan.h:426 End_SwordmanDestruction (Way of the Sword, ch0_wos.tsv)	y
+32d0d3f0	override 0x3c	InitComponent	X2GUElsword_SwordMan.h:453 virtual void InitComponent();	inside	-	CH1h	base 31fee090	y
+32d0d540	override 0x48	InitEffect	X2GUElsword_SwordMan.h:337 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
+32d0d5c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8d8252eff	y
+32d0d600	helper	called by 32d17e90 32d1a5d0	-	new	?	CH1h	name: called by 32d17e90(DeleteMinorParticle) 32d1a5d0(helper)	y
+32d0d660	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff686a09343364	y
+32d0d7a0	helper	called by 32d1ac60	-	new	?	CH1h	name: called by 32d1ac60(DamageReact)	y
+32d0d8e0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32d0da10	state-fn	ESSI_DIE_FRONT.Start ESSI_RIDING_DIE.Start	inside X2GUElsword_SwordMan.cpp:1334 CX2GUElsword_SwordMan::DieFrontStart ; inside X2GUElsword_SwordMan.cpp:2108 CX2GUElsword_SwordMan::DieFrontStart	inside	-	CH1b	2 states	y
+32d0daa0	state-fn	ESSI_DIE_BACK.Start	inside X2GUElsword_SwordMan.cpp:1343 CX2GUElsword_SwordMan::DieBackStart	inside	-	CH1b	1 states	y
+32d0db30	state-fn	ESSI_WAIT.EventProcess	inside X2GUElsword_SwordMan.cpp:1363 CX2GUElsword_SwordMan::WaitEventProcess	inside	-	CH1a	1 states	y
+32d0dd90	state-fn	ESSI_WALK.EventProcess	inside X2GUElsword_SwordMan.cpp:1373 CX2GUElsword_SwordMan::WalkEventProcess	inside	-	CH1a	1 states	y
+32d0df40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 750d6a006a498bce	n
+32d0df70	state-fn	ESSI_JUMP_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1400 CX2GUElsword_SwordMan::JumpLandingEventProcess	inside	-	CH1a	1 states	y
+32d0e210	state-fn	ESSI_DASH.EventProcess	inside X2GUElsword_SwordMan.cpp:1409 CX2GUElsword_SwordMan::DashEventProcess	inside	-	CH1a	1 states	y
+32d0e3e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 750d6a006a498bce	n
+32d0e410	state-fn	ESSI_DASH_END.EventProcess	inside X2GUElsword_SwordMan.cpp:1418 CX2GUElsword_SwordMan::DashEndEventProcess	inside	-	CH1a	1 states	y
+32d0e6c0	state-fn	ESSI_DASH_JUMP_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1436 CX2GUElsword_SwordMan::DashJumpLandingEventProcess	inside	-	CH1a	1 states	y
+32d0e8e0	state-fn	ESSI_DASH_JUMP_POWER_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1444 CX2GUElsword_SwordMan::DashJumpPowerLandingEventProcess	inside	-	CH1a	1 states	y
+32d0eaf0	state-fn	ESSI_REVENGE_WAIT.FrameMove	inside X2GUElsword_SwordMan.cpp:3487 CX2GUElsword_SwordMan::RevengeWaitFrameMove	inside	-	CH3a	1 states	y
+32d0edb0	state-fn	ESSI_REVENGE_ATTACK.CameraMove	inside X2GUElsword_SwordMan.cpp:1675 CX2GUElsword_SwordMan::RevengeAttackCameraMove	inside	-	CH1b	1 states	y
+32d0ee90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 538dbeb402000053	n
+32d0eeb0	helper	-	-	inside	-	CH1q	Way of the Sword: WayOfSwordStateChange, called from CommonFrameMove 32d1b2b0; inside: X2GUElsword_SwordMan.h:1584 WayOfSwordStateChange (Way of the Sword, ch0_wos.tsv)	y
+32d0f0c0	state-fn	ESSI_SWORD_WAIT.EventProcess	inside X2GUElsword_SwordMan.cpp:1851 CX2GUElsword_SwordMan::SwordWaitEventProcess	inside	-	CH1q	1 states	y
+32d0f2c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 752a8b068b505c6a	n
+32d0f300	helper	-	-	inside	-	CH1q	Way of the Sword: DoStateDestructionRage; inside: X2GUElsword_SwordMan.h:1587 DoStateDestructionRage (Way of the Sword, ch0_wos.tsv)	y
+32d0f640	state-fn	ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a.FrameMove	inside X2GUElsword_SwordMan.cpp:1099 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_FrameMove	inside	-	CH1f	1 states	n
+32d0fa10	state-fn	ESSI_DASH_JUMP_COMBO_Z3_LANDING.EventProcess	inside X2GUElsword_SwordMan.cpp:1819 CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess	inside	-	CH1d2	1 states	y
+32d0fc00	state-fn	ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a.FrameMove	inside X2GUElsword_SwordMan.cpp:1186 CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMove	inside	-	CH1f	1 states	n
+32d0fe90	state-fn	ESSI_SI_A_MEGASLASH_MEMO_CHARGE.FrameMove	-	new	ESSI_SI_A_MEGASLASH_MEMO_CHARGE_FrameMove	CH2a	1 states	n
+32d10020	state-fn	ESSI_SI_A_MEGASLASH_MEMO_FIRE.FrameMove	-	new	ESSI_SI_A_MEGASLASH_MEMO_FIRE_FrameMove	CH2a	1 states	y
+32d101f0	state-fn	ESSI_SI3_ES_UNLIMITED_BLADE.FrameMove ESSI_SI3_ES_UNLIMITED_BLADE_HYPER.FrameMove	inside X2GUElsword_SwordMan.cpp:3363 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_FrameMove ; inside X2GUElsword_SwordMan.cpp:3372 CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_HYPER_FrameMove	inside	-	CH2a	2 states	y
+32d10610	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec0c535556578b	y
+32d10810	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90d0	y
+32d108e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec10535556578b	y
+32d10a00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec0c535556578b	y
+32d10c00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90d0	y
+32d10cd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec10535556578b	y
+32d10df0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec30a1800f7433	y
+32d11860	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5704895104	n
+32d119b0	state-fn	ESSI_LEAP.StartFuture	inside X2GUElsword_SwordMan.cpp:2309 CX2GUElsword_SwordMan::ESSI_LEAP_StartFuture	inside	-	CH1a	1 states	y
+32d11cb0	state-fn	ESSI_SA_ESK_WINDMILL_START.FrameMove ESSI_SA_ESK_WINDMILL.FrameMove	inside X2GUElsword_SwordMan.cpp:3532 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_START_FrameMove ; inside X2GUElsword_SwordMan.cpp:3552 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_FrameMove	inside	-	CH3a	2 states	y
+32d11fd0	state-fn	ESSI_SA_ESK_WINDMILL.EventProcess	inside X2GUElsword_SwordMan.cpp:3553 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_EventProcess	inside	-	CH3a	1 states	n
+32d12210	state-fn	ESSI_SA_ESK_WINDMILL.End	inside X2GUElsword_SwordMan.cpp:3554 CX2GUElsword_SwordMan::ESSI_SA_ESK_WINDMILL_StateEnd	inside	-	CH3a	1 states	y
+32d123f0	state-fn	ESSI_SA_EMK_BIG_BURST.FrameMove	inside X2GUElsword_SwordMan.cpp:3652 CX2GUElsword_SwordMan::ESSI_SA_EMK_BIG_BURST_FrameMove	inside	-	CH2c	1 states	y
+32d12550	state-fn	ESSI_ERS_XZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1263 CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMove	inside	-	CH1f	1 states	y
+32d128b0	state-fn	ESSI_ERS_XZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1271 CX2GUElsword_SwordMan::ESSI_ERS_XZZ_FrameMove	inside	-	CH1f	1 states	y
+32d12c50	state-fn	ESSI_ERS_DASH_JUMP_XZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1283 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMove	inside	-	CH1f	1 states	y
+32d131d0	state-fn	ESSI_ERS_DASH_JUMP_XZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1291 CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_FrameMove	inside	-	CH1f	1 states	y
+32d135c0	state-fn	ESSI_SA_ERS_SPLASH_EXPLOSION.Start	inside X2GUElsword_SwordMan.cpp:3738 CX2GUElsword_SwordMan::ESSI_SA_ERS_SPLASH_EXPLOSION_StateStart	inside	-	CH3b	1 states	y
+32d137a0	state-fn	ESSI_SI_A_ES_ROLLING_END.FrameMove	inside X2GUElsword_SwordMan.cpp:3922 CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_FrameMove	inside	-	CH2a	1 states	y
+32d13940	state-fn	ESSI_SI_SA_ETK_HARSH_CHASER.FrameMove	inside X2GUElsword_SwordMan.cpp:3932 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_HARSH_CHASER_FrameMove	inside	-	CH3c	1 states	n
+32d13be0	state-fn	ESSI_SI_SA_ETK_HARSH_CHASER.EventProcess	inside X2GUElsword_SwordMan.cpp:3933 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_HARSH_CHASER_EventProcess	inside	-	CH3c	1 states	n
+32d13cd0	state-fn	ESSI_SI_SA_ETK_HARSH_CHASER.End	inside X2GUElsword_SwordMan.cpp:3934 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_HARSH_CHASER_End	inside	-	CH3c	1 states	y
+32d13d20	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.CameraMove	inside X2GUElsword_SwordMan.cpp:1662 CX2GUElsword_SwordMan::CompactCounterGuardAttackCameraMove	inside	-	CH1g2	1 states	y
+32d13e00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 538dbeb402000053	n
+32d13e20	state-fn	ESSI_SI_SA_ETK_MAELSTORM_RAGE.FrameMove	inside X2GUElsword_SwordMan.cpp:3960 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_FrameMove	inside	-	CH3c	1 states	y
+32d140f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e867e32c0083c464	n
+32d14100	state-fn	ESSI_SI_SA_ETK_SWORD_FALL.FrameMove	inside X2GUElsword_SwordMan.cpp:3993 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_SWORD_FALL_FrameMove	inside	-	CH2d	1 states	y
+32d14970	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32d15e20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8911d94424588b57	n
+32d15f80	state-fn	ESSI_SI_SA_ETK_SWORD_FALL.End	inside X2GUElsword_SwordMan.cpp:3995 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_SWORD_FALL_End	inside	-	CH2d	1 states	y
+32d162d0	state-fn	ESSI_SI_SA_ETK_CRESCENT_CUT.FrameMove	inside X2GUElsword_SwordMan.cpp:4010 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_CRESCENT_CUT_FrameMove	inside	-	CH2d	1 states	y
+32d16b80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32d16bf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e867b82c0081c4b4	n
+32d16c00	helper	called by 32d1b740	-	new	?	CH2d	name: called by 32d1b740(ESSI_SI_SA_ETK_CRESCENT_CUT.)	y
+32d170e0	state-fn	ESSI_SI_SA_ETK_PHANTOM_SWORD.FrameMove	inside X2GUElsword_SwordMan.cpp:4026 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_PHANTOM_SWORD_FrameMove	inside	-	CH3c	1 states	y
+32d17550	state-fn	ESSI_EIS_DASH_COMBO_XX.FrameMove	-	new	ESSI_EIS_DASH_COMBO_XX_FrameMove	CH1g2	1 states	y
+32d177a0	state-fn	ESSI_SI_SA_EIS_SWORD_BLASTING.FrameMove ESSI_SI_SA_EIS_SWORD_BLASTING_UPGRADE.FrameMove	inside X2GUElsword_SwordMan.cpp:4053 CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_SWORD_BLASTING_FrameMove	inside	-	CH3c	2 states	y
+32d17e90	override 0x4c	DeleteMinorParticle	X2GUElsword_SwordMan.h:392 virtual void DeleteMinorParticle();	inside	-	CH1h	base 31fc87c0	y
+32d17ea0	override 0xc4	HyperModeBuffEffectStart	X2GUElsword_SwordMan.h:481 virtual void HyperModeBuffEffectStart();	inside	-	CH1h	base 31fd5cb0	n
+32d180a0	state-fn	ESSI_SI_P_ESK_AUTO_GUARD.Start ESSI_SI_P_ESK_AUTO_GUARD_SMALL.Start	inside X2GUElsword_SwordMan.cpp:1640 CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_Start	inside	-	CH1e	2 states	y
+32d18230	state-fn	ESSI_SI_A_ERS_RUNE_OF_FIRE.FrameMove	inside X2GUElsword_SwordMan.cpp:3082 CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_FrameMove	inside	-	CH3b	1 states	y
+32d18490	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68590d343364	y
+32d186a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9053c99453383ec	n
+32d18950	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578bf983bfcc96	y
+32d189a0	state-fn	ESSI_A_ETK_SWORD_SHIELD.Start	inside X2GUElsword_SwordMan.cpp:3131 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_StateStart	inside	-	CH2d	1 states	n
+32d18a60	state-fn	ESSI_A_ETK_SWORD_SHIELD.FrameMove	inside X2GUElsword_SwordMan.cpp:3133 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_FrameMove	inside	-	CH2d	1 states	y
+32d18cd0	override 0x74	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0x74 GetFinalDamage_WayOfSword (June adds a PvP-type branch); inside: X2GUElsword_SwordMan.h:437 GetFinalDamage_WayOfSword (Way of the Sword, ch0_wos.tsv)	n
+32d18d80	helper	called by 32d1b720 32d1b910	-	new	?	CH1c	name: called by 32d1b720(HyperModeFrameMove) 32d1b910(ESSI_RIDING_HYPER_MODE.Frame)	y
+32d19040	state-fn	ESSI_EMK_COMBO_XZ.FrameMove	-	new	ESSI_EMK_COMBO_XZ_FrameMove	CH1f	1 states	y
+32d19300	state-fn	ESSI_EMK_COMBO_XZZ.FrameMove	-	new	ESSI_EMK_COMBO_XZZ_FrameMove	CH1f	1 states	y
+32d195c0	state-fn	ESSI_EMK_COMBO_FULL_CHARGE_XZZ.FrameMove	-	new	ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove	CH1f	1 states	y
+32d19880	state-fn	ESSI_ERS_FULL_CHARGE_XZZ.FrameMove	-	new	ESSI_ERS_FULL_CHARGE_XZZ_FrameMove	CH1f	1 states	y
+32d19b80	state-fn	ESSI_ETK_DASH_JUMP_ZZZ.FrameMove	-	new	ESSI_ETK_DASH_JUMP_ZZZ_FrameMove	CH1g	1 states	y
+32d19da0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bceffd08b	n
+32d19dd0	helper	called by 32d1b930 32d1b980	-	new	?	CH3a	name: called by 32d1b930(ESSI_SA_ELK_GRAND_CROSS_END.) 32d1b980(ESSI_SA_ELK_GRAND_CROSS_FULL)	y
+32d1a350	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e807812c0081c42c	n
+32d1a370	helper	called by 32d27470	-	new	?	CH4a	name: called by 32d27470(helper)	y
+32d1a5d0	helper	called by 32d27620	-	inside	-	CH1h	inside: X2GUElsword_SwordMan.h:278 destructor body (ctor store 32d094e4 / dtor store 32d1a5fd; the scalar deleting dtor 32d27620 calls it, then the delete helper 32fe2300)	y
+32d1a920	override 0x44	ReInit	X2GUElsword_SwordMan.h:312 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );	inside	-	CH1h	base 32022380	n
+32d1ac60	override 0x60	DamageReact	X2GUElsword_SwordMan.h:315 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );	inside	-	CH1h	base 320462a0	y
+32d1b120	override 0x548	CreateMinorParticleArray	X2GUElsword_SwordMan.h:368 virtual void CreateMinorParticleArray();	inside	-	CH1h	base 32012920	n
+32d1b2b0	override 0x7cc	CommonFrameMove	X2GUElsword_SwordMan.h:467 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
+32d1b650	not-Elsword	called only from outside the range: 32046a8b	-	-	-	n/a	shared / folded code	y
+32d1b720	override 0x600	HyperModeFrameMove	X2GUElsword_SwordMan.h:755 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)	inside	-	CH1i	base 31aa1d30	n
+32d1b740	state-fn	ESSI_SI_SA_ETK_CRESCENT_CUT.FrameMove	inside X2GUElsword_SwordMan.cpp:4010 CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_CRESCENT_CUT_FrameMove	inside	-	CH2d	1 states	y
+32d1b810	override 0xd0	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0xd0 creates CX2ElswordGageData (ch0_wos.tsv); inside: X2GUElsword_SwordMan.h:1645 CreateGageData (Way of the Sword, ch0_wos.tsv)	y
+32d1b910	state-fn	ESSI_RIDING_HYPER_MODE.FrameMove	inside X2GUElsword_SwordMan.cpp:2176 CX2GUElsword_SwordMan::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
+32d1b930	state-fn	ESSI_SA_ELK_GRAND_CROSS_END.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_END_FrameMove	CH3a	1 states	n
+32d1b980	state-fn	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_FrameMove	CH3a	1 states	y
+32d1b9d0	helper	called by 32d27620	-	new	?	CH1h	also called from outside the class: 32d27641; name: called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 32d27641	y
+32d1bd10	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32d1c560	override 0x690	InitPassiveSkillState	X2GUElsword_SwordMan.h:459 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	y
+32d1c8b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c744244800000000	n
+32d1c9d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0074166a008d4c24	n
+32d1dbd0	helper	called by 32d1ddf0	-	new	?	CH1k	name: called by 32d1ddf0(NoStateChangeActionFrameMove)	y
+32d1ddf0	override 0x80c	NoStateChangeActionFrameMove	X2GUElsword_SwordMan.h:476 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	y
+32d1e0e0	override 0x2b8	SetDamageExceptionProcess	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3084 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)	new	SetDamageExceptionProcess	CH4b	base 32045340	y
+32d1e200	state-fn	ESSI_ETK_COMBO_ZZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:964 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_FrameMove	inside	-	CH1g	1 states	y
+32d1e400	state-fn	ESSI_ETK_COMBO_ZZZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:972 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_FrameMove	inside	-	CH1g	1 states	y
+32d1e4d0	state-fn	ESSI_ETK_COMBO_ZZZZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:981 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_FrameMove	inside	-	CH1g	1 states	y
+32d1e5a0	state-fn	ESSI_ETK_COMBO_XX.FrameMove	inside X2GUElsword_SwordMan.cpp:1001 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_FrameMove	inside	-	CH1g	1 states	y
+32d1e7a0	state-fn	ESSI_ETK_COMBO_XXX_LOOP.FrameMove	inside X2GUElsword_SwordMan.cpp:1010 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_FrameMove	inside	-	CH1g	1 states	y
+32d1e870	state-fn	ESSI_ETK_COMBO_XXXZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1018 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_FrameMove	inside	-	CH1g	1 states	y
+32d1e940	state-fn	ESSI_ETK_COMBO_XXX_END.FrameMove	inside X2GUElsword_SwordMan.cpp:1027 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_FrameMove	inside	-	CH1g	1 states	y
+32d1ea10	state-fn	ESSI_ETK_DASH_COMBO_ZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:1114 CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_FrameMove	inside	-	CH1g	1 states	n
+32d1ecc0	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK.FrameMove	inside X2GUElsword_SwordMan.cpp:3469 CX2GUElsword_SwordMan::CompactCounterAttackFrameMove	inside	-	CH3c	1 states	y
+32d1ef60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5304895104	n
+32d1f130	state-fn	ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK.FrameMove	inside X2GUElsword_SwordMan.cpp:1661 CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove	inside	-	CH1g2	1 states	y
+32d1f200	state-fn	ESSI_EIS_DASH_COMBO_ZX.FrameMove	-	new	ESSI_EIS_DASH_COMBO_ZX_FrameMove	CH1g2	1 states	n
+32d1f2d0	state-fn	ESSI_EIS_DASHJUMP_COMBO_XXX.FrameMove	inside X2GUElsword_SwordMan.cpp:1205 CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove	inside	-	CH1g2	1 states	n
+32d1f3a0	state-fn	ESSI_SI_A_EIS_SPIRAL_STING.FrameMove	inside X2GUElsword_SwordMan.cpp:4042 CX2GUElsword_SwordMan::ESSI_SI_A_EIS_SPIRAL_STING_FrameMove	inside	-	CH2d	1 states	n
+32d1f470	state-fn	ESSI_SI_SA_EIS_RAGE_CUTTER.FrameMove	inside X2GUElsword_SwordMan.cpp:4064 CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_RAGE_CUTTER_FrameMove	inside	-	CH3c	1 states	y
+32d1f690	override 0x24c	SetSpecificValueByBuffTempletID	X2GUElsword_SwordMan.h:456 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3204b5e0	y
+32d1f8f0	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GUElsword_SwordMan.cpp InitState	inside	-	CH1m		y
+32d223e0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUElsword_SwordMan.h:460 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
+32d23ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 4e5233894c2420e8	n
+32d23ff0	override 0x7a4 + registrar	InitState	X2GUElsword_SwordMan.h:446 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y
+32d259d0	thunk	jmp 32cf4090	-	-	-	n/a	not ported	n
+32d259e0	thunk	jmp 32cf40b0	-	-	-	n/a	not ported	n
+32d259f0	thunk	jmp 32cf40d0	-	-	-	n/a	not ported	n
+32d25a00	thunk	jmp 32cf40e0	-	-	-	n/a	not ported	n
+32d25a10	thunk	jmp 32cf4100	-	-	-	n/a	not ported	n
+32d25a20	thunk	jmp 32cf4120	-	-	-	n/a	not ported	n
+32d25a30	thunk	jmp 32cf4150	-	-	-	n/a	not ported	n
+32d25a40	thunk	jmp 32cf4170	-	-	-	n/a	not ported	n
+32d25a50	thunk	jmp 32cf4190	-	-	-	n/a	not ported	n
+32d25a60	thunk	jmp 32cf3770	-	-	-	n/a	not ported	n
+32d25a70	thunk	jmp 32cf3780	-	-	-	n/a	not ported	n
+32d25a80	thunk	jmp 32cf4d30	-	-	-	n/a	not ported	n
+32d25a90	thunk	jmp 32cf4d40	-	-	-	n/a	not ported	n
+32d25aa0	thunk	jmp 32cf3f80	-	-	-	n/a	not ported	n
+32d25ab0	thunk	jmp 32cf3f90	-	-	-	n/a	not ported	n
+32d25ac0	thunk	jmp 32cf3790	-	-	-	n/a	not ported	n
+32d25ad0	thunk	jmp 32cf4470	-	-	-	n/a	not ported	n
+32d25ae0	thunk	jmp 32cf41b0	-	-	-	n/a	not ported	n
+32d25af0	thunk	jmp 32cf3870	-	-	-	n/a	not ported	n
+32d25b00	thunk	jmp 32cf38f0	-	-	-	n/a	not ported	n
+32d25b10	thunk	jmp 32cf4490	-	-	-	n/a	not ported	n
+32d25b20	thunk	jmp 32cf3f70	-	-	-	n/a	not ported	n
+32d25b30	thunk	jmp 32cf3fa0	-	-	-	n/a	not ported	n
+32d25b40	thunk	jmp 32cf3fc0	-	-	-	n/a	not ported	n
+32d25b50	thunk	jmp 32cf3ff0	-	-	-	n/a	not ported	n
+32d25b60	thunk	jmp 32cf4d50	-	-	-	n/a	not ported	n
+32d25b70	thunk	jmp 32cf3360	-	-	-	n/a	not ported	n
+32d25b80	thunk	jmp 32cf3380	-	-	-	n/a	not ported	n
+32d25b90	thunk	jmp 32cf33a0	-	-	-	n/a	not ported	n
+32d25ba0	thunk	jmp 32cf33d0	-	-	-	n/a	not ported	n
+32d25bb0	thunk	jmp 32cf3470	-	-	-	n/a	not ported	n
+32d25bc0	thunk	jmp 32cf3480	-	-	-	n/a	not ported	n
+32d25bd0	thunk	jmp 32cf34b0	-	-	-	n/a	not ported	n
+32d25be0	thunk	jmp 32cf34d0	-	-	-	n/a	not ported	n
+32d25bf0	thunk	jmp 32cf3510	-	-	-	n/a	not ported	n
+32d25c00	thunk	jmp 32cf3550	-	-	-	n/a	not ported	n
+32d25c10	thunk	jmp 32cf3590	-	-	-	n/a	not ported	n
+32d25c20	thunk	jmp 32cf35d0	-	-	-	n/a	not ported	n
+32d25c30	thunk	jmp 32cf3610	-	-	-	n/a	not ported	n
+32d25c40	thunk	jmp 32cf3cf0	-	-	-	n/a	not ported	n
+32d25c50	thunk	jmp 32cf3d30	-	-	-	n/a	not ported	n
+32d25c60	thunk	jmp 32cf4260	-	-	-	n/a	not ported	n
+32d25c70	thunk	jmp 32cf4280	-	-	-	n/a	not ported	n
+32d25c80	thunk	jmp 32cf3690	-	-	-	n/a	not ported	n
+32d25c90	thunk	jmp 32cf36a0	-	-	-	n/a	not ported	n
+32d25ca0	thunk	jmp 32cf36d0	-	-	-	n/a	not ported	n
+32d25cb0	thunk	jmp 32cf36f0	-	-	-	n/a	not ported	n
+32d25cc0	thunk	jmp 32cf3700	-	-	-	n/a	not ported	n
+32d25cd0	thunk	jmp 32cf3710	-	-	-	n/a	not ported	n
+32d25ce0	thunk	jmp 32cf3720	-	-	-	n/a	not ported	n
+32d25cf0	thunk	jmp 32cf3730	-	-	-	n/a	not ported	n
+32d25d00	thunk	jmp 32cf3740	-	-	-	n/a	not ported	n
+32d25d10	thunk	jmp 32cf3750	-	-	-	n/a	not ported	n
+32d25d20	thunk	jmp 32cf3760	-	-	-	n/a	not ported	n
+32d25d30	thunk	jmp 32cf37d0	-	-	-	n/a	not ported	n
+32d25d40	thunk	jmp 32cf37e0	-	-	-	n/a	not ported	n
+32d25d50	thunk	jmp 32cf37f0	-	-	-	n/a	not ported	n
+32d25d60	thunk	jmp 32cf3800	-	-	-	n/a	not ported	n
+32d25d70	thunk	jmp 32cf3810	-	-	-	n/a	not ported	n
+32d25d80	thunk	jmp 32cf3840	-	-	-	n/a	not ported	n
+32d25d90	thunk	jmp 32cf3860	-	-	-	n/a	not ported	n
+32d25da0	thunk	jmp 32cf38a0	-	-	-	n/a	not ported	n
+32d25db0	thunk	jmp 32cf38d0	-	-	-	n/a	not ported	n
+32d25dc0	thunk	jmp 32cf36b0	-	-	-	n/a	not ported	n
+32d25dd0	thunk	jmp 32cf36c0	-	-	-	n/a	not ported	n
+32d25de0	thunk	jmp 31fd9970	-	-	-	n/a	not ported	n
+32d25df0	thunk	jmp 31fd9af0	-	-	-	n/a	not ported	n
+32d25e00	thunk	jmp 31fc7e60	-	-	-	n/a	not ported	n
+32d25e10	thunk	jmp 31fc7e70	-	-	-	n/a	not ported	n
+32d25e20	thunk	jmp 31fc7e80	-	-	-	n/a	not ported	n
+32d25e30	thunk	jmp 31fcbc80	-	-	-	n/a	not ported	n
+32d25e40	thunk	jmp 31fc7ec0	-	-	-	n/a	not ported	n
+32d25e50	thunk	jmp 31fc7ed0	-	-	-	n/a	not ported	n
+32d25e60	thunk	jmp 31fc7ee0	-	-	-	n/a	not ported	n
+32d25e70	thunk	jmp 31ffb130	-	-	-	n/a	not ported	n
+32d25e80	thunk	jmp 31fd2220	-	-	-	n/a	not ported	n
+32d25e90	thunk	jmp 31ffb370	-	-	-	n/a	not ported	n
+32d25ea0	thunk	jmp 31fc7ef0	-	-	-	n/a	not ported	n
+32d25eb0	thunk	jmp 31ffb4f0	-	-	-	n/a	not ported	n
+32d25ec0	thunk	jmp 31ffb7f0	-	-	-	n/a	not ported	n
+32d25ed0	thunk	jmp 31fd1f20	-	-	-	n/a	not ported	n
+32d25ee0	thunk	jmp 31fd2000	-	-	-	n/a	not ported	n
+32d25ef0	thunk	jmp 31fc7e90	-	-	-	n/a	not ported	n
+32d25f00	thunk	jmp 31fc7ea0	-	-	-	n/a	not ported	n
+32d25f10	thunk	jmp 31fc7eb0	-	-	-	n/a	not ported	n
+32d25f20	thunk	jmp 31fcbcb0	-	-	-	n/a	not ported	n
+32d25f30	thunk	jmp 31fd2280	-	-	-	n/a	not ported	n
+32d25f40	thunk	jmp 31fc7f00	-	-	-	n/a	not ported	n
+32d25f50	thunk	jmp 31fd2330	-	-	-	n/a	not ported	n
+32d25f60	thunk	jmp 31fcbce0	-	-	-	n/a	not ported	n
+32d25f70	thunk	jmp 31ffba50	-	-	-	n/a	not ported	n
+32d25f80	thunk	jmp 31fcbd10	-	-	-	n/a	not ported	n
+32d25f90	thunk	jmp 32cf3ca0	-	-	-	n/a	not ported	n
+32d25fa0	thunk	jmp 32cf3ce0	-	-	-	n/a	not ported	n
+32d25fb0	thunk	jmp 32cf3920	-	-	-	n/a	not ported	n
+32d25fc0	thunk	jmp 32cf3950	-	-	-	n/a	not ported	n
+32d25fd0	thunk	jmp 32cf3970	-	-	-	n/a	not ported	n
+32d25fe0	thunk	jmp 32cf39a0	-	-	-	n/a	not ported	n
+32d25ff0	thunk	jmp 32cf39b0	-	-	-	n/a	not ported	n
+32d26000	thunk	jmp 32cf3a10	-	-	-	n/a	not ported	n
+32d26010	thunk	jmp 32cf3a40	-	-	-	n/a	not ported	n
+32d26020	thunk	jmp 32cf3aa0	-	-	-	n/a	not ported	n
+32d26030	thunk	jmp 32cf3ad0	-	-	-	n/a	not ported	n
+32d26040	thunk	jmp 32cf3b20	-	-	-	n/a	not ported	n
+32d26050	thunk	jmp 32cf3b00	-	-	-	n/a	not ported	n
+32d26060	thunk	jmp 32cf4de0	-	-	-	n/a	not ported	n
+32d26070	thunk	jmp 32cf3b70	-	-	-	n/a	not ported	n
+32d26080	thunk	jmp 32cf3d70	-	-	-	n/a	not ported	n
+32d26090	thunk	jmp 32cf3da0	-	-	-	n/a	not ported	n
+32d260a0	thunk	jmp 32cf3dd0	-	-	-	n/a	not ported	n
+32d260b0	thunk	jmp 32cf3e20	-	-	-	n/a	not ported	n
+32d260c0	thunk	jmp 32cf3e90	-	-	-	n/a	not ported	n
+32d260d0	thunk	jmp 32cf3c00	-	-	-	n/a	not ported	n
+32d260e0	thunk	jmp 32cf3b90	-	-	-	n/a	not ported	n
+32d260f0	thunk	jmp 32cf3bd0	-	-	-	n/a	not ported	n
+32d26100	thunk	jmp 32cf3c70	-	-	-	n/a	not ported	n
+32d26110	thunk	jmp 32cf4050	-	-	-	n/a	not ported	n
+32d26120	thunk	jmp 32cf4080	-	-	-	n/a	not ported	n
+32d26130	thunk	jmp 32cf3ea0	-	-	-	n/a	not ported	n
+32d26140	thunk	jmp 32cf3ec0	-	-	-	n/a	not ported	n
+32d26150	thunk	jmp 32cf3ee0	-	-	-	n/a	not ported	n
+32d26160	thunk	jmp 32cf44d0	-	-	-	n/a	not ported	n
+32d26170	thunk	jmp 32cf4370	-	-	-	n/a	not ported	n
+32d26180	thunk	jmp 32cf4400	-	-	-	n/a	not ported	n
+32d26190	thunk	jmp 32cf4310	-	-	-	n/a	not ported	n
+32d261a0	thunk	jmp 32cf4450	-	-	-	n/a	not ported	n
+32d261b0	thunk	jmp 32cf42a0	-	-	-	n/a	not ported	n
+32d261c0	thunk	jmp 32cf42f0	-	-	-	n/a	not ported	n
+32d261d0	thunk	jmp 32cf44b0	-	-	-	n/a	not ported	n
+32d261e0	thunk	jmp 32cf41d0	-	-	-	n/a	not ported	n
+32d261f0	thunk	jmp 32cf4200	-	-	-	n/a	not ported	n
+32d26200	thunk	jmp 32cf4530	-	-	-	n/a	not ported	n
+32d26210	thunk	jmp 32cf3f10	-	-	-	n/a	not ported	n
+32d26220	thunk	jmp 32cf3650	-	-	-	n/a	not ported	n
+32d26230	thunk	jmp 32cf3670	-	-	-	n/a	not ported	n
+32d26240	thunk	jmp 32cf3f30	-	-	-	n/a	not ported	n
+32d26250	thunk	jmp 32cf45c0	-	-	-	n/a	not ported	n
+32d26260	thunk	jmp 32cf4710	-	-	-	n/a	not ported	n
+32d26270	thunk	jmp 32cf4770	-	-	-	n/a	not ported	n
+32d26280	thunk	jmp 32cf4e50	-	-	-	n/a	not ported	n
+32d26290	thunk	jmp 32cf4d70	-	-	-	n/a	not ported	n
+32d262a0	thunk	jmp 32cf48e0	-	-	-	n/a	not ported	n
+32d262b0	thunk	jmp 32cf4890	-	-	-	n/a	not ported	n
+32d262c0	thunk	jmp 32cf4210	-	-	-	n/a	not ported	n
+32d262d0	thunk	jmp 32cf4230	-	-	-	n/a	not ported	n
+32d262e0	thunk	jmp 32cf4240	-	-	-	n/a	not ported	n
+32d262f0	thunk	jmp 32cf4930	-	-	-	n/a	not ported	n
+32d26300	thunk	jmp 32cf49d0	-	-	-	n/a	not ported	n
+32d26310	thunk	jmp 32cf4ab0	-	-	-	n/a	not ported	n
+32d26320	thunk	jmp 32cf4e80	-	-	-	n/a	not ported	n
+32d26330	thunk	jmp 32cf4e90	-	-	-	n/a	not ported	n
+32d26340	thunk	jmp 32cf4ec0	-	-	-	n/a	not ported	n
+32d26350	thunk	jmp 32cf4ef0	-	-	-	n/a	not ported	n
+32d26360	thunk	jmp 32cf4f60	-	-	-	n/a	not ported	n
+32d26370	thunk	jmp 32cf4fe0	-	-	-	n/a	not ported	n
+32d26380	thunk	jmp 32cf4ff0	-	-	-	n/a	not ported	n
+32d26390	thunk	jmp 32cf5000	-	-	-	n/a	not ported	n
+32d263a0	thunk	jmp 32cfc8e0	-	-	-	n/a	not ported	n
+32d263b0	thunk	jmp 32cfc900	-	-	-	n/a	not ported	n
+32d263c0	thunk	jmp 32cfcb70	-	-	-	n/a	not ported	n
+32d263d0	thunk	jmp 32cfce30	-	-	-	n/a	not ported	n
+32d263e0	thunk	jmp 32cfcfe0	-	-	-	n/a	not ported	n
+32d263f0	thunk	jmp 32cfd210	-	-	-	n/a	not ported	n
+32d26400	thunk	jmp 32cfd540	-	-	-	n/a	not ported	n
+32d26410	thunk	jmp 32cfd700	-	-	-	n/a	not ported	n
+32d26420	thunk	jmp 32cf8110	-	-	-	n/a	not ported	n
+32d26430	thunk	jmp 32cf8770	-	-	-	n/a	not ported	n
+32d26440	thunk	jmp 32cf8230	-	-	-	n/a	not ported	n
+32d26450	thunk	jmp 32cf8920	-	-	-	n/a	not ported	n
+32d26460	thunk	jmp 32d01040	-	-	-	n/a	not ported	n
+32d26470	thunk	jmp 32d014c0	-	-	-	n/a	not ported	n
+32d26480	thunk	jmp 32d017f0	-	-	-	n/a	not ported	n
+32d26490	thunk	jmp 32d01b70	-	-	-	n/a	not ported	n
+32d264a0	thunk	jmp 32d01ba0	-	-	-	n/a	not ported	n
+32d264b0	thunk	jmp 32cfafa0	-	-	-	n/a	not ported	n
+32d264c0	thunk	jmp 32cfb420	-	-	-	n/a	not ported	n
+32d264d0	thunk	jmp 32d02a90	-	-	-	n/a	not ported	n
+32d264e0	thunk	jmp 32d02ed0	-	-	-	n/a	not ported	n
+32d264f0	thunk	jmp 32cf8840	-	-	-	n/a	not ported	n
+32d26500	thunk	jmp 32cf8a00	-	-	-	n/a	not ported	n
+32d26510	thunk	jmp 32d03250	-	-	-	n/a	not ported	n
+32d26520	thunk	jmp 32d035d0	-	-	-	n/a	not ported	n
+32d26530	thunk	jmp 32d03880	-	-	-	n/a	not ported	n
+32d26540	thunk	jmp 32d03d00	-	-	-	n/a	not ported	n
+32d26550	thunk	jmp 32d040c0	-	-	-	n/a	not ported	n
+32d26560	thunk	jmp 32d04440	-	-	-	n/a	not ported	n
+32d26570	thunk	jmp 32cfe090	-	-	-	n/a	not ported	n
+32d26580	thunk	jmp 32cfd7a0	-	-	-	n/a	not ported	n
+32d26590	thunk	jmp 32d054d0	-	-	-	n/a	not ported	n
+32d265a0	thunk	jmp 32cf9530	-	-	-	n/a	not ported	n
+32d265b0	thunk	jmp 32cf9580	-	-	-	n/a	not ported	n
+32d265c0	thunk	jmp 32cf95e0	-	-	-	n/a	not ported	n
+32d265d0	thunk	jmp 32cf9670	-	-	-	n/a	not ported	n
+32d265e0	thunk	jmp 32cf96c0	-	-	-	n/a	not ported	n
+32d265f0	thunk	jmp 32cf9720	-	-	-	n/a	not ported	n
+32d26600	thunk	jmp 32cf9830	-	-	-	n/a	not ported	n
+32d26610	thunk	jmp 32cf97a0	-	-	-	n/a	not ported	n
+32d26620	thunk	jmp 32cf97e0	-	-	-	n/a	not ported	n
+32d26630	thunk	jmp 32cfe5e0	-	-	-	n/a	not ported	n
+32d26640	thunk	jmp 32cfe650	-	-	-	n/a	not ported	n
+32d26650	thunk	jmp 32cfaed0	-	-	-	n/a	not ported	n
+32d26660	thunk	jmp 32d01f10	-	-	-	n/a	not ported	n
+32d26670	thunk	jmp 32d02290	-	-	-	n/a	not ported	n
+32d26680	thunk	jmp 32d02710	-	-	-	n/a	not ported	n
+32d26690	thunk	jmp 32cfb900	-	-	-	n/a	not ported	n
+32d266a0	thunk	jmp 32cfb970	-	-	-	n/a	not ported	n
+32d266b0	thunk	jmp 32cfbdb0	-	-	-	n/a	not ported	n
+32d266c0	thunk	jmp 32cfbe10	-	-	-	n/a	not ported	n
+32d266d0	thunk	jmp 32cfbe80	-	-	-	n/a	not ported	n
+32d266e0	thunk	jmp 32cfbee0	-	-	-	n/a	not ported	n
+32d266f0	thunk	jmp 32d047c0	-	-	-	n/a	not ported	n
+32d26700	thunk	jmp 32d04b80	-	-	-	n/a	not ported	n
+32d26710	thunk	jmp 32d04f00	-	-	-	n/a	not ported	n
+32d26720	thunk	jmp 32d05250	-	-	-	n/a	not ported	n
+32d26730	thunk	jmp 32cfe280	-	-	-	n/a	not ported	n
+32d26740	thunk	jmp 32cfe440	-	-	-	n/a	not ported	n
+32d26750	thunk	jmp 32cf57f0	-	-	-	n/a	not ported	n
+32d26760	thunk	jmp 32cf5850	-	-	-	n/a	not ported	n
+32d26770	thunk	jmp 32cf5890	-	-	-	n/a	not ported	n
+32d26780	thunk	jmp 32cf58f0	-	-	-	n/a	not ported	n
+32d26790	thunk	jmp 32cf5930	-	-	-	n/a	not ported	n
+32d267a0	thunk	jmp 32cf5960	-	-	-	n/a	not ported	n
+32d267b0	thunk	jmp 32cf5a40	-	-	-	n/a	not ported	n
+32d267c0	thunk	jmp 32cf5a80	-	-	-	n/a	not ported	n
+32d267d0	thunk	jmp 32cf5ad0	-	-	-	n/a	not ported	n
+32d267e0	thunk	jmp 32cf5c50	-	-	-	n/a	not ported	n
+32d267f0	thunk	jmp 32cf5c90	-	-	-	n/a	not ported	n
+32d26800	thunk	jmp 32cf5e10	-	-	-	n/a	not ported	n
+32d26810	thunk	jmp 32cf5f90	-	-	-	n/a	not ported	n
+32d26820	thunk	jmp 32cf6010	-	-	-	n/a	not ported	n
+32d26830	thunk	jmp 32cf6090	-	-	-	n/a	not ported	n
+32d26840	thunk	jmp 32cf6110	-	-	-	n/a	not ported	n
+32d26850	thunk	jmp 32cf6190	-	-	-	n/a	not ported	n
+32d26860	thunk	jmp 32cf6210	-	-	-	n/a	not ported	n
+32d26870	thunk	jmp 32cfa810	-	-	-	n/a	not ported	n
+32d26880	thunk	jmp 32cfa890	-	-	-	n/a	not ported	n
+32d26890	thunk	jmp 32cff880	-	-	-	n/a	not ported	n
+32d268a0	thunk	jmp 32cff8d0	-	-	-	n/a	not ported	n
+32d268b0	thunk	jmp 32cff920	-	-	-	n/a	not ported	n
+32d268c0	thunk	jmp 32cfdbe0	-	-	-	n/a	not ported	n
+32d268d0	thunk	jmp 32cfdcb0	-	-	-	n/a	not ported	n
+32d268e0	thunk	jmp 32cf6370	-	-	-	n/a	not ported	n
+32d268f0	thunk	jmp 32cf6440	-	-	-	n/a	not ported	n
+32d26900	thunk	jmp 32cf67c0	-	-	-	n/a	not ported	n
+32d26910	thunk	jmp 32cf6d80	-	-	-	n/a	not ported	n
+32d26920	thunk	jmp 32cf7260	-	-	-	n/a	not ported	n
+32d26930	thunk	jmp 32cf7340	-	-	-	n/a	not ported	n
+32d26940	thunk	jmp 32cf73e0	-	-	-	n/a	not ported	n
+32d26950	thunk	jmp 32cf7810	-	-	-	n/a	not ported	n
+32d26960	thunk	jmp 32cf7b00	-	-	-	n/a	not ported	n
+32d26970	thunk	jmp 32cf7bd0	-	-	-	n/a	not ported	n
+32d26980	thunk	jmp 32cf7cb0	-	-	-	n/a	not ported	n
+32d26990	thunk	jmp 32cf8b30	-	-	-	n/a	not ported	n
+32d269a0	thunk	jmp 32cf9050	-	-	-	n/a	not ported	n
+32d269b0	thunk	jmp 32cf9090	-	-	-	n/a	not ported	n
+32d269c0	thunk	jmp 32cf90d0	-	-	-	n/a	not ported	n
+32d269d0	thunk	jmp 32cf9220	-	-	-	n/a	not ported	n
+32d269e0	thunk	jmp 32cf9380	-	-	-	n/a	not ported	n
+32d269f0	thunk	jmp 32cf9400	-	-	-	n/a	not ported	n
+32d26a00	thunk	jmp 32cf9440	-	-	-	n/a	not ported	n
+32d26a10	thunk	jmp 32cf9610	-	-	-	n/a	not ported	n
+32d26a20	thunk	jmp 32cf63c0	-	-	-	n/a	not ported	n
+32d26a30	thunk	jmp 32cfa360	-	-	-	n/a	not ported	n
+32d26a40	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d26a50	thunk	jmp 32cf9960	-	-	-	n/a	not ported	n
+32d26a60	thunk	jmp 32cf9920	-	-	-	n/a	not ported	n
+32d26a70	thunk	jmp 32cf9990	-	-	-	n/a	not ported	n
+32d26a80	thunk	jmp 32cf99d0	-	-	-	n/a	not ported	n
+32d26a90	thunk	jmp 32cf9d50	-	-	-	n/a	not ported	n
+32d26aa0	thunk	jmp 32cf9d80	-	-	-	n/a	not ported	n
+32d26ab0	thunk	jmp 32cf9f20	-	-	-	n/a	not ported	n
+32d26ac0	thunk	jmp 32cf9e50	-	-	-	n/a	not ported	n
+32d26ad0	thunk	jmp 32d05530	-	-	-	n/a	not ported	n
+32d26ae0	thunk	jmp 32cfc430	-	-	-	n/a	not ported	n
+32d26af0	thunk	jmp 32cf9f60	-	-	-	n/a	not ported	n
+32d26b00	thunk	jmp 32cfa000	-	-	-	n/a	not ported	n
+32d26b10	thunk	jmp 32cfc5d0	-	-	-	n/a	not ported	n
+32d26b20	thunk	jmp 32cfa910	-	-	-	n/a	not ported	n
+32d26b30	thunk	jmp 32cfa970	-	-	-	n/a	not ported	n
+32d26b40	thunk	jmp 32cfa9a0	-	-	-	n/a	not ported	n
+32d26b50	thunk	jmp 32cfaa30	-	-	-	n/a	not ported	n
+32d26b60	thunk	jmp 32cfc050	-	-	-	n/a	not ported	n
+32d26b70	thunk	jmp 32cfa230	-	-	-	n/a	not ported	n
+32d26b80	thunk	jmp 32cfa040	-	-	-	n/a	not ported	n
+32d26b90	thunk	jmp 32cfa080	-	-	-	n/a	not ported	n
+32d26ba0	thunk	jmp 32cfa270	-	-	-	n/a	not ported	n
+32d26bb0	thunk	jmp 32cfa320	-	-	-	n/a	not ported	n
+32d26bc0	thunk	jmp 32cfc3f0	-	-	-	n/a	not ported	n
+32d26bd0	thunk	jmp 32cfad40	-	-	-	n/a	not ported	n
+32d26be0	thunk	jmp 32cfad80	-	-	-	n/a	not ported	n
+32d26bf0	thunk	jmp 32cfec80	-	-	-	n/a	not ported	n
+32d26c00	thunk	jmp 32cfdee0	-	-	-	n/a	not ported	n
+32d26c10	thunk	jmp 32cfdf70	-	-	-	n/a	not ported	n
+32d26c20	thunk	jmp 32cfde50	-	-	-	n/a	not ported	n
+32d26c30	thunk	jmp 32cfe000	-	-	-	n/a	not ported	n
+32d26c40	thunk	jmp 32cfea80	-	-	-	n/a	not ported	n
+32d26c50	thunk	jmp 32cfdd60	-	-	-	n/a	not ported	n
+32d26c60	thunk	jmp 32cfddc0	-	-	-	n/a	not ported	n
+32d26c70	thunk	jmp 32cfea40	-	-	-	n/a	not ported	n
+32d26c80	thunk	jmp 32cfd840	-	-	-	n/a	not ported	n
+32d26c90	thunk	jmp 32cfd880	-	-	-	n/a	not ported	n
+32d26ca0	thunk	jmp 32cfa6c0	-	-	-	n/a	not ported	n
+32d26cb0	thunk	jmp 32cfa740	-	-	-	n/a	not ported	n
+32d26cc0	thunk	jmp 32cfed60	-	-	-	n/a	not ported	n
+32d26cd0	thunk	jmp 32cfadc0	-	-	-	n/a	not ported	n
+32d26ce0	thunk	jmp 32cfc120	-	-	-	n/a	not ported	n
+32d26cf0	thunk	jmp 32cfc150	-	-	-	n/a	not ported	n
+32d26d00	thunk	jmp 32cfc1f0	-	-	-	n/a	not ported	n
+32d26d10	thunk	jmp 32cf6290	-	-	-	n/a	not ported	n
+32d26d20	thunk	jmp 32cfae00	-	-	-	n/a	not ported	n
+32d26d30	thunk	jmp 32cfef60	-	-	-	n/a	not ported	n
+32d26d40	thunk	jmp 32cffd60	-	-	-	n/a	not ported	n
+32d26d50	thunk	jmp 32cffcf0	-	-	-	n/a	not ported	n
+32d26d60	thunk	jmp 32cfff60	-	-	-	n/a	not ported	n
+32d26d70	thunk	jmp 32d05500	-	-	-	n/a	not ported	n
+32d26d80	thunk	jmp 32d05b80	-	-	-	n/a	not ported	n
+32d26d90	thunk	jmp 32d007e0	-	-	-	n/a	not ported	n
+32d26da0	thunk	jmp 32d005e0	-	-	-	n/a	not ported	n
+32d26db0	thunk	jmp 32cfe840	-	-	-	n/a	not ported	n
+32d26dc0	thunk	jmp 32cfd910	-	-	-	n/a	not ported	n
+32d26dd0	thunk	jmp 32cfd990	-	-	-	n/a	not ported	n
+32d26de0	thunk	jmp 32cfdb30	-	-	-	n/a	not ported	n
+32d26df0	thunk	jmp 32d00be0	-	-	-	n/a	not ported	n
+32d26e00	thunk	jmp 32d00de0	-	-	-	n/a	not ported	n
+32d26e10	thunk	jmp 32d05f00	-	-	-	n/a	not ported	n
+32d26e20	thunk	jmp 32d061a0	-	-	-	n/a	not ported	n
+32d26e30	thunk	jmp 32d061d0	-	-	-	n/a	not ported	n
+32d26e40	thunk	jmp 32d06550	-	-	-	n/a	not ported	n
+32d26e50	thunk	jmp 32d068d0	-	-	-	n/a	not ported	n
+32d26e60	thunk	jmp 32d06c50	-	-	-	n/a	not ported	n
+32d26e70	thunk	jmp 32d07090	-	-	-	n/a	not ported	n
+32d26e80	thunk	jmp 32d07e20	-	-	-	n/a	not ported	n
+32d26e90	thunk	jmp 32d07eb0	-	-	-	n/a	not ported	n
+32d26ea0	thunk	jmp 32d07fd0	-	-	-	n/a	not ported	n
+32d26eb0	thunk	jmp 32d07f40	-	-	-	n/a	not ported	n
+32d26ec0	thunk	jmp 32d072a0	-	-	-	n/a	not ported	n
+32d26ed0	thunk	jmp 32d073a0	-	-	-	n/a	not ported	n
+32d26ee0	thunk	jmp 32d073e0	-	-	-	n/a	not ported	n
+32d26ef0	thunk	jmp 32d076f0	-	-	-	n/a	not ported	n
+32d26f00	thunk	jmp 32d07c40	-	-	-	n/a	not ported	n
+32d26f10	thunk	jmp 32d07cc0	-	-	-	n/a	not ported	n
+32d26f20	thunk	jmp 32d07d30	-	-	-	n/a	not ported	n
+32d26f30	thunk	jmp 32d07db0	-	-	-	n/a	not ported	n
+32d26f40	thunk	jmp 32d08060	-	-	-	n/a	not ported	n
+32d26f50	thunk	jmp 32d080f0	-	-	-	n/a	not ported	n
+32d26f60	thunk	jmp 32d08180	-	-	-	n/a	not ported	n
+32d26f70	thunk	jmp 32d087a0	-	-	-	n/a	not ported	n
+32d26f80	thunk	jmp 32d08880	-	-	-	n/a	not ported	n
+32d26f90	thunk	jmp 32d086f0	-	-	-	n/a	not ported	n
+32d26fa0	thunk	jmp 32d089b0	-	-	-	n/a	not ported	n
+32d26fb0	thunk	jmp 32d08ad0	-	-	-	n/a	not ported	n
+32d26fc0	thunk	jmp 32d08b00	-	-	-	n/a	not ported	n
+32d26fd0	thunk	jmp 32d08ba0	-	-	-	n/a	not ported	n
+32d26fe0	thunk	jmp 32d09290	-	-	-	n/a	not ported	n
+32d26ff0	helper	called by 32d27620	-	new	?	CH1h	also called from outside the class: 33340877 33341048; name: called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 33340877 33341048	y
+32d270a0	helper	-	-	new	?	CH4a	vector<KObserverPtr> clear on the +0x97c4 hit list; caller 32d1db98 inside InitPassiveSkillState; name: -; vector<KObserverPtr> clear on the +0x97c4 hit list; caller 32d1db98 inside InitPassiveSkillState	y
+32d270e0	thunk	jmp 32d09310	-	-	-	n/a	not ported	n
+32d270f0	helper	-	-	-	-	n/a	compiler-made secondary-base this-adjust thunk into the dtor 32d27620 (vtable 33522908): no source to write	n
+32d27100	helper	-	-	-	-	n/a	compiler-made secondary-base this-adjust thunk into the dtor 32d27620 (vtable 33522900): no source to write	n
+32d27110	override 0x4b0	GetComboZStateID	X2GUElsword_SwordMan.h:440 virtual int GetComboZStateID() const { return ESSI_COMBO_Z1; }	inside	-	CH1h	base 3208df10	n
+32d27120	override 0x4b4	GetComboXStateID	X2GUElsword_SwordMan.h:441 virtual int GetComboXStateID() const { return ESSI_COMBO_X1; }	inside	-	CH1h	base 3208df10	n
+32d27130	override 0x4ac	?	- (name unsettled)	new	GetSpecialItemUsableExtraStateID	CH1h	base 3208df00; name: user vslot 0x4ac (X2GUUser.h:3347): returns 0xce = ESSI_SWORD_WAIT	n
+32d27140	thunk	jmp 32d0b730	-	-	-	n/a	not ported	n
+32d27150	thunk	jmp 32d0b7d0	-	-	-	n/a	not ported	n
+32d27160	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d27170	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d27180	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d27190	helper	called by 32d0c4e0	-	new	?	CH4a	name: called by 32d0c4e0(helper)	y
+32d272a0	thunk	jmp 32d0c740	-	-	-	n/a	not ported	n
+32d272b0	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d272c0	thunk	jmp 32d0f640	-	-	-	n/a	not ported	n
+32d272d0	thunk	jmp 32d19040	-	-	-	n/a	not ported	n
+32d272e0	thunk	jmp 32d19300	-	-	-	n/a	not ported	n
+32d272f0	thunk	jmp 32d195c0	-	-	-	n/a	not ported	n
+32d27300	thunk	jmp 32d19b80	-	-	-	n/a	not ported	n
+32d27310	thunk	jmp 32d0fc00	-	-	-	n/a	not ported	n
+32d27320	thunk	jmp 32d12550	-	-	-	n/a	not ported	n
+32d27330	thunk	jmp 32d128b0	-	-	-	n/a	not ported	n
+32d27340	thunk	jmp 32d12c50	-	-	-	n/a	not ported	n
+32d27350	thunk	jmp 32d131d0	-	-	-	n/a	not ported	n
+32d27360	thunk	jmp 32d19880	-	-	-	n/a	not ported	n
+32d27370	thunk	jmp 32d17550	-	-	-	n/a	not ported	n
+32d27380	thunk	jmp 32d0da10	-	-	-	n/a	not ported	n
+32d27390	thunk	jmp 32d0daa0	-	-	-	n/a	not ported	n
+32d273a0	thunk	jmp 32d0db30	-	-	-	n/a	not ported	n
+32d273b0	thunk	jmp 32d0dd90	-	-	-	n/a	not ported	n
+32d273c0	thunk	jmp 32d0df70	-	-	-	n/a	not ported	n
+32d273d0	thunk	jmp 32d0e210	-	-	-	n/a	not ported	n
+32d273e0	thunk	jmp 32d0e410	-	-	-	n/a	not ported	n
+32d273f0	thunk	jmp 32d0e6c0	-	-	-	n/a	not ported	n
+32d27400	thunk	jmp 32d0e8e0	-	-	-	n/a	not ported	n
+32d27410	thunk	jmp 32d180a0	-	-	-	n/a	not ported	n
+32d27420	thunk	jmp 32d13d20	-	-	-	n/a	not ported	n
+32d27430	thunk	jmp 32d0edb0	-	-	-	n/a	not ported	n
+32d27440	thunk	jmp 32d0fa10	-	-	-	n/a	not ported	n
+32d27450	thunk	jmp 32d0f0c0	-	-	-	n/a	not ported	n
+32d27460	thunk	jmp 32d119b0	-	-	-	n/a	not ported	n
+32d27470	helper	called by 32d1c560	-	new	?	CH4a	name: called by 32d1c560(InitPassiveSkillState)	n
+32d27480	thunk	jmp 32d0fe90	-	-	-	n/a	not ported	n
+32d27490	thunk	jmp 32d10020	-	-	-	n/a	not ported	n
+32d274a0	thunk	jmp 32d101f0	-	-	-	n/a	not ported	n
+32d274b0	thunk	jmp 32d11cb0	-	-	-	n/a	not ported	n
+32d274c0	thunk	jmp 32d11fd0	-	-	-	n/a	not ported	n
+32d274d0	thunk	jmp 32d12210	-	-	-	n/a	not ported	n
+32d274e0	thunk	jmp 32d135c0	-	-	-	n/a	not ported	n
+32d274f0	thunk	jmp 32d14100	-	-	-	n/a	not ported	n
+32d27500	thunk	jmp 32d15f80	-	-	-	n/a	not ported	n
+32d27510	thunk	jmp 32d162d0	-	-	-	n/a	not ported	n
+32d27520	thunk	jmp 32d170e0	-	-	-	n/a	not ported	n
+32d27530	thunk	jmp 32d13e20	-	-	-	n/a	not ported	n
+32d27540	thunk	jmp 32d177a0	-	-	-	n/a	not ported	n
+32d27550	thunk	jmp 32d137a0	-	-	-	n/a	not ported	n
+32d27560	thunk	jmp 32d0eaf0	-	-	-	n/a	not ported	n
+32d27570	thunk	jmp 32d123f0	-	-	-	n/a	not ported	n
+32d27580	thunk	jmp 32d18230	-	-	-	n/a	not ported	n
+32d27590	thunk	jmp 32d189a0	-	-	-	n/a	not ported	n
+32d275a0	thunk	jmp 32d18a60	-	-	-	n/a	not ported	n
+32d275b0	thunk	jmp 32d13940	-	-	-	n/a	not ported	n
+32d275c0	thunk	jmp 32d13be0	-	-	-	n/a	not ported	n
+32d275d0	thunk	jmp 32d13cd0	-	-	-	n/a	not ported	n
+32d275e0	thunk	jmp 32d1b910	-	-	-	n/a	not ported	n
+32d275f0	thunk	jmp 32d1b740	-	-	-	n/a	not ported	n
+32d27600	thunk	jmp 32d1b930	-	-	-	n/a	not ported	n
+32d27610	thunk	jmp 32d1b980	-	-	-	n/a	not ported	n
+32d27620	override 0x0	~CX2GUElsword_SwordMan (scalar deleting dtor)	X2GUElsword_SwordMan.h:278 virtual ~CX2GUElsword_SwordMan(void);	inside	-	CH1h	base 3208f650	y
+# totals kind: dead=83, helper=51, not-Elsword=4, override=58, registrar=1, state-fn=396, thunk=411; functions in range 1004; carved 308; uncarved 696 (thunks 414)
+# totals per phase (to transcribe): CH1a=22, CH1b=35, CH1c=2, CH1d=28, CH1d2=28, CH1e=30, CH1f=36, CH1g=31, CH1g2=16, CH1h=32, CH1i=4, CH1j=13, CH1k=15, CH1m=2, CH1n=1, CH1q=21, CH2a=26, CH2b=11, CH2c=18, CH2d=19, CH3a=38, CH3b=22, CH3c=26, CH3d=5, CH4a=18, CH4b=3, CH4c=1, n/a=3
+# inside/new per phase: CH1a inside=22, CH1b inside=35, CH1c inside=1, CH1c new=1, CH1d inside=28, CH1d2 inside=28, CH1e inside=16, CH1e new=14, CH1f inside=21, CH1f new=15, CH1g inside=29, CH1g new=2, CH1g2 inside=12, CH1g2 new=4, CH1h inside=23, CH1h new=9, CH1i inside=3, CH1i new=1, CH1j inside=7, CH1j new=6, CH1k inside=9, CH1k new=6, CH1m inside=2, CH1n inside=1, CH1q inside=19, CH1q new=2, CH2a inside=17, CH2a new=9, CH2b inside=7, CH2b new=4, CH2c inside=17, CH2c new=1, CH2d inside=18, CH2d new=1, CH3a inside=23, CH3a new=15, CH3b inside=15, CH3b new=7, CH3c inside=23, CH3c new=3, CH3d inside=5, CH4a inside=2, CH4a new=16, CH4b inside=1, CH4b new=2, CH4c new=1, n/a -=3

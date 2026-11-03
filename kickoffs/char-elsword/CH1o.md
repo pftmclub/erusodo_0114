@@ -39,6 +39,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Callees this Opus phase maps itself:** `322d2680` CX2Game::GetNearestNPCUnitUID( D3DXVECTOR3 pos, int npcUIDToExcept, float fMaxRa; `31f76580` none in March: CEffect main-effect scale modifier, ( int mode, float x ) -> 31f7.
+- No class-map function carries CH1o after CH0's triage (the 9 unsettled helpers went to CH1h / CH1k / CH4a / CH4c / n/a). It owns two engine callees: replace `CX2Game::GetNearestNPCUnitUID` with June's `322d2680` (tsv row added by CH0; remove its allow row) and write June-only `31f76580` (main-effect scale ( mode, x ) -> vector (x,0,0): zeroes y / z, a `JUNE_BUGS.md` candidate) that CH2d's `32d16c00` calls.

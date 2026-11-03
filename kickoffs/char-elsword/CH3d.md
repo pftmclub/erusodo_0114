@@ -42,6 +42,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 5** (`awk -F'\t' '$7=="CH3d"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 5).
+  June addresses: `32cf4930` `32cf49d0` `32cf4ab0` `32d00be0` `32d00de0`.
+- **States: 3** (`awk -F'\t' '$8=="CH3d"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_HA_ELK_GIGANTIC_SLASH`, `ESSI_HA_ERS_SHINING_RUNE_BUSTER`, `ESSI_HA_EIS_BLADE_RAIN`.
+- **Skills: 6** (part 2 of `ch0_state_skill.tsv`, col 6): 21600 RNSI_HA_ELK_GIGANTIC_SLASH, 21601 RNSI_HA_ERS_SHININGRUNE_BUSTER, 21602 RNSI_HA_EIS_BLADE_RAIN, 21603 RNSI_HA_ELK_GIGANTIC_SLASH_UPGRADE, 21604 RNSI_HA_ERS_SHININGRUNE_BUSTER_UPGRADE, 21605 RNSI_HA_EIS_BLADE_RAIN_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names) fail silently; §7t L592 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cut; §7t L604-608 hyper active skills: cut-in shown whatever the option says (type 13); §7ag L807-809 TC slot A-5 / B-5 states and the Stage 6 skips; §7ao L957 transcend readers: 32d17e90 hyper effect start (vslot 19, slot 0x4c); ; §7ao L940-945 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.

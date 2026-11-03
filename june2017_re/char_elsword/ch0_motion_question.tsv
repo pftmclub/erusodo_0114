@@ -1,0 +1,101 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_Elsword.x	(no name dropped)	-	-	-	-	March 4111742 B, June 5766274 B; 6 new names
+Motion_Elsword.x	Dance_Wait	no	yes	no	Elsword_SwordMan.src.lua:4740	new in June
+Motion_Elsword.x	Dance_X	no	yes	no	Elsword_SwordMan.src.lua:4735	new in June
+Motion_Elsword.x	Dance_Z	no	yes	no	Elsword_SwordMan.src.lua:4730	new in June
+Motion_Elsword.x	SI_SA_ES_MEGASLASH_MEMO_CHARGE	no	yes	no	Elsword_SwordMan.src.lua:9856	new in June
+Motion_Elsword.x	SI_SA_ES_MEGASLASH_MEMO_FIRE	no	yes	no	Elsword_SwordMan.src.lua:9881	new in June
+Motion_Elsword.x	SI_SA_ES_MEGASLASH_MEMO_READY	no	yes	no	Elsword_SwordMan.src.lua:9822	new in June
+Motion_Elsword_Common.x	(no name dropped)	-	-	-	-	March 1105450 B, June 5582553 B; 21 new names
+Motion_Elsword_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_Elsword_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_Elsword_Emotion.x	(no name dropped)	-	-	-	-	March 689913 B, June 1418961 B; 1 new names
+Motion_Elsword_Emotion.x	Emotion_Dance	no	yes	X2Lib/X2BeginningGame.cpp:1273	no	new in June
+Motion_Elsword_Emotion_APINK.X	(no name dropped)	-	-	-	-	March 785186 B, June 785186 B; 0 new names; identical bytes
+Motion_Elsword_Emotion_APINK_LOVE.X	(no name dropped)	-	-	-	-	March 259303 B, June 259303 B; 0 new names; identical bytes
+Motion_Elsword_Emotion_BIGBANG.X	(no name dropped)	-	-	-	-	March 849612 B, June 849612 B; 0 new names; identical bytes
+Motion_Elsword_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 598467 B, June 598467 B; 0 new names; identical bytes
+Motion_Elsword_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 359847 B, June 359847 B; 0 new names; identical bytes
+Motion_Elsword_Field.x	(no name dropped)	-	-	-	-	March 254736 B, June 438919 B; 2 new names
+Motion_Elsword_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_Elsword_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_Elsword_IS.x	SI_A_EIS_SPIRAL_STING	yes	no	Elsword_SwordMan.lua bytecode const x1	Elsword_SwordMan.src.lua:14210	moved to June Motion_Elsword_TK.x
+Motion_Elsword_IS.x	SI_A_EIS_COMPACT_COUNTER_GARD_ATTACK_COMBO	no	yes	no	Elsword_SwordMan.src.lua:17217	new in June
+Motion_Elsword_IS.x	SI_SA_EIS_INFINITY_STRIKE	no	yes	no	Elsword_SwordMan.src.lua:17576	new in June
+Motion_Elsword_IS.x	SI_SA_EIS_INPINITY_CHACER	no	yes	no	Elsword_SwordMan.src.lua:17346	new in June
+Motion_Elsword_LK.x	(no name dropped)	-	-	-	-	March 1541848 B, June 2775423 B; 7 new names
+Motion_Elsword_LK.x	ELK_DASH_COMBO_XX	no	yes	no	no	new in June
+Motion_Elsword_LK.x	ELK_DASH_COMBO_X_CHARGE_X	no	yes	no	Elsword_SwordMan.src.lua:7577	new in June
+Motion_Elsword_LK.x	SI_SA_ELK_GRAND_CROSS_CHARGE	no	yes	no	Elsword_SwordMan.src.lua:16737	new in June
+Motion_Elsword_LK.x	SI_SA_ELK_GRAND_CROSS_END	no	yes	no	Elsword_SwordMan.src.lua:16805,16859	new in June
+Motion_Elsword_LK.x	SI_SA_ELK_GRAND_CROSS_START	no	yes	no	Elsword_SwordMan.src.lua:16662	new in June
+Motion_Elsword_LK.x	SI_SA_ELK_NIBBLES_CUTTER	no	yes	no	Elsword_SwordMan.src.lua:16570	new in June
+Motion_Elsword_LK.x	SI_SA_ELK_POWER_SMESH	no	yes	no	Elsword_SwordMan.src.lua:16446	new in June
+Motion_Elsword_Lobby.x	(no name dropped)	-	-	-	-	March 1516000 B, June 2059583 B; 0 new names
+Motion_Elsword_MK.x	(no name dropped)	-	-	-	-	March 2081117 B, June 2432817 B; 5 new names
+Motion_Elsword_MK.x	EMK_Combo_XZ	no	yes	no	Elsword_SwordMan.src.lua:7873	new in June
+Motion_Elsword_MK.x	EMK_Combo_XZ_Charge	no	yes	no	Elsword_SwordMan.src.lua:7892,8326	new in June
+Motion_Elsword_MK.x	EMK_Combo_XZ_Charge_Z	no	yes	no	Elsword_SwordMan.src.lua:7912,7924,8346,8358	new in June
+Motion_Elsword_MK.x	SI_A_EMK_RUNE_GUARD	no	yes	no	no	new in June
+Motion_Elsword_MK.x	SI_A_EMK_SWORD_WAVE	no	yes	no	no	new in June
+Motion_Elsword_RS.x	(no name dropped)	-	-	-	-	March 1725447 B, June 2524633 B; 7 new names
+Motion_Elsword_RS.x	RS_ComboX4	no	yes	no	Elsword_SwordMan.src.lua:8230	new in June
+Motion_Elsword_RS.x	RS_Combo_XZ	no	yes	no	Elsword_SwordMan.src.lua:8370	new in June
+Motion_Elsword_RS.x	RS_Combo_XZZ_Charge	no	yes	no	no	new in June
+Motion_Elsword_RS.x	SI_A_ERS_ELEMENTA_BRAKE	no	yes	no	Elsword_SwordMan.src.lua:16912	new in June
+Motion_Elsword_RS.x	SI_SA_ERS_EXTREME_RUNE_BUSTER	no	yes	no	Elsword_SwordMan.src.lua:17142	new in June
+Motion_Elsword_RS.x	SI_SA_ERS_OVERS_GEYSER	no	yes	no	Elsword_SwordMan.src.lua:17065	new in June
+Motion_Elsword_RS.x	SI_SA_ERS_TRIPLE_SABER	no	yes	no	Elsword_SwordMan.src.lua:16993	new in June
+Motion_Elsword_SK.x	(no name dropped)	-	-	-	-	March 1554613 B, June 3188777 B; 12 new names
+Motion_Elsword_SK.x	ESK_COMBO_DASH_ZX	no	yes	no	Elsword_SwordMan.src.lua:7251,7595	new in June
+Motion_Elsword_SK.x	ESK_COMBO_DASH_ZXX	no	yes	no	no	new in June
+Motion_Elsword_SK.x	ESK_COMBO_DASH_ZX_CHARGE	no	yes	no	Elsword_SwordMan.src.lua:7227	new in June
+Motion_Elsword_SK.x	ESK_Combo_Dash_Jump_ZZZ	no	yes	no	Elsword_SwordMan.src.lua:7441	new in June
+Motion_Elsword_SK.x	ESK_Combo_Dash_Jump_ZZZ_Landing	no	yes	no	Elsword_SwordMan.src.lua:7502	new in June
+Motion_Elsword_SK.x	ESK_Combo_X4	no	yes	no	no	new in June
+Motion_Elsword_SK.x	ESK_Combo_X5	no	yes	no	no	new in June
+Motion_Elsword_SK.x	ESK_Combo_X6	no	yes	no	no	new in June
+Motion_Elsword_SK.x	LK_ComboX3	no	yes	Elsword_SwordMan.lua bytecode const x1	Elsword_SwordMan.src.lua:6907	new in June
+Motion_Elsword_SK.x	LK_ComboX4	no	yes	Elsword_SwordMan.lua bytecode const x1	Elsword_SwordMan.src.lua:6972	new in June
+Motion_Elsword_SK.x	SI_A_ESK_KICK	no	yes	no	Elsword_SwordMan.src.lua:11193,11240	new in June
+Motion_Elsword_SK.x	SI_SA_ESK_MORTAL_BLOW	no	yes	no	Elsword_SwordMan.src.lua:11402	new in June
+Motion_Elsword_SwordMan.x	(no name dropped)	-	-	-	-	March 11143875 B, June 11143875 B; 0 new names; identical bytes
+Motion_Elsword_TK.x	(no name dropped)	-	-	-	-	March 1885689 B, June 2843578 B; 1 new names
+Motion_Elsword_TK.x	SI_A_EIS_SPIRAL_STING	no	yes	Elsword_SwordMan.lua bytecode const x1	Elsword_SwordMan.src.lua:14210	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_Elsword.x	4111742	5766274	dropped=0	new=6	differs
+# Motion_Elsword_Common.x	1105450	5582553	dropped=0	new=21	differs
+# Motion_Elsword_Emotion.x	689913	1418961	dropped=0	new=1	differs
+# Motion_Elsword_Emotion_APINK.X	785186	785186	dropped=0	new=0	identical
+# Motion_Elsword_Emotion_APINK_LOVE.X	259303	259303	dropped=0	new=0	identical
+# Motion_Elsword_Emotion_BIGBANG.X	849612	849612	dropped=0	new=0	identical
+# Motion_Elsword_Emotion_CRAYONPOP_Sorted.X	598467	598467	dropped=0	new=0	identical
+# Motion_Elsword_Emotion_DeepBow.X	359847	359847	dropped=0	new=0	identical
+# Motion_Elsword_Field.x	254736	438919	dropped=0	new=2	differs
+# Motion_Elsword_IS.x	1196728	2131234	dropped=1	new=3	differs
+# Motion_Elsword_LK.x	1541848	2775423	dropped=0	new=7	differs
+# Motion_Elsword_Lobby.x	1516000	2059583	dropped=0	new=0	differs
+# Motion_Elsword_MK.x	2081117	2432817	dropped=0	new=5	differs
+# Motion_Elsword_RS.x	1725447	2524633	dropped=0	new=7	differs
+# Motion_Elsword_SK.x	1554613	3188777	dropped=0	new=12	differs
+# Motion_Elsword_SwordMan.x	11143875	11143875	dropped=0	new=0	identical
+# Motion_Elsword_TK.x	1885689	2843578	dropped=0	new=1	differs

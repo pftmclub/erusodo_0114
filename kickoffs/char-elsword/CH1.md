@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-elsword CH1` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
-| Depends on | CH1q review; CH0b done (its koms copied, or held for this phase if CH0 found a dropped animation March plays) |
+| Depends on | CH1q2 review; CH0b done (its koms copied: CH0 found no dropped animation, nothing is held) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (defined here), `_CORE`, `_WOS` |
 | Log tag | `[JUNE_CHAR]` (`ELSWORD DATA`, `ELSWORD CORE`, `ELSWORD WOS`) |
 | Review | `kickoffs/char-elsword/CH1-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -43,6 +43,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): intro L14 character script Elsword_SwordMan.lua feeds SetDamageDataFromLUA; §7h L421 EFFECT_SET_LIST_* variants; Elsword among scripts using _FINAL / _FINA; §7h L425 USEFUL_VALUE rows and getters; §7t L590 SHOW_HYPER_CUT_IN_TIME in the class script; §7ad L750 stage June Motion_Elsword* files with the class script.
+- No motion kom is held for this phase: CH0 found no lost animation (CH0b copies data033 / data199). Adopt `Elsword_SwordMan.lua`, `WayOfSword.lua` (see CH1q on its 14 unread keys) and `DLG_Elsword_WayOfSword.lua`.

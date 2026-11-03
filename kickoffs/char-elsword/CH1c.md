@@ -48,6 +48,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1c"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 1, new 1).
+  June addresses: `32d18d80`(new ?) `32d1b910`.
+- **States: 43** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_PEPPER_RUN_READY`, `ESSI_PEPPER_RUN`, `ESSI_PEPPER_RUN_END`, `ESSI_PEPPER_RUN_JUMP_UP`, `ESSI_PEPPER_RUN_JUMP_DOWN`, `ESSI_AMUSEMENT_ITEM_PHOENIX_RUN`, `ESSI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `ESSI_DANCE_Z`, `ESSI_DANCE_X`, `ESSI_DANCE_WAIT`, `ESSI_RIDING_START`, `ESSI_RIDING_ON`, `ESSI_RIDING_OFF`, `ESSI_RIDING_WAIT_HABIT`, `ESSI_RIDING_WAIT`, `ESSI_RIDING_WALK`, `ESSI_RIDING_JUMP_UP`, `ESSI_RIDING_JUMP_DOWN`, `ESSI_RIDING_JUMP_LANDING`, `ESSI_RIDING_DASH`, `ESSI_RIDING_DASH_END`, `ESSI_RIDING_DASH_JUMP`, `ESSI_RIDING_DASH_JUMP_LANDING`, `ESSI_RIDING_DAMAGE_FRONT`, `ESSI_RIDING_DAMAGE_FRONT`, `ESSI_RIDING_ATTACK_Z`, `ESSI_RIDING_ATTACK_X`, `ESSI_RIDING_JUMP_ATTACK_Z`, `ESSI_RIDING_ATTACK_SPECIAL`, `ESSI_RIDING_DIE`, `ESSI_RIDING_SPECIAL_MOVE`, `ESSI_RIDING_HYPER_MODE`, `ESSI_RIDING_ATTACK_X_READY`, `ESSI_RIDING_ATTACK_X_READY_2`, `ESSI_RIDING_ATTACK_X_END`, `ESSI_MACHINE_GUN_RIDE`, `ESSI_MACHINE_GUN_WAIT`, `ESSI_MACHINE_GUN_WALK`, `ESSI_MACHINE_GUN_ATTACK`, `ESSI_MACHINE_GUN_LEAVE`, `ESSI_MACHINE_GUN_JUMP_UP`, `ESSI_MACHINE_GUN_JUMP_DOWN`, `ESSI_RIDING_DAMAGE_BACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8).
+- Only 2 class functions: the 34 riding / pepper / dance / `MACHINE` states use `CX2GUUser` callbacks (Chung's CH1n2 already replaced the base ones). `ESSI_THROW_WOODEN_PIECE` is a dead table in June (no registration).

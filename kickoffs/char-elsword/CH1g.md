@@ -48,6 +48,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 31** (`awk -F'\t' '$7=="CH1g"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 29, new 2).
+  June addresses: `32cf4090` `32cf40b0` `32cf40d0` `32cf40e0` `32cf4100` `32cf4120` `32cf4150` `32cf4170` `32cf4190` `32cf41b0` `32cfc8e0` `32cfc900` `32cfcb70` `32cfce30` `32cfcfe0` `32cfd210` `32cfd540` `32cfd700` `32cfd7a0` `32d054d0`(new ESSI_ETK_DASH_JUMP_ZZZ_EventProcess) `32d0b730` `32d0b7d0` `32d19b80`(new ESSI_ETK_DASH_JUMP_ZZZ_FrameMove) `32d1e200` `32d1e400` `32d1e4d0` `32d1e5a0` `32d1e7a0` `32d1e870` `32d1e940` `32d1ea10`.
+- **States: 14** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_ETK_START`, `ESSI_ETK_WIN`, `ESSI_ETK_WIN2`, `ESSI_ETK_LOSE`, `ESSI_ETK_LOSE2`, `ESSI_ETK_COMBO_XX`, `ESSI_ETK_COMBO_XXX_LOOP`, `ESSI_ETK_COMBO_XXX_END`, `ESSI_ETK_COMBO_XXXZ`, `ESSI_ETK_DASH_COMBO_ZZ`, `ESSI_ETK_DASH_JUMP_ZZZ`, `ESSI_ETK_COMBO_ZZZ`, `ESSI_ETK_COMBO_ZZZZ`, `ESSI_ETK_COMBO_ZZZZZ`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8); §7c L352 29 alpha-tag sites 32d0d660 .. 32d1ecc0.
+- **Split by CH0:** CH1g = Sheath Knight line `ESSI_ETK_*` (31); Infinity Sword `ESSI_EIS_*` and the Compact Counter guard attack are **CH1g2** (16).

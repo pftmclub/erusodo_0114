@@ -48,6 +48,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 35** (`awk -F'\t' '$7=="CH1b"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 35).
+  June addresses: `32cf3360` `32cf3380` `32cf34d0` `32cf3510` `32cf3550` `32cf3590` `32cf35d0` `32cf3610` `32cf3690` `32cf36a0` `32cf3cf0` `32cf3d30` `32cf57f0` `32cf5850` `32cf5890` `32cf58f0` `32cf5a80` `32cf5ad0` `32cf5c50` `32cf5c90` `32cf5e10` `32cf5f90` `32cf6010` `32cf6090` `32cf6110` `32cf6190` `32cf6210` `32cf6370` `32cfa810` `32cfa890` `32d07090` `32d076f0` `32d0da10` `32d0daa0` `32d0edb0`.
+- **States: 38** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_START`, `ESSI_WIN`, `ESSI_WIN2`, `ESSI_LOSE`, `ESSI_LOSE2`, `ESSI_DIE_FRONT`, `ESSI_DIE_BACK`, `ESSI_DAMAGE_GROGGY`, `ESSI_DAMAGE_SMALL_FRONT`, `ESSI_DAMAGE_SMALL_BACK`, `ESSI_DAMAGE_BIG_FRONT`, `ESSI_DAMAGE_BIG_BACK`, `ESSI_DAMAGE_DOWN_FRONT`, `ESSI_DAMAGE_DOWN_BACK`, `ESSI_DAMAGE_STANDUP_FRONT`, `ESSI_DAMAGE_STANDUP_BACK`, `ESSI_DAMAGE_BOUNDING_DOWN`, `ESSI_DAMAGE_BOUNDING_LANDCRASH`, `ESSI_DAMAGE_BOUNDING_UP`, `ESSI_DAMAGE_AIR_SMALL`, `ESSI_DAMAGE_AIR_DOWN`, `ESSI_DAMAGE_AIR_DOWN_INVINCIBLE`, `ESSI_DAMAGE_AIR_DOWN_LANDING`, `ESSI_DAMAGE_AIR_FALL`, `ESSI_DAMAGE_AIR_UP`, `ESSI_DAMAGE_AIR_FLY_FRONT`, `ESSI_DAMAGE_AIR_FLY_BACK`, `ESSI_DAMAGE_REVENGE`, `ESSI_STANDUP_ROLLING_FRONT_FRONT`, `ESSI_STANDUP_ROLLING_FRONT_BACK`, `ESSI_STANDUP_ROLLING_BACK_FRONT`, `ESSI_STANDUP_ROLLING_BACK_BACK`, `ESSI_WALL_LANDING`, `ESSI_STANDUP_ATTACK_FRONT`, `ESSI_STANDUP_ATTACK_BACK`, `ESSI_STANDUP_ATTACK_FRONT_NO_DOWN`, `ESSI_STANDUP_ATTACK_BACK_NO_DOWN`, `ESSI_REVENGE_ATTACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8); §7 L281 skill-group power socket rate 3201ad10 called from Elsword range 32d07.
+- Die front / back call `End_SwordmanVigor` / `End_SwordmanDestruction` (CH1q): declare them with `// June <va>: body in CH1q`. Checklist L281: `32d076f0` is the Revenge reaction state (here).

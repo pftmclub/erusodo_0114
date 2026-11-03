@@ -48,6 +48,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-03)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 13** (`awk -F'\t' '$7=="CH1j"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 7, new 6).
+  June addresses: `32cf2e80` `32cf2e90` `32cf3210` `32cf3220` `32cf3230` `32d0b4d0` `32d0b650`(new ?) `32d0ba00`(new ?) `32d0bdc0`(new ?) `32d0beb0`(new ?) `32d0bfa0`(new ?) `32d0c090`(new ?) `32d1b2b0`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ao L957 transcend readers: 32d17e90 hyper effect start (vslot 19, slot 0x4c); .
+- CommonFrameMove `32d1b2b0` calls `WayOfSwordStateChange` `32d0eeb0` (CH1q: declare it). CommonFrameMoveFuture `32d0b4d0` writes the sync field from `GetWayOfSwordPoint`.

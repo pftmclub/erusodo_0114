@@ -1,0 +1,229 @@
+r"""char-elsword CH0 item 4: build ch0_checklist_rows.tsv (Elsword rows of JUNE2017_CHARACTER_PORT_CHECKLIST.md -> phase / n/a).
+    python june2017_re/char_elsword/ch0_numtables.py && python june2017_re/char_elsword/ch0_build_checklist_rows.py && python june2017_re/char_elsword/ch0_checklist_lead_fixes.py
+"""
+import csv, json, re, collections
+T = "F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/"
+D = T + "june2017_re/char_elsword/"
+SC = D
+CL = open(T + 'JUNE2017_CHARACTER_PORT_CHECKLIST.md', encoding='utf-8').read().split('\n')
+
+
+def A(sub, after=1):
+    for i in range(after - 1, len(CL)):
+        if sub in CL[i]:
+            return 'L%d' % (i + 1)
+    raise SystemExit('anchor not found: ' + sub)
+
+
+# baseline: skill id -> classes
+rows_b = list(csv.reader(open(D + 'ch0_s3_baseline.txt', encoding='utf-8'), delimiter='\t'))
+hdr = [r for r in rows_b if r and r[0] == 'unit_class_name'][0]
+data = [dict(zip(hdr, r)) for r in rows_b if r and not r[0].startswith('#') and r[0] != 'unit_class_name']
+cls_of = collections.defaultdict(set)
+name_of = {}
+for d in data:
+    cls_of[int(d['skill_id'])].add(int(d['unit_class_value']))
+    name_of[d['skill_name']] = int(d['skill_id'])
+PH = {1: 'CH2a', 10: 'CH2b', 11: 'CH2c', 22: 'CH2d', 100: 'CH3a', 101: 'CH3b', 112: 'CH3c'}
+
+
+def first_phase(sid, name=''):
+    if name.startswith('RNSI_HA_'):
+        return 'CH3d'
+    return PH[min(cls_of[sid], key=lambda c: [1, 10, 11, 22, 100, 101, 112].index(c))]
+
+
+R = []
+
+
+def add(sec, line, row, ev, phase, note=''):
+    R.append((sec, line, row, ev, phase, note))
+
+
+# ---------------- intro
+add('intro', A('(Elsword, Aisha, Rena'), 'June update of a March one (Elsword, Aisha, Rena, ...)', 'Elsword is a March class with a June update: 7 classes UC_ELSWORD_SWORDMAN 1, KNIGHT 10, MAGIC_KNIGHT 11, SHEATH_KNIGHT 22, LORD_KNIGHT 100, RUNE_SLAYER 101, INFINITY_SWORD 112', 'n/a', 'scope')
+add('intro', A('Character scripts (`Elsword_SwordMan.lua`'), 'character script Elsword_SwordMan.lua feeds SetDamageDataFromLUA', 'June src 358,305 B / 18,112 lines, 335 top-level tables (6 INIT_* + 329 ESSI_*); March data036 Elsword_SwordMan.lua 192,287 B bytecode; not on the core list; Elsword_DamageData.lua is already live (see L140 row)', 'CH1 final', 'adopt-june (June bytecode via ljconv) after the states exist; add a core-list row first only if a phase must edit the script; char_elsword CH0 has no edit need yet')
+
+# ---------------- section 1
+nt = json.load(open(D + 'ch0_numtables.json'))
+for o in nt:
+    ln, top, tl, tname, tstart, idx, app, apptop, dam = o
+    nm = app[0].replace('SKILL_ID.', '')
+    sid = name_of[nm]
+    owners = sorted(cls_of[sid])
+    ph = first_phase(sid, nm)
+    add('§1', 'L51', 'numerical-only %s table in state %s (script L%d; NUMERICAL_DATA_INDEX = %s at L%d)' % (tname, top, tstart, idx, ln),
+        'APPLIED_SKILL_ID %s %d (classes %s); no DAMAGE row in the block' % (nm, sid, ', '.join(map(str, owners))),
+        ph, 'NUM use line from the play-test; first owner class %d; state %s starts at script L%d' % (min(owners), top, tl))
+add('§1', 'L37-105', 'numerical-only DAMAGE_DATA + numerical override live (the 20 tables above)',
+    'Elsword_SwordMan 20 numerical-only + 87 other (checklist L51; charport_scan 20261103); 103 numerical blocks (DamageEffect.lua 88, DamageEffect_Character.lua 15) over 51 distinct Elsword ids, 101 result=ok, 2 zero rows (plan_numerical_rows.tsv; tsv rows 21006 / 21013)',
+    'CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'each skill phase checks its ids reach the override (NUM use lines); 76 of the 127 ids have no numerical block')
+add('§1', 'L37-105', 'blocks that index past their skill data need a JUNE_BUGS row',
+    'c1a_numerical_blocks.tsv l.731: DamageEffect_ESK_Mortal_Blow_Ultimate_Fire_Ground id 21006 INDEX 2 and l.1274: DamageEffect_SA_EMK_WindBlade_Ultimate_Projectile id 21013 INDEX 2: "index out of range: June writes a zero row"',
+    'CH2b CH2c', '21006 Mortal Blow owners %s -> CH2b; 21013 Wind Blade owners %s -> CH2c; each phase writes the JUNE_BUGS row and keeps the zero row verbatim' % (sorted(cls_of[21006]), sorted(cls_of[21013])))
+add('§1', 'L37-105', 'retire SKILL_NUMERICAL_DEBUG', 'already retired by Aisha CH2a', 'n/a', '')
+
+# ---------------- section 2
+add('§2', A('| `APPLIED_SKILL_ID` |'), 'APPLIED_SKILL_ID (parsed since 8c)',
+    '25 uses over 16 ids: COMPACT_COUNTER 4; ASSAULT_SLASH, KICK, MIRAGE_STING, SWORD_BLASTING, ANOTHER_SWORD, UNLIMITED_BLADE 2 each; ARMOR_BREAK, ROLLING, IMPACT_SMASH, ELK_ROLLING_SMASH, ARMAGEDON_BLADE, ELK_COUNTER, BIG_BURST, PHANTOM_SWORD (21022, class 112, in ESSI_SI_SA_ETK_PHANTOM_SWORD L14736), ENCHANT_BREAK 1 each',
+    'CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'with the section 1 rows by owner')
+add('§2', A('| `NUMERICAL_DATA_INDEX` |'), 'NUMERICAL_DATA_INDEX', '20 uses (script L5170, 9966, 10430, 10970, 10989, 11214, 11566, 11901, 12043, 12381, 12792, 14267, 14285, 15014, 15035, 15321, 16933, 17272, 17290, 17991)', 'CH2a CH2b CH2c CH2d CH3a CH3b CH3c', '= the section 1 rows (21214 Mirage Sting: owners 22 and 112, first owner 22 -> CH2d)')
+add('§2', A('| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`, `'), 'APPLY_LEARNED_SKILL_BUFF_FACTOR_ID and _RELATIVE_SKILL_ID x1 each (8b group 2)',
+    'ESSI_A_ESK_ARMOR_BREAK (script L5120) DAMAGE_DATA L5182-5186: BFI_DEBUFF_ARMOR_BREAK_OF_FIGHT_GOD, RELATIVE_SKILL_ID RNSI_P_ELK_FIGHT_GOD (21416), RELATIVE_BUFF_TEMPLATE_ID BTI_SI_A_ES_ENDURANCE; APPLIED_SKILL_ID RNSI_A_ESK_ARMOR_BREAK 21204 (classes 10, 100); engine reader done (X2DamageManager.cpp:5068-5140)',
+    'CH2b CH4a', 'state = CH2b (first owner class 10); the passive 21416 Fight God is CH4a; plan_checklist_rows suggested CH3 (Endurance) but the table is in the Armor Break state')
+add('§2', A('| **`APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID`**'), 'bold APPLY_LEARNED_..._RELATIVE_BUFF_TEMPLATE_ID x1', 'same table, script L5186 (parsed at X2DamageManager.cpp:5114)', 'CH2b', 'same row as above')
+add('§2', 'L110-127', 'other DamageData keys (NATURAL_FORCE_TYPE, HIT_ADD_COMBINATION_POINT, ADDITIONAL_ATTACK_TRIGGER_TYPE, BUFF_FACTOR_ID_ULTIMATE, IGNORE_DEFENCE*, DAMAGE_RATE_TO_SUPERAMOR)', 'none used by Elsword_SwordMan (ch0_keys.tsv)', 'n/a', '')
+add('§2', A('`DAMAGE_SKILL_ID` (8b group 1) appears 103 times'), 'DAMAGE_SKILL_ID x103, "all in Elsword_DamageData.lua"',
+    'x103 are Rose ids 31011-31607 (46 distinct, RNSI_*_RHB/RSR/RVK/RFY/RMH/ROM); loader InsertDamageData_LUA done under SERV_IRUHADEV_JUNE_DAMAGE_DATA_TABLE (X2DamageManager.cpp:181-183, 3836), play-test rows=107; consumers DamageEffect.lua (2), DamageEffect_INT.lua (1); Elsword_SwordMan.src.lua has zero',
+    'n/a: stale (DAMAGE_SKILL_ID x103 are Rose\'s ids)', 'Rose (Stage 8) data; Elsword owes no table job; the real Elsword damage gap is the 20 numerical-only tables of section 1')
+
+# ---------------- section 3-4
+add('§3', 'L146-153', 'systems absent (numerical data, natural force, combination point, Rose weapon, Lu/Ciel duo)', 'numerical data = section 1; the rest are other characters', 'n/a', 'covered by section 1')
+add('§4', 'L160-176', 'missing enum tables (CUSTOM_RENDER_STATE, DUO_TYPE, ROSE_WEAPON_TYPE)', 'plan_charport_scan_20261103.txt ENUM has no Elsword_SwordMan line: no table to add', 'n/a', 'CH1 final reruns charport_scan.py after adopting the script')
+add('§4', A('- **Missing members of tables March *does* have**'), 'June-only members of tables March has (SKILL_ID names) fail silently',
+    '127 distinct Elsword ids (106, 900, 21000-21060, 21200-21236, 21400-21420, 21600-21605); ch0_enum_names.tsv: C++ enum name 4 / lookalike 28 / none 95; core Enum.lua name 64 / absent 63; 0 ids lack a June name',
+    'CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH3d CH4a', 'house convention: raw id + one-line RNSI_ comment per case; passives/buff-data ids (types 1, 2, 8: 21400-21420 and 106) = CH4a, hyper actives 21600-21605 = CH3d')
+
+# ---------------- section 5 keys
+add('§5', 'L184-188', 'per-character parser census', 'ch0_keys.tsv: 280 keys; june-only 5, neither 5, march-only-site 8, both 262', 'CH1p', 'per-key rows follow')
+add('§5', 'L184-188', 'keys FORCE_DYNAMIC_CAMERA_INDEX x15, RETAIN_CAMERA_STATE x1', 'reader 32057b80 CX2GUUser::CommonStateStart (xor keys 3205c0e8 / 3205b934); March has no reader; March Elsword script lacks both', 'n/a', 'engine camera keys (Stage 9 in Eve\'s map; same as Chung)')
+add('§5', 'L184-188', 'keys BBT_CHANGE_NOW_HP_PER_SECOND x3, BFT_TIME x3', 'buff sub-table keys read by stringized type name (June 32d4bbf0 / 32e80450 and 32d4c750 / 32ec36f0; March X2BuffBehaviorTemplet.cpp:59, X2BuffFinalizerTemplet.cpp:57)', 'n/a', 'same as Chung')
+add('§5', 'L184-188', 'key IMMUNITY_EDT_LIST_AT_THIS_STATE x4 (L5216, 5241, 12196, 16763)', 'reader 31fdaaa0 @31fdac15 (CX2GUUser per-state parse, +0x8648); no March reader; March Elsword script lacks the key', 'n/a (backlog Stage 2)', 'per-state immunity lists, as Chung / Eve; not class code')
+add('§5', 'L184-188', '"neither" keys HEAD_IK x9, HEAD_IK_MAX_ANGLE, PASSIVE_SPEED x2, STOP_RESERVE_TIME_ATT / _DEF x3 each', 'no reader on either side: HEAD_IK* only in commented March code (X2GUUser.cpp:16873, X2GameUnit.cpp:4593); the bare PASSIVE_SPEED is unread (June reads PASSIVE_SPEED_X / _Y); STOP_RESERVE_TIME_* has no string in either exe', 'n/a', 'ch0_keys.tsv has the detail')
+add('§5', 'L184-188', '"march-only-site" keys AFTER_IMAGE x78, READY_SOUND x1, LINK_JUMP_TIME / _ACCEL_X / _Y / _Z x1, BUFF_FACTOR_ID_MEMO x1, BUFF_FACTOR_RELATIVE_MEMO_ID x1',
+    'census artifacts: June reads AFTER_IMAGE (32057b80 @3205b62f, 32784c00, June_CEffect_LoadAfterImage) and READY_SOUND (32275ef0 @32276149 and 6 more); LINK_JUMP_* is dead on both sides (LINKED_LINEMAP_JUMP_*_TEST commented in InHouseEtc.h:145/152); the two MEMO keys have no live March reader (SERV_IRUHADEV_JUNE_BUFF_MEMO_DROP and the dead #else of SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID); March script already sets all 8',
+    'n/a', 'switching to June\'s script drops no input a live March reader uses')
+add('§5', 'L184-188', 'class keys WAY_OF_SWORD_TYPE x102, PHANTOM_BLADE_DAMAGE_DATA_NAME / _ATTACK_TIME_INDEX x26, _BACK_SPEED_X x21 / _Y x14, _REACT_TYPE x4',
+    'readers June 32632390 @32634fd7 (WAY_OF_SWORD_TYPE) and 32371180 (PHANTOM_BLADE_*, vtable data 3349047c); March X2DamageManager.cpp:289, X2BuffTemplet.cpp:1227-1233; engine readers done', 'CH1q', 'Way of the Sword and phantom-blade states consume them; the readers need no port')
+add('§5', 'L190-193', 'tokenizer-rejected files; server side', 'not Elsword-specific', 'n/a', '')
+add('§6', 'L199-212', 'order of work; mark format (Elsword: CHn)', 'Elsword rows carry no marks yet', 'n/a', 'step 6 = CH1 final adopt-june of Elsword_SwordMan.lua; each phase writes its (Elsword: CHn) mark per L211')
+
+# ---------------- section 7 intro table
+add('§7', 'L234-240', 'buff hyper count readers (Ara, Chung, Add, Luciel), BTI-keyed numeric ops (Rose), BFI stack count (Eve, Elesis, Rose, Luciel, Aisha)', 'no Elsword function (no 32cf2da0-32d2763f address named)', 'n/a', 'OTHER')
+add('§7', 'L241-246', 'AnimPlay extra skin anims, 32a3d1f0, after-image modes, bone rotation', 'every user, engine', 'n/a', 'engine owners')
+add('§7', A('`32bf4900` (`CX2GUChung::InitComponent`'), 'Chung InitComponent / InitPassiveSkillState readers', 'Chung', 'n/a', 'OTHER')
+add('§7', 'L248-250', 'Add / Ain / Rose class rows (UpNowDPValue, SetPassiveSum, vslot 121)', 'not Elsword', 'n/a', 'OTHER')
+add('§7', A('`32a07dc0` (Add), `32b1eef0` (Luciel)'), 'class skill-use function sets the cooldown then calls ApplySkillCoolTimeRateByBuff', 'Elsword is one of the nine classes already wired in March (X2GUElsword_SwordMan.cpp:5222); June 32d0d8e0 (vtable 0x800, slot 512) calls 3235a710 @32d0da06', 'CH1k', 'rides with the slot-512 skill-use body (class map draft agrees)')
+add('§7', A('`31fc8200` (`IsSummonSkill`'), 'IsSummonSkill and SetUserSummonedNPCInfo summon cases', 'Elsword summons no NPC: 0 CreateNPC / NUI_ in March, no CreateNPCReq / CreateNPC call in 32cf2da0-32d2763f (xrefs); no summon key in the script', 'n/a', '')
+add('§7', A('Per-class code that writes the state power rate'), 'class code scales the cached state power rate (+0x7cc8)', 'every state port', 'CH1a CH1b CH1c CH1d CH1e CH1f CH1g CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'multiply m_fNowStatePowerRate as June does; none of June\'s Elsword states is known to assign it')
+add('§7', A('`329e31e0` (Add), `32baafc0`'), 'BBT 97 ChangeMaxCharacterAddResource override (Add, Ara, Rose, Luciel)', 'Elsword has none (no override in March .cpp / .h; no vslot 201 override in June vtable 33522914)', 'n/a', '')
+add('§7', A('`320072d0` and `3202b9a0`'), 'death-prevention pre-apply: gauge snapshot overrides, Crest of Time (vslot 0x740 / 0x744)', 'Elsword 32d058a0 (slot 0x740, base 32009780, calls it) and 32d058d0 (slot 0x744, base 3204da60; calls it @32d058fa)', 'CH1i ?', '? the slot is in 0x600-0x7bc (class map draft: CH1i) but Chung put 32bed760 in CH4b and plan_checklist_rows said CH1q; the cast and the slot-250 hook are char-add\'s (Chung CH4b routed it); the WoS point/state snapshot members come from CH1q')
+add('§7', A('`329e2340` / `329e2360`'), 'Add TryHyperModeStateChange / CanHyperMode rows', 'not Elsword', 'n/a', 'OTHER')
+add('§7', A('Every class\'s vslot 510, the skill lookup'), 'quick-slot special-item prefix at the top of SpecialAttackEventProcess (vslot 509 / 510)', 'Elsword is one of the eight March classes that already carry it (X2GUElsword_SwordMan.cpp:4965-4972, JUNE_BUFF_QUICKSLOT_ITEM); June 32d1bd10 is slot 0x7f8 (510), 32cf3290 slot 0x7f4 (509, not carved)', 'CH1k', 'keep the prefix in June\'s 509 / 510 bodies')
+add('§7', A('Every class\'s June skill-use check'), 'dev free-skill gate around the cool-time / MP / hyper-stone block of the skill-use check', 'March block at X2GUElsword_SwordMan.cpp:5039-5047 (#ifdef TOGGLE_UNLIMITED_SKILL_USE); June lookup 32d1bd10', 'CH1k', 'JuneIsDevUnlimitedSkillUse() (standing rule 2026-10-22); CH1n checks 32d223e0 has no such block')
+add('§7', A('`32d27130` (Elsword, returns `0xce`)'), 'vslot 0x4ac GetSpecialItemUsableExtraStateID returns 0xce', '32d27130 (slot 0x4ac, base 3208df00, not carved); ch0_reg.tsv: June state 0xce (206) = ESSI_SWORD_WAIT, which March also has (SwordWait* X2GUElsword_SwordMan.cpp:7263; March enum ends 0xc1) so map by name, never copy the number', 'CH1h', 'override returning the ESSI_SWORD_WAIT id of the ported enum')
+add('§7', A('The same vslot 510 copies, further down'), 'riding-key skill wait after CheckSkillUsePVPOfficial in the 510 lookup', 'Elsword is one of the eight classes that already carry it (X2GUElsword_SwordMan.cpp:5003-5006, JUNE_BUFF_RIDING_KEY_WAIT)', 'CH1k', 'keep in June\'s 510 lookup 32d1bd10')
+add('§7', 'L264-270 L272-274 L277 L282-283 L285-290 L292', 'Add / Ain / Rose / Luciel / Ara / Elesis / Lire / Lanox / Eve-only rows', 'not Elsword', 'n/a', 'OTHER')
+add('§7', A('| `32a7ece0` (unit vslot 121'), 'Rose, Add, Ain, Elesis rows (vslot 121, 3235a710 skill-use callers)', 'not Elsword', 'n/a', 'OTHER')
+add('§7', A('`32011960( bool )`, `31fd0590( target )`'), 'ally-summon focus target (user +0x94e0.., vslot 0x85c)', 'every user, June-only CX2GUUser system with empty hooks; no Elsword override named', 'n/a', 'engine')
+add('§7', A('Spec A (option member `+0x6bb0`'), 'specialization A / B readers (functions listed per class)', 'no listed address lies in Elsword\'s range 32cf2da0-32d2763f; Elsword\'s own specialization use is the Way-of-Sword MP factor (7an L930 row)', 'n/a', '')
+add('§7', A('`3230c1a0` (`CX2Game::SetUserSummonedNPCInfo`'), '3230c1a0 SetUserSummonedNPCInfo / 322ece70 per-case flags', 'no Elsword summon case (no NPC)', 'n/a', '')
+add('§7', A('`3201ad10` (the skill-group power socket rate)'), 'skill-group power socket rate 3201ad10 called from Elsword range 32d076f0 (@32d07757)', 'ch0_class_map.tsv (draft) puts 32d076f0 in ESSI_REVENGE_ATTACK.Start (X2GUElsword_SwordMan.cpp:1672 RevengeAttackStart)', 'CH1b', 'use ( rate + 1.0 ) on that skill\'s power rate; the state is the counter reaction state; the 20-row numerical table L12381 of the same family is CH3a')
+add('§7', A('`3201f850` (`CX2GUUser::SetSkillLevelStateData'), 'SetSkillLevelStateData class copies (El, Add, Ara, Rena, Raven)', 'Elsword has no copy in March (0 hits) and no June caller in the list', 'n/a', '')
+add('§7', A('Class readers of the tutorial flag'), 'tutorial flag read in CX2GUElsword_SwordMan::DamageReact 32d1af6c', 'inside 32d1ac60 (vslot 0x60, base 320462a0): the special reaction needs +0x80bc && !tutorial; c14c_tutorial_reads.tsv l.95 (March X2GUElsword_SwordMan.cpp:566)', 'CH1h', 'DamageReact override; read g_pMain->GetIsPlayingTutorial() directly')
+
+# 7a
+add('§7a', 'L302-310', 'AddDamageEffectModifier list and the other classes\' tag rows (Eve, Add, Rose, Ain, Luciel, Ara, Rena)', 'no Elsword tag except the row below', 'n/a', '')
+add('§7a', A('`32d18230` (`RunSlayer_RUNE_GUARD_FIRE`'), '32d18230 RunSlayer_RUNE_GUARD_FIRE pushes modifier tag 19 (main-effect life-time rate, inherited by children)', 'ch0_class_map.tsv (draft): 32d18230 = ESSI_SI_A_ERS_RUNE_OF_FIRE.FrameMove (X2GUElsword_SwordMan.cpp:3082); calls 321db1b0', 'CH3b', 'members m_bInheritMainEffectLifeTimeRate / m_fMainEffectLifeTimeRate land with it (not yet ported; Eve did tags 5/12/16/20, Aisha 2)')
+
+# 7b
+add('§7b', A('`31fdbbb0` (skill-memo entry for `APPLIED_SKILL_ID`)'), 'skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0', 'one Elsword caller of 31fdbcc0: 32d224e4 in SetEquippedSkillFuncBySkillSlotIndex 32d223e0; none of 31fdbbb0 (xrefs filtered to 32cf2da0-32d2763f); Elsword script has no APPLY_MEMO / DAMAGE_DATA_MEMO / EFFECT_SET_LIST_MEMO key', 'CH1n', 'skill-switch head; also the S3d memo play-test line (CH6)')
+add('§7b', A('`31fdbbb0` / `31fdbcc0` readers in class content'), '320284c0 @3202858e and 3230c1a0 @3230c742 memo readers', 'Rose skills 31301 / 31321 and memo 22027: not Elsword', 'n/a', 'S3d consumers show their lines when CH2 / CH3 bind the first memo-equipped skill (CH6 walk item)')
+add('§7b', A('the per-class blocks in funcmap rows `329bc560`'), 'per-class SetDamageExceptionProcess blocks, funcmap 32d1e0e0 (Elsword)', '32d1e0e0 (slot 0x2b8, base 32045340, June-only: March Elsword has no override); merged with 32d1ddf0 per funcmap L204; 21419 RNSI_P_EIS_OPEN_MIND + ATTACK_TRIGGER_TYPE (+0x53c) == 0xf -> +0x510 = 1.0; 21420 RNSI_P_EIS_INFINITY_POTENTIAL + +0x53c == 0x10 -> vslot 0x238(21420, 4, 1) -> 322b5320 push; calls 31fceab0 @32d1e11d / @32d1e13e / @32d1e197', 'CH4b', 'whole function; needs effect C5 ATTACK_TRIGGER_TYPE values 0xf / 0x10; 21419 / 21420 are passives (CH4a data)')
+
+# 7c
+add('§7c', A('| 29 sites (`32d0d660` .. `32d1ecc0`)'), '29 alpha-tag sites 32d0d660 .. 32d1ecc0', 'c10a_alpha_sites.tsv l.236-264: 19 mesh instance (32296ee0) + 8 particle ptr (32296d60) + 2 particle handle (32296da0), in 14 functions; each listed in ch0_func_rows.tsv (row kind 7c)', 'CH1g CH1h CH2d CH3c', 'by function (draft class map): 32d0d7a0 / 32d0f300 CH1h (helpers of DamageReact); 32d1e200, 32d1e5a0, 32d1ea10 CH1g (ETK combo states); 32d14100 CH2d; 32d170e0 and 32d1ecc0 CH3c; 32d0d660, 32d10610, 32d108e0, 32d10a00, 32d10cd0, 32d10df0 are "dead" in the class map (no caller found): tag only if reachable')
+add('§7c', 'L351 L353-356', 'alpha-tag rows of Eve, Aisha, Add, Rena; HP-rate gate 322726f0', 'not Elsword', 'n/a', 'OTHER')
+
+# 7e
+add('§7e', A('lost under June\'s player'), 'unit-viewer effects lost under June\'s player', 'Elsword listed in the row: nothing to port', 'n/a', '')
+add('§7d-7g', 'L372-411', 'damage-math hooks (7d), Rose lobby habit (7g), NPC anim-speed hook (7f), item-templet fields (7g)', 'no Elsword function or key named', 'n/a', 'OTHER')
+
+# 7h
+add('§7h', 'L420', 'Elsword 25 functions 32cf8230..32d06c50 (e.g. 32d01040): UPDOWN_CANCEL_AFTER cancel branches in state EventProcess',
+    'scan of unpacked_x2.exe for [reg+0x8ca4] in 32cf2da0-32d2763f finds 24 functions (48 fcom/fld references) with the same first and last (32cf8230, 32d06c50); the checklist says 25: not reproduced. None is carved in Ghidra; listed in ch0_func_rows.tsv (row kind 7h). Member +0x8ca4 exists (C9h-4c). March Elsword script has no UPDOWN_CANCEL_AFTER (it is a code branch)',
+    'CH1e CH1f CH2b CH3a CH3b CH3c', '? count 24 vs 25. By state (class map draft): ELK / ESK combo EventProcess CH1e (10: 32cfafa0 .. 32d02ed0), EMK / ERS combo CH1f (7: 32cfb970, 32d03880 .. 32d04b80), 32d05530 CH2b, 32d05b80 / 32d068d0 CH3b, 32d061d0 / 32d06550 CH3a, 32d06c50 CH3c; 32cf8230 ESSI_KNIGHT_DASH_COMBO_Z2 is UNASSIGNED in the class map (CH1e by the Knight dash group)')
+add('§7h', A('`32024ff0` list variants'), 'EFFECT_SET_LIST_* variants; Elsword among scripts using _FINAL / _FINAL_ULTIMATE', 'script keys: EFFECT_SET_LIST_EX x30, EFFECT_SET_LIST_FINAL x1, EFFECT_SET_LIST_FINAL_ULTIMATE x1 (plus EFFECT_SET_LIST x65); engine reader 32024ff0 done', 'CH1 final', 'script data arrives with the script; the _FINAL rows are unread until Eve CH1r\'s 32024ff0 selection (done)')
+add('§7h', A('`EffectSetToPlay` entry `+0x34`'), 'POSSIBLE_NASOD_BARRIER / RELATE_SKILL_ID fields, user slots 0x4c4 / 0x4c8, SOUND_PLAY_EX keys', 'no Elsword key or site named', 'n/a', '')
+add('§7h', A('Class code writing `+0x3f00` directly'), '+0x3f00 writers, AddEffectSetDeleteCondition callers', 'no Elsword address named', 'n/a', '')
+add('§7h', A('`USEFUL_VALUE0..4` per-state float rows'), 'USEFUL_VALUE rows and getters', 'Elsword script USEFUL_VALUE0 x3; c9h4f_useful_value_readers.tsv l.60: Future +0x8ef4..+0x8f2c set read in 32d05f00 = ESSI_SA_ELK_SONIC_BLADE_CRESCENT.EventProcess (class map draft)', 'CH1 final CH3a', 'rows = script data (CH1 final); the reader is in the Sonic Blade Crescent state (CH3a)')
+add('§7h', A('`USI_WAIT_STATE_CHANGE` (June base id'), 'USI_WAIT_STATE_CHANGE registered in every class InitState; WIN OnEventProcess = 320718d0', 'Elsword has no WAIT_STATE_CHANGE state in the script (0); InitState 32d23ff0 (slot 0x7a4); ch0_reg.tsv', 'CH1m', 'registration')
+
+# 7i
+add('§7i', A('| `32d223e0` Elsword, `32cede00` Arme'), 'SetEquippedSkillFuncBySkillSlotIndex: drop the 31fd2af0 snapshot call, set state byte +0x11', 'Elsword 32d223e0 (slot 0x7b4, body 32d223e0-32d23ddc); March function X2GUElsword_SwordMan.cpp:2886-4124 already uses the slot + SlotB model; s3c_skill_type_readers.tsv l.46 "class material (7ae)": jump table', 'CH1n', 'skill cases follow their skills (CH2a-CH3d)')
+add('§7i', 'L436-437', 'class code multiplies m_fNowStatePowerRate, never the entry\'s', 'every state port', 'CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'fixed assignment (7i -> every skill phase)')
+
+# 7j
+add('§7j', 'L452-455', 'Elesis / Lu-Ciel / Rose DamageReact steps (0x4f8, 0x4fc, 0x304 hooks)', 'not Elsword', 'n/a', 'OTHER')
+add('§7j', A('`320462a0 @32046a55-32046aa0` + `32d0c820`'), 'Rune Slayer magic-reflect: DamageReact 320462a0 @32046a55-32046aa0 + 32d0c820', '32d0c820 is called only from outside the class range (32046a66; class map draft: not-Elsword/folded); needs 3227baf0(0x12) @32d0c834, skill 0x53aa (21418 RNSI_P_ERS_MAGIC_COATING) learned with templet +0x174 == 5, m_pUnit +0x3c != 0; March roll X2GUUser.cpp ~9387-9435 / 9690; March Elsword GetMagicReflectRate :5365', 'CH4c', 'Elsword class function 32d0c820 whole plus the engine branch in X2GUUser.cpp DamageReact, under a flag; waits on the transcend flag (done, june-transcend)')
+
+# 7k 7l 7m 7n
+add('§7k', 'L462', 'class-set callback +0x8dc0', 'no Elsword writer named', 'n/a', 'unowned engine item')
+add('§7l', 'L470', 'bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every class InitState + their tables', 'Elsword script: ESSI_DAMAGE_BOUNDING_DOWN L3850, _LANDCRASH L3859 (names EffectSet_Bounding_Test, JUNE_BUGS 140), _UP L3876; March Elsword has no bounding state (0 hits in .cpp / .h); ch0_reg.tsv registers ids 120 / 121 / 122 in 32d1f8f0', 'CH1p CH1m', 'hook list says CH1p (states with the script) and CH1m registers them')
+add('§7l', 'L468 L471-474', 'other 7l rows (Add super-armour, Lu/Ciel target, +0x9175 byte, packet-buff refusal)', 'not Elsword', 'n/a', '')
+add('§7m', 'L480-481', 'NOTIFY_TO_OWNER_WHEN_DIE (Add only)', 'not Elsword', 'n/a', '')
+add('§7n', 'L491-494', 'user-sync class-skill float (Rena, Eve, Chung, Elesis writers)', 'Elsword not a writer or reader', 'n/a', '')
+
+# 7o 7p
+add('§7o', 'L507', 'SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN', 'Elsword script 1 use (L3852 in ESSI_DAMAGE_BOUNDING_DOWN L3850)', 'CH1p', 'script data (with the bounding states); reader done (C3g)')
+add('§7o', 'L508-531', 'Raven / Add / Ara / Elesis / Rose / Lu-Ciel speed rows', 'not Elsword', 'n/a', '')
+add('§7p', A('| All classes | `TIME_STOP_IMMUNE_STATE = TRUE`'), 'TIME_STOP_IMMUNE_STATE = TRUE in the class script', 'Elsword script 3 states (L12485, 13679, 15392); March script has none', 'CH1p', 'script data; reader C3e-4 done')
+add('§7p', A('| Chung | DamageReact `32c0cf90`'), 'DamageReact hit-stop sites (Chung 32c0cf90)', 'no Elsword site; c3e3_stop_time_callers.tsv lists only row 23 for Elsword (the wooden piece)', 'n/a', '')
+add('§7p', A('| Elsword | March `THROW_WOODEN_PIECE_FrameMove`'), 'March THROW_WOODEN_PIECE_FrameMove SetStopTime( 1.5f ): no June call loads 1.5, drop it if June dropped it', 'c3e3_stop_time_callers.tsv row 23: "no +0x100 call in June loads 1.5 (scan of all 928 +0x100 / +0x104 sites)", checklist 7p', 'CH1c ?', '? THROW states are not named in the phase list; CH1c (riding / pepper / dance / machine field-item states) is the closest; confirm and drop with the state (June dropped it)')
+add('§7p', 'L545 L548', 'Aisha binding circle forced stop', 'not Elsword', 'n/a', '')
+
+# 7q-7u
+add('§7q', 'L558-562', 'Luciel down-state getters', 'not Elsword', 'n/a', '')
+add('§7r', 'L571-572', 'Chung cinematic-UI writes', 'not Elsword', 'n/a', '')
+add('§7s', 'L576-584', 'dungeon-registry per-class tables', 'March already reads ELSWORD (X2DungeonManager.cpp:252-552)', 'n/a', '')
+add('§7t', A('The class script:** every June class script sets the key'), 'SHOW_HYPER_CUT_IN_TIME in the class script', 'Elsword script 3 states (L3388, 3493, 3598: ESSI_ELK_HYPER_MODE, _ERS_, _EIS_); March script has none', 'CH1 final', 'script data; first live hyper active in CH3d')
+add('§7t', A('June\'s `UnitTemplet.lua`** (data036)'), 'June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cutin_*_Transcendence textures', 'ch0_unittemplet_elsword.tsv: 7 Elsword rows; m_HyperCutIn on 100 / 101 / 112 (HQ_Cutin_ELK / ERS / EIS_Transcendence), no m_BerserkCutIn; m_fLobbyRotationY on all 7; name STR_ID_614 -> 4641 / 4642 / 17425', 'CH5 CH3d', 'rows = CH5 (BOM source, core list UnitTemplet.lua); Transcendence textures = CH3d')
+add('§7t', A('| Chung | unit vslot `0xa4` override `32c24b90`'), 'unit vslot 0xa4 berserk-by-chance override (Chung 32c24b90)', 'Elsword has NO override (slot = base 31e4c550, as 0x9c / 0xa0)', 'n/a', 'plan_june_side section 9')
+add('§7t', 'L604-608', 'hyper active skills: cut-in shown whatever the option says (type 13)', 'Elsword: 6 rows of type 13 (21600-21605: classes 100, 101, 112, 2 each)', 'CH3d', 'play-test: option Hide, use a hyper active -> the cut-in shows')
+add('§7t', 'L617-622', 'skill cut-in names -> June .gfx; replace s_SkillCutInSet and the InitState index switch', 'X2GUElsword_SwordMan.cpp:14-44 (4 sets of 3 .dds: HQ_CutIn_Elsword_1..3, _LK_1 x3, _RS_1 x3, _IS_1 x3), switch :873-898; June class function + 32078b70; checklist names HQ_CutIn_Elsword_01', 'CH5', 'CH0b stages the .gfx files')
+add('§7u', A('| Elsword | `X2GUElsword_SwordMan.cpp`: `LORD_KNIGHT_SAND_STORM`'), 'March-only effect templets: X2GUElsword_SwordMan.cpp LORD_KNIGHT_SAND_STORM, EffectSet_ELSWORD_DOUBLE_SLASH_HYPER', 'c11a_march_only_templets.tsv L32 (DE LORD_KNIGHT_SAND_STORM) and L46 (ES EffectSet_ELSWORD_DOUBLE_SLASH_HYPER), march-consumer; sites X2GUElsword_SwordMan.cpp:15450 (ESSI_SA_ELK_SAND_STORM_FrameMove) and :15268 (ESSI_A_ERS_SWORD_ENCHANT_EventProcess)', 'CH3a CH3b', 'Sand Storm = Lord Knight (CH3a), Sword Enchant = Rune Slayer (CH3b); take June caller, drop these names')
+add('§7u', A('- Chung: `X2BuffTemplet.cpp:1695-1706`'), 'Chung grenade memo / Rena / Aisha / Eve / Chung March-only templets', 'not Elsword', 'n/a', 'OTHER')
+
+# 7v-7ab
+add('§7v-7ab', 'L648-709', 'Lu/Ciel and Rose rows; CUSTOM_RENDER_STATE users', 'not Elsword (the Elsword script has no CUSTOM_RENDER_STATE)', 'n/a', '')
+add('§7x', A('June\'s class scripts tag combo'), 'combo hits carry June\'s AT_COMMAND tag; adopt the script with its tags', 'Elsword script 67 AT_COMMAND (March script has none: 0 in bytecode); stand-in SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN stays until all played classes are ported', 'CH1p', 'script data (with the combo states CH1d-CH1g)')
+add('§7y', 'L674-682', 'GetLandPosition bMonster in class code', 'no Elsword row (w1c_land_position_callers.tsv); March Elsword .cpp has 0 GetLandPosition calls', 'n/a', '')
+
+# 7ae
+add('§7ae', 'L713-721', 'an id of a listed type with no case plays the class\'s first skill state (Elsword Mega Slash)', 'Elsword: 254 no_state rows over 127 ids (the 7 has_state rows are id 900, one per class); ch0_s3_baseline.txt rows=261 no_state=254 has_state=7', 'CH2a CH2b CH2c CH2d CH3a CH3b CH3c CH4a', 'each skill phase binds its ids (class 1: 15 rows, 10 / 11 / 22: 29 each, 100 / 101 / 112: 53 each); types 1 / 2 / 8 (passives) = CH4a; the default-case state is Mega Slash')
+add('§7ae', 'L728', 'rows with no June SKILL_ID name', 'Elsword: 0 of 261 rows lack a June RNSI_ name (the 7 non-RNSI rows are id 900)', 'n/a', 'no unnamed-id task (Chung had 49)')
+add('§7ae', 'L729-733', 'types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE )', 'Elsword 32d223e0 listed as class material in s3c_skill_type_readers.tsv l.46; Elsword types 14 x49, 15 x41, 16 x49; no Elsword caller of ResetLeftSkillCoolTimeBySkillType', 'CH1n CH2a CH2b CH2c CH2d CH3a CH3b CH3c', 'ResetLeft... is n/a')
+add('§7ae', 'L734-740', 'Ain gauge charge (32622bd0 / 32622e80)', 'Ain only', 'n/a', '')
+add('§7ad', A('animation names March\'s motions have and June\'s same-named files lack'), 'stage June Motion_Elsword* files with the class script', 'r12b_anim_loss.tsv: 0 Elsword rows; June 71 Motion_Elsword* files (data199 70 + data012 1), March 18; 11 same-named files differ; Motion_Elsword_SwordMan.x already June\'s', 'CH0b CH1 final', 'CH0b stages June\'s Motion_Elsword* (ch0_motion_question.tsv for the IS -1 name); rerun the census after staging (CH1 final)')
+add('§7ac', 'L770-773 L776-778', 'CanDown call shape (Ara / Aisha / Luciel / Rena rows)', 'w1f_candown_callers.tsv l.282-301: 20 Elsword calls in 9 functions (ESSI_WAIT, WALK, JUMP_LANDING, DASH, DASH_END, DASH_JUMP_LANDING EventProcess + 3 more), every row "March shape: forwarder (index twice, false)"', 'n/a', 'no change (equivalent)')
+add('§7af', 'L782-798', 'camera linear tracking / SUB_CAMERA sequencer', 'Elsword script SUB_CAMERA0-7 / CAMERA keys are plain script data; no class site named', 'n/a', 'engine')
+add('§7ag', A('S5 made the engine 5 + 5'), 'pressed-index space 5 + 5: CommonSpecialAttackEventProcess and every > 3 / -4 decode; decode slot + 1, never SAKP_Q..R', 'Elsword has its own March 4 + 4 decode: X2GUElsword_SwordMan.cpp SpecialAttackEventProcess :4965-5275 (CommonSpecialAttackEventProcess :4982, CountUsedSkill :5152, > 3 / -4 decode :5232-5249, m_iNowSpecialAttack = idx + 1 :5255, GetSkillSlotIndexUsed :12896); X2GUUser.cpp:26532 stand-in lists Elsword among unported classes (bMarchSlotIndex); no CurrentSkillKeyManager / m_kSkillSlotKey use', 'CH1p', 'convert to June\'s A 0-4 / B 5-9 and join UT_ELSWORD to the June set under _LIVE (as UT_CHUNG)')
+add('§7ag', 'L807-809', 'TC slot A-5 / B-5 states and the Stage 6 skips', 'Elsword transcendence 100 / 101 / 112', 'CH3d', '')
+add('§7ah', A('`Static_EL_SKILL_B(_B)`'), 'Static_EL_SKILL_B(_B) / _R(_B) Elsword way of sword; CX2Game::UpdateElswordSkillSlotEffect (X2Game.cpp:13535) over 10 slots', 'driver June 322cd5c0-322e07e0; MODS.md L4147 lists it among the 4 + 4 loops widened', 'CH5 ?', '? decide whether June\'s driver still matches March\'s (needs a Ghidra read of 322cd5c0-322e07e0); the WoS UI (X2GageUI.cpp:2591-3021) is the other half (CH1q)')
+add('§7ai', A('S3e gave `CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID`'), 'pass June\'s skip / adjust / level / creator at every ported BFI call', 's3e_bybfi_callers.tsv l.312: one Elsword call 32cfc2f0 in 32cfc1f0 (class map draft: ESSI_A_ELK_ROLLING_SMASH.EventProcess), pushes 0|0|eax|0|0x151 (BFI 337); March Elsword .cpp has 2 SetBuffFactorToGameUnitByBuffFactorID calls', 'CH3a', 'pass ( 0x151, level, NULL, 0, false ) as June does')
+add('§7ai', A('**`CX2GUUser::JuneShowSkillNameStateString( iSkillID )`**'), 'JuneShowSkillNameStateString callers', '32d1ddf0 @32d1e0b5 (vtable 0x80c NoStateChangeActionFrameMove); March .cpp has no call', 'CH1k', 'call where June does (Aisha did it in the same virtual)')
+add('§7aj', 'L857-875', 'tree-UI class pieces (Eve, Add, Aisha, Luciel, Rose, classes 9 and 0xb)', 'no Elsword piece', 'n/a', '')
+add('§7ak', 'L876-881', 'decide-page ACK class pieces', 'Aisha, Add only', 'n/a', '')
+add('§7al', A('**New CX2GUUser hooks for every class**'), 'new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 512, UpdateEquipCollisionData 0x638', 'Elsword\'s June vtable overrides 0x800 (512) = 32d0d8e0 and 0x850 = 32d08d70 (base 31fd8230, 90 insns: after-image toggle for class 13); not 0x654 / 0x860 / 0x638', 'CH1k', 'overrides in the 0x7f0+ phase; keep the class-13 toggle only if reachable')
+add('§7am', A('| Elsword | `32d1c560` |'), 'delegate-list registrations in InitPassiveSkillState: Elsword 32d1c560', 'A 32d0c4e0, A 32d1b9d0, C 32d08ba0, A 32d0baf0, A 32d0bc60, D 32d0c180, A 32d05af0, A 32d1a370 (class map draft lists them as helpers called by the thunks 32d272b0 / 32d27620 / 32d26fd0 / 32d27160 / 32d27170 / 32d27180 / 32d26a40 / 32d27470)', 'CH4a CH1h ? CH1o ?', '? 32d1b9d0 is also called from outside the class (32d27641) and the class map puts it in CH1h; 32d08ba0 (list C) has no phased caller in the class map; the other six are CH4a; 32d0c180 = transcend SetEquippedSkillFunc, 32d1b9d0 = skill 0x53ac')
+add('§7am', A('- March\'s own pushes (Elsword, Raven'), 'March pushes replaced by June\'s set', 'Elsword March pushes at X2GUElsword_SwordMan.cpp InitPassiveSkillState :2490-2885', 'CH4a', 'replace with June\'s 8')
+add('§7an', A('| vslot `0x428` |'), 'vslot 0x428 / 0x73c / 0x748 overrides, GetCharacterSpecializationB readers', 'Elsword vtable has none of 0x428 / 0x73c / 0x748 and no specialization-B reader in its range', 'n/a', '')
+add('§7an', A('`AttackResult`\'s Way-of-Sword MP factor'), 'AttackResult Way-of-Sword MP factor (32012b50 @32012d98, @32012ee3): 1 - SpecializationB in Vigor / Destruction else 1 + SpecializationA', 'engine block in CX2GUUser::AttackResult with the class; March has the Vigor MP up in CX2DamageManager::CalcVigorMpUpOnAttack (X2DamageEffect.cpp:5505-5519)', 'CH1q ?', '? plan_checklist_rows allowed CH1q (class gauge) or CH4; the factor reads WoS state so CH1q (gauge members) first')
+add('§7ao', A('| Elsword | `32d17e90` (hyper effect start'), 'transcend readers: 32d17e90 hyper effect start (vslot 19, slot 0x4c); 32d0c180; 32d0c820 (21418); 32d1b9d0 (skill 0x53ac == 1); 32d1c560 (vslot 420, three == 1); engine 32063650 (21416 Fight God), 32610cb0 (21417 Open Mind)', 'Elsword vtable 0x4c = 32d17e90 (class map: CH1h), 0xc4 = 32d17ea0 HyperModeBuffEffectStart (not carved); 31fceab0 (== 1 helper) is called at 32d1dc84 / 32d1e11d / 32d1e13e / 32d1e197 (32d1c560, 32d1e0e0 ranges) and 32cf4bb8 / 32cf4bee (32cf4b70 GetActualMPConsume)', 'CH3d CH4a CH1j', 'hyper effect start branch = CH3d; passive branches and the two engine blocks = CH4a (32d1b2b0 slot 0x7cc CommonFrameMove override is CH1j); Z waits on june-transcend rows')
+add('§7ao', 'L940-945', 'every class also brings: emulator allow-list id, LevelUpEvent TYPE row + DLG_Transcendental_Change_Guide_Elsword, JuneGetHyperModeTableName cases (class 100 / 101 / 112), HQ_Cutin_*_Transcendence, hyper-class skills + TRANSCENDENTAL_SKILL_DATA, four helpers 31fcac90 / 31fcad70 / 31fceab0 / 31ff1e80',
+    'dialog june_src_fixed/data034_kom/DLG_Transcendental_Change_Guide_Elsowrd.src.lua (spelled Elsowrd; March data034 has the same name, 4,471 B vs 7,182 B); textures POPUP_TR_L_KNIGHT / R_SLAYER / I_SWORD.tga; helpers: only 31fceab0 has Elsword callers (above)', 'CH1m CH3d CH5', 'CH1m = GetHyperModeTableName; CH3d = skills + TRANSCENDENTAL_SKILL_DATA; CH5 = cut-in, guide, pictures')
+add('§7ao', A('Any class with an aura-accelerator skill'), 'ApplyAuraAcceleratorBuffToGameUnit 32028790 is June-changed for a class with an aura-accelerator skill', 'Elsword has no aura-accelerator override (no 0x7b0 override)', 'n/a', '')
+add('§7ap', 'L970-980', 'June slots CH1o2 gave a base: 0x3ac / 0x3b0 / 0x56c / 0x584 / 0x65c / 0x6a8', 'Elsword vtable has none of them (overrides at 0x6a0 GetActualMPConsume 32cf4b70 and 0x6a4 GetActualCoolTime 32cf4df0 are not in this row)', 'n/a', '')
+add('§7aq', 'L982-988', 'three-orb ball on the own gauge UI', 'Raven / Eve only', 'n/a', '')
+add('§7ar', 'L990-994', 'item class compatibility for classes March lacks', 'Elsword classes exist in March', 'n/a', '')
+add('§7as', 'L996-1014', 'upgrade-weapon glow for Lu/Ciel, Rose, Ain', 'not Elsword (JUNE_BUGS 472 / 473 are engine rows)', 'n/a', '')
+add('§7at-7au', 'L1016-1027', 'Ara add-N-stacks buff path; Ain buff-icon text hook', 'not Elsword', 'n/a', '')
+add('§7av', A('### 7av. A class\'s state animation rate') if False else 'L1029-1038', 'class state animation rate, user vslot 0x824', 'Elsword has no 0x824 override in June (vigor rate is in the base ResetAnimSpeed; june_march_divergent.tsv :401)', 'n/a', '')
+
+with open(D + 'ch0_checklist_rows.tsv', 'w', encoding='utf-8', newline='') as f:
+    w = csv.writer(f, delimiter='\t', lineterminator='\n')
+    w.writerow(['section', 'checklist_line', 'row', 'elsword_evidence', 'phase', 'note'])
+    w.writerows(R)
+print(len(R))
+print(collections.Counter(r[4].split()[0] if r[4] else '' for r in R).most_common(30))
+print([i for i, r in enumerate(R) if '?' in r[4]])
