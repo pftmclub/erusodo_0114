@@ -3203,6 +3203,7 @@ Files: `X2GUUser.cpp` / `.h`, `X2Unit.cpp`, `X2SkillTree.h` (names), `Always.h`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1, equal to X2/US_SERVICE/x2.exe (2026-11-03 15:04:41); built at main 32b0175b + 5 uncommitted code file(s).`
 `EXESTR OK: 1 of 1 found in X2_offline.exe, 25937408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1` (`CHUNG PASSIVE base`, wide).
 **Save:** no change (unit 43 `NovaT` has 26401 level 4; unit 21 `eresisu` has 28405 level 3).
+**Play-test PASSED (user, 2026-11-03; logs 15:41-15:44 on md5 `68897d2d`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, `AddGroupChainQuest` = quests).** Unit 43: `element defence 100.0` on all six (six lines, one per passive init); unit 21: `120.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0` (Body of Fire on blaze only); both `no down 0%`, `force down melee 1.000`, `chance to reverse 0`. The character window showed the resistances; a dungeon stage ran clean.
 **In game:** one `[JUNE_CHAR] CHUNG PASSIVE base` line per user-unit passive init with the six element defences; the character window's element resistances
 on unit 43 include Elemental Defence A (before: 0 from it, March read id 6402).
 
