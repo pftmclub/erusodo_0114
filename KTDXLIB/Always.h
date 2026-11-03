@@ -11413,7 +11413,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH4a review ( 2026-11-03 ): retired, the play-test logs ( 13:44-13:49, 14:22-14:25 ) were read.
 //              CH4b ( 2026-11-03 ): on again for the CH4b play-test ( skill use MP / cool time, soul rate, Iron Will, Converted Warhead, Trick Shot,
 //              Mark of Commander lines; CH4a's init lines come back with them ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+//              CH4b review ( 2026-11-03 ): retired, the play-test logs ( 17:58-18:01 ) were read.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

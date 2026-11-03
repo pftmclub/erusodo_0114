@@ -3274,8 +3274,40 @@ stops a joint run): `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTH
 **Save** (backup `els_db_20261103_161620_pre_sql.sql`): unit 18 `Freils` + 26420 Commander Tactics level 1, 26214 Mark of Commander level 1 in slot 7 (26228
 unslotted). Units 43 / 50 unchanged.
 **In game:** `[JUNE_CHAR] CHUNG PASSIVE skill use` per cast (MP, base MP, cool time, berserk rates, mortars, balls), `converted warhead`, `soul rate on damage react`,
-`mark of commander shell`; `iron will` / `trick shot` never print (JUNE_BUGS 517).
+`mark of commander shell`; `iron will` / `trick shot` never print (JUNE_BUGS 517; withdrawn by the review: both branches are live).
 **Play-test PASSED (user, 2026-11-03; logs 17:58-18:01 on md5 `5dbc60fd`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, `AddGroupChainQuest` = quests).** Chung99 Shooting Star 26051 berserk: mp 300.0 -> 210.0 (x0.70), cool time 22.00 -> 12.10 (x0.55). Freils Automatic Mortar 26238: mp 30.0 with 0 mortars, 9.0 with 1 (x0.30). Mark of Commander 26237: 6 `mark of commander shell ( user hit: buff rate 1.000, socket rate 0.100, shell power rate 1.8 / 2.8 )`. Siege shots: 26 `converted warhead ( hit mp +4.00 -> 5.30 )`. `iron will` / `trick shot`: 0 lines (JUNE_BUGS 517). `soul rate on damage react`: not exercised (user skipped): NovaT's 5 hits landed in walk / wait, outside June's guard list (`CSI_GUARD`, `CSI_COMBO_ZZ` / `ZZZ` / `XX` / `XXX` / `..._CANNON_BALL_SHOT` / `..._FINISH`), so the rate stays 1 and nothing prints; Open Mind 26415 level 1 = `SA_SOUL_ABS` 5. The review reads the path statically.
+
+### CH4b - Review (2026-11-03)
+
+**Verdict: PASS, no code change.** `_DEBUG` retired (`#define` commented out; the play-test logs 17:58-18:01 were read). JUNE_BUGS 517 withdrawn.
+Listings read (`funcdis.py --func`): `32bed9d0`, `32be8e50`, `32bf28f0`, `31fd1840`, `31fd1920`, `3208e1b0`, `32610e90`, `@32049d8a`, the four 0x6666 pushes.
+- **`GetActualMPConsume` `32bed9d0`**: base `31fd1840( id, level, 1 )` = March's 2-argument base (forwards `true`); 0x6667 / +0x17 = 26215 / 26238; `+0x97bc` /
+  `+0x97c0` begin / end = `m_vecRemoteMortarNPCUID.empty()`; `32007b10( 0x1b, 0x6734 )` (SA 27 = `SA_MP_CONSUME_REL`, counted in `X2SkillTree.h`; 26420 =
+  `RNSI_P_CTT_USEFUL_TACTIC`); clamp keeps NaN as June; berserk `fldz; fcomp` + `test ah,5; jp` = `+0x9704` (`m_fDecreaseRate`) > 0, templet `31fca8e0( id, 1 )` =
+  `GetEquippedActiveSkillTemplet( id, true )`, type `+4` not 0xd / 0xc; spec A: vslot 0x9c again, else gage `+0xc04` -> `+0x110` `setg` (balls > 0), `+0x6c50`
+  decrypt, `fld1; fsubrp` = 1 - A; final `3234d840( id, type )` on `g_pData +0x68 +0x90` x the sum. Holds.
+- **`GetActualCoolTime` `32be8e50`**: NULL -> 0; `31fd1920( templet, level, 0 )` never reads its third argument (only `[esp+4]` / `[esp+8]`); `+0x9710`
+  (`m_fAwakeningCoolTimeRate`, plain float) > 0 in berserk, types 12 / 13 excepted; `< 0` -> 0 with NaN kept. Holds.
+- **`SetDamageExceptionProcess` `32bf28f0`**: base `32045340` first; the NULL test guards only the Iron Will branch (June then calls `32610fb0` on the pointer:
+  same in the port); `+0x590` == 0x6722, `31fceab0` = `GetSkillLevelValue`, `+0x3c` > `334350e8` (0.0), `[edi] = 0` = `DT_PHYSIC`; `32610fb0( 0x1f )`; the
+  `+0x3f8` protected write is a `+=` that skips an unchanged value; `+0x5c4` == 0x6661; `32007c40( 1 = SA_EFFECTIVE_TIME, 0x6661, swap 1, &f )`;
+  `32610e90( 0, f )` -> `32d41960( 1 = BFT_TIME, v, op )` per non-NULL entry = `SetFinalizerValue`. Holds.
+- **JUNE_BUGS 517 withdrawn.** June's `DamageEffect.lua` (the live data036 file is June's ljconv bytecode since C11a) has `USED_SKILL_ID = 26402` on ten Chung
+  effects (Scare Chase explosion x2, Aceldama shell hit / ground x2 each, Aiming explosion + extra, Impact Detonation explosion + extra; several are `DT_MAGIC`),
+  parsed by March's `LUA_GET_VALUE_ENUM( "USED_SKILL_ID" )` (`X2DamageManager.cpp:784`). Trick Shot's `APPLIED_SKILL_ID` is on its leg-shot effect, and
+  26209 / 26232 carry `NUMERICAL_DATA2` named `SA_EFFECTIVE_TIME` (0 s / 2 s), which `TryGetSkillAbilityValue` reads first. Both branches fire in June and here:
+  Iron Will learned turns those magic hits physical; Trick Shot adds 0 s (2 s on the upgrade) to the slowdown debuff. The CH4b play-test used neither.
+- **Soul gain**: `3208e1b0` = `fld1; ret`; `@32049d8a` vslot 0x748 sits after the 0x73c MP hook and multiplies `[esp+0x30]` (the rate Spiritualized Fury's
+  `31f8acc0` adds to) = `fIncreaseSoulRate`. Raven `32c3c820` (1 + `+0x95c4`) and Ain `32a387b0` stay on checklist row 7an.
+- **Mark of Commander**: `@3236dfe7`, `@3236e002`, `@327742e3` (for `@327742fa`), `@32774307` all push 0x6666 = 26214. Holds.
+- **Routing**: no `push 0x1b4` / `0x39e` (BTI 436 / 926) in June's Chung range `32bd86f0`-`32c25a1f`; the Crest of Time skill rows are Add's (207, 29212,
+  29230). `char-add` keeps it.
+- **Play-test**: the Done note's lines hold (0 EXCEPTION).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_CHUNG_PASSIVE --with JUNE_CHAR_CHUNG_PASSIVE_DEBUG --range 3ed3ddbb^..3ed3ddbb` (7 files):
+`files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `--files X2Lib/X2GUUser.cpp`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `junediverge.py --check-all`: `RESULT: PASS`
+(181 allow-listed). `enumscan.py --check` (5 files): 0 A/B rows. **Deploy:** not awaited (the only code change is the `_DEBUG` retire).
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
