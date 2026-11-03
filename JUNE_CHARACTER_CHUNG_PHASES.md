@@ -2977,6 +2977,7 @@ So a summoned NPC carries heap garbage, and a 1 makes the walk strip its camera 
 - EXESTR OK: 1 of 1 found (wide `[JUNE_CHAR] CHUNG SKILL camera %s: npc main boss %d, boss group %d`), and `mobile armored mode on` is absent, md5 daf29b95.
 
 **Play-test hand-off.** Unit 18 `Freils`, a fresh game session, field 40001 as in round 3: the first **C Heavy Field** cast (hold, steer with the arrows) and the first **R Missile Shower** cast. Expected: the camera follows the reticle from the start, every time. Logs: `camera heavy field: npc focused 1`, `camera artillery strike: npc focused 1` with `force 1` on every sample, and `npc main boss 0, boss group 0`. Not fixed if: any `npc focused 0` with `npc main boss 0`, which means a second cause (the kickoff's other branches).
+**Play-test (user, 2026-11-03, logs 11:24-11:25, exe daf29b95): PASS, "it works".** There were 6 casts (3 Heavy Field, 3 Missile Shower) and 37 samples: 31 `npc focused 1`, `force 1` on all 37, `npc main boss 0, boss group 0` on all 37, and no `main boss 1`. Missile Shower keeps `force 1` (round 3: 0 after its first sample). The 6 `focused 0` samples are each cast's first (`npc state 6` = start state). That sample is logged on the frame the camera is handed over, before the focus walk runs, so it is not a lost camera: the focus is the NPC from the next sample on.
 
 ## Phase CH4 - Passives and class mechanics
 
