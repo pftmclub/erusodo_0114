@@ -55,3 +55,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 11** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_COMBO_Z1`, `ESSI_COMBO_Z2`, `ESSI_COMBO_Z3`, `ESSI_COMBO_Z4`, `ESSI_COMBO_Z4a`, `ESSI_COMBO_X1`, `ESSI_COMBO_X2`, `ESSI_COMBO_X3`, `ESSI_COMBO_X3a`, `ESSI_JUMP_ATTACK_Z`, `ESSI_JUMP_ATTACK_X`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8).
 - **Split by CH0:** CH1d = ground combos `ESSI_COMBO_*` and `ESSI_JUMP_ATTACK_X/Z` (28); the dash and dash-jump combos are **CH1d2** (28).
+
+## Amended by CH1a review (2026-11-04)
+
+- ComboZ3 EventProcess `32cf6d80` has no re-attack writes: June drops March's `m_bReAttackZ1Right = bIsRight; m_fReAttackZ1Time = 0.2f;` (`.cpp:8269`). No June function reads or writes those members.

@@ -57,3 +57,13 @@ offset	kind	name	note
 0x7ec	vslot	CreateStepDust()
 0x7f4	vslot	SpecialAttackEventProcess( ASUT )	1 = ASUT_GROUND, 2 = ASUT_AIR
 0x8e84	field	alternate future animation	CX2GUUser: +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture ( 32070cf0 ); read as m_pXSkinAnimFuture ( CH1b )
+0x4088	field	m_CommonState.m_Wait	Leap StartFuture / EventProcess push it to StateChange ( CH1a review )
+0x7e04	field	m_FrameDataFuture.unitCondition.dirDegree	Leap FrameMoveFuture ( CH1a review )
+0x7e10	field	m_FrameDataFuture.unitCondition.dirVector	Leap FrameMoveFuture ( CH1a review )
+0x8088	field	m_FrameDataNow.unitCondition.fStateTime	Wait EventProcess sword-wait test ( CH1a review )
+0x899d	field	m_bLeaping	CX2GUUser; Leap StartFuture = 1, End = 0 ( CH1a review )
+0x9598	field	m_fReDashJumpXTime	Elsword; CommonFrameMoveFuture 32d0b4d0 decrement + clamp, DashJump X gate ( CH1a review )
+0x95d8	field	m_StartPosToLeap	Elsword; +0x95e4 m_DirVecToLeap, +0x95f0 m_fVerticalSpeedToLeap, +0x95f4 m_fParallelSpeedToLeap ( CH1a review )
+0x95f8	field	m_fHeightToLeap	Elsword; +0x95fc m_DegreeToLeap ( int ), +0x9600 m_fTimeToLeap, +0x9604 m_fElapsedTimeToLeap ( CH1a review )
+0x138	vslot	GetPos()	( CH1a review )
+0x674	vslot	GetWayOfSwordState()	base 31fc8770, Elsword 32cf50f0 ( CH1a review )

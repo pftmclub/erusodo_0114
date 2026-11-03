@@ -401,6 +401,39 @@ No `new` row, so no `_CORE` define yet (the first phase with a `new` row adds it
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1a review` (Opus 5.5 high), then CH1b.
 
+### CH1a - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read all 22 June listings (`charport_adis.py elsword`) branch by branch against the `_LIVE` bodies at `4cf62863`. Every state id, branch order, constant and float compare matches.
+- **The differences the Done note claims are real.** Wait / Walk / JumpLanding / DashEnd test `oneZ` alone. JumpDown `32cf5960` and DashJump `32d073e0` have no cliff branch: after the on-line and wall tests they go straight to the dash, special and Z tests. In DashJump's both-keys branch the condition is `(oneRight && !bIsRight) || (oneLeft && bIsRight)`, then it clamps to the jump speed if `nowSpeed.y > jumpSpeed` (`fcompp`, `test ah,5`), then JUMP_UP if `0 < nowSpeed.y`, else JUMP_DOWN; it does nothing otherwise. Wait's sword branch calls vslot 0x674 twice (`== 2` / `== -2`, i.e. `WSS_VIGOR` / `WSS_DESTRUCTION`), then tests `m_FrameDataNow` fStateTime (`+0x8088`) `>= 0.1` and enters `ESSI_SWORD_WAIT`. It sits after the CanDown test and before the riding test, as written.
+- **The re-attack fields are March-only everywhere.** No June function reads them, and none writes them either. June's CommonFrameMoveFuture `32d0b4d0` decrements and clamps only `+0x9598` (`m_fReDashJumpXTime`); March's also decrements `m_fReAttackZ1Time`. June's ComboZ3 EventProcess `32cf6d80` does not write the side flag or the 0.2 s timer that March's does (`.cpp:8269`). SwordWait EventProcess `32d0f0c0` tests `oneZ` alone. Routed to their own phases below.
+- **Spot-checks, end to end:**
+  - DashEnd EventProcess `32d0e410`: now > (max - transition) * 0.125 goes to COMBO_Z1 / X1, otherwise to DASH_COMBO_Z1 / DASH_ATTACK_X (`fcompp`, `test ah,5`, `jp`). This is `GetMaxAnimationTime()` (`m_fAnimMaxTime - m_fTransitionTime`).
+  - DashJumpPowerLanding EventProcess `32d0e8e0`: the `/ 6.0` gate and the nine-way inner chain match.
+  - Leap FrameMoveFuture `32cfa360`: the steps run in this order: the wasted normalize, the x / z / y adds, the 0.5 · (2h / (t/2)²) · e² height, the rotations Y(π/2) and axis(°·0.01745329), then dirDegree / dirVector `+0x7e04` / `+0x7e10`. All match. Also checked: Leap EventProcess (`time <= elapsed`, `test ah,0x41`), End, and Wait Start / StartFuture.
+- **Leap StartFuture `32d119b0`:** June calls `GetNearestNPCUnitUID( pos, -1, 9999.0f )`, and March's default `fMaxRange = 9999` gives the same call. Both failure checks call `StateChange( m_CommonState.m_Wait (+0x4088), false )` and then fall through. The discarded `pTargetNPC->GetPos()` call is kept. The degree clamp is 45 below 45°, otherwise `45 - (int)deg` floored at 10, the same values March gets. Kept as is; no `JUNE_BUGS` row.
+- **CanDown:** June passes `( pos, 30, &land, &idx, &idx, 1, 0, 1, 0 )`. March's 4-argument wrapper reaches the same values through the `JUNE_LINEMAP_CANDOWN_SIGNATURE` defaults.
+- **Offsets confirmed** and added to `june2017_re/char_elsword/ch1_offsets.tsv` (10 rows):
+  - Leap block: `+0x95d8` StartPos, `+0x95e4` DirVec, `+0x95f0` VerticalSpeed, `+0x95f4` ParallelSpeed, `+0x95f8` Height, `+0x95fc` Degree (int), `+0x9600` TimeToLeap, `+0x9604` Elapsed. These are written in the header's declaration order.
+  - `+0x899d` `m_bLeaping` (CX2GUUser): set to 1 in StartFuture, 0 in End.
+  - `+0x9598` `m_fReDashJumpXTime`: the CommonFrameMoveFuture decrement plus the DashJump X gate.
+  - Also `+0x4088`, `+0x7e04`, `+0x7e10`, `+0x8088`, vslots 0x138 / 0x674.
+- **Tool quirk (no action needed):** `charport_adis` names `[eax + 0x2b0]` `m_fElapsedTime` even when `eax` is the anim pointer. There it is the anim's transition time.
+
+**Hygiene.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --range 4cf62863^..4cf62863`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `RESULT: FAIL` only because the flag is not `#define`d (`//#define` by design).
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+- One-file probe (`census.cl_cmd`, `/c /Zs`, no PCH): 0 errors with `_LIVE` off and 0 with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`. The `cl /P` outputs differ (21,083,638 vs 21,083,027 B), so the flag took effect.
+- No code changed, so there was no build. The deployed exe is still CH1a's (`ffead37d…`).
+
+**Routed (amended into the kickoffs):**
+- CH1d: ComboZ3 EventProcess drops March's re-attack writes.
+- CH1j: CommonFrameMoveFuture drops the `m_fReAttackZ1Time` decrement.
+- CH1q: SwordWait EventProcess has no re-attack gate.
+
+The members stay in the header; March's `#else` bodies still use them.
+
+Next: `/x2-phase char-elsword CH1b` (Sonnet 5.5 high). Nothing to play-test.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
