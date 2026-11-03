@@ -9855,13 +9855,23 @@ namespace _CONST_CHUNG_CH3C_
 		CX2GameUnit* pFocusUnit = g_pX2Game->GetFocusUnit();
 		const bool bFocused = ( pFocusUnit == static_cast<CX2GameUnit*>( pNpc_ ) );
 		const DWORD dwTick = GetTickCount();
-		if ( true == bFocused && dwTick - s_dwLastTick < 400 )
+		if ( dwTick - s_dwLastTick < 400 )
 			return;
 
 		s_dwLastTick = dwTick;
-		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL camera %s: npc focused %d ( focus unit type %d ), force %d, camera flag %d, npc pos ( %.0f, %.0f ), npc state %d",
+		int iListIndex = -1;
+		for ( int i = 0; i < g_pX2Game->GetNPCUnitListSize(); ++i )
+		{
+			if ( g_pX2Game->GetNPCUnit( i ) == pNpc_ )
+			{
+				iListIndex = i;
+				break;
+			}
+		}
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL camera %s: npc focused %d ( focus unit type %d ), force %d, camera flag %d, npc pos ( %.0f, %.0f ), npc state %d, start state %d, list index %d of %d, game type %d",
 			pwszTag_, bFocused ? 1 : 0, ( NULL != pFocusUnit ) ? static_cast<int>( pFocusUnit->GetGameUnitType() ) : -1, pNpc_->GetFocusCameraForce() ? 1 : 0,
-			pNpc_->GetFocusCamera() ? 1 : 0, pNpc_->GetPos().x, pNpc_->GetPos().y, static_cast<int>( pNpc_->GetGameUnitState() ) );
+			pNpc_->GetFocusCamera() ? 1 : 0, pNpc_->GetPos().x, pNpc_->GetPos().y, static_cast<int>( pNpc_->GetGameUnitState() ), pNpc_->GetStartState(), iListIndex,
+			g_pX2Game->GetNPCUnitListSize(), static_cast<int>( g_pX2Game->GetGameType() ) );
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 
