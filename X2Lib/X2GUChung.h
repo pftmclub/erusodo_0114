@@ -1581,6 +1581,14 @@ protected:
 	bool CanWalkCancelOnGround();
 	bool CanDashCancelOnGround();
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	int GetShootingStarMaxPlayCount();	/// June 32beb940 @32beb944, 32bfc310: the plays of the Shooting Star attack state
+	int GetRapidCannonMaxFireCount();	/// June 32c079f0 @32c07a51, 32bee210 @32bee232: the Rapid Cannon fires
+	int GetRapidCannonBallCount();	/// June 32bee140 @32bee156: the ball count the Rapid Cannon states compare ( the extra balls x 7 in the mobile armored mode )
+	void CSI_SA_CDC_SHOOTING_BIND_StateStartFuture();	/// June 32bdba90
+	void CSI_SA_CDC_SHOOTING_BIND_StateEndFuture();	/// June 32bdbab0
+	void CSI_SA_CDC_BURNING_PUNISHER_Init();	/// June 32bdbb40
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 	// 루나틱 퓨리 (퓨리가디언)
 	void CSI_SI_SA_CFG_LUNATIC_FURY_READY_Init();

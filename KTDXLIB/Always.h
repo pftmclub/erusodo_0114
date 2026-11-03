@@ -11324,3 +11324,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3a2 review ( 2026-11-03 ): retired, the CH3a2 play-test read the Iron Howling loop ( mp cost 5.0 ), guard first strike and Wonder Wall buff lines.
 //#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH3b debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Shooting Star play limit and Endless Chase range, the Bullet Blitz hit count and Endless Chase stretch, the Rapid Cannon fire limit, the Shooting Bind cool time.
+//              CH3b's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////

@@ -2065,6 +2065,18 @@ public:
 		RNSI_SA_CTT_WONDER_WALL_UPGRADE                       = 26048,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // char-chung CH3b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Deadly Chaser / Shooting Guardian skill bodies spell ( values from June's Enum.lua )
+		RNSI_SA_CSG_HEAVY_RAILGUN                             = 26016,
+		RNSI_SA_CSG_SHOOTING_STAR_UPGRADE                     = 26051,
+		RNSI_SA_CSG_HEAVY_RAILGUN_UPGRADE                     = 26053,
+		RNSI_SA_CDC_COMET_CRASHER_UPGRADE                     = 26054,
+		RNSI_SA_CDC_BULLET_BLITZ_UPGRADE                      = 26055,
+		RNSI_A_CDC_RUMBLE_SHOT                                = 26210,
+		RNSI_A_CDC_GATLING_SHOT_UPGRADE                       = 26234,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

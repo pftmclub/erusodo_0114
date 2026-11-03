@@ -5688,3 +5688,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`
 | `DamageEffect_CFG_A_Guard_First_Strike_Front` / `_Back` (26207) | new | - | 1.06 / 1.06 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH3a skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH3b: Deadly Chaser / Shooting Guardian skills (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH3b - Done". Client only, no data change.
+- **What changes in game.** June's ids reach March's blocks (before: they fell into the Lunatic Blow default): Heavy Railgun (26016 / 26053), Shooting Star (26015 / 26051), Rumble Shot (26210 / 26233), Comet Crasher (26017 / 26054), Bullet Blitz (26018 / 26055), Rapid Cannon (26211 / 26234), Missile Shower (26025 / 26060). Four skills that March never had get their script states: Stun Shot (26227), Exciting Crash (26040), Shooting Bind (26039), Burning Punisher (26063). Seven `RNSI_*` names are added to `X2SkillTree.h`.
+- **Differs from March.** Shooting Star: 12 plays, 15 in the berserk mode, 18 with the transcended skill; Endless Chase (26418) adds its fire count and widens the shell's lock-on range by its `SA_SCOPE_ABS`; the Lunatic memo branch is gone. Rumble Shot: one cannon ball and the plain shell (no memo 13 branch). Bullet Blitz: the shell is `Damage_Chung_CDC_Bullet_Blitz` in both modes, its hit count and lock-on come from June's script (`DAMAGE_TIME` 99999, March set the skill's hit count on the shell and looked up the target by code); the first hit effect is `..._Mini_Gun_Hit_Skill`; the berserk mode still adds 5 to the count, which no CH3b function reads; Endless Chase stretches the shell's life by `SA_EFFECTIVE_TIME` and widens its lock-on range. Rapid Cannon: 6 fires, 8 with the transcended skill (March 12); the states count the extra balls of the mobile armored mode x 7. Shooting Bind sets the member `m_fShootingBindCoolTimeLeft` to 10 when it starts and to its `SA_COOLTIME_1` when it ends. Heavy Railgun, Comet Crasher and the other Shooting Star / Rumble Shot / Rapid Cannon functions equal March (compared with June's listings).
+- **Damage (level-1 flat value; June = numerical x 0.01 through the engine; March = the templet's own value in the shipped `DamageEffect.src.lua`, read per templet block).**
+
+| Effect (June id) | Type | March | June |
+|---|---|---|---|
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_SHOOTING_STAR_SHELL` (26015) | PHYSIC | 0.50 | 0.16 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_SHOOTING_STAR_SHELL_EXPLOSION` (26015) | MAGIC | 3.30 | 5.26 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_HEAVY_RAILGUN` (26016) | PHYSIC | 8.38 | 17.75 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_HEAVY_RAILGUN_EXPLOSION` (26016) | MAGIC | 9.67 | 30.43 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_COMET_CRASHER_LOOP_EXPLOSION` (26017) | MAGIC | 4.97 | 5.83 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CSG_COMET_CRASHER_FINISH_EXPLOSION` (26017) | MAGIC | 9.94 | 11.66 |
+| `Damage_Chung_CDC_Bullet_Blitz` (26018) | MAGIC | 2.83 | 4.34 |
+| `DAMAGE_CSI_SI_A_CSG_RUMBLE_SHOT_Shell` (26210) | MAGIC | 0.82 | 2.61 |
+| `DAMAGE_CSI_A_CHUNG_GATLINGSHOT_EXPLOSION` (26211) | MAGIC | 1.48 | 4.83 |
+| `DamageEffect_A_CDC_STUN_SHOT` (26227) | new | - | 9.31 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH3b skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.

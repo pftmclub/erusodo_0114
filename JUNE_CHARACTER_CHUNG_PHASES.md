@@ -2849,6 +2849,37 @@ Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, 
 - **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,929,728 B, dated 2026-11-03 08:09:32, md5 36ef8840fc76e78ebd836c28f675b463,
   built at main debf3400 + `Always.h`. EXESTR OK: 3 of 3 absent (wide `... iron howling loop`, `... guard first strike`, `... wonder wall buff`), md5 36ef8840.
 
+### CH3b - Done (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (+ `..._SKILL_DEBUG`, defined again; CH3b's review retires it). The Deadly Chaser / Shooting Guardian skills run June's bodies. All 38 class-map rows were read from `charport_adis.py chung --phase CH3b` listings: 9 are written (inside March's function, March in `#else`), 3 are new, 26 are June = March (`funcmap.tsv` rows `Char Chung CH3b`, 40 rows incl. 3 helpers). MODS.md "Stage 7 Chung, CH3b" has the March vs June damage table.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32beb940` `32bfc310` (+ `32beb944` helper) | `CSI_SI_SA_CSG_SHOOTING_STAR_ATTACK_EventProcess` / `_FrameMove`, new `GetShootingStarMaxPlayCount` | plays 12, 15 in the berserk mode, 18 with the transcended skill, + Endless Chase fire count; no Lunatic memo 23 branch; Endless Chase widens the shell's lock-on ranges |
+| `32c0dfe0` | `CSI_SI_A_CSG_RUMBLE_SHOT_FrameMove` | no memo 13 branch: one ball, the plain shell |
+| `32be3f50` `32be3fe0` `32bffd20` | `CSI_SI_SA_CDC_BULLET_BLITZ_StateStart` / `_HYPER_StateStart` / `_FrameMove` (hyper calls it) | equipped upgrade-swapped templet; one shell `Damage_Chung_CDC_Bullet_Blitz` in both modes, hit count and lock-on from the script; first hit `..._Hit_Skill`; Endless Chase stretches life and range |
+| `32bee140` `32c079f0` `32bee210` | `CSI_A_CDC_RAPID_CANNON_READY_EventProcess` / `LOOP_FrameMove` / `LOOP_EventProcess`, new `GetRapidCannonMaxFireCount`, `GetRapidCannonBallCount` | fire limit 6 (8 transcended), March 12; ball count with the extra balls x 7 (JUNE_BUGS 510) |
+| `32bdba90` `32bdbab0` `32bdbb40` | new `CSI_SA_CDC_SHOOTING_BIND_StateStartFuture` / `_StateEndFuture`, `CSI_SA_CDC_BURNING_PUNISHER_Init` | `m_fShootingBindCoolTimeLeft` = 10 / `SA_COOLTIME_1`; 11 preloads |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: labels on March's blocks for Heavy Railgun 26016 / 26053, Shooting Star 26015 / 26051, Rumble Shot 26210 / 26233, Comet Crasher 26017 / 26054, Bullet Blitz 26018 / 26055, Rapid Cannon 26211 / 26234 and Missile Shower 26025 / 26060 (CH2c's block); new blocks for Stun Shot 26227, Exciting Crash 26040, Shooting Bind 26039, Burning Punisher 26063 (`GenericSpecialActiveSkillEventProcess` + `CopyStateCallbacks`). `X2SkillTree.h`: seven `RNSI_*` names. Checklist rows marked `(Chung: CH3b)` (l.116, 117, 178, 437, 713, 729); 7r row 1 / 7ac were CH2c's. CH0's "`CSI_A_CDC_RAPID_CANNON_READY` defined twice" is the state being registered twice in `32c1f530` (the transcended and the plain case), not a second script table: no JUNE_BUGS row. JUNE_BUGS 510-511.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files <4 code files>`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` (cpp, h, `X2SkillTree.h`): `allow-listed: 20`, `RESULT: PASS`. `enumscan.py --check`: 0 A/B rows. `skillicons.py check` (18 ids): `skills 18, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. All effect names the new bodies use exist in June's Lua.
+- DEPLOY OK: X2_offline.exe is 25,936,384 B, dated 2026-11-03 09:13:18, md5 fa23c41efcfd35f284e957fa5faf9c85, equal to X2/US_SERVICE/x2.exe (09:13:11); built at main 5495e76d + 4 uncommitted code files.
+- EXESTR OK: 4 of 4 found (wide `[JUNE_CHAR] CHUNG SKILL shooting star, max plays`, `..bullet blitz endless chase`, `..rapid cannon fire`, `..shooting bind start`), md5 fa23c41e.
+
+**Not run / owed.** No Missile Shower play-test (class 117, CH3c's unit): CH3b0's `[JUNE_CHAR] SUMMON npc 863 ... skill 26025` check rides on CH3c. Comet Crasher (26017) and Exciting Crash (26040) are not slotted in the test save (10 slots, 4 / 9 empty): a second round.
+
+**Play-test hand-off.** Save (backup in `db_backup\`): unit 50 `Chung99` (Deadly Chaser, lv 99; Endless Chase 26418 learned): A Shooting Star up (26051), S Heavy Railgun up (26053), D Bullet Blitz up (26055), C Rapid Cannon up (26234); Q Rumble Shot up (26233), W Stun Shot (26227), E Shooting Bind (26039), R Burning Punisher (26063); slots 4 and 9 empty.
+Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/stage 1`-style); keep 3+ cannon balls.
+1. **A Shooting Star.** Plays the ready animation, then repeats the attack: log `shooting star, max plays 12, endless chase range x ...` (13+ with Endless Chase); shells home on enemies.
+2. **D Bullet Blitz.** Mini gun appears; log `bullet blitz start, hits N` and `bullet blitz endless chase, life ..., range ...`; a homing shell hits (`ES_CREATE`/hits). If no shell: `DAMAGE_EFFECT` error in `ErrorLog.txt`.
+3. **C Rapid Cannon.** Hold C: ready, then fires (`rapid cannon fire N, limit 6`), at most 7 fires, then the final shot; tap C and it ends after 3 fires.
+4. **S Heavy Railgun, Q Rumble Shot.** Each plays its motion and damage (`rumble shot shell`).
+5. **W Stun Shot, E Shooting Bind, R Burning Punisher.** Each plays June's motion and effect; Shooting Bind logs `shooting bind start, cool time left 10.0` and `end` (its slot shows the cool time after).
+Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
