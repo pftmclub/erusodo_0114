@@ -10463,6 +10463,12 @@ void CX2GUChung::SpecialAttackCooldown( const int iSkillID_, const float fMpCons
 		iSkillLevel = 1;
 
 	accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, GetActualCoolTime( pSkillTemplet, iSkillLevel ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE skill use ( skill %d type %d: mp %.1f of base %.1f, cool time %.2f, awakening %d decrease %.2f cool time rate %.2f, mortars %d, balls %d, specialization A %.3f )",
+		static_cast<int>( pSkillTemplet->m_eID ), static_cast<int>( pSkillTemplet->m_eType ), fMpConsume_, CX2GUUser::GetActualMPConsume( pSkillTemplet->m_eID, iSkillLevel ),
+		GetActualCoolTime( pSkillTemplet, iSkillLevel ), IsFullHyperMode() ? 1 : 0, m_fDecreaseRate, m_fAwakeningCoolTimeRate, static_cast<int>( m_vecRemoteMortarNPCUID.size() ),
+		GetChungGageData()->GetNowCannonBallCount(), GetCharacterSpecializationA() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 
 	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
 
@@ -10924,6 +10930,40 @@ void CX2GUChung::ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, cons
 
 /*virtual*/ float CX2GUChung::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 32bed9d0: Useful Tactic on Automatic Mortar while a mortar lives, the awakening rate, specialization A; March's memo cases are gone
+	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
+
+	switch ( eSkillID_ )
+	{
+	case CX2SkillTree::RNSI_A_CTT_AUTOMATIC_MORTAR:
+	case CX2SkillTree::RNSI_A_CTT_AUTOMATIC_MORTAR_UPGRADE:
+		if ( false == m_vecRemoteMortarNPCUID.empty() )
+			fMpConsumption = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_CTT_USEFUL_TACTIC ) * fMpConsumption;
+		break;
+
+	default:
+		break;
+	}
+
+	if ( fMpConsumption < 0.f )
+		fMpConsumption = 0.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( true == IsFullHyperMode() && m_fDecreaseRate > 0.f && NULL != pSkillTemplet
+		&& CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType && CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet->m_eType )
+		fMpConsumption = m_fDecreaseRate * fMpConsumption;
+
+	if ( true == IsFullHyperMode() || GetChungGageData()->GetNowCannonBallCount() > 0 )
+		fMpConsumption = ( 1.f - GetCharacterSpecializationA() ) * fMpConsumption;
+
+	float fMpDecreaseRate = 1.f;
+	pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL != pSkillTemplet )
+		fMpDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillMpDecreaseRate( eSkillID_, pSkillTemplet->m_eType );	/// June 3234d840 on my unit
+
+	return fMpDecreaseRate * fMpConsumption;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 	switch( eSkillID_ )
@@ -10994,6 +11034,7 @@ void CX2GUChung::ShowOnomatopoeiaParticle( const WCHAR* wszWeaponBoneName_, cons
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 }
 
 /** @function : LoadPersonalInfo
@@ -38493,6 +38534,10 @@ float CX2GUChung::GetIncreaseSoulRateOnDamageReact()
 	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) > 0 && true == IsThisStateCanBeChangedToGuardStateOnHit() )
 		fIncreaseSoulRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_SOUL_ABS, CX2SkillTree::RNSI_P_CIP_OPEN_MIND );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	if ( 1.f != fIncreaseSoulRate )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE soul rate on damage react x%.3f ( open mind )", fIncreaseSoulRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 	return fIncreaseSoulRate;
 }
 
@@ -38525,6 +38570,45 @@ void CX2GUChung::RestoreGageSnapshot()
 	GetChungGageData()->SetCannonBallChanged( true );
 	GetChungGageData()->SetNowCannonBallCount( m_iSnapshotCannonBallCount );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+/// June 32bf28f0 ( vslot 0x2b8 ): Iron Will turns its hit's magic damage physical, Converted Warhead's MP on siege shelling hits, Trick Shot's buff time
+/*virtual*/ void CX2GUChung::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate )
+{
+	CX2GUUser::SetDamageExceptionProcess( pDamageData_, fPowerRate );
+
+	if ( NULL != pDamageData_ && CX2SkillTree::RNSI_P_CIP_IRON_WILL == pDamageData_->m_eUsedSkillID
+		&& 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_IRON_WILL ) && 0.f < pDamageData_->damage.fMagic )
+	{
+		pDamageData_->damageType		= CX2DamageManager::DT_PHYSIC;
+		pDamageData_->damage.fPhysic	= pDamageData_->damage.fMagic;
+		pDamageData_->damage.fMagic		= 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE iron will ( magic %.1f -> physic )", pDamageData_->damage.fPhysic );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	}
+
+	if ( true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_SIEGE_SHELLING ) )
+	{
+		pDamageData_->fHitAddMP += m_fSiegeShellingIncraseMPRel;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE converted warhead ( hit mp +%.2f -> %.2f )", m_fSiegeShellingIncraseMPRel, pDamageData_->fHitAddMP );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+	}
+
+	if ( CX2SkillTree::RNSI_A_CDC_TRICK_SHOT == pDamageData_->m_iAppliedSkillID )
+	{
+		float fBuffTimeAdd = 2.f;	/// June 33437778, kept when the ability is missing
+		if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, CX2SkillTree::RNSI_A_CDC_TRICK_SHOT, true, fBuffTimeAdd ) )
+		{
+			pDamageData_->SetBuffFactorTimeValue( 0, fBuffTimeAdd );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE trick shot ( buff time +%.2f on %d buff factor(s) )", fBuffTimeAdd, static_cast<int>( pDamageData_->m_vecBuffFactorPtr.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 
 /// June 32befec0 ( user vslot 0x774, base 31f3f070 is an empty stub ): the siege twin of ApplySpineAimRotation, aim limits from SIEGE_ANGLE, another bone axis
 void CX2GUChung::UpdateSpineAimRotation()
@@ -40827,6 +40911,21 @@ void CX2GUChung::ChaosCannonAttackStateChange ( int iOffset_ )
 #ifdef ADD_MEMO_1ST_CLASS //±èÃ¢ÇÑ
 /*virtual*/ float CX2GUChung::GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+	/// June 32be8e50: Intense Showtime's cool-time rate in the awakening, relationship and hyper skills excepted; March's memo case is gone
+	if ( NULL == pSkillTemplet_ )
+		return 0.f;
+
+	float fSkillCoolTime = CX2GUUser::GetActualCoolTime( pSkillTemplet_, iSkillLevel );
+	if ( true == IsFullHyperMode() && m_fAwakeningCoolTimeRate > 0.f
+		&& CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet_->m_eType && CX2SkillTree::ST_RELATIONSHIP_SKILL != pSkillTemplet_->m_eType )
+		fSkillCoolTime = m_fAwakeningCoolTimeRate * fSkillCoolTime;
+
+	if ( fSkillCoolTime < 0.f )
+		fSkillCoolTime = 0.f;
+
+	return fSkillCoolTime;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	if( NULL == pSkillTemplet_ )
 		return 0.f;
 
@@ -40847,5 +40946,6 @@ void CX2GUChung::ChaosCannonAttackStateChange ( int iOffset_ )
 	}
 
 	return max( 0.f, fSkillCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 }
 #endif //ADD_MEMO_1ST_CLASS

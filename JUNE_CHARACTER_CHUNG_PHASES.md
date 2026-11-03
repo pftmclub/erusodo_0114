@@ -3237,6 +3237,44 @@ X2SkillTree.h, X2Unit.cpp): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFIN
 `allow-listed: 181` `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2Unit.cpp`: no row inside the CH4a2 blocks.
 **Deploy:** not awaited (the only change retires a `_DEBUG` define; rule 2026-11-03).
 
+### CH4b - Done (2026-11-03)
+
+**Landed.** Commit: see `git log`, "char-chung Phase CH4b". Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (`_DEBUG` back on for the play-test; new guard:
+needs `_CHAR_CHUNG_SKILL` and `_EFFECTSET_BUFF_LIST`). Files: `X2GUChung.*`, `X2GUUser.*`, `X2DamageManager.h`, `X2BuffTemplet.cpp`, `X2GUNPC.cpp`, `Always.h`.
+Listings read (`funcdis.py`): `32bf28f0`, `32bed9d0`, `32be8e50`, `3208e1b0`, `32045dc0 @32049cee-32049e51`, `32610e90`, `31fd1920`; funcmap rows `(CH4b)`.
+- **`SetDamageExceptionProcess` `32bf28f0`** (new override, vslot 0x2b8; base `32045340` first): USED_SKILL_ID 26402 Iron Will learned and magic > 0 -> `DT_PHYSIC`,
+  physic = magic, magic = 0; `IsAttackTrigger( DTT_SIEGE_SHELLING )` (31, registered under `JUNE_ENUM_NAMES`) -> `fHitAddMP += m_fSiegeShellingIncraseMPRel`
+  (Converted Warhead; June's `CSI_SI_A_SIEGE_SHELLING_X` / `_FINISH_EXPLOSION` and `CSI_CTT_MOBILE_MODE_X_EXPLOSION`; March's two in-state adds sit in dead `#else`
+  branches, so no double add); APPLIED_SKILL_ID 26209 Trick Shot + `TryGetAcquiredSkillAbilityValue( SA_EFFECTIVE_TIME, 26209, swap )` (default 2.0) -> new
+  `DamageData::SetBuffFactorTimeValue( 0, v )` (`32610e90`: every pushed factor's `SetFinalizerValue( BFT_TIME, v, op )`). **JUNE_BUGS 517**: branches 1 and 3 are latent
+  (no June Lua sets USED_SKILL_ID 26402; neither 26209 nor 26232 has SA_EFFECTIVE_TIME).
+- **`GetActualMPConsume` `32bed9d0`** whole inside March's (March's memo 13 / 19 / 24 / 28 / 30 cases dropped, as June): Automatic Mortar 26215 / 26238 x
+  Commander Tactics 26420 `SA_MP_CONSUME_REL` (0.3) while `m_vecRemoteMortarNPCUID` is non-empty; clamp 0; berserk x `m_fDecreaseRate` for types other than
+  `ST_RELATIONSHIP_SKILL` / `ST_HYPER_ACTIVE_SKILL` (12 / 13; March excluded only Outrage Strike); berserk or balls > 0 x `( 1 - GetCharacterSpecializationA() )`
+  (`DE E1`); x `GetSkillMpDecreaseRate` on my unit.
+- **`GetActualCoolTime` `32be8e50`** whole inside March's (memo 29 case dropped): berserk x `m_fAwakeningCoolTimeRate` on the same type test; < 0 -> 0.
+- **7an soul gain:** base `CX2GUUser::GetIncreaseSoulRateOnDamageReact` (1.0, `3208e1b0`) and its `DamageReact` call (`@32049d8a`, right after the 0x73c MP hook,
+  x `fIncreaseSoulRate`); CH1l's Chung function (Open Mind 26415) is now its override. Ain / Raven overrides stay with their ports.
+- **Spec-B reader `32bf528d`:** in `UseCannon` `32bf5280`, ported whole in CH1q; checked, no change.
+- **Per-skill stores (section 7 l.280 / l.287):** Chung's three `3201ad10` call sites key by the templet's June id (hold). The four Mark of Commander reads
+  (`DoMarkOfCommand` `@3236dfe7` / `@3236e002`, NPC `AttackResultByType` `@327742fa` / `@32774310`) read March's 6223, which June's tree never holds: now 26214.
+- **Routed, not ported (scope rule):** the death-prevention / Crest of Time engine (`3201ffb0`, `32009780`, `3204da60`, `320072d0`). Its only June cast is Add's
+  `ANSI_SA_COMMON_CREST_OF_TIME` (Chung's script has no state), so it goes whole to `char-add` (`kickoffs/june-backlog/stage7-plan.md` row 8, checklist section 7 row).
+  Chung's `StoreGageSnapshot` / `RestoreGageSnapshot` (CH1l) become the overrides then.
+
+**Hygiene.** `/Zs` X2GUChung / X2GUUser / X2BuffTemplet / X2GUNPC.cpp: 0 errors; `flagprobe`: guard passes, `_PASSIVE` / `_DEBUG` / `_SKILL` ON.
+`flagcheck.py JUNE_CHAR_CHUNG_PASSIVE --with JUNE_CHAR_CHUNG_PASSIVE_DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2GUChung.cpp X2Lib/X2GUChung.h X2Lib/X2GUUser.h X2Lib/X2DamageManager.h X2Lib/X2BuffTemplet.cpp X2Lib/X2GUNPC.cpp`:
+`files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = the `DTT_SIEGE_SHELLING` row under `JUNE_ENUM_NAMES`;
+PASS~ = one blank line before the new function; the 1 deleted line is the commented `_DEBUG` define, now live). `--files X2Lib/X2GUUser.cpp` alone (its compound `#if`
+stops a joint run): `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+`junediverge.py --check` (7 files): `RESULT: PASS`. `enumscan.py --check` (5 files): 0 A/B rows.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,942,016 B, dated 2026-11-03 16:23:03, md5 5dbc60fd8c7c5e577f371f52d40ed3d9, equal to X2/US_SERVICE/x2.exe (2026-11-03 16:22:56); built at main a151a827 + 8 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 25942016 B, dated 2026-11-03 16:23:03, md5 5dbc60fd8c7c5e577f371f52d40ed3d9` (the `skill use`, `converted warhead`, `soul rate`, `mark of commander shell` lines, wide).
+**Save** (backup `els_db_20261103_161620_pre_sql.sql`): unit 18 `Freils` + 26420 Commander Tactics level 1, 26214 Mark of Commander level 1 in slot 7 (26228
+unslotted). Units 43 / 50 unchanged.
+**In game:** `[JUNE_CHAR] CHUNG PASSIVE skill use` per cast (MP, base MP, cool time, berserk rates, mortars, balls), `converted warhead`, `soul rate on damage react`,
+`mark of commander shell`; `iron will` / `trick shot` never print (JUNE_BUGS 517).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`. Sub-tag `UI`.

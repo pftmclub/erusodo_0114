@@ -11652,6 +11652,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 				fIncreaseMpRate *= GetIncreaseMpRateOnDamageReact( pDamageData );	// June 320462a0 @32049d78 ( vslot 0x73c )
 #endif SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+				fIncreaseSoulRate *= GetIncreaseSoulRateOnDamageReact();	// June 320462a0 @32049d8a ( vslot 0x748 )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				//}} kimhc // 2010.11.3 // 레피 - 승화된 분노
 
 				if( g_pX2Room != NULL && g_pData->GetPVPRoom() != NULL )

@@ -3235,6 +3235,9 @@ public:
 		virtual float				GetDefenceRateBySkill( const int iAttackType_ ) { UNREFERENCED_PARAMETER( iAttackType_ ); return 1.f; }	/// June user vslot 0x428 ( base 3208dd70 ), the attacker's defence-term rate
 		virtual float				GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ ) { UNREFERENCED_PARAMETER( pDamageData_ ); return 1.f; }	/// June user vslot 0x73c ( base 3208dd70 )
 #endif SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+		virtual float				GetIncreaseSoulRateOnDamageReact() { return 1.f; }	/// June user vslot 0x748 ( base 3208e1b0 ): the soul rate of a hit taken
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 
 #ifdef NEXON_QA_CHEAT_REQ
 		void SetInvincibleAndNoMpConsume_Cheat( bool bValue_ ) { m_bIsInvincibleAndNoMpConsume = bValue_; }

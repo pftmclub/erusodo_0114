@@ -548,6 +548,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	void				GuardianForceAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32c12910 ( thunk 32c258a0 )
 	void				OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32bdba10 ( thunk 32c23090 )
+	virtual void		SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate );	/// June 32bf28f0 ( vslot 0x2b8, base 32045340 )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 	virtual void		SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	// 장착한 스킬의 레벨에 따라 각 스킬에 해당하는 상태의 PowerRate등을 셋팅
 	void				SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet, CHUNG_STATE_ID eStateID );	// 장착한 스킬의 레벨등이 변경될 때 같이 변경되어야 할 스테이트 데이타

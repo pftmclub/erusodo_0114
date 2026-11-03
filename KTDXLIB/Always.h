@@ -11388,6 +11388,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              BBT 85 / 86, Mobile Armored Mode's extra balls, Guardian Force 26416 and Open Mind 26417 on the attack-result list ) and
 //              SetSpecificValueByBuffTempletID is June's 32bec1a0 ( Land Demolisher from 26007 with the socket power rate, Sharpshooter Syndrome
 //              from 26012 ). Log [JUNE_CHAR] CHUNG PASSIVE ( _DEBUG ). Revert: undefine the flag.
+//              CH4b ( 2026-11-03 ): CX2GUChung::SetDamageExceptionProcess 32bf28f0 ( Iron Will, Converted Warhead on DTT_SIEGE_SHELLING, Trick Shot's
+//              buff time ), GetActualMPConsume 32bed9d0 / GetActualCoolTime 32be8e50 whole, the user soul-rate hook on a hit ( vslot 0x748 ) and
+//              Mark of Commander's shell readers on June's id 26214.
 #define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) )
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE, _USER_SKILL_LEVEL_HELPERS, _CHAR_EVE_PASSIVE ( GetSkillBuffFactorPtr, SetSkillBuffFactors ) and _SOCKET_PARITY ( GetSkillAdditionalPowerRate )
@@ -11397,6 +11400,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE needs SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT ( AddMpGainOnHitRate )
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) || !defined( SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST ) )
+#error SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ( m_vecRemoteMortarNPCUID ) and _EFFECTSET_BUFF_LIST ( SetFinalizerValue )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11405,7 +11411,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-chung CH4a debug - [JUNE_CHAR] CHUNG PASSIVE lines ( passive init values, Land Demolisher / Sharpshooter values, the two
 //              attack-result callbacks ). Temporary: retired in the CH4a review.
 //              CH4a review ( 2026-11-03 ): retired, the play-test logs ( 13:44-13:49, 14:22-14:25 ) were read.
-//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+//              CH4b ( 2026-11-03 ): on again for the CH4b play-test ( skill use MP / cool time, soul rate, Iron Will, Converted Warhead, Trick Shot,
+//              Mark of Commander lines; CH4a's init lines come back with them ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

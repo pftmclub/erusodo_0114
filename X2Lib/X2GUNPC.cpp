@@ -32375,11 +32375,22 @@ void CX2GUNPC::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 				/// buff port 16-step3b7 item 2: June 32773ee0 @327742fa, x 31fd7cc0( 0x6666 ) on the owner user ([esp+0x14] = 32759f00, stored
 				/// @32774004 = March's pOwnerUnit), as Phase 9a's DoMarkOfCommand; June's 26214 = March's SI_A_CHG_MARK_OF_COMMANDER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+				fShellPowerRate = pOwnerUnit->GetSkillDamageRateByBuff( CX2SkillTree::RNSI_A_CHG_MARK_OF_COMMANDER ) * fShellPowerRate;	/// June @327742fa pushes 0x6666
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				fShellPowerRate = pOwnerUnit->GetSkillDamageRateByBuff( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) * fShellPowerRate;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				/// buff port 16-step3b7 item 2: then x ( 3201ad10( 0x6666 ) + 1.0 ) on the same owner (@32774310, 334355b0 = 1.0)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+				fShellPowerRate = ( pOwnerUnit->GetSkillAdditionalPowerRate( CX2SkillTree::RNSI_A_CHG_MARK_OF_COMMANDER ) + 1.f ) * fShellPowerRate;	/// June @32774310 pushes 0x6666
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 				fShellPowerRate = ( pOwnerUnit->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER ) + 1.f ) * fShellPowerRate;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE mark of commander shell ( npc hit, owner %I64d: shell power rate %.1f )", pOwnerUnit->GetUnitUID(), fShellPowerRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION

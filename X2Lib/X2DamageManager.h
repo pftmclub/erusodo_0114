@@ -77,6 +77,11 @@ class CX2DamageManager
 			DTT_PANDEMONIUM_FEAR                  = 6,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // June character Chung Phase CH4b (JUNE_CHARACTER_CHUNG_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_SIEGE_SHELLING                    = 31,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 
@@ -1736,6 +1741,17 @@ class CX2DamageManager
 					}
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+			/// June 32610e90 ( op, value ): every pushed buff factor's time finalizer, op 0 / 1 / 2 = += / *= / =
+			void SetBuffFactorTimeValue( const int iOperation_, const float fValue_ )
+			{
+				for ( UINT i = 0; i < m_vecBuffFactorPtr.size(); ++i )
+				{
+					if ( NULL != m_vecBuffFactorPtr[i] )
+						m_vecBuffFactorPtr[i]->SetFinalizerValue( BFT_TIME, fValue_, iOperation_ );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 
 			~DamageData()
 			{

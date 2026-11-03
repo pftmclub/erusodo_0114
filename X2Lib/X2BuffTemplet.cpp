@@ -5,6 +5,9 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffTemplet.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
@@ -1839,16 +1842,27 @@ void CX2CustomFunctionByBuffMarkOfCommand::DoMarkOfCommand( CX2GameUnit* pGameUn
 		{
 			float fSkillDamageRateByBuff = 1.0f;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+			fSkillDamageRateByBuff = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillDamageRateByBuff( CX2SkillTree::RNSI_A_CHG_MARK_OF_COMMANDER );	/// June @3236dfe7 pushes 0x6666, the id June's tree holds
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 			fSkillDamageRateByBuff = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillDamageRateByBuff( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );	/// June 26214 = RNSI_A_CHG_MARK_OF_COMMANDER
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// buff port 16-step3b7 item 1: June @3236e002 3201ad10( 0x6666 ) on the attacker user (esi), + 1.0 (334355b0) below;
 			/// June's 26214 is March's SI_A_CHG_MARK_OF_COMMANDER, the key 16-step3b5's slot pass files the rate under
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+			const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::RNSI_A_CHG_MARK_OF_COMMANDER );	/// June @3236e002 pushes 0x6666
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 			const float fSkillDamageAddRate = static_cast<CX2GUUser*>( pAttackerGameUnit )->GetSkillAdditionalPowerRate( CX2SkillTree::SI_A_CHG_MARK_OF_COMMANDER );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			const float fSkillDamageAddRate = 0.0f;	/// 3201ad10, see the brief
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			fShellPowerRate = ( fSkillDamageAddRate + 1.0f ) * ( fSkillDamageRateByBuff * fShellPowerRate );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE mark of commander shell ( user hit: buff rate %.3f, socket rate %.3f, shell power rate %.1f )", fSkillDamageRateByBuff, fSkillDamageAddRate, fShellPowerRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 		}
 
 		for ( UINT uiIndex = 0; uiIndex < m_uiDamageEffectCount; ++uiIndex )
