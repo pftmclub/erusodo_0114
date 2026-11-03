@@ -3341,6 +3341,37 @@ per potion use; `big bang stream grenade ( rate 0.25, roll r: <name> )` per thro
 CH4a / CH4b's `init` / `skill use` lines print again while `_DEBUG` is on.
 **Play-test PASSED (user, 2026-11-03; logs 19:21-19:26 on md5 `eaa29e8e`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x3, `AddGroupChainQuest` = quests, no ErrorLog line from these paths).** ChungFury in a dungeon: `item hp up: value 15200, level 4, rate +0.600` and `item hp percent up: value 0.300, level 4, rate +0.600` (26400 level 4 = SA 55 1.6). Village use: the quick slot refuses it before any request (June `3294f070` the same), so no village line, as expected. ChungShell Enhanced Big Bang Stream: 9 throws, `rate 0.25` each; rolls 0.139 / 0.010 / 0.041 / 0.038 -> `CHUNG_BIGBANGSTREAM_ULTIMATE` (4), 0.558 / 0.971 / 0.743 / 0.676 / 0.319 -> `HAND_GRENADE_0` (5): every roll <= 0.25 picked the giant one.
 
+#### CH4c - Review (2026-11-03, Opus 5.5): PASS with 1 fix; `_PASSIVE_DEBUG` retired
+
+**Verdict: PASS, 1 fix** under `SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY` (the village function was not whole June). `_DEBUG` retired (`#define` commented out; logs 19:23-19:26 read).
+Listings read (`funcdis.py --func`): `3236dbf0`, `32007c40`, `31fcf3e0`, `322fbc60 @322fbe08` / `@322fd495`, `32a34020` whole, `31fcd470`, `32bdc890`, `32206e50`, `32bdb760` / `32bdb780` / `31fd4450`.
+- **Big Bang Stream grenade `3236dbf0`**: `+0x264` == 0 = `GUT_USER` (`enumprobe.py`: 0); `31fcf3e0( 0x65a3 )` (26019 `RNSI_SA_CHG_BIGBANG_STREAM`) = `IsUpgradedSkillLearned`, then
+  `32007c40( 5, 0x65a3, 1, &f )` (SA 5 = `SA_EFFECTIVE_RATE`), then vslot 0x1cc `( 0 )`: the draw comes only after both gates. `fld f; fcompp; test ah,1` -> ULTIMATE when not
+  `f < roll` = `roll <= f` (NaN -> HAND_GRENADE both ways). `32007c40` = `GetSkillLevel( id, false, 0, true )`, `GetUserSkillTemplet( id, swap )`, `322cc1a0`,
+  `32206fb0( type, level, &out, pvp )`: the `_CONST_BUFF_CH4C_` copy is byte-for-byte Chung's `_CONST_CHUNG_CH1g2_` body. The log's `rate 0.25` is 26033's value. Holds.
+- **Metabolism Boost, five sites**: each = `GetUnitClass` 0x14 / 0x6e (village HP % 0x14 only, JUNE_BUGS 518), `32890620( 0x6720, 1, 0, 1 )` = `GetSkillLevel( 26400, true, 0, true )`,
+  `32206450( 0x6720, 1 )` NULL test, `32206e50( 0x37, level, 0, 0.f )` = March's 2-argument `GetSkillAbilityValue` (numerical first, bPvp false; SA 55 = `SA_ITEM_SPECIAL_ABILITY_REL`),
+  `fsub 334355b0; fadd 3346ed68` = `- 1.0 + 5e-8` rounded to float, then added (`31fcd470`: raw, no `- 1`; `32bdc890`: `GetIncreasingRate`). Holds.
+- **Rest of `31fcd470`**: alchemist `328907e0( 0x1f7, grade )`, `max( 1, level )`, alchemist x metabolism = March. June's guild-skill level passes the upgrade swap (`1`), March
+  the default `false`: same result (503 has no upgrade). Holds.
+- **Rest of `32a34020`: 1 fix.** June's MP up (`@32a341f4`) and MP % (`@32a34409`) call the gage vslot 0xc `( value, 1, 0 )` = tracked `UpNowMp`; March's village called
+  `UpNowMp( v )` (untracked). Now `UpNowMp( v, true )`. June's inline HP raise (`@32a341bf`, `@32a342ed`) also writes the before-change HP into `+0x108` before `Increase`
+  (as `SetNowHp` `32081260` and `CX2GUUser::UpNowHp` `3202fcf0` do): March's `CX2GageData::UpNowHp` now keeps `m_fBeforeNowHp` too. Both under `_DIVERGE_GAGE_TALLY`
+  (its subject; the track argument exists only under it). Neither tally has a reader in X2Lib, so nothing changes in game. Soul, egg `0x11170` (adds 0 / 100), MP %'s
+  alchemist test and the `HP+ ... PERCENT` stream = March. Divergence rows: village row's source amended, new `CX2GageData::UpNowHp` row; funcmap row `(CH4c review)`.
+- **`MemoConditionChung`**: slot 1 `32bdb760` -> `31fd4450` (`xor al,al`), slot 2 `jmp 31fc8cf0`. `dispsweep.py 7d10`: readers are the user dtor `3203a620` (delete), the
+  ctors (writes) and `CommonStateStart @3205ad4a` / `@3205ad58` (slot 2 parse, slot 1 -> `+0x9284`) = the S3f site. n/a holds.
+- **Play-test**: the Done note's 11 lines are in `offline_server.log` (2 metabolism at `+0.600`, 9 grenades, 4 giant at rolls <= 0.25), 0 EXCEPTION, 0 ErrorLog hits.
+
+**Hygiene.** `flagcheck.py JUNE_DIVERGE_GAGE_TALLY --worktree --files KTDXLIB/Always.h X2Lib/X2GageData.h X2Lib/X2GageData.cpp`:
+`files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = Always.h; the 4 token-less `#else` / `#endif` are March's in `X2GageData.h`).
+`flagcheck.py JUNE_CHAR_CHUNG_PASSIVE --with JUNE_CHAR_CHUNG_PASSIVE_DEBUG --worktree --files KTDXLIB/Always.h`: `RESULT: PASS` (the 1 deleted line is the retired `#define`).
+CH4c range `--range 5e478874^..5e478874` (5 files): `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`; `X2GUUser.cpp`: `RESULT: PASS`.
+`junediverge.py --check-all`: `RESULT: PASS` (181 allow-listed). `enumscan.py --check` (5 files): 0 A/B rows.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-03 19:47:35, md5 6e64ed8cd1c0d65826cb20332e2aeaeb, equal to X2/US_SERVICE/x2.exe (2026-11-03 19:47:28); built at main 6aed6bc7 + 3 uncommitted code file(s).`
+`EXESTR OK: 2 of 2 absent in X2_offline.exe, 25937408 B, dated 2026-11-03 19:47:35, md5 6e64ed8cd1c0d65826cb20332e2aeaeb` (the grenade / metabolism debug lines, wide); `CHUNG_BIGBANGSTREAM_ULTIMATE` found (1 of 1).
+**Play-test:** none owed (both new writes have no reader; the village MP cases are unreached). Next: CH6 (ready).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`. Sub-tag `UI`.

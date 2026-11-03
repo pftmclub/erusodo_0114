@@ -541,7 +541,11 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 				// 길드 스킬 중 연금술의 달인(포션, 음식, 던전 회복 아이템의 효과가 X%증가)
 				fValue *= fIncreaseRateMpUp;
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+				UpNowMp( fValue, true );	/// June 32a34425-32a3442b: vslot 0xc ( value, 1, 0 ) tracks the gain
+#else SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 				UpNowMp( fValue );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 				
 // 				std::wstringstream strStream;
 // 				strStream << L"MP+ " << static_cast< int >( fValue );
@@ -643,7 +647,11 @@ void CX2GageData::UseSpecialAbilityInVillage( const CX2Item::ItemTemplet* pItemT
 				if ( bDoIHaveMasterOfAlchemistSkill == true )
 					fValue *= fIncreaseRateFromMasterOfAlchemistSkill;
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+				UpNowMp( GetMaxMp() * fValue, true );	/// June 32a34409-32a3442b: vslot 0xc ( value, 1, 0 ) tracks the gain
+#else SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 				UpNowMp( GetMaxMp() * fValue );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 
 // 				std::wstringstream strStream;
 // 				strStream << L"MP+ " << static_cast< int >( pSa->m_Value1 * fIncreaseRateFromMasterOfAlchemistSkill ) << L" PERCENT";

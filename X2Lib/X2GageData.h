@@ -223,6 +223,11 @@ public:
 
 	void			UpNowHp( const float fChangeOfNowHp_, const float fMinimum_ = 0.0f )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
+		/// June inline @32a341bf-32a341d4: the HP before the change is kept, as SetNowHp
+		if ( NULL != m_pHpGage )
+			m_fBeforeNowHp = m_pHpGage->fNow;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 		if ( NULL != m_pHpGage )
 			m_pHpGage->Increase( fChangeOfNowHp_, fMinimum_ );
 	}

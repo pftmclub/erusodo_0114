@@ -10387,6 +10387,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-29
 // Description: june-march-divergence D1-1: CX2GageData keeps June's MP gained / spent tallies and before-change HP / MP ( 32081260, 322b3010, 322b33d0, 32a31910 ); CX2GameUnit::UpNowMp tracks, FlushMp tracks for my unit; any unit's tracked MP spend counts for the random mission. Revert: undefine the flag.
+//              char-chung CH4c review ( 2026-11-03 ): the gage's UpNowHp keeps the before-change HP too ( June inline @32a341bf / @32a342ed ), and the village potion MP cases track ( 32a34020's vslot 0xc ( value, 1, 0 ) ).
 #define SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY
 //////////////////////////////////////////////////////////////////////////
 
@@ -11417,7 +11418,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Mark of Commander lines; CH4a's init lines come back with them ).
 //              CH4b review ( 2026-11-03 ): retired, the play-test logs ( 17:58-18:01 ) were read.
 //              CH4c ( 2026-11-03 ): on again for the CH4c play-test ( metabolism boost, big bang stream grenade lines ).
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+//              CH4c review ( 2026-11-03 ): retired, the play-test logs ( 19:23-19:26 ) were read.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
