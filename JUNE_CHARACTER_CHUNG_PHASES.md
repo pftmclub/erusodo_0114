@@ -3138,6 +3138,38 @@ unit 50 `Chung99` + 26409 level 4, Sharpshooter Syndrome 26012 in slot 4; unit 1
 **In game:** three `[JUNE_CHAR] CHUNG PASSIVE init` lines per Chung load name every value; `guardian force`, `open mind`, `land demolisher` and
 `sharpshooter syndrome` lines on use; CH3c's `extra 6` on unit 18's Cannon Strike.
 
+#### CH4a - Review (2026-11-03, Opus 5.5): PASS, no code change; `_PASSIVE_DEBUG` retired
+
+Read against `funcdis.py` listings of `32c16be0`, `32c12910`, `32bdba10`, `32bec1a0`, `31fc94d0`, `32c24dd0`, `32012b50 @32013355-320134bd`.
+- **`InitPassiveSkillState` `32c16be0` holds block by block.** Ids: 0x665a (swapped by `328905b0`) / 0x6659 / 0x6720-0x6724 / 0x672a-0x672d /
+  0x6725-0x6729 / 0x672f-0x6731 = the code's 26202 / 26201 / 26400-26404 / 26410-26413 / 26405-26409 / 26415-26417, in June's order. `GetSkillLevel`
+  pushes `( id, 0, 0, 1 )` for 26202 / 26201 and `( id, 1, 0, 1 )` for the rest. SA pairings ( all 21 SA values resolved by `cl /P`, equal to June's
+  pushes; cross-checked against `X2SkillTree.cpp`'s name table ): 0x57 / 0xf, 0x1f, 0x81 / 0x28 / 5, 0x1c / 5, 0x67 / 0x69 / 0x85, 0x84, 0x1c / 0x82, 0x83 /
+  0x1f, 0xf / 32071720, 0x86, 0x57 / 0x1f, 0x32, 0xf / 0x82 / 0x6a, 0x92 / 5, 0x29, 0x67 / 5, 0x33 / 0x22, 0x23 -> the members of the Done note's table
+  ( `ch1k_ctor_map.tsv` rows 42-158; `+0x97a4` / `+0x97a8`, `+0x9858`, `+0x9814` by their SA meaning; `+0x4870` / `+0x4924` / `+0x49d8` / `+0x4a8c` = the
+  four consecutive `X2GameUnit.h:5252-5256` members ). Resets: 1 / 1 / -1 (siege), 0 (Guard Mastery anim local), 0 x3 (warhead), -1 x2 (reload
+  mastery), off / 0 / 0 (armored), -1 power rate + protected 0 ball count with `+0x9740` untouched (JUNE_BUGS 515), 1 / 0 / protected 1 (rifle),
+  0 (magazine), protected 0 / 0 (showtime, both paths), 0 (tussle), 0 / 0 (gas piston); none for 26202, 26400, 26402, 26404. Constants: `0x334380f0` = -1.0f,
+  `0x334355b0` = 1.0, `0x3346ed68` = 5e-8, `0x334350e8` = 0.0 (the rifle's `+ 0.f`). `rate - 1 + 5e-8` at the three sites; Tussle's force down adds
+  `+0x4054` then calls `32070b70`. The two pushes on `+0x66ac` `@32c177e3` / `@32c1780f` carry thunks `32c258a0` / `32c23090` under 26416 / 26417.
+- **`32c12910`:** 26416 learned, `+0x470` defender live, `+0x5c4` in 0x6594 / 0x65b2 / 0x6599 / 0x6598 / 0x65ce (= 26004 / 26034 / 26009 / 26008 / 26062),
+  vslot `0x238( out, 26416, 0, 1 )`, non-NULL -> defender vslot `0x224` by reference: holds. **`32bdba10`:** hit type `+0x20` 0x21 / 0x22 (the log's 33 / 34),
+  `+8` == 2 (`AT_COMMAND`), then 26417 learned, vslot `0x23c( 26417, 0, 1 )`: holds, same test order.
+- **`32bec1a0`:** BTI 45: `+0x97d0` = 0, 26012 level `( 0, 0, 1 )`, `31fca8e0( 26012, 1 )`, SA 5. BTI 54: `31fca8e0( 26007, 1 )`, unit check, level
+  `max( 1, .. )`, `+0x96c8` = 1, `32071720`, pulse `( 1,1,1,1 ) / ( 1,1,1,0.1 ) / 1 / 9999 / 2` = March's, then x `( 3201ad10 + 1.0 )`: holds.
+- **MP gain on hit:** `+0x3a8` = `m_DamageData` (+0x3a0) `attackType` == `AT_SPECIAL` skips; four ids 0x5398 / 0x5b6e / 0x5b6f / 0x6724, last learned wins,
+  then `+= +0x93b8`: holds. `31fc94d0` is `DE E9` (`fsubp` = rate - 1) at `>= 1.0`; its only caller is `@32c16e5c`. Ctor `@32041d30`, base reset `@31fe1db8`
+  (the last store before `ret`): hold.
+- **Play-test logs** (14:22-14:25, md5 `a47fd10a`): init lines on units 43 / 18 as the Done note, `guardian force` x4 on Iron Howling, Fatal Cannon `6 -> 0`
+  and the refill; 0 ErrorLog lines, 0 EXCEPTION.
+- **Retired:** `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG` commented out (also turns off `c2d734ef`'s two Fatal Cannon / Cannon Strike lines).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_CHUNG_PASSIVE --with JUNE_CHAR_CHUNG_PASSIVE_DEBUG --range 27ce5780^..c2d734ef` (Always.h, X2GUChung.*, X2SkillTree.h):
+`files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `JUNE_USER_MP_GAIN_ON_HIT --range 27ce5780^..27ce5780`
+(Always.h, X2GUUser.*): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. `junediverge.py --check-all`:
+`allow-listed: 185` `RESULT: PASS`. `enumscan.py --check X2GUChung.cpp X2GUUser.cpp`: 0 A/B rows.
+**Deploy:** not awaited (user, 2026-11-03: the change only comments out the `_DEBUG` define); `build.py --deploy` started from this tree, its result goes with the next phase.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`. Sub-tag `UI`.

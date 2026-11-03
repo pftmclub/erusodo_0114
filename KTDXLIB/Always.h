@@ -11404,5 +11404,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-03
 // Description: char-chung CH4a debug - [JUNE_CHAR] CHUNG PASSIVE lines ( passive init values, Land Demolisher / Sharpshooter values, the two
 //              attack-result callbacks ). Temporary: retired in the CH4a review.
-#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+//              CH4a review ( 2026-11-03 ): retired, the play-test logs ( 13:44-13:49, 14:22-14:25 ) were read.
+//#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
