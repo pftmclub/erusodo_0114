@@ -3339,6 +3339,7 @@ Files: `X2Game.cpp`, `X2GageData.cpp`, `X2GUUser.cpp`, `X2GUChung.cpp`, `X2BuffT
 **In game:** `[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp up | item hp percent up | henir hp up | damage data hp up ... )` (the `village` lines never print, see above)
 per potion use; `big bang stream grenade ( rate 0.25, roll r: <name> )` per throw, about 1 in 4 `CHUNG_BIGBANGSTREAM_ULTIMATE` (a bigger bomb).
 CH4a / CH4b's `init` / `skill use` lines print again while `_DEBUG` is on.
+**Play-test PASSED (user, 2026-11-03; logs 19:21-19:26 on md5 `eaa29e8e`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x3, `AddGroupChainQuest` = quests, no ErrorLog line from these paths).** ChungFury in a dungeon: `item hp up: value 15200, level 4, rate +0.600` and `item hp percent up: value 0.300, level 4, rate +0.600` (26400 level 4 = SA 55 1.6). Village use: the quick slot refuses it before any request (June `3294f070` the same), so no village line, as expected. ChungShell Enhanced Big Bang Stream: 9 throws, `rate 0.25` each; rolls 0.139 / 0.010 / 0.041 / 0.038 -> `CHUNG_BIGBANGSTREAM_ULTIMATE` (4), 0.558 / 0.971 / 0.743 / 0.676 / 0.319 -> `HAND_GRENADE_0` (5): every roll <= 0.25 picked the giant one.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
