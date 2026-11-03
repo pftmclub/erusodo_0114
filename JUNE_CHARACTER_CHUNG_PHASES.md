@@ -3275,6 +3275,7 @@ stops a joint run): `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTH
 unslotted). Units 43 / 50 unchanged.
 **In game:** `[JUNE_CHAR] CHUNG PASSIVE skill use` per cast (MP, base MP, cool time, berserk rates, mortars, balls), `converted warhead`, `soul rate on damage react`,
 `mark of commander shell`; `iron will` / `trick shot` never print (JUNE_BUGS 517).
+**Play-test PASSED (user, 2026-11-03; logs 17:58-18:01 on md5 `5dbc60fd`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, `AddGroupChainQuest` = quests).** Chung99 Shooting Star 26051 berserk: mp 300.0 -> 210.0 (x0.70), cool time 22.00 -> 12.10 (x0.55). Freils Automatic Mortar 26238: mp 30.0 with 0 mortars, 9.0 with 1 (x0.30). Mark of Commander 26237: 6 `mark of commander shell ( user hit: buff rate 1.000, socket rate 0.100, shell power rate 1.8 / 2.8 )`. Siege shots: 26 `converted warhead ( hit mp +4.00 -> 5.30 )`. `iron will` / `trick shot`: 0 lines (JUNE_BUGS 517). `soul rate on damage react`: not exercised (user skipped): NovaT's 5 hits landed in walk / wait, outside June's guard list (`CSI_GUARD`, `CSI_COMBO_ZZ` / `ZZZ` / `XX` / `XXX` / `..._CANNON_BALL_SHOT` / `..._FINISH`), so the rate stays 1 and nothing prints; Open Mind 26415 level 1 = `SA_SOUL_ABS` 5. The review reads the path statically.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
