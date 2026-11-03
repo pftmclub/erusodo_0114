@@ -2140,6 +2140,15 @@ public:
 		RNSI_P_CIP_GUARDIAN_FORCE                             = 26416,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // char-chung CH4a2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the base CX2GUUser::InitPassiveSkillState and CX2Unit's element defences read ( values from June's Enum.lua )
+		RNSI_P_CFG_ELEMENTAL_DEFENCE_A                        = 26401,
+		RNSI_P_ASD_VIGOR_ENERGIZE                             = 27401,
+		RNSI_P_SPK_BODY_OF_FIRE                               = 28405,
+		RNSI_P_LCN_TRIBUTE                                    = 30409,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

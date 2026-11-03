@@ -739,6 +739,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 , m_fMpGainOnHitAddRate( 0.f )
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+, m_fPassiveAnimSpeedRate( 1.f )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 #ifdef DUNGEON_DASH_LOG
 , m_iDashCount ( 0 )
 #endif DUNGEON_DASH_LOG
@@ -3979,11 +3982,66 @@ void CX2GUUser::AddEnchantStatFromPassiveSkillToDefenceEnchantData()
 	} // for
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+/*virtual*/ float CX2GUUser::GetEnchantResist( CX2EnchantItem::ENCHANT_TYPE enchantType )
+{
+	/// June 31fd8790: the passive element defence joins the buff resist, then the item resist map as the base 32274b00
+	float fFinalResist = 0.f;
+
+	switch( enchantType )
+	{
+	case CX2EnchantItem::ET_BLAZE:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefBlaze + m_AdditionalChangeAttributeBlazeDefence.GetResultValue();
+		break;
+	case CX2EnchantItem::ET_WATER:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefWater + m_AdditionalChangeAttributeWaterDefence.GetResultValue();
+		break;
+	case CX2EnchantItem::ET_NATURE:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefNature + m_AdditionalChangeAttributeNatureDefence.GetResultValue();
+		break;
+	case CX2EnchantItem::ET_WIND:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefWind + m_AdditionalChangeAttributeWindDefence.GetResultValue();
+		break;
+	case CX2EnchantItem::ET_LIGHT:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefLight + m_AdditionalChangeAttributeLightDefence.GetResultValue();
+		break;
+	case CX2EnchantItem::ET_DARK:
+		fFinalResist = m_EnchantStatFromPassiveSkill.m_fDefDark + m_AdditionalChangeAttributeDarkDefence.GetResultValue();
+		break;
+	}
+
+	map< CX2EnchantItem::ENCHANT_TYPE, int >::iterator mit = m_mapDefenceEnchantData.find( enchantType );
+	if ( m_mapDefenceEnchantData.end() != mit )
+		fFinalResist += static_cast<float>( mit->second );
+
+	return fFinalResist;
+}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 /** @function : AddExtraDamageImmuneRateFromPassiveSkillToImmuneData
 	@brief : 패시브 스킬에 의해서 증가된 ExtraDamageImmune 확률을 m_mapExtraDamageNImmunePer에 더함
 */
 void CX2GUUser::AddExtraDamageImmuneRateFromPassiveSkillToImmuneData()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+	/// June 31fe0790: Elemental Defence A only, nine damage types ( the leg wound rate also covers bleeding )
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A );
+		if ( NULL != pSkillTemplet )
+		{
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_FIRE, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_FIRE_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_FROZEN, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_FROZEN_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_COLD, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_ICE_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_POISON, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_POISON_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_Y_PRESSED, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_Y_PRESSED_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_LEG_WOUND, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_LEG_WOUND_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_BLEEDING, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_LEG_WOUND_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_STUN, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_STUN_RESIST_REL, iSkillLevel ) );
+			AddExtraDamageImmuneData( CX2DamageManager::EDT_CURSE, pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EDT_CURSE_RESIST_REL, iSkillLevel ) );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 	const CX2UserSkillTree& refUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 	CX2SkillTree* pSkillTree = g_pData->GetSkillTree();
 	int iSkillLevel = 0;
@@ -4073,6 +4131,7 @@ void CX2GUUser::AddExtraDamageImmuneRateFromPassiveSkillToImmuneData()
 		}
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	}
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 }
 /** @function : GetEnchantStatFromPassiveSkillByEnchantType
 	@brief : 인첸트 타입별 수치 값 리턴
@@ -6289,8 +6348,121 @@ void CX2GUUser::InitEquippedActiveSkillState( bool bOnlySkillLevel /*= false*/ )
 
 	SetEquippedSkillLevel( CX2SkillTree::SI_NONE, true );	
 }
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+namespace _CONST_GUUSER_CH4a2_
+{
+	inline float GetIncreasingRate( const float fRate_ ) { return static_cast<float>( fRate_ - 1.0 + 5e-8 ); }	/// June 31fe1b34-31fe1b40 ( 5e-8 at 3346ed68 )
+}
+using namespace _CONST_GUUSER_CH4a2_;
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 void CX2GUUser::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+	/// June 31fe19d0 ( vslot 0x690 base; every class override calls it first )
+	InitAdditionalPassive();
+
+	m_vecDelegateProcessInAttackResult.resize( 0 );
+	m_vecDelegateProcessInDamageReact.resize( 0 );
+	m_vecDelegateProcessInCommonFrameMove.resize( 0 );
+	m_vecDelegateProcessWithDamageDataInDamageReact.resize( 0 );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+	m_vecDelegateProcessInAreaHit.resize( 0 );
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+
+	m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( 1.f );
+	m_SkillRelatedData.SetForceDownValueRateOfRangeAttack( 1.f );
+	m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent = 0;
+#ifdef NEW_CHARACTER_EL
+	m_fAddAccuaracyPercent = 0.f;
+#endif NEW_CHARACTER_EL
+
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+	int iSkillLevel = 0;
+
+	/// June 31edf060: the local player's unit class gates Get Chance for every user unit ( JUNE_BUGS 516 )
+	int iMyUnitClass = 0;
+	if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		iMyUnitClass = static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetClass() );
+	if ( false == CX2SkillNoteManager::GetInstance()->HasMemoClass( iMyUnitClass ) )
+	{
+		iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::SI_P_COMMON_GET_CHANCE, true, 0, true );
+		if ( 0 < iSkillLevel )
+		{
+			pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::SI_P_COMMON_GET_CHANCE );
+			if ( NULL != pSkillTemplet )
+				m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent += static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) * 100.0 );
+		}
+	}
+
+	m_GuildSkillData.m_bLearnChanceToReverse = false;
+	if ( NULL != userSkillTree.GetUserSkillTemplet( CX2SkillTree::SI_GP_COMMON_CHANCE_TO_REVERSE, GetUnit()->GetUnitData().m_byMemberShipGrade ) )
+		m_GuildSkillData.m_bLearnChanceToReverse = true;
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASD_VIGOR_ENERGIZE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASD_VIGOR_ENERGIZE );
+		if ( NULL != pSkillTemplet )
+			m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL, iSkillLevel ) ) + m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack() );
+	}
+
+	m_EnchantStatFromPassiveSkill.Init();
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A );
+		if ( NULL != pSkillTemplet )
+		{
+			/// June: one fire-defence value for all six elements
+			const float fElementalDefence = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FIRE_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefWater += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefNature += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefWind += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefLight += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefDark += fElementalDefence;
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_SPK_BODY_OF_FIRE, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_SPK_BODY_OF_FIRE );
+		if ( NULL != pSkillTemplet )
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FIRE_DEFENCE_ABS, iSkillLevel );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_LCN_TRIBUTE, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_LCN_TRIBUTE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefWater += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefNature += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefWind += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefLight += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefDark += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+		}
+	}
+
+	/// June drops AddEnchantStatFromPassiveSkillToDefenceEnchantData: GetEnchantResist ( 31fd8790 ) reads the six values
+	AddExtraDamageImmuneRateFromPassiveSkillToImmuneData();
+	m_fPassiveAnimSpeedRate = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+	m_fMpGainOnHitAddRate = 0.f;
+#endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG PASSIVE base ( unit %I64d class %d: element defence %.1f / %.1f / %.1f / %.1f / %.1f / %.1f, no down %d%%, force down melee %.3f, chance to reverse %d )",
+		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_EnchantStatFromPassiveSkill.m_fDefBlaze, m_EnchantStatFromPassiveSkill.m_fDefWater,
+		m_EnchantStatFromPassiveSkill.m_fDefNature, m_EnchantStatFromPassiveSkill.m_fDefWind, m_EnchantStatFromPassiveSkill.m_fDefLight, m_EnchantStatFromPassiveSkill.m_fDefDark,
+		m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent, m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack(), m_GuildSkillData.m_bLearnChanceToReverse ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
+#else SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 	InitAdditionalPassive();	/// 패시브로 증가된 효과에 대한 초기화
 
 	m_vecDelegateProcessInAttackResult.resize( 0 );
@@ -6505,6 +6677,7 @@ void CX2GUUser::InitPassiveSkillState()
 #ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 	m_fMpGainOnHitAddRate = 0.f;	/// June 31fe19d0 @31fe1db8 ( the rest of June's base body is char-chung CH4a2's )
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 }
 
 void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSkillId_ )

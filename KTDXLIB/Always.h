@@ -11407,3 +11407,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH4a review ( 2026-11-03 ): retired, the play-test logs ( 13:44-13:49, 14:22-14:25 ) were read.
 //#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH4a2 - June's base CX2GUUser::InitPassiveSkillState ( 31fe19d0 ) whole, every class: June ids ( Get Chance 104,
+//              Vigor Energize 27401, Elemental Defence A 26401, Body of Fire 28405, Tribute 30409 ), June's immune-rate body ( 31fe0790 ),
+//              the user GetEnchantResist override ( 31fd8790 ) that reads the passive element defences, and CX2Unit's character-window
+//              copy ( 3234b6b0 ).
+#define SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH4a2 debug - one [JUNE_CHAR] CHUNG PASSIVE base line per base passive init ( the six element defences ).
+//              Temporary: retired in the CH4a2 review.
+#define SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG
+//////////////////////////////////////////////////////////////////////////

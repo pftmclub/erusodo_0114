@@ -719,6 +719,52 @@ bool CX2Unit::UpdateViewEqip()
 */
 void CX2Unit::UpdateEnchantStatFromPassiveSkill()
 {
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+	/// June 3234b6b0: this unit's own skill tree and June's ids, as CX2GUUser::InitPassiveSkillState
+	const CX2UserSkillTree& userSkillTree = GetUnitData().m_UserSkillTree;
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	m_EnchantStatFromPassiveSkill.Init();
+	int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_CFG_ELEMENTAL_DEFENCE_A );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fElementalDefence = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FIRE_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefWater += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefNature += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefWind += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefLight += fElementalDefence;
+			m_EnchantStatFromPassiveSkill.m_fDefDark += fElementalDefence;
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_SPK_BODY_OF_FIRE, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_SPK_BODY_OF_FIRE );
+		if ( NULL != pSkillTemplet )
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FIRE_DEFENCE_ABS, iSkillLevel );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_LCN_TRIBUTE, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_LCN_TRIBUTE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_EnchantStatFromPassiveSkill.m_fDefBlaze += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefWater += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefNature += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefWind += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefLight += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+			m_EnchantStatFromPassiveSkill.m_fDefDark += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EL_DEFENCE_ABS, iSkillLevel );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
 	CX2SkillTree* pSkillTree = g_pData->GetSkillTree();
 	int iSkillLevel = 0;
@@ -792,6 +838,7 @@ void CX2Unit::UpdateEnchantStatFromPassiveSkill()
 		}
 	}
 #endif //NEW_CHARACTER_EL
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 }
 #endif	CHUNG_FIRST_CLASS_CHANGE
 //}} kimhc // 2011.1.14 // 청 1차 전직

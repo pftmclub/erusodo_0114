@@ -3170,6 +3170,41 @@ Read against `funcdis.py` listings of `32c16be0`, `32c12910`, `32bdba10`, `32bec
 `allow-listed: 185` `RESULT: PASS`. `enumscan.py --check X2GUChung.cpp X2GUUser.cpp`: 0 A/B rows.
 **Deploy:** not awaited (user, 2026-11-03: the change only comments out the `_DEBUG` define); `build.py --deploy` started from this tree, its result goes with the next phase.
 
+### CH4a2 - Done (2026-11-03)
+
+**Landed.** Commit: see `git log`, "char-chung Phase CH4a2". Flag `SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE` (+ temporary `_DEBUG`), every class.
+Files: `X2GUUser.cpp` / `.h`, `X2Unit.cpp`, `X2SkillTree.h` (names), `Always.h`. Listings read: `31fe19d0`, `31fe0790`, `31fe0730`, `31fd8790`, `32274b00`,
+`3234b6b0`, `32358df0 @32359bf9`, `326407b0`, `32610a00`, `31edf060`, `328907e0`, `322718e0`.
+- **`CX2GUUser::InitPassiveSkillState` `31fe19d0` whole** inside March's function (March's in `#else`), June's order: `InitAdditionalPassive` (`322718e0`:
+  same 54 members as March's, subagent map from June's `InsertAdditionalStat` switch; 14 socket members named from `X2GameUnit.h` comments); the five
+  list clears; melee / range force down `+0x4058` / `+0x4054` = 1, no-down `+0x4060` = 0, `+0x8df0` = `m_fAddAccuaracyPercent` = 0 (its only reader is the
+  hit-rate `326407b0` / `32610a00`); Get Chance 104 `SA_EFFECTIVE_RATE x 100.0` ftol, gated by `HasMemoClass( my unit's class )` (`31edf060` /
+  `324550a0` / `324511a0`, **JUNE_BUGS 516**); guild Chance to Reverse `+0x8ad0` reset to false, then `GetUserSkillTemplet( 509, grade )` (`328907e0` =
+  March's); Vigor Energize 27401 `SA_FORCE_DOWN_REL` -> melee force down via the setter, `rate - 1 + 5e-8` (`3346ed68`, file-local `GetIncreasingRate`);
+  `m_EnchantStatFromPassiveSkill` (`+0x9258..+0x926c`, getter `31fc79e0`) from 26401 (`SA_FIRE_DEFENCE_ABS` on all six), 28405 Body of Fire (blaze),
+  30409 Tribute (`SA_EL_DEFENCE_ABS` on all six); then `31fe0790`; `+0x92a0` = 1 (new `m_fPassiveAnimSpeedRate`, ctor 1 `@32041c49`); `+0x93b8` = 0.
+  June drops March's Induce Desire Winning / Harden Body / Vigor Energize (March ids) blocks and the `AddEnchantStatFromPassiveSkillToDefenceEnchantData` call.
+- **`AddExtraDamageImmuneRateFromPassiveSkillToImmuneData` `31fe0790`** (June body in the March function): 26401 only, nine `AddExtraDamageImmuneData`
+  (`31fe0730` = March's) pairs: fire / frozen / cold(ice) / poison / Y-pressed / leg wound / **bleeding (leg wound's SA)** / stun / curse.
+- **`CX2GUUser::GetEnchantResist` `31fd8790`** (new user override of the base virtual, vslot 0x30c): passive defence + buff resist per type, then the item
+  resist map, as base `32274b00`. This is where June reads the six passive values (divergence row `GetEnchantResist`, stage33, now ported here).
+- **`CX2Unit::UpdateEnchantStatFromPassiveSkill` `3234b6b0`** (character window; caller `32358df0` adds it to the enchant stat like March): June ids, and
+  the unit's own tree (`this +0x494`) where March read my unit's.
+- **Names** (`JUNE_ENUM_NAMES`): `RNSI_P_CFG_ELEMENTAL_DEFENCE_A` 26401, `RNSI_P_ASD_VIGOR_ENERGIZE` 27401, `RNSI_P_SPK_BODY_OF_FIRE` 28405, `RNSI_P_LCN_TRIBUTE`
+  30409 (March's same-named ids are 6402 / 7401 / 8403: no value clash). SA / EDT values checked with `enumprobe.py`.
+- **Tables:** divergence row `CX2GUUser::InitPassiveSkillState` source -> ported; rows added for `AddExtraDamageImmuneRateFromPassiveSkillToImmuneData` and
+  `CX2Unit::UpdateEnchantStatFromPassiveSkill` (replace, ported); `GetEnchantResist` and `ResetAnimSpeed` rows annotated; allow row `InitPassiveSkillState` dropped.
+- **Not ported, routed as before:** `m_fPassiveAnimSpeedRate`'s reader in `ResetAnimSpeed` and its Add `32a1ccb0` / Ain `32a4f760` writers (row `ResetAnimSpeed`).
+
+**Hygiene.** `flagcheck.py JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE --with JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE_DEBUG --worktree --files KTDXLIB/Always.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h X2Lib/X2SkillTree.h X2Lib/X2Unit.cpp`:
+`files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (OTHER = X2SkillTree.h under `JUNE_ENUM_NAMES`); 0 deleted lines.
+`junediverge.py --check` (4 files): `RESULT: PASS`; `--check-all`: `allow-listed: 181` `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2Unit.cpp`: no row inside the CH4a2 blocks.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1, equal to X2/US_SERVICE/x2.exe (2026-11-03 15:04:41); built at main 32b0175b + 5 uncommitted code file(s).`
+`EXESTR OK: 1 of 1 found in X2_offline.exe, 25937408 B, dated 2026-11-03 15:04:48, md5 68897d2db406135e4ae0ed10cd3f8ce1` (`CHUNG PASSIVE base`, wide).
+**Save:** no change (unit 43 `NovaT` has 26401 level 4; unit 21 `eresisu` has 28405 level 3).
+**In game:** one `[JUNE_CHAR] CHUNG PASSIVE base` line per user-unit passive init with the six element defences; the character window's element resistances
+on unit 43 include Elemental Defence A (before: 0 from it, March read id 6402).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI`. Sub-tag `UI`.

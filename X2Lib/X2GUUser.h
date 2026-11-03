@@ -4118,6 +4118,9 @@ public:
 #ifdef	CHUNG_FIRST_CLASS_CHANGE
 		void AddEnchantStatFromPassiveSkillToDefenceEnchantData();
 		void AddExtraDamageImmuneRateFromPassiveSkillToImmuneData();
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+		virtual float GetEnchantResist( CX2EnchantItem::ENCHANT_TYPE enchantType );	/// June 31fd8790 ( vslot 0x30c )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 		const float GetEnchantStatFromPassiveSkillByEnchantType( int iEnchantType );	// 인첸트 타입별 수치 값 리턴
 
 		float GetAddAnimSpeedFactor() const { return m_fAddAnimSpeedFactor; }	// 청 1차 전직, 슈팅 가디언의 난전의 기술 스킬에 의한 애니메이션 속도 증가
@@ -4880,6 +4883,9 @@ public:
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 
 	float m_fSummonNpcCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
+	float		m_fPassiveAnimSpeedRate;	/// June +0x92a0 ( ctor 1.0 ): reset by the base InitPassiveSkillState; Add / Ain passives add to it, ResetAnimSpeed reads it ( not ported )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 	vector<SummonNpcSocket> m_vecSummonNpcSocket;
 
 #ifdef SERV_ELSWORD_INFINITY_SWORD
