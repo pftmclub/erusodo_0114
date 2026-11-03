@@ -2149,6 +2149,13 @@ public:
 		RNSI_P_LCN_TRIBUTE                                    = 30409,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Elsword revenge attack start reads ( values from June's Enum.lua )
+		RNSI_A_ELK_COUNTER                                    = 21206,
+		RNSI_A_ELK_COUNTER_UPGRADE                            = 21228,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

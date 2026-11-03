@@ -7371,3 +7371,38 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32cfa360	CX2GUElsword_SwordMan::ESSI_LEAP_FrameMoveFuture	PORTED	Char Elsword CH1a: inside; = March
 32cf3ca0	CX2GUElsword_SwordMan::ESSI_LEAP_EventProcess	PORTED	Char Elsword CH1a: inside; m_fTimeToLeap <= m_fElapsedTimeToLeap -> m_CommonState.m_Wait ( +0x4088 ) = March
 32cf3ce0	CX2GUElsword_SwordMan::ESSI_LEAP_End	PORTED	Char Elsword CH1a: inside; m_bLeaping ( +0x899d ) = false, elapsed ( +0x9604 ) = 0 = March
+32cf3360	CX2GUElsword_SwordMan::DieFrontFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; DieFrameMove( 0.19, 1.12 ) = March
+32cf3380	CX2GUElsword_SwordMan::DieBackFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; DieFrameMove( 0.19, 1.12 ) = March
+32cf57f0	CX2GUElsword_SwordMan::DieFrontStartFuture	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; play speed 0.5 = March
+32cf5850	CX2GUElsword_SwordMan::DieFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; hidden + anim end -> GUSI_DIE = March
+32cf5890	CX2GUElsword_SwordMan::DieBackStartFuture	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; play speed 0.5 = March
+32cf58f0	CX2GUElsword_SwordMan::DieBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; hidden + anim end -> GUSI_DIE = March
+32d0da10	CX2GUElsword_SwordMan::DieFrontStart	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; DyingStart; way of the sword vigor / destruction end ( bodies CH1q ); play speed 0.5 = March
+32d0daa0	CX2GUElsword_SwordMan::DieBackStart	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; DyingStart; way of the sword vigor / destruction end ( bodies CH1q ); play speed 0.5 = March
+32cf34d0	CX2GUElsword_SwordMan::StandUpRollingFrontFrontEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3510	CX2GUElsword_SwordMan::StandUpRollingFrontBackEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3550	CX2GUElsword_SwordMan::StandUpRollingBackFrontEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3590	CX2GUElsword_SwordMan::StandUpRollingBackBackEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf35d0	CX2GUElsword_SwordMan::StandUpAttackFrontEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3610	CX2GUElsword_SwordMan::StandUpAttackBackEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3cf0	CX2GUElsword_SwordMan::StandUpAttackFrontNoDownEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3d30	CX2GUElsword_SwordMan::StandUpAttackBackNoDownEnd	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; invincible 0.3 = March
+32cf3690	CX2GUElsword_SwordMan::RevengeAttackFrameMoveFuture	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CommonFrameMoveFuture only ( March's empty state-time test dropped )
+32cf36a0	CX2GUElsword_SwordMan::RevengeAttackFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CommonFrameMove = March
+32cf5a80	CX2GUElsword_SwordMan::DamageDownFrontFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; step dust at 0.19 ( EventTimerOneshot ) = March
+32cf5ad0	CX2GUElsword_SwordMan::DamageDownFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684 ( m_fNoDownAtStandUpAttackRate ), no roll; rest = March
+32cf5c50	CX2GUElsword_SwordMan::DamageDownBackFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; step dust at 0.32 = March
+32cf5c90	CX2GUElsword_SwordMan::DamageDownBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684, no roll; 0.66 is a double; rest = March
+32cf5e10	CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684, no roll; rest = March
+32cf5f90	CX2GUElsword_SwordMan::StandUpRollingFrontFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6010	CX2GUElsword_SwordMan::StandUpRollingFrontBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6090	CX2GUElsword_SwordMan::StandUpRollingBackFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6110	CX2GUElsword_SwordMan::StandUpRollingBackBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6190	CX2GUElsword_SwordMan::StandUpAttackFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6210	CX2GUElsword_SwordMan::StandUpAttackBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cf6370	CX2GUElsword_SwordMan::RevengeAttackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cfa810	CX2GUElsword_SwordMan::StandUpAttackFrontNoDownEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32cfa890	CX2GUElsword_SwordMan::StandUpAttackBackNoDownEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
+32d07090	CX2GUElsword_SwordMan::WinFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; magic knight hand fire particle = March ( June's CreateSequence has one more argument, -1 )
+32d076f0	CX2GUElsword_SwordMan::RevengeAttackStart	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; counter skill RNSI_A_ELK_COUNTER / _UPGRADE ( upgrade: MP +15 ); fPhysic = m_fRevengeAddDamage x power rate x fPhysic ( March adds ); no memo 5 branch
+32d0edb0	CX2GUElsword_SwordMan::RevengeAttackCameraMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CAMERA table 1 / 2 SUB_CAMERA0 / 1 = March

@@ -434,6 +434,39 @@ The members stay in the header; March's `#else` bodies still use them.
 
 Next: `/x2-phase char-elsword CH1b` (Sonnet 5.5 high). Nothing to play-test.
 
+### CH1b - Done (2026-11-04)
+
+All 35 class-map rows of phase CH1b are written, all `inside`: June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`.
+No `new` row, so no `_CORE` define; `_LIVE` stays `//#define`. 35 funcmap rows `Char Elsword CH1b`; 6 rows added to `june2017_re/char_elsword/ch1_offsets.tsv`.
+`RNSI_A_ELK_COUNTER = 21206` and `RNSI_A_ELK_COUNTER_UPGRADE = 21228` are registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES` (June `Enum.src.lua` lines 14575 / 15504). The new member `m_fNoDownAtStandUpAttackRate` (June `+0x9684`) is declared in `X2GUElsword_SwordMan.h` under `_LIVE`.
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cf57f0` `32d0da10` `32cf3360` `32cf5850` | DieFront StartFuture / Start / FrameMove / EventProcess (also `ESSI_RIDING_DIE`) | `32cf5890` `32d0daa0` `32cf3380` `32cf58f0` | DieBack StartFuture / Start / FrameMove / EventProcess |
+| `32cf5a80` `32cf5ad0` `32cf5c50` `32cf5c90` `32cf5e10` | DamageDownFront FrameMove / EventProcess, DamageDownBack FrameMove / EventProcess, DamageAirDownLanding EventProcess | `32d07090` | WinFrameMove (14 win / lose states) |
+| `32cf5f90` `32cf6010` `32cf6090` `32cf6110` + End `32cf34d0` `32cf3510` `32cf3550` `32cf3590` | StandUpRolling Front-Front / Front-Back / Back-Front / Back-Back EventProcess + End | `32cf6190` `32cf6210` `32cfa810` `32cfa890` + End `32cf35d0` `32cf3610` `32cf3cf0` `32cf3d30` | StandUpAttack Front / Back and Front / Back NoDown EventProcess + End |
+| `32d076f0` `32cf3690` `32cf36a0` `32d0edb0` `32cf6370` | RevengeAttack Start / FrameMoveFuture / FrameMove / CameraMove / EventProcess | | |
+
+**Where June differs from March** (everything else is March's logic written out whole; checked against the listings, `charport_adis.py elsword --phase CH1b`):
+- **Stand-up attack with no knock-down** (DamageDownFront `32cf5ad0`, DamageDownBack `32cf5c90`, AirDownLanding `32cf5e10`): when the queued key was X, March rolls `GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent`. June tests `0 < +0x9684`, a float class member, with no roll: `NO_DOWN` when positive, else `ATTACK`. The member is `m_fNoDownAtStandUpAttackRate`; June's ctor `32d09490` zeroes it (CH1k) and `InitPassiveSkillState` `32d1c560` sets it from skill 21200, ability 112 (CH4a). Until those phases land it stays uninitialised, which only matters once `_LIVE` is on.
+- **Revenge Attack Start** `32d076f0`: the counter skill is Lord Knight's `RNSI_A_ELK_COUNTER`; with `RNSI_A_ELK_COUNTER_UPGRADE` learned the state refunds 15 MP (`UpNowMpWithText`) and uses the upgrade skill. The skill level is `31fce5c0` ( 0 without a unit, else `GetSkillLevel( id, false, 0, true )` ), written inline. The damage is **multiplied**: `fPhysic = m_fRevengeAddDamage * ( GetSkillPowerRateValue * ( GetSkillAdditionalPowerRate + 1.0 ) ) * fPhysic` (March adds `m_fRevengeAddDamage * rate`). The knock-up roll is `GetRandomInt( 0 ) < SA_EFFECTIVE_RATE * 100.0`, `RT_UP`, speed ( 1100, 1900 ), as March. The memo 5 `SetDefenceMemoTime( 4 )` branch is gone. Checklist §7 L281 (`3201ad10` called from `32d076f0`) is this function. **Watch item for CH1 final:** the multiply means June's `Elsword_SwordMan.lua` must give `ESSI_REVENGE_ATTACK` a non-zero `DAMAGE_PHYSIC`; a 0 would make the counter hit for 0.
+- **Revenge Attack FrameMoveFuture** `32cf3690` is `CommonFrameMoveFuture()` alone (March's empty state-time `if` is gone).
+- **Die Front / Back Start** call `DyingStart()` (vslot 0x338) and, by `GetWayOfSwordState()` ( vslot 0x674 ), `End_SwordmanVigor` ( `32d0cd60` ) for `WSS_VIGOR` or `End_SwordmanDestruction` ( `32d0d240` ) for `WSS_DESTRUCTION`; both bodies are CH1q's and March's still run until then.
+- **= March after the macros expand:** the other Die functions, DamageDownFront FrameMove (`EventTimerOneshot`, as Chung), DamageDownBack FrameMove, all StandUp Rolling / Attack EventProcess and End (invincible 0.3), Revenge EventProcess / FrameMove / CameraMove, WinFrameMove. DamageDownBack keeps the `0.66` double that March has; the other two use `0.66f`. WinFrameMove's `CreateSequenceHandle` has one extra June argument (-1) that March's signature lacks.
+- **Not in CH1b's functions:** the states whose callbacks are `CX2GUUser` virtuals (Groggy, Standup front / back, Small / Big, Bounding, Air, Revenge, Wall Landing) have no class-range function; CH1m registers them and CH1n owns the base bodies. START / WIN / LOSE have no function except `WinFrameMove` (CH1m registers the rest). Checklist §7 L254 (`+0x7cc8`): no CH1b function touches the state power rate.
+- No `JUNE_BUGS` row: nothing here looks like a June bug.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because the `#define` is commented out (by design). Its "6 deleted line(s)" are default-diff alignment artifacts: `git diff --patience --numstat` is 701 / 0 in the `.cpp`, 3 / 0 in the `.h`, 7 / 0 in `X2SkillTree.h`.
+- `flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `RESULT: PASS` (PASS~: 2 marker lines).
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors. `cl /P` with `_LIVE` has `m_fNoDownAtStandUpAttackRate` 4 times and `RNSI_A_ELK_COUNTER_UPGRADE` 3; with it off, 0 and 1 (the enum), so the flag took effect.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 05:34:11, md5 16ecf5cdfe31e4e500c2029b98d106e1, equal to X2/US_SERVICE/x2.exe`; built at main `ee301193` + the 3 code files of this phase (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
+
+**Routed.** CH1k: the ctor zeroes `m_fNoDownAtStandUpAttackRate` (`32d09490` @`32d0b2c7`, with `+0x9688` / `+0x968c` / `+0x9690` / `+0x9694` and `+0x960f`). CH4a: `InitPassiveSkillState` sets it (`32d1c560` @`32d1c785`, zeroed @`32d1c685`; skill 21200, ability 112, level capped at 10). CH1q: the two `End_Swordman*` bodies. CH1 final: `ESSI_REVENGE_ATTACK` `DAMAGE_PHYSIC` in June's script (see above).
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1b review` (Opus 5.5 high), then CH1c.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

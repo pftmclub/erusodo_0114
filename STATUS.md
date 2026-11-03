@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1b | **ready** (`/x2-phase char-elsword CH1b`): reactions (damage 23, stand-up 8, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUElsword_SwordMan.*` | `CH1b.md` |
+| CH1b | **done 2026-11-04**, no play-test; next `/x2-phase char-elsword CH1b review` (Opus 5.5 / high): 35 reaction fns (die, damage down, stand-up, revenge, win) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUElsword_SwordMan.*`, `X2SkillTree.h` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance, `MACHINE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUElsword_SwordMan.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Sword Man ground combos + jump attacks (28; CH0 split) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GUElsword_SwordMan.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d review): dash and dash-jump combos, shared knight dash combos (28; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUElsword_SwordMan.*` | `CH1d2.md` |
