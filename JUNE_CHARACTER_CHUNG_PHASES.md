@@ -3130,7 +3130,7 @@ state in June.
 `flagcheck.py JUNE_USER_MP_GAIN_ON_HIT --worktree --files KTDXLIB/Always.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
 (Checked per flag: with X2GUUser.cpp in the first run the tool stops on that file's pre-existing compound `#if` at 26692.) 0 deleted lines.
 `junediverge.py --check` (6 files): `RESULT: PASS`. `enumscan.py --check`: 0 A/B rows.
-**Range:** RANGE_PENDING
+**Range (commit `27ce5780`):** `--range 27ce5780^..27ce5780`, both flags with the same file lists: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (`_PASSIVE`) and `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS` (`USER_MP_GAIN_ON_HIT`).
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,939,456 B, dated 2026-11-03 13:40:42, md5 ea5cce8cbe377cbc1697932e61b31f71, equal to X2/US_SERVICE/x2.exe (2026-11-03 13:40:35); built at main d7286009 + 6 uncommitted code file(s).` `EXESTR OK: 4 of 4 found in X2_offline.exe, 25939456 B, dated 2026-11-03 13:40:42, md5 ea5cce8cbe377cbc1697932e61b31f71` (the `init`, `guardian force`, `open mind`, `land demolisher` lines).
 **Save** (backup `els_db_20261103_133040_pre_sql.sql`): unit 43 `NovaT` + 26404 level 4, 26416 level 1, Iron Howling 26008 in slot 5, Earthquake 26007 in slot 6;
 unit 50 `Chung99` + 26409 level 4, Sharpshooter Syndrome 26012 in slot 4; unit 18 `Freils` unchanged (26410-26413 level 4).
