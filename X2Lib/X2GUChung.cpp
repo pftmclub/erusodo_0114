@@ -6968,6 +6968,10 @@ void CX2GUChung::InitStateByUnitClass()
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CHG_WONDER_WALL:
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CTT_WONDER_WALL:			/// June 32c1f530 @32c21bfe
+		case CX2SkillTree::RNSI_SA_CTT_WONDER_WALL_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_SA_CHG_WONDER_WALL", normalStateData.stateID );
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SA_CHG_WONDER_WALL_FrameMove );
@@ -22810,6 +22814,7 @@ void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart()
 	FlushMp( fMpCost );
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL iron howling loop %d, mp cost %.1f, mp now %.1f", m_iCountbyCsgComboDashZXXMiniGun, fMpCost, GetNowMp() );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL iron howling loop state skill id %d, state id %d", static_cast<int>( GetNowStateSkillID() ), GetNowStateID() );
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 
 	CommonStateStart();
