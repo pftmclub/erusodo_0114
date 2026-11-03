@@ -27,7 +27,8 @@ Every session builds the same tree through one lock; a full build takes about 11
 
 1. **Build once, after your last edit.** `python tools/build.py --deploy` in the background. No second run while one of yours waits, no
    retry loop, no `--no-coalesce` without a reason. `COALESCED` then `DEPLOY OK` is a pass. A run covers only what was on disk when it
-   started.
+   started. **Exception (user, 2026-11-03):** when a phase's or review's only code change is commenting out a `_DEBUG` `#define`, start the
+   build but don't wait for it: commit and hand off at once. The Done note says "not awaited" in place of the `DEPLOY OK` line.
 2. **Never stop another session's build or delete `build.lock`.** Only the user orders builds stopped; then kill by PID (never by image
    name), waiting runs first, and the next build uses `--pch force`. Stale locks clear themselves.
 3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` is defined at
