@@ -313,6 +313,27 @@ range>` = PASS (stage what it lists; the shared `DLG_SKILL_Passive_*` sheets inc
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Elsword per job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-11-04)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets and the save only.
+- **Reference:** `ErrorLog.txt` (374,056 B, last run 2026-11-03 21:16) saved as `data\ErrorLog_pre_CH0b_elsword.txt` before any copy.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_elsword/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 36 kom(s), 4848 staged (4465 new, 383 replaced, 0 identical), 0 refused, 28s`
+  (the dry run matched CH0's numbers). Replaced March files are backed up under `24965799\kom_backup_stage_june\20261104_043447`.
+- **Packed:** `kom.py pack` x36, 36 `PACK OK`, 0 refusals (no Lua staged). `kom.py status` showed no removed entries in any of them.
+- **Copied (user approved all 36, 2026-11-04):** `kom.py copy` x36, 36 `COPY OK`: data002 012 016 017 020 021 033 044 052 057 063 067 068 069 078 093 118 130 131
+  143 148 151 191 192 198 199 212 215 225 datai007 009 019 020 023 027 031. No kom held back: CH0 found nothing March plays that June drops
+  (`ch0_motion_question.tsv`), so data033 (11 class motions) and data199 (54 June-only motions) went with the rest. `kom.py status`: 0 `COPY NEEDED`.
+- **Done-gate re-run:** `stage-june --dry-run` over the same list: `4848 staged (0 new, 0 replaced, 4848 identical), 0 refused`. 0 `missing` / `march-copy`.
+- **Skill icons:** `skillicons.py check 106 900 21000-21060 21200-21236 21400-21420 21600-21605`: 127 skills, **1 miss** (was 17), `RESULT: FAIL`.
+  The one is 21402 `SI_P_ELK_WIND_SLICER`: its picture names a piece of `DLG_Elsword_SKILL_ScreenShot_04` that June's own `.TET` lacks
+  (staging it again is `2 identical`). June's gap, kept: `JUNE_BUGS.md` row 520. The icon is fine. Nothing left to stage.
+- **Save:** backup `db_backup\els_db_20261104_043830_pre_manual.sql`; added with `createchar.py` (lv 99, class costume + top gear +10, 4 skills on the bar):
+  unit 66 ElswordKnight (Sword Knight 10), 67 ElswordMan (Sword Man 1). Existing: 25 jtLordKnight (100, lv 99), 26 jtRuneSlayer (101, lv 80),
+  32 MagicKnightT (11, lv 70), 33 SheathKnightT (22, lv 70), 34 InfinitySwordT (112, lv 70).
+- **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_elsword.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh). The class script and motions are still March's, so Elsword plays as before.
+- **Drift:** none new.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):

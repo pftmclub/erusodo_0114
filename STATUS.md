@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **ready** (start: `/x2-phase char-elsword CH0b`): stage 4,848 files / 36 koms (no hold-back), skill icons, save units; ask before copy | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
+| CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
 | CH1a | **ready** (start: `/x2-phase char-elsword CH1a`; may run beside CH0b): movement and slot-head states (22 fns), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GUElsword_SwordMan.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 23, stand-up 8, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUElsword_SwordMan.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance, `MACHINE` | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUElsword_SwordMan.*` | `CH1c.md` |
