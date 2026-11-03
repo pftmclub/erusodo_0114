@@ -3468,6 +3468,10 @@ together); no `_DEBUG` flag left defined; checklist rows marked `(Chung: CHn)`; 
 he took, what the no-`June`-prefix rule changed in CH1); backlog Stage 7 note; the `stage7-plan` row points at the next character
 (`char-elsword`).
 
+### Z - Done (2026-11-03, Sonnet 5.5)
+
+Docs only: no code, no build, no flag, no kom. `MODS.md` section `June character: Chung, the whole port` (flags, data, revert order: exe + data036/037 + motion koms together); checklist rows already carry `(Chung: CHn)` marks (47); Chung paragraph and lessons added to the Aisha plan's "Template for Stage 7"; backlog Stage 7 closing note; `stage7-plan` row now points at `char-elsword`; the `char-chung` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row. `Always.h`: `JUNE_CHAR_CHUNG_CORE / LIVE / CBALL / UI / SKILL / TRANSCEND / PASSIVE` defined; every `_DEBUG` (`CBALL`, `SKILL`, `PASSIVE`) is commented out. Left open and routed: Pandemonium Chaos cut-in (June's own, JUNE_BUGS 519); Velder Market load hang (undiagnosed, not Chung); two camera keys (Stage 9). The CH3b0 note's fold of Aisha's `SetSummonStatAndPowerRate` into `SetSummonHelperInfo` waits for `_CHUNG_SKILL` to become permanent. User owes nothing.
+
 ## Play-test hand-off (every phase)
 
 Dev console first; copy-ready lines with real values (unit, class, skill id and slot, `/additem`, `/qdone`); per check: where / paste /

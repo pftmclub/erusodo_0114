@@ -5749,6 +5749,23 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (CH4a's; + temporary `_DEBUG`). Pla
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE` (reverts CH4a / CH4b too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 - **Review (2026-11-03):** PASS with 1 fix under `SERV_IRUHADEV_JUNE_DIVERGE_GAGE_TALLY` (the village MP cases track, `UpNowHp` keeps the before-change HP; no reader, so no change in game); `_DEBUG` retired.
 
+### June character: Chung, the whole port (char-chung, closed 2026-11-03)
+
+Plan `JUNE_CHARACTER_CHUNG_PHASES.md` (CH0-CH6, Z, about 137 commits from 2026-10-31); per-phase entries are the `Stage 7 Chung` sections above. All seven classes (6, 20, 21, 27, 110, 111, 117) run on June's class core, cannon balls, skills, passives, cut-in table and transcendence rows. CH6 walk PASSED (first jobs, second jobs, the becoming-transcended transition, hyper actives; 0 KEM_ERROR).
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE`, `_LIVE`, `_CBALL` | class core (inert until LIVE); LIVE is the switch (June's bodies inside March's `CX2GUChung` functions, March's in `#else`); CBALL = the cannon ball gauge and damage-effect sites (CH1q) |
+| `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL`, `_TRANSCEND` | skill states CH2 / CH3 (summons, mortars); Tactical Trooper / Deadly Chaser / Iron Paladin transcended hyper actives, allow-list 110 / 111 / 117, pictures |
+| `SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE`, `_UI` | CH4a-CH4c passives, overrides and Metabolism Boost; CH5 skill cut-in table |
+| engine pieces Chung needed (shared by later characters) | `JUNE_DIVERGE_GAGE_TALLY` (CH4c fix), `JUNE_DIVERGE_BERSERK_BY_CHANCE`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`; the CH1j0-CH1n3 `CX2GUUser` members (rotate-bone map, aim helpers, `GetSkillNumericalByName`, 16 base state callbacks, jump physic) are under `_CORE` / `_LIVE` |
+
+No `SERV_IRUHADEV_JUNE_CHAR_CHUNG_*_DEBUG` flag is defined (`_CBALL_DEBUG`, `_SKILL_DEBUG`, `_PASSIVE_DEBUG` all commented out, retired in their reviews). JUNE_BUGS rows for Chung: 488-519 (517 withdrawn) and 164.
+
+**Data (one deploy unit):** the Chung motion/mesh/texture/cut-in koms staged byte-exact by CH0b (5,093 files in 35 koms, `data204` new); data036 `Chung_Iron_Cannon.lua` = June's bytecode (adopt row, 243,462 B), data036 `UnitTemplet.lua` (Chung's 7 blocks), `NPCTemplet.lua`, `Enum.lua`, `DamageEffect.lua` (core-list source) carry June's Chung rows / lines only; data037 (mortar list, CH3b0); data063 skill icon sheets; the transcended portraits and `POPUP_TR_*` guide textures.
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE` (the other Chung flags then compile March's code), (2) restore data036 / data037 files from the `kom_backup_tools` backups and `kom.py copy data036` / `data037`, (3) restore the motion koms from `kom_backup_stage_june61031_110724` and `kom.py pack` / `copy` them (`data204.kom` can be deleted), (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together. Save: unchanged (units 62-65 were added for the walk).
+
 ## Stage 8 Lu/Ciel, CH0b: June assets staged (data only, 2026-11-03)
 
 No flag, no exe change. `kom.py stage-june june2017_re/char_luciel/ch0b_stage_list.tsv`: 14,609 June files byte-exact in 37 koms (14,607 new, 2 replaced: `DLG_SKILL_Buff_01.tga/.tet` in data063, backup `kom_backup_stage_june61103_201733`); plus the NU0 amendment: 12 textures in data051 / 056 / 057 / 126 / 215 (5 replaced in data056 and data057: `bt_01` / `bt_02` TGA+TET, `DLG_UI_Common_Texture67.tga`, backup `20261103_202419`) and 14 June-bytecode Lua (data034 x5, data036 `SelectVoiceTable.lua`, data040 x2, data217 x6). 44 distinct koms copied to the game dir; `data162`, `data163`, `datai028`, `datai029` are new archives. data051's copy also carried 48 older `DLG_Background_*` entries from kom_contents. `lua_unbound_known.tsv` gains `AddVoice` (NU4 ports the loader). **Revert:** restore the replaced files from the backup folders, `kom.py pack` the koms, `kom.py copy` them; delete the four new `.kom` files from the game dir.
