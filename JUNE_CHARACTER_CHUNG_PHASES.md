@@ -2951,6 +2951,33 @@ Reused, not copied: the sniper's `EventSetAimByKeys` / `EventNpcFollowAim` / `Ev
 3. **Q Mark of Commander:** `mark of commander buff, level N, effective time`; **W Remote Mortar:** `SUMMON npc 1100 ... skill 26215 ... flags 0x44a`, a second cast at the cap logs `remote mortar uid ... erased ( kill 1 )`; **E Fatal Cannon:** `fatal cannon start, extra balls` (needs the mobile armored mode: otherwise it cannot be cast); **R Missile Shower:** `SUMMON npc 863 ... skill 26025`; also Rapid Cannon in armored mode (JUNE_BUGS 510).
 Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, `--grep "JUNE_CHAR] SUMMON"`, `--grep "ES_CREATE"`). Then say "check logs".
 
+### CH3c2 - Done (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_FIX_NPC_MAIN_BOSS_INIT` (new; the fix of JUNE_BUGS 513, by the user's decision 2026-11-03), plus a June init under `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` and one more camera line under `..._SKILL_DEBUG`.
+
+**Cause (from the round-3 logs and the binary).** In field 40001 all 22 samples were `npc focused 0 ( focus unit type 0 )` with the NPC in the list (`list index 35 of 80`). Missile Shower's `force` dropped to 0 after the first sample, while Heavy Field's stayed 1 because its loop sets it every frame. Only one code path clears an NPC's `FocusCameraForce` and also hands the focus to my unit: the `SERV_BATTLEFIELD_MIDDLE_BOSS` clause in `CX2BattleFieldGame::UpdateUnitPointerNPCWalk` (`GetIsMainBoss() && GetIsCinematicUIActive()`, no `return`). Every other `SetFocusCameraForce( false )` belongs to Proton Bomb, the sniper event or Heavy Field's end state. `CX2GUNPC::m_bIsMainBoss` has no initializer in March. **June has the same hole:**
+- June's walk `32d530a0` @32d53173 tests `+0x8e80 == 1`.
+- June's ctor `32762670` zeroes `+0x8e7c` (`m_uiBossGroupID`, @3276344b) and `+0x8e81` (word, @32762952), but never `+0x8e80`.
+- A byte scan of `unpacked_x2.exe` finds `+0x8e80` written only by the middle-boss marking (`32d53b73`, `32d53b83`, beside the group id at `32d53b60`) and by the boss hand-over (`32796bb5`/`32796bbf`, which is `X2GUNPC.cpp` `SetBossGroupID( 0 ); SetIsMainBoss( false )`).
+- The factory `327b1d40` allocates the NPC with a plain `new` (`32fe243e`, an import jump) and no zeroing.
+
+So a summoned NPC carries heap garbage, and a 1 makes the walk strip its camera every frame. That is why the result varied by cast and by session.
+
+**What landed.**
+- Both `CX2GUNPC` constructors (`X2GUNPC.cpp` initializer lists, after `m_byEffectAlphaCondition`): `, m_bIsMainBoss( false )` under the fix flag, and `, m_uiBossGroupID( 0 )` (June's own init) under `_CHUNG_SKILL`, each inside `SERV_BATTLEFIELD_MIDDLE_BOSS`.
+- `LogTargetingNpcFocus` (`X2GUChung.cpp`, `_SKILL_DEBUG`) logs a second line, `camera <skill>: npc main boss N, boss group N`.
+- The dungeon walk (`X2DungeonGame.cpp`) has no main-boss clause (no `GetIsMainBoss` reader there), so Missile Shower / Quantum Ballista in dungeons were never affected. The same fix covers every camera NPC in a field (sniper / Proton Bomb event NPCs).
+- JUNE_BUGS 513; MODS.md "Stage 7 Chung, CH3c2".
+- The Mobile Armored Mode block is absent from this exe as well (`mobile armored mode on` absent; CH4a ports it).
+
+**Gates.**
+- `flagcheck JUNE_FIX_NPC_MAIN_BOSS_INIT --worktree --files Always.h X2GUNPC.cpp X2GUChung.cpp`: `files: 0 PASS, 0 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. The OTHER rows are the `_CHUNG_SKILL` / `_SKILL_DEBUG` blocks. `flagcheck JUNE_CHAR_CHUNG_SKILL --with ..._SKILL_DEBUG --worktree --files X2GUNPC.cpp X2GUChung.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS`.
+- `junediverge.py --check` (the 3 files): `allow-listed: 21`, `RESULT: PASS`. `enumscan.py --check`: `0 A/B row(s)`.
+- DEPLOY OK: X2_offline.exe is 25,944,576 B, dated 2026-11-03 11:17:59, md5 daf29b950a2dea1316af6f270e854537, equal to X2/US_SERVICE/x2.exe (2026-11-03 11:17:52); built at main dd01338f + 3 uncommitted code file(s).
+- EXESTR OK: 1 of 1 found (wide `[JUNE_CHAR] CHUNG SKILL camera %s: npc main boss %d, boss group %d`), and `mobile armored mode on` is absent, md5 daf29b95.
+
+**Play-test hand-off.** Unit 18 `Freils`, a fresh game session, field 40001 as in round 3: the first **C Heavy Field** cast (hold, steer with the arrows) and the first **R Missile Shower** cast. Expected: the camera follows the reticle from the start, every time. Logs: `camera heavy field: npc focused 1`, `camera artillery strike: npc focused 1` with `force 1` on every sample, and `npc main boss 0, boss group 0`. Not fixed if: any `npc focused 0` with `npc main boss 0`, which means a second cause (the kickoff's other branches).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

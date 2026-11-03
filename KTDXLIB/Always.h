@@ -11346,3 +11346,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL ( CX2GUUser::RescaleBuffFactorByMemoRate, used by CX2GUChung::PushBuffFactorWithMemoRate )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH3c2 - JUNE_BUGS 513 fix ( user, 2026-11-03 ): both CX2GUNPC constructors set m_bIsMainBoss to false. June's ctor ( 32762670 ) never writes it,
+//              so the battlefield focus walk's middle-boss clause stripped a summoned camera NPC's focus at random ( Heavy Field, Missile Shower ).
+//              Revert: undefine the flag ( June's uninitialised byte returns ).
+#define SERV_IRUHADEV_JUNE_FIX_NPC_MAIN_BOSS_INIT
+//////////////////////////////////////////////////////////////////////////

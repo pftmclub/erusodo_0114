@@ -9872,6 +9872,9 @@ namespace _CONST_CHUNG_CH3C_
 			pwszTag_, bFocused ? 1 : 0, ( NULL != pFocusUnit ) ? static_cast<int>( pFocusUnit->GetGameUnitType() ) : -1, pNpc_->GetFocusCameraForce() ? 1 : 0,
 			pNpc_->GetFocusCamera() ? 1 : 0, pNpc_->GetPos().x, pNpc_->GetPos().y, static_cast<int>( pNpc_->GetGameUnitState() ), pNpc_->GetStartState(), iListIndex,
 			g_pX2Game->GetNPCUnitListSize(), static_cast<int>( g_pX2Game->GetGameType() ) );
+#ifdef SERV_BATTLEFIELD_MIDDLE_BOSS
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL camera %s: npc main boss %d, boss group %d", pwszTag_, pNpc_->GetIsMainBoss() ? 1 : 0, pNpc_->GetBossGroupID() );
+#endif SERV_BATTLEFIELD_MIDDLE_BOSS
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
 
