@@ -3334,6 +3334,7 @@ Files: `X2Game.cpp`, `X2GageData.cpp`, `X2GUUser.cpp`, `X2GUChung.cpp`, `X2BuffT
 `junediverge.py --check` (6 files): `RESULT: PASS`. `enumscan.py --check` (5 files): 0 A/B rows.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,943,552 B, dated 2026-11-03 18:54:26, md5 eaa29e8e26ec727b07feb6d63a40bd54, equal to X2/US_SERVICE/x2.exe (2026-11-03 18:54:19); built at main e742ae5a + 6 uncommitted code file(s).`
 `EXESTR OK: 4 of 4 found in X2_offline.exe, 25943552 B, dated 2026-11-03 18:54:26, md5 eaa29e8e26ec727b07feb6d63a40bd54` (item / village metabolism lines, grenade line, `CHUNG_BIGBANGSTREAM_ULTIMATE`, wide).
+**Range (commit `5e478874`):** `--range 5e478874^..5e478874`, same file lists: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`, and X2GUUser.cpp `RESULT: PASS`.
 **Save:** no change. Unit 63 `ChungFury` (Fury Guardian) has 26400 level 4; unit 65 `ChungShell` has 26033 in slot 2.
 **In game:** `[JUNE_CHAR] CHUNG PASSIVE metabolism boost ( item hp up | item hp percent up | village hp up | village hp percent up | henir hp up | damage data hp up ... )`
 per potion use; `big bang stream grenade ( rate 0.25, roll r: <name> )` per throw, about 1 in 4 `CHUNG_BIGBANGSTREAM_ULTIMATE` (a bigger bomb).
