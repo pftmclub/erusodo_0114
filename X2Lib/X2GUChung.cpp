@@ -247,6 +247,9 @@ iFrameBufferNum_, pUnit_ )
 , m_iSnapshotCannonBallCountEx( 0 )
 , m_iPrevStateSkillID( 0 )
 , m_bGuardStartedFromDamageReact( false )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+, m_hGuardFirstStrikeEffect( INVALID_EFFECTSET_HANDLE )
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 , m_bDualBusterLandingMpSpent( false )
 , m_iCarpetBombingMaxCount( 0 )
 , m_fCarpetBombingExtraRoundPowerRate( 1.f )
@@ -6086,8 +6089,46 @@ void CX2GUChung::InitStateByUnitClass()
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_CFG_IRON_HOWLING:	// 아이언하울링(퓨리가디언)
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+		case CX2SkillTree::RNSI_SA_CIP_IRON_HOWLING:			/// June 32c1f530 @32c1fcfc: the start, loop and end states
+		case CX2SkillTree::RNSI_SA_CIP_IRON_HOWLING_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			// 하이퍼 상태는 따로 만들지 않음
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			/// June 32c1f530 @32c1fcfc-32c1fd58: the hyper state reads the normal table too ( CSI_SI_SA_CFG_IRON_HOWLING_HYPER is unused data )
+			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_Init );
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_StateStartFuture );
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_StateStart );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_EventProcess );	
+
+			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING", hyperStateData.stateID );
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+
+			{
+				UserUnitStateData stateData;
+
+				stateData.Init();
+				stateData.stateID			= CSI_SI_SA_CFG_IRON_HOWLING_LOOP;
+				m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING_LOOP", stateData.stateID );
+				stateData.StateStart		= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_LOOP_EventProcess );
+				stateData.StateEnd			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateEnd );
+				m_StateList[stateData.stateID] = stateData;
+
+				stateData.Init();
+				stateData.stateID			= CSI_SI_SA_CFG_IRON_HOWLING_END;
+				m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING_END", stateData.stateID );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess );
+				stateData.StateEnd			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd );
+				m_StateList[stateData.stateID] = stateData;
+			}
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_Init );
 			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_IRON_HOWLING_FrameMove );
@@ -6096,6 +6137,7 @@ void CX2GUChung::InitStateByUnitClass()
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_IRON_HOWLING_HYPER", hyperStateData.stateID );
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		} break;
 
 	case CX2SkillTree::SI_SA_CFG_LUNATIC_FURY:	// 루나틱퓨리(퓨리가디언)
@@ -6242,7 +6284,25 @@ void CX2GUChung::InitStateByUnitClass()
 		} break;
 
 	case CX2SkillTree::SI_A_CFG_GUARD:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_A_CFG_GUARD:			/// June 32c1f530 @32c210ad: the cast state is the first strike; ready / wait / end / damage / ready memo are registered states
+	case CX2SkillTree::RNSI_A_CFG_GUARD_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_GUARD_FIRST_STRIKE", normalStateData.stateID );
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateStartFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_FIRST_STRIKE_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_FIRST_STRIKE_EventProcess );
+			normalStateData.StateEnd			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateEnd );
+
+			m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_GUARD_FIRST_STRIKE", hyperStateData.stateID );
+
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+			hyperStateData.StateEnd				= normalStateData.StateEnd;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 			m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_GUARD_READY", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_Init );
 			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_StartFuture );
@@ -6254,6 +6314,7 @@ void CX2GUChung::InitStateByUnitClass()
 			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
 			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 			{
 				UserUnitStateData stateData;
@@ -6284,6 +6345,26 @@ void CX2GUChung::InitStateByUnitClass()
 				stateData.StateEnd			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_DAMAGE_End );
 				m_StateList[stateData.stateID] = stateData;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+				/// June 32c1f530 @32c21184 / @32c212c6: the ready states are registered for every guard, the memo one too
+				stateData.Init();
+				stateData.stateID			= CSI_SI_A_CFG_GUARD_READY;
+				m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_GUARD_READY", stateData.stateID );
+				stateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_Init );
+				stateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_StartFuture );
+				stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_FrameMove );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_EventProcess );
+				m_StateList[stateData.stateID] = stateData;
+
+				stateData.Init();
+				stateData.stateID			= CSI_SI_A_CFG_GUARD_READY_MEMO;
+				m_LuaManager.MakeTableReference( "CSI_SI_A_CFG_GUARD_READY_MEMO", stateData.stateID );
+				stateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_Init );
+				stateData.StateStartFuture	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_StartFuture );
+				stateData.OnFrameMove		= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_FrameMove );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUChung, CSI_SI_A_CFG_GUARD_READY_EventProcess );
+				m_StateList[stateData.stateID] = stateData;
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef ADDITIONAL_MEMO
 					if( GetEqippedSkillMemo(CX2SkillTree::SMI_CHUNG_MEMO12) == true )
 					{
@@ -6297,6 +6378,7 @@ void CX2GUChung::InitStateByUnitClass()
 						m_StateList[stateData.stateID] = stateData;
 					}
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 				}
 
 #ifndef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR 
@@ -6540,6 +6622,10 @@ void CX2GUChung::InitStateByUnitClass()
 		} break;
 
 	case CX2SkillTree::SI_SA_CFG_PAIN_OF_CALADBOLG:	// 칼라볼그페인(퓨리가디언)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case CX2SkillTree::RNSI_SA_CFG_PAIN_OF_CALADBOLG:			/// June 32c1f530 @32c1fca4
+	case CX2SkillTree::RNSI_SA_CFG_PAIN_OF_CALADBOLG_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		{
 			m_LuaManager.MakeTableReference( "CSI_SI_SA_CFG_PAIN_OF_CALADBOLG", normalStateData.stateID );
 			normalStateData.StateInit			= SET_CB_FUNC( CX2GUChung, CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_Init );
@@ -22623,6 +22709,24 @@ void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_FrameMove()
 */
 void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be11a0: when the start animation ends the loop follows, unless the key was released or the MP is under the skill's cost
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		const bool bKeyReleased = m_kSkillSlotKey.IsKeyReleased( m_InputData );
+		float fMpCost = 10.f;	/// June's default when the skill has no SA_MP_CONSUME_REL
+		TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, GetNowStateSkillID(), true, fMpCost );
+		const bool bLackOfMp = ( GetNowMp() < fMpCost );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL iron howling start ends, key released %d, lack of mp %d ( mp %.1f, cost %.1f )", bKeyReleased, bLackOfMp, GetNowMp(), fMpCost );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		StateChange( ( true == bKeyReleased || true == bLackOfMp ) ? CSI_SI_SA_CFG_IRON_HOWLING_END : CSI_SI_SA_CFG_IRON_HOWLING_LOOP, false );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	const float LOWER_BOUND_INPUT_TIME_CANCEL = 4.43f;
 
 #ifdef SKILL_CANCEL_BY_HYPER_MODE // 김태환
@@ -22655,7 +22759,106 @@ void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+/// June 32be13b0 / 32be2060 / 32be1ba0 / 32be6400: the state's WALK_CANCEL_AFTER, valid only on the ground
+bool CX2GUChung::CanWalkCancelOnGround()
+{
+	return ( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) );
+}
+
+/// June 32be13b0 / 32be2060 / 32be1ba0 / 32be6400: the state's DASH_CANCEL_AFTER, valid only on the ground
+bool CX2GUChung::CanDashCancelOnGround()
+{
+	return ( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) );
+}
+
+/// June 32bd97c0: the held skill key follows the slot the skill was cast from
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_StateStartFuture()
+{
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+
+	CommonStateStartFuture();
+}
+
+/// June 32bd97f0: the loop counter is the Dash Z X X loop member ( JUNE_BUGS 501 )
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_StateStart()
+{
+	m_iCountbyCsgComboDashZXXMiniGun = 0;
+
+	CommonStateStart();
+}
+
+/// June 32bd9810
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd()
+{
+	CommonStateEnd();
+}
+
+/// June 32be1260: every loop spends the skill's MP cost
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart()
+{
+	++m_iCountbyCsgComboDashZXXMiniGun;
+	SetNoDetonation( true );
+
+	float fMpCost = 10.f;
+	TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, GetNowStateSkillID(), true, fMpCost );
+	FlushMp( fMpCost );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL iron howling loop %d, mp cost %.1f, mp now %.1f", m_iCountbyCsgComboDashZXXMiniGun, fMpCost, GetNowMp() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+
+	CommonStateStart();
+}
+
+/// June 32be12c0: five loops, the key released or the MP under the cost end it
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_EventProcess()
+{
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		const bool bLoopsDone = ( m_iCountbyCsgComboDashZXXMiniGun >= 5 );
+		float fMpCost = 10.f;
+		TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, GetNowStateSkillID(), true, fMpCost );
+		const bool bLackOfMp = ( GetNowMp() < fMpCost );
+		const bool bKeyReleased = m_kSkillSlotKey.IsKeyReleased( m_InputData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL iron howling loop ends, loops %d, key released %d, lack of mp %d", m_iCountbyCsgComboDashZXXMiniGun, bKeyReleased, bLackOfMp );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		StateChange( ( true == bLoopsDone || true == bLackOfMp || true == bKeyReleased ) ? CSI_SI_SA_CFG_IRON_HOWLING_END : CSI_SI_SA_CFG_IRON_HOWLING_LOOP, false );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32be1390
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateEnd()
+{
+	SetNoDetonation( false );
+
+	CommonStateEnd();
+}
+
+/// June 32be13b0: the cancels of the end state, then back to wait
+void CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess()
+{
+	IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if ( true == CanWalkCancelOnGround() )
+		StateChange( USI_WAIT );
+	else if ( true == CanDashCancelOnGround() )
+		StateChangeDashIfPossible();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ( false == IsOnSomethingFuture() ) ? USI_JUMP_DOWN : USI_WAIT );
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 /** @function : CSI_SI_SA_CFG_LUNATIC_FURY_READY_Init
 	@brief : 청 1차 전직, 퓨리가디언의 루나틱 퓨리 스킬의 Init으로 리소스를 로딩
@@ -23296,6 +23499,16 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture()
 		m_GuardForFuryGuardianPtr->SetGuardKeyPointer( &m_InputData.pureR );
 		break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	case USI_SPECIAL_ATTACK_5:		/// June 32be1e90: the transcendence slots read the skill 5 keys
+		m_GuardForFuryGuardianPtr->SetGuardKeyPointer( &m_InputData.pureSkill5 );
+		break;
+
+	case USI_SPECIAL_ATTACK_SLOTB_5:
+		m_GuardForFuryGuardianPtr->SetGuardKeyPointer( &m_InputData.pureSkillEx5 );
+		break;
+
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	default:
 		ASSERT( !L"RSI_SA_RRF_WILD_CHARGE_READY_StateStartFuture" );
 		m_GuardForFuryGuardianPtr->SetGuardKeyPointer( &m_InputData.pureA );
@@ -23338,11 +23551,18 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_Start()
 */
 void CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be1fa0: the guard's MP cost per second ( the whole number of it ) drains while it is held
+	UpNowMp( static_cast<float>( static_cast<int>( m_GuardForFuryGuardianPtr->GetMpConsumption() ) ) * m_fElapsedTime );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef BALANCE_PATCH_20120329
 	UpNowMp(-4.f * m_fElapsedTime);
 #endif
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CFG_GUARD_WAIT_EventProcess
@@ -23400,6 +23620,24 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_END_FrameMove()
 */
 void CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be2060: the cancels run unless the guard began from a damage state
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( false == m_bGuardStartedFromDamageReact )
+	{
+		IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+		else if ( true == CanWalkCancelOnGround() )
+			StateChange( USI_WAIT );
+		else if ( true == CanDashCancelOnGround() )
+			StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	const float LOWER_BOUND_INPUT_TIME_TO_CANCEL = 0.5f;
 
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
@@ -23432,7 +23670,123 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess()
 #endif //SKILL_CANCEL_BY_HYPER_MODE
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+/// June 32be1ae0: the held key is the one of the slot the guard skill sits in
+void CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateStartFuture()
+{
+	const bool* pbGuardKey = &m_InputData.pureA;
+
+	switch ( m_GuardForFuryGuardianPtr->GetSkillSlotID_Guard() )
+	{
+	case USI_SPECIAL_ATTACK_2:
+		pbGuardKey = &m_InputData.pureS;
+		break;
+	case USI_SPECIAL_ATTACK_3:
+		pbGuardKey = &m_InputData.pureD;
+		break;
+	case USI_SPECIAL_ATTACK_4:
+		pbGuardKey = &m_InputData.pureC;
+		break;
+	case USI_SPECIAL_ATTACK_5:
+		pbGuardKey = &m_InputData.pureSkill5;
+		break;
+	case USI_SPECIAL_ATTACK_SLOTB_1:
+		pbGuardKey = &m_InputData.pureQ;
+		break;
+	case USI_SPECIAL_ATTACK_SLOTB_2:
+		pbGuardKey = &m_InputData.pureW;
+		break;
+	case USI_SPECIAL_ATTACK_SLOTB_3:
+		pbGuardKey = &m_InputData.pureE;
+		break;
+	case USI_SPECIAL_ATTACK_SLOTB_4:
+		pbGuardKey = &m_InputData.pureR;
+		break;
+	case USI_SPECIAL_ATTACK_SLOTB_5:
+		pbGuardKey = &m_InputData.pureSkillEx5;
+		break;
+	default:
+		break;
+	}
+
+	m_GuardForFuryGuardianPtr->SetGuardKeyPointer( pbGuardKey );
+
+	CommonStateStartFuture();
+}
+
+/// June 32bfbc10: at 0.05 s the first strike spends a cannon ball ( none in the berserk mode ) and plays its effect set
+void CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_FrameMove()
+{
+#ifdef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.05f ) )
+#else X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.05f ) && true == EventCheck( 0.05f, false ) )
+#endif X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( true == IsFullHyperMode() || 0 < GetCannonBallCount() )
+		{
+			if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+			{
+				if ( INVALID_EFFECTSET_HANDLE != m_hGuardFirstStrikeEffect )
+					g_pX2Game->GetEffectSet()->StopEffectSet( m_hGuardFirstStrikeEffect );
+
+				m_hGuardFirstStrikeEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CFG_A_Guard_First_Strike", this );
+			}
+			UseCannon( 1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL guard first strike, balls now %d", GetCannonBallCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+		}
+	}
+
+	CommonFrameMove();
+}
+
+/// June 32be1ba0: the key held through the window 0.55 to 0.6 s turns the strike into the ready state
+void CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_EventProcess()
+{
+	bool& bGuardKeyHeldInWindow = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_CHUNG_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else
+	{
+		IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+		else if ( true == CanWalkCancelOnGround() )
+			StateChange( USI_WAIT );
+		else if ( true == CanDashCancelOnGround() )
+			StateChangeDashIfPossible();
+		else if ( true == bGuardKeyHeldInWindow &&
+			( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+		{
+			StateChange( CSI_SI_A_CFG_GUARD_READY );
+			bGuardKeyHeldInWindow = false;
+		}
+		else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+			m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_GuardForFuryGuardianPtr->GetGuardKeyValue() )
+			bGuardKeyHeldInWindow = true;
+		else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32bfbe30
+void CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateEnd()
+{
+	CommonStateEnd();
+
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() && INVALID_EFFECTSET_HANDLE != m_hGuardFirstStrikeEffect )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hGuardFirstStrikeEffect );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 /** @function : CSI_SI_A_CFG_GUARD_END_End
 	@brief : 청 1차 전직, 퓨리가디언의 가드 스킬, End 상태의 End 스테이트
@@ -23440,6 +23794,9 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess()
 void CX2GUChung::CSI_SI_A_CFG_GUARD_END_End()
 {
 	CommonStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	m_bGuardStartedFromDamageReact = false;		/// June 32bd9a00
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CFG_GUARD_DAMAGE_Start
@@ -23456,11 +23813,18 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_Start()
 */
 void CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be2270: the same MP drain as the wait state
+	UpNowMp( static_cast<float>( static_cast<int>( m_GuardForFuryGuardianPtr->GetMpConsumption() ) ) * m_fElapsedTime );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef BALANCE_PATCH_20120329
 	UpNowMp(-4.f * m_fElapsedTime);
 #endif
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess
@@ -23468,6 +23832,54 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_FrameMove()
 */
 void CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32bf2f70: Z / X attacks and the cancels are off when the guard began from a damage state, the key release comes before the cancels
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( CSI_SI_A_CFG_GUARD_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else
+	{
+		if ( true == m_InputData.oneZ && false == m_bGuardStartedFromDamageReact )
+		{
+			if ( m_fWithStandingRate <= -1.f )
+				StateChange( CSI_GUARD_ATTACK_Z );
+			else if ( m_fWithStandingRate >= GetRandomFloat( 1 ) )
+			{
+				m_iSiegeShellingCount = 0;
+				StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE );
+			}
+			else
+				StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT );
+		}
+		else if ( true == m_InputData.oneX && false == m_bGuardStartedFromDamageReact )
+		{
+			if ( m_fWithStandingRate <= -1.f )
+			{
+				if ( false == IsFullHyperMode() && GetChungGageData()->GetNowCannonBallCount() < 1 && GetSkillLevelValue( CX2SkillTree::RNSI_P_CIP_OPEN_MIND ) < 1 )
+					StateChange( CSI_GUARD_ATTACK_Z );
+				else
+					StateChange( CSI_GUARD_ATTACK_X );
+			}
+			else if ( m_fWithStandingRate >= GetRandomFloat( 1 ) )
+			{
+				m_iSiegeShellingCount = 0;
+				StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_SIEGE );
+			}
+			else
+				StateChange( CSI_P_CHG_CANNONEER_WITHSTANDING_WAIT );
+		}
+		else if ( false == m_GuardForFuryGuardianPtr->GetGuardKeyValue() )
+			StateChange( CSI_SI_A_CFG_GUARD_END );
+		else if ( false == m_bGuardStartedFromDamageReact )
+		{
+			IF_SKILL_CANCEL_AFTER( 0.01f )
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( CSI_SI_A_CFG_GUARD_WAIT );
@@ -23539,6 +23951,7 @@ void CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 /** @function : CSI_SI_A_CFG_GUARD_DAMAGE_End
@@ -33290,6 +33703,58 @@ void CX2GUChung::CSI_A_CHG_MARK_OF_COMMANDER_EventProcess()
 
 void CX2GUChung::CSI_SA_CHG_WONDER_WALL_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32c156c0: at 0.195 s the skill's buff factor goes onto Chung and the second one ( the PvP pair at 2 / 3 ) onto the team within 400
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.195f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.195f ) == true && EventCheck( 0.195f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const bool bPvpGame = ( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() );
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_CTT_WONDER_WALL, true );
+		SetBuffFactorToGameUnit( pSkillTemplet, ( true == bPvpGame ) ? 2 : 0 );
+
+		if ( NULL != pSkillTemplet && pSkillTemplet->m_vecBuffFactorPtr.size() > 3 )
+		{
+			if ( NULL == GetUnit() )
+				return;
+
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			CX2BuffFactorPtr ptrBuffFactorClone = pSkillTemplet->m_vecBuffFactorPtr[ ( true == bPvpGame ) ? 3 : 1 ]->GetClonePtr( iSkillTempletLevel );
+			if ( NULL != ptrBuffFactorClone )
+			{
+				ptrBuffFactorClone->SetGameUnitBuffFactor( this );
+
+				int iAllyCount = 0;
+				const D3DXVECTOR3& vMyPos = GetPos();
+				for ( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+				{
+					CX2GameUnit* pGameUnit = g_pX2Game->GetUnit( i );
+					if( pGameUnit != NULL &&
+						pGameUnit != this &&
+						pGameUnit->GetTeam() == GetTeam() &&
+						pGameUnit->CanApplyBuffToGameUnit() &&
+						GetDistance3Sq( vMyPos, pGameUnit->GetPos() ) < 160000.0f )
+					{
+						AdjustBuffFactorByIndex( ptrBuffFactorClone, static_cast<int>( pSkillTemplet->m_eID ) );	/// June 32c156c0 @32c15928: once per ally, on the shared clone
+						pGameUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+						++iAllyCount;
+					}
+				}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG SKILL wonder wall buff, level %d, allies %d, pvp %d", iSkillTempletLevel, iAllyCount, bPvpGame );
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 // #ifndef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
@@ -33351,9 +33816,25 @@ void CX2GUChung::CSI_SA_CHG_WONDER_WALL_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 void CX2GUChung::CSI_SA_CHG_WONDER_WALL_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	/// June 32be6400: the end of the animation, then the cancels on the ground
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( USI_WAIT );
+	else if ( true == CanWalkCancelOnGround() )
+		StateChange( USI_WAIT );
+	else if ( true == CanDashCancelOnGround() )
+		StateChangeDashIfPossible();
+	else
+	{
+		IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -33363,6 +33844,7 @@ void CX2GUChung::CSI_SA_CHG_WONDER_WALL_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 }
 
 void CX2GUChung::CSI_SA_CHG_DREAD_CHASE_START_StateStart()

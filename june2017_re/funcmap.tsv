@@ -7177,3 +7177,38 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 31c8a720	CKTDGXMeshPlayer::CXMeshEvent_DirSpeed::OnFrameMove ( June )	PORTED	Char Chung CH3a: a non-fading event with Min > 0 applies the tag-3 modifiers to m_fDirSpeed; a fading one applies them to m_fDirSpeedFinal; vtable slot 334498f4
 31c89d60 (CH3a)	CXMeshInstance::ApplyDirSpeedModifier	PORTED	Char Chung CH3a: tag 3 = scalar ( .x ), added or multiplied per entry in push order
 32c1f530 (CH3a)	CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex cases 26007 / 26045 / 26206 / 26230 / 26226 / 26037 / 26038 / 26062	PORTED	Char Chung CH3a: 26007 / 26045 and 26206 / 26230 are extra labels on March's Earthquake and Nova blocks; 26226 / 26037 / 26038 / 26062 are new blocks ( normal EventProcess GenericSpecialActiveSkillEventProcess 31fcc740, hyper = CopyStateCallbacks 329cc2c0, Rapid Guardian also StateInit 32bdbae0 )
+32bd9760	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_Init	= March	Char Chung CH3a2: = March ( 7 preloads compared name by name )
+32bd97c0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_StateStartFuture	PORTED	Char Chung CH3a2: new; m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ), CommonStateStartFuture; normal and hyper state
+32bd97f0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_StateStart	PORTED	Char Chung CH3a2: new; +0x9894 ( m_iCountbyCsgComboDashZXXMiniGun ) = 0, CommonStateStart; JUNE_BUGS 507
+32bd9810	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd	PORTED	Char Chung CH3a2: new; CommonStateEnd only
+32bd99d0	CX2GUChung::CSI_SI_A_CFG_GUARD_READY_Init	= March	Char Chung CH3a2: = March ( empty )
+32bd99e0	CX2GUChung::CSI_SI_A_CFG_GUARD_READY_FrameMove	= March	Char Chung CH3a2: = March ( CommonFrameMove )
+32bd99f0	CX2GUChung::CSI_SI_A_CFG_GUARD_END_FrameMove	= March	Char Chung CH3a2: = March ( CommonFrameMove )
+32bd9a00	CX2GUChung::CSI_SI_A_CFG_GUARD_END_End	PORTED	Char Chung CH3a2: CommonStateEnd and +0x985c ( m_bGuardStartedFromDamageReact ) = false
+32bd9ed0	CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_Init	= March	Char Chung CH3a2: = March ( empty )
+32be11a0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_EventProcess	PORTED	Char Chung CH3a2: inside, June body under _SKILL: FollowSlotSwap; at animation end END ( 0x142 ) when the key is released or GetNowMp() < SA_MP_CONSUME_REL ( 32007ce0( 0x1b ), default 10 ), else LOOP ( 0x141 ); March's 4.43 s cancels are in #else
+32be1260	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart	PORTED	Char Chung CH3a2: new; ++ +0x9894, SetNoDetonation( true ) ( +0x6890 ), FlushMp( SA_MP_CONSUME_REL ) ( vslot 0xe4 ), CommonStateStart
+32be12c0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_EventProcess	PORTED	Char Chung CH3a2: new; at animation end END when count >= 5, GetNowMp() < cost or the key is released, else LOOP again
+32be1390	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateEnd	PORTED	Char Chung CH3a2: new; SetNoDetonation( false ), CommonStateEnd
+32be13b0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess	PORTED	Char Chung CH3a2: new; skill / hyper cancel ( IF_SKILL_CANCEL_AFTER ), walk and dash cancels on the ground, animation end -> JUMP_DOWN or WAIT
+32be1ae0	CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateStartFuture	PORTED	Char Chung CH3a2: new ( CH0's pairing with READY_StartFuture was the copy list ); key pointer from the slot state id ( table 32be1b88: A S D C Q W E R + the skill 5 keys +0x872a / +0x872e ), then CommonStateStartFuture
+32be1ba0	CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_EventProcess	PORTED	Char Chung CH3a2: new; off the ground JUMP_DOWN and y -= 45; cancels; EVENT_PROCESS_TIME0 ( 0.55 / 0.6 / 0.6 ) key window sets bEventFlagList[0], then READY ( 0x12a ); animation end WAIT
+32be1e90	CX2GUChung::CSI_SI_A_CFG_GUARD_READY_StartFuture	PORTED	Char Chung CH3a2: inside, = March plus the two transcendence slot cases ( USI_SPECIAL_ATTACK_5 / _SLOTB_5 -> pureSkill5 / pureSkillEx5 )
+32be1f70	CX2GUChung::CSI_SI_A_CFG_GUARD_READY_EventProcess	= March	Char Chung CH3a2: = March ( animation end -> WAIT )
+32be1fa0	CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_FrameMove	PORTED	Char Chung CH3a2: inside; UpNowMp( ( int ) guard +0x14 m_fMpConsumption x m_fElapsedTime ) ( vslot 0xf0 ); March's -4 x dt in #else
+32be1ff0	CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_EventProcess	= March	Char Chung CH3a2: = March ( play count > 1 and key up, or ( int ) MP <= 0 -> END )
+32be2060	CX2GUChung::CSI_SI_A_CFG_GUARD_END_EventProcess	PORTED	Char Chung CH3a2: inside; animation end WAIT + 0.1 s no attack; the cancel chain only when the guard did not begin from a damage state
+32be2270	CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_FrameMove	PORTED	Char Chung CH3a2: inside; the same MP drain as the wait state
+32be2f60	CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_EventProcess	= March	Char Chung CH3a2: = March ( 3.55 s walk / key cancels, animation end JUMP_DOWN or WAIT + 0.1 s )
+32be6400	CX2GUChung::CSI_SA_CHG_WONDER_WALL_EventProcess	PORTED	Char Chung CH3a2: inside; animation end WAIT, then walk, dash ( on the ground ) and skill / hyper cancels
+32bf0af0	CX2GUChung::CSI_SI_SA_CFG_IRON_HOWLING_FrameMove	= March	Char Chung CH3a2: = March ( 0.08 cut-in )
+32bf0b80	CX2GUChung::CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_FrameMove	= March	Char Chung CH3a2: = March ( 0.04 cut-in )
+32bf2f70	CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_EventProcess	PORTED	Char Chung CH3a2: inside; Z / X attacks off when the guard began from a damage state; key up before the cancels; Open Mind 26415 X test
+32bf41c0	CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_Start	= March	Char Chung CH3a2: = March
+32bf4200	CX2GUChung::CSI_SI_A_CFG_GUARD_WAIT_End	= March	Char Chung CH3a2: = March
+32bf4240	CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_Start	= March	Char Chung CH3a2: = March
+32bf4280	CX2GUChung::CSI_SI_A_CFG_GUARD_DAMAGE_End	= March	Char Chung CH3a2: = March ( CommonStateStart, JUNE_BUGS 509 )
+32bfbc10	CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_FrameMove	PORTED	Char Chung CH3a2: new; EventTimerOneshot( 0.05 ): berserk or a ball -> stop the old handle, EffectSet_CFG_A_Guard_First_Strike, UseCannon( 1 )
+32bfbe30	CX2GUChung::CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateEnd	PORTED	Char Chung CH3a2: new; CommonStateEnd, stop the effect set handle
+32c156c0	CX2GUChung::CSI_SA_CHG_WONDER_WALL_FrameMove	PORTED	Char Chung CH3a2: inside; EventTimerOneshot( 0.195 ): 26010 templet buff index 0 ( PvP game 2 ) on Chung, index 1 ( 3 ) cloned at the level on the team within 400 with AdjustBuffFactorByIndex per ally; no memo 14; JUNE_BUGS 508
+32c1f530 (CH3a2)	CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex cases 26008 / 26046 / 26009 / 26047 / 26010 / 26048 / 26207 / 26231	PORTED	Char Chung CH3a2: June id labels on March's four blocks; Iron Howling + LOOP ( 321 ) + END ( 322 ) states, hyper reads the normal table; G.U.A.R.D. normal / hyper = FIRST_STRIKE table, READY ( 298 ), WAIT, END, DAMAGE, READY_MEMO ( 299 ) always registered

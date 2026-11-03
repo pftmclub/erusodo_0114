@@ -1566,6 +1566,21 @@ protected:
 	void CSI_SI_SA_CFG_IRON_HOWLING_Init();
 	void CSI_SI_SA_CFG_IRON_HOWLING_FrameMove();
 	void CSI_SI_SA_CFG_IRON_HOWLING_EventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	void CSI_SI_SA_CFG_IRON_HOWLING_StateStartFuture();	/// June 32bd97c0
+	void CSI_SI_SA_CFG_IRON_HOWLING_StateStart();		/// June 32bd97f0
+	void CSI_SI_SA_CFG_IRON_HOWLING_END_StateEnd();		/// June 32bd9810
+	void CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateStart();	/// June 32be1260
+	void CSI_SI_SA_CFG_IRON_HOWLING_LOOP_EventProcess();	/// June 32be12c0
+	void CSI_SI_SA_CFG_IRON_HOWLING_LOOP_StateEnd();	/// June 32be1390
+	void CSI_SI_SA_CFG_IRON_HOWLING_END_EventProcess();	/// June 32be13b0
+	void CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateStartFuture();	/// June 32be1ae0
+	void CSI_SI_A_CFG_GUARD_FIRST_STRIKE_FrameMove();	/// June 32bfbc10
+	void CSI_SI_A_CFG_GUARD_FIRST_STRIKE_EventProcess();	/// June 32be1ba0
+	void CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateEnd();	/// June 32bfbe30
+	bool CanWalkCancelOnGround();
+	bool CanDashCancelOnGround();
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 	// 루나틱 퓨리 (퓨리가디언)
 	void CSI_SI_SA_CFG_LUNATIC_FURY_READY_Init();
@@ -2032,6 +2047,9 @@ protected:
 	int							m_iPrevStateSkillID;			/// June +0x98ec ( ctor 0 ): the state skill id at the last CommonStateStart
 	std::vector< std::pair<float, int> >	m_vecUseCannonBall;	/// June +0x98d8: the rows of the state's USE_CANNON_BALL<n> tables, { [1] float, [2] int }; consumer CH1q
 	bool							m_bGuardStartedFromDamageReact;	/// June +0x985c ( ctor false ): the guard skill started from a damage state; GUARD_END End clears it, the GUARD_END / GUARD_DAMAGE event processes read it ( CH3a2 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
+	CX2EffectSet::Handle			m_hGuardFirstStrikeEffect;	/// June +0x96dc: the guard first strike's effect set
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 	bool							m_bDualBusterLandingMpSpent;	/// June +0x98d0 ( ctor false ): DUAL_BUSTER_LANDING has spent its MP; the Dual Buster upgrade's skill use clears it ( CH2c )
 	int							m_iCarpetBombingMaxCount;		/// June +0x98a4 ( ctor 0 ): the shots a Carpet Bombing run fires; CommonFrameMove ends the run at it ( set by the skill start, CH3c )
 	float						m_fCarpetBombingExtraRoundPowerRate;	/// June +0x98a0 ( ctor 1 ): DoCarpetBombing's power factor from the 19th shot on ( at least 1; set by the skill start, CH3c )

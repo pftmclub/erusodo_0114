@@ -11314,3 +11314,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 #endif SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-03
+// Description: char-chung CH3a2 debug - [JUNE_CHAR] CHUNG SKILL lines in offline_server.log: the Iron Howling loop and end, the guard first strike, the Wonder Wall buff.
+//              CH3a2's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_CHUNG_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////

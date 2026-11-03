@@ -2785,6 +2785,35 @@ modifier functions and `32c1f530` from Ghidra.
 - **`_SKILL_DEBUG` retired** (`Always.h`, define commented out). DEPLOY OK: X2_offline.exe is 25,926,144 B, dated 2026-11-03 05:21:00, md5 bde8104e73509e821039d23f84ebacb3,
   built at main 1cf00f09 + `Always.h`. EXESTR OK: 2 of 2 absent (wide `... artillery nova fire`, `... land demolisher landing buff factor`), md5 bde8104e.
 
+### CH3a2 - Done (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (+ `..._SKILL_DEBUG`, defined again; CH3a2's review retires it). The Iron Paladin (110) Iron Howling, Pain of Caladbolg, Wonder Wall and G.U.A.R.D. run June's bodies. All 34 class-map rows were read from `charport_adis.py chung --phase CH3a2` listings: 15 are written (7 new functions, 8 inside March's under the flag, March in `#else`), 1 more is the registration, 19 are June = March (`funcmap.tsv` rows `Char Chung CH3a2`, 35 rows). MODS.md "Stage 7 Chung, CH3a2" has the March vs June damage table. No checklist row is owned by this phase.
+
+| June | `CX2GUChung::` | June differs from March |
+|---|---|---|
+| `32be11a0` `32bd97c0` `32bd97f0` `32be1260` `32be12c0` `32be1390` `32be13b0` `32bd9810` | `CSI_SI_SA_CFG_IRON_HOWLING_EventProcess` + new `_StateStartFuture` / `_StateStart` / `_END_StateEnd` / `_LOOP_StateStart` / `_LOOP_EventProcess` / `_LOOP_StateEnd` / `_END_EventProcess` | three states: the start animation, up to 5 loops (each `FlushMp( SA_MP_CONSUME_REL )`, default 10), the end state with the cancels; key released or MP under the cost ends it. March's 4.43 s cancels are gone |
+| `32be1ae0` `32bfbc10` `32be1ba0` `32bfbe30` | new `CSI_SI_A_CFG_GUARD_FIRST_STRIKE_StateStartFuture` / `_FrameMove` / `_EventProcess` / `_StateEnd` | the guard's cast state (CH0 paired these with the READY functions by mistake): 0.05 s ball + effect set, key window 0.55-0.6 s -> READY, else WAIT |
+| `32be1e90` | `CSI_SI_A_CFG_GUARD_READY_StartFuture` | + the two transcendence slot keys |
+| `32be1fa0` `32be2270` | `..._GUARD_WAIT_FrameMove` / `_DAMAGE_FrameMove` | MP drain = the guard's `SA_MP_CONSUMPTION` (whole number) x dt |
+| `32be2060` `32bf2f70` `32bd9a00` | `..._GUARD_END_EventProcess` / `_DAMAGE_EventProcess` / `_END_End` | `m_bGuardStartedFromDamageReact` (set by CH1's guard-ready switch) turns off the Z / X attacks and the cancels; END End clears it |
+| `32c156c0` `32be6400` | `CSI_SA_CHG_WONDER_WALL_FrameMove` / `_EventProcess` | skill 26010 templet, PvP game indexes 2 / 3, no memo 14, `AdjustBuffFactorByIndex` per ally; walk / dash cancels need the ground |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: June ids 26008 / 26046, 26009 / 26047, 26010 / 26048, 26207 / 26231 are labels on March's four blocks. Iron Howling: normal + hyper (June's hyper reads the normal table, JUNE_BUGS 506) + LOOP (321) + END (322) states. G.U.A.R.D.: normal / hyper = FIRST_STRIKE table; READY (298), WAIT, END, DAMAGE and READY_MEMO (299, now always) are registered states. `X2SkillTree.h`: five `RNSI_*` names. New helpers `CanWalkCancelOnGround` / `CanDashCancelOnGround`, member `m_hGuardFirstStrikeEffect` (June `+0x96dc`). `ch1m_regcheck.py`: 0 problems (821). JUNE_BUGS 506-509.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_CHUNG_SKILL --with JUNE_CHAR_CHUNG_SKILL_DEBUG --worktree --files <4 code files>`: `files: 1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` (cpp, h, `X2SkillTree.h`): `allow-listed: 20`, `RESULT: PASS`. `enumscan.py --check`: 0 A/B rows. `skillicons.py check 26008-26010 26046-26048 26207 26231`: `skills 8, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged.
+- DEPLOY OK: X2_offline.exe is 25,934,848 B, dated 2026-11-03 07:19:58, md5 33722b2df86bc0f7bc49995eda7aff66, equal to X2/US_SERVICE/x2.exe (07:19:52); built at main 143d3d3a + 4 uncommitted code file(s).
+- EXESTR OK: 4 of 4 found (wide `[JUNE_CHAR] CHUNG SKILL iron howling loop`, `..guard first strike`, `..wonder wall buff`, `EffectSet_CFG_A_Guard_First_Strike`), md5 33722b2d.
+
+**Play-test hand-off.** Save (backup in `db_backup\`): unit 43 `NovaT` (Iron Paladin, lv 99): A Iron Howling (26008), S Pain of Caladbolg (26009), D Wonder Wall (26010), C G.U.A.R.D. (26207); Q / W / E / R their upgrades (26046 / 26047 / 26048 / 26231); slots 4 and 9 empty.
+Dev console (END key, auth 3): `/invin 0`, a dungeon with enemies in front (`/stage 1`-style). Keep 3+ cannon balls for check 3.
+1. **A Iron Howling.** Hold A: start animation, then the loop animation repeats up to 5 times (log `iron howling loop N, mp cost 10.0`), then the end animation; release the key early and it ends after the start or a loop. Wait: with MP under 10 it ends at once. Log `iron howling start ends` / `loop ends`.
+2. **S Pain of Caladbolg, D Wonder Wall.** Each plays its motion and effect; Wonder Wall gives a buff (icon) and logs `wonder wall buff, level L, allies N`.
+3. **C G.U.A.R.D.** With a ball: a strike (a ball is spent, log `guard first strike, balls now N`, effect `EffectSet_CFG_A_Guard_First_Strike`); keep C held through the strike and it goes into the guard pose (MP drains), release C and it ends; tap C and it returns to wait. With 0 balls (no berserk) the cast goes straight into the guard pose. Take a hit while guarding: damage state, Z / X attack out of it.
+4. **Q / W / E / R upgrades.** The same four with the upgrade ids.
+Log tag `[JUNE_CHAR] CHUNG SKILL` (`python tools/logs.py --grep "CHUNG SKILL"`, and `--grep "ES_CREATE"`). Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

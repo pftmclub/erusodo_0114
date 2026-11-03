@@ -2055,6 +2055,16 @@ public:
 		RNSI_A_CIP_ARTILLERY_NOVA_UPGRADE                     = 26230,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-03 // char-chung CH3a2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Iron Paladin Iron Howling, Pain of Caladbolg, Wonder Wall registrations spell ( values from June's Enum.lua )
+		RNSI_SA_CIP_IRON_HOWLING_UPGRADE                      = 26046,
+		RNSI_SA_CFG_PAIN_OF_CALADBOLG                         = 26009,
+		RNSI_SA_CFG_PAIN_OF_CALADBOLG_UPGRADE                 = 26047,
+		RNSI_SA_CTT_WONDER_WALL                               = 26010,
+		RNSI_SA_CTT_WONDER_WALL_UPGRADE                       = 26048,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-01 // char-chung CH1l4
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID name Chung's Carpet Bombing shot spells ( value from June's Enum.lua )

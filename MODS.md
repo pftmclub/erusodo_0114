@@ -5670,3 +5670,21 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG
 | `DamageEffect_EffectSet_SA_CIP_Rapid_Guardian_Damage` (26062) | new | - | 47.59 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH2d skills fall back too) and `SERV_IRUHADEV_JUNE_MESH_DIR_SPEED_MODIFIER`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
+## Stage 7 Chung, CH3a2: Iron Paladin Iron Howling, Pain of Caladbolg, Wonder Wall and G.U.A.R.D. (2026-11-03)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (plus the temporary `..._SKILL_DEBUG`, `[JUNE_CHAR] CHUNG SKILL` lines). Plan `JUNE_CHARACTER_CHUNG_PHASES.md` "CH3a2 - Done". Client only, no data change.
+- **What changes in game.** June's ids of four class 110 skills reach March's blocks (before: they fell into the Lunatic Blow default): Iron Howling (26008 / 26046), Pain of Caladbolg (26009 / 26047), Wonder Wall (26010 / 26048), G.U.A.R.D. (26207 / 26231). Five `RNSI_*` names are added to `X2SkillTree.h`.
+- **Differs from March.** Iron Howling is three states: the start animation, then up to five loops (each spends `SA_MP_CONSUME_REL` MP, 10 when the skill has none), then an end state with the walk / dash / skill cancels; the key released or too little MP ends it early. The hyper state reads the normal table. G.U.A.R.D. is cast into a first strike state (spends a cannon ball at 0.05 s, plays `EffectSet_CFG_A_Guard_First_Strike`); the key held between 0.55 s and 0.6 s turns it into the ready state, else it ends in wait. The ready, wait, end, damage and memo ready states are registered for every guard. The wait / damage MP drain is the guard skill's own `SA_MP_CONSUMPTION` (whole number) per second. Started from a damage state, the guard has no Z / X attack and no cancel. The Open Mind passive keeps the X attack with no ball. The transcendence slots read the skill 5 keys. Wonder Wall: the buff factors are index 0 / 1 (PvP game 2 / 3), the memo 14 branch is gone, the cancels need the ground.
+- **Damage (level-1 flat value; June = numerical x 0.01 through the engine; March = the shipped `DamageEffect.src.lua`).**
+
+| Effect (June id) | Type | March | June |
+|---|---|---|---|
+| `DAMAGE_EFFECT_CSI_SI_SA_CFG_IRON_HOWLING` (26008) | PHYSIC | 18.62 | 29.78 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CFG_IRON_HOWLING_ADDITION` (26008) | new | - | 1.00 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_DUMMY_ATTACK` (26009) | PHYSIC | 32.64 | 49.54 |
+| `DAMAGE_EFFECT_CSI_SI_SA_CFG_PAIN_OF_CALADBOLG_EXTRA_DAMAGE` (26009) | MAGIC | 6.20 | 7.73 |
+| `CHG_WONDERWALL` (26010) | PHYSIC | 4.15 | 13.11 |
+| `DamageEffect_CFG_A_Guard_First_Strike_Front` / `_Back` (26207) | new | - | 1.06 / 1.06 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL` (CH2a to CH3a skills fall back too), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
