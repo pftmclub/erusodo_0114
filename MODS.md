@@ -5786,5 +5786,6 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (`Always.h`; `#error` without `..._
 | Triple Geyser (21004 / 21030) | `ESSI_SI3_ES_TRIPLE_GEYSER` state table | 510 ( 612 ) |
 | Rolling (21200 / 21217) | none ( HP cost / speed from `SI_A_ES_ROLLING` in `InitPassiveSkillState` ) | 334; speed rel 1, HP cost 0.01 ( both read by CH4a ) |
 
+- **Cool time and MP of state-change skills (2026-11-05, `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`).** Elsword gets `ReservedSkillStart` (June `32057b80` @32057c4c-cb2: step 512 + memo refund), as Arme / Eve / Chung have; before this only Endurance set a cool time and no skill but it spent MP. Revert: undefine the flag.
 - **Rolling speed / HP cost (2026-11-05).** `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel` are filled in `InitPassiveSkillState` from `RNSI_A_ES_ROLLING` (June `32d1c560` Rolling block, under the same flag; March's block in `#else`). The rest of that function is CH4a's.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-1 ids fall back to the Mega Slash default), `python tools/build.py --deploy`.

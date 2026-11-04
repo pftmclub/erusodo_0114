@@ -7774,6 +7774,24 @@ void CX2GUElsword_SwordMan::SpecialAttackCooldown( const int iSkillID_, const fl
 	if ( NULL != GetUnit() )
 		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+/// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and sets the cool time, and 0x764 refunds the memo share
+/*virtual*/ void CX2GUElsword_SwordMan::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iNowStateID = GetNowStateID();
+	bool bSkillSlotState = false;	// June's state-data byte +0x11
+	for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+	{
+		if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateID[i] == iNowStateID ||
+			_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iNowStateID )
+			bSkillSlotState = true;
+	}
+
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	SpecialAttackCooldown( iSkillID, m_fReservedSkillMp );
+	SkillMemoMpRefund( iSkillID, bSkillSlotState, m_fReservedSkillMp );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 /*virtual*/ bool CX2GUElsword_SwordMan::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {

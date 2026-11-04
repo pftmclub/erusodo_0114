@@ -372,6 +372,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );		/// June 32d0d8e0 ( user vslot 0x800, step 512 )
 		bool IsNowStateAutoGuard();		/// June 32d08d20: the four auto guard states
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c: step 512 and the memo refund
 		virtual bool IsNotCommonMoveState();		/// June 32d08b30 ( user vslot 0x828 ): overrides a base virtual, so it exists only under _LIVE
 		virtual void AfterImageFrameMove();		/// June 32d08d70 ( user vslot 0x850 ): the same
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE

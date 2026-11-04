@@ -1732,6 +1732,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#er
 
 **Rolling fix after the play-test ( 2026-11-05 ).** The roll stood still: `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel` are filled in `InitPassiveSkillState` from March's `SI_A_ES_ROLLING` ( 1205 ), never learned in this port. June's Rolling block of `32d1c560` ( `RNSI_A_ES_ROLLING` level, ability `HP_CONSUME_REL` / `SA_TELEPORT_SPEED_REL` at min( level, 10 ) ) now sits in that function under `_SKILL` ( March's block in `#else` ); the rest of the function stays CH4a's.
 
+**Cool time / MP fix after the play-test ( 2026-11-05 ).** Only Endurance had a cool time: June's `CommonStateStart` ( `32057b80` @32057c4c-cb2 ) calls `ReservedSkillStart` when a reserved skill's state starts, and Elsword had no override ( Arme, Eve, Chung do ), so every state-change skill skipped step 512 ( MP, finality stone, cool time ) and the memo refund. `CX2GUElsword_SwordMan::ReservedSkillStart` = `SpecialAttackCooldown( skill, m_fReservedSkillMp )` + `SkillMemoMpRefund( skill, slot-state test )` under `_LIVE`, with the base declaration and call chain extended in `X2GUUser.h` / `.cpp`. Skills now cost MP and set their cool time ( June `m_SkillCoolTime`: Unlimited Blade 16 s, Assault Slash 6 s, Triple Geyser 20 s, Flame Geyser 10 s, Mega Slash 6 s, Rolling 3 s ); the dev gate ( auth 3 ) still lets you recast during it.
+
 **Left to later phases ( scope rule ).** The other blocks of June's `InitPassiveSkillState` ( CH4a, routed by CH1b ). The 4 numerical-only tables ( Rolling, Unlimited Blade, Assault Slash x2 ) run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap here: no June body reads a skill id.
 
 **Gates.**
