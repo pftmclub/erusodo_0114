@@ -428,18 +428,18 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d0b040	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 970000899ed49700	n
 32d0b4d0	override 0x7c8	CommonFrameMoveFuture	X2GUElsword_SwordMan.h:466 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	y
 32d0b5a0	override 0x810	SpecialAttackNoStageChange	X2GUElsword_SwordMan.h:394 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	inside	-	CH1k	base 31aa1d30	n
-32d0b650	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0b650	helper	called by 32d1b2b0	March CX2GUElsword_SwordMan::DestructionRageFrameMove (CH1j correction)	inside	DestructionRageFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
 32d0b720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ddd8d99f18960000	n
 32d0b730	state-fn	ESSI_ETK_COMBO_XX.Start	inside X2GUElsword_SwordMan.cpp:1000 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_StateStart	inside	-	CH1g	1 states	y
 32d0b7d0	state-fn	ESSI_ETK_COMBO_XXX_LOOP.Start	inside X2GUElsword_SwordMan.cpp:1009 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_StateStart	inside	-	CH1g	1 states	y
 32d0b870	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUElsword_SwordMan.h:457 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3202ed60	y
-32d0ba00	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0ba00	helper	called by 32d1b2b0	-	new	BrutalSlayerCoolTimeFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
 32d0baf0	helper	called by 32d27160	-	new	?	CH4a	name: called by 32d27160(helper)	y
 32d0bc60	helper	called by 32d27170	-	new	?	CH4a	name: called by 32d27170(helper)	y
-32d0bdc0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
-32d0beb0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
-32d0bfa0	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
-32d0c090	helper	called by 32d1b2b0	-	new	?	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0bdc0	helper	called by 32d1b2b0	-	new	HarshSlayerCoolTimeFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0beb0	helper	called by 32d1b2b0	-	new	SwordEnchantCoolTimeFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0bfa0	helper	called by 32d1b2b0	-	new	ShortTimeStrongAttackCoolTimeFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
+32d0c090	helper	called by 32d1b2b0	-	new	AutoGuardCoolTimeFrameMove	CH1j	name: called by 32d1b2b0(CommonFrameMove)	y
 32d0c180	helper	called by 32d27180	-	new	?	CH4a	name: called by 32d27180(helper)	y
 32d0c4e0	helper	called by 32d272b0	-	new	?	CH4a	name: called by 32d272b0(helper)	y
 32d0c740	state-fn	ESSI_SI_P_ESK_AUTO_GUARD.End ESSI_SI_P_ESK_AUTO_GUARD_SMALL.End	inside X2GUElsword_SwordMan.cpp:1642 CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_End	inside	-	CH1e	2 states	y

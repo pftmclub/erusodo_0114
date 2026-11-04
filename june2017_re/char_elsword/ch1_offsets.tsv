@@ -98,3 +98,7 @@ offset	kind	name	note
 0x80bc	field	m_FrameDataNow.unitCondition.bFootOnLine	CX2GUUser; DamageReact tests it ( CH1h ); GetFrameData( false ) + 0x108 is the same byte
 0x8be8	field	m_iHoldStateID	CX2GUUser; DamageReact stores USI_DAMAGE_AIR_FALL ( CH1h )
 0x95a0	field	m_fWindMillDuration	Elsword March member ( +0x959c m_fAttackPowerRateFireBall ); SetEquippedSkillLevel 32cf5210 @32cf5339 sets it from SA_EFFECTIVE_TIME ( CH1i )
+0x96f8	field	m_fBrutalSlayerCoolTime	Elsword; June KProtectedType<float>; +0x9704 m_fBrutalSlayerElapsedTime; the block of skill 21410 in 32d1c560 sets them, ticked by 32d0ba00 ( CH1j )
+0x9734	field	m_fSwordEnchantElapsedTime	Elsword; June KProtectedType<float>; +0x9740 m_fSwordEnchantCoolTime; skill 21407 block of 32d1c560, ticked by 32d0beb0 ( CH1j )
+0x974c	field	m_fShortTimeStrongAttackElapsedTime	Elsword; June KProtectedType<float>; +0x9758 m_fShortTimeStrongAttackCoolTime; skill 21411 block of 32d1c560, ticked by 32d0bfa0 ( CH1j )
+0x9788	field	m_fOpenMindRemainCoolTime	Elsword; June KProtectedType<float>; skill 21415 ( Lord Knight Open Mind ) block of 32d0c180 stores its ability 0x94; counted down in CommonFrameMove while >= 0 ( CH1j )

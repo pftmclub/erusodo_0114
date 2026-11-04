@@ -59,3 +59,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1h (2026-11-04)
 
 - The constructor `32d09490` sets the four cool-time floats CH1h declared (`m_fHarshSlayerElapsedTime` @32d0a27f, `m_fHarshSlayerCoolTime` @32d0a3d6, `m_fAutoGuardElapsedTime` @32d0aa8d, `m_fAutoGuardCoolTime` @32d0abe4) and the handles at `+0x95a4`-`+0x95bc` (map rows in `ch1_offsets.tsv`; June has no `m_hSwordFire` there). The destructor body `32d1a5d0` is written (CH1h).
+
+## Amended by CH1j (2026-11-04)
+
+- The constructor `32d09490` also sets the seven floats CH1j declared (all `_CORE`, `ch1_offsets.tsv`): `m_fBrutalSlayerCoolTime` / `m_fBrutalSlayerElapsedTime` (`+0x96f8` / `+0x9704`), `m_fSwordEnchantElapsedTime` / `m_fSwordEnchantCoolTime` (`+0x9734` / `+0x9740`), `m_fShortTimeStrongAttackElapsedTime` / `m_fShortTimeStrongAttackCoolTime` (`+0x974c` / `+0x9758`) and `m_fOpenMindRemainCoolTime` (`+0x9788`; its init @32d0ae8f). Read the init values in the listing.

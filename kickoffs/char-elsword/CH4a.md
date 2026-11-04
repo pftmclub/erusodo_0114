@@ -53,3 +53,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1h (2026-11-04)
 
 - `InitPassiveSkillState` `32d1c560` sets `m_fAutoGuardRate` (`+0x96c8` = 0 first), and both cool-time pairs (`+0x9764` / `+0x9770` to -1.0 first @32d1c8f7; `+0x971c` / `+0x9728` @32d1cf45 / @32d1cfd2). `ApplyBuffToHarshSlayer` (`32d1b9d0`, a delegate) is written by CH1h as an `inside` row: this phase only registers it. `m_iSkillLevelInduranceOfRevenge` (`+0x96f0`) is read for skill 21404 `RNSI_P_ELK_REDUCE_PAIN` by `SetSpecificValueByBuffTempletID` (CH1h). Enum names CH1h registered: 21211, 21404, 21412, 21417, 21420.
+
+## Amended by CH1j (2026-11-04)
+
+- CH1j named the three further cool-time pairs from the skill block of `32d1c560` that initialises each, and the Open Mind remainder from `32d0c180`: skill 21410 `m_fBrutalSlayerCoolTime` / `m_fBrutalSlayerElapsedTime`, skill 21407 `m_fSwordEnchantCoolTime` / `m_fSwordEnchantElapsedTime`, skill 21411 `m_fShortTimeStrongAttackCoolTime` / `m_fShortTimeStrongAttackElapsedTime`, skill 21415 `m_fOpenMindRemainCoolTime` (`+0x9788`). Confirm each pairing while transcribing the blocks and rename in the header if one is wrong. Their ticks (`32d0ba00`, `32d0beb0`, `32d0bfa0`, and `+0x9788` inline) are written in CommonFrameMove; the readers `32d05a00` / `32d05a50` / `32d0baf0` / `32d0bc60` / `32d0c180` / `32d0c4e0` stay CH4a's.

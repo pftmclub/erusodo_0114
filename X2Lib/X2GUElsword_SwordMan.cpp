@@ -1081,6 +1081,41 @@ bool CX2GUElsword_SwordMan::IsHarshSlayerCoolTimeEnd() const
 	return !( m_fHarshSlayerCoolTime > m_fHarshSlayerElapsedTime );
 }
 
+/// June 32d0ba00: the elapsed time counts up while the cool time is above zero and not below it
+void CX2GUElsword_SwordMan::BrutalSlayerCoolTimeFrameMove()
+{
+	if ( 0.0f < m_fBrutalSlayerCoolTime && !( m_fBrutalSlayerCoolTime < m_fBrutalSlayerElapsedTime ) )
+		m_fBrutalSlayerElapsedTime += m_fElapsedTime;
+}
+
+/// June 32d0bdc0: as 32d0ba00
+void CX2GUElsword_SwordMan::HarshSlayerCoolTimeFrameMove()
+{
+	if ( 0.0f < m_fHarshSlayerCoolTime && !( m_fHarshSlayerCoolTime < m_fHarshSlayerElapsedTime ) )
+		m_fHarshSlayerElapsedTime += m_fElapsedTime;
+}
+
+/// June 32d0beb0: as 32d0ba00
+void CX2GUElsword_SwordMan::SwordEnchantCoolTimeFrameMove()
+{
+	if ( 0.0f < m_fSwordEnchantCoolTime && !( m_fSwordEnchantCoolTime < m_fSwordEnchantElapsedTime ) )
+		m_fSwordEnchantElapsedTime += m_fElapsedTime;
+}
+
+/// June 32d0bfa0: as 32d0ba00
+void CX2GUElsword_SwordMan::ShortTimeStrongAttackCoolTimeFrameMove()
+{
+	if ( 0.0f < m_fShortTimeStrongAttackCoolTime && !( m_fShortTimeStrongAttackCoolTime < m_fShortTimeStrongAttackElapsedTime ) )
+		m_fShortTimeStrongAttackElapsedTime += m_fElapsedTime;
+}
+
+/// June 32d0c090: as 32d0ba00
+void CX2GUElsword_SwordMan::AutoGuardCoolTimeFrameMove()
+{
+	if ( 0.0f < m_fAutoGuardCoolTime && !( m_fAutoGuardCoolTime < m_fAutoGuardElapsedTime ) )
+		m_fAutoGuardElapsedTime += m_fElapsedTime;
+}
+
 /// June 32d05960 ( user vslot 0x670, base 331a4950 returns false ): the unit is in the job line, 1 Sword Knight / Lord Knight, 2 Magic Knight / Rune Slayer, 3 Sheath Knight / Infinity Sword
 bool CX2GUElsword_SwordMan::IsInJobLine( int iJobLine_ )
 {
@@ -5449,12 +5484,26 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMi
 
 void CX2GUElsword_SwordMan::CommonStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf2e80 ( = March )
+	CX2GUUser::CommonStateStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateStartFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf2e90: the first-attack flag is cleared without the SERV_SKILL_NOTE guard
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME",				m_fDamageDataChangeTime,			0.f );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME2",			m_fDamageDataChangeTime2,			0.f );
+
+	CX2GUUser::CommonStateStart();
+
+	m_bFirstAttackSuccess = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 
 	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME",				m_fDamageDataChangeTime,			0.f );
@@ -5465,10 +5514,20 @@ void CX2GUElsword_SwordMan::CommonStateStart()
 #ifdef SERV_SKILL_NOTE
 	m_bFirstAttackSuccess = false;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CommonFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0b4d0: no m_fReAttackZ1Time decrement ( the re-attack members are March-only )
+	m_fReDashJumpXTime -= m_fElapsedTime;
+	if( m_fReDashJumpXTime < 0.0f )
+		m_fReDashJumpXTime = 0.0f;
+
+	CX2GUUser::CommonFrameMoveFuture();
+	m_FrameDataFuture.syncData.m_CannonBallCount = (int)GetWayOfSwordState();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 	m_fReAttackZ1Time -= m_fElapsedTime;
 	if( m_fReAttackZ1Time < 0.0f )
@@ -5482,12 +5541,98 @@ void CX2GUElsword_SwordMan::CommonFrameMoveFuture()
 #ifdef ELSWORD_WAY_OF_SWORD
 	m_FrameDataFuture.syncData.m_CannonBallCount = (int)GetWayOfSwordState();
 #endif ELSWORD_WAY_OF_SWORD
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 
 void CX2GUElsword_SwordMan::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1b2b0: no NO_MORE_EFFECT_HARD_CODING_TEST block; the Windmill effects survive a shock / freeze only in the special attack states and the two Windmill states
+	CX2GUUser::CommonFrameMove();
+
+	if( m_hSecondBladeSheath != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hSecondBladeSheath );
+		if( NULL != pMeshInst )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy2_Lhand" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( INVALID_EFFECTSET_HANDLE != m_hWindMill ||
+		INVALID_EFFECTSET_HANDLE != m_hWindMillLand )
+	{
+		switch( GetNowStateID() )
+		{
+		case USI_SPECIAL_ATTACK_1:
+		case USI_SPECIAL_ATTACK_HYPER_1:
+		case USI_SPECIAL_ATTACK_2:
+		case USI_SPECIAL_ATTACK_HYPER_2:
+		case USI_SPECIAL_ATTACK_3:
+		case USI_SPECIAL_ATTACK_HYPER_3:
+		case USI_SPECIAL_ATTACK_4:
+		case USI_SPECIAL_ATTACK_HYPER_4:
+		case USI_SPECIAL_ATTACK_5:
+		case USI_SPECIAL_ATTACK_HYPER_5:
+		case USI_SPECIAL_ATTACK_SLOTB_1:
+		case USI_SPECIAL_ATTACK_SLOTB_HYPER_1:
+		case USI_SPECIAL_ATTACK_SLOTB_2:
+		case USI_SPECIAL_ATTACK_SLOTB_HYPER_2:
+		case USI_SPECIAL_ATTACK_SLOTB_3:
+		case USI_SPECIAL_ATTACK_SLOTB_HYPER_3:
+		case USI_SPECIAL_ATTACK_SLOTB_4:
+		case USI_SPECIAL_ATTACK_SLOTB_HYPER_4:
+		case USI_SPECIAL_ATTACK_SLOTB_5:
+		case USI_SPECIAL_ATTACK_SLOTB_HYPER_5:
+		case ESSI_SA_ESK_WINDMILL:
+		case ESSI_SA_ESK_WINDMILL_END:
+			{
+				if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.f ||
+					m_ExtraDamagePack.m_Frozen.m_fTime > 0.f )
+				{
+					g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMill );
+					g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMillLand );
+
+					if( NULL != m_pSoundWindMill )
+					{
+						m_pSoundWindMill->Stop();
+					}
+				}
+			} break;
+		default:
+			{
+				g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMill );
+				g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMillLand );
+
+				if( NULL != m_pSoundWindMill )
+				{
+					m_pSoundWindMill->Stop();
+				}
+			} break;
+		}
+	}
+
+	WayOfSwordStateChange();
+	DestructionRageFrameMove();
+
+	if ( GetNeedToUpdateWeaponEffect() )
+	{
+		UpdateWeaponEnchantEffectAndExtraDamageType();
+		SetNeedToUpdateWeaponEffect( false );
+	}
+
+	BrutalSlayerCoolTimeFrameMove();
+	HarshSlayerCoolTimeFrameMove();
+	SwordEnchantCoolTimeFrameMove();
+	ShortTimeStrongAttackCoolTimeFrameMove();
+	AutoGuardCoolTimeFrameMove();
+
+	if ( 0.0f <= m_fOpenMindRemainCoolTime )
+		m_fOpenMindRemainCoolTime -= m_fElapsedTime;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonFrameMove();
 	
@@ -5589,18 +5734,29 @@ void CX2GUElsword_SwordMan::CommonFrameMove()
 		SetNeedToUpdateWeaponEffect( false );
 	}
 #endif //BALANCE_RUNE_SLAYER_20130214
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CommonStateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3210 ( = March )
+	CX2GUUser::CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3220 ( = March )
+	CX2GUUser::CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //{{ robobeg : 2008-10-28
@@ -5609,6 +5765,15 @@ void CX2GUElsword_SwordMan::CommonStateEnd()
 RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 //}} robobeg : 2008-10-28
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3230: only the cartoon ramp is set ( +0xc14 ), no render type or outline colour
+	if( GetWayOfSwordState() == WSS_VIGOR )
+		m_RenderParam.cartoonTexType	= CKTDGXRenderer::CTT_SKYBLUE;
+	else if( GetWayOfSwordState() == WSS_DESTRUCTION )
+		m_RenderParam.cartoonTexType	= CKTDGXRenderer::CTT_SCARLET;
+
+	return CX2GUUser::CommonRender_Prepare();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 // 	if( GetRemainHyperModeTime() > 0.0f )
 // 	{
@@ -5641,6 +5806,7 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 	//CX2GUUser::CommonRender();
     return CX2GUUser::CommonRender_Prepare();
 //}} robobeg : 2008-10-28
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 /*virtual*/ bool CX2GUElsword_SwordMan::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
@@ -9346,6 +9512,21 @@ void CX2GUElsword_SwordMan::PlayAnimationSwordWaitStart( CKTDGXSkinAnim* pXSkinA
 
 void CX2GUElsword_SwordMan::DestructionRageFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0b650: the super armor is granted while the rage time is above zero, before the countdown
+	if( IsSuperArmor() )
+		return;
+
+	if( 0.0f < m_fDestructionRageTime )
+	{
+		m_FrameDataNow.stateParam.bSuperArmor		= true;
+		m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+		m_fDestructionRageTime -= m_fElapsedTime;
+		if( m_fDestructionRageTime < 0.0f )
+			m_fDestructionRageTime = 0.0f;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( IsSuperArmor() )
 		return;
 
@@ -9360,6 +9541,7 @@ void CX2GUElsword_SwordMan::DestructionRageFrameMove()
 		m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
 	}
 	return;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 

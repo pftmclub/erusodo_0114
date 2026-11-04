@@ -362,6 +362,11 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ );		/// June 32d05b60 ( vslot 0x508 ), empty
 		void ChangeFinalDamageAsAttacker( float* pfFirst_, float* pfSecond_ );		/// June 32d05b70 ( vslot 0x50c ), empty
 		void ApplyBuffToOpenMind();		/// June 32d0c780 ( vslot 0x510 )
+		void BrutalSlayerCoolTimeFrameMove();		/// June 32d0ba00
+		void HarshSlayerCoolTimeFrameMove();		/// June 32d0bdc0
+		void SwordEnchantCoolTimeFrameMove();		/// June 32d0beb0
+		void ShortTimeStrongAttackCoolTimeFrameMove();		/// June 32d0bfa0
+		void AutoGuardCoolTimeFrameMove();		/// June 32d0c090
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
@@ -721,6 +726,13 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		float								m_fHarshSlayerCoolTime;	/// June +0x9728, read by 32d059b0
 		float								m_fAutoGuardElapsedTime;	/// June +0x9764, restarted by DamageReact 32d1ac60, ticked by 32d0c090
 		float								m_fAutoGuardCoolTime;	/// June +0x9770, read by DamageReact 32d1ac60
+		float								m_fBrutalSlayerCoolTime;	/// June +0x96f8, set in the skill block that initialises it ( CH4a confirms the skill ), ticked by 32d0ba00
+		float								m_fBrutalSlayerElapsedTime;	/// June +0x9704
+		float								m_fSwordEnchantCoolTime;	/// June +0x9740, ticked by 32d0beb0
+		float								m_fSwordEnchantElapsedTime;	/// June +0x9734
+		float								m_fShortTimeStrongAttackCoolTime;	/// June +0x9758, ticked by 32d0bfa0
+		float								m_fShortTimeStrongAttackElapsedTime;	/// June +0x974c
+		float								m_fOpenMindRemainCoolTime;	/// June +0x9788, set by 32d0c180, counted down in CommonFrameMove while not below zero
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 	private:

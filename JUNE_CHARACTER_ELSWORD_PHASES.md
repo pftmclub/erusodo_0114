@@ -968,6 +968,36 @@ All 4 class-map rows of phase `CH1i` are written: 3 `inside` ( June's body insid
 
 Nothing to play-test ( `_LIVE` is off ). `kickoffs/char-elsword/CH1j.md` checked: it depends on this review and char-chung Z ( closed ) and needs no change. Next: `/x2-phase char-elsword CH1j` ( Sonnet 5.5 high ).
 
+### CH1j - Done (2026-11-04)
+
+All 13 class-map rows of phase `CH1j` are written: 8 `inside` (June's body inside March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`) and 5 `new` under `_CORE`. `_LIVE` stays `//#define`. **Class-map correction:** CH0 listed `32d0b650` as `new ?`; it is March's `DestructionRageFrameMove`, so it is `inside` (the map rows now carry the names). 13 funcmap rows `Char Elsword CH1j`; 4 rows added to `june2017_re/char_elsword/ch1_offsets.tsv`.
+
+| June | `CX2GUElsword_SwordMan::` | kind | vs March |
+|---|---|---|---|
+| `32cf2e80` / `32cf3210` / `32cf3220` | CommonStateStartFuture / CommonStateEndFuture / CommonStateEnd | inside | = March (a `jmp` to the `CX2GUUser` base) |
+| `32cf2e90` | CommonStateStart | inside | two keys `DAMAGEDATA_CHANGE_TIME` / `...2` (default 0), base, then `m_bFirstAttackSuccess` (`+0x960f`) = 0 without the `SERV_SKILL_NOTE` guard |
+| `32cf3230` | CommonRender_Prepare | inside | differs: `WSS_VIGOR` sets only `cartoonTexType` (`+0xc14`) = `CTT_SKYBLUE`, `WSS_DESTRUCTION` `CTT_SCARLET`; no `renderType` / `outLineColor` write |
+| `32d0b4d0` | CommonFrameMoveFuture | inside | differs: only `m_fReDashJumpXTime` is counted down (CH1a review's routing); the sync field is `GetWayOfSwordState()` (vslot 0x674) as March (the CH0 amendment said `GetWayOfSwordPoint`: the listing calls vslot 0x674) |
+| `32d0b650` | DestructionRageFrameMove | inside | differs: `IsSuperArmor()` returns; the body runs only while `0 < m_fDestructionRageTime`: super armor set, not-red cleared, then the countdown clamped at 0 (March counts first) |
+| `32d1b2b0` | CommonFrameMove | inside | differs, see below |
+| `32d0ba00` `32d0bdc0` `32d0beb0` `32d0bfa0` `32d0c090` | Brutal Slayer / Harsh Slayer / Sword Enchant / Short Time Strong Attack / Auto Guard `CoolTimeFrameMove` | new `_CORE` | `if ( 0 < cool && !( cool < elapsed ) ) elapsed += m_fElapsedTime` (June `KProtectedType<float>` written only when it changes) |
+
+**CommonFrameMove `32d1b2b0` vs March.** No `NO_MORE_EFFECT_HARD_CODING_TEST` block (dead in March too). Sheath block as March. **Windmill effects:** the shock / freeze test (`+0x2480` EnchantShock, `+0x1730` Frozen, either above 0 stops the effects and the sound) now covers `USI_SPECIAL_ATTACK_1` ... `USI_SPECIAL_ATTACK_SLOTB_HYPER_5` (20 ids, the `_5` pair included) and `ESSI_SA_ESK_WINDMILL` / `ESSI_SA_ESK_WINDMILL_END`; every other state stops them (March's `_HYPER` Windmill states are gone). Read from the 142-byte table at `32d1b5b8` with a script: 0 at indices 0-19 and 140-141 only (`( +0x7cbc - +0x7cec ) / 100 - 50`, `GUSI_END` = 5), two targets `32d1b390` (test) and `32d1b44a` (stop). Tail: `WayOfSwordStateChange`, `DestructionRageFrameMove`, the weapon-effect refresh (`+0x41f8`, vslot 0x28c), the five ticks, then `m_fOpenMindRemainCoolTime` (`+0x9788`) counts down while `0 <= it`.
+
+**New members (`_CORE`, plain floats, June `KProtectedType<float>`):** `m_fBrutalSlayerCoolTime` / `m_fBrutalSlayerElapsedTime` (`+0x96f8` / `+0x9704`), `m_fSwordEnchantCoolTime` / `m_fSwordEnchantElapsedTime` (`+0x9740` / `+0x9734`), `m_fShortTimeStrongAttackCoolTime` / `m_fShortTimeStrongAttackElapsedTime` (`+0x9758` / `+0x974c`), `m_fOpenMindRemainCoolTime` (`+0x9788`). **The skill pairing is inferred:** each pair is initialised in `InitPassiveSkillState` `32d1c560` right before the `GetSkillLevel` of skill 21410 / 21407 / 21411, and `+0x9788` takes ability 0x94 in `32d0c180` after skill 21415; the review checks it, CH4a confirms while transcribing the blocks.
+No `JUNE_BUGS` row: nothing here is a June mistake.
+
+**Routed.** CH1k: the constructor `32d09490` sets the seven new floats (kickoff amended). CH4a: confirm the four pairings, the readers `32d05a00` / `32d05a50` / `32d0baf0` / `32d0bc60` / `32d0c180` (kickoff amended). CH1q: `WayOfSwordStateChange` `32d0eeb0` keeps its March body until then.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `git diff --patience --numstat`: `.cpp` 182 / 0, `.h` 12 / 0.
+- Flags resolved with `cl /P` on a probe: `NO_MORE_EFFECT_HARD_CODING_TEST`, `ELSWORD_SHEATH_KNIGHT`, `ELSWORD_WAY_OF_SWORD`, `BALANCE_RUNE_SLAYER_20130214`, `SERV_SKILL_NOTE` and `UPGRADE_SKILL_SYSTEM_2013` are all defined.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors (the `cl /P` output shrinks 21,288,225 to 21,285,840 B).
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- `DEPLOY OK: X2_offline.exe is 25,959,424 B, dated 2026-11-04 13:43:24, md5 214378ad8374c908898d657f1723da87, equal to X2/US_SERVICE/x2.exe (2026-11-04 13:43:17); built at main 25f15da5 + 2 uncommitted code file(s).` X2Lib 0 errors. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1j review` (Opus 5.5 high), then CH1k.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
