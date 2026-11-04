@@ -211,6 +211,8 @@ values, before loading the script. Otherwise **every state after the first refer
    (`luasrc.py core --add <kom> <Class>.lua --origin june --why "edit: <phase> <what>"`, no question), then `adopt-june --source`
    (see `LUA_SOURCE_PHASES.md` Rule 2, skill `x2-adopt-june`). Never copy from `june_src_fixed/` or compile by hand.
 
+- **Standing check for every class port (user, 2026-11-05).** The class overrides `ReservedSkillStart` ( June `32057b80` @32057c4c-cb2: `SpecialAttackCooldown` + `SkillMemoMpRefund`, as Eve / Chung / Elsword ) and extends the `X2GUUser.h` / `.cpp` chain; without it every state-change skill has no cool time and no MP cost. Its `InitPassiveSkillState` reads June's `RNSI_*` skill ids for members a skill's motion needs ( Elsword's Rolling stood still on March's `SI_A_ES_ROLLING` ). The play-test hand-off asks for two casts of each skill: the slot icon shows the cool time and the MP bar drops. Memory: `char-port-reserved-skill-start-hook`.
+
 - **Pilot close-out (2026-10-22).** Aisha (the Stage 5 pilot) finished: every section-7 row she owned carries an `(Aisha: CHn)` mark in place. Stage 7 characters mark their rows the same way, `(<Name>: CHn)`, in the phase that ports them. The recipe lessons and the character order are in `JUNE_CHARACTER_AISHA_PHASES.md` "Template for Stage 7" and `kickoffs/june-backlog/stage7-plan.md`.
 
 ## 7. Buff-engine hooks that only character code reads (from the June buff port, 4b-i part 3)
