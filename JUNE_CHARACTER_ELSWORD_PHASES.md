@@ -531,6 +531,34 @@ CH0 listed `32d18d80` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1c review` (Opus 5.5 high), then CH1d.
 
+### CH1c - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read both June listings (`charport_adis.py elsword 32d1b910 32d18d80`) against the `_LIVE` bodies at `160886b2`.
+- **`32d1b910`:** `fld 0.1 -> [esp+4]`, `fldz -> [esp]`, `push 1`, `call 32d18d80` = `CommonHyperModeFrameMove( 0.f, 0.1f, true )`.
+- **`32d18d80`, in order:**
+  - World colour: vslot 0x90 world, then `+0xb4..0xc0` and `+0xc4..0xd0` = `0.13333, 0.13333, 0.13333, 1.0`, and `+0xd4 = 0`. That is March's inline `SetWorldColor( 0xff222222 )` (`X2World.h:947`: now colour, fade colour, fade time 0).
+  - Timer 1: `fTime1_ > [anim +0x24c]` then `31d28e10` `EventTimer`. That is March's `EventTimerOneshot` (`KTDGXSkinAnim.h:274`, `m_fAnimOneshotTimer < fTime && EventTimer( fTime )`).
+  - It calls `ShowMinorParticleHyperModeChange( L"Dummy1_Rhand" )`, which is March's default argument. With `SERV_9TH_NEW_CHARACTER` off, the other overload hardcodes the same bone (`X2GUUser.cpp:34395`). Then `Stickslash1.ogg` when `bSound_ == 1`.
+  - Timer 2 is a separate test, not `else`. The call order is:
+    1. `32011d20`
+    2. `31fd66b0` (`== 1` -> `32011f50`)
+    3. `ShowMinorParticleHyperModeShock( L"Dummy1_Rhand" )`
+    4. `UpDownCrashCamera( 30.0f, 0.4f )`
+  - Then the inline clear: `g_pKTDXApp` (`337676e8`) `+0x1fc` DG manager, `+0xac..0xb8 = 1,1,1,1`, then `+0xa8 = 1`. That equals March's `ClearScreen( num = 1, color = 0xffffffff )` (`KTDGManager.h:133`, colour first, then count).
+  - Next `31fd66b0` is tested a second time; `ShowMinorParticleHyperModeTrace` runs only when it is false. Then vslot 0xc0 `ApplyHyperModeBuff` (`ch0_vtable_all.tsv` row 50) and `Slash` / `Break` / `Change.ogg` when `bSound_`.
+  - Both timers fall through to vslot 0x7cc `CommonFrameMove`.
+- **`PlaySound( name, 1, 0 )`** equals March's defaults (`X2GameUnit.h:2709`, `b3DSound = true, bLoop = false`).
+- **Stand-ins:** `ElswordAwakeningEffectBegin` / `SetPresent` / `Play` (no-op, `false`, no-op) give June's absent-set path: no play, trace shown. That is March's behaviour. The present test is called twice, as in June.
+- **`+0x7cc8`:** neither listing touches it (0 hits in the dump), so checklist §7 L254 does not apply here.
+
+**Hygiene.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --range 160886b2^..160886b2`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `RESULT: FAIL` only for the `//#define`. `--worktree`: nothing checked, since the tree is clean.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): 0 errors with `_LIVE` off and 0 with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- No build: there is no code change. CH1c's `DEPLOY OK` (md5 `7611f39a...`) stands.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1d.md` was checked and needs no change. Next: `/x2-phase char-elsword CH1d` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
