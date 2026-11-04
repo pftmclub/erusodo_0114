@@ -949,6 +949,25 @@ All 4 class-map rows of phase `CH1i` are written: 3 `inside` ( June's body insid
 
 **Nothing to play-test** ( `_LIVE` is off; nothing registers a June body ). Next: `/x2-phase char-elsword CH1i review` ( Opus 5.5 high ), then CH1j.
 
+### CH1i - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read the June listings ( `charport_adis.py elsword 32cf5210 32d05960 32d08c30 32d1b720 32028190 3201f850` ) against the bodies at `aca4c26e`.
+- **SetEquippedSkillLevel `32cf5210`:** eight blocks in the order 0x5208 / 0x5212 / 0x5218 / 0x52d5 / 0x52db / 0x52d6 / 0x522b / 0x5242 ( 21000 / 21010 / 21016 / 21205 / 21211 / 21206 / 21035 / 21058, names checked against `Enum.src.lua` ), each `bl == 1 || ebp == id`, templet `31fca8e0( id, 1 )` tested except before 0x106 ( `32cf5492` pushes `eax` untested ). Windmill: null `+0x867c` jumps to `32cf54fb` ( the batch end, JUNE_BUGS 523 ); `32890620( id, 0, 0, 1 )` max 1; `32206e50( 1, level, 0, 0.0 )` -> `+0x95a0` ( `SA_EFFECTIVE_TIME` = 1, the 4-arg form is March's 3-arg one, S2 / S7j ); `ebp` reloaded after. All = the port.
+- **State names, from June's own registrations.** `SetEquippedSkillFunc` `32d223e0` pushes each id before `UpdateUserUnitStateData` ( `31fd89b0` ) with its table name: 190 / 191 `ESSI_SA_ESK_WINDMILL` / `_END`, 192 `ESSI_SA_EMK_SWORD_FIRE_LANDING`, 202 `ESSI_A_ELK_ROLLING_SMASH`, 204 `_LANDING`, 234 / 235 `ESSI_SI_A_MEGASLASH_MEMO_CHARGE` / `_FIRE`, 259 `ESSI_ERS_COUNTER_GUARD` ( 261 is `_END` ), 262 `ESSI_SI1_ES_WIND_BLADE_ULTIMATE`, 263-265 `ESSI_SA_ELK_GRAND_CROSS_CHARGE` / `_END` / `_FULL_CHARGE`. All 13 = the port.
+- **The derived names hold.** 203 / 205: June registers no `_HYPER` state; 202, 204 and 206 ( `ESSI_SWORD_WAIT`, `InitStateCommon` ) are all Lua + 84, so Lua 119 / 121 ( `_HYPER` / `_LANDING_HYPER` ) are 203 / 205. 228-231: no push of 0xe4-0xe7 and no `DEFENCE` string anywhere in `32d23ff0` / `32d1f8f0` / `32d223e0`; `InitState` registers 226 `ESSI_EIS_DASH_COMBO_XXX`, 227 `ESSI_EIS_DASHJUMP_COMBO_XXX`, `InitStateCommon` 232 `ESSI_SI_P_ESK_AUTO_GUARD`, and March's header has exactly the four `ESSI_SI_A_ES_DEFENCE_*` between those two. June writes state data for four states it never registers ( `m_StateList[]` inserts them ), as the port does.
+- **SetEquippedSkillLevelStateData `32028190` -> `3201f850`:** null templet / unit return; level `max( 1, 32890620( id, 0, 0, 1 ) )` -> `+4`, `32071720( level )` -> `+8`, id -> `+0xc`, `+8 *= 3201ad10( id ) + 1.0`. = Chung's body and the port.
+- **IsInJobLine `32d05960`:** no unit reads class 0 ( false for every line ); 1 = 0xa / 0x64, 2 = 0xb / 0x65, 3 = 0x16 / 0x70, else false. `static_assert` probe: `UC_ELSWORD_*` = 10 / 11 / 22 / 100 / 101 / 112.
+- **CanRidingState `32d08c30`:** 13 14 19 20 ( inlined protected state read ), then 76 77 75 81 82 206. Probe: March `USI_WAIT` / `WALK` / `DASH` / `DASH_END` = 13 / 14 / 19 / 20; `USI_RIDING_WAIT_HABIT` / `WAIT` / `WALK` / `DASH` / `DASH_END` = 74 / 75 / 76 / 80 / 81, June's minus one ( the shift the Arme CH1h row records ), so the names are right.
+- **HyperModeFrameMove `32d1b720`:** `32d18d80( 0.05, 0.83, 0 )`; March's `bSound_` defaults to `false`.
+
+**Hygiene.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --range aca4c26e^..aca4c26e`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER ( X2SkillTree.h, JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `flagcheck JUNE_ENUM_NAMES --range aca4c26e^..aca4c26e --files X2Lib/X2SkillTree.h`: `1 PASS~`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- One-file probe ( `census.cl_cmd`, `/c /Zs /EHsc`, no PCH ): exit 0 and 0 errors, both with and without `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- No build: nothing changed. The `DEPLOY OK` of CH1i's Done note stands.
+
+Nothing to play-test ( `_LIVE` is off ). `kickoffs/char-elsword/CH1j.md` checked: it depends on this review and char-chung Z ( closed ) and needs no change. Next: `/x2-phase char-elsword CH1j` ( Sonnet 5.5 high ).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
