@@ -361,6 +361,9 @@ public:
 #ifdef FIX_CHUNG_GAGE_UI_UPDATE_BUG
 	virtual void			ResetGageUIEtc( const CX2Unit::UNIT_CLASS eGameUnitClass_ ){}
 #endif // FIX_CHUNG_GAGE_UI_UPDATE_BUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	virtual void			RefreshWayOfSwordUI() {}	/// June vslot 0x5c ( base 31f3f070 empty; Elsword 32e681d0, Elesis 32e69e70 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 #ifdef DISPLAY_BUFF_DURATION_TIME
 	virtual void SetDurationTime( BUFF_TEMPLET_ID eBuffID_, int iTime_);
@@ -472,6 +475,9 @@ public:
 	void PlayUIEffectVigor();	
 	void UIFrameMoveElswordWSP();
 	void UpdateUIElswordWSP();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	virtual void RefreshWayOfSwordUI();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 protected:
 	bool GetShowWspParticle() const { return m_bShowWspParticle; }

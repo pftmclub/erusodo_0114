@@ -1504,6 +1504,46 @@ Elesis's class side stays char-elesis's (her shared sites change with `_WOS`, as
 
 **Nothing to play-test.** Next: `/x2-phase char-elsword CH1q2` (Opus 5.5 high).
 
+### CH1q2 - Done (2026-11-04)
+
+Every `gagedata` / `gageui` / `gagemanager` row of `ch0_wos.tsv` and rows 91 / 92 / 109 were read against June (decompiles, raw listing). The June changes
+go under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS` (still `//#define`; it now also `#error`s without `JUNE_SKILL_SLOT_10` / `JUNE_SKILL_SLOT_UI`). Funcmap rows
+`Char Elsword CH1q2`: 9. Divergent rows: 4 (all "ported under `_WOS`").
+
+| June | Site | June differs from March |
+|---|---|---|
+| `32a348d0` | `CX2ElswordGageData::InitWhenGameIsOver` | the base only (`fldz` + `31e8c9d0`, = base `32a33f90`): the state and its changed flag are no longer reset after a game |
+| `32e6d830` | `CX2ElswordMyGageUI::InitUI` | `InitWakeOrb` (vslot 0x54) before the dialog, as Chung's; `InitUIElswordWSP` inlined |
+| `32e67df0` | `UpdateUIElswordWSP` | returns unless both statics (`+0x60`, `+0x5c`) exist; the slot-effect call also skips June state 0xf = `XS_GUILD_AGIT_GAME`, which March lacks (March's 15 is `XS_SQUARE_GAME`): comment, no test |
+| `32e681d0` | new `CX2MyGageUI::RefreshWayOfSwordUI` (vslot 0x5c) | base `3353336c` slot 0x5c = `31f3f070` (`ret`): empty virtual; Elsword's sets gauge `+0x110` and calls `UpdateUIElswordWSP`. CH1h's `_LIVE` stand-in in InitEffect (`static_cast` + direct calls) is now the virtual call |
+| `322cd5c0 @322cd7eb` | `CX2Game::UpdateElswordSkillSlotEffect` | March hides both B statics and breaks at the first B slot when B is off; June hides them at the B transcendence slot (`3214f3d0( i ) == 3`, `bSlotB`) when slot keys 0 and 1 are both unusable (`32890ee0`), with no break. Written with `IsSlotUsable` / `IsTranscendenceSlotIndex` |
+
+**= March, no code:** `UpdateDataFromGameUnit` `32a34890`, ToPacket `32a323e0`, FromPacket `32a348e0` (`GetWSP` inlined), Clone `32a35e60`, SetState
+`32a36310`, `CopyGageData` `32a34930` (**CH0 was wrong**: `@32a34973` sets `+0x110` = 1, as March), the UI ctor / dtor, `SetShow`, `SetShowWspParticle`,
+`OnFrameMove`, `StopUIEffectElswordWS`, both Play functions (picture 4 centre, x 0.5), `UIFrameMoveElswordWSP` (March's `&&` null test kept by June),
+the flicker 0.4 / 1.0 / 0.1 (`33446fa0` / `334395e0`), `CreateMyGageUI` `3248e290` (Elsword's 7 cases), the dead manager declarations (absent in both).
+**Row 92** (skill-slot MP x0.7, `X2Game.cpp:14855`): June keeps it in `UpdateSkillCoolTime` `322e07e0` (type 1, vslot 0x674 == 2, templet `+0x160` == 2,
+x 0.7 as a double at `3344af88`; March's `0.7f` differs by one ulp at most, kept). **CH1h's amendment:** done (the virtual).
+
+**Routed.** `322ed400` is not a class-switch randomiser: it is June's training-game **F7** key (`KeyProcess` `322f7170 @322f7b6e`, `DIK_F7`, inside the
+June 0x12 / 0x1a training block), one step of my unit's gauge for every class (Elsword: flip to the other extreme, +-4800). An every-class training-key
+rework (F5 / F6 changed too): bullet in `JUNE_PORT_BACKLOG_ORDER.md` Stage 2, not ported here. Elesis's twins (`32a34c60`, `32e6e060`, `32e69e70`) show
+the same changes: added to her line in `stage7-plan.md`. Checklist §7ah L827 marked `(Elsword: CH1q2 ...)`. `kickoffs/char-elsword/CH1.md` amended (one more
+play-test line).
+
+**Gates.**
+- flagcheck `--worktree --files` (six code files): `_WOS --with _WOS_DEBUG _LIVE`: `files: 4 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, RESULT FAIL only
+  for the commented-out `#define` (as CH1q); `3 deleted line(s)` = CH1h's own `_LIVE` stand-in lines in `X2GUElsword_SwordMan.cpp`, replaced by the call;
+  `0 non-ASCII`, `0 EOL-mismatched`, `0 #else/#endif without the flag token`, `0 encoding change(s)`. `_WOS_DEBUG --with _WOS`: `1 PASS~, 1 DEFINE`, `RESULT: PASS`.
+  `git diff --numstat`: +8 / +2 -3 / +4 / +33 / +6 / +10.
+- `junediverge.py --check` (six files): `allow-listed: 13`, `RESULT: PASS`; `--selftest` PASS. `enumscan.py --check` (four `.cpp`): `0 A/B row(s) remain`.
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GageData.cpp`, `X2GageUI.cpp`, `X2Game.cpp`, `X2GUElsword_SwordMan.cpp` with no flag, `_WOS`, `_LIVE` + `_WOS`:
+  `PROBES: 0 of 12 failed` (the `_WOS` runs pass the new `SKILL_SLOT_10` / `_UI` guards at that line).
+- `DEPLOY OK: X2_offline.exe is 25,961,984 B, dated 2026-11-04 19:33:20, md5 6442d4845be72e5a9d97614a2cceedda, equal to X2/US_SERVICE/x2.exe (2026-11-04 19:33:13); built at main 1f680bf6 + 6 uncommitted code file(s).`
+  `X2GageUI.cpp`'s two inserts were redone for EOL during the build; with `_WOS` off both versions compile to the same code (no exestr gate: the new line is in `_WOS` code).
+
+**Nothing to play-test** (`_WOS` and `_LIVE` are off). Next: `/x2-phase char-elsword CH1q2 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1q2 | **ready** (`/x2-phase char-elsword CH1q2`): Way of the Sword gauge data / UI / manager, skill-slot effect (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2GageData.*`, `X2GageUI.*`, `X2GageManager.*`, `X2Game.cpp` | `CH1q2.md` |
+| CH1q2 | **done 2026-11-04, review ready** (`/x2-phase char-elsword CH1q2 review`): gauge state kept, UI order / guard / refresh virtual, slot-B test; F7 key routed; no play-test | Opus 5.5 / high, Opus review | CH1q review | `X2GageData.*`, `X2GageUI.*`, `X2Game.cpp` | `CH1q2-review.md` |
 | CH1 | blocked (CH1q2 review, CH0b): define `_LIVE`, adopt the scripts, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Sword Man (1) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md` |

@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\X2GageUI.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_HUD_DEBUG
@@ -2599,12 +2602,22 @@ CX2ElswordMyGageUI::~CX2ElswordMyGageUI()
 void CX2ElswordMyGageUI::InitUI()
 {
 #if !defined(WORLD_TOOL)
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	// June 32e6d830: the wake orb ( vslot 0x54 ) before the Way of the Sword dialog
+	InitStatusUI();
+	InitWakeOrb();
+
+	m_pDLGMyUnit->OpenScriptFile( L"DLG_Elsword_WayOfSword.lua" );
+
+	InitUIElswordWSP();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	InitStatusUI();
 
 	m_pDLGMyUnit->OpenScriptFile( L"DLG_Elsword_WayOfSword.lua" );
 
 	InitUIElswordWSP();
 	InitWakeOrb();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 #endif //WORLD_TOOL
 }
 
@@ -2917,6 +2930,11 @@ void CX2ElswordMyGageUI::UIFrameMoveElswordWSP()
 void CX2ElswordMyGageUI::UpdateUIElswordWSP()
 {
 	CX2ElswordGageData* pElswordGageData = static_cast<CX2ElswordGageData*>( m_pGageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	// June 32e67df0: nothing until both statics exist
+	if ( NULL == m_pStaticElswordDest || NULL == m_pStaticElswordVigor )
+		return;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 	// 변경 된 것이 있는 경우에
 	if ( pElswordGageData->GetChangedWayOfSwordState() )
@@ -3012,6 +3030,12 @@ void CX2ElswordMyGageUI::UpdateUIElswordWSP()
 			}
 			break;
 		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+		// June @32e68149 also skips its XS_GUILD_AGIT_GAME ( 15 ), a state March lacks ( March's 15 is XS_SQUARE_GAME )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD WOS UI state %d point %.0f", pElswordGageData->GetWayOfSwordState(), pElswordGageData->GetWayOfSwordPoint() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 		if (g_pX2Game != NULL && CX2Main::XS_VILLAGE_MAP != g_pMain->GetNowStateID() )
 			g_pX2Game->UpdateElswordSkillSlotEffect();
@@ -3041,6 +3065,15 @@ void CX2ElswordMyGageUI::SetShowWspParticle( const bool bShowWspParticle_ )
 		}
 	}
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+/*virtual*/ void CX2ElswordMyGageUI::RefreshWayOfSwordUI()
+{
+	// June 32e681d0 ( vslot 0x5c )
+	static_cast<CX2ElswordGageData*>( m_pGageData )->SetChangedWayOfSwordState( true );
+	UpdateUIElswordWSP();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 CX2RavenMyGageUI::CX2RavenMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_CLASS eOwnerUnitClass_ )
 	: CX2MyGageUI( pGageData_, eOwnerUnitClass_ ), m_hSeqHyperBall( INVALID_PARTICLE_SEQUENCE_HANDLE )

@@ -229,6 +229,14 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   (`GetActualCoolTime`) with June's third argument true (`@31fd9069`) and writes the result with `32893880`. It is the only caller that passes true; Eve's
   override `32979420` then returns the base cool time for Link Overcharge Illusion 25601 / 25604 instead of -1 under Ferdinand (BTI 409). March's equip
   change sets no cool time and its virtual has two arguments. Every class; port `31fd8ff0` whole, with the third argument on every override.
+- **Training-game F5 / F6 / F7 keys** (char-elsword CH1q2, 2026-11-04). June's `CX2Game::KeyProcess` `322f7170` training block (June states
+  0x12 / 0x1a, `@322f7a40`-`322f7b81`): F5 (0x3f) full HP, F6 (0x40) full MP and one awakening orb (Add: her own value, `329e2170` -> vslot `0x6c4`;
+  Ain 0xc: count 3) plus `32894490( 1 )`, then June-only F7 (0x41) -> `322ed400`: one step of my unit's class gauge per unit type. Elsword (1) / Elesis
+  (8): state 0 picks +-2 at random; the vigor side ends vigor, starts destruction, state -2, point -4800 (`3348be24`); the destruction side ends
+  destruction, starts vigor, state 2, point +4800 (`3348be28`). Raven `32cb6290( 1 )`, Chung cannon balls and extra balls +1, Ara `32a31a00` + 1,
+  Add `329e20e0` + 1 (vslot `0x6f4`), Lu/Ciel `32a327a0`, Rose `31e4f680( 100.0 )`, Ain `32a31d50( 8000.0 )` + `32a6f2d0`. March: F5 / F6 only, F6 =
+  `ChargeMpAndEtcInTrainingGame` with Chung / Ara / Add overrides (`X2Game.cpp:5775-5800`). Every class; port the block and `322ed400` whole
+  (funcmap row `322ed400`), with stand-ins for the classes not ported yet.
 - **Per-state immunity lists** (pilot-char-revamp CH1m, 2026-10-21). June `31fdaaa0`, called from `CX2GUUser::CommonStateStart` `@32057e68`, reads
   `IMMUNITY_LIST_AT_THIS_STATE` (ints into user `+0x8638`) and `IMMUNITY_EDT_LIST_AT_THIS_STATE` (`+0x8648`); March has neither key. Find the
   readers of `+0x8638 / +0x8648` (buff and extra-damage paths) and port the function with them. Aisha's June script has the EDT key in 12 states.

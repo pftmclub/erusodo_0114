@@ -56,3 +56,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   bytecode (CH1q dry run: 1 replaced). Its 3 changed values go live with it (`Const_DestRageWSPGain` 1500 -> 2250, the two command constants 96 -> 67.2).
   `DLG_Elsword_WayOfSword.lua` is already identical to June's. `luabind.py check WayOfSword DLG_Elsword_WayOfSword`: PASS.
 - Play-test lines (`_WOS_DEBUG`): `[JUNE_CHAR] ELSWORD WOS vigor start`, `destruction start`, `destruction rage`, `attack gain` (own unit, once a second).
+
+## Amended by CH1q2 (2026-11-04)
+
+- `_WOS` now also carries the gauge pieces: the gauge keeps its state after a game (`32a348d0`), the gauge UI opens the wake orb before its dialog
+  (`32e6d830`) and waits for both statics (`32e67df0`), `CX2MyGageUI::RefreshWayOfSwordUI` (June vslot 0x5c) is what InitEffect calls, and the
+  skill-slot frames hide the B bar at the B transcendence slot when neither B key is usable (`322cd5c0`). `_WOS` `#error`s without
+  `JUNE_SKILL_SLOT_10` / `JUNE_SKILL_SLOT_UI` (both defined).
+- One more play-test line (`_WOS_DEBUG`): `[JUNE_CHAR] ELSWORD WOS UI state <s> point <p>`, once per gauge state change of the own unit
+  (state 0 is followed by the derived state on the next frame). Check it reaches 2 / -2 and that the skill-slot frames flicker on WOS type 2 skills
+  in vigor and type 1 skills in destruction.

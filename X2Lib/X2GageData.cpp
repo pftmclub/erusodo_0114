@@ -791,8 +791,12 @@ void CX2ChungGageData::CopyGageData( IN CX2GageData* pGageData_ )
 /*virtual*/ void CX2ElswordGageData::InitWhenGameIsOver()
 {
 	CX2GageData::InitWhenGameIsOver();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	// June 32a348d0: the base only; the Way of the Sword state is kept
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	SetWayOfSwordState( 0 );
 	SetChangedWayOfSwordState( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 }
 
 bool CX2ElswordGageData::GetMyPlayStatusToPacket( OUT KGamePlayStatus& kGamePlayStatus ) const

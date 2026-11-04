@@ -11534,6 +11534,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              specialization and Madness rates ( CEffect and user AttackResult ), the destruction-rage gain and the destruction damage
 //              rates use the PvP values in PvP or PvE games, Sword Wait's Z has no re-attack gate, the rage particles take the alpha tag.
 //              The shared sites cover Elesis's March class too. Stays commented out until CH1 defines it with JUNE_CHAR_ELSWORD_LIVE.
+//              CH1q2: the gauge keeps its state after a game, the gauge UI opens the wake orb first, waits for both statics and
+//              gets June's refresh virtual, and the skill-slot frames hide the B bar at the B transcendence slot.
 //              Revert: comment out the #define ( JUNE_CHAR_ELSWORD_WOS ).
 //#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
@@ -11555,6 +11557,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillAbilityValue( type, level, bPvp ) )
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( CX2UserSkillTree::IsSlotUsable / IsTranscendenceSlotIndex )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_SKILL_SLOT_UI ( the 10-slot index in UpdateElswordSkillSlotEffect )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS

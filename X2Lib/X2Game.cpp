@@ -13597,6 +13597,15 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 
 				pStatic_ElSkillVigor->GetPicture(iSlotIndex)->SetShow(false);
 				pStatic_ElSkillDest->GetPicture(iSlotIndex)->SetShow(false);
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+				// June 322cd5c0 @322cd7eb: the B bar hides at the B transcendence slot when neither B key is usable, and the loop goes on
+				if( false == refUserSkillTree.IsSlotUsable( 0 ) && true == bSlotB && false == refUserSkillTree.IsSlotUsable( 1 )
+					&& true == CX2UserSkillTree::IsTranscendenceSlotIndex( i ) )
+				{
+					pStatic_ElSkillDest->SetShow(false);
+					pStatic_ElSkillVigor->SetShow(false);
+				}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 				//슬롯 B가 활성화 되지 않으면 슬롯 A만 확인하도록 break;
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
@@ -13606,6 +13615,7 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 					pStatic_ElSkillVigor->SetShow(false);
 					break;
 				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 				if(pSkillData != NULL && pSkillData->m_eID != CX2SkillTree::SI_NONE )
 				{

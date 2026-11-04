@@ -827,7 +827,7 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
 
 S6 loads June's `DLG_GAME_SKILL_SLOT_NEW_10slot` and ports its generic parts (slot controls, TC lock pictures, cool-time/fade, key labels, swap offsets). The dialog also carries June's **class statics, all hidden by the file**; nothing
 in March drives them, so a class port that needs one shows it and feeds it from its own unit code (June's driver is `CX2Game` `322cd5c0`-`322e07e0`, looping slots 0-9 with `3214f3d0`):
-- `Static_EL_SKILL_B(_B)` / `_R(_B)` (Elsword way of sword; March's `CX2Game::UpdateElswordSkillSlotEffect` already drives them, now over 10 slots), `Static_RoseGlow(_B)` (Rose), `Static_EveRecoveryGuide` / `_Cooltime` /
+- `Static_EL_SKILL_B(_B)` / `_R(_B)` (Elsword way of sword; March's `CX2Game::UpdateElswordSkillSlotEffect` already drives them, now over 10 slots; Elsword: CH1q2, June's B-bar test at the B transcendence slot), `Static_RoseGlow(_B)` (Rose), `Static_EveRecoveryGuide` / `_Cooltime` /
   `Button_EveRecoveryToolTip`, `Static_LucielSwitchingGuide` / `g_pStatic_LucielCooltime`, `Static_AinDisparateForceGuide` / `g_pStatic_AinCooltime` / `Button_AinDisparateForce` (Ain), the memorize slots
   `Static_Memorize_Skill_Slot_TypeA1-3` / `TypeB1-3`, `Memorize_Slot1-3_TypeA/B`, `UseMemorizedSkillHotKey_A/B` (Aisha; needs `STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN` = 29059, already in Enum.lua; Aisha: CH4d, driven by `CX2Game::June_RefreshMemoRiseSlot` `322deb80` and `June_ShowMemorizeStatics` `322cf350`), and `Static_Install_Skill` /
   `Static_GCore_Skill` (10 pictures each; June toggles them per slot through `328e0290` for classes 9 and 0xb).

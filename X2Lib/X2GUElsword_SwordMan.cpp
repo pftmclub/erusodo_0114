@@ -6699,12 +6699,11 @@ void CX2GUElsword_SwordMan::InitEffect()
 			break;
 		}
 
-		/// June 324943c0 / 32489220 / vslot 0x5c ( 32e681d0: flags the Way of the Sword state changed, then UpdateUIElswordWSP 32e67df0 ); body in CH1q2
+		/// June 324943c0 / 32489220 / vslot 0x5c ( 32e681d0 )
 		const CX2MyGageUI* pMyGageUI = CX2GageManager::GetInstance()->GetMyGageUI();
 		if ( NULL != pMyGageUI )
 		{
-			GetElswordGageData()->SetChangedWayOfSwordState( true );
-			static_cast<CX2ElswordMyGageUI*>( const_cast<CX2MyGageUI*>( pMyGageUI ) )->UpdateUIElswordWSP();
+			const_cast<CX2MyGageUI*>( pMyGageUI )->RefreshWayOfSwordUI();
 		}
 	}
 #else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
