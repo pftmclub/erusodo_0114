@@ -13,6 +13,37 @@
 #ifdef SERV_APRIL_FOOLS_DAY
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_Gura.dds");
 #endif //APRIL_FOOLS_DAY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
+
+// June 333ac120 / table 337aecc0: GFx names without extension ( ActiveSkillShow appends .gfx ); 4 sets of 3, in the class-index order of InitState
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	// Sword Man, Sword Knight, Magic Knight, Sheath Knight
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_02"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_03"),
+	},
+	// Lord Knight
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_LK_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_LK_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_LK_01"),
+	},
+	// Rune Slayer
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_RS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_RS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_RS_01"),
+	},
+	// Infinity Sword
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_IS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_IS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_IS_01"),
+	},
+};
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
 
 
 
@@ -48,6 +79,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 	},
 #endif //SERV_ELSWORD_INFINITY_SWORD
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 /// June 337aec60 / 337aec90: the cut-ins of code event 0x8b3 ( GFx names without extension; the cut-in sets are CH5 )
 static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
@@ -26117,6 +26149,9 @@ void CX2GUElsword_SwordMan::ShowActiveSkillCutInAndLight( const float fTimeToSho
 
 		IF_EVENT_ENABLED( 0x8b3 )
 			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 31e5a860: even rand() -> CASH_21
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD UI cut-in set %d index %d name %s", m_iSkillCutInSetIndex, static_cast<int>( uiCutInIndex_ ), cutIn.fileName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
 
 		ActiveSkillShow( L"Dummy1_Rhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 	}

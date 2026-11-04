@@ -1752,6 +1752,37 @@ one with Magic Coating takes 0 magic damage with the MP gain; 0 Elsword `no_stat
 dialog / gauge pieces CH1q does not take. **Done gate:** a select-screen pass of all nine March characters with no new error; Elsword's skill and
 hyper cut-ins play June's art.
 
+### CH5 - Done (2026-11-04)
+
+- **`UnitTemplet.lua` (data036, core-list BOM source):** Elsword's 7 blocks are June's text, block-wise swap (55 blocks before and after, the other 48 untouched, BOM and CRLF kept; the keys inside the 7 blocks
+  follow June's order). The semantic delta vs the old file is exactly `ch0_unittemplet_elsword.tsv`'s 13 keys: `m_fLobbyRotationY` 35 / 25 / 25 / 10 / 3 / 10 / 10 on 1 / 10 / 11 / 22 / 100 / 101 / 112, `m_HyperCutIn`
+  `HQ_Cutin_ELK / ERS / EIS_Transcendence` on 100 / 101 / 112 (no `m_BerserkCutIn`), `name` `STR_ID_614` -> `STR_ID_4641` / `4642` / `17425`. `UC_150` stays out. `luasrc.py refresh data036 UnitTemplet.lua`
+  REFRESHED, `ledger --check` PASS, `core --check` PASS, `luabind.py check UnitTemplet` PASS (0 unbound). File sha1 `2fd61cac`, md5 `431753f8`.
+  `kom.py pack data036`: PACK OK, `vs live data036.kom: ~1 changed` = `UnitTemplet.lua` only. **`COPY OK data036`** (user yes) md5 `f017db1de0b8119f5b9a2a8fbfb3660c`, backup `kom_backup_tools/data036.kom.20261104_211841`.
+- **Cut-in table (`SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`, new at the end of `Always.h`; `#error` without `_ELSWORD_LIVE` / `_JUNE_HYPER_CUT_IN_TIME`, both top-level defines at 11467 / 6840):**
+  `s_SkillCutInSet` = June `333ac120` (table `337aecc0`, 12 entries, set stride 0x90): set 0 `HQ_CutIn_Elsword_01` / `_02` / `_03` (Sword Man, Sword Knight, Magic Knight, Sheath Knight),
+  set 1 `_LK_01` x3, set 2 `_RS_01` x3, set 3 `_IS_01` x3. Names carry no extension (`ActiveSkillShow` appends `.gfx`) and every entry is March's one-argument `SkillCutIn( name )` (June's `32078b70`).
+  March's `.dds` table sits in `#else`. June's table holds no April-fools entry; `s_SkillCutInSetFoolsDay` stays March's in the `#else` reader only.
+- **Already June's from CH1, unchanged here:** the InitState index switch (`32d23ff0`, `m_iSkillCutInSetIndex` 0 for the four Sword Man family classes, 1 / 2 / 3 for 100 / 101 / 112), the reader
+  `ShowActiveSkillCutInAndLight` (`32d09050`, `cutIn[uiCutInIndex_]`) and the 0x8b3 CASH_21 / CASH_22 pair (`337aec60` / `337aec90`). CH5 only adds the log lines below.
+- **Assets:** the six `HQ_CutIn_Elsword_*.gfx` are in data152 (2202 / 2206 / 2208 / 2107 / 2185 / 1788 B) and the three `HQ_Cutin_E{LK,RS,IS}_Transcendence.gfx` in data195 (2451 / 2730 / 2527 B), all June's bytes
+  from CH0b; `kom.py status data152` / `data195` in sync with live. Nothing staged.
+- **Logs:** `[JUNE_CHAR] ELSWORD UI cut-in set <set> index <i> name <gfx>` (class reader, after the 0x8b3 override) and `[JUNE_CHAR] ELSWORD UI hyper cut-in class <c> name <gfx>`
+  (`CX2GUUser::ShowHyperSkillCutInByScript`, Elsword only).
+- **Checklist rows:** 7t L592-593 and L617-623 marked `(Elsword: CH5)`. **7ah** (`UpdateElswordSkillSlotEffect`) was taken by CH1q2. **The guide dialog, `LevelUpEvent.lua` TYPE row and the `POPUP_TR_L_KNIGHT / R_SLAYER / I_SWORD`
+  pictures of 7ao** are CH3d's (its kickoff names all three; the three `.tga` + `.TET` pairs are already staged in data215). No dialog or gauge piece is left for CH5.
+- **Dev pieces kept (CH1q amendment):** `ElswordWSPCheat` (`X2GameEdit.cpp:773`, `X2Main.cpp:5191`) and `RenderName`'s `WSP: %d` (`X2GUUser.cpp:29563`) have no June counterpart and are shared with Elesis. They stay as dev
+  tools (no code change; the WOS play-tests in CH2-CH4 use the cheat); Z lists them in `MODS.md`.
+- **Not ported, routed:** the cut-in item override `31fd8a50` -> `CX2CustomizeManager`, Stage 12 bullet (as Aisha / Eve / Chung).
+- **Hygiene:** `flagcheck JUNE_CHAR_ELSWORD_UI --worktree --files KTDXLIB/Always.h X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUUser.cpp`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS.
+  `junediverge --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUUser.cpp`: RESULT: PASS. `enumscan --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+  FLAGCHECK_RANGE_PENDING
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,969,152 B, dated 2026-11-04 21:23:07, md5 29e5aa7fa84dc6a534f94a1d695578ad` (the build also carried CH2a's uncommitted edits, as the build lock allows).
+  `EXESTR OK: 2 of 2` (`ELSWORD UI cut-in set`, `ELSWORD UI hyper cut-in`, wide), `EXESTR OK: 6 of 6` (the six June `HQ_CutIn_Elsword_*` names), `EXESTR OK: 6 of 6 absent` (the six March `HQ_CutIn_Elsword_{1,2,3,LK_1,RS_1,IS_1}.dds`).
+- **See it in game:** select screen: all nine March characters' names and models, then the seven Elsword classes (the lobby pose turns by class: 35 / 25 / 25 / 10 / 3 / 10 / 10; Lord Knight, Rune Slayer, Infinity Sword
+  carry their June names). A skill cut-in on each job plays June's `HQ_CutIn_Elsword_*` art (set 0 on 1 / 10 / 11 / 22: `_01`, `_02`, `_03` by cut-in index; 1 on 100, 2 on 101, 3 on 112); an awakening hyper on 100 / 101 /
+  112 shows `HQ_Cutin_E{LK,RS,IS}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH1's script has it in three states; the check is CH6's).
+
 ## Phase CH-N - not run for Elsword
 
 All seven June Elsword classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara

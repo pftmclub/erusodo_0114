@@ -37,3 +37,9 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH5 (2026-11-04)
+
+- **Select screen:** all nine March characters, then the seven Elsword classes (the lobby pose turns by class: 35 / 25 / 25 / 10 / 3 / 10 / 10). Lord Knight, Rune Slayer and Infinity Sword show their June names (`STR_ID_4641` / `4642` / `17425`).
+- **Cut-in sets:** each Elsword class uses one skill cut-in in game (sets 0 / 1 / 2 / 3 = Sword Man family / Lord Knight / Rune Slayer / Infinity Sword); `[JUNE_CHAR] ELSWORD UI cut-in set <n> index <i> name <gfx>` with a `[JUNE_GFX] CUTIN play` in the same second.
+- **Hyper cut-in:** `[JUNE_CHAR] ELSWORD UI hyper cut-in class <c> name HQ_Cutin_E{LK,RS,IS}_Transcendence` appears only when the awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH3d wires the three states), so the check is CH6's.

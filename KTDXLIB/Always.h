@@ -11581,3 +11581,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_WOS_DEBUG ).
 //#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: char-elsword CH5 - Elsword's skill cut-in table is June's ( 333ac120 static init, table 337aecc0: 4 sets of 3 GFx names, no extension ), logged as
+//              [JUNE_CHAR] ELSWORD UI cut-in set / hyper cut-in lines. His 7 UnitTemplet rows ( m_fLobbyRotationY, m_HyperCutIn, names ) are data036.
+//              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE ) || !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
+//////////////////////////////////////////////////////////////////////////

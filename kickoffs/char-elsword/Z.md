@@ -35,3 +35,7 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH5 (2026-11-04)
+
+- `MODS.md` lists the two March Way of the Sword dev pieces CH5 kept (no June counterpart): the `ElswordWSPCheat` Lua binder (`X2GameEdit.cpp:773`, `X2Main.cpp:5191`) and `RenderName`'s `WSP: %d` text (`X2GUUser.cpp:29563`); both are shared with Elesis and stay as dev tools.

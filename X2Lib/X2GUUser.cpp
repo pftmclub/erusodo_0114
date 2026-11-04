@@ -43673,6 +43673,10 @@ bool CX2GUUser::IsChangeWorldColorNow()
 	if ( CX2Unit::UT_CHUNG == pUnitTemplet->m_UnitType )
 		CX2OfflineLog::Server( L"[JUNE_CHAR] CHUNG UI hyper cut-in class %d name %s", static_cast<int>( pUnitTemplet->m_UnitClass ), wstrCutInName.c_str() );
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_UI
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
+	if ( CX2Unit::UT_ELSWORD == pUnitTemplet->m_UnitType )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD UI hyper cut-in class %d name %s", static_cast<int>( pUnitTemplet->m_UnitClass ), wstrCutInName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
 }
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 

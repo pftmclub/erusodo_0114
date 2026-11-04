@@ -187,7 +187,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | CH4a | blocked (CH2d review): passives `32d1c560`, 7am delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32d1e0e0`, overrides, snapshot override | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3d reviews): Rune Slayer magic reflect (7j), `MemoConditionElsword` | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c.md` |
-| CH5 | **ready** (beside CH2a): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
+| CH5 | **built, awaiting play-test** (data036 copied, DEPLOY OK): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; then `CH5-review.md` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-raven` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
