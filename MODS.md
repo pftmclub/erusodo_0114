@@ -5789,3 +5789,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (`Always.h`; `#error` without `..._
 - **Cool time and MP of state-change skills (2026-11-05, `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`).** Elsword gets `ReservedSkillStart` (June `32057b80` @32057c4c-cb2: step 512 + memo refund), as Arme / Eve / Chung have; before this only Endurance set a cool time and no skill but it spent MP. Revert: undefine the flag.
 - **Rolling speed / HP cost (2026-11-05).** `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel` are filled in `InitPassiveSkillState` from `RNSI_A_ES_ROLLING` (June `32d1c560` Rolling block, under the same flag; March's block in `#else`). The rest of that function is CH4a's.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-1 ids fall back to the Mega Slash default), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH2b: Sword Knight skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH2b review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH2b - Done". Client only, no data change.
+- **What changes in game.** The class-10 skills run June's registrations: Spiral Blast (21005 / 21031), Mortal Blow (21006 / 21034), Double Slash (21007 / 21043), Kick (21202 / 21219), Impact Smash (21203 / 21225) and Armor Break (21204 / 21226) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Twelve `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** Mortal Blow is new (a state of two functions: `CommonFrameMove`, and an end / cancel chain with the up-down, back-walk, walk and dash cancels on the ground only, then the Z / X attack cancel). Kick reads its force-down value from the equipped skill's level with the upgrade swap (value 50 in June's data) and no longer gains power from memo 7. Impact Smash's dash / walk cancels need the foot on a line. Spiral Blast, Double Slash, Armor Break register only the callbacks June registers (Armor Break's buff factor and effect set are the script's).
+- **Damage (level-1 value; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine, x0.01; March = the shipped state table).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Spiral Blast (21005 / 21031) | `ESSI_SI2_ES_SPIRAL_BLAST` state / effect tables | 463 + 381 ( 463 + 381 ) |
+| Mortal Blow (21006 / 21034) | none ( no March state ) | 1459 ( 1459 + 128 ); the Fire_Ground effect reads index 2 of 21006, which June does not have: zero row ( JUNE_BUGS 530 ) |
+| Double Slash (21007 / 21043) | `ESSI_SA_ESK_DOUBLE_SLASH` state / effect tables | 469 + 604 ( 563 + 725 ) |
+| Kick (21202 / 21219) | `ESSI_SI_A_ES_KICK` state table, x1.1 with memo 7 | 1029 ( 1235 ), force-down -50 |
+| Impact Smash (21203 / 21225) | `ESSI_A_ELK_IMPACT_SMASH` state / effect tables | 111 + 865 ( 133 + 1038 ) |
+| Armor Break (21204 / 21226) | `ESSI_A_ESK_ARMOR_BREAK` state table | 897 ( 1077 ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-10 ids fall back to the Mega Slash default; CH2a's class-1 ids too), `python tools/build.py --deploy`.

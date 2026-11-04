@@ -1788,6 +1788,37 @@ in all 6 files. This review's worktree: `1 PASS, 1 DEFINE, 0 FAIL`, `2 deleted l
 DEPLOY OK: X2_offline.exe is 25,972,736 B, dated 2026-11-05 04:52:23, md5 9e1bf0aac452f242972409013977ce31, equal to X2/US_SERVICE/x2.exe (2026-11-05 04:52:16); built at main 5c761eb6 + 2 uncommitted code file(s).
 EXESTR OK: 1 of 1 absent in X2_offline.exe, 25972736 B, md5 9e1bf0aa ( `ELSWORD SKILL memo fire`, wide ).
 
+### CH2b - Done (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, defined again in `Always.h` for this phase; the review retires it): Sword Knight's six skills run June's registrations. All 11 class-map rows are read from `charport_adis.py elsword --phase CH2b` listings: **5 written** (2 inside March's functions under the flag with March in `#else`, 3 new incl. the registration cases), **6 are June = March** (no code). `funcmap.tsv` rows `Char Elsword CH2b`; `MODS.md` "Stage 7 Elsword, CH2b" has the March vs June damage table. The class map called Spiral Blast's Init / EventProcess "new": March has both under the same names, so they are "= March" rows, not copies.
+
+| June | `CX2GUElsword_SwordMan::` | June differs from March |
+|---|---|---|
+| `32cf4de0` `32d05530` | `ESSI_SA_ESK_MORTAL_BLOW_FrameMove` `_EventProcess` (new) | FrameMove = `CommonFrameMove`; EventProcess: end -> JUMP_DOWN / WAIT, then the ground-only up-down ( `+0x8ca4` ), skill, back-walk, walk, dash cancels, then Z / X attack cancel ( `+0x8c8c` ) |
+| `32cfa6c0` | `ESSI_SI_A_ES_KICK_Start` | force-down value = -ability `SA_FORCE_DOWN_ABS` of the equipped skill ( upgrade swap, level >= 1 ); no memo 7 power gain |
+| `32cfed60` | `ESSI_A_ELK_IMPACT_SMASH_EventProcess` | dash / walk cancels need the foot on a line ( `ELSWORD_GROUND_*`, 7h ) |
+| = March | Spiral Blast Init / EP, Armor Break Init / EP, Impact Smash Init, Kick EP, Double Slash EP | `funcmap.tsv` says which |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex` gains the June cases for 21005 / 21031, 21006 / 21034, 21007 / 21043, 21202 / 21219, 21203 / 21225 and 21204 / 21226 ahead of the `default:`; the hyper state takes the normal table name ( no June `_HYPER` table ) and the callbacks June fills: Spiral Blast Init + EP, Mortal Blow FrameMove + EP, Double Slash EP, Kick Start + EP, Impact Smash Init + EP, Armor Break Init + EP. `X2SkillTree.h`: twelve `RNSI_SA_ESK_*` / `RNSI_A_ESK_*` names ( values checked against `Enum.src.lua` ). Checklist rows marked `(Elsword: CH2b)` ( 51, 116, 117, 124, 125, 178 ). `JUNE_BUGS.md` 530 ( the 21006 zero row ).
+
+**Left to later phases ( scope rule ).** None new: the three numerical-only state tables ( Kick, Impact Smash, Armor Break ) and the damage effects run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap here: the only body that reads a skill id is Kick Start, which passes the swap argument itself. Memo effects ( Spiral Blast memo 9, Kick memo 7, Armor Break memo 11 ) follow June: none in C++.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_SKILL --with JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files` the four code files: `1 PASS, 1 PASS~ ( .h: one blank line ), 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `1 deleted line(s)` ( the `//#define` turned into `#define` ), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` the three source files: `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check` the `.cpp` / `.h`: `0 A/B row(s) remain`. `skillicons.py check` the 12 ids: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. One-file probe of `X2GUElsword_SwordMan.cpp` ( `/Zs /EHsc` ): exit 0.
+- DEPLOY OK: X2_offline.exe is 25,975,296 B, dated 2026-11-05 05:15:56, md5 7154ba9fe01be3a5c92b83cd2280574b, equal to X2/US_SERVICE/x2.exe (2026-11-05 05:15:49); built at main 675cf00d + 4 uncommitted code file(s).
+- EXESTR OK: 1 of 1 found in X2_offline.exe, 25975296 B, md5 7154ba9f ( `[JUNE_CHAR] ELSWORD SKILL kick: skill`, wide ).
+
+**Play-test hand-off.** Save: unit 66 `ElswordKnight` ( Sword Knight, class 10, lv 99, SP 843; backup `db_backup\els_db_20261105_051638_pre_sql.sql` ). Slots: A Kick ( 21202 ), S Impact Smash ( 21203 ), D Armor Break ( 21204 ); Q Spiral Blast ( 21005 ), W Mortal Blow ( 21006 ), E Double Slash ( 21007 ); slots 4 and 9 empty. For the B bank and the enhanced ids ( 21219, 21225, 21226 / 21031, 21034, 21043 ) say "swap banks" ( I run the enhanced setup ).
+Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in front ( `/stage 1` ). Checks, enemies near:
+1. **A Kick.** June's kick motion, hits once, force-down value -50 ( the log line `kick: ... force down -50.0` ); ends in wait / fall.
+2. **S Impact Smash.** Two turning hits then the swing, stun chance; on the ground a walk or dash key cancels it late in the motion; ends in wait.
+3. **D Armor Break.** One strong hit, the target's defence drops ( 30%, 7 s ); ends in wait.
+4. **Q Spiral Blast.** Slash then sword blast hits; any key after 2.4 s cancels to wait.
+5. **W Mortal Blow.** Rocks shoot up ( new state ); late in the motion up / down, walk, dash, a skill key or Z / X cancels it on the ground; ends in wait. In an awakening the same state plays ( no hyper table ).
+6. **E Double Slash.** Two-part slash; keys cancel to wait from 3.667 s.
+Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

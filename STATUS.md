@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2b | ready (CH2a review PASS 2026-11-05): Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md` |
+| CH2b | built 2026-11-05, waits for the user's play-test of unit 66 (6 Sword Knight skills), then review: Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md`, `CH2b-review.md` |
 | CH2c | blocked (CH2b review): Magic Knight (11) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GUElsword_SwordMan.*` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Sheath Knight (22) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Lord Knight (100) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH3a.md` |
