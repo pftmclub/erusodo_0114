@@ -1450,6 +1450,60 @@ Elesis's class side stays char-elesis's (her shared sites change with `_WOS`, as
 
 **Nothing to play-test** (`_WOS` and `_LIVE` are off). Next: `/x2-phase char-elsword CH1q review` (Opus 5.5 high), then CH1q2.
 
+### CH1q - Review (2026-11-04)
+
+**Verdict: PASS, no code change.** Every point was checked against the June exe (Ghidra decompiles plus raw `disasm_range.py` reads).
+
+- **Attack-result gain** (`31f86bab-31f86ef0`, `32012d3b-32013088`): both copies have the same shape. The steps:
+  - `CalcWayOfSwordPoint( [+0x764], [+0x23c] + [+0x238], state )`, then `0x674` state re-read.
+  - Not -2 / 2: x ( protected `+0x6c50` + qword `334355b0` = 1.0 ). Else x ( 1.0 - protected `+0x6d04` ): bytes `DE E1` at
+    `31f86c6c` / `31f86e10` / `32012de5` = FSUBRP ST(1), ST(0) = 1.0 - B.
+  - `31fceab0( 0x6f04 )` > 0 and `g_pData +0x50`, then `32206450( 0x6f04, 1 )` (the project's GetSkillTemplet mapping), then
+    `32206e50( 0x6a, level, 0, 0.0 )`. The 4th argument is the fallback (`[esp+0x60]` @32206f84), and 0.0 equals March's 0.
+  - HP rate = 0 unless HP > `3342e84c` (0.0f), else HP / max HP. `v > rate` doubles (`fcompp`, `test ah,0x41`).
+  - Then `Set( Get + gain )` and the MP factor.
+  - The CEffect copy keeps the state read before the gain (`ebp`) for `32610790`. The user copy re-reads `0x674`. The port does both the same way.
+  - Elesis (`[eax]==8`) multiplies by vslot `0x720` *before* the specialization, then calls `32622550` (`_Elesis`).
+  - One `CX2GUUser` helper for the identical inlined part is right: the vslot `0x720` factor is the only difference and stays outside it.
+  - The stand-in is right: March's `#else` has no Elesis factor, so the base 1.0 matches March. It is routed in checklist l.933 for char-elesis.
+- **CH0's replace row overturned: confirmed.** `flagprobe.py BALANCE_PATCH_20120329`: `ON`.
+  - `326105c0`: type const [0..5] x rate x state const, with the vigor / dest pairs [7..16] in March's order.
+  - `326106c0`: DamageReact const ( +0x18 ) x [17..21], with the float argument ignored.
+  - Both equal March's live `X2DamageManager.cpp:4440-4610`. No game-mode constant.
+- **Ported bodies:**
+  - `GetDestRageWSPGain` / `_Elesis`: `322cc1a0` -> +0x5c ( PVP_Hit ), else +0x58 ( NPC_Hit ), times +0x68 / +0x6c. The struct
+    order (22 floats before NPC_Hit) agrees.
+  - `GetFinalDamage_WayOfSword` `32d18cd0`: no Ghidra function, read raw.
+    - State -2 required.
+    - Type 4: 1.5 ( `33471a1c` ) / 2.0 ( `33437778` ).
+    - Types 5 / 6: 1.25 ( `334395f0` ) / 1.5.
+  - `SwordWaitEventProcess` `32d0f0c0`: the order matches the port (oneZ `+0x86eb` with no gate -> 0xa3, oneX -> 0xa8, `0x7f4( 1 )` =
+    `ASUT_GROUND` (1), then dash / walk / jump-up, `0x55c( 0x17 )` hyper, down, WSS 2 / -2 test, `0x200` riding -> 0x49, else 0xd).
+  - `DoStateDestructionRage`: two `32296d60` calls, one per sequence.
+  - Vigor: `fldz` @32d0ca32 feeds the Lua call `CalculateFinalMoveSpeedPercent` (string `334872a0`). JUNE_BUGS 527 holds.
+  - Snapshot pair: `0x198` = `IsMyUnit`. Store writes a float to `param_1[0x24ae]` = +0x92b8. Restore calls `0x67c( saved )`, then the
+    base. The state is not kept.
+- **"= March" spot-checks:** `WayOfSwordStateChange` `32d0eeb0` matches March's `:11238` branch for branch. That covers the thresholds
+  +0x60 / +0x64, the sync field +0x8160 for other units, and the End / Start pairs with the gage +0x110 / +0x114 inline set. The other
+  "= March" rows are low risk and their CH1q reads stand.
+- **Routing:** CH1q2 names the `X2Game.cpp:14855` Vigor x0.7. CH4b names `m_bCured` / `CureExtraDamage`, `ResetAnimSpeed`,
+  `SAT_WAY_OF_SWORD_GAUGE_UP` and `GetActualMPConsume`. CH5 names `ElswordWSPCheat` and `RenderName`'s WSP text.
+
+**Gates** (range `ee3b2737^..ee3b2737`, the eight code files):
+- `_WOS --with _WOS_DEBUG _CORE`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`. The RESULT is FAIL only for the
+  commented-out `#define`.
+- `_CORE` (7 files; X2GUUser.cpp carries no `_CORE` line, and flagcheck cannot evaluate its old `:26915` `&&` / `||` `#if`): `RESULT: PASS`.
+- `_WOS_DEBUG --with _WOS`: `RESULT: PASS`.
+- `JUNE_ENUM_NAMES`: `1 PASS~`, `RESULT: PASS`.
+- All runs show 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 token and 0 encoding changes. `numstat`: 45 / 30 / 12 / 124 / 7 / 65 / 3 / 6 added, 0 deleted.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+- `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s) remain`.
+- Probes (`census.cl_cmd`, `/c /Zs /EHsc`): the four .cpp files with no flag, with `_WOS` and with `_LIVE` + `_WOS` give exit 0, 0 errors
+  (12 runs). `_LIVE` alone stops at `Always.h(11561)` C1189.
+- No build: no code changed, so the deployed exe is CH1q's.
+
+**Nothing to play-test.** Next: `/x2-phase char-elsword CH1q2` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
