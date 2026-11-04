@@ -558,9 +558,6 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		int												m_DegreeToLeap;
 		float											m_fTimeToLeap;
 		float											m_fElapsedTimeToLeap;
-#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
-		float											m_fNoDownAtStandUpAttackRate;		/// June +0x9684: > 0 turns the stand-up attack into the no-down one; CH4a sets it, CH1k zeroes it
-#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #ifdef TEST_MACRO_COMBO
 		CKTDXTimer		m_TimerStartRun;

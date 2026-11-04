@@ -7390,10 +7390,10 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32cf3690	CX2GUElsword_SwordMan::RevengeAttackFrameMoveFuture	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CommonFrameMoveFuture only ( March's empty state-time test dropped )
 32cf36a0	CX2GUElsword_SwordMan::RevengeAttackFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CommonFrameMove = March
 32cf5a80	CX2GUElsword_SwordMan::DamageDownFrontFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; step dust at 0.19 ( EventTimerOneshot ) = March
-32cf5ad0	CX2GUElsword_SwordMan::DamageDownFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684 ( m_fNoDownAtStandUpAttackRate ), no roll; rest = March
+32cf5ad0	CX2GUElsword_SwordMan::DamageDownFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684 ( March m_fRollingSpeedRel: Rolling learned; CH1b review ), no roll; rest = March
 32cf5c50	CX2GUElsword_SwordMan::DamageDownBackFrameMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; step dust at 0.32 = March
-32cf5c90	CX2GUElsword_SwordMan::DamageDownBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684, no roll; 0.66 is a double; rest = March
-32cf5e10	CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684, no roll; rest = March
+32cf5c90	CX2GUElsword_SwordMan::DamageDownBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684 ( m_fRollingSpeedRel ), no roll; 0.66 is a double; rest = March
+32cf5e10	CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; no-down stand-up attack = 0 < +0x9684 ( m_fRollingSpeedRel ), no roll; rest = March
 32cf5f90	CX2GUElsword_SwordMan::StandUpRollingFrontFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
 32cf6010	CX2GUElsword_SwordMan::StandUpRollingFrontBackEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March
 32cf6090	CX2GUElsword_SwordMan::StandUpRollingBackFrontEventProcess	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; = March

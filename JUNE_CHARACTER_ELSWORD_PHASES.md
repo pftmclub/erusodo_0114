@@ -438,7 +438,7 @@ Next: `/x2-phase char-elsword CH1b` (Sonnet 5.5 high). Nothing to play-test.
 
 All 35 class-map rows of phase CH1b are written, all `inside`: June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`.
 No `new` row, so no `_CORE` define; `_LIVE` stays `//#define`. 35 funcmap rows `Char Elsword CH1b`; 6 rows added to `june2017_re/char_elsword/ch1_offsets.tsv`.
-`RNSI_A_ELK_COUNTER = 21206` and `RNSI_A_ELK_COUNTER_UPGRADE = 21228` are registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES` (June `Enum.src.lua` lines 14575 / 15504). The new member `m_fNoDownAtStandUpAttackRate` (June `+0x9684`) is declared in `X2GUElsword_SwordMan.h` under `_LIVE`.
+`RNSI_A_ELK_COUNTER = 21206` and `RNSI_A_ELK_COUNTER_UPGRADE = 21228` are registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES` (June `Enum.src.lua` lines 14575 / 15504). The new member `m_fNoDownAtStandUpAttackRate` (June `+0x9684`) is declared in `X2GUElsword_SwordMan.h` under `_LIVE`. **Corrected by the CH1b review: `+0x9684` is March's `m_fRollingSpeedRel`; no new member.**
 
 | June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
 |---|---|---|---|
@@ -448,7 +448,7 @@ No `new` row, so no `_CORE` define; `_LIVE` stays `//#define`. 35 funcmap rows `
 | `32d076f0` `32cf3690` `32cf36a0` `32d0edb0` `32cf6370` | RevengeAttack Start / FrameMoveFuture / FrameMove / CameraMove / EventProcess | | |
 
 **Where June differs from March** (everything else is March's logic written out whole; checked against the listings, `charport_adis.py elsword --phase CH1b`):
-- **Stand-up attack with no knock-down** (DamageDownFront `32cf5ad0`, DamageDownBack `32cf5c90`, AirDownLanding `32cf5e10`): when the queued key was X, March rolls `GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent`. June tests `0 < +0x9684`, a float class member, with no roll: `NO_DOWN` when positive, else `ATTACK`. The member is `m_fNoDownAtStandUpAttackRate`; June's ctor `32d09490` zeroes it (CH1k) and `InitPassiveSkillState` `32d1c560` sets it from skill 21200, ability 112 (CH4a). Until those phases land it stays uninitialised, which only matters once `_LIVE` is on.
+- **Stand-up attack with no knock-down** (DamageDownFront `32cf5ad0`, DamageDownBack `32cf5c90`, AirDownLanding `32cf5e10`): when the queued key was X, March rolls `GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent`. June tests `0 < +0x9684`, a float class member, with no roll: `NO_DOWN` when positive, else `ATTACK`. The member is `m_fNoDownAtStandUpAttackRate`; June's ctor `32d09490` zeroes it (CH1k) and `InitPassiveSkillState` `32d1c560` sets it from skill 21200, ability 112 (CH4a). Until those phases land it stays uninitialised, which only matters once `_LIVE` is on. **Corrected by the CH1b review: `+0x9684` is March's `m_fRollingSpeedRel`; no new member.**
 - **Revenge Attack Start** `32d076f0`: the counter skill is Lord Knight's `RNSI_A_ELK_COUNTER`; with `RNSI_A_ELK_COUNTER_UPGRADE` learned the state refunds 15 MP (`UpNowMpWithText`) and uses the upgrade skill. The skill level is `31fce5c0` ( 0 without a unit, else `GetSkillLevel( id, false, 0, true )` ), written inline. The damage is **multiplied**: `fPhysic = m_fRevengeAddDamage * ( GetSkillPowerRateValue * ( GetSkillAdditionalPowerRate + 1.0 ) ) * fPhysic` (March adds `m_fRevengeAddDamage * rate`). The knock-up roll is `GetRandomInt( 0 ) < SA_EFFECTIVE_RATE * 100.0`, `RT_UP`, speed ( 1100, 1900 ), as March. The memo 5 `SetDefenceMemoTime( 4 )` branch is gone. Checklist §7 L281 (`3201ad10` called from `32d076f0`) is this function. **Watch item for CH1 final:** the multiply means June's `Elsword_SwordMan.lua` must give `ESSI_REVENGE_ATTACK` a non-zero `DAMAGE_PHYSIC`; a 0 would make the counter hit for 0.
 - **Revenge Attack FrameMoveFuture** `32cf3690` is `CommonFrameMoveFuture()` alone (March's empty state-time `if` is gone).
 - **Die Front / Back Start** call `DyingStart()` (vslot 0x338) and, by `GetWayOfSwordState()` ( vslot 0x674 ), `End_SwordmanVigor` ( `32d0cd60` ) for `WSS_VIGOR` or `End_SwordmanDestruction` ( `32d0d240` ) for `WSS_DESTRUCTION`; both bodies are CH1q's and March's still run until then.
@@ -463,9 +463,48 @@ No `new` row, so no `_CORE` define; `_LIVE` stays `//#define`. 35 funcmap rows `
 - `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
 - `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 05:34:11, md5 16ecf5cdfe31e4e500c2029b98d106e1, equal to X2/US_SERVICE/x2.exe`; built at main `ee301193` + the 3 code files of this phase (X2Lib 0 errors). No `exestr` line: `_LIVE` is off and the phase adds no string to the flag-off exe.
 
-**Routed.** CH1k: the ctor zeroes `m_fNoDownAtStandUpAttackRate` (`32d09490` @`32d0b2c7`, with `+0x9688` / `+0x968c` / `+0x9690` / `+0x9694` and `+0x960f`). CH4a: `InitPassiveSkillState` sets it (`32d1c560` @`32d1c785`, zeroed @`32d1c685`; skill 21200, ability 112, level capped at 10). CH1q: the two `End_Swordman*` bodies. CH1 final: `ESSI_REVENGE_ATTACK` `DAMAGE_PHYSIC` in June's script (see above).
+**Routed.** CH1k: the ctor zeroes `m_fNoDownAtStandUpAttackRate` (`32d09490` @`32d0b2c7`, with `+0x9688` / `+0x968c` / `+0x9690` / `+0x9694` and `+0x960f`). CH4a: `InitPassiveSkillState` sets it (`32d1c560` @`32d1c785`, zeroed @`32d1c685`; skill 21200, ability 112, level capped at 10). **Corrected by the CH1b review: `+0x9684` is March's `m_fRollingSpeedRel`; no new member.** CH1q: the two `End_Swordman*` bodies. CH1 final: `ESSI_REVENGE_ATTACK` `DAMAGE_PHYSIC` in June's script (see above).
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1b review` (Opus 5.5 high), then CH1c.
+
+### CH1b - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS with one fix.** I read all 35 June listings (`charport_adis.py elsword --phase CH1b`) against the `_LIVE` bodies at `0f38ef66`. Every state id, branch order, constant and float compare matches, except the member the stand-up test reads.
+- **Fix: `+0x9684` is March's `m_fRollingSpeedRel`, not a new member.** A scan of June `.text` for the displacement finds, inside the class range, writes only in the ctor (`@32d0b2c7`, zero) and `InitPassiveSkillState` (`@32d1c685` zero, `@32d1c785` set). The set is `RNSI_A_ES_ROLLING` (21200) `GetSkillAbilityValue( SA_TELEPORT_SPEED_REL (112, s0a_templet_keys row 151), min( level, 10 ) )`, which is March's `m_fRollingSpeedRel` block (`.cpp:2678`). The fourth hit, `ESSI_SI_A_ES_ROLLING` StartFuture `32cf41d0`, is `nowSpeed.x = +0x9684 * 1200.0`, which matches March's `m_fRollingSpeedRel * 1200.f`. So June's no-down stand-up attack fires when Rolling is learned (`0 < m_fRollingSpeedRel`). The three tests now read `m_fRollingSpeedRel` (March's ctor and passive already zero and set it). The duplicate `m_fNoDownAtStandUpAttackRate` is removed, so `X2GUElsword_SwordMan.h` is back to its base bytes. The "uninitialised until CH1k / CH4a" hazard goes with it. `ch1_offsets.tsv`, the three funcmap rows, and the CH1k / CH4a routed bullets are corrected.
+- **Revenge Attack Start `32d076f0`, confirmed instruction by instruction:**
+  - Level of `0x52ec` (`RNSI_A_ELK_COUNTER_UPGRADE`) > 0 -> `UpNowMpWithText( 15.0f )` (`32278070`), id = upgrade; else `0x52d6` (`RNSI_A_ELK_COUNTER`). Both values are checked against June `Enum.src.lua`.
+  - `GetSkillTemplet( id, 1 )` is March's one-argument form (funcmap 32206450: callers pass `( id, 1 )`).
+  - `( GetSkillAdditionalPowerRate( templet +8 = m_eID ) + 1.0 )` is a double; `GetSkillPowerRateValue( level ) *` that, then stored as a float.
+  - `fPhysic = m_fRevengeAddDamage * rate * fPhysic`, in that order.
+  - vslot 0x1c8 (`push 0`) is `GetRandomInt( 0 )` (vtable map: 0x1cc = `GetRandomFloat`, the next declaration). It is turned into a double and compared to `GetSkillAbilityValue( 5 = SA_EFFECTIVE_RATE, level, 0, 0.0f ) * 100.0` with `test ah,0x41` / `jne`, so the knock-up fires when random < rate.
+  - `+0x3c4 = 4` (`RT_UP`); `+0x77c / +0x780 = 1100 / 1900`.
+  - There is no memo branch. FrameMoveFuture `32cf3690` is a jump to `CommonFrameMoveFuture`.
+- **Damage-down family:**
+  - AirDownLanding `32cf5e10` is byte-identical to DamageDownFront `32cf5ad0`, with the same front states.
+  - DamageDownBack `32cf5c90` differs only in its state ids and in the double `0.66` (`fld time; fcomp qword 0.66; test ah,0x41; jne`).
+  - Branch order at the end of the animation: flag 4 (X), then 1, 2, 3, else stand-up. Inputs past 0.66: X, Z, then facing x pureRight / pureLeft. Both match.
+- **Spot-checks, end to end:**
+  - WinFrameMove `32d07090`: the `SetShowObject` inline, emit 30 / 50, `Dummy2_Lhand`, `SetPosition( pos, 0, 0 )`, and `CreateSequence( this, L"MagicKnightHandFire", 0,0,0, -1,-1,-1,-1, -1.0f, true, 0.0f, false, -1 )`. All but the last argument equal March's defaults.
+  - CameraMove `32d0edb0`: `BeginTable( "CAMERA", 1 / 2 )`, `SUB_CAMERA0` then `SUB_CAMERA1` (strings read at `334758f4` / `334758e8`), flag 0 set on every path.
+  - DamageDownBack, as above.
+- **Families diffed:**
+  - The four StandUpRolling EventProcess listings are identical; ground test first, then the end of the animation.
+  - The four StandUpAttack / NoDown EventProcess listings are identical; end of the animation first.
+  - The eight End listings are identical: `CommonStateEnd`, vslot 0x11c `SetForceInvincible( 0.3f )`, vslot 0x120 `SetShowInvincible( 0.3f )`.
+  - Die Front / Back are identical: StartFuture and Start `SetPlaySpeed( 0.5f )` inline, FrameMove `DieFrameMove( 0.19f, 1.12f )`, EventProcess `GUSI_DIE` (4).
+  - The C++ bodies are pairwise identical in the same way.
+- **Die Start:** vslot 0x338 = `DyingStart` and vslot 0x674 = `GetWayOfSwordState` (`ch0_vtable_all.tsv`). `== 2` -> `32d0cd60` `End_SwordmanVigor`, `== -2` -> `32d0d240` `End_SwordmanDestruction` (class map rows, CH1q).
+- **Revenge watch item:** this is narrower than the Done note said. June's `ESSI_REVENGE_ATTACK` (`Elsword_SwordMan.src.lua:12373`) has no `DAMAGE_PHYSIC`; it uses `NUMERICAL_DATA_INDEX = 1` with `APPLIED_SKILL_ID = RNSI_A_ELK_COUNTER`, which `X2DamageManager.cpp:349` already loads. CH1 final confirms the counter hits for a non-zero amount in play.
+- **Offsets:** the other 5 CH1b rows are confirmed as written (`+0x3d8` / `+0x3c4` / `+0x77c`, `+0x9e0`, `+0x960c` / `+0x95d4`, `+0x7d86..89`, `+0x8025` / `+0x8018`).
+
+**Hygiene.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --range 0f38ef66^..0f38ef66`: `files: 2 PASS, 0 OTHER (X2SkillTree.h = JUNE_ENUM_NAMES)`, `0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`. Its "6 deleted" lines are alignment artifacts: `git show --patience --numstat` gives 701 / 0, 3 / 0 and 7 / 0. `RESULT: FAIL` only for the `//#define`.
+- After the fix, `flagcheck --worktree --files` on the two class files: 2 PASS, 0 FAIL / OTHER. Its "9 deleted" lines are this review's replacements of CH1b's own inserted lines; `git diff --patience --numstat 0f38ef66^` gives `.cpp` 701 / 0 and the `.h` unchanged.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `--check` on the two class files: `RESULT: PASS`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): 0 errors with `_LIVE` off and 0 with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 07:17:25, md5 271959b3c82811864b8d0d934a1bafb0, equal to X2/US_SERVICE/x2.exe`; built at main `0f38ef66` + the two class files of this review. No `exestr` line: `_LIVE` is off.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1c.md` was checked and needs no change. Next: `/x2-phase char-elsword CH1c` (Sonnet 5.5 high).
 
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 

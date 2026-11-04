@@ -7288,7 +7288,7 @@ void CX2GUElsword_SwordMan::DamageDownFrontFrameMove()
 void CX2GUElsword_SwordMan::DamageDownFrontEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
-	/// June 32cf5ad0: the no-down stand-up attack is a float test, not March's roll against m_iNoDownDamageAtStandUpAttackPercent
+	/// June 32cf5ad0: the no-down stand-up attack follows a learned Rolling ( +0x9684 = m_fRollingSpeedRel ), not March's roll
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7298,7 +7298,7 @@ void CX2GUElsword_SwordMan::DamageDownFrontEventProcess()
 	{
 		if ( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
 		{
-			if ( 0.f < m_fNoDownAtStandUpAttackRate )
+			if ( 0.f < m_fRollingSpeedRel )
 			{
 				StateChange( ESSI_STANDUP_ATTACK_FRONT_NO_DOWN );
 			}
@@ -7490,7 +7490,7 @@ void CX2GUElsword_SwordMan::DamageDownBackFrameMove()
 void CX2GUElsword_SwordMan::DamageDownBackEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
-	/// June 32cf5c90: the no-down stand-up attack is a float test; the 0.66 here is a double, as in June and March
+	/// June 32cf5c90: the no-down stand-up attack follows a learned Rolling ( +0x9684 = m_fRollingSpeedRel ); the 0.66 is a double, as in March
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7500,7 +7500,7 @@ void CX2GUElsword_SwordMan::DamageDownBackEventProcess()
 	{
 		if ( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
 		{
-			if ( 0.f < m_fNoDownAtStandUpAttackRate )
+			if ( 0.f < m_fRollingSpeedRel )
 			{
 				StateChange( ESSI_STANDUP_ATTACK_BACK_NO_DOWN );
 			}
@@ -7662,7 +7662,7 @@ void CX2GUElsword_SwordMan::DamageDownBackEventProcess()
 void CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
-	/// June 32cf5e10: the no-down stand-up attack is a float test, not March's roll against m_iNoDownDamageAtStandUpAttackPercent
+	/// June 32cf5e10: the no-down stand-up attack follows a learned Rolling ( +0x9684 = m_fRollingSpeedRel ), not March's roll
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7672,7 +7672,7 @@ void CX2GUElsword_SwordMan::DamageAirDownLandingEventProcess()
 	{
 		if ( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
 		{
-			if ( 0.f < m_fNoDownAtStandUpAttackRate )
+			if ( 0.f < m_fRollingSpeedRel )
 			{
 				StateChange( ESSI_STANDUP_ATTACK_FRONT_NO_DOWN );
 			}
