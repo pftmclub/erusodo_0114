@@ -506,6 +506,31 @@ No `new` row, so no `_CORE` define; `_LIVE` stays `//#define`. 35 funcmap rows `
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1c.md` was checked and needs no change. Next: `/x2-phase char-elsword CH1c` (Sonnet 5.5 high).
 
+### CH1c - Done (2026-11-04)
+
+Both class-map rows of phase CH1c are written, both `inside`: June's body in March's own function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`. No `new` row, no `_CORE` define; `_LIVE` stays `//#define`. 2 funcmap rows `Char Elsword CH1c`.
+CH0 listed `32d18d80` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_RIDING_PET_AWAKE`), so it is `inside` (class-map row corrected). The 34 riding / pepper / dance / `MACHINE` states have no class-range function (CH0).
+
+| June | `CX2GUElsword_SwordMan::` | Note |
+|---|---|---|
+| `32d1b910` | `RidingHyperModeFrameMove` | `CommonHyperModeFrameMove( 0.f, 0.1f, true )` = March |
+| `32d18d80` | `CommonHyperModeFrameMove( fTime1_, fTime2_, bSound_ )` | March + awakening stand-ins |
+
+**Where June differs from March** (read from the listing, `charport_adis.py elsword 32d18d80`):
+- Two independent `EventTimerOneshot` tests (not `else if`), as March. World colour `0xff222222`, timer 1 `ShowMinorParticleHyperModeChange` + `Stickslash1.ogg` (when `bSound_`), timer 2 `UpDownCrashCamera( 30, 0.4 )`, `ClearScreen`, `ApplyHyperModeBuff`, `Slash` / `Break` / `Change.ogg`, then `CommonFrameMove` = March.
+- New in June: the awakening effect-set family `32011d20` (begin), `31fd66b0` (present test, `Play` `32011f50` when true) before the Shock, and `ShowMinorParticleHyperModeTrace` only when the set is absent. Stand-ins in `_CONST_ELSWORD_CH1c_` (`ElswordAwakeningEffectBegin` / `SetPresent` / `Play`: no-op, no-op, false = June's empty-name default), the same as Chung's and Eve's (funcmap `32011d20` rows, Transcend S6; reader is Stage 12).
+- No `+0x7cc8` touch in either function (checklist §7 L254 is not here). No `JUNE_BUGS` row.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because the `#define` is commented out (by design).
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 07:22:08, md5 7611f39a3f39088493c3478da7d57b54, equal to X2/US_SERVICE/x2.exe (2026-11-04 07:22:01)`; built at main `0e9e1aa0` + the class `.cpp`. No `exestr` line: `_LIVE` is off.
+
+**Routed.** CH1i: `HyperModeFrameMove` `32d1b720` calls this function with its own times (March: `0.05f, 0.83f`). Stage 12: the awakening reader behind the three stand-ins.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1c review` (Opus 5.5 high), then CH1d.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

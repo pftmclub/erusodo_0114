@@ -20756,13 +20756,66 @@ void CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_EventProcess()
 {
 	ShowActiveSkillCutInAndLight( fTimeToShow_, m_iSkillCutInSetSubIndex, bOnlyLight_ );
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+namespace _CONST_ELSWORD_CH1c_
+{
+	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 12 ), June's empty-name default
+	void ElswordAwakeningEffectBegin()			{}
+	bool ElswordAwakeningEffectSetPresent()		{ return false; }
+	void ElswordAwakeningEffectPlay()			{}
+}
+using namespace _CONST_ELSWORD_CH1c_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 void CX2GUElsword_SwordMan::RidingHyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1b910
 	CommonHyperModeFrameMove( 0.f, 0.1f, true );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonHyperModeFrameMove( 0.f, 0.1f, true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 void CX2GUElsword_SwordMan::CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ /*= false*/  )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d18d80: March's body plus the awakening stand-ins; the trace only without the awakening set
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		ShowMinorParticleHyperModeChange();
+		if( true == bSound_ )
+		{
+			PlaySound( L"Stickslash1.ogg" );
+		}
+	}
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		ElswordAwakeningEffectBegin();
+		if( true == ElswordAwakeningEffectSetPresent() )
+			ElswordAwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == ElswordAwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+
+		ApplyHyperModeBuff();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Slash.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 	//g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 1.0f );
 
@@ -20802,6 +20855,7 @@ void CX2GUElsword_SwordMan::CommonHyperModeFrameMove( float fTime1_, float fTime
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #endif // MODIFY_RIDING_PET_AWAKE
 

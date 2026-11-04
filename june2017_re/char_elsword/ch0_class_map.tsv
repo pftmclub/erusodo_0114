@@ -528,7 +528,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d189a0	state-fn	ESSI_A_ETK_SWORD_SHIELD.Start	inside X2GUElsword_SwordMan.cpp:3131 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_StateStart	inside	-	CH2d	1 states	n
 32d18a60	state-fn	ESSI_A_ETK_SWORD_SHIELD.FrameMove	inside X2GUElsword_SwordMan.cpp:3133 CX2GUElsword_SwordMan::ESSI_A_ETK_SWORD_SHIELD_FrameMove	inside	-	CH2d	1 states	y
 32d18cd0	override 0x74	?	- (name unsettled)	inside	-	CH1q	Way of the Sword: vslot 0x74 GetFinalDamage_WayOfSword (June adds a PvP-type branch); inside: X2GUElsword_SwordMan.h:437 GetFinalDamage_WayOfSword (Way of the Sword, ch0_wos.tsv)	n
-32d18d80	helper	called by 32d1b720 32d1b910	-	new	?	CH1c	name: called by 32d1b720(HyperModeFrameMove) 32d1b910(ESSI_RIDING_HYPER_MODE.Frame)	y
+32d18d80	helper	called by 32d1b720 32d1b910	X2GUElsword_SwordMan.cpp CX2GUElsword_SwordMan::CommonHyperModeFrameMove	inside	-	CH1c	name: called by 32d1b720(HyperModeFrameMove) 32d1b910(ESSI_RIDING_HYPER_MODE.Frame)	y
 32d19040	state-fn	ESSI_EMK_COMBO_XZ.FrameMove	-	new	ESSI_EMK_COMBO_XZ_FrameMove	CH1f	1 states	y
 32d19300	state-fn	ESSI_EMK_COMBO_XZZ.FrameMove	-	new	ESSI_EMK_COMBO_XZZ_FrameMove	CH1f	1 states	y
 32d195c0	state-fn	ESSI_EMK_COMBO_FULL_CHARGE_XZZ.FrameMove	-	new	ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove	CH1f	1 states	y
