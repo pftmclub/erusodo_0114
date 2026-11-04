@@ -756,6 +756,26 @@ All 36 class-map rows of phase CH1f are written: 21 `inside` (June's body in Mar
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1f review` (Opus 5.5 high), then CH1g.
 
+### CH1f - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read all 36 June listings (`charport_adis.py elsword --phase CH1f`, cut at the `int3`) against the bodies at `ab1260de`, branch by branch. For the eleven new and changed EventProcess bodies I also compared a per-function skeleton: the operands compared, the input bytes, the state pushes and the vslots.
+- **Rune Slayer X Z `32cfb970`:** the fall (`JUMP_DOWN`, `-= 45`), then animation end to WAIT. Next, flag 0 to `0xff` (`ESSI_ERS_XZ_CHARGE`) on `0x8c18 < t || IsAnimationEnd()`, set by `oneZ` in `0x8c10 <= t < 0x8c14`. Then UPDOWN (`0x8ca4`, foot), skill on `0x8c90` (foot, `SpecialAttackEventProcess( 1 )`, then the awakening half), back-walk / walk / dash (`0x8c94` / `0x8c98` / `0x8c9c`, foot), and Z / X on `0x8c8c` (vslots 0x4b0 / 0x4b4). **Z3a `32cf8a00`:** off the line, only `-= 45`; then walk on `0x8c98` with the foot; then animation end; then the `_ZXC` keys with `1.2 < t` to WAIT. **Z3 `32cf8840`:** `_C` keys and `0.9`, = March.
+- **Charge states `32d03d00` / `32d047c0`:** off the line, `JUMP_DOWN` with no offset. If `t >= 0x8c18`: when `pureZ` is held and `t < 0x8c10`, nothing; otherwise `t < 0x8c14` goes to X Z Z (`0xfd` / `ESSI_ERS_XZZ`), else to full charge (`0xfe` / `ESSI_ERS_FULL_CHARGE_XZZ`). If `t < 0x8c18`, the cancel tail runs. That is exactly the port's nesting.
+- **Magic Knight X Z `32d03880`:** the end block, then the cancels, then flag 0 last (to the charge, `oneZ`). **X Z Z `32d040c0`, both full charges `32d04440` / `32d04b80`:** the end block and the cancels, with no flag. **Z Z Z `32d04f00`:** fall, end, flag 0 to `ESSI_ERS_COMBO_ZZZZ`, skill, the three ground cancels; no UPDOWN, no Z / X. **Z Z Z Z `32d05250`:** the same without the flag.
+- **Dash jump Z X / Z X X `32d03250` / `32d035d0`:** `DASH_JUMP_LANDING` on a line. Z X then has flag 0 to `ESSI_EMK_DASH_JUMP_ZXX` (`oneX`). Both then have the awakening half on `0x8c90` (black hole, `oneLCtr`, `CanHyperMode`, quick-slot wait, `+0x8d4c = 1`), walk `0x8c98` **before** back-walk `0x8c94`, dash `0x8c9c`, and `oneZ` / `oneX` on `0x8c88` (`m_fAttackCancelAfterEx`). `ELSWORD_AIR_AWAKE_CANCEL_AFTER` matches `SKILL_CANCEL_AFTER`'s awakening half under `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK`, line for line.
+- **Dash jump X Z Z `32cfbee0`:** flag 0 to `0xb1` / flag 1 to X on `0x8c8c < t || IsAnimationEnd()`, set in `t < 0x8c8c`. **Dash jump X Z `32cfbe80`:** `oneZ` sets flag 0 first, then landing, then at the end `ESSI_ERS_DASH_JUMP_XZZ` or `JUMP_DOWN`. **X2a EP `32cf97e0`:** landing, then `0.59 < t` to `JUMP_DOWN`. **`32cf4d50`:** `CommonStateStart`, then `+0x960e = 1`.
+- **MP costs.** June's flush is vslot 0xe4 with the cost first. Z3a / X2a FM push 6.0, X Z / dash jump X Z push 4.0 and X Z Z pushes 0 (`fldz`). These equal `MAGIC_FIRE_BALL` / `MAGIC_ERS_XZ` / `MAGIC_ERS_DASH_JUMP_XZ` / `MAGIC_ERS_XZZ` under `BALANCE_PATCH_20120329` (`Always.h:3251`), and none of them tests the sword state. **`32d131d0`:** `GetWayOfSwordState() == 2 ? [337aef00] : 0.0`. `333ac8c0` fills `337aef00` with `0.0 * 0.5`, so the cost is 0 in either state (March's vigor value is 3.5). The port's `MAGIC_ERS_DASH_JUMP_XZZ_MP_COST * 0.5f` (= 0) is exact.
+- **FrameMoves.** `32d19040` (0.3): `IsEnoughMPForAttack( 0, Dummy2_Lhand, 0, 0 )`, then `EffectSet_EMK_ComboXZ` with scale `+0x96d8`, power `+0x959c`, life `*= +0x96d4` and `+0x7c = 1`; the flag `+0x960e` is 1 on success and 0 on failure. `32d19300` / `32d195c0` (0.133): flag first, then the gate; `+0x960e = 0` on every path. `32d19880` (0.01, else 0.38 stops `+0x95b4`): the flag is cleared only after the effect set plays, so it stays set when the gate fails, as the port has it. `32d128b0`: the handle goes into `+0x3eb0` and then `+0x3ec0`; 0.38 stops `+0x95b4`.
+- **= March, confirmed:** Z3 SF, Z3a EndFuture, X2a FMF / FM, ERS X Z SF / FMF / FM (the `+0x198` remote-unit test around the flag), X Z Z EP, dash jump X Z SF / EndFuture / FMF / FM. The six new `ESSI` names sit at the enum end under `_CORE`; registration is CH1m's.
+
+**Hygiene.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --range ab1260de^..ab1260de`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 EOL-mismatched`, `0 encoding change(s)`, `RESULT: PASS`. Its 33 deleted lines are the alignment the Done note explains.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors, both with and without `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- No build: nothing changed. The `DEPLOY OK` of CH1f's Done note stands.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1g.md` gained a note on June's flush slot. Next: `/x2-phase char-elsword CH1g` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

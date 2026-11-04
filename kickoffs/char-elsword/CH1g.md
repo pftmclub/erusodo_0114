@@ -70,3 +70,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - Reusable from CH1f: `ELSWORD_AIR_AWAKE_CANCEL_AFTER( time )` (`_CORE`, beside the CH1d helper block): the awakening half of `SKILL_CANCEL_AFTER` alone, for the dash jump states (no skill branch). The air tail is: `IsOnSomethingFuture` landing (`USI_DASH_JUMP_LANDING`), that macro, `ELSWORD_GROUND_WALK_CANCEL` **before** `ELSWORD_GROUND_BWALK_CANCEL`, `ELSWORD_GROUND_DASH_CANCEL`, then `oneZ` / `oneX` on `m_fAttackCancelAfterEx` (+0x8c88) with the foot on a line (`ESSI_EMK_DASH_JUMP_ZX_EventProcess` is the worked example). Check each listing for the order, it differs from the ground combos.
 - The `ESSI` ids for CH1f's six new states are in the enum; `ESSI_ETK_DASH_JUMP_ZZZ` (258) and `ESSI_EIS_DASH_COMBO_ZX` (224) are still yours / CH1g2's, already declared.
 - `IsEnoughMPForAttack( cost, pos, offset, rot )` (vslot 0x6f0) exists in March; June's Magic Knight rune FrameMoves pass cost 0 (the MP is the effect set row's `CONSUME_MP`).
+
+## Amended by the CH1f review (2026-11-04)
+
+- June's MP flush is vslot 0xe4 with the cost pushed first (`fld` / `fldz`, then `push 0`); write it as March's `FlushMp( <the _CONST_ELSWORD_ constant of that value> )`. Check the value against the `BALANCE_PATCH_20120329` set, and check whether June tests `GetWayOfSwordState()` (vslot 0x674) first: most rune states do not, even where March has a `VIGOR_*` cost.
