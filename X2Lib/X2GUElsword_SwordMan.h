@@ -359,8 +359,8 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 #endif //UPGRADE_SKILL_SYSTEM_2013
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		bool IsHarshSlayerCoolTimeEnd() const;		/// June 32d059b0
-		void ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ );		/// June 32d05b60 ( vslot 0x508 ), empty
-		void ChangeFinalDamageAsAttacker( float* pfFirst_, float* pfSecond_ );		/// June 32d05b70 ( vslot 0x50c ), empty
+		void ChangeFinalDamageAsAttacker( float* pfPhysicAttack_, float* pfMagicAttack_ );		/// June 32d05b60 ( vslot 0x508 ), empty
+		void ChangeFinalDamageAsDefender( float* pfPhysicDefence_, float* pfMagicDefence_ );		/// June 32d05b70 ( vslot 0x50c ), empty
 		void ApplyBuffToOpenMind();		/// June 32d0c780 ( vslot 0x510 )
 		void BrutalSlayerCoolTimeFrameMove();		/// June 32d0ba00
 		void HarshSlayerCoolTimeFrameMove();		/// June 32d0bdc0

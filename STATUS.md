@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1o | **ready** (`/x2-phase char-elsword CH1o`): virtuals under `_LIVE`, routed gaps; replaces `GetNearestNPCUnitUID`, writes `31f76580` | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1o.md` |
+| CH1o | **done 2026-11-04, review ready** (`/x2-phase char-elsword CH1o review`): hooks 0x508 / 0x50c / 0x510 under `_LIVE`, velocity helper `31f76580` (`_CORE`), `GetNearestNPCUnitUID` = March | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*`, `X2GameUnit.cpp`, `X2DamageEffect.*` | `CH1o-review.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): Way of the Sword class side + damage math, flag `_WOS` (CH0 split) | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2Gage*`, `X2DamageManager.*` | `CH1q.md` |
 | CH1q2 | blocked (CH1q review): Way of the Sword gauge data / UI / manager, skill-slot effect (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2GageData.*`, `X2GageUI.*`, `X2GageManager.*`, `X2Game.cpp` | `CH1q2.md` |

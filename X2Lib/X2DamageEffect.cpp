@@ -6124,6 +6124,30 @@ bool CX2DamageEffect::CEffect::SetMainEffectScale( D3DXVECTOR3 vScale )
 {
 	return SetMainEffectScale( vScale.x, vScale.y, vScale.z );
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+/// June 31f75ef0: the main effect's velocity; change type 0 adds, 2 sets, any other multiplies per component
+void CX2DamageEffect::CEffect::ChangeMainEffectVelocity( const int iChangeType_, const D3DXVECTOR3& vVelocity_ )
+{
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = GetMainEffect();
+	if ( NULL == pMainEffect )
+		return;
+
+	const D3DXVECTOR3 vOldVelocity = pMainEffect->GetVelocity();
+	D3DXVECTOR3 vNewVelocity = vVelocity_;
+	if ( 0 == iChangeType_ )
+		vNewVelocity = vOldVelocity + vVelocity_;
+	else if ( 2 != iChangeType_ )
+		vNewVelocity = D3DXVECTOR3( vVelocity_.x * vOldVelocity.x, vVelocity_.y * vOldVelocity.y, vVelocity_.z * vOldVelocity.z );
+
+	pMainEffect->SetVelocity( vNewVelocity );
+}
+
+/// June 31f76580: y and z are 0, so a multiply stops the effect's y / z motion ( JUNE_BUGS 526 )
+void CX2DamageEffect::CEffect::ChangeMainEffectVelocity( const int iChangeType_, const float fVelocityX_ )
+{
+	ChangeMainEffectVelocity( iChangeType_, D3DXVECTOR3( fVelocityX_, 0.f, 0.f ) );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 void CX2DamageEffect::CEffect::SetPassiveParticleScale( float fX, float fY, float fZ )
 {

@@ -2746,6 +2746,13 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #ifdef	SERV_TRAPPING_RANGER_TEST
 	float	fSharpenDamageRate = 1.0f;	//	날카로운 화살로 인한 방어무시
 #endif	SERV_TRAPPING_RANGER_TEST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June GetFinalDamage @32284d2e-32284d76: user vslots 0x508 / 0x50c
+	if ( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+		static_cast<CX2GUUser*>( pAttacker )->ChangeFinalDamageAsAttacker( &fPhysicAttack, &fMagicAttack );
+	if ( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() )
+		static_cast<CX2GUUser*>( pDefender )->ChangeFinalDamageAsDefender( &fPhysicDefence, &fMagicDefence );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	// 공격자의 스킬에 의한 공격자의 공격력 stat 증가
 	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )

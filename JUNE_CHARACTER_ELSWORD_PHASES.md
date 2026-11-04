@@ -1254,6 +1254,50 @@ No `exestr` line: `_LIVE` is off, and the machine-gun bodies add no string.
 One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUElsword_SwordMan.cpp` `_LIVE` off exit 0 / 0 errors, `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` exit 0 / 0 errors.
 No build: the review changed no code (CH1n's `DEPLOY OK` stands). Nothing to play-test. Next: `/x2-phase char-elsword CH1o` (Opus 5.5 high).
 
+### CH1o - Done (2026-11-04)
+
+**Landed** (flag `_LIVE`, still `//#define`; the velocity helper under `_CORE`; 7 funcmap rows `Char Elsword CH1o`: 5 amended, 2 new). No class-map row carries CH1o (CH0's
+triage); every Elsword override whose name was unsettled in `ch0_vtable_all.tsv` is owned by CH1h / CH1i / CH1k / CH1q. What CH1o owned:
+- **`CX2Game::GetNearestNPCUnitUID` `322d2680` is March's, no code.** CH0's `replace` row said June keeps a unit with no gage data; March does too
+  (`CX2GameUnit::GetNowHp()` returns 1 then). Read in order: gage data `+0xc04` NULL -> alive, HP gage `+0x20` NULL -> dead, else `0 < fNow`
+  (`test ah,5` + `jp`), vslot 0x174 != 4 (`GUSI_DIE`), `GetDistance` `31c7b560` below the best so far (`test ah,0x41`). The divergent row now says
+  "no code", and the allow row for `ESSI_LEAP_StartFuture` is removed.
+- **`31f76580` writes velocity, not scale** (CH0's name was wrong). Mesh `+0x534..+0x53c` is `m_vVelocity` (funcmap row `mesh+0x54c`). Written as
+  `CX2DamageEffect::CEffect::ChangeMainEffectVelocity( int, float )`, which builds ( x, 0, 0 ) for `31f75ef0` = `ChangeMainEffectVelocity( int, const D3DXVECTOR3& )`
+  (`GetMainEffect`, type 0 adds, type 2 sets, any other type multiplies per component, then `SetVelocity`). The type has no Enum, so it stays a number.
+  **JUNE_BUGS 526:** CH2d's caller (`32d16c00` @32d17062, Crescent Cut) passes type 1, so the effect's y and z velocity become 0. CH2d kickoff amended.
+- **Hooks 0x508 / 0x50c: CH1h had the names swapped.** In `GetFinalDamage` `32284aa0`, EBP = DD `+0xc` (the attacker) and EBX = DD `+0x470` (the
+  defender). Vslot 0x508 runs on a user attacker (`+0x264 == 0`) with `&fPhysicAttack` / `&fMagicAttack` (`[esp+0x28]` / `[esp+0x2c]`, from `+0x4424` /
+  `+0x44d8`). Vslot 0x50c runs on a user defender with `&fPhysicDefence` / `&fMagicDefence` (`[esp+0x48]` / `[esp+0x44]`). The calls come right after
+  the two stat copies and `fSharpenDamageRate = 1`, which is where March's code goes (`X2GameUnit.cpp`, after `SERV_TRAPPING_RANGER_TEST`). Elsword's
+  empty bodies are renamed to match (0x508 = `ChangeFinalDamageAsAttacker`, 0x50c = `ChangeFinalDamageAsDefender`), with descriptive parameter names.
+  Base `33093ad0` (`ret 8`) is empty. Of the classes mapped so far, only Elsword overrides either slot, and his overrides are empty too.
+- **Hook 0x510 `ApplyBuffToOpenMind`:** base `31fc7ab0` is empty. `CX2GUUser::DamageReact` calls it @320478c6. That is inside the enchant-or-buff test,
+  after `ProcessSocketEffectEx` 1 / 2 and before vslot 0x840 (`SetSpecificValueByEnchant`). In March it is inserted after the two calls at
+  `X2GUUser.cpp` (live `SERV_SECRET_HELL` branch). Elsword's `_CORE` body calls the base first (`_LIVE`), as the CH1h review asked.
+- **Decisions, no code:** `IsInJobLine` (0x670) and `SetEquippedSkillLevelStateData` (0x7a8) stay plain Elsword members, as Chung's CH1o decided. Only
+  class code calls 0x670. 0x7a8 is the shared `CX2GUUser` function `32028190`, which Elsword does not override, and every March class keeps its own
+  wrapper. So no `331a4950` base is written.
+
+**Routed.** Stage 33 (`stage33-plan.md` amended): June's next call in `GetFinalDamage`, `this` vslot 0x6c `3229a530` ( pDamageData, &rP, &rM ) @32284d98,
+multiplies both attacks and is not ported. It belongs to Stage 33's whole `GetFinalDamage` port. No other gap.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --worktree --files <7>`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (X2DamageEffect.*,
+  _CORE), 0 FAIL, 0 ERROR`; `10 deleted line(s)` (the CH1h hook rename: 8 in the `.cpp`, 2 in the `.h`, all inside `_CORE`), `0 non-ASCII`,
+  `0 EOL-mismatched`, `0 #else/#endif without the flag token`, `0 encoding change(s)`. RESULT is FAIL only because `_LIVE` is a `//#define`.
+  `flagcheck JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2DamageEffect.cpp X2Lib/X2DamageEffect.h`: `2 PASS`, `RESULT: PASS`.
+  `git diff --patience --numstat`: X2DamageEffect.cpp 24/0, .h 4/0, X2GUElsword_SwordMan.cpp 11/8, .h 2/2, X2GUUser.cpp 3/0, X2GUUser.h 5/0, X2GameUnit.cpp 7/0.
+- `junediverge.py --check <the 7 files>`: `allow-listed: 10`, `RESULT: PASS`; `--selftest`: `SELFTEST: PASS`. `enumscan.py --check` on the four `.cpp`:
+  1 A row, `X2DamageEffect.cpp:1705` (`SI_SA_ES_FATAL_FURY`, from 2026-09-26 and not touched here).
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH), with `_LIVE` off and on: X2GUElsword_SwordMan / X2GUUser / X2GameUnit / X2DamageEffect `.cpp`,
+  all exit 0 with 0 errors. In the `cl /P` output, each insertion is present only with `_LIVE`: the two hook calls 0 -> 1, `ApplyBuffToOpenMind();` 1 -> 2,
+  Elsword's base call 0 -> 1. The velocity helper is present in both.
+- `DEPLOY OK: X2_offline.exe is 25,961,472 B, dated 2026-11-04 17:12:34, md5 bcf5730905e3ac9184f47c202224c930, equal to X2/US_SERVICE/x2.exe (2026-11-04 17:12:27);
+  built at main 759d36aa + 7 uncommitted code file(s).` No `exestr` line: every call site is under the undefined `_LIVE`.
+
+**Nothing to play-test** (`_LIVE` is off; the velocity helper has no caller until CH2d). Next: `/x2-phase char-elsword CH1o review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

@@ -3450,6 +3450,11 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 		virtual float GetStateAnimSpeedRate( const bool bFuture_ ) { return 1.f; }	/// June user vslot 0x824 ( base 3208dd70 ): a class's state animation rate, read by ResetAnimSpeed
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+		virtual void ChangeFinalDamageAsAttacker( float* pfPhysicAttack_, float* pfMagicAttack_ ) {}	/// June user vslot 0x508 ( base 33093ad0, empty ): GetFinalDamage on a user attacker
+		virtual void ChangeFinalDamageAsDefender( float* pfPhysicDefence_, float* pfMagicDefence_ ) {}	/// June user vslot 0x50c ( base 33093ad0, empty ): GetFinalDamage on a user defender
+		virtual void ApplyBuffToOpenMind() {}	/// June user vslot 0x510 ( base 31fc7ab0, empty ): DamageReact, after the enchant socket effects
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
 		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
 		virtual bool IsSkillUseCountExcludedState() const { return false; }

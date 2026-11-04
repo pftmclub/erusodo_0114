@@ -10361,6 +10361,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				{
 					ProcessSocketEffectEx( CX2SocketItem::SIEE_STAT_UP, this  );
 					ProcessSocketEffectEx( CX2SocketItem::SIEE_UP_MANA_RECOVERY_VALUE, this  );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+					ApplyBuffToOpenMind();	/// June DamageReact @320478c6 ( vslot 0x510 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 				}
 #else	SERV_SECRET_HELL
 				g_pData->GetEnchantItem()->ProcessEnchant( this, pDamageData, fRandomValue1, fRandomValue2 );

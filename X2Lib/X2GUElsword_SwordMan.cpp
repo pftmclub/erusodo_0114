@@ -1177,23 +1177,26 @@ void CX2GUElsword_SwordMan::SetEquippedSkillLevelStateData( const CX2SkillTree::
 	stateData.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.f ) * stateData.m_fPowerRate;
 }
 
-/// June 32d05b60 ( vslot 0x508 ): empty; GetFinalDamage 32284d43 calls it on a user defender with two float buffers
-void CX2GUElsword_SwordMan::ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ )
+/// June 32d05b60 ( vslot 0x508 ): empty; GetFinalDamage @32284d43 calls it on a user attacker with its physic / magic attack
+void CX2GUElsword_SwordMan::ChangeFinalDamageAsAttacker( float* pfPhysicAttack_, float* pfMagicAttack_ )
 {
-	UNREFERENCED_PARAMETER( pfFirst_ );
-	UNREFERENCED_PARAMETER( pfSecond_ );
+	UNREFERENCED_PARAMETER( pfPhysicAttack_ );
+	UNREFERENCED_PARAMETER( pfMagicAttack_ );
 }
 
-/// June 32d05b70 ( vslot 0x50c ): empty; GetFinalDamage 32284d62 calls it on a user attacker with two float buffers
-void CX2GUElsword_SwordMan::ChangeFinalDamageAsAttacker( float* pfFirst_, float* pfSecond_ )
+/// June 32d05b70 ( vslot 0x50c ): empty; GetFinalDamage @32284d62 calls it on a user defender with its physic / magic defence
+void CX2GUElsword_SwordMan::ChangeFinalDamageAsDefender( float* pfPhysicDefence_, float* pfMagicDefence_ )
 {
-	UNREFERENCED_PARAMETER( pfFirst_ );
-	UNREFERENCED_PARAMETER( pfSecond_ );
+	UNREFERENCED_PARAMETER( pfPhysicDefence_ );
+	UNREFERENCED_PARAMETER( pfMagicDefence_ );
 }
 
 /// June 32d0c780 ( vslot 0x510 ): the Rune Slayer Open Mind buff; CX2GUUser::DamageReact calls it after ProcessSocketEffectEx ( 320478c9 )
 void CX2GUElsword_SwordMan::ApplyBuffToOpenMind()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CX2GUUser::ApplyBuffToOpenMind();	/// June 32d0c780 calls its empty base 31fc7ab0 first
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	const int iSkillLevelOpenMind = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_OPEN_MIND, true, 0, true );
 	if ( iSkillLevelOpenMind <= 0 )
 		return;

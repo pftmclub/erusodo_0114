@@ -1030,6 +1030,10 @@ class CX2DamageEffect
 
 				bool SetMainEffectScale( float fX, float fY, float fZ );
 				bool SetMainEffectScale( D3DXVECTOR3 vScale );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+				void ChangeMainEffectVelocity( const int iChangeType_, const D3DXVECTOR3& vVelocity_ );	/// June 31f75ef0
+				void ChangeMainEffectVelocity( const int iChangeType_, const float fVelocityX_ );	/// June 31f76580
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 				void SetPassiveParticleScale( float fX, float fY, float fZ );
 				void SetPassiveParticleScale( D3DXVECTOR3 vScale );
