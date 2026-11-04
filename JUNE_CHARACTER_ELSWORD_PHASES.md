@@ -1127,6 +1127,47 @@ the file's LF-only count 145 and high-byte count 5598 are unchanged). `flagcheck
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1m review` (Opus 5.5 high).
 
+### CH1m - Review (2026-11-04)
+
+**Verdict: passes after one fix.** Id 162's skill test dropped June's upgrade swap. June calls `32890620( 0x52e0, 1, 0, 1 )` @32d20f8c-32d20f9c.
+The 4th argument runs `328905b0`, which reads the level of 21236 `RNSI_A_EIS_COMPACT_COUNTER_UPGRADE` when that skill is learned. The port passed
+`( id, true )`, so the swap was off. Now `GetSkillLevel( RNSI_A_EIS_COMPACT_COUNTER, true, 0, true )` under `_LIVE`, the form of the 76 other
+June call sites. The 4-argument overload is `SERV_IRUHADEV_JUNE_SKILL_TEMPLET`'s, so `Always.h` gets a 9th `_LIVE` guard for it.
+`JLE` on `cmp eax, ebx` (ebx 0) = `< 1`; `*( +0x867c ) + 0x494` with no null test; `RNSI_A_EIS_COMPACT_COUNTER = 21216` = June's `Enum.src.lua`:15739.
+
+- **Simulation.** Fresh decompiles of `32d1f8f0` (1767 lines) / `32d23ff0` (1164) through `ch1m_regsim.py`, plain and `CH1M_21216=1`, equal
+  `ch1m_reg_by_class.tsv` row for row (833 / 833 / 113 / 113). They differ only at id 162 @1184. The one `UNKNOWN COND` is `piStack_70` @1121, a
+  shared_ptr release after the last registration. `ch1m_regcheck.py`: `matched 1682 registrations ( both 21216 paths ), 0 problems; ids mapped 154`.
+  `ch1m_idmap.tsv` is one-to-one both ways, and June 72 = `GetRidingStartStateID()`.
+- **Head of `32d23ff0`, from the exe bytes.** `31fc93d0` is called first (@32d2402c), but its body is a bare `RET`, so leaving it out is right.
+  Cut-in table `32d2583c` / index `32d25850`: 1 / 10 / 11 / 22 -> `+0x8ac8 = 0`, 100 -> 1, 101 -> 2, 112 -> 3, the other 105 values skip.
+  Then exactly four writes: `+0x7d00 = 0x118`, `+0x7d04 = 0xd`, `+0x4088 = 0xd`, `+0x408c = 0x28`. No climb write, and no flag test before the
+  calls `32d1f8f0`, `3202b110`, `31fe22d0`. START (9): slots 2 / 6 / 8 thunk to `31ffbd70` / `3201b390` / `3201b460`. WIN (0xb): 2 / 4 / 6 =
+  `320004b0` / `32d07090` (Elsword) / `320718d0`. LOSE (0xc): 2 = `320007e0`. 0x82 `"ESSI_WAIT_STATE_CHANGE"`: 6 = `31fc8620`. These are the same
+  shared targets as Chung's review. `ESSI_EMK_WIN2` compares the WIN table name (`[esp+0x78]`), and on a match sets `+0x960c = 1`. The tail
+  @32d25740 is vslot 0x690, vslot 0x684( 0 ), `31fd8f00`.
+- **Class tests.** @310 is `== 0x70`. @460 is `0x16` or `0x70`. @660 (table `32d258c0` / `32d258d8`): 1 / 10+100 / 11+101 / 22 / 112; 112
+  (`32d24fab`, `EIS_DASH_COMBO_ZX`) falls into 22 (`32d24ff1`). @824 (table `32d25948` / `32d2595c`; Ghidra's listing skips these bodies, so
+  capstone read them from the exe): 1+10+22 -> `DASH_JUMP_COMBO_X2` (0xb8); 11+101 -> X2 + `MAGIC_KNIGHT_..._X2a` (0xb9); 100 -> `KNIGHT_..._X2` +
+  `_X3` (0xbb, EventProcess only); 112 -> `EIS_DASHJUMP_COMBO_XX` + `_XXX` (0xe3). Slots match the tsv once `320775a0` (`Init`, which clears
+  +0x14..+0x5c) is taken into account. @941: `sub 0x64` -> 100, `dec` -> 101, `sub 0xb` -> 112.
+- **Shared callbacks.** June's machine-gun / magic-spear targets are `31f*` `CX2GUUser` bodies, as March's `CONVERSION_VS` branch is.
+  `MACHINE_GUN_WAIT_Start` `31fc7ed0` is vslot 0x7c4 (`CommonStateStart`). `SUMMON_MAGIC_SPEAR_FrameMove` `31ffba50` is the world colour
+  0.1333 (= 0x22 / 255) and then the 0.55 timer: both equal March's.
+- **Left out / Always.h.** Every left-out state has its owner line (phoenix 123-126, dance 127-129, riding 93-96, `3202a7d0`, `32002f70`), and
+  JUNE_BUGS 525 holds. Each of the eight guards names a flag the registration calls (`HYPER_MODE_FIX` is the studio's flag).
+
+**Hygiene.** CH1m range `flagcheck JUNE_CHAR_ELSWORD_LIVE --range bc55bd45^..bc55bd45 --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`:
+`files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `201 deleted line(s), 9 non-ASCII inserted line(s),
+33 EOL-mismatched inserted line(s)`, RESULT FAIL only for the `//#define`. Patience numstat confirms 1421 / 0, 24 / 0, 6 / 0, and its inserted lines
+hold no non-ASCII byte. Review fix `--worktree`: `files: 2 PASS ... 0 FAIL`; `2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched`.
+The 2 deleted lines are the CH1m `_LIVE` lines replaced in place. RESULT FAIL only for the `//#define`. bytepatch: LF-only 145 / high bytes 5598
+unchanged. `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+One-file probes (`/c /Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`.
+`DEPLOY OK: X2_offline.exe is 25,960,960 B, dated 2026-11-04 16:00:48, md5 4069ddf6ea18fda40e8a2cdb5c30ae6c, equal to X2/US_SERVICE/x2.exe (2026-11-04 16:00:41); built at main bc55bd45 + 2 uncommitted code file(s).`
+
+**Nothing to play-test** (`_LIVE` is off). CH1n's kickoff stands as written. Next: `/x2-phase char-elsword CH1n` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

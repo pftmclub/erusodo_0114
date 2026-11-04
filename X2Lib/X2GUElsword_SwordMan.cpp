@@ -2680,8 +2680,8 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
-	/// June @32d20f9c: base skill level of 21216 below 1 registers the revenge attack, else the compact counter
-	if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EIS_COMPACT_COUNTER, true ) < 1 )
+	/// June @32d20f9c: GetSkillLevel( 21216, 1, 0, 1 ) below 1 registers the revenge attack, else the compact counter
+	if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EIS_COMPACT_COUNTER, true, 0, true ) < 1 )
 	{
 		stateData.Init();
 		stateData.stateID			= ESSI_REVENGE_ATTACK;
