@@ -1544,6 +1544,60 @@ play-test line).
 
 **Nothing to play-test** (`_WOS` and `_LIVE` are off). Next: `/x2-phase char-elsword CH1q2 review` (Opus 5.5 high).
 
+### CH1q2 - Review (2026-11-04)
+
+**Verdict: PASS, no code change.** Every point was checked against the June exe (Ghidra disassembly, plus raw capstone reads through
+`june2017_re/xordecrypt.py` where Ghidra has no function).
+
+- **Skill-slot B test** (`322cd5c0`): loop `EBX` = combined index 0-9 (`cmp ebx,0xa` @322cd972), `[esp+0x10]` = `i >= 5` (bSlotB), `ESI` = slot index.
+  - `3214f3d0( i )` returns 1 for i < 4, 2 for 5-8, 3 for 4 / 9, so `== 3` is exactly `IsTranscendenceSlotIndex( i )`. With bSlotB it is only i = 9.
+  - The order is `== 3` (SETZ BL, no side effect), key 0, bSlotB, key 1, BL. Both keys go through `32890ee0` on `+0x68 +0x90 +0x494`, which is
+    `IsSlotUsable` (state 1 or 2). The port's order differs only in where the side-effect-free index test sits.
+  - Dest (`EBP`) is hidden, then vigor (`EDI`). The loop continues after `322cd858` (no break). Types 1 / 8 gate, the observer byte `+0x93` and
+    the 10-slot loop match the port.
+- **Refresh virtual:** base vtable `3353336c` +0x5c = `31f3f070` (`ret`). Elsword vtable `3349aba4` and Elesis vtable `3349ac34` override that slot
+  with `32e681d0` / `32e69e70`. Each override sets gauge `+0x110` = 1, then jumps to its `UpdateUIElswordWSP`. Their +0x50 / +0x54 / +0x58 slots
+  equal the base's.
+  - InitEffect `32d0d540`: the `0x5c` jump @32d0d5ba is inside the `0x198` (IsMyUnit) test @32d0d56e, after the state switch. So a base virtual
+    is right.
+  - CH1h's stand-in is fully gone: no `UpdateUIElswordWSP` / `SetChangedWayOfSwordState` call is left in `X2GUElsword_SwordMan.cpp`, only
+    March's commented-out lines.
+- **Gauge data:**
+  - `32a348d0` and `32a33f90` are the same five instructions (`fldz`, `31e8c9d0`). That is March's base
+    `SetHyperModeRemainTime( 0.0f )`, so the port is right.
+  - `CopyGageData` `32a34930`: base copy `32a36530`, then `+0x110` / `+0x114` / `+0x118`. `@32a34973` stores `cl` = 1 unconditionally, which is
+    March's `SetChangedWayOfSwordState( true )`. CH0's note was wrong, as CH1q2 says.
+- **Gauge UI:**
+  - `InitUI` `32e6d830`: `InitStatusUI` `32e66e60`, vslot 0x54 (`32e5b310`, the same in base and Elsword), `OpenScriptFile`, then the inlined
+    `InitUIElswordWSP` (`+0x5c` = vigor, `+0x60` = dest).
+  - `UpdateUIElswordWSP` `32e67df0` tests `+0x60`, `+0x5c`, then `+0x110`. Case 0:
+    - `test ah,0x41 / jp` = point >= vigor threshold (`+0x60`); `test ah,1 / jne` = point <= destruction threshold (`+0x64`).
+    - Then `> 0`, `< 0`, else the centre pictures, all as March.
+  - The tail (@32e68149) is reached only inside the changed block: `g_pX2Game` handle test, then state `+0x8c` != 0xe / 0xf, then a jump to
+    `322cd5c0`.
+  - June's Enum: `XS_VILLAGE_MAP` = 14, `XS_GUILD_AGIT_GAME` = 15, `XS_SQUARE_GAME` = 16. March: 14 = village, 15 = square. The comment-only
+    handling is right.
+- **No-code calls:**
+  - `CreateMyGageUI` `3248e290` Elsword case = 1 / 10 / 11 / 22 / 100 / 101 / 112 (data `0x11c`, UI `0x80`), March's 7 cases.
+  - Vigor x0.7 (`322e0d43`): `fmul double [3344af88]`, and that double is `0.699999988079071`, exactly `(double)0.7f`. March's `*= 0.7f` gives
+    the same product. It is bit-equal, not "one ulp" (correcting CH1q2's note). Agree: no code.
+- **Routing:** `JUNE_PORT_BACKLOG_ORDER.md` Stage 2 holds the F5 / F6 / F7 training-key bullet (`322ed400`). `stage7-plan.md`'s Elesis line names
+  CH1q2's twins. `kickoffs/char-elsword/CH1.md`'s CH1q2 amendment is correct: no change.
+
+**Gates** (range `4d0dbb67^..4d0dbb67`, the six code files):
+- `_WOS --with _WOS_DEBUG _LIVE`: `files: 4 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`. The RESULT is FAIL only for
+  the commented-out `#define`.
+- `_WOS_DEBUG`: `files: 0 PASS, 0 PASS~, 0 DEFINE, 6 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+- `3 deleted line(s)`: CH1h's `_LIVE` stand-in, the same 3 lines the Done note names. 0 non-ASCII, 0 EOL-mismatched, 0 token and 0 encoding
+  changes. `numstat`: +8 / +2 -3 / +4 / +33 / +6 / +10.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+- `enumscan.py --check` (four `.cpp`): `0 A/B row(s) remain in 4 file(s)`.
+- Probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GageData.cpp`, `X2GageUI.cpp`, `X2Game.cpp` and `X2GUElsword_SwordMan.cpp`, each with no flag,
+  with `_WOS` and with `_LIVE` + `_WOS`: `PROBES: 0 of 12 failed`.
+- No build: no code changed, so the deployed exe is CH1q2's.
+
+**Nothing to play-test.** CH1 waits only on CH0b's play-test. Then: `/x2-phase char-elsword CH1` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
