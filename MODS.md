@@ -5786,5 +5786,5 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (`Always.h`; `#error` without `..._
 | Triple Geyser (21004 / 21030) | `ESSI_SI3_ES_TRIPLE_GEYSER` state table | 510 ( 612 ) |
 | Rolling (21200 / 21217) | none ( HP cost / speed from `SI_A_ES_ROLLING` in `InitPassiveSkillState` ) | 334; speed rel 1, HP cost 0.01 ( both read by CH4a ) |
 
-- **Open.** Rolling's speed and HP cost read `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel`, which June fills in `InitPassiveSkillState` (CH4a), so until CH4a the roll does not move and costs no HP.
+- **Rolling speed / HP cost (2026-11-05).** `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel` are filled in `InitPassiveSkillState` from `RNSI_A_ES_ROLLING` (June `32d1c560` Rolling block, under the same flag; March's block in `#else`). The rest of that function is CH4a's.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-1 ids fall back to the Mega Slash default), `python tools/build.py --deploy`.

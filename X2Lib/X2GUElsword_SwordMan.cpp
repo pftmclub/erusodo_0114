@@ -4623,6 +4623,19 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	/// June 32d1c560: Rolling is read by its own id; the speed and HP cost members ( stand-in: the rest of this function is not ported )
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ES_ROLLING );
+	if( iSkillLevel > 0 )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_ES_ROLLING );
+		if( NULL != pSkillTemplet )
+		{
+			m_fRollingHpConsumeRel	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::HP_CONSUME_REL, min( iSkillLevel, 10 ) );
+			m_fRollingSpeedRel		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TELEPORT_SPEED_REL, min( iSkillLevel, 10 ) );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_A_ES_ROLLING );
 	if( iSkillLevel > 0 )
 	{
@@ -4654,6 +4667,7 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 		}
 #endif // UPGRADE_SKILL_SYSTEM_2013
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 #endif ELSWORD_SHEATH_KNIGHT
 
 #ifdef SERV_ELSWORD_INFINITY_SWORD

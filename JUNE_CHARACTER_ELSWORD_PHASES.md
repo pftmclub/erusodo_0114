@@ -1730,7 +1730,9 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#er
 
 **Registration.** `SetMegaSlashSkillFunc` ( the default of both June switches ) is June's memo registration: READY on the slot's normal and hyper state ( no hyper Init ), CHARGE ( 0xea ) and FIRE ( 0xeb ) as their own states. `SetEquippedSkillFuncBySkillSlotIndex` gains the June cases for 21001 / 21027, 21002 / 21028, 21003 / 21029, 21004 / 21030 and 21200 / 21217 ( Rolling also registers its end state ) ahead of the `default:`; June's slots only ( Flame Geyser and Triple Geyser: Init + EventProcess ); where June has no `_HYPER` table the hyper state takes the normal table name. Endurance ( 21201 / 21218 ) has no state in June and keeps the default ( JUNE_BUGS 528 ). `X2SkillTree.h`: eight `RNSI_SA_ES_*` names. New members: `m_fMegaSlashChargeTime` ( June `+0x96f4` ). New macro `ELSWORD_EVENT_TIMER_ONESHOT`. Checklist rows marked `(Elsword: CH2a)` ( 51, 116, 117, 178, 254, 437, 714 ).
 
-**Left to later phases ( scope rule ).** Rolling's speed and HP cost read `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel`, which June fills in `InitPassiveSkillState` ( CH4a, routed by CH1b ): until then the roll stands still and costs no HP. The 4 numerical-only tables ( Rolling, Unlimited Blade, Assault Slash x2 ) run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap here: no June body reads a skill id.
+**Rolling fix after the play-test ( 2026-11-05 ).** The roll stood still: `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel` are filled in `InitPassiveSkillState` from March's `SI_A_ES_ROLLING` ( 1205 ), never learned in this port. June's Rolling block of `32d1c560` ( `RNSI_A_ES_ROLLING` level, ability `HP_CONSUME_REL` / `SA_TELEPORT_SPEED_REL` at min( level, 10 ) ) now sits in that function under `_SKILL` ( March's block in `#else` ); the rest of the function stays CH4a's.
+
+**Left to later phases ( scope rule ).** The other blocks of June's `InitPassiveSkillState` ( CH4a, routed by CH1b ). The 4 numerical-only tables ( Rolling, Unlimited Blade, Assault Slash x2 ) run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap here: no June body reads a skill id.
 
 **Gates.**
 - `flagcheck JUNE_CHAR_ELSWORD_SKILL --with JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS` ( the `--range` line follows in the commit message check ).
@@ -1744,7 +1746,7 @@ Dev console ( END key, auth 3 ): `/invin 0`, then any dungeon with enemies in fr
 2. **D Endurance.** Plays the same Mega Slash memo ( June gives it no state, JUNE_BUGS 528 ); not a bug of the port.
 3. **A Flame Geyser, E Triple Geyser, W Assault Slash.** June's motion and effect; Assault Slash dashes forward and knocks down after 0.4 s; none ends stuck ( returns to wait / fall ).
 4. **Q Unlimited Blade.** Six hits, then the final blast at ~1.95 s; walk / dash cancel only on the ground. In an awakening the hyper version ends with the fire wave at ~1.73 s.
-5. **S Rolling.** Plays, ends in the end state, then returns; it does not move and costs no HP until CH4a.
+5. **S Rolling.** Plays and rolls forward ( speed rel x 1200 ), ends in the end state and costs 1% max HP ( not below 10% HP ).
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence

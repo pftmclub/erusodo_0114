@@ -7685,7 +7685,7 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32cf3aa0	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Init	confirmed	Char Elsword CH2a: = March ( Ring_Plane.y, AssaultSlash02.Y ); no code
 32cf3ad0	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Start	PORTED (_SKILL)	Char Elsword CH2a: speed 1200 and hit gap 0.05 without the memo 2 test
 32cf3b20	CX2GUElsword_SwordMan::ESSI_SI3_ES_TRIPLE_GEYSER_Init	PORTED (_SKILL)	Char Elsword CH2a: 5 preloads ( FlameGager.X, SWORDFIRE_PROJECTILE_ATTACKBOX.x, BURST_WAVE_FIRE.Y, BURSTING_BLADE_flame.dds, smoke02.dds ) instead of 1
-32cf41d0	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_StateStartFuture	confirmed	Char Elsword CH2a: = March ( speed = m_fRollingSpeedRel x 1200; the member is CH4a's InitPassiveSkillState ); no code
+32cf41d0	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_StateStartFuture	confirmed	Char Elsword CH2a: = March ( speed = m_fRollingSpeedRel x 1200; the member is filled by the Rolling block of InitPassiveSkillState 32d1c560, ported in CH2a ); no code
 32cf4200	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_FrameMove	confirmed	Char Elsword CH2a: = March ( CommonFrameMove ); no code
 32cf9920	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_FIRE_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: new; animation end -> JUMP_DOWN / WAIT by the future foot, CommonEventProcess
 32cf9960	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: new; animation end -> state 0xea ( CHARGE ); the hyper slot state shares it
@@ -7701,3 +7701,4 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32d10020	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_FIRE_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: new; at 0.094 s EffectSet_SA_Elsword_MegaSlash_Damage with GetPowerRate ( x1.5 when the charge reached 0.5 s ) and the hyper flag
 32d101f0	CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: step dust + hit list reset at 0.166 / 0.433 / 0.666 / 0.966 ( RT_BIG_DAMAGE ) / 1.3 and 1.566 / 1.95 ( normal ) or 1.5 / 1.73 ( hyper: fire wave + KuAAang particles ); no hard-coded final hit, no cut-in
 32d137a0	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_FrameMove	confirmed	Char Elsword CH2a: = March ( EffectSet_ES_ROLLING once at 0.0333 s, CommonFrameMove ); no code
+32d1c560 (Rolling block)	CX2GUElsword_SwordMan::InitPassiveSkillState	PARTIAL (_SKILL)	Char Elsword CH2a: only the Rolling block ( @32d1c685 / @32d1c785 ): GetSkillLevel( RNSI_A_ES_ROLLING ) > 0, ability HP_CONSUME_REL ( 0x71 ) -> m_fRollingHpConsumeRel, SA_TELEPORT_SPEED_REL ( 0x70 ) -> m_fRollingSpeedRel, level min 10; the rest is CH4a
