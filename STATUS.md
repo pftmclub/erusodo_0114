@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1g | **ready**: Sheath Knight line (31; CH0 split); `/x2-phase char-elsword CH1g` | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |
+| CH1g | **done 2026-11-04, owes the Opus review** (`/x2-phase char-elsword CH1g review`): Sheath Knight line, 31 fns (29 inside, 2 new); nothing to play-test | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md`, `CH1g-review.md` |
 | CH1g2 | blocked (CH1g review): Infinity Sword line + Compact Counter guard attack (16; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUElsword_SwordMan.*` | `CH1g2.md` |
 | CH1h | blocked (CH1g2 review): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUElsword_SwordMan.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUElsword_SwordMan.*` | `CH1i.md` |

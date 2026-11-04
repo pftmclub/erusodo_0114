@@ -921,6 +921,8 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ESSI_ERS_FULL_CHARGE_XZZ_FrameMove();		/// June 32d19880
 		void ESSI_ERS_COMBO_ZZZ_EventProcess();		/// June 32d04f00
 		void ESSI_ERS_COMBO_ZZZZ_EventProcess();		/// June 32d05250
+		void ESSI_ETK_DASH_JUMP_ZZZ_EventProcess();		/// June 32d054d0
+		void ESSI_ETK_DASH_JUMP_ZZZ_FrameMove();		/// June 32d19b80
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1

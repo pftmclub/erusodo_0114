@@ -7533,3 +7533,34 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32d19300	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); oneshot 0.133; flag + IsEnoughMPForAttack( 0 ) then EffectSet_EMK_ComboXZZ; the flag cleared whatever happens
 32d195c0	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); the XZZ FrameMove with EffectSet_EMK_ComboXZZ_Charge
 32d19880	CX2GUElsword_SwordMan::ESSI_ERS_FULL_CHARGE_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); oneshot 0.01: flag + IsEnoughMPForAttack( 0 ) then EffectSet_ERS_COMBO_FULL_CHARGE_XZZ, flag cleared only after the play; oneshot 0.38 stops m_hRuneSlayerComboXZ
+32cf4090	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_StateEnd	PORTED	Char Elsword CH1g: inside; = March ( Sword attack box on, CommonStateEnd )
+32cf40b0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cf40d0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_StateStart	PORTED	Char Elsword CH1g: inside; = March ( CommonStateStart only )
+32cf40e0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cf4100	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cf4120	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_StateEnd	PORTED	Char Elsword CH1g: inside; = March ( bSuperArmorNotRed +0x8040 set after CommonStateEnd )
+32cf4150	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cf4170	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_StateStart	PORTED	Char Elsword CH1g: inside; = March ( bSuperArmorNotRed +0x8040 cleared )
+32cf4190	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cf41b0	CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_StateEnd	PORTED	Char Elsword CH1g: inside; = March
+32cfc8e0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_StateStart	PORTED	Char Elsword CH1g: inside; = March ( second-blade sheath handle +0x9670 = -1 after CommonStateStart )
+32cfc900	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_EventProcess	PORTED	Char Elsword CH1g: inside; no direction cancel; fall, end, double-dash, SKILL_CANCEL_AFTER 0.01, flag 0 -> ZZZZ ( ELSWORD_ELSE_IF_FLAG_STATE_CHANGE ), Z window, ground walk cancel
+32cfcb70	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_EventProcess	PORTED	Char Elsword CH1g: inside; direction cancel, fall, end, double-dash, flag 0 -> ZZZZZ, Z window, SKILL_CANCEL_AFTER m_fSkillCancelAfter, ground walk cancel
+32cfce30	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_EventProcess	PORTED	Char Elsword CH1g: inside; fall, end, skill cancel, ground walk cancel ( walk needs the foot on a line )
+32cfcfe0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_EventProcess	PORTED	Char Elsword CH1g: inside; flag 0 -> XXX_LOOP ( oneDoubleX ), flag 1 -> XXX_END ( oneX ) on m_fEventTime[0] / [1], ground walk cancel
+32cfd210	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_EventProcess	PORTED	Char Elsword CH1g: inside; end -> XXX_END; flag 0 -> XXX_LOOP ( oneX and loop count < 3 ), flag 1 -> XXXZ ( oneZ ), skill cancel, ground walk cancel
+32cfd540	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_EventProcess	PORTED	Char Elsword CH1g: inside; direction cancel, fall, end, ground walk cancel BEFORE the skill cancel
+32cfd700	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_EventProcess	PORTED	Char Elsword CH1g: inside; fall, end, ground walk cancel
+32cfd7a0	CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_EventProcess	PORTED	Char Elsword CH1g: inside; same body as XXX_END EP
+32d054d0	CX2GUElsword_SwordMan::ESSI_ETK_DASH_JUMP_ZZZ_EventProcess	PORTED	Char Elsword CH1g: new ( _CORE ); foot on a line -> USI_DASH_JUMP_LANDING, CommonEventProcess
+32d0b730	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_StateStart	PORTED	Char Elsword CH1g: inside; = March ( loop count +0x962c = 0 )
+32d0b7d0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_StateStart	PORTED	Char Elsword CH1g: inside; = March ( loop count +0x962c + 1; bSuperArmorNotRed cleared )
+32d19b80	CX2GUElsword_SwordMan::ESSI_ETK_DASH_JUMP_ZZZ_FrameMove	PORTED	Char Elsword CH1g: new ( _CORE ); oneshot 0.296: IsEnoughMPForAttack( 8, Dummy2_Lhand, 0, ( 0 0 -45 ) ) then EffectSet_ETK_DASH_JUMP_ZZZ
+32d1e200	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March + ElswordSheath02 mesh tagged with the effect-alpha category ( 32296ee0 @32d1e2ee, 7c )
+32d1e400	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
+32d1e4d0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March
+32d1e5a0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_FrameMove	PORTED	Char Elsword CH1g: inside; = ZZZ FrameMove ( sheath mesh tagged @32d1e68e, 7c )
+32d1e7a0	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_FrameMove	PORTED	Char Elsword CH1g: inside; = March
+32d1e870	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March
+32d1e940	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_FrameMove	PORTED	Char Elsword CH1g: inside; = March
+32d1ea10	CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March + sheath mesh tagged @32d1eafe ( 7c ); DAMAGE_DATA_LAST at m_fDamageDataChangeTime2

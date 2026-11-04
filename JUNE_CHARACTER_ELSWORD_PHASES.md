@@ -776,6 +776,35 @@ All 36 class-map rows of phase CH1f are written: 21 `inside` (June's body in Mar
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1g.md` gained a note on June's flush slot. Next: `/x2-phase char-elsword CH1g` (Sonnet 5.5 high).
 
+### CH1g - Done (2026-11-04)
+
+All 31 class-map rows of phase CH1g are written: 29 `inside` (June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`) and 2 `new` (plain names under `_CORE`, referenced by nothing; `InitState*` untouched, CH1m registers). 31 funcmap rows `Char Elsword CH1g`. No new flag, enum member, namespace or helper: the CH1d macros cover every branch (`ESSI_ETK_DASH_JUMP_ZZZ` was already in the enum).
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cfc8e0` `32d1e200` `32cfc900` `32cf4090` | COMBO_ZZZ StateStart / FM / EP / End (inside) | `32d1e400` `32cfcb70` `32cf40b0` | COMBO_ZZZZ FM / EP / End (inside) |
+| `32cf40d0` `32d1e4d0` `32cfce30` `32cf40e0` | COMBO_ZZZZZ StateStart / FM / EP / End (inside) | `32d0b730` `32d1e5a0` `32cfcfe0` `32cf4100` | COMBO_XX StateStart / FM / EP / End (inside) |
+| `32d0b7d0` `32d1e7a0` `32cfd210` `32cf4120` | COMBO_XXX_LOOP StateStart / FM / EP / End (inside) | `32d1e870` `32cfd540` `32cf4150` | COMBO_XXXZ FM / EP / End (inside) |
+| `32cf4170` `32d1e940` `32cfd700` `32cf4190` | COMBO_XXX_END StateStart / FM / EP / End (inside) | `32d1ea10` `32cfd7a0` `32cf41b0` | DASH_COMBO_ZZ FM / EP / End (inside) |
+| `32d054d0` `32d19b80` | DASH_JUMP_ZZZ EP / FM (new, 2 declarations after CH1f's) | | |
+
+**Where June differs from March** (everything else is March's logic written out whole):
+- **EventProcesses use the Elsword ground macros.** The walk cancel needs the foot on a line (March's `WALK_CANCEL_AFTER` did not) in all eight; the flag branches are `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE` (time or animation end) and `_SET_IN_WINDOW`, where March's `ELSE_IF_STATE_CHANGE_ON_EX_` had time only.
+- **Z Z Z `32cfc900`:** no direction-change cancel (March has one); `SKILL_CANCEL_AFTER( 0.01f )` sits before the flag branch. **Z Z Z Z `32cfcb70`:** keeps the direction cancel; the flag branch comes before the skill cancel. **Z Z Z Z Z `32cfce30`:** no flag, no dash.
+- **X X `32cfcfe0`:** both flags on `m_fEventTime[0]` / `[1]` (`oneDoubleX` to the loop, `oneX` to the end). **X X X loop `32cfd210`:** the loop-count gate `< 3` is on the window, not on the state change. **X X X Z `32cfd540`:** walk cancel BEFORE the skill cancel (the others are the reverse). **X X X end / dash combo Z Z:** fall, end, walk cancel only.
+- **FrameMoves:** June has no `EventCheck`, only `EventTimerOneshot`. Z Z Z `32d1e200`, X X `32d1e5a0` and dash combo Z Z `32d1ea10` tag the `ElswordSheath02` mesh with the effect-alpha category (`TagEffectAlphaMesh`, 7c sites `32d1e2ee` `32d1e68e` `32d1eafe`, under `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`). Dash combo Z Z's second damage table is `DAMAGE_DATA_LAST` (string read at `335197f0`).
+- **New dash jump Z Z Z (`32d054d0` / `32d19b80`):** EP lands on the foot (`USI_DASH_JUMP_LANDING`). FM at 0.296: `IsEnoughMPForAttack( 8, Dummy2_Lhand, 0, ( 0, 0, -45 ) )` (cost `3344d3e4`, rotation `33491dc8`), then `EffectSet_ETK_DASH_JUMP_ZZZ` with every `PlayEffectSet` default; the effect set must exist in the effect data (CH5/CH1 data check, nothing runs yet).
+- **= March:** all 14 StateStart / StateEnd bodies (loop count `+0x962c`, `bSuperArmorNotRed` `+0x8040`, sheath handle `+0x9670`) and the five damage-only FrameMoves. The loop count is June's protected int; March's plain `int` is equal in behaviour. No `JUNE_BUGS.md` row (nothing June does wrongly), no `+0x7cc8` (§7 L254; no listing touches it). Checklist §7c: the three alpha sites above (`32d1efb2` belongs to a later group).
+- Offsets used that `ch1_offsets.tsv` lacks (the review confirms and adds them): `+0x8d38` dash cancel, `+0x9624` / `+0x9628` damage change times, `+0x962c` loop count, `+0x9670` sheath handle.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (the _LIVE bodies), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `_LIVE` alone reports FAIL only because its `#define` is commented out (by design). `git diff --patience --numstat`: 486 / 0 in the `.cpp`, 2 / 0 in the `.h`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,957,376 B, dated 2026-11-04 11:02:11, md5 4a246dca62456862e75a5a70490a9b50, equal to X2/US_SERVICE/x2.exe (2026-11-04 11:02:04); built at main d8191866 + the 2 code files of this phase`. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1g review` (Opus 5.5 high), then CH1g2.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
