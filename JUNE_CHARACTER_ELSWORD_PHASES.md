@@ -1818,6 +1818,25 @@ hyper cut-ins play June's art.
   carry their June names). A skill cut-in on each job plays June's `HQ_CutIn_Elsword_*` art (set 0 on 1 / 10 / 11 / 22: `_01`, `_02`, `_03` by cut-in index; 1 on 100, 2 on 101, 3 on 112); an awakening hyper on 100 / 101 /
   112 shows `HQ_Cutin_E{LK,RS,IS}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH1's script has it in three states; the check is CH6's).
 
+#### CH5 - Review (2026-11-05, Opus 5.5): PASS, no code change
+
+I read each item against June in Ghidra: `333ac120` and `32d09050`. InitState `32d23ff0`'s switch targets are outside Ghidra's body, so its jump table was decoded from the exe bytes (`charport_consts.read_va` + capstone).
+- **Table `333ac120`.** It builds 12 `SkillCutIn` entries at `337aecc0 + i * 0x30` (`337aecc0` .. `337aeeb0`). Strings in push order: `33525d2c` `HQ_CutIn_Elsword_01`, `5d04` `_02`, `5cdc` `_03`, then `5cac` `_LK_01` x3, `5c7c` `_RS_01` x3, `5c4c` `_IS_01` x3.
+  That is the port's table, row for row. Each entry stores size `( [334367ac], [334367ac] )`, position `( [33435598], [334367ac] )` and an uninitialised z: March's one-argument `SkillCutIn( name )` (`X2GUUser.h:830`), the same constants Chung's review read.
+- **Reader `32d09050`.** It reads `337aecc0 + ( index + [this+0x8ac8] * 3 ) * 0x30` (set stride 0x90), then the item override `31fd8a50` (not ported, Stage 12), then the 0x8b3 swap `337aec60` / `337aec90`. The port's log line prints after the 0x8b3 swap. That is the name `ActiveSkillShow` gets.
+- **Set index (InitState `32d23ff0` @32d2403b).** `class - 1; cmp 0x6f; ja default; movzx byte [32d25850 + class-1]; jmp [32d2583c + idx*4]`. The byte map is 1 / 10 / 11 / 22 -> 0, 100 -> 1, 101 -> 2, 112 -> 3, and every other class -> 4 (the default, which keeps the value).
+  The targets set +0x8ac8 = 0 (EBX), 1, 2, 3. This equals `X2GUElsword_SwordMan.cpp:1417-1436` (CH1, `_LIVE`). A NULL unit takes the default branch in the port; June has no NULL check. No index can reach past set 3.
+- **UnitTemplet.** I compared block-wise on `unitClass`, with CRLF and BOM normalised only. The current, pre-phase (`kom_backup_tools/data036.kom.20261104_211841`) and June files hold 55 / 55 / 87 blocks; current and pre-phase have the same class set.
+  The 7 `UC_ELSWORD_*` blocks match June's text 7 of 7. The other 48 match pre-phase 48 of 48. The file starts with a BOM, with 1465 CRLF and 0 lone LF. `luasrc.py ledger --check`: PASS (0 FAIL, 0 WARN). `core --check`: PASS. `luabind.py check UnitTemplet`: RESULT: PASS (0 unbound).
+  `STR_ID_4641` / `4642` (`StringID_def2.h:2148-2149`) and `STR_ID_17425` (`StringID_def7.h:2432`) exist. The three `HQ_Cutin_E{LK,RS,IS}_Transcendence.gfx` are in data195 with the same case as the rows.
+- **Dev pieces.** I agree with keeping them. `ElswordWSPCheat` and `RenderName`'s `WSP: %d` have no June counterpart. They are shared with Elesis, the CH2-CH4 WOS play-tests use the cheat, and Z lists them in `MODS.md`.
+- **Routing.** `kickoffs/char-elsword/CH3d.md` names `DLG_Transcendental_Change_Guide_Elsowrd.lua`, the `LevelUpEvent.lua` TYPE row and `POPUP_TR_L_KNIGHT` / `_R_SLAYER` / `_I_SWORD`.
+- **Play lines** (the 03:51-03:54 run on the deployed exe `b62d02bc`, which carries CH5). There are 13 `ELSWORD UI cut-in set 0 index 0 name HQ_CutIn_Elsword_01` lines, each with its `[JUNE_GFX] CUTIN play ui=0xc HQ_CutIn_Elsword_01.gfx` in the same second.
+  Sets 1-3, indices 1 / 2 and the select-screen pass were not reached. They use the same table code and are CH6's walk, as is the hyper cut-in check.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI --range 935bd9de^..935bd9de`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS. No later commit touches the flag (`git log -S`).
+  `junediverge.py --check-all`: allow-listed 185, RESULT: PASS. `enumscan --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows (the working tree includes a peer's uncommitted edits). There was no rebuild; the deployed exe stays md5 `b62d02bc`.
+- **Next.** `kickoffs/char-elsword/CH6.md` has been checked: its CH5 amendment carries the cut-in set walk and the hyper cut-in check. CH6 still waits on the CH3d and CH4c reviews.
+
 ## Phase CH-N - not run for Elsword
 
 All seven June Elsword classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara
