@@ -4625,7 +4625,7 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	/// June 32d1c560: Rolling is read by its own id; the speed and HP cost members ( stand-in: the rest of this function is not ported )
-	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ES_ROLLING );
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ES_ROLLING, false, 0, true );	// June @32d1c691: upgrade swap on
 	if( iSkillLevel > 0 )
 	{
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_ES_ROLLING );

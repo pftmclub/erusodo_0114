@@ -54,3 +54,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH2a (2026-11-04)
 
 - `SetEquippedSkillFuncBySkillSlotIndex` already holds `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` June cases (Flame Geyser, Unlimited Blade, Assault Slash, Triple Geyser, Rolling) ahead of the LIVE `default:`: add this phase's ids beside them (June's registration, March's cases untouched). Use `ELSWORD_EVENT_TIMER_ONESHOT( fTime_ )` (June's one-shot on the drawn animation) and `ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_CANCEL` / `_DASH_CANCEL` (7h) instead of copying the `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` pairs. State registrations that June makes by id (Rolling's end state) are a local `UserUnitStateData` + `m_StateList[ id ]` inside the case. `JUNE_BUGS.md` rows 528 / 529 are CH2a's.
+
+## Amended by the CH2a review (2026-11-05)
+
+- `_SKILL_DEBUG` is retired (`Always.h`, `//#define`): define it again for this phase's log lines; the CH2b review retires it.
+- A skill-level read in a June body takes June's fourth argument: `GetSkillLevel( id, false, 0, true )` when June pushes `( id, 0, 0, 1 )` (upgrade swap; CH2a review fix).
+- `RNSI_SA_ES_*` names for 21001-21004 / 21027-21030 exist (`X2SkillTree.h`, `JUNE_ENUM_NAMES`). `ReservedSkillStart` (cool time / MP at state start) is Elsword's since `2432120b`.

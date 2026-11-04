@@ -1753,6 +1753,41 @@ Dev console ( END key, auth 3 ): `/invin 0`, then any dungeon with enemies in fr
 5. **S Rolling.** Plays and rolls forward ( speed rel x 1200 ), ends in the end state and costs 1% max HP ( not below 10% HP ).
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+### CH2a - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes with one fix.** Read from `charport_adis.py elsword` listings of every CH2a address (+ Ghidra decompiles); all three CH2a commits
+(`242d3864`, `bbc0e971`, `2432120b`) covered.
+- **Fix:** the Rolling block of `InitPassiveSkillState` read the level without June's upgrade swap. June `32d1c560` @32d1c691 calls `GetSkillLevel( 21200, 0, 0, 1 )`
+  (as the CH1m fix, and as 32d1c797 for the next block), so the line is now `GetSkillLevel( RNSI_A_ES_ROLLING, false, 0, true )` under `_SKILL`. Abilities `0x71` =
+  `HP_CONSUME_REL`, `0x70` = `SA_TELEPORT_SPEED_REL` at min( level, 10 ), PvE (June's literal 0 = March's 2-argument path): as written. Unit 68 has 21200 and
+  21217 both at level 1, so the passed play-test's numbers do not change; no new play-test.
+- **Unlimited Blade `32d101f0`:** nine one-shots (`m_fAnimOneshotTimer < t && EventTimer( t )` = March's `EventTimerOneshot`), each `CreateStepDust` (vslot 0x7ec) +
+  `hitUnitList.resize( 0 )` (+0x7f0): 0.166, 0.433, 0.666, 0.966 (+ `+0x3c4` = 2 `RT_BIG_DAMAGE`), 1.3; byte +0x10 behind +0x7cbc = 0 -> 1.566, 1.95, else 1.5, 1.73.
+  At 1.73: fire wave (+0x97b4) at the position y + 10.0, land = the same y, emit 10 / 10, trigger 4; KuAAang (+0x97a8) only with +0x41f9, at `GetProj3DPos( GetPos() )`,
+  z 0, 100 / 100, trigger 1 (March's own Unlimited Blade gates KuAAang on `GetShowSmallGageAndName()`, 6 sites); `CommonFrameMove` last. = port.
+- **Mega Slash memo:** READY `32cf3920` (2 meshes) / `32cf3950` (+0x96f4 = 0) / `32cf3970` (`Set( m_iNowSpecialAttack - 1 )`) / `32cf9960` (end -> 0xea);
+  CHARGE `32d0fe90` (CommonFrameMove, += +0x2b0, 0.5 one-shot `EffectSet_ELK_Gigantic_slash_FX1` with all defaults) / `32cf39b0` (`FollowSlotSwap`, `>= 1.1` or
+  `IsKeyReleased` -> 0xeb, CommonEventProcess); FIRE `32d10020` (0.094 one-shot, vslot 0x204 x1.5 when 0.5 <= charge, `PlayEffectSet( name, this, 0, hyper byte,
+  rate, -1, (1,1,1), 0, 0s, 1.0 )`). = port, argument for argument.
+- **Rolling end** `32d08880`: now / max HP > 0.1 (double 0.1), cost = max x +0x9678, vslot 0xec( -cost, 0 ) only while now HP > 0 = `UpHPIfAlive`. `32cfd880`: end ->
+  WAIT / JUMP_DOWN by foot, else `ELSWORD_GROUND_WALK_CANCEL` (+0x8c98). Unlimited Blade EP `32cf99d0`: back-walk (+0x8c94), walk (+0x8c98), dash (+0x8c9c), all
+  foot-gated = the three 7h macros. Assault Slash Start `32cf3ad0` 1200 / 0.05, FrameMove `32cf9d50` > 0.4 -> `RT_DOWN` (3). Triple Geyser Init: 2 skin + 1 mesh + 2 tex.
+- **"= March" rows:** `32cf3a10` (FlameGager.x + Land.x = March's `NO_MORE_EFFECT_HARD_CODING_TEST` branch, defined), `32cf3aa0`, `32cf9990`, `32cf9d80` (14 keys =
+  `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC`, > 1.1), `32cf9f20`, `32cf41d0` (x 1200.0 of +0x9684), `32cf4200`, `32cfd840` (end + foot -> 0xd9), `32d137a0` (0.03333
+  `EffectSet_ES_ROLLING`): all equal March's bodies.
+- **Registration:** the 15 `ch0_skill_listing_rows.tsv` rows (32d223e0) = the port slot for slot: the hyper READY has no Init, CHARGE 234 / FIRE 235 / ROLLING_END 217 by
+  id, Unlimited Blade's hyper table `_HYPER`, the other hyper tables the normal name, Flame / Triple Geyser Init + EventProcess only. No March callback in a June case.
+- **`ReservedSkillStart` (fix 2):** June `32057c4c-cb2`: vslot 0x800( skill, `m_fReservedSkillMp` ), then 0x764( skill, slot-state test, mp ). Elsword's override = Eve's /
+  Chung's / Arme's; its inline loop = `IsSkillSlotState` (`X2GUUser.cpp:16720`). Base declaration and call only when no other class `_LIVE` provides them.
+- **`_SKILL_DEBUG` retired** (`Always.h:11616`, `//#define`): the `ELSWORD SKILL` equip / memo / rolling-end lines go dark.
+
+**Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range 242d3864^..242d3864`: `2 PASS, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL`, 0 deleted, `RESULT: PASS`;
+`--range bbc0e971^..bbc0e971`: `1 PASS`, `RESULT: PASS`; `_LIVE --range 2432120b^..2432120b`: `4 PASS`, `RESULT: PASS`. `git diff --patience --numstat 242d3864^ 2432120b`: 0 deletions
+in all 6 files. This review's worktree: `1 PASS, 1 DEFINE, 0 FAIL`, `2 deleted line(s)` (the replaced `_SKILL` line and the retired `#define`), `RESULT: PASS`.
+`junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check` the `.cpp` / `.h`: `0 A/B row(s) remain`. One-file probe (`/Zs /EHsc`, US_SERVICE defines): exit 0, 0 errors.
+DEPLOY OK: X2_offline.exe is 25,972,736 B, dated 2026-11-05 04:52:23, md5 9e1bf0aac452f242972409013977ce31, equal to X2/US_SERVICE/x2.exe (2026-11-05 04:52:16); built at main 5c761eb6 + 2 uncommitted code file(s).
+EXESTR OK: 1 of 1 absent in X2_offline.exe, 25972736 B, md5 9e1bf0aa ( `ELSWORD SKILL memo fire`, wide ).
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
