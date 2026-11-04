@@ -723,6 +723,39 @@ All 30 class-map rows of phase CH1e are written: 16 `inside` (June's body in Mar
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1f.md` gained a note on the fall offset. Next: `/x2-phase char-elsword CH1f` (Sonnet 5.5 high).
 
+### CH1f - Done (2026-11-04)
+
+All 36 class-map rows of phase CH1f are written: 21 `inside` (June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`) and 15 `new` (plain names under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE`, compiled in every build, referenced by nothing; `InitState*` untouched, CH1m registers). 36 funcmap rows `Char Elsword CH1f` (VA set = the class map's). Read with `charport_adis.py elsword --phase CH1f`; the branchy EventProcess bodies were also compared operand by operand against the reviewed CH1d2 / CH1e listings (sibling shapes).
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32d07f40` `32cf8840` | MAGIC_KNIGHT_DASH_COMBO_Z3 StartFuture / EP (inside) | `32d0f640` `32cf8a00` `32cf3790` | MAGIC_KNIGHT_DASH_COMBO_Z3a FM / EP / EndFuture (inside) |
+| `32cf97a0` `32d0fc00` `32cf97e0` | MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a FMF / FM / EP (inside) | `32cf3fa0` `32cfb900` `32d12550` `32cfb970` | ERS_XZ StartFuture / FMF / FM / EP (inside) |
+| `32d128b0` `32cfbdb0` | ERS_XZZ FM / EP (inside) | `32cf3fc0` `32cf3ff0` `32cfbe10` `32d12c50` `32cfbe80` | ERS_DASH_JUMP_XZ StartFuture / EndFuture / FMF / FM / EP (inside) |
+| `32d131d0` `32cfbee0` | ERS_DASH_JUMP_XZZ FM / EP (inside) | `32cf4d50` | ERS_XZ_CHARGE_StateStart (new) |
+| `32d03250` `32d035d0` | EMK_DASH_JUMP_ZX / ZXX EP (new) | `32d03880` `32d19040` `32d03d00` | EMK_COMBO_XZ EP / FM, XZ_CHARGE EP (new) |
+| `32d040c0` `32d19300` `32d04440` `32d195c0` | EMK_COMBO_XZZ EP / FM, EMK_COMBO_FULL_CHARGE_XZZ EP / FM (new) | `32d047c0` `32d04b80` `32d19880` | ERS_XZ_CHARGE EP, ERS_FULL_CHARGE_XZZ EP / FM (new) |
+| `32d04f00` `32d05250` | ERS_COMBO_ZZZ / ZZZZ EP (new) | | |
+
+**Where June differs from March** (everything else is March's logic written out whole):
+- **Rune Slayer X Z `32cfb970` (inside):** end block with a foot-first fall (`JUMP_DOWN`, y minus 45; else animation end -> WAIT), then flag 0 on `m_fEventTime[0]` to the new `ESSI_ERS_XZ_CHARGE` (Z key), then UPDOWN / `SKILL_CANCEL_AFTER` / back-walk / walk / dash / Z / X cancels. March had a fixed 0.5 s window to `ESSI_ERS_XZZ`, a direction cancel and the ZXC skip at 0.8. **Z3a `32cf8a00`:** off the line only `y -= 45` (no state change), the walk cancel needs the foot on a line, then animation end and the ZXC skip after 1.2 straight to WAIT.
+- **Rune Slayer dash jump X Z Z `32cfbee0`:** the two jump attacks use the flag macro with `|| IsAnimationEnd()` (March's macro: time only); window `t < m_fAttackCancelAfter`. **`32d131d0`:** vigor cost = `MAGIC_ERS_DASH_JUMP_XZZ_MP_COST * 0.5f` (global `337aef00`, filled at `333ac8c0`; March has the literal 3.5). **X Z Z `32d128b0`:** the XZZ effect set is also pushed into the delete-on-state-end list (+0x3ec0 = `m_vecEffectSetToDeleteOnStateEnd`, as the CH1a review of Arme found). **Z3a FM `32d0f640`:** the Rune Slayer test reads the unit templet (`IsTempletClass`).
+- **New Magic Knight / Rune Slayer states.** Charge states `32d03d00` / `32d047c0`: from `stateChange` on, Z released or past `keyInputStart` goes to X Z Z before `keyInputEnd`, else to the full-charge state; before `stateChange` the cancels (no y offset on the fall). X Z `32d03880` = dash Z X's shape (flag 0 to the charge, Z key); X Z Z / full-charge EPs (`32d040c0` `32d04440` `32d04b80`) = dash X X X. Z Z Z `32d04f00` has flag 0 to Z Z Z Z and no UPDOWN / Z / X cancels; Z Z Z Z `32d05250` only the fall, end and skill / walk / dash cancels.
+- **Magic Knight dash jump X `32d03250` / `32d035d0`:** the air shape has no skill branch, only the awakening half (macro `ELSWORD_AIR_AWAKE_CANCEL_AFTER`, `_CORE`, needs `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK`), then **walk before back-walk**, dash, and `oneZ` / `oneX` on `m_fAttackCancelAfterEx` (+0x8c88) with the foot on a line. CH1g (`ESSI_ETK_DASH_JUMP_ZZZ`) will likely share it.
+- **Magic Knight FrameMoves `32d19040` `32d19300` `32d195c0` and `32d19880`:** the MP gate is `IsEnoughMPForAttack( 0, Dummy2_Lhand, 0, 0 )` (vslot 0x6f0, March has it): cost 0, so it never fails; the real MP comes from the effect set rows (`CONSUME_MP`, Eve CH1r gate). The three EMK states reuse `m_bERS_COMBO_XZ_Rune_Created` (+0x960e): X Z sets it, X Z Z and the charge variant test and clear it (cleared whatever happens); the Rune Slayer full charge clears it only after playing. Effect sets: `EffectSet_EMK_ComboXZ` / `_ComboXZZ` / `_ComboXZZ_Charge`, `EffectSet_ERS_COMBO_FULL_CHARGE_XZZ`.
+- **= March after the macros expand (no behaviour change):** Z3 StartFuture / EP, Z3a EndFuture, X2a (3), ERS X Z StartFuture / FMF / FM, X Z Z EP, dash jump X Z (5). No `JUNE_BUGS.md` row (nothing June does wrongly: the zero-cost gate is data-driven), no alpha-tag site (7c), no `+0x7cc8` (§7 L254). Checklist §7h L420 (`UPDOWN_CANCEL_AFTER`): `32cfb970` `32d03880` `32d03d00` `32d040c0` `32d04440` `32d047c0` `32d04b80` carry it; the row stays open for CH1g+.
+
+**Added here.**
+- Six June-only state ids appended to the `ESSI` enum under `_CORE` (no `= value`): `ESSI_EMK_DASH_JUMP_ZXX` (250), `ESSI_EMK_COMBO_XZ_CHARGE` (252), `ESSI_EMK_COMBO_XZZ` (253), `ESSI_EMK_COMBO_FULL_CHARGE_XZZ` (254), `ESSI_ERS_FULL_CHARGE_XZZ` (256), `ESSI_ERS_COMBO_ZZZZ` (257); 15 declarations after CH1e's. `ELSWORD_AIR_AWAKE_CANCEL_AFTER` after the CH1d helper block; `Always.h`: `_CORE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK` (defined at line 4847).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Its "33 deleted / 1 non-ASCII" are diff alignment: `git diff --patience --numstat` is 1078 / 0 in the `.cpp`, 21 / 0 in the `.h`, 3 / 0 in `Always.h`, 0 non-ASCII inserted lines.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,955,840 B, dated 2026-11-04 10:32:22, md5 ebf30421907b2fe65d6831a6b7ca1a16, equal to X2/US_SERVICE/x2.exe (2026-11-04 10:32:15); built at main 3c92633c + the 3 code files of this phase`. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1f review` (Opus 5.5 high), then CH1g.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

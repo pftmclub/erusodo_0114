@@ -187,6 +187,12 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 			ESSI_SI_P_ESK_AUTO_GUARD_SMALL,		/// June script id 236 ( auto guard, small; CH1e state )
 			ESSI_SI_P_ESK_AUTO_GUARD_END,		/// June script id 237 ( auto guard end; CH1e state )
 			ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL,		/// June script id 238 ( auto guard end, small; CH1e state )
+			ESSI_EMK_DASH_JUMP_ZXX,		/// June script id 250 ( dash jump Z X X; CH1f state )
+			ESSI_EMK_COMBO_XZ_CHARGE,		/// June script id 252 ( X Z charge; CH1f state )
+			ESSI_EMK_COMBO_XZZ,		/// June script id 253 ( X Z Z; CH1f state )
+			ESSI_EMK_COMBO_FULL_CHARGE_XZZ,		/// June script id 254 ( full charge X Z Z; CH1f state )
+			ESSI_ERS_FULL_CHARGE_XZZ,		/// June script id 256 ( full charge X Z Z; CH1f state )
+			ESSI_ERS_COMBO_ZZZZ,		/// June script id 257 ( Z Z Z Z; CH1f state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		};
 		
@@ -900,6 +906,21 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ESSI_ELK_XXXXXX_EventProcess();		/// June 32d02ed0
 		void ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess();		/// June 32cff8d0
 		void ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess();		/// June 32cff920
+		void ESSI_ERS_XZ_CHARGE_StateStart();		/// June 32cf4d50
+		void ESSI_EMK_DASH_JUMP_ZX_EventProcess();		/// June 32d03250
+		void ESSI_EMK_DASH_JUMP_ZXX_EventProcess();		/// June 32d035d0
+		void ESSI_EMK_COMBO_XZ_EventProcess();		/// June 32d03880
+		void ESSI_EMK_COMBO_XZ_FrameMove();		/// June 32d19040
+		void ESSI_EMK_COMBO_XZ_CHARGE_EventProcess();		/// June 32d03d00
+		void ESSI_EMK_COMBO_XZZ_EventProcess();		/// June 32d040c0
+		void ESSI_EMK_COMBO_XZZ_FrameMove();		/// June 32d19300
+		void ESSI_EMK_COMBO_FULL_CHARGE_XZZ_EventProcess();		/// June 32d04440
+		void ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove();		/// June 32d195c0
+		void ESSI_ERS_XZ_CHARGE_EventProcess();		/// June 32d047c0
+		void ESSI_ERS_FULL_CHARGE_XZZ_EventProcess();		/// June 32d04b80
+		void ESSI_ERS_FULL_CHARGE_XZZ_FrameMove();		/// June 32d19880
+		void ESSI_ERS_COMBO_ZZZ_EventProcess();		/// June 32d04f00
+		void ESSI_ERS_COMBO_ZZZZ_EventProcess();		/// June 32d05250
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1

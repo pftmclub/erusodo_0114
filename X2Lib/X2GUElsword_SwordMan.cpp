@@ -8810,6 +8810,14 @@ using namespace _CONST_ELSWORD_CH1D_;
 	else if ( true == m_InputData.pureUp || true == m_InputData.pureDown || true == m_InputData.pureRight || true == m_InputData.pureLeft || true == (bKey_) || \
 		true == m_InputData.pureA || true == m_InputData.pureS || true == m_InputData.pureD || true == m_InputData.pureC || \
 		true == m_InputData.pureQ || true == m_InputData.pureW || true == m_InputData.pureE || true == m_InputData.pureR )
+#ifdef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+/// June 32d03250: the awakening half of SKILL_CANCEL_AFTER alone ( the dash jump states have no skill branch )
+#define ELSWORD_AIR_AWAKE_CANCEL_AFTER( time ) \
+	else if ( false == IsThereEffectiveBlackHoleDamageEffect() && \
+		true == m_InputData.oneLCtr && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && true == CanHyperMode() && \
+		(time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && false == IsQuickSlotSpecialItemWaiting() ) \
+	{ m_bHyperModeStartedByInput = true; StateChange( GetHypetMpdeStateID() ); }
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 //ESSI_COMBO_Z1
 void CX2GUElsword_SwordMan::ComboZ1FrameMoveFuture()
@@ -10084,16 +10092,54 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess()
 //ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d07f40
+	CommonStateStartFuture();
+
+	if ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if ( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8840
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if ( 0.9f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
 		if( false == IsOnSomethingFuture() )
@@ -10114,6 +10160,7 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -10195,6 +10242,53 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess()
 //ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0f640: the class is read through the unit templet
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.515f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.515f ) == true && EventCheck( 0.515f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( _CONST_ELSWORD_::MAGIC_FIRE_BALL_MP_COST ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 rot = GetRotateDegree();
+			rot.y += 180.0f;
+
+			if ( true == IsTempletClass( GetUnit(), CX2Unit::UC_ELSWORD_RUNE_SLAYER ) )
+			{
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+				CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ELSWORD_RUNE_SLAYER_DASH_ZZX", GetPowerRate() * m_fAttackPowerRateFireBall, posR, D3DXVECTOR3(0,0,0), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y, false,-1.f, 1.f, m_fRuneProjectileRangeIncPercent );
+				if( NULL != pEffect )
+				{
+					pEffect->SetScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+				}
+#else //UPGRADE_SKILL_SYSTEM_2013
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ELSWORD_RUNE_SLAYER_DASH_ZZX", GetPowerRate() * m_fAttackPowerRateFireBall, posR, D3DXVECTOR3(0,0,0), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+#endif //UPGRADE_SKILL_SYSTEM_2013
+			}
+			else
+			{
+				g_pX2Game->GetDamageEffect()->CreateInstance( this, L"FIREBALL_BIG_ELSWORD", GetPowerRate() * m_fAttackPowerRateFireBall, posR, rot, rot, m_FrameDataNow.unitCondition.landPosition.y );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				D3DXVECTOR3 rot = GetRotateDegree();
+				rot.y += 180.0f;
+				pSeq->SetAxisAngle( rot );
+				pSeq->SetAddRotate( rot );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.515f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10240,10 +10334,33 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8a00
+	/// the fall has only the y offset ( no state change ); the walk cancel needs the foot on a line
+	if ( false == IsOnSomethingFuture() )
+	{
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSWORD_GROUND_WALK_CANCEL
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if ( 1.2f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef BALANCE_RUNE_SLAYER_20130214
 	if( false == IsOnSomethingFuture() )
 	{
@@ -10277,13 +10394,21 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_EventProcess()
 	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3790
 	CommonStateEndFuture();
 	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
 	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateEndFuture();
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -11390,6 +11515,16 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_End()
 //ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf97a0
+	if ( m_pXSkinAnim->GetNowAnimationTime() < 0.39f )
+	{
+		m_PhysicParam.nowSpeed.x = 0.0f;
+		m_PhysicParam.nowSpeed.y = 0.0f;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnim->GetNowAnimationTime() < 0.39f )
 	{
 		m_PhysicParam.nowSpeed.x = 0.0f;
@@ -11397,6 +11532,7 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFutur
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -11404,6 +11540,38 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFutur
 
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0fc00
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.35f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.35f ) == true && EventCheck( 0.35f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( _CONST_ELSWORD_::MAGIC_FIRE_BALL_MP_COST ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			
+			angle.z = -30.0f;
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"FIREBALL_SMALL_DOWN_ELSWORD", GetPowerRate() * m_fAttackPowerRateFireBall, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.z = -30.0f;
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				pSeq->SetAxisAngle( GetRotateDegree() );
+				pSeq->SetAddRotate( GetRotateDegree() );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.35f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11434,10 +11602,24 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf97e0
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	else if ( 0.59f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -11454,6 +11636,7 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess()
 #endif //BALANCE_RUNE_SLAYER_20130214
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //ESSI_KNIGHT_DASH_JUMP_COMBO_X3
@@ -17287,16 +17470,497 @@ void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess()
 	CommonEventProcess();
 }
 
+void CX2GUElsword_SwordMan::ESSI_ERS_XZ_CHARGE_StateStart()
+{
+	/// June 32cf4d50
+	CommonStateStart();
+
+	m_bERS_COMBO_XZ_Rune_Created = true;
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_DASH_JUMP_ZX_EventProcess()
+{
+	/// June 32d03250
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_EMK_DASH_JUMP_ZXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	ELSWORD_AIR_AWAKE_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_DASH_JUMP_ZXX_EventProcess()
+{
+	/// June 32d035d0
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSWORD_AIR_AWAKE_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_EventProcess()
+{
+	/// June 32d03880
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_EMK_COMBO_XZ_CHARGE )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneZ )
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_CHARGE_EventProcess()
+{
+	/// June 32d03d00: no y offset when the charge falls off the line
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if ( m_fEventTime[0].stateChange <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( false == m_InputData.pureZ || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd )
+			{
+				StateChange( ESSI_EMK_COMBO_XZZ );
+			}
+			else
+			{
+				StateChange( ESSI_EMK_COMBO_FULL_CHARGE_XZZ );
+			}
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZZ_EventProcess()
+{
+	/// June 32d040c0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_FULL_CHARGE_XZZ_EventProcess()
+{
+	/// June 32d04440
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_XZ_CHARGE_EventProcess()
+{
+	/// June 32d047c0: no y offset when the charge falls off the line
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if ( m_fEventTime[0].stateChange <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( false == m_InputData.pureZ || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd )
+			{
+				StateChange( ESSI_ERS_XZZ );
+			}
+			else
+			{
+				StateChange( ESSI_ERS_FULL_CHARGE_XZZ );
+			}
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_FULL_CHARGE_XZZ_EventProcess()
+{
+	/// June 32d04b80
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COMBO_ZZZ_EventProcess()
+{
+	/// June 32d04f00: no UPDOWN cancel and no Z / X cancels
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ERS_COMBO_ZZZZ )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneZ )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COMBO_ZZZZ_EventProcess()
+{
+	/// June 32d05250: no UPDOWN cancel and no Z / X cancels
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_FrameMove()
+{
+	/// June 32d19040: the MP check passes a cost of 0
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.3f ) && true == EventCheck( 0.3f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if ( true == IsEnoughMPForAttack( 0.f, vHandPos, 0.f, D3DXVECTOR3( 0.f, 0.f, 0.f ) ) )
+		{
+			const D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EMK_ComboXZ", this, NULL, false, -1.f, -1.f, vScale );
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+			}
+
+			m_bERS_COMBO_XZ_Rune_Created = true;
+		}
+		else
+		{
+			m_bERS_COMBO_XZ_Rune_Created = false;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZZ_FrameMove()
+{
+	/// June 32d19300: the MP check passes a cost of 0; the flag is cleared whatever happens
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.133f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.133f ) && true == EventCheck( 0.133f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if ( true == m_bERS_COMBO_XZ_Rune_Created && true == IsEnoughMPForAttack( 0.f, vHandPos, 0.f, D3DXVECTOR3( 0.f, 0.f, 0.f ) ) )
+		{
+			const D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EMK_ComboXZZ", this, NULL, false, -1.f, -1.f, vScale );
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+			}
+		}
+
+		m_bERS_COMBO_XZ_Rune_Created = false;
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove()
+{
+	/// June 32d195c0: the MP check passes a cost of 0; the flag is cleared whatever happens
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.133f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.133f ) && true == EventCheck( 0.133f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if ( true == m_bERS_COMBO_XZ_Rune_Created && true == IsEnoughMPForAttack( 0.f, vHandPos, 0.f, D3DXVECTOR3( 0.f, 0.f, 0.f ) ) )
+		{
+			const D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EMK_ComboXZZ_Charge", this, NULL, false, -1.f, -1.f, vScale );
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+			}
+		}
+
+		m_bERS_COMBO_XZ_Rune_Created = false;
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_FULL_CHARGE_XZZ_FrameMove()
+{
+	/// June 32d19880: the MP check passes a cost of 0; the flag is cleared only after the rune is played
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.01f ) && true == EventCheck( 0.01f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if ( true == m_bERS_COMBO_XZ_Rune_Created && true == IsEnoughMPForAttack( 0.f, vHandPos, 0.f, D3DXVECTOR3( 0.f, 0.f, 0.f ) ) )
+		{
+			const D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ERS_COMBO_FULL_CHARGE_XZZ", this, NULL, false, -1.f, -1.f, vScale );
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+			}
+
+			m_bERS_COMBO_XZ_Rune_Created = false;
+		}
+	}
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if ( m_pXSkinAnim->EventTimerOneshot( 0.38f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if ( true == m_pXSkinAnim->EventTimer( 0.38f ) && true == EventCheck( 0.38f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( INVALID_EFFECTSET_HANDLE != m_hRuneSlayerComboXZ )
+		{
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hRuneSlayerComboXZ );
+		}
+	}
+
+	CommonFrameMove();
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3fa0
 	CommonStateStartFuture();
 
 	m_bERS_COMBO_XZ_Rune_Created = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStartFuture();
+
+	m_bERS_COMBO_XZ_Rune_Created = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfb900
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnimFuture->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnimFuture->EventTimer( 0.3f ) && true == EventCheck( 0.3f, true ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( GetNowMp() > _CONST_ELSWORD_::MAGIC_ERS_XZ_MP_COST )
+		{
+			m_bERS_COMBO_XZ_Rune_Created = true;
+		}
+		else
+		{
+			m_bERS_COMBO_XZ_Rune_Created = false;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.3f ) )
@@ -17316,10 +17980,64 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMoveFuture()
 
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d12550
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) == true && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( _CONST_ELSWORD_::MAGIC_ERS_XZ_MP_COST ) == true )
+		{
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+			D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			m_hRuneSlayerComboXZ = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ERS_COMBO_XZ", this, NULL, false, -1.f, -1.f, vScale );
+#else //UPGRADE_SKILL_SYSTEM_2013
+			m_hRuneSlayerComboXZ = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ERS_COMBO_XZ", this );
+#endif //UPGRADE_SKILL_SYSTEM_2013
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( m_hRuneSlayerComboXZ ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+#endif //UPGRADE_SKILL_SYSTEM_2013
+			}
+
+
+			if( false == IsMyUnit() )
+			{
+				m_bERS_COMBO_XZ_Rune_Created = true;
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				pSeq->SetAxisAngle( angle );
+				pSeq->SetAddRotate( angle );
+			}
+
+
+			if( false == IsMyUnit() )
+			{
+				m_bERS_COMBO_XZ_Rune_Created = false;
+			}
+		}
+	}
+
+	CommonFrameMove();
+
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17370,10 +18088,44 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMove()
 
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfb970
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ERS_XZ_CHARGE )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneZ )
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
@@ -17398,10 +18150,69 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZ_EventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_XZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d128b0: the rune is also deleted when the state ends ( +0x3ec0 )
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.01f ) == true && EventCheck( 0.01f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( _CONST_ELSWORD_::MAGIC_ERS_XZZ_MP_COST ) == true &&
+			true == m_bERS_COMBO_XZ_Rune_Created )
+		{
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+			D3DXVECTOR3 vScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			CX2EffectSet::Handle hComboXZZ = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ERS_COMBO_XZZ", this, NULL, false, -1.f, -1.f, vScale );
+#else //UPGRADE_SKILL_SYSTEM_2013
+			CX2EffectSet::Handle hComboXZZ = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ERS_COMBO_XZZ", this );
+#endif //UPGRADE_SKILL_SYSTEM_2013
+
+			if ( CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hComboXZZ ) )
+			{
+				pInstance->SetPowerRateScale( m_fAttackPowerRateFireBall );
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+				pInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pInstance->m_bDamageEffectScale = true;
+#endif //UPGRADE_SKILL_SYSTEM_2013
+			}
+
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hComboXZZ );
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hComboXZZ );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				pSeq->SetAxisAngle( angle );
+				pSeq->SetAddRotate( angle );
+			}
+
+		}
+	}
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    else if( m_pXSkinAnim->EventTimerOneshot( 0.38f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnim->EventTimer( 0.38f ) == true && EventCheck( 0.38f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( INVALID_EFFECTSET_HANDLE != m_hRuneSlayerComboXZ )
+		{
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hRuneSlayerComboXZ );
+		}
+	}
+
+	CommonFrameMove();
+
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17456,10 +18267,25 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZZ_FrameMove()
 
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_XZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfbdb0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -17471,6 +18297,7 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -17478,23 +18305,60 @@ void CX2GUElsword_SwordMan::ESSI_ERS_XZZ_EventProcess()
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3fc0
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.y = 0.f;
 	m_bDisableGravity = true;
 
 	m_bERS_DASH_JUMP_XZ_Rune_Created = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed.y = 0.f;
+	m_bDisableGravity = true;
+
+	m_bERS_DASH_JUMP_XZ_Rune_Created = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3ff0
 	m_bDisableGravity = false;
 
 	CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	m_bDisableGravity = false;
+
+	CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfbe10
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnimFuture->EventTimerOneshot( 0.26f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnimFuture->EventTimer( 0.26f ) && true == EventCheck( 0.26f, true ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if ( GetNowMp() > _CONST_ELSWORD_::MAGIC_ERS_DASH_JUMP_XZ_MP_COST )
+		{
+			m_bERS_DASH_JUMP_XZ_Rune_Created = true;
+		}
+		else
+		{
+			m_bERS_DASH_JUMP_XZ_Rune_Created = false;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.26f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17514,11 +18378,101 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMoveFuture()
 
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d12c50
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.26f ) == true && EventCheck( 0.26f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if(	FlushMp( _CONST_ELSWORD_::MAGIC_ERS_DASH_JUMP_XZ_MP_COST ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+			posR.y += -90.f;
+			if( true == GetIsRight() )
+			{
+				posR += GetDirVector() * 160.f;
+			}
+			else
+			{
+				posR -= GetDirVector() * 160.f;
+			}
+			D3DXVECTOR3 angle = GetRotateDegree();
+
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+			D3DXVECTOR3 vSize( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+            CX2DamageEffect::CEffect*
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			m_pRuneSlayerDashJumpXZ = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ELSWORD_RUNE_SLAYER_DASH_JUMP_XZ", 
+				GetPowerRate() * m_fAttackPowerRateFireBall, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, 1.f, m_fRuneProjectileRangeIncPercent );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+            m_hRuneSlayerDashJumpXZ = ( m_pRuneSlayerDashJumpXZ != NULL ) ? m_pRuneSlayerDashJumpXZ->GetHandle() : INVALID_DAMAGE_EFFECT_HANDLE;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			if( NULL != m_pRuneSlayerDashJumpXZ )
+			{
+				m_pRuneSlayerDashJumpXZ->SetScale( vSize );
+			}
+			CX2EffectSet::Handle hEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELSWORD_DASH_JUMP_XZ", this, NULL, false, -1.f, -1.f, vSize );
+			if ( CX2EffectSet::EffectSetInstance* pEffectInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffect ) )
+			{
+				pEffectInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
+				pEffectInstance->m_bDamageEffectScale = true;
+			}
+#else //UPGRADE_SKILL_SYSTEM_2013
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+            m_hRuneSlayerDashJumpXZ = g_pX2Game->GetDamageEffect()->CreateInstanceHandle( 
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			m_pRuneSlayerDashJumpXZ = g_pX2Game->GetDamageEffect()->CreateInstance( 
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+                this, L"ELSWORD_RUNE_SLAYER_DASH_JUMP_XZ", 
+				GetPowerRate() * m_fAttackPowerRateFireBall, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y );
+
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELSWORD_DASH_JUMP_XZ", this );
+#endif //UPGRADE_SKILL_SYSTEM_2013
+
+			
+
+
+			if( false == IsMyUnit() )
+			{
+				m_bERS_DASH_JUMP_XZ_Rune_Created = true;
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.z = -30.0f;
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				pSeq->SetAxisAngle( angle );
+				pSeq->SetAddRotate( angle );
+			}
+
+
+			if( false == IsMyUnit() )
+			{
+				m_bERS_DASH_JUMP_XZ_Rune_Created = false;
+			}
+		}
+	}
+	//else if( m_pXSkinAnim->IsAnimationEnd() == true )
+	//{	
+	//	m_bDisableGravity = false;
+	//}
+
+	CommonFrameMove();
+
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
@@ -17606,10 +18560,36 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMove()
 
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfbe80
+	if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( ESSI_ERS_DASH_JUMP_XZZ );
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	//CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
 
 	if( m_InputData.oneZ == true )
@@ -17638,6 +18618,7 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_EventProcess()
 	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -17646,6 +18627,82 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_EventProcess()
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d131d0: 333ac8c0: the vigor cost is half the normal cost
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.01f ) == true && EventCheck( 0.01f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+#ifdef ELSWORD_WAY_OF_SWORD
+		float fMagicERSDashJumpXZZMpCost = 0.f;
+		if( GetWayOfSwordState() == WSS_VIGOR )
+		{
+			fMagicERSDashJumpXZZMpCost = _CONST_ELSWORD_::MAGIC_ERS_DASH_JUMP_XZZ_MP_COST * 0.5f;
+		}
+		else
+		{
+			fMagicERSDashJumpXZZMpCost = _CONST_ELSWORD_::MAGIC_ERS_DASH_JUMP_XZZ_MP_COST;
+		}
+
+		if( FlushMp( fMagicERSDashJumpXZZMpCost ) == true && 
+			true == m_bERS_DASH_JUMP_XZ_Rune_Created )
+#else
+		if( FlushMp( _CONST_ELSWORD_::MAGIC_ERS_DASH_JUMP_XZZ_MP_COST ) == true && 
+			true == m_bERS_DASH_JUMP_XZ_Rune_Created )
+#endif ELSWORD_WAY_OF_SWORD
+		{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+            if ( m_hRuneSlayerDashJumpXZ != INVALID_DAMAGE_EFFECT_HANDLE )
+                g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hRuneSlayerDashJumpXZ );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			if( NULL != m_pRuneSlayerDashJumpXZ )
+				g_pX2Game->GetDamageEffect()->DestroyInstance( m_pRuneSlayerDashJumpXZ );
+            m_pRuneSlayerDashJumpXZ = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+			posR.y += -90.f;
+			if( true == GetIsRight() )
+			{
+				posR += GetDirVector() * 160.f;
+			}
+			else
+			{
+				posR -= GetDirVector() * 160.f;
+			}
+
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.z = -30.0f;
+
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+			CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ELSWORD_RUNE_SLAYER_DASH_JUMP_XZZ", GetPowerRate() * m_fAttackPowerRateFireBall, posR, D3DXVECTOR3(0,0,0), angle, m_FrameDataNow.unitCondition.landPosition.y, false,-1.f, 1.f, m_fRuneProjectileRangeIncPercent );
+			if( NULL != pEffect )
+			{
+				pEffect->SetScale( m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent, m_fRuneProjectileSizeIncPercent );
+			}
+#else //UPGRADE_SKILL_SYSTEM_2013
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ELSWORD_RUNE_SLAYER_DASH_JUMP_XZZ", GetPowerRate() * m_fAttackPowerRateFireBall, posR, D3DXVECTOR3(0,0,0), angle, m_FrameDataNow.unitCondition.landPosition.y );
+#endif //UPGRADE_SKILL_SYSTEM_2013
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.z = -30.0f;
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MagicFail", pos, 100, 100, 1, 1 );
+			if( pSeq != NULL )
+			{
+				pSeq->SetAxisAngle( angle );
+				pSeq->SetAddRotate( angle );
+			}
+		}
+	}
+
+	CommonFrameMove();
+
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17719,10 +18776,30 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_FrameMove()
 
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfbee0
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fAttackCancelAfter, ESSI_JUMP_ATTACK_Z )
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fAttackCancelAfter && true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fAttackCancelAfter, ESSI_JUMP_ATTACK_X )
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fAttackCancelAfter && true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST 
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -17741,6 +18818,7 @@ void CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_EventProcess()
 
 	CommonEventProcess();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 

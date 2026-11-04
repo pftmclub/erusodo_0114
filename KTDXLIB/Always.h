@@ -11452,6 +11452,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 #endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

@@ -64,3 +64,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1e (2026-11-04)
 
 - The CH1d helper block (`IsDataClass`, `IsTempletClass`, `ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_` / `_DASH_`, `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH`) now sits under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (it was `_LIVE`), so a `new` row can use it; `Always.h` carries `_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`. The dash-combo cancel tail (UPDOWN inline, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, the three ground macros, the Z / X cancels on `m_fAttackCancelAfter`) is written out in `ESSI_ESK_DASH_COMBO_ZX_EventProcess`; copy that shape for a `new` EventProcess.
+
+## Amended by CH1f (2026-11-04)
+
+- Reusable from CH1f: `ELSWORD_AIR_AWAKE_CANCEL_AFTER( time )` (`_CORE`, beside the CH1d helper block): the awakening half of `SKILL_CANCEL_AFTER` alone, for the dash jump states (no skill branch). The air tail is: `IsOnSomethingFuture` landing (`USI_DASH_JUMP_LANDING`), that macro, `ELSWORD_GROUND_WALK_CANCEL` **before** `ELSWORD_GROUND_BWALK_CANCEL`, `ELSWORD_GROUND_DASH_CANCEL`, then `oneZ` / `oneX` on `m_fAttackCancelAfterEx` (+0x8c88) with the foot on a line (`ESSI_EMK_DASH_JUMP_ZX_EventProcess` is the worked example). Check each listing for the order, it differs from the ground combos.
+- The `ESSI` ids for CH1f's six new states are in the enum; `ESSI_ETK_DASH_JUMP_ZZZ` (258) and `ESSI_EIS_DASH_COMBO_ZX` (224) are still yours / CH1g2's, already declared.
+- `IsEnoughMPForAttack( cost, pos, offset, rot )` (vslot 0x6f0) exists in March; June's Magic Knight rune FrameMoves pass cost 0 (the MP is the effect set row's `CONSUME_MP`).

@@ -7497,3 +7497,39 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32d07fd0	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_StateStartFuture	PORTED	Char Elsword CH1e: inside; = March ( GetDashSpeed when the held key faces the facing )
 32d0c740	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_End	PORTED	Char Elsword CH1e: inside; = March ( guard percent taken back off the damage reduce )
 32d180a0	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_Start	PORTED	Char Elsword CH1e: inside; June adds UpNowMp( 1.0 ) ( vslot 0xf0 ) before the effect set; the rest = March
+32cf3790	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_StateEndFuture	PORTED	Char Elsword CH1f: inside; = March ( bIsRight flipped, dirDegree.y + 180 after CommonStateEndFuture )
+32cf3fa0	CX2GUElsword_SwordMan::ESSI_ERS_XZ_StateStartFuture	PORTED	Char Elsword CH1f: inside; = March ( the rune flag +0x960e cleared )
+32cf3fc0	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateStartFuture	PORTED	Char Elsword CH1f: inside; = March ( nowSpeed.y 0, gravity off, the rune flag +0x960d cleared )
+32cf3ff0	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_StateEndFuture	PORTED	Char Elsword CH1f: inside; = March ( gravity back on, then CommonStateEndFuture )
+32cf4d50	CX2GUElsword_SwordMan::ESSI_ERS_XZ_CHARGE_StateStart	PORTED	Char Elsword CH1f: new ( _CORE ); CommonStateStart, then the rune flag +0x960e set
+32cf8840	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess	PORTED	Char Elsword CH1f: inside; = March ( end of animation: JUMP_DOWN with y - 45 or WAIT; C skip keys after 0.9 )
+32cf8a00	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_EventProcess	PORTED	Char Elsword CH1f: inside; June: off the line only y - 45 ( no state change ), walk cancel needs the foot on a line, ZXC skip keys after 1.2 go straight to WAIT ( March: JUMP_DOWN or WAIT )
+32cf97a0	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFuture	PORTED	Char Elsword CH1f: inside; = March ( speed 0 while the animation is before 0.39 )
+32cf97e0	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess	PORTED	Char Elsword CH1f: inside; = March ( JUMP_LANDING on a line, JUMP_DOWN after 0.59 )
+32cfb900	CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMoveFuture	PORTED	Char Elsword CH1f: inside; = March ( oneshot 0.3: the rune flag = GetNowMp() > 4 )
+32cfb970	CX2GUElsword_SwordMan::ESSI_ERS_XZ_EventProcess	PORTED	Char Elsword CH1f: inside; June: fall, end of animation, flag 0 / m_fEventTime[0] to ESSI_ERS_XZ_CHARGE ( Z key ), UPDOWN / skill / back-walk / walk / dash / Z / X cancels ( March: flag 0 at a fixed 0.5 s to ESSI_ERS_XZZ, ZXC skip at 0.8 )
+32cfbdb0	CX2GUElsword_SwordMan::ESSI_ERS_XZZ_EventProcess	PORTED	Char Elsword CH1f: inside; = March ( fall with y - 45, end of animation to WAIT )
+32cfbe10	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMoveFuture	PORTED	Char Elsword CH1f: inside; = March ( oneshot 0.26: the rune flag +0x960d = GetNowMp() > 4 )
+32cfbe80	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_EventProcess	PORTED	Char Elsword CH1f: inside; = March ( oneZ flag 0, DASH_JUMP_LANDING on a line, at the end XZZ with the flag else JUMP_DOWN )
+32cfbee0	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_EventProcess	PORTED	Char Elsword CH1f: inside; June: both flagged jump attacks also fire at the end of the animation ( March macro: time only ); the input window is t < m_fAttackCancelAfter
+32d03250	CX2GUElsword_SwordMan::ESSI_EMK_DASH_JUMP_ZX_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); landing, flag 0 to ESSI_EMK_DASH_JUMP_ZXX ( X key ), awakening cancel only, walk / back-walk / dash, oneZ / oneX on m_fAttackCancelAfterEx
+32d035d0	CX2GUElsword_SwordMan::ESSI_EMK_DASH_JUMP_ZXX_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); landing, awakening cancel only, walk / back-walk / dash, oneZ / oneX on m_fAttackCancelAfterEx
+32d03880	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); the dash Z X shape with flag 0 to ESSI_EMK_COMBO_XZ_CHARGE ( Z key )
+32d03d00	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_CHARGE_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); fall ( no y offset ); from m_fEventTime[0].stateChange: Z released or past keyInputStart -> XZZ before keyInputEnd else FULL_CHARGE_XZZ; else the cancels
+32d040c0	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); the dash X X X shape ( end block, UPDOWN / skill / back-walk / walk / dash / Z / X cancels )
+32d04440	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_FULL_CHARGE_XZZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); the dash X X X shape
+32d047c0	CX2GUElsword_SwordMan::ESSI_ERS_XZ_CHARGE_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); the EMK X Z charge shape with ESSI_ERS_XZZ / ESSI_ERS_FULL_CHARGE_XZZ
+32d04b80	CX2GUElsword_SwordMan::ESSI_ERS_FULL_CHARGE_XZZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); the dash X X X shape
+32d04f00	CX2GUElsword_SwordMan::ESSI_ERS_COMBO_ZZZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); fall, end -> WAIT, flag 0 to ESSI_ERS_COMBO_ZZZZ ( Z key ), skill / back-walk / walk / dash cancels ( no UPDOWN, no Z / X )
+32d05250	CX2GUElsword_SwordMan::ESSI_ERS_COMBO_ZZZZ_EventProcess	PORTED	Char Elsword CH1f: new ( _CORE ); fall, end -> WAIT, skill / back-walk / walk / dash cancels
+32d07f40	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_StateStartFuture	PORTED	Char Elsword CH1f: inside; = March ( GetDashSpeed when the held key faces the facing )
+32d0f640	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_FrameMove	PORTED	Char Elsword CH1f: inside; June reads the Rune Slayer test through the unit templet ( IsTempletClass ); the rest = March ( oneshot 0.515, FlushMp 6, fireball or ELSWORD_RUNE_SLAYER_DASH_ZZX )
+32d0fc00	CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMove	PORTED	Char Elsword CH1f: inside; = March ( oneshot 0.35, FlushMp 6, FIREBALL_SMALL_DOWN_ELSWORD at z - 30 )
+32d12550	CX2GUElsword_SwordMan::ESSI_ERS_XZ_FrameMove	PORTED	Char Elsword CH1f: inside; = March ( oneshot 0.3, FlushMp 4, EffectSet_ERS_COMBO_XZ scaled, the rune flag set on a remote unit )
+32d128b0	CX2GUElsword_SwordMan::ESSI_ERS_XZZ_FrameMove	PORTED	Char Elsword CH1f: inside; June also pushes the XZZ effect set into the delete-on-state-end list ( +0x3ec0 ); the rest = March
+32d12c50	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZ_FrameMove	PORTED	Char Elsword CH1f: inside; = March ( oneshot 0.26, FlushMp 4, ELSWORD_RUNE_SLAYER_DASH_JUMP_XZ and its effect set )
+32d131d0	CX2GUElsword_SwordMan::ESSI_ERS_DASH_JUMP_XZZ_FrameMove	PORTED	Char Elsword CH1f: inside; June: vigor cost = the normal cost x 0.5 ( global 337aef00, set at 333ac8c0 ) where March has 3.5; the rest = March
+32d19040	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); oneshot 0.3; IsEnoughMPForAttack( 0, Dummy2_Lhand ) then EffectSet_EMK_ComboXZ scaled; the rune flag +0x960e set / cleared
+32d19300	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); oneshot 0.133; flag + IsEnoughMPForAttack( 0 ) then EffectSet_EMK_ComboXZZ; the flag cleared whatever happens
+32d195c0	CX2GUElsword_SwordMan::ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); the XZZ FrameMove with EffectSet_EMK_ComboXZZ_Charge
+32d19880	CX2GUElsword_SwordMan::ESSI_ERS_FULL_CHARGE_XZZ_FrameMove	PORTED	Char Elsword CH1f: new ( _CORE ); oneshot 0.01: flag + IsEnoughMPForAttack( 0 ) then EffectSet_ERS_COMBO_FULL_CHARGE_XZZ, flag cleared only after the play; oneshot 0.38 stops m_hRuneSlayerComboXZ
