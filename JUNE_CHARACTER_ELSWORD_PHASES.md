@@ -824,6 +824,30 @@ All 31 class-map rows of phase CH1g are written: 29 `inside` (June's body in Mar
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1g2.md` gained a CH1g-review amendment (its Done gate named `CH1g`). Next: `/x2-phase char-elsword CH1g2` (Sonnet 5.5 high).
 
+### CH1g2 - Done (2026-11-04)
+
+All 16 class-map rows of phase CH1g2 are written: 12 `inside` (June's body in March's own function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`) and 4 `new` (plain names under `_CORE`, referenced by nothing; `InitState*` untouched, CH1m registers). 16 funcmap rows `Char Elsword CH1g2`. No new flag, enum member, namespace or helper: the CH1d macros cover every branch (`ESSI_EIS_DASH_COMBO_ZX` was already in the enum).
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cfdbe0` `32cf4260` `32d1f130` `32d13d20` `32cfdcb0` `32cf4280` | CompactCounterGuardAttack Start / StartFuture / FrameMove / CameraMove / EventProcess / StateEnd (inside) | `32cfe280` `32cfe440` | ESSI_EIS_DASH_COMBO_XX / XXX EventProcess (inside) |
+| `32cfe5e0` `32d1f2d0` `32cfe650` `32cf4490` | ESSI_EIS_DASHJUMP_COMBO_XX EP, XXX FM / EP / End (inside) | `32cf4470` `32cfe090` `32d1f200` `32d17550` | new: DASH_COMBO_ZX StateEnd / EventProcess / FrameMove, DASH_COMBO_XX FrameMove |
+
+**Where June differs from March** (everything else is March's logic written out whole):
+- **Compact Counter Start `32cfdbe0`:** no `SetDefenceMemoTime( 4.f )` (June has no `SMI_ELSWORD_MEMO5` call here); `GetSkillLevel( SI_A_ES_COUNTER, false, 0, true )`, chance `GetSkillAbilityValue( SA_EFFECTIVE_RATE, level ) * 100.0` against `GetRandomInt( 0 )` (the CH1b Revenge shape). **EventProcess `32cfdcb0`:** the walk cancel is the Elsword ground one (March's had no foot test). StartFuture / StateEnd / CameraMove / FrameMove = March.
+- **Dash X X `32cfe280`:** flag 0 to X X X on `m_fEventTime[0].stateChange` (time or animation end), set inside the `oneX` window, then ground walk and dash cancels (March: `ELSE_IF_STATE_CHANGE_ON_EX_`, `WALK_CANCEL_AFTER`). **Dash X X X `32cfe440`:** ground dash cancel, then `SKILL_CANCEL_AFTER( m_fWalkCancelAfter )` (walk time, as March; JUNE_BUGS #522).
+- **New dash Z X EP `32cfe090`:** animation end goes to WAIT on a line only (no jump-down); then ground walk, ground dash, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`. **Dash jump X X X `32cfe650`:** end on a line to WAIT, ground walk, ground dash, skill cancel. **Dash jump X X `32cfe5e0`** = March.
+- **New dash X X FM `32d17550`:** `EventTimerOneshot( 0.2 )` (`3346eeb8`); `IsEnoughMPForAttack( 6.0 [33439b40], Dummy2_Lhand, 0, ( 0, 0, 45.0 [3345b36c] ) )`; then `EffectSet_EIS_DASH_XX` with every `PlayEffectSet` default (the effect set must exist in the effect data; nothing runs yet). No 7c alpha site in the 16.
+- Offset added to `ch1_offsets.tsv`: `+0x411c` `m_bApplyMotionOffset` (the StartFuture store).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `git diff --patience --numstat`: 277 / 0 in the `.cpp`, 4 / 0 in the `.h`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,958,400 B, dated 2026-11-04 11:29:58, md5 ea2e47e971666f494533a75a1ef7bdf5, equal to X2/US_SERVICE/x2.exe (2026-11-04 11:29:50); built at main 32ead863 + the 2 code files of this phase`. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1g2 review` (Opus 5.5 high), then CH1h.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

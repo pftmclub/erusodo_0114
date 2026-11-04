@@ -80,3 +80,4 @@ offset	kind	name	note
 0x9624	field	m_fDamageDataChangeTime	Elsword; +0x9628 m_fDamageDataChangeTime2 ( DAMAGE_DATA_LAST in DASH_COMBO_ZZ ) ( CH1g review )
 0x962c	field	m_iETKComboXXXLoopCount	Elsword; June KProtectedType<int> ( +0x9630 / +0x9634 ), March plain int ( CH1g review )
 0x9670	field	m_hSecondBladeSheath	Elsword; ElswordSheath02 handle, set at 0.01, -1 at m_fDashCancelAfter and on COMBO_ZZZ StateStart ( CH1g review )
+0x411c	field	m_bApplyMotionOffset	CX2GameUnit; Compact Counter StartFuture sets it false ( CH1g2 )

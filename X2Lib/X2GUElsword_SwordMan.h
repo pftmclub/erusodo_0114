@@ -923,6 +923,10 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ESSI_ERS_COMBO_ZZZZ_EventProcess();		/// June 32d05250
 		void ESSI_ETK_DASH_JUMP_ZZZ_EventProcess();		/// June 32d054d0
 		void ESSI_ETK_DASH_JUMP_ZZZ_FrameMove();		/// June 32d19b80
+		void ESSI_EIS_DASH_COMBO_ZX_StateEnd();		/// June 32cf4470
+		void ESSI_EIS_DASH_COMBO_ZX_EventProcess();		/// June 32cfe090
+		void ESSI_EIS_DASH_COMBO_XX_FrameMove();		/// June 32d17550
+		void ESSI_EIS_DASH_COMBO_ZX_FrameMove();		/// June 32d1f200
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1

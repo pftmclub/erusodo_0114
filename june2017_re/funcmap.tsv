@@ -7564,3 +7564,19 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32d1e870	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March
 32d1e940	CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_FrameMove	PORTED	Char Elsword CH1g: inside; = March
 32d1ea10	CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_FrameMove	PORTED	Char Elsword CH1g: inside; = March + sheath mesh tagged @32d1eafe ( 7c ); DAMAGE_DATA_LAST at m_fDamageDataChangeTime2
+32cf4260	CX2GUElsword_SwordMan::CompactCounterGuardAttackStartFuture	PORTED	Char Elsword CH1g2: inside; = March ( CommonStateStartFuture, +0x411c m_bApplyMotionOffset false )
+32cf4280	CX2GUElsword_SwordMan::CompactCounterGuardAttackStateEnd	PORTED	Char Elsword CH1g2: inside; = March ( Sword attack box on, CommonStateEnd )
+32cf4470	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_StateEnd	PORTED	Char Elsword CH1g2: new under _CORE ( Sword attack box on, CommonStateEnd )
+32cf4490	CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_End	PORTED	Char Elsword CH1g2: inside; = March ( Sword attack box on, CommonStateEnd )
+32cfdbe0	CX2GUElsword_SwordMan::CompactCounterGuardAttackStart	PORTED	Char Elsword CH1g2: inside; fPhysic += revenge damage; GetSkillLevel( SI_A_ES_COUNTER, false, 0, true ); counter chance gives RT_SMALL_DAMAGE and zero back speed; no memo defence time
+32cfdcb0	CX2GUElsword_SwordMan::CompactCounterGuardAttackEventProcess	PORTED	Char Elsword CH1g2: inside; animation end to JUMP_DOWN ( y -= 1.5 LINE_RADIUS ) or WAIT, then the Elsword ground walk cancel ( March: WALK_CANCEL_AFTER )
+32cfe090	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_EventProcess	PORTED	Char Elsword CH1g2: new under _CORE; end to WAIT on a line only, ground walk / dash cancel, SKILL_CANCEL_AFTER( skill time )
+32cfe280	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_EventProcess	PORTED	Char Elsword CH1g2: inside; end, flag 0 ( m_fEventTime[0] ) to DASH_COMBO_XXX on oneX window, ground walk and dash cancel ( March: ELSE_IF_STATE_CHANGE_ON_EX_ + walk / dash )
+32cfe440	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XXX_EventProcess	PORTED	Char Elsword CH1g2: inside; end, ground dash cancel, SKILL_CANCEL_AFTER( walk time ) ( JUNE_BUGS #522 ); = March order
+32cfe5e0	CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XX_EventProcess	PORTED	Char Elsword CH1g2: inside; = March ( oneX / oneZ flags, landing picks XXX / Z1 / X2 LANDING )
+32cfe650	CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_EventProcess	PORTED	Char Elsword CH1g2: inside; end on a line to WAIT, ground walk and dash cancel, SKILL_CANCEL_AFTER( skill time )
+32d13d20	CX2GUElsword_SwordMan::CompactCounterGuardAttackCameraMove	PORTED	Char Elsword CH1g2: inside; = March ( CAMERA table 1 / 2 SUB_CAMERA0 / 1, flag 0 set )
+32d17550	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_FrameMove	PORTED	Char Elsword CH1g2: new under _CORE; 0.2: IsEnoughMPForAttack( 6, Dummy2_Lhand, 0, ( 0, 0, 45 ) ) then EffectSet_EIS_DASH_XX
+32d1f130	CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove	PORTED	Char Elsword CH1g2: inside; = March ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
+32d1f200	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_FrameMove	PORTED	Char Elsword CH1g2: new under _CORE ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
+32d1f2d0	CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove	PORTED	Char Elsword CH1g2: inside; = March ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )

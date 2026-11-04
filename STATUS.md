@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1g2 | **ready** (`/x2-phase char-elsword CH1g2`): Infinity Sword line + Compact Counter guard attack (16; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUElsword_SwordMan.*` | `CH1g2.md` |
+| CH1g2 | **done 2026-11-04, review ready** (`/x2-phase char-elsword CH1g2 review`): 16 fns (12 inside, 4 new), JUNE_BUGS #522; nothing to play-test | Opus 5.5 / high | CH1g2 | `X2GUElsword_SwordMan.*` | `CH1g2-review.md` |
 | CH1h | blocked (CH1g2 review): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUElsword_SwordMan.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUElsword_SwordMan.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GUElsword_SwordMan.*` | `CH1j.md` |

@@ -17954,6 +17954,69 @@ void CX2GUElsword_SwordMan::ESSI_ETK_DASH_JUMP_ZZZ_FrameMove()
 
 	CommonFrameMove();
 }
+
+void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_StateEnd()
+{
+	/// June 32cf4470
+	SetEnableAttackBox( L"Sword", true );
+	CommonStateEnd();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_EventProcess()
+{
+	/// June 32cfe090: no jump-down branch on the animation end
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_FrameMove()
+{
+	/// June 32d17550: the MP check costs 6 at the left hand and tilts the not-enough-MP effect +45 on Z
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if ( true == m_pXSkinAnim->EventTimer( 0.2f ) && true == EventCheck( 0.2f, false ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vHandPos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if ( true == IsEnoughMPForAttack( 6.f, vHandPos, 0.f, D3DXVECTOR3( 0.f, 0.f, 45.f ) ) )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_EIS_DASH_XX", this );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_FrameMove()
+{
+	/// June 32d1f200
+	if ( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
+	{
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+
+		if ( true == bTableOpen )
+		{
+			m_DamageData.SimpleInit();
+			m_DamageData.attackerType = CX2DamageManager::AT_UNIT;
+			m_DamageData.optrAttackerGameUnit = this;
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+			m_LuaManager.EndTable();
+		}
+	}
+
+	CommonFrameMove();
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_StateStartFuture()
 {
@@ -21164,6 +21227,24 @@ void CX2GUElsword_SwordMan::CompactCounterAttackStateEnd()
 //ESSI_REVENGE_ATTACK
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfdbe0: no skill-memo defence time
+	CommonStateStart();
+
+	m_DamageData.damage.fPhysic = m_fRevengeAddDamage + m_DamageData.damage.fPhysic;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_A_ES_COUNTER, false, 0, true );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::SI_A_ES_COUNTER );
+
+	if ( NULL != pSkillTemplet )
+	{
+		if ( GetRandomInt( 0 ) < pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) * 100.0 )
+		{
+			m_DamageData.reActType = CX2DamageManager::RT_SMALL_DAMAGE;
+			m_DamageData.backSpeed = D3DXVECTOR2( 0.f, 0.f );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStart();
 
 	m_DamageData.damage.fPhysic += m_fRevengeAddDamage;
@@ -21204,12 +21285,19 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackStart()
 	}	
 #endif
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf4260
 	CommonStateStartFuture();
 	m_bApplyMotionOffset = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStartFuture();
+	m_bApplyMotionOffset = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMoveFuture()
@@ -21223,6 +21311,24 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMoveFuture()
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1f130
+	if ( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
+	{
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+
+		if ( true == bTableOpen )
+		{
+			m_DamageData.SimpleInit();
+			m_DamageData.attackerType = CX2DamageManager::AT_UNIT;
+			m_DamageData.optrAttackerGameUnit = this;
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+			m_LuaManager.EndTable();
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21248,10 +21354,45 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove()
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackCameraMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d13d20
+	CommonCameraMove();
+
+	if ( false == m_FrameDataNow.stateParam.bEventFlagList[0] )
+	{
+		switch ( m_FrameDataNow.stateParam.normalCamera )
+		{
+		case 1:
+			{
+				if ( true == m_LuaManager.BeginTable( "CAMERA", m_FrameDataNow.stateParam.normalCamera ) )
+				{
+					g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA0" );
+					g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA1" );
+					m_LuaManager.EndTable();
+				}
+			}
+			break;
+
+		case 2:
+			{
+				if ( true == m_LuaManager.BeginTable( "CAMERA", m_FrameDataNow.stateParam.normalCamera ) )
+				{
+					g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA0" );
+					g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA1" );
+					m_LuaManager.EndTable();
+				}
+			}
+			break;
+		}
+	}
+
+	m_FrameDataNow.stateParam.bEventFlagList[0] = true;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonCameraMove();
 
 	if( m_FrameDataNow.stateParam.bEventFlagList[0] == false )
@@ -21283,10 +21424,29 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackCameraMove()
 	}
 
 	m_FrameDataNow.stateParam.bEventFlagList[0] = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfdcb0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_GROUND_WALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -21300,12 +21460,19 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackEventProcess()
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CompactCounterGuardAttackStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf4280
+	SetEnableAttackBox( L"Sword", true );
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	SetEnableAttackBox(L"Sword", true );
 	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_MAELSTORM_RAGE_Init()
@@ -22271,6 +22438,26 @@ void CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_PHANTOM_SWORD_EventProcess()
 #ifdef SERV_ELSWORD_INFINITY_SWORD
 void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfe280
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_EIS_DASH_COMBO_XXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -22283,10 +22470,29 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XX_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfe440: the skill cancel reads the walk time
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_GROUND_DASH_CANCEL
+	SKILL_CANCEL_AFTER( m_fWalkCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -22298,10 +22504,39 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_XXX_EventProcess()
 	SKILL_CANCEL_AFTER( m_fWalkCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfe5e0
+	if ( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+	else if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( ESSI_EIS_DASHJUMP_COMBO_XXX );
+		}
+		else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1] )
+		{
+			StateChange( ESSI_COMBO_Z1 );
+		}
+		else
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_X2_LANDING );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
 //#endif LINEMAP_FAST_WIND_TEST
@@ -22331,10 +22566,29 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1f2d0
+	if ( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
+	{
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+
+		if ( true == bTableOpen )
+		{
+			m_DamageData.SimpleInit();
+			m_DamageData.attackerType = CX2DamageManager::AT_UNIT;
+			m_DamageData.optrAttackerGameUnit = this;
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+			m_LuaManager.EndTable();
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -22360,9 +22614,25 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove()
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfe650
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( true == IsOnSomethingFuture() )
@@ -22373,12 +22643,19 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf4490
+	SetEnableAttackBox( L"Sword", true );
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	SetEnableAttackBox(L"Sword", true );
 	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_SI_A_EIS_SPIRAL_STING_FrameMove()
