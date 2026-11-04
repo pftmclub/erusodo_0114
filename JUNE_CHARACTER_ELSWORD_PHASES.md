@@ -1819,6 +1819,33 @@ Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in fron
 6. **E Double Slash.** Two-part slash; keys cancel to wait from 3.667 s.
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+### CH2b - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Every CH2b address read from `charport_adis.py elsword` listings (Kick Start also decompiled in Ghidra); commit `efe978f9`.
+- **Play-test run** (06:42-06:44, after the 05:15 deploy, md5 7154ba9f): all twelve ids equipped (`equip skill` lines, both banks), Kick 21219 `level 1 force down -50.0`
+  x4, `Effectset_A_ELK_IMPACT_SMASH` x4, `EffectSet_SI_SA_ESK_MORTAL_BLOW_Ultimate` x6, `EffectSet_SA_Elsword_DoubleSlash` x2, `EffectSet_SA_Elsword_SpiralBlast` x1; no
+  `EXCEPTION`, 2 `UNHANDLED` (`E_DISABLE_HB_CHECK_REQ`, not this phase).
+- **Mortal Blow EP `32d05530`:** end -> JUMP_DOWN (0x11) / WAIT (0xd) by foot; then `0 <= +0x8ca4 < t`, foot, `pureUp || pureDown` -> WAIT; skill `+0x8c90` (foot,
+  vslot 0x7f4 with `ASUT_GROUND` = 1) falling through to the hyper branch (black hole, `oneLCtr`, count > 0, vslot 0x560, `+0x8c90`, quick-slot wait, `+0x8d4c` = 1) =
+  `SKILL_CANCEL_AFTER` under `JUNE_BUFF_AWAKE_LOCK`; back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c` = the three 7h macros; Z then X on `+0x8c8c` with the foot,
+  vslots 0x4b0 / 0x4b4 (the `push 0` is StateChange's bool); `CommonEventProcess` last. FrameMove `32cf4de0` = a jump to vslot 0x7cc. = port, branch for branch.
+- **Kick Start `32cfa6c0`:** CommonStateStart; `31fca8e0( 0x52d2 = 21202, 1 )`; `+0x867c` non-null; `32890620( id, 0, 0, 1 )` floored at 1; `32206e50( 0x2a, level, 0,
+  0.0 )` (SA 42 = `SA_FORCE_DOWN_ABS`, `X2SkillTree.cpp:612`; literal PvE 0 = `false`), `fchs` -> `+0x790`. No memo lines. = port.
+- **Impact Smash EP `32cfed60`:** end; dash `+0x8c9c` (foot); walk `+0x8c98` (foot) -> WAIT; skill / hyper on `+0x8c90`. = port (`_GROUND_DASH`, `_GROUND_WALK`, `SKILL_CANCEL_AFTER`).
+- **"= March" rows:** `32cf3b00` (SpiralBlast01.X), `32cf3f10` (Armor_Break_Impact01.Y), `32cf4530` (7 textures, 2 skins, 1 mesh, same order), `32cf9e50` (14 keys =
+  `_ZXC`, `2.4 < t`), `32cfa740` (no foot -> JUMP_DOWN and y -= 45.0 = `LINE_RADIUS * 1.5`; 12 keys = `_C`, `0.5 < t`), `32cfadc0`, `32cfc430` (`_ZXC`, `t >= 3.667`):
+  all equal March.
+- **Registration:** the 12 `ch0_skill_listing_rows.tsv` rows (`32d223e0`) = the six cases slot for slot (hyper: Mortal Blow FM + EP, Kick Start + EP, the rest EP only; normal
+  table names for every hyper state). March's Double Slash FrameMove (1.9 s stun removal) and StateEnd are not in June's case: June wins, as ported.
+- **JUNE_BUGS 530:** 21006 has NUMERICAL_DATA1 only; `Fire_Ground` asks INDEX 2 -> June's zero row. Verbatim, engine-side, no C++. Agreed.
+- **`#else`:** Kick Start and Impact Smash EP keep March's whole bodies; flag-off = base (flagcheck).
+- **`_SKILL_DEBUG` retired** (`Always.h:11616`, `//#define`): the `ELSWORD SKILL` lines go dark.
+
+**Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range efe978f9^..efe978f9 --files` the four code files: `1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (X2SkillTree.h:
+JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, 1 deleted line (the `//#define`), `RESULT: PASS`. `git diff --patience --numstat`: code files pure insertion (141 / 6 / 17), Always.h 1 / 1.
+`junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s) remain`. One-file probe (`census.cl_cmd`, `/c /Zs
+/EHsc`): exit 0, 0 errors. Build: not awaited (only change is the `_DEBUG` retirement). CH2c kickoff amended (below the CH1p block).
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

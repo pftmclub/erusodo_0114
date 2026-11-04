@@ -54,3 +54,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1p (2026-11-04)
 
 - Held-key skills read `CX2GUUser::m_kSkillSlotKey` (June `+0x8b58`; `Set` `31fce6d0`, `IsKeyReleased` `31fc89a0`, `X2GUUser.h`, `_EVE_CORE`): Wind Blade StartFuture `32cf3bd0` and EventProcess `32cfa080` (inside March's `ESSI_SI1_ES_WIND_BLADE_EventProcess`). March has no key reader there: port June's calls whole.
+
+## Amended by CH2b review (2026-11-05)
+
+- The class map can call a function "new" when March already has it under the same name (CH2b: Spiral Blast Init / EP). Grep March by name first; equal bodies are "= March" rows, not copies.
+- A June case registers only the callbacks June fills (the hyper state often EP only); a March callback June leaves out (CH2b: Double Slash FrameMove / StateEnd) is dropped, and the Done note says so.
+- `_SKILL_DEBUG` is `//#define` again: define it for this phase, the CH2c review retires it.
