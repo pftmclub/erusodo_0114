@@ -47,3 +47,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 1** (`awk -F'\t' '$8=="CH1n"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_SUMMON_MAGIC_SPEAR`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L326 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0; §7i L442 SetEquippedSkillFuncBySkillSlotIndex: drop the 31fd2af0 snapshot call,; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTim.
 - `ESSI_SUMMON_MAGIC_SPEAR` (id 286) registers only `CX2GUUser` callbacks (`31ffba50` / `31fcbd10`). The skill switch read from the listing: 143 rows for 127 ids (`ch0_skill_listing_rows.tsv`; 22 passives produce no state).
+
+## Amended by CH1m (2026-11-04)
+
+- `june2017_re/char_elsword/ch1m_user_callbacks.tsv`: the 157 `CX2GUUser` members Elsword's registration names, with their June targets (funcmap
+  name, or `CH0 pair` for the machine-gun / magic-spear states). Diff it against Chung's `ch1n_user_callback_triage.tsv` to find the rows not covered.

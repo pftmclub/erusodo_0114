@@ -574,7 +574,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d1f3a0	state-fn	ESSI_SI_A_EIS_SPIRAL_STING.FrameMove	inside X2GUElsword_SwordMan.cpp:4042 CX2GUElsword_SwordMan::ESSI_SI_A_EIS_SPIRAL_STING_FrameMove	inside	-	CH2d	1 states	n
 32d1f470	state-fn	ESSI_SI_SA_EIS_RAGE_CUTTER.FrameMove	inside X2GUElsword_SwordMan.cpp:4064 CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_RAGE_CUTTER_FrameMove	inside	-	CH3c	1 states	y
 32d1f690	override 0x24c	SetSpecificValueByBuffTempletID	X2GUElsword_SwordMan.h:456 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3204b5e0	y
-32d1f8f0	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GUElsword_SwordMan.cpp InitState	inside	-	CH1m		y
+32d1f8f0	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GUElsword_SwordMan.cpp InitStateCommon (CH1m correction)	inside	-	CH1m		y
 32d223e0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUElsword_SwordMan.h:460 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
 32d23ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 4e5233894c2420e8	n
 32d23ff0	override 0x7a4 + registrar	InitState	X2GUElsword_SwordMan.h:446 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y

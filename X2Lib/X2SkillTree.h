@@ -2186,6 +2186,12 @@ public:
 		RNSI_A_ES_ENDURANCE_UPGRADE                           = 21218,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1m
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID name Elsword's InitStateCommon tests ( value from June's Enum.lua )
+		RNSI_A_EIS_COMPACT_COUNTER                            = 21216,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

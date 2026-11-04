@@ -1,0 +1,158 @@
+member	june_target	funcmap
+DAMAGE_GROGGY_EventProcess	329cc160	CX2GUUser::DAMAGE_GROGGY_EventProcess
+DamageAirDownEventProcess	31fcc180	CX2GUUser::DamageAirDownEventProcess
+DamageAirDownInvincibleEventProcess	31fcc1b0	CX2GUUser::DamageAirDownInvincibleEventProcess
+DamageAirDownLandingFrameMove	31ffd160	CX2GUUser::DamageAirDownLandingFrameMove
+DamageAirDownLandingStart	31ffcee0	CX2GUUser::DamageAirDownLandingStart
+DamageAirFallEventProcess	31fcc1e0	CX2GUUser::DamageAirFallEventProcess
+DamageAirFlyEventProcess	31fcc260	CX2GUUser::DamageAirFlyEventProcess
+DamageAirSmallEventProcess	31fcc150	CX2GUUser::DamageAirSmallEventProcess
+DamageAirSmallStartFuture	31fd26c0	CX2GUUser::DamageAirSmallStartFuture
+DamageAirUpEventProcess	31fcc220	CX2GUUser::DamageAirUpEventProcess
+DamageBigEventProcess	31fcbf80	CX2GUUser::JuneDamageBigEventProcess
+DamageBigStart	31fc7fd0	CX2GUUser::JuneDamageBigStart
+DamageRevengeCameraMove	31ffd390	CX2GUUser::DamageRevengeCameraMove
+DamageRevengeEventProcess	31fcc2b0	CX2GUUser::DamageRevengeEventProcess
+DamageRevengeStart	31ffd310	CX2GUUser::DamageRevengeStart
+DamageSmallEventProcess	31fcbed0	CX2GUUser::JuneDamageSmallEventProcess
+DamageStandUpEnd	31fc7ff0	CX2GUUser::DamageStandUpEnd
+DamageStandUpEventProcess	31fcc0e0	CX2GUUser::DamageStandUpEventProcess
+DashFrameMoveFuture	31fd25e0	CX2GUUser::DashFrameMoveFuture
+DashJumpEndFuture	31fc7f80	CX2GUUser::JuneDashJumpEndFuture
+DashJumpFrameMoveFuture	31fd2520	CX2GUUser::JuneDashJumpFrameMoveFuture
+DashJumpLandingStartFuture	31fcbe40	CX2GUUser::DashJumpLandingStartFuture
+DashJumpStart	31fcbdf0	CX2GUUser::JuneDashJumpStart
+DashJumpStartFuture	31fc7f50	CX2GUUser::JuneDashJumpStartFuture
+DashStart	31fc7fa0	CX2GUUser::DashStart
+DashStartFuture	329cc1f0	CX2GUUser::DashStartFuture
+HyperModeEnd	329cc0e0	CX2GUUser USI_HYPER_MODE StateEnd = jmp vslot 0x604
+HyperModeEventProcess	31fcc300	CX2GUUser::HyperModeEventProcess
+HyperModeStart	31ffd490	CX2GUUser::HyperModeStart
+HyperModeStartFuture	31fc8050	CX2GUUser::HyperModeStartFuture
+JumpFrameMoveFuture	31fd2470	CX2GUUser::JumpFrameMoveFuture
+JumpLandingStart	31fc7f30	CX2GUUser::JumpLandingStart
+JuneRandomLoseEventProcess	31fcd0b0	CX2GUUser::JuneRandomLoseEventProcess
+LoseStateStart	320007e0	CX2GUUser::JuneLoseStateStart
+MACHINE_GUN_ATTACK_EventProcess	31ffb7f0	- (CH0 pair: March base member)
+MACHINE_GUN_ATTACK_FrameMove	31ffb4f0	- (CH0 pair: March base member)
+MACHINE_GUN_ATTACK_FrameMoveFuture	31fc7ef0	- (CH0 pair: March base member)
+MACHINE_GUN_JUMP_DOWN_EventProcess	31fcbce0	- (CH0 pair: March base member)
+MACHINE_GUN_JUMP_DOWN_FrameMoveFuture	31fd2330	- (CH0 pair: March base member)
+MACHINE_GUN_JUMP_UP_EventProcess	31fc7f00	- (CH0 pair: March base member)
+MACHINE_GUN_JUMP_UP_FrameMoveFuture	31fd2280	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_CameraMove	31fc7eb0	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_EventProcess	31fcbcb0	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_FrameMove	31fc7ea0	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_FrameMoveFuture	31fc7e90	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_Start	31fd2000	- (CH0 pair: March base member)
+MACHINE_GUN_LEAVE_StartFuture	31fd1f20	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_CameraMove	31fc7e80	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_EventProcess	31fcbc80	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_FrameMove	31fc7e70	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_FrameMoveFuture	31fc7e60	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_Start	31fd9af0	- (CH0 pair: March base member)
+MACHINE_GUN_RIDE_StartFuture	31fd9970	- (CH0 pair: March base member)
+MACHINE_GUN_WAIT_EventProcess	31ffb130	- (CH0 pair: March base member)
+MACHINE_GUN_WAIT_FrameMoveFuture	31fc7ee0	- (CH0 pair: March base member)
+MACHINE_GUN_WAIT_Start	31fc7ed0	- (CH0 pair: March base member)
+MACHINE_GUN_WAIT_StartFuture	31fc7ec0	- (CH0 pair: March base member)
+MACHINE_GUN_WALK_EventProcess	31ffb370	- (CH0 pair: March base member)
+MACHINE_GUN_WALK_FrameMoveFuture	31fd2220	- (CH0 pair: March base member)
+PEPPER_RUN_END_EventProcess	329cc1a0	CX2GUUser::PEPPER_RUN_END_EventProcess
+PEPPER_RUN_END_FrameMove	329cc100	CX2GUUser::PEPPER_RUN_END_FrameMove
+PEPPER_RUN_EventProcess	329cc070	CX2GUUser::PEPPER_RUN_EventProcess
+PEPPER_RUN_FrameMoveFuture	329cbff0	CX2GUUser::PEPPER_RUN_FrameMoveFuture
+PEPPER_RUN_JUMP_DOWN_EventProcess	329cc0a0	CX2GUUser::PEPPER_RUN_JUMP_DOWN_EventProcess
+PEPPER_RUN_JUMP_DOWN_FrameMoveFuture	329cc020	CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture
+PEPPER_RUN_JUMP_DOWN_StateStartFuture	329cc1b0	CX2GUUser::PEPPER_RUN_JUMP_DOWN_StateStartFuture
+PEPPER_RUN_JUMP_UP_EventProcess	329cc120	CX2GUUser::PEPPER_RUN_JUMP_UP_EventProcess
+PEPPER_RUN_JUMP_UP_FrameMoveFuture	329cc090	CX2GUUser::PEPPER_RUN_JUMP_UP_FrameMoveFuture
+PEPPER_RUN_JUMP_UP_StateStartFuture	329cc010	CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture
+PEPPER_RUN_READY_EventProcess	329cc180	CX2GUUser::PEPPER_RUN_READY_EventProcess
+RidingAttackXEventProcess	320322e0	CX2GUUser::RidingAttackXEventProcess
+RidingAttackXStart	31fe93f0	CX2GUUser::RidingAttackXStart
+RidingAttackXStartFuture	31fce2c0	CX2GUUser::RidingAttackXStartFuture
+RidingAttackZEventProcess	32031e60	CX2GUUser riding-pet cancel-after checks, then CommonEventProcess (none in March
+RidingAttackZStart	32001f70	CX2GUUser::RidingAttackZStart
+RidingAttackZStartFuture	31fce260	CX2GUUser::RidingAttackZStartFuture
+RidingDamageBackEventProcess	31fd3760	CX2GUUser::RidingDamageBackEventProcess
+RidingDamageBackStart	31fce220	CX2GUUser::RidingDamageBackStart
+RidingDamageBackStartFuture	31fce1e0	CX2GUUser::RidingDamageBackStartFuture
+RidingDamageFrontEventProcess	31fd3630	CX2GUUser::RidingDamageFrontEventProcess
+RidingDamageFrontStart	31fce1a0	CX2GUUser::RidingDamageFrontStart
+RidingDashEndEventProcess	329cc110	CX2GUUser::RidingDashEndEventProcess
+RidingDashEndFrameMove	31fd3460	CX2GUUser::RidingDashEndFrameMove
+RidingDashEndStart	31fce080	CX2GUUser::RidingDashEndStart
+RidingDashEndStartFuture	31fd3400	CX2GUUser::RidingDashEndStartFuture
+RidingDashEventProcess	329cc080	CX2GUUser::RidingDashEventProcess
+RidingDashJumpEndFuture	31fc8880	CX2GUUser::RidingDashJumpEndFuture
+RidingDashJumpEventProcess	32031860	CX2GUUser::RidingDashJumpEventProcess
+RidingDashJumpFrameMoveFuture	31fd3570	CX2GUUser::RidingDashJumpFrameMoveFuture
+RidingDashJumpLandingEventProcess	32031bb0	CX2GUUser::RidingDashJumpLandingEventProcess (June)
+RidingDashJumpLandingStart	31fce110	CX2GUUser::RidingDashJumpLandingStart
+RidingDashJumpStart	31fce0b0	CX2GUUser::RidingDashJumpStart
+RidingDashJumpStartFuture	31fc8850	CX2GUUser::RidingDashJumpStartFuture
+RidingDashStart	31fce040	CX2GUUser::RidingDashStart
+RidingHyperModeEnd	32cf0fa0	CX2GUArme_VioletMage::June_RidingHyperModeEnd
+RidingHyperModeEventProcess	32006b90	CX2GUUser::RidingHyperModeEventProcess
+RidingHyperModeStart	31fe96c0	CX2GUUser::RidingHyperModeStart
+RidingHyperModeStartFuture	31fc8ae0	CX2GUUser::RidingHyperModeStartFuture
+RidingJumpAttackZEventProcess	31fd3890	CX2GUUser::RidingJumpAttackZEventProcess
+RidingJumpAttackZFrameMoveFuture	31fc88a0	CX2GUUser::RidingJumpAttackZFrameMoveFuture
+RidingJumpAttackZStart	32002c60	CX2GUUser::RidingJumpAttackZStart
+RidingJumpAttackZStartFuture	31fce290	CX2GUUser::RidingJumpAttackZStartFuture
+RidingJumpDownEventProcess	32030e70	CX2GUUser::RidingJumpDownEventProcess
+RidingJumpDownStart	31fcdf90	CX2GUUser::RidingJumpDownStart
+RidingJumpDownStartFuture	31fcdf60	CX2GUUser::RidingJumpDownStartFuture
+RidingJumpLandingEventProcess	329cc000	CX2GUUser::RidingJumpLandingEventProcess
+RidingJumpLandingStart	31fcdff0	CX2GUUser::RidingJumpLandingStart
+RidingJumpLandingStartFuture	31fcdfc0	CX2GUUser::RidingJumpLandingStartFuture
+RidingJumpUpEventProcess	32030d50	CX2GUUser::RidingJumpUpEventProcess
+RidingJumpUpStart	31fcdf30	CX2GUUser::RidingJumpUpStart
+RidingJumpUpStartFuture	31fcdf00	CX2GUUser::RidingJumpUpStartFuture
+RidingOffEnd	329cc060	CX2GUUser::RidingOffEnd
+RidingOffEventProcess	31fc8830	CX2GUUser::RidingOffEventProcess
+RidingOnEventProcess	32030580	CX2GUUser::RidingOnEventProcess
+RidingOnStart	31fcdd50	CX2GUUser::RidingOnStart
+RidingOnStartFuture	31fcdd20	CX2GUUser::RidingOnStartFuture
+RidingSpecialAttackEventProcess	320327f0	CX2GUUser::RidingSpecialAttackEventProcess
+RidingSpecialAttackFrameMove	32003ea0	CX2GUUser::RidingSpecialAttackFrameMove
+RidingSpecialAttackStart	31fce320	CX2GUUser::RidingSpecialAttackStart
+RidingSpecialAttackStartFuture	31fce2f0	CX2GUUser::RidingSpecialAttackStartFuture
+RidingSpecialMoveEnd	31fd4000	CX2GUUser::RidingSpecialMoveEnd
+RidingSpecialMoveEndFutrue	31fd3eb0	CX2GUUser::RidingSpecialMoveEndFutrue
+RidingSpecialMoveEventProcess	32032e70	CX2GUUser::RidingSpecialMoveEventProcess
+RidingSpecialMoveFrameMove	31fc88e0	CX2GUUser::RidingSpecialMoveFrameMove
+RidingSpecialMoveFrameMoveFuture	31fd3950	CX2GUUser::RidingSpecialMoveFrameMoveFuture
+RidingSpecialMoveStart	32004950	CX2GUUser::RidingSpecialMoveStart
+RidingSpecialMoveStartFuture	31fe94e0	CX2GUUser::RidingSpecialMoveStartFuture
+RidingStartEventProcess	3201f780	CX2GUUser::RidingStartEventProcess
+RidingStartStart	31fcdcb0	CX2GUUser::RidingStartStart
+RidingStartStartFuture	31fcdc80	CX2GUUser::RidingStartStartFuture
+RidingWaitEventProcess	329cc0f0	CX2GUUser::RidingWaitEventProcess
+RidingWaitHabitEventProcess	32032bb0	CX2GUUser::RidingWaitHabitEventProcess
+RidingWaitHabitStart	32004760	CX2GUUser::RidingWaitHabitStart
+RidingWaitHabitStartFuture	31fce350	CX2GUUser::RidingWaitHabitStartFuture
+RidingWaitStart	32001c10	CX2GUUser::RidingWaitStart
+RidingWaitStartFuture	31fcdea0	CX2GUUser::RidingWaitStartFuture
+RidingWalkEventProcess	329cc190	CX2GUUser::RidingWalkEventProcess
+RidingWalkStart	32001dc0	CX2GUUser::RidingWalkStart
+RidingWalkStartFuture	31fcded0	CX2GUUser::RidingWalkStartFuture
+SUMMON_MAGIC_SPEAR_EventProcess	31fcbd10	- (CH0 pair: March base member)
+SUMMON_MAGIC_SPEAR_FrameMove	31ffba50	- (CH0 pair: March base member)
+StartEnd	3201b460	CX2GUUser::StartEnd
+StartEventProcess	3201b390	CX2GUUser::JuneStartEventProcess
+StartIntrudeEventProcess	31fcbdb0	CX2GUUser::StartIntrudeEventProcess
+StartIntrudeFrameMove	31ffc5c0	CX2GUUser::StartIntrudeFrameMove
+StartIntrudeStart	31ffc280	CX2GUUser::StartIntrudeStart
+StartStateStart	31ffbd70	CX2GUUser::JuneStartStateStart
+THROW_ITEM_CameraMove	31fc7e50	CX2GUUser::THROW_ITEM_CameraMove
+THROW_ITEM_EventProcess	31fcbc10	CX2GUUser::THROW_ITEM_EventProcess
+THROW_ITEM_FrameMove	31ff92d0	CX2GUUser::THROW_ITEM_FrameMove
+THROW_ITEM_FrameMoveFuture	31fc7e40	CX2GUUser::THROW_ITEM_FrameMoveFuture
+THROW_ITEM_StateEnd	31ffaad0	CX2GUUser::THROW_ITEM_StateEnd
+THROW_ITEM_StateStart	31fc7e20	CX2GUUser::THROW_ITEM_StateStart
+WalkFrameMoveFuture	31fd23e0	CX2GUUser::WalkFrameMoveFuture
+WallLandingEndFuture	31fc8030	CX2GUUser::WallLandingEndFuture
+WallLandingEventProcess	31fd2760	CX2GUUser::WallLandingEventProcess
+WinStateStart	320004b0	CX2GUUser::JuneWinStateStart

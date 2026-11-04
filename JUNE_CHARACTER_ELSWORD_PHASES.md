@@ -1072,6 +1072,61 @@ All 15 class-map rows of phase `CH1k` are written: 9 `inside` (June's body insid
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1m.md` checked: it depends on this review and registers from `ch0_state_skill.tsv` by name. Next: `/x2-phase char-elsword CH1m` (Opus 5.5 high).
 
+### CH1m - Done (2026-11-04)
+
+Both class-map rows are written, both `inside`: June's bodies sit in March's own `InitState` (`32d23ff0`, vslot 0x7a4) and `InitStateCommon`
+(`32d1f8f0`) under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, with March's bodies in the `#else` (still `//#define`d). Elsword has no
+`InitStateByUnitClass`: June's class tests sit in `InitState` after START / WIN / LOSE, as March's do. Class map: `32d1f8f0`'s March pair corrected to `InitStateCommon`.
+
+**How it was derived.** `june2017_re/char_elsword/ch1m_regsim.py` (Chung's, with Elsword's class registers `local_68` / `uVar4` / `iVar6` and the
+21216 test switchable by `CH1M_21216=1`) walks fresh decompiles once per class; its output equals CH0's listing-checked `ch0_reg.tsv` row for row
+(callbacks included) under `ch0_build_state_skill.py`'s GATES, all 7 classes. `ch1m_reg_by_class.tsv` is that output (32d1f8f0 on both 21216 paths).
+`ch1m_gen.py` writes the C++: ids by table name through March's own registration of the table (else the `ESSI_` member of that name), callbacks from
+`funcmap.tsv`, else CH0's `inside` member, else CH0's `pair` for a shared target (the machine-gun and magic-spear states keep March's
+`CX2GUUser::MACHINE_GUN_*` / `SUMMON_MAGIC_SPEAR_*`). `ch1m_regcheck.py` parses the `_LIVE` branches per class and per 21216 path:
+**1682 registrations match slot by slot, 0 problems; 154 June ids map one-to-one both ways** (`ch1m_idmap.tsv`).
+
+**InitState `32d23ff0`:** cut-in 1 / 10 / 11 / 22 -> 0, 100 -> 1, 101 -> 2, 112 -> 3 (March's values; no default write). InitStateID is inlined
+@32d24080-32d2409e with four writes only (`ESSI_MACHINE_GUN_WAIT`, `USI_WAIT` x2, `USI_DAMAGE_AIR_FLY_FRONT`, = June 280 / 13 / 13 / 40 by name), so
+March's `InitStateID` gets that body under `_LIVE`: March's six `CLIFF_CLIMBING_TEST` climb writes are dropped (June registers no climb state; the
+readers are the climb states' own callbacks). Then `InitStateCommon`, `InitStateCommonRandom` (3202b110 + 31fe22d0), START (Start / EventProcess / End),
+WIN (`WinStateStart`, Elsword's `WinFrameMove`, `RandomLoseEventProcess`), LOSE (`LoseStateStart`), `InitWaitStateChange( "ESSI_WAIT_STATE_CHANGE" )`
+@32d2446a (7h), the `ESSI_EMK_WIN2` test (`+0x960c`), five class tests, vslots 0x690 / 0x684( 0 ) / `31fd8f00`. `31fc93d0` (empty stub) is not called.
+Class tests, written as one `switch( eClass )` each: 112 (`ETK_COMBO_ZZZ` .. `ZZZZZ`); 22 / 112 (`ETK_COMBO_XX` .. `XXX_END`); @660 1 / 10+100 / 11+101 /
+22 / 112 (112 falls into 22 in June, written out whole); @824 1+10+22 / 11+101 / 100 / 112; 100 / 101 / 112. Per class 7 / 17 / 15 / 11 / 22 / 23 / 18
+registrations incl. the four head ones. Ids come from March's own registration of the table, except the 25 June-only states (224, 236-258, 260), which take the `ESSI_` member of the table's name.
+
+**InitStateCommon `32d1f8f0`** (119 per path, no class test): hyper id 23 = `GetHyperModeTableName( false )` (Elsword's ELK / ERS / EIS cases were
+already there), FrameMove = Elsword's `HyperModeFrameMove` (vslot 0x600), End = `CX2GUUser::HyperModeEnd`. Bounding = `InitBoundingStates( "ESSI_" )`
+at June's place (7l). **Id 162 @32d20f9c:** base skill level of 21216 < 1 registers `ESSI_REVENGE_ATTACK`, else the `ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK`
+table (March tested 1413 `SI_P_EIS_COMPACT_COUNTER`); June reads `*( +0x867c ) + 0x494` with no null test, as March. `RNSI_A_EIS_COMPACT_COUNTER = 21216`
+registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES`. June's 162 compact counter has no FrameMoveFuture (March had one). `ESSI_SI_P_ESK_AUTO_GUARD*` (232 / 236-238),
+`ESSI_SWORD_WAIT`, `ESSI_DESTRUCTION_RAGE`, `ESSI_WALL_LANDING`, the machine-gun states and `ESSI_LEAP` are unconditional. `ESSI_RIDING_START` = `GetRidingStartStateID()` (June 72).
+March-only states June does not register are dropped (climb, link-jump, the `_HYPER` and Mega Slash states CH0 counted). The 5 `USI_EVENT_*` states of
+this phase are 3202b110's, run by `InitStateCommonRandom`'s head.
+
+**Left out, each a comment line with its owner:** phoenix run 123-126 (PvP; June names 124 / 125 `..._PHOENIX_RUN` too), dance 127-129 (Stage 10),
+riding 93-96 (Stage 17; June names 93 `ESSI_RIDING_HYPER_MODE`), the empty slots `3202a7d0` (die end, in `StateChange`) and `32002f70` (Stage 17).
+**JUNE_BUGS 525:** `ESSI_RIDING_DAMAGE_BACK` registered with no script table; the script defines `ESSI_RIDING_DAMAGE_FRONT` twice (Elsword's twin of 489).
+`ESSI_ELK_XXXXXX` (no table) is row 521.
+
+**The `_LIVE` gate (`Always.h`):** `#error` guards for `JUNE_ENUM_NAMES`, `JUNE_CHAR_ARME_CORE`, `JUNE_CHAR_EVE_CORE`, `HYPER_MODE_FIX`,
+`JUNE_COMMON_RANDOM_STATE`, `JUNE_EVENT_STATES`, `JUNE_WAIT_STATE_CHANGE`, `JUNE_BOUNDING_STATE`; the `_LIVE` probe passes them all (each defined there, `cl /P`).
+For CH1n: `june2017_re/char_elsword/ch1m_user_callbacks.tsv` lists the 157 `CX2GUUser` members the registration names (kickoff amended).
+Checklist: 7h, 7l and the 7ao hyper-table bullet marked `(Elsword: CH1m)`.
+
+**Checks.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`) of `X2GUElsword_SwordMan.cpp`, `_LIVE` off and on: exit 0, 0 errors each. `cl /P`: with `_LIVE`
+the `.i` has `InitWaitStateChange( "ESSI_WAIT_STATE_CHANGE" )`, `InitBoundingStates( "ESSI_" )`, `GetHyperModeTableName( false )` once each; without it none.
+`git diff --patience --numstat`: `X2GUElsword_SwordMan.cpp` 1421 / 0, `Always.h` 24 / 0, `X2SkillTree.h` 6 / 0.
+`flagcheck.py JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 201 deleted line(s), 9 non-ASCII inserted line(s), 33 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+RESULT FAIL only for the `//#define`. The 201 / 9 / 33 are the default diff misaligning the insertion against March's identical lines (patience 1421 / 0;
+the file's LF-only count 145 and high-byte count 5598 are unchanged). `flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `RESULT: PASS`.
+`junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+`DEPLOY OK: X2_offline.exe is 25,960,960 B, dated 2026-11-04 15:29:53, md5 cac905c434a40028b5aac44d7c380e20, equal to X2/US_SERVICE/x2.exe (2026-11-04 15:29:47); built at main e1fcbeb4 + 3 uncommitted code file(s).`
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1m review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

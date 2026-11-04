@@ -1287,6 +1287,13 @@ void CX2GUElsword_SwordMan::Draw()
 
 void CX2GUElsword_SwordMan::InitStateID()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d23ff0 @32d24080-32d2409e inlines it; no climb states
+	m_MachineGunWaitState	= ESSI_MACHINE_GUN_WAIT;
+	m_ChargeMpState			= USI_WAIT;
+	m_CommonState.m_Wait	= USI_WAIT;
+	m_CommonState.m_Thrown	= USI_DAMAGE_AIR_FLY_FRONT;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	m_MachineGunWaitState	= ESSI_MACHINE_GUN_WAIT;
 	m_ChargeMpState			= USI_WAIT;
 
@@ -1313,6 +1320,7 @@ void CX2GUElsword_SwordMan::InitStateID()
 //#ifdef TRANSFORMER_TEST
 //	m_CommonState.m_Transformed			= ESSI_TRANSFORMED;
 //#endif TRANSFORMER_TEST
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 
 
@@ -1322,6 +1330,564 @@ void CX2GUElsword_SwordMan::InitStateID()
 
 void CX2GUElsword_SwordMan::InitState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+// June 32d23ff0 ( vslot 0x7a4 )
+	const CX2Unit::UNIT_CLASS eClass = ( NULL != GetUnit() ) ? GetUnit()->GetUnitData().m_UnitClass : CX2Unit::UC_NONE;
+
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_SWORDMAN:
+	case CX2Unit::UC_ELSWORD_KNIGHT:
+	case CX2Unit::UC_ELSWORD_MAGIC_KNIGHT:
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT:
+		m_iSkillCutInSetIndex = 0;
+		break;
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:
+		m_iSkillCutInSetIndex = 1;
+		break;
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:
+		m_iSkillCutInSetIndex = 2;
+		break;
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		m_iSkillCutInSetIndex = 3;
+		break;
+	default:
+		break;
+	}
+
+	InitStateID();				/// June @32d24080-32d2409e inline it
+	InitStateCommon();			/// June 32d1f8f0
+
+	std::string strStartTableNameUTF8;
+	std::string strWinTableNameUTF8;
+	std::string strLoseTableNameUTF8;
+	InitStateCommonRandom( strStartTableNameUTF8, strWinTableNameUTF8, strLoseTableNameUTF8 );	/// June 3202b110 then 31fe22d0
+
+	UserUnitStateData stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_START;
+	m_LuaManager.MakeTableReference( strStartTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, StartStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WIN;
+	m_LuaManager.MakeTableReference( strWinTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, WinStateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, WinFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RandomLoseEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_LOSE;
+	m_LuaManager.MakeTableReference( strLoseTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, LoseStateStart );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June @32d2446a ( id 0x82, checklist 7h )
+	InitWaitStateChange( "ESSI_WAIT_STATE_CHANGE" );
+
+	if( 0 == strWinTableNameUTF8.compare( "ESSI_EMK_WIN2" ) )
+		m_bIsMagicKnightWinMotion2 = true;
+
+	/// June 32d23ff0 @310: Infinity Sword
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_ZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_ZZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_ZZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_ZZZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_ZZZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_ZZZZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_ZZZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32d23ff0 @460: Sheath Knight and Infinity Sword
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT:
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_XX;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_XX", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XX_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_XXX_LOOP;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_XXX_LOOP", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_LOOP_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_LOOP_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_LOOP_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_LOOP_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_XXXZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_XXXZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXXZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXXZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXXZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_COMBO_XXX_END;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_COMBO_XXX_END", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_END_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_END_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_END_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_COMBO_XXX_END_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32d23ff0 @660 switch ( 112 falls into 22 )
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_SWORDMAN:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z2;
+			m_LuaManager.MakeTableReference( "ESSI_DASH_COMBO_Z2", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashComboZ2StartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashComboZ2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashComboZ2EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z3;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_COMBO_Z3", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_KNIGHT:
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z2;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_COMBO_Z2", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z2_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z3;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_COMBO_Z3", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z3a;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_COMBO_Z3a", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3a_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ESK_DASH_COMBO_ZX;
+			m_LuaManager.MakeTableReference( "ESSI_ESK_DASH_COMBO_ZX", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_COMBO_ZX_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_COMBO_ZX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ESK_DASH_COMBO_ZXX;
+			m_LuaManager.MakeTableReference( "ESSI_ESK_DASH_COMBO_ZXX", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_COMBO_ZXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ESK_DASH_COMBO_ZChargeX;
+			m_LuaManager.MakeTableReference( "ESSI_ESK_DASH_COMBO_ZChargeX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ESK_DASH_JUMP_ZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ESK_DASH_JUMP_ZZZ", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_JUMP_ZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ESK_DASH_JUMP_ZZZ_LANDING;
+			m_LuaManager.MakeTableReference( "ESSI_ESK_DASH_JUMP_ZZZ_LANDING", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_XXX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_XXX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_XXXX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_XXXX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_XXXXX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_XXXXX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXXXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_XXXXXX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_XXXXXX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_XXXXXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_MAGIC_KNIGHT:
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z2;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_COMBO_Z2", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z2_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z3;
+			m_LuaManager.MakeTableReference( "ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_StateStartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_COMBO_Z3a;
+			m_LuaManager.MakeTableReference( "ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_StateEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_DASH_JUMP_ZX;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_DASH_JUMP_ZX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_DASH_JUMP_ZX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_DASH_JUMP_ZXX;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_DASH_JUMP_ZXX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_DASH_JUMP_ZXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_COMBO_XZ;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_COMBO_XZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_XZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_XZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_COMBO_XZ_CHARGE;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_COMBO_XZ_CHARGE", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_XZ_CHARGE_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_COMBO_XZZ;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_COMBO_XZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_XZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EMK_COMBO_FULL_CHARGE_XZZ;
+			m_LuaManager.MakeTableReference( "ESSI_EMK_COMBO_FULL_CHARGE_XZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_FULL_CHARGE_XZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EMK_COMBO_FULL_CHARGE_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_DASH_COMBO_ZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_DASH_COMBO_ZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_DASH_JUMP_ZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_DASH_JUMP_ZZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_JUMP_ZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_JUMP_ZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_EIS_DASH_COMBO_ZX;
+			m_LuaManager.MakeTableReference( "ESSI_EIS_DASH_COMBO_ZX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_ZX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_ZX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_ZX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_DASH_COMBO_ZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_DASH_COMBO_ZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_COMBO_ZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ETK_DASH_JUMP_ZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ETK_DASH_JUMP_ZZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_JUMP_ZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ETK_DASH_JUMP_ZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32d23ff0 @824 switch
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_SWORDMAN:
+	case CX2Unit::UC_ELSWORD_KNIGHT:
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2End );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_MAGIC_KNIGHT:
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2End );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2a;
+			m_LuaManager.MakeTableReference( "ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_JUMP_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_JUMP_COMBO_X2_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_JUMP_COMBO_X2_End );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X3;
+			m_LuaManager.MakeTableReference( "ESSI_KNIGHT_DASH_JUMP_COMBO_X3", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_KNIGHT_DASH_JUMP_COMBO_X3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "ESSI_EIS_DASHJUMP_COMBO_XX", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASHJUMP_COMBO_XX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2End );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EIS_DASHJUMP_COMBO_XXX;
+			m_LuaManager.MakeTableReference( "ESSI_EIS_DASHJUMP_COMBO_XXX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASHJUMP_COMBO_XXX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASHJUMP_COMBO_XXX_End );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32d23ff0 @941: Lord Knight / Rune Slayer / Infinity Sword
+	switch( eClass )
+	{
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_ZZZfrontZ;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_ZZZfrontZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_ZZZfrontZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_ZZZfrontZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_DASH_COMBO_XChargeX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_DASH_COMBO_XChargeX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_DASH_COMBO_XChargeX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_DASH_COMBO_XX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_DASH_COMBO_XX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_DASH_COMBO_XX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ELK_DASH_COMBO_XXX;
+			m_LuaManager.MakeTableReference( "ESSI_ELK_DASH_COMBO_XXX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ELK_DASH_COMBO_XXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_XZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_XZ", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_StateStartFuture );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_XZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_XZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_DASH_JUMP_XZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_DASH_JUMP_XZ", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZ_StateStartFuture );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZ_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZ_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZ_StateEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_DASH_JUMP_XZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_DASH_JUMP_XZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_DASH_JUMP_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_XZ_CHARGE;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_XZ_CHARGE", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_CHARGE_StateStart );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_XZ_CHARGE_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_FULL_CHARGE_XZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_FULL_CHARGE_XZZ", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_FULL_CHARGE_XZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_FULL_CHARGE_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_COMBO_ZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_COMBO_ZZZ", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COMBO_ZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_ERS_COMBO_ZZZZ;
+			m_LuaManager.MakeTableReference( "ESSI_ERS_COMBO_ZZZZ", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COMBO_ZZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:
+		{
+			stateData.Init();
+			stateData.stateID			= ESSI_EIS_DASH_COMBO_XX;
+			m_LuaManager.MakeTableReference( "ESSI_EIS_DASH_COMBO_XX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_XX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_XX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= ESSI_EIS_DASH_COMBO_XXX;
+			m_LuaManager.MakeTableReference( "ESSI_EIS_DASH_COMBO_XXX", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_EIS_DASH_COMBO_XXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+	InitPassiveSkillState();					/// June vslot 0x690
+	InitEquippedActiveSkillState( false );		/// June vslot 0x684
+	CX2GUUser::InitState();						/// June 31fd8f00
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	ASSERT( NULL != GetUnit() );
 
 	const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
@@ -1777,10 +2343,864 @@ void CX2GUElsword_SwordMan::InitState()
 
 
 	CX2GUUser::InitState();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::InitStateCommon()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+// June 32d1f8f0
+	const std::string strHyperModeTable = GetHyperModeTableName( false );
+	UserUnitStateData stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DIE_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DIE_FRONT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DIE_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DIE_BACK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieBackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieBackStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieBackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieBackEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_START_INTRUDE;
+	m_LuaManager.MakeTableReference( "ESSI_START_INTRUDE", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, StartIntrudeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, StartIntrudeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartIntrudeEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WAIT;
+	m_LuaManager.MakeTableReference( "ESSI_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, WaitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, WaitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, WaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WALK;
+	m_LuaManager.MakeTableReference( "ESSI_WALK", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, WalkFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, WalkEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_READY;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_READY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpReadyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_UP;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_UP", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_DOWN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_LANDING", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH;
+	m_LuaManager.MakeTableReference( "ESSI_DASH", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_END;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_END", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashEndStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashEndStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashEndFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_JUMP;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashJumpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, DashJumpEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_POWER_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_POWER_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpPowerLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpPowerLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpPowerLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_HYPER_MODE;
+	m_LuaManager.MakeTableReference( strHyperModeTable.c_str(), stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, HyperModeStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, HyperModeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, HyperModeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, HyperModeEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, HyperModeEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_GROGGY;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_GROGGY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DAMAGE_GROGGY_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_SMALL_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_SMALL_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_SMALL_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_SMALL_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_BIG_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_BIG_FRONT", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_BIG_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_BIG_BACK", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_DOWN_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_DOWN_FRONT", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DamageDownFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DamageDownFrontEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_DOWN_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_DOWN_BACK", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DamageDownBackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DamageDownBackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_STANDUP_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_STANDUP_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageStandUpEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, DamageStandUpEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_STANDUP_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_STANDUP_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageStandUpEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, DamageStandUpEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_SMALL;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_SMALL", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DamageAirSmallStartFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_DOWN", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN_INVINCIBLE;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_DOWN_INVINCIBLE", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirDownInvincibleEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_DOWN_LANDING", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageAirDownLandingStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, DamageAirDownLandingFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DamageAirDownLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FALL;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_FALL", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_UP;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_UP", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_FLY_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFlyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FLY_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_AIR_FLY_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFlyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_REVENGE;
+	m_LuaManager.MakeTableReference( "ESSI_DAMAGE_REVENGE", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageRevengeStart );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, DamageRevengeCameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageRevengeEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ROLLING_FRONT_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ROLLING_FRONT_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingFrontFrontEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingFrontFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ROLLING_FRONT_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ROLLING_FRONT_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingFrontBackEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingFrontBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ROLLING_BACK_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ROLLING_BACK_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingBackFrontEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingBackFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ROLLING_BACK_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ROLLING_BACK_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingBackBackEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpRollingBackBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ATTACK_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ATTACK_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackFrontEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ATTACK_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ATTACK_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackBackEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ATTACK_FRONT_NO_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ATTACK_FRONT_NO_DOWN", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackFrontNoDownEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackFrontNoDownEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_STANDUP_ATTACK_BACK_NO_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_STANDUP_ATTACK_BACK_NO_DOWN", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackBackNoDownEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, StandUpAttackBackNoDownEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SI_P_ESK_AUTO_GUARD;
+	m_LuaManager.MakeTableReference( "ESSI_SI_P_ESK_AUTO_GUARD", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_Start );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_End );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SI_P_ESK_AUTO_GUARD_SMALL;
+	m_LuaManager.MakeTableReference( "ESSI_SI_P_ESK_AUTO_GUARD_SMALL", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_Start );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_End );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SI_P_ESK_AUTO_GUARD_END;
+	m_LuaManager.MakeTableReference( "ESSI_SI_P_ESK_AUTO_GUARD_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL;
+	m_LuaManager.MakeTableReference( "ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June @32d20f9c: base skill level of 21216 below 1 registers the revenge attack, else the compact counter
+	if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_EIS_COMPACT_COUNTER, true ) < 1 )
+	{
+		stateData.Init();
+		stateData.stateID			= ESSI_REVENGE_ATTACK;
+		m_LuaManager.MakeTableReference( "ESSI_REVENGE_ATTACK", stateData.stateID );
+		stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, RevengeAttackStart );
+		stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, RevengeAttackFrameMoveFuture );
+		stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, RevengeAttackFrameMove );
+		stateData.OnCameraMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, RevengeAttackCameraMove );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, RevengeAttackEventProcess );
+		m_StateList[stateData.stateID] = stateData;
+	}
+	else
+	{
+		stateData.Init();
+		stateData.stateID			= ESSI_REVENGE_ATTACK;
+		m_LuaManager.MakeTableReference( "ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK", stateData.stateID );
+		stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackStartFuture );
+		stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackStart );
+		stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackFrameMove );
+		stateData.OnCameraMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackCameraMove );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackEventProcess );
+		stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, CompactCounterGuardAttackStateEnd );
+		m_StateList[stateData.stateID] = stateData;
+	}
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_Z1;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_Z1", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ1FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_Z2;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_Z2", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ2FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ2EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_Z3;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_Z3", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ3FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ3EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_Z4;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_Z4", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ4FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ4FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ4EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_Z4a;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_Z4a", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ4aFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboZ4aEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_X1;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_X1", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX1FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_X2;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_X2", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX2FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX2FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX2EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_X3;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_X3", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX3FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX3FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX3EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_COMBO_X3a;
+	m_LuaManager.MakeTableReference( "ESSI_COMBO_X3a", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ComboX3aEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_COMBO_Z1;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_COMBO_Z1", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashComboZ1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_ATTACK_X;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_ATTACK_X", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashAttackXStartFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_JUMP_ATTACK_Z;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_ATTACK_Z", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackZFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackZFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackZEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_JUMP_ATTACK_X;
+	m_LuaManager.MakeTableReference( "ESSI_JUMP_ATTACK_X", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackXFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackXFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, JumpAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_Z1;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_Z1", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_Z2;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_Z2", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ2FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ2EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_Z3;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_Z3", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ3FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ3EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_Z3_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_Z3_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ3LandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ3LandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboZ3LandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_X1;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_X1", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DASH_JUMP_COMBO_X2_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_DASH_JUMP_COMBO_X2_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2LandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2LandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DashJumpComboX2LandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SWORD_WAIT;
+	m_LuaManager.MakeTableReference( "ESSI_SWORD_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, SwordWaitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, SwordWaitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, SwordWaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_DESTRUCTION_RAGE;
+	m_LuaManager.MakeTableReference( "ESSI_DESTRUCTION_RAGE", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DestructionRageStateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DestructionRageStateFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DestructionRageStateEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_WALL_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_WALL_LANDING", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, WallLandingEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, WallLandingEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_READY;
+	m_LuaManager.MakeTableReference( "ESSI_PEPPER_RUN_READY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_READY_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN;
+	m_LuaManager.MakeTableReference( "ESSI_PEPPER_RUN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_END;
+	m_LuaManager.MakeTableReference( "ESSI_PEPPER_RUN_END", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_END_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_JUMP_UP;
+	m_LuaManager.MakeTableReference( "ESSI_PEPPER_RUN_JUMP_UP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_StateStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_PEPPER_RUN_JUMP_DOWN", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_StateStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32d1f8f0 @1372: ESSI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 123 ), left out: PvP amusement mode, no PvP offline
+	/// June 32d1f8f0 @1378: ESSI_AMUSEMENT_ITEM_PHOENIX_RUN_END ( id 126 ), left out: PvP amusement mode, no PvP offline
+	/// June 32d1f8f0 @1386: ESSI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 124 ), left out: PvP amusement mode, no PvP offline
+	/// June 32d1f8f0 @1394: ESSI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 125 ), left out: PvP amusement mode, no PvP offline
+	/// June 32d1f8f0 @1398: ESSI_DANCE_Z ( id 127 ), left out: dance state, Stage 10
+	/// June 32d1f8f0 @1402: ESSI_DANCE_X ( id 128 ), left out: dance state, Stage 10
+	/// June 32d1f8f0 @1406: ESSI_DANCE_WAIT ( id 129 ), left out: dance state, Stage 10
+	/// June 32d1f8f0 @1410: the three DAMAGE_BOUNDING states ( checklist 7l )
+	InitBoundingStates( "ESSI_" );
+
+	stateData.Init();
+	stateData.stateID			= USI_THROW_ITEM;
+	m_LuaManager.MakeTableReference( "ESSI_THROW_ITEM", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_StateStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, THROW_ITEM_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_FrameMove );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_CameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, THROW_ITEM_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, THROW_ITEM_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= GetRidingStartStateID();
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_START", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingStartStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingStartStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingStartEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ON;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_ON", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingOnStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingOnStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingOnEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_OFF;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_OFF", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingOffEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingOffEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WAIT_HABIT;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_WAIT_HABIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWaitHabitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWaitHabitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWaitHabitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WAIT;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWaitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWaitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WALK;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_WALK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWalkStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWalkStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, WalkFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWalkEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_UP;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_JUMP_UP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpUpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpUpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_JUMP_DOWN", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpDownStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpDownStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DASH", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_END;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DASH_END", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDashEndStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashEndStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingDashEndFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_JUMP;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DASH_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashJumpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashJumpEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DASH_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashJumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DAMAGE_FRONT;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DAMAGE_FRONT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDamageBackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDamageFrontStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDamageFrontEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DAMAGE_BACK;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DAMAGE_BACK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDamageBackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDamageBackStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDamageBackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DIE;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_DIE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, DieFrontEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ATTACK_Z;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_ATTACK_Z", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingAttackZStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingAttackZStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingAttackZEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_ATTACK_Z;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_JUMP_ATTACK_Z", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ATTACK_X;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_ATTACK_X", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingAttackXStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingAttackXStart );
+	/// June 32002f70 ( OnFrameMove ): none in March, riding Stage 17
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_SPECIAL_ATTACK;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_ATTACK_SPECIAL", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_SPECIAL_MOVE;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_SPECIAL_MOVE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEndFutrue );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_HYPER_MODE;
+	m_LuaManager.MakeTableReference( "ESSI_RIDING_HYPER_MODE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingHyperModeStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingHyperModeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUElsword_SwordMan, RidingHyperModeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingHyperModeEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingHyperModeEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32d1f8f0 @1656: ESSI_RIDING_HYPER_MODE ( id 93 ), left out: riding, Stage 17
+	/// June 32d1f8f0 @1664: ESSI_RIDING_ATTACK_X_READY ( id 94 ), left out: riding, Stage 17
+	/// June 32d1f8f0 @1672: ESSI_RIDING_ATTACK_X_READY_2 ( id 95 ), left out: riding, Stage 17
+	/// June 32d1f8f0 @1680: ESSI_RIDING_ATTACK_X_END ( id 96 ), left out: riding, Stage 17
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_RIDE;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_RIDE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_StartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_Start );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_FrameMove );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_CameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_RIDE_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_WAIT;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WAIT_StartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WAIT_Start );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WAIT_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WAIT_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_WALK;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_WALK", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WALK_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_WALK_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_ATTACK;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_ATTACK", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_ATTACK_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_ATTACK_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_ATTACK_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_LEAVE;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_LEAVE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_StartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_Start );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_FrameMove );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_CameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_LEAVE_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_JUMP_UP;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_JUMP_UP", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_JUMP_UP_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_JUMP_UP_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_MACHINE_GUN_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "ESSI_MACHINE_GUN_JUMP_DOWN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_JUMP_DOWN_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, MACHINE_GUN_JUMP_DOWN_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_SUMMON_MAGIC_SPEAR;
+	m_LuaManager.MakeTableReference( "ESSI_SUMMON_MAGIC_SPEAR", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, SUMMON_MAGIC_SPEAR_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, SUMMON_MAGIC_SPEAR_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= ESSI_LEAP;
+	m_LuaManager.MakeTableReference( "ESSI_LEAP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_LEAP_StartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_LEAP_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_LEAP_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_LEAP_End );
+	m_StateList[stateData.stateID] = stateData;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	UserUnitStateData stateData;
 
@@ -2936,6 +4356,7 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 //
 //
 //#endif TRANSFORMER_TEST
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 
 }
