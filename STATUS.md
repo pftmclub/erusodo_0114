@@ -177,8 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1d | **done 2026-11-04, review next**: 28 fns inside under `_LIVE`, `_CORE` defined (2 ESSI ids + `IsInJobLine` decl), no play-test; `/x2-phase char-elsword CH1d review` | Opus 5.5 / high | CH1d | `X2GUElsword_SwordMan.*` | `CH1d-review.md` |
-| CH1d2 | blocked (CH1d review): dash and dash-jump combos, shared knight dash combos (28; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUElsword_SwordMan.*` | `CH1d2.md` |
+| CH1d2 | **ready**: dash and dash-jump combos, shared knight dash combos (28; CH0 split); `/x2-phase char-elsword CH1d2` | Sonnet 5.5 / high, Opus review | CH1d review (done) | `X2GUElsword_SwordMan.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Sword Knight + Lord Knight lines | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUElsword_SwordMan.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Magic Knight + Rune Slayer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUElsword_SwordMan.*` | `CH1f.md` |
 | CH1g | blocked (CH1f review): Sheath Knight line (31; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |
@@ -209,7 +208,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-raven` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-03), CH1a (2026-11-04; review PASS, no code change), CH1b (2026-11-04; review PASS with one fix: +0x9684 is March's `m_fRollingSpeedRel`), CH1c (2026-11-04; review PASS, no code change).
+Done: CH0 (2026-11-03), CH1a (2026-11-04; review PASS, no code change), CH1b (2026-11-04; review PASS with one fix: +0x9684 is March's `m_fRollingSpeedRel`), CH1c (2026-11-04; review PASS, no code change), CH1d (2026-11-04; review PASS, no code change).
 
 ## char-luciel - June character port, Stage 8: Lu/Ciel (first new character)
 Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `LUCIEL <sub>`: `DATA`, `NEWUNIT`, `CREATE`, `DUO`, `CORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`, `JOB`, `TUTORIAL`) · flags `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_*` (`_CORE`, `_LIVE`, `_DUO`, `_DATA`, `_STARTER_ITEMS`, `_SKILL`, `_PASSIVE`, `_UI`, `_CLASS_CHANGE`, `_TUTORIAL`, + `_DEBUG`) and class-agnostic `SERV_IRUHADEV_JUNE_CHAR_*` (`UNIT_TYPE_RANGE`, `UNIT_CLASS_WORD`, `MINOR_UNIT_TEMPLET`, `CREATE`, `DUO_BODY`, `EQUIP_VIEW`, `NESI_RENUMBER`, `DUO_VIEW`), `SERV_IRUHADEV_JUNE_USER_DAMAGE_STATE_GETTERS` · kickoffs `kickoffs/char-luciel/` · backlog Stage 8 · created 2026-11-02.

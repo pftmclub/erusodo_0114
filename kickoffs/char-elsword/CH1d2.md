@@ -20,7 +20,8 @@ Then CH0's Done note and the earlier CH1 Done notes / reviews (their routed gaps
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1d2` (Sword Man ground combos (9 `ESSI_COMBO*`, 12 `ESSI_A*`) and the `KNIGHT` / `SWORD` / `MAGIC` common blocks CH0 assigned) from Ghidra, **whole**. The plan's "Transcription rules (CH1a-CH1k)" apply:
+Transcribe every function the class map gives phase `CH1d2` (the dash, dash-attack and dash-jump combos and the shared knight dash combos; see the CH0 amendment below) from Ghidra, **whole**.
+CH1d left `ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_` / `_DASH_`, `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE` / `_SET_IN_WINDOW` and `IsDataClass` / `IsTempletClass` (`_CONST_ELSWORD_CH1D_`) under `_LIVE` before `//ESSI_COMBO_Z1`: reuse them where June's listing has the same shape. The plan's "Transcription rules (CH1a-CH1k)" apply:
 - **`inside` rows:** June's body inside March's `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's body in `#else`,
   `#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`. Add `_LIVE` to `Always.h` as `//#define` if no earlier phase did. Prove the June path compiles: one `cl /c` of
   `X2GUElsword_SwordMan.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (the build's own flags), result in the Done note.
@@ -32,7 +33,7 @@ Transcribe every function the class map gives phase `CH1d2` (Sword Man ground co
 - An alpha-tag site (7c, `c10a_alpha_sites.tsv`) inside one of these functions is written here.
 - June's numbers, order and quirks verbatim (a `JUNE_BUGS.md` row each); `m_fNowStatePowerRate` (7i); June's BFI arguments (7ai).
 - `X2GUElsword_SwordMan.*` are CP949 (`.cpp` mixed endings, `.h` mostly LF): `bytepatch.py` only; check each `#ifdef` branch with `cl /P`.
-- Done gate: every class-map row with phase `CH1d` is written (the Done note lists them with June addresses and `inside` / `new`); the build
+- Done gate: every class-map row with phase `CH1d2` is written (the Done note lists them with June addresses and `inside` / `new`); the build
   passes with `_LIVE` undefined and the one-file probe passes with it defined; `junediverge.py --check` and `enumscan.py --check` on the class
   files PASS. Nothing to play-test: the hand-off says so and names the next phase.
 
