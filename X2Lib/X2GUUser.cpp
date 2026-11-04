@@ -32306,6 +32306,12 @@ void CX2GUUser::MACHINE_GUN_WAIT_EventProcess()
 		m_PhysicParam.nowSpeed.y = -( GetDashSpeed() );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31ffb130, the block as 31ffb954
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	else
+		m_PhysicParam.nowSpeed.x = 0.0f;
+#else SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32320,6 +32326,7 @@ void CX2GUUser::MACHINE_GUN_WAIT_EventProcess()
 	{
 		m_PhysicParam.nowSpeed.x = 0.0f;
 	}
+#endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 
 	if ( m_InputData.pureUp == false && m_InputData.pureDown == false )
 	{
@@ -32515,6 +32522,12 @@ void CX2GUUser::MACHINE_GUN_ATTACK_EventProcess()
 		m_PhysicParam.nowSpeed.y = -( GetDashSpeed() );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31ffb7f0 @31ffb954
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	else
+		m_PhysicParam.nowSpeed.x = 0.0f;
+#else SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32529,6 +32542,7 @@ void CX2GUUser::MACHINE_GUN_ATTACK_EventProcess()
 	{
 		m_PhysicParam.nowSpeed.x = 0.0f;
 	}
+#endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 
 	if ( m_InputData.pureUp == false && m_InputData.pureDown == false )
 	{
@@ -32547,6 +32561,10 @@ void CX2GUUser::MACHINE_GUN_ATTACK_EventProcess()
 
 void CX2GUUser::MACHINE_GUN_JUMP_UP_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31fd2280
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+#else SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32557,6 +32575,7 @@ void CX2GUUser::MACHINE_GUN_JUMP_UP_FrameMoveFuture()
 		m_FrameDataFuture.syncData.bIsRight = false;
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
 	}
+#endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 
 	if( m_InputData.pureDown == true && m_InputData.pureUp == false )
 	{
@@ -32579,6 +32598,10 @@ void CX2GUUser::MACHINE_GUN_JUMP_UP_EventProcess()
 
 void CX2GUUser::MACHINE_GUN_JUMP_DOWN_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+	if( true == UpdateFutureIsRightByArrowKeys() )		// June 31fd2330
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+#else SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -32589,6 +32612,7 @@ void CX2GUUser::MACHINE_GUN_JUMP_DOWN_FrameMoveFuture()
 		m_FrameDataFuture.syncData.bIsRight = false;
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
 	}
+#endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 
 	if( m_InputData.pureDown == true  && m_InputData.pureUp == false )
 	{

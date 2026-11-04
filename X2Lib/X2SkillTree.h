@@ -2192,6 +2192,17 @@ public:
 		RNSI_A_EIS_COMPACT_COUNTER                            = 21216,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1n
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Elsword's skill-slot head spells ( values from June's Enum.lua )
+		RNSI_HA_ELK_GIGANTIC_SLASH                            = 21600,
+		RNSI_HA_ERS_SHININGRUNE_BUSTER                        = 21601,
+		RNSI_HA_EIS_BLADE_RAIN                                = 21602,
+		RNSI_HA_ELK_GIGANTIC_SLASH_UPGRADE                    = 21603,
+		RNSI_HA_ERS_SHININGRUNE_BUSTER_UPGRADE                = 21604,
+		RNSI_HA_EIS_BLADE_RAIN_UPGRADE                        = 21605,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

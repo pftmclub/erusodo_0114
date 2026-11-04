@@ -1168,6 +1168,55 @@ One-file probes (`/c /Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`.
 
 **Nothing to play-test** (`_LIVE` is off). CH1n's kickoff stands as written. Next: `/x2-phase char-elsword CH1n` (Opus 5.5 high).
 
+### CH1n - Done (2026-11-04)
+
+**Head (`32d223e0`), inside, `_LIVE`.** June's head sits in March's own `SetEquippedSkillFuncBySkillSlotIndex` up to the id switch; March's head
+and type switch are the `#else`. Read from the decompile, the listing and the exe bytes (Chung's CH1n is the template):
+- Bounds `0 > slot || 4 < slot`; tables `33521204` / `3352132c` (normal A / B = 50.. / 60..) and `33521318` / `33521340` (hyper 51.. / 61..) = March's
+  four arrays (read from the exe). `31fd2af0` dropped (7i), `+0x11` = `IsSkillSlotState`, hyper `0x101`; `GetEquippedActiveSkillTemplet( id, true )`.
+  The batch `3207c1a0` / `31fdf970` is anti-tamper only, as Chung's.
+- **Transcendence memo @32d224e4:** `31fdbcc0`, then `32206450( memo, 1 )` non-null -> straight to the end. Elsword's memo switch has **no case**, so a
+  transcended skill registers nothing (Chung's had five). Checklist §7b marked.
+- **Types** (jump table `32d23de0` / `32d23df0`): 5 buff = `ESSI_SI_ES_COMMON_BUFF` on **both** slots (March's hyper used `..._HYPER`; June has no
+  such name here), FM `32a77a20` = vslot 0x5f0 (Elsword's override `32d08590`, CH1h), EP `31fcbd60`; 6 / 7 / 0xd-0x10 = the hyper switch, then the id
+  switch; 0xc + 900 = `ESSI_THROW_ITEM`, FM / EP `329cc0d0` / `329cc170` = vslots 0x5f4 / 0x5f8; anything else returns.
+- **Hyper switch:** 21600 / 21603 Gigantic Slash (Init `32cf4930`, EP `31fcc740` = `GenericSpecialActiveSkillEventProcess`), 21601 / 21604 Shining Rune
+  Buster (`32cf49d0` / `32d00be0`), 21602 / 21605 Blade Rain (`32cf4ab0` / `32d00de0`). The hyper state gets the EventProcess only (March also gave SRB /
+  Blade Rain's hyper the Init). `> 21600` and no case -> `@32d23c1e`; `< 21600` -> the id switch (March's until CH2-CH3). Bodies are CH3d's (kickoff amended).
+- **`SetMegaSlashSkillFunc`** (new, `_CORE`; June `@32d23c1e`, the default of both June switches; there is no explicit Mega Slash case). June registers
+  `ESSI_SI_A_MEGASLASH_MEMO_READY` / `_CHARGE` 0xea / `_FIRE` 0xeb there, whose bodies are CH2a's new functions, so the helper holds March's
+  `ESSI_SI1_ES_MEGA_SLASH` case until CH2a (kickoff amended). Under `_LIVE` March's id-switch `default:` calls it (Chung's `SetLunaticBlowSkillFunc` shape).
+- Enum names (`JUNE_ENUM_NAMES`, `X2SkillTree.h`): `RNSI_HA_ELK_GIGANTIC_SLASH`, `RNSI_HA_ERS_SHININGRUNE_BUSTER`, `RNSI_HA_EIS_BLADE_RAIN` 21600-21602
+  and their `_UPGRADE` 21603-21605 (June `Enum.src.lua`, June's spelling). Types 14-16 named (§7ae marked; `ResetLeftSkillCoolTimeBySkillType` n/a).
+- `Always.h`: three new `_LIVE` guards, `JUNE_SKILL_TYPE` (grades 14-16), `JUNE_SKILL_NOTE` and `JUNE_DAMAGE_EXCEPTION` (`GetTranscendenceMemoSkillID`).
+
+**Dev free-skill gate.** `32d223e0` has no cool-time / MP check; the gate is CH1k's in `SpecialAttackLookup` (`32d1bd10`). Checklist §7 dev-gate row
+and 7i marked `(Elsword: ...)`.
+
+**Base callbacks.** Elsword's 157 (`ch1m_user_callbacks.tsv`) minus Chung's 127 triaged rows = 33, triaged in
+`june2017_re/char_elsword/ch1n_user_callback_triage.tsv` (bytes via capstone; spot-checked `31fd2280`, `31ffb954`): **28 SAME, 5 DIFF**.
+- **Ported, new flag `SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING` (defined, every class, base code):** `MACHINE_GUN_WAIT_EventProcess` (`31ffb130`),
+  `_ATTACK_EventProcess` (`31ffb7f0`), `_JUMP_UP_FrameMoveFuture` (`31fd2280`), `_JUMP_DOWN_FrameMoveFuture` (`31fd2330`): both arrows held -> the arrow
+  pressed this frame turns the unit (CH1n2's `UpdateFutureIsRightByArrowKeys`; `#error` guard on `JUNE_USER_BASE_STATE_BODIES`). Speed is set as June
+  (dash / walk speed when any arrow is held, 0 otherwise in WAIT / ATTACK). Unreachable in this build: only `RIDE_MACHINE_GUN` (off, `InHouseEtc.h`) enters them.
+- **Kept, already decided:** `RandomLoseEventProcess`'s `find` guard (Chung's CH1n).
+- Same: Small / Big damage, DashJump x3 (CH1j/CH1k's `_CHAR_ARME_CORE` bodies), the rest of the machine gun, Summon Magic Spear x2.
+
+**Checks.** One-file probes (`/c /Zs /EHsc`): `X2GUElsword_SwordMan.cpp` `_LIVE` off exit 0 / 0 errors, `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` exit 0
+/ 0 errors (`cl /P`: `SetMegaSlashSkillFunc( normalStateData` 0 vs 2, so the flag took effect); `X2GUUser.cpp` exit 0 / 0 errors.
+`git diff --patience --numstat`: `Always.h` 23 / 0, `X2GUElsword_SwordMan.cpp` 139 / 0, `.h` 1 / 0, `X2GUUser.cpp` 24 / 0, `X2SkillTree.h` 11 / 0.
+`flagcheck JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_USER_MACHINE_GUN_FACING --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_CHAR_ELSWORD_LIVE --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `0 FAIL`, RESULT FAIL only for the `//#define` (by design).
+Each: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+`junediverge.py --check` (the five code files): `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+Funcmap rows `Char Elsword CH1n` (2). No JUNE_BUGS row.
+`DEPLOY OK: X2_offline.exe is 25,961,472 B, dated 2026-11-04 16:32:33, md5 8806640ca1bf33e361fe86e6822d369e, equal to X2/US_SERVICE/x2.exe (2026-11-04 16:32:26); built at main 6f5f0b12 + 5 uncommitted code file(s).`
+No `exestr` line: `_LIVE` is off, and the machine-gun bodies add no string.
+
+**Nothing to play-test** (`_LIVE` is off; the machine-gun states cannot be entered). Next: `/x2-phase char-elsword CH1n review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1n | **ready** (`/x2-phase char-elsword CH1n`): base callbacks + skill-slot head `32d223e0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review (done) | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1n.md` |
+| CH1n | **code done 2026-11-04, review next** (`/x2-phase char-elsword CH1n review`): head `32d223e0` under `_LIVE`, `SetMegaSlashSkillFunc`, 33-row callback triage (4 machine-gun bodies, flag `JUNE_USER_MACHINE_GUN_FACING`), no play-test | Opus 5.5 / high | CH1n | `X2GUElsword_SwordMan.*`, `X2GUUser.cpp`, Always.h, `X2SkillTree.h` | `CH1n-review.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, routed gaps; replaces `GetNearestNPCUnitUID`, writes `31f76580` | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): Way of the Sword class side + damage math, flag `_WOS` (CH0 split) | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2Gage*`, `X2DamageManager.*` | `CH1q.md` |

@@ -11498,5 +11498,28 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel upgrade swap )
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TYPE
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE needs SERV_IRUHADEV_JUNE_SKILL_TYPE ( ST_SPECIAL_ACTIVE_GRADE_1..3 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE needs SERV_IRUHADEV_JUNE_SKILL_NOTE ( GetTranscendenceMemoSkillID )
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE needs SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ( GetTranscendenceMemoSkillID )
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: June character port ( Elsword ) Phase CH1n - the machine-gun wait / attack / jump-up / jump-down states face like walk and
+//              jump in June: with both arrows held the arrow pressed this frame turns the unit ( June 31ffb130, 31ffb7f0, 31fd2280, 31fd2330 ).
+//              Revert: undefine the flag ( JUNE_USER_MACHINE_GUN_FACING ).
+#define SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+#ifdef SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
+#ifndef SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#error SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING needs SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES ( UpdateFutureIsRightByArrowKeys )
+#endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
+#endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 //////////////////////////////////////////////////////////////////////////

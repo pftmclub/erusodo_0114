@@ -978,6 +978,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ESSI_EIS_DASH_COMBO_ZX_EventProcess();		/// June 32cfe090
 		void ESSI_EIS_DASH_COMBO_XX_FrameMove();		/// June 32d17550
 		void ESSI_EIS_DASH_COMBO_ZX_FrameMove();		/// June 32d1f200
+		void SetMegaSlashSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );		/// June 32d223e0 @32d23c1e ( both skill switches' default )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1
