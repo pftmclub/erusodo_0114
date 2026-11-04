@@ -193,6 +193,13 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 			ESSI_EMK_COMBO_FULL_CHARGE_XZZ,		/// June script id 254 ( full charge X Z Z; CH1f state )
 			ESSI_ERS_FULL_CHARGE_XZZ,		/// June script id 256 ( full charge X Z Z; CH1f state )
 			ESSI_ERS_COMBO_ZZZZ,		/// June script id 257 ( Z Z Z Z; CH1f state )
+			ESSI_SI_A_MEGASLASH_MEMO_CHARGE,		/// June script id 234 ( Mega Slash memo charge; CH2a owns the state )
+			ESSI_SI_A_MEGASLASH_MEMO_FIRE,		/// June script id 235 ( Mega Slash memo fire; CH2a owns the state )
+			ESSI_ERS_COUNTER_GUARD,		/// June script id 259 ( Rune Slayer counter guard; CH3b owns the state )
+			ESSI_SI1_ES_WIND_BLADE_ULTIMATE,		/// June script id 262 ( Wind Blade upgrade; CH2c owns the state )
+			ESSI_SA_ELK_GRAND_CROSS_CHARGE,		/// June script id 263 ( Grand Cross charge; CH3a owns the state )
+			ESSI_SA_ELK_GRAND_CROSS_END,		/// June script id 264 ( Grand Cross end; CH3a owns the state )
+			ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE,		/// June script id 265 ( Grand Cross full charge; CH3a owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		};
 		
@@ -914,6 +921,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ComboX3aEventProcess();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		bool IsInJobLine( int iJobLine_ );		/// June 32d05960 ( vslot 0x670 ): body in CH1i
+		void SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, ELSWORD_SWORDMAN_STATE_ID eStateID_ );		/// June 32028190 ( vslot 0x7a8 )
 		void ESSI_ESK_DASH_COMBO_ZX_StateStartFuture();		/// June 32cf4d30
 		void ESSI_ESK_DASH_COMBO_ZX_EventProcess();		/// June 32d01040
 		void ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture();		/// June 32cf4d40

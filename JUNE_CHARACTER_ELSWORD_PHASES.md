@@ -924,6 +924,31 @@ No `JUNE_BUGS` row: nothing here is a June mistake ( `ApplyBuffToHarshSlayer` en
 
 Nothing to play-test ( `_LIVE` is off ). `kickoffs/char-elsword/CH1i.md` checked: it depends on this review and needs no change. Next: `/x2-phase char-elsword CH1i` ( Sonnet 5.5 high ).
 
+### CH1i - Done (2026-11-04)
+
+All 4 class-map rows of phase `CH1i` are written: 3 `inside` ( June's body inside March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else` ) and 1 `new` under `_CORE` ( `IsInJobLine` ). One more `new` function was needed: the vslot 0x7a8 callee `SetEquippedSkillLevelStateData` ( `32028190` -> `3201f850` ), which March has no Elsword wrapper for. `_LIVE` stays `//#define`. 5 funcmap rows `Char Elsword CH1i`; 1 `ch1_offsets` row; `JUNE_BUGS` row 523.
+
+| June | `CX2GUElsword_SwordMan::` | kind | vs March |
+|---|---|---|---|
+| `32cf5210` | SetEquippedSkillLevel ( vslot 0x7b8 ) | inside | differs: 8 blocks keyed by June skill id, each through `SetEquippedSkillLevelStateData`; no Air Slash block and no Defence block ( the Defence states 228-231 now belong to skill 21206 ) |
+| `32d05960` | IsInJobLine ( vslot 0x670 ) | new `_CORE` | line 1 = classes 10 / 100, 2 = 11 / 101, 3 = 22 / 112; no unit = false |
+| `32d08c30` | CanRidingState | inside | = March ( the ten state ids in another order, `ESSI_SWORD_WAIT` last ) |
+| `32d1b720` | HyperModeFrameMove ( vslot 0x600 ) | inside | = March's `MODIFY_RIDING_PET_AWAKE` branch: `CommonHyperModeFrameMove( 0.05, 0.83, false )` |
+| `32028190` | SetEquippedSkillLevelStateData ( vslot 0x7a8 ) | new `_CORE` | = Chung's body: level `max( 1, GetSkillLevel( id, 0, 0, 1 ) )`, power rate x `( GetSkillAdditionalPowerRate + 1 )` |
+
+**SetEquippedSkillLevel, block by block** ( `if ( bChangeAll || id )`, templet `GetEquippedActiveSkillTemplet( id, true )` ): 21000 Mega Slash -> states 234 / 235; 21010 Windmill -> 190 / 191, then `m_fWindMillDuration` ( `+0x95a0` ) = `SA_EFFECTIVE_TIME` at the upgrade-swapped level; 21016 Sword Fire -> 192; 21205 Rolling Smash -> 202-205; 21211 Rune Slayer counter -> 259; 21206 Counter -> 228-231; 21035 Wind Blade upgrade -> 262 ( the templet is not tested before the call, the callee tests it ); 21058 Grand Cross -> 263-265. State names come from the enum order ( `Enum.src.lua` ESSI + the March header ): 228-231 are March's `ESSI_SI_A_ES_DEFENCE_*` four ( the slot between `ESSI_EIS_DASHJUMP_COMBO_XXX` 227 and `ESSI_SI_P_ESK_AUTO_GUARD` 232 ), 203 / 205 the Rolling Smash `_HYPER` pair ( `+84` from the Lua values, anchors 204 and 206 agree ), 263 / 264 read from `SetEquippedSkillFunc` `32d223e0` ( `FUN_31fd89b0( 0x107 / 0x108 )` ). The dirty-state batch June opens and closes the function with ( `3207c1a0` / `31fdf970` ) has no March form and is left out, as in Chung's.
+**Quirk kept ( JUNE_BUGS 523 ).** A null `GetUnit()` inside the Windmill block returns from the whole function, skipping the six blocks after it. A user unit always has its unit, so it is latent.
+**Enum names added.** `X2SkillTree.h` ( `JUNE_ENUM_NAMES`, values checked against `Enum.src.lua` ): `RNSI_SA_ES_MEGASLASH` 21000, `RNSI_SA_ELK_WINDMILL` 21010, `RNSI_SA_ERS_SWORD_FIRE` 21016, `RNSI_A_ELK_ROLLING_SMASH` 21205, `RNSI_SA_EMK_WIND_BLADE_UPGRADE` 21035, `RNSI_SA_ELK_GRAND_CROSS` 21058 ( 21206 and 21211 were there ). `X2GUElsword_SwordMan.h` ( `_CORE`, June script ids ): `ESSI_SI_A_MEGASLASH_MEMO_CHARGE` 234, `ESSI_SI_A_MEGASLASH_MEMO_FIRE` 235, `ESSI_ERS_COUNTER_GUARD` 259, `ESSI_SI1_ES_WIND_BLADE_ULTIMATE` 262, `ESSI_SA_ELK_GRAND_CROSS_CHARGE` / `_END` / `_FULL_CHARGE` 263-265 ( states owned by CH2a / CH2c / CH3a / CH3b ).
+**Not written / routed.** The vslot 0x670 virtual keyword for `IsInJobLine` is CH1o's ( the body is plain, as CH1d declared it ). `SetEquippedSkillLevelStateData` is a class function here, not yet the `CX2GUUser` virtual: June calls it through vslot 0x7a8, CH1o decides whether to lift it. The Air Slash and Defence-skill March blocks stay only in `#else`.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `1 PASS~`, `RESULT: PASS`. `git diff --stat`: 155 insertions, 0 deletions.
+- One-file probe ( `census.cl_cmd`, `/c /Zs /EHsc`, no PCH ): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- `DEPLOY OK: X2_offline.exe is 25,958,912 B, dated 2026-11-04 13:05:51, md5 de5ecba75a103f4af2b16cf60379dff7, equal to X2/US_SERVICE/x2.exe (2026-11-04 13:05:44); built at main 2c551fd7 + 3 uncommitted code file(s).` X2Lib 0 errors. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** ( `_LIVE` is off; nothing registers a June body ). Next: `/x2-phase char-elsword CH1i review` ( Opus 5.5 high ), then CH1j.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

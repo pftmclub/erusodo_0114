@@ -1081,6 +1081,44 @@ bool CX2GUElsword_SwordMan::IsHarshSlayerCoolTimeEnd() const
 	return !( m_fHarshSlayerCoolTime > m_fHarshSlayerElapsedTime );
 }
 
+/// June 32d05960 ( user vslot 0x670, base 331a4950 returns false ): the unit is in the job line, 1 Sword Knight / Lord Knight, 2 Magic Knight / Rune Slayer, 3 Sheath Knight / Infinity Sword
+bool CX2GUElsword_SwordMan::IsInJobLine( int iJobLine_ )
+{
+	if ( NULL == GetUnit() )
+		return false;
+
+	switch ( iJobLine_ )
+	{
+	case 1:
+		return ( CX2Unit::UC_ELSWORD_KNIGHT == GetUnitClass() || CX2Unit::UC_ELSWORD_LORD_KNIGHT == GetUnitClass() );
+
+	case 2:
+		return ( CX2Unit::UC_ELSWORD_MAGIC_KNIGHT == GetUnitClass() || CX2Unit::UC_ELSWORD_RUNE_SLAYER == GetUnitClass() );
+
+	case 3:
+		return ( CX2Unit::UC_ELSWORD_SHEATH_KNIGHT == GetUnitClass() || CX2Unit::UC_ELSWORD_INFINITY_SWORD == GetUnitClass() );
+	}
+
+	return false;
+}
+
+/// June 32028190 -> 3201f850 ( user vslot 0x7a8 ): level = max( 1, upgrade-swapped level ), power rate x ( GetSkillAdditionalPowerRate + 1 ), skill id
+void CX2GUElsword_SwordMan::SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, ELSWORD_SWORDMAN_STATE_ID eStateID_ )
+{
+	if ( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	int iSkillTempletLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	UserUnitStateData& stateData = m_StateList[eStateID_];
+	stateData.m_SPLevel		= iSkillTempletLevel;
+	stateData.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
+	stateData.m_eSkillID	= pSkillTemplet_->m_eID;
+	stateData.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.f ) * stateData.m_fPowerRate;
+}
+
 /// June 32d05b60 ( vslot 0x508 ): empty; GetFinalDamage 32284d43 calls it on a user defender with two float buffers
 void CX2GUElsword_SwordMan::ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ )
 {
@@ -4486,6 +4524,86 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 
 /*virtual*/ void CX2GUElsword_SwordMan::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5210 ( differs from March: 8 skills by June id through vslot 0x7a8; no Air Slash, no Defence block; the dirty-state batch 3207c1a0 / 31fdf970 has no March form )
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ES_MEGASLASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletMegaSlash = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ES_MEGASLASH, true );
+		if ( NULL != pSkillTempletMegaSlash )
+		{
+			SetEquippedSkillLevelStateData( pSkillTempletMegaSlash, ESSI_SI_A_MEGASLASH_MEMO_CHARGE );
+			SetEquippedSkillLevelStateData( pSkillTempletMegaSlash, ESSI_SI_A_MEGASLASH_MEMO_FIRE );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ELK_WINDMILL == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletWindMill = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ELK_WINDMILL, true );
+		if ( NULL != pSkillTempletWindMill )
+		{
+			SetEquippedSkillLevelStateData( pSkillTempletWindMill, ESSI_SA_ESK_WINDMILL );
+			SetEquippedSkillLevelStateData( pSkillTempletWindMill, ESSI_SA_ESK_WINDMILL_END );
+
+			if ( NULL == GetUnit() )
+				return;		/// June leaves the function here, the blocks below are skipped ( JUNE_BUGS 523 )
+
+			const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTempletWindMill->m_eID, false, 0, true ) );
+			m_fWindMillDuration = pSkillTempletWindMill->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ERS_SWORD_FIRE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletSwordFire = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ERS_SWORD_FIRE, true );
+		if ( NULL != pSkillTempletSwordFire )
+			SetEquippedSkillLevelStateData( pSkillTempletSwordFire, ESSI_SA_EMK_SWORD_FIRE_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ELK_ROLLING_SMASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletRollingSmash = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ELK_ROLLING_SMASH, true );
+		if ( NULL != pSkillTempletRollingSmash )
+		{
+			SetEquippedSkillLevelStateData( pSkillTempletRollingSmash, ESSI_A_ELK_ROLLING_SMASH );
+			SetEquippedSkillLevelStateData( pSkillTempletRollingSmash, ESSI_A_ELK_ROLLING_SMASH_HYPER );
+			SetEquippedSkillLevelStateData( pSkillTempletRollingSmash, ESSI_A_ELK_ROLLING_SMASH_LANDING );
+			SetEquippedSkillLevelStateData( pSkillTempletRollingSmash, ESSI_A_ELK_ROLLING_SMASH_LANDING_HYPER );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ERS_COUNTER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletRuneCounter = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ERS_COUNTER, true );
+		if ( NULL != pSkillTempletRuneCounter )
+			SetEquippedSkillLevelStateData( pSkillTempletRuneCounter, ESSI_ERS_COUNTER_GUARD );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ELK_COUNTER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletCounter = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ELK_COUNTER, true );
+		if ( NULL != pSkillTempletCounter )
+		{
+			SetEquippedSkillLevelStateData( pSkillTempletCounter, ESSI_SI_A_ES_DEFENCE_READY );
+			SetEquippedSkillLevelStateData( pSkillTempletCounter, ESSI_SI_A_ES_DEFENCE_WAIT );
+			SetEquippedSkillLevelStateData( pSkillTempletCounter, ESSI_SI_A_ES_DEFENCE_END );
+			SetEquippedSkillLevelStateData( pSkillTempletCounter, ESSI_SI_A_ES_DEFENCE_DAMAGE );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_EMK_WIND_BLADE_UPGRADE == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_EMK_WIND_BLADE_UPGRADE, true ), ESSI_SI1_ES_WIND_BLADE_ULTIMATE );
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ELK_GRAND_CROSS == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletGrandCross = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ELK_GRAND_CROSS, true );
+		if ( NULL != pSkillTempletGrandCross )
+		{
+			SetEquippedSkillLevelStateData( pSkillTempletGrandCross, ESSI_SA_ELK_GRAND_CROSS_CHARGE );
+			SetEquippedSkillLevelStateData( pSkillTempletGrandCross, ESSI_SA_ELK_GRAND_CROSS_END );
+			SetEquippedSkillLevelStateData( pSkillTempletGrandCross, ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if ( true == bChangeAll_ || CX2SkillTree::SI_A_ESK_AIR_SLASH == eSkillID_ )
 	{
 		// note!! 아래의 코드는 에어슬래시를 위한 예외처리 코드 입니다
@@ -4780,6 +4898,7 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 		}
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
@@ -7647,6 +7766,10 @@ void CX2GUElsword_SwordMan::DashJumpPowerLandingEventProcess()
 //ESSI_HYPER_MODE
 void CX2GUElsword_SwordMan::HyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1b720 ( = March ): CommonHyperModeFrameMove( 0.05, 0.83, false )
+	CommonHyperModeFrameMove( 0.05f, 0.83f );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 	CommonHyperModeFrameMove(0.05f, 0.83f);
 #else
@@ -7679,6 +7802,7 @@ void CX2GUElsword_SwordMan::HyperModeFrameMove()
 	}
 	CommonFrameMove();
 #endif // MODIFY_RIDING_PET_AWAKE
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 ////ESSI_DAMAGE_GROGGY
@@ -24092,6 +24216,17 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 #ifdef RIDING_SYSTEM
 /*virtual*/ bool CX2GUElsword_SwordMan::CanRidingState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d08c30 ( = March, the ten states in another order )
+	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK ||
+		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT_HABIT || GetNowStateID() == CX2GUUser::USI_RIDING_DASH ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_DASH_END || GetNowStateID() == CX2GUElsword_SwordMan::ESSI_SWORD_WAIT )
+		return true;
+
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK || 
 		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END || 
 		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
@@ -24100,6 +24235,7 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 		return true;
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #endif //RIDING_SYSTEM
 

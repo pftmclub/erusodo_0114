@@ -97,3 +97,4 @@ offset	kind	name	note
 0x97c0	field	struct with two vectors ( +4 / +0x14 )	Elsword, June-only; destroyed by the destructor 32d1a5d0 through 32d26ff0 ( CH1h )
 0x80bc	field	m_FrameDataNow.unitCondition.bFootOnLine	CX2GUUser; DamageReact tests it ( CH1h ); GetFrameData( false ) + 0x108 is the same byte
 0x8be8	field	m_iHoldStateID	CX2GUUser; DamageReact stores USI_DAMAGE_AIR_FALL ( CH1h )
+0x95a0	field	m_fWindMillDuration	Elsword March member ( +0x959c m_fAttackPowerRateFireBall ); SetEquippedSkillLevel 32cf5210 @32cf5339 sets it from SA_EFFECTIVE_TIME ( CH1i )

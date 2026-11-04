@@ -2166,6 +2166,17 @@ public:
 		RNSI_P_EIS_INFINITY_POTENTIAL                         = 21420,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1i
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Elsword equipped-skill level update reads ( values from June's Enum.lua )
+		RNSI_SA_ES_MEGASLASH                                  = 21000,
+		RNSI_SA_ELK_WINDMILL                                  = 21010,
+		RNSI_SA_ERS_SWORD_FIRE                                = 21016,
+		RNSI_A_ELK_ROLLING_SMASH                              = 21205,
+		RNSI_SA_EMK_WIND_BLADE_UPGRADE                        = 21035,
+		RNSI_SA_ELK_GRAND_CROSS                               = 21058,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

@@ -48,3 +48,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - CH1h wrote the empty hooks `ChangeFinalDamageAsDefender` (vslot 0x508, `GetFinalDamage` @32284d43) and `ChangeFinalDamageAsAttacker` (0x50c, @32284d62) and `ApplyBuffToOpenMind` (0x510, `CX2GUUser::DamageReact` @320478c9), all `_CORE`, called by nothing: add the base virtuals and the call sites here (a user-attacker/defender test, two float buffers at the first two). `GetSpecialItemUsableExtraStateID` (`32d27130`) is already written under `_LIVE`.
 - CH1h review: June's `ApplyBuffToOpenMind` `32d0c780` calls its empty base `31fc7ab0` (vslot 0x510) first; when you add the `CX2GUUser` virtual, add that base call at the top of Elsword's body too (`_CORE`).
+
+## Amended by CH1i (2026-11-04)
+
+- CH1i wrote `IsInJobLine` (vslot 0x670, `_CORE`, plain member) and `SetEquippedSkillLevelStateData(templet, stateId)` (vslot 0x7a8, `_CORE`, class member): decide whether each becomes a `CX2GUUser` virtual (June calls both through the vtable; Chung has the same two plain members), and add the base `331a4950` (returns false) for the first.
