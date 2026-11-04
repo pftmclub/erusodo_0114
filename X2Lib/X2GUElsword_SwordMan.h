@@ -167,6 +167,10 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 //#ifdef PVP_BOSS_COMBAT_TEST
 //			ESSI_FROZEN,
 //#endif PVP_BOSS_COMBAT_TEST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+			ESSI_ERS_COMBO_ZZZ,		/// June script id 260 ( Rune Slayer Z Z Z; CH1f owns the state )
+			ESSI_EMK_COMBO_XZ,		/// June script id 251 ( Magic Knight X Z; CH1f owns the state )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		};
 		
 		enum ELSWORD_MAJOR_PARTICLE_INSTANCE_ID
@@ -863,6 +867,9 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		//ESSI_COMBO_X3a
 		void ComboX3aFrameMove();
 		void ComboX3aEventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+		bool IsInJobLine( int iJobLine_ );		/// June 32d05960 ( vslot 0x670 ): body in CH1i
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1
 		void DashComboZ1FrameMove();

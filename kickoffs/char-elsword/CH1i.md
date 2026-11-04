@@ -53,3 +53,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Functions: 4** (`awk -F'\t' '$7=="CH1i"' june2017_re/char_elsword/ch0_class_map.tsv`; inside 3, new 1).
   June addresses: `32cf5210` `32d05960`(new IsInJobLine) `32d08c30` `32d1b720`.
 - 0x670 `32d05960` is `IsInJobLine` (Chung's name, `X2GUChung.h:660`): line 1 = classes 10 / 100, 2 = 11 / 101, 3 = 22 / 112. The Crest of Time pair 0x740 / 0x744 is CH1q.
+
+## Amended by CH1d (2026-11-04)
+
+- `bool IsInJobLine( int iJobLine_ )` is already declared in `X2GUElsword_SwordMan.h` under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (CH1d's ComboX2EventProcess calls it with line 1 through the plain member). Write the body next to the other CH1i `new` row; do not declare it again. CH1o decides the virtual (vslot 0x670).

@@ -7408,3 +7408,33 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32d0edb0	CX2GUElsword_SwordMan::RevengeAttackCameraMove	PORTED	Char Elsword CH1b: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CAMERA table 1 / 2 SUB_CAMERA0 / 1 = March
 32d18d80	CX2GUElsword_SwordMan::CommonHyperModeFrameMove	PORTED	Char Elsword CH1c: inside (CH0 listed it new; March has it), June body under JUNE_CHAR_ELSWORD_LIVE; = March + awakening stand-ins ( 32011d20 / 31fd66b0 / 32011f50, ElswordAwakeningEffect* ), trace only without the awakening set, two independent timers, Stickslash1 sound at timer 1
 32d1b910	CX2GUElsword_SwordMan::RidingHyperModeFrameMove	PORTED	Char Elsword CH1c: inside, June body under JUNE_CHAR_ELSWORD_LIVE; CommonHyperModeFrameMove( 0, 0.1, true ) = March
+32cf36d0	CX2GUElsword_SwordMan::ComboZ1FrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32cf36f0	CX2GUElsword_SwordMan::ComboZ1FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3700	CX2GUElsword_SwordMan::ComboZ2FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3710	CX2GUElsword_SwordMan::ComboZ3FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3720	CX2GUElsword_SwordMan::ComboZ4FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3730	CX2GUElsword_SwordMan::ComboZ4aFrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3740	CX2GUElsword_SwordMan::ComboX1FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3750	CX2GUElsword_SwordMan::ComboX2FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf3760	CX2GUElsword_SwordMan::ComboX3FrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf37d0	CX2GUElsword_SwordMan::JumpAttackZFrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf37e0	CX2GUElsword_SwordMan::JumpAttackXFrameMove	PORTED	Char Elsword CH1d: inside; = March
+32cf6440	CX2GUElsword_SwordMan::ComboZ1EventProcess	PORTED	Char Elsword CH1d: inside; no TEST_MACRO_COMBO branch; skill (+0x8c90) / back-walk (+0x8c94) / walk (+0x8c98) / dash (+0x8c9c) cancels need the foot on a line (ELSWORD_GROUND_*_CANCEL); Z -> Z2 at 0.27 / 0.4 = March
+32cf67c0	CX2GUElsword_SwordMan::ComboZ2EventProcess	PORTED	Char Elsword CH1d: inside; Z3 unless class 112 / 101 (unit data +0x38); flag 1 = m_fEventTime[0] -> ESSI_ETK_COMBO_ZZZ (Infinity Sword), flag 2 = m_fEventTime[1] -> ESSI_ERS_COMBO_ZZZ (Rune Slayer, June-only state, CH1f); skill / back-walk / walk / dash cancels, then pure Z / X at +0x8c8c; no Sheath Knight test
+32cf6d80	CX2GUElsword_SwordMan::ComboZ3EventProcess	PORTED	Char Elsword CH1d: inside; no re-attack writes (CH1a review), no direction cancel; skill / back-walk / walk / dash cancels; flag 2 = Lord Knight front Z (templet class +0xaf0 == 100, forward key held, before 0.333); flag 0 / 1 = m_fEventTime[0] / [1] -> Z4 / Z4a
+32cf7260	CX2GUElsword_SwordMan::ComboZ4EventProcess	PORTED	Char Elsword CH1d: inside; = March
+32cf7340	CX2GUElsword_SwordMan::ComboZ4aEventProcess	PORTED	Char Elsword CH1d: inside; = March
+32cf73e0	CX2GUElsword_SwordMan::ComboX1EventProcess	PORTED	Char Elsword CH1d: inside; flag 1 = 0.43 s Rune Slayer XZ, flag 2 = m_fEventTime[0] Sheath Knight / Infinity Sword ESSI_ETK_COMBO_XX, flag 0 = 0.43 s X2 for the other classes, flag 3 = m_fEventTime[1] Magic Knight ESSI_EMK_COMBO_XZ (June-only state, CH1f); a flagged state also fires on animation end
+32cf7810	CX2GUElsword_SwordMan::ComboX2EventProcess	PORTED	Char Elsword CH1d: inside; no direction cancel; flag 0 / 1 / 2 = m_fEventTime[0] / [1] / [2] -> X3 (not job line 1) / X3a / ESSI_ELK_XXX (job line 1, IsInJobLine vslot 0x670, body CH1i); a flagged state also fires on animation end
+32cf7b00	CX2GUElsword_SwordMan::ComboX3EventProcess	PORTED	Char Elsword CH1d: inside; = March
+32cf7bd0	CX2GUElsword_SwordMan::ComboX3aEventProcess	PORTED	Char Elsword CH1d: inside; = March
+32cf9050	CX2GUElsword_SwordMan::JumpAttackZEventProcess	PORTED	Char Elsword CH1d: inside; = March
+32cf9090	CX2GUElsword_SwordMan::JumpAttackXEventProcess	PORTED	Char Elsword CH1d: inside; = March
+32d07c40	CX2GUElsword_SwordMan::ComboZ4FrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d07cc0	CX2GUElsword_SwordMan::ComboX1FrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d07d30	CX2GUElsword_SwordMan::ComboX2FrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d07db0	CX2GUElsword_SwordMan::ComboX3FrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d080f0	CX2GUElsword_SwordMan::JumpAttackZFrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d08180	CX2GUElsword_SwordMan::JumpAttackXFrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
+32d05960	CX2GUElsword_SwordMan::IsInJobLine( int )	declared	Char Elsword CH1d: declared in X2GUElsword_SwordMan.h under _CORE ( ComboX2EventProcess calls it ); body is CH1i's ( vslot 0x670: line 1 = classes 10 / 100, 2 = 11 / 101, 3 = 22 / 112 )
+ESSI_ERS_COMBO_ZZZ / ESSI_EMK_COMBO_XZ	CX2GUElsword_SwordMan state ids ( June script ids 260 / 251 )	PORTED	Char Elsword CH1d: appended to the ESSI enum under _CORE ( ComboZ2 / ComboX1 name them ); the states and their functions are CH1f's

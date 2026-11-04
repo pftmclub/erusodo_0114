@@ -559,6 +559,43 @@ CH0 listed `32d18d80` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1d.md` was checked and needs no change. Next: `/x2-phase char-elsword CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-11-04)
+
+All 28 class-map rows of phase CH1d are written, all `inside`: June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`. 28 funcmap rows `Char Elsword CH1d`, plus two for what is declared here.
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cf36d0` `32cf36f0` | ComboZ1 FrameMoveFuture / FrameMove | `32cf6440` `32cf67c0` `32cf6d80` | ComboZ1 / Z2 / Z3 EventProcess |
+| `32cf3700` `32cf3710` `32cf3720` `32cf3730` | ComboZ2 / Z3 / Z4 / Z4a FrameMove | `32cf7260` `32cf7340` `32d07c40` | ComboZ4 / Z4a EventProcess, ComboZ4 FrameMoveFuture |
+| `32cf3740` `32cf3750` `32cf3760` | ComboX1 / X2 / X3 FrameMove | `32cf73e0` `32cf7810` `32cf7b00` `32cf7bd0` | ComboX1 / X2 / X3 / X3a EventProcess |
+| `32d07cc0` `32d07d30` `32d07db0` | ComboX1 / X2 / X3 FrameMoveFuture | `32cf9050` `32cf9090` | JumpAttackZ / X EventProcess |
+| `32cf37d0` `32cf37e0` `32d080f0` `32d08180` | JumpAttackZ / X FrameMove, FrameMoveFuture | | |
+
+**Where June differs from March** (everything else is March's logic written out whole):
+- **Z1:** no `TEST_MACRO_COMBO` branch. The skill, back-walk (`+0x8c94`), walk (`+0x8c98`) and dash (`+0x8c9c`) cancels need the foot on a line (`ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_` / `_DASH_`; March's macros do not).
+- **Z2:** goes to Z3 unless the class is Infinity Sword (112) or Rune Slayer (101), read from the unit data (`+0x38`). Flag 1 (`m_fEventTime[0]`) takes Infinity Sword to `ESSI_ETK_COMBO_ZZZ`; flag 2 (`m_fEventTime[1]`) takes Rune Slayer to `ESSI_ERS_COMBO_ZZZ`. Then the four cancels and the pure Z / X cancels (`+0x8c8c`, `GetComboZStateID` / `GetComboXStateID`). No Sheath Knight test.
+- **Z3:** no re-attack writes (CH1a review) and no direction cancel. Flag 2 is Lord Knight's front Z (unit templet class `+0xaf0 -> +4` is 100, forward key held, before 0.333 s). Flags 0 / 1 take `m_fEventTime[0]` / `[1]` to Z4 / Z4a.
+- **X1:** flag 1 = Rune Slayer XZ at 0.43 s (templet class); flag 2 = Sheath Knight / Infinity Sword `ESSI_ETK_COMBO_XX` (`m_fEventTime[0]`, templet class); flag 0 = X2 at 0.43 s for the other classes; flag 3 = Magic Knight `ESSI_EMK_COMBO_XZ` (`m_fEventTime[1]`, unit data class `+0x38`, Z key).
+- **X2:** no direction cancel. Flags 0 / 1 / 2 (`m_fEventTime[0]` / `[1]` / `[2]`) go to X3 (not job line 1), X3a and `ESSI_ELK_XXX` (job line 1: `IsInJobLine( 1 )`, vslot 0x670).
+- **Every flagged branch** except Z1's and Z2's flag 0 also fires when the animation has ended: `|| IsAnimationEnd()` (`ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`). An input branch with a window tests `now < end && start <= now` (`ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`); the fixed-time ones (0.27, 0.366, 0.43) are written out.
+- **= March after the macros expand (23 of 28 are not in the list above):** the 10 FrameMove thunks, ComboZ1 FrameMoveFuture (speed 0), ComboZ4 / X1 / X2 / X3 FrameMoveFuture (`EventTimerOneshot`; X1's 0.2 s compare is a double 0.2 in June, the same test for every float timer), JumpAttackZ / X FrameMoveFuture, and the Z4 / Z4a / X3 / X3a / JumpAttackZ / JumpAttackX EventProcess.
+- `m_fCanNotAttackTime`: Z1 sets it after `StateChange`, Z2 before (as March); X1 sets it before.
+- No `JUNE_BUGS.md` row (nothing June does wrongly). No alpha-tag site (7c), no `+0x7cc8` (§7 L254) and no `+0x8ca4` UPDOWN cancel (§7h) in these 28 listings (grep).
+
+**Added here, owned by a later phase.**
+- `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` is defined in `Always.h` (with the `_LIVE needs _CORE` guard). It carries `ESSI_ERS_COMBO_ZZZ` (June id 260) and `ESSI_EMK_COMBO_XZ` (251), appended to the `ESSI` enum (their states and functions are CH1f's), and the declaration `bool IsInJobLine( int )` (`32d05960`, body CH1i). CH1f / CH1i kickoffs carry the amendment.
+- File-local helpers in `_CONST_ELSWORD_CH1D_`: `IsDataClass` (unit data `+0x38`; no unit is no class) and `IsTempletClass` (templet `+0xaf0 -> +4`; June does not test the unit); five `ELSWORD_*` macros before `//ESSI_COMBO_Z1`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` by design. `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `RESULT: PASS`.
+- `git diff --patience --numstat`: 490 / 0 in the `.cpp`, 7 / 0 in the `.h`, 13 / 0 in `Always.h`.
+- `cl /P` of `X2GUElsword_SwordMan.cpp` with `_LIVE` off: 0 differing non-blank lines against HEAD's `.cpp` (same header). With `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` the output differs in 914 diff lines and carries `IsDataClass`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`. A Git Bash `/D...` argument is path-converted (`C:/Program Files/Git/D...`): pass `-D`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 08:10:07, md5 60c4b03e2b296305a2462cead504030e, equal to X2/US_SERVICE/x2.exe (2026-11-04 08:10:00)`; built at main `1e1cc6e5` + the 3 code files of this phase.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1d review` (Opus 5.5 high), then CH1d2.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
