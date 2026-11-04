@@ -13403,6 +13403,9 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 	{
 		ProcessSocketEffectEx( CX2SocketItem::SIEE_STAT_UP, this  );
 		ProcessSocketEffectEx( CX2SocketItem::SIEE_UP_MANA_RECOVERY_VALUE, this  );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+		ApplyBuffToOpenMind();	/// June Process_ExtraDamage @32039873 ( vslot 0x510 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	}
 
 #endif SERV_SECRET_HELL

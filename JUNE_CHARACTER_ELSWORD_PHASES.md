@@ -1298,6 +1298,39 @@ multiplies both attacks and is not ported. It belongs to Stage 33's whole `GetFi
 
 **Nothing to play-test** (`_LIVE` is off; the velocity helper has no caller until CH2d). Next: `/x2-phase char-elsword CH1o review` (Opus 5.5 high).
 
+### CH1o - Review (2026-11-04)
+
+**Verdict: passes with one fix** (flag `_LIVE`, still `//#define`). Read from the exe bytes (Ghidra listings, `charport_adis.py elsword 31f76580`):
+- **`GetNearestNPCUnitUID` `322d2680` = March, no code (row holds).** `[esi+0xc04]` NULL -> skip to the state test (alive, March's `GetNowHp()` 1); HP gage
+  `[+0x20]` NULL -> skip unit; `fldz; fcomp` the protected `fNow` (gage `+4`, March `Gage`: `bool bShow` then `KProtectedType<float> fNow`), `test ah,5; jp` keeps only
+  `0 < fNow`; vslot 0x174 == 4 -> skip; `GetDistance( pos, vslot 0x138( 0 ) )`, `fcompp` best vs dist, `test ah,0x41; jne` keeps only dist < best; best starts at
+  `fMaxRange` (`[esp+0x18]` on entry), `ret 0x14`. = `X2Game.cpp:16938`.
+- **Hooks 0x508 / 0x50c: names and order hold.** EBP = DD `+0xc` (checked first, as March's attacker), EBX = DD `+0x470`; `[esp+0x28]` / `[esp+0x2c]` are the two
+  attacks the `322788c0` rolls get (= March `DamageMaximizeRoll` 0 / 1), `[esp+0x48]` / `[esp+0x44]` the defences from `+0x46f4` / `+0x47a8` (same 0xb4 stride as the
+  attacks). 0x508 pushes `&[+0x2c]` then `&[+0x28]` (args physic, magic), 0x50c pushes `&[+0x44]` then `&[+0x48]`. Each gated on `+0x264 == 0` (funcmap
+  `unit+0x264` = `m_GameUnitType`, `GUT_USER = 0`). June's order: attack copies + rolls, defence copies, two `CX2Stat` + `SetStat`, `fSharpenDamageRate = 1`
+  (`@32284d35`), the hooks, then vslot 0x6c (Stage 33): March's insertion is the same point.
+- **Fix: vslot 0x510 has a second June caller.** Whole-`.text` sweep for vtable loads (`mov r,[r]` then `mov r,[r+disp]`): 0x508 1 (`@32284d43`), 0x50c 1
+  (`@32284d62`), 0x510 **2**: `DamageReact @320478c9` and `CX2GUUser::Process_ExtraDamage` `32034e50` `@32039873`, right after its two `ProcessSocketEffectEx`
+  (1 / 2) at `@32039855-3203986c`, the path every extra-damage case that lands joins (the others jump to `@3203987d`). March's twin is the `bGetExtraDamage` block
+  at the end of `Process_ExtraDamage` (`X2GUUser.cpp`, `SERV_SECRET_HELL`); `ApplyBuffToOpenMind();` added there under `_LIVE`. funcmap row `31fc7ab0` amended.
+  The `DamageReact` site holds: inside the `ProcessEnchant || bBuffApplied` block after both socket calls, before the separate `bApplyEnchant` -> vslot 0x840 test.
+- **`ChangeMainEffectVelocity` holds.** `31f75ef0`: `GetMainEffect` NULL -> return; old = mesh `+0x534..+0x53c`; type 0 adds, type 2 copies, any other multiplies per
+  component; writes `+0x534..+0x53c`, `ret 8` (March `CXMeshInstance::GetVelocity` / `SetVelocity`). `31f76580`: ( x, `fldz` 0, 0 ), ECX passed through, `ret 8`.
+- **0x670 / 0x7a8 decision holds.** 0x7a8: 384 vtable loads, all in class ranges (`329690b6` Eve up to `32cf54eb` Elsword); none in engine code. 0x670 as Chung's
+  review (126, all class code).
+
+**Hygiene.** Commit `d7597ce0` (`--range d7597ce0^..d7597ce0 --files` the 7): `5 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (X2DamageEffect.*, _CORE), 0 FAIL, 0 ERROR`; 10 deleted
+lines (the CH1h rename), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for `define: NOT FOUND`. numstat
+24/0, 4/0, 11/8, 2/2, 3/0, 5/0, 7/0. The fix (`--worktree --files X2Lib/X2GUUser.cpp`): `1 PASS`, +3, same zeros, FAIL only for the `//#define`.
+`junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`; `--check X2Lib/X2GUUser.cpp`: `RESULT: PASS`. `enumscan.py --check` the four `.cpp`: 1 A row,
+`X2DamageEffect.cpp:1705` (`20cecda8`, not this phase). Probes (`census.cl_cmd`, `/c /Zs /EHsc`): the four `.cpp`, `_LIVE` off / on, exit 0, 0 errors; `cl /P`
+counts off -> on: `ChangeFinalDamageAsAttacker( &fPhysicAttack` 0 -> 1, `ApplyBuffToOpenMind();` 1 -> 3 (both sites).
+`DEPLOY OK: X2_offline.exe is 25,961,472 B, dated 2026-11-04 17:26:32, md5 e8ca4dba084f2c7342b87ea594fd7d60, equal to X2/US_SERVICE/x2.exe (2026-11-04 17:26:25); built at main d7597ce0 + 1 uncommitted code file(s).`
+No `exestr` line: every site is under the undefined `_LIVE`.
+
+**Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-elsword CH1p` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
