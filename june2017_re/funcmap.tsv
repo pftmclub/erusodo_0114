@@ -7467,3 +7467,33 @@ ESSI_ERS_COMBO_ZZZ / ESSI_EMK_COMBO_XZ	CX2GUElsword_SwordMan state ids ( June sc
 32d08060	CX2GUElsword_SwordMan::DashAttackXStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( GetDashSpeed )
 32d0fa10	CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess	PORTED	Char Elsword CH1d2: inside; = March; the second dash test after the X branch is dead code in March and absent in June; CanDown is the March 4-argument call ( W1f forwarder )
 ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XChargeX / ESSI_EMK_DASH_JUMP_ZX / ESSI_ERS_XZ_CHARGE / ESSI_ETK_DASH_JUMP_ZZZ / ESSI_EIS_DASH_COMBO_ZX	CX2GUElsword_SwordMan state ids ( June script ids 241 / 242 / 244 / 249 / 255 / 258 / 224 )	PORTED	Char Elsword CH1d2: appended to the ESSI enum under _CORE ( the dash and dash-jump follow-ups name them ); the states and their functions are CH1e ( 241 / 242 / 244 ), CH1f ( 249 / 255 ), CH1g ( 258 ), CH1g2 ( 224 )
+32cf38f0	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_End	PORTED	Char Elsword CH1e: inside; = March ( CommonStateEnd, UpCrashCamera( 200, -3500 ) )
+32cf3f70	CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_FrameMove	PORTED	Char Elsword CH1e: inside; = March ( thunk to CommonFrameMove, vslot 0x7cc )
+32cf3f80	CX2GUElsword_SwordMan::ESSI_ELK_XXX_FrameMove	PORTED	Char Elsword CH1e: inside; = March ( thunk to CommonFrameMove, vslot 0x7cc )
+32cf3f90	CX2GUElsword_SwordMan::ESSI_ELK_XXXX_FrameMove	PORTED	Char Elsword CH1e: inside; = March ( thunk to CommonFrameMove, vslot 0x7cc )
+32cf4d30	CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZX_StateStartFuture	PORTED	Char Elsword CH1e: new ( _CORE ); thunk to CommonStateStartFuture ( vslot 0x7c0 )
+32cf4d40	CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture	PORTED	Char Elsword CH1e: new ( _CORE ); thunk to CommonStateStartFuture ( vslot 0x7c0 )
+32cf8920	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess	PORTED	Char Elsword CH1e: inside; = March ( end of animation, C skip keys after 0.9 )
+32cf9670	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMoveFuture	PORTED	Char Elsword CH1e: inside; = March ( EventTimerOneshot( 0.23 ): nowSpeed.y = fMaxGSpeed )
+32cf96c0	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMove	PORTED	Char Elsword CH1e: inside; = March ( DamageCheck after 0.15 s )
+32cf9720	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_EventProcess	PORTED	Char Elsword CH1e: inside; = March ( X / Z flags, landing chooses X3 / Z1 / X2 landing )
+32cf9830	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X3_EventProcess	PORTED	Char Elsword CH1e: inside; = March ( ZXC skip keys after 0.68 )
+32cfaed0	CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_EventProcess	PORTED	Char Elsword CH1e: inside; = March ( C skip keys after 0.867 )
+32cfafa0	CX2GUElsword_SwordMan::ESSI_ELK_XXX_EventProcess	PORTED	Char Elsword CH1e: inside; June: flag 0 / m_fEventTime[0] to ESSI_ELK_XXXX, UPDOWN / skill / back-walk / walk / dash / Z / X cancels (March: fixed 0.5 s window, skill cancel 0.67 only)
+32cfb420	CX2GUElsword_SwordMan::ESSI_ELK_XXXX_EventProcess	PORTED	Char Elsword CH1e: inside; June: flag 0 / m_fEventTime[0] to ESSI_ELK_XXXXX, the same cancels, ZXC skip keys after 1.3 ( March: SpecialAttackEventProcess, no follow-up )
+32cff880	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_EventProcess	PORTED	Char Elsword CH1e: inside; June: end of animation goes to ESSI_SI_P_ESK_AUTO_GUARD_END ( off the line: JUMP_DOWN ), no dash / walk / skill cancels
+32cff8d0	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); AUTO_GUARD's EventProcess with ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL
+32cff920	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); END and END_SMALL: end -> WAIT, dash / back-walk / walk / skill cancels each set m_fCanNotAttackTime = 0.1
+32d01040	CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); end block, UPDOWN / skill / back-walk / walk / dash / Z / X cancels, flag 0 to ESSI_ESK_DASH_COMBO_ZXX
+32d014c0	CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZXX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); off-line fall, skill / walk / dash / Z / X cancels ( no UPDOWN ), end -> WAIT
+32d017f0	CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); X released or m_fEventTime[0].keyInputStart reached -> ESSI_ESK_DASH_COMBO_ZX; else the cancels
+32d01b70	CX2GUElsword_SwordMan::ESSI_ESK_DASH_JUMP_ZZZ_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); on a line -> ESSI_ESK_DASH_JUMP_ZZZ_LANDING
+32d01ba0	CX2GUElsword_SwordMan::ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); end block ( JUMP_DOWN without the y offset ), the cancels
+32d01f10	CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XChargeX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); as ZChargeX with ESSI_ELK_DASH_COMBO_XX
+32d02290	CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); as dash ZX with ESSI_ELK_DASH_COMBO_XXX
+32d02710	CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XXX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); end block, the cancels
+32d02a90	CX2GUElsword_SwordMan::ESSI_ELK_XXXXX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); end block, flag 0 to ESSI_ELK_XXXXXX ( no script table in June, JUNE_BUGS 521 ), the cancels
+32d02ed0	CX2GUElsword_SwordMan::ESSI_ELK_XXXXXX_EventProcess	PORTED	Char Elsword CH1e: new ( _CORE ); same body as ESSI_ELK_DASH_COMBO_XXX_EventProcess
+32d07fd0	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_StateStartFuture	PORTED	Char Elsword CH1e: inside; = March ( GetDashSpeed when the held key faces the facing )
+32d0c740	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_End	PORTED	Char Elsword CH1e: inside; = March ( guard percent taken back off the damage reduce )
+32d180a0	CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_Start	PORTED	Char Elsword CH1e: inside; June adds UpNowMp( 1.0 ) ( vslot 0xf0 ) before the effect set; the rest = March

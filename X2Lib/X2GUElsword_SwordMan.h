@@ -177,6 +177,16 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 			ESSI_ERS_XZ_CHARGE,		/// June script id 255 ( X Z charge; CH1f owns the state )
 			ESSI_ETK_DASH_JUMP_ZZZ,		/// June script id 258 ( dash jump Z Z Z; CH1g owns the state )
 			ESSI_EIS_DASH_COMBO_ZX,		/// June script id 224 ( dash Z X; CH1g2 owns the state )
+			ESSI_ESK_DASH_COMBO_ZX,		/// June script id 239 ( dash Z X; CH1e state )
+			ESSI_ESK_DASH_COMBO_ZXX,		/// June script id 240 ( dash Z X X; CH1e state )
+			ESSI_ESK_DASH_JUMP_ZZZ_LANDING,		/// June script id 243 ( dash jump Z Z Z landing; CH1e state )
+			ESSI_ELK_DASH_COMBO_XX,		/// June script id 245 ( dash X X; CH1e state )
+			ESSI_ELK_DASH_COMBO_XXX,		/// June script id 246 ( dash X X X; CH1e state )
+			ESSI_ELK_XXXXX,		/// June script id 247 ( X X X X X; CH1e state )
+			ESSI_ELK_XXXXXX,		/// June script id 248 ( X X X X X X; CH1e state )
+			ESSI_SI_P_ESK_AUTO_GUARD_SMALL,		/// June script id 236 ( auto guard, small; CH1e state )
+			ESSI_SI_P_ESK_AUTO_GUARD_END,		/// June script id 237 ( auto guard end; CH1e state )
+			ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL,		/// June script id 238 ( auto guard end, small; CH1e state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		};
 		
@@ -876,6 +886,20 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ComboX3aEventProcess();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		bool IsInJobLine( int iJobLine_ );		/// June 32d05960 ( vslot 0x670 ): body in CH1i
+		void ESSI_ESK_DASH_COMBO_ZX_StateStartFuture();		/// June 32cf4d30
+		void ESSI_ESK_DASH_COMBO_ZX_EventProcess();		/// June 32d01040
+		void ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture();		/// June 32cf4d40
+		void ESSI_ESK_DASH_COMBO_ZXX_EventProcess();		/// June 32d014c0
+		void ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess();		/// June 32d017f0
+		void ESSI_ESK_DASH_JUMP_ZZZ_EventProcess();		/// June 32d01b70
+		void ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess();		/// June 32d01ba0
+		void ESSI_ELK_DASH_COMBO_XChargeX_EventProcess();		/// June 32d01f10
+		void ESSI_ELK_DASH_COMBO_XX_EventProcess();		/// June 32d02290
+		void ESSI_ELK_DASH_COMBO_XXX_EventProcess();		/// June 32d02710
+		void ESSI_ELK_XXXXX_EventProcess();		/// June 32d02a90
+		void ESSI_ELK_XXXXXX_EventProcess();		/// June 32d02ed0
+		void ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess();		/// June 32cff8d0
+		void ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess();		/// June 32cff920
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 		//ESSI_DASH_COMBO_Z1

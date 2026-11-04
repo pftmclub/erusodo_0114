@@ -8760,7 +8760,7 @@ void CX2GUElsword_SwordMan::DestructionRageStateEventProcess()
 #endif ELSWORD_WAY_OF_SWORD
 
 
-#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 namespace _CONST_ELSWORD_CH1D_
 {
 	/// June 32cf67c0: the class read from the unit's own data ( +0x38 ); no unit is no class
@@ -8810,7 +8810,7 @@ using namespace _CONST_ELSWORD_CH1D_;
 	else if ( true == m_InputData.pureUp || true == m_InputData.pureDown || true == m_InputData.pureRight || true == m_InputData.pureLeft || true == (bKey_) || \
 		true == m_InputData.pureA || true == m_InputData.pureS || true == m_InputData.pureD || true == m_InputData.pureC || \
 		true == m_InputData.pureQ || true == m_InputData.pureW || true == m_InputData.pureE || true == m_InputData.pureR )
-#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 //ESSI_COMBO_Z1
 void CX2GUElsword_SwordMan::ComboZ1FrameMoveFuture()
 {
@@ -10120,16 +10120,54 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3_EventProcess()
 //ESSI_KNIGHT_DASH_COMBO_Z3a
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d07fd0
+	CommonStateStartFuture();
+
+	if ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if ( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8920
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if ( 0.9f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
 		if( false == IsOnSomethingFuture() )
@@ -10149,6 +10187,7 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3a_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -11217,6 +11256,15 @@ void CX2GUElsword_SwordMan::DashJumpComboX2LandingEventProcess()
 //ESSI_KNIGHT_DASH_JUMP_COMBO_X2
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9670
+	if ( true == m_pXSkinAnimFuture->EventTimerOneshot( 0.23f ) )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.23f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11227,10 +11275,24 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf96c0
+	if ( 0.15f < m_pXSkinAnim->GetNowAnimationTime() )
+	{
+		if ( true == g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) )
+		{
+			m_FrameDataNow.stateParam.bResetCamera = false;
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.15f )
 	{
 		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
@@ -11241,10 +11303,41 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9720
+	if ( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+	if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_X3 );
+		}
+		else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1] )
+		{
+			StateChange( ESSI_COMBO_Z1 );
+		}
+		else
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_X2_LANDING );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -11279,12 +11372,19 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X2_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf38f0
 	CommonStateEnd();
 	UpCrashCamera( 200.0f, -3500.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateEnd();
+	UpCrashCamera( 200.0f, -3500.0f );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a
@@ -11359,6 +11459,30 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_JUMP_COMBO_X2a_EventProcess()
 //ESSI_KNIGHT_DASH_JUMP_COMBO_X3
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X3_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9830
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if ( 0.68f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
 		if( false == IsOnSomethingFuture() )
@@ -11380,6 +11504,7 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_JUMP_COMBO_X3_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -16562,12 +16687,38 @@ void CX2GUElsword_SwordMan::ESSI_SA_EMK_BIG_BURST_End()
 // 2Â÷ ÀüÁ÷
 void CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3f70
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfaed0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if ( 0.867f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -16586,12 +16737,18 @@ void CX2GUElsword_SwordMan::ESSI_ELK_ZZZfrontZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ELK_XXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3f80
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -16599,6 +16756,41 @@ void CX2GUElsword_SwordMan::ESSI_ELK_XXX_FrameMove()
 
 void CX2GUElsword_SwordMan::ESSI_ELK_XXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfafa0
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ELK_XXXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
 
 	if( false == IsOnSomethingFuture() )
@@ -16615,16 +16807,62 @@ void CX2GUElsword_SwordMan::ESSI_ELK_XXX_EventProcess()
 
 	CommonEventProcess();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ELK_XXXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3f90
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonFrameMove();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_ELK_XXXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cfb420
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ELK_XXXXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if ( 1.3f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -16650,10 +16888,408 @@ void CX2GUElsword_SwordMan::ESSI_ELK_XXXX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZX_StateStartFuture()
+{
+	/// June 32cf4d30
+	CommonStateStartFuture();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZXX_StateStartFuture()
+{
+	/// June 32cf4d40
+	CommonStateStartFuture();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZX_EventProcess()
+{
+	/// June 32d01040
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ESK_DASH_COMBO_ZXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZXX_EventProcess()
+{
+	/// June 32d014c0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess()
+{
+	/// June 32d017f0
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( false == m_InputData.pureX || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( ESSI_ESK_DASH_COMBO_ZX );
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_JUMP_ZZZ_EventProcess()
+{
+	/// June 32d01b70
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ESSI_ESK_DASH_JUMP_ZZZ_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ESK_DASH_JUMP_ZZZ_LANDING_EventProcess()
+{
+	/// June 32d01ba0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XChargeX_EventProcess()
+{
+	/// June 32d01f10
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( false == m_InputData.pureX || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( ESSI_ELK_DASH_COMBO_XX );
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XX_EventProcess()
+{
+	/// June 32d02290
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ELK_DASH_COMBO_XXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XXX_EventProcess()
+{
+	/// June 32d02710
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ELK_XXXXX_EventProcess()
+{
+	/// June 32d02a90
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_ELK_XXXXXX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ELK_XXXXXX_EventProcess()
+{
+	/// June 32d02ed0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_SMALL_EventProcess()
+{
+	/// June 32cff8d0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_END_EventProcess()
+{
+	/// June 32cff920
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+	else if ( 0.f <= m_fSkillCancelAfter && m_fSkillCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		( true == m_InputData.pureA || true == m_InputData.pureS || true == m_InputData.pureD || true == m_InputData.pureC ||
+		true == m_InputData.pureQ || true == m_InputData.pureW || true == m_InputData.pureE || true == m_InputData.pureR ) &&
+		true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	CommonEventProcess();
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 void CX2GUElsword_SwordMan::ESSI_ERS_XZ_StateStartFuture()
 {
 	CommonStateStartFuture();
@@ -21163,6 +21799,9 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_ES_DEFENCE_DAMAGE_EventProcess()
 //-----------------------ESSI_SI_P_ESK_AUTO_GUARD-----------------------//
 void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d180a0
+	UpNowMp( 1.f );
 	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_IRON_WILL", this );
 	int GuardDamageReducePercent = 0;
 	if( NULL != m_GuardForElswordPtr )
@@ -21170,9 +21809,35 @@ void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_Start()
 
 	SetDamageReducePercent( GetDamageReducePercent() + GuardDamageReducePercent );
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_IRON_WILL", this );
+	int GuardDamageReducePercent = 0;
+	if( NULL != m_GuardForElswordPtr )
+		GuardDamageReducePercent = m_GuardForElswordPtr->GetDamageReducePercent();
+
+	SetDamageReducePercent( GetDamageReducePercent() + GuardDamageReducePercent );
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cff880
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( ESSI_SI_P_ESK_AUTO_GUARD_END );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -21190,15 +21855,26 @@ void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 void CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0c740
 	CommonStateEnd();
 	int GuardDamageReducePercent = 0;
 	if( NULL != m_GuardForElswordPtr )
 		GuardDamageReducePercent = m_GuardForElswordPtr->GetDamageReducePercent();
 
 	SetDamageReducePercent( GetDamageReducePercent() - GuardDamageReducePercent );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateEnd();
+	int GuardDamageReducePercent = 0;
+	if( NULL != m_GuardForElswordPtr )
+		GuardDamageReducePercent = m_GuardForElswordPtr->GetDamageReducePercent();
+
+	SetDamageReducePercent( GetDamageReducePercent() - GuardDamageReducePercent );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //-----------------------ESSI_SI_SA_EMK_RISING_SLASH_WAVE-----------------------//

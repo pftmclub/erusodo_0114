@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1e | **ready**: Sword Knight + Lord Knight lines (30 fns); `/x2-phase char-elsword CH1e` | Sonnet 5.5 / high, Opus review | CH1d2 review (done) | `X2GUElsword_SwordMan.*` | `CH1e.md` |
+| CH1e | **done 2026-11-04, review next**: 16 fns inside under `_LIVE`, 14 new under `_CORE`, no play-test; `/x2-phase char-elsword CH1e review` | Opus 5.5 / high | CH1e | `X2GUElsword_SwordMan.*` | `CH1e-review.md` |
 | CH1f | blocked (CH1e review): Magic Knight + Rune Slayer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUElsword_SwordMan.*` | `CH1f.md` |
 | CH1g | blocked (CH1f review): Sheath Knight line (31; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): Infinity Sword line + Compact Counter guard attack (16; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUElsword_SwordMan.*` | `CH1g2.md` |

@@ -671,6 +671,41 @@ All 28 class-map rows of phase CH1d2 are written, all `inside`: June's body in M
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1e.md` is ready as written. Next: `/x2-phase char-elsword CH1e` (Sonnet 5.5 high).
 
+### CH1e - Done (2026-11-04)
+
+All 30 class-map rows of phase CH1e are written: 16 `inside` (June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`) and 14 `new` (plain names under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE`, compiled in every build, referenced by nothing; `InitState*` untouched, CH1m registers). 30 funcmap rows `Char Elsword CH1e`.
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cf8920` `32d07fd0` | ESSI_KNIGHT_DASH_COMBO_Z3a EventProcess / StartFuture (inside) | `32cf9670` `32cf96c0` `32cf9720` `32cf38f0` | ESSI_KNIGHT_DASH_JUMP_COMBO_X2 FrameMoveFuture / FrameMove / EventProcess / End (inside) |
+| `32cf9830` | ESSI_KNIGHT_DASH_JUMP_COMBO_X3 EventProcess (inside) | `32cf3f70` `32cfaed0` | ESSI_ELK_ZZZfrontZ FrameMove / EventProcess (inside) |
+| `32cf3f80` `32cfafa0` | ESSI_ELK_XXX FrameMove / EventProcess (inside) | `32cf3f90` `32cfb420` | ESSI_ELK_XXXX FrameMove / EventProcess (inside) |
+| `32d180a0` `32cff880` `32d0c740` | ESSI_SI_P_ESK_AUTO_GUARD Start / EventProcess / End (inside; small shares Start / End) | `32cff8d0` `32cff920` | AUTO_GUARD_SMALL EventProcess, AUTO_GUARD_END EventProcess (END and END_SMALL) (new) |
+| `32cf4d30` `32d01040` | ESSI_ESK_DASH_COMBO_ZX StateStartFuture / EventProcess (new) | `32cf4d40` `32d014c0` | ESSI_ESK_DASH_COMBO_ZXX StateStartFuture / EventProcess (new) |
+| `32d017f0` `32d01b70` `32d01ba0` | ESSI_ESK_DASH_COMBO_ZChargeX, DASH_JUMP_ZZZ, DASH_JUMP_ZZZ_LANDING EventProcess (new) | `32d01f10` `32d02290` `32d02710` | ESSI_ELK_DASH_COMBO_XChargeX, _XX, _XXX EventProcess (new) |
+| `32d02a90` `32d02ed0` | ESSI_ELK_XXXXX, ESSI_ELK_XXXXXX EventProcess (new) | | |
+
+**Where June differs from March** (everything else is March's logic written out whole; checked against `charport_adis.py elsword --phase CH1e`):
+- **Lord Knight X X X `32cfafa0`:** direction cancel clears flag 0, then flag 0 on `m_fEventTime[0]` goes to `ESSI_ELK_XXXX` (March: fixed 0.5 s). Then the UPDOWN cancel (`+0x8ca4`), `SKILL_CANCEL_AFTER`, back-walk / walk / dash (on a line), the Z and X cancels (`+0x8c8c`), then the end of animation. March had only the skill cancel at 0.67. **X X X X `32cfb420`:** the same chain with flag 0 to `ESSI_ELK_XXXXX` (no direction cancel), end of animation, ZXC skip keys after 1.3 s.
+- **Auto Guard:** Start calls `UpNowMp( 1.0 )` (vslot 0xf0) before the effect set. EventProcess ends in `ESSI_SI_P_ESK_AUTO_GUARD_END` (off the line: `JUMP_DOWN`, y minus 45) and has no dash / walk / skill cancels (March went to WAIT). The END state's EventProcess is June's cancel chain: end -> WAIT, then dash, back-walk, walk (no foot test), then skill (A S D C Q W E R down, `SpecialAttackEventProcess( ASUT_GROUND )`); every taken branch sets `m_fCanNotAttackTime = 0.1`. Small and End-small use the same functions with `_SMALL` targets.
+- **Dash Z X `32d01040` / dash X X `32d02290`:** the end-of-animation block comes first (fall, y minus 45, or WAIT), then UPDOWN, skill, back-walk, walk, dash, Z, X cancels, then flag 0 to the next state (`m_fEventTime[0]`, X key). **Dash Z X X `32d014c0`:** off the line fall, skill, walk, dash, Z, X cancels, end -> WAIT; no UPDOWN. **Dash jump Z Z Z landing `32d01ba0`:** like dash Z X without the flag part and `JUMP_DOWN` without the y offset. **X X X X X `32d02a90`:** end block, flag 0 to `ESSI_ELK_XXXXXX`, then the cancels. **Dash X X X `32d02710` and X X X X X X `32d02ed0`** are identical: end block, the cancels.
+- **Charge states `32d017f0` / `32d01f10`:** off the line fall; X released, or `m_fEventTime[0].keyInputStart` reached, goes to dash Z X / dash X X; otherwise the cancels (no end block). **Dash jump Z Z Z `32d01b70`:** on a line -> landing.
+- **= March after the macros expand:** Z3a (2), dash jump X2 (4) and X3, ZZZfrontZ (2), the three FrameMove thunks, the two `StateStartFuture` thunks, X2 End, Auto Guard End.
+- Skill cancels use the shared `SKILL_CANCEL_AFTER` macro (June's `BUFF_AWAKE_LOCK` expansion, as CH1d2); the `+0x8e90 ? +0x8e84 : m_pXSkinAnimFuture` anim choice is read as `m_pXSkinAnimFuture` (CH1b). No alpha-tag site (7c), no `+0x7cc8` (§7 L254). Checklist §7h L420 (`UPDOWN_CANCEL_AFTER`): 10 functions here carry it (`32d01040` `32d017f0` `32d01ba0` `32d01f10` `32d02290` `32d02710` `32d02a90` `32d02ed0` `32cfafa0` `32cfb420`), the row stays open for CH1f+.
+- **`JUNE_BUGS.md` row 521:** `ESSI_ELK_XXXXXX` has no script table; X X X X X has no `EVENT_PROCESS_TIME0`, so any X press during it makes the end of the animation enter a state with no data. Ported as June has it; CH1 final's play-test should avoid pressing X in X X X X X.
+
+**Added here.**
+- Ten June-only state ids appended to the `ESSI` enum under `_CORE` (no `= value`, as CH1d): `ESSI_ESK_DASH_COMBO_ZX` (239), `_ZXX` (240), `ESSI_ESK_DASH_JUMP_ZZZ_LANDING` (243), `ESSI_ELK_DASH_COMBO_XX` (245), `_XXX` (246), `ESSI_ELK_XXXXX` (247), `ESSI_ELK_XXXXXX` (248), `ESSI_SI_P_ESK_AUTO_GUARD_SMALL` (236), `_END` (237), `_END_SMALL` (238); 14 declarations beside `IsInJobLine`.
+- CH1d's helper block (`IsDataClass`, `IsTempletClass`, the `ELSWORD_*` cancel macros) moved from `_LIVE` to `_CORE` (the new rows use it; `_LIVE` needs `_CORE`, so nothing changes for `_LIVE`): 2 deleted lines, `OTHER` in a `_LIVE`-only flagcheck. `Always.h`: `_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL` (defined at line 5880).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Its "27 deleted" lines are alignment: `git diff --patience --numstat` is 678 / 2 in the `.cpp` (the guard swap), 24 / 0 in the `.h`, 5 / 0 in `Always.h`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,945,088 B, dated 2026-11-04 09:49:53, md5 c095a2a43ca502220d46e25d4f1e3f9a, equal to X2/US_SERVICE/x2.exe (2026-11-04 09:49:46)`; built at main `2970ed2d` + the 3 code files of this phase. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1e review` (Opus 5.5 high), then CH1f.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

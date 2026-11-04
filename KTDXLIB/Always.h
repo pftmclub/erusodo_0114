@@ -11448,6 +11448,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              declaration ), compiled in every build and referenced by nothing until CH1f / CH1i / CH1m register them.
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_CORE ).
 #define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifndef SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
