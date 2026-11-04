@@ -1217,6 +1217,43 @@ No `exestr` line: `_LIVE` is off, and the machine-gun bodies add no string.
 
 **Nothing to play-test** (`_LIVE` is off; the machine-gun states cannot be entered). Next: `/x2-phase char-elsword CH1n review` (Opus 5.5 high).
 
+### CH1n - Review (2026-11-04)
+
+**Verdict: PASS, no code change.** Read from a fresh decompile of `32d223e0` (969 lines) and the exe bytes (`june2017_re/disasm_range.py`).
+- **Head.** `( int )slot < 0 || 4 < slot`; tables `33521204` / `3352132c` / `33521318` / `33521340` by `bSlotB_`; hyper `word +0x10 = 0x101`.
+  `UserUnitStateData` offsets against `X2GUUser.h`: +0x10 `m_bHyperState`, +0x14 `StateInit`, +0x1c `StateStartFuture`, +0x24 `StateStart`,
+  +0x34 `OnFrameMove`, +0x44 `OnEventProcess`; every slot pair the port writes is the one June writes.
+- **Memo exit.** Bytes @32d224e4-32d22500: `31fdbcc0( id )`, then `32206450( memo, 1 )` on `g_pData +0x50` (skill tree), `jne 32d23daa` = the
+  epilogue (`31fdf970`, return). No case, as ported (Chung's / Eve's / Aisha's form). It cannot fire for Elsword: June's `SkillNoteTemplet.src.lua`
+  has 15 `MI_TRANSCENDENCE_1` / `_2` rows (skill prefixes AVP, EEG, ECE, ECB, CSG, CDC, ALD, SGM, SBH, LLD) and none names an Elsword skill, so
+  `GetTranscendenceMemoSkillID` returns 0 for him. No routing needed.
+- **Types.** 5 / 6, 7, 0xd-0x10 / 0xc / default = `ST_BUFF` 5, `ST_ACTIVE` 6, `ST_SPECIAL_ACTIVE` 7, `ST_RELATIONSHIP_SKILL` 12, `ST_HYPER_ACTIVE_SKILL`
+  13, grades 14-16 (enum counted in `X2SkillTree.h`; `FINALITY_SKILL_SYSTEM` on). `SI_ETC_WS_COMMON_LOVE` = 900 is the live member
+  (`UPGRADE_SKILL_SYSTEM_2013` branch, `Always.h:1643`; 6001 is the dead `#else`).
+- **Buff / throw item.** Tails `@32d22557` / `@32d23d7c`: FM + EP on normal, the same table name and FM + EP copied to hyper, as ported. Thunks:
+  `329ccd90` -> `32a77a20` (`jmp [vtbl+0x5f0]`), `329cba40` -> `31fcbd60`; `329ccda0` -> `329cc0d0` (`+0x5f4`), `329ccdb0` -> `329cc170` (`+0x5f8`).
+- **Hyper switch.** `0x5460 < id`: 21601 / 21604 SRB, 21602 / 21605 Blade Rain, 21603 -> Gigantic Slash, default -> `@32d23c1e`; `== 0x5460` Gigantic
+  Slash; else the id switch. Thunks `32d262f0` / `32d26300` / `32d26310` -> `32cf4930` / `32cf49d0` / `32cf4ab0` (Init), `32d26df0` / `32d26e00` ->
+  `32d00be0` / `32d00de0`, `329cbfc0` -> `31fcc740` (EP). Hyper copies `+0x44` only. Table strings match. The six `RNSI_HA_*` = `Enum.src.lua`
+  15508 / 15542 / 14359 / 16552 / 15039 / 16448 (21600-21605).
+- **`SetMegaSlashSkillFunc`.** Both switches' `default:` jump to `@32d23c1e` (inner @106, outer @476); no explicit Mega Slash case. The helper's body
+  equals March's `SI_A_ES_MEGASLASH` case line for line; `_LIVE`'s `default:` calls it and breaks (March's `default:` fell into that case). June's
+  `MEMO_READY` / 0xea / 0xeb registration stays CH2a's.
+- **Callbacks.** SAME spot-checks from the bytes: `MACHINE_GUN_JUMP_UP_EventProcess` `31fc7f00` (`0 >= speed.y` -> vslot 0x5c `( 0x11d, 0 )`, tail
+  0x7d4) and `DashJumpEndFuture` `31fc7f80` (0x7dc = `CommonStateEnd`, then `fDownAccel = 0`) = March. DIFF bodies: `31fd2280` / `31fd2330` (both arrows
+  -> one-press turns, else unchanged; speed = walk rate +0x4910) and `31ffb294` / `31ffb954` (the same, speed = dash rate +0x49c4, `fldz` -> 0 when no
+  arrow) = `UpdateFutureIsRightByArrowKeys` + the ported speeds. RandomLose stays the decided stand-in.
+- **Always.h.** The three `_LIVE` guards and the `JUNE_USER_BASE_STATE_BODIES` guard name the functions they need; the `_LIVE` probe compiles.
+
+**Hygiene.** flagcheck `--range 2fa9dd2e^..2fa9dd2e --files`: `_CORE` `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`;
+`JUNE_ENUM_NAMES` `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`;
+`JUNE_USER_MACHINE_GUN_FACING` `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`;
+`_LIVE` `files: 0 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`, FAIL only for the `//#define` (by design). Each: 0 deleted, 0 non-ASCII,
+0 EOL-mismatched, 0 `#else`/`#endif` without the token, 0 encoding changes. `git diff --patience --numstat`: 23 / 139 / 1 / 24 / 11 added, 0 deleted.
+`junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUUser.cpp`: 0 A/B rows.
+One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUElsword_SwordMan.cpp` `_LIVE` off exit 0 / 0 errors, `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` exit 0 / 0 errors.
+No build: the review changed no code (CH1n's `DEPLOY OK` stands). Nothing to play-test. Next: `/x2-phase char-elsword CH1o` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
