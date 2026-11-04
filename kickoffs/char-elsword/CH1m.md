@@ -26,6 +26,7 @@ callback pointed at the function CH1a-CH1k wrote (March's own name for `inside` 
 only (CH0 checked it against the listing). March's registration stays in the `#else`, under `_LIVE`. March-only states June drops are not
 registered; June quirks are kept with a `JUNE_BUGS.md` row. Reuse `ch1m_regsim.py` / `ch1m_regcheck.py` (per-class path simulation) with
 Elsword's addresses. Done gate: the build passes with `_LIVE` undefined, and the one-file probe with it defined compiles the new path; no play-test.
+CH1k review: March's `ESSI_*` values are not June's ids (Auto Guard 188 vs June 232, sword wait 163 vs 206, `USI_END` 106); register and compare by name only, never by June's number.
 
 You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). CP949 files through
 `bytepatch.py`; `cl /P` each `#ifdef` you edit. Nothing runs until `_LIVE`: no play-test; the hand-off names the next phase.
