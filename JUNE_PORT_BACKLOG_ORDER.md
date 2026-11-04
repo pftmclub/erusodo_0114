@@ -575,6 +575,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - The UI only has to read and write those.
   - June's version is the GFx option window (funcmap `32eddbb0`, `32eddcf0`, `32edee60`, `32f246d0`).
   - Brief: `kickoffs/june-effect/C10b-3.md`.
+  - Stale log line (char-elsword CH1 review, 2026-11-04): `X2DamageEffect.cpp:2376` still logs `unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION ...
+    effect-alpha option absent` (`_DAMAGEEFFECT_RUNTIME`) although C10b-2 applies the option there (`:2632`, `:5344`, `:8178`). Wrap the two lines
+    in `#ifndef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`, as C10b-2 did for `X2EffectSet.cpp`. Log only; no behaviour gap.
 - **The non-tutorial rest of three June UI rewrites** (handed here by june-buff 14c, user 2026-10-07).
   - 14c ported only their tutorial-flag terms, under `SERV_IRUHADEV_JUNE_TUTORIAL_MODE`: `CX2UIManager::SetShowUI` (June `32154820`), `CX2UIQuickSlot::SetEnable` (`3294c460`) and `CX2UIQuestNew::ToggleUserShowQuickQuestDLG` (`323ddfe0`).
   - What is left in `SetShowUI`:

@@ -1652,6 +1652,47 @@ New lines are places and assets the earlier run never opened: optional `.XET` pr
 tutorial event-scene `.swf` / `.gfx` (quest 11010), local-map control names, `result : 47` on two sounds (as Chung's), and `HQ_CUTIN_ELSWORD_1.DDS.GFX`:
 March's cut-in table name plus `.gfx`, owned by CH5 (as Chung's). `AddGroupChainQuest` unbound x1 is pre-CH1 (Chung's review). No new routing.
 
+### CH1 - Review (2026-11-04)
+
+Opus 5.5. **Verdict: passes.** One source change: `_WOS_DEBUG` retired (`Always.h:11582`, `//#define`); the five `ELSWORD WOS` lines go dark,
+`ELSWORD DATA` stays (`_LIVE` has its own `X2OfflineLog.h` include; `X2GageUI.cpp`'s other log calls sit under their own flags and include).
+- **Deploy unit:** data036 `Elsword_SwordMan.lua` 225,819 B sha1 `23db4786...` and `WayOfSword.lua` 1,759 B sha1 `fbaaf25a...`, both header `1B 4B 4C 81`,
+  equal to the `june_adopt_20261104_194902.tsv` rows; no `.src.lua` sidecar. `kom.py status`: data036 and data034 `in sync`, +0 / -0 / ~0 vs live.
+  data034 `DLG_Elsword_WayOfSword.lua` (sha1 `6301bbf8`) = `ljconv( June's file )`. `EXESTR OK: 1 of 1` `ELSWORD DATA` (wide x1) on md5 `0e9c736f`.
+- **`ELSWORD DATA` vs `ch1m_reg_by_class.tsv`:** the tsv gives 119 common + 7 / 17 / 15 / 11 / 22 / 23 / 18 per class (126 / 136 / 134 / 130 / 141 / 142 / 137
+  distinct ids, both 21216 paths). Logged - tsv = 21 + the learned-skill sub-states, exact for all 7 classes.
+  - **The 21:** base and hook states (as Chung's 18 + 2) plus June's Mega Slash memo pair `0xea` / `0xeb`: every test unit has a 21000 row (level-0 rows count).
+  - **The varying part** is June's `SetEquippedSkillLevel` (`32cf5210`, `bChangeAll`): `m_StateList[ id ]` inserts each listed state of a learned skill.
+    Lord Knight unit 25 = +11 (Rolling Smash 21205: 4, Counter 21206: 4, Grand Cross 21058: 3); Rune Slayer unit 26 = +2 (Sword Fire 21016: 1, Rune Counter
+    21211: 1); units 67 / 66 / 32 / 33 / 34 learned none of the eight. None of these states is a tsv row. The count follows the unit's skills, not its class.
+- **START / WIN / LOSE:** only `C3e-2 roll` lines with list size 1 or 2; no `list size 0`, no `re-bind skipped`.
+- **Way of the Sword (review run 20:50-20:53, unit 25):** `vigor start` at 4800 (x1.200), `UI state` 2 / -1 / -2 / 1, `destruction start` at -4800, then
+  **three `destruction rage` lines** (-4800 -> -2550 -> -300 -> 1950, rage time 6.0; +2250 each = June's `Const_DestRageWSPGain`, CH1q), each followed by
+  an `ELSWORD_ANGRY_WIND` hit; the third leaves destruction (`UI state 1 point 1950`).
+- **Revenge counter:** not reachable yet. Counter 21206 is CH3a's skill, and an unported skill falls back to March's route (user). The non-zero-hit check
+  moves to `CH3a.md`. Data side holds: June's `ESSI_REVENGE_ATTACK` (`Elsword_SwordMan.src.lua:12264`) has `NUMERICAL_DATA_INDEX = 1`,
+  `APPLIED_SKILL_ID = RNSI_A_ELK_COUNTER`. The test save edit (21206 slotted on unit 25) was reverted after the run.
+- **ErrorLog:** as the CH1 note (`KEM_ERROR` 0 / 0, `Motion Error` 0 / 0, `[LUA_SRC]` 7 / 7). Review run: `JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+  in ELSWORD_ANGRY_WIND`. A stale `_DAMAGEEFFECT_RUNTIME` line: C10b-2 applies the option (`X2DamageEffect.cpp:2632` / `:5344` / `:8178`) but left
+  `:2376` logging. Routed to Stage 9 (beside the effect-alpha UI bullet), not an Elsword defect.
+- **Checklist:** the 8 `(Elsword: CH1 ...)` marks are at l.16 (the note's l.15), 421, 425, 507, 546, 590, 672, 757. `charport_keys.py Elsword_SwordMan`:
+  `june-only=5 neither=5 march-only-site=8 both=262`, the plan's numbers.
+- **Ghidra (read-only):** `32cf5210` carries the same 8 skills and state groups as `SetEquippedSkillLevel` under `_LIVE` (21000 `0xea`/`0xeb`; 21010 `0xbe`/`0xbf`
+  then the unit test and `SA_EFFECTIVE_TIME`; 21016 `0xc0`; 21205 `0xca`-`0xcd`; 21211 `0x103`; 21206 `0xe4`-`0xe7`; 21035 `0x106` with no null test; 21058
+  `0x107`-`0x109`); the C++ enum keeps March's numbers (names map through CH1m / CH1i). `ReInit` `32d1a920` (uncarved, `charport_adis.py`): vslot `0x10c`
+  @32d1a9d2, `dec eax / je` @32d1a9db: type 1 only, the allow-list row holds.
+
+Hygiene:
+- `flagcheck.py JUNE_CHAR_ELSWORD_LIVE --range 338d7e8f^..338d7e8f`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+- `_WOS` (same range): `0 PASS, 2 OTHER, 0 FAIL`, `RESULT: PASS`.
+- `_WOS_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`; `RESULT: FAIL` only because the `#define` is now `//#define` (the 1 deleted line is the define).
+- `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`; `--check KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- `DEPLOY OK: X2_offline.exe is 25,968,640 B, dated 2026-11-04 21:04:39, md5 b5cd8664e4a5746a40d1c2bd3a2a26ea, equal to X2/US_SERVICE/x2.exe (2026-11-04 21:04:32); built at main 8ff11683 + 1 uncommitted code file(s).`
+- `EXESTR OK: 1 of 1 found` (`ELSWORD DATA`) and `EXESTR OK: 5 of 5 absent` (`ELSWORD WOS vigor start` / `destruction start` / `destruction rage` / `attack gain` / `UI state`), same md5.
+
+CH2a and CH5 are ready (kickoffs checked: each depends only on this review; neither reads an `ELSWORD WOS` line). Nothing to play-test for the
+retirement: the next Elsword run shows no `ELSWORD WOS` line and `ELSWORD DATA` per load.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

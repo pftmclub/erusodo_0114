@@ -11579,5 +11579,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Elsword ) Phase CH1q - temporary [JUNE_CHAR] ELSWORD WOS lines ( vigor / destruction start, the rage,
 //              the own unit's attack gain once a second ) for CH1's play-test; they sit inside JUNE_CHAR_ELSWORD_WOS code only.
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_WOS_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 //////////////////////////////////////////////////////////////////////////

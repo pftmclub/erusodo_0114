@@ -29,6 +29,8 @@ callee) is "this needs Opus": stop.
 - `NUM use` lines for these skills; March vs June damage per skill in `MODS.md`.
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Elsword: CH3a)`.
 - Hand-off: the unit and class, each skill id and its A / B slot (never slot 4 / 9 before transcendence), what June's motion and effect look like.
+- From the CH1 review: Counter 21206 is the first skill that reaches `ESSI_REVENGE_ATTACK` (CH1b, multiplied damage, `NUMERICAL_DATA_INDEX = 1`).
+  The play-test shows the counter strike hitting for a non-zero amount (unit 25 has 21206 at level 0, unslotted: learn and slot it in A / B 0-3).
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
 `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
