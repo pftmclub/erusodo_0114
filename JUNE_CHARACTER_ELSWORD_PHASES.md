@@ -1598,6 +1598,48 @@ play-test line).
 
 **Nothing to play-test.** CH1 waits only on CH0b's play-test. Then: `/x2-phase char-elsword CH1` (Opus 5.5 high).
 
+### CH1 - Done (2026-11-04)
+
+Opus 5.5. **The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (`Always.h:11467`) and `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS` (`Always.h:11542`)
+are defined, so Elsword runs June's registration, state bodies, virtuals, skill head, pressed-slot space and Way of the Sword (CH1a-CH1q2); the shared
+WoS sites change Elesis's March class too, as June does. `_WOS_DEBUG` stays on for the play-test (the review retires it). CH0b's play-test: user, "passed".
+- **Script:** `luasrc.py adopt-june data036 Elsword_SwordMan.lua WayOfSword.lua`: June's files replace March's whole as `ljconv` bytecode
+  (225,819 B sha1 `23db4786`; 1,759 B sha1 `fbaaf25a`; no core-list row, no edit). Record `june2017_re/june_adopt_20261104_194902.tsv`, backup
+  `24965799\kom_backup_stage_june\20261104_194902`. `DLG_Elsword_WayOfSword.lua` lives in data034 and is June's bytes already (dry run: 1 identical).
+  WayOfSword's 3 changed values go live (`Const_DestRageWSPGain` 1500 -> 2250, two command constants 96 -> 67.2; CH1q). The loader opens
+  `ELSWORD_SWORDMAN.lua` (`X2GUUser.cpp:45680`), the kom's `Elsword_SwordMan.lua` (case-insensitive).
+  `PACK OK data036` (vs live ~2 changed: the two scripts); `COPY OK data036 ... 14033385 bytes, 270 entries, md5 90445015d040da4d93887fa27031a6cc` (user approved).
+- **Motions:** none held; CH0b copied data033 (11 class motions) and data199 (54 June-only).
+- `luabind.py check Elsword_SwordMan WayOfSword DLG_Elsword_WayOfSword`: 0 / 0 / 17 methods, 0 unbound, `RESULT: PASS`.
+- **`[JUNE_CHAR] ELSWORD DATA`** (`_LIVE`, end of `InitState`, offline_server.log): class, script, motion, state count, `wait_state_change`, as Chung's.
+  `X2GUElsword_SwordMan.cpp` includes `Offline/X2OfflineLog.h` under `_LIVE` too (it was only under `_WOS_DEBUG`).
+- **7h:** June's `ESSI_WAIT_STATE_CHANGE` has `ANIM_NAME = ""` (`Elsword_SwordMan.src.lua:2371`); Elsword's `CommonStateStart` (`:7118`) hands off to
+  `CX2GUUser::CommonStateStart`, which takes it as for Aisha, Eve and Chung (`ChangeAnim( L"" )` false, the pose holds).
+- **Effect data:** `EffectSet_ETK_DASH_JUMP_ZZZ` (CH1g) is in live data036 `EffectSet.lua`; `EffectSet_EIS_DASH_XX` was confirmed by CH1g2.
+- **Lua load check:** the pack gate parsed every BOM-source `.lua` of data036. Load-time errors of the core-list files Elsword reads (`DamageEffect.lua`,
+  `EffectSet.lua`) show only in `ErrorLog.txt`: the play-test compares against `data\ErrorLog_pre_CH1_elsword.txt` (212,757 B, CH0b's run 2026-11-04 04:47).
+- **Scans:** `charport_keys.py Elsword_SwordMan`: 280 keys, `june-only=5 neither=5 march-only-site=8 both=262`, the plan's numbers and names
+  (june-only `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME`, `FORCE_DYNAMIC_CAMERA_INDEX`, `IMMUNITY_EDT_LIST_AT_THIS_STATE`, `RETAIN_CAMERA_STATE`: owners as
+  Chung's). `charport_scan.py` (census rerun first, `census.tsv` / key matrix reverted after): `no NUMERICAL_DATA_INDEX` 87 / `no DAMAGE table` 20,
+  equal to `plan_charport_scan_20261103.txt`; no ENUM line, so no §4 table.
+- **Checklist:** `(Elsword: CH1 ...)` on the intro (l.15), 7h list variants (l.421), 7h USEFUL_VALUE (l.425), 7o (l.507), 7p (l.546), 7t cut-in (l.590),
+  7x AT_COMMAND (l.672), 7ad motions (l.757).
+- **Divergence gate:** with `_LIVE` on, `junediverge` saw `ReInit`'s `GT_PVP` test (rule b). June `32d1a920` @32d1a9d9 calls vslot 0x10c and takes
+  `dec eax / je`: type 1 only, so March's test is right; allow-list row added with that address.
+
+Hygiene: `flagcheck.py JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER,
+0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. `_WOS --files KTDXLIB/Always.h`: `RESULT: PASS` (same zeros). `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`:
+`allow-listed: 3`, `RESULT: PASS`; `--check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+One-file probes (`census.cl_cmd`, `/Zs /EHsc`, `_LIVE` + `_WOS` on): `X2GUElsword_SwordMan.cpp`, `X2GUUser.cpp`, `X2GageData.cpp`, `X2GageUI.cpp`,
+`X2DamageManager.cpp`, `X2DamageEffect.cpp`, `X2Game.cpp`, `X2GameUnit.cpp`, `X2GUEL.cpp` exit 0, 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 25,970,176 B, dated 2026-11-04 20:03:19, md5 0e9c736ff275691f447f67ffedb2e507, equal to X2/US_SERVICE/x2.exe (2026-11-04 20:03:12); built at main f7ceb11d + 2 uncommitted code file(s).`
+`EXESTR OK: 3 of 3 found in X2_offline.exe, 25970176 B, dated 2026-11-04 20:03:19, md5 0e9c736ff275691f447f67ffedb2e507` (`ELSWORD DATA`, `ELSWORD WOS vigor start`, `ELSWORD WOS UI state`).
+
+**Play-test (user) is the gate:** one Elsword per job (units 67 / 66 / 32 / 33 / 25 / 26 / 34; none has a skill in slot 4 / 9); combos, dash, jump, climb,
+damage and stand-up, a bounding hit, riding where a mount exists, the gauge into vigor and destruction, awakening, a village walk; `ELSWORD DATA` per class;
+ErrorLog against the pre-CH1 copy. Lord Knight's X at the end of Z-Z-Z-Z-Z is avoided (JUNE_BUGS 521). Skills are CH2-CH3's. No JUNE_BUGS row, no drift.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

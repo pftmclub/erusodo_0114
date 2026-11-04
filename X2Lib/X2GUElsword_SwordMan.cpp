@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #define LEAP_GRAVITY 9.8f
 
@@ -1929,6 +1932,10 @@ void CX2GUElsword_SwordMan::InitState()
 	InitPassiveSkillState();					/// June vslot 0x690
 	InitEquippedActiveSkillState( false );		/// June vslot 0x684
 	CX2GUUser::InitState();						/// June 31fd8f00
+	// Not June: CH1 done-gate line, proves June's script ( its ESSI_WAIT_STATE_CHANGE table ) and the motion loaded.
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( eClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
 #else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	ASSERT( NULL != GetUnit() );
 
