@@ -615,6 +615,42 @@ All 28 class-map rows of phase CH1d are written, all `inside`: June's body in Ma
 
 Nothing to play-test (`_LIVE` is off). In `kickoffs/char-elsword/CH1d2.md`, the Task line now names the dash scope and the Done gate names phase `CH1d2`; both were template leftovers. It also gains one line on the `ELSWORD_*` macros and the `_CONST_ELSWORD_CH1D_` helpers. Next: `/x2-phase char-elsword CH1d2` (Sonnet 5.5 high).
 
+### CH1d2 - Done (2026-11-04)
+
+All 28 class-map rows of phase CH1d2 are written, all `inside`: June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`. 28 funcmap rows `Char Elsword CH1d2`, plus one for the state ids declared here.
+
+| June | `CX2GUElsword_SwordMan::` | June | `CX2GUElsword_SwordMan::` |
+|---|---|---|---|
+| `32cf7cb0` `32cf8110` | DashComboZ1 / Z2 EventProcess | `32cf90d0` `32cf9220` | DashJumpComboZ1 / Z2 EventProcess |
+| `32cf8230` `32cf8770` | ESSI_KNIGHT_DASH_COMBO_Z2 / Z3 EventProcess | `32cf9440` | DashJumpComboX1 EventProcess |
+| `32cf8b30` | DashAttackX EventProcess | `32d0fa10` | DashJumpComboZ3Landing EventProcess |
+| `32d07e20` `32d07eb0` `32d08060` | DashComboZ2 / KNIGHT_DASH_COMBO_Z2 / DashAttackX StartFuture | `32cf3770` `32cf37f0` `32cf3800` `32cf3860` | Z2 / JumpZ1 / JumpZ2 / JumpX1 FrameMove |
+| `32cf3780` | KNIGHT_DASH_COMBO_Z3 StartFuture | `32cf3810` `32cf3840` `32cf38a0` `32cf38d0` | Z3Landing / X2Landing StartFuture, Start |
+| `32cf9380` `32cf9400` | DashJumpComboZ3 FrameMove / EventProcess | `32cf9530` `32cf9580` `32cf95e0` `32cf9610` `32cf3870` | X2 FrameMoveFuture / FrameMove / EventProcess, X2Landing EventProcess, X2 End |
+
+**Where June differs from March** (the other 19 are March's logic written out whole):
+- **Dash Z1 `32cf7cb0`:** four flagged follow-ups on `m_fEventTime[0..3]` (each `|| IsAnimationEnd()`): flag 0 is set by Z for every class except Sheath Knight / Infinity Sword (unit data class) and goes to `ESSI_DASH_COMBO_Z2` (March tested a fixed 0.36 s and the foot on a line); flag 1 to `ESSI_ETK_DASH_COMBO_ZZ` (Z key, classes 22 / 112); flag 2 to `ESSI_ESK_DASH_COMBO_ZChargeX` (X key, `IsInJobLine( 1 )`); flag 3 to `ESSI_EIS_DASH_COMBO_ZX` (X key, class 112). Then the end of animation and the C skip at `> 0.9` (`m_fCanNotAttackTime = 0.1`).
+- **Dash Z2 `32cf8110`:** end of animation first, then flag 0 (`m_fEventTime[0]`, Z key) goes to the dash Z3 (March had no flag here).
+- **Sword-Knight dash Z2 `32cf8230`:** flags 0 / 1 on `m_fEventTime[0]` / `[1]` to Z3 / Z3a (flag 1 set by X for classes 11 / 101), then the `+0x8ca4` UPDOWN cancel (checklist 7h, written inline: up or down held on a line), the skill / back-walk / walk / dash cancels, the pure Z / X cancels, and the end of animation as a separate `if`. March used fixed 0.45 windows and flag clears.
+- **Dash attack X `32cf8b30`:** templet class 112 first (X flag 0 to `ESSI_EIS_DASH_COMBO_XX` at 0.63, window 0.233..0.63, C skip at `> 0.66666`); otherwise end of animation, then unit data class 100 (flag 0 on `[0]` to `ESSI_ELK_DASH_COMBO_XChargeX`, X key, skip keys + Z, 0.66666), 101 (flag 1 on `[1]` to `ESSI_ERS_XZ_CHARGE`, Z key, skip keys + X, 0.66666), else the ZXC skip at 0.6.
+- **Dash jump Z1 `32cf90d0`:** flag 1 on `[0]` to `ESSI_EMK_DASH_JUMP_ZX` (X key, `IsInJobLine( 2 )`). **Z2 `32cf9220`:** flag 1 on `[0]` to `ESSI_ETK_DASH_JUMP_ZZZ` (Z key, job line 3); at the end of animation with flag 0 job line 1 goes to `ESSI_ESK_DASH_JUMP_ZZZ`, else Z3. **X1 `32cf9440`:** the Z-key flags read the templet class (11 / 101), March read the unit class.
+- June's `ESSI_KNIGHT_DASH_COMBO_Z3` / `_Z3a` are March's `ESSI_DASH_COMBO_Z3` / `_Z3a` (ids 174 / 175; March's name wins). `32d0fa10`: the second dash test after the X branch is dead code in March and absent in June (not written). `CanDown` is March's 4-argument call (funcmap W1f forwarder). `32cf7cb0` runs on into `32cf8110` in the raw listing (no `int3`).
+- No `JUNE_BUGS.md` row (nothing June does wrongly), no alpha-tag site (7c), no `+0x7cc8`. Checklist §7h L420 (`UPDOWN_CANCEL_AFTER`, 24 functions): `32cf8230` is done here; the other 23 are in CH1e-CH1g2 and CH2+ (their kickoffs carry the inline form).
+
+**Added here, owned by later phases.**
+- Seven June-only state ids appended to the `ESSI` enum under `_CORE` (no `= value`, as CH1d): `ESSI_ESK_DASH_COMBO_ZChargeX` (241), `ESSI_ESK_DASH_JUMP_ZZZ` (242), `ESSI_ELK_DASH_COMBO_XChargeX` (244) for CH1e; `ESSI_EMK_DASH_JUMP_ZX` (249), `ESSI_ERS_XZ_CHARGE` (255) for CH1f; `ESSI_ETK_DASH_JUMP_ZZZ` (258) for CH1g; `ESSI_EIS_DASH_COMBO_ZX` (224) for CH1g2. The CH1e / CH1f / CH1g / CH1g2 kickoffs carry an amendment.
+- `Always.h`: `_LIVE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL` guard (defined at line 5880; the probe with `_LIVE` on compiles). In the `.cpp`: macro `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( bKey_ )` beside CH1d's, under `_LIVE`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` by design. `_CORE` on the `.h`: `files: 1 PASS`, `RESULT: PASS`.
+- `git diff --numstat`: 546 / 0 in the `.cpp`, 7 / 0 in the `.h`, 3 / 0 in `Always.h`.
+- `cl /P` of `X2GUElsword_SwordMan.cpp` with `_LIVE` off: 0 differing non-blank lines against HEAD's `.cpp` (same headers). With `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` the output differs and carries the new bodies.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h KTDXLIB/Always.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,937,408 B, dated 2026-11-04 09:07:48, md5 09774139c9622ecc7130cc073c0f7d0e, equal to X2/US_SERVICE/x2.exe (2026-11-04 09:07:41)`; built at main `97735be0` + the 3 code files of this phase. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1d2 review` (Opus 5.5 high), then CH1e.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

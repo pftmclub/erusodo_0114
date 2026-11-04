@@ -8804,6 +8804,12 @@ using namespace _CONST_ELSWORD_CH1D_;
 #define ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( iFlag_, fStart_, fEnd_, bCondition_ ) \
 	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < (fEnd_) && (fStart_) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition_) ) \
 	{ m_FrameDataFuture.stateParam.bEventFlagList[iFlag_] = true; }
+
+/// June 32cf8b30: the skip-point keys ( Up Down Right Left A S D C Q W E R ) plus one attack key
+#define ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( bKey_ ) \
+	else if ( true == m_InputData.pureUp || true == m_InputData.pureDown || true == m_InputData.pureRight || true == m_InputData.pureLeft || true == (bKey_) || \
+		true == m_InputData.pureA || true == m_InputData.pureS || true == m_InputData.pureD || true == m_InputData.pureC || \
+		true == m_InputData.pureQ || true == m_InputData.pureW || true == m_InputData.pureE || true == m_InputData.pureR )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 //ESSI_COMBO_Z1
 void CX2GUElsword_SwordMan::ComboZ1FrameMoveFuture()
@@ -9715,6 +9721,48 @@ void CX2GUElsword_SwordMan::DashComboZ1FrameMove()
 
 void CX2GUElsword_SwordMan::DashComboZ1EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf7cb0
+	if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( ESSI_DASH_COMBO_Z2 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		false == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_SHEATH_KNIGHT ) && false == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_INFINITY_SWORD ) && true == m_InputData.oneZ )
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[1].stateChange, ESSI_ETK_DASH_COMBO_ZZ )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd,
+		( true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_SHEATH_KNIGHT ) || true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_INFINITY_SWORD ) ) && true == m_InputData.oneZ )
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 2, m_fEventTime[2].stateChange, ESSI_ESK_DASH_COMBO_ZChargeX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd,
+		true == IsInJobLine( 1 ) && true == m_InputData.oneX )
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 3, m_fEventTime[3].stateChange, ESSI_EIS_DASH_COMBO_ZX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd,
+		true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_INFINITY_SWORD ) && true == m_InputData.oneX )
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if ( 0.9f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef ELSWORD_SHEATH_KNIGHT
 	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.3666f
 #ifdef SERV_ELSWORD_INFINITY_SWORD
@@ -9767,27 +9815,66 @@ void CX2GUElsword_SwordMan::DashComboZ1EventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_DASH_COMBO_Z2
 void CX2GUElsword_SwordMan::DashComboZ2StartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d07e20
+	CommonStateStartFuture();
+
+	if ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if ( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashComboZ2FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3770
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashComboZ2EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8110
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, ESSI_DASH_COMBO_Z3 )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
 		if( false == IsOnSomethingFuture() )
@@ -9800,21 +9887,81 @@ void CX2GUElsword_SwordMan::DashComboZ2EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //ESSI_KNIGHT_DASH_COMBO_Z2
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d07eb0
+	CommonStateStartFuture();
+
+	if ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if ( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8230
+	if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] &&
+		( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+	{
+		StateChange( ESSI_DASH_COMBO_Z3 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneZ )
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[1].stateChange, ESSI_DASH_COMBO_Z3a )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd,
+		( true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_MAGIC_KNIGHT ) || true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_RUNE_SLAYER ) ) && true == m_InputData.oneX )
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && true == m_InputData.pureX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.45f
 		&& true == IsOnSomethingFuture() )
 	{
@@ -9868,12 +10015,17 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_KNIGHT_DASH_COMBO_Z3
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3780
+	CommonStateStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	/*
@@ -9882,10 +10034,34 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture()
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 		*/
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8770
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+	{
+		if ( 1.0f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -9901,6 +10077,7 @@ void CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
@@ -10074,12 +10251,26 @@ void CX2GUElsword_SwordMan::ESSI_MAGIC_KNIGHT_DASH_COMBO_Z3a_StateEndFuture()
 //ESSI_DASH_ATTACK_X
 void CX2GUElsword_SwordMan::DashAttackXStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d08060
+	CommonStateStartFuture();
+
+	if ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if ( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
 	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
 		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashAttackXFrameMove()
@@ -10089,6 +10280,91 @@ void CX2GUElsword_SwordMan::DashAttackXFrameMove()
 
 void CX2GUElsword_SwordMan::DashAttackXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf8b30
+	if ( true == IsTempletClass( GetUnit(), CX2Unit::UC_ELSWORD_INFINITY_SWORD ) )
+	{
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			if ( false == IsOnSomethingFuture() )
+			{
+				StateChange( USI_JUMP_DOWN );
+				m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+			}
+			else
+			{
+				StateChange( USI_WAIT );
+			}
+		}
+		ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 0, 0.63f, ESSI_EIS_DASH_COMBO_XX )
+		ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, 0.233f, 0.63f, true == m_InputData.oneX )
+		ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+		{
+			if ( 0.66666f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+			{
+				StateChange( USI_WAIT );
+			}
+		}
+	}
+	else
+	{
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			if ( false == IsOnSomethingFuture() )
+			{
+				StateChange( USI_JUMP_DOWN );
+				m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+			}
+			else
+			{
+				StateChange( USI_WAIT );
+			}
+		}
+		else if ( true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_LORD_KNIGHT ) )
+		{
+			if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] &&
+				( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+			{
+				StateChange( ESSI_ELK_DASH_COMBO_XChargeX );
+				m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+			}
+			ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+			ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( m_InputData.pureZ )
+			{
+				if ( 0.66666f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+				{
+					StateChange( USI_WAIT );
+				}
+			}
+		}
+		else if ( true == IsDataClass( GetUnit(), CX2Unit::UC_ELSWORD_RUNE_SLAYER ) )
+		{
+			if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1] &&
+				( m_fEventTime[1].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+			{
+				StateChange( ESSI_ERS_XZ_CHARGE );
+				m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+			}
+			ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, true == m_InputData.oneZ )
+			ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( m_InputData.pureX )
+			{
+				if ( 0.66666f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+				{
+					StateChange( USI_WAIT );
+				}
+			}
+		}
+		ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+		{
+			if ( 0.6f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+			{
+				StateChange( USI_WAIT );
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef SERV_ELSWORD_INFINITY_SWORD
 	if( GetUnit()->GetClass() == CX2Unit::UC_ELSWORD_INFINITY_SWORD )
 	{
@@ -10152,6 +10428,7 @@ void CX2GUElsword_SwordMan::DashAttackXEventProcess()
 #endif	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -10325,12 +10602,38 @@ void CX2GUElsword_SwordMan::JumpAttackXEventProcess()
 //ESSI_DASH_JUMP_COMBO_Z1
 void CX2GUElsword_SwordMan::DashJumpComboZ1FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf37f0
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboZ1EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf90d0
+	if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[0].stateChange, ESSI_EMK_DASH_JUMP_ZX )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneX && true == IsInJobLine( 2 ) )
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+	{
+		StateChange( ESSI_DASH_JUMP_COMBO_Z2 );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -10356,18 +10659,52 @@ void CX2GUElsword_SwordMan::DashJumpComboZ1EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESI_DASH_JUMP_COMBO_Z2
 void CX2GUElsword_SwordMan::DashJumpComboZ2FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3800
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboZ2EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9220
+	if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSWORD_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[0].stateChange, ESSI_ETK_DASH_JUMP_ZZZ )
+	ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneZ && true == IsInJobLine( 3 ) )
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+	{
+		if ( true == IsInJobLine( 1 ) )
+		{
+			StateChange( ESSI_ESK_DASH_JUMP_ZZZ );
+		}
+		else
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_Z3 );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -10391,12 +10728,27 @@ void CX2GUElsword_SwordMan::DashJumpComboZ2EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_DASH_JUMP_COMBO_Z3
 void CX2GUElsword_SwordMan::DashJumpComboZ3FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9380
+	if ( 0.26f < m_pXSkinAnim->GetNowAnimationTime() && m_pXSkinAnim->GetNowAnimationTime() < 0.37f )
+	{
+		if ( true == g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) )
+		{
+			m_FrameDataNow.stateParam.normalCamera = m_FrameDataNow.stateParam.hitCamera;
+			m_FrameDataNow.stateParam.bResetCamera = false;
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.26f && m_pXSkinAnim->GetNowAnimationTime() < 0.37f )
 	{
@@ -10409,10 +10761,27 @@ void CX2GUElsword_SwordMan::DashJumpComboZ3FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboZ3EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9400
+	if ( true == IsOnSomethingFuture() )
+	{
+		if ( true == m_FrameDataNow.unitCondition.bHit )
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_Z3_LANDING );
+		}
+		else
+		{
+			StateChange( USI_DASH_JUMP_LANDING );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -10432,6 +10801,7 @@ void CX2GUElsword_SwordMan::DashJumpComboZ3EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -10440,20 +10810,77 @@ void CX2GUElsword_SwordMan::DashJumpComboZ3EventProcess()
 //ESSI_DASH_JUMP_COMBO_Z3_LANDING
 void CX2GUElsword_SwordMan::DashJumpComboZ3LandingStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3810
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.x /= 2.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboZ3LandingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3840
 	CommonStateStart();
 
 	m_FrameDataNow.stateParam.normalCamera = m_FrameDataNow.stateParam.hitCamera;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.normalCamera = m_FrameDataNow.stateParam.hitCamera;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0fa10
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( m_pXSkinAnimFuture->GetMaxAnimationTime() / 6.0f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			StateChange( ESSI_COMBO_Z1 );
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			StateChange( ESSI_COMBO_X1 );
+		}
+		else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChange( USI_WALK );
+		}
+		else if ( true == m_InputData.pureUp )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if ( true == m_InputData.oneDown && true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+			LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -10502,6 +10929,7 @@ void CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -10509,11 +10937,59 @@ void CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess()
 //ESSI_DASH_JUMP_COMBO_X1
 void CX2GUElsword_SwordMan::DashJumpComboX1FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3860
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboX1EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9440
+	if ( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+	}
+	else if ( true == m_InputData.oneZ && true == IsTempletClass( GetUnit(), CX2Unit::UC_ELSWORD_MAGIC_KNIGHT ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+	}
+	else if ( true == m_InputData.oneZ && true == IsTempletClass( GetUnit(), CX2Unit::UC_ELSWORD_RUNE_SLAYER ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = true;
+	}
+
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_X2 );
+		}
+		else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1] )
+		{
+			StateChange( ESSI_DASH_JUMP_COMBO_X2a );
+		}
+		else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[2] )
+		{
+			StateChange( ESSI_ERS_DASH_JUMP_XZ );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN );
@@ -10574,6 +11050,7 @@ void CX2GUElsword_SwordMan::DashJumpComboX1EventProcess()
 	//m_fReDashJumpXTime = 0.3f;
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -10583,6 +11060,15 @@ void CX2GUElsword_SwordMan::DashJumpComboX1EventProcess()
 //ESSI_DASH_JUMP_COMBO_X2
 void CX2GUElsword_SwordMan::DashJumpComboX2FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9530
+	if ( true == m_pXSkinAnimFuture->EventTimerOneshot( 0.23f ) )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.23f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10593,10 +11079,24 @@ void CX2GUElsword_SwordMan::DashJumpComboX2FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboX2FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9580
+	if ( 0.15f < m_pXSkinAnim->GetNowAnimationTime() )
+	{
+		if ( true == g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) )
+		{
+			m_FrameDataNow.stateParam.bResetCamera = false;
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.15f )
 	{
 
@@ -10608,10 +11108,20 @@ void CX2GUElsword_SwordMan::DashJumpComboX2FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboX2EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf95e0
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ESSI_DASH_JUMP_COMBO_X2_LANDING );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 //
 //#ifdef LINEMAP_FAST_WIND_TEST
 //	IF_TIME_ELAPSED_IN_THE_AIR_THEN_STATE_CHANGE( 1.f, USI_JUMP_DOWN )
@@ -10625,34 +11135,69 @@ void CX2GUElsword_SwordMan::DashJumpComboX2EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboX2End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3870
 	CommonStateEnd();
 	UpCrashCamera( 200.0f, -3500.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateEnd();
+	UpCrashCamera( 200.0f, -3500.0f );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 //ESSI_DASH_JUMP_COMBO_X2_LANDING
 void CX2GUElsword_SwordMan::DashJumpComboX2LandingStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf38a0
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed.x *= 0.5f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed.x /= 2.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::DashJumpComboX2LandingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf38d0
 	CommonStateStart();
 
 	m_FrameDataNow.stateParam.normalCamera = m_FrameDataNow.stateParam.hitCamera;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.normalCamera = m_FrameDataNow.stateParam.hitCamera;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 
 void CX2GUElsword_SwordMan::DashJumpComboX2LandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf9610
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -10666,6 +11211,7 @@ void CX2GUElsword_SwordMan::DashJumpComboX2LandingEventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 //ESSI_KNIGHT_DASH_JUMP_COMBO_X2

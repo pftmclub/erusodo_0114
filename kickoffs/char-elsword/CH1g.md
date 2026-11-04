@@ -55,3 +55,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **States: 14** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_ETK_START`, `ESSI_ETK_WIN`, `ESSI_ETK_WIN2`, `ESSI_ETK_LOSE`, `ESSI_ETK_LOSE2`, `ESSI_ETK_COMBO_XX`, `ESSI_ETK_COMBO_XXX_LOOP`, `ESSI_ETK_COMBO_XXX_END`, `ESSI_ETK_COMBO_XXXZ`, `ESSI_ETK_DASH_COMBO_ZZ`, `ESSI_ETK_DASH_JUMP_ZZZ`, `ESSI_ETK_COMBO_ZZZ`, `ESSI_ETK_COMBO_ZZZZ`, `ESSI_ETK_COMBO_ZZZZZ`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L254 class code scales the cached state power rate (+0x7cc8); §7c L352 29 alpha-tag sites 32d0d660 .. 32d1ecc0.
 - **Split by CH0:** CH1g = Sheath Knight line `ESSI_ETK_*` (31); Infinity Sword `ESSI_EIS_*` and the Compact Counter guard attack are **CH1g2** (16).
+
+## Amended by CH1d2 (2026-11-04)
+
+- `ESSI_ETK_DASH_JUMP_ZZZ` (June script id 258) is already in the `ESSI` enum at its end, under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (dash jump Z2 EventProcess names it). Do not add it again. The state's functions stay yours.
+- Reusable from CH1d / CH1d2: `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( bKey_ )`, `IsDataClass`, `IsTempletClass`. The checklist row §7h L420 (`UPDOWN_CANCEL_AFTER`) has `32cf8230` done; see CH1e's amendment for the inline cancel.

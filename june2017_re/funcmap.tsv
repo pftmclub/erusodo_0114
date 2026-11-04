@@ -7438,3 +7438,32 @@ unit+0x8b58	CX2GUUser::m_kJuneSkillSlotKey ( JuneSkillSlotKey: int m_iSlotIndex,
 32d08180	CX2GUElsword_SwordMan::JumpAttackXFrameMoveFuture	PORTED	Char Elsword CH1d: inside; = March
 32d05960	CX2GUElsword_SwordMan::IsInJobLine( int )	declared	Char Elsword CH1d: declared in X2GUElsword_SwordMan.h under _CORE ( ComboX2EventProcess calls it ); body is CH1i's ( vslot 0x670: line 1 = classes 10 / 100, 2 = 11 / 101, 3 = 22 / 112 )
 ESSI_ERS_COMBO_ZZZ / ESSI_EMK_COMBO_XZ	CX2GUElsword_SwordMan state ids ( June script ids 260 / 251 )	PORTED	Char Elsword CH1d: appended to the ESSI enum under _CORE ( ComboZ2 / ComboX1 name them ); the states and their functions are CH1f's
+32cf3770	CX2GUElsword_SwordMan::DashComboZ2FrameMove	PORTED	Char Elsword CH1d2: inside; = March
+32cf3780	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_StateStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( thunk to CommonStateStartFuture, vslot 0x7c0 )
+32cf37f0	CX2GUElsword_SwordMan::DashJumpComboZ1FrameMove	PORTED	Char Elsword CH1d2: inside; = March
+32cf3800	CX2GUElsword_SwordMan::DashJumpComboZ2FrameMove	PORTED	Char Elsword CH1d2: inside; = March
+32cf3810	CX2GUElsword_SwordMan::DashJumpComboZ3LandingStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( x *= 0.5 )
+32cf3840	CX2GUElsword_SwordMan::DashJumpComboZ3LandingStart	PORTED	Char Elsword CH1d2: inside; = March ( normalCamera = hitCamera )
+32cf3860	CX2GUElsword_SwordMan::DashJumpComboX1FrameMove	PORTED	Char Elsword CH1d2: inside; = March
+32cf3870	CX2GUElsword_SwordMan::DashJumpComboX2End	PORTED	Char Elsword CH1d2: inside; = March ( CommonStateEnd, UpCrashCamera( 200, -3500 ) ); shared by ESSI_DASH_JUMP_COMBO_X2 and ESSI_EIS_DASHJUMP_COMBO_XX
+32cf38a0	CX2GUElsword_SwordMan::DashJumpComboX2LandingStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( x *= 0.5 )
+32cf38d0	CX2GUElsword_SwordMan::DashJumpComboX2LandingStart	PORTED	Char Elsword CH1d2: inside; = March ( normalCamera = hitCamera )
+32cf7cb0	CX2GUElsword_SwordMan::DashComboZ1EventProcess	PORTED	Char Elsword CH1d2: inside; four flagged follow-ups on m_fEventTime[0..3] ( Z2; ETK ZZ for classes 22 / 112; ESK Z charge X for job line 1; EIS ZX for class 112 ), then end of animation and the C skip at 0.9; March had the Sheath Knight / Infinity Sword Z2 test only
+32cf8110	CX2GUElsword_SwordMan::DashComboZ2EventProcess	PORTED	Char Elsword CH1d2: inside; end of animation, then flag 0 ( m_fEventTime[0] ) to the dash Z3 ( June KNIGHT_DASH_COMBO_Z3 = March ESSI_DASH_COMBO_Z3, id 174 ); March used fixed times
+32cf8230	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_EventProcess	PORTED	Char Elsword CH1d2: inside; flags 0 / 1 on m_fEventTime[0] / [1] ( Z3 / Z3a ), then the UPDOWN_CANCEL_AFTER cancel ( checklist 7h ), skill / back-walk / walk / dash / Z / X cancels, then the end of animation as a separate if
+32cf8770	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z3_EventProcess	PORTED	Char Elsword CH1d2: inside; = March after the macros expand ( end of animation, ZXC skip at 1.0 )
+32cf8b30	CX2GUElsword_SwordMan::DashAttackXEventProcess	PORTED	Char Elsword CH1d2: inside; templet class 112 first ( EIS XX at 0.63, window 0.233..0.63, C skip 0.66666 ); else unit data class 100 ( ELK X charge X, [0], Z-added skip 0.66666 ), 101 ( ERS XZ charge, [1], X-added skip 0.66666 ) or the ZXC skip at 0.6
+32cf90d0	CX2GUElsword_SwordMan::DashJumpComboZ1EventProcess	PORTED	Char Elsword CH1d2: inside; flag 1 on m_fEventTime[0] to EMK dash jump ZX ( X key, job line 2 ); flag 0 ( Z ) goes to Z2 at the end of animation
+32cf9220	CX2GUElsword_SwordMan::DashJumpComboZ2EventProcess	PORTED	Char Elsword CH1d2: inside; flag 1 on m_fEventTime[0] to ETK dash jump ZZZ ( Z key, job line 3 ); at the end of animation with flag 0: ESK dash jump ZZZ ( job line 1 ) or Z3
+32cf9380	CX2GUElsword_SwordMan::DashJumpComboZ3FrameMove	PORTED	Char Elsword CH1d2: inside; = March ( hit window 0.26..0.37 )
+32cf9400	CX2GUElsword_SwordMan::DashJumpComboZ3EventProcess	PORTED	Char Elsword CH1d2: inside; = March ( landing state by bHit )
+32cf9440	CX2GUElsword_SwordMan::DashJumpComboX1EventProcess	PORTED	Char Elsword CH1d2: inside; flags: X = 0, Z with templet class 11 = 1, Z with templet class 101 = 2; end of animation goes to X2 / X2a / ERS dash jump XZ; = March with the templet class test
+32cf9530	CX2GUElsword_SwordMan::DashJumpComboX2FrameMoveFuture	PORTED	Char Elsword CH1d2: inside; = March ( EventTimerOneshot( 0.23 ), nowSpeed.y = fMaxGSpeed )
+32cf9580	CX2GUElsword_SwordMan::DashJumpComboX2FrameMove	PORTED	Char Elsword CH1d2: inside; = March ( DamageCheck after 0.15 )
+32cf95e0	CX2GUElsword_SwordMan::DashJumpComboX2EventProcess	PORTED	Char Elsword CH1d2: inside; = March
+32cf9610	CX2GUElsword_SwordMan::DashJumpComboX2LandingEventProcess	PORTED	Char Elsword CH1d2: inside; = March
+32d07e20	CX2GUElsword_SwordMan::DashComboZ2StartFuture	PORTED	Char Elsword CH1d2: inside; = March ( GetDashSpeed )
+32d07eb0	CX2GUElsword_SwordMan::ESSI_KNIGHT_DASH_COMBO_Z2_StateStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( GetDashSpeed )
+32d08060	CX2GUElsword_SwordMan::DashAttackXStartFuture	PORTED	Char Elsword CH1d2: inside; = March ( GetDashSpeed )
+32d0fa10	CX2GUElsword_SwordMan::DashJumpComboZ3LandingEventProcess	PORTED	Char Elsword CH1d2: inside; = March; the second dash test after the X branch is dead code in March and absent in June; CanDown is the March 4-argument call ( W1f forwarder )
+ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XChargeX / ESSI_EMK_DASH_JUMP_ZX / ESSI_ERS_XZ_CHARGE / ESSI_ETK_DASH_JUMP_ZZZ / ESSI_EIS_DASH_COMBO_ZX	CX2GUElsword_SwordMan state ids ( June script ids 241 / 242 / 244 / 249 / 255 / 258 / 224 )	PORTED	Char Elsword CH1d2: appended to the ESSI enum under _CORE ( the dash and dash-jump follow-ups name them ); the states and their functions are CH1e ( 241 / 242 / 244 ), CH1f ( 249 / 255 ), CH1g ( 258 ), CH1g2 ( 224 )

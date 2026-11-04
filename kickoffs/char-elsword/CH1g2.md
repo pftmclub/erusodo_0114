@@ -54,3 +54,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32cf4260` `32cf4280` `32cf4470`(new ESSI_EIS_DASH_COMBO_ZX_StateEnd) `32cf4490` `32cfdbe0` `32cfdcb0` `32cfe090`(new ESSI_EIS_DASH_COMBO_ZX_EventProcess) `32cfe280` `32cfe440` `32cfe5e0` `32cfe650` `32d13d20` `32d17550`(new ESSI_EIS_DASH_COMBO_XX_FrameMove) `32d1f130` `32d1f200`(new ESSI_EIS_DASH_COMBO_ZX_FrameMove) `32d1f2d0`.
 - **States: 12** (`awk -F'\t' '$8=="CH1g2"' june2017_re/char_elsword/ch0_state_skill.tsv`): `ESSI_EIS_START`, `ESSI_EIS_WIN`, `ESSI_EIS_WIN2`, `ESSI_EIS_LOSE`, `ESSI_EIS_LOSE2`, `ESSI_EIS_HYPER_MODE`, `ESSI_EIS_DASH_COMBO_XX`, `ESSI_EIS_DASH_COMBO_XXX`, `ESSI_EIS_DASHJUMP_COMBO_XX`, `ESSI_EIS_DASHJUMP_COMBO_XXX`, `ESSI_EIS_DASH_COMBO_ZX`, `ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK`.
 - Scope (CH0 split of CH1g): `ESSI_EIS_*` states and `ESSI_SI_A_ETK_COMPACT_COUNTER_GUARD_ATTACK` (6 callbacks). June registers the latter on id 162 when **21216 `RNSI_A_EIS_COMPACT_COUNTER`** (class 112 only) is learned; March gates on `SI_P_ETK_COMPACT_COUNTER` (the registration is CH1m's).
+
+## Amended by CH1d2 (2026-11-04)
+
+- `ESSI_EIS_DASH_COMBO_ZX` (June script id 224) is already in the `ESSI` enum at its end, under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (dash Z1 EventProcess names it). Do not add it again. The state's functions stay yours. `ESSI_EIS_DASH_COMBO_XX` is March's own member (id 225).
+- Reusable from CH1d / CH1d2: `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( bKey_ )`, `IsDataClass`, `IsTempletClass`. The checklist row §7h L420 (`UPDOWN_CANCEL_AFTER`) has `32cf8230` done; see CH1e's amendment for the inline cancel.

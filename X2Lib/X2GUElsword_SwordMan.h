@@ -170,6 +170,13 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 			ESSI_ERS_COMBO_ZZZ,		/// June script id 260 ( Rune Slayer Z Z Z; CH1f owns the state )
 			ESSI_EMK_COMBO_XZ,		/// June script id 251 ( Magic Knight X Z; CH1f owns the state )
+			ESSI_ESK_DASH_COMBO_ZChargeX,		/// June script id 241 ( dash Z charge X; CH1e owns the state )
+			ESSI_ESK_DASH_JUMP_ZZZ,		/// June script id 242 ( dash jump Z Z Z; CH1e owns the state )
+			ESSI_ELK_DASH_COMBO_XChargeX,		/// June script id 244 ( dash X charge X; CH1e owns the state )
+			ESSI_EMK_DASH_JUMP_ZX,		/// June script id 249 ( dash jump Z X; CH1f owns the state )
+			ESSI_ERS_XZ_CHARGE,		/// June script id 255 ( X Z charge; CH1f owns the state )
+			ESSI_ETK_DASH_JUMP_ZZZ,		/// June script id 258 ( dash jump Z Z Z; CH1g owns the state )
+			ESSI_EIS_DASH_COMBO_ZX,		/// June script id 224 ( dash Z X; CH1g2 owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 		};
 		

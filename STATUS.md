@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1d2 | **ready**: dash and dash-jump combos, shared knight dash combos (28; CH0 split); `/x2-phase char-elsword CH1d2` | Sonnet 5.5 / high, Opus review | CH1d review (done) | `X2GUElsword_SwordMan.*` | `CH1d2.md` |
+| CH1d2 | **done 2026-11-04, review next**: 28 fns inside under `_LIVE`, 7 June-only ESSI ids under `_CORE`, no play-test; `/x2-phase char-elsword CH1d2 review` | Opus 5.5 / high | CH1d2 | `X2GUElsword_SwordMan.*` | `CH1d2-review.md` |
 | CH1e | blocked (CH1d2 review): Sword Knight + Lord Knight lines | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GUElsword_SwordMan.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Magic Knight + Rune Slayer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUElsword_SwordMan.*` | `CH1f.md` |
 | CH1g | blocked (CH1f review): Sheath Knight line (31; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUElsword_SwordMan.*` | `CH1g.md` |

@@ -58,3 +58,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1d (2026-11-04)
 
 - `ESSI_ERS_COMBO_ZZZ` (June script id 260) and `ESSI_EMK_COMBO_XZ` (251) are already in the `ESSI` enum at its end, under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (CH1d's Z2 / X1 EventProcess name them). Do not add them again; add the other June-only ids the same way. The states' functions stay yours.
+
+## Amended by CH1d2 (2026-11-04)
+
+- `ESSI_EMK_DASH_JUMP_ZX` (June script id 249) and `ESSI_ERS_XZ_CHARGE` (255) are already in the `ESSI` enum at its end, under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (dash jump Z1 / dash attack X EventProcess name them). Do not add them again. The states' functions stay yours.
+- Reusable from CH1d / CH1d2: `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH( bKey_ )`, `IsDataClass`, `IsTempletClass`. The checklist row §7h L420 (`UPDOWN_CANCEL_AFTER`) has `32cf8230` done; see CH1e's amendment for the inline cancel.
