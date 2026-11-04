@@ -11593,3 +11593,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: char-elsword CH2a - Sword Man's skills run June's registrations and bodies: Mega Slash's memo states ( ready / charge / fire, the default of June's
+//              skill switches, so Endurance and every id without a case play it ), Flame Geyser, Unlimited Blade, Assault Slash, Triple Geyser and Rolling with its
+//              end state ( June 32cf3920 .. 32d137a0 ). Log: [JUNE_CHAR] ELSWORD SKILL, [JUNE_SKILL] NUM use.
+//              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_SKILL ).
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE, SERV_IRUHADEV_JUNE_ENUM_NAMES, SERV_IRUHADEV_JUNE_SKILL_NUMERICAL and SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ( SkillSlotKey )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: char-elsword CH2a debug - [JUNE_CHAR] ELSWORD SKILL lines in offline_server.log: every active skill equipped into a slot, the Mega Slash memo ready / charge /
+//              fire states with the charge time and the fire power rate, and the Rolling end HP gate. CH2a's review retires it.
+//              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////

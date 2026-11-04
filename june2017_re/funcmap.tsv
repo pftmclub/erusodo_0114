@@ -7675,3 +7675,29 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 322e07e0 (CH1q2)	CX2Game::UpdateSkillCoolTime: Elsword Vigor MP x0.7	confirmed	Char Elsword CH1q2: unit type 1, vslot 0x674 == 2, templet +0x160 == 2 -> MP x 0.7 ( double 3344af88 ) = March X2Game.cpp:14855; no code
 322ed400	none in March: CX2Game training-game F7 key: one step of my unit's class gauge	candidate	Char Elsword CH1q2: KeyProcess 322f7170 @322f7b6e ( DIK_F7 0x41 ) in the training block ( state 0x12 / 0x1a ); Elsword: state 0 -> random +-2, vigor side -> End/Start_SwordmanDestruction, -2, point -4800 ( 3348be24 ), destruction side -> End/Start_SwordmanVigor, 2, +4800; other classes +1 of their gauge; routed to backlog Stage 2
 3248e290 (CH1q2)	CX2GageManager::CreateMyGageUI	confirmed	Char Elsword CH1q2: Elsword cases 1 / 10 / 11 / 22 / 100 / 101 / 112 = March; June's extra ctor argument is engine-wide
+32cf3920	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_Init	PORTED (_SKILL)	Char Elsword CH2a: new; 2 preloads ( Effect_ElSword_MegaSlashBackDust.x, Effect_ElSword_MegaSlash.x ); the normal slot state only
+32cf3950	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_StateStart	PORTED (_SKILL)	Char Elsword CH2a: new; CommonStateStart, then the charge time ( +0x96f4 ) = 0
+32cf3970	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_StateStartFuture	PORTED (_SKILL)	Char Elsword CH2a: new; CommonStateStartFuture, then m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ) ( 31fce6d0 )
+32cf39a0	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_CHARGE_StateStart	PORTED (_SKILL)	Char Elsword CH2a: new; a tail jump to CommonStateStart ( vslot 0x7c4 )
+32cf39b0	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_CHARGE_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: new; FollowSlotSwap ( 31fce670 ); charge >= 1.1 or IsKeyReleased ( 31fc89a0 ) -> state 0xeb ( FIRE )
+32cf3a10	CX2GUElsword_SwordMan::ESSI_SI2_ES_FLAME_GEYSER_Init	confirmed	Char Elsword CH2a: = March ( 2 preloads ); no code
+32cf3a40	CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_Init	PORTED (_SKILL)	Char Elsword CH2a: loads both meshes ( MagnumBlade.X and MagnumBladeFire.X ); the hyper state has no Init
+32cf3aa0	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Init	confirmed	Char Elsword CH2a: = March ( Ring_Plane.y, AssaultSlash02.Y ); no code
+32cf3ad0	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_Start	PORTED (_SKILL)	Char Elsword CH2a: speed 1200 and hit gap 0.05 without the memo 2 test
+32cf3b20	CX2GUElsword_SwordMan::ESSI_SI3_ES_TRIPLE_GEYSER_Init	PORTED (_SKILL)	Char Elsword CH2a: 5 preloads ( FlameGager.X, SWORDFIRE_PROJECTILE_ATTACKBOX.x, BURST_WAVE_FIRE.Y, BURSTING_BLADE_flame.dds, smoke02.dds ) instead of 1
+32cf41d0	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_StateStartFuture	confirmed	Char Elsword CH2a: = March ( speed = m_fRollingSpeedRel x 1200; the member is CH4a's InitPassiveSkillState ); no code
+32cf4200	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_FrameMove	confirmed	Char Elsword CH2a: = March ( CommonFrameMove ); no code
+32cf9920	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_FIRE_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: new; animation end -> JUMP_DOWN / WAIT by the future foot, CommonEventProcess
+32cf9960	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: new; animation end -> state 0xea ( CHARGE ); the hyper slot state shares it
+32cf9990	CX2GUElsword_SwordMan::ESSI_SI2_ES_FLAME_GEYSER_EventProcess	confirmed	Char Elsword CH2a: = March; no code
+32cf99d0	CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: adds the ground back-walk, walk and dash cancels ( ELSWORD_GROUND_* , 7h ); the hyper state shares it
+32cf9d50	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: only reActType = RT_DOWN after 0.4 s, then CommonFrameMove; the ring / dust particles and the cut-in are the script's
+32cf9d80	CX2GUElsword_SwordMan::ESSI_SI1_ES_ASSAULT_SLASH_EventProcess	confirmed	Char Elsword CH2a: = March ( 14 keys after 1.1 s -> WAIT ); no code
+32cf9f20	CX2GUElsword_SwordMan::ESSI_SI3_ES_TRIPLE_GEYSER_EventProcess	confirmed	Char Elsword CH2a: = March; no code
+32cfd840	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_EventProcess	confirmed	Char Elsword CH2a: = March ( animation end on the ground -> ESSI_SI_A_ES_ROLLING_END ); no code
+32cfd880	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_EventProcess	PORTED (_SKILL)	Char Elsword CH2a: the walk cancel needs the foot on a line ( ELSWORD_GROUND_WALK_CANCEL )
+32d08880	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_StateStart	PORTED (_SKILL)	Char Elsword CH2a: HP cost only while HP / max HP > 0.1; UpNowHp ( vslot 0xec ) with minimum 0 = UpHPIfAlive
+32d0fe90	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_CHARGE_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: new; charge time += frame time; EffectSet_ELK_Gigantic_slash_FX1 at 0.5 s ( JUNE_BUGS 529 )
+32d10020	CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_FIRE_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: new; at 0.094 s EffectSet_SA_Elsword_MegaSlash_Damage with GetPowerRate ( x1.5 when the charge reached 0.5 s ) and the hyper flag
+32d101f0	CX2GUElsword_SwordMan::ESSI_SI3_ES_UNLIMITED_BLADE_FrameMove	PORTED (_SKILL)	Char Elsword CH2a: step dust + hit list reset at 0.166 / 0.433 / 0.666 / 0.966 ( RT_BIG_DAMAGE ) / 1.3 and 1.566 / 1.95 ( normal ) or 1.5 / 1.73 ( hyper: fire wave + KuAAang particles ); no hard-coded final hit, no cut-in
+32d137a0	CX2GUElsword_SwordMan::ESSI_SI_A_ES_ROLLING_END_FrameMove	confirmed	Char Elsword CH2a: = March ( EffectSet_ES_ROLLING once at 0.0333 s, CommonFrameMove ); no code

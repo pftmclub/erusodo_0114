@@ -1714,6 +1714,39 @@ March vs June damage in `MODS.md`.
 **Done gate:** every class-1 / 10 / 11 / 22 id in the S3 census has a state (except CH0's passive / CH4 ids); each skill in an A and a B slot
 casts June's state, motion and effect and deals damage; no missing particle / mesh / texture line.
 
+### CH2a - Done (2026-11-04)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#error` without `_LIVE`, `JUNE_ENUM_NAMES`, `JUNE_SKILL_NUMERICAL`, `JUNE_CHAR_EVE_CORE`) is defined: Sword Man's seven skills run June's registrations. All 26 class-map rows are read from `charport_adis.py elsword --phase CH2a` listings (+ Ghidra decompiles): **17 written** (8 inside March's function under the flag with March in `#else`, 9 new), **9 are June = March** (no code). `funcmap.tsv` rows `Char Elsword CH2a`; `MODS.md` "Stage 7 Elsword, CH2a" has the March vs June damage table.
+
+| June | `CX2GUElsword_SwordMan::` | June differs from March |
+|---|---|---|
+| `32cf3920` .. `32cf9960`, `32d0fe90`, `32d10020`, `32cf9920` | `ESSI_SI_A_MEGASLASH_MEMO_{READY,CHARGE,FIRE}_*` (9 new) | READY: preload 2 meshes, charge time = 0, `m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 )`, animation end -> CHARGE; CHARGE: charge time += frame time, `EffectSet_ELK_Gigantic_slash_FX1` at 0.5 s ( JUNE_BUGS 529 ), `FollowSlotSwap` then FIRE at charge >= 1.1 or key released; FIRE: at 0.094 s `EffectSet_SA_Elsword_MegaSlash_Damage` with `GetPowerRate()` ( x1.5 from a 0.5 s charge ) and the hyper flag, animation end -> JUMP_DOWN / WAIT |
+| `32d101f0` | `..._UNLIMITED_BLADE_FrameMove` | one function for both states: step dust + hit-list reset at 0.166 / 0.433 / 0.666 / 0.966 ( `RT_BIG_DAMAGE` ) / 1.3, then 1.566 / 1.95 ( normal ) or 1.5 / 1.73 ( hyper: fire-wave + KuAAang particle bursts ); no cut-in call, no hard-coded final hit, no camera crash, no effect set |
+| `32cf99d0` | `..._UNLIMITED_BLADE_EventProcess` | the ground back-walk / walk / dash cancels ( 7h, `ELSWORD_GROUND_*` ) |
+| `32cf3a40` `32cf3b20` | `..._UNLIMITED_BLADE_Init` `..._TRIPLE_GEYSER_Init` | 2 and 5 preloads ( the hyper Init is not registered ) |
+| `32cf3ad0` `32cf9d50` | `..._ASSAULT_SLASH_Start` `_FrameMove` | speed 1200 / hit gap 0.05 without the memo 2 test; FrameMove = `RT_DOWN` after 0.4 s + `CommonFrameMove` ( particles, cut-in are the script's ) |
+| `32d08880` `32cfd880` | `..._ROLLING_END_StateStart` `_EventProcess` | the HP cost only while HP / max HP > 0.1; the walk cancel needs the foot on a line |
+| = March | Flame Geyser Init / EP, Assault Slash Init / EP, Triple Geyser EP, Rolling StateStartFuture / FrameMove / EventProcess, Rolling End FrameMove | `funcmap.tsv` says which |
+
+**Registration.** `SetMegaSlashSkillFunc` ( the default of both June switches ) is June's memo registration: READY on the slot's normal and hyper state ( no hyper Init ), CHARGE ( 0xea ) and FIRE ( 0xeb ) as their own states. `SetEquippedSkillFuncBySkillSlotIndex` gains the June cases for 21001 / 21027, 21002 / 21028, 21003 / 21029, 21004 / 21030 and 21200 / 21217 ( Rolling also registers its end state ) ahead of the `default:`; June's slots only ( Flame Geyser and Triple Geyser: Init + EventProcess ); where June has no `_HYPER` table the hyper state takes the normal table name. Endurance ( 21201 / 21218 ) has no state in June and keeps the default ( JUNE_BUGS 528 ). `X2SkillTree.h`: eight `RNSI_SA_ES_*` names. New members: `m_fMegaSlashChargeTime` ( June `+0x96f4` ). New macro `ELSWORD_EVENT_TIMER_ONESHOT`. Checklist rows marked `(Elsword: CH2a)` ( 51, 116, 117, 178, 254, 437, 714 ).
+
+**Left to later phases ( scope rule ).** Rolling's speed and HP cost read `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel`, which June fills in `InitPassiveSkillState` ( CH4a, routed by CH1b ): until then the roll stands still and costs no HP. The 4 numerical-only tables ( Rolling, Unlimited Blade, Assault Slash x2 ) run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap here: no June body reads a skill id.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_SKILL --with JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS` ( the `--range` line follows in the commit message check ).
+- `junediverge.py --check` the three source files: `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check` the `.cpp` / `.h`: `0 A/B row(s) remain`. `skillicons.py check 21000-21004 21026-21030 21200-21201 21217-21218`: `skills 14, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged ( `Elsword_SwordMan.lua` is CH1's ). One-file probe of `X2GUElsword_SwordMan.cpp` ( `/Zs /EHsc` ): exit 0, 0 errors. `ch1m_regcheck.py`: 0 problems.
+- DEPLOY OK: X2_offline.exe is 25,973,760 B, dated 2026-11-04 21:42:05, md5 b62d02bcf39cc583f5e716ac5066a48f, equal to X2/US_SERVICE/x2.exe (2026-11-04 21:41:58); built at main 5802a810 + 4 uncommitted code file(s).
+- EXESTR OK: 3 of 3 found in X2_offline.exe, 25973760 B, md5 b62d02bc ( `[JUNE_CHAR] ELSWORD SKILL memo fire`, `EffectSet_SA_Elsword_MegaSlash_Damage`, `EffectSet_ELK_Gigantic_slash_FX1` ).
+
+**Play-test hand-off.** Save: unit 68 `SwordManT` ( Sword Man, class 1, lv 99, SP 843; backup `db_backup\els_db_20261104_213356_pre_createchar.sql` ). A Flame Geyser ( 21001 ), S Rolling ( 21200 ), D Endurance ( 21201 ), C Mega Slash ( 21000 ); Q Unlimited Blade ( 21002 ), W Assault Slash ( 21003 ), E Triple Geyser ( 21004 ); slots 4 and 9 empty. For the B bank and the upgrade ids say "swap banks" ( I run `setup2`: the enhanced ids 21028-21030 / 21026 on A S D C and 21027 / 21217 / 21218 on Q W E ).
+Dev console ( END key, auth 3 ): `/invin 0`, then any dungeon with enemies in front ( `/stage 1` ). Checks, enemies near:
+1. **C Mega Slash.** Tap: ready motion, then charge, then the slash within ~0.1 s of the release. Hold for 1 s: the Gigantic-Slash flash plays at 0.5 s, the slash fires by itself at 1.1 s and hits harder ( x1.5 ). If it stays in ready: `[JUNE_CHAR] ELSWORD SKILL memo` lines.
+2. **D Endurance.** Plays the same Mega Slash memo ( June gives it no state, JUNE_BUGS 528 ); not a bug of the port.
+3. **A Flame Geyser, E Triple Geyser, W Assault Slash.** June's motion and effect; Assault Slash dashes forward and knocks down after 0.4 s; none ends stuck ( returns to wait / fall ).
+4. **Q Unlimited Blade.** Six hits, then the final blast at ~1.95 s; walk / dash cancel only on the ground. In an awakening the hyper version ends with the fire wave at ~1.73 s.
+5. **S Rolling.** Plays, ends in the end state, then returns; it does not move and costs no HP until CH4a.
+Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

@@ -750,6 +750,9 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		float								m_fOpenMindRemainCoolTime;	/// June +0x9788, set by 32d0c180, counted down in CommonFrameMove while not below zero
 		bool								m_bAfterImageSaved;	/// June after-image +0x1d1 ( 32d08d70 ): the enable flag kept while the wait states hide the after-image
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+		float								m_fMegaSlashChargeTime;	/// June +0x96f4 ( ctor 32d09490 stores 0 ): the Mega Slash memo ready state zeroes it, the charge state adds the frame time, the fire state reads it
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	private:
 
@@ -987,6 +990,17 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ESSI_EIS_DASH_COMBO_ZX_FrameMove();		/// June 32d1f200
 		void SetMegaSlashSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );		/// June 32d223e0 @32d23c1e ( both skill switches' default )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+		void ESSI_SI_A_MEGASLASH_MEMO_READY_Init();					/// June 32cf3920
+		void ESSI_SI_A_MEGASLASH_MEMO_READY_StateStart();			/// June 32cf3950
+		void ESSI_SI_A_MEGASLASH_MEMO_READY_StateStartFuture();		/// June 32cf3970
+		void ESSI_SI_A_MEGASLASH_MEMO_READY_EventProcess();			/// June 32cf9960
+		void ESSI_SI_A_MEGASLASH_MEMO_CHARGE_StateStart();			/// June 32cf39a0
+		void ESSI_SI_A_MEGASLASH_MEMO_CHARGE_FrameMove();			/// June 32d0fe90
+		void ESSI_SI_A_MEGASLASH_MEMO_CHARGE_EventProcess();		/// June 32cf39b0
+		void ESSI_SI_A_MEGASLASH_MEMO_FIRE_FrameMove();				/// June 32d10020
+		void ESSI_SI_A_MEGASLASH_MEMO_FIRE_EventProcess();			/// June 32cf9920
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 		//ESSI_DASH_COMBO_Z1
 		void DashComboZ1FrameMove();

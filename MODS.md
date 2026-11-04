@@ -5769,3 +5769,22 @@ No `SERV_IRUHADEV_JUNE_CHAR_CHUNG_*_DEBUG` flag is defined (`_CBALL_DEBUG`, `_SK
 ## Stage 8 Lu/Ciel, CH0b: June assets staged (data only, 2026-11-03)
 
 No flag, no exe change. `kom.py stage-june june2017_re/char_luciel/ch0b_stage_list.tsv`: 14,609 June files byte-exact in 37 koms (14,607 new, 2 replaced: `DLG_SKILL_Buff_01.tga/.tet` in data063, backup `kom_backup_stage_june61103_201733`); plus the NU0 amendment: 12 textures in data051 / 056 / 057 / 126 / 215 (5 replaced in data056 and data057: `bt_01` / `bt_02` TGA+TET, `DLG_UI_Common_Texture67.tga`, backup `20261103_202419`) and 14 June-bytecode Lua (data034 x5, data036 `SelectVoiceTable.lua`, data040 x2, data217 x6). 44 distinct koms copied to the game dir; `data162`, `data163`, `datai028`, `datai029` are new archives. data051's copy also carried 48 older `DLG_Background_*` entries from kom_contents. `lua_unbound_known.tsv` gains `AddVoice` (NU4 ports the loader). **Revert:** restore the replaced files from the backup folders, `kom.py pack` the koms, `kom.py copy` them; delete the four new `.kom` files from the game dir.
+
+## Stage 7 Elsword, CH2a: Sword Man skills (2026-11-04)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (`Always.h`; `#error` without `..._ELSWORD_LIVE`, `..._ENUM_NAMES`, `..._SKILL_NUMERICAL`, `..._CHAR_EVE_CORE`) and the temporary `..._SKILL_DEBUG` (`[JUNE_CHAR] ELSWORD SKILL` lines). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH2a - Done". Client only, no data change.
+- **What changes in game.** The class-1 skills run June's registrations: Flame Geyser (21001 / 21027), Unlimited Blade (21002 / 21028), Assault Slash (21003 / 21029), Triple Geyser (21004 / 21030) and Rolling (21200 / 21217, with its end state) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` (before this, these ids fell into the Mega Slash default). Mega Slash (21000 / 21026) is June's memo version: a ready state, then a charge state that lasts while the key is held (at most 1.1 s), then the fire state; a charge of 0.5 s or more fires at x1.5 power. Endurance (21201 / 21218) has no state in June and plays the same memo states (JUNE_BUGS 528). Eight `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** Unlimited Blade has no hard-coded final hit, no camera crash and no cut-in call: the hits are step-dust + hit-list resets, its hyper final hit is the two particle bursts, and the walk / dash cancels need the foot on a line. Assault Slash always runs at speed 1200 / hit gap 0.05 (no memo 2 test) and its ring / dust particles are the script's. Triple Geyser preloads 5 resources. Rolling's end state pays its HP cost only above 10% HP. Flame Geyser's registration lost its Start / FrameMove / CameraMove.
+- **Damage (level-1 value; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine, x0.01; March = the shipped state table or C++ constant).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Mega Slash (21000 / 21026) | `ESSI_SI1_ES_MEGA_SLASH` state table | 2329 ( enhanced 2795 ), x1.5 after a 0.5 s charge |
+| Flame Geyser (21001 / 21027) | `ESSI_SI2_ES_FLAME_GEYSER` state table | 585 ( 701 ) |
+| Unlimited Blade (21002 / 21028) | hyper table 3.49; C++ final hit `10.68 x GetPowerRate()` ( BALANCE_PATCH_20131107 ) | NUMERICAL 440 + 329 ( 528 + 394 ) |
+| Assault Slash (21003 / 21029) | `ESSI_SI1_ES_ASSAULT_SLASH` state tables | 249 + 600 ( 299 + 720 ) |
+| Triple Geyser (21004 / 21030) | `ESSI_SI3_ES_TRIPLE_GEYSER` state table | 510 ( 612 ) |
+| Rolling (21200 / 21217) | none ( HP cost / speed from `SI_A_ES_ROLLING` in `InitPassiveSkillState` ) | 334; speed rel 1, HP cost 0.01 ( both read by CH4a ) |
+
+- **Open.** Rolling's speed and HP cost read `m_fRollingSpeedRel` / `m_fRollingHpConsumeRel`, which June fills in `InitPassiveSkillState` (CH4a), so until CH4a the roll does not move and costs no HP.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-1 ids fall back to the Mega Slash default), `python tools/build.py --deploy`.

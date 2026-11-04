@@ -2209,6 +2209,19 @@ public:
 		RNSI_P_SCA_MADNESS                                    = 28420,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH2a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Sword Man's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_ES_FLAME_GEYSER                               = 21001,
+		RNSI_SA_ES_UNLIMITED_BLADE                            = 21002,
+		RNSI_SA_ES_ASSAULT_SLASH                              = 21003,
+		RNSI_SA_ES_TRIPLE_GEYSER                              = 21004,
+		RNSI_SA_ES_FLAME_GEYSER_UPGRADE                       = 21027,
+		RNSI_SA_ES_UNLIMITED_BLADE_UPGRADE                    = 21028,
+		RNSI_SA_ES_ASSAULT_SLASH_UPGRADE                      = 21029,
+		RNSI_SA_ES_TRIPLE_GEYSER_UPGRADE                      = 21030,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
