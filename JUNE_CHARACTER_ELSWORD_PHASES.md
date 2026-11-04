@@ -848,6 +848,24 @@ All 16 class-map rows of phase CH1g2 are written: 12 `inside` (June's body in Ma
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1g2 review` (Opus 5.5 high), then CH1h.
 
+### CH1g2 - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read all 16 June listings (`charport_adis.py elsword --phase CH1g2`, cut at the `int3` / tail `jmp`; `32cfe090` and `32cfe650` each run on into the next function at line 155) against the bodies at `7ad88d24`, branch by branch.
+- **Compact Counter Start `32cfdbe0`:** `CommonStateStart`; `fPhysic = m_fRevengeAddDamage + fPhysic`; `GetSkillLevel( 0x4b2, 0, 0, 1 )`, and `0x4b2` = 1202 = `SI_A_ES_COUNTER` in the live `UPGRADE_SKILL_SYSTEM_2013` branch (`MEGASLASH = 1200` + 2; the `= 1200` at `X2SkillTree.h:776` is the dead `#else`); templet `32206450( id, 1 )` (the one-argument March call, as CH1b); `GetRandomInt( 0 )` (vslot `0x1c8`) as a double against `GetSkillAbilityValue( 5 = SA_EFFECTIVE_RATE, level ) * 100.0`, proceeding on `rand < value * 100`; then `+0x3c4 = 1` (`RT_SMALL_DAMAGE`) and `+0x77c` back speed `( 0, 0 )`. No memo call, no `SetDefenceMemoTime`. StartFuture `+0x411c = 0`; StateEnd `SetEnableAttackBox( L"Sword", true )` + `CommonStateEnd`.
+- **Compact Counter EP `32cfdcb0`:** end: off the foot `JUMP_DOWN` with `y -= 45.0` (`LINE_RADIUS * 1.5f`), else WAIT; then the walk cancel on `+0x8c98` with the foot test (`ELSWORD_GROUND_WALK_CANCEL`). **CameraMove `32d13d20`:** cases 1 and 2 are tail-merged by the compiler into one `BeginTable( "CAMERA", n )` + `SUB_CAMERA0` / `SUB_CAMERA1` path; the flag is set on both exits = March.
+- **Dash X X `32cfe280`:** end (fall / WAIT); flag 0 to `0xe2` on `+0x8c18 < t || IsAnimationEnd()`, clearing the flag; `oneX` sets flag 0 in `+0x8c10 <= t < +0x8c14`; ground walk (`+0x8c98`); ground dash (`+0x8c9c`, vslot `0x668`). No skill cancel. **Dash X X X `32cfe440`:** end; ground dash; skill and awakening halves both on `+0x8c98` (JUNE_BUGS #522).
+- **Dash Z X EP `32cfe090`:** end goes to WAIT only on the foot (no fall branch); ground walk, ground dash, skill / awakening on `+0x8c90` (`m_fSkillCancelAfter`). **Dash jump X X X EP `32cfe650`** is byte-identical to it after normalising addresses, and both ports have the same body. **Dash jump X X `32cfe5e0`:** `oneX` flag 0, `oneZ` flag 1, on the foot `0xe3` / `0xa3` / `0xba` = March.
+- **Dash X X FM `32d17550`:** inline Oneshot 0.2 (`334411a8` / `3346eeb8`); `GetCloneFrame( L"Dummy2_Lhand" )` +0xc0 position or zero; vslot `0x6f0( 6.0 [33439b40], pos, 0.0, ( 0, 0, 45.0 [3345b36c] ) )`; on true `PlayEffectSet( L"EffectSet_EIS_DASH_XX", this )` with the defaults (power `-1`, scale `( 1, 1, 1 )`, zero vectors, force-down `1.0`), the shape of CH1g's reviewed `32d19b80`. `EffectSet_EIS_DASH_XX` is in the live `data036_kom/EffectSet.lua` and in June's `EffectSet.src.lua`.
+- **Damage-only FMs** `32d1f130` / `32d1f200` / `32d1f2d0` are identical to each other (Oneshot on `+0x9624`, `DAMAGE_DATA_NEXT` `3346f050`); StateEnds `32cf4280` / `32cf4470` / `32cf4490` are identical to each other. All = the port.
+
+**Hygiene.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --range 7ad88d24^..7ad88d24`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `0 non-ASCII inserted line(s)`, `0 EOL-mismatched`, `0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors, both with and without `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- No build: nothing changed. The `DEPLOY OK` of CH1g2's Done note stands.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1h.md` checked: it depends on this review and needs no change. Next: `/x2-phase char-elsword CH1h` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
