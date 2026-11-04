@@ -1331,6 +1331,50 @@ No `exestr` line: every site is under the undefined `_LIVE`.
 
 **Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-elsword CH1p` (Opus 5.5 high).
 
+### CH1p - Done (2026-11-04)
+
+Flags: `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (insert-only, still `//#define`). One new `Always.h` guard: `_LIVE` needs `SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE`, because
+the new reader line keeps `UT_CHUNG` in the June set (the `_LIVE` probe compiles with it, so `_CHUNG_LIVE` is defined at that line).
+
+**Method.** `cl /P` of `X2GUElsword_SwordMan.cpp` and `X2GUUser.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`. Every surviving line that reads a slot id,
+the pressed index, `m_iNowSpecialAttack`, `m_eSpecialAttackKeyPressed`, `SAKP_*`, `CurrentSkillKeyManager` or `m_kSkillSlotKey` is listed and checked.
+
+**7ag, the pressed-index space.**
+- **Already June's (CH1k / CH1n):** in the `_LIVE` `SpecialAttackEventProcess` (`32cf3290`, lookup `32d1bd10`), `CommonSpecialAttackEventProcess` fills
+  `iPressedSkillSlotIndex`, which goes to `m_iChosenSkillSlotIndex`, `StateChangeBySkillSlot` (0-9), `MarkSkillSlotUsed` and `m_iNowSpecialAttack = slot + 1`. CH0's sites
+  (old `:4982`, the `> 3` / `- 4` decode `:5232-5249`, `CountUsedSkill` `:5152`, now `:7816`) are March's body, and none of them is in the `_LIVE` `.i`.
+- **Fixed: the shared reader.** `CX2GUUser::CommonSpecialAttackEventProcess` (June `31fcadd0`) still gave Elsword March's 4 + 4, so under `_LIVE`, F would
+  have returned with no slot and Q / W / E / R would have read as A-TC / B1-B3. `UT_ELSWORD` now joins the June set (`X2GUUser.cpp`, `_LIVE` / `#else` around
+  Chung's block; stand-in comment lists Lire, Raven, Ara, Elesis, Add).
+- **`CountUsedSkill` (CH1k routed):** June's use path (`32cf3290` -> `32d1bd10` -> `32cf5760` -> `32d0d8e0`) never calls it, and June counts through
+  `MarkSkillSlotUsed` as Chung's does. March's call stays in `#else` only. No change.
+- **`GetSkillSlotIndexUsed`** (`COMMON_BUFF_FrameMove`, `:18260` / `:18302`): reads the slot **state id** (`USI_SPECIAL_ATTACK_*`, per bank 0-4 + `bSlotB`), not
+  the pressed index. CH1a's June body `32d08590` calls it as June does. No change.
+- **No `CurrentSkillKeyManager`, `SAKP_*` or `m_eSpecialAttackKeyPressed` reader** in his class, live or dead. March's guard skill
+  (`ESSI_SI_A_ES_DEFENCE_READY_StartFuture`, a `USI_SPECIAL_ATTACK_*` state switch with no `_5` case) is June-dead data (CH0 `ch0_state_skill.tsv`: string absent
+  from June's exe), so it is not ported.
+- **Routed: June's held-key tracker.** `dispsweep.py 8b58` finds `CX2GUUser::m_kSkillSlotKey` (Eve's `SkillSlotKey`, `_EVE_CORE`) in 10 Elsword functions, all skill
+  states: Mega Slash memo `32cf3970` / `32cf39b0` (CH2a), Wind Blade `32cf3bd0` / `32cfa080` (CH2c), Windmill `32cf3da0` / `32d11fd0` and Grand Cross
+  `32cf4ec0` / `32cf4f60` (CH3a), Counter Guard `32cf4e50` / `32cf4d70` (CH3b). March reads no key there. Each kickoff is amended to port June's calls whole.
+- Checklist 7ag marked `(Elsword: CH1p)`.
+
+**Hooks 7h / 7l / 7o / 7p / 7x** (CH0 rows; checked in the `_LIVE` preprocess):
+- 7h: `InitWaitStateChange( "ESSI_WAIT_STATE_CHANGE" )` (`:1394`, CH1m). The shared `UPDOWN_CANCEL_AFTER` rule (`SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`, required by `_LIVE`):
+  the parser is live (`X2GUUser.cpp:16608`, `:17956`, `:23612`) and 18 inline sites from CH1d2-CH1g are in the `.i`. The rest go to CH2b / CH3a-CH3c.
+- 7l: `InitBoundingStates( "ESSI_" )` (`:2920`, CH1m). 7o `SET_LIMIT_MAX_G_SPEED` (reader `X2GUUser.cpp:16424`, C3g), 7p `TIME_STOP_IMMUNE_STATE` (reader `:18048`,
+  C3e-4) and 7x `AT_COMMAND` (67 tags; stand-in `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN`) are script data. They arrive with June's script in CH1 final, which marks them.
+- §5 parser census: `ch0_keys.tsv` gives no June-only key an Elsword owner (camera pair Stage 9, `IMMUNITY_EDT_LIST_AT_THIS_STATE` backlog Stage 2, two buff sub-table keys n/a).
+
+**Checks.** Probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUUser.cpp` `_LIVE` off / on, exit 0, 0 errors, 39 / 39 warnings. `X2GUElsword_SwordMan.cpp` `_LIVE` on, exit 0,
+0 errors, 38 warnings. `cl /P`: the reader line with `UT_ELSWORD` only with `_LIVE`, and Chung's line only without it.
+`flagcheck JUNE_CHAR_ELSWORD_LIVE --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s),
+0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. RESULT FAIL is only `define: NOT FOUND` (`//#define`).
+`git diff --stat`: +3 / +5, 0 deletions. `junediverge.py --check X2Lib/X2GUUser.cpp`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`.
+`DEPLOY OK: X2_offline.exe is 25,961,472 B, dated 2026-11-04 17:45:40, md5 8da8ac679da407e8c280845113b723f7, equal to X2/US_SERVICE/x2.exe (2026-11-04 17:45:33); built at main 23b1b0cd + 2 uncommitted code file(s).`
+No `exestr` line: `_LIVE` is off. No funcmap or `JUNE_BUGS` row.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1p review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

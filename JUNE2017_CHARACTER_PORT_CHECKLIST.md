@@ -819,6 +819,9 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
   `CurrentSkillKeyManager` (4 + 4) is fed `m_iNowSpecialAttack - 1`, which is 0-9 now. June uses `+0x8b58` (`CX2GUUser::SkillSlotKey`, Eve's) for it, so the two
   key-held skills (Artillery Nova, Rapid Cannon) moved to `m_kSkillSlotKey`, and Artillery Strike's control switch decodes slot + 1. **Every class port: a
   `CurrentSkillKeyManager` user moves to `m_kSkillSlotKey` with the pressed index.**)
+  (Elsword: CH1p. The class side was June's already (CH1k: the lookup keeps the pressed index, `StateChangeBySkillSlot` / `MarkSkillSlotUsed` take 0-9,
+  `m_iNowSpecialAttack = slot + 1`); March's own 4 + 4 decode and `CountUsedSkill` sit only in `#else`. `UT_ELSWORD` joins `CommonSpecialAttackEventProcess`'s
+  June set under `_LIVE`. He has no `CurrentSkillKeyManager` or `SAKP_*` reader; June's 10 held-key functions (`+0x8b58`) go to CH2a / CH2c / CH3a / CH3b.)
 
 ### 7ah. The 10-slot dialog's class statics and the key-config rows (from June skill system S6)
 

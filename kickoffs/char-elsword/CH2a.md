@@ -57,3 +57,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   March's `ESSI_SI1_ES_MEGA_SLASH` case. Replace it here (under `_SKILL`, March's in `#else`) with June's registration: `ESSI_SI_A_MEGASLASH_MEMO_READY`
   on the normal and hyper slot (Init `32cf3920`, Start `32cf3950`, StartFuture `32cf3970`, EventProcess `32cf9960`), `_CHARGE` 0xea (Start `32cf39a0`,
   FrameMove `32d0fe90`, EventProcess `32cf39b0`) and `_FIRE` 0xeb (FrameMove `32d10020`, EventProcess `32cf9920`); funcmap row `32d223e0@32d23c1e`.
+
+## Amended by CH1p (2026-11-04)
+
+- Held-key skills read `CX2GUUser::m_kSkillSlotKey` (June `+0x8b58`; `Set` `31fce6d0`, `IsKeyReleased` `31fc89a0`, `X2GUUser.h`, `_EVE_CORE`): Mega Slash memo ready / charge StartFuture `32cf3970` and charge EventProcess `32cf39b0`. March has no key reader here (no `CurrentSkillKeyManager`, no `SAKP_*`): port June's calls whole.
