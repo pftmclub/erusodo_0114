@@ -706,6 +706,23 @@ All 30 class-map rows of phase CH1e are written: 16 `inside` (June's body in Mar
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1e review` (Opus 5.5 high), then CH1f.
 
+### CH1e - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS after one fix.** I read all 30 June listings (`charport_adis.py elsword --phase CH1e`, cut at the `int3`) against the bodies at `f1fdcd76`, branch by branch, and compared operand sequences between sibling functions.
+- **Fixed (under `_CORE`): the two charge states fall with no y offset.** In dash Z charge X `32d017f0` and dash X charge X `32d01f10`, the off-the-line branch is `StateChange( JUMP_DOWN )` and then straight to `CommonEventProcess` (no `fsub 45.0`). The port had `position.y -= LINE_RADIUS * 1.5f` in both; I removed the 2 lines. Of the 16 June functions with a `JUMP_DOWN`, only these two and the dash jump Z Z Z landing `32d01ba0` (already right) skip the offset.
+- **Lord Knight X X X `32cfafa0`:** the direction cancel clears flag 0. Next comes the fall with `-= 45`, then flag 0 to `0xc5` on `[0]`: `0x8c18 < t || IsAnimationEnd()`, set by `oneX` in `0x8c10 <= t < 0x8c14`. After that, UPDOWN (`0 <= 0x8ca4 < t`, foot, Up / Down), `SKILL_CANCEL_AFTER( 0x8c90 )` (vslot 0x7f4 and the awakening branch), back-walk / walk / dash (`0x8c94` / `0x8c98` / `0x8c9c`, foot), pure Z / X on `0x8c8c` (vslots 0x4b0 / 0x4b4), and the animation end to WAIT. **X X X X `32cfb420`:** the same operand sequence minus the direction cancel, with flag 0 to `0xf7`, then the `_ZXC` keys with `1.3 < t`.
+- **Dash Z X `32d01040` = dash X X `32d02290`** (the only operand that differs is the target, `0xf0` / `0xf6`): the end block (fall `-= 45` / WAIT) comes first, then UPDOWN, skill, the three ground cancels, Z, X, and flag 0 last. **Dash X X X `32d02710` = X X X X X X `32d02ed0`:** the same, with no flag. **Dash Z X X `32d014c0`:** fall, skill, the ground cancels, Z, X, end. **X X X X X `32d02a90`:** end block, flag 0 to `0xf8`, then the cancels (`JUNE_BUGS` 521 holds: `ESSI_ELK_XXXXXX` has no table). **Charge states:** after the fall comes `!pureX || 0x8c10 <= t` to `0xef` / `0xf5`, then the cancels with no end block. **Dash jump Z Z Z `32d01b70`:** on a line, go to `0xf3`.
+- **Auto Guard.** Start `32d180a0`: `UpNowMp( 1.0 )` (vslot 0xf0, which `funcmap` confirms is UpNowMp), then `EffectSet_CSI_CIP_IRON_WILL`, then reduce percent `+=` guard, then `CommonStateStart`. EP `32cff880` / small `32cff8d0`: at the end, the fall `-= 45`, else `0xed` / `0xee`, with no cancels. END `32cff920`: end, then dash `0x8c9c` (no foot test), back-walk `0x8c94`, walk `0x8c98`, then skill `0x8c90` with A S D C Q W E R and `SpecialAttackEventProcess( 1 )`. Each taken branch sets `+0xde0 = 0.1`. End `32d0c740`: `CommonStateEnd`, then reduce percent `-=` guard.
+- **Written = March, confirmed:** Z3a EP (`_C` keys, `0.9 < t`) and SF (forward dash speed). Dash jump X2: FMF `EventTimerOneshot( 0.23 )` to `fMaxGSpeed`, FM `0.15 < t` on `m_pXSkinAnim` with DamageCheck setting reset / hit, EP to `0xbb` / `0xa3` / `0xba`, End `UpCrashCamera( 200, -3500 )`. X3 EP: `_ZXC`, `0.68 < t`. ZZZfrontZ EP: fall first, then end, then `_C` with `0.867 < t`. The three FM thunks (vslot 0x7cc) and the two SF thunks (vslot 0x7c0).
+
+**Hygiene.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --range f1fdcd76^..f1fdcd76`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 27 deleted (the alignment the Done note explains), `RESULT: PASS`. The fix with `--worktree --files X2Lib/X2GUElsword_SwordMan.cpp`: `PASS +0 -2`, `0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `--check X2Lib/X2GUElsword_SwordMan.cpp` after the fix: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors both with and without `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- `DEPLOY OK: X2_offline.exe is 25,945,088 B, dated 2026-11-04 09:56:16, md5 512dae76166864bcaeb0a8b84e592323, equal to X2/US_SERVICE/x2.exe (2026-11-04 09:56:08); built at main f1fdcd76 + 1 uncommitted code file(s)` (that file is this fix).
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1f.md` gained a note on the fall offset. Next: `/x2-phase char-elsword CH1f` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

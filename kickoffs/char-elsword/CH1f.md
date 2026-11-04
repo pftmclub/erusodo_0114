@@ -67,3 +67,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1e (2026-11-04)
 
 - The CH1d helper block (`IsDataClass`, `IsTempletClass`, `ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_` / `_DASH_`, `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH`) now sits under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (it was `_LIVE`), so a `new` row can use it; `Always.h` carries `_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`. The dash-combo cancel tail (UPDOWN inline, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, the three ground macros, the Z / X cancels on `m_fAttackCancelAfter`) is written out in `ESSI_ESK_DASH_COMBO_ZX_EventProcess`; copy that shape for a `new` EventProcess.
+
+## Amended by CH1e review (2026-11-04)
+
+- The off-the-line fall is not always `JUMP_DOWN` plus `y -= LINE_RADIUS * 1.5f`. Check each listing for the `fsub 45.0` after the `0x11` push: CH1e's two charge states and the dash jump landing have none. Write the offset only where June has it.

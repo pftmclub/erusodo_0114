@@ -16978,7 +16978,6 @@ void CX2GUElsword_SwordMan::ESSI_ESK_DASH_COMBO_ZChargeX_EventProcess()
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
-		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
 	}
 	else if ( false == m_InputData.pureX || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
@@ -17057,7 +17056,6 @@ void CX2GUElsword_SwordMan::ESSI_ELK_DASH_COMBO_XChargeX_EventProcess()
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
-		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
 	}
 	else if ( false == m_InputData.pureX || m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
