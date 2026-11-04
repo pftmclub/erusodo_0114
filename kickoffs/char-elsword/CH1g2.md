@@ -63,3 +63,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1e (2026-11-04)
 
 - The CH1d helper block (`IsDataClass`, `IsTempletClass`, `ELSWORD_GROUND_BWALK_CANCEL` / `_WALK_` / `_DASH_`, `ELSWORD_ELSE_IF_FLAG_STATE_CHANGE`, `ELSWORD_ELSE_IF_FLAG_SET_IN_WINDOW`, `ELSWORD_ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_WITH`) now sits under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE` (it was `_LIVE`), so a `new` row can use it; `Always.h` carries `_CORE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`. The dash-combo cancel tail (UPDOWN inline, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, the three ground macros, the Z / X cancels on `m_fAttackCancelAfter`) is written out in `ESSI_ESK_DASH_COMBO_ZX_EventProcess`; copy that shape for a `new` EventProcess.
+
+## Amended by the CH1g review (2026-11-04)
+
+- The Sheath Knight `ESSI_ETK*` rows were CH1g's and are done; this phase owns only the 16 `CH1g2` rows above. The Done gate means every class-map row with phase **`CH1g2`**.
+- `june2017_re/char_elsword/ch1_offsets.tsv` now has the cancel sets: Future `+0x8c88` Ex .. `+0x8c9c` Dash (EventProcesses), Now `+0x8d24` .. `+0x8d38` in the same order (FrameMoves); both are March's one member set (`m_fDashCancelAfter` for `+0x8d38` and `+0x8c9c`). Event times `m_fEventTime[0]` `+0x8c10` / `+0x8c14` / `+0x8c18`, `[1]` `+0x8c1c` / `+0x8c20` / `+0x8c24`.
+- A sheath-mesh FrameMove (`ElswordSheath02`) is written as CH1g's `ESSI_ETK_COMBO_ZZZ_FrameMove`: `CreateInstance`, handle, bounding radius 0, `g_pX2Game->TagEffectAlphaMesh( this, pMeshInst )` under `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`.

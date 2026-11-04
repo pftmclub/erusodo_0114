@@ -805,6 +805,25 @@ All 31 class-map rows of phase CH1g are written: 29 `inside` (June's body in Mar
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1g review` (Opus 5.5 high), then CH1g2.
 
+### CH1g - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read all 31 June listings (`charport_adis.py elsword --phase CH1g`, cut at the `int3`) against the bodies at `55871570`, branch by branch, with the `jmp` targets to confirm each else-if chain.
+- **Z Z Z `32cfc900`:** fall (`JUMP_DOWN`, `-= 45`), end to WAIT, dash, then the skill half on the literal `0.01` with the foot and the awakening half, then flag 0 (`0x8c18 < t || IsAnimationEnd()`) to `0xd1`, window `0x8c10 <= t < 0x8c14` on `oneZ`, then the ground walk cancel. No direction cancel. **Z Z Z Z `32cfcb70`:** the direction cancel clears flag 0 only (`CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 )`), then fall, end, dash, flag 0 to `0xd2`, `oneZ`, skill on `0x8c90`, walk. **Z Z Z Z Z `32cfce30`:** fall, end, skill, walk.
+- **X X `32cfcfe0`:** fall, end, flag 0 (`0x8c18`) to `0xd4` with `oneDoubleX` in `0x8c10`-`0x8c14`, flag 1 (`0x8c24`) to `0xd6` with `oneX` in `0x8c1c`-`0x8c20`, walk; no skill. **X X X loop `32cfd210`:** end goes to `0xd6` (X X X end); the loop-count test `< 3` (protected int `+0x962c`) sits inside the `oneX` window; flag 1 to `0xd5` on `oneZ`; skill; walk. **X X X Z `32cfd540`:** direction cancel (flag 0), fall, end, walk BEFORE skill. **X X X end `32cfd700`, dash combo Z Z `32cfd7a0`:** fall, end, walk only. `SKILL_CANCEL_AFTER` under `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK` matches each skill / awakening pair line for line.
+- **FrameMoves:** X X `32d1e5a0` is byte-identical to Z Z Z `32d1e200` after normalising addresses: `ElswordSheath02` (`33524310`) at 0.01 through `CreateInstance( this, name, GetPos(), GetRotateDegree(), GetRotateDegree() )`, handle to `+0x9670`, bounding radius 0, alpha tag `32296ee0` (= `TagEffectAlphaMesh`, funcmap C10b-2); handle reset at `+0x8d38`; `DAMAGE_DATA_NEXT` (`3346f050`) at `+0x9624`. Dash combo Z Z `32d1ea10` adds `DAMAGE_DATA_LAST` (`335197f0`, confirmed in the string dump) at `+0x9628`. The five damage-only ones are identical to each other.
+- **`+0x8d38` is the dash cancel:** June keeps a Future cancel set (`+0x8c88` Ex .. `+0x8c9c` Dash) and a Now set in the same order (`+0x8d24` .. `+0x8d38`, funcmap `32057b80` C9h-4c); March has one set, so `m_fDashCancelAfter` is right, as March's own body has it.
+- **New dash jump Z Z Z:** EP `32d054d0` lands on the foot (`0x16`). FM `32d19b80`: `EventTimerOneshot( 0.296 )` (`33523f10`); vslot `0x6f0` `IsEnoughMPForAttack( 8.0 [3344d3e4], Dummy2_Lhand position or zero, 0.0, ( 0, 0, -45.0 [33491dc8] ) )`; on success `PlayEffectSet( L"EffectSet_ETK_DASH_JUMP_ZZZ", this )` with every default (no trace, not hyper, power and life `-1`, scale `( 1, 1, 1 )`, no custom position, three zero vectors, force-down `1.0`).
+- **StateStart / StateEnd (14):** Z Z Z start `CommonStateStart` then `+0x9670 = -1`; X X start count `= 0` then `CommonStateStart`; loop start count `+1`, `CommonStateStart`, `+0x8040 = 0`; X X X end start `+0x8040 = 0`; loop end `+0x8040 = 1` after `CommonStateEnd`; the rest `SetEnableAttackBox( L"Sword", true )` + `CommonStateEnd`. All = the port.
+- `ch1_offsets.tsv` gains 7 rows: `+0x8c10` event times, `+0x8c88` Future cancel set, `+0x8d38` Now-set dash cancel, `+0x8040`, `+0x9624` / `+0x9628`, `+0x962c`, `+0x9670`.
+
+**Hygiene.**
+- `flagcheck JUNE_CHAR_ELSWORD_CORE --with JUNE_CHAR_ELSWORD_LIVE --range 55871570^..55871570`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `0 EOL-mismatched`, `0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0 and 0 errors, both with and without `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`.
+- No build: nothing changed. The `DEPLOY OK` of CH1g's Done note stands.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1g2.md` gained a CH1g-review amendment (its Done gate named `CH1g`). Next: `/x2-phase char-elsword CH1g2` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
