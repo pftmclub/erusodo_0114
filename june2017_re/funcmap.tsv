@@ -7580,3 +7580,36 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32d1f130	CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove	PORTED	Char Elsword CH1g2: inside; = March ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
 32d1f200	CX2GUElsword_SwordMan::ESSI_EIS_DASH_COMBO_ZX_FrameMove	PORTED	Char Elsword CH1g2: new under _CORE ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
 32d1f2d0	CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove	PORTED	Char Elsword CH1g2: inside; = March ( DAMAGE_DATA_NEXT at m_fDamageDataChangeTime )
+32cf2da0	CX2GUElsword_SwordMan::DamageReactStateChange	PORTED	Char Elsword CH1h: inside; a small hit starts ESSI_SI_P_ESK_AUTO_GUARD_SMALL, else AUTO_GUARD; the Rune Slayer counter ( 21211 ) keeps its revenge hit ( skill-or-upgrade test 31edf560 )
+32cf2e20	CX2GUElsword_SwordMan::GetFinalDamageToBeChangedByActiveSkill	PORTED	Char Elsword CH1h: inside; = March ( x m_fActiveSkillAddPowerRate +0x96e4 )
+32cf5190	CX2GUElsword_SwordMan::Win	PORTED	Char Elsword CH1h: inside; = March ( riding on with a pet: USI_RIDING_WAIT_HABIT, else USI_WIN )
+32cf51d0	CX2GUElsword_SwordMan::Draw	PORTED	Char Elsword CH1h: inside; = March ( same as Win )
+32cf5530	CX2GUElsword_SwordMan::InitEnchantWeaponEffectUnitSpecific	PORTED	Char Elsword CH1h: inside; = March ( only while m_bShowWeaponEnchantEffect )
+32cf55a0	CX2GUElsword_SwordMan::AppendMajorParticleToDeviceList	PORTED	Char Elsword CH1h: inside; = March ( 7 names )
+32cf56a0	CX2GUElsword_SwordMan::AppendMinorParticleToDeviceList	PORTED	Char Elsword CH1h: inside; = March ( 7 names )
+32d059b0	CX2GUElsword_SwordMan::IsHarshSlayerCoolTimeEnd	PORTED	Char Elsword CH1h: new under _CORE; true unless the cool time ( +0x9728 ) is above the time elapsed ( +0x971c )
+32d05b60	CX2GUElsword_SwordMan::ChangeFinalDamageAsDefender	PORTED	Char Elsword CH1h: new under _CORE; empty ( vslot 0x508, called by GetFinalDamage 32284d43 with two float buffers )
+32d05b70	CX2GUElsword_SwordMan::ChangeFinalDamageAsAttacker	PORTED	Char Elsword CH1h: new under _CORE; empty ( vslot 0x50c, called by GetFinalDamage 32284d62 with two float buffers )
+32d06fd0	CX2GUElsword_SwordMan::Lose	PORTED	Char Elsword CH1h: inside; = March ( USI_RIDING_WAIT / USI_LOSE for my unit with HP )
+32d08590	CX2GUElsword_SwordMan::COMMON_BUFF_FrameMove	PORTED	Char Elsword CH1h: inside; = March ( EventTimerOneshot 0.83 / 0.85, ClearScreen, ProcessAcceleraterBuff with the state hyper flag )
+32d08ec0	CX2GUElsword_SwordMan::CreateMajorParticleArray	PORTED	Char Elsword CH1h: inside; = March ( 7 common damage particles )
+32d0b870	CX2GUElsword_SwordMan::UnSetSpecificValueByBuffTempletID	PORTED	Char Elsword CH1h: inside; = March ( BTI 3 / 163-165 enchant effect on, BTI 19 level 0, save debuff count ); the brutal slayer level is a KProtectedType<int> in June
+32d0c780	CX2GUElsword_SwordMan::ApplyBuffToOpenMind	PORTED	Char Elsword CH1h: new under _CORE; vslot 0x510: skill 21417 buff ( index 1 in a PvP or PvE game, else 0 ); CX2GUUser::DamageReact calls it @320478c9 ( CH1o )
+32d0d3f0	CX2GUElsword_SwordMan::InitComponent	PORTED	Char Elsword CH1h: inside; = March but the PvP reset runs for game type 1 or 4
+32d0d540	CX2GUElsword_SwordMan::InitEffect	PORTED	Char Elsword CH1h: inside; March plus the my-gage-UI refresh after the Way of the Sword start ( vslot 0x5c 32e681d0 )
+32d0d600	CX2GUElsword_SwordMan::DeleteElswordMinorParticle	PORTED	Char Elsword CH1h: inside; = March ( CH0 listed it new; March has it )
+32d0d660	CX2GUElsword_SwordMan::SetElswordMajorParticleByEnum	PORTED	Char Elsword CH1h: inside; = March plus the effect-alpha tag ( 32296da0, site 32d0d72d ); dead in June
+32d0d7a0	CX2GUElsword_SwordMan::SetElswordMinorParticleByEnum	PORTED	Char Elsword CH1h: inside; = March plus the effect-alpha tag ( 32296da0, site 32d0d86d ); CH0 listed it new
+32d17e90	CX2GUElsword_SwordMan::DeleteMinorParticle	PORTED	Char Elsword CH1h: inside; = March ( base, DeleteElswordMinorParticle )
+32d17ea0	CX2GUElsword_SwordMan::HyperModeBuffEffectStart	PORTED	Char Elsword CH1h: inside; the four hyper boost handles only for an untranscended unit without an awakening effect set ( stand-in present test false )
+32d1a5d0	CX2GUElsword_SwordMan::~CX2GUElsword_SwordMan	PORTED	Char Elsword CH1h: inside; March minus the m_hSwordFire stop and the m_hFinalStrikeBlackHole destroy; the scalar deleting destructor 32d27620 is its wrapper
+32d1a920	CX2GUElsword_SwordMan::ReInit	PORTED	Char Elsword CH1h: inside; March plus the point nudge by 1 ( WSS_DESTRUCTION +1, WSS_VIGOR -1 ) and the mode end outside PvP
+32d1ac60	CX2GUElsword_SwordMan::DamageReact	PORTED	Char Elsword CH1h: inside; auto guard with a cool time ( +0x9764 / +0x9770 ), guard-motion branch gone, destruction rage not in the tutorial, Way of the Sword point gain as March
+32d1b120	CX2GUElsword_SwordMan::CreateMinorParticleArray	PORTED	Char Elsword CH1h: inside; = March ( 7 Elsword minor particles )
+32d1b9d0	CX2GUElsword_SwordMan::ApplyBuffToHarshSlayer	PORTED	Char Elsword CH1h: inside; June 21412 Harsh Slayer ( Infinity Sword ) with the Infinity Potential 21420 buff to the attacker for a transcended unit; CH0 listed it new, CH4a registers it
+32d1f690	CX2GUElsword_SwordMan::SetSpecificValueByBuffTempletID	PORTED	Char Elsword CH1h: inside; = March ( BTI 3 / 163-165 enchant effect off, BTI 19 level 1 ) with skill 21404 for the debuff reaction
+32d26ff0	struct destructor ( vectors at +4 / +0x14 )	n/a	Char Elsword CH1h: compiler-generated destructor of the +0x97c0 member; nothing to write
+32d27110	CX2GUElsword_SwordMan::GetComboZStateID	PORTED	Char Elsword CH1h: inside; = March ( ESSI_COMBO_Z1 )
+32d27120	CX2GUElsword_SwordMan::GetComboXStateID	PORTED	Char Elsword CH1h: inside; = March ( ESSI_COMBO_X1 )
+32d27130	CX2GUElsword_SwordMan::GetSpecialItemUsableExtraStateID	PORTED	Char Elsword CH1h: new under _LIVE ( an override of a live virtual ); returns ESSI_SWORD_WAIT
+32d27620	~CX2GUElsword_SwordMan ( scalar deleting )	n/a	Char Elsword CH1h: compiler wrapper of the destructor body 32d1a5d0 plus delete; nothing to write

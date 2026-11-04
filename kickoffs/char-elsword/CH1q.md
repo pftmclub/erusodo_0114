@@ -56,3 +56,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1a review (2026-11-04)
 
 - SwordWait EventProcess `32d0f0c0` tests `oneZ` alone, with no re-attack gate (as Wait / Walk / JumpLanding / DashEnd in CH1a).
+
+## Amended by CH1h (2026-11-04)
+
+- CH1h's bodies call, by March name and unchanged: `End_SwordmanVigor` / `End_SwordmanDestruction` (ReInit, Die), `Start_SwordmanVigor` / `Start_SwordmanDestruction` (InitEffect), `SetWayOfSwordPoint` / `SetWayOfSwordState` / `GetWayOfSwordState`, `DoStateDestructionRage` (`32d0f300`) and `CX2DamageManager::CalcWayOfSwordPointOnDamageReact` (`326106c0`). ReInit also nudges the point by +-1 and ends the mode outside PvP (June, kept).

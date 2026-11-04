@@ -293,6 +293,27 @@ CX2GUElsword_SwordMan::CX2GUElsword_SwordMan( int unitIndex, int teamNum,
 
 CX2GUElsword_SwordMan::~CX2GUElsword_SwordMan(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1a5d0: the scalar deleting destructor 32d27620 calls it; no m_hSwordFire stop, no m_hFinalStrikeBlackHole destroy
+	SAFE_CLOSE( m_pSoundWindMill );
+
+	DeleteElswordMajorParticle();
+	DeleteElswordMinorParticle();
+
+	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqHandFire );
+
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMill );
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindMillLand );
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hSwordEnchant );
+
+	g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hThirdBladeSheathMesh );
+
+	for ( int i = 0; i < 3; ++i )
+	{
+		if ( m_hDamageSwordBlasting[i] != INVALID_DAMAGE_EFFECT_HANDLE )
+			g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageSwordBlasting[i] );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	SAFE_CLOSE( m_pSoundWindMill );
 	
 #ifdef NO_MORE_EFFECT_HARD_CODING_TEST
@@ -346,6 +367,7 @@ CX2GUElsword_SwordMan::~CX2GUElsword_SwordMan(void)
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	}
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
@@ -359,6 +381,65 @@ void	CX2GUElsword_SwordMan::AppendDeviceToDeviceList( CKTDXDeviceDataList& listI
 
 void CX2GUElsword_SwordMan::ReInit( bool bRandom, int startPosIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1a920: June also nudges the point by 1 and ends the mode outside PvP
+	CX2GUUser::ReInit( bRandom, startPosIndex );
+	m_fReDashJumpXTime = 0.0f;
+
+	if ( true == IsMyUnit() )
+	{
+		const WAY_OF_SWORD_STATE eWayOfSwordState = static_cast<const WAY_OF_SWORD_STATE>( GetWayOfSwordState() );
+
+		if ( WSS_DESTRUCTION == eWayOfSwordState )
+			SetWayOfSwordPoint( static_cast<float>( GetWayOfSwordPoint() + 1.0 ) );
+		else if ( WSS_VIGOR == eWayOfSwordState )
+			SetWayOfSwordPoint( static_cast<float>( GetWayOfSwordPoint() - 1.0 ) );
+
+		if ( CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+		{
+			if ( ( CX2Room::TN_RED == GetTeam() && g_pX2Game->GetRedTeamKill() > g_pX2Game->GetBlueTeamKill() ) ||
+				( CX2Room::TN_BLUE == GetTeam() && g_pX2Game->GetRedTeamKill() < g_pX2Game->GetBlueTeamKill() ) )
+			{
+				if ( WSS_VIGOR == eWayOfSwordState )
+					End_SwordmanVigor();
+				else if ( WSS_DESTRUCTION == eWayOfSwordState )
+					End_SwordmanDestruction();
+
+				SetWayOfSwordPoint( 0 );
+				SetWayOfSwordState( static_cast<int>( WSS_CENTER ) );
+			}
+			else
+			{
+				if ( WSS_VIGOR == eWayOfSwordState )
+				{
+					End_SwordmanVigor();
+					SetWayOfSwordState( static_cast<int>( WSS_TOWARD_VIGOR ) );
+				}
+				else if ( WSS_DESTRUCTION == eWayOfSwordState )
+				{
+					End_SwordmanDestruction();
+					SetWayOfSwordState( static_cast<int>( WSS_TOWARD_DESTRUCTION ) );
+				}
+			}
+		}
+		else
+		{
+			if ( WSS_VIGOR == eWayOfSwordState )
+			{
+				End_SwordmanVigor();
+				SetWayOfSwordState( static_cast<int>( WSS_TOWARD_VIGOR ) );
+			}
+			else if ( WSS_DESTRUCTION == eWayOfSwordState )
+			{
+				End_SwordmanDestruction();
+				SetWayOfSwordState( static_cast<int>( WSS_TOWARD_DESTRUCTION ) );
+			}
+		}
+
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetWayOfSwordState();
+	}
+	m_fDestructionRageTime = 0.f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 	m_fReDashJumpXTime		= 0.0f;
 
@@ -403,6 +484,7 @@ void CX2GUElsword_SwordMan::ReInit( bool bRandom, int startPosIndex )
 	m_fDestructionRageTime = 0.f;
 
 #endif ELSWORD_WAY_OF_SWORD
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 #ifdef ELSWORD_WAY_OF_SWORD
@@ -563,8 +645,129 @@ void CX2GUElsword_SwordMan::AddComboToBrutalSlayer( const CX2DamageManager::Dama
 }
 #endif ELSWORD_SHEATH_KNIGHT
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+namespace _CONST_ELSWORD_CH1H_
+{
+	/// June 31edf560: the skill tree must exist; then the ids are equal or the first is the "[Enhanced]" skill of the second
+	bool IsSkillOrUpgrade( const int iSkillID_, const int iTarget_ )
+	{
+		if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return false;
+
+		if ( iSkillID_ == iTarget_ )
+			return true;
+
+		return iSkillID_ == g_pData->GetSkillTree()->GetUpgradedSkillID( iTarget_ );
+	}
+
+	/// June CX2Unit +0x3c ( the transcended test )
+	bool IsTranscendedUnit( const CX2Unit* pUnit_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	}
+}
+using namespace _CONST_ELSWORD_CH1H_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+namespace _CONST_ELSWORD_CH1c_
+{
+	bool ElswordAwakeningEffectSetPresent();	/// defined with the CommonHyperModeFrameMove stand-ins below
+}
+using namespace _CONST_ELSWORD_CH1c_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 void CX2GUElsword_SwordMan::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1ac60: the auto guard has a cool time; the guard-motion branch is gone; destruction rage skipped in the tutorial
+	bool bCheckExtraDamage = false;
+
+	switch( pDamageData->m_ExtraDamage.m_ExtraDamageType )
+	{
+	case CX2DamageManager::EDT_MANA_DAMAGE:
+	case CX2DamageManager::EDT_DAMAGE_RATE:
+	case CX2DamageManager::EDT_WATER_HOLD:
+	case CX2DamageManager::EDT_ATTACK_ALL_TEAM:
+		bCheckExtraDamage = true;
+		break;
+	default:
+		break;
+	}
+
+	m_bAutoGuardBlocking = false;
+
+	if ( false == bCheckExtraDamage && CX2DamageManager::AT_SPECIAL != pDamageData->attackType && false == pDamageData->m_bNoDamage
+		&& pDamageData->m_fHpPercentUp <= 0.f && pDamageData->m_fIncreaseMP <= 0.f
+		&& CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActResult && CX2DamageManager::RT_SENSOR != pDamageData->reActResult
+		&& CX2DamageManager::HT_GROUND_HIT != pDamageData->hitType
+		&& false == GetHold() && false == GetGrap() && false == GetRidingOn()
+		&& false == ( m_fAutoGuardCoolTime > m_fAutoGuardElapsedTime )
+		&& false == IsSkillOrUpgrade( static_cast<int>( GetNowStateSkillID() ), CX2SkillTree::RNSI_A_ELK_COUNTER )
+		&& false == IsSuperArmor() && false == GetInvincible() && true == m_FrameDataNow.unitCondition.bFootOnLine )
+	{
+		if ( true == m_FrameDataFuture.unitCondition.bAttackerFront && GetRandomFloat() < m_fAutoGuardRate )
+			m_bAutoGuardBlocking = true;
+
+		if ( true == m_bAutoGuardBlocking )
+		{
+			m_fAutoGuardElapsedTime = 0.f;
+
+			SetDamageReducePercent( GetDamageReducePercent() + 100 );
+			CX2GUUser::DamageReact( pDamageData );
+			SetDamageReducePercent( GetDamageReducePercent() - 100 );
+
+			DamageReactStateChange( pDamageData, ESSI_REVENGE_ATTACK );
+			return;
+		}
+	}
+
+	if ( WSS_DESTRUCTION == GetWayOfSwordState() && false == IsSuperArmor() && m_fDestructionRageTime <= 0.f
+		&& CX2DamageManager::RT_NO_DAMAGE != pDamageData->reActType && CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActType
+		&& CX2DamageManager::RT_SENSOR != pDamageData->reActType && false == GetInvincible() && GetNowHp() > 0.f
+		&& true == m_FrameDataNow.unitCondition.bFootOnLine && false == g_pMain->GetIsPlayingTutorial() )
+	{
+		SetDamageReducePercent( GetDamageReducePercent() + 100 );
+		CX2GUUser::DamageReact( pDamageData );
+		SetDamageReducePercent( GetDamageReducePercent() - 100 );
+
+		if ( CX2DamageManager::RT_REVENGE == pDamageData->reActResult || CX2DamageManager::RT_REFLECT == pDamageData->reActResult )
+		{
+			DamageReactStateChange( pDamageData, ESSI_REVENGE_ATTACK );
+		}
+		else
+		{
+			SetHoldStateID( USI_DAMAGE_AIR_FALL );
+			DoStateDestructionRage();
+		}
+	}
+	else if ( true == IsSuperArmor() )
+	{
+		SetDamageReducePercent( GetDamageReducePercent() );
+		CX2GUUser::DamageReact( pDamageData );
+		SetDamageReducePercent( GetDamageReducePercent() );
+
+		DamageReactStateChange( pDamageData, ESSI_REVENGE_ATTACK );
+	}
+	else
+	{
+		CX2GUUser::DamageReact( pDamageData );
+		DamageReactStateChange( pDamageData, ESSI_REVENGE_ATTACK );
+	}
+
+	if ( true == IsMyUnit() && CX2DamageManager::RT_NO_DAMAGE != pDamageData->reActType && CX2DamageManager::RT_DUMMY_DAMAGE != pDamageData->reActType
+		&& CX2DamageManager::RT_SENSOR != pDamageData->reActType && CX2DamageManager::RT_REVENGE != pDamageData->reActResult
+		&& false == GetInvincible() && GetNowHp() > 0.f )
+	{
+		const int iWayOfSwordState = GetWayOfSwordState();
+		const float fWSPGain = g_pData->GetDamageManager()->CalcWayOfSwordPointOnDamageReact( pDamageData->damage.GetAllDamage(), iWayOfSwordState );
+
+		SetWayOfSwordPoint( GetWayOfSwordPoint() + fWSPGain );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	KTDXPROFILE();
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //±Ë√¢«—
@@ -701,6 +904,7 @@ void CX2GUElsword_SwordMan::DamageReact( CX2DamageManager::DamageData* pDamageDa
 
 	CX2GUUser::DamageReactStateChange( pDamageData, ESSI_REVENGE_ATTACK );
 #endif ELSWORD_WAY_OF_SWORD
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //±Ë√¢«—
@@ -710,6 +914,25 @@ void CX2GUElsword_SwordMan::DamageReact( CX2DamageManager::DamageData* pDamageDa
 /*virtual*/ void CX2GUElsword_SwordMan::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData, int iRevengeAttack/* = -1*/ )
 #endif //ARA_CHANGE_CLASS_FIRST
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf2da0: a small hit starts the small auto guard state; the Rune Slayer counter keeps its revenge hit
+	if ( true == m_bAutoGuardBlocking )
+	{
+		m_bAutoGuardBlocking = false;
+
+		if ( CX2DamageManager::RT_SMALL_DAMAGE == pDamageData->reActResult )
+			StateChange( CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD_SMALL, true );
+		else
+			StateChange( CX2GUElsword_SwordMan::ESSI_SI_P_ESK_AUTO_GUARD, true );
+
+		return;
+	}
+
+	if ( true == IsSkillOrUpgrade( static_cast<int>( GetNowStateSkillID() ), CX2SkillTree::RNSI_A_ERS_COUNTER ) && CX2DamageManager::RT_REVENGE == pDamageData->reActResult )
+		return;
+
+	CX2GUUser::DamageReactStateChange( pDamageData, iRevengeAttack, iAvoidance );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( true == m_bAutoGuardBlocking )
 	{
 		m_bAutoGuardBlocking = false;
@@ -721,16 +944,85 @@ void CX2GUElsword_SwordMan::DamageReact( CX2DamageManager::DamageData* pDamageDa
 
 
 	CX2GUUser::DamageReactStateChange( pDamageData,  iRevengeAttack, iAvoidance );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 /*virtual*/ float CX2GUElsword_SwordMan::GetFinalDamageToBeChangedByActiveSkill( float fFinalDamage_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf2e20
+	return fFinalDamage_ * m_fActiveSkillAddPowerRate;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	return fFinalDamage_ * m_fActiveSkillAddPowerRate;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ApplyBuffToHarshSlayer( const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1b9d0: Infinity Sword skill 21412 ( March: Sheath Knight ); no defender ends it before any buff
+	if ( true == GetRidingOn() || CX2DamageManager::AT_SPECIAL == damageData_.attackType || false == IsHarshSlayerCoolTimeEnd() )
+		return;
+
+	const int iSkillLevelHarshSlayer = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_HARSH_SLAYER, true, 0, true );
+	if ( iSkillLevelHarshSlayer <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_HARSH_SLAYER );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	const float SkillRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevelHarshSlayer );
+	const float RandomRate = GetRandomFloat();
+	if ( false == ( RandomRate < SkillRate ) )
+		return;
+
+	if ( pSkillTemplet->m_vecBuffFactorPtr.size() <= 2 )
+		return;
+
+	if ( null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2GameUnit* pDefenderUnit = damageData_.optrDefenderGameUnit.GetObservable();
+	if ( NULL == pDefenderUnit )
+		return;
+
+	const int iSkillLevelInfinityPotential = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL, true, 0, true );
+	if ( iSkillLevelInfinityPotential > 0 )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTempletInfinityPotential = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL );
+
+		if ( NULL != pSkillTempletInfinityPotential && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTempletInfinityPotential->m_ePowerRateType
+			&& true == IsTranscendedUnit( GetUnit() ) && null != damageData_.optrAttackerGameUnit )
+		{
+			CX2GameUnit* pAttackerUnit = damageData_.optrAttackerGameUnit.GetObservable();
+
+			if ( NULL != pAttackerUnit && false == pSkillTempletInfinityPotential->m_vecBuffFactorPtr.empty() )
+			{
+				CX2BuffFactorPtr ptrBuffFactorClone = pSkillTempletInfinityPotential->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevelInfinityPotential );
+
+				if ( NULL != ptrBuffFactorClone )
+				{
+					ptrBuffFactorClone->SetGameUnitBuffFactor( pAttackerUnit, GetUnitUID() );
+					pAttackerUnit->SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+				}
+			}
+		}
+	}
+
+	CX2BuffFactorPtr ptrBuffFactorCloneHarshSlayer = pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevelHarshSlayer );
+	if ( NULL != ptrBuffFactorCloneHarshSlayer )
+	{
+		ptrBuffFactorCloneHarshSlayer->SetGameUnitBuffFactor( pDefenderUnit, GetUnitUID() );
+		pDefenderUnit->SetBuffFactorToGameUnit( *ptrBuffFactorCloneHarshSlayer );
+	}
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 1 );
+	SetBuffFactorToGameUnit( pSkillTemplet, 2 );
+
+	m_fHarshSlayerElapsedTime = 0.f;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if( CX2DamageManager::AT_NORMAL == damageData_.attackType )
 	{	
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // ±Ë≈¬»Ø - Ω∫≈≥ Ω√Ω∫≈€ ∫Ø∞Ê
@@ -778,11 +1070,56 @@ void CX2GUElsword_SwordMan::ApplyBuffToHarshSlayer( const CX2DamageManager::Dama
 			}
 		}	
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #endif //UPGRADE_SKILL_SYSTEM_2013	
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+/// June 32d059b0: the Harsh Slayer cool time is over when it is not above the time elapsed
+bool CX2GUElsword_SwordMan::IsHarshSlayerCoolTimeEnd() const
+{
+	return !( m_fHarshSlayerCoolTime > m_fHarshSlayerElapsedTime );
+}
+
+/// June 32d05b60 ( vslot 0x508 ): empty; GetFinalDamage 32284d43 calls it on a user defender with two float buffers
+void CX2GUElsword_SwordMan::ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ )
+{
+	UNREFERENCED_PARAMETER( pfFirst_ );
+	UNREFERENCED_PARAMETER( pfSecond_ );
+}
+
+/// June 32d05b70 ( vslot 0x50c ): empty; GetFinalDamage 32284d62 calls it on a user attacker with two float buffers
+void CX2GUElsword_SwordMan::ChangeFinalDamageAsAttacker( float* pfFirst_, float* pfSecond_ )
+{
+	UNREFERENCED_PARAMETER( pfFirst_ );
+	UNREFERENCED_PARAMETER( pfSecond_ );
+}
+
+/// June 32d0c780 ( vslot 0x510 ): the Rune Slayer Open Mind buff; CX2GUUser::DamageReact calls it after ProcessSocketEffectEx ( 320478c9 )
+void CX2GUElsword_SwordMan::ApplyBuffToOpenMind()
+{
+	const int iSkillLevelOpenMind = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_OPEN_MIND, true, 0, true );
+	if ( iSkillLevelOpenMind <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_OPEN_MIND );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? 1 : 0 ) );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 void CX2GUElsword_SwordMan::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5190
+	CX2GUUser::Win();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::Win();
 
 #ifdef RIDING_SYSTEM
@@ -793,10 +1130,23 @@ void CX2GUElsword_SwordMan::Win()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d06fd0
+	CX2GUUser::Lose();
+
+	if ( true == IsMyUnit() && GetNowHp() > 0.f )
+	{
+		if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::Lose();
 
 	if( IsMyUnit() == true && 
@@ -811,10 +1161,20 @@ void CX2GUElsword_SwordMan::Lose()
 		StateChange( USI_LOSE );
 #endif //RIDING_SYSTEM
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf51d0
+	CX2GUUser::Draw();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -825,6 +1185,7 @@ void CX2GUElsword_SwordMan::Draw()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -4435,6 +4796,21 @@ void	CX2GUElsword_SwordMan::AppendComponentToDeviceList( CKTDXDeviceDataList& li
 
 void CX2GUElsword_SwordMan::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0d3f0: the Way of the Sword reset also runs in a PvE game ( type 1 or 4 )
+	CX2GUUser::InitComponent();
+
+	if ( true == IsMyUnit() )
+	{
+		if ( true == g_pX2Game->GetIsNowPVPCorrectionGame() )
+		{
+			static_cast<CX2ElswordGageData*>( m_pGageData )->SetWayOfSwordPoint( 0.f );
+			static_cast<CX2ElswordGageData*>( m_pGageData )->SetWayOfSwordState( 0 );
+		}
+
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetWayOfSwordState();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::InitComponent();
 
 #ifdef ELSWORD_WAY_OF_SWORD
@@ -4459,6 +4835,7 @@ void CX2GUElsword_SwordMan::InitComponent()
 		}
 	}
 #endif ELSWORD_WAY_OF_SWORD
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -4537,6 +4914,40 @@ void	CX2GUElsword_SwordMan::AppendEffectToDeviceList( CKTDXDeviceDataList& listI
 
 void CX2GUElsword_SwordMan::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0d540: the gauge refresh after the mode start is June-only
+	CX2GUUser::InitEffect();
+
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+
+	if ( true == IsMyUnit() )
+	{
+		switch ( GetWayOfSwordState() )
+		{
+		case WSS_DESTRUCTION:
+			{
+				Start_SwordmanDestruction();
+			} break;
+
+		case WSS_VIGOR:
+			{
+				Start_SwordmanVigor();
+			} break;
+
+		default:
+			break;
+		}
+
+		/// June 324943c0 / 32489220 / vslot 0x5c ( 32e681d0: flags the Way of the Sword state changed, then UpdateUIElswordWSP 32e67df0 ); body in CH1q2
+		const CX2MyGageUI* pMyGageUI = CX2GageManager::GetInstance()->GetMyGageUI();
+		if ( NULL != pMyGageUI )
+		{
+			GetElswordGageData()->SetChangedWayOfSwordState( true );
+			static_cast<CX2ElswordMyGageUI*>( const_cast<CX2MyGageUI*>( pMyGageUI ) )->UpdateUIElswordWSP();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::InitEffect();
 
 	CreateMajorParticleArray();
@@ -4560,12 +4971,24 @@ void CX2GUElsword_SwordMan::InitEffect()
 			break;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 
 /*virtual*/ void CX2GUElsword_SwordMan::InitEnchantWeaponEffectUnitSpecific() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5530
+	if ( true == m_bShowWeaponEnchantEffect )
+	{
+		for ( UINT i = 0; i < m_vecpWeapon.size(); ++i )
+		{
+			Weapon* pWeapon = m_vecpWeapon[i];
+			pWeapon->InitEnchantParticleForSword();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef BALANCE_RUNE_SLAYER_20130214
 	if( true == m_bShowWeaponEnchantEffect )
 #endif //BALANCE_RUNE_SLAYER_20130214
@@ -4576,6 +4999,7 @@ void CX2GUElsword_SwordMan::InitEffect()
 			pWeapon->InitEnchantParticleForSword();
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -4594,6 +5018,17 @@ void CX2GUElsword_SwordMan::DeleteElswordMajorParticle()
 
 void CX2GUElsword_SwordMan::DeleteElswordMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0d600
+	CX2GUUser::DeleteGUUserMinorParticle();
+
+	CKTDGParticleSystem* pMinorParticleSystem = g_pX2Game->GetMinorParticle();
+
+	for ( int index = 0; index < ELSWORD_MINOR_PII_END; index++ )
+	{
+		pMinorParticleSystem->DestroyInstanceHandle( m_ahElswordMinorParticleInstance[index] );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::DeleteGUUserMinorParticle();
 
 	CKTDGParticleSystem* pMinorParticleSystem = g_pX2Game->GetMinorParticle();
@@ -4602,6 +5037,7 @@ void CX2GUElsword_SwordMan::DeleteElswordMinorParticle()
 	{
 		pMinorParticleSystem->DestroyInstanceHandle( m_ahElswordMinorParticleInstance[index] );
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::InitializeElswordMajorParticleArray()
@@ -4618,6 +5054,8 @@ void CX2GUElsword_SwordMan::InitializeElswordMajorParticleArray()
 /*static*/
 void	CX2GUElsword_SwordMan::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf55a0
 	if ( g_pData->GetGameMajorParticle() == NULL )
 		return;
 
@@ -4628,12 +5066,58 @@ void	CX2GUElsword_SwordMan::AppendMajorParticleToDeviceList( CKTDXDeviceDataList
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRingRed" );
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCoreRed" );
 	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlashRed" );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	if ( g_pData->GetGameMajorParticle() == NULL )
+		return;
+
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpact" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCore" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlash" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactRingRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactCoreRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"DamageImpactSlashRed" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 
 
 /*virtual*/ void CX2GUElsword_SwordMan::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d08ec0
+	CX2GUUser::CreateMajorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT,            L"DamageImpact",            2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE,       L"DamageImpactCore",        2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH,      L"DamageImpactSlash",       2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED,        L"DamageImpactRed",         2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED,   L"DamageImpactRingRed",     1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED,   L"DamageImpactCoreRed",     1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,  L"DamageImpactSlashRed",    1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -4667,10 +5151,24 @@ void	CX2GUElsword_SwordMan::AppendMajorParticleToDeviceList( CKTDXDeviceDataList
 	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"DamageImpactSlashRed",	1 );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMajorParticleByEnum( ELSWORD_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0d660: no caller in June; written for its effect-alpha tag site 32d0d72d
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleElswordMajorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_, 0 );
+
+		SetHandleElswordMajorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, false );
+	}
+
+	return g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleElswordMajorParticleByEnum( eVal_ ) );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleElswordMajorParticleByEnum( eVal_ ) )
 	{
 		ParticleEventSequenceHandle hHandle = 
@@ -4683,6 +5181,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMa
 		g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleElswordMajorParticleByEnum( eVal_) );
 
 	return pSeq;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::InitializeElswordMinorParticleArray()
@@ -4699,6 +5198,8 @@ void CX2GUElsword_SwordMan::InitializeElswordMinorParticleArray()
 /*static*/
 void	CX2GUElsword_SwordMan::AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf56a0
 	if ( g_pData->GetGameMinorParticle() == NULL )
 		return;
 
@@ -4709,6 +5210,18 @@ void	CX2GUElsword_SwordMan::AppendMinorParticleToDeviceList( CKTDXDeviceDataList
 	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"GroundShockWaveRed" );
 	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"ImpactTickRed" );
 	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"MagnumBladeFireWave" );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	if ( g_pData->GetGameMinorParticle() == NULL )
+		return;
+
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"RevengeWait" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"GroundShockWaveBlue" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"ImpactTickBlue" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"STR_KuAAang" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"GroundShockWaveRed" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"ImpactTickRed" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"MagnumBladeFireWave" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -4717,6 +5230,8 @@ void	CX2GUElsword_SwordMan::AppendMinorParticleToDeviceList( CKTDXDeviceDataList
 
 /*virtual*/ void CX2GUElsword_SwordMan::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1b120
 	CX2GUUser::CreateMinorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -4748,10 +5263,56 @@ void	CX2GUElsword_SwordMan::AppendMinorParticleToDeviceList( CKTDXDeviceDataList
 	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_MAGNUM_BLADE_FIRE_WAVE, L"MagnumBladeFireWave" );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CX2GUUser::CreateMinorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_REVENGE_WAIT, L"RevengeWait" );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_GROUND_SHOCK_WAVE_BLUE, L"GroundShockWaveBlue", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_IMPACT_BLUE, L"ImpactTickBlue", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_STR_KUAANG, L"STR_KuAAang", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_GROUND_SHOCK_WAVE_RED, L"GroundShockWaveRed", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_IMPACT_TICK_RED, L"ImpactTickRed", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetElswordMinorParticleByEnum( ELSWORD_MINOR_PII_MAGNUM_BLADE_FIRE_WAVE, L"MagnumBladeFireWave" );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMinorParticleByEnum( ELSWORD_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0d7a0: the new handle is tagged with the effect-alpha category ( 32296da0 at 32d0d86d )
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleElswordMinorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_, 0 );
+
+		SetHandleElswordMinorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, true );
+	}
+
+	return g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleElswordMinorParticleByEnum( eVal_ ) );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleElswordMinorParticleByEnum( eVal_ ) )
 	{
 		ParticleEventSequenceHandle hHandle = 
@@ -4764,6 +5325,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMi
 		g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleElswordMinorParticleByEnum( eVal_) );
 
 	return pSeq;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::CommonStateStartFuture()
@@ -15492,6 +16054,35 @@ void CX2GUElsword_SwordMan::ESSI_SI3_ES_STORM_BLADE_HYPER_EventProcess()
 */
 /*virtual*/ void CX2GUElsword_SwordMan::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d08590
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.83f ) )
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+	else if ( m_pXSkinAnim->EventTimerOneshot( 0.85f ) )
+	{
+		int iSkillSlotIndex = 0;
+		bool bSlotB = false;
+
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // ∞¯≈Î Ω∫≈≥ ∞≥∆Ì, ±Ë¡æ»∆
 	ChangeWorldColorByHyperMode();
@@ -15533,6 +16124,7 @@ void CX2GUElsword_SwordMan::ESSI_SI3_ES_STORM_BLADE_HYPER_EventProcess()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #ifndef SPECIAL_USE_ITEM
 void CX2GUElsword_SwordMan::THROW_WOODEN_PIECE_FrameMove()
@@ -23244,9 +23836,16 @@ bool CX2GUElsword_SwordMan::ShouldResetNotBusyTimer()
 
 /*virtual*/ void CX2GUElsword_SwordMan::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d17e90
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteElswordMinorParticle();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CX2GUUser::DeleteMinorParticle();
+
+	DeleteElswordMinorParticle();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 /** @function : HyperModeBuffEffectStart
@@ -23254,6 +23853,25 @@ bool CX2GUElsword_SwordMan::ShouldResetNotBusyTimer()
 */
 /*virtual*/ void CX2GUElsword_SwordMan::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d17ea0: skipped for a transcended unit or an awakening effect set
+	CX2GUUser::HyperModeBuffEffectStart();
+
+	if ( !( NULL != GetUnit() && true == IsTranscendedUnit( GetUnit() ) ) && false == ElswordAwakeningEffectSetPresent() )
+	{
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+			m_hHyperBoostRFoot  = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRight",   0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+			m_hHyperBoostLFoot  = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeft",    0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+			m_hHyperBoostRArm   = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRight",   0, 0, 0, 0, 0);
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+			m_hHyperBoostLArm   = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeft",    0, 0, 0, 0, 0);
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::HyperModeBuffEffectStart();
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
@@ -23267,6 +23885,7 @@ bool CX2GUElsword_SwordMan::ShouldResetNotBusyTimer()
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
 		m_hHyperBoostLArm	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeft",	0, 0, 0, 0, 0);
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 #ifdef	SERV_ELSWORD_INFINITY_SWORD
@@ -23311,6 +23930,40 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 */
 /*virtual*/ void CX2GUElsword_SwordMan::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1f690: the debuff reaction reads skill 21404 ( June Reduce Pain )
+	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_SI_SA_EMK_SWORD_FIRE:
+	case BTI_BUFF_SWORD_ENCHANT_ICE:
+	case BTI_BUFF_SWORD_ENCHANT_FIRE:
+	case BTI_BUFF_SWORD_ENCHANT_POISON:
+		{
+			m_bShowWeaponEnchantEffect = false;
+			SetNeedToUpdateWeaponEffect( true );
+		} break;
+
+	case BTI_SI_P_ETK_BRUTAL_SLAYER:
+		{
+			m_iBrutalSlayerActivatedLevel = 1;      /// stand-in: June's KProtectedType<int> is not ported
+		} break;
+
+	default:
+		break;
+	}
+
+	if ( 0 < m_iSkillLevelInduranceOfRevenge )
+	{
+		CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( eBuffTempletId_ );
+		if ( NULL != ptrBuffTemplet && true == ptrBuffTemplet->IsDeBuff() && false == ptrBuffTemplet->IsWorldBuff() )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_REDUCE_PAIN );
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -23371,6 +24024,7 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 		 m_ucSaveDebuffCount = m_ucNumOfDeBuff;
 #endif //BALANCE_PATCH_20131107
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
@@ -23380,6 +24034,32 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 */
 /*virtual*/ void CX2GUElsword_SwordMan::UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0b870
+	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_SI_SA_EMK_SWORD_FIRE:
+	case BTI_BUFF_SWORD_ENCHANT_ICE:
+	case BTI_BUFF_SWORD_ENCHANT_FIRE:
+	case BTI_BUFF_SWORD_ENCHANT_POISON:
+		{
+			m_bShowWeaponEnchantEffect = true;
+			SetNeedToUpdateWeaponEffect( true );
+		} break;
+
+	case BTI_SI_P_ETK_BRUTAL_SLAYER:
+		{
+			m_iBrutalSlayerActivatedLevel = 0;      /// stand-in: June's KProtectedType<int> is not ported
+		} break;
+
+	default:
+		break;
+	}
+
+	m_ucSaveDebuffCount = m_ucNumOfDeBuff;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -23405,6 +24085,7 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //±Ë√¢«—
 	m_ucSaveDebuffCount = m_ucNumOfDeBuff;
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 

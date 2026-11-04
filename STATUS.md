@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1h | **ready** (`/x2-phase char-elsword CH1h`): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GUElsword_SwordMan.*` | `CH1h.md` |
+| CH1h | **done 2026-11-04, review ready** (`/x2-phase char-elsword CH1h review`): 32 rows (25 inside, 5 new, 2 n/a), 3 class-map fixes; nothing to play-test | Opus 5.5 / high | CH1h | `X2GUElsword_SwordMan.*`, `X2SkillTree.h` | `CH1h-review.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUElsword_SwordMan.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GUElsword_SwordMan.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32cf3290` (uncarved) | Sonnet 5.5 / high, Opus review | CH1j review | `X2GUElsword_SwordMan.*` | `CH1k.md` |

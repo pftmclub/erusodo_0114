@@ -58,3 +58,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1a review (2026-11-04)
 
 - CommonFrameMoveFuture `32d0b4d0` decrements and clamps only `+0x9598` `m_fReDashJumpXTime`. June drops March's `m_fReAttackZ1Time` decrement (the re-attack members are March-only).
+
+## Amended by CH1h (2026-11-04)
+
+- The cool-time ticks use CH1h's members: `32d0c090` adds `m_fElapsedTime` to `m_fAutoGuardElapsedTime` (`+0x9764`) while `0 < m_fAutoGuardCoolTime` (`+0x9770`) and elapsed is below it; `32d0bdc0` is the same for `m_fHarshSlayerElapsedTime` / `m_fHarshSlayerCoolTime` (`+0x971c` / `+0x9728`; read `32d0bdc0` to confirm). Both are `_CORE` floats (June `KProtectedType<float>`).

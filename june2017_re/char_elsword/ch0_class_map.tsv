@@ -453,9 +453,9 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d0d3f0	override 0x3c	InitComponent	X2GUElsword_SwordMan.h:453 virtual void InitComponent();	inside	-	CH1h	base 31fee090	y
 32d0d540	override 0x48	InitEffect	X2GUElsword_SwordMan.h:337 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
 32d0d5c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8d8252eff	y
-32d0d600	helper	called by 32d17e90 32d1a5d0	-	new	?	CH1h	name: called by 32d17e90(DeleteMinorParticle) 32d1a5d0(helper)	y
-32d0d660	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff686a09343364	y
-32d0d7a0	helper	called by 32d1ac60	-	new	?	CH1h	name: called by 32d1ac60(DamageReact)	y
+32d0d600	helper	DeleteElswordMinorParticle	X2GUElsword_SwordMan.h DeleteElswordMinorParticle	inside	-	CH1h	CH1h corrected: name: called by 32d17e90(DeleteMinorParticle) 32d1a5d0(helper)	y
+32d0d660	helper	SetElswordMajorParticleByEnum	X2GUElsword_SwordMan.h SetElswordMajorParticleByEnum	inside	-	CH1h	CH1h: dead in June, written for its effect-alpha tag site 32d0d72d	y
+32d0d7a0	helper	SetElswordMinorParticleByEnum	X2GUElsword_SwordMan.h SetElswordMinorParticleByEnum	inside	-	CH1h	CH1h corrected: name: called by 32d1ac60(DamageReact)	y
 32d0d8e0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
 32d0da10	state-fn	ESSI_DIE_FRONT.Start ESSI_RIDING_DIE.Start	inside X2GUElsword_SwordMan.cpp:1334 CX2GUElsword_SwordMan::DieFrontStart ; inside X2GUElsword_SwordMan.cpp:2108 CX2GUElsword_SwordMan::DieFrontStart	inside	-	CH1b	2 states	y
 32d0daa0	state-fn	ESSI_DIE_BACK.Start	inside X2GUElsword_SwordMan.cpp:1343 CX2GUElsword_SwordMan::DieBackStart	inside	-	CH1b	1 states	y
@@ -550,7 +550,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d1b910	state-fn	ESSI_RIDING_HYPER_MODE.FrameMove	inside X2GUElsword_SwordMan.cpp:2176 CX2GUElsword_SwordMan::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
 32d1b930	state-fn	ESSI_SA_ELK_GRAND_CROSS_END.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_END_FrameMove	CH3a	1 states	n
 32d1b980	state-fn	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_FrameMove	CH3a	1 states	y
-32d1b9d0	helper	called by 32d27620	-	new	?	CH1h	also called from outside the class: 32d27641; name: called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 32d27641	y
+32d1b9d0	helper	ApplyBuffToHarshSlayer	X2GUElsword_SwordMan.h:351 ApplyBuffToHarshSlayer	inside	-	CH1h	CH1h corrected: also called from outside the class: 32d27641; name: called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 32d27641	y
 32d1bd10	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
 32d1c560	override 0x690	InitPassiveSkillState	X2GUElsword_SwordMan.h:459 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	y
 32d1c8b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c744244800000000	n

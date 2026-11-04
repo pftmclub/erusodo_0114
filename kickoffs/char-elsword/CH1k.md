@@ -55,3 +55,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L251 class skill-use function sets the cooldown then calls ApplySkillCoolTi; §7 L260 quick-slot special-item prefix at the top of SpecialAttackEventProcess; §7 L261 dev free-skill gate around the cool-time / MP / hyper-stone block of t; §7 L263 riding-key skill wait after CheckSkillUsePVPOfficial in the 510 lookup; §7ai L852 JuneShowSkillNameStateString callers; §7al L888 new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 512, UpdateE.
 - The ctor `32d09490` (caller outside the class) and `InitializeElswordMinorParticleArray` `32cf5660` (called inside the ctor @32d0b07b). 0x840 `32d00fe0` (`?`): called from DamageReact @320478dd, applies skill 0x539c's buff when `GetApplyWeaponExtraDamageType` != 0. 0x850 `AfterImageFrameMove`.
 - **Routed by CH1b (2026-11-04; corrected by the CH1b review):** the ctor `32d09490` zeroes `+0x9684` @`32d0b2c7`. That is March's `m_fRollingSpeedRel` (March ctor already zeroes it); no new member. The reaction states `32cf5ad0` / `32cf5c90` / `32cf5e10` test `0 < it`.
+
+## Amended by CH1h (2026-11-04)
+
+- The constructor `32d09490` sets the four cool-time floats CH1h declared (`m_fHarshSlayerElapsedTime` @32d0a27f, `m_fHarshSlayerCoolTime` @32d0a3d6, `m_fAutoGuardElapsedTime` @32d0aa8d, `m_fAutoGuardCoolTime` @32d0abe4) and the handles at `+0x95a4`-`+0x95bc` (map rows in `ch1_offsets.tsv`; June has no `m_hSwordFire` there). The destructor body `32d1a5d0` is written (CH1h).

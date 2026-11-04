@@ -2156,6 +2156,16 @@ public:
 		RNSI_A_ELK_COUNTER_UPGRADE                            = 21228,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Elsword class core reads ( values from June's Enum.lua )
+		RNSI_A_ERS_COUNTER                                    = 21211,
+		RNSI_P_ELK_REDUCE_PAIN                                = 21404,
+		RNSI_P_EIS_HARSH_SLAYER                               = 21412,
+		RNSI_P_ERS_OPEN_MIND                                  = 21417,
+		RNSI_P_EIS_INFINITY_POTENTIAL                         = 21420,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

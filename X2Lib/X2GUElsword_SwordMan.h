@@ -350,6 +350,17 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		virtual float		GetFinalDamageToBeChangedByActiveSkill( float fFinalDamage_ );
 		void				ApplyBuffToHarshSlayer( const CX2DamageManager::DamageData& damageData_ );
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+		bool IsHarshSlayerCoolTimeEnd() const;		/// June 32d059b0
+		void ChangeFinalDamageAsDefender( float* pfFirst_, float* pfSecond_ );		/// June 32d05b60 ( vslot 0x508 ), empty
+		void ChangeFinalDamageAsAttacker( float* pfFirst_, float* pfSecond_ );		/// June 32d05b70 ( vslot 0x50c ), empty
+		void ApplyBuffToOpenMind();		/// June 32d0c780 ( vslot 0x510 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+		virtual int GetSpecialItemUsableExtraStateID() { return ESSI_SWORD_WAIT; }		/// June 32d27130 ( vslot 0x4ac )
+#endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 #ifdef BALANCE_PATCH_20131107
 		//각 유닛마다 Enchant가 적용될 때 셋팅해야 하는 함수 실행.
@@ -464,8 +475,13 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		virtual float		GetFinalDamage_WayOfSword( CX2DamageManager::WAY_OF_SWORD_TYPE eWayOfSwordType_ );
 #endif //ELSWORD_WAY_OF_SWORD
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+		virtual int GetComboZStateID() const { return ESSI_COMBO_Z1; }		/// June 32d27110
+		virtual int GetComboXStateID() const { return ESSI_COMBO_X1; }		/// June 32d27120
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 		virtual int GetComboZStateID() const { return ESSI_COMBO_Z1; }
 		virtual int GetComboXStateID() const { return ESSI_COMBO_X1; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 	protected:
 		virtual void ParseCommonRandomState();
@@ -693,6 +709,12 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 #ifdef BALANCE_PATCH_20131107
 		int												m_iSkillLevelInduranceOfRevenge; //역전의 인내 스킬 레벨 값.
 #endif //BALANCE_PATCH_20131107
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+		float								m_fHarshSlayerElapsedTime;	/// June +0x971c ( KProtectedType<float> ), set by 32d1b9d0, ticked by 32d0bdc0
+		float								m_fHarshSlayerCoolTime;	/// June +0x9728, read by 32d059b0
+		float								m_fAutoGuardElapsedTime;	/// June +0x9764, restarted by DamageReact 32d1ac60, ticked by 32d0c090
+		float								m_fAutoGuardCoolTime;	/// June +0x9770, read by DamageReact 32d1ac60
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 	private:
 

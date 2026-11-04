@@ -866,6 +866,42 @@ All 16 class-map rows of phase CH1g2 are written: 12 `inside` (June's body in Ma
 
 Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1h.md` checked: it depends on this review and needs no change. Next: `/x2-phase char-elsword CH1h` (Sonnet 5.5 high).
 
+### CH1h - Done (2026-11-04)
+
+All 32 class-map rows of phase CH1h are accounted for: 25 `inside` written (June's body in March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`), 5 `new` ( 4 under `_CORE`, 1 under `_LIVE` ), 2 with nothing to write ( `32d26ff0`, `32d27620` ). `_LIVE` stays `//#define`; `_CORE` was defined by CH1d. 33 funcmap rows `Char Elsword CH1h`; 16 rows added to `june2017_re/char_elsword/ch1_offsets.tsv`.
+**Class-map corrections (CH0 listed these three `new ?`; March has all three):** `32d0d600` = `DeleteElswordMinorParticle`, `32d0d7a0` = `SetElswordMinorParticleByEnum`, `32d1b9d0` = `ApplyBuffToHarshSlayer` (a delegate: its callers are the CH4a registration thunks, not the destructor). `32d0d660` (`SetElswordMajorParticleByEnum`, dead in June) is written too, for its alpha-tag site `32d0d72d` (7c).
+
+| June | `CX2GUElsword_SwordMan::` | vs March |
+|---|---|---|
+| `32d1ac60` DamageReact | DamageReact | differs: the auto guard block is rebuilt ( see below ); destruction rage also needs `!g_pMain->GetIsPlayingTutorial()`; the Way of the Sword gain is March's |
+| `32cf2da0` | DamageReactStateChange | differs: a small hit starts `ESSI_SI_P_ESK_AUTO_GUARD_SMALL`; the Rune Slayer counter ( 21211, skill-or-upgrade ) with `RT_REVENGE` returns without the base call |
+| `32d1a920` | ReInit | differs: the point moves 1 toward zero first ( `WSS_DESTRUCTION` +1, `WSS_VIGOR` -1 ) and a non-PvP game ends the mode too |
+| `32d0d3f0` | InitComponent | the PvP reset runs for game type 1 or 4 ( `GetIsNowPVPCorrectionGame()` ) |
+| `32d0d540` | InitEffect | adds the my-gage-UI refresh after the mode start |
+| `32d1a5d0` | destructor | no `m_hSwordFire` stop, no `m_hFinalStrikeBlackHole` destroy ( June's layout has neither near `+0x95b0` ) |
+| `32d17ea0` | HyperModeBuffEffectStart | the four boost handles only for an untranscended unit without an awakening set |
+| `32d1b9d0` | ApplyBuffToHarshSlayer | rebuilt: Infinity Sword skill 21412, cool time, defender checked first, 21420 buff to the attacker when transcended |
+| `32d1f690` / `32d0b870` | Set / UnSetSpecificValueByBuffTempletID | = March; the debuff reaction reads skill 21404 |
+| `32d0d7a0` / `32d0d660` | Set Elsword Minor / Major ParticleByEnum | March plus `TagEffectAlphaParticleHandle` |
+| `32cf5190` `32cf51d0` `32d06fd0` `32cf5530` `32cf55a0` `32cf56a0` `32d08590` `32d08ec0` `32d0d600` `32d17e90` `32d1b120` `32cf2e20` `32d27110` `32d27120` | Win, Draw, Lose, InitEnchant..., Append Major / Minor, COMMON_BUFF_FrameMove, Create Major / Minor ParticleArray, Delete Elsword Minor, DeleteMinorParticle, GetFinalDamage..., GetCombo Z / X StateID | = March ( June's state ids resolve to March's names ) |
+
+**New (`_CORE`):** `IsHarshSlayerCoolTimeEnd` ( `32d059b0` ), `ChangeFinalDamageAsDefender` / `ChangeFinalDamageAsAttacker` ( `32d05b60` / `32d05b70`, empty, called by `GetFinalDamage` @32284d43 / @32284d62 with two float buffers ), `ApplyBuffToOpenMind` ( `32d0c780`, vslot 0x510, skill 21417, buff index 1 in a PvP or PvE game ). **New under `_LIVE`, not `_CORE`:** `GetSpecialItemUsableExtraStateID` ( `32d27130` returns `ESSI_SWORD_WAIT` ): it overrides a live virtual ( `X2Game.cpp:12326` reads it ), so `_CORE` would change the flag-off build.
+**Not written:** `32d26ff0` ( destructor of the June-only struct at `+0x97c0`, two vectors ) and `32d27620` ( scalar deleting wrapper of the destructor body ).
+**Auto guard.** June's block applies to a non-special hit that is not extra-damage, no-damage, healing, a dummy / sensor hit or a ground hit, with no hold / grab / riding / super armor / invincibility, the foot on a line, not in the Lord Knight counter, and the cool time over ( members `m_fAutoGuardElapsedTime` `+0x9764` / `m_fAutoGuardCoolTime` `+0x9770`, `_CORE`; June `-1` both from `InitPassiveSkillState`, ticked by `32d0c090`, CH1j ). A facing hit rolls `m_fAutoGuardRate`; a block restarts the timer, takes 100 % off the hit and calls `DamageReactStateChange`. Harsh Slayer has the twin pair `+0x971c` / `+0x9728` ( `32d059b0`, `32d1b9d0`, ticked by `32d0bdc0` ).
+**Stand-ins:** the awakening effect-set present test is `_CONST_ELSWORD_CH1c_`'s ( false, Stage 12 ); `m_iBrutalSlayerActivatedLevel` is a plain int ( June `KProtectedType<int>` ); the gauge refresh in InitEffect flags `m_bChangedWayOfSwordState` and calls `UpdateUIElswordWSP` ( June vslot 0x5c `32e681d0`; the gauge UI is CH1q2 ). Bodies owned later are called by March's name: `End_Swordman*` / `Start_Swordman*` / `SetWayOfSwordPoint` ( CH1q ), `DoStateDestructionRage` ( `32d0f300` ), `CalcWayOfSwordPointOnDamageReact` ( `326106c0`, allow-listed until CH1q ).
+**Enum names added** ( `X2SkillTree.h`, `JUNE_ENUM_NAMES`, checked against `Enum.src.lua` ): `RNSI_A_ERS_COUNTER` 21211, `RNSI_P_ELK_REDUCE_PAIN` 21404, `RNSI_P_EIS_HARSH_SLAYER` 21412, `RNSI_P_ERS_OPEN_MIND` 21417, `RNSI_P_EIS_INFINITY_POTENTIAL` 21420. Alpha-tag sites written: `32d0d72d`, `32d0d86d`.
+No `JUNE_BUGS` row: nothing here is a June mistake ( `ApplyBuffToHarshSlayer` ending before any buff when the defender is gone is kept as June has it ).
+
+**Routed.** CH1j: the two cool-time ticks `32d0bdc0` ( Harsh Slayer ) and `32d0c090` ( auto guard ) use the new members. CH1k: the constructor sets all four floats ( `32d09490` @`32d0a27f` / `@32d0a3d6` / `@32d0aa8d` / `@32d0abe4` ) and the members CH1h found at `+0x95a4`-`+0x95bc`. CH4a: `InitPassiveSkillState` sets the pairs and the rate, and registers `ApplyBuffToHarshSlayer` ( delegate `32d1b9d0` ). CH1o: wire the hooks `0x508` / `0x50c` ( `GetFinalDamage` ) and `0x510` ( `CX2GUUser::DamageReact` @320478c9 ) into the shared bases. CH1q / CH1q2: the Way of the Sword bodies and the gauge refresh named above.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `git diff --patience --numstat`: `.cpp` 681 / 0, `.h` 22 / 0, `X2SkillTree.h` 10 / 0. `flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `RESULT: PASS`.
+- One-file probe ( `census.cl_cmd`, `/c /Zs /EHsc`, no PCH ): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors ( the `cl /P` output grows 21,163,526 to 21,179,524 B ).
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,958,912 B, dated 2026-11-04 12:14:42, md5 5695e737c2fe6a11e5464e07944e41e3, equal to X2/US_SERVICE/x2.exe (2026-11-04 12:14:35)`; built at main `2bb3d40f` + the 3 code files of this phase ( X2Lib 0 errors ). No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** ( `_LIVE` is off; nothing registers a June body ). Next: `/x2-phase char-elsword CH1h review` ( Opus 5.5 high ), then CH1i.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

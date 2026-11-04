@@ -43,3 +43,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Callees this Opus phase maps itself:** `322d2680` CX2Game::GetNearestNPCUnitUID( D3DXVECTOR3 pos, int npcUIDToExcept, float fMaxRa; `31f76580` none in March: CEffect main-effect scale modifier, ( int mode, float x ) -> 31f7.
 - No class-map function carries CH1o after CH0's triage (the 9 unsettled helpers went to CH1h / CH1k / CH4a / CH4c / n/a). It owns two engine callees: replace `CX2Game::GetNearestNPCUnitUID` with June's `322d2680` (tsv row added by CH0; remove its allow row) and write June-only `31f76580` (main-effect scale ( mode, x ) -> vector (x,0,0): zeroes y / z, a `JUNE_BUGS.md` candidate) that CH2d's `32d16c00` calls.
+
+## Amended by CH1h (2026-11-04)
+
+- CH1h wrote the empty hooks `ChangeFinalDamageAsDefender` (vslot 0x508, `GetFinalDamage` @32284d43) and `ChangeFinalDamageAsAttacker` (0x50c, @32284d62) and `ApplyBuffToOpenMind` (0x510, `CX2GUUser::DamageReact` @320478c9), all `_CORE`, called by nothing: add the base virtuals and the call sites here (a user-attacker/defender test, two float buffers at the first two). `GetSpecialItemUsableExtraStateID` (`32d27130`) is already written under `_LIVE`.
