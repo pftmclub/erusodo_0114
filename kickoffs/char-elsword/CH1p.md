@@ -44,3 +44,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 per-character parser census; §7l L470 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7o L507 SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN; §7p L546 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7x L667 combo hits carry June's AT_COMMAND tag; adopt the script with its tags; §7ag L804 pressed-index space 5 + 5: CommonSpecialAttackEventProcess and every >.
 - 7h: 24 functions (not 25; `[reg+0x8ca4]` scan, 48 sites) are written by their own phases (`ch0_func_rows.tsv`); CH1p owns the shared cancel rule. No June-only key is owned here (the camera pair is Stage 9's, `IMMUNITY_EDT_LIST_AT_THIS_STATE` backlog Stage 2).
+
+## Amended by CH1k (2026-11-04)
+
+- June's skill-use path (`32cf3290` -> lookup `32d1bd10` -> use `32cf5760` -> cooldown `32d0d8e0`) never calls `CountUsedSkill`; March's `SpecialAttackEventProcess` called it under `DUNGEON_RANK_NEW`. CH1k's `_LIVE` body follows June, so the 7ag readers of that counter see no Elsword skill use until this phase decides.

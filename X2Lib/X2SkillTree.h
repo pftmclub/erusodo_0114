@@ -2177,6 +2177,15 @@ public:
 		RNSI_SA_ELK_GRAND_CROSS                               = 21058,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-04 // char-elsword CH1k
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names the Elsword skill use reads ( values from June's Enum.lua )
+		RNSI_A_ES_ROLLING                                     = 21200,
+		RNSI_A_ES_ENDURANCE                                   = 21201,
+		RNSI_A_ES_ROLLING_UPGRADE                             = 21217,
+		RNSI_A_ES_ENDURANCE_UPGRADE                           = 21218,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

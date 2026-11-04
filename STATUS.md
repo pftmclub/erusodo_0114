@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1k | **ready** (`/x2-phase char-elsword CH1k`): skill-use overrides + SpecialAttackEventProcess `32cf3290` (uncarved) | Sonnet 5.5 / high, Opus review | CH1j review | `X2GUElsword_SwordMan.*` | `CH1k.md` |
+| CH1k | **code done 2026-11-04, review next** (`/x2-phase char-elsword CH1k review`): skill-use overrides + lookup / use / cooldown written (9 inside, 6 new), no play-test | Opus 5.5 / high | CH1k | `X2GUElsword_SwordMan.*` | `CH1k-review.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32d23ff0`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GUElsword_SwordMan.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32d223e0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, routed gaps; replaces `GetNearestNPCUnitUID`, writes `31f76580` | Opus 5.5 / high, Opus review | CH1n review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH1o.md` |

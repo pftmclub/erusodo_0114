@@ -42,6 +42,14 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 	},
 #endif //SERV_ELSWORD_INFINITY_SWORD
 };
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+/// June 337aec60 / 337aec90: the cut-ins of code event 0x8b3 ( GFx names without extension; the cut-in sets are CH5 )
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Elsword_CASH_22"),
+};
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 
 
@@ -147,6 +155,21 @@ CX2GUElsword_SwordMan::CX2GUElsword_SwordMan( int unitIndex, int teamNum,
 #ifdef BALANCE_PATCH_20131107
 , m_iSkillLevelInduranceOfRevenge( 0 )
 #endif //BALANCE_PATCH_20131107
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+/// June 32d09490: the ctor body is March's plus these members; June has no m_hSwordFire, m_hFinalStrikeBlackHole or re-attack members ( kept for the March-bodied states )
+, m_fHarshSlayerElapsedTime( -1.f )		/// @32d0a27f
+, m_fHarshSlayerCoolTime( -1.f )		/// @32d0a3d6
+, m_fAutoGuardElapsedTime( -1.f )		/// @32d0aa8d
+, m_fAutoGuardCoolTime( -1.f )		/// @32d0abe4
+, m_fBrutalSlayerCoolTime( -1.f )		/// @32d09da9
+, m_fBrutalSlayerElapsedTime( 0.f )		/// @32d09f6a
+, m_fSwordEnchantCoolTime( -1.f )		/// @32d0a67f
+, m_fSwordEnchantElapsedTime( -1.f )		/// @32d0a526
+, m_fShortTimeStrongAttackCoolTime( -1.f )		/// @32d0a92f
+, m_fShortTimeStrongAttackElapsedTime( -1.f )		/// @32d0a7d8
+, m_fOpenMindRemainCoolTime( -1.f )		/// @32d0ae89
+, m_bAfterImageSaved( false )		/// June after-image byte +0x1d1 starts false
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 {
 	m_bReAttackZ1Right					= false;
 	m_fReAttackZ1Time					= 0.0f;
@@ -5340,12 +5363,22 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUElsword_SwordMan::SetElswordMa
 
 void CX2GUElsword_SwordMan::InitializeElswordMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf5660
 	CX2GUUser::InitializeGUUserMinorParticleArray();
 
 	for ( int index = 0; index < ELSWORD_MINOR_PII_END; index++ )
 	{
 		m_ahElswordMinorParticleInstance[index] = INVALID_PARTICLE_SEQUENCE_HANDLE;
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	CX2GUUser::InitializeGUUserMinorParticleArray();
+
+	for ( int index = 0; index < ELSWORD_MINOR_PII_END; index++ )
+	{
+		m_ahElswordMinorParticleInstance[index] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -5809,8 +5842,248 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+namespace _CONST_ELSWORD_CH1k_
+{
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+}
+using namespace _CONST_ELSWORD_CH1k_;
+
+/// June 32d08d20: the auto guard state and its small, end and small end states
+bool CX2GUElsword_SwordMan::IsNowStateAutoGuard()
+{
+	const int iNowStateID = GetNowStateID();
+	return ESSI_SI_P_ESK_AUTO_GUARD == iNowStateID || ESSI_SI_P_ESK_AUTO_GUARD_SMALL == iNowStateID ||
+		ESSI_SI_P_ESK_AUTO_GUARD_END == iNowStateID || ESSI_SI_P_ESK_AUTO_GUARD_END_SMALL == iNowStateID;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+/// June 32d08b30 ( user vslot 0x828 ): the base test less the sword wait state ( future ) and the dash jump power landing state ( now )
+bool CX2GUElsword_SwordMan::IsNotCommonMoveState()
+{
+	if ( false == CX2GUUser::IsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	if ( ESSI_SWORD_WAIT == m_FrameDataFuture.syncData.nowState )
+		return false;
+
+	return ESSI_DASH_JUMP_POWER_LANDING != GetNowStateID();
+}
+
+/// June 32d08d70 ( user vslot 0x850 ): the after-image is suspended in the two wait states and restored after; it runs every frame. Stand-in: the second after-image ( +0x6758 ) is not ported
+void CX2GUElsword_SwordMan::AfterImageFrameMove()
+{
+	CKTDGXSkinAfterImage* pAfterImage = GetAfterImage();
+	const int iStateID = GetNowStateID();
+
+	if ( USI_WAIT == iStateID || ESSI_SWORD_WAIT == iStateID )
+	{
+		if ( NULL != pAfterImage && true == pAfterImage->GetEnable() )
+		{
+			m_bAfterImageSaved = true;
+			pAfterImage->Disable();
+		}
+	}
+	else
+	{
+		if ( NULL != pAfterImage && false == pAfterImage->GetEnable() && true == m_bAfterImageSaved )
+			pAfterImage->Enable();
+	}
+
+	if ( NULL != pAfterImage )
+		pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime );
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+/// June 32d1bd10 ( user vslot 0x7f8, step 510 ): chooses the skill of the pressed slot and checks that it can be used now
+bool CX2GUElsword_SwordMan::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if ( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	if ( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+
+	if ( false == CheckSkillUseCondition( eActiveSkillUseCondition, pSkillTemplet->m_eActiveSkillUseCondtion ) )
+		return false;
+
+	if ( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	if ( true == IsNowStateAutoGuard() && CX2SkillTree::RNSI_A_ES_ROLLING != pSkillTemplet->m_eID && CX2SkillTree::RNSI_A_ES_ROLLING_UPGRADE != pSkillTemplet->m_eID )
+		return false;
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	const float fMpConsume = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+	m_fChosenSkillMp = fMpConsume;
+
+	if ( CX2SkillTree::ST_ACTIVE == pSkillTemplet->m_eType )
+		m_fChosenSkillMp = fMpConsume - m_iBrutalSlayerActivatedLevel * m_fMindOfFighterConsumeMpRate * fMpConsume;
+
+	if ( WSS_VIGOR == GetWayOfSwordState() && CX2DamageManager::WST_VIGOR_ACTIVE == pSkillTemplet->m_iWOSType )
+		m_fChosenSkillMp *= 0.7f;
+
+	const bool bSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree && false == IsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+		if ( 0.f < pSkillSlotData->m_fCoolTimeLeft )
+		{
+			PushInfoText( 226 );
+			return false;
+		}
+
+		if ( m_fReservedSkillMp + m_fChosenSkillMp > GetNowMp() )
+		{
+			PushInfoText( 2549 );
+			return false;
+		}
+
+		if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && CX2Main::XS_TRAINING_GAME != g_pMain->GetNowStateID() )
+		{
+			if ( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+	m_iChosenSkillSlotIndex = iPressedSkillSlotIndex;
+	return true;
+}
+
+/// June 32cf5760 ( user vslot 0x7fc, step 511 ): the use of the skill the lookup chose
+void CX2GUElsword_SwordMan::SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if ( true == SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		SpecialAttackCooldown( pSkillTemplet->m_eID, m_fChosenSkillMp );
+		SkillMemoMpRefund( iSkillID_, true, m_fChosenSkillMp );
+		m_fChosenSkillMp = 0.0f;
+	}
+	else
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+		StateChangeBySkillSlot( m_iChosenSkillSlotIndex );
+	}
+
+	m_bSpecialAttackEventProcessedAtThisFrame = true;
+}
+
+/// June 32d0d8e0 ( user vslot 0x800, step 512 ): the MP, the finality stone and the cool time of a skill use
+void CX2GUElsword_SwordMan::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if ( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	MarkSkillSlotUsed( m_iChosenSkillSlotIndex, false );
+	UpNowMp( -fMpConsume_ );
+
+	if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if ( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	// June @32d0d9ac: reads the skill level twice and drops it; the cool time is asked for level 1 ( JUNE_BUGS )
+	accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, GetActualCoolTime( pSkillTemplet, 1 ) );
+
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+
+	if ( NULL != GetUnit() )
+		GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 /*virtual*/ bool CX2GUElsword_SwordMan::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32cf3290 ( user vslot 0x7f4 ): the lookup, then the use; a skill of use condition 3 / 5 gives the chosen values back
+	const float fSavedReservedMp = m_fReservedSkillMp;
+	const int iSavedSlotIndex = m_iChosenSkillSlotIndex;
+	const int iSavedSkillID = m_iChosenSkillID;
+
+	bool bUsed = false;
+	if ( true == SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iChosenSkillID )
+	{
+		bUsed = true;
+		SpecialAttackUse( m_iChosenSkillID, true );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ), true );
+	if ( NULL != pSkillTemplet && ( CX2SkillTree::ASUT_ANYTIME == pSkillTemplet->m_eActiveSkillUseCondtion || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == pSkillTemplet->m_eActiveSkillUseCondtion ) )
+	{
+		m_iChosenSkillID = iSavedSkillID;
+		m_fReservedSkillMp = fSavedReservedMp;
+		m_iChosenSkillSlotIndex = iSavedSlotIndex;
+	}
+
+	if ( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iChosenSkillSlotIndex + 1;
+		return true;
+	}
+
+	m_iChosenSkillID = iSavedSkillID;
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Elsword 32d1bd10 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -6113,6 +6386,7 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 #endif SERV_SKILL_USE_SUBQUEST
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 
 }
 
@@ -6125,6 +6399,19 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 	if( NULL == pSkillTemplet )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d0b5a0: Endurance and its upgrade; March's Reduce Pain case is gone
+	switch( pSkillTemplet->m_eID )
+	{
+	case CX2SkillTree::RNSI_A_ES_ENDURANCE:
+	case CX2SkillTree::RNSI_A_ES_ENDURANCE_UPGRADE:
+		m_FrameDataFuture.syncData.nowAction = UAI_ENDURANCE;
+		return true;
+
+	default:
+		return false;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	switch( pSkillTemplet->m_eID )
 	{
 	case CX2SkillTree::SI_A_ES_ENDURANCE:
@@ -6153,12 +6440,37 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 	}
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
 
 /*virtual*/ void CX2GUElsword_SwordMan::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1ddf0: the base action first; the Endurance actions also show the skill name
+	UserNoStateChangeActionFrameMove();
+
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case UAI_ENDURANCE:
+		ProcessEnduranceSkill();
+		ShowSkillNameStateString( CX2SkillTree::RNSI_A_ES_ENDURANCE );
+		break;
+
+	case UAI_REDUCE_PAIN:
+		CureExtraDamage( 1 );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELK_MAGIC_RESISTANCE", this );
+		break;
+
+	case UAI_ENDURANCE_AND_REDUCE_PAIN:
+		ProcessEnduranceSkill();
+		CureExtraDamage( 1 );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELK_MAGIC_RESISTANCE", this );
+		ShowSkillNameStateString( CX2SkillTree::RNSI_A_ES_ENDURANCE );
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
 	case UAI_ENDURANCE:
@@ -6184,10 +6496,37 @@ RENDER_HINT CX2GUElsword_SwordMan::CommonRender_Prepare()
 		//}} kimhc // 2010.11.1 // 로드나이트 - 고통 억제
 
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 void CX2GUElsword_SwordMan::ProcessEnduranceSkill()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d1dbd0: an upgraded Endurance first erases every debuff; Infinity Potential adds its factors 1 and 2; no memo 6 branch
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ES_ENDURANCE, true );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	if ( 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )
+	{
+		vector<KBuffFactor> vecDebuffFactor;
+		GetBuffFactorOnlyDebuff( vecDebuffFactor );
+
+		for ( vector<KBuffFactor>::const_iterator it = vecDebuffFactor.begin(); it != vecDebuffFactor.end(); ++it )
+			EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( it->m_BuffIdentity.m_eBuffTempletID ) );
+	}
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL ) )
+	{
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL, 1, true );
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL, 2, true );
+	}
+
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELSWORD_ENDURANCE", this );
+	PlaySound( L"Elsword_Endurance.ogg" );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ES_ENDURANCE );
 	if( NULL != pSkillTemplet )
 	{
@@ -6204,6 +6543,7 @@ void CX2GUElsword_SwordMan::ProcessEnduranceSkill()
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELSWORD_ENDURANCE", this ); 
 		PlaySound( L"Elsword_Endurance.ogg" );	
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 
@@ -24098,6 +24438,20 @@ void CX2GUElsword_SwordMan::ESSI_SI_SA_EIS_RAGE_CUTTER_EventProcess()
 
 void CX2GUElsword_SwordMan::ShowActiveSkillCutInAndLight( const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ /*= false */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d09050
+	if ( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
+	{
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+
+		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
+
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 31e5a860: even rand() -> CASH_21
+
+		ActiveSkillShow( L"Dummy1_Rhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -24111,6 +24465,7 @@ void CX2GUElsword_SwordMan::ShowActiveSkillCutInAndLight( const float fTimeToSho
 #endif //APRIL_FOOLS_DAY
  			ActiveSkillShow( L"Dummy1_Rhand", s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].fileName.c_str(), s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vSize, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vPosition, IsHyperState(), bOnlyLight_ );
  	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 
 /*virtual*/ CX2GageData* CX2GUElsword_SwordMan::CreateGageData()
@@ -25304,7 +25659,12 @@ void CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_EventProcess()
 
 /*virtual*/ void CX2GUElsword_SwordMan::ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d09270 ( user vslot 0x834 ): a call to 32d09050 with the cut-in sub index
 	ShowActiveSkillCutInAndLight( fTimeToShow_, m_iSkillCutInSetSubIndex, bOnlyLight_ );
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	ShowActiveSkillCutInAndLight( fTimeToShow_, m_iSkillCutInSetSubIndex, bOnlyLight_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 namespace _CONST_ELSWORD_CH1c_
@@ -25412,6 +25772,14 @@ void CX2GUElsword_SwordMan::CommonHyperModeFrameMove( float fTime1_, float fTime
 #ifdef BALANCE_PATCH_20131107
 void CX2GUElsword_SwordMan::SetSpecificValueByEnchant()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+	/// June 32d00fe0 ( user vslot 0x840 ): Reduce Pain's buff factor, where March applies Induration of Revenge's
+	if ( 0 < m_iSkillLevelInduranceOfRevenge && CX2DamageManager::EDT_NONE != GetApplyWeaponExtraDamageType() && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_REDUCE_PAIN );
+		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	//역전의 인내를 배웠다면 자신에게 걸린 무기 속성을 체크해서 자신에게 버프를 건다.
 	if( m_iSkillLevelInduranceOfRevenge > 0 )
 	{
@@ -25421,6 +25789,7 @@ void CX2GUElsword_SwordMan::SetSpecificValueByEnchant()
 			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 }
 #endif //BALANCE_PATCH_20131107
 

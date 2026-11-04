@@ -367,6 +367,14 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void SwordEnchantCoolTimeFrameMove();		/// June 32d0beb0
 		void ShortTimeStrongAttackCoolTimeFrameMove();		/// June 32d0bfa0
 		void AutoGuardCoolTimeFrameMove();		/// June 32d0c090
+		bool SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );		/// June 32d1bd10 ( user vslot 0x7f8, step 510 )
+		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );		/// June 32cf5760 ( user vslot 0x7fc, step 511 )
+		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );		/// June 32d0d8e0 ( user vslot 0x800, step 512 )
+		bool IsNowStateAutoGuard();		/// June 32d08d20: the four auto guard states
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+		virtual bool IsNotCommonMoveState();		/// June 32d08b30 ( user vslot 0x828 ): overrides a base virtual, so it exists only under _LIVE
+		virtual void AfterImageFrameMove();		/// June 32d08d70 ( user vslot 0x850 ): the same
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
@@ -733,6 +741,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		float								m_fShortTimeStrongAttackCoolTime;	/// June +0x9758, ticked by 32d0bfa0
 		float								m_fShortTimeStrongAttackElapsedTime;	/// June +0x974c
 		float								m_fOpenMindRemainCoolTime;	/// June +0x9788, set by 32d0c180, counted down in CommonFrameMove while not below zero
+		bool								m_bAfterImageSaved;	/// June after-image +0x1d1 ( 32d08d70 ): the enable flag kept while the wait states hide the after-image
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 	private:

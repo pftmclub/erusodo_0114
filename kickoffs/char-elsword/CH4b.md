@@ -48,3 +48,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32cf4b70` `32cf4df0`(new GetActualCoolTime) `32d1e0e0`(new SetDamageExceptionProcess).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 per-class SetDamageExceptionProcess blocks, funcmap 32d1e0e0 (Elsword).
 - Read whether June's `GetActualMPConsume` `32cf4b70` still applies the Vigor x0.7 MP rule (CH0's WoS read found no WoS access; unproven).
+
+## Amended by CH1k (2026-11-04)
+
+- June's skill-use cooldown `32d0d8e0` (CH1k's `SpecialAttackCooldown`) asks `GetActualCoolTime( templet, 1, 0 )` (JUNE_BUGS 524) and no longer carries March's cool time extras: memo 22 Phoenix Talon -5 s, memo 6 Endurance -5 s, the Compact Counter cool time and `ST_ACTIVE` x `m_fIncreaseCoolTimeRel`. Read `32cf4df0` (`GetActualCoolTime`, vslot 0x6a4) for where June applies them.
+- CH1k's lookup `32d1bd10` applies Mind of Fighter (`m_iBrutalSlayerActivatedLevel` x `m_fMindOfFighterConsumeMpRate`) and the Vigor x 0.7 MP rule itself, after `GetActualMPConsume`: check that `32cf4b70` does not apply either again.

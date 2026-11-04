@@ -48,3 +48,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32cf4d00`(new ?).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7j L456 Rune Slayer magic-reflect: DamageReact 320462a0 @32046a55-32046aa0 + 3.
 - `MemoConditionElsword` vtable `3352286c`: dtor `32c69d80`, decide `32cf4d00` (calls the always-false base `31fd4450`, as Eve's `32968490`), parse thunk `32cf4d20` -> `31fc8cf0`; tsv row `MemoCondition` (replace).
+
+## Amended by CH1k (2026-11-04)
+
+- The constructor `32d09490` creates the `MemoConditionElsword` (12 bytes, vtable `3352286c`) and stores it in `CX2GUUser` `+0x7d10` @32d0b47a-32d0b4a8. CH1k left it out (March has no member; the base's `X2GUUser.cpp:17067` note says its answer is always false). Create it here with the class if CH4c ports `MemoCondition`.

@@ -1017,6 +1017,39 @@ No `JUNE_BUGS` row: nothing here is a June mistake.
 
 Nothing to play-test ( `_LIVE` is off ). `kickoffs/char-elsword/CH1k.md` checked: it depends on this review and char-chung Z ( closed ), and CH1j's amendment ( the constructor sets the seven floats ) is in it. Next: `/x2-phase char-elsword CH1k` ( Sonnet 5.5 high ).
 
+### CH1k - Done (2026-11-04)
+
+All 15 class-map rows of phase `CH1k` are written: 9 `inside` (June's body inside March's own `CX2GUElsword_SwordMan` function under `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, March's in `#else`; the constructor needs no `_LIVE` branch, see below) and 6 `new` under `_CORE`. `_LIVE` stays `//#define`. **Class-map corrections** (CH0 had them as `inside` or `new ?`): `32cf5760` / `32d1bd10` / `32d0d8e0` are `new` `SpecialAttackUse` / `SpecialAttackLookup` / `SpecialAttackCooldown` (Chung's names for steps 511 / 510 / 512); `32d00fe0` is March's `SetSpecificValueByEnchant`, `32d09050` is `ShowActiveSkillCutInAndLight` and `32d1dbd0` is `ProcessEnduranceSkill` (all `inside`); `32d08d20` is `IsNowStateAutoGuard`. 15 funcmap rows `Char Elsword CH1k`; 13 rows added to `ch1_offsets.tsv`. Four names are registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES`: `RNSI_A_ES_ROLLING` 21200, `RNSI_A_ES_ENDURANCE` 21201, `RNSI_A_ES_ROLLING_UPGRADE` 21217, `RNSI_A_ES_ENDURANCE_UPGRADE` 21218 (June `Enum.src.lua` 14483 / 14928 / 14411 / 14785).
+
+| June | `CX2GUElsword_SwordMan::` | kind | vs March |
+|---|---|---|---|
+| `32cf3290` | SpecialAttackEventProcess | inside | June's: lookup (vslot 0x7f8), use (0x7fc) + `Send_SKILL_USE_REQ`, then the 3 / 5 use-condition give-back and `+0x88bc` = slot + 1. = Chung's `32bd8790` |
+| `32d1bd10` / `32cf5760` / `32d0d8e0` | SpecialAttackLookup / Use / Cooldown | new | the three steps March had in one body, see below |
+| `32d0b5a0` | SpecialAttackNoStageChange | inside | skills 21201 / 21218 set `UAI_ENDURANCE`; March's Reduce Pain case is gone |
+| `32d1ddf0` / `32d1dbd0` | NoStateChangeActionFrameMove / ProcessEnduranceSkill | inside | base `32008e40` first; action 1 and 11 show the skill name (21201); the helper differs from March's |
+| `32d00fe0` | SetSpecificValueByEnchant | inside | skill 21404 Reduce Pain's factor 0 instead of Induration of Revenge's |
+| `32d09050` / `32d09270` | ShowActiveSkillCutInAndLight / ...ByScript | inside | event 0x8b3 cut-ins; the second is = March |
+| `32cf5660` / `32d09490` | InitializeElswordMinorParticleArray / constructor | inside | = March |
+| `32d08b30` / `32d08d20` / `32d08d70` | IsNotCommonMoveState / IsNowStateAutoGuard / AfterImageFrameMove | new | see below |
+
+**Where June differs from March** (checked against the listings, `charport_adis.py elsword --phase CH1k`):
+- **Lookup `32d1bd10`** (the checks March had in `SpecialAttackEventProcess`): quick-slot wait, `CommonSpecialAttackEventProcess`, equipped templet (its id must equal the slot's, else string 0x8bae), then `CheckSkillUseCondition`, `CheckSkillUsePVPOfficial`, `3202d140`, `3202d3c0`, the riding-key wait, and **the auto guard gate** (`IsNowStateAutoGuard` and the skill is not 21200 / 21217 = no skill). MP = `GetActualMPConsume`, **minus `m_iBrutalSlayerActivatedLevel` x `m_fMindOfFighterConsumeMpRate` x MP for an active skill (type 6)**, **x 0.7 in Vigor for a Vigor-active skill** (`m_iWOSType` 2). Then the dev gate (`IsDevUnlimitedSkillUse()`; vslot 0x82c is always false) around the cool time (226), MP (2549) and finality stone (26119; the training game is the only exemption here). Gone: the skill-tree-learning message (25110), the Rolling HP check (2627), `ReducePain`, `CountUsedSkill`, `SERV_SKILL_USE_SUBQUEST`'s send (now in 0x7f4).
+- **Cooldown `32d0d8e0`:** `MarkSkillSlotUsed`, `UpNowMp`, the finality stone (training or photo zone), the cool time, the random-mission hook `31fcd3d0`, then `ApplySkillCoolTimeRateByBuff`. **June reads the skill level twice, drops it and asks `GetActualCoolTime( templet, 1 )`** (JUNE_BUGS 524). March's memo 22 / memo 6 cool time cuts, the Compact Counter cool time and `ST_ACTIVE` x `m_fIncreaseCoolTimeRel` are not in it (routed to CH4b, `GetActualCoolTime` `32cf4df0`).
+- **ProcessEnduranceSkill:** an upgraded Endurance (`m_iDeleteSkillIDByUpgrade`, +0x178) erases every debuff first (`GetBuffFactorOnlyDebuff`); buff factor 0; Infinity Potential (21420) learned adds its factors 1 and 2 (`SetSkillBuffFactors`); no memo 6 branch. March's differs, so the `june_march_divergent.tsv` row `ProcessEnduranceSkill` was added with the replacement in this commit.
+- **Constructor `32d09490`:** same defaults as March. June adds the eleven cool-time floats (-1.0, `m_fBrutalSlayerElapsedTime` 0.0) and no re-attack members, `m_hSwordFire` or `m_hFinalStrikeBlackHole`; those March members stay initialised (the March-bodied states read them). The floats and `m_bAfterImageSaved` join the init list under `_CORE`. Eight June-only members have no March name (`ch1_offsets.tsv`: `+0x96f4`, `+0x9710`, `+0x977c`, `+0x9794`, `+0x97b8`-`+0x97dc`), none has a reader yet. `+0x7d10` (`MemoCondition`, `new` of 12 bytes @32d0b47a) is CH4c's.
+- **`IsNotCommonMoveState` / `AfterImageFrameMove`** override base virtuals, so they live under `_LIVE` (a `_CORE` declaration would override at once): the sword wait state (future) and `ESSI_DASH_JUMP_POWER_LANDING` (now) end the base test; the after-image is hidden in the wait and sword wait states and restored after (Arme's shape; June's second after-image `+0x6758` is not ported in March).
+- **ShowActiveSkillCutInAndLight:** `EventTimerOneshot` gate, the cut-in copy of the set, then event 0x8b3 swaps in `HQ_CutIn_Elsword_CASH_21` / `_22` by `rand()` parity (names as Chung's, assets staged by CH0b); the customize cut-in override `31fd8a50` is not ported (Stage 12).
+
+**Routed.** CH4b: the cool time / MP extras above; check `32cf4b70` for the Vigor x0.7 rule (the lookup applies it now). CH4c: the constructor's `MemoCondition`. CH1p: June's use path never calls `CountUsedSkill`. Engine (near R12c): the second after-image (`EnableAfterImage` mode 1 `32275a30`, `EraseAfterImageByBuff` `3227a2f0`); cosmetic, not a phase.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_LIVE --with JUNE_CHAR_ELSWORD_CORE --worktree --files X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `git diff --patience --numstat`: `.cpp` 369 / 0, `.h` 9 / 0, `X2SkillTree.h` 9 / 0. `flagcheck JUNE_ENUM_NAMES` on `X2SkillTree.h`: `RESULT: PASS`.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GUElsword_SwordMan.cpp` with `_LIVE` off: exit 0, 0 errors; with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors. `C_ASSERT` probe: `UAI_ENDURANCE` 1, `UAI_REDUCE_PAIN` 10, `UAI_ENDURANCE_AND_REDUCE_PAIN` 11 (June's switch values), `ST_ACTIVE` 6, `ST_HYPER_ACTIVE_SKILL` 13, `WST_VIGOR_ACTIVE` 2.
+- `junediverge.py --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUElsword_SwordMan.h X2Lib/X2SkillTree.h`: `allow-listed: 0`, `RESULT: PASS`; `--selftest` PASS. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+- `DEPLOY OK: X2_offline.exe is 25,960,960 B, dated 2026-11-04 14:34:22, md5 007053d95c02f9a4163bb43cc32fa1dd, equal to X2/US_SERVICE/x2.exe (2026-11-04 14:34:15); built at main 60493834 + 3 uncommitted code file(s).` X2Lib 0 errors. No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1k review` (Opus 5.5 high), then CH1m.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

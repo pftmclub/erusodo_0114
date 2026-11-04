@@ -170,7 +170,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32cf55a0	helper	-	-	inside	-	CH1h	AppendMajorParticleToDeviceList (7 names); caller AppendEffectToDeviceList 32d07060, folded, reached from 31fef520 (Arme analogue CH1h); inside: X2GUElsword_SwordMan.h:344 AppendMajorParticleToDeviceList (ch0_unmapped_identified CH1o triage)	y
 32cf5660	helper	-	-	inside	-	CH1k	InitializeElswordMinorParticleArray: called from inside the ctor 32d09490 @32d0b07b (ctor is CH1k); inside: X2GUElsword_SwordMan.h:367 InitializeElswordMinorParticleArray (ch0_unmapped_identified CH1o triage)	y
 32cf56a0	helper	-	-	inside	-	CH1h	AppendMinorParticleToDeviceList (7 names); inside: X2GUElsword_SwordMan.h:370 AppendMinorParticleToDeviceList (ch0_unmapped_identified CH1o triage)	y
-32cf5760	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32cf5760	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (CH1k: new in the class, Chung's name)	new	SpecialAttackUse	CH1k	CH1k correction: no March function of that name; Chung's name ( step 511 )	y
 32cf57f0	state-fn	ESSI_DIE_FRONT.StartFuture ESSI_RIDING_DIE.StartFuture	inside X2GUElsword_SwordMan.cpp:1333 CX2GUElsword_SwordMan::DieFrontStartFuture ; inside X2GUElsword_SwordMan.cpp:2107 CX2GUElsword_SwordMan::DieFrontStartFuture	inside	-	CH1b	2 states	y
 32cf5850	state-fn	ESSI_DIE_FRONT.EventProcess ESSI_RIDING_DIE.EventProcess	inside X2GUElsword_SwordMan.cpp:1336 CX2GUElsword_SwordMan::DieFrontEventProcess ; inside X2GUElsword_SwordMan.cpp:2110 CX2GUElsword_SwordMan::DieFrontEventProcess	inside	-	CH1b	2 states	y
 32cf5890	state-fn	ESSI_DIE_BACK.StartFuture	inside X2GUElsword_SwordMan.cpp:1342 CX2GUElsword_SwordMan::DieBackStartFuture	inside	-	CH1b	1 states	y
@@ -337,7 +337,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d009e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
 32d00be0	state-fn	ESSI_HA_ERS_SHINING_RUNE_BUSTER.EventProcess	inside X2GUElsword_SwordMan.cpp:4095 CX2GUElsword_SwordMan::ESSI_HA_ERS_Shining_Rune_Buster_EventProcess	inside	-	CH3d	1 states	n
 32d00de0	state-fn	ESSI_HA_EIS_BLADE_RAIN.EventProcess	inside X2GUElsword_SwordMan.cpp:4112 CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_EventProcess	inside	-	CH3d	1 states	n
-32d00fe0	override 0x840	?	- (name unsettled)	new	?	CH1k	base 31f3f070; name: virtual 0x840 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32d00fe0	override 0x840	SetSpecificValueByEnchant	March CX2GUElsword_SwordMan::SetSpecificValueByEnchant (CH1k correction)	inside	-	CH1k	base 31f3f070; name: virtual 0x840 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
 32d01020	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8a87c2cff	y
 32d01040	state-fn	ESSI_ESK_DASH_COMBO_ZX.EventProcess	-	new	ESSI_ESK_DASH_COMBO_ZX_EventProcess	CH1e	1 states	n
 32d014c0	state-fn	ESSI_ESK_DASH_COMBO_ZXX.EventProcess	-	new	ESSI_ESK_DASH_COMBO_ZXX_EventProcess	CH1e	1 states	n
@@ -414,15 +414,15 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d08b30	override 0x828	IsNotCommonMoveState	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3415 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	y
 32d08ba0	helper	-	-	inside	-	CH4a	LightingStepFrameMove: frame-move delegate registered by InitPassiveSkillState 32d1c560 @32d1d410 via thunk 32d26fd0; June threshold 0.5 s, March 1.0 s; inside: X2GUElsword_SwordMan.h:688 LightingStepFrameMove (ch0_unmapped_identified CH1o triage)	n
 32d08c30	override 0x628	CanRidingState	X2GUElsword_SwordMan.h:433 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	y
-32d08d20	helper	called by 32d1bd10	-	new	?	CH1k	name: called by 32d1bd10(SpecialAttackEventProcess pa)	y
+32d08d20	helper	called by 32d1bd10	-	new	IsNowStateAutoGuard	CH1k	CH1k: the four auto guard states ( 232 / 236 / 237 / 238 ), called by SpecialAttackLookup 32d1bd10	y
 32d08d70	override 0x850	?	- (name unsettled)	new	AfterImageFrameMove	CH1k	base 31fd8230; name: user vslot 0x850 (X2GUUser.h:3421): toggles the two after-images by now state 13 or 0xce	y
 32d08ec0	override 0x540	CreateMajorParticleArray	X2GUElsword_SwordMan.h:342 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
-32d09050	helper	called by 32d09270 32d09290 32d10610 32d10a00	-	new	?	CH1k	name: called by 32d09270(ShowActiveSkillCutInAndLight) 32d09290(ESSI_SA_EMK_PHOENIX_TALON.Fr) 32d10610(dead) 32d10a00(dead)	y
+32d09050	helper	ShowActiveSkillCutInAndLight	March CX2GUElsword_SwordMan::ShowActiveSkillCutInAndLight (CH1k correction)	inside	-	CH1k	name: called by 32d09270(ShowActiveSkillCutInAndLight) 32d09290(ESSI_SA_EMK_PHOENIX_TALON.Fr) 32d10610(dead) 32d10a00(dead)	y
 32d09260	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e8f7912d0081c418	n
 32d09270	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUElsword_SwordMan.h:1643 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
 32d09290	state-fn	ESSI_SA_EMK_PHOENIX_TALON.FrameMove ESSI_SA_EMK_PHOENIX_TALON_UPGRADE.FrameMove	inside X2GUElsword_SwordMan.cpp:3676 CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_FrameMove	inside	-	CH3b	2 states	y
 32d09310	state-fn	ESSI_SA_ERS_EXTREME_RUNE_BUSTER.Start	-	new	ESSI_SA_ERS_EXTREME_RUNE_BUSTER_StateStart	CH3b	1 states	y
-32d09490	helper	-	-	inside	-	CH1k	ctor: CX2GUElsword_SwordMan::CX2GUElsword_SwordMan (vtable store 32d094e4, body 32d09490-32d0b4c5); its only caller 3230f189 is outside the class; inside: X2GUElsword_SwordMan.h constructor (vtable store 32d094e4, body 32d09490-32d0b4c5); caller 3230f189 is outside the class	y
+32d09490	helper	-	-	inside	-	CH1k	ctor: CX2GUElsword_SwordMan::CX2GUElsword_SwordMan (vtable store 32d094e4, body 32d09490-32d0b4c5); its only caller 3230f189 is outside the class; inside: X2GUElsword_SwordMan.h constructor (vtable store 32d094e4, body 32d09490-32d0b4c5); caller 3230f189 is outside the class; CH1k: = March body plus the _CORE init-list members	y
 32d09720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes cd76338bd02500ff	n
 32d09f50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c789470433c733	n
 32d0b040	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 970000899ed49700	n
@@ -456,7 +456,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d0d600	helper	DeleteElswordMinorParticle	X2GUElsword_SwordMan.h DeleteElswordMinorParticle	inside	-	CH1h	CH1h corrected: name: called by 32d17e90(DeleteMinorParticle) 32d1a5d0(helper)	y
 32d0d660	helper	SetElswordMajorParticleByEnum	X2GUElsword_SwordMan.h SetElswordMajorParticleByEnum	inside	-	CH1h	CH1h: dead in June, written for its effect-alpha tag site 32d0d72d	y
 32d0d7a0	helper	SetElswordMinorParticleByEnum	X2GUElsword_SwordMan.h SetElswordMinorParticleByEnum	inside	-	CH1h	CH1h corrected: name: called by 32d1ac60(DamageReact)	y
-32d0d8e0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32d0d8e0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (CH1k: new in the class, Chung's name)	new	SpecialAttackCooldown	CH1k	CH1k correction: no March function of that name; Chung's name ( step 512 )	y
 32d0da10	state-fn	ESSI_DIE_FRONT.Start ESSI_RIDING_DIE.Start	inside X2GUElsword_SwordMan.cpp:1334 CX2GUElsword_SwordMan::DieFrontStart ; inside X2GUElsword_SwordMan.cpp:2108 CX2GUElsword_SwordMan::DieFrontStart	inside	-	CH1b	2 states	y
 32d0daa0	state-fn	ESSI_DIE_BACK.Start	inside X2GUElsword_SwordMan.cpp:1343 CX2GUElsword_SwordMan::DieBackStart	inside	-	CH1b	1 states	y
 32d0db30	state-fn	ESSI_WAIT.EventProcess	inside X2GUElsword_SwordMan.cpp:1363 CX2GUElsword_SwordMan::WaitEventProcess	inside	-	CH1a	1 states	y
@@ -551,11 +551,11 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32d1b930	state-fn	ESSI_SA_ELK_GRAND_CROSS_END.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_END_FrameMove	CH3a	1 states	n
 32d1b980	state-fn	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE.FrameMove	-	new	ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_FrameMove	CH3a	1 states	y
 32d1b9d0	helper	ApplyBuffToHarshSlayer	X2GUElsword_SwordMan.h:351 ApplyBuffToHarshSlayer	inside	-	CH1h	CH1h corrected: also called from outside the class: 32d27641; name: called by 32d27620(~CX2GUElsword_SwordMan (scal); also called from outside the class: 32d27641	y
-32d1bd10	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUElsword_SwordMan.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32d1bd10	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (CH1k: new in the class, Chung's name)	new	SpecialAttackLookup	CH1k	CH1k correction: no March function of that name; Chung's name ( step 510 )	y
 32d1c560	override 0x690	InitPassiveSkillState	X2GUElsword_SwordMan.h:459 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	y
 32d1c8b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c744244800000000	n
 32d1c9d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0074166a008d4c24	n
-32d1dbd0	helper	called by 32d1ddf0	-	new	?	CH1k	name: called by 32d1ddf0(NoStateChangeActionFrameMove)	y
+32d1dbd0	helper	ProcessEnduranceSkill	March CX2GUElsword_SwordMan::ProcessEnduranceSkill (CH1k correction)	inside	-	CH1k	name: called by 32d1ddf0(NoStateChangeActionFrameMove)	y
 32d1ddf0	override 0x80c	NoStateChangeActionFrameMove	X2GUElsword_SwordMan.h:476 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	y
 32d1e0e0	override 0x2b8	SetDamageExceptionProcess	- (CX2GUElsword_SwordMan does not declare it in March; X2GUUser.h:3084 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)	new	SetDamageExceptionProcess	CH4b	base 32045340	y
 32d1e200	state-fn	ESSI_ETK_COMBO_ZZZ.FrameMove	inside X2GUElsword_SwordMan.cpp:964 CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_FrameMove	inside	-	CH1g	1 states	y
