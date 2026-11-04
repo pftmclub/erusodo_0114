@@ -1776,7 +1776,7 @@ hyper cut-ins play June's art.
 - **Not ported, routed:** the cut-in item override `31fd8a50` -> `CX2CustomizeManager`, Stage 12 bullet (as Aisha / Eve / Chung).
 - **Hygiene:** `flagcheck JUNE_CHAR_ELSWORD_UI --worktree --files KTDXLIB/Always.h X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUUser.cpp`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS.
   `junediverge --check X2Lib/X2GUElsword_SwordMan.cpp X2Lib/X2GUUser.cpp`: RESULT: PASS. `enumscan --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
-  FLAGCHECK_RANGE_PENDING
+  Committed `935bd9de` (CH2a's hunks in `Always.h` / `X2GUElsword_SwordMan.cpp` left unstaged): `flagcheck JUNE_CHAR_ELSWORD_UI --range 935bd9de^..935bd9de`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,969,152 B, dated 2026-11-04 21:23:07, md5 29e5aa7fa84dc6a534f94a1d695578ad` (the build also carried CH2a's uncommitted edits, as the build lock allows).
   `EXESTR OK: 2 of 2` (`ELSWORD UI cut-in set`, `ELSWORD UI hyper cut-in`, wide), `EXESTR OK: 6 of 6` (the six June `HQ_CutIn_Elsword_*` names), `EXESTR OK: 6 of 6 absent` (the six March `HQ_CutIn_Elsword_{1,2,3,LK_1,RS_1,IS_1}.dds`).
 - **See it in game:** select screen: all nine March characters' names and models, then the seven Elsword classes (the lobby pose turns by class: 35 / 25 / 25 / 10 / 3 / 10 / 10; Lord Knight, Rune Slayer, Infinity Sword
