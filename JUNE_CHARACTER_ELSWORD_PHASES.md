@@ -1375,6 +1375,34 @@ No `exestr` line: `_LIVE` is off. No funcmap or `JUNE_BUGS` row.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-elsword CH1p review` (Opus 5.5 high).
 
+### CH1p - Review (2026-11-04)
+
+**Verdict: passes, no source change** (no rebuild; the deployed `8da8ac67` stands).
+- **Shared reader `31fcadd0`** (Ghidra decompile): A S D C `+0x86f7` / `fb` / `ff` / `f3` -> 0-3, `+0x872b` (oneSkill5) -> 4, T `+0x872f` -> `GetSkillSlot( 4, true )` = 9 only
+  when my unit's tree (`g_pData +0x68 +0x90`) has key 1 usable (null `g_pData` skips the expand test), then `return 1` unless the slot is expanded (`+0x2cc` UI, `+0x109`),
+  Q W E R `+0x8707` .. `+0x8713` -> 5-8. `X2GUUser.cpp:26529-26594` is that body; CH1p's only change is `UT_ELSWORD` in `bMarchSlotIndex` under `_LIVE`. Lookup `32d1bd10`
+  calls it with its index local and stores it at `+0x8ea4` (`m_iChosenSkillSlotIndex`); use `32cf5760` goes to `StateChangeBySkillSlot` `31fd32e0`.
+- **No other class gate on slot or key code in `X2GUUser.cpp`.** The remaining `UT_EVE` / `UT_CHUNG` tests are frame-sync debug text (`ReceiveFrameData` `:29316`, `:29605`),
+  the pepper run and per-class asset switches. `MarkSkillSlotUsed` (0-9) and `StateChangeBySkillSlot` (`>= 5` = B) take June's space for every caller.
+  `CountUsedSkill` / `GetPressedSkillState` / `m_sCurrentSkillKeyManager` (4 + 4) are reached only from unported classes (Add, Ara, Elesis, Chung's `#else`), never from Elsword.
+- **Guard `_LIVE` needs `_CHUNG_LIVE`: right.** The `_LIVE` line keeps `UT_CHUNG`; without the guard, Elsword on + Chung off would give Chung June's numbering while his class
+  code reads March's. `_CHUNG_LIVE` is `#define`d at `Always.h:11089`; `ARME_CORE` (the June body itself) is already required at `:11478`. A free-standing line would need a
+  four-way nest for no gain.
+- **Class side** (`cl /P` with `_LIVE`, lines from `X2GUElsword_SwordMan.cpp` only): `iPressedSkillSlotIndex` 2 (`:7460`, `:7462` into `CommonSpecialAttackEventProcess`),
+  `m_iChosenSkillSlotIndex` 5 (`:7541` = pressed, `:7561` `StateChangeBySkillSlot`, `:7579` `MarkSkillSlotUsed`, `:7603` / `:7619` the use-condition 3 / 5 restore),
+  `m_iNowSpecialAttack` 1 (`:7624` = slot + 1). No `CountUsedSkill`, `GetPressedSkillState`, `m_sCurrentSkillKeyManager`, `SAKP_`, `m_eSpecialAttackKeyPressed` or
+  `m_kSkillSlotKey` survives.
+- **`+0x8b58` sweep** (`dispsweep.py 8b58`): in `0x32cf2da0-0x32d2763f` 14 hits, all `lea ecx, [esi + 0x8b58]`, in exactly the 10 functions of the Done note, none uncarved.
+  Each address is named once: `32cf3970` / `32cf39b0` CH2a, `32cf3bd0` / `32cfa080` CH2c, `32cf3da0` / `32d11fd0` / `32cf4ec0` / `32cf4f60` CH3a, `32cf4e50` / `32cf4d70` CH3b.
+- **Hooks:** `InitWaitStateChange( "ESSI_WAIT_STATE_CHANGE" )` `:1394` and `InitBoundingStates( "ESSI_" )` `:2920` in the `.i`; `UPDOWN_CANCEL_AFTER` readers
+  `X2GUUser.cpp:16608` / `:17956` / `:23612`, 7o `:16424`, 7p `:18048`. `m_fUpDownCancelAfter` sites in the class `.i`: **18** = `ch0_checklist_rows.tsv` L420 (CH1d2 1, CH1e 10, CH1f 7).
+
+**Hygiene** (range `199e4cca^..199e4cca`, files `X2GUUser.cpp`, `Always.h`): `flagcheck JUNE_CHAR_ELSWORD_LIVE`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`,
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, RESULT FAIL only for
+`define: NOT FOUND` (`//#define`). `git diff --patience --numstat`: 3/0 `Always.h`, 5/0 `X2GUUser.cpp`. `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUUser.cpp` 0 errors, 39 / 39 warnings off / on;
+`X2GUElsword_SwordMan.cpp` 0 errors, 38 / 38; no `#error` fired. No play-test. Next: `/x2-phase char-elsword CH1q` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
