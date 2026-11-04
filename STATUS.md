@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2a | done 2026-11-04, awaiting play-test: Sword Man (1) skills, flag `_SKILL` (+ `_SKILL_DEBUG`); user plays unit 68 `SwordManT`, then "check logs" | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md`, `CH2a-review.md` |
+| CH2a | play-test passed 2026-11-05 (fixes: Rolling speed `bbc0e971`, cool time / MP `2432120b`); review ready: Sword Man (1) skills, flag `_SKILL` (+ `_SKILL_DEBUG`) | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md`, `CH2a-review.md` |
 | CH2b | blocked (CH2a review): Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Magic Knight (11) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GUElsword_SwordMan.*` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Sheath Knight (22) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
